@@ -4,42 +4,47 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Std.Internal.Http.Data.Headers
-import Std.Internal.Http.Data.Version
-import Std.Internal.Http.Data.Status
+import Init
 import Std.Sync
+import Std.Internal.Async
+import Std.Internal.Http.Encode
+import Std.Internal.Http.Data.Headers
+import Std.Internal.Http.Data.Method
+import Std.Internal.Http.Data.Version
+
+open Std Internal IO Async
 
 namespace Std
-namespace Internal
 namespace Http
 namespace Data
 
 structure ByteStream where
-  data : Channel ByteArray
-  want : IO.Ref Bool
+  data : Channel (Option ByteArray)
 
 inductive Body where
   | zero
   | bytes (data : ByteArray)
   | stream (channel : ByteStream)
+deriving Inhabited
 
 namespace Body
 
-def getContentType (body : Body) : String :=
-  match body with
-  | zero => ""
-  | .bytes _ => "application/octet-stream"
-  | .stream _ => "application/octet-stream"
-
-/-- Get content length for a body (if known) -/
+/--
+Get content length for a body (if known)
+-/
 def getContentLength (body : Body) : Option Nat :=
   match body with
   | zero => some 0
   | .bytes data => some data.size
   | .stream _ => none
 
-def withBodyHeaders (body : Body) (headers : Headers) : Headers :=
-  let headers' := headers.insert "Content-Type" (body.getContentType)
-  match body.getContentLength with
-  | some len => headers'.insert "Content-Length" (toString len)
-  | none => headers'.insert "Transfer-Encoding" "chunked"
+partial def ByteStream.recvString? (body : ByteStream) (buffer : ByteArray) : Async ByteArray := do
+  match ← await (← body.data.recv) with
+  | some bs => recvString? body (buffer ++ bs)
+  | none => pure buffer
+
+def recvString? (body : Body) : Async String :=
+  match body with
+  | .bytes body => pure (String.fromUTF8! body)
+  | .zero => pure ""
+  | .stream body => String.fromUTF8! <$> ByteStream.recvString? body .empty

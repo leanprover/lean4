@@ -11,12 +11,9 @@ import Std.Internal.Parsec.ByteArray
 open Std Internal Parsec ByteArray
 
 namespace Std
-namespace Internal
 namespace Http
 namespace V11
 namespace Parser
-
-syntax "b!" char : term
 
 def failNone (x : Option α) : Parser α :=
   if let some res := x then
@@ -25,12 +22,6 @@ def failNone (x : Option α) : Parser α :=
     fail "expected value but got none"
 
 deriving instance Repr for ByteArray
-
-macro_rules
-  | `(b!$lit) => do
-    let char := lit.getChar
-    if char.val > 255 then Lean.Macro.throwErrorAt lit "Invalid character"
-    return Lean.Syntax.mkNumLit (toString char.val)
 
 structure RequestLine where
   method : ByteArray
@@ -135,6 +126,17 @@ def parseChunkData (size : Nat) : Parser ByteArray := do
   let res ← take size
   skipBytes "\r\n".toUTF8
   return res
+
+def parseTrailerHeader : Parser (Option Header) := do
+  if (← optional (skipBytes "\r\n".toUTF8)).isSome then
+    return none
+  else
+    let name ← takeUntil (· == ':'.toUInt8)
+    skipByte ':'.toUInt8
+    skipWhile (· == ' '.toUInt8)
+    let value ← takeUntil (· == '\r'.toUInt8)
+    skipBytes "\r\n".toUTF8
+    return some ⟨← failNone (String.fromUTF8? name), ← failNone (String.fromUTF8? value)⟩
 
 def parseFixedBody (size : Nat)  : Parser ByteArray :=
   take size

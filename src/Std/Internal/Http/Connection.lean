@@ -1,122 +1,226 @@
 /-
-Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
+import Init
+import Std.Internal.Async.TCP
+import Std.Internal.Http.V11.Machine
+import Std.Internal.Http.Data.Body
 import Std.Internal.Http.Data.Request
 import Std.Internal.Http.Data.Response
-import Std.Internal.Http.Data.Body
-import Std.Internal.Http.V11.Machine
-import Std.Internal.Async.TCP
 
-open Std Internal IO Async
+open Std Internal IO Async TCP
 open Std Http V11
-open Std Internal Http Data
+open Std Http Data
 
 namespace Std
 namespace Http
 
-structure TcpConnection where
-  client : TCP.Socket.Client
-  conn : Connection
+set_option linter.all true
 
-def justify (s : String) (option : Option α) : Except String α :=
-  match option with
-  | .some res => .ok res
-  | none => .error s
+/--
+The connection object that carries a socket and the machine
+-/
+structure Connection where
+  /--
+  The client socket
+  -/
+  socket : Socket.Client
 
-def buildRequest (conn : Connection) : Except String Request := do
-  let requestLine := conn.requestLine
-  let headers := conn.headers
-  -- Build request from parsed data
-  .ok {
-    method := (← (justify "cannot parse method" <| Method.fromString? =<< String.fromUTF8? conn.requestLine.method)),
-    uri := (← (justify "cannot parse uri" <| String.fromUTF8? requestLine.uri)),
-    version := (← justify "cannot parse version" <| Version.fromNumber? (requestLine.major.toNat - 48) (requestLine.minor.toNat - 48)),
-    headers := headers,
-    body := .zero
-  }
+  /--
+  The state machine
+  -/
+  machine : Machine .request
 
-def processEvents (events : Array Event) (bodyData : ByteArray := ByteArray.emptyWithCapacity 4096) : ByteArray × Bool × Option String :=
-  events.foldl (fun (body, ready, error) event =>
-    match event with
-    | .gotData data => (body ++ data, ready, error)
-    | .readyToRespond => (body, true, error)
-    | .failed msg => (body, ready, some msg)
-    | _ => (body, ready, error)
-  ) (bodyData, false, none)
+namespace Connection
 
-def processRequest (conn : Connection) (handler : Request → Async Response) : Async (Except String Response) := do
-  match buildRequest conn with
-  | .ok request =>
-    let (bodyData, _, _) := processEvents conn.events
-    let requestWithBody := { request with body := .bytes bodyData }
-    .ok <$> handler requestWithBody
-  | .error e => return .error e
+-- TODO : Guard type for IO.Promise
+-- TODO : Convert all the types of the Async itnerfaces to Async
+-- TODO : Easync.ofTask type is wrong.
+-- TODO : exception on while probasbly creates a promise not resolved error?
 
-partial def receive (x : TcpConnection) (handler : Request → Async Response) : Async Unit := do
-  IO.println "receiving message"
+private def handleResponse (connection : Connection) (response : Response Body) : Async Connection := do
+  match response.body with
+  | .zero =>
+    pure { connection with machine := connection.machine.close }
+  | .bytes bytes =>
+    pure { connection with machine := connection.machine.writeData bytes |>.close }
+  | .stream st => do
+    match ← await (← st.data.recv) with
+    | some data =>
+      pure { connection with machine := connection.machine.writeData data }
+    | none =>
+      pure { connection with machine := connection.machine.close }
 
-  let some message ← await (← x.client.recv? 4096)
-    | do
-      IO.println "connection closed by client"
-      return
+private def receiveData (socket : Socket.Client) : Async ByteArray := do
+  try
+    let some data ← await (← socket.recv? 4096) | pure .empty
+    pure data
+  catch err =>
+    IO.println s!"Network error: {err}"
+    pure .empty
 
-  let conn := x.conn.feed message
-  let events := conn.getEvents
-
-  let (bodyData, isReady, errorMsg) := processEvents events
-
-  match errorMsg with
-  | some err =>
-    IO.println s!"Error: {err} {conn.headers}"
-    return
-  | none =>
-    if isReady then
-      match ← processRequest conn handler with
-      | .ok response =>
-        let connWithResponse := conn.answer response
-        let (dataToSend, finalConn) := connWithResponse.getDataToSend
-
-        if dataToSend.size > 0 then
-          let _ ← x.client.send dataToSend
-          return
-
-        -- Check if connection should be kept alive
-        if finalConn.shouldClose then
-          IO.println "closing connection"
-          return
-        else
-          -- Reset connection for next request
-          let newConn := { finalConn with
-            state := .needRequestLine,
-            requestLine := default,
-            headers := Headers.empty,
-            events := #[]
-          }.clearEvents
-
-          background .default (receive ⟨x.client, newConn⟩ handler)
-      | .error e =>
-        IO.println s!"failed to build request: {e}"
-        return
+private def handleRequest
+  (connection : Connection)
+  (fn : Request Body → Async (Response Body))
+  (stream : ByteStream)
+  : Async (Response Body) := do
+    if let some (method, uri, version) := connection.machine.inputStatusLine then
+      fn (Request.mk method version uri connection.machine.inputHeaders (.stream stream))
     else
-      -- Continue receiving for incomplete request
-      background .default (receive ⟨x.client, conn.clearEvents⟩ handler)
+      panic! "Missing status line - Invalid state"
 
-partial def acceptLoop (server : TCP.Socket.Server) (fn : Request → Async Response) : Async Unit := do
-  IO.println "accepting"
+private def updateConnectionForClose (event : Event mode) (connection : Connection) : Connection :=
+  match event with
+  | .failed _ => { connection with machine := connection.machine.advance }
+  | .close => { connection with machine := connection.machine.close }
+  | _ => connection
 
-  let socket ← await (← server.accept)
-  IO.println "accepted"
+private def processSpecificEvent
+  (event : Event mode)
+  (connection : Connection)
+  (stream : ByteStream)
+  (fn : Request Body → Async (Response Body))
+  (response : Response Body)
+    : Async (Connection × ByteStream × Option (Response Body)) := do
+    match event with
+    | .chunkExt _ =>
+      pure (connection, stream, none)
+    | .endHeaders _ => do
+      let newStream := { data := (← Channel.new) }
+      let response ← handleRequest connection fn newStream
+      pure (connection, newStream, some response)
+    | .gotData final data => do
+      await (← stream.data.send data)
+      if final then await (← stream.data.send none)
+      pure (connection, stream, none)
+    | .needMoreData => do
+      let data ← receiveData connection.socket
+      let connection := { connection with machine := connection.machine.incomeFeed data }
+      pure (connection, stream, none)
 
-  background .default (receive ⟨socket, {}⟩ fn)
+    | .awaitingAnswer => do
+      let connection ← handleResponse connection response
+      pure (connection, stream, none)
+    | .readyToRespond => do
+      let connection := { connection with machine := connection.machine.answer response }
+      pure (connection, stream, none)
+    | .close | .next | .failed _ => do
+      await (← stream.data.send none)
+      let connection := updateConnectionForClose event connection
+      pure (connection, stream, none)
 
-  acceptLoop server fn
 
-def start (address : Net.SocketAddress) (fn : Request → Async Response) : Async Unit := do
-  let server ← TCP.Socket.Server.mk
-  server.bind address
-  server.listen 10
+-- Event processing abstraction
+private def processEvent
+  (connection : Connection)
+  (stream : ByteStream)
+  (fn : Request Body → Async (Response Body))
+  : Async (Connection × ByteStream × Option (Response Body)) := do
+    match connection.machine.event with
+    | some event => processSpecificEvent event connection stream fn default
+    | none => pure (connection, stream, none)
 
-  acceptLoop server fn
+/--
+Starts to process the socket in the machine.
+-/
+private partial def start (connection : Connection) (fn : Request Body → Async (Response Body)) : Async Unit := do
+  let mut connection := connection
+
+  let mut stream : ByteStream := { data := (← Channel.new) }
+  let mut response : Response Body := Inhabited.default
+
+  while true do
+    match connection.machine.event with
+    | some event =>
+      match event with
+      | .chunkExt _ =>
+        pure ()
+      | .endHeaders _ =>
+        stream := { data := (← Channel.new) }
+
+        if let some (method, uri, version) := connection.machine.inputStatusLine then
+          response ← fn (Request.mk method version uri connection.machine.inputHeaders (.stream stream))
+        else
+          panic! "shoujndt happend"
+      | .gotData final data =>
+        await (← stream.data.send data)
+
+        if final then
+          await (← stream.data.send none)
+
+      | .needMoreData =>
+
+        let data ← do
+          try
+            let some data ← await (← connection.socket.recv? 8096)
+              | break
+            pure data
+          catch err =>
+            IO.println s!"err: {err}"
+            pure .empty
+
+        if .empty == data then
+          break
+
+        connection := { connection with machine := connection.machine.incomeFeed data }
+      | .awaitingAnswer =>
+        match response.body with
+        | .zero =>
+          connection := { connection with machine := connection.machine |>.close }
+          break
+        | .bytes bytes =>
+          connection := { connection with machine := connection.machine.writeData bytes |>.close }
+          break
+        | .stream st =>
+          match ← await (← st.data.recv) with
+          | some data =>
+            connection := { connection with machine := connection.machine.writeData data }
+          | none =>
+            connection := { connection with machine := connection.machine.close }
+            break
+      | .readyToRespond =>
+         connection := { connection with machine := connection.machine.answer response }
+      | .close =>
+        await (← stream.data.send none)
+        break
+      | .next =>
+        await (← stream.data.send none)
+        pure ()
+      | .failed _ =>
+        await (← stream.data.send none)
+        connection := { connection with machine := connection.machine.advance }
+        break
+    | none => pure ()
+
+    connection := { connection with machine := connection.machine.resetEvent.advance }
+
+    if connection.machine.needsFlush then
+      let (machine, ba) := connection.machine.flush
+      await (← connection.socket.send ba)
+      connection := { connection with machine }
+
+  let (_, ba) := connection.machine.flush
+
+  if ba.size > 0 then
+    await (← connection.socket.send ba)
+
+/--
+
+-/
+def serve (addr : Net.SocketAddress) (fn : Request Body → Async (Response Body)) : Async Unit := do
+  let socket ← Socket.Server.mk
+  socket.bind addr
+
+  socket.listen 12
+
+  while true do
+    let clientTask ← socket.accept
+    let client ← await clientTask
+
+    let conn := Connection.mk client {}
+    background .default (start conn fn)
+
+end Connection

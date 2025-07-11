@@ -4,11 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
+import Init
 import Std.Data
+import Std.Internal.Http.Encode
+
 open Std
 
 namespace Std
-namespace Internal
 namespace Http
 namespace Data
 
@@ -17,7 +19,7 @@ A structure for managing HTTP headers as key-value pairs.
 -/
 structure Headers where
   data : HashMap String (String × String)
-deriving Repr
+deriving Repr, Inhabited
 
 namespace Headers
 
@@ -53,6 +55,9 @@ instance : ToString Headers where
   toString headers :=
     let pairs := headers.data.toList.map (fun (_, (k, v)) => s!"{k}: {v}")
     String.intercalate "\r\n" pairs
+
+instance : Encode .v11 Headers where
+  encode buffer := buffer.writeString ∘ toString
 
 /--
 Creates empty headers.

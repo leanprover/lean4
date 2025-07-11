@@ -5,9 +5,9 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Init.Data
+import Std.Internal.Http.Encode
 
 namespace Std
-namespace Internal
 namespace Http
 namespace Data
 
@@ -28,8 +28,6 @@ inductive Method where
   | patch
   deriving Repr, Inhabited, BEq
 
-namespace Method
-
 instance : ToString Method where
   toString
     | .get => "GET"
@@ -42,6 +40,14 @@ instance : ToString Method where
     | .trace => "TRACE"
     | .patch => "PATCH"
 
+instance : Encode .v11 Method where
+  encode buffer := buffer.writeString ∘ toString
+
+namespace Method
+
+/--
+Converts a `String` into a `Method`.
+-/
 def fromString? : String → Option Method
   | "GET" => some .get
   | "HEAD" => some .head
@@ -80,12 +86,11 @@ request bodies.
 
 * Reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods
 -/
-def allowsRequestBody : Method → Bool
+def allowsRequestBody : Method → Prop
   | .get | .head => False
   | _ => True
 
 end Method
 end Data
 end Http
-end Internal
 end Std

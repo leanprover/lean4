@@ -4,12 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Init.Data
+import Init
 
 namespace Std
-namespace Internal
 namespace Http
 namespace Data
+
+set_option linter.all true
 
 /--
 The 'Version' structure represents an HTTP version with a major and minor number. It includes
@@ -19,10 +20,29 @@ HTTP/3.0.
 * Reference: https://httpwg.org/specs/rfc9110.html#protocol.version
 -/
 inductive Version
+
+  /--
+  `HTTP/1.1`
+  -/
   | v11
+
+  /--
+  `HTTP/2.0`
+  -/
   | v20
+
+  /--
+  `HTTP/3.0`
+  -/
   | v30
+
 deriving Repr, Inhabited, BEq, DecidableEq
+
+instance : ToString Version where
+  toString
+    | .v11 => "HTTP/1.1"
+    | .v20 => "HTTP/2.0"
+    | .v30 => "HTTP/3.0"
 
 namespace Version
 
@@ -36,27 +56,18 @@ def fromNumber? : Nat → Nat → Option Version
   | _, _ => none
 
 /--
-Converts a `Version` to its corresponding major and minor numbers as a pair.
+Converts `String` to the corresponding `Version`.
 -/
-def toNumber : Version → (Nat × Nat)
-  | .v11 => (1, 1)
-  | .v20 => (2, 0)
-  | .v30 => (3, 0)
-
 def fromString? : String → Option Version
   | "HTTP/1.1" => some .v11
   | "HTTP/2.0" => some .v20
   | "HTTP/3.0" => some .v30
   | _ => none
 
-instance : ToString Version where
-  toString
-    | .v11 => "HTTP/1.1"
-    | .v20 => "HTTP/2.0"
-    | .v30 => "HTTP/3.0"
-
-end Version
-end Data
-end Http
-end Internal
-end Std
+/--
+Converts a `Version` to its corresponding major and minor numbers as a pair.
+-/
+def toNumber : Version → (Nat × Nat)
+  | .v11 => (1, 1)
+  | .v20 => (2, 0)
+  | .v30 => (3, 0)

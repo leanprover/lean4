@@ -4,35 +4,27 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
+import Init
+import Std.Internal.Http.Encode
 import Std.Internal.Http.Data.Headers
-import Std.Internal.Http.Data.Version
 import Std.Internal.Http.Data.Method
-import Std.Internal.Http.Data.Body
-import Std.Sync
+import Std.Internal.Http.Data.Version
 
 namespace Std
-namespace Internal
 namespace Http
 namespace Data
 
-/--
-
--/
-structure Request where
+structure Request (t : Type) where
   method : Method
   version : Version
   uri : String
   headers : Headers
-  body : Body
+  body : t
 
-instance : ToString Request where
+instance : ToString (Request t) where
   toString req :=
-    let headerString :=
-      toString req.method ++ " " ++
-      req.uri ++ " " ++
-      toString req.version ++
-      "\r\n" ++
-      toString req.headers
-    headerString ++ "\r\n\r\n"
-
-namespace Request
+    toString req.method ++ " " ++
+    req.uri ++ " " ++
+    toString req.version ++
+    "\r\n" ++
+    toString req.headers ++ "\r\n\r\n"

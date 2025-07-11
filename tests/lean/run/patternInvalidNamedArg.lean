@@ -11,7 +11,7 @@ inductive T where
 /--
 error: Invalid argument name `w` for function `T.mk2`
 
-Hint: Perhaps you meant one of the following named parameters:
+Hint: Perhaps you meant one of the following parameter names:
   • `x`: w̵x̲
 -/
 #guard_msgs in
@@ -23,7 +23,7 @@ example (t : T) :=
 /--
 error: Invalid argument name `w` for function `T.mk2`
 
-Hint: Replace `w` with a valid argument name for this function:
+Hint: Replace `w` with one of the following parameter names:
   • `x`: w̵x̲
 -/
 #guard_msgs in
@@ -42,7 +42,7 @@ example (t : T) :=
 /--
 error: Invalid argument names `n` and `s` for function `T.mk1`
 
-Hint: Replace `n` with a valid argument name for this function:
+Hint: Replace `n` with one of the following parameter names:
   • `num`: nu̲m̲
   • `str`: n̵s̲t̲r̲
 -/

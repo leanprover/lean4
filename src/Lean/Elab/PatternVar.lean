@@ -137,7 +137,7 @@ private def throwInvalidNamedArgs (ctx : Context) (h : !ctx.namedArgs.isEmpty) :
       preInfo? := some s!"`{validName}`: "
       toCodeActionTitle? := some fun s => s!"Change argument name `{firstNamedArg.name}` to `{s}`"
     }
-  let hintMsg := m!"Replace `{firstNamedArg.name}` with a valid argument name for this function:"
+  let hintMsg := m!"Replace `{firstNamedArg.name}` with one of the following parameter names:"
   let hint ← MessageData.hint (forceList := true) hintMsg suggestions
   throwError m!"Invalid argument {nameStr} {.andList names} for function `{ctx.funId}`" ++ hint
 

@@ -309,8 +309,9 @@ where
               withNewBinderInfos #[(lhss[i]!.fvarId!, .implicit)] do
                 let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[*...rhss.size]) rhss
                 let rhsBi   := if subsingletonInstImplicitRhs then .instImplicit else .implicit
-                withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName rhsBi rhsType fun rhs =>
-                  go (i+1) (rhss.push rhs) (eqs.push none) (hyps.push rhs)
+                withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName rhsBi rhsType fun rhs => do
+                  let heq ← mkAppM ``Subsingleton.elim #[lhss[i]!, rhs]
+                  go (i+1) (rhss.push rhs) (eqs.push heq) (hyps.push rhs)
         return some (← go 0 #[] #[] #[])
     catch _ =>
       return none

@@ -2,19 +2,68 @@ module
 
 prelude
 public import Init.Core
+public import Std.Classes.Ord.Basic
 public import Std.Classes.Ord.New.PartiallyComparable
 
 public section
 
 class Comparable (α : Type u) extends PartiallyComparable α, NoncomputableOrd α
 
+def Comparable.GT {α : Type u} [Comparable α] (a b : α) : Prop :=
+  open Classical.Order in
+  compare a b = .gt
+
 class ComputablyComparable (α : Type u) extends Comparable α, ComputablyPartiallyComparable α, Ord α
 
+-- TODO: This is already oriented!
 class LawfulComparable (α : Type u) [Comparable α] extends
     LawfulPartiallyComparable α where
-  eq_lt_iff_lt : ∀ (a b : α), NoncomputableOrd.compare a b = .lt ↔ LT.lt a b := by exact Iff.rfl
+  eq_lt_iff_lt : ∀ a b : α, NoncomputableOrd.compare a b = .lt ↔ LT.lt a b := by exact Iff.rfl
+  isLE_iff_le : ∀ a b : α, (NoncomputableOrd.compare a b).isLE ↔ LE.le a b := by exact Iff.rfl
+
+class LawfulOrientedComparable (α : Type u) [Comparable α] extends LawfulComparable α where
   eq_gt_iff_gt : ∀ (a b : α), NoncomputableOrd.compare a b = .gt ↔ LT.lt b a := by exact Iff.rfl
-  le_iff_not_gt : ∀ (a b : α), LT.lt a b ↔ ¬ LE.le b a
+
+theorem Comparable.compare_eq_lt_iff_lt {α : Type u} [Ord α] [Comparable α]
+    [LawfulComparable α] [LawfulOrd α] : ∀ {a b : α}, compare a b = .lt ↔ a < b := by
+  intro a b
+  simp [← LawfulOrd.compare_eq_compare, LawfulComparable.eq_lt_iff_lt]
+
+theorem Comparable.compare_eq_gt_iff_gt {α : Type u} [Ord α] [Comparable α]
+    [LawfulOrientedComparable α] [LawfulOrd α] : ∀ {a b : α}, compare a b = .gt ↔ b < a := by
+  intro a b
+  simp [← LawfulOrd.compare_eq_compare, LawfulOrientedComparable.eq_gt_iff_gt]
+
+theorem Comparable.compare_isLE {α : Type u} [Ord α] [Comparable α] [LawfulOrd α] [LawfulComparable α]
+    {a b : α} : (compare a b).isLE ↔ a ≤ b := by
+  simp [← LawfulOrd.compare_eq_compare, LawfulComparable.isLE_iff_le]
+
+theorem Comparable.compare_eq_gt {α : Type u} [Ord α] [Comparable α]
+    [LawfulOrientedComparable α] [LawfulOrd α] {a b : α} :
+    compare a b = .gt ↔ compare b a = .lt := by
+  simp [← LawfulOrd.compare_eq_compare, LawfulOrientedComparable.eq_gt_iff_gt,
+    LawfulComparable.eq_lt_iff_lt]
+
+instance (α : Type u) [Ord α] [Comparable α] [LawfulOrd α] [LawfulOrientedComparable α] :
+    Std.OrientedOrd α where
+  eq_swap := by
+    intro a b
+    cases h : compare b a
+    · simp [Comparable.compare_eq_gt, h]
+    · simp only [Ordering.swap_eq]
+      cases h' : compare a b
+      · simp_all [← Comparable.compare_eq_gt]
+      · rfl
+      · simp_all [Comparable.compare_eq_gt]
+    · simp [← Comparable.compare_eq_gt, h]
+
+instance (α : Type u) [BEq α] [Ord α] [Comparable α] [LawfulComputableBEq α] [LawfulOrd α]
+    [LawfulOrientedComparable α] :
+    Std.LawfulBEqOrd α where
+  compare_eq_iff_beq {a b} := by
+    cases h : compare a b
+    all_goals simp [PartiallyComparable.beq_iff_le_ge, ← LawfulComparable.isLE_iff_le,
+      LawfulOrd.compare_eq_compare, Std.OrientedOrd.eq_swap (a := b), h]
 
 @[expose]
 def Comparable.leOfNoncomputableOrd (α : Type u) [NoncomputableOrd α] : LE α where
@@ -113,6 +162,9 @@ abbrev ComputablyComparable.ofOrd {α : Type u} (args : OfOrdArgs α) : Computab
   toBEq := args.instBEq
   toNoncomputableBEq := args.instNoncomputableBEq
 
+abbrev Comparable.ofOrd (α : Type u) [Ord α] : Comparable α :=
+  ComputablyComparable.ofOrd {} |>.toComparable
+
 instance (α : Type u) [Ord α] :
     haveI : BLE α := Comparable.bleOfOrd α
     haveI : LE α := Comparable.leOfOrd α
@@ -135,7 +187,7 @@ def Comparable.lawful (alpha : Type u) [NoncomputableOrd alpha]
     LawfulComparable alpha :=
   letI : Comparable alpha := .ofNoncomputableOrd {}
   haveI : LawfulPartiallyComparable alpha := sorry
-  ⟨sorry, sorry, sorry⟩
+  ⟨sorry, sorry⟩
 
 def ComputablyComparable.lawful (α : Type u) [Ord α]
     (oriented : ∀ a b : α, compare a b = .lt → compare b a = .lt) :
@@ -143,7 +195,7 @@ def ComputablyComparable.lawful (α : Type u) [Ord α]
     LawfulComparable α :=
   letI : ComputablyComparable α := .ofOrd {}
   haveI : LawfulPartiallyComparable α := sorry
-  ⟨sorry, sorry, sorry⟩
+  ⟨sorry, sorry⟩
 
 -- Cmp conundrum
 -- Cmp induces Comparable, but only up to propositional equality

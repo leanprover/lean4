@@ -1007,28 +1007,28 @@ theorem getEntryLT?.eq_go [Ord α] (k : α) (x) (t : Impl α β) :
     simp only [go, Option.none_or, *]
   case _ ih _ => rw [← ih, Option.or_assoc, Option.some_or]
 
-theorem some_getEntryGE_eq_getEntryGE? [Ord α] [TransOrd α] (k : α) (t : Impl α β) {ho he} :
+theorem some_getEntryGE_eq_getEntryGE? [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) (t : Impl α β) {ho he} :
     some (getEntryGE k t ho he) = getEntryGE? k t := by
   rw [getEntryGE?]; apply of_eq_true
   induction t, none using tree_split_ind (compare k) <;>
     simp only [*, getEntryGE?.go, getEntryGE, getEntryGED, ← Option.or_some,
       getEntryGE?.eq_go] <;> contradiction
 
-theorem some_getEntryGT_eq_getEntryGT? [Ord α] [TransOrd α] (k : α) (t : Impl α β) {ho he} :
+theorem some_getEntryGT_eq_getEntryGT? [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) (t : Impl α β) {ho he} :
     some (getEntryGT k t ho he) = getEntryGT? k t := by
   rw [getEntryGT?]; apply of_eq_true
   induction t, none using tree_split_ind (compare k) <;>
     simp only [*, getEntryGT?.go, getEntryGT, getEntryGTD, ← Option.or_some,
       getEntryGT?.eq_go, ↓reduceDIte, reduceCtorEq] <;> contradiction
 
-theorem some_getEntryLE_eq_getEntryLE? [Ord α] [TransOrd α] (k : α) (t : Impl α β) {ho he} :
+theorem some_getEntryLE_eq_getEntryLE? [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) (t : Impl α β) {ho he} :
     some (getEntryLE k t ho he) = getEntryLE? k t := by
   rw [getEntryLE?]; apply of_eq_true
   induction t, none using tree_split_ind (compare k) <;>
     simp only [*, getEntryLE?.go, getEntryLE, getEntryLED, ← Option.or_some,
       getEntryLE?.eq_go] <;> contradiction
 
-theorem some_getEntryLT_eq_getEntryLT? [Ord α] [TransOrd α] (k : α) (t : Impl α β) {ho he} :
+theorem some_getEntryLT_eq_getEntryLT? [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) (t : Impl α β) {ho he} :
     some (getEntryLT k t ho he) = getEntryLT? k t := by
   rw [getEntryLT?]; apply of_eq_true
   induction t, none using tree_split_ind (compare k) <;>
@@ -1083,14 +1083,14 @@ theorem getKeyLED_eq_getD_getKeyLE? [Ord α] {t : Impl α β} {k fallback : α} 
 theorem getKeyLTD_eq_getD_getKeyLT? [Ord α] {t : Impl α β} {k fallback : α} :
     t.getKeyLTD k fallback = (t.getKeyLT? k).getD fallback := rfl
 
-theorem getKeyGE_eq_getEntryGE [Ord α] [TransOrd α] {t : Impl α β} {k : α} {hto he} :
+theorem getKeyGE_eq_getEntryGE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] {t : Impl α β} {k : α} {hto he} :
     getKeyGE k t hto he = (getEntryGE k t hto he).1 := by
   induction t using tree_split_ind_no_gen (compare k) <;> simp only [getKeyGE, getEntryGE, *]
   · contradiction
   · rw [getKeyGED, getEntryGED, getKeyGE?_eq_getEntryGE?]; symm
     exact (Option.getD_map _ _ _).symm
 
-theorem getKeyGT_eq_getEntryGT [Ord α] [TransOrd α] {t : Impl α β} {k : α} {hto he} :
+theorem getKeyGT_eq_getEntryGT [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] {t : Impl α β} {k : α} {hto he} :
     getKeyGT k t hto he = (getEntryGT k t hto he).1 := by
   induction t using tree_split_ind_no_gen (compare k) <;>
     simp only [getKeyGT, getEntryGT, *, ↓reduceDIte, reduceCtorEq]
@@ -1098,14 +1098,14 @@ theorem getKeyGT_eq_getEntryGT [Ord α] [TransOrd α] {t : Impl α β} {k : α} 
   · rw [getKeyGTD, getEntryGTD, getKeyGT?_eq_getEntryGT?]; symm
     exact (Option.getD_map _ _ _).symm
 
-theorem getKeyLE_eq_getEntryLE [Ord α] [TransOrd α] {t : Impl α β} {k : α} {hto he} :
+theorem getKeyLE_eq_getEntryLE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] {t : Impl α β} {k : α} {hto he} :
     getKeyLE k t hto he = (getEntryLE k t hto he).1 := by
   induction t using tree_split_ind_no_gen (compare k) <;> simp only [getKeyLE, getEntryLE, *]
   · contradiction
   · rw [getKeyLED, getEntryLED, getKeyLE?_eq_getEntryLE?]; symm
     exact (Option.getD_map _ _ _).symm
 
-theorem getKeyLT_eq_getEntryLT [Ord α] [TransOrd α] {t : Impl α β} {k : α} {hto he} :
+theorem getKeyLT_eq_getEntryLT [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] {t : Impl α β} {k : α} {hto he} :
     getKeyLT k t hto he = (getEntryLT k t hto he).1 := by
   induction t using tree_split_ind_no_gen (compare k) <;>
     simp only [getKeyLT, getEntryLT, *, ↓reduceDIte, reduceCtorEq]
@@ -1181,7 +1181,7 @@ theorem getEntryLED_eq_getD_getEntryLE? [Ord α] {t : Impl α fun _ => β} {k : 
 theorem getEntryLTD_eq_getD_getEntryLT? [Ord α] {t : Impl α fun _ => β} {k : α} {fallback : α × β} :
     getEntryLTD k t fallback = (getEntryLT? k t).getD fallback := rfl
 
-theorem getEntryGE_eq [Ord α] [TransOrd α] {t : Impl α fun _ => β} (hto : t.Ordered) {k : α} (he) :
+theorem getEntryGE_eq [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] {t : Impl α fun _ => β} (hto : t.Ordered) {k : α} (he) :
     getEntryGE k t hto he = (letI e := Impl.getEntryGE k t hto he; (e.1, e.2)) := by
   induction t using tree_split_ind_no_gen (compare k) <;> simp only [getEntryGE, Impl.getEntryGE, *]
   · contradiction
@@ -1189,7 +1189,7 @@ theorem getEntryGE_eq [Ord α] [TransOrd α] {t : Impl α fun _ => β} (hto : t.
     rw [getEntryGED, Impl.getEntryGED, getEntryGE?_eq_map]
     exact Option.getD_map (fun x => (x.1, x.2)) ⟨_, _⟩ (Impl.getEntryGE? k l)
 
-theorem getEntryGT_eq [Ord α] [TransOrd α] {t : Impl α fun _ => β} (hto : t.Ordered) {k : α} (he) :
+theorem getEntryGT_eq [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] {t : Impl α fun _ => β} (hto : t.Ordered) {k : α} (he) :
     getEntryGT k t hto he = (letI e := Impl.getEntryGT k t hto he; (e.1, e.2)) := by
   induction t using tree_split_ind_no_gen (compare k) <;>
     simp only [getEntryGT, Impl.getEntryGT, *, ↓reduceDIte, reduceCtorEq]
@@ -1198,7 +1198,7 @@ theorem getEntryGT_eq [Ord α] [TransOrd α] {t : Impl α fun _ => β} (hto : t.
     rw [getEntryGTD, Impl.getEntryGTD, getEntryGT?_eq_map]
     exact Option.getD_map (fun x => (x.1, x.2)) ⟨_, _⟩ (Impl.getEntryGT? k l)
 
-theorem getEntryLE_eq [Ord α] [TransOrd α] {t : Impl α fun _ => β} (hto : t.Ordered) {k : α} (he) :
+theorem getEntryLE_eq [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] {t : Impl α fun _ => β} (hto : t.Ordered) {k : α} (he) :
     getEntryLE k t hto he = (letI e := Impl.getEntryLE k t hto he; (e.1, e.2)) := by
   induction t using tree_split_ind_no_gen (compare k) <;> simp only [getEntryLE, Impl.getEntryLE, *]
   · contradiction
@@ -1206,7 +1206,7 @@ theorem getEntryLE_eq [Ord α] [TransOrd α] {t : Impl α fun _ => β} (hto : t.
     rw [getEntryLED, Impl.getEntryLED, getEntryLE?_eq_map]
     exact Option.getD_map (fun x => (x.1, x.2)) ⟨_, _⟩ (Impl.getEntryLE? k r)
 
-theorem getEntryLT_eq [Ord α] [TransOrd α] {t : Impl α fun _ => β} (hto : t.Ordered) {k : α} (he) :
+theorem getEntryLT_eq [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] {t : Impl α fun _ => β} (hto : t.Ordered) {k : α} (he) :
     getEntryLT k t hto he = (letI e := Impl.getEntryLT k t hto he; (e.1, e.2)) := by
   induction t using tree_split_ind_no_gen (compare k) <;>
     simp only [getEntryLT, Impl.getEntryLT, *, ↓reduceDIte, reduceCtorEq]

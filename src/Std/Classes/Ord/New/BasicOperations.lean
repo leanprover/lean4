@@ -101,30 +101,33 @@ One might consider using `HasEquiv.{u, 0}` instead of `NoncomputableBEq`.
 -/
 
 class NoncomputableBEq (α : Type u) where
-  noncomputableBEq : Noncomputable (BEq α)
+  IsEq : α → α → Prop
 
+@[expose]
 def NoncomputableBEq.ofRel (P : α → α → Prop) : NoncomputableBEq α where
-  noncomputableBEq :=
-    .noncomp (fun i => open Classical in i = ⟨fun a b => decide (P a b)⟩) ⟨⟨_, rfl⟩⟩
+  IsEq := P
 
 def NoncomputableBEq.ofComputable {α : Type u} [BEq α] : NoncomputableBEq α where
-  noncomputableBEq := .comp inferInstance
+  IsEq a b := a == b
 
 -- sadly, the canonical name is already taken
-class LawfulComputableBEq (α : Type u) [ni : NoncomputableBEq α] [ci : BEq α] where
-  eq : ni.noncomputableBEq.inst = ci
+class LawfulComputableBEq (α : Type u) [NoncomputableBEq α] [BEq α] where
+  isEq_iff_beq : ∀ a b : α, NoncomputableBEq.IsEq a b ↔ a == b
+
+noncomputable def BEq.ofNoncomputable {α : Type u} [NoncomputableBEq α] : BEq α where
+  beq a b := open scoped Classical in decide (NoncomputableBEq.IsEq a b)
 
 instance {α : Type u} [NoncomputableBEq α] :
-    haveI : BEq α := NoncomputableBEq.noncomputableBEq.inst
+    haveI : BEq α := .ofNoncomputable
     LawfulComputableBEq α :=
-  letI : BEq α := NoncomputableBEq.noncomputableBEq.inst
-  ⟨rfl⟩
+  letI : BEq α := .ofNoncomputable
+  ⟨fun _ _ => by simp [BEq.ofNoncomputable]⟩
 
 instance [BEq α] :
     haveI : NoncomputableBEq α := NoncomputableBEq.ofComputable
     LawfulComputableBEq α :=
   letI : NoncomputableBEq α := NoncomputableBEq.ofComputable
-  ⟨by simp [NoncomputableBEq.ofComputable, Noncomputable.inst]⟩
+  ⟨by simp [NoncomputableBEq.ofComputable]⟩
 
 end BEq
 
@@ -134,6 +137,12 @@ noncomputable section
 
 scoped instance (priority := low) ordOfNoncomputableOrd [NoncomputableOrd α] : Ord α :=
   NoncomputableOrd.noncomputableOrd.inst
+
+structure WithClassical (α : Type u) where
+  inner : α
+
+instance {α : Type u} [NoncomputableOrd α] : Ord (WithClassical α) where
+  compare a b := NoncomputableOrd.compare a.inner b.inner
 
 end
 

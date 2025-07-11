@@ -15,5 +15,5 @@ instance : ComputablyComparable Nat := .ofOrd {}
 instance : LawfulComparable Nat where
   lt_iff_le_not_ge a b := by omega
   eq_lt_iff_lt a b := sorry
-  eq_gt_iff_gt a b := sorry
-  le_iff_not_gt a b := sorry
+  isLE_iff_le := sorry
+  beq_iff_le_ge := sorry

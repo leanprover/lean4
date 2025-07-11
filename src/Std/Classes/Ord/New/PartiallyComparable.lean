@@ -14,6 +14,8 @@ class ComputablyPartiallyComparable α extends PartiallyComparable α, BLE α, B
 
 class LawfulPartiallyComparable (α : Type u) [PartiallyComparable α] where
     lt_iff_le_not_ge : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by exact fun _ _ => Iff.rfl
+    beq_iff_le_ge : ∀ a b : α, NoncomputableBEq.IsEq a b ↔ a ≤ b ∧ b ≤ a := by
+      exact fun _ _ => Iff.rfl
 
 structure PartiallyComparable.OfLEArgs (α : Type u) where
   instLE : LE α := by
@@ -74,7 +76,7 @@ instance PartiallyComparable.lawful [LE α] :
     haveI : PartiallyComparable α := .ofLE {}
     LawfulPartiallyComparable α :=
   letI : PartiallyComparable α := .ofLE {}
-  {}
+  { beq_iff_le_ge := by intro a b; simp [NoncomputableBEq.ofRel, PartiallyComparable.ofLE] }
 
 instance (α : Type u) [BLE α] :
     haveI : BLT α := PartiallyComparable.bltOfBLE α
@@ -92,5 +94,13 @@ instance (α : Type u) [BLE α] :
   letI : LT α := PartiallyComparable.ltOfBLE α
   ⟨fun a b => by simp [PartiallyComparable.ltOfBLE, PartiallyComparable.bltOfBLE]⟩
 
--- use like this:
--- instance (α : Type u) [BLE α] : ComputablyPartiallyComparable α := .ofBLE {}
+theorem PartiallyComparable.beq_iff_le_ge {α : Type u} [BEq α] [PartiallyComparable α]
+    [LawfulComputableBEq α] [LawfulPartiallyComparable α] {a b : α} :
+    a == b ↔ a ≤ b ∧ b ≤ a := by
+  simp [← LawfulComputableBEq.isEq_iff_beq, LawfulPartiallyComparable.beq_iff_le_ge]
+
+theorem PartiallyComparable.beq_eq_false_of_lt {α : Type u} [BEq α] [PartiallyComparable α]
+    [LawfulComputableBEq α] [LawfulPartiallyComparable α] {a b : α} (h : a < b) :
+    (a == b) = false := by
+  rw [LawfulPartiallyComparable.lt_iff_le_not_ge] at h
+  simp [← Bool.not_eq_true, beq_iff_le_ge, h]

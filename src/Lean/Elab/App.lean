@@ -43,7 +43,7 @@ def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) (validNames :
     if validNames.size > 0 then
       -- `namedArg.ref` is of the form: atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
       let span? := namedArg.ref[1]
-      if span?.getInfo? matches some (.original ..) then
+      if span?.getHeadInfo matches .original .. then
         MessageData.hint (forceList := true) "Perhaps you meant one of the following named parameters:" <|
           validNames.map fun name =>
             { suggestion := .string name.toString

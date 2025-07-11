@@ -149,8 +149,6 @@ example (p : Prop) (x : Nat) : (x = x → p) → p := by
   conv =>
     lhs
     simp
-  intros
-  assumption
 
 example : (fun x => 0 + x) = id := by
   conv =>
@@ -169,7 +167,6 @@ example (p : Prop) (x : Nat) : (x = x → p) → p := by
   conv =>
     lhs
     simp
-  intros; assumption
 
 example (x y : Nat) (f : Nat → Nat → Nat) (g : Nat → Nat) (h₁ : ∀ z, f z z = z) (h₂ : ∀ x y, f (g x) (g y) = y) : f (g (0 + y)) (f (g x) (g (0 + x))) = x := by
   conv =>

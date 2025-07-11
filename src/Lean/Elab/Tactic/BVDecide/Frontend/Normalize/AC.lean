@@ -232,7 +232,12 @@ def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Op) : VarStateM (Opti
       | some acc => some <| mkApp2 op.toExpr acc expr
   return acc
 
-open VarStateM Lean.Meta Lean.Elab Term
+open VarStateM Lean.Meta Lean.Elab Term Grind
+
+#check Grind.Arith.CommRing.check
+#check Grind.solve
+#check Grind.main
+
 
 /--
 Given two expressions `x, y` which are equal up to associativity and commutativity,
@@ -244,11 +249,23 @@ def proveEqualityByGrindCommRing (x y : Expr) : MetaM Expr := do
   let expectedType ← mkEq x y
   let mvar ← mkFreshExprMVar expectedType
   let config := {}
-  let result ← Grind.main mvar.mvarId! (← Grind.mkParams config) (pure ())
-  if let .some g := result.failure? then
-    throwError "grind failed with leftover goal: {indentD (← g.ppState)}"
-  else
-    instantiateMVars mvar
+  let params ← Grind.mkParams config
+  let grindComputation : GrindM Unit := do
+    -- | TODO: get params from GrindM
+    let goal ← Grind.mkGoal mvar.mvarId! params
+    let success? ← Grind.Arith.CommRing.check.run goal
+    return ()
+  -- let go : Grind.GrindM Grind.Result := withReducible do
+  --   let goal       ← initCore mvarId params
+  --   let failure?   ← solve goal
+  --   let issues     := (← get).issues
+  -- let result ← Grind.main mvar.mvarId! (← Grind.mkParams config) (pure ())
+  let result ← grindComputation.run params (pure ())
+  -- if let .some g := result.failure? then
+  --   throwError "grind failed with leftover goal: {indentD (← g.ppState)}"
+  -- else
+  --   instantiateMVars mvar
+  instantiateMVars mvar
 
 
 /--

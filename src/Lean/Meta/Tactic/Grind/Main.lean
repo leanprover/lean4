@@ -99,7 +99,7 @@ private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State
     used := used.insert localDecl.userName
   return { used }
 
-private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
+protected def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let mvarId ← if params.config.clean then mvarId.exposeNames else pure mvarId
   let trueExpr ← getTrueExpr
   let falseExpr ← getFalseExpr
@@ -201,7 +201,7 @@ private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
   appendTagSuffix mvarId `grind
-  mkGoal mvarId params
+  Grind.mkGoal mvarId params
 
 def main (mvarId : MVarId) (params : Params) (fallback : Fallback) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
   if debug.terminalTacticsAsSorry.get (← getOptions) then

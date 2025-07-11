@@ -634,10 +634,6 @@ def inputsFileIn (cache : Cache) (self : Package) : FilePath :=
   let pkgName := self.name.toString (escape := false)
   cache.inputsFile pkgName
 
-instance : Std.LawfulEqCmp Name.quickCmp where
-  compare_self := sorry
-  eq_of_compare := sorry
-
 /-- Try to find a target configuration in the package with the given name. -/
 def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=
   self.targetDeclMap.get? name

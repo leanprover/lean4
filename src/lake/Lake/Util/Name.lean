@@ -87,6 +87,10 @@ instance : LawfulCmpEq Name Name.quickCmp where
   eq_of_cmp := eq_of_quickCmp
   cmp_rfl := quickCmp_rfl
 
+instance : Std.LawfulEqCmp Name.quickCmp where
+  eq_of_compare := eq_of_quickCmp
+  compare_self := quickCmp_rfl
+
 open Syntax in
 def quoteFrom (ref : Syntax) (n : Name) (canonical := false) : Term :=
   let ref := ref.setHeadInfo (SourceInfo.fromRef ref canonical)

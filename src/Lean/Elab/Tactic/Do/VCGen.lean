@@ -361,8 +361,9 @@ where
         try
           let specThm ← findSpec ctx.specThms wp
           trace[Elab.Tactic.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
-          let (prf, specHoles) ← withDefault <| mSpec goal (fun _wp  => return specThm) name
-          assignMVars specHoles
+          let (prf, specHoles) ← withDefault <| collectFreshMVars <|
+            mSpec goal (fun _wp  => return specThm) name
+          assignMVars specHoles.toList
           return prf
         catch ex =>
           trace[Elab.Tactic.Do.vcgen] "Failed to find spec. Trying simp. Reason: {ex.toMessageData}"

@@ -178,9 +178,11 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       let irArgs := irArgs.extract (start := ctorVal.numParams)
       let objArgs : Array Arg ← do
         let mut result : Array Arg := #[]
-        for i in *...fields.size do
-          if fields[i]! matches .object .. then
+        for h : i in *...fields.size do
+          match fields[i] with
+          | .object .. =>
             result := result.push irArgs[i]!
+          | .usize .. | .scalar .. | .irrelevant => pure ()
         pure result
       let objVar ← bindVar decl.fvarId
       let rec lowerNonObjectFields (_ : Unit) : M FnBody :=

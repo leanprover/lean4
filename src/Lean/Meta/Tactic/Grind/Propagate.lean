@@ -172,7 +172,8 @@ builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
 builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
   if (← isEqTrue e) then
     let_expr Eq _ a b := e | return ()
-    pushEq a b <| mkOfEqTrueCore e (← mkEqTrueProof e)
+    unless (← isEqv a b) do
+      pushEq a b <| mkOfEqTrueCore e (← mkEqTrueProof e)
   else if (← isEqFalse e) then
     let_expr Eq α lhs rhs := e | return ()
     if α.isConstOf ``Bool then

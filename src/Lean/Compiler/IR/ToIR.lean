@@ -214,36 +214,27 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
           return .vdecl var scalarType (.lit (.num ctorVal.cidx)) (← lowerCode k)
         else
           let ⟨ctorInfo, fields⟩ ← getCtorInfo name
-          let args := args.extract (start := ctorVal.numParams)
+          let irArgs := irArgs.extract (start := ctorVal.numParams)
           let objArgs : Array Arg ← do
             let mut result : Array Arg := #[]
-            for i in [0:fields.size] do
-              match args[i]! with
-              | .fvar fvarId =>
-                if let some (.var varId) := (← get).fvars[fvarId]? then
-                  if fields[i]! matches .object .. then
-                    result := result.push (.var varId)
-              | .type _ | .erased =>
-                if fields[i]! matches .object .. then
-                  result := result.push .irrelevant
+            for h : i in [:fields.size] do
+              if fields[i] matches .object .. then
+                result := result.push irArgs[i]!
             pure result
           let objVar ← bindVar decl.fvarId
           let rec lowerNonObjectFields (_ : Unit) : M FnBody :=
             let rec loop (usizeCount : Nat) (i : Nat) : M FnBody := do
-              match args[i]? with
-              | some (.fvar fvarId) =>
-                match (← get).fvars[fvarId]? with
-                | some (.var varId) =>
-                  match fields[i]! with
-                  | .usize .. =>
-                    let k ← loop (usizeCount + 1) (i + 1)
-                    return .uset objVar (ctorInfo.size + usizeCount) varId k
-                  | .scalar _ offset argType =>
-                    let k ← loop usizeCount (i + 1)
-                    return .sset objVar (ctorInfo.size + ctorInfo.usize) offset varId argType k
-                  | .object .. | .irrelevant => loop usizeCount (i + 1)
-                | _ => loop usizeCount (i + 1)
-              | some (.type _) | some .erased => loop usizeCount (i + 1)
+              match irArgs[i]? with
+              | some (.var varId) =>
+                match fields[i]! with
+                | .usize .. =>
+                  let k ← loop (usizeCount + 1) (i + 1)
+                  return .uset objVar (ctorInfo.size + usizeCount) varId k
+                | .scalar _ offset argType =>
+                  let k ← loop usizeCount (i + 1)
+                  return .sset objVar (ctorInfo.size + ctorInfo.usize) offset varId argType k
+                | .object .. | .irrelevant => loop usizeCount (i + 1)
+              | some .irrelevant => loop usizeCount (i + 1)
               | none => lowerCode k
             loop 0 0
           return .vdecl objVar .object (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())

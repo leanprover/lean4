@@ -9,7 +9,7 @@ prelude
 public import Init.Data.Iterators.Consumers.Monadic.Partial
 public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 
-public section
+public @[expose] section
 
 /-!
 # Collectors

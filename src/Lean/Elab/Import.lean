@@ -3,9 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Module
-import Lean.CoreM
+public import Lean.Parser.Module
+public import Lean.CoreM
+meta import Lean.Parser.Module
+
+public section
 
 namespace Lean.Elab
 

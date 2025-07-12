@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Time
+public import Std.Time.Time
+
+public section
 
 namespace Std
 namespace Time
@@ -16,7 +20,7 @@ set_option linter.all true
 /--
 `Ordinal` represents a bounded value for days, which ranges between 1 and 31.
 -/
-def Ordinal := Bounded.LE 1 31
+@[expose] def Ordinal := Bounded.LE 1 31
 deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
@@ -40,7 +44,7 @@ instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _
 `Offset` represents an offset in days. It is defined as an `Int` with a base unit of 86400
 (the number of seconds in a day).
 -/
-def Offset : Type := UnitVal 86400
+@[expose] def Offset : Type := UnitVal 86400
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
@@ -70,7 +74,7 @@ def ofInt (data : Int) (h : 1 ≤ data ∧ data ≤ 31) : Ordinal :=
 `OfYear` represents the day ordinal within a year, which can be bounded between 1 and 365 or 366,
 depending on whether it's a leap year.
 -/
-def OfYear (leap : Bool) := Bounded.LE 1 (.ofNat (if leap then 366 else 365))
+@[expose] def OfYear (leap : Bool) := Bounded.LE 1 (.ofNat (if leap then 366 else 365))
 
 instance : Repr (OfYear leap) where
   reprPrec r p := reprPrec r.val p

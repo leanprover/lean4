@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.Structure
-import Lean.Meta.AppBuilder
+public import Lean.AddDecl
+public import Lean.Structure
+public import Lean.Meta.AppBuilder
+
+public section
 
 /-!
 # Structure methods that require `MetaM` infrastructure

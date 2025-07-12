@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller
 -/
+module
+
 prelude
-import Lean.Util.FindExpr
-import Lean.Parser.Term
-import Lean.Meta.Structure
-import Lean.Elab.App
-import Lean.Elab.Binders
-import Lean.PrettyPrinter
+public import Lean.Util.FindExpr
+meta import Lean.Parser.Term
+public import Lean.Meta.Structure
+public import Lean.Elab.App
+public import Lean.Elab.Binders
+public import Lean.PrettyPrinter
+
+public section
 
 /-!
 # Structure instance elaborator
@@ -301,10 +305,10 @@ structure StructInstView where
   sources : SourcesView
   deriving Inhabited
 
-private def formatField (field : FieldView) : Format :=
+def formatField (field : FieldView) : Format :=
   Format.joinSep field.lhs " . " ++ " := " ++ format field.val
 
-private def formatStruct : StructInstView → Format
+def formatStruct : StructInstView → Format
   | ⟨_, fields, source⟩ =>
     let fieldsFmt := Format.joinSep (fields.toList.map formatField) ", "
     let implicitFmt := if source.implicit.isSome then " .. " else ""
@@ -487,14 +491,14 @@ private structure ExpandedField where
 
 private def ExpandedField.isNested (f : ExpandedField) : Bool := f.val matches .nested ..
 
-instance : ToMessageData ExpandedFieldVal where
+private instance : ToMessageData ExpandedFieldVal where
   toMessageData
     | .term stx => m!"term {stx}"
     | .proj fvarId stx parentStructName _ => m!"proj {Expr.fvar fvarId} {.ofConstName parentStructName}{indentD stx}"
     | .source fvar => m!"source {fvar}"
     | .nested fieldViews sources => m!"nested {MessageData.joinSep (sources.map (·.stx)).toList ", "} {MessageData.joinSep (fieldViews.map (indentD <| toMessageData ·)).toList "\n"}"
 
-instance : ToMessageData ExpandedField where
+private instance : ToMessageData ExpandedField where
   toMessageData field := m!"field '{field.name}' is {field.val}"
 
 abbrev ExpandedFields := NameMap ExpandedField

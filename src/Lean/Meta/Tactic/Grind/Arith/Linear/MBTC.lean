@@ -3,11 +3,15 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Canon
-import Lean.Meta.Tactic.Grind.MBTC
-import Lean.Meta.Tactic.Grind.Arith.Linear.Model
-import Lean.Meta.Tactic.Grind.Arith.Linear.PropagateEq
+public import Lean.Meta.Tactic.Grind.Canon
+public import Lean.Meta.Tactic.Grind.MBTC
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Model
+public import Lean.Meta.Tactic.Grind.Arith.Linear.PropagateEq
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 

@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Std.Do.WP
-import Std.Do.SPred
+public import Std.Do.WP
+meta import Std.Do.SPred.Notation
+
+public @[expose] section
 
 /-!
 # Hoare triples
@@ -36,7 +40,7 @@ def Triple [WP m ps] {α} (x : m α) (P : Assertion ps) (Q : PostCond α ps) : P
 scoped syntax:lead (name := triple) "⦃" term "⦄ " term:lead " ⦃" term "⦄" : term
 
 @[app_unexpander Triple]
-private meta def unexpandTriple : Lean.PrettyPrinter.Unexpander
+meta def unexpandTriple : Lean.PrettyPrinter.Unexpander
   | `($_ $x $P $Q) => do
     `(⦃$(← SPred.Notation.unpack P)⦄ $x ⦃$Q⦄)
   | _ => throw ()

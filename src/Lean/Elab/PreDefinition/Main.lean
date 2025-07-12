@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.SCC
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Structural
-import Lean.Elab.PreDefinition.WF.Main
-import Lean.Elab.PreDefinition.MkInhabitant
-import Lean.Elab.PreDefinition.PartialFixpoint
+public import Lean.Util.SCC
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Structural
+public import Lean.Elab.PreDefinition.WF.Main
+public import Lean.Elab.PreDefinition.MkInhabitant
+public import Lean.Elab.PreDefinition.PartialFixpoint
+
+public section
 
 namespace Lean.Elab
 open Meta

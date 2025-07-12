@@ -4,12 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner, Marc Huisinga
 -/
+module
+
 prelude
-import Init.Data.Range
-import Init.Data.OfScientific
-import Init.Data.Hashable
-import Lean.Data.RBMap
-import Init.Data.ToString.Macro
+public import Init.Data.Range
+public import Init.Data.OfScientific
+public import Init.Data.Hashable
+public import Lean.Data.RBMap
+public import Init.Data.ToString.Macro
+
+public section
 
 namespace Lean
 
@@ -21,8 +25,8 @@ structure JsonNumber where
 
 namespace JsonNumber
 
-protected def fromNat (n : Nat) : JsonNumber := ⟨n, 0⟩
-protected def fromInt (n : Int) : JsonNumber := ⟨n, 0⟩
+@[expose] protected def fromNat (n : Nat) : JsonNumber := ⟨n, 0⟩
+@[expose] protected def fromInt (n : Int) : JsonNumber := ⟨n, 0⟩
 
 instance : Coe Nat JsonNumber := ⟨JsonNumber.fromNat⟩
 instance : Coe Int JsonNumber := ⟨JsonNumber.fromInt⟩

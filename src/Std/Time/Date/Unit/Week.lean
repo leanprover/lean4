@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Internal.Rat
-import Std.Time.Date.Unit.Day
+public import Std.Internal.Rat
+public import Std.Time.Date.Unit.Day
+
+public section
 
 namespace Std
 namespace Time
@@ -18,7 +22,7 @@ set_option linter.all true
 /--
 `Ordinal` represents a bounded value for weeks, which ranges between 1 and 53.
 -/
-def Ordinal := Bounded.LE 1 53
+@[expose] def Ordinal := Bounded.LE 1 53
 deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
@@ -42,7 +46,7 @@ instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _
 /--
 `Offset` represents an offset in weeks.
 -/
-def Offset : Type := UnitVal (86400 * 7)
+@[expose] def Offset : Type := UnitVal (86400 * 7)
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance {x y : Offset} : Decidable (x ≤ y) :=
@@ -72,7 +76,7 @@ def ofInt (data : Int) (h : 1 ≤ data ∧ data ≤ 53) : Ordinal :=
 `OfMonth` represents the number of weeks within a month. It ensures that the week is within the
 correct bounds—either 1 to 6, representing the possible weeks in a month.
 -/
-def OfMonth := Bounded.LE 1 6
+@[expose] def OfMonth := Bounded.LE 1 6
 deriving Repr, DecidableEq
 
 instance : OfNat OfMonth n := inferInstanceAs (OfNat (Bounded.LE 1 (1 + (5 : Nat))) n)

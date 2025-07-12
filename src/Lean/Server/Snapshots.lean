@@ -4,13 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.System.IO
+public import Init.System.IO
 
-import Lean.Elab.Import
-import Lean.Elab.Command
+public import Lean.Elab.Import
+public import Lean.Elab.Command
 
-import Lean.Widget.InteractiveDiagnostic
+public import Lean.Widget.InteractiveDiagnostic
+
+public section
 
 /-! One can think of this module as being a partial reimplementation
 of Lean.Elab.Frontend which also stores a snapshot of the world after

@@ -3,11 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
+module
+
 prelude
-import Init.Data.Array.Subarray.Split
-import Init.Data.Range
-import Std.Data.HashMap.Basic
-import Init.Omega
+public import Init.Data.Array.Subarray.Split
+public import Init.Data.Range
+public import Std.Data.HashMap.Basic
+public import Init.Omega
+
+public section
 
 namespace Lean.Diff
 /--
@@ -57,7 +61,7 @@ structure Histogram.Entry (α : Type u) (lsize rsize : Nat) where
   rightWF : rightCount = 0 ↔ rightIndex = none
 
 /-- A histogram for arrays maps each element to a count and, if applicable, an index.-/
-def Histogram (α : Type u) (lsize rsize : Nat) [BEq α] [Hashable α] :=
+@[expose] def Histogram (α : Type u) (lsize rsize : Nat) [BEq α] [Hashable α] :=
   Std.HashMap α (Histogram.Entry α lsize rsize)
 
 

@@ -3,10 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.Check
-import Lean.ScopedEnvExtension
+public import Lean.Meta.Basic
+public import Lean.Meta.Check
+public import Lean.ScopedEnvExtension
+
+public section
 
 namespace Lean.Meta
 
@@ -215,7 +219,7 @@ builtin_initialize
     name  := `induction_eliminator
     descr := "custom `rec`-like eliminator for the `induction` tactic"
     add   := fun declName _ attrKind => do
-      discard <| addCustomEliminator declName attrKind (induction := true) |>.run {} {}
+      discard <| addCustomEliminator declName attrKind (induction := true) |>.run default {}
   }
 
 /--
@@ -255,7 +259,7 @@ builtin_initialize
     name  := `cases_eliminator
     descr := "custom `casesOn`-like eliminator for the `cases` tactic"
     add   := fun declName _ attrKind => do
-      discard <| addCustomEliminator declName attrKind (induction := false) |>.run {} {}
+      discard <| addCustomEliminator declName attrKind (induction := false) |>.run default {}
   }
 
 /-- Gets all the eliminators defined using the `@[induction_eliminator]` and `@[cases_eliminator]` attributes. -/

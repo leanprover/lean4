@@ -3,8 +3,16 @@ Copyright (c) 2025 Robin Arnez. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robin Arnez
 -/
+module
+
 prelude
-import Std.Data.ExtDHashMap.Basic
+public import Std.Data.ExtDHashMap.Basic
+import all Std.Data.ExtDHashMap.Basic
+import all Std.Data.DHashMap.Basic
+import all Std.Data.DHashMap.Raw
+import all Std.Data.DHashMap.Internal.Defs
+
+public section
 
 /-!
 # Extensional dependent hash map lemmas
@@ -106,7 +114,7 @@ theorem contains_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β 
 theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} : k ∈ m.insert k v := by simp
 
 @[simp, grind =]
-theorem size_empty [EquivBEq α] [LawfulHashable α] : (∅ : ExtDHashMap α β).size = 0 := rfl
+theorem size_empty [EquivBEq α] [LawfulHashable α] : (∅ : ExtDHashMap α β).size = 0 := (rfl)
 
 theorem eq_empty_iff_size_eq_zero [EquivBEq α] [LawfulHashable α] : m = ∅ ↔ m.size = 0 :=
   isEmpty_iff.symm.trans <| m.inductionOn fun _ =>
@@ -951,11 +959,11 @@ section insertMany
 variable {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
 
 @[simp, grind =]
-theorem insertMany_nil [EquivBEq α] [LawfulHashable α] : m.insertMany [] = m := rfl
+theorem insertMany_nil [EquivBEq α] [LawfulHashable α] : m.insertMany [] = m := (rfl)
 
 @[simp, grind =]
 theorem insertMany_list_singleton [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
-    m.insertMany [⟨k, v⟩] = m.insert k v := rfl
+    m.insertMany [⟨k, v⟩] = m.insert k v := (rfl)
 
 @[grind _=_]
 theorem insertMany_cons [EquivBEq α] [LawfulHashable α]
@@ -984,7 +992,7 @@ private theorem insertMany_list_mk [EquivBEq α] [LawfulHashable α]
   | nil => rfl
   | cons x l ih =>
     rcases x with ⟨k, v⟩
-    simp only [insertMany_cons, insert, mk, Quotient.mk, ih, DHashMap.insertMany_cons]
+    simp only [insertMany_cons, insert, mk, Quotient.mk, ih, DHashMap.insertMany_cons, lift]
 
 @[elab_as_elim]
 theorem insertMany_ind [EquivBEq α] [LawfulHashable α] {motive : ExtDHashMap α β → Prop}
@@ -1215,11 +1223,11 @@ variable {ρ : Type w} [ForIn Id ρ (α × β)]
 
 @[simp, grind =]
 theorem insertMany_nil [EquivBEq α] [LawfulHashable α] : insertMany m [] = m :=
-  rfl
+  (rfl)
 
 @[simp, grind =]
 theorem insertMany_list_singleton [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
-    insertMany m [⟨k, v⟩] = m.insert k v := rfl
+    insertMany m [⟨k, v⟩] = m.insert k v := (rfl)
 
 @[grind _=_]
 theorem insertMany_cons [EquivBEq α] [LawfulHashable α] {l : List (α × β)} {p : α × β} :
@@ -1248,7 +1256,7 @@ private theorem insertMany_list_mk [EquivBEq α] [LawfulHashable α]
   | nil => rfl
   | cons x l ih =>
     rcases x with ⟨k, v⟩
-    simp only [insertMany_cons, insert, mk, Quotient.mk, ih, DHashMap.Const.insertMany_cons]
+    simp only [insertMany_cons, insert, mk, Quotient.mk, ih, DHashMap.Const.insertMany_cons, lift]
 
 @[elab_as_elim]
 theorem insertMany_ind [EquivBEq α] [LawfulHashable α] {motive : ExtDHashMap α (fun _ => β) → Prop}
@@ -1480,11 +1488,11 @@ variable {ρ : Type w} [ForIn Id ρ α]
 @[simp]
 theorem insertManyIfNewUnit_nil [EquivBEq α] [LawfulHashable α] :
     insertManyIfNewUnit m [] = m :=
-  rfl
+  (rfl)
 
 @[simp]
 theorem insertManyIfNewUnit_list_singleton [EquivBEq α] [LawfulHashable α] {k : α} :
-    insertManyIfNewUnit m [k] = m.insertIfNew k () := rfl
+    insertManyIfNewUnit m [k] = m.insertIfNew k () := (rfl)
 
 theorem insertManyIfNewUnit_cons [EquivBEq α] [LawfulHashable α] {l : List α} {k : α} :
     insertManyIfNewUnit m (k :: l) = insertManyIfNewUnit (m.insertIfNew k ()) l := by
@@ -1503,7 +1511,7 @@ private theorem insertManyIfNewUnit_list_mk [EquivBEq α] [LawfulHashable α]
   | nil => rfl
   | cons x l ih =>
     simp only [insertManyIfNewUnit_cons, insertIfNew, mk, Quotient.mk, ih,
-      DHashMap.Const.insertManyIfNewUnit_cons]
+      DHashMap.Const.insertManyIfNewUnit_cons, lift]
 
 @[elab_as_elim]
 theorem insertManyIfNewUnit_ind [EquivBEq α] [LawfulHashable α] {motive : ExtDHashMap α (fun _ => Unit) → Prop}
@@ -1701,11 +1709,11 @@ namespace ExtDHashMap
 
 @[simp, grind =]
 theorem ofList_nil [EquivBEq α] [LawfulHashable α] :
-    ofList ([] : List ((a : α) × β a)) = ∅ := rfl
+    ofList ([] : List ((a : α) × β a)) = ∅ := (rfl)
 
 @[simp, grind =]
 theorem ofList_singleton [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
-    ofList [⟨k, v⟩] = (∅ : ExtDHashMap α β).insert k v := rfl
+    ofList [⟨k, v⟩] = (∅ : ExtDHashMap α β).insert k v := (rfl)
 
 @[grind _=_]
 theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} {tl : List ((a : α) × β a)} :
@@ -1853,12 +1861,12 @@ variable {β : Type v}
 @[simp, grind =]
 theorem ofList_nil [EquivBEq α] [LawfulHashable α] :
     ofList ([] : List (α × β)) = ∅ :=
-  rfl
+  (rfl)
 
 @[simp, grind =]
 theorem ofList_singleton [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
     ofList [⟨k, v⟩] = (∅ : ExtDHashMap α (fun _ => β)).insert k v :=
-  rfl
+  (rfl)
 
 @[grind _=_]
 theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {tl : List (α × β)} :

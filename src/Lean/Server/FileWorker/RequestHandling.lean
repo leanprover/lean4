@@ -4,15 +4,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
-prelude
-import Lean.Server.FileWorker.ExampleHover
-import Lean.Server.FileWorker.InlayHints
-import Lean.Server.FileWorker.SemanticHighlighting
-import Lean.Server.FileWorker.SignatureHelp
-import Lean.Server.Completion
-import Lean.Server.References
+module
 
-import Lean.Widget.Diff
+prelude
+public import Lean.Server.FileWorker.ExampleHover
+public import Lean.Server.FileWorker.InlayHints
+public import Lean.Server.FileWorker.SemanticHighlighting
+public import Lean.Server.FileWorker.SignatureHelp
+public import Lean.Server.Completion
+public import Lean.Server.References
+meta import Lean.Parser.Module
+
+public import Lean.Widget.Diff
+
+public section
 
 namespace Lean.Server.FileWorker
 open Lsp

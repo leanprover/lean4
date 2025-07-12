@@ -3,28 +3,32 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Init.NotationExtra
-import Lean.Elab.BuiltinNotation
-import Std.Do.PostCond
-import Std.Do.Triple.Basic
+public import Init.NotationExtra
+public import Lean.Elab.BuiltinNotation
+public import Std.Do.PostCond
+public import Std.Do.Triple.Basic
+
+public section
 
 namespace Std.Do.Syntax
 
 open Lean Parser Meta Elab Term PrettyPrinter Delaborator
 
-@[builtin_term_parser] meta def «totalPostCond» := leading_parser:maxPrec
+@[builtin_term_parser] def «totalPostCond» := leading_parser:maxPrec
   ppAllowUngrouped >> "⇓" >> basicFun
 
 @[inherit_doc PostCond.total, builtin_doc, builtin_term_elab totalPostCond]
-private meta def elabTotalPostCond : TermElab
+private def elabTotalPostCond : TermElab
   | `(totalPostCond| ⇓ $xs* => $e), ty? => do
     elabTerm (← `(PostCond.total (by exact (fun $xs* => spred($e))))) ty?
      -- NB: Postponement through by exact
   | _, _ => throwUnsupportedSyntax
 
 @[builtin_delab app.Std.Do.PostCond.total]
-private meta def unexpandPostCondTotal : Delab := do
+private def unexpandPostCondTotal : Delab := do
   match ← SubExpr.withAppArg <| delab with
   | `(fun $xs* => $e) =>
     let t ← `(totalPostCond| ⇓ $xs* => $(← SPred.Notation.unpack e))
@@ -32,7 +36,7 @@ private meta def unexpandPostCondTotal : Delab := do
   | t => `($(mkIdent ``PostCond.total):term $t)
 
 @[inherit_doc Triple, builtin_doc, builtin_term_elab triple]
-private meta def elabTriple : TermElab
+private def elabTriple : TermElab
   | `(⦃$P⦄ $x ⦃$Q⦄), _ => do
     -- In a simple world, this would just be a macro expanding to
     -- `Triple $x spred($P) spred($Q)`.

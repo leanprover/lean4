@@ -3,11 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.Compiler.LCNF.Basic
-import Lean.Compiler.LCNF.LCtx
-import Lean.Compiler.LCNF.ConfigOptions
+public import Lean.CoreM
+public import Lean.Compiler.LCNF.Basic
+public import Lean.Compiler.LCNF.LCtx
+public import Lean.Compiler.LCNF.ConfigOptions
+
+public section
 
 namespace Lean.Compiler.LCNF
 /--
@@ -316,7 +320,7 @@ Add the entry `fvarId ↦ fvarId'` to the free variable substitution.
   return normLetValueImp (← getSubst) e t
 
 @[inherit_doc normExprImp]
-abbrev normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
+def normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
   normExprImp s e translator
 
 /--

@@ -3,9 +3,13 @@ Copyright (c) 2021 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Data.Array.InsertionSort
-import Lean.Meta.DiscrTree
+public import Init.Data.Array.InsertionSort
+public import Lean.Meta.DiscrTree
+
+public section
 
 namespace Lean.Meta.Ext
 

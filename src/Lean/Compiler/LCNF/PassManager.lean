@@ -3,15 +3,19 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Attributes
-import Lean.Environment
-import Lean.Meta.Basic
-import Lean.Compiler.LCNF.CompilerM
+public import Lean.Attributes
+public import Lean.Environment
+public import Lean.Meta.Basic
+public import Lean.Compiler.LCNF.CompilerM
+
+public section
 
 namespace Lean.Compiler.LCNF
 
-def Phase.toNat : Phase → Nat
+@[expose] def Phase.toNat : Phase → Nat
   | .base => 0
   | .mono => 1
 

@@ -4,12 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
 
+module
+
 prelude
-import Lean.Environment
-import Lean.Exception
-import Lean.Log
-import Lean.DocString.Extension
-import Lean.DocString.Links
+public import Lean.Environment
+public import Lean.Exception
+public import Lean.Log
+public import Lean.DocString.Extension
+public import Lean.DocString.Links
+
+public section
 
 set_option linter.missingDocs true
 

@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Server.ServerTask
-import Init.System.Promise
+public import Lean.Server.ServerTask
+public import Init.System.Promise
+
+public section
 
 namespace IO
 

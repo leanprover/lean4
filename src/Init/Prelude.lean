@@ -2522,8 +2522,9 @@ theorem Char.val_eq_of_eq : ∀ {c d : Char}, Eq c d → Eq c.val d.val
 theorem Char.ne_of_val_ne {c d : Char} (h : Not (Eq c.val d.val)) : Not (Eq c d) :=
   fun h' => absurd (val_eq_of_eq h') h
 
+-- hello!
 theorem Char.val_ne_of_ne {c d : Char} (h : Not (Eq c d)) : Not (Eq c.val d.val) :=
-  fun h' => absurd (eq_of_val_eq h') h
+  fun h'' => id (absurd (eq_of_val_eq h'') h)
 
 instance : DecidableEq Char :=
   fun c d =>
@@ -4553,12 +4554,12 @@ in `s!"value = {x}"`.
 abbrev interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 
 /-- Creates an info-less node of the given kind and children. -/
-@[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax (.cons k .nil) :=
+@[inline, expose] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax (.cons k .nil) :=
   ⟨Syntax.node SourceInfo.none k args⟩
 
 /-- Creates an info-less `nullKind` node with the given children, if any. -/
 -- NOTE: used by the quotation elaborator output
-@[inline] def mkNullNode (args : Array Syntax := Array.empty) : Syntax :=
+@[inline, expose] def mkNullNode (args : Array Syntax := Array.empty) : Syntax :=
   mkNode nullKind args |>.raw
 
 namespace Syntax
@@ -5360,3 +5361,5 @@ instance : MonadQuotation UnexpandM where
 end PrettyPrinter
 
 end Lean
+
+private theorem f : Eq Nat.zero Nat.zero := rfl

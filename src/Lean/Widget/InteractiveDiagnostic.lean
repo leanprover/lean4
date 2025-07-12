@@ -4,12 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Linter.UnusedVariables
-import Lean.Server.Utils
-import Lean.Widget.InteractiveGoal
-import Init.Data.Slice.Array.Basic
-import Init.Data.Array.Subarray.Split
+public import Lean.Linter.UnusedVariables
+public import Lean.Server.Utils
+public import Lean.Widget.InteractiveGoal
+public import Init.Data.Slice.Array.Basic
+public import Init.Data.Array.Subarray.Split
+
+public section
 
 namespace Lean.Widget
 open Lsp Server

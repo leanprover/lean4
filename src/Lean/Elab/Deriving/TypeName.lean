@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Elab.Deriving.Basic
+public import Lean.Elab.Deriving.Basic
+
+public section
 
 namespace Lean.Elab
 open Command Std Parser Term

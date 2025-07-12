@@ -9,7 +9,7 @@ prelude
 public import Init.Data.UInt.BasicAux
 public import Init.Data.BitVec.Basic
 
-public section
+public @[expose] section
 
 set_option linter.missingDocs true
 

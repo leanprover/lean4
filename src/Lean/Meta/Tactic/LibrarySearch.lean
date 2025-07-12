@@ -3,11 +3,15 @@ Copyright (c) 2021-2023 Gabriel Ebner and Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Joe Hendrix, Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.Nat.MinMax
-import Lean.Meta.LazyDiscrTree
-import Lean.Meta.Tactic.SolveByElim
-import Lean.Util.Heartbeats
+public import Init.Data.Nat.MinMax
+public import Lean.Meta.LazyDiscrTree
+public import Lean.Meta.Tactic.SolveByElim
+public import Lean.Util.Heartbeats
+
+public section
 
 /-!
 # Library search
@@ -64,8 +68,7 @@ deriving DecidableEq, Inhabited, Ord, Hashable
 LibrarySearch has an extension mechanism for replacing the function used
 to find candidate lemmas.
 -/
-@[reducible]
-def CandidateFinder := Expr → MetaM (Array (Name × DeclMod))
+@[reducible, expose] def CandidateFinder := Expr → MetaM (Array (Name × DeclMod))
 
 open LazyDiscrTree (InitEntry findMatches)
 
@@ -181,8 +184,7 @@ section LibrarySearch
 A library search candidate using symmetry includes the goal to solve, the metavar
 context for that goal, and the name and orientation of a rule to try using with goal.
 -/
-@[reducible]
-def Candidate :=  (MVarId × MetavarContext) × (Name × DeclMod)
+@[reducible, expose] def Candidate :=  (MVarId × MetavarContext) × (Name × DeclMod)
 
 /--
 Run `searchFn` on both the goal and `symm` applied to the goal.

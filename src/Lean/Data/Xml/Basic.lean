@@ -3,14 +3,18 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Dany Fabian
 -/
+module
+
 prelude
-import Lean.Data.RBMap
-import Init.Data.ToString.Macro
+public import Lean.Data.RBMap
+public import Init.Data.ToString.Macro
+
+public section
 
 namespace Lean
 namespace Xml
 
-def Attributes := RBMap String String compare
+@[expose] def Attributes := RBMap String String compare
 instance : ToString Attributes := ⟨λ as => as.fold (λ s n v => s ++ s!" {n}=\"{v}\"") ""⟩
 
 mutual

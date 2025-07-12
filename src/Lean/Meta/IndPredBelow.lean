@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
+module
+
 prelude
-import Lean.Meta.Constructions.CasesOn
-import Lean.Meta.Match.Match
-import Lean.Meta.Tactic.SolveByElim
+public import Lean.Meta.Constructions.CasesOn
+public import Lean.Meta.Match.Match
+public import Lean.Meta.Tactic.SolveByElim
+
+public section
 
 namespace Lean.Meta.IndPredBelow
 open Match

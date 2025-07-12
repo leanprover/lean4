@@ -3,14 +3,18 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.RecursorInfo
-import Lean.Meta.SynthInstance
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Revert
-import Lean.Meta.Tactic.Intro
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.FVarSubst
+public import Lean.Meta.RecursorInfo
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Revert
+public import Lean.Meta.Tactic.Intro
+public import Lean.Meta.Tactic.Clear
+public import Lean.Meta.Tactic.FVarSubst
+
+public section
 
 namespace Lean.Meta
 

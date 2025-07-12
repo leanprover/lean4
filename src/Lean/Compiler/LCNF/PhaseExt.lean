@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.PassManager
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -22,7 +26,7 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
   let tmpDecl := { tmpDecl with name := declName }
   decls.binSearch tmpDecl declLt
 
-def DeclExt := PersistentEnvExtension Decl Decl DeclExtState
+@[expose] def DeclExt := PersistentEnvExtension Decl Decl DeclExtState
 
 instance : Inhabited DeclExt :=
   inferInstanceAs (Inhabited (PersistentEnvExtension Decl Decl DeclExtState))

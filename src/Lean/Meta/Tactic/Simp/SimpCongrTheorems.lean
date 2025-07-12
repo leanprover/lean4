@@ -3,11 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ScopedEnvExtension
-import Lean.Util.Recognizers
-import Lean.Util.CollectMVars
-import Lean.Meta.Basic
+public import Lean.ScopedEnvExtension
+public import Lean.Util.Recognizers
+public import Lean.Util.CollectMVars
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 
@@ -143,7 +147,7 @@ builtin_initialize
     descr := "congruence theorem"
     add   := fun declName stx attrKind => do
       let prio ← getAttrParamOptPrio stx[1]
-      discard <| addSimpCongrTheorem declName attrKind prio |>.run {} {}
+      discard <| addSimpCongrTheorem declName attrKind prio |>.run default {}
   }
 
 def getSimpCongrTheorems : CoreM SimpCongrTheorems :=

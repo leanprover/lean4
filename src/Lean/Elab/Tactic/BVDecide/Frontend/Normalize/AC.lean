@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving, Alex Keizer, Siddharth Bhat
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.AC.Main
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+public import Lean.Meta.Tactic.AC.Main
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+
+public section
 
 namespace Lean.Elab.Tactic.BVDecide
 namespace Frontend.Normalize

@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mac Malone
 -/
+module
+
 prelude
-import Lean.Data.Json
-import Lean.Util.LeanOptions
+public import Lean.Data.Json
+public import Lean.Util.LeanOptions
+
+public section
 
 /-!
 # Module Setup Information

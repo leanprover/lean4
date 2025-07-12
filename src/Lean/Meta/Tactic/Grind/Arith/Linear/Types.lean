@@ -3,12 +3,16 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Std.Internal.Rat
-import Init.Grind.Ring.Poly
-import Init.Grind.Ordered.Linarith
-import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ExprPtr
+public import Std.Internal.Rat
+public import Init.Grind.Ring.Poly
+public import Init.Grind.Ordered.Linarith
+public import Lean.Data.PersistentArray
+public import Lean.Meta.Tactic.Grind.ExprPtr
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 export Lean.Grind.Linarith (Var Poly)

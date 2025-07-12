@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.Meta.AppBuilder
-import Lean.Meta.CompletionName
+public import Lean.AddDecl
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.CompletionName
+
+public section
 
 /-!
 This module produces a construction for the `noConfusionType` that is linear in size in the number of
@@ -14,6 +18,8 @@ constructors of the inductive type. This is in contrast to the previous construc
 `no_confusion.cpp`), that is quadratic in size due to nested `.brecOn` applications.
 
 We still use the old construction when processing the prelude, for the few inductives that we need
+
+public section
 until below (`Nat`, `Bool`, `Decidable`).
 
 The main trick is to use a `withCtor` helper that is like a match with one constructor pattern and

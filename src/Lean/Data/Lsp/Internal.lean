@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Joscha Mennicken
 -/
+module
+
 prelude
-import Lean.Expr
-import Lean.Data.Lsp.Basic
-import Lean.Data.JsonRpc
-import Std.Data.TreeMap
+public import Lean.Expr
+public import Lean.Data.Lsp.Basic
+public import Lean.Data.JsonRpc
+public import Std.Data.TreeMap
+
+public section
 
 set_option linter.missingDocs true -- keep it documented
 
@@ -182,7 +186,7 @@ instance : FromJson RefInfo where
     pure { definition?, usages }
 
 /-- References from a single module/file -/
-def ModuleRefs := Std.TreeMap RefIdent RefInfo
+@[expose] def ModuleRefs := Std.TreeMap RefIdent RefInfo
   deriving EmptyCollection
 
 instance : ForIn m ModuleRefs (RefIdent × RefInfo) where

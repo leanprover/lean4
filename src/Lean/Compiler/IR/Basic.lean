@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.KVMap
-import Lean.Data.Name
-import Lean.Data.Format
-import Lean.Compiler.ExternAttr
+public import Lean.Data.KVMap
+public import Lean.Data.Name
+public import Lean.Data.Format
+public import Lean.Compiler.ExternAttr
+
+public section
 /-!
 Implements (extended) λPure and λRc proposed in the article
 "Counting Immutable Beans", Sebastian Ullrich and Leonardo de Moura.

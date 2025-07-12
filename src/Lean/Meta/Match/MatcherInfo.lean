@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 namespace Match
@@ -33,7 +37,7 @@ structure MatcherInfo where
   -/
   discrInfos   : Array DiscrInfo
 
-def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
+@[expose] def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
   info.altNumParams.size
 
 def MatcherInfo.arity (info : MatcherInfo) : Nat :=

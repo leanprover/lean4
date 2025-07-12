@@ -3,15 +3,19 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.LOption
-import Lean.Environment
-import Lean.Class
-import Lean.ReducibilityAttrs
-import Lean.Util.ReplaceExpr
-import Lean.Util.MonadBacktrack
-import Lean.Compiler.InlineAttrs
-import Lean.Meta.TransparencyMode
+public import Lean.Data.LOption
+public import Lean.Environment
+public import Lean.Class
+public import Lean.ReducibilityAttrs
+public import Lean.Util.ReplaceExpr
+public import Lean.Util.MonadBacktrack
+public import Lean.Compiler.InlineAttrs
+public import Lean.Meta.TransparencyMode
+
+public section
 
 /-!
 This module provides four (mutually dependent) goodies that are needed for building the elaborator and tactic frameworks.
@@ -308,7 +312,7 @@ structure InfoCacheKey where
   deriving Inhabited, BEq
 
 instance : Hashable InfoCacheKey where
-  hash := fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
+  hash := private fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
 
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
@@ -346,7 +350,7 @@ instance : BEq ExprConfigCacheKey where
     a.configKey == b.configKey
 
 instance : Hashable ExprConfigCacheKey where
-  hash := fun { expr, configKey } => mixHash (hash expr) (hash configKey)
+  hash := private fun { expr, configKey } => mixHash (hash expr) (hash configKey)
 
 abbrev InferTypeCache := PersistentHashMap ExprConfigCacheKey Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
@@ -360,7 +364,7 @@ structure DefEqCacheKey where
   deriving Inhabited, BEq
 
 instance : Hashable DefEqCacheKey where
-  hash := fun { lhs, rhs, configKey } => mixHash (hash lhs) <| mixHash (hash rhs) (hash configKey)
+  hash := private fun { lhs, rhs, configKey } => mixHash (hash lhs) <| mixHash (hash rhs) (hash configKey)
 
 /--
 A mapping `(s, t) ↦ isDefEq s t`.
@@ -442,12 +446,19 @@ register_builtin_option maxSynthPendingDepth : Nat := {
   descr    := "maximum number of nested `synthPending` invocations. When resolving unification constraints, pending type class problems may need to be synthesized. These type class problems may create new unification constraints that again require solving new type class problems. This option puts a threshold on how many nested problems are created."
 }
 
+structure KeyedConfig where
+  config            : Config := {}
+  private configKey : UInt64 := config.toKey
+deriving Inhabited
+
+def KeyedConfig.ofConfig (c : Config) : KeyedConfig where
+  config := c
+
 /--
   Contextual information for the `MetaM` monad.
 -/
 structure Context where
-  private config    : Config               := {}
-  private configKey : UInt64               := config.toKey
+  keyedConfig : KeyedConfig := default
   /--
   When `trackZetaDelta = true`, we track all free variables that have been zetaDelta-expanded.
   That is, suppose the local context contains
@@ -498,6 +509,10 @@ structure Context where
    This is not a great solution, but a proper solution would require a more sophisticased caching mechanism.
   -/
   inTypeClassResolution : Bool := false
+deriving Inhabited
+
+def Context.config (c : Context) : Config := c.keyedConfig.config
+def Context.configKey (c : Context) : UInt64 := c.keyedConfig.configKey
 
 /--
 The `MetaM` monad is a core component of Lean's metaprogramming framework, facilitating the
@@ -520,7 +535,7 @@ The key operations provided by `MetaM` are:
 The following is a small example that demonstrates how to obtain and manipulate the type of a
 `Fin` expression:
 ```
-import Lean
+public import Lean
 
 open Lean Meta
 
@@ -583,13 +598,13 @@ instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState
   restoreState s := s.restore
 
-@[inline] def MetaM.run (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM (α × State) :=
+@[inline] def MetaM.run (x : MetaM α) (ctx : Context := default) (s : State := {}) : CoreM (α × State) :=
   x ctx |>.run s
 
-@[inline] def MetaM.run' (x : MetaM α) (ctx : Context := {}) (s : State := {}) : CoreM α :=
+@[inline] def MetaM.run' (x : MetaM α) (ctx : Context := default) (s : State := {}) : CoreM α :=
   Prod.fst <$> x.run ctx s
 
-@[inline] def MetaM.toIO (x : MetaM α) (ctxCore : Core.Context) (sCore : Core.State) (ctx : Context := {}) (s : State := {}) : IO (α × Core.State × State) := do
+@[inline] def MetaM.toIO (x : MetaM α) (ctxCore : Core.Context) (sCore : Core.State) (ctx : Context := default) (s : State := {}) : IO (α × Core.State × State) := do
   let ((a, s), sCore) ← (x.run ctx s).toIO ctxCore sCore
   pure (a, sCore, s)
 
@@ -751,7 +766,9 @@ the kernel typechecker. The kernel typechecker is invoked when a definition is a
 
 Here are examples of type-incorrect terms for which `inferType` succeeds:
 ```lean
-import Lean
+public import Lean
+
+public section
 
 open Lean Meta
 
@@ -1108,13 +1125,13 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
   mapMetaM <| withReader fun ctx =>
     let config := f ctx.config
     let configKey := config.toKey
-    { ctx with config, configKey }
+    { ctx with keyedConfig := { config, configKey } }
 
 @[inline] def withConfigWithKey (c : ConfigWithKey) : n α → n α :=
   mapMetaM <| withReader fun ctx =>
     let config := c.config
     let configKey := c.key
-    { ctx with config, configKey }
+    { ctx with keyedConfig := { config, configKey } }
 
 @[inline] def withCanUnfoldPred (p : Config → ConstantInfo → CoreM Bool) : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with canUnfold? := p })
@@ -1217,7 +1234,7 @@ def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
   let config := { ctx.config with transparency }
   -- Recall that `transparency` is stored in the first 2 bits
   let configKey : UInt64 := ((ctx.configKey >>> (2 : UInt64)) <<< 2) ||| transparency.toUInt64
-  { ctx with config, configKey }
+  { ctx with keyedConfig := { config, configKey } }
 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
   -- We avoid `withConfig` for performance reasons.

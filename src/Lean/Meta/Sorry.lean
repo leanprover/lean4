@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Data.Lsp.Utf16
-import Lean.Meta.InferType
-import Lean.Util.Recognizers
+public import Lean.Data.Lsp.Utf16
+public import Lean.Meta.InferType
+public import Lean.Util.Recognizers
+
+public section
 
 /-!
 # Utilities for creating and recognizing `sorry`

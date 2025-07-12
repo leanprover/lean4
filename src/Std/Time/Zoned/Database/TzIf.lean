@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Init.Data.Range
-import Std.Internal.Parsec
-import Std.Internal.Parsec.ByteArray
+public import Init.Data.Range
+public import Std.Internal.Parsec
+public import Std.Internal.Parsec.ByteArray
+
+public section
 
 -- Based on: https://www.rfc-editor.org/rfc/rfc8536.html
 
@@ -18,9 +22,9 @@ open Std.Internal.Parsec Std.Internal.Parsec.ByteArray
 
 set_option linter.all true
 
-private abbrev Int32 := Int
+local notation "Int32" => Int
 
-private abbrev Int64 := Int
+local notation "Int64" => Int
 
 /--
 Represents the header of a TZif file, containing metadata about the file's structure.

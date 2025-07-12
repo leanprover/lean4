@@ -3,12 +3,16 @@ Copyright (c) 2018 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Arthur Paulino, Gabriel Ebner, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Assumption
-import Lean.Meta.Tactic.TryThis
-import Lean.Elab.Tactic.Simp
-import Lean.Elab.App
-import Lean.Linter.Basic
+public import Lean.Meta.Tactic.Assumption
+public import Lean.Meta.Tactic.TryThis
+public import Lean.Elab.Tactic.Simp
+public import Lean.Elab.App
+public import Lean.Linter.Basic
+
+public section
 
 /--
 Enables the 'unnecessary `simpa`' linter. This will report if a use of

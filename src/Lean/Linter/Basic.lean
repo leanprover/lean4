@@ -3,17 +3,21 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König
 -/
+module
+
 prelude
-import Lean.Data.Options
-import Lean.MonadEnv
-import Lean.Log
+public import Lean.Data.Options
+public import Lean.MonadEnv
+public import Lean.Log
+
+public section
 
 namespace Lean.Linter
 
 /-- Linter sets are represented as a map from linter name to set name,
 to make it easy to look up which sets to check for enabling a linter.
 -/
-def LinterSets := NameMap (Array Name)
+@[expose] def LinterSets := NameMap (Array Name)
   deriving EmptyCollection, Inhabited
 
 /-- Insert a set into a `LinterSets` map.

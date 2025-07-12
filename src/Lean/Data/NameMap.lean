@@ -3,15 +3,19 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Std.Data.HashSet.Basic
-import Lean.Data.RBMap
-import Lean.Data.RBTree
-import Lean.Data.SSet
-import Lean.Data.Name
+public import Std.Data.HashSet.Basic
+public import Lean.Data.RBMap
+public import Lean.Data.RBTree
+public import Lean.Data.SSet
+public import Lean.Data.Name
+
+public section
 namespace Lean
 
-def NameMap (α : Type) := RBMap Name α Name.quickCmp
+@[expose] def NameMap (α : Type) := RBMap Name α Name.quickCmp
 
 @[inline] def mkNameMap (α : Type) : NameMap α := mkRBMap Name α Name.quickCmp
 
@@ -46,7 +50,7 @@ def filterMap (f : Name → α → Option β) (m : NameMap α) : NameMap β := R
 
 end NameMap
 
-def NameSet := RBTree Name Name.quickCmp
+@[expose] def NameSet := RBTree Name Name.quickCmp
 
 namespace NameSet
 def empty : NameSet := mkRBTree Name Name.quickCmp
@@ -69,7 +73,7 @@ def filter (f : Name → Bool) (s : NameSet) : NameSet := RBTree.filter f s
 
 end NameSet
 
-def NameSSet := SSet Name
+@[expose] def NameSSet := SSet Name
 
 namespace NameSSet
 abbrev empty : NameSSet := SSet.empty
@@ -79,7 +83,7 @@ abbrev insert (s : NameSSet) (n : Name) : NameSSet := SSet.insert s n
 abbrev contains (s : NameSSet) (n : Name) : Bool := SSet.contains s n
 end NameSSet
 
-def NameHashSet := Std.HashSet Name
+@[expose] def NameHashSet := Std.HashSet Name
 
 namespace NameHashSet
 @[inline] def empty : NameHashSet := (∅ : Std.HashSet Name)

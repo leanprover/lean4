@@ -3,8 +3,10 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Basic
+public import Lean.Compiler.LCNF.Basic
 
 namespace Lean.Compiler.LCNF
 
@@ -104,10 +106,10 @@ partial def Code.toExprM (code : Code) : ToExprM Expr := do
     return mkAppN (mkConst `cases) (#[← c.discr.toExprM] ++ alts)
 end
 
-def Code.toExpr (code : Code) (xs : Array FVarId := #[]) : Expr :=
+public def Code.toExpr (code : Code) (xs : Array FVarId := #[]) : Expr :=
   run' code.toExprM xs
 
-def FunDecl.toExpr (decl : FunDecl) (xs : Array FVarId := #[]) : Expr :=
+public def FunDecl.toExpr (decl : FunDecl) (xs : Array FVarId := #[]) : Expr :=
   run' decl.toExprM xs
 
 end Lean.Compiler.LCNF

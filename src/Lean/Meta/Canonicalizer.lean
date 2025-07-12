@@ -3,11 +3,15 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.ShareCommon
-import Lean.Meta.Basic
-import Lean.Meta.FunInfo
-import Std.Data.HashMap.Raw
+public import Lean.Util.ShareCommon
+public import Lean.Meta.Basic
+public import Lean.Meta.FunInfo
+public import Std.Data.HashMap.Raw
+
+public section
 
 namespace Lean.Meta
 namespace Canonicalizer

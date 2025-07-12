@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Lean.Meta
-import Std.Do.Triple.Basic
-import Std.Tactic.Do.Syntax
+public import Lean.Meta
+public import Std.Do.Triple.Basic
+public import Std.Tactic.Do.Syntax
+
+public section
 
 namespace Lean.Elab.Tactic.Do.SpecAttr
 

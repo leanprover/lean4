@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.Requests
+public import Lean.Server.Requests
+
+public section
 
 namespace Lean.Server.FileWorker
 open Lsp

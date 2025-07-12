@@ -3,12 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ScopedEnvExtension
-import Lean.Util.Recognizers
-import Lean.Meta.Basic
-import Lean.Meta.DiscrTree
-import Lean.Meta.SynthInstance
+public import Lean.ScopedEnvExtension
+public import Lean.Util.Recognizers
+public import Lean.Meta.Basic
+public import Lean.Meta.DiscrTree
+public import Lean.Meta.SynthInstance
+
+public section
 
 namespace Lean.Meta
 

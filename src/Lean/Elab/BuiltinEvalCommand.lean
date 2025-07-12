@@ -3,10 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Util.CollectAxioms
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.MutualDef
+public import Lean.Util.CollectAxioms
+public import Lean.Elab.Deriving.Basic
+public import Lean.Elab.MutualDef
+meta import Lean.Parser.Command
+
+public section
 
 /-!
 # Implementation of `#eval` command

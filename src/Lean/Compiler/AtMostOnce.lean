@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Environment
+public import Lean.Environment
+
+public section
 
 namespace Lean.Compiler
 
@@ -14,7 +18,7 @@ structure AtMostOnceData where
   found : Bool
   result : Bool
 
-def Visitor := AtMostOnceData → AtMostOnceData
+@[expose] def Visitor := AtMostOnceData → AtMostOnceData
 
 @[inline] def seq (f g : Visitor) : Visitor := fun d =>
   match f d with

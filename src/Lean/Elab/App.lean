@@ -1289,6 +1289,9 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
             So, we don't projection functions for it. Thus, we use `Expr.proj` -/
           return LValResolution.projIdx structName (idx - 1)
       else
+        if numFields == 0 then
+          throwLValError e eType m!"Invalid projection: Projections are not supported on this type \
+            because it has no fields"
         let (fields, bounds) := if numFields == 1 then
           (m!"field", m!"the only valid index is 1")
         else

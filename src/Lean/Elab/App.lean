@@ -1418,7 +1418,7 @@ private partial def consumeImplicits (stx : Syntax) (e eType : Expr) (hasArgs : 
       | _ => return (e, eType)
   | _ => return (e, eType)
 
-private partial def resolveLValLoop (lval : LVal) (e eType : Expr) (previousExceptions : Array Exception) (hasArgs : Bool) : TermElabM (Expr × LValResolution) := do
+private partial def resolveLValLoop (lval : LVal) (e eType : Expr) (hasArgs : Bool) : TermElabM (Expr × LValResolution) := do
   let (e, eType) ← consumeImplicits lval.getRef e eType hasArgs
   tryPostponeIfMVar eType
   /- If `eType` is still a metavariable application, we try to apply default instances to "unblock" it. -/
@@ -1432,15 +1432,13 @@ private partial def resolveLValLoop (lval : LVal) (e eType : Expr) (previousExce
     | ex@(Exception.error _ _) =>
       let eType? ← unfoldDefinition? eType
       match eType? with
-      | some eType => resolveLValLoop lval e eType (previousExceptions.push ex) hasArgs
-      | none       =>
-        previousExceptions.forM fun ex => logException ex
-        throw ex
+      | some eType => resolveLValLoop lval e eType hasArgs
+      | none       => throw ex
     | ex@(Exception.internal _ _) => throw ex
 
 private def resolveLVal (e : Expr) (lval : LVal) (hasArgs : Bool) : TermElabM (Expr × LValResolution) := do
   let eType ← inferType e
-  resolveLValLoop lval e eType #[] hasArgs
+  resolveLValLoop lval e eType hasArgs
 
 private partial def mkBaseProjections (baseStructName : Name) (structName : Name) (e : Expr) : TermElabM Expr := do
   let env ← getEnv

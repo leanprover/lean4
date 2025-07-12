@@ -120,17 +120,25 @@ def mkHCongr (f : Expr) : MetaM CongrTheorem := do
   mkHCongrWithArity f (← getFunInfo f).getArity
 
 /--
-  Ensure that all dependencies for `congr_arg_kind::Eq` are `congr_arg_kind::Fixed`.
+Ensure that all dependencies for `CongrArgKind.eq` are `CongrArgKind.fixed`.
 -/
 private def fixKindsForDependencies (info : FunInfo) (kinds : Array CongrArgKind) : Array CongrArgKind := Id.run do
   let mut kinds := kinds
-  for i in *...info.paramInfo.size do
-    for hj : j in (i+1)...info.paramInfo.size do
-      if info.paramInfo[j].backDeps.contains i then
-        if kinds[j]! matches CongrArgKind.eq || kinds[j]! matches CongrArgKind.fixed then
-          -- We must fix `i` because there is a `j` that depends on `i` and `j` is not cast-fixed.
-          kinds := kinds.set! i CongrArgKind.fixed
-          break
+  let mut j := info.paramInfo.size
+  -- iterate backwards to make sure this is exhaustive
+  while j > 0 do
+    j := j - 1
+    let k := kinds[j]!
+    if k matches .eq | .fixed then
+      for i in info.paramInfo[j]!.backDeps do
+        -- We must fix `i` because `j` depends on `i` and `j` is not cast-fixed.
+        kinds := kinds.set! i .fixed
+    else if k matches .cast then
+      for i in info.paramInfo[j]!.backDeps do
+        -- Proofs depending on `Decidable` instances are possible to handle in general but would
+        -- require significantly modifying the `mkCast` algorithm.
+        if kinds[i]! matches .subsingletonInst then
+          kinds := kinds.set! i .fixed
   return kinds
 
 /--
@@ -166,7 +174,7 @@ private def withNext (type : Expr) (k : Expr → Expr → MetaM α) : MetaM α :
 
 /--
   Test whether we should use `subsingletonInst` kind for instances which depend on `eq`.
-  (Otherwise `fixKindsForDependencies`will downgrade them to Fixed -/
+  (Otherwise `fixKindsForDependencies` will downgrade them to Fixed -/
 private def shouldUseSubsingletonInst (info : FunInfo) (kinds : Array CongrArgKind) (i : Nat) : Bool := Id.run do
   if info.paramInfo[i]!.isDecInst then
     for j in info.paramInfo[i]!.backDeps do
@@ -223,7 +231,7 @@ def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) :
       if let some mask := mask? then
         if h2 : i < mask.size then
           if mask[i] then
-            -- Parameter is a subobect field of a class constructor. See comment above.
+            -- Parameter is a subobject field of a class constructor. See comment above.
             result := result.push .eq
             continue
       if shouldUseSubsingletonInst info result i then
@@ -267,6 +275,7 @@ partial def mkCongrSimpCore? (f : Expr) (info : FunInfo) (kinds : Array CongrArg
     -- Simplify kinds and try again
     let kinds := kinds.map fun kind =>
       if kind matches CongrArgKind.cast || kind matches CongrArgKind.subsingletonInst then CongrArgKind.fixed else kind
+    let kinds := fixKindsForDependencies info kinds
     mk? f info kinds
   else
     return none
@@ -279,6 +288,7 @@ where
     The idea is that the right-hand-side of this theorem "tells" the simplifier
     how the resulting term looks like. -/
   mk? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) : MetaM (Option CongrTheorem) := do
+    trace[congr.thm] "Kinds: {repr kinds}"
     try
       let fType ← inferType f
       forallBoundedTelescope fType kinds.size (cleanupAnnotations := true) fun lhss _ => do
@@ -312,7 +322,8 @@ where
                 withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName rhsBi rhsType fun rhs =>
                   go (i+1) (rhss.push rhs) (eqs.push none) (hyps.push rhs)
         return some (← go 0 #[] #[] #[])
-    catch _ =>
+    catch e =>
+      trace[congr.thm] "Error: {e.toMessageData}"
       return none
 
   mkProof (type : Expr) (kinds : Array CongrArgKind) : MetaM Expr := do

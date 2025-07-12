@@ -487,7 +487,7 @@ def shouldInferResultUniverse (u : Level) : TermElabM (Option LMVarId) := do
     match u.getLevelOffset with
     | Level.mvar mvarId => return some mvarId
     | _ =>
-      throwError "
+      throwError "\
         cannot infer resulting universe level of inductive datatype, \
         given resulting type contains metavariables{indentExpr <| mkSort u}\n\
         provide universe explicitly"

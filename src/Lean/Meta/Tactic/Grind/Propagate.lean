@@ -140,11 +140,14 @@ builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
   let b' := bRoot.self
   let trueExpr ← getTrueExpr
   if isSameExpr a' trueExpr then
-    pushEq e b <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_left) a b (← mkEqProof a trueExpr)
+    unless isSameExpr (← getRoot e) b' do
+      pushEq e b <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_left) a b (← mkEqProof a trueExpr)
   else if isSameExpr b' trueExpr then
-    pushEq e a <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_right) a b (← mkEqProof b trueExpr)
+    unless isSameExpr (← getRoot e) a' do
+      pushEq e a <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_right) a b (← mkEqProof b trueExpr)
   else if isSameExpr a' b' then
-    pushEq e trueExpr <| mkEqTrueCore e (← mkEqProof a b)
+    unless isSameExpr (← getRoot e) trueExpr do
+      pushEq e trueExpr <| mkEqTrueCore e (← mkEqProof a b)
   if α.isConstOf ``Bool then
     if (← isEqFalse e) then
       propagateBoolDiseq e a b

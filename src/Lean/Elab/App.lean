@@ -7,6 +7,7 @@ prelude
 import Lean.Util.FindMVar
 import Lean.Util.CollectFVars
 import Lean.Parser.Term
+import Lean.Meta.Hint
 import Lean.Meta.KAbstract
 import Lean.Meta.Tactic.ElimInfo
 import Lean.Elab.Term
@@ -1289,6 +1290,36 @@ private partial def findMethod? (structName fieldName : Name) : MetaM (Option (N
 private def throwInvalidFieldNotation (e eType : Expr) : TermElabM α :=
   throwLValError e eType "Invalid field notation: Type is not of the form `C ...` where C is a constant"
 
+/--
+If it seems that the user may be attempting to project out the `n`th element of a tuple, or that the
+nesting behavior of n-ary products is otherwise relevant, generates a corresponding hint; otherwise,
+produces an empty message.
+-/
+private partial def mkTupleHint (eType : Expr) (idx : Nat) (ref : Syntax) : TermElabM MessageData := do
+  let arity := prodArity? eType
+  if arity > 1 then
+    let numComps := arity + 1
+    if idx ≤ numComps then
+      let ordinalSuffix := match idx % 10 with
+        | 1 => "st" | 2 => "nd" | 3 => "rd" | _ => "th"
+      let mut projComps := List.replicate (idx - 1) "2"
+      if idx < numComps then projComps := projComps ++ ["1"]
+      let proj := ".".intercalate projComps
+      let sug := { suggestion := proj, span? := ref,
+                   toCodeActionTitle? := some (s!"Change projection `{idx}` to `{·}`") }
+      MessageData.hint m!"n-tuples in Lean are actually nested pairs. To access the \
+        {idx}{ordinalSuffix} component of this tuple, use the projection `{proj}` instead:" #[sug]
+    else
+      pure <| MessageData.note m!"n-tuples in Lean are actually nested pairs. For example, to access the \
+        \"third\" component of `(a, b, c)`, write `(a, b, c).2.2` instead of `(a, b, c).3`."
+  else
+    pure MessageData.nil
+where
+  prodArity? (type : Expr) :=
+    match type.prod? with
+    | none => 0
+    | some (_, p2) => prodArity? p2 + 1
+
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
   if eType.isForall then
     match lval with
@@ -1312,7 +1343,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       | .fieldIdx _ i => (m!"projection", m!"projection `{i}`")
     throwError "Invalid {kind}: Type of{indentExpr e}\nis not known; cannot resolve {name}"
   match eType.getAppFn.constName?, lval with
-  | some structName, LVal.fieldIdx _ idx =>
+  | some structName, LVal.fieldIdx ref idx =>
     if idx == 0 then
       throwError "Invalid projection: Index must be greater than 0"
     let env ← getEnv
@@ -1335,8 +1366,10 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
           (m!"field", m!"the only valid index is 1")
         else
           (m!"fields", m!"it must be between 1 and {numFields}")
+        let tupleHint ← mkTupleHint eType idx ref
         throwError m!"Invalid projection: Index `{idx}` is invalid for this structure; {bounds}"
           ++ .note m!"The expression{inlineExpr e}has type{inlineExpr eType}which has only {numFields} {fields}"
+          ++ tupleHint
   | some structName, LVal.fieldName _ fieldName _ fullRef =>
     let env ← getEnv
     if isStructure env structName then

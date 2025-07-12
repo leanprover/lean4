@@ -10,11 +10,11 @@ has type
   Array Nat
 but is expected to have type
   IO PUnit
-doIssue.lean:18:7-18:20: error: Application type mismatch: In the application
-  pure (xs.set! 0 1)
-the argument
+doIssue.lean:18:7-18:20: error: Application type mismatch: The argument
   xs.set! 0 1
 has type
   Array Nat
 but is expected to have type
   PUnit
+in the application
+  pure (xs.set! 0 1)

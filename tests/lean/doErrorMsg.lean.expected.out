@@ -28,11 +28,11 @@ has type
   ExceptT String (StateT Nat Id) Nat
 but is expected to have type
   ExceptT String (StateT Nat Id) String
-doErrorMsg.lean:28:13-28:18: error: Application type mismatch: In the application
-  Prod.mk false
-the argument
+doErrorMsg.lean:28:13-28:18: error: Application type mismatch: The argument
   false
 has type
   Bool
 but is expected to have type
   Nat
+in the application
+  Prod.mk false

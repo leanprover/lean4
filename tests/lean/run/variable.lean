@@ -138,15 +138,14 @@ theorem t13 (a : α) : toString a = toString a := rfl
 
 set_option pp.mvars false in
 /--
-error: Application type mismatch: In the application
-  ToString True
-the argument
+error: Application type mismatch: The argument
   True
 has type
   Prop
 of sort `Type` but is expected to have type
   Type _
-of sort `Type (_ + 1)`
+of sort `Type (_ + 1)` in the application
+  ToString True
 -/
 #guard_msgs in
 omit [ToString True]

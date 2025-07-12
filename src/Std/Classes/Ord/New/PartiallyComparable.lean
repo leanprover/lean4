@@ -6,101 +6,211 @@ public import Std.Classes.Ord.New.BasicOperations
 
 public section
 
-class PartiallyComparable (α : Type u) extends LT α, LE α, NoncomputableBEq α
+abbrev PartialOrdering := Option Ordering
 
-instance (α : Type u) [LT α] [LE α] [NoncomputableBEq α] : PartiallyComparable α where
+def PartialOrdering.isLE : PartialOrdering → Bool
+  | none => false
+  | some o => o.isLE
 
-class ComputablyPartiallyComparable α extends PartiallyComparable α, BLE α, BLT α, BEq α
+def PartialOrdering.isGE : PartialOrdering → Bool
+  | none => false
+  | some o => o.isGE
 
-class LawfulPartiallyComparable (α : Type u) [PartiallyComparable α] where
-    lt_iff_le_not_ge : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by exact fun _ _ => Iff.rfl
-    beq_iff_le_ge : ∀ a b : α, NoncomputableBEq.IsEq a b ↔ a ≤ b ∧ b ≤ a := by
-      exact fun _ _ => Iff.rfl
+@[ext]
+structure PartiallyComparable (α : Type u) where
+  compare : α → α → PartialOrdering
 
-structure PartiallyComparable.OfLEArgs (α : Type u) where
-  instLE : LE α := by
-    try (infer_instance; done)
-    try (exact LE.ofBLE; done)
-  instLT : LT α := by
-    try (infer_instance; done)
-    try (exact LT.ofBLT; done)
-    try (exact ⟨fun a b => a ≤ b ∧ ¬ b ≤ a⟩; done)
-  instNoncomputableBEq : NoncomputableBEq α := by
-    try (infer_instance; done)
-    try (exact NoncomputableBEq.ofComputable; done)
-    try (exact NoncomputableBEq.ofRel fun a b => a ≤ b ∧ b ≤ a; done)
+def PartiallyComparable.ofOrd (α : Type u) [Ord α] : PartiallyComparable α where
+  compare a b := some (Ord.compare a b)
 
-@[expose]
-def PartiallyComparable.ofLE (args : OfLEArgs α) : PartiallyComparable α where
-  toLE := args.instLE
-  toLT := args.instLT
-  toNoncomputableBEq := args.instNoncomputableBEq
+open Classical in
+noncomputable def PartiallyComparable.ofLE (α : Type u) [LE α] : PartiallyComparable α where
+  compare a b :=
+    if a ≤ b then
+      if b ≤ a then some .eq else some .lt
+    else
+      if b ≤ a then some .gt else none
 
-@[expose]
-def PartiallyComparable.bltOfBLE (α : Type u) [BLE α] : BLT α where
-  LT a b := BLE.LE a b && ! BLE.LE b a
+open Classical in
+noncomputable def PartiallyComparable.ofLT (α : Type u) [LT α] : PartiallyComparable α where
+  compare a b := if a < b then some .lt else if b < a then some .gt else some .eq
 
-@[expose]
-def PartiallyComparable.ltOfBLE (α : Type u) [BLE α] : LT α where
-  lt a b := BLE.LE a b ∧ ¬ BLE.LE b a
+class LawfulOrientedPartiallyComparableLE {α : Type u} [LE α] (c : PartiallyComparable α) where
+  le_iff_compare_isLE : ∀ a b : α, a ≤ b ↔ (c.compare a b).isLE
+  ge_iff_compare_isGE : ∀ a b : α, b ≤ a ↔ (c.compare a b).isGE
 
-structure ComputablyPartiallyComparable.OfBLEArgs (α : Type u) where
-  instBLE : BLE α := by
-    try (infer_instance; done)
-  instLE : LE α := by
-    try (infer_instance; done)
-    try (exact LE.ofBLE α; done)
-  instBLT : BLT α := by
-    try (infer_instance; done)
-    try (exact PartiallyComparable.bltOfBLE α; done)
-  instLT : LT α := by
-    try (infer_instance; done)
-    try (exact PartiallyComparable.ltOfBLE α; done)
-  instBEq : BEq α := by
-    try (infer_instance; done)
-    try (exact ⟨fun a b => BLE.LE a b ∧ BLE.LE b a⟩; done)
-  instNoncomputableBEq : NoncomputableBEq α := by
-    try (infer_instance; done)
-    try (exact NoncomputableBEq.ofComputable; done)
-    try (exact NoncomputableBEq.ofRel fun a b => BLE.LE a b && BLE.LE b a; done)
+class LawfulOrientedPartiallyComparableLT {α : Type u} [LT α] (c : PartiallyComparable α) where
+  lt_iff_compare_eq_some_lt : ∀ a b : α, a < b ↔ c.compare a b = some .lt
+  gt_iff_compare_eq_some_gt : ∀ a b : α, b < a ↔ c.compare a b = some .gt
 
-def ComputablyPartiallyComparable.ofBLE (args : OfBLEArgs α) : ComputablyPartiallyComparable α where
-  toBLE := args.instBLE
-  toLE := args.instLE
-  toBLT := args.instBLT
-  toLT := args.instLT
-  toBEq := args.instBEq
-  toNoncomputableBEq := args.instNoncomputableBEq
+class LawfulPartiallyComparableOrd {α : Type u} [Ord α] (c : PartiallyComparable α) where
+  compare_eq_some_compare : ∀ a b, c.compare a b = some (compare a b)
 
-instance PartiallyComparable.lawful [LE α] :
-    haveI : PartiallyComparable α := .ofLE {}
-    LawfulPartiallyComparable α :=
-  letI : PartiallyComparable α := .ofLE {}
-  { beq_iff_le_ge := by intro a b; simp [NoncomputableBEq.ofRel, PartiallyComparable.ofLE] }
+class LawfulTotallyComparable {α : Type u} (c : PartiallyComparable α) where
+  isSome_compare : ∀ a b, (c.compare a b).isSome
 
-instance (α : Type u) [BLE α] :
-    haveI : BLT α := PartiallyComparable.bltOfBLE α
-    haveI : LT α := PartiallyComparable.ltOfBLE α
-    LawfulBLT α :=
-  letI : BLT α := PartiallyComparable.bltOfBLE α
-  letI : LT α := PartiallyComparable.ltOfBLE α
-  ⟨fun a b => by simp [PartiallyComparable.ltOfBLE, PartiallyComparable.bltOfBLE]⟩
+theorem LawfulPartiallyComparableOrd.eq_ofOrd {α : Type u} [Ord α] {c : PartiallyComparable α}
+    [i : LawfulPartiallyComparableOrd c] :
+    c = .ofOrd α := by
+  ext a b
+  simp [PartiallyComparable.ofOrd, i.compare_eq_some_compare a b]
 
-instance (α : Type u) [BLE α] :
-    haveI : BLT α := PartiallyComparable.bltOfBLE α
-    haveI : LT α := PartiallyComparable.ltOfBLE α
-    LawfulBLT α :=
-  letI : BLT α := PartiallyComparable.bltOfBLE α
-  letI : LT α := PartiallyComparable.ltOfBLE α
-  ⟨fun a b => by simp [PartiallyComparable.ltOfBLE, PartiallyComparable.bltOfBLE]⟩
+instance (α : Type u) [Ord α] : LawfulPartiallyComparableOrd (.ofOrd α) where
+  compare_eq_some_compare := fun _ _ => by rfl
 
-theorem PartiallyComparable.beq_iff_le_ge {α : Type u} [BEq α] [PartiallyComparable α]
-    [LawfulComputableBEq α] [LawfulPartiallyComparable α] {a b : α} :
-    a == b ↔ a ≤ b ∧ b ≤ a := by
-  simp [← LawfulComputableBEq.isEq_iff_beq, LawfulPartiallyComparable.beq_iff_le_ge]
+instance (α : Type u) [Ord α] : LawfulTotallyComparable (.ofOrd α) where
+  isSome_compare := by simp [PartiallyComparable.ofOrd]
 
-theorem PartiallyComparable.beq_eq_false_of_lt {α : Type u} [BEq α] [PartiallyComparable α]
-    [LawfulComputableBEq α] [LawfulPartiallyComparable α] {a b : α} (h : a < b) :
-    (a == b) = false := by
-  rw [LawfulPartiallyComparable.lt_iff_le_not_ge] at h
-  simp [← Bool.not_eq_true, beq_iff_le_ge, h]
+theorem LawfulOrientedPartiallyComparableLE.eq_ofLE {α : Type u} [LE α] {c : PartiallyComparable α}
+    [i : LawfulOrientedPartiallyComparableLE c] :
+    c = .ofLE α := by
+  ext a b
+  have hle := i.le_iff_compare_isLE a b
+  have hge := i.ge_iff_compare_isGE a b
+  simp only [PartiallyComparable.ofLE, hle, hge]
+  cases c.compare a b
+  · simp [PartialOrdering.isLE, PartialOrdering.isGE]
+  · rename_i o
+    simp only [PartialOrdering.isLE, PartialOrdering.isGE]
+    cases o <;> simp
+
+instance (α : Type u) [LE α] : LawfulOrientedPartiallyComparableLE (.ofLE α) where
+  le_iff_compare_isLE a b := by
+    simp only [PartiallyComparable.ofLE]
+    split <;> split <;> simp_all [PartialOrdering.isLE]
+  ge_iff_compare_isGE a b := by
+    simp only [PartiallyComparable.ofLE]
+    split <;> split <;> simp_all [PartialOrdering.isGE]
+
+theorem LawfulOrientedPartiallyComparableLT.eq_ofLT {α : Type u} [LT α] {c : PartiallyComparable α}
+    [i : LawfulOrientedPartiallyComparableLT c] [LawfulTotallyComparable c] :
+    c = .ofLT α := by
+  ext a b
+  have hlt := i.lt_iff_compare_eq_some_lt a b
+  have hgt := i.gt_iff_compare_eq_some_gt a b
+  simp [PartiallyComparable.ofLT, hlt, hgt]
+  cases h : c.compare a b
+  · have := LawfulTotallyComparable.isSome_compare (c := c) a b
+    simp [h] at this
+  · rename_i o
+    cases o <;> simp_all
+
+instance {α : Type u} [LT α] : LawfulTotallyComparable (.ofLT α) where
+  isSome_compare a b := by
+    simp only [PartiallyComparable.ofLT]
+    split
+    · simp
+    · split <;> simp
+
+instance (α : Type u) [LT α] [Std.Asymm (α := α) (· < ·)] :
+    LawfulOrientedPartiallyComparableLT (.ofLT α) where
+  lt_iff_compare_eq_some_lt a b := by
+    simp [PartiallyComparable.ofLT]
+    constructor
+    · intro h
+      simp [h]
+    · intro h
+      split at h <;> simp_all
+  gt_iff_compare_eq_some_gt a b := by
+    simp [PartiallyComparable.ofLT]
+    split
+    · simp
+      apply Std.Asymm.asymm
+      assumption
+    · simp
+
+section OrderProp
+
+class OrderProp {α : Type u} (P : PartiallyComparable α → Prop) (c : PartiallyComparable α) where
+  inner : P c
+
+variable {α : Type u} {P : PartiallyComparable α → Prop}
+
+instance [Ord α] [LE α] [i : LawfulOrientedPartiallyComparableLE (.ofOrd α)]
+    [OrderProp P (.ofOrd α)] : OrderProp P (.ofLE α) := by
+  rw [← i.eq_ofLE]; infer_instance
+
+instance [Ord α] [LT α] [i : LawfulOrientedPartiallyComparableLT (.ofOrd α)]
+    [LawfulTotallyComparable (.ofOrd α)] [OrderProp P (.ofOrd α)] : OrderProp P (.ofLT α) := by
+  rw [← i.eq_ofLT]; infer_instance
+
+instance [LE α] [Ord α] [i : LawfulPartiallyComparableOrd (.ofLE α)]
+    [OrderProp P (.ofLE α)] : OrderProp P (.ofOrd α) := by
+  rw [← i.eq_ofOrd]; infer_instance
+
+instance [LE α] [LT α] [i : LawfulOrientedPartiallyComparableLT (.ofLE α)]
+    [LawfulTotallyComparable (.ofLE α)] [OrderProp P (.ofLE α)] : OrderProp P (.ofLT α) := by
+  rw [← i.eq_ofLT]; infer_instance
+
+instance [LT α] [Ord α] [i : LawfulPartiallyComparableOrd (.ofLT α)] [Std.Asymm (α := α) (· < ·)]
+    [OrderProp P (.ofLT α)] : OrderProp P (.ofOrd α) := by
+  rw [← i.eq_ofOrd]; infer_instance
+
+instance [LT α] [LE α] [i : LawfulOrientedPartiallyComparableLE (.ofLT α)] [Std.Asymm (α := α) (· < ·)]
+    [OrderProp P (.ofLT α)] : OrderProp P (.ofLE α) := by
+  rw [← i.eq_ofLE]; infer_instance
+
+end OrderProp
+
+instance (α : Type u) (c : PartiallyComparable α) [Ord α] [LawfulPartiallyComparableOrd c] :
+    OrderProp LawfulPartiallyComparableOrd c where
+  inner := inferInstance
+
+instance (α : Type u) (c : PartiallyComparable α) [Ord α] [OrderProp LawfulPartiallyComparableOrd c] :
+    LawfulPartiallyComparableOrd c :=
+  OrderProp.inner
+
+instance (α : Type u) (c : PartiallyComparable α) [LE α] [LawfulOrientedPartiallyComparableLE c] :
+    OrderProp LawfulOrientedPartiallyComparableLE c where
+  inner := inferInstance
+
+instance (α : Type u) (c : PartiallyComparable α) [LE α]
+    [OrderProp LawfulOrientedPartiallyComparableLE c] : LawfulOrientedPartiallyComparableLE c :=
+  OrderProp.inner
+
+instance (α : Type u) (c : PartiallyComparable α) [LT α] [LawfulOrientedPartiallyComparableLT c] :
+    OrderProp LawfulOrientedPartiallyComparableLT c where
+  inner := inferInstance
+
+instance (α : Type u) (c : PartiallyComparable α) [LT α]
+    [OrderProp LawfulOrientedPartiallyComparableLT c] : LawfulOrientedPartiallyComparableLT c :=
+  OrderProp.inner
+
+instance (α : Type u) (c : PartiallyComparable α) [LawfulTotallyComparable c] :
+    OrderProp LawfulTotallyComparable c where
+  inner := inferInstance
+
+instance (α : Type u) (c : PartiallyComparable α) [OrderProp LawfulTotallyComparable c] :
+    LawfulTotallyComparable c :=
+  OrderProp.inner
+
+theorem lt_iff_le_and_not_ge [LE α] [LT α] [i : LawfulOrientedPartiallyComparableLT (.ofLE α)]
+    {a b : α} : a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
+  simp [i.lt_iff_compare_eq_some_lt, PartiallyComparable.ofLE]
+  split <;> split <;> simp_all
+
+-- Demo: an alternative formulation of the lemma in terms of LT
+-- Note that this is more restrictive because `ofLT` is total by construction.
+example [LE α] [LT α] [LawfulOrientedPartiallyComparableLE (.ofLT α)]
+    [Std.Asymm (α := α) (· < ·)]
+    {a b : α} : a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
+  -- base change works!
+  apply lt_iff_le_and_not_ge
+
+theorem le_total [LE α] [i : LawfulTotallyComparable (.ofLE α)] {a b : α} :
+    a ≤ b ∨ b ≤ a := by
+  have := i.isSome_compare a b
+  simp only [PartiallyComparable.ofLE] at this
+  split at this
+  · exact Or.inl ‹_›
+  · split at this
+    · exact Or.inr ‹_›
+    · cases this
+
+example [LE α] [Ord α]
+    [i : LawfulOrientedPartiallyComparableLE (.ofOrd α)] {a b : α} :
+    (compare a b).isLE ∨ (compare a b).isGE := by
+  -- The required LawfulTotallyComparable (.ofLE α) instance is inferred as expected
+  have := le_total (α := α) (a := a) (b := b)
+  -- Sad: I need to explicitly reference the instance I want.
+  simp [i.le_iff_compare_isLE] at this

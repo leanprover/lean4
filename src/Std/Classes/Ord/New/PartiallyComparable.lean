@@ -184,6 +184,19 @@ instance (α : Type u) (c : PartiallyComparable α) [OrderProp LawfulTotallyComp
     LawfulTotallyComparable c :=
   OrderProp.inner
 
+theorem lt_iff_le_and_not_ge [LE α] [LT α] [i : LawfulOrientedPartiallyComparableLT (.ofLE α)]
+    {a b : α} : a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
+  simp [i.lt_iff_compare_eq_some_lt, PartiallyComparable.ofLE]
+  split <;> split <;> simp_all
+
+-- Demo: an alternative formulation of the lemma in terms of LT
+-- Note that this is more restrictive because `ofLT` is total by construction.
+example [LE α] [LT α] [LawfulOrientedPartiallyComparableLE (.ofLT α)]
+    [Std.Asymm (α := α) (· < ·)]
+    {a b : α} : a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
+  -- base change works!
+  apply lt_iff_le_and_not_ge
+
 theorem le_total [LE α] [i : LawfulTotallyComparable (.ofLE α)] {a b : α} :
     a ≤ b ∨ b ≤ a := by
   have := i.isSome_compare a b

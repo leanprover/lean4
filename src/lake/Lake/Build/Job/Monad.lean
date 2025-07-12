@@ -50,21 +50,36 @@ instance : MonadLift LogIO JobM := ⟨ELogT.takeAndRun⟩
 @[inline] def setTrace (trace : BuildTrace) : JobM PUnit :=
   modify fun s => {s with trace := trace}
 
-/-- Set the caption of the job's build trace. -/
-@[inline] def setTraceCaption (caption : String) : JobM PUnit :=
-  modify fun s => {s with trace.caption := caption}
-
 /-- Replace the job's build trace with a new empty trace. -/
 @[inline] def newTrace (caption := "<nil>") : JobM PUnit :=
-  modify fun s => {s with trace := .nil caption}
+  setTrace (.nil caption)
 
-/-- Mix a trace into the current job's build trace. -/
-@[inline] def addTrace (trace : BuildTrace) : JobM PUnit :=
-  modify fun s => {s with trace := s.trace.mix trace}
+/-- Mutates the job's trace, applying `f` to it.-/
+@[inline] def modifyTrace (f : BuildTrace → BuildTrace) : JobM PUnit :=
+  modify fun s => {s with trace := f s.trace}
+
+/-- Set the caption of the job's build trace. -/
+@[inline] def setTraceCaption (caption : String) : JobM PUnit :=
+  modifyTrace ({· with caption := caption})
 
 /-- Returns the current job's build trace and removes it from the state. -/
 @[inline] def takeTrace : JobM BuildTrace :=
   modifyGet fun s => (s.trace, {s with trace := nilTrace})
+
+/-- Sets the current job's trace and returns the previous one. -/
+@[inline] def swapTrace (trace : BuildTrace) : JobM BuildTrace :=
+  modifyGet fun s => (s.trace, {s with trace := trace})
+
+/-- Mix a trace into the current job's build trace. -/
+@[inline] def addTrace (trace : BuildTrace) : JobM PUnit :=
+  modifyTrace (·.mix trace)
+
+  /-- Runs `x` with a new trace and then mixes it into the original trace. -/
+@[inline] def addSubTrace (caption : String) (x : JobM α) : JobM α := do
+  let oldTrace ← swapTrace (.nil caption)
+  let a ← x
+  modifyTrace (oldTrace.mix ·)
+  return a
 
 /-- The monad used to spawn asynchronous Lake build jobs. Lifts into `FetchM`. -/
 abbrev SpawnM := FetchT <| ReaderT BuildTrace <| BaseIO

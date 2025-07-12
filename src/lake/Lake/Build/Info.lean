@@ -202,6 +202,18 @@ namespace Module
 @[inherit_doc depsFacet] abbrev deps  (self : Module) :=
   self.facetCore depsFacet
 
+@[inherit_doc importInfoFacet] abbrev importInfo (self : Module) :=
+  self.facetCore importInfoFacet
+
+@[inherit_doc exportInfoFacet] abbrev exportInfo (self : Module) :=
+  self.facetCore exportInfoFacet
+
+@[inherit_doc importArtsFacet] abbrev importArts (self : Module) :=
+  self.facetCore importArtsFacet
+
+@[inherit_doc importAllArtsFacet] abbrev importAllArts (self : Module) :=
+  self.facetCore importAllArtsFacet
+
 @[inherit_doc leanArtsFacet] abbrev leanArts (self : Module) :=
   self.facetCore leanArtsFacet
 

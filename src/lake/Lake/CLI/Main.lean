@@ -549,7 +549,8 @@ private def evalLeanFile
       mkArgs path setup mod.leanArgs
     else
       let header ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
-      let setup ← mkModuleSetup ws leanFile.toString header ws.leanOptions buildConfig
+      let setup ← ws.runBuild (cfg := buildConfig) do
+        setupExternalModule leanFile.toString header ws.leanOptions
       mkArgs path setup ws.root.moreLeanArgs
   let spawnArgs : IO.Process.SpawnArgs := {
     args := args ++ moreArgs

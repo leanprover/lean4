@@ -22,21 +22,6 @@ and falls back to plain `lean --server`.
 -/
 def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
 
-def mkModuleSetup
-  (ws : Workspace) (fileName : String) (header : ModuleHeader) (opts : LeanOptions)
-  (buildConfig : BuildConfig)
-: IO ModuleSetup := do
-  let {dynlibs, plugins} ← ws.runBuild (buildImportsAndDeps fileName header.imports) buildConfig
-  return {
-    name := `_unknown
-    isModule := header.isModule
-    imports? := none
-    importArts := {} -- TODO
-    dynlibs := dynlibs.map (·.path.toString)
-    plugins := plugins.map (·.path.toString)
-    options := opts
-  }
-
 /--
 Build the dependencies of a Lean file and print the computed module's setup as JSON.
 If `header?` is not not `none`, it will be used to determine imports instead of the
@@ -76,8 +61,8 @@ def setupFile
     else
       let header ← header?.getDM do
         Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
-      let setup ← mkModuleSetup
-        ws leanFile.toString header ws.serverOptions buildConfig
+      let setup ← ws.runBuild (cfg := buildConfig) do
+        setupExternalModule leanFile.toString header ws.serverOptions
       IO.println (toJson setup).compress
 
 /--

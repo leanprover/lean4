@@ -504,12 +504,9 @@ private partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
   | Grind.nestedDecidable p₁ _ =>
     let_expr Grind.nestedDecidable p₂ _ := b | false
     hasSameRoot enodes p₁ p₂
-  | Eq α₁ lhs₁ rhs₁ =>
-    let_expr Eq α₂ lhs₂ rhs₂ := b | false
-    if isSameExpr α₁ α₂ then
-      goEq lhs₁ rhs₁ lhs₂ rhs₂
-    else
-      go a b
+  | Eq _ lhs₁ rhs₁ =>
+    let_expr Eq _ lhs₂ rhs₂ := b | false
+    goEq lhs₁ rhs₁ lhs₂ rhs₂
   | _ =>
     if a.isApp && b.isApp then
       go a b

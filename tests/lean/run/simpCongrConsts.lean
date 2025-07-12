@@ -83,8 +83,7 @@ Note: It is possible to *not* fix them and then use a more complicated cast algo
 def test7 {α : Type u} [DecidableEq α] {x : α} (h : (x == x) = true) : Nat := sorry
 
 /--
-info: test7.congr_simp.{u} {α : Type u} [DecidableEq α] {x x✝ : α} (e_x : x = x✝)
-  (h : (x == x) = true) : test7 h = test7 ⋯
+info: test7.congr_simp.{u} {α : Type u} [DecidableEq α] {x x✝ : α} (e_x : x = x✝) (h : (x == x) = true) : test7 h = test7 ⋯
 -/
 #guard_msgs in
 #check test7.congr_simp

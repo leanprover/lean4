@@ -189,16 +189,16 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     ```
     -/
     let rangeNumArgs ← if hasMVarHead then
-      pure [numArgs : numArgs+1]
+      pure numArgs...(numArgs+1)
     else
       let targetTypeNumArgs ← getExpectedNumArgs targetType
-      pure [numArgs - targetTypeNumArgs : numArgs+1]
+      pure (numArgs - targetTypeNumArgs)...(numArgs+1)
     /-
     Auxiliary function for trying to add `n` underscores where `n ∈ [i: rangeNumArgs.stop)`
     See comment above
     -/
     let rec go (i : Nat) : MetaM (Array Expr × Array BinderInfo) := do
-      if i < rangeNumArgs.stop then
+      if i < rangeNumArgs.upper then
         let s ← saveState
         let (newMVars, binderInfos, eType) ← forallMetaTelescopeReducing eType i
         if (← isDefEqApply cfg.approx eType targetType) then
@@ -208,14 +208,14 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
           go (i+1)
       else
 
-        let conclusionType? ← if rangeNumArgs.start = 0 then
+        let conclusionType? ← if rangeNumArgs.lower = 0 then
           pure none
         else
-          let (_, _, r) ← forallMetaTelescopeReducing eType (some rangeNumArgs.start)
+          let (_, _, r) ← forallMetaTelescopeReducing eType (some rangeNumArgs.lower)
           pure (some r)
         throwApplyError mvarId eType conclusionType? targetType term?
-      termination_by rangeNumArgs.stop - i
-    let (newMVars, binderInfos) ← go rangeNumArgs.start
+      termination_by rangeNumArgs.upper - i
+    let (newMVars, binderInfos) ← go rangeNumArgs.lower
     postprocessAppMVars `apply mvarId newMVars binderInfos cfg.synthAssignedInstances cfg.allowSynthFailures
     let e ← instantiateMVars e
     mvarId.assign (mkAppN e newMVars)

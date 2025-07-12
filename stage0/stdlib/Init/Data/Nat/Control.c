@@ -652,37 +652,38 @@ x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_nat_dec_eq(x_4, x_8);
 if (x_9 == 1)
 {
-lean_object* x_10; lean_object* x_11; 
+uint8_t x_10; lean_object* x_11; lean_object* x_12; 
 lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_10 = lean_box(0);
-x_11 = lean_apply_2(x_7, lean_box(0), x_10);
-return x_11;
+x_10 = 0;
+x_11 = lean_box(x_10);
+x_12 = lean_apply_2(x_7, lean_box(0), x_11);
+return x_12;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_12 = lean_unsigned_to_nat(1u);
-x_13 = lean_nat_sub(x_4, x_12);
-lean_inc(x_13);
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_13 = lean_unsigned_to_nat(1u);
+x_14 = lean_nat_sub(x_4, x_13);
+lean_inc(x_14);
 lean_inc(x_3);
 lean_inc(x_2);
-x_14 = lean_alloc_closure((void*)(l_Nat_anyM_loop___redArg___lam__0___boxed), 6, 5);
-lean_closure_set(x_14, 0, x_1);
-lean_closure_set(x_14, 1, x_2);
-lean_closure_set(x_14, 2, x_3);
-lean_closure_set(x_14, 3, x_13);
-lean_closure_set(x_14, 4, x_7);
-x_15 = lean_nat_sub(x_2, x_13);
-lean_dec(x_13);
+x_15 = lean_alloc_closure((void*)(l_Nat_anyM_loop___redArg___lam__0___boxed), 6, 5);
+lean_closure_set(x_15, 0, x_1);
+lean_closure_set(x_15, 1, x_2);
+lean_closure_set(x_15, 2, x_3);
+lean_closure_set(x_15, 3, x_14);
+lean_closure_set(x_15, 4, x_7);
+x_16 = lean_nat_sub(x_2, x_14);
+lean_dec(x_14);
 lean_dec(x_2);
-x_16 = lean_nat_sub(x_15, x_12);
-lean_dec(x_15);
-x_17 = lean_apply_2(x_3, x_16, lean_box(0));
-x_18 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_17, x_14);
-return x_18;
+x_17 = lean_nat_sub(x_16, x_13);
+lean_dec(x_16);
+x_18 = lean_apply_2(x_3, x_17, lean_box(0));
+x_19 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_18, x_15);
+return x_19;
 }
 }
 }

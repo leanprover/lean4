@@ -59,7 +59,7 @@ private partial def loop : M Bool := do
   let simprocs := (← get).simprocs
   -- simplify entries
   let entries := (← get).entries
-  for h : i in [:entries.size] do
+  for h : i in *...entries.size do
     let entry := entries[i]
     let ctx := (← get).ctx
     -- We disable the current entry to prevent it to be simplified to `True`

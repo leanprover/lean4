@@ -76,6 +76,7 @@ LEAN_EXPORT lean_object* l_instToStringProd___redArg___lam__0(lean_object*, lean
 LEAN_EXPORT lean_object* l_instToStringULift___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSum(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSubtype(lean_object*, lean_object*, lean_object*);
+static lean_object* l_instToStringFormat___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_instToStringProd___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprExcept___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringNat;
@@ -90,6 +91,7 @@ LEAN_EXPORT lean_object* l_instToStringOption(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSigma___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_addParenHeuristic___closed__0;
 LEAN_EXPORT lean_object* l_instToStringUInt64___lam__0(uint64_t);
+extern lean_object* l_Std_Format_defWidth;
 static lean_object* l_instToStringInt___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_instToStringBool;
 LEAN_EXPORT lean_object* l_instToStringFin___lam__0(lean_object*);
@@ -887,11 +889,19 @@ x_3 = l_instToStringUSize___lam__0(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_instToStringFormat___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Std_Format_defWidth;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_instToStringFormat___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_unsigned_to_nat(120u);
+x_2 = l_instToStringFormat___lam__0___closed__0;
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_format_pretty(x_1, x_2, x_3, x_3);
 return x_4;
@@ -1482,10 +1492,9 @@ lean_dec(x_6);
 lean_dec(x_1);
 if (x_8 == 0)
 {
-lean_object* x_9; uint8_t x_10; 
-x_9 = lean_box(1);
-x_10 = lean_unbox(x_9);
-return x_10;
+uint8_t x_9; 
+x_9 = 1;
+return x_9;
 }
 else
 {
@@ -1501,44 +1510,43 @@ return x_5;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_11 = lean_string_utf8_byte_size(x_1);
-lean_inc(x_11);
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
+x_10 = lean_string_utf8_byte_size(x_1);
+lean_inc(x_10);
 lean_inc(x_1);
-x_12 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_12, 0, x_1);
-lean_ctor_set(x_12, 1, x_2);
-lean_ctor_set(x_12, 2, x_11);
-x_13 = lean_unsigned_to_nat(1u);
-x_14 = l_Substring_nextn(x_12, x_13, x_2);
-lean_dec(x_12);
-x_15 = lean_nat_sub(x_11, x_14);
-x_16 = lean_nat_dec_eq(x_15, x_2);
-lean_dec(x_15);
-if (x_16 == 0)
-{
-uint8_t x_17; 
-x_17 = l_String_anyAux___at___String_toNat_x3f_spec__1(x_16, x_1, x_11, x_14);
+x_11 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_11, 0, x_1);
+lean_ctor_set(x_11, 1, x_2);
+lean_ctor_set(x_11, 2, x_10);
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = l_Substring_nextn(x_11, x_12, x_2);
 lean_dec(x_11);
+x_14 = lean_nat_sub(x_10, x_13);
+x_15 = lean_nat_dec_eq(x_14, x_2);
+lean_dec(x_14);
+if (x_15 == 0)
+{
+uint8_t x_16; 
+x_16 = l_String_anyAux___at___String_toNat_x3f_spec__1(x_15, x_1, x_10, x_13);
+lean_dec(x_10);
 lean_dec(x_1);
-if (x_17 == 0)
+if (x_16 == 0)
 {
 return x_5;
 }
 else
 {
-return x_16;
+return x_15;
 }
 }
 else
 {
-lean_object* x_18; uint8_t x_19; 
-lean_dec(x_14);
-lean_dec(x_11);
+uint8_t x_17; 
+lean_dec(x_13);
+lean_dec(x_10);
 lean_dec(x_1);
-x_18 = lean_box(0);
-x_19 = lean_unbox(x_18);
-return x_19;
+x_17 = 0;
+return x_17;
 }
 }
 }
@@ -1821,6 +1829,8 @@ l_instToStringUInt64 = _init_l_instToStringUInt64();
 lean_mark_persistent(l_instToStringUInt64);
 l_instToStringUSize = _init_l_instToStringUSize();
 lean_mark_persistent(l_instToStringUSize);
+l_instToStringFormat___lam__0___closed__0 = _init_l_instToStringFormat___lam__0___closed__0();
+lean_mark_persistent(l_instToStringFormat___lam__0___closed__0);
 l_instToStringFormat = _init_l_instToStringFormat();
 lean_mark_persistent(l_instToStringFormat);
 l_addParenHeuristic___closed__0 = _init_l_addParenHeuristic___closed__0();

@@ -960,19 +960,15 @@ return x_2;
 static lean_object* _init_l_Lean_MVarId_heqOfEq___lam__0___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; uint8_t x_6; uint8_t x_7; uint8_t x_8; 
-x_1 = lean_box(0);
-x_2 = lean_box(1);
-x_3 = lean_box(0);
+uint8_t x_1; uint8_t x_2; uint8_t x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = 1;
+x_3 = 0;
 x_4 = lean_alloc_ctor(0, 0, 4);
-x_5 = lean_unbox(x_3);
-lean_ctor_set_uint8(x_4, 0, x_5);
-x_6 = lean_unbox(x_2);
-lean_ctor_set_uint8(x_4, 1, x_6);
-x_7 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_4, 2, x_7);
-x_8 = lean_unbox(x_2);
-lean_ctor_set_uint8(x_4, 3, x_8);
+lean_ctor_set_uint8(x_4, 0, x_3);
+lean_ctor_set_uint8(x_4, 1, x_2);
+lean_ctor_set_uint8(x_4, 2, x_1);
+lean_ctor_set_uint8(x_4, 3, x_2);
 return x_4;
 }
 }

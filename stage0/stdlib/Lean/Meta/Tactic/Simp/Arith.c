@@ -23,44 +23,43 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_box(0);
-x_4 = lean_unbox(x_3);
-return x_4;
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
 }
 else
 {
-lean_object* x_5; uint8_t x_6; uint8_t x_9; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
+lean_object* x_4; uint8_t x_5; uint8_t x_8; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
 lean_dec(x_1);
-x_9 = l_Lean_Meta_Simp_Arith_isLinearTerm(x_5, x_2);
-if (x_9 == 0)
+x_8 = l_Lean_Meta_Simp_Arith_isLinearTerm(x_4, x_2);
+if (x_8 == 0)
 {
-uint8_t x_10; 
-lean_inc(x_5);
-x_10 = l_Lean_Meta_Simp_Arith_isLinearCnstr(x_5);
-x_6 = x_10;
-goto block_8;
+uint8_t x_9; 
+lean_inc(x_4);
+x_9 = l_Lean_Meta_Simp_Arith_isLinearCnstr(x_4);
+x_5 = x_9;
+goto block_7;
 }
 else
 {
-x_6 = x_9;
-goto block_8;
+x_5 = x_8;
+goto block_7;
 }
-block_8:
+block_7:
 {
-if (x_6 == 0)
+if (x_5 == 0)
 {
-uint8_t x_7; 
-x_7 = l_Lean_Meta_Simp_Arith_isDvdCnstr(x_5);
-lean_dec(x_5);
-return x_7;
-}
-else
-{
-lean_dec(x_5);
+uint8_t x_6; 
+x_6 = l_Lean_Meta_Simp_Arith_isDvdCnstr(x_4);
+lean_dec(x_4);
 return x_6;
+}
+else
+{
+lean_dec(x_4);
+return x_5;
 }
 }
 }

@@ -64,12 +64,11 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_3_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = l_Lean_initFn___closed__2____x40_Lean_Modifiers___hyg_3_;
-x_3 = lean_box(2);
-x_4 = lean_unbox(x_3);
-x_5 = l_Lean_mkTagDeclarationExtension(x_2, x_4, x_1);
-return x_5;
+x_3 = 2;
+x_4 = l_Lean_mkTagDeclarationExtension(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_addProtected___closed__0() {
@@ -134,35 +133,32 @@ lean_inc(x_2);
 x_3 = lean_private_to_user_name(x_2);
 if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_4; uint8_t x_5; 
+uint8_t x_4; 
 lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = lean_unbox(x_4);
-return x_5;
+x_4 = 0;
+return x_4;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
+lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
 lean_dec(x_3);
-x_7 = l_Lean_mkPrivateName(x_1, x_6);
-x_8 = lean_name_eq(x_7, x_2);
+x_6 = l_Lean_mkPrivateName(x_1, x_5);
+x_7 = lean_name_eq(x_6, x_2);
 lean_dec(x_2);
-lean_dec(x_7);
-if (x_8 == 0)
+lean_dec(x_6);
+if (x_7 == 0)
 {
-lean_object* x_9; uint8_t x_10; 
-x_9 = lean_box(1);
-x_10 = lean_unbox(x_9);
-return x_10;
+uint8_t x_8; 
+x_8 = 1;
+return x_8;
 }
 else
 {
-lean_object* x_11; uint8_t x_12; 
-x_11 = lean_box(0);
-x_12 = lean_unbox(x_11);
-return x_12;
+uint8_t x_9; 
+x_9 = 0;
+return x_9;
 }
 }
 }

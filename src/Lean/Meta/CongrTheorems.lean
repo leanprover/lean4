@@ -124,8 +124,8 @@ def mkHCongr (f : Expr) : MetaM CongrTheorem := do
 -/
 private def fixKindsForDependencies (info : FunInfo) (kinds : Array CongrArgKind) : Array CongrArgKind := Id.run do
   let mut kinds := kinds
-  for i in [:info.paramInfo.size] do
-    for hj : j in [i+1:info.paramInfo.size] do
+  for i in *...info.paramInfo.size do
+    for hj : j in (i+1)...info.paramInfo.size do
       if info.paramInfo[j].backDeps.contains i then
         if kinds[j]! matches CongrArgKind.eq || kinds[j]! matches CongrArgKind.fixed then
           -- We must fix `i` because there is a `j` that depends on `i` and `j` is not cast-fixed.
@@ -188,7 +188,7 @@ private def getClassSubobjectMask? (f : Expr) : MetaM (Option (Array Bool)) := d
   forallTelescopeReducing val.type (cleanupAnnotations := true) fun xs _ => do
     let env ← getEnv
     let mut mask := #[]
-    for h : i in [:xs.size] do
+    for h : i in *...xs.size do
       if i < val.numParams then
         mask := mask.push false
       else
@@ -214,7 +214,7 @@ def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) :
   -/
   let mut result := #[]
   let mask? ← getClassSubobjectMask? f
-  for h : i in [:info.paramInfo.size] do
+  for h : i in *...info.paramInfo.size do
     if info.resultDeps.contains i then
       result := result.push .fixed
     else if info.paramInfo[i].isProp then
@@ -241,7 +241,7 @@ and otherwise it is `CongrArgKind.fixed`. This is used for the `arg` conv tactic
 -/
 def getCongrSimpKindsForArgZero (info : FunInfo) : MetaM (Array CongrArgKind) := do
   let mut result := #[]
-  for h : i in [:info.paramInfo.size] do
+  for h : i in *...info.paramInfo.size do
     if info.resultDeps.contains i then
       result := result.push .fixed
     else if i == 0 then
@@ -350,9 +350,9 @@ is marked as instance implicit. It forces the simplifier to compute the new inst
 the congruence theorem.
 For the `congr` tactic we set it to `false`.
 -/
-def mkCongrSimp? (f : Expr) (subsingletonInstImplicitRhs : Bool := true) : MetaM (Option CongrTheorem) := do
+def mkCongrSimp? (f : Expr) (subsingletonInstImplicitRhs : Bool := true) (maxArgs? : Option Nat := none) : MetaM (Option CongrTheorem) := do
   let f := (← instantiateMVars f).cleanupAnnotations
-  let info ← getFunInfo f
+  let info ← getFunInfo f (maxArgs? := maxArgs?)
   mkCongrSimpCore? f info (← getCongrSimpKinds f info) (subsingletonInstImplicitRhs := subsingletonInstImplicitRhs)
 
 def hcongrThmSuffixBase := "hcongr"
@@ -363,6 +363,8 @@ def isHCongrReservedNameSuffix (s : String) : Bool :=
   hcongrThmSuffixBasePrefix.isPrefixOf s && (s.drop 7).isNat
 
 def congrSimpSuffix := "congr_simp"
+
+builtin_initialize registerTraceClass `congr.thm
 
 builtin_initialize congrKindsExt : MapDeclarationExtension (Array CongrArgKind) ← mkMapDeclarationExtension
 
@@ -386,6 +388,7 @@ builtin_initialize
             name, type := congrThm.type, value := congrThm.proof
             levelParams := info.levelParams
           }
+          trace[congr.thm] "declared `{name}`"
           modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
         return true
       catch _ => return false
@@ -401,6 +404,7 @@ builtin_initialize
             name, type := congrThm.type, value := congrThm.proof
             levelParams := cinfo.levelParams
           }
+          trace[congr.thm] "declared `{name}`"
           modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
         return true
       catch _ => return false
@@ -430,8 +434,8 @@ Similar to `mkCongrSimp?`, but uses reserved names to ensure we don't keep creat
 same congruence theorem over and over again.
 -/
 def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option CongrTheorem) := do
+  let thmName := Name.str declName congrSimpSuffix
   try
-    let thmName := Name.str declName congrSimpSuffix
     unless (← getEnv).contains thmName do
       let _ ← executeReservedNameAction thmName
     let proof := mkConst thmName levels
@@ -439,7 +443,8 @@ def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option
     let some argKinds := congrKindsExt.find? (← getEnv) thmName
       | unreachable!
     return some { proof, type, argKinds }
-  catch _ =>
+  catch ex =>
+    trace[congr.thm] "failed to generate `{thmName}` {ex.toMessageData}"
     return none
 
 end Lean.Meta

@@ -20,10 +20,10 @@ partial def mIntro [Monad m] [MonadControlT MetaM m] (goal : MGoal) (ident : TSy
   addHypInfo ref σs hyp (isBinder := true)
   let Q := goal.hyps
   let H := hyp.toExpr
-  let (P, hand) := mkAnd goal.σs goal.hyps H
+  let (P, hand) := mkAnd goal.u goal.σs goal.hyps H
   map do
     let (a, prf) ← k { goal with hyps := P, target := T }
-    let prf := mkApp7 (mkConst ``Intro.intro) σs P Q H T hand prf
+    let prf := mkApp7 (mkConst ``Intro.intro [goal.u]) σs P Q H T hand prf
     return (a, prf)
 
 -- This is regular MVar.intro, but it takes care not to leave the proof mode by preserving metadata
@@ -38,9 +38,9 @@ partial def mIntroForall [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m] 
     let H := betaRevPreservingHypNames σs' goal.hyps #[s]
     let T := goal.target.betaRev #[s]
     map do
-      let (a, prf) ← k { σs:=σs', hyps:=H, target:=T }
+      let (a, prf) ← k { u := goal.u, σs:=σs', hyps:=H, target:=T }
       let prf ← mkLambdaFVars #[s] prf
-      return (a, mkApp5 (mkConst ``SPred.entails_cons_intro) σ σs' goal.hyps goal.target prf)
+      return (a, mkApp5 (mkConst ``SPred.entails_cons_intro [goal.u]) σs' σ goal.hyps goal.target prf)
 
 def mIntroForallN [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m] (goal : MGoal) (n : Nat) (k : MGoal → m (α × Expr)) : m (α × Expr) :=
   match n with

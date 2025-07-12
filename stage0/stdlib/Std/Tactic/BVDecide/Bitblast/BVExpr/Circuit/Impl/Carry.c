@@ -33,45 +33,44 @@ lean_object* x_9; lean_object* x_10; uint8_t x_19; lean_object* x_20;
 x_19 = lean_nat_dec_lt(x_7, x_3);
 if (x_19 == 0)
 {
-lean_object* x_32; 
+lean_object* x_31; 
 lean_dec(x_7);
 lean_dec(x_2);
 lean_dec(x_1);
-x_32 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_32, 0, x_4);
-lean_ctor_set(x_32, 1, x_8);
-return x_32;
+x_31 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_31, 0, x_4);
+lean_ctor_set(x_31, 1, x_8);
+return x_31;
 }
 else
 {
-lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; 
-x_33 = lean_array_fget(x_5, x_7);
-x_34 = lean_unsigned_to_nat(1u);
-x_35 = lean_nat_shiftr(x_33, x_34);
-x_36 = lean_nat_land(x_34, x_33);
-lean_dec(x_33);
-x_37 = lean_unsigned_to_nat(0u);
-x_38 = lean_nat_dec_eq(x_36, x_37);
-lean_dec(x_36);
-if (x_38 == 0)
+lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
+x_32 = lean_array_fget(x_5, x_7);
+x_33 = lean_unsigned_to_nat(1u);
+x_34 = lean_nat_shiftr(x_32, x_33);
+x_35 = lean_nat_land(x_33, x_32);
+lean_dec(x_32);
+x_36 = lean_unsigned_to_nat(0u);
+x_37 = lean_nat_dec_eq(x_35, x_36);
+lean_dec(x_35);
+if (x_37 == 0)
 {
-lean_object* x_39; 
-x_39 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_39, 0, x_35);
-lean_ctor_set_uint8(x_39, sizeof(void*)*1, x_19);
-x_20 = x_39;
-goto block_31;
+lean_object* x_38; 
+x_38 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_38, 0, x_34);
+lean_ctor_set_uint8(x_38, sizeof(void*)*1, x_19);
+x_20 = x_38;
+goto block_30;
 }
 else
 {
-lean_object* x_40; lean_object* x_41; uint8_t x_42; 
-x_40 = lean_box(0);
-x_41 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_41, 0, x_35);
-x_42 = lean_unbox(x_40);
-lean_ctor_set_uint8(x_41, sizeof(void*)*1, x_42);
-x_20 = x_41;
-goto block_31;
+uint8_t x_39; lean_object* x_40; 
+x_39 = 0;
+x_40 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_40, 0, x_34);
+lean_ctor_set_uint8(x_40, sizeof(void*)*1, x_39);
+x_20 = x_40;
+goto block_30;
 }
 }
 block_18:
@@ -97,7 +96,7 @@ x_7 = x_16;
 x_8 = x_14;
 goto _start;
 }
-block_31:
+block_30:
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
 x_21 = lean_array_fget(x_6, x_7);
@@ -120,12 +119,11 @@ goto block_18;
 }
 else
 {
-lean_object* x_28; lean_object* x_29; uint8_t x_30; 
-x_28 = lean_box(0);
+uint8_t x_28; lean_object* x_29; 
+x_28 = 0;
 x_29 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_29, 0, x_23);
-x_30 = lean_unbox(x_28);
-lean_ctor_set_uint8(x_29, sizeof(void*)*1, x_30);
+lean_ctor_set_uint8(x_29, sizeof(void*)*1, x_28);
 x_9 = x_20;
 x_10 = x_29;
 goto block_18;

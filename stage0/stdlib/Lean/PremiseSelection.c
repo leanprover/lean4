@@ -40,6 +40,7 @@ lean_object* l_IO_rand(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_liftCoreM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
+lean_object* l_List_mapTR_loop___at___Lean_Meta_substCore_spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_evalSuggestPremises___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_evalSuggestPremises___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
@@ -129,7 +130,6 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_throwError___at___Lean_Elab_Term_throwErrorIfErrors_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_List_mapTR_loop___at___Lean_compileDecls_doCompile_spec__0(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -514,15 +514,14 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_338_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
 x_2 = lean_box(0);
 x_3 = lean_alloc_closure((void*)(l_Lean_PremiseSelection_initFn___lam__0____x40_Lean_PremiseSelection___hyg_338_), 2, 1);
 lean_closure_set(x_3, 0, x_2);
 x_4 = lean_box(0);
-x_5 = lean_box(2);
-x_6 = lean_unbox(x_5);
-x_7 = l_Lean_registerEnvExtension___redArg(x_3, x_4, x_6, x_1);
-return x_7;
+x_5 = 2;
+x_6 = l_Lean_registerEnvExtension___redArg(x_3, x_4, x_5, x_1);
+return x_6;
 }
 }
 static lean_object* _init_l_Lean_PremiseSelection_select___closed__0() {
@@ -793,12 +792,11 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector_unsafe__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
+lean_object* x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = l_Lean_PremiseSelection_elabSetPremiseSelector_unsafe__1___closed__3;
-x_8 = lean_box(1);
-x_9 = lean_unbox(x_8);
-x_10 = l_Lean_Meta_evalExpr___redArg(x_7, x_1, x_9, x_2, x_3, x_4, x_5, x_6);
-return x_10;
+x_8 = 1;
+x_9 = l_Lean_Meta_evalExpr___redArg(x_7, x_1, x_8, x_2, x_3, x_4, x_5, x_6);
+return x_9;
 }
 }
 static lean_object* _init_l_Lean_PremiseSelection_elabSetPremiseSelector___lam__0___closed__0() {
@@ -1182,12 +1180,13 @@ goto _start;
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_evalSuggestPremises___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; 
-x_7 = lean_box(1);
-x_8 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_8, 0, x_7);
-lean_ctor_set(x_8, 1, x_6);
-return x_8;
+uint8_t x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = 1;
+x_8 = lean_box(x_7);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_8);
+lean_ctor_set(x_9, 1, x_6);
+return x_9;
 }
 }
 static lean_object* _init_l_Lean_PremiseSelection_evalSuggestPremises___redArg___lam__1___closed__0() {
@@ -1265,7 +1264,7 @@ x_23 = 0;
 x_24 = l_Array_mapMUnsafe_map___at___Lean_PremiseSelection_evalSuggestPremises_spec__0(x_22, x_23, x_19);
 x_25 = lean_array_to_list(x_24);
 x_26 = lean_box(0);
-x_27 = l_List_mapTR_loop___at___Lean_compileDecls_doCompile_spec__0(x_25, x_26);
+x_27 = l_List_mapTR_loop___at___Lean_Meta_substCore_spec__3(x_25, x_26);
 x_28 = l_Lean_MessageData_ofList(x_27);
 x_29 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_29, 0, x_21);

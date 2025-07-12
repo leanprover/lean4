@@ -359,13 +359,13 @@ private def diseqToEq (a b : Expr) : RingM Unit := do
   let gen := max (← getGeneration a) (← getGeneration b)
   let ring ← getRing
   let some fieldInst := ring.fieldInst? | unreachable!
-  let e ← pre <| mkApp2 ring.subFn a b
+  let e ← pre <| mkApp2 (← getSubFn) a b
   modifyRing fun s => { s with invSet := s.invSet.insert e }
-  let eInv ← pre <| mkApp (← getRing).invFn?.get! e
-  let lhs ← pre <| mkApp2 ring.mulFn e eInv
+  let eInv ← pre <| mkApp (← getInvFn) e
+  let lhs ← pre <| mkApp2 (← getMulFn) e eInv
   internalize lhs gen none
   trace[grind.debug.ring.rabinowitsch] "{lhs}"
-  pushEq lhs ring.one <| mkApp5 (mkConst ``Grind.CommRing.diseq_to_eq [ring.u]) ring.type fieldInst a b (← mkDiseqProof a b)
+  pushEq lhs (← getOne) <| mkApp5 (mkConst ``Grind.CommRing.diseq_to_eq [ring.u]) ring.type fieldInst a b (← mkDiseqProof a b)
 
 private def diseqZeroToEq (a b : Expr) : RingM Unit := do
   -- Rabinowitsch transformation for `b = 0` case
@@ -373,11 +373,11 @@ private def diseqZeroToEq (a b : Expr) : RingM Unit := do
   let ring ← getRing
   let some fieldInst := ring.fieldInst? | unreachable!
   modifyRing fun s => { s with invSet := s.invSet.insert a }
-  let aInv ← pre <| mkApp (← getRing).invFn?.get! a
-  let lhs ← pre <| mkApp2 ring.mulFn a aInv
+  let aInv ← pre <| mkApp (← getInvFn) a
+  let lhs ← pre <| mkApp2 (← getMulFn) a aInv
   internalize lhs gen none
   trace[grind.debug.ring.rabinowitsch] "{lhs}"
-  pushEq lhs ring.one <| mkApp4 (mkConst ``Grind.CommRing.diseq0_to_eq [ring.u]) ring.type fieldInst a (← mkDiseqProof a b)
+  pushEq lhs (← getOne) <| mkApp4 (mkConst ``Grind.CommRing.diseq0_to_eq [ring.u]) ring.type fieldInst a (← mkDiseqProof a b)
 
 @[export lean_process_ring_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
@@ -400,7 +400,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
       ofSemiring? := none
     }
   else if let some semiringId ← inSameSemiring? a b then SemiringM.run semiringId do
-    if (← getSemiring).addRightCancelInst?.isSome then
+    if (← getAddRightCancelInst?).isSome then
       if (← getConfig).ringNull then return () -- TODO: remove after we add Nullstellensatz certificates for semiring adapter
       trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
       let some sa ← toSemiringExpr? a | return ()
@@ -500,12 +500,12 @@ def checkRing : RingM Bool := do
   modifyRing fun s => { s with recheck := false }
   return true
 
-def check : GoalM Bool := do
+def check : GoalM Bool := do profileitM Exception "grind ring" (← getOptions) do
   if (← checkMaxSteps) then return false
   let mut progress := false
   checkInvariants
   try
-    for ringId in [:(← get').rings.size] do
+    for ringId in *...(← get').rings.size do
       let r ← RingM.run ringId checkRing
       progress := progress || r
       if (← isInconsistent) then

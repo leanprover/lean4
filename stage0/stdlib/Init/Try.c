@@ -80,25 +80,18 @@ static lean_object* l_Lean_Parser_Tactic_attemptAll___closed__18;
 static lean_object* _init_l_Lean_Try_instInhabitedConfig___closed__0() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; uint8_t x_5; uint8_t x_6; uint8_t x_7; uint8_t x_8; uint8_t x_9; uint8_t x_10; 
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = lean_box(0);
+x_2 = 0;
 x_3 = lean_alloc_ctor(0, 1, 7);
 lean_ctor_set(x_3, 0, x_1);
-x_4 = lean_unbox(x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_4);
-x_5 = lean_unbox(x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 1, x_5);
-x_6 = lean_unbox(x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 2, x_6);
-x_7 = lean_unbox(x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 3, x_7);
-x_8 = lean_unbox(x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 4, x_8);
-x_9 = lean_unbox(x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 5, x_9);
-x_10 = lean_unbox(x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 6, x_10);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 1, x_2);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 2, x_2);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 3, x_2);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 4, x_2);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 5, x_2);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 6, x_2);
 return x_3;
 }
 }
@@ -182,13 +175,12 @@ return x_1;
 static lean_object* _init_l_Lean_Parser_Tactic_tryTrace___closed__8() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 0;
 x_2 = l_Lean_Parser_Tactic_tryTrace___closed__7;
 x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_2);
-x_4 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_4);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }
@@ -267,13 +259,12 @@ return x_1;
 static lean_object* _init_l_Lean_Parser_Tactic_attemptAll___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 0;
 x_2 = l_Lean_Parser_Tactic_attemptAll___closed__2;
 x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_2);
-x_4 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_4);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }
@@ -601,13 +592,12 @@ return x_1;
 static lean_object* _init_l_Lean_Parser_Tactic_tryResult___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 0;
 x_2 = l_Lean_Parser_Tactic_tryResult___closed__2;
 x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_2);
-x_4 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_4);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }

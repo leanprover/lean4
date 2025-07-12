@@ -75,7 +75,7 @@ private def inferAppType (f : Expr) (args : Array Expr) : MetaM Expr := do
   let mut j := 0
   /- TODO: check whether `instantiateBetaRevRange` is too expensive, and
      use it only when `args` contains a lambda expression. -/
-  for i in [:args.size] do
+  for i in *...args.size do
     match fType with
     | Expr.forallE _ _ b _ => fType := b
     | _ =>
@@ -107,7 +107,7 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
       failed ()
     else do
       let mut ctorType ← inferAppType (mkConst ctorVal.name structLvls) structTypeArgs[*...<structVal.numParams]
-      for i in [:idx] do
+      for i in *...idx do
         ctorType ← whnf ctorType
         match ctorType with
         | .forallE _ _ body _ =>

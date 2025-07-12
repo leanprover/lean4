@@ -92,29 +92,4 @@ def hasMacroInlineAttribute (env : Environment) (declName : Name) : Bool :=
 abbrev hasAlwaysInlineAttribute (env : Environment) (declName : Name) : Bool :=
   hasInlineAttrCore env .alwaysInline declName
 
--- TODO: delete rest of the file after we have old code generator
-
-private partial def hasInlineAttrAux (env : Environment) (kind : InlineAttributeKind) (n : Name) : Bool :=
-  /- We never inline auxiliary declarations created by eager lambda lifting -/
-  if isEagerLambdaLiftingName n then false
-  else match inlineAttrs.getValue env n with
-    | some k => kind == k
-    | none   => if n.isInternal then hasInlineAttrAux env kind n.getPrefix else false
-
-@[export lean_has_inline_attribute]
-def hasInlineAttributeOld (env : Environment) (n : Name) : Bool :=
-  hasInlineAttrAux env InlineAttributeKind.inline n
-
-@[export lean_has_inline_if_reduce_attribute]
-def hasInlineIfReduceAttributeOld (env : Environment) (n : Name) : Bool :=
-  hasInlineAttrAux env InlineAttributeKind.inlineIfReduce n
-
-@[export lean_has_noinline_attribute]
-def hasNoInlineAttributeOld (env : Environment) (n : Name) : Bool :=
-  hasInlineAttrAux env InlineAttributeKind.noinline n
-
-@[export lean_has_macro_inline_attribute]
-def hasMacroInlineAttributeOld (env : Environment) (n : Name) : Bool :=
-  hasInlineAttrAux env InlineAttributeKind.macroInline n
-
 end Lean.Compiler

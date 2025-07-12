@@ -93,8 +93,8 @@ return x_1;
 static lean_object* _init_l_Lean_Elab_Term_instInhabitedNamedArg___closed__0() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = 0;
 x_2 = l_Lean_Elab_Term_instInhabitedArg___closed__0;
 x_3 = lean_box(0);
 x_4 = lean_box(0);
@@ -102,8 +102,7 @@ x_5 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_2);
-x_6 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_6);
+lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_1);
 return x_5;
 }
 }
@@ -176,10 +175,9 @@ return x_9;
 }
 else
 {
-lean_object* x_13; uint8_t x_14; 
-x_13 = lean_box(0);
-x_14 = lean_unbox(x_13);
-return x_14;
+uint8_t x_13; 
+x_13 = 0;
+return x_13;
 }
 }
 }
@@ -922,11 +920,10 @@ goto block_35;
 }
 else
 {
-lean_object* x_42; uint8_t x_43; 
-x_42 = lean_box(0);
-x_43 = lean_unbox(x_42);
+uint8_t x_42; 
+x_42 = 0;
 x_16 = x_1;
-x_17 = x_43;
+x_17 = x_42;
 goto block_35;
 }
 block_15:

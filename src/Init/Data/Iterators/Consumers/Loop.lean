@@ -33,32 +33,42 @@ so this is not marked as `instance`. This way, more convenient instances can be 
 or future library improvements will make it more comfortable.
 -/
 @[always_inline, inline]
-def Iter.instForIn' {α : Type w} {β : Type w} {n : Type w → Type w'} [Monad n]
+def Iter.instForIn' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] :
     ForIn' n (Iter (α := α) β) β ⟨fun it out => it.IsPlausibleIndirectOutput out⟩ where
   forIn' it init f :=
-    IteratorLoop.finiteForIn' (fun δ (c : Id δ) => pure c.run) |>.forIn' it.toIterM init
+    IteratorLoop.finiteForIn' (fun _ _ f c => f c.run) |>.forIn' it.toIterM init
         fun out h acc =>
           f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc
 
-instance (α : Type w) (β : Type w) (n : Type w → Type w') [Monad n]
+instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
     [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] :
     ForIn n (Iter (α := α) β) β :=
   haveI : ForIn' n (Iter (α := α) β) β _ := Iter.instForIn'
   instForInOfForIn'
 
-instance (α : Type w) (β : Type w) (n : Type w → Type w') [Monad n]
+@[always_inline, inline]
+def Iter.Partial.instForIn' {α : Type w} {β : Type w} {n : Type x → Type x'} [Monad n]
     [Iterator α Id β] [IteratorLoopPartial α Id n] :
-    ForIn n (Iter.Partial (α := α) β) β where
-  forIn it init f :=
-    ForIn.forIn it.it.toIterM.allowNontermination init f
+    ForIn' n (Iter.Partial (α := α) β) β ⟨fun it out => it.it.IsPlausibleIndirectOutput out⟩ where
+  forIn' it init f :=
+    IteratorLoopPartial.forInPartial (α := α) (m := Id) (n := n) (fun _ _ f c => f c.run)
+      it.it.toIterM init
+      fun out h acc =>
+        f out (Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM.mpr h) acc
 
-instance {m : Type w → Type w'}
+instance (α : Type w) (β : Type w) (n : Type x → Type x') [Monad n]
+    [Iterator α Id β] [IteratorLoopPartial α Id n] :
+    ForIn n (Iter.Partial (α := α) β) β :=
+  haveI : ForIn' n (Iter.Partial (α := α) β) β _ := Iter.Partial.instForIn'
+  instForInOfForIn'
+
+instance {m : Type x → Type x'}
     {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id m] :
     ForM m (Iter (α := α) β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
 
-instance {m : Type w → Type w'}
+instance {m : Type x → Type x'}
     {α : Type w} {β : Type w} [Iterator α Id β] [Finite α Id] [IteratorLoopPartial α Id m] :
     ForM m (Iter.Partial (α := α) β) β where
   forM it f := forIn it PUnit.unit (fun out _ => do f out; return .yield .unit)
@@ -75,8 +85,8 @@ number of steps. If the iterator is not finite or such an instance is not availa
 verify the behavior of the partial variant.
 -/
 @[always_inline, inline]
-def Iter.foldM {m : Type w → Type w'} [Monad m]
-    {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β] [Finite α Id]
+def Iter.foldM {m : Type x → Type x'} [Monad m]
+    {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β] [Finite α Id]
     [IteratorLoop α Id m] (f : γ → β → m γ)
     (init : γ) (it : Iter (α := α) β) : m γ :=
   ForIn.forIn it init (fun x acc => ForInStep.yield <$> f acc x)
@@ -91,8 +101,8 @@ This is a partial, potentially nonterminating, function. It is not possible to f
 its behavior. If the iterator has a `Finite` instance, consider using `IterM.foldM` instead.
 -/
 @[always_inline, inline]
-def Iter.Partial.foldM {m : Type w → Type w'} [Monad m]
-    {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β]
+def Iter.Partial.foldM {m : Type x → Type x'} [Monad m]
+    {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
     [IteratorLoopPartial α Id m] (f : γ → β → m γ)
     (init : γ) (it : Iter.Partial (α := α) β) : m γ :=
   ForIn.forIn it init (fun x acc => ForInStep.yield <$> f acc x)
@@ -109,7 +119,7 @@ number of steps. If the iterator is not finite or such an instance is not availa
 verify the behavior of the partial variant.
 -/
 @[always_inline, inline]
-def Iter.fold {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β] [Finite α Id]
+def Iter.fold {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β] [Finite α Id]
     [IteratorLoop α Id Id] (f : γ → β → γ)
     (init : γ) (it : Iter (α := α) β) : γ :=
   ForIn.forIn (m := Id) it init (fun x acc => ForInStep.yield (f acc x))
@@ -124,7 +134,7 @@ This is a partial, potentially nonterminating, function. It is not possible to f
 its behavior. If the iterator has a `Finite` instance, consider using `IterM.fold` instead.
 -/
 @[always_inline, inline]
-def Iter.Partial.fold {α : Type w} {β : Type w} {γ : Type w} [Iterator α Id β]
+def Iter.Partial.fold {α : Type w} {β : Type w} {γ : Type x} [Iterator α Id β]
     [IteratorLoopPartial α Id Id] (f : γ → β → γ)
     (init : γ) (it : Iter.Partial (α := α) β) : γ :=
   ForIn.forIn (m := Id) it init (fun x acc => ForInStep.yield (f acc x))

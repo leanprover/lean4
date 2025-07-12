@@ -37,7 +37,7 @@ structure CasesInfo where
   arity        : Nat
   numParams    : Nat
   discrPos     : Nat
-  altsRange    : Std.Range
+  altsRange    : Std.PRange ⟨.closed, .open⟩ Nat
   altNumParams : Array Nat
   motivePos    : Nat
 
@@ -56,7 +56,7 @@ def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   let arity        := numParams + 1 /- motive -/ + val.numIndices + 1 /- major -/ + val.numCtors
   let discrPos     := numParams + 1 /- motive -/ + val.numIndices
   -- We view indices as discriminants
-  let altsRange    := [discrPos + 1:arity]
+  let altsRange    := (discrPos + 1)...arity
   let altNumParams ← val.ctors.toArray.mapM fun ctor => do
     let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
     return ctorVal.numFields
@@ -89,7 +89,7 @@ def builtinRuntimeTypes : Array Name := #[
 /--
 Return `true` iff `declName` is the name of a type with builtin support in the runtime.
 -/
-def isRuntimeBultinType (declName : Name) : Bool :=
+def isRuntimeBuiltinType (declName : Name) : Bool :=
   builtinRuntimeTypes.contains declName
 
 end Lean.Compiler.LCNF

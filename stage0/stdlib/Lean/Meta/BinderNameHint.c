@@ -163,18 +163,16 @@ x_3 = lean_find_expr(x_2, x_1);
 lean_dec(x_2);
 if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_box(0);
-x_5 = lean_unbox(x_4);
-return x_5;
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
 }
 else
 {
-lean_object* x_6; uint8_t x_7; 
+uint8_t x_5; 
 lean_dec(x_3);
-x_6 = lean_box(1);
-x_7 = lean_unbox(x_6);
-return x_7;
+x_5 = 1;
+return x_5;
 }
 }
 }

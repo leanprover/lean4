@@ -65,12 +65,11 @@ goto block_15;
 }
 else
 {
-lean_object* x_25; lean_object* x_26; uint8_t x_27; 
-x_25 = lean_box(0);
+uint8_t x_25; lean_object* x_26; 
+x_25 = 0;
 x_26 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_26, 0, x_20);
-x_27 = lean_unbox(x_25);
-lean_ctor_set_uint8(x_26, sizeof(void*)*1, x_27);
+lean_ctor_set_uint8(x_26, sizeof(void*)*1, x_25);
 x_7 = x_26;
 goto block_15;
 }
@@ -131,13 +130,12 @@ return x_11;
 static lean_object* _init_l_Std_Sat_AIG_RefVec_fold___redArg___closed__0() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_1 = lean_box(1);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 1;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_3, 0, x_2);
-x_4 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_4);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }

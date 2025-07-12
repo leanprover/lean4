@@ -16,10 +16,11 @@ open Internal
 set_option linter.all true
 
 /--
-The ISO8601 format, which is always 24 or 27 characters long, used for representing date and time in
-a standardized format. The format follows the pattern `uuuu-MM-dd'T'HH:mm:ssZ`.
+The ISO 8601 format, used for representing date and time in a standardized
+format. The format follows the pattern `uuuu-MM-dd'T'HH:mm:ssXXX`.
 -/
-def iso8601 : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm.ssZ")
+def iso8601 : GenericFormat .any := datespec("uuuu-MM-dd'T'HH:mm:ssXXX")
+
 
 /--
 The americanDate format, which follows the pattern `MM-dd-uuuu`.

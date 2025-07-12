@@ -214,35 +214,33 @@ return x_22;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv___aux__Lean__Elab__Tactic__Conv__Lets______elabRules__Lean__Parser__Tactic__Conv__extractLets__1___lam__1(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
-lean_object* x_12; lean_object* x_13; uint8_t x_14; uint8_t x_15; lean_object* x_16; 
-x_12 = lean_box(0);
-x_13 = lean_box(1);
-x_14 = lean_unbox(x_12);
-x_15 = lean_unbox(x_13);
-x_16 = l_Lean_Meta_mkLetFVars(x_1, x_6, x_14, x_2, x_15, x_7, x_8, x_9, x_10, x_11);
-if (lean_obj_tag(x_16) == 0)
+uint8_t x_12; uint8_t x_13; lean_object* x_14; 
+x_12 = 0;
+x_13 = 1;
+x_14 = l_Lean_Meta_mkLetFVars(x_1, x_6, x_12, x_2, x_13, x_7, x_8, x_9, x_10, x_11);
+if (lean_obj_tag(x_14) == 0)
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_17 = lean_ctor_get(x_16, 0);
-lean_inc(x_17);
-x_18 = lean_ctor_get(x_16, 1);
-lean_inc(x_18);
-lean_dec(x_16);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_15 = lean_ctor_get(x_14, 0);
+lean_inc(x_15);
+x_16 = lean_ctor_get(x_14, 1);
+lean_inc(x_16);
+lean_dec(x_14);
 lean_inc(x_5);
-x_19 = l_Lean_Expr_mvar___override(x_5);
+x_17 = l_Lean_Expr_mvar___override(x_5);
 lean_inc(x_5);
-x_20 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Conv___aux__Lean__Elab__Tactic__Conv__Lets______elabRules__Lean__Parser__Tactic__Conv__extractLets__1___lam__0), 10, 5);
-lean_closure_set(x_20, 0, x_19);
-lean_closure_set(x_20, 1, x_17);
-lean_closure_set(x_20, 2, x_3);
-lean_closure_set(x_20, 3, x_4);
-lean_closure_set(x_20, 4, x_5);
-x_21 = l_Lean_MVarId_withContext___at_____private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp_spec__1___redArg(x_5, x_20, x_7, x_8, x_9, x_10, x_18);
-return x_21;
+x_18 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Conv___aux__Lean__Elab__Tactic__Conv__Lets______elabRules__Lean__Parser__Tactic__Conv__extractLets__1___lam__0), 10, 5);
+lean_closure_set(x_18, 0, x_17);
+lean_closure_set(x_18, 1, x_15);
+lean_closure_set(x_18, 2, x_3);
+lean_closure_set(x_18, 3, x_4);
+lean_closure_set(x_18, 4, x_5);
+x_19 = l_Lean_MVarId_withContext___at_____private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp_spec__1___redArg(x_5, x_18, x_7, x_8, x_9, x_10, x_16);
+return x_19;
 }
 else
 {
-uint8_t x_22; 
+uint8_t x_20; 
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -250,23 +248,23 @@ lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_22 = !lean_is_exclusive(x_16);
-if (x_22 == 0)
+x_20 = !lean_is_exclusive(x_14);
+if (x_20 == 0)
 {
-return x_16;
+return x_14;
 }
 else
 {
-lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_23 = lean_ctor_get(x_16, 0);
-x_24 = lean_ctor_get(x_16, 1);
-lean_inc(x_24);
-lean_inc(x_23);
-lean_dec(x_16);
-x_25 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_25, 0, x_23);
-lean_ctor_set(x_25, 1, x_24);
-return x_25;
+lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+x_21 = lean_ctor_get(x_14, 0);
+x_22 = lean_ctor_get(x_14, 1);
+lean_inc(x_22);
+lean_inc(x_21);
+lean_dec(x_14);
+x_23 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_23, 0, x_21);
+lean_ctor_set(x_23, 1, x_22);
+return x_23;
 }
 }
 }

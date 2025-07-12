@@ -64,24 +64,22 @@ return x_7;
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_dropWhile___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = lean_box(1);
+uint8_t x_2; lean_object* x_3; 
+x_2 = 1;
 x_3 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
-x_4 = lean_unbox(x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_4);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_Iter_dropWhile(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_box(1);
+uint8_t x_5; lean_object* x_6; 
+x_5 = 1;
 x_6 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_6, 0, x_4);
-x_7 = lean_unbox(x_5);
-lean_ctor_set_uint8(x_6, sizeof(void*)*1, x_7);
+lean_ctor_set_uint8(x_6, sizeof(void*)*1, x_5);
 return x_6;
 }
 }

@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Internal.AssocList.Basic
-import Std.Data.Internal.List.Associative
+public import all Std.Data.DHashMap.Internal.AssocList.Basic
+public import Std.Data.Internal.List.Associative
+
+public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -29,9 +33,9 @@ namespace Std.DHashMap.Internal.AssocList
 open Std.Internal.List
 open Std.Internal
 
-@[simp] theorem toList_nil : (nil : AssocList α β).toList = [] := rfl
+@[simp] theorem toList_nil : (nil : AssocList α β).toList = [] := (rfl)
 @[simp] theorem toList_cons {l : AssocList α β} {a : α} {b : β a} :
-    (l.cons a b).toList = ⟨a, b⟩ :: l.toList := rfl
+    (l.cons a b).toList = ⟨a, b⟩ :: l.toList := (rfl)
 
 @[simp]
 theorem foldl_eq {f : δ → (a : α) → β a → δ} {init : δ} {l : AssocList α β} :
@@ -81,8 +85,8 @@ theorem get_eq {β : Type v} [BEq α] {l : AssocList α (fun _ => β)} {a : α} 
 theorem getCastD_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} {fallback : β a} :
     l.getCastD a fallback = getValueCastD a l.toList fallback := by
   induction l
-  · simp [getCastD, List.getValueCastD]
-  · simp_all [getCastD, List.getValueCastD, List.getValueCastD, List.getValueCast?_cons,
+  · simp [getCastD]
+  · simp_all [getCastD, List.getValueCastD, List.getValueCast?_cons,
       apply_dite (fun x => Option.getD x fallback)]
 
 @[simp]

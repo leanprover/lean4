@@ -336,13 +336,12 @@ goto _start;
 }
 case 1:
 {
-lean_object* x_9; uint8_t x_10; 
+uint8_t x_9; 
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
-x_9 = lean_box(1);
-x_10 = lean_unbox(x_9);
-return x_10;
+x_9 = 1;
+return x_9;
 }
 default: 
 {
@@ -354,11 +353,10 @@ goto _start;
 }
 else
 {
-lean_object* x_12; uint8_t x_13; 
+uint8_t x_11; 
 lean_dec(x_1);
-x_12 = lean_box(0);
-x_13 = lean_unbox(x_12);
-return x_13;
+x_11 = 0;
+return x_11;
 }
 }
 }
@@ -1387,10 +1385,9 @@ return x_7;
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_minEntry_x3f_u2098_x27___redArg___lam__0(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = lean_box(0);
-x_3 = lean_unbox(x_2);
-return x_3;
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_minEntry_x3f_u2098_x27___redArg___lam__1(lean_object* x_1, lean_object* x_2) {
@@ -4293,22 +4290,20 @@ return x_11;
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_getEntryGT_x3f_u2098___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_4; 
 x_4 = lean_apply_2(x_1, x_2, x_3);
-x_5 = lean_unbox(x_4);
-lean_dec(x_4);
-x_6 = lean_box(x_5);
-if (lean_obj_tag(x_6) == 1)
+if (lean_obj_tag(x_4) == 1)
 {
-lean_object* x_7; uint8_t x_8; 
-x_7 = lean_box(2);
-x_8 = lean_unbox(x_7);
-return x_8;
+uint8_t x_5; 
+x_5 = 2;
+return x_5;
 }
 else
 {
-lean_dec(x_6);
-return x_5;
+uint8_t x_6; 
+x_6 = lean_unbox(x_4);
+lean_dec(x_4);
+return x_6;
 }
 }
 }

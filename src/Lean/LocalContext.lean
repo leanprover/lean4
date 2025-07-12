@@ -522,7 +522,7 @@ partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVar
 def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := #[]) : Bool :=
   isSubPrefixOfAux lctx₁.decls lctx₂.decls exceptFVars 0 0
 
-@[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) (generalizeNondepLet := false) : Expr :=
+@[inline] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (b : Expr) (usedLetOnly : Bool := true) (generalizeNondepLet := false) : Expr :=
   let b := b.abstract xs
   xs.size.foldRev (init := b) fun i _ b =>
     let x := xs[i]
@@ -538,7 +538,7 @@ def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := 
     | some (.ldecl _ _ n ty val nondep _) =>
       if nondep && generalizeNondepLet then
         handleCDecl n ty .default
-      else if b.hasLooseBVar 0 then
+      else if !usedLetOnly || b.hasLooseBVar 0 then
         let ty  := ty.abstractRange i xs
         let val := val.abstractRange i xs
         mkLet n ty val b nondep
@@ -548,13 +548,13 @@ def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := 
 
 /-- Creates the expression `fun x₁ .. xₙ => b` for free variables `xs = #[x₁, .., xₙ]`,
 suitably abstracting `b` and the types for each of the `xᵢ`. -/
-def mkLambda (lctx : LocalContext) (xs : Array Expr) (b : Expr) (generalizeNondepLet := false) : Expr :=
-  mkBinding true lctx xs b generalizeNondepLet
+def mkLambda (lctx : LocalContext) (xs : Array Expr) (b : Expr) (usedLetOnly : Bool := true) (generalizeNondepLet := false) : Expr :=
+  mkBinding true lctx xs b usedLetOnly generalizeNondepLet
 
 /-- Creates the expression `(x₁:α₁) → .. → (xₙ:αₙ) → b` for free variables `xs = #[x₁, .., xₙ]`,
 suitably abstracting `b` and the types for each of the `xᵢ`, `αᵢ`. -/
-def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) (generalizeNondepLet := false) : Expr :=
-  mkBinding false lctx xs b generalizeNondepLet
+def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) (usedLetOnly : Bool := true) (generalizeNondepLet := false) : Expr :=
+  mkBinding false lctx xs b usedLetOnly generalizeNondepLet
 
 @[inline] def anyM [Monad m] (lctx : LocalContext) (p : LocalDecl → m Bool) : m Bool :=
   lctx.decls.anyM fun d => match d with

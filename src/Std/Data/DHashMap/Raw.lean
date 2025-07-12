@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.BEq
-import Init.Data.Hashable
-import Std.Data.DHashMap.Internal.Defs
+public import Init.Data.BEq
+public import Init.Data.Hashable
+public import Std.Data.DHashMap.Internal.Defs
+
+public section
 
 /-!
 # Dependent hash maps with unbundled well-formedness invariant

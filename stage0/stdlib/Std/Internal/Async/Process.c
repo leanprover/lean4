@@ -641,7 +641,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg____x40_Std_Internal_Async_Process___hyg_159_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; uint64_t x_4; uint64_t x_5; uint64_t x_6; uint64_t x_7; uint64_t x_8; uint64_t x_9; uint64_t x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13; uint64_t x_14; uint64_t x_15; uint64_t x_16; uint64_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; lean_object* x_24; lean_object* x_199; lean_object* x_200; lean_object* x_201; lean_object* x_226; lean_object* x_227; uint8_t x_228; 
+lean_object* x_2; lean_object* x_3; uint64_t x_4; uint64_t x_5; uint64_t x_6; uint64_t x_7; uint64_t x_8; uint64_t x_9; uint64_t x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13; uint64_t x_14; uint64_t x_15; uint64_t x_16; uint64_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; lean_object* x_24; lean_object* x_199; lean_object* x_200; lean_object* x_201; lean_object* x_223; lean_object* x_224; uint8_t x_225; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get_uint64(x_1, sizeof(void*)*2);
@@ -661,27 +661,27 @@ x_17 = lean_ctor_get_uint64(x_1, sizeof(void*)*2 + 104);
 x_18 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__5____x40_Std_Internal_Async_Process___hyg_159_;
 x_199 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__47____x40_Std_Internal_Async_Process___hyg_159_;
 x_200 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__48____x40_Std_Internal_Async_Process___hyg_159_;
-x_226 = lean_unsigned_to_nat(0u);
-x_227 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__54____x40_Std_Internal_Async_Process___hyg_159_;
-x_228 = lean_int_dec_lt(x_2, x_227);
-if (x_228 == 0)
+x_223 = lean_unsigned_to_nat(0u);
+x_224 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__54____x40_Std_Internal_Async_Process___hyg_159_;
+x_225 = lean_int_dec_lt(x_2, x_224);
+if (x_225 == 0)
 {
-lean_object* x_229; lean_object* x_230; 
-x_229 = l_Int_repr(x_2);
-x_230 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_230, 0, x_229);
-x_201 = x_230;
-goto block_225;
+lean_object* x_226; lean_object* x_227; 
+x_226 = l_Int_repr(x_2);
+x_227 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_227, 0, x_226);
+x_201 = x_227;
+goto block_222;
 }
 else
 {
-lean_object* x_231; lean_object* x_232; lean_object* x_233; 
-x_231 = l_Int_repr(x_2);
-x_232 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_232, 0, x_231);
-x_233 = l_Repr_addAppParen(x_232, x_226);
-x_201 = x_233;
-goto block_225;
+lean_object* x_228; lean_object* x_229; lean_object* x_230; 
+x_228 = l_Int_repr(x_2);
+x_229 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_229, 0, x_228);
+x_230 = l_Repr_addAppParen(x_229, x_223);
+x_201 = x_230;
+goto block_222;
 }
 block_198:
 {
@@ -1112,68 +1112,65 @@ lean_ctor_set(x_197, 0, x_196);
 lean_ctor_set_uint8(x_197, sizeof(void*)*1, x_22);
 return x_197;
 }
-block_225:
+block_222:
 {
-lean_object* x_202; lean_object* x_203; lean_object* x_204; uint8_t x_205; lean_object* x_206; lean_object* x_207; lean_object* x_208; lean_object* x_209; lean_object* x_210; lean_object* x_211; lean_object* x_212; lean_object* x_213; lean_object* x_214; lean_object* x_215; lean_object* x_216; uint8_t x_217; 
+lean_object* x_202; uint8_t x_203; lean_object* x_204; lean_object* x_205; lean_object* x_206; lean_object* x_207; lean_object* x_208; lean_object* x_209; lean_object* x_210; lean_object* x_211; lean_object* x_212; lean_object* x_213; lean_object* x_214; lean_object* x_215; uint8_t x_216; 
 x_202 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_202, 0, x_200);
 lean_ctor_set(x_202, 1, x_201);
-x_203 = lean_box(0);
+x_203 = 0;
 x_204 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_204, 0, x_202);
-x_205 = lean_unbox(x_203);
-lean_ctor_set_uint8(x_204, sizeof(void*)*1, x_205);
-x_206 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_206, 0, x_199);
-lean_ctor_set(x_206, 1, x_204);
-x_207 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__50____x40_Std_Internal_Async_Process___hyg_159_;
-x_208 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_208, 0, x_206);
-lean_ctor_set(x_208, 1, x_207);
-x_209 = lean_box(1);
-x_210 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_210, 0, x_208);
-lean_ctor_set(x_210, 1, x_209);
-x_211 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__52____x40_Std_Internal_Async_Process___hyg_159_;
+lean_ctor_set_uint8(x_204, sizeof(void*)*1, x_203);
+x_205 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_205, 0, x_199);
+lean_ctor_set(x_205, 1, x_204);
+x_206 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__50____x40_Std_Internal_Async_Process___hyg_159_;
+x_207 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_207, 0, x_205);
+lean_ctor_set(x_207, 1, x_206);
+x_208 = lean_box(1);
+x_209 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_209, 0, x_207);
+lean_ctor_set(x_209, 1, x_208);
+x_210 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__52____x40_Std_Internal_Async_Process___hyg_159_;
+x_211 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_211, 0, x_209);
+lean_ctor_set(x_211, 1, x_210);
 x_212 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_212, 0, x_210);
-lean_ctor_set(x_212, 1, x_211);
-x_213 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_213, 0, x_212);
-lean_ctor_set(x_213, 1, x_18);
-x_214 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__53____x40_Std_Internal_Async_Process___hyg_159_;
-x_215 = lean_unsigned_to_nat(0u);
-x_216 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__54____x40_Std_Internal_Async_Process___hyg_159_;
-x_217 = lean_int_dec_lt(x_3, x_216);
-if (x_217 == 0)
+lean_ctor_set(x_212, 0, x_211);
+lean_ctor_set(x_212, 1, x_18);
+x_213 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__53____x40_Std_Internal_Async_Process___hyg_159_;
+x_214 = lean_unsigned_to_nat(0u);
+x_215 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__54____x40_Std_Internal_Async_Process___hyg_159_;
+x_216 = lean_int_dec_lt(x_3, x_215);
+if (x_216 == 0)
 {
-lean_object* x_218; lean_object* x_219; uint8_t x_220; 
-x_218 = l_Int_repr(x_3);
-x_219 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_219, 0, x_218);
-x_220 = lean_unbox(x_203);
-x_19 = x_214;
-x_20 = x_209;
-x_21 = x_213;
-x_22 = x_220;
-x_23 = x_207;
-x_24 = x_219;
+lean_object* x_217; lean_object* x_218; 
+x_217 = l_Int_repr(x_3);
+x_218 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_218, 0, x_217);
+x_19 = x_213;
+x_20 = x_208;
+x_21 = x_212;
+x_22 = x_203;
+x_23 = x_206;
+x_24 = x_218;
 goto block_198;
 }
 else
 {
-lean_object* x_221; lean_object* x_222; lean_object* x_223; uint8_t x_224; 
-x_221 = l_Int_repr(x_3);
-x_222 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_222, 0, x_221);
-x_223 = l_Repr_addAppParen(x_222, x_215);
-x_224 = lean_unbox(x_203);
-x_19 = x_214;
-x_20 = x_209;
-x_21 = x_213;
-x_22 = x_224;
-x_23 = x_207;
-x_24 = x_223;
+lean_object* x_219; lean_object* x_220; lean_object* x_221; 
+x_219 = l_Int_repr(x_3);
+x_220 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_220, 0, x_219);
+x_221 = l_Repr_addAppParen(x_220, x_214);
+x_19 = x_213;
+x_20 = x_208;
+x_21 = x_212;
+x_22 = x_203;
+x_23 = x_206;
+x_24 = x_221;
 goto block_198;
 }
 }
@@ -1326,25 +1323,22 @@ uint8_t x_4;
 x_4 = lean_uint64_dec_eq(x_1, x_2);
 if (x_4 == 0)
 {
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_box(2);
-x_6 = lean_unbox(x_5);
+uint8_t x_5; 
+x_5 = 2;
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = 1;
 return x_6;
 }
-else
-{
-lean_object* x_7; uint8_t x_8; 
-x_7 = lean_box(1);
-x_8 = lean_unbox(x_7);
-return x_8;
-}
 }
 else
 {
-lean_object* x_9; uint8_t x_10; 
-x_9 = lean_box(0);
-x_10 = lean_unbox(x_9);
-return x_10;
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
 }
 }
 }

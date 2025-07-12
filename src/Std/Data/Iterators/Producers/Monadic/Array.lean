@@ -110,19 +110,23 @@ instance [Pure m] : Finite (ArrayIterator α) m :=
   Finite.of_finitenessRelation ArrayIterator.finitenessRelation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorCollect (ArrayIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
+    IteratorCollect (ArrayIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorCollectPartial (ArrayIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type w → Type w''} [Monad n] :
+    IteratorCollectPartial (ArrayIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorLoop (ArrayIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
+    IteratorLoop (ArrayIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]
-instance {α : Type w} [Monad m] [Monad n] : IteratorLoopPartial (ArrayIterator α) m n :=
+instance {α : Type w} [Monad m] {n : Type x → Type x'} [Monad n] :
+    IteratorLoopPartial (ArrayIterator α) m n :=
   .defaultImplementation
 
 @[always_inline, inline]

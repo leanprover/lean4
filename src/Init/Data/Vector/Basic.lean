@@ -8,13 +8,14 @@ module
 
 prelude
 public meta import Init.Coe
+public import Init.Data.Stream
 public import Init.Data.Array.Lemmas
 public import Init.Data.Array.MapIdx
 public import Init.Data.Array.InsertIdx
 public import Init.Data.Array.Range
 public import Init.Data.Range
-import Init.Data.Slice.Array.Basic
-public import Init.Data.Stream
+-- TODO: Making this private leads to a panic in Init.Grind.Ring.Poly.
+public import Init.Data.Slice.Array.Iterator
 
 public section
 
@@ -562,7 +563,7 @@ Lexicographic comparator for vectors.
 - there is an index `i` such that `lt v[i] w[i]`, and for all `j < i`, `v[j] == w[j]`.
 -/
 def lex [BEq α] (xs ys : Vector α n) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
-  for h : i in [0 : n] do
+  for h : i in 0...n do
     if lt xs[i] ys[i] then
       return true
     else if xs[i] != ys[i] then

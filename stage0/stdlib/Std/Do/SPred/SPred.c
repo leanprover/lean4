@@ -22,8 +22,10 @@ LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_pure___r
 LEAN_EXPORT lean_object* l_Std_Do_SPred_forall___redArg___lam__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_entails_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_or(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_pure___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_exists(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_or___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SPred_conjunction___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_imp(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_exists___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_entails_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -40,6 +42,14 @@ LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_conjunct
 LEAN_EXPORT lean_object* l_Std_Do_SPred_and___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_and(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_iff___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_SPred_conjunction___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_pure___redArg___lam__0___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_pure___redArg___lam__0(lean_object* x_1) {
+_start:
+{
+return lean_box(0);
+}
+}
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_pure___redArg(lean_object* x_1) {
 _start:
 {
@@ -56,6 +66,15 @@ x_3 = l_Std_Do_SVal_curry___redArg(x_1, lean_box(0));
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_pure___redArg___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_pure___redArg___lam__0(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_entails_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -63,9 +82,7 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_6; 
 lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
-x_6 = lean_apply_2(x_4, lean_box(0), lean_box(0));
+x_6 = lean_apply_2(x_4, x_2, x_3);
 return x_6;
 }
 else
@@ -342,6 +359,12 @@ x_4 = l_Std_Do_SPred_forall___redArg(x_2, x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Do_SPred_conjunction___lam__0(lean_object* x_1) {
+_start:
+{
+return lean_box(0);
+}
+}
 LEAN_EXPORT lean_object* l_Std_Do_SPred_conjunction(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -364,6 +387,15 @@ x_6 = l_Std_Do_SPred_conjunction(x_1, x_5);
 x_7 = l_Std_Do_SPred_and(x_1, x_4, x_6);
 return x_7;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_SPred_conjunction___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Do_SPred_conjunction___lam__0(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_conjunction_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

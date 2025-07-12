@@ -619,9 +619,9 @@ return x_2;
 static lean_object* _init_l_Lean_Meta_Grind_Arith_Linear_ppStruct_x3f___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; double x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+lean_object* x_1; uint8_t x_2; double x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_Grind_Arith_Linear_ppStruct_x3f_spec__0___redArg___closed__3;
-x_2 = lean_box(1);
+x_2 = 1;
 x_3 = l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_Grind_Arith_Linear_ppStruct_x3f_spec__0___redArg___closed__2;
 x_4 = l_Lean_Meta_Grind_Arith_Linear_ppStruct_x3f___closed__2;
 x_5 = lean_alloc_ctor(0, 2, 17);
@@ -629,8 +629,7 @@ lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_1);
 lean_ctor_set_float(x_5, sizeof(void*)*2, x_3);
 lean_ctor_set_float(x_5, sizeof(void*)*2 + 8, x_3);
-x_6 = lean_unbox(x_2);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 16, x_6);
+lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 16, x_2);
 return x_5;
 }
 }

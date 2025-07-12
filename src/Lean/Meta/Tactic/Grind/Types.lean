@@ -106,6 +106,8 @@ structure Context where
   reportMVarIssue : Bool := true
   /-- Current source of case-splits. -/
   splitSource  : SplitSource := .input
+  /-- Symbol priorities for inferring E-matching patterns -/
+  symPrios     : SymbolPriorities
   trueExpr     : Expr
   falseExpr    : Expr
   natZExpr     : Expr
@@ -261,6 +263,10 @@ def cheapCasesOnly : GrindM Bool :=
 
 def reportMVarInternalization : GrindM Bool :=
   return (← readThe Context).reportMVarIssue
+
+/-- Returns symbol priorities for inferring E-matching patterns. -/
+def getSymbolPriorities : GrindM SymbolPriorities := do
+  return (← readThe Context).symPrios
 
 /--
 Returns `true` if `declName` is the name of a `match` equation or a `match` congruence equation.
@@ -471,6 +477,7 @@ private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
     mixHash (hashRoot enodes d) (hashRoot enodes b)
   else match_expr e with
   | Grind.nestedProof p _ => hashRoot enodes p
+  | Grind.nestedDecidable p _ => mixHash 13 (hashRoot enodes p)
   | Eq _ lhs rhs => goEq lhs rhs
   | _ => go e 17
 where
@@ -493,6 +500,9 @@ private partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
   else match_expr a with
   | Grind.nestedProof p₁ _ =>
     let_expr Grind.nestedProof p₂ _ := b | false
+    hasSameRoot enodes p₁ p₂
+  | Grind.nestedDecidable p₁ _ =>
+    let_expr Grind.nestedDecidable p₂ _ := b | false
     hasSameRoot enodes p₁ p₂
   | Eq α₁ lhs₁ rhs₁ =>
     let_expr Eq α₂ lhs₂ rhs₂ := b | false
@@ -1532,14 +1542,6 @@ def getExtTheorems (type : Expr) : GoalM (Array Ext.ExtTheorem) := do
       thms.filterM fun thm => isExtTheorem thm.declName
     modify fun s => { s with extThms := s.extThms.insert { expr := type } thms }
     return thms
-
-/--
-Helper function for instantiating a type class `type`, and
-then using the result to perform `isDefEq x val`.
--/
-def synthesizeInstanceAndAssign (x type : Expr) : MetaM Bool := do
-  let .some val ← trySynthInstance type | return false
-  isDefEq x val
 
 /-- Add a new lookahead candidate. -/
 def addLookaheadCandidate (sinfo : SplitInfo) : GoalM Unit := do

@@ -16,9 +16,9 @@ that introduce the instructions `release` and `set`
 -/
 
 structure VarInfo where
-  ref        : Bool := true  -- true if the variable may be a reference (aka pointer) at runtime
-  persistent : Bool := false -- true if the variable is statically known to be marked a Persistent at runtime
-  consume    : Bool := false -- true if the variable RC must be "consumed"
+  ref        : Bool -- true if the variable may be a reference (aka pointer) at runtime
+  persistent : Bool -- true if the variable is statically known to be marked a Persistent at runtime
+  consume    : Bool -- true if the variable RC must be "consumed"
   deriving Inhabited
 
 abbrev VarMap := RBMap VarId VarInfo (fun x y => compare x.idx y.idx)
@@ -207,7 +207,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
 
 def updateVarInfoWithParams (ctx : Context) (ps : Array Param) : Context :=
   let m := ps.foldl (init := ctx.varMap) fun m p =>
-    m.insert p.x { ref := p.ty.isObj, consume := !p.borrow }
+    m.insert p.x { ref := p.ty.isObj, persistent := false, consume := !p.borrow }
   { ctx with varMap := m }
 
 partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
@@ -281,5 +281,7 @@ end ExplicitRC
 def explicitRC (decls : Array Decl) : CompilerM (Array Decl) := do
   let env ← getEnv
   return decls.map (ExplicitRC.visitDecl env decls)
+
+builtin_initialize registerTraceClass `compiler.ir.rc (inherited := true)
 
 end Lean.IR

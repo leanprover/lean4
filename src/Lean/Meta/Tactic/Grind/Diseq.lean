@@ -36,14 +36,13 @@ def isDiseq (a b : Expr) : GoalM Bool := do
   return (← getDiseqFor? a b).isSome
 
 /--
-Returns a proof for `true` if `a` and `b` are known to be disequal.
-See `getDiseqFor?`
+Given an equality `eq` of the form `c = d` s.t. `eq` is `False`, and
+`a = b` is congruent to `c = d`, return a proof for `a ≠ b`
 -/
-def mkDiseqProof? (a b : Expr) : GoalM (Option Expr) := do
-  let some eq ← getDiseqFor? a b | return none
+def mkDiseqProofUsing (a b : Expr) (eq : Expr) : GoalM Expr := do
   let_expr f@Eq α c d := eq | unreachable!
   let u := f.constLevels!
-  let h ← mkOfEqFalse (← mkEqFalseProof eq)
+  let h := mkOfEqFalseCore eq (← mkEqFalseProof eq)
   let (c, d, h) ← if (← isEqv a c <&&> isEqv b d) then
     pure (c, d, h)
   else
@@ -58,6 +57,14 @@ def mkDiseqProof? (a b : Expr) : GoalM (Option Expr) := do
     return h
   else
     return mkApp6 (mkConst ``Grind.ne_of_ne_of_eq_right u) α b a d (← mkEqProof b d) h
+
+/--
+Returns a proof for `true` if `a` and `b` are known to be disequal.
+See `getDiseqFor?`
+-/
+def mkDiseqProof? (a b : Expr) : GoalM (Option Expr) := do
+  let some eq ← getDiseqFor? a b | return none
+  mkDiseqProofUsing a b eq
 
 def mkDiseqProof (a b : Expr) : GoalM Expr := do
  let some h ← mkDiseqProof? a b

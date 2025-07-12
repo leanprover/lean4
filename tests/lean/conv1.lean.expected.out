@@ -125,11 +125,11 @@ x y : Nat
 h1 : y = 0
 h2 : p x
 | y
-conv1.lean:221:10-221:13: error: invalid 'lhs' tactic, application has 1 explicit argument(s) but the index is out of bounds
-conv1.lean:224:10-224:15: error: invalid 'arg' tactic, application has 1 explicit argument(s) but the index is out of bounds
-conv1.lean:227:10-227:13: error: invalid 'rhs' conv tactic, application or implication expected
+conv1.lean:218:10-218:13: error: invalid 'lhs' tactic, application has 1 explicit argument(s) but the index is out of bounds
+conv1.lean:221:10-221:15: error: invalid 'arg' tactic, application has 1 explicit argument(s) but the index is out of bounds
+conv1.lean:224:10-224:13: error: invalid 'rhs' conv tactic, application or implication expected
   p
-conv1.lean:230:10-230:15: error: 'arg' conv tactic failed, cannot select argument
+conv1.lean:227:10-227:15: error: 'arg' conv tactic failed, cannot select argument
 a✝ : Nat := 0
 b✝ : Nat := a✝
 | 0 = 0
@@ -160,10 +160,10 @@ x y z : Nat
 
 x y z : Nat
 | y + z
-conv1.lean:248:58-248:83: error: 'pattern' conv tactic failed, pattern was found only 4 times but 5 expected
-conv1.lean:249:58-249:85: error: 'pattern' conv tactic failed, pattern was found only 4 times but 5 expected
-conv1.lean:250:58-250:85: error: 'pattern' conv tactic failed, pattern was found only 3 times but 5 expected
-conv1.lean:251:58-251:87: error: 'pattern' conv tactic failed, pattern was found only 2 times but 5 expected
+conv1.lean:245:58-245:83: error: 'pattern' conv tactic failed, pattern was found only 4 times but 5 expected
+conv1.lean:246:58-246:85: error: 'pattern' conv tactic failed, pattern was found only 4 times but 5 expected
+conv1.lean:247:58-247:85: error: 'pattern' conv tactic failed, pattern was found only 3 times but 5 expected
+conv1.lean:248:58-248:87: error: 'pattern' conv tactic failed, pattern was found only 2 times but 5 expected
 P Q : Nat → Nat → Nat → Prop
 h : P = Q
 h2 : Q 1 2 3
@@ -180,7 +180,7 @@ P Q : Nat → Nat → Nat → Prop
 h : P = Q
 h2 : Q 1 2 3
 | P
-conv1.lean:275:10-275:13: error: invalid 'fun' conv tactic, application expected
+conv1.lean:272:10-272:13: error: invalid 'fun' conv tactic, application expected
   p
 P Q : Nat → Nat → Nat → Prop
 h : P = Q
@@ -190,5 +190,5 @@ P Q : Nat → Nat → Nat → Prop
 h : P = Q
 h2 : Q 1 2 3
 | P
-conv1.lean:287:10-287:15: error: invalid 'arg 0' conv tactic, application expected
+conv1.lean:284:10-284:15: error: invalid 'arg 0' conv tactic, application expected
   p

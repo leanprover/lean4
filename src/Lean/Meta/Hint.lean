@@ -307,9 +307,8 @@ where
 Creates message data corresponding to a `HintSuggestions` collection and adds the corresponding info
 leaf.
 -/
-def mkSuggestionsMessage (suggestions : Array Suggestion)
-    (ref : Syntax)
-    (codeActionPrefix? : Option String) : CoreM MessageData := do
+def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
+    (codeActionPrefix? : Option String) (forceList : Bool) : CoreM MessageData := do
   let mut msg := m!""
   for suggestion in suggestions do
     if let some range := (suggestion.span?.getD ref).getRange? then
@@ -336,7 +335,7 @@ def mkSuggestionsMessage (suggestions : Array Suggestion)
           props := return json
         } (suggestion.messageData?.getD (mkDiffString edits))
       let widgetMsg := m!"{preInfo}{widget}{postInfo}"
-      let suggestionMsg := if suggestions.size == 1 then
+      let suggestionMsg := if suggestions.size == 1 && !forceList then
         m!"\n{widgetMsg}"
       else
         m!"\n" ++ MessageData.nest 2 m!"• {widgetMsg}"
@@ -356,11 +355,13 @@ The arguments are as follows:
   suggestions that specify it.
 * `codeActionPrefix?`: if specified, text to display in place of "Try this: " in the code action
   label
+* `forceList`: if `true`, suggestions will be displayed as a bulleted list even if there is only one.
 -/
 def _root_.Lean.MessageData.hint (hint : MessageData)
     (suggestions : Array Suggestion) (ref? : Option Syntax := none)
     (codeActionPrefix? : Option String := none)
+    (forceList : Bool := false)
     : CoreM MessageData := do
   let ref := ref?.getD (← getRef)
-  let suggs ← mkSuggestionsMessage suggestions ref codeActionPrefix?
+  let suggs ← mkSuggestionsMessage suggestions ref codeActionPrefix? forceList
   return .tagged `hint (m!"\n\nHint: " ++ hint ++ suggs)

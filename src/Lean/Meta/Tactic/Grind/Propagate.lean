@@ -134,25 +134,36 @@ def propagateBoolDiseq (eq : Expr) (a b : Expr) : GoalM Unit := do
 /-- Propagates `Eq` upwards -/
 builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
   let_expr Eq α a b := e | return ()
-  if (← isEqTrue a) then
-    pushEq e b <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_left) a b (← mkEqTrueProof a)
-  else if (← isEqTrue b) then
-    pushEq e a <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_right) a b (← mkEqTrueProof b)
-  else if (← isEqv a b) then
-    pushEqTrue e <| mkEqTrueCore e (← mkEqProof a b)
+  let aRoot ← getRootENode a
+  let bRoot ← getRootENode b
+  let a' := aRoot.self
+  let b' := bRoot.self
+  let trueExpr ← getTrueExpr
+  if isSameExpr a' trueExpr then
+    pushEq e b <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_left) a b (← mkEqProof a trueExpr)
+  else if isSameExpr b' trueExpr then
+    pushEq e a <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_right) a b (← mkEqProof b trueExpr)
+  else if isSameExpr a' b' then
+    pushEq e trueExpr <| mkEqTrueCore e (← mkEqProof a b)
   if α.isConstOf ``Bool then
     if (← isEqFalse e) then
       propagateBoolDiseq e a b
-  let aRoot ← getRootENode a
-  let bRoot ← getRootENode b
-  if aRoot.ctor && bRoot.ctor && aRoot.self.getAppFn != bRoot.self.getAppFn then
-    -- ¬a = b
-    let hne ← withLocalDeclD `h (← mkEq a b) fun h => do
-      let hf ← mkEqTrans (← mkEqProof aRoot.self a) h
-      let hf ← mkEqTrans hf (← mkEqProof b bRoot.self)
-      let hf ← mkNoConfusion (← getFalseExpr) hf
-      mkLambdaFVars #[h] hf
-    pushEqFalse e <| mkApp2 (mkConst ``eq_false) e hne
+    else
+      let tt ← getBoolTrueExpr
+      let ff ← getBoolFalseExpr
+      if isSameExpr a' tt && isSameExpr b' ff then
+        pushEqFalse e <| mkApp4 (mkConst ``Grind.Bool.ne_of_eq_true_of_eq_false) a b (← mkEqBoolTrueProof a) (← mkEqBoolFalseProof b)
+      else if isSameExpr a' ff && isSameExpr b' tt then
+        pushEqFalse e <| mkApp4 (mkConst ``Grind.Bool.ne_of_eq_false_of_eq_true) a b (← mkEqBoolFalseProof a) (← mkEqBoolTrueProof b)
+  else unless (← isEqFalse e) do
+    if aRoot.ctor && bRoot.ctor && aRoot.self.getAppFn != bRoot.self.getAppFn then
+      -- ¬a = b
+      let hne ← withLocalDeclD `h (← mkEq a b) fun h => do
+        let hf ← mkEqTrans (← mkEqProof aRoot.self a) h
+        let hf ← mkEqTrans hf (← mkEqProof b bRoot.self)
+        let hf ← mkNoConfusion (← getFalseExpr) hf
+        mkLambdaFVars #[h] hf
+      pushEqFalse e <| mkApp2 (mkConst ``eq_false) e hne
 
 /-- Propagates `Eq` downwards -/
 builtin_grind_propagator propagateEqDown ↓Eq := fun e => do

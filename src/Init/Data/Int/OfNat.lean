@@ -101,4 +101,71 @@ theorem ofNat_toNat (a : Int) : (NatCast.natCast a.toNat : Int) = if a ≤ 0 the
 theorem Expr.denoteAsInt_nonneg (ctx : Context) (e : Expr) : 0 ≤ e.denoteAsInt ctx := by
   simp [Expr.denoteAsInt_eq]
 
+namespace Temp
+
+/-! Asserted propositions -/
+
+theorem of_eq {a b : Nat} {a' b' : Int}
+    (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : a = b → a' = b' := by
+  intro h; replace h := congrArg Int.ofNat h; simp at h
+  simp [h₁, h₂] at h; assumption
+
+theorem of_diseq {a b : Nat} {a' b' : Int}
+    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : a ≠ b → a' ≠ b' := by
+  intro hne h; rw [← h₁, ← h₂] at h
+  replace h := Int.ofNat_inj.mp h; contradiction
+
+theorem of_le {a b : Nat} {a' b' : Int}
+    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : a ≤ b → a' ≤ b' := by
+  intro h; replace h := Int.ofNat_le |>.mpr h
+  simp at h₁ h₂; rw [h₁, h₂] at h; assumption
+
+theorem of_not_le {a b : Nat} {a' b' : Int}
+    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : ¬ (a ≤ b) → b' + 1 ≤ a' := by
+  intro h; rw [← Int.ofNat_le] at h
+  simp at h₁ h₂; rw [h₁, h₂] at h; omega
+
+theorem add_congr {a b : Nat} {a' b' : Int}
+    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : Int.ofNat (a + b) = a' + b' := by
+  simp_all [Int.natCast_add]
+
+theorem mul_congr {a b : Nat} {a' b' : Int}
+    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : Int.ofNat (a * b) = a' * b' := by
+  simp_all [Int.natCast_mul]
+
+theorem sub_congr {a b : Nat} {a' b' : Int}
+    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : Int.ofNat (a - b) = if b' + (-1)*a' ≤ 0 then a' - b' else 0 := by
+  rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
+  split
+  next h =>
+    have h := Int.le_of_sub_nonpos h
+    simp [← h₁, ← h₂, Int.ofNat_le] at h
+    simp [Int.ofNat_sub h]
+    simp [← h₁, ← h₂, *]
+  next h =>
+    have : ¬ (↑b : Int) ≤ ↑a := by
+      intro h
+      simp at h₁ h₂
+      replace h := Int.sub_nonpos_of_le h
+      simp [h₁, h₂] at h
+      contradiction
+    rw [Int.ofNat_le] at this
+    simp [Lean.Omega.Int.ofNat_sub_eq_zero this]
+
+theorem pow_congr {a : Nat} (k : Nat) (a' : Int)
+    (h₁ : Int.ofNat a = a') : Int.ofNat (a ^ k) = a' ^ k := by
+  simp_all [Int.natCast_pow]
+
+theorem div_congr {a b : Nat} {a' b' : Int}
+    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : Int.ofNat (a / b) = a' / b' := by
+  simp_all [Int.natCast_ediv]
+
+theorem mod_congr {a b : Nat} {a' b' : Int}
+    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : Int.ofNat (a % b) = a' % b' := by
+  simp_all [Int.natCast_emod]
+
+
+
+end Temp
+
 end Int.OfNat

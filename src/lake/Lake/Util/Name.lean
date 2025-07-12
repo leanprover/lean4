@@ -21,19 +21,16 @@ If that fails, defaults to making it a simple name (e.g., `Lean.Name.mkSimple`).
 def stringToLegalOrSimpleName (s : String) : Name :=
   if s.toName.isAnonymous then Lean.Name.mkSimple s else s.toName
 
-@[inline] def NameMap.empty : NameMap α := RBMap.empty
+@[inline] def NameMap.empty : NameMap α := mkNameMap α
 
-instance : ForIn m (NameMap α) (Name × α) where
-  forIn self init f := self.forIn init f
-
-instance : Coe (RBMap Name α Name.quickCmp) (NameMap α) := ⟨id⟩
+instance : Coe (Std.TreeMap Name α Name.quickCmp) (NameMap α) := ⟨id⟩
 
 abbrev OrdNameMap α := RBArray Name α Name.quickCmp
 @[inline] def OrdNameMap.empty : OrdNameMap α := RBArray.empty
 @[inline] def mkOrdNameMap (α : Type) : OrdNameMap α := RBArray.empty
 
-abbrev DNameMap α := DRBMap Name α Name.quickCmp
-@[inline] def DNameMap.empty : DNameMap α := DRBMap.empty
+abbrev DNameMap α := Std.DTreeMap Name α Name.quickCmp
+@[inline] def DNameMap.empty : DNameMap α := Std.DTreeMap.empty
 
 /-! # Name Helpers -/
 
@@ -89,6 +86,10 @@ theorem quickCmp_rfl {n : Name} : n.quickCmp n = .eq := by
 instance : LawfulCmpEq Name Name.quickCmp where
   eq_of_cmp := eq_of_quickCmp
   cmp_rfl := quickCmp_rfl
+
+instance : Std.LawfulEqCmp Name.quickCmp where
+  eq_of_compare := eq_of_quickCmp
+  compare_self := quickCmp_rfl
 
 open Syntax in
 def quoteFrom (ref : Syntax) (n : Name) (canonical := false) : Term :=

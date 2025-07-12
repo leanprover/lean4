@@ -192,7 +192,7 @@ abbrev ServerRequestEmitter := (method : String) → (param : Json)
   → BaseIO (ServerTask (ServerRequestResponse Json))
 
 structure RequestContext where
-  rpcSessions          : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
+  rpcSessions          : Std.TreeMap UInt64 (IO.Ref FileWorker.RpcSession)
   doc                  : FileWorker.EditableDocument
   hLog                 : IO.FS.Stream
   initParams           : Lsp.InitializeParams

@@ -27,4 +27,4 @@ def initFacetConfigs : DNameMap FacetConfig :=
   |> insert InputDir.initFacetConfigs
 where
   insert {k} (group : DNameMap (KFacetConfig k)) map :=
-    group.fold (init := map) fun m k v => m.insert k v.toFacetConfig
+    group.foldl (init := map) fun m k v => m.insert k v.toFacetConfig

@@ -691,14 +691,14 @@ private partial def mkLinkOrder (libs : Array Dynlib) : JobM (Array Dynlib) := d
   | .ok (_, order) => pure order
   | .error cycle => error s!"library dependency cycle:\n{formatCycle cycle}"
 where
-  go lib (ps : List String) (v : RBMap String Unit compare) (o : Array Dynlib) := do
+  go lib (ps : List String) (v : Std.TreeSet String compare) (o : Array Dynlib) := do
     let o := o.push lib
     if v.contains lib.name then
       return (v, o)
     if ps.contains lib.name then
       throw (lib.name :: ps)
     let ps := lib.name :: ps
-    let v := v.insert lib.name ()
+    let v := v.insert lib.name
     let (v, o) ← lib.deps.foldlM (init := (v, o)) fun (v, o) lib =>
       go lib ps v o
     return (v, o)

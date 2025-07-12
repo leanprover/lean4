@@ -4,10 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lean.Data.RBMap
+import Std.Data.TreeMap.Basic
 
 namespace Lake
-open Lean (RBMap)
 
 /--
 There are two ways to think of this type:
@@ -16,7 +15,7 @@ There are two ways to think of this type:
 iteration-by-values. Thus, it does not store the order of keys.
 -/
 structure RBArray (α : Type u) (β : Type v) (cmp : α → α → Ordering) where
-  toRBMap : RBMap α β cmp
+  toRBMap : Std.TreeMap α β cmp
   toArray : Array β
 
 namespace RBArray
@@ -30,7 +29,7 @@ def mkEmpty (size : Nat) : RBArray α β cmp :=
   ⟨.empty, .mkEmpty size⟩
 
 @[inline] def find? (self : RBArray α β cmp) (a : α) : Option β :=
-  self.toRBMap.find? a
+  self.toRBMap.get? a
 
 @[inline] def contains (self : RBArray α β cmp) (a : α) : Bool :=
   self.toRBMap.contains a

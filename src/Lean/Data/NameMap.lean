@@ -5,67 +5,72 @@ Author: Leonardo de Moura
 -/
 prelude
 import Std.Data.HashSet.Basic
-import Lean.Data.RBMap
-import Lean.Data.RBTree
+import Std.Data.TreeSet.Basic
+import Std.Data.TreeSet.AdditionalOperations
 import Lean.Data.SSet
 import Lean.Data.Name
+
 namespace Lean
 
-def NameMap (α : Type) := RBMap Name α Name.quickCmp
+def NameMap (α : Type) := Std.TreeMap Name α Name.quickCmp
 
-@[inline] def mkNameMap (α : Type) : NameMap α := mkRBMap Name α Name.quickCmp
+@[inline] def mkNameMap (α : Type) : NameMap α := Std.TreeMap.empty
 
 namespace NameMap
 variable {α : Type}
 
-instance [Repr α] : Repr (NameMap α) := inferInstanceAs (Repr (RBMap Name α Name.quickCmp))
+instance [Repr α] : Repr (NameMap α) := inferInstanceAs (Repr (Std.TreeMap _ _ _))
 
 instance (α : Type) : EmptyCollection (NameMap α) := ⟨mkNameMap α⟩
 
 instance (α : Type) : Inhabited (NameMap α) where
   default := {}
 
-def insert (m : NameMap α) (n : Name) (a : α) := RBMap.insert m n a
+def insert (m : NameMap α) (n : Name) (a : α) := Std.TreeMap.insert m n a
 
-def contains (m : NameMap α) (n : Name) : Bool := RBMap.contains m n
+def contains (m : NameMap α) (n : Name) : Bool := Std.TreeMap.contains m n
 
-def find? (m : NameMap α) (n : Name) : Option α := RBMap.find? m n
+def find? (m : NameMap α) (n : Name) : Option α := Std.TreeMap.get? m n
 
 instance : ForIn m (NameMap α) (Name × α) :=
-  inferInstanceAs (ForIn _ (RBMap ..) ..)
+  inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 
 /-- `filter f m` returns the `NameMap` consisting of all
 "`key`/`val`"-pairs in `m` where `f key val` returns `true`. -/
-def filter (f : Name → α → Bool) (m : NameMap α) : NameMap α := RBMap.filter f m
+def filter (f : Name → α → Bool) (m : NameMap α) : NameMap α := Std.TreeMap.filter f m
 
 /-- `filterMap f m` filters an `NameMap` and simultaneously modifies the filtered values.
 
 It takes a function `f : Name → α → Option β` and applies `f name` to the value with key `name`.
 The resulting entries with non-`none` value are collected to form the output `NameMap`. -/
-def filterMap (f : Name → α → Option β) (m : NameMap α) : NameMap β := RBMap.filterMap f m
+def filterMap (f : Name → α → Option β) (m : NameMap α) : NameMap β := Std.TreeMap.filterMap f m
 
 end NameMap
 
-def NameSet := RBTree Name Name.quickCmp
+def NameSet := Std.TreeSet Name Name.quickCmp
 
 namespace NameSet
-def empty : NameSet := mkRBTree Name Name.quickCmp
+def empty : NameSet := Std.TreeSet.empty
 instance : EmptyCollection NameSet := ⟨empty⟩
 instance : Inhabited NameSet := ⟨empty⟩
-def insert (s : NameSet) (n : Name) : NameSet := RBTree.insert s n
-def contains (s : NameSet) (n : Name) : Bool := RBMap.contains s n
+def insert (s : NameSet) (n : Name) : NameSet := Std.TreeSet.insert s n
+def contains (s : NameSet) (n : Name) : Bool := Std.TreeSet.contains s n
 instance : ForIn m NameSet Name :=
-  inferInstanceAs (ForIn _ (RBTree ..) ..)
+  inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 /-- The union of two `NameSet`s. -/
 def append (s t : NameSet) : NameSet :=
-  s.mergeBy (fun _ _ _ => .unit) t
+  s.merge t
 
 instance : Append NameSet where
   append := NameSet.append
 
 /-- `filter f s` returns the `NameSet` consisting of all `x` in `s` where `f x` returns `true`. -/
-def filter (f : Name → Bool) (s : NameSet) : NameSet := RBTree.filter f s
+def filter (f : Name → Bool) (s : NameSet) : NameSet := Std.TreeSet.filter f s
+
+def ofList (l : List Name) : NameSet := Std.TreeSet.ofList l _
+
+def ofArray (l : Array Name) : NameSet := Std.TreeSet.ofArray l _
 
 end NameSet
 

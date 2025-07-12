@@ -204,7 +204,7 @@ def isQueueEmpty : RingM Bool :=
   return (← getRing).queue.isEmpty
 
 def getNext? : RingM (Option EqCnstr) := do
-  let some c := (← getRing).queue.min | return none
+  let some c := (← getRing).queue.min? | return none
   modifyRing fun s => { s with queue := s.queue.erase c }
   incSteps
   return some c

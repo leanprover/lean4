@@ -118,7 +118,7 @@ instance : ToJson Name where
   toJson n := toString n
 
 protected def NameMap.fromJson? [FromJson α] : Json → Except String (NameMap α)
-  | .obj obj => obj.foldM (init := {}) fun m k v => do
+  | .obj obj => obj.foldlM (init := {}) fun m k v => do
     if k == "[anonymous]" then
       return m.insert .anonymous (← fromJson? v)
     else
@@ -133,7 +133,7 @@ instance [FromJson α] : FromJson (NameMap α) where
   fromJson? := NameMap.fromJson?
 
 protected def NameMap.toJson [ToJson α] (m : NameMap α) : Json :=
-  Json.obj <| m.fold (fun n k v => n.insert compare k.toString (toJson v)) .leaf
+  Json.obj <| m.foldl (fun n k v => n.insert k.toString (toJson v)) ∅
 
 instance [ToJson α] : ToJson (NameMap α) where
   toJson := NameMap.toJson
@@ -191,18 +191,16 @@ protected def _root_.Float.fromJson? : Json → Except String Float
 instance : FromJson Float where
   fromJson? := Float.fromJson?
 
-protected def RBMap.toJson [ToJson α] (m : RBMap String α cmp) : Json :=
-  Json.obj <| RBNode.map (fun _ => toJson) <| m.val
+instance [ToJson α] : ToJson (Std.TreeMap String α compare) where
+  toJson m :=
+    let json := Std.TreeMap.map (fun _ => toJson) <| m
+    -- TODO(henrik): remove this after Q4
+    Json.obj <| Std.TreeMap.Raw.mk <| Std.DTreeMap.Raw.mk json.inner.inner
 
-instance [ToJson α] : ToJson (RBMap String α cmp) where
-  toJson := RBMap.toJson
-
-protected def RBMap.fromJson? [FromJson α] (j : Json) : Except String (RBMap String α cmp) := do
-  let o ← j.getObj?
-  o.foldM (fun x k v => x.insert k <$> fromJson? v) ∅
-
-instance {cmp} [FromJson α] : FromJson (RBMap String α cmp) where
-  fromJson? := RBMap.fromJson?
+instance {cmp} [FromJson α] : FromJson (Std.TreeMap String α cmp) where
+  fromJson? j := do
+    let o ← j.getObj?
+    o.foldlM (fun x k v => x.insert k <$> fromJson? v) ∅
 
 namespace Json
 

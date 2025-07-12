@@ -51,7 +51,7 @@ partial def reduce (code : Code) : ReduceM Code := do
     return code.updateAlts! alts
   | .return .. | .unreach .. => return code
   | .jmp fvarId args =>
-    if let some mask := (← read).find? fvarId then
+    if let some mask := (← read).get? fvarId then
       let mut argsNew := #[]
       for keep in mask, arg in args do
         if keep then

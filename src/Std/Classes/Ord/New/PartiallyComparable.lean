@@ -49,23 +49,11 @@ class LawfulPartiallyComparableOrd {α : Type u} [Ord α] (c : PartiallyComparab
 class LawfulTotallyComparable {α : Type u} (c : PartiallyComparable α) where
   isSome_compare : ∀ a b, (c.compare a b).isSome
 
--- not really useful, I think
-class PartiallyComparableEq {α : Type u} (c d : PartiallyComparable α) where
-  eq : c = d
-
-instance {α : Type u} {c d : PartiallyComparable α} [PartiallyComparableEq c d] :
-    PartiallyComparableEq d c where
-  eq := PartiallyComparableEq.eq.symm
-
 theorem LawfulPartiallyComparableOrd.eq_ofOrd {α : Type u} [Ord α] {c : PartiallyComparable α}
     [i : LawfulPartiallyComparableOrd c] :
     c = .ofOrd α := by
   ext a b
   simp [PartiallyComparable.ofOrd, i.compare_eq_some_compare a b]
-
-instance {α : Type u} [Ord α] {c : PartiallyComparable α} [LawfulPartiallyComparableOrd c] :
-    PartiallyComparableEq c (.ofOrd α) where
-  eq := LawfulPartiallyComparableOrd.eq_ofOrd
 
 instance (α : Type u) [Ord α] : LawfulPartiallyComparableOrd (.ofOrd α) where
   compare_eq_some_compare := fun _ _ => by rfl
@@ -85,10 +73,6 @@ theorem LawfulOrientedPartiallyComparableLE.eq_ofLE {α : Type u} [LE α] {c : P
   · rename_i o
     simp only [PartialOrdering.isLE, PartialOrdering.isGE]
     cases o <;> simp
-
-instance {α : Type u} [LE α] {c : PartiallyComparable α} [LawfulOrientedPartiallyComparableLE c] :
-    PartiallyComparableEq c (.ofLE α) where
-  eq := LawfulOrientedPartiallyComparableLE.eq_ofLE
 
 instance (α : Type u) [LE α] : LawfulOrientedPartiallyComparableLE (.ofLE α) where
   le_iff_compare_isLE a b := by
@@ -111,10 +95,12 @@ theorem LawfulOrientedPartiallyComparableLT.eq_ofLT {α : Type u} [LT α] {c : P
   · rename_i o
     cases o <;> simp_all
 
-instance {α : Type u} [LT α] {c : PartiallyComparable α} [LawfulOrientedPartiallyComparableLT c]
-    [LawfulTotallyComparable c] :
-    PartiallyComparableEq c (.ofLT α) where
-  eq := LawfulOrientedPartiallyComparableLT.eq_ofLT
+instance {α : Type u} [LT α] : LawfulTotallyComparable (.ofLT α) where
+  isSome_compare a b := by
+    simp only [PartiallyComparable.ofLT]
+    split
+    · simp
+    · split <;> simp
 
 instance (α : Type u) [LT α] [Std.Asymm (α := α) (· < ·)] :
     LawfulOrientedPartiallyComparableLT (.ofLT α) where
@@ -215,114 +201,3 @@ example [LE α] [Ord α]
   have := le_total (α := α) (a := a) (b := b)
   -- Sad: I need to explicitly reference the instance I want.
   simp [i.le_iff_compare_isLE] at this
-
-
--- -- Ord: ofOrd -> ofLE
--- instance (α : Type u) [Ord α] [LE α] [i : LawfulOrientedPartiallyComparableLE (.ofOrd α)] :
---     LawfulPartiallyComparableOrd (.ofLE α) := by
---   rw [i.eq_ofLE.symm]
---   infer_instance
-
--- -- LE: ofOrd -> ofLE unnecessary
-
--- -- LT: ofOrd -> ofLE
--- instance (α : Type u) [Ord α] [LE α] [LT α] [i : LawfulOrientedPartiallyComparableLE (.ofOrd α)]
---     [LawfulOrientedPartiallyComparableLT (.ofLE α)] :
---     LawfulOrientedPartiallyComparableLE (.ofLE α) := by
---   rw [i.eq_ofLE.symm]
---   infer_instance
-
-
--- -- Ord: ofOrd -> ofLT
--- instance {α : Type u} [Ord α] [LT α] [i : LawfulOrientedPartiallyComparableLT (.ofOrd α)]
---     [LawfulTotallyComparable (.ofOrd α)] :
---     LawfulPartiallyComparableOrd (.ofLT α) := by
---   rw [i.eq_ofLT.symm]
---   infer_instance
-
--- -- LE: ofOrd -> ofLT
--- instance {α : Type u} [Ord α] [LT α] [LE α] [i : LawfulOrientedPartiallyComparableLT (.ofOrd α)]
---     [LawfulOrientedPartiallyComparableLE (.ofOrd α)]
---     [LawfulTotallyComparable (.ofOrd α)] :
---     LawfulOrientedPartiallyComparableLE (.ofLT α) := by
---   rw [i.eq_ofLT.symm]
---   infer_instance
-
--- -- LT: ofOrd -> ofLT
--- instance {α : Type u} [Ord α] [LT α] [i : LawfulOrientedPartiallyComparableLT (.ofOrd α)]
---     [LawfulTotallyComparable (.ofOrd α)] :
---     LawfulOrientedPartiallyComparableLT (.ofLT α) := by
---   rw [i.eq_ofLT.symm]
---   infer_instance
-
-
--- -- Ord: ofLE -> ofOrd unnecessary
-
--- -- LE: ofLE -> ofOrd
--- instance (α : Type u) [Ord α] [LE α] [i : LawfulPartiallyComparableOrd (.ofLE α)] :
---     LawfulOrientedPartiallyComparableLE (.ofOrd α) := by
---   rw [i.eq_ofOrd.symm]
---   infer_instance
-
--- -- LT: ofLE -> ofOrd
--- instance (α : Type u) [Ord α] [LE α] [LT α] [Std.Asymm (α := α) (· < ·)]
---     [i : LawfulPartiallyComparableOrd (.ofLE α)]
---     [LawfulOrientedPartiallyComparableLT (.ofLE α)] :
---     LawfulOrientedPartiallyComparableLT (.ofOrd α) := by
---   rw [i.eq_ofOrd.symm]
---   infer_instance
-
-
--- -- Ord: ofLE -> ofLT
--- instance (α : Type u) [Ord α] [LE α] [LT α] [i : LawfulOrientedPartiallyComparableLT (.ofLE α)]
---     [LawfulPartiallyComparableOrd (.ofLE α)] [LawfulTotallyComparable (.ofLE α)] :
---     LawfulOrientedPartiallyComparableLT (.ofLT α) := by
---   rw [i.eq_ofLT.symm]
---   infer_instance
-
--- -- LE: ofLE -> ofLT
--- instance (α : Type u) [LE α] [LT α] [i : LawfulOrientedPartiallyComparableLT (.ofLE α)]
---     [LawfulTotallyComparable (.ofLE α)] :
---     LawfulOrientedPartiallyComparableLE (.ofLT α) := by
---   rw [i.eq_ofLT.symm]
---   infer_instance
-
--- -- LT: ofLE -> ofLT unnecessary
-
-
--- -- Ord: ofLT -> ofOrd unnecessary
-
--- -- LE: ofLT -> ofOrd
--- instance (α : Type u) [Ord α] [LT α] [LE α] [Std.Asymm (α := α) (· < ·)]
---     [i : LawfulPartiallyComparableOrd (.ofLT α)] [LawfulOrientedPartiallyComparableLE (.ofLT α)] :
---     LawfulOrientedPartiallyComparableLT (.ofOrd α) := by
---   rw [i.eq_ofOrd.symm]
---   infer_instance
-
--- -- LT: ofLT -> ofOrd
--- instance (α : Type u) [Ord α] [LT α] [Std.Asymm (α := α) (· < ·)]
---     [i : LawfulPartiallyComparableOrd (.ofLT α)] :
---     LawfulOrientedPartiallyComparableLT (.ofOrd α) := by
---   rw [i.eq_ofOrd.symm]
---   infer_instance
-
-
--- -- Ord: ofLT -> ofLE
--- instance (α : Type u) [Ord α] [LT α] [LE α] [Std.Asymm (α := α) (· < ·)]
---     [i : LawfulOrientedPartiallyComparableLE (.ofLT α)] [LawfulPartiallyComparableOrd (.ofLT α)] :
---     LawfulPartiallyComparableOrd (.ofLE α) := by
---   rw [i.eq_ofLE.symm]
---   infer_instance
-
--- -- LE: ofLT -> ofLE unnecessary
-
--- -- LT: ofLT -> ofLE
--- instance (α : Type u) [LT α] [LE α] [Std.Asymm (α := α) (· < ·)]
---     [i : LawfulOrientedPartiallyComparableLE (.ofLT α)] :
---     LawfulOrientedPartiallyComparableLT (.ofLE α) := by
---   rw [i.eq_ofLE.symm]
---   infer_instance
-
-
--- TODO: LawfulTotallyComparable: ofOrd -> ofLE etc.
--- Perhaps create a mechanism that makes it less tedious to add more such properties

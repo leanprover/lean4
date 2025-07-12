@@ -133,14 +133,12 @@ private def fixKindsForDependencies (info : FunInfo) (kinds : Array CongrArgKind
       for i in info.paramInfo[j]!.backDeps do
         -- We must fix `i` because `j` depends on `i` and `j` is not cast-fixed.
         kinds := kinds.set! i .fixed
-        break
-    if k matches .cast then
+    else if k matches .cast then
       for i in info.paramInfo[j]!.backDeps do
         -- Proofs depending on `Decidable` instances are possible to handle in general but would
         -- require significantly modifying the `mkCast` algorithm.
         if kinds[i]! matches .subsingletonInst then
           kinds := kinds.set! i .fixed
-          break
   return kinds
 
 /--
@@ -290,6 +288,7 @@ where
     The idea is that the right-hand-side of this theorem "tells" the simplifier
     how the resulting term looks like. -/
   mk? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) : MetaM (Option CongrTheorem) := do
+    trace[congr.thm] "Kinds: {repr kinds}"
     try
       let fType ← inferType f
       forallBoundedTelescope fType kinds.size (cleanupAnnotations := true) fun lhss _ => do

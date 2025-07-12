@@ -211,13 +211,28 @@
 [Compiler.IR] [result]
     def getAppFn (x_1 : @& obj) : obj :=
       case x_1 : obj of
+      Exp.var._impl →
+        inc x_1;
+        ret x_1
       Exp.app._impl →
         let x_2 : obj := proj[0] x_1;
         let x_3 : obj := getAppFn x_2;
         ret x_3
-      default →
-        inc x_1;
-        ret x_1
+      Exp.a1._impl →
+        let x_4 : obj := ctor_2[Exp.a1._impl];
+        ret x_4
+      Exp.a2._impl →
+        let x_5 : obj := ctor_3[Exp.a2._impl];
+        ret x_5
+      Exp.a3._impl →
+        let x_6 : obj := ctor_4[Exp.a3._impl];
+        ret x_6
+      Exp.a4._impl →
+        let x_7 : obj := ctor_5[Exp.a4._impl];
+        ret x_7
+      Exp.a5._impl →
+        let x_8 : obj := ctor_6[Exp.a5._impl];
+        ret x_8
     def getAppFn._boxed (x_1 : obj) : obj :=
       let x_2 : obj := getAppFn x_1;
       dec x_1;

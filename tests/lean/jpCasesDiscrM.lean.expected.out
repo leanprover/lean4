@@ -9,44 +9,46 @@
         let _x.3 := Nat.mul b a;
         let _x.4 := Nat.add _x.2 _x.3;
         return _x.4
-[Compiler.saveBase] size: 7
+[Compiler.saveBase] size: 12
     def f2 c a b : Nat :=
+      jp _jp.1 d y z : Nat :=
+        cases d : Nat
+        | Bool.false =>
+          let _x.2 := Nat.add z y;
+          return _x.2
+        | Bool.true =>
+          let _x.3 := Nat.add y z;
+          let _x.4 := Nat.mul z y;
+          let _x.5 := Nat.add _x.3 _x.4;
+          return _x.5;
       cases c : Nat
       | Bool.false =>
-        let _x.1 := Nat.add a b;
-        return _x.1
+        goto _jp.1 c b a
       | Bool.true =>
-        let _x.2 := Nat.add a b;
-        let _x.3 := Nat.mul b a;
-        let _x.4 := Nat.add _x.2 _x.3;
-        return _x.4
-[Compiler.saveBase] size: 22
+        goto _jp.1 c a b
+[Compiler.saveBase] size: 20
     def f3 c c' a b : Nat :=
-      jp _jp.1 y z : Nat :=
-        let _x.2 := Nat.add y z;
-        let _x.3 := Nat.mul z y;
-        let _x.4 := Nat.add _x.2 _x.3;
-        return _x.4;
-      jp _jp.5 y z : Nat :=
-        let _x.6 := Nat.add z y;
-        let _x.7 := Nat.add _x.6 y;
-        return _x.7;
-      jp _jp.8 y z d : Nat :=
+      jp _jp.1 y z d : Nat :=
         cases d : Nat
         | C.c1 =>
-          goto _jp.1 y z
+          let _x.2 := Nat.add y z;
+          let _x.3 := Nat.mul z y;
+          let _x.4 := Nat.add _x.2 _x.3;
+          return _x.4
         | C.c3 =>
-          let _x.9 := Nat.mul y y;
-          let _x.10 := Nat.add _x.9 a;
-          return _x.10
+          let _x.5 := Nat.mul y y;
+          let _x.6 := Nat.add _x.5 a;
+          return _x.6
         | _ =>
-          goto _jp.5 y z;
+          let _x.7 := Nat.add z y;
+          let _x.8 := Nat.add _x.7 y;
+          return _x.8;
       cases c : Nat
       | C.c1 =>
-        goto _jp.1 a b
+        goto _jp.1 a b c
       | C.c2 =>
-        goto _jp.5 b b
+        goto _jp.1 b b c
       | C.c3 =>
-        goto _jp.8 b a c'
+        goto _jp.1 b a c'
       | C.c4 =>
-        goto _jp.8 a a c'
+        goto _jp.1 a a c'

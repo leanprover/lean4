@@ -8,5 +8,5 @@ follow the [generic build instructions](index.md).
 ## Basic packages
 
 ```bash
-sudo apt-get install git libgmp-dev libuv1-dev cmake ccache clang pkgconf
+sudo apt-get install git libgmp-dev libuv1-dev cmake ccache clang pkgconf libidn2-dev
 ```

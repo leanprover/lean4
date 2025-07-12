@@ -9,6 +9,7 @@ Requirements
 - [CMake](http://www.cmake.org)
 - [GMP (GNU multiprecision library)](http://gmplib.org/)
 - [LibUV](https://libuv.org/)
+- [Libidn2](https://www.gnu.org/software/libidn/#libidn2)
 
 Platform-Specific Setup
 -----------------------

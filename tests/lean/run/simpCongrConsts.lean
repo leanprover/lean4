@@ -75,13 +75,15 @@ def test6 (x y : Nat) : Fin x := sorry
 #check test6.congr_simp
 
 /-!
-Proofs that depend on `Decidable` instances also get rewritten properly.
+When proofs depend on `Decidable` instances, the `Decidable` instances get fixed.
+
+Note: It is possible to *not* fix them and then use a more complicated cast algorithm.
 -/
 
 def test7 {α : Type u} [DecidableEq α] {x : α} (h : (x == x) = true) : Nat := sorry
 
 /--
-info: test7.congr_simp.{u} {α : Type u} {inst✝ : DecidableEq α} [DecidableEq α] {x x✝ : α} (e_x : x = x✝)
+info: test7.congr_simp.{u} {α : Type u} [DecidableEq α] {x x✝ : α} (e_x : x = x✝)
   (h : (x == x) = true) : test7 h = test7 ⋯
 -/
 #guard_msgs in

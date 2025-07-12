@@ -119,11 +119,17 @@ builtin_grind_propagator propagateNotDown ↓Not := fun e => do
   else if (← isEqv e a) then
     closeGoal <| mkApp2 (mkConst ``Grind.false_of_not_eq_self) a (← mkEqProof e a)
 
-def propagateBoolDiseq (a : Expr) : GoalM Unit := do
-  if let some h ← mkDiseqProof? a (← getBoolFalseExpr) then
-    pushEqBoolTrue a <| mkApp2 (mkConst ``Grind.Bool.eq_true_of_not_eq_false') a h
-  if let some h ← mkDiseqProof? a (← getBoolTrueExpr) then
-    pushEqBoolFalse a <| mkApp2 (mkConst ``Grind.Bool.eq_false_of_not_eq_true') a h
+def propagateBoolDiseq (eq : Expr) (a b : Expr) : GoalM Unit := do
+  let tt ← getBoolTrueExpr
+  let ff ← getBoolFalseExpr
+  if (← isEqv b ff) then
+    pushEqBoolTrue a <| mkApp2 (mkConst ``Grind.Bool.eq_true_of_not_eq_false') a (← mkDiseqProofUsing a ff eq)
+  else if (← isEqv b tt) then
+    pushEqBoolFalse a <| mkApp2 (mkConst ``Grind.Bool.eq_false_of_not_eq_true') a (← mkDiseqProofUsing a tt eq)
+  else if (← isEqv a ff) then
+    pushEqBoolTrue b <| mkApp2 (mkConst ``Grind.Bool.eq_true_of_not_eq_false') b (← mkDiseqProofUsing b ff eq)
+  else if (← isEqv a tt) then
+    pushEqBoolFalse b <| mkApp2 (mkConst ``Grind.Bool.eq_false_of_not_eq_true') b (← mkDiseqProofUsing b tt eq)
 
 /-- Propagates `Eq` upwards -/
 builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
@@ -136,8 +142,7 @@ builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
     pushEqTrue e <| mkEqTrueCore e (← mkEqProof a b)
   if α.isConstOf ``Bool then
     if (← isEqFalse e) then
-      propagateBoolDiseq a
-      propagateBoolDiseq b
+      propagateBoolDiseq e a b
   let aRoot ← getRootENode a
   let bRoot ← getRootENode b
   if aRoot.ctor && bRoot.ctor && aRoot.self.getAppFn != bRoot.self.getAppFn then
@@ -157,8 +162,7 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
   else if (← isEqFalse e) then
     let_expr Eq α lhs rhs := e | return ()
     if α.isConstOf ``Bool then
-      propagateBoolDiseq lhs
-      propagateBoolDiseq rhs
+      propagateBoolDiseq e lhs rhs
     propagateCutsatDiseq lhs rhs
     propagateCommRingDiseq lhs rhs
     propagateLinarithDiseq lhs rhs

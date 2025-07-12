@@ -32,10 +32,29 @@ def addCongrTable (e : Expr) : GoalM Unit := do
           return ()
     trace_goal[grind.debug.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
-    let node ← getENode e
-    setENode e { node with congr := e' }
+    if (← swapCgrRepr e e') then
+      /-
+      Recall that `isDiseq` and `mkDiseqProof?` are implemented using the the congruence table.
+      So, if `e` is an equality `a = b`, and is the equivalence class of `False`, but `e'` is not,
+      we **must** make `e` the representative of the congruence class.
+      The equivalence classes of `e` and `e'` will be merged eventually since we used `pushEqHEq` above,
+      but assume that a conflict is detected before we merge the equivalence classes of `e` and `e'`,
+      and we try to construct a proof that uses the fact that `a ≠ b`. To retrieve this disequality
+      we must ensure that `e` is still the congruence root.
+      -/
+      modify fun s => { s with congrTable := s.congrTable.insert { e } }
+      let node ← getENode e'
+      setENode e' { node with congr := e }
+    else
+      let node ← getENode e
+      setENode e { node with congr := e' }
   else
     modify fun s => { s with congrTable := s.congrTable.insert { e } }
+where
+  swapCgrRepr (e e' : Expr) : GoalM Bool := do
+    let_expr Eq _ _ _ := e | return false
+    unless (← isEqFalse e) do return false
+    return !(← isEqFalse e')
 
 /--
 Given an application `e` of the form `f a_1 ... a_n`,

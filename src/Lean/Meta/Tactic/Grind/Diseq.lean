@@ -9,6 +9,8 @@ import Lean.Meta.Tactic.Grind.Types
 
 namespace Lean.Meta.Grind
 
+private def dummyEq : Expr := mkApp (mkConst ``Eq [1]) default
+
 /--
 Returns `some (c = d)` if
 - `c = d` and `False` are in the same equivalence class, and
@@ -18,33 +20,12 @@ Otherwise return `none`.
 
 Remark `a` and `b` are assumed to have the same type.
 -/
-private def getDiseqFor? (a b : Expr) : GoalM (Option Expr) := do
-  /-
-  In Z3, we use the congruence table to find equalities more efficiently,
-  but this optimization would be more complicated here because equalities have
-  the type as an implicit argument, and `grind`s congruence table assumes it is
-  hash-consed and canonicalized. So, we use the "slower" approach of visiting
-  parents.
-  -/
-  let aRoot ← getRoot a
-  let bRoot ← getRoot b
-  let aParents ← getParents aRoot
-  let bParents ← getParents bRoot
-  if aParents.size ≤ bParents.size then
-    go aParents
+def getDiseqFor? (a b : Expr) : GoalM (Option Expr) := do
+  let key := mkApp2 dummyEq a b
+  let some { e := e' } := (← get).congrTable.find? { e := key } | return none
+  if (← isEqFalse e') then
+    return some e'
   else
-    go bParents
-where
-  go (parents : ParentSet) : GoalM (Option Expr) := do
-    for parent in parents do
-      let_expr Eq α c d := parent | continue
-      if (← isEqFalse parent) then
-        -- Remark: we expect `hasType` test to seldom fail, but it can happen because of
-        -- heterogeneous equalities
-        if (← isEqv a c <&&> isEqv b d <&&> hasType a α) then
-          return some parent
-        if (← isEqv a d <&&> isEqv b c <&&> hasType a α) then
-          return some parent
     return none
 
 /--

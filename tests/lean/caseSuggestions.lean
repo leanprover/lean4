@@ -43,3 +43,13 @@ def sixteenCases : Nat := by
   cases true <;> cases true <;> cases true <;> cases true
   case nonexistent =>
     skip
+
+/-!
+  This example tests that the code-action hint doesn't appear when the identifier syntax is
+  synthetic.
+-/
+macro "faulty_case_selector " " => " ts:tacticSeq : tactic => `(tactic| case nonexistent => $ts)
+def inapplicableSyntax : Nat := by
+  cases true
+  faulty_case_selector =>
+    skip

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Diagnostics
+import Lean.Meta.Hint
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Contradiction
@@ -498,9 +499,9 @@ def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : Ta
 
 private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List MVarId) := do
   let gs ← getUnsolvedGoals
-  let g ← if let `(binderIdent| $tag:ident) := tag then
-    let tag := tag.getId.eraseMacroScopes
-    let some g ← findTag? gs tag | notFound gs tag
+  let g ← if let `(binderIdent| $tagId:ident) := tag then
+    let tagId := tagId.getId.eraseMacroScopes
+    let some g ← findTag? gs tagId | notFound gs tagId tag
     pure g
   else
     getMainGoal
@@ -509,22 +510,31 @@ private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List
 where
   -- When the case tag is not found, construct a message that tells
   -- the user what they could have written
-  notFound (available : List MVarId) (tag : Name) := do
+  notFound (available : List MVarId) (tag : Name) (tagStx : TSyntax ``binderIdent) := do
     let firstLine := m!"Case tag {showTagName tag} not found."
+    let isOriginalStx := tagStx.raw.getHeadInfo matches .original ..
     -- We must filter out the anonymous name because there may be an
     -- anonymous goal, but users shouldn't be mistakenly encouraged
     -- to write `case anonymous`
-    match (← available.mapM getUserName).filter (· ≠ Name.anonymous) with
-    | [] =>
-      throwError "{firstLine}\n\nThere are no cases to select."
-    | [availableName] =>
-      throwError "{firstLine}\n\nThe only available case tag is {showTagName availableName}."
-    | availableNames =>
-      throwError "Case tag {showTagName tag} not found.\n\nAvailable tags:{commaList <| availableNames.map showTagName}"
+    let hint ← match (← available.mapM getUserName).filter (· ≠ Name.anonymous) with
+      | [] => pure <| MessageData.note m!"There are no cases to select."
+      | [availableName] =>
+        let msg := m!"The only available case tag is {showTagName availableName}."
+        if isOriginalStx then
+          MessageData.hint msg (mkSuggestions #[availableName]) (ref? := tagStx)
+        else
+          pure <| MessageData.hint' msg
+      | availableNames =>
+        let msg := "Available tags:"
+        if isOriginalStx then
+          MessageData.hint msg (mkSuggestions availableNames.toArray) (ref? := tagStx)
+        else
+          pure <| MessageData.hint' m!"{msg}{commaList <| availableNames.map showTagName}"
+    throwError firstLine ++ hint
 
   getUserName (mv : MVarId) := do return (← mv.getDecl).userName
 
-  showTagName (tagName : Name) : MessageData := m!"'{tagName}'"
+  showTagName (tagName : Name) : MessageData := m!"`{tagName}`"
 
   -- Construct a comma-separated list that renders one per line,
   -- indented, if it's too long
@@ -532,6 +542,12 @@ where
     let sep := MessageData.ofFormat "," ++ Format.line
     .group <| .nest 2 <|
     .ofFormat .line ++ .joinSep items sep
+
+  mkSuggestions (names : Array Name) :=
+    names.map fun name =>
+      { suggestion := name.toString
+        toCodeActionTitle? := some fun s => s!"Change case name: {s}"
+        preInfo? := if names.size == 1 then none else s!"`{name}`: " : Hint.Suggestion }
 
 @[builtin_tactic «case», builtin_incremental]
 def evalCase : Tactic

@@ -141,13 +141,15 @@ even though the metavariable is assigned in the `refine_2.false` case before the
 -/
 set_option pp.mvars false in
 /--
-error: Case tag 'true' not found.
+error: Case tag `true` not found.
 
-The only available case tag is 'refine_2.false'.
+Hint: The only available case tag is `refine_2.false`.
+  t̵r̵u̵e̵r̲e̲f̲i̲n̲e̲_̲2̲.̲f̲a̲l̲s̲e̲
 ---
-error: Case tag 'true' not found.
+error: Case tag `true` not found.
 
-The only available case tag is 'refine_1'.
+Hint: The only available case tag is `refine_1`.
+  t̵r̵u̵e̵r̲e̲f̲i̲n̲e̲_̲1̲
 ---
 trace: case refine_2.false
 v : Unit := ()

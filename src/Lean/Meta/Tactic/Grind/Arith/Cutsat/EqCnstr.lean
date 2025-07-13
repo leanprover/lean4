@@ -413,13 +413,6 @@ private def propagateMod (e : Expr) : GoalM Unit := do
     let some b ← getIntValue? b | return ()
     expandDivMod a b
 
-private def propagateNatSub (e : Expr) : GoalM Unit := do
-  let_expr HSub.hSub _ _ _ inst a b := e | return ()
-  unless (← isInstHSubNat inst) do return ()
-  discard <| mkNatVar a
-  discard <| mkNatVar b
-  pushNewFact <| mkApp2 (mkConst ``Int.Linear.natCast_sub) a b
-
 private def propagateNatAbs (e : Expr) : GoalM Unit := do
   let_expr Int.natAbs a := e | return ()
   pushNewFact <| mkApp (mkConst ``Lean.Omega.Int.ofNat_natAbs) a

@@ -248,22 +248,11 @@ structure State where
   /-- `varVap` before variables were reordered. -/
   varMap' : PHashMap ExprPtr Var := {}
   /--
-  Mapping from `Nat` terms to their variable. They are also marked using `markAsCutsatTerm`.
-  -/
-  natVarMap : PHashMap ExprPtr Var := {}
-  natVars : PArray Expr := {}
-  /--
   The field `natToIntMap` contains a mapping
   from a `Nat`-term `e` to the pair `(e', he)`, where
   `he : NatCast.natCast e = e'`
   -/
   natToIntMap : PHashMap ExprPtr (Expr × Expr) := {}
-  /--
-  Some `Nat` variables encode nested terms such as `b+1`.
-  This is a mapping from this kind of variable to the integer variable
-  representing `natCast (b+1)`.
-  -/
-  natDef : PHashMap ExprPtr Var := {}
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/

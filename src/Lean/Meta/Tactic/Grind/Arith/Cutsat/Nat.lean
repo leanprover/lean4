@@ -106,7 +106,6 @@ def natToInt (a : Expr) : GoalM (Expr × Expr) := do
    let_expr NatCast.natCast _ inst a := e | return ()
    let_expr instNatCastInt := inst | return ()
    if a.isAppOf ``OfNat.ofNat then return () -- we don't want to propagate constraints such as `2 ≥ 0`
-   if (← get').natDef.contains { expr := a } then return ()
    let p := .add (-1) x (.num 0)
    let c := { p, h := .ofNatNonneg a : LeCnstr}
    c.assert

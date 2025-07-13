@@ -455,12 +455,13 @@ private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   modify' fun s => { s with
     natToIntMap := s.natToIntMap.insert { expr := e } e'h
   }
+  markAsCutsatTerm e
   /-
   If `e'.h` is of the form `NatCast.natCast e`, then it is wasteful to
   assert an equality
   -/
   match_expr e'h.1 with
-  | NatCast.natCast _ _ a => if e == a then markAsCutsatTerm e; return ()
+  | NatCast.natCast _ _ a => if e == a then return ()
   | _ => pure ()
   let e'' ← toLinearExpr e'h.1
   let p := e''.norm
@@ -469,12 +470,8 @@ private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   internalize natCast_e gen
   let x ← mkVar natCast_e
   modify' fun s => { s with natDef := s.natDef.insert { expr := e } x }
---  if let some (re, rp, p') ← p.normCommRing? then
---    let c := { p := .add (-1) x p', h := .defnNatCommRing e' x e'' p re rp p' : EqCnstr }
---    c.assert
---  else
---    let c := { p := .add (-1) x p, h := .defnNat e x e'' : EqCnstr }
---    c.assert
+  let c := { p := .add (-1) x p, h := .defnNat e'h.2 x e'' : EqCnstr }
+  c.assert
 
 private def internalizeToIntTerm (e type : Expr) : GoalM Unit := do
   if (← isToIntTerm e) then return () -- already internalized

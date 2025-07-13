@@ -89,6 +89,7 @@ inductive EqCnstrProof where
   | coreToInt (a b : Expr) (toIntThm : Expr) (lhs rhs : Int.Linear.Expr)
   | /-- `e` is `p` -/
     defn (e : Expr) (p : Poly)
+  | defnNat (h : Expr) (x : Var) (e' : Int.Linear.Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)

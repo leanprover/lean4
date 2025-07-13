@@ -82,7 +82,10 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
       let dec := mkApp2 (mkConst ``Int.decLe) lhs rhs
       let r := mkApp4 intIte c dec (mkIntSub a' b') (mkIntLit 0)
       let h := mkApp6 (mkConst ``Nat.ToInt.sub_congr) a b a' b' h₁ h₂
-      return (r, h)
+      -- We need to simplify because `cutsat` expects arithmetic to be in normal form
+      let r ← simpCore r
+      let h ← if let some h' := r.proof? then mkEqTrans h h' else pure h
+      return (r.expr, h)
     else
       mkNatVar e
   | _ => mkNatVar e
@@ -92,11 +95,8 @@ Given `a : Nat`, returns `(a', h)` such that `a' : Int`, and `h : NatCast.natCas
 -/
 def natToInt (a : Expr) : GoalM (Expr × Expr) := do
   let (b, h) ← natToInt' a
-  let r ← preprocess b
-  if let some proof := r.proof? then
-    return (r.expr, (← mkEqTrans h proof))
-  else
-    return (r.expr, h)
+  let b ← shareCommon b
+  return (b, h)
 
  /--
  Given `x` whose denotation is `e`, if `e` is of the form `NatCast.natCast a`,

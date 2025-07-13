@@ -471,7 +471,7 @@ def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
   | Expr.isShared x₁,        Expr.isShared x₂        => aeqv ρ x₁ x₂
   | _,                        _                      => false
 
-instance : AlphaEqv Expr:= ⟨Expr.alphaEqv⟩
+instance : AlphaEqv Expr := ⟨Expr.alphaEqv⟩
 
 def addVarRename (ρ : IndexRenaming) (x₁ x₂ : Nat) :=
   if x₁ == x₂ then ρ else ρ.insert x₁ x₂

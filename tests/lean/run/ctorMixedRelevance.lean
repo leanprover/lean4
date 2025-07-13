@@ -10,11 +10,11 @@ structure TwoThingies (α : Type) where
 
 /--
 trace: [Compiler.IR] [result]
-    def test1._closed_0 : obj :=
-      let x_1 : obj := ctor_0[TwoThingies.mk] ◾ ◾;
+    def test1._closed_0 : tobj :=
+      let x_1 : tobj := ctor_0[TwoThingies.mk] ◾ ◾;
       ret x_1
-    def test1 : obj :=
-      let x_1 : obj := test1._closed_0;
+    def test1 : tobj :=
+      let x_1 : tobj := test1._closed_0;
       ret x_1
 -/
 #guard_msgs in
@@ -23,15 +23,15 @@ def test1 : TwoThingies Prop := { value1.fst := True, value2.snd := False }
 
 /--
 trace: [Compiler.IR] [result]
-    def test2._closed_0 : obj :=
+    def test2._closed_0 : tobj :=
       let x_1 : u8 := 0;
       let x_2 : u8 := 1;
-      let x_3 : obj := box x_2;
-      let x_4 : obj := box x_1;
-      let x_5 : obj := ctor_0[TwoThingies.mk] x_3 x_4;
+      let x_3 : tobj := box x_2;
+      let x_4 : tobj := box x_1;
+      let x_5 : tobj := ctor_0[TwoThingies.mk] x_3 x_4;
       ret x_5
-    def test2 : obj :=
-      let x_1 : obj := test2._closed_0;
+    def test2 : tobj :=
+      let x_1 : tobj := test2._closed_0;
       ret x_1
 -/
 #guard_msgs in

@@ -43,7 +43,7 @@ def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
 
 def mkBoxedVersionAux (decl : Decl) : N Decl := do
   let ps := decl.params
-  let qs ← ps.mapM fun _ => do let x ← N.mkFresh; pure { x := x, ty := IRType.object, borrow := false : Param }
+  let qs ← ps.mapM fun p => do let x ← N.mkFresh; pure { x, ty := p.ty.boxed, borrow := false }
   let (newVDecls, xs) ← qs.size.foldM (init := (#[], #[])) fun i _ (newVDecls, xs) => do
     let p := ps[i]!
     let q := qs[i]
@@ -58,9 +58,9 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
     pure <| reshape newVDecls (FnBody.ret (Arg.var r))
   else
     let newR ← N.mkFresh
-    let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) default)
+    let newVDecls := newVDecls.push (FnBody.vdecl newR .tobject (Expr.box decl.resultType r) default)
     pure <| reshape newVDecls (FnBody.ret (Arg.var newR))
-  return Decl.fdecl (mkBoxedName decl.name) qs IRType.object body decl.getInfo
+  return Decl.fdecl (mkBoxedName decl.name) qs decl.resultType.boxed body decl.getInfo
 
 def mkBoxedVersion (decl : Decl) : Decl :=
   (mkBoxedVersionAux decl).run' 1
@@ -78,7 +78,7 @@ def getScrutineeType (alts : Array Alt) : IRType :=
       | Alt.ctor c _  => c.isScalar
       | Alt.default _ => false
   match isScalar with
-  | false => IRType.object
+  | false => .tobject
   | true  => irTypeForEnum alts.size
 
 def eqvTypes (t₁ t₂ : IRType) : Bool :=
@@ -122,7 +122,7 @@ def getVarType (x : VarId) : M IRType := do
   let localCtx ← getLocalContext
   match localCtx.getType x with
   | some t => pure t
-  | none   => pure IRType.object -- unreachable, we assume the code is well formed
+  | none   => pure .tobject -- unreachable, we assume the code is well formed
 
 def getJPParams (j : JoinPointId) : M (Array Param) := do
   let localCtx ← getLocalContext
@@ -239,14 +239,14 @@ def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Arr
   pure (reshape bs b)
 
 @[inline] def boxArgsIfNeeded (xs : Array Arg) (k : Array Arg → M FnBody) : M FnBody := do
-  let (ys, bs) ← castArgsIfNeededAux xs (fun _ => IRType.object)
+  let (ys, bs) ← castArgsIfNeededAux xs (fun _ => .tobject)
   let b ← k ys
   pure (reshape bs b)
 
 def unboxResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody := do
   if ty.isScalar then
     let y ← M.mkFresh
-    return FnBody.vdecl y IRType.object e (FnBody.vdecl x ty (Expr.unbox y) b)
+    return FnBody.vdecl y .tobject e (FnBody.vdecl x ty (Expr.unbox y) b)
   else
     return FnBody.vdecl x ty e b
 

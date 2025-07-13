@@ -178,7 +178,10 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
     return mkApp8 (mkConst ``Int.Linear.eq_def_norm) (← getContext)
       (toExpr x) (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p)
       reflBoolTrue (← mkEqRefl e) h
-
+  | .defnNatCommRing h₁ x e' p re rp p' =>
+    let h₂ := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) reflBoolTrue
+    return mkApp9 (mkConst ``Int.Linear.eq_def'_norm) (← getContext) (toExpr x) (← mkExprDecl e')
+      (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p) reflBoolTrue h₁ h₂
 
 partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
@@ -432,7 +435,7 @@ mutual
 partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
   | .core0 .. | .core .. | .defn .. | .defnNat ..
-  | .defnCommRing .. | .coreToInt .. => return () -- Equalities coming from the core never contain cutsat decision variables
+  | .defnCommRing .. | .defnNatCommRing .. | .coreToInt .. => return () -- Equalities coming from the core never contain cutsat decision variables
   | .commRingNorm c .. | .reorder c | .norm c | .divCoeffs c => c.collectDecVars
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 

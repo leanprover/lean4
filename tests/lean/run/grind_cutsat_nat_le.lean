@@ -1,3 +1,8 @@
+
+open Int.Linear Int.OfNat
+
+
+set_option trace.grind.debug.proof true in
 theorem ex1 (x y z : Nat) : x < y + z → y + 1 < z → z + x < 3*z := by
   grind
 

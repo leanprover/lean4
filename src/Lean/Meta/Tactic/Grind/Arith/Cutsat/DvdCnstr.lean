@@ -119,7 +119,7 @@ def propagateNatDvd (e : Expr) : GoalM Unit := do
     let thm := mkApp6 (mkConst ``Nat.ToInt.of_dvd) d₀ a d' a' h₁ h₂
     let c := { d, p, h := .coreOfNat e thm d e' : DvdCnstr }
     c.assert
-  else
+  else if (← isEqFalse e) then
     pushNewFact <| mkApp3 (mkConst ``Nat.emod_pos_of_not_dvd) d₀ a (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do

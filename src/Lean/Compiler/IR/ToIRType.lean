@@ -17,7 +17,7 @@ open Lean.Compiler (LCNF.CacheExtension LCNF.isTypeFormerType LCNF.toLCNFType LC
 
 def irTypeForEnum (numCtors : Nat) : IRType :=
   if numCtors == 1 then
-    .object
+    .tobject
   else if numCtors < Nat.pow 2 8 then
     .uint8
   else if numCtors < Nat.pow 2 16 then
@@ -25,7 +25,7 @@ def irTypeForEnum (numCtors : Nat) : IRType :=
   else if numCtors < Nat.pow 2 32 then
     .uint32
   else
-    .object
+    .tobject
 
 builtin_initialize irTypeExt : LCNF.CacheExtension Name IRType ←
   LCNF.CacheExtension.register
@@ -47,23 +47,33 @@ where fillCache : CoreM IRType := do
     | ``Float => return .float
     | ``Float32 => return .float32
     | ``lcErased => return .erased
+    -- `Int` is specified as an inductive type with two constructors that have relevant arguments,
+    -- but it has the same runtime representation as `Nat` and thus needs to be special-cased here.
+    | ``Int => return .tobject
     | _ =>
       let env ← Lean.getEnv
-      let some (.inductInfo inductiveVal) := env.find? name | return .object
+      let some (.inductInfo inductiveVal) := env.find? name | return .tobject
       let ctorNames := inductiveVal.ctors
       let numCtors := ctorNames.length
+      let mut numScalarCtors := 0
       for ctorName in ctorNames do
         let some (.ctorInfo ctorInfo) := env.find? ctorName | unreachable!
-        let isRelevant ← Meta.MetaM.run' <|
-                         Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
+        let hasRelevantField ← Meta.MetaM.run' <|
+                               Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
           for field in params[ctorInfo.numParams...*] do
             let fieldType ← field.fvarId!.getType
             let lcnfFieldType ← LCNF.toLCNFType fieldType
             let monoFieldType ← LCNF.toMonoType lcnfFieldType
             if !monoFieldType.isErased then return true
           return false
-        if isRelevant then return .object
-      return irTypeForEnum numCtors
+        if !hasRelevantField then
+          numScalarCtors := numScalarCtors + 1
+      if numScalarCtors == numCtors then
+        return irTypeForEnum numCtors
+      else if numScalarCtors == 0 then
+        return .object
+      else
+        return .tobject
 
 def toIRType (type : Lean.Expr) : CoreM IRType := do
   match type with
@@ -72,7 +82,7 @@ def toIRType (type : Lean.Expr) : CoreM IRType := do
     -- All mono types are in headBeta form.
     let .const name _ := type.getAppFn | unreachable!
     nameToIRType name
-  | .forallE .. => return .object
+  | .forallE .. => return .tobject
   | .mdata _ b => toIRType b
   | _ => unreachable!
 

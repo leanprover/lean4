@@ -65,7 +65,7 @@ def addDecl (d : Decl) : M Unit :=
 
 def lowerLitValue (v : LCNF.LitValue) : LitVal × IRType :=
   match v with
-  | .nat n => ⟨.num n, .object⟩
+  | .nat n => ⟨.num n, .tobject⟩
   | .str s => ⟨.str s, .object⟩
   | .uint8 v => ⟨.num (UInt8.toNat v), .uint8⟩
   | .uint16 v => ⟨.num (UInt16.toNat v), .uint16⟩
@@ -170,7 +170,6 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
         let var ← bindVar decl.fvarId
         return .vdecl var type (.lit (.num ctorVal.cidx)) (← lowerCode k)
 
-      assert! type == .object
       let ⟨ctorInfo, fields⟩ ← getCtorLayout name
       let irArgs := irArgs.extract (start := ctorVal.numParams)
       let objArgs : Array Arg ← do
@@ -233,12 +232,13 @@ where
 
   mkAp (fnVar : VarId) (args : Array Arg) : M FnBody := do
     let var ← bindVar decl.fvarId
-    return .vdecl var .object (.ap fnVar args) (← lowerCode k)
+    let type := (← toIRType decl.type).boxed
+    return .vdecl var type (.ap fnVar args) (← lowerCode k)
 
   mkPartialApp (e : Expr) (restArgs : Array Arg) : M FnBody := do
     let var ← bindVar decl.fvarId
     let tmpVar ← newVar
-    return .vdecl tmpVar .object e (.vdecl var .object (.ap tmpVar restArgs) (← lowerCode k))
+    return .vdecl tmpVar .tobject e (.vdecl var .tobject (.ap tmpVar restArgs) (← lowerCode k))
 
   tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
     if let some decl ← LCNF.getMonoDecl? name then

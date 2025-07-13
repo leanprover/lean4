@@ -183,6 +183,9 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .core e =>
     mkOfEqTrue (← mkEqTrueProof e)
+  | .coreOfNat e thm d a' =>
+    let h := mkApp thm (← mkOfEqTrue (← mkEqTrueProof e))
+    return mkApp6 (mkConst ``Int.Linear.dvd_norm_expr) (← getContext) (toExpr (Int.ofNat d)) (← mkExprDecl a') (← mkPolyDecl c'.p) reflBoolTrue h
   | .norm c =>
     return mkApp6 (mkConst ``Int.Linear.dvd_norm) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
   | .elim c =>
@@ -442,7 +445,7 @@ partial def CooperSplit.collectDecVars (s : CooperSplit) : CollectDecVarsM Unit 
 
 partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core _  => return ()
+  | .core _  | .coreOfNat .. => return ()
   | .cooper₁ c | .cooper₂ c
   | .commRingNorm c .. | .reorder c | .norm c | .elim c | .divCoeffs c | .ofEq _ c => c.collectDecVars
   | .solveCombine c₁ c₂ | .solveElim c₁ c₂ | .subst _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars

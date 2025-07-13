@@ -145,6 +145,7 @@ inductive CooperSplitProof where
 inductive DvdCnstrProof where
   | /-- Given `e` of the form `k ∣ p` s.t. `e = True` in the core.  -/
     core (e : Expr)
+  | coreOfNat (e : Expr) (thm : Expr) (d : Nat) (a : Int.Linear.Expr)
   | norm (c : DvdCnstr)
   | divCoeffs (c : DvdCnstr)
   | solveCombine (c₁ c₂ : DvdCnstr)

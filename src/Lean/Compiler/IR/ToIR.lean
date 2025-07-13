@@ -180,20 +180,20 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
         pure result
       let objVar ← bindVar decl.fvarId
       let rec lowerNonObjectFields (_ : Unit) : M FnBody :=
-        let rec loop (usizeCount : Nat) (i : Nat) : M FnBody := do
+        let rec loop (i : Nat) : M FnBody := do
           match irArgs[i]? with
           | some (.var varId) =>
             match fields[i]! with
-            | .usize .. =>
-              let k ← loop (usizeCount + 1) (i + 1)
-              return .uset objVar (ctorInfo.size + usizeCount) varId k
+            | .usize usizeIdx =>
+              let k ← loop (i + 1)
+              return .uset objVar usizeIdx varId k
             | .scalar _ offset argType =>
-              let k ← loop usizeCount (i + 1)
+              let k ← loop (i + 1)
               return .sset objVar (ctorInfo.size + ctorInfo.usize) offset varId argType k
-            | .object .. | .irrelevant => loop usizeCount (i + 1)
-          | some .irrelevant => loop usizeCount (i + 1)
+            | .object .. | .irrelevant => loop (i + 1)
+          | some .irrelevant => loop (i + 1)
           | none => lowerCode k
-        loop 0 0
+        loop 0
       return .vdecl objVar type (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())
     | some (.defnInfo ..) | some (.opaqueInfo ..) =>
       mkExpr (.fap name irArgs)

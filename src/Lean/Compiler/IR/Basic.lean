@@ -45,7 +45,7 @@ abbrev MData.empty : MData := {}
       because it is 32-bit in 32-bit machines, and 64-bit in 64-bit machines,
       and we want the C++ backend for our Compiler to generate platform independent code.
 
-   - `irrelevant` for Lean types, propositions and proofs.
+   - `erased` for Lean types, propositions and proofs.
 
    - `object` a pointer to a value in the heap.
 
@@ -73,7 +73,7 @@ then one of the following must hold in each (execution) branch.
 -/
 inductive IRType where
   | float | uint8 | uint16 | uint32 | uint64 | usize
-  | irrelevant | object | tobject
+  | erased | object | tobject
   | float32
   | struct (leanTypeName : Option Name) (types : Array IRType) : IRType
   | union (leanTypeName : Name) (types : Array IRType) : IRType
@@ -96,24 +96,24 @@ def isObj : IRType → Bool
   | tobject => true
   | _       => false
 
-def isIrrelevant : IRType → Bool
-  | irrelevant => true
+def isErased : IRType → Bool
+  | erased => true
   | _ => false
 
 end IRType
 
 /-- Arguments to applications, constructors, etc.
-   We use `irrelevant` for Lean types, propositions and proofs that have been erased.
+   We use `erased` for Lean types, propositions and proofs that have been erased.
    Recall that for a Function `f`, we also generate `f._rarg` which does not take
-   `irrelevant` arguments. However, `f._rarg` is only safe to be used in full applications. -/
+   `erased` arguments. However, `f._rarg` is only safe to be used in full applications. -/
 inductive Arg where
   | var (id : VarId)
-  | irrelevant
+  | erased
   deriving Inhabited, BEq, Repr
 
 protected def Arg.beq : Arg → Arg → Bool
   | var x,      var y      => x == y
-  | irrelevant, irrelevant => true
+  | erased, erased         => true
   | _,          _          => false
 
 inductive LitVal where
@@ -201,7 +201,7 @@ inductive FnBody where
   /-- Store `y : Usize` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1. -/
   | uset (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
   /-- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
-  `ty` must not be `object`, `tobject`, `irrelevant` nor `Usize`. -/
+  `ty` must not be `object`, `tobject`, `erased` nor `Usize`. -/
   | sset (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody)
   /-- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
   If `persistent == true` then `x` is statically known to be a persistent object. -/
@@ -445,7 +445,7 @@ instance : AlphaEqv VarId := ⟨VarId.alphaEqv⟩
 
 def Arg.alphaEqv (ρ : IndexRenaming) : Arg → Arg → Bool
   | Arg.var v₁,     Arg.var v₂     => aeqv ρ v₁ v₂
-  | Arg.irrelevant, Arg.irrelevant => true
+  | Arg.erased,     Arg.erased     => true
   | _,              _              => false
 
 instance : AlphaEqv Arg := ⟨Arg.alphaEqv⟩

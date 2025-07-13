@@ -77,9 +77,9 @@ def lowerArg (a : LCNF.Arg) : M Arg := do
   | .fvar fvarId =>
     match (← get).fvars[fvarId]? with
     | some (.var varId) => return .var varId
-    | some .erased => return .irrelevant
+    | some .erased => return .erased
     | some (.joinPoint ..) | none => panic! "unexpected value"
-  | .erased | .type .. => return .irrelevant
+  | .erased | .type .. => return .erased
 
 inductive TranslatedProj where
   | expr (e : Expr)
@@ -92,7 +92,7 @@ def lowerProj (base : VarId) (ctorInfo : CtorInfo) (field : CtorFieldInfo)
   | .object i => ⟨.expr (.proj i base), .object⟩
   | .usize i => ⟨.expr (.uproj i base), .usize⟩
   | .scalar _ offset irType => ⟨.expr (.sproj (ctorInfo.size + ctorInfo.usize) offset base), irType⟩
-  | .irrelevant => ⟨.erased, .irrelevant⟩
+  | .erased => ⟨.erased, .erased⟩
 
 def lowerParam (p : LCNF.Param) : M Param := do
   let x ← bindVar p.fvarId
@@ -124,7 +124,7 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
   | .return fvarId =>
     let arg := match (← get).fvars[fvarId]? with
     | some (.var varId) => .var varId
-    | some .erased => .irrelevant
+    | some .erased => .erased
     | some (.joinPoint ..) | none => panic! "unexpected value"
     return .ret arg
   | .unreach .. => return .unreachable
@@ -176,7 +176,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
           match fields[i] with
           | .object .. =>
             result := result.push irArgs[i]!
-          | .usize .. | .scalar .. | .irrelevant => pure ()
+          | .usize .. | .scalar .. | .erased => pure ()
         pure result
       let objVar ← bindVar decl.fvarId
       let rec lowerNonObjectFields (_ : Unit) : M FnBody :=
@@ -190,8 +190,8 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
             | .scalar _ offset argType =>
               let k ← loop (i + 1)
               return .sset objVar (ctorInfo.size + ctorInfo.usize) offset varId argType k
-            | .object .. | .irrelevant => loop (i + 1)
-          | some .irrelevant => loop (i + 1)
+            | .object .. | .erased => loop (i + 1)
+          | some .erased => loop (i + 1)
           | none => lowerCode k
         loop 0
       return .vdecl objVar type (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())

@@ -17,7 +17,7 @@ open Lean.Compiler (LCNF.CacheExtension LCNF.isTypeFormerType LCNF.toLCNFType LC
 
 def irTypeForEnum (numCtors : Nat) : IRType :=
   if numCtors == 1 then
-    .tobject
+    .tagged
   else if numCtors < Nat.pow 2 8 then
     .uint8
   else if numCtors < Nat.pow 2 16 then
@@ -25,7 +25,7 @@ def irTypeForEnum (numCtors : Nat) : IRType :=
   else if numCtors < Nat.pow 2 32 then
     .uint32
   else
-    .tobject
+    .tagged
 
 builtin_initialize irTypeExt : LCNF.CacheExtension Name IRType ←
   LCNF.CacheExtension.register
@@ -125,7 +125,7 @@ where fillCache := do
       let monoFieldType ← LCNF.toMonoType lcnfFieldType
       let irFieldType ← toIRType monoFieldType
       let ctorField ← match irFieldType with
-      | .object | .tobject => do
+      | .object | .tagged | .tobject => do
         let i := nextIdx
         nextIdx := nextIdx + 1
         pure <| .object i irFieldType

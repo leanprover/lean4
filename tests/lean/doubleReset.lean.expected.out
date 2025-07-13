@@ -15,7 +15,7 @@
             let x_8 : tobj := proj[0] x_7;
             let x_9 : tobj := proj[1] x_7;
             let x_18 : tobj := reset[2] x_7;
-            let x_10 : tobj := 0;
+            let x_10 : tagged := 0;
             let x_11 : tobj := Array.uset ◾ x_4 x_3 x_10 ◾;
             let x_12 : tobj := reuse x_18 in ctor_0[Prod.mk] x_8 x_9;
             let x_13 : tobj := reuse x_19 in ctor_0[Prod.mk] x_12 x_1;

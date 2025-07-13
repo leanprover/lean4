@@ -65,7 +65,9 @@ def addDecl (d : Decl) : M Unit :=
 
 def lowerLitValue (v : LCNF.LitValue) : LitVal × IRType :=
   match v with
-  | .nat n => ⟨.num n, .tobject⟩
+  | .nat n =>
+    let type := if n < UInt32.size then .tagged else .tobject
+    ⟨.num n, type⟩
   | .str s => ⟨.str s, .object⟩
   | .uint8 v => ⟨.num (UInt8.toNat v), .uint8⟩
   | .uint16 v => ⟨.num (UInt16.toNat v), .uint16⟩

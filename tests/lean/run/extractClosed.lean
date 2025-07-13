@@ -1,7 +1,7 @@
 /--
 trace: [Compiler.IR] [result]
     def f._closed_0 : tobj :=
-      let x_1 : tobj := 1;
+      let x_1 : tagged := 1;
       let x_2 : tobj := Array.mkEmpty ◾ x_1;
       ret x_2
     def f (x_1 : tobj) : tobj :=
@@ -16,7 +16,7 @@ def f (a : Nat) : Array Nat := #[a]
 /--
 trace: [Compiler.IR] [result]
     def g (x_1 : tobj) : tobj :=
-      let x_2 : tobj := 1;
+      let x_2 : tagged := 1;
       let x_3 : tobj := Array.mkEmpty ◾ x_2;
       let x_4 : tobj := Array.push ◾ x_3 x_1;
       ret x_4

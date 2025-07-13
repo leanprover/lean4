@@ -63,6 +63,7 @@ private partial def formatIRType : IRType → Format
   | IRType.usize        => "usize"
   | IRType.erased       => "◾"
   | IRType.object       => "obj"
+  | IRType.tagged       => "tagged"
   | IRType.tobject      => "tobj"
   | IRType.struct _ tys =>
     let _ : ToFormat IRType := ⟨formatIRType⟩

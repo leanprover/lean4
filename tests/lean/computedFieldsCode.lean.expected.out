@@ -180,7 +180,7 @@
       default →
         let x_3 : u8 := 0;
         ret x_3
-    def g._boxed (x_1 : tobj) : tobj :=
+    def g._boxed (x_1 : tobj) : tagged :=
       let x_2 : u8 := g x_1;
       dec x_1;
       let x_3 : tobj := box x_2;
@@ -202,7 +202,7 @@
         dec x_6;
         ret x_8
       default →
-        let x_9 : tobj := 42;
+        let x_9 : tagged := 42;
         ret x_9
     def hash'._boxed (x_1 : tobj) : tobj :=
       let x_2 : tobj := hash' x_1;

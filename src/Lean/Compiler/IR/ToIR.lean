@@ -118,7 +118,7 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
     | some (.var varId) =>
       return .case cases.typeName
                    varId
-                   (← toIRType cases.resultType)
+                   (← nameToIRType cases.typeName)
                    (← cases.alts.mapM (lowerAlt varId))
     | some (.joinPoint ..) | some .erased | none => panic! "unexpected value"
   | .return fvarId =>

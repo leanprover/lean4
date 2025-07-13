@@ -179,3 +179,37 @@ theorem mod_congr {a b : Nat} {a' b' : Int}
   simp_all [Int.natCast_emod]
 
 end Nat.ToInt
+
+namespace Int.Nonneg
+
+
+@[expose]
+def num_cert (a : Int) : Bool := a ≥ 0
+
+theorem num (a : Int) : num_cert a → a ≥ 0 := by
+  simp [num_cert]
+
+theorem add (a b : Int) (h₁ : a ≥ 0) (h₂ : b ≥ 0) : a + b ≥ 0 := by
+  exact Int.add_nonneg h₁ h₂
+
+theorem mul (a b : Int) (h₁ : a ≥ 0) (h₂ : b ≥ 0) : a * b ≥ 0 := by
+  exact Int.mul_nonneg h₁ h₂
+
+theorem div (a b : Int) (h₁ : a ≥ 0) (h₂ : b ≥ 0) : a / b ≥ 0 := by
+  exact Int.ediv_nonneg h₁ h₂
+
+theorem pow (a : Int) (k : Nat) (h₁ : a ≥ 0) : a ^ k ≥ 0 := by
+  exact Int.pow_nonneg h₁
+
+theorem mod (a b : Int) (h₁ : a ≥ 0) : a % b ≥ 0 := by
+  by_cases b = 0
+  next => simp [*]
+  next h => exact emod_nonneg a h
+
+theorem natCast (a : Nat) : (NatCast.natCast a : Int) ≥ 0 := by
+  simp
+
+theorem toPoly (e : Int) : e ≥ 0 → -1 * e ≤ 0 := by
+  omega
+
+end Int.Nonneg

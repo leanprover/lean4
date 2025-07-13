@@ -255,7 +255,7 @@ structure State where
   /--
   The field `natToIntMap` contains a mapping
   from a `Nat`-term `e` to the pair `(e', he)`, where
-  `he : Int.ofNat e = e'`
+  `he : NatCast.natCast e = e'`
   -/
   natToIntMap : PHashMap ExprPtr (Expr × Expr) := {}
   /--

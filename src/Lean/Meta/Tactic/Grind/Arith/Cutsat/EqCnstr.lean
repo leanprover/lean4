@@ -236,19 +236,24 @@ private def EqCnstr.assertCore (c : EqCnstr) : GoalM Unit := do
   else
     c.assert
 
-private def processNewNatEq (_a _b : Expr) : GoalM Unit := do
-  return ()
-/-
-  let (lhs, rhs) ← Int.OfNat.toIntEq a b
-  let gen ← getGeneration a
-  let ctx ← getNatVars
-  let lhs' ← toLinearExpr (← lhs.denoteAsIntExpr ctx) gen
-  let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
-  let p := lhs'.sub rhs' |>.norm
-  let c := { p, h := .coreNat a b lhs rhs lhs' rhs' : EqCnstr }
-  trace[grind.debug.cutsat.nat] "{← c.pp}"
-  c.assertCore
+/--
+Similar to `natToInt`, but checks first whether the term has already been internalized.
 -/
+private def natToIntExt (a : Expr) : GoalM (Expr × Expr) := do
+  if let some p := (← get').natToIntMap.find? { expr := a } then
+    return p
+  natToInt a
+
+private def processNewNatEq (a b : Expr) : GoalM Unit := do
+  let gen := max (← getGeneration a) (← getGeneration b)
+  let (a', h₁) ← natToIntExt a
+  let (b', h₂) ← natToIntExt b
+  let thm := mkApp6 (mkConst ``Nat.ToInt.of_eq) a b a' b' h₁ h₂
+  let lhs ← toLinearExpr a' gen
+  let rhs ← toLinearExpr b' gen
+  let p := lhs.sub rhs |>.norm
+  let c := { p, h := .coreToInt a b thm lhs rhs : EqCnstr }
+  c.assertCore
 
 private def processNewToIntEq (a b : Expr) : ToIntM Unit := do
   let gen := max (← getGeneration a) (← getGeneration b)
@@ -264,9 +269,9 @@ private def processNewToIntEq (a b : Expr) : ToIntM Unit := do
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
-  -- if (← isNatTerm a <&&> isNatTerm b) then
-  --  processNewNatEq a b
-  if (← isIntTerm a <&&> isIntTerm b) then
+  if (← isNatTerm a <&&> isNatTerm b) then
+    processNewNatEq a b
+  else if (← isIntTerm a <&&> isIntTerm b) then
     processNewIntEq a b
   else
     let some α ← getToIntTermType? a | return ()
@@ -294,18 +299,17 @@ private def DiseqCnstr.assertCore (c : DiseqCnstr) : GoalM Unit := do
   else
     c.assert
 
-private def processNewNatDiseq (_a _b : Expr) : GoalM Unit := do
-  return ()
-/-
-  let (lhs, rhs) ← Int.OfNat.toIntEq a b
-  let gen ← getGeneration a
-  let ctx ← getNatVars
-  let lhs' ← toLinearExpr (← lhs.denoteAsIntExpr ctx) gen
-  let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
-  let p := lhs'.sub rhs' |>.norm
-  let c := { p, h := .coreNat a b lhs rhs lhs' rhs' : DiseqCnstr }
+private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
+  let gen := max (← getGeneration a) (← getGeneration b)
+  let (a', h₁) ← natToIntExt a
+  let (b', h₂) ← natToIntExt b
+  let thm := mkApp6 (mkConst ``Nat.ToInt.of_diseq) a b a' b' h₁ h₂
+  let lhs ← toLinearExpr a' gen
+  let rhs ← toLinearExpr b' gen
+  let p := lhs.sub rhs |>.norm
+  let c := { p, h := .coreToInt a b thm lhs rhs : DiseqCnstr }
   c.assertCore
--/
+  return ()
 
 private def processNewToIntDiseq (a b : Expr) : ToIntM Unit := do
   let gen := max (← getGeneration a) (← getGeneration b)
@@ -321,9 +325,9 @@ private def processNewToIntDiseq (a b : Expr) : ToIntM Unit := do
 @[export lean_process_cutsat_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
-  -- if (← isNatTerm a <&&> isNatTerm b) then
-  --  processNewNatDiseq a b
-  if (← isIntTerm a <&&> isIntTerm b) then
+  if (← isNatTerm a <&&> isNatTerm b) then
+    processNewNatDiseq a b
+  else if (← isIntTerm a <&&> isIntTerm b) then
     processNewIntDiseq a b
   else
     let some α ← getToIntTermType? a | return ()
@@ -334,7 +338,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
   | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg
-  deriving BEq
+  deriving BEq, Repr
 
 private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   match_expr e with
@@ -417,39 +421,14 @@ private def propagateNatSub (e : Expr) : GoalM Unit := do
   pushNewFact <| mkApp2 (mkConst ``Int.Linear.natCast_sub) a b
 
 private def propagateNatAbs (e : Expr) : GoalM Unit := do
+  trace[Meta.debug] "1. HERE: {e}"
   let_expr Int.natAbs a := e | return ()
+  trace[Meta.debug] "2. HERE: {a}"
   pushNewFact <| mkApp (mkConst ``Lean.Omega.Int.ofNat_natAbs) a
 
 private def propagateToNat (e : Expr) : GoalM Unit := do
   let_expr Int.toNat a := e | return ()
   pushNewFact <| mkApp (mkConst ``Int.OfNat.ofNat_toNat) a
-
-private def internalizeNat (_e : Expr) : GoalM Unit := do
-  return ()
-/-
-  let e' : Int.OfNat.Expr ← Int.OfNat.toOfNatExpr e
-  let gen ← getGeneration e
-  let ctx ← getNatVars
-  let e'' : Expr ← e'.denoteAsIntExpr ctx
-  -- If `e''` is of the form `NatCast.natCast e`, then it is wasteful to
-  -- assert an equality
-  match_expr e'' with
-  | NatCast.natCast _ _ a => if e == a then return ()
-  | _ => pure ()
-  let e'' : Int.Linear.Expr ← toLinearExpr e'' gen
-  let p := e''.norm
-  let natCast_e ← shareCommon (mkIntNatCast e)
-  internalize natCast_e gen
-  trace[grind.debug.cutsat.internalize] "{aquote natCast_e}:= {← p.pp}"
-  let x ← mkVar natCast_e
-  modify' fun s => { s with natDef := s.natDef.insert { expr := e } x }
-  if let some (re, rp, p') ← p.normCommRing? then
-    let c := { p := .add (-1) x p', h := .defnNatCommRing e' x e'' p re rp p' : EqCnstr }
-    c.assert
-  else
-    let c := { p := .add (-1) x p, h := .defnNat e' x e'' : EqCnstr }
-    c.assert
--/
 
 private def isToIntForbiddenParent (parent? : Option Expr) : Bool :=
   if let some parent := parent? then
@@ -466,16 +445,19 @@ private def internalizeIntTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   | _ => internalizeInt e
 
 private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do
-  if true then return () -- TODO
-  if isForbiddenParent parent? k then return ()
-  -- if (← isNatTerm e) then return ()
-  trace[grind.debug.cutsat.internalize] "{e} : {type}"
-  discard <| mkNatVar e
+  if (← isNatTerm e) then return () -- already internalized
   match k with
-  | .sub => propagateNatSub e
   | .natAbs => propagateNatAbs e
   | .toNat => propagateToNat e
-  | _ => internalizeNat e
+  | _ => pure ()
+  if isForbiddenParent parent? k then return ()
+  let p ← natToInt e
+  trace[grind.debug.cutsat.internalize] "{e} : {type}"
+  trace[grind.debug.cutsat.toInt] "{e} ==> {p.1}"
+  modify' fun s => { s with
+      natToIntMap := s.natToIntMap.insert { expr := e } p
+    }
+  markAsCutsatTerm e
 
 private def internalizeToIntTerm (e type : Expr) : GoalM Unit := do
   if (← isToIntTerm e) then return () -- already internalized

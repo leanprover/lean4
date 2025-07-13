@@ -111,4 +111,51 @@ def natToInt (a : Expr) : GoalM (Expr × Expr) := do
    let c := { p, h := .ofNatNonneg a : LeCnstr}
    c.assert
 
+def isNatTerm (e : Expr) : GoalM Bool :=
+  return (← get').natToIntMap.contains { expr := e }
+
+private partial def isNonneg (e : Expr) : MetaM Bool := do
+  match_expr e with
+  | OfNat.ofNat _ _ _ =>
+    let some n ← getIntValue? e | return false
+    return (n ≥ 0 : Bool)
+  | HAdd.hAdd _ _ _ i a b => isInstHAddInt i <&&> isNonneg a <&&> isNonneg b
+  | HMul.hMul _ _ _ i a b => isInstHMulInt i <&&> isNonneg a <&&> isNonneg b
+  | HDiv.hDiv _ _ _ i a b => isInstHDivInt i <&&> isNonneg a <&&> isNonneg b
+  | HMod.hMod _ _ _ i a _ => isInstHModInt i <&&> isNonneg a
+  | HPow.hPow _ _ _ i a _ => isInstHPowInt i <&&> isNonneg a
+  | _ =>
+    let_expr NatCast.natCast _ inst _ ← e | return false
+    let_expr instNatCastInt := inst | return false
+    return true
+
+/-- Given `e : Int`, tries to construct a proof that `e ≥ 0` -/
+partial def mkNonnegThm? (e : Expr) : GoalM (Option Expr) := do
+  trace[Meta.debug] "nonneg: {e}"
+  unless (← isNonneg e) do return none
+  return some (← go e)
+where
+  go (e : Expr) : MetaM Expr := do
+    match_expr e with
+    | OfNat.ofNat _ _ _ => return mkApp2 (mkConst ``Int.Nonneg.num) e reflBoolTrue
+    | HAdd.hAdd _ _ _ _ a b => return mkApp4 (mkConst ``Int.Nonneg.add) a b (← go a) (← go b)
+    | HMul.hMul _ _ _ _ a b => return mkApp4 (mkConst ``Int.Nonneg.mul) a b (← go a) (← go b)
+    | HDiv.hDiv _ _ _ _ a b => return mkApp4 (mkConst ``Int.Nonneg.div) a b (← go a) (← go b)
+    | HMod.hMod _ _ _ _ a b => return mkApp3 (mkConst ``Int.Nonneg.mod) a b (← go a)
+    | HPow.hPow _ _ _ _ a b => return mkApp3 (mkConst ``Int.Nonneg.pow) a b (← go a)
+    | _ =>
+      let_expr NatCast.natCast _ _ a ← e | unreachable!
+      return mkApp (mkConst ``Int.Nonneg.natCast) a
+
+ /-- Given `x` whose denotation is `e : Int`, tries to assert that `e ≥ 0` -/
+def assertNonneg (e : Expr) (x : Var) : GoalM Unit := do
+  if e.isAppOf ``NatCast.natCast then return ()
+  if e.isAppOf ``OfNat.ofNat then return ()
+  let some h ← mkNonnegThm? e | return ()
+  trace[Meta.debug] "nonneg proof: {h}"
+  let h := mkApp2 (mkConst ``Int.Nonneg.toPoly) e h
+  let p := .add (-1) x (.num 0)
+  let c := { p, h := .bound h : LeCnstr}
+  c.assert
+
 end Lean.Meta.Grind.Arith.Cutsat

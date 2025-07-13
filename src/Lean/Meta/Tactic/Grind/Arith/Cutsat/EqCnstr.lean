@@ -442,6 +442,7 @@ private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   | .toNat => propagateToNat e
   | _ => pure ()
   if isForbiddenParent parent? k then return ()
+  if (← get').natToIntMap.contains { expr := e } then return ()
   let e'h ← natToInt e
   trace[grind.debug.cutsat.internalize] "{e} : {type}"
   trace[grind.debug.cutsat.toInt] "{e} ==> {e'h.1}"
@@ -463,8 +464,12 @@ private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   internalize natCast_e gen
   let x ← mkVar natCast_e
   modify' fun s => { s with natDef := s.natDef.insert { expr := e } x }
-  let c := { p := .add (-1) x p, h := .defnNat e'h.2 x e'' : EqCnstr }
-  c.assert
+  if let some (re, rp, p') ← p.normCommRing? then
+    let c := { p := .add (-1) x p', h := .defnNatCommRing e'h.2 x e'' p re rp p' : EqCnstr }
+    c.assert
+  else
+    let c := { p := .add (-1) x p, h := .defnNat e'h.2 x e'' : EqCnstr }
+    c.assert
 
 private def internalizeToIntTerm (e type : Expr) : GoalM Unit := do
   if (← isToIntTerm e) then return () -- already internalized

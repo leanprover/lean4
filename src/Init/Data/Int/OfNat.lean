@@ -13,6 +13,8 @@ public import Init.Data.RArray
 
 public section
 
+-- TODO: this namespace will deleted after we move to the new encoding using `Nat.ToInt` namespace.
+-- Bootstrapping sucks.
 namespace Int.OfNat
 /-!
 Helper definitions and theorems for converting `Nat` expressions into `Int` one.
@@ -101,19 +103,32 @@ theorem ofNat_toNat (a : Int) : (NatCast.natCast a.toNat : Int) = if a ≤ 0 the
 theorem Expr.denoteAsInt_nonneg (ctx : Context) (e : Expr) : 0 ≤ e.denoteAsInt ctx := by
   simp [Expr.denoteAsInt_eq]
 
-namespace Temp
+end Int.OfNat
 
-/-! Asserted propositions -/
+namespace Nat.ToInt
+
+theorem ofNat_toNat (a : Int) : Int.ofNat a.toNat = if a ≤ 0 then 0 else a := by
+  simp [Int.max_def]
+
+theorem toNat_nonneg (x : Nat) : (-1:Int) * Int.ofNat x ≤ 0 := by
+  simp
+
+theorem ofNat_ofNat (n : Nat) : Int.ofNat (OfNat.ofNat n) = OfNat.ofNat n := by
+  rfl
 
 theorem of_eq {a b : Nat} {a' b' : Int}
-    (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : a = b → a' = b' := by
-  intro h; replace h := congrArg Int.ofNat h; simp at h
-  simp [h₁, h₂] at h; assumption
+    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : a = b → a' = b' := by
+  intro h; replace h := congrArg Int.ofNat h
+  rw [h₁, h₂] at h; assumption
 
 theorem of_diseq {a b : Nat} {a' b' : Int}
     (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : a ≠ b → a' ≠ b' := by
   intro hne h; rw [← h₁, ← h₂] at h
   replace h := Int.ofNat_inj.mp h; contradiction
+
+theorem of_dvd (d a : Nat) (d' a' : Int)
+    (h₁ : Int.ofNat d = d') (h₂ : Int.ofNat a = a') : d ∣ a → d' ∣ a' := by
+  simp_all; simp [← h₁, ←h₂, Int.ofNat_dvd]
 
 theorem of_le {a b : Nat} {a' b' : Int}
     (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : a ≤ b → a' ≤ b' := by
@@ -164,8 +179,4 @@ theorem mod_congr {a b : Nat} {a' b' : Int}
     (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : Int.ofNat (a % b) = a' % b' := by
   simp_all [Int.natCast_emod]
 
-
-
-end Temp
-
-end Int.OfNat
+end Nat.ToInt

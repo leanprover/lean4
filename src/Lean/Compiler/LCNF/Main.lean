@@ -105,9 +105,8 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
     withPhase pass.phaseOut <| checkpoint pass.name decls (isCheckEnabled || pass.shouldAlwaysRunCheck)
   if (← Lean.isTracingEnabledFor `Compiler.result) then
     for decl in decls do
-      -- We display the declaration saved in the environment because the names have been normalized
-      let some decl' ← getDeclAt? decl.name .mono | unreachable!
-      Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl'}"
+      let decl ← normalizeFVarIds decl
+      Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl}"
   let irDecls ← IR.toIR decls
   IR.compile irDecls
 

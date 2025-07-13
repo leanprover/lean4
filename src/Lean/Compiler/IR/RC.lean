@@ -87,8 +87,8 @@ private def isBorrowParamAux (x : VarId) (ys : Array Arg) (consumeParamPred : Na
   ys.size.any fun i _ =>
     let y := ys[i]
     match y with
-    | Arg.irrelevant => false
-    | Arg.var y      => x == y && !consumeParamPred i
+    | Arg.erased => false
+    | Arg.var y  => x == y && !consumeParamPred i
 
 private def isBorrowParam (x : VarId) (ys : Array Arg) (ps : Array Param) : Bool :=
   isBorrowParamAux x ys fun i => ! ps[i]!.borrow
@@ -102,14 +102,14 @@ private def getNumConsumptions (x : VarId) (ys : Array Arg) (consumeParamPred : 
   ys.size.fold (init := 0) fun i _ n =>
     let y := ys[i]
     match y with
-    | Arg.irrelevant => n
-    | Arg.var y      => if x == y && consumeParamPred i then n+1 else n
+    | Arg.erased => n
+    | Arg.var y  => if x == y && consumeParamPred i then n+1 else n
 
 private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred : Nat → Bool) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
   xs.size.fold (init := b) fun i _ b =>
     let x := xs[i]
     match x with
-    | Arg.irrelevant => b
+    | Arg.erased => b
     | Arg.var x =>
       let info := getVarInfo ctx x
       if !info.ref || !isFirstOcc xs i then b
@@ -130,8 +130,8 @@ private def addIncBefore (ctx : Context) (xs : Array Arg) (ps : Array Param) (b 
 private def addDecAfterFullApp (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
 xs.size.fold (init := b) fun i _ b =>
   match xs[i] with
-  | Arg.irrelevant => b
-  | Arg.var x      =>
+  | Arg.erased => b
+  | Arg.var x  =>
     /- We must add a `dec` if `x` must be consumed, it is alive after the application,
        and it has been borrowed by the application.
        Remark: `x` may occur multiple times in the application (e.g., `f x y x`).

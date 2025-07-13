@@ -46,7 +46,7 @@ where fillCache : CoreM IRType := do
     | ``USize => return .usize
     | ``Float => return .float
     | ``Float32 => return .float32
-    | ``lcErased => return .irrelevant
+    | ``lcErased => return .erased
     | _ =>
       let env ← Lean.getEnv
       let some (.inductInfo inductiveVal) := env.find? name | return .object
@@ -77,7 +77,7 @@ def toIRType (type : Lean.Expr) : CoreM IRType := do
   | _ => unreachable!
 
 inductive CtorFieldInfo where
-  | irrelevant
+  | erased
   | object (i : Nat)
   | usize  (i : Nat)
   | scalar (sz : Nat) (offset : Nat) (type : IRType)
@@ -86,7 +86,7 @@ inductive CtorFieldInfo where
 namespace CtorFieldInfo
 
 def format : CtorFieldInfo → Format
-  | irrelevant => "◾"
+  | erased => "◾"
   | object i   => f!"obj@{i}"
   | usize i    => f!"usize@{i}"
   | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
@@ -129,7 +129,7 @@ where fillCache := do
         nextIdx := nextIdx + 1
         pure <| .object i
       | .usize => pure <| .usize 0
-      | .irrelevant => .pure <| .irrelevant
+      | .erased => .pure <| .erased
       | .uint8 =>
         has1BScalar := true
         .pure <| .scalar 1 0 .uint8
@@ -156,7 +156,7 @@ where fillCache := do
       | .usize _ => do
         let i ← modifyGet fun nextIdx => (nextIdx, nextIdx + 1)
         return .usize i
-      | .object _ | .scalar .. | .irrelevant => return field
+      | .object _ | .scalar .. | .erased => return field
     let numUSize := nextIdx - numObjs
     let adjustScalarsForSize (fields : Array CtorFieldInfo) (size : Nat) (nextOffset : Nat)
         : Array CtorFieldInfo × Nat :=
@@ -168,7 +168,7 @@ where fillCache := do
             return .scalar sz offset type
           else
             return field
-        | .object _ | .usize _ | .irrelevant => return field
+        | .object _ | .usize _ | .erased => return field
     let mut nextOffset := 0
     if has8BScalar then
       ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 8 nextOffset

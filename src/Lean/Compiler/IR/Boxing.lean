@@ -92,7 +92,7 @@ def eqvTypes (t₁ t₂ : IRType) : Bool :=
 structure BoxingContext where
   f : FunId := default
   localCtx : LocalContext := {}
-  resultType : IRType := IRType.irrelevant
+  resultType : IRType := .erased
   decls : Array Decl
   env : Environment
 
@@ -222,7 +222,7 @@ def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Arr
   for x in xs do
     let expected := typeFromIdx i
     match x with
-    | Arg.irrelevant =>
+    | Arg.erased =>
       xs' := xs'.push x
     | Arg.var x =>
       let xType ← getVarType x

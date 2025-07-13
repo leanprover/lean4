@@ -63,7 +63,7 @@ def toCType : IRType → String
   | IRType.usize      => "size_t"
   | IRType.object     => "lean_object*"
   | IRType.tobject    => "lean_object*"
-  | IRType.irrelevant => "lean_object*"
+  | IRType.erased     => "lean_object*"
   | IRType.struct _ _ => panic! "not implemented yet"
   | IRType.union _ _  => panic! "not implemented yet"
 
@@ -104,8 +104,8 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
   emit (toCType decl.resultType ++ " " ++ cppBaseName)
   unless ps.isEmpty do
     emit "("
-    -- We omit irrelevant parameters for extern constants
-    let ps := if isExternC env decl.name then ps.filter (fun p => !p.ty.isIrrelevant) else ps
+    -- We omit erased parameters for extern constants
+    let ps := if isExternC env decl.name then ps.filter (fun p => !p.ty.isErased) else ps
     if ps.size > closureMaxArgs && isBoxedName decl.name then
       emit "lean_object**"
     else
@@ -405,10 +405,10 @@ def toStringArgs (ys : Array Arg) : List String :=
 
 def emitSimpleExternalCall (f : String) (ps : Array Param) (ys : Array Arg) : M Unit := do
   emit f; emit "("
-  -- We must remove irrelevant arguments to extern calls.
+  -- We must remove erased arguments to extern calls.
   discard <| ys.size.foldM
     (fun i _ (first : Bool) =>
-      if ps[i]!.ty.isIrrelevant then
+      if ps[i]!.ty.isErased then
         pure first
       else do
         unless first do emit ", "

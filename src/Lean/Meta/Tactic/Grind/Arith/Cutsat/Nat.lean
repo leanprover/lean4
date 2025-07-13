@@ -98,17 +98,37 @@ def natToInt (a : Expr) : GoalM (Expr × Expr) := do
   let b ← shareCommon b
   return (b, h)
 
- /--
- Given `x` whose denotation is `e`, if `e` is of the form `NatCast.natCast a`,
- asserts that it is nonnegative.
- -/
- def assertNatCast (e : Expr) (x : Var) : GoalM Unit := do
-   let_expr NatCast.natCast _ inst a := e | return ()
-   let_expr instNatCastInt := inst | return ()
-   if a.isAppOf ``OfNat.ofNat then return () -- we don't want to propagate constraints such as `2 ≥ 0`
-   let p := .add (-1) x (.num 0)
-   let c := { p, h := .ofNatNonneg a : LeCnstr}
-   c.assert
+private def pushNatCastTarget (e : Expr) : GoalM Bool := do
+  match_expr e with
+  | HAdd.hAdd _ _ _ inst _ _ => isInstHAddNat inst
+  | HMul.hMul _ _ _ inst _ _ => isInstHMulNat inst
+  | HDiv.hDiv _ _ _ inst _ _ => isInstHDivNat inst
+  | HMod.hMod _ _ _ inst _ _ => isInstHModNat inst
+  | HPow.hPow _ _ _ inst _ _ => isInstHPowNat inst
+  | HSub.hSub _ _ _ inst _ _ => isInstHSubNat inst
+  | OfNat.ofNat _ _ _ => return (← getNatValue? e).isSome
+  | _ => return false
+
+/--
+Given `x` whose denotation is `e`, if `e` is of the form `NatCast.natCast a`,
+asserts that it is nonnegative.
+-/
+def assertNatCast (e : Expr) (x : Var) : GoalM Unit := do
+  let_expr NatCast.natCast _ inst a := e | return ()
+  let_expr instNatCastInt := inst | return ()
+  if a.isAppOf ``OfNat.ofNat then return () -- we don't want to propagate constraints such as `2 ≥ 0`
+  let p := .add (-1) x (.num 0)
+  let c := { p, h := .ofNatNonneg a : LeCnstr}
+  c.assert
+  if (← pushNatCastTarget a) then
+    /-
+    Push `natCast` inside.
+    Example: If `e` is of the form `natCast (a + b)`, we propagate `natCast (a + b) = natCast a + natCast b`
+    This is applicable when the `natCast` was inserted by the user.
+    -/
+    -- TODO: investigate why the normalizer is not pushing all `natCast`s
+    let (e', h) ← natToInt a
+    pushNewFact' (mkIntEq e e') h
 
 def isNatTerm (e : Expr) : GoalM Bool :=
   return (← get').natToIntMap.contains { expr := e }

@@ -42,11 +42,11 @@ trace: [Compiler.result] size: 5
       return _x.3
 [Compiler.result] size: 8
     def _eval a.1 a.2 a.3 : EStateM.Result Lean.Exception PUnit PUnit :=
-      let _x.4 := "f";
-      let _x.5 := Lean.Name.mkStr1 _x.4;
+      let _x.4 := _eval._closed_0;
+      let _x.5 := _eval._closed_1;
       let _x.6 := 1;
-      let _x.7 := Array.mkEmpty ◾ _x.6;
-      let _x.8 := Array.push ◾ _x.7 _x.5;
+      let _x.7 := _eval._closed_2;
+      let _x.8 := _eval._closed_3;
       let _x.9 := PUnit.unit;
       let _f.10 := _eval._lam_0 _x.8 _x.9;
       let _x.11 := Lean.Elab.Command.liftTermElabM._redArg _f.10 a.1 a.2 a.3;

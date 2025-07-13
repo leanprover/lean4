@@ -421,9 +421,7 @@ private def propagateNatSub (e : Expr) : GoalM Unit := do
   pushNewFact <| mkApp2 (mkConst ``Int.Linear.natCast_sub) a b
 
 private def propagateNatAbs (e : Expr) : GoalM Unit := do
-  trace[Meta.debug] "1. HERE: {e}"
   let_expr Int.natAbs a := e | return ()
-  trace[Meta.debug] "2. HERE: {a}"
   pushNewFact <| mkApp (mkConst ``Lean.Omega.Int.ofNat_natAbs) a
 
 private def propagateToNat (e : Expr) : GoalM Unit := do

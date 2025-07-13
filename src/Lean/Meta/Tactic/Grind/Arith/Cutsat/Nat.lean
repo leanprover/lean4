@@ -131,7 +131,6 @@ private partial def isNonneg (e : Expr) : MetaM Bool := do
 
 /-- Given `e : Int`, tries to construct a proof that `e ≥ 0` -/
 partial def mkNonnegThm? (e : Expr) : GoalM (Option Expr) := do
-  trace[Meta.debug] "nonneg: {e}"
   unless (← isNonneg e) do return none
   return some (← go e)
 where
@@ -152,7 +151,6 @@ def assertNonneg (e : Expr) (x : Var) : GoalM Unit := do
   if e.isAppOf ``NatCast.natCast then return ()
   if e.isAppOf ``OfNat.ofNat then return ()
   let some h ← mkNonnegThm? e | return ()
-  trace[Meta.debug] "nonneg proof: {h}"
   let h := mkApp2 (mkConst ``Int.Nonneg.toPoly) e h
   let p := .add (-1) x (.num 0)
   let c := { p, h := .bound h : LeCnstr}

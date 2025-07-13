@@ -13334,7 +13334,7 @@ static lean_object* _init_l_Lean_Elab_Command_shouldInferResultUniverse___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\n        cannot infer resulting universe level of inductive datatype, given resulting type contains metavariables", 113, 113);
+x_1 = lean_mk_string_unchecked("cannot infer resulting universe level of inductive datatype, given resulting type contains metavariables", 104, 104);
 return x_1;
 }
 }

@@ -121,6 +121,7 @@ static lean_object* l_Lean_IR_EmitC_emitFnDeclAux___closed__5;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitExternDeclAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitAllocCtor___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitLns___redArg___closed__0;
+uint8_t l_Lean_IR_IRType_isErased(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitReset___closed__3;
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at___Lean_IR_EmitC_emitArgs_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
@@ -221,7 +222,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitLit(lean_object*, lean_object*, lea
 static lean_object* l_Lean_IR_EmitC_emitDec___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at___Lean_IR_EmitC_emitTailCall_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at___Lean_IR_EmitC_emitReset_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_IR_IRType_isIrrelevant(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___closed__18;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_declareVar___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_IR_EmitC_declareParams_spec__0___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -1988,7 +1988,7 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13;
 x_11 = lean_array_uget(x_1, x_2);
 x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
-x_13 = l_Lean_IR_IRType_isIrrelevant(x_12);
+x_13 = l_Lean_IR_IRType_isErased(x_12);
 lean_dec(x_12);
 if (x_13 == 0)
 {
@@ -7694,7 +7694,7 @@ x_16 = lean_array_get(x_1, x_2, x_15);
 x_17 = lean_ctor_get(x_16, 1);
 lean_inc(x_17);
 lean_dec(x_16);
-x_18 = l_Lean_IR_IRType_isIrrelevant(x_17);
+x_18 = l_Lean_IR_IRType_isErased(x_17);
 lean_dec(x_17);
 if (x_18 == 0)
 {

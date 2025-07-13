@@ -164,6 +164,7 @@ lean_object* lean_llvm_build_zext(size_t, size_t, size_t, size_t, lean_object*, 
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_IR_EmitLLVM_emitApp_spec__1(lean_object*, size_t, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitJp___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitDeclInit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_IR_IRType_isErased(lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_callLeanCtorSetTag___redArg___closed__0;
 static lean_object* l_Lean_IR_EmitLLVM_buildIfThen_____closed__2;
 static lean_object* l_Lean_IR_EmitLLVM_emitBox___closed__0;
@@ -304,7 +305,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_throwInvalidExportName___boxed(lean_
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitApp___lam__0(size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_EmitLLVM_emitApp_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanIsExclusive___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_IR_IRType_isIrrelevant(lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitTag___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitJp(size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_IR_emitLLVM_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9288,7 +9288,7 @@ if (x_3 == 0)
 lean_object* x_45; uint8_t x_46; 
 x_45 = lean_ctor_get(x_21, 1);
 lean_inc(x_45);
-x_46 = l_Lean_IR_IRType_isIrrelevant(x_45);
+x_46 = l_Lean_IR_IRType_isErased(x_45);
 lean_dec(x_45);
 if (x_46 == 0)
 {
@@ -11458,7 +11458,7 @@ static lean_object* _init_l_Lean_IR_EmitLLVM_emitArgSlot_____closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("irrelevant_slot", 15, 15);
+x_1 = lean_mk_string_unchecked("erased_slot", 11, 11);
 return x_1;
 }
 }
@@ -11466,7 +11466,7 @@ static lean_object* _init_l_Lean_IR_EmitLLVM_emitArgSlot_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("irrelevant_val", 14, 14);
+x_1 = lean_mk_string_unchecked("erased_val", 10, 10);
 return x_1;
 }
 }
@@ -13248,7 +13248,7 @@ x_29 = lean_ctor_get(x_6, 1);
 x_30 = lean_ctor_get(x_25, 1);
 lean_inc(x_30);
 lean_dec(x_25);
-x_31 = l_Lean_IR_IRType_isIrrelevant(x_30);
+x_31 = l_Lean_IR_IRType_isErased(x_30);
 if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
@@ -13383,7 +13383,7 @@ lean_dec(x_6);
 x_54 = lean_ctor_get(x_25, 1);
 lean_inc(x_54);
 lean_dec(x_25);
-x_55 = l_Lean_IR_IRType_isIrrelevant(x_54);
+x_55 = l_Lean_IR_IRType_isErased(x_54);
 if (x_55 == 0)
 {
 lean_object* x_56; lean_object* x_57; lean_object* x_58; 

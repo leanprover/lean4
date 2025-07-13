@@ -2,7 +2,7 @@
 open Int.Linear Int.OfNat
 
 
-set_option trace.grind.debug.proof true
+set_option trace.grind.debug.proof true in
 theorem ex1 (x y z : Nat) : x < y + z → y + 1 < z → z + x < 3*z := by
   grind
 
@@ -34,12 +34,16 @@ example (a b : Int) : a + b = Int.ofNat 2 → a - 2 = -b := by
 /--
 trace: [grind.cutsat.assert] -1*↑a ≤ 0
 [grind.cutsat.assert] -1*↑b ≤ 0
+[grind.cutsat.assert] -1*「↑a * ↑b」 ≤ 0
 [grind.cutsat.assert] -1*↑c ≤ 0
 [grind.cutsat.assert] -1*「↑a * ↑b + -1 * ↑c + 1」 + 「↑a * ↑b」 + -1*↑c + 1 = 0
 [grind.cutsat.assert] 「↑a * ↑b」 + -1*↑c + 1 ≤ 0
+[grind.cutsat.assert] -1*↑0 = 0
 [grind.cutsat.assert] ↑c = 0
 [grind.cutsat.assert] 0 ≤ 0
 [grind.cutsat.assert] 「↑a * ↑b」 + 1 ≤ 0
+[grind.cutsat.assert] -1*↑0 + ↑c = 0
+[grind.cutsat.assert] 1 ≤ 0
 -/
 #guard_msgs (trace) in
 set_option trace.grind.cutsat.assert true in

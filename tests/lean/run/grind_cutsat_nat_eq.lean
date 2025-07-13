@@ -119,7 +119,7 @@ example (x y : Nat) : x ^ 0 + y = 0 → False := by
   grind
 
 /--
-trace: [grind.cutsat.model] x := 2
+trace: [grind.cutsat.model] x := 4
 [grind.cutsat.model] y := 1
 -/
 #guard_msgs (trace) in

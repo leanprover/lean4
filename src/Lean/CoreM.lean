@@ -75,8 +75,8 @@ structure DeclNameGenerator where
   namePrefix : Name := .anonymous
   -- We use a non-nil list instead of changing `namePrefix` as we want to distinguish between
   -- numeric components in the original name (e.g. from macro scopes) and ones added by `mkChild`.
-  private idx        : Nat := 1
-  private parentIdxs : List Nat := .nil
+  idx        : Nat := 1
+  parentIdxs : List Nat := .nil
   deriving Inhabited
 
 namespace DeclNameGenerator

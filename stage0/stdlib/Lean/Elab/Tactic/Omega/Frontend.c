@@ -2723,9 +2723,9 @@ lean_ctor_set(x_40, 1, x_38);
 x_41 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___Lean_Meta_Simp_trySimpCongrTheorem_x3f_spec__2___redArg(x_36, x_40, x_33);
 lean_dec(x_36);
 x_42 = lean_array_push(x_41, x_31);
-x_43 = l_Lean_mkAppN(x_30, x_42);
+x_43 = l_Lean_mkAppN(x_32, x_42);
 lean_dec(x_42);
-x_44 = l_Lean_Meta_mkEqSymm(x_43, x_4, x_5, x_6, x_7, x_32);
+x_44 = l_Lean_Meta_mkEqSymm(x_43, x_4, x_5, x_6, x_7, x_30);
 return x_44;
 }
 block_72:
@@ -2776,9 +2776,9 @@ x_71 = lean_nat_dec_le(x_70, x_68);
 if (x_71 == 0)
 {
 lean_dec(x_70);
-x_30 = x_67;
+x_30 = x_61;
 x_31 = x_60;
-x_32 = x_61;
+x_32 = x_67;
 x_33 = x_56;
 x_34 = x_55;
 x_35 = x_68;
@@ -2787,9 +2787,9 @@ goto block_45;
 else
 {
 lean_dec(x_68);
-x_30 = x_67;
+x_30 = x_61;
 x_31 = x_60;
-x_32 = x_61;
+x_32 = x_67;
 x_33 = x_56;
 x_34 = x_55;
 x_35 = x_70;

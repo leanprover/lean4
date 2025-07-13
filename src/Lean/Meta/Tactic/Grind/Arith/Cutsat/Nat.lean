@@ -82,10 +82,13 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
       let dec := mkApp2 (mkConst ``Int.decLe) lhs rhs
       let r := mkApp4 intIte c dec (mkIntSub a' b') (mkIntLit 0)
       let h := mkApp6 (mkConst ``Nat.ToInt.sub_congr) a b a' b' h₁ h₂
-      -- We need to simplify because `cutsat` expects arithmetic to be in normal form
+      -- We need to simplify because `cutsat` expects arithmetic to be in normal form,
+      -- nested instances to be marked and canonicalized
       let r ← simpCore r
       let h ← if let some h' := r.proof? then mkEqTrans h h' else pure h
-      return (r.expr, h)
+      -- TODO: we need a more efficient `markNestedSubsingleton
+      let r ← markNestedSubsingletons r.expr
+      return (r, h)
     else
       mkNatVar e
   | _ => mkNatVar e
@@ -117,6 +120,7 @@ def assertNatCast (e : Expr) (x : Var) : GoalM Unit := do
   let_expr NatCast.natCast _ inst a := e | return ()
   let_expr instNatCastInt := inst | return ()
   if a.isAppOf ``OfNat.ofNat then return () -- we don't want to propagate constraints such as `2 ≥ 0`
+  if (← get').natDef.contains { expr := a } then return ()
   let p := .add (-1) x (.num 0)
   let c := { p, h := .ofNatNonneg a : LeCnstr}
   c.assert

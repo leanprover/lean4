@@ -13,10 +13,8 @@ instance : OfNat Foo n := ⟨⟨n⟩⟩
 -- should fail fast; exact heartbeat count at time of writing is 31
 set_option maxHeartbeats 310
 /--
-error: tactic 'decide' failed for proposition
-  ((mul 4 1).mul 1).mul 1 = 4
-since
-  decide (((mul 4 1).mul 1).mul 1 = 4)
+error: tactic 'decide' failed since
+  @decide (((mul 4 1).mul 1).mul 1 = 4) (instDecidableEqFoo (((mul 4 1).mul 1).mul 1) 4)
 did not reduce to 'true' or 'false'.
 
 After unfolding the instances 'decEqFoo✝', 'instDecidableEqFoo', 'instDecidableEqNat', and 'Nat.decEq', reduction got stuck at
@@ -31,10 +29,8 @@ example : ((Foo.mul 4 1).mul 1).mul 1 = 4 := by decide
 
 -- should not succeed (and fail fast); exact heartbeat count at time of writing is 21
 /--
-error: tactic 'decide' failed for proposition
-  ((add 4 1).add 1).add 1 = 4
-since
-  decide (((add 4 1).add 1).add 1 = 4)
+error: tactic 'decide' failed since
+  @decide (((add 4 1).add 1).add 1 = 4) (instDecidableEqFoo (((add 4 1).add 1).add 1) 4)
 did not reduce to 'true' or 'false'.
 
 After unfolding the instances 'decEqFoo✝', 'instDecidableEqFoo', 'instDecidableEqNat', and 'Nat.decEq', reduction got stuck at

@@ -34,10 +34,8 @@ The kernel sees through irreducible definitions
 @[irreducible] def irred {α : Type} (x : α) : α := x
 
 /--
-error: tactic 'decide' failed for proposition
-  irred 3 = 3
-since
-  decide (irred 3 = 3)
+error: tactic 'decide' failed since
+  @decide (irred 3 = 3) (instDecidableEqNat (irred 3) 3)
 did not reduce to 'true' or 'false'.
 
 After unfolding the instances 'instDecidableEqNat' and 'Nat.decEq', reduction got stuck at

@@ -90,7 +90,7 @@ inductive TranslatedProj where
 def lowerProj (base : VarId) (ctorInfo : CtorInfo) (field : CtorFieldInfo)
     : TranslatedProj × IRType :=
   match field with
-  | .object i => ⟨.expr (.proj i base), .object⟩
+  | .object i irType => ⟨.expr (.proj i base), irType⟩
   | .usize i => ⟨.expr (.uproj i base), .usize⟩
   | .scalar _ offset irType => ⟨.expr (.sproj (ctorInfo.size + ctorInfo.usize) offset base), irType⟩
   | .erased => ⟨.erased, .erased⟩

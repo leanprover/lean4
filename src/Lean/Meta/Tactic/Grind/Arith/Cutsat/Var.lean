@@ -29,8 +29,7 @@ def mkVarImpl (expr : Expr) : GoalM Var := do
     elimEqs   := s.elimEqs.push none
   }
   markAsCutsatTerm expr
-  assertNatCast expr var
-  assertDenoteAsIntNonneg expr
+  assertIntOfNat expr var
   assertToIntBounds expr var
   return var
 

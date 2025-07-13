@@ -106,7 +106,9 @@ def propagateIntDvd (e : Expr) : GoalM Unit := do
   else if (← isEqFalse e) then
     pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
 
-def propagateNatDvd (e : Expr) : GoalM Unit := do
+def propagateNatDvd (_e : Expr) : GoalM Unit := do
+  return ()
+/-
   let some (d, b) ← Int.OfNat.toIntDvd? e | return ()
   let gen ← getGeneration e
   let ctx ← getNatVars
@@ -118,6 +120,7 @@ def propagateNatDvd (e : Expr) : GoalM Unit := do
   else if (← isEqFalse e) then
     let_expr Dvd.dvd _ _ a b ← e | return ()
     pushNewFact <| mkApp3 (mkConst ``Nat.emod_pos_of_not_dvd) a b (mkOfEqFalseCore e (← mkEqFalseProof e))
+-/
 
 builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
   unless (← getConfig).cutsat do return ()

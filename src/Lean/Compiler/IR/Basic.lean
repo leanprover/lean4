@@ -49,8 +49,9 @@ abbrev MData.empty : MData := {}
 
    - `object` a pointer to a value in the heap.
 
-   - `tobject` a pointer to a value in the heap or tagged pointer
-      (i.e., the least significant bit is 1) storing a scalar value.
+   - `tagged` a tagged pointer (i.e., the least significant bit is 1) storing a scalar value.
+
+   - `tobject` an `object` or a `tagged` pointer
 
    - `struct` and `union` are used to return small values (e.g., `Option`, `Prod`, `Except`)
       on the stack.
@@ -77,6 +78,8 @@ inductive IRType where
   | float32
   | struct (leanTypeName : Option Name) (types : Array IRType) : IRType
   | union (leanTypeName : Name) (types : Array IRType) : IRType
+  -- TODO: Move this upwards after a stage0 update.
+  | tagged
   deriving Inhabited, BEq, Repr
 
 namespace IRType
@@ -93,6 +96,7 @@ def isScalar : IRType → Bool
 
 def isObj : IRType → Bool
   | object  => true
+  | tagged  => true
   | tobject => true
   | _       => false
 
@@ -102,6 +106,7 @@ def isErased : IRType → Bool
 
 def boxed : IRType → IRType
   | object | erased | float | float32 => object
+  | tagged | uint8 | uint16 => tagged
   | _ => tobject
 
 end IRType
@@ -149,6 +154,9 @@ def CtorInfo.isRef (info : CtorInfo) : Bool :=
 
 def CtorInfo.isScalar (info : CtorInfo) : Bool :=
   !info.isRef
+
+def CtorInfo.type (info : CtorInfo) : IRType :=
+  if info.isRef then .object else .tagged
 
 inductive Expr where
   /-- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the runtime.

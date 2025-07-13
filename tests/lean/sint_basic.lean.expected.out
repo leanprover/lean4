@@ -75,7 +75,7 @@ true
 [Compiler.IR] [result]
     def myId8 (x_1 : u8) : u8 :=
       ret x_1
-    def myId8._boxed (x_1 : tobj) : tobj :=
+    def myId8._boxed (x_1 : tagged) : tagged :=
       let x_2 : u8 := unbox x_1;
       dec x_1;
       let x_3 : u8 := myId8 x_2;
@@ -158,7 +158,7 @@ true
 [Compiler.IR] [result]
     def myId16 (x_1 : u16) : u16 :=
       ret x_1
-    def myId16._boxed (x_1 : tobj) : tobj :=
+    def myId16._boxed (x_1 : tagged) : tagged :=
       let x_2 : u16 := unbox x_1;
       dec x_1;
       let x_3 : u16 := myId16 x_2;

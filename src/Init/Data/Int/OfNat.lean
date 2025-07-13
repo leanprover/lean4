@@ -107,60 +107,59 @@ end Int.OfNat
 
 namespace Nat.ToInt
 
-theorem ofNat_toNat (a : Int) : Int.ofNat a.toNat = if a ≤ 0 then 0 else a := by
+theorem ofNat_toNat (a : Int) : (NatCast.natCast a.toNat : Int) = if a ≤ 0 then 0 else a := by
   simp [Int.max_def]
 
-theorem toNat_nonneg (x : Nat) : (-1:Int) * Int.ofNat x ≤ 0 := by
+theorem toNat_nonneg (x : Nat) : (-1:Int) * (NatCast.natCast x) ≤ 0 := by
   simp
 
-theorem ofNat_ofNat (n : Nat) : Int.ofNat (OfNat.ofNat n) = OfNat.ofNat n := by
+theorem natCast_ofNat (n : Nat) : (NatCast.natCast (OfNat.ofNat n : Nat) : Int) = OfNat.ofNat n := by
   rfl
 
 theorem of_eq {a b : Nat} {a' b' : Int}
-    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : a = b → a' = b' := by
-  intro h; replace h := congrArg Int.ofNat h
+    (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : a = b → a' = b' := by
+  intro h; replace h := congrArg (NatCast.natCast (R := Int)) h
   rw [h₁, h₂] at h; assumption
 
 theorem of_diseq {a b : Nat} {a' b' : Int}
-    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : a ≠ b → a' ≠ b' := by
+    (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : a ≠ b → a' ≠ b' := by
   intro hne h; rw [← h₁, ← h₂] at h
   replace h := Int.ofNat_inj.mp h; contradiction
 
 theorem of_dvd (d a : Nat) (d' a' : Int)
-    (h₁ : Int.ofNat d = d') (h₂ : Int.ofNat a = a') : d ∣ a → d' ∣ a' := by
-  simp_all; simp [← h₁, ←h₂, Int.ofNat_dvd]
+    (h₁ : NatCast.natCast d = d') (h₂ : NatCast.natCast a = a') : d ∣ a → d' ∣ a' := by
+  simp [← h₁, ←h₂, Int.ofNat_dvd]
 
 theorem of_le {a b : Nat} {a' b' : Int}
-    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : a ≤ b → a' ≤ b' := by
+    (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : a ≤ b → a' ≤ b' := by
   intro h; replace h := Int.ofNat_le |>.mpr h
-  simp at h₁ h₂; rw [h₁, h₂] at h; assumption
+  rw [← h₁, ← h₂]; assumption
 
 theorem of_not_le {a b : Nat} {a' b' : Int}
-    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : ¬ (a ≤ b) → b' + 1 ≤ a' := by
+    (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : ¬ (a ≤ b) → b' + 1 ≤ a' := by
   intro h; rw [← Int.ofNat_le] at h
-  simp at h₁ h₂; rw [h₁, h₂] at h; omega
+  rw [← h₁, ← h₂]; show (↑b + 1 : Int) ≤ a; omega
 
 theorem add_congr {a b : Nat} {a' b' : Int}
-    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : Int.ofNat (a + b) = a' + b' := by
+    (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : NatCast.natCast (a + b) = a' + b' := by
   simp_all [Int.natCast_add]
 
 theorem mul_congr {a b : Nat} {a' b' : Int}
-    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : Int.ofNat (a * b) = a' * b' := by
+    (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : NatCast.natCast (a * b) = a' * b' := by
   simp_all [Int.natCast_mul]
 
 theorem sub_congr {a b : Nat} {a' b' : Int}
-    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : Int.ofNat (a - b) = if b' + (-1)*a' ≤ 0 then a' - b' else 0 := by
+    (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : NatCast.natCast (a - b) = if b' + (-1)*a' ≤ 0 then a' - b' else 0 := by
   rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
   split
   next h =>
     have h := Int.le_of_sub_nonpos h
     simp [← h₁, ← h₂, Int.ofNat_le] at h
     simp [Int.ofNat_sub h]
-    simp [← h₁, ← h₂, *]
+    rw [← h₁, ← h₂]
   next h =>
     have : ¬ (↑b : Int) ≤ ↑a := by
       intro h
-      simp at h₁ h₂
       replace h := Int.sub_nonpos_of_le h
       simp [h₁, h₂] at h
       contradiction
@@ -168,15 +167,15 @@ theorem sub_congr {a b : Nat} {a' b' : Int}
     simp [Lean.Omega.Int.ofNat_sub_eq_zero this]
 
 theorem pow_congr {a : Nat} (k : Nat) (a' : Int)
-    (h₁ : Int.ofNat a = a') : Int.ofNat (a ^ k) = a' ^ k := by
+    (h₁ : NatCast.natCast a = a') : NatCast.natCast (a ^ k) = a' ^ k := by
   simp_all [Int.natCast_pow]
 
 theorem div_congr {a b : Nat} {a' b' : Int}
-    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : Int.ofNat (a / b) = a' / b' := by
+    (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : NatCast.natCast (a / b) = a' / b' := by
   simp_all [Int.natCast_ediv]
 
 theorem mod_congr {a b : Nat} {a' b' : Int}
-    (h₁ : Int.ofNat a = a') (h₂ : Int.ofNat b = b') : Int.ofNat (a % b) = a' % b' := by
+    (h₁ : NatCast.natCast a = a') (h₂ : NatCast.natCast b = b') : NatCast.natCast (a % b) = a' % b' := by
   simp_all [Int.natCast_emod]
 
 end Nat.ToInt

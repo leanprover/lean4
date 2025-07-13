@@ -14,7 +14,7 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 def mkNatVar (e : Expr) : GoalM (Expr × Expr) := do
   if let some p := (← get').natToIntMap.find? { expr := e } then
     return p
-  let e' := mkApp (mkConst ``Int.ofNat) e
+  let e' := mkIntNatCast e
   let he := mkApp (mkApp (mkConst ``Eq.refl [1]) Int.mkType) e'
   let r := (e', he)
   modify' fun s => { s with
@@ -61,7 +61,7 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
       mkNatVar e
   | OfNat.ofNat _ _ _ =>
     if let some n ← getNatValue? e then
-      let h := mkApp (mkConst ``Nat.ToInt.ofNat_ofNat) e
+      let h := mkApp (mkConst ``Nat.ToInt.natCast_ofNat) e
       return (mkIntLit n, h)
     else
       mkNatVar e
@@ -87,6 +87,9 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
       mkNatVar e
   | _ => mkNatVar e
 
+/--
+Given `a : Nat`, returns `(a', h)` such that `a' : Int`, and `h : NatCast.natCast a = a'`
+-/
 def natToInt (a : Expr) : GoalM (Expr × Expr) := do
   let (b, h) ← natToInt' a
   let r ← preprocess b
@@ -95,16 +98,17 @@ def natToInt (a : Expr) : GoalM (Expr × Expr) := do
   else
     return (r.expr, h)
 
-/--
-Given `x` whose denotation is `e`, if `e` is of the form `Int.ofNat a`,
-asserts that it is nonnegative.
--/
-def assertIntOfNat (e : Expr) (x : Var) : GoalM Unit := do
-  let_expr Int.ofNat a := e | return ()
-  if a.isAppOf ``OfNat.ofNat then return () -- we don't want to propagate constraints such as `2 ≥ 0`
-  if (← get').natDef.contains { expr := a } then return ()
-  let p := .add (-1) x (.num 0)
-  let c := { p, h := .ofNatNonneg a : LeCnstr}
-  c.assert
+ /--
+ Given `x` whose denotation is `e`, if `e` is of the form `NatCast.natCast a`,
+ asserts that it is nonnegative.
+ -/
+ def assertNatCast (e : Expr) (x : Var) : GoalM Unit := do
+   let_expr NatCast.natCast _ inst a := e | return ()
+   let_expr instNatCastInt := inst | return ()
+   if a.isAppOf ``OfNat.ofNat then return () -- we don't want to propagate constraints such as `2 ≥ 0`
+   if (← get').natDef.contains { expr := a } then return ()
+   let p := .add (-1) x (.num 0)
+   let c := { p, h := .ofNatNonneg a : LeCnstr}
+   c.assert
 
 end Lean.Meta.Grind.Arith.Cutsat

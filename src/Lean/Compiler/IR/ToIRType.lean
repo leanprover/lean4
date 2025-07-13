@@ -78,7 +78,7 @@ def toIRType (type : Lean.Expr) : CoreM IRType := do
 
 inductive CtorFieldInfo where
   | erased
-  | object (i : Nat)
+  | object (i : Nat) (type : IRType)
   | usize  (i : Nat)
   | scalar (sz : Nat) (offset : Nat) (type : IRType)
   deriving Inhabited
@@ -87,7 +87,7 @@ namespace CtorFieldInfo
 
 def format : CtorFieldInfo → Format
   | erased => "◾"
-  | object i   => f!"obj@{i}"
+  | object i type => f!"obj@{i}:{type}"
   | usize i    => f!"usize@{i}"
   | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
 
@@ -123,11 +123,12 @@ where fillCache := do
       let fieldType ← field.fvarId!.getType
       let lcnfFieldType ← LCNF.toLCNFType fieldType
       let monoFieldType ← LCNF.toMonoType lcnfFieldType
-      let ctorField ← match (← toIRType monoFieldType) with
+      let irFieldType ← toIRType monoFieldType
+      let ctorField ← match irFieldType with
       | .object | .tobject => do
         let i := nextIdx
         nextIdx := nextIdx + 1
-        pure <| .object i
+        pure <| .object i irFieldType
       | .usize => pure <| .usize 0
       | .erased => .pure <| .erased
       | .uint8 =>
@@ -156,7 +157,7 @@ where fillCache := do
       | .usize _ => do
         let i ← modifyGet fun nextIdx => (nextIdx, nextIdx + 1)
         return .usize i
-      | .object _ | .scalar .. | .erased => return field
+      | .object .. | .scalar .. | .erased => return field
     let numUSize := nextIdx - numObjs
     let adjustScalarsForSize (fields : Array CtorFieldInfo) (size : Nat) (nextOffset : Nat)
         : Array CtorFieldInfo × Nat :=
@@ -168,7 +169,7 @@ where fillCache := do
             return .scalar sz offset type
           else
             return field
-        | .object _ | .usize _ | .erased => return field
+        | .object .. | .usize _ | .erased => return field
     let mut nextOffset := 0
     if has8BScalar then
       ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 8 nextOffset

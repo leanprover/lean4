@@ -254,6 +254,12 @@ structure State where
   -/
   natToIntMap : PHashMap ExprPtr (Expr × Expr) := {}
   /--
+  Some `Nat` variables encode nested terms such as `b+1`.
+  This is a mapping from this kind of variable to the integer variable
+  representing `natCast (b+1)`.
+  -/
+  natDef : PHashMap ExprPtr Var := {}
+  /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/
   dvds : PArray (Option DvdCnstr) := {}

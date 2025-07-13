@@ -449,13 +449,32 @@ private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   | .toNat => propagateToNat e
   | _ => pure ()
   if isForbiddenParent parent? k then return ()
-  let p ← natToInt e
+  let e'h ← natToInt e
   trace[grind.debug.cutsat.internalize] "{e} : {type}"
-  trace[grind.debug.cutsat.toInt] "{e} ==> {p.1}"
+  trace[grind.debug.cutsat.toInt] "{e} ==> {e'h.1}"
   modify' fun s => { s with
-      natToIntMap := s.natToIntMap.insert { expr := e } p
-    }
-  markAsCutsatTerm e
+    natToIntMap := s.natToIntMap.insert { expr := e } e'h
+  }
+  /-
+  If `e'.h` is of the form `NatCast.natCast e`, then it is wasteful to
+  assert an equality
+  -/
+  match_expr e'h.1 with
+  | NatCast.natCast _ _ a => if e == a then markAsCutsatTerm e; return ()
+  | _ => pure ()
+  let e'' ← toLinearExpr e'h.1
+  let p := e''.norm
+  let natCast_e ← shareCommon (mkIntNatCast e)
+  let gen ← getGeneration e
+  internalize natCast_e gen
+  let x ← mkVar natCast_e
+  modify' fun s => { s with natDef := s.natDef.insert { expr := e } x }
+--  if let some (re, rp, p') ← p.normCommRing? then
+--    let c := { p := .add (-1) x p', h := .defnNatCommRing e' x e'' p re rp p' : EqCnstr }
+--    c.assert
+--  else
+--    let c := { p := .add (-1) x p, h := .defnNat e x e'' : EqCnstr }
+--    c.assert
 
 private def internalizeToIntTerm (e type : Expr) : GoalM Unit := do
   if (← isToIntTerm e) then return () -- already internalized

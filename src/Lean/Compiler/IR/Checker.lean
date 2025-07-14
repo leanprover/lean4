@@ -69,8 +69,8 @@ def checkJP (j : JoinPointId) : M Unit := do
 
 def checkArg (a : Arg) : M Unit :=
   match a with
-  | Arg.var x => checkVar x
-  | _ => pure ()
+  | .var x => checkVar x
+  | .erased => pure ()
 
 def checkArgs (as : Array Arg) : M Unit :=
   as.forM checkArg

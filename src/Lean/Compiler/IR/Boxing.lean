@@ -208,8 +208,8 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
 
 @[inline] def castArgIfNeeded (x : Arg) (expected : IRType) (k : Arg → M FnBody) : M FnBody :=
   match x with
-  | Arg.var x => castVarIfNeeded x expected (fun x => k (Arg.var x))
-  | _         => k x
+  | .var x => castVarIfNeeded x expected (fun x => k (.var x))
+  | .erased => k x
 
 def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) := do
   let mut xs' := #[]

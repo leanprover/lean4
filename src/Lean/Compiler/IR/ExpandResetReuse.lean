@@ -147,11 +147,11 @@ def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
 /-- Given `set x[i] := y`, return true iff `y := proj[i] x` -/
 def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=
   match y with
-  | Arg.var y =>
+  | .var y =>
     match ctx.projMap[y]? with
     | some (Expr.proj j w) => j == i && w == x
     | _ => false
-  | _ => false
+  | .erased => false
 
 /-- Given `uset x[i] := y`, return true iff `y := uproj[i] x` -/
 def isSelfUSet (ctx : Context) (x : VarId) (i : Nat) (y : VarId) : Bool :=

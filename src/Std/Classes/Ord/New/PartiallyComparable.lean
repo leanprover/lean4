@@ -17,11 +17,14 @@ def PartialOrdering.isGE : PartialOrdering → Bool
   | some o => o.isGE
 
 @[ext]
-structure PartiallyComparable (α : Type u) where
+class PartiallyComparable (α : Type u) where
   compare : α → α → PartialOrdering
 
-def PartiallyComparable.ofOrd (α : Type u) [Ord α] : PartiallyComparable α where
-  compare a b := some (Ord.compare a b)
+def PartiallyComparable.ofCmp {α : Type u} (cmp : α → α → Ordering) : PartiallyComparable α where
+  compare a b := some (cmp a b)
+
+def PartiallyComparable.ofOrd (α : Type u) [Ord α] : PartiallyComparable α :=
+  .ofCmp Ord.compare
 
 open Classical in
 noncomputable def PartiallyComparable.ofLE (α : Type u) [LE α] : PartiallyComparable α where
@@ -49,17 +52,29 @@ class LawfulPartiallyComparableOrd {α : Type u} [Ord α] (c : PartiallyComparab
 class LawfulTotallyComparable {α : Type u} (c : PartiallyComparable α) where
   isSome_compare : ∀ a b, (c.compare a b).isSome
 
+class LawfulPreorder {α : Type u} (pc : PartiallyComparable α) where
+  le_trans : ∀ a b c : α, (pc.compare a b).isLE → (pc.compare b c).isLE → (pc.compare a c).isLE
+  le_refl : ∀ a : α, pc.compare a a = some .eq
+
+class LawfulLinearPreorder {α : Type u} (pc : PartiallyComparable α) extends
+    LawfulPreorder pc, LawfulTotallyComparable pc
+
+class LawfulPartialOrder {α : Type u} (pc : PartiallyComparable α) extends LawfulPreorder pc where
+  le_antisymm : ∀ a b : α, (pc.compare a b).isLE → (pc.compare b a).isLE → a = b
+
+class LawfulLinearOrder {α : Type u} (pc : PartiallyComparable α) extends LawfulPartialOrder pc
+
 theorem LawfulPartiallyComparableOrd.eq_ofOrd {α : Type u} [Ord α] {c : PartiallyComparable α}
     [i : LawfulPartiallyComparableOrd c] :
     c = .ofOrd α := by
   ext a b
-  simp [PartiallyComparable.ofOrd, i.compare_eq_some_compare a b]
+  simp [PartiallyComparable.ofOrd, PartiallyComparable.ofCmp, i.compare_eq_some_compare a b]
 
 instance (α : Type u) [Ord α] : LawfulPartiallyComparableOrd (.ofOrd α) where
   compare_eq_some_compare := fun _ _ => by rfl
 
 instance (α : Type u) [Ord α] : LawfulTotallyComparable (.ofOrd α) where
-  isSome_compare := by simp [PartiallyComparable.ofOrd]
+  isSome_compare := by simp [PartiallyComparable.ofOrd, PartiallyComparable.ofCmp]
 
 theorem LawfulOrientedPartiallyComparableLE.eq_ofLE {α : Type u} [LE α] {c : PartiallyComparable α}
     [i : LawfulOrientedPartiallyComparableLE c] :
@@ -214,3 +229,4 @@ example [LE α] [Ord α]
   have := le_total (α := α) (a := a) (b := b)
   -- Sad: I need to explicitly reference the instance I want.
   simp [i.le_iff_compare_isLE] at this
+  sorry

@@ -838,6 +838,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(LAKE_LIB_PREFIX "lib")
 endif()
 
-if(USE_LAKE AND STAGE EQUAL 1)
-  configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/lakefile.toml)
+if(USE_LAKE)
+  configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${CMAKE_BINARY_DIR}/lakefile.toml)
+  # copy for editing
+  if(STAGE EQUAL 1)
+    configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/lakefile.toml)
+  endif()
 endif()

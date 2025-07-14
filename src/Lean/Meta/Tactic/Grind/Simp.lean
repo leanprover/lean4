@@ -40,6 +40,7 @@ Unfolds all `reducible` declarations occurring in `e`.
 Similar to `unfoldReducible`, but uses `inShareCommon` as an extra filter
 -/
 def unfoldReducible' (e : Expr) : GrindM Expr := do
+  if !(← isUnfoldReducibleTarget e) then return e
   let pre (e : Expr) : GrindM TransformStep := do
     if (← inShareCommon e) then return .done e
     let .const declName _ := e.getAppFn | return .continue

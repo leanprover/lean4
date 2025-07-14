@@ -50,10 +50,20 @@ should not be unfolded by `unfoldReducible`.
 def isGrindGadget (declName : Name) : Bool :=
   declName == ``Grind.EqMatch
 
+def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
+  let env ← getEnv
+  return Option.isSome <| e.find? fun e => Id.run do
+    let .const declName _ := e | return false
+    if getReducibilityStatusCore env declName matches .reducible then
+      return !isGrindGadget declName
+    else
+      return false
+
 /--
 Unfolds all `reducible` declarations occurring in `e`.
 -/
-def unfoldReducible (e : Expr) : MetaM Expr :=
+def unfoldReducible (e : Expr) : MetaM Expr := do
+  if !(← isUnfoldReducibleTarget e) then return e
   let pre (e : Expr) : MetaM TransformStep := do
     let .const declName _ := e.getAppFn | return .continue
     unless (← isReducible declName) do return .continue

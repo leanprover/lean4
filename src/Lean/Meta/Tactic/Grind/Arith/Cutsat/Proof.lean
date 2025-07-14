@@ -17,7 +17,6 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 deriving instance Hashable for Int.Linear.Expr
-deriving instance Hashable for Int.OfNat.Expr
 
 structure ProofM.State where
   cache       : Std.HashMap UInt64 Expr := {}

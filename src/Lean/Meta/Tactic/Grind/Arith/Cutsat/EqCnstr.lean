@@ -419,7 +419,7 @@ private def propagateNatAbs (e : Expr) : GoalM Unit := do
 
 private def propagateToNat (e : Expr) : GoalM Unit := do
   let_expr Int.toNat a := e | return ()
-  pushNewFact <| mkApp (mkConst ``Int.OfNat.ofNat_toNat) a
+  pushNewFact <| mkApp (mkConst ``Nat.ToInt.ofNat_toNat) a
 
 private def isToIntForbiddenParent (parent? : Option Expr) : Bool :=
   if let some parent := parent? then

@@ -30,43 +30,64 @@ private def isDecidable (e : Expr) : MetaM (Option Expr) := do
   | Decidable p => return some p
   | _ => return none
 
+/-- Helper function for `markNestedSubsingleton` -/
+private abbrev visitUsing (e : Expr) (k : M Expr) : M Expr := do
+  if (← inShareCommon e) then return e
+  if isMarkedSubsingletonApp e then return e
+  if let some r := (← get).get? { expr := e } then return r
+  k
+
 /--
 Wrap nested proofs and decidable instances in `e` with `Lean.Grind.nestedProof` and `Lean.Grind.nestedDecidable`-applications.
 Recall that the congruence closure module has special support for them.
 -/
 -- TODO: consider other subsingletons in the future? We decided to not support them to avoid the overhead of
 -- synthesizing `Subsingleton` instances.
-partial def markNestedSubsingletons (e : Expr) : GrindM Expr := do
-  visit e |>.run' {}
+partial def markNestedSubsingletons (e : Expr) : GrindM Expr := do profileitM Exception "grind mark subsingleton" (← getOptions) do
+  visit e (checkSubsingleton := true) |>.run' {}
 where
-  visit (e : Expr) : M Expr := do
-    if (← inShareCommon e) then return e
-    if isMarkedSubsingletonApp e then
-      return e -- `e` is already marked
-    -- check whether result is cached
-    if let some r := (← get).get? { expr := e } then
-      return r
-    -- check whether `e` is a proposition or `Decidable`
-    let type ← inferType e
-    if (← isProp type) then
-      let e' := mkApp2 (mkConst ``Grind.nestedProof) (← preprocess type) e
-      modify fun s => s.insert { expr := e } e'
-      return e'
-    if let some p ← isDecidable type then
-      let e' := mkApp2 (mkConst ``Grind.nestedDecidable) (← preprocess p) e
-      modify fun s => s.insert { expr := e } e'
-      return e'
+  visitProof (p : Expr) (e : Expr) : M Expr := do
+    let e' := mkApp2 (mkConst ``Grind.nestedProof) (← preprocessProp p) e
+    modify fun s => s.insert { expr := e } e'
+    return e'
+
+  visitDecidable (p : Expr) (e : Expr) : M Expr := do
+    let e' := mkApp2 (mkConst ``Grind.nestedDecidable) (← preprocessProp p) e
+    modify fun s => s.insert { expr := e } e'
+    return e'
+
+  visit (e : Expr) (checkSubsingleton : Bool) : M Expr := visitUsing e do
+    if checkSubsingleton then
+      -- check whether `e` is a proposition or `Decidable`
+      let type ← inferType e
+      if (← isProp type) then
+        return (← visitProof type e)
+      if let some p ← isDecidable type then
+        return (← visitDecidable p e)
     -- Remark: we have to process `Expr.proj` since we only
     -- fold projections later during term internalization
     unless e.isApp || e.isForall || e.isProj || e.isMData do
       return e
     let e' ← match e with
       | .app .. => e.withApp fun f args => do
+        let infos := (← getFunInfo f).paramInfo
         let mut modified := false
         let mut args := args.toVector
         for h : i in *...args.size do
           let arg := args[i]
-          let arg' ← visit arg
+          let arg' ← if h : i < infos.size then
+            let info := infos[i]
+            if info.isProp then
+              visitUsing arg <| visitProof (← inferType arg) arg
+            else if info.isDecInst then
+              if let some p ← isDecidable (← inferType arg) then
+                visitUsing arg <| visitDecidable p arg
+              else
+                visit arg (checkSubsingleton := false)
+            else
+              visit arg (checkSubsingleton := false)
+          else
+            visit arg (checkSubsingleton := true)
           unless isSameExpr arg arg' do
             args := args.set i arg'
             modified := true
@@ -75,19 +96,19 @@ where
         else
           pure e
       | .proj _ _ b =>
-        pure <| e.updateProj! (← visit b)
+        pure <| e.updateProj! (← visit b (checkSubsingleton := true))
       | .mdata _ b =>
-        pure <| e.updateMData! (← visit b)
+        pure <| e.updateMData! (← visit b (checkSubsingleton := true))
       | .forallE _ d b _ =>
         -- Recall that we have `ForallProp.lean`.
-        let d' ← visit d
-        let b' ← if b.hasLooseBVars then pure b else visit b
+        let d' ← visit d (checkSubsingleton := false)
+        let b' ← if b.hasLooseBVars then pure b else visit b (checkSubsingleton := false)
         pure <| e.updateForallE! d' b'
       | _ => unreachable!
     modify fun s => s.insert { expr := e } e'
     return e'
 
-  preprocess (e : Expr) : M Expr := do
+  preprocessProp (e : Expr) : M Expr := do
     /-
     We must unfold reducible constants occurring in `prop` because the congruence closure
     module in `grind` assumes they have been expanded.
@@ -98,7 +119,7 @@ where
     let e ← Core.betaReduce e
     let e ← unfoldReducible e
     /- We must mask proofs occurring in `prop` too. -/
-    let e ← visit e
+    let e ← visit e (checkSubsingleton := false)
     let e ← eraseIrrelevantMData e
     /- We must fold kernel projections like it is done in the preprocessor. -/
     let e ← foldProjs e
@@ -106,7 +127,7 @@ where
 
 def markNestedProof (e : Expr) : M Expr := do
   let prop ← inferType e
-  let prop ← markNestedSubsingletons.preprocess prop
+  let prop ← markNestedSubsingletons.preprocessProp prop
   return mkApp2 (mkConst ``Grind.nestedProof) prop e
 
 /--

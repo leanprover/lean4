@@ -135,7 +135,7 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
     assign? c pArg.bvarIdx! eArg
   else if let some pArg := groundPattern? pArg then
     /-
-    We need to use `withReducibleAndIntances` because ground patterns are often instances.
+    We need to use `withReducibleAndInstances` because ground patterns are often instances.
     Here is an example
     ```
     instance : Max Nat where
@@ -348,7 +348,7 @@ private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : Opti
   for mvar in mvars, bi in bis do
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
-      unless (← synthesizeInstanceAndAssign mvar type) do
+      unless (← synthInstanceAndAssign mvar type) do
         reportIssue! "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
         failure
 
@@ -372,7 +372,7 @@ private def assignGeneralizedPatternProof (mvarId : MVarId) (eqProof : Expr) (or
 private def applyAssignment (mvars : Array Expr) : OptionT (StateT Choice M) Unit := do
   let thm := (← read).thm
   let numParams := thm.numParams
-  for h : i in [:mvars.size] do
+  for h : i in *...mvars.size do
     let bidx := numParams - i - 1
     let mut v := (← get).assignment[bidx]!
     if isSameExpr v delayedEqProof then
@@ -509,15 +509,14 @@ private def matchEqBwdPat (p : Expr) : M Unit := do
     if (n.heqProofs || n.isCongrRoot) &&
        (!useMT || n.mt == gmt) then
       let_expr Eq α lhs rhs := n.self | pure ()
-      if (← isDefEq α pα) then
-         let c₀ : Choice := { cnstrs := [], assignment, gen := n.generation }
-         let go (lhs rhs : Expr) : M Unit := do
-           let some c₁ ← matchArg? c₀ plhs lhs |>.run | return ()
-           let some c₂ ← matchArg? c₁ prhs rhs |>.run | return ()
-           modify fun s => { s with choiceStack := [c₂] }
-           processChoices
-         go lhs rhs
-         go rhs lhs
+      if let some c₀ ← matchArg? { cnstrs := [], assignment, gen := n.generation } pα α |>.run then
+        let go (lhs rhs : Expr) : M Unit := do
+          let some c₁ ← matchArg? c₀ plhs lhs |>.run | return ()
+          let some c₂ ← matchArg? c₁ prhs rhs |>.run | return ()
+          modify fun s => { s with choiceStack := [c₂] }
+          processChoices
+        go lhs rhs
+        go rhs lhs
     if isSameExpr n.next false then return ()
     curr := n.next
 
@@ -554,7 +553,7 @@ end EMatch
 open EMatch
 
 /-- Performs one round of E-matching, and returns new instances. -/
-private def ematchCore : GoalM Unit := do
+private def ematchCore : GoalM Unit := do profileitM Exception "grind ematch" (← getOptions) do
   let go (thms newThms : PArray EMatchTheorem) : EMatch.M Unit := do
     withReader (fun ctx => { ctx with useMT := true }) <| ematchTheorems thms
     withReader (fun ctx => { ctx with useMT := false }) <| ematchTheorems newThms

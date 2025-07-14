@@ -155,37 +155,35 @@ return x_7;
 static lean_object* _init_l_Std_Tactic_BVDecide_BVExpr_bitblast_blastUdiv_blastDivSubtractShift___redArg___closed__0() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 0;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_3, 0, x_2);
-x_4 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_4);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }
 static lean_object* _init_l_Std_Tactic_BVDecide_BVExpr_bitblast_blastUdiv_blastDivSubtractShift___redArg___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_1 = lean_box(1);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 1;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_3, 0, x_2);
-x_4 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_4);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastUdiv_blastDivSubtractShift___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_140; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; uint8_t x_140; 
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_7, x_11);
 x_13 = lean_nat_add(x_8, x_11);
-x_14 = lean_box(0);
+x_14 = 0;
 x_140 = lean_nat_dec_lt(x_12, x_3);
 if (x_140 == 0)
 {
@@ -215,11 +213,10 @@ goto block_139;
 }
 else
 {
-lean_object* x_148; uint8_t x_149; 
+lean_object* x_148; 
 x_148 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_148, 0, x_143);
-x_149 = lean_unbox(x_14);
-lean_ctor_set_uint8(x_148, sizeof(void*)*1, x_149);
+lean_ctor_set_uint8(x_148, sizeof(void*)*1, x_14);
 x_15 = x_148;
 goto block_139;
 }

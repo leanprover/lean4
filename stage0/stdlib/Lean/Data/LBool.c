@@ -138,10 +138,9 @@ return x_7;
 static uint8_t _init_l_Lean_instInhabitedLBool() {
 _start:
 {
-lean_object* x_1; uint8_t x_2; 
-x_1 = lean_box(0);
-x_2 = lean_unbox(x_1);
-return x_2;
+uint8_t x_1; 
+x_1 = 0;
+return x_1;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_beqLBool____x40_Lean_Data_LBool___hyg_18_(uint8_t x_1, uint8_t x_2) {
@@ -191,17 +190,15 @@ _start:
 switch (x_1) {
 case 0:
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = lean_box(1);
-x_3 = lean_unbox(x_2);
-return x_3;
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
 }
 case 1:
 {
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_box(0);
-x_5 = lean_unbox(x_4);
-return x_5;
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
 }
 default: 
 {
@@ -330,17 +327,15 @@ _start:
 {
 if (x_1 == 0)
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = lean_box(0);
-x_3 = lean_unbox(x_2);
-return x_3;
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
 }
 else
 {
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_box(1);
-x_5 = lean_unbox(x_4);
-return x_5;
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
 }
 }
 }

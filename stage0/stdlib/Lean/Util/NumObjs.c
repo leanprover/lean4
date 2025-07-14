@@ -56,27 +56,26 @@ _start:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_box(0);
-x_4 = lean_unbox(x_3);
-return x_4;
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; uint8_t x_9; 
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_ctor_get(x_2, 2);
-x_7 = lean_ptr_addr(x_5);
-x_8 = lean_ptr_addr(x_1);
-x_9 = lean_usize_dec_eq(x_7, x_8);
-if (x_9 == 0)
+lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; uint8_t x_8; 
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = lean_ctor_get(x_2, 2);
+x_6 = lean_ptr_addr(x_4);
+x_7 = lean_ptr_addr(x_1);
+x_8 = lean_usize_dec_eq(x_6, x_7);
+if (x_8 == 0)
 {
-x_2 = x_6;
+x_2 = x_5;
 goto _start;
 }
 else
 {
-return x_9;
+return x_8;
 }
 }
 }

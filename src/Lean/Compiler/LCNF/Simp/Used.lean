@@ -17,20 +17,13 @@ def markUsedFVar (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with used := s.used.insert fvarId }
 
 /--
-Mark all free variables occurring in `type` as used.
-This is information is used to eliminate dead local declarations.
--/
-def markUsedType (type : Expr) : SimpM Unit :=
-  modify fun s => { s with used := collectLocalDeclsType s.used type }
-
-/--
 Mark all free variables occurring in `arg` as used.
 -/
 def markUsedArg (arg : Arg) : SimpM Unit :=
   match arg with
   | .fvar fvarId => markUsedFVar fvarId
-  | .type type => markUsedType type
-  | .erased => return ()
+  -- Locally declared variables do not occur in types.
+  | .type _ | .erased => return ()
 
 /--
 Mark all free variables occurring in `e` as used.

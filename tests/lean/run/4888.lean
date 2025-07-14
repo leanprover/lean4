@@ -10,9 +10,9 @@ error: Application type mismatch: In the application
 the argument
   True
 has type
-  Prop : Type
+  Prop
 but is expected to have type
-  Nat : Type
+  Nat
 -/
 #guard_msgs in
 theorem bug: True := by

@@ -10,9 +10,9 @@ set_option pp.mvars false
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  myFun x = x + 1 : Prop
+  myFun x = x + 1
 -/
 #guard_msgs in
 example : myFun x = x + 1 :=

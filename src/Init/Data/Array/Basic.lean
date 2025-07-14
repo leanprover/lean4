@@ -180,7 +180,7 @@ in-place when the reference to the array is unique.
 
 This avoids overhead due to unboxing a `Nat` used as an index.
 -/
-@[extern "lean_array_uset"]
+@[extern "lean_array_uset", expose]
 def uset (xs : Array α) (i : USize) (v : α) (h : i.toNat < xs.size) : Array α :=
   xs.set i.toNat v h
 
@@ -1024,7 +1024,7 @@ The optional parameters `start` and `stop` control the region of the array to wh
 applied. Iteration proceeds from `start` (inclusive) to `stop` (exclusive), so `f` is not invoked
 unless `start < stop`. By default, the entire array is used.
 -/
-@[inline]
+@[inline, expose]
 protected def forM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := 0) (stop := as.size) : m PUnit :=
   as.foldlM (fun _ => f) ⟨⟩ start stop
 

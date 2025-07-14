@@ -155,7 +155,7 @@ theorem sampler_correct {m : Type → Type u} {k h} [Monad m] [WPMonad m ps] :
   case inv => exact (⇓ (midway, xs) => ⌜Midway.valid midway xs.rpref.length⌝)
   -- case step => simp_all
   case post.success =>
-    simp_all
+    dsimp
     mpure h
     mpure_intro
     have h := h.nodup_take

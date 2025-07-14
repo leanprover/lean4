@@ -123,7 +123,7 @@ where
 
   goN (num : Nat) : StateRefT (List Key) CoreM (Array MessageData) := do
     let mut r := #[]
-    for _ in [: num] do
+    for _ in *...num do
       r := r.push (← go)
     return r
 

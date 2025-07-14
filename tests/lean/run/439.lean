@@ -53,9 +53,9 @@ error: Application type mismatch: In the application
 the argument
   p
 has type
-  P : Sort u
+  P
 but is expected to have type
-  Bar.fn ?_ : Sort _
+  Bar.fn ?_
 -/
 #guard_msgs in
 #check fn' p

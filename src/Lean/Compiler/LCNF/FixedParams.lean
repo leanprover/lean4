@@ -104,10 +104,31 @@ partial def evalLetValue (e : LetValue) : FixParamM Unit := do
   | .const declName _ args => evalApp declName args
   | _ => return ()
 
+partial def isEquivalentFunDecl? (decl : FunDecl) : FixParamM (Option Nat) := do
+  let .let { fvarId, value := (.fvar funFvarId args), .. } k := decl.value | return none
+  if args.size != decl.params.size then return none
+  let .return retFVarId := k | return none
+  if retFVarId != fvarId then return none
+  let some (.val funIdx) := (← read).assignment.find? funFvarId | return none
+  for h : i in [:decl.params.size] do
+    let param := decl.params[i]
+    -- TODO: Eliminate this dynamic bounds check.
+    let arg := args[i]!
+    if arg != .fvar param.fvarId && arg != .erased then return none
+  return some funIdx
+
 partial def evalCode (code : Code) : FixParamM Unit := do
   match code with
   | .let decl k => evalLetValue decl.value; evalCode k
-  | .fun decl k | .jp decl k => evalCode decl.value; evalCode k
+  | .fun decl k =>
+    if let some paramIdx ← isEquivalentFunDecl? decl then
+      withReader (fun ctx =>
+                    { ctx with assignment := ctx.assignment.insert decl.fvarId (.val paramIdx) })
+        do evalCode k
+    else
+      evalCode decl.value
+      evalCode k
+  | .jp decl k => evalCode decl.value; evalCode k
   | .cases c => c.alts.forM fun alt => evalCode alt.getCode
   | .unreach .. | .jmp .. | .return .. => return ()
 
@@ -115,9 +136,9 @@ partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
   let main := (← read).main
   if declName == main.name then
     -- Recursive call to the function being analyzed
-    for h : i in [:main.params.size] do
+    for h : i in *...main.params.size do
       if _h : i < args.size then
-        have : i < main.params.size := h.upper
+        have : i < main.params.size := h.2
         let param := main.params[i]
         let val ← evalArg args[i]
         unless val == .val i || (val == .erased && param.type.isErased) do
@@ -133,7 +154,7 @@ partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
     if declName == decl.name then
       -- Call to another function in the same mutual block.
       let mut values := #[]
-      for i in [:decl.params.size] do
+      for i in *...decl.params.size do
         if h : i < args.size then
           values := values.push (← evalArg args[i])
         else
@@ -149,7 +170,7 @@ end
 
 def mkInitialValues (numParams : Nat) : Array AbsValue := Id.run do
   let mut values := #[]
-  for i in [:numParams] do
+  for i in *...numParams do
     values := values.push <| .val i
   return values
 

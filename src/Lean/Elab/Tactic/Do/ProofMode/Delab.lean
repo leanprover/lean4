@@ -13,19 +13,14 @@ open Lean Expr Meta PrettyPrinter Delaborator SubExpr
 
 @[builtin_delab app.Std.Tactic.Do.MGoalEntails]
 private partial def delabMGoal : Delab := do
-  let expr ← instantiateMVars <| ← getExpr
-
-  -- extract environment
-  let some goal := parseMGoal? expr | failure
-
   -- delaborate
-  let (_, hyps) ← withAppFn ∘ withAppArg <| delabHypotheses goal.σs ({}, #[])
+  let (_, hyps) ← withAppFn ∘ withAppArg <| delabHypotheses ({}, #[])
   let target ← SPred.Notation.unpack (← withAppArg <| delab)
 
   -- build syntax
   return ⟨← `(Std.Tactic.Do.mgoalStx| $hyps.reverse* ⊢ₛ $target:term)⟩
 where
-  delabHypotheses (σs : Expr)
+  delabHypotheses
       (acc : NameMap Nat × Array (TSyntax ``mgoalHyp)) :
       DelabM (NameMap Nat × Array (TSyntax ``mgoalHyp)) := do
     let hyps ← getExpr
@@ -42,8 +37,8 @@ where
       let stx ← `(Std.Tactic.Do.mgoalHyp| $name' : $(← SPred.Notation.unpack (← withMDataExpr <| delab)))
       return (map.insert hyp.name idx, lines.push stx)
     if (parseAnd? hyps).isSome then
-      let acc_rhs ← withAppArg <| delabHypotheses σs acc
-      let acc_lhs ← withAppFn ∘ withAppArg <| delabHypotheses σs acc_rhs
+      let acc_rhs ← withAppArg <| delabHypotheses acc
+      let acc_lhs ← withAppFn ∘ withAppArg <| delabHypotheses acc_rhs
       return acc_lhs
     else
       failure

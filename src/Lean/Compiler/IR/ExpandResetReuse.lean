@@ -278,4 +278,6 @@ end ExpandResetReuse
 def Decl.expandResetReuse (d : Decl) : Decl :=
   (ExpandResetReuse.main d).normalizeIds
 
+builtin_initialize registerTraceClass `compiler.ir.expand_reset_reuse (inherited := true)
+
 end Lean.IR

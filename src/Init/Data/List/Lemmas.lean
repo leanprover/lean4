@@ -2331,7 +2331,7 @@ theorem filterMap_replicate_of_some {f : α → Option β} (h : f a = some b) :
   induction n with
   | zero => simp
   | succ n ih =>
-    simp only [replicate_succ, flatten_cons, ih, replicate_append_replicate, 
+    simp only [replicate_succ, flatten_cons, ih, replicate_append_replicate,
       add_one_mul, Nat.add_comm]
 
 theorem flatMap_replicate {β} {f : α → List β} : (replicate n a).flatMap f = (replicate n (f a)).flatten := by
@@ -3477,12 +3477,14 @@ theorem length_le_length_insert {l : List α} {a : α} : l.length ≤ (l.insert 
 
 grind_pattern List.length_le_length_insert => (l.insert a).length
 
-@[grind] theorem length_insert_pos {l : List α} {a : α} : 0 < (l.insert a).length := by
+theorem length_insert_pos {l : List α} {a : α} : 0 < (l.insert a).length := by
   by_cases h : a ∈ l
   · rw [length_insert_of_mem h]
     exact length_pos_of_mem h
   · rw [length_insert_of_not_mem h]
     exact Nat.zero_lt_succ _
+
+grind_pattern length_insert_pos => (l.insert a).length
 
 theorem insert_eq {l : List α} {a : α} : l.insert a = if a ∈ l then l else a :: l := by
   simp [List.insert]

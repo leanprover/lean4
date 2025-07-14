@@ -1972,11 +1972,11 @@ def withMCtx (mctx : MetavarContext) : n α → n α :=
 def withoutModifyingMCtx : n α → n α :=
   mapMetaM fun x => do
     let mctx ← getMCtx
+    let cache := (← get).cache
     try
       x
     finally
-      resetCache
-      setMCtx mctx
+      modify fun s => { s with cache, mctx }
 
 @[inline] private def approxDefEqImp (x : MetaM α) : MetaM α :=
   withConfig (fun config => { config with foApprox := true, ctxApprox := true, quasiPatternApprox := true}) x
@@ -2088,7 +2088,7 @@ def instantiateForallWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
   let mut e := e
   let mut res := Array.mkEmpty args.size
   let mut j := 0
-  for i in [0:args.size] do
+  for i in *...args.size do
     unless e.isForall do
       e ← whnf (e.instantiateRevRange j i args)
       j := i
@@ -2117,7 +2117,7 @@ def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
   let mut e := e
   let mut res := Array.mkEmpty args.size
   let mut j := 0
-  for i in [0:args.size] do
+  for i in *...args.size do
     unless e.isLambda do
       e ← whnf (e.instantiateRevRange j i args)
       j := i
@@ -2544,6 +2544,38 @@ where
       unreachable!
 
 end Meta
+
+open Meta
+
+namespace PPContext
+
+def runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
+  Prod.fst <$> x.toIO { options := ppCtx.opts, currNamespace := ppCtx.currNamespace
+                        openDecls := ppCtx.openDecls
+                        fileName := "<PrettyPrinter>", fileMap := default
+                        diag     := getDiag ppCtx.opts }
+                      { env := ppCtx.env, ngen := { namePrefix := `_pp_uniq } }
+
+def runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
+  ppCtx.runCoreM <| x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
+
+end PPContext
+
+/--
+Turns a `MetaM MessageData` into a `MessageData.lazy` which will run the monadic value.
+The optional array of expressions is used to set the `hasSyntheticSorry` fields, and should
+comprise the expressions that are included in the message data.
+-/
+def MessageData.ofLazyM (f : MetaM MessageData) (es : Array Expr := #[]) : MessageData :=
+  .lazy
+    (f := fun ppctxt => do
+      match (← ppctxt.runMetaM f |>.toBaseIO) with
+      | .ok fmt => return fmt
+      | .error ex => return m!"[Error pretty printing: {ex}]"
+      )
+    (hasSyntheticSorry := fun mvarctxt => es.any (fun a =>
+        instantiateMVarsCore mvarctxt a |>.1.hasSyntheticSorry
+    ))
 
 builtin_initialize
   registerTraceClass `Meta.isLevelDefEq.postponed

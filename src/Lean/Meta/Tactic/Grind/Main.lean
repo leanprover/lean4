@@ -28,6 +28,7 @@ namespace Lean.Meta.Grind
 structure Params where
   config     : Grind.Config
   ematch     : EMatchTheorems := {}
+  symPrios   : SymbolPriorities := {}
   casesTypes : CasesTypes := {}
   extra      : PArray EMatchTheorem := {}
   norm       : Simp.Context
@@ -37,7 +38,8 @@ structure Params where
 def mkParams (config : Grind.Config) : MetaM Params := do
   let norm ← Grind.getSimpContext config
   let normProcs ← Grind.getSimprocs
-  return { config, norm, normProcs }
+  let symPrios ← getGlobalSymbolPriorities
+  return { config, norm, normProcs, symPrios }
 
 def mkMethods (fallback : Fallback) : CoreM Methods := do
   let builtinPropagators ← builtinPropagatorsRef.get
@@ -82,7 +84,8 @@ def GrindM.run (x : GrindM α) (params : Params) (fallback : Fallback) : MetaM �
   let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
   let simp := params.norm
   let config := params.config
-  x (← mkMethods fallback).toMethodsRef { config, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr }
+  let symPrios := params.symPrios
+  x (← mkMethods fallback).toMethodsRef { config, simpMethods, simp, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr, ordEqExpr, intExpr, symPrios }
     |>.run' { scState }
 
 private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do

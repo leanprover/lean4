@@ -3,11 +3,15 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro, Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.Array.Lemmas
-import Std.Data.DHashMap.RawDef
-import Std.Data.Internal.List.Defs
-import Std.Data.DHashMap.Internal.Index
+public import Init.Data.Array.Lemmas
+public import Std.Data.DHashMap.RawDef
+public import Std.Data.Internal.List.Defs
+public import Std.Data.DHashMap.Internal.Index
+
+public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on

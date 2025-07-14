@@ -440,12 +440,12 @@ theorem LawfulBEqCmp.lawfulBEq [inst : LawfulBEqCmp cmp] [LawfulEqCmp cmp] : Law
 instance LawfulBEqOrd.lawfulBEq [Ord α] [LawfulBEqOrd α] [LawfulEqOrd α] : LawfulBEq α :=
   LawfulBEqCmp.lawfulBEq (cmp := compare)
 
-instance LawfulBEqCmp.lawfulBEqCmp [inst : LawfulBEqCmp cmp] [LawfulBEq α] : LawfulEqCmp cmp where
+instance LawfulBEqCmp.lawfulEqCmp [inst : LawfulBEqCmp cmp] [LawfulBEq α] : LawfulEqCmp cmp where
   compare_self := by simp only [compare_eq_iff_beq, beq_self_eq_true, implies_true]
   eq_of_compare := by simp only [compare_eq_iff_beq, beq_iff_eq, imp_self, implies_true]
 
-theorem LawfulBEqOrd.lawfulBEqOrd [Ord α] [LawfulBEqOrd α] [LawfulBEq α] : LawfulEqOrd α :=
-  LawfulBEqCmp.lawfulBEqCmp
+theorem LawfulBEqOrd.lawfulEqOrd [Ord α] [LawfulBEqOrd α] [LawfulBEq α] : LawfulEqOrd α :=
+  LawfulBEqCmp.lawfulEqCmp
 
 instance LawfulBEqCmp.opposite [OrientedCmp cmp] [LawfulBEqCmp cmp] :
     LawfulBEqCmp (fun a b => cmp b a) where

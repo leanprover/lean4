@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
-import Lean.Meta.Tactic.Grind.MarkNestedProofs
+import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.Canon
 
 namespace Lean.Meta.Grind
@@ -41,7 +41,7 @@ def preprocess (e : Expr) : GoalM Simp.Result := do
   let e' := r.expr
   let e' ← unfoldReducible e'
   let e' ← abstractNestedProofs e'
-  let e' ← markNestedProofs e'
+  let e' ← markNestedSubsingletons e'
   let e' ← eraseIrrelevantMData e'
   let e' ← foldProjs e'
   let e' ← normalizeLevels e'

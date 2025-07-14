@@ -74,6 +74,29 @@ private theorem neg_neg [NeZero n] (a : Fin n) : - - a = a := by
    have : NeZero (n - (a + 1)) := ⟨by omega⟩
    rw [Nat.self_sub_mod, Nat.sub_sub_eq_min, Nat.min_eq_right (Nat.le_of_lt h)]
 
+theorem _root_.Nat.sub_sub_right (a : Nat) {b c : Nat} (h : c ≤ b) : a - (b - c) = a + c - b := by omega
+
+theorem neg_mul [NeZero n] (a b : Fin n) : (-a) * b = -(a * b) := by
+  rcases a with ⟨a, ha⟩; rcases b with ⟨b, hb⟩
+  ext
+  simp only [Fin.neg_def, Fin.mul_def, Nat.mod_mul_mod]
+  rw [Nat.sub_mul]
+  rw [Nat.mod_eq_mod_iff]
+  match b with
+  | 0 => refine ⟨1, 0, by simp⟩
+  | b+1 =>
+    refine ⟨a*(b+1)/n, b, ?_⟩
+    rw [Nat.mod_def, Nat.mul_add_one, Nat.mul_comm _ n, Nat.mul_comm b n]
+    have : n * (a * (b + 1) / n) ≤ a * (b + 1) := Nat.mul_div_le (a * (b + 1)) n
+    have := Nat.lt_mul_div_succ (a * (b + 1)) (show 0 < n by omega)
+    rw [Nat.mul_add_one n] at this
+    have : a * (b + 1) ≤ n * b + n := by
+      rw [Nat.mul_add_one]
+      have := Nat.mul_le_mul_right b ha
+      rw [Nat.succ_mul] at this
+      omega
+    omega
+
 open Fin.NatCast Fin.IntCast in
 theorem intCast_neg [NeZero n] (i : Int) : Int.cast (R := Fin n) (-i) = - Int.cast (R := Fin n) i := by
   simp [Int.cast, IntCast.intCast, Fin.intCast]
@@ -81,7 +104,10 @@ theorem intCast_neg [NeZero n] (i : Int) : Int.cast (R := Fin n) (-i) = - Int.ca
   next h₁ h₂ => simp [Int.le_antisymm h₁ h₂, Fin.neg_def]
   next => simp [Fin.neg_neg]
 
+open Fin.NatCast Fin.IntCast in
 instance (n : Nat) [NeZero n] : CommRing (Fin n) where
+  nsmul := ⟨fun k i => (k : Fin n) * i⟩
+  zsmul := ⟨fun k i => (k : Fin n) * i⟩
   natCast := Fin.NatCast.instNatCast n
   intCast := Fin.IntCast.instIntCast n
   add_assoc := Fin.add_assoc
@@ -98,6 +124,8 @@ instance (n : Nat) [NeZero n] : CommRing (Fin n) where
   ofNat_succ := Fin.ofNat_succ
   sub_eq_add_neg := Fin.sub_eq_add_neg
   intCast_neg := Fin.intCast_neg
+  neg_zsmul i a := by simp [intCast_neg, neg_mul]
+  zsmul_natCast_eq_nsmul _ _ := rfl
 
 instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _
   (ofNat_eq_zero_iff := fun x => by

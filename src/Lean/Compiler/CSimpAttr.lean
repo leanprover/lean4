@@ -72,7 +72,6 @@ private def initFn :=
       discard <| add declName attrKind
   }
 
-@[export lean_csimp_replace_constants]
 def replaceConstants (env : Environment) (e : Expr) : Expr :=
   let s := ext.getState env
   e.replace fun e =>

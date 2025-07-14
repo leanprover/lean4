@@ -3,14 +3,14 @@ elseifDoErrorPos.lean:4:10-4:11: error: Application type mismatch: In the applic
 the argument
   x
 has type
-  Nat : Type
+  Nat
 but is expected to have type
-  Prop : Type
+  Prop
 elseifDoErrorPos.lean:7:11-7:14: error: Application type mismatch: In the application
   pure "a"
 the argument
   "a"
 has type
-  String : Type
+  String
 but is expected to have type
-  Nat : Type
+  Nat

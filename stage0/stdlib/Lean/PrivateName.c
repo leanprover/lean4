@@ -80,32 +80,31 @@ _start:
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = lean_box(0);
-x_3 = lean_unbox(x_2);
-return x_3;
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
 }
 case 1:
 {
-lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = l_Lean_privateHeader;
-x_6 = lean_name_eq(x_1, x_5);
-if (x_6 == 0)
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = l_Lean_privateHeader;
+x_5 = lean_name_eq(x_1, x_4);
+if (x_5 == 0)
 {
-x_1 = x_4;
+x_1 = x_3;
 goto _start;
 }
 else
 {
-return x_6;
+return x_5;
 }
 }
 default: 
 {
-lean_object* x_8; 
-x_8 = lean_ctor_get(x_1, 0);
-x_1 = x_8;
+lean_object* x_7; 
+x_7 = lean_ctor_get(x_1, 0);
+x_1 = x_7;
 goto _start;
 }
 }
@@ -198,10 +197,9 @@ return x_6;
 }
 else
 {
-lean_object* x_7; uint8_t x_8; 
-x_7 = lean_box(0);
-x_8 = lean_unbox(x_7);
-return x_8;
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
 }
 }
 }

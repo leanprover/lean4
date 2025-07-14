@@ -64,7 +64,7 @@ scoped syntax:25 "⊢ₛ " term:25 : term
 scoped syntax:25 term:25 " ⊣⊢ₛ " term:25 : term
 
 macro_rules
-  | `(⌜$t⌝) => ``(SVal.curry (fun tuple => $t))
+  | `(⌜$t⌝) => ``(SVal.curry (fun tuple => ULift.up $t))
   | `(#$t) => `(SVal.uncurry $t (by assumption))
   | `(‹$t›ₛ) => `(#(SVal.getThe $t))
   | `($P ⊢ₛ $Q) => ``(SPred.entails spred($P) spred($Q))
@@ -93,7 +93,7 @@ namespace SPred.Notation
 private def unexpandCurry : Unexpander
   | `($_ $t $ts*) => do
     match t with
-    | `(fun $_ => $e) => if ts.isEmpty then ``(⌜$e⌝) else ``(⌜$e⌝ $ts*)
+    | `(fun $_ => { down := $e }) => if ts.isEmpty then ``(⌜$e⌝) else ``(⌜$e⌝ $ts*)
     | _ => throw ()
   | _ => throw ()
 

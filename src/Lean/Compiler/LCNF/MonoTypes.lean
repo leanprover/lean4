@@ -60,7 +60,7 @@ where fillCache : CoreM (Option TrivialStructureInfo) := do
   if ctorType.isErased then return none
   let mask ← getRelevantCtorFields ctorName
   let mut result := none
-  for h : i in [:mask.size] do
+  for h : i in *...mask.size do
     if mask[i] then
       if result.isSome then return none
       result := some { ctorName, fieldIdx := i, numParams := info.numParams }
@@ -93,7 +93,7 @@ partial def toMonoType (type : Expr) : CoreM Expr := do
     | .const ``lcErased _ => return erasedExpr
     | _ => mkArrow (← toMonoType d) monoB
   | .sort _ => return erasedExpr
-  | .mdata _ b => toMonoType b
+  | .mdata d b => return .mdata d (← toMonoType b)
   | _ => return anyExpr
 where
   visitApp (f : Expr) (args : Array Expr) : CoreM Expr := do

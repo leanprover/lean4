@@ -121,3 +121,21 @@ set_option trace.grind.cutsat.model true in
 example (x y : Nat) : x = y + 3 → y > 0 → False := by
   fail_if_success grind
   sorry
+
+example (a b : Nat) : a  = a + b - b := by
+  grind
+
+example (a b : Int) : a = a + b - b := by
+  grind
+
+example (a b : Nat) : a = a + 2^b - 2^b := by
+  grind
+
+example (a b : Nat) : 2^a = 2^a + b - b := by
+  grind
+
+example (a b c : Nat) : c^a = c^a + b - b := by
+  grind
+
+example (n : Nat) : 0 ≤ 2 ^ n := by
+  grind

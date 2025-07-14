@@ -214,6 +214,7 @@ macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>
                           $(mkIdent ``Std.Do.SPred.true_intro_simp):term,
                           $(mkIdent ``Std.Do.SPred.true_intro_simp_nil):term,
                           $(mkIdent ``Std.Do.SVal.curry_cons):term,
+                          $(mkIdent ``Std.Do.SVal.uncurry_nil):term,
                           $(mkIdent ``Std.Do.SVal.uncurry_cons):term,
                           $(mkIdent ``Std.Do.SVal.getThe_here):term,
                           $(mkIdent ``Std.Do.SVal.getThe_there):term])

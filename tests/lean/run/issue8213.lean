@@ -21,9 +21,9 @@ error: Failed to realize constant myTest.fun_cases:
       the argument
         h_1
       has type
-        (a : α) → (dc : List α) → x = a :: dc → mmotive (a :: dc) : Sort (imax (u_1 + 1) (u_1 + 1) v)
+        (a : α) → (dc : List α) → x = a :: dc → mmotive (a :: dc)
       but is expected to have type
-        (a : α) → (dc : List α) → x✝ = a :: dc → mmotive (a :: dc) : Sort (imax (u_1 + 1) (u_1 + 1) v)
+        (a : α) → (dc : List α) → x✝ = a :: dc → mmotive (a :: dc)
 ---
 error: unknown identifier 'myTest.fun_cases'
 -/

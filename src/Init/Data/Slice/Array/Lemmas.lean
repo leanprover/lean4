@@ -21,7 +21,7 @@ open Std.Iterators Std.PRange
 
 namespace Std.Slice.Array
 
-theorem internalIter_eq {α : Type u} {s : Subarray α} :
+private theorem internalIter_eq {α : Type u} {s : Subarray α} :
     Internal.iter s = (PRange.Internal.iter (s.start...<s.stop)
       |>.attachWith (· < s.array.size)
         (fun out h => h
@@ -32,7 +32,7 @@ theorem internalIter_eq {α : Type u} {s : Subarray α} :
       |>.map fun | .up i => s.array[i.1]) := by
   simp [Internal.iter, ToIterator.iter_eq, Subarray.start, Subarray.stop, Subarray.array]
 
-theorem toList_internalIter {α : Type u} {s : Subarray α} :
+private theorem toList_internalIter {α : Type u} {s : Subarray α} :
     (Internal.iter s).toList =
       ((s.start...s.stop).toList
         |>.attachWith (· < s.array.size)

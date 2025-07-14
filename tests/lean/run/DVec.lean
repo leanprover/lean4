@@ -45,9 +45,10 @@ error: Application type mismatch: In the application
 the argument
   v
 has type
-  Vec Nat 1 : Type
-but is expected to have type
-  TypeVec (?_ + 1) : Type (_ + 1)
+  Vec Nat 1
+of sort `Type` but is expected to have type
+  TypeVec (?_ + 1)
+of sort `Type (_ + 1)`
 -/
 #guard_msgs in set_option pp.mvars false in
 example (v : Vec Nat 1) : Nat :=

@@ -245,7 +245,7 @@ instance : LawfulBEq Poly where
 def Poly.denote [Ring α] (ctx : Context α) (p : Poly) : α :=
   match p with
   | .num k => Int.cast k
-  | .add k m p => Int.cast k * m.denote ctx + denote ctx p
+  | .add k m p => HMul.hMul (α := Int) k (m.denote ctx) + denote ctx p
 
 @[expose]
 def Poly.denote' [Ring α] (ctx : Context α) (p : Poly) : α :=
@@ -257,7 +257,7 @@ where
     bif k == 1 then
       m.denote' ctx
     else
-      Int.cast k * m.denote' ctx
+      HMul.hMul (α := Int) k (m.denote' ctx)
 
   go (p : Poly) (acc : α) : α :=
     match p with
@@ -395,7 +395,9 @@ def Expr.toPoly : Expr → Poly
   | .neg a   => a.toPoly.mulConst (-1)
   | .sub a b => a.toPoly.combine (b.toPoly.mulConst (-1))
   | .pow a k =>
-    match a with
+    bif k == 0 then
+      .num 1
+    else  match a with
     | .num n => .num (n^k)
     | .var x => Poly.ofMon (.mult {x, k} .unit)
     | _ => a.toPoly.pow k
@@ -536,7 +538,9 @@ where
     | .neg a   => (go a).mulConstC (-1) c
     | .sub a b => (go a).combineC ((go b).mulConstC (-1) c) c
     | .pow a k =>
-      match a with
+      bif k == 0 then
+        .num 1
+      else match a with
       | .num n => .num ((n^k) % c)
       | .var x => Poly.ofMon (.mult {x, k} .unit)
       | _ => (go a).powC k c
@@ -594,7 +598,10 @@ def NullCert.toPolyC (nc : NullCert) (c : Nat) : Poly :=
 Theorems for justifying the procedure for commutative rings in `grind`.
 -/
 
-open Semiring Ring CommSemiring
+open AddCommMonoid AddCommGroup NatModule IntModule
+open Semiring hiding add_zero add_comm add_assoc
+open Ring hiding sub_eq_add_neg
+open CommSemiring
 
 theorem denoteInt_eq {α} [CommRing α] (k : Int) : denoteInt (α := α) k = k := by
   simp [denoteInt, cond_eq_if] <;> split
@@ -696,18 +703,18 @@ theorem Mon.eq_of_grevlex {m₁ m₂ : Mon} : grevlex m₁ m₂ = .eq → m₁ =
   simp [grevlex]; intro; apply eq_of_revlex
 
 theorem Poly.denoteTerm_eq  {α} [Ring α] (ctx : Context α) (k : Int) (m : Mon) : denote'.denoteTerm ctx k m = k * m.denote ctx := by
-  simp [denote'.denoteTerm, Mon.denote'_eq_denote, cond_eq_if]; intro; subst k; rw [Ring.intCast_one, Semiring.one_mul]
+  simp [denote'.denoteTerm, Mon.denote'_eq_denote, cond_eq_if, zsmul_eq_intCast_mul]; intro; subst k; rw [Ring.intCast_one, Semiring.one_mul]
 
 theorem Poly.denote'_eq_denote {α} [Ring α] (ctx : Context α) (p : Poly) : p.denote' ctx = p.denote ctx := by
-  cases p <;> simp [denote', denote, denoteTerm_eq]
+  cases p <;> simp [denote', denote, denoteTerm_eq, zsmul_eq_intCast_mul]
   next k m p =>
     generalize k * m.denote ctx = acc
     fun_induction denote'.go <;> simp [denote, *, Ring.intCast_zero, Semiring.add_zero, denoteTerm_eq]
-    next ih => simp [denoteTerm_eq] at ih; simp [ih, Semiring.add_assoc]
+    next ih => simp [denoteTerm_eq] at ih; simp [ih, Semiring.add_assoc, zsmul_eq_intCast_mul]
 
 theorem Poly.denote_ofMon {α} [CommRing α] (ctx : Context α) (m : Mon)
     : denote ctx (ofMon m) = m.denote ctx := by
-  simp [ofMon, denote, intCast_one, intCast_zero, one_mul, add_zero]
+  simp [ofMon, denote, intCast_one, intCast_zero, one_mul, add_zero, zsmul_eq_intCast_mul]
 
 theorem Poly.denote_ofVar {α} [CommRing α] (ctx : Context α) (x : Var)
     : denote ctx (ofVar x) = x.denote ctx := by
@@ -730,7 +737,7 @@ theorem Poly.denote_insert {α} [CommRing α] (ctx : Context α) (k : Int) (m : 
     next h =>
       simp at h <;> simp [*, Mon.denote, denote_addConst, mul_one, add_comm]
     next =>
-      fun_induction insert.go <;> simp_all +zetaDelta [denote]
+      fun_induction insert.go <;> simp_all +zetaDelta [denote, zsmul_eq_intCast_mul]
       next h₁ h₂ =>
         rw [← add_assoc, Mon.eq_of_grevlex h₁, ← right_distrib, ← intCast_add, h₂, intCast_zero, zero_mul, zero_add]
       next h₁ _ =>
@@ -752,7 +759,7 @@ theorem Poly.denote_mulConst {α} [CommRing α] (ctx : Context α) (k : Int) (p 
     split <;> try simp [*, intCast_one, one_mul]
     fun_induction mulConst.go <;> simp [denote, *]
     next => rw [intCast_mul]
-    next => rw [intCast_mul, left_distrib, mul_assoc]
+    next => rw [left_distrib, ← zsmul_eq_intCast_mul, ← zsmul_eq_intCast_mul, mul_zsmul]
 
 theorem Poly.denote_mulMon {α} [CommRing α] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
     : (mulMon k m p).denote ctx = k * m.denote ctx * p.denote ctx := by
@@ -763,7 +770,7 @@ theorem Poly.denote_mulMon {α} [CommRing α] (ctx : Context α) (k : Int) (m : 
     next h =>
       simp at h; simp [*, Mon.denote, mul_one, denote_mulConst]
     next =>
-      fun_induction mulMon.go <;> simp [denote, *]
+      fun_induction mulMon.go <;> simp [denote, zsmul_eq_intCast_mul, *]
       next h => simp +zetaDelta at h; simp [*, intCast_zero, mul_zero]
       next => simp [intCast_mul, intCast_zero, add_zero, mul_comm, mul_left_comm, mul_assoc]
       next => simp [Mon.denote_mul, intCast_mul, left_distrib, mul_left_comm, mul_assoc]
@@ -772,7 +779,7 @@ theorem Poly.denote_combine {α} [CommRing α] (ctx : Context α) (p₁ p₂ : P
     : (combine p₁ p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   unfold combine; generalize hugeFuel = fuel
   fun_induction combine.go
-    <;> simp [*, denote_concat, denote_addConst, denote, intCast_add, add_comm, add_left_comm, add_assoc]
+    <;> simp [*, denote_concat, denote_addConst, denote, intCast_add, add_comm, add_left_comm, add_assoc, zsmul_eq_intCast_mul]
   case case5 hg _ h _ =>
     simp +zetaDelta at h
     rw [← add_assoc, Mon.eq_of_grevlex hg, ← right_distrib, ← intCast_add, h, intCast_zero, zero_mul, zero_add]
@@ -783,7 +790,7 @@ theorem Poly.denote_combine {α} [CommRing α] (ctx : Context α) (p₁ p₂ : P
 theorem Poly.denote_mul_go {α} [CommRing α] (ctx : Context α) (p₁ p₂ acc : Poly)
     : (mul.go p₂ p₁ acc).denote ctx = acc.denote ctx + p₁.denote ctx * p₂.denote ctx := by
   fun_induction mul.go
-    <;> simp [denote_combine, denote_mulConst, denote, *, right_distrib, denote_mulMon, add_assoc]
+    <;> simp [denote_combine, denote_mulConst, denote, *, right_distrib, denote_mulMon, add_assoc, zsmul_eq_intCast_mul]
 
 theorem Poly.denote_mul {α} [CommRing α] (ctx : Context α) (p₁ p₂ : Poly)
     : (mul p₁ p₂).denote ctx = p₁.denote ctx * p₂.denote ctx := by
@@ -802,6 +809,7 @@ theorem Expr.denote_toPoly {α} [CommRing α] (ctx : Context α) (e : Expr)
     <;> simp [denote, Poly.denote, Poly.denote_ofVar, Poly.denote_combine,
           Poly.denote_mul, Poly.denote_mulConst, Poly.denote_pow, intCast_pow, intCast_neg, intCast_one,
           neg_mul, one_mul, sub_eq_add_neg, denoteInt_eq, *]
+  next a k h => simp at h; simp [h, Semiring.pow_zero]
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
 
 theorem Expr.eq_of_toPoly_eq {α} [CommRing α] (ctx : Context α) (a b : Expr) (h : a.toPoly == b.toPoly) : a.denote ctx = b.denote ctx := by
@@ -855,7 +863,7 @@ theorem NullCert.eq_nzdiv {α} [CommRing α] [NoNatZeroDivisors α] (ctx : Conte
   apply eqsImplies_helper
   intro h₃
   replace h₂ := congrArg (Poly.denote ctx) h₂
-  simp [Expr.denote_toPoly, Poly.denote_mulConst, denote_toPoly, h₃, Expr.denote] at h₂
+  simp [Expr.denote_toPoly, Poly.denote_mulConst, denote_toPoly, h₃, Expr.denote, ← zsmul_eq_intCast_mul] at h₂
   replace h₂ := no_int_zero_divisors h₁ h₂
   rw [sub_eq_zero_iff] at h₂
   assumption
@@ -897,7 +905,7 @@ theorem Poly.denote_insertC {α c} [CommRing α] [IsCharP α c] (ctx : Context �
     rw [← IsCharP.intCast_emod (p := c)]
     simp +zetaDelta [*, intCast_zero, zero_mul, zero_add]
   next =>
-    fun_induction insertC.go <;> simp_all +zetaDelta [denote]
+    fun_induction insertC.go <;> simp_all +zetaDelta [denote, zsmul_eq_intCast_mul]
     next h₁ _ h₂ => rw [IsCharP.intCast_emod]
     next h₁ _ h₂ =>
       rw [← add_assoc, Mon.eq_of_grevlex h₁, ← right_distrib, ← intCast_add, ← IsCharP.intCast_emod (p := c), h₂,
@@ -923,10 +931,10 @@ theorem Poly.denote_mulConstC {α c} [CommRing α] [IsCharP α c] (ctx : Context
       next => rw [intCast_mul]
       next h _ =>
         simp +zetaDelta at h
-        rw [left_distrib, ← mul_assoc, ← intCast_mul, ← IsCharP.intCast_emod (x := k * _) (p := c),
+        rw [left_distrib, zsmul_eq_intCast_mul, ← mul_assoc, ← intCast_mul, ← IsCharP.intCast_emod (x := k * _) (p := c),
             h, intCast_zero, zero_mul, zero_add]
       next h _ =>
-        simp +zetaDelta [IsCharP.intCast_emod, intCast_mul, mul_assoc, left_distrib]
+        simp +zetaDelta [IsCharP.intCast_emod, intCast_mul, mul_assoc, left_distrib, zsmul_eq_intCast_mul]
 
 theorem Poly.denote_mulMonC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k : Int) (m : Mon) (p : Poly)
     : (mulMonC k m p c).denote ctx = k * m.denote ctx * p.denote ctx := by
@@ -945,23 +953,23 @@ theorem Poly.denote_mulMonC {α c} [CommRing α] [IsCharP α c] (ctx : Context �
         rw [mul_assoc, mul_left_comm, ← intCast_mul, ← IsCharP.intCast_emod (x := k * _) (p := c), h]
         simp [intCast_zero, mul_zero]
       next h =>
-        simp +zetaDelta [IsCharP.intCast_emod, intCast_mul, intCast_zero, add_zero, mul_comm, mul_left_comm, mul_assoc]
+        simp +zetaDelta [IsCharP.intCast_emod, intCast_mul, intCast_zero, add_zero, mul_comm, mul_left_comm, mul_assoc, zsmul_eq_intCast_mul]
       next h _ =>
-        simp +zetaDelta at h; simp [*, left_distrib]
+        simp +zetaDelta at h; simp [*, left_distrib, zsmul_eq_intCast_mul]
         rw [mul_left_comm]
         conv => rhs; rw [← mul_assoc, ← mul_assoc, ← intCast_mul, ← IsCharP.intCast_emod (p := c)]
         rw [Int.mul_comm] at h
         simp [h, intCast_zero, zero_mul, zero_add]
       next h _ =>
         simp +zetaDelta [*, IsCharP.intCast_emod, Mon.denote_mul, intCast_mul, left_distrib,
-          mul_left_comm, mul_assoc]
+          mul_left_comm, mul_assoc, zsmul_eq_intCast_mul]
 
 theorem Poly.denote_combineC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ p₂ : Poly)
     : (combineC p₁ p₂ c).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   unfold combineC; generalize hugeFuel = fuel
   fun_induction combineC.go
     <;> simp [*, denote_concat, denote_addConstC, denote, intCast_add,
-          add_comm, add_left_comm, add_assoc, IsCharP.intCast_emod]
+          add_comm, add_left_comm, add_assoc, IsCharP.intCast_emod, zsmul_eq_intCast_mul]
   next hg _ h _ =>
     simp +zetaDelta at h
     rw [← add_assoc, Mon.eq_of_grevlex hg, ← right_distrib, ← intCast_add,
@@ -974,7 +982,7 @@ theorem Poly.denote_combineC {α c} [CommRing α] [IsCharP α c] (ctx : Context 
 theorem Poly.denote_mulC_go {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ p₂ acc : Poly)
     : (mulC.go p₂ c p₁ acc).denote ctx = acc.denote ctx + p₁.denote ctx * p₂.denote ctx := by
   fun_induction mulC.go
-    <;> simp [denote_combineC, denote_mulConstC, denote, *, right_distrib, denote_mulMonC, add_assoc]
+    <;> simp [denote_combineC, denote_mulConstC, denote, *, right_distrib, denote_mulMonC, add_assoc, zsmul_eq_intCast_mul]
 
 theorem Poly.denote_mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ p₂ : Poly)
     : (mulC p₁ p₂ c).denote ctx = p₁.denote ctx * p₂.denote ctx := by
@@ -996,6 +1004,7 @@ theorem Expr.denote_toPolyC {α c} [CommRing α] [IsCharP α c] (ctx : Context �
   next => rw [IsCharP.intCast_emod]
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul]
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul, sub_eq_add_neg]
+  next a k h => simp at h; simp [h, Semiring.pow_zero, Ring.intCast_one]
   next => rw [IsCharP.intCast_emod, intCast_pow]
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
 
@@ -1037,7 +1046,7 @@ theorem NullCert.eq_nzdivC {α c} [CommRing α] [IsCharP α c] [NoNatZeroDivisor
   apply eqsImplies_helper
   intro h₃
   replace h₂ := congrArg (Poly.denote ctx) h₂
-  simp [Expr.denote_toPolyC, Poly.denote_mulConstC, denote_toPolyC, h₃, Expr.denote] at h₂
+  simp [Expr.denote_toPolyC, Poly.denote_mulConstC, denote_toPolyC, h₃, Expr.denote, ← zsmul_eq_intCast_mul] at h₂
   replace h₂ := no_int_zero_divisors h₁ h₂
   rw [sub_eq_zero_iff] at h₂
   assumption
@@ -1113,7 +1122,7 @@ def div_cert (p₁ : Poly) (k : Int) (p : Poly) : Bool :=
 def div {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (p₁ : Poly) (k : Int) (p : Poly)
     : div_cert p₁ k p → p₁.denote ctx = 0 → p.denote ctx = 0 := by
   simp [div_cert]; intro hnz _ h; subst p₁
-  simp [Poly.denote_mulConst] at h
+  simp [Poly.denote_mulConst, ← zsmul_eq_intCast_mul] at h
   exact no_int_zero_divisors hnz h
 
 @[expose]
@@ -1166,7 +1175,7 @@ def imp_keq_cert (lhs rhs : Expr) (k : Int) (p₁ p₂ : Poly) : Bool :=
 theorem imp_keq  {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (k : Int) (lhs rhs : Expr) (p₁ p₂ : Poly)
     : imp_keq_cert lhs rhs k p₁ p₂ → k * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
   simp [imp_keq_cert]; intro hnz _ _; subst p₁ p₂
-  simp [Expr.denote_toPoly, Expr.denote, Poly.denote, intCast_zero]
+  simp [Expr.denote_toPoly, Expr.denote, Poly.denote, intCast_zero, ← zsmul_eq_intCast_mul]
   intro h; replace h := no_int_zero_divisors hnz h
   rw [← sub_eq_zero_iff, h]
 
@@ -1207,7 +1216,7 @@ def div_certC (p₁ : Poly) (k : Int) (p : Poly) (c : Nat) : Bool :=
 def divC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (p₁ : Poly) (k : Int) (p : Poly)
     : div_certC p₁ k p c → p₁.denote ctx = 0 → p.denote ctx = 0 := by
   simp [div_certC]; intro hnz _ h; subst p₁
-  simp [Poly.denote_mulConstC] at h
+  simp [Poly.denote_mulConstC, ← zsmul_eq_intCast_mul] at h
   exact no_int_zero_divisors hnz h
 
 @[expose]
@@ -1266,7 +1275,7 @@ def imp_keq_certC (lhs rhs : Expr) (k : Int) (p₁ p₂ : Poly) (c : Nat) : Bool
 theorem imp_keqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (k : Int) (lhs rhs : Expr) (p₁ p₂ : Poly)
     : imp_keq_certC lhs rhs k p₁ p₂ c → k * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
   simp [imp_keq_certC]; intro hnz _ _; subst p₁ p₂
-  simp [Expr.denote_toPolyC, Expr.denote, Poly.denote, intCast_zero]
+  simp [Expr.denote_toPolyC, Expr.denote, Poly.denote, intCast_zero, ← zsmul_eq_intCast_mul]
   intro h; replace h := no_int_zero_divisors hnz h
   rw [← sub_eq_zero_iff, h]
 
@@ -1288,8 +1297,8 @@ where
 @[expose]
 def Poly.denoteAsIntModule [CommRing α] (ctx : Context α) (p : Poly) : α :=
   match p with
-  | .num k => Int.cast k * One.one
-  | .add k m p => Int.cast k * m.denoteAsIntModule ctx + denoteAsIntModule ctx p
+  | .num k => HMul.hMul (α := Int) k (One.one : α)
+  | .add k m p => HMul.hMul (α := Int) k (m.denoteAsIntModule ctx) + denoteAsIntModule ctx p
 
 theorem Mon.denoteAsIntModule_go_eq_denote {α} [CommRing α] (ctx : Context α) (m : Mon) (acc : α)
     : denoteAsIntModule.go ctx m acc = acc * m.denote ctx := by
@@ -1300,7 +1309,7 @@ theorem Mon.denoteAsIntModule_eq_denote {α} [CommRing α] (ctx : Context α) (m
   cases m <;> simp [denoteAsIntModule, denote, denoteAsIntModule_go_eq_denote]; rfl
 
 theorem Poly.denoteAsIntModule_eq_denote {α} [CommRing α] (ctx : Context α) (p : Poly) : p.denoteAsIntModule ctx = p.denote ctx := by
-  induction p <;> simp [*, denoteAsIntModule, denote, mul_one, One.one, Mon.denoteAsIntModule_eq_denote]
+  induction p <;> simp [*, denoteAsIntModule, denote, mul_one, One.one, Mon.denoteAsIntModule_eq_denote, Ring.zsmul_eq_intCast_mul]
 
 open Stepwise
 
@@ -1398,7 +1407,7 @@ theorem one_eq_zero_unsat {α} [Field α] (ctx : Context α) (p : Poly) : one_eq
 theorem diseq_to_eq {α} [Field α] (a b : α) : a ≠ b → (a - b)*(a - b)⁻¹ = 1 := by
   intro h
   have : a - b ≠ 0 := by
-    intro h'; rw [Ring.sub_eq_zero_iff.mp h'] at h
+    intro h'; rw [sub_eq_zero_iff.mp h'] at h
     contradiction
   exact Field.mul_inv_cancel this
 
@@ -1423,8 +1432,8 @@ theorem Poly.normEq0_eq {α} [CommRing α] (ctx : Context α) (p : Poly) (c : Na
     simp [denote, normEq0]; split <;> simp [denote]
     next h' => rw [of_mod_eq_0 h h', Ring.intCast_zero]
   next a m p ih =>
-    simp [denote, normEq0]; split <;> simp [denote, *]
-    next h' => rw [of_mod_eq_0 h h', Semiring.zero_mul, Semiring.zero_add]
+    simp [denote, normEq0]; split <;> simp [denote, zsmul_eq_intCast_mul, *]
+    next h' => rw [of_mod_eq_0 h h', Semiring.zero_mul, zero_add]
 
 @[expose]
 def eq_normEq0_cert (c : Nat) (p₁ p₂ p : Poly) : Bool :=
@@ -1443,7 +1452,7 @@ theorem gcd_eq_0 [CommRing α] (g n m a b : Int) (h : g = a * n + b * m)
   replace h₂ := congrArg (Int.cast (R := α) b * ·) h₂; simp at h₂
   rw [← Ring.intCast_mul, Ring.intCast_zero, Semiring.mul_zero] at h₂
   replace h₁ := congrArg (· + Int.cast (b * m)) h₁; simp at h₁
-  rw [← Ring.intCast_add, h₂, Semiring.zero_add, ← h] at h₁
+  rw [← Ring.intCast_add, h₂, zero_add, ← h] at h₁
   rw [Ring.intCast_zero, h₁]
 
 @[expose]

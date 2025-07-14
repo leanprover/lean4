@@ -131,51 +131,14 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
   | .fun .. => panic! "all local functions should be λ-lifted"
 
 partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
-  -- temporary fix: the old compiler inlines these too much as regular `let`s
-  let rec mkVar (v : VarId) : M FnBody := do
-    bindVarToVarId decl.fvarId v
-    lowerCode k
-  let rec mkExpr (e : Expr) : M FnBody := do
-    let var ← bindVar decl.fvarId
-    let type ← match e with
-    | .ctor .. | .pap .. | .proj .. => pure <| .object
-    | _ => toIRType decl.type
-    return .vdecl var type e (← lowerCode k)
-  let rec mkErased (_ : Unit) : M FnBody := do
-    bindErased decl.fvarId
-    lowerCode k
-  let rec mkPartialApp (e : Expr) (restArgs : Array Arg) : M FnBody := do
-    let var ← bindVar decl.fvarId
-    let tmpVar ← newVar
-    let type ← match e with
-    | .ctor .. | .pap .. | .proj .. => pure <| .object
-    | _ => toIRType decl.type
-    return .vdecl tmpVar .object e (.vdecl var type (.ap tmpVar restArgs) (← lowerCode k))
-  let rec tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
-    if let some decl ← LCNF.getMonoDecl? name then
-      let numArgs := args.size
-      let numParams := decl.params.size
-      if numArgs < numParams then
-        return some (← mkExpr (.pap name args))
-      else if numArgs == numParams then
-        return some (← mkExpr (.fap name args))
-      else
-        let firstArgs := args.extract 0 numParams
-        let restArgs := args.extract numParams numArgs
-        return some (← mkPartialApp (.fap name firstArgs) restArgs)
-    else
-      return none
-
   match decl.value with
   | .lit litValue =>
     mkExpr (.lit (lowerLitValue litValue))
   | .proj typeName i fvarId =>
     match (← get).fvars[fvarId]? with
     | some (.var varId) =>
-      -- TODO: have better pattern matching here
-      let some (.inductInfo { ctors, .. }) := (← Lean.getEnv).find? typeName
-        | panic! "projection of non-inductive type"
-      let ctorName := ctors[0]!
+      let some (.inductInfo { ctors := [ctorName], .. }) := (← Lean.getEnv).find? typeName
+        | panic! "projection of non-structure type"
       let ⟨ctorInfo, fields⟩ ← getCtorLayout ctorName
       let ⟨result, type⟩ := lowerProj varId ctorInfo fields[i]!
       match result with
@@ -199,91 +162,59 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     let irArgs ← args.mapM lowerArg
     if let some code ← tryIrDecl? name irArgs then
       return code
-    else
-      let env ← Lean.getEnv
-      match env.find? name with
-      | some (.ctorInfo ctorVal) =>
-        if isExtern env name then
-          if let some code ← tryIrDecl? name irArgs then
-            return code
-          else
-            mkExpr (.fap name irArgs)
-        else if let some scalarType ← lowerEnumToScalarType? ctorVal.name then
-          assert! args.isEmpty
-          let var ← bindVar decl.fvarId
-          return .vdecl var scalarType (.lit (.num ctorVal.cidx)) (← lowerCode k)
-        else
-          let ⟨ctorInfo, fields⟩ ← getCtorLayout name
-          let args := args.extract (start := ctorVal.numParams)
-          let objArgs : Array Arg ← do
-            let mut result : Array Arg := #[]
-            for i in [0:fields.size] do
-              match args[i]! with
-              | .fvar fvarId =>
-                if let some (.var varId) := (← get).fvars[fvarId]? then
-                  if fields[i]! matches .object .. then
-                    result := result.push (.var varId)
-              | .type _ | .erased =>
-                if fields[i]! matches .object .. then
-                  result := result.push .irrelevant
-            pure result
-          let objVar ← bindVar decl.fvarId
-          let rec lowerNonObjectFields (_ : Unit) : M FnBody :=
-            let rec loop (usizeCount : Nat) (i : Nat) : M FnBody := do
-              match args[i]? with
-              | some (.fvar fvarId) =>
-                match (← get).fvars[fvarId]? with
-                | some (.var varId) =>
-                  match fields[i]! with
-                  | .usize .. =>
-                    let k ← loop (usizeCount + 1) (i + 1)
-                    return .uset objVar (ctorInfo.size + usizeCount) varId k
-                  | .scalar _ offset argType =>
-                    let k ← loop usizeCount (i + 1)
-                    return .sset objVar (ctorInfo.size + ctorInfo.usize) offset varId argType k
-                  | .object .. | .irrelevant => loop usizeCount (i + 1)
-                | _ => loop usizeCount (i + 1)
-              | some (.type _) | some .erased => loop usizeCount (i + 1)
-              | none => lowerCode k
-            loop 0 0
-          return .vdecl objVar .object (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())
-      | some (.axiomInfo ..) =>
-        if name == ``Quot.lcInv then
-          match irArgs[2]! with
-          | .var varId => mkVar varId
-          | .irrelevant => mkErased ()
-        else if name == ``lcUnreachable then
-          return .unreachable
-        else if let some irDecl ← findDecl name then
-          let numArgs := irArgs.size
-          let numParams := irDecl.params.size
-          if numArgs < numParams then
-            mkExpr (.pap name irArgs)
-          else if numArgs == numParams then
-            mkExpr (.fap name irArgs)
-          else
-            let firstArgs := irArgs.extract 0 numParams
-            let restArgs := irArgs.extract numParams irArgs.size
-            mkPartialApp (.fap name firstArgs) restArgs
-        else
-          throwNamedError lean.dependsOnNoncomputable f!"axiom '{name}' not supported by code generator; consider marking definition as 'noncomputable'"
-      | some (.quotInfo ..) =>
-        if name == ``Quot.mk then
-          match irArgs[2]! with
-          | .var varId => mkVar varId
-          | .irrelevant => mkErased ()
-        else
-          throwError f!"quot {name} unsupported by code generator"
-      | some (.defnInfo ..) | some (.opaqueInfo ..) =>
-        if let some code ← tryIrDecl? name irArgs then
-          return code
-        else
-          mkExpr (.fap name irArgs)
-      | some (.recInfo ..) =>
-        throwError f!"code generator does not support recursor '{name}' yet, consider using 'match ... with' and/or structural recursion"
-      | some (.inductInfo ..) => panic! "induct unsupported by code generator"
-      | some (.thmInfo ..) => panic! "thm unsupported by code generator"
-      | none => panic! "reference to unbound name"
+    let env ← Lean.getEnv
+    match env.find? name with
+    | some (.ctorInfo ctorVal) =>
+      if isExtern env name then
+        return (← mkExpr (.fap name irArgs))
+
+      let type ← nameToIRType ctorVal.induct
+      if type.isScalar then
+        let var ← bindVar decl.fvarId
+        return .vdecl var type (.lit (.num ctorVal.cidx)) (← lowerCode k)
+
+      assert! type == .object
+      let ⟨ctorInfo, fields⟩ ← getCtorLayout name
+      let args := args.extract (start := ctorVal.numParams)
+      let objArgs : Array Arg ← do
+        let mut result : Array Arg := #[]
+        for i in *...fields.size do
+          match args[i]! with
+          | .fvar fvarId =>
+            if let some (.var varId) := (← get).fvars[fvarId]? then
+              if fields[i]! matches .object .. then
+                result := result.push (.var varId)
+          | .type _ | .erased =>
+            if fields[i]! matches .object .. then
+              result := result.push .irrelevant
+        pure result
+      let objVar ← bindVar decl.fvarId
+      let rec lowerNonObjectFields (_ : Unit) : M FnBody :=
+        let rec loop (usizeCount : Nat) (i : Nat) : M FnBody := do
+          match args[i]? with
+          | some (.fvar fvarId) =>
+            match (← get).fvars[fvarId]? with
+            | some (.var varId) =>
+              match fields[i]! with
+              | .usize .. =>
+                let k ← loop (usizeCount + 1) (i + 1)
+                return .uset objVar (ctorInfo.size + usizeCount) varId k
+              | .scalar _ offset argType =>
+                let k ← loop usizeCount (i + 1)
+                return .sset objVar (ctorInfo.size + ctorInfo.usize) offset varId argType k
+              | .object .. | .irrelevant => loop usizeCount (i + 1)
+            | _ => loop usizeCount (i + 1)
+          | some (.type _) | some .erased => loop usizeCount (i + 1)
+          | none => lowerCode k
+        loop 0 0
+      return .vdecl objVar type (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())
+    | some (.defnInfo ..) | some (.opaqueInfo ..) =>
+      mkExpr (.fap name irArgs)
+    | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
+      throwNamedError lean.dependsOnNoncomputable f!"'{name}' not supported by code generator; consider marking definition as 'noncomputable'"
+    | some (.recInfo ..) =>
+      throwError f!"code generator does not support recursor '{name}' yet, consider using 'match ... with' and/or structural recursion"
+    | none => panic! "reference to unbound name"
   | .fvar fvarId args =>
     match (← get).fvars[fvarId]? with
     | some (.var id) =>
@@ -292,6 +223,41 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     | some .erased => mkErased ()
     | some (.joinPoint ..) | none => panic! "unexpected value"
   | .erased => mkErased ()
+where
+  mkVar (v : VarId) : M FnBody := do
+    bindVarToVarId decl.fvarId v
+    lowerCode k
+
+  mkExpr (e : Expr) : M FnBody := do
+    let var ← bindVar decl.fvarId
+    let type ← match e with
+    | .ctor .. | .pap .. | .ap .. | .proj .. => pure <| .object
+    | _ => toIRType decl.type
+    return .vdecl var type e (← lowerCode k)
+
+  mkErased (_ : Unit) : M FnBody := do
+    bindErased decl.fvarId
+    lowerCode k
+
+  mkPartialApp (e : Expr) (restArgs : Array Arg) : M FnBody := do
+    let var ← bindVar decl.fvarId
+    let tmpVar ← newVar
+    return .vdecl tmpVar .object e (.vdecl var .object (.ap tmpVar restArgs) (← lowerCode k))
+
+  tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
+    if let some decl ← LCNF.getMonoDecl? name then
+      let numArgs := args.size
+      let numParams := decl.params.size
+      if numArgs < numParams then
+        return some (← mkExpr (.pap name args))
+      else if numArgs == numParams then
+        return some (← mkExpr (.fap name args))
+      else
+        let firstArgs := args.extract 0 numParams
+        let restArgs := args.extract numParams numArgs
+        return some (← mkPartialApp (.fap name firstArgs) restArgs)
+    else
+      return none
 
 partial def lowerAlt (discr : VarId) (a : LCNF.Alt) : M Alt := do
   match a with

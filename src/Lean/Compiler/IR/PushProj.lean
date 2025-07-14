@@ -54,4 +54,6 @@ def Decl.pushProj (d : Decl) : Decl :=
   | .fdecl (body := b) .. => d.updateBody! b.pushProj |>.normalizeIds
   | other => other
 
+builtin_initialize registerTraceClass `compiler.ir.push_proj (inherited := true)
+
 end Lean.IR

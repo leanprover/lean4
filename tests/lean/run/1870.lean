@@ -4,9 +4,9 @@ set_option pp.mvars false
 error: type mismatch
   congrArg ?_ (congrArg ?_ ?_)
 has type
-  ?_ (?_ ?_) = ?_ (?_ ?_) : Prop
+  ?_ (?_ ?_) = ?_ (?_ ?_)
 but is expected to have type
-  OfNat.ofNat 0 = OfNat.ofNat 1 : Prop
+  OfNat.ofNat 0 = OfNat.ofNat 1
 -/
 #guard_msgs in
 theorem ex1 : (@OfNat.ofNat Nat 0 Zero.toOfNat0) = @OfNat.ofNat Nat 1 One.toOfNat1 := by

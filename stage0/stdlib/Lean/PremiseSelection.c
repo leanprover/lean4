@@ -514,15 +514,14 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_338_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
 x_2 = lean_box(0);
 x_3 = lean_alloc_closure((void*)(l_Lean_PremiseSelection_initFn___lam__0____x40_Lean_PremiseSelection___hyg_338_), 2, 1);
 lean_closure_set(x_3, 0, x_2);
 x_4 = lean_box(0);
-x_5 = lean_box(2);
-x_6 = lean_unbox(x_5);
-x_7 = l_Lean_registerEnvExtension___redArg(x_3, x_4, x_6, x_1);
-return x_7;
+x_5 = 2;
+x_6 = l_Lean_registerEnvExtension___redArg(x_3, x_4, x_5, x_1);
+return x_6;
 }
 }
 static lean_object* _init_l_Lean_PremiseSelection_select___closed__0() {
@@ -793,12 +792,11 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector_unsafe__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
+lean_object* x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = l_Lean_PremiseSelection_elabSetPremiseSelector_unsafe__1___closed__3;
-x_8 = lean_box(1);
-x_9 = lean_unbox(x_8);
-x_10 = l_Lean_Meta_evalExpr___redArg(x_7, x_1, x_9, x_2, x_3, x_4, x_5, x_6);
-return x_10;
+x_8 = 1;
+x_9 = l_Lean_Meta_evalExpr___redArg(x_7, x_1, x_8, x_2, x_3, x_4, x_5, x_6);
+return x_9;
 }
 }
 static lean_object* _init_l_Lean_PremiseSelection_elabSetPremiseSelector___lam__0___closed__0() {
@@ -1182,12 +1180,13 @@ goto _start;
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_evalSuggestPremises___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; 
-x_7 = lean_box(1);
-x_8 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_8, 0, x_7);
-lean_ctor_set(x_8, 1, x_6);
-return x_8;
+uint8_t x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = 1;
+x_8 = lean_box(x_7);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_8);
+lean_ctor_set(x_9, 1, x_6);
+return x_9;
 }
 }
 static lean_object* _init_l_Lean_PremiseSelection_evalSuggestPremises___redArg___lam__1___closed__0() {

@@ -388,22 +388,19 @@ return x_4;
 LEAN_EXPORT lean_object* l_Lean_logInfoAt___at___Lean_reportOutOfHeartbeats_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; lean_object* x_10; 
-x_6 = lean_box(0);
-x_7 = lean_box(0);
-x_8 = lean_unbox(x_6);
-x_9 = lean_unbox(x_7);
-x_10 = l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_Core_wrapAsyncAsSnapshot_spec__23_spec__23_spec__23(x_1, x_2, x_8, x_9, x_3, x_4, x_5);
-return x_10;
+uint8_t x_6; uint8_t x_7; lean_object* x_8; 
+x_6 = 0;
+x_7 = 0;
+x_8 = l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_Core_wrapAsyncAsSnapshot_spec__23_spec__23_spec__23(x_1, x_2, x_6, x_7, x_3, x_4, x_5);
+return x_8;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_reportOutOfHeartbeats___lam__0(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; 
-x_2 = lean_box(0);
-x_3 = lean_unbox(x_2);
-return x_3;
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_reportOutOfHeartbeats___closed__0() {

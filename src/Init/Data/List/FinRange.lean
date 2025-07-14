@@ -57,7 +57,7 @@ theorem finRange_reverse {n} : (finRange n).reverse = (finRange n).map Fin.rev :
     conv => rhs; rw [finRange_succ]
     rw [reverse_append, reverse_cons, reverse_nil, nil_append, singleton_append, ← map_reverse,
       map_cons, ih, map_map, map_map]
-    congr; funext
+    congr 2; funext
     simp [Fin.rev_succ]
 
 end List

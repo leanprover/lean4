@@ -514,7 +514,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
       forallBoundedTelescope header.type header.numParams fun xs type => do
         -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
-        for h : i in [0:header.binderIds.size] do
+        for h : i in *...header.binderIds.size do
           -- skip auto-bound prefix in `xs`
           addLocalVarInfo header.binderIds[i] xs[header.numParams - header.binderIds.size + i]!
         let val ← if (← useProofAsSorry header.kind) then
@@ -951,7 +951,7 @@ private def mkLetRecClosures (sectionVars : Array Expr) (mainFVarIds : Array FVa
   let mut letRecsToLift := letRecsToLift
   let mut freeVarMap    ← mkFreeVarMap sectionVars mainFVarIds recFVarIds letRecsToLift
   let mut result := #[]
-  for i in [:letRecsToLift.size] do
+  for i in *...letRecsToLift.size do
     if letRecsToLift[i]!.val.hasExprMVar then
       -- This can happen when this particular let-rec has nested let-rec that have been resolved in previous iterations.
       -- This code relies on the fact that nested let-recs occur before the outer most let-recs at `letRecsToLift`.
@@ -1358,7 +1358,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let mut views := #[]
   let mut defs := #[]
   let mut reusedAllHeaders := true
-  for h : i in [0:ds.size], headerPromise in headerPromises do
+  for h : i in *...ds.size, headerPromise in headerPromises do
     let d := ds[i]
     let modifiers ← elabModifiers ⟨d[0]⟩
     if ds.size > 1 && modifiers.isNonrec then

@@ -126,7 +126,6 @@ def getInitFnNameForCore? (env : Environment) (attr : ParametricAttribute Name) 
   | some n              => some n
   | _                   => none
 
-@[export lean_get_builtin_init_fn_name_for]
 def getBuiltinInitFnNameFor? (env : Environment) (fn : Name) : Option Name :=
   getInitFnNameForCore? env builtinInitAttr fn
 
@@ -143,11 +142,9 @@ def isIOUnitInitFnCore (env : Environment) (attr : ParametricAttribute Name) (fn
   | some Name.anonymous => true
   | _ => false
 
-@[export lean_is_io_unit_regular_init_fn]
 def isIOUnitRegularInitFn (env : Environment) (fn : Name) : Bool :=
   isIOUnitInitFnCore env regularInitAttr fn
 
-@[export lean_is_io_unit_builtin_init_fn]
 def isIOUnitBuiltinInitFn (env : Environment) (fn : Name) : Bool :=
   isIOUnitInitFnCore env builtinInitAttr fn
 

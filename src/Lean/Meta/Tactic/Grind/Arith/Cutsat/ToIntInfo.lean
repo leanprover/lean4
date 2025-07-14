@@ -43,8 +43,10 @@ structure ToIntThms where
   ```
   -/
   c_wr? : Option Expr := none
+  deriving Inhabited
 
 structure ToIntInfo where
+  id        : Nat
   type      : Expr
   u         : Level
   toIntInst : Expr
@@ -56,21 +58,23 @@ structure ToIntInfo where
   ofWrap0?  : Option Expr
   ofEq      : Expr
   ofDiseq   : Expr
-  ofLE?     : Option Expr
-  ofNotLE?  : Option Expr
-  ofLT?     : Option Expr
-  ofNotLT?  : Option Expr
-  addThms   : ToIntThms
-  mulThms   : ToIntThms
-  subThm?   : Option Expr
-  negThm?   : Option Expr
-  divThm?   : Option Expr
-  modThm?   : Option Expr
-  powThm?   : Option Expr
-  zeroThm?  : Option Expr
-  ofNatThm? : Option Expr
   lowerThm? : Option Expr
   upperThm? : Option Expr
+  -- Remark: we initialize the following fields on demand
+  ofLE?     : Option (Option Expr) := none
+  ofNotLE?  : Option (Option Expr) := none
+  ofLT?     : Option (Option Expr) := none
+  ofNotLT?  : Option (Option Expr) := none
+  addThms?  : Option ToIntThms := none
+  mulThms?  : Option ToIntThms := none
+  subThm?   : Option (Option Expr) := none
+  negThm?   : Option (Option Expr) := none
+  divThm?   : Option (Option Expr) := none
+  modThm?   : Option (Option Expr) := none
+  powThm?   : Option (Option Expr) := none
+  zeroThm?  : Option (Option Expr) := none
+  ofNatThm? : Option (Option Expr) := none
+  deriving Inhabited
 
 /--
 For each term `e` of type `α` which implements the `ToInt α i` class,

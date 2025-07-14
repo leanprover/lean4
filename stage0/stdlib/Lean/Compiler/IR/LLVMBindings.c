@@ -1776,7 +1776,7 @@ return x_4;
 LEAN_EXPORT lean_object* l_LLVM_constTrue(size_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint64_t x_6; lean_object* x_7; size_t x_8; uint8_t x_9; lean_object* x_10; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint64_t x_6; uint8_t x_7; size_t x_8; lean_object* x_9; 
 x_3 = l_LLVM_i1Type(x_1, x_2);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
@@ -1784,12 +1784,11 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 x_6 = 1;
-x_7 = lean_box(0);
+x_7 = 0;
 x_8 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_9 = lean_unbox(x_7);
-x_10 = lean_llvm_const_int(x_1, x_8, x_6, x_9, x_5);
-return x_10;
+x_9 = lean_llvm_const_int(x_1, x_8, x_6, x_7, x_5);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_LLVM_constTrue___boxed(lean_object* x_1, lean_object* x_2) {
@@ -1805,7 +1804,7 @@ return x_4;
 LEAN_EXPORT lean_object* l_LLVM_constFalse(size_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint64_t x_6; lean_object* x_7; size_t x_8; uint8_t x_9; lean_object* x_10; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint64_t x_6; uint8_t x_7; size_t x_8; lean_object* x_9; 
 x_3 = l_LLVM_i1Type(x_1, x_2);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
@@ -1813,12 +1812,11 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 x_6 = 0;
-x_7 = lean_box(0);
+x_7 = 0;
 x_8 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_9 = lean_unbox(x_7);
-x_10 = lean_llvm_const_int(x_1, x_8, x_6, x_9, x_5);
-return x_10;
+x_9 = lean_llvm_const_int(x_1, x_8, x_6, x_7, x_5);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_LLVM_constFalse___boxed(lean_object* x_1, lean_object* x_2) {

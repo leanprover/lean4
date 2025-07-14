@@ -31,7 +31,7 @@ Several variants of this combinator are provided:
 
 namespace Std.Iterators
 
-variable {α : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {β : Type w}
+variable {α : Type w} {m : Type w → Type w'} {β : Type w}
 
 /--
 Internal state of the `takeWhile` combinator. Do not depend on its internals.
@@ -233,12 +233,12 @@ instance TakeWhile.instIteratorCollectPartial [Monad m] [Monad n] [Iterator α m
   .defaultImplementation
 
 instance TakeWhile.instIteratorLoop [Monad m] [Monad n] [Iterator α m β]
-    [IteratorLoop α m n] [MonadLiftT m n] :
+    [IteratorLoop α m n] :
     IteratorLoop (TakeWhile α m β P) m n :=
   .defaultImplementation
 
 instance TakeWhile.instIteratorForPartial [Monad m] [Monad n] [Iterator α m β]
-    [IteratorLoopPartial α m n] [MonadLiftT m n] {P} :
+    [IteratorLoopPartial α m n] {P} :
     IteratorLoopPartial (TakeWhile α m β P) m n :=
   .defaultImplementation
 

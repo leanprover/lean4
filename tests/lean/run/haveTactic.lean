@@ -9,9 +9,9 @@ If the body of a `have` fails to elaborate, the tactic completes with a `sorry` 
 error: type mismatch
   False.elim
 has type
-  False → ?m.6 : Sort ?u.5
+  False → ?m.6
 but is expected to have type
-  True : Prop
+  True
 ---
 trace: h : True
 ⊢ True

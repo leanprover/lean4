@@ -912,10 +912,11 @@ return x_8;
 LEAN_EXPORT lean_object* l_Lean_Expr_forEach___redArg___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_box(1);
-x_4 = lean_apply_2(x_1, lean_box(0), x_3);
-return x_4;
+uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = 1;
+x_4 = lean_box(x_3);
+x_5 = lean_apply_2(x_1, lean_box(0), x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Expr_forEach___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

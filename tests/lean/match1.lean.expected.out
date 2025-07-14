@@ -11,9 +11,9 @@
 ---- inv
 10
 match1.lean:82:0-82:73: error: Dependent elimination failed: Type mismatch when solving this alternative: it has type
-  motive 0 (Vec.cons head✝ Vec.nil) ⋯ : Prop
+  motive 0 (Vec.cons head✝ Vec.nil) ⋯
 but is expected to have type
-  motive x✝ (Vec.cons head✝ tail✝) ⋯ : Prop
+  motive x✝ (Vec.cons head✝ tail✝) ⋯
 [false, true, true]
 match1.lean:119:0-119:41: error: Dependent match elimination failed: Expected a constructor, but found the inaccessible pattern
   .(j + j)

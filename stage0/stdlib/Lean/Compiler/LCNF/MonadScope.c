@@ -176,18 +176,20 @@ lean_object* x_5;
 x_5 = l_Lean_RBNode_findCore___redArg(x_1, x_4, x_2);
 if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_box(0);
-x_7 = lean_apply_2(x_3, lean_box(0), x_6);
-return x_7;
+uint8_t x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = 0;
+x_7 = lean_box(x_6);
+x_8 = lean_apply_2(x_3, lean_box(0), x_7);
+return x_8;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; 
+uint8_t x_9; lean_object* x_10; lean_object* x_11; 
 lean_dec(x_5);
-x_8 = lean_box(1);
-x_9 = lean_apply_2(x_3, lean_box(0), x_8);
-return x_9;
+x_9 = 1;
+x_10 = lean_box(x_9);
+x_11 = lean_apply_2(x_3, lean_box(0), x_10);
+return x_11;
 }
 }
 }

@@ -24,24 +24,17 @@ abbrev Index := Nat
 /-- Variable identifier -/
 structure VarId where
   idx : Index
-  deriving Inhabited, Repr
+  deriving Inhabited, BEq, Hashable, Repr
 
 /-- Join point identifier -/
 structure JoinPointId where
   idx : Index
-  deriving Inhabited, Repr
+  deriving Inhabited, BEq, Hashable, Repr
 
 abbrev Index.lt (a b : Index) : Bool := a < b
 
-instance : BEq VarId := ⟨fun a b => a.idx == b.idx⟩
 instance : ToString VarId := ⟨fun a => "x_" ++ toString a.idx⟩
-instance : ToFormat VarId := ⟨fun a => toString a⟩
-instance : Hashable VarId := ⟨fun a => hash a.idx⟩
-
-instance : BEq JoinPointId := ⟨fun a b => a.idx == b.idx⟩
 instance : ToString JoinPointId := ⟨fun a => "block_" ++ toString a.idx⟩
-instance : ToFormat JoinPointId := ⟨fun a => toString a⟩
-instance : Hashable JoinPointId := ⟨fun a => hash a.idx⟩
 
 abbrev MData := KVMap
 abbrev MData.empty : MData := {}
@@ -84,26 +77,9 @@ inductive IRType where
   | float32
   | struct (leanTypeName : Option Name) (types : Array IRType) : IRType
   | union (leanTypeName : Name) (types : Array IRType) : IRType
-  deriving Inhabited, Repr
+  deriving Inhabited, BEq, Repr
 
 namespace IRType
-
-partial def beq : IRType → IRType → Bool
-  | float,          float          => true
-  | float32,        float32        => true
-  | uint8,          uint8          => true
-  | uint16,         uint16         => true
-  | uint32,         uint32         => true
-  | uint64,         uint64         => true
-  | usize,          usize          => true
-  | irrelevant,     irrelevant     => true
-  | object,         object         => true
-  | tobject,        tobject        => true
-  | struct n₁ tys₁, struct n₂ tys₂ => n₁ == n₂ && Array.isEqv tys₁ tys₂ beq
-  | union n₁ tys₁,  union n₂ tys₂  => n₁ == n₂ && Array.isEqv tys₁ tys₂ beq
-  | _,              _              => false
-
-instance : BEq IRType := ⟨beq⟩
 
 def isScalar : IRType → Bool
   | float    => true
@@ -124,14 +100,6 @@ def isIrrelevant : IRType → Bool
   | irrelevant => true
   | _ => false
 
-def isStruct : IRType → Bool
-  | struct _ _ => true
-  | _ => false
-
-def isUnion : IRType → Bool
-  | union _ _ => true
-  | _ => false
-
 end IRType
 
 /-- Arguments to applications, constructors, etc.
@@ -141,27 +109,17 @@ end IRType
 inductive Arg where
   | var (id : VarId)
   | irrelevant
-  deriving Inhabited
+  deriving Inhabited, BEq, Repr
 
 protected def Arg.beq : Arg → Arg → Bool
   | var x,      var y      => x == y
   | irrelevant, irrelevant => true
   | _,          _          => false
 
-instance : BEq Arg := ⟨Arg.beq⟩
-
-@[export lean_ir_mk_var_arg] def mkVarArg (id : VarId) : Arg := Arg.var id
-
 inductive LitVal where
   | num (v : Nat)
   | str (v : String)
-
-def LitVal.beq : LitVal → LitVal → Bool
-  | num v₁, num v₂ => v₁ == v₂
-  | str v₁, str v₂ => v₁ == v₂
-  | _,      _      => false
-
-instance : BEq LitVal := ⟨LitVal.beq⟩
+  deriving Inhabited, BEq
 
 /-- Constructor information.
 
@@ -180,13 +138,7 @@ structure CtorInfo where
   size : Nat
   usize : Nat
   ssize : Nat
-  deriving Inhabited, Repr
-
-def CtorInfo.beq : CtorInfo → CtorInfo → Bool
-  | ⟨n₁, cidx₁, size₁, usize₁, ssize₁⟩, ⟨n₂, cidx₂, size₂, usize₂, ssize₂⟩ =>
-    n₁ == n₂ && cidx₁ == cidx₂ && size₁ == size₂ && usize₁ == usize₂ && ssize₁ == ssize₂
-
-instance : BEq CtorInfo := ⟨CtorInfo.beq⟩
+  deriving Inhabited, BEq, Repr
 
 def CtorInfo.isRef (info : CtorInfo) : Bool :=
   info.size > 0 || info.usize > 0 || info.ssize > 0
@@ -225,25 +177,11 @@ inductive Expr where
   | isShared (x : VarId)
   deriving Inhabited
 
-@[export lean_ir_mk_ctor_expr]  def mkCtorExpr (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (ys : Array Arg) : Expr :=
-  Expr.ctor ⟨n, cidx, size, usize, ssize⟩ ys
-@[export lean_ir_mk_proj_expr]  def mkProjExpr (i : Nat) (x : VarId) : Expr := Expr.proj i x
-@[export lean_ir_mk_uproj_expr] def mkUProjExpr (i : Nat) (x : VarId) : Expr := Expr.uproj i x
-@[export lean_ir_mk_sproj_expr] def mkSProjExpr (n : Nat) (offset : Nat) (x : VarId) : Expr := Expr.sproj n offset x
-@[export lean_ir_mk_fapp_expr]  def mkFAppExpr (c : FunId) (ys : Array Arg) : Expr := Expr.fap c ys
-@[export lean_ir_mk_papp_expr]  def mkPAppExpr (c : FunId) (ys : Array Arg) : Expr := Expr.pap c ys
-@[export lean_ir_mk_app_expr]   def mkAppExpr (x : VarId) (ys : Array Arg) : Expr := Expr.ap x ys
-@[export lean_ir_mk_num_expr]   def mkNumExpr (v : Nat) : Expr := Expr.lit (LitVal.num v)
-@[export lean_ir_mk_str_expr]   def mkStrExpr (v : String) : Expr := Expr.lit (LitVal.str v)
-
 structure Param where
   x : VarId
   borrow : Bool
   ty : IRType
   deriving Inhabited, Repr
-
-@[export lean_ir_mk_param]
-def mkParam (x : VarId) (borrow : Bool) (ty : IRType) : Param := ⟨x, borrow, ty⟩
 
 mutual
 
@@ -278,25 +216,13 @@ inductive FnBody where
   /-- Jump to join point `j` -/
   | jmp (j : JoinPointId) (ys : Array Arg)
   | unreachable
+  deriving Inhabited
 
 end
 
-instance : Inhabited FnBody := ⟨FnBody.unreachable⟩
+deriving instance Inhabited for Alt
 
 abbrev FnBody.nil := FnBody.unreachable
-
-@[export lean_ir_mk_vdecl] def mkVDecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : FnBody := FnBody.vdecl x ty e b
-@[export lean_ir_mk_jdecl] def mkJDecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody) : FnBody := FnBody.jdecl j xs v b
-@[export lean_ir_mk_uset] def mkUSet (x : VarId) (i : Nat) (y : VarId) (b : FnBody) : FnBody := FnBody.uset x i y b
-@[export lean_ir_mk_sset] def mkSSet (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody) : FnBody := FnBody.sset x i offset y ty b
-@[export lean_ir_mk_case] def mkCase (tid : Name) (x : VarId) (cs : Array Alt) : FnBody :=
-  -- Type field `xType` is set by `explicitBoxing` compiler pass.
-  FnBody.case tid x IRType.object cs
-@[export lean_ir_mk_ret] def mkRet (x : Arg) : FnBody := FnBody.ret x
-@[export lean_ir_mk_jmp] def mkJmp (j : JoinPointId) (ys : Array Arg) : FnBody := FnBody.jmp j ys
-@[export lean_ir_mk_unreachable] def mkUnreachable : Unit → FnBody := fun _ => FnBody.unreachable
-
-instance : Inhabited Alt := ⟨Alt.default default⟩
 
 def FnBody.isTerminal : FnBody → Bool
   | FnBody.case _ _ _ _  => true
@@ -393,9 +319,6 @@ def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
     | FnBody.jdecl j xs v k => return FnBody.jdecl j xs (← f v) k
     | other                 => return other
 
-@[export lean_ir_mk_alt] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt :=
-  Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
-
 /-- Extra information associated with a declaration. -/
 structure DeclInfo where
   /-- If `some <blame>`, then declaration depends on `<blame>` which uses a `sorry` axiom. -/
@@ -435,19 +358,12 @@ def updateBody! (d : Decl) (bNew : FnBody) : Decl :=
 
 end Decl
 
-@[export lean_ir_mk_decl] def mkDecl (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody) : Decl :=
-  Decl.fdecl f xs ty b {}
-
-@[export lean_ir_mk_extern_decl] def mkExternDecl (f : FunId) (xs : Array Param) (ty : IRType) (e : ExternAttrData) : Decl :=
-  Decl.extern f xs ty e
-
 -- Hack: we use this declaration as a stub for declarations annotated with `implemented_by` or `init`
-@[export lean_ir_mk_dummy_extern_decl] def mkDummyExternDecl (f : FunId) (xs : Array Param) (ty : IRType) : Decl :=
+def mkDummyExternDecl (f : FunId) (xs : Array Param) (ty : IRType) : Decl :=
   Decl.fdecl f xs ty FnBody.unreachable {}
 
 /-- Set of variable and join point names -/
 abbrev IndexSet := RBTree Index compare
-instance : Inhabited IndexSet := ⟨{}⟩
 
 def mkIndexSet (idx : Index) : IndexSet :=
   RBTree.empty.insert idx
@@ -571,7 +487,7 @@ def addParamsRename (ρ : IndexRenaming) (ps₁ ps₂ : Array Param) : Option In
     failure
   else
     let mut ρ := ρ
-    for i in [:ps₁.size] do
+    for i in *...ps₁.size do
       ρ ← addParamRename ρ ps₁[i]! ps₂[i]!
     pure ρ
 
@@ -605,7 +521,6 @@ def FnBody.beq (b₁ b₂ : FnBody) : Bool :=
 instance : BEq FnBody := ⟨FnBody.beq⟩
 
 abbrev VarIdSet := RBTree VarId (fun x y => compare x.idx y.idx)
-instance : Inhabited VarIdSet := ⟨{}⟩
 
 def mkIf (x : VarId) (t e : FnBody) : FnBody :=
   FnBody.case `Bool x IRType.uint8 #[

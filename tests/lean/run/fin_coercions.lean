@@ -7,9 +7,9 @@ set_option pp.mvars false
 error: type mismatch
   n
 has type
-  Nat : Type
+  Nat
 but is expected to have type
-  Fin 3 : Type
+  Fin 3
 ---
 info: fun n => sorry : (n : Nat) → ?_ n
 -/

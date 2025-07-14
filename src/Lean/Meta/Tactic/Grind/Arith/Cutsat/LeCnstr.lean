@@ -170,7 +170,7 @@ def propagateNatLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   c.assertCore
 
 def propagateToIntLe (e : Expr) (eqTrue : Bool) : ToIntM Unit := do
-  let some thm ← if eqTrue then pure (← getInfo).ofLE? else pure (← getInfo).ofNotLE? | return ()
+  let some thm ← if eqTrue then getOfLE? else getOfNotLE? | return ()
   let_expr LE.le _ _ a b := e | return ()
   let gen ← getGeneration e
   let (a', h₁) ← toInt a
@@ -197,7 +197,7 @@ def propagateLt (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   unless (← getConfig).cutsat do return ()
   let_expr LT.lt α _ a b := e | return ()
   ToIntM.run α do
-    let some thm ← if eqTrue then pure (← getInfo).ofLT? else pure (← getInfo).ofNotLT? | return ()
+    let some thm ← if eqTrue then getOfLT? else getOfNotLT? | return ()
     let gen ← getGeneration e
     let (a', h₁) ← toInt a
     let (b', h₂) ← toInt b

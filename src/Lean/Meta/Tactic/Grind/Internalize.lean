@@ -238,7 +238,7 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
       if (← isExtTheorem inductVal.name) || ctorVal.numFields == 0 then
         let params := aType.getAppArgs[*...inductVal.numParams]
         let mut ctorApp := mkAppN (mkConst ctorVal.name us) params
-        for j in [: ctorVal.numFields] do
+        for j in *...ctorVal.numFields do
           let mut proj ← mkProjFn ctorVal us params j a
           if (← isProof proj) then
             proj ← markProof proj
@@ -378,7 +378,7 @@ where
       reportIssue! "unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"
       mkENode' e generation
     | .proj .. =>
-      reportIssue! "unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term"
+      reportIssue! "unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor failed to fold this term"
       mkENode' e generation
     | .app .. =>
       if (← isLitValue e) then
@@ -393,13 +393,19 @@ where
         checkAndAddSplitCandidate e
         pushCastHEqs e
         addMatchEqns f generation
-        if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
+        if args.size == 2 && f.isConstOf ``Grind.nestedProof then
           -- We only internalize the proposition. We can skip the proof because of
           -- proof irrelevance
           let c := args[0]!
           internalizeImpl c generation e
           registerParent e c
           pushEqTrue c <| mkApp2 (mkConst ``eq_true) c args[1]!
+        else if args.size == 2 && f.isConstOf ``Grind.nestedDecidable then
+          -- We only internalize the proposition. We can skip the instance because it is
+          -- a subsingleton
+          let c := args[0]!
+          internalizeImpl c generation e
+          registerParent e c
         else if f.isConstOf ``ite && args.size == 5 then
           let c := args[1]!
           internalizeImpl c generation e
@@ -410,7 +416,7 @@ where
           else
             internalizeImpl f generation e
           registerParent e f
-          for h : i in [: args.size] do
+          for h : i in *...args.size do
             let arg := args[i]
             internalize arg generation e
             registerParent e arg

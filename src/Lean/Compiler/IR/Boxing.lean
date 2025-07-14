@@ -306,7 +306,7 @@ partial def visitFnBody : FnBody → M FnBody
     FnBody.mdata d <$> visitFnBody b
   | FnBody.case tid x _ alts   => do
     let expected := getScrutineeType alts
-    let alts ← alts.mapM fun alt => alt.mmodifyBody visitFnBody
+    let alts ← alts.mapM fun alt => alt.modifyBodyM visitFnBody
     castVarIfNeeded x expected fun x => do
       return FnBody.case tid x expected alts
   | FnBody.ret x             => do

@@ -257,7 +257,7 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
     let v ← searchAndExpand v #[]
     searchAndExpand b (push bs (FnBody.jdecl j xs v FnBody.nil))
   | FnBody.case tid x xType alts,   bs => do
-    let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => searchAndExpand b #[]
+    let alts ← alts.mapM fun alt => alt.modifyBodyM fun b => searchAndExpand b #[]
     return reshape bs (FnBody.case tid x xType alts)
   | b, bs =>
     if b.isTerminal then return reshape bs b

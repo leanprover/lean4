@@ -36,6 +36,20 @@ def dsimpCore (e : Expr) : GrindM Expr := do profileitM Exception "grind dsimp" 
   return r
 
 /--
+Unfolds all `reducible` declarations occurring in `e`.
+Similar to `unfoldReducible`, but uses `inShareCommon` as an extra filter
+-/
+def unfoldReducible' (e : Expr) : GrindM Expr := do
+  let pre (e : Expr) : GrindM TransformStep := do
+    if (← inShareCommon e) then return .done e
+    let .const declName _ := e.getAppFn | return .continue
+    unless (← isReducible declName) do return .continue
+    if isGrindGadget declName then return .continue
+    let some v ← unfoldDefinition? e | return .continue
+    return .visit v
+  Core.transform e (pre := pre)
+
+/--
 Preprocesses `e` using `grind` normalization theorems and simprocs,
 and then applies several other preprocessing steps.
 -/
@@ -43,7 +57,7 @@ def preprocess (e : Expr) : GoalM Simp.Result := do
   let e ← instantiateMVars e
   let r ← simpCore e
   let e' := r.expr
-  let e' ← unfoldReducible e'
+  let e' ← unfoldReducible' e'
   let e' ← abstractNestedProofs e'
   let e' ← markNestedSubsingletons e'
   let e' ← eraseIrrelevantMData e'

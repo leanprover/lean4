@@ -42,7 +42,6 @@ static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__12;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__42;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__6;
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isRuntimeBultinType___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_getConstInfo___at_____private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at_____private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f_spec__0___closed__3;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__3;
@@ -54,7 +53,9 @@ static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__20;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__28;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__25;
+LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_isRuntimeBuiltinType(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isRuntimeBuiltinType___boxed(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__43;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__16;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__14;
@@ -70,7 +71,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CasesInfo_numAlts(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_getConstInfo___at_____private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__7;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__38;
-LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_isRuntimeBultinType(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__41;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__32;
 static lean_object* l_Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_getCasesInfo_x3f_spec__1___closed__0;
@@ -1906,7 +1906,7 @@ x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__45;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_isRuntimeBultinType(lean_object* x_1) {
+LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_isRuntimeBuiltinType(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
@@ -1915,11 +1915,11 @@ x_3 = l_Array_contains___at___Lean_registerInternalExceptionId_spec__0(x_2, x_1)
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isRuntimeBultinType___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_isRuntimeBuiltinType___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_Compiler_LCNF_isRuntimeBultinType(x_1);
+x_2 = l_Lean_Compiler_LCNF_isRuntimeBuiltinType(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;

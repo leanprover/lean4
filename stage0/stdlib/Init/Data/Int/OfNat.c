@@ -18,11 +18,13 @@ LEAN_EXPORT lean_object* l_Int_OfNat_Expr_denote___boxed(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Int_OfNat_Expr_denoteAsInt___boxed(lean_object*, lean_object*);
 lean_object* lean_int_emod(lean_object*, lean_object*);
 lean_object* l_Lean_RArray_getImpl___redArg(lean_object*, lean_object*);
+uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_Expr_denote(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Int_pow(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_Var_denote___boxed(lean_object*, lean_object*);
+static lean_object* l_Int_Nonneg_num__cert___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_OfNat_0__Int_OfNat_Expr_denote_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_Var_denote(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_instBEqExpr;
@@ -32,12 +34,14 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_159____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_OfNat_0__Int_OfNat_Expr_denote_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Int_Nonneg_num__cert(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Int_OfNat_beqExpr____x40_Init_Data_Int_OfNat___hyg_159_(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* lean_int_ediv(lean_object*, lean_object*);
 static lean_object* l_Int_OfNat_instBEqExpr___closed__0;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Nonneg_num__cert___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Int_OfNat_Var_denote(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -585,6 +589,34 @@ x_10 = l___private_Init_Data_Int_OfNat_0__Int_OfNat_Expr_denote_match__1_splitte
 return x_10;
 }
 }
+static lean_object* _init_l_Int_Nonneg_num__cert___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT uint8_t l_Int_Nonneg_num__cert(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; 
+x_2 = l_Int_Nonneg_num__cert___closed__0;
+x_3 = lean_int_dec_le(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Int_Nonneg_num__cert___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Int_Nonneg_num__cert(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_DivMod(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Linear(uint8_t builtin, lean_object*);
@@ -610,6 +642,8 @@ l_Int_OfNat_instBEqExpr___closed__0 = _init_l_Int_OfNat_instBEqExpr___closed__0(
 lean_mark_persistent(l_Int_OfNat_instBEqExpr___closed__0);
 l_Int_OfNat_instBEqExpr = _init_l_Int_OfNat_instBEqExpr();
 lean_mark_persistent(l_Int_OfNat_instBEqExpr);
+l_Int_Nonneg_num__cert___closed__0 = _init_l_Int_Nonneg_num__cert___closed__0();
+lean_mark_persistent(l_Int_Nonneg_num__cert___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

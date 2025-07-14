@@ -88,6 +88,7 @@ lean_object* l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg___lam
 static lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__5;
 static lean_object* l_Lean_Compiler_LCNF_hasTrivialStructure_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instInhabitedTrivialStructureInfo;
+uint8_t l_Lean_Compiler_LCNF_isRuntimeBuiltinType(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_Compiler_LCNF_getRelevantCtorFields_spec__1___closed__0;
 lean_object* l_Lean_Compiler_LCNF_CacheExtension_insert___at___Lean_Compiler_LCNF_getOtherDeclBaseType_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -112,7 +113,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___lam__1___b
 static lean_object* l_Lean_Compiler_LCNF_reprTrivialStructureInfo___redArg___closed__17____x40_Lean_Compiler_LCNF_MonoTypes___hyg_258_;
 static lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hasTrivialStructure_x3f_fillCache(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Compiler_LCNF_isRuntimeBultinType(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_reprTrivialStructureInfo___redArg___closed__11____x40_Lean_Compiler_LCNF_MonoTypes___hyg_258_;
 uint8_t l_Lean_Expr_isErased(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___lam__1___closed__9;
@@ -1646,7 +1646,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hasTrivialStructure_x3f_fillCache(
 _start:
 {
 lean_object* x_5; uint8_t x_9; 
-x_9 = l_Lean_Compiler_LCNF_isRuntimeBultinType(x_1);
+x_9 = l_Lean_Compiler_LCNF_isRuntimeBuiltinType(x_1);
 if (x_9 == 0)
 {
 lean_object* x_10; 

@@ -72,6 +72,7 @@ static lean_object* l_Lean_IR_instReprArg___closed__0;
 LEAN_EXPORT uint8_t l_Lean_IR_CtorInfo_isScalar(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_reshapeAux___closed__3;
+LEAN_EXPORT uint8_t l_Lean_IR_IRType_isErased(lean_object*);
 static lean_object* l_Lean_IR_modifyJPs___closed__2;
 static lean_object* l_Lean_IR_instReprParam___closed__0;
 LEAN_EXPORT uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
@@ -91,7 +92,6 @@ lean_object* l_panic___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_reprIRType___closed__6____x40_Lean_Compiler_IR_Basic___hyg_714_;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_IR_addParamsRename_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_instInhabitedFnBody;
-LEAN_EXPORT lean_object* l_Lean_IR_IRType_isIrrelevant___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_reprJoinPointId____x40_Lean_Compiler_IR_Basic___hyg_282_(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_reprCtorInfo___redArg___closed__8____x40_Lean_Compiler_IR_Basic___hyg_1864_;
 LEAN_EXPORT lean_object* l_Lean_IR_reshapeAux(lean_object*, lean_object*, lean_object*);
@@ -127,10 +127,10 @@ LEAN_EXPORT lean_object* l_Array_isEqvAux___at___Lean_IR_beqIRType____x40_Lean_C
 LEAN_EXPORT lean_object* l_Lean_IR_reprVarId____x40_Lean_Compiler_IR_Basic___hyg_128____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_reprIRType___closed__17____x40_Lean_Compiler_IR_Basic___hyg_714_;
 LEAN_EXPORT lean_object* l_Lean_IR_FnBody_resetBody(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_IRType_isErased___boxed(lean_object*);
 lean_object* l_Lean_RBNode_appendTrees___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_reprIRType___closed__2____x40_Lean_Compiler_IR_Basic___hyg_714_;
 static lean_object* l_Array_Array_repr___at___Lean_IR_reprIRType____x40_Lean_Compiler_IR_Basic___hyg_714__spec__0___closed__5;
-LEAN_EXPORT uint8_t l_Lean_IR_IRType_isIrrelevant(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_Index_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_instBEqJoinPointId___closed__0;
 LEAN_EXPORT uint8_t l_Lean_IR_beqCtorInfo____x40_Lean_Compiler_IR_Basic___hyg_1742_(lean_object*, lean_object*);
@@ -1582,7 +1582,7 @@ static lean_object* _init_l_Lean_IR_reprIRType___closed__12____x40_Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.IR.IRType.irrelevant", 25, 25);
+x_1 = lean_mk_string_unchecked("Lean.IR.IRType.erased", 21, 21);
 return x_1;
 }
 }
@@ -2308,7 +2308,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_IR_IRType_isIrrelevant(lean_object* x_1) {
+LEAN_EXPORT uint8_t l_Lean_IR_IRType_isErased(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 6)
@@ -2325,11 +2325,11 @@ return x_3;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_IR_IRType_isIrrelevant___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_IR_IRType_isErased___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lean_IR_IRType_isIrrelevant(x_1);
+x_2 = l_Lean_IR_IRType_isErased(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
@@ -2421,7 +2421,7 @@ static lean_object* _init_l_Lean_IR_reprArg___closed__0____x40_Lean_Compiler_IR_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.IR.Arg.irrelevant", 22, 22);
+x_1 = lean_mk_string_unchecked("Lean.IR.Arg.erased", 18, 18);
 return x_1;
 }
 }

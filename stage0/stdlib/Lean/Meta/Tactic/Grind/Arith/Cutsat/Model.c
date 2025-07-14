@@ -727,7 +727,7 @@ lean_inc(x_12);
 lean_dec(x_5);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
-x_14 = lean_ctor_get(x_11, 14);
+x_14 = lean_ctor_get(x_11, 13);
 lean_inc(x_14);
 lean_dec(x_11);
 x_15 = l_Lean_PersistentHashMap_find_x3f___at___Lean_Meta_Grind_shareCommonAlpha_go_spec__0___redArg(x_13, x_12);

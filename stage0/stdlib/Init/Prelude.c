@@ -2783,7 +2783,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_uint8_to_nat(x_2);
 return x_3;
 }
@@ -2871,7 +2870,6 @@ _start:
 {
 uint16_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_uint16_to_nat(x_2);
 return x_3;
 }
@@ -2959,7 +2957,6 @@ _start:
 {
 uint32_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint32(x_1);
-lean_dec(x_1);
 x_3 = lean_uint32_to_nat(x_2);
 return x_3;
 }
@@ -3179,7 +3176,6 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
 x_3 = lean_uint64_to_nat(x_2);
 return x_3;
 }
@@ -3277,7 +3273,6 @@ _start:
 {
 size_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_usize(x_1);
-lean_dec(x_1);
 x_3 = lean_usize_to_nat(x_2);
 return x_3;
 }

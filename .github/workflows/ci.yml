@@ -240,7 +240,7 @@ jobs:
               },
               {
                 "name": "Windows",
-                "os": "windows-2022",
+                "os": large && level == 2 ? "namespace-profile-windows-amd64-4x16" : "windows-2022",
                 "release": true,
                 "check-level": 2,
                 "shell": "msys2 {0}",

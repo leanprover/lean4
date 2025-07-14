@@ -873,7 +873,7 @@ Examples:
 @[elab_as_elim]
 def evenOddRec {motive : Nat → Sort u}
     (even : ∀ n, motive (n * 2)) (odd : ∀ n, motive (n * 2 + 1))
-    (n : Nat) : motive n := ...
+    (n : Nat) : motive n := sorry
 
 -- simple usage
 example (a : Nat) : (a * a) % 2 = a % 2 :=

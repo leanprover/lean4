@@ -106,7 +106,7 @@ partial def normFnBody : FnBody → N FnBody
   | FnBody.mdata d b        => return FnBody.mdata d (← normFnBody b)
   | FnBody.case tid x xType alts => do
     let x ← normVar x
-    let alts ← alts.mapM fun alt => alt.mmodifyBody normFnBody
+    let alts ← alts.mapM fun alt => alt.modifyBodyM normFnBody
     return FnBody.case tid x xType alts
   | FnBody.jmp j ys        => return FnBody.jmp (← normJP j) (← normArgs ys)
   | FnBody.ret x           => return FnBody.ret (← normArg x)

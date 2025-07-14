@@ -279,7 +279,7 @@ def Alt.setBody : Alt → FnBody → Alt
   | Alt.ctor c b  => Alt.ctor c (f b)
   | Alt.default b => Alt.default (f b)
 
-@[inline] def Alt.mmodifyBody {m : Type → Type} [Monad m] (f : FnBody → m FnBody) : Alt → m Alt
+@[inline] def Alt.modifyBodyM {m : Type → Type} [Monad m] (f : FnBody → m FnBody) : Alt → m Alt
   | Alt.ctor c b  => Alt.ctor c <$> f b
   | Alt.default b => Alt.default <$> f b
 
@@ -314,7 +314,7 @@ def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
     | FnBody.jdecl j xs v k => FnBody.jdecl j xs (f v) k
     | other                 => other
 
-@[inline] def mmodifyJPs {m : Type → Type} [Monad m] (bs : Array FnBody) (f : FnBody → m FnBody) : m (Array FnBody) :=
+@[inline] def modifyJPsM {m : Type → Type} [Monad m] (bs : Array FnBody) (f : FnBody → m FnBody) : m (Array FnBody) :=
   bs.mapM fun b => match b with
     | FnBody.jdecl j xs v k => return FnBody.jdecl j xs (← f v) k
     | other                 => return other

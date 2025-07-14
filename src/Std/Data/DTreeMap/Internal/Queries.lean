@@ -538,7 +538,7 @@ def getEntryLTD [Ord α] (k : α) (t : Impl α β) (fallback : (a : α) × β a)
   t.getEntryLT? k |>.getD fallback
 
 /-- Implementation detail of the tree map -/
-def getEntryGE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) :
+def getEntryGE [Ord α] [TransOrd α] (k : α) :
     (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isGE) → (a : α) × β a
   | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
   | .inner _ ky y l r, ho, he => match hkky : compare k ky with
@@ -551,7 +551,7 @@ def getEntryGE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α]
       exact TransCmp.gt_of_isGE_of_gt hc hkky
 
 /-- Implementation detail of the tree map -/
-def getEntryGT [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) :
+def getEntryGT [Ord α] [TransOrd α] (k : α) :
     (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .gt) → (a : α) × β a
   | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
   | .inner _ ky y l r, ho, he => if hkky : compare k ky = .lt then
@@ -565,7 +565,7 @@ def getEntryGT [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α]
           simpa [← Ordering.isGE_eq_false, Bool.not_eq_false] using hkky
 
 /-- Implementation detail of the tree map -/
-def getEntryLE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) :
+def getEntryLE [Ord α] [TransOrd α] (k : α) :
     (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isLE) → (a : α) × β a
   | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
   | .inner _ ky y l r, ho, he => match hkky : compare k ky with
@@ -578,7 +578,7 @@ def getEntryLE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α]
       exact TransCmp.lt_of_isLE_of_lt hc hkky
 
 /-- Implementation detail of the tree map -/
-def getEntryLT [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α](k : α) :
+def getEntryLT [Ord α] [TransOrd α] (k : α) :
     (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .lt) → (a : α) × β a
   | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
   | .inner _ ky y l r, ho, he => if hkky : compare k ky = .gt then
@@ -678,7 +678,7 @@ def getKeyLTD [Ord α] (k : α) (t : Impl α β) (fallback : α) : α :=
   t.getKeyLT? k |>.getD fallback
 
 /-- Implementation detail of the tree map -/
-def getKeyGE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) :
+def getKeyGE [Ord α] [TransOrd α] (k : α) :
     (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isGE) → α
   | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
   | .inner _ ky y l r, ho, he => match hkky : compare k ky with
@@ -691,7 +691,7 @@ def getKeyGE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (
       exact TransCmp.gt_of_isGE_of_gt hc hkky
 
 /-- Implementation detail of the tree map -/
-def getKeyGT [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) :
+def getKeyGT [Ord α] [TransOrd α] (k : α) :
     (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .gt) → α
   | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
   | .inner _ ky y l r, ho, he => if hkky : compare k ky = .lt then
@@ -705,7 +705,7 @@ def getKeyGT [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (
           simpa [← Ordering.isGE_eq_false, Bool.not_eq_false] using hkky
 
 /-- Implementation detail of the tree map -/
-def getKeyLE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) :
+def getKeyLE [Ord α] [TransOrd α] (k : α) :
     (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isLE) → α
   | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
   | .inner _ ky y l r, ho, he => match hkky : compare k ky with
@@ -718,7 +718,7 @@ def getKeyLE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (
       exact TransCmp.lt_of_isLE_of_lt hc hkky
 
 /-- Implementation detail of the tree map -/
-def getKeyLT [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) :
+def getKeyLT [Ord α] [TransOrd α] (k : α) :
     (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .lt) → α
   | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
   | .inner _ ky y l r, ho, he => if hkky : compare k ky = .gt then
@@ -905,7 +905,7 @@ def getEntryLTD [Ord α] (k : α) (t : Impl α β) (fallback : α × β) : α ×
   getEntryLT? k t |>.getD fallback
 
 /-- Implementation detail of the tree map -/
-def getEntryGE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) :
+def getEntryGE [Ord α] [TransOrd α] (k : α) :
     (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isGE) → α × β
   | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
   | .inner _ ky y l r, ho, he => match hkky : compare k ky with
@@ -918,7 +918,7 @@ def getEntryGE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α]
       exact TransCmp.gt_of_isGE_of_gt hc hkky
 
 /-- Implementation detail of the tree map -/
-def getEntryGT [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) :
+def getEntryGT [Ord α] [TransOrd α] (k : α) :
     (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .gt) → α × β
   | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
   | .inner _ ky y l r, ho, he => if hkky : compare k ky = .lt then
@@ -932,7 +932,7 @@ def getEntryGT [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α]
           simpa [← Ordering.isGE_eq_false, Bool.not_eq_false] using hkky
 
 /-- Implementation detail of the tree map -/
-def getEntryLE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) :
+def getEntryLE [Ord α] [TransOrd α] (k : α) :
     (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isLE) → α × β
   | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
   | .inner _ ky y l r, ho, he => match hkky : compare k ky with
@@ -945,7 +945,7 @@ def getEntryLE [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α]
       exact TransCmp.lt_of_isLE_of_lt hc hkky
 
 /-- Implementation detail of the tree map -/
-def getEntryLT [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] (k : α) :
+def getEntryLT [Ord α] [TransOrd α] (k : α) :
     (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .lt) → α × β
   | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
   | .inner _ ky y l r, ho, he => if hkky : compare k ky = .gt then

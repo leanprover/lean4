@@ -67,7 +67,7 @@ structure DTreeMap (α : Type u) (β : α → Type v) (cmp : α → α → Order
   /-- Internal implementation detail of the tree map. -/
   inner : DTreeMap.Internal.Impl α β
   /-- Internal implementation detail of the tree map. -/
-  wf : letI : Ord α := ⟨cmp⟩; letI := Comparable.ofOrd α; inner.WF
+  wf : letI : Ord α := ⟨cmp⟩; inner.WF
 
 namespace DTreeMap
 open Internal (Impl)
@@ -79,7 +79,7 @@ use the empty collection notations `∅` and `{}` to create an empty tree map. `
 -/
 @[inline]
 def empty : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩; letI := Comparable.ofOrd α; ⟨Internal.Impl.empty, .empty⟩
+  letI : Ord α := ⟨cmp⟩; ⟨Internal.Impl.empty, .empty⟩
 
 instance : EmptyCollection (DTreeMap α β cmp) where
   emptyCollection := empty
@@ -104,9 +104,7 @@ key and value will be replaced.
 -/
 @[inline]
 def insert (t : DTreeMap α β cmp) (a : α) (b : β a) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  ⟨(t.inner.insert a b t.wf.balanced).impl, .insert t.wf⟩
+  letI : Ord α := ⟨cmp⟩; ⟨(t.inner.insert a b t.wf.balanced).impl, .insert t.wf⟩
 
 instance : Singleton ((a : α) × β a) (DTreeMap α β cmp) where
   singleton e := (∅ : DTreeMap α β cmp).insert e.1 e.2
@@ -123,9 +121,7 @@ returns the map unaltered.
 -/
 @[inline]
 def insertIfNew (t : DTreeMap α β cmp) (a : α) (b : β a) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α;
-  ⟨(t.inner.insertIfNew a b t.wf.balanced).impl, t.wf.insertIfNew⟩
+  letI : Ord α := ⟨cmp⟩; ⟨(t.inner.insertIfNew a b t.wf.balanced).impl, t.wf.insertIfNew⟩
 
 /--
 Checks whether a key is present in a map and unconditionally inserts a value for the key.
@@ -135,7 +131,6 @@ Equivalent to (but potentially faster than) calling `contains` followed by `inse
 @[inline]
 def containsThenInsert (t : DTreeMap α β cmp) (a : α) (b : β a) : Bool × DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
   let p := t.inner.containsThenInsert a b t.wf.balanced
   (p.1, ⟨p.2.impl, t.wf.containsThenInsert⟩)
 
@@ -150,7 +145,6 @@ Equivalent to (but potentially faster than) calling `contains` followed by `inse
 def containsThenInsertIfNew (t : DTreeMap α β cmp) (a : α) (b : β a) :
     Bool × DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
   let p := t.inner.containsThenInsertIfNew a b t.wf.balanced
   (p.1, ⟨p.2.impl, t.wf.containsThenInsertIfNew⟩)
 
@@ -169,7 +163,6 @@ Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
 def getThenInsertIfNew? [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (b : β a) :
     Option (β a) × DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
   let p := t.inner.getThenInsertIfNew? a b t.wf.balanced
   (p.1, ⟨p.2, t.wf.getThenInsertIfNew?⟩)
 
@@ -183,9 +176,7 @@ Observe that this is different behavior than for lists: for lists, `∈` uses `=
 -/
 @[inline]
 def contains (t : DTreeMap α β cmp) (a : α) : Bool :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  t.inner.contains a
+  letI : Ord α := ⟨cmp⟩; t.inner.contains a
 
 instance : Membership α (DTreeMap α β cmp) where
   mem m a := m.contains a
@@ -206,9 +197,7 @@ def isEmpty (t : DTreeMap α β cmp) : Bool :=
 /-- Removes the mapping for the given key if it exists. -/
 @[inline]
 def erase (t : DTreeMap α β cmp) (a : α) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  ⟨(t.inner.erase a t.wf.balanced).impl, .erase t.wf⟩
+  letI : Ord α := ⟨cmp⟩; ⟨(t.inner.erase a t.wf.balanced).impl, .erase t.wf⟩
 
 /--
 Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.
@@ -448,9 +437,7 @@ def entryAtIdx? (t : DTreeMap α β cmp) (n : Nat) : Option ((a : α) × β a) :
 /-- Returns the key-value pair with the `n`-th smallest key. -/
 @[inline]
 def entryAtIdx (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  Impl.entryAtIdx t.inner t.wf.balanced n h
+  letI : Ord α := ⟨cmp⟩; Impl.entryAtIdx t.inner t.wf.balanced n h
 
 /-- Returns the key-value pair with the `n`-th smallest key, or panics if `n` is at least `t.size`. -/
 @[inline]
@@ -475,9 +462,7 @@ def keyAtIndex? (t : DTreeMap α β cmp) (n : Nat) : Option α :=
 /-- Returns the `n`-th smallest key. -/
 @[inline]
 def keyAtIdx (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : α :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  Impl.keyAtIdx t.inner t.wf.balanced n h
+  letI : Ord α := ⟨cmp⟩; Impl.keyAtIdx t.inner t.wf.balanced n h
 
 @[inline, inherit_doc keyAtIdx, deprecated keyAtIdx (since := "2025-03-25")]
 def keyAtIndex (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : α :=
@@ -711,7 +696,6 @@ variable {β : Type v}
 def getThenInsertIfNew? (t : DTreeMap α β cmp) (a : α) (b : β) :
     Option β × DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
   let p := Impl.Const.getThenInsertIfNew? t.inner a b t.wf.balanced
   (p.1, ⟨p.2, t.wf.constGetThenInsertIfNew?⟩)
 
@@ -813,9 +797,7 @@ def entryAtIdx? (t : DTreeMap α β cmp) (n : Nat) : Option (α × β) :=
 
 @[inline, inherit_doc DTreeMap.entryAtIdx]
 def entryAtIdx (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : α × β :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  Impl.Const.entryAtIdx t.inner t.wf.balanced n h
+  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIdx t.inner t.wf.balanced n h
 
 @[inline, inherit_doc DTreeMap.entryAtIdx!]
 def entryAtIdx! [Inhabited (α × β)] (t : DTreeMap α β cmp) (n : Nat) : α × β :=
@@ -886,9 +868,7 @@ variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
 /-- Removes all mappings of the map for which the given function returns `false`. -/
 @[inline]
 def filter (f : (a : α) → β a → Bool) (t : DTreeMap α β cmp) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  ⟨t.inner.filter f t.wf.balanced |>.impl, t.wf.filter⟩
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.filter f t.wf.balanced |>.impl, t.wf.filter⟩
 
 /-- Folds the given monadic function over the mappings in the map in ascending order. -/
 @[inline]
@@ -1010,9 +990,7 @@ def toList (t : DTreeMap α β cmp) : List ((a : α) × β a) :=
 @[inline]
 def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) :
     DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  ⟨Impl.ofList l, Impl.WF.empty.insertMany⟩
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.ofList l, Impl.WF.empty.insertMany⟩
 
 @[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
 def fromList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
@@ -1027,9 +1005,7 @@ def toArray (t : DTreeMap α β cmp) : Array ((a : α) × β a) :=
 @[inline]
 def ofArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) :
     DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  ⟨Impl.ofArray a, Impl.WF.empty.insertMany⟩
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.ofArray a, Impl.WF.empty.insertMany⟩
 
 @[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
 def fromArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
@@ -1042,9 +1018,7 @@ This function ensures that the value is used linearly.
 -/
 @[inline]
 def modify [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (f : β a → β a) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  ⟨t.inner.modify a f, t.wf.modify⟩
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.modify a f, t.wf.modify⟩
 
 /--
 Modifies in place the value associated with a given key,
@@ -1055,9 +1029,7 @@ This function ensures that the value is used linearly.
 @[inline]
 def alter [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (f : Option (β a) → Option (β a)) :
     DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  ⟨t.inner.alter a f t.wf.balanced |>.impl, t.wf.alter⟩
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.alter a f t.wf.balanced |>.impl, t.wf.alter⟩
 
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
@@ -1077,9 +1049,7 @@ Hence, the runtime of this method scales logarithmically in the size of `t₁` a
 @[inline]
 def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : DTreeMap α β cmp) :
     DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  ⟨t₁.inner.mergeWith mergeFn t₂.inner t₁.wf.balanced |>.impl, t₁.wf.mergeWith⟩
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith mergeFn t₂.inner t₁.wf.balanced |>.impl, t₁.wf.mergeWith⟩
 
 @[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]
 def mergeBy [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : DTreeMap α β cmp) :
@@ -1097,7 +1067,6 @@ def toList (t : DTreeMap α β cmp) : List (α × β) :=
 @[inline, inherit_doc DTreeMap.ofList]
 def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compare) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
   ⟨Impl.Const.ofList l, Impl.WF.empty.constInsertMany⟩
 
 @[inline, inherit_doc DTreeMap.toArray]
@@ -1107,39 +1076,31 @@ def toArray (t : DTreeMap α β cmp) : Array (α × β) :=
 @[inline, inherit_doc DTreeMap.ofList]
 def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
   ⟨Impl.Const.ofArray a, Impl.WF.empty.constInsertMany⟩
 
 /-- Transforms a list of keys into a tree map. -/
 @[inline]
 def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : DTreeMap α Unit cmp :=
   letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
   ⟨Impl.Const.unitOfList l, Impl.WF.empty.constInsertManyIfNewUnit⟩
 
 /-- Transforms an array of keys into a tree map. -/
 @[inline]
 def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : DTreeMap α Unit cmp :=
   letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
   ⟨Impl.Const.unitOfArray a, Impl.WF.empty.constInsertManyIfNewUnit⟩
 
 @[inline, inherit_doc DTreeMap.modify]
 def modify (t : DTreeMap α β cmp) (a : α) (f : β → β) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  ⟨Impl.Const.modify a f t.inner, t.wf.constModify⟩
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.modify a f t.inner, t.wf.constModify⟩
 
 @[inline, inherit_doc DTreeMap.alter]
 def alter (t : DTreeMap α β cmp) (a : α) (f : Option β → Option β) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  ⟨Impl.Const.alter a f t.inner t.wf.balanced |>.impl, t.wf.constAlter⟩
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.alter a f t.inner t.wf.balanced |>.impl, t.wf.constAlter⟩
 
 @[inline, inherit_doc DTreeMap.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
+  letI : Ord α := ⟨cmp⟩;
   ⟨Impl.Const.mergeWith mergeFn t₁.inner t₂.inner t₁.wf.balanced |>.impl, t₁.wf.constMergeWith⟩
 
 @[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]
@@ -1158,9 +1119,7 @@ appearance.
 -/
 @[inline]
 def insertMany {ρ} [ForIn Id ρ ((a : α) × β a)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  ⟨t.inner.insertMany l t.wf.balanced, t.wf.insertMany⟩
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertMany l t.wf.balanced, t.wf.insertMany⟩
 
 /--
 Erases multiple mappings from the tree map by iterating over the given collection and calling
@@ -1168,9 +1127,7 @@ Erases multiple mappings from the tree map by iterating over the given collectio
 -/
 @[inline]
 def eraseMany {ρ} [ForIn Id ρ α] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  ⟨t.inner.eraseMany l t.wf.balanced, t.wf.eraseMany⟩
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany l t.wf.balanced, t.wf.eraseMany⟩
 
 namespace Const
 
@@ -1178,9 +1135,7 @@ variable {β : Type v}
 
 @[inline, inherit_doc DTreeMap.insertMany]
 def insertMany {ρ} [ForIn Id ρ (α × β)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
-  ⟨Impl.Const.insertMany t.inner l t.wf.balanced, t.wf.constInsertMany⟩
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.insertMany t.inner l t.wf.balanced, t.wf.constInsertMany⟩
 
 /--
 Inserts multiple elements into the tree map by iterating over the given collection and calling
@@ -1188,8 +1143,7 @@ Inserts multiple elements into the tree map by iterating over the given collecti
 -/
 @[inline]
 def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : DTreeMap α Unit cmp) (l : ρ) : DTreeMap α Unit cmp :=
-  letI : Ord α := ⟨cmp⟩
-  letI := Comparable.ofOrd α
+  letI : Ord α := ⟨cmp⟩;
   ⟨Impl.Const.insertManyIfNewUnit t.inner l t.wf.balanced, t.wf.constInsertManyIfNewUnit⟩
 
 end Const

@@ -79,10 +79,9 @@ implementation details and should not be accessed by users.
 -/
 structure WF (t : Raw α β cmp) where
   /-- Internal implementation detail of the tree map. -/
-  out : letI : Ord α := ⟨cmp⟩; letI := Comparable.ofOrd α; t.inner.WF
+  out : letI : Ord α := ⟨cmp⟩; t.inner.WF
 
-instance {t : Raw α β cmp} :
-    Coe t.WF (letI : Ord α := ⟨cmp⟩; letI := Comparable.ofOrd α; t.inner.WF) where
+instance {t : Raw α β cmp} : Coe t.WF (letI : Ord α := ⟨cmp⟩; t.inner.WF) where
   coe h := h.out
 
 @[inline, inherit_doc DTreeMap.empty]

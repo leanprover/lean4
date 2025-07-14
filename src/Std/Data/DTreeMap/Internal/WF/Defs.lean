@@ -5,7 +5,6 @@ Authors: Markus Himmel, Paul Reichert
 -/
 prelude
 import Std.Data.DTreeMap.Internal.Operations
-import Std.Classes.Ord.New.LinearPreorder
 
 /-!
 # Well-formedness predicate on size-bounded trees
@@ -29,9 +28,9 @@ namespace Std.DTreeMap.Internal
 namespace Impl
 
 /-- Well-formedness of tree maps. -/
-inductive WF [Ord α] [Comparable α] : {β : α → Type v} → Impl α β → Prop where
+inductive WF [Ord α] : {β : α → Type v} → Impl α β → Prop where
   /-- This is the actual well-formedness invariant: the tree must be a balanced BST. -/
-  | wf {t} : Balanced t → (∀ [LawfulLinearPreorder α], Ordered t) → WF t
+  | wf {t} : Balanced t → (∀ [TransOrd α], Ordered t) → WF t
   /-- The empty tree is well-formed. Later shown to be subsumed by `.wf`. -/
   | empty : WF .empty
   /-- `insert` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
@@ -63,31 +62,30 @@ inductive WF [Ord α] [Comparable α] : {β : α → Type v} → Impl α β → 
 A well-formed tree is balanced. This is needed here already because we need to know that the
 tree is balanced to call the optimized modification functions.
 -/
-theorem WF.balanced [Ord α] [Comparable α] {t : Impl α β} (h : WF t) : t.Balanced := by
+theorem WF.balanced [Ord α] {t : Impl α β} (h : WF t) : t.Balanced := by
   induction h <;> (try apply SizedBalancedTree.balanced_impl) <;> try apply BalancedTree.balanced_impl
   case wf htb hto => exact htb
   case empty => exact balanced_empty
   case modify ih => exact balanced_modify ih
   case constModify ih => exact Const.balanced_modify ih
 
-theorem WF.eraseMany [Ord α] [Comparable α] {ρ} [ForIn Id ρ α] {t : Impl α β} {l : ρ} {h}
-    (hwf : WF t) : WF (t.eraseMany l h).val :=
+theorem WF.eraseMany [Ord α] {ρ} [ForIn Id ρ α] {t : Impl α β} {l : ρ} {h} (hwf : WF t) :
+    WF (t.eraseMany l h).val :=
   (t.eraseMany l h).2 hwf fun _ _ _ hwf' => hwf'.erase
 
-theorem WF.insertMany [Ord α] [Comparable α] {ρ} [ForIn Id ρ ((a : α) × β a)] {t : Impl α β} {l : ρ}
-    {h} (hwf : WF t) : WF (t.insertMany l h).val :=
+theorem WF.insertMany [Ord α] {ρ} [ForIn Id ρ ((a : α) × β a)] {t : Impl α β} {l : ρ} {h} (hwf : WF t) :
+    WF (t.insertMany l h).val :=
   (t.insertMany l h).2 hwf fun _ _ _ _ hwf' => hwf'.insert
 
-theorem WF.constInsertMany [Ord α] [Comparable α] {β : Type v} {ρ} [ForIn Id ρ (α × β)]
-    {t : Impl α (fun _ => β)} {l : ρ} {h} (hwf : WF t) : WF (Impl.Const.insertMany t l h).val :=
+theorem WF.constInsertMany [Ord α] {β : Type v} {ρ} [ForIn Id ρ (α × β)] {t : Impl α (fun _ => β)}
+    {l : ρ} {h} (hwf : WF t) : WF (Impl.Const.insertMany t l h).val :=
   (Impl.Const.insertMany t l h).2 hwf fun _ _ _ _ hwf' => hwf'.insert
 
-theorem WF.constInsertManyIfNewUnit [Ord α] [Comparable α] {ρ} [ForIn Id ρ α]
-    {t : Impl α (fun _ => Unit)} {l : ρ} {h}
-    (hwf : WF t) : WF (Impl.Const.insertManyIfNewUnit t l h).val :=
+theorem WF.constInsertManyIfNewUnit [Ord α] {ρ} [ForIn Id ρ α] {t : Impl α (fun _ => Unit)} {l : ρ}
+    {h} (hwf : WF t) : WF (Impl.Const.insertManyIfNewUnit t l h).val :=
   (Impl.Const.insertManyIfNewUnit t l h).2 hwf fun _ _ _ hwf' => hwf'.insertIfNew
 
-theorem WF.getThenInsertIfNew? [Ord α] [Comparable α] [LawfulEqOrd α] {t : Impl α β} {k v} {h : t.WF} :
+theorem WF.getThenInsertIfNew? [Ord α] [LawfulEqOrd α] {t : Impl α β} {k v} {h : t.WF} :
     (t.getThenInsertIfNew? k v h.balanced).2.WF := by
   simp only [Impl.getThenInsertIfNew?]
   split
@@ -98,7 +96,7 @@ section Const
 
 variable {β : Type v}
 
-theorem WF.constGetThenInsertIfNew? [Ord α] [Comparable α] {t : Impl α β} {k v} {h : t.WF} :
+theorem WF.constGetThenInsertIfNew? [Ord α] {t : Impl α β} {k v} {h : t.WF} :
     (Impl.Const.getThenInsertIfNew? t k v h.balanced).2.WF := by
   simp only [Impl.Const.getThenInsertIfNew?]
   split

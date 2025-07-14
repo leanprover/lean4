@@ -5,7 +5,6 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Classes.Ord.Basic
-import Std.Classes.Ord.New.LinearPreorder
 
 set_option autoImplicit false
 
@@ -13,54 +12,47 @@ universe u
 
 namespace Std.Internal
 
-class IsCut {α : Type u} [Comparable α] (cut : α → Ordering) where
-  lt {k k'} : cut k' = .lt → k' < k → cut k = .lt
-  gt {k k'} : cut k' = .gt → k < k' → cut k = .gt
+class IsCut {α : Type u} (cmp : α → α → Ordering) (cut : α → Ordering) where
+  lt {k k'} : cut k' = .lt → cmp k' k = .lt → cut k = .lt
+  gt {k k'} : cut k' = .gt → cmp k' k = .gt → cut k = .gt
 
--- TODO: It is not nice that we need an `Ord` instance here
-class IsStrictCut {α : Type u} [Ord α] [Comparable α] (cut : α → Ordering) extends IsCut cut where
-  eq (k) {k'} : cut k' = .eq → cut k = compare k' k
+class IsStrictCut {α : Type u} (cmp : α → α → Ordering) (cut : α → Ordering) extends IsCut cmp cut where
+  eq (k) {k'} : cut k' = .eq → cut k = cmp k' k
 
 variable {α : Type u} {cmp : α → α → Ordering} {cut : α → Ordering}
 
-theorem IsStrictCut.gt_of_isGE_of_gt [Ord α] [Comparable α] [LawfulOrd α]
-    [LawfulOrientedComparable α] [IsStrictCut cut] {k k' : α} :
-    (cut k').isGE → k < k' → cut k = .gt := by
+theorem IsStrictCut.gt_of_isGE_of_gt [IsStrictCut cmp cut] {k k' : α} :
+    (cut k').isGE → cmp k' k = .gt → cut k = .gt := by
   cases h₁ : cut k' with
   | lt => rintro ⟨⟩
   | gt => exact fun _ => IsCut.gt h₁
-  | eq => exact fun h₂ h₃ => by simp [IsStrictCut.eq k h₁, Comparable.compare_eq_gt_iff_gt, h₃]
+  | eq => exact fun h₂ h₃ => by rw [← h₃, IsStrictCut.eq (cmp := cmp) k h₁]
 
-theorem IsStrictCut.lt_of_isLE_of_lt [Ord α] [Comparable α] [LawfulOrd α] [LawfulComparable α]
-    [IsStrictCut cut] {k k' : α} :
-    (cut k').isLE → k' < k → cut k = .lt := by
+theorem IsStrictCut.lt_of_isLE_of_lt [IsStrictCut cmp cut] {k k' : α} :
+    (cut k').isLE → cmp k' k = .lt → cut k = .lt := by
   cases h₁ : cut k' with
   | gt => rintro ⟨⟩
   | lt => exact fun _ => IsCut.lt h₁
-  | eq => exact fun h₂ h₃ => by simp [IsStrictCut.eq k h₁, Comparable.compare_eq_lt_iff_lt, h₃]
+  | eq => exact fun h₂ h₃ => by rw [← h₃, IsStrictCut.eq (cmp := cmp) k h₁]
 
-instance {_ : Ord α} [Comparable α] [LawfulLinearPreorder α] [LawfulOrd α] {k : α} :
-    IsStrictCut (compare k) where
-  lt h₁ h₂ := by
-    simp only [Comparable.compare_eq_lt_iff_lt] at ⊢ h₁
-    exact Trans.trans h₁ h₂
-  gt h₁ h₂ := by
-    simp only [Comparable.compare_eq_gt_iff_gt] at ⊢ h₁
-    exact Trans.trans h₂ h₁
+instance [Ord α] [TransOrd α] {k : α} : IsStrictCut compare (compare k) where
+  lt := TransCmp.lt_trans
+  gt h₁ h₂ := OrientedCmp.gt_of_lt (TransCmp.lt_trans (OrientedCmp.lt_of_gt h₂)
+    (OrientedCmp.lt_of_gt h₁))
   eq _ _ := TransCmp.congr_left
 
-instance [Ord α] [Comparable α] : IsStrictCut (fun _ : α => .lt) where
+instance [Ord α] : IsStrictCut (compare : α → α → Ordering) (fun _ => .lt) where
   lt := by simp
   gt := by simp
   eq := by simp
 
-instance [Ord α] [Comparable α] [LawfulOrd α] [LawfulLinearPreorder α] {k : α} :
-    IsStrictCut fun k' => (compare k k').then .gt where
-  lt {_ _} := by simpa [Ordering.then_eq_lt, Comparable.compare_eq_lt_iff_lt] using Trans.trans
+instance [Ord α] [TransOrd α] {k : α} : IsStrictCut compare fun k' => (compare k k').then .gt where
+  lt {_ _} := by simpa [Ordering.then_eq_lt] using TransCmp.lt_trans
   eq {_ _} := by simp [Ordering.then_eq_eq]
-  gt {_ _} := by
-    simp [Ordering.then_eq_gt, ← Ordering.isGE_iff_eq_gt_or_eq_eq, ← Comparable.compare_eq_gt_iff_gt]
-    intro h₁ h₂
-    exact TransOrd.isGE_trans h₁ (Ordering.isGE_of_eq_gt h₂)
+  gt h h' := by
+    simp only [Ordering.then_eq_gt, and_true] at h ⊢
+    rcases h with (h | h)
+    · exact .inl (TransCmp.gt_trans h h')
+    · exact .inl (TransCmp.gt_of_eq_of_gt h h')
 
 end Std.Internal

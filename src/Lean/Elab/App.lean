@@ -850,21 +850,28 @@ def getElabElimInfo (elimName : Name) : MetaM ElabElimInfo := do
 /--
 Instructs the elaborator that applications of this function should be elaborated like an eliminator.
 
-An eliminator is a function that returns an application of a "motive" which is a parameter of the
-form `_ → ... → Sort _`, i.e. a function that takes in a certain amount of arguments (referred to
-as major premises) and returns a type in some universe. The `rec` and `casesOn` functions of
-inductive types are automatically treated as eliminators, for other functions this attribute needs
-to be used.
+An eliminator is a function that returns an application of a "motive." A motive is a parameter `p`
+whose type is of the form `(x₁ : _) → … → (xₙ : _) → Sort _`, i.e., a function that takes in some
+number of arguments (referred to as "major premises") and returns a type. The arguments `x₁`
+through `xₙ` of the motive can be arbitrary expressions. When elaborating an eliminator application,
+Lean first solves for `p` by matching `p x₁ … xₙ` against the expected type, then replacing `xₙ`
+through `x₁` (in that order) with variables to obtain the body of `p`. The elaborator will throw an
+error if this process fails (i.e., the resulting motive is not type-correct) or if the expected type
+cannot be determined.
 
 Eliminator elaboration can be compared to the `induction` tactic: The expected type is used as the
 return value of the motive, with occurrences of the major premises replaced with the arguments.
 When more arguments are specified than necessary, the remaining arguments are reverted into the
 expected type.
 
+The automatically-generated `rec` and `casesOn` functions of inductive types are always elaborated
+as eliminators. Any other functions must be tagged with this attribute in order to be elaborated in
+this fashion.
+
 Examples:
 ```lean example
 @[elab_as_elim]
-def evenOddRecOn {motive : Nat → Sort u}
+def evenOddRec {motive : Nat → Sort u}
     (even : ∀ n, motive (n * 2)) (odd : ∀ n, motive (n * 2 + 1))
     (n : Nat) : motive n := ...
 
@@ -886,6 +893,11 @@ example (a : Nat) (f : Nat → Nat) : (f a + 1) % 2 ≠ f a :=
   Similar to before, except `f a` is substituted: `motive := fun n => (n + 1) % 2 ≠ n`.
   Now the first hole has expected type `∀ n, (n * 2 + 1) % 2 ≠ n * 2`.
   Now the second hole has expected type `∀ n, (n * 2 + 1 + 1) % 2 ≠ n * 2 + 1`.
+
+  Note that while this might appear to work even if the `elab_as_elim` attribute is omitted from
+  `evenOddRec`, the inferred motive if one does so (`fun n => (f a + 1) % 2 ≠ n`) is, in fact,
+  insufficiently general: the first hole, for example, ends up with expected type
+  `∀ (n : Nat), (f a + 1) % 2 ≠ n * 2`, leaving the first `f a` unsubstituted.
   -/
 
 -- more parameters

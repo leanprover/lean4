@@ -182,6 +182,11 @@ def deriveInduction (name : Name) : MetaM Unit := do
           let motives ← unfoldPredRelMutualArray eqnInfo args[0]! (←inferType args[1]!) (reduceConclusion := true)
           motives.mapM (fun x => mkForallFVars #[args[0]!] x)
 
+        let names := eqnInfo.declNames.map (· ++ `candidate)
+        let predicates := names.zip <| infos.map (·.type)
+
+        trace[Elab.definition.partialFixpoint.induction] "Type: {predicates}"
+
         -- We unfold the definition of partial ordering on the premises
         withLocalDecl `predicate BinderInfo.default α fun predVar => do
           let newMotives ← motives.mapM (fun x => instantiateForall x #[predVar])

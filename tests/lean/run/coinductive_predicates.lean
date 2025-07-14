@@ -1,3 +1,5 @@
+set_option trace.Elab.definition.partialFixpoint.induction true
+
 -- Coinductive predicate definition
 def infseq {α} (R : α → α → Prop) : α → Prop :=
   λ x : α => ∃ y, R x y ∧ infseq R y

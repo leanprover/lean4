@@ -258,12 +258,6 @@ structure Environment where
   `getModuleIREntries`.
   -/
   private irBaseExts      : Array EnvExtensionState
-  /--
-  Constant names to be saved in the field `extraConstNames` at `ModuleData`.
-  It contains auxiliary declaration names created by the code generator which are not in `constants`.
-  When importing modules, we want to insert them at `const2ModIdx`.
-  -/
-  private extraConstNames : NameSet
   /-- The header contains additional information that is set at import time. -/
   header                  : EnvironmentHeader := {}
 deriving Nonempty
@@ -1146,19 +1140,6 @@ not block.
 def containsOnBranch (env : Environment) (n : Name) : Bool :=
   (env.asyncConsts.find? n |>.isSome) || (env.base.get env).constants.contains n
 
-/--
-Save an extra constant name that is used to populate `const2ModIdx` when we import
-.olean files. We use this feature to save in which module an auxiliary declaration
-created by the code generator has been created.
--/
-def addExtraName (env : Environment) (name : Name) : Environment :=
-  -- Private definitions are not exported but may still have relevant IR for other modules.
-  -- TODO: restrict to relevant defs that are `meta`/inlining-relevant/...
-  if env.setExporting true |>.contains name then
-    env
-  else
-    env.modifyCheckedAsync fun env => { env with extraConstNames := env.extraConstNames.insert name }
-
 def setMainModule (env : Environment) (m : Name) : Environment := Id.run do
   let env := env.modifyCheckedAsync ({ · with
     header.mainModule := m
@@ -1473,7 +1454,6 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
       const2ModIdx    := {}
       constants       := {}
       header          := { trustLevel }
-      extraConstNames := {}
       extensions      := exts
       irBaseExts      := exts
     }
@@ -2129,7 +2109,6 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let privateBase : Kernel.Environment := {
     const2ModIdx, constants := privateConstants
     quotInit        := !imports.isEmpty -- We assume `Init.Prelude` initializes quotient module
-    extraConstNames := {}
     extensions      := exts
     irBaseExts      := exts
     header     := {

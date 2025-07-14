@@ -264,7 +264,7 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
 Add a `Value` for a function name.
 -/
 def addFunctionSummary (env : Environment) (fid : Name) (v : Value) : Environment :=
-  functionSummariesExt.addEntry (env.addExtraName fid) (fid, v)
+  functionSummariesExt.addEntry env (fid, v)
 
 /--
 Obtain the `Value` for a function name if possible.

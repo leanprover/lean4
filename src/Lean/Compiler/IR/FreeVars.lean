@@ -28,8 +28,8 @@ instance : AndThen Collector where
   andThen a b := seq a (b ())
 
 private def collectArg : Arg → Collector
-  | Arg.var x  => collectVar x
-  | _          => skip
+  | .var x  => collectVar x
+  | .erased => skip
 
 private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
   fun m => as.foldl (fun m a => f a m) m
@@ -124,8 +124,8 @@ instance : AndThen Collector where
   andThen a b := seq a (b ())
 
 private def collectArg : Arg → Collector
-  | Arg.var x  => collectVar x
-  | _          => skip
+  | .var x  => collectVar x
+  | .erased => skip
 
 private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
   fun bv fv => as.foldl (fun fv a => f a bv fv) fv
@@ -184,8 +184,8 @@ def visitVar (w : Index) (x : VarId) : Bool := w == x.idx
 def visitJP (w : Index) (x : JoinPointId) : Bool := w == x.idx
 
 def visitArg (w : Index) : Arg → Bool
-  | Arg.var x => visitVar w x
-  | _         => false
+  | .var x => visitVar w x
+  | .erased => false
 
 def visitArgs (w : Index) (xs : Array Arg) : Bool :=
   xs.any (visitArg w)

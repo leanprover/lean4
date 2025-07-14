@@ -47,8 +47,8 @@ def emitLns {α : Type} [ToString α] (as : List α) : M Unit :=
 
 def argToCString (x : Arg) : String :=
   match x with
-  | Arg.var x => toString x
-  | _         => "lean_box(0)"
+  | .var x => toString x
+  | .erased => "lean_box(0)"
 
 def emitArg (x : Arg) : M Unit :=
   emit (argToCString x)
@@ -540,8 +540,8 @@ def isTailCall (x : VarId) (v : Expr) (b : FnBody) : M Bool := do
 
 def paramEqArg (p : Param) (x : Arg) : Bool :=
   match x with
-  | Arg.var x => p.x == x
-  | _ => false
+  | .var x => p.x == x
+  | .erased => false
 
 /--
 Given `[p_0, ..., p_{n-1}]`, `[y_0, ..., y_{n-1}]`, representing the assignments

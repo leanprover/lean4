@@ -548,8 +548,8 @@ def emitLhsSlotStore (builder : LLVM.Builder llvmctx)
 def emitArgSlot_ (builder : LLVM.Builder llvmctx)
     (x : Arg) : M llvmctx (LLVM.LLVMType llvmctx × LLVM.Value llvmctx) := do
   match x with
-  | Arg.var x => emitLhsSlot_ x
-  | _ => do
+  | .var x => emitLhsSlot_ x
+  | .erased => do
     let slotty ← LLVM.voidPtrType llvmctx
     let slot ← buildPrologueAlloca builder slotty "erased_slot"
     let v ← callLeanBox builder (← constIntSizeT 0) "erased_val"

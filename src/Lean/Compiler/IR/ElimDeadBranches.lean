@@ -158,8 +158,8 @@ def findVarValue (x : VarId) : M Value := do
 
 def findArgValue (arg : Arg) : M Value :=
   match arg with
-  | Arg.var x => findVarValue x
-  | _         => pure top
+  | .var x => findVarValue x
+  | .erased => pure top
 
 def updateVarAssignment (x : VarId) (v : Value) : M Unit := do
   let v' ← findVarValue x

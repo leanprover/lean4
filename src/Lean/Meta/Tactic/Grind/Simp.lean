@@ -19,7 +19,11 @@ namespace Lean.Meta.Grind
 def simpCore (e : Expr) : GrindM Simp.Result := do profileitM Exception "grind simp" (← getOptions) do
   let simp ← modifyGet fun s => (s.simp, { s with simp := {} })
   let ctx := (← readThe Context).simp
-  let (r, simp) ← Simp.mainCore e ctx simp (methods := (← readThe Context).simpMethods)
+  let m := (← get).scState.map
+  let skipIfInShareCommon : Simp.Simproc := fun e => if m.contains { expr := e } then return .done { expr := e } else return .continue
+  let methods := (← readThe Context).simpMethods
+  let methods := { methods with pre := skipIfInShareCommon >> methods.pre }
+  let (r, simp) ← Simp.mainCore e ctx simp (methods := methods)
   modify fun s => { s with simp }
   return r
 

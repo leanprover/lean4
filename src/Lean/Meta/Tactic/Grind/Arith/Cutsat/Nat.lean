@@ -86,7 +86,6 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
       -- nested instances to be marked and canonicalized
       let r ← simpCore r
       let h ← if let some h' := r.proof? then mkEqTrans h h' else pure h
-      -- TODO: we need a more efficient `markNestedSubsingleton
       let r ← markNestedSubsingletons r.expr
       return (r, h)
     else

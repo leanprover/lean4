@@ -79,31 +79,26 @@ def unfoldPredRel (predType : Expr) (lhs rhs : Expr) (fixpointType : PartialFixp
         let impl ← mkArrow applied.1 applied.2
         mkForallFVars exprs impl
 
-def unfoldPredRelMutual (eqnInfo : EqnInfo) (predicate : Expr) (body : Expr) (reduceConclusion : Bool := false) : MetaM Expr := do
-  let_expr Lean.Order.PartialOrder.rel _ _ lhs rhs := body
+/--
+Unfolds a PartialOrder relation between tuples of predicates into an array of quantified implications.
+
+This function handles mutual recursion cases where we have a tuple of predicates being compared. For each predicate in the tuple it projects out the corresponding components from both sides of the relation and unfolds the partial order relation into quantified implications using `unfoldPredRel`
+
+Parameters:
+- `eqnInfo`: Equation information containing declaration names and fixpoint types for each predicate in the mutual block
+- `body`: The partial order relation expression to unfold
+- `reduceConclusion`: Optional parameter (defaults to false) that determines whether to perform weak head normalization on the conclusion
+
+Returns:
+An array of expressions, where each element represents the unfolded implication for the corresponding predicate in the mutual block.
+-/
+def unfoldPredRelMutual (eqnInfo : EqnInfo) (body : Expr) (reduceConclusion : Bool := false) : MetaM (Array Expr) := do
+  let_expr Lean.Order.PartialOrder.rel α _ lhs rhs := body
     | throwError "{body} is not an application of partial order"
   let infos ← eqnInfo.declNames.mapM getConstInfoDefn
   -- We get types of each of the predicates in the tuple
-  let mut predTypes : Array Expr := #[]
-  for i in [:infos.size] do
-    let exprAtI ← PProdN.projM infos.size i predicate
-    predTypes := predTypes.push (←inferType exprAtI)
-
-  -- We unfold the order for each of the elements of the tuple independently
-  PProdN.pack 0 <| ←infos.mapIdxM fun i _ => do
-    let lhs ← PProdN.reduceProjs (←PProdN.projM infos.size i lhs)
-    unfoldPredRel predTypes[i]! lhs (← PProdN.projM infos.size i rhs) eqnInfo.fixpointType[i]! reduceConclusion
-
-def unfoldPredRelMutualArray (eqnInfo : EqnInfo) (predicate : Expr) (body : Expr) (reduceConclusion : Bool := false) : MetaM (Array Expr) := do
-  let_expr Lean.Order.PartialOrder.rel _ _ lhs rhs := body
-    | throwError "{body} is not an application of partial order"
-  let infos ← eqnInfo.declNames.mapM getConstInfoDefn
-  -- We get types of each of the predicates in the tuple
-  let mut predTypes : Array Expr := #[]
-  for i in [:infos.size] do
-    let exprAtI ← PProdN.projM infos.size i predicate
-    predTypes := predTypes.push (←inferType exprAtI)
-
+  let predTypes ← PProdN.unpack α
+  trace[Elab.definition.partialFixpoint.induction] "predTypes: {predTypes}"
   -- We unfold the order for each of the elements of the tuple independently
   infos.mapIdxM fun i _ => do
     let lhs ← PProdN.reduceProjs (←PProdN.projM infos.size i lhs)
@@ -170,12 +165,13 @@ def deriveInduction (name : Name) : MetaM Unit := do
           let_expr PartialOrder.rel α pord _ pred := body
             | throwError "Unexpected function type {body}, not an application of PartialOrder.rel"
           let newBody ← mkAppOptM ``PartialOrder.rel #[α, pord, packedConclusion, pred]
-          let newBody ← unfoldPredRelMutual eqnInfo args[0]! newBody
+          let unfolded ← unfoldPredRelMutual eqnInfo newBody
+          let newBody ← PProdN.pack 0 unfolded
           mkForallFVars args newBody
         let e' ← mkExpectedTypeHint e' eTyp
         -- We obtain the premises of (co)induction proof principle
         let motives ← forallTelescope eTyp fun args _ => do
-          let motives ← unfoldPredRelMutualArray eqnInfo args[0]! (←inferType args[1]!) (reduceConclusion := true)
+          let motives ← unfoldPredRelMutual eqnInfo (←inferType args[1]!) (reduceConclusion := true)
           motives.mapM (fun x => mkForallFVars #[args[0]!] x)
         -- For each predicate in the mutual group we generate an approprate candidate predicate
         let predicates := (numberNames infos.size "pred").zip <| ← PProdN.unpack α

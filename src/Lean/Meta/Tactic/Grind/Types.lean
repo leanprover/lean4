@@ -327,6 +327,16 @@ def shareCommon (e : Expr) : GrindM Expr := do
   modify fun s => { s with scState }
   return e
 
+/--
+Returns `true` if `e` has already been hash-consed.
+Recall that we use `shareCommon` as the last step of the preprocessing
+function `preprocess`.
+Later, we create terms using new terms that have already been preprocessed,
+and we skip preprocessing steps by checking whether `inShareCommon` returns `true`
+-/
+def inShareCommon (e : Expr) : GrindM Bool := do
+  return (← get).scState.map.contains { expr := e }
+
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=
   return isSameExpr e (← getTrueExpr)

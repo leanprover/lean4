@@ -265,19 +265,23 @@ private def fetchImportInfo
         if imp.importAll || notModule then
           {info with
             directArts := info.directArts.insert mod.name impInfo.allArts
-            trace := info.trace.mix impInfo.allTransTrace.withoutInputs |>.mix impInfo.allArtsTrace.withoutInputs
+            trace := info.trace.mix impInfo.allTransTrace |>.mix impInfo.allArtsTrace.withoutInputs
           }
         else
           {info with
             directArts := info.directArts.insert mod.name impInfo.arts
-            trace := info.trace.mix impInfo.transTrace.withoutInputs |>.mix impInfo.artsTrace.withoutInputs
+            trace := info.trace.mix impInfo.transTrace |>.mix impInfo.artsTrace.withoutInputs
           }
       if imp.isExported then
         {info with
-          transTrace := info.transTrace.mix
-            impInfo.transTrace.withoutInputs |>.mix impInfo.artsTrace.withoutInputs
-          allTransTrace := info.allTransTrace.mix
-            impInfo.allTransTrace.withoutInputs |>.mix impInfo.allArtsTrace.withoutInputs
+          transTrace := info.transTrace
+            |>.mix impInfo.transTrace
+            |>.mix impInfo.artsTrace.withoutInputs
+            |>.withoutInputs
+          allTransTrace := info.allTransTrace
+            |>.mix impInfo.allTransTrace
+            |>.mix impInfo.allArtsTrace.withoutInputs
+            |>.withoutInputs
         }
       else
         info
@@ -510,9 +514,9 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
   ensure all logs end up under its caption in the job monitor.
   -/
   withRegisterJob mod.name.toString do
-  let directImports ← (← mod.imports.fetch).await
   let setupJob ← mod.setup.fetch
   let leanJob ← mod.lean.fetch
+  let importJob ← mod.imports.fetch
   setupJob.mapM fun setup => do
     addLeanTrace
     let srcFile ← leanJob.await
@@ -542,6 +546,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
       discard <| buildAction depTrace mod.traceFile do
         let args := mod.weakLeanArgs ++ mod.leanArgs
         let relSrcFile := relPathFrom mod.pkg.dir srcFile
+        let directImports ← importJob.await
         let transImpArts ← fetchTransImportArts directImports setup.importArts !setup.isModule
         let setup := {setup with importArts := transImpArts}
         compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
@@ -585,7 +590,7 @@ def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
       /-
       Avoid recompiling unchanged OLean files.
       OLean files transitively include their imports.
-      Thus, they are also included in this trace.
+      THowever, imports are pre-resolved by Lake, so they are not included in their trace.
       -/
       newTrace s!"{mod.name.toString}:{facet}"
       addTrace art.trace
@@ -808,7 +813,7 @@ def setupExternalModule
 : FetchM (Job ModuleSetup) := do
   withRegisterJob s!"setup ({fileName})" do
   let root ← getRootPackage
-  let extraDepJob ←  root.extraDep.fetch
+  let extraDepJob ← root.extraDep.fetch
   let directImports ← header.imports.filterMapM (findModule? ·.module)
   let impInfoJob ← fetchImportInfo fileName .anonymous header
   let precompileImports ← (← computePrecompileImportsAux fileName directImports).await

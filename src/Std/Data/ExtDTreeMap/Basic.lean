@@ -221,7 +221,7 @@ def get! [TransCmp cmp] [LawfulEqCmp cmp] (t : ExtDTreeMap α β cmp) (a : α) [
   t.lift (fun m => m.get! a) (fun _ _ h => h.get!_eq)
 
 @[inline, inherit_doc DTreeMap.getD]
-def getD [TransCmp cmp] [LawfulEqCmp cmp] (t : ExtDTreeMap α β cmp) (a : α) {fallback : β a} : β a :=
+def getD [TransCmp cmp] [LawfulEqCmp cmp] (t : ExtDTreeMap α β cmp) (a : α) (fallback : β a) : β a :=
   t.lift (fun m => m.getD a fallback) (fun _ _ h => h.getD_eq)
 
 @[inline, inherit_doc DTreeMap.getKey?]

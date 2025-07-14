@@ -11,10 +11,16 @@ namespace MutualCoinduction
     coinductive_fixpoint
   end
   /--
-    info: MutualCoinduction.f.coinduct (x : Prop ×' Prop) (y : (x.1 → x.2) ∧ (x.2 → x.1)) : (x.1 → f) ∧ (x.2 → g)
+    info: MutualCoinduction.f.coinduct (pred_1 pred_2 : Prop) (hyp_1 : pred_1 → pred_2) (hyp_2 : pred_2 → pred_1) : pred_1 → f
   -/
   #guard_msgs in
   #check MutualCoinduction.f.coinduct
+
+  /--
+    info: MutualCoinduction.g.coinduct (pred_1 pred_2 : Prop) (hyp_1 : pred_1 → pred_2) (hyp_2 : pred_2 → pred_1) : pred_2 → g
+  -/
+  #guard_msgs in
+  #check MutualCoinduction.g.coinduct
 end MutualCoinduction
 
 namespace MutualInduction
@@ -28,10 +34,16 @@ namespace MutualInduction
     inductive_fixpoint
   end
   /--
-    info: MutualInduction.f.induct (x : Prop ×' Prop) (y : (x.2 → x.1) ∧ (x.1 → x.2)) : (f → x.1) ∧ (g → x.2)
+    info: MutualInduction.f.induct (pred_1 pred_2 : Prop) (hyp_1 : pred_2 → pred_1) (hyp_2 : pred_1 → pred_2) : f → pred_1
   -/
   #guard_msgs in
   #check MutualInduction.f.induct
+
+    /--
+    info: MutualInduction.g.induct (pred_1 pred_2 : Prop) (hyp_1 : pred_2 → pred_1) (hyp_2 : pred_1 → pred_2) : g → pred_2
+  -/
+  #guard_msgs in
+  #check MutualInduction.g.induct
 end MutualInduction
 
 namespace MixedInductionCoinduction
@@ -46,15 +58,15 @@ namespace MixedInductionCoinduction
     coinductive_fixpoint
   end
   /--
-    info: MixedInductionCoinduction.f.induct (x : Prop ×' Prop) (y : ((x.2 → x.1) → x.1) ∧ (x.2 → x.1 → x.2)) :
-  (f → x.1) ∧ (x.2 → g)
+    info: MixedInductionCoinduction.f.induct (pred_1 pred_2 : Prop) (hyp_1 : (pred_2 → pred_1) → pred_1)
+  (hyp_2 : pred_2 → pred_1 → pred_2) : f → pred_1
   -/
   #guard_msgs in
   #check f.induct
 
     /--
-    info: MixedInductionCoinduction.g.coinduct (x : Prop ×' Prop) (y : ((x.2 → x.1) → x.1) ∧ (x.2 → x.1 → x.2)) :
-  (f → x.1) ∧ (x.2 → g)
+      info: MixedInductionCoinduction.g.coinduct (pred_1 pred_2 : Prop) (hyp_1 : (pred_2 → pred_1) → pred_1)
+  (hyp_2 : pred_2 → pred_1 → pred_2) : pred_2 → g
   -/
   #guard_msgs in
   #check g.coinduct
@@ -72,20 +84,22 @@ namespace DifferentPredicateTypes
     coinductive_fixpoint
   end
 
-  def pred1 := fun m : Nat => True
-  def pred2 := fun m n : Nat => True
-
-  #check f.coinduct
-
   /--
-    info: DifferentPredicateTypes.f.coinduct (x : (Nat → Prop) ×' (Nat → Nat → Prop))
-  (y :
-    (∀ (x_1 : Nat), x.1 x_1 → x.2 (x_1 + 1) (x_1 + 2)) ∧
-      ∀ (x_1 x_2 : Nat), x.2 x_1 x_2 → x.1 (x_1 + 2) ∨ x.2 (x_2 + 1) x_2) :
-  (∀ (x_1 : Nat), x.1 x_1 → f x_1) ∧ ∀ (x_1 x_2 : Nat), x.2 x_1 x_2 → g x_1 x_2
+    info: DifferentPredicateTypes.f.coinduct (pred_1 : Nat → Prop) (pred_2 : Nat → Nat → Prop)
+  (hyp_1 : ∀ (x : Nat), pred_1 x → pred_2 (x + 1) (x + 2))
+  (hyp_2 : ∀ (x x_1 : Nat), pred_2 x x_1 → pred_1 (x + 2) ∨ pred_2 (x_1 + 1) x_1) (x✝ : Nat) : pred_1 x✝ → f x✝
   -/
   #guard_msgs in
   #check f.coinduct
+
+  /--
+    info: DifferentPredicateTypes.g.coinduct (pred_1 : Nat → Prop) (pred_2 : Nat → Nat → Prop)
+  (hyp_1 : ∀ (x : Nat), pred_1 x → pred_2 (x + 1) (x + 2))
+  (hyp_2 : ∀ (x x_1 : Nat), pred_2 x x_1 → pred_1 (x + 2) ∨ pred_2 (x_1 + 1) x_1) (x✝ x✝¹ : Nat) :
+  pred_2 x✝ x✝¹ → g x✝ x✝¹
+  -/
+  #guard_msgs in
+  #check g.coinduct
 
 
 end DifferentPredicateTypes

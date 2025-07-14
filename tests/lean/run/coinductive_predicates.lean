@@ -1,14 +1,7 @@
-set_option trace.Elab.definition.partialFixpoint.induction true
-
 -- Coinductive predicate definition
 def infseq {α} (R : α → α → Prop) : α → Prop :=
   λ x : α => ∃ y, R x y ∧ infseq R y
   coinductive_fixpoint
-
-def test (n : Nat) : Prop := test n
-  coinductive_fixpoint
-
-#check test.coinduct
 
 -- Application of the rewrite rule
 def infseq_fixpoint {α} (R : α → α → Prop) (x : α) :
@@ -19,8 +12,8 @@ def infseq_fixpoint {α} (R : α → α → Prop) (x : α) :
 
 -- The associated coinduction principle
 /--
-info: infseq.coinduct.{u_1} {α : Sort u_1} (R : α → α → Prop) (x : α → Prop) (y : ∀ (x_1 : α), x x_1 → ∃ y, R x_1 y ∧ x y)
-  (x✝ : α) : x x✝ → infseq R x✝
+info: infseq.coinduct.{u_1} {α : Sort u_1} (R : α → α → Prop) (pred : α → Prop)
+  (hyp : ∀ (x : α), pred x → ∃ y, R x y ∧ pred y) (x✝ : α) : pred x✝ → infseq R x✝
 -/
 #guard_msgs in #check infseq.coinduct
 
@@ -42,8 +35,8 @@ def star_ind (tr : α → α → Prop) (q₁ q₂ : α) : Prop :=
 inductive_fixpoint
 
 /--
-info: star_ind.induct.{u_1} {α : Sort u_1} (tr : α → α → Prop) (q₂ : α) (x : α → Prop)
-  (y : ∀ (x_1 : α), (∃ z, x_1 = q₂ ∨ tr x_1 z ∧ x z) → x x_1) (x✝ : α) : (fun q₁ => star_ind tr q₁ q₂) x✝ → x x✝
+info: star_ind.induct.{u_1} {α : Sort u_1} (tr : α → α → Prop) (q₂ : α) (pred : α → Prop)
+  (hyp : ∀ (x : α), (∃ z, x = q₂ ∨ tr x z ∧ pred z) → pred x) (x✝ : α) : (fun q₁ => star_ind tr q₁ q₂) x✝ → pred x✝
 -/
 #guard_msgs in #check star_ind.induct
 
@@ -146,7 +139,7 @@ theorem infseq_coinduction_principle_2:
       apply plus_star
       exact h₁
       exact h₂
-    case y =>
+    case hyp =>
       intro a0 h₂
       apply Exists.elim h₂
       intro a1 ⟨ h₃ , h₄ ⟩
@@ -172,12 +165,12 @@ def language_equivalent (automaton : DFA Q A) (q₁ q₂ : Q)  : Prop :=
 coinductive_fixpoint
 
 /--
-info: language_equivalent.coinduct {Q A : Type} (automaton : DFA Q A) (x : Q → Q → Prop)
-  (y :
-    ∀ (x_1 x_2 : Q),
-      x x_1 x_2 →
-        (automaton x_1).fst = (automaton x_2).fst ∧ ∀ (a : A), x ((automaton x_1).snd a) ((automaton x_2).snd a))
-  (x✝ x✝¹ : Q) : x x✝ x✝¹ → language_equivalent automaton x✝ x✝¹
+info: language_equivalent.coinduct {Q A : Type} (automaton : DFA Q A) (pred : Q → Q → Prop)
+  (hyp :
+    ∀ (x x_1 : Q),
+      pred x x_1 →
+        (automaton x).fst = (automaton x_1).fst ∧ ∀ (a : A), pred ((automaton x).snd a) ((automaton x_1).snd a))
+  (x✝ x✝¹ : Q) : pred x✝ x✝¹ → language_equivalent automaton x✝ x✝¹
 -/
 #guard_msgs in
 #check language_equivalent.coinduct

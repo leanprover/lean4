@@ -5,6 +5,11 @@ def infseq {α} (R : α → α → Prop) : α → Prop :=
   λ x : α => ∃ y, R x y ∧ infseq R y
   coinductive_fixpoint
 
+def test (n : Nat) : Prop := test n
+  coinductive_fixpoint
+
+#check test.coinduct
+
 -- Application of the rewrite rule
 def infseq_fixpoint {α} (R : α → α → Prop) (x : α) :
   infseq R x = ∃ y, R x y ∧ infseq R y := by

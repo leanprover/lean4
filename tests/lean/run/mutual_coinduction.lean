@@ -1,4 +1,4 @@
-set_option trace.Elab.definition.partialFixpoint.induction true
+-- set_option trace.Elab.definition.partialFixpoint.induction true
 
 namespace MutualCoinduction
   mutual

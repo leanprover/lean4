@@ -182,26 +182,47 @@ def deriveInduction (name : Name) : MetaM Unit := do
           let motives ← unfoldPredRelMutualArray eqnInfo args[0]! (←inferType args[1]!) (reduceConclusion := true)
           motives.mapM (fun x => mkForallFVars #[args[0]!] x)
 
-        let names := eqnInfo.declNames.map (· ++ `candidate)
-        let predicates := names.zip <| infos.map (·.type)
+        let predicates := (numberNames infos.size "pred").zip <| ← PProdN.unpack α
 
-        trace[Elab.definition.partialFixpoint.induction] "Type: {predicates}"
+        withLocalDeclsDND predicates fun predVars =>
+          do
+            let predVar ← PProdN.mk 0 predVars
+            let newMotives ← motives.mapM ( instantiateForall · #[predVar])
+            let newMotives ← newMotives.mapM (PProdN.reduceProjs ·)
+            withLocalDeclsDND ((numberNames infos.size "hyp").zip newMotives) fun motiveVars => do
+              let e' := mkApp e' predVar
+              let eTyp ← inferType e'
+              let e' ← mkExpectedTypeHint e' (← PProdN.reduceProjs eTyp)
 
-        -- We unfold the definition of partial ordering on the premises
-        withLocalDecl `predicate BinderInfo.default α fun predVar => do
-          let newMotives ← motives.mapM (fun x => instantiateForall x #[predVar])
-          withLocalDeclsDND ((infos.map fun x => x.name ++ `hyp).zip newMotives) fun motiveVars => do
-            let e' := mkApp e' predVar
-            let packedPremise ← PProdN.mk 0 motiveVars
-            let e' := mkApp e' packedPremise
-            let e' ← mkLambdaFVars motiveVars e'
-            let e' ← mkLambdaFVars #[predVar] e'
-            let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
-            let e' ← instantiateMVars e'
+              let packedPremise ← PProdN.mk 0 motiveVars
+              let e' := mkApp e' packedPremise
+              trace[Elab.definition.partialFixpoint.induction] "e': {e'}"
 
-            trace[Elab.definition.partialFixpoint.induction] "Complete body of fixpoint induction principle:{indentExpr e'}"
+              let e' ← PProdN.projM infos.size (eqnInfo.declNames.idxOf name) e'
+              let e' ← mkLambdaFVars motiveVars e'
+              let e' ← mkLambdaFVars predVars e'
+              let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
+              let e' ← instantiateMVars e'
 
-            pure e'
+              trace[Elab.definition.partialFixpoint.induction] "Complete body of fixpoint induction principle:{indentExpr e'}"
+
+              pure e'
+
+        -- -- We unfold the definition of partial ordering on the premises
+        -- withLocalDecl `predicate BinderInfo.default α fun predVar => do
+        --   let newMotives ← motives.mapM (fun x => instantiateForall x #[predVar])
+        --   withLocalDeclsDND ((infos.map fun x => x.name ++ `hyp).zip newMotives) fun motiveVars => do
+        --     let e' := mkApp e' predVar
+        --     let packedPremise ← PProdN.mk 0 motiveVars
+        --     let e' := mkApp e' packedPremise
+        --     let e' ← mkLambdaFVars motiveVars e'
+        --     let e' ← mkLambdaFVars #[predVar] e'
+        --     let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
+        --     let e' ← instantiateMVars e'
+
+        --     trace[Elab.definition.partialFixpoint.induction] "Complete body of fixpoint induction principle:{indentExpr e'}"
+
+        --     pure e'
       else
         let some fixApp ← whnfUntil body' ``fix
           | throwError "Unexpected function body {body}, could not whnfUntil fix"

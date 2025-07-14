@@ -683,10 +683,16 @@ protected partial def forIn
     EAsync ε β := do
   let promise ← IO.Promise.new
 
-  let rec @[specialize] loop (b : β) : EAsync ε (ETask ε Unit) := async (prio := prio) do
+  let rec @[specialize] loop (b : β) : BaseIO Unit := do
     match ← f () b with
-      | ForInStep.done b => promise.resolve (.ok b)
-      | ForInStep.yield b => discard <| (loop b)
+      | .ofTask t => discard <| (IO.bindTask t (fun x =>
+        match x with
+        | .error e => do promise.resolve (.error e); pure (Task.pure (.ok ()))
+        | .ok (.done e) => do promise.resolve (.ok e); pure (Task.pure (.ok ()))
+        | .ok (.yield e) => BaseIO.asTask (prio := prio) (loop e) <&> Task.map .ok))
+      | .pure (.error e) => promise.resolve (.error e)
+      | .pure (.ok (.done e)) => promise.resolve (.ok e)
+      | .pure (.ok (.yield e)) => discard <| BaseIO.asTask (prio := prio) (loop e)
 
   discard <| loop init
 

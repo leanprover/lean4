@@ -39,8 +39,9 @@ def getContentLength (body : Body) : Option Nat :=
   | .stream _ => none
 
 partial def ByteStream.recvString? (body : ByteStream) (buffer : ByteArray) : Async ByteArray := do
-  match ← await (← body.data.recv) with
-  | some bs => recvString? body (buffer ++ bs)
+  match (← body.data.tryRecv) with
+  | some (some bs) => recvString? body (buffer ++ bs)
+  | some none => pure buffer
   | none => pure buffer
 
 def recvString? (body : Body) : Async String :=

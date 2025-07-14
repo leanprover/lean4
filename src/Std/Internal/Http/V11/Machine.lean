@@ -101,6 +101,11 @@ inductive Error where
   | badRequest
 
   /--
+  Client sent malformed or invalid request
+  -/
+  | timeout
+
+  /--
   Other error with custom message
   -/
   | other (s : String)
@@ -209,6 +214,11 @@ inductive State : Type
   /--
   Final state when connection is closed.
   -/
+  | next
+
+  /--
+  Final state when connection is closed.
+  -/
   | failed (error : Error)
 deriving Inhabited, Repr, BEq
 
@@ -266,6 +276,11 @@ structure Machine (mode : Mode) where
   The event that the machine produced.
   -/
   event : Option (Event mode) := none
+
+  /--
+  The minimum size of the body
+  -/
+  size : Option UInt64 := none
 
   /--
   The highmark used for flushign the bytearray
@@ -342,7 +357,7 @@ private def parseStatus (machine : Machine mode) : (Machine mode × Option (Stat
     if let some result := result then
       let result : Option (StatusLine .response) := do
         let version ← Data.Version.fromNumber? (result.major.toNat - 48) (result.minor.toNat - 48)
-        let status ← Data.Status.fromCode? result.statusCode
+        let status ← Data.Status.fromCode? result.statusCode.toUInt16
         let reason ← String.fromUTF8? result.reasonPhrase
         some (version, status, reason)
       (machine, result)
@@ -379,24 +394,6 @@ private def validateHeaders (headers : Data.Headers) : Option Size := do
   | _ => none
 
 /--
-Flushes the output buffer and returns the data to send.
--/
-def flush (machine : Machine mode) : Machine mode × ByteArray :=
-  let data := machine.outputBuffer
-  let machine' := { machine with outputBuffer := .empty }
-  (machine', data)
-
-/--
-Checks if output buffer exceeds high water mark and needs flushing.
--/
-def needsFlush (machine : Machine mode) : Bool :=
-  machine.outputBuffer.size >= machine.highMark ||
-    match machine.state with
-    | .closed => true
-    | .failed _ => true
-    | _ => false
-
-/--
 Adds to the input buffer.
 -/
 def incomeFeed (machine : Machine mode) (data : ByteArray) : Machine mode :=
@@ -425,6 +422,12 @@ def reset (machine : Machine mode) : Machine mode :=
     event := none,
     chunkedAnswer := false,
     requestCount := machine.requestCount + 1 }
+
+/--
+
+-/
+def fail (machine : Machine mode) (error : Error) : Machine mode :=
+  { machine with state := .failed error, event := some (.failed error) }
 
 /--
 Advances the state of the machine by feeding it if with a answer.
@@ -501,7 +504,7 @@ def writeData (machine : Machine mode) (data : ByteArray) (force : Bool := false
 Determines if connection should be kept alive based on headers and machine state
 -/
 def shouldKeepAlive (machine : Machine mode) : Bool :=
-  let connectionHeader := machine.inputHeaders.get? "Connection" |>.getD ""
+  let connectionHeader := machine.inputHeaders.get? "Connection" |>.getD "keep-alive"
   let explicitClose := connectionHeader.toLower == "close"
   let explicitKeepAlive := connectionHeader.toLower == "keep-alive"
 
@@ -510,19 +513,42 @@ def shouldKeepAlive (machine : Machine mode) : Bool :=
   else machine.keepAlive && machine.requestCount < machine.maxRequests
 
 /--
+
+-/
+def flushChunk (machine : Machine mode) : Machine mode :=
+  if machine.chunkedAnswer then
+    let machine := writeData machine .empty true
+    { machine with outputBuffer := machine.outputBuffer ++ formatFinalChunk }
+  else
+    writeData machine .empty true
+
+/--
+Flushes the output buffer and returns the data to send.
+-/
+def flush (machine : Machine mode) : Machine mode × ByteArray :=
+  let data := machine.outputBuffer
+  let machine' := { machine with outputBuffer := .empty }
+  (machine', data)
+
+/--
+Checks if output buffer exceeds high water mark and needs flushing.
+-/
+def needsFlush (machine : Machine mode) : Bool :=
+  machine.outputBuffer.size >= machine.highMark ||
+    match machine.state with
+    | .closed => true
+    | .failed _ => true
+    | _ => false
+
+/--
 Forces completion of any pending output and transitions to appropriate final state.
 Sends final chunk if using chunked encoding.
 -/
 def close (machine : Machine mode) : Machine mode :=
-  let machine :=
-    if machine.chunkedAnswer then
-      let machine := writeData machine .empty true
-      { machine with outputBuffer := machine.outputBuffer ++ formatFinalChunk }
-    else
-      writeData machine .empty true
+  let machine := machine.flushChunk
 
   { machine with
-    state := .closed,
+    state := (if shouldKeepAlive machine then .next else .closed),
     event := some (if shouldKeepAlive machine then .next else .close) }
 
 /--
@@ -532,6 +558,12 @@ private def createErrorResponse (error : Error) : Data.Response Data.Body :=
   match error with
   | .badRequest => {
       status := .badRequest,
+      version := .v11,
+      headers := .empty
+      body := .zero
+    }
+  | .timeout => {
+      status := .requestTimeout,
       version := .v11,
       headers := .empty
       body := .zero
@@ -589,30 +621,31 @@ def advance (machine : Machine mode) : Machine mode :=
     | some none =>
       match validateHeaders machine.inputHeaders with
       | none => setBadRequest machine
-      | some (.fixed n) => { machine with state := .needFixedBody n, event := some (.endHeaders (.fixed n)) }
+      | some (.fixed n) => { machine with size := some n.toUInt64, state := .needFixedBody n, event := some (.endHeaders (.fixed n)) }
       | some .chunked => { machine with state := .needChunkedSize, event := some (.endHeaders .chunked) }
     | none => machine
   | .needChunkedSize =>
     let (machine, result) := parseWith machine Parser.parseChunkSize
     match result with
-    | some (size, ext) => { machine with state := .needChunkedBody size, event := ext <&> Event.chunkExt }
+    | some (size, ext) => { machine with size := some size.toUInt64, state := .needChunkedBody size, event := ext <&> Event.chunkExt }
     | none => machine
   | .needChunkedBody 0 =>
     { machine with state := .readyToAnswer, event := some (.gotData true .empty) }
   | .needChunkedBody size =>
     let (machine, result) := parseWith machine (Parser.parseChunkData size)
     match result with
-    | some data => { machine with state := .needChunkedSize, event := some (.gotData false data) }
+    | some data => { machine with size := none, state := .needChunkedSize, event := some (.gotData false data) }
     | none => machine
   | .needFixedBody size =>
     let (machine, result) := parseWith machine (Parser.parseFixedBody size)
     match result with
-    | some data => { machine with state := .readyToAnswer, event := some (.gotData true data) }
+    | some data => { machine with size := none, state := .readyToAnswer, event := some (.gotData true data) }
     | none => machine
   | .failed err => handleFailure machine err
   | .readyToAnswer => { machine with event := some (.readyToRespond)  }
   | .awaitingAnswer => { machine with event := some (.awaitingAnswer) }
   | .awaitingClose => machine
   | .closed => reset machine
+  | .next => { machine with state := .closed }
 
 end Machine

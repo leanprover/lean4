@@ -41,6 +41,7 @@ namespace Connection
 -- TODO : Convert all the types of the Async itnerfaces to Async
 -- TODO : Easync.ofTask type is wrong.
 -- TODO : exception on while probasbly creates a promise not resolved error?
+-- TODO : cancelrecv must be fixed
 
 -- Event Handlers
 private def handleEndHeaders (connection : Connection) (fn : Request Body → Async (Response Body))
@@ -55,17 +56,22 @@ private def handleGotData (stream : ByteStream) (final : Bool) (data : ByteArray
   if final then
     await (← stream.data.send none)
 
+private def timeoutRecv (socket : Socket.Client) : Async (Option ByteArray) := do
+  let result := Selectable.one #[
+    .case (← Selector.sleep 5000) fun _ => return AsyncTask.pure none,
+    .case (← socket.recvSelector 4096) fun data => return AsyncTask.pure data,
+  ]
+  let result ← result
+  await result
+
 private def handleNeedMoreData (connection : Connection) : Async (Connection × Bool) := do
   let data ← do
     try
-      let data := await (← Selectable.one #[
-        .case (← Selector.sleep 1500) fun _ => return AsyncTask.pure none,
-        .case (← connection.socket.recvSelector 4096) fun data => return AsyncTask.pure data,
-      ]) | pure (.empty, true)
-
+      let size := connection.machine.size.getD 4096
+      let some data ← await (← connection.socket.recv? size)
+        | return ({connection with machine := connection.machine.fail .timeout |>.advance}, true)
       pure (data, false)
-    catch err =>
-      IO.println s!"err: {err}"
+    catch _ =>
       pure (.empty, true)
 
   if .empty == data.1 then
@@ -76,15 +82,15 @@ private def handleNeedMoreData (connection : Connection) : Async (Connection × 
 private def handleAwaitingAnswer (connection : Connection) (response : Response Body) : Async (Connection × Bool) := do
   match response.body with
   | .zero =>
-    pure ({ connection with machine := connection.machine.close }, true)
+    pure ({ connection with machine := connection.machine.close }, false)
   | .bytes bytes =>
-    pure ({ connection with machine := connection.machine.writeData bytes |>.close }, true)
+    pure ({ connection with machine := connection.machine.writeData bytes |>.close }, false)
   | .stream st =>
     match ← await (← st.data.recv) with
     | some data =>
       pure ({ connection with machine := connection.machine.writeData data }, false)
     | none =>
-      pure ({ connection with machine := connection.machine.close }, true)
+      pure ({ connection with machine := connection.machine.close }, false)
 
 private def handleReadyToRespond (connection : Connection) (response : Response Body) : Connection :=
   { connection with machine := connection.machine.answer response }
@@ -122,51 +128,56 @@ private def processEvent (connection : Connection) (stream : ByteStream) (respon
     | .readyToRespond =>
       let newConnection := handleReadyToRespond connection response
       pure (newConnection, stream, response, false)
-    | .close =>
-      handleClose stream
-      pure (connection, stream, response, true)
     | .next =>
       handleNext stream
       pure (connection, stream, response, false)
+    | .close =>
+      handleClose stream
+      pure (connection, stream, response, true)
     | .failed _ =>
       let newConnection ← handleFailed stream connection
       pure (newConnection, stream, response, true)
   | none =>
     pure (connection, stream, response, false)
 
-private def flushConnection (connection : Connection) : Async Connection := do
-  if connection.machine.needsFlush then
-    let (machine, ba) := connection.machine.flush
+private def flushConnection (connection : Connection) (force : Bool) : Async Connection := do
+  if connection.machine.needsFlush || force then
+    let machine := connection.machine
+    let (machine, ba) := machine.flush
     await (← connection.socket.send ba)
     pure { connection with machine }
   else
     pure connection
 
 private def finalFlush (connection : Connection) : Async Unit := do
-  let (_, ba) := connection.machine.flush
+  let machine := connection.machine
+  let (_, ba) := machine.flush
   if ba.size > 0 then
     await (← connection.socket.send ba)
-  IO.println "end"
 
 private partial def start (connection : Connection) (fn : Request Body → Async (Response Body)) : Async Unit := do
-  let mut connection := connection
-  let mut stream : ByteStream := { data := (← Channel.new) }
-  let mut response : Response Body := Inhabited.default
+  try
+    let mut connection := connection
+    let mut stream : ByteStream := { data := (← Channel.new) }
+    let mut response : Response Body := Inhabited.default
 
-  while true do
-    let (newConnection, newStream, newResponse, shouldBreak) ←
-      processEvent connection stream response fn
+    while true do
+      let (newConnection, newStream, newResponse, shouldBreak) ←
+        processEvent connection stream response fn
 
-    connection := newConnection
-    stream := newStream
-    response := newResponse
+      connection := newConnection
+      stream := newStream
+      response := newResponse
 
-    if shouldBreak then break
+      if shouldBreak then
+        break
 
-    connection := { connection with machine := connection.machine.resetEvent.advance }
-    connection ← flushConnection connection
+      connection := { connection with machine := connection.machine.resetEvent.advance }
+      connection ← flushConnection connection false
 
-  finalFlush connection
+    finalFlush connection
+  catch err =>
+    IO.println s!"ERR: {err}"
 
 /--
 
@@ -174,7 +185,7 @@ private partial def start (connection : Connection) (fn : Request Body → Async
 def serve (addr : Net.SocketAddress) (fn : Request Body → Async (Response Body)) : Async Unit := do
   let socket ← Socket.Server.mk
   socket.bind addr
-  socket.listen 12
+  socket.listen 128
 
   while true do
     let clientTask ← socket.accept

@@ -156,7 +156,6 @@ def deriveInduction (name : Name) : MetaM Unit := do
         let_expr lfp_monotone α instcomplete_lattice F hmono := fixApp
           | throwError "Unexpected function body {body}, not an application of lfp_monotone"
         let e' ← mkAppOptM ``lfp_le_of_le_monotone #[α, instcomplete_lattice, F, hmono]
-
         -- All definitions from `mutual` block as PProdN
         let packedConclusion ← PProdN.mk 1 <| ← infos.mapIdxM fun i defVal => do
           let f ← mkConstWithLevelParams defVal.name
@@ -164,7 +163,6 @@ def deriveInduction (name : Name) : MetaM Unit := do
             mkLambdaFVars ys (mkAppN f ys)
             let fInst ← eqnInfo.fixedParamPerms.perms[i]!.instantiateLambda fEtaExpanded xs
             return fInst.eta
-
         -- We get the type of the induction principle
         let eTyp ← inferType e'
         -- And unfold the conclusion, upon replacing references to the fixpoint theorem with the defined functions
@@ -174,55 +172,39 @@ def deriveInduction (name : Name) : MetaM Unit := do
           let newBody ← mkAppOptM ``PartialOrder.rel #[α, pord, packedConclusion, pred]
           let newBody ← unfoldPredRelMutual eqnInfo args[0]! newBody
           mkForallFVars args newBody
-
         let e' ← mkExpectedTypeHint e' eTyp
-
         -- We obtain the premises of (co)induction proof principle
         let motives ← forallTelescope eTyp fun args _ => do
           let motives ← unfoldPredRelMutualArray eqnInfo args[0]! (←inferType args[1]!) (reduceConclusion := true)
           motives.mapM (fun x => mkForallFVars #[args[0]!] x)
-
+        -- For each predicate in the mutual group we generate an approprate candidate predicate
         let predicates := (numberNames infos.size "pred").zip <| ← PProdN.unpack α
-
+        -- Then we make the induction principle more readable, by currying the hypotheses and projecting the conclusion
         withLocalDeclsDND predicates fun predVars =>
           do
+            -- A joint approximation to the fixpoint
             let predVar ← PProdN.mk 0 predVars
+            -- All motives get instantiated with the newly created variables
             let newMotives ← motives.mapM ( instantiateForall · #[predVar])
             let newMotives ← newMotives.mapM (PProdN.reduceProjs ·)
+            -- Then, we introduce hypotheses
             withLocalDeclsDND ((numberNames infos.size "hyp").zip newMotives) fun motiveVars => do
               let e' := mkApp e' predVar
               let eTyp ← inferType e'
+              -- Conclusion gets cleaned up from `PProd` projections
               let e' ← mkExpectedTypeHint e' (← PProdN.reduceProjs eTyp)
-
+              -- We apply all the premises
               let packedPremise ← PProdN.mk 0 motiveVars
               let e' := mkApp e' packedPremise
-              trace[Elab.definition.partialFixpoint.induction] "e': {e'}"
-
+              -- For each element of the mutual block, we project out the appropriate element
               let e' ← PProdN.projM infos.size (eqnInfo.declNames.idxOf name) e'
+              -- Finally, we bind all the free variables with lambdas
               let e' ← mkLambdaFVars motiveVars e'
               let e' ← mkLambdaFVars predVars e'
               let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
               let e' ← instantiateMVars e'
-
               trace[Elab.definition.partialFixpoint.induction] "Complete body of fixpoint induction principle:{indentExpr e'}"
-
               pure e'
-
-        -- -- We unfold the definition of partial ordering on the premises
-        -- withLocalDecl `predicate BinderInfo.default α fun predVar => do
-        --   let newMotives ← motives.mapM (fun x => instantiateForall x #[predVar])
-        --   withLocalDeclsDND ((infos.map fun x => x.name ++ `hyp).zip newMotives) fun motiveVars => do
-        --     let e' := mkApp e' predVar
-        --     let packedPremise ← PProdN.mk 0 motiveVars
-        --     let e' := mkApp e' packedPremise
-        --     let e' ← mkLambdaFVars motiveVars e'
-        --     let e' ← mkLambdaFVars #[predVar] e'
-        --     let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
-        --     let e' ← instantiateMVars e'
-
-        --     trace[Elab.definition.partialFixpoint.induction] "Complete body of fixpoint induction principle:{indentExpr e'}"
-
-        --     pure e'
       else
         let some fixApp ← whnfUntil body' ``fix
           | throwError "Unexpected function body {body}, could not whnfUntil fix"

@@ -127,6 +127,7 @@ def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
 Converts nested `Expr.proj`s into projection applications if possible.
 -/
 def foldProjs (e : Expr) : MetaM Expr := do
+  if Option.isNone <| e.find? fun e => e.isProj then return e
   let post (e : Expr) := do
     let .proj structName idx s := e | return .done e
     let some info := getStructureInfo? (← getEnv) structName |

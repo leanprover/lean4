@@ -36,7 +36,7 @@ Recall that the congruence closure module has special support for them.
 -/
 -- TODO: consider other subsingletons in the future? We decided to not support them to avoid the overhead of
 -- synthesizing `Subsingleton` instances.
-partial def markNestedSubsingletons (e : Expr) : GrindM Expr := do
+partial def markNestedSubsingletons (e : Expr) : GrindM Expr := do profileitM Exception "grind mark subsingleton" (← getOptions) do
   visit e |>.run' {}
 where
   visit (e : Expr) : M Expr := do

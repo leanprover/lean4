@@ -155,6 +155,9 @@ def CtorInfo.isRef (info : CtorInfo) : Bool :=
 def CtorInfo.isScalar (info : CtorInfo) : Bool :=
   !info.isRef
 
+def CtorInfo.type (info : CtorInfo) : IRType :=
+  if info.isRef then .object else .tagged
+
 inductive Expr where
   /-- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the runtime.
   This instruction is also used to creat `struct` and `union` return values.

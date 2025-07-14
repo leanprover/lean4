@@ -198,7 +198,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
           | some .erased => loop (i + 1)
           | none => lowerCode k
         loop 0
-      return .vdecl objVar type (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())
+      return .vdecl objVar ctorInfo.type (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())
     | some (.defnInfo ..) | some (.opaqueInfo ..) =>
       mkFap name irArgs
     | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>

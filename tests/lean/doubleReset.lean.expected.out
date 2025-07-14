@@ -17,8 +17,8 @@
             let x_18 : tobj := reset[2] x_7;
             let x_10 : tagged := 0;
             let x_11 : tobj := Array.uset ◾ x_4 x_3 x_10 ◾;
-            let x_12 : tobj := reuse x_18 in ctor_0[Prod.mk] x_8 x_9;
-            let x_13 : tobj := reuse x_19 in ctor_0[Prod.mk] x_12 x_1;
+            let x_12 : obj := reuse x_18 in ctor_0[Prod.mk] x_8 x_9;
+            let x_13 : obj := reuse x_19 in ctor_0[Prod.mk] x_12 x_1;
             let x_14 : usize := 1;
             let x_15 : usize := USize.add x_3 x_14;
             let x_16 : tobj := Array.uset ◾ x_11 x_3 x_13 ◾;

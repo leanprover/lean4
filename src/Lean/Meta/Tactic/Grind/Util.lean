@@ -116,6 +116,7 @@ Recall that we still have to process `Expr.forallE` because of `ForallProp.lean`
 Moreover, we may not want to reduce `p → q` to `¬p ∨ q` when `(p q : Prop)`.
 -/
 def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
+  if Option.isNone <| e.find? fun e => e.isMData then return e
   let pre (e : Expr) := do
     match e with
     | .letE .. | .lam .. => return .done e

@@ -104,7 +104,6 @@ def unfoldPredRelMutual (eqnInfo : EqnInfo) (body : Expr) (reduceConclusion : Bo
     let lhs ← PProdN.reduceProjs (←PProdN.projM infos.size i lhs)
     unfoldPredRel predTypes[i]! lhs (← PProdN.projM infos.size i rhs) eqnInfo.fixpointType[i]! reduceConclusion
 
-
 /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
 -- Worth having in the standard library?
 private def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
@@ -140,7 +139,6 @@ def deriveInduction (name : Name) : MetaM Unit := do
       -- Now look at the body of an arbitrary of the functions (they are essentially the same
       -- up to the final projections)
       let body ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda infos[0]!.value xs
-
       -- The body should now be of the form of the form (fix … ).2.2.1
       -- We strip the projections (if present)
       let body' := PProdN.stripProjs body.eta -- TODO: Eta more carefully?
@@ -176,31 +174,30 @@ def deriveInduction (name : Name) : MetaM Unit := do
         -- For each predicate in the mutual group we generate an approprate candidate predicate
         let predicates := (numberNames infos.size "pred").zip <| ← PProdN.unpack α
         -- Then we make the induction principle more readable, by currying the hypotheses and projecting the conclusion
-        withLocalDeclsDND predicates fun predVars =>
-          do
-            -- A joint approximation to the fixpoint
-            let predVar ← PProdN.mk 0 predVars
-            -- All motives get instantiated with the newly created variables
-            let newMotives ← motives.mapM ( instantiateForall · #[predVar])
-            let newMotives ← newMotives.mapM (PProdN.reduceProjs ·)
-            -- Then, we introduce hypotheses
-            withLocalDeclsDND ((numberNames infos.size "hyp").zip newMotives) fun motiveVars => do
-              let e' := mkApp e' predVar
-              let eTyp ← inferType e'
-              -- Conclusion gets cleaned up from `PProd` projections
-              let e' ← mkExpectedTypeHint e' (← PProdN.reduceProjs eTyp)
-              -- We apply all the premises
-              let packedPremise ← PProdN.mk 0 motiveVars
-              let e' := mkApp e' packedPremise
-              -- For each element of the mutual block, we project out the appropriate element
-              let e' ← PProdN.projM infos.size (eqnInfo.declNames.idxOf name) e'
-              -- Finally, we bind all the free variables with lambdas
-              let e' ← mkLambdaFVars motiveVars e'
-              let e' ← mkLambdaFVars predVars e'
-              let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
-              let e' ← instantiateMVars e'
-              trace[Elab.definition.partialFixpoint.induction] "Complete body of fixpoint induction principle:{indentExpr e'}"
-              pure e'
+        withLocalDeclsDND predicates fun predVars => do
+          -- A joint approximation to the fixpoint
+          let predVar ← PProdN.mk 0 predVars
+          -- All motives get instantiated with the newly created variables
+          let newMotives ← motives.mapM ( instantiateForall · #[predVar])
+          let newMotives ← newMotives.mapM (PProdN.reduceProjs ·)
+          -- Then, we introduce hypotheses
+          withLocalDeclsDND ((numberNames infos.size "hyp").zip newMotives) fun motiveVars => do
+            let e' := mkApp e' predVar
+            let eTyp ← inferType e'
+            -- Conclusion gets cleaned up from `PProd` projections
+            let e' ← mkExpectedTypeHint e' (← PProdN.reduceProjs eTyp)
+            -- We apply all the premises
+            let packedPremise ← PProdN.mk 0 motiveVars
+            let e' := mkApp e' packedPremise
+            -- For each element of the mutual block, we project out the appropriate element
+            let e' ← PProdN.projM infos.size (eqnInfo.declNames.idxOf name) e'
+            -- Finally, we bind all the free variables with lambdas
+            let e' ← mkLambdaFVars motiveVars e'
+            let e' ← mkLambdaFVars predVars e'
+            let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
+            let e' ← instantiateMVars e'
+            trace[Elab.definition.partialFixpoint.induction] "Complete body of fixpoint induction principle:{indentExpr e'}"
+            pure e'
       else
         let some fixApp ← whnfUntil body' ``fix
           | throwError "Unexpected function body {body}, could not whnfUntil fix"

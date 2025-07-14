@@ -750,6 +750,7 @@ def forInUncurried [TransCmp cmp] (f : α × β → δ → m (ForInStep δ)) (in
 
 end Const
 
+/-- Returns `true` if and only if `t` contains exactly one mapping. -/
 def isSingleton [TransCmp cmp] (t : ExtDTreeMap α β cmp) : Bool :=
   t.size == 1
 

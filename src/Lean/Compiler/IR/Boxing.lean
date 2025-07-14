@@ -148,53 +148,54 @@ def getDecl (fid : FunId) : M Decl := do
 /-- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c #[]`,
    and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value. -/
 private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Option Expr) :=
-  if !xType.isScalar then
-    return none -- We assume unboxing is always cheap
-  else match xType with
-    | IRType.uint8  => return none
-    | IRType.uint16 => return none
-    | _ => do
-      let localCtx ← getLocalContext
-      match localCtx.getValue x with
-      | some val =>
-        match val with
-        | Expr.lit _ => return some val
-        | Expr.fap _ args => return if args.size == 0 then some val else none
-        | _ => return none
+  match xType with
+  | .uint8 | .uint16 => return none
+  | _ => do
+    let localCtx ← getLocalContext
+    match localCtx.getValue x with
+    | some val =>
+      match val with
+      -- TODO: This should check whether larger literals fit into tagged values.
+      | .lit _ => return some val
+      | .fap _ args => return if args.size == 0 then some val else none
       | _ => return none
+    | _ => return none
 
 /-- Auxiliary function used by castVarIfNeeded.
    It is used when the expected type does not match `xType`.
    If `xType` is scalar, then we need to "box" it. Otherwise, we need to "unbox" it. -/
 def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
-  match (← isExpensiveConstantValueBoxing x xType) with
-  | some v => do
-    let ctx ← read
-    let s ← get
-    /- Create auxiliary FnBody
-    ```
-    let x_1 : xType := v;
-    let x_2 : expectedType := Expr.box xType x_1;
-    ret x_2
-    ```
-    -/
-    let body : FnBody :=
-      FnBody.vdecl { idx := 1 } xType v $
-      FnBody.vdecl { idx := 2 } expectedType (Expr.box xType { idx := 1 }) $
-      FnBody.ret (.var { idx := 2 })
-    match s.auxDeclCache.find? body with
-    | some v => pure v
-    | none   => do
-      let auxName  := ctx.f ++ ((`_boxed_const).appendIndexAfter s.nextAuxId)
-      let auxConst := Expr.fap auxName #[]
-      let auxDecl  := Decl.fdecl auxName #[] expectedType body {}
-      modify fun s => { s with
-       auxDecls     := s.auxDecls.push auxDecl
-       auxDeclCache := s.auxDeclCache.cons body auxConst
-       nextAuxId    := s.nextAuxId + 1
-      }
-      pure auxConst
-  | none => pure $ if xType.isScalar then Expr.box xType x else Expr.unbox x
+  if expectedType.isScalar then
+    return .unbox x
+  else
+    match (← isExpensiveConstantValueBoxing x xType) with
+    | some v => do
+      let ctx ← read
+      let s ← get
+      /- Create auxiliary FnBody
+      ```
+      let x_1 : xType := v;
+      let x_2 : expectedType := Expr.box xType x_1;
+      ret x_2
+      ```
+      -/
+      let body : FnBody :=
+        .vdecl { idx := 1 } xType v <|
+        .vdecl { idx := 2 } expectedType (.box xType { idx := 1 }) <|
+        .ret (.var { idx := 2 })
+      match s.auxDeclCache.find? body with
+      | some v => pure v
+      | none   => do
+        let auxName  := ctx.f ++ ((`_boxed_const).appendIndexAfter s.nextAuxId)
+        let auxConst := Expr.fap auxName #[]
+        let auxDecl  := Decl.fdecl auxName #[] expectedType body {}
+        modify fun s => { s with
+          auxDecls     := s.auxDecls.push auxDecl
+          auxDeclCache := s.auxDeclCache.cons body auxConst
+          nextAuxId    := s.nextAuxId + 1
+        }
+        pure auxConst
+    | none => return .box xType x
 
 @[inline] def castVarIfNeeded (x : VarId) (expected : IRType) (k : VarId → M FnBody) : M FnBody := do
   let xType ← getVarType x

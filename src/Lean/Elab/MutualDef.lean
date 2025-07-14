@@ -124,15 +124,21 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
   else
     pure ()
 
-private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) (view : DefView) : TermElabM Unit :=
-  let msg := if view.kind.isExample then
-    m!"failed to infer type of example"
-  else if view.kind matches .instance then
-    -- TODO: instances are sometime named. We should probably include the name if available.
-    m!"failed to infer type of instance"
-  else
-    m!"failed to infer type of `{view.declId}`"
-  registerCustomErrorIfMVar type ref msg
+private def registerFailedToInferDefTypeInfo (type : Expr) (view : DefView) :
+    TermElabM Unit :=
+  let ref := view.type?.getD <| match view.kind with
+    -- Use def name (or keyword if anonymous) as fallback location
+    | .example  => view.ref[0]
+    | .instance => view.ref[1]
+    | _         => view.declId
+  let msg := match view.kind with
+    | .example  => m!"example"
+    | .instance => if view.declId.getHeadInfo matches .original .. then
+        m!"instance `{view.declId}`"
+      else m!"instance"
+    | .theorem  => m!"theorem `{view.declId}`"
+    | _         => m!"definition `{view.declId}`"
+  registerCustomErrorIfMVar type ref m!"Failed to infer type of {msg}"
 
 /--
   Return `some [b, c]` if the given `views` are representing a declaration of the form
@@ -233,13 +239,13 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
             let mut type ← match view.type? with
               | some typeStx =>
                 let type ← elabType typeStx
-                registerFailedToInferDefTypeInfo type typeStx view
+                registerFailedToInferDefTypeInfo type view
                 pure type
               | none =>
                 let hole := mkHole refForElabFunType
                 let type ← elabType hole
                 trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
-                registerFailedToInferDefTypeInfo type refForElabFunType view
+                registerFailedToInferDefTypeInfo type view
                 pure type
             Term.synthesizeSyntheticMVarsNoPostponing
             if view.isInstance then

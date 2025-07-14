@@ -1,5 +1,3 @@
--- set_option trace.Elab.definition.partialFixpoint.induction true
-
 namespace MutualCoinduction
   mutual
     def f : Prop :=

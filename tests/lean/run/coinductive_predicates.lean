@@ -8,9 +8,8 @@ def infseq_fixpoint {α} (R : α → α → Prop) (x : α) :
   infseq R x = ∃ y, R x y ∧ infseq R y := by
     rw [infseq]
 
-#check infseq.coinduct
-
 -- The associated coinduction principle
+
 /--
 info: infseq.coinduct.{u_1} {α : Sort u_1} (R : α → α → Prop) (pred : α → Prop)
   (hyp : ∀ (x : α), pred x → ∃ y, R x y ∧ pred y) (x✝ : α) : pred x✝ → infseq R x✝

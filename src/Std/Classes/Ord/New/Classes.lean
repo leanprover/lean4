@@ -26,9 +26,6 @@ public structure OrderedSubtype {α : Type u} (P : α → Prop) where
 public instance {α : Type u} [LE α] {P : α → Prop} : LE (OrderedSubtype P) where
   le a b := a.val ≤ b.val
 
-public instance {α : Type u} [Min α] {P : α → Prop} : Min (OrderedSubtype P) where
-  min a b := ⟨Min.min a.val b.val, sorry⟩ -- TODO: Can only define this given min_eq_or.
-
 public instance {α : Type u} [OrderData α] {P : α → Prop} : OrderData (OrderedSubtype P) where
   IsLE a b := OrderData.IsLE a.val b.val
 
@@ -58,10 +55,17 @@ section Min
 public class MinEqOr (α : Type u) [Min α] where
   min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b
 
+public def MinEqOr.elim {α : Type u} [Min α] [MinEqOr α] {P : α → Prop} {a b : α} (ha : P a) (hb : P b) :
+    P (min a b) := by
+  cases MinEqOr.min_eq_or a b <;> simp_all
+
 public class LawfulOrderInf (α : Type u) [Min α] [OrderData α] where
   le_min_iff : ∀ a b c : α, OrderData.IsLE a (min b c) ↔ OrderData.IsLE a b ∧ OrderData.IsLE a c
 
 public class LawfulOrderMin (α : Type u) [Min α] [OrderData α] extends MinEqOr α, LawfulOrderInf α
+
+public instance {α : Type u} [Min α] [MinEqOr α] {P : α → Prop} : Min (OrderedSubtype P) where
+  min a b := ⟨Min.min a.val b.val, MinEqOr.elim a.property b.property⟩
 
 public theorem min_eq_or {α : Type u} [Min α] [MinEqOr α] {a b : α} :
     min a b = a ∨ min a b = b :=

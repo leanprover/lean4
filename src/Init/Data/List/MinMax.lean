@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.List.Lemmas
 public import Init.Data.List.Pairwise
+public import Std.Classes.Ord.New.Classes
 
 public section
 
@@ -55,7 +56,7 @@ theorem min?_eq_head? {α : Type u} [Min α] {l : List α}
       have hx : min x y = x := rel_of_pairwise_cons h mem_cons_self
       rw [foldl_cons, ih _ (hx.symm ▸ h.sublist (by simp)), hx]
 
-theorem min?_mem [Min α] (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) :
+theorem min?_mem_base [Min α] [MinEqOr α] :
     {xs : List α} → xs.min? = some a → a ∈ xs := by
   intro xs
   match xs with
@@ -72,13 +73,48 @@ theorem min?_mem [Min α] (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b
       have p := ind _ eq
       cases p with
       | inl p =>
-        cases min_eq_or x y with | _ q => simp [p, q]
+        cases MinEqOr.min_eq_or x y with | _ q => simp [p, q]
       | inr p => simp [p, mem_cons]
+
+private theorem min?_mem_aux [Min α] (P : α → Prop) [i : MinEqOr (OrderedSubtype P)] {xs : List α}
+    (hP : ∀ a, a ∈ xs → P a) :
+    xs.min? = some a → a ∈ xs := by
+  have min_eq_or' : ∀ a b : α, P a → P b → min a b = a ∨ min a b = b := by
+    intro a b ha hb
+    have := min_eq_or (α := OrderedSubtype P) (a := ⟨a, ha⟩) (b := ⟨b, hb⟩)
+    simpa [min] using this
+  match xs with
+  | nil => simp
+  | x :: xs =>
+    simp only [min?_cons', Option.some.injEq, mem_cons]
+    intro eq
+    induction xs generalizing x with
+    | nil =>
+      simp at eq
+      simp [eq]
+    | cons y xs ind =>
+      simp at eq
+      have : min x y = x ∨ min x y = y := by
+        let x' : OrderedSubtype P := ⟨x, hP _ mem_cons_self⟩
+        let y' : OrderedSubtype P := ⟨y, hP _ (mem_cons_of_mem _ mem_cons_self)⟩
+        cases min_eq_or (a := x') (b := y') <;> simp_all
+      cases this with
+      | inl h =>
+        rw [h] at eq
+        have p := ind _ (fun b hb => hP b (by cases mem_cons.mp hb <;> simp [*])) eq
+        cases p <;> simp [*]
+      | inr h =>
+        rw [h] at eq
+        have p := ind _ (fun b hb => hP b (mem_cons_of_mem _ hb)) eq
+        cases p <;> simp [*]
+
+theorem min?_mem [Min α] {xs : List α} [MinEqOr (OrderedSubtype (· ∈ xs))] :
+    xs.min? = some a → a ∈ xs := by
+  exact min?_mem_aux (P := (· ∈ xs)) (hP := fun _ => id)
 
 -- See also `Init.Data.List.Nat.Basic` for specialisations of the next two results to `Nat`.
 
-theorem le_min?_iff [Min α] [LE α]
-    (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) :
+theorem le_min?_iff_base [Min α] [LE α] [OrderData α] [LawfulOrderInf α] [LawfulOrderLE α] :
     {xs : List α} → xs.min? = some a → ∀ {x}, x ≤ a ↔ ∀ b, b ∈ xs → x ≤ b
   | nil => by simp
   | cons x xs => by
@@ -92,6 +128,52 @@ theorem le_min?_iff [Min α] [LE α]
     | cons z xs ih =>
       simp at eq
       simp [ih _ eq, le_min_iff, and_assoc]
+
+theorem le_min?_iff [Min α] [LE α] {xs : List α} [OrderData (OrderedSubtype (· ∈ xs))]
+    [LawfulOrderInf (OrderedSubtype (· ∈ xs))] [LawfulOrderLE (OrderedSubtype (· ∈ xs))] :
+    xs.min? = some a → ∀ {x}, x ≤ a ↔ ∀ b, b ∈ xs → x ≤ b :=
+  match xs with
+  | nil => by simp
+  | cons x xs => by
+    rw [min?]
+    intro eq y
+    simp only [Option.some.injEq] at eq
+    induction xs generalizing x with
+    | nil =>
+      simp at eq
+      simp [eq]
+    | cons z xs ih =>
+      simp at eq
+      simp [ih _ eq]
+
+private theorem min?_eq_some_iff_base [Min α] [LE α] {xs : List α} [OrderData α] [LinearOrder (α)]
+    [LawfulOrderMin α] [LawfulOrderLE α] : xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
+  refine ⟨fun h => ⟨min?_mem h, (le_min?_iff h).1 (le_refl _)⟩, ?_⟩
+  intro ⟨h₁, h₂⟩
+  cases xs with
+  | nil => simp at h₁
+  | cons x xs =>
+    rw [List.min?]
+    exact congrArg some <| le_antisymm
+      ((le_min?_iff (xs := x :: xs) rfl).1 (le_refl _) _ h₁)
+      (h₂ _ (min?_mem (xs := x :: xs) rfl))
+
+theorem min?_eq_some_iff [Min α] [LE α] {xs : List α} [OrderData (OrderedSubtype (· ∈ xs))]
+    [LinearOrder (OrderedSubtype (· ∈ xs))] [LawfulOrderMin (OrderedSubtype (· ∈ xs))] [LawfulOrderLE (OrderedSubtype (· ∈ xs))]:
+    xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
+  refine ⟨?_, ?_⟩
+  · intro h
+    have ha : a ∈ xs := min?_mem h
+    refine ⟨ha, ?_⟩
+    have := le_min?_iff (xs := xs)
+    exact (le_min?_iff le_min_iff h).1 (le_refl _)
+  intro ⟨h₁, h₂⟩
+  cases xs with
+  | nil => simp at h₁
+  | cons x xs =>
+    exact congrArg some <| anti _ _ (min?_mem min_eq_or rfl) h₁
+      ((le_min?_iff le_min_iff (xs := x::xs) rfl).1 (le_refl _) _ h₁)
+      (h₂ _ (min?_mem min_eq_or (xs := x::xs) rfl))
 
 -- This could be refactored by designing appropriate typeclasses to replace `le_refl`, `min_eq_or`,
 -- and `le_min_iff`.

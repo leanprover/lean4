@@ -122,7 +122,7 @@ private def mkBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
 
 private def mkBEqEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
   let auxFunName := ctx.auxFunNames[0]!
-  `(@[expose] def $(mkIdent auxFunName):ident  (x y : $(mkIdent name)) : Bool := x.toCtorIdx == y.toCtorIdx)
+  `(@[expose] def $(mkIdent auxFunName):ident  (x y : $(mkCIdent name)) : Bool := x.toCtorIdx == y.toCtorIdx)
 
 private def mkBEqEnumCmd (name : Name): TermElabM (Array Syntax) := do
   let ctx ← mkContext "beq" name

@@ -411,11 +411,11 @@ where
       <|>
       (casesOnStuckLHS mvarId)
       <|>
-      (do let mvarId' ← simpIfTarget mvarId (useDecide := true)
+      (do let mvarId' ← simpIfTarget mvarId (useDecide := true) (useNewSemantics := true)
           if mvarId' == mvarId then throwError "simpIf failed"
           return #[mvarId'])
       <|>
-      (do if let some (s₁, s₂) ← splitIfTarget? mvarId then
+      (do if let some (s₁, s₂) ← splitIfTarget? mvarId (useNewSemantics := true) then
             let mvarId₁ ← trySubst s₁.mvarId s₁.fvarId
             return #[mvarId₁, s₂.mvarId]
           else

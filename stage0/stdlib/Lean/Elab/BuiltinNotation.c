@@ -6001,7 +6001,6 @@ _start:
 {
 uint8_t x_20; lean_object* x_21; 
 x_20 = lean_unbox(x_3);
-lean_dec(x_3);
 x_21 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Term_elabAnonymousCtor_spec__2(x_1, x_2, x_20, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 lean_dec(x_18);
 lean_dec(x_17);
@@ -9765,7 +9764,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabParserMacroAux(x_1, x_2, x_11, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_7);
@@ -14396,9 +14394,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; size_t x_9; size_t x_10; uint8_t x_11; lean_object* x_12; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = lean_unbox(x_3);
-lean_dec(x_3);
 x_9 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_10 = lean_unbox_usize(x_6);
@@ -14415,7 +14411,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Lean_Elab_Term_expandCDot_x3f_go___lam__0(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_1);
@@ -16952,7 +16947,6 @@ return x_13;
 }
 else
 {
-lean_dec(x_10);
 return x_9;
 }
 }
@@ -16970,7 +16964,6 @@ return x_19;
 }
 else
 {
-lean_dec(x_16);
 return x_15;
 }
 }
@@ -16988,7 +16981,6 @@ return x_25;
 }
 else
 {
-lean_dec(x_21);
 return x_22;
 }
 }
@@ -17006,7 +16998,6 @@ return x_31;
 }
 else
 {
-lean_dec(x_28);
 return x_27;
 }
 }
@@ -17024,7 +17015,6 @@ return x_37;
 }
 else
 {
-lean_dec(x_34);
 return x_33;
 }
 }
@@ -17042,7 +17032,6 @@ return x_43;
 }
 else
 {
-lean_dec(x_39);
 return x_40;
 }
 }
@@ -17060,7 +17049,6 @@ return x_49;
 }
 else
 {
-lean_dec(x_46);
 return x_45;
 }
 }
@@ -18648,9 +18636,7 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_withLocalIdentFor___lam__0(x_1, x_2, x_14, x_4, x_15, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_1);
 return x_16;
@@ -26238,9 +26224,7 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = lean_unbox(x_4);
-lean_dec(x_4);
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = l_Lean_Elab_Term_elabSubst___lam__0(x_1, x_2, x_3, x_14, x_15, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -26258,9 +26242,7 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = lean_unbox(x_4);
-lean_dec(x_4);
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = l_Lean_Elab_Term_elabSubst___lam__1(x_1, x_2, x_3, x_14, x_15, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 return x_16;
 }
@@ -26270,9 +26252,7 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = lean_unbox(x_2);
-lean_dec(x_2);
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = l_Lean_Elab_Term_elabSubst___lam__2(x_1, x_14, x_15, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 return x_16;
 }
@@ -26282,7 +26262,6 @@ _start:
 {
 lean_object* x_15; 
 x_15 = l_Lean_Elab_Term_elabSubst___lam__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
-lean_dec(x_7);
 lean_dec(x_6);
 return x_15;
 }
@@ -26309,9 +26288,7 @@ _start:
 {
 uint8_t x_18; uint8_t x_19; lean_object* x_20; 
 x_18 = lean_unbox(x_1);
-lean_dec(x_1);
 x_19 = lean_unbox(x_8);
-lean_dec(x_8);
 x_20 = l_Lean_Elab_Term_elabSubst___lam__4(x_18, x_2, x_3, x_4, x_5, x_6, x_7, x_19, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 return x_20;
 }
@@ -26339,9 +26316,7 @@ _start:
 {
 uint8_t x_19; uint8_t x_20; lean_object* x_21; 
 x_19 = lean_unbox(x_7);
-lean_dec(x_7);
 x_20 = lean_unbox(x_10);
-lean_dec(x_10);
 x_21 = l_Lean_Elab_Term_elabSubst___lam__5(x_1, x_2, x_3, x_4, x_5, x_6, x_19, x_8, x_9, x_20, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18);
 return x_21;
 }
@@ -26376,11 +26351,8 @@ _start:
 {
 uint8_t x_26; uint8_t x_27; lean_object* x_28; 
 x_26 = lean_unbox(x_2);
-lean_dec(x_2);
 x_27 = lean_unbox(x_11);
-lean_dec(x_11);
 x_28 = l_Lean_Elab_Term_elabSubst___lam__6(x_1, x_26, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_27, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25);
-lean_dec(x_18);
 return x_28;
 }
 }

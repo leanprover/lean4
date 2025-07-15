@@ -583,7 +583,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error(x_2);
 return x_3;
 }
@@ -757,7 +756,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning(x_2);
 return x_3;
 }
@@ -1187,7 +1185,6 @@ double x_3; uint8_t x_4; lean_object* x_5;
 x_3 = lean_unbox_float(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value(x_3, x_4);
 return x_5;
 }

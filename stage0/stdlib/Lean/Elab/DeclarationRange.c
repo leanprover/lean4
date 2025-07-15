@@ -538,7 +538,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
 return x_8;
 }
 }

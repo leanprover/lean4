@@ -272,7 +272,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_Elab_Tactic_classical___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
 return x_8;
 }
 }
@@ -281,7 +280,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Elab_Tactic_classical___redArg___lam__3(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -1822,7 +1820,6 @@ _start:
 {
 lean_object* x_13; 
 x_13 = l_Lean_Elab_Term_withNarrowedTacticReuse___at___Lean_Elab_Term_withNarrowedArgTacticReuse___at___Lean_Elab_Tactic_evalClassical_spec__0_spec__0___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_3);
 return x_13;
 }
 }

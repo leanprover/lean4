@@ -451,7 +451,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lean_Server_Completion_CompletionResolution_0__Lean_Lsp_fromJsonCompletionIdentifier___lam__0____x40_Lean_Server_Completion_CompletionResolution___hyg_31_(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -460,7 +459,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l___private_Lean_Server_Completion_CompletionResolution_0__Lean_Lsp_fromJsonCompletionIdentifier___lam__1____x40_Lean_Server_Completion_CompletionResolution___hyg_31_(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }

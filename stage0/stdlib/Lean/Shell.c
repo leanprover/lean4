@@ -1502,7 +1502,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_display_help(x_3, x_2);
 return x_4;
 }
@@ -2305,7 +2304,6 @@ goto block_100;
 }
 else
 {
-lean_dec(x_117);
 x_101 = x_113;
 x_102 = x_115;
 x_103 = x_116;
@@ -3216,7 +3214,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l___private_Lean_Shell_0__Lean_shellMain___lam__0(x_1, x_2, x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -3253,21 +3250,14 @@ _start:
 {
 uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint32_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; lean_object* x_27; 
 x_19 = lean_unbox(x_2);
-lean_dec(x_2);
 x_20 = lean_unbox(x_3);
-lean_dec(x_3);
 x_21 = lean_unbox(x_4);
-lean_dec(x_4);
 x_22 = lean_unbox(x_5);
-lean_dec(x_5);
 x_23 = lean_unbox_uint32(x_7);
 lean_dec(x_7);
 x_24 = lean_unbox(x_14);
-lean_dec(x_14);
 x_25 = lean_unbox(x_16);
-lean_dec(x_16);
 x_26 = lean_unbox(x_17);
-lean_dec(x_17);
 x_27 = lean_shell_main(x_1, x_19, x_20, x_21, x_22, x_6, x_23, x_8, x_9, x_10, x_11, x_12, x_13, x_24, x_15, x_25, x_26, x_18);
 return x_27;
 }

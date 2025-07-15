@@ -115,7 +115,6 @@ lean_inc(x_5);
 lean_dec(x_4);
 x_6 = lean_apply_1(x_5, x_2);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 return x_7;
 }
 }

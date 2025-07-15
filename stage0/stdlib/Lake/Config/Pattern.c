@@ -766,7 +766,6 @@ lean_inc(x_3);
 lean_dec(x_2);
 x_4 = lean_apply_1(x_3, x_1);
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -779,7 +778,6 @@ lean_inc(x_5);
 lean_dec(x_4);
 x_6 = lean_apply_1(x_5, x_3);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 return x_7;
 }
 }
@@ -810,7 +808,6 @@ lean_inc(x_3);
 lean_dec(x_1);
 x_4 = lean_apply_1(x_3, x_2);
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -840,7 +837,6 @@ lean_inc(x_4);
 lean_dec(x_3);
 x_5 = lean_apply_1(x_4, x_1);
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 return x_2;
@@ -862,7 +858,6 @@ lean_inc(x_3);
 lean_dec(x_2);
 x_4 = lean_apply_1(x_3, x_1);
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -980,7 +975,6 @@ lean_inc(x_5);
 lean_dec(x_4);
 x_6 = lean_apply_1(x_5, x_2);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 uint8_t x_8; 
@@ -1099,7 +1093,6 @@ lean_inc(x_33);
 lean_dec(x_3);
 x_34 = lean_apply_2(x_1, x_33, x_2);
 x_35 = lean_unbox(x_34);
-lean_dec(x_34);
 return x_35;
 }
 }
@@ -1118,7 +1111,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_PatternDescr_matches___redArg___lam__0(x_1, x_4, x_3);
 x_6 = lean_box(x_5);
 return x_6;
@@ -2207,7 +2199,6 @@ lean_dec(x_3);
 x_5 = l_System_FilePath_normalize(x_1);
 x_6 = lean_apply_1(x_4, x_5);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 return x_7;
 }
 case 1:
@@ -2235,7 +2226,6 @@ lean_inc(x_12);
 lean_dec(x_8);
 x_13 = lean_apply_1(x_12, x_11);
 x_14 = lean_unbox(x_13);
-lean_dec(x_13);
 return x_14;
 }
 }
@@ -2264,7 +2254,6 @@ lean_inc(x_19);
 lean_dec(x_15);
 x_20 = lean_apply_1(x_19, x_18);
 x_21 = lean_unbox(x_20);
-lean_dec(x_20);
 return x_21;
 }
 }

@@ -474,7 +474,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_11 = lean_apply_2(x_1, x_10, x_3);
 x_12 = lean_unbox(x_11);
-lean_dec(x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -542,7 +541,6 @@ x_27 = lean_array_fget(x_1, x_3);
 lean_inc(x_2);
 x_28 = lean_apply_2(x_2, x_26, x_27);
 x_29 = lean_unbox(x_28);
-lean_dec(x_28);
 if (x_29 == 0)
 {
 x_19 = x_1;
@@ -571,7 +569,6 @@ x_14 = lean_array_fget(x_12, x_4);
 lean_inc(x_2);
 x_15 = lean_apply_2(x_2, x_13, x_14);
 x_16 = lean_unbox(x_15);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_dec(x_11);
@@ -595,7 +592,6 @@ x_21 = lean_array_fget(x_19, x_3);
 lean_inc(x_2);
 x_22 = lean_apply_2(x_2, x_20, x_21);
 x_23 = lean_unbox(x_22);
-lean_dec(x_22);
 if (x_23 == 0)
 {
 x_12 = x_19;
@@ -1289,7 +1285,6 @@ return x_6;
 }
 else
 {
-lean_dec(x_5);
 return x_2;
 }
 }
@@ -1366,7 +1361,6 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Array_qsortOrd___redArg___lam__0(x_1, x_5, x_3, x_4);
 x_7 = lean_box(x_6);
 return x_7;

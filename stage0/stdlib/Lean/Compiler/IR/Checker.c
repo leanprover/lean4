@@ -974,7 +974,6 @@ x_10 = lean_usize_dec_eq(x_2, x_3);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
-lean_dec(x_4);
 x_11 = lean_array_uget(x_1, x_2);
 lean_inc(x_5);
 x_12 = l_Lean_IR_Checker_checkArg(x_11, x_5, x_6, x_7, x_8, x_9);
@@ -1150,7 +1149,6 @@ lean_object* x_9; uint8_t x_10;
 lean_inc(x_1);
 x_9 = lean_apply_1(x_2, x_1);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
@@ -1389,7 +1387,6 @@ x_12 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 x_13 = lean_apply_1(x_2, x_11);
 x_14 = lean_unbox(x_13);
-lean_dec(x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -1443,7 +1440,6 @@ lean_dec(x_9);
 lean_inc(x_30);
 x_32 = lean_apply_1(x_2, x_30);
 x_33 = lean_unbox(x_32);
-lean_dec(x_32);
 if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
@@ -1910,7 +1906,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_IR_Checker_checkFullApp___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -3755,7 +3750,6 @@ x_17 = lean_usize_dec_eq(x_2, x_3);
 if (x_17 == 0)
 {
 lean_object* x_18; 
-lean_dec(x_4);
 x_18 = lean_array_uget(x_1, x_2);
 if (lean_obj_tag(x_18) == 0)
 {
@@ -4782,7 +4776,6 @@ x_9 = lean_usize_dec_eq(x_3, x_4);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec(x_5);
 x_10 = lean_array_uget(x_2, x_3);
 lean_inc(x_1);
 x_11 = l_Lean_IR_checkDecl(x_1, x_10, x_6, x_7, x_8);

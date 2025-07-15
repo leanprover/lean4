@@ -3132,7 +3132,6 @@ _start:
 {
 uint8_t x_6; size_t x_7; size_t x_8; uint8_t x_9; lean_object* x_10; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_8 = lean_unbox_usize(x_5);
@@ -5666,7 +5665,6 @@ x_58 = lean_box_uint32(x_57);
 lean_inc(x_1);
 x_59 = lean_apply_1(x_1, x_58);
 x_60 = lean_unbox(x_59);
-lean_dec(x_59);
 if (x_60 == 0)
 {
 lean_object* x_61; lean_object* x_62; 
@@ -5838,7 +5836,6 @@ x_34 = lean_box_uint32(x_33);
 lean_inc(x_1);
 x_35 = lean_apply_1(x_1, x_34);
 x_36 = lean_unbox(x_35);
-lean_dec(x_35);
 if (x_36 == 0)
 {
 lean_object* x_37; 
@@ -10547,7 +10544,6 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; 
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 x_8 = l_Lean_Xml_Parser_endl___closed__1;
 x_9 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_9, 0, x_3);
@@ -10565,7 +10561,6 @@ if (x_12 == 0)
 lean_object* x_13; lean_object* x_14; 
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 x_13 = l_Lean_Xml_Parser_Mixed___closed__2;
 x_14 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_14, 0, x_3);
@@ -11097,7 +11092,6 @@ lean_dec(x_3);
 if (x_7 == 0)
 {
 lean_object* x_8; 
-lean_dec(x_2);
 x_8 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_8, 0, x_4);
 lean_ctor_set(x_8, 1, x_6);
@@ -14016,7 +14010,6 @@ lean_dec(x_2);
 if (x_7 == 0)
 {
 lean_object* x_8; 
-lean_dec(x_3);
 x_8 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_8, 0, x_4);
 lean_ctor_set(x_8, 1, x_6);

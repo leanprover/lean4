@@ -361,7 +361,6 @@ x_7 = lean_usize_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
-lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
 x_9 = l_Lean_Compiler_LCNF_Simp_markUsedArg___redArg(x_8, x_5, x_6);
 x_10 = lean_ctor_get(x_9, 0);
@@ -647,7 +646,6 @@ x_20 = lean_usize_dec_eq(x_2, x_3);
 if (x_20 == 0)
 {
 lean_object* x_21; 
-lean_dec(x_4);
 x_21 = lean_array_uget(x_1, x_2);
 if (lean_obj_tag(x_21) == 0)
 {

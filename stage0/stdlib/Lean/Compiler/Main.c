@@ -141,7 +141,6 @@ return x_10;
 else
 {
 uint8_t x_11; 
-lean_dec(x_2);
 x_11 = !lean_is_exclusive(x_6);
 if (x_11 == 0)
 {

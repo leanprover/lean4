@@ -635,7 +635,6 @@ uint8_t x_8;
 x_8 = lean_usize_dec_lt(x_6, x_5);
 if (x_8 == 0)
 {
-lean_dec(x_3);
 lean_inc(x_7);
 return x_7;
 }
@@ -5814,7 +5813,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Elab_Term_MatchExpr_generate_loop___lam__0(x_5, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);

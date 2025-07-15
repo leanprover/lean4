@@ -5620,7 +5620,6 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Array_qsort_sort___at___Lean_Elab_Tactic_Doc_elabPrintTacTags_spec__5___redArg___lam__0(x_5, x_2, x_3, x_4);
 x_7 = lean_box(x_6);
 return x_7;
@@ -5631,7 +5630,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_Array_qsort_sort___at___Lean_Elab_Tactic_Doc_elabPrintTacTags_spec__5___redArg(x_6, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 return x_7;
@@ -5642,7 +5640,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_1);
-lean_dec(x_1);
 x_11 = l_Array_qsort_sort___at___Lean_Elab_Tactic_Doc_elabPrintTacTags_spec__5(x_10, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_6);
 lean_dec(x_3);
@@ -5697,7 +5694,6 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Array_qsort_sort___at___Lean_Parser_Tactic_Doc_allTagsWithInfo___at___Lean_Elab_Tactic_Doc_elabPrintTacTags_spec__6_spec__8___redArg___lam__0(x_5, x_2, x_3, x_4);
 x_7 = lean_box(x_6);
 return x_7;
@@ -5747,7 +5743,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_List_mapM_loop___at___List_mapM_loop___at___Lean_Elab_Tactic_Doc_elabPrintTacTags_spec__11_spec__11___redArg___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);

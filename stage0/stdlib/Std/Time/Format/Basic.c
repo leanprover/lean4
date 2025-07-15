@@ -1015,7 +1015,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_Text_toCtorIdx(x_2);
 return x_3;
 }
@@ -1057,9 +1056,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Time_Text_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -1069,9 +1066,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Time_Text_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -1263,7 +1258,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_reprText____x40_Std_Time_Format_Basic___hyg_15_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -2244,7 +2238,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_ZoneId_toCtorIdx(x_2);
 return x_3;
 }
@@ -2278,9 +2271,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Time_ZoneId_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -2290,9 +2281,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Time_ZoneId_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -2412,7 +2401,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_reprZoneId____x40_Std_Time_Format_Basic___hyg_733_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -2527,7 +2515,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_ZoneName_toCtorIdx(x_2);
 return x_3;
 }
@@ -2553,9 +2540,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Time_ZoneName_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -2565,9 +2550,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Time_ZoneName_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -2687,7 +2670,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_reprZoneName____x40_Std_Time_Format_Basic___hyg_870_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -2871,7 +2853,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_OffsetX_toCtorIdx(x_2);
 return x_3;
 }
@@ -2897,9 +2878,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Time_OffsetX_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -2909,9 +2888,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Time_OffsetX_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -3189,7 +3166,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_reprOffsetX____x40_Std_Time_Format_Basic___hyg_1062_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -3373,7 +3349,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_OffsetO_toCtorIdx(x_2);
 return x_3;
 }
@@ -3399,9 +3374,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Time_OffsetO_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -3411,9 +3384,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Time_OffsetO_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -3533,7 +3504,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_reprOffsetO____x40_Std_Time_Format_Basic___hyg_1340_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -3656,7 +3626,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_OffsetZ_toCtorIdx(x_2);
 return x_3;
 }
@@ -3682,9 +3651,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Time_OffsetZ_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -3694,9 +3661,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Time_OffsetZ_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -3870,7 +3835,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_reprOffsetZ____x40_Std_Time_Format_Basic___hyg_1467_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -13583,7 +13547,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_parseModifier___lam__3(x_2);
 return x_3;
 }
@@ -13593,7 +13556,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_parseModifier___lam__4(x_2);
 return x_3;
 }
@@ -13603,7 +13565,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_parseModifier___lam__5(x_2);
 return x_3;
 }
@@ -13613,7 +13574,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_parseModifier___lam__6(x_2);
 return x_3;
 }
@@ -13623,7 +13583,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_parseModifier___lam__7(x_2);
 return x_3;
 }
@@ -13633,7 +13592,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_parseModifier___lam__18(x_2);
 return x_3;
 }
@@ -13643,7 +13601,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_parseModifier___lam__20(x_2);
 return x_3;
 }
@@ -13653,7 +13610,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_parseModifier___lam__27(x_2);
 return x_3;
 }
@@ -14500,7 +14456,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Time_Awareness_instInhabitedType___lam__0(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -14509,7 +14464,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Time_Awareness_instInhabitedType___lam__2(x_1, x_2, x_3);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -14648,7 +14602,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_reprFormatConfig___redArg____x40_Std_Time_Format_Basic___hyg_4126_(x_2);
 return x_3;
 }
@@ -14658,7 +14611,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_reprFormatConfig____x40_Std_Time_Format_Basic___hyg_4126_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -15243,7 +15195,6 @@ x_17 = lean_box_uint32(x_16);
 lean_inc(x_1);
 x_18 = lean_apply_1(x_1, x_17);
 x_19 = lean_unbox(x_18);
-lean_dec(x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; 
@@ -15668,7 +15619,6 @@ x_27 = lean_box_uint32(x_26);
 lean_inc(x_2);
 x_28 = lean_apply_1(x_2, x_27);
 x_29 = lean_unbox(x_28);
-lean_dec(x_28);
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; 
@@ -15889,7 +15839,6 @@ x_84 = lean_box_uint32(x_83);
 lean_inc(x_2);
 x_85 = lean_apply_1(x_2, x_84);
 x_86 = lean_unbox(x_85);
-lean_dec(x_85);
 if (x_86 == 0)
 {
 lean_object* x_87; lean_object* x_88; 
@@ -17239,7 +17188,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l___private_Std_Time_Format_Basic_0__Std_Time_pad(x_1, x_2, x_4);
 lean_dec(x_1);
 return x_5;
@@ -17357,7 +17305,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l___private_Std_Time_Format_Basic_0__Std_Time_rightTruncate(x_1, x_2, x_4);
 return x_5;
 }
@@ -18242,7 +18189,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_formatWeekdayLong(x_2);
 return x_3;
 }
@@ -18357,7 +18303,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_formatWeekdayShort(x_2);
 return x_3;
 }
@@ -18429,7 +18374,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_formatWeekdayNarrow(x_2);
 return x_3;
 }
@@ -18472,7 +18416,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_formatEraShort(x_2);
 return x_3;
 }
@@ -18515,7 +18458,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_formatEraLong(x_2);
 return x_3;
 }
@@ -18558,7 +18500,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_formatEraNarrow(x_2);
 return x_3;
 }
@@ -18883,7 +18824,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMarkerShort(x_2);
 return x_3;
 }
@@ -18926,7 +18866,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMarkerLong(x_2);
 return x_3;
 }
@@ -18961,7 +18900,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_formatMarkerNarrow(x_2);
 return x_3;
 }
@@ -19339,11 +19277,8 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = lean_unbox(x_4);
-lean_dec(x_4);
 x_8 = l___private_Std_Time_Format_Basic_0__Std_Time_toIsoString(x_1, x_5, x_6, x_7);
 return x_8;
 }
@@ -45814,7 +45749,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_Reason_toCtorIdx(x_2);
 return x_3;
 }
@@ -45840,9 +45774,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l___private_Std_Time_Format_Basic_0__Std_Time_Reason_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -45852,9 +45784,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l___private_Std_Time_Format_Basic_0__Std_Time_Reason_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -47003,7 +46933,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l___private_Std_Time_Format_Basic_0__Std_Time_parseOffset___lam__1(x_3, x_2);
 return x_4;
 }
@@ -47013,7 +46942,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_5);
-lean_dec(x_5);
 x_8 = l___private_Std_Time_Format_Basic_0__Std_Time_parseOffset___lam__2(x_1, x_2, x_3, x_4, x_7, x_6);
 lean_dec(x_4);
 lean_dec(x_2);
@@ -47025,11 +46953,8 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l___private_Std_Time_Format_Basic_0__Std_Time_parseOffset(x_5, x_6, x_7, x_4);
 return x_8;
 }
@@ -48591,7 +48516,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l___private_Std_Time_Format_Basic_0__Std_Time_parseWith(x_4, x_2, x_3);
 return x_5;
 }
@@ -54981,7 +54905,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_DateBuilder_convertYearAndEra(x_1, x_3);
 lean_dec(x_1);
 return x_4;
@@ -56345,7 +56268,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_DateBuilder_build___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_5;
@@ -56356,7 +56278,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_DateBuilder_build___lam__1(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -56377,7 +56298,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_DateBuilder_build___lam__3(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }
@@ -56516,7 +56436,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_parseWithDate(x_1, x_5, x_3, x_4);
 return x_6;
 }
@@ -56589,7 +56508,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Std_Time_GenericFormat_spec___redArg(x_1, x_3);
 return x_4;
 }
@@ -56599,7 +56517,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Std_Time_GenericFormat_spec(x_1, x_2, x_4);
 lean_dec(x_1);
 return x_5;
@@ -56661,7 +56578,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Std_Time_GenericFormat_spec_x21(x_1, x_2, x_4);
 lean_dec(x_1);
 return x_5;
@@ -56889,7 +56805,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_List_mapTR_loop___at___List_mapTR_loop___at___Std_Time_GenericFormat_format_spec__0_spec__0___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -57019,7 +56934,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_parser_go(x_6, x_2, x_3, x_4, x_5);
 lean_dec(x_2);
 return x_7;
@@ -57083,7 +56997,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_parser(x_1, x_5, x_3, x_4);
 lean_dec(x_3);
 return x_6;
@@ -57262,7 +57175,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Std_Time_GenericFormat_builderParser_go___redArg(x_5, x_2, x_3, x_4);
 return x_6;
 }
@@ -57272,7 +57184,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Std_Time_GenericFormat_builderParser_go(x_1, x_6, x_3, x_4, x_5);
 return x_7;
 }
@@ -57298,7 +57209,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Std_Time_GenericFormat_builderParser___redArg(x_1, x_5, x_3, x_4);
 return x_6;
 }
@@ -57308,7 +57218,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Time_GenericFormat_builderParser(x_1, x_2, x_6, x_4, x_5);
 return x_7;
 }
@@ -57393,7 +57302,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Std_Time_GenericFormat_parse___lam__0(x_1, x_5, x_3, x_4);
 lean_dec(x_3);
 return x_6;
@@ -57478,7 +57386,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Std_Time_GenericFormat_parseBuilder___redArg___lam__0(x_5, x_2, x_3, x_4);
 return x_6;
 }

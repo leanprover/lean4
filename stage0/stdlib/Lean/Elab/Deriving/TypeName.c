@@ -2073,7 +2073,6 @@ if (x_9 == 0)
 lean_object* x_10; 
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_5);
 lean_ctor_set(x_10, 1, x_8);
@@ -2082,7 +2081,6 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; 
-lean_dec(x_5);
 x_11 = lean_array_uget(x_2, x_4);
 lean_inc(x_6);
 lean_inc(x_11);
@@ -2106,7 +2104,6 @@ if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 lean_dec(x_15);
-lean_dec(x_1);
 x_34 = l_Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_Deriving_TypeName_0__Lean_Elab_deriveTypeNameInstance_spec__1___closed__1;
 x_35 = l_Lean_MessageData_ofConstName(x_11, x_33);
 x_36 = lean_alloc_ctor(7, 2, 0);
@@ -2153,7 +2150,6 @@ lean_inc(x_23);
 lean_dec(x_22);
 x_24 = 1;
 x_25 = lean_usize_add(x_4, x_24);
-lean_inc(x_1);
 {
 size_t _tmp_3 = x_25;
 lean_object* _tmp_4 = x_1;
@@ -2168,7 +2164,6 @@ else
 {
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 return x_22;
 }
 }
@@ -2179,7 +2174,6 @@ lean_dec(x_17);
 lean_dec(x_16);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_27 = !lean_is_exclusive(x_19);
 if (x_27 == 0)
 {
@@ -2207,7 +2201,6 @@ uint8_t x_40;
 lean_dec(x_11);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_40 = !lean_is_exclusive(x_12);
 if (x_40 == 0)
 {

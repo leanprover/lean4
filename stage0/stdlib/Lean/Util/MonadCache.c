@@ -281,7 +281,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_checkCache___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -838,7 +837,6 @@ lean_object* x_9;
 x_9 = l_Lean_MonadCacheT_instMonadHashMapCacheAdapter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_9;
 }
 }
@@ -1026,7 +1024,6 @@ lean_object* x_12;
 x_12 = l_Lean_MonadCacheT_run(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_12;
 }
 }
@@ -1053,7 +1050,6 @@ lean_object* x_9;
 x_9 = l_Lean_MonadCacheT_instMonad(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_9;
 }
 }
@@ -1083,7 +1079,6 @@ lean_object* x_8;
 x_8 = l_Lean_MonadCacheT_instMonadLift(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_8;
 }
 }
@@ -1117,7 +1112,6 @@ lean_object* x_10;
 x_10 = l_Lean_MonadCacheT_instMonadExceptOf(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_10;
 }
 }
@@ -1144,7 +1138,6 @@ lean_object* x_8;
 x_8 = l_Lean_MonadCacheT_instMonadControl(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_8;
 }
 }
@@ -1173,7 +1166,6 @@ lean_object* x_9;
 x_9 = l_Lean_MonadCacheT_instMonadFinally(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_9;
 }
 }
@@ -1210,7 +1202,6 @@ lean_object* x_9;
 x_9 = l_Lean_MonadCacheT_instMonadRef(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_9;
 }
 }
@@ -1237,7 +1228,6 @@ lean_object* x_10;
 x_10 = l_Lean_MonadCacheT_instAlternative(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_10;
 }
 }

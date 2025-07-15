@@ -4794,7 +4794,6 @@ _start:
 {
 uint8_t x_27; lean_object* x_28; 
 x_27 = lean_unbox(x_9);
-lean_dec(x_9);
 x_28 = l___private_Lean_Meta_Tactic_Grind_Lookahead_0__Lean_Meta_Grind_tryLookahead___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_27, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25, x_26);
 lean_dec(x_18);
 return x_28;
@@ -8471,7 +8470,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_1);
-lean_dec(x_1);
 x_15 = l_List_forIn_x27_loop___at___Lean_Meta_Grind_lookahead_spec__0___redArg(x_14, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 return x_15;
 }
@@ -8481,7 +8479,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_1);
-lean_dec(x_1);
 x_17 = l_List_forIn_x27_loop___at___Lean_Meta_Grind_lookahead_spec__0(x_16, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_3);
 return x_17;

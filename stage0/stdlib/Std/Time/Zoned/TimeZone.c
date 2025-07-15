@@ -659,7 +659,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_Std_Time_TimeZone_ofHours(x_1, x_2, x_3, x_5);
 lean_dec(x_3);
 return x_6;
@@ -682,7 +681,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_Std_Time_TimeZone_ofSeconds(x_1, x_2, x_3, x_5);
 return x_6;
 }

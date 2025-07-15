@@ -156,7 +156,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lean_IR_reshapeWithoutDead_reshape___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }

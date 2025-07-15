@@ -746,7 +746,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Range_forM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_7;

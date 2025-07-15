@@ -287,7 +287,6 @@ else
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 lean_dec(x_5);
-lean_dec(x_3);
 lean_dec(x_2);
 x_19 = lean_ctor_get(x_6, 1);
 lean_inc(x_19);
@@ -306,7 +305,6 @@ else
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 lean_dec(x_8);
 lean_dec(x_5);
-lean_dec(x_3);
 lean_dec(x_2);
 x_26 = lean_ctor_get(x_6, 1);
 lean_inc(x_26);
@@ -430,7 +428,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_forEachModuleInDir___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -448,7 +445,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_12);
-lean_dec(x_12);
 x_14 = l_Lean_forEachModuleInDir___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_13);
 return x_14;
 }
@@ -458,7 +454,6 @@ _start:
 {
 lean_object* x_13; 
 x_13 = l_Lean_forEachModuleInDir___redArg___lam__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_12);
 return x_13;
 }
 }
@@ -467,7 +462,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_forEachModuleInDir___redArg___lam__5(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -815,7 +809,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_SearchPath_findWithExt___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -1354,7 +1347,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_SearchPath_findAllWithExt_spec__3_spec__3___redArg___lam__0(x_4, x_2, x_3);
 lean_dec(x_2);
 return x_5;
@@ -2600,7 +2592,6 @@ if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_7; 
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_5);

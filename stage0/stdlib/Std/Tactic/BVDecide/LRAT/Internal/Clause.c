@@ -193,7 +193,6 @@ lean_dec(x_4);
 if (x_7 == 0)
 {
 uint8_t x_8; 
-lean_dec(x_5);
 x_8 = 1;
 return x_8;
 }
@@ -201,14 +200,12 @@ else
 {
 uint8_t x_9; 
 x_9 = lean_unbox(x_5);
-lean_dec(x_5);
 return x_9;
 }
 }
 else
 {
 uint8_t x_10; 
-lean_dec(x_5);
 x_10 = lean_unbox(x_4);
 lean_dec(x_4);
 return x_10;
@@ -722,9 +719,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Tactic_BVDecide_LRAT_Internal_beqDefaultClause___lam__0____x40_Std_Tactic_BVDecide_LRAT_Internal_Clause___hyg_682_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;

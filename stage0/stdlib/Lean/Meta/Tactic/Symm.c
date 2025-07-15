@@ -986,7 +986,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Array_binInsertM___at_____private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_5__spec__0_spec__0_spec__2___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;
@@ -2806,7 +2805,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lean_Meta_Symm_initFn___lam__0____x40_Lean_Meta_Tactic_Symm___hyg_88_(x_1, x_2, x_7, x_4, x_5, x_6);
 lean_dec(x_2);
 return x_8;
@@ -3414,7 +3412,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_18);
 lean_dec(x_15);
 lean_dec(x_13);
 lean_dec(x_8);
@@ -3956,7 +3953,6 @@ return x_22;
 }
 else
 {
-lean_dec(x_17);
 lean_dec(x_15);
 lean_dec(x_13);
 lean_dec(x_8);
@@ -5061,7 +5057,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_16);
 lean_dec(x_14);
 lean_dec(x_12);
 lean_dec(x_7);
@@ -5860,7 +5855,6 @@ return x_21;
 }
 else
 {
-lean_dec(x_17);
 lean_dec(x_14);
 lean_dec(x_12);
 lean_dec(x_7);

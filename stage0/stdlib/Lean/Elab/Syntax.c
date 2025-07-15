@@ -5287,7 +5287,7 @@ if (x_39 == 0)
 uint8_t x_40; 
 x_40 = l_Lean_isLetterLike(x_36);
 x_22 = x_31;
-x_23 = x_32;
+x_23 = x_33;
 x_24 = x_34;
 x_25 = x_35;
 x_26 = x_40;
@@ -5296,7 +5296,7 @@ goto block_30;
 else
 {
 x_22 = x_31;
-x_23 = x_32;
+x_23 = x_33;
 x_24 = x_34;
 x_25 = x_35;
 x_26 = x_39;
@@ -5306,7 +5306,7 @@ goto block_30;
 else
 {
 lean_dec(x_6);
-return x_33;
+return x_32;
 }
 }
 block_53:
@@ -5345,7 +5345,7 @@ goto block_41;
 else
 {
 lean_dec(x_6);
-return x_44;
+return x_43;
 }
 }
 block_71:
@@ -5388,8 +5388,8 @@ x_68 = lean_uint32_dec_le(x_67, x_66);
 if (x_68 == 0)
 {
 x_42 = x_61;
-x_43 = x_56;
-x_44 = x_65;
+x_43 = x_65;
+x_44 = x_56;
 x_45 = x_60;
 x_46 = x_57;
 x_47 = x_66;
@@ -5402,8 +5402,8 @@ uint32_t x_69; uint8_t x_70;
 x_69 = 90;
 x_70 = lean_uint32_dec_le(x_66, x_69);
 x_42 = x_61;
-x_43 = x_56;
-x_44 = x_65;
+x_43 = x_65;
+x_44 = x_56;
 x_45 = x_60;
 x_46 = x_57;
 x_47 = x_66;

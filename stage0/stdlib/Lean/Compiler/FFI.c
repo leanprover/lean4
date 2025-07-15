@@ -419,7 +419,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_get_linker_flags(x_2);
 return x_3;
 }
@@ -438,7 +437,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Compiler_FFI_getLinkerFlags_x27(x_2);
 return x_3;
 }
@@ -498,7 +496,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Compiler_FFI_getLinkerFlags(x_1, x_3);
 return x_4;
 }

@@ -213,7 +213,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Compiler_LCNF_Phase_toNat(x_2);
 return x_3;
 }
@@ -251,9 +250,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Compiler_LCNF_instDecidableLtPhase(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -276,9 +273,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Compiler_LCNF_instDecidableLePhase(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1054,7 +1049,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Compiler_LCNF_instToStringPhase___lam__0(x_2);
 return x_3;
 }
@@ -1180,7 +1174,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Lean_Compiler_LCNF_Pass_mkPerDeclaration(x_1, x_2, x_5, x_4);
 return x_6;
 }
@@ -1513,7 +1506,6 @@ lean_dec(x_3);
 x_10 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_11 = lean_unbox(x_5);
-lean_dec(x_5);
 x_12 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Compiler_LCNF_PassManager_validate_spec__0_spec__0(x_1, x_2, x_9, x_10, x_11, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -1530,7 +1522,6 @@ lean_dec(x_3);
 x_10 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_11 = lean_unbox(x_5);
-lean_dec(x_5);
 x_12 = l_Array_forIn_x27Unsafe_loop___at___Lean_Compiler_LCNF_PassManager_validate_spec__0(x_1, x_2, x_9, x_10, x_11, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -1974,7 +1965,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_2);
-lean_dec(x_2);
 x_16 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_PassInstaller_withEachOccurrence_spec__0(x_1, x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_7);
 lean_dec(x_6);

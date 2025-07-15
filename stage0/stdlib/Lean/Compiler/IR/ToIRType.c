@@ -463,7 +463,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_35 = !lean_is_exclusive(x_22);
 if (x_35 == 0)
@@ -495,7 +494,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_39 = !lean_is_exclusive(x_19);
 if (x_39 == 0)
@@ -527,7 +525,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_43 = !lean_is_exclusive(x_16);
 if (x_43 == 0)
@@ -649,7 +646,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_65 = lean_ctor_get(x_56, 0);
 lean_inc(x_65);
@@ -682,7 +678,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_69 = lean_ctor_get(x_53, 0);
 lean_inc(x_69);
@@ -715,7 +710,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_73 = lean_ctor_get(x_50, 0);
 lean_inc(x_73);
@@ -757,7 +751,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_79 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_79, 0, x_5);
@@ -2838,7 +2831,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_IR_nameToIRType_fillCache_spec__1_spec__1___redArg___lam__1(x_1, x_2, x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_6);
 return x_13;
@@ -5349,13 +5341,9 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_13 = lean_unbox(x_2);
-lean_dec(x_2);
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = lean_unbox(x_4);
-lean_dec(x_4);
 x_16 = lean_unbox(x_5);
-lean_dec(x_5);
 x_17 = l_Lean_IR_getCtorLayout_fillCache___lam__1(x_1, x_13, x_14, x_15, x_16, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -5379,7 +5367,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_5);
-lean_dec(x_5);
 x_18 = l_Lean_IR_getCtorLayout_fillCache___lam__2(x_1, x_2, x_3, x_4, x_17, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_11);
 lean_dec(x_4);

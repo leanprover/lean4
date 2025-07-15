@@ -300,7 +300,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_System_Uri_UriEscape_decodeUri_hexDigitToUInt8_x3f(x_2);
 return x_3;
 }
@@ -692,7 +691,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Lean_Loop_forIn_loop___at___System_Uri_UriEscape_decodeUri_spec__0(x_1, x_2, x_5, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -1165,7 +1163,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_System_Uri_UriEscape_uriEscapeAsciiChar_uInt8ToHex(x_2);
 return x_3;
 }
@@ -1624,7 +1621,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_System_Uri_pathToUri___lam__0(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -1905,9 +1901,7 @@ _start:
 {
 uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = l_Substring_takeWhileAux___at___System_Uri_fileUriToPath_x3f_spec__0(x_6, x_7, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);

@@ -96,6 +96,7 @@ lean_object* l_List_find_x3f___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_mkConstWithFreshMVarLevels_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Widget_diffInteractiveGoals___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Widget_exprDiffCore_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Widget_instToStringExprDiff___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_diffHypothesesBundle___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__2_spec__2___redArg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instToStringExprDiff___lam__0___closed__2;
@@ -352,7 +353,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_toCtorIdx(x_2);
 return x_3;
 }
@@ -394,9 +394,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -406,9 +404,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -469,9 +465,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Widget_ExprDiffTag_toDiffTag(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -531,7 +525,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Widget_ExprDiffTag_toString(x_2);
 return x_3;
 }
@@ -677,9 +670,7 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Lean_Widget_instAppendExprDiff___lam__1(x_1, x_4, x_5);
 lean_dec(x_1);
 x_7 = lean_box(x_6);
@@ -715,19 +706,14 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-lean_dec(x_1);
 x_4 = l_Lean_Widget_instToStringExprDiff___lam__0___closed__0;
 x_5 = l_Lean_SubExpr_Pos_toString(x_2);
-lean_dec(x_2);
 x_6 = lean_string_append(x_4, x_5);
 lean_dec(x_5);
 x_7 = l_Lean_Widget_instToStringExprDiff___lam__0___closed__1;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_Widget_ExprDiffTag_toString(x_9);
 x_11 = lean_string_append(x_8, x_10);
 lean_dec(x_10);
@@ -799,7 +785,7 @@ static lean_object* _init_l_Lean_Widget_instToStringExprDiff() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Widget_instToStringExprDiff___lam__0), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Widget_instToStringExprDiff___lam__0___boxed), 1, 0);
 x_2 = lean_alloc_closure((void*)(l_Lean_Widget_instToStringExprDiff___lam__1), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 x_3 = l_Lean_Widget_instToStringExprDiff___closed__0;
@@ -807,6 +793,15 @@ x_4 = lean_alloc_closure((void*)(l_Lean_Widget_instToStringExprDiff___lam__2), 3
 lean_closure_set(x_4, 0, x_2);
 lean_closure_set(x_4, 1, x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Widget_instToStringExprDiff___lam__0___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Widget_instToStringExprDiff___lam__0(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_insertBeforeChange(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
@@ -845,7 +840,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Widget_ExprDiff_insertBeforeChange(x_1, x_4, x_3);
 return x_5;
 }
@@ -886,7 +880,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Widget_ExprDiff_insertAfterChange(x_1, x_4, x_3);
 return x_5;
 }
@@ -911,7 +904,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Widget_ExprDiff_withChangePos(x_1, x_2, x_4);
 return x_5;
 }
@@ -935,7 +927,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Widget_ExprDiff_withChange(x_1, x_2, x_4);
 return x_5;
 }
@@ -1957,7 +1948,6 @@ x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_nat_dec_lt(x_16, x_12);
 if (x_17 == 0)
 {
-lean_dec(x_15);
 lean_dec(x_14);
 lean_dec(x_12);
 lean_dec(x_1);
@@ -2030,7 +2020,6 @@ lean_dec(x_25);
 lean_dec(x_24);
 lean_dec(x_23);
 lean_dec(x_21);
-lean_dec(x_20);
 lean_dec(x_1);
 return x_22;
 }
@@ -3817,7 +3806,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_2);
-lean_dec(x_2);
 x_18 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Widget_exprDiffCore_piDiff_spec__2(x_1, x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_15);
 lean_dec(x_14);
@@ -3856,9 +3844,7 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Lean_Widget_exprDiffCore_piDiff___lam__1(x_1, x_4, x_5);
 lean_dec(x_1);
 x_7 = lean_box(x_6);
@@ -3945,7 +3931,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_Widget_exprDiff(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -4508,9 +4493,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = l_Lean_Widget_addDiffTags___lam__0(x_9, x_2, x_10, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -4524,7 +4507,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Widget_addDiffTags(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -4975,7 +4957,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Widget_diffHypothesesBundle_withTypeDiff(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -4996,7 +4977,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_11);
@@ -5401,7 +5381,6 @@ return x_27;
 else
 {
 uint8_t x_28; 
-lean_dec(x_3);
 x_28 = !lean_is_exclusive(x_18);
 if (x_28 == 0)
 {
@@ -5546,7 +5525,6 @@ _start:
 {
 uint8_t x_17; size_t x_18; size_t x_19; lean_object* x_20; 
 x_17 = lean_unbox(x_1);
-lean_dec(x_1);
 x_18 = lean_unbox_usize(x_9);
 lean_dec(x_9);
 x_19 = lean_unbox_usize(x_10);
@@ -5561,7 +5539,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Widget_diffHypothesesBundle(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -5674,7 +5651,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Widget_diffHypotheses(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -7943,7 +7919,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Widget_diffInteractiveGoal(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -8043,7 +8018,6 @@ if (x_1 == 0)
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_apply_2(x_2, x_3, x_4);
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 return x_6;
 }
 else
@@ -8051,7 +8025,6 @@ else
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_apply_2(x_2, x_4, x_3);
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 return x_8;
 }
 }
@@ -8601,7 +8574,6 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Widget_diffInteractiveGoals_spec__2_spec__2___lam__0(x_5, x_2, x_3, x_4);
 x_7 = lean_box(x_6);
 return x_7;
@@ -8643,11 +8615,8 @@ _start:
 {
 uint8_t x_21; uint8_t x_22; uint8_t x_23; lean_object* x_24; 
 x_21 = lean_unbox(x_4);
-lean_dec(x_4);
 x_22 = lean_unbox(x_5);
-lean_dec(x_5);
 x_23 = lean_unbox(x_12);
-lean_dec(x_12);
 x_24 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Widget_diffInteractiveGoals_spec__2_spec__2___lam__2(x_1, x_2, x_3, x_21, x_22, x_6, x_7, x_8, x_9, x_10, x_11, x_23, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
 lean_dec(x_15);
 lean_dec(x_14);
@@ -8659,11 +8628,8 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; uint8_t x_16; size_t x_17; size_t x_18; lean_object* x_19; 
 x_14 = lean_unbox(x_1);
-lean_dec(x_1);
 x_15 = lean_unbox(x_4);
-lean_dec(x_4);
 x_16 = lean_unbox(x_5);
-lean_dec(x_5);
 x_17 = lean_unbox_usize(x_6);
 lean_dec(x_6);
 x_18 = lean_unbox_usize(x_7);
@@ -8677,11 +8643,8 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; uint8_t x_16; size_t x_17; size_t x_18; lean_object* x_19; 
 x_14 = lean_unbox(x_1);
-lean_dec(x_1);
 x_15 = lean_unbox(x_4);
-lean_dec(x_4);
 x_16 = lean_unbox(x_5);
-lean_dec(x_5);
 x_17 = lean_unbox_usize(x_6);
 lean_dec(x_6);
 x_18 = lean_unbox_usize(x_7);
@@ -8695,11 +8658,8 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; uint8_t x_18; size_t x_19; size_t x_20; lean_object* x_21; 
 x_16 = lean_unbox(x_1);
-lean_dec(x_1);
 x_17 = lean_unbox(x_4);
-lean_dec(x_4);
 x_18 = lean_unbox(x_5);
-lean_dec(x_5);
 x_19 = lean_unbox_usize(x_8);
 lean_dec(x_8);
 x_20 = lean_unbox_usize(x_9);
@@ -8726,9 +8686,7 @@ _start:
 {
 uint8_t x_6; uint8_t x_7; uint8_t x_8; lean_object* x_9; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lean_Widget_diffInteractiveGoals___lam__1(x_1, x_6, x_7, x_4, x_5);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -8742,7 +8700,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Widget_diffInteractiveGoals(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }

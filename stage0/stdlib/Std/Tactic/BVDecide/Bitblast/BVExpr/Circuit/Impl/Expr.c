@@ -11972,7 +11972,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Std_Sat_AIG_isConstant___at___Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_go___at___Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_blast___at___Std_Tactic_BVDecide_BVExpr_bitblast_blastMul___at___Std_Tactic_BVDecide_BVExpr_bitblast_go_spec__24_spec__24_spec__27_spec__27(x_1, x_2, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -13115,7 +13114,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Expr_0__Std_Tactic_BVDecide_BVExpr_bitblast_go_match__9_splitter___redArg(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -13132,7 +13130,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Expr_0__Std_Tactic_BVDecide_BVExpr_bitblast_go_match__9_splitter(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_9);
 lean_dec(x_8);

@@ -648,7 +648,6 @@ if (x_10 == 0)
 {
 uint8_t x_11; 
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_11 = !lean_is_exclusive(x_8);
 if (x_11 == 0)
@@ -725,7 +724,6 @@ return x_29;
 else
 {
 uint8_t x_30; 
-lean_dec(x_3);
 x_30 = !lean_is_exclusive(x_18);
 if (x_30 == 0)
 {

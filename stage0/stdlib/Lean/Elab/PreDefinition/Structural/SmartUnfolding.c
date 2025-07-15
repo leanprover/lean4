@@ -1647,7 +1647,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = l_Lean_Meta_lambdaBoundedTelescope___at___Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__2___redArg(x_1, x_2, x_3, x_10, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -1657,7 +1656,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_5);
-lean_dec(x_5);
 x_12 = l_Lean_Meta_lambdaBoundedTelescope___at___Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__2(x_1, x_2, x_3, x_4, x_11, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }
@@ -1667,9 +1665,7 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_16 = lean_unbox(x_1);
-lean_dec(x_1);
 x_17 = lean_unbox(x_2);
-lean_dec(x_2);
 x_18 = l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__3___lam__0(x_16, x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -1681,9 +1677,7 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; size_t x_18; size_t x_19; lean_object* x_20; 
 x_16 = lean_unbox(x_3);
-lean_dec(x_3);
 x_17 = lean_unbox(x_4);
-lean_dec(x_4);
 x_18 = lean_unbox_usize(x_8);
 lean_dec(x_8);
 x_19 = lean_unbox_usize(x_9);
@@ -1698,7 +1692,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = l_Lean_Meta_mapLetDecl___at___Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__4___lam__0(x_1, x_9, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -1708,11 +1701,8 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = lean_unbox(x_6);
-lean_dec(x_6);
 x_15 = lean_unbox(x_7);
-lean_dec(x_7);
 x_16 = l_Lean_Meta_mapLetDecl___at___Lean_Elab_Structural_addSmartUnfoldingDefAux_visit_spec__4(x_1, x_2, x_3, x_4, x_13, x_14, x_15, x_8, x_9, x_10, x_11, x_12);
 return x_16;
 }
@@ -1722,9 +1712,7 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___lam__0(x_4, x_5, x_3);
 lean_dec(x_3);
 x_7 = lean_box(x_6);
@@ -2116,7 +2104,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = l_Lean_Elab_Structural_addSmartUnfoldingDef___lam__0(x_1, x_2, x_11, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }

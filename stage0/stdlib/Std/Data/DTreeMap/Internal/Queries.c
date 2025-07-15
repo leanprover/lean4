@@ -1039,7 +1039,6 @@ lean_inc(x_1);
 lean_inc(x_2);
 x_7 = lean_apply_2(x_1, x_2, x_4);
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 switch (x_8) {
 case 0:
 {
@@ -1255,7 +1254,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l___private_Std_Data_DTreeMap_Internal_Queries_0__Std_DTreeMap_Internal_Impl_contains_match__1_splitter___redArg(x_5, x_2, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -1268,7 +1266,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l___private_Std_Data_DTreeMap_Internal_Queries_0__Std_DTreeMap_Internal_Impl_contains_match__1_splitter(x_1, x_6, x_3, x_4, x_5);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -1349,7 +1346,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_8 = lean_apply_2(x_1, x_3, x_4);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 switch (x_9) {
 case 0:
 {
@@ -1413,7 +1409,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_8 = lean_apply_2(x_1, x_3, x_4);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 switch (x_9) {
 case 0:
 {
@@ -1504,7 +1499,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_9 = lean_apply_2(x_1, x_3, x_5);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -1569,7 +1563,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_9 = lean_apply_2(x_1, x_3, x_5);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -1648,7 +1641,6 @@ lean_inc(x_4);
 lean_inc(x_3);
 x_7 = lean_apply_2(x_1, x_3, x_4);
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 switch (x_8) {
 case 0:
 {
@@ -1711,7 +1703,6 @@ lean_inc(x_4);
 lean_inc(x_3);
 x_7 = lean_apply_2(x_1, x_3, x_4);
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 switch (x_8) {
 case 0:
 {
@@ -1785,7 +1776,6 @@ lean_inc(x_5);
 lean_inc(x_3);
 x_8 = lean_apply_2(x_1, x_3, x_5);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 switch (x_9) {
 case 0:
 {
@@ -1849,7 +1839,6 @@ lean_inc(x_5);
 lean_inc(x_3);
 x_8 = lean_apply_2(x_1, x_3, x_5);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 switch (x_9) {
 case 0:
 {
@@ -1929,7 +1918,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_8 = lean_apply_2(x_1, x_3, x_4);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 switch (x_9) {
 case 0:
 {
@@ -1993,7 +1981,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_8 = lean_apply_2(x_1, x_3, x_4);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 switch (x_9) {
 case 0:
 {
@@ -2068,7 +2055,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_9 = lean_apply_2(x_1, x_3, x_5);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -2133,7 +2119,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_9 = lean_apply_2(x_1, x_3, x_5);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -2530,7 +2515,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_DTreeMap_Internal_Impl_forM___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -5678,7 +5662,6 @@ lean_inc(x_5);
 lean_inc(x_2);
 x_9 = lean_apply_2(x_1, x_2, x_5);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -5788,7 +5771,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_9);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -5850,7 +5832,6 @@ lean_inc(x_5);
 lean_inc(x_2);
 x_9 = lean_apply_2(x_1, x_2, x_5);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -5960,7 +5941,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -6489,7 +6469,6 @@ lean_inc(x_4);
 lean_inc(x_2);
 x_8 = lean_apply_2(x_1, x_2, x_4);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 switch (x_9) {
 case 0:
 {
@@ -6566,7 +6545,6 @@ lean_inc(x_2);
 x_8 = lean_apply_2(x_1, x_2, x_4);
 x_9 = 0;
 x_10 = lean_unbox(x_8);
-lean_dec(x_8);
 x_11 = l_instDecidableEqOrdering(x_10, x_9);
 if (x_11 == 0)
 {
@@ -6629,7 +6607,6 @@ lean_inc(x_4);
 lean_inc(x_2);
 x_8 = lean_apply_2(x_1, x_2, x_4);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 switch (x_9) {
 case 0:
 {
@@ -6706,7 +6683,6 @@ lean_inc(x_2);
 x_8 = lean_apply_2(x_1, x_2, x_4);
 x_9 = 2;
 x_10 = lean_unbox(x_8);
-lean_dec(x_8);
 x_11 = l_instDecidableEqOrdering(x_10, x_9);
 if (x_11 == 0)
 {
@@ -6769,7 +6745,6 @@ lean_inc(x_5);
 lean_inc(x_2);
 x_8 = lean_apply_2(x_1, x_2, x_5);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 switch (x_9) {
 case 0:
 {
@@ -6867,7 +6842,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 x_4 = x_7;
@@ -6926,7 +6900,6 @@ lean_inc(x_5);
 lean_inc(x_2);
 x_8 = lean_apply_2(x_1, x_2, x_5);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 switch (x_9) {
 case 0:
 {
@@ -7024,7 +6997,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 x_4 = x_6;
@@ -7513,7 +7485,6 @@ lean_inc(x_4);
 lean_inc(x_2);
 x_7 = lean_apply_2(x_1, x_2, x_4);
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 switch (x_8) {
 case 0:
 {
@@ -7578,7 +7549,6 @@ lean_inc(x_2);
 x_7 = lean_apply_2(x_1, x_2, x_4);
 x_8 = 0;
 x_9 = lean_unbox(x_7);
-lean_dec(x_7);
 x_10 = l_instDecidableEqOrdering(x_9, x_8);
 if (x_10 == 0)
 {
@@ -7633,7 +7603,6 @@ lean_inc(x_4);
 lean_inc(x_2);
 x_7 = lean_apply_2(x_1, x_2, x_4);
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 switch (x_8) {
 case 0:
 {
@@ -7698,7 +7667,6 @@ lean_inc(x_2);
 x_7 = lean_apply_2(x_1, x_2, x_4);
 x_8 = 2;
 x_9 = lean_unbox(x_7);
-lean_dec(x_7);
 x_10 = l_instDecidableEqOrdering(x_9, x_8);
 if (x_10 == 0)
 {
@@ -9173,7 +9141,6 @@ lean_inc(x_5);
 lean_inc(x_2);
 x_9 = lean_apply_2(x_1, x_2, x_5);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -9283,7 +9250,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_9);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -9345,7 +9311,6 @@ lean_inc(x_5);
 lean_inc(x_2);
 x_9 = lean_apply_2(x_1, x_2, x_5);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -9455,7 +9420,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -9947,7 +9911,6 @@ lean_inc(x_4);
 lean_inc(x_2);
 x_8 = lean_apply_2(x_1, x_2, x_4);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 switch (x_9) {
 case 0:
 {
@@ -10024,7 +9987,6 @@ lean_inc(x_2);
 x_8 = lean_apply_2(x_1, x_2, x_4);
 x_9 = 0;
 x_10 = lean_unbox(x_8);
-lean_dec(x_8);
 x_11 = l_instDecidableEqOrdering(x_10, x_9);
 if (x_11 == 0)
 {
@@ -10087,7 +10049,6 @@ lean_inc(x_4);
 lean_inc(x_2);
 x_8 = lean_apply_2(x_1, x_2, x_4);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 switch (x_9) {
 case 0:
 {
@@ -10164,7 +10125,6 @@ lean_inc(x_2);
 x_8 = lean_apply_2(x_1, x_2, x_4);
 x_9 = 2;
 x_10 = lean_unbox(x_8);
-lean_dec(x_8);
 x_11 = l_instDecidableEqOrdering(x_10, x_9);
 if (x_11 == 0)
 {

@@ -2784,7 +2784,6 @@ _start:
 {
 uint8_t x_19; size_t x_20; lean_object* x_21; 
 x_19 = lean_unbox(x_5);
-lean_dec(x_5);
 x_20 = lean_unbox_usize(x_9);
 lean_dec(x_9);
 x_21 = l_Lean_Elab_Tactic_evalGeneralize___lam__1(x_1, x_2, x_3, x_4, x_19, x_6, x_7, x_8, x_20, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18);

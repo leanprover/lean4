@@ -2127,7 +2127,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withBindingBody___redArg___lam__0(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -2958,7 +2957,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_PrettyPrinter_Delaborator_SubExpr_nextExtraPos___redArg___lam__1(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }

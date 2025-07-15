@@ -1357,7 +1357,6 @@ uint32_t x_6; lean_object* x_7;
 x_6 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_7 = l_Lake_compileLeanModule___lam__0(x_6, x_2, x_3, x_4, x_5);
-lean_dec(x_3);
 lean_dec(x_2);
 return x_7;
 }
@@ -1567,7 +1566,6 @@ x_8 = lean_usize_dec_eq(x_3, x_4);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec(x_5);
 x_9 = lean_array_uget(x_2, x_3);
 x_10 = l_Lake_compileLeanModule___closed__7;
 x_11 = lean_string_utf8_byte_size(x_9);
@@ -2217,7 +2215,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_4);
-lean_dec(x_4);
 x_8 = l_Lake_compileStaticLib(x_1, x_2, x_3, x_7, x_5, x_6);
 return x_8;
 }
@@ -3351,7 +3348,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lake_untar(x_1, x_2, x_6, x_4, x_5);
 return x_7;
 }
@@ -3667,7 +3663,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lake_tar(x_1, x_2, x_7, x_4, x_5, x_6);
 lean_dec(x_4);
 return x_8;

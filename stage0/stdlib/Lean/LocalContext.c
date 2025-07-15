@@ -492,7 +492,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_LocalDeclKind_toCtorIdx(x_2);
 return x_3;
 }
@@ -534,9 +533,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_LocalDeclKind_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -546,9 +543,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_LocalDeclKind_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -748,7 +743,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_reprLocalDeclKind____x40_Lean_LocalContext___hyg_18_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -828,9 +822,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_instDecidableEqLocalDeclKind(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -866,7 +858,6 @@ _start:
 {
 uint8_t x_2; uint64_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_231_(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
@@ -962,7 +953,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = lean_mk_local_decl(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -1043,7 +1033,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_LocalDecl_isLet(x_1, x_3);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
@@ -1461,7 +1450,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_LocalDecl_value_x3f(x_1, x_3);
 lean_dec(x_1);
 return x_4;
@@ -1571,7 +1559,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_LocalDecl_value(x_1, x_3);
 lean_dec(x_1);
 return x_4;
@@ -1608,7 +1595,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_LocalDecl_hasValue(x_1, x_3);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
@@ -1711,7 +1697,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_LocalDecl_setNondep(x_1, x_3);
 return x_4;
 }
@@ -1907,7 +1892,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_LocalDecl_setBinderInfo(x_1, x_3);
 return x_4;
 }
@@ -2039,7 +2023,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_LocalDecl_setKind(x_1, x_3);
 return x_4;
 }
@@ -2356,9 +2339,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = lean_unbox(x_5);
-lean_dec(x_5);
 x_8 = lean_unbox(x_6);
-lean_dec(x_6);
 x_9 = l_Lean_LocalContext_mkLocalDecl(x_1, x_2, x_3, x_4, x_7, x_8);
 return x_9;
 }
@@ -2377,7 +2358,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = lean_local_ctx_mk_local_decl(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -2451,9 +2431,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_6);
-lean_dec(x_6);
 x_9 = lean_unbox(x_7);
-lean_dec(x_7);
 x_10 = l_Lean_LocalContext_mkLetDecl(x_1, x_2, x_3, x_4, x_5, x_8, x_9);
 return x_10;
 }
@@ -2472,7 +2450,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = lean_local_ctx_mk_let_decl(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
@@ -4603,7 +4580,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_LocalContext_setKind(x_1, x_2, x_4);
 return x_5;
 }
@@ -4693,7 +4669,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_LocalContext_setBinderInfo(x_1, x_2, x_4);
 return x_5;
 }
@@ -6146,11 +6121,8 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = lean_unbox(x_5);
-lean_dec(x_5);
 x_12 = lean_unbox(x_6);
-lean_dec(x_6);
 x_13 = l_Lean_LocalContext_mkBinding___lam__0(x_1, x_2, x_3, x_10, x_11, x_12, x_7, x_8, x_9);
 lean_dec(x_7);
 lean_dec(x_1);
@@ -6162,11 +6134,8 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = lean_unbox(x_5);
-lean_dec(x_5);
 x_9 = lean_unbox(x_6);
-lean_dec(x_6);
 x_10 = l_Lean_LocalContext_mkBinding(x_7, x_2, x_3, x_4, x_8, x_9);
 lean_dec(x_4);
 return x_10;
@@ -6374,9 +6343,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_3);
-lean_dec(x_3);
 x_9 = lean_unbox(x_4);
-lean_dec(x_4);
 x_10 = l_Nat_foldRev___at___Lean_LocalContext_mkLambda_spec__0___lam__0(x_1, x_2, x_8, x_9, x_5, x_6, x_7);
 lean_dec(x_5);
 lean_dec(x_1);
@@ -6388,9 +6355,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = l_Nat_foldRev___at___Lean_LocalContext_mkLambda_spec__0(x_1, x_2, x_7, x_8, x_5, x_6);
 lean_dec(x_5);
 return x_9;
@@ -6401,9 +6366,7 @@ _start:
 {
 uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = lean_unbox(x_5);
-lean_dec(x_5);
 x_8 = l_Lean_LocalContext_mkLambda(x_1, x_2, x_3, x_6, x_7);
 lean_dec(x_3);
 return x_8;
@@ -6584,9 +6547,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_3);
-lean_dec(x_3);
 x_9 = lean_unbox(x_4);
-lean_dec(x_4);
 x_10 = l_Nat_foldRev___at___Lean_LocalContext_mkForall_spec__0___lam__0(x_1, x_2, x_8, x_9, x_5, x_6, x_7);
 lean_dec(x_5);
 lean_dec(x_1);
@@ -6598,9 +6559,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = l_Nat_foldRev___at___Lean_LocalContext_mkForall_spec__0(x_1, x_2, x_7, x_8, x_5, x_6);
 lean_dec(x_5);
 return x_9;
@@ -6611,9 +6570,7 @@ _start:
 {
 uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = lean_unbox(x_5);
-lean_dec(x_5);
 x_8 = l_Lean_LocalContext_mkForall(x_1, x_2, x_3, x_6, x_7);
 lean_dec(x_3);
 return x_8;
@@ -6791,7 +6748,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_LocalContext_allM___redArg___lam__0(x_1, x_3);
 return x_4;
 }
@@ -6814,7 +6770,6 @@ lean_inc(x_4);
 lean_dec(x_2);
 x_5 = lean_apply_1(x_1, x_4);
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 return x_6;
 }
 }
@@ -6871,7 +6826,6 @@ lean_inc(x_4);
 lean_dec(x_2);
 x_5 = lean_apply_1(x_1, x_4);
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 uint8_t x_7; 
@@ -7656,7 +7610,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_getLocalHyps___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -7665,7 +7618,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_getLocalHyps___redArg___lam__1(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }

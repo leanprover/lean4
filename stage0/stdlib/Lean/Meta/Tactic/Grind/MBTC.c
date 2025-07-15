@@ -9497,7 +9497,6 @@ x_15 = lean_usize_dec_lt(x_4, x_3);
 if (x_15 == 0)
 {
 lean_object* x_16; 
-lean_dec(x_1);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_5);
 lean_ctor_set(x_16, 1, x_14);
@@ -9506,7 +9505,6 @@ return x_16;
 else
 {
 lean_object* x_17; lean_object* x_18; 
-lean_dec(x_5);
 x_17 = lean_array_uget(x_2, x_4);
 x_18 = l_Lean_Meta_Grind_addSplitCandidate(x_17, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_18) == 0)
@@ -9517,7 +9515,6 @@ lean_inc(x_19);
 lean_dec(x_18);
 x_20 = 1;
 x_21 = lean_usize_add(x_4, x_20);
-lean_inc(x_1);
 {
 size_t _tmp_3 = x_21;
 lean_object* _tmp_4 = x_1;
@@ -9530,7 +9527,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_1);
 return x_18;
 }
 }
@@ -11976,7 +11972,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 lean_dec(x_2);
 return x_14;
 }

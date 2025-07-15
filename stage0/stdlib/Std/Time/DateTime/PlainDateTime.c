@@ -2118,7 +2118,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Std_Time_PlainDateTime_withWeekday(x_1, x_3);
 return x_4;
 }

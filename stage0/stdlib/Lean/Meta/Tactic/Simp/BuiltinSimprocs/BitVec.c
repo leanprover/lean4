@@ -3758,7 +3758,6 @@ lean_inc(x_40);
 lean_dec(x_26);
 x_41 = lean_apply_3(x_2, x_39, x_40, x_38);
 x_42 = lean_unbox(x_41);
-lean_dec(x_41);
 if (x_42 == 0)
 {
 lean_object* x_43; 
@@ -3880,7 +3879,6 @@ lean_inc(x_65);
 lean_dec(x_50);
 x_66 = lean_apply_3(x_2, x_64, x_65, x_63);
 x_67 = lean_unbox(x_66);
-lean_dec(x_66);
 if (x_67 == 0)
 {
 lean_object* x_68; 
@@ -4106,7 +4104,6 @@ lean_inc(x_43);
 lean_dec(x_29);
 x_44 = lean_apply_3(x_2, x_42, x_43, x_41);
 x_45 = lean_unbox(x_44);
-lean_dec(x_44);
 if (x_45 == 0)
 {
 lean_object* x_46; 
@@ -4228,7 +4225,6 @@ lean_inc(x_68);
 lean_dec(x_53);
 x_69 = lean_apply_3(x_2, x_67, x_68, x_66);
 x_70 = lean_unbox(x_69);
-lean_dec(x_69);
 if (x_70 == 0)
 {
 lean_object* x_71; 
@@ -5578,7 +5574,6 @@ lean_object* x_44; uint8_t x_45; lean_object* x_46;
 lean_free_object(x_26);
 x_44 = lean_apply_3(x_3, x_38, x_39, x_41);
 x_45 = lean_unbox(x_44);
-lean_dec(x_44);
 x_46 = l_Lean_Meta_Simp_evalPropStep___redArg(x_4, x_45, x_5, x_6, x_7, x_8, x_36);
 return x_46;
 }
@@ -5624,7 +5619,6 @@ else
 lean_object* x_55; uint8_t x_56; lean_object* x_57; 
 x_55 = lean_apply_3(x_3, x_48, x_49, x_51);
 x_56 = lean_unbox(x_55);
-lean_dec(x_55);
 x_57 = l_Lean_Meta_Simp_evalPropStep___redArg(x_4, x_56, x_5, x_6, x_7, x_8, x_47);
 return x_57;
 }
@@ -5861,7 +5855,6 @@ lean_object* x_47; uint8_t x_48; lean_object* x_49;
 lean_free_object(x_29);
 x_47 = lean_apply_3(x_3, x_41, x_42, x_44);
 x_48 = lean_unbox(x_47);
-lean_dec(x_47);
 x_49 = l_Lean_Meta_Simp_evalPropStep___redArg(x_4, x_48, x_8, x_9, x_10, x_11, x_39);
 return x_49;
 }
@@ -5907,7 +5900,6 @@ else
 lean_object* x_58; uint8_t x_59; lean_object* x_60; 
 x_58 = lean_apply_3(x_3, x_51, x_52, x_54);
 x_59 = lean_unbox(x_58);
-lean_dec(x_58);
 x_60 = l_Lean_Meta_Simp_evalPropStep___redArg(x_4, x_59, x_8, x_9, x_10, x_11, x_50);
 return x_60;
 }
@@ -6149,7 +6141,6 @@ lean_object* x_45; uint8_t x_46;
 lean_free_object(x_15);
 x_45 = lean_apply_3(x_3, x_39, x_40, x_42);
 x_46 = lean_unbox(x_45);
-lean_dec(x_45);
 if (x_46 == 0)
 {
 lean_object* x_47; 
@@ -6296,7 +6287,6 @@ else
 lean_object* x_75; uint8_t x_76; 
 x_75 = lean_apply_3(x_3, x_68, x_69, x_71);
 x_76 = lean_unbox(x_75);
-lean_dec(x_75);
 if (x_76 == 0)
 {
 lean_object* x_77; 
@@ -6545,7 +6535,6 @@ lean_object* x_48; uint8_t x_49;
 lean_free_object(x_18);
 x_48 = lean_apply_3(x_3, x_42, x_43, x_45);
 x_49 = lean_unbox(x_48);
-lean_dec(x_48);
 if (x_49 == 0)
 {
 lean_object* x_50; 
@@ -6692,7 +6681,6 @@ else
 lean_object* x_78; uint8_t x_79; 
 x_78 = lean_apply_3(x_3, x_71, x_72, x_74);
 x_79 = lean_unbox(x_78);
-lean_dec(x_78);
 if (x_79 == 0)
 {
 lean_object* x_80; 

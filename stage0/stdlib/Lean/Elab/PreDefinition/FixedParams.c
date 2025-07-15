@@ -1288,7 +1288,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParams_Info_setVarying_spec__1(x_1, x_2, x_3, x_4, x_15, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -1302,7 +1301,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParams_Info_setVarying_spec__2_spec__2___redArg(x_7, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_4);
 lean_dec(x_2);
@@ -1314,9 +1312,7 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = lean_unbox(x_1);
-lean_dec(x_1);
 x_15 = lean_unbox(x_4);
-lean_dec(x_4);
 x_16 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParams_Info_setVarying_spec__2_spec__2(x_14, x_2, x_3, x_15, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -1329,9 +1325,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParams_Info_setVarying_spec__2___redArg(x_1, x_2, x_9, x_10, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_6);
@@ -1345,9 +1339,7 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = lean_unbox(x_4);
-lean_dec(x_4);
 x_16 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParams_Info_setVarying_spec__2(x_1, x_2, x_14, x_15, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_11);
 lean_dec(x_9);
@@ -1900,7 +1892,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_7);
-lean_dec(x_7);
 x_18 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParams_Info_setCallerParam_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_17, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -1916,7 +1907,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParams_Info_setCallerParam_spec__1_spec__1___redArg(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_6);
 lean_dec(x_4);
@@ -1930,9 +1920,7 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_16 = lean_unbox(x_1);
-lean_dec(x_1);
 x_17 = lean_unbox(x_6);
-lean_dec(x_6);
 x_18 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParams_Info_setCallerParam_spec__1_spec__1(x_16, x_2, x_3, x_4, x_5, x_17, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -1947,9 +1935,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_5);
-lean_dec(x_5);
 x_12 = lean_unbox(x_6);
-lean_dec(x_6);
 x_13 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParams_Info_setCallerParam_spec__1___redArg(x_1, x_2, x_3, x_4, x_11, x_12, x_7, x_8, x_9, x_10);
 lean_dec(x_10);
 lean_dec(x_8);
@@ -1965,9 +1951,7 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_16 = lean_unbox(x_5);
-lean_dec(x_5);
 x_17 = lean_unbox(x_6);
-lean_dec(x_6);
 x_18 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParams_Info_setCallerParam_spec__1(x_1, x_2, x_3, x_4, x_16, x_17, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_13);
 lean_dec(x_11);
@@ -1994,7 +1978,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_4);
-lean_dec(x_4);
 x_15 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParams_Info_setCallerParam_spec__3(x_1, x_2, x_3, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -2929,7 +2912,6 @@ _start:
 {
 uint8_t x_18; lean_object* x_19; 
 x_18 = lean_unbox(x_3);
-lean_dec(x_3);
 x_19 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getParamRevDeps_spec__0(x_1, x_2, x_18, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -2943,7 +2925,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_1);
-lean_dec(x_1);
 x_13 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getParamRevDeps_spec__1_spec__1___redArg(x_12, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -2974,9 +2955,7 @@ _start:
 {
 uint8_t x_19; uint8_t x_20; lean_object* x_21; 
 x_19 = lean_unbox(x_1);
-lean_dec(x_1);
 x_20 = lean_unbox(x_4);
-lean_dec(x_4);
 x_21 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getParamRevDeps_spec__1_spec__1(x_19, x_2, x_3, x_20, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -2990,9 +2969,7 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = lean_unbox(x_2);
-lean_dec(x_2);
 x_15 = lean_unbox(x_4);
-lean_dec(x_4);
 x_16 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getParamRevDeps_spec__1___redArg(x_1, x_14, x_3, x_15, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_8);
 lean_dec(x_6);
@@ -3025,9 +3002,7 @@ _start:
 {
 uint8_t x_19; uint8_t x_20; lean_object* x_21; 
 x_19 = lean_unbox(x_2);
-lean_dec(x_2);
 x_20 = lean_unbox(x_4);
-lean_dec(x_4);
 x_21 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getParamRevDeps_spec__1(x_1, x_19, x_3, x_20, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18);
 lean_dec(x_11);
 lean_dec(x_9);
@@ -3720,7 +3695,6 @@ x_35 = l_Lean_Elab_FixedParams_Info_mayBeFixed(x_2, x_13, x_33);
 lean_dec(x_33);
 if (x_35 == 0)
 {
-lean_inc(x_3);
 x_19 = x_3;
 x_20 = x_34;
 goto block_26;
@@ -3746,7 +3720,6 @@ lean_object* x_42; lean_object* x_43;
 x_42 = lean_ctor_get(x_39, 1);
 lean_inc(x_42);
 lean_dec(x_39);
-lean_inc(x_3);
 lean_inc(x_13);
 x_43 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_13, x_3, x_3, x_14, x_15, x_16, x_17, x_42);
 x_27 = x_43;
@@ -3810,7 +3783,6 @@ lean_inc(x_67);
 x_68 = lean_ctor_get(x_66, 1);
 lean_inc(x_68);
 lean_dec(x_66);
-lean_inc(x_3);
 lean_inc(x_13);
 x_69 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_13, x_3, x_67, x_14, x_15, x_16, x_17, x_68);
 lean_dec(x_67);
@@ -3871,7 +3843,6 @@ lean_inc(x_92);
 x_93 = lean_ctor_get(x_91, 1);
 lean_inc(x_93);
 lean_dec(x_91);
-lean_inc(x_3);
 lean_inc(x_13);
 x_94 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_13, x_3, x_92, x_14, x_15, x_16, x_17, x_93);
 lean_dec(x_92);
@@ -3944,7 +3915,6 @@ lean_dec(x_98);
 x_168 = lean_ctor_get(x_164, 1);
 lean_inc(x_168);
 lean_dec(x_164);
-lean_inc(x_3);
 x_19 = x_3;
 x_20 = x_168;
 goto block_26;
@@ -3961,7 +3931,6 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_169 = !lean_is_exclusive(x_164);
 if (x_169 == 0)
@@ -3999,7 +3968,6 @@ lean_dec(x_98);
 x_105 = lean_ctor_get(x_102, 1);
 lean_inc(x_105);
 lean_dec(x_102);
-lean_inc(x_3);
 lean_inc(x_13);
 x_106 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_13, x_3, x_3, x_14, x_15, x_16, x_17, x_105);
 x_27 = x_106;
@@ -4063,7 +4031,6 @@ lean_inc(x_131);
 x_132 = lean_ctor_get(x_130, 1);
 lean_inc(x_132);
 lean_dec(x_130);
-lean_inc(x_3);
 lean_inc(x_13);
 x_133 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_13, x_3, x_131, x_14, x_15, x_16, x_17, x_132);
 lean_dec(x_131);
@@ -4124,7 +4091,6 @@ lean_inc(x_157);
 x_158 = lean_ctor_get(x_156, 1);
 lean_inc(x_158);
 lean_dec(x_156);
-lean_inc(x_3);
 lean_inc(x_13);
 x_159 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_13, x_3, x_157, x_14, x_15, x_16, x_17, x_158);
 lean_dec(x_157);
@@ -4259,7 +4225,6 @@ lean_dec(x_98);
 x_223 = lean_ctor_get(x_220, 1);
 lean_inc(x_223);
 lean_dec(x_220);
-lean_inc(x_3);
 lean_inc(x_13);
 x_224 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_13, x_3, x_3, x_14, x_15, x_16, x_17, x_223);
 x_27 = x_224;
@@ -4331,7 +4296,6 @@ lean_inc(x_252);
 x_253 = lean_ctor_get(x_251, 1);
 lean_inc(x_253);
 lean_dec(x_251);
-lean_inc(x_3);
 lean_inc(x_13);
 x_254 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_13, x_3, x_252, x_14, x_15, x_16, x_17, x_253);
 lean_dec(x_252);
@@ -4400,7 +4364,6 @@ lean_inc(x_281);
 x_282 = lean_ctor_get(x_280, 1);
 lean_inc(x_282);
 lean_dec(x_280);
-lean_inc(x_3);
 lean_inc(x_13);
 x_283 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_13, x_3, x_281, x_14, x_15, x_16, x_17, x_282);
 lean_dec(x_281);
@@ -4418,7 +4381,6 @@ lean_dec(x_98);
 x_284 = lean_ctor_get(x_215, 1);
 lean_inc(x_284);
 lean_dec(x_215);
-lean_inc(x_3);
 x_19 = x_3;
 x_20 = x_284;
 goto block_26;
@@ -4437,7 +4399,6 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_285 = !lean_is_exclusive(x_215);
 if (x_285 == 0)
@@ -4581,7 +4542,6 @@ lean_dec(x_98);
 x_330 = lean_ctor_get(x_327, 1);
 lean_inc(x_330);
 lean_dec(x_327);
-lean_inc(x_3);
 lean_inc(x_13);
 x_331 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_13, x_3, x_3, x_14, x_15, x_16, x_17, x_330);
 x_27 = x_331;
@@ -4661,7 +4621,6 @@ lean_inc(x_359);
 x_360 = lean_ctor_get(x_358, 1);
 lean_inc(x_360);
 lean_dec(x_358);
-lean_inc(x_3);
 lean_inc(x_13);
 x_361 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_13, x_3, x_359, x_14, x_15, x_16, x_17, x_360);
 lean_dec(x_359);
@@ -4678,7 +4637,6 @@ lean_dec(x_98);
 x_362 = lean_ctor_get(x_322, 1);
 lean_inc(x_362);
 lean_dec(x_322);
-lean_inc(x_3);
 x_19 = x_3;
 x_20 = x_362;
 goto block_26;
@@ -4697,7 +4655,6 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_363 = lean_ctor_get(x_322, 0);
 lean_inc(x_363);
@@ -4868,7 +4825,6 @@ lean_dec(x_98);
 x_417 = lean_ctor_get(x_414, 1);
 lean_inc(x_417);
 lean_dec(x_414);
-lean_inc(x_3);
 lean_inc(x_13);
 x_418 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_13, x_3, x_3, x_14, x_15, x_16, x_17, x_417);
 x_27 = x_418;
@@ -4948,7 +4904,6 @@ lean_inc(x_447);
 x_448 = lean_ctor_get(x_446, 1);
 lean_inc(x_448);
 lean_dec(x_446);
-lean_inc(x_3);
 lean_inc(x_13);
 x_449 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_13, x_3, x_447, x_14, x_15, x_16, x_17, x_448);
 lean_dec(x_447);
@@ -4964,7 +4919,6 @@ lean_dec(x_98);
 x_450 = lean_ctor_get(x_409, 1);
 lean_inc(x_450);
 lean_dec(x_409);
-lean_inc(x_3);
 x_19 = x_3;
 x_20 = x_450;
 goto block_26;
@@ -4982,7 +4936,6 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_451 = lean_ctor_get(x_409, 0);
 lean_inc(x_451);
@@ -5018,7 +4971,6 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_455 = !lean_is_exclusive(x_95);
 if (x_455 == 0)
@@ -5052,7 +5004,6 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_459 = !lean_is_exclusive(x_32);
 if (x_459 == 0)
@@ -5090,7 +5041,6 @@ lean_dec(x_15);
 lean_dec(x_14);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_19);
@@ -5099,7 +5049,6 @@ return x_24;
 }
 else
 {
-lean_dec(x_19);
 x_13 = x_22;
 x_18 = x_20;
 goto _start;
@@ -5152,7 +5101,6 @@ x_37 = l_Lean_Elab_FixedParams_Info_mayBeFixed(x_2, x_15, x_35);
 lean_dec(x_35);
 if (x_37 == 0)
 {
-lean_inc(x_3);
 x_21 = x_3;
 x_22 = x_36;
 goto block_28;
@@ -5178,7 +5126,6 @@ lean_object* x_44; lean_object* x_45;
 x_44 = lean_ctor_get(x_41, 1);
 lean_inc(x_44);
 lean_dec(x_41);
-lean_inc(x_3);
 lean_inc(x_15);
 x_45 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_15, x_3, x_3, x_16, x_17, x_18, x_19, x_44);
 x_29 = x_45;
@@ -5242,7 +5189,6 @@ lean_inc(x_69);
 x_70 = lean_ctor_get(x_68, 1);
 lean_inc(x_70);
 lean_dec(x_68);
-lean_inc(x_3);
 lean_inc(x_15);
 x_71 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_15, x_3, x_69, x_16, x_17, x_18, x_19, x_70);
 lean_dec(x_69);
@@ -5303,7 +5249,6 @@ lean_inc(x_94);
 x_95 = lean_ctor_get(x_93, 1);
 lean_inc(x_95);
 lean_dec(x_93);
-lean_inc(x_3);
 lean_inc(x_15);
 x_96 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_15, x_3, x_94, x_16, x_17, x_18, x_19, x_95);
 lean_dec(x_94);
@@ -5376,7 +5321,6 @@ lean_dec(x_100);
 x_170 = lean_ctor_get(x_166, 1);
 lean_inc(x_170);
 lean_dec(x_166);
-lean_inc(x_3);
 x_21 = x_3;
 x_22 = x_170;
 goto block_28;
@@ -5393,7 +5337,6 @@ lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_171 = !lean_is_exclusive(x_166);
 if (x_171 == 0)
@@ -5431,7 +5374,6 @@ lean_dec(x_100);
 x_107 = lean_ctor_get(x_104, 1);
 lean_inc(x_107);
 lean_dec(x_104);
-lean_inc(x_3);
 lean_inc(x_15);
 x_108 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_15, x_3, x_3, x_16, x_17, x_18, x_19, x_107);
 x_29 = x_108;
@@ -5495,7 +5437,6 @@ lean_inc(x_133);
 x_134 = lean_ctor_get(x_132, 1);
 lean_inc(x_134);
 lean_dec(x_132);
-lean_inc(x_3);
 lean_inc(x_15);
 x_135 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_15, x_3, x_133, x_16, x_17, x_18, x_19, x_134);
 lean_dec(x_133);
@@ -5556,7 +5497,6 @@ lean_inc(x_159);
 x_160 = lean_ctor_get(x_158, 1);
 lean_inc(x_160);
 lean_dec(x_158);
-lean_inc(x_3);
 lean_inc(x_15);
 x_161 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_15, x_3, x_159, x_16, x_17, x_18, x_19, x_160);
 lean_dec(x_159);
@@ -5691,7 +5631,6 @@ lean_dec(x_100);
 x_225 = lean_ctor_get(x_222, 1);
 lean_inc(x_225);
 lean_dec(x_222);
-lean_inc(x_3);
 lean_inc(x_15);
 x_226 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_15, x_3, x_3, x_16, x_17, x_18, x_19, x_225);
 x_29 = x_226;
@@ -5763,7 +5702,6 @@ lean_inc(x_254);
 x_255 = lean_ctor_get(x_253, 1);
 lean_inc(x_255);
 lean_dec(x_253);
-lean_inc(x_3);
 lean_inc(x_15);
 x_256 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_15, x_3, x_254, x_16, x_17, x_18, x_19, x_255);
 lean_dec(x_254);
@@ -5832,7 +5770,6 @@ lean_inc(x_283);
 x_284 = lean_ctor_get(x_282, 1);
 lean_inc(x_284);
 lean_dec(x_282);
-lean_inc(x_3);
 lean_inc(x_15);
 x_285 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_15, x_3, x_283, x_16, x_17, x_18, x_19, x_284);
 lean_dec(x_283);
@@ -5850,7 +5787,6 @@ lean_dec(x_100);
 x_286 = lean_ctor_get(x_217, 1);
 lean_inc(x_286);
 lean_dec(x_217);
-lean_inc(x_3);
 x_21 = x_3;
 x_22 = x_286;
 goto block_28;
@@ -5869,7 +5805,6 @@ lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_287 = !lean_is_exclusive(x_217);
 if (x_287 == 0)
@@ -6013,7 +5948,6 @@ lean_dec(x_100);
 x_332 = lean_ctor_get(x_329, 1);
 lean_inc(x_332);
 lean_dec(x_329);
-lean_inc(x_3);
 lean_inc(x_15);
 x_333 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_15, x_3, x_3, x_16, x_17, x_18, x_19, x_332);
 x_29 = x_333;
@@ -6093,7 +6027,6 @@ lean_inc(x_361);
 x_362 = lean_ctor_get(x_360, 1);
 lean_inc(x_362);
 lean_dec(x_360);
-lean_inc(x_3);
 lean_inc(x_15);
 x_363 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_15, x_3, x_361, x_16, x_17, x_18, x_19, x_362);
 lean_dec(x_361);
@@ -6110,7 +6043,6 @@ lean_dec(x_100);
 x_364 = lean_ctor_get(x_324, 1);
 lean_inc(x_364);
 lean_dec(x_324);
-lean_inc(x_3);
 x_21 = x_3;
 x_22 = x_364;
 goto block_28;
@@ -6129,7 +6061,6 @@ lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_365 = lean_ctor_get(x_324, 0);
 lean_inc(x_365);
@@ -6300,7 +6231,6 @@ lean_dec(x_100);
 x_419 = lean_ctor_get(x_416, 1);
 lean_inc(x_419);
 lean_dec(x_416);
-lean_inc(x_3);
 lean_inc(x_15);
 x_420 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_15, x_3, x_3, x_16, x_17, x_18, x_19, x_419);
 x_29 = x_420;
@@ -6380,7 +6310,6 @@ lean_inc(x_449);
 x_450 = lean_ctor_get(x_448, 1);
 lean_inc(x_450);
 lean_dec(x_448);
-lean_inc(x_3);
 lean_inc(x_15);
 x_451 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg___lam__0(x_1, x_2, x_15, x_3, x_449, x_16, x_17, x_18, x_19, x_450);
 lean_dec(x_449);
@@ -6396,7 +6325,6 @@ lean_dec(x_100);
 x_452 = lean_ctor_get(x_411, 1);
 lean_inc(x_452);
 lean_dec(x_411);
-lean_inc(x_3);
 x_21 = x_3;
 x_22 = x_452;
 goto block_28;
@@ -6414,7 +6342,6 @@ lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_453 = lean_ctor_get(x_411, 0);
 lean_inc(x_453);
@@ -6450,7 +6377,6 @@ lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_457 = !lean_is_exclusive(x_97);
 if (x_457 == 0)
@@ -6484,7 +6410,6 @@ lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_461 = !lean_is_exclusive(x_34);
 if (x_461 == 0)
@@ -6522,7 +6447,6 @@ lean_dec(x_17);
 lean_dec(x_16);
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_21);
@@ -6532,7 +6456,6 @@ return x_26;
 else
 {
 lean_object* x_27; 
-lean_dec(x_21);
 x_27 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_10, x_11, x_8, x_9, x_13, x_24, x_16, x_17, x_18, x_19, x_22);
 return x_27;
 }
@@ -6618,7 +6541,6 @@ lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_11);
 lean_dec(x_8);
-lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_2);
 x_34 = l_Lean_Expr_withAppAux___at___Lean_Expr_withAppAux___at___Lean_Elab_getFixedParamsInfo_spec__5_spec__5___closed__0;
@@ -6646,7 +6568,6 @@ lean_dec(x_18);
 lean_dec(x_16);
 lean_dec(x_11);
 lean_dec(x_8);
-lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_2);
 x_40 = l_Lean_Expr_withAppAux___at___Lean_Expr_withAppAux___at___Lean_Elab_getFixedParamsInfo_spec__5_spec__5___closed__0;
@@ -6665,7 +6586,6 @@ x_43 = lean_array_get(x_2, x_3, x_42);
 lean_inc(x_43);
 x_44 = lean_apply_2(x_5, x_43, x_38);
 x_45 = lean_unbox(x_44);
-lean_dec(x_44);
 if (x_45 == 0)
 {
 lean_dec(x_43);
@@ -6677,7 +6597,6 @@ lean_dec(x_18);
 lean_dec(x_16);
 lean_dec(x_11);
 lean_dec(x_8);
-lean_dec(x_7);
 x_23 = x_22;
 goto block_26;
 }
@@ -6768,7 +6687,6 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_7);
 lean_dec(x_4);
-lean_dec(x_3);
 x_34 = l_Lean_Expr_withAppAux___at___Lean_Expr_withAppAux___at___Lean_Elab_getFixedParamsInfo_spec__5_spec__5___closed__0;
 x_35 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_35, 0, x_34);
@@ -6796,7 +6714,6 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_7);
 lean_dec(x_4);
-lean_dec(x_3);
 x_40 = l_Lean_Expr_withAppAux___at___Lean_Expr_withAppAux___at___Lean_Elab_getFixedParamsInfo_spec__5_spec__5___closed__0;
 x_41 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_41, 0, x_40);
@@ -6813,7 +6730,6 @@ x_43 = lean_array_get(x_13, x_14, x_42);
 lean_inc(x_43);
 x_44 = lean_apply_2(x_12, x_43, x_38);
 x_45 = lean_unbox(x_44);
-lean_dec(x_44);
 if (x_45 == 0)
 {
 lean_dec(x_43);
@@ -6825,7 +6741,6 @@ lean_dec(x_18);
 lean_dec(x_16);
 lean_dec(x_7);
 lean_dec(x_4);
-lean_dec(x_3);
 x_23 = x_22;
 goto block_26;
 }
@@ -6964,7 +6879,6 @@ lean_dec(x_11);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -7077,7 +6991,6 @@ lean_inc(x_10);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
 lean_inc(x_12);
@@ -7194,7 +7107,6 @@ lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_24;
@@ -7223,7 +7135,6 @@ lean_inc(x_10);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
 lean_inc(x_14);
@@ -7340,7 +7251,6 @@ lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_26;
@@ -7789,9 +7699,7 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_16 = lean_unbox(x_7);
-lean_dec(x_7);
 x_17 = lean_unbox(x_9);
-lean_dec(x_9);
 x_18 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__2___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_16, x_8, x_17, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_8);
 lean_dec(x_5);
@@ -7828,11 +7736,8 @@ _start:
 {
 uint8_t x_23; uint8_t x_24; uint8_t x_25; lean_object* x_26; 
 x_23 = lean_unbox(x_7);
-lean_dec(x_7);
 x_24 = lean_unbox(x_8);
-lean_dec(x_8);
 x_25 = lean_unbox(x_14);
-lean_dec(x_14);
 x_26 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__2(x_1, x_2, x_3, x_4, x_5, x_6, x_23, x_24, x_9, x_10, x_11, x_12, x_13, x_25, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -7852,7 +7757,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_11;
@@ -7881,9 +7785,7 @@ _start:
 {
 uint8_t x_19; uint8_t x_20; lean_object* x_21; 
 x_19 = lean_unbox(x_8);
-lean_dec(x_8);
 x_20 = lean_unbox(x_11);
-lean_dec(x_11);
 x_21 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_19, x_9, x_10, x_20, x_12, x_13, x_14, x_15, x_16, x_17, x_18);
 lean_dec(x_12);
 lean_dec(x_10);
@@ -7925,13 +7827,9 @@ _start:
 {
 uint8_t x_27; uint8_t x_28; uint8_t x_29; lean_object* x_30; 
 x_27 = lean_unbox(x_8);
-lean_dec(x_8);
 x_28 = lean_unbox(x_11);
-lean_dec(x_11);
 x_29 = lean_unbox(x_12);
-lean_dec(x_12);
 x_30 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3_spec__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_27, x_9, x_10, x_28, x_29, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25, x_26);
-lean_dec(x_18);
 lean_dec(x_17);
 lean_dec(x_16);
 lean_dec(x_10);
@@ -7967,11 +7865,8 @@ _start:
 {
 uint8_t x_21; uint8_t x_22; uint8_t x_23; lean_object* x_24; 
 x_21 = lean_unbox(x_9);
-lean_dec(x_9);
 x_22 = lean_unbox(x_10);
-lean_dec(x_10);
 x_23 = lean_unbox(x_12);
-lean_dec(x_12);
 x_24 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_21, x_22, x_11, x_23, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
 lean_dec(x_14);
 lean_dec(x_13);
@@ -8016,13 +7911,9 @@ _start:
 {
 uint8_t x_29; uint8_t x_30; uint8_t x_31; lean_object* x_32; 
 x_29 = lean_unbox(x_11);
-lean_dec(x_11);
 x_30 = lean_unbox(x_12);
-lean_dec(x_12);
 x_31 = lean_unbox(x_14);
-lean_dec(x_14);
 x_32 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_29, x_30, x_13, x_31, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25, x_26, x_27, x_28);
-lean_dec(x_20);
 lean_dec(x_19);
 lean_dec(x_18);
 lean_dec(x_13);
@@ -8073,7 +7964,6 @@ _start:
 {
 uint8_t x_23; lean_object* x_24; 
 x_23 = lean_unbox(x_4);
-lean_dec(x_4);
 x_24 = l_Lean_Expr_withAppAux___at___Lean_Expr_withAppAux___at___Lean_Elab_getFixedParamsInfo_spec__5_spec__5(x_1, x_2, x_3, x_23, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22);
 lean_dec(x_14);
 lean_dec(x_13);
@@ -8113,7 +8003,6 @@ _start:
 {
 uint8_t x_23; lean_object* x_24; 
 x_23 = lean_unbox(x_10);
-lean_dec(x_10);
 x_24 = l_Lean_Expr_withAppAux___at___Lean_Elab_getFixedParamsInfo_spec__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_23, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22);
 lean_dec(x_17);
 lean_dec(x_14);
@@ -8151,7 +8040,6 @@ _start:
 {
 uint8_t x_20; lean_object* x_21; 
 x_20 = lean_unbox(x_9);
-lean_dec(x_9);
 x_21 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__7_spec__7___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_20, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 lean_dec(x_13);
 lean_dec(x_10);
@@ -8188,7 +8076,6 @@ _start:
 {
 uint8_t x_20; lean_object* x_21; 
 x_20 = lean_unbox(x_10);
-lean_dec(x_10);
 x_21 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__7_spec__7___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_20, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 return x_21;
 }
@@ -8215,7 +8102,6 @@ _start:
 {
 uint8_t x_18; lean_object* x_19; 
 x_18 = lean_unbox(x_7);
-lean_dec(x_7);
 x_19 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__7_spec__7___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_18, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_11);
 return x_19;
@@ -8251,11 +8137,8 @@ _start:
 {
 uint8_t x_26; uint8_t x_27; lean_object* x_28; 
 x_26 = lean_unbox(x_7);
-lean_dec(x_7);
 x_27 = lean_unbox(x_11);
-lean_dec(x_11);
 x_28 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__7_spec__7(x_1, x_2, x_3, x_4, x_5, x_6, x_26, x_8, x_9, x_10, x_27, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25);
-lean_dec(x_17);
 lean_dec(x_16);
 lean_dec(x_15);
 return x_28;
@@ -8285,9 +8168,7 @@ _start:
 {
 uint8_t x_20; uint8_t x_21; lean_object* x_22; 
 x_20 = lean_unbox(x_7);
-lean_dec(x_7);
 x_21 = lean_unbox(x_11);
-lean_dec(x_11);
 x_22 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__7___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_20, x_8, x_9, x_10, x_21, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -8324,11 +8205,8 @@ _start:
 {
 uint8_t x_26; uint8_t x_27; lean_object* x_28; 
 x_26 = lean_unbox(x_7);
-lean_dec(x_7);
 x_27 = lean_unbox(x_11);
-lean_dec(x_11);
 x_28 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamsInfo_spec__7(x_1, x_2, x_3, x_4, x_5, x_6, x_26, x_8, x_9, x_10, x_27, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25);
-lean_dec(x_17);
 lean_dec(x_16);
 lean_dec(x_15);
 return x_28;
@@ -13808,7 +13686,6 @@ _start:
 {
 uint8_t x_20; lean_object* x_21; 
 x_20 = lean_unbox(x_5);
-lean_dec(x_5);
 x_21 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamPerms_spec__5(x_1, x_2, x_3, x_4, x_20, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -13833,7 +13710,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_2);
-lean_dec(x_2);
 x_18 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamPerms_spec__6_spec__6(x_1, x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -13846,7 +13722,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamPerms_spec__6___redArg(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -13859,7 +13734,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_2);
-lean_dec(x_2);
 x_18 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_getFixedParamPerms_spec__6(x_1, x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -15072,7 +14946,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = l_Lean_Meta_lambdaBoundedTelescope___at___Lean_Elab_FixedParamPerm_instantiateLambda_go_spec__0___redArg(x_1, x_2, x_3, x_10, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -15082,7 +14955,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_5);
-lean_dec(x_5);
 x_12 = l_Lean_Meta_lambdaBoundedTelescope___at___Lean_Elab_FixedParamPerm_instantiateLambda_go_spec__0(x_1, x_2, x_3, x_4, x_11, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }
@@ -15102,9 +14974,7 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_13 = lean_unbox(x_4);
-lean_dec(x_4);
 x_14 = lean_unbox(x_5);
-lean_dec(x_5);
 x_15 = l_Lean_Elab_FixedParamPerm_instantiateLambda_go___lam__1(x_1, x_2, x_3, x_13, x_14, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_1);
 return x_15;
@@ -15569,7 +15439,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_4);
-lean_dec(x_4);
 x_15 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerm_pickVarying_spec__0(x_1, x_2, x_3, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -17313,7 +17182,6 @@ lean_inc(x_4);
 lean_inc(x_2);
 x_19 = lean_apply_2(x_4, x_2, x_17);
 x_20 = lean_unbox(x_19);
-lean_dec(x_19);
 if (x_20 == 0)
 {
 goto _start;
@@ -17341,7 +17209,6 @@ lean_inc(x_4);
 lean_inc(x_2);
 x_28 = lean_apply_2(x_4, x_2, x_25);
 x_29 = lean_unbox(x_28);
-lean_dec(x_28);
 if (x_29 == 0)
 {
 x_8 = x_27;
@@ -19893,7 +19760,6 @@ _start:
 {
 uint8_t x_7; size_t x_8; size_t x_9; lean_object* x_10; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_9 = lean_unbox_usize(x_5);
@@ -19909,7 +19775,6 @@ _start:
 {
 uint8_t x_7; size_t x_8; size_t x_9; lean_object* x_10; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_9 = lean_unbox_usize(x_5);
@@ -19925,11 +19790,8 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; uint8_t x_11; size_t x_12; size_t x_13; lean_object* x_14; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = lean_unbox(x_4);
-lean_dec(x_4);
 x_12 = lean_unbox_usize(x_6);
 lean_dec(x_6);
 x_13 = lean_unbox_usize(x_7);
@@ -19945,7 +19807,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__8_spec__8___redArg(x_1, x_2, x_3, x_8, x_5, x_6, x_7);
 lean_dec(x_5);
 lean_dec(x_3);
@@ -19959,9 +19820,7 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_15 = lean_unbox(x_4);
-lean_dec(x_4);
 x_16 = lean_unbox(x_5);
-lean_dec(x_5);
 x_17 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__8_spec__8(x_1, x_2, x_3, x_15, x_16, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -19976,9 +19835,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; lean_object* x_12; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = lean_unbox(x_5);
-lean_dec(x_5);
 x_12 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__8___redArg(x_1, x_10, x_3, x_4, x_11, x_6, x_7, x_8, x_9);
 lean_dec(x_9);
 lean_dec(x_7);
@@ -19994,9 +19851,7 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_15 = lean_unbox(x_2);
-lean_dec(x_2);
 x_16 = lean_unbox(x_5);
-lean_dec(x_5);
 x_17 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__8(x_1, x_15, x_3, x_4, x_16, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_12);
 lean_dec(x_10);
@@ -20012,9 +19867,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__10_spec__10___redArg(x_1, x_8, x_9, x_4, x_5, x_6, x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -20027,11 +19880,8 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_15 = lean_unbox(x_2);
-lean_dec(x_2);
 x_16 = lean_unbox(x_3);
-lean_dec(x_3);
 x_17 = lean_unbox(x_5);
-lean_dec(x_5);
 x_18 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__10_spec__10(x_1, x_15, x_16, x_4, x_17, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -20045,11 +19895,8 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = lean_unbox(x_4);
-lean_dec(x_4);
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__10___redArg(x_1, x_10, x_3, x_11, x_12, x_6, x_7, x_8, x_9);
 lean_dec(x_9);
 lean_dec(x_7);
@@ -20064,11 +19911,8 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_15 = lean_unbox(x_2);
-lean_dec(x_2);
 x_16 = lean_unbox(x_4);
-lean_dec(x_4);
 x_17 = lean_unbox(x_5);
-lean_dec(x_5);
 x_18 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__10(x_1, x_15, x_3, x_16, x_17, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_12);
 lean_dec(x_10);
@@ -20083,11 +19927,8 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; uint8_t x_11; lean_object* x_12; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = lean_unbox(x_6);
-lean_dec(x_6);
 x_12 = l_Lean_Loop_forIn_loop___at___Lean_Elab_FixedParamPerms_erase_spec__12(x_9, x_2, x_10, x_4, x_5, x_11, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_5);
@@ -20108,7 +19949,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_1);
-lean_dec(x_1);
 x_12 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__13(x_11, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -20120,7 +19960,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__14_spec__14___redArg(x_5, x_2, x_3, x_4);
 lean_dec(x_2);
 return x_6;
@@ -20131,9 +19970,7 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_unbox(x_1);
-lean_dec(x_1);
 x_13 = lean_unbox(x_2);
-lean_dec(x_2);
 x_14 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__14_spec__14(x_12, x_13, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -20145,9 +19982,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__14___redArg(x_7, x_8, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
 lean_dec(x_4);
@@ -20160,9 +19995,7 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_unbox(x_1);
-lean_dec(x_1);
 x_13 = lean_unbox(x_2);
-lean_dec(x_2);
 x_14 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_FixedParamPerms_erase_spec__14(x_12, x_13, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_9);
 lean_dec(x_7);

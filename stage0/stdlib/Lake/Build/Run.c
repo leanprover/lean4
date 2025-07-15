@@ -1496,7 +1496,6 @@ x_10 = lean_usize_dec_eq(x_5, x_6);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; size_t x_15; size_t x_16; 
-lean_dec(x_7);
 x_11 = lean_array_uget(x_4, x_5);
 lean_inc(x_1);
 x_12 = l_Lake_logToStream(x_11, x_1, x_2, x_3, x_9);
@@ -2606,9 +2605,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; size_t x_12; size_t x_13; lean_object* x_14; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_13 = lean_unbox_usize(x_6);
@@ -2623,9 +2620,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_14 = lean_unbox_usize(x_6);
@@ -2941,7 +2936,6 @@ uint8_t x_23;
 x_23 = lean_nat_dec_lt(x_10, x_18);
 if (x_23 == 0)
 {
-lean_dec(x_22);
 lean_dec(x_21);
 lean_dec(x_20);
 lean_dec(x_18);
@@ -2955,7 +2949,6 @@ uint8_t x_24;
 x_24 = lean_nat_dec_le(x_18, x_18);
 if (x_24 == 0)
 {
-lean_dec(x_22);
 lean_dec(x_21);
 lean_dec(x_20);
 lean_dec(x_18);
@@ -3070,7 +3063,6 @@ uint8_t x_52;
 x_52 = lean_nat_dec_lt(x_10, x_47);
 if (x_52 == 0)
 {
-lean_dec(x_51);
 lean_dec(x_50);
 lean_dec(x_49);
 lean_dec(x_47);
@@ -3084,7 +3076,6 @@ uint8_t x_53;
 x_53 = lean_nat_dec_le(x_47, x_47);
 if (x_53 == 0)
 {
-lean_dec(x_51);
 lean_dec(x_50);
 lean_dec(x_49);
 lean_dec(x_47);
@@ -3223,7 +3214,6 @@ uint8_t x_84;
 x_84 = lean_nat_dec_lt(x_10, x_79);
 if (x_84 == 0)
 {
-lean_dec(x_83);
 lean_dec(x_82);
 lean_dec(x_81);
 lean_dec(x_79);
@@ -3237,7 +3227,6 @@ uint8_t x_85;
 x_85 = lean_nat_dec_le(x_79, x_79);
 if (x_85 == 0)
 {
-lean_dec(x_83);
 lean_dec(x_82);
 lean_dec(x_81);
 lean_dec(x_79);
@@ -3402,7 +3391,6 @@ uint8_t x_124;
 x_124 = lean_nat_dec_lt(x_107, x_119);
 if (x_124 == 0)
 {
-lean_dec(x_123);
 lean_dec(x_122);
 lean_dec(x_121);
 lean_dec(x_119);
@@ -3416,7 +3404,6 @@ uint8_t x_125;
 x_125 = lean_nat_dec_le(x_119, x_119);
 if (x_125 == 0)
 {
-lean_dec(x_123);
 lean_dec(x_122);
 lean_dec(x_121);
 lean_dec(x_119);
@@ -4169,7 +4156,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_Monitor_main___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -4243,17 +4229,11 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; uint8_t x_18; uint8_t x_19; lean_object* x_20; 
 x_14 = lean_unbox(x_4);
-lean_dec(x_4);
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = lean_unbox(x_6);
-lean_dec(x_6);
 x_17 = lean_unbox(x_7);
-lean_dec(x_7);
 x_18 = lean_unbox(x_8);
-lean_dec(x_8);
 x_19 = lean_unbox(x_9);
-lean_dec(x_9);
 x_20 = l_Lake_monitorJobs(x_1, x_2, x_3, x_14, x_15, x_16, x_17, x_18, x_19, x_10, x_11, x_12, x_13);
 return x_20;
 }
@@ -4266,7 +4246,6 @@ x_15 = lean_usize_dec_eq(x_3, x_4);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
-lean_dec(x_5);
 x_16 = lean_array_uget(x_2, x_3);
 x_17 = lean_ctor_get(x_16, 19);
 lean_inc(x_17);
@@ -5179,7 +5158,6 @@ x_14 = lean_usize_dec_eq(x_4, x_5);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-lean_dec(x_6);
 x_15 = lean_ctor_get(x_1, 4);
 lean_inc(x_15);
 x_16 = lean_array_uget(x_3, x_4);
@@ -5290,7 +5268,6 @@ x_14 = lean_usize_dec_eq(x_4, x_5);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-lean_dec(x_6);
 x_15 = lean_ctor_get(x_1, 4);
 lean_inc(x_15);
 x_16 = lean_array_uget(x_3, x_4);
@@ -5399,7 +5376,6 @@ x_9 = lean_usize_dec_eq(x_5, x_6);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; size_t x_15; 
-lean_dec(x_7);
 x_10 = lean_array_uget(x_4, x_5);
 lean_inc(x_1);
 x_11 = l_Lake_logToStream(x_10, x_1, x_2, x_3, x_8);
@@ -6730,7 +6706,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_IO_FS_withIsolatedStreams___at___Lake_Workspace_runFetchM_spec__0___redArg(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -6740,7 +6715,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = l_IO_FS_withIsolatedStreams___at___Lake_Workspace_runFetchM_spec__0(x_1, x_2, x_11, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }
@@ -6776,9 +6750,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; size_t x_11; size_t x_12; lean_object* x_13; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_12 = lean_unbox_usize(x_6);
@@ -6793,7 +6765,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = l_Lake_Workspace_runFetchM___redArg___lam__2(x_1, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }

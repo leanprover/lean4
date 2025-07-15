@@ -1758,7 +1758,6 @@ lean_object* x_6;
 x_6 = l_Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0___lam__0(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_6;
 }
 }

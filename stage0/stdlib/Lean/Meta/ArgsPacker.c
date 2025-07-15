@@ -597,7 +597,6 @@ _start:
 {
 uint8_t x_11; size_t x_12; size_t x_13; lean_object* x_14; 
 x_11 = lean_unbox(x_1);
-lean_dec(x_1);
 x_12 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_13 = lean_unbox_usize(x_4);
@@ -1188,7 +1187,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_mkTupleElems_spec__0(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -1408,9 +1406,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = l_Lean_Meta_ArgsPacker_Unary_uncurryType___lam__0(x_1, x_2, x_11, x_12, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_1);
 return x_13;
@@ -1421,9 +1417,7 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_13 = lean_unbox(x_3);
-lean_dec(x_3);
 x_14 = lean_unbox(x_4);
-lean_dec(x_4);
 x_15 = l_Lean_Meta_ArgsPacker_Unary_uncurryType___lam__1(x_1, x_2, x_13, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_7);
 lean_dec(x_5);
@@ -1991,11 +1985,8 @@ _start:
 {
 uint8_t x_21; uint8_t x_22; uint8_t x_23; lean_object* x_24; 
 x_21 = lean_unbox(x_12);
-lean_dec(x_12);
 x_22 = lean_unbox(x_13);
-lean_dec(x_13);
 x_23 = lean_unbox(x_14);
-lean_dec(x_14);
 x_24 = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_casesOn___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_21, x_22, x_23, x_15, x_16, x_17, x_18, x_19, x_20);
 return x_24;
 }
@@ -2024,11 +2015,8 @@ _start:
 {
 uint8_t x_20; uint8_t x_21; uint8_t x_22; lean_object* x_23; 
 x_20 = lean_unbox(x_10);
-lean_dec(x_10);
 x_21 = lean_unbox(x_11);
-lean_dec(x_11);
 x_22 = lean_unbox(x_12);
-lean_dec(x_12);
 x_23 = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_casesOn___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_20, x_21, x_22, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 return x_23;
 }
@@ -2288,9 +2276,7 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_13 = lean_unbox(x_4);
-lean_dec(x_4);
 x_14 = lean_unbox(x_5);
-lean_dec(x_5);
 x_15 = l_Lean_Meta_ArgsPacker_Unary_uncurry___lam__0(x_1, x_2, x_3, x_13, x_14, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_6);
 lean_dec(x_1);
@@ -2553,7 +2539,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_6);
-lean_dec(x_6);
 x_14 = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_curryType_go___lam__1(x_1, x_2, x_3, x_4, x_5, x_13, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }
@@ -2891,7 +2876,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_6);
-lean_dec(x_6);
 x_14 = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Unary_curry_go___lam__1(x_1, x_2, x_3, x_4, x_5, x_13, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }
@@ -4657,11 +4641,8 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_14 = lean_unbox(x_5);
-lean_dec(x_5);
 x_15 = lean_unbox(x_6);
-lean_dec(x_6);
 x_16 = lean_unbox(x_7);
-lean_dec(x_7);
 x_17 = l_Lean_Meta_ArgsPacker_Mutual_mkCodomain_go___lam__0(x_1, x_2, x_3, x_4, x_14, x_15, x_16, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -4677,11 +4658,8 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_15 = lean_unbox(x_6);
-lean_dec(x_6);
 x_16 = lean_unbox(x_7);
-lean_dec(x_7);
 x_17 = lean_unbox(x_8);
-lean_dec(x_8);
 x_18 = l_Lean_Meta_ArgsPacker_Mutual_mkCodomain_go___lam__1(x_1, x_2, x_3, x_4, x_5, x_15, x_16, x_17, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -4886,7 +4864,6 @@ x_16 = lean_usize_dec_eq(x_2, x_3);
 if (x_16 == 0)
 {
 lean_object* x_17; uint8_t x_18; 
-lean_dec(x_4);
 x_17 = lean_array_uget(x_1, x_2);
 x_18 = l_Lean_Expr_isForall(x_17);
 if (x_18 == 0)
@@ -4942,7 +4919,6 @@ x_16 = lean_usize_dec_eq(x_2, x_3);
 if (x_16 == 0)
 {
 lean_object* x_17; uint8_t x_18; 
-lean_dec(x_4);
 x_17 = lean_array_uget(x_1, x_2);
 x_18 = l_Lean_Expr_isForall(x_17);
 if (x_18 == 0)
@@ -5299,7 +5275,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = l_Lean_Meta_ArgsPacker_Mutual_uncurryType___lam__0(x_1, x_2, x_10, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_2);
 return x_11;
@@ -5373,7 +5348,6 @@ x_17 = lean_usize_dec_eq(x_3, x_4);
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; 
-lean_dec(x_5);
 x_18 = lean_array_uget(x_2, x_3);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -5494,7 +5468,6 @@ x_17 = lean_usize_dec_eq(x_3, x_4);
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; 
-lean_dec(x_5);
 x_18 = lean_array_uget(x_2, x_3);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -5638,7 +5611,6 @@ x_16 = lean_usize_dec_eq(x_2, x_3);
 if (x_16 == 0)
 {
 lean_object* x_17; uint8_t x_18; 
-lean_dec(x_4);
 x_17 = lean_array_uget(x_1, x_2);
 x_18 = l_Lean_Expr_isArrow(x_17);
 if (x_18 == 0)
@@ -5694,7 +5666,6 @@ x_16 = lean_usize_dec_eq(x_2, x_3);
 if (x_16 == 0)
 {
 lean_object* x_17; uint8_t x_18; 
-lean_dec(x_4);
 x_17 = lean_array_uget(x_1, x_2);
 x_18 = l_Lean_Expr_isArrow(x_17);
 if (x_18 == 0)
@@ -6570,11 +6541,8 @@ _start:
 {
 uint8_t x_17; uint8_t x_18; uint8_t x_19; lean_object* x_20; 
 x_17 = lean_unbox(x_8);
-lean_dec(x_8);
 x_18 = lean_unbox(x_9);
-lean_dec(x_9);
 x_19 = lean_unbox(x_10);
-lean_dec(x_10);
 x_20 = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_Mutual_casesOn___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_17, x_18, x_19, x_11, x_12, x_13, x_14, x_15, x_16);
 return x_20;
 }
@@ -7290,7 +7258,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = l_Array_mapFinIdxM_map___at___Lean_Meta_ArgsPacker_Mutual_curryType_spec__0___redArg___lam__0(x_1, x_2, x_3, x_4, x_12, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_3);
 lean_dec(x_1);
@@ -8850,7 +8817,6 @@ _start:
 {
 uint8_t x_18; lean_object* x_19; 
 x_18 = lean_unbox(x_3);
-lean_dec(x_3);
 x_19 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_ArgsPacker_curry_spec__0(x_1, x_2, x_18, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -8958,7 +8924,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l___private_Lean_Meta_ArgsPacker_0__Lean_Meta_ArgsPacker_withCurriedDecl_go___redArg___lam__1(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);

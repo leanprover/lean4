@@ -455,7 +455,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_instReprEmpty___lam__0(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -527,7 +526,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Bool_repr___redArg(x_2);
 return x_3;
 }
@@ -537,7 +535,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Bool_repr(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -714,7 +711,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Decidable_repr___redArg(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -725,7 +721,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Decidable_repr(x_1, x_4, x_3);
 lean_dec(x_3);
 return x_5;
@@ -788,7 +783,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_instReprPUnit___lam__0(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -890,7 +884,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_instReprUnit___lam__0(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -2745,7 +2738,6 @@ uint32_t x_3; uint8_t x_4; lean_object* x_5;
 x_3 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Char_quoteCore(x_3, x_4);
 return x_5;
 }
@@ -2900,7 +2892,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_String_foldlAux___at___String_quote_spec__0(x_6, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -3249,7 +3240,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_instReprUInt8___lam__0(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -3279,7 +3269,6 @@ _start:
 {
 uint16_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_instReprUInt16___lam__0(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -3614,7 +3603,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_List_repr_x27(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
-lean_dec(x_3);
 return x_6;
 }
 }

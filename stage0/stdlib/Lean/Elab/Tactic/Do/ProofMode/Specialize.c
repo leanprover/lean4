@@ -9846,7 +9846,6 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_3);
-lean_dec(x_3);
 x_23 = l_Lean_Elab_Tactic_Do_ProofMode_elabMspecializePure___lam__0(x_1, x_2, x_22, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_11);
 lean_dec(x_10);

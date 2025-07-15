@@ -288,7 +288,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_EquipT_compose___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -332,7 +331,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_EquipT_seq___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -527,7 +525,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_EquipT_instApplicative___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }

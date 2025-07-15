@@ -331,7 +331,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_instInhabitedLeanLibConfig___lam__0(x_2);
 return x_3;
 }
@@ -1517,7 +1516,6 @@ x_4 = lean_ctor_get_uint8(x_2, sizeof(void*)*9);
 x_5 = lean_box(x_4);
 x_6 = lean_apply_1(x_1, x_5);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 lean_ctor_set_uint8(x_2, sizeof(void*)*9, x_7);
 return x_2;
 }
@@ -1557,7 +1555,6 @@ lean_ctor_set(x_20, 6, x_14);
 lean_ctor_set(x_20, 7, x_16);
 lean_ctor_set(x_20, 8, x_17);
 x_21 = lean_unbox(x_19);
-lean_dec(x_19);
 lean_ctor_set_uint8(x_20, sizeof(void*)*9, x_21);
 return x_20;
 }
@@ -1602,7 +1599,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_LeanLibConfig_precompileModules___proj___lam__1(x_3, x_2);
 return x_4;
 }
@@ -1992,7 +1988,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lake_LeanLibConfig_nativeFacets___proj___lam__0(x_1, x_3);
 return x_4;
 }
@@ -2002,7 +1997,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lake_LeanLibConfig_nativeFacets___proj___lam__3(x_1, x_3);
 lean_dec(x_1);
 return x_4;
@@ -2983,7 +2977,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_instEmptyCollectionLeanLibConfig___lam__1(x_2);
 return x_3;
 }

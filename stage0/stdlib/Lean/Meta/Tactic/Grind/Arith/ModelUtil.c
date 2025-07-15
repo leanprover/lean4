@@ -396,7 +396,6 @@ lean_inc(x_11);
 lean_dec(x_8);
 lean_inc(x_6);
 lean_inc(x_5);
-lean_inc(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
 x_20 = l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_Meta_Grind_Arith_satisfyDiseqs_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_10);
@@ -406,7 +405,6 @@ lean_dec(x_11);
 lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_20;
@@ -735,7 +733,6 @@ else
 lean_object* x_62; 
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_62 = lean_alloc_ctor(1, 1, 0);
@@ -6090,7 +6087,6 @@ x_12 = lean_usize_dec_lt(x_5, x_4);
 if (x_12 == 0)
 {
 lean_object* x_13; 
-lean_dec(x_2);
 lean_dec(x_1);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_6);
@@ -6100,7 +6096,6 @@ return x_13;
 else
 {
 lean_object* x_14; uint8_t x_15; 
-lean_dec(x_6);
 x_14 = lean_array_uget(x_3, x_5);
 x_15 = !lean_is_exclusive(x_14);
 if (x_15 == 0)
@@ -6207,7 +6202,6 @@ lean_inc(x_30);
 lean_dec(x_29);
 x_31 = 1;
 x_32 = lean_usize_add(x_5, x_31);
-lean_inc(x_2);
 {
 size_t _tmp_4 = x_32;
 lean_object* _tmp_5 = x_2;
@@ -6332,7 +6326,6 @@ lean_inc(x_76);
 lean_dec(x_75);
 x_77 = 1;
 x_78 = lean_usize_add(x_5, x_77);
-lean_inc(x_2);
 {
 size_t _tmp_4 = x_78;
 lean_object* _tmp_5 = x_2;
@@ -6474,7 +6467,6 @@ lean_inc(x_125);
 lean_dec(x_124);
 x_126 = 1;
 x_127 = lean_usize_add(x_5, x_126);
-lean_inc(x_2);
 {
 size_t _tmp_4 = x_127;
 lean_object* _tmp_5 = x_2;
@@ -6508,7 +6500,6 @@ x_12 = lean_usize_dec_lt(x_5, x_4);
 if (x_12 == 0)
 {
 lean_object* x_13; 
-lean_dec(x_2);
 lean_dec(x_1);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_6);
@@ -6518,7 +6509,6 @@ return x_13;
 else
 {
 lean_object* x_14; uint8_t x_15; 
-lean_dec(x_6);
 x_14 = lean_array_uget(x_3, x_5);
 x_15 = !lean_is_exclusive(x_14);
 if (x_15 == 0)
@@ -6625,7 +6615,6 @@ lean_inc(x_30);
 lean_dec(x_29);
 x_31 = 1;
 x_32 = lean_usize_add(x_5, x_31);
-lean_inc(x_2);
 x_33 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Grind_Arith_traceModel_spec__0_spec__0(x_1, x_2, x_3, x_4, x_32, x_2, x_7, x_8, x_9, x_10, x_30);
 return x_33;
 }
@@ -6743,7 +6732,6 @@ lean_inc(x_76);
 lean_dec(x_75);
 x_77 = 1;
 x_78 = lean_usize_add(x_5, x_77);
-lean_inc(x_2);
 x_79 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Grind_Arith_traceModel_spec__0_spec__0(x_1, x_2, x_3, x_4, x_78, x_2, x_7, x_8, x_9, x_10, x_76);
 return x_79;
 }
@@ -6878,7 +6866,6 @@ lean_inc(x_125);
 lean_dec(x_124);
 x_126 = 1;
 x_127 = lean_usize_add(x_5, x_126);
-lean_inc(x_2);
 x_128 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Grind_Arith_traceModel_spec__0_spec__0(x_1, x_2, x_3, x_4, x_127, x_2, x_7, x_8, x_9, x_10, x_125);
 return x_128;
 }

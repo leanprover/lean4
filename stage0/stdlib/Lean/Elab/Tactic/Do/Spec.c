@@ -2581,7 +2581,6 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_Do_findSpec_spec__4___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_5);
 lean_dec(x_3);
 return x_11;
 }
@@ -2959,7 +2958,6 @@ return x_34;
 else
 {
 lean_dec(x_14);
-lean_dec(x_13);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -5951,7 +5949,6 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_10);
 return x_11;
 }
 }
@@ -5960,9 +5957,7 @@ _start:
 {
 uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__1(x_1, x_6, x_7, x_4, x_5);
 return x_8;
 }
@@ -5972,7 +5967,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_2);
-lean_dec(x_2);
 x_18 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__4(x_1, x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_1);
 return x_18;
@@ -6001,9 +5995,7 @@ _start:
 {
 uint8_t x_19; uint8_t x_20; lean_object* x_21; 
 x_19 = lean_unbox(x_2);
-lean_dec(x_2);
 x_20 = lean_unbox(x_3);
-lean_dec(x_3);
 x_21 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__5(x_1, x_19, x_20, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18);
 return x_21;
 }
@@ -6013,9 +6005,7 @@ _start:
 {
 uint8_t x_17; uint8_t x_18; lean_object* x_19; 
 x_17 = lean_unbox(x_1);
-lean_dec(x_1);
 x_18 = lean_unbox(x_2);
-lean_dec(x_2);
 x_19 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__6(x_17, x_18, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 return x_19;
 }
@@ -6067,9 +6057,7 @@ _start:
 {
 uint8_t x_22; uint8_t x_23; lean_object* x_24; 
 x_22 = lean_unbox(x_1);
-lean_dec(x_1);
 x_23 = lean_unbox(x_2);
-lean_dec(x_2);
 x_24 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__13(x_22, x_23, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 return x_24;
 }
@@ -6100,9 +6088,7 @@ _start:
 {
 uint8_t x_22; uint8_t x_23; lean_object* x_24; 
 x_22 = lean_unbox(x_1);
-lean_dec(x_1);
 x_23 = lean_unbox(x_2);
-lean_dec(x_2);
 x_24 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__14(x_22, x_23, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 return x_24;
 }
@@ -6133,9 +6119,7 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_9);
-lean_dec(x_9);
 x_23 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__15(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_22, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
-lean_dec(x_21);
 lean_dec(x_4);
 return x_23;
 }
@@ -6164,7 +6148,6 @@ _start:
 {
 lean_object* x_20; 
 x_20 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__16(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
-lean_dec(x_19);
 return x_20;
 }
 }
@@ -6173,7 +6156,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_10);
-lean_dec(x_10);
 x_12 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__17(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_11);
 return x_12;
 }
@@ -6183,7 +6165,6 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__18(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_10);
 return x_11;
 }
 }
@@ -6192,7 +6173,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_10);
-lean_dec(x_10);
 x_12 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__19(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_11);
 return x_12;
 }
@@ -6202,7 +6182,6 @@ _start:
 {
 lean_object* x_16; 
 x_16 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__20(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
-lean_dec(x_15);
 return x_16;
 }
 }
@@ -6211,7 +6190,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 x_9 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__21(x_1, x_2, x_3, x_4, x_5, x_6, x_8);
 return x_9;
 }
@@ -6221,7 +6199,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___redArg___lam__22(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
 return x_7;
 }
 }
@@ -7426,7 +7403,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_Elab_Tactic_Do_dischargePostEntails___redArg___lam__6(x_1, x_5, x_3, x_4);
 return x_6;
 }
@@ -7436,7 +7412,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_2);
-lean_dec(x_2);
 x_14 = l_Lean_Elab_Tactic_Do_dischargePostEntails___redArg___lam__8(x_1, x_13, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_1);
 return x_14;
@@ -7447,7 +7422,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_2);
-lean_dec(x_2);
 x_15 = l_Lean_Elab_Tactic_Do_dischargePostEntails___redArg___lam__9(x_1, x_14, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 return x_15;
 }
@@ -7457,7 +7431,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_1);
-lean_dec(x_1);
 x_13 = l_Lean_Elab_Tactic_Do_dischargePostEntails___redArg___lam__10(x_12, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_13;
 }
@@ -7479,7 +7452,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Elab_Tactic_Do_dischargePostEntails___redArg___lam__13(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -7488,7 +7460,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_9);
-lean_dec(x_9);
 x_17 = l_Lean_Elab_Tactic_Do_dischargePostEntails___redArg___lam__14(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_16, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_17;
 }
@@ -7498,7 +7469,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_8);
-lean_dec(x_8);
 x_17 = l_Lean_Elab_Tactic_Do_dischargePostEntails___redArg___lam__15(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_16, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_17;
 }
@@ -7508,7 +7478,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lean_Elab_Tactic_Do_dischargePostEntails___redArg___lam__16(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }
@@ -7517,7 +7486,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_15);
-lean_dec(x_15);
 x_17 = l_Lean_Elab_Tactic_Do_dischargePostEntails___redArg___lam__17(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_16);
 return x_17;
 }
@@ -8862,7 +8830,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Elab_Tactic_Do_dischargeMGoal___redArg___lam__2(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -8871,7 +8838,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_1);
-lean_dec(x_1);
 x_9 = l_Lean_Elab_Tactic_Do_dischargeMGoal___redArg___lam__4(x_8, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
@@ -8881,7 +8847,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lean_Elab_Tactic_Do_dischargeMGoal___redArg___lam__5(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }
@@ -11462,9 +11427,7 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__1(x_4, x_2, x_5);
 return x_6;
 }
@@ -11474,7 +11437,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
@@ -11484,7 +11446,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__3(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }
@@ -11493,7 +11454,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_6);
-lean_dec(x_6);
 x_13 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__5(x_1, x_2, x_3, x_4, x_5, x_12, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_5);
 return x_13;
@@ -11523,7 +11483,6 @@ _start:
 {
 uint8_t x_20; lean_object* x_21; 
 x_20 = lean_unbox(x_12);
-lean_dec(x_12);
 x_21 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__7(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_20, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 return x_21;
 }
@@ -11558,15 +11517,10 @@ _start:
 {
 uint8_t x_26; uint8_t x_27; uint8_t x_28; uint8_t x_29; lean_object* x_30; 
 x_26 = lean_unbox(x_5);
-lean_dec(x_5);
 x_27 = lean_unbox(x_6);
-lean_dec(x_6);
 x_28 = lean_unbox(x_16);
-lean_dec(x_16);
 x_29 = lean_unbox(x_22);
-lean_dec(x_22);
 x_30 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__8(x_1, x_2, x_3, x_4, x_26, x_27, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_28, x_17, x_18, x_19, x_20, x_21, x_29, x_23, x_24, x_25);
-lean_dec(x_25);
 return x_30;
 }
 }
@@ -11599,9 +11553,7 @@ _start:
 {
 uint8_t x_25; uint8_t x_26; lean_object* x_27; 
 x_25 = lean_unbox(x_4);
-lean_dec(x_4);
 x_26 = lean_unbox(x_14);
-lean_dec(x_14);
 x_27 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__9(x_1, x_2, x_3, x_25, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_26, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24);
 return x_27;
 }
@@ -11611,7 +11563,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__10(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -11621,7 +11572,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__12(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -11655,7 +11605,6 @@ _start:
 {
 uint8_t x_25; lean_object* x_26; 
 x_25 = lean_unbox(x_8);
-lean_dec(x_8);
 x_26 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__13(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_25, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24);
 return x_26;
 }
@@ -11689,7 +11638,6 @@ _start:
 {
 uint8_t x_25; lean_object* x_26; 
 x_25 = lean_unbox(x_7);
-lean_dec(x_7);
 x_26 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__14(x_1, x_2, x_3, x_4, x_5, x_6, x_25, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24);
 return x_26;
 }
@@ -11699,7 +11647,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__15(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }
@@ -11708,7 +11655,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 x_11 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__18(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_10);
 return x_11;
 }
@@ -11736,7 +11682,6 @@ _start:
 {
 lean_object* x_15; 
 x_15 = l_Lean_Elab_Tactic_Do_mSpec___redArg___lam__22(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
-lean_dec(x_14);
 lean_dec(x_1);
 return x_15;
 }
@@ -16284,9 +16229,7 @@ _start:
 {
 uint8_t x_22; uint8_t x_23; lean_object* x_24; 
 x_22 = lean_unbox(x_3);
-lean_dec(x_3);
 x_23 = lean_unbox(x_11);
-lean_dec(x_11);
 x_24 = l_Lean_Elab_Tactic_Do_dischargeFailEntails___at___Lean_Elab_Tactic_Do_dischargePostEntails___at___Lean_Elab_Tactic_Do_mSpec___at___Lean_Elab_Tactic_Do_elabMSpecNoBind_spec__0_spec__0_spec__0___lam__0(x_1, x_2, x_22, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_23, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_20);
 lean_dec(x_19);
@@ -16303,7 +16246,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_3);
-lean_dec(x_3);
 x_18 = l_Lean_Elab_Tactic_Do_dischargePostEntails___at___Lean_Elab_Tactic_Do_mSpec___at___Lean_Elab_Tactic_Do_elabMSpecNoBind_spec__0_spec__0___lam__0(x_1, x_2, x_17, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_15);
 lean_dec(x_14);
@@ -16419,7 +16361,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 return x_14;
 }
 }
@@ -16457,15 +16398,10 @@ _start:
 {
 uint8_t x_30; uint8_t x_31; uint8_t x_32; uint8_t x_33; lean_object* x_34; 
 x_30 = lean_unbox(x_3);
-lean_dec(x_3);
 x_31 = lean_unbox(x_4);
-lean_dec(x_4);
 x_32 = lean_unbox(x_14);
-lean_dec(x_14);
 x_33 = lean_unbox(x_17);
-lean_dec(x_17);
 x_34 = l_Lean_Elab_Tactic_Do_mSpec___at___Lean_Elab_Tactic_Do_elabMSpecNoBind_spec__0___lam__3(x_1, x_2, x_30, x_31, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_32, x_15, x_16, x_33, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25, x_26, x_27, x_28, x_29);
-lean_dec(x_20);
 return x_34;
 }
 }
@@ -16502,9 +16438,7 @@ _start:
 {
 uint8_t x_29; lean_object* x_30; 
 x_29 = lean_unbox(x_4);
-lean_dec(x_4);
 x_30 = l_Lean_Elab_Tactic_Do_mSpec___at___Lean_Elab_Tactic_Do_elabMSpecNoBind_spec__0___lam__2(x_1, x_2, x_3, x_29, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25, x_26, x_27, x_28);
-lean_dec(x_19);
 return x_30;
 }
 }
@@ -16557,7 +16491,6 @@ _start:
 {
 lean_object* x_18; 
 x_18 = l_Lean_Elab_Tactic_Do_mSpec___at___Lean_Elab_Tactic_Do_elabMSpecNoBind_spec__0___lam__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
-lean_dec(x_8);
 lean_dec(x_1);
 return x_18;
 }

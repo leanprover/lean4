@@ -568,9 +568,7 @@ uint64_t x_5; uint8_t x_6; uint8_t x_7; uint64_t x_8; lean_object* x_9;
 x_5 = lean_unbox_uint64(x_1);
 lean_dec(x_1);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = lean_unbox(x_4);
-lean_dec(x_4);
 x_8 = lean_level_mk_data(x_5, x_2, x_6, x_7);
 x_9 = lean_box_uint64(x_8);
 return x_9;
@@ -3875,7 +3873,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l___private_Lean_Level_0__Lean_Level_getMaxArgsAux(x_1, x_2, x_5, x_4);
 return x_6;
 }
@@ -4407,7 +4404,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___at___Lean_Level_normalize_spec__0(x_1, x_4, x_3);
 return x_5;
 }
@@ -4902,7 +4898,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Level_PP_toResult(x_1, x_3);
 return x_4;
 }
@@ -4970,7 +4965,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse(x_1, x_3);
 return x_4;
 }
@@ -5283,7 +5277,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Level_PP_Result_format(x_1, x_3);
 return x_4;
 }
@@ -5705,7 +5698,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Level_format(x_1, x_3);
 return x_4;
 }
@@ -5761,7 +5753,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Level_quote(x_1, x_2, x_4);
 lean_dec(x_2);
 return x_5;
@@ -7105,7 +7096,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Lean_Level_geq_go___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
@@ -8488,7 +8478,6 @@ lean_inc(x_1);
 lean_inc(x_2);
 x_8 = lean_apply_1(x_1, x_2);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 switch (lean_obj_tag(x_2)) {

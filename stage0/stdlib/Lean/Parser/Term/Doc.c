@@ -667,7 +667,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Parser_Term_Doc_initFn___lam__1____x40_Lean_Parser_Term_Doc___hyg_40_(x_1, x_2, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -828,7 +827,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Parser_Term_Doc_initFn___lam__1____x40_Lean_Parser_Term_Doc___hyg_210_(x_1, x_2, x_4);
 lean_dec(x_2);
 lean_dec(x_1);

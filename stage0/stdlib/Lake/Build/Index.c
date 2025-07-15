@@ -2074,7 +2074,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_recBuildWithIndex___lam__1(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -2541,7 +2540,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_List_partition_loop___at___Lake_recFetchAcyclic___at___Lake_recFetchWithIndex_spec__0_spec__1(x_1, x_5, x_3, x_4);
 lean_dec(x_1);
 return x_6;

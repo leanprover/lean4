@@ -274,7 +274,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_instSTWorldOfMonadLift(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_4);
 return x_6;
 }

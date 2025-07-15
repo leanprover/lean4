@@ -4179,9 +4179,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_10 = lean_unbox_usize(x_5);
@@ -4220,7 +4218,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);

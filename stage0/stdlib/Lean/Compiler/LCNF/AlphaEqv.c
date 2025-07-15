@@ -1123,7 +1123,6 @@ lean_object* x_8; uint8_t x_9;
 lean_dec(x_4);
 x_8 = lean_apply_1(x_3, x_5);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 return x_9;
 }
 else
@@ -1369,7 +1368,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Array_qsort_sort___at___Lean_Compiler_LCNF_AlphaEqv_sortAlts_spec__0___redArg___lam__0(x_4, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -1409,7 +1407,6 @@ lean_object* x_8; uint8_t x_9;
 lean_dec(x_4);
 x_8 = lean_apply_1(x_1, x_5);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 return x_9;
 }
 else

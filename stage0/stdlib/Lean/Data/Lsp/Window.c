@@ -178,7 +178,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_MessageType_toCtorIdx(x_2);
 return x_3;
 }
@@ -220,9 +219,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_MessageType_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -232,9 +229,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_MessageType_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -569,7 +564,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_instToJsonMessageType___lam__0(x_2);
 return x_3;
 }

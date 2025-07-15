@@ -569,7 +569,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_4);
-lean_dec(x_4);
 x_18 = l_Lean_Elab_Tactic_elabShow_tryGoal___lam__0(x_1, x_2, x_3, x_17, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 return x_18;
 }
@@ -696,7 +695,6 @@ goto _start;
 else
 {
 lean_dec(x_28);
-lean_dec(x_27);
 lean_dec(x_24);
 lean_dec(x_23);
 lean_dec(x_22);

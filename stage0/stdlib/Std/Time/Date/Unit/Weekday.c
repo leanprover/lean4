@@ -213,7 +213,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_Weekday_toCtorIdx(x_2);
 return x_3;
 }
@@ -255,9 +254,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Time_Weekday_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -267,9 +264,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Time_Weekday_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -669,7 +664,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_reprWeekday____x40_Std_Time_Date_Unit_Weekday___hyg_13_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -803,9 +797,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Time_instDecidableEqWeekday(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1548,7 +1540,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_Weekday_toOrdinal(x_2);
 return x_3;
 }
@@ -1672,7 +1663,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l___private_Std_Time_Date_Unit_Weekday_0__Std_Time_reprWeekday_match__1_splitter___redArg____x40_Std_Time_Date_Unit_Weekday___hyg_13_(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -1689,7 +1679,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l___private_Std_Time_Date_Unit_Weekday_0__Std_Time_reprWeekday_match__1_splitter____x40_Std_Time_Date_Unit_Weekday___hyg_13_(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -1755,7 +1744,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_Weekday_toNat(x_2);
 return x_3;
 }
@@ -2067,7 +2055,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_Weekday_next(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -2106,7 +2093,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_Weekday_isWeekend(x_2);
 x_4 = lean_box(x_3);
 return x_4;

@@ -412,7 +412,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Server_initFn___lam__0____x40_Lean_Server_Rpc_RequestHandling___hyg_80_(x_1, x_2, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -963,7 +962,6 @@ _start:
 {
 uint8_t x_12; uint64_t x_13; lean_object* x_14; 
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = lean_unbox_uint64(x_7);
 lean_dec(x_7);
 x_14 = l_Lean_Server_handleRpcCall___lam__3(x_1, x_2, x_3, x_4, x_12, x_6, x_13, x_8, x_9, x_10, x_11);
@@ -3994,7 +3992,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_Server_registerRpcProcedure___lam__1(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -4220,7 +4217,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lean_Server_initFn___lam__0____x40_Lean_Server_Rpc_RequestHandling___hyg_1454_(x_1, x_2, x_7, x_4, x_5, x_6);
 lean_dec(x_2);
 return x_8;

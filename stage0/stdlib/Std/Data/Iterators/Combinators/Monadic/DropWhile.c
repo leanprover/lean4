@@ -94,7 +94,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Iterators_IterM_Intermediate_dropWhileWithPostcondition___redArg(x_3, x_2);
 return x_4;
 }
@@ -104,7 +103,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_5);
-lean_dec(x_5);
 x_8 = l_Std_Iterators_IterM_Intermediate_dropWhileWithPostcondition(x_1, x_2, x_3, x_4, x_7, x_6);
 lean_dec(x_4);
 return x_8;
@@ -135,7 +133,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Iterators_IterM_Intermediate_dropWhileM___redArg(x_3, x_2);
 return x_4;
 }
@@ -145,7 +142,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_6);
-lean_dec(x_6);
 x_9 = l_Std_Iterators_IterM_Intermediate_dropWhileM(x_1, x_2, x_3, x_4, x_5, x_8, x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -177,7 +173,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Iterators_IterM_Intermediate_dropWhile___redArg(x_3, x_2);
 return x_4;
 }
@@ -187,7 +182,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_6);
-lean_dec(x_6);
 x_9 = l_Std_Iterators_IterM_Intermediate_dropWhile(x_1, x_2, x_3, x_4, x_5, x_8, x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -487,9 +481,7 @@ _start:
 {
 uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = lean_unbox(x_5);
-lean_dec(x_5);
 x_8 = l_Std_Iterators_DropWhile_instIterator___redArg___lam__0(x_1, x_2, x_3, x_6, x_7);
 return x_8;
 }
@@ -499,7 +491,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_Std_Iterators_DropWhile_instIterator___redArg___lam__1(x_6, x_2, x_3, x_4, x_5);
 return x_7;
 }

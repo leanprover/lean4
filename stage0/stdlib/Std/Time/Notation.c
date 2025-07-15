@@ -1084,7 +1084,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l___private_Std_Time_Notation_0__Std_Time_convertText(x_4, x_2, x_3);
 return x_5;
 }
@@ -2213,7 +2212,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l___private_Std_Time_Notation_0__Std_Time_convertZoneName(x_4, x_2, x_3);
 return x_5;
 }
@@ -2788,7 +2786,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetX(x_4, x_2, x_3);
 return x_5;
 }
@@ -3015,7 +3012,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetO(x_4, x_2, x_3);
 return x_5;
 }
@@ -3346,7 +3342,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ(x_4, x_2, x_3);
 return x_5;
 }
@@ -11807,7 +11802,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l___private_Std_Time_Notation_0__Std_Time_convertZonedDateTime(x_1, x_5, x_3, x_4);
 return x_6;
 }

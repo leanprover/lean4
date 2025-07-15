@@ -1162,7 +1162,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_decidableGetElem_x3f___redArg(x_1, x_2, x_3, x_5);
 return x_6;
 }
@@ -1172,7 +1171,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 x_10 = l_decidableGetElem_x3f(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_9);
 return x_10;
 }
@@ -1660,7 +1658,6 @@ lean_inc(x_4);
 lean_inc(x_3);
 x_5 = lean_apply_2(x_1, x_3, x_4);
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 

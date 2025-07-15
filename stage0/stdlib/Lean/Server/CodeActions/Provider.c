@@ -2180,7 +2180,6 @@ x_10 = lean_nat_dec_lt(x_9, x_5);
 if (x_10 == 0)
 {
 lean_dec(x_9);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_inc(x_7);
 return x_7;
@@ -2470,7 +2469,6 @@ lean_object* x_58; uint8_t x_59;
 lean_inc(x_1);
 x_58 = lean_apply_1(x_1, x_54);
 x_59 = lean_unbox(x_58);
-lean_dec(x_58);
 x_41 = x_57;
 x_42 = x_55;
 x_43 = x_56;
@@ -2592,9 +2590,7 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_CodeAction_findTactic_x3f_go_spec__0___redArg___lam__0(x_1, x_2, x_7, x_4, x_5, x_6);
-lean_dec(x_6);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_8;
@@ -2605,12 +2601,9 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = lean_unbox(x_7);
-lean_dec(x_7);
 x_13 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_CodeAction_findTactic_x3f_go_spec__0___redArg(x_1, x_11, x_3, x_4, x_5, x_6, x_12, x_8, x_9, x_10);
 lean_dec(x_8);
-lean_dec(x_4);
 return x_13;
 }
 }
@@ -2636,15 +2629,11 @@ _start:
 {
 uint8_t x_18; uint8_t x_19; uint8_t x_20; lean_object* x_21; 
 x_18 = lean_unbox(x_2);
-lean_dec(x_2);
 x_19 = lean_unbox(x_7);
-lean_dec(x_7);
 x_20 = lean_unbox(x_8);
-lean_dec(x_8);
 x_21 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_CodeAction_findTactic_x3f_go_spec__0(x_1, x_18, x_3, x_4, x_5, x_6, x_19, x_20, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_13);
 lean_dec(x_12);
-lean_dec(x_4);
 return x_21;
 }
 }
@@ -2653,7 +2642,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at___Lean_CodeAction_findTactic_x3f_go_spec__1___redArg(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_1);
 return x_11;
@@ -2664,7 +2652,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_2);
-lean_dec(x_2);
 x_15 = l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at___Lean_CodeAction_findTactic_x3f_go_spec__1(x_1, x_14, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_1);
 return x_15;
@@ -2686,7 +2673,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_CodeAction_findTactic_x3f_go_spec__2(x_1, x_2, x_3, x_4, x_15, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -2743,7 +2729,6 @@ if (x_15 == 0)
 {
 lean_object* x_16; 
 lean_dec(x_10);
-lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -2766,7 +2751,6 @@ x_19 = lean_ctor_get(x_14, 0);
 lean_dec(x_19);
 x_20 = lean_array_uget(x_11, x_13);
 lean_inc(x_18);
-lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -2780,7 +2764,6 @@ lean_object* x_22;
 lean_free_object(x_14);
 lean_dec(x_18);
 lean_dec(x_10);
-lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -2799,7 +2782,6 @@ if (lean_obj_tag(x_23) == 0)
 {
 uint8_t x_24; 
 lean_dec(x_10);
-lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -2853,7 +2835,6 @@ lean_inc(x_31);
 lean_dec(x_14);
 x_32 = lean_array_uget(x_11, x_13);
 lean_inc(x_31);
-lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -2866,7 +2847,6 @@ if (lean_obj_tag(x_33) == 0)
 lean_object* x_34; 
 lean_dec(x_31);
 lean_dec(x_10);
-lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -2885,7 +2865,6 @@ if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 lean_dec(x_10);
-lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -3101,7 +3080,6 @@ x_12 = l_Lean_CodeAction_findInfoTree_x3f(x_3, x_4, x_11, x_9, x_5, x_6);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; 
-lean_dec(x_8);
 x_13 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_13, 0, x_7);
 x_14 = lean_alloc_ctor(1, 1, 0);
@@ -3655,7 +3633,6 @@ x_12 = l_Lean_CodeAction_findInfoTree_x3f(x_3, x_4, x_11, x_9, x_5, x_6);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; 
-lean_dec(x_8);
 x_13 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_13, 0, x_7);
 x_14 = lean_alloc_ctor(1, 1, 0);
@@ -3687,7 +3664,6 @@ x_12 = lean_ctor_get(x_9, 1);
 lean_inc(x_12);
 lean_dec(x_9);
 lean_inc(x_10);
-lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -3700,7 +3676,6 @@ if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 
 lean_dec(x_12);
-lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -3722,7 +3697,6 @@ if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; 
 lean_dec(x_12);
-lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -3827,7 +3801,6 @@ if (lean_obj_tag(x_34) == 0)
 {
 lean_object* x_35; lean_object* x_36; 
 lean_dec(x_12);
-lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -4004,7 +3977,6 @@ lean_inc(x_11);
 lean_inc(x_20);
 x_22 = lean_apply_2(x_5, x_20, x_11);
 x_23 = lean_unbox(x_22);
-lean_dec(x_22);
 if (x_23 == 0)
 {
 lean_dec(x_20);
@@ -4096,7 +4068,6 @@ _start:
 {
 uint8_t x_15; size_t x_16; size_t x_17; lean_object* x_18; 
 x_15 = lean_unbox(x_6);
-lean_dec(x_6);
 x_16 = lean_unbox_usize(x_12);
 lean_dec(x_12);
 x_17 = lean_unbox_usize(x_13);
@@ -4125,7 +4096,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_6);
-lean_dec(x_6);
 x_12 = l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_CodeAction_findInfoTree_x3f_spec__0_spec__0___lam__0(x_1, x_2, x_3, x_4, x_5, x_11, x_7, x_8, x_9, x_10);
 lean_dec(x_10);
 lean_dec(x_2);
@@ -4137,7 +4107,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_6);
-lean_dec(x_6);
 x_13 = l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_CodeAction_findInfoTree_x3f_spec__0_spec__0(x_1, x_2, x_3, x_4, x_5, x_12, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_9);
 return x_13;
@@ -4161,7 +4130,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_6);
-lean_dec(x_6);
 x_12 = l_Lean_PersistentArray_forIn___at___Lean_CodeAction_findInfoTree_x3f_spec__0___lam__0(x_1, x_2, x_3, x_4, x_5, x_11, x_7, x_8, x_9, x_10);
 lean_dec(x_10);
 lean_dec(x_2);
@@ -4173,7 +4141,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_6);
-lean_dec(x_6);
 x_12 = l_Lean_PersistentArray_forIn___at___Lean_CodeAction_findInfoTree_x3f_spec__0(x_1, x_2, x_3, x_4, x_5, x_11, x_7, x_8, x_9, x_10);
 return x_12;
 }
@@ -4183,7 +4150,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Lean_CodeAction_findInfoTree_x3f(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }

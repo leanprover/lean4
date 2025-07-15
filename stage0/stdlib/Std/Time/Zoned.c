@@ -649,7 +649,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Time_DateTime_ofPlainDate___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -858,7 +857,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Time_DateTime_now___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -1035,7 +1033,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Time_ZonedDateTime_now___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -1367,7 +1364,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_Time_ZonedDateTime_ofPlainDate___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_5;

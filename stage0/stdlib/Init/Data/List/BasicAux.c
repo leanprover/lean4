@@ -726,7 +726,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 x_9 = l_List_partitionM_go___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_8);
 return x_9;
 }

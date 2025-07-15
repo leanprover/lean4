@@ -1010,7 +1010,6 @@ _start:
 {
 uint16_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_Json_Parser_finishSurrogatePair(x_3, x_2);
 return x_4;
 }
@@ -2864,7 +2863,6 @@ lean_dec(x_4);
 x_11 = lean_box_uint32(x_10);
 x_12 = lean_apply_1(x_2, x_11);
 x_13 = lean_unbox(x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
@@ -2919,7 +2917,6 @@ lean_dec(x_5);
 x_12 = lean_box_uint32(x_11);
 x_13 = lean_apply_1(x_3, x_12);
 x_14 = lean_unbox(x_13);
-lean_dec(x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 

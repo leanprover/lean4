@@ -588,7 +588,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_NameTrie_forMatchingM___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -738,7 +737,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_9 = lean_apply_2(x_1, x_3, x_6);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {

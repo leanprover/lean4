@@ -954,7 +954,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = lean_mk_axiom_val(x_1, x_2, x_3, x_5);
 return x_6;
 }
@@ -1007,7 +1006,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_DefinitionSafety_toCtorIdx(x_2);
 return x_3;
 }
@@ -1049,9 +1047,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_DefinitionSafety_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -1061,9 +1057,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_DefinitionSafety_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -1093,9 +1087,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_beqDefinitionSafety____x40_Lean_Declaration___hyg_685_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1304,7 +1296,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_703_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -1455,7 +1446,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_6);
-lean_dec(x_6);
 x_9 = lean_mk_definition_val(x_1, x_2, x_3, x_4, x_5, x_8, x_7);
 return x_9;
 }
@@ -1707,7 +1697,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_5);
-lean_dec(x_5);
 x_8 = lean_mk_opaque_val(x_1, x_2, x_3, x_4, x_7, x_6);
 return x_8;
 }
@@ -2287,7 +2276,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = lean_mk_inductive_decl(x_1, x_2, x_3, x_5);
 return x_6;
 }
@@ -3098,7 +3086,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Declaration_forExprM___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_2);
 return x_4;
 }
 }
@@ -3157,11 +3144,8 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_12 = lean_unbox(x_9);
-lean_dec(x_9);
 x_13 = lean_unbox(x_10);
-lean_dec(x_10);
 x_14 = lean_unbox(x_11);
-lean_dec(x_11);
 x_15 = lean_mk_inductive_val(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_12, x_13, x_14);
 return x_15;
 }
@@ -3432,7 +3416,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 x_10 = lean_mk_constructor_val(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_9);
 return x_10;
 }
@@ -3806,9 +3789,7 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_unbox(x_10);
-lean_dec(x_10);
 x_13 = lean_unbox(x_11);
-lean_dec(x_11);
 x_14 = lean_mk_recursor_val(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_12, x_13);
 return x_14;
 }
@@ -3998,7 +3979,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_QuotKind_toCtorIdx(x_2);
 return x_3;
 }
@@ -4032,9 +4012,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_QuotKind_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -4044,9 +4022,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_QuotKind_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -4098,7 +4074,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = lean_mk_quot_val(x_1, x_2, x_3, x_5);
 return x_6;
 }
@@ -4462,7 +4437,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_ConstantInfo_value_x3f(x_1, x_3);
 return x_4;
 }
@@ -4501,7 +4475,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_ConstantInfo_hasValue(x_1, x_3);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
@@ -4638,7 +4611,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_ConstantInfo_value_x21(x_1, x_3);
 lean_dec(x_1);
 return x_4;

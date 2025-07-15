@@ -267,7 +267,6 @@ x_14 = lean_usize_dec_eq(x_2, x_3);
 if (x_14 == 0)
 {
 lean_object* x_15; 
-lean_dec(x_4);
 x_15 = lean_array_uget(x_1, x_2);
 if (lean_obj_tag(x_15) == 0)
 {

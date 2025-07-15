@@ -891,7 +891,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = l_Lean_Meta_Simp_mkEqTransOptProofResult(x_1, x_9, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -2742,7 +2741,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Meta_Simp_Context_setFailIfUnchanged(x_1, x_3);
 return x_4;
 }
@@ -2937,7 +2935,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Meta_Simp_Context_setMemoize(x_1, x_3);
 return x_4;
 }
@@ -7827,7 +7824,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lean_Meta_Simp_withPreservedCache___redArg___lam__0(x_1, x_6, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_1);
@@ -9016,7 +9012,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = l_Lean_Meta_Simp_withDischarger___redArg(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_13;
 }
@@ -9026,7 +9021,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_3);
-lean_dec(x_3);
 x_14 = l_Lean_Meta_Simp_withDischarger(x_1, x_2, x_13, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }
@@ -12554,7 +12548,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_2);
-lean_dec(x_2);
 x_18 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Simp_removeUnnecessaryCasts_spec__0(x_1, x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_15);
 lean_dec(x_14);
@@ -18127,7 +18120,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_12;
 }
@@ -19775,7 +19767,6 @@ x_11 = l_Lean_Meta_Simp_mkCongrSimp_x3f___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_11;
 }
 }
@@ -19784,7 +19775,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_1);
-lean_dec(x_1);
 x_13 = l_Lean_Meta_Simp_mkCongrSimp_x3f___lam__1(x_12, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_3);
 return x_13;
@@ -33637,11 +33627,8 @@ _start:
 {
 uint8_t x_18; uint8_t x_19; uint8_t x_20; lean_object* x_21; 
 x_18 = lean_unbox(x_5);
-lean_dec(x_5);
 x_19 = lean_unbox(x_6);
-lean_dec(x_6);
 x_20 = lean_unbox(x_8);
-lean_dec(x_8);
 x_21 = l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_tryAutoCongrTheorem_x3f_spec__1___lam__0(x_1, x_2, x_3, x_4, x_18, x_19, x_7, x_20, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_16);
 lean_dec(x_15);
@@ -33650,7 +33637,6 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_9);
 lean_dec(x_7);
 lean_dec(x_1);
 return x_21;
@@ -33661,7 +33647,6 @@ _start:
 {
 uint8_t x_16; size_t x_17; size_t x_18; lean_object* x_19; 
 x_16 = lean_unbox(x_1);
-lean_dec(x_1);
 x_17 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_18 = lean_unbox_usize(x_6);
@@ -34973,11 +34958,8 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; uint8_t x_15; size_t x_16; size_t x_17; lean_object* x_18; 
 x_13 = lean_unbox(x_1);
-lean_dec(x_1);
 x_14 = lean_unbox(x_2);
-lean_dec(x_2);
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_17 = lean_unbox_usize(x_6);
@@ -35260,11 +35242,8 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; uint8_t x_15; size_t x_16; size_t x_17; lean_object* x_18; 
 x_13 = lean_unbox(x_1);
-lean_dec(x_1);
 x_14 = lean_unbox(x_2);
-lean_dec(x_2);
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_17 = lean_unbox_usize(x_6);
@@ -38117,7 +38096,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_1);
-lean_dec(x_1);
 x_9 = l___private_Lean_Meta_Tactic_Simp_Types_0__Lean_Meta_Simp_withSimpContext___redArg___lam__0(x_8, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
@@ -40979,7 +40957,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = l_Lean_Meta_Simp_SimpM_run___redArg___lam__0(x_1, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }

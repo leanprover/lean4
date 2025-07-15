@@ -268,7 +268,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Elab_WF_initFn___lam__0____x40_Lean_Elab_PreDefinition_WF_Eqns___hyg_72_(x_1, x_2, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -524,7 +523,6 @@ x_8 = lean_usize_dec_eq(x_2, x_3);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_4);
 x_9 = lean_array_uget(x_1, x_2);
 x_10 = lean_ctor_get(x_9, 3);
 lean_inc(x_10);
@@ -1164,9 +1162,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_11 = lean_unbox(x_1);
-lean_dec(x_1);
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_14 = lean_unbox_usize(x_5);
@@ -1213,11 +1209,8 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; uint8_t x_11; lean_object* x_12; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = l_Lean_Elab_WF_registerEqnsInfo___lam__0(x_9, x_10, x_11, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -2498,7 +2491,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }

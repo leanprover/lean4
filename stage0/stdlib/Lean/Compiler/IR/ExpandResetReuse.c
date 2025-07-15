@@ -1934,7 +1934,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_IR_ExpandResetReuse_eraseProjIncForAux___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -2513,9 +2512,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; size_t x_10; size_t x_11; lean_object* x_12; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_11 = lean_unbox_usize(x_6);

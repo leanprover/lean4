@@ -358,7 +358,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Omega_IntList_add___lam__0(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }

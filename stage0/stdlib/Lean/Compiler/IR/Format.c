@@ -793,7 +793,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);

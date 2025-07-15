@@ -6074,7 +6074,6 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_5);
-lean_dec(x_5);
 x_23 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Deriving_ToExpr_mkToExprBody_mkAlts_spec__2(x_1, x_2, x_3, x_4, x_22, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -6121,7 +6120,6 @@ _start:
 {
 uint8_t x_23; lean_object* x_24; 
 x_23 = lean_unbox(x_6);
-lean_dec(x_6);
 x_24 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Deriving_ToExpr_mkToExprBody_mkAlts_spec__3(x_1, x_2, x_3, x_4, x_5, x_23, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -6163,7 +6161,6 @@ _start:
 {
 uint8_t x_18; lean_object* x_19; 
 x_18 = lean_unbox(x_1);
-lean_dec(x_1);
 x_19 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Deriving_ToExpr_mkToExprBody_mkAlts_spec__4(x_18, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_16);
 lean_dec(x_15);
@@ -6263,7 +6260,6 @@ _start:
 lean_object* x_21; 
 x_21 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Elab_Deriving_ToExpr_mkToExprBody_mkAlts_spec__5_spec__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
 lean_dec(x_10);
-lean_dec(x_1);
 return x_21;
 }
 }
@@ -6292,7 +6288,6 @@ _start:
 lean_object* x_20; 
 x_20 = l_List_forIn_x27_loop___at___Lean_Elab_Deriving_ToExpr_mkToExprBody_mkAlts_spec__5___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 lean_dec(x_10);
-lean_dec(x_5);
 return x_20;
 }
 }
@@ -6322,7 +6317,6 @@ _start:
 lean_object* x_21; 
 x_21 = l_List_forIn_x27_loop___at___Lean_Elab_Deriving_ToExpr_mkToExprBody_mkAlts_spec__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
 lean_dec(x_10);
-lean_dec(x_5);
 return x_21;
 }
 }
@@ -14161,7 +14155,6 @@ _start:
 {
 uint8_t x_19; lean_object* x_20; 
 x_19 = lean_unbox(x_2);
-lean_dec(x_2);
 x_20 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Deriving_ToExpr_mkAuxFunctions_spec__0(x_1, x_19, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -22268,7 +22261,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Elab_Deriving_ToExpr_mkToExprInstanceHandler___lam__0(x_5, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -22280,7 +22272,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_Elab_Deriving_ToExpr_mkToExprInstanceHandler___lam__1(x_3, x_2);
 return x_4;
 }

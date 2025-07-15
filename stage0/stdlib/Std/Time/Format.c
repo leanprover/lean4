@@ -3524,7 +3524,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Std_Time_TimeZone_fromTimeZone___lam__0(x_4, x_2, x_3);
 return x_5;
 }
@@ -4892,7 +4891,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_Std_Time_PlainTime_fromTime12Hour___lam__0(x_1, x_2, x_3, x_5);
 lean_dec(x_1);
 return x_6;
@@ -5126,7 +5124,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Time_ZonedDateTime_format___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -6546,7 +6543,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Time_PlainDateTime_toAscTimeString___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_4;
 }

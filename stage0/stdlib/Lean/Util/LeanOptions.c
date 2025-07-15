@@ -719,7 +719,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_instCoeBoolLeanOptionValue___lam__0(x_2);
 return x_3;
 }

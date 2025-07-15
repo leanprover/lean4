@@ -1133,7 +1133,6 @@ _start:
 {
 uint8_t x_11; size_t x_12; size_t x_13; lean_object* x_14; 
 x_11 = lean_unbox(x_5);
-lean_dec(x_5);
 x_12 = lean_unbox_usize(x_8);
 lean_dec(x_8);
 x_13 = lean_unbox_usize(x_9);
@@ -1148,7 +1147,6 @@ _start:
 {
 uint8_t x_13; size_t x_14; size_t x_15; lean_object* x_16; 
 x_13 = lean_unbox(x_7);
-lean_dec(x_7);
 x_14 = lean_unbox_usize(x_10);
 lean_dec(x_10);
 x_15 = lean_unbox_usize(x_11);
@@ -2725,9 +2723,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; size_t x_12; size_t x_13; lean_object* x_14; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_13 = lean_unbox_usize(x_8);
@@ -2743,9 +2739,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = lean_unbox(x_3);
-lean_dec(x_3);
 x_9 = l_Lean_Syntax_instForInTopDown_loop___at___Lean_Elab_Command_hasDuplicateAntiquot_spec__0(x_1, x_7, x_8, x_4, x_5, x_6);
 lean_dec(x_6);
 return x_9;

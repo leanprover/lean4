@@ -69,7 +69,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Result_toCtorIdx(x_2);
 return x_3;
 }
@@ -111,9 +110,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Tactic_BVDecide_LRAT_Internal_Result_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -123,9 +120,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Tactic_BVDecide_LRAT_Internal_Result_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -196,9 +191,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -266,7 +259,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0(x_2);
 return x_3;
 }
@@ -445,7 +437,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_6);
 lean_dec(x_4);
 x_11 = lean_box(x_10);
 return x_11;

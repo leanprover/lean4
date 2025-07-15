@@ -84,7 +84,6 @@ x_6 = lean_usize_dec_eq(x_2, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 
-lean_dec(x_4);
 x_7 = lean_array_uget(x_1, x_2);
 x_8 = l_Lean_Expr_NumApps_visit(x_7, x_5);
 x_9 = lean_ctor_get(x_8, 0);

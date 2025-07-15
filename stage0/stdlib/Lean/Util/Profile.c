@@ -653,7 +653,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_profileitIOUnsafe___redArg___lam__1(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }

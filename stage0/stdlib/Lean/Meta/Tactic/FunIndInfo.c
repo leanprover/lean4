@@ -189,7 +189,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Meta_FunIndParamKind_toCtorIdx(x_2);
 return x_3;
 }
@@ -231,9 +230,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Meta_FunIndParamKind_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -243,9 +240,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_Meta_FunIndParamKind_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -267,9 +262,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Meta_beqFunIndParamKind____x40_Lean_Meta_Tactic_FunIndInfo___hyg_10_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -478,7 +471,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_Meta_reprFunIndParamKind____x40_Lean_Meta_Tactic_FunIndInfo___hyg_28_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -1228,7 +1220,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Format_joinSep___at___Array_Array_repr___at___Lean_Meta_reprFunIndInfo____x40_Lean_Meta_Tactic_FunIndInfo___hyg_211__spec__0_spec__0___lam__0(x_2);
 return x_3;
 }
@@ -1238,7 +1229,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Format_joinSep___at___Array_Array_repr___at___Lean_Meta_reprFunIndInfo____x40_Lean_Meta_Tactic_FunIndInfo___hyg_211__spec__3_spec__3___lam__0(x_2);
 return x_3;
 }
@@ -1326,7 +1316,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Meta_initFn___lam__0____x40_Lean_Meta_Tactic_FunIndInfo___hyg_309_(x_1, x_2, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -1391,7 +1380,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Meta_getFunInductName(x_1, x_3);
 return x_4;
 }
@@ -1454,7 +1442,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Meta_getFunCasesName(x_1, x_3);
 return x_4;
 }
@@ -1517,7 +1504,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Meta_getMutualInductName(x_1, x_3);
 return x_4;
 }
@@ -1822,7 +1808,6 @@ return x_11;
 }
 else
 {
-lean_dec(x_7);
 return x_8;
 }
 }
@@ -1833,9 +1818,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Lean_Meta_getFunInduct_x3f(x_7, x_8, x_3, x_4, x_5, x_6);
 return x_9;
 }
@@ -2214,9 +2197,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Lean_Meta_getFunIndInfo_x3f(x_7, x_8, x_3, x_4, x_5, x_6);
 return x_9;
 }

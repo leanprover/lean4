@@ -1158,7 +1158,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Compiler_LCNF_Testing_assert(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -2274,13 +2273,11 @@ x_14 = lean_usize_dec_eq(x_5, x_6);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; 
-lean_dec(x_7);
 x_15 = lean_array_uget(x_4, x_5);
 lean_inc(x_1);
 lean_inc(x_2);
 x_16 = lean_apply_2(x_1, x_2, x_15);
 x_17 = lean_unbox(x_16);
-lean_dec(x_16);
 lean_inc(x_3);
 x_18 = l_Lean_Compiler_LCNF_Testing_assert(x_17, x_3, x_8, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_18) == 0)
@@ -3382,6 +3379,8 @@ lean_dec(x_3);
 x_8 = lean_array_fget(x_1, x_7);
 x_9 = lean_array_fget(x_2, x_7);
 x_10 = l_Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_8154_(x_8, x_9);
+lean_dec(x_9);
+lean_dec(x_8);
 if (x_10 == 0)
 {
 lean_dec(x_7);
@@ -3897,7 +3896,6 @@ x_26 = l_Nat_reprFast(x_18);
 x_27 = lean_string_append(x_25, x_26);
 lean_dec(x_26);
 x_28 = lean_unbox(x_19);
-lean_dec(x_19);
 x_29 = l_Lean_Compiler_LCNF_Testing_assert(x_28, x_27, x_5, x_6, x_7, x_8, x_9, x_16);
 return x_29;
 }
@@ -4427,7 +4425,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_5);
 lean_ctor_set(x_14, 1, x_12);
@@ -4436,7 +4433,6 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec(x_5);
 x_15 = lean_array_uget(x_2, x_4);
 x_16 = lean_ctor_get(x_15, 4);
 lean_inc(x_16);
@@ -4457,7 +4453,6 @@ lean_inc(x_19);
 lean_dec(x_18);
 x_20 = 1;
 x_21 = lean_usize_add(x_4, x_20);
-lean_inc(x_1);
 {
 size_t _tmp_3 = x_21;
 lean_object* _tmp_4 = x_1;
@@ -4476,7 +4471,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 return x_18;
 }
 }

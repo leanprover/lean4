@@ -4020,7 +4020,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_MessageData_ofFormatWithInfosM___lam__2(x_1, x_2);
-lean_dec(x_1);
 return x_3;
 }
 }

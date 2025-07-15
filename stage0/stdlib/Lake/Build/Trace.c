@@ -1398,7 +1398,6 @@ _start:
 {
 uint8_t x_2; uint64_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_Hash_ofBool(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
@@ -1869,7 +1868,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_computeFileHash(x_1, x_4, x_3);
 lean_dec(x_1);
 return x_5;

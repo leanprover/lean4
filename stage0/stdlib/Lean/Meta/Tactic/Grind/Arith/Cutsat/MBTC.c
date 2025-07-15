@@ -131,7 +131,6 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
-lean_inc(x_2);
 lean_inc(x_1);
 x_17 = l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f_spec__0(x_1, x_2, x_3, x_15, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_17) == 0)
@@ -144,7 +143,6 @@ if (lean_obj_tag(x_18) == 0)
 lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec(x_16);
 lean_dec(x_14);
-lean_dec(x_2);
 lean_dec(x_1);
 x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
@@ -324,7 +322,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_2);
 x_51 = !lean_is_exclusive(x_47);
 if (x_51 == 0)
 {
@@ -385,7 +382,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_2);
 x_62 = lean_ctor_get(x_57, 0);
 lean_inc(x_62);
 x_63 = lean_ctor_get(x_57, 1);
@@ -577,7 +573,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_2);
 x_94 = lean_ctor_get(x_88, 0);
 lean_inc(x_94);
 x_95 = lean_ctor_get(x_88, 1);
@@ -615,7 +610,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_17;
 }
@@ -627,7 +621,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_2);
 lean_dec(x_1);
 x_98 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_98, 0, x_3);

@@ -213,7 +213,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Diff_Action_toCtorIdx(x_2);
 return x_3;
 }
@@ -255,9 +254,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Diff_Action_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -267,9 +264,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_Diff_Action_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -461,7 +456,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_Diff_reprAction____x40_Lean_Util_Diff___hyg_9_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -500,9 +494,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Diff_beqAction____x40_Lean_Util_Diff___hyg_125_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -554,7 +546,6 @@ _start:
 {
 uint8_t x_2; uint64_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Diff_hashAction____x40_Lean_Util_Diff___hyg_143_(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
@@ -646,7 +637,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Diff_instToStringAction___lam__0(x_2);
 return x_3;
 }
@@ -705,7 +695,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Diff_Action_linePrefix(x_2);
 return x_3;
 }
@@ -1855,7 +1844,6 @@ lean_inc(x_1);
 lean_inc(x_15);
 x_17 = lean_apply_2(x_1, x_15, x_16);
 x_18 = lean_unbox(x_17);
-lean_dec(x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -2125,7 +2113,6 @@ lean_dec(x_35);
 lean_inc(x_1);
 x_37 = lean_apply_2(x_1, x_33, x_36);
 x_38 = lean_unbox(x_37);
-lean_dec(x_37);
 if (x_38 == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; 
@@ -3121,7 +3108,6 @@ lean_inc(x_1);
 x_26 = lean_array_get(x_1, x_2, x_8);
 x_27 = lean_apply_2(x_4, x_26, x_5);
 x_28 = lean_unbox(x_27);
-lean_dec(x_27);
 if (x_28 == 0)
 {
 x_14 = x_25;
@@ -3209,7 +3195,6 @@ lean_inc(x_1);
 x_26 = lean_array_get(x_1, x_2, x_8);
 x_27 = lean_apply_2(x_4, x_26, x_5);
 x_28 = lean_unbox(x_27);
-lean_dec(x_27);
 if (x_28 == 0)
 {
 x_14 = x_25;
@@ -4006,7 +3991,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_Diff_diff___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
@@ -4017,7 +4001,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_Diff_diff___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
@@ -4028,7 +4011,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Diff_diff___redArg___lam__3(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
@@ -4039,7 +4021,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Diff_diff___redArg___lam__4(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;

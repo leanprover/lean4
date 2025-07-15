@@ -822,11 +822,9 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_apply_1(x_1, x_2);
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; 
-lean_dec(x_3);
 x_6 = lean_box(0);
 return x_6;
 }
@@ -3024,7 +3022,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalLocation___lam__0____x40_Lean_SubExpr___hyg_1434_(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -3033,7 +3030,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalLocation___lam__1____x40_Lean_SubExpr___hyg_1434_(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_3);
 return x_8;
@@ -3044,7 +3040,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalLocation___lam__2____x40_Lean_SubExpr___hyg_1434_(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
 return x_7;
 }
 }
@@ -3053,7 +3048,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l___private_Lean_SubExpr_0__Lean_SubExpr_fromJsonGoalLocation___lam__3____x40_Lean_SubExpr___hyg_1434_(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
 lean_dec(x_3);
 return x_7;
 }
@@ -3920,7 +3914,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Expr_traverseAppWithPos___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 lean_dec(x_1);
 return x_5;
 }

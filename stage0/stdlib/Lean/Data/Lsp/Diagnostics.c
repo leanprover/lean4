@@ -516,7 +516,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Lsp_DiagnosticSeverity_toCtorIdx(x_2);
 return x_3;
 }
@@ -558,9 +557,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Lsp_DiagnosticSeverity_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -570,9 +567,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_Lsp_DiagnosticSeverity_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -602,9 +597,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Lsp_beqDiagnosticSeverity____x40_Lean_Data_Lsp_Diagnostics___hyg_21_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -726,9 +719,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Lsp_ordDiagnosticSeverity____x40_Lean_Data_Lsp_Diagnostics___hyg_39_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1028,7 +1019,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Lsp_instToJsonDiagnosticSeverity___lam__0(x_2);
 return x_3;
 }
@@ -1427,7 +1417,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Lsp_DiagnosticTag_toCtorIdx(x_2);
 return x_3;
 }
@@ -1461,9 +1450,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Lsp_DiagnosticTag_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -1473,9 +1460,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_Lsp_DiagnosticTag_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -1505,9 +1490,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Lsp_beqDiagnosticTag____x40_Lean_Data_Lsp_Diagnostics___hyg_635_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1569,9 +1552,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Lsp_ordDiagnosticTag____x40_Lean_Data_Lsp_Diagnostics___hyg_653_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1722,7 +1703,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Lsp_instToJsonDiagnosticTag___lam__0(x_2);
 return x_3;
 }
@@ -1749,7 +1729,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Lsp_LeanDiagnosticTag_toCtorIdx(x_2);
 return x_3;
 }
@@ -1775,9 +1754,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Lsp_LeanDiagnosticTag_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -1787,9 +1764,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_Lsp_LeanDiagnosticTag_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -1819,9 +1794,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Lsp_beqLeanDiagnosticTag____x40_Lean_Data_Lsp_Diagnostics___hyg_821_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1883,9 +1856,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Lsp_ordLeanDiagnosticTag____x40_Lean_Data_Lsp_Diagnostics___hyg_839_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -2036,7 +2007,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Lsp_instToJsonLeanDiagnosticTag___lam__0(x_2);
 return x_3;
 }
@@ -2980,13 +2950,11 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 x_39 = lean_unbox(x_37);
-lean_dec(x_37);
 return x_39;
 }
 else
 {
 lean_object* x_40; uint8_t x_41; 
-lean_dec(x_37);
 x_40 = l_Lean_Lsp_beqDiagnosticWith___redArg___closed__3____x40_Lean_Data_Lsp_Diagnostics___hyg_1489_;
 x_41 = l_Option_beqOption___redArg____x40_Init_Data_Option_Basic___hyg_161_(x_40, x_11, x_22);
 if (x_41 == 0)
@@ -5174,7 +5142,6 @@ return x_3;
 else
 {
 uint8_t x_4; 
-lean_dec(x_2);
 x_4 = 0;
 return x_4;
 }
@@ -5184,7 +5151,6 @@ else
 if (lean_obj_tag(x_2) == 0)
 {
 uint8_t x_5; 
-lean_dec(x_1);
 x_5 = 0;
 return x_5;
 }
@@ -5192,15 +5158,9 @@ else
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; uint8_t x_10; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
 x_7 = lean_ctor_get(x_2, 0);
-lean_inc(x_7);
-lean_dec(x_2);
 x_8 = lean_unbox(x_6);
-lean_dec(x_6);
 x_9 = lean_unbox(x_7);
-lean_dec(x_7);
 x_10 = l_Lean_Lsp_beqDiagnosticSeverity____x40_Lean_Data_Lsp_Diagnostics___hyg_21_(x_8, x_9);
 return x_10;
 }
@@ -5629,104 +5589,38 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 2);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 3);
-lean_inc(x_6);
 x_7 = lean_ctor_get(x_1, 4);
-lean_inc(x_7);
 x_8 = lean_ctor_get(x_1, 5);
-lean_inc(x_8);
 x_9 = lean_ctor_get(x_1, 6);
-lean_inc(x_9);
 x_10 = lean_ctor_get(x_1, 7);
-lean_inc(x_10);
 x_11 = lean_ctor_get(x_1, 8);
-lean_inc(x_11);
 x_12 = lean_ctor_get(x_1, 9);
-lean_inc(x_12);
 x_13 = lean_ctor_get(x_1, 10);
-lean_inc(x_13);
-lean_dec(x_1);
 x_14 = lean_ctor_get(x_2, 0);
-lean_inc(x_14);
 x_15 = lean_ctor_get(x_2, 1);
-lean_inc(x_15);
 x_16 = lean_ctor_get(x_2, 2);
-lean_inc(x_16);
 x_17 = lean_ctor_get(x_2, 3);
-lean_inc(x_17);
 x_18 = lean_ctor_get(x_2, 4);
-lean_inc(x_18);
 x_19 = lean_ctor_get(x_2, 5);
-lean_inc(x_19);
 x_20 = lean_ctor_get(x_2, 6);
-lean_inc(x_20);
 x_21 = lean_ctor_get(x_2, 7);
-lean_inc(x_21);
 x_22 = lean_ctor_get(x_2, 8);
-lean_inc(x_22);
 x_23 = lean_ctor_get(x_2, 9);
-lean_inc(x_23);
 x_24 = lean_ctor_get(x_2, 10);
-lean_inc(x_24);
-lean_dec(x_2);
 x_25 = l_Lean_Lsp_beqRange____x40_Lean_Data_Lsp_Basic___hyg_510_(x_3, x_14);
-lean_dec(x_14);
-lean_dec(x_3);
 if (x_25 == 0)
 {
-lean_dec(x_24);
-lean_dec(x_23);
-lean_dec(x_22);
-lean_dec(x_21);
-lean_dec(x_20);
-lean_dec(x_19);
-lean_dec(x_18);
-lean_dec(x_17);
-lean_dec(x_16);
-lean_dec(x_15);
-lean_dec(x_13);
-lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 return x_25;
 }
 else
 {
 uint8_t x_26; 
 x_26 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Lsp_beqDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1489____at___Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2370__spec__0_spec__0(x_4, x_15);
-lean_dec(x_15);
-lean_dec(x_4);
 if (x_26 == 0)
 {
-lean_dec(x_24);
-lean_dec(x_23);
-lean_dec(x_22);
-lean_dec(x_21);
-lean_dec(x_20);
-lean_dec(x_19);
-lean_dec(x_18);
-lean_dec(x_17);
-lean_dec(x_16);
-lean_dec(x_13);
-lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
 return x_26;
 }
 else
@@ -5735,156 +5629,68 @@ uint8_t x_27;
 x_27 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Lsp_beqDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1489____at___Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2370__spec__0_spec__1(x_5, x_16);
 if (x_27 == 0)
 {
-lean_dec(x_24);
-lean_dec(x_23);
-lean_dec(x_22);
-lean_dec(x_21);
-lean_dec(x_20);
-lean_dec(x_19);
-lean_dec(x_18);
-lean_dec(x_17);
-lean_dec(x_13);
-lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
 return x_27;
 }
 else
 {
 uint8_t x_28; 
 x_28 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Lsp_beqDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1489____at___Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2370__spec__0_spec__2(x_6, x_17);
-lean_dec(x_17);
-lean_dec(x_6);
 if (x_28 == 0)
 {
-lean_dec(x_24);
-lean_dec(x_23);
-lean_dec(x_22);
-lean_dec(x_21);
-lean_dec(x_20);
-lean_dec(x_19);
-lean_dec(x_18);
-lean_dec(x_13);
-lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
 return x_28;
 }
 else
 {
 uint8_t x_29; 
 x_29 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Lsp_beqDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1489____at___Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2370__spec__0_spec__3(x_7, x_18);
-lean_dec(x_18);
-lean_dec(x_7);
 if (x_29 == 0)
 {
-lean_dec(x_24);
-lean_dec(x_23);
-lean_dec(x_22);
-lean_dec(x_21);
-lean_dec(x_20);
-lean_dec(x_19);
-lean_dec(x_13);
-lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
 return x_29;
 }
 else
 {
 uint8_t x_30; 
 x_30 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_SearchPath_findAllWithExt_spec__0(x_8, x_19);
-lean_dec(x_19);
-lean_dec(x_8);
 if (x_30 == 0)
 {
-lean_dec(x_24);
-lean_dec(x_23);
-lean_dec(x_22);
-lean_dec(x_21);
-lean_dec(x_20);
-lean_dec(x_13);
-lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_9);
 return x_30;
 }
 else
 {
 uint8_t x_31; 
 x_31 = lean_string_dec_eq(x_9, x_20);
-lean_dec(x_20);
-lean_dec(x_9);
 if (x_31 == 0)
 {
-lean_dec(x_24);
-lean_dec(x_23);
-lean_dec(x_22);
-lean_dec(x_21);
-lean_dec(x_13);
-lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_10);
 return x_31;
 }
 else
 {
 uint8_t x_32; 
 x_32 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Lsp_beqDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1489____at___Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2370__spec__0_spec__4(x_10, x_21);
-lean_dec(x_21);
-lean_dec(x_10);
 if (x_32 == 0)
 {
-lean_dec(x_24);
-lean_dec(x_23);
-lean_dec(x_22);
-lean_dec(x_13);
-lean_dec(x_12);
-lean_dec(x_11);
 return x_32;
 }
 else
 {
 uint8_t x_33; 
 x_33 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Lsp_beqDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1489____at___Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2370__spec__0_spec__6(x_11, x_22);
-lean_dec(x_22);
-lean_dec(x_11);
 if (x_33 == 0)
 {
-lean_dec(x_24);
-lean_dec(x_23);
-lean_dec(x_13);
-lean_dec(x_12);
 return x_33;
 }
 else
 {
 uint8_t x_34; 
 x_34 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Lsp_beqDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1489____at___Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2370__spec__0_spec__8(x_12, x_23);
-lean_dec(x_23);
-lean_dec(x_12);
 if (x_34 == 0)
 {
-lean_dec(x_24);
-lean_dec(x_13);
 return x_34;
 }
 else
 {
 uint8_t x_35; 
 x_35 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Lsp_beqDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1489____at___Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2370__spec__0_spec__10(x_13, x_24);
-lean_dec(x_24);
-lean_dec(x_13);
 return x_35;
 }
 }
@@ -5918,6 +5724,8 @@ lean_dec(x_3);
 x_8 = lean_array_fget(x_1, x_7);
 x_9 = lean_array_fget(x_2, x_7);
 x_10 = l_Lean_Lsp_beqDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1489____at___Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2370__spec__0(x_8, x_9);
+lean_dec(x_9);
+lean_dec(x_8);
 if (x_10 == 0)
 {
 lean_dec(x_7);
@@ -6000,6 +5808,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Lsp_beqDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1489____at___Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2370__spec__0_spec__1(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -6141,6 +5951,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Lsp_beqDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1489____at___Lean_Lsp_beqPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_2370__spec__0(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

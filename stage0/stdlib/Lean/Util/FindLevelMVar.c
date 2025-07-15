@@ -113,7 +113,6 @@ lean_dec(x_2);
 lean_inc(x_16);
 x_17 = lean_apply_1(x_1, x_16);
 x_18 = lean_unbox(x_17);
-lean_dec(x_17);
 if (x_18 == 0)
 {
 lean_dec(x_16);

@@ -267,7 +267,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_RecursiveMutex_atomically___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -424,7 +423,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 x_11 = l_Std_RecursiveMutex_tryAtomically___redArg___lam__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_10);
 return x_11;
 }

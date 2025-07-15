@@ -7646,7 +7646,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Std_Internal_Parsec_manyCore___at___Std_Tactic_BVDecide_LRAT_Parser_Text_parseActions_go_spec__0(x_4, x_2, x_3);
 return x_5;
 }
@@ -12888,7 +12887,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Std_Tactic_BVDecide_LRAT_dumpLRATProof(x_1, x_2, x_5, x_4);
 lean_dec(x_2);
 lean_dec(x_1);

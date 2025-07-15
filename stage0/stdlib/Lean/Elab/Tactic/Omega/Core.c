@@ -6791,7 +6791,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_8);
-lean_dec(x_8);
 x_16 = l_Lean_Elab_Tactic_Omega_Justification_proof___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_15, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_3);
 lean_dec(x_1);
@@ -6803,7 +6802,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_9);
-lean_dec(x_9);
 x_17 = l_Lean_Elab_Tactic_Omega_Justification_proof(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_16, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_4);
 lean_dec(x_2);
@@ -8066,7 +8064,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_8);
-lean_dec(x_8);
 x_16 = l_Lean_Elab_Tactic_Omega_Problem_proveFalse(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_15, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_4);
 lean_dec(x_2);
@@ -8944,7 +8941,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Elab_Tactic_Omega_Problem_insertConstraint___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -10160,7 +10156,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___lam__0(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -11831,7 +11826,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_6);
-lean_dec(x_6);
 x_14 = l_Lean_throwError___at___Lean_Elab_Tactic_Omega_Problem_dealWithHardEquality_spec__0(x_1, x_2, x_3, x_4, x_5, x_13, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -11849,7 +11843,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_6);
-lean_dec(x_6);
 x_14 = l_Lean_Elab_Tactic_Omega_Problem_dealWithHardEquality(x_1, x_2, x_3, x_4, x_5, x_13, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_7);
 lean_dec(x_5);
@@ -11890,7 +11883,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_7);
-lean_dec(x_7);
 x_15 = l_Lean_Elab_Tactic_Omega_Problem_solveEquality(x_1, x_2, x_3, x_4, x_5, x_6, x_14, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_8);
 lean_dec(x_6);
@@ -11979,7 +11971,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = l_Lean_Elab_Tactic_Omega_Problem_solveEqualities(x_1, x_2, x_3, x_4, x_12, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_6);
 lean_dec(x_4);
@@ -12120,7 +12111,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_7);
-lean_dec(x_7);
 x_15 = l_Lean_Elab_Tactic_Omega_Problem_addInequality__proof(x_1, x_2, x_3, x_4, x_5, x_6, x_14, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -12259,7 +12249,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_7);
-lean_dec(x_7);
 x_15 = l_Lean_Elab_Tactic_Omega_Problem_addEquality__proof(x_1, x_2, x_3, x_4, x_5, x_6, x_14, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -12369,7 +12358,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = l_Lean_Elab_Tactic_Omega_Problem_addInequality___lam__0(x_1, x_2, x_3, x_4, x_12, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_13;
 }
@@ -13861,7 +13849,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinData_spec__0___redArg___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }
@@ -13871,7 +13858,6 @@ _start:
 lean_object* x_8; 
 x_8 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinData_spec__0___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_5);
-lean_dec(x_4);
 lean_dec(x_1);
 return x_8;
 }
@@ -13881,11 +13867,9 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinData_spec__0(x_1, x_2, x_3, x_4, x_15, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_4);
 lean_dec(x_1);
 return x_16;
 }
@@ -13905,7 +13889,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Std_DHashMap_Internal_AssocList_forInStep_go___at___Std_DHashMap_Internal_AssocList_forInStep_go___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinData_spec__1_spec__1(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -13915,7 +13898,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Std_DHashMap_Internal_AssocList_forInStep_go___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinData_spec__1(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -13939,7 +13921,6 @@ lean_dec(x_5);
 x_9 = l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinData_spec__4(x_1, x_2, x_3, x_7, x_8, x_6);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_9;
 }
 }
@@ -15533,7 +15514,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_11;
 }
 }
@@ -15576,7 +15556,6 @@ _start:
 {
 uint8_t x_20; lean_object* x_21; 
 x_20 = lean_unbox(x_5);
-lean_dec(x_5);
 x_21 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0_spec__0(x_1, x_2, x_3, x_4, x_20, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 lean_dec(x_18);
 lean_dec(x_17);
@@ -15594,7 +15573,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0___redArg(x_1, x_2, x_3, x_4, x_15, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -15633,7 +15611,6 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_7);
-lean_dec(x_7);
 x_23 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_22, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_20);
 lean_dec(x_19);
@@ -17186,7 +17163,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = l_Lean_Elab_Tactic_Omega_Problem_runOmega(x_1, x_2, x_3, x_4, x_12, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_6);
 lean_dec(x_4);
@@ -17200,7 +17176,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = l_Lean_Elab_Tactic_Omega_Problem_elimination(x_1, x_2, x_3, x_4, x_12, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_6);
 lean_dec(x_4);

@@ -61,7 +61,6 @@ x_9 = lean_usize_dec_lt(x_4, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; 
-lean_dec(x_1);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_5);
 lean_ctor_set(x_10, 1, x_8);
@@ -70,7 +69,6 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec(x_5);
 x_11 = lean_array_uget(x_2, x_4);
 x_12 = lean_alloc_closure((void*)(l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Deriving_SizeOf_mkSizeOfHandler_spec__0___lam__0___boxed), 8, 1);
 lean_closure_set(x_12, 0, x_11);
@@ -83,7 +81,6 @@ lean_inc(x_14);
 lean_dec(x_13);
 x_15 = 1;
 x_16 = lean_usize_add(x_4, x_15);
-lean_inc(x_1);
 {
 size_t _tmp_3 = x_16;
 lean_object* _tmp_4 = x_1;
@@ -96,7 +93,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_1);
 return x_13;
 }
 }
@@ -445,7 +441,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Elab_Deriving_SizeOf_mkSizeOfHandler___lam__0(x_5, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);

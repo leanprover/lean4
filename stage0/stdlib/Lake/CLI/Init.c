@@ -1285,7 +1285,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_InitTemplate_toCtorIdx(x_2);
 return x_3;
 }
@@ -1327,9 +1326,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_InitTemplate_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -1339,9 +1336,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lake_InitTemplate_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -1637,7 +1632,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_reprInitTemplate____x40_Lake_CLI_Init___hyg_524_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -1741,9 +1735,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_instDecidableEqInitTemplate(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -2155,7 +2147,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_dotlessName___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -2306,9 +2297,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lake_InitTemplate_configFileContents(x_5, x_6, x_3, x_4);
 return x_7;
 }
@@ -3123,7 +3112,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lake_createLeanActionWorkflow(x_1, x_5, x_3, x_4);
 return x_6;
 }
@@ -5171,7 +5159,6 @@ x_7 = lean_usize_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
-lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
 lean_inc(x_5);
 x_9 = l_Lake_initPkg___elam__0___at___Array_foldlMUnsafe_fold___at___Lake_initPkg_spec__0_spec__0___redArg(x_5, x_8, x_6);
@@ -6200,7 +6187,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lake_initPkg___elam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -6228,9 +6214,7 @@ _start:
 {
 uint8_t x_20; uint8_t x_21; lean_object* x_22; 
 x_20 = lean_unbox(x_4);
-lean_dec(x_4);
 x_21 = lean_unbox(x_5);
-lean_dec(x_5);
 x_22 = l_Lake_initPkg___elam__16___redArg(x_1, x_2, x_3, x_20, x_21, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 return x_22;
 }
@@ -6260,11 +6244,8 @@ _start:
 {
 uint8_t x_21; uint8_t x_22; lean_object* x_23; 
 x_21 = lean_unbox(x_4);
-lean_dec(x_4);
 x_22 = lean_unbox(x_5);
-lean_dec(x_5);
 x_23 = l_Lake_initPkg___elam__16(x_1, x_2, x_3, x_21, x_22, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
-lean_dec(x_18);
 return x_23;
 }
 }
@@ -6273,7 +6254,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lake_initPkg___elam__0___at___Array_foldlMUnsafe_fold___at___Lake_initPkg_spec__0_spec__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -6295,7 +6275,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_initPkg___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -6307,9 +6286,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_3);
-lean_dec(x_3);
 x_9 = lean_unbox(x_4);
-lean_dec(x_4);
 x_10 = l_Lake_initPkg(x_1, x_2, x_8, x_9, x_5, x_6, x_7);
 return x_10;
 }
@@ -6663,7 +6640,6 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_String_anyAux___at___Lake_validatePkgName_spec__1(x_5, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -9597,9 +9573,7 @@ _start:
 {
 uint8_t x_20; uint8_t x_21; lean_object* x_22; 
 x_20 = lean_unbox(x_5);
-lean_dec(x_5);
 x_21 = lean_unbox(x_6);
-lean_dec(x_6);
 x_22 = l_Lake_initPkg___elam__16___at___Lake_initPkg___at___Lake_init_spec__0_spec__0___redArg(x_1, x_2, x_3, x_4, x_20, x_21, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 return x_22;
 }
@@ -9629,11 +9603,8 @@ _start:
 {
 uint8_t x_21; uint8_t x_22; lean_object* x_23; 
 x_21 = lean_unbox(x_5);
-lean_dec(x_5);
 x_22 = lean_unbox(x_6);
-lean_dec(x_6);
 x_23 = l_Lake_initPkg___elam__16___at___Lake_initPkg___at___Lake_init_spec__0_spec__0(x_1, x_2, x_3, x_4, x_21, x_22, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
-lean_dec(x_19);
 return x_23;
 }
 }
@@ -9642,9 +9613,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = lean_unbox(x_5);
-lean_dec(x_5);
 x_10 = l_Lake_initPkg___at___Lake_init_spec__0(x_1, x_2, x_3, x_8, x_9, x_6, x_7);
 return x_10;
 }
@@ -9654,9 +9623,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lake_init(x_1, x_8, x_9, x_4, x_5, x_6, x_7);
 return x_10;
 }
@@ -9912,9 +9879,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lake_new(x_1, x_8, x_9, x_4, x_5, x_6, x_7);
 lean_dec(x_1);
 return x_10;

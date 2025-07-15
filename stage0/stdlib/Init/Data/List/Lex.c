@@ -30,7 +30,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_List_instTransLt(x_1, x_2, x_3);
-lean_dec(x_2);
 return x_4;
 }
 }
@@ -45,7 +44,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_List_instTransLeOfIrreflOfAsymmOfAntisymmOfNotLt(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_2);
 return x_7;
 }
 }

@@ -86,7 +86,6 @@ lean_object* x_13;
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_8);
@@ -107,7 +106,6 @@ x_17 = lean_array_uget(x_5, x_7);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_15);
-lean_inc(x_2);
 lean_inc(x_1);
 x_18 = l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Elab_Tactic_InfoTrees_elabInfoTrees_spec__1_spec__1(x_1, x_2, x_3, x_17, x_15, x_9, x_10, x_11);
 if (lean_obj_tag(x_18) == 0)
@@ -121,7 +119,6 @@ uint8_t x_20;
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_20 = !lean_is_exclusive(x_18);
 if (x_20 == 0)
@@ -178,7 +175,6 @@ lean_dec(x_15);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_31 = !lean_is_exclusive(x_18);
 if (x_31 == 0)
@@ -210,7 +206,6 @@ x_36 = lean_array_uget(x_5, x_7);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_35);
-lean_inc(x_2);
 lean_inc(x_1);
 x_37 = l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Elab_Tactic_InfoTrees_elabInfoTrees_spec__1_spec__1(x_1, x_2, x_3, x_36, x_35, x_9, x_10, x_11);
 if (lean_obj_tag(x_37) == 0)
@@ -224,7 +219,6 @@ lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_39 = lean_ctor_get(x_37, 1);
 lean_inc(x_39);
@@ -279,7 +273,6 @@ lean_dec(x_35);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_4);
-lean_dec(x_2);
 lean_dec(x_1);
 x_50 = lean_ctor_get(x_37, 0);
 lean_inc(x_50);
@@ -574,7 +567,6 @@ return x_19;
 else
 {
 uint8_t x_20; 
-lean_dec(x_2);
 x_20 = !lean_is_exclusive(x_9);
 if (x_20 == 0)
 {
@@ -1369,7 +1361,6 @@ return x_19;
 else
 {
 uint8_t x_20; 
-lean_dec(x_2);
 x_20 = !lean_is_exclusive(x_9);
 if (x_20 == 0)
 {
@@ -1425,11 +1416,8 @@ lean_inc(x_9);
 lean_dec(x_3);
 lean_inc(x_6);
 lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_2);
 lean_inc(x_1);
 x_10 = l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Elab_Tactic_InfoTrees_elabInfoTrees_spec__1_spec__1(x_1, x_2, x_4, x_8, x_4, x_5, x_6, x_7);
-lean_dec(x_4);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; 
@@ -1441,7 +1429,6 @@ uint8_t x_12;
 lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_2);
 lean_dec(x_1);
 x_12 = !lean_is_exclusive(x_10);
 if (x_12 == 0)
@@ -1589,7 +1576,6 @@ uint8_t x_44;
 lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_2);
 lean_dec(x_1);
 x_44 = !lean_is_exclusive(x_10);
 if (x_44 == 0)
@@ -1809,7 +1795,6 @@ x_13 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_14 = l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Elab_Tactic_InfoTrees_elabInfoTrees_spec__1_spec__1_spec__1(x_1, x_2, x_3, x_4, x_5, x_12, x_13, x_8, x_9, x_10, x_11);
 lean_dec(x_5);
-lean_dec(x_3);
 return x_14;
 }
 }
@@ -1832,7 +1817,6 @@ _start:
 lean_object* x_8; 
 x_8 = l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Elab_Tactic_InfoTrees_elabInfoTrees_spec__1_spec__1___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
-lean_dec(x_4);
 lean_dec(x_1);
 return x_8;
 }
@@ -1842,7 +1826,6 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Elab_Tactic_InfoTrees_elabInfoTrees_spec__1_spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_3);
 return x_9;
 }
 }
@@ -1865,7 +1848,6 @@ _start:
 lean_object* x_8; 
 x_8 = l_Lean_PersistentArray_forIn___at___Lean_Elab_Tactic_InfoTrees_elabInfoTrees_spec__1___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
-lean_dec(x_4);
 lean_dec(x_1);
 return x_8;
 }

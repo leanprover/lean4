@@ -1704,7 +1704,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0___redArg(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -1714,7 +1713,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0(x_1, x_2, x_11, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }
@@ -1729,7 +1727,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_10;
 }
 }
@@ -1801,7 +1798,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_stdFormat___at___Lake_ExternLib_staticFacetConfig_spec__0(x_3, x_2);
 return x_4;
 }
@@ -1811,7 +1807,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_ExternLib_staticFacetConfig___lam__0(x_3, x_2);
 return x_4;
 }
@@ -3908,7 +3903,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_10;
 }
 }
@@ -3974,7 +3968,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_stdFormat___at___Lake_ExternLib_dynlibFacetConfig_spec__0(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -3985,7 +3978,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_ExternLib_dynlibFacetConfig___lam__0(x_3, x_2);
 lean_dec(x_2);
 return x_4;

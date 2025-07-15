@@ -2065,7 +2065,6 @@ _start:
 {
 uint8_t x_18; lean_object* x_19; 
 x_18 = lean_unbox(x_14);
-lean_dec(x_14);
 x_19 = l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_18, x_15, x_16, x_17);
 return x_19;
 }
@@ -2093,7 +2092,6 @@ _start:
 {
 uint8_t x_19; lean_object* x_20; 
 x_19 = lean_unbox(x_13);
-lean_dec(x_13);
 x_20 = l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___redArg___lam__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_19, x_14, x_15, x_16, x_17, x_18);
 return x_20;
 }
@@ -2122,7 +2120,6 @@ _start:
 {
 uint8_t x_20; lean_object* x_21; 
 x_20 = lean_unbox(x_13);
-lean_dec(x_13);
 x_21 = l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___redArg___lam__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_20, x_14, x_15, x_16, x_17, x_18, x_19);
 return x_21;
 }
@@ -2132,7 +2129,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___redArg___lam__5(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
 return x_7;
 }
 }
@@ -2162,7 +2158,6 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_21);
-lean_dec(x_21);
 x_23 = l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___redArg___lam__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_22);
 return x_23;
 }
@@ -2228,7 +2223,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_13);
-lean_dec(x_13);
 x_17 = l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___redArg___lam__9(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_16, x_14, x_15);
 return x_17;
 }
@@ -4087,9 +4081,7 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_15 = lean_unbox(x_2);
-lean_dec(x_2);
 x_16 = lean_unbox(x_5);
-lean_dec(x_5);
 x_17 = l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Elab_Tactic_Do_ProofMode_mFrameCore___at___Lean_Elab_Tactic_Do_ProofMode_elabMFrame_spec__1_spec__1_spec__1___redArg(x_1, x_15, x_3, x_4, x_16, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_17;
 }
@@ -4099,9 +4091,7 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_16 = lean_unbox(x_3);
-lean_dec(x_3);
 x_17 = lean_unbox(x_6);
-lean_dec(x_6);
 x_18 = l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Elab_Tactic_Do_ProofMode_mFrameCore___at___Lean_Elab_Tactic_Do_ProofMode_elabMFrame_spec__1_spec__1_spec__1(x_1, x_2, x_16, x_4, x_5, x_17, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_18;
 }
@@ -4135,7 +4125,6 @@ _start:
 {
 uint8_t x_25; lean_object* x_26; 
 x_25 = lean_unbox(x_4);
-lean_dec(x_4);
 x_26 = l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___at___Lean_Elab_Tactic_Do_ProofMode_elabMFrame_spec__1___redArg___lam__0(x_1, x_2, x_3, x_25, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24);
 return x_26;
 }

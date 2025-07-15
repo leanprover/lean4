@@ -6992,7 +6992,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Parser_Command_declModifiers(x_2);
 return x_3;
 }
@@ -7230,7 +7229,6 @@ _start:
 {
 uint8_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
 x_5 = l_Lean_Parser_Command_declId___lam__0(x_3, x_4);
@@ -12552,7 +12550,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = l_Lean_Parser_Command_declModifiers_formatter___lam__0(x_7, x_2, x_3, x_4, x_5, x_6);
 return x_8;
 }
@@ -12562,7 +12559,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = l_Lean_Parser_Command_declModifiers_formatter(x_7, x_2, x_3, x_4, x_5, x_6);
 return x_8;
 }
@@ -17691,7 +17687,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = l_Lean_Parser_Command_declModifiers_parenthesizer(x_7, x_2, x_3, x_4, x_5, x_6);
 return x_8;
 }

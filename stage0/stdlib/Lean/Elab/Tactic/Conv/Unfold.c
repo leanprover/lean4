@@ -273,7 +273,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_5);
 lean_ctor_set(x_22, 1, x_14);
@@ -282,7 +281,6 @@ return x_22;
 else
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; lean_object* x_35; uint8_t x_36; lean_object* x_37; lean_object* x_38; uint8_t x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
-lean_dec(x_5);
 x_23 = lean_ctor_get(x_12, 0);
 x_24 = lean_ctor_get(x_12, 1);
 x_25 = lean_ctor_get(x_12, 2);
@@ -421,7 +419,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_60 = !lean_is_exclusive(x_48);
 if (x_60 == 0)
 {
@@ -499,7 +496,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_73 = !lean_is_exclusive(x_69);
 if (x_73 == 0)
 {
@@ -532,7 +528,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_77 = !lean_is_exclusive(x_66);
 if (x_77 == 0)
 {
@@ -586,7 +581,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_88 = !lean_is_exclusive(x_44);
 if (x_88 == 0)
 {
@@ -617,7 +611,6 @@ lean_inc(x_16);
 lean_dec(x_15);
 x_17 = 1;
 x_18 = lean_usize_add(x_4, x_17);
-lean_inc(x_1);
 {
 size_t _tmp_3 = x_18;
 lean_object* _tmp_4 = x_1;
@@ -637,7 +630,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 return x_15;
 }
 }
@@ -647,7 +639,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalUnfold___lam__0(lean_object
 _start:
 {
 lean_object* x_14; 
-lean_inc_n(x_1, 2);
 x_14 = l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_Conv_evalUnfold_spec__0(x_1, x_2, x_3, x_4, x_1, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -675,7 +666,6 @@ return x_18;
 }
 else
 {
-lean_dec(x_1);
 return x_14;
 }
 }
@@ -715,7 +705,6 @@ _start:
 {
 lean_object* x_12; 
 x_12 = l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_Conv_evalUnfold_spec__0___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_2);
 return x_12;
 }
 }

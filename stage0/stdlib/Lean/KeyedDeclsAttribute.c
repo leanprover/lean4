@@ -286,7 +286,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_Lean_KeyedDeclsAttribute_instInhabitedDef___lam__0(x_6, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -299,7 +298,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_Lean_KeyedDeclsAttribute_instInhabitedDef___lam__1(x_6, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -2836,7 +2834,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lean_ScopedEnvExtension_add___at___Lean_KeyedDeclsAttribute_init_spec__1___redArg(x_1, x_2, x_7, x_4, x_5, x_6);
 lean_dec(x_5);
 return x_8;
@@ -2847,7 +2844,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_6);
-lean_dec(x_6);
 x_11 = l_Lean_ScopedEnvExtension_add___at___Lean_KeyedDeclsAttribute_init_spec__1(x_1, x_2, x_3, x_4, x_5, x_10, x_7, x_8, x_9);
 lean_dec(x_8);
 return x_11;
@@ -2894,7 +2890,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_7);
-lean_dec(x_7);
 x_12 = l_Lean_KeyedDeclsAttribute_init___redArg___lam__5(x_1, x_2, x_3, x_4, x_5, x_6, x_11, x_8, x_9, x_10);
 return x_12;
 }
@@ -2935,11 +2930,8 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = lean_unbox(x_4);
-lean_dec(x_4);
 x_16 = lean_unbox(x_10);
-lean_dec(x_10);
 x_17 = l_Lean_KeyedDeclsAttribute_init___redArg___lam__9(x_1, x_2, x_14, x_15, x_5, x_6, x_7, x_8, x_9, x_16, x_11, x_12, x_13);
 return x_17;
 }
@@ -3120,7 +3112,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_List_filterTR_loop___at___Lean_KeyedDeclsAttribute_getEntries_spec__1___redArg(x_1, x_5, x_3, x_4);
 return x_6;
 }
@@ -3130,7 +3121,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_List_filterTR_loop___at___Lean_KeyedDeclsAttribute_getEntries_spec__1(x_1, x_2, x_6, x_4, x_5);
 return x_7;
 }

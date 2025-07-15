@@ -2255,7 +2255,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_1);
-lean_dec(x_1);
 x_12 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_PProdN_proj_spec__0(x_11, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -2371,7 +2370,6 @@ x_18 = lean_nat_dec_lt(x_17, x_2);
 if (x_18 == 0)
 {
 lean_object* x_19; 
-lean_inc(x_8);
 lean_inc(x_3);
 x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_3);
@@ -2419,7 +2417,6 @@ x_14 = lean_nat_dec_lt(x_13, x_1);
 lean_dec(x_13);
 if (x_14 == 0)
 {
-lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -2451,7 +2448,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_1);
-lean_dec(x_1);
 x_17 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_PProdN_projM_spec__0(x_16, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -2642,7 +2638,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_Lean_Meta_PProdN_packLambdas___lam__0(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_4);
 return x_11;
@@ -2772,7 +2767,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_Lean_Meta_PProdN_mkLambdas___lam__0(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }

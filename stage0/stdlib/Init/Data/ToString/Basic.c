@@ -361,7 +361,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_instToStringBool___lam__0(x_2);
 return x_3;
 }
@@ -396,7 +395,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_instToStringDecidable___lam__0(x_2);
 return x_3;
 }
@@ -552,7 +550,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_instToStringPUnit___lam__0(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -775,7 +772,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_instToStringUInt8___lam__0(x_2);
 return x_3;
 }
@@ -802,7 +798,6 @@ _start:
 {
 uint16_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_instToStringUInt16___lam__0(x_2);
 return x_3;
 }

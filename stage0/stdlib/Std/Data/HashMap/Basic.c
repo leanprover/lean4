@@ -5188,7 +5188,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashMap_forM___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -5197,7 +5196,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashMap_forM___redArg___lam__1(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
 return x_5;
 }
 }
@@ -5350,7 +5348,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashMap_instForMProd___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -6589,7 +6586,6 @@ lean_inc(x_6);
 lean_inc(x_5);
 x_10 = lean_apply_2(x_1, x_5, x_6);
 x_11 = lean_unbox(x_10);
-lean_dec(x_10);
 if (x_11 == 0)
 {
 uint8_t x_12; 
@@ -6947,7 +6943,6 @@ lean_inc(x_6);
 lean_inc(x_5);
 x_158 = lean_apply_2(x_1, x_5, x_6);
 x_159 = lean_unbox(x_158);
-lean_dec(x_158);
 if (x_159 == 0)
 {
 lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; uint64_t x_165; uint64_t x_166; uint64_t x_167; uint64_t x_168; uint64_t x_169; uint64_t x_170; uint64_t x_171; uint64_t x_172; size_t x_173; size_t x_174; size_t x_175; size_t x_176; size_t x_177; lean_object* x_178; uint8_t x_179; 

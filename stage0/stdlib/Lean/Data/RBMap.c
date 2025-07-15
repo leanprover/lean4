@@ -352,7 +352,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_RBColor_toCtorIdx(x_2);
 return x_3;
 }
@@ -394,9 +393,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_RBColor_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -406,9 +403,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_RBColor_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -709,7 +704,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_RBNode_forM___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -718,7 +712,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_RBNode_forM___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
 return x_7;
 }
 }
@@ -1032,14 +1025,12 @@ if (x_12 == 0)
 uint8_t x_13; 
 lean_dec(x_4);
 x_13 = lean_unbox(x_11);
-lean_dec(x_11);
 x_8 = x_13;
 goto block_10;
 }
 else
 {
 uint8_t x_14; 
-lean_dec(x_11);
 lean_inc(x_1);
 x_14 = l_Lean_RBNode_all___redArg(x_1, x_4);
 x_8 = x_14;
@@ -1116,7 +1107,6 @@ x_12 = lean_unbox(x_11);
 if (x_12 == 0)
 {
 uint8_t x_13; 
-lean_dec(x_11);
 lean_inc(x_1);
 x_13 = l_Lean_RBNode_any___redArg(x_1, x_4);
 x_8 = x_13;
@@ -1127,7 +1117,6 @@ else
 uint8_t x_14; 
 lean_dec(x_4);
 x_14 = lean_unbox(x_11);
-lean_dec(x_11);
 x_8 = x_14;
 goto block_10;
 }
@@ -2852,7 +2841,6 @@ lean_inc(x_10);
 lean_inc(x_3);
 x_13 = lean_apply_2(x_1, x_3, x_10);
 x_14 = lean_unbox(x_13);
-lean_dec(x_13);
 switch (x_14) {
 case 0:
 {
@@ -2896,7 +2884,6 @@ lean_inc(x_18);
 lean_inc(x_3);
 x_21 = lean_apply_2(x_1, x_3, x_18);
 x_22 = lean_unbox(x_21);
-lean_dec(x_21);
 switch (x_22) {
 case 0:
 {
@@ -2965,7 +2952,6 @@ lean_inc(x_29);
 lean_inc(x_3);
 x_33 = lean_apply_2(x_1, x_3, x_29);
 x_34 = lean_unbox(x_33);
-lean_dec(x_33);
 switch (x_34) {
 case 0:
 {
@@ -7050,7 +7036,6 @@ lean_inc(x_6);
 lean_inc(x_2);
 x_9 = lean_apply_2(x_1, x_2, x_6);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -7126,7 +7111,6 @@ lean_inc(x_23);
 lean_inc(x_2);
 x_26 = lean_apply_2(x_1, x_2, x_23);
 x_27 = lean_unbox(x_26);
-lean_dec(x_26);
 switch (x_27) {
 case 0:
 {
@@ -7246,7 +7230,6 @@ lean_inc(x_6);
 lean_inc(x_3);
 x_9 = lean_apply_2(x_1, x_3, x_6);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -7317,7 +7300,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_9 = lean_apply_2(x_1, x_3, x_6);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -7382,7 +7364,6 @@ lean_inc(x_6);
 lean_inc(x_3);
 x_9 = lean_apply_2(x_1, x_3, x_6);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -7543,7 +7524,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_RBNode_mapM___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -7552,7 +7532,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_RBNode_mapM___redArg___lam__1(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -7561,7 +7540,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_RBNode_mapM___redArg___lam__2(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -7570,7 +7548,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_Lean_RBNode_mapM___redArg___lam__3(x_6, x_2, x_3, x_4, x_5);
 return x_7;
 }
@@ -7997,7 +7974,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_RBMap_forM___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -9720,7 +9696,6 @@ lean_inc(x_10);
 lean_inc(x_3);
 x_13 = lean_apply_2(x_1, x_3, x_10);
 x_14 = lean_unbox(x_13);
-lean_dec(x_13);
 switch (x_14) {
 case 0:
 {
@@ -9764,7 +9739,6 @@ lean_inc(x_18);
 lean_inc(x_3);
 x_21 = lean_apply_2(x_1, x_3, x_18);
 x_22 = lean_unbox(x_21);
-lean_dec(x_21);
 switch (x_22) {
 case 0:
 {
@@ -9833,7 +9807,6 @@ lean_inc(x_29);
 lean_inc(x_3);
 x_33 = lean_apply_2(x_1, x_3, x_29);
 x_34 = lean_unbox(x_33);
-lean_dec(x_33);
 switch (x_34) {
 case 0:
 {
@@ -10741,7 +10714,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_9 = lean_apply_2(x_1, x_3, x_6);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -10971,7 +10943,6 @@ lean_inc(x_7);
 lean_inc(x_6);
 x_10 = lean_apply_2(x_1, x_6, x_7);
 x_11 = lean_unbox(x_10);
-lean_dec(x_10);
 if (x_11 == 0)
 {
 lean_dec(x_7);

@@ -5665,7 +5665,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_1);
-lean_dec(x_1);
 x_15 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_markNestedSubsingletons_visit_spec__6___redArg(x_14, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_2);
 return x_15;
@@ -5697,9 +5696,7 @@ _start:
 {
 uint8_t x_22; uint8_t x_23; lean_object* x_24; 
 x_22 = lean_unbox(x_2);
-lean_dec(x_2);
 x_23 = lean_unbox(x_3);
-lean_dec(x_3);
 x_24 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_markNestedSubsingletons_visit_spec__6(x_1, x_22, x_23, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -5712,9 +5709,7 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_16 = lean_unbox(x_2);
-lean_dec(x_2);
 x_17 = lean_unbox(x_3);
-lean_dec(x_3);
 x_18 = l_Lean_Expr_withAppAux___at___Lean_Expr_withAppAux___at___Lean_Meta_Grind_markNestedSubsingletons_visit_spec__7_spec__7___redArg(x_1, x_16, x_17, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_18;
 }
@@ -5724,11 +5719,8 @@ _start:
 {
 uint8_t x_17; uint8_t x_18; lean_object* x_19; 
 x_17 = lean_unbox(x_3);
-lean_dec(x_3);
 x_18 = lean_unbox(x_4);
-lean_dec(x_4);
 x_19 = l_Lean_Expr_withAppAux___at___Lean_Expr_withAppAux___at___Lean_Meta_Grind_markNestedSubsingletons_visit_spec__7_spec__7(x_1, x_2, x_17, x_18, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
-lean_dec(x_1);
 return x_19;
 }
 }
@@ -5737,12 +5729,9 @@ _start:
 {
 uint8_t x_17; uint8_t x_18; lean_object* x_19; 
 x_17 = lean_unbox(x_2);
-lean_dec(x_2);
 x_18 = lean_unbox(x_4);
-lean_dec(x_4);
 x_19 = l_Lean_Expr_withAppAux___at___Lean_Meta_Grind_markNestedSubsingletons_visit_spec__7(x_1, x_17, x_3, x_18, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_7);
-lean_dec(x_1);
 return x_19;
 }
 }

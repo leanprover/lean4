@@ -2086,9 +2086,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_1);
-lean_dec(x_1);
 x_12 = lean_unbox(x_7);
-lean_dec(x_7);
 x_13 = l_Lean_Server_initFn___lam__1____x40_Lean_Server_CodeActions_Basic___hyg_528_(x_11, x_2, x_3, x_4, x_5, x_6, x_12, x_8, x_9, x_10);
 return x_13;
 }
@@ -2098,7 +2096,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_Server_initFn___lam__2____x40_Lean_Server_CodeActions_Basic___hyg_528_(x_1, x_5, x_3, x_4);
 return x_6;
 }

@@ -10,6 +10,7 @@ public import Init.Data.List.Count
 public import Init.Data.List.Find
 public import Init.Data.List.MinMax
 public import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Order
 
 public section
 
@@ -211,8 +212,8 @@ theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ 
 
 -- A specialization of `min?_eq_some_iff` to Nat.
 theorem min?_eq_some_iff' {xs : List Nat} :
-    xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
-  min?_eq_some_iff
+    xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) := by
+  exact min?_eq_some_iff
 
 theorem min?_get_le_of_mem {l : List Nat} {a : Nat} (h : a ∈ l) :
     l.min?.get (isSome_min?_of_mem h) ≤ a := by

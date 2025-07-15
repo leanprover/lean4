@@ -30,8 +30,10 @@ structure State where
   -/
   checked : Std.HashSet Expr
 
+private def notAnExpr : Unit × Unit := ⟨⟨⟩, ⟨⟩⟩
+
 unsafe def initCache : State := {
-  visited := .replicate cacheSize.toNat (cast lcProof ())
+  visited := .replicate cacheSize.toNat (cast lcProof notAnExpr)
   checked := {}
 }
 

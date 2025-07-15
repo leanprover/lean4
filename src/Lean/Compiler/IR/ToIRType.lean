@@ -47,23 +47,31 @@ where fillCache : CoreM IRType := do
     | ``Float => return .float
     | ``Float32 => return .float32
     | ``lcErased => return .erased
+    | ``Int => return .tobject
     | _ =>
       let env ← Lean.getEnv
       let some (.inductInfo inductiveVal) := env.find? name | return .tobject
       let ctorNames := inductiveVal.ctors
       let numCtors := ctorNames.length
+      let mut numScalarCtors := 0
       for ctorName in ctorNames do
         let some (.ctorInfo ctorInfo) := env.find? ctorName | unreachable!
-        let isRelevant ← Meta.MetaM.run' <|
-                         Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
+        let hasRelevantField ← Meta.MetaM.run' <|
+                               Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
           for field in params[ctorInfo.numParams...*] do
             let fieldType ← field.fvarId!.getType
             let lcnfFieldType ← LCNF.toLCNFType fieldType
             let monoFieldType ← LCNF.toMonoType lcnfFieldType
             if !monoFieldType.isErased then return true
           return false
-        if isRelevant then return .tobject
-      return irTypeForEnum numCtors
+        if !hasRelevantField then
+          numScalarCtors := numScalarCtors + 1
+      if numScalarCtors == numCtors then
+        return irTypeForEnum numCtors
+      else if numScalarCtors == 0 then
+        return .object
+      else
+        return .tobject
 
 def toIRType (type : Lean.Expr) : CoreM IRType := do
   match type with

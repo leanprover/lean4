@@ -163,7 +163,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     match env.find? name with
     | some (.ctorInfo ctorVal) =>
       if isExtern env name then
-        return (← mkExpr (.fap name irArgs))
+        return (← mkFap name irArgs)
 
       let type ← nameToIRType ctorVal.induct
       if type.isScalar then
@@ -199,7 +199,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
         loop 0
       return .vdecl objVar type (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())
     | some (.defnInfo ..) | some (.opaqueInfo ..) =>
-      mkExpr (.fap name irArgs)
+      mkFap name irArgs
     | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
       throwNamedError lean.dependsOnNoncomputable f!"'{name}' not supported by code generator; consider marking definition as 'noncomputable'"
     | some (.recInfo ..) =>
@@ -209,7 +209,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     match (← get).fvars[fvarId]? with
     | some (.var id) =>
       let irArgs ← args.mapM lowerArg
-      mkExpr (.ap id irArgs)
+      mkAp id irArgs
     | some .erased => mkErased ()
     | some (.joinPoint ..) | none => panic! "unexpected value"
   | .erased => mkErased ()
@@ -218,16 +218,22 @@ where
     bindVarToVarId decl.fvarId v
     lowerCode k
 
-  mkExpr (e : Expr) : M FnBody := do
-    let var ← bindVar decl.fvarId
-    let type ← match e with
-    | .ctor .. | .pap .. | .ap .. | .proj .. => pure <| .object
-    | _ => toIRType decl.type
-    return .vdecl var type e (← lowerCode k)
-
   mkErased (_ : Unit) : M FnBody := do
     bindErased decl.fvarId
     lowerCode k
+
+  mkFap (name : Name) (args : Array Arg) : M FnBody := do
+    let var ← bindVar decl.fvarId
+    let type ← toIRType decl.type
+    return .vdecl var type (.fap name args) (← lowerCode k)
+
+  mkPap (name : Name) (args : Array Arg) : M FnBody := do
+    let var ← bindVar decl.fvarId
+    return .vdecl var .object (.pap name args) (← lowerCode k)
+
+  mkAp (fnVar : VarId) (args : Array Arg) : M FnBody := do
+    let var ← bindVar decl.fvarId
+    return .vdecl var .object (.ap fnVar args) (← lowerCode k)
 
   mkPartialApp (e : Expr) (restArgs : Array Arg) : M FnBody := do
     let var ← bindVar decl.fvarId
@@ -239,9 +245,9 @@ where
       let numArgs := args.size
       let numParams := decl.params.size
       if numArgs < numParams then
-        return some (← mkExpr (.pap name args))
+        return some (← mkPap name args)
       else if numArgs == numParams then
-        return some (← mkExpr (.fap name args))
+        return some (← mkFap name args)
       else
         let firstArgs := args.extract 0 numParams
         let restArgs := args.extract numParams numArgs

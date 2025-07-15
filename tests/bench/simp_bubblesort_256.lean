@@ -24,7 +24,7 @@ axiom swap : f b (f a xs) = f a (f b xs)
 axiom iter_zero : iter z g x = g x
 axiom iter_succ : iter (s i) g x = iter i g (iter i g x)
 
-noncomputable def steps : n := s (s (s (s (s (s (s z))))))
+noncomputable def steps : N := s (s (s (s (s (s (s z))))))
 
 set_option maxRecDepth 100000
 

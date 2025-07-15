@@ -119,21 +119,22 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
 @[export lean_ir_find_env_decl]
 private def findInterpreterDecl (env : Environment) (declName : Name) : Option Decl :=
   match env.getModuleIdxFor? declName with
-  | some modIdx => do
-    let decl ←
-      -- `meta import` and server `#eval`
-      findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
-      -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
-      findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
-    guard !decl matches .extern _ _ _ { entries := [.opaque _], .. }
-    return decl
+  | some modIdx =>
+    -- `meta import` and server `#eval`
+    findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
+    -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
+    findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
   | none => declMapExt.getState env |>.find? declName
 
 /-- Retrieves IR for codegen purposes, i.e. independent of `meta import`. -/
 def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
+  if env.header.isModule then
     match env.getModuleIdxFor? declName with
     | some modIdx => findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
     | none        => declMapExt.getState env |>.find? declName
+  else
+    -- allow arbitrary access as before
+    findInterpreterDecl env declName
 
 def findDecl (n : Name) : CompilerM (Option Decl) :=
   return findEnvDecl (← getEnv) n

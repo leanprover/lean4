@@ -9,7 +9,7 @@ prelude
 public import Init.BinderPredicates
 public import Init.Data.Int.Order
 public import Init.Data.List.MinMax
-public import Init.Data.Nat.MinMax
+public import Init.Data.Nat.Order
 public import Init.Data.Option.Lemmas
 
 public section

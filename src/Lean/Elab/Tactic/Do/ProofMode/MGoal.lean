@@ -6,7 +6,9 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 prelude
 import Std.Do.SPred.DerivedLaws
 import Std.Tactic.Do.ProofMode
-import Lean.Meta
+import Lean.SubExpr
+import Lean.Meta.Basic
+import Lean.Elab.Tactic.Basic
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 

@@ -104,6 +104,10 @@ def isPossibleRef : IRType → Bool
   | object | tobject => true
   | _ => false
 
+def isDefiniteRef : IRType → Bool
+  | object => true
+  | _ => false
+
 def isErased : IRType → Bool
   | erased => true
   | _ => false

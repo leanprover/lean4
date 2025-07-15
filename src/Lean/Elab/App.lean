@@ -1308,7 +1308,7 @@ private partial def mkTupleHint (eType : Expr) (idx : Nat) (ref : Syntax) : Term
       let sug := { suggestion := proj, span? := ref,
                    toCodeActionTitle? := some (s!"Change projection `{idx}` to `{·}`") }
       MessageData.hint m!"n-tuples in Lean are actually nested pairs. To access the \
-        {idx}{ordinalSuffix} component of this tuple, use the projection `{proj}` instead:" #[sug]
+        {idx}{ordinalSuffix} component of this tuple, use the projection `.{proj}` instead:" #[sug]
     else
       return MessageData.hint' m!"n-tuples in Lean are actually nested pairs. For example, to access the \
         \"third\" component of `(a, b, c)`, write `(a, b, c).2.2` instead of `(a, b, c).3`."

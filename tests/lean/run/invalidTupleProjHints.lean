@@ -11,7 +11,7 @@ error: Invalid projection: Index `3` is invalid for this structure; it must be b
 
 Note: The expression `p` has type `Nat × Nat × Nat` which has only 2 fields
 
-Hint: n-tuples in Lean are actually nested pairs. To access the 3rd component of this tuple, use the projection `2.2` instead:
+Hint: n-tuples in Lean are actually nested pairs. To access the 3rd component of this tuple, use the projection `.2.2` instead:
   3̵2̲.̲2̲
 -/
 #guard_msgs in
@@ -32,7 +32,7 @@ error: Invalid projection: Index `3` is invalid for this structure; it must be b
 
 Note: The expression `p` has type `Nat × Nat × Nat` which has only 2 fields
 
-Hint: n-tuples in Lean are actually nested pairs. To access the 3rd component of this tuple, use the projection `2.2` instead:
+Hint: n-tuples in Lean are actually nested pairs. To access the 3rd component of this tuple, use the projection `.2.2` instead:
   3̵2̲.̲2̲
 -/
 #guard_msgs in
@@ -50,7 +50,7 @@ error: Invalid projection: Index `4` is invalid for this structure; it must be b
 
 Note: The expression `mp` has type `Nat × Nat × Nat × Nat × Nat` which has only 2 fields
 
-Hint: n-tuples in Lean are actually nested pairs. To access the 4th component of this tuple, use the projection `2.2.2.1` instead:
+Hint: n-tuples in Lean are actually nested pairs. To access the 4th component of this tuple, use the projection `.2.2.2.1` instead:
   4̵2̲.̲2̲.̲2̲.̲1̲
 -/
 #guard_msgs in

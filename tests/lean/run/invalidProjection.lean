@@ -22,7 +22,7 @@ error: Invalid projection: Index `3` is invalid for this structure; it must be b
 
 Note: The expression `x` has type `Nat × Nat × Nat` which has only 2 fields
 
-Hint: n-tuples in Lean are actually nested pairs. To access the 3rd component of this tuple, use the projection `2.2` instead:
+Hint: n-tuples in Lean are actually nested pairs. To access the 3rd component of this tuple, use the projection `.2.2` instead:
   3̵2̲.̲2̲
 -/
 #guard_msgs in

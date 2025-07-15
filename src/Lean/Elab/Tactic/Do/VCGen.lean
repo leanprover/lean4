@@ -7,6 +7,7 @@ prelude
 import Init.Guard
 import Std.Do.WP
 import Std.Do.Triple
+import Lean.Meta.Tactic.Split
 import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.Meta
 import Lean.Elab.Tactic.Do.ProofMode.Basic

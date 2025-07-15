@@ -9,6 +9,7 @@ import Lean.Elab.Tactic.Do.ProofMode.MGoal
 import Lean.Elab.Tactic.Do.ProofMode.Focus
 import Lean.Elab.Tactic.Do.ProofMode.Basic
 import Lean.Elab.Tactic.Do.ProofMode.Pure
+import Lean.Elab.Tactic.ElabTerm
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic

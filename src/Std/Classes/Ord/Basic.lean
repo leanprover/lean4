@@ -337,6 +337,7 @@ instance LawfulEqOrd.opposite [Ord α] [OrientedOrd α] [LawfulEqOrd α] :
     letI := Ord.opposite (α := α) ‹_›; LawfulEqOrd α :=
   LawfulEqCmp.opposite (cmp := compare)
 
+@[simp]
 theorem LawfulEqCmp.compare_eq_iff_eq {a b : α} : cmp a b = .eq ↔ a = b :=
   ⟨LawfulEqCmp.eq_of_compare, fun h => h ▸ ReflCmp.compare_self⟩
 
@@ -350,7 +351,7 @@ theorem LawfulEqOrd.compare_eq_iff_eq [Ord α] [LawfulEqOrd α] {a b : α} :
   LawfulEqCmp.compare_eq_iff_eq
 
 /-- The corresponding lemma for `LawfulEqCmp` is `LawfulEqCmp.compare_beq_iff_eq` -/
-@[simp, grind]
+@[grind]
 theorem LawfulEqOrd.compare_beq_iff_eq [Ord α] [LawfulEqOrd α] {a b : α} :
     compare a b == .eq ↔ a = b :=
   LawfulEqCmp.compare_beq_iff_eq
@@ -435,7 +436,7 @@ instance LawfulBEqOrd.equivBEq [Ord α] [LawfulBEqOrd α] [TransOrd α] : EquivB
 
 theorem LawfulBEqCmp.lawfulBEq [inst : LawfulBEqCmp cmp] [LawfulEqCmp cmp] : LawfulBEq α where
   toReflBEq := reflBEq (cmp := cmp)
-  eq_of_beq := by simp [← inst.compare_eq_iff_beq, LawfulEqCmp.compare_eq_iff_eq]
+  eq_of_beq := by simp [← inst.compare_eq_iff_beq]
 
 instance LawfulBEqOrd.lawfulBEq [Ord α] [LawfulBEqOrd α] [LawfulEqOrd α] : LawfulBEq α :=
   LawfulBEqCmp.lawfulBEq (cmp := compare)
@@ -562,7 +563,7 @@ instance {α} [Ord α] [ReflOrd α] : ReflOrd (Option α) where
 
 instance {α} [Ord α] [LawfulEqOrd α] : LawfulEqOrd (Option α) where
   eq_of_compare {a b} := by
-    cases a <;> cases b <;> simp [Ord.compare, compare_eq_iff_eq]
+    cases a <;> cases b <;> simp [Ord.compare]
 
 instance {α} [Ord α] [BEq α] [LawfulBEqOrd α] : LawfulBEqOrd (Option α) where
   compare_eq_iff_beq {a b} := by

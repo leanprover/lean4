@@ -145,7 +145,7 @@ private partial def mkCast (e : Expr) (type : Expr) (deps : Array Nat) (eqs : Ar
        | none => go (i+1) type
        | some major =>
          let some (_, lhs, rhs) := (← inferType major).eq? | unreachable!
-         if (← dependsOn type major.fvarId!) then
+         if (← pure major.isFVar <&&> dependsOn type major.fvarId!) then
            let motive ← mkLambdaFVars #[rhs, major] type
            let typeNew := type.replaceFVar rhs lhs |>.replaceFVar major (← mkEqRefl lhs)
            let minor ← go (i+1) typeNew
@@ -309,10 +309,14 @@ where
             | .subsingletonInst =>
               -- The `lhs` does not need to instance implicit since it can be inferred from the LHS
               withNewBinderInfos #[(lhss[i]!.fvarId!, .implicit)] do
-                let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[*...rhss.size]) rhss
+                let lhs := lhss[i]!
+                let lhsType ← inferType lhs
+                let rhsType := lhsType.replaceFVars (lhss[*...rhss.size]) rhss
                 let rhsBi   := if subsingletonInstImplicitRhs then .instImplicit else .implicit
-                withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName rhsBi rhsType fun rhs =>
-                  go (i+1) (rhss.push rhs) (eqs.push none) (hyps.push rhs)
+                withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName rhsBi rhsType fun rhs => do
+                  let lhs' ← mkCast lhs rhsType info.paramInfo[i]!.backDeps eqs
+                  let heq ← mkAppM ``Subsingleton.elim #[lhs', rhs]
+                  go (i+1) (rhss.push rhs) (eqs.push heq) (hyps.push rhs)
         return some (← go 0 #[] #[] #[])
     catch _ =>
       return none

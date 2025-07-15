@@ -111,7 +111,7 @@ private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody := do
   if b == b' then
     return b
   else
-    return .vdecl w IRType.object (.reset c.size x) b'
+    return .vdecl w .tobject (.reset c.size x) b'
 
 private def Dfinalize (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
   | (b, true)  => return b

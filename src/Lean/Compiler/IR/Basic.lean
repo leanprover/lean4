@@ -100,6 +100,10 @@ def isErased : IRType → Bool
   | erased => true
   | _ => false
 
+def boxed : IRType → IRType
+  | object | erased | float | float32 => object
+  | _ => tobject
+
 end IRType
 
 /-- Arguments to applications, constructors, etc.

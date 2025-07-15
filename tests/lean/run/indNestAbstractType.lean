@@ -8,9 +8,8 @@ error: (kernel) arg #1 of 'S'.mk' contains a non valid occurrence of the datatyp
 structure S' where
   node : T S'
 
-
 inductive T.Raw (α : Type u) : Type u where
-  | mk : α → T.Raw α
+  | mk : α → T.Raw α → T.Raw α -- pseudo-implementation, representative for any kernel-friendly type
 
 axiom T.abs : T.Raw α → T α
 axiom T.repr : T α → T.Raw α
@@ -84,3 +83,15 @@ theorem S.casesOn'_eq1_dep motive mk node :
   simp only [eq_mp_eq_cast, cast_cast, cast_eq_iff_heq]
   apply heq_motive_f_congr
   simp [T.abs_repr, T.map_map_id]
+
+set_option linter.unusedVariables false in
+axiom T.below : ∀ {α : Type u} (p : α → Sort v), T α → Sort v
+
+
+/-
+-- Fake recursor
+noncomputable def S.rec' (motive : S → Sort u)
+  (mk : (node : T S) → (h : node.below motive) → motive (S.mk node))
+  (s : S) : motive s :=
+  sorry
+-/

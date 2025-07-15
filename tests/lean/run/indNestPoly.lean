@@ -39,7 +39,7 @@ def S := S.Raw
 noncomputable def S.empty : S := S.Raw.empty
 noncomputable def S.node (cs : T S) : S := S.Raw.node cs.repr
 
--- Fake casesOn (nondep)
+-- Fake casesOn
 noncomputable def S.casesOn' (motive : S → Sort u)
   (empty : motive S.empty)
   (node : (cs : T S) → motive (S.node cs)) (s : S) : motive s :=
@@ -49,19 +49,23 @@ noncomputable def S.casesOn' (motive : S → Sort u)
     rw [← @T.repr_abs _ cs]
     apply node
 
-theorem S.casesOn'_eq2_nondep motive empty node cs :
-    S.casesOn' (fun _ => motive) empty node (S.node cs) = node cs := by
-  unfold S.casesOn' S.node
-  dsimp
-  rw [T.abs_repr]
+theorem cast_congrArg_mk
+  {T : Type w}
+  {S : Type v}
+  (f : T → S)
+  (motive : S → Sort u)
+  (g : (node : T) → motive (f node))
+  (m n : T) (h : m = n) : cast (congrArg (fun x => motive (f x)) h) (g m) = g n := by
+  cases h
+  rfl
+
+theorem S.casesOn'_eq1 motive empty node :
+    S.casesOn' motive empty node S.empty = empty := by
+  rfl
 
 theorem S.casesOn'_eq2 motive empty node cs :
     S.casesOn' motive empty node (S.node cs) = node cs := by
   unfold S.casesOn' S.node
   dsimp only
-
-  -- Got an Eq.mp around the `node` minor premise!
-  sorry
-
--- Ok, let's say we restrict outselves to non-dependent motives in pattern matching.
--- How to define functions?
+  apply cast_congrArg_mk
+  simp [T.abs_repr]

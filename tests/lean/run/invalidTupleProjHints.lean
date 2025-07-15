@@ -22,7 +22,7 @@ error: Invalid projection: Index `17` is invalid for this structure; it must be 
 
 Note: The expression `p` has type `Nat × Nat × Nat` which has only 2 fields
 
-Note: n-tuples in Lean are actually nested pairs. For example, to access the "third" component of `(a, b, c)`, write `(a, b, c).2.2` instead of `(a, b, c).3`.
+Hint: n-tuples in Lean are actually nested pairs. For example, to access the "third" component of `(a, b, c)`, write `(a, b, c).2.2` instead of `(a, b, c).3`.
 -/
 #guard_msgs in
 #check p.17
@@ -55,3 +55,16 @@ Hint: n-tuples in Lean are actually nested pairs. To access the 4th component of
 -/
 #guard_msgs in
 #eval mp.4
+
+-- Ensure we don't produce hints for synthetic syntax
+macro "illegally_project_from_a_tuple" : term => `((1, 2, 3).3)
+
+/--
+error: Invalid projection: Index `3` is invalid for this structure; it must be between 1 and 2
+
+Note: The expression `(1, 2, 3)` has type `?m.707 × ?m.721 × ?m.730` which has only 2 fields
+
+Hint: n-tuples in Lean are actually nested pairs. For example, to access the "third" component of `(a, b, c)`, write `(a, b, c).2.2` instead of `(a, b, c).3`.
+-/
+#guard_msgs in
+#check illegally_project_from_a_tuple

@@ -1296,10 +1296,10 @@ nesting behavior of n-ary products is otherwise relevant, generates a correspond
 produces an empty message.
 -/
 private partial def mkTupleHint (eType : Expr) (idx : Nat) (ref : Syntax) : TermElabM MessageData := do
-  let arity := prodArity? eType
+  let arity := prodArity eType
   if arity > 1 then
     let numComps := arity + 1
-    if idx ≤ numComps then
+    if idx ≤ numComps && ref.getHeadInfo matches .original .. then
       let ordinalSuffix := match idx % 10 with
         | 1 => "st" | 2 => "nd" | 3 => "rd" | _ => "th"
       let mut projComps := List.replicate (idx - 1) "2"
@@ -1310,15 +1310,15 @@ private partial def mkTupleHint (eType : Expr) (idx : Nat) (ref : Syntax) : Term
       MessageData.hint m!"n-tuples in Lean are actually nested pairs. To access the \
         {idx}{ordinalSuffix} component of this tuple, use the projection `{proj}` instead:" #[sug]
     else
-      pure <| MessageData.note m!"n-tuples in Lean are actually nested pairs. For example, to access the \
+      return MessageData.hint' m!"n-tuples in Lean are actually nested pairs. For example, to access the \
         \"third\" component of `(a, b, c)`, write `(a, b, c).2.2` instead of `(a, b, c).3`."
   else
-    pure MessageData.nil
+    return MessageData.nil
 where
-  prodArity? (type : Expr) :=
+  prodArity (type : Expr) :=
     match type.prod? with
     | none => 0
-    | some (_, p2) => prodArity? p2 + 1
+    | some (_, p2) => prodArity p2 + 1
 
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
   if eType.isForall then

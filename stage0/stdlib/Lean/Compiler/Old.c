@@ -145,7 +145,7 @@ lean_dec(x_5);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_3, x_2, x_8);
 x_10 = 1;
 x_11 = lean_usize_add(x_2, x_10);

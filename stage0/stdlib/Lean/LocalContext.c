@@ -923,7 +923,7 @@ x_1 = 0;
 x_2 = 0;
 x_3 = l_Lean_instInhabitedLocalDecl___closed__2;
 x_4 = lean_box(0);
-x_5 = lean_box(0);
+x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
@@ -2094,7 +2094,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_instInhabitedLocalContext___closed__4;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_instInhabitedLocalContext___closed__2;
 x_4 = l_Lean_instInhabitedLocalContext___closed__3;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -3417,7 +3417,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = l_Lean_Expr_fvar___override(x_5);
 x_9 = 1;
@@ -7245,7 +7245,7 @@ x_5 = lean_array_uget(x_3, x_2);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);
@@ -7272,33 +7272,32 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 x_7 = lean_array_uget(x_4, x_3);
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_4, x_3, x_8);
 lean_inc(x_7);
 x_16 = l_Lean_PersistentHashMap_find_x3f___at___Lean_LocalContext_find_x3f_spec__0___redArg(x_6, x_7);
 if (lean_obj_tag(x_16) == 0)
 {
-lean_object* x_17; lean_object* x_18; 
-x_17 = lean_unsigned_to_nat(0u);
-x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_7);
-x_10 = x_18;
+lean_object* x_17; 
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_8);
+lean_ctor_set(x_17, 1, x_7);
+x_10 = x_17;
 goto block_15;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_19 = lean_ctor_get(x_16, 0);
-lean_inc(x_19);
+lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_18 = lean_ctor_get(x_16, 0);
+lean_inc(x_18);
 lean_dec(x_16);
-x_20 = lean_ctor_get(x_19, 0);
-lean_inc(x_20);
-lean_dec(x_19);
-x_21 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_21, 0, x_20);
-lean_ctor_set(x_21, 1, x_7);
-x_10 = x_21;
+x_19 = lean_ctor_get(x_18, 0);
+lean_inc(x_19);
+lean_dec(x_18);
+x_20 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_20, 0, x_19);
+lean_ctor_set(x_20, 1, x_7);
+x_10 = x_20;
 goto block_15;
 }
 block_15:
@@ -7832,7 +7831,7 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; 
 x_7 = lean_array_uget(x_5, x_4);
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_5, x_4, x_8);
 lean_inc(x_1);
 x_10 = l_Lean_PersistentArray_mapMAux___at___Lean_PersistentArray_mapM___at___Lean_LocalContext_replaceFVarId_spec__1_spec__1(x_1, x_2, x_7);
@@ -7859,7 +7858,7 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = lean_array_uget(x_5, x_4);
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_5, x_4, x_8);
 if (lean_obj_tag(x_7) == 0)
 {

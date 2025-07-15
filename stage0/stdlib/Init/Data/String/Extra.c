@@ -157,7 +157,7 @@ LEAN_EXPORT lean_object* l_panic___at___String_toNat_x21_spec__0(lean_object* x_
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }

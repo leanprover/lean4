@@ -1598,7 +1598,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 lean_inc(x_1);
 x_9 = l_Lean_PersistentArray_mapMAux___at___Lean_PersistentArray_mapM___at___Lean_Elab_InfoTree_substitute_spec__0_spec__0(x_1, x_6);
@@ -1625,7 +1625,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 lean_inc(x_1);
 x_9 = l_Lean_Elab_InfoTree_substitute(x_6, x_1);
@@ -1895,7 +1895,7 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; 
 x_7 = lean_array_uget(x_5, x_4);
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_5, x_4, x_8);
 lean_inc(x_2);
 lean_inc(x_1);
@@ -1926,7 +1926,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
 x_8 = lean_array_uget(x_5, x_4);
-x_9 = lean_box(0);
+x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_array_uset(x_5, x_4, x_9);
 lean_inc(x_2);
 x_11 = l_Lean_PersistentHashMap_map___at___Lean_Elab_InfoState_substituteLazy_spec__0___redArg(x_7, x_2);

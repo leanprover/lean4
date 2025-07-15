@@ -148,7 +148,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__7;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__5;
 x_4 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__6;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -193,7 +193,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__7;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__5;
 x_4 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__11;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -220,7 +220,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__7;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__5;
 x_4 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__13;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -247,7 +247,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__7;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__5;
 x_4 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__15;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -284,7 +284,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__7;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__5;
 x_4 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__18;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -311,7 +311,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__7;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__5;
 x_4 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__20;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -343,7 +343,7 @@ x_13 = lean_box(0);
 x_14 = lean_box(0);
 x_15 = l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase___closed__2;
 x_16 = lean_box(0);
-x_17 = lean_box(0);
+x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_alloc_ctor(0, 40, 1);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_16);

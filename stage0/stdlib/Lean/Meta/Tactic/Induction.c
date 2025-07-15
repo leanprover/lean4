@@ -3396,7 +3396,7 @@ else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_26; uint8_t x_27; 
 x_16 = lean_array_uget(x_8, x_7);
-x_17 = lean_box(0);
+x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_uset(x_8, x_7, x_17);
 x_26 = lean_array_get_size(x_1);
 x_27 = lean_nat_dec_le(x_26, x_16);
@@ -3584,7 +3584,7 @@ else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_26; uint8_t x_27; 
 x_16 = lean_array_uget(x_8, x_7);
-x_17 = lean_box(0);
+x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_uset(x_8, x_7, x_17);
 x_26 = lean_array_get_size(x_1);
 x_27 = lean_nat_dec_le(x_26, x_16);

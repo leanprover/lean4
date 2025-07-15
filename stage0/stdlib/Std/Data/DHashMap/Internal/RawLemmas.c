@@ -9699,7 +9699,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = lean_mk_syntax_ident(x_5);
 x_9 = 1;
@@ -9724,7 +9724,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; lean_object* x_10; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
@@ -9761,7 +9761,7 @@ else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; size_t x_16; size_t x_17; lean_object* x_18; 
 x_10 = lean_array_uget(x_8, x_7);
-x_11 = lean_box(0);
+x_11 = lean_unsigned_to_nat(0u);
 x_12 = lean_array_uset(x_8, x_7, x_11);
 x_13 = l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticEmpty__1___closed__13;
 lean_inc(x_3);
@@ -9797,7 +9797,7 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; size_t x_16; size_t x_17; lean_object* x_18; 
 x_9 = lean_array_uget(x_7, x_6);
-x_10 = lean_box(0);
+x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_array_uset(x_7, x_6, x_10);
 x_12 = l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticWf__trivial__1___closed__21;
 lean_inc(x_3);

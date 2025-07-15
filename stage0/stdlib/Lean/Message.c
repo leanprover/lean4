@@ -3082,7 +3082,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
-x_12 = lean_box(0);
+x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_4, x_3, x_12);
 x_14 = 1;
 x_15 = lean_usize_add(x_3, x_14);
@@ -5466,7 +5466,7 @@ static lean_object* _init_l_Lean_instInhabitedBaseMessage___redArg___closed__0()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -9192,7 +9192,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_instInhabitedMessageLog___closed__2;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_instInhabitedMessageLog___closed__0;
 x_4 = l_Lean_instInhabitedMessageLog___closed__1;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -9999,7 +9999,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = l_Lean_PersistentArray_mapMAux___at___Lean_PersistentArray_mapM___at___Lean_MessageLog_errorsToWarnings_spec__0_spec__0(x_5);
 x_9 = 1;
@@ -10037,7 +10037,7 @@ x_12 = lean_ctor_get(x_5, 3);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_5, 4);
 lean_inc(x_13);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_3, x_2, x_14);
 x_22 = lean_box(x_10);
 if (lean_obj_tag(x_22) == 2)
@@ -10285,7 +10285,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = l_Lean_PersistentArray_mapMAux___at___Lean_PersistentArray_mapM___at___Lean_MessageLog_errorsToInfos_spec__0_spec__0(x_5);
 x_9 = 1;
@@ -10323,7 +10323,7 @@ x_12 = lean_ctor_get(x_5, 3);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_5, 4);
 lean_inc(x_13);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_3, x_2, x_14);
 x_22 = lean_box(x_10);
 if (lean_obj_tag(x_22) == 2)

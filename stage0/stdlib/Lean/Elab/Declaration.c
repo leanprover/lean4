@@ -6919,7 +6919,7 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_19; 
 x_9 = lean_array_uget(x_4, x_3);
-x_10 = lean_box(0);
+x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_array_uset(x_4, x_3, x_10);
 lean_inc(x_9);
 x_19 = l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_getDefName_x3f(x_9);

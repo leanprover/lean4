@@ -496,7 +496,7 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_19; 
 x_9 = lean_array_uget(x_3, x_2);
-x_10 = lean_box(0);
+x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_array_uset(x_3, x_2, x_10);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -682,7 +682,7 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_19; 
 x_9 = lean_array_uget(x_3, x_2);
-x_10 = lean_box(0);
+x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_array_uset(x_3, x_2, x_10);
 lean_inc(x_5);
 lean_inc(x_4);

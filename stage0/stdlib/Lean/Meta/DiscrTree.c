@@ -10821,7 +10821,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 lean_inc(x_1);
 x_9 = lean_alloc_ctor(0, 2, 0);
@@ -11026,19 +11026,18 @@ return x_3;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
-x_8 = lean_unsigned_to_nat(0u);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_5);
-lean_ctor_set(x_9, 1, x_8);
-x_10 = 1;
-x_11 = lean_usize_add(x_2, x_10);
-x_12 = lean_array_uset(x_7, x_2, x_9);
-x_2 = x_11;
-x_3 = x_12;
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_5);
+lean_ctor_set(x_8, 1, x_6);
+x_9 = 1;
+x_10 = lean_usize_add(x_2, x_9);
+x_11 = lean_array_uset(x_7, x_2, x_8);
+x_2 = x_10;
+x_3 = x_11;
 goto _start;
 }
 }
@@ -15158,7 +15157,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; 
 x_8 = lean_ctor_get(x_6, 1);
-x_9 = lean_box(0);
+x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_array_uset(x_4, x_3, x_9);
 lean_inc(x_1);
 x_11 = l_Lean_Meta_DiscrTree_Trie_mapArraysM___at___Lean_Meta_DiscrTree_mapArraysM___at___Lean_Meta_DiscrTree_mapArrays_spec__0_spec__0___redArg(x_8, x_1);
@@ -15178,7 +15177,7 @@ x_17 = lean_ctor_get(x_6, 1);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_dec(x_6);
-x_18 = lean_box(0);
+x_18 = lean_unsigned_to_nat(0u);
 x_19 = lean_array_uset(x_4, x_3, x_18);
 lean_inc(x_1);
 x_20 = l_Lean_Meta_DiscrTree_Trie_mapArraysM___at___Lean_Meta_DiscrTree_mapArraysM___at___Lean_Meta_DiscrTree_mapArrays_spec__0_spec__0___redArg(x_17, x_1);
@@ -15264,7 +15263,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 switch (lean_obj_tag(x_6)) {
 case 0:

@@ -2456,19 +2456,18 @@ return x_5;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_6 = lean_nat_abs(x_1);
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_6, x_7);
 lean_dec(x_6);
 x_9 = l_Int_repr___closed__1;
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_add(x_8, x_10);
+x_10 = lean_nat_add(x_8, x_7);
 lean_dec(x_8);
-x_12 = l_Nat_reprFast(x_11);
-x_13 = lean_string_append(x_9, x_12);
-lean_dec(x_12);
-return x_13;
+x_11 = l_Nat_reprFast(x_10);
+x_12 = lean_string_append(x_9, x_11);
+lean_dec(x_11);
+return x_12;
 }
 }
 }

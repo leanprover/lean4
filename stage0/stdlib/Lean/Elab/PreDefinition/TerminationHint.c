@@ -146,7 +146,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpointType_noConfusion___redArg___
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l_Lean_Elab_TerminationHints_ensureNone___closed__4;
 lean_object* l_Lean_throwErrorAt___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_TerminationHints_none___closed__0;
 lean_object* l_Lean_Expr_getNumHeadLambdas(lean_object*);
 static lean_object* l_Lean_Elab_TerminationHints_ensureNone___closed__8;
 static lean_object* l_Lean_Elab_elabTerminationHints___redArg___lam__13___closed__3;
@@ -327,7 +326,7 @@ static lean_object* _init_l_Lean_Elab_instInhabitedTerminationHints___closed__0(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_box(0);
 x_3 = lean_box(0);
 x_4 = lean_box(0);
@@ -472,31 +471,11 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Elab_TerminationHints_none___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_box(0);
-x_3 = lean_box(0);
-x_4 = lean_box(0);
-x_5 = lean_box(0);
-x_6 = lean_box(0);
-x_7 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_7, 0, x_6);
-lean_ctor_set(x_7, 1, x_5);
-lean_ctor_set(x_7, 2, x_4);
-lean_ctor_set(x_7, 3, x_3);
-lean_ctor_set(x_7, 4, x_2);
-lean_ctor_set(x_7, 5, x_1);
-return x_7;
-}
-}
 static lean_object* _init_l_Lean_Elab_TerminationHints_none() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_TerminationHints_none___closed__0;
+x_1 = l_Lean_Elab_instInhabitedTerminationHints___closed__0;
 return x_1;
 }
 }
@@ -2939,8 +2918,6 @@ l_Lean_Elab_instInhabitedTerminationHints___closed__0 = _init_l_Lean_Elab_instIn
 lean_mark_persistent(l_Lean_Elab_instInhabitedTerminationHints___closed__0);
 l_Lean_Elab_instInhabitedTerminationHints = _init_l_Lean_Elab_instInhabitedTerminationHints();
 lean_mark_persistent(l_Lean_Elab_instInhabitedTerminationHints);
-l_Lean_Elab_TerminationHints_none___closed__0 = _init_l_Lean_Elab_TerminationHints_none___closed__0();
-lean_mark_persistent(l_Lean_Elab_TerminationHints_none___closed__0);
 l_Lean_Elab_TerminationHints_none = _init_l_Lean_Elab_TerminationHints_none();
 lean_mark_persistent(l_Lean_Elab_TerminationHints_none);
 l_Lean_Elab_TerminationHints_ensureNone___closed__0 = _init_l_Lean_Elab_TerminationHints_ensureNone___closed__0();

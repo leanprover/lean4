@@ -11882,7 +11882,7 @@ LEAN_EXPORT lean_object* l_Lake_instInhabitedPostUpdateHook___lam__0(lean_object
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_box(0);
+x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_3);

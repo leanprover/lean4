@@ -279,7 +279,7 @@ else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_22; lean_object* x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; lean_object* x_31; lean_object* x_32; uint8_t x_33; uint8_t x_34; uint8_t x_35; lean_object* x_37; lean_object* x_38; lean_object* x_39; uint8_t x_40; uint8_t x_41; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_57; lean_object* x_58; lean_object* x_75; uint8_t x_91; 
 x_13 = lean_array_uget(x_11, x_10);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_11, x_10, x_14);
 lean_inc(x_13);
 x_91 = l_Lean_Syntax_isOfKind(x_13, x_8);
@@ -667,7 +667,7 @@ else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_23; uint8_t x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; uint8_t x_32; lean_object* x_33; uint8_t x_34; lean_object* x_35; uint8_t x_36; uint8_t x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; uint8_t x_42; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_58; lean_object* x_59; lean_object* x_76; uint8_t x_92; 
 x_14 = lean_array_uget(x_12, x_11);
-x_15 = lean_box(0);
+x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_uset(x_12, x_11, x_15);
 lean_inc(x_14);
 x_92 = l_Lean_Syntax_isOfKind(x_14, x_9);

@@ -1944,7 +1944,7 @@ x_15 = lean_ctor_get(x_11, 0);
 lean_inc(x_15);
 lean_dec(x_11);
 x_16 = lean_array_uget(x_3, x_2);
-x_17 = lean_box(0);
+x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_uset(x_3, x_2, x_17);
 x_19 = 0;
 x_20 = l_Lean_SourceInfo_fromRef(x_13, x_19);
@@ -2017,7 +2017,7 @@ x_51 = lean_ctor_get(x_47, 0);
 lean_inc(x_51);
 lean_dec(x_47);
 x_52 = lean_array_uget(x_3, x_2);
-x_53 = lean_box(0);
+x_53 = lean_unsigned_to_nat(0u);
 x_54 = lean_array_uset(x_3, x_2, x_53);
 x_55 = 0;
 x_56 = l_Lean_SourceInfo_fromRef(x_49, x_55);
@@ -2127,7 +2127,7 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; size_t x_19; size_t x_20; lean_object* x_21; 
 x_9 = lean_array_uget(x_7, x_6);
-x_10 = lean_box(0);
+x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_array_uset(x_7, x_6, x_10);
 x_12 = l_Array_mapMUnsafe_map___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__3___closed__1;
 x_13 = l_Array_mapMUnsafe_map___at_____private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance_spec__3___closed__2;

@@ -1081,7 +1081,7 @@ else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_18; lean_object* x_26; lean_object* x_27; uint8_t x_28; 
 x_8 = lean_array_uget(x_3, x_2);
-x_9 = lean_box(0);
+x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_array_uset(x_3, x_2, x_9);
 lean_inc(x_8);
 x_26 = l_Lean_Syntax_getKind(x_8);

@@ -952,7 +952,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
-x_12 = lean_box(0);
+x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_3, x_2, x_12);
 x_14 = 1;
 x_15 = lean_usize_add(x_2, x_14);
@@ -982,32 +982,31 @@ else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = lean_array_uget(x_3, x_2);
-x_9 = lean_box(0);
+x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_array_uset(x_3, x_2, x_9);
 if (lean_obj_tag(x_8) == 0)
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_19 = lean_ctor_get(x_8, 1);
 lean_inc(x_19);
 x_20 = lean_ctor_get(x_8, 2);
 lean_inc(x_20);
 lean_dec(x_8);
-x_21 = lean_unsigned_to_nat(0u);
 lean_inc(x_4);
-x_22 = l_Lean_Compiler_LCNF_ToExpr_withParams_go___at___Lean_Compiler_LCNF_FunDecl_toExprM_spec__0(x_20, x_19, x_19, x_21, x_4, x_5);
+x_21 = l_Lean_Compiler_LCNF_ToExpr_withParams_go___at___Lean_Compiler_LCNF_FunDecl_toExprM_spec__0(x_20, x_19, x_19, x_9, x_4, x_5);
 lean_dec(x_19);
-x_11 = x_22;
+x_11 = x_21;
 goto block_18;
 }
 else
 {
-lean_object* x_23; lean_object* x_24; 
-x_23 = lean_ctor_get(x_8, 0);
-lean_inc(x_23);
+lean_object* x_22; lean_object* x_23; 
+x_22 = lean_ctor_get(x_8, 0);
+lean_inc(x_22);
 lean_dec(x_8);
 lean_inc(x_4);
-x_24 = l_Lean_Compiler_LCNF_Code_toExprM(x_23, x_4, x_5);
-x_11 = x_24;
+x_23 = l_Lean_Compiler_LCNF_Code_toExprM(x_22, x_4, x_5);
+x_11 = x_23;
 goto block_18;
 }
 block_18:
@@ -1047,32 +1046,31 @@ else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = lean_array_uget(x_3, x_2);
-x_9 = lean_box(0);
+x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_array_uset(x_3, x_2, x_9);
 if (lean_obj_tag(x_8) == 0)
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_19 = lean_ctor_get(x_8, 1);
 lean_inc(x_19);
 x_20 = lean_ctor_get(x_8, 2);
 lean_inc(x_20);
 lean_dec(x_8);
-x_21 = lean_unsigned_to_nat(0u);
 lean_inc(x_4);
-x_22 = l_Lean_Compiler_LCNF_ToExpr_withParams_go___at___Lean_Compiler_LCNF_FunDecl_toExprM_spec__0(x_20, x_19, x_19, x_21, x_4, x_5);
+x_21 = l_Lean_Compiler_LCNF_ToExpr_withParams_go___at___Lean_Compiler_LCNF_FunDecl_toExprM_spec__0(x_20, x_19, x_19, x_9, x_4, x_5);
 lean_dec(x_19);
-x_11 = x_22;
+x_11 = x_21;
 goto block_18;
 }
 else
 {
-lean_object* x_23; lean_object* x_24; 
-x_23 = lean_ctor_get(x_8, 0);
-lean_inc(x_23);
+lean_object* x_22; lean_object* x_23; 
+x_22 = lean_ctor_get(x_8, 0);
+lean_inc(x_22);
 lean_dec(x_8);
 lean_inc(x_4);
-x_24 = l_Lean_Compiler_LCNF_Code_toExprM(x_23, x_4, x_5);
-x_11 = x_24;
+x_23 = l_Lean_Compiler_LCNF_Code_toExprM(x_22, x_4, x_5);
+x_11 = x_23;
 goto block_18;
 }
 block_18:

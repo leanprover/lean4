@@ -643,7 +643,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_CompilerM_instInhabitedState___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_Compiler_LCNF_CompilerM_instInhabitedState___closed__5;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -664,7 +664,7 @@ _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = 0;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 3, 2);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_2);
@@ -10993,7 +10993,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; 
 x_5 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instInhabitedCacheExtension___lam__0), 1, 0);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = 0;
 x_8 = lean_box(0);
 x_9 = lean_alloc_ctor(0, 3, 1);

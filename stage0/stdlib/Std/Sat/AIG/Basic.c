@@ -602,7 +602,7 @@ static lean_object* _init_l_Std_Sat_AIG_instInhabitedFanin() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 return x_1;
 }
 }

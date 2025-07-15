@@ -1695,7 +1695,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
-x_12 = lean_box(0);
+x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_4, x_3, x_12);
 x_14 = 1;
 x_15 = lean_usize_add(x_3, x_14);

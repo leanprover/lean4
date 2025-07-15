@@ -445,7 +445,7 @@ return x_23;
 else
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; size_t x_27; size_t x_28; lean_object* x_29; 
-x_24 = lean_box(0);
+x_24 = lean_unsigned_to_nat(0u);
 x_25 = lean_array_uset(x_8, x_7, x_24);
 x_26 = l_Lean_Syntax_getArg(x_11, x_5);
 lean_dec(x_11);
@@ -546,7 +546,7 @@ return x_21;
 else
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; size_t x_25; size_t x_26; lean_object* x_27; 
-x_22 = lean_box(0);
+x_22 = lean_unsigned_to_nat(0u);
 x_23 = lean_array_uset(x_8, x_7, x_22);
 x_24 = l_Lean_Syntax_getArg(x_19, x_5);
 lean_dec(x_19);

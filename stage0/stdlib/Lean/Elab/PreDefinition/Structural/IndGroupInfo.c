@@ -240,7 +240,7 @@ static lean_object* _init_l_Lean_Elab_Structural_instInhabitedIndGroupInfo___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_Elab_Structural_instInhabitedIndGroupInfo___closed__0;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -1839,7 +1839,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
-x_17 = lean_box(0);
+x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_uset(x_4, x_3, x_17);
 x_19 = 1;
 x_20 = lean_usize_add(x_3, x_19);
@@ -1917,7 +1917,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
-x_17 = lean_box(0);
+x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_uset(x_4, x_3, x_17);
 x_19 = 1;
 x_20 = lean_usize_add(x_3, x_19);

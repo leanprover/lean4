@@ -3055,7 +3055,7 @@ x_4 = lean_alloc_closure((void*)(l_Lean_instInhabitedTagAttribute___lam__3___box
 x_5 = lean_alloc_closure((void*)(l_Lean_instInhabitedTagAttribute___lam__4___boxed), 1, 0);
 x_6 = lean_box(0);
 x_7 = l_Lean_instInhabitedTagAttribute___closed__2;
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = 0;
 x_10 = lean_box(0);
 x_11 = lean_alloc_ctor(0, 3, 1);
@@ -5137,7 +5137,7 @@ x_5 = lean_alloc_closure((void*)(l_Lean_instInhabitedParametricAttribute___lam__
 x_6 = l_Lean_instInhabitedParametricAttribute___closed__0;
 x_7 = lean_box(0);
 x_8 = l_Lean_instInhabitedTagAttribute___closed__2;
-x_9 = lean_box(0);
+x_9 = lean_unsigned_to_nat(0u);
 x_10 = 0;
 x_11 = lean_box(0);
 x_12 = lean_alloc_ctor(0, 3, 1);
@@ -6896,7 +6896,7 @@ lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* 
 x_1 = lean_box(0);
 x_2 = 0;
 x_3 = l_Lean_instInhabitedEnumAttributes___closed__0;
-x_4 = lean_box(0);
+x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.ProofMode.Exact
-// Imports: Std.Tactic.Do.Syntax Lean.Elab.Tactic.Do.ProofMode.Basic Lean.Elab.Tactic.Do.ProofMode.Focus
+// Imports: Std.Tactic.Do.Syntax Lean.Elab.Tactic.Do.ProofMode.Basic Lean.Elab.Tactic.Do.ProofMode.Focus Lean.Elab.Tactic.ElabTerm
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1925,6 +1925,7 @@ return x_6;
 lean_object* initialize_Std_Tactic_Do_Syntax(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Focus(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Tactic_ElabTerm(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Exact(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1937,6 +1938,9 @@ res = initialize_Lean_Elab_Tactic_Do_ProofMode_Basic(builtin, lean_io_mk_world()
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Do_ProofMode_Focus(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_ElabTerm(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Tactic_Do_ProofMode_MGoal_exact___closed__0 = _init_l_Lean_Elab_Tactic_Do_ProofMode_MGoal_exact___closed__0();

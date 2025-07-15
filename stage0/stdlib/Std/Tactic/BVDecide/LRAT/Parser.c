@@ -11665,20 +11665,19 @@ goto block_12;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_19 = lean_nat_abs(x_14);
 lean_dec(x_14);
 x_20 = lean_unsigned_to_nat(1u);
 x_21 = lean_nat_sub(x_19, x_20);
 lean_dec(x_19);
 x_22 = l_Std_Tactic_BVDecide_LRAT_lratProofToString_serializeRatHint___closed__0;
-x_23 = lean_unsigned_to_nat(1u);
-x_24 = lean_nat_add(x_21, x_23);
+x_23 = lean_nat_add(x_21, x_20);
 lean_dec(x_21);
-x_25 = l_Nat_reprFast(x_24);
-x_26 = lean_string_append(x_22, x_25);
-lean_dec(x_25);
-x_5 = x_26;
+x_24 = l_Nat_reprFast(x_23);
+x_25 = lean_string_append(x_22, x_24);
+lean_dec(x_24);
+x_5 = x_25;
 goto block_12;
 }
 }

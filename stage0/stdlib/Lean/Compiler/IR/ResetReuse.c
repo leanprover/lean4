@@ -238,7 +238,7 @@ else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = lean_array_uget(x_6, x_5);
-x_9 = lean_box(0);
+x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_array_uset(x_6, x_5, x_9);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -746,7 +746,7 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 lean_dec(x_3);
 x_12 = lean_ctor_get(x_2, 2);
-x_13 = lean_box(7);
+x_13 = lean_box(8);
 lean_inc(x_12);
 x_14 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
@@ -788,7 +788,7 @@ if (x_20 == 0)
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 lean_dec(x_3);
 x_21 = lean_ctor_get(x_2, 2);
-x_22 = lean_box(7);
+x_22 = lean_box(8);
 lean_inc(x_21);
 x_23 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
@@ -1047,7 +1047,7 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = lean_array_uget(x_4, x_3);
-x_10 = lean_box(0);
+x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_array_uset(x_4, x_3, x_10);
 if (lean_obj_tag(x_9) == 0)
 {
@@ -2045,7 +2045,7 @@ else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_10 = lean_array_uget(x_5, x_4);
-x_11 = lean_box(0);
+x_11 = lean_unsigned_to_nat(0u);
 x_12 = lean_array_uset(x_5, x_4, x_11);
 if (lean_obj_tag(x_10) == 0)
 {

@@ -1501,7 +1501,7 @@ return x_3;
 else
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; 
-x_5 = lean_box(0);
+x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_array_uset(x_3, x_2, x_5);
 x_7 = 0;
 x_8 = 1;

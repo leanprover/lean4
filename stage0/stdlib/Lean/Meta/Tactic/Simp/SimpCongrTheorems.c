@@ -368,7 +368,7 @@ static lean_object* _init_l_Lean_Meta_instInhabitedSimpCongrTheorem___closed__1(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_Meta_instInhabitedSimpCongrTheorem___closed__0;
 x_3 = lean_box(0);
 x_4 = lean_alloc_ctor(0, 4, 0);

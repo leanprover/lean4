@@ -1045,7 +1045,7 @@ else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_21; uint8_t x_22; 
 x_11 = lean_array_uget(x_3, x_2);
-x_12 = lean_box(0);
+x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_3, x_2, x_12);
 x_21 = l_Lean_Meta_ppOrigin___at_____private_Lean_Meta_Tactic_Simp_LoopProtection_0__Lean_Meta_Simp_ppOrigins_spec__0___redArg(x_11, x_8);
 x_22 = !lean_is_exclusive(x_21);

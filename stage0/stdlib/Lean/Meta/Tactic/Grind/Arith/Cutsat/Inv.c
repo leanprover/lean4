@@ -5880,7 +5880,7 @@ static lean_object* _init_l_panic___at___Lean_Meta_Grind_Arith_Cutsat_checkDvds_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

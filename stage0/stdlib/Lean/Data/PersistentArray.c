@@ -500,7 +500,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_instInhabitedPersistentArray___closed__0;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_instInhabitedPersistentArrayNode___closed__0;
 x_4 = l_Lean_instInhabitedPersistentArrayNode___closed__1;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);

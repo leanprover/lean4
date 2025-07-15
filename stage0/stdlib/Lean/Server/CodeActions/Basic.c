@@ -2497,7 +2497,7 @@ lean_dec(x_12);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
-x_16 = lean_box(0);
+x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_uset(x_3, x_2, x_16);
 x_18 = 1;
 x_19 = lean_usize_add(x_2, x_18);
@@ -3439,7 +3439,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = l___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJsonCodeAction____x40_Lean_Data_Lsp_CodeActions___hyg_1168_(x_5);
 x_9 = 1;

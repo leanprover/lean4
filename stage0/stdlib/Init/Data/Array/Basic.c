@@ -3746,7 +3746,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_ctor_get(x_1, 1);
 lean_inc(x_10);
 x_11 = lean_array_uget(x_5, x_4);
-x_12 = lean_box(0);
+x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_5, x_4, x_12);
 x_14 = lean_box_usize(x_4);
 x_15 = lean_box_usize(x_3);

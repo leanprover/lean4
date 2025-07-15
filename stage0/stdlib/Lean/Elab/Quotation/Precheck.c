@@ -4661,7 +4661,7 @@ else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_24; 
 x_14 = lean_array_uget(x_3, x_2);
-x_15 = lean_box(0);
+x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_uset(x_3, x_2, x_15);
 lean_inc(x_10);
 lean_inc(x_9);

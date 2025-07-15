@@ -9789,7 +9789,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = lean_box(0);
 x_9 = l_Lean_Expr_const___override(x_5, x_8);
@@ -10262,7 +10262,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_3, x_2, x_14);
 x_16 = 1;
 x_17 = lean_usize_add(x_2, x_16);
@@ -12641,7 +12641,7 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; size_t x_21; size_t x_22; lean_object* x_23; 
-x_16 = lean_box(0);
+x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_uset(x_8, x_7, x_16);
 x_18 = l_Lean_Syntax_getArg(x_11, x_4);
 x_19 = l_Lean_Syntax_getArg(x_11, x_5);
@@ -12675,7 +12675,7 @@ x_5 = lean_array_uget(x_3, x_2);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);
@@ -14590,7 +14590,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = l_Lean_Syntax_getId(x_5);
 lean_dec(x_5);
@@ -24734,7 +24734,7 @@ else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_11 = lean_array_uget(x_5, x_4);
-x_12 = lean_box(0);
+x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_5, x_4, x_12);
 switch (x_1) {
 case 0:
@@ -25226,7 +25226,7 @@ else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_11 = lean_array_uget(x_5, x_4);
-x_12 = lean_box(0);
+x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_5, x_4, x_12);
 switch (x_1) {
 case 0:
@@ -26434,7 +26434,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_3, x_2, x_14);
 x_16 = 1;
 x_17 = lean_usize_add(x_2, x_16);
@@ -34307,7 +34307,7 @@ else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_27; uint8_t x_33; 
 x_17 = lean_array_uget(x_7, x_6);
-x_18 = lean_box(0);
+x_18 = lean_unsigned_to_nat(0u);
 x_19 = lean_array_uset(x_7, x_6, x_18);
 lean_inc(x_17);
 x_33 = l_Lean_Syntax_isOfKind(x_17, x_1);
@@ -34512,7 +34512,7 @@ else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_28; uint8_t x_34; 
 x_18 = lean_array_uget(x_8, x_7);
-x_19 = lean_box(0);
+x_19 = lean_unsigned_to_nat(0u);
 x_20 = lean_array_uset(x_8, x_7, x_19);
 lean_inc(x_18);
 x_34 = l_Lean_Syntax_isOfKind(x_18, x_1);
@@ -34986,7 +34986,7 @@ return x_4;
 else
 {
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; 
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_4, x_3, x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_3, x_8);
@@ -38570,7 +38570,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = lean_mk_syntax_ident(x_5);
 x_9 = 1;
@@ -41675,7 +41675,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = lean_erase_macro_scopes(x_5);
 x_9 = lean_mk_syntax_ident(x_8);
@@ -41701,7 +41701,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = l_Lean_Syntax_unsetTrailing(x_5);
 x_9 = 1;

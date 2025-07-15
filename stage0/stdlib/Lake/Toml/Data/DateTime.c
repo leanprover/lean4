@@ -86,7 +86,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lake_Date_ofString_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instCoeDateDateTime___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedDateTime;
-static lean_object* l_Lake_Toml_Time_zero___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Toml_DateTime_instToString;
 static lean_object* l_Lake_Toml_instInhabitedDateTime___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -100,7 +99,7 @@ static lean_object* _init_l_Lake_Toml_instInhabitedTime___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -202,25 +201,11 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lake_Toml_Time_zero___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-lean_ctor_set(x_2, 2, x_1);
-lean_ctor_set(x_2, 3, x_1);
-lean_ctor_set(x_2, 4, x_1);
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_Toml_Time_zero() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_Toml_Time_zero___closed__0;
+x_1 = l_Lake_Toml_instInhabitedTime___closed__0;
 return x_1;
 }
 }
@@ -924,7 +909,7 @@ static lean_object* _init_l_Lake_Toml_instInhabitedDateTime___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -2463,8 +2448,6 @@ l_Lake_Toml_instInhabitedTime___closed__0 = _init_l_Lake_Toml_instInhabitedTime_
 lean_mark_persistent(l_Lake_Toml_instInhabitedTime___closed__0);
 l_Lake_Toml_instInhabitedTime = _init_l_Lake_Toml_instInhabitedTime();
 lean_mark_persistent(l_Lake_Toml_instInhabitedTime);
-l_Lake_Toml_Time_zero___closed__0 = _init_l_Lake_Toml_Time_zero___closed__0();
-lean_mark_persistent(l_Lake_Toml_Time_zero___closed__0);
 l_Lake_Toml_Time_zero = _init_l_Lake_Toml_Time_zero();
 lean_mark_persistent(l_Lake_Toml_Time_zero);
 l_Lake_Toml_Time_instOfNat = _init_l_Lake_Toml_Time_instOfNat();

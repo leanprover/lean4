@@ -6501,7 +6501,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_7 = lean_ctor_get(x_5, 0);
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_3, x_2, x_8);
 x_10 = 0;
 x_11 = lean_box(x_10);
@@ -6524,7 +6524,7 @@ x_18 = lean_ctor_get(x_5, 1);
 lean_inc(x_18);
 lean_inc(x_17);
 lean_dec(x_5);
-x_19 = lean_box(0);
+x_19 = lean_unsigned_to_nat(0u);
 x_20 = lean_array_uset(x_3, x_2, x_19);
 x_21 = 0;
 x_22 = lean_box(x_21);

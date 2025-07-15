@@ -594,7 +594,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_instInhabitedLitValue___closed__0
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -2449,7 +2449,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = l_Lean_Compiler_LCNF_Arg_toExpr(x_5);
 x_9 = 1;
@@ -10274,7 +10274,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get_uint8(x_6, sizeof(void*)*6 + 1);
 x_13 = lean_ctor_get(x_6, 5);
 lean_inc(x_13);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_4, x_3, x_14);
 x_22 = l_Lean_NameSet_contains(x_1, x_7);
 if (x_22 == 0)

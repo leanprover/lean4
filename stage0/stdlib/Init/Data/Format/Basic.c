@@ -80,7 +80,6 @@ lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__2___boxed__const__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_pushGroup___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___closed__1;
 LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___redArg___lam__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instMonadPrettyFormatStateMState___lam__2___closed__0;
@@ -564,7 +563,7 @@ static lean_object* _init_l_Std_Format_instInhabitedSpaceResult___closed__0() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = 0;
 x_3 = lean_alloc_ctor(0, 1, 2);
 lean_ctor_set(x_3, 0, x_1);
@@ -663,19 +662,6 @@ static lean_object* _init_l___private_Init_Data_Format_Basic_0__Std_Format_space
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = 0;
-x_3 = lean_alloc_ctor(0, 1, 2);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1 + 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___closed__1() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(1u);
 x_2 = 0;
 x_3 = lean_alloc_ctor(0, 1, 2);
@@ -695,7 +681,7 @@ case 0:
 lean_object* x_15; 
 lean_dec(x_4);
 lean_dec(x_3);
-x_15 = l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___closed__0;
+x_15 = l_Std_Format_instInhabitedSpaceResult___closed__0;
 return x_15;
 }
 case 1:
@@ -716,7 +702,7 @@ return x_18;
 else
 {
 lean_object* x_19; 
-x_19 = l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___closed__1;
+x_19 = l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___closed__0;
 return x_19;
 }
 }
@@ -1062,7 +1048,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_4; 
 lean_dec(x_3);
 lean_dec(x_2);
-x_4 = l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___closed__0;
+x_4 = l_Std_Format_instInhabitedSpaceResult___closed__0;
 return x_4;
 }
 else
@@ -8054,8 +8040,6 @@ l_Std_Format_instInhabitedSpaceResult = _init_l_Std_Format_instInhabitedSpaceRes
 lean_mark_persistent(l_Std_Format_instInhabitedSpaceResult);
 l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___closed__0 = _init_l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___closed__0();
 lean_mark_persistent(l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___closed__0);
-l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___closed__1 = _init_l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___closed__1();
-lean_mark_persistent(l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___closed__1);
 l_Std_Format_instBEqFlattenAllowability___closed__0 = _init_l_Std_Format_instBEqFlattenAllowability___closed__0();
 lean_mark_persistent(l_Std_Format_instBEqFlattenAllowability___closed__0);
 l_Std_Format_instBEqFlattenAllowability = _init_l_Std_Format_instBEqFlattenAllowability();

@@ -1117,7 +1117,7 @@ _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = 0;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_4 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
 x_5 = l_Lean_Meta_SynthInstance_instInhabitedInstance___closed__2;
@@ -1143,7 +1143,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_instInhabitedConsumerNode___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_box(0);
 x_3 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
 x_4 = l_Lean_Meta_SynthInstance_instInhabitedInstance___closed__2;
@@ -3269,7 +3269,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_instInhabitedAnswer___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_Meta_SynthInstance_instInhabitedInstance___closed__2;
 x_3 = l_Lean_Meta_SynthInstance_instInhabitedAnswer___closed__1;
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -4612,7 +4612,7 @@ x_5 = lean_array_uget(x_3, x_2);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);
@@ -9840,7 +9840,7 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; 
 x_7 = lean_array_uget(x_5, x_4);
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_5, x_4, x_8);
 lean_inc(x_1);
 x_10 = lean_array_get(x_1, x_2, x_7);
@@ -15381,7 +15381,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
-x_25 = lean_box(0);
+x_25 = lean_unsigned_to_nat(0u);
 x_26 = lean_array_uset(x_5, x_4, x_25);
 x_27 = 1;
 x_28 = lean_usize_add(x_4, x_27);

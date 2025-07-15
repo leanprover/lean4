@@ -1172,7 +1172,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = lean_box(0);
+x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_uset(x_3, x_2, x_15);
 x_17 = 1;
 x_18 = lean_usize_add(x_2, x_17);
@@ -3186,7 +3186,7 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
 lean_dec(x_17);
-x_20 = lean_box(0);
+x_20 = lean_unsigned_to_nat(0u);
 x_21 = lean_array_uset(x_4, x_3, x_20);
 x_22 = 1;
 x_23 = lean_usize_add(x_3, x_22);
@@ -3243,7 +3243,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_14; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_14 = l_Lean_Elab_WF_isWfParam_x3f(x_5);
 if (lean_obj_tag(x_14) == 0)
@@ -5726,7 +5726,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = lean_box(0);
+x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_uset(x_3, x_2, x_15);
 x_17 = 1;
 x_18 = lean_usize_add(x_2, x_17);

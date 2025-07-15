@@ -9192,7 +9192,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
-x_17 = lean_box(0);
+x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_uset(x_4, x_3, x_17);
 x_19 = 1;
 x_20 = lean_usize_add(x_3, x_19);

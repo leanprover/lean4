@@ -1645,7 +1645,7 @@ else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; size_t x_25; size_t x_26; lean_object* x_27; 
 x_14 = lean_array_uget(x_12, x_11);
-x_15 = lean_box(0);
+x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_uset(x_12, x_11, x_15);
 x_17 = l_Array_mapMUnsafe_map___at___Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1_spec__0___closed__0;
 lean_inc(x_3);

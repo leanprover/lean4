@@ -1451,7 +1451,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_instInhabitedMetavarDecl___closed__4;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_instInhabitedMetavarDecl___closed__2;
 x_4 = l_Lean_instInhabitedMetavarDecl___closed__3;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -1483,7 +1483,7 @@ _start:
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_1 = 0;
 x_2 = l_Lean_instInhabitedMetavarDecl___closed__2;
-x_3 = lean_box(0);
+x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_Lean_instInhabitedLocalInstance___closed__2;
 x_5 = l_Lean_instInhabitedMetavarDecl___closed__6;
 x_6 = lean_box(0);
@@ -15336,7 +15336,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
-x_13 = lean_box(0);
+x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_array_uset(x_4, x_3, x_13);
 x_15 = 1;
 x_16 = lean_usize_add(x_3, x_15);
@@ -21649,7 +21649,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
-x_12 = lean_box(0);
+x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_3, x_2, x_12);
 x_14 = 1;
 x_15 = lean_usize_add(x_2, x_14);

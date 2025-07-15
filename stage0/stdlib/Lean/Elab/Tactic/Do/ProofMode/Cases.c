@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_synthIsAnd___closed__2;
+lean_object* l_Lean_Meta_withLocalDeclD___at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_liftMacroM___at___Lean_Elab_Tactic_evalTactic_expandEval_spec__0_spec__2___redArg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_synthIsAnd___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMCases___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -28,7 +29,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mCasesExists___redArg__
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mCasesCore___redArg___closed__10;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mCasesAddGoal___closed__1;
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_toExpr(lean_object*);
-lean_object* l_Lean_MVarId_assign___at___Lean_Elab_Tactic_refineCore_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___Lean_Elab_Tactic_withMainContext_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mStartMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,6 +83,7 @@ static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMCases___regBuiltin_Lean
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_initFn___closed__3____x40_Lean_Elab_Tactic_Do_ProofMode_Cases___hyg_5_;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mCasesCore___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Tactic_Do_ProofMode_mCasesCore_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMIntro_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mCasesCore___redArg___closed__2;
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_getFreshHypName___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_mkConstWithFreshMVarLevels_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -176,7 +177,6 @@ lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mkAnd(lean_object*, lean_object*, l
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mCasesCore___redArg___closed__15;
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLocalDeclD___at_____private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mCasesCore___redArg___closed__7;
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_initFn___closed__2____x40_Lean_Elab_Tactic_Do_ProofMode_Cases___hyg_5_;
@@ -1077,19 +1077,19 @@ block_15:
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
-lean_dec(x_10);
+lean_dec(x_9);
 x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_9);
+lean_ctor_set(x_13, 1, x_10);
 return x_13;
 }
 else
 {
 lean_object* x_14; 
 x_14 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_14, 0, x_10);
-lean_ctor_set(x_14, 1, x_9);
+lean_ctor_set(x_14, 0, x_9);
+lean_ctor_set(x_14, 1, x_10);
 return x_14;
 }
 }
@@ -1101,15 +1101,15 @@ if (x_18 == 0)
 {
 uint8_t x_19; 
 x_19 = l_Lean_Exception_isRuntime(x_16);
-x_9 = x_17;
-x_10 = x_16;
+x_9 = x_16;
+x_10 = x_17;
 x_11 = x_19;
 goto block_15;
 }
 else
 {
-x_9 = x_17;
-x_10 = x_16;
+x_9 = x_16;
+x_10 = x_17;
 x_11 = x_18;
 goto block_15;
 }
@@ -3137,7 +3137,7 @@ lean_closure_set(x_34, 7, x_13);
 lean_closure_set(x_34, 8, x_31);
 lean_closure_set(x_34, 9, x_32);
 lean_closure_set(x_34, 10, x_1);
-x_35 = l_Lean_Meta_withLocalDeclD___at_____private_Lean_Meta_Constructions_BRecOn_0__Lean_buildBelowMinorPremise_go_spec__0___redArg(x_26, x_30, x_34, x_4, x_5, x_6, x_7, x_25);
+x_35 = l_Lean_Meta_withLocalDeclD___at___Lean_Meta_addPPExplicitToExposeDiff_visit_spec__2___redArg(x_26, x_30, x_34, x_4, x_5, x_6, x_7, x_25);
 return x_35;
 }
 }
@@ -8446,7 +8446,7 @@ x_31 = lean_ctor_get(x_29, 1);
 lean_inc(x_31);
 lean_dec(x_29);
 x_32 = l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_rewriteHyps(x_15, x_1, x_31);
-x_33 = l_Lean_MVarId_assign___at___Lean_Elab_Tactic_refineCore_spec__0___redArg(x_4, x_32, x_10, x_30);
+x_33 = l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMIntro_spec__1___redArg(x_4, x_32, x_10, x_30);
 x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);
 lean_dec(x_33);

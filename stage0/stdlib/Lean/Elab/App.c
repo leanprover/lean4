@@ -13781,7 +13781,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 lean_inc(x_1);
 x_9 = l_Lean_Syntax_rewriteBottomUpM___at_____private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs_processExplicitArg_spec__0(x_1, x_6);
@@ -16547,7 +16547,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Elab_Term_instInhabitedElabElimInfo___closed__3;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Elab_Term_instInhabitedElabElimInfo___closed__2;
 x_4 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -18740,7 +18740,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabAsElim___regBuiltin_Lean_Elab_Ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Instructs the elaborator that applications of this function should be elaborated like an eliminator.\n\nAn eliminator is a function that returns an application of a \"motive\" which is a parameter of the\nform `_ → ... → Sort _`, i.e. a function that takes in a certain amount of arguments (referred to\nas major premises) and returns a type in some universe. The `rec` and `casesOn` functions of\ninductive types are automatically treated as eliminators, for other functions this attribute needs\nto be used.\n\nEliminator elaboration can be compared to the `induction` tactic: The expected type is used as the\nreturn value of the motive, with occurrences of the major premises replaced with the arguments.\nWhen more arguments are specified than necessary, the remaining arguments are reverted into the\nexpected type.\n\nExamples:\n```lean example\n@[elab_as_elim]\ndef evenOddRecOn {motive : Nat → Sort u}\n    (even : ∀ n, motive (n * 2)) (odd : ∀ n, motive (n * 2 + 1))\n    (n : Nat) : motive n := ...\n\n-- simple usage\nexample (a : Nat) : (a * a) % 2 = a % 2 :=\n  evenOddRec _ _ a\n  /-\n  1. basic motive is `fun n => (a + 2) % 2 = a % 2`\n  2. major premise `a` substituted: `fun n => (n + 2) % 2 = n % 2`\n  3. now elaborate the other parameters as usual:\n    \"even\" (first hole): expected type `∀ n, ((n * 2) * (n * 2)) % 2 = (n * 2) % 2`,\n    \"odd\" (second hole): expected type `∀ n, ((n * 2 + 1) * (n * 2 + 1)) % 2 = (n * 2 + 1) % 2`\n  -/\n\n-- complex substitution\nexample (a : Nat) (f : Nat → Nat) : (f a + 1) % 2 ≠ f a :=\n  evenOddRec _ _ (f a)\n  /-\n  Similar to before, except `f a` is substituted: `motive := fun n => (n + 1) % 2 ≠ n`.\n  Now the first hole has expected type `∀ n, (n * 2 + 1) % 2 ≠ n * 2`.\n  Now the second hole has expected type `∀ n, (n * 2 + 1 + 1) % 2 ≠ n * 2 + 1`.\n  -/\n\n-- more parameters\nexample (a : Nat) (h : a % 2 = 1) : (a + 1) % 2 = 0 :=\n  evenOddRec _ _ a h\n  /-\n  Before substitution, `a % 2 = 1` is reverted: `motive := fun n => a % 2 = 0 → (a + 1) % 2 = 0`.\n  Substitution: `motive := fun n => n % 2 = 1 → (n + 1) % 2 = 0`\n  Now the first hole has expected type `∀ n, n * 2 % 2 = 1 → (n * 2) % 2 = 0`.\n  Now the second hole has expected type `∀ n, (n * 2 + 1) % 2 = 1 → (n * 2 + 1) % 2 = 0`.\n  -/\n```\n\nSee also `@[induction_eliminator]` and `@[cases_eliminator]` for registering default eliminators.\n", 2366, 2326);
+x_1 = lean_mk_string_unchecked("Instructs the elaborator that applications of this function should be elaborated like an eliminator.\n\nAn eliminator is a function that returns an application of a \"motive.\" A motive is a parameter `p`\nwhose type is of the form `(x₁ : _) → … → (xₙ : _) → Sort _`, i.e., a function that takes in some\nnumber of arguments (referred to as \"major premises\") and returns a type. The arguments `x₁`\nthrough `xₙ` of the motive can be arbitrary expressions. When elaborating an eliminator application,\nLean first solves for `p` by matching `p x₁ … xₙ` against the expected type, then replacing `xₙ`\nthrough `x₁` (in that order) with variables to obtain the body of `p`. The elaborator will throw an\nerror if this process fails (i.e., the resulting motive is not type-correct) or if the expected type\ncannot be determined.\n\nEliminator elaboration can be compared to the `induction` tactic: The expected type is used as the\nreturn value of the motive, with occurrences of the major premises replaced with the arguments.\nWhen more arguments are specified than necessary, the remaining arguments are reverted into the\nexpected type.\n\nThe automatically-generated `rec` and `casesOn` functions of inductive types are always elaborated\nas eliminators. Any other functions must be tagged with this attribute in order to be elaborated in\nthis fashion.\n\nExamples:\n```lean example\n@[elab_as_elim]\ndef evenOddRec {motive : Nat → Sort u}\n    (even : ∀ n, motive (n * 2)) (odd : ∀ n, motive (n * 2 + 1))\n    (n : Nat) : motive n := sorry\n\n-- simple usage\nexample (a : Nat) : (a * a) % 2 = a % 2 :=\n  evenOddRec _ _ a\n  /-\n  1. basic motive is `fun n => (a + 2) % 2 = a % 2`\n  2. major premise `a` substituted: `fun n => (n + 2) % 2 = n % 2`\n  3. now elaborate the other parameters as usual:\n    \"even\" (first hole): expected type `∀ n, ((n * 2) * (n * 2)) % 2 = (n * 2) % 2`,\n    \"odd\" (second hole): expected type `∀ n, ((n * 2 + 1) * (n * 2 + 1)) % 2 = (n * 2 + 1) % 2`\n  -/\n\n-- complex substitution\nexample (a : Nat) (f : Nat → Nat) : (f a + 1) % 2 ≠ f a :=\n  evenOddRec _ _ (f a)\n  /-\n  Similar to before, except `f a` is substituted: `motive := fun n => (n + 1) % 2 ≠ n`.\n  Now the first hole has expected type `∀ n, (n * 2 + 1) % 2 ≠ n * 2`.\n  Now the second hole has expected type `∀ n, (n * 2 + 1 + 1) % 2 ≠ n * 2 + 1`.\n\n  Note that while this might appear to work even if the `elab_as_elim` attribute is omitted from\n  `evenOddRec`, the inferred motive if one does so (`fun n => (f a + 1) % 2 ≠ n`) is, in fact,\n  insufficiently general: the first hole, for example, ends up with expected type\n  `∀ (n : Nat), (f a + 1) % 2 ≠ n * 2`, leaving the first `f a` unsubstituted.\n  -/\n\n-- more parameters\nexample (a : Nat) (h : a % 2 = 1) : (a + 1) % 2 = 0 :=\n  evenOddRec _ _ a h\n  /-\n  Before substitution, `a % 2 = 1` is reverted: `motive := fun n => a % 2 = 0 → (a + 1) % 2 = 0`.\n  Substitution: `motive := fun n => n % 2 = 1 → (n + 1) % 2 = 0`\n  Now the first hole has expected type `∀ n, n * 2 % 2 = 1 → (n * 2) % 2 = 0`.\n  Now the second hole has expected type `∀ n, (n * 2 + 1) % 2 = 1 → (n * 2 + 1) % 2 = 0`.\n  -/\n```\n\nSee also `@[induction_eliminator]` and `@[cases_eliminator]` for registering default eliminators.\n", 3273, 3205);
 return x_1;
 }
 }
@@ -18771,7 +18771,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(19u);
-x_2 = lean_unsigned_to_nat(920u);
+x_2 = lean_unsigned_to_nat(932u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -18799,7 +18799,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(19u);
-x_2 = lean_unsigned_to_nat(905u);
+x_2 = lean_unsigned_to_nat(917u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -18811,7 +18811,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(29u);
-x_2 = lean_unsigned_to_nat(905u);
+x_2 = lean_unsigned_to_nat(917u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -21910,7 +21910,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_ElabElim_finalize___lam__0___closed__18;
 x_2 = lean_unsigned_to_nat(6u);
-x_3 = lean_unsigned_to_nat(994u);
+x_3 = lean_unsigned_to_nat(1006u);
 x_4 = l_Lean_Elab_Term_ElabElim_finalize___lam__0___closed__17;
 x_5 = l_Lean_Elab_Term_ElabElim_finalize___lam__0___closed__16;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -28401,7 +28401,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_elabAppArgs_elabAsElim_x3f___lam__1___closed__15;
 x_2 = lean_unsigned_to_nat(46u);
-x_3 = lean_unsigned_to_nat(1182u);
+x_3 = lean_unsigned_to_nat(1194u);
 x_4 = l_Lean_Elab_Term_elabAppArgs_elabAsElim_x3f___lam__1___closed__14;
 x_5 = l_Lean_Elab_Term_ElabElim_finalize___lam__0___closed__16;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -30851,7 +30851,7 @@ x_5 = lean_array_uget(x_3, x_2);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);
@@ -30899,7 +30899,7 @@ lean_dec(x_12);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
-x_16 = lean_box(0);
+x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_uset(x_3, x_2, x_16);
 x_18 = 1;
 x_19 = lean_usize_add(x_2, x_18);
@@ -32853,7 +32853,7 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_7 = lean_array_uget(x_5, x_4);
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_5, x_4, x_8);
 x_16 = lean_array_get_size(x_7);
 x_17 = lean_mk_empty_array_with_capacity(x_1);
@@ -32914,7 +32914,7 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_7 = lean_array_uget(x_5, x_4);
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_5, x_4, x_8);
 x_16 = lean_array_get_size(x_7);
 x_17 = lean_mk_empty_array_with_capacity(x_1);
@@ -33144,7 +33144,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 x_9 = l_Array_contains___at___Lean_registerInternalExceptionId_spec__0(x_1, x_6);
 x_10 = lean_box(x_9);
@@ -33173,7 +33173,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 x_9 = lean_box(0);
 x_10 = lean_array_get(x_9, x_6, x_1);
@@ -49053,7 +49053,7 @@ x_5 = lean_array_uget(x_3, x_2);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);
@@ -49232,7 +49232,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_elabAppArgs_elabAsElim_x3f___lam__1___closed__15;
 x_2 = lean_unsigned_to_nat(75u);
-x_3 = lean_unsigned_to_nat(1510u);
+x_3 = lean_unsigned_to_nat(1522u);
 x_4 = l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppLValsAux_loop___closed__0;
 x_5 = l_Lean_Elab_Term_ElabElim_finalize___lam__0___closed__16;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -58210,7 +58210,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_elabAppArgs_elabAsElim_x3f___lam__1___closed__15;
 x_2 = lean_unsigned_to_nat(84u);
-x_3 = lean_unsigned_to_nat(1766u);
+x_3 = lean_unsigned_to_nat(1778u);
 x_4 = l_Array_mapMUnsafe_map___at_____private_Lean_Elab_App_0__Lean_Elab_Term_mergeFailures_spec__2___closed__0;
 x_5 = l_Lean_Elab_Term_ElabElim_finalize___lam__0___closed__16;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -58230,7 +58230,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 if (lean_obj_tag(x_5) == 0)
 {
@@ -58418,7 +58418,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_elabAppArgs_elabAsElim_x3f___lam__1___closed__15;
 x_2 = lean_unsigned_to_nat(57u);
-x_3 = lean_unsigned_to_nat(1765u);
+x_3 = lean_unsigned_to_nat(1777u);
 x_4 = l_Array_mapMUnsafe_map___at_____private_Lean_Elab_App_0__Lean_Elab_Term_mergeFailures_spec__2___closed__0;
 x_5 = l_Lean_Elab_Term_ElabElim_finalize___lam__0___closed__16;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -58438,7 +58438,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 if (lean_obj_tag(x_5) == 0)
 {
@@ -58879,7 +58879,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
-x_17 = lean_box(0);
+x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_uset(x_3, x_2, x_17);
 x_19 = 1;
 x_20 = lean_usize_add(x_2, x_19);
@@ -59794,7 +59794,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_elabAppArgs_elabAsElim_x3f___lam__1___closed__15;
 x_2 = lean_unsigned_to_nat(21u);
-x_3 = lean_unsigned_to_nat(1790u);
+x_3 = lean_unsigned_to_nat(1802u);
 x_4 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at_____private_Lean_Elab_App_0__Lean_Elab_Term_elabAppAux_spec__4_spec__4___closed__0;
 x_5 = l_Lean_Elab_Term_ElabElim_finalize___lam__0___closed__16;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -59824,7 +59824,7 @@ else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_13 = lean_array_uget(x_3, x_2);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_3, x_2, x_14);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -59956,7 +59956,7 @@ else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_13 = lean_array_uget(x_3, x_2);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_3, x_2, x_14);
 if (lean_obj_tag(x_13) == 0)
 {

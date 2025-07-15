@@ -334,7 +334,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Std_Time_reprTimestamp___redArg____x40_Std_Time_DateTime_Timestamp___hyg_190_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_70; uint8_t x_71; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_68; uint8_t x_69; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
@@ -349,61 +349,61 @@ if (lean_is_exclusive(x_1)) {
 }
 x_5 = l_Std_Time_reprTimestamp___redArg___closed__6____x40_Std_Time_DateTime_Timestamp___hyg_190_;
 x_6 = l_Std_Time_reprTimestamp___redArg___closed__7____x40_Std_Time_DateTime_Timestamp___hyg_190_;
-x_70 = l_Std_Time_reprTimestamp___redArg___closed__13____x40_Std_Time_DateTime_Timestamp___hyg_190_;
-x_71 = lean_int_dec_lt(x_70, x_2);
+x_68 = l_Std_Time_reprTimestamp___redArg___closed__13____x40_Std_Time_DateTime_Timestamp___hyg_190_;
+x_69 = lean_int_dec_lt(x_68, x_2);
+if (x_69 == 0)
+{
+uint8_t x_70; 
+x_70 = lean_int_dec_lt(x_2, x_68);
+if (x_70 == 0)
+{
+uint8_t x_71; 
+x_71 = lean_int_dec_lt(x_3, x_68);
 if (x_71 == 0)
 {
-uint8_t x_72; 
-x_72 = lean_int_dec_lt(x_2, x_70);
-if (x_72 == 0)
-{
-uint8_t x_73; 
-x_73 = lean_int_dec_lt(x_3, x_70);
-if (x_73 == 0)
-{
-lean_object* x_74; 
-x_74 = l_Std_Time_reprTimestamp___redArg___closed__16____x40_Std_Time_DateTime_Timestamp___hyg_190_;
+lean_object* x_72; 
+x_72 = l_Std_Time_reprTimestamp___redArg___closed__16____x40_Std_Time_DateTime_Timestamp___hyg_190_;
 lean_inc(x_3);
+x_53 = x_72;
+x_54 = x_2;
+x_55 = x_3;
+goto block_67;
+}
+else
+{
+lean_object* x_73; lean_object* x_74; lean_object* x_75; 
+x_73 = l_Std_Time_reprTimestamp___redArg___closed__15____x40_Std_Time_DateTime_Timestamp___hyg_190_;
+x_74 = lean_int_neg(x_2);
+lean_dec(x_2);
+x_75 = lean_int_neg(x_3);
+x_53 = x_73;
 x_54 = x_74;
-x_55 = x_2;
-x_56 = x_3;
-goto block_69;
+x_55 = x_75;
+goto block_67;
+}
 }
 else
 {
-lean_object* x_75; lean_object* x_76; lean_object* x_77; 
-x_75 = l_Std_Time_reprTimestamp___redArg___closed__15____x40_Std_Time_DateTime_Timestamp___hyg_190_;
-x_76 = lean_int_neg(x_2);
+lean_object* x_76; lean_object* x_77; lean_object* x_78; 
+x_76 = l_Std_Time_reprTimestamp___redArg___closed__15____x40_Std_Time_DateTime_Timestamp___hyg_190_;
+x_77 = lean_int_neg(x_2);
 lean_dec(x_2);
-x_77 = lean_int_neg(x_3);
-x_54 = x_75;
-x_55 = x_76;
-x_56 = x_77;
-goto block_69;
+x_78 = lean_int_neg(x_3);
+x_53 = x_76;
+x_54 = x_77;
+x_55 = x_78;
+goto block_67;
 }
 }
 else
 {
-lean_object* x_78; lean_object* x_79; lean_object* x_80; 
-x_78 = l_Std_Time_reprTimestamp___redArg___closed__15____x40_Std_Time_DateTime_Timestamp___hyg_190_;
-x_79 = lean_int_neg(x_2);
-lean_dec(x_2);
-x_80 = lean_int_neg(x_3);
-x_54 = x_78;
-x_55 = x_79;
-x_56 = x_80;
-goto block_69;
-}
-}
-else
-{
-lean_object* x_81; 
-x_81 = l_Std_Time_reprTimestamp___redArg___closed__16____x40_Std_Time_DateTime_Timestamp___hyg_190_;
+lean_object* x_79; 
+x_79 = l_Std_Time_reprTimestamp___redArg___closed__16____x40_Std_Time_DateTime_Timestamp___hyg_190_;
 lean_inc(x_3);
-x_54 = x_81;
-x_55 = x_2;
-x_56 = x_3;
-goto block_69;
+x_53 = x_79;
+x_54 = x_2;
+x_55 = x_3;
+goto block_67;
 }
 block_25:
 {
@@ -459,7 +459,7 @@ x_7 = x_28;
 x_8 = x_31;
 goto block_25;
 }
-block_53:
+block_52:
 {
 lean_object* x_36; lean_object* x_37; uint8_t x_38; 
 x_36 = lean_string_append(x_34, x_35);
@@ -487,71 +487,69 @@ goto block_32;
 }
 else
 {
-lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
+lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
 x_44 = lean_nat_abs(x_33);
 lean_dec(x_33);
 x_45 = lean_unsigned_to_nat(1u);
 x_46 = lean_nat_sub(x_44, x_45);
 lean_dec(x_44);
 x_47 = l_Std_Time_reprTimestamp___redArg___closed__15____x40_Std_Time_DateTime_Timestamp___hyg_190_;
-x_48 = lean_unsigned_to_nat(1u);
-x_49 = lean_nat_add(x_46, x_48);
+x_48 = lean_nat_add(x_46, x_45);
 lean_dec(x_46);
-x_50 = l_Nat_reprFast(x_49);
-x_51 = lean_string_append(x_47, x_50);
-lean_dec(x_50);
+x_49 = l_Nat_reprFast(x_48);
+x_50 = lean_string_append(x_47, x_49);
+lean_dec(x_49);
 x_26 = x_39;
 x_27 = x_40;
 x_28 = x_36;
-x_29 = x_51;
+x_29 = x_50;
 goto block_32;
 }
 }
 else
 {
-lean_object* x_52; 
+lean_object* x_51; 
 lean_dec(x_33);
-x_52 = l_Std_Time_reprTimestamp___redArg___closed__16____x40_Std_Time_DateTime_Timestamp___hyg_190_;
+x_51 = l_Std_Time_reprTimestamp___redArg___closed__16____x40_Std_Time_DateTime_Timestamp___hyg_190_;
 x_7 = x_36;
-x_8 = x_52;
+x_8 = x_51;
 goto block_25;
 }
 }
-block_69:
+block_67:
 {
-lean_object* x_57; uint8_t x_58; 
-x_57 = l_Std_Time_reprTimestamp___redArg___closed__13____x40_Std_Time_DateTime_Timestamp___hyg_190_;
-x_58 = lean_int_dec_lt(x_55, x_57);
-if (x_58 == 0)
+lean_object* x_56; uint8_t x_57; 
+x_56 = l_Std_Time_reprTimestamp___redArg___closed__13____x40_Std_Time_DateTime_Timestamp___hyg_190_;
+x_57 = lean_int_dec_lt(x_54, x_56);
+if (x_57 == 0)
 {
-lean_object* x_59; lean_object* x_60; 
-x_59 = lean_nat_abs(x_55);
-lean_dec(x_55);
-x_60 = l_Nat_reprFast(x_59);
-x_33 = x_56;
-x_34 = x_54;
-x_35 = x_60;
-goto block_53;
+lean_object* x_58; lean_object* x_59; 
+x_58 = lean_nat_abs(x_54);
+lean_dec(x_54);
+x_59 = l_Nat_reprFast(x_58);
+x_33 = x_55;
+x_34 = x_53;
+x_35 = x_59;
+goto block_52;
 }
 else
 {
-lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; 
-x_61 = lean_nat_abs(x_55);
-lean_dec(x_55);
-x_62 = lean_unsigned_to_nat(1u);
-x_63 = lean_nat_sub(x_61, x_62);
-lean_dec(x_61);
-x_64 = l_Std_Time_reprTimestamp___redArg___closed__15____x40_Std_Time_DateTime_Timestamp___hyg_190_;
-x_65 = lean_unsigned_to_nat(1u);
-x_66 = lean_nat_add(x_63, x_65);
-lean_dec(x_63);
-x_67 = l_Nat_reprFast(x_66);
-x_68 = lean_string_append(x_64, x_67);
-lean_dec(x_67);
-x_33 = x_56;
-x_34 = x_54;
-x_35 = x_68;
-goto block_53;
+lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
+x_60 = lean_nat_abs(x_54);
+lean_dec(x_54);
+x_61 = lean_unsigned_to_nat(1u);
+x_62 = lean_nat_sub(x_60, x_61);
+lean_dec(x_60);
+x_63 = l_Std_Time_reprTimestamp___redArg___closed__15____x40_Std_Time_DateTime_Timestamp___hyg_190_;
+x_64 = lean_nat_add(x_62, x_61);
+lean_dec(x_62);
+x_65 = l_Nat_reprFast(x_64);
+x_66 = lean_string_append(x_63, x_65);
+lean_dec(x_65);
+x_33 = x_55;
+x_34 = x_53;
+x_35 = x_66;
+goto block_52;
 }
 }
 }
@@ -728,19 +726,18 @@ return x_6;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = lean_nat_abs(x_2);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_7, x_8);
 lean_dec(x_7);
 x_10 = l_Std_Time_reprTimestamp___redArg___closed__15____x40_Std_Time_DateTime_Timestamp___hyg_190_;
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = lean_nat_add(x_9, x_11);
+x_11 = lean_nat_add(x_9, x_8);
 lean_dec(x_9);
-x_13 = l_Nat_reprFast(x_12);
-x_14 = lean_string_append(x_10, x_13);
-lean_dec(x_13);
-return x_14;
+x_12 = l_Nat_reprFast(x_11);
+x_13 = lean_string_append(x_10, x_12);
+lean_dec(x_12);
+return x_13;
 }
 }
 }

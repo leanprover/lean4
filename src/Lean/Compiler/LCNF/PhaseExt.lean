@@ -42,7 +42,8 @@ def getDeclVisibility (env : Environment) (declName : Name) : DeclVisibility :=
   let inferFor := match declName with
     | .str n "_boxed" => n
     | n               => n
-  declVisibilityExt.getState env |>.2.find? inferFor |>.getD .private
+  declVisibilityExt.getState env |>.2.find? inferFor
+    |>.getD (if env.header.isModule then .private else .transparent)
 
 def bumpDeclVisibility (env : Environment) (declName : Name) (visibility : DeclVisibility) : Environment :=
   if getDeclVisibility env declName ≥ visibility then
@@ -76,9 +77,9 @@ def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt :=
     mkInitial := pure {},
     addImportedFn := fun _ => pure {},
     addEntryFn := fun s decl => s.insert decl.name decl
-    exportEntriesFnEx env s _ := Id.run do
+    exportEntriesFnEx env s level := Id.run do
       let mut entries := sortedDecls s
-      if env.header.isModule then
+      if level != .private then
         entries := entries.filterMap fun decl =>
           match getDeclVisibility env decl.name with
           | .transparent => some decl

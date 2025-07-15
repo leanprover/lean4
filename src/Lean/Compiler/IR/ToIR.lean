@@ -63,14 +63,15 @@ def findDecl (n : Name) : M (Option Decl) :=
 def addDecl (d : Decl) : M Unit :=
   Lean.modifyEnv fun env => declMapExt.addEntry (env.addExtraName d.name) d
 
-def lowerLitValue (v : LCNF.LitValue) : LitVal :=
+def lowerLitValue (v : LCNF.LitValue) : LitVal × IRType :=
   match v with
-  | .nat n => .num n
-  | .str s => .str s
-  | .uint8 v => .num (UInt8.toNat v)
-  | .uint16 v => .num (UInt16.toNat v)
-  | .uint32 v => .num (UInt32.toNat v)
-  | .uint64 v | .usize v => .num (UInt64.toNat v)
+  | .nat n => ⟨.num n, .object⟩
+  | .str s => ⟨.str s, .object⟩
+  | .uint8 v => ⟨.num (UInt8.toNat v), .uint8⟩
+  | .uint16 v => ⟨.num (UInt16.toNat v), .uint16⟩
+  | .uint32 v => ⟨.num (UInt32.toNat v), .uint32⟩
+  | .uint64 v => ⟨.num (UInt64.toNat v), .uint64⟩
+  | .usize v => ⟨.num (UInt64.toNat v), .usize⟩
 
 def lowerArg (a : LCNF.Arg) : M Arg := do
   match a with
@@ -133,7 +134,9 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
 partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
   match decl.value with
   | .lit litValue =>
-    mkExpr (.lit (lowerLitValue litValue))
+    let var ← bindVar decl.fvarId
+    let ⟨litValue, type⟩ := lowerLitValue litValue
+    return .vdecl var type (.lit litValue) (← lowerCode k)
   | .proj typeName i fvarId =>
     match (← get).fvars[fvarId]? with
     | some (.var varId) =>

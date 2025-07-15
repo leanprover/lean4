@@ -213,9 +213,6 @@ theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ 
 theorem min?_eq_some_iff' {xs : List Nat} :
     xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
   min?_eq_some_iff
-    (le_refl := Nat.le_refl)
-    (min_eq_or := fun _ _ => Nat.min_def .. ▸ by split <;> simp)
-    (le_min_iff := fun _ _ _ => Nat.le_min)
 
 theorem min?_get_le_of_mem {l : List Nat} {a : Nat} (h : a ∈ l) :
     l.min?.get (isSome_min?_of_mem h) ≤ a := by

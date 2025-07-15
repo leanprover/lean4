@@ -157,10 +157,10 @@ theorem add_le_zero_iff_le_neg {a b : Int} : a + b ≤ 0 ↔ a ≤ - b := by
   rw [add_le_iff_le_sub, Int.zero_sub]
 theorem add_le_zero_iff_le_neg' {a b : Int} : a + b ≤ 0 ↔ b ≤ -a := by
   rw [Int.add_comm, add_le_zero_iff_le_neg]
-theorem add_nonnneg_iff_neg_le {a b : Int} : 0 ≤ a + b ↔ -b ≤ a := by
+theorem add_nonneg_iff_neg_le {a b : Int} : 0 ≤ a + b ↔ -b ≤ a := by
   rw [le_add_iff_sub_le, Int.zero_sub]
-theorem add_nonnneg_iff_neg_le' {a b : Int} : 0 ≤ a + b ↔ -a ≤ b := by
-  rw [Int.add_comm, add_nonnneg_iff_neg_le]
+theorem add_nonneg_iff_neg_le' {a b : Int} : 0 ≤ a + b ↔ -a ≤ b := by
+  rw [Int.add_comm, add_nonneg_iff_neg_le]
 
 theorem ofNat_fst_mk {β} {x : Nat} {y : β} : (Prod.mk x y).fst = (x : Int) := rfl
 theorem ofNat_snd_mk {α} {x : α} {y : Nat} : (Prod.mk x y).snd = (y : Int) := rfl

@@ -286,7 +286,7 @@ def shouldUseStructural (preDefs : Array PreDefinition) : Bool :=
   preDefs.any fun preDef =>
     preDef.termination.terminationBy? matches some {structural := true, ..}
 
-def shouldUsepartialFixpoint (preDefs : Array PreDefinition) : Bool :=
+def shouldUsePartialFixpoint (preDefs : Array PreDefinition) : Bool :=
   preDefs.any fun preDef =>
     preDef.termination.partialFixpoint?.isSome
 
@@ -345,7 +345,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
             let termMeasures?s ← elabTerminationByHints preDefs
             if shouldUseStructural preDefs then
               structuralRecursion preDefs termMeasures?s
-            else if shouldUsepartialFixpoint preDefs then
+            else if shouldUsePartialFixpoint preDefs then
               partialFixpoint preDefs
             else if shouldUseWF preDefs then
               wfRecursion preDefs termMeasures?s

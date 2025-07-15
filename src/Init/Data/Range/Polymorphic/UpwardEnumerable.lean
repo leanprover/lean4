@@ -87,7 +87,7 @@ class LawfulUpwardEnumerable (α : Type u) [UpwardEnumerable α] where
   succMany?_zero (a : α) : UpwardEnumerable.succMany? 0 a = some a
   /--
   The `n + 1`-th successor of `a` is the successor of the `n`-th successor, given that said
-  successors actualy exist.
+  successors actually exist.
   -/
   succMany?_succ (n : Nat) (a : α) :
     UpwardEnumerable.succMany? (n + 1) a = (UpwardEnumerable.succMany? n a).bind UpwardEnumerable.succ?

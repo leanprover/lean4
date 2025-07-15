@@ -109,7 +109,7 @@ def mkUnsatProof (u v : Expr) (kuv : Int) (huv : Expr) (kvu : Int) (hvu : Expr) 
 
 /--
 Given a path `u --(kuv)--> v` justified by proof `huv`,
-construct a proof of `e = True` where `e` is a term corresponding to the edgen `u --(k') --> v`
+construct a proof of `e = True` where `e` is a term corresponding to the edge `u --(k') --> v`
 s.t. `k ≤ k'`
 -/
 def mkPropagateEqTrueProof (u v : Expr) (k : Int) (huv : Expr) (k' : Int) : Expr :=
@@ -136,7 +136,7 @@ def mkPropagateEqTrueProof (u v : Expr) (k : Int) (huv : Expr) (k' : Int) : Expr
 
 /--
 Given a path `u --(kuv)--> v` justified by proof `huv`,
-construct a proof of `e = False` where `e` is a term corresponding to the edgen `v --(k') --> u`
+construct a proof of `e = False` where `e` is a term corresponding to the edge `v --(k') --> u`
 s.t. `k+k' < 0`
 -/
 def mkPropagateEqFalseProof (u v : Expr) (k : Int) (huv : Expr) (k' : Int) : Expr :=

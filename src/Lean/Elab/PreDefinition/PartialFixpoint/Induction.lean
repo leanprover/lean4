@@ -158,12 +158,12 @@ def deriveInduction (name : Name) : MetaM Unit := do
           -- We do this by setting the optional parameter `reduceConclusion` to true.
           let premiseType ← unfoldPredRel predicateType premiseType eqnInfo.fixpointType[0]! (reduceConclusion := true)
           let newConclusion ← unfoldPredRel predicateType conclusion eqnInfo.fixpointType[0]!
-          let abstracedNewConclusion ← mkForallFVars args newConclusion
+          let abstractedNewConclusion ← mkForallFVars args newConclusion
           withLocalDecl `y BinderInfo.default premiseType fun newPremise => do
             let typeHint ← mkExpectedTypeHint newPremise premiseType
             let argsForInst := args.set! 1 typeHint
             let argsWithNewPremise := args.set! 1 newPremise
-            let instantiated ← instantiateForall abstracedNewConclusion argsForInst
+            let instantiated ← instantiateForall abstractedNewConclusion argsForInst
             mkForallFVars argsWithNewPremise instantiated
 
         let e' ← mkExpectedTypeHint e' newTyp

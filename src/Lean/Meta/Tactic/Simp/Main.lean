@@ -237,7 +237,7 @@ where
     | e => k xs e
 
 /--
-We use `withNewlemmas` whenever updating the local context.
+We use `withNewLemmas` whenever updating the local context.
 -/
 def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
   if (← getConfig).contextual then

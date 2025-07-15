@@ -106,7 +106,7 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
                 else
                   Declaration.thmDecl { cval with value := projVal }
             else
-              let decl ← mkDefinitionValInferrringUnsafe projName indVal.levelParams projType projVal ReducibilityHints.abbrev
+              let decl ← mkDefinitionValInferringUnsafe projName indVal.levelParams projType projVal ReducibilityHints.abbrev
               -- Projections have special compiler support. No need to compile.
               addDecl <| Declaration.defnDecl decl
               -- Recall: we want instance projections to be in "reducible canonical form"

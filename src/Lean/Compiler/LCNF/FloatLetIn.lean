@@ -28,7 +28,7 @@ inductive Decision where
   default
 |
   /--
-  Dont move this declaration it is needed where it is right now.
+  Don't move this declaration it is needed where it is right now.
   -/
   dont
 |

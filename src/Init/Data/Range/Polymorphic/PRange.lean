@@ -316,7 +316,7 @@ class LawfulClosedOpenIntersection (shape : RangeShape) (α : Type w)
     [SupportsLowerBound .closed α]
     [SupportsUpperBound .open α] where
   /--
-  The intersection according to `ClosedOpenIntersection shapee α` of two ranges contains exactly
+  The intersection according to `ClosedOpenIntersection shape α` of two ranges contains exactly
   those elements that are contained in both ranges.
   -/
   mem_intersection_iff {a : α} {r : PRange ⟨shape.lower, shape.upper⟩ α}

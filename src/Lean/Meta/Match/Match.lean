@@ -825,7 +825,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   match nameNew? with
   | some nameNew => return (mkMatcherConst nameNew, none)
   | none =>
-    let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList
+    let decl := Declaration.defnDecl (← mkDefinitionValInferringUnsafe name result.levelParams.toList
       result.type result.value .abbrev)
     trace[Meta.Match.debug] "{name} : {result.type} := {result.value}"
     let addMatcher : MatcherInfo → MetaM Unit := fun mi => do

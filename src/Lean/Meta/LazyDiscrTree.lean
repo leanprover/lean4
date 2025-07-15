@@ -167,7 +167,7 @@ private def shouldAddAsStar (fName : Name) (e : Expr) : MetaM Bool := do
 Eliminate loose bound variables via beta-reduction.
 
 This is primarily used to reduce pi-terms `∀(x : P), T` into
-non-dependend functions `P → T`.  The latter has a more specific
+non-dependent functions `P → T`.  The latter has a more specific
 discrimination tree key `.arrow..` and this improves the accuracy of the
 discrimination tree.
 

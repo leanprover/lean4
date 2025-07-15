@@ -5,6 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Classes.Ord.Basic
+import Std.Classes.Ord.New.PartiallyComparable
 
 set_option autoImplicit false
 
@@ -35,24 +36,24 @@ theorem IsStrictCut.lt_of_isLE_of_lt [IsStrictCut cmp cut] {k k' : α} :
   | lt => exact fun _ => IsCut.lt h₁
   | eq => exact fun h₂ h₃ => by rw [← h₃, IsStrictCut.eq (cmp := cmp) k h₁]
 
-instance [Ord α] [TransOrd α] {k : α} : IsStrictCut compare (compare k) where
-  lt := TransCmp.lt_trans
-  gt h₁ h₂ := OrientedCmp.gt_of_lt (TransCmp.lt_trans (OrientedCmp.lt_of_gt h₂)
-    (OrientedCmp.lt_of_gt h₁))
-  eq _ _ := TransCmp.congr_left
+instance [Ord α] [LawfulLinearPreorder (.ofOrd α)] {k : α} : IsStrictCut compare (compare k) where
+  lt := sorry -- TransCmp.lt_trans
+  gt h₁ h₂ := sorry -- OrientedCmp.gt_of_lt (TransCmp.lt_trans (OrientedCmp.lt_of_gt h₂)
+    -- (OrientedCmp.lt_of_gt h₁))
+  eq _ _ := sorry -- TransCmp.congr_left
 
 instance [Ord α] : IsStrictCut (compare : α → α → Ordering) (fun _ => .lt) where
   lt := by simp
   gt := by simp
   eq := by simp
 
-instance [Ord α] [TransOrd α] {k : α} : IsStrictCut compare fun k' => (compare k k').then .gt where
-  lt {_ _} := by simpa [Ordering.then_eq_lt] using TransCmp.lt_trans
-  eq {_ _} := by simp [Ordering.then_eq_eq]
-  gt h h' := by
-    simp only [Ordering.then_eq_gt, and_true] at h ⊢
-    rcases h with (h | h)
-    · exact .inl (TransCmp.gt_trans h h')
-    · exact .inl (TransCmp.gt_of_eq_of_gt h h')
+instance [Ord α] [LawfulLinearPreorder (.ofOrd α)] {k : α} : IsStrictCut compare fun k' => (compare k k').then .gt where
+  lt {_ _} := sorry -- by simpa [Ordering.then_eq_lt] using TransCmp.lt_trans
+  eq {_ _} := sorry -- by simp [Ordering.then_eq_eq]
+  gt h h' := sorry -- by
+    -- simp only [Ordering.then_eq_gt, and_true] at h ⊢
+    -- rcases h with (h | h)
+    -- · exact .inl (TransCmp.gt_trans h h')
+    -- · exact .inl (TransCmp.gt_of_eq_of_gt h h')
 
 end Std.Internal

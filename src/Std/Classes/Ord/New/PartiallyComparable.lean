@@ -2,6 +2,7 @@ module
 
 prelude
 public import Init.Core
+public import Std.Classes.Ord.Basic
 public import Std.Classes.Ord.New.BasicOperations
 
 public section
@@ -23,7 +24,7 @@ class PartiallyComparable (α : Type u) where
 def PartiallyComparable.ofCmp {α : Type u} (cmp : α → α → Ordering) : PartiallyComparable α where
   compare a b := some (cmp a b)
 
-def PartiallyComparable.ofOrd (α : Type u) [Ord α] : PartiallyComparable α :=
+abbrev PartiallyComparable.ofOrd (α : Type u) [Ord α] : PartiallyComparable α :=
   .ofCmp Ord.compare
 
 open Classical in
@@ -46,8 +47,14 @@ class LawfulOrientedPartiallyComparableLT {α : Type u} [LT α] (c : PartiallyCo
   lt_iff_compare_eq_some_lt : ∀ a b : α, a < b ↔ c.compare a b = some .lt
   gt_iff_compare_eq_some_gt : ∀ a b : α, b < a ↔ c.compare a b = some .gt
 
-class LawfulPartiallyComparableOrd {α : Type u} [Ord α] (c : PartiallyComparable α) where
-  compare_eq_some_compare : ∀ a b, c.compare a b = some (compare a b)
+class LawfulPartiallyComparableCmp {α : Type u} (c : PartiallyComparable α) (cmp : α → α → Ordering) where
+  compare_eq_some_compare : ∀ a b, c.compare a b = some (cmp a b)
+
+abbrev LawfulPartiallyComparableOrd {α : Type u} [Ord α] (c : PartiallyComparable α) :=
+  LawfulPartiallyComparableCmp c compare
+
+class LawfulPartiallyComparableBEq {α : Type u} [BEq α] (c : PartiallyComparable α) where
+  beq_iff_compare_eq_some_eq : ∀ a b : α, a == b ↔ c.compare a b = some .eq
 
 class LawfulTotallyComparable {α : Type u} (c : PartiallyComparable α) where
   isSome_compare : ∀ a b, (c.compare a b).isSome
@@ -55,26 +62,59 @@ class LawfulTotallyComparable {α : Type u} (c : PartiallyComparable α) where
 class LawfulPreorder {α : Type u} (pc : PartiallyComparable α) where
   le_trans : ∀ a b c : α, (pc.compare a b).isLE → (pc.compare b c).isLE → (pc.compare a c).isLE
   le_refl : ∀ a : α, pc.compare a a = some .eq
+  gt_iff_lt : ∀ a b : α, pc.compare a b = some .gt ↔ pc.compare b a = some .lt
 
 class LawfulLinearPreorder {α : Type u} (pc : PartiallyComparable α) extends
     LawfulPreorder pc, LawfulTotallyComparable pc
 
-class LawfulPartialOrder {α : Type u} (pc : PartiallyComparable α) extends LawfulPreorder pc where
-  le_antisymm : ∀ a b : α, (pc.compare a b).isLE → (pc.compare b a).isLE → a = b
+instance (α : Type u) [Ord α] [LawfulLinearPreorder (.ofOrd α)] : Std.TransOrd α :=
+  sorry
 
-class LawfulLinearOrder {α : Type u} (pc : PartiallyComparable α) extends LawfulPartialOrder pc
+instance (α : Type u) [BEq α] [Ord α] [LawfulLinearPreorder (.ofOrd α)]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] : EquivBEq α :=
+  sorry
+
+instance (α : Type u) [BEq α] [Ord α] [LawfulPartiallyComparableBEq (.ofOrd α)] :
+    Std.LawfulBEqOrd α :=
+  sorry
+
+instance (α : Type u) {_ : Ord α} [LawfulLinearPreorder (.ofOrd α)] :
+    haveI : Ord α := Ord.opposite inferInstance; LawfulLinearPreorder (.ofOrd α) :=
+  sorry
+
+class LawfulPartialOrder {α : Type u} (pc : PartiallyComparable α) extends LawfulPreorder pc where
+  le_antisymm : ∀ a b : α, pc.compare a b = some .eq → a = b
+
+class LawfulLinearOrder {α : Type u} (pc : PartiallyComparable α) extends
+    LawfulPartialOrder pc, LawfulLinearPreorder pc
+
+theorem LawfulPartiallyComparableCmp.eq_ofCmp {α : Type u} {cmp : α → α → Ordering} {c : PartiallyComparable α}
+    [i : LawfulPartiallyComparableCmp c cmp] :
+    c = .ofCmp cmp := by
+  ext a b
+  simp [PartiallyComparable.ofCmp, i.compare_eq_some_compare a b]
 
 theorem LawfulPartiallyComparableOrd.eq_ofOrd {α : Type u} [Ord α] {c : PartiallyComparable α}
     [i : LawfulPartiallyComparableOrd c] :
     c = .ofOrd α := by
-  ext a b
-  simp [PartiallyComparable.ofOrd, PartiallyComparable.ofCmp, i.compare_eq_some_compare a b]
+  simp [LawfulPartiallyComparableCmp.eq_ofCmp (cmp := compare)]
 
-instance (α : Type u) [Ord α] : LawfulPartiallyComparableOrd (.ofOrd α) where
+instance (α : Type u) (cmp : α → α → Ordering) : LawfulPartiallyComparableCmp (.ofCmp cmp) cmp where
   compare_eq_some_compare := fun _ _ => by rfl
 
 instance (α : Type u) [Ord α] : LawfulTotallyComparable (.ofOrd α) where
   isSome_compare := by simp [PartiallyComparable.ofOrd, PartiallyComparable.ofCmp]
+
+instance (α : Type u) (cmp : α → α → Ordering) [LawfulPartialOrder (.ofCmp cmp)] :
+    Std.LawfulEqCmp cmp where
+  compare_self := by
+    intro a
+    have := LawfulPreorder.le_refl (pc := .ofCmp cmp) a
+    simpa [LawfulPartiallyComparableCmp.compare_eq_some_compare (cmp := cmp)] using this
+  eq_of_compare := by
+    intro a b
+    have := LawfulPartialOrder.le_antisymm (pc := .ofCmp cmp) a b
+    simpa [LawfulPartiallyComparableCmp.compare_eq_some_compare (cmp := cmp)] using this
 
 theorem LawfulOrientedPartiallyComparableLE.eq_ofLE {α : Type u} [LE α] {c : PartiallyComparable α}
     [i : LawfulOrientedPartiallyComparableLE c] :
@@ -149,9 +189,9 @@ instance [Ord α] [LT α] [i : LawfulOrientedPartiallyComparableLT (.ofOrd α)]
     [LawfulTotallyComparable (.ofOrd α)] [OrderProp P (.ofOrd α)] : OrderProp P (.ofLT α) := by
   rw [← i.eq_ofLT]; infer_instance
 
-instance [LE α] [Ord α] [i : LawfulPartiallyComparableOrd (.ofLE α)]
-    [OrderProp P (.ofLE α)] : OrderProp P (.ofOrd α) := by
-  rw [← i.eq_ofOrd]; infer_instance
+instance [LE α] (cmp : α → α → Ordering) [i : LawfulPartiallyComparableCmp (.ofLE α) cmp]
+    [OrderProp P (.ofLE α)] : OrderProp P (.ofCmp cmp) := by
+  rw [← i.eq_ofCmp]; infer_instance
 
 instance [LE α] [LT α] [i : LawfulOrientedPartiallyComparableLT (.ofLE α)]
     [LawfulTotallyComparable (.ofLE α)] [OrderProp P (.ofLE α)] : OrderProp P (.ofLT α) := by

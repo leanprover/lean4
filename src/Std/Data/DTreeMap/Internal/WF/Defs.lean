@@ -30,7 +30,7 @@ namespace Impl
 /-- Well-formedness of tree maps. -/
 inductive WF [Ord α] : {β : α → Type v} → Impl α β → Prop where
   /-- This is the actual well-formedness invariant: the tree must be a balanced BST. -/
-  | wf {t} : Balanced t → (∀ [TransOrd α], Ordered t) → WF t
+  | wf {t} : Balanced t → (∀ [LawfulLinearPreorder (.ofOrd α)], Ordered t) → WF t
   /-- The empty tree is well-formed. Later shown to be subsumed by `.wf`. -/
   | empty : WF .empty
   /-- `insert` preserves well-formedness. Later shown to be subsumed by `.wf`. -/

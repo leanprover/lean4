@@ -6,6 +6,7 @@ Authors: Markus Himmel, Paul Reichert
 prelude
 import Std.Data.HashMap.Basic
 import Std.Data.DTreeMap.Internal.WF.Lemmas
+import Std.Classes.Ord.New.PartiallyComparable
 
 /-!
 # Internal lemmas about the tree map
@@ -28,6 +29,8 @@ variable {α : Type u} {β : α → Type v} {γ : α → Type w} {instOrd : Ord 
 private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 attribute [local instance low] beqOfOrd
+
+instance {_ : Ord α} : LawfulPartiallyComparableBEq (.ofOrd α) := sorry
 
 /-- Internal implementation detail of the tree map -/
 scoped syntax "wf_trivial" : tactic
@@ -156,19 +159,20 @@ macro_rules
 theorem isEmpty_empty : isEmpty (empty : Impl α β) := by
   rfl
 
-theorem isEmpty_insert [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem isEmpty_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v h.balanced).impl.isEmpty = false := by
+  have := toListModel_insert (α := α) (l := t) (v := v)
   simp_to_model [insert, isEmpty] using List.isEmpty_insertEntry
 
-theorem isEmpty_insert! [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem isEmpty_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert! k v).isEmpty = false := by
   simpa only [insert_eq_insert!] using isEmpty_insert h
 
-theorem contains_congr [TransOrd α] (h : t.WF) {k k' : α} : (hab : compare k k' = .eq) →
+theorem contains_congr [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} : (hab : compare k k' = .eq) →
     t.contains k = t.contains k' := by
   simp_to_model [contains] using List.containsKey_congr
 
-theorem mem_congr [TransOrd α] (h : t.WF) {k k' : α} (hab : compare k k' = .eq) :
+theorem mem_congr [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} (hab : compare k k' = .eq) :
     k ∈ t ↔ k' ∈ t := by
   simp [mem_iff_contains, contains_congr h hab]
 
@@ -178,81 +182,81 @@ theorem contains_empty {a : α} : (empty : Impl α β).contains a = false := by
 theorem not_mem_empty {a : α} : a ∉ (empty : Impl α β) := by
   exact (Bool.not_eq_true _).mpr contains_empty
 
-theorem contains_of_isEmpty [TransOrd α] (h : t.WF) {a : α}
+theorem contains_of_isEmpty [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α}
     (h : t.isEmpty) : t.contains a = false := by
   match t, h with
   | .leaf, _ => exact contains_empty
 
-theorem not_mem_of_isEmpty [TransOrd α] (h : t.WF) {a : α}
+theorem not_mem_of_isEmpty [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α}
     (h : t.isEmpty) : a ∉ t := by
   match t, h with
   | .leaf, _ => exact not_mem_empty
 
-theorem isEmpty_eq_false_iff_exists_contains_eq_true [TransOrd α] (h : t.WF) :
+theorem isEmpty_eq_false_iff_exists_contains_eq_true [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.isEmpty = false ↔ ∃ a, t.contains a = true := by
   simp_to_model [isEmpty, contains] using List.isEmpty_eq_false_iff_exists_containsKey
 
-theorem isEmpty_eq_false_iff_exists_mem [TransOrd α] (h : t.WF) :
+theorem isEmpty_eq_false_iff_exists_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.isEmpty = false ↔ ∃ a, a ∈ t := by
   simpa only [mem_iff_contains] using isEmpty_eq_false_iff_exists_contains_eq_true h
 
-theorem isEmpty_eq_false_of_contains [TransOrd α] (h : t.WF) {a : α} : (hc : t.contains a = true) →
+theorem isEmpty_eq_false_of_contains [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} : (hc : t.contains a = true) →
     t.isEmpty = false := by
   simp_to_model [isEmpty, contains] using List.isEmpty_eq_false_of_containsKey
 
-theorem isEmpty_iff_forall_contains [TransOrd α] (h : t.WF) :
+theorem isEmpty_iff_forall_contains [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.isEmpty = true ↔ ∀ a, t.contains a = false := by
   simp_to_model [isEmpty, contains] using List.isEmpty_iff_forall_containsKey
 
-theorem isEmpty_iff_forall_not_mem [TransOrd α] (h : t.WF) :
+theorem isEmpty_iff_forall_not_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.isEmpty = true ↔ ∀ a, ¬a ∈ t := by
   simpa only [mem_iff_contains, Bool.not_eq_true] using isEmpty_iff_forall_contains h
 
-theorem contains_insert [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem contains_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     (t.insert k v h.balanced).impl.contains a = (compare k a == .eq || t.contains a) := by
   simp_to_model [insert, contains] using List.containsKey_insertEntry
 
-theorem contains_insert! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem contains_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     (t.insert! k v).contains a = (compare k a == .eq || t.contains a) :=
   insert_eq_insert! (h := h.balanced) ▸ contains_insert h
 
-theorem mem_insert [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem mem_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     a ∈ (t.insert k v h.balanced).impl ↔ compare k a = .eq ∨ a ∈ t := by
   simp [mem_iff_contains, contains_insert h]
 
-theorem mem_insert! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem mem_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     a ∈ t.insert! k v ↔ compare k a = .eq ∨ a ∈ t := by
   simpa only [insert_eq_insert!] using mem_insert h
 
-theorem contains_insert_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem contains_insert_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v h.balanced).impl.contains k := by
   simp_to_model [insert, contains] using List.containsKey_insertEntry_self
 
-theorem contains_insert!_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem contains_insert!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert! k v).contains k :=
   insert_eq_insert! (h := h.balanced) ▸ contains_insert_self h
 
-theorem mem_insert_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem mem_insert_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     k ∈ (t.insert k v h.balanced).impl := by
   simpa [mem_iff_contains] using contains_insert_self h
 
-theorem mem_insert!_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem mem_insert!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     k ∈ t.insert! k v :=
   insert_eq_insert! (h := h.balanced) ▸ mem_insert_self h
 
-theorem contains_of_contains_insert [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem contains_of_contains_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     (t.insert k v h.balanced).impl.contains a → compare k a ≠ .eq → t.contains a := by
   simp_to_model [insert, contains] using List.containsKey_of_containsKey_insertEntry
 
-theorem contains_of_contains_insert! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem contains_of_contains_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     (t.insert! k v).contains a → compare k a ≠ .eq → t.contains a := by
   simpa only [insert_eq_insert!] using contains_of_contains_insert h
 
-theorem mem_of_mem_insert [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem mem_of_mem_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     a ∈ (t.insert k v h.balanced).impl → compare k a ≠ .eq → a ∈ t := by
   simpa [mem_iff_contains] using contains_of_contains_insert h
 
-theorem mem_of_mem_insert! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem mem_of_mem_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     a ∈ t.insert! k v → compare k a ≠ .eq → a ∈ t := by
   simpa only [insert_eq_insert!] using mem_of_mem_insert h
 
@@ -264,27 +268,27 @@ theorem isEmpty_eq_size_eq_zero (h : t.WF) :
   simp_to_model [isEmpty, size]
   rw [Bool.eq_iff_iff, List.isEmpty_iff_length_eq_zero, Nat.beq_eq_true_eq]
 
-theorem size_insert [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem size_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v h.balanced).impl.size = if t.contains k then t.size else t.size + 1 := by
   simp_to_model [insert, size, contains] using List.length_insertEntry
 
-theorem size_insert! [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem size_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert! k v).size = if t.contains k then t.size else t.size + 1 := by
   simpa only [insert_eq_insert!] using size_insert h
 
-theorem size_le_size_insert [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem size_le_size_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     t.size ≤ (t.insert k v h.balanced).impl.size := by
   simp_to_model [insert, size] using List.length_le_length_insertEntry
 
-theorem size_le_size_insert! [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem size_le_size_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     t.size ≤ (t.insert! k v).size := by
   simpa only [insert_eq_insert!] using size_le_size_insert h
 
-theorem size_insert_le [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem size_insert_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v h.balanced).impl.size ≤ t.size + 1 := by
   simp_to_model [insert, size] using List.length_insertEntry_le
 
-theorem size_insert!_le [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem size_insert!_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert! k v).size ≤ t.size + 1 := by
   simpa only [insert_eq_insert!] using size_insert_le h
 
@@ -296,259 +300,259 @@ theorem erase!_empty {k : α} :
     (empty : Impl α β).erase! k = empty :=
   rfl
 
-theorem isEmpty_erase [TransOrd α] (h : t.WF) {k : α} :
+theorem isEmpty_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     (t.erase k h.balanced).impl.isEmpty = (t.isEmpty || (t.size = 1 && t.contains k)) := by
   simp_to_model [erase, isEmpty, size, contains] using List.isEmpty_eraseKey
 
-theorem isEmpty_erase! [TransOrd α] (h : t.WF) {k : α} :
+theorem isEmpty_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     (t.erase! k).isEmpty = (t.isEmpty || (t.size = 1 && t.contains k)) := by
   simpa only [erase_eq_erase!] using isEmpty_erase h
 
-theorem isEmpty_eq_isEmpty_erase_and_not_contains [TransOrd α] (h : t.WF) (k : α) :
+theorem isEmpty_eq_isEmpty_erase_and_not_contains [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) (k : α) :
     t.isEmpty = ((t.erase k h.balanced).impl.isEmpty && !(t.contains k)) := by
   simp_to_model [erase, isEmpty, contains] using
     List.isEmpty_eq_isEmpty_eraseKey_and_not_containsKey
 
-theorem isEmpty_eq_isEmpty_erase!_and_not_containsKey [TransOrd α] (h : t.WF) (k : α) :
+theorem isEmpty_eq_isEmpty_erase!_and_not_containsKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) (k : α) :
     t.isEmpty = ((t.erase! k).isEmpty && !(t.contains k)) := by
   simpa [erase_eq_erase!] using isEmpty_eq_isEmpty_erase_and_not_contains h k
 
-theorem isEmpty_eq_false_of_isEmpty_erase_eq_false [TransOrd α] (h : t.WF) {k : α} :
+theorem isEmpty_eq_false_of_isEmpty_erase_eq_false [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     (he : (t.erase k h.balanced).impl.isEmpty = false) →
     t.isEmpty = false := by
   simp_to_model [erase, isEmpty, contains] using List.isEmpty_eq_false_of_isEmpty_eraseKey_eq_false
 
-theorem isEmpty_eq_false_of_isEmpty_erase!_eq_false [TransOrd α] (h : t.WF) {k : α} :
+theorem isEmpty_eq_false_of_isEmpty_erase!_eq_false [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     (he : (t.erase! k).isEmpty = false) →
     t.isEmpty = false := by
   simpa [erase_eq_erase!] using isEmpty_eq_false_of_isEmpty_erase_eq_false h
 
-theorem contains_erase [TransOrd α] (h : t.WF) {k a : α} :
+theorem contains_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} :
     (t.erase k h.balanced).impl.contains a = (!(compare k a == .eq) && t.contains a) := by
   simp_to_model [erase, contains] using List.containsKey_eraseKey
 
-theorem contains_erase! [TransOrd α] (h : t.WF) {k a : α} :
+theorem contains_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} :
     (t.erase! k).contains a = (!(compare k a == .eq) && t.contains a) := by
   simpa only [erase_eq_erase!] using contains_erase h
 
-theorem mem_erase [TransOrd α] (h : t.WF) {k a : α} :
+theorem mem_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} :
     a ∈ (t.erase k h.balanced).impl ↔ compare k a ≠ .eq ∧ a ∈ t := by
   simpa only [mem_iff_contains, Bool.and_eq_true, Bool.not_eq_true', beq_eq_false_iff_ne]
     using Bool.eq_iff_iff.mp <| contains_erase h
 
-theorem mem_erase! [TransOrd α] (h : t.WF) {k a : α} :
+theorem mem_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} :
     a ∈ t.erase! k ↔ compare k a ≠ .eq ∧ a ∈ t := by
   simpa only [erase_eq_erase!] using mem_erase h
 
-theorem contains_of_contains_erase [TransOrd α] (h : t.WF) {k a : α} :
+theorem contains_of_contains_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} :
     (t.erase k h.balanced).impl.contains a → t.contains a := by
   simp_to_model [erase, contains] using List.containsKey_of_containsKey_eraseKey
 
-theorem contains_of_contains_erase! [TransOrd α] (h : t.WF) {k a : α} :
+theorem contains_of_contains_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} :
     (t.erase! k).contains a → t.contains a := by
   simpa only [erase_eq_erase!] using contains_of_contains_erase h
 
-theorem mem_of_mem_erase [TransOrd α] (h : t.WF) {k a : α} :
+theorem mem_of_mem_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} :
     a ∈ (t.erase k h.balanced).impl → a ∈ t := by
   simpa [mem_iff_contains] using contains_of_contains_erase h
 
-theorem mem_of_mem_erase! [TransOrd α] (h : t.WF) {k a : α} :
+theorem mem_of_mem_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} :
     a ∈ t.erase! k → a ∈ t := by
   simpa only [erase_eq_erase!] using mem_of_mem_erase h
 
-theorem size_erase [TransOrd α] (h : t.WF) {k : α} :
+theorem size_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     (t.erase k h.balanced).impl.size = if t.contains k then t.size - 1 else t.size := by
   simp_to_model [erase, size, contains] using List.length_eraseKey
 
-theorem size_erase! [TransOrd α] (h : t.WF) {k : α} :
+theorem size_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     (t.erase! k).size = if t.contains k then t.size - 1 else t.size := by
   simpa only [erase_eq_erase!] using size_erase h
 
-theorem size_erase_le [TransOrd α] (h : t.WF) {k : α} :
+theorem size_erase_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     (t.erase k h.balanced).impl.size ≤ t.size := by
   simp_to_model [erase, size] using List.length_eraseKey_le
 
-theorem size_erase!_le [TransOrd α] (h : t.WF) {k : α} :
+theorem size_erase!_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     (t.erase! k).size ≤ t.size := by
   simpa only [erase_eq_erase!] using size_erase_le h
 
-theorem size_le_size_erase [TransOrd α] (h : t.WF) {k : α} :
+theorem size_le_size_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     t.size ≤ (t.erase k h.balanced).impl.size + 1 := by
   simp_to_model [erase, size] using List.length_le_length_eraseKey
 
-theorem size_le_size_erase! [TransOrd α] (h : t.WF) {k : α} :
+theorem size_le_size_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     t.size ≤ (t.erase! k).size + 1 := by
   simpa only [erase_eq_erase!] using size_le_size_erase h
 
-theorem containsThenInsert_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem containsThenInsert_fst [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsert k v h.balanced).1 = t.contains k := by
   rw [containsThenInsert_fst_eq_containsₘ, contains_eq_containsₘ]
   exact h.ordered
 
-theorem containsThenInsert!_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem containsThenInsert!_fst [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsert! k v).1 = t.contains k := by
   rw [containsThenInsert!_fst_eq_containsThenInsert_fst, containsThenInsert_fst h]
 
-theorem containsThenInsert_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem containsThenInsert_snd [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsert k v h.balanced).2.impl = (t.insert k v h.balanced).impl := by
   rfl
 
-theorem containsThenInsert!_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem containsThenInsert!_snd [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsert! k v).2 = t.insert! k v := by
   rw [containsThenInsert!_snd_eq_containsThenInsert_snd _ h.balanced, containsThenInsert_snd h,
     insert_eq_insert!]
 
-theorem containsThenInsertIfNew_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem containsThenInsertIfNew_fst [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsertIfNew k v h.balanced).1 = t.contains k := by
   rw [containsThenInsertIfNew_fst_eq_containsₘ, contains_eq_containsₘ]
 
-theorem containsThenInsertIfNew!_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem containsThenInsertIfNew!_fst [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsertIfNew! k v).1 = t.contains k := by
   rw [containsThenInsertIfNew!_fst_eq_containsThenInsertIfNew_fst, containsThenInsertIfNew_fst h]
 
-theorem containsThenInsertIfNew_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem containsThenInsertIfNew_snd [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsertIfNew k v h.balanced).2.impl = (t.insertIfNew k v h.balanced).impl := by
   rw [containsThenInsertIfNew_snd_eq_insertIfNew]
 
-theorem containsThenInsertIfNew!_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem containsThenInsertIfNew!_snd [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsertIfNew! k v).2 = t.insertIfNew! k v := by
   rw [containsThenInsertIfNew!_snd_eq_containsThenInsertIfNew_snd _ h.balanced, containsThenInsertIfNew_snd h,
     insertIfNew_eq_insertIfNew!]
 
-theorem isEmpty_insertIfNew [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem isEmpty_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.isEmpty = false := by
   simp_to_model [insertIfNew, isEmpty] using List.isEmpty_insertEntryIfNew
 
-theorem isEmpty_insertIfNew! [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem isEmpty_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insertIfNew! k v).isEmpty = false := by
   simpa only [insertIfNew_eq_insertIfNew!] using isEmpty_insertIfNew h
 
-theorem contains_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem contains_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.contains a = (compare k a == .eq || t.contains a) := by
   simp_to_model [insertIfNew, contains] using List.containsKey_insertEntryIfNew
 
-theorem contains_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem contains_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew! k v).contains a = (compare k a == .eq || t.contains a) := by
   simpa only [insertIfNew_eq_insertIfNew!] using contains_insertIfNew h
 
-theorem mem_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem mem_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     a ∈ (t.insertIfNew k v h.balanced).impl ↔ compare k a = .eq ∨ a ∈ t := by
   simp [mem_iff_contains, contains_insertIfNew, h, compare_eq_iff_beq]
 
-theorem mem_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem mem_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     a ∈ t.insertIfNew! k v ↔ compare k a = .eq ∨ a ∈ t := by
   simpa only [insertIfNew_eq_insertIfNew!] using mem_insertIfNew h
 
-theorem contains_insertIfNew_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem contains_insertIfNew_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.contains k := by
   simp [contains_insertIfNew, h]
 
-theorem contains_insertIfNew!_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem contains_insertIfNew!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insertIfNew! k v).contains k := by
   simpa only [insertIfNew_eq_insertIfNew!] using contains_insertIfNew_self h
 
-theorem mem_insertIfNew_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem mem_insertIfNew_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     k ∈ (t.insertIfNew k v h.balanced).impl := by
   simp [mem_insertIfNew, h]
 
-theorem mem_insertIfNew!_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem mem_insertIfNew!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     k ∈ t.insertIfNew! k v := by
   simpa only [insertIfNew_eq_insertIfNew!] using mem_insertIfNew_self h
 
-theorem contains_of_contains_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem contains_of_contains_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.contains a → compare k a ≠ .eq → t.contains a := by
   simp_to_model [insertIfNew, contains] using List.containsKey_of_containsKey_insertEntryIfNew
 
-theorem contains_of_contains_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem contains_of_contains_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew! k v).contains a → compare k a ≠ .eq → t.contains a := by
   simpa only [insertIfNew_eq_insertIfNew!] using contains_of_contains_insertIfNew h
 
-theorem mem_of_mem_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem mem_of_mem_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     a ∈ (t.insertIfNew k v h.balanced).impl → compare k a ≠ .eq → a ∈ t := by
   simpa [mem_iff_contains] using contains_of_contains_insertIfNew h
 
-theorem mem_of_mem_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem mem_of_mem_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     a ∈ t.insertIfNew! k v → compare k a ≠ .eq → a ∈ t := by
   simpa only [insertIfNew_eq_insertIfNew!] using mem_of_mem_insertIfNew h
 
-theorem size_insertIfNew [TransOrd α] {k : α} (h : t.WF) {v : β k} :
+theorem size_insertIfNew [LawfulLinearPreorder (.ofOrd α)] {k : α} (h : t.WF) {v : β k} :
     (t.insertIfNew k v h.balanced).impl.size = if k ∈ t then t.size else t.size + 1 := by
   simp_to_model [insertIfNew, size, contains] using List.length_insertEntryIfNew
 
-theorem size_insertIfNew! [TransOrd α] {k : α} (h : t.WF) {v : β k} :
+theorem size_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] {k : α} (h : t.WF) {v : β k} :
     (t.insertIfNew! k v).size = if k ∈ t then t.size else t.size + 1 := by
   simpa only [insertIfNew_eq_insertIfNew!] using size_insertIfNew h
 
-theorem size_le_size_insertIfNew [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem size_le_size_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     t.size ≤ (t.insertIfNew k v h.balanced).impl.size := by
   simp_to_model [insertIfNew, size] using List.length_le_length_insertEntryIfNew
 
-theorem size_le_size_insertIfNew! [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem size_le_size_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     t.size ≤ (t.insertIfNew! k v).size := by
   simpa only [insertIfNew_eq_insertIfNew!] using size_le_size_insertIfNew h
 
-theorem size_insertIfNew_le [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem size_insertIfNew_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.size ≤ t.size + 1 := by
   simp_to_model [insertIfNew, size] using List.length_insertEntryIfNew_le
 
-theorem size_insertIfNew!_le [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem size_insertIfNew!_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insertIfNew! k v).size ≤ t.size + 1 := by
   simpa only [insertIfNew_eq_insertIfNew!] using size_insertIfNew_le h
 
-theorem get?_empty [TransOrd α] [LawfulEqOrd α] {a : α} : (empty : Impl α β).get? a = none := by
+theorem get?_empty [LawfulLinearOrder (.ofOrd α)] {a : α} : (empty : Impl α β).get? a = none := by
   simp_to_model [get?] using List.getValueCast?_nil
 
-theorem get?_of_isEmpty [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} :
+theorem get?_of_isEmpty [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} :
     t.isEmpty = true → t.get? a = none := by
   simp_to_model [get?, isEmpty]; empty
 
-theorem get?_insert [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a k : α} {v : β k} :
+theorem get?_insert [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a k : α} {v : β k} :
     (t.insert k v h.balanced).impl.get? a =
       if h : compare k a = .eq then some (cast (congrArg β (compare_eq_iff_eq.mp h)) v) else t.get? a := by
   simp_to_model [insert, get?] using List.getValueCast?_insertEntry
 
-theorem get?_insert! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a k : α} {v : β k} :
+theorem get?_insert! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a k : α} {v : β k} :
     (t.insert! k v).get? a =
       if h : compare k a = .eq then some (cast (congrArg β (compare_eq_iff_eq.mp h)) v) else t.get? a := by
   simpa only [insert_eq_insert!] using get?_insert h
 
-theorem get?_insert_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem get?_insert_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v h.balanced).impl.get? k = some v := by
   simp_to_model [insert, get?] using List.getValueCast?_insertEntry_self
 
-theorem get?_insert!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem get?_insert!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert! k v).get? k = some v := by
   simpa only [insert_eq_insert!] using get?_insert_self h
 
-theorem contains_eq_isSome_get? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} :
+theorem contains_eq_isSome_get? [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} :
     t.contains a = (t.get? a).isSome := by
   simp_to_model [contains, get?] using List.containsKey_eq_isSome_getValueCast?
 
-theorem mem_iff_isSome_get? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} :
+theorem mem_iff_isSome_get? [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} :
     a ∈ t ↔ (t.get? a).isSome := by
   simpa [mem_iff_contains] using contains_eq_isSome_get? h
 
-theorem get?_eq_none_of_contains_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} :
+theorem get?_eq_none_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} :
     t.contains a = false → t.get? a = none := by
   simp_to_model [contains, get?] using List.getValueCast?_eq_none
 
-theorem get?_eq_none [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} :
+theorem get?_eq_none [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} :
     ¬ a ∈ t → t.get? a = none := by
   simpa [mem_iff_contains] using get?_eq_none_of_contains_eq_false h
 
-theorem get?_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} :
+theorem get?_erase [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} :
     (t.erase k h.balanced).impl.get? a = if compare k a = .eq then none else t.get? a := by
   simp_to_model [erase, get?] using List.getValueCast?_eraseKey
 
-theorem get?_erase! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} :
+theorem get?_erase! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} :
     (t.erase! k).get? a = if compare k a = .eq then none else t.get? a := by
   simpa only [erase_eq_erase!] using get?_erase h
 
-theorem get?_erase_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} :
+theorem get?_erase_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} :
     (t.erase k h.balanced).impl.get? k = none := by
   simp_to_model [erase, get?] using List.getValueCast?_eraseKey_self
 
-theorem get?_erase!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} :
+theorem get?_erase!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} :
     (t.erase! k).get? k = none := by
   simpa only [erase_eq_erase!] using get?_erase_self h
 
@@ -556,73 +560,73 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-theorem get?_empty [TransOrd α] {a : α} : get? (empty : Impl α β) a = none := by
+theorem get?_empty [LawfulLinearPreorder (.ofOrd α)] {a : α} : get? (empty : Impl α β) a = none := by
   simp_to_model [Const.get?] using List.getValue?_nil
 
-theorem get?_of_isEmpty [TransOrd α] (h : t.WF) {a : α} :
+theorem get?_of_isEmpty [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} :
     t.isEmpty = true → get? t a = none := by
   simp_to_model [Const.get?, isEmpty]; empty
 
-theorem get?_insert [TransOrd α] (h : t.WF) {a k : α} {v : β} :
+theorem get?_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a k : α} {v : β} :
     get? (t.insert k v h.balanced).impl a =
       if compare k a = .eq then some v else get? t a := by
   simp_to_model [Const.get?, insert] using List.getValue?_insertEntry
 
-theorem get?_insert! [TransOrd α] (h : t.WF) {a k : α} {v : β} :
+theorem get?_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a k : α} {v : β} :
     get? (t.insert! k v) a =
       if compare k a = .eq then some v else get? t a := by
   simpa only [insert_eq_insert!] using get?_insert h
 
-theorem get?_insert_self [TransOrd α] (h : t.WF) {k : α} {v : β} :
+theorem get?_insert_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β} :
     get? (t.insert k v h.balanced).impl k = some v := by
   simp_to_model [Const.get?, insert] using List.getValue?_insertEntry_self
 
-theorem get?_insert!_self [TransOrd α] (h : t.WF) {k : α} {v : β} :
+theorem get?_insert!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β} :
     get? (t.insert! k v) k = some v := by
   simpa only [insert_eq_insert!] using get?_insert_self h
 
-theorem contains_eq_isSome_get? [TransOrd α] (h : t.WF) {a : α} :
+theorem contains_eq_isSome_get? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} :
     t.contains a = (get? t a).isSome := by
   simp_to_model [Const.get?, contains] using List.containsKey_eq_isSome_getValue?
 
-theorem mem_iff_isSome_get? [TransOrd α] (h : t.WF) {a : α} :
+theorem mem_iff_isSome_get? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} :
     a ∈ t ↔ (get? t a).isSome := by
   simpa [mem_iff_contains] using contains_eq_isSome_get? h
 
-theorem get?_eq_none_of_contains_eq_false [TransOrd α] (h : t.WF) {a : α} :
+theorem get?_eq_none_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} :
     t.contains a = false → get? t a = none := by
   simp_to_model [Const.get?, contains] using List.getValue?_eq_none.mpr
 
-theorem get?_eq_none [TransOrd α] (h : t.WF) {a : α} :
+theorem get?_eq_none [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} :
     ¬ a ∈ t → get? t a = none := by
   simpa [mem_iff_contains] using get?_eq_none_of_contains_eq_false h
 
-theorem get?_erase [TransOrd α] (h : t.WF) {k a : α} :
+theorem get?_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} :
     get? (t.erase k h.balanced).impl a = if compare k a = .eq then none else get? t a := by
   simp_to_model [Const.get?, erase] using List.getValue?_eraseKey
 
-theorem get?_erase! [TransOrd α] (h : t.WF) {k a : α} :
+theorem get?_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} :
     get? (t.erase! k) a = if compare k a = .eq then none else get? t a := by
   simpa only [erase_eq_erase!] using get?_erase h
 
-theorem get?_erase_self [TransOrd α] (h : t.WF) {k : α} :
+theorem get?_erase_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     get? (t.erase k h.balanced).impl k = none := by
   simp_to_model [Const.get?, erase] using List.getValue?_eraseKey_self
 
-theorem get?_erase!_self [TransOrd α] (h : t.WF) {k : α} :
+theorem get?_erase!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     get? (t.erase! k) k = none := by
   simpa only [erase_eq_erase!] using get?_erase_self h
 
-theorem get?_eq_get? [LawfulEqOrd α] [TransOrd α] (h : t.WF) {a : α} : get? t a = t.get? a := by
+theorem get?_eq_get? [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} : get? t a = t.get? a := by
   simp_to_model [Const.get?, get?] using List.getValue?_eq_getValueCast?
 
-theorem get?_congr [TransOrd α] (h : t.WF) {a b : α} : (hab : compare a b = .eq) →
+theorem get?_congr [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a b : α} : (hab : compare a b = .eq) →
     get? t a = get? t b := by
   simp_to_model [Const.get?] using List.getValue?_congr
 
 end Const
 
-theorem get_insert [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v : β k} {h₁} :
+theorem get_insert [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insert k v h.balanced).impl.get a h₁ =
       if h₂ : compare k a = .eq then
         cast (congrArg β (compare_eq_iff_eq.mp h₂)) v
@@ -630,7 +634,7 @@ theorem get_insert [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v : β 
         t.get a (contains_of_contains_insert h h₁ h₂) := by
   simp_to_model [insert, get] using List.getValueCast_insertEntry
 
-theorem get_insert! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v : β k} {h₁} :
+theorem get_insert! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insert! k v).get a h₁ =
       if h₂ : compare k a = .eq then
         cast (congrArg β (compare_eq_iff_eq.mp h₂)) v
@@ -638,135 +642,135 @@ theorem get_insert! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v : β
         t.get a (contains_of_contains_insert! h h₁ h₂) := by
   simpa only [insert_eq_insert!] using get_insert h (h₁ := by simpa [insert_eq_insert!])
 
-theorem get_insert_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem get_insert_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v h.balanced).impl.get k (contains_insert_self h) = v := by
   simp_to_model [insert, get] using List.getValueCast_insertEntry_self
 
-theorem get_insert!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem get_insert!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert! k v).get k (contains_insert!_self h) = v := by
   simpa only [insert_eq_insert!] using get_insert_self h
 
 @[simp]
-theorem get_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {h'} :
+theorem get_erase [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {h'} :
     (t.erase k h.balanced).impl.get a h' = t.get a (contains_of_contains_erase h h') := by
   simp_to_model [erase, get] using List.getValueCast_eraseKey
 
-theorem get_erase! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {h'} :
+theorem get_erase! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {h'} :
     (t.erase! k).get a h' = t.get a (contains_of_contains_erase! h h') := by
   simpa only [erase_eq_erase!] using get_erase h (h' := by simpa [erase_eq_erase!])
 
-theorem get?_eq_some_get [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {h'} : t.get? a = some (t.get a h') := by
+theorem get?_eq_some_get [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} {h'} : t.get? a = some (t.get a h') := by
   simp_to_model [get?, get] using List.getValueCast?_eq_some_getValueCast
 
 namespace Const
 
 variable {β : Type v} {t : Impl α β} (h : t.WF)
 
-theorem get_insert [TransOrd α] (h : t.WF) {k a : α} {v : β} {h₁} :
+theorem get_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β} {h₁} :
     get (t.insert k v h.balanced).impl a h₁ =
       if h₂ : compare k a = .eq then v
       else get t a (contains_of_contains_insert h h₁ h₂) := by
   simp_to_model [insert, Const.get] using List.getValue_insertEntry
 
-theorem get_insert! [TransOrd α] (h : t.WF) {k a : α} {v : β} {h₁} :
+theorem get_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β} {h₁} :
     get (t.insert! k v) a h₁ =
       if h₂ : compare k a = .eq then v
       else get t a (contains_of_contains_insert! h h₁ h₂) := by
   simpa only [insert_eq_insert!] using get_insert h (h₁ := by simpa [insert_eq_insert!])
 
-theorem get_insert_self [TransOrd α] (h : t.WF) {k : α} {v : β} :
+theorem get_insert_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β} :
     get (t.insert k v h.balanced).impl k (contains_insert_self h) = v := by
   simp_to_model [insert, Const.get] using List.getValue_insertEntry_self
 
-theorem get_insert!_self [TransOrd α] (h : t.WF) {k : α} {v : β} :
+theorem get_insert!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β} :
     get (t.insert! k v) k (contains_insert!_self h) = v := by
   simpa only [insert_eq_insert!] using get_insert_self h
 
 @[simp]
-theorem get_erase [TransOrd α] (h : t.WF) {k a : α} {h'} :
+theorem get_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {h'} :
     get (t.erase k h.balanced).impl a h' = get t a (contains_of_contains_erase h h') := by
   simp_to_model [erase, Const.get] using List.getValue_eraseKey
 
-theorem get_erase! [TransOrd α] (h : t.WF) {k a : α} {h'} :
+theorem get_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {h'} :
     get (t.erase! k) a h' = get t a (contains_of_contains_erase! h h') := by
   simpa only [erase_eq_erase!] using get_erase h (h' := by simpa [erase_eq_erase!])
 
-theorem get?_eq_some_get [TransOrd α] (h : t.WF) {a : α} {h} :
+theorem get?_eq_some_get [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} {h} :
     get? t a = some (get t a h) := by
   simp_to_model [Const.get, Const.get?] using List.getValue?_eq_some_getValue
 
-theorem get_eq_get [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {h} : get t a h = t.get a h := by
+theorem get_eq_get [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} {h} : get t a h = t.get a h := by
   simp_to_model [Const.get, get] using List.getValue_eq_getValueCast
 
-theorem get_congr [TransOrd α] (h : t.WF) {a b : α} : (hab : compare a b = .eq) → {h' : _} →
+theorem get_congr [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a b : α} : (hab : compare a b = .eq) → {h' : _} →
     get t a h' = get t b ((contains_congr h hab).symm.trans h') := by
   simp_to_model [Const.get, contains] using List.getValue_congr
 
 end Const
 
-theorem get!_empty [TransOrd α] [LawfulEqOrd α] {a : α} [Inhabited (β a)] :
+theorem get!_empty [LawfulLinearOrder (.ofOrd α)] {a : α} [Inhabited (β a)] :
     get! (empty : Impl α β) a = default := by
   simp_to_model [get!] using List.getValueCast!_nil
 
-theorem get!_of_isEmpty [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] :
+theorem get!_of_isEmpty [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} [Inhabited (β a)] :
     t.isEmpty = true → t.get! a = default := by
   simp_to_model [isEmpty, get!]; empty
 
-theorem get!_insert [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} [Inhabited (β a)] {v : β k} :
+theorem get!_insert [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} [Inhabited (β a)] {v : β k} :
     (t.insert k v h.balanced).impl.get! a =
       if h : compare k a = .eq then cast (congrArg β (compare_eq_iff_eq.mp h)) v else t.get! a := by
   simp_to_model [insert, get!] using List.getValueCast!_insertEntry
 
-theorem get!_insert! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} [Inhabited (β a)] {v : β k} :
+theorem get!_insert! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} [Inhabited (β a)] {v : β k} :
     (t.insert! k v).get! a =
       if h : compare k a = .eq then cast (congrArg β (compare_eq_iff_eq.mp h)) v else t.get! a := by
   simpa only [insert_eq_insert!] using get!_insert h
 
-theorem get!_insert_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] {b : β a} :
+theorem get!_insert_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} [Inhabited (β a)] {b : β a} :
     (t.insert a b h.balanced).impl.get! a = b := by
   simp_to_model [insert, get!] using List.getValueCast!_insertEntry_self
 
-theorem get!_insert!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] {b : β a} :
+theorem get!_insert!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} [Inhabited (β a)] {b : β a} :
     (t.insert! a b).get! a = b := by
   simpa only [insert_eq_insert!] using get!_insert_self h
 
-theorem get!_eq_default_of_contains_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α}
+theorem get!_eq_default_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α}
     [Inhabited (β a)] : t.contains a = false → t.get! a = default := by
   simp_to_model [contains, get!] using List.getValueCast!_eq_default
 
-theorem get!_eq_default [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] :
+theorem get!_eq_default [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} [Inhabited (β a)] :
     ¬ a ∈ t → t.get! a = default := by
   simpa [mem_iff_contains] using get!_eq_default_of_contains_eq_false h
 
-theorem get!_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} [Inhabited (β a)] :
+theorem get!_erase [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} [Inhabited (β a)] :
     (t.erase k h.balanced).impl.get! a = if compare k a = .eq then default else t.get! a := by
   simp_to_model [erase, get!] using List.getValueCast!_eraseKey
 
-theorem get!_erase! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} [Inhabited (β a)] :
+theorem get!_erase! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} [Inhabited (β a)] :
     (t.erase! k).get! a = if compare k a = .eq then default else t.get! a := by
   simpa only [erase_eq_erase!] using get!_erase h
 
-theorem get!_erase_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} [Inhabited (β k)] :
+theorem get!_erase_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} [Inhabited (β k)] :
     (t.erase k h.balanced).impl.get! k = default := by
   simp_to_model [erase, get!] using List.getValueCast!_eraseKey_self
 
-theorem get!_erase!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} [Inhabited (β k)] :
+theorem get!_erase!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} [Inhabited (β k)] :
     (t.erase! k).get! k = default := by
   simpa only [erase_eq_erase!] using get!_erase_self h
 
-theorem get?_eq_some_get!_of_contains [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] :
+theorem get?_eq_some_get!_of_contains [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} [Inhabited (β a)] :
     t.contains a = true → t.get? a = some (t.get! a) := by
   simp_to_model [contains, get?, get!] using List.getValueCast?_eq_some_getValueCast!
 
-theorem get?_eq_some_get! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] :
+theorem get?_eq_some_get! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} [Inhabited (β a)] :
     a ∈ t → t.get? a = some (t.get! a) := by
   simpa [mem_iff_contains] using get?_eq_some_get!_of_contains h
 
-theorem get!_eq_get!_get? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] :
+theorem get!_eq_get!_get? [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} [Inhabited (β a)] :
     t.get! a = (t.get? a).get! := by
   simp_to_model [get!, get?] using List.getValueCast!_eq_getValueCast?
 
-theorem get_eq_get! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] {h} :
+theorem get_eq_get! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} [Inhabited (β a)] {h} :
     t.get a h = t.get! a := by
   simp_to_model [get, get!] using List.getValueCast_eq_getValueCast!
 
@@ -774,150 +778,150 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β} (h : t.WF)
 
-theorem get!_empty [TransOrd α] [Inhabited β] {a : α} :
+theorem get!_empty [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] {a : α} :
     get! (empty : Impl α β) a = default := by
   simp_to_model [Const.get!] using List.getValue!_nil
 
-theorem get!_of_isEmpty [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
+theorem get!_of_isEmpty [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {a : α} :
     t.isEmpty = true → get! t a = default := by
   simp_to_model [Const.get!, isEmpty]; empty
 
-theorem get!_insert [TransOrd α] [Inhabited β] (h : t.WF) {k a : α} {v : β} :
+theorem get!_insert [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {k a : α} {v : β} :
     get! (t.insert k v h.balanced).impl a = if compare k a = .eq then v else get! t a := by
   simp_to_model [insert, Const.get!] using List.getValue!_insertEntry
 
-theorem get!_insert! [TransOrd α] [Inhabited β] (h : t.WF) {k a : α} {v : β} :
+theorem get!_insert! [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {k a : α} {v : β} :
     get! (t.insert! k v) a = if compare k a = .eq then v else get! t a := by
   simpa only [insert_eq_insert!] using get!_insert h
 
-theorem get!_insert_self [TransOrd α] [Inhabited β] (h : t.WF) {k : α}
+theorem get!_insert_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {k : α}
     {v : β} : get! (t.insert k v h.balanced).impl k = v := by
   simp_to_model [insert, Const.get!] using List.getValue!_insertEntry_self
 
-theorem get!_insert!_self [TransOrd α] [Inhabited β] (h : t.WF) {k : α}
+theorem get!_insert!_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {k : α}
     {v : β} : get! (t.insert! k v) k = v := by
   simpa only [insert_eq_insert!] using get!_insert_self h
 
-theorem get!_eq_default_of_contains_eq_false [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
+theorem get!_eq_default_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {a : α} :
     t.contains a = false → get! t a = default := by
   simp_to_model [contains, Const.get!] using List.getValue!_eq_default
 
-theorem get!_eq_default [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
+theorem get!_eq_default [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {a : α} :
     ¬ a ∈ t → get! t a = default := by
   simpa [mem_iff_contains] using get!_eq_default_of_contains_eq_false h
 
-theorem get!_erase [TransOrd α] [Inhabited β] (h : t.WF) {k a : α} :
+theorem get!_erase [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {k a : α} :
     get! (t.erase k h.balanced).impl a = if compare k a = .eq then default else get! t a := by
   simp_to_model [erase, Const.get!] using List.getValue!_eraseKey
 
-theorem get!_erase! [TransOrd α] [Inhabited β] (h : t.WF) {k a : α} :
+theorem get!_erase! [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {k a : α} :
     get! (t.erase! k) a = if compare k a = .eq then default else get! t a := by
   simpa only [erase_eq_erase!] using get!_erase h
 
-theorem get!_erase_self [TransOrd α] [Inhabited β] (h : t.WF) {k : α} :
+theorem get!_erase_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {k : α} :
     get! (t.erase k h.balanced).impl k = default := by
   simp_to_model [erase, Const.get!] using List.getValue!_eraseKey_self
 
-theorem get!_erase!_self [TransOrd α] [Inhabited β] (h : t.WF) {k : α} :
+theorem get!_erase!_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {k : α} :
     get! (t.erase! k) k = default := by
   simpa only [erase_eq_erase!] using get!_erase_self h
 
-theorem get?_eq_some_get!_of_contains [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
+theorem get?_eq_some_get!_of_contains [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {a : α} :
     t.contains a = true → get? t a = some (get! t a) := by
   simp_to_model [contains, Const.get?, Const.get!] using List.getValue?_eq_some_getValue!
 
-theorem get?_eq_some_get! [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
+theorem get?_eq_some_get! [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {a : α} :
     a ∈ t → get? t a = some (get! t a) := by
   simpa [mem_iff_contains] using get?_eq_some_get!_of_contains h
 
-theorem get!_eq_get!_get? [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
+theorem get!_eq_get!_get? [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {a : α} :
     get! t a = (get? t a).get! := by
   simp_to_model [Const.get!, Const.get?] using List.getValue!_eq_getValue?
 
-theorem get_eq_get! [TransOrd α] [Inhabited β] (h : t.WF) {a : α} {h} :
+theorem get_eq_get! [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {a : α} {h} :
     get t a h = get! t a := by
   simp_to_model [Const.get, Const.get!] using List.getValue_eq_getValue!
 
-theorem get!_eq_get! [TransOrd α] [LawfulEqOrd α] [Inhabited β] (h : t.WF) {a : α} :
+theorem get!_eq_get! [LawfulLinearOrder (.ofOrd α)] [Inhabited β] (h : t.WF) {a : α} :
     get! t a = t.get! a := by
   simp_to_model [Const.get!, get!] using List.getValue!_eq_getValueCast!
 
-theorem get!_congr [TransOrd α] [Inhabited β] (h : t.WF) {a b : α} :
+theorem get!_congr [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {a b : α} :
     (hab : compare a b = .eq) → get! t a = get! t b := by
   simp_to_model [Const.get!] using List.getValue!_congr
 
 end Const
 
-theorem getD_empty [TransOrd α] [LawfulEqOrd α] {a : α} {fallback : β a} :
+theorem getD_empty [LawfulLinearOrder (.ofOrd α)] {a : α} {fallback : β a} :
     (empty : Impl α β).getD a fallback = fallback := by
   simp [getD, empty]
 
-theorem getD_of_isEmpty [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} : t.isEmpty = true → t.getD a fallback = fallback := by
+theorem getD_of_isEmpty [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β a} : t.isEmpty = true → t.getD a fallback = fallback := by
   simp_to_model [getD, isEmpty]; empty
 
-theorem getD_insert [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {fallback : β a} {v : β k} :
+theorem getD_insert [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {fallback : β a} {v : β k} :
     (t.insert k v h.balanced).impl.getD a fallback =
       if h : compare k a = .eq then
         cast (congrArg β (compare_eq_iff_eq.mp h)) v
       else t.getD a fallback := by
   simp_to_model [insert, getD] using List.getValueCastD_insertEntry
 
-theorem getD_insert! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {fallback : β a} {v : β k} :
+theorem getD_insert! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {fallback : β a} {v : β k} :
     (t.insert! k v).getD a fallback =
       if h : compare k a = .eq then
         cast (congrArg β (compare_eq_iff_eq.mp h)) v
       else t.getD a fallback := by
   simpa only [insert_eq_insert!] using getD_insert h
 
-theorem getD_insert_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback b : β a} :
+theorem getD_insert_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} {fallback b : β a} :
     (t.insert a b h.balanced).impl.getD a fallback = b := by
   simp_to_model [insert, getD] using List.getValueCastD_insertEntry_self
 
-theorem getD_insert!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback b : β a} :
+theorem getD_insert!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} {fallback b : β a} :
     (t.insert! a b).getD a fallback = b := by
   simpa only [insert_eq_insert!] using getD_insert_self h
 
-theorem getD_eq_fallback_of_contains_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} :
+theorem getD_eq_fallback_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β a} :
     t.contains a = false → t.getD a fallback = fallback := by
   simp_to_model [contains, getD] using List.getValueCastD_eq_fallback
 
-theorem getD_eq_fallback [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} :
+theorem getD_eq_fallback [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β a} :
     ¬ a ∈ t → t.getD a fallback = fallback := by
   simpa [mem_iff_contains] using getD_eq_fallback_of_contains_eq_false h
 
-theorem getD_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {fallback : β a} :
+theorem getD_erase [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {fallback : β a} :
     (t.erase k h.balanced).impl.getD a fallback = if compare k a = .eq then fallback else t.getD a fallback := by
   simp_to_model [erase, getD] using List.getValueCastD_eraseKey
 
-theorem getD_erase! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {fallback : β a} :
+theorem getD_erase! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {fallback : β a} :
     (t.erase! k).getD a fallback = if compare k a = .eq then fallback else t.getD a fallback := by
   simpa only [erase_eq_erase!] using getD_erase h
 
-theorem getD_erase_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {fallback : β k} :
+theorem getD_erase_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} {fallback : β k} :
     (t.erase k h.balanced).impl.getD k fallback = fallback := by
   simp_to_model [erase, getD] using List.getValueCastD_eraseKey_self
 
-theorem getD_erase!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {fallback : β k} :
+theorem getD_erase!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} {fallback : β k} :
     (t.erase! k).getD k fallback = fallback := by
   simpa only [erase_eq_erase!] using getD_erase_self h
 
-theorem get?_eq_some_getD_of_contains [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} :
+theorem get?_eq_some_getD_of_contains [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β a} :
     t.contains a = true → t.get? a = some (t.getD a fallback) := by
   simp_to_model [contains, get?, getD] using List.getValueCast?_eq_some_getValueCastD
 
-theorem get?_eq_some_getD [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} :
+theorem get?_eq_some_getD [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β a} :
     a ∈ t → t.get? a = some (t.getD a fallback) := by
   simpa [mem_iff_contains] using get?_eq_some_getD_of_contains h
 
-theorem getD_eq_getD_get? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} :
+theorem getD_eq_getD_get? [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β a} :
     t.getD a fallback = (t.get? a).getD fallback := by
   simp_to_model [getD, get?] using List.getValueCastD_eq_getValueCast?
 
-theorem get_eq_getD [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} {h} :
+theorem get_eq_getD [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β a} {h} :
     t.get a h = t.getD a fallback := by
   simp_to_model [get, getD] using List.getValueCast_eq_getValueCastD
 
-theorem get!_eq_getD_default [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] :
+theorem get!_eq_getD_default [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} [Inhabited (β a)] :
     t.get! a = t.getD a default := by
   simp_to_model [get!, getD] using List.getValueCast!_eq_getValueCastD_default
 
@@ -925,85 +929,85 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β} (h : t.WF)
 
-theorem getD_empty [TransOrd α] {a : α} {fallback : β} :
+theorem getD_empty [LawfulLinearPreorder (.ofOrd α)] {a : α} {fallback : β} :
     getD (empty : Impl α β) a fallback = fallback := by
   simp_to_model [Const.getD] using List.getValueD_nil
 
-theorem getD_of_isEmpty [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
+theorem getD_of_isEmpty [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β} :
     t.isEmpty = true → getD t a fallback = fallback := by
   simp_to_model [isEmpty, Const.getD]; empty
 
-theorem getD_insert [TransOrd α] (h : t.WF) {k a : α} {fallback v : β} :
+theorem getD_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {fallback v : β} :
     getD (t.insert k v h.balanced).impl a fallback = if compare k a = .eq then v else getD t a fallback := by
   simp_to_model [insert, Const.getD] using List.getValueD_insertEntry
 
-theorem getD_insert! [TransOrd α] (h : t.WF) {k a : α} {fallback v : β} :
+theorem getD_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {fallback v : β} :
     getD (t.insert! k v) a fallback = if compare k a = .eq then v else getD t a fallback := by
   simpa only [insert_eq_insert!] using getD_insert h
 
-theorem getD_insert_self [TransOrd α] (h : t.WF) {k : α} {fallback v : β} :
+theorem getD_insert_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {fallback v : β} :
     getD (t.insert k v h.balanced).impl k fallback = v := by
   simp_to_model [insert, Const.getD] using List.getValueD_insertEntry_self
 
-theorem getD_insert!_self [TransOrd α] (h : t.WF) {k : α} {fallback v : β} :
+theorem getD_insert!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {fallback v : β} :
     getD (t.insert! k v) k fallback = v := by
   simpa only [insert_eq_insert!] using getD_insert_self h
 
-theorem getD_eq_fallback_of_contains_eq_false [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
+theorem getD_eq_fallback_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β} :
     t.contains a = false → getD t a fallback = fallback := by
   simp_to_model [contains, Const.getD] using List.getValueD_eq_fallback
 
-theorem getD_eq_fallback [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
+theorem getD_eq_fallback [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β} :
     ¬ a ∈ t → getD t a fallback = fallback := by
   simpa [mem_iff_contains] using getD_eq_fallback_of_contains_eq_false h
 
-theorem getD_erase [TransOrd α] (h : t.WF) {k a : α} {fallback : β} :
+theorem getD_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {fallback : β} :
     getD (t.erase k h.balanced).impl a fallback = if compare k a = .eq then
       fallback
     else
       getD t a fallback := by
   simp_to_model [erase, Const.getD] using List.getValueD_eraseKey
 
-theorem getD_erase! [TransOrd α] (h : t.WF) {k a : α} {fallback : β} :
+theorem getD_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {fallback : β} :
     getD (t.erase! k) a fallback = if compare k a = .eq then
       fallback
     else
       getD t a fallback := by
   simpa only [erase_eq_erase!] using getD_erase h
 
-theorem getD_erase_self [TransOrd α] (h : t.WF) {k : α} {fallback : β} :
+theorem getD_erase_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {fallback : β} :
     getD (t.erase k h.balanced).impl k fallback = fallback := by
   simp_to_model [erase, Const.getD] using List.getValueD_eraseKey_self
 
-theorem getD_erase!_self [TransOrd α] (h : t.WF) {k : α} {fallback : β} :
+theorem getD_erase!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {fallback : β} :
     getD (t.erase! k) k fallback = fallback := by
   simpa only [erase_eq_erase!] using getD_erase_self h
 
-theorem get?_eq_some_getD_of_contains [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
+theorem get?_eq_some_getD_of_contains [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β} :
     t.contains a = true → get? t a = some (getD t a fallback) := by
   simp_to_model [contains, Const.get?, Const.getD] using List.getValue?_eq_some_getValueD
 
-theorem get?_eq_some_getD [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
+theorem get?_eq_some_getD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β} :
     a ∈ t → get? t a = some (getD t a fallback) := by
   simpa [mem_iff_contains] using get?_eq_some_getD_of_contains h
 
-theorem getD_eq_getD_get? [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
+theorem getD_eq_getD_get? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β} :
     getD t a fallback = (get? t a).getD fallback := by
   simp_to_model [Const.getD, Const.get?] using List.getValueD_eq_getValue?
 
-theorem get_eq_getD [TransOrd α] (h : t.WF) {a : α} {fallback : β} {h} :
+theorem get_eq_getD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β} {h} :
     get t a h = getD t a fallback := by
   simp_to_model [Const.get, Const.getD] using List.getValue_eq_getValueD
 
-theorem get!_eq_getD_default [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
+theorem get!_eq_getD_default [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {a : α} :
     get! t a = getD t a default := by
   simp_to_model [Const.get!, Const.getD] using List.getValue!_eq_getValueD_default
 
-theorem getD_eq_getD [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β} :
+theorem getD_eq_getD [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {a : α} {fallback : β} :
     getD t a fallback = t.getD a fallback := by
   simp_to_model [Const.getD, getD] using List.getValueD_eq_getValueCastD
 
-theorem getD_congr [TransOrd α] (h : t.WF) {a b : α} {fallback : β} :
+theorem getD_congr [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a b : α} {fallback : β} :
     (hab : compare a b = .eq) → getD t a fallback = getD t b fallback := by
   simp_to_model [Const.getD] using List.getValueD_congr
 
@@ -1012,76 +1016,76 @@ end Const
 theorem getKey?_empty {a : α} : (empty : Impl α β).getKey? a = none := by
   rfl
 
-theorem getKey?_of_isEmpty [TransOrd α] (h : t.WF) {a : α} :
+theorem getKey?_of_isEmpty [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} :
     t.isEmpty = true → t.getKey? a = none := by
   simp_to_model [getKey?, isEmpty]; empty
 
-theorem getKey?_insert [TransOrd α] (h : t.WF) {a k : α} {v : β k} :
+theorem getKey?_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a k : α} {v : β k} :
     (t.insert k v h.balanced).impl.getKey? a = if compare k a = .eq then some k else t.getKey? a := by
   simp_to_model [insert, getKey?] using List.getKey?_insertEntry
 
-theorem getKey?_insert! [TransOrd α] (h : t.WF) {a k : α} {v : β k} :
+theorem getKey?_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a k : α} {v : β k} :
     (t.insert! k v).getKey? a = if compare k a = .eq then some k else t.getKey? a := by
   simpa only [insert_eq_insert!] using getKey?_insert h
 
-theorem getKey?_insert_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem getKey?_insert_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v h.balanced).impl.getKey? k = some k := by
   simp_to_model [insert, getKey?] using List.getKey?_insertEntry_self
 
-theorem getKey?_insert!_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem getKey?_insert!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert! k v).getKey? k = some k := by
   simpa only [insert_eq_insert!] using getKey?_insert_self h
 
-theorem contains_eq_isSome_getKey? [TransOrd α] (h : t.WF) {a : α} :
+theorem contains_eq_isSome_getKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} :
     t.contains a = (t.getKey? a).isSome := by
   simp_to_model [contains, getKey?] using List.containsKey_eq_isSome_getKey?
 
-theorem mem_iff_isSome_getKey? [TransOrd α] (h : t.WF) {a : α} :
+theorem mem_iff_isSome_getKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} :
     a ∈ t ↔ (t.getKey? a).isSome := by
   simpa [mem_iff_contains] using contains_eq_isSome_getKey? h
 
-theorem getKey?_eq_none_of_contains_eq_false [TransOrd α] (h : t.WF) {a : α} :
+theorem getKey?_eq_none_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} :
     t.contains a = false → t.getKey? a = none := by
   simp_to_model [contains, getKey?] using List.getKey?_eq_none
 
-theorem getKey?_eq_none [TransOrd α] (h : t.WF) {a : α} :
+theorem getKey?_eq_none [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} :
     ¬ a ∈ t → t.getKey? a = none := by
   simpa [mem_iff_contains] using getKey?_eq_none_of_contains_eq_false h
 
-theorem getKey?_erase [TransOrd α] (h : t.WF) {k a : α} :
+theorem getKey?_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} :
     (t.erase k h.balanced).impl.getKey? a = if compare k a = .eq then none else t.getKey? a := by
   simp_to_model [erase, getKey?] using List.getKey?_eraseKey
 
-theorem getKey?_erase! [TransOrd α] (h : t.WF) {k a : α} :
+theorem getKey?_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} :
     (t.erase! k).getKey? a = if compare k a = .eq then none else t.getKey? a := by
   simpa only [erase_eq_erase!] using getKey?_erase h
 
-theorem getKey?_erase_self [TransOrd α] (h : t.WF) {k : α} :
+theorem getKey?_erase_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     (t.erase k h.balanced).impl.getKey? k = none := by
   simp_to_model [erase, getKey?] using List.getKey?_eraseKey_self
 
-theorem getKey?_erase!_self [TransOrd α] (h : t.WF) {k : α} :
+theorem getKey?_erase!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     (t.erase! k).getKey? k = none := by
   simpa only [erase_eq_erase!] using getKey?_erase_self h
 
-theorem compare_getKey?_self [TransOrd α] (h : t.WF) {k : α} :
+theorem compare_getKey?_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} :
     (t.getKey? k).all (compare · k = .eq) := by
   simp only [compare_eq_iff_beq, Bool.decide_eq_true]
   simp_to_model using List.getKey?_beq
 
-theorem getKey?_congr [TransOrd α] (h : t.WF) {k k' : α} (h' : compare k k' = .eq) :
+theorem getKey?_congr [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} (h' : compare k k' = .eq) :
     t.getKey? k = t.getKey? k' := by
   simp_to_model using List.getKey?_congr <| compare_eq_iff_beq.mp h'
 
-theorem getKey?_eq_some_of_contains [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+theorem getKey?_eq_some_of_contains [LawfulLinearOrder (.ofOrd α)] (h : t.WF)
     {k : α} : (h' : t.contains k) → t.getKey? k = some k := by
   simp_to_model using List.getKey?_eq_some
 
-theorem getKey?_eq_some [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem getKey?_eq_some [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     (h' : k ∈ t) : t.getKey? k = some k :=
   getKey?_eq_some_of_contains h h'
 
-theorem getKey_insert [TransOrd α] (h : t.WF) {k a : α} {v : β k} {h₁} :
+theorem getKey_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insert k v h.balanced).impl.getKey a h₁ =
       if h₂ : compare k a = .eq then
         k
@@ -1089,7 +1093,7 @@ theorem getKey_insert [TransOrd α] (h : t.WF) {k a : α} {v : β k} {h₁} :
         t.getKey a (contains_of_contains_insert h h₁ h₂) := by
   simp_to_model [insert, getKey] using List.getKey_insertEntry
 
-theorem getKey_insert! [TransOrd α] (h : t.WF) {k a : α} {v : β k} {h₁} :
+theorem getKey_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insert! k v).getKey a h₁ =
       if h₂ : compare k a = .eq then
         k
@@ -1097,37 +1101,37 @@ theorem getKey_insert! [TransOrd α] (h : t.WF) {k a : α} {v : β k} {h₁} :
         t.getKey a (contains_of_contains_insert! h h₁ h₂) := by
   simpa only [insert_eq_insert!] using getKey_insert h (h₁ := by simpa [insert_eq_insert!])
 
-theorem getKey_insert_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem getKey_insert_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v h.balanced).impl.getKey k (contains_insert_self h) = k := by
   simp_to_model [insert, getKey] using List.getKey_insertEntry_self
 
-theorem getKey_insert!_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem getKey_insert!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.insert! k v).getKey k (contains_insert!_self h) = k := by
   simpa only [insert_eq_insert!] using getKey_insert_self h
 
 @[simp]
-theorem getKey_erase [TransOrd α] (h : t.WF) {k a : α} {h'} :
+theorem getKey_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {h'} :
     (t.erase k h.balanced).impl.getKey a h' = t.getKey a (contains_of_contains_erase h h') := by
   simp_to_model [erase, getKey] using List.getKey_eraseKey
 
 @[simp]
-theorem getKey_erase! [TransOrd α] (h : t.WF) {k a : α} {h'} :
+theorem getKey_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {h'} :
     (t.erase! k).getKey a h' = t.getKey a (contains_of_contains_erase! h h') := by
   simpa only [erase_eq_erase!] using getKey_erase h (h' := by simpa [erase_eq_erase!])
 
-theorem getKey?_eq_some_getKey [TransOrd α] (h : t.WF) {a : α} {h'} :
+theorem getKey?_eq_some_getKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a : α} {h'} :
     t.getKey? a = some (t.getKey a h') := by
   simp_to_model [getKey?, getKey] using List.getKey?_eq_some_getKey
 
-theorem compare_getKey_self [TransOrd α] (h : t.WF) {k : α} (h' : k ∈ t) :
+theorem compare_getKey_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} (h' : k ∈ t) :
     compare (t.getKey k h') k = .eq := by
   simp_to_model using List.getKey_beq
 
-theorem getKey_congr [TransOrd α] (h : t.WF) {k₁ k₂ : α} (h' : compare k₁ k₂ = .eq)
+theorem getKey_congr [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k₁ k₂ : α} (h' : compare k₁ k₂ = .eq)
     (h₁ : k₁ ∈ t) : t.getKey k₁ h₁ = t.getKey k₂ ((mem_congr h h').mp h₁) := by
   simp_to_model using List.getKey_congr <| compare_eq_iff_beq.mp h'
 
-theorem getKey_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} :
+theorem getKey_eq [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} :
     (h' : k ∈ t) → t.getKey k h' = k := by
   simp_to_model using List.getKey_eq
 
@@ -1135,77 +1139,77 @@ theorem getKey!_empty {a : α} [Inhabited α] :
     (empty : Impl α β).getKey! a = default := by
   simp only [empty, getKey!]; rfl
 
-theorem getKey!_of_isEmpty [TransOrd α] [Inhabited α] (h : t.WF) {a : α} :
+theorem getKey!_of_isEmpty [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {a : α} :
     t.isEmpty = true → t.getKey! a = default := by
   simp_to_model [isEmpty, getKey!]; empty
 
-theorem getKey!_insert [TransOrd α] [Inhabited α] (h : t.WF) {k a : α}
+theorem getKey!_insert [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k a : α}
     {v : β k} :
     (t.insert k v h.balanced).impl.getKey! a = if compare k a = .eq then k else t.getKey! a := by
   simp_to_model [insert, getKey!] using List.getKey!_insertEntry
 
-theorem getKey!_insert! [TransOrd α] [Inhabited α] (h : t.WF) {k a : α}
+theorem getKey!_insert! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k a : α}
     {v : β k} :
     (t.insert! k v).getKey! a = if compare k a = .eq then k else t.getKey! a := by
   simpa only [insert_eq_insert!] using getKey!_insert h
 
-theorem getKey!_insert_self [TransOrd α] [Inhabited α] (h : t.WF) {a : α}
+theorem getKey!_insert_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {a : α}
     {b : β a} : (t.insert a b h.balanced).impl.getKey! a = a := by
   simp_to_model [insert, getKey!] using List.getKey!_insertEntry_self
 
-theorem getKey!_insert!_self [TransOrd α] [Inhabited α] (h : t.WF) {a : α}
+theorem getKey!_insert!_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {a : α}
     {b : β a} : (t.insert! a b).getKey! a = a := by
   simpa only [insert_eq_insert!] using getKey!_insert_self h
 
-theorem getKey!_eq_default_of_contains_eq_false [TransOrd α] [Inhabited α] (h : t.WF) {a : α} :
+theorem getKey!_eq_default_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {a : α} :
     t.contains a = false → t.getKey! a = default := by
   simp_to_model [contains, getKey!] using List.getKey!_eq_default
 
-theorem getKey!_eq_default [TransOrd α] [Inhabited α] (h : t.WF) {a : α} :
+theorem getKey!_eq_default [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {a : α} :
     ¬ a ∈ t → t.getKey! a = default := by
   simpa [mem_iff_contains] using getKey!_eq_default_of_contains_eq_false h
 
-theorem getKey!_erase [TransOrd α] [Inhabited α] (h : t.WF) {k a : α} :
+theorem getKey!_erase [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k a : α} :
     (t.erase k h.balanced).impl.getKey! a = if compare k a = .eq then default else t.getKey! a := by
   simp_to_model [erase, getKey!] using List.getKey!_eraseKey
 
-theorem getKey!_erase! [TransOrd α] [Inhabited α] (h : t.WF) {k a : α} :
+theorem getKey!_erase! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k a : α} :
     (t.erase! k).getKey! a = if compare k a = .eq then default else t.getKey! a := by
   simpa only [erase_eq_erase!] using getKey!_erase h
 
-theorem getKey!_erase_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α} :
+theorem getKey!_erase_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α} :
     (t.erase k h.balanced).impl.getKey! k = default := by
   simp_to_model [erase, getKey!] using List.getKey!_eraseKey_self
 
-theorem getKey!_erase!_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α} :
+theorem getKey!_erase!_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α} :
     (t.erase! k).getKey! k = default := by
   simpa only [erase_eq_erase!] using getKey!_erase_self h
 
-theorem getKey?_eq_some_getKey!_of_contains [TransOrd α] [Inhabited α] (h : t.WF) {a : α} :
+theorem getKey?_eq_some_getKey!_of_contains [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {a : α} :
     t.contains a = true → t.getKey? a = some (t.getKey! a) := by
   simp_to_model [contains, getKey?, getKey!] using List.getKey?_eq_some_getKey!
 
-theorem getKey?_eq_some_getKey! [TransOrd α] [Inhabited α] (h : t.WF) {a : α} :
+theorem getKey?_eq_some_getKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {a : α} :
     a ∈ t → t.getKey? a = some (t.getKey! a) := by
   simpa [mem_iff_contains] using getKey?_eq_some_getKey!_of_contains h
 
-theorem getKey!_eq_get!_getKey? [TransOrd α] [Inhabited α] (h : t.WF) {a : α} :
+theorem getKey!_eq_get!_getKey? [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {a : α} :
     t.getKey! a = (t.getKey? a).get! := by
   simp_to_model [getKey?, getKey!] using List.getKey!_eq_getKey?
 
-theorem getKey_eq_getKey! [TransOrd α] [Inhabited α] (h : t.WF) {a : α} {h} :
+theorem getKey_eq_getKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {a : α} {h} :
     t.getKey a h = t.getKey! a := by
   simp_to_model [getKey, getKey!] using List.getKey_eq_getKey!
 
-theorem getKey!_congr [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} :
+theorem getKey!_congr [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k k' : α} :
     (h' : compare k k' = .eq) → t.getKey! k = t.getKey! k' := by
   simp_to_model using List.getKey!_congr
 
-theorem getKey!_eq_of_contains [TransOrd α] [LawfulEqOrd α] [Inhabited α]
+theorem getKey!_eq_of_contains [LawfulLinearOrder (.ofOrd α)] [Inhabited α]
     (h : t.WF) {k : α} : (h' : t.contains k) → t.getKey! k = k := by
   simp_to_model using List.getKey!_eq_of_containsKey
 
-theorem getKey!_eq_of_mem [TransOrd α] [LawfulEqOrd α] [Inhabited α]
+theorem getKey!_eq_of_mem [LawfulLinearOrder (.ofOrd α)] [Inhabited α]
     (h : t.WF) {k : α} : (h' : k ∈ t) → t.getKey! k = k := by
   simpa [mem_iff_contains] using getKey!_eq_of_contains h
 
@@ -1213,92 +1217,92 @@ theorem getKeyD_empty {a : α} {fallback : α} :
     (empty : Impl α β).getKeyD a fallback = fallback := by
   simp [getKeyD, empty]
 
-theorem getKeyD_of_isEmpty [TransOrd α] (h : t.WF) {a fallback : α} :
+theorem getKeyD_of_isEmpty [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a fallback : α} :
     t.isEmpty = true → t.getKeyD a fallback = fallback := by
   simp_to_model [isEmpty, getKeyD]; empty
 
-theorem getKeyD_insert [TransOrd α] (h : t.WF) {k a fallback : α} {v : β k} :
+theorem getKeyD_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a fallback : α} {v : β k} :
     (t.insert k v h.balanced).impl.getKeyD a fallback =
       if compare k a = .eq then k else t.getKeyD a fallback := by
   simp_to_model [insert, getKeyD] using List.getKeyD_insertEntry
 
-theorem getKeyD_insert! [TransOrd α] (h : t.WF) {k a fallback : α} {v : β k} :
+theorem getKeyD_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a fallback : α} {v : β k} :
     (t.insert! k v).getKeyD a fallback =
       if compare k a = .eq then k else t.getKeyD a fallback := by
   simpa only [insert_eq_insert!] using getKeyD_insert h
 
-theorem getKeyD_insert_self [TransOrd α] (h : t.WF) {a fallback : α}
+theorem getKeyD_insert_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a fallback : α}
     {b : β a} :
     (t.insert a b h.balanced).impl.getKeyD a fallback = a := by
   simp_to_model [insert, getKeyD] using List.getKeyD_insertEntry_self
 
-theorem getKeyD_insert!_self [TransOrd α] (h : t.WF) {a fallback : α}
+theorem getKeyD_insert!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a fallback : α}
     {b : β a} :
     (t.insert! a b).getKeyD a fallback = a := by
   simpa only [insert_eq_insert!] using getKeyD_insert_self h
 
-theorem getKeyD_eq_fallback_of_contains_eq_false [TransOrd α] (h : t.WF) {a fallback : α} :
+theorem getKeyD_eq_fallback_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a fallback : α} :
     t.contains a = false → t.getKeyD a fallback = fallback := by
   simp_to_model [contains, getKeyD] using List.getKeyD_eq_fallback
 
-theorem getKeyD_eq_fallback [TransOrd α] (h : t.WF) {a fallback : α} :
+theorem getKeyD_eq_fallback [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a fallback : α} :
     ¬ a ∈ t → t.getKeyD a fallback = fallback := by
   simpa [mem_iff_contains] using getKeyD_eq_fallback_of_contains_eq_false h
 
-theorem getKeyD_erase [TransOrd α] (h : t.WF) {k a fallback : α} :
+theorem getKeyD_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a fallback : α} :
     (t.erase k h.balanced).impl.getKeyD a fallback =
       if compare k a = .eq then fallback else t.getKeyD a fallback := by
   simp_to_model [erase, getKeyD] using List.getKeyD_eraseKey
 
-theorem getKeyD_erase! [TransOrd α] (h : t.WF) {k a fallback : α} :
+theorem getKeyD_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a fallback : α} :
     (t.erase! k).getKeyD a fallback =
       if compare k a = .eq then fallback else t.getKeyD a fallback := by
   simpa only [erase_eq_erase!] using getKeyD_erase h
 
-theorem getKeyD_erase_self [TransOrd α] (h : t.WF) {k fallback : α} :
+theorem getKeyD_erase_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k fallback : α} :
     (t.erase k h.balanced).impl.getKeyD k fallback = fallback := by
   simp_to_model [erase, getKeyD] using List.getKeyD_eraseKey_self
 
-theorem getKeyD_erase!_self [TransOrd α] (h : t.WF) {k fallback : α} :
+theorem getKeyD_erase!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k fallback : α} :
     (t.erase! k).getKeyD k fallback = fallback := by
   simpa only [erase_eq_erase!] using getKeyD_erase_self h
 
-theorem getKey?_eq_some_getKeyD_of_contains [TransOrd α] (h : t.WF) {a fallback : α} :
+theorem getKey?_eq_some_getKeyD_of_contains [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a fallback : α} :
     t.contains a = true → t.getKey? a = some (t.getKeyD a fallback) := by
   simp_to_model [contains, getKeyD, getKey?] using List.getKey?_eq_some_getKeyD
 
-theorem getKey?_eq_some_getKeyD [TransOrd α] (h : t.WF) {a fallback : α} :
+theorem getKey?_eq_some_getKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a fallback : α} :
     a ∈ t → t.getKey? a = some (t.getKeyD a fallback) := by
   simpa [mem_iff_contains] using getKey?_eq_some_getKeyD_of_contains h
 
-theorem getKeyD_eq_getD_getKey? [TransOrd α] (h : t.WF) {a fallback : α} :
+theorem getKeyD_eq_getD_getKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a fallback : α} :
     t.getKeyD a fallback = (t.getKey? a).getD fallback := by
   simp_to_model [getKey?, getKeyD] using List.getKeyD_eq_getKey?
 
-theorem getKey_eq_getKeyD [TransOrd α] (h : t.WF) {a fallback : α} {h} :
+theorem getKey_eq_getKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {a fallback : α} {h} :
     t.getKey a h = t.getKeyD a fallback := by
   simp_to_model [getKey, getKeyD] using List.getKey_eq_getKeyD
 
-theorem getKey!_eq_getKeyD_default [TransOrd α] [Inhabited α] (h : t.WF)
+theorem getKey!_eq_getKeyD_default [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF)
     {a : α} :
     t.getKey! a = t.getKeyD a default := by
   simp_to_model [getKey!, getKeyD] using List.getKey!_eq_getKeyD_default
 
-theorem getKeyD_congr [TransOrd α] (h : t.WF) {k k' fallback : α} :
+theorem getKeyD_congr [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' fallback : α} :
     (h' : compare k k' = .eq) → t.getKeyD k fallback = t.getKeyD k' fallback := by
   simp_to_model using List.getKeyD_congr
 
-theorem getKeyD_eq_of_contains [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+theorem getKeyD_eq_of_contains [LawfulLinearOrder (.ofOrd α)] (h : t.WF)
     {k fallback : α} : (h' : t.contains k) → t.getKeyD k fallback = k := by
   simp_to_model using List.getKeyD_eq_of_containsKey
 
-theorem getKeyD_eq_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+theorem getKeyD_eq_of_mem [LawfulLinearOrder (.ofOrd α)] (h : t.WF)
     {k fallback : α} (h' : k ∈ t) : t.getKeyD k fallback = k :=
   getKeyD_eq_of_contains h h'
 
 /-- This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match the
 proof obligation in the statement of `get_insertIfNew`. -/
-theorem mem_of_mem_insertIfNew' [TransOrd α] (h : t.WF) {k a : α}
+theorem mem_of_mem_insertIfNew' [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α}
     {v : β k} :
     a ∈ (t.insertIfNew k v h.balanced).impl →
       ¬ (compare k a = .eq ∧ ¬ k ∈ t) → a ∈ t := by
@@ -1306,12 +1310,12 @@ theorem mem_of_mem_insertIfNew' [TransOrd α] (h : t.WF) {k a : α}
 
 /-- This is a restatement of `mem_of_mem_insertIfNew!` that is written to exactly match the
 proof obligation in the statement of `get_insertIfNew!`. -/
-theorem mem_of_mem_insertIfNew!' [TransOrd α] (h : t.WF) {k a : α}
+theorem mem_of_mem_insertIfNew!' [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α}
     {v : β k} :
     a ∈ (t.insertIfNew! k v) → ¬ (compare k a = .eq ∧ ¬ k ∈ t) → a ∈ t := by
   simpa only [insertIfNew_eq_insertIfNew!] using mem_of_mem_insertIfNew' h
 
-theorem get?_insertIfNew [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem get?_insertIfNew [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.get? a =
       if h : compare k a = .eq ∧ ¬ k ∈ t then
         some (cast (congrArg β (compare_eq_iff_eq.mp h.1)) v)
@@ -1319,7 +1323,7 @@ theorem get?_insertIfNew [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v
         t.get? a := by
   simp_to_model [insertIfNew, get?, contains] using List.getValueCast?_insertEntryIfNew
 
-theorem get?_insertIfNew! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem get?_insertIfNew! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew! k v).get? a =
       if h : compare k a = .eq ∧ ¬ k ∈ t then
         some (cast (congrArg β (compare_eq_iff_eq.mp h.1)) v)
@@ -1327,7 +1331,7 @@ theorem get?_insertIfNew! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {
         t.get? a := by
   simpa only [insertIfNew_eq_insertIfNew!] using get?_insertIfNew h
 
-theorem get_insertIfNew [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v : β k} {h₁} :
+theorem get_insertIfNew [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insertIfNew k v h.balanced).impl.get a h₁ =
       if h₂ : compare k a = .eq ∧ ¬ k ∈ t then
         cast (congrArg β (compare_eq_iff_eq.mp h₂.1)) v
@@ -1335,7 +1339,7 @@ theorem get_insertIfNew [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v 
         t.get a (mem_of_mem_insertIfNew' h h₁ h₂) := by
   simp_to_model [insertIfNew, get, contains] using List.getValueCast_insertEntryIfNew
 
-theorem get_insertIfNew! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v : β k} {h₁} :
+theorem get_insertIfNew! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insertIfNew! k v).get a h₁ =
       if h₂ : compare k a = .eq ∧ ¬ k ∈ t then
         cast (congrArg β (compare_eq_iff_eq.mp h₂.1)) v
@@ -1344,7 +1348,7 @@ theorem get_insertIfNew! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v
   simpa only [insertIfNew_eq_insertIfNew!] using
     get_insertIfNew h (h₁ := by simpa [insertIfNew_eq_insertIfNew!])
 
-theorem get!_insertIfNew [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} [Inhabited (β a)] {v : β k} :
+theorem get!_insertIfNew [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} [Inhabited (β a)] {v : β k} :
     (t.insertIfNew k v h.balanced).impl.get! a =
       if h : compare k a = .eq ∧ ¬ k ∈ t then
         cast (congrArg β (compare_eq_iff_eq.mp h.1)) v
@@ -1352,7 +1356,7 @@ theorem get!_insertIfNew [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} [I
         t.get! a := by
   simp_to_model [insertIfNew, get!, contains] using List.getValueCast!_insertEntryIfNew
 
-theorem get!_insertIfNew! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} [Inhabited (β a)] {v : β k} :
+theorem get!_insertIfNew! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} [Inhabited (β a)] {v : β k} :
     (t.insertIfNew! k v).get! a =
       if h : compare k a = .eq ∧ ¬ k ∈ t then
         cast (congrArg β (compare_eq_iff_eq.mp h.1)) v
@@ -1360,7 +1364,7 @@ theorem get!_insertIfNew! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} [
         t.get! a := by
   simpa only [insertIfNew_eq_insertIfNew!] using get!_insertIfNew h
 
-theorem getD_insertIfNew [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {fallback : β a} {v : β k} :
+theorem getD_insertIfNew [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {fallback : β a} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.getD a fallback =
       if h : compare k a = .eq ∧ ¬ k ∈ t then
         cast (congrArg β (compare_eq_iff_eq.mp h.1)) v
@@ -1368,7 +1372,7 @@ theorem getD_insertIfNew [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {f
         t.getD a fallback := by
   simp_to_model [insertIfNew, getD, contains] using List.getValueCastD_insertEntryIfNew
 
-theorem getD_insertIfNew! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {fallback : β a} {v : β k} :
+theorem getD_insertIfNew! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k a : α} {fallback : β a} {v : β k} :
     (t.insertIfNew! k v).getD a fallback =
       if h : compare k a = .eq ∧ ¬ k ∈ t then
         cast (congrArg β (compare_eq_iff_eq.mp h.1)) v
@@ -1380,7 +1384,7 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-theorem get?_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β} :
+theorem get?_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β} :
     get? (t.insertIfNew k v h.balanced).impl a =
       if compare k a = .eq ∧ ¬ k ∈ t then
         some v
@@ -1388,7 +1392,7 @@ theorem get?_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β} :
         get? t a := by
   simp_to_model [insertIfNew, Const.get?, contains] using List.getValue?_insertEntryIfNew
 
-theorem get?_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β} :
+theorem get?_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β} :
     get? (t.insertIfNew! k v) a =
       if compare k a = .eq ∧ ¬ k ∈ t then
         some v
@@ -1396,7 +1400,7 @@ theorem get?_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β} :
         get? t a := by
   simpa only [insertIfNew_eq_insertIfNew!] using get?_insertIfNew h
 
-theorem get_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β} {h₁} :
+theorem get_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β} {h₁} :
     get (t.insertIfNew k v h.balanced).impl a h₁ =
       if h₂ : compare k a = .eq ∧ ¬ k ∈ t then
         v
@@ -1404,7 +1408,7 @@ theorem get_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β} {h₁} :
         get t a (mem_of_mem_insertIfNew' h h₁ h₂) := by
   simp_to_model [insertIfNew, Const.get, contains] using List.getValue_insertEntryIfNew
 
-theorem get_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β} {h₁} :
+theorem get_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β} {h₁} :
     get (t.insertIfNew! k v) a h₁ =
       if h₂ : compare k a = .eq ∧ ¬ k ∈ t then
         v
@@ -1413,72 +1417,72 @@ theorem get_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β} {h₁} :
   simpa only [insertIfNew_eq_insertIfNew!] using
     get_insertIfNew h (h₁ := by simpa [insertIfNew_eq_insertIfNew!])
 
-theorem get!_insertIfNew [TransOrd α] [Inhabited β] (h : t.WF) {k a : α}
+theorem get!_insertIfNew [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {k a : α}
     {v : β} :
     get! (t.insertIfNew k v h.balanced).impl a =
       if compare k a = .eq ∧ ¬ k ∈ t then v else get! t a := by
   simp_to_model [insertIfNew, Const.get!, contains] using List.getValue!_insertEntryIfNew
 
-theorem get!_insertIfNew! [TransOrd α] [Inhabited β] (h : t.WF) {k a : α}
+theorem get!_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF) {k a : α}
     {v : β} :
     get! (t.insertIfNew! k v) a =
       if compare k a = .eq ∧ ¬ k ∈ t then v else get! t a := by
   simpa only [insertIfNew_eq_insertIfNew!] using get!_insertIfNew h
 
-theorem getD_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {fallback v : β} :
+theorem getD_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {fallback v : β} :
     getD (t.insertIfNew k v h.balanced).impl a fallback =
       if compare k a = .eq ∧ ¬ k ∈ t then v else getD t a fallback := by
   simp_to_model [insertIfNew, Const.getD, contains] using List.getValueD_insertEntryIfNew
 
-theorem getD_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {fallback v : β} :
+theorem getD_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {fallback v : β} :
     getD (t.insertIfNew! k v) a fallback =
       if compare k a = .eq ∧ ¬ k ∈ t then v else getD t a fallback := by
   simpa only [insertIfNew_eq_insertIfNew!] using getD_insertIfNew h
 
 end Const
 
-theorem getKey?_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem getKey?_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.getKey? a =
       if compare k a = .eq ∧ ¬ k ∈ t then some k else t.getKey? a := by
   simp_to_model [insertIfNew, getKey?, contains] using List.getKey?_insertEntryIfNew
 
-theorem getKey?_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+theorem getKey?_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew! k v).getKey? a =
       if compare k a = .eq ∧ ¬ k ∈ t then some k else t.getKey? a := by
   simpa only [insertIfNew_eq_insertIfNew!] using getKey?_insertIfNew h
 
-theorem getKey_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} {h₁} :
+theorem getKey_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insertIfNew k v h.balanced).impl.getKey a h₁ =
       if h₂ : compare k a = .eq ∧ ¬ k ∈ t then k
       else t.getKey a (mem_of_mem_insertIfNew' h h₁ h₂) := by
   simp_to_model [insertIfNew, getKey, contains] using List.getKey_insertEntryIfNew
 
-theorem getKey_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} {h₁} :
+theorem getKey_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insertIfNew! k v).getKey a h₁ =
       if h₂ : compare k a = .eq ∧ ¬ k ∈ t then k
       else t.getKey a (mem_of_mem_insertIfNew!' h h₁ h₂) := by
   simpa only [insertIfNew_eq_insertIfNew!] using
     getKey_insertIfNew h (h₁ := by simpa [insertIfNew_eq_insertIfNew!])
 
-theorem getKey!_insertIfNew [TransOrd α] [Inhabited α] (h : t.WF) {k a : α}
+theorem getKey!_insertIfNew [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k a : α}
     {v : β k} :
     (t.insertIfNew k v h.balanced).impl.getKey! a =
       if compare k a = .eq ∧ ¬ k ∈ t then k else t.getKey! a := by
   simp_to_model [insertIfNew, getKey!, contains] using List.getKey!_insertEntryIfNew
 
-theorem getKey!_insertIfNew! [TransOrd α] [Inhabited α] (h : t.WF) {k a : α}
+theorem getKey!_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k a : α}
     {v : β k} :
     (t.insertIfNew! k v).getKey! a =
       if compare k a = .eq ∧ ¬ k ∈ t then k else t.getKey! a := by
   simpa only [insertIfNew_eq_insertIfNew!] using getKey!_insertIfNew h
 
-theorem getKeyD_insertIfNew [TransOrd α] (h : t.WF) {k a fallback : α}
+theorem getKeyD_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a fallback : α}
     {v : β k} :
     (t.insertIfNew k v h.balanced).impl.getKeyD a fallback =
       if compare k a = .eq ∧ ¬ k ∈ t then k else t.getKeyD a fallback := by
   simp_to_model [insertIfNew, getKeyD, contains] using List.getKeyD_insertEntryIfNew
 
-theorem getKeyD_insertIfNew! [TransOrd α] (h : t.WF) {k a fallback : α}
+theorem getKeyD_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k a fallback : α}
     {v : β k} :
     (t.insertIfNew! k v).getKeyD a fallback =
       if compare k a = .eq ∧ ¬ k ∈ t then k else t.getKeyD a fallback := by
@@ -1488,12 +1492,12 @@ theorem getKeyD_insertIfNew! [TransOrd α] (h : t.WF) {k a fallback : α}
 ### getThenInsertIfNew?
 -/
 
-theorem getThenInsertIfNew?_fst [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem getThenInsertIfNew?_fst [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.getThenInsertIfNew? k v h.balanced).1 = t.get? k := by
   rw [getThenInsertIfNew?.eq_def]
   cases t.get? k <;> rfl
 
-theorem getThenInsertIfNew?_snd [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem getThenInsertIfNew?_snd [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.getThenInsertIfNew? k v h.balanced).2 = (t.insertIfNew k v h.balanced).impl := by
   rw [getThenInsertIfNew?.eq_def]
   cases heq : t.get? k
@@ -1506,12 +1510,12 @@ theorem getThenInsertIfNew?_snd [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : �
 ### getThenInsertIfNew?!
 -/
 
-theorem getThenInsertIfNew?!_fst [TransOrd α] [LawfulEqOrd α] {k : α} {v : β k} :
+theorem getThenInsertIfNew?!_fst [LawfulLinearOrder (.ofOrd α)] {k : α} {v : β k} :
     (t.getThenInsertIfNew?! k v).1 = t.get? k := by
   rw [getThenInsertIfNew?!.eq_def]
   cases t.get? k <;> rfl
 
-theorem getThenInsertIfNew?!_snd [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
+theorem getThenInsertIfNew?!_snd [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} {v : β k} :
     (t.getThenInsertIfNew?! k v).2 = (t.insertIfNew! k v) := by
   rw [getThenInsertIfNew?!.eq_def]
   cases heq : t.get? k
@@ -1528,12 +1532,12 @@ variable {β : Type v} {t : Impl α β}
 ### getThenInsertIfNew?
 -/
 
-theorem getThenInsertIfNew?_fst [TransOrd α] (h : t.WF) {k : α} {v : β} :
+theorem getThenInsertIfNew?_fst [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β} :
     (getThenInsertIfNew? t k v h.balanced).1 = get? t k := by
   rw [getThenInsertIfNew?.eq_def]
   cases get? t k <;> rfl
 
-theorem getThenInsertIfNew?_snd [TransOrd α] (h : t.WF) {k : α} {v : β} :
+theorem getThenInsertIfNew?_snd [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β} :
     (getThenInsertIfNew? t k v h.balanced).2 = (t.insertIfNew k v h.balanced).impl := by
   rw [getThenInsertIfNew?.eq_def]
   cases heq : get? t k
@@ -1546,12 +1550,12 @@ theorem getThenInsertIfNew?_snd [TransOrd α] (h : t.WF) {k : α} {v : β} :
 ### getThenInsertIfNew?!
 -/
 
-theorem getThenInsertIfNew?!_fst [TransOrd α] {k : α} {v : β} :
+theorem getThenInsertIfNew?!_fst [LawfulLinearPreorder (.ofOrd α)] {k : α} {v : β} :
     (getThenInsertIfNew?! t k v).1 = get? t k := by
   rw [getThenInsertIfNew?!.eq_def]
   cases get? t k <;> rfl
 
-theorem getThenInsertIfNew?!_snd [TransOrd α] (h : t.WF) {k : α} {v : β} :
+theorem getThenInsertIfNew?!_snd [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {v : β} :
     (getThenInsertIfNew?! t k v).2 = (t.insertIfNew! k v) := by
   rw [getThenInsertIfNew?!.eq_def]
   cases heq : get? t k
@@ -1562,7 +1566,7 @@ theorem getThenInsertIfNew?!_snd [TransOrd α] (h : t.WF) {k : α} {v : β} :
 
 end Const
 
-theorem length_keys [TransOrd α] (h : t.WF) :
+theorem length_keys [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.keys.length = t.size := by
   simp_to_model [size, keys] using List.length_keys_eq_length
 
@@ -1570,19 +1574,19 @@ theorem isEmpty_keys :
     t.keys.isEmpty = t.isEmpty := by
   simp_to_model [isEmpty, keys] using List.isEmpty_keys_eq_isEmpty
 
-theorem contains_keys [BEq α] [beqOrd : LawfulBEqOrd α] [TransOrd α] {k : α} (h : t.WF) :
+theorem contains_keys [BEq α] [beqOrd : LawfulBEqOrd α] [LawfulLinearPreorder (.ofOrd α)] {k : α} (h : t.WF) :
     t.keys.contains k = t.contains k := by
   simp_to_model [contains, keys] using (List.containsKey_eq_keys_contains).symm
 
-theorem mem_keys [LawfulEqOrd α] [TransOrd α] {k : α} (h : t.WF) :
+theorem mem_keys [LawfulLinearOrder (.ofOrd α)] {k : α} (h : t.WF) :
     k ∈ t.keys ↔ k ∈ t := by
   simpa only [mem_iff_contains, ← List.contains_iff, ← Bool.eq_iff_iff] using contains_keys h
 
-theorem distinct_keys [TransOrd α] (h : t.WF) :
+theorem distinct_keys [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.keys.Pairwise (fun a b => ¬ compare a b = .eq) := by
   simp_to_model [keys] using h.ordered.distinctKeys.distinct
 
-theorem ordered_keys [TransOrd α] (h : t.WF) :
+theorem ordered_keys [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.keys.Pairwise (fun a b => compare a b = .lt) := by
   simp_to_model; simp only [keys_eq_map]
   exact h.ordered.map _ fun _ _ hcmp => hcmp
@@ -1591,7 +1595,7 @@ theorem map_fst_toList_eq_keys :
     t.toList.map Sigma.fst = t.keys := by
   simp_to_model [toList, keys] using (List.keys_eq_map ..).symm
 
-theorem length_toList [TransOrd α] (h : t.WF) :
+theorem length_toList [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.toList.length = t.size := by
   simp_to_model [toList, size]
 
@@ -1599,28 +1603,28 @@ theorem isEmpty_toList :
     t.toList.isEmpty = t.isEmpty := by
   simp_to_model [toList, isEmpty]
 
-theorem mem_toList_iff_get?_eq_some [TransOrd α] [LawfulEqOrd α] {k : α} {v : β k} (h : t.WF) :
+theorem mem_toList_iff_get?_eq_some [LawfulLinearOrder (.ofOrd α)] {k : α} {v : β k} (h : t.WF) :
     ⟨k, v⟩ ∈ t.toList ↔ t.get? k = some v := by
   simp_to_model [toList, get?] using List.mem_iff_getValueCast?_eq_some
 
-theorem find?_toList_eq_some_iff_get?_eq_some [TransOrd α] [LawfulEqOrd α] {k : α} {v : β k}
+theorem find?_toList_eq_some_iff_get?_eq_some [LawfulLinearOrder (.ofOrd α)] {k : α} {v : β k}
     (h : t.WF) :
     t.toList.find? (compare ·.1 k == .eq) = some ⟨k, v⟩ ↔ t.get? k = some v := by
   simp_to_model [toList, get?] using List.find?_eq_some_iff_getValueCast?_eq_some
 
-theorem find?_toList_eq_none_iff_contains_eq_false [TransOrd α] {k : α} (h : t.WF) :
+theorem find?_toList_eq_none_iff_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] {k : α} (h : t.WF) :
     t.toList.find? (compare ·.1 k == .eq) = none ↔ t.contains k = false := by
   simp_to_model [toList, contains] using List.find?_eq_none_iff_containsKey_eq_false
 
-theorem find?_toList_eq_none_iff_not_mem [TransOrd α] {k : α} (h : t.WF) :
+theorem find?_toList_eq_none_iff_not_mem [LawfulLinearPreorder (.ofOrd α)] {k : α} (h : t.WF) :
     t.toList.find? (compare ·.1 k == .eq) = none ↔ ¬ k ∈ t := by
   simpa only [Bool.not_eq_true, mem_iff_contains] using find?_toList_eq_none_iff_contains_eq_false h
 
-theorem distinct_keys_toList [TransOrd α] (h : t.WF) :
+theorem distinct_keys_toList [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.toList.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq) := by
   simp_to_model [toList] using List.pairwise_fst_eq_false
 
-theorem ordered_keys_toList [TransOrd α] (h : t.WF) :
+theorem ordered_keys_toList [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.toList.Pairwise (fun a b => compare a.1 b.1 = .lt) := by
   simp_to_model [toList] using h.ordered
 
@@ -1641,39 +1645,39 @@ theorem isEmpty_toList :
   rw [Bool.eq_iff_iff, List.isEmpty_iff, isEmpty_eq_isEmpty, List.isEmpty_iff]
   simp_to_model [Const.toList, isEmpty] using List.map_eq_nil_iff
 
-theorem mem_toList_iff_get?_eq_some [TransOrd α] [LawfulEqOrd α] {k : α} {v : β} (h : t.WF) :
+theorem mem_toList_iff_get?_eq_some [LawfulLinearOrder (.ofOrd α)] {k : α} {v : β} (h : t.WF) :
     (k, v) ∈ toList t ↔ get? t k = some v := by
   simp_to_model [Const.toList, Const.get?] using List.mem_map_toProd_iff_getValue?_eq_some
 
-theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [TransOrd α] {k : α} {v : β} (h : t.WF) :
+theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [LawfulLinearPreorder (.ofOrd α)] {k : α} {v : β} (h : t.WF) :
     (k, v) ∈ toList t ↔ t.getKey? k = some k ∧ get? t k = some v := by
   simp_to_model [Const.toList, getKey?, Const.get?]
     using List.mem_map_toProd_iff_getKey?_eq_some_and_getValue?_eq_some
 
-theorem get?_eq_some_iff_exists_compare_eq_eq_and_mem_toList [TransOrd α] {k : α} {v : β} (h : t.WF) :
+theorem get?_eq_some_iff_exists_compare_eq_eq_and_mem_toList [LawfulLinearPreorder (.ofOrd α)] {k : α} {v : β} (h : t.WF) :
     get? t k = some v ↔ ∃ (k' : α), compare k k' = .eq ∧ (k', v) ∈ toList t := by
   simp_to_model [Const.toList, Const.get?]
     using List.getValue?_eq_some_iff_exists_beq_and_mem_toList
 
-theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some [TransOrd α] {k k' : α} {v : β}
+theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some [LawfulLinearPreorder (.ofOrd α)] {k k' : α} {v : β}
     (h : t.WF) : (toList t).find? (fun a => compare a.1 k == .eq) = some ⟨k', v⟩ ↔
       t.getKey? k = some k' ∧ get? t k = some v := by
   simp_to_model [Const.toList, getKey?, Const.get?]
     using List.find?_map_toProd_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some
 
-theorem find?_toList_eq_none_iff_contains_eq_false [TransOrd α] {k : α} (h : t.WF) :
+theorem find?_toList_eq_none_iff_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] {k : α} (h : t.WF) :
     (toList t).find? (compare ·.1 k == .eq) = none ↔ t.contains k = false := by
   simp_to_model [Const.toList, contains] using List.find?_map_eq_none_iff_containsKey_eq_false
 
-theorem find?_toList_eq_none_iff_not_mem [TransOrd α] {k : α} (h : t.WF) :
+theorem find?_toList_eq_none_iff_not_mem [LawfulLinearPreorder (.ofOrd α)] {k : α} (h : t.WF) :
     (toList t).find? (compare ·.1 k == .eq) = none ↔ ¬ k ∈ t := by
   simpa only [Bool.not_eq_true, mem_iff_contains] using find?_toList_eq_none_iff_contains_eq_false h
 
-theorem distinct_keys_toList [TransOrd α] (h : t.WF) :
+theorem distinct_keys_toList [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (toList t).Pairwise (fun a b => ¬ compare a.1 b.1 = .eq) := by
   simp_to_model [Const.toList] using List.pairwise_fst_eq_false_map_toProd
 
-theorem ordered_keys_toList [TransOrd α] (h : t.WF) :
+theorem ordered_keys_toList [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (toList t).Pairwise (fun a b => compare a.1 b.1 = .lt) := by
   simp_to_model
   exact h.ordered.map _ fun _ _ hcmp => hcmp
@@ -1781,63 +1785,63 @@ theorem insertMany!_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
   simp only [insertMany!_eq_foldl, List.foldl]
 
 @[simp]
-theorem contains_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem contains_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α} :
     (t.insertMany l h.balanced).1.contains k = (t.contains k || (l.map Sigma.fst).contains k) := by
   simp_to_model [insertMany, contains] using List.containsKey_insertList
 
 @[simp]
-theorem mem_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem mem_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α} :
     k ∈ (t.insertMany l h.balanced).1 ↔ k ∈ t ∨ (l.map Sigma.fst).contains k := by
   simp [mem_iff_contains, contains_insertMany_list h]
 
 @[simp]
-theorem contains_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem contains_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α} :
     (t.insertMany! l).1.contains k = (t.contains k || (l.map Sigma.fst).contains k) := by
   simpa only [insertMany_eq_insertMany!] using contains_insertMany_list h
 
 @[simp]
-theorem mem_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem mem_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α} :
     k ∈ (t.insertMany! l).1 ↔ k ∈ t ∨ (l.map Sigma.fst).contains k := by
   simpa only [insertMany_eq_insertMany!] using mem_insertMany_list h
 
-theorem contains_of_contains_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem contains_of_contains_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α} :
     (t.insertMany l h.balanced).1.contains k →
       (l.map Sigma.fst).contains k = false → t.contains k := by
   simp_to_model [insertMany, contains] using List.containsKey_of_containsKey_insertList
 
-theorem mem_of_mem_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem mem_of_mem_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α} :
     k ∈ (t.insertMany l h.balanced).1 → (l.map Sigma.fst).contains k = false → k ∈ t := by
   simpa [mem_iff_contains] using contains_of_contains_insertMany_list h
 
-theorem contains_of_contains_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem contains_of_contains_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α} :
     (t.insertMany! l).1.contains k → (l.map Sigma.fst).contains k = false → t.contains k := by
   simpa only [insertMany_eq_insertMany!] using contains_of_contains_insertMany_list h
 
-theorem mem_of_mem_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem mem_of_mem_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α} :
     k ∈ (t.insertMany! l).1 → (l.map Sigma.fst).contains k = false → k ∈ t := by
   simpa only [insertMany_eq_insertMany!] using mem_of_mem_insertMany_list h
 
-theorem get?_insertMany_list_of_contains_eq_false [TransOrd α] [LawfulEqOrd α] [BEq α]
-    [LawfulBEqOrd α] (h : t.WF) {l : List ((a : α) × β a)} {k : α}
+theorem get?_insertMany_list_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF) {l : List ((a : α) × β a)} {k : α}
     (h' : (l.map Sigma.fst).contains k = false) :
     (t.insertMany l h.balanced).1.get? k = t.get? k := by
   simp_to_model [insertMany, get?] using List.getValueCast?_insertList_of_contains_eq_false
 
-theorem get?_insertMany!_list_of_contains_eq_false [TransOrd α] [LawfulEqOrd α] [BEq α]
-    [LawfulBEqOrd α] (h : t.WF) {l : List ((a : α) × β a)} {k : α}
+theorem get?_insertMany!_list_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF) {l : List ((a : α) × β a)} {k : α}
     (h' : (l.map Sigma.fst).contains k = false) :
     (t.insertMany! l).1.get? k = t.get? k := by
   simpa only [insertMany_eq_insertMany!] using get?_insertMany_list_of_contains_eq_false h h'
 
-theorem get?_insertMany_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+theorem get?_insertMany_list_of_mem [LawfulLinearOrder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β k} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
     (mem : ⟨k, v⟩ ∈ l) →
@@ -1845,15 +1849,15 @@ theorem get?_insertMany_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
       some (cast (by congr; apply compare_eq_iff_eq.mp k_beq) v) := by
   simp_to_model [insertMany, get?] using List.getValueCast?_insertList_of_mem
 
-theorem get?_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+theorem get?_insertMany!_list_of_mem [LawfulLinearOrder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β k} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
     (mem : ⟨k, v⟩ ∈ l) →
     (t.insertMany! l).1.get? k' = some (cast (by congr; apply compare_eq_iff_eq.mp k_beq) v) := by
   simpa only [insertMany_eq_insertMany!] using get?_insertMany_list_of_mem h
 
-theorem get_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    [LawfulEqOrd α] (h : t.WF)
+theorem get_insertMany_list_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α}
     (contains : (l.map Sigma.fst).contains k = false)
     {h'} :
@@ -1861,8 +1865,8 @@ theorem get_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulB
     t.get k (contains_of_contains_insertMany_list h h' contains) := by
   simp_to_model [insertMany, get] using List.getValueCast_insertList_of_contains_eq_false
 
-theorem get_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    [LawfulEqOrd α] (h : t.WF)
+theorem get_insertMany!_list_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α}
     (contains : (l.map Sigma.fst).contains k = false)
     {h'} :
@@ -1871,7 +1875,7 @@ theorem get_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [Lawful
   simpa only [insertMany_eq_insertMany!] using
     get_insertMany_list_of_contains_eq_false h contains (h' := by simpa [insertMany_eq_insertMany!])
 
-theorem get_insertMany_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+theorem get_insertMany_list_of_mem [LawfulLinearOrder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β k} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
     (mem : ⟨k, v⟩ ∈ l) →
@@ -1880,7 +1884,7 @@ theorem get_insertMany_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
       cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
   simp_to_model [insertMany, get, contains] using List.getValueCast_insertList_of_mem
 
-theorem get_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+theorem get_insertMany!_list_of_mem [LawfulLinearOrder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β k} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
     (mem : ⟨k, v⟩ ∈ l) →
@@ -1888,20 +1892,20 @@ theorem get_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
     (t.insertMany! l).1.get k' h' = cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
   simpa only [insertMany_eq_insertMany!] using get_insertMany_list_of_mem h
 
-theorem get!_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    [LawfulEqOrd α] (h : t.WF)
+theorem get!_insertMany_list_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α} [Inhabited (β k)]
     (h' : (l.map Sigma.fst).contains k = false) :
     (t.insertMany l h.balanced).1.get! k = t.get! k := by
   simp_to_model [insertMany, get!] using List.getValueCast!_insertList_of_contains_eq_false
 
-theorem get!_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    [LawfulEqOrd α] (h : t.WF) {l : List ((a : α) × β a)} {k : α} [Inhabited (β k)]
+theorem get!_insertMany!_list_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF) {l : List ((a : α) × β a)} {k : α} [Inhabited (β k)]
     (h' : (l.map Sigma.fst).contains k = false) :
     (t.insertMany! l).1.get! k = t.get! k := by
   simpa only [insertMany_eq_insertMany!] using get!_insertMany_list_of_contains_eq_false h h'
 
-theorem get!_insertMany_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+theorem get!_insertMany_list_of_mem [LawfulLinearOrder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β k} →
     [Inhabited (β k')] →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -1910,7 +1914,7 @@ theorem get!_insertMany_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
       cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
   simp_to_model [insertMany, get!] using List.getValueCast!_insertList_of_mem
 
-theorem get!_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+theorem get!_insertMany!_list_of_mem [LawfulLinearOrder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β k} →
     [Inhabited (β k')] →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -1918,20 +1922,20 @@ theorem get!_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
     (t.insertMany! l).1.get! k' = cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
   simpa only [insertMany_eq_insertMany!] using get!_insertMany_list_of_mem h
 
-theorem getD_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    [LawfulEqOrd α] (h : t.WF) {l : List ((a : α) × β a)} {k : α} {fallback : β k}
+theorem getD_insertMany_list_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF) {l : List ((a : α) × β a)} {k : α} {fallback : β k}
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     (t.insertMany l h.balanced).1.getD k fallback = t.getD k fallback := by
   simp_to_model [insertMany, getD] using List.getValueCastD_insertList_of_contains_eq_false
 
-theorem getD_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    [LawfulEqOrd α] (h : t.WF) {l : List ((a : α) × β a)} {k : α} {fallback : β k}
+theorem getD_insertMany!_list_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF) {l : List ((a : α) × β a)} {k : α} {fallback : β k}
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     (t.insertMany! l).1.getD k fallback = t.getD k fallback := by
   simpa only [insertMany_eq_insertMany!] using
     getD_insertMany_list_of_contains_eq_false h contains_eq_false
 
-theorem getD_insertMany_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+theorem getD_insertMany_list_of_mem [LawfulLinearOrder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β k} →
     {fallback : β k'} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -1940,7 +1944,7 @@ theorem getD_insertMany_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
       cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
   simp_to_model [insertMany, getD] using List.getValueCastD_insertList_of_mem
 
-theorem getD_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+theorem getD_insertMany!_list_of_mem [LawfulLinearOrder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β k} →
     {fallback : β k'} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -1948,19 +1952,19 @@ theorem getD_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
     (t.insertMany! l).1.getD k' fallback = cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
   simpa only [insertMany_eq_insertMany!] using getD_insertMany_list_of_mem h
 
-theorem getKey?_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    (h : t.WF) {l : List ((a : α) × β a)} {k : α}
+theorem getKey?_insertMany_list_of_contains_eq_false [BEq α] [LawfulLinearPreorder (.ofOrd α)]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF) {l : List ((a : α) × β a)} {k : α}
     (h' : (l.map Sigma.fst).contains k = false) :
     (t.insertMany l h.balanced).1.getKey? k = t.getKey? k := by
   simp_to_model [insertMany, getKey?] using List.getKey?_insertList_of_contains_eq_false
 
-theorem getKey?_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey?_insertMany!_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List ((a : α) × β a)} {k : α}
     (h' : (l.map Sigma.fst).contains k = false) :
     (t.insertMany! l).1.getKey? k = t.getKey? k := by
   simpa only [insertMany_eq_insertMany!] using getKey?_insertMany_list_of_contains_eq_false h h'
 
-theorem getKey?_insertMany_list_of_mem [TransOrd α] (h : t.WF)
+theorem getKey?_insertMany_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)}
     {k k' : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -1968,7 +1972,7 @@ theorem getKey?_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     (t.insertMany l h.balanced).1.getKey? k' = some k := by
   simp_to_model [insertMany, getKey?] using List.getKey?_insertList_of_mem
 
-theorem getKey?_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
+theorem getKey?_insertMany!_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)}
     {k k' : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -1976,15 +1980,15 @@ theorem getKey?_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (t.insertMany! l).1.getKey? k' = some k := by
   simpa only [insertMany_eq_insertMany!] using getKey?_insertMany_list_of_mem h
 
-theorem getKey_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
-    {l : List ((a : α) × β a)} {k : α}
+theorem getKey_insertMany_list_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] [BEq α] (h : t.WF)
+    [LawfulPartiallyComparableBEq (.ofOrd α)] {l : List ((a : α) × β a)} {k : α}
     (h₁ : (l.map Sigma.fst).contains k = false)
     {h'} :
     (t.insertMany l h.balanced).1.getKey k h' =
     t.getKey k (contains_of_contains_insertMany_list h h' h₁) := by
   simp_to_model [insertMany, getKey] using List.getKey_insertList_of_contains_eq_false
 
-theorem getKey_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey_insertMany!_list_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)]
     (h : t.WF) {l : List ((a : α) × β a)} {k : α}
     (h₁ : (l.map Sigma.fst).contains k = false)
     {h'} :
@@ -1993,7 +1997,7 @@ theorem getKey_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [Law
   simpa only [insertMany_eq_insertMany!] using
     getKey_insertMany_list_of_contains_eq_false h h₁ (h' := by simpa [insertMany_eq_insertMany!])
 
-theorem getKey_insertMany_list_of_mem [TransOrd α] (h : t.WF)
+theorem getKey_insertMany_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)}
     {k k' : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2002,7 +2006,7 @@ theorem getKey_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     (t.insertMany l h.balanced).1.getKey k' h' = k := by
   simp_to_model [insertMany, getKey, contains] using List.getKey_insertList_of_mem
 
-theorem getKey_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
+theorem getKey_insertMany!_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)}
     {k k' : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2011,19 +2015,21 @@ theorem getKey_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (t.insertMany! l).1.getKey k' h' = k := by
   simpa only [insertMany_eq_insertMany!] using getKey_insertMany_list_of_mem h
 
-theorem getKey!_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey!_insertMany_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)]
     [Inhabited α] (h : t.WF) {l : List ((a : α) × β a)} {k : α}
     (h' : (l.map Sigma.fst).contains k = false) :
     (t.insertMany l h.balanced).1.getKey! k = t.getKey! k := by
+  letI : EquivBEq α := inferInstance
   simp_to_model [insertMany, getKey!] using List.getKey!_insertList_of_contains_eq_false
 
-theorem getKey!_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey!_insertMany!_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     [Inhabited α] (h : t.WF) {l : List ((a : α) × β a)} {k : α}
     (h' : (l.map Sigma.fst).contains k = false) :
     (t.insertMany! l).1.getKey! k = t.getKey! k := by
   simpa only [insertMany_eq_insertMany!] using getKey!_insertMany_list_of_contains_eq_false h h'
 
-theorem getKey!_insertMany_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
+theorem getKey!_insertMany_list_of_mem [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF)
     {l : List ((a : α) × β a)}
     {k k' : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2031,7 +2037,7 @@ theorem getKey!_insertMany_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
     (t.insertMany l h.balanced).1.getKey! k' = k := by
   simp_to_model [insertMany, getKey!] using List.getKey!_insertList_of_mem
 
-theorem getKey!_insertMany!_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
+theorem getKey!_insertMany!_list_of_mem [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF)
     {l : List ((a : α) × β a)}
     {k k' : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2039,19 +2045,19 @@ theorem getKey!_insertMany!_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
     (t.insertMany! l).1.getKey! k' = k := by
   simpa only [insertMany_eq_insertMany!] using getKey!_insertMany_list_of_mem h
 
-theorem getKeyD_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKeyD_insertMany_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     (h : t.WF) {l : List ((a : α) × β a)} {k fallback : α}
     (h' : (l.map Sigma.fst).contains k = false) :
     (t.insertMany l h.balanced).1.getKeyD k fallback = t.getKeyD k fallback := by
   simp_to_model [insertMany, getKeyD] using List.getKeyD_insertList_of_contains_eq_false
 
-theorem getKeyD_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKeyD_insertMany!_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     (h : t.WF) {l : List ((a : α) × β a)} {k fallback : α}
     (h' : (l.map Sigma.fst).contains k = false) :
     (t.insertMany! l).1.getKeyD k fallback = t.getKeyD k fallback := by
   simpa only [insertMany_eq_insertMany!] using getKeyD_insertMany_list_of_contains_eq_false h h'
 
-theorem getKeyD_insertMany_list_of_mem [TransOrd α] (h : t.WF)
+theorem getKeyD_insertMany_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)}
     {k k' fallback : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2059,7 +2065,7 @@ theorem getKeyD_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     (t.insertMany l h.balanced).1.getKeyD k' fallback = k := by
   simp_to_model [insertMany, getKeyD] using List.getKeyD_insertList_of_mem
 
-theorem getKeyD_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
+theorem getKeyD_insertMany!_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)}
     {k k' fallback : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2067,46 +2073,46 @@ theorem getKeyD_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (t.insertMany! l).1.getKeyD k' fallback = k := by
   simpa only [insertMany_eq_insertMany!] using getKeyD_insertMany_list_of_mem h
 
-theorem size_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem size_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} : (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
     (∀ (a : α), t.contains a → (l.map Sigma.fst).contains a = false) →
     (t.insertMany l h.balanced).1.size = t.size + l.length := by
   simp_to_model [insertMany, size, contains] using List.length_insertList
 
-theorem size_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem size_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} : (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
     (∀ (a : α), t.contains a → (l.map Sigma.fst).contains a = false) →
     (t.insertMany! l).1.size = t.size + l.length := by
   simpa only [insertMany_eq_insertMany!] using size_insertMany_list h
 
-theorem size_le_size_insertMany_list [TransOrd α] (h : t.WF)
+theorem size_le_size_insertMany_list [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} :
     t.size ≤ (t.insertMany l h.balanced).1.size := by
   simp_to_model [insertMany, size] using List.length_le_length_insertList
 
-theorem size_le_size_insertMany!_list [TransOrd α] (h : t.WF)
+theorem size_le_size_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} :
     t.size ≤ (t.insertMany! l).1.size := by
   simpa only [insertMany_eq_insertMany!] using size_le_size_insertMany_list h
 
-theorem size_insertMany_list_le [TransOrd α] (h : t.WF)
+theorem size_insertMany_list_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} :
     (t.insertMany l h.balanced).1.size ≤ t.size + l.length := by
   simp_to_model [insertMany, size] using List.length_insertList_le
 
-theorem size_insertMany!_list_le [TransOrd α] (h : t.WF)
+theorem size_insertMany!_list_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} :
     (t.insertMany! l).1.size ≤ t.size + l.length := by
   simpa only [insertMany_eq_insertMany!] using size_insertMany_list_le h
 
 @[simp]
-theorem isEmpty_insertMany_list [TransOrd α] (h : t.WF)
+theorem isEmpty_insertMany_list [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} :
     (t.insertMany l h.balanced).1.isEmpty = (t.isEmpty && l.isEmpty) := by
   simp_to_model [insertMany, isEmpty] using List.isEmpty_insertList
 
 @[simp]
-theorem isEmpty_insertMany!_list [TransOrd α] (h : t.WF)
+theorem isEmpty_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List ((a : α) × β a)} :
     (t.insertMany! l).1.isEmpty = (t.isEmpty && l.isEmpty) := by
   simpa only [insertMany_eq_insertMany!] using isEmpty_insertMany_list h
@@ -2125,64 +2131,64 @@ theorem insertMany!_cons {l : List (α × β)} {k : α} {v : β} :
   simp only [insertMany!_eq_foldl, List.foldl_cons]
 
 @[simp]
-theorem contains_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem contains_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} :
     (Const.insertMany t l h.balanced).1.contains k =
       (t.contains k || (l.map Prod.fst).contains k) := by
   simp_to_model [Const.insertMany, contains] using List.containsKey_insertListConst
 
 @[simp]
-theorem contains_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem contains_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} :
     (Const.insertMany! t l).1.contains k = (t.contains k || (l.map Prod.fst).contains k) := by
   simpa only [insertMany_eq_insertMany!] using contains_insertMany_list h
 
 @[simp]
-theorem mem_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem mem_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} :
     k ∈ (insertMany t l h.balanced).1 ↔ k ∈ t ∨ (l.map Prod.fst).contains k := by
   simp [mem_iff_contains, contains_insertMany_list h]
 
 @[simp]
-theorem mem_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem mem_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} :
     k ∈ (insertMany! t l).1 ↔ k ∈ t ∨ (l.map Prod.fst).contains k := by
   simpa only [insertMany_eq_insertMany!] using mem_insertMany_list h
 
-theorem contains_of_contains_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem contains_of_contains_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} :
     (insertMany t l h.balanced).1.contains k →
       (l.map Prod.fst).contains k = false → t.contains k := by
   simp_to_model [Const.insertMany, contains] using List.containsKey_of_containsKey_insertListConst
 
-theorem mem_of_mem_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem mem_of_mem_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} :
     k ∈ (insertMany t l h.balanced).1 → (l.map Prod.fst).contains k = false → k ∈ t := by
   simpa [mem_iff_contains] using contains_of_contains_insertMany_list h
 
-theorem contains_of_contains_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem contains_of_contains_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List ( α × β )} {k : α} :
     (insertMany! t l).1.contains k → (l.map Prod.fst).contains k = false → t.contains k := by
   simpa only [insertMany_eq_insertMany!] using contains_of_contains_insertMany_list h
 
-theorem mem_of_mem_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem mem_of_mem_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} :
     k ∈ (insertMany! t l).1 → (l.map Prod.fst).contains k = false → k ∈ t := by
   simpa only [insertMany_eq_insertMany!] using mem_of_mem_insertMany_list h
 
-theorem getKey?_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey?_insertMany_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     (h : t.WF) {l : List (α × β)} {k : α}
     (h' : (l.map Prod.fst).contains k = false) :
     (insertMany t l h.balanced).1.getKey? k = t.getKey? k := by
   simp_to_model [Const.insertMany, getKey?] using List.getKey?_insertListConst_of_contains_eq_false
 
-theorem getKey?_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey?_insertMany!_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     (h : t.WF) {l : List (α × β)} {k : α}
     (h' : (l.map Prod.fst).contains k = false) :
     (insertMany! t l).1.getKey? k = t.getKey? k := by
   simpa only [insertMany_eq_insertMany!] using getKey?_insertMany_list_of_contains_eq_false h h'
 
-theorem getKey?_insertMany_list_of_mem [TransOrd α] (h : t.WF)
+theorem getKey?_insertMany_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)}
     {k k' : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2190,7 +2196,7 @@ theorem getKey?_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     (insertMany t l h.balanced).1.getKey? k' = some k := by
   simp_to_model [Const.insertMany, getKey?] using List.getKey?_insertListConst_of_mem
 
-theorem getKey?_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
+theorem getKey?_insertMany!_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)}
     {k k' : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2198,7 +2204,7 @@ theorem getKey?_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (insertMany! t l).1.getKey? k' = some k := by
   simpa only [insertMany_eq_insertMany!] using getKey?_insertMany_list_of_mem h
 
-theorem getKey_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem getKey_insertMany_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α}
     (h₁ : (l.map Prod.fst).contains k = false)
     {h'} :
@@ -2206,7 +2212,7 @@ theorem getKey_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [Lawf
     t.getKey k (contains_of_contains_insertMany_list h h' h₁) := by
   simp_to_model [Const.insertMany, getKey] using List.getKey_insertListConst_of_contains_eq_false
 
-theorem getKey_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey_insertMany!_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     (h : t.WF) {l : List (α × β)} {k : α}
     (h₁ : (l.map Prod.fst).contains k = false)
     {h'} :
@@ -2215,7 +2221,7 @@ theorem getKey_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [Law
   simpa only [insertMany_eq_insertMany!] using
     getKey_insertMany_list_of_contains_eq_false h h₁ (h' := by simpa [insertMany_eq_insertMany!])
 
-theorem getKey_insertMany_list_of_mem [TransOrd α] (h : t.WF)
+theorem getKey_insertMany_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)}
     {k k' : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2224,7 +2230,7 @@ theorem getKey_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     (insertMany t l h.balanced).1.getKey k' h' = k := by
   simp_to_model [Const.insertMany, getKey, contains] using List.getKey_insertListConst_of_mem
 
-theorem getKey_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
+theorem getKey_insertMany!_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)}
     {k k' : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2233,19 +2239,19 @@ theorem getKey_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (insertMany! t l).1.getKey k' h' = k := by
   simpa only [insertMany_eq_insertMany!] using getKey_insertMany_list_of_mem h
 
-theorem getKey!_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey!_insertMany_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     [Inhabited α] (h : t.WF) {l : List (α × β)} {k : α}
     (h' : (l.map Prod.fst).contains k = false) :
     (insertMany t l h.balanced).1.getKey! k = t.getKey! k := by
   simp_to_model [Const.insertMany, getKey!] using List.getKey!_insertListConst_of_contains_eq_false
 
-theorem getKey!_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey!_insertMany!_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     [Inhabited α] (h : t.WF) {l : List (α × β)} {k : α}
     (h' : (l.map Prod.fst).contains k = false) :
     (insertMany! t l).1.getKey! k = t.getKey! k := by
   simpa only [insertMany_eq_insertMany!] using getKey!_insertMany_list_of_contains_eq_false h h'
 
-theorem getKey!_insertMany_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
+theorem getKey!_insertMany_list_of_mem [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF)
     {l : List (α × β)}
     {k k' : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2253,7 +2259,7 @@ theorem getKey!_insertMany_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
     (insertMany t l h.balanced).1.getKey! k' = k := by
   simp_to_model [Const.insertMany, getKey!] using List.getKey!_insertListConst_of_mem
 
-theorem getKey!_insertMany!_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
+theorem getKey!_insertMany!_list_of_mem [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF)
     {l : List (α × β)}
     {k k' : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2261,19 +2267,19 @@ theorem getKey!_insertMany!_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
     (insertMany! t l).1.getKey! k' = k := by
   simpa only [insertMany_eq_insertMany!] using getKey!_insertMany_list_of_mem h
 
-theorem getKeyD_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKeyD_insertMany_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     (h : t.WF) {l : List (α × β)} {k fallback : α}
     (h' : (l.map Prod.fst).contains k = false) :
     (insertMany t l h.balanced).1.getKeyD k fallback = t.getKeyD k fallback := by
   simp_to_model [Const.insertMany, getKeyD] using List.getKeyD_insertListConst_of_contains_eq_false
 
-theorem getKeyD_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKeyD_insertMany!_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     (h : t.WF) {l : List (α × β)} {k fallback : α}
     (h' : (l.map Prod.fst).contains k = false) :
     (insertMany! t l).1.getKeyD k fallback = t.getKeyD k fallback := by
   simpa only [insertMany_eq_insertMany!] using getKeyD_insertMany_list_of_contains_eq_false h h'
 
-theorem getKeyD_insertMany_list_of_mem [TransOrd α] (h : t.WF)
+theorem getKeyD_insertMany_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)}
     {k k' fallback : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2281,7 +2287,7 @@ theorem getKeyD_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     (insertMany t l h.balanced).1.getKeyD k' fallback = k := by
   simp_to_model [Const.insertMany, getKeyD] using List.getKeyD_insertListConst_of_mem
 
-theorem getKeyD_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
+theorem getKeyD_insertMany!_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)}
     {k k' fallback : α} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
@@ -2289,77 +2295,77 @@ theorem getKeyD_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (insertMany! t l).1.getKeyD k' fallback = k := by
   simpa only [insertMany_eq_insertMany!] using getKeyD_insertMany_list_of_mem h
 
-theorem size_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem size_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} :
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
     (∀ (a : α), t.contains a → (l.map Prod.fst).contains a = false) →
     (insertMany t l h.balanced).1.size = t.size + l.length := by
   simp_to_model [Const.insertMany, size, contains] using List.length_insertListConst
 
-theorem size_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem size_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} :
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) →
     (∀ (a : α), t.contains a → (l.map Prod.fst).contains a = false) →
     (insertMany! t l).1.size = t.size + l.length := by
   simpa only [insertMany_eq_insertMany!] using size_insertMany_list h
 
-theorem size_le_size_insertMany_list [TransOrd α] (h : t.WF)
+theorem size_le_size_insertMany_list [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} :
     t.size ≤ (insertMany t l h.balanced).1.size := by
   simp_to_model [Const.insertMany, size] using List.length_le_length_insertListConst
 
-theorem size_le_size_insertMany!_list [TransOrd α] (h : t.WF)
+theorem size_le_size_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} :
     t.size ≤ (insertMany! t l).1.size := by
   simpa only [insertMany_eq_insertMany!] using size_le_size_insertMany_list h
 
-theorem size_insertMany_list_le [TransOrd α] (h : t.WF)
+theorem size_insertMany_list_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} :
     (insertMany t l h.balanced).1.size ≤ t.size + l.length := by
   simp_to_model [Const.insertMany, size] using List.length_insertListConst_le
 
-theorem size_insertMany!_list_le [TransOrd α] (h : t.WF)
+theorem size_insertMany!_list_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} :
     (insertMany! t l).1.size ≤ t.size + l.length := by
   simpa only [insertMany_eq_insertMany!] using size_insertMany_list_le h
 
 @[simp]
-theorem isEmpty_insertMany_list [TransOrd α] (h : t.WF)
+theorem isEmpty_insertMany_list [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} :
     (insertMany t l h.balanced).1.isEmpty = (t.isEmpty && l.isEmpty) := by
   simp_to_model [Const.insertMany, isEmpty] using List.isEmpty_insertListConst
 
 @[simp]
-theorem isEmpty_insertMany!_list [TransOrd α] (h : t.WF)
+theorem isEmpty_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} :
     (insertMany! t l).1.isEmpty = (t.isEmpty && l.isEmpty) := by
   simpa only [insertMany_eq_insertMany!] using isEmpty_insertMany_list h
 
-theorem get?_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem get?_insertMany_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α}
     (h' : (l.map Prod.fst).contains k = false) :
     get? (insertMany t l h.balanced).1 k = get? t k := by
   simp_to_model [Const.insertMany, Const.get?] using List.getValue?_insertListConst_of_contains_eq_false
 
-theorem get?_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem get?_insertMany!_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α}
     (h' : (l.map Prod.fst).contains k = false) :
     get? (insertMany! t l).1 k = get? t k := by
   simpa only [insertMany_eq_insertMany!] using get?_insertMany_list_of_contains_eq_false h h'
 
-theorem get?_insertMany_list_of_mem [TransOrd α] (h : t.WF)
+theorem get?_insertMany_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) →
     get? (insertMany t l h.balanced).1 k' = some v := by
   simp_to_model [Const.insertMany, Const.get?] using List.getValue?_insertListConst_of_mem
 
-theorem get?_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
+theorem get?_insertMany!_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) →
     get? (insertMany! t l).1 k' = some v := by
   simpa only [insertMany_eq_insertMany!] using get?_insertMany_list_of_mem h
 
-theorem get?_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem get?_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} :
     get? (insertMany t l h.balanced).1 k =
       (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none)).or (get? t k) := by
@@ -2372,13 +2378,13 @@ theorem get?_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
     simp
     split <;> simp
 
-theorem get?_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem get?_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} :
     get? (insertMany! t l).1 k =
       (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k =.eq then some b else none)).or (get? t k) := by
   simpa only [insertMany_eq_insertMany!] using get?_insertMany_list h
 
-theorem get_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem get_insertMany_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α}
     (h₁ : (l.map Prod.fst).contains k = false)
     {h'} :
@@ -2386,7 +2392,7 @@ theorem get_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulB
       get t k (contains_of_contains_insertMany_list h h' h₁) := by
   simp_to_model [Const.insertMany, Const.get] using List.getValue_insertListConst_of_contains_eq_false
 
-theorem get_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem get_insertMany!_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α}
     (h₁ : (l.map Prod.fst).contains k = false)
     {h'} :
@@ -2394,27 +2400,27 @@ theorem get_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [Lawful
   simpa only [insertMany_eq_insertMany!] using
     get_insertMany_list_of_contains_eq_false h h₁ (h' := by simpa [insertMany_eq_insertMany!])
 
-theorem get_insertMany_list_of_mem [TransOrd α] (h : t.WF)
+theorem get_insertMany_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) → {h' : _} →
     get (insertMany t l h.balanced).1 k' h' = v := by
   simp_to_model [Const.insertMany, Const.get, contains] using List.getValue_insertListConst_of_mem
 
-theorem get_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
+theorem get_insertMany!_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k k' : α} : (k_beq : compare k k' = .eq) → {v : β} →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) → {h' : _} →
     get (insertMany! t l).1 k' h' = v := by
   simpa only [insertMany_eq_insertMany!] using get_insertMany_list_of_mem h
 
 /-- A variant of `contains_of_contains_insertMany_list` used in `get_insertMany_list`. -/
-theorem contains_of_contains_insertMany_list' [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem contains_of_contains_insertMany_list' [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α}
     (h' : contains k (insertMany t l h.balanced).val = true)
     (w : l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none) = none) :
     contains k t = true :=
   contains_of_contains_insertMany_list h h' (by simpa [compare_eq_iff_beq, BEq.comm] using w)
 
-theorem get_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem get_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} (h') :
     get (insertMany t l h.balanced).1 k h' =
       match w : l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none) with
@@ -2428,7 +2434,7 @@ theorem get_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
   · simp only [p]
     simp [get_eq_get?]
 
-theorem get_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem get_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} {h'} :
     get (insertMany! t l).1 k h' =
       match w : l.findSomeRev? (fun ⟨a, b⟩ => if compare a k =.eq then some b else none) with
@@ -2436,63 +2442,63 @@ theorem get_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
       | none => get t k (contains_of_contains_insertMany_list' h (by simpa [insertMany_eq_insertMany!] using h') w) := by
   simpa only [insertMany_eq_insertMany!] using get_insertMany_list h (by simpa [insertMany_eq_insertMany!] using h')
 
-theorem get!_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem get!_insertMany_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     [Inhabited β] (h : t.WF) {l : List (α × β)} {k : α}
     (h' : (l.map Prod.fst).contains k = false) :
     get! (insertMany t l h.balanced).1 k = get! t k := by
   simp_to_model [Const.insertMany, Const.get!] using List.getValue!_insertListConst_of_contains_eq_false
 
-theorem get!_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem get!_insertMany!_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     [Inhabited β] (h : t.WF) {l : List (α × β)} {k : α}
     (h' : (l.map Prod.fst).contains k = false) :
     get! (insertMany! t l).1 k = get! t k := by
   simpa only [insertMany_eq_insertMany!] using
     get!_insertMany_list_of_contains_eq_false h (h' := by simpa [insertMany_eq_insertMany!] using h')
 
-theorem get!_insertMany_list_of_mem [TransOrd α] [Inhabited β] (h : t.WF)
+theorem get!_insertMany_list_of_mem [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF)
     {l : List (α × β)} {k k' : α} {v : β} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) →
     get! (insertMany t l h.balanced).1 k' = v := by
   simp_to_model [Const.insertMany, Const.get!] using List.getValue!_insertListConst_of_mem
 
-theorem get!_insertMany!_list_of_mem [TransOrd α] [Inhabited β] (h : t.WF)
+theorem get!_insertMany!_list_of_mem [LawfulLinearPreorder (.ofOrd α)] [Inhabited β] (h : t.WF)
     {l : List (α × β)} {k k' : α} {v : β} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) →
     get! (insertMany! t l).1 k' = v := by
   simpa only [insertMany_eq_insertMany!] using get!_insertMany_list_of_mem h
 
-theorem getD_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem getD_insertMany_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} {fallback : β}
     (h' : (l.map Prod.fst).contains k = false) :
     getD (insertMany t l h.balanced).1 k fallback = getD t k fallback := by
   simp_to_model [Const.insertMany, Const.getD] using List.getValueD_insertListConst_of_contains_eq_false
 
-theorem getD_insertMany!_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem getD_insertMany!_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} {fallback : β}
     (h' : (l.map Prod.fst).contains k = false) :
     getD (insertMany! t l).1 k fallback = getD t k fallback := by
   simpa only [insertMany_eq_insertMany!] using getD_insertMany_list_of_contains_eq_false h h'
 
-theorem getD_insertMany_list_of_mem [TransOrd α] (h : t.WF)
+theorem getD_insertMany_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k k' : α} {v fallback : β} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) →
     getD (insertMany t l h.balanced).1 k' fallback = v := by
   simp_to_model [Const.insertMany, Const.getD] using List.getValueD_insertListConst_of_mem
 
-theorem getD_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
+theorem getD_insertMany!_list_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k k' : α} {v fallback : β} : (k_beq : compare k k' = .eq) →
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) → (mem : ⟨k, v⟩ ∈ l) →
     getD (insertMany! t l).1 k' fallback = v := by
   simpa only [insertMany_eq_insertMany!] using getD_insertMany_list_of_mem h
 
-theorem getD_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem getD_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} (fallback : β) :
     getD (insertMany t l h.balanced).1 k fallback =
       (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none)).getD (getD t k fallback) := by
   rw [getD_eq_getD_get? h.constInsertMany, get?_insertMany_list h]
   simp [getD_eq_getD_get? h]
 
-theorem getD_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem getD_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List (α × β)} {k : α} (fallback : β) :
     getD (insertMany! t l).1 k fallback =
       (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none)).getD (getD t k fallback) := by
@@ -2501,14 +2507,14 @@ theorem getD_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF
 -- Ideally the results about `getD` would come before those about `get!`, so we could conveniently use them;
 -- for now, these results have been slightly delayed:
 
-theorem get!_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited β] (h : t.WF)
+theorem get!_insertMany_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] [Inhabited β] (h : t.WF)
     {l : List (α × β)} {k : α} :
     get! (insertMany t l h.balanced).1 k =
       (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k = .eq then some b else none)).getD (get! t k) := by
   rw [get!_eq_getD_default h.constInsertMany, getD_insertMany_list h]
   simp [get!_eq_getD_default h]
 
-theorem get!_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited β] (h : t.WF)
+theorem get!_insertMany!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] [Inhabited β] (h : t.WF)
     {l : List (α × β)} {k : α} :
     get! (insertMany! t l).1 k =
       (l.findSomeRev? (fun ⟨a, b⟩ => if compare a k =.eq then some b else none)).getD (get! t k) := by
@@ -2526,99 +2532,99 @@ theorem insertManyIfNewUnit!_cons {l : List α} {k : α} :
   simp only [insertManyIfNewUnit!_eq_foldl, List.foldl_cons]
 
 @[simp]
-theorem contains_insertManyIfNewUnit_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem contains_insertManyIfNewUnit_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List α} {k : α} :
     (insertManyIfNewUnit t l h.balanced).1.contains k = (t.contains k || l.contains k) := by
   simp_to_model [Const.insertManyIfNewUnit, contains] using List.containsKey_insertListIfNewUnit
 
 @[simp]
-theorem contains_insertManyIfNewUnit!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem contains_insertManyIfNewUnit!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List α} {k : α} :
     (insertManyIfNewUnit! t l).1.contains k = (t.contains k || l.contains k) := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using contains_insertManyIfNewUnit_list h
 
 @[simp]
-theorem mem_insertManyIfNewUnit_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem mem_insertManyIfNewUnit_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List α} {k : α} :
     k ∈ (insertManyIfNewUnit t l h.balanced).1 ↔ k ∈ t ∨ l.contains k := by
   simp [mem_iff_contains, contains_insertManyIfNewUnit_list h]
 
 @[simp]
-theorem mem_insertManyIfNewUnit!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem mem_insertManyIfNewUnit!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List α} {k : α} :
     k ∈ (insertManyIfNewUnit! t l).1 ↔ k ∈ t ∨ l.contains k := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using mem_insertManyIfNewUnit_list h
 
-theorem contains_of_contains_insertManyIfNewUnit_list [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem contains_of_contains_insertManyIfNewUnit_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     (h : t.WF) {l : List α} {k : α} (h₂ : l.contains k = false) :
     (insertManyIfNewUnit t l h.balanced).1.contains k → t.contains k := by
   simp_to_model [Const.insertManyIfNewUnit, contains] using List.containsKey_of_containsKey_insertListIfNewUnit
 
-theorem contains_of_contains_insertManyIfNewUnit!_list [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem contains_of_contains_insertManyIfNewUnit!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     (h : t.WF) {l : List α} {k : α} (h₂ : l.contains k = false) :
     (insertManyIfNewUnit! t l).1.contains k → t.contains k := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using
     contains_of_contains_insertManyIfNewUnit_list h h₂
 
-theorem mem_of_mem_insertManyIfNewUnit_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem mem_of_mem_insertManyIfNewUnit_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
     k ∈ (insertManyIfNewUnit t l h.balanced).1 → k ∈ t := by
   simpa [mem_iff_contains] using contains_of_contains_insertManyIfNewUnit_list h contains_eq_false
 
-theorem mem_of_mem_insertManyIfNewUnit!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem mem_of_mem_insertManyIfNewUnit!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
     k ∈ (insertManyIfNewUnit! t l).1 → k ∈ t := by
   simpa [mem_iff_contains] using contains_of_contains_insertManyIfNewUnit!_list h contains_eq_false
 
-theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false [TransOrd α] [BEq α]
-    [LawfulBEqOrd α] (h : t.WF) {l : List α} {k : α} :
+theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF) {l : List α} {k : α} :
     ¬ k ∈ t → l.contains k = false → getKey? (insertManyIfNewUnit t l h.balanced).1 k = none := by
   simp_to_model [Const.insertManyIfNewUnit, getKey?, contains] using
     List.getKey?_insertListIfNewUnit_of_contains_eq_false_of_contains_eq_false
 
-theorem getKey?_insertManyIfNewUnit!_list_of_not_mem_of_contains_eq_false [TransOrd α] [BEq α]
-    [LawfulBEqOrd α] (h : t.WF) {l : List α} {k : α} :
+theorem getKey?_insertManyIfNewUnit!_list_of_not_mem_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF) {l : List α} {k : α} :
     ¬ k ∈ t → l.contains k = false → getKey? (insertManyIfNewUnit! t l).1 k = none := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false h
 
-theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem [TransOrd α]
+theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α} {k k' : α} : (k_beq : compare k k' = .eq) →
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKey? (insertManyIfNewUnit t l h.balanced).1 k' = some k := by
   simp_to_model [Const.insertManyIfNewUnit, getKey?, contains] using
     List.getKey?_insertListIfNewUnit_of_contains_eq_false_of_mem
 
-theorem getKey?_insertManyIfNewUnit!_list_of_not_mem_of_mem [TransOrd α]
+theorem getKey?_insertManyIfNewUnit!_list_of_not_mem_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α} {k k' : α} : (k_beq : compare k k' = .eq) →
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKey? (insertManyIfNewUnit! t l).1 k' = some k := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem h
 
-theorem getKey?_insertManyIfNewUnit_list_of_mem [TransOrd α]
+theorem getKey?_insertManyIfNewUnit_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α} {k : α} :
     k ∈ t → getKey? (insertManyIfNewUnit t l h.balanced).1 k = getKey? t k := by
   simp_to_model [Const.insertManyIfNewUnit, getKey?, contains] using
     List.getKey?_insertListIfNewUnit_of_contains
 
-theorem getKey?_insertManyIfNewUnit!_list_of_mem [TransOrd α]
+theorem getKey?_insertManyIfNewUnit!_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α} {k : α} :
     k ∈ t → getKey? (insertManyIfNewUnit! t l).1 k = getKey? t k := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using getKey?_insertManyIfNewUnit_list_of_mem h
 
-theorem getKey_insertManyIfNewUnit_list_of_mem [TransOrd α]
+theorem getKey_insertManyIfNewUnit_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α} {k : α} {h'} (contains : k ∈ t) :
     getKey (insertManyIfNewUnit t l h.balanced).1 k h' = getKey t k contains := by
   simp_to_model [Const.insertManyIfNewUnit, getKey] using
     List.getKey_insertListIfNewUnit_of_contains
 
-theorem getKey_insertManyIfNewUnit!_list_of_mem [TransOrd α]
+theorem getKey_insertManyIfNewUnit!_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α} {k : α} {h'} (contains : k ∈ t) :
     getKey (insertManyIfNewUnit! t l).1 k h' = getKey t k contains := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using
     getKey_insertManyIfNewUnit_list_of_mem h contains
       (h' := by simpa [insertManyIfNewUnit_eq_insertManyIfNewUnit!])
 
-theorem getKey_insertManyIfNewUnit_list_of_not_mem_of_mem [TransOrd α]
+theorem getKey_insertManyIfNewUnit_list_of_not_mem_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α}
     {k k' : α} : (k_beq : compare k k' = .eq) → {h' : _} →
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
@@ -2626,149 +2632,149 @@ theorem getKey_insertManyIfNewUnit_list_of_not_mem_of_mem [TransOrd α]
   simp_to_model [Const.insertManyIfNewUnit, getKey, contains] using
     List.getKey_insertListIfNewUnit_of_contains_eq_false_of_mem
 
-theorem getKey_insertManyIfNewUnit!_list_of_not_mem_of_mem [TransOrd α]
+theorem getKey_insertManyIfNewUnit!_list_of_not_mem_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α}
     {k k' : α} : (k_beq : compare k k' = .eq) → {h' : _} →
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKey (insertManyIfNewUnit! t l).1 k' h' = k := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using getKey_insertManyIfNewUnit_list_of_not_mem_of_mem h
 
-theorem getKey_insertManyIfNewUnit_list_mem_of_mem [TransOrd α]
+theorem getKey_insertManyIfNewUnit_list_mem_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α} {k : α} (contains : k ∈ t) {h'} :
     getKey (insertManyIfNewUnit t l h.balanced).1 k h' = getKey t k contains := by
   simp_to_model [Const.insertManyIfNewUnit, getKey] using List.getKey_insertListIfNewUnit_of_contains
 
-theorem getKey_insertManyIfNewUnit!_list_mem_of_mem [TransOrd α]
+theorem getKey_insertManyIfNewUnit!_list_mem_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α} {k : α} (contains : k ∈ t) {h'} :
     getKey (insertManyIfNewUnit! t l).1 k h' = getKey t k contains := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using
     getKey_insertManyIfNewUnit_list_mem_of_mem h contains
       (h' := by simpa [insertManyIfNewUnit_eq_insertManyIfNewUnit!])
 
-theorem getKey!_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false [BEq α] [LawfulBEqOrd α]
-    [TransOrd α] [Inhabited α] (h : t.WF) {l : List α} {k : α} :
+theorem getKey!_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
+    [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {l : List α} {k : α} :
     ¬ k ∈ t → l.contains k = false →
       getKey! (insertManyIfNewUnit t l h.balanced).1 k = default := by
   simp_to_model [Const.insertManyIfNewUnit, getKey!, contains] using
     List.getKey!_insertListIfNewUnit_of_contains_eq_false_of_contains_eq_false
 
-theorem getKey!_insertManyIfNewUnit!_list_of_not_mem_of_contains_eq_false [BEq α] [LawfulBEqOrd α]
-    [TransOrd α] [Inhabited α] (h : t.WF) {l : List α} {k : α} :
+theorem getKey!_insertManyIfNewUnit!_list_of_not_mem_of_contains_eq_false [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
+    [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {l : List α} {k : α} :
     ¬ k ∈ t → l.contains k = false →
       getKey! (insertManyIfNewUnit! t l).1 k = default := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using getKey!_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false h
 
-theorem getKey!_insertManyIfNewUnit_list_of_not_mem_of_mem [TransOrd α]
+theorem getKey!_insertManyIfNewUnit_list_of_not_mem_of_mem [LawfulLinearPreorder (.ofOrd α)]
     [Inhabited α] (h : t.WF) {l : List α} {k k' : α} : (k_beq : compare k k' = .eq) →
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKey! (insertManyIfNewUnit t l h.balanced).1 k' = k := by
   simp_to_model [Const.insertManyIfNewUnit, getKey!, contains] using
     List.getKey!_insertListIfNewUnit_of_contains_eq_false_of_mem
 
-theorem getKey!_insertManyIfNewUnit!_list_of_not_mem_of_mem [TransOrd α]
+theorem getKey!_insertManyIfNewUnit!_list_of_not_mem_of_mem [LawfulLinearPreorder (.ofOrd α)]
     [Inhabited α] (h : t.WF) {l : List α} {k k' : α} : (k_beq : compare k k' = .eq) →
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKey! (insertManyIfNewUnit! t l).1 k' = k := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using getKey!_insertManyIfNewUnit_list_of_not_mem_of_mem h
 
-theorem getKey!_insertManyIfNewUnit_list_of_mem [TransOrd α]
+theorem getKey!_insertManyIfNewUnit_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     [Inhabited α] (h : t.WF) {l : List α} {k : α} :
     k ∈ t → getKey! (insertManyIfNewUnit t l h.balanced).1 k = getKey! t k := by
   simp_to_model [Const.insertManyIfNewUnit, getKey!, contains] using
     List.getKey!_insertListIfNewUnit_of_contains
 
-theorem getKey!_insertManyIfNewUnit!_list_of_mem [TransOrd α]
+theorem getKey!_insertManyIfNewUnit!_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     [Inhabited α] (h : t.WF) {l : List α} {k : α} :
     k ∈ t → getKey! (insertManyIfNewUnit! t l).1 k = getKey! t k := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using getKey!_insertManyIfNewUnit_list_of_mem h
 
-theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false [BEq α] [LawfulBEqOrd α]
-    [TransOrd α] (h : t.WF) {l : List α} {k fallback : α} :
+theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
+    [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {l : List α} {k fallback : α} :
     ¬ k ∈ t → l.contains k = false → getKeyD (insertManyIfNewUnit t l h.balanced).1 k fallback = fallback := by
   simp_to_model [Const.insertManyIfNewUnit, getKeyD, contains] using
     List.getKeyD_insertListIfNewUnit_of_contains_eq_false_of_contains_eq_false
 
-theorem getKeyD_insertManyIfNewUnit!_list_of_not_mem_of_contains_eq_false [BEq α] [LawfulBEqOrd α]
-    [TransOrd α] (h : t.WF) {l : List α} {k fallback : α} :
+theorem getKeyD_insertManyIfNewUnit!_list_of_not_mem_of_contains_eq_false [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
+    [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {l : List α} {k fallback : α} :
     ¬ k ∈ t → l.contains k = false → getKeyD (insertManyIfNewUnit! t l).1 k fallback = fallback := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using getKeyD_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false h
 
-theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem [TransOrd α]
+theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α} {k k' fallback : α} : (k_beq : compare k k' = .eq) →
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKeyD (insertManyIfNewUnit t l h.balanced).1 k' fallback = k := by
   simp_to_model [Const.insertManyIfNewUnit, getKeyD, contains] using
     List.getKeyD_insertListIfNewUnit_of_contains_eq_false_of_mem
 
-theorem getKeyD_insertManyIfNewUnit!_list_of_not_mem_of_mem [TransOrd α]
+theorem getKeyD_insertManyIfNewUnit!_list_of_not_mem_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α} {k k' fallback : α} : (k_beq : compare k k' = .eq) →
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKeyD (insertManyIfNewUnit! t l).1 k' fallback = k := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem h
 
-theorem getKeyD_insertManyIfNewUnit_list_of_mem [TransOrd α]
+theorem getKeyD_insertManyIfNewUnit_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α} {k fallback : α} :
     k ∈ t → getKeyD (insertManyIfNewUnit t l h.balanced).1 k fallback = getKeyD t k fallback := by
   simp_to_model [Const.insertManyIfNewUnit, getKeyD, contains] using
     List.getKeyD_insertListIfNewUnit_of_contains
 
-theorem getKeyD_insertManyIfNewUnit!_list_of_mem [TransOrd α]
+theorem getKeyD_insertManyIfNewUnit!_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     (h : t.WF) {l : List α} {k fallback : α} :
     k ∈ t → getKeyD (insertManyIfNewUnit! t l).1 k fallback = getKeyD t k fallback := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using getKeyD_insertManyIfNewUnit_list_of_mem h
 
-theorem size_insertManyIfNewUnit_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem size_insertManyIfNewUnit_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List α} :
     (distinct : l.Pairwise (fun a b => ¬ compare a b = .eq)) →
     (∀ (a : α), a ∈ t → l.contains a = false) →
     (insertManyIfNewUnit t l h.balanced).1.size = t.size + l.length := by
   simp_to_model [Const.insertManyIfNewUnit, size, contains] using List.length_insertListIfNewUnit
 
-theorem size_insertManyIfNewUnit!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem size_insertManyIfNewUnit!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List α} :
     (distinct : l.Pairwise (fun a b => ¬ compare a b = .eq)) →
     (∀ (a : α), a ∈ t → l.contains a = false) →
     (insertManyIfNewUnit! t l).1.size = t.size + l.length := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using size_insertManyIfNewUnit_list h
 
-theorem size_le_size_insertManyIfNewUnit_list [TransOrd α] (h : t.WF)
+theorem size_le_size_insertManyIfNewUnit_list [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List α} :
     t.size ≤ (insertManyIfNewUnit t l h.balanced).1.size := by
   simp_to_model [Const.insertManyIfNewUnit, size] using List.length_le_length_insertListIfNewUnit
 
-theorem size_le_size_insertManyIfNewUnit!_list [TransOrd α] (h : t.WF)
+theorem size_le_size_insertManyIfNewUnit!_list [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List α} :
     t.size ≤ (insertManyIfNewUnit! t l).1.size := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using size_le_size_insertManyIfNewUnit_list h
 
-theorem size_insertManyIfNewUnit_list_le [TransOrd α] (h : t.WF)
+theorem size_insertManyIfNewUnit_list_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List α} :
     (insertManyIfNewUnit t l h.balanced).1.size ≤ t.size + l.length := by
   simp_to_model [Const.insertManyIfNewUnit, size] using List.length_insertListIfNewUnit_le
 
-theorem size_insertManyIfNewUnit!_list_le [TransOrd α] (h : t.WF)
+theorem size_insertManyIfNewUnit!_list_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF)
     {l : List α} :
     (insertManyIfNewUnit! t l).1.size ≤ t.size + l.length := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using size_insertManyIfNewUnit_list_le h
 
 @[simp]
-theorem isEmpty_insertManyIfNewUnit_list [TransOrd α] (h : t.WF) {l : List α} :
+theorem isEmpty_insertManyIfNewUnit_list [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {l : List α} :
     (insertManyIfNewUnit t l h.balanced).1.isEmpty = (t.isEmpty && l.isEmpty) := by
   simp_to_model [Const.insertManyIfNewUnit, isEmpty] using List.isEmpty_insertListIfNewUnit
 
 @[simp]
-theorem isEmpty_insertManyIfNewUnit!_list [TransOrd α] (h : t.WF) {l : List α} :
+theorem isEmpty_insertManyIfNewUnit!_list [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {l : List α} :
     (insertManyIfNewUnit! t l).1.isEmpty = (t.isEmpty && l.isEmpty) := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using isEmpty_insertManyIfNewUnit_list h
 
-theorem get?_insertManyIfNewUnit_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem get?_insertManyIfNewUnit_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List α} {k : α} :
     get? (insertManyIfNewUnit t l h.balanced).1 k =
       if k ∈ t ∨ l.contains k then some () else none := by
   simp_to_model [Const.insertManyIfNewUnit, Const.get?, contains] using
     List.getValue?_insertListIfNewUnit
 
-theorem get?_insertManyIfNewUnit!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
+theorem get?_insertManyIfNewUnit!_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)] (h : t.WF)
     {l : List α} {k : α} :
     get? (insertManyIfNewUnit! t l).1 k = if k ∈ t ∨ l.contains k then some () else none := by
   simpa only [insertManyIfNewUnit_eq_insertManyIfNewUnit!] using get?_insertManyIfNewUnit_list h
@@ -2832,18 +2838,18 @@ theorem insertMany_empty_list_cons_eq_insertMany! {k : α} {v : β k}
       ((empty.insert! k v).insertMany! tl).1 := by
   rw [insertMany_cons WF.empty, insertMany_eq_insertMany!, insert_eq_insert!]
 
-theorem contains_insertMany_empty_list [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem contains_insertMany_empty_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     {l : List ((a : α) × β a)} {k : α} :
     (insertMany empty l WF.empty.balanced).1.contains k = (l.map Sigma.fst).contains k := by
   simp only [contains_insertMany_list WF.empty, contains_empty, Bool.false_or]
 
-theorem get?_insertMany_empty_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    [LawfulEqOrd α] {l : List ((a : α) × β a)} {k : α}
+theorem get?_insertMany_empty_list_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] {l : List ((a : α) × β a)} {k : α}
     (h : (l.map Sigma.fst).contains k = false) :
     (insertMany empty l WF.empty.balanced).1.get? k = none := by
   simp only [get?_insertMany_list_of_contains_eq_false WF.empty h, get?_empty]
 
-theorem get?_insertMany_empty_list_of_mem [TransOrd α] [LawfulEqOrd α]
+theorem get?_insertMany_empty_list_of_mem [LawfulLinearOrder (.ofOrd α)]
     {l : List ((a : α) × β a)} {k k' : α} (k_beq : compare k k' = .eq) {v : β k}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
@@ -2851,7 +2857,7 @@ theorem get?_insertMany_empty_list_of_mem [TransOrd α] [LawfulEqOrd α]
       some (cast (by congr; apply compare_eq_iff_eq.mp k_beq) v) := by
   rw [get?_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem get_insertMany_empty_list_of_mem [TransOrd α] [LawfulEqOrd α]
+theorem get_insertMany_empty_list_of_mem [LawfulLinearOrder (.ofOrd α)]
     {l : List ((a : α) × β a)} {k k' : α} (k_beq : compare k k' = .eq) {v : β k}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l)
@@ -2860,14 +2866,14 @@ theorem get_insertMany_empty_list_of_mem [TransOrd α] [LawfulEqOrd α]
       cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
   rw [get_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem get!_insertMany_empty_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    [LawfulEqOrd α] {l : List ((a : α) × β a)} {k : α} [Inhabited (β k)]
+theorem get!_insertMany_empty_list_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] {l : List ((a : α) × β a)} {k : α} [Inhabited (β k)]
     (h : (l.map Sigma.fst).contains k = false) :
     (insertMany empty l WF.empty.balanced).1.get! k = default := by
   simp only [get!_insertMany_list_of_contains_eq_false WF.empty h]
   apply get!_empty
 
-theorem get!_insertMany_empty_list_of_mem [TransOrd α] [LawfulEqOrd α]
+theorem get!_insertMany_empty_list_of_mem [LawfulLinearOrder (.ofOrd α)]
     {l : List ((a : α) × β a)} {k k' : α} (k_beq : compare k k' = .eq) {v : β k} [Inhabited (β k')]
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
@@ -2875,14 +2881,14 @@ theorem get!_insertMany_empty_list_of_mem [TransOrd α] [LawfulEqOrd α]
       cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
   rw [get!_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem getD_insertMany_empty_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    [LawfulEqOrd α] {l : List ((a : α) × β a)} {k : α} {fallback : β k}
+theorem getD_insertMany_empty_list_of_contains_eq_false [LawfulLinearOrder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] {l : List ((a : α) × β a)} {k : α} {fallback : β k}
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     (insertMany empty l WF.empty.balanced).1.getD k fallback = fallback := by
   rw [getD_insertMany_list_of_contains_eq_false WF.empty contains_eq_false]
   apply getD_empty
 
-theorem getD_insertMany_empty_list_of_mem [TransOrd α] [LawfulEqOrd α]
+theorem getD_insertMany_empty_list_of_mem [LawfulLinearOrder (.ofOrd α)]
     {l : List ((a : α) × β a)} {k k' : α} (k_beq : compare k k' = .eq) {v : β k} {fallback : β k'}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
@@ -2890,14 +2896,14 @@ theorem getD_insertMany_empty_list_of_mem [TransOrd α] [LawfulEqOrd α]
       cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
   rw [getD_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem getKey?_insertMany_empty_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey?_insertMany_empty_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     {l : List ((a : α) × β a)} {k : α}
     (h : (l.map Sigma.fst).contains k = false) :
     (insertMany empty l WF.empty.balanced).1.getKey? k = none := by
   rw [getKey?_insertMany_list_of_contains_eq_false WF.empty h]
   apply getKey?_empty
 
-theorem getKey?_insertMany_empty_list_of_mem [TransOrd α]
+theorem getKey?_insertMany_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     {l : List ((a : α) × β a)}
     {k k' : α} (k_beq : compare k k' = .eq)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
@@ -2905,7 +2911,7 @@ theorem getKey?_insertMany_empty_list_of_mem [TransOrd α]
     (insertMany empty l WF.empty.balanced).1.getKey? k' = some k := by
   rw [getKey?_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem getKey_insertMany_empty_list_of_mem [TransOrd α]
+theorem getKey_insertMany_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     {l : List ((a : α) × β a)}
     {k k' : α} (k_beq : compare k k' = .eq)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
@@ -2914,14 +2920,15 @@ theorem getKey_insertMany_empty_list_of_mem [TransOrd α]
     (insertMany empty l WF.empty.balanced).1.getKey k' h' = k := by
   rw [getKey_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem getKey!_insertMany_empty_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey!_insertMany_empty_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)]
     [Inhabited α] {l : List ((a : α) × β a)} {k : α}
     (h : (l.map Sigma.fst).contains k = false) :
     (insertMany empty l WF.empty.balanced).1.getKey! k = default := by
   rw [getKey!_insertMany_list_of_contains_eq_false WF.empty h]
   apply getKey!_empty
 
-theorem getKey!_insertMany_empty_list_of_mem [TransOrd α] [Inhabited α]
+theorem getKey!_insertMany_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)] [Inhabited α]
     {l : List ((a : α) × β a)}
     {k k' : α} (k_beq : compare k k' = .eq)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
@@ -2929,14 +2936,15 @@ theorem getKey!_insertMany_empty_list_of_mem [TransOrd α] [Inhabited α]
     (insertMany empty l WF.empty.balanced).1.getKey! k' = k := by
   rw [getKey!_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem getKeyD_insertMany_empty_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKeyD_insertMany_empty_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)]
     {l : List ((a : α) × β a)} {k fallback : α}
     (h : (l.map Sigma.fst).contains k = false) :
     (insertMany empty l WF.empty.balanced).1.getKeyD k fallback = fallback := by
   rw [getKeyD_insertMany_list_of_contains_eq_false WF.empty h]
   apply getKeyD_empty
 
-theorem getKeyD_insertMany_empty_list_of_mem [TransOrd α]
+theorem getKeyD_insertMany_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     {l : List ((a : α) × β a)}
     {k k' fallback : α} (k_beq : compare k k' = .eq)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
@@ -2944,20 +2952,20 @@ theorem getKeyD_insertMany_empty_list_of_mem [TransOrd α]
     (insertMany empty l WF.empty.balanced).1.getKeyD k' fallback = k := by
   rw [getKeyD_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem size_insertMany_empty_list [TransOrd α]
+theorem size_insertMany_empty_list [LawfulLinearPreorder (.ofOrd α)]
     {l : List ((a : α) × β a)} (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) :
     (insertMany empty l WF.empty.balanced).1.size = l.length := by
   rw [size_insertMany_list WF.empty distinct]
   · simp only [size_empty, Nat.zero_add]
   · simp only [contains_empty, Bool.false_eq_true, false_implies, implies_true]
 
-theorem size_insertMany_empty_list_le [TransOrd α]
+theorem size_insertMany_empty_list_le [LawfulLinearPreorder (.ofOrd α)]
     {l : List ((a : α) × β a)} :
     (insertMany empty l WF.empty.balanced).1.size ≤ l.length := by
   rw [← Nat.zero_add l.length]
   apply size_insertMany_list_le WF.empty
 
-theorem isEmpty_insertMany_empty_list [TransOrd α]
+theorem isEmpty_insertMany_empty_list [LawfulLinearPreorder (.ofOrd α)]
     {l : List ((a : α) × β a)} :
     (insertMany empty l WF.empty.balanced).1.isEmpty = l.isEmpty := by
   simp [isEmpty_insertMany_list WF.empty, isEmpty_empty]
@@ -2987,26 +2995,26 @@ theorem insertMany_empty_list_cons_eq_insertMany! {k : α} {v : β}
       (insertMany! (empty.insert! k v) tl).1 := by
     rw [insertMany_cons WF.empty, insertMany_eq_insertMany!, insert_eq_insert!]
 
-theorem contains_insertMany_empty_list [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem contains_insertMany_empty_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     {l : List (α × β)} {k : α} :
     (insertMany (empty : Impl α β) l WF.empty.balanced).1.contains k =
       (l.map Prod.fst).contains k := by
   simp [contains_insertMany_list WF.empty, contains_empty]
 
-theorem get?_insertMany_empty_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem get?_insertMany_empty_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     {l : List (α × β)} {k : α} (h : (l.map Prod.fst).contains k = false) :
     get? (insertMany (empty : Impl α β) l WF.empty.balanced).1 k = none := by
   rw [get?_insertMany_list_of_contains_eq_false WF.empty h]
   apply get?_empty
 
-theorem get?_insertMany_empty_list_of_mem [TransOrd α]
+theorem get?_insertMany_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     {l : List (α × β)} {k k' : α} (k_beq : compare k k' = .eq) {v : β}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
     get? (insertMany (empty : Impl α β) l WF.empty.balanced) k' = some v := by
   rw [get?_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem get_insertMany_empty_list_of_mem [TransOrd α]
+theorem get_insertMany_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     {l : List (α × β)} {k k' : α} (k_beq : compare k k' = .eq) {v : β}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l)
@@ -3014,42 +3022,42 @@ theorem get_insertMany_empty_list_of_mem [TransOrd α]
     get (insertMany (empty : Impl α β) l WF.empty.balanced) k' h = v := by
   rw [get_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem get!_insertMany_empty_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem get!_insertMany_empty_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     {l : List (α × β)} {k : α} [Inhabited β]
     (h : (l.map Prod.fst).contains k = false) :
     get! (insertMany (empty : Impl α β) l WF.empty.balanced) k = (default : β) := by
   rw [get!_insertMany_list_of_contains_eq_false WF.empty h]
   apply get!_empty
 
-theorem get!_insertMany_empty_list_of_mem [TransOrd α]
+theorem get!_insertMany_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     {l : List (α × β)} {k k' : α} (k_beq : compare k k' = .eq) {v : β} [Inhabited β]
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
     get! (insertMany (empty : Impl α β) l WF.empty.balanced) k' = v := by
   rw [get!_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem getD_insertMany_empty_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getD_insertMany_empty_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     {l : List (α × β)} {k : α} {fallback : β}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     getD (insertMany (empty : Impl α β) l WF.empty.balanced) k fallback = fallback := by
   rw [getD_insertMany_list_of_contains_eq_false WF.empty contains_eq_false]
   apply getD_empty
 
-theorem getD_insertMany_empty_list_of_mem [TransOrd α]
+theorem getD_insertMany_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     {l : List (α × β)} {k k' : α} (k_beq : compare k k' = .eq) {v : β} {fallback : β}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
     getD (insertMany (empty : Impl α β) l WF.empty.balanced) k' fallback = v := by
   rw [getD_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem getKey?_insertMany_empty_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey?_insertMany_empty_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     {l : List (α × β)} {k : α}
     (h : (l.map Prod.fst).contains k = false) :
     (insertMany (empty : Impl α β) l WF.empty.balanced).1.getKey? k = none := by
   rw [getKey?_insertMany_list_of_contains_eq_false WF.empty h]
   apply getKey?_empty
 
-theorem getKey?_insertMany_empty_list_of_mem [TransOrd α]
+theorem getKey?_insertMany_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     {l : List (α × β)}
     {k k' : α} (k_beq : compare k k' = .eq)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
@@ -3057,7 +3065,7 @@ theorem getKey?_insertMany_empty_list_of_mem [TransOrd α]
     (insertMany (empty : Impl α β) l WF.empty.balanced).1.getKey? k' = some k := by
   rw [getKey?_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem getKey_insertMany_empty_list_of_mem [TransOrd α]
+theorem getKey_insertMany_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     {l : List (α × β)}
     {k k' : α} (k_beq : compare k k' = .eq)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
@@ -3066,14 +3074,14 @@ theorem getKey_insertMany_empty_list_of_mem [TransOrd α]
     (insertMany (empty : Impl α β) l WF.empty.balanced).1.getKey k' h' = k := by
   rw [getKey_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem getKey!_insertMany_empty_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey!_insertMany_empty_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     [Inhabited α] {l : List (α × β)} {k : α}
     (h : (l.map Prod.fst).contains k = false) :
     (insertMany (empty : Impl α β) l WF.empty.balanced).1.getKey! k = default := by
   rw [getKey!_insertMany_list_of_contains_eq_false WF.empty h]
   apply getKey!_empty
 
-theorem getKey!_insertMany_empty_list_of_mem [TransOrd α] [Inhabited α]
+theorem getKey!_insertMany_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)] [Inhabited α]
     {l : List (α × β)}
     {k k' : α} (k_beq : compare k k' = .eq)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
@@ -3081,14 +3089,14 @@ theorem getKey!_insertMany_empty_list_of_mem [TransOrd α] [Inhabited α]
     (insertMany (empty : Impl α β) l WF.empty.balanced).1.getKey! k' = k := by
   rw [getKey!_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem getKeyD_insertMany_empty_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKeyD_insertMany_empty_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     {l : List (α × β)} {k fallback : α}
     (h : (l.map Prod.fst).contains k = false) :
     (insertMany (empty : Impl α β) l WF.empty.balanced).1.getKeyD k fallback = fallback := by
   rw [getKeyD_insertMany_list_of_contains_eq_false WF.empty h]
   apply getKeyD_empty
 
-theorem getKeyD_insertMany_empty_list_of_mem [TransOrd α]
+theorem getKeyD_insertMany_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     {l : List (α × β)}
     {k k' fallback : α} (k_beq : compare k k' = .eq)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
@@ -3096,20 +3104,20 @@ theorem getKeyD_insertMany_empty_list_of_mem [TransOrd α]
     (insertMany (empty : Impl α β) l WF.empty.balanced).1.getKeyD k' fallback = k := by
   rw [getKeyD_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
-theorem size_insertMany_empty_list [TransOrd α]
+theorem size_insertMany_empty_list [LawfulLinearPreorder (.ofOrd α)]
     {l : List (α × β)} (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) :
     (insertMany (empty : Impl α β) l WF.empty.balanced).1.size = l.length := by
   rw [size_insertMany_list WF.empty distinct]
   · simp only [size_empty, Nat.zero_add]
   · simp only [contains_empty, Bool.false_eq_true, false_implies, implies_true]
 
-theorem size_insertMany_empty_list_le [TransOrd α]
+theorem size_insertMany_empty_list_le [LawfulLinearPreorder (.ofOrd α)]
     {l : List (α × β)} :
     (insertMany (empty : Impl α β) l WF.empty.balanced).1.size ≤ l.length := by
   rw [← Nat.zero_add l.length]
   apply (size_insertMany_list_le WF.empty)
 
-theorem isEmpty_insertMany_empty_list [TransOrd α]
+theorem isEmpty_insertMany_empty_list [LawfulLinearPreorder (.ofOrd α)]
     {l : List (α × β)} :
     (insertMany (empty : Impl α β) l WF.empty.balanced).1.isEmpty = l.isEmpty := by
   simp [isEmpty_insertMany_list WF.empty, isEmpty_empty]
@@ -3138,26 +3146,26 @@ theorem insertManyIfNewUnit_empty_list_cons_eq_insertManyIfNewUnit! {hd : α} {t
   rw [insertManyIfNewUnit_empty_list_cons, insertManyIfNewUnit_eq_insertManyIfNewUnit!,
     insertIfNew_eq_insertIfNew!]
 
-theorem contains_insertManyIfNewUnit_empty_list [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem contains_insertManyIfNewUnit_empty_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     {l : List α} {k : α} :
     (insertManyIfNewUnit (empty : Impl α Unit) l WF.empty.balanced).1.contains k =
       l.contains k := by
   simp [contains_insertManyIfNewUnit_list WF.empty, contains_empty]
 
-theorem getKey?_insertManyIfNewUnit_empty_list_of_contains_eq_false [TransOrd α] [BEq α]
-    [LawfulBEqOrd α] {l : List α} {k : α} (h' : l.contains k = false) :
+theorem getKey?_insertManyIfNewUnit_empty_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] {l : List α} {k : α} (h' : l.contains k = false) :
     getKey? (insertManyIfNewUnit (empty : Impl α Unit) l WF.empty.balanced).1 k = none := by
   exact getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false WF.empty
     not_mem_empty h'
 
-theorem getKey?_insertManyIfNewUnit_empty_list_of_mem [TransOrd α]
+theorem getKey?_insertManyIfNewUnit_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     {l : List α} {k k' : α} (k_beq : compare k k' = .eq)
     (distinct : l.Pairwise (fun a b => ¬ compare a b = .eq)) (mem : k ∈ l) :
     getKey? (insertManyIfNewUnit (empty : Impl α Unit) l WF.empty.balanced).1 k' = some k := by
   exact getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem WF.empty k_beq
     not_mem_empty distinct mem
 
-theorem getKey_insertManyIfNewUnit_empty_list_of_mem [TransOrd α]
+theorem getKey_insertManyIfNewUnit_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     {l : List α}
     {k k' : α} (k_beq : compare k k' = .eq)
     (distinct : l.Pairwise (fun a b => ¬ compare a b = .eq))
@@ -3166,14 +3174,14 @@ theorem getKey_insertManyIfNewUnit_empty_list_of_mem [TransOrd α]
   exact getKey_insertManyIfNewUnit_list_of_not_mem_of_mem WF.empty k_beq
     not_mem_empty distinct mem
 
-theorem getKey!_insertManyIfNewUnit_empty_list_of_contains_eq_false [TransOrd α] [BEq α]
-    [LawfulBEqOrd α] [Inhabited α] {l : List α} {k : α}
+theorem getKey!_insertManyIfNewUnit_empty_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] [Inhabited α] {l : List α} {k : α}
     (h' : l.contains k = false) :
     getKey! (insertManyIfNewUnit (empty : Impl α Unit) l WF.empty.balanced).1 k = default := by
   exact getKey!_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false WF.empty
     not_mem_empty h'
 
-theorem getKey!_insertManyIfNewUnit_empty_list_of_mem [TransOrd α]
+theorem getKey!_insertManyIfNewUnit_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     [Inhabited α] {l : List α} {k k' : α} (k_beq : compare k k' = .eq)
     (distinct : l.Pairwise (fun a b => ¬ compare a b = .eq))
     (mem : k ∈ l) :
@@ -3181,15 +3189,15 @@ theorem getKey!_insertManyIfNewUnit_empty_list_of_mem [TransOrd α]
   exact getKey!_insertManyIfNewUnit_list_of_not_mem_of_mem WF.empty k_beq
     not_mem_empty distinct mem
 
-theorem getKeyD_insertManyIfNewUnit_empty_list_of_contains_eq_false [TransOrd α] [BEq α]
-    [LawfulBEqOrd α] {l : List α} {k fallback : α}
+theorem getKeyD_insertManyIfNewUnit_empty_list_of_contains_eq_false [LawfulLinearPreorder (.ofOrd α)] [BEq α]
+    [LawfulPartiallyComparableBEq (.ofOrd α)] {l : List α} {k fallback : α}
     (h' : l.contains k = false) :
     getKeyD (insertManyIfNewUnit (empty : Impl α Unit) l WF.empty.balanced).1 k fallback =
       fallback := by
   exact getKeyD_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     WF.empty not_mem_empty h'
 
-theorem getKeyD_insertManyIfNewUnit_empty_list_of_mem [TransOrd α]
+theorem getKeyD_insertManyIfNewUnit_empty_list_of_mem [LawfulLinearPreorder (.ofOrd α)]
     {l : List α} {k k' fallback : α} (k_beq : compare k k' = .eq)
     (distinct : l.Pairwise (fun a b => ¬ compare a b = .eq))
     (mem : k ∈ l) :
@@ -3197,7 +3205,7 @@ theorem getKeyD_insertManyIfNewUnit_empty_list_of_mem [TransOrd α]
   exact getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem WF.empty k_beq
     not_mem_empty distinct mem
 
-theorem size_insertManyIfNewUnit_empty_list [TransOrd α]
+theorem size_insertManyIfNewUnit_empty_list [LawfulLinearPreorder (.ofOrd α)]
     {l : List α}
     (distinct : l.Pairwise (fun a b => ¬ compare a b = .eq)) :
     (insertManyIfNewUnit (empty : Impl α Unit) l WF.empty.balanced).1.size = l.length := by
@@ -3205,19 +3213,19 @@ theorem size_insertManyIfNewUnit_empty_list [TransOrd α]
   · simp [size_empty]
   · simp [not_mem_empty]
 
-theorem size_insertManyIfNewUnit_empty_list_le [TransOrd α]
+theorem size_insertManyIfNewUnit_empty_list_le [LawfulLinearPreorder (.ofOrd α)]
     {l : List α} :
     (insertManyIfNewUnit (empty : Impl α Unit) l WF.empty.balanced).1.size ≤ l.length := by
   apply Nat.le_trans (size_insertManyIfNewUnit_list_le WF.empty)
   simp [size_empty]
 
-theorem isEmpty_insertManyIfNewUnit_empty_list [TransOrd α]
+theorem isEmpty_insertManyIfNewUnit_empty_list [LawfulLinearPreorder (.ofOrd α)]
     {l : List α} :
     (insertManyIfNewUnit (empty : Impl α Unit) l WF.empty.balanced).1.isEmpty = l.isEmpty := by
   rw [isEmpty_insertManyIfNewUnit_list WF.empty]
   simp [isEmpty_empty]
 
-theorem get?_insertManyIfNewUnit_empty_list [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem get?_insertManyIfNewUnit_empty_list [LawfulLinearPreorder (.ofOrd α)] [BEq α] [LawfulPartiallyComparableBEq (.ofOrd α)]
     {l : List α} {k : α} :
     get? (insertManyIfNewUnit (empty : Impl α Unit) l WF.empty.balanced) k =
       if l.contains k then some () else none := by
@@ -3243,111 +3251,111 @@ end Const
 
 section Alter
 
-theorem isEmpty_alter_eq_isEmpty_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem isEmpty_alter_eq_isEmpty_erase [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.isEmpty =
       ((t.erase k h.balanced).1.isEmpty && (f (t.get? k)).isNone) := by
   simp_to_model [alter, erase, isEmpty, get?] using List.isEmpty_alterKey_eq_isEmpty_eraseKey
 
-theorem isEmpty_alter!_eq_isEmpty_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem isEmpty_alter!_eq_isEmpty_erase [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).isEmpty = ((t.erase! k).isEmpty && (f (t.get? k)).isNone) := by
   simpa only [alter_eq_alter!, erase_eq_erase!] using isEmpty_alter_eq_isEmpty_erase h
 
 @[simp]
-theorem isEmpty_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem isEmpty_alter [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.isEmpty =
       (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (t.get? k)).isNone) := by
   simp_to_model [alter, isEmpty, size, contains, get?] using List.isEmpty_alterKey
 
 @[simp]
-theorem isEmpty_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem isEmpty_alter! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).isEmpty =
       (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (t.get? k)).isNone) := by
   simpa only [alter_eq_alter!] using isEmpty_alter h
 
-theorem contains_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem contains_alter [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.contains k' =
       if compare k k' = .eq then (f (t.get? k)).isSome else t.contains k' := by
   simp_to_model [alter, get?, contains] using List.containsKey_alterKey
 
-theorem contains_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem contains_alter! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).contains k' =
       if compare k k' = .eq then (f (t.get? k)).isSome else t.contains k' := by
   simpa only [alter_eq_alter!] using contains_alter h
 
-theorem mem_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem mem_alter [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} :
     k' ∈ (t.alter k f h.balanced).1 ↔
       if compare k k' = .eq then (f (t.get? k)).isSome = true else k' ∈ t := by
   simp [mem_iff_contains, contains_alter h]
 
-theorem mem_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem mem_alter! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} :
     k' ∈ t.alter! k f ↔
       if compare k k' = .eq then (f (t.get? k)).isSome = true else k' ∈ t := by
   simpa only [alter_eq_alter!] using mem_alter h
 
-theorem mem_alter_of_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k': α}
+theorem mem_alter_of_compare_eq [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k': α}
     {f : Option (β k) → Option (β k)}
     (he : compare k k' = .eq) :
     k' ∈ (t.alter k f h.balanced).1 ↔ (f (t.get? k)).isSome := by
   rw [mem_alter h, if_pos he]
 
-theorem mem_alter!_of_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k': α}
+theorem mem_alter!_of_compare_eq [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k': α}
     {f : Option (β k) → Option (β k)} (he : compare k k' = .eq) :
     k' ∈ t.alter! k f ↔ (f (t.get? k)).isSome := by
   simpa only [alter_eq_alter!] using mem_alter_of_compare_eq h he
 
 @[simp]
-theorem contains_alter_self [TransOrd α] [LawfulEqOrd α] {k : α} (h : t.WF)
+theorem contains_alter_self [LawfulLinearOrder (.ofOrd α)] {k : α} (h : t.WF)
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.contains k = (f (t.get? k)).isSome := by
   simp only [contains_alter h, compare_eq_iff_eq, reduceIte]
 
 @[simp]
-theorem contains_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem contains_alter!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).contains k = (f (t.get? k)).isSome := by
   simpa only [alter_eq_alter!] using contains_alter_self h
 
 @[simp]
-theorem mem_alter_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem mem_alter_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     k ∈ (t.alter k f h.balanced).1 ↔ (f (t.get? k)).isSome := by
   rw [mem_iff_contains, contains_alter_self h]
 
 @[simp]
-theorem mem_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem mem_alter!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     k ∈ t.alter! k f ↔ (f (t.get? k)).isSome := by
   simpa only [alter_eq_alter!] using mem_alter_self h
 
-theorem contains_alter_of_not_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem contains_alter_of_not_compare_eq [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
     (t.alter k f h.balanced).1.contains k' = t.contains k' := by
   simp only [contains_alter h, he, reduceIte]
 
-theorem contains_alter!_of_not_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem contains_alter!_of_not_compare_eq [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
     (t.alter! k f).contains k' = t.contains k' := by
   simpa only [alter_eq_alter!] using contains_alter_of_not_compare_eq h he
 
-theorem mem_alter_of_not_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem mem_alter_of_not_compare_eq [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
     k' ∈ (t.alter k f h.balanced).1 ↔ k' ∈ t := by
   simp only [mem_iff_contains, contains_alter_of_not_compare_eq h he]
 
-theorem mem_alter!_of_not_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem mem_alter!_of_not_compare_eq [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
     k' ∈ t.alter! k f ↔ k' ∈ t := by
   simpa only [alter_eq_alter!] using mem_alter_of_not_compare_eq h he
 
-theorem size_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_alter [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.size =
       if k ∈ t ∧ (f (t.get? k)).isNone then
@@ -3358,7 +3366,7 @@ theorem size_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
         t.size := by
   simp_to_model [alter, get?, size, contains] using List.length_alterKey'
 
-theorem size_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_alter! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).size =
       if k ∈ t ∧ (f (t.get? k)).isNone then
@@ -3369,71 +3377,71 @@ theorem size_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
         t.size := by
   simpa only [alter_eq_alter!] using size_alter h
 
-theorem size_alter_eq_add_one [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_alter_eq_add_one [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} (h₁ : k ∉ t) (h₂ : (f (t.get? k)).isSome) :
     (t.alter k f h.balanced).1.size = t.size + 1 := by
   simp_all [mem_iff_contains, size_alter]
 
-theorem size_alter!_eq_add_one [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_alter!_eq_add_one [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} (h₁ : k ∉ t) (h₂ : (f (t.get? k)).isSome) :
     (t.alter! k f).size = t.size + 1 := by
   simpa only [alter_eq_alter!] using size_alter_eq_add_one h h₁ h₂
 
-theorem size_alter_eq_sub_one [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_alter_eq_sub_one [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} (h₁ : k ∈ t) (h₂ : (f (t.get? k)).isNone) :
     (t.alter k f h.balanced).1.size = t.size - 1 := by
   simp_all [mem_iff_contains, size_alter]
 
-theorem size_alter!_eq_sub_one [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_alter!_eq_sub_one [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} (h₁ : k ∈ t) (h₂ : (f (t.get? k)).isNone) :
     (t.alter! k f).size = t.size - 1 := by
   simpa only [alter_eq_alter!] using size_alter_eq_sub_one h h₁ h₂
 
-theorem size_alter_eq_self_of_not_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_alter_eq_self_of_not_mem [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} (h₁ : ¬ k ∈ t) (h₂ : (f (t.get? k)).isNone) :
     (t.alter k f h.balanced).1.size = t.size := by
   simp_all [mem_iff_contains, size_alter]
 
-theorem size_alter!_eq_self_of_not_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_alter!_eq_self_of_not_mem [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} (h₁ : ¬ k ∈ t) (h₂ : (f (t.get? k)).isNone) :
     (t.alter! k f).size = t.size := by
   simpa only [alter_eq_alter!] using size_alter_eq_self_of_not_mem h h₁ h₂
 
-theorem size_alter_eq_self_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_alter_eq_self_of_mem [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} (h₁ : k ∈ t) (h₂ : (f (t.get? k)).isSome) :
     (t.alter k f h.balanced).1.size = t.size := by
   simp_all [mem_iff_contains, size_alter, Option.isSome_iff_ne_none]
 
-theorem size_alter!_eq_self_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_alter!_eq_self_of_mem [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} (h₁ : k ∈ t) (h₂ : (f (t.get? k)).isSome) :
     (t.alter! k f).size = t.size := by
   simpa only [alter_eq_alter!] using size_alter_eq_self_of_mem h h₁ h₂
 
-theorem size_alter_le_size [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_alter_le_size [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.size ≤ t.size + 1 := by
   simp [size_alter, h]
   split <;> try split
   all_goals omega
 
-theorem size_alter!_le_size [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_alter!_le_size [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).size ≤ t.size + 1 := by
   simpa only [alter_eq_alter!] using size_alter_le_size h
 
-theorem size_le_size_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_le_size_alter [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     t.size - 1 ≤ (t.alter k f h.balanced).1.size := by
   simp [size_alter, h]
   split <;> try split
   all_goals omega
 
-theorem size_le_size_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem size_le_size_alter! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     t.size - 1 ≤ (t.alter! k f).size := by
   simpa only [alter_eq_alter!] using size_le_size_alter h
 
-theorem get?_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem get?_alter [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.get? k' =
       if h : compare k k' = .eq then
@@ -3442,7 +3450,7 @@ theorem get?_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
         t.get? k' := by
   simp_to_model [alter, get?] using List.getValueCast?_alterKey
 
-theorem get?_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem get?_alter! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).get? k' =
       if h : compare k k' = .eq then
@@ -3452,18 +3460,18 @@ theorem get?_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
   simpa only [alter_eq_alter!] using get?_alter h
 
 @[simp]
-theorem get?_alter_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem get?_alter_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.get? k = f (t.get? k) := by
   simp [get?_alter h]
 
 @[simp]
-theorem get?_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem get?_alter!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).get? k = f (t.get? k) := by
   simpa only [alter_eq_alter!] using get?_alter_self h
 
-theorem get_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem get_alter [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} {hc : k' ∈ (t.alter k f h.balanced).1} :
     (t.alter k f h.balanced).1.get k' hc =
       if heq : compare k k' = .eq then
@@ -3474,7 +3482,7 @@ theorem get_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
         t.get k' h' := by
   simp_to_model [alter, get, get?] using List.getValueCast_alterKey
 
-theorem get_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem get_alter! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} {hc : k' ∈ (t.alter! k f)} :
     (t.alter! k f).get k' hc =
       if heq : compare k k' = .eq then
@@ -3486,20 +3494,20 @@ theorem get_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
   simpa only [alter_eq_alter!] using get_alter h (hc := by simpa [alter_eq_alter!])
 
 @[simp]
-theorem get_alter_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem get_alter_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} {hc : k ∈ (t.alter k f h.balanced).1} :
     haveI h' : (f (t.get? k)).isSome := mem_alter_self h |>.mp hc
     (t.alter k f h.balanced).1.get k hc = (f (t.get? k)).get h' := by
   simp_to_model [alter, get, get?] using List.getValueCast_alterKey_self
 
 @[simp]
-theorem get_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem get_alter!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} {hc : k ∈ t.alter! k f} :
     haveI h' : (f (t.get? k)).isSome := mem_alter!_self h |>.mp hc
     (t.alter! k f).get k hc = (f (t.get? k)).get h' := by
   simpa only [alter_eq_alter!] using get_alter_self h (hc := by simpa [alter_eq_alter!])
 
-theorem get!_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} [Inhabited (β k')]
+theorem get!_alter [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α} [Inhabited (β k')]
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.get! k' =
       if heq : compare k k' = .eq then
@@ -3508,7 +3516,7 @@ theorem get!_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} [Inhabi
         t.get! k' := by
   simp_to_model [alter, get!, get?] using List.getValueCast!_alterKey
 
-theorem get!_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} [Inhabited (β k')]
+theorem get!_alter! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α} [Inhabited (β k')]
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).get! k' =
       if heq : compare k k' = .eq then
@@ -3522,18 +3530,18 @@ private theorem Option.map_cast_apply {γ γ' : Type u} (h : γ = γ') (x : Opti
   cases h; cases x <;> rfl
 
 @[simp]
-theorem get!_alter_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} [Inhabited (β k)]
+theorem get!_alter_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} [Inhabited (β k)]
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.get! k = (f (t.get? k)).get! := by
   simp [get!_alter h, Option.map_cast_apply]
 
 @[simp]
-theorem get!_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} [Inhabited (β k)]
+theorem get!_alter!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} [Inhabited (β k)]
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).get! k = (f (t.get? k)).get! := by
   simpa only [alter_eq_alter!] using get!_alter_self h
 
-theorem getD_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} {fallback : β k'}
+theorem getD_alter [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α} {fallback : β k'}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.getD k' fallback =
       if heq : compare k k' = .eq then
@@ -3542,7 +3550,7 @@ theorem getD_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} {fallba
         t.getD k' fallback := by
   simp_to_model [alter, getD, get?] using List.getValueCastD_alterKey
 
-theorem getD_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} {fallback : β k'}
+theorem getD_alter! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α} {fallback : β k'}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).getD k' fallback =
       if heq : compare k k' = .eq then
@@ -3554,18 +3562,18 @@ theorem getD_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} {fallb
 private theorem cast_eq_id {α : Type u} : cast (rfl : α = α) = id := by rfl
 
 @[simp]
-theorem getD_alter_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {fallback : β k}
+theorem getD_alter_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} {fallback : β k}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.getD k fallback = (f (t.get? k)).getD fallback := by
   simp only [getD_alter, h, compare_eq_iff_eq, reduceDIte, cast_eq_id, Option.map_id_fun, id_eq]
 
 @[simp]
-theorem getD_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {fallback : β k}
+theorem getD_alter!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α} {fallback : β k}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).getD k fallback = (f (t.get? k)).getD fallback := by
   simpa only [alter_eq_alter!] using getD_alter_self h
 
-theorem getKey?_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem getKey?_alter [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.getKey? k' =
       if compare k k' = .eq then
@@ -3574,7 +3582,7 @@ theorem getKey?_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
         t.getKey? k' := by
   simp_to_model [alter, getKey?, get?] using List.getKey?_alterKey
 
-theorem getKey?_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem getKey?_alter! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).getKey? k' =
       if compare k k' = .eq then
@@ -3583,17 +3591,17 @@ theorem getKey?_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
         t.getKey? k' := by
   simpa only [alter_eq_alter!] using getKey?_alter h
 
-theorem getKey?_alter_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem getKey?_alter_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.getKey? k = if (f (t.get? k)).isSome then some k else none := by
   simp [getKey?_alter h]
 
-theorem getKey?_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+theorem getKey?_alter!_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).getKey? k = if (f (t.get? k)).isSome then some k else none := by
   simpa only [alter_eq_alter!] using getKey?_alter_self h
 
-theorem getKey!_alter [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k k' : α}
+theorem getKey!_alter [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.getKey! k' =
       if compare k k' = .eq then
@@ -3602,7 +3610,7 @@ theorem getKey!_alter [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {
         t.getKey! k' := by
   simp_to_model [alter, getKey!, get?] using List.getKey!_alterKey
 
-theorem getKey!_alter! [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k k' : α}
+theorem getKey!_alter! [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} : (t.alter! k f).getKey! k' =
       if compare k k' = .eq then
         if (f (t.get? k)).isSome then k else default
@@ -3610,18 +3618,18 @@ theorem getKey!_alter! [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) 
         t.getKey! k' := by
   simpa only [alter_eq_alter!] using getKey!_alter h
 
-theorem getKey!_alter_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k : α}
+theorem getKey!_alter_self [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.getKey! k = if (f (t.get? k)).isSome then k else default := by
   simp [getKey!_alter h]
 
-theorem getKey!_alter!_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k : α}
+theorem getKey!_alter!_self [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).getKey! k = if (f (t.get? k)).isSome then k else default := by
   simpa only [alter_eq_alter!] using getKey!_alter_self h
 
 -- Note that in many use cases `getKey_eq` gives a simpler right hand side.
-theorem getKey_alter [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k k' : α}
+theorem getKey_alter [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} {hc : k' ∈ (t.alter k f h.balanced).1} :
     (t.alter k f h.balanced).1.getKey k' hc =
       if heq : compare k k' = .eq then
@@ -3631,7 +3639,7 @@ theorem getKey_alter [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k
         t.getKey k' h' := by
   simp_to_model [alter, getKey] using List.getKey_alterKey
 
-theorem getKey_alter! [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k k' : α}
+theorem getKey_alter! [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} {hc : k' ∈ t.alter! k f} :
     (t.alter! k f).getKey k' hc =
       if heq : compare k k' = .eq then
@@ -3642,18 +3650,18 @@ theorem getKey_alter! [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {
   simpa only [alter_eq_alter!] using getKey_alter h (hc := by simpa [alter_eq_alter!])
 
 @[simp]
-theorem getKey_alter_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k : α}
+theorem getKey_alter_self [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} {hc : k ∈ (t.alter k f h.balanced).1} :
     (t.alter k f h.balanced).1.getKey k hc = k := by
   simp [getKey_alter h]
 
 @[simp]
-theorem getKey_alter!_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k : α}
+theorem getKey_alter!_self [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} {hc : k ∈ t.alter! k f} :
     (t.alter! k f).getKey k hc = k := by
   simpa only [alter_eq_alter!] using getKey_alter_self h (hc := by simpa [alter_eq_alter!])
 
-theorem getKeyD_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' fallback : α}
+theorem getKeyD_alter [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' fallback : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.getKeyD k' fallback =
       if compare k k' = .eq then
@@ -3662,7 +3670,7 @@ theorem getKeyD_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' fallback :
         t.getKeyD k' fallback := by
   simp_to_model [alter, getKeyD, get?] using List.getKeyD_alterKey
 
-theorem getKeyD_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' fallback : α}
+theorem getKeyD_alter! [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k k' fallback : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter! k f).getKeyD k' fallback =
       if compare k k' = .eq then
@@ -3672,14 +3680,14 @@ theorem getKeyD_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' fallback 
   simpa only [alter_eq_alter!] using getKeyD_alter h
 
 @[simp]
-theorem getKeyD_alter_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k : α}
+theorem getKeyD_alter_self [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α}
     {fallback : α} {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.getKeyD k fallback =
       if (f (t.get? k)).isSome then k else fallback := by
   simp [getKeyD_alter h]
 
 @[simp]
-theorem getKeyD_alter!_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k : α}
+theorem getKeyD_alter!_self [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α}
     {fallback : α} {f : Option (β k) → Option (β k)} :
     (t.alter! k f).getKeyD k fallback = if (f (t.get? k)).isSome then k else fallback := by
   simpa only [alter_eq_alter!] using getKeyD_alter_self h
@@ -3688,100 +3696,100 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-theorem isEmpty_alter_eq_isEmpty_erase [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem isEmpty_alter_eq_isEmpty_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     (Const.alter k f t h.balanced).1.isEmpty =
       ((t.erase k h.balanced).1.isEmpty && (f (get? t k)).isNone) := by
   simp_to_model [Const.alter, erase, isEmpty, Const.get?] using
     List.Const.isEmpty_alterKey_eq_isEmpty_eraseKey
 
-theorem isEmpty_alter!_eq_isEmpty_erase [TransOrd α] (h : t.WF) {k : α}
+theorem isEmpty_alter!_eq_isEmpty_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α}
     {f : Option β → Option β} :
     (alter! k f t).isEmpty = ((t.erase! k).isEmpty && (f (get? t k)).isNone) := by
   simpa only [alter_eq_alter!, erase_eq_erase!] using isEmpty_alter_eq_isEmpty_erase h
 
 @[simp]
-theorem isEmpty_alter [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem isEmpty_alter [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter k f t h.balanced).1.isEmpty =
       (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (get? t k)).isNone) := by
   simp_to_model [Const.alter, isEmpty, size, contains, Const.get?] using List.Const.isEmpty_alterKey
 
 @[simp]
-theorem isEmpty_alter! [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem isEmpty_alter! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter! k f t).isEmpty =
       (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (get? t k)).isNone) := by
   simpa only [alter_eq_alter!] using isEmpty_alter h
 
-theorem contains_alter [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+theorem contains_alter [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} {f : Option β → Option β} :
     (alter k f t h.balanced).1.contains k' =
       if compare k k' = .eq then (f (get? t k)).isSome else t.contains k' := by
   simp_to_model [Const.alter, contains, Const.get?] using List.Const.containsKey_alterKey
 
-theorem contains_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+theorem contains_alter! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} {f : Option β → Option β} :
     (alter! k f t).contains k' =
       if compare k k' = .eq then (f (get? t k)).isSome else t.contains k' := by
   simpa only [alter_eq_alter!] using contains_alter h
 
-theorem mem_alter [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+theorem mem_alter [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} {f : Option β → Option β} :
     k' ∈ (alter k f t h.balanced).1 ↔
       if compare k k' = .eq then (f (get? t k)).isSome = true else k' ∈ t := by
   simp [mem_iff_contains, contains_alter h]
 
-theorem mem_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+theorem mem_alter! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} {f : Option β → Option β} :
     k' ∈ alter! k f t ↔
       if compare k k' = .eq then (f (get? t k)).isSome = true else k' ∈ t := by
   simpa only [alter_eq_alter!] using mem_alter h
 
-theorem mem_alter_of_compare_eq [TransOrd α] (h : t.WF) {k k': α} {f : Option β → Option β}
+theorem mem_alter_of_compare_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k': α} {f : Option β → Option β}
     (he : compare k k' = .eq) :
     k' ∈ (alter k f t h.balanced).1 ↔ (f (get? t k)).isSome := by
   rw [mem_alter h, if_pos he]
 
-theorem mem_alter!_of_compare_eq [TransOrd α] (h : t.WF) {k k': α} {f : Option β → Option β}
+theorem mem_alter!_of_compare_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k': α} {f : Option β → Option β}
     (he : compare k k' = .eq) :
     k' ∈ alter! k f t ↔ (f (get? t k)).isSome := by
   simpa only [alter_eq_alter!] using mem_alter_of_compare_eq h he
 
 @[simp]
-theorem contains_alter_self [TransOrd α] {k : α} (h : t.WF) {f : Option β → Option β} :
+theorem contains_alter_self [LawfulLinearPreorder (.ofOrd α)] {k : α} (h : t.WF) {f : Option β → Option β} :
     (alter k f t h.balanced).1.contains k = (f (get? t k)).isSome := by
   simp only [contains_alter h, compare_self, reduceIte]
 
 @[simp]
-theorem contains_alter!_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem contains_alter!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter! k f t).contains k = (f (get? t k)).isSome := by
   simpa only [alter_eq_alter!] using contains_alter_self h
 
 @[simp]
-theorem mem_alter_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem mem_alter_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     k ∈ (alter k f t h.balanced).1 ↔ (f (get? t k)).isSome := by
   rw [mem_iff_contains, contains_alter_self h]
 
 @[simp]
-theorem mem_alter!_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem mem_alter!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     k ∈ alter! k f t ↔ (f (get? t k)).isSome := by
   simpa only [alter_eq_alter!] using mem_alter_self h
 
-theorem contains_alter_of_not_compare_eq [TransOrd α] (h : t.WF) {k k' : α}
+theorem contains_alter_of_not_compare_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option β → Option β} (he : ¬ compare k k' = .eq) :
     (alter k f t h.balanced).1.contains k' = t.contains k' := by
   simp only [contains_alter h, he, reduceIte]
 
-theorem contains_alter!_of_not_compare_eq [TransOrd α] (h : t.WF) {k k' : α}
+theorem contains_alter!_of_not_compare_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option β → Option β} (he : ¬ compare k k' = .eq) :
     (alter! k f t).contains k' = t.contains k' := by
   simpa only [alter_eq_alter!] using contains_alter_of_not_compare_eq h he
 
-theorem mem_alter_of_not_compare_eq [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+theorem mem_alter_of_not_compare_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} {f : Option β → Option β}
     (he : ¬ compare k k' = .eq) :
     k' ∈ (alter k f t h.balanced).1 ↔ k' ∈ t := by
   simp only [mem_iff_contains, contains_alter_of_not_compare_eq h he]
 
-theorem mem_alter!_of_not_compare_eq [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+theorem mem_alter!_of_not_compare_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} {f : Option β → Option β}
     (he : ¬ compare k k' = .eq) :
     k' ∈ alter! k f t ↔ k' ∈ t := by
   simpa only [alter_eq_alter!] using mem_alter_of_not_compare_eq h he
 
-theorem size_alter [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem size_alter [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter k f t h.balanced).1.size =
       if k ∈ t ∧ (f (get? t k)).isNone then
         t.size - 1
@@ -3791,7 +3799,7 @@ theorem size_alter [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option �
         t.size := by
   simp_to_model [Const.alter, size, Const.get?, contains] using List.Const.length_alterKey'
 
-theorem size_alter! [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem size_alter! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter! k f t).size =
       if k ∈ t ∧ (f (get? t k)).isNone then
         t.size - 1
@@ -3801,67 +3809,67 @@ theorem size_alter! [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option 
         t.size := by
   simpa only [alter_eq_alter!] using size_alter h
 
-theorem size_alter_eq_add_one [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+theorem size_alter_eq_add_one [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β}
     (h₁ : k ∉ t) (h₂ : (f (get? t k)).isSome) :
     (alter k f t h.balanced).1.size = t.size + 1 := by
   simp_all [mem_iff_contains, size_alter]
 
-theorem size_alter!_eq_add_one [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+theorem size_alter!_eq_add_one [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β}
     (h₁ : k ∉ t) (h₂ : (f (get? t k)).isSome) :
     (alter! k f t).size = t.size + 1 := by
   simpa only [alter_eq_alter!] using size_alter_eq_add_one h h₁ h₂
 
-theorem size_alter_eq_sub_one [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+theorem size_alter_eq_sub_one [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β}
     (h₁ : k ∈ t) (h₂ : (f (get? t k)).isNone) :
     (alter k f t h.balanced).1.size = t.size - 1 := by
   simp_all [mem_iff_contains, size_alter]
 
-theorem size_alter!_eq_sub_one [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+theorem size_alter!_eq_sub_one [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β}
     (h₁ : k ∈ t) (h₂ : (f (get? t k)).isNone) :
     (alter! k f t).size = t.size - 1 := by
   simpa only [alter_eq_alter!] using size_alter_eq_sub_one h h₁ h₂
 
-theorem size_alter_eq_self_of_not_mem [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+theorem size_alter_eq_self_of_not_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β}
     (h₁ : ¬ k ∈ t) (h₂ : (f (get? t k)).isNone) :
     (alter k f t h.balanced).1.size = t.size := by
   simp_all [mem_iff_contains, size_alter]
 
-theorem size_alter!_eq_self_of_not_mem [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+theorem size_alter!_eq_self_of_not_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β}
     (h₁ : ¬ k ∈ t) (h₂ : (f (get? t k)).isNone) :
     (alter! k f t).size = t.size := by
   simpa only [alter_eq_alter!] using size_alter_eq_self_of_not_mem h h₁ h₂
 
-theorem size_alter_eq_self_of_mem [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+theorem size_alter_eq_self_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β}
     (h₁ : k ∈ t) (h₂ : (f (get? t k)).isSome) :
     (alter k f t h.balanced).1.size = t.size := by
   simp_all [mem_iff_contains, size_alter, Option.isSome_iff_ne_none]
 
-theorem size_alter!_eq_self_of_mem [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+theorem size_alter!_eq_self_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β}
     (h₁ : k ∈ t) (h₂ : (f (get? t k)).isSome) :
     (alter! k f t).size = t.size := by
   simpa only [alter_eq_alter!] using size_alter_eq_self_of_mem h h₁ h₂
 
-theorem size_alter_le_size [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem size_alter_le_size [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter k f t h.balanced).1.size ≤ t.size + 1 := by
   simp [size_alter, h]
   split <;> try split
   all_goals omega
 
-theorem size_alter!_le_size [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem size_alter!_le_size [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter! k f t).size ≤ t.size + 1 := by
   simpa only [alter_eq_alter!] using size_alter_le_size h
 
-theorem size_le_size_alter [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem size_le_size_alter [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     t.size - 1 ≤ (alter k f t h.balanced).1.size := by
   simp [size_alter, h]
   split <;> try split
   all_goals omega
 
-theorem size_le_size_alter! [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem size_le_size_alter! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     t.size - 1 ≤ (alter! k f t).size := by
   simpa only [alter_eq_alter!] using size_le_size_alter h
 
-theorem get?_alter [TransOrd α] (h : t.WF) {k k' : α}
+theorem get?_alter [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α}
     {f : Option β → Option β} :
     get? (alter k f t h.balanced).1 k' =
       if compare k k' = .eq then
@@ -3870,7 +3878,7 @@ theorem get?_alter [TransOrd α] (h : t.WF) {k k' : α}
         get? t k' := by
   simp_to_model [Const.alter, Const.get?] using List.Const.getValue?_alterKey
 
-theorem get?_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+theorem get?_alter! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} {f : Option β → Option β} :
     get? (alter! k f t) k' =
       if compare k k' = .eq then
         f (get? t k)
@@ -3879,16 +3887,16 @@ theorem get?_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Opti
   simpa only [alter_eq_alter!] using get?_alter h
 
 @[simp]
-theorem get?_alter_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem get?_alter_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     get? (alter k f t h.balanced).1 k = f (get? t k) := by
   simp [get?_alter h]
 
 @[simp]
-theorem get?_alter!_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem get?_alter!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     get? (alter! k f t) k = f (get? t k) := by
   simpa only [alter_eq_alter!] using get?_alter_self h
 
-theorem get_alter [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+theorem get_alter [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} {f : Option β → Option β}
     {hc : k' ∈ (alter k f t h.balanced).1} :
     get (alter k f t h.balanced).1 k' hc =
       if heq : compare k k' = .eq then
@@ -3899,7 +3907,7 @@ theorem get_alter [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option
         get t k' h' := by
   simp_to_model [Const.alter, Const.get, Const.get?] using List.Const.getValue_alterKey
 
-theorem get_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+theorem get_alter! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} {f : Option β → Option β}
     {hc : k' ∈ (alter! k f t)} :
     get (alter! k f t) k' hc =
       if heq : compare k k' = .eq then
@@ -3911,20 +3919,20 @@ theorem get_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Optio
   simpa only [alter_eq_alter!] using get_alter h (hc := by simpa [alter_eq_alter!])
 
 @[simp]
-theorem get_alter_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+theorem get_alter_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β}
     {hc : k ∈ (alter k f t h.balanced).1} :
     haveI h' : (f (get? t k)).isSome := mem_alter_self h |>.mp hc
     get (alter k f t h.balanced).1 k hc = (f (get? t k)).get h' := by
   simp_to_model [Const.alter, Const.get, Const.get?] using List.Const.getValue_alterKey_self
 
 @[simp]
-theorem get_alter!_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+theorem get_alter!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β}
     {hc : k ∈ alter! k f t} :
     haveI h' : (f (get? t k)).isSome := mem_alter!_self h |>.mp hc
     get (alter! k f t) k hc = (f (get? t k)).get h' := by
   simpa only [alter_eq_alter!] using get_alter_self h (hc := by simpa [alter_eq_alter!])
 
-theorem get!_alter [TransOrd α] (h : t.WF) {k k' : α} [Inhabited β] {f : Option β → Option β} :
+theorem get!_alter [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} [Inhabited β] {f : Option β → Option β} :
     get! (alter k f t h.balanced).1 k' =
       if compare k k' = .eq then
         (f (get? t k)).get!
@@ -3932,7 +3940,7 @@ theorem get!_alter [TransOrd α] (h : t.WF) {k k' : α} [Inhabited β] {f : Opti
         get! t k' := by
   simp_to_model [Const.alter, Const.get!, Const.get?] using List.Const.getValue!_alterKey
 
-theorem get!_alter! [TransOrd α] (h : t.WF) {k k' : α} [Inhabited β] {f : Option β → Option β} :
+theorem get!_alter! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} [Inhabited β] {f : Option β → Option β} :
     get! (alter! k f t) k' =
       if compare k k' = .eq then
         (f (get? t k)).get!
@@ -3941,16 +3949,16 @@ theorem get!_alter! [TransOrd α] (h : t.WF) {k k' : α} [Inhabited β] {f : Opt
   simpa only [alter_eq_alter!] using get!_alter h
 
 @[simp]
-theorem get!_alter_self [TransOrd α] (h : t.WF) {k : α} [Inhabited β] {f : Option β → Option β} :
+theorem get!_alter_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} [Inhabited β] {f : Option β → Option β} :
     get! (alter k f t h.balanced).1 k = (f (get? t k)).get! := by
   simp [get!_alter h]
 
 @[simp]
-theorem get!_alter!_self [TransOrd α] (h : t.WF) {k : α} [Inhabited β] {f : Option β → Option β} :
+theorem get!_alter!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} [Inhabited β] {f : Option β → Option β} :
     get! (alter! k f t) k = (f (get? t k)).get! := by
   simpa only [alter_eq_alter!] using get!_alter_self h
 
-theorem getD_alter [TransOrd α] (h : t.WF) {k k' : α} {fallback : β} {f : Option β → Option β} :
+theorem getD_alter [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} {fallback : β} {f : Option β → Option β} :
     getD (alter k f t h.balanced).1 k' fallback =
       if compare k k' = .eq then
         f (get? t k) |>.getD fallback
@@ -3958,7 +3966,7 @@ theorem getD_alter [TransOrd α] (h : t.WF) {k k' : α} {fallback : β} {f : Opt
         getD t k' fallback := by
   simp_to_model [Const.alter, Const.getD, Const.get?] using List.Const.getValueD_alterKey
 
-theorem getD_alter! [TransOrd α] (h : t.WF) {k k' : α} {fallback : β} {f : Option β → Option β} :
+theorem getD_alter! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} {fallback : β} {f : Option β → Option β} :
     getD (alter! k f t) k' fallback =
       if compare k k' = .eq then
         f (get? t k) |>.getD fallback
@@ -3967,16 +3975,16 @@ theorem getD_alter! [TransOrd α] (h : t.WF) {k k' : α} {fallback : β} {f : Op
   simpa only [alter_eq_alter!] using getD_alter h
 
 @[simp]
-theorem getD_alter_self [TransOrd α] (h : t.WF) {k : α} {fallback : β} {f : Option β → Option β} :
+theorem getD_alter_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {fallback : β} {f : Option β → Option β} :
     getD (alter k f t h.balanced).1 k fallback = (f (get? t k)).getD fallback := by
   simp only [h, getD_alter, compare_self, reduceIte]
 
 @[simp]
-theorem getD_alter!_self [TransOrd α] (h : t.WF) {k : α} {fallback : β} {f : Option β → Option β} :
+theorem getD_alter!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {fallback : β} {f : Option β → Option β} :
     getD (alter! k f t) k fallback = (f (get? t k)).getD fallback := by
   simpa only [alter_eq_alter!] using getD_alter_self h
 
-theorem getKey?_alter [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+theorem getKey?_alter [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} {f : Option β → Option β} :
     (alter k f t h.balanced).1.getKey? k' =
       if compare k k' = .eq then
         if (f (get? t k)).isSome then some k else none
@@ -3984,7 +3992,7 @@ theorem getKey?_alter [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Op
         t.getKey? k' := by
   simp_to_model [Const.alter, getKey?, Const.get?] using List.Const.getKey?_alterKey
 
-theorem getKey?_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+theorem getKey?_alter! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' : α} {f : Option β → Option β} :
     (alter! k f t).getKey? k' =
       if compare k k' = .eq then
         if (f (get? t k)).isSome then some k else none
@@ -3992,15 +4000,15 @@ theorem getKey?_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → O
         t.getKey? k' := by
   simpa only [alter_eq_alter!] using getKey?_alter h
 
-theorem getKey?_alter_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem getKey?_alter_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter k f t h.balanced).1.getKey? k = if (f (get? t k)).isSome then some k else none := by
   simp [getKey?_alter h]
 
-theorem getKey?_alter!_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem getKey?_alter!_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter! k f t).getKey? k = if (f (get? t k)).isSome then some k else none := by
   simpa only [alter_eq_alter!] using getKey?_alter_self h
 
-theorem getKey!_alter [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+theorem getKey!_alter [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
     (alter k f t h.balanced).1.getKey! k' =
       if compare k k' = .eq then
         if (f (get? t k)).isSome then k else default
@@ -4008,7 +4016,7 @@ theorem getKey!_alter [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : O
         t.getKey! k' := by
   simp_to_model [Const.alter, getKey!, Const.get?] using List.Const.getKey!_alterKey
 
-theorem getKey!_alter! [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+theorem getKey!_alter! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
     (alter! k f t).getKey! k' =
       if compare k k' = .eq then
         if (f (get? t k)).isSome then k else default
@@ -4016,16 +4024,16 @@ theorem getKey!_alter! [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : 
         t.getKey! k' := by
   simpa only [alter_eq_alter!] using getKey!_alter h
 
-theorem getKey!_alter_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α} {f : Option β → Option β} :
+theorem getKey!_alter_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter k f t h.balanced).1.getKey! k = if (f (get? t k)).isSome then k else default := by
   simp [getKey!_alter h]
 
-theorem getKey!_alter!_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α}
+theorem getKey!_alter!_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α}
     {f : Option β → Option β} :
     (alter! k f t).getKey! k = if (f (get? t k)).isSome then k else default := by
   simpa only [alter_eq_alter!] using getKey!_alter_self h
 
-theorem getKey_alter [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+theorem getKey_alter [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β}
     {hc : k' ∈ (alter k f t h.balanced).1} :
     (alter k f t h.balanced).1.getKey k' hc =
       if heq : compare k k' = .eq then
@@ -4035,7 +4043,7 @@ theorem getKey_alter [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : Op
         t.getKey k' h' := by
   simp_to_model [Const.alter, getKey, Const.get?] using List.Const.getKey_alterKey
 
-theorem getKey_alter! [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+theorem getKey_alter! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β}
     {hc : k' ∈ alter! k f t} :
     (alter! k f t).getKey k' hc =
       if heq : compare k k' = .eq then
@@ -4046,18 +4054,18 @@ theorem getKey_alter! [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : O
   simpa only [alter_eq_alter!] using getKey_alter h (hc := by simpa [alter_eq_alter!])
 
 @[simp]
-theorem getKey_alter_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α} {f : Option β → Option β}
+theorem getKey_alter_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α} {f : Option β → Option β}
     {hc : k ∈ (alter k f t h.balanced).1} :
     (alter k f t h.balanced).1.getKey k hc = k := by
   simp [getKey_alter h]
 
 @[simp]
-theorem getKey_alter!_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α} {f : Option β → Option β}
+theorem getKey_alter!_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α} {f : Option β → Option β}
     {hc : k ∈ alter! k f t} :
     (alter! k f t).getKey k hc = k := by
   simpa only [alter_eq_alter!] using getKey_alter_self h (hc := by simpa [alter_eq_alter!])
 
-theorem getKeyD_alter [TransOrd α] (h : t.WF) {k k' fallback : α} {f : Option β → Option β} :
+theorem getKeyD_alter [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' fallback : α} {f : Option β → Option β} :
     (alter k f t h.balanced).1.getKeyD k' fallback =
       if compare k k' = .eq then
         if (f (get? t k)).isSome then k else fallback
@@ -4065,7 +4073,7 @@ theorem getKeyD_alter [TransOrd α] (h : t.WF) {k k' fallback : α} {f : Option 
         t.getKeyD k' fallback := by
   simp_to_model [Const.alter, getKeyD, Const.get?] using List.Const.getKeyD_alterKey
 
-theorem getKeyD_alter! [TransOrd α] (h : t.WF) {k k' fallback : α} {f : Option β → Option β} :
+theorem getKeyD_alter! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k k' fallback : α} {f : Option β → Option β} :
     (alter! k f t).getKeyD k' fallback =
       if compare k k' = .eq then
         if (f (get? t k)).isSome then k else fallback
@@ -4074,14 +4082,14 @@ theorem getKeyD_alter! [TransOrd α] (h : t.WF) {k k' fallback : α} {f : Option
   simpa only [alter_eq_alter!] using getKeyD_alter h
 
 @[simp]
-theorem getKeyD_alter_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α} {fallback : α}
+theorem getKeyD_alter_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α} {fallback : α}
     {f : Option β → Option β} :
     (alter k f t h.balanced).1.getKeyD k fallback =
       if (f (get? t k)).isSome then k else fallback := by
   simp [getKeyD_alter h]
 
 @[simp]
-theorem getKeyD_alter!_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α} {fallback : α}
+theorem getKeyD_alter!_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k : α} {fallback : α}
     {f : Option β → Option β} :
     (alter! k f t).getKeyD k fallback = if (f (get? t k)).isSome then k else fallback := by
   simpa only [alter_eq_alter!] using getKeyD_alter_self h
@@ -4092,11 +4100,9 @@ end Alter
 
 section Modify
 
-variable [TransOrd α]
-
 section Dependent
 
-variable [LawfulEqOrd α]
+variable [LawfulLinearOrder (.ofOrd α)]
 
 @[simp]
 theorem isEmpty_modify (h : t.WF) {k : α} {f : β k → β k} :
@@ -4224,6 +4230,8 @@ theorem getKeyD_modify_self (h : t.WF) [Inhabited α] {k fallback : α} {f : β 
 end Dependent
 
 namespace Const
+
+variable [LawfulLinearPreorder (.ofOrd α)]
 
 variable {β : Type v} {t : Impl α β}
 
@@ -4360,227 +4368,227 @@ theorem minKey?_empty :
     (empty : Impl α β).minKey? = none := by
   unfold minKey?; rfl
 
-theorem minKey?_of_isEmpty [TransOrd α] (h : t.WF) :
+theorem minKey?_of_isEmpty [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty) → t.minKey? = none := by
   simp_to_model using List.minKey?_of_isEmpty
 
-theorem minKey?_eq_none_iff [TransOrd α] (h : t.WF) :
+theorem minKey?_eq_none_iff [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.minKey? = none ↔ t.isEmpty := by
   simp_to_model using List.minKey?_eq_none_iff_isEmpty
 
-theorem minKey?_eq_some_iff_getKey?_eq_self_and_forall [TransOrd α] (h : t.WF) {km} :
+theorem minKey?_eq_some_iff_getKey?_eq_self_and_forall [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {km} :
     t.minKey? = some km ↔ t.getKey? km = some km ∧ ∀ k ∈ t, (compare km k).isLE := by
   simp_to_model using List.minKey?_eq_some_iff_getKey?_eq_self_and_forall
 
-theorem minKey?_eq_some_iff_mem_and_forall [TransOrd α] [LawfulEqOrd α] (h : t.WF) {km} :
+theorem minKey?_eq_some_iff_mem_and_forall [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {km} :
     t.minKey? = some km ↔ km ∈ t ∧ ∀ k ∈ t, (compare km k).isLE := by
   simp_to_model using List.minKey?_eq_some_iff_mem_and_forall
 
-theorem isNone_minKey?_eq_isEmpty [TransOrd α] (h : t.WF) :
+theorem isNone_minKey?_eq_isEmpty [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.minKey?.isNone = t.isEmpty := by
   simp_to_model using List.isNone_minKey?_eq_isEmpty
 
-theorem isSome_minKey?_eq_not_isEmpty [TransOrd α] (h : t.WF) :
+theorem isSome_minKey?_eq_not_isEmpty [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.minKey?.isSome = !t.isEmpty := by
   simp_to_model using List.isSome_minKey?_eq_not_isEmpty
 
-theorem isSome_minKey?_iff_isEmpty_eq_false [TransOrd α] (h : t.WF) :
+theorem isSome_minKey?_iff_isEmpty_eq_false [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.minKey?.isSome ↔ t.isEmpty = false := by
   simp [isSome_minKey?_eq_not_isEmpty h]
 
-theorem minKey?_insert [TransOrd α] (h : t.WF) {k v} :
+theorem minKey?_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insert k v h.balanced).impl.minKey? =
       some (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simp_to_model [insert] using List.minKey?_insertEntry
 
-theorem minKey?_insert! [TransOrd α] (h : t.WF) {k v} :
+theorem minKey?_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insert! k v).minKey? =
       some (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simpa only [insert_eq_insert!] using minKey?_insert h
 
-theorem isSome_minKey?_insert [TransOrd α] (h : t.WF) {k v} :
+theorem isSome_minKey?_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insert k v h.balanced).impl.minKey?.isSome := by
   simp_to_model [insert] using List.isSome_minKey?_insertEntry
 
-theorem isSome_minKey?_insert! [TransOrd α] (h : t.WF) {k v} :
+theorem isSome_minKey?_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insert! k v).minKey?.isSome := by
   simpa only [insert_eq_insert!] using isSome_minKey?_insert h
 
-theorem minKey?_insert_le_minKey? [TransOrd α] (h : t.WF) {k v km kmi} :
+theorem minKey?_insert_le_minKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v km kmi} :
     (hkm : t.minKey? = some km) →
     (hkmi : (t.insert k v h.balanced |>.impl.minKey? |>.get <| isSome_minKey?_insert h) = kmi) →
     compare kmi km |>.isLE := by
   simp_to_model [insert] using List.minKey?_insertEntry_le_minKey?
 
-theorem minKey?_insert!_le_minKey? [TransOrd α] (h : t.WF) {k v km kmi} :
+theorem minKey?_insert!_le_minKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v km kmi} :
     (hkm : t.minKey? = some km) →
     (hkmi : (t.insert! k v |>.minKey? |>.get <| isSome_minKey?_insert! h) = kmi) →
     compare kmi km |>.isLE := by
   simpa only [insert_eq_insert!] using minKey?_insert_le_minKey? h
 
-theorem minKey?_insert_le_self [TransOrd α] (h : t.WF) {k v kmi} :
+theorem minKey?_insert_le_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v kmi} :
     (hkmi : (t.insert k v h.balanced |>.impl.minKey?.get <| isSome_minKey?_insert h) = kmi) →
     compare kmi k |>.isLE := by
   simp_to_model [insert] using List.minKey?_insertEntry_le_self
 
-theorem minKey?_insert!_le_self [TransOrd α] (h : t.WF) {k v kmi} :
+theorem minKey?_insert!_le_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v kmi} :
     (hkmi : (t.insert! k v |>.minKey?.get <| isSome_minKey?_insert! h) = kmi) →
     compare kmi k |>.isLE := by
   simpa only [insert_eq_insert!] using minKey?_insert_le_self h
 
-theorem contains_minKey? [TransOrd α] (h : t.WF) {km} :
+theorem contains_minKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {km} :
     (hkm : t.minKey? = some km) →
     t.contains km := by
   simp_to_model using List.containsKey_minKey?
 
-theorem minKey?_mem [TransOrd α] (h : t.WF) {km} :
+theorem minKey?_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {km} :
     (hkm : t.minKey? = some km) →
     km ∈ t := by
   simp_to_model using List.containsKey_minKey?
 
-theorem isSome_minKey?_of_contains [TransOrd α] (h : t.WF) {k} :
+theorem isSome_minKey?_of_contains [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (hc : t.contains k) → t.minKey?.isSome := by
   simp_to_model using List.isSome_minKey?_of_containsKey
 
-theorem isSome_minKey?_of_mem [TransOrd α] (h : t.WF) {k} :
+theorem isSome_minKey?_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     k ∈ t → t.minKey?.isSome :=
   isSome_minKey?_of_contains h
 
-theorem minKey?_le_of_contains [TransOrd α] (h : t.WF) {k km} :
+theorem minKey?_le_of_contains [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k km} :
     (hc : t.contains k) → (hkm : (t.minKey?.get <| isSome_minKey?_of_contains h hc) = km) →
     compare km k |>.isLE := by
   simp_to_model using minKey?_le_of_containsKey
 
-theorem minKey?_le_of_mem [TransOrd α] (h : t.WF) {k km} :
+theorem minKey?_le_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k km} :
     (hc : k ∈ t) → (hkm : (t.minKey?.get <| isSome_minKey?_of_mem h hc) = km) →
     compare km k |>.isLE :=
   minKey?_le_of_contains h
 
-theorem le_minKey? [TransOrd α] {k} (h : t.WF) :
+theorem le_minKey? [LawfulLinearPreorder (.ofOrd α)] {k} (h : t.WF) :
     (∀ k', t.minKey? = some k' → (compare k k').isLE) ↔
       (∀ k', k' ∈ t → (compare k k').isLE) := by
   simp_to_model using List.le_minKey?
 
-theorem getKey?_minKey? [TransOrd α] (h : t.WF) {km} :
+theorem getKey?_minKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {km} :
     (hkm : t.minKey? = some km) → t.getKey? km = some km := by
   simp_to_model using List.getKey?_minKey?
 
-theorem getKey_minKey? [TransOrd α] (h : t.WF) {km hc} :
+theorem getKey_minKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {km hc} :
     (hkm : t.minKey?.get (isSome_minKey?_of_contains h hc) = km) → t.getKey km hc = km := by
   simp_to_model using List.getKey_minKey?
 
-theorem getKey!_minKey? [TransOrd α] [Inhabited α] (h : t.WF) {km} :
+theorem getKey!_minKey? [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {km} :
     (hkm : t.minKey? = some km) → t.getKey! km = km := by
   simp_to_model using List.getKey!_minKey?
 
-theorem getKeyD_minKey? [TransOrd α] (h : t.WF) {km fallback} :
+theorem getKeyD_minKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {km fallback} :
     (hkm : t.minKey? = some km) → t.getKeyD km fallback = km := by
   simp_to_model using List.getKeyD_minKey?
 
 @[simp]
-theorem minKey?_bind_getKey? [TransOrd α] (h : t.WF) :
+theorem minKey?_bind_getKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.minKey?.bind t.getKey? = t.minKey? := by
   change (t.minKey?.bind fun k => t.getKey? k) = t.minKey?
   simp_to_model using List.minKey?_bind_getKey?
 
-theorem minKey?_erase_eq_iff_not_compare_eq_minKey? [TransOrd α] (h : t.WF) {k} :
+theorem minKey?_erase_eq_iff_not_compare_eq_minKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (t.erase k h.balanced |>.impl.minKey?) = t.minKey? ↔
       ∀ {km}, t.minKey? = some km → ¬ compare k km = .eq := by
   simp_to_model [erase] using minKey?_eraseKey_eq_iff_beq_minKey?_eq_false
 
-theorem minKey?_erase!_eq_iff_not_compare_eq_minKey? [TransOrd α] (h : t.WF) {k} :
+theorem minKey?_erase!_eq_iff_not_compare_eq_minKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (t.erase! k |>.minKey?) = t.minKey? ↔
       ∀ {km}, t.minKey? = some km → ¬ compare k km = .eq := by
   simpa only [erase_eq_erase!] using minKey?_erase_eq_iff_not_compare_eq_minKey? h
 
-theorem minKey?_erase_eq_of_not_compare_eq_minKey? [TransOrd α] (h : t.WF) {k} :
+theorem minKey?_erase_eq_of_not_compare_eq_minKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (hc : ∀ {km}, t.minKey? = some km → ¬ compare k km = .eq) →
     (t.erase k h.balanced |>.impl.minKey?) = t.minKey? := by
   simp_to_model [erase] using minKey?_eraseKey_eq_of_beq_minKey?_eq_false
 
-theorem minKey?_erase!_eq_of_not_compare_eq_minKey? [TransOrd α] (h : t.WF) {k} :
+theorem minKey?_erase!_eq_of_not_compare_eq_minKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (hc : ∀ {km}, t.minKey? = some km → ¬ compare k km = .eq) →
     (t.erase! k |>.minKey?) = t.minKey? := by
   simpa only [erase_eq_erase!] using minKey?_erase_eq_of_not_compare_eq_minKey? h
 
-theorem isSome_minKey?_of_isSome_minKey?_erase [TransOrd α] (h : t.WF) {k} :
+theorem isSome_minKey?_of_isSome_minKey?_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (hs : t.erase k h.balanced |>.impl.minKey?.isSome) →
     t.minKey?.isSome := by
   simp_to_model [erase] using isSome_minKey?_of_isSome_minKey?_eraseKey
 
-theorem isSome_minKey?_of_isSome_minKey?_erase! [TransOrd α] (h : t.WF) {k} :
+theorem isSome_minKey?_of_isSome_minKey?_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (hs : t.erase! k |>.minKey?.isSome) →
     t.minKey?.isSome := by
   simpa only [erase_eq_erase!] using isSome_minKey?_of_isSome_minKey?_erase h
 
-theorem minKey?_le_minKey?_erase [TransOrd α] (h : t.WF) {k km kme} :
+theorem minKey?_le_minKey?_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k km kme} :
     (hkme : (t.erase k h.balanced |>.impl.minKey?) = some kme) →
     (hkm : (t.minKey?.get <|
       isSome_minKey?_of_isSome_minKey?_erase h <| hkme ▸ Option.isSome_some) = km) →
     compare km kme |>.isLE := by
   simp_to_model [erase] using minKey?_le_minKey?_eraseKey
 
-theorem minKey?_le_minKey?_erase! [TransOrd α] (h : t.WF) {k km kme} :
+theorem minKey?_le_minKey?_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k km kme} :
     (hkme : (t.erase! k |>.minKey?) = some kme) →
     (hkm : (t.minKey?.get <|
       isSome_minKey?_of_isSome_minKey?_erase! h <| hkme ▸ Option.isSome_some) = km) →
     compare km kme |>.isLE := by
   simpa only [erase_eq_erase!] using minKey?_le_minKey?_erase h
 
-theorem minKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :
+theorem minKey?_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insertIfNew k v h.balanced).impl.minKey? =
       some (t.minKey?.elim k fun k' => if compare k k' = .lt then k else k') := by
   simp_to_model [insertIfNew] using List.minKey?_insertEntryIfNew
 
-theorem minKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v} :
+theorem minKey?_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insertIfNew! k v).minKey? =
       some (t.minKey?.elim k fun k' => if compare k k' = .lt then k else k') := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKey?_insertIfNew h
 
-theorem isSome_minKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :
+theorem isSome_minKey?_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insertIfNew k v h.balanced).impl.minKey?.isSome := by
   simp_to_model [insertIfNew] using List.isSome_minKey?_insertEntryIfNew
 
-theorem isSome_minKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v} :
+theorem isSome_minKey?_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insertIfNew! k v).minKey?.isSome := by
   simpa only [insertIfNew_eq_insertIfNew!] using isSome_minKey?_insertIfNew h
 
-theorem minKey?_insertIfNew_le_minKey? [TransOrd α] (h : t.WF) {k v km kmi} :
+theorem minKey?_insertIfNew_le_minKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v km kmi} :
     (hkm : t.minKey? = some km) →
     (hkmi : (t.insertIfNew k v h.balanced |>.impl.minKey? |>.get <| isSome_minKey?_insertIfNew h) = kmi) →
     compare kmi km |>.isLE := by
   simp_to_model [insertIfNew] using List.minKey?_insertEntryIfNew_le_minKey?
 
-theorem minKey?_insertIfNew!_le_minKey? [TransOrd α] (h : t.WF) {k v km kmi} :
+theorem minKey?_insertIfNew!_le_minKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v km kmi} :
     (hkm : t.minKey? = some km) →
     (hkmi : (t.insertIfNew! k v |>.minKey? |>.get <| isSome_minKey?_insertIfNew! h) = kmi) →
     compare kmi km |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKey?_insertIfNew_le_minKey? h
 
-theorem minKey?_insertIfNew_le_self [TransOrd α] (h : t.WF) {k v kmi} :
+theorem minKey?_insertIfNew_le_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v kmi} :
     (hkmi : (t.insertIfNew k v h.balanced |>.impl.minKey?.get <| isSome_minKey?_insertIfNew h) = kmi) →
     compare kmi k |>.isLE := by
   simp_to_model [insertIfNew] using List.minKey?_insertEntryIfNew_le_self
 
-theorem minKey?_insertIfNew!_le_self [TransOrd α] (h : t.WF) {k v kmi} :
+theorem minKey?_insertIfNew!_le_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v kmi} :
     (hkmi : (t.insertIfNew! k v |>.minKey?.get <| isSome_minKey?_insertIfNew! h) = kmi) →
     compare kmi k |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKey?_insertIfNew_le_self h
 
-theorem minKey?_eq_head?_keys [TransOrd α] (h : t.WF) :
+theorem minKey?_eq_head?_keys [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.minKey? = t.keys.head? := by
   simp_to_model [minKey?, keys] using List.minKey?_eq_head?_keys h.ordered
 
-theorem minKey?_modify [TransOrd α] [LawfulEqOrd α] {k f} (h : t.WF) :
+theorem minKey?_modify [LawfulLinearOrder (.ofOrd α)] {k f} (h : t.WF) :
     (t.modify k f).minKey? = t.minKey? := by
   simp_to_model [modify] using List.minKey?_modifyKey
 
-theorem minKey?_alter_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f} :
+theorem minKey?_alter_eq_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f} :
     (t.alter k f h.balanced).impl.minKey? = some k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
   simp_to_model [alter] using List.minKey?_alterKey_eq_self
 
-theorem minKey?_alter!_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f} :
+theorem minKey?_alter!_eq_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f} :
     (t.alter! k f).minKey? = some k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
   simpa only [alter_eq_alter!] using minKey?_alter_eq_self h
@@ -4589,147 +4597,147 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-theorem minKey?_modify [TransOrd α] (h : t.WF) {k f} :
+theorem minKey?_modify [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f} :
     (Const.modify k f t).minKey? = t.minKey?.map fun km => if compare km k = .eq then k else km := by
   simp_to_model [Const.modify] using List.Const.minKey?_modifyKey
 
-theorem minKey?_modify_eq_minKey? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f} :
+theorem minKey?_modify_eq_minKey? [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f} :
     (Const.modify k f t).minKey? = t.minKey? := by
   simp_to_model [Const.modify] using List.Const.minKey?_modifyKey_eq_minKey?
 
-theorem isSome_minKey?_modify [TransOrd α] {k f}  (h : t.WF) :
+theorem isSome_minKey?_modify [LawfulLinearPreorder (.ofOrd α)] {k f}  (h : t.WF) :
     (Const.modify k f t).minKey?.isSome = !t.isEmpty := by
   simp_to_model [Const.modify] using List.Const.isSome_minKey?_modifyKey
 
-theorem isSome_minKey?_modify_eq_isSome [TransOrd α] (h : t.WF) {k f} :
+theorem isSome_minKey?_modify_eq_isSome [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f} :
     (Const.modify k f t).minKey?.isSome = t.minKey?.isSome := by
   simp_to_model [Const.modify] using List.Const.isSome_minKey?_modifyKey_eq_isSome
 
-theorem compare_minKey?_modify_eq [TransOrd α] (h : t.WF) {k f km kmm} :
+theorem compare_minKey?_modify_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f km kmm} :
     (hkm : t.minKey? = some km) →
     (hkmm : (Const.modify k f t |>.minKey? |>.get <|
         (isSome_minKey?_modify_eq_isSome h).trans <| hkm ▸ Option.isSome_some) = kmm) →
     compare kmm km = .eq := by
   simp_to_model [Const.modify] using List.Const.minKey?_modifyKey_beq
 
-theorem minKey?_alter_eq_self [TransOrd α] (h : t.WF) {k f} :
+theorem minKey?_alter_eq_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f} :
     (Const.alter k f t h.balanced).impl.minKey? = some k ↔
       (f (Const.get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
   simp_to_model [Const.alter] using List.Const.minKey?_alterKey_eq_self
 
-theorem minKey?_alter!_eq_self [TransOrd α] (h : t.WF) {k f} :
+theorem minKey?_alter!_eq_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f} :
     (Const.alter! k f t).minKey? = some k ↔
       (f (Const.get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
   simpa [alter_eq_alter!] using minKey?_alter_eq_self h
 
 end Const
 
-theorem minKey_eq_get_minKey? [TransOrd α] (h : t.WF) {he} :
+theorem minKey_eq_get_minKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he} :
     t.minKey he = t.minKey?.get (isSome_minKey?_iff_isEmpty_eq_false h |>.mpr he) := by
   simp_to_model [minKey, minKey?] using List.minKey_eq_get_minKey?
 
-theorem minKey?_eq_some_minKey [TransOrd α] (h : t.WF) {he} :
+theorem minKey?_eq_some_minKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he} :
     t.minKey? = some (t.minKey he) := by
   simp_to_model [minKey, minKey?] using List.minKey?_eq_some_minKey
 
-theorem minKey_eq_iff_getKey?_eq_self_and_forall [TransOrd α] (h : t.WF) {he km} :
+theorem minKey_eq_iff_getKey?_eq_self_and_forall [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he km} :
     t.minKey he = km ↔ t.getKey? km = some km ∧ ∀ k ∈ t, (compare km k).isLE := by
   simp_to_model [minKey, getKey?, contains] using List.minKey_eq_iff_getKey?_eq_self_and_forall
 
-theorem minKey_eq_iff_mem_and_forall [TransOrd α] [LawfulEqOrd α] (h : t.WF) {he km} :
+theorem minKey_eq_iff_mem_and_forall [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {he km} :
     t.minKey he = km ↔ km ∈ t ∧ ∀ k ∈ t, (compare km k).isLE := by
   simp_to_model [minKey, contains] using List.minKey_eq_iff_mem_and_forall
 
-theorem minKey_insert [TransOrd α] (h : t.WF) {k v} :
+theorem minKey_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insert k v h.balanced).impl.minKey (isEmpty_insert h) =
       t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k' := by
   simp_to_model [insert, minKey, minKey?] using List.minKey_insertEntry
 
-theorem minKey_insert_le_minKey [TransOrd α] (h : t.WF) {k v he} :
+theorem minKey_insert_le_minKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v he} :
     compare (t.insert k v h.balanced |>.impl.minKey <| isEmpty_insert h) (t.minKey he) |>.isLE := by
   simp_to_model [minKey, insert] using List.minKey_insertEntry_le_minKey
 
-theorem minKey_insert_le_self [TransOrd α] (h : t.WF) {k v} :
+theorem minKey_insert_le_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     compare (t.insert k v h.balanced |>.impl.minKey <| isEmpty_insert h) k |>.isLE := by
   simp_to_model [minKey, insert] using List.minKey_insertEntry_le_self
 
-theorem contains_minKey [TransOrd α] (h : t.WF) {he} :
+theorem contains_minKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he} :
     t.contains (t.minKey he) := by
   simp_to_model [minKey, contains] using List.containsKey_minKey
 
-theorem minKey_mem [TransOrd α] (h : t.WF) {he} :
+theorem minKey_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he} :
     t.minKey he ∈ t :=
   contains_minKey h
 
-theorem minKey_le_of_contains [TransOrd α] (h : t.WF) {k} :
+theorem minKey_le_of_contains [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (hc : t.contains k) →
     compare (t.minKey <| (isEmpty_eq_false_iff_exists_contains_eq_true h).mpr ⟨k, hc⟩) k |>.isLE := by
    simp_to_model [minKey, contains] using minKey_le_of_containsKey
 
-theorem minKey_le_of_mem [TransOrd α] (h : t.WF) {k} (hc : k ∈ t) :
+theorem minKey_le_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} (hc : k ∈ t) :
     compare (t.minKey <| (isEmpty_eq_false_iff_exists_contains_eq_true h).mpr ⟨k, hc⟩) k |>.isLE :=
   minKey_le_of_contains h hc
 
-theorem le_minKey [TransOrd α] (h : t.WF) {k he} :
+theorem le_minKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k he} :
     (compare k (t.minKey he)).isLE ↔ (∀ k', k' ∈ t → (compare k k').isLE) := by
   simp_to_model [minKey, contains] using List.le_minKey
 
-theorem getKey?_minKey [TransOrd α] (h : t.WF) {he} :
+theorem getKey?_minKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he} :
     t.getKey? (t.minKey he) = some (t.minKey he) := by
   simp_to_model [getKey?, minKey] using List.getKey?_minKey
 
-theorem getKey_minKey [TransOrd α] (h : t.WF) {he hc} :
+theorem getKey_minKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he hc} :
     t.getKey (t.minKey he) hc = t.minKey he := by
   simp_to_model [getKey, minKey] using List.getKey_minKey
 
-theorem getKey!_minKey [TransOrd α] [Inhabited α] (h : t.WF) {he} :
+theorem getKey!_minKey [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {he} :
     t.getKey! (t.minKey he) = t.minKey he := by
   simp_to_model [getKey!, minKey] using List.getKey!_minKey
 
-theorem getKeyD_minKey [TransOrd α] (h : t.WF) {he fallback} :
+theorem getKeyD_minKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he fallback} :
     t.getKeyD (t.minKey he) fallback = t.minKey he := by
   simp_to_model [getKeyD, minKey] using List.getKeyD_minKey
 
-theorem minKey_erase_eq_iff_not_compare_eq_minKey [TransOrd α] (h : t.WF) {k he} :
+theorem minKey_erase_eq_iff_not_compare_eq_minKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k he} :
     (t.erase k h.balanced |>.impl.minKey he) =
         t.minKey (isEmpty_eq_false_of_isEmpty_erase_eq_false h he) ↔
       ¬ compare k (t.minKey <| isEmpty_eq_false_of_isEmpty_erase_eq_false h he) = .eq := by
   simp_to_model [minKey, erase] using List.minKey_eraseKey_eq_iff_beq_minKey_eq_false
 
-theorem minKey_erase_eq_of_not_compare_eq_minKey [TransOrd α] (h : t.WF) {k he} :
+theorem minKey_erase_eq_of_not_compare_eq_minKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k he} :
     (hc : ¬ compare k (t.minKey (isEmpty_eq_false_of_isEmpty_erase_eq_false h he)) = .eq) →
     (t.erase k h.balanced |>.impl.minKey he) =
       t.minKey (isEmpty_eq_false_of_isEmpty_erase_eq_false h he) := by
   simp_to_model [minKey, erase] using List.minKey_eraseKey_eq_of_beq_minKey_eq_false
 
-theorem minKey_le_minKey_erase [TransOrd α] (h : t.WF) {k he} :
+theorem minKey_le_minKey_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k he} :
     compare (t.minKey <| isEmpty_eq_false_of_isEmpty_erase_eq_false h he)
       (t.erase k h.balanced |>.impl.minKey he) |>.isLE := by
   simp_to_model [minKey, erase] using List.minKey_le_minKey_erase
 
-theorem minKey_insertIfNew [TransOrd α] (h : t.WF) {k v} :
+theorem minKey_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insertIfNew k v h.balanced).impl.minKey (isEmpty_insertIfNew h) =
       t.minKey?.elim k fun k' => if compare k k' = .lt then k else k' := by
   simp_to_model [minKey, minKey?, insertIfNew] using List.minKey_insertEntryIfNew
 
-theorem minKey_insertIfNew_le_minKey [TransOrd α] (h : t.WF) {k v he} :
+theorem minKey_insertIfNew_le_minKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v he} :
     compare (t.insertIfNew k v h.balanced |>.impl.minKey <| isEmpty_insertIfNew h)
       (t.minKey he) |>.isLE := by
   simp_to_model [minKey, insertIfNew] using List.minKey_insertEntryIfNew_le_minKey
 
-theorem minKey_insertIfNew_le_self [TransOrd α] (h : t.WF) {k v} :
+theorem minKey_insertIfNew_le_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     compare (t.insertIfNew k v h.balanced |>.impl.minKey <| isEmpty_insertIfNew h) k |>.isLE := by
   simp_to_model [minKey, insertIfNew] using List.minKey_insertEntryIfNew_le_self
 
-theorem minKey_eq_head_keys [TransOrd α] (h : t.WF) {he} :
+theorem minKey_eq_head_keys [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he} :
     t.minKey he = t.keys.head (List.isEmpty_eq_false_iff.mp <| isEmpty_keys ▸ he) := by
   simp_to_model [minKey, keys] using List.minKey_eq_head_keys h.ordered
 
-theorem minKey_modify [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f he} :
+theorem minKey_modify [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f he} :
     (t.modify k f).minKey he = t.minKey (isEmpty_modify h ▸ he):= by
   simp_to_model [minKey, modify] using List.minKey_modifyKey
 
-theorem minKey_alter_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f he} :
+theorem minKey_alter_eq_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f he} :
     (t.alter k f h.balanced).impl.minKey he = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
   simp_to_model [minKey, alter, get?, contains] using List.minKey_alterKey_eq_self
@@ -4738,7 +4746,7 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-theorem minKey_modify [TransOrd α] (h : t.WF) {k f he} :
+theorem minKey_modify [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f he} :
     (modify k f t).minKey he =
       if compare (t.minKey <| isEmpty_modify h ▸ he) k = .eq then
         k
@@ -4746,194 +4754,194 @@ theorem minKey_modify [TransOrd α] (h : t.WF) {k f he} :
         (t.minKey <| Const.isEmpty_modify h ▸ he) := by
   simp_to_model [minKey, Const.modify] using List.Const.minKey_modifyKey
 
-theorem minKey_modify_eq_minKey [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f he} :
+theorem minKey_modify_eq_minKey [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f he} :
     (modify k f t).minKey he = t.minKey (isEmpty_modify h ▸ he) := by
   simp_to_model [minKey, Const.modify] using List.Const.minKey_modifyKey_eq_minKey
 
-theorem compare_minKey_modify_eq [TransOrd α] (h : t.WF) {k f he} :
+theorem compare_minKey_modify_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f he} :
     compare (modify k f t |>.minKey he) (t.minKey <| isEmpty_modify h ▸ he) = .eq := by
   simp_to_model [minKey, Const.modify] using List.Const.minKey_modifyKey_beq
 
-theorem minKey_alter_eq_self [TransOrd α] (h : t.WF) {k f he} :
+theorem minKey_alter_eq_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f he} :
     (alter k f t h.balanced).impl.minKey he = k ↔
       (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
   simp_to_model [minKey, Const.alter, contains, Const.get?] using List.Const.minKey_alterKey_eq_self
 
 end Const
 
-theorem minKey_eq_minKey! [TransOrd α] [Inhabited α] (h : t.WF) {he} :
+theorem minKey_eq_minKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {he} :
     t.minKey he = t.minKey! := by
   simp_to_model [minKey, minKey!] using List.minKey_eq_minKey!
 
-theorem minKey?_eq_some_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey?_eq_some_minKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → t.minKey? = some t.minKey! := by
   simp_to_model [minKey?, minKey!, isEmpty] using List.minKey?_eq_some_minKey!
 
-theorem minKey!_eq_default [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_eq_default [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty) → t.minKey! = default := by
   simp_to_model [minKey!, isEmpty] using List.minKey!_eq_default
 
-theorem minKey!_eq_iff_getKey?_eq_self_and_forall [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_eq_iff_getKey?_eq_self_and_forall [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {km},
     t.minKey! = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (compare km k).isLE := by
   simp_to_model [minKey!, getKey?, contains, isEmpty] using
     List.minKey!_eq_iff_getKey?_eq_self_and_forall
 
-theorem minKey!_eq_iff_mem_and_forall [TransOrd α]
-    [LawfulEqOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_eq_iff_mem_and_forall [LawfulLinearOrder (.ofOrd α)]
+    [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {km},
     t.minKey! = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (compare km k).isLE := by
   simp_to_model [minKey!, contains, isEmpty] using List.minKey!_eq_iff_mem_and_forall
 
-theorem minKey!_insert [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
+theorem minKey!_insert [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k v} :
     (t.insert k v h.balanced |>.impl.minKey!) =
       (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simp_to_model [minKey!, minKey?, insert] using List.minKey!_insertEntry
 
-theorem minKey!_insert! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
+theorem minKey!_insert! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k v} :
     (t.insert! k v).minKey! =
       (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simpa [insert_eq_insert!] using minKey!_insert h
 
-theorem minKey!_insert_le_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_insert_le_minKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
     compare (t.insert k v h.balanced |>.impl.minKey!) t.minKey! |>.isLE := by
   simp_to_model [minKey!, isEmpty, insert] using List.minKey!_insertEntry_le_minKey!
 
-theorem minKey!_insert!_le_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_insert!_le_minKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
     compare (t.insert! k v).minKey! t.minKey! |>.isLE := by
   simpa only [insert_eq_insert!] using minKey!_insert_le_minKey! h
 
-theorem minKey!_insert_le_self [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
+theorem minKey!_insert_le_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k v} :
     compare (t.insert k v h.balanced |>.impl.minKey!) k |>.isLE := by
   simp_to_model [minKey!, insert] using List.minKey!_insertEntry_le_self
 
-theorem minKey!_insert!_le_self [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
+theorem minKey!_insert!_le_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k v} :
     compare (t.insert! k v).minKey! k |>.isLE := by
   simpa only [insert_eq_insert!] using minKey!_insert_le_self h
 
-theorem contains_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem contains_minKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → t.contains t.minKey! := by
   simp_to_model [minKey!, isEmpty, contains] using List.containsKey_minKey!
 
-theorem minKey!_mem [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_mem [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → t.minKey! ∈ t :=
   contains_minKey! h
 
-theorem minKey!_le_of_contains [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_le_of_contains [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k}, (hc : t.contains k) →
     compare t.minKey! k |>.isLE := by
   simp_to_model [minKey!, contains] using List.minKey!_le_of_containsKey
 
-theorem minKey!_le_of_mem [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_le_of_mem [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k}, (hc : k ∈ t) →
     compare t.minKey! k |>.isLE :=
   minKey!_le_of_contains h
 
-theorem le_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem le_minKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k},
     (compare k t.minKey!).isLE ↔ (∀ k', k' ∈ t → (compare k k').isLE) := by
   simp_to_model [minKey!, contains, isEmpty] using List.le_minKey!
 
-theorem getKey?_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem getKey?_minKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) →
     t.getKey? t.minKey! = some t.minKey! := by
   simp_to_model [minKey!, getKey?, isEmpty] using List.getKey?_minKey!
 
-theorem getKey_minKey! [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {he},
+theorem getKey_minKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) : ∀ {he},
     t.getKey t.minKey! he = t.minKey! := by
   simp_to_model [minKey!, contains, isEmpty, getKey] using List.getKey_minKey!
 
-theorem getKey_minKey!_eq_minKey [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {hc},
+theorem getKey_minKey!_eq_minKey [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) : ∀ {hc},
     t.getKey t.minKey! hc = t.minKey (isEmpty_eq_false_of_contains h hc) := by
   simp_to_model [minKey!, minKey, contains, isEmpty, getKey] using List.getKey_minKey!_eq_minKey
 
-theorem getKey!_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem getKey!_minKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → t.getKey! t.minKey! = t.minKey! := by
   simp_to_model [minKey!, isEmpty, getKey!] using List.getKey!_minKey!
 
-theorem getKeyD_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem getKeyD_minKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {fallback},
     t.getKeyD t.minKey! fallback = t.minKey! := by
   simp_to_model [minKey!, getKeyD, isEmpty] using List.getKeyD_minKey!
 
-theorem minKey!_erase_eq_iff_not_compare_minKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_erase_eq_iff_not_compare_minKey!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
     (t.erase k h.balanced |>.impl.minKey!) = t.minKey! ↔
       ¬ compare k t.minKey! = .eq := by
   simp_to_model [minKey!, isEmpty, erase] using List.minKey!_eraseKey_eq_iff_beq_minKey!_eq_false
 
-theorem minKey!_erase!_eq_iff_not_compare_minKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) {k} :
+theorem minKey!_erase!_eq_iff_not_compare_minKey!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) →
     (t.erase! k).minKey! = t.minKey! ↔
       ¬ compare k t.minKey! = .eq := by
   simpa only [erase_eq_erase!] using minKey!_erase_eq_iff_not_compare_minKey!_eq h
 
-theorem minKey!_erase_eq_of_not_compare_minKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_erase_eq_of_not_compare_minKey!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) → (heq : ¬ compare k t.minKey! = .eq) →
     (t.erase k h.balanced |>.impl.minKey!) = t.minKey! := by
   simp_to_model [minKey!, isEmpty, erase] using
     List.minKey!_eraseKey_eq_of_beq_minKey!_eq_false
 
-theorem minKey!_erase!_eq_of_not_compare_minKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) {k} :
+theorem minKey!_erase!_eq_of_not_compare_minKey!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) → (heq : ¬ compare k t.minKey! = .eq) →
     (t.erase! k).minKey! = t.minKey! := by
   simpa only [erase_eq_erase!] using minKey!_erase_eq_of_not_compare_minKey!_eq h
 
-theorem minKey!_le_minKey!_erase [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_le_minKey!_erase [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
     compare t.minKey! (t.erase k h.balanced |>.impl.minKey!) |>.isLE := by
   simp_to_model [minKey!, isEmpty, erase] using List.minKey!_le_minKey!_erase
 
-theorem minKey!_le_minKey!_erase! [TransOrd α] [Inhabited α] (h : t.WF) {k} :
+theorem minKey!_le_minKey!_erase! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) →
     compare t.minKey! (t.erase! k).minKey! |>.isLE := by
   simpa only [erase_eq_erase!] using minKey!_le_minKey!_erase h
 
-theorem minKey!_insertIfNew [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {k v},
+theorem minKey!_insertIfNew [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) : ∀ {k v},
     (t.insertIfNew k v h.balanced |>.impl.minKey!) =
       t.minKey?.elim k fun k' => if compare k k' = .lt then k else k' := by
   simp_to_model [minKey!, minKey?, insertIfNew] using List.minKey!_insertEntryIfNew
 
-theorem minKey!_insertIfNew! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
+theorem minKey!_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k v} :
     (t.insertIfNew! k v).minKey! =
       t.minKey?.elim k fun k' => if compare k k' = .lt then k else k' := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKey!_insertIfNew h
 
-theorem minKey!_insertIfNew_le_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_insertIfNew_le_minKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
     compare (t.insertIfNew k v h.balanced |>.impl.minKey!) t.minKey! |>.isLE := by
   simp_to_model [minKey!, isEmpty, insertIfNew] using List.minKey!_insertEntryIfNew_le_minKey!
 
-theorem minKey!_insertIfNew!_le_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_insertIfNew!_le_minKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
     compare (t.insertIfNew! k v).minKey! t.minKey! |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKey!_insertIfNew_le_minKey! h
 
-theorem minKey!_insertIfNew_le_self [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {k v},
+theorem minKey!_insertIfNew_le_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) : ∀ {k v},
     compare (t.insertIfNew k v h.balanced |>.impl.minKey!) k |>.isLE := by
   simp_to_model [minKey!, insertIfNew] using List.minKey!_insertEntryIfNew_le_self
 
-theorem minKey!_insertIfNew!_le_self [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
+theorem minKey!_insertIfNew!_le_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k v} :
     compare (t.insertIfNew! k v).minKey! k |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKey!_insertIfNew_le_self h
 
-theorem minKey!_eq_head!_keys [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_eq_head!_keys [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     t.minKey! = t.keys.head! := by
   simp_to_model [minKey!, keys] using List.minKey!_eq_head!_keys h.ordered
 
-theorem minKey!_modify [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) : ∀ {k f},
+theorem minKey!_modify [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) : ∀ {k f},
     (t.modify k f).minKey! = t.minKey! := by
   simp_to_model [minKey!, modify] using List.minKey!_modifyKey
 
-theorem minKey!_alter_eq_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_alter_eq_self [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k f}, (he : (t.alter k f h.balanced).impl.isEmpty = false) →
     (t.alter k f h.balanced |>.impl.minKey!) = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
   simp_to_model [minKey!, alter, isEmpty, contains, get?] using List.minKey!_alterKey_eq_self
 
-theorem minKey!_alter!_eq_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k f} :
+theorem minKey!_alter!_eq_self [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) {k f} :
     (he : (t.alter! k f).isEmpty = false) →
     (t.alter! k f).minKey! = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
@@ -4943,27 +4951,27 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-theorem minKey!_modify [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_modify [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k f}, (he : (modify k f t).isEmpty = false) →
     (modify k f t |> minKey!) = if compare t.minKey! k = .eq then k else t.minKey! := by
   simp_to_model [minKey!, minKey, isEmpty, Const.modify] using List.Const.minKey!_modifyKey
 
-theorem minKey!_modify_eq_minKey! [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_modify_eq_minKey! [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k f}, (modify k f t |> minKey!) = t.minKey! := by
   simp_to_model [minKey!, Const.modify] using List.Const.minKey!_modifyKey_eq_minKey!
 
-theorem compare_minKey!_modify_eq [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {k f},
+theorem compare_minKey!_modify_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) : ∀ {k f},
     compare (Const.modify k f t |> minKey!) t.minKey! = .eq := by
   simp_to_model [minKey!, Const.modify] using List.Const.minKey!_modifyKey_beq
 
-theorem minKey!_alter_eq_self [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_alter_eq_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k f}, (he : (alter k f t h.balanced).impl.isEmpty = false) →
     (alter k f t h.balanced |>.impl.minKey!) = k ↔
       (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
   simp_to_model [minKey!, Const.alter, contains, isEmpty, Const.get?] using
     List.Const.minKey!_alterKey_eq_self
 
-theorem minKey!_alter!_eq_self [TransOrd α] [Inhabited α] (h : t.WF) {k f} :
+theorem minKey!_alter!_eq_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k f} :
     (he : (alter! k f t).isEmpty = false) →
     (alter! k f t |>.minKey!) = k ↔
       (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
@@ -4971,186 +4979,186 @@ theorem minKey!_alter!_eq_self [TransOrd α] [Inhabited α] (h : t.WF) {k f} :
 
 end Const
 
-theorem minKey_eq_minKeyD [TransOrd α] (h : t.WF) {he fallback} :
+theorem minKey_eq_minKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he fallback} :
     t.minKey he = t.minKeyD fallback := by
   simp_to_model [minKey, minKeyD] using List.minKey_eq_minKeyD
 
-theorem minKey?_eq_some_minKeyD [TransOrd α] (h : t.WF) {fallback} :
+theorem minKey?_eq_some_minKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {fallback} :
     (he : t.isEmpty = false) → t.minKey? = some (t.minKeyD fallback) := by
   simp_to_model [minKey?, minKeyD, isEmpty] using List.minKey?_eq_some_minKeyD
 
-theorem minKeyD_eq_fallback [TransOrd α] (h : t.WF) {fallback} :
+theorem minKeyD_eq_fallback [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {fallback} :
     (he : t.isEmpty) → t.minKeyD fallback = fallback := by
   simp_to_model [minKeyD, isEmpty] using List.minKeyD_eq_fallback
 
-theorem minKey!_eq_minKeyD_default [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem minKey!_eq_minKeyD_default [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     t.minKey! = t.minKeyD default := by
   simp_to_model [minKey!, minKeyD] using List.minKey!_eq_minKeyD_default
 
-theorem minKeyD_eq_iff_getKey?_eq_self_and_forall [TransOrd α] (h : t.WF) :
+theorem minKeyD_eq_iff_getKey?_eq_self_and_forall [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {km fallback},
     t.minKeyD fallback = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (compare km k).isLE := by
   simp_to_model [minKeyD, getKey?, contains, isEmpty] using
     List.minKeyD_eq_iff_getKey?_eq_self_and_forall
 
-theorem minKeyD_eq_iff_mem_and_forall [TransOrd α]
-    [LawfulEqOrd α] (h : t.WF) :
+theorem minKeyD_eq_iff_mem_and_forall [LawfulLinearOrder (.ofOrd α)]
+    (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {km fallback},
     t.minKeyD fallback = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (compare km k).isLE := by
   simp_to_model [minKeyD, contains, isEmpty] using List.minKeyD_eq_iff_mem_and_forall
 
-theorem minKeyD_insert [TransOrd α] (h : t.WF) {k v fallback} :
+theorem minKeyD_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v fallback} :
     (t.insert k v h.balanced |>.impl.minKeyD <| fallback) =
       (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simp_to_model [minKeyD, minKey?, insert] using List.minKeyD_insertEntry
 
-theorem minKeyD_insert! [TransOrd α] (h : t.WF) {k v fallback} :
+theorem minKeyD_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v fallback} :
     (t.insert! k v |>.minKeyD fallback) =
       (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simpa [insert_eq_insert!] using minKeyD_insert h
 
-theorem minKeyD_insert_le_minKeyD [TransOrd α] (h : t.WF) :
+theorem minKeyD_insert_le_minKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v fallback},
     compare (t.insert k v h.balanced |>.impl.minKeyD <| fallback) (t.minKeyD fallback) |>.isLE := by
   simp_to_model [minKeyD, isEmpty, insert] using List.minKeyD_insertEntry_le_minKeyD
 
-theorem minKeyD_insert!_le_minKeyD [TransOrd α] (h : t.WF) :
+theorem minKeyD_insert!_le_minKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v fallback},
     compare (t.insert! k v |>.minKeyD fallback) (t.minKeyD fallback) |>.isLE := by
   simpa only [insert_eq_insert!] using minKeyD_insert_le_minKeyD h
 
-theorem minKeyD_insert_le_self [TransOrd α] (h : t.WF) {k v fallback} :
+theorem minKeyD_insert_le_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v fallback} :
     compare (t.insert k v h.balanced |>.impl.minKeyD <| fallback) k |>.isLE := by
   simp_to_model [minKeyD, insert] using List.minKeyD_insertEntry_le_self
 
-theorem minKeyD_insert!_le_self [TransOrd α] (h : t.WF) {k v fallback} :
+theorem minKeyD_insert!_le_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v fallback} :
     compare (t.insert! k v |>.minKeyD fallback) k |>.isLE := by
   simpa only [insert_eq_insert!] using minKeyD_insert_le_self h
 
-theorem contains_minKeyD [TransOrd α] (h : t.WF) :
+theorem contains_minKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {fallback}, t.contains (t.minKeyD fallback) := by
   simp_to_model [minKeyD, isEmpty, contains] using List.containsKey_minKeyD
 
-theorem minKeyD_mem [TransOrd α] (h : t.WF) :
+theorem minKeyD_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {fallback}, (t.minKeyD fallback) ∈ t :=
   contains_minKeyD h
 
-theorem minKeyD_le_of_contains [TransOrd α] (h : t.WF) :
+theorem minKeyD_le_of_contains [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k}, (hc : t.contains k) → ∀ {fallback},
     compare (t.minKeyD fallback) k |>.isLE := by
   simp_to_model [minKeyD, contains] using List.minKeyD_le_of_containsKey
 
-theorem minKeyD_le_of_mem [TransOrd α] (h : t.WF) :
+theorem minKeyD_le_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k}, (hc : k ∈ t) → ∀ {fallback},
     compare (t.minKeyD fallback) k |>.isLE :=
   minKeyD_le_of_contains h
 
-theorem le_minKeyD [TransOrd α] (h : t.WF) :
+theorem le_minKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k fallback},
     (compare k (t.minKeyD fallback)).isLE ↔ (∀ k', k' ∈ t → (compare k k').isLE) := by
   simp_to_model [minKeyD, contains, isEmpty] using List.le_minKeyD
 
-theorem getKey?_minKeyD [TransOrd α] (h : t.WF) :
+theorem getKey?_minKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {fallback},
     t.getKey? (t.minKeyD fallback) = some (t.minKeyD fallback) := by
   simp_to_model [minKeyD, getKey?, isEmpty] using List.getKey?_minKeyD
 
-theorem getKey_minKeyD [TransOrd α] (h : t.WF) : ∀ {fallback he},
+theorem getKey_minKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) : ∀ {fallback he},
     t.getKey (t.minKeyD fallback) he = (t.minKeyD fallback) := by
   simp_to_model [minKeyD, contains, isEmpty, getKey] using List.getKey_minKeyD
 
-theorem getKey_minKeyD_eq_minKey [TransOrd α] (h : t.WF) : ∀ {fallback hc},
+theorem getKey_minKeyD_eq_minKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) : ∀ {fallback hc},
     t.getKey (t.minKeyD fallback) hc = t.minKey (isEmpty_eq_false_of_contains h hc) := by
   simp_to_model [minKeyD, minKey, contains, isEmpty, getKey] using List.getKey_minKeyD_eq_minKey
 
-theorem getKey!_minKeyD [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem getKey!_minKeyD [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {fallback},
     t.getKey! (t.minKeyD fallback) = (t.minKeyD fallback) := by
   simp_to_model [minKeyD, isEmpty, getKey!] using List.getKey!_minKeyD
 
-theorem getKeyD_minKeyD [TransOrd α] (h : t.WF) :
+theorem getKeyD_minKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {fallback fallback'},
     t.getKeyD (t.minKeyD fallback) fallback' = t.minKeyD fallback := by
   simp_to_model [minKeyD, getKeyD, isEmpty] using List.getKeyD_minKeyD
 
-theorem minKeyD_erase_eq_iff_not_compare_minKeyD_eq [TransOrd α] (h : t.WF) :
+theorem minKeyD_erase_eq_iff_not_compare_minKeyD_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k fallback}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
     (t.erase k h.balanced |>.impl.minKeyD <| fallback) = t.minKeyD fallback ↔
       ¬ compare k (t.minKeyD fallback) = .eq := by
   simp_to_model [minKeyD, isEmpty, erase] using List.minKeyD_eraseKey_eq_iff_beq_minKeyD_eq_false
 
-theorem minKeyD_erase!_eq_iff_not_compare_minKeyD_eq [TransOrd α] (h : t.WF) {k fallback} :
+theorem minKeyD_erase!_eq_iff_not_compare_minKeyD_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k fallback} :
     (he : (t.erase! k).isEmpty = false) →
     (t.erase! k |>.minKeyD fallback) = t.minKeyD fallback ↔
       ¬ compare k (t.minKeyD fallback) = .eq := by
   simpa only [erase_eq_erase!] using minKeyD_erase_eq_iff_not_compare_minKeyD_eq h
 
-theorem minKeyD_erase_eq_of_not_compare_minKeyD_eq [TransOrd α] (h : t.WF) :
+theorem minKeyD_erase_eq_of_not_compare_minKeyD_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k fallback}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
     (heq : ¬ compare k (t.minKeyD fallback) = .eq) →
     (t.erase k h.balanced |>.impl.minKeyD <| fallback) = t.minKeyD fallback := by
   simp_to_model [minKeyD, isEmpty, erase] using
     List.minKeyD_eraseKey_eq_of_beq_minKeyD_eq_false
 
-theorem minKeyD_erase!_eq_of_not_compare_minKeyD_eq [TransOrd α] (h : t.WF) {k fallback} :
+theorem minKeyD_erase!_eq_of_not_compare_minKeyD_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k fallback} :
     (he : (t.erase! k).isEmpty = false) → (heq : ¬ compare k (t.minKeyD fallback) = .eq) →
     (t.erase! k |>.minKeyD fallback) = t.minKeyD fallback := by
   simpa only [erase_eq_erase!] using minKeyD_erase_eq_of_not_compare_minKeyD_eq h
 
-theorem minKeyD_le_minKeyD_erase [TransOrd α] (h : t.WF) :
+theorem minKeyD_le_minKeyD_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) → ∀ {fallback},
     compare (t.minKeyD fallback) (t.erase k h.balanced |>.impl.minKeyD <| fallback) |>.isLE := by
   simp_to_model [minKeyD, isEmpty, erase] using List.minKeyD_le_minKeyD_erase
 
-theorem minKeyD_le_minKeyD_erase! [TransOrd α] (h : t.WF) {k} :
+theorem minKeyD_le_minKeyD_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) → ∀ {fallback},
     compare (t.minKeyD fallback) (t.erase! k |>.minKeyD fallback) |>.isLE := by
   simpa only [erase_eq_erase!] using minKeyD_le_minKeyD_erase h
 
-theorem minKeyD_insertIfNew [TransOrd α] (h : t.WF) : ∀ {k v fallback},
+theorem minKeyD_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) : ∀ {k v fallback},
     (t.insertIfNew k v h.balanced |>.impl.minKeyD <| fallback) =
       t.minKey?.elim k fun k' => if compare k k' = .lt then k else k' := by
   simp_to_model [minKeyD, minKey?, insertIfNew] using List.minKeyD_insertEntryIfNew
 
-theorem minKeyD_insertIfNew! [TransOrd α] (h : t.WF) {k v fallback} :
+theorem minKeyD_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v fallback} :
     (t.insertIfNew! k v |>.minKeyD fallback) =
       t.minKey?.elim k fun k' => if compare k k' = .lt then k else k' := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKeyD_insertIfNew h
 
-theorem minKeyD_insertIfNew_le_minKeyD [TransOrd α] (h : t.WF) :
+theorem minKeyD_insertIfNew_le_minKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v fallback},
     compare (t.insertIfNew k v h.balanced |>.impl.minKeyD <| fallback)
       (t.minKeyD fallback) |>.isLE := by
   simp_to_model [minKeyD, isEmpty, insertIfNew] using List.minKeyD_insertEntryIfNew_le_minKeyD
 
-theorem minKeyD_insertIfNew!_le_minKeyD [TransOrd α] (h : t.WF) :
+theorem minKeyD_insertIfNew!_le_minKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v fallback},
     compare (t.insertIfNew! k v |>.minKeyD fallback) (t.minKeyD fallback) |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKeyD_insertIfNew_le_minKeyD h
 
-theorem minKeyD_insertIfNew_le_self [TransOrd α] (h : t.WF) : ∀ {k v fallback},
+theorem minKeyD_insertIfNew_le_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) : ∀ {k v fallback},
     compare (t.insertIfNew k v h.balanced |>.impl.minKeyD <| fallback) k |>.isLE := by
   simp_to_model [minKeyD, insertIfNew] using List.minKeyD_insertEntryIfNew_le_self
 
-theorem minKeyD_insertIfNew!_le_self [TransOrd α] (h : t.WF) {k v fallback} :
+theorem minKeyD_insertIfNew!_le_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v fallback} :
     compare (t.insertIfNew! k v |>.minKeyD fallback) k |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKeyD_insertIfNew_le_self h
 
-theorem minKeyD_eq_headD_keys [TransOrd α] (h : t.WF) {fallback} :
+theorem minKeyD_eq_headD_keys [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {fallback} :
     t.minKeyD fallback = t.keys.headD fallback := by
   simp_to_model [minKeyD, keys] using List.minKeyD_eq_headD_keys h.ordered
 
-theorem minKeyD_modify [TransOrd α] [LawfulEqOrd α] (h : t.WF) : ∀ {k f fallback},
+theorem minKeyD_modify [LawfulLinearOrder (.ofOrd α)] (h : t.WF) : ∀ {k f fallback},
     (t.modify k f |>.minKeyD fallback) = t.minKeyD fallback := by
   simp_to_model [minKeyD, modify] using List.minKeyD_modifyKey
 
-theorem minKeyD_alter_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) :
+theorem minKeyD_alter_eq_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) :
     ∀ {k f fallback}, (he : (t.alter k f h.balanced).impl.isEmpty = false) →
     (t.alter k f h.balanced |>.impl.minKeyD <| fallback) = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
   simp_to_model [minKeyD, alter, isEmpty, contains, get?] using List.minKeyD_alterKey_eq_self
 
-theorem minKeyD_alter!_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f fallback} :
+theorem minKeyD_alter!_eq_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f fallback} :
     (he : (t.alter! k f).isEmpty = false) →
     (t.alter! k f |>.minKeyD fallback) = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
@@ -5160,28 +5168,28 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-theorem minKeyD_modify [TransOrd α] (h : t.WF) :
+theorem minKeyD_modify [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k f}, (he : (modify k f t).isEmpty = false) → ∀ {fallback},
     (modify k f t |>.minKeyD fallback) =
       if compare (t.minKeyD fallback) k = .eq then k else t.minKeyD fallback := by
   simp_to_model [minKeyD, minKey, isEmpty, Const.modify] using List.Const.minKeyD_modifyKey
 
-theorem minKeyD_modify_eq_minKeyD [TransOrd α] [LawfulEqOrd α] (h : t.WF) :
+theorem minKeyD_modify_eq_minKeyD [LawfulLinearOrder (.ofOrd α)] (h : t.WF) :
     ∀ {k f fallback}, (modify k f t |>.minKeyD fallback) = t.minKeyD fallback := by
   simp_to_model [minKeyD, Const.modify] using List.Const.minKeyD_modifyKey_eq_minKeyD
 
-theorem compare_minKeyD_modify_eq [TransOrd α] (h : t.WF) : ∀ {k f fallback},
+theorem compare_minKeyD_modify_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) : ∀ {k f fallback},
     compare (Const.modify k f t |>.minKeyD fallback) (t.minKeyD fallback) = .eq := by
   simp_to_model [minKeyD, Const.modify] using List.Const.minKeyD_modifyKey_beq
 
-theorem minKeyD_alter_eq_self [TransOrd α] (h : t.WF) :
+theorem minKeyD_alter_eq_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k f}, (he : (alter k f t h.balanced).impl.isEmpty = false) → ∀ {fallback},
     (alter k f t h.balanced |>.impl.minKeyD <| fallback) = k ↔
       (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
   simp_to_model [minKeyD, Const.alter, contains, isEmpty, Const.get?] using
     List.Const.minKeyD_alterKey_eq_self
 
-theorem minKeyD_alter!_eq_self [TransOrd α] (h : t.WF) {k f} :
+theorem minKeyD_alter!_eq_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f} :
     (he : (alter! k f t).isEmpty = false) → ∀ {fallback},
     (alter! k f t |>.minKeyD fallback) = k ↔
       (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
@@ -5197,227 +5205,227 @@ theorem maxKey?_empty :
     (empty : Impl α β).maxKey? = none := by
   unfold maxKey?; rfl
 
-theorem maxKey?_of_isEmpty [TransOrd α] (h : t.WF) :
+theorem maxKey?_of_isEmpty [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty) → t.maxKey? = none := by
   simp_to_model using List.maxKey?_of_isEmpty
 
-theorem maxKey?_eq_none_iff [TransOrd α] (h : t.WF) :
+theorem maxKey?_eq_none_iff [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.maxKey? = none ↔ t.isEmpty := by
   simp_to_model using List.maxKey?_eq_none_iff_isEmpty
 
-theorem maxKey?_eq_some_iff_getKey?_eq_self_and_forall [TransOrd α] (h : t.WF) {km} :
+theorem maxKey?_eq_some_iff_getKey?_eq_self_and_forall [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {km} :
     t.maxKey? = some km ↔ t.getKey? km = some km ∧ ∀ k ∈ t, (compare k km).isLE := by
   simp_to_model using List.maxKey?_eq_some_iff_getKey?_eq_self_and_forall
 
-theorem maxKey?_eq_some_iff_mem_and_forall [TransOrd α] [LawfulEqOrd α] (h : t.WF) {km} :
+theorem maxKey?_eq_some_iff_mem_and_forall [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {km} :
     t.maxKey? = some km ↔ km ∈ t ∧ ∀ k ∈ t, (compare k km).isLE := by
   simp_to_model using List.maxKey?_eq_some_iff_mem_and_forall
 
-theorem isNone_maxKey?_eq_isEmpty [TransOrd α] (h : t.WF) :
+theorem isNone_maxKey?_eq_isEmpty [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.maxKey?.isNone = t.isEmpty := by
   simp_to_model using List.isNone_maxKey?_eq_isEmpty
 
-theorem isSome_maxKey?_eq_not_isEmpty [TransOrd α] (h : t.WF) :
+theorem isSome_maxKey?_eq_not_isEmpty [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.maxKey?.isSome = !t.isEmpty := by
   simp_to_model using List.isSome_maxKey?_eq_not_isEmpty
 
-theorem isSome_maxKey?_iff_isEmpty_eq_false [TransOrd α] (h : t.WF) :
+theorem isSome_maxKey?_iff_isEmpty_eq_false [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.maxKey?.isSome ↔ t.isEmpty = false := by
   simp [isSome_maxKey?_eq_not_isEmpty h]
 
-theorem maxKey?_insert [TransOrd α] (h : t.WF) {k v} :
+theorem maxKey?_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insert k v h.balanced).impl.maxKey? =
       some (t.maxKey?.elim k fun k' => if compare k' k|>.isLE then k else k') := by
   simp_to_model [insert] using List.maxKey?_insertEntry
 
-theorem maxKey?_insert! [TransOrd α] (h : t.WF) {k v} :
+theorem maxKey?_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insert! k v).maxKey? =
       some (t.maxKey?.elim k fun k' => if compare k' k|>.isLE then k else k') := by
   simpa only [insert_eq_insert!] using maxKey?_insert h
 
-theorem isSome_maxKey?_insert [TransOrd α] (h : t.WF) {k v} :
+theorem isSome_maxKey?_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insert k v h.balanced).impl.maxKey?.isSome := by
   simp_to_model [insert] using List.isSome_maxKey?_insertEntry
 
-theorem isSome_maxKey?_insert! [TransOrd α] (h : t.WF) {k v} :
+theorem isSome_maxKey?_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insert! k v).maxKey?.isSome := by
   simpa only [insert_eq_insert!] using isSome_maxKey?_insert h
 
-theorem maxKey?_le_maxKey?_insert [TransOrd α] (h : t.WF) {k v km kmi} :
+theorem maxKey?_le_maxKey?_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v km kmi} :
     (hkm : t.maxKey? = some km) →
     (hkmi : (t.insert k v h.balanced |>.impl.maxKey? |>.get <| isSome_maxKey?_insert h) = kmi) →
     compare km kmi |>.isLE := by
   simp_to_model [insert] using List.maxKey?_le_maxKey?_insertEntry
 
-theorem maxKey?_le_maxKey?_insert! [TransOrd α] (h : t.WF) {k v km kmi} :
+theorem maxKey?_le_maxKey?_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v km kmi} :
     (hkm : t.maxKey? = some km) →
     (hkmi : (t.insert! k v |>.maxKey? |>.get <| isSome_maxKey?_insert! h) = kmi) →
     compare km kmi |>.isLE := by
   simpa only [insert_eq_insert!] using maxKey?_le_maxKey?_insert h
 
-theorem self_le_maxKey?_insert [TransOrd α] (h : t.WF) {k v kmi} :
+theorem self_le_maxKey?_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v kmi} :
     (hkmi : (t.insert k v h.balanced |>.impl.maxKey?.get <| isSome_maxKey?_insert h) = kmi) →
     compare k kmi |>.isLE := by
   simp_to_model [insert] using List.self_le_maxKey?_insertEntry
 
-theorem self_le_maxKey?_insert! [TransOrd α] (h : t.WF) {k v kmi} :
+theorem self_le_maxKey?_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v kmi} :
     (hkmi : (t.insert! k v |>.maxKey?.get <| isSome_maxKey?_insert! h) = kmi) →
     compare k kmi |>.isLE := by
   simpa only [insert_eq_insert!] using self_le_maxKey?_insert h
 
-theorem contains_maxKey? [TransOrd α] (h : t.WF) {km} :
+theorem contains_maxKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {km} :
     (hkm : t.maxKey? = some km) →
     t.contains km := by
   simp_to_model using List.containsKey_maxKey?
 
-theorem maxKey?_mem [TransOrd α] (h : t.WF) {km} :
+theorem maxKey?_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {km} :
     (hkm : t.maxKey? = some km) →
     km ∈ t := by
   simp_to_model using List.containsKey_maxKey?
 
-theorem isSome_maxKey?_of_contains [TransOrd α] (h : t.WF) {k} :
+theorem isSome_maxKey?_of_contains [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (hc : t.contains k) → t.maxKey?.isSome := by
   simp_to_model using List.isSome_maxKey?_of_containsKey
 
-theorem isSome_maxKey?_of_mem [TransOrd α] (h : t.WF) {k} :
+theorem isSome_maxKey?_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     k ∈ t → t.maxKey?.isSome :=
   isSome_maxKey?_of_contains h
 
-theorem le_maxKey?_of_contains [TransOrd α] (h : t.WF) {k km} :
+theorem le_maxKey?_of_contains [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k km} :
     (hc : t.contains k) → (hkm : (t.maxKey?.get <| isSome_maxKey?_of_contains h hc) = km) →
     compare k km |>.isLE := by
   simp_to_model using maxKey?_le_of_containsKey
 
-theorem le_maxKey?_of_mem [TransOrd α] (h : t.WF) {k km} :
+theorem le_maxKey?_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k km} :
     (hc : k ∈ t) → (hkm : (t.maxKey?.get <| isSome_maxKey?_of_mem h hc) = km) →
     compare k km |>.isLE :=
   le_maxKey?_of_contains h
 
-theorem maxKey?_le [TransOrd α] {k} (h : t.WF) :
+theorem maxKey?_le [LawfulLinearPreorder (.ofOrd α)] {k} (h : t.WF) :
     (∀ k', t.maxKey? = some k' → (compare k' k).isLE) ↔
       (∀ k', k' ∈ t → (compare k' k).isLE) := by
   simp_to_model using List.maxKey?_le
 
-theorem getKey?_maxKey? [TransOrd α] (h : t.WF) {km} :
+theorem getKey?_maxKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {km} :
     (hkm : t.maxKey? = some km) → t.getKey? km = some km := by
   simp_to_model using List.getKey?_maxKey?
 
-theorem getKey_maxKey? [TransOrd α] (h : t.WF) {km hc} :
+theorem getKey_maxKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {km hc} :
     (hkm : t.maxKey?.get (isSome_maxKey?_of_contains h hc) = km) → t.getKey km hc = km := by
   simp_to_model using List.getKey_maxKey?
 
-theorem getKey!_maxKey? [TransOrd α] [Inhabited α] (h : t.WF) {km} :
+theorem getKey!_maxKey? [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {km} :
     (hkm : t.maxKey? = some km) → t.getKey! km = km := by
   simp_to_model using List.getKey!_maxKey?
 
-theorem getKeyD_maxKey? [TransOrd α] (h : t.WF) {km fallback} :
+theorem getKeyD_maxKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {km fallback} :
     (hkm : t.maxKey? = some km) → t.getKeyD km fallback = km := by
   simp_to_model using List.getKeyD_maxKey?
 
 @[simp]
-theorem maxKey?_bind_getKey? [TransOrd α] (h : t.WF) :
+theorem maxKey?_bind_getKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.maxKey?.bind t.getKey? = t.maxKey? := by
   change (t.maxKey?.bind fun k => t.getKey? k) = t.maxKey?
   simp_to_model using List.maxKey?_bind_getKey?
 
-theorem maxKey?_erase_eq_iff_not_compare_eq_maxKey? [TransOrd α] (h : t.WF) {k} :
+theorem maxKey?_erase_eq_iff_not_compare_eq_maxKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (t.erase k h.balanced |>.impl.maxKey?) = t.maxKey? ↔
       ∀ {km}, t.maxKey? = some km → ¬ compare k km = .eq := by
   simp_to_model [erase] using maxKey?_eraseKey_eq_iff_beq_maxKey?_eq_false
 
-theorem maxKey?_erase!_eq_iff_not_compare_eq_maxKey? [TransOrd α] (h : t.WF) {k} :
+theorem maxKey?_erase!_eq_iff_not_compare_eq_maxKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (t.erase! k |>.maxKey?) = t.maxKey? ↔
       ∀ {km}, t.maxKey? = some km → ¬ compare k km = .eq := by
   simpa only [erase_eq_erase!] using maxKey?_erase_eq_iff_not_compare_eq_maxKey? h
 
-theorem maxKey?_erase_eq_of_not_compare_eq_maxKey? [TransOrd α] (h : t.WF) {k} :
+theorem maxKey?_erase_eq_of_not_compare_eq_maxKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (hc : ∀ {km}, t.maxKey? = some km → ¬ compare k km = .eq) →
     (t.erase k h.balanced |>.impl.maxKey?) = t.maxKey? := by
   simp_to_model [erase] using maxKey?_eraseKey_eq_of_beq_maxKey?_eq_false
 
-theorem maxKey?_erase!_eq_of_not_compare_eq_maxKey? [TransOrd α] (h : t.WF) {k} :
+theorem maxKey?_erase!_eq_of_not_compare_eq_maxKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (hc : ∀ {km}, t.maxKey? = some km → ¬ compare k km = .eq) →
     (t.erase! k |>.maxKey?) = t.maxKey? := by
   simpa only [erase_eq_erase!] using maxKey?_erase_eq_of_not_compare_eq_maxKey? h
 
-theorem isSome_maxKey?_of_isSome_maxKey?_erase [TransOrd α] (h : t.WF) {k} :
+theorem isSome_maxKey?_of_isSome_maxKey?_erase [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (hs : t.erase k h.balanced |>.impl.maxKey?.isSome) →
     t.maxKey?.isSome := by
   simp_to_model [erase] using isSome_maxKey?_of_isSome_maxKey?_eraseKey
 
-theorem isSome_maxKey?_of_isSome_maxKey?_erase! [TransOrd α] (h : t.WF) {k} :
+theorem isSome_maxKey?_of_isSome_maxKey?_erase! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (hs : t.erase! k |>.maxKey?.isSome) →
     t.maxKey?.isSome := by
   simpa only [erase_eq_erase!] using isSome_maxKey?_of_isSome_maxKey?_erase h
 
-theorem maxKey?_erase_le_maxKey? [TransOrd α] (h : t.WF) {k km kme} :
+theorem maxKey?_erase_le_maxKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k km kme} :
     (hkme : (t.erase k h.balanced |>.impl.maxKey?) = some kme) →
     (hkm : (t.maxKey?.get <|
       isSome_maxKey?_of_isSome_maxKey?_erase h <| hkme ▸ Option.isSome_some) = km) →
     compare kme km |>.isLE := by
   simp_to_model [erase] using maxKey?_eraseKey_le_maxKey?
 
-theorem maxKey?_erase!_le_maxKey? [TransOrd α] (h : t.WF) {k km kme} :
+theorem maxKey?_erase!_le_maxKey? [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k km kme} :
     (hkme : (t.erase! k |>.maxKey?) = some kme) →
     (hkm : (t.maxKey?.get <|
       isSome_maxKey?_of_isSome_maxKey?_erase! h <| hkme ▸ Option.isSome_some) = km) →
     compare kme km |>.isLE := by
   simpa only [erase_eq_erase!] using maxKey?_erase_le_maxKey? h
 
-theorem maxKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :
+theorem maxKey?_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insertIfNew k v h.balanced).impl.maxKey? =
       some (t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k') := by
   simp_to_model [insertIfNew] using List.maxKey?_insertEntryIfNew
 
-theorem maxKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v} :
+theorem maxKey?_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insertIfNew! k v).maxKey? =
       some (t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k') := by
   simpa only [insertIfNew_eq_insertIfNew!] using maxKey?_insertIfNew h
 
-theorem isSome_maxKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :
+theorem isSome_maxKey?_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insertIfNew k v h.balanced).impl.maxKey?.isSome := by
   simp_to_model [insertIfNew] using List.isSome_maxKey?_insertEntryIfNew
 
-theorem isSome_maxKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v} :
+theorem isSome_maxKey?_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insertIfNew! k v).maxKey?.isSome := by
   simpa only [insertIfNew_eq_insertIfNew!] using isSome_maxKey?_insertIfNew h
 
-theorem maxKey?_le_maxKey?_insertIfNew [TransOrd α] (h : t.WF) {k v km kmi} :
+theorem maxKey?_le_maxKey?_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v km kmi} :
     (hkm : t.maxKey? = some km) →
     (hkmi : (t.insertIfNew k v h.balanced |>.impl.maxKey? |>.get <| isSome_maxKey?_insertIfNew h) = kmi) →
     compare km kmi |>.isLE := by
   simp_to_model [insertIfNew] using List.maxKey?_le_maxKey?_insertEntryIfNew
 
-theorem maxKey?_le_maxKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v km kmi} :
+theorem maxKey?_le_maxKey?_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v km kmi} :
     (hkm : t.maxKey? = some km) →
     (hkmi : (t.insertIfNew! k v |>.maxKey? |>.get <| isSome_maxKey?_insertIfNew! h) = kmi) →
     compare km kmi |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using maxKey?_le_maxKey?_insertIfNew h
 
-theorem self_le_maxKey?_insertIfNew [TransOrd α] (h : t.WF) {k v kmi} :
+theorem self_le_maxKey?_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v kmi} :
     (hkmi : (t.insertIfNew k v h.balanced |>.impl.maxKey?.get <| isSome_maxKey?_insertIfNew h) = kmi) →
     compare k kmi |>.isLE := by
   simp_to_model [insertIfNew] using List.self_le_maxKey?_insertEntryIfNew
 
-theorem self_le_maxKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v kmi} :
+theorem self_le_maxKey?_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v kmi} :
     (hkmi : (t.insertIfNew! k v |>.maxKey?.get <| isSome_maxKey?_insertIfNew! h) = kmi) →
     compare k kmi |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using self_le_maxKey?_insertIfNew h
 
-theorem maxKey?_eq_getLast?_keys [TransOrd α] (h : t.WF) :
+theorem maxKey?_eq_getLast?_keys [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     t.maxKey? = t.keys.getLast? := by
   simp_to_model [maxKey?, keys] using List.maxKey?_eq_getLast?_keys _ h.ordered
 
-theorem maxKey?_modify [TransOrd α] [LawfulEqOrd α] {k f} (h : t.WF) :
+theorem maxKey?_modify [LawfulLinearOrder (.ofOrd α)] {k f} (h : t.WF) :
     (t.modify k f).maxKey? = t.maxKey? := by
   simp_to_model [modify] using List.maxKey?_modifyKey
 
-theorem maxKey?_alter_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f} :
+theorem maxKey?_alter_eq_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f} :
     (t.alter k f h.balanced).impl.maxKey? = some k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
   simp_to_model [alter] using List.maxKey?_alterKey_eq_self
 
-theorem maxKey?_alter!_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f} :
+theorem maxKey?_alter!_eq_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f} :
     (t.alter! k f).maxKey? = some k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
   simpa only [alter_eq_alter!] using maxKey?_alter_eq_self h
@@ -5426,143 +5434,143 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-theorem maxKey?_modify [TransOrd α] (h : t.WF) {k f} :
+theorem maxKey?_modify [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f} :
     (Const.modify k f t).maxKey? = t.maxKey?.map fun km => if compare km k = .eq then k else km := by
   simp_to_model [Const.modify] using List.Const.maxKey?_modifyKey
 
-theorem maxKey?_modify_eq_maxKey? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f} :
+theorem maxKey?_modify_eq_maxKey? [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f} :
     (Const.modify k f t).maxKey? = t.maxKey? := by
   simp_to_model [Const.modify] using List.Const.maxKey?_modifyKey_eq_maxKey?
 
-theorem isSome_maxKey?_modify [TransOrd α] {k f}  (h : t.WF) :
+theorem isSome_maxKey?_modify [LawfulLinearPreorder (.ofOrd α)] {k f}  (h : t.WF) :
     (Const.modify k f t).maxKey?.isSome = !t.isEmpty := by
   simp_to_model [Const.modify] using List.Const.isSome_maxKey?_modifyKey
 
-theorem isSome_maxKey?_modify_eq_isSome [TransOrd α] (h : t.WF) {k f} :
+theorem isSome_maxKey?_modify_eq_isSome [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f} :
     (Const.modify k f t).maxKey?.isSome = t.maxKey?.isSome := by
   simp_to_model [Const.modify] using List.Const.isSome_maxKey?_modifyKey_eq_isSome
 
-theorem compare_maxKey?_modify_eq [TransOrd α] (h : t.WF) {k f km kmm} :
+theorem compare_maxKey?_modify_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f km kmm} :
     (hkm : t.maxKey? = some km) →
     (hkmm : (Const.modify k f t |>.maxKey? |>.get <|
         (isSome_maxKey?_modify_eq_isSome h).trans <| hkm ▸ Option.isSome_some) = kmm) →
     compare kmm km = .eq := by
   simp_to_model [Const.modify] using List.Const.maxKey?_modifyKey_beq
 
-theorem maxKey?_alter_eq_self [TransOrd α] (h : t.WF) {k f} :
+theorem maxKey?_alter_eq_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f} :
     (Const.alter k f t h.balanced).impl.maxKey? = some k ↔
       (f (Const.get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
   simp_to_model [Const.alter] using List.Const.maxKey?_alterKey_eq_self
 
-theorem maxKey?_alter!_eq_self [TransOrd α] (h : t.WF) {k f} :
+theorem maxKey?_alter!_eq_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f} :
     (Const.alter! k f t).maxKey? = some k ↔
       (f (Const.get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
   simpa [alter_eq_alter!] using maxKey?_alter_eq_self h
 
 end Const
 
-theorem maxKey?_eq_some_maxKey [TransOrd α] (h : t.WF) {he} :
+theorem maxKey?_eq_some_maxKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he} :
     t.maxKey? = some (t.maxKey he) := by
   simp_to_model [maxKey, maxKey?] using List.maxKey?_eq_some_maxKey
 
-theorem maxKey_eq_iff_getKey?_eq_self_and_forall [TransOrd α] (h : t.WF) {he km} :
+theorem maxKey_eq_iff_getKey?_eq_self_and_forall [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he km} :
     t.maxKey he = km ↔ t.getKey? km = some km ∧ ∀ k ∈ t, (compare k km).isLE := by
   simp_to_model [maxKey, getKey?, contains] using List.maxKey_eq_iff_getKey?_eq_self_and_forall
 
-theorem maxKey_eq_iff_mem_and_forall [TransOrd α] [LawfulEqOrd α] (h : t.WF) {he km} :
+theorem maxKey_eq_iff_mem_and_forall [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {he km} :
     t.maxKey he = km ↔ km ∈ t ∧ ∀ k ∈ t, (compare k km).isLE := by
   simp_to_model [maxKey, contains] using List.maxKey_eq_iff_mem_and_forall
 
-theorem maxKey_insert [TransOrd α] (h : t.WF) {k v} :
+theorem maxKey_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insert k v h.balanced).impl.maxKey (isEmpty_insert h) =
       t.maxKey?.elim k fun k' => if compare k' k |>.isLE then k else k' := by
   simp_to_model [insert, maxKey, maxKey?] using List.maxKey_insertEntry
 
-theorem maxKey_le_maxKey_insert [TransOrd α] (h : t.WF) {k v he} :
+theorem maxKey_le_maxKey_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v he} :
     compare (t.maxKey he) (t.insert k v h.balanced |>.impl.maxKey <| isEmpty_insert h) |>.isLE := by
   simp_to_model [maxKey, insert] using List.maxKey_le_maxKey_insertEntry
 
-theorem self_le_maxKey_insert [TransOrd α] (h : t.WF) {k v} :
+theorem self_le_maxKey_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     compare k (t.insert k v h.balanced |>.impl.maxKey <| isEmpty_insert h) |>.isLE := by
   simp_to_model [maxKey, insert] using List.self_le_maxKey_insertEntry
 
-theorem contains_maxKey [TransOrd α] (h : t.WF) {he} :
+theorem contains_maxKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he} :
     t.contains (t.maxKey he) := by
   simp_to_model [maxKey, contains] using List.containsKey_maxKey
 
-theorem maxKey_mem [TransOrd α] (h : t.WF) {he} :
+theorem maxKey_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he} :
     t.maxKey he ∈ t :=
   contains_maxKey h
 
-theorem le_maxKey_of_contains [TransOrd α] (h : t.WF) {k} :
+theorem le_maxKey_of_contains [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (hc : t.contains k) →
     compare k (t.maxKey <| (isEmpty_eq_false_iff_exists_contains_eq_true h).mpr ⟨k, hc⟩) |>.isLE := by
    simp_to_model [maxKey, contains] using le_maxKey_of_containsKey
 
-theorem le_maxKey_of_mem [TransOrd α] (h : t.WF) {k} (hc : k ∈ t) :
+theorem le_maxKey_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} (hc : k ∈ t) :
     compare k (t.maxKey <| (isEmpty_eq_false_iff_exists_contains_eq_true h).mpr ⟨k, hc⟩) |>.isLE :=
   le_maxKey_of_contains h hc
 
-theorem maxKey_le [TransOrd α] (h : t.WF) {k he} :
+theorem maxKey_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k he} :
     (compare (t.maxKey he) k).isLE ↔ (∀ k', k' ∈ t → (compare k' k).isLE) := by
   simp_to_model [maxKey, contains] using List.maxKey_le
 
-theorem getKey?_maxKey [TransOrd α] (h : t.WF) {he} :
+theorem getKey?_maxKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he} :
     t.getKey? (t.maxKey he) = some (t.maxKey he) := by
   simp_to_model [getKey?, maxKey] using List.getKey?_maxKey
 
-theorem getKey_maxKey [TransOrd α] (h : t.WF) {he hc} :
+theorem getKey_maxKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he hc} :
     t.getKey (t.maxKey he) hc = t.maxKey he := by
   simp_to_model [getKey, maxKey] using List.getKey_maxKey
 
-theorem getKey!_maxKey [TransOrd α] [Inhabited α] (h : t.WF) {he} :
+theorem getKey!_maxKey [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {he} :
     t.getKey! (t.maxKey he) = t.maxKey he := by
   simp_to_model [getKey!, maxKey] using List.getKey!_maxKey
 
-theorem getKeyD_maxKey [TransOrd α] (h : t.WF) {he fallback} :
+theorem getKeyD_maxKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he fallback} :
     t.getKeyD (t.maxKey he) fallback = t.maxKey he := by
   simp_to_model [getKeyD, maxKey] using List.getKeyD_maxKey
 
-theorem maxKey_erase_eq_iff_not_compare_eq_maxKey [TransOrd α] (h : t.WF) {k he} :
+theorem maxKey_erase_eq_iff_not_compare_eq_maxKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k he} :
     (t.erase k h.balanced |>.impl.maxKey he) =
         t.maxKey (isEmpty_eq_false_of_isEmpty_erase_eq_false h he) ↔
       ¬ compare k (t.maxKey <| isEmpty_eq_false_of_isEmpty_erase_eq_false h he) = .eq := by
   simp_to_model [maxKey, erase] using List.maxKey_eraseKey_eq_iff_beq_maxKey_eq_false
 
-theorem maxKey_erase_eq_of_not_compare_eq_maxKey [TransOrd α] (h : t.WF) {k he} :
+theorem maxKey_erase_eq_of_not_compare_eq_maxKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k he} :
     (hc : ¬ compare k (t.maxKey (isEmpty_eq_false_of_isEmpty_erase_eq_false h he)) = .eq) →
     (t.erase k h.balanced |>.impl.maxKey he) =
       t.maxKey (isEmpty_eq_false_of_isEmpty_erase_eq_false h he) := by
   simp_to_model [maxKey, erase] using List.maxKey_eraseKey_eq_of_beq_maxKey_eq_false
 
-theorem maxKey_erase_le_maxKey [TransOrd α] (h : t.WF) {k he} :
+theorem maxKey_erase_le_maxKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k he} :
     compare (t.erase k h.balanced |>.impl.maxKey he)
         (t.maxKey <| isEmpty_eq_false_of_isEmpty_erase_eq_false h he) |>.isLE := by
   simp_to_model [maxKey, erase] using List.maxKey_eraseKey_le_maxKey
 
-theorem maxKey_insertIfNew [TransOrd α] (h : t.WF) {k v} :
+theorem maxKey_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     (t.insertIfNew k v h.balanced).impl.maxKey (isEmpty_insertIfNew h) =
       t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k' := by
   simp_to_model [maxKey, maxKey?, insertIfNew] using List.maxKey_insertEntryIfNew
 
-theorem maxKey_le_maxKey_insertIfNew [TransOrd α] (h : t.WF) {k v he} :
+theorem maxKey_le_maxKey_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v he} :
     compare (t.maxKey he)
       (t.insertIfNew k v h.balanced |>.impl.maxKey <| isEmpty_insertIfNew h) |>.isLE := by
   simp_to_model [maxKey, insertIfNew] using List.maxKey_le_maxKey_insertEntryIfNew
 
-theorem self_le_maxKey_insertIfNew [TransOrd α] (h : t.WF) {k v} :
+theorem self_le_maxKey_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v} :
     compare k (t.insertIfNew k v h.balanced |>.impl.maxKey <| isEmpty_insertIfNew h) |>.isLE := by
   simp_to_model [maxKey, insertIfNew] using List.self_le_maxKey_insertEntryIfNew
 
-theorem maxKey_eq_getLast_keys [TransOrd α] (h : t.WF) {he} :
+theorem maxKey_eq_getLast_keys [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he} :
     t.maxKey he = t.keys.getLast (List.isEmpty_eq_false_iff.mp <| isEmpty_keys ▸ he) := by
   simp_to_model [maxKey, keys] using List.maxKey_eq_getLast_keys h.ordered.distinctKeys h.ordered
 
-theorem maxKey_modify [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f he} :
+theorem maxKey_modify [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f he} :
     (t.modify k f).maxKey he = t.maxKey (isEmpty_modify h ▸ he):= by
   simp_to_model [maxKey, modify] using List.maxKey_modifyKey
 
-theorem maxKey_alter_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f he} :
+theorem maxKey_alter_eq_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f he} :
     (t.alter k f h.balanced).impl.maxKey he = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
   simp_to_model [maxKey, alter, get?, contains] using List.maxKey_alterKey_eq_self
@@ -5571,7 +5579,7 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-theorem maxKey_modify [TransOrd α] (h : t.WF) {k f he} :
+theorem maxKey_modify [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f he} :
     (modify k f t).maxKey he =
       if compare (t.maxKey <| isEmpty_modify h ▸ he) k = .eq then
         k
@@ -5579,194 +5587,194 @@ theorem maxKey_modify [TransOrd α] (h : t.WF) {k f he} :
         (t.maxKey <| Const.isEmpty_modify h ▸ he) := by
   simp_to_model [maxKey, Const.modify] using List.Const.maxKey_modifyKey
 
-theorem maxKey_modify_eq_maxKey [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f he} :
+theorem maxKey_modify_eq_maxKey [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f he} :
     (modify k f t).maxKey he = t.maxKey (isEmpty_modify h ▸ he) := by
   simp_to_model [maxKey, Const.modify] using List.Const.maxKey_modifyKey_eq_maxKey
 
-theorem compare_maxKey_modify_eq [TransOrd α] (h : t.WF) {k f he} :
+theorem compare_maxKey_modify_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f he} :
     compare (modify k f t |>.maxKey he) (t.maxKey <| isEmpty_modify h ▸ he) = .eq := by
   simp_to_model [maxKey, Const.modify] using List.Const.maxKey_modifyKey_beq
 
-theorem maxKey_alter_eq_self [TransOrd α] (h : t.WF) {k f he} :
+theorem maxKey_alter_eq_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f he} :
     (alter k f t h.balanced).impl.maxKey he = k ↔
       (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
   simp_to_model [maxKey, Const.alter, contains, Const.get?] using List.Const.maxKey_alterKey_eq_self
 
 end Const
 
-theorem maxKey_eq_maxKey! [TransOrd α] [Inhabited α] (h : t.WF) {he} :
+theorem maxKey_eq_maxKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {he} :
     t.maxKey he = t.maxKey! := by
   simp_to_model [maxKey, maxKey!] using List.maxKey_eq_maxKey!
 
-theorem maxKey?_eq_some_maxKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey?_eq_some_maxKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → t.maxKey? = some t.maxKey! := by
   simp_to_model [maxKey?, maxKey!, isEmpty] using List.maxKey?_eq_some_maxKey!
 
-theorem maxKey!_eq_default [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_eq_default [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty) → t.maxKey! = default := by
   simp_to_model [maxKey!, isEmpty] using List.maxKey!_eq_default
 
-theorem maxKey!_eq_iff_getKey?_eq_self_and_forall [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_eq_iff_getKey?_eq_self_and_forall [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {km},
     t.maxKey! = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (compare k km).isLE := by
   simp_to_model [maxKey!, getKey?, contains, isEmpty] using
     List.maxKey!_eq_iff_getKey?_eq_self_and_forall
 
-theorem maxKey!_eq_iff_mem_and_forall [TransOrd α]
-    [LawfulEqOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_eq_iff_mem_and_forall [LawfulLinearOrder (.ofOrd α)]
+    [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {km},
     t.maxKey! = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (compare k km).isLE := by
   simp_to_model [maxKey!, contains, isEmpty] using List.maxKey!_eq_iff_mem_and_forall
 
-theorem maxKey!_insert [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
+theorem maxKey!_insert [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k v} :
     (t.insert k v h.balanced |>.impl.maxKey!) =
       (t.maxKey?.elim k fun k' => if compare k' k |>.isLE then k else k') := by
   simp_to_model [maxKey!, maxKey?, insert] using List.maxKey!_insertEntry
 
-theorem maxKey!_insert! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
+theorem maxKey!_insert! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k v} :
     (t.insert! k v).maxKey! =
       (t.maxKey?.elim k fun k' => if compare k' k |>.isLE then k else k') := by
   simpa [insert_eq_insert!] using maxKey!_insert h
 
-theorem maxKey!_le_maxKey!_insert [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_le_maxKey!_insert [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
     compare t.maxKey! (t.insert k v h.balanced |>.impl.maxKey!) |>.isLE := by
   simp_to_model [maxKey!, isEmpty, insert] using List.maxKey!_le_maxKey!_insertEntry
 
-theorem maxKey!_le_maxKey!_insert! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_le_maxKey!_insert! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
     compare t.maxKey! (t.insert! k v).maxKey! |>.isLE := by
   simpa only [insert_eq_insert!] using maxKey!_le_maxKey!_insert h
 
-theorem self_le_maxKey!_insert [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
+theorem self_le_maxKey!_insert [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k v} :
     compare k (t.insert k v h.balanced |>.impl.maxKey!) |>.isLE := by
   simp_to_model [maxKey!, insert] using List.self_le_maxKey!_insertEntry
 
-theorem self_le_maxKey!_insert! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
+theorem self_le_maxKey!_insert! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k v} :
     compare k (t.insert! k v).maxKey! |>.isLE := by
   simpa only [insert_eq_insert!] using self_le_maxKey!_insert h
 
-theorem contains_maxKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem contains_maxKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → t.contains t.maxKey! := by
   simp_to_model [maxKey!, isEmpty, contains] using List.containsKey_maxKey!
 
-theorem maxKey!_mem [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_mem [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → t.maxKey! ∈ t :=
   contains_maxKey! h
 
-theorem le_maxKey!_of_contains [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem le_maxKey!_of_contains [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k}, (hc : t.contains k) →
     compare k t.maxKey! |>.isLE := by
   simp_to_model [maxKey!, contains] using List.le_maxKey!_of_containsKey
 
-theorem le_maxKey!_of_mem [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem le_maxKey!_of_mem [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k}, (hc : k ∈ t) →
     compare k t.maxKey! |>.isLE :=
   le_maxKey!_of_contains h
 
-theorem maxKey!_le [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_le [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k},
     (compare t.maxKey! k).isLE ↔ (∀ k', k' ∈ t → (compare k' k).isLE) := by
   simp_to_model [maxKey!, contains, isEmpty] using List.maxKey!_le
 
-theorem getKey?_maxKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem getKey?_maxKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) →
     t.getKey? t.maxKey! = some t.maxKey! := by
   simp_to_model [maxKey!, getKey?, isEmpty] using List.getKey?_maxKey!
 
-theorem getKey_maxKey! [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {he},
+theorem getKey_maxKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) : ∀ {he},
     t.getKey t.maxKey! he = t.maxKey! := by
   simp_to_model [maxKey!, contains, isEmpty, getKey] using List.getKey_maxKey!
 
-theorem getKey_maxKey!_eq_maxKey [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {hc},
+theorem getKey_maxKey!_eq_maxKey [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) : ∀ {hc},
     t.getKey t.maxKey! hc = t.maxKey (isEmpty_eq_false_of_contains h hc) := by
   simp_to_model [maxKey!, maxKey, contains, isEmpty, getKey] using List.getKey_maxKey!_eq_maxKey
 
-theorem getKey!_maxKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem getKey!_maxKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → t.getKey! t.maxKey! = t.maxKey! := by
   simp_to_model [maxKey!, isEmpty, getKey!] using List.getKey!_maxKey!
 
-theorem getKeyD_maxKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem getKeyD_maxKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {fallback},
     t.getKeyD t.maxKey! fallback = t.maxKey! := by
   simp_to_model [maxKey!, getKeyD, isEmpty] using List.getKeyD_maxKey!
 
-theorem maxKey!_erase_eq_iff_not_compare_maxKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_erase_eq_iff_not_compare_maxKey!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
     (t.erase k h.balanced |>.impl.maxKey!) = t.maxKey! ↔
       ¬ compare k t.maxKey! = .eq := by
   simp_to_model [maxKey!, isEmpty, erase] using List.maxKey!_eraseKey_eq_iff_beq_maxKey!_eq_false
 
-theorem maxKey!_erase!_eq_iff_not_compare_maxKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) {k} :
+theorem maxKey!_erase!_eq_iff_not_compare_maxKey!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) →
     (t.erase! k).maxKey! = t.maxKey! ↔
       ¬ compare k t.maxKey! = .eq := by
   simpa only [erase_eq_erase!] using maxKey!_erase_eq_iff_not_compare_maxKey!_eq h
 
-theorem maxKey!_erase_eq_of_not_compare_maxKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_erase_eq_of_not_compare_maxKey!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) → (heq : ¬ compare k t.maxKey! = .eq) →
     (t.erase k h.balanced |>.impl.maxKey!) = t.maxKey! := by
   simp_to_model [maxKey!, isEmpty, erase] using
     List.maxKey!_eraseKey_eq_of_beq_maxKey!_eq_false
 
-theorem maxKey!_erase!_eq_of_not_compare_maxKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) {k} :
+theorem maxKey!_erase!_eq_of_not_compare_maxKey!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) → (heq : ¬ compare k t.maxKey! = .eq) →
     (t.erase! k).maxKey! = t.maxKey! := by
   simpa only [erase_eq_erase!] using maxKey!_erase_eq_of_not_compare_maxKey!_eq h
 
-theorem maxKey!_erase_le_maxKey! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_erase_le_maxKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
     compare (t.erase k h.balanced |>.impl.maxKey!) t.maxKey! |>.isLE := by
   simp_to_model [maxKey!, isEmpty, erase] using List.maxKey!_erase_le_maxKey!
 
-theorem maxKey!_erase!_le_maxKey! [TransOrd α] [Inhabited α] (h : t.WF) {k} :
+theorem maxKey!_erase!_le_maxKey! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) →
     compare (t.erase! k).maxKey! t.maxKey! |>.isLE := by
   simpa only [erase_eq_erase!] using maxKey!_erase_le_maxKey! h
 
-theorem maxKey!_insertIfNew [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {k v},
+theorem maxKey!_insertIfNew [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) : ∀ {k v},
     (t.insertIfNew k v h.balanced |>.impl.maxKey!) =
       t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k' := by
   simp_to_model [maxKey!, maxKey?, insertIfNew] using List.maxKey!_insertEntryIfNew
 
-theorem maxKey!_insertIfNew! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
+theorem maxKey!_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k v} :
     (t.insertIfNew! k v).maxKey! =
       t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k' := by
   simpa only [insertIfNew_eq_insertIfNew!] using maxKey!_insertIfNew h
 
-theorem maxKey!_le_maxKey!_insertIfNew [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_le_maxKey!_insertIfNew [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
     compare t.maxKey! (t.insertIfNew k v h.balanced |>.impl.maxKey!) |>.isLE := by
   simp_to_model [maxKey!, isEmpty, insertIfNew] using List.maxKey!_le_maxKey!_insertEntryIfNew
 
-theorem maxKey!_le_maxKey!_insertIfNew! [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_le_maxKey!_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
     compare t.maxKey! (t.insertIfNew! k v).maxKey! |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using maxKey!_le_maxKey!_insertIfNew h
 
-theorem self_le_maxKey!_insertIfNew [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {k v},
+theorem self_le_maxKey!_insertIfNew [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) : ∀ {k v},
     compare k (t.insertIfNew k v h.balanced |>.impl.maxKey!) |>.isLE := by
   simp_to_model [maxKey!, insertIfNew] using List.self_le_maxKey!_insertEntryIfNew
 
-theorem self_le_maxKey!_insertIfNew! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
+theorem self_le_maxKey!_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k v} :
     compare k (t.insertIfNew! k v).maxKey! |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using self_le_maxKey!_insertIfNew h
 
-theorem maxKey!_eq_getLast!_keys [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_eq_getLast!_keys [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     t.maxKey! = t.keys.getLast! := by
   simp_to_model [maxKey!, keys] using List.maxKey!_eq_getLast!_keys h.ordered.distinctKeys h.ordered
 
-theorem maxKey!_modify [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) : ∀ {k f},
+theorem maxKey!_modify [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) : ∀ {k f},
     (t.modify k f).maxKey! = t.maxKey! := by
   simp_to_model [maxKey!, modify] using List.maxKey!_modifyKey
 
-theorem maxKey!_alter_eq_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_alter_eq_self [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k f}, (he : (t.alter k f h.balanced).impl.isEmpty = false) →
     (t.alter k f h.balanced |>.impl.maxKey!) = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
   simp_to_model [maxKey!, alter, isEmpty, contains, get?] using List.maxKey!_alterKey_eq_self
 
-theorem maxKey!_alter!_eq_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k f} :
+theorem maxKey!_alter!_eq_self [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) {k f} :
     (he : (t.alter! k f).isEmpty = false) →
     (t.alter! k f).maxKey! = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
@@ -5776,27 +5784,27 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-theorem maxKey!_modify [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_modify [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k f}, (he : (modify k f t).isEmpty = false) →
     (modify k f t |> maxKey!) = if compare t.maxKey! k = .eq then k else t.maxKey! := by
   simp_to_model [maxKey!, maxKey, isEmpty, Const.modify] using List.Const.maxKey!_modifyKey
 
-theorem maxKey!_modify_eq_maxKey! [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_modify_eq_maxKey! [LawfulLinearOrder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k f}, (modify k f t |> maxKey!) = t.maxKey! := by
   simp_to_model [maxKey!, Const.modify] using List.Const.maxKey!_modifyKey_eq_maxKey!
 
-theorem compare_maxKey!_modify_eq [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {k f},
+theorem compare_maxKey!_modify_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) : ∀ {k f},
     compare (Const.modify k f t |> maxKey!) t.maxKey! = .eq := by
   simp_to_model [maxKey!, Const.modify] using List.Const.maxKey!_modifyKey_beq
 
-theorem maxKey!_alter_eq_self [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_alter_eq_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     ∀ {k f}, (he : (alter k f t h.balanced).impl.isEmpty = false) →
     (alter k f t h.balanced |>.impl.maxKey!) = k ↔
       (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
   simp_to_model [maxKey!, Const.alter, contains, isEmpty, Const.get?] using
     List.Const.maxKey!_alterKey_eq_self
 
-theorem maxKey!_alter!_eq_self [TransOrd α] [Inhabited α] (h : t.WF) {k f} :
+theorem maxKey!_alter!_eq_self [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) {k f} :
     (he : (alter! k f t).isEmpty = false) →
     (alter! k f t |>.maxKey!) = k ↔
       (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
@@ -5804,186 +5812,185 @@ theorem maxKey!_alter!_eq_self [TransOrd α] [Inhabited α] (h : t.WF) {k f} :
 
 end Const
 
-theorem maxKey_eq_maxKeyD [TransOrd α] (h : t.WF) {he fallback} :
+theorem maxKey_eq_maxKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {he fallback} :
     t.maxKey he = t.maxKeyD fallback := by
   simp_to_model [maxKey, maxKeyD] using List.maxKey_eq_maxKeyD
 
-theorem maxKey?_eq_some_maxKeyD [TransOrd α] (h : t.WF) {fallback} :
+theorem maxKey?_eq_some_maxKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {fallback} :
     (he : t.isEmpty = false) → t.maxKey? = some (t.maxKeyD fallback) := by
   simp_to_model [maxKey?, maxKeyD, isEmpty] using List.maxKey?_eq_some_maxKeyD
 
-theorem maxKeyD_eq_fallback [TransOrd α] (h : t.WF) {fallback} :
+theorem maxKeyD_eq_fallback [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {fallback} :
     (he : t.isEmpty) → t.maxKeyD fallback = fallback := by
   simp_to_model [maxKeyD, isEmpty] using List.maxKeyD_eq_fallback
 
-theorem maxKey!_eq_maxKeyD_default [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_eq_maxKeyD_default [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     t.maxKey! = t.maxKeyD default := by
   simp_to_model [maxKey!, maxKeyD] using List.maxKey!_eq_maxKeyD_default
 
-theorem maxKeyD_eq_iff_getKey?_eq_self_and_forall [TransOrd α] (h : t.WF) :
+theorem maxKeyD_eq_iff_getKey?_eq_self_and_forall [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {km fallback},
     t.maxKeyD fallback = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (compare k km).isLE := by
   simp_to_model [maxKeyD, getKey?, contains, isEmpty] using
     List.maxKeyD_eq_iff_getKey?_eq_self_and_forall
 
-theorem maxKeyD_eq_iff_mem_and_forall [TransOrd α]
-    [LawfulEqOrd α] (h : t.WF) :
+theorem maxKeyD_eq_iff_mem_and_forall [LawfulLinearOrder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {km fallback},
     t.maxKeyD fallback = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (compare k km).isLE := by
   simp_to_model [maxKeyD, contains, isEmpty] using List.maxKeyD_eq_iff_mem_and_forall
 
-theorem maxKeyD_insert [TransOrd α] (h : t.WF) {k v fallback} :
+theorem maxKeyD_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v fallback} :
     (t.insert k v h.balanced |>.impl.maxKeyD <| fallback) =
       (t.maxKey?.elim k fun k' => if compare k' k |>.isLE then k else k') := by
   simp_to_model [maxKeyD, maxKey?, insert] using List.maxKeyD_insertEntry
 
-theorem maxKeyD_insert! [TransOrd α] (h : t.WF) {k v fallback} :
+theorem maxKeyD_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v fallback} :
     (t.insert! k v |>.maxKeyD fallback) =
       (t.maxKey?.elim k fun k' => if compare k' k |>.isLE then k else k') := by
   simpa [insert_eq_insert!] using maxKeyD_insert h
 
-theorem maxKeyD_le_maxKeyD_insert [TransOrd α] (h : t.WF) :
+theorem maxKeyD_le_maxKeyD_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v fallback},
     compare (t.maxKeyD fallback) (t.insert k v h.balanced |>.impl.maxKeyD <| fallback) |>.isLE := by
   simp_to_model [maxKeyD, isEmpty, insert] using List.maxKeyD_le_maxKeyD_insertEntry
 
-theorem maxKeyD_le_maxKeyD_insert! [TransOrd α] (h : t.WF) :
+theorem maxKeyD_le_maxKeyD_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v fallback},
     compare (t.maxKeyD fallback) (t.insert! k v |>.maxKeyD fallback) |>.isLE := by
   simpa only [insert_eq_insert!] using maxKeyD_le_maxKeyD_insert h
 
-theorem self_le_maxKeyD_insert [TransOrd α] (h : t.WF) {k v fallback} :
+theorem self_le_maxKeyD_insert [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v fallback} :
     compare k (t.insert k v h.balanced |>.impl.maxKeyD <| fallback) |>.isLE := by
   simp_to_model [maxKeyD, insert] using List.self_le_maxKeyD_insertEntry
 
-theorem self_le_maxKeyD_insert! [TransOrd α] (h : t.WF) {k v fallback} :
+theorem self_le_maxKeyD_insert! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v fallback} :
     compare k (t.insert! k v |>.maxKeyD fallback) |>.isLE := by
   simpa only [insert_eq_insert!] using self_le_maxKeyD_insert h
 
-theorem contains_maxKeyD [TransOrd α] (h : t.WF) :
+theorem contains_maxKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {fallback}, t.contains (t.maxKeyD fallback) := by
   simp_to_model [maxKeyD, isEmpty, contains] using List.containsKey_maxKeyD
 
-theorem maxKeyD_mem [TransOrd α] (h : t.WF) :
+theorem maxKeyD_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {fallback}, (t.maxKeyD fallback) ∈ t :=
   contains_maxKeyD h
 
-theorem le_maxKeyD_of_contains [TransOrd α] (h : t.WF) :
+theorem le_maxKeyD_of_contains [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k}, (hc : t.contains k) → ∀ {fallback},
     compare k (t.maxKeyD fallback) |>.isLE := by
   simp_to_model [maxKeyD, contains] using List.le_maxKeyD_of_containsKey
 
-theorem le_maxKeyD_of_mem [TransOrd α] (h : t.WF) :
+theorem le_maxKeyD_of_mem [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k}, (hc : k ∈ t) → ∀ {fallback},
     compare k (t.maxKeyD fallback) |>.isLE :=
   le_maxKeyD_of_contains h
 
-theorem maxKeyD_le [TransOrd α] (h : t.WF) :
+theorem maxKeyD_le [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k fallback},
     (compare (t.maxKeyD fallback) k).isLE ↔ (∀ k', k' ∈ t → (compare k' k).isLE) := by
   simp_to_model [maxKeyD, contains, isEmpty] using List.maxKeyD_le
 
-theorem getKey?_maxKeyD [TransOrd α] (h : t.WF) :
+theorem getKey?_maxKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {fallback},
     t.getKey? (t.maxKeyD fallback) = some (t.maxKeyD fallback) := by
   simp_to_model [maxKeyD, getKey?, isEmpty] using List.getKey?_maxKeyD
 
-theorem getKey_maxKeyD [TransOrd α] (h : t.WF) : ∀ {fallback he},
+theorem getKey_maxKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) : ∀ {fallback he},
     t.getKey (t.maxKeyD fallback) he = (t.maxKeyD fallback) := by
   simp_to_model [maxKeyD, contains, isEmpty, getKey] using List.getKey_maxKeyD
 
-theorem getKey_maxKeyD_eq_maxKey [TransOrd α] (h : t.WF) : ∀ {fallback hc},
+theorem getKey_maxKeyD_eq_maxKey [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) : ∀ {fallback hc},
     t.getKey (t.maxKeyD fallback) hc = t.maxKey (isEmpty_eq_false_of_contains h hc) := by
   simp_to_model [maxKeyD, maxKey, contains, isEmpty, getKey] using List.getKey_maxKeyD_eq_maxKey
 
-theorem getKey!_maxKeyD [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem getKey!_maxKeyD [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {fallback},
     t.getKey! (t.maxKeyD fallback) = (t.maxKeyD fallback) := by
   simp_to_model [maxKeyD, isEmpty, getKey!] using List.getKey!_maxKeyD
 
-theorem getKeyD_maxKeyD [TransOrd α] (h : t.WF) :
+theorem getKeyD_maxKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {fallback fallback'},
     t.getKeyD (t.maxKeyD fallback) fallback' = t.maxKeyD fallback := by
   simp_to_model [maxKeyD, getKeyD, isEmpty] using List.getKeyD_maxKeyD
 
-theorem maxKeyD_erase_eq_iff_not_compare_maxKeyD_eq [TransOrd α] (h : t.WF) :
+theorem maxKeyD_erase_eq_iff_not_compare_maxKeyD_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k fallback}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
     (t.erase k h.balanced |>.impl.maxKeyD <| fallback) = t.maxKeyD fallback ↔
       ¬ compare k (t.maxKeyD fallback) = .eq := by
   simp_to_model [maxKeyD, isEmpty, erase] using List.maxKeyD_eraseKey_eq_iff_beq_maxKeyD_eq_false
 
-theorem maxKeyD_erase!_eq_iff_not_compare_maxKeyD_eq [TransOrd α] (h : t.WF) {k fallback} :
+theorem maxKeyD_erase!_eq_iff_not_compare_maxKeyD_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k fallback} :
     (he : (t.erase! k).isEmpty = false) →
     (t.erase! k |>.maxKeyD fallback) = t.maxKeyD fallback ↔
       ¬ compare k (t.maxKeyD fallback) = .eq := by
   simpa only [erase_eq_erase!] using maxKeyD_erase_eq_iff_not_compare_maxKeyD_eq h
 
-theorem maxKeyD_erase_eq_of_not_compare_maxKeyD_eq [TransOrd α] (h : t.WF) :
+theorem maxKeyD_erase_eq_of_not_compare_maxKeyD_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k fallback}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
     (heq : ¬ compare k (t.maxKeyD fallback) = .eq) →
     (t.erase k h.balanced |>.impl.maxKeyD <| fallback) = t.maxKeyD fallback := by
   simp_to_model [maxKeyD, isEmpty, erase] using
     List.maxKeyD_eraseKey_eq_of_beq_maxKeyD_eq_false
 
-theorem maxKeyD_erase!_eq_of_not_compare_maxKeyD_eq [TransOrd α] (h : t.WF) {k fallback} :
+theorem maxKeyD_erase!_eq_of_not_compare_maxKeyD_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k fallback} :
     (he : (t.erase! k).isEmpty = false) → (heq : ¬ compare k (t.maxKeyD fallback) = .eq) →
     (t.erase! k |>.maxKeyD fallback) = t.maxKeyD fallback := by
   simpa only [erase_eq_erase!] using maxKeyD_erase_eq_of_not_compare_maxKeyD_eq h
 
-theorem maxKeyD_erase_le_maxKeyD [TransOrd α] (h : t.WF) :
+theorem maxKeyD_erase_le_maxKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) → ∀ {fallback},
     compare (t.erase k h.balanced |>.impl.maxKeyD <| fallback) (t.maxKeyD fallback) |>.isLE := by
   simp_to_model [maxKeyD, isEmpty, erase] using List.maxKeyD_eraseKey_le_maxKeyD
 
-theorem maxKeyD_erase!_le_maxKeyD [TransOrd α] (h : t.WF) {k} :
+theorem maxKeyD_erase!_le_maxKeyD [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) → ∀ {fallback},
     compare (t.erase! k |>.maxKeyD fallback) (t.maxKeyD fallback) |>.isLE := by
   simpa only [erase_eq_erase!] using maxKeyD_erase_le_maxKeyD h
 
-theorem maxKeyD_insertIfNew [TransOrd α] (h : t.WF) : ∀ {k v fallback},
+theorem maxKeyD_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) : ∀ {k v fallback},
     (t.insertIfNew k v h.balanced |>.impl.maxKeyD <| fallback) =
       t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k' := by
   simp_to_model [maxKeyD, maxKey?, insertIfNew] using List.maxKeyD_insertEntryIfNew
 
-theorem maxKeyD_insertIfNew! [TransOrd α] (h : t.WF) {k v fallback} :
+theorem maxKeyD_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v fallback} :
     (t.insertIfNew! k v |>.maxKeyD fallback) =
       t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k' := by
   simpa only [insertIfNew_eq_insertIfNew!] using maxKeyD_insertIfNew h
 
-theorem maxKeyD_le_maxKeyD_insertIfNew [TransOrd α] (h : t.WF) :
+theorem maxKeyD_le_maxKeyD_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v fallback},
     compare (t.maxKeyD fallback)
       (t.insertIfNew k v h.balanced |>.impl.maxKeyD <| fallback) |>.isLE := by
   simp_to_model [maxKeyD, isEmpty, insertIfNew] using List.maxKeyD_le_maxKeyD_insertEntryIfNew
 
-theorem maxKeyD_le_maxKeyD_insertIfNew! [TransOrd α] (h : t.WF) :
+theorem maxKeyD_le_maxKeyD_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v fallback},
     compare (t.maxKeyD fallback) (t.insertIfNew! k v |>.maxKeyD fallback) |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using maxKeyD_le_maxKeyD_insertIfNew h
 
-theorem self_le_maxKeyD_insertIfNew [TransOrd α] (h : t.WF) : ∀ {k v fallback},
+theorem self_le_maxKeyD_insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) : ∀ {k v fallback},
     compare k (t.insertIfNew k v h.balanced |>.impl.maxKeyD <| fallback) |>.isLE := by
   simp_to_model [maxKeyD, insertIfNew] using List.self_le_maxKeyD_insertEntryIfNew
 
-theorem self_le_maxKeyD_insertIfNew! [TransOrd α] (h : t.WF) {k v fallback} :
+theorem self_le_maxKeyD_insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k v fallback} :
     compare k (t.insertIfNew! k v |>.maxKeyD fallback) |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using self_le_maxKeyD_insertIfNew h
 
-theorem maxKeyD_eq_getLastD_keys [TransOrd α] (h : t.WF) {fallback} :
+theorem maxKeyD_eq_getLastD_keys [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {fallback} :
     t.maxKeyD fallback = t.keys.getLastD fallback := by
   simp_to_model [maxKeyD, keys] using List.maxKeyD_eq_getLastD_keys h.ordered.distinctKeys h.ordered
 
-theorem maxKeyD_modify [TransOrd α] [LawfulEqOrd α] (h : t.WF) : ∀ {k f fallback},
+theorem maxKeyD_modify [LawfulLinearOrder (.ofOrd α)] (h : t.WF) : ∀ {k f fallback},
     (t.modify k f |>.maxKeyD fallback) = t.maxKeyD fallback := by
   simp_to_model [maxKeyD, modify] using List.maxKeyD_modifyKey
 
-theorem maxKeyD_alter_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) :
+theorem maxKeyD_alter_eq_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) :
     ∀ {k f fallback}, (he : (t.alter k f h.balanced).impl.isEmpty = false) →
     (t.alter k f h.balanced |>.impl.maxKeyD <| fallback) = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
   simp_to_model [maxKeyD, alter, isEmpty, contains, get?] using List.maxKeyD_alterKey_eq_self
 
-theorem maxKeyD_alter!_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f fallback} :
+theorem maxKeyD_alter!_eq_self [LawfulLinearOrder (.ofOrd α)] (h : t.WF) {k f fallback} :
     (he : (t.alter! k f).isEmpty = false) →
     (t.alter! k f |>.maxKeyD fallback) = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
@@ -5993,28 +6000,28 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-theorem maxKeyD_modify [TransOrd α] (h : t.WF) :
+theorem maxKeyD_modify [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k f}, (he : (modify k f t).isEmpty = false) → ∀ {fallback},
     (modify k f t |>.maxKeyD fallback) =
       if compare (t.maxKeyD fallback) k = .eq then k else t.maxKeyD fallback := by
   simp_to_model [maxKeyD, maxKey, isEmpty, Const.modify] using List.Const.maxKeyD_modifyKey
 
-theorem maxKeyD_modify_eq_maxKeyD [TransOrd α] [LawfulEqOrd α] (h : t.WF) :
+theorem maxKeyD_modify_eq_maxKeyD [LawfulLinearOrder (.ofOrd α)] (h : t.WF) :
     ∀ {k f fallback}, (modify k f t |>.maxKeyD fallback) = t.maxKeyD fallback := by
   simp_to_model [maxKeyD, Const.modify] using List.Const.maxKeyD_modifyKey_eq_maxKeyD
 
-theorem compare_maxKeyD_modify_eq [TransOrd α] (h : t.WF) : ∀ {k f fallback},
+theorem compare_maxKeyD_modify_eq [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) : ∀ {k f fallback},
     compare (Const.modify k f t |>.maxKeyD fallback) (t.maxKeyD fallback) = .eq := by
   simp_to_model [maxKeyD, Const.modify] using List.Const.maxKeyD_modifyKey_beq
 
-theorem maxKeyD_alter_eq_self [TransOrd α] (h : t.WF) :
+theorem maxKeyD_alter_eq_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) :
     ∀ {k f}, (he : (alter k f t h.balanced).impl.isEmpty = false) → ∀ {fallback},
     (alter k f t h.balanced |>.impl.maxKeyD <| fallback) = k ↔
       (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
   simp_to_model [maxKeyD, Const.alter, contains, isEmpty, Const.get?] using
     List.Const.maxKeyD_alterKey_eq_self
 
-theorem maxKeyD_alter!_eq_self [TransOrd α] (h : t.WF) {k f} :
+theorem maxKeyD_alter!_eq_self [LawfulLinearPreorder (.ofOrd α)] (h : t.WF) {k f} :
     (he : (alter! k f t).isEmpty = false) → ∀ {fallback},
     (alter! k f t |>.maxKeyD fallback) = k ↔
       (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
@@ -6048,385 +6055,385 @@ theorem congr_right (h : t₁ ~m t₂) : t₃ ~m t₁ ↔ t₃ ~m t₂ :=
 theorem isEmpty_eq (h : t₁ ~m t₂) : t₁.isEmpty = t₂.isEmpty := by
   simp_to_model [isEmpty] using List.Perm.isEmpty_eq h.1
 
-theorem contains_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem contains_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     t₁.contains k = t₂.contains k := by
   simp_to_model [contains] using List.containsKey_of_perm h.1
 
-theorem mem_iff [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem mem_iff [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     k ∈ t₁ ↔ k ∈ t₂ := by
   simp only [mem_iff_contains, contains_eq h₁ h₂ h]
 
 theorem size_eq (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.size = t₂.size := by
   simp_to_model [size] using List.Perm.length_eq h.1
 
-theorem get?_eq [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem get?_eq [LawfulLinearOrder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     t₁.get? k = t₂.get? k := by
   simp_to_model [get?] using List.getValueCast?_of_perm _ h.1
 
-theorem get_eq [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem get_eq [LawfulLinearOrder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} (hk : k ∈ t₁) : t₁.get k hk = t₂.get k ((h.mem_iff h₁ h₂).mp hk) := by
   simp_to_model [get] using List.getValueCast_of_perm _ h.1
 
-theorem get!_eq [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem get!_eq [LawfulLinearOrder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited (β k)] : t₁.get! k = t₂.get! k := by
   simp_to_model [get!] using List.getValueCast!_of_perm _ h.1
 
-theorem getD_eq [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getD_eq [LawfulLinearOrder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {fallback : β k} : t₁.getD k fallback = t₂.getD k fallback := by
   simp_to_model [getD] using List.getValueCastD_of_perm _ h.1
 
-theorem getKey?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem getKey?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     t₁.getKey? k = t₂.getKey? k := by
   simp_to_model [getKey?] using List.getKey?_of_perm _ h.1
 
-theorem getKey_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getKey_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} (hk : k ∈ t₁) : t₁.getKey k hk = t₂.getKey k ((h.mem_iff h₁ h₂).mp hk) := by
   simp_to_model [getKey] using List.getKey_of_perm _ h.1
 
-theorem getKey!_eq [TransOrd α] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getKey!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} : t₁.getKey! k = t₂.getKey! k := by
   simp_to_model [getKey!] using List.getKey!_of_perm _ h.1
 
-theorem getKeyD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getKeyD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k fallback : α} : t₁.getKeyD k fallback = t₂.getKeyD k fallback := by
   simp_to_model [getKeyD] using List.getKeyD_of_perm _ h.1
 
-theorem toList_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.toList = t₂.toList := by
+theorem toList_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.toList = t₂.toList := by
   simp_to_model [toList] using h.toListModel_eq
 
-theorem toArray_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.toArray = t₂.toArray := by
+theorem toArray_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.toArray = t₂.toArray := by
   simp only [toArray_eq_toArray, h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem keys_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.keys = t₂.keys := by
+theorem keys_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.keys = t₂.keys := by
   simp_to_model [keys]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem keysArray_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+theorem keysArray_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.keysArray = t₂.keysArray := by
   simp only [keysArray_eq_toArray_keys, h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem foldlM_eq [TransOrd α] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem foldlM_eq [LawfulLinearPreorder (.ofOrd α)] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {f : δ → (a : α) → β a → m δ} {init : δ} :
     t₁.foldlM f init = t₂.foldlM f init := by
   simp_to_model [foldlM]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem foldl_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem foldl_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {f : δ → (a : α) → β a → δ} {init : δ} :
     t₁.foldl f init = t₂.foldl f init := by
   simp_to_model [foldl]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem foldrM_eq [TransOrd α] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem foldrM_eq [LawfulLinearPreorder (.ofOrd α)] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {f : (a : α) → β a → δ → m δ} {init : δ} :
     t₁.foldrM f init = t₂.foldrM f init := by
   simp_to_model [foldrM]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem foldr_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem foldr_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {f : (a : α) → β a → δ → δ} {init : δ} :
     t₁.foldr f init = t₂.foldr f init := by
   simp_to_model [foldr]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem forIn_eq [TransOrd α] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem forIn_eq [LawfulLinearPreorder (.ofOrd α)] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
     t₁.forIn f init = t₂.forIn f init := by
   simp_to_model [forIn]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem forM_eq [TransOrd α] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem forM_eq [LawfulLinearPreorder (.ofOrd α)] [Monad m] [LawfulMonad m] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {f : (a : α) → β a → m PUnit} :
     t₁.forM f = t₂.forM f := by
   simp_to_model [forM]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem minKey?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+theorem minKey?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.minKey? = t₂.minKey? := by
   simp_to_model [minKey?]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem minKey_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (h' : t₁.isEmpty = false) :
+theorem minKey_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (h' : t₁.isEmpty = false) :
     t₁.minKey h' = t₂.minKey (h.isEmpty_eq.symm.trans h') := by
   simp_to_model [minKey]
   simp only [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem minKey!_eq [TransOrd α] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+theorem minKey!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.minKey! = t₂.minKey! := by
   simp_to_model [minKey!]
   simp only [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem minKeyD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {fallback : α} :
+theorem minKeyD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {fallback : α} :
     t₁.minKeyD fallback = t₂.minKeyD fallback := by
   simp_to_model [minKeyD]
   simp only [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem maxKey?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+theorem maxKey?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.maxKey? = t₂.maxKey? := by
   simp_to_model [maxKey?]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem maxKey_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (h' : t₁.isEmpty = false) :
+theorem maxKey_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (h' : t₁.isEmpty = false) :
     t₁.maxKey h' = t₂.maxKey (h.isEmpty_eq.symm.trans h') := by
   simp_to_model [maxKey]
   simp only [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem maxKey!_eq [TransOrd α] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+theorem maxKey!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.maxKey! = t₂.maxKey! := by
   simp_to_model [maxKey!]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem maxKeyD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {fallback : α} :
+theorem maxKeyD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {fallback : α} :
     t₁.maxKeyD fallback = t₂.maxKeyD fallback := by
   simp_to_model [maxKeyD]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem minEntry?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+theorem minEntry?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.minEntry? = t₂.minEntry? := by
   simp_to_model [minEntry?]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem minEntry_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {he} :
+theorem minEntry_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {he} :
     t₁.minEntry he = t₂.minEntry (h.isEmpty_eq.symm.trans he) := by
   simp only [minEntry_eq_get_minEntry?, h.minEntry?_eq h₁ h₂]
 
-theorem minEntry!_eq [TransOrd α] [Inhabited ((a : α) × β a)]
+theorem minEntry!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited ((a : α) × β a)]
     (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.minEntry! = t₂.minEntry! := by
   simp only [minEntry!_eq_get!_minEntry?, h.minEntry?_eq h₁ h₂]
 
-theorem minEntryD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem minEntryD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {fallback : (a : α) × β a} : t₁.minEntryD fallback = t₂.minEntryD fallback := by
   simp only [minEntryD_eq_getD_minEntry?, h.minEntry?_eq h₁ h₂]
 
-theorem maxEntry?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+theorem maxEntry?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.maxEntry? = t₂.maxEntry? := by
   simp only [maxEntry?_eq_minEntry?, h₁.ordered, h₂.ordered]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem maxEntry_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {he} :
+theorem maxEntry_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {he} :
     t₁.maxEntry he = t₂.maxEntry (h.isEmpty_eq.symm.trans he) := by
   apply Option.some.inj
   simp only [some_maxEntry_eq_maxEntry?, h.maxEntry?_eq h₁ h₂]
 
-theorem maxEntry!_eq [TransOrd α] [Inhabited ((a : α) × β a)]
+theorem maxEntry!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited ((a : α) × β a)]
     (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.maxEntry! = t₂.maxEntry! := by
   simp only [maxEntry!_eq_get!_maxEntry?, h.maxEntry?_eq h₁ h₂]
 
-theorem maxEntryD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem maxEntryD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {fallback : (a : α) × β a} : t₁.maxEntryD fallback = t₂.maxEntryD fallback := by
   simp only [maxEntryD_eq_getD_maxEntry?, h.maxEntry?_eq h₁ h₂]
 
-theorem entryAtIdx?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} :
+theorem entryAtIdx?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} :
     t₁.entryAtIdx? i = t₂.entryAtIdx? i := by
   simp_to_model [entryAtIdx?]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem entryAtIdx_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} {h'} :
+theorem entryAtIdx_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} {h'} :
     t₁.entryAtIdx h₁.balanced i h' = t₂.entryAtIdx h₂.balanced i (h.size_eq h₁ h₂ ▸ h') := by
   simp_to_model [entryAtIdx]
   simp only [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem entryAtIdx!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
+theorem entryAtIdx!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
     [Inhabited ((a : α) × β a)] : t₁.entryAtIdx! i = t₂.entryAtIdx! i := by
   simp_to_model [entryAtIdx!]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem entryAtIdxD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
+theorem entryAtIdxD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
     {fallback : (a : α) × β a} : t₁.entryAtIdxD i fallback = t₂.entryAtIdxD i fallback := by
   simp_to_model [entryAtIdxD]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem keyAtIdx?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} :
+theorem keyAtIdx?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} :
     t₁.keyAtIdx? i = t₂.keyAtIdx? i := by
   simp_to_model [keyAtIdx?]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem keyAtIdx_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} {h'} :
+theorem keyAtIdx_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} {h'} :
     t₁.keyAtIdx h₁.balanced i h' = t₂.keyAtIdx h₂.balanced i (h.size_eq h₁ h₂ ▸ h') := by
   simp_to_model [keyAtIdx]
   simp only [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem keyAtIdx!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
+theorem keyAtIdx!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
     [Inhabited α] : t₁.keyAtIdx! i = t₂.keyAtIdx! i := by
   simp_to_model [keyAtIdx!]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem keyAtIdxD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
+theorem keyAtIdxD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
     {fallback : α} : t₁.keyAtIdxD i fallback = t₂.keyAtIdxD i fallback := by
   simp_to_model [keyAtIdxD]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem getEntryGE?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem getEntryGE?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     t₁.getEntryGE? k = t₂.getEntryGE? k := by
   simp only [getEntryGE?_eq_find?, h₁.ordered, h₂.ordered]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem getEntryGE_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+theorem getEntryGE_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
     t₁.getEntryGE k h₁.ordered he = t₂.getEntryGE k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
   apply Option.some.inj
   simp only [some_getEntryGE_eq_getEntryGE?, h.getEntryGE?_eq h₁ h₂]
 
-theorem getEntryGE!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getEntryGE!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited ((a : α) × β a)] : t₁.getEntryGE! k = t₂.getEntryGE! k := by
   simp only [getEntryGE!_eq_get!_getEntryGE?, h.getEntryGE?_eq h₁ h₂]
 
-theorem getEntryGED_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getEntryGED_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {fallback : (a : α) × β a} : t₁.getEntryGED k fallback = t₂.getEntryGED k fallback := by
   simp only [getEntryGED_eq_getD_getEntryGE?, h.getEntryGE?_eq h₁ h₂]
 
-theorem getEntryGT?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem getEntryGT?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     t₁.getEntryGT? k = t₂.getEntryGT? k := by
   simp only [getEntryGT?_eq_find?, h₁.ordered, h₂.ordered]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem getEntryGT_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+theorem getEntryGT_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
     t₁.getEntryGT k h₁.ordered he = t₂.getEntryGT k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
   apply Option.some.inj
   simp only [some_getEntryGT_eq_getEntryGT?, h.getEntryGT?_eq h₁ h₂]
 
-theorem getEntryGT!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getEntryGT!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited ((a : α) × β a)] : t₁.getEntryGT! k = t₂.getEntryGT! k := by
   simp only [getEntryGT!_eq_get!_getEntryGT?, h.getEntryGT?_eq h₁ h₂]
 
-theorem getEntryGTD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getEntryGTD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {fallback : (a : α) × β a} : t₁.getEntryGTD k fallback = t₂.getEntryGTD k fallback := by
   simp only [getEntryGTD_eq_getD_getEntryGT?, h.getEntryGT?_eq h₁ h₂]
 
-theorem getEntryLE?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem getEntryLE?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     t₁.getEntryLE? k = t₂.getEntryLE? k := by
   simp only [getEntryLE?_eq_findRev?, h₁.ordered, h₂.ordered]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem getEntryLE_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+theorem getEntryLE_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
     t₁.getEntryLE k h₁.ordered he = t₂.getEntryLE k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
   apply Option.some.inj
   simp only [some_getEntryLE_eq_getEntryLE?, h.getEntryLE?_eq h₁ h₂]
 
-theorem getEntryLE!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getEntryLE!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited ((a : α) × β a)] : t₁.getEntryLE! k = t₂.getEntryLE! k := by
   simp only [getEntryLE!_eq_get!_getEntryLE?, h.getEntryLE?_eq h₁ h₂]
 
-theorem getEntryLED_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getEntryLED_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {fallback : (a : α) × β a} : t₁.getEntryLED k fallback = t₂.getEntryLED k fallback := by
   simp only [getEntryLED_eq_getD_getEntryLE?, h.getEntryLE?_eq h₁ h₂]
 
-theorem getEntryLT?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem getEntryLT?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     t₁.getEntryLT? k = t₂.getEntryLT? k := by
   simp only [getEntryLT?_eq_findRev?, h₁.ordered, h₂.ordered]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem getEntryLT_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+theorem getEntryLT_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
     t₁.getEntryLT k h₁.ordered he = t₂.getEntryLT k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
   apply Option.some.inj
   simp only [some_getEntryLT_eq_getEntryLT?, h.getEntryLT?_eq h₁ h₂]
 
-theorem getEntryLT!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getEntryLT!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited ((a : α) × β a)] : t₁.getEntryLT! k = t₂.getEntryLT! k := by
   simp only [getEntryLT!_eq_get!_getEntryLT?, h.getEntryLT?_eq h₁ h₂]
 
-theorem getEntryLTD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getEntryLTD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {fallback : (a : α) × β a} : t₁.getEntryLTD k fallback = t₂.getEntryLTD k fallback := by
   simp only [getEntryLTD_eq_getD_getEntryLT?, h.getEntryLT?_eq h₁ h₂]
 
-theorem getKeyGE?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem getKeyGE?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     t₁.getKeyGE? k = t₂.getKeyGE? k := by
   simp only [getKeyGE?_eq_getEntryGE?, h.getEntryGE?_eq h₁ h₂]
 
-theorem getKeyGE_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+theorem getKeyGE_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
     t₁.getKeyGE k h₁.ordered he = t₂.getKeyGE k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
   simp only [getKeyGE_eq_getEntryGE, h.getEntryGE_eq h₁ h₂]
 
-theorem getKeyGE!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getKeyGE!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited α] : t₁.getKeyGE! k = t₂.getKeyGE! k := by
   simp only [getKeyGE!_eq_get!_getKeyGE?, h.getKeyGE?_eq h₁ h₂]
 
-theorem getKeyGED_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getKeyGED_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k fallback : α} : t₁.getKeyGED k fallback = t₂.getKeyGED k fallback := by
   simp only [getKeyGED_eq_getD_getKeyGE?, h.getKeyGE?_eq h₁ h₂]
 
-theorem getKeyGT?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem getKeyGT?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     t₁.getKeyGT? k = t₂.getKeyGT? k := by
   simp only [getKeyGT?_eq_getEntryGT?, h.getEntryGT?_eq h₁ h₂]
 
-theorem getKeyGT_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+theorem getKeyGT_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
     t₁.getKeyGT k h₁.ordered he = t₂.getKeyGT k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
   simp only [getKeyGT_eq_getEntryGT, h.getEntryGT_eq h₁ h₂]
 
-theorem getKeyGT!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getKeyGT!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited α] : t₁.getKeyGT! k = t₂.getKeyGT! k := by
   simp only [getKeyGT!_eq_get!_getKeyGT?, h.getKeyGT?_eq h₁ h₂]
 
-theorem getKeyGTD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getKeyGTD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k fallback : α} : t₁.getKeyGTD k fallback = t₂.getKeyGTD k fallback := by
   simp only [getKeyGTD_eq_getD_getKeyGT?, h.getKeyGT?_eq h₁ h₂]
 
-theorem getKeyLE?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem getKeyLE?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     t₁.getKeyLE? k = t₂.getKeyLE? k := by
   simp only [getKeyLE?_eq_getEntryLE?, h.getEntryLE?_eq h₁ h₂]
 
-theorem getKeyLE_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+theorem getKeyLE_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
     t₁.getKeyLE k h₁.ordered he = t₂.getKeyLE k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
   simp only [getKeyLE_eq_getEntryLE, h.getEntryLE_eq h₁ h₂]
 
-theorem getKeyLE!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getKeyLE!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited α] : t₁.getKeyLE! k = t₂.getKeyLE! k := by
   simp only [getKeyLE!_eq_get!_getKeyLE?, h.getKeyLE?_eq h₁ h₂]
 
-theorem getKeyLED_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getKeyLED_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k fallback : α} : t₁.getKeyLED k fallback = t₂.getKeyLED k fallback := by
   simp only [getKeyLED_eq_getD_getKeyLE?, h.getKeyLE?_eq h₁ h₂]
 
-theorem getKeyLT?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem getKeyLT?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     t₁.getKeyLT? k = t₂.getKeyLT? k := by
   simp only [getKeyLT?_eq_getEntryLT?, h.getEntryLT?_eq h₁ h₂]
 
-theorem getKeyLT_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+theorem getKeyLT_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
     t₁.getKeyLT k h₁.ordered he = t₂.getKeyLT k h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
   simp only [getKeyLT_eq_getEntryLT, h.getEntryLT_eq h₁ h₂]
 
-theorem getKeyLT!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getKeyLT!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited α] : t₁.getKeyLT! k = t₂.getKeyLT! k := by
   simp only [getKeyLT!_eq_get!_getKeyLT?, h.getKeyLT?_eq h₁ h₂]
 
-theorem getKeyLTD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem getKeyLTD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k fallback : α} : t₁.getKeyLTD k fallback = t₂.getKeyLTD k fallback := by
   simp only [getKeyLTD_eq_getD_getKeyLT?, h.getKeyLT?_eq h₁ h₂]
 
-theorem insert [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem insert [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {v : β k} : (t₁.insert k v h₁.balanced).impl ~m (t₂.insert k v h₂.balanced).impl := by
   simp_to_model [insert, Equiv] using List.insertEntry_of_perm _ h.1
 
-theorem insert! [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem insert! [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {v : β k} : t₁.insert! k v ~m t₂.insert! k v := by
   simpa only [insert_eq_insert!] using h.insert h₁ h₂
 
-theorem erase [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem erase [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} : (t₁.erase k h₁.balanced).impl ~m (t₂.erase k h₂.balanced).impl := by
   simp_to_model [erase, Equiv] using List.eraseKey_of_perm _ h.1
 
-theorem erase! [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem erase! [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} : t₁.erase! k ~m t₂.erase! k := by
   simpa only [erase_eq_erase!] using h.erase h₁ h₂
 
-theorem insertIfNew [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem insertIfNew [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {v : β k} : (t₁.insertIfNew k v h₁.balanced).impl ~m (t₂.insertIfNew k v h₂.balanced).impl := by
   simp_to_model [insertIfNew, Equiv] using List.insertEntryIfNew_of_perm _ h.1
 
-theorem insertIfNew! [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem insertIfNew! [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {v : β k} : t₁.insertIfNew! k v ~m t₂.insertIfNew! k v := by
   simpa only [insertIfNew_eq_insertIfNew!] using h.insertIfNew h₁ h₂
 
-theorem alter [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem alter [LawfulLinearOrder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {f : Option (β k) → Option (β k)} :
     (t₁.alter k f h₁.balanced).impl ~m (t₂.alter k f h₂.balanced).impl := by
   simp_to_model [alter, Equiv] using List.alterKey_of_perm _ h.1
 
-theorem alter! [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem alter! [LawfulLinearOrder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {f : Option (β k) → Option (β k)} :
     t₁.alter! k f ~m t₂.alter! k f := by
   simpa only [alter_eq_alter!] using h.alter h₁ h₂
 
-theorem modify [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem modify [LawfulLinearOrder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {f : β k → β k} : t₁.modify k f ~m t₂.modify k f := by
   simp_to_model [modify, Equiv] using List.modifyKey_of_perm _ h.1
 
@@ -6449,7 +6456,7 @@ theorem filterMap! (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {f : (a 
     t₁.filterMap! f ~m t₂.filterMap! f := by
   simpa only [filterMap_eq_filterMap!] using h.filterMap h₁ h₂
 
-theorem insertMany_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem insertMany_list [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {l : List ((a : α) × β a)} :
     (t₁.insertMany l h₁.balanced).1 ~m (t₂.insertMany l h₂.balanced).1 := by
   simp only [insertMany_eq_foldl]
@@ -6457,12 +6464,12 @@ theorem insertMany_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t�
   intro a ha c c' hc
   refine ⟨hc.1.insert!, hc.2.1.insert!, hc.2.2.insert! hc.1 hc.2.1⟩
 
-theorem insertMany!_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem insertMany!_list [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {l : List ((a : α) × β a)} :
     (t₁.insertMany! l).1 ~m (t₂.insertMany! l).1 := by
   simpa only [insertMany_eq_insertMany!] using h.insertMany_list h₁ h₂
 
-theorem eraseMany_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem eraseMany_list [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {l : List α} :
     (t₁.eraseMany l h₁.balanced).1 ~m (t₂.eraseMany l h₂.balanced).1 := by
   simp only [eraseMany, bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, bind_pure,
@@ -6472,7 +6479,7 @@ theorem eraseMany_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁
   intro a ha c c' hc
   refine ⟨hc.1.erase, hc.2.1.erase, hc.2.2.erase hc.1 hc.2.1⟩
 
-theorem eraseMany!_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem eraseMany!_list [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {l : List α} :
     (t₁.eraseMany! l).1 ~m (t₂.eraseMany! l).1 := by
   simp only [eraseMany!, bind_pure_comp, map_pure, List.forIn_pure_yield_eq_foldl, bind_pure,
@@ -6482,7 +6489,7 @@ theorem eraseMany!_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t�
   intro a ha c c' hc
   refine ⟨hc.1.erase!, hc.2.1.erase!, hc.2.2.erase! hc.1 hc.2.1⟩
 
-theorem mergeWith [TransOrd α] [LawfulEqOrd α]
+theorem mergeWith [LawfulLinearOrder (.ofOrd α)]
     (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
     (h₁ : t₁.WF) (h₂ : t₂.WF)
     (h₃ : t₃.WF) (h₄ : t₄.WF)
@@ -6494,7 +6501,7 @@ theorem mergeWith [TransOrd α] [LawfulEqOrd α]
   intro a ha c c' hc
   exact ⟨hc.1.alter, hc.2.1.alter, hc.2.2.alter hc.1 hc.2.1⟩
 
-theorem mergeWith! [TransOrd α] [LawfulEqOrd α]
+theorem mergeWith! [LawfulLinearOrder (.ofOrd α)]
     (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
     (h₁ : t₁.WF) (h₂ : t₂.WF)
     (h₃ : t₃.WF) (h₄ : t₄.WF)
@@ -6506,170 +6513,170 @@ section Const
 
 variable {β : Type v} {t₁ t₂ t₃ t₄ : Impl α β} {δ : Type w} {m : Type w → Type w}
 
-theorem constGet?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem constGet?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     Const.get? t₁ k = Const.get? t₂ k := by
   simp_to_model [Const.get?] using List.getValue?_of_perm _ h.1
 
-theorem constGet_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constGet_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} (hk : k ∈ t₁) : Const.get t₁ k hk = Const.get t₂ k ((h.mem_iff h₁ h₂).mp hk) := by
   simp_to_model [Const.get] using List.getValue_of_perm _ h.1
 
-theorem constGet!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constGet!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited β] : Const.get! t₁ k = Const.get! t₂ k := by
   simp_to_model [Const.get!] using List.getValue!_of_perm _ h.1
 
-theorem constGetD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constGetD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {fallback : β} : Const.getD t₁ k fallback = Const.getD t₂ k fallback := by
   simp_to_model [Const.getD] using List.getValueD_of_perm _ h.1
 
-theorem constToList_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+theorem constToList_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     Const.toList t₁ = Const.toList t₂ := by
   simp_to_model [Const.toList] using congrArg _ (h.toListModel_eq ..)
 
-theorem constToArray_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+theorem constToArray_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     Const.toArray t₁ = Const.toArray t₂ := by
   simp only [Const.toArray_eq_toArray_map, h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem values_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.values = t₂.values := by
+theorem values_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : t₁.values = t₂.values := by
   simp only [values_eq_map_snd, h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem valuesArray_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+theorem valuesArray_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     t₁.valuesArray = t₂.valuesArray := by
   simp only [valuesArray_eq_toArray_map, h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem constMinEntry?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+theorem constMinEntry?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     Const.minEntry? t₁ = Const.minEntry? t₂ := by
   simp only [Const.minEntry?_eq_minEntry?, h.minEntry?_eq h₁ h₂]
 
-theorem constMinEntry_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {he} :
+theorem constMinEntry_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {he} :
     Const.minEntry t₁ he = Const.minEntry t₂ (h.isEmpty_eq.symm.trans he) := by
   apply Option.some.inj
   simp only [Const.some_minEntry_eq_minEntry?, h.constMinEntry?_eq h₁ h₂]
 
-theorem constMinEntry!_eq [TransOrd α] [Inhabited (α × β)]
+theorem constMinEntry!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited (α × β)]
     (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : Const.minEntry! t₁ = Const.minEntry! t₂ := by
   simp only [Const.minEntry!_eq_get!_minEntry?, h.constMinEntry?_eq h₁ h₂]
 
-theorem constMinEntryD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constMinEntryD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {fallback : α × β} : Const.minEntryD t₁ fallback = Const.minEntryD t₂ fallback := by
   simp only [Const.minEntryD_eq_getD_minEntry?, h.constMinEntry?_eq h₁ h₂]
 
-theorem constMaxEntry?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
+theorem constMaxEntry?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) :
     Const.maxEntry? t₁ = Const.maxEntry? t₂ := by
   simp only [Const.maxEntry?_eq_maxEntry?, h.maxEntry?_eq h₁ h₂]
 
-theorem constMaxEntry_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {he} :
+theorem constMaxEntry_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {he} :
     Const.maxEntry t₁ he = Const.maxEntry t₂ (h.isEmpty_eq.symm.trans he) := by
   apply Option.some.inj
   simp only [Const.some_maxEntry_eq_maxEntry?, h.constMaxEntry?_eq h₁ h₂]
 
-theorem constMaxEntry!_eq [TransOrd α] [Inhabited (α × β)]
+theorem constMaxEntry!_eq [LawfulLinearPreorder (.ofOrd α)] [Inhabited (α × β)]
     (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) : Const.maxEntry! t₁ = Const.maxEntry! t₂ := by
   simp only [Const.maxEntry!_eq_get!_maxEntry?, h.constMaxEntry?_eq h₁ h₂]
 
-theorem constMaxEntryD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constMaxEntryD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {fallback : α × β} : Const.maxEntryD t₁ fallback = Const.maxEntryD t₂ fallback := by
   simp only [Const.maxEntryD_eq_getD_maxEntry?, h.constMaxEntry?_eq h₁ h₂]
 
-theorem constEntryAtIdx?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} :
+theorem constEntryAtIdx?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} :
     Const.entryAtIdx? t₁ i = Const.entryAtIdx? t₂ i := by
   simp_to_model [Const.entryAtIdx?]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem constEntryAtIdx_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} {h'} :
+theorem constEntryAtIdx_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat} {h'} :
     Const.entryAtIdx t₁ h₁.balanced i h' = Const.entryAtIdx t₂ h₂.balanced i (h.size_eq h₁ h₂ ▸ h') := by
   simp_to_model [Const.entryAtIdx]
   simp only [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem constEntryAtIdx!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
+theorem constEntryAtIdx!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
     [Inhabited (α × β)] : Const.entryAtIdx! t₁ i = Const.entryAtIdx! t₂ i := by
   simp_to_model [Const.entryAtIdx!]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem constEntryAtIdxD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
+theorem constEntryAtIdxD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {i : Nat}
     {fallback : α × β} : Const.entryAtIdxD t₁ i fallback = Const.entryAtIdxD t₂ i fallback := by
   simp_to_model [Const.entryAtIdxD]
   rw [h.toListModel_eq h₁.ordered h₂.ordered]
 
-theorem constGetEntryGE?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem constGetEntryGE?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     Const.getEntryGE? k t₁ = Const.getEntryGE? k t₂ := by
   simp only [Const.getEntryGE?_eq_map, h.getEntryGE?_eq h₁ h₂]
 
-theorem constGetEntryGE_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+theorem constGetEntryGE_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
     Const.getEntryGE k t₁ h₁.ordered he = Const.getEntryGE k t₂ h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
   simp only [Const.getEntryGE_eq, h.getEntryGE_eq h₁ h₂]
 
-theorem constGetEntryGE!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constGetEntryGE!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited (α × β)] : Const.getEntryGE! k t₁ = Const.getEntryGE! k t₂ := by
   simp only [Const.getEntryGE!_eq_get!_getEntryGE?, h.constGetEntryGE?_eq h₁ h₂]
 
-theorem constGetEntryGED_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constGetEntryGED_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {fallback : α × β} : Const.getEntryGED k t₁ fallback = Const.getEntryGED k t₂ fallback := by
   simp only [Const.getEntryGED_eq_getD_getEntryGE?, h.constGetEntryGE?_eq h₁ h₂]
 
-theorem constGetEntryGT?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem constGetEntryGT?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     Const.getEntryGT? k t₁ = Const.getEntryGT? k t₂ := by
   simp only [Const.getEntryGT?_eq_map, h.getEntryGT?_eq h₁ h₂]
 
-theorem constGetEntryGT_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+theorem constGetEntryGT_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
     Const.getEntryGT k t₁ h₁.ordered he = Const.getEntryGT k t₂ h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
   simp only [Const.getEntryGT_eq, h.getEntryGT_eq h₁ h₂]
 
-theorem constGetEntryGT!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constGetEntryGT!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited (α × β)] : Const.getEntryGT! k t₁ = Const.getEntryGT! k t₂ := by
   simp only [Const.getEntryGT!_eq_get!_getEntryGT?, h.constGetEntryGT?_eq h₁ h₂]
 
-theorem constGetEntryGTD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α}
+theorem constGetEntryGTD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α}
     {fallback : α × β} : Const.getEntryGTD k t₁ fallback = Const.getEntryGTD k t₂ fallback := by
   simp only [Const.getEntryGTD_eq_getD_getEntryGT?, h.constGetEntryGT?_eq h₁ h₂]
 
-theorem constGetEntryLE?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem constGetEntryLE?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     Const.getEntryLE? k t₁ = Const.getEntryLE? k t₂ := by
   simp only [Const.getEntryLE?_eq_map, h.getEntryLE?_eq h₁ h₂]
 
-theorem constGetEntryLE_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+theorem constGetEntryLE_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
     Const.getEntryLE k t₁ h₁.ordered he = Const.getEntryLE k t₂ h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
   simp only [Const.getEntryLE_eq, h.getEntryLE_eq h₁ h₂]
 
-theorem constGetEntryLE!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constGetEntryLE!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited (α × β)] : Const.getEntryLE! k t₁ = Const.getEntryLE! k t₂ := by
   simp only [Const.getEntryLE!_eq_get!_getEntryLE?, h.constGetEntryLE?_eq h₁ h₂]
 
-theorem constGetEntryLED_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α}
+theorem constGetEntryLED_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α}
     {fallback : α × β} : Const.getEntryLED k t₁ fallback = Const.getEntryLED k t₂ fallback := by
   simp only [Const.getEntryLED_eq_getD_getEntryLE?, h.constGetEntryLE?_eq h₁ h₂]
 
-theorem constGetEntryLT?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
+theorem constGetEntryLT?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} :
     Const.getEntryLT? k t₁ = Const.getEntryLT? k t₂ := by
   simp only [Const.getEntryLT?_eq_map, h.getEntryLT?_eq h₁ h₂]
 
-theorem constGetEntryLT_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
+theorem constGetEntryLT_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α} {he} :
     Const.getEntryLT k t₁ h₁.ordered he = Const.getEntryLT k t₂ h₂.ordered (by simpa only [← h.mem_iff h₁ h₂]) := by
   simp only [Const.getEntryLT_eq, h.getEntryLT_eq h₁ h₂]
 
-theorem constGetEntryLT!_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constGetEntryLT!_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} [Inhabited (α × β)] : Const.getEntryLT! k t₁ = Const.getEntryLT! k t₂ := by
   simp only [Const.getEntryLT!_eq_get!_getEntryLT?, h.constGetEntryLT?_eq h₁ h₂]
 
-theorem constGetEntryLTD_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α}
+theorem constGetEntryLTD_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {k : α}
     {fallback : α × β} : Const.getEntryLTD k t₁ fallback = Const.getEntryLTD k t₂ fallback := by
   simp only [Const.getEntryLTD_eq_getD_getEntryLT?, h.constGetEntryLT?_eq h₁ h₂]
 
-theorem constAlter [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constAlter [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {f : Option β → Option β} :
     (Const.alter k f t₁ h₁.balanced).impl ~m (Const.alter k f t₂ h₂.balanced).impl := by
   simp_to_model [Const.alter, Equiv] using List.Const.alterKey_of_perm _ h.1
 
-theorem constAlter! [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constAlter! [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {f : Option β → Option β} :
     Const.alter! k f t₁ ~m Const.alter! k f t₂ := by
   simpa only [Const.alter_eq_alter!] using h.constAlter h₁ h₂
 
-theorem constModify [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constModify [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {k : α} {f : β → β} : Const.modify k f t₁ ~m Const.modify k f t₂ := by
   simp_to_model [Const.modify, Equiv] using List.Const.modifyKey_of_perm _ h.1
 
-theorem constInsertMany_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constInsertMany_list [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {l : List (α × β)} :
     (Const.insertMany t₁ l h₁.balanced).1 ~m (Const.insertMany t₂ l h₂.balanced).1 := by
   simp only [Const.insertMany_eq_foldl]
@@ -6677,12 +6684,12 @@ theorem constInsertMany_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h 
   intro a ha c c' hc
   refine ⟨hc.1.insert!, hc.2.1.insert!, hc.2.2.insert! hc.1 hc.2.1⟩
 
-theorem constInsertMany!_list [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
+theorem constInsertMany!_list [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂)
     {l : List (α × β)} :
     (Const.insertMany! t₁ l).1 ~m (Const.insertMany! t₂ l).1 := by
   simpa only [Const.insertMany_eq_insertMany!] using h.constInsertMany_list h₁ h₂
 
-theorem constInsertManyIfNewUnit_list [TransOrd α] {t₁ t₂ : Impl α Unit}
+theorem constInsertManyIfNewUnit_list [LawfulLinearPreorder (.ofOrd α)] {t₁ t₂ : Impl α Unit}
     (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {l : List α} :
     (Const.insertManyIfNewUnit t₁ l h₁.balanced).1 ~m (Const.insertManyIfNewUnit t₂ l h₂.balanced).1 := by
   simp only [Const.insertManyIfNewUnit_eq_foldl]
@@ -6690,12 +6697,12 @@ theorem constInsertManyIfNewUnit_list [TransOrd α] {t₁ t₂ : Impl α Unit}
   intro a ha c c' hc
   refine ⟨hc.1.insertIfNew!, hc.2.1.insertIfNew!, hc.2.2.insertIfNew! hc.1 hc.2.1⟩
 
-theorem constInsertManyIfNewUnit!_list [TransOrd α] {t₁ t₂ : Impl α Unit}
+theorem constInsertManyIfNewUnit!_list [LawfulLinearPreorder (.ofOrd α)] {t₁ t₂ : Impl α Unit}
     (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) {l : List α} :
     (Const.insertManyIfNewUnit! t₁ l).1 ~m (Const.insertManyIfNewUnit! t₂ l).1 := by
   simpa only [Const.insertManyIfNewUnit_eq_insertManyIfNewUnit!] using h.constInsertManyIfNewUnit_list h₁ h₂
 
-theorem constMergeWith [TransOrd α]
+theorem constMergeWith [LawfulLinearPreorder (.ofOrd α)]
     (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
     (h₁ : t₁.WF) (h₂ : t₂.WF)
     (h₃ : t₃.WF) (h₄ : t₄.WF)
@@ -6707,7 +6714,7 @@ theorem constMergeWith [TransOrd α]
   intro a ha c c' hc
   exact ⟨hc.1.constAlter, hc.2.1.constAlter, hc.2.2.constAlter hc.1 hc.2.1⟩
 
-theorem constMergeWith! [TransOrd α]
+theorem constMergeWith! [LawfulLinearPreorder (.ofOrd α)]
     (h : t₁ ~m t₂) (h' : t₃ ~m t₄)
     (h₁ : t₁.WF) (h₂ : t₂.WF)
     (h₃ : t₃.WF) (h₄ : t₄.WF)
@@ -6719,7 +6726,7 @@ end Const
 
 -- extensionalities
 
-theorem of_forall_get?_eq [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+theorem of_forall_get?_eq [LawfulLinearOrder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     (∀ k, t₁.get? k = t₂.get? k) → t₁ ~m t₂ := by
   simp_to_model [get?, Equiv] using List.getValueCast?_ext
 
@@ -6727,27 +6734,27 @@ section Const
 
 variable {β : Type v} {t₁ t₂ : Impl α β}
 
-theorem of_forall_getKey_eq_of_forall_constGet?_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+theorem of_forall_getKey_eq_of_forall_constGet?_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     (∀ k hk hk', t₁.getKey k hk = t₂.getKey k hk') →
     (∀ k, Const.get? t₁ k = Const.get? t₂ k) → t₁ ~m t₂ := by
   simp_to_model [Const.get?, Equiv, getKey, contains] using List.getKey_getValue?_ext
 
-theorem of_forall_constGet?_eq [TransOrd α] [LawfulEqOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+theorem of_forall_constGet?_eq [LawfulLinearOrder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     (∀ k, Const.get? t₁ k = Const.get? t₂ k) → t₁ ~m t₂ := by
   simp_to_model [Const.get?, Equiv]
   simpa only [getValue?_eq_getValueCast?] using
     List.getValueCast?_ext h₁.ordered.distinctKeys h₂.ordered.distinctKeys
 
-theorem of_forall_getKey?_unit_eq [TransOrd α] {t₁ t₂ : Impl α fun _ => Unit}
+theorem of_forall_getKey?_unit_eq [LawfulLinearPreorder (.ofOrd α)] {t₁ t₂ : Impl α fun _ => Unit}
     (h₁ : t₁.WF) (h₂ : t₂.WF) : (∀ k, t₁.getKey? k = t₂.getKey? k) → t₁ ~m t₂ := by
   simp_to_model [getKey?, Equiv] using List.getKey?_ext
 
-theorem of_forall_contains_unit_eq [TransOrd α] [LawfulEqOrd α]
+theorem of_forall_contains_unit_eq [LawfulLinearOrder (.ofOrd α)]
     {t₁ t₂ : Impl α fun _ => Unit} (h₁ : t₁.WF) (h₂ : t₂.WF) :
     (∀ k, t₁.contains k = t₂.contains k) → t₁ ~m t₂ := by
   simp_to_model [contains, Equiv] using List.containsKey_ext
 
-theorem of_forall_mem_unit_iff [TransOrd α] [LawfulEqOrd α]
+theorem of_forall_mem_unit_iff [LawfulLinearOrder (.ofOrd α)]
     {t₁ t₂ : Impl α Unit} (h₁ : t₁.WF) (h₂ : t₂.WF) :
     (∀ k, k ∈ t₁ ↔ k ∈ t₂) → t₁ ~m t₂ := by
   simpa [mem_iff_contains] using of_forall_contains_unit_eq h₁ h₂
@@ -6772,7 +6779,7 @@ theorem equiv_iff_toList_perm : t₁ ~m t₂ ↔ t₁.toList.Perm t₂.toList :=
 theorem Equiv.of_toList_perm : t₁.toList.Perm t₂.toList → t₁ ~m t₂ :=
   equiv_iff_toList_perm.mpr
 
-theorem equiv_iff_toList_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+theorem equiv_iff_toList_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     t₁ ~m t₂ ↔ t₁.toList = t₂.toList :=
   ⟨Equiv.toList_eq h₁ h₂, .of_toList_perm ∘ .of_eq⟩
 
@@ -6788,7 +6795,7 @@ theorem Const.equiv_iff_toList_perm : t₁ ~m t₂ ↔ (Const.toList t₁).Perm 
     have := h.map (fun (x, y) => (⟨x, y⟩ : (_ : α) × β))
     simpa only [List.map_map, Function.comp_def, List.map_id'] using this
 
-theorem Const.equiv_iff_toList_eq [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+theorem Const.equiv_iff_toList_eq [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     t₁ ~m t₂ ↔ Const.toList t₁ = Const.toList t₂ := by
   simp_to_model [Const.toList]
   rw [List.map_inj_right fun _ _ => congrArg fun x : α × β => (⟨x.1, x.2⟩ : (_ : α) × β)]
@@ -6804,7 +6811,7 @@ theorem Const.equiv_iff_keys_perm {t₁ t₂ : Impl α Unit} :
     have := h.map (fun x => (⟨x, ()⟩ : (_ : α) × Unit))
     simpa only [List.map_map, Function.comp_def, List.map_id'] using this
 
-theorem Const.equiv_iff_keys_eq {t₁ t₂ : Impl α Unit} [TransOrd α] (h₁ : t₁.WF) (h₂ : t₂.WF) :
+theorem Const.equiv_iff_keys_eq {t₁ t₂ : Impl α Unit} [LawfulLinearPreorder (.ofOrd α)] (h₁ : t₁.WF) (h₂ : t₂.WF) :
     t₁ ~m t₂ ↔ t₁.keys = t₂.keys := by
   simp_to_model [keys]
   simp only [List.keys_eq_map]

@@ -7,6 +7,7 @@ prelude
 import Std.Data.DTreeMap.Internal.Lemmas
 import Std.Data.DTreeMap.Basic
 import Std.Data.DTreeMap.AdditionalOperations
+import Std.Classes.Ord.New.PartiallyComparable
 
 /-!
 # Dependent tree map lemmas
@@ -35,7 +36,7 @@ theorem isEmpty_emptyc : (∅ : DTreeMap α β cmp).isEmpty :=
   Impl.isEmpty_empty
 
 @[simp, grind =]
-theorem isEmpty_insert [TransCmp cmp] {k : α} {v : β k} :
+theorem isEmpty_insert [LawfulLinearPreorder (.ofCmp cmp)] {k : α} {v : β k} :
     (t.insert k v).isEmpty = false :=
   Impl.isEmpty_insert t.wf
 
@@ -3127,16 +3128,16 @@ theorem minKey_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he km} :
     t.minKey he = km ↔ km ∈ t ∧ ∀ k ∈ t, (cmp km k).isLE :=
   Impl.minKey_eq_iff_mem_and_forall t.wf
 
-@[grind =] theorem minKey_insert [TransCmp cmp] {k v} :
+@[grind =] theorem minKey_insert [LawfulLinearPreorder (.ofCmp cmp)] {k v} :
     (t.insert k v).minKey isEmpty_insert =
       t.minKey?.elim k fun k' => if cmp k k' |>.isLE then k else k' :=
   Impl.minKey_insert t.wf
 
-theorem minKey_insert_le_minKey [TransCmp cmp] {k v he} :
+theorem minKey_insert_le_minKey [LawfulLinearPreorder (.ofCmp cmp)] {k v he} :
     cmp (t.insert k v |>.minKey isEmpty_insert) (t.minKey he) |>.isLE :=
   Impl.minKey_insert_le_minKey t.wf
 
-theorem minKey_insert_le_self [TransCmp cmp] {k v} :
+theorem minKey_insert_le_self [LawfulLinearPreorder (.ofCmp cmp)] {k v} :
     cmp (t.insert k v |>.minKey isEmpty_insert) k |>.isLE :=
   Impl.minKey_insert_le_self t.wf
 
@@ -3769,12 +3770,12 @@ theorem maxKey_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he km} :
     t.maxKey he = km ↔ km ∈ t ∧ ∀ k ∈ t, (cmp k km).isLE :=
   Impl.maxKey_eq_iff_mem_and_forall t.wf
 
-@[grind =] theorem maxKey_insert [TransCmp cmp] {k v} :
+@[grind =] theorem maxKey_insert [LawfulLinearPreorder (.ofCmp cmp)] {k v} :
     (t.insert k v).maxKey isEmpty_insert =
       t.maxKey?.elim k fun k' => if cmp k' k |>.isLE then k else k' :=
   Impl.maxKey_insert t.wf
 
-theorem maxKey_le_maxKey_insert [TransCmp cmp] {k v he} :
+theorem maxKey_le_maxKey_insert [LawfulLinearPreorder (.ofCmp cmp)] {k v he} :
     cmp (t.maxKey he) (t.insert k v |>.maxKey isEmpty_insert) |>.isLE :=
   Impl.maxKey_le_maxKey_insert t.wf
 

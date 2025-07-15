@@ -45,24 +45,26 @@ theorem Ordered.compare_left [Ord α] {sz k v l r} (h : (.inner sz k v l r : Imp
     {k'} (hk' : k' ∈ l.toListModel) : compare k'.1 k = .lt :=
   h.rel_of_mem_append hk' List.mem_cons_self
 
-theorem Ordered.compare_left_beq_gt [Ord α] [TransOrd α] {k : α → Ordering} [IsStrictCut compare k]
+theorem Ordered.compare_left_beq_gt [Ord α] [LawfulLinearPreorder (.ofOrd α)] {k : α → Ordering} [IsStrictCut compare k]
     {sz k' v' l r} (ho : (.inner sz k' v' l r : Impl α β).Ordered) (hcmp : (k k').isGE)
     (p) (hp : p ∈ l.toListModel) : k p.1 == .gt :=
- beq_iff_eq.2 (IsStrictCut.gt_of_isGE_of_gt hcmp (OrientedCmp.gt_of_lt (ho.compare_left hp)))
+  sorry
+  -- beq_iff_eq.2 (IsStrictCut.gt_of_isGE_of_gt hcmp (OrientedCmp.gt_of_lt (ho.compare_left hp)))
 
-theorem Ordered.compare_left_not_beq_eq [Ord α] [TransOrd α] {k : α → Ordering}
+theorem Ordered.compare_left_not_beq_eq [Ord α] [LawfulLinearPreorder (.ofOrd α)] {k : α → Ordering}
     [IsStrictCut compare k] {sz k' v' l r}
     (ho : (.inner sz k' v' l r : Impl α β).Ordered) (hcmp : (k k').isGE)
     (p) (hp : p ∈ l.toListModel) : ¬(k p.1 == .eq) := by
   suffices k p.fst = .gt by simp [this]
-  exact IsStrictCut.gt_of_isGE_of_gt hcmp (OrientedCmp.gt_of_lt (ho.compare_left hp))
+  sorry
+  -- exact IsStrictCut.gt_of_isGE_of_gt hcmp (OrientedCmp.gt_of_lt (ho.compare_left hp))
 
 theorem Ordered.compare_right [Ord α] {sz k v l r}
     (h : (.inner sz k v l r : Impl α β).Ordered) {k'} (hk' : k' ∈ r.toListModel) :
     compare k k'.1 = .lt := by
   exact List.rel_of_pairwise_cons (h.sublist (List.sublist_append_right _ _)) hk'
 
-theorem Ordered.compare_right_not_beq_gt [Ord α] [TransOrd α] {k : α → Ordering}
+theorem Ordered.compare_right_not_beq_gt [Ord α] {k : α → Ordering}
     [IsStrictCut compare k] {sz k' v' l r}
     (ho : (.inner sz k' v' l r : Impl α β).Ordered) (hcmp : (k k').isLE)
     (p) (hp : p ∈ r.toListModel) : ¬(k p.1 == .gt) := by

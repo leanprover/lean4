@@ -7,7 +7,7 @@ prelude
 import Init.BinderPredicates
 import Init.Data.Int.Order
 import Init.Data.List.MinMax
-import Init.Data.Nat.MinMax
+import Init.Data.Nat.Order
 import Init.Data.Option.Lemmas
 
 /-!

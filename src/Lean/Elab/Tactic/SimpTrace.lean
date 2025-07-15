@@ -18,9 +18,10 @@ open Lean Elab Parser Tactic Meta Simp Tactic.TryThis
 
 open TSyntax.Compat in
 /-- Constructs the syntax for a simp call, for use with `simp?`. -/
-def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tactic) := do
+def mkSimpCallStx (stx : Syntax) (ctx : Simp.Context) (simprocs : SimprocsArray)
+    (usedSimps : UsedSimps) : MetaM (TSyntax `tactic) := do
   let stx := stx.unsetTrailing
-  mkSimpOnly stx usedSimps
+  mkSimpOnly stx ctx simprocs usedSimps
 
 @[builtin_tactic simpTrace] def evalSimpTrace : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   match stx with
@@ -35,7 +36,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
     let stats ← dischargeWrapper.with fun discharge? =>
       simpLocation ctx (simprocs := simprocs) discharge? <|
         (loc.map expandLocation).getD (.targets #[] true)
-    let stx ← mkSimpCallStx stx stats.usedTheorems
+    let stx ← mkSimpCallStx stx ctx simprocs stats.usedTheorems
     addSuggestion tk stx (origSpan? := ← getRef)
     return stats.diag
   | _ => throwUnsupportedSyntax
@@ -54,7 +55,7 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
     match result? with
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
-    let stx ← mkSimpCallStx stx stats.usedTheorems
+    let stx ← mkSimpCallStx stx ctx simprocs stats.usedTheorems
     addSuggestion tk stx (origSpan? := ← getRef)
     return stats.diag
   | _ => throwUnsupportedSyntax
@@ -92,7 +93,7 @@ where
       withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
     let ctx := if bang.isSome then ctx.setAutoUnfold else ctx
     let stats ← dsimpLocation' ctx simprocs <| (loc.map expandLocation).getD (.targets #[] true)
-    let stx ← mkSimpCallStx stx stats.usedTheorems
+    let stx ← mkSimpCallStx stx ctx simprocs stats.usedTheorems
     addSuggestion tk stx (origSpan? := ← getRef)
     return stats.diag
   | _ => throwUnsupportedSyntax

@@ -689,7 +689,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_box(0);
 x_10 = l_String_splitOnAux(x_1, x_6, x_8, x_8, x_8, x_9);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_2 = x_10;
 goto block_5;
 }

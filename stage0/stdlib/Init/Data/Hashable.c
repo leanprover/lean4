@@ -175,7 +175,7 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = lean_apply_1(x_1, x_4);
 x_7 = lean_apply_1(x_2, x_5);
 x_8 = lean_unbox_uint64(x_6);
@@ -537,7 +537,7 @@ x_7 = lean_nat_dec_lt(x_4, x_5);
 if (x_7 == 0)
 {
 lean_dec(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -548,7 +548,7 @@ x_8 = lean_nat_dec_le(x_5, x_5);
 if (x_8 == 0)
 {
 lean_dec(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }

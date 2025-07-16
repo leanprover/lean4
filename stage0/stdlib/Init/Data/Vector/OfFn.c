@@ -78,11 +78,11 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 x_7 = lean_ctor_get(x_2, 0);
-lean_inc(x_7);
-lean_dec(x_2);
+lean_inc_ref(x_7);
+lean_dec_ref(x_2);
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_9 = lean_apply_2(x_8, lean_box(0), x_5);
 return x_9;
 }

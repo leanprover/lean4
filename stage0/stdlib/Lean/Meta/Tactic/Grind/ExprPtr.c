@@ -46,8 +46,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -65,8 +65,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Meta_Grind_isSameExpr(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -87,7 +87,7 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
 }
@@ -105,7 +105,7 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Meta_Grind_hashPtrExpr(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
 }
@@ -131,7 +131,7 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Meta_Grind_instHashableExprPtr___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
 }
@@ -157,8 +157,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Meta_Grind_instBEqExprPtr___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

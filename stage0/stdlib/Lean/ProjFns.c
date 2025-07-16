@@ -325,7 +325,7 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
 x_5 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_Lean_reprProjectionFunctionInfo___redArg___closed__5____x40_Lean_ProjFns___hyg_59_;
 x_7 = l_Lean_reprProjectionFunctionInfo___redArg___closed__6____x40_Lean_ProjFns___hyg_59_;
 x_8 = l_Lean_reprProjectionFunctionInfo___redArg___closed__7____x40_Lean_ProjFns___hyg_59_;
@@ -495,7 +495,7 @@ _start:
 {
 uint8_t x_2; 
 x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -656,7 +656,7 @@ uint8_t x_4; lean_object* x_5;
 x_4 = lean_unbox(x_3);
 x_5 = l_Lean_initFn___lam__0____x40_Lean_ProjFns___hyg_200_(x_1, x_2, x_4);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_5;
 }
 }
@@ -725,12 +725,12 @@ LEAN_EXPORT lean_object* l_Lean_Environment_getProjectionStructureName_x3f(lean_
 _start:
 {
 lean_object* x_3; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_3 = lean_get_projection_info(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_box(0);
 return x_4;
 }
@@ -763,11 +763,11 @@ if (lean_obj_tag(x_11) == 6)
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_ctor_get(x_11, 0);
-lean_inc(x_12);
+lean_inc_ref(x_12);
 lean_dec(x_11);
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 lean_ctor_set(x_8, 0, x_13);
 return x_8;
 }
@@ -790,11 +790,11 @@ if (lean_obj_tag(x_15) == 6)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_16 = lean_ctor_get(x_15, 0);
-lean_inc(x_16);
+lean_inc_ref(x_16);
 lean_dec(x_15);
 x_17 = lean_ctor_get(x_16, 1);
 lean_inc(x_17);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 x_18 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 return x_18;
@@ -826,16 +826,16 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = lean_ctor_get(x_4, 1);
 lean_inc(x_7);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_8 = lean_alloc_closure((void*)(l_Lean_isProjectionFn___redArg___lam__0), 3, 2);
 lean_closure_set(x_8, 0, x_3);
 lean_closure_set(x_8, 1, x_7);
@@ -865,16 +865,16 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = lean_ctor_get(x_4, 1);
 lean_inc(x_7);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_8 = lean_alloc_closure((void*)(l_Lean_getProjectionFnInfo_x3f___redArg___lam__0), 3, 2);
 lean_closure_set(x_8, 0, x_3);
 lean_closure_set(x_8, 1, x_7);

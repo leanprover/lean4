@@ -231,7 +231,7 @@ x_3 = l_Lean_Expr_hasFVar(x_1);
 if (x_3 == 0)
 {
 uint8_t x_4; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = 1;
 return x_4;
 }
@@ -242,7 +242,7 @@ x_5 = 0;
 x_6 = l_Lean_Expr_hasFVar(x_2);
 if (x_6 == 0)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_5;
 }
 else
@@ -253,7 +253,7 @@ x_8 = l_Lean_CollectFVars_main(x_2, x_7);
 x_9 = lean_alloc_closure((void*)(l_Lean_Expr_fvarsSubset___lam__0___boxed), 2, 1);
 lean_closure_set(x_9, 0, x_8);
 x_10 = lean_find_ext_expr(x_9, x_1);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 if (lean_obj_tag(x_10) == 0)
 {
 return x_6;
@@ -292,8 +292,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Expr_fvarsSubset___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -303,7 +303,7 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Expr_fvarsSubset(x_1, x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

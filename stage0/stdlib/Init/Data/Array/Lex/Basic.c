@@ -594,7 +594,7 @@ x_19 = lean_apply_2(x_5, x_11, x_12);
 x_20 = lean_unbox(x_19);
 if (x_20 == 0)
 {
-lean_dec(x_6);
+lean_dec_ref(x_6);
 goto block_17;
 }
 else
@@ -610,7 +610,7 @@ return x_22;
 }
 else
 {
-lean_dec(x_6);
+lean_dec_ref(x_6);
 goto block_17;
 }
 }
@@ -620,7 +620,7 @@ else
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 lean_dec(x_12);
 lean_dec(x_11);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
 x_23 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_23, 0, x_13);
@@ -811,8 +811,8 @@ if (x_16 == 0)
 {
 lean_dec(x_12);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_13;
 }
@@ -863,10 +863,10 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Array_lex___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 lean_dec(x_7);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_11;
 }
 }

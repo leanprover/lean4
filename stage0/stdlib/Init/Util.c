@@ -173,11 +173,11 @@ x_7 = l_mkPanicMessage___closed__1;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = l_Nat_reprFast(x_2);
 x_10 = lean_string_append(x_8, x_9);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_11 = lean_string_append(x_10, x_7);
 x_12 = l_Nat_reprFast(x_3);
 x_13 = lean_string_append(x_11, x_12);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 x_14 = l_mkPanicMessage___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 x_16 = lean_string_append(x_15, x_4);
@@ -189,8 +189,8 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_mkPanicMessage(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_4);
+lean_dec_ref(x_1);
 return x_5;
 }
 }
@@ -217,8 +217,8 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_panicWithPos___redArg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_5);
+lean_dec_ref(x_2);
 return x_6;
 }
 }
@@ -227,8 +227,8 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_panicWithPos(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
-lean_dec(x_3);
+lean_dec_ref(x_6);
+lean_dec_ref(x_3);
 return x_7;
 }
 }
@@ -253,11 +253,11 @@ x_11 = l_mkPanicMessage___closed__1;
 x_12 = lean_string_append(x_10, x_11);
 x_13 = l_Nat_reprFast(x_3);
 x_14 = lean_string_append(x_12, x_13);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_15 = lean_string_append(x_14, x_11);
 x_16 = l_Nat_reprFast(x_4);
 x_17 = lean_string_append(x_15, x_16);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 x_18 = l_mkPanicMessage___closed__2;
 x_19 = lean_string_append(x_17, x_18);
 x_20 = lean_string_append(x_19, x_5);
@@ -269,9 +269,9 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_5);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_6;
 }
 }
@@ -298,9 +298,9 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_panicWithPosWithDecl___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_6);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_7;
 }
 }
@@ -309,9 +309,9 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_panicWithPosWithDecl(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
-lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_7);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
 return x_8;
 }
 }

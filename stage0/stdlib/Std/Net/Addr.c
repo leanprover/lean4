@@ -170,8 +170,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_decEqMACAddr____x40_Std_Net_Addr___hyg_33_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -189,8 +189,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_instDecidableEqMACAddr(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -228,8 +228,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_decEqIPv4Addr____x40_Std_Net_Addr___hyg_151_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -247,8 +247,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_instDecidableEqIPv4Addr(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -308,8 +308,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_decEqSocketAddressV4____x40_Std_Net_Addr___hyg_277_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -327,8 +327,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_instDecidableEqSocketAddressV4(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -366,8 +366,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_decEqIPv6Addr____x40_Std_Net_Addr___hyg_450_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -385,8 +385,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_instDecidableEqIPv6Addr(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -437,8 +437,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_decEqSocketAddressV6____x40_Std_Net_Addr___hyg_576_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -456,8 +456,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_instDecidableEqSocketAddressV6(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -524,8 +524,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_decEqIPAddr____x40_Std_Net_Addr___hyg_759_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -543,8 +543,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_instDecidableEqIPAddr(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -611,8 +611,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_decEqSocketAddress____x40_Std_Net_Addr___hyg_992_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -630,8 +630,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_instDecidableEqSocketAddress(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -817,7 +817,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_uv_pton_v4(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -826,7 +826,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_uv_ntop_v4(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -934,7 +934,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_uv_pton_v6(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -943,7 +943,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_uv_ntop_v6(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -1019,7 +1019,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Std_Net_IPAddr_family(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -1048,7 +1048,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Net_IPAddr_toString(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -1090,7 +1090,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Std_Net_SocketAddress_family(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -1107,8 +1107,8 @@ if (x_2 == 0)
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
-lean_dec(x_3);
+lean_inc_ref(x_4);
+lean_dec_ref(x_3);
 lean_ctor_set(x_1, 0, x_4);
 return x_1;
 }
@@ -1119,8 +1119,8 @@ x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
-lean_dec(x_5);
+lean_inc_ref(x_6);
+lean_dec_ref(x_5);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
@@ -1135,8 +1135,8 @@ if (x_8 == 0)
 lean_object* x_9; lean_object* x_10; 
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
-lean_dec(x_9);
+lean_inc_ref(x_10);
+lean_dec_ref(x_9);
 lean_ctor_set(x_1, 0, x_10);
 return x_1;
 }
@@ -1147,8 +1147,8 @@ x_11 = lean_ctor_get(x_1, 0);
 lean_inc(x_11);
 lean_dec(x_1);
 x_12 = lean_ctor_get(x_11, 0);
-lean_inc(x_12);
-lean_dec(x_11);
+lean_inc_ref(x_12);
+lean_dec_ref(x_11);
 x_13 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
 return x_13;
@@ -1170,7 +1170,7 @@ _start:
 {
 uint16_t x_2; lean_object* x_3; 
 x_2 = l_Std_Net_SocketAddress_port(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -1283,8 +1283,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_decEqInterfaceAddress____x40_Std_Net_Addr___hyg_1711_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -1302,8 +1302,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Net_instDecidableEqInterfaceAddress(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

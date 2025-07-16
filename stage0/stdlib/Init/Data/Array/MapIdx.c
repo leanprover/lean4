@@ -72,7 +72,7 @@ lean_object* x_9;
 x_9 = l___private_Init_Data_Array_MapIdx_0__Array_mapFinIdxM_map_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_5);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_9;
 }
 }

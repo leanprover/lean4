@@ -61,7 +61,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_uv_tcp_connect(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -109,7 +109,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_uv_tcp_bind(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_4;
 }

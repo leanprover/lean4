@@ -292,7 +292,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_reprWorkspaceConfig___redArg____x40_Lake_Config_WorkspaceConfig___hyg_36_(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -302,7 +302,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lake_reprWorkspaceConfig____x40_Lake_Config_WorkspaceConfig___hyg_36_(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -325,14 +325,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___lam__0(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
@@ -373,7 +373,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_WorkspaceConfig_packagesDir___proj___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -382,8 +382,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_WorkspaceConfig_packagesDir___proj___lam__1(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -392,7 +392,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_WorkspaceConfig_packagesDir___proj___lam__3(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }

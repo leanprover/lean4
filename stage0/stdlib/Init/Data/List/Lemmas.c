@@ -875,7 +875,7 @@ x_5 = lean_ctor_get(x_2, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_2, 1);
 lean_inc(x_6);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_7 = lean_apply_2(x_3, x_5, x_6);
 return x_7;
 }
@@ -892,7 +892,7 @@ x_10 = lean_ctor_get(x_2, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_2, 1);
 lean_inc(x_11);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_12 = lean_apply_4(x_4, x_8, x_9, x_10, x_11);
 return x_12;
 }

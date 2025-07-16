@@ -1259,7 +1259,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_6 = lean_box(1);
 x_7 = lean_alloc_ctor(1, 2, 0);
@@ -1279,7 +1279,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_9);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_12 = lean_box(1);
 x_13 = lean_alloc_ctor(1, 2, 0);
@@ -1296,7 +1296,7 @@ x_15 = lean_ctor_get(x_2, 2);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_2, 5);
 lean_inc(x_16);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_17 = lean_unsigned_to_nat(2u);
 x_18 = l_Lean_Syntax_getArg(x_1, x_17);
 lean_dec(x_1);
@@ -1583,7 +1583,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_6 = lean_box(1);
 x_7 = lean_alloc_ctor(1, 2, 0);
@@ -1600,7 +1600,7 @@ x_9 = lean_ctor_get(x_2, 2);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_2, 5);
 lean_inc(x_10);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
 x_13 = lean_unsigned_to_nat(2u);
@@ -1729,7 +1729,7 @@ x_12 = l_BitVec_toHex___boxed__const__1;
 x_13 = l_List_replicateTR___redArg(x_11, x_12);
 x_14 = l_List_asString(x_13);
 x_15 = lean_string_append(x_14, x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 return x_15;
 }
 }

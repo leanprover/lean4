@@ -120,7 +120,7 @@ _start:
 {
 lean_object* x_13; 
 x_13 = l___private_Std_Data_Iterators_Lemmas_Combinators_Monadic_Zip_0__Std_Iterators_Zip_instIterator_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 lean_dec(x_4);
 return x_13;
 }
@@ -177,7 +177,7 @@ _start:
 {
 lean_object* x_14; 
 x_14 = l___private_Std_Data_Iterators_Lemmas_Combinators_Monadic_Zip_0__Std_Iterators_Zip_instIterator_match__3_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec(x_4);
 return x_14;

@@ -100,7 +100,7 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     let letDecls ← mkLocalInstanceLetDecls ctx `BEq header.argNames
     body ← mkLet letDecls body
   let binders    := header.binders
-  let privTk? := if ctx.typeInfos.any (isPrivateName ·.name) then some .missing else none
+  let privTk? := ctx.mkPrivateTokenFromTypes?
   if ctx.usePartial then
     `($[private%$privTk?]? partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
   else
@@ -123,7 +123,7 @@ private def mkBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
 
 private def mkBEqEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
   let auxFunName := ctx.auxFunNames[0]!
-  let privTk? := if ctx.typeInfos.any (isPrivateName ·.name) then some .missing else none
+  let privTk? := ctx.mkPrivateTokenFromTypes?
   `(@[expose] $[private%$privTk?]? def $(mkIdent auxFunName):ident  (x y : $(mkIdent name)) : Bool := x.toCtorIdx == y.toCtorIdx)
 
 private def mkBEqEnumCmd (name : Name): TermElabM (Array Syntax) := do

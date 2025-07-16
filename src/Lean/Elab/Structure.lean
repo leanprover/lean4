@@ -218,7 +218,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
     else
       let ctor := optCtor[0]
       withRef ctor do
-      let mut ctorModifiers ← elabModifiers ctor[0]
+      let ctorModifiers ← elabModifiers ctor[0]
       checkValidCtorModifier ctorModifiers
       if ctorModifiers.isPrivate && structModifiers.isPrivate then
         throwError "invalid 'private' constructor in a 'private' structure"
@@ -383,8 +383,9 @@ def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM Str
   let parents ← expandParents exts
   let derivingClasses ← getOptDerivingClasses stx[5]
   let fields ← expandFields stx modifiers declName
-  -- Private fields imply a private constructor; in the module system only for back-compat
-  let ctor ← expandCtor (forcePrivate := (← getEnv).header.isModule && fields.any (·.modifiers.isPrivate))
+  -- Private fields imply a private constructor (in the module system only, for back-compat)
+  let ctor ← expandCtor
+    (forcePrivate := (← getEnv).header.isModule && fields.any (·.modifiers.isPrivate))
     stx modifiers declName
   fields.forM fun field => do
     if field.declName == ctor.declName then

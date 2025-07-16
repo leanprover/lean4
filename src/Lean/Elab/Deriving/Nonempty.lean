@@ -23,7 +23,7 @@ private def mkNonemptyInstance (declName : Name) : TermElabM Syntax.Command := d
         binders := binders.push (← `(bracketedBinderF| [Nonempty $arg]))
   let ctorTacs ← indVal.ctors.toArray.mapM fun ctor =>
     `(tactic| apply @$(mkCIdent ctor) <;> exact Classical.ofNonempty)
-  let privTk? := if isPrivateName declName then some .missing else none
+  let privTk? := guard (isPrivateName declName) *> some .missing
   `(command| variable $binders* in
     $[private%$privTk?]? instance : Nonempty (@$(mkCIdent declName) $indArgs*) :=
       by constructor; first $[| $ctorTacs:tactic]*)

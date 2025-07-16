@@ -50233,7 +50233,6 @@ lean_inc(x_239);
 lean_dec(x_233);
 lean_inc(x_239);
 x_240 = l_Lean_isPrivateNameFromImportedModule(x_238, x_239);
-lean_dec_ref(x_238);
 if (x_240 == 0)
 {
 lean_free_object(x_234);
@@ -50322,7 +50321,6 @@ lean_inc(x_254);
 lean_dec(x_233);
 lean_inc(x_254);
 x_255 = l_Lean_isPrivateNameFromImportedModule(x_253, x_254);
-lean_dec_ref(x_253);
 if (x_255 == 0)
 {
 lean_free_object(x_225);
@@ -50455,7 +50453,6 @@ lean_inc(x_279);
 lean_dec(x_273);
 lean_inc(x_279);
 x_280 = l_Lean_isPrivateNameFromImportedModule(x_278, x_279);
-lean_dec_ref(x_278);
 if (x_280 == 0)
 {
 lean_dec(x_277);
@@ -50606,7 +50603,6 @@ lean_inc(x_309);
 lean_dec(x_303);
 lean_inc(x_309);
 x_310 = l_Lean_isPrivateNameFromImportedModule(x_308, x_309);
-lean_dec_ref(x_308);
 if (x_310 == 0)
 {
 lean_dec(x_307);
@@ -50811,7 +50807,6 @@ lean_inc(x_346);
 lean_dec(x_340);
 lean_inc(x_346);
 x_347 = l_Lean_isPrivateNameFromImportedModule(x_345, x_346);
-lean_dec_ref(x_345);
 if (x_347 == 0)
 {
 lean_dec(x_344);

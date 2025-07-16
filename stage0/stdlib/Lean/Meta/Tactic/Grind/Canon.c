@@ -25,7 +25,6 @@ static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_Grind_Canon_get_x27___redArg(lean_object*, lean_object*);
-lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Meta_mkAuxLemma_spec__1___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_Canon_canon_visit_spec__7_spec__7___redArg___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Meta_Grind_Canon_canon_visit_spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_Meta_Grind_Canon_canon_visit_spec__9___boxed(lean_object*, lean_object*, lean_object*);
@@ -183,6 +182,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_G
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Canon_canonImplicit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Canon_canon___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f___at___Lean_Meta_Simp_simpLoop_spec__0_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Canon_0__Lean_Meta_Grind_Canon_isDefEqBounded___lam__0___closed__4;
 static lean_object* l_Lean_Meta_Grind_Canon_canon_visit___closed__5;
 lean_object* l_instBEqProd___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7035,7 +7035,7 @@ x_22 = lean_ctor_get(x_17, 1);
 lean_inc_ref(x_22);
 lean_dec_ref(x_17);
 lean_inc_ref(x_4);
-x_23 = l_Lean_PersistentHashMap_find_x3f___at___Lean_Meta_mkAuxLemma_spec__1___redArg(x_22, x_4);
+x_23 = l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f___at___Lean_Meta_Simp_simpLoop_spec__0_spec__0___redArg(x_22, x_4);
 if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; 
@@ -8457,7 +8457,7 @@ x_330 = lean_ctor_get(x_17, 1);
 lean_inc_ref(x_330);
 lean_dec_ref(x_17);
 lean_inc_ref(x_4);
-x_331 = l_Lean_PersistentHashMap_find_x3f___at___Lean_Meta_mkAuxLemma_spec__1___redArg(x_330, x_4);
+x_331 = l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f___at___Lean_Meta_Simp_simpLoop_spec__0_spec__0___redArg(x_330, x_4);
 if (lean_obj_tag(x_331) == 0)
 {
 lean_object* x_332; 
@@ -13643,7 +13643,7 @@ x_205 = lean_ctor_get(x_201, 2);
 lean_inc_ref(x_205);
 lean_dec_ref(x_201);
 lean_inc(x_197);
-x_206 = l_Lean_PersistentHashMap_find_x3f___at___Lean_Meta_mkAuxLemma_spec__1___redArg(x_205, x_197);
+x_206 = l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f___at___Lean_Meta_Simp_simpLoop_spec__0_spec__0___redArg(x_205, x_197);
 if (lean_obj_tag(x_206) == 0)
 {
 uint8_t x_207; 
@@ -13699,7 +13699,7 @@ x_212 = lean_ctor_get(x_201, 2);
 lean_inc_ref(x_212);
 lean_dec_ref(x_201);
 lean_inc(x_197);
-x_213 = l_Lean_PersistentHashMap_find_x3f___at___Lean_Meta_mkAuxLemma_spec__1___redArg(x_212, x_197);
+x_213 = l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f___at___Lean_Meta_Simp_simpLoop_spec__0_spec__0___redArg(x_212, x_197);
 if (lean_obj_tag(x_213) == 0)
 {
 uint8_t x_214; 
@@ -14582,7 +14582,7 @@ x_205 = lean_ctor_get(x_201, 2);
 lean_inc_ref(x_205);
 lean_dec_ref(x_201);
 lean_inc(x_197);
-x_206 = l_Lean_PersistentHashMap_find_x3f___at___Lean_Meta_mkAuxLemma_spec__1___redArg(x_205, x_197);
+x_206 = l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f___at___Lean_Meta_Simp_simpLoop_spec__0_spec__0___redArg(x_205, x_197);
 if (lean_obj_tag(x_206) == 0)
 {
 uint8_t x_207; 
@@ -14638,7 +14638,7 @@ x_212 = lean_ctor_get(x_201, 2);
 lean_inc_ref(x_212);
 lean_dec_ref(x_201);
 lean_inc(x_197);
-x_213 = l_Lean_PersistentHashMap_find_x3f___at___Lean_Meta_mkAuxLemma_spec__1___redArg(x_212, x_197);
+x_213 = l_Lean_PersistentHashMap_find_x3f___at___Lean_SMap_find_x3f___at___Lean_Meta_Simp_simpLoop_spec__0_spec__0___redArg(x_212, x_197);
 if (lean_obj_tag(x_213) == 0)
 {
 uint8_t x_214; 

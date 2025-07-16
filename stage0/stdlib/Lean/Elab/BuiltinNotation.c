@@ -3193,7 +3193,6 @@ x_205 = l_Lean_Syntax_getArgs(x_145);
 lean_dec(x_145);
 lean_inc(x_80);
 x_206 = l_Lean_isPrivateNameFromImportedModule(x_86, x_80);
-lean_dec_ref(x_86);
 if (x_206 == 0)
 {
 lean_object* x_207; 
@@ -4399,7 +4398,6 @@ x_456 = l_Lean_Syntax_getArgs(x_418);
 lean_dec(x_418);
 lean_inc(x_376);
 x_457 = l_Lean_isPrivateNameFromImportedModule(x_382, x_376);
-lean_dec_ref(x_382);
 if (x_457 == 0)
 {
 lean_object* x_458; 
@@ -5160,7 +5158,6 @@ x_634 = l_Lean_Syntax_getArgs(x_596);
 lean_dec(x_596);
 lean_inc(x_554);
 x_635 = l_Lean_isPrivateNameFromImportedModule(x_560, x_554);
-lean_dec_ref(x_560);
 if (x_635 == 0)
 {
 lean_object* x_636; 

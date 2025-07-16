@@ -264,7 +264,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_____private_Lean_Elab_
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop___lam__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_groupGoalsByFunction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_withoutExporting___at___Lean_Meta_letToHave_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_withoutExporting___at___Lean_Meta_letToHave_spec__0___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_Elab_WF_solveDecreasingGoals_spec__1_spec__1___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_applyDefaultDecrTactic___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_mapLetDecl___at_____private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loopGo_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -15734,7 +15734,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_solveDecreasingGoals(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; 
 x_10 = l_Lean_Elab_WF_solveDecreasingGoals___closed__0;
 x_11 = l_Lean_Elab_WF_solveDecreasingGoals___closed__1;
 x_12 = lean_alloc_closure((void*)(l_Lean_Elab_WF_solveDecreasingGoals___lam__0___boxed), 13, 8);
@@ -15746,8 +15746,9 @@ lean_closure_set(x_12, 4, x_11);
 lean_closure_set(x_12, 5, x_10);
 lean_closure_set(x_12, 6, x_11);
 lean_closure_set(x_12, 7, x_10);
-x_13 = l_Lean_withoutExporting___at___Lean_Meta_letToHave_spec__0___redArg(x_12, x_5, x_6, x_7, x_8, x_9);
-return x_13;
+x_13 = 1;
+x_14 = l_Lean_withoutExporting___at___Lean_Meta_letToHave_spec__0___redArg(x_12, x_13, x_5, x_6, x_7, x_8, x_9);
+return x_14;
 }
 }
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_WF_solveDecreasingGoals_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {

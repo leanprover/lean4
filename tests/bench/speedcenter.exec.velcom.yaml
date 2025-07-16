@@ -402,6 +402,18 @@
     <<: *time
     cmd: lean simp_arith1.lean
 - attributes:
+    description: simp_bubblesort_256
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean simp_bubblesort_256.lean
+- attributes:
+    description: simp_local
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean simp_local.lean
+- attributes:
     description: nat_repr
     tags: [fast, suite]
   run_config:

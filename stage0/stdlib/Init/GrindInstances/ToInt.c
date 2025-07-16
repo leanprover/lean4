@@ -162,7 +162,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Grind_instToIntUInt8UintOfNatNat___lam__0(x_2);
 return x_3;
 }
@@ -189,7 +188,6 @@ _start:
 {
 uint16_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Grind_instToIntUInt16UintOfNatNat___lam__0(x_2);
 return x_3;
 }
@@ -296,7 +294,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Grind_instToIntInt8SintOfNatNat___lam__0(x_2);
 return x_3;
 }
@@ -398,7 +395,6 @@ _start:
 {
 uint16_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Grind_instToIntInt16SintOfNatNat___lam__0(x_2);
 return x_3;
 }

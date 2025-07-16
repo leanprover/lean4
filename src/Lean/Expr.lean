@@ -2320,7 +2320,7 @@ def mkIntDiv (a b : Expr) : Expr :=
 def mkIntMod (a b : Expr) : Expr :=
   mkApp2 intModFn a b
 
-/-- Given `a : Int`, returns `NatCast.natCast a` -/
+/-- Given `a : Nat`, returns `NatCast.natCast (R := Int) a` -/
 def mkIntNatCast (a : Expr) : Expr :=
   mkApp intNatCastFn a
 

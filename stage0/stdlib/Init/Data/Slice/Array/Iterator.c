@@ -160,7 +160,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_instToIteratorSubarrayId___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -169,7 +169,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_instToIteratorSubarrayId(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -335,7 +335,7 @@ x_3 = lean_alloc_closure((void*)(l_instIteratorStateSubarrayId___redArg___lam__2
 lean_closure_set(x_3, 0, x_1);
 x_4 = l_instIteratorStateSubarrayId___redArg___closed__9;
 x_5 = l_instIteratorStateSubarrayId___redArg___closed__13;
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_6 = l_Std_Iterators_Types_ULiftIterator_instIterator___redArg(x_2, x_5, x_4);
 x_7 = l_Std_Iterators_instIteratorMap___redArg(x_4, x_6, x_2, x_3);
 return x_7;
@@ -364,7 +364,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_instIteratorStateSubarrayId___redArg___lam__2(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -527,7 +527,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_instIteratorSizeStateSubarrayId(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -565,7 +565,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_instIteratorSizePartialStateSubarrayId(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -580,7 +580,7 @@ return x_5;
 LEAN_EXPORT lean_object* l_instForInSubarray___lam__3(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
@@ -598,7 +598,7 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_apply_2(x_2, x_4, x_6);
 x_9 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_3, x_8);
 return x_9;
@@ -609,18 +609,18 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_10 = lean_ctor_get(x_7, 0);
-lean_inc(x_10);
+lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_7, 1);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_7, 2);
 lean_inc(x_12);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_13 = l_instIteratorStateSubarrayId___redArg___closed__9;
 x_14 = lean_ctor_get(x_6, 0);
-lean_inc(x_14);
+lean_inc_ref(x_14);
 x_15 = lean_ctor_get(x_14, 0);
-lean_inc(x_15);
-lean_dec(x_14);
+lean_inc_ref(x_15);
+lean_dec_ref(x_14);
 x_16 = lean_alloc_closure((void*)(l_instForInSubarray___lam__1___boxed), 2, 1);
 lean_closure_set(x_16, 0, x_10);
 x_17 = lean_alloc_ctor(1, 1, 0);
@@ -659,7 +659,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_instForInSubarray___lam__3(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -669,7 +669,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_instForInSubarray___lam__1(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -688,7 +688,7 @@ _start:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_9 = lean_apply_2(x_2, x_7, x_5);
 lean_inc(x_8);
 x_10 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_3, x_9);
@@ -717,17 +717,17 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 0);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_4, 1);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_4, 2);
 lean_inc(x_8);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_9 = lean_ctor_get(x_5, 0);
-lean_inc(x_9);
-lean_dec(x_5);
+lean_inc_ref(x_9);
+lean_dec_ref(x_5);
 x_10 = l_Subarray_foldlM___redArg___closed__0;
 x_11 = l_Subarray_foldlM___redArg___closed__1;
 x_12 = lean_alloc_closure((void*)(l_Subarray_foldlM___redArg___lam__2), 1, 0);
@@ -756,17 +756,17 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_8 = lean_ctor_get(x_4, 0);
-lean_inc(x_8);
+lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_7, 0);
-lean_inc(x_9);
+lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_7, 1);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_7, 2);
 lean_inc(x_11);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_12 = lean_ctor_get(x_8, 0);
-lean_inc(x_12);
-lean_dec(x_8);
+lean_inc_ref(x_12);
+lean_dec_ref(x_8);
 x_13 = l_Subarray_foldlM___redArg___closed__0;
 x_14 = l_Subarray_foldlM___redArg___closed__1;
 x_15 = lean_alloc_closure((void*)(l_Subarray_foldlM___redArg___lam__2), 1, 0);
@@ -840,12 +840,12 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = l_instIteratorCollectStateSubarrayId___redArg___closed__0;
 x_6 = lean_alloc_closure((void*)(l_instForInSubarray___lam__1___boxed), 2, 1);
 lean_closure_set(x_6, 0, x_2);
@@ -911,20 +911,20 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_7 = lean_ctor_get(x_5, 0);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_5, 1);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_5, 2);
 lean_inc(x_9);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_10 = l_instIteratorStateSubarrayId___redArg___closed__9;
 x_11 = lean_ctor_get(x_6, 0);
-lean_inc(x_11);
+lean_inc_ref(x_11);
 x_12 = lean_ctor_get(x_6, 1);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_6, 2);
 lean_inc(x_13);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_14 = lean_alloc_closure((void*)(l_Array_instAppendSubarray___lam__4___boxed), 2, 1);
 lean_closure_set(x_14, 0, x_7);
 x_15 = lean_alloc_ctor(1, 1, 0);
@@ -972,7 +972,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Array_instAppendSubarray___lam__4(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -999,12 +999,12 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
+lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 2);
 lean_inc(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = l_instIteratorCollectStateSubarrayId___redArg___closed__0;
 x_7 = lean_alloc_closure((void*)(l_Array_instAppendSubarray___lam__4___boxed), 2, 1);
 lean_closure_set(x_7, 0, x_3);
@@ -1080,12 +1080,12 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_4, 2);
 lean_inc(x_7);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_8 = lean_alloc_closure((void*)(l_Array_instAppendSubarray___lam__4___boxed), 2, 1);
 lean_closure_set(x_8, 0, x_5);
 x_9 = lean_alloc_ctor(1, 1, 0);
@@ -1102,7 +1102,7 @@ x_16 = l_Array_instToStringSubarray___redArg___lam__3___closed__0;
 x_17 = lean_array_to_list(x_15);
 x_18 = l_List_toString___redArg(x_3, x_17);
 x_19 = lean_string_append(x_16, x_18);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 return x_19;
 }
 }

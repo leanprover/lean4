@@ -87,14 +87,14 @@ lean_ctor_set(x_10, 1, x_9);
 lean_inc(x_7);
 x_11 = lean_apply_2(x_7, x_2, x_10);
 x_12 = lean_ctor_get(x_11, 1);
-lean_inc(x_12);
+lean_inc_ref(x_12);
 x_13 = lean_ctor_get(x_11, 0);
-lean_inc(x_13);
-lean_dec(x_11);
+lean_inc_ref(x_13);
+lean_dec_ref(x_11);
 x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get_uint8(x_12, sizeof(void*)*1);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 x_16 = lean_unsigned_to_nat(1u);
 x_17 = lean_nat_add(x_3, x_16);
 lean_dec(x_3);
@@ -159,8 +159,8 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Sat_AIG_RefVec_zip_go___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 lean_dec(x_1);
 return x_8;
 }
@@ -170,8 +170,8 @@ _start:
 {
 lean_object* x_14; 
 x_14 = l_Std_Sat_AIG_RefVec_zip_go(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
-lean_dec(x_10);
-lean_dec(x_9);
+lean_dec_ref(x_10);
+lean_dec_ref(x_9);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -203,7 +203,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_Sat_AIG_RefVec_zip___redArg(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_1);
 return x_5;
 }
@@ -213,7 +213,7 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Std_Sat_AIG_RefVec_zip(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);

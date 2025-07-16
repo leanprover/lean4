@@ -10,8 +10,8 @@ namespace Lean
 namespace IR
 
 private def formatArg : Arg → Format
-  | Arg.var id     => format id
-  | Arg.irrelevant => "◾"
+  | Arg.var id => format id
+  | Arg.erased => "◾"
 
 instance : ToFormat Arg := ⟨formatArg⟩
 
@@ -61,8 +61,9 @@ private partial def formatIRType : IRType → Format
   | IRType.uint32       => "u32"
   | IRType.uint64       => "u64"
   | IRType.usize        => "usize"
-  | IRType.irrelevant   => "◾"
+  | IRType.erased       => "◾"
   | IRType.object       => "obj"
+  | IRType.tagged       => "tagged"
   | IRType.tobject      => "tobj"
   | IRType.struct _ tys =>
     let _ : ToFormat IRType := ⟨formatIRType⟩

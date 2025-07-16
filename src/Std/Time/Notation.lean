@@ -3,12 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Date
-import Std.Time.Time
-import Std.Time.Zoned
-import Std.Time.DateTime
-import Std.Time.Format
+public import Std.Time.Date
+public import Std.Time.Time
+public meta import Std.Time.Zoned
+public import Std.Time.DateTime
+public import Std.Time.Format
+public meta import Std.Time.Format
+
+public section
 
 namespace Std
 namespace Time

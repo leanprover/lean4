@@ -66,7 +66,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Iterators_instIterator_u03b1___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -75,7 +75,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Iterators_instIterator_u03b1(x_1, x_2, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_4;
 }
 }

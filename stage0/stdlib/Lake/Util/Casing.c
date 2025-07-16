@@ -210,7 +210,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_String_splitAux___at___String_split___at___Lake_toUpperCamelCaseString_spec__0_spec__0(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_5;
 }
 }
@@ -219,7 +219,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_String_split___at___Lake_toUpperCamelCaseString_spec__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -237,7 +237,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_toUpperCamelCaseString(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }

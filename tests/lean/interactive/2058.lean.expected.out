@@ -14,12 +14,13 @@
   {"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 21, "character": 26},
-    "end": {"line": 21, "character": 31}},
-   "message": "failed to infer universe levels in binder type\n  PUnit.{_}",
+   {"start": {"line": 21, "character": 22},
+    "end": {"line": 21, "character": 23}},
+   "message":
+   "Failed to infer universe levels in type of binder `x`\n  PUnit.{_}",
    "fullRange":
-   {"start": {"line": 21, "character": 26},
-    "end": {"line": 21, "character": 31}}},
+   {"start": {"line": 21, "character": 22},
+    "end": {"line": 21, "character": 23}}},
   {"source": "Lean 4",
    "severity": 1,
    "range":

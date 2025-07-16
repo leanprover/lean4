@@ -134,7 +134,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; 
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_7 = l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_elabCommand_go_spec__1_spec__5___redArg(x_4);
 return x_7;
@@ -147,11 +147,11 @@ x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
 lean_inc(x_3);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_13 = l_Lean_Elab_Command_elabCommand(x_12, x_2, x_3, x_10);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -277,7 +277,7 @@ else
 {
 lean_dec(x_9);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_13;
 }

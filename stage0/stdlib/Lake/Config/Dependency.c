@@ -329,7 +329,7 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_19; uint8_t x_20; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
+lean_inc_ref(x_3);
 if (lean_is_exclusive(x_1)) {
  lean_ctor_release(x_1, 0);
  x_4 = x_1;
@@ -360,7 +360,7 @@ x_6 = l_Lake_reprDependencySrc___closed__2____x40_Lake_Config_Dependency___hyg_6
 x_7 = lean_unsigned_to_nat(1024u);
 x_8 = l_Option_repr___at___Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_62__spec__1___closed__1;
 x_9 = l_String_quote(x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 if (lean_is_scalar(x_4)) {
  x_10 = lean_alloc_ctor(3, 1, 0);
 } else {
@@ -390,12 +390,12 @@ else
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_44; uint8_t x_45; 
 x_23 = lean_ctor_get(x_1, 0);
-lean_inc(x_23);
+lean_inc_ref(x_23);
 x_24 = lean_ctor_get(x_1, 1);
 lean_inc(x_24);
 x_25 = lean_ctor_get(x_1, 2);
 lean_inc(x_25);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_44 = lean_unsigned_to_nat(1024u);
 x_45 = lean_nat_dec_le(x_44, x_2);
 if (x_45 == 0)
@@ -418,7 +418,7 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean
 x_27 = lean_box(1);
 x_28 = l_Lake_reprDependencySrc___closed__7____x40_Lake_Config_Dependency___hyg_62_;
 x_29 = l_String_quote(x_23);
-lean_dec(x_23);
+lean_dec_ref(x_23);
 x_30 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
 x_31 = lean_alloc_ctor(5, 2, 0);
@@ -586,15 +586,15 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-lean_dec(x_1);
+lean_inc_ref(x_3);
+lean_dec_ref(x_1);
 x_4 = lean_alloc_closure((void*)(l_Lake_Dependency_fullName___lam__0___boxed), 1, 0);
 x_5 = l_Lake_Dependency_fullName___closed__0;
 x_6 = lean_string_append(x_3, x_5);
 x_7 = 1;
 x_8 = l_Lean_Name_toString(x_2, x_7, x_4);
 x_9 = lean_string_append(x_6, x_8);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 return x_9;
 }
 }
@@ -603,7 +603,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lake_Dependency_fullName___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }

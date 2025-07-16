@@ -93,8 +93,8 @@ abbrev Collector := LiveVarSet → LiveVarSet
 @[inline] private def collectVar (x : VarId) : Collector := fun s => s.insert x
 
 private def collectArg : Arg → Collector
-  | Arg.var x  => collectVar x
-  | _          => skip
+  | .var x  => collectVar x
+  | .erased => skip
 
 private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector := fun s =>
   as.foldl (fun s a => f a s) s

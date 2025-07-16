@@ -61,12 +61,12 @@ LEAN_EXPORT lean_object* l_Lake_stringToLegalOrSimpleName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_2 = l_String_toName(x_1);
 x_3 = l_Lean_Name_isAnonymous(x_2);
 if (x_3 == 0)
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -104,7 +104,7 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = lean_apply_2(x_1, lean_box(0), x_3);
 return x_4;
 }
@@ -114,12 +114,12 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_6 = lean_ctor_get(x_2, 0);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_2, 1);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = lean_alloc_closure((void*)(l_Lake_instForInNameMapProdName__lake___lam__0), 4, 1);
 lean_closure_set(x_9, 0, x_5);
 x_10 = l_Lean_RBNode_forIn_visit___redArg(x_2, x_9, x_3, x_4);
@@ -217,7 +217,7 @@ else
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
+lean_inc_ref(x_3);
 lean_dec(x_1);
 x_4 = l_Lake_Name_eraseHead(x_2);
 x_5 = l_Lean_Name_str___override(x_4, x_3);
@@ -311,7 +311,7 @@ lean_dec(x_3);
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_2, 1);
-lean_inc(x_8);
+lean_inc_ref(x_8);
 lean_dec(x_2);
 x_9 = lean_apply_3(x_5, x_1, x_7, x_8);
 return x_9;
@@ -360,7 +360,7 @@ lean_dec(x_3);
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_2, 1);
-lean_inc(x_8);
+lean_inc_ref(x_8);
 lean_dec(x_2);
 x_9 = lean_apply_3(x_4, x_1, x_7, x_8);
 return x_9;
@@ -435,12 +435,12 @@ lean_dec(x_5);
 x_12 = lean_ctor_get(x_1, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_1, 1);
-lean_inc(x_13);
+lean_inc_ref(x_13);
 lean_dec(x_1);
 x_14 = lean_ctor_get(x_2, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_2, 1);
-lean_inc(x_15);
+lean_inc_ref(x_15);
 lean_dec(x_2);
 x_16 = lean_apply_4(x_9, x_12, x_13, x_14, x_15);
 return x_16;
@@ -453,7 +453,7 @@ lean_dec(x_5);
 x_17 = lean_ctor_get(x_1, 0);
 lean_inc(x_17);
 x_18 = lean_ctor_get(x_1, 1);
-lean_inc(x_18);
+lean_inc_ref(x_18);
 lean_dec(x_1);
 x_19 = lean_ctor_get(x_2, 0);
 lean_inc(x_19);
@@ -492,7 +492,7 @@ lean_dec(x_1);
 x_25 = lean_ctor_get(x_2, 0);
 lean_inc(x_25);
 x_26 = lean_ctor_get(x_2, 1);
-lean_inc(x_26);
+lean_inc_ref(x_26);
 lean_dec(x_2);
 x_27 = lean_apply_4(x_7, x_23, x_24, x_25, x_26);
 return x_27;
@@ -580,7 +580,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l___private_Lake_Util_Name_0__Lean_Name_cmp_match__1_splitter___redArg(x_4, x_2, x_3);
 lean_dec(x_2);
 return x_5;
@@ -591,7 +590,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l___private_Lake_Util_Name_0__Lean_Name_cmp_match__1_splitter(x_1, x_5, x_3, x_4);
 lean_dec(x_3);
 return x_6;
@@ -614,7 +612,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lake_Name_quoteFrom(x_1, x_2, x_4);
 return x_5;
 }

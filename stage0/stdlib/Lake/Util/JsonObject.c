@@ -192,8 +192,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lake_JsonObject_insert___redArg___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -211,7 +211,7 @@ _start:
 {
 if (lean_obj_tag(x_4) == 0)
 {
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_1);
 return x_2;
 }
@@ -233,7 +233,7 @@ _start:
 {
 if (lean_obj_tag(x_5) == 0)
 {
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec(x_2);
 return x_3;
 }
@@ -430,7 +430,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_RBNode_del___at___Lake_JsonObject_erase_spec__0___redArg(x_1, x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -439,7 +439,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_RBNode_del___at___Lake_JsonObject_erase_spec__0(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -448,7 +448,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_JsonObject_erase(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -482,7 +482,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = l_Lake_JsonObject_insertSome___redArg___closed__0;
-lean_inc(x_3);
+lean_inc_ref(x_3);
 x_5 = l_Lean_RBNode_find___redArg(x_4, x_2, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
@@ -490,7 +490,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 lean_dec(x_1);
 x_6 = l_Lake_JsonObject_get___redArg___closed__0;
 x_7 = lean_string_append(x_6, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_8 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 return x_8;
@@ -534,7 +534,7 @@ return x_20;
 }
 else
 {
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_10;
 }
 }
@@ -545,7 +545,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lake_JsonObject_insertSome___redArg___closed__0;
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_6 = l_Lean_RBNode_find___redArg(x_5, x_3, x_4);
 if (lean_obj_tag(x_6) == 0)
 {
@@ -553,7 +553,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9;
 lean_dec(x_2);
 x_7 = l_Lake_JsonObject_get___redArg___closed__0;
 x_8 = lean_string_append(x_7, x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_9 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
 return x_9;
@@ -597,7 +597,7 @@ return x_21;
 }
 else
 {
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_11;
 }
 }
@@ -608,12 +608,12 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = l_Lake_JsonObject_insertSome___redArg___closed__0;
-lean_inc(x_3);
+lean_inc_ref(x_3);
 x_5 = l_Lean_RBNode_find___redArg(x_4, x_2, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_1);
 x_6 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
@@ -658,7 +658,7 @@ return x_18;
 }
 else
 {
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_8;
 }
 }
@@ -669,12 +669,12 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lake_JsonObject_insertSome___redArg___closed__0;
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_6 = l_Lean_RBNode_find___redArg(x_5, x_3, x_4);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec(x_2);
 x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
@@ -719,7 +719,7 @@ return x_19;
 }
 else
 {
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_9;
 }
 }

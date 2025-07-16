@@ -186,7 +186,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_11;
 }
 }
@@ -311,13 +311,13 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_inc(x_6);
 x_8 = lean_alloc_closure((void*)(l_Std_Iterators_FilterMap_instIterator___redArg___lam__1), 4, 3);
 lean_closure_set(x_8, 0, x_7);
@@ -363,7 +363,7 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_apply_1(x_2, x_4);
 x_7 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_3, x_6);
 return x_7;
@@ -374,10 +374,10 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
-lean_dec(x_5);
+lean_inc_ref(x_6);
+lean_dec_ref(x_5);
 x_7 = lean_alloc_closure((void*)(l_Std_Iterators_instIteratorMap___redArg___lam__0), 1, 0);
 x_8 = lean_alloc_closure((void*)(l_Std_Iterators_instIteratorMap___redArg___lam__1), 4, 3);
 lean_closure_set(x_8, 0, x_6);
@@ -411,7 +411,7 @@ x_11 = l___private_Init_Data_Iterators_Combinators_Monadic_FilterMap_0__Std_Iter
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_11;
 }
 }
@@ -431,7 +431,7 @@ x_11 = l___private_Init_Data_Iterators_Combinators_Monadic_FilterMap_0__Std_Iter
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_11;
 }
 }
@@ -601,7 +601,7 @@ _start:
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_alloc_closure((void*)(l_Std_Iterators_Map_instIteratorCollect___redArg___lam__3), 9, 4);
 lean_closure_set(x_6, 0, x_2);
 lean_closure_set(x_6, 1, x_3);
@@ -624,7 +624,7 @@ _start:
 lean_object* x_14; 
 x_14 = l_Std_Iterators_Map_instIteratorCollect(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_9);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 return x_14;
 }
 }
@@ -662,7 +662,7 @@ _start:
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_alloc_closure((void*)(l_Std_Iterators_Map_instIteratorCollectPartial___redArg___lam__2), 8, 4);
 lean_closure_set(x_6, 0, x_2);
 lean_closure_set(x_6, 1, x_3);
@@ -685,7 +685,7 @@ _start:
 lean_object* x_13; 
 x_13 = l_Std_Iterators_Map_instIteratorCollectPartial(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_9);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 return x_13;
 }
 }
@@ -759,7 +759,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_11;
 }
 }
@@ -795,7 +795,7 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 return x_10;
 }
 }
@@ -830,7 +830,7 @@ x_11 = l_Std_Iterators_IterM_filterMapM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, 
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 lean_dec(x_6);
 return x_11;
 }
@@ -866,7 +866,7 @@ x_11 = l_Std_Iterators_IterM_mapM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 lean_dec(x_6);
 return x_11;
 }
@@ -902,7 +902,7 @@ x_10 = l_Std_Iterators_IterM_filterM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
 return x_10;
 }
@@ -937,7 +937,7 @@ lean_object* x_9;
 x_9 = l_Std_Iterators_IterM_filterMap(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
 return x_9;
 }
@@ -972,7 +972,7 @@ lean_object* x_9;
 x_9 = l_Std_Iterators_IterM_map(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
 return x_9;
 }
@@ -1007,7 +1007,7 @@ lean_object* x_8;
 x_8 = l_Std_Iterators_IterM_filter(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_4);
 return x_8;
 }
@@ -1016,12 +1016,12 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizeFilterMapOfFinite___red
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_2);
 lean_inc(x_4);
 lean_inc(x_3);
 x_5 = l_Std_Iterators_FilterMap_instIterator___redArg(x_3, x_4, x_2, x_1);
-lean_inc_n(x_1, 2);
+lean_inc_ref_n(x_1, 2);
 x_6 = l_Std_Iterators_FilterMap_instIteratorLoop___redArg(x_1, x_1, x_2, x_3, x_4);
 x_7 = lean_alloc_closure((void*)(l_Std_Iterators_IterM_DefaultConsumers_size___boxed), 8, 7);
 lean_closure_set(x_7, 0, lean_box(0));
@@ -1046,12 +1046,12 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizePartialFilterMap___redA
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_2);
 lean_inc(x_4);
 lean_inc(x_3);
 x_5 = l_Std_Iterators_FilterMap_instIterator___redArg(x_3, x_4, x_2, x_1);
-lean_inc_n(x_1, 2);
+lean_inc_ref_n(x_1, 2);
 x_6 = l_Std_Iterators_FilterMap_instIteratorLoopPartial___redArg(x_1, x_1, x_2, x_3, x_4);
 x_7 = lean_alloc_closure((void*)(l_Std_Iterators_IterM_DefaultConsumers_sizePartial___boxed), 7, 6);
 lean_closure_set(x_7, 0, lean_box(0));
@@ -1105,7 +1105,7 @@ lean_object* x_11;
 x_11 = l_Std_Iterators_instIteratorSizeMap(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_11;
 }
 }
@@ -1134,7 +1134,7 @@ lean_object* x_11;
 x_11 = l_Std_Iterators_instIteratorSizePartialMap(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_11;
 }
 }

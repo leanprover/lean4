@@ -157,16 +157,17 @@ def propagateIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   c.assertCore
 
 def propagateNatLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
-  let some (lhs, rhs) ← Int.OfNat.toIntLe? e | return ()
+  let_expr LE.le _ _ a b := e | return ()
+  let thm := if eqTrue then mkConst ``Nat.ToInt.of_le else mkConst ``Nat.ToInt.of_not_le
   let gen ← getGeneration e
-  let ctx ← getNatVars
-  let lhs' ← toLinearExpr (← lhs.denoteAsIntExpr ctx) gen
-  let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
-  let p := lhs'.sub rhs' |>.norm
-  let c ← if eqTrue then
-    pure { p, h := .coreNat e lhs rhs lhs' rhs' : LeCnstr }
-  else
-    pure { p := p.mul (-1) |>.addConst 1, h := .coreNatNeg e lhs rhs lhs' rhs' : LeCnstr }
+  let (a', h₁) ← natToInt a
+  let (b', h₂) ← natToInt b
+  let thm := mkApp6 thm a b a' b' h₁ h₂
+  let (a', b') := if eqTrue then (a', b') else (mkIntAdd b' (mkIntLit 1), a')
+  let lhs ← toLinearExpr a' gen
+  let rhs ← toLinearExpr b' gen
+  let p := lhs.sub rhs |>.norm
+  let c := { p, h := .coreToInt e eqTrue thm lhs rhs : LeCnstr }
   c.assertCore
 
 def propagateToIntLe (e : Expr) (eqTrue : Bool) : ToIntM Unit := do

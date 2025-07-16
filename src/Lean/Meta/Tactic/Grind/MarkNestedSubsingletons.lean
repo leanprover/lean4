@@ -11,10 +11,11 @@ import Lean.Meta.Basic
 import Lean.Meta.InferType
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.Types
 
 namespace Lean.Meta.Grind
 
-private abbrev M := StateRefT (Std.HashMap ExprPtr Expr) MetaM
+private abbrev M := StateRefT (Std.HashMap ExprPtr Expr) GrindM
 
 def isMarkedSubsingletonConst (e : Expr) : Bool := Id.run do
   let .const declName _ := e | false
@@ -35,10 +36,11 @@ Recall that the congruence closure module has special support for them.
 -/
 -- TODO: consider other subsingletons in the future? We decided to not support them to avoid the overhead of
 -- synthesizing `Subsingleton` instances.
-partial def markNestedSubsingletons (e : Expr) : MetaM Expr := do
+partial def markNestedSubsingletons (e : Expr) : GrindM Expr := do profileitM Exception "grind mark subsingleton" (← getOptions) do
   visit e |>.run' {}
 where
   visit (e : Expr) : M Expr := do
+    if (← inShareCommon e) then return e
     if isMarkedSubsingletonApp e then
       return e -- `e` is already marked
     -- check whether result is cached
@@ -110,7 +112,7 @@ def markNestedProof (e : Expr) : M Expr := do
 /--
 Given a proof `e`, mark it with `Lean.Grind.nestedProof`
 -/
-def markProof (e : Expr) : MetaM Expr := do
+def markProof (e : Expr) : GrindM Expr := do
   if e.isAppOf ``Grind.nestedProof then
     return e -- `e` is already marked
   else

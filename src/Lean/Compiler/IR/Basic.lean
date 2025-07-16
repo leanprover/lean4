@@ -45,12 +45,13 @@ abbrev MData.empty : MData := {}
       because it is 32-bit in 32-bit machines, and 64-bit in 64-bit machines,
       and we want the C++ backend for our Compiler to generate platform independent code.
 
-   - `irrelevant` for Lean types, propositions and proofs.
+   - `erased` for Lean types, propositions and proofs.
 
    - `object` a pointer to a value in the heap.
 
-   - `tobject` a pointer to a value in the heap or tagged pointer
-      (i.e., the least significant bit is 1) storing a scalar value.
+   - `tagged` a tagged pointer (i.e., the least significant bit is 1) storing a scalar value.
+
+   - `tobject` an `object` or a `tagged` pointer
 
    - `struct` and `union` are used to return small values (e.g., `Option`, `Prod`, `Except`)
       on the stack.
@@ -73,10 +74,12 @@ then one of the following must hold in each (execution) branch.
 -/
 inductive IRType where
   | float | uint8 | uint16 | uint32 | uint64 | usize
-  | irrelevant | object | tobject
+  | erased | object | tobject
   | float32
   | struct (leanTypeName : Option Name) (types : Array IRType) : IRType
   | union (leanTypeName : Name) (types : Array IRType) : IRType
+  -- TODO: Move this upwards after a stage0 update.
+  | tagged
   deriving Inhabited, BEq, Repr
 
 namespace IRType
@@ -93,27 +96,41 @@ def isScalar : IRType → Bool
 
 def isObj : IRType → Bool
   | object  => true
+  | tagged  => true
   | tobject => true
   | _       => false
 
-def isIrrelevant : IRType → Bool
-  | irrelevant => true
+def isPossibleRef : IRType → Bool
+  | object | tobject => true
   | _ => false
+
+def isDefiniteRef : IRType → Bool
+  | object => true
+  | _ => false
+
+def isErased : IRType → Bool
+  | erased => true
+  | _ => false
+
+def boxed : IRType → IRType
+  | object | erased | float | float32 => object
+  | tagged | uint8 | uint16 => tagged
+  | _ => tobject
 
 end IRType
 
 /-- Arguments to applications, constructors, etc.
-   We use `irrelevant` for Lean types, propositions and proofs that have been erased.
+   We use `erased` for Lean types, propositions and proofs that have been erased.
    Recall that for a Function `f`, we also generate `f._rarg` which does not take
-   `irrelevant` arguments. However, `f._rarg` is only safe to be used in full applications. -/
+   `erased` arguments. However, `f._rarg` is only safe to be used in full applications. -/
 inductive Arg where
   | var (id : VarId)
-  | irrelevant
+  | erased
   deriving Inhabited, BEq, Repr
 
 protected def Arg.beq : Arg → Arg → Bool
   | var x,      var y      => x == y
-  | irrelevant, irrelevant => true
+  | erased, erased         => true
   | _,          _          => false
 
 inductive LitVal where
@@ -145,6 +162,9 @@ def CtorInfo.isRef (info : CtorInfo) : Bool :=
 
 def CtorInfo.isScalar (info : CtorInfo) : Bool :=
   !info.isRef
+
+def CtorInfo.type (info : CtorInfo) : IRType :=
+  if info.isRef then .object else .tagged
 
 inductive Expr where
   /-- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the runtime.
@@ -201,7 +221,7 @@ inductive FnBody where
   /-- Store `y : Usize` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1. -/
   | uset (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
   /-- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
-  `ty` must not be `object`, `tobject`, `irrelevant` nor `Usize`. -/
+  `ty` must not be `object`, `tobject`, `erased` nor `Usize`. -/
   | sset (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody)
   /-- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
   If `persistent == true` then `x` is statically known to be a persistent object. -/
@@ -279,7 +299,7 @@ def Alt.setBody : Alt → FnBody → Alt
   | Alt.ctor c b  => Alt.ctor c (f b)
   | Alt.default b => Alt.default (f b)
 
-@[inline] def Alt.mmodifyBody {m : Type → Type} [Monad m] (f : FnBody → m FnBody) : Alt → m Alt
+@[inline] def Alt.modifyBodyM {m : Type → Type} [Monad m] (f : FnBody → m FnBody) : Alt → m Alt
   | Alt.ctor c b  => Alt.ctor c <$> f b
   | Alt.default b => Alt.default <$> f b
 
@@ -314,7 +334,7 @@ def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
     | FnBody.jdecl j xs v k => FnBody.jdecl j xs (f v) k
     | other                 => other
 
-@[inline] def mmodifyJPs {m : Type → Type} [Monad m] (bs : Array FnBody) (f : FnBody → m FnBody) : m (Array FnBody) :=
+@[inline] def modifyJPsM {m : Type → Type} [Monad m] (bs : Array FnBody) (f : FnBody → m FnBody) : m (Array FnBody) :=
   bs.mapM fun b => match b with
     | FnBody.jdecl j xs v k => return FnBody.jdecl j xs (← f v) k
     | other                 => return other
@@ -445,7 +465,7 @@ instance : AlphaEqv VarId := ⟨VarId.alphaEqv⟩
 
 def Arg.alphaEqv (ρ : IndexRenaming) : Arg → Arg → Bool
   | Arg.var v₁,     Arg.var v₂     => aeqv ρ v₁ v₂
-  | Arg.irrelevant, Arg.irrelevant => true
+  | Arg.erased,     Arg.erased     => true
   | _,              _              => false
 
 instance : AlphaEqv Arg := ⟨Arg.alphaEqv⟩
@@ -471,7 +491,7 @@ def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
   | Expr.isShared x₁,        Expr.isShared x₂        => aeqv ρ x₁ x₂
   | _,                        _                      => false
 
-instance : AlphaEqv Expr:= ⟨Expr.alphaEqv⟩
+instance : AlphaEqv Expr := ⟨Expr.alphaEqv⟩
 
 def addVarRename (ρ : IndexRenaming) (x₁ x₂ : Nat) :=
   if x₁ == x₂ then ρ else ρ.insert x₁ x₂

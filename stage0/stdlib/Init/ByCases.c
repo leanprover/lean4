@@ -417,7 +417,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_6 = lean_box(1);
 x_7 = lean_alloc_ctor(1, 2, 0);
@@ -435,7 +435,7 @@ x_11 = l_Lean_Syntax_matchesNull(x_10, x_8);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_12 = lean_box(1);
 x_13 = lean_alloc_ctor(1, 2, 0);
@@ -452,7 +452,7 @@ x_15 = lean_ctor_get(x_2, 2);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_2, 5);
 lean_inc(x_16);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_17 = lean_unsigned_to_nat(2u);
 x_18 = l_Lean_Syntax_getArg(x_1, x_17);
 lean_dec(x_1);
@@ -836,7 +836,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_6 = lean_box(1);
 x_7 = lean_alloc_ctor(1, 2, 0);
@@ -856,7 +856,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_9);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_12 = lean_box(1);
 x_13 = lean_alloc_ctor(1, 2, 0);
@@ -873,7 +873,7 @@ x_15 = lean_ctor_get(x_2, 2);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_2, 5);
 lean_inc(x_16);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_17 = lean_unsigned_to_nat(0u);
 x_18 = l_Lean_Syntax_getArg(x_9, x_17);
 lean_dec(x_9);
@@ -956,7 +956,7 @@ lean_ctor_set(x_57, 0, x_21);
 lean_ctor_set(x_57, 1, x_54);
 lean_ctor_set(x_57, 2, x_56);
 lean_ctor_set(x_57, 3, x_30);
-lean_inc(x_53);
+lean_inc_ref(x_53);
 lean_inc(x_21);
 x_58 = l_Lean_Syntax_node2(x_21, x_51, x_53, x_57);
 x_59 = l___aux__Init__ByCases______macroRules__tacticBy__cases___x3a____2___closed__33;

@@ -5,7 +5,6 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
 prelude
 import Lean.Elab.Tactic.Do.ProofMode.MGoal
-import Lean.Meta
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic ProofMode

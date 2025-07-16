@@ -101,7 +101,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_OutFormat_toCtorIdx(x_2);
 return x_3;
 }
@@ -143,9 +142,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_OutFormat_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -155,9 +152,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lake_OutFormat_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -224,7 +219,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_apply_1(x_1, x_3);
 x_5 = lean_string_append(x_2, x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_6 = l_Lake_instToTextList___redArg___lam__0___closed__0;
 x_7 = lean_string_append(x_5, x_6);
 return x_7;
@@ -254,7 +249,7 @@ lean_ctor_set(x_8, 0, x_4);
 lean_ctor_set(x_8, 1, x_6);
 lean_ctor_set(x_8, 2, x_7);
 x_9 = l_Substring_prevn(x_8, x_5, x_7);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_10 = lean_string_utf8_extract(x_4, x_6, x_9);
 lean_dec(x_9);
 lean_dec(x_4);
@@ -390,7 +385,7 @@ x_15 = lean_nat_dec_lt(x_12, x_13);
 if (x_15 == 0)
 {
 lean_dec(x_13);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_3 = x_11;
 goto block_10;
@@ -402,7 +397,7 @@ x_16 = lean_nat_dec_le(x_13, x_13);
 if (x_16 == 0)
 {
 lean_dec(x_13);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_3 = x_11;
 goto block_10;
@@ -425,16 +420,16 @@ x_4 = lean_unsigned_to_nat(1u);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_string_utf8_byte_size(x_3);
 lean_inc(x_6);
-lean_inc(x_3);
+lean_inc_ref(x_3);
 x_7 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_7, 0, x_3);
 lean_ctor_set(x_7, 1, x_5);
 lean_ctor_set(x_7, 2, x_6);
 x_8 = l_Substring_prevn(x_7, x_4, x_6);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_9 = lean_string_utf8_extract(x_3, x_5, x_8);
 lean_dec(x_8);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_9;
 }
 }
@@ -497,7 +492,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_nullFormat___redArg(x_2);
 return x_3;
 }
@@ -507,7 +501,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_nullFormat(x_1, x_4, x_3);
 lean_dec(x_3);
 return x_5;
@@ -563,7 +556,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Lake_stdFormat___redArg(x_1, x_2, x_5, x_4);
 return x_6;
 }
@@ -573,7 +565,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = l_Lake_stdFormat(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }

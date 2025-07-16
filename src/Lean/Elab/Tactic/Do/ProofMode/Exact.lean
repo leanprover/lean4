@@ -7,6 +7,7 @@ prelude
 import Std.Tactic.Do.Syntax
 import Lean.Elab.Tactic.Do.ProofMode.Basic
 import Lean.Elab.Tactic.Do.ProofMode.Focus
+import Lean.Elab.Tactic.ElabTerm
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic

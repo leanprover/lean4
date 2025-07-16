@@ -97,8 +97,7 @@ def propagateIntDvd (e : Expr) : GoalM Unit := do
   let_expr Dvd.dvd _ inst a b ← e | return ()
   unless (← isInstDvdInt inst) do return ()
   let some d ← getIntValue? a
-    | reportIssue! "non-linear divisibility constraint found{indentExpr e}"
-      return ()
+    | reportIssue! "non-linear divisibility constraint found{indentExpr e}"; return ()
   if (← isEqTrue e) then
     let p ← toPoly b
     let c := { d, p, h := .core e : DvdCnstr }
@@ -107,17 +106,21 @@ def propagateIntDvd (e : Expr) : GoalM Unit := do
     pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 def propagateNatDvd (e : Expr) : GoalM Unit := do
-  let some (d, b) ← Int.OfNat.toIntDvd? e | return ()
-  let gen ← getGeneration e
-  let ctx ← getNatVars
-  let b' ← toLinearExpr (← b.denoteAsIntExpr ctx) gen
-  let p := b'.norm
+  let_expr Dvd.dvd _ inst d₀ a := e | return ()
+  unless (← isInstDvdNat inst) do return ()
+  let some d ← getNatValue? d₀
+    | reportIssue! "non-linear divisibility constraint found{indentExpr e}"; return ()
   if (← isEqTrue e) then
-    let c := { d, p, h := .coreNat e d b b' : DvdCnstr }
+    let (d', h₁) ← natToInt d₀
+    let (a', h₂) ← natToInt a
+    let gen ← getGeneration e
+    let e' ← toLinearExpr a' gen
+    let p := e'.norm
+    let thm := mkApp6 (mkConst ``Nat.ToInt.of_dvd) d₀ a d' a' h₁ h₂
+    let c := { d, p, h := .coreOfNat e thm d e' : DvdCnstr }
     c.assertCore
   else if (← isEqFalse e) then
-    let_expr Dvd.dvd _ _ a b ← e | return ()
-    pushNewFact <| mkApp3 (mkConst ``Nat.emod_pos_of_not_dvd) a b (mkOfEqFalseCore e (← mkEqFalseProof e))
+    pushNewFact <| mkApp3 (mkConst ``Nat.emod_pos_of_not_dvd) d₀ a (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
   unless (← getConfig).cutsat do return ()

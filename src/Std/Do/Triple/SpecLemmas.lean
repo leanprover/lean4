@@ -32,12 +32,24 @@ structure Zipper {α : Type u} (l : List α) : Type u where
   suff : List α
   property : rpref.reverse ++ suff = l
 
+@[simp]
 abbrev Zipper.pref {α} {l : List α} (s : List.Zipper l) : List α := s.rpref.reverse
 
 abbrev Zipper.begin (l : List α) : Zipper l := ⟨[],l,rfl⟩
 abbrev Zipper.end (l : List α) : Zipper l := ⟨l.reverse,[],by simp⟩
 abbrev Zipper.tail (s : Zipper l) (h : s.suff = hd::tl) : Zipper l :=
   { rpref := hd::s.rpref, suff := tl, property := by simp [s.property, ←h] }
+
+@[grind →]
+theorem range_elim : List.range' s n = xs ++ i :: ys → i = s + xs.length := by
+  intro h
+  induction xs generalizing s n
+  case nil => cases n <;> simp_all[List.range']
+  case cons head tail ih =>
+    cases n <;> simp[List.range'] at h
+    have := ih h.2
+    simp[ih h.2]
+    omega
 
 end Std.List
 

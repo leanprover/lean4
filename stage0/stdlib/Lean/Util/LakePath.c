@@ -66,7 +66,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = l_Lean_determineLakePath___closed__1;
 x_7 = lean_io_getenv(x_6, x_5);
 x_8 = lean_ctor_get(x_7, 0);
@@ -76,7 +76,7 @@ if (lean_obj_tag(x_8) == 0)
 lean_object* x_9; lean_object* x_10; 
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_10 = l_IO_appDir(x_9);
 if (lean_obj_tag(x_10) == 0)
 {

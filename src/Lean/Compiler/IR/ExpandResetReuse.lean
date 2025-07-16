@@ -139,7 +139,7 @@ def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
     | some _ => pure b -- code took ownership of this field
     | none   => do
       let fld ← mkFresh
-      pure (FnBody.vdecl fld IRType.object (Expr.proj i y) (FnBody.dec fld 1 true false b))
+      pure (FnBody.vdecl fld .tobject (Expr.proj i y) (FnBody.dec fld 1 true false b))
 
 def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
   zs.size.fold (init := b) fun i _ b => FnBody.set y i zs[i] b
@@ -147,11 +147,11 @@ def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
 /-- Given `set x[i] := y`, return true iff `y := proj[i] x` -/
 def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=
   match y with
-  | Arg.var y =>
+  | .var y =>
     match ctx.projMap[y]? with
     | some (Expr.proj j w) => j == i && w == x
     | _ => false
-  | _ => false
+  | .erased => false
 
 /-- Given `uset x[i] := y`, return true iff `y := uproj[i] x` -/
 def isSelfUSet (ctx : Context) (x : VarId) (i : Nat) (y : VarId) : Bool :=
@@ -257,7 +257,7 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
     let v ← searchAndExpand v #[]
     searchAndExpand b (push bs (FnBody.jdecl j xs v FnBody.nil))
   | FnBody.case tid x xType alts,   bs => do
-    let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => searchAndExpand b #[]
+    let alts ← alts.mapM fun alt => alt.modifyBodyM fun b => searchAndExpand b #[]
     return reshape bs (FnBody.case tid x xType alts)
   | b, bs =>
     if b.isTerminal then return reshape bs b

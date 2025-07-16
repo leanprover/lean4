@@ -185,7 +185,7 @@ x_5 = lean_nat_dec_lt(x_1, x_4);
 lean_dec(x_4);
 if (x_5 == 0)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -242,13 +242,13 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_40; lean_object* x_41; lean_object* x_42; size_t x_43; uint64_t x_44; uint64_t x_45; uint64_t x_46; uint64_t x_47; uint64_t x_48; uint64_t x_49; uint64_t x_50; uint64_t x_51; uint64_t x_52; size_t x_53; size_t x_54; size_t x_55; size_t x_56; size_t x_57; lean_object* x_58; uint8_t x_59; 
 x_10 = lean_ctor_get(x_2, 0);
-lean_inc(x_10);
+lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_2, 1);
 lean_inc(x_11);
 x_40 = lean_ctor_get(x_10, 0);
 lean_inc(x_40);
 x_41 = lean_ctor_get(x_10, 1);
-lean_inc(x_41);
+lean_inc_ref(x_41);
 x_42 = lean_array_get_size(x_41);
 x_43 = lean_ptr_addr(x_1);
 x_44 = lean_usize_to_uint64(x_43);
@@ -270,7 +270,7 @@ x_58 = lean_array_uget(x_41, x_57);
 x_59 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Expr_NumObjs_visit_spec__0___redArg(x_1, x_58);
 if (x_59 == 0)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 if (x_59 == 0)
 {
 uint8_t x_60; 
@@ -286,7 +286,7 @@ x_63 = lean_box(0);
 x_64 = lean_unsigned_to_nat(1u);
 x_65 = lean_nat_add(x_40, x_64);
 lean_dec(x_40);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_66 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_66, 0, x_1);
 lean_ctor_set(x_66, 1, x_63);
@@ -326,7 +326,7 @@ x_75 = lean_box(0);
 x_76 = lean_unsigned_to_nat(1u);
 x_77 = lean_nat_add(x_40, x_76);
 lean_dec(x_40);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_78 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_78, 0, x_1);
 lean_ctor_set(x_78, 1, x_75);
@@ -365,7 +365,7 @@ goto block_39;
 else
 {
 lean_dec(x_58);
-lean_dec(x_41);
+lean_dec_ref(x_41);
 lean_dec(x_40);
 x_12 = x_10;
 goto block_39;
@@ -375,11 +375,11 @@ else
 {
 lean_object* x_89; lean_object* x_90; 
 lean_dec(x_58);
-lean_dec(x_41);
+lean_dec_ref(x_41);
 lean_dec(x_40);
 lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_1);
+lean_dec_ref(x_10);
+lean_dec_ref(x_1);
 x_89 = lean_box(0);
 x_90 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_90, 0, x_89);
@@ -392,7 +392,7 @@ lean_object* x_6; lean_object* x_7;
 x_6 = l_Lean_Expr_NumObjs_visit(x_3, x_5);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_1 = x_4;
 x_2 = x_7;
 goto _start;
@@ -411,14 +411,14 @@ case 5:
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_16 = lean_ctor_get(x_1, 0);
-lean_inc(x_16);
+lean_inc_ref(x_16);
 x_17 = lean_ctor_get(x_1, 1);
-lean_inc(x_17);
-lean_dec(x_1);
+lean_inc_ref(x_17);
+lean_dec_ref(x_1);
 x_18 = l_Lean_Expr_NumObjs_visit(x_16, x_15);
 x_19 = lean_ctor_get(x_18, 1);
 lean_inc(x_19);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 x_1 = x_17;
 x_2 = x_19;
 goto _start;
@@ -427,10 +427,10 @@ case 6:
 {
 lean_object* x_21; lean_object* x_22; 
 x_21 = lean_ctor_get(x_1, 1);
-lean_inc(x_21);
+lean_inc_ref(x_21);
 x_22 = lean_ctor_get(x_1, 2);
-lean_inc(x_22);
-lean_dec(x_1);
+lean_inc_ref(x_22);
+lean_dec_ref(x_1);
 x_3 = x_21;
 x_4 = x_22;
 x_5 = x_15;
@@ -440,10 +440,10 @@ case 7:
 {
 lean_object* x_23; lean_object* x_24; 
 x_23 = lean_ctor_get(x_1, 1);
-lean_inc(x_23);
+lean_inc_ref(x_23);
 x_24 = lean_ctor_get(x_1, 2);
-lean_inc(x_24);
-lean_dec(x_1);
+lean_inc_ref(x_24);
+lean_dec_ref(x_1);
 x_3 = x_23;
 x_4 = x_24;
 x_5 = x_15;
@@ -453,20 +453,20 @@ case 8:
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_25 = lean_ctor_get(x_1, 1);
-lean_inc(x_25);
+lean_inc_ref(x_25);
 x_26 = lean_ctor_get(x_1, 2);
-lean_inc(x_26);
+lean_inc_ref(x_26);
 x_27 = lean_ctor_get(x_1, 3);
-lean_inc(x_27);
-lean_dec(x_1);
+lean_inc_ref(x_27);
+lean_dec_ref(x_1);
 x_28 = l_Lean_Expr_NumObjs_visit(x_25, x_15);
 x_29 = lean_ctor_get(x_28, 1);
 lean_inc(x_29);
-lean_dec(x_28);
+lean_dec_ref(x_28);
 x_30 = l_Lean_Expr_NumObjs_visit(x_26, x_29);
 x_31 = lean_ctor_get(x_30, 1);
 lean_inc(x_31);
-lean_dec(x_30);
+lean_dec_ref(x_30);
 x_1 = x_27;
 x_2 = x_31;
 goto _start;
@@ -475,8 +475,8 @@ case 10:
 {
 lean_object* x_33; 
 x_33 = lean_ctor_get(x_1, 1);
-lean_inc(x_33);
-lean_dec(x_1);
+lean_inc_ref(x_33);
+lean_dec_ref(x_1);
 x_1 = x_33;
 x_2 = x_15;
 goto _start;
@@ -485,8 +485,8 @@ case 11:
 {
 lean_object* x_35; 
 x_35 = lean_ctor_get(x_1, 2);
-lean_inc(x_35);
-lean_dec(x_1);
+lean_inc_ref(x_35);
+lean_dec_ref(x_1);
 x_1 = x_35;
 x_2 = x_15;
 goto _start;
@@ -494,7 +494,7 @@ goto _start;
 default: 
 {
 lean_object* x_37; lean_object* x_38; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_37 = lean_box(0);
 x_38 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_38, 0, x_37);
@@ -511,7 +511,7 @@ _start:
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Expr_NumObjs_visit_spec__0___redArg(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -522,7 +522,7 @@ _start:
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Expr_NumObjs_visit_spec__0(x_1, x_2, x_3);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_box(x_4);
 return x_5;
 }
@@ -556,7 +556,7 @@ x_2 = l_Lean_Expr_NumObjs_main___closed__1;
 x_3 = l_Lean_Expr_NumObjs_visit(x_1, x_2);
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);
 lean_dec(x_4);

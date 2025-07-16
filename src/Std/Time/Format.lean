@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Notation.Spec
-import Std.Time.Format.Basic
-import Std.Time.Internal.Bounded
+public import Std.Time.Notation.Spec
+public import all Std.Time.Format.Basic
+public import Std.Time.Internal.Bounded
+
+public section
 
 namespace Std
 namespace Time

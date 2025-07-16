@@ -58,7 +58,7 @@ x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_apply_1(x_1, x_3);
 x_6 = lean_unbox(x_5);
 if (x_6 == 0)
@@ -69,7 +69,6 @@ lean_dec(x_4);
 if (x_7 == 0)
 {
 uint8_t x_8; 
-lean_dec(x_5);
 x_8 = 1;
 return x_8;
 }
@@ -77,14 +76,12 @@ else
 {
 uint8_t x_9; 
 x_9 = lean_unbox(x_5);
-lean_dec(x_5);
 return x_9;
 }
 }
 else
 {
 uint8_t x_10; 
-lean_dec(x_5);
 x_10 = lean_unbox(x_4);
 lean_dec(x_4);
 return x_10;
@@ -216,7 +213,7 @@ x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_1);
 lean_ctor_set(x_9, 1, x_8);
 lean_inc(x_2);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_10 = l_List_elem___redArg(x_6, x_9, x_2);
 if (x_10 == 0)
 {
@@ -231,7 +228,7 @@ return x_14;
 }
 else
 {
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_10;

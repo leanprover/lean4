@@ -66,6 +66,13 @@ structure Context where
   auxFunNames : Array Name
   usePartial  : Bool
 
+/--
+Returns a `tk?` such that `$[private%$tk?]` results in a `private` token iff any private
+types are referenced in the `deriving` clause.
+-/
+def Context.mkPrivateTokenFromTypes? (ctx : Context) : Option Syntax :=
+  guard (ctx.typeInfos.any (isPrivateName ·.name)) *> some .missing
+
 def mkContext (fnPrefix : String) (typeName : Name) : TermElabM Context := do
   let indVal ← getConstInfoInduct typeName
   let mut typeInfos := #[]
@@ -121,7 +128,8 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       let mut val      := mkIdent auxFunName
       if useAnonCtor then
         val ← `(⟨$val⟩)
-      let instCmd ← `(instance $binders:implicitBinder* : $type := $val)
+      let privTk? := ctx.mkPrivateTokenFromTypes?
+      let instCmd ← `($[private%$privTk?]? instance $binders:implicitBinder* : $type := $val)
       instances := instances.push instCmd
   return instances
 

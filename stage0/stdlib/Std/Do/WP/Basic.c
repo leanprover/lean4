@@ -637,7 +637,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_6 = lean_box(1);
 x_7 = lean_alloc_ctor(1, 2, 0);
@@ -666,7 +666,7 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; 
 lean_dec(x_12);
 lean_dec(x_10);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_15 = lean_box(1);
 x_16 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
@@ -682,7 +682,7 @@ x_18 = lean_ctor_get(x_2, 2);
 lean_inc(x_18);
 x_19 = lean_ctor_get(x_2, 5);
 lean_inc(x_19);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_20 = l_Lean_Syntax_getArg(x_12, x_9);
 lean_dec(x_12);
 x_21 = l_Lean_SourceInfo_fromRef(x_19, x_13);
@@ -722,8 +722,8 @@ lean_inc(x_21);
 x_39 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_39, 0, x_21);
 lean_ctor_set(x_39, 1, x_38);
-lean_inc(x_39);
-lean_inc(x_25);
+lean_inc_ref(x_39);
+lean_inc_ref(x_25);
 lean_inc(x_21);
 x_40 = l_Lean_Syntax_node5(x_21, x_34, x_25, x_10, x_36, x_37, x_39);
 lean_inc(x_21);
@@ -763,7 +763,7 @@ x_53 = lean_ctor_get(x_2, 2);
 lean_inc(x_53);
 x_54 = lean_ctor_get(x_2, 5);
 lean_inc(x_54);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_55 = 0;
 x_56 = l_Lean_SourceInfo_fromRef(x_54, x_55);
 lean_dec(x_54);
@@ -1250,7 +1250,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_Do_EStateM_instWP___lam__1(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 return x_5;
@@ -1331,7 +1331,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_apply_2(x_2, x_4, x_5);
 return x_6;
 }
@@ -1343,7 +1343,7 @@ x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_9 = lean_apply_2(x_3, x_7, x_8);
 return x_9;
 }

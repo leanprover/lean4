@@ -49,7 +49,7 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
   else if let some mvarId ← simpMatch? mvarId then
     trace[Elab.definition.wf.eqns] "simpMatch!"
     mkUnfoldProof declName mvarId
-  else if let some mvarId ← simpIf? mvarId then
+  else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
     trace[Elab.definition.wf.eqns] "simpIf!"
     mkUnfoldProof declName mvarId
   else
@@ -63,7 +63,7 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
       if let some mvarIds ← casesOnStuckLHS? mvarId then
         trace[Elab.definition.wf.eqns] "case split into {mvarIds.size} goals"
         mvarIds.forM (mkUnfoldProof declName)
-      else if let some mvarIds ← splitTarget? mvarId then
+      else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
         trace[Elab.definition.wf.eqns] "splitTarget into {mvarIds.length} goals"
         mvarIds.forM (mkUnfoldProof declName)
       else

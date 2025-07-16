@@ -9,7 +9,7 @@ prelude
 public import Std.Classes.Ord.Basic
 public import Std.Internal.Rat
 
-public @[expose] section
+@[expose] public section
 
 namespace Std
 namespace Time

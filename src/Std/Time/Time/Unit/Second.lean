@@ -9,7 +9,7 @@ prelude
 public import Std.Internal.Rat
 public import Std.Time.Time.Unit.Nanosecond
 
-public @[expose] section
+@[expose] public section
 
 namespace Std
 namespace Time

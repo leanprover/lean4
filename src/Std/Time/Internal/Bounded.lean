@@ -10,7 +10,7 @@ public import Init.Omega
 public import Init.Data.Int.DivMod.Lemmas
 public import Std.Classes.Ord.Basic
 
-public @[expose] section
+@[expose] public section
 
 namespace Std
 namespace Time

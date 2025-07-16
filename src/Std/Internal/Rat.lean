@@ -12,7 +12,7 @@ public import Init.Data.Int.DivMod.Basic
 public import Init.Data.Int.Linear
 public import Init.Data.Nat.Gcd
 
-public @[expose] section
+@[expose] public section
 namespace Std
 namespace Internal
 

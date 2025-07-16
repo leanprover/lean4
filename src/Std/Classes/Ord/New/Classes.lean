@@ -3,6 +3,7 @@ module
 prelude
 public import Init.Core
 import Init.SimpLemmas
+import Init.Data.Subtype
 
 public class OrderData (α : Type u) where
   IsLE : α → α → Prop
@@ -19,14 +20,14 @@ public class LinearPreorder (α : Type u) [OrderData α] extends Preorder α whe
 
 public class LinearOrder (α : Type u) [OrderData α] extends PartialOrder α, LinearPreorder α
 
-public structure OrderedSubtype {α : Type u} (P : α → Prop) where
-  val : α
-  property : P val
+-- public structure OrderedSubtype {α : Type u} (P : α → Prop) where
+--   val : α
+--   property : P val
 
-public instance {α : Type u} [LE α] {P : α → Prop} : LE (OrderedSubtype P) where
+public instance {α : Type u} [LE α] {P : α → Prop} : LE (Subtype P) where
   le a b := a.val ≤ b.val
 
-public instance {α : Type u} [OrderData α] {P : α → Prop} : OrderData (OrderedSubtype P) where
+public instance {α : Type u} [OrderData α] {P : α → Prop} : OrderData (Subtype P) where
   IsLE a b := OrderData.IsLE a.val b.val
 
 section LE
@@ -64,8 +65,15 @@ public class LawfulOrderInf (α : Type u) [Min α] [OrderData α] where
 
 public class LawfulOrderMin (α : Type u) [Min α] [OrderData α] extends MinEqOr α, LawfulOrderInf α
 
-public instance {α : Type u} [Min α] [MinEqOr α] {P : α → Prop} : Min (OrderedSubtype P) where
+public instance {α : Type u} [Min α] [MinEqOr α] {P : α → Prop} : Min (Subtype P) where
   min a b := ⟨Min.min a.val b.val, MinEqOr.elim a.property b.property⟩
+
+public instance {α : Type u} [LE α] {P : α → Prop} : LE (Subtype P) where
+  le a b := a.val ≤ b.val
+
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α]
+    {P : α → Prop} : LawfulOrderLE (Subtype P) where
+  le_iff a b := by simp [LE.le, OrderData.IsLE, LawfulOrderLE.le_iff]
 
 public theorem min_eq_or {α : Type u} [Min α] [MinEqOr α] {a b : α} :
     min a b = a ∨ min a b = b :=

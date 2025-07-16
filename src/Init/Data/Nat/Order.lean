@@ -1,6 +1,7 @@
 module
 
 prelude
+public import Init.Data.Nat.Basic
 import Init.Data.Nat.MinMax
 public import Std.Classes.Ord.New.Factories
 
@@ -18,4 +19,11 @@ public instance : LawfulOrderMin Nat := by
   · apply Nat.le_min
   · intro a b
     simp only [Nat.min_def]
+    split <;> simp
+
+public instance : LawfulOrderMax Nat := by
+  apply LawfulOrderMax.ofLE
+  · apply Nat.max_le
+  · intro a b
+    simp only [Nat.max_def]
     split <;> simp

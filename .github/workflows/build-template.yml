@@ -104,7 +104,7 @@ jobs:
           # NOTE: must be in sync with `save` below and with `restore-cache` in `update-stage0.yml`
           path: |
             .ccache
-            ${{ matrix.name == 'Linux Lake (cached)' && 'build/stage1/**/*.trace
+            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
             build/stage1/**/*.olean*
             build/stage1/**/*.ilean
             build/stage1/**/*.ir
@@ -260,15 +260,10 @@ jobs:
           # NOTE: must be in sync with `restore` above
           path: |
             .ccache
-            ${{ matrix.name == 'Linux Lake (cached)' && 'build/stage1/**/*.trace
+            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
             build/stage1/**/*.olean*
             build/stage1/**/*.ilean
             build/stage1/**/*.ir
             build/stage1/**/*.c
             build/stage1/**/*.c.o*' || '' }}
           key: ${{ steps.restore-cache.outputs.cache-primary-key }}
-      - name: Upload Build Artifact
-        if: always() && matrix.name == 'Linux Lake (cached)'
-        uses: actions/upload-artifact@v4
-        with:
-          path: build

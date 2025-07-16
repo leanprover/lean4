@@ -184,7 +184,7 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
   let ofNatIdent  := mkIdent (Name.mkStr declName "ofNat")
   let auxThmIdent := mkIdent (Name.mkStr declName "ofNat_toCtorIdx")
   let cmd ← `(
-    instance : DecidableEq $(mkIdent declName) :=
+    instance : DecidableEq $(mkCIdent declName) :=
       fun x y =>
         if h : x.toCtorIdx = y.toCtorIdx then
           -- We use `rfl` in the following proof because the first script fails for unit-like datatypes due to etaStruct.

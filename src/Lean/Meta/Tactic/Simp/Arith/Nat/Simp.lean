@@ -35,35 +35,30 @@ def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
 
 def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   if let some arg := e.not? then
-    let mut eNew?   := none
-    let mut thmName := Name.anonymous
+    let mut eNew? := none
+    let mut h₁    := default
     match_expr arg with
-    | LE.le α _ _ _ =>
-      if α.isConstOf ``Nat then
-        eNew?   := some (mkNatLE (mkNatAdd (arg.getArg! 3) (mkNatLit 1)) (arg.getArg! 2))
-        thmName := ``Nat.not_le_eq
-    | GE.ge α _ _ _ =>
-      if α.isConstOf ``Nat then
-        eNew?   := some (mkNatLE (mkNatAdd (arg.getArg! 2) (mkNatLit 1)) (arg.getArg! 3))
-        thmName := ``Nat.not_ge_eq
-    | LT.lt α _ _ _ =>
-      if α.isConstOf ``Nat then
-        eNew?   := some (mkNatLE (arg.getArg! 3) (arg.getArg! 2))
-        thmName := ``Nat.not_lt_eq
-    | GT.gt α _ _ _ =>
-      if α.isConstOf ``Nat then
-        eNew?   := some (mkNatLE (arg.getArg! 2) (arg.getArg! 3))
-        thmName := ``Nat.not_gt_eq
+    | LE.le α _ a b =>
+      let_expr Nat ← α | pure ()
+      eNew? := some (mkNatLE (mkNatAdd b (mkNatLit 1)) a)
+      h₁    := mkApp2 (mkConst ``Nat.not_le_eq) a b
+    | GE.ge α _ a b =>
+      let_expr Nat ← α | pure ()
+      eNew? := some (mkNatLE (mkNatAdd a (mkNatLit 1)) b)
+      h₁    := mkApp2 (mkConst ``Nat.not_ge_eq) a b
+    | LT.lt α _ a b =>
+      let_expr Nat ← α | pure ()
+      eNew? := some (mkNatLE b a)
+      h₁    := mkApp2 (mkConst ``Nat.not_lt_eq) a b
+    | GT.gt α _ a b =>
+      let_expr Nat ← α | pure ()
+      eNew? := some (mkNatLE a b)
+      h₁    := mkApp2 (mkConst ``Nat.not_gt_eq) a b
     | _ => pure ()
-    if let some eNew := eNew? then
-      let h₁ := mkApp2 (mkConst thmName) (arg.getArg! 2) (arg.getArg! 3)
-      if let some (eNew', h₂) ← simpCnstrPos? eNew then
-        let h  := mkApp6 (mkConst ``Eq.trans [levelOne]) (mkSort levelZero) e eNew eNew' h₁ h₂
-        return some (eNew', h)
-      else
-        return some (eNew, h₁)
-    else
-      return none
+    let some eNew := eNew? | return none
+    let some (eNew', h₂) ← simpCnstrPos? eNew | return (eNew, h₁)
+    let h  := mkApp6 (mkConst ``Eq.trans [levelOne]) (mkSort levelZero) e eNew eNew' h₁ h₂
+    return some (eNew', h)
   else
     simpCnstrPos? e
 

@@ -57,7 +57,7 @@ def isLinearTerm? (e : Expr) : Option Expr :=
 def isLinearTerm (e : Expr) : Bool :=
   isLinearTerm? e |>.isSome
 
-partial def isLinearCnstr (e : Expr) : Bool :=
+def isLinearPosCnstr (e : Expr) : Bool :=
   match_expr e with
   | Eq α _ _ => isSupportedType α
   | Ne α _ _ => isSupportedType α
@@ -65,8 +65,12 @@ partial def isLinearCnstr (e : Expr) : Bool :=
   | LT.lt α _ _ _ => isSupportedType α
   | GT.gt α _ _ _ => isSupportedType α
   | GE.ge α _ _ _ => isSupportedType α
-  | Not p => isLinearCnstr p
   | _ => false
+
+def isLinearCnstr (e : Expr) : Bool :=
+  match_expr e with
+  | Not p => isLinearPosCnstr p
+  | _ => isLinearPosCnstr e
 
 def isDvdCnstr (e : Expr) : Bool :=
   match_expr e with

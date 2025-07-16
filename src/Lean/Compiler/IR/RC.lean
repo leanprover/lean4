@@ -56,11 +56,11 @@ def mustConsume (ctx : Context) (x : VarId) : Bool :=
 
 @[inline] def addInc (ctx : Context) (x : VarId) (b : FnBody) (n := 1) : FnBody :=
   let info := getVarInfo ctx x
-  if n == 0 then b else FnBody.inc x n true info.persistent b
+  if n == 0 then b else .inc x n (!info.type.isDefiniteRef) info.persistent b
 
 @[inline] def addDec (ctx : Context) (x : VarId) (b : FnBody) : FnBody :=
   let info := getVarInfo ctx x
-  FnBody.dec x 1 true info.persistent b
+  .dec x 1 (!info.type.isDefiniteRef) info.persistent b
 
 private def updateRefUsingCtorInfo (ctx : Context) (x : VarId) (c : CtorInfo) : Context :=
   if c.isRef then

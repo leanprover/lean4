@@ -6,10 +6,10 @@ Authors: Leonardo de Moura, Kyle Miller
 prelude
 import Lean.Util.FindExpr
 import Lean.Parser.Term
-import Lean.Meta.Hint
 import Lean.Meta.Structure
 import Lean.Elab.App
 import Lean.Elab.Binders
+import Lean.Elab.StructInstHint
 import Lean.PrettyPrinter
 
 /-!
@@ -748,155 +748,6 @@ private structure PendingField where
   deps : NameSet
   val? : Option Expr
 
-/-- Auxiliary type for `mkMissingFieldsHint` -/
-private structure FieldsHintView where
-  /-- The position of the first existing field in the structure instance, if one exists. -/
-  initFieldPos? : Option String.Pos
-  /-- The tail position of the last existing field, or `none` if there are none. -/
-  lastFieldTailPos? : Option String.Pos
-  /-- Does this structure instance have a `with` clause? -/
-  hasWith : Bool
-  /-- Does this structure instance have existing fields? -/
-  hasFields : Bool
-  /-- The position of the opening syntax (i.e., `{`) for the structure instance. -/
-  openingPos : String.Pos
-  /-- The position of the "leader" immediately preceding the fields -- either `with` or `{`. -/
-  leaderPos : String.Pos
-  /-- The tail position of the "leader" syntax. -/
-  leaderTailPos : String.Pos
-  /--
-  The position of the closing syntax (i.e., `}`) for the structure instance.
-
-  We refer only to the "closing" token `}` rather than a flexible "trailer" because macro-expansion
-  erases the type annotation if it was present, and it's impossible to have an ellipsis if we're
-  generating a "fields missing" error.
-  -/
-  closingPos : String.Pos
-
-/--
-Creates a hint message for the "fields missing" error that fills in the missing fields, adapting to
-the structure instance notation style of the current syntax. Note that if the syntax is malformed or
-synthetic, this function returns an empty message instead.
--/
-private def mkMissingFieldsHint (missingFields : Array PendingField) (unsolvedFields : Std.HashSet Name)
-    : StructInstM MessageData := do
-  let some view := mkFieldsHintView? (← read).view | return .nil
-  let newFields ← missingFields.mapM fun field => do
-    let value ← if unsolvedFields.contains field.fieldName then
-      let e := (← get).fieldMap.find! field.fieldName
-      let stx ← withOptions (pp.mvars.set · false) <| PrettyPrinter.delab e
-      pure (← PrettyPrinter.ppCategory `term stx).pretty
-    else pure "_"
-    pure s!"{field.fieldName} := {value}"
-  let useSingleLine ← isSingleLineStyle (← read).view
-  let suggestionText :=
-    if useSingleLine then
-      .group (behavior := .fill) <|
-        newFields.foldl (init := Std.Format.nil) (fun acc sug => acc ++ "," ++ .line ++ format sug)
-    else
-      Format.line.joinSep newFields.toList
-
-  let fileMap ← getFileMap
-  let col (p : String.Pos) := (fileMap.utf8PosToLspPos p).character
-  let indent :=
-    if let some initFieldPos := view.initFieldPos? then
-      col initFieldPos
-    else
-      -- Take the minimum of the opening and closing brace indentations to account for both the
-      -- `...\n{ f := v\n ... }` and `...{\n  f := v\n ... \n}` styles
-      min (col view.openingPos) (col view.closingPos) + 2
-
-  let leaderLine := (fileMap.utf8PosToLspPos view.leaderPos).line
-  let leaderClosingSeparated : Bool := leaderLine < (fileMap.utf8PosToLspPos view.closingPos).line
-  -- If a line separates the leader and `}`, and there's no intervening text, `interveningLineEndPos?`
-  -- gives the position on that line (the min of column `indent` and the line end) at which to insert
-  let interveningLineEndPos? :=
-    if leaderLine + 1 ≥ (fileMap.utf8PosToLspPos view.closingPos).line then none else
-      let leaderLineEnd := findLineEnd fileMap.source view.leaderTailPos
-      let indentPos := (indent + 1).fold (init := leaderLineEnd) (fun _ _ p => fileMap.source.next p)
-      let interveningLineEnd := findLineEnd fileMap.source (fileMap.source.next leaderLineEnd)
-      let nextTwoLines := Substring.mk fileMap.source view.leaderTailPos interveningLineEnd
-      if nextTwoLines.all (·.isWhitespace) then some (min indentPos nextTwoLines.stopPos) else none
-
-  let (preWs, postWs) : Format × Format :=
-    -- If we're in single-line mode, `suggestionText` already has a leading `, `, so insert it as-is
-    if useSingleLine then
-      (.nil, .nil)
-    -- Ensure a line break for consistent indentation if fields exist or there are no fields after `with`
-    else if view.hasFields || (view.hasWith && !leaderClosingSeparated) then
-      (.line, .nil)
-    -- If there is no intervening line, add spaces before and after for `{ f := v\n ...}` style
-    else if !leaderClosingSeparated then
-      (" ", " ")
-    -- If there is an intervening line, insert therein if the region is empty; else insert before
-    -- it, as the nonempty region may contain a type annotation
-    else
-      match interveningLineEndPos? with
-      | none => (.line, .nil)
-      | some interveningLineEndPos =>
-        (String.mk (List.replicate (indent - col interveningLineEndPos) ' '), .nil)
-  let suggestionText := preWs ++ suggestionText ++ postWs
-  let insPos := view.lastFieldTailPos?.getD <| interveningLineEndPos?.getD view.leaderTailPos
-  let width := Tactic.TryThis.format.inputWidth.get (← getOptions)
-  -- Limit only the span of the suggestion so the code action appears everywhere in the structure
-  let suggestion := {
-    suggestion := suggestionText.pretty width indent (col insPos),
-    span? := Syntax.ofRange ⟨insPos, insPos⟩,
-    toCodeActionTitle? := some fun _ => "Add missing fields"
-  }
-  MessageData.hint m!"Add missing fields:" #[suggestion]
-where
-  /--
-  Converts a `StructInstView` into a `FieldsHintView` used to generate missing-fields hint
-  suggestions. This method consolidates the low-level syntax inspection required for
-  `mkMissingFieldsHint`.
-  -/
-  mkFieldsHintView? (view : StructInstView) : Option FieldsHintView := do
-    -- Only show suggestions for user-entered structure-instance notation
-    -- TODO: selectively let through macro-expanded `where` notation
-    guard <| view.ref.getHeadInfo matches .original ..
-    guard <| view.ref.getKind == ``Parser.Term.structInst
-    let (leader, hasWith) := if view.ref[1][1] matches .missing then
-      (view.ref[0], false)
-    else
-      (view.ref[1][1], true)
-    some { leaderPos := (← leader.getPos?)
-           leaderTailPos := (← leader.getTailPos?)
-           openingPos := (← view.ref[0].getPos?)
-           closingPos := (← view.ref[5].getPos?)
-           hasFields := view.fields.size > 0
-           initFieldPos? := view.fields[0]?.bind (·.ref.getPos?)
-           lastFieldTailPos? := view.fields[view.fields.size - 1]?.bind (·.ref.getTailPos?)
-           hasWith }
-
-  /--
-  Returns the position of the end of the line that contains the position `pos`.
-  Counterpart of `String.findLineStart`.
-  -/
-  findLineEnd (s : String) (p : String.Pos) : String.Pos :=
-    s.findAux (· == '\n') s.endPos p
-
-  /--
-  Is the structure instance notation described by `view` using single-line styling?
-
-  We infer this based on whether the last two fields are comma-separated and either on the same line
-  or indented in a way not possible with one-field-per-line styling.
-  -/
-  isSingleLineStyle (view : StructInstView) : MetaM Bool := do
-    unless view.fields.size ≥ 2 do return false
-    let rawFields := view.ref[2][0]
-    -- Account for the fact that we may have a trailing separator:
-    let lastInterveningSepIdx := rawFields.getNumArgs - 2 - ((rawFields.getNumArgs + 1) % 2)
-    unless rawFields[lastInterveningSepIdx].getKind == `«,» do
-      return false
-
-    let some penultimateFieldPos := rawFields[lastInterveningSepIdx - 1].getPos? | return false
-    let some lastFieldPos := rawFields[lastInterveningSepIdx + 1].getPos? | return false
-    let some lastFieldTailPos := rawFields[lastInterveningSepIdx + 1].getTailPos? | return false
-    let fileMap ← getFileMap
-    let ⟨penultimateFieldLine, penultimateFieldCol⟩ := fileMap.utf8PosToLspPos penultimateFieldPos
-    let ⟨lastFieldLine, lastFieldCol⟩ := fileMap.utf8PosToLspPos lastFieldPos
-    return lastFieldLine == penultimateFieldLine || lastFieldCol < penultimateFieldCol
 
 /--
 Synthesize pending optParams.
@@ -1001,7 +852,11 @@ private def synthOptParamFields : StructInstM Unit := do
       -- For now, just report all pending fields in case there are no obviously missing ones.
       let missingFields := if missingFields.isEmpty then pendingFields else missingFields
       let missing := missingFields |>.map (s!"`{·.fieldName}`") |>.toList
-      let missingFieldsHint ← mkMissingFieldsHint missingFields unsolvedFields
+      let missingFieldsValues ← missingFields.mapM fun field => do
+        if unsolvedFields.contains field.fieldName then
+          pure <| (field.fieldName, some <| (← get).fieldMap.find! field.fieldName)
+        else pure (field.fieldName, none)
+      let missingFieldsHint ← mkMissingFieldsHint missingFieldsValues (← read).view.ref
       let msg := m!"Fields missing: {", ".intercalate missing}{assignErrorsMsg}{requiredErrorsMsg}{missingFieldsHint}"
       if (← readThe Term.Context).errToSorry then
         -- Assign all pending problems using synthetic sorries and log an error.

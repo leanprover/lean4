@@ -88,7 +88,6 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
       let entries := sortDecls decls
       if env.header.isModule then
         entries.filterMap fun d =>
-          -- dbg_trace "{d.name}: {repr <| getDeclVisibility env d.name}"
           match getDeclVisibility env d.name with
           | .private => none
           -- Bodies of imported IR decls are not relevant for codegen, only interpretation
@@ -181,6 +180,7 @@ def getSorryDep (env : Environment) (declName : Name) : Option Name :=
   | some (.fdecl (info := { sorryDep? := dep?, .. }) ..) => dep?
   | _ => none
 
+/-- Returns additional names that compiler env exts may want to call `getModuleIdxFor?` on. -/
 @[export lean_get_ir_extra_const_names]
 private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) : Array Name :=
   declMapExt.getEntries env |>.toArray.map (·.name)

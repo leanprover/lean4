@@ -61,7 +61,7 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
         throwError "invalid 'implemented_by' argument '{fnName}', '{fnName}' has type{indentExpr fnType}\nbut '{declName}' has type{indentExpr declType}"
       if decl.name == fnDecl.name then
         throwError "invalid 'implemented_by' argument '{fnName}', function cannot be implemented by itself"
-      trace[Compiler.LCNF.inferVisibility] m!"Marking {fnName} as opaque because it implements {decl.name}"
+      trace[Compiler.inferVisibility] m!"Marking {fnName} as opaque because it implements {decl.name}"
       modifyEnv (LCNF.bumpDeclVisibility · fnName .opaque)
       return fnName
 }

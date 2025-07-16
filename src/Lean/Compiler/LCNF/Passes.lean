@@ -26,6 +26,8 @@ namespace Lean.Compiler.LCNF
 
 open PassInstaller
 
+namespace Pass
+
 def init : Pass where
   name  := `init
   run   := fun decls => do
@@ -63,8 +65,12 @@ def inferVisibility : Pass where
   phase := .mono
   name := `inferVisibility
   run decls := do
-    inferVisibilities decls
+    LCNF.inferVisibility decls
     return decls
+
+end Pass
+
+open Pass
 
 def builtinPassManager : PassManager := {
   passes := #[
@@ -104,7 +110,8 @@ def builtinPassManager : PassManager := {
     cse (occurrence := 2) (phase := .mono),
     saveMono,  -- End of mono phase
     extractClosed,
-    inferVisibility
+    -- should come last so it can see all created decls
+    Pass.inferVisibility
   ]
 }
 

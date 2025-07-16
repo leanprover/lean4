@@ -31,7 +31,8 @@ def addExtern (declName : Name) (externAttrData : ExternAttrData) : CoreM Unit :
   let irType ← toIRType type
   let decl := .extern declName params irType externAttrData
   addDecl decl
-  modifyEnv (Compiler.LCNF.bumpDeclVisibility · decl.name .opaque)
+  if !isPrivateName decl.name then
+    modifyEnv (Compiler.LCNF.bumpDeclVisibility · decl.name .opaque)
   if ExplicitBoxing.requiresBoxedVersion (← Lean.getEnv) decl then
     addDecl (ExplicitBoxing.mkBoxedVersion decl)
 

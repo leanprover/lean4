@@ -8,18 +8,15 @@ import Lean.Compiler.LCNF.PassManager
 
 namespace Lean.Compiler.LCNF
 
-/--
-Modifiers adjusting export behavior of IR declarations for `import`. Note that `meta import`
-includes all information.
--/
+/-- Modifiers adjusting export behavior of compiler declarations for `import`. -/
 inductive DeclVisibility where
   /-- Do not export. -/
   | «private»
   /-- Export signature only, as `opaque` extern. -/
   | «opaque»
-  /-- Export everything. -/
+  /-- Export full LCNF, IR signatures. -/
   | transparent
-  /-- Export everything, even in IR. -/
+  /-- Export full LCNF and IR. -/
   | «meta»
 deriving Inhabited, BEq, Repr, Ord
 
@@ -41,6 +38,7 @@ private builtin_initialize declVisibilityExt : EnvExtension (List Name × NameMa
 def getDeclVisibility (env : Environment) (declName : Name) : DeclVisibility :=
   -- The interpreter may call the boxed variant even if the IR does not directly reference it, so
   -- use same visibility as base decl.
+  -- Note that boxed decls are created after the `inferVisibility` pass.
   let inferFor := match declName with
     | .str n "_boxed" => n
     | n               => n
@@ -85,7 +83,8 @@ def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt :=
         entries := entries.filterMap fun decl =>
           match getDeclVisibility env decl.name with
           | .private => none
-          | .opaque => some { decl with value := .extern { arity? := decl.getArity, entries := [.opaque decl.name] } }
+          | .opaque => some { decl with
+            value := .extern { arity? := decl.getArity, entries := [.opaque decl.name] } }
           | _ => some decl
       return entries
     statsFn := fun s =>

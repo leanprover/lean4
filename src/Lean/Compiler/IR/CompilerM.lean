@@ -90,8 +90,9 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
         entries.filterMap fun d =>
           -- dbg_trace "{d.name}: {repr <| getDeclVisibility env d.name}"
           match getDeclVisibility env d.name with
-          | .transparent => some d
-          | .opaque =>
+          | .private => none
+          -- Bodies of imported IR decls are not relevant for codegen, only interpretation
+          | .opaque | .transparent =>
             match d with
             | d@(.fdecl f xs ty b info) =>
             if let some (.str _ s) := getExportNameFor? env f then
@@ -99,7 +100,7 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
             else
               some <| .extern f xs ty { arity? := xs.size, entries := [.opaque f] }
             | d => some d
-          | .private => none
+          | .meta => some d
       else entries
     -- Written to on codegen environment branch but accessed from other elaboration branches when
     -- calling into the interpreter. We cannot use `async` as the IR declarations added may not

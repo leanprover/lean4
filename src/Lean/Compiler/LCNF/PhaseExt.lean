@@ -19,6 +19,8 @@ inductive DeclVisibility where
   | «opaque»
   /-- Export everything. -/
   | transparent
+  /-- Export everything, even in IR. -/
+  | «meta»
 deriving Inhabited, BEq, Repr, Ord
 
 instance : LE DeclVisibility := leOfOrd
@@ -82,9 +84,9 @@ def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt :=
       if level != .private then
         entries := entries.filterMap fun decl =>
           match getDeclVisibility env decl.name with
-          | .transparent => some decl
-          | .opaque => some { decl with value := .extern { arity? := decl.getArity, entries := [.opaque decl.name] } }
           | .private => none
+          | .opaque => some { decl with value := .extern { arity? := decl.getArity, entries := [.opaque decl.name] } }
+          | _ => some decl
       return entries
     statsFn := fun s =>
       let numEntries := s.foldl (init := 0) (fun count _ _ => count + 1)

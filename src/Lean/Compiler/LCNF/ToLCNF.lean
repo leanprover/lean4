@@ -685,15 +685,13 @@ where
         visitQuotLift e
       else if declName == ``Quot.mk then
         visitCtor 3 e
-      else if declName == ``Eq.casesOn || declName == ``Eq.rec || declName == ``Eq.recOn || declName == ``Eq.ndrec then
+      else if declName == ``Eq.rec || declName == ``Eq.recOn || declName == ``Eq.ndrec then
         visitEqRec e
-      else if declName == ``HEq.casesOn || declName == ``HEq.rec || declName == ``HEq.ndrec then
+      else if declName == ``HEq.rec || declName == ``HEq.ndrec then
         visitHEqRec e
       else if declName == ``And.rec || declName == ``Iff.rec then
         visitAndIffRecCore e (minorPos := 3)
-      else if declName == ``And.casesOn || declName == ``Iff.casesOn then
-        visitAndIffRecCore e (minorPos := 4)
-      else if declName == ``False.rec || declName == ``Empty.rec || declName == ``False.casesOn || declName == ``Empty.casesOn then
+      else if declName == ``False.rec || declName == ``Empty.rec then
         visitFalseRec e
       else if declName == ``lcUnreachable then
         visitLcUnreachable e

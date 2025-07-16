@@ -6,7 +6,7 @@ Authors: Sebastian Ullrich and Leonardo de Moura
 prelude
 import Lean.ImportingFlag
 import Lean.Data.KVMap
-import Lean.Data.NameMap
+import Lean.Data.NameMap.Basic
 
 namespace Lean
 
@@ -46,7 +46,7 @@ def getOptionDecls : IO OptionDecls := optionDeclsRef.get
 @[export lean_get_option_decls_array]
 def getOptionDeclsArray : IO (Array (Name × OptionDecl)) := do
   let decls ← getOptionDecls
-  pure $ decls.fold
+  return decls.foldl
    (fun (r : Array (Name × OptionDecl)) k v => r.push (k, v))
    #[]
 

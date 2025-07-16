@@ -34,8 +34,8 @@ abbrev ModuleSet := Std.HashSet Module
 abbrev OrdModuleSet := OrdHashSet Module
 @[inline] def OrdModuleSet.empty : OrdModuleSet := OrdHashSet.empty
 
-abbrev ModuleMap (α) := RBMap Module α (·.name.quickCmp ·.name)
-@[inline] def ModuleMap.empty : ModuleMap α := RBMap.empty
+abbrev ModuleMap (α) := Std.TreeMap Module α (·.name.quickCmp ·.name)
+@[inline] def ModuleMap.empty : ModuleMap α := Std.TreeMap.empty
 
 /--
 Locate the named, buildable module in the library

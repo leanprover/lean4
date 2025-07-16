@@ -22,8 +22,8 @@ def LinterSets := NameMap (Array Name)
 `entry.2` contains the names of the set's linter options.
 -/
 def insertLinterSetEntry (map : LinterSets) (setName : Name) (options : NameSet) : LinterSets :=
-  options.fold (init := map) fun map linterName =>
-    map.insert linterName ((map.findD linterName #[]).push setName)
+  options.foldl (init := map) fun map linterName =>
+    map.insert linterName ((map.getD linterName #[]).push setName)
 
 builtin_initialize linterSetsExt : SimplePersistentEnvExtension (Name × NameSet) LinterSets ← Lean.registerSimplePersistentEnvExtension {
   addImportedFn := mkStateFromImportedEntries (Function.uncurry <| insertLinterSetEntry ·) {}
@@ -52,7 +52,7 @@ def _root_.Lean.Options.toLinterOptions [Monad m] [MonadEnv m] (o : Options) : m
 
 /-- Return the set of linter sets that this option is contained in. -/
 def LinterOptions.getSet (o : LinterOptions) (opt : Lean.Option α) : Array Name :=
-  o.linterSets.findD opt.name #[]
+  o.linterSets.getD opt.name #[]
 
 def getLinterOptions [Monad m] [MonadOptions m] [MonadEnv m] : m LinterOptions := do
   (← getOptions).toLinterOptions

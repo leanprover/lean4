@@ -5,8 +5,7 @@ Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki, E.W.Ayers
 -/
 prelude
 import Lean.Meta.Basic
-import Lean.Data.Json
-import Lean.Data.RBMap
+import Lean.Data.Json.Basic
 import Init.Control.Option
 
 namespace Lean
@@ -171,7 +170,7 @@ def mkRoot (e : Expr) : SubExpr := ⟨e, Pos.root⟩
 def isRoot (s : SubExpr) : Bool := s.pos.isRoot
 
 /-- Map from subexpr positions to values. -/
-abbrev PosMap (α : Type u) := RBMap Pos α compare
+abbrev PosMap (α : Type u) := Std.TreeMap Pos α
 
 def bindingBody! : SubExpr → SubExpr
   | ⟨.forallE _ _ b _, p⟩ => ⟨b, p.pushBindingBody⟩

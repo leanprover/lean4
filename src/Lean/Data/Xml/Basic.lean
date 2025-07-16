@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Dany Fabian
 -/
 prelude
-import Lean.Data.RBMap
 import Init.Data.ToString.Macro
+import Std.Data.TreeMap.Basic
 
 namespace Lean
 namespace Xml
 
-def Attributes := RBMap String String compare
-instance : ToString Attributes := ⟨λ as => as.fold (λ s n v => s ++ s!" {n}=\"{v}\"") ""⟩
+def Attributes := Std.TreeMap String String
+instance : ToString Attributes := ⟨λ as => as.foldl (λ s n v => s ++ s!" {n}=\"{v}\"") ""⟩
 
 mutual
 inductive Element

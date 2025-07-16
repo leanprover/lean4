@@ -286,7 +286,7 @@ structure DefaultInstanceEntry where
   instanceName : Name
   priority     : Nat
 
-abbrev PrioritySet := RBTree Nat (fun x y => compare y x)
+abbrev PrioritySet := Std.TreeSet Nat (fun x y => compare y x)
 
 structure DefaultInstances where
   defaultInstances : NameMap (List (Name × Nat)) := {}

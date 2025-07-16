@@ -6,7 +6,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 prelude
 import Init.Dynamic
 import Init.System.FilePath
-import Lean.Data.NameMap
+import Lean.Data.NameMap.Basic
 
 /- # Package Dependency Configuration
 

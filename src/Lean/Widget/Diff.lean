@@ -58,13 +58,13 @@ structure ExprDiff where
 instance : EmptyCollection ExprDiff := ⟨{}⟩
 instance : Append ExprDiff where
   append a b := {
-    changesBefore := RBMap.mergeBy (fun _ _ b => b) a.changesBefore b.changesBefore,
-    changesAfter := RBMap.mergeBy (fun _ _ b => b) a.changesAfter b.changesAfter
+    changesBefore := Std.TreeMap.mergeWith (fun _ _ b => b) a.changesBefore b.changesBefore,
+    changesAfter := Std.TreeMap.mergeWith (fun _ _ b => b) a.changesAfter b.changesAfter
   }
 instance : ToString ExprDiff where
   toString x :=
     let f := fun (p : PosMap ExprDiffTag) =>
-      RBMap.toList p |>.map (fun (k,v) => s!"({toString k}:{toString v})")
+      p.toList.map (fun (k,v) => s!"({toString k}:{toString v})")
     s!"before: {f x.changesBefore}\nafter: {f x.changesAfter}"
 
 /-- Add a tag at the given position to the `changesBefore` dict. -/
@@ -76,8 +76,8 @@ def ExprDiff.insertAfterChange (p : Pos) (d : ExprDiffTag := .change) (δ : Expr
   {δ with changesAfter := δ.changesAfter.insert p d}
 
 def ExprDiff.withChangePos (before after : Pos) (d : ExprDiffTag := .change) : ExprDiff :=
-  { changesAfter := RBMap.empty.insert after d
-    changesBefore := RBMap.empty.insert before d
+  { changesAfter := Std.TreeMap.empty.insert after d
+    changesBefore := Std.TreeMap.empty.insert before d
   }
 
 /-- Add a tag to the diff at the positions given by `before` and `after`. -/
@@ -257,11 +257,11 @@ def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : In
     let goals₀ := if useAfter then info.goalsBefore else info.goalsAfter
     let parentMap : MVarIdMap MVarIdSet ← info.goalsBefore.foldlM (init := ∅) (fun s g => do
       let ms ← Expr.mvar g |> Lean.Meta.getMVars
-      let ms : MVarIdSet := RBTree.fromArray ms _
+      let ms := MVarIdSet.ofArray ms
       return s.insert g ms
     )
     let isParent (before after : MVarId) : Bool :=
-       match parentMap.find? before with
+       match parentMap.get? before with
        | some xs => xs.contains after
        | none => false
     let goals ← igs₁.goals.mapM (fun ig₁ => do

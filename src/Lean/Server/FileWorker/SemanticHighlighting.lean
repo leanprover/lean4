@@ -25,8 +25,8 @@ def noHighlightKinds : Array SyntaxNodeKind := #[
 
 -- TODO: make extensible, or don't
 /-- Keywords for which a specific semantic token is provided. -/
-def keywordSemanticTokenMap : RBMap String SemanticTokenType compare :=
-  RBMap.empty
+def keywordSemanticTokenMap : Std.TreeMap String SemanticTokenType :=
+  Std.TreeMap.empty
     |>.insert "sorry" .leanSorryLike
     |>.insert "admit" .leanSorryLike
     |>.insert "stop" .leanSorryLike
@@ -114,7 +114,7 @@ partial def collectSyntaxBasedSemanticTokens : (stx : Syntax) → Array LeanSema
     let isHashKeyword := val.length > 1 && val.front == '#' && isIdFirst (val.get ⟨1⟩)
     if ! isRegularKeyword && ! isHashKeyword then
       return tokens
-    return tokens.push ⟨stx, keywordSemanticTokenMap.findD val .keyword⟩
+    return tokens.push ⟨stx, keywordSemanticTokenMap.getD val .keyword⟩
 
 /-- Collects all semantic tokens from the given `Elab.InfoTree`. -/
 def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken :=

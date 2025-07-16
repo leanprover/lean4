@@ -7,7 +7,7 @@ Authors: Wojciech Nawrocki, Marc Huisinga
 prelude
 import Lean.DeclarationRange
 
-import Lean.Data.Json
+import Lean.Data.Json.Basic
 import Lean.Data.Lsp
 import Lean.Elab.Command
 
@@ -192,7 +192,7 @@ abbrev ServerRequestEmitter := (method : String) → (param : Json)
   → BaseIO (ServerTask (ServerRequestResponse Json))
 
 structure RequestContext where
-  rpcSessions          : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
+  rpcSessions          : Std.TreeMap UInt64 (IO.Ref FileWorker.RpcSession)
   doc                  : FileWorker.EditableDocument
   hLog                 : IO.FS.Stream
   initParams           : Lsp.InitializeParams

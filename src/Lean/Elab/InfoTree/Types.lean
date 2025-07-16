@@ -9,7 +9,7 @@ import Lean.Data.DeclarationRange
 import Lean.Data.OpenDecl
 import Lean.MetavarContext
 import Lean.Environment
-import Lean.Data.Json
+import Lean.Data.Json.Basic
 import Lean.Server.Rpc.Basic
 import Lean.Widget.Types
 

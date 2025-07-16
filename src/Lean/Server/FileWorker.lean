@@ -8,11 +8,10 @@ prelude
 import Init.System.IO
 import Std.Sync.Channel
 
-import Lean.Data.RBMap
 import Lean.Environment
 
 import Lean.Data.Lsp
-import Lean.Data.Json.FromToJson
+import Lean.Data.Json.FromToJson.Basic
 
 import Lean.LoadDynlib
 import Lean.Language.Lean
@@ -85,7 +84,7 @@ structure WorkerContext where
   Diagnostics that are included in every single `textDocument/publishDiagnostics` notification.
   -/
   stickyDiagnosticsRef     : IO.Ref (Array InteractiveDiagnostic)
-  partialHandlersRef       : IO.Ref (RBMap String PartialHandlerInfo compare)
+  partialHandlersRef       : IO.Ref (Std.TreeMap String PartialHandlerInfo)
   pendingServerRequestsRef : IO.Ref (Std.TreeMap RequestID (IO.Promise (ServerRequestResponse Json)))
   hLog                     : FS.Stream
   initParams               : InitializeParams
@@ -100,14 +99,14 @@ structure WorkerContext where
 def WorkerContext.modifyGetPartialHandler (ctx : WorkerContext) (method : String)
     (f : PartialHandlerInfo → α × PartialHandlerInfo) : BaseIO α :=
   ctx.partialHandlersRef.modifyGet fun partialHandlers => Id.run do
-    let h := partialHandlers.find! method
+    let h := partialHandlers.get! method
     let (r, h) := f h
     (r, partialHandlers.insert method h)
 
 def WorkerContext.modifyPartialHandler (ctx : WorkerContext) (method : String)
     (f : PartialHandlerInfo → PartialHandlerInfo) : BaseIO Unit :=
   ctx.partialHandlersRef.modify fun partialHandlers => Id.run do
-  let some h := partialHandlers.find? method
+  let some h := partialHandlers.get? method
     | return partialHandlers
   partialHandlers.insert method <| f h
 
@@ -341,7 +340,7 @@ structure PendingRequest where
   cancelTk    : RequestCancellationToken
 
 -- Pending requests are tracked so they can be canceled
-abbrev PendingRequestMap := RBMap RequestID PendingRequest compare
+abbrev PendingRequestMap := Std.TreeMap RequestID PendingRequest
 
 structure AvailableImportsCache where
   availableImports       : ImportCompletion.AvailableImports
@@ -355,7 +354,7 @@ structure WorkerState where
   pendingRequests    : PendingRequestMap
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
   to modify sessions. A single `Ref` ensures atomic transactions. -/
-  rpcSessions        : RBMap UInt64 (IO.Ref RpcSession) compare
+  rpcSessions        : Std.TreeMap UInt64 (IO.Ref RpcSession)
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
@@ -443,7 +442,7 @@ section Initialization
     let pendingServerRequestsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef
     let timestamp ← IO.monoMsNow
-    let partialHandlersRef ← IO.mkRef <| RBMap.fromArray (cmp := compare) <|
+    let partialHandlersRef ← IO.mkRef <| Std.TreeMap.ofArray (cmp := compare) <|
       (← partialLspRequestHandlerMethods).map fun (method, refreshMethod, _) =>
         (method, {
           refreshMethod
@@ -480,8 +479,8 @@ section Initialization
     return (ctx, {
       doc := { doc with reporter }
       reporterCancelTk
-      pendingRequests    := RBMap.empty
-      rpcSessions        := RBMap.empty
+      pendingRequests    := Std.TreeMap.empty
+      rpcSessions        := Std.TreeMap.empty
       importCachingTask? := none
     })
   where
@@ -599,7 +598,7 @@ section NotificationHandling
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     let st ← get
-    let some r := st.pendingRequests.find? p.id
+    let some r := st.pendingRequests.get? p.id
       | return
     r.cancelTk.cancelByCancelRequest
     set <| { st with pendingRequests := st.pendingRequests.erase p.id }
@@ -629,7 +628,7 @@ section NotificationHandling
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`
   -- for the previous RPC session. This is fine, just ignore.
-  if let some seshRef := (← get).rpcSessions.find? p.sessionId then
+  if let some seshRef := (← get).rpcSessions.get? p.sessionId then
     let monoMsNow ← IO.monoMsNow
     let discardRefs : StateM RpcObjectStore Unit := do
       for ref in p.refs do
@@ -640,7 +639,7 @@ def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
       { st with objects }
 
 def handleRpcKeepAlive (p : Lsp.RpcKeepAliveParams) : WorkerM Unit := do
-  match (← get).rpcSessions.find? p.sessionId with
+  match (← get).rpcSessions.get? p.sessionId with
   | none => return
   | some seshRef =>
     seshRef.modify (·.keptAlive (← IO.monoMsNow))
@@ -763,7 +762,7 @@ section MessageHandling
       let params ← RequestM.parseRequestParams Lsp.RpcCallParams params
       if params.method != `Lean.Widget.getInteractiveDiagnostics then
         return none
-      let some seshRef := st.rpcSessions.find? params.sessionId
+      let some seshRef := st.rpcSessions.get? params.sessionId
         | throw RequestError.rpcNeedsReconnect
       let params ← RequestM.parseRequestParams Widget.GetInteractiveDiagnosticsParams params.params
       let resp ← handleGetInteractiveDiagnosticsRequest ctx params
@@ -914,7 +913,7 @@ section MainLoop
           throwServerError s!"Failed responding to request {id}: {e}"
         pure <| acc.erase id
       else pure acc
-    let pendingRequests ← st.pendingRequests.foldM (fun acc id r => filterFinishedTasks acc id r.requestTask) st.pendingRequests
+    let pendingRequests ← st.pendingRequests.foldlM (fun acc id r => filterFinishedTasks acc id r.requestTask) st.pendingRequests
     st := { st with pendingRequests }
 
     -- Opportunistically (i.e. when we wake up on messages) check if any RPC session has expired.

@@ -17,7 +17,7 @@ namespace AlphaEqv
 abbrev EqvM := ReaderM (FVarIdMap FVarId)
 
 def eqvFVar (fvarId₁ fvarId₂ : FVarId) : EqvM Bool := do
-  let fvarId₂ := (← read).find? fvarId₂ |>.getD fvarId₂
+  let fvarId₂ := (← read).get? fvarId₂ |>.getD fvarId₂
   return fvarId₁ == fvarId₂
 
 def eqvType (e₁ e₂ : Expr) : EqvM Bool := do

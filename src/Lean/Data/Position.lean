@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Lean.Data.Format
-import Lean.Data.Json
+import Lean.Data.Json.FromToJson.Basic
 import Lean.ToExpr
 
 namespace Lean

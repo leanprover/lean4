@@ -215,7 +215,7 @@ def mkBaseNameWithSuffix (pre : String) (type : Expr) : MetaM Name := do
   let name := pre ++ name
   let project := (← getMainModule).getRoot
   -- Collect the modules for each constant that appeared.
-  let modules ← st.consts.foldM (init := Array.mkEmpty st.consts.size) fun mods name => return mods.push (← findModuleOf? name)
+  let modules ← st.consts.foldlM (init := Array.mkEmpty st.consts.size) fun mods name => return mods.push (← findModuleOf? name)
   -- We can avoid adding the suffix if the instance refers to module-local names.
   let isModuleLocal := modules.any Option.isNone
   -- We can also avoid adding the full module suffix if the instance refers to "project"-local names.

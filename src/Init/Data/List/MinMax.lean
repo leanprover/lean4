@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.List.Lemmas
 public import Init.Data.List.Pairwise
-public import Std.Classes.Ord.New.Classes
+public import Std.Classes.Ord.New.Factories
 
 public section
 
@@ -76,6 +76,11 @@ theorem min?_mem [Min α] [MinEqOr α] :
         cases MinEqOr.min_eq_or x y with | _ q => simp [p, q]
       | inr p => simp [p, mem_cons]
 
+theorem min?_mem_legacy [Min α] (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) :
+    {xs : List α} → xs.min? = some a → a ∈ xs := by
+  haveI : MinEqOr α := ⟨min_eq_or⟩
+  apply min?_mem
+
 -- See also `Init.Data.List.Nat.Basic` for specialisations of the next two results to `Nat`.
 
 theorem le_min?_iff [Min α] [LE α] [OrderData α] [LawfulOrderInf α] [LawfulOrderLE α] :
@@ -93,6 +98,13 @@ theorem le_min?_iff [Min α] [LE α] [OrderData α] [LawfulOrderInf α] [LawfulO
       simp at eq
       simp [ih _ eq, le_min_iff, and_assoc]
 
+theorem le_min?_iff_legacy [Min α] [LE α]
+    (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) :
+    {xs : List α} → xs.min? = some a → ∀ {x}, x ≤ a ↔ ∀ b, b ∈ xs → x ≤ b := by
+  letI : OrderData α := .ofLE α
+  haveI : LawfulOrderInf α := .ofLE le_min_iff
+  apply le_min?_iff
+
 theorem min?_eq_some_iff [Min α] [LE α] {xs : List α} [OrderData α] [LinearOrder (α)]
     [LawfulOrderMin α] [LawfulOrderLE α] : xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
   refine ⟨fun h => ⟨min?_mem h, (le_min?_iff h).1 (le_refl _)⟩, ?_⟩
@@ -104,6 +116,72 @@ theorem min?_eq_some_iff [Min α] [LE α] {xs : List α} [OrderData α] [LinearO
     exact congrArg some <| le_antisymm
       ((le_min?_iff (xs := x :: xs) rfl).1 (le_refl _) _ h₁)
       (h₂ _ (min?_mem (xs := x :: xs) rfl))
+
+private theorem min?_attach [Min α] [MinEqOr α] {xs : List α} :
+    xs.attach.min? = (xs.min?.pmap (fun m hm => ⟨m, min?_mem hm⟩) (fun _ => id)) := by
+  cases xs with
+  | nil => simp
+  | cons x xs =>
+    simp only [min?, attach_cons, Option.some.injEq, Option.pmap_some]
+    rw [foldl_map]
+    simp only [Subtype.ext_iff]
+    rw [← foldl_attach (l := xs)]
+    apply Eq.trans (foldl_hom (f := Subtype.val) ?_).symm
+    · rfl
+    · intros; rfl
+
+private theorem min?_eq_min?_attach [Min α] [MinEqOr α] {xs : List α} :
+    xs.min? = (xs.attach.min?.map Subtype.val) := by
+  simp [min?_attach, Option.map_pmap]
+
+private theorem min?_eq_some_iff_subtype [Min α] [LE α] {xs : List α} [OrderData α]
+    [MinEqOr α] [LinearOrder (Subtype (· ∈ xs))]
+    [LawfulOrderMin (Subtype (· ∈ xs))] [LawfulOrderLE (Subtype (· ∈ xs))] :
+    xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
+  have := fun a => min?_eq_some_iff (xs := xs.attach) (a := a)
+  rw [min?_eq_min?_attach]
+  simp [min?_eq_some_iff]
+  constructor
+  · rintro ⟨ha, h⟩
+    exact ⟨ha, h⟩
+  · rintro ⟨ha, h⟩
+    exact ⟨ha, h⟩
+
+theorem min?_eq_some_iff_legacy [Min α] [LE α]
+    (le_refl : ∀ a : α, a ≤ a)
+    (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b)
+    (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) {xs : List α}
+    (anti : ∀ a b, a ∈ xs → b ∈ xs → a ≤ b → b ≤ a → a = b := by
+      exact fun a b _ _ => Std.Antisymm.antisymm a b) :
+    xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
+  -- TODO: Extract the order on Subtype (· ∈ xs) into separate declarations so that they can
+  -- be reused
+  letI : OrderData α := .ofLE α
+  haveI : MinEqOr α := ⟨min_eq_or⟩
+  haveI : LinearOrder (Subtype (· ∈ xs)) := by
+    refine .ofLE ?_ ?_ ?_ ?_
+    · exact fun a => le_refl a.val
+    · exact fun a b hab hba => Subtype.ext <| anti a.val b.val a.property b.property hab hba
+    · intro a b c hab hbc
+      have : min b.val c.val = b.val := by
+        apply anti _ _ (MinEqOr.elim b.property c.property) b.property
+        · exact ((le_min_iff (min b.val c.val) _ _).mp (le_refl _)).1
+        · exact MinEqOr.elim (le_refl _) hbc
+      specialize le_min_iff a b c
+      rw [this] at le_min_iff
+      exact (le_min_iff.mp hab).2
+    · exact fun a b => by
+        cases min_eq_or a.val b.val
+        case inl h => exact Or.inl ((h ▸ le_min_iff a.val a.val b.val).mp (le_refl _)).2
+        case inr h => exact Or.inr ((h ▸ le_min_iff b.val a.val b.val).mp (le_refl _)).1
+  haveI : LawfulOrderInf (Subtype (· ∈ xs)) := by
+    refine ⟨fun a b c => ?_⟩
+    simpa [OrderData.IsLE, LawfulOrderLE.le_iff] using le_min_iff a b c
+  haveI : MinEqOr (Subtype (· ∈ xs)) := by
+    refine ⟨fun a b => ?_⟩
+    simpa [Min.min, Subtype.ext_iff] using min_eq_or a b
+  haveI : LawfulOrderMin (Subtype (· ∈ xs)) := ⟨⟩
+  exact min?_eq_some_iff_subtype (α := α) (xs := xs) (a := a)
 
 theorem min?_replicate [Min α] {n : Nat} {a : α} (w : min a a = a) :
     (replicate n a).min? = if n = 0 then none else some a := by

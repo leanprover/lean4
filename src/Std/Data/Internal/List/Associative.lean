@@ -5547,22 +5547,20 @@ private theorem le_min_iff [Ord α] [TransOrd α] {a b c : (a : α) × β a} :
 
 theorem minEntry?_eq_some_iff [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (a : (a : α) × β a) {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
     minEntry? l = some a ↔ a ∈ l ∧ ∀ b : α, containsKey b l → (compare a.fst b).isLE := by
-  -- TODO: find a way to use List.min?_eq_some_iff when it's just a linear order on members
-  sorry
-  -- rw [minEntry?, List.min?_eq_some_iff _ _ _ _]
-  -- · simp only [and_congr_right_iff]
-  --   intro hm
-  --   apply Iff.intro
-  --   · intro h k hk
-  --     obtain ⟨e, hel, hek⟩ := containsKey_eq_true_iff_exists_mem.mp hk
-  --     exact TransCmp.isLE_trans (h _ hel) <| Ordering.isLE_of_eq_eq <| compare_eq_iff_beq.mpr hek
-  --   · intro h e he
-  --     exact h _ <| containsKey_of_mem he
-  -- · exact fun _ => ReflCmp.isLE_rfl
-  -- · exact fun _ _ => min_eq_or
-  -- · exact fun a b c => le_min_iff
-  -- · intro e e' he he' hee' he'e
-  --   exact hd.eq_of_mem_of_beq he he' <| compare_eq_iff_beq.mp <| OrientedCmp.isLE_antisymm hee' he'e
+  rw [minEntry?, List.min?_eq_some_iff_legacy _ _ _ _]
+  · simp only [and_congr_right_iff]
+    intro hm
+    apply Iff.intro
+    · intro h k hk
+      obtain ⟨e, hel, hek⟩ := containsKey_eq_true_iff_exists_mem.mp hk
+      exact TransCmp.isLE_trans (h _ hel) <| Ordering.isLE_of_eq_eq <| compare_eq_iff_beq.mpr hek
+    · intro h e he
+      exact h _ <| containsKey_of_mem he
+  · exact fun _ => ReflCmp.isLE_rfl
+  · exact fun _ _ => min_eq_or
+  · exact fun a b c => le_min_iff
+  · intro e e' he he' hee' he'e
+    exact hd.eq_of_mem_of_beq he he' <| compare_eq_iff_beq.mp <| OrientedCmp.isLE_antisymm hee' he'e
 
 theorem minKey?_eq_some_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {k} {l : List ((a : α) × β a)} (hd : DistinctKeys l) :

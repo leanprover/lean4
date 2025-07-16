@@ -35,25 +35,29 @@ def Module.recFetchInput (mod : Module) : FetchM (Job ModuleInput) := Job.async 
   let contents ← IO.FS.readFile path
   setTrace {caption := path.toString, mtime := ← getMTime path, hash := .ofText contents}
   let header ← Lean.parseImports' contents path.toString
-  return {path, header}
+  let imports ← header.imports.mapM fun imp => do
+    return ⟨imp, (← findModule? imp.module)⟩
+  return {path, header, imports}
 
 /-- The `ModuleFacetConfig` for the builtin `inputFacet`. -/
 def Module.inputFacetConfig : ModuleFacetConfig inputFacet :=
-  mkFacetJobConfig recFetchInput
+  mkFacetJobConfig recFetchInput (buildable := false)
 
 /-- The `ModuleFacetConfig` for the builtin `leanFacet`. -/
 def Module.leanFacetConfig : ModuleFacetConfig leanFacet :=
-  mkFacetJobConfig fun mod => return (← mod.input.fetch).map (sync := true) (·.path)
+  mkFacetJobConfig fun mod =>
+    return (← mod.input.fetch).map (sync := true) (·.path)
 
 /-- The `ModuleFacetConfig` for the builtin `headerFacet`. -/
 def Module.headerFacetConfig : ModuleFacetConfig headerFacet :=
-   mkFacetJobConfig fun mod => return (← mod.input.fetch).map (sync := true) (·.header)
+   mkFacetJobConfig (buildable := false) fun mod =>
+    return (← mod.input.fetch).map (sync := true) (·.header)
 
 /-- Compute an `Array` of a module's direct local imports from its header. -/
 def Module.recParseImports (mod : Module) : FetchM (Job (Array Module)) := do
-  (← mod.header.fetch).mapM (sync := true) fun header => do
-    let mods ← header.imports.foldlM (init := OrdModuleSet.empty) fun set imp =>
-      findModule? imp.module <&> fun | some mod => set.insert mod | none => set
+  (← mod.input.fetch).mapM (sync := true) fun input => do
+    let mods := input.imports.foldl (init := OrdModuleSet.empty) fun set imp =>
+      match imp.module? with | some mod => set.insert mod | none => set
     return mods.toArray
 
 /-- The `ModuleFacetConfig` for the builtin `importsFacet`. -/
@@ -213,26 +217,35 @@ private def computeModuleDeps
   return {dynlibs, plugins}
 
 private partial def fetchTransImportArts
-  (imports : Array Module) (directImpArts : NameMap ImportArtifacts) (importAll : Bool)
+  (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (importAll : Bool)
 : FetchM (NameMap ImportArtifacts) := do
-  let queue ← imports.foldlM (init := #[]) fun q mod => do
-    let imports ← (← mod.imports.fetch).await
-    return imports.foldl Array.push q
-  walk directImpArts queue
+  let q ← directImports.foldlM (init := #[]) fun q imp => do
+    let some mod := imp.module? | return q
+    let input ← (← mod.input.fetch).await
+    return input.imports.foldl (init := q) fun q imp =>
+      if let some mod := imp.module? then
+        q.push (mod, imp.importAll || importAll)
+      else q
+  walk directArts q
 where
-  walk s queue := do
-    if h : 0 < queue.size then
-      let mod := queue.back
-      let queue := queue.pop
-      if s.contains mod.name then
-        walk s queue
-      else
-        let info ← (← mod.exportInfo.fetch).await
-        let arts := if importAll then info.allArts else info.arts
-        let s := s.insert mod.name arts
-        let imports ← (← mod.imports.fetch).await
-        let queue := imports.foldl Array.push queue
-        walk s queue
+  walk s q := do
+    if h : 0 < q.size then
+      let (mod, importAll) := q.back
+      let q := q.pop
+      if let some arts := s.find? mod.name then
+        -- may need to promote a module system `import` to an `import all`
+        -- size of 1 = non-module, 2 = module system `import`, 3 = `import all`
+        unless importAll && arts.oleanParts.size == 2 do
+          return ← walk s q
+      let info ← (← mod.exportInfo.fetch).await
+      let arts := if importAll then info.allArts else info.arts
+      let s := s.insert mod.name arts
+      let input ← (← mod.input.fetch).await
+      let q := input.imports.foldl (init := q) fun q imp =>
+        if let some mod := imp.module? then
+          q.push (mod, importAll)
+        else q
+      walk s q
     else
       return s
 
@@ -260,18 +273,21 @@ private def fetchImportInfo
     let some mod ← findModule? imp.module
       | return s
     let importJob ← mod.exportInfo.fetch
+    let importAll := strictOr imp.importAll notModule
     return s.zipWith (other := importJob) fun info impInfo =>
       let info :=
-        if imp.importAll || notModule then
+        if importAll then
           {info with
             directArts := info.directArts.insert mod.name impInfo.allArts
             trace := info.trace.mix impInfo.allTransTrace |>.mix impInfo.allArtsTrace.withoutInputs
           }
-        else
+        else if !info.directArts.contains mod.name then -- do not demote `import all`
           {info with
             directArts := info.directArts.insert mod.name impInfo.arts
             trace := info.trace.mix impInfo.transTrace |>.mix impInfo.artsTrace.withoutInputs
           }
+        else
+          info
       if imp.isExported then
         {info with
           transTrace := info.transTrace
@@ -516,7 +532,6 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
   withRegisterJob mod.name.toString do
   let setupJob ← mod.setup.fetch
   let leanJob ← mod.lean.fetch
-  let importJob ← mod.imports.fetch
   setupJob.mapM fun setup => do
     addLeanTrace
     let srcFile ← leanJob.await
@@ -546,7 +561,7 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
       discard <| buildAction depTrace mod.traceFile do
         let args := mod.weakLeanArgs ++ mod.leanArgs
         let relSrcFile := relPathFrom mod.pkg.dir srcFile
-        let directImports ← importJob.await
+        let directImports := (← (← mod.input.fetch).await).imports
         let transImpArts ← fetchTransImportArts directImports setup.importArts !setup.isModule
         let setup := {setup with importArts := transImpArts}
         compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
@@ -814,9 +829,11 @@ def setupExternalModule
   withRegisterJob s!"setup ({fileName})" do
   let root ← getRootPackage
   let extraDepJob ← root.extraDep.fetch
-  let directImports ← header.imports.filterMapM (findModule? ·.module)
+  let imports ← header.imports.mapM fun imp => do
+    return ⟨imp, ← findModule? imp.module⟩
+  let localImports := imports.filterMap (·.module?)
   let impInfoJob ← fetchImportInfo fileName .anonymous header
-  let precompileImports ← (← computePrecompileImportsAux fileName directImports).await
+  let precompileImports ← (← computePrecompileImportsAux fileName localImports).await
   let impLibsJob ← fetchImportLibs precompileImports
   let externLibsJob ← Job.collectArray <$>
     if root.precompileModules then root.externLibs.mapM (·.dynlib.fetch) else pure #[]
@@ -829,7 +846,7 @@ def setupExternalModule
   pluginsJob.bindM (sync := true) fun plugins =>
   externLibsJob.mapM fun externLibs => do
     let {dynlibs, plugins} ← computeModuleDeps impLibs externLibs dynlibs plugins
-    let transImpArts ← fetchTransImportArts directImports info.directArts !header.isModule
+    let transImpArts ← fetchTransImportArts imports info.directArts !header.isModule
     return {
       name := `_unknown
       isModule := header.isModule

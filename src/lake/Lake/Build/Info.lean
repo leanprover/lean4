@@ -17,7 +17,7 @@ Build info is what is the data passed to a Lake build function to facilitate
 the build.
 -/
 
-open Lean
+open System Lean
 
 namespace Lake
 
@@ -130,6 +130,22 @@ data_type lean_exe : LeanExe
 data_type extern_lib : ExternLib
 data_type input_file : InputFile
 data_type input_dir : InputDir
+
+/-- An import statement with its resolved module within the workspace. -/
+structure ModuleImport extends Import where
+  module? : Option Module
+
+/-- A module's source file path plus its parsed header. -/
+structure ModuleInput where
+  path : FilePath
+  header : ModuleHeader
+  imports : Array ModuleImport
+
+/--
+The module's processed Lean source file.
+Combines tracing the file with parsing its header.
+-/
+builtin_facet input : Module => ModuleInput
 
 /-- The direct local imports of the Lean module. -/
 builtin_facet imports : Module => Array Module

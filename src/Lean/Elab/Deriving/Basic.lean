@@ -84,6 +84,9 @@ def defaultHandler (className : Name) (typeNames : Array Name) : CommandElabM Un
   throwError "default handlers have not been implemented yet, class: '{className}' types: {typeNames}"
 
 def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandElabM Unit := do
+  -- When any of the types are private, the deriving handler will need access to the private scope
+  -- (and should also make sure to put its outputs in the private scope).
+  withoutExporting (when := typeNames.any isPrivateName) do
   withTraceNode `Elab.Deriving (fun _ => return m!"running deriving handlers for '{className}'") do
     match (← derivingHandlersRef.get).find? className with
     | some handlers =>

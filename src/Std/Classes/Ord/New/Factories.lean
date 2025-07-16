@@ -37,3 +37,17 @@ public def LawfulOrderMin.ofLE {α : Type u} [OrderData α] [Min α] [LE α] [La
     (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) : LawfulOrderMin α where
   toLawfulOrderInf := .ofLE le_min_iff
   toMinEqOr := .ofLE min_eq_or
+
+public def LawfulOrderSup.ofLE {α : Type u} [OrderData α] [Max α] [LE α] [LawfulOrderLE α]
+    (max_le_iff : ∀ a b c : α, Max.max a b ≤ c ↔ a ≤ c ∧ b ≤ c) : LawfulOrderSup α where
+  max_le_iff := by simpa [LawfulOrderLE.le_iff] using max_le_iff
+
+public def MaxEqOr.ofLE {α : Type u} [OrderData α] [Max α] [LE α] [LawfulOrderLE α]
+    (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) : MaxEqOr α where
+  max_eq_or := by simpa [LawfulOrderLE.le_iff] using max_eq_or
+
+public def LawfulOrderMax.ofLE {α : Type u} [OrderData α] [Max α] [LE α] [LawfulOrderLE α]
+    (max_le_iff : ∀ a b c : α, Max.max a b ≤ c ↔ a ≤ c ∧ b ≤ c)
+    (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) : LawfulOrderMax α where
+  toLawfulOrderSup := .ofLE max_le_iff
+  toMaxEqOr := .ofLE max_eq_or

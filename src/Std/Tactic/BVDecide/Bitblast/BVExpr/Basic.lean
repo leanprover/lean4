@@ -147,6 +147,10 @@ inductive BVUnOp where
   Count leading zeros.
   -/
   | clz
+  /--
+  Population count.
+  -/
+  | popCnt
   deriving Hashable, DecidableEq
 
 namespace BVUnOp
@@ -158,6 +162,7 @@ def toString : BVUnOp → String
   | arithShiftRightConst n => s!">>a {n}"
   | reverse => "rev"
   | clz => "clz"
+  | popCnt => "popCnt"
 
 instance : ToString BVUnOp := ⟨toString⟩
 
@@ -171,6 +176,7 @@ def eval : BVUnOp → (BitVec w → BitVec w)
   | arithShiftRightConst n => (BitVec.sshiftRight · n)
   | reverse =>  BitVec.reverse
   | clz => BitVec.clz
+  | popCnt => BitVec.popCnt
 
 @[simp] theorem eval_not : eval .not = ((~~~ ·) : BitVec w → BitVec w) := by rfl
 
@@ -189,6 +195,8 @@ theorem eval_arithShiftRightConst : eval (arithShiftRightConst n) = (BitVec.sshi
 @[simp] theorem eval_reverse : eval .reverse = (BitVec.reverse : BitVec w → BitVec w) := by rfl
 
 @[simp] theorem eval_clz : eval .clz = (BitVec.clz : BitVec w → BitVec w) := by rfl
+
+@[simp] theorem eval_popCnt : eval .popCnt = (BitVec.popCnt : BitVec w → BitVec w) := by rfl
 
 end BVUnOp
 

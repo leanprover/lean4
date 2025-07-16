@@ -476,24 +476,20 @@ instance
 
 /-- Save module build artifacts to the local Lake cache. Requires the artifact cache to be enabled. -/
 private def Module.cacheOutputArtifacts (mod : Module) : JobM ModuleOutputArtifacts := do
-  let mut arts : ModuleOutputArtifacts := {
+  return {
     olean := ← cacheArtifact mod.oleanFile "olean"
+    oleanServer? := ← cacheIfExists? mod.oleanServerFile "olean.server"
+    oleanPrivate? := ← cacheIfExists? mod.oleanPrivateFile "olean.private"
+    ir? := ← cacheIfExists? mod.irFile "ir"
     ilean := ← cacheArtifact mod.ileanFile "ilean"
     c := ← cacheArtifact mod.cFile "c"
+    bc? := ← cacheIf? (Lean.Internal.hasLLVMBackend ()) mod.bcFile "bc"
   }
-  if (← mod.oleanServerFile.pathExists) then
-    let art ← cacheArtifact mod.oleanServerFile "olean.server"
-    arts := {arts with oleanServer? := art}
-  if (← mod.oleanPrivateFile.pathExists) then
-    let art ← cacheArtifact mod.oleanPrivateFile "olean.private"
-    arts := {arts with oleanPrivate? := art}
-  if (← mod.irFile.pathExists) then
-    let art ← cacheArtifact mod.irFile "ir"
-    arts := {arts with ir? := art}
-  if Lean.Internal.hasLLVMBackend () then
-    let art ← cacheArtifact mod.bcFile "bc"
-    arts := {arts with bc? := art}
-  return arts
+where
+  @[inline] cacheIf? c art ext := do
+    if c then return some (← cacheArtifact art ext) else return none
+  @[inline] cacheIfExists? art ext := do
+    cacheIf? (← art.pathExists) art ext
 
 /--
 Some module build artifacts must be located in the build directory (e.g., ILeans).
@@ -512,6 +508,52 @@ where
       copyFile art.path file
       writeFileHash file art.hash
     return art.useLocalFile file
+
+private def Module.mkArtifacts (mod : Module) (srcFile : FilePath) (isModule : Bool) : ModuleArtifacts where
+  lean? := srcFile
+  olean? := mod.oleanFile
+  oleanServer? := if isModule then some mod.oleanServerFile else none
+  oleanPrivate? := if isModule then some mod.oleanPrivateFile else none
+  ilean? := mod.ileanFile
+  ir? := if isModule then some mod.irFile else none
+  c? := mod.cFile
+  bc? := if Lean.Internal.hasLLVMBackend () then some mod.bcFile else none
+
+private def Module.computeOutputHashes (mod : Module) (isModule : Bool) : FetchM ModuleOutputHashes :=
+  return {
+    olean := ← computeFileHash mod.oleanFile
+    oleanServer? := ← if isModule then some <$> computeFileHash mod.oleanServerFile else pure none
+    oleanPrivate? := ← if isModule then some <$> computeFileHash mod.oleanPrivateFile else pure none
+    ilean := ← computeFileHash mod.ileanFile
+    ir? := ← if isModule then some <$> computeFileHash mod.irFile else pure none
+    c := ← computeFileHash mod.cFile
+    bc? := ← if Lean.Internal.hasLLVMBackend () then some <$> computeFileHash mod.bcFile else pure none
+  }
+
+private def Module.fetchLocalArtifacts (mod : Module) (isModule : Bool) : FetchM ModuleOutputArtifacts :=
+  return {
+    olean := ← fetchLocalArtifact mod.oleanFile
+    oleanServer? := ← if isModule then some <$> fetchLocalArtifact mod.oleanServerFile else pure none
+    oleanPrivate? := ← if isModule then some <$> fetchLocalArtifact mod.oleanPrivateFile else pure none
+    ilean := ← fetchLocalArtifact mod.ileanFile
+    ir? := ← if isModule then some <$> fetchLocalArtifact mod.irFile else pure none
+    c := ← fetchLocalArtifact mod.cFile
+    bc? := ← if Lean.Internal.hasLLVMBackend () then some <$> fetchLocalArtifact mod.bcFile else pure none
+  }
+
+private def Module.buildLean
+  (mod : Module) (depTrace : BuildTrace) (srcFile : FilePath) (setup : ModuleSetup)
+: JobM ModuleOutputHashes := buildAction depTrace mod.traceFile do
+  let args := mod.weakLeanArgs ++ mod.leanArgs
+  let relSrcFile := relPathFrom mod.pkg.dir srcFile
+  let directImports := (← (← mod.input.fetch).await).imports
+  let transImpArts ← fetchTransImportArts directImports setup.importArts !setup.isModule
+  let setup := {setup with importArts := transImpArts}
+  let arts := mod.mkArtifacts srcFile setup.isModule
+  compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
+    (← getLeanPath) (← getLean)
+  mod.clearOutputHashes
+  mod.computeOutputHashes setup.isModule
 
 private def traceOptions (opts : LeanOptions) (caption := "opts") : BuildTrace :=
   opts.values.fold (init := .nil caption) fun t n v =>
@@ -541,16 +583,6 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
     addPureTrace mod.leanArgs "Module.leanArgs"
     setTraceCaption s!"{mod.name.toString}:leanArts"
     let depTrace ← getTrace
-    let arts : ModuleArtifacts := {
-      lean? := srcFile
-      olean? := mod.oleanFile
-      oleanServer? := if setup.isModule then some mod.oleanServerFile else none
-      oleanPrivate? := if setup.isModule then some mod.oleanPrivateFile else none
-      ilean? := mod.ileanFile
-      ir? := if setup.isModule then some mod.irFile else none
-      c? := mod.cFile
-      bc? := if Lean.Internal.hasLLVMBackend () then some mod.bcFile else none
-    }
     let inputHash := depTrace.hash
     let savedTrace ← readTraceFile mod.traceFile
     if let some ref := mod.pkg.cacheRef? then
@@ -558,39 +590,13 @@ def Module.recBuildLean (mod : Module) : FetchM (Job ModuleOutputArtifacts) := d
         return ← mod.restoreArtifacts arts
     let upToDate ← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace
     unless upToDate do
-      discard <| buildAction depTrace mod.traceFile do
-        let args := mod.weakLeanArgs ++ mod.leanArgs
-        let relSrcFile := relPathFrom mod.pkg.dir srcFile
-        let directImports := (← (← mod.input.fetch).await).imports
-        let transImpArts ← fetchTransImportArts directImports setup.importArts !setup.isModule
-        let setup := {setup with importArts := transImpArts}
-        compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
-          (← getLeanPath) (← getLean)
-        mod.clearOutputHashes
-        return {
-          olean := ← computeFileHash mod.oleanFile
-          oleanServer? := ← if setup.isModule then some <$> computeFileHash mod.oleanServerFile else pure none
-          oleanPrivate? := ← if setup.isModule then some <$> computeFileHash mod.oleanPrivateFile else pure none
-          ilean := ← computeFileHash mod.ileanFile
-          ir? := ← if setup.isModule then some <$> computeFileHash mod.irFile else pure none
-          c := ← computeFileHash mod.cFile
-          bc? := ← if Lean.Internal.hasLLVMBackend () then some <$> computeFileHash mod.bcFile else pure none
-          : ModuleOutputHashes
-        }
+      discard <| mod.buildLean depTrace srcFile setup
     if let some ref := mod.pkg.cacheRef? then
       let arts ← mod.cacheOutputArtifacts
       ref.insert inputHash arts.hashes
       return arts
     else
-      return {
-        olean := ← fetchLocalArtifact mod.oleanFile
-        oleanServer? := ← if setup.isModule then some <$> fetchLocalArtifact mod.oleanServerFile else pure none
-        oleanPrivate? := ← if setup.isModule then some <$> fetchLocalArtifact mod.oleanPrivateFile else pure none
-        ilean := ← fetchLocalArtifact mod.ileanFile
-        ir? := ← if setup.isModule then some <$> fetchLocalArtifact mod.irFile else pure none
-        c := ← fetchLocalArtifact mod.cFile
-        bc? := ← if Lean.Internal.hasLLVMBackend () then some <$> fetchLocalArtifact mod.bcFile else pure none
-      }
+      mod.fetchLocalArtifacts setup.isModule
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/
 def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=

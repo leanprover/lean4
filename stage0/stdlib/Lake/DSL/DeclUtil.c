@@ -3132,7 +3132,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lean_Elab_Term_mkFreshIdent___at___Lake_DSL_mkConfigDeclIdent_spec__0(x_1, x_6, x_3, x_4, x_5);
 lean_dec(x_1);
 return x_7;

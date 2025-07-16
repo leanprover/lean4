@@ -1528,7 +1528,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6___lam__0____x40_Lake_Load_Manifest___hyg_131_(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -1537,7 +1536,6 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6___lam__1____x40_Lake_Load_Manifest___hyg_131_(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_8);
 lean_dec(x_7);
 return x_9;
 }

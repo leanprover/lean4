@@ -69,7 +69,6 @@ lean_dec(x_4);
 if (x_7 == 0)
 {
 uint8_t x_8; 
-lean_dec(x_5);
 x_8 = 1;
 return x_8;
 }
@@ -77,14 +76,12 @@ else
 {
 uint8_t x_9; 
 x_9 = lean_unbox(x_5);
-lean_dec(x_5);
 return x_9;
 }
 }
 else
 {
 uint8_t x_10; 
-lean_dec(x_5);
 x_10 = lean_unbox(x_4);
 lean_dec(x_4);
 return x_10;

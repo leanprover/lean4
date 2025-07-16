@@ -3915,7 +3915,6 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_4);
-lean_dec(x_4);
 x_23 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__0_spec__0(x_1, x_2, x_3, x_22, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_15);
 lean_dec(x_9);
@@ -3939,7 +3938,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_4);
-lean_dec(x_4);
 x_18 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__0___redArg(x_1, x_2, x_3, x_17, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_10);
 lean_dec(x_6);
@@ -3976,7 +3974,6 @@ _start:
 {
 uint8_t x_25; lean_object* x_26; 
 x_25 = lean_unbox(x_7);
-lean_dec(x_7);
 x_26 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_25, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24);
 lean_dec(x_18);
 lean_dec(x_12);
@@ -4421,7 +4418,6 @@ x_9 = lean_usize_dec_eq(x_2, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec(x_4);
 x_10 = lean_array_uget(x_1, x_2);
 x_11 = l_Lean_Compiler_LCNF_Check_checkParam___redArg(x_10, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_11) == 0)
@@ -8650,7 +8646,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_11;
 }
 }
@@ -8687,7 +8682,6 @@ x_10 = lean_usize_dec_eq(x_2, x_3);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec(x_4);
 x_11 = lean_array_uget(x_1, x_2);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
@@ -8762,7 +8756,6 @@ return x_15;
 }
 else
 {
-lean_dec(x_2);
 return x_11;
 }
 }
@@ -13229,7 +13222,6 @@ x_6 = lean_usize_dec_eq(x_2, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 
-lean_dec(x_4);
 x_7 = lean_array_uget(x_1, x_2);
 x_8 = l_Lean_Compiler_LCNF_checkDeadLocalDecls_visitParam(x_7, x_5);
 x_9 = lean_ctor_get(x_8, 0);
@@ -13326,7 +13318,6 @@ x_13 = lean_usize_dec_eq(x_2, x_3);
 if (x_13 == 0)
 {
 lean_object* x_14; 
-lean_dec(x_4);
 x_14 = lean_array_uget(x_1, x_2);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -13593,7 +13584,6 @@ x_6 = lean_usize_dec_eq(x_2, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 
-lean_dec(x_4);
 x_7 = lean_array_uget(x_1, x_2);
 x_8 = l_Lean_Compiler_LCNF_checkDeadLocalDecls_visitDecl(x_7, x_5);
 x_9 = lean_ctor_get(x_8, 0);
@@ -13701,7 +13691,6 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_2);
 x_10 = lean_ctor_get(x_3, 1);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_3, 0);
@@ -13763,7 +13752,6 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_2);
 x_10 = lean_ctor_get(x_3, 1);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_3, 0);
@@ -13825,7 +13813,6 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_2);
 x_10 = lean_ctor_get(x_3, 1);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_3, 0);
@@ -13876,7 +13863,6 @@ x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_5);
 x_12 = lean_array_uget(x_2, x_3);
 x_13 = lean_box(0);
 lean_inc(x_9);
@@ -13933,7 +13919,6 @@ x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_5);
 x_12 = lean_array_uget(x_2, x_3);
 x_13 = lean_box(0);
 lean_inc(x_9);
@@ -13990,7 +13975,6 @@ x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_5);
 x_12 = lean_array_uget(x_2, x_3);
 x_13 = lean_box(0);
 lean_inc(x_9);

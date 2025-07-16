@@ -435,7 +435,6 @@ x_7 = lean_box(x_2);
 lean_inc(x_1);
 x_8 = lean_apply_2(x_1, x_7, x_6);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 x_2 = x_9;
 x_3 = x_5;
 goto _start;
@@ -472,7 +471,6 @@ x_10 = lean_apply_2(x_1, x_9, x_8);
 lean_inc(x_1);
 x_11 = lean_apply_2(x_1, x_10, x_7);
 x_12 = lean_unbox(x_11);
-lean_dec(x_11);
 x_2 = x_12;
 x_3 = x_6;
 goto _start;
@@ -504,7 +502,6 @@ x_8 = lean_box(x_2);
 lean_inc(x_1);
 x_9 = lean_apply_2(x_1, x_8, x_6);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 lean_inc(x_1);
 x_11 = l_List_foldlM___at___Lean_Declaration_foldExprM___at___Lean_Declaration_hasSorry_spec__0_spec__0(x_1, x_10, x_7);
 x_2 = x_11;
@@ -612,7 +609,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_List_foldlM___at___Lean_Declaration_foldExprM___at___Lean_Declaration_hasSorry_spec__0_spec__0(x_1, x_4, x_3);
 x_6 = lean_box(x_5);
 return x_6;
@@ -623,7 +619,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_List_foldlM___at___Lean_Declaration_foldExprM___at___Lean_Declaration_hasSorry_spec__0_spec__1(x_1, x_4, x_3);
 x_6 = lean_box(x_5);
 return x_6;
@@ -634,7 +629,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_List_foldlM___at___Lean_Declaration_foldExprM___at___Lean_Declaration_hasSorry_spec__0_spec__2(x_1, x_4, x_3);
 x_6 = lean_box(x_5);
 return x_6;
@@ -645,7 +639,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasSorry_spec__0___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -657,7 +650,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasSorry_spec__0(x_1, x_3);
 x_5 = lean_box(x_4);
 return x_5;
@@ -771,7 +763,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasSyntheticSorry_spec__0___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -783,7 +774,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasSyntheticSorry_spec__0(x_1, x_3);
 x_5 = lean_box(x_4);
 return x_5;
@@ -897,7 +887,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasNonSyntheticSorry_spec__0___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -909,7 +898,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasNonSyntheticSorry_spec__0(x_1, x_3);
 x_5 = lean_box(x_4);
 return x_5;

@@ -1433,7 +1433,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_IR_Borrow_InitParamMap_initBorrowIfNotExported(x_3, x_2);
 return x_4;
 }
@@ -1704,7 +1703,6 @@ x_14 = lean_usize_dec_eq(x_3, x_4);
 if (x_14 == 0)
 {
 lean_object* x_15; 
-lean_dec(x_5);
 x_15 = lean_array_uget(x_2, x_3);
 if (lean_obj_tag(x_15) == 0)
 {
@@ -2152,7 +2150,6 @@ x_13 = lean_usize_dec_eq(x_3, x_4);
 if (x_13 == 0)
 {
 lean_object* x_14; 
-lean_dec(x_5);
 x_14 = lean_array_uget(x_2, x_3);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -3506,7 +3503,6 @@ x_7 = lean_usize_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
-lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
 x_9 = l_Lean_IR_Borrow_ownArg(x_8, x_5, x_6);
 x_10 = lean_ctor_get(x_9, 0);
@@ -4817,7 +4813,6 @@ x_14 = lean_usize_dec_eq(x_3, x_4);
 if (x_14 == 0)
 {
 lean_object* x_15; 
-lean_dec(x_5);
 x_15 = lean_array_uget(x_2, x_3);
 if (lean_obj_tag(x_15) == 0)
 {
@@ -5429,7 +5424,6 @@ x_14 = lean_usize_dec_eq(x_2, x_3);
 if (x_14 == 0)
 {
 lean_object* x_15; 
-lean_dec(x_4);
 x_15 = lean_array_uget(x_1, x_2);
 if (lean_obj_tag(x_15) == 0)
 {
@@ -6005,7 +5999,6 @@ x_7 = lean_usize_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
-lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
 lean_inc(x_5);
 x_9 = l_Lean_IR_Borrow_collectDecl(x_8, x_5, x_6);

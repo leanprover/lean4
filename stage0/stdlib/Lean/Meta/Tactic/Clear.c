@@ -119,7 +119,6 @@ x_13 = lean_usize_dec_eq(x_5, x_6);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_7);
 x_14 = lean_array_uget(x_4, x_5);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -182,7 +181,6 @@ x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
-lean_dec(x_5);
 x_12 = lean_array_uget(x_2, x_3);
 lean_inc(x_1);
 lean_inc(x_9);
@@ -1713,7 +1711,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = l_Lean_PersistentArray_forMAux___at___Lean_PersistentArray_forM___at___Lean_LocalContext_forM___at___Lean_MVarId_clear_spec__0_spec__0_spec__0___lam__0(x_1, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -1736,7 +1733,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = l_Lean_PersistentArray_forM___at___Lean_LocalContext_forM___at___Lean_MVarId_clear_spec__0_spec__0___lam__0(x_1, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);

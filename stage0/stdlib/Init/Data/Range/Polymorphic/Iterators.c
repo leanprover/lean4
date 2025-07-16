@@ -102,9 +102,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Std_PRange_Internal_iter(x_7, x_8, x_3, x_4, x_5, x_6);
 lean_dec(x_4);
 return x_9;
@@ -221,9 +219,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_1);
-lean_dec(x_1);
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = l_Std_PRange_toList(x_11, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_8);
 lean_dec(x_6);
@@ -281,7 +277,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_Std_PRange_instIteratorSizeRangeIteratorIdOfRangeSize(x_6, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -355,9 +350,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_Std_PRange_size(x_9, x_10, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_6);
 lean_dec(x_4);
@@ -424,7 +417,6 @@ lean_inc(x_17);
 lean_inc(x_12);
 x_18 = lean_apply_2(x_2, x_12, x_17);
 x_19 = lean_unbox(x_18);
-lean_dec(x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; 
@@ -488,9 +480,7 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = lean_unbox(x_1);
-lean_dec(x_1);
 x_15 = lean_unbox(x_2);
-lean_dec(x_2);
 x_16 = l_Std_PRange_instForIn_x27MkInferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLowerBoundOfLawfulUpwardEnumerableUpperBoundOfMonadOfFiniteRangeIteratorId(x_14, x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_12);
 lean_dec(x_7);

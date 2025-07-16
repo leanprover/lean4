@@ -942,7 +942,6 @@ return x_20;
 }
 else
 {
-lean_dec(x_13);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -1078,7 +1077,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = l_Lean_PremiseSelection_elabSetPremiseSelector___lam__0(x_1, x_2, x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_13;
 }

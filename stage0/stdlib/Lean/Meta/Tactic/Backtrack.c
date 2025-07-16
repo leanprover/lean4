@@ -538,7 +538,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Meta_Tactic_Backtrack_Backtrack_tryAllM___redArg___lam__4(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -1825,7 +1824,6 @@ _start:
 {
 uint8_t x_21; lean_object* x_22; 
 x_21 = lean_unbox(x_13);
-lean_dec(x_13);
 x_22 = l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_run___lam__7(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_21, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
 return x_22;
 }
@@ -3168,11 +3166,11 @@ block_32:
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; 
-lean_dec(x_28);
-x_30 = l_Lean_Meta_SavedState_restore___redArg(x_26, x_12, x_14, x_27);
+lean_dec(x_27);
+x_30 = l_Lean_Meta_SavedState_restore___redArg(x_28, x_12, x_14, x_26);
 lean_dec(x_14);
 lean_dec(x_12);
-lean_dec(x_26);
+lean_dec(x_28);
 x_31 = lean_ctor_get(x_30, 1);
 lean_inc(x_31);
 lean_dec(x_30);
@@ -3182,12 +3180,11 @@ goto block_21;
 }
 else
 {
-lean_dec(x_27);
-lean_dec(x_26);
+lean_dec(x_28);
 lean_dec(x_14);
 lean_dec(x_12);
 lean_dec(x_3);
-x_22 = x_28;
+x_22 = x_27;
 goto block_25;
 }
 }
@@ -3287,18 +3284,18 @@ if (x_55 == 0)
 uint8_t x_56; 
 x_56 = l_Lean_Exception_isRuntime(x_53);
 lean_dec(x_53);
-x_26 = x_50;
-x_27 = x_54;
-x_28 = x_52;
+x_26 = x_54;
+x_27 = x_52;
+x_28 = x_50;
 x_29 = x_56;
 goto block_32;
 }
 else
 {
 lean_dec(x_53);
-x_26 = x_50;
-x_27 = x_54;
-x_28 = x_52;
+x_26 = x_54;
+x_27 = x_52;
+x_28 = x_50;
 x_29 = x_55;
 goto block_32;
 }
@@ -3553,7 +3550,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_List_filterAuxM___at___List_filterAuxM___at_____private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_processIndependentGoals_spec__7_spec__7___redArg(x_6, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 return x_7;
@@ -3564,7 +3560,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_List_filterAuxM___at___List_filterAuxM___at_____private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_processIndependentGoals_spec__7_spec__7(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -3578,7 +3573,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_List_filterAuxM___at_____private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_processIndependentGoals_spec__7(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -3618,7 +3612,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_8);
-lean_dec(x_8);
 x_17 = l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_processIndependentGoals___lam__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_16, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_17;
 }
@@ -3628,9 +3621,7 @@ _start:
 {
 uint8_t x_17; uint8_t x_18; lean_object* x_19; 
 x_17 = lean_unbox(x_9);
-lean_dec(x_9);
 x_18 = lean_unbox(x_11);
-lean_dec(x_11);
 x_19 = l___private_Lean_Meta_Tactic_Backtrack_0__Lean_Meta_Tactic_Backtrack_Backtrack_processIndependentGoals___lam__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_17, x_10, x_18, x_12, x_13, x_14, x_15, x_16);
 return x_19;
 }

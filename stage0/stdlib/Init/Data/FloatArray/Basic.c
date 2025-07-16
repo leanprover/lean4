@@ -63,6 +63,7 @@ LEAN_EXPORT lean_object* l_FloatArray_instForInFloat(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemNatFloatLtSize;
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_FloatArray_Basic___hyg_460_;
+LEAN_EXPORT lean_object* l_List_toFloatArray_loop___boxed(lean_object*, lean_object*);
 static lean_object* l___auto___closed__1____x40_Init_Data_FloatArray_Basic___hyg_460_;
 LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -122,6 +123,7 @@ LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___boxed(lean_object*, lean_obje
 uint8_t lean_float_beq(double, double);
 static lean_object* l___auto___closed__10____x40_Init_Data_FloatArray_Basic___hyg_460_;
 LEAN_EXPORT lean_object* l_instToStringFloatArray___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_toFloatArray___boxed(lean_object*);
 static lean_object* l_FloatArray_foldl___redArg___closed__9;
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* l_List_toString___redArg(lean_object*, lean_object*);
@@ -1704,17 +1706,22 @@ else
 {
 lean_object* x_3; lean_object* x_4; double x_5; lean_object* x_6; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
 x_5 = lean_unbox_float(x_3);
-lean_dec(x_3);
 x_6 = lean_float_array_push(x_2, x_5);
 x_1 = x_4;
 x_2 = x_6;
 goto _start;
 }
+}
+}
+LEAN_EXPORT lean_object* l_List_toFloatArray_loop___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_toFloatArray_loop(x_1, x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_List_toFloatArray(lean_object* x_1) {
@@ -1724,6 +1731,15 @@ lean_object* x_2; lean_object* x_3;
 x_2 = l_FloatArray_empty;
 x_3 = l_List_toFloatArray_loop(x_1, x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_List_toFloatArray___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_List_toFloatArray(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_instToStringFloatArray___lam__0(lean_object* x_1, lean_object* x_2) {

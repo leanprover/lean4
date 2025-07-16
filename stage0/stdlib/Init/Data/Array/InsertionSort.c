@@ -578,7 +578,6 @@ x_9 = lean_array_fget(x_2, x_7);
 lean_inc(x_1);
 x_10 = lean_apply_2(x_1, x_8, x_9);
 x_11 = lean_unbox(x_10);
-lean_dec(x_10);
 if (x_11 == 0)
 {
 lean_dec(x_7);

@@ -172,7 +172,6 @@ lean_inc(x_9);
 lean_inc(x_7);
 x_11 = lean_apply_2(x_1, x_7, x_9);
 x_12 = lean_unbox(x_11);
-lean_dec(x_11);
 if (x_12 == 0)
 {
 uint8_t x_13; 

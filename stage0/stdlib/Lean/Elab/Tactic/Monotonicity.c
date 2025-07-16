@@ -1374,7 +1374,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Array_binInsertM___at_____private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_162__spec__0_spec__0_spec__2___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;
@@ -2959,7 +2958,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = l_Lean_Meta_lambdaBoundedTelescope___at___Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245__spec__0___redArg(x_1, x_2, x_3, x_10, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -2969,7 +2967,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_5);
-lean_dec(x_5);
 x_12 = l_Lean_Meta_lambdaBoundedTelescope___at___Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245__spec__0(x_1, x_2, x_3, x_4, x_11, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }
@@ -2994,7 +2991,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_8;
 }
 }
@@ -3003,7 +2999,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_Lean_Meta_Monotonicity_initFn___lam__2____x40_Lean_Elab_Tactic_Monotonicity___hyg_245_(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_3);
 return x_11;
@@ -3014,7 +3009,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_5);
-lean_dec(x_5);
 x_10 = l_Lean_Meta_Monotonicity_initFn___lam__4____x40_Lean_Elab_Tactic_Monotonicity___hyg_245_(x_1, x_2, x_3, x_4, x_9, x_6, x_7, x_8);
 lean_dec(x_4);
 return x_10;
@@ -5896,7 +5890,6 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Lean_Meta_Monotonicity_solveMonoCall___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_4);
 lean_dec(x_1);
 return x_10;
 }
@@ -5906,7 +5899,6 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Lean_Meta_Monotonicity_solveMonoCall___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_5);
 return x_11;
 }
 }
@@ -5952,7 +5944,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_60 = lean_alloc_ctor(0, 2, 0);
@@ -6255,7 +6246,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_43 = lean_alloc_ctor(1, 2, 0);
@@ -6337,7 +6327,6 @@ if (x_13 == 0)
 {
 lean_object* x_14; 
 lean_dec(x_12);
-lean_dec(x_5);
 lean_dec(x_1);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_3);
@@ -9204,7 +9193,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_8;
 }
 }
@@ -9213,7 +9201,6 @@ _start:
 {
 uint8_t x_15; size_t x_16; size_t x_17; lean_object* x_18; 
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_17 = lean_unbox_usize(x_8);
@@ -9228,7 +9215,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_4);
-lean_dec(x_4);
 x_10 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Monotonicity_solveMonoStep_spec__1___redArg(x_1, x_2, x_3, x_9, x_5, x_6, x_7, x_8);
 lean_dec(x_6);
 lean_dec(x_2);
@@ -9260,9 +9246,7 @@ _start:
 {
 uint8_t x_21; uint8_t x_22; lean_object* x_23; 
 x_21 = lean_unbox(x_4);
-lean_dec(x_4);
 x_22 = lean_unbox(x_6);
-lean_dec(x_6);
 x_23 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Monotonicity_solveMonoStep_spec__1(x_1, x_2, x_3, x_21, x_5, x_22, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
 lean_dec(x_19);
 lean_dec(x_18);
@@ -9280,7 +9264,6 @@ _start:
 {
 uint8_t x_5; size_t x_6; size_t x_7; lean_object* x_8; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_7 = lean_unbox_usize(x_3);
@@ -9298,7 +9281,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -9307,9 +9289,7 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_13 = lean_unbox(x_2);
-lean_dec(x_2);
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = l_Lean_Meta_Monotonicity_solveMonoStep___lam__1(x_1, x_13, x_14, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -9353,9 +9333,7 @@ _start:
 {
 uint8_t x_20; lean_object* x_21; 
 x_20 = lean_unbox(x_9);
-lean_dec(x_9);
 x_21 = l_Lean_Meta_Monotonicity_solveMonoStep___lam__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_20, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
-lean_dec(x_14);
 return x_21;
 }
 }

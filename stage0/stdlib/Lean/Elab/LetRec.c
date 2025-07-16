@@ -3615,7 +3615,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_1);
-lean_dec(x_1);
 x_12 = l_Lean_Elab_elabAttr___at___Lean_Elab_elabAttrs___at___Lean_Elab_elabDeclAttrs___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__1_spec__1_spec__1___lam__1(x_11, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -3686,9 +3685,7 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = lean_unbox(x_3);
-lean_dec(x_3);
 x_14 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView_spec__5_spec__5___lam__0(x_1, x_12, x_13, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_4);
 return x_14;
@@ -3932,7 +3929,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_4);
 lean_dec(x_2);
 return x_16;
 }
@@ -4379,9 +4375,7 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_5);
-lean_dec(x_5);
 x_23 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_elabLetRecDeclValues_spec__0(x_1, x_2, x_3, x_4, x_22, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
-lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_3);
@@ -4408,7 +4402,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_3);
-lean_dec(x_3);
 x_14 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_elabLetRecDeclValues_spec__1_spec__1___redArg___lam__1(x_1, x_2, x_13, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }
@@ -4432,7 +4425,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_2);
-lean_dec(x_2);
 x_18 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_elabLetRecDeclValues_spec__1_spec__1___redArg___lam__3(x_1, x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -4460,7 +4452,6 @@ lean_dec(x_3);
 x_14 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_15 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_elabLetRecDeclValues_spec__1_spec__1(x_1, x_2, x_13, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_1);
 return x_15;
 }
 }
@@ -4473,7 +4464,6 @@ lean_dec(x_3);
 x_14 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_15 = l_Array_mapMUnsafe_map___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_elabLetRecDeclValues_spec__1(x_1, x_2, x_13, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_1);
 return x_15;
 }
 }
@@ -4497,7 +4487,6 @@ if (x_20 == 0)
 lean_object* x_21; 
 lean_dec(x_11);
 lean_dec(x_7);
-lean_dec(x_2);
 lean_dec(x_1);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_6);
@@ -4507,7 +4496,6 @@ return x_21;
 else
 {
 lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-lean_dec(x_6);
 x_22 = lean_array_uget(x_3, x_5);
 lean_inc(x_22);
 x_23 = lean_alloc_closure((void*)(l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_registerLetRecsToLift_spec__0_spec__0___lam__0___boxed), 2, 1);
@@ -4517,7 +4505,6 @@ x_24 = l_List_any___redArg(x_1, x_23);
 if (x_24 == 0)
 {
 lean_dec(x_22);
-lean_inc(x_2);
 x_14 = x_2;
 x_15 = x_13;
 goto block_19;
@@ -4525,7 +4512,6 @@ goto block_19;
 else
 {
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
-lean_dec(x_2);
 lean_dec(x_1);
 x_25 = lean_ctor_get(x_22, 0);
 lean_inc(x_25);
@@ -4642,7 +4628,6 @@ if (x_20 == 0)
 lean_object* x_21; 
 lean_dec(x_11);
 lean_dec(x_7);
-lean_dec(x_2);
 lean_dec(x_1);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_6);
@@ -4652,7 +4637,6 @@ return x_21;
 else
 {
 lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-lean_dec(x_6);
 x_22 = lean_array_uget(x_3, x_5);
 lean_inc(x_22);
 x_23 = lean_alloc_closure((void*)(l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_registerLetRecsToLift_spec__0_spec__0___lam__0___boxed), 2, 1);
@@ -4662,7 +4646,6 @@ x_24 = l_List_any___redArg(x_1, x_23);
 if (x_24 == 0)
 {
 lean_dec(x_22);
-lean_inc(x_2);
 x_14 = x_2;
 x_15 = x_13;
 goto block_19;
@@ -4670,7 +4653,6 @@ goto block_19;
 else
 {
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
-lean_dec(x_2);
 lean_dec(x_1);
 x_25 = lean_ctor_get(x_22, 0);
 lean_inc(x_25);

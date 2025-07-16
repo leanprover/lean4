@@ -269,7 +269,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Std_Iterators_TakeWhile_instIterator___redArg___lam__0(x_1, x_2, x_4);
 return x_5;
 }

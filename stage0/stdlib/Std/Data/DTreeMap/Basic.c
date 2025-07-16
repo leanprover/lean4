@@ -6430,7 +6430,6 @@ lean_inc(x_5);
 lean_inc(x_4);
 x_9 = lean_apply_2(x_1, x_4, x_5);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -6458,7 +6457,6 @@ lean_inc(x_5);
 lean_inc(x_4);
 x_15 = lean_apply_2(x_1, x_4, x_5);
 x_16 = lean_unbox(x_15);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
@@ -6550,7 +6548,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_DTreeMap_forM___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -6654,7 +6651,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_DTreeMap_instForMSigma___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -6753,7 +6749,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_DTreeMap_Const_forMUncurried___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -6835,8 +6830,6 @@ x_8 = lean_unbox(x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; 
-lean_dec(x_7);
-lean_dec(x_3);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_2);
 return x_9;
@@ -7002,8 +6995,6 @@ return x_11;
 else
 {
 lean_object* x_12; 
-lean_dec(x_7);
-lean_dec(x_2);
 x_12 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_12, 0, x_3);
 return x_12;

@@ -1569,7 +1569,6 @@ x_13 = lean_usize_dec_eq(x_2, x_3);
 if (x_13 == 0)
 {
 lean_object* x_14; 
-lean_dec(x_4);
 x_14 = lean_array_uget(x_1, x_2);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -3023,7 +3022,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_Lean_IR_initFn___lam__0____x40_Lean_Compiler_IR_CompilerM___hyg_1091_(x_1, x_2, x_3, x_5);
 return x_6;
 }
@@ -4008,7 +4006,6 @@ x_7 = lean_usize_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
-lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
 x_9 = l_Lean_IR_addDecl___redArg(x_8, x_5, x_6);
 x_10 = lean_ctor_get(x_9, 0);
@@ -4130,7 +4127,6 @@ uint8_t x_8;
 x_8 = lean_usize_dec_lt(x_6, x_5);
 if (x_8 == 0)
 {
-lean_dec(x_2);
 lean_inc(x_7);
 return x_7;
 }

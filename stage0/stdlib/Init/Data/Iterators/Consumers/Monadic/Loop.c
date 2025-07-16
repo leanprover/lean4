@@ -921,7 +921,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___redArg___lam__2(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -930,7 +929,6 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Std_Iterators_instForMIterMOfFiniteOfIteratorLoopOfMonadLiftT___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_8);
 return x_9;
 }
 }
@@ -1003,7 +1001,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Iterators_instForMPartialOfFiniteOfIteratorLoopPartialOfMonadLiftT___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
 return x_7;
 }
 }
@@ -1404,7 +1401,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Iterators_IterM_drain___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
 lean_dec(x_5);
 return x_8;
 }
@@ -1477,7 +1473,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Iterators_IterM_Partial_drain___redArg___lam__1(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_3);
 return x_6;
 }

@@ -2048,7 +2048,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_1);
-lean_dec(x_1);
 x_13 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_floatOutAntiquotTerms___lam__0(x_12, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -12804,7 +12803,6 @@ lean_object* x_68; lean_object* x_69; uint8_t x_70;
 x_68 = lean_box(0);
 x_69 = lean_apply_1(x_65, x_68);
 x_70 = lean_unbox(x_69);
-lean_dec(x_69);
 x_36 = x_58;
 x_37 = x_60;
 x_38 = x_59;
@@ -14637,7 +14635,6 @@ _start:
 {
 uint8_t x_10; size_t x_11; size_t x_12; lean_object* x_13; 
 x_10 = lean_unbox(x_1);
-lean_dec(x_1);
 x_11 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_12 = lean_unbox_usize(x_5);
@@ -14653,7 +14650,6 @@ _start:
 {
 uint8_t x_14; size_t x_15; size_t x_16; lean_object* x_17; 
 x_14 = lean_unbox(x_1);
-lean_dec(x_1);
 x_15 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_16 = lean_unbox_usize(x_5);
@@ -14685,7 +14681,6 @@ _start:
 {
 uint8_t x_9; size_t x_10; size_t x_11; lean_object* x_12; 
 x_9 = lean_unbox(x_4);
-lean_dec(x_4);
 x_10 = lean_unbox_usize(x_6);
 lean_dec(x_6);
 x_11 = lean_unbox_usize(x_7);
@@ -14726,7 +14721,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_4);
-lean_dec(x_4);
 x_17 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax_spec__6_spec__6___lam__2(x_1, x_2, x_3, x_16, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_5);
 lean_dec(x_3);
@@ -14755,9 +14749,7 @@ _start:
 {
 uint8_t x_18; uint8_t x_19; size_t x_20; size_t x_21; lean_object* x_22; 
 x_18 = lean_unbox(x_4);
-lean_dec(x_4);
 x_19 = lean_unbox(x_6);
-lean_dec(x_6);
 x_20 = lean_unbox_usize(x_8);
 lean_dec(x_8);
 x_21 = lean_unbox_usize(x_9);
@@ -14791,9 +14783,7 @@ _start:
 {
 uint8_t x_18; uint8_t x_19; size_t x_20; size_t x_21; lean_object* x_22; 
 x_18 = lean_unbox(x_4);
-lean_dec(x_4);
 x_19 = lean_unbox(x_6);
-lean_dec(x_6);
 x_20 = lean_unbox_usize(x_8);
 lean_dec(x_8);
 x_21 = lean_unbox_usize(x_9);
@@ -14819,7 +14809,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_resolveNamespaceCore___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax_spec__10___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -14831,7 +14820,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_Lean_resolveNamespaceCore___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax_spec__10(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_6);
@@ -14845,9 +14833,7 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___lam__0(x_1, x_4, x_3);
-lean_dec(x_3);
 lean_dec(x_1);
 x_6 = lean_box(x_5);
 return x_6;
@@ -31259,7 +31245,6 @@ _start:
 {
 uint8_t x_5; size_t x_6; size_t x_7; lean_object* x_8; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_7 = lean_unbox_usize(x_3);
@@ -31273,7 +31258,6 @@ _start:
 {
 uint8_t x_6; size_t x_7; size_t x_8; lean_object* x_9; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_8 = lean_unbox_usize(x_4);
@@ -31288,7 +31272,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = l_List_mapM_loop___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo_spec__3___redArg(x_7, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
 return x_8;
@@ -31299,7 +31282,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_1);
-lean_dec(x_1);
 x_13 = l_List_mapM_loop___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo_spec__3(x_12, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_10);
 lean_dec(x_8);
@@ -31334,7 +31316,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = l_Array_mapFinIdxM_map___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo_spec__5___redArg(x_7, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -31346,7 +31327,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Array_mapFinIdxM_map___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo_spec__5(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -31391,7 +31371,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_1);
-lean_dec(x_1);
 x_15 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__4(x_14, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_12);
 lean_dec(x_10);
@@ -31406,7 +31385,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_1);
-lean_dec(x_1);
 x_15 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__7(x_14, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_12);
 lean_dec(x_10);
@@ -31435,7 +31413,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__11(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -31446,7 +31423,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__8(x_1, x_2, x_5, x_4);
 return x_6;
 }
@@ -31456,7 +31432,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__10(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -31482,9 +31457,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; lean_object* x_12; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = lean_unbox(x_6);
-lean_dec(x_6);
 x_12 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__13(x_1, x_10, x_3, x_4, x_5, x_11, x_7, x_8, x_9);
 lean_dec(x_5);
 return x_12;
@@ -31495,7 +31468,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__14(x_1, x_2, x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_13;
 }
@@ -31505,7 +31477,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__15(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_1);
 return x_13;
@@ -31516,9 +31487,7 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_15 = lean_unbox(x_1);
-lean_dec(x_1);
 x_16 = lean_unbox(x_2);
-lean_dec(x_2);
 x_17 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__16(x_15, x_16, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_5);
 lean_dec(x_3);
@@ -31530,7 +31499,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__17(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -31560,9 +31528,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = lean_unbox(x_6);
-lean_dec(x_6);
 x_11 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__19(x_1, x_9, x_3, x_4, x_5, x_10, x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -31576,7 +31542,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_2);
-lean_dec(x_2);
 x_16 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__20(x_1, x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_16;
 }
@@ -31586,7 +31551,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_4);
-lean_dec(x_4);
 x_15 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__22(x_1, x_2, x_3, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_3);
 lean_dec(x_1);
@@ -31615,9 +31579,7 @@ _start:
 {
 uint8_t x_18; uint8_t x_19; lean_object* x_20; 
 x_18 = lean_unbox(x_1);
-lean_dec(x_1);
 x_19 = lean_unbox(x_5);
-lean_dec(x_5);
 x_20 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__21(x_18, x_2, x_3, x_4, x_19, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_16);
 lean_dec(x_14);
@@ -31633,9 +31595,7 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_16 = lean_unbox(x_1);
-lean_dec(x_1);
 x_17 = lean_unbox(x_3);
-lean_dec(x_3);
 x_18 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__23(x_16, x_2, x_17, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_14);
 lean_dec(x_12);
@@ -31649,7 +31609,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__25(x_1, x_2, x_5, x_4);
 lean_dec(x_1);
 return x_6;
@@ -31660,7 +31619,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__26(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -31676,7 +31634,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_1);
-lean_dec(x_1);
 x_17 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__27(x_16, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_17;
 }
@@ -31686,7 +31643,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_1);
-lean_dec(x_1);
 x_12 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__28(x_11, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_7);
@@ -37099,7 +37055,6 @@ _start:
 {
 uint8_t x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_8 = lean_unbox(x_1);
-lean_dec(x_1);
 x_9 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_10 = lean_unbox_usize(x_3);
@@ -37115,7 +37070,6 @@ _start:
 {
 uint8_t x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_12 = lean_unbox(x_1);
-lean_dec(x_1);
 x_13 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_14 = lean_unbox_usize(x_3);
@@ -37181,7 +37135,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_compileStxMatch___lam__1(x_5, x_2, x_3, x_4);
 lean_dec(x_3);
 return x_6;
@@ -38764,7 +38717,6 @@ if (x_18 == 0)
 lean_object* x_19; 
 lean_dec(x_17);
 lean_dec(x_11);
-lean_dec(x_2);
 x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_14);
 lean_ctor_set(x_19, 1, x_15);
@@ -38772,7 +38724,6 @@ return x_19;
 }
 else
 {
-lean_dec(x_14);
 x_6 = x_17;
 x_13 = x_15;
 goto _start;
@@ -38799,14 +38750,12 @@ lean_dec(x_23);
 x_32 = lean_ctor_get(x_31, 1);
 lean_inc(x_32);
 lean_dec(x_31);
-lean_inc(x_2);
 x_14 = x_2;
 x_15 = x_32;
 goto block_21;
 }
 else
 {
-lean_inc(x_2);
 x_14 = x_2;
 x_15 = x_13;
 goto block_21;
@@ -38875,7 +38824,6 @@ if (x_20 == 0)
 lean_object* x_21; 
 lean_dec(x_19);
 lean_dec(x_13);
-lean_dec(x_2);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_16);
 lean_ctor_set(x_21, 1, x_17);
@@ -38884,7 +38832,6 @@ return x_21;
 else
 {
 lean_object* x_22; 
-lean_dec(x_16);
 x_22 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_checkUnusedAlts_spec__0_spec__0___redArg(x_1, x_2, x_3, x_4, x_6, x_19, x_9, x_10, x_11, x_12, x_13, x_14, x_17);
 return x_22;
 }
@@ -38910,14 +38857,12 @@ lean_dec(x_25);
 x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);
 lean_dec(x_33);
-lean_inc(x_2);
 x_16 = x_2;
 x_17 = x_34;
 goto block_23;
 }
 else
 {
-lean_inc(x_2);
 x_16 = x_2;
 x_17 = x_15;
 goto block_23;
@@ -39149,14 +39094,12 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_5);
-lean_dec(x_5);
 x_23 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_checkUnusedAlts_spec__0_spec__0(x_1, x_2, x_3, x_4, x_22, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_20);
 lean_dec(x_18);
 lean_dec(x_17);
 lean_dec(x_16);
 lean_dec(x_15);
-lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_4);
@@ -39170,7 +39113,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_5);
-lean_dec(x_5);
 x_17 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_checkUnusedAlts_spec__0___redArg(x_1, x_2, x_3, x_4, x_16, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_14);
 lean_dec(x_12);
@@ -39212,7 +39154,6 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_5);
-lean_dec(x_5);
 x_23 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_checkUnusedAlts_spec__0(x_1, x_2, x_3, x_4, x_22, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_20);
 lean_dec(x_18);
@@ -39220,7 +39161,6 @@ lean_dec(x_17);
 lean_dec(x_16);
 lean_dec(x_15);
 lean_dec(x_12);
-lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_4);
@@ -39691,7 +39631,6 @@ x_18 = lean_usize_dec_eq(x_2, x_3);
 if (x_18 == 0)
 {
 lean_object* x_19; uint8_t x_20; 
-lean_dec(x_4);
 x_19 = lean_array_uget(x_1, x_2);
 x_20 = l_Lean_Syntax_isQuot(x_19);
 if (x_20 == 0)
@@ -39813,7 +39752,6 @@ x_19 = lean_usize_dec_eq(x_3, x_4);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
-lean_dec(x_5);
 x_20 = lean_array_uget(x_2, x_3);
 x_21 = lean_array_get_size(x_20);
 x_22 = lean_box(0);

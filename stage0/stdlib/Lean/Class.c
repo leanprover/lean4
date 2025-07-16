@@ -2254,7 +2254,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l___private_Lean_Class_0__Lean_init___lam__1(x_1, x_2, x_7, x_4, x_5, x_6);
 lean_dec(x_5);
 return x_8;

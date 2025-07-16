@@ -2033,7 +2033,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_MVarId_assertHypotheses_spec__0___redArg(x_1, x_2, x_7, x_4, x_5, x_6);
 lean_dec(x_4);
 lean_dec(x_2);
@@ -2046,9 +2045,7 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = lean_unbox(x_4);
-lean_dec(x_4);
 x_16 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_MVarId_assertHypotheses_spec__0(x_1, x_2, x_14, x_15, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -2109,7 +2106,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_5);
-lean_dec(x_5);
 x_8 = l_Lean_MVarId_assertHypotheses___lam__0(x_1, x_2, x_3, x_4, x_7, x_6);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -2122,7 +2118,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = l_Lean_MVarId_assertHypotheses___lam__1(x_1, x_2, x_3, x_10, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -2467,7 +2462,6 @@ lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean
 x_49 = lean_unsigned_to_nat(1u);
 x_50 = lean_nat_add(x_41, x_49);
 lean_dec(x_41);
-lean_inc(x_35);
 x_51 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_51, 0, x_2);
 lean_ctor_set(x_51, 1, x_35);
@@ -2508,7 +2502,6 @@ else
 lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_60 = lean_box(0);
 x_61 = lean_array_uset(x_42, x_46, x_60);
-lean_inc(x_35);
 x_62 = l_Std_DHashMap_Internal_AssocList_replace___at___Lean_Meta_SynthInstance_newSubgoal_spec__0___redArg(x_2, x_35, x_47);
 x_63 = lean_array_uset(x_61, x_46, x_62);
 lean_ctor_set(x_38, 1, x_63);
@@ -2539,7 +2532,6 @@ lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean
 x_72 = lean_unsigned_to_nat(1u);
 x_73 = lean_nat_add(x_64, x_72);
 lean_dec(x_64);
-lean_inc(x_35);
 x_74 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_74, 0, x_2);
 lean_ctor_set(x_74, 1, x_35);
@@ -2583,7 +2575,6 @@ else
 lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; 
 x_85 = lean_box(0);
 x_86 = lean_array_uset(x_65, x_69, x_85);
-lean_inc(x_35);
 x_87 = l_Std_DHashMap_Internal_AssocList_replace___at___Lean_Meta_SynthInstance_newSubgoal_spec__0___redArg(x_2, x_35, x_70);
 x_88 = lean_array_uset(x_86, x_69, x_87);
 x_89 = lean_alloc_ctor(0, 2, 0);
@@ -2963,7 +2954,6 @@ lean_object* x_166; lean_object* x_167; lean_object* x_168; lean_object* x_169; 
 x_166 = lean_unsigned_to_nat(1u);
 x_167 = lean_nat_add(x_157, x_166);
 lean_dec(x_157);
-lean_inc(x_152);
 x_168 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_168, 0, x_2);
 lean_ctor_set(x_168, 1, x_152);
@@ -3015,7 +3005,6 @@ else
 lean_object* x_179; lean_object* x_180; lean_object* x_181; lean_object* x_182; lean_object* x_183; 
 x_179 = lean_box(0);
 x_180 = lean_array_uset(x_158, x_163, x_179);
-lean_inc(x_152);
 x_181 = l_Std_DHashMap_Internal_AssocList_replace___at___Lean_Meta_SynthInstance_newSubgoal_spec__0___redArg(x_2, x_152, x_164);
 x_182 = lean_array_uset(x_180, x_163, x_181);
 if (lean_is_scalar(x_159)) {
@@ -3666,7 +3655,6 @@ return x_19;
 }
 else
 {
-lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_8);

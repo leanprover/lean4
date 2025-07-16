@@ -1039,7 +1039,6 @@ return x_11;
 }
 else
 {
-lean_dec(x_8);
 return x_7;
 }
 }
@@ -3637,9 +3636,7 @@ _start:
 {
 uint8_t x_17; uint8_t x_18; lean_object* x_19; 
 x_17 = lean_unbox(x_7);
-lean_dec(x_7);
 x_18 = lean_unbox(x_8);
-lean_dec(x_8);
 x_19 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_ParserCompiler_compileParserExpr_spec__1___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_17, x_18, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_9);
 lean_dec(x_4);
@@ -3676,11 +3673,8 @@ _start:
 {
 uint8_t x_25; uint8_t x_26; uint8_t x_27; lean_object* x_28; 
 x_25 = lean_unbox(x_8);
-lean_dec(x_8);
 x_26 = lean_unbox(x_9);
-lean_dec(x_9);
 x_27 = lean_unbox(x_10);
-lean_dec(x_10);
 x_28 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_ParserCompiler_compileParserExpr_spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_25, x_26, x_27, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24);
 lean_dec(x_15);
 lean_dec(x_14);
@@ -3694,7 +3688,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_Lean_Meta_mapLambdaLetTelescope___at___Lean_ParserCompiler_compileParserExpr_spec__2___lam__0(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -3704,11 +3697,8 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = l_Lean_Meta_mapLambdaLetTelescope___at___Lean_ParserCompiler_compileParserExpr_spec__2(x_1, x_2, x_11, x_12, x_13, x_6, x_7, x_8, x_9, x_10);
 return x_14;
 }
@@ -3718,9 +3708,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = l_Lean_ParserCompiler_compileParserExpr___redArg___lam__0(x_1, x_11, x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_4);
 return x_13;
@@ -3756,9 +3744,7 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_16 = lean_unbox(x_7);
-lean_dec(x_7);
 x_17 = lean_unbox(x_8);
-lean_dec(x_8);
 x_18 = l_Lean_ParserCompiler_compileParserExpr___redArg___lam__3(x_1, x_2, x_3, x_4, x_5, x_6, x_16, x_17, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -3770,9 +3756,7 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = lean_unbox(x_6);
-lean_dec(x_6);
 x_15 = lean_unbox(x_7);
-lean_dec(x_7);
 x_16 = l_Lean_ParserCompiler_compileParserExpr___redArg___lam__4(x_1, x_2, x_3, x_4, x_5, x_14, x_15, x_8, x_9, x_10, x_11, x_12, x_13);
 return x_16;
 }
@@ -3792,9 +3776,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; lean_object* x_12; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = l_Lean_ParserCompiler_compileParserExpr___redArg(x_1, x_10, x_11, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_12;
 }
@@ -3804,9 +3786,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = l_Lean_ParserCompiler_compileParserExpr(x_1, x_2, x_11, x_12, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_13;
 }
@@ -4045,7 +4025,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = l_Lean_ParserCompiler_compileEmbeddedParsers___redArg(x_1, x_9, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -4055,7 +4034,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = l_Lean_ParserCompiler_compileEmbeddedParsers(x_1, x_2, x_10, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -4392,7 +4370,7 @@ lean_inc(x_3);
 x_42 = l_Lean_getConstInfo___at_____private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline_spec__0(x_3, x_5, x_6, x_7);
 if (lean_obj_tag(x_42) == 0)
 {
-lean_object* x_43; lean_object* x_44; lean_object* x_45; uint8_t x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; lean_object* x_53; uint8_t x_54; uint8_t x_97; 
+lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; uint8_t x_47; lean_object* x_48; uint8_t x_49; lean_object* x_53; uint8_t x_54; uint8_t x_97; 
 x_43 = lean_ctor_get(x_42, 0);
 lean_inc(x_43);
 x_44 = lean_ctor_get(x_42, 1);
@@ -4422,19 +4400,18 @@ block_52:
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; 
-lean_dec(x_47);
+lean_dec(x_46);
 x_50 = l_Lean_ParserCompiler_registerParserCompiler___redArg___lam__0___closed__25;
 x_51 = l_Lean_evalConstCheck___at___Lean_KeyedDeclsAttribute_init_spec__0___redArg(x_50, x_3, x_5, x_6, x_48);
-x_8 = x_46;
+x_8 = x_47;
 x_9 = x_51;
 goto block_41;
 }
 else
 {
-lean_dec(x_48);
 lean_dec(x_3);
-x_8 = x_46;
-x_9 = x_47;
+x_8 = x_47;
+x_9 = x_46;
 goto block_41;
 }
 }
@@ -4606,8 +4583,8 @@ if (x_94 == 0)
 uint8_t x_95; 
 x_95 = l_Lean_Exception_isRuntime(x_92);
 lean_dec(x_92);
-x_46 = x_55;
-x_47 = x_91;
+x_46 = x_91;
+x_47 = x_55;
 x_48 = x_93;
 x_49 = x_95;
 goto block_52;
@@ -4615,8 +4592,8 @@ goto block_52;
 else
 {
 lean_dec(x_92);
-x_46 = x_55;
-x_47 = x_91;
+x_46 = x_91;
+x_47 = x_55;
 x_48 = x_93;
 x_49 = x_94;
 goto block_52;
@@ -4801,7 +4778,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = l_Lean_ParserCompiler_registerParserCompiler___redArg___lam__0(x_1, x_2, x_3, x_8, x_5, x_6, x_7);
 lean_dec(x_2);
 return x_9;

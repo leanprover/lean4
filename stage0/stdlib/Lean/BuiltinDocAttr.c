@@ -1085,7 +1085,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lean_initFn___lam__0____x40_Lean_BuiltinDocAttr___hyg_207_(x_1, x_2, x_7, x_4, x_5, x_6);
 return x_8;
 }

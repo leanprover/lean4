@@ -584,7 +584,6 @@ uint32_t x_5; uint8_t x_6; lean_object* x_7;
 x_5 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = l_Lake_Toml_mkUnexpectedCharError(x_1, x_5, x_3, x_6);
 return x_7;
 }
@@ -605,7 +604,6 @@ x_9 = lean_string_utf8_get_fast(x_7, x_6);
 x_10 = lean_box_uint32(x_9);
 x_11 = lean_apply_1(x_1, x_10);
 x_12 = lean_unbox(x_11);
-lean_dec(x_11);
 if (x_12 == 0)
 {
 uint8_t x_13; lean_object* x_14; 
@@ -659,7 +657,6 @@ x_16 = lean_box_uint32(x_15);
 lean_inc(x_1);
 x_17 = lean_apply_1(x_1, x_16);
 x_18 = lean_unbox(x_17);
-lean_dec(x_17);
 if (x_18 == 0)
 {
 uint8_t x_19; lean_object* x_20; 
@@ -954,7 +951,6 @@ x_11 = lean_box_uint32(x_10);
 lean_inc(x_1);
 x_12 = lean_apply_1(x_1, x_11);
 x_13 = lean_unbox(x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 uint8_t x_14; 
@@ -1020,7 +1016,6 @@ x_12 = lean_box_uint32(x_10);
 lean_inc(x_1);
 x_13 = lean_apply_1(x_1, x_12);
 x_14 = lean_unbox(x_13);
-lean_dec(x_13);
 if (x_14 == 0)
 {
 uint8_t x_15; uint8_t x_16; 
@@ -2164,7 +2159,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lake_Toml_litWithAntiquot(x_1, x_2, x_3, x_4, x_6);
 lean_dec(x_1);
 return x_7;
@@ -2655,7 +2649,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = l_Lake_Toml_recNodeWithAntiquot_go(x_1, x_2, x_3, x_6, x_5);
 lean_dec(x_1);
 return x_7;
@@ -2686,7 +2679,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_Lake_Toml_recNodeWithAntiquot(x_1, x_2, x_3, x_5);
 return x_6;
 }
@@ -2769,7 +2761,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lake_Toml_sepByLinebreak(x_1, x_3);
 return x_4;
 }
@@ -2791,7 +2782,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lake_Toml_sepBy1Linebreak(x_1, x_3);
 return x_4;
 }

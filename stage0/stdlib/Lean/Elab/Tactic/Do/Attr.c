@@ -3901,7 +3901,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_1);
-lean_dec(x_1);
 x_12 = l_Lean_Elab_Tactic_Do_SpecAttr_computeMVarBetaPotentialForSPred___lam__0(x_11, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_4);
 lean_dec(x_2);
@@ -4764,7 +4763,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = l___private_Lean_Elab_Tactic_Do_Attr_0__Lean_Elab_Tactic_Do_SpecAttr_mkSpecTheorem___lam__0(x_1, x_2, x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_2);
 return x_13;
@@ -5666,7 +5664,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Array_binInsertM___at_____private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Elab_Tactic_Do_SpecAttr_addSpecTheoremEntry_spec__0_spec__0_spec__2___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;
@@ -5777,7 +5774,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = l_Lean_Elab_Tactic_Do_SpecAttr_addSpecTheorem(x_1, x_2, x_3, x_10, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -6775,7 +6771,6 @@ goto block_34;
 }
 else
 {
-lean_dec(x_36);
 lean_dec(x_35);
 lean_dec(x_16);
 lean_dec(x_10);
@@ -6964,7 +6959,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -6973,7 +6967,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_8);
-lean_dec(x_8);
 x_13 = l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecAttr___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_12, x_9, x_10, x_11);
 return x_13;
 }

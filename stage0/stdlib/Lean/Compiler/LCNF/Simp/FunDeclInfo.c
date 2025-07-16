@@ -143,7 +143,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Compiler_LCNF_Simp_FunDeclInfo_toCtorIdx(x_2);
 return x_3;
 }
@@ -185,9 +184,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Compiler_LCNF_Simp_FunDeclInfo_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -197,9 +194,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_Compiler_LCNF_Simp_FunDeclInfo_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -391,7 +386,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_Compiler_LCNF_Simp_reprFunDeclInfo____x40_Lean_Compiler_LCNF_Simp_FunDeclInfo___hyg_10_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -1912,7 +1906,6 @@ x_8 = lean_usize_dec_eq(x_2, x_3);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; 
-lean_dec(x_4);
 x_9 = lean_array_uget(x_1, x_2);
 x_10 = l_Lean_Compiler_LCNF_Simp_FunDeclInfoMap_update_addArgOcc___redArg(x_9, x_5, x_6, x_7);
 x_11 = lean_ctor_get(x_10, 0);
@@ -2210,7 +2203,6 @@ x_19 = lean_usize_dec_eq(x_3, x_4);
 if (x_19 == 0)
 {
 lean_object* x_20; 
-lean_dec(x_5);
 x_20 = lean_array_uget(x_2, x_3);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -2595,7 +2587,6 @@ _start:
 {
 uint8_t x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_12 = lean_unbox(x_1);
-lean_dec(x_1);
 x_13 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_14 = lean_unbox_usize(x_4);
@@ -2615,7 +2606,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Compiler_LCNF_Simp_FunDeclInfoMap_update_go(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -2693,7 +2683,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_Compiler_LCNF_Simp_FunDeclInfoMap_update(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);

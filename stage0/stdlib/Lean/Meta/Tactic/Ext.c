@@ -1920,7 +1920,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Array_binInsertM___at_____private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at___Lean_Meta_DiscrTree_insertCore___at___Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_321__spec__0_spec__1_spec__3___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;
@@ -2867,7 +2866,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Meta_Ext_ExtTheorems_contains___lam__0(x_1, x_4, x_3);
 lean_dec(x_3);
 lean_dec(x_1);
@@ -2880,7 +2878,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_Meta_Ext_ExtTheorems_contains___lam__1(x_1, x_5, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -3099,7 +3096,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Meta_Ext_ExtTheorems_erase___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }

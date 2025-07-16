@@ -316,7 +316,6 @@ x_13 = lean_st_ref_set(x_5, x_12, x_9);
 if (x_10 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_1);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);

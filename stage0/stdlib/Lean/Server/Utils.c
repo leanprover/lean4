@@ -499,7 +499,6 @@ _start:
 {
 uint8_t x_6; size_t x_7; lean_object* x_8; 
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_8 = l_IO_FS_Stream_chainRight___lam__0(x_1, x_2, x_6, x_7, x_5);
@@ -511,7 +510,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_IO_FS_Stream_chainRight___lam__1(x_1, x_2, x_5, x_4);
 return x_6;
 }
@@ -521,7 +519,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_IO_FS_Stream_chainRight(x_1, x_2, x_4);
 return x_5;
 }
@@ -738,7 +735,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = l_IO_FS_Stream_chainLeft___lam__1(x_1, x_7, x_3, x_4, x_5, x_6);
 return x_8;
 }
@@ -748,7 +744,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = l_IO_FS_Stream_chainLeft___lam__2(x_1, x_7, x_3, x_4, x_5, x_6);
 return x_8;
 }
@@ -758,7 +753,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_IO_FS_Stream_chainLeft(x_1, x_2, x_4);
 return x_5;
 }
@@ -1171,7 +1165,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_Server_maybeTee(x_1, x_5, x_3, x_4);
 return x_6;
 }
@@ -1428,7 +1421,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Server_mkFileProgressAtPosNotification(x_1, x_2, x_4);
 lean_dec(x_2);
 return x_5;

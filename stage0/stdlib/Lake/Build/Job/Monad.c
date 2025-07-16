@@ -1806,7 +1806,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Lake_updateAction___redArg(x_4, x_2, x_3);
 return x_5;
 }
@@ -1816,7 +1815,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lake_updateAction(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -3503,7 +3501,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lake_Job_bindTask___redArg___lam__0(x_1, x_2, x_6, x_4, x_5);
 return x_7;
 }
@@ -4561,7 +4558,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_5);
-lean_dec(x_5);
 x_15 = l_Lake_Job_async___redArg___lam__0(x_1, x_2, x_3, x_4, x_14, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 return x_15;
 }
@@ -6923,7 +6919,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lake_Job_await___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -7794,7 +7789,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = l_Lake_Job_mapM___redArg(x_1, x_2, x_3, x_4, x_13, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }
@@ -7804,7 +7798,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_7);
-lean_dec(x_7);
 x_16 = l_Lake_Job_mapM(x_1, x_2, x_3, x_4, x_5, x_6, x_15, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_16;
 }
@@ -7830,7 +7823,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = l_Lake_Job_bindSync___redArg(x_1, x_2, x_3, x_4, x_13, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }
@@ -7840,7 +7832,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_7);
-lean_dec(x_7);
 x_16 = l_Lake_Job_bindSync(x_1, x_2, x_3, x_4, x_5, x_6, x_15, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_16;
 }
@@ -8900,7 +8891,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_10;
 }
 }
@@ -8909,7 +8899,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = l_Lake_Job_bindM___redArg(x_1, x_2, x_3, x_4, x_13, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }
@@ -8919,7 +8908,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_7);
-lean_dec(x_7);
 x_16 = l_Lake_Job_bindM(x_1, x_2, x_3, x_4, x_5, x_6, x_15, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_16;
 }
@@ -8985,7 +8973,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = l_Lake_Job_bindAsync___redArg(x_1, x_2, x_3, x_4, x_13, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }
@@ -8995,7 +8982,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_7);
-lean_dec(x_7);
 x_16 = l_Lake_Job_bindAsync(x_1, x_2, x_3, x_4, x_5, x_6, x_15, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_16;
 }
@@ -9147,7 +9133,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = l_Lake_Job_zipResultWith___redArg___lam__1(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }
@@ -9157,7 +9142,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Lake_Job_zipResultWith___redArg(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
@@ -9167,7 +9151,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 x_11 = l_Lake_Job_zipResultWith(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_10);
 return x_11;
 }
@@ -9389,7 +9372,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = l_Lake_Job_zipWith___redArg___lam__1(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }
@@ -9399,7 +9381,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Lake_Job_zipWith___redArg(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
@@ -9409,7 +9390,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 x_11 = l_Lake_Job_zipWith(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_10);
 return x_11;
 }
@@ -9653,7 +9633,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Lake_Job_add___redArg___lam__1(x_1, x_2, x_5, x_4);
 return x_6;
 }
@@ -9820,7 +9799,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Lake_Job_mix___redArg___lam__1(x_1, x_2, x_5, x_4);
 return x_6;
 }
@@ -10374,7 +10352,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Array_foldrMUnsafe_fold___at___List_foldrTR___at___Lake_Job_collectList_spec__0_spec__0___redArg___lam__1(x_1, x_2, x_5, x_4);
 return x_6;
 }
@@ -10648,7 +10625,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Array_foldlMUnsafe_fold___at___Lake_Job_collectArray_spec__0___redArg___lam__1(x_1, x_2, x_5, x_4);
 return x_6;
 }
@@ -11826,7 +11802,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = l_Lake_BuildJob_bindSync___redArg(x_1, x_2, x_3, x_4, x_13, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }
@@ -11836,7 +11811,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_7);
-lean_dec(x_7);
 x_16 = l_Lake_BuildJob_bindSync(x_1, x_2, x_3, x_4, x_5, x_6, x_15, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_16;
 }
@@ -11903,7 +11877,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = l_Lake_BuildJob_bindAsync___redArg(x_1, x_2, x_3, x_4, x_13, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }
@@ -11913,7 +11886,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_7);
-lean_dec(x_7);
 x_16 = l_Lake_BuildJob_bindAsync(x_1, x_2, x_3, x_4, x_5, x_6, x_15, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_16;
 }
@@ -12374,7 +12346,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = l_Lake_BuildJob_zipWith___redArg___lam__1(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }

@@ -527,7 +527,6 @@ x_15 = lean_usize_dec_eq(x_3, x_4);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec(x_5);
 x_16 = lean_array_uget(x_2, x_3);
 lean_inc(x_1);
 x_17 = lean_alloc_closure((void*)(l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_withLocation_spec__1___lam__0), 11, 2);
@@ -1018,7 +1017,6 @@ lean_dec(x_3);
 x_16 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_17 = lean_unbox(x_5);
-lean_dec(x_5);
 x_18 = l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_withLocation_spec__0(x_1, x_2, x_15, x_16, x_17, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_2);
 return x_18;
@@ -1042,7 +1040,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_2);
-lean_dec(x_2);
 x_14 = l_Lean_Elab_Tactic_withLocation___lam__0(x_1, x_13, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }

@@ -3609,7 +3609,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_418____at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal___hyg_5__spec__4___lam__0(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -3618,7 +3617,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_418____at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal___hyg_5__spec__4___lam__1(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_2);
 return x_7;
@@ -3629,7 +3627,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_418____at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal___hyg_5__spec__4___lam__2(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
 lean_dec(x_3);
 return x_7;
 }
@@ -6658,7 +6655,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_1);
-lean_dec(x_1);
 x_9 = l_Lean_Widget_addInteractiveHypothesisBundle_ppLetValueExprTagged(x_8, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
@@ -7160,7 +7156,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_5);
-lean_dec(x_5);
 x_12 = l_Lean_Widget_addInteractiveHypothesisBundle(x_1, x_2, x_3, x_4, x_11, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }
@@ -10933,11 +10928,8 @@ _start:
 {
 uint8_t x_18; uint8_t x_19; uint8_t x_20; size_t x_21; size_t x_22; lean_object* x_23; 
 x_18 = lean_unbox(x_3);
-lean_dec(x_3);
 x_19 = lean_unbox(x_5);
-lean_dec(x_5);
 x_20 = lean_unbox(x_6);
-lean_dec(x_6);
 x_21 = lean_unbox_usize(x_10);
 lean_dec(x_10);
 x_22 = lean_unbox_usize(x_11);
@@ -10966,7 +10958,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__0_spec__0___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -10978,7 +10969,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__0_spec__0___lam__1(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -10990,11 +10980,8 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = lean_unbox(x_6);
-lean_dec(x_6);
 x_17 = l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__0_spec__0___lam__3(x_1, x_2, x_14, x_4, x_15, x_16, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_2);
 return x_17;
@@ -11005,11 +10992,8 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = lean_unbox(x_5);
-lean_dec(x_5);
 x_17 = lean_unbox(x_6);
-lean_dec(x_6);
 x_18 = l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__0_spec__0(x_1, x_2, x_15, x_4, x_16, x_17, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_7);
 return x_18;
@@ -11033,7 +11017,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__0___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -11045,7 +11028,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__0___lam__1(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -11057,11 +11039,8 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = lean_unbox(x_6);
-lean_dec(x_6);
 x_17 = l_Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__0___lam__3(x_1, x_2, x_14, x_4, x_15, x_16, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_2);
 return x_17;
@@ -11072,11 +11051,8 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = lean_unbox(x_6);
-lean_dec(x_6);
 x_17 = l_Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__0(x_1, x_2, x_14, x_4, x_15, x_16, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 return x_17;
 }
@@ -11121,9 +11097,7 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_13 = lean_unbox(x_2);
-lean_dec(x_2);
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = l_Lean_Widget_goalToInteractive___lam__2(x_1, x_13, x_14, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_15;
 }

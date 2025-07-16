@@ -2220,7 +2220,6 @@ _start:
 {
 uint8_t x_21; lean_object* x_22; 
 x_21 = lean_unbox(x_14);
-lean_dec(x_14);
 x_22 = l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_21, x_15, x_16, x_17, x_18, x_19, x_20);
 lean_dec(x_9);
 lean_dec(x_8);

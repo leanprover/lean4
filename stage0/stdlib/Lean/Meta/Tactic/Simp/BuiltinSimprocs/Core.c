@@ -5248,9 +5248,7 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = lean_unbox(x_2);
-lean_dec(x_2);
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___reduceCtorEq_spec__0_spec__0___redArg(x_1, x_14, x_3, x_4, x_15, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 return x_16;
 }
@@ -5260,9 +5258,7 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = lean_unbox(x_6);
-lean_dec(x_6);
 x_17 = l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___reduceCtorEq_spec__0_spec__0(x_1, x_2, x_15, x_4, x_5, x_16, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_17;
 }
@@ -5279,7 +5275,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_10;
 }
 }
@@ -5305,9 +5300,7 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; uint64_t x_15; lean_object* x_16; 
 x_13 = lean_unbox(x_1);
-lean_dec(x_1);
 x_14 = lean_unbox(x_2);
-lean_dec(x_2);
 x_15 = lean_unbox_uint64(x_3);
 lean_dec(x_3);
 x_16 = l_reduceCtorEq___lam__2(x_13, x_14, x_15, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);

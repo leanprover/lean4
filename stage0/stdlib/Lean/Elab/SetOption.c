@@ -157,7 +157,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Elab_elabSetOption_setOption___redArg___lam__1(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -512,7 +511,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_Elab_elabSetOption___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
 lean_dec(x_6);
 return x_8;
 }
@@ -522,7 +520,6 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Lean_Elab_elabSetOption___redArg___lam__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_10);
 return x_11;
 }
 }

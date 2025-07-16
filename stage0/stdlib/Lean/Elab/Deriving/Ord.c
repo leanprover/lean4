@@ -12165,7 +12165,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_1);
-lean_dec(x_1);
 x_14 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Deriving_Ord_mkMatch_mkAlts_spec__1___redArg___lam__0(x_13, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }
@@ -12208,7 +12207,6 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_5);
-lean_dec(x_5);
 x_23 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Deriving_Ord_mkMatch_mkAlts_spec__1(x_1, x_2, x_3, x_4, x_22, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_16);
 lean_dec(x_15);
@@ -12253,7 +12251,6 @@ _start:
 {
 uint8_t x_18; lean_object* x_19; 
 x_18 = lean_unbox(x_1);
-lean_dec(x_1);
 x_19 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Deriving_Ord_mkMatch_mkAlts_spec__2(x_18, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_16);
 lean_dec(x_15);
@@ -12299,7 +12296,6 @@ _start:
 {
 uint8_t x_18; lean_object* x_19; 
 x_18 = lean_unbox(x_1);
-lean_dec(x_1);
 x_19 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Deriving_Ord_mkMatch_mkAlts_spec__3(x_18, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_16);
 lean_dec(x_15);
@@ -12358,7 +12354,6 @@ _start:
 lean_object* x_18; 
 x_18 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Elab_Deriving_Ord_mkMatch_mkAlts_spec__5_spec__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_7);
-lean_dec(x_1);
 return x_18;
 }
 }
@@ -12379,7 +12374,6 @@ _start:
 lean_object* x_17; 
 x_17 = l_List_forIn_x27_loop___at___Lean_Elab_Deriving_Ord_mkMatch_mkAlts_spec__5___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_7);
-lean_dec(x_1);
 return x_17;
 }
 }
@@ -12406,7 +12400,6 @@ _start:
 lean_object* x_18; 
 x_18 = l_List_forIn_x27_loop___at___Lean_Elab_Deriving_Ord_mkMatch_mkAlts_spec__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_7);
-lean_dec(x_1);
 return x_18;
 }
 }
@@ -14334,7 +14327,6 @@ _start:
 {
 uint8_t x_19; lean_object* x_20; 
 x_19 = lean_unbox(x_2);
-lean_dec(x_2);
 x_20 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Deriving_Ord_mkMutualBlock_spec__0(x_1, x_19, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -14758,7 +14750,6 @@ if (x_16 == 0)
 lean_object* x_17; 
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_1);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_6);
 lean_ctor_set(x_17, 1, x_9);
@@ -14767,7 +14758,6 @@ return x_17;
 else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-lean_dec(x_6);
 x_18 = lean_array_uget(x_3, x_5);
 x_19 = lean_alloc_closure((void*)(l___private_Lean_Elab_Deriving_Ord_0__Lean_Elab_Deriving_Ord_mkOrdInstanceCmds), 8, 1);
 lean_closure_set(x_19, 0, x_18);
@@ -14786,7 +14776,6 @@ if (x_24 == 0)
 {
 lean_dec(x_23);
 lean_dec(x_21);
-lean_inc(x_1);
 x_10 = x_1;
 x_11 = x_22;
 goto block_15;
@@ -14799,7 +14788,6 @@ if (x_25 == 0)
 {
 lean_dec(x_23);
 lean_dec(x_21);
-lean_inc(x_1);
 x_10 = x_1;
 x_11 = x_22;
 goto block_15;
@@ -14821,7 +14809,6 @@ lean_object* x_30;
 x_30 = lean_ctor_get(x_29, 1);
 lean_inc(x_30);
 lean_dec(x_29);
-lean_inc(x_1);
 x_10 = x_1;
 x_11 = x_30;
 goto block_15;
@@ -14830,7 +14817,6 @@ else
 {
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_1);
 return x_29;
 }
 }
@@ -14841,7 +14827,6 @@ else
 uint8_t x_31; 
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_1);
 x_31 = !lean_is_exclusive(x_20);
 if (x_31 == 0)
 {
@@ -15162,7 +15147,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Elab_Deriving_Ord_mkOrdInstanceHandler___lam__0(x_5, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);

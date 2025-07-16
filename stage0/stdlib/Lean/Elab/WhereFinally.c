@@ -266,7 +266,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Elab_mkWhereFinallyView___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -275,9 +274,7 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_9);
-lean_dec(x_9);
 x_14 = l_Lean_Elab_mkWhereFinallyView___redArg___lam__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_13, x_10, x_11, x_12);
-lean_dec(x_12);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);

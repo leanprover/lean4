@@ -203,7 +203,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_TimeZone_UTLocal_toCtorIdx(x_2);
 return x_3;
 }
@@ -245,9 +244,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Time_TimeZone_UTLocal_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -257,9 +254,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Time_TimeZone_UTLocal_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -397,7 +392,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_TimeZone_reprUTLocal____x40_Std_Time_Zoned_ZoneRules___hyg_13_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -449,7 +443,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_TimeZone_StdWall_toCtorIdx(x_2);
 return x_3;
 }
@@ -483,9 +476,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Time_TimeZone_StdWall_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -495,9 +486,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Time_TimeZone_StdWall_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -617,7 +606,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_TimeZone_reprStdWall____x40_Std_Time_Zoned_ZoneRules___hyg_112_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -2259,7 +2247,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Time_TimeZone_ZoneRules_fixedOffsetZone___lam__0(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }

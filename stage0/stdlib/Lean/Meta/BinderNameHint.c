@@ -3467,7 +3467,6 @@ x_8 = l_Lean_Expr_resolveBinderNameHint_go___lam__0(x_1, x_2, x_3, x_4, x_5, x_6
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_8;
 }
 }
@@ -3476,7 +3475,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_6);
-lean_dec(x_6);
 x_13 = l_Lean_Expr_resolveBinderNameHint_go___lam__1(x_1, x_2, x_3, x_4, x_5, x_12, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_5);
 lean_dec(x_4);

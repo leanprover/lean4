@@ -309,7 +309,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lam__0(x_1, x_2, x_7, x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -354,7 +353,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lam__5(x_1, x_2, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -1285,7 +1283,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = l_Lean_ParserCompiler_registerCombinatorAttribute___lam__3(x_1, x_2, x_3, x_8, x_5, x_6, x_7);
 return x_9;
 }
@@ -1605,7 +1602,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lean_evalConst___at___Lean_ParserCompiler_CombinatorAttribute_runDeclFor_spec__0___redArg(x_1, x_6, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -1617,7 +1613,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lean_evalConst___at___Lean_ParserCompiler_CombinatorAttribute_runDeclFor_spec__0(x_1, x_2, x_7, x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_4);

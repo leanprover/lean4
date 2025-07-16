@@ -1088,7 +1088,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lake_Package_mkConfigString(x_1, x_5, x_3, x_4);
 return x_6;
 }

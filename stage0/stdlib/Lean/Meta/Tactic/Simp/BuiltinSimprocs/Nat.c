@@ -1699,7 +1699,6 @@ lean_inc(x_35);
 lean_dec(x_27);
 x_36 = lean_apply_2(x_3, x_24, x_35);
 x_37 = lean_unbox(x_36);
-lean_dec(x_36);
 x_38 = l_Lean_Meta_Simp_evalPropStep___redArg(x_4, x_37, x_5, x_6, x_7, x_8, x_34);
 return x_38;
 }
@@ -1900,7 +1899,6 @@ lean_inc(x_38);
 lean_dec(x_30);
 x_39 = lean_apply_2(x_3, x_27, x_38);
 x_40 = lean_unbox(x_39);
-lean_dec(x_39);
 x_41 = l_Lean_Meta_Simp_evalPropStep___redArg(x_4, x_40, x_8, x_9, x_10, x_11, x_37);
 return x_41;
 }
@@ -2177,7 +2175,6 @@ lean_inc(x_38);
 lean_dec(x_30);
 x_39 = lean_apply_2(x_3, x_26, x_38);
 x_40 = lean_unbox(x_39);
-lean_dec(x_39);
 if (x_40 == 0)
 {
 lean_object* x_41; 
@@ -2294,7 +2291,6 @@ lean_inc(x_61);
 lean_dec(x_52);
 x_62 = lean_apply_2(x_3, x_48, x_61);
 x_63 = lean_unbox(x_62);
-lean_dec(x_62);
 if (x_63 == 0)
 {
 lean_object* x_64; 
@@ -2515,7 +2511,6 @@ lean_inc(x_41);
 lean_dec(x_33);
 x_42 = lean_apply_2(x_3, x_29, x_41);
 x_43 = lean_unbox(x_42);
-lean_dec(x_42);
 if (x_43 == 0)
 {
 lean_object* x_44; 
@@ -2632,7 +2627,6 @@ lean_inc(x_64);
 lean_dec(x_55);
 x_65 = lean_apply_2(x_3, x_51, x_64);
 x_66 = lean_unbox(x_65);
-lean_dec(x_65);
 if (x_66 == 0)
 {
 lean_object* x_67; 
@@ -16599,7 +16593,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = l_Nat_reduceLTLE___redArg(x_1, x_2, x_10, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_1);
 return x_11;
@@ -16610,7 +16603,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_3);
-lean_dec(x_3);
 x_14 = l_Nat_reduceLTLE(x_1, x_2, x_13, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_7);
 lean_dec(x_6);

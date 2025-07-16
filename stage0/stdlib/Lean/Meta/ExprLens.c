@@ -1093,9 +1093,7 @@ _start:
 {
 uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__2(x_1, x_6, x_7, x_4, x_5);
 return x_8;
 }
@@ -1105,9 +1103,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__3(x_1, x_9, x_10, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_5);
 lean_dec(x_1);
@@ -1119,9 +1115,7 @@ _start:
 {
 uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__4(x_1, x_6, x_7, x_4, x_5);
 return x_8;
 }
@@ -1131,9 +1125,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__5(x_1, x_9, x_10, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_5);
 lean_dec(x_1);
@@ -1145,7 +1137,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_4);
-lean_dec(x_4);
 x_10 = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__6(x_1, x_2, x_3, x_9, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 return x_10;
@@ -1165,7 +1156,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_3);
-lean_dec(x_3);
 x_9 = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__8(x_1, x_2, x_8, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 return x_9;
@@ -1176,7 +1166,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_3);
-lean_dec(x_3);
 x_9 = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__9(x_1, x_2, x_8, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 return x_9;
@@ -1187,7 +1176,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_4);
-lean_dec(x_4);
 x_10 = l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg___lam__10(x_1, x_2, x_3, x_9, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 return x_10;

@@ -3172,7 +3172,6 @@ _start:
 {
 uint8_t x_18; lean_object* x_19; 
 x_18 = lean_unbox(x_4);
-lean_dec(x_4);
 x_19 = l_Lean_Elab_Tactic_Do_ProofMode_mCasesExists___redArg___lam__0(x_1, x_2, x_3, x_18, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 return x_19;
 }
@@ -5453,7 +5452,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_9);

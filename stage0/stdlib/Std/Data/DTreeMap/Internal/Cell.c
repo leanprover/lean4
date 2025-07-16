@@ -513,7 +513,6 @@ lean_dec(x_2);
 x_4 = lean_apply_1(x_1, x_3);
 x_5 = 1;
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = l_instDecidableEqOrdering(x_6, x_5);
 return x_7;
 }

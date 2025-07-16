@@ -58,6 +58,7 @@ LEAN_EXPORT lean_object* l_ByteArray_foldl___redArg___boxed(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_ByteArray_forIn_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__3____x40_Init_Data_ByteArray_Basic___hyg_391_;
 LEAN_EXPORT lean_object* l_ByteArray_extract(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_toByteArray_loop___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_append___boxed(lean_object*, lean_object*);
 static lean_object* l_ByteArray_toUInt64BE_x21___closed__1;
 lean_object* l_instDecidableEqUInt8___boxed(lean_object*, lean_object*);
@@ -136,6 +137,7 @@ LEAN_EXPORT uint8_t l_Array_isEqvAux___at___ByteArray_beqByteArray____x40_Init_D
 LEAN_EXPORT lean_object* l_ByteArray_instForInUInt8___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_ByteArray_toUInt64BE_x21___closed__0;
 static lean_object* l___auto___closed__1____x40_Init_Data_ByteArray_Basic___hyg_391_;
+LEAN_EXPORT lean_object* l_List_toByteArray___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___ByteArray_beqByteArray____x40_Init_Data_ByteArray_Basic___hyg_27__spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__11____x40_Init_Data_ByteArray_Basic___hyg_391_;
@@ -472,7 +474,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = lean_byte_array_push(x_1, x_3);
 return x_4;
 }
@@ -825,7 +826,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = lean_byte_array_set(x_1, x_2, x_4);
 lean_dec(x_2);
 return x_5;
@@ -844,7 +844,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = lean_byte_array_fset(x_1, x_2, x_5);
 lean_dec(x_2);
 return x_6;
@@ -865,7 +864,6 @@ size_t x_5; uint8_t x_6; lean_object* x_7;
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = lean_byte_array_uset(x_1, x_5, x_6);
 return x_7;
 }
@@ -922,7 +920,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = lean_byte_array_copy_slice(x_1, x_2, x_3, x_4, x_5, x_7);
 lean_dec(x_1);
 return x_8;
@@ -1069,7 +1066,6 @@ x_8 = lean_box(x_7);
 lean_inc(x_2);
 x_9 = lean_apply_1(x_2, x_8);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -1139,7 +1135,6 @@ x_8 = lean_box(x_7);
 lean_inc(x_2);
 x_9 = lean_apply_1(x_2, x_8);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -1980,7 +1975,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_ByteArray_foldl___redArg___lam__0(x_1, x_2, x_4);
 return x_5;
 }
@@ -2571,17 +2565,22 @@ else
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = lean_byte_array_push(x_2, x_5);
 x_1 = x_4;
 x_2 = x_6;
 goto _start;
 }
+}
+}
+LEAN_EXPORT lean_object* l_List_toByteArray_loop___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_toByteArray_loop(x_1, x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_List_toByteArray(lean_object* x_1) {
@@ -2591,6 +2590,15 @@ lean_object* x_2; lean_object* x_3;
 x_2 = l_ByteArray_empty;
 x_3 = l_List_toByteArray_loop(x_1, x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_List_toByteArray___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_List_toByteArray(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_instToStringByteArray___lam__0(lean_object* x_1, lean_object* x_2) {

@@ -442,7 +442,6 @@ x_8 = lean_usize_dec_eq(x_2, x_3);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; 
-lean_dec(x_4);
 x_9 = lean_array_uget(x_1, x_2);
 lean_inc(x_5);
 x_10 = l_Lean_Compiler_LCNF_FindUsed_visitArg___redArg(x_9, x_5, x_6, x_7);
@@ -655,7 +654,6 @@ switch (lean_obj_tag(x_8)) {
 case 0:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec(x_4);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
@@ -666,7 +664,6 @@ x_11 = l_Lean_Compiler_LCNF_FindUsed_visitArg___redArg(x_10, x_5, x_6, x_7);
 x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 lean_dec(x_11);
-lean_inc(x_2);
 {
 lean_object* _tmp_2 = x_9;
 lean_object* _tmp_3 = x_2;
@@ -690,7 +687,6 @@ default:
 {
 lean_object* x_16; 
 lean_dec(x_5);
-lean_dec(x_2);
 lean_dec(x_1);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_4);
@@ -718,7 +714,6 @@ switch (lean_obj_tag(x_8)) {
 case 0:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec(x_4);
 x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 0);
@@ -732,7 +727,6 @@ x_12 = l_Lean_Compiler_LCNF_FindUsed_visitFVar___redArg(x_11, x_5, x_6, x_7);
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
 lean_dec(x_12);
-lean_inc(x_2);
 {
 lean_object* _tmp_2 = x_10;
 lean_object* _tmp_3 = x_2;
@@ -756,7 +750,6 @@ default:
 {
 lean_object* x_17; 
 lean_dec(x_5);
-lean_dec(x_2);
 lean_dec(x_1);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_4);
@@ -1456,7 +1449,6 @@ x_19 = lean_usize_dec_eq(x_2, x_3);
 if (x_19 == 0)
 {
 lean_object* x_20; 
-lean_dec(x_4);
 x_20 = lean_array_uget(x_1, x_2);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -3910,7 +3902,6 @@ lean_inc(x_1);
 lean_inc(x_12);
 x_13 = lean_apply_1(x_1, x_12);
 x_14 = lean_unbox(x_13);
-lean_dec(x_13);
 if (x_14 == 0)
 {
 lean_dec(x_12);
@@ -6614,7 +6605,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Compiler_LCNF_Decl_reduceArity___lam__0(x_1, x_4, x_3);
 lean_dec(x_3);
 lean_dec(x_1);

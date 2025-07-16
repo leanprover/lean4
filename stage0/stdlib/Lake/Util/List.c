@@ -48,7 +48,6 @@ lean_inc(x_7);
 lean_inc(x_4);
 x_8 = lean_apply_2(x_1, x_4, x_7);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_ctor_set(x_2, 1, x_6);
@@ -89,7 +88,6 @@ lean_inc(x_14);
 lean_inc(x_10);
 x_15 = lean_apply_2(x_1, x_10, x_14);
 x_16 = lean_unbox(x_15);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; 

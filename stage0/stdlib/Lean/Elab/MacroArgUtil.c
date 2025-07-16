@@ -2628,13 +2628,10 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_Elab_Command_expandMacroArg_mkAntiquotNode_spec__0_spec__0___lam__0(x_1, x_2, x_9, x_10, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_1);
 return x_11;
 }
@@ -2644,7 +2641,6 @@ _start:
 {
 uint8_t x_13; size_t x_14; size_t x_15; lean_object* x_16; 
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_15 = lean_unbox_usize(x_8);
@@ -2662,7 +2658,6 @@ _start:
 {
 uint8_t x_13; size_t x_14; size_t x_15; lean_object* x_16; 
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_15 = lean_unbox_usize(x_8);
@@ -2680,7 +2675,6 @@ _start:
 {
 uint8_t x_15; size_t x_16; size_t x_17; lean_object* x_18; 
 x_15 = lean_unbox(x_7);
-lean_dec(x_7);
 x_16 = lean_unbox_usize(x_9);
 lean_dec(x_9);
 x_17 = lean_unbox_usize(x_10);
@@ -2699,7 +2693,6 @@ _start:
 {
 uint8_t x_15; size_t x_16; size_t x_17; lean_object* x_18; 
 x_15 = lean_unbox(x_7);
-lean_dec(x_7);
 x_16 = lean_unbox_usize(x_9);
 lean_dec(x_9);
 x_17 = lean_unbox_usize(x_10);
@@ -2718,7 +2711,6 @@ _start:
 {
 uint8_t x_16; size_t x_17; size_t x_18; lean_object* x_19; 
 x_16 = lean_unbox(x_7);
-lean_dec(x_7);
 x_17 = lean_unbox_usize(x_10);
 lean_dec(x_10);
 x_18 = lean_unbox_usize(x_11);
@@ -2738,7 +2730,6 @@ _start:
 {
 uint8_t x_16; size_t x_17; size_t x_18; lean_object* x_19; 
 x_16 = lean_unbox(x_7);
-lean_dec(x_7);
 x_17 = lean_unbox_usize(x_10);
 lean_dec(x_10);
 x_18 = lean_unbox_usize(x_11);
@@ -2758,7 +2749,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_Command_expandMacroArg_mkAntiquotNode___lam__0(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }

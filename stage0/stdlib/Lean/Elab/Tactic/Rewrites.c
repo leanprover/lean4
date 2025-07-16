@@ -289,7 +289,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_15 = lean_alloc_ctor(0, 2, 0);
@@ -300,7 +299,6 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-lean_dec(x_5);
 x_16 = lean_ctor_get(x_4, 0);
 lean_inc(x_16);
 x_17 = lean_ctor_get(x_4, 1);
@@ -338,7 +336,6 @@ lean_object* x_25;
 x_25 = lean_ctor_get(x_24, 1);
 lean_inc(x_25);
 lean_dec(x_24);
-lean_inc(x_3);
 {
 lean_object* _tmp_3 = x_17;
 lean_object* _tmp_4 = x_3;
@@ -360,7 +357,6 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_24;
@@ -390,7 +386,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_16 = lean_alloc_ctor(0, 2, 0);
@@ -401,7 +396,6 @@ return x_16;
 else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-lean_dec(x_6);
 x_17 = lean_ctor_get(x_5, 0);
 lean_inc(x_17);
 x_18 = lean_ctor_get(x_5, 1);
@@ -439,7 +433,6 @@ lean_object* x_26; lean_object* x_27;
 x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
 lean_dec(x_25);
-lean_inc(x_3);
 x_27 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Elab_Rewrites_evalExact_spec__1_spec__1___redArg(x_1, x_2, x_3, x_18, x_3, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_26);
 return x_27;
 }
@@ -454,7 +447,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_25;
@@ -4407,7 +4399,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Elab_Rewrites_evalExact_spec__1_spec__1___redArg___lam__0(x_1, x_2, x_15, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_1);
 return x_16;
@@ -4504,7 +4495,6 @@ _start:
 {
 uint8_t x_20; lean_object* x_21; 
 x_20 = lean_unbox(x_4);
-lean_dec(x_4);
 x_21 = l_Lean_Elab_Rewrites_evalExact___lam__2(x_1, x_2, x_3, x_20, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 lean_dec(x_6);
 lean_dec(x_3);

@@ -6522,7 +6522,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -6531,7 +6530,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Lean_Meta_matchMatcherApp_x3f___at_____private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_generalizeMatchDiscrs_mkNewTarget_spec__0(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
@@ -6594,11 +6592,8 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_14 = lean_unbox(x_4);
-lean_dec(x_4);
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = lean_unbox(x_6);
-lean_dec(x_6);
 x_17 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_generalizeMatchDiscrs_mkNewTarget_spec__6___redArg___lam__0(x_1, x_2, x_3, x_14, x_15, x_16, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -6633,9 +6628,7 @@ _start:
 {
 uint8_t x_18; uint8_t x_19; lean_object* x_20; 
 x_18 = lean_unbox(x_1);
-lean_dec(x_1);
 x_19 = lean_unbox(x_2);
-lean_dec(x_2);
 x_20 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_generalizeMatchDiscrs_mkNewTarget_spec__6___redArg___lam__1(x_18, x_19, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 return x_20;
 }
@@ -6665,9 +6658,7 @@ _start:
 {
 uint8_t x_21; uint8_t x_22; lean_object* x_23; 
 x_21 = lean_unbox(x_11);
-lean_dec(x_11);
 x_22 = lean_unbox(x_12);
-lean_dec(x_12);
 x_23 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_generalizeMatchDiscrs_mkNewTarget_spec__6___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_21, x_22, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
 lean_dec(x_13);
 lean_dec(x_3);
@@ -6707,11 +6698,8 @@ _start:
 {
 uint8_t x_28; uint8_t x_29; uint8_t x_30; lean_object* x_31; 
 x_28 = lean_unbox(x_11);
-lean_dec(x_11);
 x_29 = lean_unbox(x_12);
-lean_dec(x_12);
 x_30 = lean_unbox(x_13);
-lean_dec(x_13);
 x_31 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_generalizeMatchDiscrs_mkNewTarget_spec__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_28, x_29, x_30, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25, x_26, x_27);
 lean_dec(x_18);
 lean_dec(x_17);
@@ -8309,7 +8297,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_1);
-lean_dec(x_1);
 x_16 = l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_generalizeMatchDiscrs___lam__0(x_15, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_16;
 }
@@ -8319,7 +8306,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_1);
-lean_dec(x_1);
 x_15 = l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_generalizeMatchDiscrs___lam__1(x_14, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_8);
 return x_15;
@@ -8330,7 +8316,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_1);
-lean_dec(x_1);
 x_12 = l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_generalizeMatchDiscrs___lam__2(x_11, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }
@@ -11362,7 +11347,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_4);
-lean_dec(x_4);
 x_17 = l_List_foldlM___at___Lean_Meta_Split_applyMatchSplitter_spec__0(x_1, x_2, x_3, x_16, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -11394,11 +11378,8 @@ _start:
 {
 uint8_t x_20; uint8_t x_21; uint8_t x_22; lean_object* x_23; 
 x_20 = lean_unbox(x_3);
-lean_dec(x_3);
 x_21 = lean_unbox(x_4);
-lean_dec(x_4);
 x_22 = lean_unbox(x_5);
-lean_dec(x_5);
 x_23 = l_Lean_Meta_Split_applyMatchSplitter___lam__0(x_1, x_2, x_20, x_21, x_22, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -12069,7 +12050,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_Lean_Meta_Split_splitMatch___lam__0(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -12738,7 +12718,6 @@ goto block_130;
 }
 else
 {
-lean_dec(x_134);
 lean_dec(x_132);
 lean_dec(x_131);
 lean_dec(x_9);
@@ -13165,9 +13144,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = l_Lean_Meta_splitTarget_x3f_go(x_1, x_11, x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_13;
 }
@@ -13300,9 +13277,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = l_Lean_Meta_splitTarget_x3f___lam__0(x_1, x_9, x_10, x_4, x_5, x_6, x_7, x_8);
 return x_11;
 }
@@ -13312,9 +13287,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = l_Lean_Meta_splitTarget_x3f(x_1, x_9, x_10, x_4, x_5, x_6, x_7, x_8);
 return x_11;
 }
@@ -14713,7 +14686,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_List_mapM_loop___at___Lean_Meta_splitLocalDecl_x3f_spec__0(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -14723,7 +14695,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_List_mapM_loop___at___Lean_Meta_splitLocalDecl_x3f_spec__1(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -14733,7 +14704,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = l_Lean_Meta_splitLocalDecl_x3f___lam__0(x_1, x_2, x_10, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }

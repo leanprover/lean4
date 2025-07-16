@@ -84,7 +84,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_apply_2(x_1, x_2, x_3);
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 return x_5;
 }
 }

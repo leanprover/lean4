@@ -3373,7 +3373,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_1);
-lean_dec(x_1);
 x_18 = l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__2(x_17, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -3404,11 +3403,8 @@ _start:
 {
 uint8_t x_20; uint8_t x_21; lean_object* x_22; 
 x_20 = lean_unbox(x_4);
-lean_dec(x_4);
 x_21 = lean_unbox(x_6);
-lean_dec(x_6);
 x_22 = l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__0(x_1, x_2, x_3, x_20, x_5, x_21, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
-lean_dec(x_17);
 lean_dec(x_15);
 return x_22;
 }

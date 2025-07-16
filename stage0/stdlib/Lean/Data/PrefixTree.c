@@ -195,7 +195,6 @@ lean_inc(x_10);
 lean_inc(x_3);
 x_13 = lean_apply_2(x_1, x_3, x_10);
 x_14 = lean_unbox(x_13);
-lean_dec(x_13);
 switch (x_14) {
 case 0:
 {
@@ -239,7 +238,6 @@ lean_inc(x_18);
 lean_inc(x_3);
 x_21 = lean_apply_2(x_1, x_3, x_18);
 x_22 = lean_unbox(x_21);
-lean_dec(x_21);
 switch (x_22) {
 case 0:
 {
@@ -308,7 +306,6 @@ lean_inc(x_29);
 lean_inc(x_3);
 x_33 = lean_apply_2(x_1, x_3, x_29);
 x_34 = lean_unbox(x_33);
-lean_dec(x_33);
 switch (x_34) {
 case 0:
 {
@@ -1216,7 +1213,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_9 = lean_apply_2(x_1, x_3, x_6);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -1877,7 +1873,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_PrefixTree_forMatchingM___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }

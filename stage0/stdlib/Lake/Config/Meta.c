@@ -7499,9 +7499,7 @@ _start:
 {
 uint8_t x_37; uint8_t x_38; lean_object* x_39; 
 x_37 = lean_unbox(x_12);
-lean_dec(x_12);
 x_38 = lean_unbox(x_32);
-lean_dec(x_32);
 x_39 = l_Array_foldlMUnsafe_fold___at_____private_Lake_Config_Meta_0__Lake_mkConfigAuxDecls_spec__3___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_37, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25, x_26, x_27, x_28, x_29, x_30, x_31, x_38, x_33, x_34, x_35, x_36);
 return x_39;
 }
@@ -9519,7 +9517,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_7);
-lean_dec(x_7);
 x_12 = l___private_Lake_Config_Meta_0__Lake_mkParentFieldView___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_11, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_4);
@@ -11826,7 +11823,6 @@ _start:
 {
 lean_object* x_20; 
 x_20 = l_Lake_expandConfigDecl___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
-lean_dec(x_15);
 lean_dec(x_10);
 lean_dec(x_5);
 lean_dec(x_3);
@@ -11859,7 +11855,6 @@ _start:
 {
 lean_object* x_20; 
 x_20 = l_Lake_expandConfigDecl___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
-lean_dec(x_15);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_10);

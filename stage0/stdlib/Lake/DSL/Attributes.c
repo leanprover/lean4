@@ -382,7 +382,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = l_Lake_initFn___lam__0____x40_Lake_DSL_Attributes___hyg_4_(x_1, x_2, x_3, x_8, x_5, x_6, x_7);
 return x_9;
 }

@@ -1644,7 +1644,6 @@ lean_dec(x_51);
 if (x_52 == 0)
 {
 lean_object* x_53; lean_object* x_54; 
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 x_53 = lean_ctor_get(x_50, 1);
@@ -1753,7 +1752,6 @@ x_74 = l_Lean_BinderInfo_isExplicit(x_73);
 if (x_74 == 0)
 {
 lean_object* x_75; lean_object* x_76; uint8_t x_77; 
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 x_75 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo_spec__0_spec__0___redArg___lam__0___closed__1;
@@ -1794,7 +1792,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 x_81 = !lean_is_exclusive(x_70);
@@ -1825,7 +1822,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -1857,7 +1853,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -1940,7 +1935,6 @@ lean_dec(x_34);
 if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; uint8_t x_38; 
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 x_36 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo_spec__0_spec__0___redArg___lam__0___closed__1;
@@ -1985,7 +1979,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 x_42 = !lean_is_exclusive(x_28);
@@ -2055,7 +2048,6 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
-lean_inc(x_4);
 lean_inc(x_8);
 lean_inc(x_3);
 lean_inc(x_2);
@@ -2068,7 +2060,6 @@ else
 lean_object* x_50; lean_object* x_51; uint8_t x_52; 
 lean_dec(x_43);
 lean_dec(x_8);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_50 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo_spec__0_spec__0___redArg___lam__0___closed__1;
@@ -2106,7 +2097,6 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_56 = !lean_is_exclusive(x_44);
@@ -2143,7 +2133,6 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_16 = !lean_is_exclusive(x_14);
@@ -2197,7 +2186,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_ctor_set(x_14, 0, x_25);
@@ -2233,7 +2221,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_35 = lean_alloc_ctor(0, 2, 0);
@@ -2259,7 +2246,6 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_37 = !lean_is_exclusive(x_14);
@@ -2320,7 +2306,6 @@ lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
-lean_inc(x_4);
 lean_inc(x_10);
 lean_inc(x_3);
 lean_inc(x_2);
@@ -2333,7 +2318,6 @@ else
 lean_object* x_52; lean_object* x_53; uint8_t x_54; 
 lean_dec(x_45);
 lean_dec(x_10);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_52 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo_spec__0_spec__0___redArg___lam__0___closed__1;
@@ -2371,7 +2355,6 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_58 = !lean_is_exclusive(x_46);
@@ -2408,7 +2391,6 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_18 = !lean_is_exclusive(x_16);
@@ -2462,7 +2444,6 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_ctor_set(x_16, 0, x_27);
@@ -2498,7 +2479,6 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_37 = lean_alloc_ctor(0, 2, 0);
@@ -2524,7 +2504,6 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_39 = !lean_is_exclusive(x_16);
@@ -2864,7 +2843,6 @@ _start:
 {
 lean_object* x_14; 
 x_14 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo_spec__0_spec__0___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
-lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_2);
 return x_14;
@@ -2908,7 +2886,6 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_7);
-lean_dec(x_7);
 x_23 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo_spec__0_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_22, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -2924,7 +2901,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_7);
-lean_dec(x_7);
 x_17 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo_spec__0___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_16, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -2960,7 +2936,6 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_7);
-lean_dec(x_7);
 x_23 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_22, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -3749,7 +3724,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_PrettyPrinter_Delaborator_fieldNotationCandidate_x3f(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -3984,7 +3958,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_1);
-lean_dec(x_1);
 x_9 = l_Lean_PrettyPrinter_Delaborator_parentProj_x3f(x_8, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -4091,7 +4064,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_1);
-lean_dec(x_1);
 x_9 = l_Lean_PrettyPrinter_Delaborator_isParentProj(x_8, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);

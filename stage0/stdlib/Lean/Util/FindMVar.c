@@ -64,7 +64,6 @@ lean_dec(x_2);
 lean_inc(x_10);
 x_11 = lean_apply_1(x_1, x_10);
 x_12 = lean_unbox(x_11);
-lean_dec(x_11);
 if (x_12 == 0)
 {
 lean_dec(x_10);

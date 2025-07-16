@@ -592,7 +592,6 @@ if (x_18 == 0)
 lean_object* x_19; uint8_t x_20; 
 x_19 = lean_apply_2(x_5, x_11, x_12);
 x_20 = lean_unbox(x_19);
-lean_dec(x_19);
 if (x_20 == 0)
 {
 lean_dec(x_6);
@@ -605,8 +604,6 @@ x_21 = lean_unbox(x_13);
 if (x_21 == 0)
 {
 lean_object* x_22; 
-lean_dec(x_13);
-lean_dec(x_4);
 x_22 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_22, 0, x_6);
 return x_22;

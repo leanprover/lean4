@@ -1969,7 +1969,6 @@ lean_inc(x_6);
 lean_inc(x_5);
 x_8 = lean_apply_2(x_1, x_5, x_6);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_free_object(x_3);
@@ -2001,7 +2000,6 @@ lean_inc(x_13);
 lean_inc(x_12);
 x_15 = lean_apply_2(x_1, x_12, x_13);
 x_16 = lean_unbox(x_15);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_dec(x_13);

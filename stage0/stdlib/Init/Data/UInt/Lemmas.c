@@ -14919,7 +14919,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l___aux__Init__Data__UInt__Lemmas______macroRules__commandDeclare__uint__theorems______1___lam__1(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_4);
 return x_7;
 }
 }
@@ -14977,7 +14976,6 @@ _start:
 {
 lean_object* x_50; 
 x_50 = l___aux__Init__Data__UInt__Lemmas______macroRules__commandDeclare__uint__theorems______1___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25, x_26, x_27, x_28, x_29, x_30, x_31, x_32, x_33, x_34, x_35, x_36, x_37, x_38, x_39, x_40, x_41, x_42, x_43, x_44, x_45, x_46, x_47, x_48, x_49);
-lean_dec(x_47);
 lean_dec(x_1);
 return x_50;
 }

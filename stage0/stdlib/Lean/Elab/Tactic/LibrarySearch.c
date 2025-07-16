@@ -257,7 +257,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -269,7 +268,6 @@ return x_19;
 else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-lean_dec(x_8);
 x_20 = lean_array_uget(x_5, x_7);
 x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
@@ -301,7 +299,6 @@ lean_inc(x_26);
 lean_dec(x_25);
 x_27 = 1;
 x_28 = lean_usize_add(x_7, x_27);
-lean_inc(x_4);
 {
 size_t _tmp_6 = x_28;
 lean_object* _tmp_7 = x_4;
@@ -322,7 +319,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -975,7 +971,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_4);
-lean_dec(x_4);
 x_15 = l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_LibrarySearch_exact_x3f_spec__1___lam__0(x_1, x_2, x_3, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 return x_15;
 }
@@ -1025,7 +1020,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = l_Lean_Elab_LibrarySearch_exact_x3f___lam__2(x_1, x_9, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -1035,7 +1029,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_6);
-lean_dec(x_6);
 x_17 = l_Lean_Elab_LibrarySearch_exact_x3f___lam__3(x_1, x_2, x_3, x_4, x_5, x_16, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_17;
 }
@@ -1045,7 +1038,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_3);
-lean_dec(x_3);
 x_14 = l_Lean_Elab_LibrarySearch_exact_x3f(x_1, x_2, x_13, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }
@@ -2143,7 +2135,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_1);
-lean_dec(x_1);
 x_9 = l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___lam__0(x_8, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
@@ -2153,7 +2144,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_1);
-lean_dec(x_1);
 x_9 = l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___lam__1(x_8, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -2168,7 +2158,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_8);
-lean_dec(x_8);
 x_17 = l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_16, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -2180,7 +2169,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_4);
-lean_dec(x_4);
 x_14 = l_Lean_Elab_LibrarySearch_elabExact_x3fTerm___lam__3(x_1, x_2, x_3, x_13, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }

@@ -1554,7 +1554,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_MVarId_admit___lam__0(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -1564,7 +1563,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Lean_MVarId_admit(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
@@ -2554,7 +2552,6 @@ lean_inc(x_1);
 lean_inc(x_4);
 x_16 = lean_apply_1(x_1, x_4);
 x_17 = lean_unbox(x_16);
-lean_dec(x_16);
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; 
@@ -7818,10 +7815,8 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_3);
-lean_dec(x_3);
 x_14 = l_Lean_ForEachExprWhere_visit_go___at___Lean_ForEachExprWhere_visit___at___Lean_MVarId_getNondepPropHyps_spec__2_spec__2___lam__0(x_1, x_2, x_13, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_14;
 }
 }
@@ -7830,7 +7825,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = l_Lean_ForEachExprWhere_visit_go___at___Lean_ForEachExprWhere_visit___at___Lean_MVarId_getNondepPropHyps_spec__2_spec__2(x_1, x_2, x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_5);
 return x_13;
@@ -7841,7 +7835,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_4);
-lean_dec(x_4);
 x_12 = l_Lean_ForEachExprWhere_visit___at___Lean_MVarId_getNondepPropHyps_spec__2(x_1, x_2, x_3, x_11, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }
@@ -10410,7 +10403,6 @@ return x_11;
 }
 else
 {
-lean_dec(x_8);
 return x_7;
 }
 }

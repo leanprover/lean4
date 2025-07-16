@@ -1475,7 +1475,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_3);
-lean_dec(x_3);
 x_17 = l_Lean_Meta_repeat_x27Core_go___at___Lean_Meta_repeat_x27Core___at___Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__0_spec__0_spec__0(x_1, x_2, x_16, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_17;
 }
@@ -1520,7 +1519,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_1);
-lean_dec(x_1);
 x_13 = l_Lean_Meta_repeat_x27Core___at___Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__0_spec__0___lam__0(x_12, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_10);
 lean_dec(x_9);

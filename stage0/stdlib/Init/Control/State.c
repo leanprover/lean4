@@ -693,7 +693,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_StateT_orElse___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }

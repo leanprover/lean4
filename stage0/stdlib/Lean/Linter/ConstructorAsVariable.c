@@ -546,7 +546,6 @@ if (lean_obj_tag(x_8) == 0)
 lean_object* x_12; 
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_2);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_9);
 lean_ctor_set(x_12, 1, x_11);
@@ -555,7 +554,6 @@ return x_12;
 else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_22; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; 
-lean_dec(x_9);
 x_13 = lean_ctor_get(x_8, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_8, 1);
@@ -611,7 +609,6 @@ else
 {
 lean_dec(x_15);
 lean_dec(x_13);
-lean_inc(x_2);
 {
 lean_object* _tmp_7 = x_14;
 lean_object* _tmp_8 = x_2;
@@ -637,7 +634,6 @@ x_18 = lean_st_ref_set(x_3, x_17, x_16);
 x_19 = lean_ctor_get(x_18, 1);
 lean_inc(x_19);
 lean_dec(x_18);
-lean_inc(x_2);
 {
 lean_object* _tmp_7 = x_14;
 lean_object* _tmp_8 = x_2;
@@ -661,7 +657,6 @@ if (x_24 == 0)
 {
 lean_dec(x_15);
 lean_dec(x_13);
-lean_inc(x_2);
 {
 lean_object* _tmp_7 = x_14;
 lean_object* _tmp_8 = x_2;
@@ -993,7 +988,6 @@ else
 {
 lean_dec(x_15);
 lean_dec(x_13);
-lean_inc(x_2);
 {
 lean_object* _tmp_7 = x_14;
 lean_object* _tmp_8 = x_2;
@@ -2095,7 +2089,6 @@ if (x_11 == 0)
 lean_object* x_12; 
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_12 = lean_alloc_ctor(0, 2, 0);
@@ -2106,7 +2099,6 @@ return x_12;
 else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_7);
 x_13 = lean_array_uget(x_4, x_6);
 x_14 = lean_box(0);
 lean_inc(x_9);
@@ -2122,7 +2114,6 @@ lean_inc(x_16);
 lean_dec(x_15);
 x_17 = 1;
 x_18 = lean_usize_add(x_6, x_17);
-lean_inc(x_3);
 {
 size_t _tmp_5 = x_18;
 lean_object* _tmp_6 = x_3;
@@ -2137,7 +2128,6 @@ else
 {
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_15;
@@ -2264,7 +2254,6 @@ if (x_9 == 0)
 {
 lean_object* x_10; 
 lean_dec(x_6);
-lean_dec(x_1);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_5);
 lean_ctor_set(x_10, 1, x_8);
@@ -2273,7 +2262,6 @@ return x_10;
 else
 {
 lean_object* x_11; uint8_t x_12; 
-lean_dec(x_5);
 x_11 = lean_array_uget(x_2, x_4);
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)
@@ -2340,7 +2328,6 @@ lean_inc(x_37);
 lean_dec(x_36);
 x_38 = 1;
 x_39 = lean_usize_add(x_4, x_38);
-lean_inc(x_1);
 {
 size_t _tmp_3 = x_39;
 lean_object* _tmp_4 = x_1;
@@ -2406,7 +2393,6 @@ lean_inc(x_61);
 lean_dec(x_60);
 x_62 = 1;
 x_63 = lean_usize_add(x_4, x_62);
-lean_inc(x_1);
 {
 size_t _tmp_3 = x_63;
 lean_object* _tmp_4 = x_1;
@@ -2489,7 +2475,6 @@ lean_inc(x_88);
 lean_dec(x_87);
 x_89 = 1;
 x_90 = lean_usize_add(x_4, x_89);
-lean_inc(x_1);
 {
 size_t _tmp_3 = x_90;
 lean_object* _tmp_4 = x_1;
@@ -2587,7 +2572,6 @@ lean_inc(x_118);
 lean_dec(x_117);
 x_119 = 1;
 x_120 = lean_usize_add(x_4, x_119);
-lean_inc(x_1);
 {
 size_t _tmp_3 = x_120;
 lean_object* _tmp_4 = x_1;
@@ -3249,7 +3233,6 @@ lean_dec(x_40);
 x_42 = lean_ctor_get(x_41, 4);
 lean_inc(x_42);
 lean_dec(x_41);
-lean_inc_n(x_1, 2);
 x_43 = l_List_forIn_x27_loop___at___Lean_Linter_constructorNameAsVariable_spec__5___redArg(x_22, x_1, x_2, x_5, x_21, x_18, x_20, x_42, x_1, x_25, x_37);
 lean_dec(x_5);
 lean_dec(x_22);
@@ -3325,7 +3308,6 @@ lean_dec(x_53);
 x_55 = lean_ctor_get(x_54, 4);
 lean_inc(x_55);
 lean_dec(x_54);
-lean_inc_n(x_1, 2);
 x_56 = l_List_forIn_x27_loop___at___Lean_Linter_constructorNameAsVariable_spec__5___redArg(x_22, x_1, x_2, x_5, x_21, x_18, x_20, x_55, x_1, x_25, x_49);
 lean_dec(x_5);
 lean_dec(x_22);
@@ -3440,7 +3422,6 @@ lean_dec(x_72);
 x_74 = lean_ctor_get(x_73, 4);
 lean_inc(x_74);
 lean_dec(x_73);
-lean_inc_n(x_1, 2);
 x_75 = l_List_forIn_x27_loop___at___Lean_Linter_constructorNameAsVariable_spec__5___redArg(x_22, x_1, x_2, x_5, x_21, x_18, x_20, x_74, x_1, x_25, x_67);
 lean_dec(x_5);
 lean_dec(x_22);
@@ -3504,7 +3485,6 @@ lean_dec(x_22);
 lean_dec(x_21);
 lean_dec(x_18);
 lean_dec(x_5);
-lean_dec(x_1);
 x_81 = !lean_is_exclusive(x_28);
 if (x_81 == 0)
 {
@@ -3637,7 +3617,6 @@ lean_dec(x_108);
 lean_dec(x_19);
 lean_dec(x_18);
 lean_dec(x_10);
-lean_dec(x_1);
 x_115 = !lean_is_exclusive(x_5);
 if (x_115 == 0)
 {
@@ -4198,7 +4177,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_7);
-lean_dec(x_7);
 x_13 = l_List_forIn_x27_loop___at___Lean_Linter_constructorNameAsVariable_spec__5___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_12, x_8, x_9, x_10, x_11);
 lean_dec(x_10);
 lean_dec(x_4);
@@ -4212,7 +4190,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_9);
-lean_dec(x_9);
 x_18 = l_List_forIn_x27_loop___at___Lean_Linter_constructorNameAsVariable_spec__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_17, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_15);
 lean_dec(x_14);

@@ -2587,7 +2587,6 @@ goto block_12;
 }
 else
 {
-lean_dec(x_13);
 x_9 = x_2;
 goto block_12;
 }
@@ -2606,7 +2605,6 @@ return x_2;
 else
 {
 uint8_t x_11; 
-lean_dec(x_10);
 x_11 = l_Lean_Lsp_beqPosition____x40_Lean_Data_Lsp_Basic___hyg_46_(x_5, x_7);
 lean_dec(x_7);
 lean_dec(x_5);
@@ -2820,7 +2818,6 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Array_qsort_sort___at___Lean_Server_FileWorker_computeDeltaLspSemanticTokens_spec__1___redArg___lam__0(x_1, x_5, x_3, x_4);
 x_7 = lean_box(x_6);
 return x_7;
@@ -5306,7 +5303,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_FileWorker_SemanticTokensState_toCtorIdx(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -5339,8 +5335,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lean_Server_FileWorker_SemanticTokensState_noConfusion(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
 return x_6;
 }
 }
@@ -5586,7 +5580,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Server_FileWorker_handleSemanticTokensFull(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
 }
@@ -6957,14 +6950,12 @@ return x_37;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting___hyg_3026__spec__4_spec__4_spec__4___redArg___lam__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_inc(x_1);
 return x_1;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting___hyg_3026__spec__4_spec__4_spec__4___redArg___lam__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_inc(x_1);
 return x_1;
 }
 }
@@ -7724,7 +7715,6 @@ _start:
 lean_object* x_3; 
 x_3 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting___hyg_3026__spec__4_spec__4_spec__4___redArg___lam__3(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -7734,7 +7724,6 @@ _start:
 lean_object* x_3; 
 x_3 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting___hyg_3026__spec__4_spec__4_spec__4___redArg___lam__4(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -7743,7 +7732,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting___hyg_3026__spec__4_spec__4_spec__4___redArg___lam__5(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_4);
 lean_dec(x_1);
 return x_7;
 }
@@ -7762,7 +7750,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_SemanticHighlighting___hyg_3026__spec__4_spec__4_spec__4___redArg___lam__8(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_4);
 lean_dec(x_1);
 return x_7;
 }

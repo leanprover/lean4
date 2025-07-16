@@ -578,7 +578,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_generalizeCore_go(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_4);
 lean_dec(x_1);
@@ -2206,9 +2205,7 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = lean_unbox(x_4);
-lean_dec(x_4);
 x_14 = l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_generalizeCore___lam__0(x_1, x_2, x_12, x_13, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_1);
 return x_14;
@@ -2219,7 +2216,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_generalizeCore___lam__1(x_1, x_2, x_3, x_10, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -2229,7 +2225,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l___private_Lean_Meta_Tactic_Generalize_0__Lean_Meta_generalizeCore(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -2247,7 +2242,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_MVarId_generalize(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -3832,7 +3826,6 @@ _start:
 {
 uint8_t x_11; size_t x_12; size_t x_13; lean_object* x_14; 
 x_11 = lean_unbox(x_1);
-lean_dec(x_1);
 x_12 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_13 = lean_unbox_usize(x_5);
@@ -3860,9 +3853,7 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; size_t x_15; size_t x_16; lean_object* x_17; 
 x_13 = lean_unbox(x_2);
-lean_dec(x_2);
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_16 = lean_unbox_usize(x_6);
@@ -3878,9 +3869,7 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; size_t x_15; size_t x_16; lean_object* x_17; 
 x_13 = lean_unbox(x_1);
-lean_dec(x_1);
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_16 = lean_unbox_usize(x_6);
@@ -3896,7 +3885,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_5);
-lean_dec(x_5);
 x_12 = l_Lean_MVarId_generalizeHyp(x_1, x_2, x_3, x_4, x_11, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_3);
 return x_12;

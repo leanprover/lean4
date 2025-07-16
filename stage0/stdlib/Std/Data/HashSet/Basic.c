@@ -2642,7 +2642,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_HashSet_toList___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_2);
 return x_4;
 }
 }
@@ -2968,7 +2967,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashSet_foldM___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -3095,7 +3093,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashSet_fold___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -3257,8 +3254,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashSet_forM___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -3267,7 +3262,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashSet_forM___redArg___lam__1(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
 return x_5;
 }
 }
@@ -3340,7 +3334,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashSet_forIn___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
 return x_5;
 }
 }
@@ -3478,7 +3471,6 @@ _start:
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_apply_1(x_1, x_2);
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -3726,7 +3718,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Std_HashSet_filter___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 x_5 = lean_box(x_4);
 return x_5;
 }
@@ -3929,7 +3920,6 @@ x_9 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);
 x_10 = lean_apply_1(x_1, x_5);
 x_11 = lean_unbox(x_10);
-lean_dec(x_10);
 if (x_11 == 0)
 {
 uint8_t x_12; 
@@ -4286,7 +4276,6 @@ lean_dec(x_4);
 lean_inc(x_5);
 x_158 = lean_apply_1(x_1, x_5);
 x_159 = lean_unbox(x_158);
-lean_dec(x_158);
 if (x_159 == 0)
 {
 lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; uint64_t x_165; uint64_t x_166; uint64_t x_167; uint64_t x_168; uint64_t x_169; uint64_t x_170; uint64_t x_171; uint64_t x_172; size_t x_173; size_t x_174; size_t x_175; size_t x_176; size_t x_177; lean_object* x_178; uint8_t x_179; 
@@ -4702,12 +4691,10 @@ _start:
 lean_object* x_7; uint8_t x_8; uint8_t x_9; 
 x_7 = lean_apply_1(x_1, x_4);
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 x_9 = l_instDecidableNot___redArg(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; 
-lean_dec(x_3);
 x_10 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_10, 0, x_2);
 return x_10;
@@ -4834,7 +4821,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Std_HashSet_all___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_7;
 }
 }
@@ -4867,8 +4853,6 @@ x_8 = lean_unbox(x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; 
-lean_dec(x_7);
-lean_dec(x_3);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_2);
 return x_9;
@@ -4976,7 +4960,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Std_HashSet_any___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_7;
 }
 }
@@ -5115,7 +5098,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_HashSet_toArray___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -5399,7 +5381,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_HashSet_union___redArg___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }

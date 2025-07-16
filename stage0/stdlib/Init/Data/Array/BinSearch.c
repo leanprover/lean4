@@ -90,7 +90,6 @@ lean_inc(x_4);
 lean_inc(x_13);
 x_14 = lean_apply_2(x_1, x_13, x_4);
 x_15 = lean_unbox(x_14);
-lean_dec(x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; uint8_t x_17; 
@@ -100,7 +99,6 @@ lean_inc(x_13);
 lean_inc(x_4);
 x_16 = lean_apply_2(x_1, x_4, x_13);
 x_17 = lean_unbox(x_16);
-lean_dec(x_16);
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; 
@@ -552,7 +550,6 @@ lean_inc(x_6);
 lean_inc(x_12);
 x_13 = lean_apply_2(x_2, x_12, x_6);
 x_14 = lean_unbox(x_13);
-lean_dec(x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; uint8_t x_16; 
@@ -562,7 +559,6 @@ lean_inc(x_12);
 lean_inc(x_6);
 x_15 = lean_apply_2(x_2, x_6, x_12);
 x_16 = lean_unbox(x_15);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; uint8_t x_18; 
@@ -737,11 +733,9 @@ lean_inc(x_6);
 lean_inc(x_10);
 x_13 = lean_apply_2(x_2, x_10, x_6);
 x_14 = lean_unbox(x_13);
-lean_dec(x_13);
 if (x_14 == 0)
 {
 uint8_t x_15; 
-lean_dec(x_11);
 lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_2);
@@ -784,7 +778,6 @@ else
 {
 uint8_t x_26; 
 x_26 = lean_unbox(x_11);
-lean_dec(x_11);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; 
@@ -805,11 +798,9 @@ lean_inc(x_29);
 lean_inc(x_6);
 x_32 = lean_apply_2(x_2, x_6, x_29);
 x_33 = lean_unbox(x_32);
-lean_dec(x_32);
 if (x_33 == 0)
 {
 uint8_t x_34; 
-lean_dec(x_30);
 lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_2);
@@ -853,7 +844,6 @@ else
 {
 uint8_t x_45; 
 x_45 = lean_unbox(x_30);
-lean_dec(x_30);
 if (x_45 == 0)
 {
 lean_object* x_46; 
@@ -909,7 +899,6 @@ return x_57;
 else
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
-lean_dec(x_30);
 lean_dec(x_29);
 lean_dec(x_28);
 lean_dec(x_7);
@@ -976,7 +965,6 @@ return x_74;
 else
 {
 lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; 
-lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_6);
 lean_dec(x_3);
@@ -1202,7 +1190,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Array_binInsert___redArg___lam__1(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }

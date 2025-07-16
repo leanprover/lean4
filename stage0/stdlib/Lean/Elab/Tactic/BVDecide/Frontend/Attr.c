@@ -1479,7 +1479,6 @@ lean_dec(x_18);
 lean_dec(x_17);
 lean_dec(x_15);
 lean_dec(x_14);
-lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -2397,7 +2396,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_3);
-lean_dec(x_3);
 x_9 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___lam__0(x_1, x_2, x_8, x_4, x_5, x_6, x_7);
 return x_9;
 }
@@ -2425,7 +2423,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_addBVNormalizeProcBuiltinAttr(x_1, x_5, x_3, x_4);
 return x_6;
 }
@@ -2566,7 +2563,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_8);
-lean_dec(x_8);
 x_13 = l_Lean_Elab_Tactic_BVDecide_Frontend_initFn___lam__1____x40_Lean_Elab_Tactic_BVDecide_Frontend_Attr___hyg_1270_(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_12, x_9, x_10, x_11);
 lean_dec(x_7);
 return x_13;

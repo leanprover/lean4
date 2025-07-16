@@ -58,7 +58,6 @@ x_9 = lean_usize_dec_lt(x_6, x_5);
 if (x_9 == 0)
 {
 lean_object* x_10; 
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_10 = lean_alloc_ctor(0, 2, 0);
@@ -145,7 +144,6 @@ else
 {
 uint8_t x_30; 
 lean_free_object(x_12);
-lean_dec(x_3);
 x_30 = !lean_is_exclusive(x_22);
 if (x_30 == 0)
 {
@@ -205,7 +203,6 @@ return x_41;
 else
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-lean_dec(x_3);
 x_42 = lean_ctor_get(x_35, 0);
 lean_inc(x_42);
 x_43 = lean_ctor_get(x_35, 1);

@@ -133,7 +133,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Nat_forM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_4);
 return x_6;
 }
@@ -238,7 +237,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Nat_forRevM_loop___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 lean_dec(x_3);
 return x_5;
 }
@@ -571,7 +569,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Nat_allM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_7);
 lean_dec(x_5);
 return x_8;
@@ -700,7 +697,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Nat_anyM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_7);
 lean_dec(x_4);
 return x_8;

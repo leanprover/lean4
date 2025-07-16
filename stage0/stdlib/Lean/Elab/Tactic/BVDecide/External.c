@@ -2584,7 +2584,6 @@ _start:
 {
 uint8_t x_5; size_t x_6; size_t x_7; lean_object* x_8; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_7 = lean_unbox_usize(x_3);
@@ -5162,7 +5161,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_5);
-lean_dec(x_5);
 x_10 = l_Lean_Elab_Tactic_BVDecide_External_satQuery(x_1, x_2, x_3, x_4, x_9, x_6, x_7, x_8);
 lean_dec(x_4);
 return x_10;

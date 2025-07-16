@@ -362,12 +362,10 @@ lean_dec(x_19);
 lean_dec(x_17);
 lean_dec(x_1);
 x_22 = lean_unbox(x_20);
-lean_dec(x_20);
 return x_22;
 }
 else
 {
-lean_dec(x_20);
 x_2 = x_17;
 x_3 = x_19;
 goto _start;
@@ -1161,7 +1159,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText___redArg___lam__0____x40_Lean_Widget_TaggedText___hyg_418_(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -1170,7 +1167,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText___redArg___lam__1____x40_Lean_Widget_TaggedText___hyg_418_(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_2);
 return x_8;
@@ -1181,7 +1177,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText___redArg___lam__2____x40_Lean_Widget_TaggedText___hyg_418_(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
 lean_dec(x_3);
 return x_7;
 }
@@ -6846,7 +6841,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l___private_Init_Data_Format_Basic_0__Std_Format_pushGroup___at_____private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Lean_Widget_TaggedText_prettyTagged_spec__0_spec__0_spec__1(x_6, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 return x_7;
@@ -6857,7 +6851,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l___private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Lean_Widget_TaggedText_prettyTagged_spec__0_spec__0___lam__0(x_1, x_5, x_3, x_4);
 return x_6;
 }

@@ -507,7 +507,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Compiler_LCNF_Phase_toCtorIdx(x_2);
 return x_3;
 }
@@ -549,9 +548,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Compiler_LCNF_Phase_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -561,9 +558,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_Compiler_LCNF_Phase_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -1260,7 +1255,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_1);
-lean_dec(x_1);
 x_9 = l_Lean_Compiler_LCNF_withPhase___redArg(x_8, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
@@ -1270,7 +1264,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = l_Lean_Compiler_LCNF_withPhase(x_1, x_9, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -4218,7 +4211,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_Compiler_LCNF_eraseFunDecl___redArg(x_1, x_5, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_1);
@@ -4230,7 +4222,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Lean_Compiler_LCNF_eraseFunDecl(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -4629,7 +4620,6 @@ x_7 = lean_usize_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
-lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
 x_9 = l_Lean_Compiler_LCNF_eraseCodeDecl___redArg(x_8, x_5, x_6);
 lean_dec(x_8);
@@ -5265,7 +5255,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp_goApp(x_1, x_4, x_3);
 lean_dec(x_1);
 return x_5;
@@ -5276,7 +5265,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp_go(x_1, x_4, x_3);
 lean_dec(x_1);
 return x_5;
@@ -5295,7 +5283,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp(x_1, x_2, x_4);
 lean_dec(x_1);
 return x_5;
@@ -5402,7 +5389,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normFVarImp(x_1, x_2, x_4);
 lean_dec(x_1);
 return x_5;
@@ -5486,7 +5472,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normArgImp(x_1, x_2, x_4);
 lean_dec(x_1);
 return x_5;
@@ -5552,7 +5537,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l___private_Init_Data_Array_BasicAux_0__mapMonoMImp_go___at_____private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normArgsImp_spec__0(x_1, x_5, x_3, x_4);
 lean_dec(x_1);
 return x_6;
@@ -5563,7 +5547,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normArgsImp(x_1, x_2, x_4);
 lean_dec(x_1);
 return x_5;
@@ -5645,7 +5628,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normLetValueImp(x_1, x_2, x_4);
 lean_dec(x_1);
 return x_5;
@@ -5672,7 +5654,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_Lean_Compiler_LCNF_instMonadFVarSubstOfMonadLift(x_6, x_2, x_3, x_4, x_5);
 return x_7;
 }
@@ -6162,7 +6143,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_Compiler_LCNF_normFVar___redArg___lam__0(x_1, x_5, x_3, x_4);
 lean_dec(x_4);
 return x_6;
@@ -6173,7 +6153,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Compiler_LCNF_normFVar___redArg(x_5, x_2, x_3, x_4);
 return x_6;
 }
@@ -6183,7 +6162,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lean_Compiler_LCNF_normFVar(x_1, x_6, x_3, x_4, x_5);
 return x_7;
 }
@@ -6244,7 +6222,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Compiler_LCNF_normExpr___redArg___lam__0(x_5, x_2, x_3, x_4);
 lean_dec(x_4);
 return x_6;
@@ -6255,7 +6232,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Compiler_LCNF_normExpr___redArg(x_5, x_2, x_3, x_4);
 return x_6;
 }
@@ -6265,7 +6241,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lean_Compiler_LCNF_normExpr(x_1, x_6, x_3, x_4, x_5);
 return x_7;
 }
@@ -6326,7 +6301,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_Compiler_LCNF_normArg___redArg___lam__0(x_1, x_5, x_3, x_4);
 lean_dec(x_4);
 return x_6;
@@ -6337,7 +6311,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Compiler_LCNF_normArg___redArg(x_5, x_2, x_3, x_4);
 return x_6;
 }
@@ -6347,7 +6320,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lean_Compiler_LCNF_normArg(x_1, x_6, x_3, x_4, x_5);
 return x_7;
 }
@@ -6408,7 +6380,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_Compiler_LCNF_normLetValue___redArg___lam__0(x_1, x_5, x_3, x_4);
 lean_dec(x_4);
 return x_6;
@@ -6419,7 +6390,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Compiler_LCNF_normLetValue___redArg(x_5, x_2, x_3, x_4);
 return x_6;
 }
@@ -6429,7 +6399,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lean_Compiler_LCNF_normLetValue(x_1, x_6, x_3, x_4, x_5);
 return x_7;
 }
@@ -6447,7 +6416,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Compiler_LCNF_normExprCore(x_1, x_2, x_4);
 lean_dec(x_1);
 return x_5;
@@ -6496,7 +6464,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_Compiler_LCNF_normArgs___redArg___lam__0(x_1, x_5, x_3, x_4);
 lean_dec(x_4);
 return x_6;
@@ -6507,7 +6474,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Compiler_LCNF_normArgs___redArg(x_5, x_2, x_3, x_4);
 return x_6;
 }
@@ -6517,7 +6483,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lean_Compiler_LCNF_normArgs(x_1, x_6, x_3, x_4, x_5);
 return x_7;
 }
@@ -7088,7 +7053,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_Compiler_LCNF_mkParam(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -8250,7 +8214,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Compiler_LCNF_normParam___redArg___lam__1(x_5, x_2, x_3, x_4);
 lean_dec(x_4);
 return x_6;
@@ -8261,7 +8224,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_Lean_Compiler_LCNF_normParam___redArg(x_6, x_2, x_3, x_4, x_5);
 return x_7;
 }
@@ -8271,7 +8233,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = l_Lean_Compiler_LCNF_normParam(x_1, x_7, x_3, x_4, x_5, x_6);
 return x_8;
 }
@@ -8306,7 +8267,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_Lean_Compiler_LCNF_normParams___redArg(x_6, x_2, x_3, x_4, x_5);
 return x_7;
 }
@@ -8316,7 +8276,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = l_Lean_Compiler_LCNF_normParams(x_1, x_7, x_3, x_4, x_5, x_6);
 return x_8;
 }
@@ -8413,7 +8372,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_Compiler_LCNF_normLetDecl___redArg___lam__1(x_1, x_5, x_3, x_4);
 lean_dec(x_4);
 return x_6;
@@ -8424,7 +8382,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_4);
-lean_dec(x_4);
 x_10 = l_Lean_Compiler_LCNF_normLetDecl___redArg___lam__2(x_1, x_2, x_3, x_9, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -8434,7 +8391,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_Lean_Compiler_LCNF_normLetDecl___redArg(x_6, x_2, x_3, x_4, x_5);
 return x_7;
 }
@@ -8444,7 +8400,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = l_Lean_Compiler_LCNF_normLetDecl(x_1, x_7, x_3, x_4, x_5, x_6);
 return x_8;
 }
@@ -8895,7 +8850,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Compiler_LCNF_instMonadFVarSubstNormalizerM(x_2);
 return x_3;
 }
@@ -10471,7 +10425,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = l___private_Init_Data_Array_BasicAux_0__mapMonoMImp_go___at___Lean_Compiler_LCNF_normParams___at___Lean_Compiler_LCNF_normFunDeclImp_spec__0_spec__0(x_1, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }
@@ -10481,7 +10434,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_Lean_Compiler_LCNF_normParams___at___Lean_Compiler_LCNF_normFunDeclImp_spec__0(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -10491,7 +10443,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Compiler_LCNF_normFunDeclImp(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -10501,7 +10452,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_Lean_Compiler_LCNF_normLetDecl___at___Lean_Compiler_LCNF_normCodeImp_spec__0(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -10511,7 +10461,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_Lean_Compiler_LCNF_normArgs___at___Lean_Compiler_LCNF_normCodeImp_spec__1(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -10521,7 +10470,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = l___private_Init_Data_Array_BasicAux_0__mapMonoMImp_go___at___Lean_Compiler_LCNF_normCodeImp_spec__2(x_1, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }
@@ -10531,7 +10479,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Compiler_LCNF_normCodeImp(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -10586,7 +10533,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Compiler_LCNF_normFunDecl___redArg___lam__0(x_5, x_2, x_3, x_4);
 return x_6;
 }
@@ -10596,7 +10542,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_Lean_Compiler_LCNF_normFunDecl___redArg(x_6, x_2, x_3, x_4, x_5);
 return x_7;
 }
@@ -10606,7 +10551,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = l_Lean_Compiler_LCNF_normFunDecl(x_1, x_7, x_3, x_4, x_5, x_6);
 return x_8;
 }
@@ -10661,7 +10605,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Compiler_LCNF_normCode___redArg___lam__0(x_5, x_2, x_3, x_4);
 return x_6;
 }
@@ -10671,7 +10614,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_Lean_Compiler_LCNF_normCode___redArg(x_6, x_2, x_3, x_4, x_5);
 return x_7;
 }
@@ -10681,7 +10623,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = l_Lean_Compiler_LCNF_normCode(x_1, x_7, x_3, x_4, x_5, x_6);
 return x_8;
 }
@@ -10710,7 +10651,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Lean_Compiler_LCNF_replaceExprFVars___redArg(x_1, x_2, x_5, x_4);
 lean_dec(x_2);
 return x_6;
@@ -10721,7 +10661,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_Compiler_LCNF_replaceExprFVars(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -10744,7 +10683,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_Compiler_LCNF_replaceFVars(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -10824,7 +10762,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Lean_Compiler_LCNF_mkAuxParam(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -10944,7 +10881,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lean_Compiler_LCNF_CompilerM_run___redArg(x_1, x_2, x_7, x_4, x_5, x_6);
 return x_8;
 }
@@ -10954,7 +10890,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = l_Lean_Compiler_LCNF_CompilerM_run(x_1, x_2, x_3, x_8, x_5, x_6, x_7);
 return x_9;
 }

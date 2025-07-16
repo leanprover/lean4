@@ -99,7 +99,6 @@ _start:
 lean_object* x_4; lean_object* x_5; uint64_t x_6; size_t x_7; size_t x_8; lean_object* x_9; 
 x_4 = l_Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_3__spec__0_spec__0___redArg___closed__0;
 x_5 = l_Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_3__spec__0_spec__0___redArg___closed__1;
-lean_inc(x_2);
 x_6 = l_Lean_Compiler_LCNF_hashDecl____x40_Lean_Compiler_LCNF_DeclHash___hyg_319_(x_2);
 x_7 = lean_uint64_to_usize(x_6);
 x_8 = 1;
@@ -120,7 +119,6 @@ _start:
 {
 lean_object* x_3; uint64_t x_4; size_t x_5; lean_object* x_6; 
 x_3 = l_Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_3__spec__0_spec__0___redArg___closed__0;
-lean_inc(x_2);
 x_4 = l_Lean_Compiler_LCNF_hashDecl____x40_Lean_Compiler_LCNF_DeclHash___hyg_319_(x_2);
 x_5 = lean_uint64_to_usize(x_4);
 x_6 = l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f_spec__0___redArg(x_3, x_1, x_5, x_2);

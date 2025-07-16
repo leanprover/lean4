@@ -870,7 +870,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_5);
-lean_dec(x_5);
 x_18 = l_Lean_Elab_Tactic_Do_ProofMode_elabMDup___lam__0(x_1, x_2, x_3, x_4, x_17, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -1603,7 +1602,6 @@ _start:
 {
 uint8_t x_24; lean_object* x_25; 
 x_24 = lean_unbox(x_3);
-lean_dec(x_3);
 x_25 = l_Lean_Elab_Tactic_Do_ProofMode_elabMHave___lam__0(x_1, x_2, x_24, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23);
 return x_25;
 }
@@ -2351,7 +2349,6 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_6);
-lean_dec(x_6);
 x_23 = l_Lean_Elab_Tactic_Do_ProofMode_elabMReplace___lam__0(x_1, x_2, x_3, x_4, x_5, x_22, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 return x_23;
 }

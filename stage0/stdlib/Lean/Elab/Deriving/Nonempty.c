@@ -3648,7 +3648,6 @@ if (x_9 == 0)
 lean_object* x_10; 
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_5);
 lean_ctor_set(x_10, 1, x_8);
@@ -3657,7 +3656,6 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec(x_5);
 x_11 = lean_array_uget(x_2, x_4);
 x_12 = lean_alloc_closure((void*)(l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance), 8, 1);
 lean_closure_set(x_12, 0, x_11);
@@ -3681,7 +3679,6 @@ lean_inc(x_17);
 lean_dec(x_16);
 x_18 = 1;
 x_19 = lean_usize_add(x_4, x_18);
-lean_inc(x_1);
 {
 size_t _tmp_3 = x_19;
 lean_object* _tmp_4 = x_1;
@@ -3696,7 +3693,6 @@ else
 {
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 return x_16;
 }
 }
@@ -3705,7 +3701,6 @@ else
 uint8_t x_21; 
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_1);
 x_21 = !lean_is_exclusive(x_13);
 if (x_21 == 0)
 {
@@ -4061,7 +4056,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Lean_Elab_mkNonemptyInstanceHandler___lam__0(x_5, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);

@@ -1900,7 +1900,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lean_Elab_Frontend_processCommand___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }
@@ -2759,7 +2758,6 @@ x_6 = lean_usize_dec_eq(x_2, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
-lean_dec(x_4);
 x_7 = lean_array_uget(x_1, x_2);
 x_8 = lean_load_dynlib(x_7, x_5);
 lean_dec(x_7);
@@ -4119,7 +4117,6 @@ _start:
 {
 uint8_t x_11; uint32_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = lean_unbox_uint32(x_5);
 lean_dec(x_5);
 x_13 = l_Lean_Elab_runFrontend___lam__1(x_1, x_11, x_3, x_4, x_12, x_6, x_7, x_8, x_9, x_10);
@@ -4144,9 +4141,7 @@ uint32_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17;
 x_14 = lean_unbox_uint32(x_5);
 lean_dec(x_5);
 x_15 = lean_unbox(x_8);
-lean_dec(x_8);
 x_16 = lean_unbox(x_11);
-lean_dec(x_11);
 x_17 = l_Lean_Elab_runFrontend(x_1, x_2, x_3, x_4, x_14, x_6, x_7, x_15, x_9, x_10, x_16, x_12, x_13);
 lean_dec(x_9);
 lean_dec(x_7);

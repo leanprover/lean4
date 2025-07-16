@@ -580,7 +580,6 @@ lean_dec(x_1);
 x_7 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = lean_llvm_function_type(x_6, x_7, x_3, x_8, x_5);
 lean_dec(x_3);
 return x_9;
@@ -825,7 +824,6 @@ lean_dec(x_1);
 x_6 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = lean_llvm_set_tail_call(x_5, x_6, x_7, x_4);
 return x_8;
 }
@@ -1201,7 +1199,6 @@ lean_dec(x_2);
 x_8 = lean_unbox_uint64(x_3);
 lean_dec(x_3);
 x_9 = lean_unbox(x_4);
-lean_dec(x_4);
 x_10 = lean_llvm_const_int(x_6, x_7, x_8, x_9, x_5);
 return x_10;
 }
@@ -1856,7 +1853,6 @@ lean_dec(x_2);
 x_8 = lean_unbox_uint64(x_3);
 lean_dec(x_3);
 x_9 = lean_unbox(x_4);
-lean_dec(x_4);
 x_10 = l_LLVM_constInt_x27(x_6, x_7, x_8, x_9, x_5);
 return x_10;
 }
@@ -1879,7 +1875,6 @@ lean_dec(x_1);
 x_6 = lean_unbox_uint64(x_2);
 lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_LLVM_constInt1(x_5, x_6, x_7, x_4);
 return x_8;
 }
@@ -1902,7 +1897,6 @@ lean_dec(x_1);
 x_6 = lean_unbox_uint64(x_2);
 lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_LLVM_constInt8(x_5, x_6, x_7, x_4);
 return x_8;
 }
@@ -1925,7 +1919,6 @@ lean_dec(x_1);
 x_6 = lean_unbox_uint64(x_2);
 lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_LLVM_constInt32(x_5, x_6, x_7, x_4);
 return x_8;
 }
@@ -1948,7 +1941,6 @@ lean_dec(x_1);
 x_6 = lean_unbox_uint64(x_2);
 lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_LLVM_constInt64(x_5, x_6, x_7, x_4);
 return x_8;
 }
@@ -1971,7 +1963,6 @@ lean_dec(x_1);
 x_6 = lean_unbox_uint64(x_2);
 lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_LLVM_constIntSizeT(x_5, x_6, x_7, x_4);
 return x_8;
 }
@@ -1994,7 +1985,6 @@ lean_dec(x_1);
 x_6 = lean_unbox_uint64(x_2);
 lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_LLVM_constIntUnsigned(x_5, x_6, x_7, x_4);
 return x_8;
 }

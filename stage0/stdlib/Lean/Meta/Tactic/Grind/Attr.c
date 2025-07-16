@@ -1403,7 +1403,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_4);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_6);
 lean_ctor_set(x_12, 1, x_11);
@@ -1412,7 +1411,6 @@ return x_12;
 else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_dec(x_6);
 x_13 = lean_ctor_get(x_5, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_5, 1);
@@ -1437,7 +1435,6 @@ lean_object* x_20;
 x_20 = lean_ctor_get(x_19, 1);
 lean_inc(x_20);
 lean_dec(x_19);
-lean_inc(x_4);
 {
 lean_object* _tmp_4 = x_14;
 lean_object* _tmp_5 = x_4;
@@ -1455,7 +1452,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_4);
 return x_19;
 }
 }
@@ -3267,11 +3263,8 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_12 = lean_unbox(x_1);
-lean_dec(x_1);
 x_13 = lean_unbox(x_2);
-lean_dec(x_2);
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = l_List_forIn_x27_loop___at_____private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_registerGrindAttr_spec__0___redArg(x_12, x_13, x_14, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_15;
 }
@@ -3281,11 +3274,8 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_14 = lean_unbox(x_1);
-lean_dec(x_1);
 x_15 = lean_unbox(x_2);
-lean_dec(x_2);
 x_16 = lean_unbox(x_3);
-lean_dec(x_3);
 x_17 = l_List_forIn_x27_loop___at_____private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_registerGrindAttr_spec__0(x_14, x_15, x_16, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_5);
 return x_17;
@@ -3296,7 +3286,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_registerGrindAttr___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_2);
 return x_8;
 }
 }
@@ -3305,9 +3294,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_registerGrindAttr___lam__1(x_1, x_8, x_9, x_4, x_5, x_6, x_7);
 return x_10;
 }
@@ -3317,11 +3304,8 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = lean_unbox(x_6);
-lean_dec(x_6);
 x_13 = l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_registerGrindAttr___lam__2(x_1, x_10, x_11, x_4, x_5, x_12, x_7, x_8, x_9);
 lean_dec(x_5);
 return x_13;
@@ -3332,7 +3316,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_registerGrindAttr(x_3, x_2);
 return x_4;
 }

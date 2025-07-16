@@ -1795,7 +1795,6 @@ lean_object* x_7;
 x_7 = l_Lean_addDocStringCore___at___Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3__spec__1___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
 return x_7;
 }
 }
@@ -1804,7 +1803,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_addDocStringCore___at___Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3__spec__1___lam__1(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -1846,7 +1844,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_5);
-lean_dec(x_5);
 x_10 = l_Lean_initFn___lam__1____x40_Lean_Elab_InheritDoc___hyg_3_(x_1, x_2, x_3, x_4, x_9, x_6, x_7, x_8);
 return x_10;
 }

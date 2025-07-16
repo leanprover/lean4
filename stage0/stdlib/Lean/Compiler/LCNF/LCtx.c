@@ -1986,7 +1986,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Compiler_LCNF_LCtx_eraseFunDecl(x_1, x_2, x_4);
 lean_dec(x_2);
 return x_5;

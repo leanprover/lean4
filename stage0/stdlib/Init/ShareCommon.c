@@ -232,7 +232,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_ShareCommon_StateFactory_mkImpl___lam__2(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }

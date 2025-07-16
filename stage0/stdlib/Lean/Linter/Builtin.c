@@ -882,7 +882,6 @@ lean_dec(x_11);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_30 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_30, 0, x_10);
 lean_ctor_set(x_30, 1, x_13);
@@ -891,7 +890,6 @@ return x_30;
 else
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; 
-lean_dec(x_10);
 x_31 = lean_array_uget(x_7, x_9);
 x_32 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__7_spec__7___closed__3;
 lean_inc(x_4);
@@ -904,7 +902,6 @@ lean_dec(x_33);
 if (x_34 == 0)
 {
 lean_dec(x_31);
-lean_inc(x_1);
 x_14 = x_1;
 x_15 = x_13;
 goto block_19;
@@ -931,7 +928,6 @@ x_40 = l_Lean_Syntax_isOfKind(x_35, x_39);
 if (x_40 == 0)
 {
 lean_dec(x_35);
-lean_inc(x_1);
 x_14 = x_1;
 x_15 = x_13;
 goto block_19;
@@ -957,7 +953,6 @@ x_43 = l_Lean_Syntax_isOfKind(x_41, x_42);
 if (x_43 == 0)
 {
 lean_dec(x_41);
-lean_inc(x_1);
 x_14 = x_1;
 x_15 = x_13;
 goto block_19;
@@ -994,7 +989,6 @@ lean_dec(x_20);
 x_27 = lean_ctor_get(x_26, 1);
 lean_inc(x_27);
 lean_dec(x_26);
-lean_inc(x_1);
 x_14 = x_1;
 x_15 = x_27;
 goto block_19;
@@ -1013,7 +1007,6 @@ lean_dec(x_11);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_30 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_30, 0, x_10);
 lean_ctor_set(x_30, 1, x_13);
@@ -1022,7 +1015,6 @@ return x_30;
 else
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; 
-lean_dec(x_10);
 x_31 = lean_array_uget(x_7, x_9);
 x_32 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__7_spec__7___closed__3;
 lean_inc(x_4);
@@ -1035,7 +1027,6 @@ lean_dec(x_33);
 if (x_34 == 0)
 {
 lean_dec(x_31);
-lean_inc(x_1);
 x_14 = x_1;
 x_15 = x_13;
 goto block_19;
@@ -1062,7 +1053,6 @@ x_40 = l_Lean_Syntax_isOfKind(x_35, x_39);
 if (x_40 == 0)
 {
 lean_dec(x_35);
-lean_inc(x_1);
 x_14 = x_1;
 x_15 = x_13;
 goto block_19;
@@ -1088,7 +1078,6 @@ x_43 = l_Lean_Syntax_isOfKind(x_41, x_42);
 if (x_43 == 0)
 {
 lean_dec(x_41);
-lean_inc(x_1);
 x_14 = x_1;
 x_15 = x_13;
 goto block_19;
@@ -1123,7 +1112,6 @@ lean_dec(x_20);
 x_27 = lean_ctor_get(x_26, 1);
 lean_inc(x_27);
 lean_dec(x_26);
-lean_inc(x_1);
 x_14 = x_1;
 x_15 = x_27;
 goto block_19;
@@ -2257,7 +2245,6 @@ _start:
 {
 uint8_t x_9; size_t x_10; size_t x_11; uint8_t x_12; lean_object* x_13; 
 x_9 = lean_unbox(x_5);
-lean_dec(x_5);
 x_10 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_11 = lean_unbox_usize(x_8);

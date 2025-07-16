@@ -517,16 +517,12 @@ else
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_2, 0);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_2, 1);
-lean_inc(x_6);
-lean_dec(x_2);
 x_7 = lean_nat_dec_eq(x_3, x_1);
 if (x_7 == 0)
 {
 uint32_t x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_unbox_uint32(x_5);
-lean_dec(x_5);
 x_9 = l_Char_utf8Size(x_8);
 x_10 = lean_nat_add(x_3, x_9);
 lean_dec(x_9);
@@ -537,8 +533,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_3);
 return x_7;
 }
@@ -550,6 +544,7 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_String_Pos_isValid_go(x_1, x_2, x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
 return x_5;
@@ -580,16 +575,12 @@ else
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec(x_1);
 x_7 = lean_nat_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 uint32_t x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_unbox_uint32(x_5);
-lean_dec(x_5);
 x_9 = l_Char_utf8Size(x_8);
 x_10 = lean_nat_add(x_2, x_9);
 lean_dec(x_9);
@@ -601,10 +592,8 @@ goto _start;
 else
 {
 uint32_t x_12; 
-lean_dec(x_6);
 lean_dec(x_2);
 x_12 = lean_unbox_uint32(x_5);
-lean_dec(x_5);
 return x_12;
 }
 }
@@ -616,6 +605,7 @@ _start:
 uint32_t x_4; lean_object* x_5; 
 x_4 = l_String_utf8GetAux(x_1, x_2, x_3);
 lean_dec(x_3);
+lean_dec(x_1);
 x_5 = lean_box_uint32(x_4);
 return x_5;
 }
@@ -645,16 +635,12 @@ else
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec(x_1);
 x_7 = lean_nat_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 uint32_t x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_unbox_uint32(x_5);
-lean_dec(x_5);
 x_9 = l_Char_utf8Size(x_8);
 x_10 = lean_nat_add(x_2, x_9);
 lean_dec(x_9);
@@ -666,8 +652,8 @@ goto _start;
 else
 {
 lean_object* x_12; 
-lean_dec(x_6);
 lean_dec(x_2);
+lean_inc(x_5);
 x_12 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_12, 0, x_5);
 return x_12;
@@ -681,6 +667,7 @@ _start:
 lean_object* x_4; 
 x_4 = l_String_utf8GetAux_x3f(x_1, x_2, x_3);
 lean_dec(x_3);
+lean_dec(x_1);
 return x_4;
 }
 }
@@ -849,12 +836,8 @@ else
 {
 lean_object* x_5; lean_object* x_6; uint32_t x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec(x_1);
 x_7 = lean_unbox_uint32(x_5);
-lean_dec(x_5);
 x_8 = l_Char_utf8Size(x_7);
 x_9 = lean_nat_add(x_2, x_8);
 lean_dec(x_8);
@@ -869,7 +852,6 @@ goto _start;
 else
 {
 lean_dec(x_9);
-lean_dec(x_6);
 return x_2;
 }
 }
@@ -881,6 +863,7 @@ _start:
 lean_object* x_4; 
 x_4 = l_String_utf8PrevAux(x_1, x_2, x_3);
 lean_dec(x_3);
+lean_dec(x_1);
 return x_4;
 }
 }
@@ -1163,7 +1146,6 @@ x_7 = lean_box_uint32(x_6);
 lean_inc(x_2);
 x_8 = lean_apply_1(x_2, x_7);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; 
@@ -1226,7 +1208,6 @@ x_8 = lean_box_uint32(x_7);
 lean_inc(x_2);
 x_9 = lean_apply_1(x_2, x_8);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 x_3 = x_6;
@@ -1545,7 +1526,6 @@ x_8 = lean_box_uint32(x_7);
 lean_inc(x_2);
 x_9 = lean_apply_1(x_2, x_8);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -2967,7 +2947,6 @@ x_9 = lean_unbox(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; 
-lean_dec(x_8);
 x_10 = lean_string_utf8_next(x_1, x_4);
 lean_dec(x_4);
 x_4 = x_10;
@@ -2979,7 +2958,6 @@ uint8_t x_12;
 lean_dec(x_4);
 lean_dec(x_3);
 x_12 = lean_unbox(x_8);
-lean_dec(x_8);
 return x_12;
 }
 }
@@ -3024,7 +3002,6 @@ lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_3 = lean_box_uint32(x_2);
 x_4 = lean_apply_1(x_1, x_3);
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
@@ -3329,7 +3306,6 @@ _start:
 {
 uint8_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
 x_5 = l_String_isNat___lam__0(x_3, x_4);
@@ -3500,7 +3476,6 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_String_anyAux___at___String_toNat_x3f_spec__1(x_5, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -5079,7 +5054,6 @@ x_7 = lean_box_uint32(x_6);
 lean_inc(x_3);
 x_8 = lean_apply_1(x_3, x_7);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_dec(x_3);
@@ -5197,7 +5171,6 @@ x_8 = lean_box_uint32(x_7);
 lean_inc(x_3);
 x_9 = lean_apply_1(x_3, x_8);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_dec(x_6);

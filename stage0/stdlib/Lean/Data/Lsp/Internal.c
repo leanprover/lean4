@@ -1502,7 +1502,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_RefIdent_fromJsonRefIdentJsonRepr___lam__0____x40_Lean_Data_Lsp_Internal___hyg_647_(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -1511,7 +1510,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_RefIdent_fromJsonRefIdentJsonRepr___lam__1____x40_Lean_Data_Lsp_Internal___hyg_647_(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
 return x_7;
 }
 }
@@ -18448,7 +18446,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJsonOpenNamespace___lam__0____x40_Lean_Data_Lsp_Internal___hyg_3199_(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -18457,7 +18454,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJsonOpenNamespace___lam__1____x40_Lean_Data_Lsp_Internal___hyg_3199_(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }

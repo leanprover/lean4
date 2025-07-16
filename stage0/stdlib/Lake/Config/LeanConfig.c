@@ -450,7 +450,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_BuildType_toCtorIdx(x_2);
 return x_3;
 }
@@ -492,9 +491,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_BuildType_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -504,9 +501,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lake_BuildType_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -758,7 +753,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_reprBuildType____x40_Lake_Config_LeanConfig___hyg_20_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -850,9 +844,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_instDecidableEqBuildType(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -958,9 +950,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1028,9 +1018,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_instMinBuildType___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1066,9 +1054,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_instMaxBuildType___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1104,7 +1090,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_Backend_toCtorIdx(x_2);
 return x_3;
 }
@@ -1138,9 +1123,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_Backend_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -1150,9 +1133,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lake_Backend_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -1326,7 +1307,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_reprBackend____x40_Lake_Config_LeanConfig___hyg_411_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -1406,9 +1386,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_instDecidableEqBackend(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1562,7 +1540,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_Backend_toString(x_2);
 return x_3;
 }
@@ -1604,9 +1581,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lake_Backend_orPreferLeft(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1796,7 +1771,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_BuildType_leancArgs(x_2);
 return x_3;
 }
@@ -1978,7 +1952,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_BuildType_toString(x_2);
 return x_3;
 }
@@ -2622,11 +2595,8 @@ else
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
 x_5 = l_Option_repr___at___Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1177__spec__10___closed__3;
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = l_Bool_repr___redArg(x_6);
 x_8 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_8, 0, x_5);
@@ -3370,6 +3340,7 @@ lean_ctor_set(x_136, 0, x_135);
 lean_ctor_set(x_136, 1, x_17);
 x_137 = l_Lake_reprLeanConfig___redArg___closed__37____x40_Lake_Config_LeanConfig___hyg_1177_;
 x_138 = l_Option_repr___at___Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1177__spec__10(x_14, x_20);
+lean_dec(x_14);
 x_139 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_139, 0, x_137);
 lean_ctor_set(x_139, 1, x_138);
@@ -3457,6 +3428,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Option_repr___at___Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1177__spec__10(x_1, x_2);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -3566,7 +3538,6 @@ x_4 = lean_ctor_get_uint8(x_2, sizeof(void*)*13);
 x_5 = lean_box(x_4);
 x_6 = lean_apply_1(x_1, x_5);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 lean_ctor_set_uint8(x_2, sizeof(void*)*13, x_7);
 return x_2;
 }
@@ -3619,7 +3590,6 @@ lean_ctor_set(x_25, 10, x_20);
 lean_ctor_set(x_25, 11, x_21);
 lean_ctor_set(x_25, 12, x_22);
 x_26 = lean_unbox(x_24);
-lean_dec(x_24);
 lean_ctor_set_uint8(x_25, sizeof(void*)*13, x_26);
 lean_ctor_set_uint8(x_25, sizeof(void*)*13 + 1, x_19);
 return x_25;
@@ -3665,7 +3635,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_LeanConfig_buildType___proj___lam__1(x_3, x_2);
 return x_4;
 }
@@ -5581,7 +5550,6 @@ x_4 = lean_ctor_get_uint8(x_2, sizeof(void*)*13 + 1);
 x_5 = lean_box(x_4);
 x_6 = lean_apply_1(x_1, x_5);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 lean_ctor_set_uint8(x_2, sizeof(void*)*13 + 1, x_7);
 return x_2;
 }
@@ -5635,7 +5603,6 @@ lean_ctor_set(x_25, 11, x_21);
 lean_ctor_set(x_25, 12, x_22);
 lean_ctor_set_uint8(x_25, sizeof(void*)*13, x_8);
 x_26 = lean_unbox(x_24);
-lean_dec(x_24);
 lean_ctor_set_uint8(x_25, sizeof(void*)*13 + 1, x_26);
 return x_25;
 }
@@ -5680,7 +5647,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lake_LeanConfig_backend___proj___lam__1(x_3, x_2);
 return x_4;
 }
@@ -7061,7 +7027,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_BuildType_leanOptions(x_2);
 return x_3;
 }
@@ -7079,7 +7044,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_BuildType_leanArgs(x_2);
 return x_3;
 }

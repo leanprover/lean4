@@ -9440,6 +9440,7 @@ x_114 = lean_usize_land(x_43, x_113);
 x_115 = lean_array_uget(x_34, x_114);
 lean_dec(x_34);
 x_116 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_Meta_Grind_Arith_CommRing_EqCnstr_toPreNullCert_spec__1___redArg(x_35, x_115);
+lean_dec(x_115);
 if (lean_obj_tag(x_116) == 0)
 {
 lean_object* x_117; 
@@ -9896,7 +9897,6 @@ lean_dec(x_59);
 x_61 = lean_usize_sub(x_60, x_45);
 x_62 = lean_usize_land(x_43, x_61);
 x_63 = lean_array_uget(x_58, x_62);
-lean_inc(x_63);
 x_64 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__0___redArg(x_35, x_63);
 if (x_64 == 0)
 {
@@ -9982,7 +9982,6 @@ lean_dec(x_83);
 x_85 = lean_usize_sub(x_84, x_45);
 x_86 = lean_usize_land(x_43, x_85);
 x_87 = lean_array_uget(x_82, x_86);
-lean_inc(x_87);
 x_88 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__0___redArg(x_35, x_87);
 if (x_88 == 0)
 {
@@ -10106,6 +10105,7 @@ x_267 = lean_usize_land(x_220, x_266);
 x_268 = lean_array_uget(x_211, x_267);
 lean_dec(x_211);
 x_269 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_Meta_Grind_Arith_CommRing_EqCnstr_toPreNullCert_spec__1___redArg(x_212, x_268);
+lean_dec(x_268);
 if (lean_obj_tag(x_269) == 0)
 {
 lean_object* x_270; 
@@ -10569,7 +10569,6 @@ lean_dec(x_236);
 x_238 = lean_usize_sub(x_237, x_222);
 x_239 = lean_usize_land(x_220, x_238);
 x_240 = lean_array_uget(x_234, x_239);
-lean_inc(x_240);
 x_241 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__0___redArg(x_212, x_240);
 if (x_241 == 0)
 {
@@ -11002,6 +11001,7 @@ x_114 = lean_usize_land(x_43, x_113);
 x_115 = lean_array_uget(x_34, x_114);
 lean_dec(x_34);
 x_116 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_Meta_Grind_Arith_CommRing_EqCnstr_toPreNullCert_spec__1___redArg(x_35, x_115);
+lean_dec(x_115);
 if (lean_obj_tag(x_116) == 0)
 {
 lean_object* x_117; 
@@ -11780,7 +11780,6 @@ lean_dec(x_59);
 x_61 = lean_usize_sub(x_60, x_45);
 x_62 = lean_usize_land(x_43, x_61);
 x_63 = lean_array_uget(x_58, x_62);
-lean_inc(x_63);
 x_64 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__0___redArg(x_35, x_63);
 if (x_64 == 0)
 {
@@ -11866,7 +11865,6 @@ lean_dec(x_83);
 x_85 = lean_usize_sub(x_84, x_45);
 x_86 = lean_usize_land(x_43, x_85);
 x_87 = lean_array_uget(x_82, x_86);
-lean_inc(x_87);
 x_88 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__0___redArg(x_35, x_87);
 if (x_88 == 0)
 {
@@ -11990,6 +11988,7 @@ x_354 = lean_usize_land(x_307, x_353);
 x_355 = lean_array_uget(x_298, x_354);
 lean_dec(x_298);
 x_356 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_Meta_Grind_Arith_CommRing_EqCnstr_toPreNullCert_spec__1___redArg(x_299, x_355);
+lean_dec(x_355);
 if (lean_obj_tag(x_356) == 0)
 {
 lean_object* x_357; 
@@ -12775,7 +12774,6 @@ lean_dec(x_323);
 x_325 = lean_usize_sub(x_324, x_309);
 x_326 = lean_usize_land(x_307, x_325);
 x_327 = lean_array_uget(x_321, x_326);
-lean_inc(x_327);
 x_328 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__0___redArg(x_299, x_327);
 if (x_328 == 0)
 {
@@ -13751,6 +13749,7 @@ x_114 = lean_usize_land(x_43, x_113);
 x_115 = lean_array_uget(x_34, x_114);
 lean_dec(x_34);
 x_116 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_Meta_Grind_Arith_CommRing_EqCnstr_toPreNullCert_spec__1___redArg(x_35, x_115);
+lean_dec(x_115);
 if (lean_obj_tag(x_116) == 0)
 {
 lean_object* x_117; uint8_t x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; 
@@ -15373,7 +15372,6 @@ lean_dec(x_59);
 x_61 = lean_usize_sub(x_60, x_45);
 x_62 = lean_usize_land(x_43, x_61);
 x_63 = lean_array_uget(x_58, x_62);
-lean_inc(x_63);
 x_64 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__0___redArg(x_35, x_63);
 if (x_64 == 0)
 {
@@ -15459,7 +15457,6 @@ lean_dec(x_83);
 x_85 = lean_usize_sub(x_84, x_45);
 x_86 = lean_usize_land(x_43, x_85);
 x_87 = lean_array_uget(x_82, x_86);
-lean_inc(x_87);
 x_88 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__0___redArg(x_35, x_87);
 if (x_88 == 0)
 {
@@ -15583,6 +15580,7 @@ x_510 = lean_usize_land(x_463, x_509);
 x_511 = lean_array_uget(x_454, x_510);
 lean_dec(x_454);
 x_512 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_Meta_Grind_Arith_CommRing_EqCnstr_toPreNullCert_spec__1___redArg(x_455, x_511);
+lean_dec(x_511);
 if (lean_obj_tag(x_512) == 0)
 {
 lean_object* x_513; uint8_t x_514; lean_object* x_515; lean_object* x_516; lean_object* x_517; lean_object* x_518; 
@@ -17197,7 +17195,6 @@ lean_dec(x_479);
 x_481 = lean_usize_sub(x_480, x_465);
 x_482 = lean_usize_land(x_463, x_481);
 x_483 = lean_array_uget(x_477, x_482);
-lean_inc(x_483);
 x_484 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__0___redArg(x_455, x_483);
 if (x_484 == 0)
 {
@@ -17998,9 +17995,7 @@ _start:
 {
 uint8_t x_17; uint8_t x_18; lean_object* x_19; 
 x_17 = lean_unbox(x_5);
-lean_dec(x_5);
 x_18 = lean_unbox(x_6);
-lean_dec(x_6);
 x_19 = l_Lean_Meta_withLetDecl___at___Lean_Meta_Grind_Arith_Linear_UnsatProof_toExprProof_spec__0___redArg(x_1, x_2, x_3, x_4, x_17, x_18, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 return x_19;
 }
@@ -18027,9 +18022,7 @@ _start:
 {
 uint8_t x_18; uint8_t x_19; lean_object* x_20; 
 x_18 = lean_unbox(x_6);
-lean_dec(x_6);
 x_19 = lean_unbox(x_7);
-lean_dec(x_7);
 x_20 = l_Lean_Meta_withLetDecl___at___Lean_Meta_Grind_Arith_Linear_UnsatProof_toExprProof_spec__0(x_1, x_2, x_3, x_4, x_5, x_18, x_19, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 return x_20;
 }
@@ -18625,7 +18618,6 @@ x_6 = lean_usize_dec_eq(x_2, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 
-lean_dec(x_4);
 x_7 = lean_array_uget(x_1, x_2);
 x_8 = l_Lean_Meta_Grind_Arith_CollectDecVars_markAsFound___redArg(x_7, x_5);
 x_9 = lean_ctor_get(x_8, 0);

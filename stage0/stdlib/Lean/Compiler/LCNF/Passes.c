@@ -236,7 +236,6 @@ x_7 = lean_usize_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
-lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
 x_9 = l_Lean_Compiler_LCNF_Decl_saveBase___redArg(x_8, x_5, x_6);
 x_10 = lean_ctor_get(x_9, 0);
@@ -472,7 +471,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Compiler_LCNF_trace(x_2);
 return x_3;
 }
@@ -1790,7 +1788,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Compiler_LCNF_initFn___lam__2____x40_Lean_Compiler_LCNF_Passes___hyg_603_(x_1, x_2, x_4);
 lean_dec(x_1);
 return x_5;
@@ -2769,7 +2766,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lean_Compiler_LCNF_initFn___lam__1____x40_Lean_Compiler_LCNF_Passes___hyg_962_(x_1, x_2, x_7, x_4, x_5, x_6);
 return x_8;
 }

@@ -6295,7 +6295,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashMap_Raw_forM___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -6304,7 +6303,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashMap_Raw_forM___redArg___lam__1(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
 return x_5;
 }
 }
@@ -6437,7 +6435,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashMap_Raw_instForMProd___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
 return x_5;
 }
 }

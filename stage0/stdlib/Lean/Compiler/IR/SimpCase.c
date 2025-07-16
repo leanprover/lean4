@@ -359,7 +359,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_4);
-lean_dec(x_4);
 x_15 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Compiler_IR_SimpCase_0__Lean_IR_getOccsOf_spec__0(x_1, x_2, x_3, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -539,7 +538,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Compiler_IR_SimpCase_0__Lean_IR_maxOccs_spec__0(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_7);
 lean_dec(x_6);

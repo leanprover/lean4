@@ -86,6 +86,7 @@ lean_object* l_Lake_getSearchPath(lean_object*, lean_object*);
 static lean_object* l_Lake_Env_vars___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Env_computeCache(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Env_noToolchainVars___closed__19;
+LEAN_EXPORT lean_object* l_Lake_Env_compute___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Env_compute___closed__8;
 static lean_object* l_Lake_Env_computeCache___closed__0;
 static lean_object* l_Lake_Env_noToolchainVars___closed__1;
@@ -1701,10 +1702,7 @@ else
 lean_object* x_85; uint8_t x_86; 
 lean_dec(x_70);
 x_85 = lean_ctor_get(x_4, 0);
-lean_inc(x_85);
-lean_dec(x_4);
 x_86 = lean_unbox(x_85);
-lean_dec(x_85);
 x_36 = x_68;
 x_37 = x_69;
 x_38 = x_80;
@@ -1914,7 +1912,6 @@ uint8_t x_154;
 lean_dec(x_132);
 lean_dec(x_130);
 lean_dec(x_129);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -1976,6 +1973,15 @@ x_132 = x_171;
 goto block_158;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Env_compute___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lake_Env_compute(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Env_leanGithash(lean_object* x_1) {

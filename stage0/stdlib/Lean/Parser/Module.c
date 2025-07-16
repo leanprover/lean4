@@ -3348,7 +3348,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_4);
 return x_6;
 }
@@ -4499,7 +4498,6 @@ x_7 = lean_usize_dec_eq(x_3, x_4);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
-lean_dec(x_5);
 x_8 = lean_array_uget(x_2, x_3);
 lean_inc(x_1);
 x_9 = l_Lean_PersistentArray_forMAux___at___Lean_PersistentArray_forM___at___Lean_MessageLog_forM___at___Lean_Parser_testParseModuleAux_parse_spec__0_spec__0_spec__0(x_1, x_8, x_6);
@@ -4544,7 +4542,6 @@ x_7 = lean_usize_dec_eq(x_3, x_4);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
-lean_dec(x_5);
 x_8 = lean_array_uget(x_2, x_3);
 lean_inc(x_1);
 x_9 = lean_apply_2(x_1, x_8, x_6);
@@ -5121,7 +5118,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Lean_Parser_testParseModuleAux_parse___lam__0(x_4, x_2, x_3);
 return x_5;
 }

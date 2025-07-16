@@ -2094,7 +2094,6 @@ _start:
 {
 uint8_t x_20; lean_object* x_21; 
 x_20 = lean_unbox(x_3);
-lean_dec(x_3);
 x_21 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_addStructureSimpLemmas_spec__0(x_1, x_2, x_20, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 lean_dec(x_18);
 lean_dec(x_17);
@@ -2118,7 +2117,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
 return x_14;
 }
 }
@@ -2139,7 +2137,6 @@ lean_object* x_13;
 x_13 = l_Std_DHashMap_Internal_AssocList_forInStep_go___at___Std_DHashMap_Internal_AssocList_forInStep_go___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_addStructureSimpLemmas_spec__1_spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_2);
 return x_13;
 }
 }
@@ -2150,7 +2147,6 @@ lean_object* x_13;
 x_13 = l_Std_DHashMap_Internal_AssocList_forInStep_go___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_addStructureSimpLemmas_spec__1___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_2);
 return x_13;
 }
 }
@@ -2165,7 +2161,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 return x_17;
 }
 }
@@ -2203,7 +2198,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 return x_21;
 }
 }
@@ -3562,7 +3556,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_structuresPass___lam__0(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);

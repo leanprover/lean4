@@ -1916,7 +1916,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_MonadExcept_orelse_x27___redArg___lam__0(x_5, x_2, x_3, x_4);
 return x_6;
 }
@@ -1926,7 +1925,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l_MonadExcept_orelse_x27___redArg___lam__1(x_6, x_2, x_3, x_4, x_5);
 return x_7;
 }
@@ -1936,7 +1934,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_MonadExcept_orelse_x27___redArg(x_1, x_2, x_3, x_5);
 return x_6;
 }
@@ -1946,7 +1943,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 x_9 = l_MonadExcept_orelse_x27(x_1, x_2, x_3, x_4, x_5, x_6, x_8);
 return x_9;
 }

@@ -444,7 +444,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Meta_SplitKind_toCtorIdx(x_2);
 return x_3;
 }
@@ -486,9 +485,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Meta_SplitKind_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -498,9 +495,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_Meta_SplitKind_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -530,7 +525,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Meta_SplitKind_considerIte(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -561,7 +555,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Meta_SplitKind_considerMatch(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -595,7 +588,6 @@ x_11 = lean_nat_dec_lt(x_10, x_4);
 if (x_11 == 0)
 {
 lean_dec(x_10);
-lean_dec(x_3);
 lean_inc(x_2);
 return x_2;
 }
@@ -922,7 +914,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_4);
-lean_dec(x_4);
 x_15 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_FindSplitImpl_isCandidate_x3f_spec__0(x_1, x_2, x_3, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -1408,7 +1399,6 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_6);
-lean_dec(x_4);
 lean_dec(x_3);
 x_47 = !lean_is_exclusive(x_34);
 if (x_47 == 0)
@@ -1533,7 +1523,6 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_6);
-lean_dec(x_4);
 lean_dec(x_3);
 x_67 = !lean_is_exclusive(x_54);
 if (x_67 == 0)
@@ -1593,7 +1582,6 @@ lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_4);
 lean_dec(x_3);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_20);
@@ -2852,7 +2840,6 @@ _start:
 {
 uint8_t x_22; lean_object* x_23; 
 x_22 = lean_unbox(x_5);
-lean_dec(x_5);
 x_23 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_FindSplitImpl_visit_visitApp_x3f_spec__0(x_1, x_2, x_3, x_4, x_22, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_15);
 lean_dec(x_11);
@@ -2878,7 +2865,6 @@ _start:
 lean_object* x_12; 
 x_12 = l_Lean_Expr_withAppAux___at___Lean_Expr_withAppAux___at___Lean_Meta_FindSplitImpl_visit_visitApp_x3f_spec__1_spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_5);
-lean_dec(x_1);
 return x_12;
 }
 }
@@ -2889,7 +2875,6 @@ lean_object* x_12;
 x_12 = l_Lean_Expr_withAppAux___at___Lean_Meta_FindSplitImpl_visit_visitApp_x3f_spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_1);
 return x_12;
 }
 }
@@ -2990,7 +2975,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Meta_findSplit_x3f_find_x3f_unsafe__1(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -3265,7 +3249,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Meta_findSplit_x3f_find_x3f(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -3400,7 +3383,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = l_Lean_Meta_findSplit_x3f_go(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -3424,7 +3406,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = l_Lean_Meta_findSplit_x3f(x_1, x_9, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -6170,7 +6151,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_discharge_x3f(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -7971,7 +7951,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_reduceIte_x27(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_1);
 return x_13;
@@ -10086,7 +10065,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_reduceDIte_x27(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_1);
 return x_13;
@@ -10464,7 +10442,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_getSimprocs___redArg(x_1, x_4, x_3);
 return x_5;
 }
@@ -10474,7 +10451,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l___private_Lean_Meta_Tactic_SplitIf_0__Lean_Meta_SplitIf_getSimprocs(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -10514,7 +10490,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Lean_Meta_SplitIf_mkDischarge_x3f___redArg(x_4, x_2, x_3);
 return x_5;
 }
@@ -10524,7 +10499,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = l_Lean_Meta_SplitIf_mkDischarge_x3f(x_7, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -11819,9 +11793,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = l_Lean_Meta_simpIfTarget(x_1, x_9, x_10, x_4, x_5, x_6, x_7, x_8);
 return x_11;
 }
@@ -12221,7 +12193,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_Meta_simpIfLocalDecl(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -13162,7 +13133,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_Meta_splitIfTarget_x3f___lam__0(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -13172,7 +13142,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_Meta_splitIfTarget_x3f(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }

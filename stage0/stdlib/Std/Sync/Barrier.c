@@ -627,7 +627,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
@@ -648,7 +647,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Std_Barrier_wait___lam__0(x_1, x_5, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_1);

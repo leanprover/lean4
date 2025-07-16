@@ -650,7 +650,6 @@ return x_11;
 else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-lean_dec(x_1);
 x_12 = lean_ctor_get(x_2, 0);
 x_13 = lean_ctor_get(x_2, 2);
 x_14 = l___private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_eraseCandidate(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
@@ -674,7 +673,6 @@ x_13 = lean_usize_dec_eq(x_2, x_3);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; size_t x_19; size_t x_20; 
-lean_dec(x_4);
 x_14 = lean_array_uget(x_1, x_2);
 x_15 = lean_box(0);
 x_16 = l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointFinder_eraseCandidate_spec__0(x_15, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
@@ -1850,7 +1848,6 @@ x_14 = lean_usize_dec_eq(x_3, x_4);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
-lean_dec(x_5);
 x_15 = lean_array_uget(x_2, x_3);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -2765,7 +2762,6 @@ x_13 = lean_usize_dec_eq(x_2, x_3);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_4);
 x_14 = lean_array_uget(x_1, x_2);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -2942,7 +2938,6 @@ x_13 = lean_usize_dec_eq(x_2, x_3);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-lean_dec(x_4);
 x_14 = lean_array_uget(x_1, x_2);
 x_15 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_JoinPointFinder_find_go), 9, 0);
 lean_inc(x_11);
@@ -7687,7 +7682,6 @@ if (x_14 == 0)
 {
 lean_object* x_15; 
 lean_dec(x_6);
-lean_dec(x_1);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_5);
 lean_ctor_set(x_15, 1, x_13);
@@ -7696,7 +7690,6 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec(x_5);
 x_16 = lean_array_uget(x_2, x_4);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
@@ -7711,7 +7704,6 @@ lean_inc(x_19);
 lean_dec(x_18);
 x_20 = 1;
 x_21 = lean_usize_add(x_4, x_20);
-lean_inc(x_1);
 {
 size_t _tmp_3 = x_21;
 lean_object* _tmp_4 = x_1;
@@ -7725,7 +7717,6 @@ goto _start;
 else
 {
 lean_dec(x_6);
-lean_dec(x_1);
 return x_18;
 }
 }
@@ -12406,7 +12397,6 @@ x_7 = lean_usize_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; 
-lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -14165,7 +14155,6 @@ x_13 = lean_usize_dec_eq(x_2, x_3);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_dec(x_4);
 x_14 = lean_array_uget(x_1, x_2);
 x_15 = l_Lean_Compiler_LCNF_Alt_getParams(x_14);
 x_16 = lean_unsigned_to_nat(0u);
@@ -16268,16 +16257,13 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; lean_object* x_12; 
 x_10 = lean_unbox(x_1);
-lean_dec(x_1);
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = l_Array_foldlMUnsafe_fold___at___Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goReduce_spec__1___lam__0(x_10, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
 return x_12;
 }
 }
@@ -18359,7 +18345,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Compiler_LCNF_extendJoinPointContext___redArg(x_1, x_3);
 return x_4;
 }
@@ -18369,7 +18354,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Compiler_LCNF_extendJoinPointContext(x_1, x_4, x_3);
 return x_5;
 }

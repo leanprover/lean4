@@ -987,7 +987,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = l_Lean_Elab_elabAttr___redArg___lam__1(x_1, x_2, x_3, x_8, x_5, x_6, x_7);
 return x_9;
 }
@@ -997,7 +996,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_4);
-lean_dec(x_4);
 x_10 = l_Lean_Elab_elabAttr___redArg___lam__2(x_1, x_2, x_3, x_9, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -1007,7 +1005,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_4);
-lean_dec(x_4);
 x_10 = l_Lean_Elab_elabAttr___redArg___lam__6(x_1, x_2, x_3, x_9, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 return x_10;
@@ -1018,7 +1015,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_15);
-lean_dec(x_15);
 x_17 = l_Lean_Elab_elabAttr___redArg___lam__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_16);
 lean_dec(x_7);
 return x_17;
@@ -1245,7 +1241,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Elab_elabAttrs___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }

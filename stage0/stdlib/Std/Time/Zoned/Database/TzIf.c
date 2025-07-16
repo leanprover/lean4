@@ -2553,7 +2553,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Format_joinSep___at___Array_Array_repr___at___Std_Time_TimeZone_TZif_reprTZifV1____x40_Std_Time_Zoned_Database_TzIf___hyg_564__spec__1_spec__1___lam__0(x_2);
 return x_3;
 }
@@ -2572,7 +2571,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Format_joinSep___at___Array_Array_repr___at___Std_Time_TimeZone_TZif_reprTZifV1____x40_Std_Time_Zoned_Database_TzIf___hyg_564__spec__11_spec__11___lam__0(x_2);
 return x_3;
 }
@@ -3643,7 +3641,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_3);
-lean_dec(x_3);
 x_15 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Std_Time_Zoned_Database_TzIf_0__Std_Time_TimeZone_TZif_manyN_spec__0(x_1, x_2, x_14, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -5091,7 +5088,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_1);
-lean_dec(x_1);
 x_9 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Std_Time_Zoned_Database_TzIf_0__Std_Time_TimeZone_TZif_parseAbbreviations_spec__0___redArg(x_8, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_4);
 lean_dec(x_2);
@@ -5103,9 +5099,7 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_15 = lean_unbox(x_1);
-lean_dec(x_1);
 x_16 = lean_unbox(x_4);
-lean_dec(x_4);
 x_17 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Std_Time_Zoned_Database_TzIf_0__Std_Time_TimeZone_TZif_parseAbbreviations_spec__0(x_15, x_2, x_3, x_16, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -5118,7 +5112,6 @@ _start:
 {
 uint8_t x_10; size_t x_11; size_t x_12; lean_object* x_13; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = lean_unbox_usize(x_6);
 lean_dec(x_6);
 x_12 = lean_unbox_usize(x_7);
@@ -5135,7 +5128,6 @@ _start:
 {
 uint8_t x_11; size_t x_12; size_t x_13; lean_object* x_14; 
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_13 = lean_unbox_usize(x_8);
@@ -5144,7 +5136,6 @@ x_14 = l_Array_forIn_x27Unsafe_loop___at_____private_Std_Time_Zoned_Database_TzI
 lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_14;
 }
 }

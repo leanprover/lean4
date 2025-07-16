@@ -2969,9 +2969,7 @@ _start:
 {
 uint8_t x_17; uint8_t x_18; lean_object* x_19; 
 x_17 = lean_unbox(x_7);
-lean_dec(x_7);
 x_18 = lean_unbox(x_8);
-lean_dec(x_8);
 x_19 = l_Lean_Compiler_LCNF_Decl_pullLetDecls___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_17, x_18, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 return x_19;
 }

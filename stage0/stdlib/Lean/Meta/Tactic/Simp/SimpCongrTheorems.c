@@ -2488,7 +2488,6 @@ x_19 = lean_usize_dec_lt(x_6, x_5);
 if (x_19 == 0)
 {
 lean_object* x_20; 
-lean_dec(x_3);
 lean_dec(x_2);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_7);
@@ -2498,14 +2497,12 @@ return x_20;
 else
 {
 lean_object* x_21; uint8_t x_22; 
-lean_dec(x_7);
 x_21 = lean_array_uget(x_4, x_6);
 x_22 = l_Lean_Expr_isFVar(x_21);
 lean_dec(x_21);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-lean_dec(x_3);
 x_23 = l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkSimpCongrTheorem_spec__5___closed__1;
 x_24 = lean_unsigned_to_nat(1u);
 x_25 = lean_nat_add(x_1, x_24);
@@ -2533,7 +2530,6 @@ return x_36;
 }
 else
 {
-lean_inc(x_3);
 x_13 = x_3;
 x_14 = x_12;
 goto block_18;
@@ -7357,7 +7353,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_3);
-lean_dec(x_3);
 x_9 = l_Lean_ScopedEnvExtension_add___at___Lean_Meta_addSimpCongrTheorem_spec__0___redArg(x_1, x_2, x_8, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_4);
@@ -7369,7 +7364,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_6);
-lean_dec(x_6);
 x_13 = l_Lean_ScopedEnvExtension_add___at___Lean_Meta_addSimpCongrTheorem_spec__0(x_1, x_2, x_3, x_4, x_5, x_12, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_10);
 lean_dec(x_8);
@@ -7382,7 +7376,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = l_Lean_Meta_addSimpCongrTheorem(x_1, x_9, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -8098,7 +8091,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lean_Meta_initFn___lam__0____x40_Lean_Meta_Tactic_Simp_SimpCongrTheorems___hyg_1872_(x_1, x_2, x_7, x_4, x_5, x_6);
 lean_dec(x_2);
 return x_8;

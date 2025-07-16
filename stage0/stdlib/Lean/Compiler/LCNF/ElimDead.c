@@ -1259,7 +1259,6 @@ x_7 = lean_usize_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; size_t x_16; size_t x_17; 
-lean_dec(x_4);
 x_8 = lean_st_ref_take(x_5, x_6);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);

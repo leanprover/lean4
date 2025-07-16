@@ -6009,7 +6009,6 @@ _start:
 {
 uint8_t x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_14 = lean_unbox_usize(x_6);
@@ -6025,7 +6024,6 @@ _start:
 {
 uint8_t x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_14 = lean_unbox_usize(x_6);

@@ -2214,7 +2214,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_instInhabitedScopedEnvExtension___redArg___lam__2(x_1, x_2, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -2482,7 +2481,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_registerScopedEnvExtensionUnsafe___redArg___lam__0(x_1, x_2, x_4);
 lean_dec(x_1);
 return x_5;
@@ -2913,7 +2911,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = l_Lean_ScopedEnvExtension_addCore___redArg(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }
@@ -2923,7 +2920,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_7);
-lean_dec(x_7);
 x_10 = l_Lean_ScopedEnvExtension_addCore(x_1, x_2, x_3, x_4, x_5, x_6, x_9, x_8);
 return x_10;
 }
@@ -2986,7 +2982,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_ScopedEnvExtension_add___redArg___lam__0(x_1, x_2, x_6, x_4, x_5);
 return x_7;
 }
@@ -2996,7 +2991,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = l_Lean_ScopedEnvExtension_add___redArg___lam__1(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }
@@ -3006,7 +3000,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Lean_ScopedEnvExtension_add___redArg(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
@@ -3016,7 +3009,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_10);
-lean_dec(x_10);
 x_12 = l_Lean_ScopedEnvExtension_add(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_11);
 return x_12;
 }
@@ -3110,7 +3102,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_Lean_ScopedEnvExtension_getState___redArg(x_1, x_2, x_3, x_5);
 lean_dec(x_2);
 return x_6;
@@ -3121,7 +3112,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 x_9 = l_Lean_ScopedEnvExtension_getState(x_1, x_2, x_3, x_4, x_5, x_6, x_8);
 lean_dec(x_5);
 return x_9;
@@ -4275,7 +4265,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_pushScope___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -4284,7 +4273,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_pushScope___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
 return x_7;
 }
 }
@@ -4293,7 +4281,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_pushScope___redArg___lam__2(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -4374,7 +4361,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_popScope___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
 return x_7;
 }
 }
@@ -4463,7 +4449,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_activateScoped___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
 return x_8;
 }
 }

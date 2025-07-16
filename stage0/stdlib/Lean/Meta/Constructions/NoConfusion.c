@@ -2328,7 +2328,6 @@ x_8 = l_Lean_throwKernelException___at___Lean_ofExceptKernelException___at___Lea
 lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_8;
 }
 }
@@ -2381,7 +2380,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_hasConst___at___Lean_mkNoConfusionCore_spec__3___redArg(x_1, x_5, x_3, x_4);
 lean_dec(x_3);
 return x_6;
@@ -2392,7 +2390,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Lean_hasConst___at___Lean_mkNoConfusionCore_spec__3(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -2406,7 +2403,6 @@ _start:
 {
 uint8_t x_10; size_t x_11; size_t x_12; lean_object* x_13; 
 x_10 = lean_unbox(x_1);
-lean_dec(x_1);
 x_11 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_12 = lean_unbox_usize(x_4);
@@ -2425,9 +2421,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_1);
-lean_dec(x_1);
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = l_Lean_mkNoConfusionCore___lam__0(x_8, x_9, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -2862,7 +2856,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_1);
-lean_dec(x_1);
 x_17 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_mkNoConfusionEnum_mkToCtorIdx_spec__0(x_16, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_14);
 lean_dec(x_13);
@@ -4118,7 +4111,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_5);
-lean_dec(x_5);
 x_17 = l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__0(x_1, x_2, x_3, x_4, x_16, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_17;
 }
@@ -4128,7 +4120,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_4);
-lean_dec(x_4);
 x_16 = l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__1(x_1, x_2, x_3, x_15, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_16;
 }
@@ -4138,7 +4129,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__2(x_1, x_2, x_15, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_16;
 }
@@ -4148,7 +4138,6 @@ _start:
 {
 uint8_t x_14; lean_object* x_15; 
 x_14 = lean_unbox(x_2);
-lean_dec(x_2);
 x_15 = l_Lean_mkNoConfusionEnum_mkNoConfusion___lam__3(x_1, x_14, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 return x_15;
 }
@@ -4788,7 +4777,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = l_List_allM___at___Lean_isEnumType___at___Lean_mkNoConfusion_spec__0_spec__0(x_1, x_9, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);

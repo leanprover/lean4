@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l_System_FilePath_pathSeparators;
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_split___at___System_SearchPath_parse_spec__0(lean_object*);
 lean_object* l_String_revFindAux(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_mapAux___at___String_mapAux___at___System_FilePath_normalize_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_lengthTR___redArg(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_join___boxed(lean_object*, lean_object*);
@@ -430,12 +431,8 @@ else
 {
 lean_object* x_4; lean_object* x_5; uint32_t x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 1);
-lean_inc(x_5);
-lean_dec(x_2);
 x_6 = lean_unbox_uint32(x_4);
-lean_dec(x_4);
 x_7 = lean_uint32_dec_eq(x_1, x_6);
 if (x_7 == 0)
 {
@@ -444,7 +441,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_5);
 return x_7;
 }
 }
@@ -459,7 +455,6 @@ if (x_9 == 0)
 {
 uint32_t x_10; uint8_t x_11; 
 x_10 = lean_string_utf8_get(x_3, x_2);
-lean_inc(x_1);
 x_11 = l_List_elem___at___System_FilePath_normalize_spec__0(x_10, x_1);
 if (x_11 == 0)
 {
@@ -477,7 +472,6 @@ goto block_8;
 else
 {
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 block_8:
@@ -501,7 +495,6 @@ if (x_9 == 0)
 {
 uint32_t x_10; uint8_t x_11; 
 x_10 = lean_string_utf8_get(x_3, x_2);
-lean_inc(x_1);
 x_11 = l_List_elem___at___System_FilePath_normalize_spec__0(x_10, x_1);
 if (x_11 == 0)
 {
@@ -518,7 +511,6 @@ goto block_8;
 }
 else
 {
-lean_dec(x_1);
 return x_3;
 }
 block_8:
@@ -656,8 +648,18 @@ uint32_t x_3; uint8_t x_4; lean_object* x_5;
 x_3 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_4 = l_List_elem___at___System_FilePath_normalize_spec__0(x_3, x_2);
+lean_dec(x_2);
 x_5 = lean_box(x_4);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_String_mapAux___at___String_mapAux___at___System_FilePath_normalize_spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_String_mapAux___at___String_mapAux___at___System_FilePath_normalize_spec__1_spec__1(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_String_mapAux___at___System_FilePath_normalize_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -666,6 +668,7 @@ _start:
 lean_object* x_4; 
 x_4 = l_String_mapAux___at___System_FilePath_normalize_spec__1(x_1, x_2, x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_4;
 }
 }
@@ -868,6 +871,7 @@ uint32_t x_3; uint8_t x_4; lean_object* x_5;
 x_3 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
 x_4 = l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___lam__0(x_1, x_3);
+lean_dec(x_1);
 x_5 = lean_box(x_4);
 return x_5;
 }

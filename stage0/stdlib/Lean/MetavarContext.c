@@ -1061,7 +1061,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_MetavarKind_toCtorIdx(x_2);
 return x_3;
 }
@@ -1103,9 +1102,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_MetavarKind_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -1115,9 +1112,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_MetavarKind_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -1317,7 +1312,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_reprMetavarKind____x40_Lean_MetavarContext___hyg_113_(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -1364,7 +1358,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_MetavarKind_isSyntheticOpaque(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -1395,7 +1388,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_MetavarKind_isNatural(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -2873,7 +2865,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedLevelMVar___redArg___lam__0(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -2883,7 +2874,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedLevelMVar___redArg___lam__1(x_1, x_2, x_3, x_4, x_6);
 lean_dec(x_1);
 return x_7;
@@ -2894,7 +2884,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedLevelMVar___redArg___lam__2(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -2904,7 +2893,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedLevelMVar___redArg___lam__3(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -3507,7 +3495,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedMVar___redArg___lam__0(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -3517,7 +3504,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedMVar___redArg___lam__1(x_1, x_2, x_3, x_4, x_6);
 lean_dec(x_1);
 return x_7;
@@ -3528,7 +3514,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedMVar___redArg___lam__2(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -3538,7 +3523,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedMVar___redArg___lam__3(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -3548,7 +3532,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedMVar___redArg___lam__4(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -3558,7 +3541,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedMVar___redArg___lam__5(x_1, x_2, x_3, x_4, x_6);
 lean_dec(x_1);
 return x_7;
@@ -3569,7 +3551,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedMVar___redArg___lam__6(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -3579,7 +3560,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedMVar___redArg___lam__7(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -3589,7 +3569,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedMVar___redArg___lam__8(x_1, x_2, x_3, x_4, x_6);
 lean_dec(x_1);
 return x_7;
@@ -3600,7 +3579,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedMVar___redArg___lam__9(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -3610,7 +3588,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Lean_hasAssignedMVar___redArg___lam__10(x_1, x_2, x_3, x_4, x_5, x_7);
 lean_dec(x_1);
 return x_8;
@@ -3621,7 +3598,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedMVar___redArg___lam__11(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -3631,7 +3607,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedMVar___redArg___lam__12(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -3641,7 +3616,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignedMVar___redArg___lam__13(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -3842,7 +3816,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignableLevelMVar___redArg___lam__0(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -3852,7 +3825,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignableLevelMVar___redArg___lam__2(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -3862,7 +3834,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignableLevelMVar___redArg___lam__1(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -4341,7 +4312,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignableMVar___redArg___lam__0(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -4351,7 +4321,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignableMVar___redArg___lam__2(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -4361,7 +4330,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignableMVar___redArg___lam__1(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -4371,7 +4339,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignableMVar___redArg___lam__4(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -4381,7 +4348,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignableMVar___redArg___lam__3(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -4391,7 +4357,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignableMVar___redArg___lam__6(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -4401,7 +4366,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignableMVar___redArg___lam__7(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -4411,7 +4375,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignableMVar___redArg___lam__5(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -4421,7 +4384,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_hasAssignableMVar___redArg___lam__8(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -4886,7 +4848,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_instantiateLevelMVars___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -4976,7 +4937,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_instantiateExprMVars___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -5451,7 +5411,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_instantiateMVars___redArg___lam__1(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -5794,9 +5753,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = lean_unbox(x_5);
-lean_dec(x_5);
 x_10 = l_Lean_instantiateLCtxMVars___redArg___lam__3(x_1, x_2, x_3, x_8, x_9, x_6, x_7);
 return x_10;
 }
@@ -5806,9 +5763,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_5);
-lean_dec(x_5);
 x_10 = lean_unbox(x_6);
-lean_dec(x_6);
 x_11 = l_Lean_instantiateLCtxMVars___redArg___lam__4(x_1, x_2, x_3, x_4, x_9, x_10, x_7, x_8);
 return x_11;
 }
@@ -5818,9 +5773,7 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = l_Lean_instantiateLCtxMVars___redArg___lam__5(x_1, x_2, x_3, x_12, x_13, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_14;
 }
@@ -6197,9 +6150,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = lean_unbox(x_5);
-lean_dec(x_5);
 x_10 = l_Lean_instantiateLocalDeclMVars___redArg___lam__0(x_1, x_2, x_3, x_8, x_9, x_6, x_7);
 return x_10;
 }
@@ -6209,9 +6160,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_5);
-lean_dec(x_5);
 x_10 = lean_unbox(x_6);
-lean_dec(x_6);
 x_11 = l_Lean_instantiateLocalDeclMVars___redArg___lam__1(x_1, x_2, x_3, x_4, x_9, x_10, x_7, x_8);
 return x_11;
 }
@@ -6221,9 +6170,7 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = l_Lean_instantiateLocalDeclMVars___redArg___lam__2(x_1, x_2, x_3, x_12, x_13, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_14;
 }
@@ -6833,7 +6780,6 @@ lean_dec(x_14);
 lean_inc(x_2);
 x_16 = lean_apply_1(x_2, x_15);
 x_17 = lean_unbox(x_16);
-lean_dec(x_16);
 x_8 = x_17;
 goto block_12;
 }
@@ -7114,7 +7060,6 @@ x_28 = lean_ctor_get(x_27, 1);
 lean_inc(x_28);
 lean_dec(x_27);
 x_29 = lean_unbox(x_23);
-lean_dec(x_23);
 x_30 = l_Lean_PersistentArray_anyM___at_____private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain_spec__1(x_29, x_1, x_28);
 lean_dec(x_28);
 x_31 = lean_box(x_30);
@@ -7151,7 +7096,6 @@ x_38 = lean_ctor_get(x_37, 1);
 lean_inc(x_38);
 lean_dec(x_37);
 x_39 = lean_unbox(x_33);
-lean_dec(x_33);
 x_40 = l_Lean_PersistentArray_anyM___at_____private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain_spec__1(x_39, x_1, x_38);
 lean_dec(x_38);
 x_41 = lean_box(x_40);
@@ -7248,7 +7192,6 @@ lean_dec(x_47);
 lean_inc(x_2);
 x_55 = lean_apply_1(x_2, x_54);
 x_56 = lean_unbox(x_55);
-lean_dec(x_55);
 if (x_56 == 0)
 {
 lean_object* x_57; 
@@ -7466,7 +7409,6 @@ _start:
 {
 uint8_t x_6; size_t x_7; size_t x_8; uint8_t x_9; lean_object* x_10; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_8 = lean_unbox_usize(x_5);
@@ -7482,7 +7424,6 @@ _start:
 {
 uint8_t x_6; size_t x_7; size_t x_8; uint8_t x_9; lean_object* x_10; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_8 = lean_unbox_usize(x_5);
@@ -7498,7 +7439,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Lean_PersistentArray_anyMAux___at___Lean_PersistentArray_anyM___at_____private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain_spec__1_spec__1(x_4, x_2, x_3);
 lean_dec(x_3);
 x_6 = lean_box(x_5);
@@ -7510,7 +7450,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Lean_PersistentArray_anyM___at_____private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain_spec__1(x_4, x_2, x_3);
 lean_dec(x_3);
 x_6 = lean_box(x_5);
@@ -7723,9 +7662,7 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_findExprDependsOn___redArg___lam__1(x_1, x_4, x_3);
-lean_dec(x_3);
 return x_5;
 }
 }
@@ -8167,9 +8104,7 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_findLocalDeclDependsOn___redArg___lam__0(x_1, x_4, x_3);
-lean_dec(x_3);
 return x_5;
 }
 }
@@ -8178,7 +8113,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Lean_findLocalDeclDependsOn___redArg(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
@@ -8188,7 +8122,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 x_9 = l_Lean_findLocalDeclDependsOn(x_1, x_2, x_3, x_4, x_5, x_6, x_8);
 return x_9;
 }
@@ -8696,7 +8629,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_localDeclDependsOn___redArg(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -8706,7 +8638,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Lean_localDeclDependsOn(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
@@ -8851,7 +8782,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_exprDependsOn_x27___redArg___lam__1(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -9134,7 +9064,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_localDeclDependsOn_x27___redArg(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -9144,7 +9073,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Lean_localDeclDependsOn_x27(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
@@ -9308,7 +9236,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Lean_localDeclDependsOnPred___redArg(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
@@ -9318,7 +9245,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 x_9 = l_Lean_localDeclDependsOnPred(x_1, x_2, x_3, x_4, x_5, x_6, x_8);
 return x_9;
 }
@@ -9494,7 +9420,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_7);
-lean_dec(x_7);
 x_10 = l_Lean_MetavarContext_addExprMVarDecl(x_1, x_2, x_3, x_4, x_5, x_6, x_9, x_8);
 return x_10;
 }
@@ -9513,7 +9438,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 x_9 = l_Lean_MetavarContext_addExprMVarDeclExp(x_1, x_2, x_3, x_4, x_5, x_6, x_8);
 return x_9;
 }
@@ -9861,7 +9785,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_MetavarContext_setMVarKind(x_1, x_2, x_4);
 return x_5;
 }
@@ -10472,7 +10395,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_MetavarContext_setFVarKind___lam__0(x_1, x_4, x_3);
 return x_5;
 }
@@ -10482,7 +10404,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_Lean_MetavarContext_setFVarKind(x_1, x_2, x_3, x_5);
 return x_6;
 }
@@ -10512,7 +10433,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_MetavarContext_setFVarBinderInfo___lam__0(x_1, x_4, x_3);
 return x_5;
 }
@@ -10522,7 +10442,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_Lean_MetavarContext_setFVarBinderInfo(x_1, x_2, x_3, x_5);
 return x_6;
 }
@@ -10708,7 +10627,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_MetavarContext_incDepth(x_1, x_3);
 return x_4;
 }
@@ -13560,7 +13478,6 @@ _start:
 {
 uint8_t x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_14 = lean_unbox_usize(x_8);
@@ -13577,7 +13494,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_LocalContext_foldlM___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__3_spec__3_spec__3_spec__3_spec__4___redArg___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -13589,7 +13505,6 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_LocalContext_foldlM___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__3_spec__3_spec__3_spec__3_spec__4___redArg___lam__1(x_1, x_2, x_5, x_4);
 lean_dec(x_4);
 lean_dec(x_2);
@@ -13603,7 +13518,6 @@ _start:
 {
 uint8_t x_11; size_t x_12; size_t x_13; lean_object* x_14; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_13 = lean_unbox_usize(x_8);
@@ -13619,7 +13533,6 @@ _start:
 {
 uint8_t x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_14 = lean_unbox_usize(x_8);
@@ -13636,7 +13549,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_LocalContext_foldlM___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__3_spec__3_spec__3_spec__3(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_6);
@@ -13649,7 +13561,6 @@ _start:
 {
 uint8_t x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_14 = lean_unbox_usize(x_8);
@@ -13666,7 +13577,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = l_Lean_PersistentArray_foldlM___at___Lean_LocalContext_foldlM___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__3_spec__3(x_1, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -13680,7 +13590,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = l_Lean_LocalContext_foldlM___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__3(x_1, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -13694,7 +13603,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Lean_localDeclDependsOn___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__9___redArg(x_1, x_2, x_5, x_4);
 return x_6;
 }
@@ -13704,7 +13612,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_localDeclDependsOn___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__9(x_1, x_2, x_6, x_4, x_5);
 lean_dec(x_4);
 return x_7;
@@ -13715,9 +13622,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_4);
-lean_dec(x_4);
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = l_Nat_forM_loop___at___Nat_forM_loop___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__10_spec__10___redArg(x_1, x_2, x_3, x_11, x_12, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_7);
@@ -13730,9 +13635,7 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = l_Nat_forM_loop___at___Nat_forM_loop___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__10_spec__10(x_1, x_2, x_3, x_12, x_13, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_10);
 lean_dec(x_7);
@@ -13745,9 +13648,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_4);
-lean_dec(x_4);
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = l_Nat_forM_loop___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__10___redArg(x_1, x_2, x_3, x_11, x_12, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -13761,9 +13662,7 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = l_Nat_forM_loop___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__10(x_1, x_2, x_3, x_12, x_13, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_10);
 lean_dec(x_8);
@@ -13777,9 +13676,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; lean_object* x_12; 
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = lean_unbox(x_4);
-lean_dec(x_4);
 x_12 = l_Nat_forM_loop___at___Nat_forM_loop___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__12_spec__12___redArg(x_1, x_2, x_10, x_11, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_6);
@@ -13791,9 +13688,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = l_Nat_forM_loop___at___Nat_forM_loop___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__12_spec__12(x_1, x_2, x_11, x_12, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_6);
@@ -13805,9 +13700,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; lean_object* x_12; 
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = lean_unbox(x_4);
-lean_dec(x_4);
 x_12 = l_Nat_forM_loop___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__12___redArg(x_1, x_2, x_10, x_11, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -13820,9 +13713,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = l_Nat_forM_loop___at___Lean_MetavarContext_MkBinding_collectForwardDeps_spec__12(x_1, x_2, x_11, x_12, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_7);
@@ -13835,7 +13726,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_MetavarContext_MkBinding_collectForwardDeps___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -13847,7 +13737,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_MetavarContext_MkBinding_collectForwardDeps(x_1, x_2, x_6, x_4, x_5);
 lean_dec(x_4);
 return x_7;
@@ -14499,7 +14388,6 @@ _start:
 {
 uint8_t x_7; size_t x_8; size_t x_9; lean_object* x_10; 
 x_7 = lean_unbox(x_1);
-lean_dec(x_1);
 x_8 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_9 = lean_unbox_usize(x_5);
@@ -14514,7 +14402,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_mkMVarApp(x_1, x_2, x_3, x_5);
 lean_dec(x_3);
 return x_6;
@@ -18261,7 +18148,6 @@ _start:
 lean_object* x_7; 
 x_7 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 lean_dec(x_2);
 return x_7;
 }
@@ -18271,7 +18157,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_4);
-lean_dec(x_4);
 x_8 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_elimMVar(x_1, x_2, x_3, x_7, x_5, x_6);
 return x_8;
 }
@@ -18281,9 +18166,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = l_Nat_foldRevM_loop___at_____private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_mkAuxMVarType_spec__0___redArg(x_1, x_2, x_9, x_10, x_5, x_6, x_7, x_8);
 return x_11;
 }
@@ -18293,9 +18176,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = l_Nat_foldRevM_loop___at_____private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_mkAuxMVarType_spec__0(x_1, x_2, x_11, x_12, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_5);
 return x_13;
@@ -18306,9 +18187,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_3);
-lean_dec(x_3);
 x_9 = lean_unbox(x_5);
-lean_dec(x_5);
 x_10 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_mkAuxMVarType(x_1, x_2, x_8, x_4, x_9, x_6, x_7);
 return x_10;
 }
@@ -18845,9 +18724,7 @@ _start:
 {
 uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = lean_unbox(x_5);
-lean_dec(x_5);
 x_8 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_mkLambda_x27(x_1, x_6, x_3, x_4, x_7);
 return x_8;
 }
@@ -19405,15 +19282,10 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; uint8_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = lean_unbox(x_3);
-lean_dec(x_3);
 x_14 = lean_unbox(x_4);
-lean_dec(x_4);
 x_15 = lean_unbox(x_6);
-lean_dec(x_6);
 x_16 = lean_unbox(x_7);
-lean_dec(x_7);
 x_17 = l_Nat_foldRevM_loop___at___Lean_MetavarContext_MkBinding_mkBinding_spec__0___redArg(x_1, x_12, x_13, x_14, x_5, x_15, x_16, x_8, x_9, x_10, x_11);
 return x_17;
 }
@@ -19423,15 +19295,10 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; uint8_t x_18; lean_object* x_19; 
 x_14 = lean_unbox(x_2);
-lean_dec(x_2);
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = lean_unbox(x_4);
-lean_dec(x_4);
 x_17 = lean_unbox(x_6);
-lean_dec(x_6);
 x_18 = lean_unbox(x_7);
-lean_dec(x_7);
 x_19 = l_Nat_foldRevM_loop___at___Lean_MetavarContext_MkBinding_mkBinding_spec__0(x_1, x_14, x_15, x_16, x_5, x_17, x_18, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_8);
 return x_19;
@@ -19442,15 +19309,10 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; uint8_t x_13; uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_11 = lean_unbox(x_1);
-lean_dec(x_1);
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = lean_unbox(x_6);
-lean_dec(x_6);
 x_14 = lean_unbox(x_7);
-lean_dec(x_7);
 x_15 = lean_unbox(x_8);
-lean_dec(x_8);
 x_16 = l_Lean_MetavarContext_MkBinding_mkBinding(x_11, x_2, x_3, x_4, x_12, x_13, x_14, x_15, x_9, x_10);
 return x_16;
 }
@@ -19477,7 +19339,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_MetavarContext_elimMVarDeps(x_1, x_2, x_6, x_4, x_5);
 lean_dec(x_4);
 return x_7;
@@ -19505,7 +19366,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_MetavarContext_revert(x_1, x_2, x_6, x_4, x_5);
 lean_dec(x_4);
 return x_7;
@@ -19624,17 +19484,11 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; uint8_t x_13; uint8_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_11 = lean_unbox(x_1);
-lean_dec(x_1);
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = lean_unbox(x_6);
-lean_dec(x_6);
 x_15 = lean_unbox(x_7);
-lean_dec(x_7);
 x_16 = lean_unbox(x_8);
-lean_dec(x_8);
 x_17 = l_Lean_MetavarContext_mkBinding(x_11, x_2, x_3, x_12, x_13, x_14, x_15, x_16, x_9, x_10);
 return x_17;
 }
@@ -19653,15 +19507,10 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; uint8_t x_12; uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = lean_unbox(x_4);
-lean_dec(x_4);
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = lean_unbox(x_6);
-lean_dec(x_6);
 x_14 = lean_unbox(x_7);
-lean_dec(x_7);
 x_15 = l_Lean_MetavarContext_mkLambda(x_1, x_2, x_10, x_11, x_12, x_13, x_14, x_8, x_9);
 return x_15;
 }
@@ -19680,13 +19529,9 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = lean_unbox(x_5);
-lean_dec(x_5);
 x_12 = lean_unbox(x_6);
-lean_dec(x_6);
 x_13 = l_Lean_MetavarContext_mkForall(x_1, x_2, x_9, x_10, x_11, x_12, x_7, x_8);
 return x_13;
 }
@@ -19781,9 +19626,7 @@ _start:
 {
 uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lean_MetavarContext_collectForwardDeps(x_1, x_6, x_7, x_4, x_5);
 return x_8;
 }
@@ -20391,7 +20234,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = l_Lean_MetavarContext_isWellFormed___redArg___lam__0(x_1, x_7, x_3, x_4, x_5, x_6);
 return x_8;
 }
@@ -20401,7 +20243,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Lean_MetavarContext_isWellFormed___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
@@ -20411,7 +20252,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 x_10 = l_Lean_MetavarContext_isWellFormed___redArg___lam__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_9);
 return x_10;
 }
@@ -20421,7 +20261,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = l_Lean_MetavarContext_isWellFormed___redArg___lam__4(x_1, x_2, x_3, x_4, x_5, x_7);
 return x_8;
 }
@@ -20431,7 +20270,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 x_10 = l_Lean_MetavarContext_isWellFormed___redArg___lam__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_9);
 return x_10;
 }
@@ -20441,7 +20279,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 x_10 = l_Lean_MetavarContext_isWellFormed___redArg___lam__9(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_9);
 return x_10;
 }
@@ -20451,7 +20288,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 x_10 = l_Lean_MetavarContext_isWellFormed___redArg___lam__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_9);
 return x_10;
 }
@@ -21045,7 +20881,6 @@ x_8 = lean_name_append_index_after(x_3, x_7);
 lean_inc(x_8);
 x_9 = lean_apply_1(x_4, x_8);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -21090,7 +20925,6 @@ x_22 = lean_name_append_index_after(x_3, x_20);
 lean_inc(x_22);
 x_23 = lean_apply_1(x_4, x_22);
 x_24 = lean_unbox(x_23);
-lean_dec(x_23);
 if (x_24 == 0)
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
@@ -21524,7 +21358,6 @@ lean_inc(x_66);
 lean_inc(x_63);
 x_67 = lean_apply_1(x_66, x_63);
 x_68 = lean_unbox(x_67);
-lean_dec(x_67);
 if (x_68 == 0)
 {
 lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; uint8_t x_74; 
@@ -23358,7 +23191,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Lean_MVarId_setFVarKind___redArg___lam__0(x_1, x_2, x_5, x_4);
 return x_6;
 }
@@ -23368,7 +23200,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_Lean_MVarId_setFVarKind___redArg(x_1, x_2, x_3, x_5);
 return x_6;
 }
@@ -23378,7 +23209,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_MVarId_setFVarKind(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
@@ -23420,7 +23250,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Lean_MVarId_setFVarBinderInfo___redArg___lam__0(x_1, x_2, x_5, x_4);
 return x_6;
 }
@@ -23430,7 +23259,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 x_6 = l_Lean_MVarId_setFVarBinderInfo___redArg(x_1, x_2, x_3, x_5);
 return x_6;
 }
@@ -23440,7 +23268,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 x_7 = l_Lean_MVarId_setFVarBinderInfo(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }

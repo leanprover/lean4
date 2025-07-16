@@ -2548,7 +2548,6 @@ x_10 = lean_usize_dec_eq(x_2, x_3);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
-lean_dec(x_4);
 x_11 = lean_array_uget(x_1, x_2);
 lean_inc(x_6);
 x_12 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_processFVar___redArg(x_11, x_5, x_6, x_7, x_8, x_9);

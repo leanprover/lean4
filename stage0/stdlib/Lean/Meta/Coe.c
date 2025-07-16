@@ -28123,7 +28123,6 @@ return x_12;
 }
 else
 {
-lean_dec(x_9);
 return x_8;
 }
 }

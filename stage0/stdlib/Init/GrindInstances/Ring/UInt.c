@@ -545,7 +545,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Grind_instCommRingUInt8___lam__0(x_1, x_3);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
@@ -557,7 +556,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Grind_instCommRingUInt8___lam__1(x_1, x_3);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
@@ -690,7 +688,6 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Grind_instCommRingUInt16___lam__0(x_1, x_3);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
@@ -702,7 +699,6 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Grind_instCommRingUInt16___lam__1(x_1, x_3);
 lean_dec(x_1);
 x_5 = lean_box(x_4);

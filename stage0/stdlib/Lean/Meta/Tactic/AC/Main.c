@@ -502,7 +502,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___lam__2(x_4, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -915,7 +914,6 @@ return x_12;
 }
 else
 {
-lean_dec(x_8);
 return x_9;
 }
 }
@@ -968,7 +966,6 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Lean_Meta_AC_getInstance___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_3);
 return x_9;
 }
 }
@@ -7589,7 +7586,6 @@ x_14 = lean_usize_dec_eq(x_2, x_3);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
-lean_dec(x_4);
 x_15 = lean_array_uget(x_1, x_2);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -8197,15 +8193,15 @@ x_33 = l_Lean_Syntax_getArg(x_29, x_14);
 lean_dec(x_29);
 x_34 = l_Lean_Elab_Tactic_expandLocation(x_33);
 lean_dec(x_33);
-x_15 = x_6;
-x_16 = x_10;
-x_17 = x_8;
-x_18 = x_5;
-x_19 = x_9;
-x_20 = x_7;
+x_15 = x_7;
+x_16 = x_6;
+x_17 = x_5;
+x_18 = x_9;
+x_19 = x_10;
+x_20 = x_3;
 x_21 = x_4;
 x_22 = x_2;
-x_23 = x_3;
+x_23 = x_8;
 x_24 = x_34;
 goto block_27;
 }
@@ -8218,15 +8214,15 @@ x_35 = l_Lean_Meta_AC_evalNf0___closed__2;
 x_36 = lean_alloc_ctor(1, 1, 1);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set_uint8(x_36, sizeof(void*)*1, x_12);
-x_15 = x_6;
-x_16 = x_10;
-x_17 = x_8;
-x_18 = x_5;
-x_19 = x_9;
-x_20 = x_7;
+x_15 = x_7;
+x_16 = x_6;
+x_17 = x_5;
+x_18 = x_9;
+x_19 = x_10;
+x_20 = x_3;
 x_21 = x_4;
 x_22 = x_2;
-x_23 = x_3;
+x_23 = x_8;
 x_24 = x_36;
 goto block_27;
 }
@@ -8236,7 +8232,7 @@ lean_object* x_25; lean_object* x_26;
 x_25 = lean_alloc_closure((void*)(l_Lean_Meta_AC_evalNf0___lam__0___boxed), 11, 2);
 lean_closure_set(x_25, 0, x_24);
 lean_closure_set(x_25, 1, x_14);
-x_26 = l_Lean_Elab_Tactic_withMainContext___redArg(x_25, x_22, x_23, x_21, x_18, x_15, x_20, x_17, x_19, x_16);
+x_26 = l_Lean_Elab_Tactic_withMainContext___redArg(x_25, x_22, x_20, x_21, x_17, x_16, x_15, x_23, x_18, x_19);
 return x_26;
 }
 }

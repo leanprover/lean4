@@ -1685,7 +1685,6 @@ x_8 = lean_usize_dec_eq(x_3, x_4);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_5);
 x_9 = lean_array_uget(x_2, x_3);
 lean_inc(x_1);
 x_10 = l_Lean_PersistentArray_forMAux___at___Lean_PersistentArray_forM___at___Lean_MessageLog_forM___at___Lake_elabConfigFile_spec__0_spec__0_spec__0(x_1, x_9, x_6, x_7);
@@ -1740,7 +1739,6 @@ x_8 = lean_usize_dec_eq(x_3, x_4);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_5);
 x_9 = lean_array_uget(x_2, x_3);
 lean_inc(x_1);
 x_10 = lean_apply_3(x_1, x_9, x_6, x_7);

@@ -424,7 +424,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = l_Lean_Elab_WF_withAppN___lam__0(x_1, x_2, x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_6);
 lean_dec(x_4);
@@ -1185,9 +1184,7 @@ _start:
 {
 uint8_t x_6; uint8_t x_7; size_t x_8; size_t x_9; lean_object* x_10; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_9 = lean_unbox_usize(x_4);
@@ -2220,9 +2217,7 @@ _start:
 {
 uint8_t x_21; uint8_t x_22; lean_object* x_23; 
 x_21 = lean_unbox(x_6);
-lean_dec(x_6);
 x_22 = lean_unbox(x_8);
-lean_dec(x_8);
 x_23 = l_Lean_Elab_WF_packMutual___lam__0(x_1, x_2, x_3, x_4, x_5, x_21, x_7, x_22, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
 lean_dec(x_3);
 return x_23;
@@ -3752,7 +3747,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_7);
-lean_dec(x_7);
 x_16 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_WF_preDefsFromUnaryNonRec_spec__0_spec__0___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_15, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_9);
 lean_dec(x_5);

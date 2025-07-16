@@ -761,7 +761,6 @@ if (x_9 == 0)
 {
 lean_object* x_10; 
 lean_free_object(x_4);
-lean_dec(x_3);
 x_10 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_10, 0, x_2);
 return x_10;
@@ -791,7 +790,6 @@ lean_dec(x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; 
-lean_dec(x_3);
 x_16 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_16, 0, x_2);
 return x_16;
@@ -1357,7 +1355,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Parser_Tactic_Doc_initFn___lam__1____x40_Lean_Parser_Tactic_Doc___hyg_248_(x_1, x_2, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -1801,7 +1798,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Parser_Tactic_Doc_aliases___redArg___lam__1(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -1810,7 +1806,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Parser_Tactic_Doc_aliases___redArg___lam__2(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -1829,7 +1824,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Parser_Tactic_Doc_aliases___redArg___lam__4(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -1838,7 +1832,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Parser_Tactic_Doc_aliases___redArg___lam__5(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -1856,7 +1849,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Parser_Tactic_Doc_aliases___redArg___lam__7(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -1865,7 +1857,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = l_Lean_Parser_Tactic_Doc_aliases___redArg___lam__11(x_1, x_2, x_3, x_10, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_2);
 return x_11;
@@ -3771,7 +3762,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_7);
-lean_dec(x_7);
 x_12 = l_Lean_Parser_Tactic_Doc_initFn___lam__1____x40_Lean_Parser_Tactic_Doc___hyg_810_(x_1, x_2, x_3, x_4, x_5, x_6, x_11, x_8, x_9, x_10);
 return x_12;
 }
@@ -4121,7 +4111,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Parser_Tactic_Doc_initFn___lam__1____x40_Lean_Parser_Tactic_Doc___hyg_1583_(x_1, x_2, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -4636,7 +4625,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = l_Lean_Parser_Tactic_Doc_allTags___redArg___lam__5(x_1, x_2, x_3, x_10, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_2);
 return x_11;
@@ -5107,7 +5095,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Parser_Tactic_Doc_initFn___lam__1____x40_Lean_Parser_Tactic_Doc___hyg_2515_(x_1, x_2, x_4);
 lean_dec(x_1);
 return x_5;
@@ -5951,7 +5938,6 @@ if (x_18 == 0)
 lean_object* x_19; 
 lean_dec(x_9);
 lean_dec(x_4);
-lean_dec(x_1);
 x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_8);
 lean_ctor_set(x_19, 1, x_11);
@@ -5960,7 +5946,6 @@ return x_19;
 else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-lean_dec(x_8);
 x_20 = lean_array_uget(x_5, x_7);
 x_21 = l_Lean_Syntax_getId(x_20);
 lean_inc(x_21);
@@ -5971,7 +5956,6 @@ if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_43; uint8_t x_44; 
 lean_dec(x_4);
-lean_dec(x_1);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 if (lean_is_exclusive(x_22)) {
@@ -6137,7 +6121,6 @@ x_80 = lean_st_ref_set(x_10, x_72, x_74);
 x_81 = lean_ctor_get(x_80, 1);
 lean_inc(x_81);
 lean_dec(x_80);
-lean_inc(x_1);
 x_12 = x_1;
 x_13 = x_81;
 goto block_17;
@@ -6183,7 +6166,6 @@ x_95 = lean_st_ref_set(x_10, x_94, x_82);
 x_96 = lean_ctor_get(x_95, 1);
 lean_inc(x_96);
 lean_dec(x_95);
-lean_inc(x_1);
 x_12 = x_1;
 x_13 = x_96;
 goto block_17;
@@ -6253,7 +6235,6 @@ x_113 = lean_st_ref_set(x_10, x_112, x_98);
 x_114 = lean_ctor_get(x_113, 1);
 lean_inc(x_114);
 lean_dec(x_113);
-lean_inc(x_1);
 x_12 = x_1;
 x_13 = x_114;
 goto block_17;
@@ -6928,7 +6909,6 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = l_Array_qsort_sort___at___Lean_Parser_Tactic_Doc_allTags___at___Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2793__spec__2_spec__4___redArg___lam__0(x_5, x_2, x_3, x_4);
 x_7 = lean_box(x_6);
 return x_7;
@@ -6994,7 +6974,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_7);
-lean_dec(x_7);
 x_12 = l_Lean_Parser_Tactic_Doc_initFn___lam__1____x40_Lean_Parser_Tactic_Doc___hyg_2793_(x_1, x_2, x_3, x_4, x_5, x_6, x_11, x_8, x_9, x_10);
 lean_dec(x_9);
 return x_12;
@@ -7358,7 +7337,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l_Lean_Parser_Tactic_Doc_initFn___lam__1____x40_Lean_Parser_Tactic_Doc___hyg_3585_(x_1, x_2, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -8362,7 +8340,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = l_Lean_Parser_Tactic_Doc_tacticDocsOnTactics___lam__0(x_1, x_2, x_3, x_8, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);

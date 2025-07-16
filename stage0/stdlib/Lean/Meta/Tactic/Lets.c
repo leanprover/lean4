@@ -1834,7 +1834,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lean_Meta_ExtractLets_addDecl___redArg(x_1, x_6, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -1846,7 +1845,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = l_Lean_Meta_ExtractLets_addDecl(x_1, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -2605,7 +2603,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Lean_Expr_hasAnyFVar_visit___at___Lean_Meta_ExtractLets_flushDecls_spec__1(x_1, x_4, x_3);
 lean_dec(x_3);
 lean_dec(x_1);
@@ -3688,7 +3685,6 @@ x_13 = lean_usize_dec_eq(x_2, x_3);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_4);
 x_14 = lean_array_uget(x_1, x_2);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -3751,7 +3747,6 @@ x_14 = lean_usize_dec_eq(x_3, x_4);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
-lean_dec(x_5);
 x_15 = lean_array_uget(x_2, x_3);
 lean_inc(x_1);
 lean_inc(x_12);
@@ -8540,9 +8535,7 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = lean_unbox(x_2);
-lean_dec(x_2);
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = l_Lean_Meta_withLocalDecl___at___Lean_Meta_ExtractLets_extractCore_extractBinder_spec__0___redArg(x_1, x_14, x_3, x_4, x_15, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 return x_16;
 }
@@ -8552,9 +8545,7 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = lean_unbox(x_6);
-lean_dec(x_6);
 x_17 = l_Lean_Meta_withLocalDecl___at___Lean_Meta_ExtractLets_extractCore_extractBinder_spec__0(x_1, x_2, x_15, x_4, x_5, x_16, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_17;
 }
@@ -8564,7 +8555,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = l_Lean_Meta_ExtractLets_extractCore_extractBinder___lam__0(x_1, x_2, x_15, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_2);
 return x_16;
@@ -8575,7 +8565,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = l_Lean_Meta_ExtractLets_extractCore_extractBinder(x_1, x_2, x_3, x_4, x_15, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_16;
 }
@@ -8627,7 +8616,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Lean_Meta_ExtractLets_extractCore___lam__0(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -8640,7 +8628,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Lean_Meta_ExtractLets_extractCore___lam__1(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -8653,7 +8640,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = l_Lean_Meta_ExtractLets_extractCore___lam__2(x_1, x_2, x_15, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_16;
 }
@@ -8663,15 +8649,10 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; uint8_t x_18; uint8_t x_19; lean_object* x_20; 
 x_16 = lean_unbox(x_1);
-lean_dec(x_1);
 x_17 = lean_unbox(x_4);
-lean_dec(x_4);
 x_18 = lean_unbox(x_5);
-lean_dec(x_5);
 x_19 = lean_unbox(x_6);
-lean_dec(x_6);
 x_20 = l_Lean_Meta_ExtractLets_extractCore___lam__3(x_16, x_2, x_3, x_17, x_18, x_19, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
-lean_dec(x_7);
 return x_20;
 }
 }
@@ -8680,9 +8661,7 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_1);
-lean_dec(x_1);
 x_14 = l_Lean_Meta_ExtractLets_extractCore___lam__4(x_13, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_4);
 return x_14;
 }
 }
@@ -8691,7 +8670,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = l_Lean_Meta_ExtractLets_extractCore(x_1, x_2, x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_13;
 }
@@ -8701,7 +8679,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_ExtractLets_extractCore_extractApp_spec__0___redArg(x_1, x_2, x_15, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_4);
 lean_dec(x_1);
@@ -8734,9 +8711,7 @@ _start:
 {
 uint8_t x_22; uint8_t x_23; lean_object* x_24; 
 x_22 = lean_unbox(x_3);
-lean_dec(x_3);
 x_23 = lean_unbox(x_4);
-lean_dec(x_4);
 x_24 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_ExtractLets_extractCore_extractApp_spec__0(x_1, x_2, x_22, x_23, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -8749,7 +8724,6 @@ _start:
 {
 uint8_t x_14; size_t x_15; size_t x_16; lean_object* x_17; 
 x_14 = lean_unbox(x_2);
-lean_dec(x_2);
 x_15 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_16 = lean_unbox_usize(x_4);
@@ -8763,9 +8737,7 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_15 = lean_unbox(x_5);
-lean_dec(x_5);
 x_16 = lean_unbox(x_6);
-lean_dec(x_6);
 x_17 = l_Lean_Meta_withLetDecl___at___Lean_Meta_ExtractLets_extractCore_extractLetLike_spec__0___redArg(x_1, x_2, x_3, x_4, x_15, x_16, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_17;
 }
@@ -8775,9 +8747,7 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_16 = lean_unbox(x_6);
-lean_dec(x_6);
 x_17 = lean_unbox(x_7);
-lean_dec(x_7);
 x_18 = l_Lean_Meta_withLetDecl___at___Lean_Meta_ExtractLets_extractCore_extractLetLike_spec__0(x_1, x_2, x_3, x_4, x_5, x_16, x_17, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_18;
 }
@@ -8805,13 +8775,9 @@ _start:
 {
 uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; lean_object* x_23; 
 x_19 = lean_unbox(x_1);
-lean_dec(x_1);
 x_20 = lean_unbox(x_4);
-lean_dec(x_4);
 x_21 = lean_unbox(x_8);
-lean_dec(x_8);
 x_22 = lean_unbox(x_9);
-lean_dec(x_9);
 x_23 = l_Lean_Meta_ExtractLets_extractCore_extractLetLike___lam__0(x_19, x_2, x_3, x_20, x_5, x_6, x_7, x_21, x_22, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18);
 lean_dec(x_3);
 return x_23;
@@ -8822,9 +8788,7 @@ _start:
 {
 uint8_t x_17; uint8_t x_18; lean_object* x_19; 
 x_17 = lean_unbox(x_3);
-lean_dec(x_3);
 x_18 = lean_unbox(x_8);
-lean_dec(x_8);
 x_19 = l_Lean_Meta_ExtractLets_extractCore_extractLetLike(x_1, x_2, x_17, x_4, x_5, x_6, x_7, x_18, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 return x_19;
 }
@@ -10767,7 +10731,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_4);
-lean_dec(x_4);
 x_18 = l_Lean_MVarId_extractLetsLocalDecl___lam__1(x_1, x_2, x_3, x_17, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_10);
 lean_dec(x_8);
@@ -10796,7 +10759,6 @@ _start:
 {
 uint8_t x_18; lean_object* x_19; 
 x_18 = lean_unbox(x_4);
-lean_dec(x_4);
 x_19 = l_Lean_MVarId_extractLetsLocalDecl___lam__2(x_1, x_2, x_3, x_18, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_11);
 lean_dec(x_9);
@@ -11759,7 +11721,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_MVarId_letToHave___lam__0(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }
@@ -11769,7 +11730,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Lean_MVarId_letToHave(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
@@ -11980,7 +11940,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = l_Lean_MVarId_letToHaveLocalDecl___lam__0(x_1, x_2, x_3, x_10, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -11990,7 +11949,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_3);
-lean_dec(x_3);
 x_10 = l_Lean_MVarId_letToHaveLocalDecl(x_1, x_2, x_9, x_4, x_5, x_6, x_7, x_8);
 return x_10;
 }

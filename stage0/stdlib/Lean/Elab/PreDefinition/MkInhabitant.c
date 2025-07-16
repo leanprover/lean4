@@ -371,9 +371,7 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = lean_unbox(x_6);
-lean_dec(x_6);
 x_14 = l_Lean_Meta_withLetDecl___at_____private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_withInhabitedInstances_go_spec__0___redArg(x_1, x_2, x_3, x_4, x_12, x_13, x_7, x_8, x_9, x_10, x_11);
 return x_14;
 }
@@ -383,9 +381,7 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_13 = lean_unbox(x_6);
-lean_dec(x_6);
 x_14 = lean_unbox(x_7);
-lean_dec(x_7);
 x_15 = l_Lean_Meta_withLetDecl___at_____private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_withInhabitedInstances_go_spec__0(x_1, x_2, x_3, x_4, x_5, x_13, x_14, x_8, x_9, x_10, x_11, x_12);
 return x_15;
 }
@@ -573,17 +569,16 @@ block_13:
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
-lean_dec(x_9);
+lean_dec(x_8);
 x_11 = lean_box(0);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_8);
+lean_ctor_set(x_12, 1, x_9);
 return x_12;
 }
 else
 {
-lean_dec(x_8);
-return x_9;
+return x_8;
 }
 }
 block_19:
@@ -595,16 +590,16 @@ if (x_17 == 0)
 uint8_t x_18; 
 x_18 = l_Lean_Exception_isRuntime(x_15);
 lean_dec(x_15);
-x_8 = x_16;
-x_9 = x_14;
+x_8 = x_14;
+x_9 = x_16;
 x_10 = x_18;
 goto block_13;
 }
 else
 {
 lean_dec(x_15);
-x_8 = x_16;
-x_9 = x_14;
+x_8 = x_14;
+x_9 = x_16;
 x_10 = x_17;
 goto block_13;
 }
@@ -616,7 +611,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_mkInhabitant_x3f(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
@@ -1389,7 +1383,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_mkInhabitantForAux_x3f___lam__0(x_1, x_2, x_3, x_4, x_12, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_6);
 lean_dec(x_2);
@@ -1401,7 +1394,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_mkInhabitantForAux_x3f___lam__1(x_1, x_2, x_11, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 return x_12;
 }
@@ -1411,7 +1403,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_mkInhabitantForAux_x3f(x_1, x_2, x_3, x_10, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }

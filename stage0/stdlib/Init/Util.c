@@ -109,7 +109,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_dbgTraceVal___redArg___lam__0(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -509,7 +508,6 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_7 = lean_box(0);
 x_8 = lean_apply_1(x_3, x_7);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 return x_9;
 }
 else
@@ -532,7 +530,6 @@ lean_object* x_9; lean_object* x_10; uint8_t x_11;
 x_9 = lean_box(0);
 x_10 = lean_apply_1(x_4, x_9);
 x_11 = lean_unbox(x_10);
-lean_dec(x_10);
 return x_11;
 }
 else
@@ -577,7 +574,6 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_7 = lean_box(0);
 x_8 = lean_apply_1(x_3, x_7);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 return x_9;
 }
 else
@@ -600,7 +596,6 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = lean_box(0);
 x_9 = lean_apply_1(x_4, x_8);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 return x_10;
 }
 else

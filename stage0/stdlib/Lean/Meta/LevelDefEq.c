@@ -3207,7 +3207,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_10);
 lean_dec(x_7);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -3225,7 +3224,6 @@ if (x_18 == 0)
 lean_object* x_19; lean_object* x_20; 
 lean_dec(x_16);
 x_19 = lean_box(x_18);
-lean_inc(x_6);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_6);
@@ -4227,9 +4225,7 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_unbox(x_1);
-lean_dec(x_1);
 x_13 = lean_unbox(x_6);
-lean_dec(x_6);
 x_14 = l_Lean_Meta_isLevelDefEqAuxImpl___lam__1(x_12, x_2, x_3, x_4, x_5, x_13, x_7, x_8, x_9, x_10, x_11);
 return x_14;
 }

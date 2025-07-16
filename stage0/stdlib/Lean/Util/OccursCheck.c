@@ -1512,9 +1512,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_occursCheck___redArg___lam__0(x_1, x_5, x_6, x_4);
 lean_dec(x_4);
 return x_7;

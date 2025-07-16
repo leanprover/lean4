@@ -658,7 +658,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Net_AddressFamily_toCtorIdx(x_2);
 return x_3;
 }
@@ -700,9 +699,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Net_AddressFamily_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -712,9 +709,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Net_AddressFamily_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -774,9 +769,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Net_instDecidableEqAddressFamily(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -812,13 +805,9 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; uint8_t x_7; uint8_t x_8; lean_object* x_9; 
 x_5 = lean_unbox(x_1);
-lean_dec(x_1);
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = l_Std_Net_IPv4Addr_ofParts(x_5, x_6, x_7, x_8);
 return x_9;
 }
@@ -929,21 +918,13 @@ _start:
 {
 uint16_t x_9; uint16_t x_10; uint16_t x_11; uint16_t x_12; uint16_t x_13; uint16_t x_14; uint16_t x_15; uint16_t x_16; lean_object* x_17; 
 x_9 = lean_unbox(x_1);
-lean_dec(x_1);
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = lean_unbox(x_6);
-lean_dec(x_6);
 x_15 = lean_unbox(x_7);
-lean_dec(x_7);
 x_16 = lean_unbox(x_8);
-lean_dec(x_8);
 x_17 = l_Std_Net_IPv6Addr_ofParts(x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 return x_17;
 }

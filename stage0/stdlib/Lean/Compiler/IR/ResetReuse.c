@@ -216,7 +216,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 x_5 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_mayReuse(x_1, x_2, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -655,7 +654,6 @@ _start:
 {
 uint8_t x_7; size_t x_8; size_t x_9; lean_object* x_10; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_9 = lean_unbox_usize(x_5);
@@ -670,7 +668,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S_go(x_1, x_2, x_5, x_4);
 lean_dec(x_2);
 return x_6;
@@ -689,7 +686,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l___private_Lean_Compiler_IR_ResetReuse_0__Lean_IR_ResetReuse_S(x_1, x_2, x_5, x_4);
 lean_dec(x_2);
 return x_6;
@@ -2804,7 +2800,6 @@ _start:
 {
 uint8_t x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_10 = lean_unbox_usize(x_4);
@@ -2821,7 +2816,6 @@ x_13 = lean_usize_dec_eq(x_2, x_3);
 if (x_13 == 0)
 {
 lean_object* x_14; 
-lean_dec(x_4);
 x_14 = lean_array_uget(x_1, x_2);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -3197,7 +3191,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_IR_Decl_insertResetReuseCore(x_1, x_3);
 return x_4;
 }

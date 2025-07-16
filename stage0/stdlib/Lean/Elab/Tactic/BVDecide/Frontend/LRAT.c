@@ -2366,7 +2366,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___lam__1(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }
@@ -2396,7 +2395,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___lam__4(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -2416,7 +2414,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load(x_1, x_6, x_3, x_4, x_5);
 lean_dec(x_1);
 return x_7;
@@ -2485,7 +2482,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_ofFile(x_1, x_6, x_3, x_4, x_5);
 lean_dec(x_1);
 return x_7;
@@ -3393,7 +3389,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Elab_Tactic_BVDecide_Frontend_runExternal___lam__1(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -3436,9 +3431,7 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_15 = lean_unbox(x_6);
-lean_dec(x_6);
 x_16 = lean_unbox(x_8);
-lean_dec(x_8);
 x_17 = l_Lean_Elab_Tactic_BVDecide_Frontend_runExternal___lam__5(x_1, x_2, x_3, x_4, x_5, x_15, x_7, x_16, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_17;
 }
@@ -3448,9 +3441,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; lean_object* x_12; 
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = lean_unbox(x_6);
-lean_dec(x_6);
 x_12 = l_Lean_Elab_Tactic_BVDecide_Frontend_runExternal(x_1, x_2, x_3, x_10, x_5, x_11, x_7, x_8, x_9);
 return x_12;
 }

@@ -2821,7 +2821,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Lean_Elab_CheckTactic_elabCheckTactic___lam__0(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -2833,7 +2832,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_2);
-lean_dec(x_2);
 x_17 = l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1(x_1, x_16, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -4403,7 +4401,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_2);
-lean_dec(x_2);
 x_17 = l_Lean_Elab_CheckTactic_elabCheckTacticFailure___lam__1(x_1, x_16, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_8);
 lean_dec(x_4);

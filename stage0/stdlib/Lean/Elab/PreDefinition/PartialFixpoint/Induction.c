@@ -2094,13 +2094,10 @@ _start:
 {
 uint8_t x_13; size_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_13 = lean_unbox(x_1);
-lean_dec(x_1);
 x_14 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = lean_unbox(x_4);
-lean_dec(x_4);
 x_17 = l_Lean_Elab_PartialFixpoint_unfoldPredRel___lam__1(x_13, x_14, x_15, x_16, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_6);
 return x_17;
@@ -2111,9 +2108,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; lean_object* x_12; 
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = lean_unbox(x_4);
-lean_dec(x_4);
 x_12 = l_Lean_Elab_PartialFixpoint_unfoldPredRel(x_1, x_2, x_10, x_11, x_5, x_6, x_7, x_8, x_9);
 return x_12;
 }
@@ -9775,9 +9770,7 @@ size_t x_17; uint8_t x_18; uint8_t x_19; lean_object* x_20;
 x_17 = lean_unbox_usize(x_8);
 lean_dec(x_8);
 x_18 = lean_unbox(x_9);
-lean_dec(x_9);
 x_19 = lean_unbox(x_10);
-lean_dec(x_10);
 x_20 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_deriveInduction_spec__10_spec__10___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_17, x_18, x_19, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -9791,9 +9784,7 @@ size_t x_17; uint8_t x_18; uint8_t x_19; lean_object* x_20;
 x_17 = lean_unbox_usize(x_7);
 lean_dec(x_7);
 x_18 = lean_unbox(x_8);
-lean_dec(x_8);
 x_19 = lean_unbox(x_9);
-lean_dec(x_9);
 x_20 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_deriveInduction_spec__10_spec__10___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_17, x_18, x_19, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_10);
 return x_20;
@@ -9821,9 +9812,7 @@ _start:
 {
 uint8_t x_18; uint8_t x_19; lean_object* x_20; 
 x_18 = lean_unbox(x_7);
-lean_dec(x_7);
 x_19 = lean_unbox(x_8);
-lean_dec(x_8);
 x_20 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_deriveInduction_spec__10_spec__10___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_18, x_19, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_9);
 return x_20;
@@ -9853,9 +9842,7 @@ _start:
 {
 uint8_t x_20; uint8_t x_21; lean_object* x_22; 
 x_20 = lean_unbox(x_7);
-lean_dec(x_7);
 x_21 = lean_unbox(x_8);
-lean_dec(x_8);
 x_22 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_deriveInduction_spec__10_spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_20, x_21, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -9885,9 +9872,7 @@ _start:
 {
 uint8_t x_19; uint8_t x_20; lean_object* x_21; 
 x_19 = lean_unbox(x_7);
-lean_dec(x_7);
 x_20 = lean_unbox(x_8);
-lean_dec(x_8);
 x_21 = l_Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_deriveInduction_spec__10___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_19, x_20, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -9919,9 +9904,7 @@ _start:
 {
 uint8_t x_20; uint8_t x_21; lean_object* x_22; 
 x_20 = lean_unbox(x_7);
-lean_dec(x_7);
 x_21 = lean_unbox(x_8);
-lean_dec(x_8);
 x_22 = l_Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_deriveInduction_spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_20, x_21, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -9954,9 +9937,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = l_Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_deriveInduction_spec__13___redArg___lam__0(x_1, x_11, x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -9971,9 +9952,7 @@ _start:
 {
 uint8_t x_17; uint8_t x_18; lean_object* x_19; 
 x_17 = lean_unbox(x_3);
-lean_dec(x_3);
 x_18 = lean_unbox(x_4);
-lean_dec(x_4);
 x_19 = l_Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_deriveInduction_spec__13___redArg(x_1, x_2, x_17, x_18, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_8);
 lean_dec(x_6);
@@ -10003,9 +9982,7 @@ _start:
 {
 uint8_t x_18; uint8_t x_19; lean_object* x_20; 
 x_18 = lean_unbox(x_3);
-lean_dec(x_3);
 x_19 = lean_unbox(x_4);
-lean_dec(x_4);
 x_20 = l_Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_deriveInduction_spec__13(x_1, x_2, x_18, x_19, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_8);
 lean_dec(x_6);
@@ -10040,7 +10017,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_2);
-lean_dec(x_2);
 x_11 = l_Lean_Elab_PartialFixpoint_deriveInduction___lam__0(x_1, x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -10055,9 +10031,7 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; lean_object* x_16; 
 x_14 = lean_unbox(x_5);
-lean_dec(x_5);
 x_15 = lean_unbox(x_6);
-lean_dec(x_6);
 x_16 = l_Lean_Elab_PartialFixpoint_deriveInduction___lam__1(x_1, x_2, x_3, x_4, x_14, x_15, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_12);
 lean_dec(x_11);
@@ -10071,11 +10045,8 @@ _start:
 {
 uint8_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_14 = lean_unbox(x_5);
-lean_dec(x_5);
 x_15 = lean_unbox(x_6);
-lean_dec(x_6);
 x_16 = lean_unbox(x_7);
-lean_dec(x_7);
 x_17 = l_Lean_Elab_PartialFixpoint_deriveInduction___lam__2(x_1, x_2, x_3, x_4, x_14, x_15, x_16, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_3);
 return x_17;
@@ -10086,9 +10057,7 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = lean_unbox(x_4);
-lean_dec(x_4);
 x_14 = l_Lean_Elab_PartialFixpoint_deriveInduction___lam__3(x_1, x_2, x_12, x_13, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -10100,9 +10069,7 @@ _start:
 {
 uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_13 = lean_unbox(x_5);
-lean_dec(x_5);
 x_14 = lean_unbox(x_6);
-lean_dec(x_6);
 x_15 = l_Lean_Elab_PartialFixpoint_deriveInduction___lam__4(x_1, x_2, x_3, x_4, x_13, x_14, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_1);
 return x_15;
@@ -10113,9 +10080,7 @@ _start:
 {
 uint8_t x_17; uint8_t x_18; lean_object* x_19; 
 x_17 = lean_unbox(x_9);
-lean_dec(x_9);
 x_18 = lean_unbox(x_10);
-lean_dec(x_10);
 x_19 = l_Lean_Elab_PartialFixpoint_deriveInduction___lam__5(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_17, x_18, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -10128,9 +10093,7 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_16 = lean_unbox(x_8);
-lean_dec(x_8);
 x_17 = lean_unbox(x_9);
-lean_dec(x_9);
 x_18 = l_Lean_Elab_PartialFixpoint_deriveInduction___lam__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_16, x_17, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_18;
 }
@@ -10170,9 +10133,7 @@ _start:
 {
 uint8_t x_31; uint8_t x_32; lean_object* x_33; 
 x_31 = lean_unbox(x_7);
-lean_dec(x_7);
 x_32 = lean_unbox(x_8);
-lean_dec(x_8);
 x_33 = l_Lean_Elab_PartialFixpoint_deriveInduction___lam__7(x_1, x_2, x_3, x_4, x_5, x_6, x_31, x_32, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25, x_26, x_27, x_28, x_29, x_30);
 lean_dec(x_19);
 lean_dec(x_17);
@@ -10214,9 +10175,7 @@ _start:
 {
 uint8_t x_31; uint8_t x_32; lean_object* x_33; 
 x_31 = lean_unbox(x_11);
-lean_dec(x_11);
 x_32 = lean_unbox(x_12);
-lean_dec(x_12);
 x_33 = l_Lean_Elab_PartialFixpoint_deriveInduction___lam__8(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_31, x_32, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25, x_26, x_27, x_28, x_29, x_30);
 lean_dec(x_13);
 return x_33;
@@ -10256,9 +10215,7 @@ _start:
 {
 uint8_t x_30; uint8_t x_31; lean_object* x_32; 
 x_30 = lean_unbox(x_4);
-lean_dec(x_4);
 x_31 = lean_unbox(x_5);
-lean_dec(x_5);
 x_32 = l_Lean_Elab_PartialFixpoint_deriveInduction___lam__9(x_1, x_2, x_3, x_30, x_31, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21, x_22, x_23, x_24, x_25, x_26, x_27, x_28, x_29);
 lean_dec(x_10);
 return x_32;
@@ -11272,7 +11229,6 @@ x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_4);
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Lean_Loop_forIn_loop___at___Lean_Elab_PartialFixpoint_isOptionFixpoint_spec__0(x_6);
 if (lean_obj_tag(x_7) == 0)
@@ -11616,7 +11572,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Elab_PartialFixpoint_isOptionFixpoint___lam__0(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -12026,11 +11981,8 @@ _start:
 {
 uint8_t x_16; uint8_t x_17; uint8_t x_18; size_t x_19; size_t x_20; lean_object* x_21; 
 x_16 = lean_unbox(x_1);
-lean_dec(x_1);
 x_17 = lean_unbox(x_2);
-lean_dec(x_2);
 x_18 = lean_unbox(x_3);
-lean_dec(x_3);
 x_19 = lean_unbox_usize(x_8);
 lean_dec(x_8);
 x_20 = lean_unbox_usize(x_9);
@@ -14830,7 +14782,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = l_Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_derivePartialCorrectness_spec__0___redArg___lam__0(x_1, x_2, x_3, x_12, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_6);
 return x_13;
@@ -14841,7 +14792,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = l_Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_derivePartialCorrectness_spec__0___redArg___lam__1(x_1, x_2, x_10, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
@@ -14944,7 +14894,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_3);
-lean_dec(x_3);
 x_11 = l_Lean_Elab_PartialFixpoint_derivePartialCorrectness___lam__0(x_1, x_2, x_10, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_7);

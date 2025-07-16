@@ -441,7 +441,6 @@ uint32_t x_14; uint8_t x_15; lean_object* x_16;
 x_14 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
 x_15 = lean_unbox(x_4);
-lean_dec(x_4);
 x_16 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Server_FileWorker_ExampleHover_0__Lean_Server_FileWorker_Hover_addCommentAt_spec__1(x_1, x_14, x_3, x_15, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_9);
 lean_dec(x_8);

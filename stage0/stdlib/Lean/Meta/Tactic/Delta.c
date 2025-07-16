@@ -106,14 +106,12 @@ if (x_53 == 0)
 {
 uint8_t x_54; 
 x_54 = lean_unbox(x_52);
-lean_dec(x_52);
 x_25 = x_54;
 goto block_50;
 }
 else
 {
 uint8_t x_55; 
-lean_dec(x_52);
 x_55 = l_Lean_ConstantInfo_hasValue(x_23, x_21);
 x_25 = x_55;
 goto block_50;

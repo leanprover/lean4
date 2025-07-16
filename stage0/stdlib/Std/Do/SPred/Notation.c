@@ -2035,7 +2035,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Std_Do_SPred_Notation_unpack___redArg___lam__3(x_4, x_2, x_3);
 lean_dec(x_3);
 return x_5;
@@ -2064,7 +2063,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_7);
-lean_dec(x_7);
 x_10 = l_Std_Do_SPred_Notation_unpack___redArg___lam__7(x_1, x_2, x_3, x_4, x_5, x_6, x_9, x_8);
 return x_10;
 }
@@ -2084,7 +2082,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_9);
-lean_dec(x_9);
 x_12 = l_Std_Do_SPred_Notation_unpack___redArg___lam__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_11, x_10);
 return x_12;
 }
@@ -2103,7 +2100,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_8);
-lean_dec(x_8);
 x_11 = l_Std_Do_SPred_Notation_unpack___redArg___lam__13(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_10, x_9);
 return x_11;
 }
@@ -2113,7 +2109,6 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_7);
-lean_dec(x_7);
 x_12 = l_Std_Do_SPred_Notation_unpack___redArg___lam__11(x_1, x_2, x_3, x_4, x_5, x_6, x_11, x_8, x_9, x_10);
 return x_12;
 }
@@ -2132,7 +2127,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_6);
-lean_dec(x_6);
 x_9 = l_Std_Do_SPred_Notation_unpack___redArg___lam__18(x_1, x_2, x_3, x_4, x_5, x_8, x_7);
 return x_9;
 }
@@ -13392,7 +13386,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___lam__0(x_1, x_2, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -13401,7 +13394,6 @@ _start:
 {
 uint8_t x_17; lean_object* x_18; 
 x_17 = lean_unbox(x_1);
-lean_dec(x_1);
 x_18 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___lam__1(x_17, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_13);
 lean_dec(x_11);
@@ -13413,7 +13405,6 @@ _start:
 {
 uint8_t x_16; lean_object* x_17; 
 x_16 = lean_unbox(x_1);
-lean_dec(x_1);
 x_17 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___lam__2(x_16, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_12);
 return x_17;
@@ -13424,7 +13415,6 @@ _start:
 {
 uint8_t x_15; lean_object* x_16; 
 x_15 = lean_unbox(x_1);
-lean_dec(x_1);
 x_16 = l_Std_Do___aux__Std__Do__SPred__Notation______macroRules__Std__Do__termSpred_x28___x29__3___lam__3(x_15, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_11);
 return x_16;

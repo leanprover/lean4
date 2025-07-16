@@ -921,7 +921,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Elab_InlayHintKind_toLspInlayHintKind(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -1862,7 +1861,6 @@ _start:
 {
 uint8_t x_6; size_t x_7; size_t x_8; uint8_t x_9; lean_object* x_10; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_8 = lean_unbox_usize(x_5);
@@ -3186,7 +3184,6 @@ switch (lean_obj_tag(x_10)) {
 case 0:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_6);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
@@ -3209,7 +3206,6 @@ lean_dec(x_15);
 x_18 = lean_ctor_get(x_16, 1);
 lean_inc(x_18);
 lean_dec(x_16);
-lean_inc(x_4);
 {
 lean_object* _tmp_4 = x_11;
 lean_object* _tmp_5 = x_4;
@@ -3226,7 +3222,6 @@ else
 {
 lean_dec(x_11);
 lean_dec(x_8);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -3246,7 +3241,6 @@ default:
 {
 lean_object* x_22; lean_object* x_23; 
 lean_dec(x_8);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -3416,7 +3410,6 @@ else
 {
 uint8_t x_27; 
 lean_dec(x_5);
-lean_dec(x_1);
 x_27 = !lean_is_exclusive(x_15);
 if (x_27 == 0)
 {
@@ -3778,7 +3771,6 @@ lean_inc(x_45);
 x_81 = l_Std_Iterators_Types_ULiftIterator_instIterator___redArg(x_45, x_80, x_79);
 x_82 = l_Std_Iterators_instIteratorMap___redArg(x_79, x_81, x_45, x_76);
 x_83 = lean_mk_empty_array_with_capacity(x_63);
-lean_inc(x_69);
 x_84 = l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at___Lean_Server_FileWorker_handleInlayHints_spec__7___redArg(x_82, x_46, x_66, x_69, x_78, x_69, x_83, x_3, x_67);
 if (lean_obj_tag(x_84) == 0)
 {
@@ -4647,7 +4639,6 @@ _start:
 {
 uint8_t x_7; size_t x_8; size_t x_9; lean_object* x_10; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_9 = lean_unbox_usize(x_5);
@@ -6930,14 +6921,12 @@ return x_37;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__0___redArg___lam__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_inc(x_1);
 return x_1;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__0___redArg___lam__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_inc(x_1);
 return x_1;
 }
 }
@@ -7694,7 +7683,6 @@ _start:
 lean_object* x_3; 
 x_3 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__0___redArg___lam__3(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -7704,7 +7692,6 @@ _start:
 lean_object* x_3; 
 x_3 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__0___redArg___lam__4(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -7713,7 +7700,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__0___redArg___lam__5(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_4);
 lean_dec(x_1);
 return x_7;
 }
@@ -7732,7 +7718,6 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__0___redArg___lam__8(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_4);
 lean_dec(x_1);
 return x_7;
 }

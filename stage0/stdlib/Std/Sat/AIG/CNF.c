@@ -293,9 +293,7 @@ _start:
 {
 uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = lean_unbox(x_5);
-lean_dec(x_5);
 x_8 = l_Std_Sat_AIG_Decl_gateToCNF___redArg(x_1, x_2, x_3, x_6, x_7);
 return x_8;
 }
@@ -305,9 +303,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; lean_object* x_9; 
 x_7 = lean_unbox(x_5);
-lean_dec(x_5);
 x_8 = lean_unbox(x_6);
-lean_dec(x_6);
 x_9 = l_Std_Sat_AIG_Decl_gateToCNF(x_1, x_2, x_3, x_4, x_7, x_8);
 return x_9;
 }
@@ -324,7 +320,6 @@ lean_inc(x_4);
 lean_dec(x_3);
 x_5 = lean_apply_1(x_1, x_4);
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 return x_6;
 }
 else
@@ -336,7 +331,6 @@ lean_inc(x_7);
 lean_dec(x_3);
 x_8 = lean_apply_1(x_2, x_7);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 return x_9;
 }
 }
@@ -376,7 +370,6 @@ x_3 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_3, 0, x_2);
 x_4 = lean_apply_1(x_1, x_3);
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -415,7 +408,6 @@ x_3 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_3, 0, x_2);
 x_4 = lean_apply_1(x_1, x_3);
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 return x_5;
 }
 }

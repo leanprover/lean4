@@ -5020,7 +5020,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_Grind_Arith_CommRing_ppBasis_x3f___lam__0(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -7622,7 +7621,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_Grind_Arith_CommRing_ppDiseqs_x3f___lam__0(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -7835,7 +7833,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Meta_Grind_Arith_CommRing_ppRing_x3f___lam__0(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }

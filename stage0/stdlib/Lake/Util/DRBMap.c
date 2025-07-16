@@ -227,7 +227,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_9 = lean_apply_2(x_1, x_3, x_6);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -488,7 +487,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lake_DRBMap_forM___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
 return x_5;
 }
 }

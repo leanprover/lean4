@@ -34,7 +34,7 @@ number of parameters: 0
 fields:
   private IO.CancelToken.ref✝ : IO.Ref Bool
 constructor:
-  IO.CancelToken.mk (ref : IO.Ref Bool) : IO.CancelToken
+  private IO.CancelToken.mk✝ (ref : IO.Ref Bool) : IO.CancelToken
 -/
 #guard_msgs in
 #print IO.CancelToken

@@ -87,19 +87,18 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
       let decls := entries.foldl (init := #[]) fun decls decl => decls.push decl
       let entries := sortDecls decls
       if env.header.isModule then
-        entries.filterMap fun d =>
-          match getDeclVisibility env d.name with
-          | .private => none
+        entries.filterMap fun d => do
+          if Compiler.LCNF.isDeclMeta env d.name then
+            return d
+          guard <| getDeclVisibility env d.name != .private
           -- Bodies of imported IR decls are not relevant for codegen, only interpretation
-          | .opaque | .transparent =>
-            match d with
-            | d@(.fdecl f xs ty b info) =>
+          match d with
+          | .fdecl f xs ty b info =>
             if let some (.str _ s) := getExportNameFor? env f then
-              some <| .extern f xs ty { arity? := xs.size, entries := [.standard `all s] }
+              return .extern f xs ty { arity? := xs.size, entries := [.standard `all s] }
             else
-              some <| .extern f xs ty { arity? := xs.size, entries := [.opaque f] }
-            | d => some d
-          | .meta => some d
+              return .extern f xs ty { arity? := xs.size, entries := [.opaque f] }
+          | d => some d
       else entries
     -- Written to on codegen environment branch but accessed from other elaboration branches when
     -- calling into the interpreter. We cannot use `async` as the IR declarations added may not

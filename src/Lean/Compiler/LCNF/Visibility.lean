@@ -31,10 +31,10 @@ private partial def setClosureMeta (root : Name) : CompilerM Unit := do
   let some d ← pure (locals.find? root) <|> getDecl? root | return
   d.value.forCodeM fun code =>
     for ref in collectUsedDecls code do
-      if getDeclVisibility (← getEnv) ref matches .meta then
+      if isDeclMeta (← getEnv) ref then
         continue
       trace[Compiler.inferVisibility] m!"Marking {ref} as meta because it is in `meta` closure"
-      modifyEnv (bumpDeclVisibility · ref .meta)
+      modifyEnv (setDeclMeta · ref)
       setClosureMeta ref
 
 -- TODO: refine? balance run time vs export size
@@ -52,9 +52,10 @@ partial def inferVisibility (decls : Array Decl) : CompilerM Unit := do
   for decl in decls do
     if metaExt.isTagged (← getEnv) decl.name then
       trace[Compiler.inferVisibility] m!"Marking {decl.name} as meta because it is tagged with `meta`"
-      modifyEnv (bumpDeclVisibility · decl.name .meta)
+      modifyEnv (setDeclMeta · decl.name)
       setClosureMeta locals decl.name
-    else if `_at_ ∈ decl.name.components then  -- TODO: don't?
+
+    if `_at_ ∈ decl.name.components then  -- TODO: don't?
       trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is a specialization"
       markOpaque locals decl
     else if (← getEnv).setExporting true |>.contains decl.name then

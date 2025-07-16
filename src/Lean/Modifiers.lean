@@ -23,8 +23,10 @@ def mkPrivateName (env : Environment) (n : Name) : Name :=
   mkPrivateNameCore env.mainModule <| privateToUserName n
 
 def isPrivateNameFromImportedModule (env : Environment) (n : Name) : Bool :=
-  match privateToUserName? n with
-  | some userName => mkPrivateName env userName != n
-  | _ => false
+  if env.header.isModule then
+    !env.contains n && (env.setExporting false).contains n
+  else match privateToUserName? n with
+    | some userName => mkPrivateName env userName != n
+    | _ => false
 
 end Lean

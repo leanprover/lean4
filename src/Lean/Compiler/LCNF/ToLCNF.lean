@@ -559,23 +559,18 @@ where
         let typeName := casesInfo.declName.getPrefix
         let discr ← visitAppArg args[casesInfo.discrPos]!
         let .inductInfo indVal ← getConstInfo typeName | unreachable!
-        match discr with
-        | .erased | .type .. =>
-          /-
-          This can happen for inductive predicates that can eliminate into type (e.g., `And`, `Iff`).
-          TODO: add support for them. Right now, we have hard-coded support for the ones defined at `Init`.
-          -/
-          throwError "unsupported `{casesInfo.declName}` application during code generation"
-        | .fvar discrFVarId =>
-          for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
-            let (altType, alt) ← visitAlt ctorName numParams args[i]!
-            resultType := joinTypes altType resultType
-            alts := alts.push alt
-          let cases : Cases := { typeName, discr := discrFVarId, resultType, alts }
-          let auxDecl ← mkAuxParam resultType
-          pushElement (.cases auxDecl cases)
-          let result := .fvar auxDecl.fvarId
-          mkOverApplication result args casesInfo.arity
+        let discrFVarId ← match discr with
+          | .fvar discrFVarId => pure discrFVarId
+          | .erased | .type .. => mkAuxLetDecl .erased
+        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
+          let (altType, alt) ← visitAlt ctorName numParams args[i]!
+          resultType := joinTypes altType resultType
+          alts := alts.push alt
+        let cases : Cases := { typeName, discr := discrFVarId, resultType, alts }
+        let auxDecl ← mkAuxParam resultType
+        pushElement (.cases auxDecl cases)
+        let result := .fvar auxDecl.fvarId
+        mkOverApplication result args casesInfo.arity
 
   visitCtor (arity : Nat) (e : Expr) : M Arg :=
     etaIfUnderApplied e arity do

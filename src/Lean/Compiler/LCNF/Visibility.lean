@@ -26,7 +26,6 @@ where
     | .const declName .. => s.insert declName
     | _ => s
 
-
 variable (locals : NameMap Decl) in
 private partial def setClosureMeta (root : Name) : CompilerM Unit := do
   let some d ← pure (locals.find? root) <|> getDecl? root | return
@@ -34,7 +33,7 @@ private partial def setClosureMeta (root : Name) : CompilerM Unit := do
     for ref in collectUsedDecls code do
       if getDeclVisibility (← getEnv) ref matches .meta then
         continue
-      trace[Compiler.LCNF.inferVisibility] m!"Marking {ref} as meta because it is in `meta` closure"
+      trace[Compiler.inferVisibility] m!"Marking {ref} as meta because it is in `meta` closure"
       modifyEnv (bumpDeclVisibility · ref .meta)
       setClosureMeta ref
 
@@ -44,34 +43,36 @@ private def isBodyRelevant (decl : Decl) : CompilerM Bool := do
   decl.isTemplateLike
     -- <||> decl.value.isCodeAndM (pure <| ·.sizeLe (compiler.small.get opts))
 
-partial def inferVisibilities (decls : Array Decl) : CompilerM Unit := do
+partial def inferVisibility (decls : Array Decl) : CompilerM Unit := do
   if !(← getEnv).header.isModule then
     return
+  -- We want to visit closed term decls as well but they are not found by `getDecl`, so make sure to
+  -- always search in `decls` first.
   let locals := decls.foldl (init := {}) fun l d => l.insert d.name d
   for decl in decls do
     if metaExt.isTagged (← getEnv) decl.name then
-      trace[Compiler.LCNF.inferVisibility] m!"Marking {decl.name} as meta because it is tagged with `meta`"
+      trace[Compiler.inferVisibility] m!"Marking {decl.name} as meta because it is tagged with `meta`"
       modifyEnv (bumpDeclVisibility · decl.name .meta)
       setClosureMeta locals decl.name
     else if `_at_ ∈ decl.name.components then  -- TODO: don't?
-      trace[Compiler.LCNF.inferVisibility] m!"Marking {decl.name} as transparent because it is a specialization"
+      trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is a specialization"
       markOpaque locals decl
     else if (← getEnv).setExporting true |>.contains decl.name then
-      trace[Compiler.LCNF.inferVisibility] m!"Marking {decl.name} as opaque because it is a public def"
+      trace[Compiler.inferVisibility] m!"Marking {decl.name} as opaque because it is a public def"
       markOpaque locals decl
 where
   markOpaque (locals : NameMap Decl) (decl : Decl) : CompilerM Unit := do
     if (← isBodyRelevant decl) then
-      trace[Compiler.LCNF.inferVisibility] m!"Marking {decl.name} as transparent because it is opaque and its body looks relevant"
+      trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is opaque and its body looks relevant"
       modifyEnv (bumpDeclVisibility · decl.name .transparent)
       decl.value.forCodeM fun code =>
         for ref in collectUsedDecls code do
           if let some refDecl ← pure (locals.find? ref) <|> getDecl? ref then
             if getDeclVisibility (← getEnv) ref == .private then
-              trace[Compiler.LCNF.inferVisibility] m!"Marking {ref} as opaque because it is used by transparent {decl.name}"
+              trace[Compiler.inferVisibility] m!"Marking {ref} as opaque because it is used by transparent {decl.name}"
               markOpaque locals refDecl
     else
       modifyEnv (bumpDeclVisibility · decl.name .opaque)
 
 builtin_initialize
-  registerTraceClass `Compiler.LCNF.inferVisibility
+  registerTraceClass `Compiler.inferVisibility

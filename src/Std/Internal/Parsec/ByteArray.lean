@@ -9,6 +9,7 @@ prelude
 public import Std.Internal.Parsec.Basic
 public import Init.Data.ByteArray.Basic
 public import Init.Data.String.Extra
+public import Init.Data.ByteSlice
 
 public section
 
@@ -53,6 +54,7 @@ def skipByte (b : UInt8) : Parser Unit :=
 /--
 Skip a sequence of bytes equal to the given `ByteArray`.
 -/
+@[inline]
 def skipBytes (arr : ByteArray) : Parser Unit := do
   for b in arr do
     skipByte b
@@ -69,7 +71,8 @@ def pstring (s : String) : Parser String := do
 Skip a string by matching its UTF-8 bytes.
 -/
 @[inline]
-def skipString (s : String) : Parser Unit := pstring s *> pure ()
+def skipString (s : String) : Parser Unit :=
+  pstring s *> pure ()
 
 /--
 Parse a `Char` that can be represented in 1 byte. If `c` uses more than 1 byte it is truncated.
@@ -82,7 +85,8 @@ def pByteChar (c : Char) : Parser Char := attempt do
 Skip a `Char` that can be represented in 1 byte. If `c` uses more than 1 byte it is truncated.
 -/
 @[inline]
-def skipByteChar (c : Char) : Parser Unit := skipByte c.toUInt8
+def skipByteChar (c : Char) : Parser Unit :=
+  skipByte c.toUInt8
 
 /--
 Parse an ASCII digit `0-9` as a `Char`.
@@ -183,18 +187,17 @@ def ws : Parser Unit := fun it =>
 /--
 Parse `n` bytes from the input into a `ByteArray`, errors if not enough bytes.
 -/
-def take (n : Nat) : Parser ByteArray := fun it =>
-  let subarr := it.array.extract it.idx (it.idx + n)
-  if subarr.size != n then
-    .error it .eof
+def take (n : Nat) : Parser ByteSlice := fun it =>
+  if h : it.idx + n ≤ it.array.size then
+    let slice := { data := it.array, start := it.idx,  «end» := it.idx + n, valid := ⟨Nat.le_add_right it.idx n, h⟩}
+    .success (it.forward n) slice
   else
-    .success (it.forward n) subarr
+    .error it .eof
 
 /--
 Parses while a predicate is satisfied.
 -/
-@[inline]
-partial def takeWhile (pred : UInt8 → Bool) : Parser ByteArray :=
+partial def takeWhile (pred : UInt8 → Bool) : Parser ByteSlice :=
   fun it =>
     let rec findEnd (count : Nat) (iter : ByteArray.Iterator) : (Nat × ByteArray.Iterator) :=
       if ¬iter.hasNext then (count, iter)
@@ -202,13 +205,14 @@ partial def takeWhile (pred : UInt8 → Bool) : Parser ByteArray :=
       else (count, iter)
 
     let (length, newIt) := findEnd 0 it
-    .success newIt (it.array.extract it.idx (it.idx + length))
+
+    .success newIt ((ByteSlice.ofByteArray it.array) |>.drop it.idx |>.take length)
 
 /--
 Parses until a predicate is satisfied (exclusive).
 -/
 @[inline]
-def takeUntil (pred : UInt8 → Bool) : Parser ByteArray :=
+def takeUntil (pred : UInt8 → Bool) : Parser ByteSlice :=
   takeWhile (fun b => ¬pred b)
 
 /--

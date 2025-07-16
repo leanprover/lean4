@@ -18,6 +18,8 @@ namespace lean {
 static lean_external_class* g_uv_tcp_socket_external_class = NULL;
 void initialize_libuv_tcp_socket();
 
+extern "C" LEAN_EXPORT lean_obj_res lean_bytearray_to_ascii(obj_arg ba);
+
 #ifndef LEAN_EMSCRIPTEN
 
 // Structure for managing a single TCP socket object, including promise handling,

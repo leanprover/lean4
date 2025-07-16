@@ -19,11 +19,11 @@ namespace Http
 namespace Data
 
 structure ByteStream where
-  data : Channel (Option ByteArray)
+  data : Channel (Option ByteSlice)
 
 inductive Body where
   | zero
-  | bytes (data : ByteArray)
+  | bytes (data : ByteSlice)
   | stream (channel : ByteStream)
 deriving Inhabited
 
@@ -39,13 +39,12 @@ def getContentLength (body : Body) : Option Nat :=
   | .stream _ => none
 
 partial def ByteStream.recvString? (body : ByteStream) (buffer : ByteArray) : Async ByteArray := do
-  match (← body.data.tryRecv) with
-  | some (some bs) => recvString? body (buffer ++ bs)
-  | some none => pure buffer
+  match (← body.data.recv).get with
+  | some bs => recvString? body (buffer ++ bs.toByteArray)
   | none => pure buffer
 
 def recvString? (body : Body) : Async String :=
   match body with
-  | .bytes body => pure (String.fromUTF8! body)
+  | .bytes body => pure (String.fromUTF8! body.toByteArray)
   | .zero => pure ""
   | .stream body => String.fromUTF8! <$> ByteStream.recvString? body .empty

@@ -2430,6 +2430,28 @@ extern "C" LEAN_EXPORT bool lean_byte_array_beq(obj_arg a, obj_arg b) {
   return memcmp(lean_sarray_cptr(a), lean_sarray_cptr(b), size_a) == 0;
 }
 
+extern "C" LEAN_EXPORT bool lean_byteslice_beq(obj_arg a, obj_arg b) {
+    obj_arg ba_a = lean_ctor_get(a, 0);
+    size_t start_a = lean_unbox(lean_ctor_get(a, 1));
+    size_t end_a   = lean_unbox(lean_ctor_get(a, 2));
+
+    obj_arg ba_b = lean_ctor_get(b, 0);
+    size_t start_b = lean_unbox(lean_ctor_get(b, 1));
+    size_t end_b   = lean_unbox(lean_ctor_get(b, 2));
+
+    size_t size_a = end_a - start_a;
+    size_t size_b = end_b - start_b;
+
+    if (size_a != size_b) {
+        return 0;
+    }
+
+    const uint8_t *ptr_a = lean_sarray_cptr(ba_a) + start_a;
+    const uint8_t *ptr_b = lean_sarray_cptr(ba_b) + start_b;
+
+    return memcmp(ptr_a, ptr_b, size_a) == 0;
+}
+
 extern "C" LEAN_EXPORT obj_res lean_byte_array_data(obj_arg a) {
     usize sz       = lean_sarray_size(a);
     obj_res r      = lean_alloc_array(sz, sz);

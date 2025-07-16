@@ -44,14 +44,19 @@ namespace Connection
 -- TODO : cancelrecv must be fixed
 
 -- Event Handlers
-private def handleEndHeaders (connection : Connection) (fn : Request Body → Async (Response Body))
-    (stream : ByteStream) : Async (Response Body) := do
-  if let some (method, uri, version) := connection.machine.inputStatusLine then
-    fn (Request.mk method version uri connection.machine.inputHeaders (.stream stream))
-  else
-    panic! "Invalid State"
+private def handleEndHeaders
+  (connection : Connection)
+  (fn : Request Body → Async (Response Body))
+  (promise : IO.Ref (ETask IO.Error (Response Body)))
+  (stream : ByteStream)
+  : Async Unit := do
+    if let some (method, uri, version) := connection.machine.inputStatusLine then
+      let res := fn (Request.mk method version uri connection.machine.inputHeaders (.stream stream))
+      promise.set (← res.asTask)
+    else
+      panic! "Invalid State"
 
-private def handleGotData (stream : ByteStream) (final : Bool) (data : ByteArray) : Async Unit := do
+private def handleGotData (stream : ByteStream) (final : Bool) (data : ByteSlice) : Async Unit := do
   await (← stream.data.send data)
   if final then
     await (← stream.data.send none)
@@ -69,7 +74,7 @@ private def handleNeedMoreData (connection : Connection) : Async (Connection × 
     try
       let size := connection.machine.size.getD 4096
       let some data ← await (← connection.socket.recv? size)
-        | return ({connection with machine := connection.machine.fail .timeout |>.advance}, true)
+        | return ({connection with machine := connection.machine.setError .timeout |>.advance}, true)
       pure (data, false)
     catch _ =>
       pure (.empty, true)
@@ -77,18 +82,20 @@ private def handleNeedMoreData (connection : Connection) : Async (Connection × 
   if .empty == data.1 then
     pure (connection, true)
   else
-    pure ({ connection with machine := connection.machine.incomeFeed data.1 }, false)
+    pure ({ connection with machine := connection.machine.feed data.1 }, false)
 
 private def handleAwaitingAnswer (connection : Connection) (response : Response Body) : Async (Connection × Bool) := do
   match response.body with
   | .zero =>
     pure ({ connection with machine := connection.machine.close }, false)
   | .bytes bytes =>
-    pure ({ connection with machine := connection.machine.writeData bytes |>.close }, false)
+    pure ({ connection with machine := connection.machine.writeData bytes.toByteArray |>.close }, false)
   | .stream st =>
-    match ← await (← st.data.recv) with
+    let ba ← await (← st.data.recv)
+    let connection := { connection with machine := { connection.machine with chunkedAnswer := true } }
+    match ba with
     | some data =>
-      pure ({ connection with machine := connection.machine.writeData data }, false)
+      pure ({ connection with machine := connection.machine.writeData data.toByteArray }, false)
     | none =>
       pure ({ connection with machine := connection.machine.close }, false)
 
@@ -105,45 +112,50 @@ private def handleFailed (stream : ByteStream) (connection : Connection) : Async
   await (← stream.data.send none)
   pure { connection with machine := connection.machine.advance }
 
-private def processEvent (connection : Connection) (stream : ByteStream) (response : Response Body)
-    (fn : Request Body → Async (Response Body)) : Async (Connection × ByteStream × Response Body × Bool) := do
+private def processEvent (connection : Connection)
+  (stream : ByteStream)
+  (fn : Request Body → Async (Response Body))
+  (promise : IO.Ref (ETask IO.Error (Response Body)))
+  : Async (Connection × ByteStream × Bool) := do
   match connection.machine.event with
   | some event =>
     match event with
     | .chunkExt _ =>
-      pure (connection, stream, response, false)
+      pure (connection, stream, false)
     | .endHeaders _ =>
       let newStream := { data := (← Channel.new) }
-      let newResponse ← handleEndHeaders connection fn newStream
-      pure (connection, newStream, newResponse, false)
+      handleEndHeaders connection fn promise newStream
+      pure (connection, newStream, false)
     | .gotData final data =>
       handleGotData stream final data
-      pure (connection, stream, response, false)
+      pure (connection, stream, false)
     | .needMoreData =>
       let (newConnection, shouldBreak) ← handleNeedMoreData connection
-      pure (newConnection, stream, response, shouldBreak)
+      pure (newConnection, stream, shouldBreak)
     | .awaitingAnswer =>
+      let response ← EAsync.ofETask (← promise.get)
       let (newConnection, shouldBreak) ← handleAwaitingAnswer connection response
-      pure (newConnection, stream, response, shouldBreak)
+      pure (newConnection, stream, shouldBreak)
     | .readyToRespond =>
+      let response ← EAsync.ofETask (← promise.get)
       let newConnection := handleReadyToRespond connection response
-      pure (newConnection, stream, response, false)
+      pure (newConnection, stream, false)
     | .next =>
       handleNext stream
-      pure (connection, stream, response, false)
+      pure (connection, stream, false)
     | .close =>
       handleClose stream
-      pure (connection, stream, response, true)
+      pure (connection, stream, true)
     | .failed _ =>
       let newConnection ← handleFailed stream connection
-      pure (newConnection, stream, response, true)
+      pure (newConnection, stream, true)
   | none =>
-    pure (connection, stream, response, false)
+    pure (connection, stream, false)
 
 private def flushConnection (connection : Connection) (force : Bool) : Async Connection := do
   if connection.machine.needsFlush || force then
     let machine := connection.machine
-    let (machine, ba) := machine.flush
+    let (machine, ba) := machine.flush force
     await (← connection.socket.send ba)
     pure { connection with machine }
   else
@@ -151,7 +163,7 @@ private def flushConnection (connection : Connection) (force : Bool) : Async Con
 
 private def finalFlush (connection : Connection) : Async Unit := do
   let machine := connection.machine
-  let (_, ba) := machine.flush
+  let (_, ba) := machine.flush true
   if ba.size > 0 then
     await (← connection.socket.send ba)
 
@@ -159,21 +171,21 @@ private partial def start (connection : Connection) (fn : Request Body → Async
   try
     let mut connection := connection
     let mut stream : ByteStream := { data := (← Channel.new) }
-    let mut response : Response Body := Inhabited.default
+
+    let respPromise ← IO.mkRef (← IO.asTask default)
 
     while true do
-      let (newConnection, newStream, newResponse, shouldBreak) ←
-        processEvent connection stream response fn
+      let (newConnection, newStream, shouldBreak) ←
+        processEvent connection stream fn respPromise
 
       connection := newConnection
       stream := newStream
-      response := newResponse
 
       if shouldBreak then
         break
 
-      connection := { connection with machine := connection.machine.resetEvent.advance }
-      connection ← flushConnection connection false
+      connection := { connection with machine := connection.machine.advance }
+      connection ← flushConnection connection true
 
     finalFlush connection
   catch err =>

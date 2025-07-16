@@ -27,6 +27,12 @@ typedef struct {
 // =======================================
 // TCP socket object manipulation functions.
 
+extern "C" LEAN_EXPORT lean_obj_res lean_bytearray_to_ascii(obj_arg ba) {
+    char* bastr = (char*)lean_sarray_cptr(ba);
+    int sint = lean_sarray_size(ba);
+    return lean_mk_string_unchecked(bastr, sint, sint);
+}
+
 void lean_uv_tcp_socket_finalizer(void* ptr) {
     lean_uv_tcp_socket_object* tcp_socket = (lean_uv_tcp_socket_object*)ptr;
 
@@ -184,11 +190,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     send_data->data = data;
     send_data->socket = socket;
 
-    // These objects are going to enter the loop and be owned by it
+    event_loop_lock(&global_ev);
+
     lean_inc(promise);
     lean_inc(socket);
-
-    event_loop_lock(&global_ev);
 
     int result = uv_write(write_uv, (uv_stream_t*)tcp_socket->m_uv_tcp, &buf, 1, [](uv_write_t* req, int status) {
         tcp_send_data* tup = (tcp_send_data*) req->data;
@@ -376,6 +381,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket, ob
     uv_read_stop((uv_stream_t*)tcp_socket->m_uv_tcp);
 
     lean_object* promise = tcp_socket->m_promise_read;
+    lean_promise_resolve(mk_except_ok(lean::mk_option_none()), promise);
     lean_dec(promise);
     tcp_socket->m_promise_read = nullptr;
 
@@ -385,7 +391,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_cancel_recv(b_obj_arg socket, ob
         tcp_socket->m_byte_array = nullptr;
     }
 
-    lean_dec((lean_object*)tcp_socket);
+    lean_dec(socket);
 
     event_loop_unlock(&global_ev);
     return lean_io_result_mk_ok(lean_box(0));
@@ -481,7 +487,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket, obj_arg
     lean_uv_tcp_socket_object* client_socket = lean_to_uv_tcp_socket(client);
 
     int result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);
-
     if (result < 0 && result != UV_EAGAIN) {
         event_loop_unlock(&global_ev);
         lean_dec(client);

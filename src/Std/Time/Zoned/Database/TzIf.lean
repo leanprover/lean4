@@ -174,21 +174,32 @@ structure TZif where
   v2 : Option TZifV2
   deriving Repr, Inhabited
 
-private def toUInt32 (bs : ByteArray) : UInt32 :=
+private def toUInt32 (bs : ByteSlice) : UInt32 :=
   assert! bs.size == 4
   (bs.get! 0).toUInt32 <<< 0x18 |||
   (bs.get! 1).toUInt32 <<< 0x10 |||
   (bs.get! 2).toUInt32 <<< 0x8  |||
   (bs.get! 3).toUInt32
 
-private def toInt32 (bs : ByteArray) : Int32 :=
+private def toUInt64 (bs : ByteSlice) : UInt64 :=
+  assert! bs.size == 8
+  (bs.get! 0).toUInt64 <<< 0x38 |||
+  (bs.get! 1).toUInt64 <<< 0x30 |||
+  (bs.get! 2).toUInt64 <<< 0x28 |||
+  (bs.get! 3).toUInt64 <<< 0x20 |||
+  (bs.get! 4).toUInt64 <<< 0x18 |||
+  (bs.get! 5).toUInt64 <<< 0x10 |||
+  (bs.get! 6).toUInt64 <<< 0x8  |||
+  (bs.get! 7).toUInt64
+
+private def toInt32 (bs : ByteSlice) : Int32 :=
   let n := toUInt32 bs |>.toNat
   if n < (1 <<< 31)
     then Int.ofNat n
     else Int.negOfNat (UInt32.size - n)
 
-private def toInt64 (bs : ByteArray) : Int64 :=
-  let n := ByteArray.toUInt64BE! bs |>.toNat
+private def toInt64 (bs : ByteSlice) : Int64 :=
+  let n := toUInt64 bs |>.toNat
   if n < (1 <<< 63)
     then Int.ofNat n
     else Int.negOfNat (UInt64.size - n)
@@ -200,7 +211,7 @@ private def manyN (n : Nat) (p : Parser α) : Parser (Array α) := do
     result := result.push x
   return result
 
-private def pu64 : Parser UInt64 := ByteArray.toUInt64LE! <$> take 8
+private def pu64 : Parser UInt64 := toUInt64 <$> take 8
 private def pi64 : Parser Int64 := toInt64 <$> take 8
 private def pu32 : Parser UInt32 := toUInt32 <$> take 4
 private def pi32 : Parser Int32 := toInt32 <$> take 4

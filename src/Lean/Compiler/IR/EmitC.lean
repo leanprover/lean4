@@ -62,6 +62,7 @@ def toCType : IRType → String
   | IRType.uint64     => "uint64_t"
   | IRType.usize      => "size_t"
   | IRType.object     => "lean_object*"
+  | IRType.tagged     => "lean_object*"
   | IRType.tobject    => "lean_object*"
   | IRType.erased     => "lean_object*"
   | IRType.struct _ _ => panic! "not implemented yet"

@@ -28,6 +28,18 @@ info: theorem trfl : f = 1 :=
 #guard_msgs in
 #print trfl
 
+/-! Metadata of private decls should not be exported. -/
+
+-- Should not fail with 'unknown constant `inst*`
+/--
+error: failed to synthesize
+  X
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+def fX : X := inferInstance
+
 /-- error: dsimp made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [t]; exact hP1

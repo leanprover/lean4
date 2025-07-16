@@ -16,6 +16,12 @@ test_out '"plugins":[]' setup-file ImportFoo.lean
 # Test that, by default, no dynlibs are used.
 test_out '"dynlibs":[]' setup-file ImportFoo.lean
 
+# Test that local imports are pre-resolved.
+test_out '"importArts":{"Test":["' setup-file ImportTest.lean
+
+# Test that external imports are left unhandled.
+test_out '"importArts":{}' setup-file ImportFoo.lean
+
 # Test that, generally, no options are set.
 test_out '"options":{}' setup-file ImportFoo.lean
 

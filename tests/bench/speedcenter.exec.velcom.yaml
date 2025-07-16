@@ -402,6 +402,12 @@
     <<: *time
     cmd: lean simp_arith1.lean
 - attributes:
+    description: simp_bubblesort_256
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean simp_bubblesort_256.lean
+- attributes:
     description: nat_repr
     tags: [fast, suite]
   run_config:
@@ -458,6 +464,12 @@
     <<: *time
     cmd: lean bv_decide_large_aig.lean
 - attributes:
+    description: bv_decide_rewriter.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_rewriter.lean
+- attributes:
     description: big_do
     tags: [fast]
   run_config:
@@ -503,3 +515,27 @@
   run_config:
     <<: *time
     cmd: lean iterators.lean
+- attributes:
+    description: workspaceSymbols with new ranges
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean workspaceSymbolsNewRanges.lean
+- attributes:
+    description: hashmap.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./hashmap.lean.out 11 10000
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh hashmap.lean
+- attributes:
+    description: treemap.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./treemap.lean.out 11 10000
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh treemap.lean

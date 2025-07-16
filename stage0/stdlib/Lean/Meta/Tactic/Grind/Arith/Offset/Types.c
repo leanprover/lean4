@@ -165,7 +165,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo___closed__3;
 x_2 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo___closed__0;
-x_3 = lean_box(0);
+x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_2);
@@ -186,7 +186,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo___closed__0;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedProofInfo___closed__3;
 x_4 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -237,7 +237,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__2;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__0;
 x_4 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__1;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -302,7 +302,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__2;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__0;
 x_4 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__8;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -329,7 +329,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__2;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__0;
 x_4 = l_Lean_Meta_Grind_Arith_Offset_instInhabitedState___closed__10;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);

@@ -23,7 +23,7 @@ where
   mkElseAlt : TermElabM (TSyntax ``matchAltExpr) := do
     let mut patterns := #[]
     -- add `_` pattern for indices
-    for _ in [:indVal.numIndices] do
+    for _ in *...indVal.numIndices do
       patterns := patterns.push (← `(_))
     patterns := patterns.push (← `(_))
     patterns := patterns.push (← `(_))
@@ -38,13 +38,13 @@ where
         let type ← Core.betaReduce type -- we 'beta-reduce' to eliminate "artificial" dependencies
         let mut patterns := #[]
         -- add `_` pattern for indices
-        for _ in [:indVal.numIndices] do
+        for _ in *...indVal.numIndices do
           patterns := patterns.push (← `(_))
         let mut ctorArgs1 := #[]
         let mut ctorArgs2 := #[]
         let mut rhs ← `(true)
         let mut rhs_empty := true
-        for i in [:ctorInfo.numFields] do
+        for i in *...ctorInfo.numFields do
           let pos := indVal.numParams + ctorInfo.numFields - i - 1
           let x := xs[pos]!
           if type.containsFVar x.fvarId! then
@@ -81,7 +81,7 @@ where
               else
                 rhs ← `($a:ident == $b:ident && $rhs)
           -- add `_` for inductive parameters, they are inaccessible
-        for _ in [:indVal.numParams] do
+        for _ in *...indVal.numParams do
           ctorArgs1 := ctorArgs1.push (← `(_))
           ctorArgs2 := ctorArgs2.push (← `(_))
         patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs1.reverse:term*))
@@ -107,7 +107,7 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
-  for i in [:ctx.typeInfos.size] do
+  for i in *...ctx.typeInfos.size do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
   `(mutual
      set_option match.ignoreUnusedAlts true

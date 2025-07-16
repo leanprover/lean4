@@ -938,7 +938,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_instToExprUInt8___lam__0(x_2);
 return x_3;
 }
@@ -1022,7 +1021,6 @@ _start:
 {
 uint16_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_instToExprUInt16___lam__0(x_2);
 return x_3;
 }
@@ -1426,7 +1424,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_instToExprInt8___lam__0(x_2);
 return x_3;
 }
@@ -1570,7 +1567,6 @@ _start:
 {
 uint16_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_instToExprInt16___lam__0(x_2);
 return x_3;
 }
@@ -2124,7 +2120,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_instToExprBool___lam__0(x_2);
 return x_3;
 }
@@ -2344,7 +2339,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_instToExprUnit___lam__0(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -2471,11 +2465,10 @@ goto _start;
 }
 default: 
 {
-lean_object* x_11; uint8_t x_12; 
+uint8_t x_11; 
 lean_dec(x_2);
-x_11 = lean_box(0);
-x_12 = lean_unbox(x_11);
-return x_12;
+x_11 = 0;
+return x_11;
 }
 }
 }
@@ -3860,13 +3853,9 @@ else
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint32_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
-lean_inc(x_5);
-lean_dec(x_3);
 x_6 = l_Lean_instToExprChar___lam__0___closed__2;
 x_7 = lean_unbox_uint32(x_4);
-lean_dec(x_4);
 x_8 = lean_uint32_to_nat(x_7);
 x_9 = l_Lean_mkRawNatLit(x_8);
 x_10 = l_Lean_Expr_app___override(x_6, x_9);
@@ -4020,6 +4009,7 @@ x_14 = l_Lean_Expr_toCtorIfLit___closed__8;
 x_15 = l_Lean_Expr_toCtorIfLit___closed__9;
 x_16 = lean_string_data(x_12);
 x_17 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___at___Lean_Expr_toCtorIfLit_spec__0(x_14, x_15, x_16);
+lean_dec(x_16);
 x_18 = l_Lean_Expr_app___override(x_13, x_17);
 return x_18;
 }
@@ -4035,6 +4025,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___at___Lean_Expr_toCtorIfLit_spec__0(x_1, x_2, x_3);
+lean_dec(x_3);
 lean_dec(x_1);
 return x_4;
 }

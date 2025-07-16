@@ -44,15 +44,15 @@ partial def mRefineCore (goal : MGoal) (pat : MRefinePat) (k : MGoal → TSyntax
   | .tuple [p] => mRefineCore goal p k
   | .tuple (p::ps) => do
     let T ← whnfR goal.target
-    if let some (σs, T₁, T₂) := parseAnd? T.consumeMData then
+    if let some (u, σs, T₁, T₂) := parseAnd? T.consumeMData then
       let prf₁ ← mRefineCore { goal with target := T₁ } p k
       let prf₂ ← mRefineCore { goal with target := T₂ } (.tuple ps) k
-      return mkApp6 (mkConst ``SPred.and_intro) σs goal.hyps T₁ T₂ prf₁ prf₂
+      return mkApp6 (mkConst ``SPred.and_intro [u]) σs goal.hyps T₁ T₂ prf₁ prf₂
     else if let some (α, σs, ψ) := T.app3? ``SPred.exists then
       let some witness ← patAsTerm p (some α) | throwError "pattern does not elaborate to a term to instantiate ψ"
       let prf ← mRefineCore { goal with target := ψ.betaRev #[witness] } (.tuple ps) k
       let u ← getLevel α
-      return mkApp6 (mkConst ``SPred.exists_intro' [u]) α σs goal.hyps ψ witness prf
+      return mkApp6 (mkConst ``SPred.exists_intro' [u, goal.u]) α σs goal.hyps ψ witness prf
     else throwError "Neither a conjunction nor an existential quantifier {goal.target}"
 
 @[builtin_tactic Lean.Parser.Tactic.mrefine]

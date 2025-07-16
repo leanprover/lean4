@@ -140,7 +140,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uv_udp_set_broadcast(x_1, x_4, x_3);
 lean_dec(x_1);
 return x_5;
@@ -151,7 +150,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uv_udp_set_multicast_loop(x_1, x_4, x_3);
 lean_dec(x_1);
 return x_5;
@@ -173,7 +171,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = lean_uv_udp_set_membership(x_1, x_2, x_3, x_6, x_5);
 lean_dec(x_3);
 lean_dec(x_2);

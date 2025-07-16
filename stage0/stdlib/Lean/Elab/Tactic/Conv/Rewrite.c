@@ -369,24 +369,24 @@ return x_67;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalRewrite___lam__1(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; 
+lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; 
 x_13 = lean_box(0);
-x_14 = lean_box(1);
-x_15 = lean_box(x_2);
-x_16 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Conv_evalRewrite___lam__0___boxed), 14, 5);
-lean_closure_set(x_16, 0, x_3);
-lean_closure_set(x_16, 1, x_13);
-lean_closure_set(x_16, 2, x_14);
-lean_closure_set(x_16, 3, x_15);
-lean_closure_set(x_16, 4, x_1);
-x_17 = lean_box(1);
-x_18 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_withMainContext), 11, 4);
-lean_closure_set(x_18, 0, lean_box(0));
-lean_closure_set(x_18, 1, x_16);
-lean_closure_set(x_18, 2, x_4);
-lean_closure_set(x_18, 3, x_5);
-x_19 = lean_unbox(x_17);
-x_20 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_withSynthesizeImp___redArg(x_18, x_19, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+x_14 = 1;
+x_15 = lean_box(x_14);
+x_16 = lean_box(x_2);
+x_17 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Conv_evalRewrite___lam__0___boxed), 14, 5);
+lean_closure_set(x_17, 0, x_3);
+lean_closure_set(x_17, 1, x_13);
+lean_closure_set(x_17, 2, x_15);
+lean_closure_set(x_17, 3, x_16);
+lean_closure_set(x_17, 4, x_1);
+x_18 = 1;
+x_19 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_withMainContext), 11, 4);
+lean_closure_set(x_19, 0, lean_box(0));
+lean_closure_set(x_19, 1, x_17);
+lean_closure_set(x_19, 2, x_4);
+lean_closure_set(x_19, 3, x_5);
+x_20 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_withSynthesizeImp___redArg(x_19, x_18, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_20;
 }
 }
@@ -458,9 +458,7 @@ _start:
 {
 uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_15 = lean_unbox(x_3);
-lean_dec(x_3);
 x_16 = lean_unbox(x_4);
-lean_dec(x_4);
 x_17 = l_Lean_Elab_Tactic_Conv_evalRewrite___lam__0(x_1, x_2, x_15, x_16, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_17;
 }
@@ -470,7 +468,6 @@ _start:
 {
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_2);
-lean_dec(x_2);
 x_14 = l_Lean_Elab_Tactic_Conv_evalRewrite___lam__1(x_1, x_13, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_14;
 }

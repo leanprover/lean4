@@ -637,7 +637,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_shortOptionWithEq___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -1036,7 +1035,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lake_multiShortOption_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_2);
 return x_6;
 }
@@ -1171,7 +1169,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lake_longOptionOrSpace___redArg___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -1513,7 +1510,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lake_longOption___redArg___lam__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -1525,7 +1521,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lake_longOption___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
 lean_dec(x_3);
 lean_dec(x_1);
 return x_8;
@@ -1949,7 +1944,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_shortOption___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -2637,7 +2631,6 @@ uint32_t x_4; lean_object* x_5;
 x_4 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
 x_5 = l_Lake_option___redArg___lam__0(x_1, x_4, x_3);
-lean_dec(x_3);
 return x_5;
 }
 }
@@ -2646,7 +2639,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lake_option___redArg___lam__4(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -2658,7 +2650,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lake_option___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
 lean_dec(x_3);
 lean_dec(x_1);
 return x_8;
@@ -2669,7 +2660,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lake_option___redArg___lam__3(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -2795,7 +2785,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_processLeadingOption___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -2955,7 +2944,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lake_processLeadingOptions___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -2964,7 +2952,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lake_processLeadingOptions___redArg___lam__2(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }
@@ -3149,7 +3136,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lake_collectArgs___redArg___lam__1(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }

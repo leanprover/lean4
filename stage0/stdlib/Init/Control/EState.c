@@ -386,7 +386,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = l_EStateM_orElse_x27___redArg(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }
@@ -396,7 +395,6 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = lean_unbox(x_8);
-lean_dec(x_8);
 x_11 = l_EStateM_orElse_x27(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_10, x_9);
 return x_11;
 }

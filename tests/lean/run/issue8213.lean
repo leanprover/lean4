@@ -16,14 +16,14 @@ error: Failed to realize constant myTest.fun_cases:
     failed to transform matcher, type error when constructing new pre-splitter motive:
       myTest.match_1 (fun x => motive x h_1 h_2) x
     failed with
-      Application type mismatch: In the application
-        motive x✝ h_1
-      the argument
+      Application type mismatch: The argument
         h_1
       has type
         (a : α) → (dc : List α) → x = a :: dc → mmotive (a :: dc)
       but is expected to have type
         (a : α) → (dc : List α) → x✝ = a :: dc → mmotive (a :: dc)
+      in the application
+        motive x✝ h_1
 ---
 error: unknown identifier 'myTest.fun_cases'
 -/

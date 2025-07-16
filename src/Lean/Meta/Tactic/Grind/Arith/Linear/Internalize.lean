@@ -51,7 +51,7 @@ partial def markVars (e : Expr) : LinearM Unit := do
     if isAddInst (← getStruct) i then markVars a; markVars b else markVar e
   | HSub.hSub _ _ _ i a b => if isSubInst (← getStruct) i then markVars a; markVars b else markVar e
   | HMul.hMul _ _ _ i a b =>
-    if isHMulInst (← getStruct) i then
+    if isHMulIntInst (← getStruct) i then
       if (← getIntValue? a).isSome then
         return (← markVar b)
     if isHMulNatInst (← getStruct) i then
@@ -67,7 +67,7 @@ partial def markVars (e : Expr) : LinearM Unit := do
         return
     markVar e
   | HSMul.hSMul _ _ _ i a b =>
-    if isHSMulInst (← getStruct) i then
+    if isHSMulIntInst (← getStruct) i then
       if (← getIntValue? a).isSome then
         return (← markVar b)
     if isHSMulNatInst (← getStruct) i then

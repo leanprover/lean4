@@ -15,12 +15,12 @@ def mLeftRightCore (right : Bool) (mvar : MVarId) : MetaM MVarId := do
   let g ← instantiateMVars <| ← mvar.getType
   let some goal := parseMGoal? g | throwError "not in proof mode"
 
-  let mkApp3 (.const ``SPred.or []) σs L R := goal.target | throwError "target is not SPred.or"
+  let mkApp3 (.const ``SPred.or _) σs L R := goal.target | throwError "target is not SPred.or"
 
   let (thm, keep) := if right then (``SPred.or_intro_r', R) else (``SPred.or_intro_l', L)
 
   let newGoal ← mkFreshExprSyntheticOpaqueMVar {goal with target := keep}.toExpr
-  mvar.assign (mkApp5 (mkConst thm) σs goal.hyps L R newGoal)
+  mvar.assign (mkApp5 (mkConst thm [goal.u]) σs goal.hyps L R newGoal)
   return newGoal.mvarId!
 
 @[builtin_tactic Lean.Parser.Tactic.mleft]

@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_System_FilePath_normalize(lean_object*);
+lean_object* lean_io_remove_file(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_copyFile___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_pathExists(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -21,6 +22,7 @@ lean_object* l_IO_FS_createDirAll(lean_object*, lean_object*);
 lean_object* l_IO_FS_writeBinFile(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_resolvePath(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_createParentDirs(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_removeFileIfExists(lean_object*, lean_object*);
 lean_object* l_System_FilePath_parent(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_copyFile(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_resolvePath_x3f(lean_object*, lean_object*);
@@ -28,6 +30,7 @@ LEAN_EXPORT lean_object* l_Lake_createParentDirs___boxed(lean_object*, lean_obje
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_io_realpath(lean_object*, lean_object*);
 lean_object* l_IO_FS_readBinFile(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_removeFileIfExists___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_resolvePath___closed__0;
 LEAN_EXPORT lean_object* l_Lake_createParentDirs(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -60,6 +63,65 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_createParentDirs(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_removeFileIfExists(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_io_remove_file(x_1, x_2);
+if (lean_obj_tag(x_3) == 0)
+{
+return x_3;
+}
+else
+{
+lean_object* x_4; 
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+if (lean_obj_tag(x_4) == 11)
+{
+uint8_t x_5; 
+lean_dec(x_4);
+x_5 = !lean_is_exclusive(x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_3, 0);
+lean_dec(x_6);
+x_7 = lean_box(0);
+lean_ctor_set_tag(x_3, 0);
+lean_ctor_set(x_3, 0, x_7);
+return x_3;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_3, 1);
+lean_inc(x_8);
+lean_dec(x_3);
+x_9 = lean_box(0);
+x_10 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_10, 0, x_9);
+lean_ctor_set(x_10, 1, x_8);
+return x_10;
+}
+}
+else
+{
+lean_dec(x_4);
+return x_3;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lake_removeFileIfExists___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_removeFileIfExists(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }

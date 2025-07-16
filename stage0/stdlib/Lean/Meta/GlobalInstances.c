@@ -470,7 +470,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_3);
-lean_dec(x_3);
 x_9 = l_Lean_ScopedEnvExtension_add___at___Lean_Meta_addGlobalInstance_spec__0___redArg(x_1, x_2, x_8, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_4);
@@ -482,7 +481,6 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_6);
-lean_dec(x_6);
 x_13 = l_Lean_ScopedEnvExtension_add___at___Lean_Meta_addGlobalInstance_spec__0(x_1, x_2, x_3, x_4, x_5, x_12, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_10);
 lean_dec(x_8);
@@ -495,7 +493,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Lean_Meta_addGlobalInstance(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_4);

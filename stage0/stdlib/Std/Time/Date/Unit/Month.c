@@ -2383,7 +2383,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_Month_Ordinal_toSeconds(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -2414,7 +2413,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_Month_Ordinal_toMinutes(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -2438,7 +2436,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_Month_Ordinal_toHours(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -2503,7 +2500,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_Month_Ordinal_toDays(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -2942,7 +2938,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_Month_Ordinal_days(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -2995,7 +2990,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_Month_Ordinal_cumulativeDays(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -3024,7 +3018,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Std_Time_Month_Ordinal_clipDay(x_4, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);

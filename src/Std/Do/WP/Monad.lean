@@ -15,13 +15,13 @@ it preserves `pure` and `bind`.
 
 namespace Std.Do
 
-universe u
-variable {m : Type → Type u} {ps : PostShape}
+universe u v
+variable {m : Type u → Type v} {ps : PostShape.{u}}
 
 /--
   A `WP` that is also a monad morphism, preserving `pure` and `bind`. (They all are.)
 -/
-class WPMonad (m : Type → Type u) (ps : outParam PostShape) [Monad m]
+class WPMonad (m : Type u → Type v) (ps : outParam PostShape.{u}) [Monad m]
   extends LawfulMonad m, WP m ps where
   wp_pure : ∀ {α} (a : α), wp (pure a) = pure a
   wp_bind : ∀ {α β} (x : m α) (f : α → m β), wp (do let a ← x; f a) = do let a ← wp x; wp (f a)

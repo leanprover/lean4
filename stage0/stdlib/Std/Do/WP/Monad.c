@@ -19,10 +19,10 @@ LEAN_EXPORT lean_object* l___private_Std_Do_WP_Monad_0__ExceptT_bindCont_match__
 LEAN_EXPORT lean_object* l_Std_Do_ExceptT_instWPMonad(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Do_StateT_instWP___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Do_Except_instWP(lean_object*);
+lean_object* l_Std_Do_EStateM_instWP(lean_object*, lean_object*);
 lean_object* l_Std_Do_ReaderT_instWP___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_Id_instWPMonad;
 static lean_object* l_Std_Do_State_instWPMonad___closed__0;
-lean_object* l_Std_Do_EStateM_instWP___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_StateT_instWPMonad(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_EStateM_instWPMonad(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_WP_Monad_0__EStateM_bind_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -291,7 +291,7 @@ static lean_object* _init_l_Std_Do_EStateM_instWPMonad___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Do_EStateM_instWP___lam__0___boxed), 3, 0);
+x_1 = l_Std_Do_EStateM_instWP(lean_box(0), lean_box(0));
 return x_1;
 }
 }

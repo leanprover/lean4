@@ -63,11 +63,10 @@ return x_3;
 static lean_object* _init_l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftLeftConst_go___redArg___closed__1() {
 _start:
 {
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_unbox(x_1);
-x_3 = l_Bool_toNat(x_2);
-return x_3;
+uint8_t x_1; lean_object* x_2; 
+x_1 = 0;
+x_2 = l_Bool_toNat(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftLeftConst_go___redArg___closed__2() {
@@ -286,12 +285,11 @@ goto block_21;
 }
 else
 {
-lean_object* x_29; lean_object* x_30; uint8_t x_31; 
-x_29 = lean_box(0);
+uint8_t x_29; lean_object* x_30; 
+x_29 = 0;
 x_30 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_30, 0, x_24);
-x_31 = lean_unbox(x_29);
-lean_ctor_set_uint8(x_30, sizeof(void*)*1, x_31);
+lean_ctor_set_uint8(x_30, sizeof(void*)*1, x_29);
 x_18 = x_30;
 goto block_21;
 }

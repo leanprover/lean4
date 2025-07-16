@@ -13,16 +13,16 @@ def isAddInst (struct : Struct) (inst : Expr) : Bool :=
   isSameExpr struct.addFn.appArg! inst
 def isZeroInst (struct : Struct) (inst : Expr) : Bool :=
   isSameExpr struct.zero.appArg! inst
-def isHMulInst (struct : Struct) (inst : Expr) : Bool :=
-  isSameExpr struct.hmulFn.appArg! inst
+def isHMulIntInst (struct : Struct) (inst : Expr) : Bool :=
+  isSameExpr struct.zsmulFn.appArg! inst
 def isHMulNatInst (struct : Struct) (inst : Expr) : Bool :=
-  isSameExpr struct.hmulNatFn.appArg! inst
+  isSameExpr struct.nsmulFn.appArg! inst
 def isHomoMulInst (struct : Struct) (inst : Expr) : Bool :=
   if let some homomulFn := struct.homomulFn? then isSameExpr homomulFn inst else false
-def isHSMulInst (struct : Struct) (inst : Expr) : Bool :=
-  if let some smulFn := struct.hsmulFn? then isSameExpr smulFn.appArg! inst else false
+def isHSMulIntInst (struct : Struct) (inst : Expr) : Bool :=
+  if let some smulFn := struct.zsmulFn? then isSameExpr smulFn.appArg! inst else false
 def isHSMulNatInst (struct : Struct) (inst : Expr) : Bool :=
-  if let some smulFn := struct.hsmulNatFn? then isSameExpr smulFn.appArg! inst else false
+  if let some smulFn := struct.nsmulFn? then isSameExpr smulFn.appArg! inst else false
 def isSubInst (struct : Struct) (inst : Expr) : Bool :=
   isSameExpr struct.subFn.appArg! inst
 def isNegInst (struct : Struct) (inst : Expr) : Bool :=
@@ -75,7 +75,7 @@ where
   isOfNatZero (e : Expr) : LinearM Bool := do
     withDefault <| isDefEq e (← getStruct).ofNatZero
   processHMul (i a b : Expr) : LinearM (Option LinExpr) := do
-    if isHMulInst (← getStruct) i then
+    if isHMulIntInst (← getStruct) i then
       let some k ← getIntValue? a | return none
       return some (.intMul k (← go b))
     else if isHMulNatInst (← getStruct) i then
@@ -83,7 +83,7 @@ where
       return some (.natMul k (← go b))
     return none
   processHSMul (i a b : Expr) : LinearM (Option LinExpr) := do
-    if isHSMulInst (← getStruct) i then
+    if isHSMulIntInst (← getStruct) i then
       let some k ← getIntValue? a | return none
       return some (.intMul k (← go b))
     else if isHSMulNatInst (← getStruct) i then

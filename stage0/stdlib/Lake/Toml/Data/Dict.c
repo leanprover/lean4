@@ -554,7 +554,7 @@ x_5 = lean_array_uget(x_3, x_2);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);
@@ -643,7 +643,7 @@ x_5 = lean_array_uget(x_3, x_2);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);
@@ -743,7 +743,6 @@ lean_inc(x_1);
 lean_inc(x_3);
 x_9 = lean_apply_2(x_1, x_3, x_6);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 switch (x_10) {
 case 0:
 {
@@ -792,18 +791,16 @@ lean_dec(x_3);
 x_5 = l_Lean_RBNode_find___at___Lake_Toml_RBDict_contains_spec__0___redArg(x_1, x_4, x_2);
 if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_box(0);
-x_7 = lean_unbox(x_6);
-return x_7;
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; 
+uint8_t x_7; 
 lean_dec(x_5);
-x_8 = lean_box(1);
-x_9 = lean_unbox(x_8);
-return x_9;
+x_7 = 1;
+return x_7;
 }
 }
 }
@@ -1848,7 +1845,6 @@ lean_inc(x_6);
 lean_inc(x_5);
 x_7 = lean_apply_2(x_1, x_5, x_6);
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_dec(x_6);

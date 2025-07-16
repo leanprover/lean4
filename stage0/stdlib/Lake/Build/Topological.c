@@ -80,17 +80,15 @@ _start:
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_apply_2(x_1, x_4, x_2);
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 return x_3;
 }
 else
 {
-lean_object* x_7; uint8_t x_8; 
-x_7 = lean_box(0);
-x_8 = lean_unbox(x_7);
-return x_8;
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
 }
 }
 }
@@ -242,7 +240,6 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Lake_recFetchAcyclic___redArg___lam__2(x_1, x_2, x_5, x_4);
 x_7 = lean_box(x_6);
 return x_7;
@@ -360,7 +357,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_recFetchMemoize___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }

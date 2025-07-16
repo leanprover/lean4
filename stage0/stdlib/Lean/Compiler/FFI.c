@@ -340,7 +340,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 x_9 = l_Array_mapMUnsafe_map___at___Lean_Compiler_FFI_getInternalCFlags_spec__0___closed__0;
 x_10 = l_String_replace(x_6, x_9, x_1);
@@ -419,7 +419,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_get_linker_flags(x_2);
 return x_3;
 }
@@ -438,7 +437,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Compiler_FFI_getLinkerFlags_x27(x_2);
 return x_3;
 }
@@ -498,7 +496,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Compiler_FFI_getLinkerFlags(x_1, x_3);
 return x_4;
 }

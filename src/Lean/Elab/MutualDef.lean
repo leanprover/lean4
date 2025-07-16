@@ -124,15 +124,21 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
   else
     pure ()
 
-private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) (view : DefView) : TermElabM Unit :=
-  let msg := if view.kind.isExample then
-    m!"failed to infer type of example"
-  else if view.kind matches .instance then
-    -- TODO: instances are sometime named. We should probably include the name if available.
-    m!"failed to infer type of instance"
-  else
-    m!"failed to infer type of `{view.declId}`"
-  registerCustomErrorIfMVar type ref msg
+private def registerFailedToInferDefTypeInfo (type : Expr) (view : DefView) :
+    TermElabM Unit :=
+  let ref := view.type?.getD <| match view.kind with
+    -- Use def name (or keyword if anonymous) as fallback location
+    | .example  => view.ref[0]
+    | .instance => view.ref[1]
+    | _         => view.declId
+  let msg := match view.kind with
+    | .example  => m!"example"
+    | .instance => if view.declId.getHeadInfo matches .original .. then
+        m!"instance `{view.declId}`"
+      else m!"instance"
+    | .theorem  => m!"theorem `{view.declId}`"
+    | _         => m!"definition `{view.declId}`"
+  registerCustomErrorIfMVar type ref m!"Failed to infer type of {msg}"
 
 /--
   Return `some [b, c]` if the given `views` are representing a declaration of the form
@@ -233,13 +239,13 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
             let mut type ← match view.type? with
               | some typeStx =>
                 let type ← elabType typeStx
-                registerFailedToInferDefTypeInfo type typeStx view
+                registerFailedToInferDefTypeInfo type view
                 pure type
               | none =>
                 let hole := mkHole refForElabFunType
                 let type ← elabType hole
                 trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
-                registerFailedToInferDefTypeInfo type refForElabFunType view
+                registerFailedToInferDefTypeInfo type view
                 pure type
             Term.synthesizeSyntheticMVarsNoPostponing
             if view.isInstance then
@@ -508,7 +514,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
       forallBoundedTelescope header.type header.numParams fun xs type => do
         -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
-        for h : i in [0:header.binderIds.size] do
+        for h : i in *...header.binderIds.size do
           -- skip auto-bound prefix in `xs`
           addLocalVarInfo header.binderIds[i] xs[header.numParams - header.binderIds.size + i]!
         let val ← if (← useProofAsSorry header.kind) then
@@ -945,7 +951,7 @@ private def mkLetRecClosures (sectionVars : Array Expr) (mainFVarIds : Array FVa
   let mut letRecsToLift := letRecsToLift
   let mut freeVarMap    ← mkFreeVarMap sectionVars mainFVarIds recFVarIds letRecsToLift
   let mut result := #[]
-  for i in [:letRecsToLift.size] do
+  for i in *...letRecsToLift.size do
     if letRecsToLift[i]!.val.hasExprMVar then
       -- This can happen when this particular let-rec has nested let-rec that have been resolved in previous iterations.
       -- This code relies on the fact that nested let-recs occur before the outer most let-recs at `letRecsToLift`.
@@ -1352,7 +1358,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let mut views := #[]
   let mut defs := #[]
   let mut reusedAllHeaders := true
-  for h : i in [0:ds.size], headerPromise in headerPromises do
+  for h : i in *...ds.size, headerPromise in headerPromises do
     let d := ds[i]
     let modifiers ← elabModifiers ⟨d[0]⟩
     if ds.size > 1 && modifiers.isNonrec then

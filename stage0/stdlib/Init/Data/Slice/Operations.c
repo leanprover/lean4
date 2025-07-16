@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Slice.Operations
-// Imports: Init.Data.Slice.Basic Init.Data.Slice.Notation Init.Data.Iterators
+// Imports: Init.Data.Slice.Basic Init.Data.Slice.Notation Init.Data.Iterators.ToIterator
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,26 +20,35 @@ LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg___lam__0(lean_object*, lea
 LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg___lam__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_toArray(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_instToIteratorMk(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg___lam__0(lean_object*);
 static lean_object* l_Std_Slice_toListRev___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Std_Slice_toListRev___redArg(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_toListRev___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Slice_toList___redArg___closed__0;
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Std_Slice_toListRev___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Std_Slice_Internal_iter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Slice_foldl___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_size___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Slice_toListRev___redArg___closed__7;
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Slice_toListRev___redArg___closed__6;
 static lean_object* l_Std_Slice_toListRev___redArg___closed__4;
+LEAN_EXPORT lean_object* l_Std_Slice_foldl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_size___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg___lam__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_toList___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_toList___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_Slice_toListRev___redArg___closed__5;
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_Internal_iter(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Slice_foldl___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_size(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Iterators_IterM_toListRev_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Slice_toListRev___redArg___closed__9;
@@ -51,10 +60,14 @@ static lean_object* l_Std_Slice_toListRev___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Std_Slice_toListRev(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Slice_toListRev___redArg___closed__1;
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg___lam__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_instToIteratorMk___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_toArray___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_toArray___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Slice_foldl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Slice_foldl___redArg___closed__0;
 static lean_object* l_Std_Slice_toList___redArg___closed__1;
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Slice_Internal_iter___redArg(lean_object*);
@@ -387,9 +400,160 @@ lean_dec(x_3);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg___lam__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg___lam__1(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg___lam__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_apply_1(x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg___lam__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec(x_1);
+x_9 = lean_apply_2(x_2, x_7, x_5);
+lean_inc(x_8);
+x_10 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_3, x_9);
+x_11 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_4, x_10);
+return x_11;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec(x_1);
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+lean_dec(x_6);
+x_8 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__0), 1, 0);
+x_9 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__1___boxed), 1, 0);
+x_10 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__2), 4, 0);
+x_11 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__3), 7, 4);
+lean_closure_set(x_11, 0, x_7);
+lean_closure_set(x_11, 1, x_2);
+lean_closure_set(x_11, 2, x_8);
+lean_closure_set(x_11, 3, x_9);
+x_12 = lean_apply_7(x_5, x_10, lean_box(0), lean_box(0), lean_box(0), x_4, x_3, x_11);
+return x_12;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+_start:
+{
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_13 = lean_ctor_get(x_5, 0);
+lean_inc(x_13);
+lean_dec(x_5);
+x_14 = lean_ctor_get(x_13, 0);
+lean_inc(x_14);
+lean_dec(x_13);
+x_15 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__0), 1, 0);
+x_16 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__1___boxed), 1, 0);
+x_17 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__2), 4, 0);
+x_18 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__3), 7, 4);
+lean_closure_set(x_18, 0, x_14);
+lean_closure_set(x_18, 1, x_6);
+lean_closure_set(x_18, 2, x_15);
+lean_closure_set(x_18, 3, x_16);
+x_19 = lean_apply_7(x_11, x_17, lean_box(0), lean_box(0), lean_box(0), x_9, x_7, x_18);
+return x_19;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg___lam__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_Slice_foldlM___redArg___lam__1(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Slice_foldlM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+_start:
+{
+lean_object* x_13; 
+x_13 = l_Std_Slice_foldlM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+lean_dec(x_10);
+lean_dec(x_8);
+return x_13;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Slice_foldl___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_apply_2(x_1, x_4, x_2);
+x_6 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_6, 0, x_5);
+return x_6;
+}
+}
+static lean_object* _init_l_Std_Slice_foldl___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__2), 4, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Slice_foldl___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = l_Std_Slice_foldl___redArg___closed__0;
+x_6 = lean_alloc_closure((void*)(l_Std_Slice_foldl___redArg___lam__1), 4, 1);
+lean_closure_set(x_6, 0, x_1);
+x_7 = lean_apply_7(x_4, x_5, lean_box(0), lean_box(0), lean_box(0), x_3, x_2, x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Slice_foldl(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_11 = l_Std_Slice_foldl___redArg___closed__0;
+x_12 = lean_alloc_closure((void*)(l_Std_Slice_foldl___redArg___lam__1), 4, 1);
+lean_closure_set(x_12, 0, x_4);
+x_13 = lean_apply_7(x_9, x_11, lean_box(0), lean_box(0), lean_box(0), x_7, x_5, x_12);
+return x_13;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Slice_foldl___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; 
+x_11 = l_Std_Slice_foldl(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_8);
+lean_dec(x_6);
+return x_11;
+}
+}
 lean_object* initialize_Init_Data_Slice_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Slice_Notation(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Iterators(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Iterators_ToIterator(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Slice_Operations(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -401,7 +565,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Slice_Notation(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Iterators(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Iterators_ToIterator(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Slice_toList___redArg___closed__0 = _init_l_Std_Slice_toList___redArg___closed__0();
@@ -428,6 +592,8 @@ l_Std_Slice_toListRev___redArg___closed__8 = _init_l_Std_Slice_toListRev___redAr
 lean_mark_persistent(l_Std_Slice_toListRev___redArg___closed__8);
 l_Std_Slice_toListRev___redArg___closed__9 = _init_l_Std_Slice_toListRev___redArg___closed__9();
 lean_mark_persistent(l_Std_Slice_toListRev___redArg___closed__9);
+l_Std_Slice_foldl___redArg___closed__0 = _init_l_Std_Slice_foldl___redArg___closed__0();
+lean_mark_persistent(l_Std_Slice_foldl___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

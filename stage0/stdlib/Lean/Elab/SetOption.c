@@ -157,7 +157,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Elab_elabSetOption_setOption___redArg___lam__1(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
 return x_5;
 }
 }
@@ -465,7 +464,6 @@ block_21:
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_15 = l_Array_toSubarray___redArg(x_12, x_13, x_14);
 x_16 = l_Array_ofSubarray___redArg(x_15);
-lean_dec(x_15);
 x_17 = l_Lean_Syntax_setArgs(x_9, x_16);
 x_18 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
@@ -513,7 +511,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_Elab_elabSetOption___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
 lean_dec(x_6);
 return x_8;
 }
@@ -523,7 +520,6 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Lean_Elab_elabSetOption___redArg___lam__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_10);
 return x_11;
 }
 }

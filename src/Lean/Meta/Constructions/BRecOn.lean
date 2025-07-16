@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
+import Init.Data.Range.Polymorphic.Stream
 import Lean.Meta.InferType
 import Lean.AuxRecursor
 import Lean.AddDecl
@@ -123,7 +124,7 @@ def mkBelow (indName : Name) : MetaM Unit := do
   -- If this is the first inductive in a mutual group with nested inductives,
   -- generate the constructions for the nested inductives now
   if indVal.all[0]! = indName then
-    for i in [:indVal.numNested] do
+    for i in *...indVal.numNested do
       let recName := recName.appendIndexAfter (i + 1)
       let belowName := belowName.appendIndexAfter (i + 1)
       mkBelowFromRec recName indVal.numParams belowName
@@ -227,7 +228,7 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
     --   (F_1 : (t : List α) → (f : List.below t) → motive t)
     -- and bring parameters of that type into scope
     let mut fDecls : Array (Name × (Array Expr -> MetaM Expr)) := #[]
-    for motive in motives, below in belows, i in [:motives.size] do
+    for motive in motives, below in belows, i in *...motives.size do
       let fType ← forallTelescope (← inferType motive) fun targs _ => do
         withLocalDeclD `f (mkAppN below targs) fun f =>
           mkForallFVars (targs.push f) (mkAppN motive targs)
@@ -280,7 +281,7 @@ def mkBRecOn (indName : Name) : MetaM Unit := do
   -- If this is the first inductive in a mutual group with nested inductives,
   -- generate the constructions for the nested inductives now.
   if indVal.all[0]! = indName then
-    for i in [:indVal.numNested] do
+    for i in *...indVal.numNested do
       let recName := recName.appendIndexAfter (i + 1)
       let brecOnName := brecOnName.appendIndexAfter (i + 1)
       mkBRecOnFromRec recName indVal.numParams indVal.all.toArray brecOnName

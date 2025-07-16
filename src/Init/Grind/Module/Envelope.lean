@@ -19,9 +19,9 @@ variable [NatModule α]
 
 -- Helper instance for `ac_rfl`
 local instance : Std.Associative (· + · : α → α → α) where
-  assoc := NatModule.add_assoc
+  assoc := AddCommMonoid.add_assoc
 local instance : Std.Commutative (· + · : α → α → α) where
-  comm := NatModule.add_comm
+  comm := AddCommMonoid.add_comm
 
 @[local simp] private theorem exists_true : ∃ (_ : α), True := ⟨0, trivial⟩
 
@@ -33,10 +33,10 @@ def Q := Quot (r α)
 variable {α}
 
 theorem r_rfl (a : α × α) : r α a a := by
-  cases a; refine ⟨0, ?_⟩; simp [NatModule.add_zero]; ac_rfl
+  cases a; refine ⟨0, ?_⟩; simp [AddCommMonoid.add_zero]; ac_rfl
 
 theorem r_sym {a b : α × α} : r α a b → r α b a := by
-  cases a; cases b; simp [r]; intro h w; refine ⟨h, ?_⟩; simp [w, NatModule.add_comm]
+  cases a; cases b; simp [r]; intro h w; refine ⟨h, ?_⟩; simp [w, AddCommMonoid.add_comm]
 
 theorem r_trans {a b c : α × α} : r α a b → r α b c → r α a c := by
   cases a; cases b; cases c;
@@ -63,20 +63,20 @@ def Q.liftOn₂ (q₁ q₂ : Q α)
   induction q₂ using Quot.ind
   apply h; assumption; apply r_rfl
 
-attribute [local simp] Q.mk Q.liftOn₂ NatModule.add_zero
+attribute [local simp] Q.mk Q.liftOn₂ AddCommMonoid.add_zero
 
 def Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α) : β q :=
   Quot.ind mk q
 
-@[local simp] def hmulNat (n : Nat) (q : Q α) : (Q α) :=
+@[local simp] def nsmul (n : Nat) (q : Q α) : (Q α) :=
   q.liftOn (fun (a, b) => Q.mk (n * a, n * b))
     (by intro (a₁, b₁) (a₂, b₂)
         simp; intro k h; apply Quot.sound; simp
         refine ⟨n * k, ?_⟩
         replace h := congrArg (fun x : α => n * x) h
-        simpa [NatModule.hmul_add] using h)
+        simpa [NatModule.nsmul_add] using h)
 
-@[local simp] def hmulInt (n : Int) (q : Q α) : (Q α) :=
+@[local simp] def zsmul (n : Int) (q : Q α) : (Q α) :=
   q.liftOn (fun (a, b) => if n < 0 then Q.mk (n.natAbs * b, n.natAbs * a) else Q.mk (n.natAbs * a, n.natAbs * b))
     (by intro (a₁, b₁) (a₂, b₂)
         simp; intro k h;
@@ -84,11 +84,11 @@ def Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α)
         · apply Quot.sound; simp
           refine ⟨n.natAbs * k, ?_⟩
           replace h := congrArg (fun x : α => n.natAbs * x) h
-          simpa [NatModule.hmul_add] using h.symm
+          simpa [NatModule.nsmul_add] using h.symm
         · apply Quot.sound; simp
           refine ⟨n.natAbs * k, ?_⟩
           replace h := congrArg (fun x : α => n.natAbs * x) h
-          simpa [NatModule.hmul_add] using h)
+          simpa [NatModule.nsmul_add] using h)
 
 @[local simp] def sub (q₁ q₂ : Q α) : Q α :=
   Q.liftOn₂ q₁ q₂ (fun (a, b) (c, d) => Q.mk (a + d, c + b))
@@ -115,8 +115,8 @@ def Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α)
         exact ⟨k, h.symm⟩)
 
 attribute [local simp]
-  Quot.liftOn NatModule.add_zero NatModule.zero_add NatModule.one_hmul NatModule.zero_hmul NatModule.hmul_zero
-  NatModule.hmul_add NatModule.add_hmul
+  Quot.liftOn AddCommMonoid.add_zero AddCommMonoid.zero_add NatModule.one_nsmul NatModule.zero_nsmul NatModule.nsmul_zero
+  NatModule.nsmul_add NatModule.add_nsmul
 
 @[local simp] def zero : Q α :=
   Q.mk (0, 0)
@@ -150,18 +150,18 @@ theorem sub_eq_add_neg (a b : Q α) : sub a b = add a (neg b) := by
   next a b =>
   cases a; cases b; simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
 
-theorem one_hmul (a : Q α) : hmulInt 1 a = a := by
+theorem one_zsmul (a : Q α) : zsmul 1 a = a := by
   induction a using Quot.ind
   next a => cases a; simp
 
-theorem zero_hmul (a : Q α) : hmulInt 0 a = zero := by
+theorem zero_zsmul (a : Q α) : zsmul 0 a = zero := by
   induction a using Quot.ind
   next a => cases a; simp
 
-theorem hmul_zero (a : Int) : hmulInt a (zero : Q α) = zero := by
+theorem zsmul_zero (a : Int) : zsmul a (zero : Q α) = zero := by
   simp
 
-theorem hmul_add (a : Int) (b c : Q α) : hmulInt a (add b c) = add (hmulInt a b) (hmulInt a c) := by
+theorem zsmul_add (a : Int) (b c : Q α) : zsmul a (add b c) = add (zsmul a b) (zsmul a c) := by
   induction b using Q.ind
   induction c using Q.ind
   next b c =>
@@ -172,7 +172,7 @@ theorem hmul_add (a : Int) (b c : Q α) : hmulInt a (add b c) = add (hmulInt a b
     simp
     ac_rfl
 
-theorem add_hmul (a b : Int) (c : Q α) : hmulInt (a + b) c = add (hmulInt a c) (hmulInt b c) := by
+theorem add_zsmul (a b : Int) (c : Q α) : zsmul (a + b) c = add (zsmul a c) (zsmul b c) := by
   induction c using Q.ind
   next c =>
   rcases c with ⟨c₁, c₂⟩; simp
@@ -183,7 +183,7 @@ theorem add_hmul (a b : Int) (c : Q α) : hmulInt (a + b) c = add (hmulInt a c) 
       rw [if_pos (by omega)]
       apply Quot.sound
       refine ⟨0, ?_⟩
-      rw [Int.natAbs_add_of_nonpos (by omega) (by omega), NatModule.add_hmul, NatModule.add_hmul]
+      rw [Int.natAbs_add_of_nonpos (by omega) (by omega), NatModule.add_nsmul, NatModule.add_nsmul]
       ac_rfl
     · split
       · apply Quot.sound
@@ -213,23 +213,23 @@ theorem add_hmul (a b : Int) (c : Q α) : hmulInt (a + b) c = add (hmulInt a c) 
       rw [if_neg (by omega)]
       apply Quot.sound
       refine ⟨0, ?_⟩
-      rw [Int.natAbs_add_of_nonneg (by omega) (by omega), NatModule.add_hmul, NatModule.add_hmul]
+      rw [Int.natAbs_add_of_nonneg (by omega) (by omega), NatModule.add_nsmul, NatModule.add_nsmul]
       ac_rfl
 
-theorem hmul_nat (n : Nat) (a : Q α) : hmulInt (n : Int) a = hmulNat n a := by
+theorem zsmul_natCast_eq_nsmul (n : Nat) (a : Q α) : zsmul (n : Int) a = nsmul n a := by
   induction a using Q.ind
   next a =>
   rcases a with ⟨a₁, a₂⟩; simp; omega
 
 def ofNatModule : IntModule (Q α) := {
-  hmulNat := ⟨hmulNat⟩,
-  hmulInt := ⟨hmulInt⟩,
+  nsmul := ⟨nsmul⟩,
+  zsmul := ⟨zsmul⟩,
   zero,
   add, sub, neg,
   add_comm, add_assoc, add_zero,
   neg_add_cancel, sub_eq_add_neg,
-  one_hmul, zero_hmul, hmul_zero, hmul_add, add_hmul,
-  hmul_nat
+  one_zsmul, zero_zsmul, zsmul_zero, zsmul_add, add_zsmul,
+  zsmul_natCast_eq_nsmul
 }
 
 attribute [instance] ofNatModule
@@ -257,7 +257,7 @@ private def rel (h : Equivalence (r α)) (q₁ q₂ : Q α) : Prop :=
 
 private theorem rel_rfl (h : Equivalence (r α)) (q : Q α) : rel h q q := by
   induction q using Quot.ind
-  simp [rel, NatModule.add_comm]
+  simp [rel, AddCommMonoid.add_comm]
 
 private theorem helper (h : Equivalence (r α)) (q₁ q₂ : Q α) : q₁ = q₂ → rel h q₁ q₂ := by
   intro h; subst q₁; apply rel_rfl h
@@ -287,7 +287,7 @@ instance [NatModule α] [AddRightCancel α] [NoNatZeroDivisors α] : NoNatZeroDi
     simp [r] at h₂
     rcases h₂ with ⟨k', h₂⟩
     replace h₂ := AddRightCancel.add_right_cancel _ _ _ h₂
-    simp [← NatModule.hmul_add] at h₂
+    simp [← NatModule.nsmul_add] at h₂
     replace h₂ := NoNatZeroDivisors.no_nat_zero_divisors k (a₁ + b₂) (a₂ + b₁) h₁ h₂
     apply Quot.sound; simp [r]; exists 0; simp [h₂]
 
@@ -318,7 +318,7 @@ instance [Preorder α] [OrderedAdd α] : Preorder (OfNatModule.Q α) where
     rcases a with ⟨a₁, a₂⟩
     change Q.mk _ ≤ Q.mk _
     simp only [mk_le_mk]
-    simp [NatModule.add_comm]; exact Preorder.le_refl (a₁ + a₂)
+    simp [AddCommMonoid.add_comm]; exact Preorder.le_refl (a₁ + a₂)
   le_trans {a b c} h₁ h₂ := by
     induction a using Q.ind
     induction b using Q.ind
@@ -337,12 +337,12 @@ attribute [-simp] Q.mk
 
 @[local simp] private theorem mk_lt_mk [Preorder α] [OrderedAdd α] {a₁ a₂ b₁ b₂ : α}  :
     Q.mk (a₁, a₂) < Q.mk (b₁, b₂) ↔ a₁ + b₂ < a₂ + b₁ := by
-  simp [Preorder.lt_iff_le_not_le, NatModule.add_comm]
+  simp [Preorder.lt_iff_le_not_le, AddCommMonoid.add_comm]
 
 @[local simp] private theorem mk_pos [Preorder α] [OrderedAdd α] {a₁ a₂ : α} :
     0 < Q.mk (a₁, a₂) ↔ a₂ < a₁ := by
   change Q.mk (0,0) < _ ↔ _
-  simp [mk_lt_mk, NatModule.zero_add]
+  simp [mk_lt_mk, AddCommMonoid.zero_add]
 
 @[local simp]
 theorem toQ_le [Preorder α] [OrderedAdd α] {a b : α} : toQ a ≤ toQ b ↔ a ≤ b := by

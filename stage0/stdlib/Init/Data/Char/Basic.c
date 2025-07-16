@@ -160,7 +160,6 @@ _start:
 {
 uint8_t x_2; uint32_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Char_ofUInt8(x_2);
 x_4 = lean_box_uint32(x_3);
 return x_4;

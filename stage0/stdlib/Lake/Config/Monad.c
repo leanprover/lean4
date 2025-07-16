@@ -1101,17 +1101,15 @@ uint8_t x_2;
 x_2 = lean_ctor_get_uint8(x_1, sizeof(void*)*13);
 if (x_2 == 0)
 {
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_box(1);
-x_4 = lean_unbox(x_3);
-return x_4;
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
 }
 else
 {
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_box(0);
-x_6 = lean_unbox(x_5);
-return x_6;
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
 }
 }
 }

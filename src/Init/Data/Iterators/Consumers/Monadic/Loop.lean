@@ -9,6 +9,7 @@ prelude
 public import Init.RCases
 public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Consumers.Monadic.Partial
+public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
 
 public section
 
@@ -32,6 +33,8 @@ asserts that an `IteratorLoop` instance equals the default implementation.
 
 namespace Std.Iterators
 
+open Std.Internal
+
 section Typeclasses
 
 /--
@@ -39,6 +42,7 @@ Relation that needs to be well-formed in order for a loop over an iterator to te
 It is assumed that the `plausible_forInStep` predicate relates the input and output of the
 stepper function.
 -/
+@[expose]
 def IteratorLoop.rel (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     {γ : Type x} (plausible_forInStep : β → γ → ForInStep γ → Prop)
     (p' p : IterM (α := α) m β × γ) : Prop :=
@@ -48,6 +52,7 @@ def IteratorLoop.rel (α : Type w) (m : Type w → Type w') {β : Type w} [Itera
 /--
 Asserts that `IteratorLoop.rel` is well-founded.
 -/
+@[expose]
 def IteratorLoop.WellFounded (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     {γ : Type x} (plausible_forInStep : β → γ → ForInStep γ → Prop) : Prop :=
     _root_.WellFounded (IteratorLoop.rel α m plausible_forInStep)
@@ -61,6 +66,7 @@ This class is experimental and users of the iterator API should not explicitly d
 They can, however, assume that consumers that require an instance will work for all iterators
 provided by the standard library.
 -/
+@[ext]
 class IteratorLoop (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
     (n : Type x → Type x') where
   forIn : ∀ (_liftBind : (γ : Type w) → (δ : Type x) → (γ → n δ) → m γ → n δ) (γ : Type x),
@@ -108,29 +114,24 @@ class IteratorSizePartial (α : Type w) (m : Type w → Type w') {β : Type w} [
 end Typeclasses
 
 /-- Internal implementation detail of the iterator library. -/
-def IteratorLoop.WFRel {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    {γ : Type x} {plausible_forInStep : β → γ → ForInStep γ → Prop}
-    (_wf : WellFounded α m plausible_forInStep) :=
-  IterM (α := α) m β × γ
+structure IteratorLoop.WithWF (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
+    {γ : Type x} (PlausibleForInStep : β → γ → ForInStep γ → Prop)
+    (hwf : IteratorLoop.WellFounded α m PlausibleForInStep) where
+  it : IterM (α := α) m β
+  acc : γ
 
-/-- Internal implementation detail of the iterator library. -/
-def IteratorLoop.WFRel.mk {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    {γ : Type x} {plausible_forInStep : β → γ → ForInStep γ → Prop}
-    (wf : WellFounded α m plausible_forInStep) (it : IterM (α := α) m β) (c : γ) :
-    IteratorLoop.WFRel wf :=
-  (it, c)
-
-private instance {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
-    {γ : Type x} {plausible_forInStep : β → γ → ForInStep γ → Prop}
-    (wf : IteratorLoop.WellFounded α m plausible_forInStep) :
-    WellFoundedRelation (IteratorLoop.WFRel wf) where
-  rel := IteratorLoop.rel α m plausible_forInStep
-  wf := wf
+instance IteratorLoop.WithWF.instWellFoundedRelation
+    (α : Type w) (m : Type w → Type w') {β : Type w} [Iterator α m β]
+    {γ : Type x} (PlausibleForInStep : β → γ → ForInStep γ → Prop)
+    (hwf : IteratorLoop.WellFounded α m PlausibleForInStep) :
+    WellFoundedRelation (WithWF α m PlausibleForInStep hwf) where
+  rel := InvImage (IteratorLoop.rel α m PlausibleForInStep) (fun x => (x.it, x.acc))
+  wf := by exact InvImage.wf _ hwf
 
 /--
 This is the loop implementation of the default instance `IteratorLoop.defaultImplementation`.
 -/
-@[specialize]
+@[specialize, expose]
 def IterM.DefaultConsumers.forIn' {m : Type w → Type w'} {α : Type w} {β : Type w}
     [Iterator α m β]
     {n : Type x → Type x'} [Monad n]
@@ -142,19 +143,51 @@ def IterM.DefaultConsumers.forIn' {m : Type w → Type w'} {α : Type w} {β : T
     (f : (b : β) → P b → (c : γ) → n (Subtype (plausible_forInStep b c))) : n γ :=
   haveI : WellFounded _ := wf
   (lift _ _ · it.step) fun
-      | .yield it' out h => do
-        match ← f out (hP _ <| .direct ⟨_, h⟩) init with
-        | ⟨.yield c, _⟩ =>
-          IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' c P
-            (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
-        | ⟨.done c, _⟩ => return c
-      | .skip it' h =>
-        IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' init P
-            (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
-      | .done _ => return init
-termination_by IteratorLoop.WFRel.mk wf it init
+    | .yield it' out h => do
+      match ← f out (hP _ <| .direct ⟨_, h⟩) init with
+      | ⟨.yield c, _⟩ =>
+        IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' c P
+          (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
+      | ⟨.done c, _⟩ => return c
+    | .skip it' h =>
+      IterM.DefaultConsumers.forIn' lift _ plausible_forInStep wf it' init P
+          (fun _ h' => hP _ <| .indirect ⟨_, rfl, h⟩ h') f
+    | .done _ => return init
+termination_by IteratorLoop.WithWF.mk it init (hwf := wf)
 decreasing_by
   · exact Or.inl ⟨out, ‹_›, ‹_›⟩
+  · exact Or.inr ⟨‹_›, rfl⟩
+
+theorem IterM.DefaultConsumers.forIn'_eq_forIn' {m : Type w → Type w'} {α : Type w} {β : Type w}
+    [Iterator α m β]
+    {n : Type x → Type x'} [Monad n]
+    {lift : ∀ γ δ, (γ → n δ) → m γ → n δ} {γ : Type x}
+    {Pl : β → γ → ForInStep γ → Prop}
+    {wf : IteratorLoop.WellFounded α m Pl}
+    {it : IterM (α := α) m β} {init : γ}
+    {P : β → Prop} {hP : ∀ b, it.IsPlausibleIndirectOutput b → P b}
+    {Q : β → Prop} {hQ : ∀ b, it.IsPlausibleIndirectOutput b → Q b}
+    {f : (b : β) → P b → (c : γ) → n (Subtype (Pl b c))}
+    {g : (b : β) → Q b → (c : γ) → n (Subtype (Pl b c))}
+    (hfg : ∀ b c, (hPb : P b) → (hQb : Q b) → f b hPb c = g b hQb c) :
+    IterM.DefaultConsumers.forIn' lift γ Pl wf it init P hP f =
+      IterM.DefaultConsumers.forIn' lift γ Pl wf it init Q hQ g := by
+  rw [forIn', forIn']
+  congr; ext step
+  split
+  · congr
+    · apply hfg
+    · ext
+      split
+      · apply IterM.DefaultConsumers.forIn'_eq_forIn'
+        assumption
+      · rfl
+  · apply IterM.DefaultConsumers.forIn'_eq_forIn'
+    assumption
+  · rfl
+termination_by IteratorLoop.WithWF.mk it init (hwf := wf)
+decreasing_by
+  · exact Or.inl ⟨_, ‹_›, ‹_›⟩
   · exact Or.inr ⟨‹_›, rfl⟩
 
 /--
@@ -162,7 +195,7 @@ This is the default implementation of the `IteratorLoop` class.
 It simply iterates through the iterator using `IterM.step`. For certain iterators, more efficient
 implementations are possible and should be used instead.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def IteratorLoop.defaultImplementation {α : Type w} {m : Type w → Type w'} {n : Type x → Type x'}
     [Monad n] [Iterator α m β] :
     IteratorLoop α m n where
@@ -173,8 +206,9 @@ Asserts that a given `IteratorLoop` instance is equal to `IteratorLoop.defaultIm
 (Even though equal, the given instance might be vastly more efficient.)
 -/
 class LawfulIteratorLoop (α : Type w) (m : Type w → Type w') (n : Type x → Type x')
-    [Monad n] [Iterator α m β] [Finite α m] [i : IteratorLoop α m n] where
-  lawful : i = .defaultImplementation
+    [Monad m] [Monad n] [Iterator α m β] [i : IteratorLoop α m n] where
+  lawful : ∀ lift [LawfulMonadLiftBindFunction lift], i.forIn lift =
+      IteratorLoop.defaultImplementation.forIn lift
 
 /--
 This is the loop implementation of the default instance `IteratorLoopPartial.defaultImplementation`.
@@ -214,7 +248,7 @@ instance (α : Type w) (m : Type w → Type w') (n : Type x → Type x')
     letI : IteratorLoop α m n := .defaultImplementation
     LawfulIteratorLoop α m n :=
   letI : IteratorLoop α m n := .defaultImplementation
-  ⟨rfl⟩
+  ⟨fun _ => rfl⟩
 
 theorem IteratorLoop.wellFounded_of_finite {m : Type w → Type w'}
     {α β : Type w} {γ : Type x} [Iterator α m β] [Finite α m] :

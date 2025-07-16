@@ -94,38 +94,22 @@ goto _start;
 LEAN_EXPORT uint8_t l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_box(1);
-x_4 = lean_box(0);
 if (x_1 == 0)
 {
 if (x_2 == 0)
 {
-uint8_t x_5; 
-x_5 = lean_unbox(x_3);
-return x_5;
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
 }
 else
 {
-uint8_t x_6; 
-x_6 = lean_unbox(x_4);
-return x_6;
+return x_1;
 }
 }
 else
 {
-if (x_2 == 0)
-{
-uint8_t x_7; 
-x_7 = lean_unbox(x_4);
-return x_7;
-}
-else
-{
-uint8_t x_8; 
-x_8 = lean_unbox(x_3);
-return x_8;
-}
+return x_2;
 }
 }
 }
@@ -220,7 +204,7 @@ return x_2;
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_check(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; uint8_t x_17; uint8_t x_18; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; 
 lean_inc(x_2);
 x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT(x_2);
 x_4 = lean_array_to_list(x_1);
@@ -240,10 +224,9 @@ x_12 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instFormulaPosFinDefau
 x_13 = l_Std_Tactic_BVDecide_LRAT_check___closed__0;
 x_14 = l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_check_spec__1(x_7, x_10, x_13);
 x_15 = l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker___redArg(x_11, x_12, x_3, x_14);
-x_16 = lean_box(0);
-x_17 = lean_unbox(x_16);
-x_18 = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult(x_15, x_17);
-return x_18;
+x_16 = 0;
+x_17 = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult(x_15, x_16);
+return x_17;
 }
 }
 LEAN_EXPORT lean_object* l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
@@ -251,9 +234,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;

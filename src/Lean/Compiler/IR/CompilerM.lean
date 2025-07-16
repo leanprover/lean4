@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.CoreM
 import Lean.Environment
 import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.Format
@@ -30,18 +31,13 @@ def Log.format (log : Log) : Format :=
   log.foldl (init := Format.nil) fun fmt entry =>
     f!"{fmt}{Format.line}{entry}"
 
-@[export lean_ir_log_to_string]
 def Log.toString (log : Log) : String :=
   log.format.pretty
 
-structure CompilerState where
-  env : Environment
-  log : Log := #[]
-
-abbrev CompilerM := ReaderT Options (EStateM String CompilerState)
+abbrev CompilerM := CoreM
 
 def log (entry : LogEntry) : CompilerM Unit :=
-  modify fun s => { s with log := s.log.push entry }
+  addTrace `Compiler.IR m!"{entry}"
 
 def tracePrefixOptionName := `trace.compiler.ir
 
@@ -51,16 +47,14 @@ private def isLogEnabledFor (opts : Options) (optName : Name) : Bool :=
   | _     => opts.getBool tracePrefixOptionName
 
 private def logDeclsAux (optName : Name) (cls : Name) (decls : Array Decl) : CompilerM Unit := do
-  let opts ← read
-  if isLogEnabledFor opts optName then
+  if isLogEnabledFor (← getOptions) optName then
     log (LogEntry.step cls decls)
 
 @[inline] def logDecls (cls : Name) (decl : Array Decl) : CompilerM Unit :=
   logDeclsAux (tracePrefixOptionName ++ cls) cls decl
 
 private def logMessageIfAux {α : Type} [ToFormat α] (optName : Name) (a : α) : CompilerM Unit := do
-  let opts ← read
-  if isLogEnabledFor opts optName then
+  if isLogEnabledFor (← getOptions) optName then
     log (LogEntry.message (format a))
 
 @[inline] def logMessageIf {α : Type} [ToFormat α] (cls : Name) (a : α) : CompilerM Unit :=
@@ -68,9 +62,6 @@ private def logMessageIfAux {α : Type} [ToFormat α] (optName : Name) (a : α) 
 
 @[inline] def logMessage {α : Type} [ToFormat α] (a : α) : CompilerM Unit :=
   logMessageIfAux tracePrefixOptionName a
-
-@[inline] def modifyEnv (f : Environment → Environment) : CompilerM Unit :=
-  modify fun s => { s with env := f s.env }
 
 abbrev DeclMap := PHashMap Name Decl
 
@@ -186,24 +177,20 @@ private def findInterpreterDecl (env : Environment) (declName : Name) : Option D
   | none => declMapExt.getState env |>.find? declName
 
 def findDecl (n : Name) : CompilerM (Option Decl) :=
-  return findEnvDecl (← get).env n
+  return findEnvDecl (← getEnv) n
 
 def containsDecl (n : Name) : CompilerM Bool :=
   return (← findDecl n).isSome
 
 def getDecl (n : Name) : CompilerM Decl := do
-  let (some decl) ← findDecl n | throw s!"unknown declaration '{n}'"
+  let (some decl) ← findDecl n | throwError s!"unknown declaration '{n}'"
   return decl
 
-@[export lean_ir_add_decl]
 def addDeclAux (env : Environment) (decl : Decl) : Environment :=
   declMapExt.addEntry (env.addExtraName decl.name) decl
 
 def getDecls (env : Environment) : List Decl :=
   declMapExt.getEntries env
-
-def getEnv : CompilerM Environment := do
-  let s ← get; pure s.env
 
 def addDecl (decl : Decl) : CompilerM Unit :=
   modifyEnv fun env => declMapExt.addEntry (env.addExtraName decl.name) decl
@@ -217,7 +204,7 @@ def findEnvDecl' (env : Environment) (n : Name) (decls : Array Decl) : Option De
   | none      => findEnvDecl env n
 
 def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) :=
-  return findEnvDecl' (← get).env n decls
+  return findEnvDecl' (← getEnv) n decls
 
 def containsDecl' (n : Name) (decls : Array Decl) : CompilerM Bool := do
   if decls.any fun decl => decl.name == n then
@@ -226,7 +213,7 @@ def containsDecl' (n : Name) (decls : Array Decl) : CompilerM Bool := do
     containsDecl n
 
 def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
-  let (some decl) ← findDecl' n decls | throw s!"unknown declaration '{n}'"
+  let (some decl) ← findDecl' n decls | throwError s!"unknown declaration '{n}'"
   return decl
 
 @[export lean_decl_get_sorry_dep]

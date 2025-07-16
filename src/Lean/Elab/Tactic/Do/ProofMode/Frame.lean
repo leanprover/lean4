@@ -21,7 +21,7 @@ partial def transferHypNames (P P' : Expr) : MetaM Expr := (·.snd) <$> label (c
     collectHyps (P : Expr) (acc : List Hyp := []) : List Hyp :=
       if let some hyp := parseHyp? P then
         hyp :: acc
-      else if let some (_, L, R) := parseAnd? P then
+      else if let some (_, _, L, R) := parseAnd? P then
         collectHyps L (collectHyps R acc)
       else
         acc
@@ -30,10 +30,10 @@ partial def transferHypNames (P P' : Expr) : MetaM Expr := (·.snd) <$> label (c
       let P' ← instantiateMVarsIfMVarApp P'
       if let some _ := parseEmptyHyp? P' then
         return (Ps, P')
-      if let some (σs, L, R) := parseAnd? P' then
+      if let some (u, σs, L, R) := parseAnd? P' then
         let (Ps, L') ← label Ps L
         let (Ps, R') ← label Ps R
-        return (Ps, mkAnd! σs L' R')
+        return (Ps, mkAnd! u σs L' R')
       else
         let mut Ps' := Ps
         repeat
@@ -50,8 +50,8 @@ def mFrameCore [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
   (goal : MGoal) (kFail : m (α × Expr)) (kSuccess : Expr /-φ:Prop-/ → Expr /-h:φ-/ → MGoal → m (α × Expr)) : m (α × Expr) := do
   let P := goal.hyps
   let φ ← mkFreshExprMVar (mkSort .zero)
-  let P' ← mkFreshExprMVar (mkApp (mkConst ``SPred) goal.σs)
-  if let some inst ← synthInstance? (mkApp4 (mkConst ``HasFrame) goal.σs P P' φ) then
+  let P' ← mkFreshExprMVar (mkApp (mkConst ``SPred [goal.u]) goal.σs)
+  if let some inst ← synthInstance? (mkApp4 (mkConst ``HasFrame [goal.u]) goal.σs P P' φ) then
     if ← isDefEq (mkConst ``True) φ then return (← kFail)
     -- copy the name of P to P' if it is a named hypothesis
     let P' ← transferHypNames P P'
@@ -59,7 +59,7 @@ def mFrameCore [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
     withLocalDeclD `h φ fun hφ => do
       let (a, prf) ← kSuccess φ hφ goal
       let prf ← mkLambdaFVars #[hφ] prf
-      let prf := mkApp7 (mkConst ``Frame.frame) goal.σs P P' goal.target φ inst prf
+      let prf := mkApp7 (mkConst ``Frame.frame [goal.u]) goal.σs P P' goal.target φ inst prf
       return (a, prf)
   else
     kFail

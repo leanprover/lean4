@@ -7646,7 +7646,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Std_Internal_Parsec_manyCore___at___Std_Tactic_BVDecide_LRAT_Parser_Text_parseActions_go_spec__0(x_4, x_2, x_3);
 return x_5;
 }
@@ -11665,20 +11664,19 @@ goto block_12;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_19 = lean_nat_abs(x_14);
 lean_dec(x_14);
 x_20 = lean_unsigned_to_nat(1u);
 x_21 = lean_nat_sub(x_19, x_20);
 lean_dec(x_19);
 x_22 = l_Std_Tactic_BVDecide_LRAT_lratProofToString_serializeRatHint___closed__0;
-x_23 = lean_unsigned_to_nat(1u);
-x_24 = lean_nat_add(x_21, x_23);
+x_23 = lean_nat_add(x_21, x_20);
 lean_dec(x_21);
-x_25 = l_Nat_reprFast(x_24);
-x_26 = lean_string_append(x_22, x_25);
-lean_dec(x_25);
-x_5 = x_26;
+x_24 = l_Nat_reprFast(x_23);
+x_25 = lean_string_append(x_22, x_24);
+lean_dec(x_24);
+x_5 = x_25;
 goto block_12;
 }
 }
@@ -12889,7 +12887,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_3);
-lean_dec(x_3);
 x_6 = l_Std_Tactic_BVDecide_LRAT_dumpLRATProof(x_1, x_2, x_5, x_4);
 lean_dec(x_2);
 lean_dec(x_1);

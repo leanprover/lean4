@@ -37,7 +37,7 @@ inductive IntInterval : Type where
     io (hi : Int)
   | /-- The infinite interval `(-∞, ∞)`. -/
     ii
-  deriving BEq, DecidableEq
+  deriving BEq, DecidableEq, Inhabited
 
 instance : LawfulBEq IntInterval where
    rfl := by intro a; cases a <;> simp_all! [BEq.beq]

@@ -945,7 +945,6 @@ lean_inc(x_1);
 lean_inc(x_5);
 x_7 = lean_apply_1(x_1, x_5);
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -1081,7 +1080,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l___private_Init_Data_List_Impl_0__List_filter_match__1_splitter___redArg(x_4, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -1093,7 +1091,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l___private_Init_Data_List_Impl_0__List_filter_match__1_splitter(x_1, x_5, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -1284,7 +1281,6 @@ lean_inc(x_8);
 lean_inc(x_3);
 x_10 = lean_apply_2(x_1, x_3, x_8);
 x_11 = lean_unbox(x_10);
-lean_dec(x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; 
@@ -1336,7 +1332,6 @@ lean_inc(x_22);
 lean_inc(x_3);
 x_24 = lean_apply_2(x_1, x_3, x_22);
 x_25 = lean_unbox(x_24);
-lean_dec(x_24);
 if (x_25 == 0)
 {
 lean_object* x_26; 
@@ -1769,7 +1764,6 @@ lean_inc(x_3);
 lean_inc(x_6);
 x_8 = lean_apply_2(x_1, x_6, x_3);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; 
@@ -1878,7 +1872,6 @@ lean_inc(x_1);
 lean_inc(x_5);
 x_7 = lean_apply_1(x_1, x_5);
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; 

@@ -89,25 +89,24 @@ _start:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_3; uint8_t x_4; 
-x_3 = lean_box(0);
-x_4 = lean_unbox(x_3);
-return x_4;
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_ctor_get(x_2, 0);
-x_6 = lean_ctor_get(x_2, 2);
-x_7 = lean_nat_dec_eq(x_5, x_1);
-if (x_7 == 0)
+lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_4 = lean_ctor_get(x_2, 0);
+x_5 = lean_ctor_get(x_2, 2);
+x_6 = lean_nat_dec_eq(x_4, x_1);
+if (x_6 == 0)
 {
-x_2 = x_6;
+x_2 = x_5;
 goto _start;
 }
 else
 {
-return x_7;
+return x_6;
 }
 }
 }
@@ -359,7 +358,7 @@ x_5 = lean_array_uget(x_3, x_2);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);
@@ -1139,7 +1138,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_sortExprs(x_1, x_3);
 lean_dec(x_1);
 return x_4;

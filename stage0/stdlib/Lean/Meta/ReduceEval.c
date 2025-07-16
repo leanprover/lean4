@@ -74,7 +74,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_instReduceEvalString___lam__0(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceEval___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; uint64_t x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; uint8_t x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; uint8_t x_27; uint8_t x_28; uint8_t x_29; uint8_t x_30; uint8_t x_31; uint8_t x_32; uint8_t x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; uint8_t x_37; uint8_t x_38; lean_object* x_39; uint8_t x_40; lean_object* x_50; uint8_t x_51; uint8_t x_52; 
+lean_object* x_8; uint64_t x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; uint8_t x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; uint8_t x_27; uint8_t x_28; uint8_t x_29; uint8_t x_30; uint8_t x_31; uint8_t x_32; uint8_t x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; uint8_t x_37; uint8_t x_38; lean_object* x_39; uint8_t x_40; uint8_t x_50; uint8_t x_51; 
 x_8 = lean_ctor_get(x_3, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get_uint64(x_3, sizeof(void*)*7);
@@ -131,19 +131,16 @@ if (lean_is_exclusive(x_8)) {
  lean_dec_ref(x_8);
  x_39 = lean_box(0);
 }
-x_50 = lean_box(1);
-x_51 = lean_unbox(x_50);
-x_52 = l_Lean_Meta_TransparencyMode_lt(x_29, x_51);
-if (x_52 == 0)
+x_50 = 1;
+x_51 = l_Lean_Meta_TransparencyMode_lt(x_29, x_50);
+if (x_51 == 0)
 {
 x_40 = x_29;
 goto block_49;
 }
 else
 {
-uint8_t x_53; 
-x_53 = lean_unbox(x_50);
-x_40 = x_53;
+x_40 = x_50;
 goto block_49;
 }
 block_49:
@@ -794,7 +791,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceEval___at_____private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; uint64_t x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; uint8_t x_17; lean_object* x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; uint8_t x_27; uint8_t x_28; uint8_t x_29; uint8_t x_30; uint8_t x_31; uint8_t x_32; uint8_t x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; uint8_t x_37; lean_object* x_38; uint8_t x_39; lean_object* x_65; uint8_t x_66; uint8_t x_67; 
+lean_object* x_7; uint64_t x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; uint8_t x_17; lean_object* x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; uint8_t x_27; uint8_t x_28; uint8_t x_29; uint8_t x_30; uint8_t x_31; uint8_t x_32; uint8_t x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; uint8_t x_37; lean_object* x_38; uint8_t x_39; uint8_t x_65; uint8_t x_66; 
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get_uint64(x_2, sizeof(void*)*7);
@@ -851,19 +848,16 @@ if (lean_is_exclusive(x_7)) {
  lean_dec_ref(x_7);
  x_38 = lean_box(0);
 }
-x_65 = lean_box(1);
-x_66 = lean_unbox(x_65);
-x_67 = l_Lean_Meta_TransparencyMode_lt(x_28, x_66);
-if (x_67 == 0)
+x_65 = 1;
+x_66 = l_Lean_Meta_TransparencyMode_lt(x_28, x_65);
+if (x_66 == 0)
 {
 x_39 = x_28;
 goto block_64;
 }
 else
 {
-uint8_t x_68; 
-x_68 = lean_unbox(x_65);
-x_39 = x_68;
+x_39 = x_65;
 goto block_64;
 }
 block_64:
@@ -1013,7 +1007,7 @@ return x_63;
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceEval___at_____private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; uint64_t x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; uint8_t x_17; lean_object* x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; uint8_t x_27; uint8_t x_28; uint8_t x_29; uint8_t x_30; uint8_t x_31; uint8_t x_32; uint8_t x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; uint8_t x_37; lean_object* x_38; uint8_t x_39; lean_object* x_65; uint8_t x_66; uint8_t x_67; 
+lean_object* x_7; uint64_t x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; uint8_t x_17; lean_object* x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; uint8_t x_25; uint8_t x_26; uint8_t x_27; uint8_t x_28; uint8_t x_29; uint8_t x_30; uint8_t x_31; uint8_t x_32; uint8_t x_33; uint8_t x_34; uint8_t x_35; uint8_t x_36; uint8_t x_37; lean_object* x_38; uint8_t x_39; uint8_t x_65; uint8_t x_66; 
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get_uint64(x_2, sizeof(void*)*7);
@@ -1070,19 +1064,16 @@ if (lean_is_exclusive(x_7)) {
  lean_dec_ref(x_7);
  x_38 = lean_box(0);
 }
-x_65 = lean_box(1);
-x_66 = lean_unbox(x_65);
-x_67 = l_Lean_Meta_TransparencyMode_lt(x_28, x_66);
-if (x_67 == 0)
+x_65 = 1;
+x_66 = l_Lean_Meta_TransparencyMode_lt(x_28, x_65);
+if (x_66 == 0)
 {
 x_39 = x_28;
 goto block_64;
 }
 else
 {
-uint8_t x_68; 
-x_68 = lean_unbox(x_65);
-x_39 = x_68;
+x_39 = x_65;
 goto block_64;
 }
 block_64:
@@ -1678,7 +1669,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName___lam__0(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;

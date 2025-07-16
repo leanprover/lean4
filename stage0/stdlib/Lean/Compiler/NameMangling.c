@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_List_lengthTR___redArg(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
+LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lean_Compiler_NameMangling_0__String_mangleAux_spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_module_initialization_function_name(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
@@ -80,12 +81,8 @@ else
 {
 lean_object* x_3; lean_object* x_4; uint32_t x_5; lean_object* x_6; 
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
-lean_inc(x_4);
-lean_dec(x_2);
 x_5 = lean_unbox_uint32(x_3);
-lean_dec(x_3);
 x_6 = lean_string_push(x_1, x_5);
 x_1 = x_6;
 x_2 = x_4;
@@ -221,6 +218,7 @@ x_31 = lean_nat_sub(x_29, x_30);
 lean_dec(x_30);
 x_32 = l_Nat_repeatTR_loop___at_____private_Lean_Compiler_NameMangling_0__String_mangleAux_spec__0(x_31, x_26);
 x_33 = l_List_foldl___at_____private_Lean_Compiler_NameMangling_0__String_mangleAux_spec__1(x_32, x_28);
+lean_dec(x_28);
 x_34 = lean_string_utf8_next(x_6, x_7);
 lean_dec(x_7);
 x_35 = lean_alloc_ctor(0, 2, 0);
@@ -374,6 +372,15 @@ goto block_16;
 }
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_List_foldl___at_____private_Lean_Compiler_NameMangling_0__String_mangleAux_spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_foldl___at_____private_Lean_Compiler_NameMangling_0__String_mangleAux_spec__1(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_String_mangle___closed__0() {

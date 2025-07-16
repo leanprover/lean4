@@ -320,7 +320,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Compiler_LCNF_ScopeM_withNewScope___redArg___lam__0(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -339,48 +338,52 @@ x_7 = l_Lean_RBNode_findCore___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_get
 lean_dec(x_6);
 if (lean_obj_tag(x_7) == 0)
 {
-lean_object* x_8; 
-x_8 = lean_box(0);
-lean_ctor_set(x_4, 0, x_8);
-return x_4;
-}
-else
-{
-lean_object* x_9; 
-lean_dec(x_7);
-x_9 = lean_box(1);
+uint8_t x_8; lean_object* x_9; 
+x_8 = 0;
+x_9 = lean_box(x_8);
 lean_ctor_set(x_4, 0, x_9);
 return x_4;
 }
+else
+{
+uint8_t x_10; lean_object* x_11; 
+lean_dec(x_7);
+x_10 = 1;
+x_11 = lean_box(x_10);
+lean_ctor_set(x_4, 0, x_11);
+return x_4;
+}
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = lean_ctor_get(x_4, 0);
-x_11 = lean_ctor_get(x_4, 1);
-lean_inc(x_11);
-lean_inc(x_10);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_12 = lean_ctor_get(x_4, 0);
+x_13 = lean_ctor_get(x_4, 1);
+lean_inc(x_13);
+lean_inc(x_12);
 lean_dec(x_4);
-x_12 = l_Lean_RBNode_findCore___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__0___redArg(x_10, x_1);
-lean_dec(x_10);
-if (lean_obj_tag(x_12) == 0)
+x_14 = l_Lean_RBNode_findCore___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__0___redArg(x_12, x_1);
+lean_dec(x_12);
+if (lean_obj_tag(x_14) == 0)
 {
-lean_object* x_13; lean_object* x_14; 
-x_13 = lean_box(0);
-x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_11);
-return x_14;
+uint8_t x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = 0;
+x_16 = lean_box(x_15);
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_16);
+lean_ctor_set(x_17, 1, x_13);
+return x_17;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; 
-lean_dec(x_12);
-x_15 = lean_box(1);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_11);
-return x_16;
+uint8_t x_18; lean_object* x_19; lean_object* x_20; 
+lean_dec(x_14);
+x_18 = 1;
+x_19 = lean_box(x_18);
+x_20 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_20, 0, x_19);
+lean_ctor_set(x_20, 1, x_13);
+return x_20;
 }
 }
 }

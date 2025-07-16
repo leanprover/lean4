@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 uint8_t l_Nat_blt(lean_object*, lean_object*);
+extern lean_object* l_Nat_Linear_hugeFuel;
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_mulMon(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Nat_SOM_instInhabitedExpr___closed__0;
@@ -54,7 +55,7 @@ static lean_object* _init_l_Nat_SOM_instInhabitedExpr___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -340,7 +341,7 @@ LEAN_EXPORT lean_object* l_Nat_SOM_Mon_mul(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_unsigned_to_nat(1000000u);
+x_3 = l_Nat_Linear_hugeFuel;
 x_4 = l_Nat_SOM_Mon_mul_go(x_3, x_1, x_2);
 return x_4;
 }
@@ -649,7 +650,7 @@ LEAN_EXPORT lean_object* l_Nat_SOM_Poly_add(lean_object* x_1, lean_object* x_2) 
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_unsigned_to_nat(1000000u);
+x_3 = l_Nat_Linear_hugeFuel;
 x_4 = l_Nat_SOM_Poly_add_go(x_3, x_1, x_2);
 return x_4;
 }

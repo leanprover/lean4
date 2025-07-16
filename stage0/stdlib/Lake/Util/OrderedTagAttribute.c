@@ -296,7 +296,7 @@ x_10 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_1);
 lean_ctor_set(x_10, 2, x_2);
-x_11 = lean_box(0);
+x_11 = lean_unsigned_to_nat(0u);
 x_12 = 0;
 x_13 = lean_box(0);
 x_14 = lean_alloc_ctor(0, 3, 1);

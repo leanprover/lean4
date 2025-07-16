@@ -19,7 +19,6 @@ static lean_object* l_Lean_Widget_reprTaggedText___redArg___closed__5____x40_Lea
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Lean_Widget_TaggedText_prettyTagged_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instInhabitedTaggedText(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_rewriteM___redArg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Widget_TaggedText_prettyTagged___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_map(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Widget_TaggedText_map_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -1651,7 +1650,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 lean_inc(x_1);
 x_9 = l_Lean_Widget_TaggedText_map___redArg(x_1, x_6);
@@ -1901,7 +1900,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 lean_inc(x_1);
 x_9 = l_Lean_Widget_TaggedText_rewrite___redArg(x_1, x_6);
@@ -2551,7 +2550,7 @@ static lean_object* _init_l_Lean_Widget_TaggedText_instInhabitedTaggedState___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_box(0);
 x_3 = l_Lean_Widget_TaggedText_instInhabitedTaggedState___closed__0;
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -6827,25 +6826,11 @@ x_15 = l___private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_pre
 return x_15;
 }
 }
-static lean_object* _init_l_Lean_Widget_TaggedText_prettyTagged___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_box(0);
-x_3 = l_Lean_Widget_TaggedText_instInhabitedTaggedState___closed__0;
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_1);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_prettyTagged(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = l_Lean_Widget_TaggedText_prettyTagged___closed__0;
+x_4 = l_Lean_Widget_TaggedText_instInhabitedTaggedState___closed__1;
 x_5 = l_Std_Format_prettyM___at___Lean_Widget_TaggedText_prettyTagged_spec__0(x_1, x_3, x_2, x_4);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
@@ -7148,8 +7133,6 @@ l___private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___
 lean_mark_persistent(l___private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Lean_Widget_TaggedText_prettyTagged_spec__0_spec__0___closed__0);
 l___private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Lean_Widget_TaggedText_prettyTagged_spec__0_spec__0___closed__1 = _init_l___private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Lean_Widget_TaggedText_prettyTagged_spec__0_spec__0___closed__1();
 lean_mark_persistent(l___private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Lean_Widget_TaggedText_prettyTagged_spec__0_spec__0___closed__1);
-l_Lean_Widget_TaggedText_prettyTagged___closed__0 = _init_l_Lean_Widget_TaggedText_prettyTagged___closed__0();
-lean_mark_persistent(l_Lean_Widget_TaggedText_prettyTagged___closed__0);
 l_Lean_Widget_TaggedText_stripTags___redArg___closed__0 = _init_l_Lean_Widget_TaggedText_stripTags___redArg___closed__0();
 lean_mark_persistent(l_Lean_Widget_TaggedText_stripTags___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

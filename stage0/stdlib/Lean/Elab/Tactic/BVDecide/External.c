@@ -1644,7 +1644,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_15; uint8_t x_16; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 x_15 = l_Array_mapMUnsafe_map___at___Lean_Elab_Tactic_BVDecide_External_ModelParser_parsePartialAssignment_spec__2___closed__0;
 x_16 = lean_int_dec_lt(x_15, x_6);

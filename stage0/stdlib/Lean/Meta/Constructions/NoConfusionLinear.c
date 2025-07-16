@@ -1217,7 +1217,7 @@ else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 x_15 = lean_array_uget(x_7, x_6);
-x_16 = lean_box(0);
+x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_uset(x_7, x_6, x_16);
 lean_inc(x_1);
 x_30 = l_Lean_Expr_const___override(x_15, x_1);

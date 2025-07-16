@@ -1800,7 +1800,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 lean_inc(x_1);
 x_9 = lean_apply_1(x_1, x_6);
@@ -3110,7 +3110,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 x_9 = lean_array_mk(x_6);
 x_10 = lean_array_size(x_9);
@@ -3140,7 +3140,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; lean_object* x_16; 
 x_6 = lean_array_uget(x_4, x_3);
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
 x_9 = lean_array_mk(x_6);
 x_10 = lean_array_size(x_9);
@@ -6819,7 +6819,7 @@ x_21 = lean_ctor_get(x_14, 5);
 lean_inc(x_21);
 x_22 = lean_ctor_get(x_14, 6);
 lean_inc(x_22);
-x_23 = lean_box(0);
+x_23 = lean_unsigned_to_nat(0u);
 x_24 = lean_array_uset(x_6, x_5, x_23);
 x_32 = lean_find_expr(x_1, x_21);
 if (lean_obj_tag(x_32) == 0)
@@ -7037,7 +7037,7 @@ x_21 = lean_ctor_get(x_14, 5);
 lean_inc(x_21);
 x_22 = lean_ctor_get(x_14, 6);
 lean_inc(x_22);
-x_23 = lean_box(0);
+x_23 = lean_unsigned_to_nat(0u);
 x_24 = lean_array_uset(x_6, x_5, x_23);
 x_32 = lean_find_expr(x_1, x_21);
 if (lean_obj_tag(x_32) == 0)
@@ -10894,7 +10894,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_18, 5);
 lean_inc(x_24);
 lean_dec(x_18);
-x_25 = lean_box(0);
+x_25 = lean_unsigned_to_nat(0u);
 x_26 = lean_array_uset(x_4, x_3, x_25);
 if (lean_obj_tag(x_23) == 0)
 {
@@ -12822,7 +12822,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
-x_17 = lean_box(0);
+x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_uset(x_3, x_2, x_17);
 x_19 = 1;
 x_20 = lean_usize_add(x_2, x_19);

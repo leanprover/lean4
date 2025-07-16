@@ -1602,7 +1602,7 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_16; uint8_t x_17; 
 x_7 = lean_array_uget(x_5, x_4);
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_5, x_4, x_8);
 x_16 = l_Lean_Syntax_getId(x_7);
 x_17 = l_Lean_Syntax_hasIdent(x_16, x_1);

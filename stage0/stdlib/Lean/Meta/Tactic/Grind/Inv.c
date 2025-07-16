@@ -283,7 +283,7 @@ static lean_object* _init_l_panic___at_____private_Lean_Meta_Tactic_Grind_Inv_0_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_instInhabitedExpr;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);

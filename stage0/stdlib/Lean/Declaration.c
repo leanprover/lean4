@@ -3108,7 +3108,7 @@ _start:
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 0;
 x_2 = lean_box(0);
-x_3 = lean_box(0);
+x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_Lean_instInhabitedConstantVal___closed__3;
 x_5 = lean_alloc_ctor(0, 6, 3);
 lean_ctor_set(x_5, 0, x_4);
@@ -3284,7 +3284,7 @@ _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 0;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_box(0);
 x_4 = l_Lean_instInhabitedConstantVal___closed__3;
 x_5 = lean_alloc_ctor(0, 5, 1);
@@ -3460,7 +3460,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_instInhabitedConstantVal___closed__2;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_box(0);
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -3542,7 +3542,7 @@ _start:
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = 0;
 x_2 = lean_box(0);
-x_3 = lean_box(0);
+x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_box(0);
 x_5 = l_Lean_instInhabitedConstantVal___closed__3;
 x_6 = lean_alloc_ctor(0, 7, 2);

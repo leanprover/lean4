@@ -1310,7 +1310,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; size_t x_1
 x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
 lean_dec(x_7);
-x_12 = lean_box(0);
+x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_3, x_2, x_12);
 x_14 = 1;
 x_15 = lean_usize_add(x_2, x_14);
@@ -3246,7 +3246,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; size_t x_1
 x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
 lean_dec(x_7);
-x_12 = lean_box(0);
+x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_3, x_2, x_12);
 x_14 = 1;
 x_15 = lean_usize_add(x_2, x_14);
@@ -4122,7 +4122,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; size_t x_1
 x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
 lean_dec(x_7);
-x_12 = lean_box(0);
+x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_3, x_2, x_12);
 x_14 = 1;
 x_15 = lean_usize_add(x_2, x_14);
@@ -5139,7 +5139,7 @@ lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean
 x_30 = lean_ctor_get(x_26, 0);
 lean_inc(x_30);
 lean_dec(x_26);
-x_31 = lean_box(0);
+x_31 = lean_unsigned_to_nat(0u);
 x_32 = lean_array_uset(x_3, x_2, x_31);
 x_33 = lean_alloc_closure((void*)(l_Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at_____private_Lean_Server_Test_Runner_0__Lean_Server_Test_Runner_fromJsonGetWidgetsResponse____x40_Lean_Server_Test_Runner___hyg_1078__spec__0_spec__0_spec__0___lam__0), 2, 1);
 lean_closure_set(x_33, 0, x_24);
@@ -5513,7 +5513,7 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean
 x_15 = lean_ctor_get(x_13, 0);
 x_16 = lean_ctor_get(x_13, 1);
 lean_dec(x_16);
-x_17 = lean_box(0);
+x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_uset(x_4, x_3, x_17);
 x_19 = l_Lean_Server_Test_Runner_instFromJsonPanelWidgetInstance___lam__0___closed__0;
 lean_inc(x_1);
@@ -5564,7 +5564,7 @@ lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean
 x_41 = lean_ctor_get(x_13, 0);
 lean_inc(x_41);
 lean_dec(x_13);
-x_42 = lean_box(0);
+x_42 = lean_unsigned_to_nat(0u);
 x_43 = lean_array_uset(x_4, x_3, x_42);
 x_44 = l_Lean_Server_Test_Runner_instFromJsonPanelWidgetInstance___lam__0___closed__0;
 lean_inc(x_1);

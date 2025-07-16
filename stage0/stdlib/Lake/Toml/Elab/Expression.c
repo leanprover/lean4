@@ -1406,7 +1406,7 @@ return x_12;
 else
 {
 lean_object* x_13; lean_object* x_14; size_t x_15; size_t x_16; lean_object* x_17; 
-x_13 = lean_box(0);
+x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_array_uset(x_5, x_4, x_13);
 x_15 = 1;
 x_16 = lean_usize_add(x_4, x_15);
@@ -5775,7 +5775,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = l_Lake_Toml_mkSimpleTable_simpVal(x_5);
 x_9 = 1;

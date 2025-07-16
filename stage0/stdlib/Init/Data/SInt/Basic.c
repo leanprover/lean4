@@ -937,20 +937,19 @@ return x_6;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = lean_nat_abs(x_2);
 lean_dec(x_2);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_7, x_8);
 lean_dec(x_7);
 x_10 = l_instToStringInt8___lam__0___closed__1;
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = lean_nat_add(x_9, x_11);
+x_11 = lean_nat_add(x_9, x_8);
 lean_dec(x_9);
-x_13 = l_Nat_reprFast(x_12);
-x_14 = lean_string_append(x_10, x_13);
-lean_dec(x_13);
-return x_14;
+x_12 = l_Nat_reprFast(x_11);
+x_13 = lean_string_append(x_10, x_12);
+lean_dec(x_12);
+return x_13;
 }
 }
 }
@@ -2022,20 +2021,19 @@ return x_6;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = lean_nat_abs(x_2);
 lean_dec(x_2);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_7, x_8);
 lean_dec(x_7);
 x_10 = l_instToStringInt8___lam__0___closed__1;
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = lean_nat_add(x_9, x_11);
+x_11 = lean_nat_add(x_9, x_8);
 lean_dec(x_9);
-x_13 = l_Nat_reprFast(x_12);
-x_14 = lean_string_append(x_10, x_13);
-lean_dec(x_13);
-return x_14;
+x_12 = l_Nat_reprFast(x_11);
+x_13 = lean_string_append(x_10, x_12);
+lean_dec(x_12);
+return x_13;
 }
 }
 }
@@ -3129,20 +3127,19 @@ return x_6;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = lean_nat_abs(x_2);
 lean_dec(x_2);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_7, x_8);
 lean_dec(x_7);
 x_10 = l_instToStringInt8___lam__0___closed__1;
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = lean_nat_add(x_9, x_11);
+x_11 = lean_nat_add(x_9, x_8);
 lean_dec(x_9);
-x_13 = l_Nat_reprFast(x_12);
-x_14 = lean_string_append(x_10, x_13);
-lean_dec(x_13);
-return x_14;
+x_12 = l_Nat_reprFast(x_11);
+x_13 = lean_string_append(x_10, x_12);
+lean_dec(x_12);
+return x_13;
 }
 }
 }
@@ -4266,20 +4263,19 @@ return x_6;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = lean_nat_abs(x_2);
 lean_dec(x_2);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_7, x_8);
 lean_dec(x_7);
 x_10 = l_instToStringInt8___lam__0___closed__1;
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = lean_nat_add(x_9, x_11);
+x_11 = lean_nat_add(x_9, x_8);
 lean_dec(x_9);
-x_13 = l_Nat_reprFast(x_12);
-x_14 = lean_string_append(x_10, x_13);
-lean_dec(x_13);
-return x_14;
+x_12 = l_Nat_reprFast(x_11);
+x_13 = lean_string_append(x_10, x_12);
+lean_dec(x_12);
+return x_13;
 }
 }
 }
@@ -5433,20 +5429,19 @@ return x_6;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = lean_nat_abs(x_2);
 lean_dec(x_2);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_7, x_8);
 lean_dec(x_7);
 x_10 = l_instToStringInt8___lam__0___closed__1;
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = lean_nat_add(x_9, x_11);
+x_11 = lean_nat_add(x_9, x_8);
 lean_dec(x_9);
-x_13 = l_Nat_reprFast(x_12);
-x_14 = lean_string_append(x_10, x_13);
-lean_dec(x_13);
-return x_14;
+x_12 = l_Nat_reprFast(x_11);
+x_13 = lean_string_append(x_10, x_12);
+lean_dec(x_12);
+return x_13;
 }
 }
 }

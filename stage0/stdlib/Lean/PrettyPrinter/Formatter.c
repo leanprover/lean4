@@ -5980,7 +5980,7 @@ x_12 = lean_ctor_get(x_9, 2);
 lean_inc(x_12);
 lean_dec(x_9);
 x_13 = lean_box(0);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = l_Array_back_x21___redArg(x_13, x_11);
 lean_dec(x_11);
 x_16 = l_Array_back_x21___redArg(x_14, x_12);

@@ -106,7 +106,7 @@ static lean_object* _init_l_Lean_Elab_Structural_instInhabitedRecArgInfo___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__0;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -133,7 +133,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__2;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__0;
 x_4 = lean_box(0);
 x_5 = lean_alloc_ctor(0, 6, 0);

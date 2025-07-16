@@ -221,25 +221,25 @@ return x_10;
 }
 else
 {
-lean_object* x_11; uint8_t x_12; uint8_t x_13; 
-x_11 = l_Std_Tactic_BVDecide_LRAT_Internal_intToLiteral___closed__0;
-x_12 = lean_int_dec_eq(x_7, x_11);
-x_13 = l_instDecidableNot___redArg(x_12);
-if (x_13 == 0)
+lean_object* x_11; lean_object* x_12; uint8_t x_13; uint8_t x_14; 
+x_11 = lean_unsigned_to_nat(0u);
+x_12 = l_Std_Tactic_BVDecide_LRAT_Internal_intToLiteral___closed__0;
+x_13 = lean_int_dec_eq(x_7, x_12);
+x_14 = l_instDecidableNot___redArg(x_13);
+if (x_14 == 0)
 {
-lean_object* x_14; 
+lean_object* x_15; 
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_4);
-x_14 = lean_box(0);
-return x_14;
+x_15 = lean_box(0);
+return x_15;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; size_t x_20; size_t x_21; lean_object* x_22; 
-x_15 = lean_box(0);
-x_16 = lean_array_uset(x_4, x_3, x_15);
-x_17 = lean_int_dec_lt(x_11, x_7);
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; size_t x_20; size_t x_21; lean_object* x_22; 
+x_16 = lean_array_uset(x_4, x_3, x_11);
+x_17 = lean_int_dec_lt(x_12, x_7);
 lean_dec(x_7);
 x_18 = lean_box(x_17);
 x_19 = lean_alloc_ctor(0, 2, 0);

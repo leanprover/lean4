@@ -517,7 +517,7 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; size_t x_15; lean_object* x_16; 
-x_11 = lean_box(0);
+x_11 = lean_unsigned_to_nat(0u);
 x_12 = lean_array_uset(x_4, x_3, x_11);
 x_13 = l_Lean_Syntax_getArg(x_7, x_1);
 lean_dec(x_7);

@@ -807,7 +807,7 @@ static lean_object* _init_l_panic___at___Lean_Elab_Tactic_BVDecide_Frontend_reco
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -1938,7 +1938,7 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; 
 x_7 = lean_array_uget(x_5, x_4);
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_5, x_4, x_8);
 x_10 = lean_box(0);
 lean_inc(x_2);
@@ -2044,7 +2044,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__0;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -2114,43 +2114,42 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; lean_object* x_10; lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_30; size_t x_31; lean_object* x_32; lean_object* x_33; lean_object* x_41; uint8_t x_42; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; lean_object* x_10; lean_object* x_14; lean_object* x_15; size_t x_29; size_t x_30; lean_object* x_31; lean_object* x_32; lean_object* x_40; uint8_t x_41; 
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec(x_1);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__1;
-x_14 = lean_unsigned_to_nat(0u);
-x_15 = l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__6;
-x_30 = lean_array_size(x_5);
-x_31 = 0;
-x_32 = l_Array_mapMUnsafe_map___at___Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample_spec__12(x_4, x_7, x_30, x_31, x_5);
-x_41 = lean_array_get_size(x_32);
-x_42 = lean_nat_dec_lt(x_14, x_41);
+x_14 = l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__6;
+x_29 = lean_array_size(x_5);
+x_30 = 0;
+x_31 = l_Array_mapMUnsafe_map___at___Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample_spec__12(x_4, x_7, x_29, x_30, x_5);
+x_40 = lean_array_get_size(x_31);
+x_41 = lean_nat_dec_lt(x_6, x_40);
+if (x_41 == 0)
+{
+lean_dec(x_40);
+x_32 = x_6;
+goto block_39;
+}
+else
+{
+uint8_t x_42; 
+x_42 = lean_nat_dec_le(x_40, x_40);
 if (x_42 == 0)
 {
-lean_dec(x_41);
-x_33 = x_14;
-goto block_40;
+lean_dec(x_40);
+x_32 = x_6;
+goto block_39;
 }
 else
 {
-uint8_t x_43; 
-x_43 = lean_nat_dec_le(x_41, x_41);
-if (x_43 == 0)
-{
-lean_dec(x_41);
-x_33 = x_14;
-goto block_40;
-}
-else
-{
-size_t x_44; lean_object* x_45; 
-x_44 = lean_usize_of_nat(x_41);
-lean_dec(x_41);
-x_45 = l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample_spec__15(x_32, x_31, x_44, x_14);
-x_33 = x_45;
-goto block_40;
+size_t x_43; lean_object* x_44; 
+x_43 = lean_usize_of_nat(x_40);
+lean_dec(x_40);
+x_44 = l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample_spec__15(x_31, x_30, x_43, x_6);
+x_32 = x_44;
+goto block_39;
 }
 }
 block_13:
@@ -2161,93 +2160,93 @@ x_12 = l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_re
 lean_dec(x_10);
 return x_12;
 }
-block_29:
+block_28:
 {
-size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
-x_17 = lean_array_size(x_16);
-x_18 = 0;
-x_19 = l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample_spec__8___redArg(x_3, x_2, x_16, x_17, x_18, x_15);
-lean_dec(x_16);
-x_20 = lean_ctor_get(x_19, 0);
+size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
+x_16 = lean_array_size(x_15);
+x_17 = 0;
+x_18 = l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample_spec__8___redArg(x_3, x_2, x_15, x_16, x_17, x_14);
+lean_dec(x_15);
+x_19 = lean_ctor_get(x_18, 0);
+lean_inc(x_19);
+x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
-x_21 = lean_ctor_get(x_19, 1);
-lean_inc(x_21);
+lean_dec(x_18);
+x_21 = l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__7;
+x_22 = lean_mk_empty_array_with_capacity(x_19);
 lean_dec(x_19);
-x_22 = l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__7;
-x_23 = lean_mk_empty_array_with_capacity(x_20);
+x_23 = lean_array_get_size(x_20);
+x_24 = lean_nat_dec_lt(x_6, x_23);
+if (x_24 == 0)
+{
+lean_dec(x_23);
 lean_dec(x_20);
-x_24 = lean_array_get_size(x_21);
-x_25 = lean_nat_dec_lt(x_14, x_24);
+x_8 = x_21;
+x_9 = x_17;
+x_10 = x_22;
+goto block_13;
+}
+else
+{
+uint8_t x_25; 
+x_25 = lean_nat_dec_le(x_23, x_23);
 if (x_25 == 0)
 {
-lean_dec(x_24);
-lean_dec(x_21);
-x_8 = x_22;
-x_9 = x_18;
-x_10 = x_23;
+lean_dec(x_23);
+lean_dec(x_20);
+x_8 = x_21;
+x_9 = x_17;
+x_10 = x_22;
 goto block_13;
 }
 else
 {
-uint8_t x_26; 
-x_26 = lean_nat_dec_le(x_24, x_24);
-if (x_26 == 0)
-{
-lean_dec(x_24);
-lean_dec(x_21);
-x_8 = x_22;
-x_9 = x_18;
-x_10 = x_23;
+size_t x_26; lean_object* x_27; 
+x_26 = lean_usize_of_nat(x_23);
+lean_dec(x_23);
+x_27 = l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample_spec__11(x_20, x_17, x_26, x_22);
+lean_dec(x_20);
+x_8 = x_21;
+x_9 = x_17;
+x_10 = x_27;
 goto block_13;
+}
+}
+}
+block_39:
+{
+lean_object* x_33; lean_object* x_34; uint8_t x_35; 
+x_33 = lean_mk_empty_array_with_capacity(x_32);
+lean_dec(x_32);
+x_34 = lean_array_get_size(x_31);
+x_35 = lean_nat_dec_lt(x_6, x_34);
+if (x_35 == 0)
+{
+lean_dec(x_34);
+lean_dec(x_31);
+x_15 = x_33;
+goto block_28;
 }
 else
 {
-size_t x_27; lean_object* x_28; 
-x_27 = lean_usize_of_nat(x_24);
-lean_dec(x_24);
-x_28 = l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample_spec__11(x_21, x_18, x_27, x_23);
-lean_dec(x_21);
-x_8 = x_22;
-x_9 = x_18;
-x_10 = x_28;
-goto block_13;
-}
-}
-}
-block_40:
-{
-lean_object* x_34; lean_object* x_35; uint8_t x_36; 
-x_34 = lean_mk_empty_array_with_capacity(x_33);
-lean_dec(x_33);
-x_35 = lean_array_get_size(x_32);
-x_36 = lean_nat_dec_lt(x_14, x_35);
+uint8_t x_36; 
+x_36 = lean_nat_dec_le(x_34, x_34);
 if (x_36 == 0)
 {
-lean_dec(x_35);
-lean_dec(x_32);
-x_16 = x_34;
-goto block_29;
+lean_dec(x_34);
+lean_dec(x_31);
+x_15 = x_33;
+goto block_28;
 }
 else
 {
-uint8_t x_37; 
-x_37 = lean_nat_dec_le(x_35, x_35);
-if (x_37 == 0)
-{
-lean_dec(x_35);
-lean_dec(x_32);
-x_16 = x_34;
-goto block_29;
-}
-else
-{
-size_t x_38; lean_object* x_39; 
-x_38 = lean_usize_of_nat(x_35);
-lean_dec(x_35);
-x_39 = l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample_spec__14(x_32, x_31, x_38, x_34);
-lean_dec(x_32);
-x_16 = x_39;
-goto block_29;
+size_t x_37; lean_object* x_38; 
+x_37 = lean_usize_of_nat(x_34);
+lean_dec(x_34);
+x_38 = l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample_spec__14(x_31, x_30, x_37, x_33);
+lean_dec(x_31);
+x_15 = x_38;
+goto block_28;
 }
 }
 }

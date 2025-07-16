@@ -3768,7 +3768,7 @@ return x_4;
 else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; 
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_4, x_3, x_6);
 x_8 = l_Array_mapMUnsafe_map___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_replaceSize_spec__4___closed__1;
 lean_inc(x_1);
@@ -3812,7 +3812,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; 
 x_7 = lean_ctor_get(x_5, 1);
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_3, x_2, x_8);
 x_10 = lean_alloc_closure((void*)(l_Array_mapMUnsafe_map___at___Lean_Meta_withLocalDeclsDND___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_replaceSize_spec__5_spec__5___lam__0___boxed), 8, 1);
 lean_closure_set(x_10, 0, x_7);
@@ -3832,7 +3832,7 @@ x_16 = lean_ctor_get(x_5, 1);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_5);
-x_17 = lean_box(0);
+x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_uset(x_3, x_2, x_17);
 x_19 = lean_alloc_closure((void*)(l_Array_mapMUnsafe_map___at___Lean_Meta_withLocalDeclsDND___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_replaceSize_spec__5_spec__5___lam__0___boxed), 8, 1);
 lean_closure_set(x_19, 0, x_16);
@@ -3867,7 +3867,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_7 = lean_ctor_get(x_5, 0);
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_3, x_2, x_8);
 x_10 = 0;
 x_11 = lean_box(x_10);
@@ -3890,7 +3890,7 @@ x_18 = lean_ctor_get(x_5, 1);
 lean_inc(x_18);
 lean_inc(x_17);
 lean_dec(x_5);
-x_19 = lean_box(0);
+x_19 = lean_unsigned_to_nat(0u);
 x_20 = lean_array_uset(x_3, x_2, x_19);
 x_21 = 0;
 x_22 = lean_box(x_21);

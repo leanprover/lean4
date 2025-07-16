@@ -7452,7 +7452,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getMajorPos_x3f(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_box(0);
+x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_Lean_Meta_getMajorPos_x3f___closed__0;
 x_5 = l_Lean_ParametricAttribute_getParam_x3f___redArg(x_3, x_4, x_1, x_2);
 return x_5;

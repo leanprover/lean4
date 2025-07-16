@@ -20796,7 +20796,7 @@ lean_inc(x_13);
 lean_dec(x_12);
 x_14 = lean_ctor_get(x_7, 5);
 x_15 = lean_array_uget(x_6, x_5);
-x_16 = lean_box(0);
+x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_uset(x_6, x_5, x_16);
 x_18 = 0;
 x_19 = l_Lean_SourceInfo_fromRef(x_14, x_18);

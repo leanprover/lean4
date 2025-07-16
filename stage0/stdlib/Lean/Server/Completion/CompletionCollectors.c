@@ -4398,7 +4398,7 @@ static lean_object* _init_l_panic___at_____private_Lean_Server_Completion_Comple
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -17649,7 +17649,7 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 3);
 lean_inc(x_9);
 lean_dec(x_7);
-x_10 = lean_box(0);
+x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_array_uset(x_5, x_4, x_10);
 x_12 = lean_box(0);
 if (lean_obj_tag(x_9) == 0)

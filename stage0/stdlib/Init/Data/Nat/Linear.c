@@ -43,7 +43,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Linear_0__Nat_Linear_Poly_isZ
 LEAN_EXPORT lean_object* l_Nat_Linear_Var_denote___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_Linear_Expr_toPoly_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Linear_0__Nat_Linear_Poly_cancelAux_match__3_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Nat_Linear_Poly_toExpr___closed__0;
 LEAN_EXPORT lean_object* l_Nat_elimOffset___redArg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Linear_0__Nat_Linear_Expr_toPoly_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_Linear_beqPolyCnstr____x40_Init_Data_Nat_Linear___hyg_1352_(lean_object*, lean_object*);
@@ -138,7 +137,7 @@ static lean_object* _init_l_Nat_Linear_instInhabitedExpr___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1817,23 +1816,13 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Nat_Linear_Poly_toExpr___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Nat_Linear_Poly_toExpr(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; 
-x_2 = l_Nat_Linear_Poly_toExpr___closed__0;
+x_2 = l_Nat_Linear_instInhabitedExpr___closed__0;
 return x_2;
 }
 else
@@ -2343,8 +2332,6 @@ l_Nat_Linear_instBEqPolyCnstr___closed__0 = _init_l_Nat_Linear_instBEqPolyCnstr_
 lean_mark_persistent(l_Nat_Linear_instBEqPolyCnstr___closed__0);
 l_Nat_Linear_instBEqPolyCnstr = _init_l_Nat_Linear_instBEqPolyCnstr();
 lean_mark_persistent(l_Nat_Linear_instBEqPolyCnstr);
-l_Nat_Linear_Poly_toExpr___closed__0 = _init_l_Nat_Linear_Poly_toExpr___closed__0();
-lean_mark_persistent(l_Nat_Linear_Poly_toExpr___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

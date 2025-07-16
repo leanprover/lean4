@@ -912,7 +912,7 @@ else
 lean_object* x_34; lean_object* x_35; size_t x_36; size_t x_37; lean_object* x_38; 
 lean_dec(x_13);
 lean_dec(x_12);
-x_34 = lean_box(0);
+x_34 = lean_unsigned_to_nat(0u);
 x_35 = lean_array_uset(x_5, x_4, x_34);
 x_36 = 1;
 x_37 = lean_usize_add(x_4, x_36);
@@ -1040,7 +1040,7 @@ lean_dec(x_14);
 x_44 = lean_ctor_get(x_43, 1);
 lean_inc(x_44);
 lean_dec(x_43);
-x_45 = lean_box(0);
+x_45 = lean_unsigned_to_nat(0u);
 x_46 = lean_array_uset(x_6, x_5, x_45);
 x_47 = 1;
 x_48 = lean_usize_add(x_5, x_47);
@@ -1416,7 +1416,7 @@ lean_dec(x_12);
 x_27 = lean_ctor_get(x_13, 0);
 lean_inc(x_27);
 lean_dec(x_13);
-x_28 = lean_box(0);
+x_28 = lean_unsigned_to_nat(0u);
 x_29 = lean_array_uset(x_6, x_5, x_28);
 x_30 = 1;
 x_31 = lean_usize_add(x_5, x_30);
@@ -1539,7 +1539,7 @@ else
 {
 lean_object* x_44; lean_object* x_45; size_t x_46; size_t x_47; lean_object* x_48; 
 lean_dec(x_28);
-x_44 = lean_box(0);
+x_44 = lean_unsigned_to_nat(0u);
 x_45 = lean_array_uset(x_8, x_7, x_44);
 x_46 = 1;
 x_47 = lean_usize_add(x_7, x_46);
@@ -1612,7 +1612,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_1
 x_14 = lean_ctor_get(x_10, 0);
 lean_inc(x_14);
 lean_dec(x_10);
-x_15 = lean_box(0);
+x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_uset(x_6, x_5, x_15);
 x_17 = 1;
 x_18 = lean_usize_add(x_5, x_17);
@@ -1670,7 +1670,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean
 x_12 = lean_ctor_get(x_1, 0);
 lean_inc(x_12);
 x_13 = lean_array_uget(x_6, x_5);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_6, x_5, x_14);
 x_24 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_12, x_13);
 lean_dec(x_12);
@@ -1820,7 +1820,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean
 x_12 = lean_ctor_get(x_1, 0);
 lean_inc(x_12);
 x_13 = lean_array_uget(x_6, x_5);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_6, x_5, x_14);
 x_24 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_12, x_13);
 lean_dec(x_12);

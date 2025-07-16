@@ -668,7 +668,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = l_Lean_Server_ImportInfo_ofImport(x_5);
 x_9 = 1;
@@ -921,7 +921,7 @@ lean_inc(x_10);
 lean_dec(x_8);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
-x_12 = lean_box(0);
+x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_4, x_3, x_12);
 lean_inc(x_11);
 x_21 = lean_alloc_closure((void*)(l_Array_mapMUnsafe_map___at___Lean_Server_RefInfo_toLspRefInfo_spec__1___lam__0___boxed), 4, 1);

@@ -2160,7 +2160,7 @@ lean_ctor_set(x_13, 2, x_3);
 lean_ctor_set(x_13, 3, x_4);
 lean_ctor_set(x_13, 4, x_5);
 lean_ctor_set(x_13, 5, x_12);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = 0;
 x_16 = lean_box(0);
 x_17 = lean_alloc_ctor(0, 3, 1);

@@ -2868,7 +2868,7 @@ else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_25; lean_object* x_33; 
 x_15 = lean_array_uget(x_5, x_4);
-x_16 = lean_box(0);
+x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_array_uset(x_5, x_4, x_16);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -3889,7 +3889,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_3, x_2, x_14);
 x_16 = 1;
 x_17 = lean_usize_add(x_2, x_16);

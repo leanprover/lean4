@@ -321,7 +321,7 @@ static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedGroupId() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 return x_1;
 }
 }
@@ -474,7 +474,7 @@ static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedUserId() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 return x_1;
 }
 }
@@ -1660,7 +1660,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Std_Internal_IO_Async_System_instInhabitedGroupInfo___closed__0;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Std_Internal_IO_Async_System_instInhabitedSystemUser___closed__0;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -2270,7 +2270,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Std_Internal_IO_Async_System_instInhabitedCPUTimes___closed__1;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Std_Internal_IO_Async_System_instInhabitedSystemUser___closed__0;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);
@@ -3817,7 +3817,7 @@ x_11 = lean_ctor_get_uint64(x_6, 16);
 x_12 = lean_ctor_get_uint64(x_6, 24);
 x_13 = lean_ctor_get_uint64(x_6, 32);
 lean_dec(x_6);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_3, x_2, x_14);
 x_16 = lean_uint64_to_nat(x_8);
 x_17 = lean_uint64_to_nat(x_9);
@@ -3874,7 +3874,7 @@ x_11 = lean_ctor_get_uint64(x_6, 16);
 x_12 = lean_ctor_get_uint64(x_6, 24);
 x_13 = lean_ctor_get_uint64(x_6, 32);
 lean_dec(x_6);
-x_14 = lean_box(0);
+x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_3, x_2, x_14);
 x_16 = lean_uint64_to_nat(x_8);
 x_17 = lean_uint64_to_nat(x_9);

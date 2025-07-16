@@ -64,7 +64,7 @@ jobs:
           commit: ${{ steps.workflow-info.outputs.sourceHeadSha }}
           workflow: ci.yml
           path: artifacts
-          name: build-Linux.*
+          name: "build-Linux release"
           name_is_regexp: true
 
       - name: Unpack toolchain

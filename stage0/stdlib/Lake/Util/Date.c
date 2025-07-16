@@ -124,7 +124,7 @@ x_4 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
 x_5 = l_Lake_lpad(x_1, x_4, x_3);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_5;
 }
 }
@@ -157,7 +157,7 @@ lean_object* x_3; uint32_t x_4; lean_object* x_5;
 x_3 = l_Nat_reprFast(x_1);
 x_4 = 48;
 x_5 = l_Lake_lpad(x_3, x_4, x_2);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_5;
 }
 }
@@ -227,8 +227,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lake_decEqDate____x40_Lake_Util_Date___hyg_97_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -246,8 +246,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lake_instDecidableEqDate(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -337,8 +337,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lake_ordDate____x40_Lake_Util_Date___hyg_299_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -555,7 +555,7 @@ x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = l_Lake_reprDate___redArg___closed__5____x40_Lake_Util_Date___hyg_378_;
 x_6 = l_Lake_reprDate___redArg___closed__6____x40_Lake_Util_Date___hyg_378_;
 x_7 = l_Lake_reprDate___redArg___closed__7____x40_Lake_Util_Date___hyg_378_;
@@ -701,13 +701,13 @@ x_3 = l_Lake_ordDate____x40_Lake_Util_Date___hyg_299_(x_1, x_2);
 x_4 = lean_box(x_3);
 if (lean_obj_tag(x_4) == 2)
 {
-lean_inc(x_2);
+lean_inc_ref(x_2);
 return x_2;
 }
 else
 {
 lean_dec(x_4);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
@@ -725,8 +725,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_Date_instMin___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -738,13 +738,13 @@ x_3 = l_Lake_ordDate____x40_Lake_Util_Date___hyg_299_(x_1, x_2);
 x_4 = lean_box(x_3);
 if (lean_obj_tag(x_4) == 2)
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 else
 {
 lean_dec(x_4);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 return x_2;
 }
 }
@@ -762,8 +762,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_Date_instMax___lam__0(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -1119,7 +1119,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_String_splitAux___at___String_split___at___Lake_Date_ofString_x3f_spec__0_spec__0(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_5;
 }
 }
@@ -1128,7 +1128,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_String_split___at___Lake_Date_ofString_x3f_spec__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -1137,7 +1137,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_Date_ofString_x3f(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -1159,7 +1159,7 @@ x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 2);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_unsigned_to_nat(4u);
 x_6 = l_Lake_zpad(x_2, x_5);
 x_7 = l_Lake_Date_toString___closed__0;
@@ -1167,11 +1167,11 @@ x_8 = lean_string_append(x_6, x_7);
 x_9 = lean_unsigned_to_nat(2u);
 x_10 = l_Lake_zpad(x_3, x_9);
 x_11 = lean_string_append(x_8, x_10);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_12 = lean_string_append(x_11, x_7);
 x_13 = l_Lake_zpad(x_4, x_9);
 x_14 = lean_string_append(x_12, x_13);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 return x_14;
 }
 }

@@ -142,7 +142,7 @@ x_6 = lean_nat_dec_lt(x_5, x_4);
 if (x_6 == 0)
 {
 lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_1;
 }
 else
@@ -152,7 +152,7 @@ x_7 = lean_usize_of_nat(x_4);
 lean_dec(x_4);
 x_8 = 0;
 x_9 = l_Array_foldrMUnsafe_fold___at___List_foldrTR___at___IO_AsyncList_ofList_spec__0_spec__0___redArg(x_3, x_7, x_8, x_1);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_9;
 }
 }
@@ -191,7 +191,7 @@ lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = l_Array_foldrMUnsafe_fold___at___List_foldrTR___at___IO_AsyncList_ofList_spec__0_spec__0___redArg(x_1, x_5, x_6, x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_7;
 }
 }
@@ -204,7 +204,7 @@ lean_dec(x_4);
 x_8 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_9 = l_Array_foldrMUnsafe_fold___at___List_foldrTR___at___IO_AsyncList_ofList_spec__0_spec__0(x_1, x_2, x_3, x_7, x_8, x_6);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_9;
 }
 }
@@ -299,7 +299,7 @@ else
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_ctor_get(x_2, 0);
 lean_inc(x_12);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_13 = l_IO_AsyncList_waitUntil___redArg(x_1, x_12);
 return x_13;
 }
@@ -412,7 +412,7 @@ case 1:
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_27 = lean_ctor_get(x_2, 0);
-lean_inc(x_27);
+lean_inc_ref(x_27);
 lean_dec(x_2);
 x_28 = lean_alloc_closure((void*)(l_IO_AsyncList_waitUntil___redArg___lam__1), 2, 1);
 lean_closure_set(x_28, 0, x_1);
@@ -503,7 +503,7 @@ else
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_2, 0);
 lean_inc(x_8);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_9 = l_IO_AsyncList_waitFind_x3f___redArg(x_1, x_8);
 return x_9;
 }
@@ -567,7 +567,7 @@ case 1:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = lean_ctor_get(x_2, 0);
-lean_inc(x_11);
+lean_inc_ref(x_11);
 lean_dec(x_2);
 x_12 = lean_alloc_closure((void*)(l_IO_AsyncList_waitFind_x3f___redArg___lam__0), 2, 1);
 lean_closure_set(x_12, 0, x_1);
@@ -754,7 +754,7 @@ case 1:
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
 x_32 = lean_ctor_get(x_1, 0);
-lean_inc(x_32);
+lean_inc_ref(x_32);
 lean_dec(x_1);
 x_33 = l_Lean_Server_ServerTask_hasFinished___redArg(x_32, x_2);
 x_34 = lean_ctor_get(x_33, 0);
@@ -763,7 +763,7 @@ x_35 = lean_unbox(x_34);
 if (x_35 == 0)
 {
 uint8_t x_36; 
-lean_dec(x_32);
+lean_dec_ref(x_32);
 x_36 = !lean_is_exclusive(x_33);
 if (x_36 == 0)
 {
@@ -1173,7 +1173,7 @@ case 1:
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
 x_34 = lean_ctor_get(x_3, 0);
-lean_inc(x_34);
+lean_inc_ref(x_34);
 lean_dec(x_3);
 x_35 = lean_alloc_closure((void*)(l_IO_AsyncList_getFinishedPrefixWithTimeout_go___redArg___lam__0), 1, 0);
 x_36 = lean_alloc_closure((void*)(l_IO_AsyncList_getFinishedPrefixWithTimeout_go___redArg___lam__1), 1, 0);
@@ -1184,7 +1184,7 @@ x_39 = l_List_mapTR_loop___at___IO_AsyncList_getFinishedPrefixWithTimeout_go_spe
 x_40 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_40, 0, x_37);
 lean_ctor_set(x_40, 1, x_39);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_41 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_41, 0, x_2);
 lean_ctor_set(x_41, 1, x_38);
@@ -1196,7 +1196,7 @@ if (lean_obj_tag(x_44) == 0)
 {
 uint8_t x_45; 
 lean_dec(x_44);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_45 = !lean_is_exclusive(x_43);
 if (x_45 == 0)
@@ -1230,7 +1230,7 @@ lean_dec(x_44);
 if (lean_obj_tag(x_51) == 0)
 {
 uint8_t x_52; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_52 = !lean_is_exclusive(x_43);
 if (x_52 == 0)
@@ -1318,7 +1318,7 @@ else
 lean_object* x_77; lean_object* x_78; 
 x_77 = lean_ctor_get(x_43, 1);
 lean_inc(x_77);
-lean_dec(x_43);
+lean_dec_ref(x_43);
 x_78 = lean_ctor_get(x_51, 0);
 lean_inc(x_78);
 lean_dec(x_51);
@@ -1331,7 +1331,7 @@ goto _start;
 default: 
 {
 lean_object* x_80; lean_object* x_81; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_80 = l_IO_AsyncList_getFinishedPrefix___redArg___closed__1;
 x_81 = lean_alloc_ctor(0, 2, 0);
@@ -1415,7 +1415,7 @@ x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_12 = l_IO_AsyncList_getFinishedPrefixWithTimeout_go___redArg(x_3, x_10, x_1, x_11);
 return x_12;
 }
@@ -1494,7 +1494,7 @@ if (x_10 == 0)
 lean_object* x_11; 
 x_11 = lean_ctor_get(x_8, 1);
 lean_inc(x_11);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_1 = x_7;
 x_2 = x_11;
 goto _start;
@@ -1529,7 +1529,7 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_10 = lean_ctor_get(x_7, 1);
 lean_inc(x_10);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_11 = lean_box_uint32(x_2);
 x_12 = lean_alloc_closure((void*)(l_IO_sleep___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_11);
@@ -1656,20 +1656,20 @@ x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_inc(x_3);
 x_8 = l_IO_AsyncList_getFinishedPrefixWithTimeout___redArg(x_1, x_2, x_3, x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_11 = lean_io_mono_ms_now(x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_14 = lean_nat_sub(x_12, x_6);
 lean_dec(x_6);
 lean_dec(x_12);

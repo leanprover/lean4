@@ -78,7 +78,7 @@ _start:
 lean_object* x_8; 
 x_8 = l___private_Init_Internal_Order_Lemmas_0__Array_forIn_x27_loop_match__3_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_8;
 }
 }
@@ -180,7 +180,7 @@ lean_object* x_9;
 x_9 = l___private_Init_Internal_Order_Lemmas_0__Array_mapFinIdxM_map_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_5);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_9;
 }
 }
@@ -231,7 +231,7 @@ _start:
 lean_object* x_8; 
 x_8 = l___private_Init_Internal_Order_Lemmas_0__Array_isEqvAux_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_8;
 }
 }

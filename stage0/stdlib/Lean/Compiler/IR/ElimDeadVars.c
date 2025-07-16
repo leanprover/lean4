@@ -146,7 +146,7 @@ goto block_10;
 else
 {
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -329,7 +329,7 @@ x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_array_size(x_3);
 x_6 = 0;
 x_7 = l_Array_mapMUnsafe_map___at___Lean_IR_FnBody_elimDead_spec__0(x_5, x_6, x_3);

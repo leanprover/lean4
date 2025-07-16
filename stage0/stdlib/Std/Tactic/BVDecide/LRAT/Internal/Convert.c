@@ -73,7 +73,7 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_array_mk(x_2);
 x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray(x_1, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_4;
 }
 }

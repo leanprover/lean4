@@ -193,15 +193,15 @@ x_6 = lean_ctor_get(x_1, 4);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_1, 5);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_alloc_closure((void*)(l_ShareCommon_StateFactory_mkImpl___lam__0___boxed), 1, 0);
-lean_inc(x_8);
+lean_inc_ref(x_8);
 x_9 = lean_alloc_closure((void*)(l_ShareCommon_StateFactory_mkImpl___lam__2___boxed), 4, 3);
 lean_closure_set(x_9, 0, x_2);
 lean_closure_set(x_9, 1, x_8);
 lean_closure_set(x_9, 2, x_5);
 x_10 = l_ShareCommon_StateFactory_mkImpl___lam__2___closed__0;
-lean_inc(x_8);
+lean_inc_ref(x_8);
 x_11 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_10, x_8);
 x_12 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_10, x_8);
 x_13 = l_ShareCommon_StateFactory_mkImpl___lam__2___closed__1;
@@ -332,11 +332,11 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_2, 0);
-lean_inc(x_5);
-lean_dec(x_2);
+lean_inc_ref(x_5);
+lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = lean_state_sharecommon(x_1, x_4, x_3);
 x_8 = lean_apply_2(x_6, lean_box(0), x_7);
 return x_8;
@@ -417,14 +417,14 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
-lean_dec(x_2);
+lean_inc_ref(x_4);
+lean_dec_ref(x_2);
 x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
-lean_dec(x_4);
+lean_inc_ref(x_5);
+lean_dec_ref(x_4);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = lean_alloc_closure((void*)(l_ShareCommonT_run___redArg___lam__0___boxed), 1, 0);
 x_8 = l_ShareCommon_mkStateImpl(x_1);
 x_9 = lean_apply_1(x_3, x_8);
@@ -437,14 +437,14 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_6 = lean_ctor_get(x_4, 0);
-lean_inc(x_6);
-lean_dec(x_4);
+lean_inc_ref(x_6);
+lean_dec_ref(x_4);
 x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-lean_dec(x_6);
+lean_inc_ref(x_7);
+lean_dec_ref(x_6);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_9 = lean_alloc_closure((void*)(l_ShareCommonT_run___redArg___lam__0___boxed), 1, 0);
 x_10 = l_ShareCommon_mkStateImpl(x_2);
 x_11 = lean_apply_1(x_5, x_10);
@@ -457,7 +457,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_ShareCommonT_run___redArg___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -469,7 +469,7 @@ x_3 = l_ShareCommon_mkStateImpl(x_1);
 x_4 = lean_apply_1(x_2, x_3);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_5;
 }
 }
@@ -481,7 +481,7 @@ x_4 = l_ShareCommon_mkStateImpl(x_1);
 x_5 = lean_apply_1(x_3, x_4);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 return x_6;
 }
 }

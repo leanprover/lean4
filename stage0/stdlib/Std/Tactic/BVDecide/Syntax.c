@@ -1289,7 +1289,7 @@ if (x_84 == 0)
 lean_object* x_85; lean_object* x_86; 
 lean_dec(x_83);
 lean_dec(x_79);
-lean_dec(x_77);
+lean_dec_ref(x_77);
 lean_dec(x_75);
 lean_dec(x_74);
 lean_dec(x_1);
@@ -1311,7 +1311,7 @@ if (x_88 == 0)
 lean_object* x_89; lean_object* x_90; 
 lean_dec(x_87);
 lean_dec(x_79);
-lean_dec(x_77);
+lean_dec_ref(x_77);
 lean_dec(x_75);
 lean_dec(x_74);
 lean_dec(x_1);
@@ -1333,7 +1333,7 @@ if (x_93 == 0)
 {
 lean_object* x_94; lean_object* x_95; 
 lean_dec(x_79);
-lean_dec(x_77);
+lean_dec_ref(x_77);
 lean_dec(x_75);
 lean_dec(x_74);
 lean_dec(x_1);
@@ -1356,7 +1356,7 @@ if (x_99 == 0)
 lean_object* x_100; lean_object* x_101; 
 lean_dec(x_97);
 lean_dec(x_79);
-lean_dec(x_77);
+lean_dec_ref(x_77);
 lean_dec(x_75);
 lean_dec(x_74);
 lean_dec(x_1);
@@ -1509,7 +1509,7 @@ block_29:
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_18 = l_Array_append___redArg(x_9, x_17);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 lean_inc(x_6);
 lean_inc(x_15);
 x_19 = lean_alloc_ctor(1, 3, 0);
@@ -1542,9 +1542,9 @@ return x_28;
 block_68:
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
-lean_inc(x_42);
+lean_inc_ref(x_42);
 x_44 = l_Array_append___redArg(x_42, x_43);
-lean_dec(x_43);
+lean_dec_ref(x_43);
 lean_inc(x_37);
 lean_inc(x_38);
 x_45 = lean_alloc_ctor(1, 3, 0);
@@ -1644,7 +1644,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Parser___aux__Std__Tactic__BVDecide__Syntax______macroRules__Lean__Parser__command____Builtin__simproc_____x5b___x5d___x28___x29_x3a_x3d____1(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }

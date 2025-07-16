@@ -377,7 +377,7 @@ lean_dec(x_13);
 if (x_15 == 0)
 {
 lean_object* x_16; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_16 = lean_box(0);
@@ -391,7 +391,7 @@ x_17 = l_Lean_Syntax_findAux(x_1, x_2);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_18 = lean_box(0);
 lean_ctor_set(x_6, 0, x_18);
 return x_6;
@@ -433,7 +433,7 @@ lean_dec(x_27);
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_30 = lean_box(0);
@@ -449,7 +449,7 @@ x_32 = l_Lean_Syntax_findAux(x_1, x_2);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; lean_object* x_34; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_33 = lean_box(0);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_33);

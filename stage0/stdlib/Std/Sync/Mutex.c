@@ -220,12 +220,12 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = lean_box(0);
 lean_inc(x_8);
 x_10 = lean_alloc_closure((void*)(l_Std_Condvar_waitUntil___redArg___lam__0___boxed), 3, 2);
@@ -317,7 +317,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_instCoeOutMutexBaseMutex___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -428,21 +428,21 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-lean_dec(x_6);
+lean_inc_ref(x_7);
+lean_dec_ref(x_6);
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_9 = lean_ctor_get(x_4, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_4, 1);
 lean_inc(x_10);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_12 = lean_alloc_closure((void*)(l_Std_Mutex_atomically___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(x_12, 0, x_5);
 lean_closure_set(x_12, 1, x_9);
@@ -484,7 +484,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Mutex_atomically___redArg___lam__1(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -538,7 +538,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 x_10 = lean_ctor_get(x_1, 1);
 lean_inc(x_10);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_box(0);
 x_12 = lean_apply_2(x_10, lean_box(0), x_11);
 return x_12;
@@ -547,11 +547,11 @@ else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_13 = lean_ctor_get(x_1, 0);
-lean_inc(x_13);
-lean_dec(x_1);
+lean_inc_ref(x_13);
+lean_dec_ref(x_1);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_15 = lean_apply_1(x_2, x_3);
 lean_inc(x_14);
 x_16 = lean_apply_4(x_14, lean_box(0), lean_box(0), x_4, x_15);
@@ -571,15 +571,15 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_4, 1);
 lean_inc(x_9);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_10 = lean_alloc_closure((void*)(l_Std_Mutex_tryAtomically___redArg___lam__0___boxed), 1, 0);
 x_11 = lean_alloc_closure((void*)(l_Std_Mutex_tryAtomically___redArg___lam__1), 1, 0);
 lean_inc(x_2);
@@ -613,7 +613,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Mutex_tryAtomically___redArg___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -667,7 +667,7 @@ LEAN_EXPORT lean_object* l_Std_Mutex_atomicallyOnce___redArg(lean_object* x_1, l
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_8 = l_ReaderT_instMonad___redArg(x_1);
 x_9 = lean_ctor_get(x_4, 1);
 lean_inc(x_9);
@@ -687,7 +687,7 @@ x_15 = lean_alloc_closure((void*)(l_instMonadLiftTOfMonadLift___redArg___lam__0)
 lean_closure_set(x_15, 0, x_11);
 lean_closure_set(x_15, 1, x_14);
 x_16 = l_Std_Condvar_waitUntil___redArg(x_8, x_15, x_5, x_9, x_6);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_17 = lean_alloc_closure((void*)(l_ReaderT_bind), 8, 7);
 lean_closure_set(x_17, 0, lean_box(0));
 lean_closure_set(x_17, 1, lean_box(0));

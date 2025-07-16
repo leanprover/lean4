@@ -133,7 +133,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_instInhabitedExternLibConfig___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }

@@ -143,8 +143,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Elab_beqInlayHintTextEdit____x40_Lean_Elab_InfoTree_InlayHints___hyg_127_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -246,7 +246,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_InlayHint_ofCustomInfo_x3f(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -295,7 +295,7 @@ else
 uint8_t x_17; 
 lean_free_object(x_1);
 lean_dec(x_10);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_17 = !lean_is_exclusive(x_11);
 if (x_17 == 0)
 {
@@ -360,7 +360,7 @@ else
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 lean_dec(x_23);
-lean_dec(x_22);
+lean_dec_ref(x_22);
 x_30 = lean_ctor_get(x_24, 0);
 lean_inc(x_30);
 x_31 = lean_ctor_get(x_24, 1);

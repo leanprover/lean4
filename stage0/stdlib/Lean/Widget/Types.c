@@ -93,13 +93,13 @@ lean_inc(x_1);
 x_3 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_74__spec__0(x_1, x_2);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_5 = l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket___closed__1____x40_Lean_Widget_Types___hyg_74_;
 lean_inc(x_1);
 x_6 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_74__spec__0(x_1, x_5);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_8 = l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket___closed__2____x40_Lean_Widget_Types___hyg_74_;
 x_9 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_74__spec__0(x_1, x_8);
 x_10 = !lean_is_exclusive(x_9);
@@ -135,7 +135,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Json_getObjValAs_x3f___at_____private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_74__spec__0(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -217,7 +217,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l___private_Lean_Widget_Types_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_273_(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -254,7 +254,7 @@ lean_inc(x_3);
 x_4 = lean_ctor_get_uint64(x_1, sizeof(void*)*2);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_apply_1(x_5, x_2);
 x_7 = !lean_is_exclusive(x_6);
 if (x_7 == 0)
@@ -273,7 +273,7 @@ lean_ctor_set(x_15, 0, x_12);
 lean_ctor_set(x_15, 1, x_14);
 lean_ctor_set(x_15, 2, x_8);
 x_16 = l___private_Lean_Widget_Types_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_273_(x_15);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 lean_ctor_set(x_6, 0, x_16);
 return x_6;
 }
@@ -297,7 +297,7 @@ lean_ctor_set(x_25, 0, x_22);
 lean_ctor_set(x_25, 1, x_24);
 lean_ctor_set(x_25, 2, x_17);
 x_26 = l___private_Lean_Widget_Types_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_273_(x_25);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 x_27 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
 lean_ctor_set(x_27, 1, x_18);
@@ -310,7 +310,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Widget_instRpcEncodableWidgetInstance_enc___lam__0____x40_Lean_Widget_Types___hyg_3_(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -318,14 +318,14 @@ return x_3;
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at___Lean_Widget_instRpcEncodableWidgetInstance_dec____x40_Lean_Widget_Types___hyg_3__spec__0___redArg(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at___Lean_Widget_instRpcEncodableWidgetInstance_dec____x40_Lean_Widget_Types___hyg_3__spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_inc(x_2);
+lean_inc_ref(x_2);
 return x_2;
 }
 }
@@ -346,7 +346,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = l___private_Lean_Widget_Types_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_74_(x_1);
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
@@ -381,7 +381,7 @@ else
 lean_object* x_11; lean_object* x_12; 
 x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_12 = l_UInt64_fromJson_x3f(x_5);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -458,7 +458,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_MonadExcept_ofExcept___at___Lean_Widget_instRpcEncodableWidgetInstance_dec____x40_Lean_Widget_Types___hyg_3__spec__0___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -467,8 +467,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_MonadExcept_ofExcept___at___Lean_Widget_instRpcEncodableWidgetInstance_dec____x40_Lean_Widget_Types___hyg_3__spec__0(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -477,7 +477,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Widget_instRpcEncodableWidgetInstance_dec____x40_Lean_Widget_Types___hyg_3_(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }

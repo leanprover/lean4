@@ -185,7 +185,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lake_instCoePartialBuildKeyTarget___lam__0(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
@@ -202,7 +202,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_instCoePartialBuildKeyTarget___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }

@@ -130,7 +130,7 @@ x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_nat_dec_eq(x_1, x_4);
 if (x_5 == 1)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -138,7 +138,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint32_t x_11; uint8_t x_17; uint8_t x_80; uint8_t x_86; uint32_t x_92; uint8_t x_93; 
 x_6 = lean_ctor_get(x_2, 0);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_2, 1);
 lean_inc(x_7);
 if (lean_is_exclusive(x_2)) {
@@ -429,7 +429,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_dec(x_1);
 x_5 = l_String_mangle(x_4);
 if (lean_obj_tag(x_3) == 0)
@@ -443,7 +443,7 @@ x_6 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(x_3);
 x_7 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__0;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = lean_string_append(x_8, x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 return x_9;
 }
 }
@@ -460,7 +460,7 @@ x_13 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__0
 x_14 = lean_string_append(x_12, x_13);
 x_15 = l_Nat_reprFast(x_11);
 x_16 = lean_string_append(x_14, x_15);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_17 = lean_string_append(x_16, x_13);
 return x_17;
 }
@@ -473,7 +473,7 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(x_1);
 x_4 = lean_string_append(x_2, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_4;
 }
 }
@@ -493,7 +493,7 @@ x_2 = l_Lean_mkModuleInitializationFunctionName___closed__0;
 x_3 = l_String_mangle___closed__0;
 x_4 = lean_name_mangle(x_1, x_3);
 x_5 = lean_string_append(x_2, x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_5;
 }
 }

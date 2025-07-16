@@ -196,7 +196,7 @@ _start:
 {
 if (lean_obj_tag(x_3) == 0)
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -215,7 +215,7 @@ if (lean_is_exclusive(x_3)) {
  x_6 = lean_box(0);
 }
 x_25 = lean_ctor_get(x_1, 0);
-lean_inc(x_25);
+lean_inc_ref(x_25);
 lean_inc(x_4);
 x_26 = l_Lean_PersistentHashMap_find_x3f___at___Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69__spec__1___redArg(x_25, x_4);
 if (lean_obj_tag(x_26) == 0)
@@ -355,7 +355,7 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_initFn___lam__0____x40_Lean_Compiler_ClosedTermCache___hyg_69_(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_5;
 }
 }
@@ -427,7 +427,7 @@ x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
 x_5 = l_Lean_instInhabitedClosedTermCache;
 x_6 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_5, x_3, x_1, x_4);
 x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_dec(x_6);
 x_8 = l_Lean_PersistentHashMap_find_x3f___at___Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69__spec__1___redArg(x_7, x_2);
 return x_8;

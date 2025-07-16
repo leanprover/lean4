@@ -655,7 +655,7 @@ case 2:
 {
 lean_object* x_68; lean_object* x_69; lean_object* x_79; uint8_t x_80; 
 x_68 = lean_ctor_get(x_1, 0);
-lean_inc(x_68);
+lean_inc_ref(x_68);
 lean_dec(x_1);
 x_79 = lean_unsigned_to_nat(1024u);
 x_80 = lean_nat_dec_le(x_79, x_2);
@@ -1375,7 +1375,7 @@ case 2:
 {
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_ctor_get(x_1, 0);
-lean_inc(x_16);
+lean_inc_ref(x_16);
 lean_dec(x_1);
 x_17 = l_Lean_Meta_DiscrTree_instToExprKey___lam__0___closed__16;
 if (lean_obj_tag(x_16) == 0)

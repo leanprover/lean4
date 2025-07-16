@@ -102,7 +102,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Expr_isSorry(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -172,7 +172,7 @@ lean_dec(x_5);
 x_7 = l_Lean_Expr_getRevArg_x21(x_1, x_6);
 x_8 = l_Lean_Expr_isSyntheticSorry___closed__2;
 x_9 = l_Lean_Expr_isConstOf(x_7, x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 return x_9;
 }
 }
@@ -183,7 +183,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Expr_isSyntheticSorry(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -245,7 +245,7 @@ lean_dec(x_5);
 x_7 = l_Lean_Expr_getRevArg_x21(x_1, x_6);
 x_8 = l_Lean_Expr_isNonSyntheticSorry___closed__1;
 x_9 = l_Lean_Expr_isConstOf(x_7, x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 return x_9;
 }
 }
@@ -256,7 +256,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Expr_isNonSyntheticSorry(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -276,7 +276,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Expr_hasSorry___lam__0___boxed), 1, 0);
 x_3 = lean_find_expr(x_2, x_1);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -297,7 +297,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Expr_hasSorry___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -307,7 +307,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Expr_hasSorry(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -326,7 +326,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Expr_hasSyntheticSorry___lam__0___boxed), 1, 0);
 x_3 = lean_find_expr(x_2, x_1);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -347,7 +347,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Expr_hasSyntheticSorry___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -357,7 +357,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Expr_hasSyntheticSorry(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -376,7 +376,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Expr_hasNonSyntheticSorry___lam__0___boxed), 1, 0);
 x_3 = lean_find_expr(x_2, x_1);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -397,7 +397,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Expr_hasNonSyntheticSorry___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -407,7 +407,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Expr_hasNonSyntheticSorry(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -429,7 +429,7 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 lean_dec(x_4);
 x_7 = lean_box(x_2);
 lean_inc(x_1);
@@ -455,16 +455,16 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_3, 1);
 lean_inc(x_6);
 lean_dec(x_3);
 x_7 = lean_ctor_get(x_4, 1);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_dec(x_4);
 x_8 = lean_ctor_get(x_5, 2);
-lean_inc(x_8);
-lean_dec(x_5);
+lean_inc_ref(x_8);
+lean_dec_ref(x_5);
 x_9 = lean_box(x_2);
 lean_inc(x_1);
 x_10 = lean_apply_2(x_1, x_9, x_8);
@@ -494,7 +494,7 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_4, 2);
 lean_inc(x_7);
 lean_dec(x_4);
@@ -534,23 +534,23 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_dec(x_1);
 x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
-lean_dec(x_4);
+lean_inc_ref(x_5);
+lean_dec_ref(x_4);
 x_6 = lean_ctor_get(x_5, 2);
-lean_inc(x_6);
-lean_dec(x_5);
+lean_inc_ref(x_6);
+lean_dec_ref(x_5);
 x_7 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasSorry_spec__0___lam__0(x_2, x_6);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_7;
 }
 case 4:
 {
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_2;
 }
 case 5:
@@ -574,22 +574,22 @@ return x_11;
 default: 
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; uint8_t x_17; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_12 = lean_ctor_get(x_1, 0);
-lean_inc(x_12);
+lean_inc_ref(x_12);
 lean_dec(x_1);
 x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
+lean_inc_ref(x_13);
 x_14 = lean_ctor_get(x_12, 1);
-lean_inc(x_14);
-lean_dec(x_12);
+lean_inc_ref(x_14);
+lean_dec_ref(x_12);
 x_15 = lean_ctor_get(x_13, 2);
-lean_inc(x_15);
-lean_dec(x_13);
+lean_inc_ref(x_15);
+lean_dec_ref(x_13);
 x_16 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasSorry_spec__0___lam__0(x_2, x_15);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_17 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasSorry_spec__0___lam__0(x_16, x_14);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 return x_17;
 }
 }
@@ -640,7 +640,7 @@ _start:
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
 x_4 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasSorry_spec__0___lam__0(x_3, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_box(x_4);
 return x_5;
 }
@@ -688,23 +688,23 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_dec(x_1);
 x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
-lean_dec(x_4);
+lean_inc_ref(x_5);
+lean_dec_ref(x_4);
 x_6 = lean_ctor_get(x_5, 2);
-lean_inc(x_6);
-lean_dec(x_5);
+lean_inc_ref(x_6);
+lean_dec_ref(x_5);
 x_7 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasSyntheticSorry_spec__0___lam__0(x_2, x_6);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_7;
 }
 case 4:
 {
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_2;
 }
 case 5:
@@ -728,22 +728,22 @@ return x_11;
 default: 
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; uint8_t x_17; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_12 = lean_ctor_get(x_1, 0);
-lean_inc(x_12);
+lean_inc_ref(x_12);
 lean_dec(x_1);
 x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
+lean_inc_ref(x_13);
 x_14 = lean_ctor_get(x_12, 1);
-lean_inc(x_14);
-lean_dec(x_12);
+lean_inc_ref(x_14);
+lean_dec_ref(x_12);
 x_15 = lean_ctor_get(x_13, 2);
-lean_inc(x_15);
-lean_dec(x_13);
+lean_inc_ref(x_15);
+lean_dec_ref(x_13);
 x_16 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasSyntheticSorry_spec__0___lam__0(x_2, x_15);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_17 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasSyntheticSorry_spec__0___lam__0(x_16, x_14);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 return x_17;
 }
 }
@@ -764,7 +764,7 @@ _start:
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
 x_4 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasSyntheticSorry_spec__0___lam__0(x_3, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_box(x_4);
 return x_5;
 }
@@ -812,23 +812,23 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_dec(x_1);
 x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
-lean_dec(x_4);
+lean_inc_ref(x_5);
+lean_dec_ref(x_4);
 x_6 = lean_ctor_get(x_5, 2);
-lean_inc(x_6);
-lean_dec(x_5);
+lean_inc_ref(x_6);
+lean_dec_ref(x_5);
 x_7 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasNonSyntheticSorry_spec__0___lam__0(x_2, x_6);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_7;
 }
 case 4:
 {
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_2;
 }
 case 5:
@@ -852,22 +852,22 @@ return x_11;
 default: 
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; uint8_t x_17; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_12 = lean_ctor_get(x_1, 0);
-lean_inc(x_12);
+lean_inc_ref(x_12);
 lean_dec(x_1);
 x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
+lean_inc_ref(x_13);
 x_14 = lean_ctor_get(x_12, 1);
-lean_inc(x_14);
-lean_dec(x_12);
+lean_inc_ref(x_14);
+lean_dec_ref(x_12);
 x_15 = lean_ctor_get(x_13, 2);
-lean_inc(x_15);
-lean_dec(x_13);
+lean_inc_ref(x_15);
+lean_dec_ref(x_13);
 x_16 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasNonSyntheticSorry_spec__0___lam__0(x_2, x_15);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_17 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasNonSyntheticSorry_spec__0___lam__0(x_16, x_14);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 return x_17;
 }
 }
@@ -888,7 +888,7 @@ _start:
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
 x_4 = l_Lean_Declaration_foldExprM___at___Lean_Declaration_hasNonSyntheticSorry_spec__0___lam__0(x_3, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_box(x_4);
 return x_5;
 }

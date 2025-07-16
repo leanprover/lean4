@@ -533,7 +533,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Unhygienic_instMonadQuotation___lam__0(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -542,7 +542,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Unhygienic_instMonadQuotation___lam__2(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -567,7 +567,7 @@ x_3 = lean_unsigned_to_nat(2u);
 x_4 = lean_apply_2(x_1, x_2, x_3);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_5;
 }
 }
@@ -580,7 +580,7 @@ x_4 = lean_unsigned_to_nat(2u);
 x_5 = lean_apply_2(x_2, x_3, x_4);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 return x_6;
 }
 }
@@ -631,7 +631,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12;
 x_9 = l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed__2;
 x_10 = l_Nat_toSuperscriptString(x_3);
 x_11 = lean_string_append(x_9, x_10);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_12 = lean_name_append_after(x_2, x_11);
 return x_12;
 }
@@ -693,7 +693,7 @@ x_8 = l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName(x_1, x_3);
 x_9 = l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName___closed__0;
 x_10 = l_Nat_toSuperscriptString(x_7);
 x_11 = lean_string_append(x_9, x_10);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_12 = lean_name_append_after(x_8, x_11);
 return x_12;
 }
@@ -860,7 +860,7 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Option_get___at___Lean_getSanitizeNames_spec__0(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
@@ -1078,7 +1078,7 @@ x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = lean_array_uset(x_3, x_2, x_11);
 x_13 = 1;
@@ -1197,7 +1197,7 @@ x_35 = lean_ctor_get(x_34, 0);
 lean_inc(x_35);
 x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
-lean_dec(x_34);
+lean_dec_ref(x_34);
 x_3 = x_35;
 x_4 = x_36;
 goto block_8;

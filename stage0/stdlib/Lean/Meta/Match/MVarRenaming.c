@@ -249,7 +249,7 @@ return x_5;
 else
 {
 uint8_t x_6; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = !lean_is_exclusive(x_4);
 if (x_6 == 0)
 {
@@ -275,7 +275,7 @@ return x_11;
 else
 {
 lean_object* x_12; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_12 = lean_box(0);
 return x_12;
 }
@@ -289,14 +289,14 @@ x_3 = l_Lean_Expr_hasMVar(x_2);
 if (x_3 == 0)
 {
 lean_dec(x_1);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 return x_2;
 }
 else
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_inc(x_2);
+lean_inc_ref(x_2);
 return x_2;
 }
 else
@@ -305,7 +305,7 @@ lean_object* x_4; lean_object* x_5;
 x_4 = lean_alloc_closure((void*)(l_Lean_Meta_MVarRenaming_apply___lam__0___boxed), 2, 1);
 lean_closure_set(x_4, 0, x_1);
 x_5 = lean_replace_expr(x_4, x_2);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_5;
 }
 }
@@ -325,7 +325,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Meta_MVarRenaming_apply(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }

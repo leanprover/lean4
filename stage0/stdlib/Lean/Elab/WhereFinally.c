@@ -82,7 +82,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Elab_WhereFinallyView_isNone(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -147,8 +147,8 @@ if (x_9 == 0)
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 lean_dec(x_5);
 lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_20 = lean_box(0);
 x_21 = lean_apply_2(x_10, lean_box(0), x_20);
 x_22 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_21, x_11);
@@ -176,12 +176,12 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = lean_unsigned_to_nat(2u);
 x_8 = l_Lean_Syntax_getArg(x_3, x_7);
 x_9 = lean_unsigned_to_nat(0u);
@@ -200,7 +200,7 @@ x_13 = lean_alloc_closure((void*)(l_Lean_Elab_mkWhereFinallyView___redArg___lam_
 lean_closure_set(x_13, 0, x_12);
 x_14 = lean_box(x_11);
 lean_inc(x_6);
-lean_inc(x_13);
+lean_inc_ref(x_13);
 lean_inc(x_5);
 x_15 = lean_alloc_closure((void*)(l_Lean_Elab_mkWhereFinallyView___redArg___lam__3___boxed), 12, 11);
 lean_closure_set(x_15, 0, x_1);
@@ -224,7 +224,7 @@ else
 uint8_t x_19; 
 lean_dec(x_10);
 lean_dec(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_19 = !lean_is_exclusive(x_1);
 if (x_19 == 0)
 {

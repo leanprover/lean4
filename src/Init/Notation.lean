@@ -763,7 +763,7 @@ and checks that they match the contents of the docstring.
 Basic example:
 ```lean
 /--
-error: unknown identifier 'x'
+error: Unknown identifier `x`
 -/
 #guard_msgs in
 example : α := x

@@ -1998,7 +1998,7 @@ where
            isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
         throwAutoBoundImplicitLocal n
       else
-        throwUnknownIdentifierAt stx m!"unknown identifier '{Lean.mkConst n}'"
+        throwUnknownIdentifierAt stx m!"Unknown identifier `{Lean.mkConst n}`"
     mkConsts candidates explicitLevels
 
 /--

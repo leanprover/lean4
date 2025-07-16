@@ -107,7 +107,16 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       addNewRawFact h' e' (← getGeneration e) (.forallProp e)
     else
       if b.hasLooseBVars then
-        addLocalEMatchTheorems e
+        unless (← isProp a) do
+          /-
+          We used to waste a lot of time trying to process terms such as
+          ```
+          ∀ (h : i + 1 ≤ w), x.abs.getLsbD i = x.abs[i]
+          ```
+          as E-matching theorems. They are "dependent" implications, and should be handled
+          by `propagateForallPropUp`.
+          -/
+          addLocalEMatchTheorems e
       else
         unless (← alreadyInternalized b) do return ()
         if (← isEqFalse b <&&> isProp a) then

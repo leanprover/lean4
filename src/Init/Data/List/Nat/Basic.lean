@@ -238,9 +238,6 @@ theorem min?_getD_le_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) : l.min?.ge
 theorem max?_eq_some_iff' {xs : List Nat} :
     xs.max? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, b ≤ a) :=
   max?_eq_some_iff
-    (le_refl := Nat.le_refl)
-    (max_eq_or := fun _ _ => Nat.max_def .. ▸ by split <;> simp)
-    (max_le_iff := fun _ _ _ => Nat.max_le)
 
 theorem le_max?_get_of_mem {l : List Nat} {a : Nat} (h : a ∈ l) :
     a ≤ l.max?.get (isSome_max?_of_mem h) := by

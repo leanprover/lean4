@@ -6,24 +6,23 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse
-public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
-
-@[expose] public section
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.PopCount
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec` expressions (`BVExpr`).
@@ -235,8 +234,8 @@ where
           apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastClz)
           omega
         ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastClz) ..)⟩
-      | .popCnt => sorry
-        -- let res := bitblast.blastPopCnt eaig evec
+      | .popCount => sorry
+        -- let res := bitblast.blastPopCount eaig evec
         -- have := by
         --   apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastClz)
         --   omega
@@ -357,7 +356,7 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
       rw [goCache_decl_eq]
       have := (goCache aig expr cache).result.property
       omega
-    | .popCnt => sorry
+    | .popCount => sorry
   · next lhsExpr rhsExpr h =>
     have hl := (goCache aig lhsExpr cache).result.property
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property

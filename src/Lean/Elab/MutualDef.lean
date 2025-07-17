@@ -174,9 +174,9 @@ private def getPendingMVarErrorMessage (views : Array DefView) : MessageData :=
       MessageData.note "All parameter types and holes (e.g., `_`) in the header of a theorem are resolved \
         before the proof is processed; information from the proof cannot be used to infer what these values should be"
     else
-      MessageData.note "Because the resulting type of this declaration has been explicitly provided, all parameter \
-        types and holes (e.g., `_`) in the header are resolved before the declaration body is processed. \
-        Therefore, information from the declaration body cannot be used to infer what these values should be."
+      MessageData.note "Because this declaration's type has been explicitly provided, all parameter \
+        types and holes (e.g., `_`) in its header are resolved before its body is processed; \
+        information from the declaration body cannot be used to infer what these values should be"
 
 /--
 Convert terms of the form `OfNat <type> (OfNat.ofNat Nat <num> ..)` into `OfNat <type> <num>`.

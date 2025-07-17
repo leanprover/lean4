@@ -67,7 +67,7 @@ def plusTwo x : Nat :=
 ```output
 Failed to infer type of binder `x`
 
-Note: When the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
+Note: Because this declaration's type has been explicitly provided, all parameter types and holes (e.g., `_`) in its header are resolved before its body is processed; information from the declaration body cannot be used to infer what these values should be
 ```
 ```lean fixed
 def plusTwo (x : Nat) : Nat :=
@@ -88,7 +88,7 @@ example trivial_proof : True :=
 ```output
 Failed to infer type of binder `trivial_proof`
 
-Note: When the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
+Note: Because this declaration's type has been explicitly provided, all parameter types and holes (e.g., `_`) in its header are resolved before its body is processed; information from the declaration body cannot be used to infer what these values should be
 ```
 ```lean fixed
 example : True :=

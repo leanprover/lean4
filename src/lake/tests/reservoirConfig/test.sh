@@ -26,4 +26,4 @@ test_out_diff expected.json reservoir-config
 
 # Cleanup
 rm -rf .git
-rm -f produced.out
+rm -f produced*

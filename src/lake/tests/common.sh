@@ -209,7 +209,7 @@ test_maybe_err() {
   match_text "$expected" produced.out
 }
 
-check_diff() {
+check_diff_core() {
   expected=$1; actual=$2
   if diff -u --strip-trailing-cr "$expected" "$actual"; then
     cat "$actual"
@@ -220,11 +220,18 @@ check_diff() {
   fi
 }
 
+check_diff() {
+  expected=$1; actual=$2
+  cat "$actual" > produced.out
+  check_diff_core "$expected" produced.out
+}
+
 test_out_diff() {
   expected=$1; shift
+  cat "$expected" > produced.expected.out
   echo '$' lake "$@"
   if "$LAKE" "$@" >produced.out 2>&1; then rc=$?; else rc=$?; fi
-  if check_diff "$expected" produced.out; then
+  if check_diff_core produced.expected.out produced.out; then
     if [ $rc != 0 ]; then
       echo "FAILURE: Program exited with code $rc"
       return 1
@@ -239,9 +246,10 @@ test_out_diff() {
 
 test_err_diff() {
   expected=$1; shift
+  cat "$expected" > produced.expected.out
   echo '$' lake "$@"
   if "$LAKE" "$@" >produced.out 2>&1; then rc=$?; else rc=$?; fi
-  if check_diff "$expected" produced.out; then
+  if check_diff_core produced.expected.out produced.out; then
     if [ $rc != 1 ]; then
       echo "FAILURE: Lake unexpectedly succeeded"
       return 1

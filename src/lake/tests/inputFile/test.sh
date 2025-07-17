@@ -66,4 +66,4 @@ EOF
 ) -q exe test
 
 # Cleanup
-rm -f produced.out
+rm -f produced*

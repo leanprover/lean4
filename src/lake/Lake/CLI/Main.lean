@@ -48,6 +48,7 @@ structure LakeOptions where
   outLv? : Option LogLevel := .none
   ansiMode : AnsiMode := .auto
   outFormat : OutFormat := .text
+  offline : Bool := false
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -195,6 +196,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
 | "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
 | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
+| "--offline"     => modifyThe LakeOptions ({· with offline := true})
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
 | "--log-level"   => do
@@ -340,14 +342,14 @@ protected def new : CliM PUnit := do
   let opts ← getThe LakeOptions
   let name ← takeArg "package name"
   let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
-  noArgsRem do new name tmp lang (← opts.computeEnv) opts.rootDir
+  noArgsRem do new name tmp lang (← opts.computeEnv) opts.rootDir opts.offline
 
 protected def init : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let name := ← takeArgD "."
   let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
-  noArgsRem do init name tmp lang (← opts.computeEnv) opts.rootDir
+  noArgsRem do init name tmp lang (← opts.computeEnv) opts.rootDir opts.offline
 
 protected def build : CliM PUnit := do
   processOptions lakeOption

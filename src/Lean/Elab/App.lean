@@ -1667,7 +1667,7 @@ where
           return fvar
         else
           throwUnknownIdentifierAt id <| m!"Unknown identifier `{idNew}`"
-            ++ .note m!"Inferred this identifier from the expected type of `.{id}`:{indentExpr expectedType}"
+            ++ .note m!"Inferred this name from the expected resulting type of `.{id}`:{indentExpr expectedType}"
       | .sort .. =>
         throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: Not supported on type universe{indentExpr resultTypeFn}"
       | _ =>

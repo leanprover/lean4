@@ -84,18 +84,22 @@ You can use `TSyntax.getId` to extract the name from the resulting syntax object
 @[run_builtin_parser_attribute_hooks, builtin_doc] def rawIdent : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
 
-/-- The parser `hygieneInfo` parses no text, but captures the current macro scope information
-as though it parsed an identifier at the current position. It returns a `hygieneInfoKind` node
-around an `.ident` which is `Name.anonymous` but with macro scopes like a regular identifier.
+/--
+The parser `hygieneInfo` parses no text, but creates a `hygineInfoKind` node
+containing an anonymous identifier as if it were parsed at the current position.
+This identifier is modified by syntax quotations to add macro scopes like a regular identifier.
 
 This is used to implement `have := ...` syntax: the `hygieneInfo` between the `have` and `:=`
-substitutes for the identifier which would normally go there as in `have x :=`, so that we
-can expand `have :=` to `have this :=` while retaining the usual macro name resolution behavior.
+collects macro scopes, which we can apply to `this` when expanding to `have this := ...`.
 See [the language reference](lean-manual://section/macro-hygiene) for more information about
 macro hygiene.
 
-This parser has arity 1: it produces a `Syntax.ident` node containing the parsed identifier.
-You can use `TSyntax.getHygieneInfo` to extract the name from the resulting syntax object. -/
+This is also used to implement cdot functions such as `(1 + ·)`. The opening parenthesis contains
+a `hygieneInfo` node as does the cdot, which lets cdot expansion hygienically associate parentheses to cdots.
+
+This parser has arity 1: it produces a `hygieneInfoKind` node containing an anonymous `Syntax.ident`.
+You can use `HygieneInfo.mkIdent` to create an `Ident` from the syntax object,
+but you can also use `TSyntax.getHygieneInfo` to get the raw name from the identifier. -/
 @[run_builtin_parser_attribute_hooks, builtin_doc] def hygieneInfo : Parser :=
   withAntiquot (mkAntiquot "hygieneInfo" hygieneInfoKind (anonymous := false)) hygieneInfoNoAntiquot
 

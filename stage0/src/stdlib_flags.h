@@ -19,7 +19,7 @@ options get_default_options() {
     opts = opts.update({"internal", "parseQuotWithCurrentStage"}, true);
     // changes to builtin parsers may also require toggling the following option if macros/syntax
     // with custom precheck hooks were affected
-    opts = opts.update({"quotPrecheck"}, true);
+    opts = opts.update({"quotPrecheck"}, false);
 
     opts = opts.update({"pp", "rawOnError"}, true);
 #endif

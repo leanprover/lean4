@@ -83,9 +83,10 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
     addEntryFn    := fun s d => s.insert d.name d
     -- Store `meta` closure only in `.olean`, turn all other decls into opaque externs.
     -- Leave storing the remainder for `meta import` and server `#eval` to `exportIREntries` below.
-    exportEntriesFnEx? := some fun env s entries level =>
+    exportEntriesFnEx? := some fun env s entries _ =>
       let decls := entries.foldl (init := #[]) fun decls decl => decls.push decl
       let entries := sortDecls decls
+      -- Do not save all IR even in .olean.private as it will be in .ir anyway
       if env.header.isModule then
         entries.filterMap fun d => do
           if Compiler.LCNF.isDeclMeta env d.name then
@@ -116,24 +117,16 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   #[(``declMapExt, entries)]
 
 @[export lean_ir_find_env_decl]
-private def findInterpreterDecl (env : Environment) (declName : Name) : Option Decl :=
+def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    -- `meta import` and server `#eval`
+    -- `meta import/import all` and server `#eval`
+    -- This case is important even for codegen because it needs to see IR via `import all` (beause
+    -- it can also see the LCNF)
     findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
     -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
     findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
   | none => declMapExt.getState env |>.find? declName
-
-/-- Retrieves IR for codegen purposes, i.e. independent of `meta import`. -/
-def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
-  if env.header.isModule then
-    match env.getModuleIdxFor? declName with
-    | some modIdx => findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
-    | none        => declMapExt.getState env |>.find? declName
-  else
-    -- allow arbitrary access as before
-    findInterpreterDecl env declName
 
 def findDecl (n : Name) : CompilerM (Option Decl) :=
   return findEnvDecl (← getEnv) n

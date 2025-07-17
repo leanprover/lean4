@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Do.WP
-public import Std.Do.SPred
+meta import Std.Do.SPred.Notation
 
 @[expose] public section
 

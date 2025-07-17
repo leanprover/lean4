@@ -189,7 +189,7 @@ def extract (stack : SyntaxStack) (start stop : Nat) : Array Syntax :=
   stack.raw.extract (stack.drop + start) (stack.drop + stop)
 
 instance : HAppend SyntaxStack (Array Syntax) SyntaxStack where
-  hAppend stack stxs := { stack with raw := stack.raw ++ stxs }
+  hAppend stack stxs := private { stack with raw := stack.raw ++ stxs }
 
 end SyntaxStack
 
@@ -326,7 +326,7 @@ def toErrorMsg (ctx : InputContext) (s : ParserState) : String := Id.run do
 
 end ParserState
 
-def ParserFn := ParserContext → ParserState → ParserState
+@[expose] def ParserFn := ParserContext → ParserState → ParserState
 
 instance : Inhabited ParserFn where
   default := fun _ s => s

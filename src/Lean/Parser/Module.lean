@@ -9,6 +9,8 @@ prelude
 public import Lean.Message
 public import Lean.Parser.Command
 
+public section
+
 namespace Lean
 namespace Parser
 
@@ -24,8 +26,6 @@ def «import»   := leading_parser
   identWithPartialTrailingDot
 def header     := leading_parser optional (moduleTk >> ppLine >> ppLine) >>
   optional («prelude» >> ppLine) >>
-
-public section
   many («import» >> ppLine) >>
   ppLine
 

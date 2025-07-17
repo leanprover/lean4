@@ -8,8 +8,6 @@ module
 prelude
 public import Lean.DocString
 public import Lean.Elab.Command
-public import Lean.Parser.Tactic.Doc
-public import Lean.Parser.Command
 
 public section
 

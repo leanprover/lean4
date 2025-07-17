@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.MacroArgUtil
 public import Lean.Elab.AuxDef
+meta import Lean.Parser.Syntax
 
 public section
 

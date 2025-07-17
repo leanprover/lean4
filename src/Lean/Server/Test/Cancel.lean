@@ -8,6 +8,7 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Basic
+meta import Lean.Elab.Tactic.Basic
 
 public section
 

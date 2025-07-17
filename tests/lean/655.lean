@@ -1,4 +1,13 @@
+module
+
+public section
+set_option trace.Meta.isDefEq true
 structure A := a : Nat
+
+#print A.rec
+#print A.mk
+theorem t : sizeOf (A.mk a) = 1 + sizeOf a := (rfl)
+theorem t2 : sizeOf (A.mk a) = 1 + sizeOf a := rfl
 
 structure B extends A := b : Nat
 

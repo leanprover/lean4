@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Command
 public import Lean.Elab.DeclarationRange
+public meta import Lean.Parser.Command
 
 public section
 
@@ -67,7 +68,7 @@ def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := 
 
 end Term
 
-def DerivingHandler := (typeNames : Array Name) → CommandElabM Bool
+@[expose] def DerivingHandler := (typeNames : Array Name) → CommandElabM Bool
 
 builtin_initialize derivingHandlersRef : IO.Ref (NameMap (List DerivingHandler)) ← IO.mkRef {}
 

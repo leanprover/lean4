@@ -257,7 +257,7 @@ open Lean.RBNode
 
 /- TODO(Leo): define dRBMap -/
 
-def RBMap (α : Type u) (β : Type v) (cmp : α → α → Ordering) : Type (max u v) :=
+@[expose] def RBMap (α : Type u) (β : Type v) (cmp : α → α → Ordering) : Type (max u v) :=
   {t : RBNode α (fun _ => β) // t.WellFormed cmp }
 
 @[inline] def mkRBMap (α : Type u) (β : Type v) (cmp : α → α → Ordering) : RBMap α β cmp :=

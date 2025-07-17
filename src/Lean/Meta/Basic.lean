@@ -15,6 +15,8 @@ public import Lean.Util.MonadBacktrack
 public import Lean.Compiler.InlineAttrs
 public import Lean.Meta.TransparencyMode
 
+public section
+
 /-!
 This module provides four (mutually dependent) goodies that are needed for building the elaborator and tactic frameworks.
 1- Weak head normal form computation with support for metavariables and transparency modes.
@@ -310,7 +312,7 @@ structure InfoCacheKey where
   deriving Inhabited, BEq
 
 instance : Hashable InfoCacheKey where
-  hash := fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
+  hash := private fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
 
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
@@ -348,7 +350,7 @@ instance : BEq ExprConfigCacheKey where
     a.configKey == b.configKey
 
 instance : Hashable ExprConfigCacheKey where
-  hash := fun { expr, configKey } => mixHash (hash expr) (hash configKey)
+  hash := private fun { expr, configKey } => mixHash (hash expr) (hash configKey)
 
 abbrev InferTypeCache := PersistentHashMap ExprConfigCacheKey Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
@@ -362,7 +364,7 @@ structure DefEqCacheKey where
   deriving Inhabited, BEq
 
 instance : Hashable DefEqCacheKey where
-  hash := fun { lhs, rhs, configKey } => mixHash (hash lhs) <| mixHash (hash rhs) (hash configKey)
+  hash := private fun { lhs, rhs, configKey } => mixHash (hash lhs) <| mixHash (hash rhs) (hash configKey)
 
 /--
 A mapping `(s, t) ↦ isDefEq s t`.
@@ -444,12 +446,19 @@ register_builtin_option maxSynthPendingDepth : Nat := {
   descr    := "maximum number of nested `synthPending` invocations. When resolving unification constraints, pending type class problems may need to be synthesized. These type class problems may create new unification constraints that again require solving new type class problems. This option puts a threshold on how many nested problems are created."
 }
 
+structure KeyedConfig where
+  config            : Config := {}
+  private configKey : UInt64 := config.toKey
+deriving Inhabited
+
+def KeyedConfig.ofConfig (c : Config) : KeyedConfig where
+  config := c
+
 /--
   Contextual information for the `MetaM` monad.
 -/
 structure Context where
-  private config    : Config               := {}
-  private configKey : UInt64               := config.toKey
+  keyedConfig : KeyedConfig := default
   /--
   When `trackZetaDelta = true`, we track all free variables that have been zetaDelta-expanded.
   That is, suppose the local context contains
@@ -500,6 +509,10 @@ structure Context where
    This is not a great solution, but a proper solution would require a more sophisticased caching mechanism.
   -/
   inTypeClassResolution : Bool := false
+deriving Inhabited
+
+def Context.config (c : Context) : Config := c.keyedConfig.config
+def Context.configKey (c : Context) : UInt64 := c.keyedConfig.configKey
 
 /--
 The `MetaM` monad is a core component of Lean's metaprogramming framework, facilitating the
@@ -1112,13 +1125,13 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
   mapMetaM <| withReader fun ctx =>
     let config := f ctx.config
     let configKey := config.toKey
-    { ctx with config, configKey }
+    { ctx with keyedConfig := { config, configKey } }
 
 @[inline] def withConfigWithKey (c : ConfigWithKey) : n α → n α :=
   mapMetaM <| withReader fun ctx =>
     let config := c.config
     let configKey := c.key
-    { ctx with config, configKey }
+    { ctx with keyedConfig := { config, configKey } }
 
 @[inline] def withCanUnfoldPred (p : Config → ConstantInfo → CoreM Bool) : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with canUnfold? := p })
@@ -1221,7 +1234,7 @@ def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
   let config := { ctx.config with transparency }
   -- Recall that `transparency` is stored in the first 2 bits
   let configKey : UInt64 := ((ctx.configKey >>> (2 : UInt64)) <<< 2) ||| transparency.toUInt64
-  { ctx with config, configKey }
+  { ctx with keyedConfig := { config, configKey } }
 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
   -- We avoid `withConfig` for performance reasons.

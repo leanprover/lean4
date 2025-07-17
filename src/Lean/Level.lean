@@ -27,7 +27,7 @@ namespace Lean
    hasMVar   : 1-bit
    hasParam  : 1-bit
    depth     : 24-bits -/
-def Level.Data := UInt64
+@[expose] def Level.Data := UInt64
 
 instance : Inhabited Level.Data :=
   inferInstanceAs (Inhabited UInt64)
@@ -74,12 +74,12 @@ abbrev LMVarId := LevelMVarId
 instance : Repr LMVarId where
   reprPrec n p := reprPrec n.name p
 
-def LMVarIdSet := RBTree LMVarId (Name.quickCmp ·.name ·.name)
+@[expose] def LMVarIdSet := RBTree LMVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
 instance : ForIn m LMVarIdSet LMVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
 
-def LMVarIdMap (α : Type) := RBMap LMVarId α (Name.quickCmp ·.name ·.name)
+@[expose] def LMVarIdMap (α : Type) := RBMap LMVarId α (Name.quickCmp ·.name ·.name)
 
 instance : EmptyCollection (LMVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
 
@@ -131,7 +131,7 @@ def hasParam (u : Level) : Bool :=
 
 end Level
 
-def levelZero :=
+@[expose] def levelZero :=
   Level.zero
 
 def mkLevelMVar (mvarId : LMVarId) :=
@@ -140,7 +140,7 @@ def mkLevelMVar (mvarId : LMVarId) :=
 def mkLevelParam (name : Name) :=
   Level.param name
 
-def mkLevelSucc (u : Level) :=
+@[expose] def mkLevelSucc (u : Level) :=
   Level.succ u
 
 def mkLevelMax (u v : Level) :=
@@ -203,7 +203,7 @@ def isNeverZero : Level → Bool
   | max l₁ l₂    => isNeverZero l₁ || isNeverZero l₂
   | imax _  l₂   => isNeverZero l₂
 
-def ofNat : Nat → Level
+@[expose] def ofNat : Nat → Level
   | 0   => levelZero
   | n+1 => mkLevelSucc (ofNat n)
 

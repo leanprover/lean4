@@ -48,5 +48,5 @@ structure ShowMessageRequestParams where
   actions? : Option (Array MessageActionItem)
   deriving FromJson, ToJson
 
-def ShowMessageResponse := Option MessageActionItem
+@[expose] def ShowMessageResponse := Option MessageActionItem
   deriving FromJson, ToJson

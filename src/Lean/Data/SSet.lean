@@ -13,7 +13,7 @@ public section
 namespace Lean
 
 /-- Staged set. It is just a simple wrapper on top of Staged maps. -/
-def SSet (α : Type u) [BEq α] [Hashable α] := SMap α Unit
+@[expose] def SSet (α : Type u) [BEq α] [Hashable α] := SMap α Unit
 
 namespace SSet
 variable {α : Type u} [BEq α] [Hashable α]

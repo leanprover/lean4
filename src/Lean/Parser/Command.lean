@@ -133,7 +133,7 @@ def declBody : Parser :=
 -- As the pretty printer ignores `lookahead`, we need a custom parenthesizer to choose the correct
 -- precedence
 open PrettyPrinter in
-@[combinator_parenthesizer declBody] def declBody.parenthesizer : Parenthesizer :=
+@[combinator_parenthesizer declBody, expose] def declBody.parenthesizer : Parenthesizer :=
   Parenthesizer.categoryParser.parenthesizer `term 0
 
 def declValSimple    := leading_parser

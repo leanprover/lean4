@@ -14,7 +14,7 @@ public section
 namespace Lean
 namespace Xml
 
-def Attributes := RBMap String String compare
+@[expose] def Attributes := RBMap String String compare
 instance : ToString Attributes := ⟨λ as => as.fold (λ s n v => s ++ s!" {n}=\"{v}\"") ""⟩
 
 mutual

@@ -186,7 +186,7 @@ instance : FromJson RefInfo where
     pure { definition?, usages }
 
 /-- References from a single module/file -/
-def ModuleRefs := Std.TreeMap RefIdent RefInfo
+@[expose] def ModuleRefs := Std.TreeMap RefIdent RefInfo
   deriving EmptyCollection
 
 instance : ForIn m ModuleRefs (RefIdent × RefInfo) where

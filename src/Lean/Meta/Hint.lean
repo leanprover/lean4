@@ -16,6 +16,8 @@ public import Lean.Util.Diff
 public import Lean.Widget.Types
 public import Lean.PrettyPrinter
 
+public section
+
 namespace Lean.Meta.Hint
 
 open Elab Tactic PrettyPrinter TryThis

@@ -6,7 +6,7 @@ Author: Sebastian Ullrich, Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Range
+public import Init.Data.Slice
 public import Init.Data.Hashable
 public import Lean.Data.Name
 public import Lean.Data.Format
@@ -79,7 +79,7 @@ deriving instance BEq for SourceInfo
 inductive IsNode : Syntax → Prop where
   | mk (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : IsNode (Syntax.node info kind args)
 
-def SyntaxNode : Type := {s : Syntax // IsNode s }
+@[expose] def SyntaxNode : Type := {s : Syntax // IsNode s }
 
 def unreachIsNodeMissing {β} : IsNode Syntax.missing → β := nofun
 def unreachIsNodeAtom {β} {info val} : IsNode (Syntax.atom info val) → β := nofun

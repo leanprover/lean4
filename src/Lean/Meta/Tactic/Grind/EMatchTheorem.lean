@@ -277,8 +277,8 @@ private def inferEMatchProofType (proof : Expr) (gen : Bool) : MetaM Expr := do
 
 -- Configuration for the `grind` normalizer. We want both `zetaDelta` and `zeta`
 private def normConfig : Grind.Config := {}
-theorem normConfig_zeta : normConfig.zeta = true := rfl
-theorem normConfig_zetaDelta : normConfig.zetaDelta = true := rfl
+private theorem normConfig_zeta : normConfig.zeta = true := rfl
+private theorem normConfig_zetaDelta : normConfig.zetaDelta = true := rfl
 
 def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
   let pat ← instantiateMVars pat

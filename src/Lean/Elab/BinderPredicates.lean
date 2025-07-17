@@ -7,9 +7,9 @@ module
 
 prelude
 public import Init.BinderPredicates
-public import Lean.Parser.Syntax
 public import Lean.Elab.MacroArgUtil
 public import Lean.Linter.MissingDocs
+meta import Lean.Parser.Syntax
 
 public section
 

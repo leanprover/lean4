@@ -99,7 +99,7 @@ where
   `typeNew`, as these may later be synthesized to fvars which occur after `fvarId` (by e.g.
   `Term.withSynthesize` or `Term.synthesizeSyntheticMVars`) .
   -/
-abbrev _root_.Lean.MVarId.replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
+@[inline] def _root_.Lean.MVarId.replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
   replaceLocalDeclCore mvarId fvarId typeNew eqProof
 
 /--

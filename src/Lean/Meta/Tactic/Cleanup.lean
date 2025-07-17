@@ -73,7 +73,7 @@ where
   By default, `toPreserve := #[]` and `indirectProps := true`. These settings are used in the mathlib tactic `extract_goal`
   to give the user more control over which variables to include.
 -/
-abbrev _root_.Lean.MVarId.cleanup (mvarId : MVarId) (toPreserve : Array FVarId := #[]) (indirectProps : Bool := true) : MetaM MVarId := do
+@[inline] def _root_.Lean.MVarId.cleanup (mvarId : MVarId) (toPreserve : Array FVarId := #[]) (indirectProps : Bool := true) : MetaM MVarId := do
   cleanupCore mvarId toPreserve indirectProps
 
 end Lean.Meta

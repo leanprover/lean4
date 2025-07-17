@@ -10,6 +10,8 @@ public import Lean.AddDecl
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.CompletionName
 
+public section
+
 /-!
 This module produces a construction for the `noConfusionType` that is linear in size in the number of
 constructors of the inductive type. This is in contrast to the previous construction (defined in

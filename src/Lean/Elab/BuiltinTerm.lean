@@ -11,6 +11,7 @@ public import Lean.Meta.Diagnostics
 public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Lean.Elab.Eval
+meta import Lean.Parser.Command
 
 public section
 

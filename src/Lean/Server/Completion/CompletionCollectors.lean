@@ -213,7 +213,7 @@ section IdCompletionUtils
             (Name.mkStr p (s.extract 0 ⟨newLen - optDot - len⟩), newLen)
     (go id).1
 
-  def bestLabelForDecl? (ctx : ContextInfo) (declName : Name) (id : Name) (danglingDot : Bool) :
+  private def bestLabelForDecl? (ctx : ContextInfo) (declName : Name) (id : Name) (danglingDot : Bool) :
       M (Option Name) := Prod.snd <$> StateT.run (s := none) do
     let matchUsingNamespace (ns : Name) : StateT (Option Name) M Unit := do
       let some label ← matchDecl? ns id danglingDot declName
@@ -243,7 +243,7 @@ section IdCompletionUtils
       matchUsingNamespace ns
     matchUsingNamespace Name.anonymous
 
-  def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M Unit := do
+  private def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M Unit := do
     let env ← getEnv
     env.getNamespaceSet |>.forM fun ns => do
       unless ns.isInternal || env.contains ns do -- Ignore internal and namespaces that are also declaration names

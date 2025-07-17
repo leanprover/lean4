@@ -119,7 +119,7 @@ builtin_initialize registerReservedNamePredicate fun env n => Id.run do
   else
     false
 
-def GetEqnsFn := Name → MetaM (Option (Array Name))
+@[expose] def GetEqnsFn := Name → MetaM (Option (Array Name))
 
 private builtin_initialize getEqnsFnsRef : IO.Ref (List GetEqnsFn) ← IO.mkRef []
 
@@ -260,7 +260,7 @@ def generateEagerEqns (declName : Name) : MetaM Unit := do
     trace[Elab.definition.eqns] "generating eager equations for {declName}"
     let _ ← getEqnsFor?Core declName
 
-def GetUnfoldEqnFn := Name → MetaM (Option Name)
+@[expose] def GetUnfoldEqnFn := Name → MetaM (Option Name)
 
 private builtin_initialize getUnfoldEqnFnsRef : IO.Ref (List GetUnfoldEqnFn) ← IO.mkRef []
 

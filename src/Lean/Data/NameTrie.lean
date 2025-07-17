@@ -33,7 +33,7 @@ def NamePart.lt : NamePart → NamePart → Bool
   | NamePart.num _, NamePart.str _ => true
   | _, _ => false
 
-def NameTrie (β : Type u) := PrefixTree NamePart β NamePart.cmp
+@[expose] def NameTrie (β : Type u) := PrefixTree NamePart β NamePart.cmp
 
 private def toKey (n : Name) : List NamePart :=
   loop n []

@@ -68,8 +68,7 @@ deriving DecidableEq, Inhabited, Ord, Hashable
 LibrarySearch has an extension mechanism for replacing the function used
 to find candidate lemmas.
 -/
-@[reducible]
-def CandidateFinder := Expr → MetaM (Array (Name × DeclMod))
+@[reducible, expose] def CandidateFinder := Expr → MetaM (Array (Name × DeclMod))
 
 open LazyDiscrTree (InitEntry findMatches)
 
@@ -185,8 +184,7 @@ section LibrarySearch
 A library search candidate using symmetry includes the goal to solve, the metavar
 context for that goal, and the name and orientation of a rule to try using with goal.
 -/
-@[reducible]
-def Candidate :=  (MVarId × MetavarContext) × (Name × DeclMod)
+@[reducible, expose] def Candidate :=  (MVarId × MetavarContext) × (Name × DeclMod)
 
 /--
 Run `searchFn` on both the goal and `symm` applied to the goal.

@@ -81,7 +81,7 @@ private def hasInlineAttrCore (env : Environment) (kind : InlineAttributeKind) (
   | some k => kind == k
   | _ => false
 
-abbrev hasInlineAttribute (env : Environment) (declName : Name) : Bool :=
+@[inline] def hasInlineAttribute (env : Environment) (declName : Name) : Bool :=
   hasInlineAttrCore env .inline declName
 
 def hasInlineIfReduceAttribute (env : Environment) (declName : Name) : Bool :=
@@ -93,7 +93,7 @@ def hasNoInlineAttribute (env : Environment) (declName : Name) : Bool :=
 def hasMacroInlineAttribute (env : Environment) (declName : Name) : Bool :=
   hasInlineAttrCore env .macroInline declName
 
-abbrev hasAlwaysInlineAttribute (env : Environment) (declName : Name) : Bool :=
+@[inline] def hasAlwaysInlineAttribute (env : Environment) (declName : Name) : Bool :=
   hasInlineAttrCore env .alwaysInline declName
 
 end Lean.Compiler

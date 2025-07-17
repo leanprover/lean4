@@ -9,6 +9,8 @@ prelude
 public import Lean.Structure
 public import Lean.Elab.Attributes
 public import Lean.DocString.Add
+public import Lean.Parser.Command
+meta import Lean.Parser.Command
 
 public section
 

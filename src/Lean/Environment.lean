@@ -2000,7 +2000,7 @@ where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
     -- `B ≥ public`?
     let isExported := isExported && i.isExported
     let irPhases :=
-      if !isModule then .all
+      if importAll then .all
       else if isMeta || i.isMeta then .comptime
       else .runtime
     let goRec imports := do

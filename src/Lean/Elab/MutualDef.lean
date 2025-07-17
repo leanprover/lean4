@@ -1235,8 +1235,10 @@ where
   finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
     withExporting (isExporting :=
-      !headers.all (fun header =>
-        !header.modifiers.isInferredPublic env || header.modifiers.attrs.any (·.name == `no_expose)) &&
+      headers.any (fun header =>
+        header.modifiers.isInferredPublic env &&
+        !header.modifiers.isMeta &&
+        !header.modifiers.attrs.any (·.name == `no_expose)) &&
       (isExporting ||
        headers.all (fun header => (header.kind matches .abbrev | .instance)) ||
        (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||

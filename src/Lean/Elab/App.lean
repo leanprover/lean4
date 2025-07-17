@@ -51,8 +51,8 @@ def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) (validNames :
               span?
               toCodeActionTitle? := some fun s => s!"Change argument name `{namedArg.name}` to `{s}`" }
       else
-        let validNamesMsg := MessageData.andList <| validNames.map (m!"`{·}`") |>.toList
-        pure <| MessageData.hint' m!"This function has the following named parameters: {validNamesMsg}"
+        let validNamesMsg := MessageData.orList <| validNames.map (m!"`{·}`") |>.toList
+        pure <| MessageData.hint' m!"Perhaps you meant one of the following parameter names: {validNamesMsg}"
     else
       pure .nil
   let fnName := fn?.map (m!" `{.ofConstName ·}`") |>.getD .nil
@@ -238,10 +238,8 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
       for namedArg in s.namedArgs do
         let f := s.f.getAppFn
         let validNames ← getFoundNamedArgs
-        if f.isConst then
-          throwInvalidNamedArg namedArg f.constName! validNames
-        else
-          throwInvalidNamedArg namedArg none validNames
+        let fnName? := if f.isConst then some f.constName! else none
+        throwInvalidNamedArg namedArg fnName? validNames
       -- Help users see if this is actually due to an indentation mismatch/other parsing mishaps:
       let extra := if let some (arg : Arg) := s.args[0]? then
         .note m!"Expected a function because this term is being applied to the argument\

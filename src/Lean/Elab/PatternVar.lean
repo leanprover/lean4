@@ -129,16 +129,19 @@ private def throwInvalidNamedArgs (ctx : Context) (h : !ctx.namedArgs.isEmpty) :
   -- We offer hints only for the first argument
   let firstNamedArg := ctx.namedArgs[0]'h
   let replacementSpan := firstNamedArg.ref[1]
-  let suggestions := validNames.filterMap fun validName =>
-    if ctx.usedNames.contains validName then none else
-    some {
-      suggestion := validName.toString
-      span? := replacementSpan
-      preInfo? := some s!"`{validName}`: "
-      toCodeActionTitle? := some fun s => s!"Change argument name `{firstNamedArg.name}` to `{s}`"
-    }
-  let hintMsg := m!"Replace `{firstNamedArg.name}` with one of the following parameter names:"
-  let hint ← MessageData.hint (forceList := true) hintMsg suggestions
+  let unused := validNames.filter (!ctx.usedNames.contains ·)
+  let hint ← do
+    if replacementSpan.getHeadInfo matches .original .. then
+      let suggestions := unused.map fun validName =>
+        { suggestion := validName.toString
+          span? := replacementSpan
+          preInfo? := some s!"`{validName}`: "
+          toCodeActionTitle? := some fun s => s!"Change argument name `{firstNamedArg.name}` to `{s}`" }
+      let hintMsg := m!"Replace `{firstNamedArg.name}` with one of the following parameter names:"
+      MessageData.hint (forceList := true) hintMsg suggestions
+    else
+      let validNamesMsg := MessageData.orList <| unused.map (m!"`{·}`") |>.toList
+      pure <| MessageData.hint' m!"Perhaps you meant one of the following parameter names: {validNamesMsg}"
   throwError m!"Invalid argument {nameStr} {.andList names} for function `{ctx.funId}`" ++ hint
 
 private def isDone (ctx : Context) : Bool :=

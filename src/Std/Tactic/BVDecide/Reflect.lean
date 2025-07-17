@@ -126,6 +126,10 @@ theorem clz_congr (w : Nat) (x x' : BitVec w) (h : x = x') :
     BitVec.clz x' = BitVec.clz x := by
   simp [*]
 
+theorem popCnt_congr (w : Nat) (x x' : BitVec w) (h : x = x') :
+    BitVec.popCnt x' = BitVec.popCnt x := by
+  simp [*]
+
 end BitVec
 
 namespace Bool

@@ -231,7 +231,7 @@ where
           omega
         ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastClz) ..)⟩
       | .popCnt => sorry
-        -- let res := bitblast.blastClz eaig evec
+        -- let res := bitblast.blastPopCnt eaig evec
         -- have := by
         --   apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastClz)
         --   omega
@@ -347,7 +347,7 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
         · apply Nat.le_trans <;> assumption
   next op expr =>
     match op with
-    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse | .clz | .popCnt =>
+    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse | .clz  =>
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [goCache_decl_eq]
       have := (goCache aig expr cache).result.property

@@ -17,6 +17,7 @@ public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Reverse
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Clz
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.PopCount
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 
 @[expose] public section
@@ -215,15 +216,16 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
       · apply goCache_Inv_of_Inv
         apply goCache_Inv_of_Inv
         exact hinv
-  · dsimp only at hres
-    split at hres
-    all_goals
-      rw [← hres]
-      dsimp only
-      apply Cache.Inv_cast
-      · apply LawfulVecOperator.isPrefix_aig
-      · apply goCache_Inv_of_Inv
-        exact hinv
+  · sorry
+    -- dsimp only at hres
+    -- split at hres
+    -- all_goals
+    --   rw [← hres]
+    --   dsimp only
+    --   apply Cache.Inv_cast
+    --   · apply LawfulVecOperator.isPrefix_aig
+    --   · apply goCache_Inv_of_Inv
+    --     exact hinv
   · rw [← hres]
     dsimp only
     apply Cache.Inv_cast

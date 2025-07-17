@@ -288,15 +288,17 @@ private def fetchImportInfo
           }
         else
           info
+      let info := {info with
+        allTransTrace := info.allTransTrace
+          |>.mix impInfo.allTransTrace
+          |>.mix impInfo.allArtsTrace.withoutInputs
+          |>.withoutInputs
+      }
       if imp.isExported then
         {info with
           transTrace := info.transTrace
             |>.mix impInfo.transTrace
             |>.mix impInfo.artsTrace.withoutInputs
-            |>.withoutInputs
-          allTransTrace := info.allTransTrace
-            |>.mix impInfo.allTransTrace
-            |>.mix impInfo.allArtsTrace.withoutInputs
             |>.withoutInputs
         }
       else

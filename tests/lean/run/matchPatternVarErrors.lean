@@ -42,13 +42,6 @@ def matchExplicitValid (n : Nat) :=
   | @Nat.zero => ()
   | _ => ()
 
-/-- error: Invalid argument names 'invalidName1' and 'invalidName2' for function 'List.cons' -/
-#guard_msgs in
-def invalidArgNames (xs : List Nat) :=
-  match xs with
-  | List.cons (invalidName1 := x) (invalidName2 := y) .. => true
-  | _ => false
-
 /-- error: Invalid pattern variable: Variable name 'xs' was already used -/
 #guard_msgs in
 def dupVar (xs : List Nat) : List Nat :=

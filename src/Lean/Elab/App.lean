@@ -14,6 +14,7 @@ import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Arg
 import Lean.Elab.RecAppSyntax
+import Lean.Meta.Hint
 
 namespace Lean.Elab.Term
 open Meta
@@ -37,10 +38,25 @@ instance : ToString Arg where
 instance : ToString NamedArg where
   toString s := "(" ++ toString s.name ++ " := " ++ toString s.val ++ ")"
 
-def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) : TermElabM α :=
-  withRef namedArg.ref <| match fn? with
-    | some fn => throwError "invalid argument name '{namedArg.name}' for function '{fn}'"
-    | none    => throwError "invalid argument name '{namedArg.name}' for function"
+def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) (validNames : Array Name) : TermElabM α := do
+  let hint ← do
+    if validNames.size > 0 then
+      -- `namedArg.ref` is of the form: atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
+      let span? := namedArg.ref[1]
+      if span?.getHeadInfo matches .original .. then
+        MessageData.hint (forceList := true) "Perhaps you meant one of the following parameter names:" <|
+          validNames.map fun name =>
+            { suggestion := .string name.toString
+              preInfo? := some s!"`{name.toString}`: "
+              span?
+              toCodeActionTitle? := some fun s => s!"Change argument name `{namedArg.name}` to `{s}`" }
+      else
+        let validNamesMsg := MessageData.orList <| validNames.map (m!"`{·}`") |>.toList
+        pure <| MessageData.hint' m!"Perhaps you meant one of the following parameter names: {validNamesMsg}"
+    else
+      pure .nil
+  let fnName := fn?.map (m!" `{.ofConstName ·}`") |>.getD .nil
+  throwErrorAt namedArg.ref m!"Invalid argument name `{namedArg.name}` for function{fnName}" ++ hint
 
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
   try
@@ -165,6 +181,8 @@ structure State where
     See comment at `Context.resultIsOutParamSupport`
    -/
   resultTypeOutParam?  : Option MVarId := none
+  /-- Valid named arguments found while traversing the function's type. -/
+  foundNamedArgs : Array Name := #[]
 
 abbrev M := ReaderT Context (StateRefT State TermElabM)
 
@@ -196,6 +214,14 @@ def synthesizeAppInstMVars : M Unit := do
   Term.synthesizeAppInstMVars (← get).instMVars (← get).f
   modify ({ · with instMVars := #[] })
 
+/-- Record a valid named argument for the function. -/
+private def pushFoundNamedArg (name : Name) : M Unit := do
+  modify fun s => { s with foundNamedArgs := s.foundNamedArgs.push name }
+
+/-- Get the function's named arguments (which were found during elaboration). -/
+private def getFoundNamedArgs : M (Array Name) :=
+  return (← get).foundNamedArgs
+
 /-- fType may become a forallE after we synthesize pending metavariables. -/
 private def synthesizePendingAndNormalizeFunType : M Unit := do
   trySynthesizeAppInstMVars
@@ -211,10 +237,9 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
     else
       for namedArg in s.namedArgs do
         let f := s.f.getAppFn
-        if f.isConst then
-          throwInvalidNamedArg namedArg f.constName!
-        else
-          throwInvalidNamedArg namedArg none
+        let validNames ← getFoundNamedArgs
+        let fnName? := if f.isConst then some f.constName! else none
+        throwInvalidNamedArg namedArg fnName? validNames
       -- Help users see if this is actually due to an indentation mismatch/other parsing mishaps:
       let extra := if let some (arg : Arg) := s.args[0]? then
         .note m!"Expected a function because this term is being applied to the argument\
@@ -651,7 +676,7 @@ mutual
           elabAndAddNewArg argName argNew
           main
       | false, _, some _ =>
-        throwError "invalid autoParam, argument must be a constant"
+        throwError "Internal error when elaborating function application: autoParam `{argName}` is not a constant"
       | _, _, _ =>
         if (← read).ellipsis then
           addImplicitArg argName
@@ -733,6 +758,8 @@ mutual
         elabAndAddNewArg binderName namedArg.val
         main
       | none          =>
+        unless binderName.hasMacroScopes do
+          pushFoundNamedArg binderName
         match binfo with
         | .implicit       => processImplicitArg binderName
         | .instImplicit   => processInstImplicitArg binderName
@@ -1077,7 +1104,7 @@ def mkImplicitArg (argExpectedType : Expr) (bi : BinderInfo) : M Expr := do
     modify fun s => { s with instMVars := s.instMVars.push arg.mvarId! }
   return arg
 
-/-- Main loop of the `elimAsElab` procedure. -/
+/-- Main loop of the `elabAsElim` procedure. -/
 partial def main : M Expr := do
   let .forallE binderName binderType body binderInfo ← whnfForall (← get).fType |
     finalize

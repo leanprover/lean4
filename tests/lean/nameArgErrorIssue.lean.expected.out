@@ -16,5 +16,13 @@ but is expected to have type
   Nat
 in the application
   bla "hi"
-nameArgErrorIssue.lean:6:11-6:19: error: invalid argument name 'z' for function 'bla'
-nameArgErrorIssue.lean:7:11-7:19: error: invalid argument name 'z' for function 'bla'
+nameArgErrorIssue.lean:6:11-6:19: error: Invalid argument name `z` for function `bla`
+
+Hint: Perhaps you meant one of the following parameter names:
+  • `x`: z̵x̲
+  • `y`: z̵y̲
+nameArgErrorIssue.lean:7:11-7:19: error: Invalid argument name `z` for function `bla`
+
+Hint: Perhaps you meant one of the following parameter names:
+  • `x`: z̵x̲
+  • `y`: z̵y̲

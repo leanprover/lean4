@@ -372,7 +372,8 @@ private def elabPatterns (patternStxs : Array Syntax) (numDiscrs : Nat) (matchTy
           try
             liftM <| withSynthesize <| withPatternElabConfig <| elabTermEnsuringType patternStx d
           catch ex : Exception =>
-            restoreState s
+            -- Discard info trees to remove any named-argument hints (they are generated anew when re-elaborating)
+            s.restore (restoreInfo := true)
             match (← liftM <| commitIfNoErrors? <| withPatternElabConfig do elabTermAndSynthesize patternStx (← eraseIndices d)) with
             | some pattern =>
               match (← findDiscrRefinementPath pattern d |>.run) with

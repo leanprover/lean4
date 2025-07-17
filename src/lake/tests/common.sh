@@ -13,7 +13,7 @@ echo "OS=$OS"
 UNAME="`uname`"
 echo "UNAME=$UNAME"
 
-if [ "${OS:-}" = Windows_NT ]; then
+if [ "$OS" = Windows_NT ]; then
 LIB_PREFIX=
 SHARED_LIB_EXT=dll
 elif [ "$UNAME" = Darwin ]; then
@@ -30,6 +30,12 @@ if [ "$UNAME" = Darwin ] || [ "$UNAME" = FreeBSD ]; then
 else
   sed_i() { sed -i "$@"; }
   TAIL=tail
+fi
+
+if [ "$OS" = Windows_NT ]; then
+  norm_dirname() { cygpath -u "$(dirname -- "$1")";  }
+else
+  norm_dirname() { dirname -- "$1"; }
 fi
 
 # Test functions

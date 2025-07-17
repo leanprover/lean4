@@ -9,35 +9,35 @@ import Lean.ErrorExplanation
 /--
 This error occurs when the type of a definition is not fully specified and Lean is unable to infer
 the type from the available information. If the definition has parameters, this error refers only to
-the resulting type following the colon (the error
-[`lean.inferBinderTypeFailed`](lean-manual://errorExplanation/lean.inferBinderTypeFailed) appears if
-the type of a parameter cannot be inferred).
+the resulting type after the colon (the error
+[`lean.inferBinderTypeFailed`](lean-manual://errorExplanation/lean.inferBinderTypeFailed) indicates
+that a parameter type could not be inferred).
 
-To resolve this error, provide additional type information in the definition. Straightforwardly,
-this can be done by providing an explicit resulting type after the colon in the definition header.
-Alternatively, if an explicit resulting type is not provided, adding further type information to the
-body of the definition—such as by specifying implicit type arguments or giving explicit types to
-`let` binders—may allow Lean to infer the type of the definition. Look for type inference or
-implicit argument synthesis errors that arise alongside this one to identify ambiguities that may be
-contributing to this error.
+To resolve this error, provide additional type information in the definition. This can be done
+straightforwardly by providing an explicit resulting type after the colon in the definition
+header. Alternatively, if an explicit resulting type is not provided, adding further type
+information to the definition's body—such as by specifying implicit type arguments or giving
+explicit types to `let` binders—may allow Lean to infer the type of the definition. Look for type
+inference or implicit argument synthesis errors that arise alongside this one to identify
+ambiguities that may be contributing to this error.
 
 Note that when an explicit resulting type is provided—even if that type contains holes—Lean will not
 use information from the definition body to help infer the type of the definition or its parameters.
 Thus, adding an explicit resulting type may also necessitate adding type annotations to parameters
-whose types were previously inferrable. Additionally, it is always necessary to fully specify the
-type of a `theorem`: the `theorem` declaration syntax requires a type annotation, and the elaborator
+whose types were previously inferrable. Additionally, it is always necessary to provide an explicit
+type in a `theorem` declaration: the `theorem` syntax requires a type annotation, and the elaborator
 will never attempt to use the theorem body to infer the proposition being proved.
 
 # Examples
 
-## Missing uninferrable implicit argument
+## Implicit argument cannot be inferred
 
 ```lean broken
 def emptyNats :=
   []
 ```
 ```output
-failed to infer type of `emptyNats`
+Failed to infer type of `emptyNats`
 ```
 
 ```lean fixed (title := "Fixed (type annotation)")
@@ -77,6 +77,6 @@ explicitly specifying the type of `x`—provides Lean with sufficient informatio
 definition type.
 -/
 register_error_explanation lean.inferDefTypeFailed {
-  summary := "The type of a definition was not fully provided and could not be inferred."
+  summary := "The type of a definition could not be inferred."
   sinceVersion := "4.23.0"
 }

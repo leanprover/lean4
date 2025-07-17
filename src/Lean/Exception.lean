@@ -77,7 +77,7 @@ Tag used for `unknown identifier` messages.
 This tag is used by the 'import unknown identifier' code action to detect messages that should
 prompt the code action.
 -/
-def unknownIdentifierMessageTag : Name := `unknownIdentifier
+def unknownIdentifierMessageTag : Name := kindOfErrorName `lean.unknownIdentifier
 
 /-- Throw an error exception using the given message data and reference syntax. -/
 protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : MessageData) : m α := do

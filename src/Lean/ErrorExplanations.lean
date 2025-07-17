@@ -10,3 +10,4 @@ import Lean.ErrorExplanations.InductiveParamMismatch
 import Lean.ErrorExplanations.InductiveParamMissing
 import Lean.ErrorExplanations.InvalidDottedIdent
 import Lean.ErrorExplanations.RedundantMatchAlt
+import Lean.ErrorExplanations.UnknownIdentifier

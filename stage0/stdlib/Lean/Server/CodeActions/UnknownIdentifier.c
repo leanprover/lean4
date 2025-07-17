@@ -67,7 +67,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_waitUnknownIdentifierRanges(le
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__2___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJsonLeanQueryModuleResponse____x40_Lean_Data_Lsp_Internal___hyg_4111_(lean_object*);
 lean_object* l_Lean_Language_SnapshotTree_getAll(lean_object*);
 lean_object* l_Lean_Server_RequestM_findCmdParsedSnap(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleUnknownIdentifierCodeAction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -117,7 +116,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleUnknownIdentifierCodeAction___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_computeDotIdQuery_x3f___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_toJsonCodeActionResolveData____x40_Lean_Server_CodeActions_Basic___hyg_70_(lean_object*);
 static lean_object* l_Lean_Server_RequestM_sendServerRequest___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__1___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__1_spec__1___redArg(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -130,6 +128,7 @@ LEAN_EXPORT uint8_t l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_lo
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__0;
 lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_Command_runLintersAsync_spec__2(size_t, size_t, lean_object*);
+lean_object* l_Lean_Server_toJsonCodeActionResolveData____x40_Lean_Server_CodeActions_Basic___hyg_70_(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__2___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__0_spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -140,6 +139,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Server_FileWorker_co
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Server_FileWorker_waitUnknownIdentifierRanges_spec__0_spec__0___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleUnknownIdentifierCodeAction___lam__1(lean_object*);
+lean_object* l_Lean_Lsp_toJsonLeanQueryModuleParams____x40_Lean_Data_Lsp_Internal___hyg_3792_(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleUnknownIdentifierCodeAction_spec__2___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_handleResolveImportAllUnknownIdentifiersCodeAction_x3f_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___lam__1___closed__0;
@@ -174,6 +174,7 @@ static lean_object* l_Lean_Server_RequestM_sendServerRequest___at___Lean_Server_
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 lean_object* l_Lean_Name_getString_x21(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges___closed__1;
+lean_object* l_Lean_Lsp_fromJsonLeanQueryModuleResponse____x40_Lean_Data_Lsp_Internal___hyg_4111_(lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_mk(lean_object*);
 lean_object* l_Lean_Server_Completion_findPrioritizedCompletionPartitionsAt(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -190,7 +191,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_waitAllUnknownIdentifierRanges
 lean_object* l_Lean_Language_SnapshotTask_map___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Server_FileWorker_importAllUnknownIdentifiersCodeAction___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_computeDotIdQuery_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_toJsonLeanQueryModuleParams____x40_Lean_Data_Lsp_Internal___hyg_3792_(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_computeQueries_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_waitUnknownIdentifierRanges___lam__0___boxed(lean_object*);
@@ -5069,7 +5069,7 @@ x_12 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_12, 0, x_1);
 lean_ctor_set(x_12, 1, x_10);
 lean_ctor_set(x_12, 2, x_11);
-x_13 = l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_toJsonCodeActionResolveData____x40_Lean_Server_CodeActions_Basic___hyg_70_(x_12);
+x_13 = l_Lean_Server_toJsonCodeActionResolveData____x40_Lean_Server_CodeActions_Basic___hyg_70_(x_12);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
 x_15 = lean_alloc_ctor(0, 10, 0);
@@ -5141,7 +5141,7 @@ if (x_2 == 0)
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
-x_4 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJsonLeanQueryModuleResponse____x40_Lean_Data_Lsp_Internal___hyg_4111_(x_3);
+x_4 = l_Lean_Lsp_fromJsonLeanQueryModuleResponse____x40_Lean_Data_Lsp_Internal___hyg_4111_(x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
@@ -5181,7 +5181,7 @@ x_15 = lean_ctor_get(x_1, 0);
 lean_inc(x_15);
 lean_dec(x_1);
 lean_inc(x_15);
-x_16 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJsonLeanQueryModuleResponse____x40_Lean_Data_Lsp_Internal___hyg_4111_(x_15);
+x_16 = l_Lean_Lsp_fromJsonLeanQueryModuleResponse____x40_Lean_Data_Lsp_Internal___hyg_4111_(x_15);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -5245,7 +5245,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_5 = lean_ctor_get(x_3, 5);
 lean_inc(x_5);
 lean_dec_ref(x_3);
-x_6 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_toJsonLeanQueryModuleParams____x40_Lean_Data_Lsp_Internal___hyg_3792_(x_2);
+x_6 = l_Lean_Lsp_toJsonLeanQueryModuleParams____x40_Lean_Data_Lsp_Internal___hyg_3792_(x_2);
 x_7 = lean_apply_3(x_5, x_1, x_6, x_4);
 x_8 = !lean_is_exclusive(x_7);
 if (x_8 == 0)

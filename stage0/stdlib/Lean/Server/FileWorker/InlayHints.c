@@ -25,6 +25,7 @@ lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleInlayHints___lam__0(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_panic___at___Lean_Server_FileWorker_handleInlayHints_spec__0___closed__0;
+lean_object* l_Lean_Lsp_toJsonInlayHint____x40_Lean_Data_Lsp_LanguageFeatures___hyg_13050_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Server_FileWorker_applyEditToHint_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__0___redArg___lam__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_instMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -106,6 +107,7 @@ static lean_object* l_Lean_Server_FileWorker_handleInlayHints___closed__13;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Array_contains___at___Lean_Server_FileWorker_handleInlayHintsDidChange_determineLastEditTimestamp_x3f_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at_____private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__0_spec__4___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Lsp_fromJsonInlayHintParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_11727_(lean_object*);
 static lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__0___redArg___closed__3;
 uint8_t l_String_Range_overlaps(lean_object*, lean_object*, uint8_t, uint8_t);
 lean_object* l_Lean_Server_documentUriFromModule_x3f(lean_object*, lean_object*);
@@ -173,7 +175,6 @@ lean_object* l_StateT_bind(lean_object*, lean_object*, lean_object*, lean_object
 LEAN_EXPORT uint8_t l_Array_contains___at___Lean_Server_FileWorker_handleInlayHintsDidChange_determineLastEditTimestamp_x3f_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at___Lean_Server_FileWorker_handleInlayHints_spec__7___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_RequestCancellationToken_cancellationTasks(lean_object*);
-lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonInlayHint____x40_Lean_Data_Lsp_LanguageFeatures___hyg_13050_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_InlayHintState_init___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__0___redArg___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -279,7 +280,6 @@ lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_ob
 lean_object* l_Lean_Server_Snapshots_Snapshot_endPos(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleInlayHints___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleInlayHintsDidChange_determineLastEditTimestamp_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_fromJsonInlayHintParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_11727_(lean_object*);
 lean_object* l_instDecidableEqString___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_toList___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_InlayHintLabel_toLspInlayHintLabel_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6207,7 +6207,7 @@ _start:
 {
 lean_object* x_2; 
 lean_inc(x_1);
-x_2 = l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_fromJsonInlayHintParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_11727_(x_1);
+x_2 = l_Lean_Lsp_fromJsonInlayHintParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_11727_(x_1);
 if (lean_obj_tag(x_2) == 0)
 {
 uint8_t x_3; 
@@ -6309,7 +6309,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x
 x_5 = lean_array_uget(x_3, x_2);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
-x_8 = l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonInlayHint____x40_Lean_Data_Lsp_LanguageFeatures___hyg_13050_(x_5);
+x_8 = l_Lean_Lsp_toJsonInlayHint____x40_Lean_Data_Lsp_LanguageFeatures___hyg_13050_(x_5);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);
 x_11 = lean_array_uset(x_7, x_2, x_8);

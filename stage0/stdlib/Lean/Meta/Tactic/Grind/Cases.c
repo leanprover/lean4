@@ -62,12 +62,14 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Cases_0__Lean_Meta_Grind_
 lean_object* l_Lean_PersistentHashMap_insert___at___Lean_MetavarContext_addExprMVarDecl_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_CasesTypes_eraseDecl___closed__1;
 lean_object* l_Lean_mkCasesOnName(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__2____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197____boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isBuiltinEagerCases(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Cases_0__Lean_Meta_Grind_builtinEagerCases;
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_resetCasesExt___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_CasesTypes_isEagerSplit(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__1____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197____boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__2____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__1____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instInhabitedCasesEntry;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getCasesTypes(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -118,7 +120,7 @@ static lean_object* l_Lean_Meta_Grind_validateCasesAttr___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__0____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_(lean_object*, lean_object*);
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_cases_spec__0___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_resetCasesExt(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__1____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__1____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_(uint8_t, lean_object*);
 lean_object* l_Lean_MVarId_assert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_validateCasesAttr___closed__2;
 static lean_object* l_Lean_Meta_Grind_initFn___closed__1____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_;
@@ -612,7 +614,16 @@ x_6 = l_Lean_PersistentHashMap_insert___at___Lean_MetavarContext_addExprMVarDecl
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__1____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__1____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_(uint8_t x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__2____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_(lean_object* x_1) {
 _start:
 {
 lean_inc_ref(x_1);
@@ -666,25 +677,36 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_initFn___lam__0____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_), 2, 0);
-x_3 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_initFn___lam__1____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197____boxed), 1, 0);
-x_4 = l_Lean_Meta_Grind_initFn___closed__4____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_;
-x_5 = l_Lean_Meta_Grind_instInhabitedCasesTypes___closed__1;
-x_6 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_6, 0, x_4);
-lean_ctor_set(x_6, 1, x_2);
-lean_ctor_set(x_6, 2, x_5);
-lean_ctor_set(x_6, 3, x_3);
-x_7 = l_Lean_registerSimpleScopedEnvExtension___redArg(x_6, x_1);
-return x_7;
+x_3 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_initFn___lam__1____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197____boxed), 2, 0);
+x_4 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_initFn___lam__2____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197____boxed), 1, 0);
+x_5 = l_Lean_Meta_Grind_initFn___closed__4____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_;
+x_6 = l_Lean_Meta_Grind_instInhabitedCasesTypes___closed__1;
+x_7 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_7, 0, x_5);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_6);
+lean_ctor_set(x_7, 3, x_4);
+lean_ctor_set(x_7, 4, x_3);
+x_8 = l_Lean_registerSimpleScopedEnvExtension___redArg(x_7, x_1);
+return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__1____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__1____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197____boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_unbox(x_1);
+x_4 = l_Lean_Meta_Grind_initFn___lam__1____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_(x_3, x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn___lam__2____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197____boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Meta_Grind_initFn___lam__1____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_(x_1);
+x_2 = l_Lean_Meta_Grind_initFn___lam__2____x40_Lean_Meta_Tactic_Grind_Cases___hyg_197_(x_1);
 lean_dec_ref(x_1);
 return x_2;
 }

@@ -28,7 +28,6 @@ static lean_object* l_Lean_OptionDecl_declName___autoParam___closed__21;
 LEAN_EXPORT uint8_t l_Lean_Options_getInPattern(lean_object*);
 static lean_object* l_Lean_registerOption___closed__1;
 uint8_t l_Lean_NameMap_contains___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_156_(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_registerOption___lam__0(lean_object*);
 static lean_object* l_Lean_instForInOptionsProdNameDataValue___closed__0;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
@@ -123,6 +122,7 @@ LEAN_EXPORT lean_object* l_Lean_getBoolOption___redArg(lean_object*, lean_object
 static lean_object* l_Lean_Option_registerOption___closed__4;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__10;
+LEAN_EXPORT lean_object* l___private_Lean_Data_Options_0__Lean_initFn____x40_Lean_Data_Options___hyg_156_(lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Lean_Data_Options___hyg_1109_;
 lean_object* l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__14;
@@ -637,7 +637,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_156_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Data_Options_0__Lean_initFn____x40_Lean_Data_Options___hyg_156_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
@@ -3094,7 +3094,7 @@ l_Lean_instInhabitedOptionDecl = _init_l_Lean_instInhabitedOptionDecl();
 lean_mark_persistent(l_Lean_instInhabitedOptionDecl);
 l_Lean_instInhabitedOptionDecls = _init_l_Lean_instInhabitedOptionDecls();
 lean_mark_persistent(l_Lean_instInhabitedOptionDecls);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Data_Options___hyg_156_(lean_io_mk_world());
+if (builtin) {res = l___private_Lean_Data_Options_0__Lean_initFn____x40_Lean_Data_Options___hyg_156_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l___private_Lean_Data_Options_0__Lean_optionDeclsRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_Data_Options_0__Lean_optionDeclsRef);

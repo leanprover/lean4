@@ -6,6 +6,8 @@ import Init.SimpLemmas
 import Init.Data.Subtype
 import Init.Classical
 
+-- TODO: Try to get rid of cyclic dependency by removing subtype instances from here
+
 public class OrderData (α : Type u) where
   IsLE : α → α → Prop
 
@@ -140,6 +142,13 @@ public instance {α : Type u} {_ : LT α} [OrderData α] [LawfulOrderLT α]
     open Classical.Order in
     simp only [not_lt] at hab hbc ⊢
     exact le_trans hbc hab
+
+public instance {α : Type u} {_ : LT α} [OrderData α] [LawfulOrderLT α]
+    [open Classical.Order in Std.Total (α := α) (· ≤ ·)] :
+    Std.Total (α := α) (¬ · < ·) where
+  total a b := by
+    open Classical.Order in
+    simp [not_lt, Std.Total.total]
 
 public theorem lt_of_le_of_lt {α : Type u} [LE α] [LT α] [OrderData α]
     [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]

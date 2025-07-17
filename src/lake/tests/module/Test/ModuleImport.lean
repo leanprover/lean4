@@ -1,3 +1,3 @@
 module
 
-import Test.Generated.Module
+public import Test.Generated.Module

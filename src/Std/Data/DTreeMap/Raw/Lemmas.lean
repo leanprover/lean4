@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Internal.Lemmas
-import Std.Data.DTreeMap.Raw.Basic
-import Std.Data.DTreeMap.Raw.AdditionalOperations
+public import Std.Data.DTreeMap.Internal.Lemmas
+public import Std.Data.DTreeMap.Raw.Basic
+public import Std.Data.DTreeMap.Raw.AdditionalOperations
+
+@[expose] public section
 
 /-!
 # Dependent tree map lemmas
@@ -26,7 +30,7 @@ universe u v w w'
 namespace Std.DTreeMap.Raw
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering} {t : DTreeMap.Raw α β cmp}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 private theorem ext {t t' : Raw α β cmp} : t.inner = t'.inner → t = t' := by
   cases t; cases t'; rintro rfl; rfl

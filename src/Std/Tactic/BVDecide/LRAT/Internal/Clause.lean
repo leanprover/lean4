@@ -3,14 +3,18 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Init.Data.List.Erase
-import Init.Data.Array.Lemmas
-import Std.Data.HashMap
-import Std.Sat.CNF.Basic
-import Std.Tactic.BVDecide.LRAT.Internal.PosFin
-import Std.Tactic.BVDecide.LRAT.Internal.Assignment
-import Init.Grind
+public import Init.Data.List.Erase
+public import Init.Data.Array.Lemmas
+public import Std.Data.HashMap
+public import Std.Sat.CNF.Basic
+public import Std.Tactic.BVDecide.LRAT.Internal.PosFin
+public import Std.Tactic.BVDecide.LRAT.Internal.Assignment
+public import Init.Grind
+
+@[expose] public section
 
 namespace Std.Tactic.BVDecide
 namespace LRAT

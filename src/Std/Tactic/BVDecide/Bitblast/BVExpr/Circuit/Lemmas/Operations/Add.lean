@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.BitVec.Bitblast
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
+public import Init.Data.BitVec.Bitblast
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
+
+@[expose] public section
 
 /-!
 This module contains the verification of the `BitVec.add` bitblaster from `Impl.Operations.Add`.
@@ -42,7 +46,7 @@ theorem denote_mkFullAdderCarry (assign : α → Bool) (aig : AIG α) (input : F
        ⟦aig, input.lhs, assign⟧ && ⟦aig, input.rhs, assign⟧)
     := by
   simp only [mkFullAdderCarry, Ref.cast_eq, denote_mkOrCached,
-    LawfulOperator.denote_input_entry, denote_mkAndCached, 
+    LawfulOperator.denote_input_entry, denote_mkAndCached,
     denote_mkXorCached, denote_projected_entry]
   congr 2
   · rw [LawfulOperator.denote_mem_prefix (f := mkXorCached) (h := input.cin.hgate)]

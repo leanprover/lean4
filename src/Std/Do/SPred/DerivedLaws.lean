@@ -3,9 +3,13 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Init.ByCases
-import Std.Do.SPred.Laws
+public import Init.ByCases
+public import Std.Do.SPred.Laws
+
+@[expose] public section
 
 /-!
 # Derived laws of `SPred`

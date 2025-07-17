@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Std.Do.PredTrans
+public import Std.Do.PredTrans
+
+@[expose] public section
 
 /-!
 # Weakest precondition interpretation
@@ -55,7 +59,7 @@ macro_rules
   | `(wp⟦$x:term : $ty⟧) => `((WP.wp ($x : $ty)).apply)
 
 @[app_unexpander PredTrans.apply]
-protected def unexpandWP : Lean.PrettyPrinter.Unexpander
+protected meta def unexpandWP : Lean.PrettyPrinter.Unexpander
   | `($_ $e) => match e with
     | `(wp ($x : $ty)) => `(wp⟦$x : $ty⟧)
     | `(wp $e) => `(wp⟦$e⟧)

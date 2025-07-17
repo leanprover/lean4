@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Init.Ext
-import Std.Do.SPred.SVal
+public import Init.Ext
+public import Std.Do.SPred.SVal
+
+@[expose] public section
 
 /-!
 # State-indexed predicates
@@ -30,7 +34,7 @@ universe u
 variable {σs : List (Type u)}
 
 /-- A pure proposition `P : Prop` embedded into `SPred`. For internal use in this module only; prefer to use idiom bracket notation `⌜P⌝. -/
-private abbrev pure (P : Prop) : SPred σs := SVal.curry (fun _ => ⟨P⟩)
+abbrev pure (P : Prop) : SPred σs := SVal.curry (fun _ => ⟨P⟩)
 
 @[ext]
 theorem ext_nil {P Q : SPred []} (h : P.down ↔ Q.down) : P = Q := by

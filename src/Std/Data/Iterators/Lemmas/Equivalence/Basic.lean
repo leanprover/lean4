@@ -3,14 +3,18 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Control.Lawful.Basic
-import Init.Ext
-import Init.Internal.Order
-import Init.Core
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.PostconditionMonad
-import Std.Data.Iterators.Lemmas.Equivalence.HetT
+public import Init.Control.Lawful.Basic
+public import Init.Ext
+public import Init.Internal.Order
+public import Init.Core
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.PostconditionMonad
+public import Std.Data.Iterators.Lemmas.Equivalence.HetT
+
+@[expose] public section
 
 namespace Std.Iterators
 

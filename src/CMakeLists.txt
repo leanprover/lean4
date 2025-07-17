@@ -533,11 +533,20 @@ else()
         OUTPUT_VARIABLE GIT_SHA1
         OUTPUT_STRIP_TRAILING_WHITESPACE)
     message(STATUS "stage0 sha1: ${GIT_SHA1}")
+    # Now that we've prepared the information for the next stage, we can forget that we will use
+    # Lake in the future as we won't use it in this stage
+    set(USE_LAKE OFF)
   else()
     set(GIT_SHA1 "")
   endif()
 endif()
 configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
+
+if(USE_LAKE AND ${STAGE} EQUAL 0)
+  # Now that we've prepared the information for the next stage, we can forget that we will use
+  # Lake in the future as we won't use it in this stage
+  set(USE_LAKE OFF)
+endif()
 
 # Windows uses ";" as a path separator. We use `LEAN_PATH_SEPARATOR` on scripts such as lean.mk.in
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -838,6 +847,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(LAKE_LIB_PREFIX "lib")
 endif()
 
-if(USE_LAKE AND STAGE EQUAL 1)
-  configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/lakefile.toml)
+if(USE_LAKE)
+  configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${CMAKE_BINARY_DIR}/lakefile.toml)
+  # copy for editing
+  if(STAGE EQUAL 1)
+    configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/lakefile.toml)
+  endif()
 endif()

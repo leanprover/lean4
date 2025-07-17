@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.List.Lemmas
 public import Init.Data.List.Nat.TakeDrop
+public import Std.Classes.Ord.New.Factories
 
 public section
 
@@ -17,6 +18,13 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 namespace List
 
 /-! ### Lexicographic ordering -/
+
+instance [LT α] : OrderData (List α) := .ofLE (List α)
+
+instance [LT α] [Std.Asymm (α := List α) (· < ·)]: LawfulOrderLT (List α) where
+  lt_iff := by
+    simp only [← LawfulOrderLE.le_iff, LE.le, List.le, Classical.not_not, iff_and_self]
+    apply Std.Asymm.asymm
 
 @[simp] theorem lex_lt [LT α] {l₁ l₂ : List α} : Lex (· < ·) l₁ l₂ ↔ l₁ < l₂ := Iff.rfl
 @[simp] theorem not_lex_lt [LT α] {l₁ l₂ : List α} : ¬ Lex (· < ·) l₁ l₂ ↔ l₂ ≤ l₁ := Iff.rfl
@@ -115,6 +123,11 @@ theorem not_lt_of_cons_le_cons [LT α]
   · exact i₁.asymm _ _ h
   · exact i₀.irrefl _
 
+theorem left_le_left_of_cons_le_cons [LT α] [LE α] [OrderData α] [LinearOrder α]
+    [LawfulOrderLT α] [LawfulOrderLE α]
+    {a b : α} {l₁ l₂ : List α} (h : a :: l₁ ≤ b :: l₂) : a ≤ b := by
+  simpa [not_lt] using not_lt_of_cons_le_cons h
+
 theorem le_of_cons_le_cons [LT α]
     [i₀ : Std.Irrefl (· < · : α → α → Prop)]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
@@ -165,12 +178,38 @@ instance [LT α] [Trans (· < · : α → α → Prop) (· < ·) (· < ·)] :
 
 
 
-protected theorem lt_of_le_of_lt [LT α]
+protected theorem lt_of_le_of_lt [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α]
+    {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
+  open Classical.Order in
+  induction h₂ generalizing l₁ with
+  | nil => simp_all
+  | rel hab =>
+    rename_i a xs
+    cases l₁ with
+    | nil => simp_all
+    | cons c l₁ =>
+      apply Lex.rel
+      replace h₁ := left_le_left_of_cons_le_cons h₁
+      exact lt_of_le_of_lt h₁ hab
+  | cons w₃ ih =>
+    rename_i a as bs
+    cases l₁ with
+    | nil => simp_all
+    | cons c l₁ =>
+      have w₄ := not_lt_of_cons_le_cons h₁
+      by_cases w₅ : a = c
+      · subst w₅
+        exact Lex.cons (ih (le_of_cons_le_cons h₁))
+      · simp only [not_lt] at w₄
+        exact Lex.rel (lt_of_le_of_ne w₄ (w₅.imp Eq.symm))
+
+protected theorem lt_of_le_of_lt_legacy [LT α]
     [i₀ : Std.Irrefl (· < · : α → α → Prop)]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
     [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
     [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
+  -- TODO: implement using `lt_of_le_of_lt`
   induction h₂ generalizing l₁ with
   | nil => simp_all
   | rel hab =>
@@ -195,21 +234,28 @@ protected theorem lt_of_le_of_lt [LT α]
         exact Lex.cons (ih (le_of_cons_le_cons h₁))
       · exact Lex.rel (Classical.byContradiction fun w₆ => w₅ (i₂.antisymm _ _ w₄ w₆))
 
-protected theorem le_trans [LT α]
+protected theorem le_trans [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α]
+    {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
+  fun h₃ => h₁ (List.lt_of_le_of_lt h₂ h₃)
+
+protected theorem le_trans_legacy [LT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
-  fun h₃ => h₁ (List.lt_of_le_of_lt h₂ h₃)
+  fun h₃ => h₁ (List.lt_of_le_of_lt_legacy h₂ h₃)
 
+/--
+This also triggers for `LinearOrder`
+-/
 instance [LT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)] :
     Trans (· ≤ · : List α → List α → Prop) (· ≤ ·) (· ≤ ·) where
-  trans h₁ h₂ := List.le_trans h₁ h₂
+  trans h₁ h₂ := List.le_trans_legacy h₁ h₂
 
 theorem lex_asymm {r : α → α → Prop}
     (h : ∀ {x y : α}, r x y → ¬ r y x) : ∀ {l₁ l₂ : List α}, Lex r l₁ l₂ → ¬ Lex r l₂ l₁
@@ -250,10 +296,36 @@ protected theorem le_total [LT α]
     [i : Std.Total (¬ · < · : α → α → Prop)] (l₁ l₂ : List α) : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
   not_lex_total i.total l₂ l₁
 
+protected theorem le_total' [LT α]
+    [i : Std.Asymm (· < · : α → α → Prop)] (l₁ l₂ : List α) : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
+  haveI : Std.Total (¬ · < · : α → α → Prop) := by
+    refine ⟨fun a b => ?_⟩
+    by_cases hab : a < b
+    · exact Or.inr (i.asymm _ _ hab)
+    · exact Or.inl hab
+  List.le_total l₁ l₂
+
 instance [LT α]
     [Std.Total (¬ · < · : α → α → Prop)] :
     Std.Total (· ≤ · : List α → List α → Prop) where
   total := List.le_total
+
+instance [LT α]
+    [i : Std.Asymm (· < · : α → α → Prop)] :
+  Std.Total (· ≤ · : List α → List α → Prop) :=
+  haveI : Std.Total (¬ · < · : α → α → Prop) := by
+    refine ⟨fun a b => ?_⟩
+    by_cases hab : a < b
+    · exact Or.inr (i.asymm _ _ hab)
+    · exact Or.inl hab
+  inferInstance
+
+instance [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α] : LinearOrder (List α) := by
+  apply LinearOrder.ofLE
+  case le_refl => apply List.le_refl
+  case le_antisymm => apply le_antisymm
+  case le_trans => apply le_trans
+  case le_total => apply le_total
 
 @[simp] protected theorem not_lt [LT α]
     {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
@@ -262,6 +334,7 @@ instance [LT α]
     {l₁ l₂ : List α} : ¬ l₂ ≤ l₁ ↔ l₁ < l₂ := Classical.not_not
 
 protected theorem le_of_lt [LT α]
+    -- TODO: Isn't this the same as Std.Asymm (· < ·)?
     [i : Std.Total (¬ · < · : α → α → Prop)]
     {l₁ l₂ : List α} (h : l₁ < l₂) : l₁ ≤ l₂ := by
   obtain (h' | h') := List.le_total l₁ l₂

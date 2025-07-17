@@ -62,6 +62,4 @@ run_meta Lean.Compiler.compile #[``f']
 
 run_meta Lean.Compiler.compile #[``Lean.Meta.isExprDefEqAuxImpl]
 
-set_option trace.Meta.debug true
-set_option trace.Compiler true
 run_meta Lean.Compiler.compile #[``Lean.MetavarContext.MkBinding.collectForwardDeps]

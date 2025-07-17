@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Util.CollectLevelParams
-import Lean.Elab.DeclUtil
-import Lean.Elab.DefView
-import Lean.Elab.MutualDef
-import Lean.Elab.MutualInductive
-import Lean.Elab.DeclarationRange
+public import Lean.Util.CollectLevelParams
+public import Lean.Elab.DeclUtil
+public import Lean.Elab.DefView
+public import Lean.Elab.MutualDef
+public import Lean.Elab.MutualInductive
+public import Lean.Elab.DeclarationRange
+
+public section
 namespace Lean.Elab.Command
 
 open Meta

@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.Attr
-import Lean.Elab.Tactic.BVDecide.LRAT.Trim
-import Lean.Elab.Tactic.BVDecide.External
-import Std.Tactic.BVDecide.LRAT.Checker
-import Std.Sat.CNF.Dimacs
+public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+public import Lean.Elab.Tactic.BVDecide.LRAT.Trim
+public import Lean.Elab.Tactic.BVDecide.External
+public import Std.Tactic.BVDecide.LRAT.Checker
+public import Std.Sat.CNF.Dimacs
+
+public section
 
 /-!
 This module contains the logic around writing proofs of UNSAT, using LRAT proofs, as meta code.

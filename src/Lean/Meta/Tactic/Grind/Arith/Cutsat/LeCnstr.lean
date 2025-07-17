@@ -3,16 +3,20 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Simp.Arith.Int
-import Lean.Meta.Tactic.Grind.PropagatorAttr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
+public import Lean.Meta.Tactic.Simp.Arith.Int
+public import Lean.Meta.Tactic.Grind.PropagatorAttr
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 

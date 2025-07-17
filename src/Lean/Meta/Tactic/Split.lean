@@ -3,12 +3,16 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Match.MatcherApp.Basic
-import Lean.Meta.Tactic.Simp.Main
-import Lean.Meta.Tactic.SplitIf
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Generalize
+public import Lean.Meta.Match.MatcherApp.Basic
+public import Lean.Meta.Tactic.Simp.Main
+public import Lean.Meta.Tactic.SplitIf
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Generalize
+
+public section
 
 namespace Lean.Meta
 namespace Split

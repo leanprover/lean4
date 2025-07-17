@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Tactic.Simp.Types
-import Lean.Linter.Basic
+public import Lean.Meta.Tactic.Simp.Types
+public import Lean.Linter.Basic
+
+public section
 
 namespace Lean.Meta.Simp
 

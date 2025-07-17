@@ -4,10 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Init.Task
-import Lean.Meta.PPGoal
-import Lean.ReservedNameAction
+public import Init.Task
+public import Lean.Meta.PPGoal
+public import Lean.ReservedNameAction
+
+public section
 
 namespace Lean.Elab.CommandContextInfo
 

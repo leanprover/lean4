@@ -3,11 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.DeclarationRange
-import Lean.DocString.Links
-import Lean.MonadEnv
-import Init.Data.String.Extra
+public import Lean.DeclarationRange
+public import Lean.DocString.Links
+public import Lean.MonadEnv
+public import Init.Data.String.Extra
+
+public section
 
 -- This module contains the underlying data for docstrings, with as few imports as possible, so that
 -- docstrings can be saved in as much of the compiler as possible.

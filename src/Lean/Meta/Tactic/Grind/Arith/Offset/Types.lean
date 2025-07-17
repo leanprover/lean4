@@ -3,12 +3,16 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.AssocList
-import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ExprPtr
-import Lean.Meta.Tactic.Grind.Arith.Util
-import Lean.Meta.Tactic.Grind.Arith.Offset.Util
+public import Lean.Data.AssocList
+public import Lean.Data.PersistentArray
+public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Lean.Meta.Tactic.Grind.Arith.Util
+public import Lean.Meta.Tactic.Grind.Arith.Offset.Util
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Offset
 

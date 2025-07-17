@@ -3,14 +3,18 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Quotation.Precheck
-import Lean.Elab.Term
-import Lean.Elab.BindersUtil
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.PreDefinition.TerminationHint
-import Lean.Elab.Match
-import Lean.Compiler.MetaAttr
+public import Lean.Elab.Quotation.Precheck
+public import Lean.Elab.Term
+public import Lean.Elab.BindersUtil
+public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.PreDefinition.TerminationHint
+public import Lean.Elab.Match
+public import Lean.Compiler.MetaAttr
+
+public section
 
 namespace Lean.Elab.Term
 open Meta

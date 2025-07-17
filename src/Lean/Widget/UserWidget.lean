@@ -4,10 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Elab.Eval
-import Lean.Server.Rpc.RequestHandling
-import Lean.Widget.Types
+public import Lean.Elab.Eval
+public import Lean.Server.Rpc.RequestHandling
+public import Lean.Widget.Types
+
+public section
 
 namespace Lean.Widget
 open Meta Elab

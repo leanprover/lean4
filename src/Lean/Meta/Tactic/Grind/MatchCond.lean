@@ -3,12 +3,16 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind
-import Init.Simproc
-import Lean.Meta.Tactic.Contradiction
-import Lean.Meta.Tactic.Grind.ProveEq
-import Lean.Meta.Tactic.Grind.PropagatorAttr
+public import Init.Grind
+public import Init.Simproc
+public import Lean.Meta.Tactic.Contradiction
+public import Lean.Meta.Tactic.Grind.ProveEq
+public import Lean.Meta.Tactic.Grind.PropagatorAttr
+
+public section
 
 namespace Lean.Meta.Grind
 /-

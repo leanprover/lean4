@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Util
-import Lean.Util.NumObjs
-import Lean.Util.ForEachExpr
-import Lean.Util.OccursCheck
-import Lean.Elab.Tactic.Basic
-import Lean.Meta.AbstractNestedProofs
+public import Lean.Meta.Tactic.Util
+public import Lean.Util.NumObjs
+public import Lean.Util.ForEachExpr
+public import Lean.Util.OccursCheck
+public import Lean.Elab.Tactic.Basic
+public import Lean.Meta.AbstractNestedProofs
+
+public section
 
 namespace Lean.Elab.Term
 open Tactic (TacticM evalTactic getUnsolvedGoals withTacticInfoContext)

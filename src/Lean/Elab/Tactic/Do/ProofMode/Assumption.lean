@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Std.Tactic.Do.Syntax
-import Lean.Elab.Tactic.Do.ProofMode.Basic
-import Lean.Elab.Tactic.Do.ProofMode.Exact
-import Lean.Elab.Tactic.Do.ProofMode.Focus
+public import Std.Tactic.Do.Syntax
+public import Lean.Elab.Tactic.Do.ProofMode.Basic
+public import Lean.Elab.Tactic.Do.ProofMode.Exact
+public import Lean.Elab.Tactic.Do.ProofMode.Focus
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic

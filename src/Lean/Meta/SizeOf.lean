@@ -3,12 +3,16 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.List.BasicAux
-import Lean.AddDecl
-import Lean.Meta.AppBuilder
-import Lean.Meta.Instances
-import Lean.DefEqAttrib
+public import Init.Data.List.BasicAux
+public import Lean.AddDecl
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.Instances
+public import Lean.DefEqAttrib
+
+public section
 
 namespace Lean.Meta
 

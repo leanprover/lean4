@@ -3,16 +3,20 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Runtime
-import Lean.Compiler.NameMangling
-import Lean.Compiler.ExportAttr
-import Lean.Compiler.InitAttr
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.EmitUtil
-import Lean.Compiler.IR.NormIds
-import Lean.Compiler.IR.SimpCase
-import Lean.Compiler.IR.Boxing
+public import Lean.Runtime
+public import Lean.Compiler.NameMangling
+public import Lean.Compiler.ExportAttr
+public import Lean.Compiler.InitAttr
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.EmitUtil
+public import Lean.Compiler.IR.NormIds
+public import Lean.Compiler.IR.SimpCase
+public import Lean.Compiler.IR.Boxing
+
+public section
 
 namespace Lean.IR.EmitC
 open ExplicitBoxing (requiresBoxedVersion mkBoxedName isBoxedName)

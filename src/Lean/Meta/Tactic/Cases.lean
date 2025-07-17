@@ -3,14 +3,18 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.AppBuilder
-import Lean.Meta.Tactic.Induction
-import Lean.Meta.Tactic.Injection
-import Lean.Meta.Tactic.Assert
-import Lean.Meta.Tactic.Subst
-import Lean.Meta.Tactic.Acyclic
-import Lean.Meta.Tactic.UnifyEq
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.Tactic.Induction
+public import Lean.Meta.Tactic.Injection
+public import Lean.Meta.Tactic.Assert
+public import Lean.Meta.Tactic.Subst
+public import Lean.Meta.Tactic.Acyclic
+public import Lean.Meta.Tactic.UnifyEq
+
+public section
 
 namespace Lean.Meta
 

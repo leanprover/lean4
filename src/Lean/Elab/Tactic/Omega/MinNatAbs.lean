@@ -3,12 +3,16 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.BinderPredicates
-import Init.Data.Int.Order
-import Init.Data.List.MinMax
-import Init.Data.Nat.MinMax
-import Init.Data.Option.Lemmas
+public import Init.BinderPredicates
+public import Init.Data.Int.Order
+public import Init.Data.List.MinMax
+public import Init.Data.Nat.MinMax
+public import Init.Data.Option.Lemmas
+
+public section
 
 /-!
 # `List.nonzeroMinimum`, `List.minNatAbs`, `List.maxNatAbs`

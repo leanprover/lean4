@@ -3,14 +3,18 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Array.QSort
-import Lean.Data.PersistentHashMap
-import Lean.Data.PersistentHashSet
-import Lean.Hygiene
-import Lean.Data.Name
-import Lean.Data.Format
-import Init.Data.Option.Coe
+public import Init.Data.Array.QSort
+public import Lean.Data.PersistentHashMap
+public import Lean.Data.PersistentHashSet
+public import Lean.Hygiene
+public import Lean.Data.Name
+public import Lean.Data.Format
+public import Init.Data.Option.Coe
+
+public section
 
 def Nat.imax (n m : Nat) : Nat :=
   if m = 0 then 0 else Nat.max n m

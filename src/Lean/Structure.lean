@@ -5,11 +5,15 @@ Authors: Leonardo de Moura
 
 Helper functions for retrieving structure information.
 -/
+module
+
 prelude
-import Init.Control.Option
-import Lean.Environment
-import Lean.ProjFns
-import Lean.Exception
+public import Init.Control.Option
+public import Lean.Environment
+public import Lean.ProjFns
+public import Lean.Exception
+
+public section
 
 namespace Lean
 

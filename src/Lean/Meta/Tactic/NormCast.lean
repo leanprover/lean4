@@ -3,10 +3,14 @@ Copyright (c) 2019 Paul-Nicolas Madelaine. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul-Nicolas Madelaine, Robert Y. Lewis, Mario Carneiro, Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Meta.CongrTheorems
-import Lean.Meta.Tactic.Simp.Attr
-import Lean.Meta.CoeAttr
+public import Lean.Meta.CongrTheorems
+public import Lean.Meta.Tactic.Simp.Attr
+public import Lean.Meta.CoeAttr
+
+public section
 
 namespace Lean.Meta.NormCast
 /--

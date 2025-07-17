@@ -3,16 +3,20 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.CtorRecognizer
-import Lean.Meta.Match.Match
-import Lean.Meta.Match.MatchEqsExt
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Refl
-import Lean.Meta.Tactic.Delta
-import Lean.Meta.Tactic.SplitIf
-import Lean.Meta.Tactic.Injection
-import Lean.Meta.Tactic.Contradiction
+public import Lean.Meta.CtorRecognizer
+public import Lean.Meta.Match.Match
+public import Lean.Meta.Match.MatchEqsExt
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Refl
+public import Lean.Meta.Tactic.Delta
+public import Lean.Meta.Tactic.SplitIf
+public import Lean.Meta.Tactic.Injection
+public import Lean.Meta.Tactic.Contradiction
+
+public section
 
 namespace Lean.Meta
 

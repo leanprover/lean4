@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Sebastian Ullrich, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Lsp
-import Lean.Widget
+public import Lean.Data.Lsp
+public import Lean.Widget
+
+public section
 open Lean
 open Lean.Lsp
 open Lean.JsonRpc

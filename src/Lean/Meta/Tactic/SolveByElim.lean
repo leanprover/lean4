@@ -3,15 +3,19 @@ Copyright (c) 2021 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison, David Renshaw
 -/
+module
+
 prelude
-import Init.Data.Sum
-import Lean.LabelAttribute
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Backtrack
-import Lean.Meta.Tactic.Constructor
-import Lean.Meta.Tactic.Repeat
-import Lean.Meta.Tactic.Symm
-import Lean.Elab.Term
+public import Init.Data.Sum
+public import Lean.LabelAttribute
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Backtrack
+public import Lean.Meta.Tactic.Constructor
+public import Lean.Meta.Tactic.Repeat
+public import Lean.Meta.Tactic.Symm
+public import Lean.Elab.Term
+
+public section
 
 /-!
 # `solve_by_elim`, `apply_rules`, and `apply_assumption`.

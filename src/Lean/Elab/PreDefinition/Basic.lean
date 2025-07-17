@@ -3,20 +3,24 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.ShareCommon
-import Lean.Compiler.MetaAttr
-import Lean.Compiler.NoncomputableAttr
-import Lean.Util.CollectLevelParams
-import Lean.Util.NumObjs
-import Lean.Util.NumApps
-import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.ForEachExpr
-import Lean.Meta.Eqns
-import Lean.Meta.LetToHave
-import Lean.Elab.RecAppSyntax
-import Lean.Elab.DefView
-import Lean.Elab.PreDefinition.TerminationHint
+public import Init.ShareCommon
+public import Lean.Compiler.MetaAttr
+public import Lean.Compiler.NoncomputableAttr
+public import Lean.Util.CollectLevelParams
+public import Lean.Util.NumObjs
+public import Lean.Util.NumApps
+public import Lean.Meta.AbstractNestedProofs
+public import Lean.Meta.ForEachExpr
+public import Lean.Meta.Eqns
+public import Lean.Meta.LetToHave
+public import Lean.Elab.RecAppSyntax
+public import Lean.Elab.DefView
+public import Lean.Elab.PreDefinition.TerminationHint
+
+public section
 
 namespace Lean.Elab
 open Meta

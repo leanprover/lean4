@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Różowski, Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.InferType
-import Lean.Meta.PProdN
-import Lean.Meta.AppBuilder
-import Init.Internal.Order.Basic
+public import Lean.Meta.InferType
+public import Lean.Meta.PProdN
+public import Lean.Meta.AppBuilder
+public import Init.Internal.Order.Basic
+
+public section
 
 /-!
 This module has meta-functions for constructions expressions related to `Lean.Order`.

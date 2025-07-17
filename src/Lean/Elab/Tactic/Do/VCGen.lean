@@ -3,22 +3,26 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Init.Guard
-import Std.Do.WP
-import Std.Do.Triple
-import Lean.Meta.Tactic.Split
-import Lean.Elab.Tactic.Simp
-import Lean.Elab.Tactic.Meta
-import Lean.Elab.Tactic.Do.ProofMode.Basic
-import Lean.Elab.Tactic.Do.ProofMode.Intro
-import Lean.Elab.Tactic.Do.ProofMode.Cases
-import Lean.Elab.Tactic.Do.ProofMode.Specialize
-import Lean.Elab.Tactic.Do.ProofMode.Pure
-import Lean.Elab.Tactic.Do.LetElim
-import Lean.Elab.Tactic.Do.Spec
-import Lean.Elab.Tactic.Do.Attr
-import Lean.Elab.Tactic.Do.Syntax
+public import Init.Guard
+public import Std.Do.WP
+public import Std.Do.Triple
+public import Lean.Meta.Tactic.Split
+public import Lean.Elab.Tactic.Simp
+public import Lean.Elab.Tactic.Meta
+public import Lean.Elab.Tactic.Do.ProofMode.Basic
+public import Lean.Elab.Tactic.Do.ProofMode.Intro
+public import Lean.Elab.Tactic.Do.ProofMode.Cases
+public import Lean.Elab.Tactic.Do.ProofMode.Specialize
+public import Lean.Elab.Tactic.Do.ProofMode.Pure
+public import Lean.Elab.Tactic.Do.LetElim
+public import Lean.Elab.Tactic.Do.Spec
+public import Lean.Elab.Tactic.Do.Attr
+public import Lean.Elab.Tactic.Do.Syntax
+
+public section
 
 namespace Lean.Elab.Tactic.Do
 

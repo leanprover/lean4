@@ -3,13 +3,17 @@ Copyright (c) 2023 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
+module
+
 prelude
-import Std.Data.Iterators.Producers.Range
-import Std.Data.Iterators.Combinators.StepSize
-import Lean.Elab.BuiltinTerm
-import Lean.Elab.BuiltinNotation
-import Lean.Server.InfoUtils
-import Lean.Server.CodeActions.Attr
+public import Std.Data.Iterators.Producers.Range
+public import Std.Data.Iterators.Combinators.StepSize
+public import Lean.Elab.BuiltinTerm
+public import Lean.Elab.BuiltinNotation
+public import Lean.Server.InfoUtils
+public import Lean.Server.CodeActions.Attr
+
+public section
 
 /-!
 # Initial setup for code actions

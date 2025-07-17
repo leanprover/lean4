@@ -3,9 +3,13 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix, Kim Morrison
 -/
+module
+
 prelude
-import Lean.Meta.CompletionName
-import Lean.Meta.DiscrTree
+public import Lean.Meta.CompletionName
+public import Lean.Meta.DiscrTree
+
+public section
 
 /-!
 # Lazy Discrimination Tree
@@ -16,7 +20,7 @@ initialization strategy.
 
 The discrimination tree can be created through
 `createImportedDiscrTree`. This creates a discrimination tree from all
-imported modules in an environment using a callback that provides the
+public imported modules in an environment using a callback that provides the
 entries as `InitEntry` values.
 
 The function `getMatch` can be used to get the values that match the

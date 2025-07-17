@@ -3,13 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Data.FuzzyMatching
-import Lean.Elab.Tactic.Doc
-import Lean.Server.Completion.CompletionResolution
-import Lean.Server.Completion.EligibleHeaderDecls
-import Lean.Server.RequestCancellation
-import Lean.Server.Completion.CompletionUtils
+public import Lean.Data.FuzzyMatching
+public import Lean.Elab.Tactic.Doc
+public import Lean.Server.Completion.CompletionResolution
+public import Lean.Server.Completion.EligibleHeaderDecls
+public import Lean.Server.RequestCancellation
+public import Lean.Server.Completion.CompletionUtils
+
+public section
 
 namespace Lean.Server.Completion
 open Elab

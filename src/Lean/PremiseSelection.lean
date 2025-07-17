@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Elab.Command
-import Lean.Meta.Eval
-import Lean.Meta.CompletionName
-import Init.Data.Random
+public import Lean.Elab.Command
+public import Lean.Meta.Eval
+public import Lean.Meta.CompletionName
+public import Init.Data.Random
+
+public section
 
 /-!
 # An API for premise selection algorithms.

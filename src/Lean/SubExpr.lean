@@ -3,11 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki, E.W.Ayers
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Data.Json
-import Lean.Data.RBMap
-import Init.Control.Option
+public import Lean.Meta.Basic
+public import Lean.Data.Json
+public import Lean.Data.RBMap
+public import Init.Control.Option
+
+public section
 
 namespace Lean
 

@@ -3,9 +3,11 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Message
-import Lean.Parser.Command
+public import Lean.Message
+public import Lean.Parser.Command
 
 namespace Lean
 namespace Parser
@@ -22,6 +24,8 @@ def «import»   := leading_parser
   identWithPartialTrailingDot
 def header     := leading_parser optional (moduleTk >> ppLine >> ppLine) >>
   optional («prelude» >> ppLine) >>
+
+public section
   many («import» >> ppLine) >>
   ppLine
 

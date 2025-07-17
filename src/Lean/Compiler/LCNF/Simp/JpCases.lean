@@ -3,12 +3,16 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.DependsOn
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.Internalize
-import Lean.Compiler.LCNF.Simp.Basic
-import Lean.Compiler.LCNF.Simp.DiscrM
+public import Lean.Compiler.LCNF.DependsOn
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.Internalize
+public import Lean.Compiler.LCNF.Simp.Basic
+public import Lean.Compiler.LCNF.Simp.DiscrM
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp

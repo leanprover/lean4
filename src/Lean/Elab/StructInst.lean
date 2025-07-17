@@ -3,14 +3,18 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller
 -/
+module
+
 prelude
-import Lean.Util.FindExpr
-import Lean.Parser.Term
-import Lean.Meta.Structure
-import Lean.Elab.App
-import Lean.Elab.Binders
-import Lean.Elab.StructInstHint
-import Lean.PrettyPrinter
+public import Lean.Util.FindExpr
+public import Lean.Parser.Term
+public import Lean.Meta.Structure
+public import Lean.Elab.App
+public import Lean.Elab.Binders
+public import Lean.Elab.StructInstHint
+public import Lean.PrettyPrinter
+
+public section
 
 /-!
 # Structure instance elaborator

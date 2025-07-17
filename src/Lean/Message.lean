@@ -5,14 +5,18 @@ Author: Sebastian Ullrich, Leonardo de Moura
 
 Message type used by the Lean frontend
 -/
+module
+
 prelude
-import Init.Data.Slice.Array
-import Lean.Data.Position
-import Lean.Data.OpenDecl
-import Lean.MetavarContext
-import Lean.Environment
-import Lean.Util.PPExt
-import Lean.Util.Sorry
+public import Init.Data.Slice.Array
+public import Lean.Data.Position
+public import Lean.Data.OpenDecl
+public import Lean.MetavarContext
+public import Lean.Environment
+public import Lean.Util.PPExt
+public import Lean.Util.Sorry
+
+public section
 
 namespace Lean
 

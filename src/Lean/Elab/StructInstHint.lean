@@ -4,10 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
 
+module
+
 prelude
-import Lean.Parser.Term
-import Lean.Meta.Hint
-import Lean.PrettyPrinter
+public import Lean.Parser.Term
+public import Lean.Meta.Hint
+public import Lean.PrettyPrinter
+
+public section
 
 /-!
 # Missing-field hints for structure instance elaborator

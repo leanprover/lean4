@@ -3,13 +3,17 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Std.Tactic.Do.Syntax
-import Lean.Elab.Tactic.Do.ProofMode.MGoal
-import Lean.Elab.Tactic.Do.ProofMode.Focus
-import Lean.Elab.Tactic.Do.ProofMode.Basic
-import Lean.Elab.Tactic.Do.ProofMode.Pure
-import Lean.Elab.Tactic.ElabTerm
+public import Std.Tactic.Do.Syntax
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+public import Lean.Elab.Tactic.Do.ProofMode.Focus
+public import Lean.Elab.Tactic.Do.ProofMode.Basic
+public import Lean.Elab.Tactic.Do.ProofMode.Pure
+public import Lean.Elab.Tactic.ElabTerm
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic

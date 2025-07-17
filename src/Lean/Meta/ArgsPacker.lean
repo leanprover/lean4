@@ -4,10 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.AppBuilder
-import Lean.Meta.PProdN
-import Lean.Meta.ArgsPacker.Basic
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.PProdN
+public import Lean.Meta.ArgsPacker.Basic
+
+public section
 
 /-!
 This module implements the equivalence between the types

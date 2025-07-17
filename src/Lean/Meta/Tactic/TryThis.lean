@@ -3,15 +3,17 @@ Copyright (c) 2021 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro, Thomas Murrills
 -/
+module
+
 prelude
-import Lean.Server.CodeActions
-import Lean.Widget.UserWidget
-import Lean.Data.Json.Elab
-import Lean.Data.Lsp.Utf16
-import Lean.Meta.CollectFVars
-import Lean.Meta.Tactic.ExposeNames
-import Lean.Meta.TryThis
-import Lean.Meta.Hint
+public import Lean.Server.CodeActions
+public import Lean.Widget.UserWidget
+public import Lean.Data.Json.Elab
+public import Lean.Data.Lsp.Utf16
+public import Lean.Meta.CollectFVars
+public import Lean.Meta.Tactic.ExposeNames
+public import Lean.Meta.TryThis
+public import Lean.Meta.Hint
 
 /-!
 # "Try this" code action and tactic suggestions
@@ -45,8 +47,10 @@ where `<replacement*>` is a link which will perform the replacement.
 -/
 @[builtin_widget_module] def tryThisWidget : Widget.Module where
   javascript := "
-import * as React from 'react';
-import { EditorContext, EnvPosContext } from '@leanprover/infoview';
+public import * as React from 'react';
+public import { EditorContext, EnvPosContext } from '@leanprover/infoview';
+
+public section
 const e = React.createElement;
 export default function ({ suggestions, range, header, isInline, style }) {
   const pos = React.useContext(EnvPosContext)

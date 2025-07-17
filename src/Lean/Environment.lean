@@ -3,25 +3,29 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.StateRef
-import Init.Data.Array.BinSearch
-import Init.Data.Stream
-import Init.System.Promise
-import Lean.ImportingFlag
-import Lean.Data.NameTrie
-import Lean.Data.SMap
-import Lean.Setup
-import Lean.Declaration
-import Lean.LocalContext
-import Lean.Util.Path
-import Lean.Util.FindExpr
-import Lean.Util.Profile
-import Lean.Util.InstantiateLevelParams
-import Lean.Util.FoldConsts
-import Lean.PrivateName
-import Lean.LoadDynlib
-import Init.Dynamic
+public import Init.Control.StateRef
+public import Init.Data.Array.BinSearch
+public import Init.Data.Stream
+public import Init.System.Promise
+public import Lean.ImportingFlag
+public import Lean.Data.NameTrie
+public import Lean.Data.SMap
+public import Lean.Setup
+public import Lean.Declaration
+public import Lean.LocalContext
+public import Lean.Util.Path
+public import Lean.Util.FindExpr
+public import Lean.Util.Profile
+public import Lean.Util.InstantiateLevelParams
+public import Lean.Util.FoldConsts
+public import Lean.PrivateName
+public import Lean.LoadDynlib
+public import Init.Dynamic
+
+public section
 
 /-!
 # Note [Environment Branches]

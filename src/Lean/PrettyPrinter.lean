@@ -3,14 +3,18 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.PrettyPrinter.Delaborator
-import Lean.PrettyPrinter.Parenthesizer
-import Lean.PrettyPrinter.Formatter
-import Lean.Parser.Module
-import Lean.ParserCompiler
-import Lean.Util.NumObjs
-import Lean.Util.ShareCommon
+public import Lean.PrettyPrinter.Delaborator
+public import Lean.PrettyPrinter.Parenthesizer
+public import Lean.PrettyPrinter.Formatter
+public import Lean.Parser.Module
+public import Lean.ParserCompiler
+public import Lean.Util.NumObjs
+public import Lean.Util.ShareCommon
+
+public section
 
 namespace Lean.PrettyPrinter
 

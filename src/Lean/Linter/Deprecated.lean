@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Linter.Basic
-import Lean.Attributes
-import Lean.Elab.InfoTree.Main
+public import Lean.Linter.Basic
+public import Lean.Attributes
+public import Lean.Elab.InfoTree.Main
+
+public section
 
 namespace Lean.Linter
 

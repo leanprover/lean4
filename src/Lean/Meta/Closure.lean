@@ -3,14 +3,18 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.MetavarContext
-import Lean.Environment
-import Lean.AddDecl
-import Lean.Util.FoldConsts
-import Lean.Meta.Basic
-import Lean.Meta.Check
-import Lean.Meta.Tactic.AuxLemma
+public import Lean.MetavarContext
+public import Lean.Environment
+public import Lean.AddDecl
+public import Lean.Util.FoldConsts
+public import Lean.Meta.Basic
+public import Lean.Meta.Check
+public import Lean.Meta.Tactic.AuxLemma
+
+public section
 
 /-!
 

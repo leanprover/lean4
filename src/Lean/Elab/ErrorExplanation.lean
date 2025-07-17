@@ -3,12 +3,16 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
+module
+
 prelude
-import Lean.ErrorExplanation
-import Lean.Meta.Eval
-import Lean.Elab.Term
-import Lean.Elab.Command
-import Lean.Widget.UserWidget
+public import Lean.ErrorExplanation
+public import Lean.Meta.Eval
+public import Lean.Elab.Term
+public import Lean.Elab.Command
+public import Lean.Widget.UserWidget
+
+public section
 
 namespace Lean.Elab.ErrorExplanation
 

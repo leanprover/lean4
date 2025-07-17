@@ -8,12 +8,16 @@ recompilation
 Authors: Sebastian Ullrich
 -/
 
+module
+
 prelude
-import Lean.Language.Basic
-import Lean.Language.Util
-import Lean.Language.Lean.Types
-import Lean.Parser.Module
-import Lean.Elab.Import
+public import Lean.Language.Basic
+public import Lean.Language.Util
+public import Lean.Language.Lean.Types
+public import Lean.Parser.Module
+public import Lean.Elab.Import
+
+public section
 
 /-!
 # Note [Incremental Parsing]

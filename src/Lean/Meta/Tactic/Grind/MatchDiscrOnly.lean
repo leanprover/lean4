@@ -3,11 +3,15 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Init.Simproc
-import Lean.Meta.Tactic.Simp.Simproc
-import Lean.Meta.Tactic.Simp.Rewrite
+public import Init.Grind.Util
+public import Init.Simproc
+public import Lean.Meta.Tactic.Simp.Simproc
+public import Lean.Meta.Tactic.Simp.Rewrite
+
+public section
 
 namespace Lean.Meta.Grind
 /--

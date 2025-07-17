@@ -3,12 +3,16 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Std.Data.HashSet.Basic
-import Lean.Data.RBMap
-import Lean.Data.RBTree
-import Lean.Data.SSet
-import Lean.Data.Name
+public import Std.Data.HashSet.Basic
+public import Lean.Data.RBMap
+public import Lean.Data.RBTree
+public import Lean.Data.SSet
+public import Lean.Data.Name
+
+public section
 namespace Lean
 
 def NameMap (α : Type) := RBMap Name α Name.quickCmp

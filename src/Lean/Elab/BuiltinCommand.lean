@@ -3,17 +3,21 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.CollectLevelParams
-import Lean.Util.CollectAxioms
-import Lean.Meta.Reduce
-import Lean.Elab.DeclarationRange
-import Lean.Elab.Eval
-import Lean.Elab.Command
-import Lean.Elab.Open
-import Lean.Elab.SetOption
-import Init.System.Platform
-import Lean.Meta.Hint
+public import Lean.Util.CollectLevelParams
+public import Lean.Util.CollectAxioms
+public import Lean.Meta.Reduce
+public import Lean.Elab.DeclarationRange
+public import Lean.Elab.Eval
+public import Lean.Elab.Command
+public import Lean.Elab.Open
+public import Lean.Elab.SetOption
+public import Init.System.Platform
+public import Lean.Meta.Hint
+
+public section
 
 namespace Lean.Elab.Command
 

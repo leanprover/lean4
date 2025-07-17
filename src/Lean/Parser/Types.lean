@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Data.Trie
-import Lean.Syntax
-import Lean.Message
-import Lean.DocString.Extension
+public import Lean.Data.Trie
+public import Lean.Syntax
+public import Lean.Message
+public import Lean.DocString.Extension
+
+public section
 
 namespace Lean.Parser
 

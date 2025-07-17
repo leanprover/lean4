@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Marc Huisinga
 -/
+module
+
 prelude
-import Init.Prelude
-import Lean.Meta.WHNF
+public import Init.Prelude
+public import Lean.Meta.WHNF
+
+public section
 
 partial def String.charactersIn (a b : String) : Bool :=
   go ⟨0⟩ ⟨0⟩

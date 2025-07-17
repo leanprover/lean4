@@ -3,10 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.AuxRecursor
-import Lean.Util.FindExpr
-import Lean.Meta.Basic
+public import Lean.AuxRecursor
+public import Lean.Util.FindExpr
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 

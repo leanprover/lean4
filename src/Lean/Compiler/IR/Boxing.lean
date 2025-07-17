@@ -3,16 +3,20 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Runtime
-import Lean.Compiler.ClosedTermCache
-import Lean.Compiler.ExternAttr
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.FreeVars
-import Lean.Compiler.IR.ElimDeadVars
-import Lean.Compiler.IR.ToIRType
-import Lean.Data.AssocList
+public import Lean.Runtime
+public import Lean.Compiler.ClosedTermCache
+public import Lean.Compiler.ExternAttr
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.FreeVars
+public import Lean.Compiler.IR.ElimDeadVars
+public import Lean.Compiler.IR.ToIRType
+public import Lean.Data.AssocList
+
+public section
 
 namespace Lean.IR.ExplicitBoxing
 /-!

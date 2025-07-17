@@ -3,12 +3,16 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Std.Do.SPred.DerivedLaws
-import Std.Tactic.Do.ProofMode
-import Lean.SubExpr
-import Lean.Meta.Basic
-import Lean.Elab.Tactic.Basic
+public import Std.Do.SPred.DerivedLaws
+public import Std.Tactic.Do.ProofMode
+public import Lean.SubExpr
+public import Lean.Meta.Basic
+public import Lean.Elab.Tactic.Basic
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 

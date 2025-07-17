@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.SubExpr
-import Lean.Data.RBMap
+public import Lean.Meta.Basic
+public import Lean.SubExpr
+public import Lean.Data.RBMap
+
+public section
 
 /-!
 # Subexpr utilities for delaborator.

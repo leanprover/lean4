@@ -3,12 +3,16 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Extension
-import Lean.Parser.StrInterpolation
-import Lean.ParserCompiler.Attribute
-import Lean.PrettyPrinter.Basic
-import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.Parser.Extension
+public import Lean.Parser.StrInterpolation
+public import Lean.ParserCompiler.Attribute
+public import Lean.PrettyPrinter.Basic
+public import Lean.PrettyPrinter.Delaborator.Options
+
+public section
 
 
 /-!

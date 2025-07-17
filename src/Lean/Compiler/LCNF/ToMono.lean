@@ -3,12 +3,16 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.ExternAttr
-import Lean.Compiler.ImplementedByAttr
-import Lean.Compiler.LCNF.MonoTypes
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.NoncomputableAttr
+public import Lean.Compiler.ExternAttr
+public import Lean.Compiler.ImplementedByAttr
+public import Lean.Compiler.LCNF.MonoTypes
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.NoncomputableAttr
+
+public section
 
 namespace Lean.Compiler.LCNF
 

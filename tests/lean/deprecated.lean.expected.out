@@ -5,8 +5,8 @@ deprecated.lean:11:6-11:7: warning: `f` has been deprecated: use `g` instead
 2
 deprecated.lean:13:6-13:7: warning: `h` has been deprecated
 1
-deprecated.lean:15:13-15:15: error: unknown constant 'g1'
-deprecated.lean:23:13-23:15: error: unknown constant 'g1'
+deprecated.lean:15:13-15:15: error(lean.unknownIdentifier): Unknown constant `g1`
+deprecated.lean:23:13-23:15: error(lean.unknownIdentifier): Unknown constant `g1`
 deprecated.lean:27:2-27:55: warning: `[deprecated]` attribute should specify the date or library version at which the deprecation was introduced, using `(since := "...")`
 deprecated.lean:30:6-30:8: warning: `f2` has been deprecated: use `Foo.g1` instead
 2

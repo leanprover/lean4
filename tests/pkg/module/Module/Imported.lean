@@ -74,31 +74,31 @@ has type
 #guard_msgs in
 #check f.eq_unfold
 
-/-- error: unknown constant 'f_struct.eq_1' -/
+/-- error: Unknown constant `f_struct.eq_1` -/
 #guard_msgs in
 #check f_struct.eq_1
 
-/-- error: unknown constant 'f_struct.eq_def' -/
+/-- error: Unknown constant `f_struct.eq_def` -/
 #guard_msgs in
 #check f_struct.eq_def
 
-/-- error: unknown constant 'f_struct.eq_unfold' -/
+/-- error: Unknown constant `f_struct.eq_unfold` -/
 #guard_msgs in
 #check f_struct.eq_unfold
 
-/-- error: unknown constant 'f_wfrec.eq_1' -/
+/-- error: Unknown constant `f_wfrec.eq_1` -/
 #guard_msgs in
 #check f_wfrec.eq_1
 
-/-- error: unknown constant 'f_wfrec.eq_def' -/
+/-- error: Unknown constant `f_wfrec.eq_def` -/
 #guard_msgs in
 #check f_wfrec.eq_def
 
-/-- error: unknown constant 'f_wfrec.eq_unfold' -/
+/-- error: Unknown constant `f_wfrec.eq_unfold` -/
 #guard_msgs in
 #check f_wfrec.eq_unfold
 
-/-- error: unknown constant 'f_wfrec.induct_unfolding' -/
+/-- error: Unknown constant `f_wfrec.induct_unfolding` -/
 #guard_msgs(pass trace, all) in
 #check f_wfrec.induct_unfolding
 

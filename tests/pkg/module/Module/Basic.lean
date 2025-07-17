@@ -105,7 +105,7 @@ def priv := 2
 
 /-! Private decls should not be accessible in exported contexts. -/
 
-/-- error: unknown identifier 'priv' -/
+/-- error: Unknown identifier `priv` -/
 #guard_msgs in
 public abbrev h := priv
 

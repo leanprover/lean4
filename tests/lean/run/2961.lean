@@ -43,7 +43,7 @@ error: Failed to realize constant replace.eq_def:
   heq✝ : f t = some u
   ⊢ replace f t = u
 ---
-error: unknown identifier 'replace.eq_def'
+error: Unknown identifier `replace.eq_def`
 -/
 #guard_msgs in
 #check replace.eq_def
@@ -93,7 +93,7 @@ error: Failed to realize constant replace2.eq_def:
   heq✝ : f t1 = some u
   ⊢ replace2 f t1 t2 = u
 ---
-error: unknown identifier 'replace2.eq_def'
+error: Unknown identifier `replace2.eq_def`
 -/
 #guard_msgs in
 #check replace2.eq_def

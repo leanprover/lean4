@@ -63,6 +63,6 @@ termination_by n
 
 -- This should not exist!
 
-/-- error: unknown constant 'fib_eq_fib.eq_def' -/
+/-- error: Unknown constant `fib_eq_fib.eq_def` -/
 #guard_msgs in
 #check fib_eq_fib.eq_def

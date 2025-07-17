@@ -193,8 +193,8 @@ where
       unaryReflection innerExpr .reverse ``Std.Tactic.BVDecide.Reflect.BitVec.reverse_congr origExpr
     | BitVec.clz _ innerExpr =>
       unaryReflection innerExpr .clz ``Std.Tactic.BVDecide.Reflect.BitVec.clz_congr origExpr
-    | BitVec.popCnt _ innerExpr =>
-      unaryReflection innerExpr .popCnt ``Std.Tactic.BVDecide.Reflect.BitVec.popCnt_congr origExpr
+    | BitVec.popCount _ innerExpr =>
+      unaryReflection innerExpr .popCount ``Std.Tactic.BVDecide.Reflect.BitVec.popCount_congr origExpr
     | _ => return none
 
   /--

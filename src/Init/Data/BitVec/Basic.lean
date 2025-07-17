@@ -872,12 +872,12 @@ def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
 
 /-- Tail-recursive definition of popcount.
   fuel explicitly bounds the number of recursions, thus bounding the depth of the circuit as well -/
-def popCntRec {w : Nat} (x : BitVec w) (n : BitVec w) (fuel : Nat) : BitVec w :=
+def popCountRec {w : Nat} (x : BitVec w) (n : BitVec w) (fuel : Nat) : BitVec w :=
   match fuel with
   | 0 => n
-  | fuel' + 1 => if x = 0#w then n else popCntRec (x &&& (x - 1)) (n + 1) fuel'
+  | fuel' + 1 => if x = 0#w then n else popCountRec (x &&& (x - 1)) (n + 1) fuel'
 
 /-- Count the number of bits with value one in a bitvec -/
-def popCnt{w : Nat} (x : BitVec w) : BitVec w := popCntRec x 0 w
+def popCount{w : Nat} (x : BitVec w) : BitVec w := popCountRec x 0 w
 
 end BitVec

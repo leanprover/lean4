@@ -4,6 +4,7 @@ prelude
 public import Init.Core
 import Init.SimpLemmas
 import Init.Data.Subtype
+import Init.Classical
 
 public class OrderData (α : Type u) where
   IsLE : α → α → Prop
@@ -43,7 +44,15 @@ public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Partial
 
 public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Preorder α] :
     Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
-  trans := by simpa [LawfulOrderLE.le_iff] using fun {a b c} => Preorder.le_trans (α := α) a b c
+  trans := by simpa [LawfulOrderLE.le_iff] using fun {a b c} => Preorder.le_trans a b c
+
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Preorder α] :
+    Std.Refl (α := α) (· ≤ ·) where
+  refl a := by simpa [LawfulOrderLE.le_iff] using Preorder.le_refl a
+
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [LinearPreorder α] :
+    Std.Total (α := α) (· ≤ ·) where
+  total a b := by simpa [LawfulOrderLE.le_iff] using LinearPreorder.le_total a b
 
 public theorem le_refl {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Preorder α] (a : α) :
     a ≤ a := by
@@ -57,7 +66,11 @@ public theorem le_trans {α : Type u} [LE α] [Trans (α := α) (· ≤ ·) (· 
     (hab : a ≤ b) (hbc : b ≤ c) : a ≤ c :=
   Trans.trans hab hbc
 
-public noncomputable scoped instance Classical.Order.instLE {α : Type u} [OrderData α] :
+public theorem le_total {α : Type u} [LE α] [Std.Total (α := α) (· ≤ ·)] {a b : α} :
+    a ≤ b ∨ b ≤ a :=
+  Std.Total.total a b
+
+public scoped instance Classical.Order.instLE {α : Type u} [OrderData α] :
     LE α where
   le a b := OrderData.IsLE a b
 
@@ -67,6 +80,84 @@ public instance {α : Type u} [OrderData α] :
   le_iff _ _ := Iff.rfl
 
 end LE
+
+section LT
+
+public class LawfulOrderLT (α : Type u) [LT α] [OrderData α] where
+  lt_iff : ∀ a b : α, a < b ↔ OrderData.IsLE a b ∧ ¬ OrderData.IsLE b a
+
+-- public theorem not_lt {α : Type u} [LT α] [LE α] [OrderData α] [LawfulOrderLE α] [LawfulOrderLT α]
+--     {a b : α} : ¬ a < b ↔ b ≤ a := by
+--   simp [LawfulOrderLE.le_iff, LawfulOrderLT]
+
+public theorem lt_iff_le_and_not_ge {α : Type u} [LT α] [LE α] [OrderData α] [LawfulOrderLE α]
+    [LawfulOrderLT α] {a b : α} :
+    a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
+  simp [LawfulOrderLE.le_iff, LawfulOrderLT.lt_iff]
+
+public theorem not_lt {α : Type u} [LT α] [LE α] [OrderData α] [Std.Total (α := α) (· ≤ ·)]
+    [LawfulOrderLE α] [LawfulOrderLT α] {a b : α} :
+    ¬ a < b ↔ b ≤ a := by
+  simp [lt_iff_le_and_not_ge, Classical.not_not, Std.Total.total]
+
+public instance {α : Type u} [LT α] [OrderData α] [LawfulOrderLT α] :
+    Std.Asymm (α := α) (· < ·) where
+  asymm a b := by
+    simp only [LawfulOrderLT.lt_iff]
+    intro h h'
+    exact h.2.elim h'.1
+
+-- TODO: derive from reflexivity of LE?
+public instance {α : Type u} [LT α] [OrderData α] [Preorder α] [LawfulOrderLT α] :
+    Std.Irrefl (α := α) (· < ·) where
+  irrefl a b := by simp [LawfulOrderLT.lt_iff] at b
+
+public instance {α : Type u} [LT α] [OrderData α]
+    [open Classical.Order in Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) ] [LawfulOrderLT α] :
+    Trans (α := α) (· < ·) (· < ·) (· < ·) where
+  trans {a b c} hab hbc := by
+    open Classical.Order in
+    simp only [lt_iff_le_and_not_ge] at hab hbc ⊢
+    apply And.intro
+    · exact le_trans hab.1 hbc.1
+    · intro hca
+      exact hab.2.elim (le_trans hbc.1 hca)
+
+public instance {α : Type u} {_ : LT α} [OrderData α] [LawfulOrderLT α]
+    [open Classical.Order in Std.Total (α := α) (· ≤ ·)]
+    [open Classical.Order in Std.Antisymm (α := α) (· ≤ ·)] :
+    Std.Antisymm (α := α) (¬ · < ·) where
+  antisymm a b hab hba := by
+    open Classical.Order in
+    simp only [not_lt] at hab hba
+    exact Std.Antisymm.antisymm (r := (· ≤ ·)) a b hba hab
+
+public instance {α : Type u} {_ : LT α} [OrderData α] [LawfulOrderLT α]
+    [open Classical.Order in Std.Total (α := α) (· ≤ ·)]
+    [open Classical.Order in Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] :
+    Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·) where
+  trans {a b c} hab hbc := by
+    open Classical.Order in
+    simp only [not_lt] at hab hbc ⊢
+    exact le_trans hbc hab
+
+public theorem lt_of_le_of_lt {α : Type u} [LE α] [LT α] [OrderData α]
+    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)]
+    [LawfulOrderLT α] [LawfulOrderLE α] {a b c : α} (hab : a ≤ b) (hbc : b < c) :
+    a < c := by
+  simp only [lt_iff_le_and_not_ge] at hbc ⊢
+  apply And.intro
+  · exact le_trans hab hbc.1
+  · intro hca
+    exact hbc.2.elim (le_trans hca hab)
+
+public theorem lt_of_le_of_ne {α : Type u} [LE α] [LT α] [OrderData α]
+    [Std.Antisymm (α := α) (· ≤ ·)] [LawfulOrderLT α] [LawfulOrderLE α] {a b : α}
+    (hle : a ≤ b) (hne : a ≠ b) : a < b := by
+  apply Classical.byContradiction
+  simp only [lt_iff_le_and_not_ge, hle, true_and, Classical.not_not, imp_false]
+  intro hge
+  exact hne.elim <| Std.Antisymm.antisymm a b hle hge
 
 section Min
 

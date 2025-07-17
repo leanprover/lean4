@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Data.UInt.BasicAux
 public import Init.Data.BitVec.Basic
+public import Std.Classes.Ord.New.Classes
+import Std.Classes.Ord.New.Factories
 
 @[expose] public section
 
@@ -158,6 +160,9 @@ instance : HMod UInt8 Nat UInt8 := ⟨UInt8.modn⟩
 instance : Div UInt8       := ⟨UInt8.div⟩
 instance : LT UInt8        := ⟨UInt8.lt⟩
 instance : LE UInt8        := ⟨UInt8.le⟩
+
+@[no_expose]
+instance : OrderData UInt8 := .ofLE UInt8
 
 /--
 Bitwise complement, also known as bitwise negation, for 8-bit unsigned integers. Usually accessed
@@ -372,6 +377,9 @@ instance : HMod UInt16 Nat UInt16 := ⟨UInt16.modn⟩
 instance : Div UInt16       := ⟨UInt16.div⟩
 instance : LT UInt16        := ⟨UInt16.lt⟩
 instance : LE UInt16        := ⟨UInt16.le⟩
+
+@[no_expose]
+instance : OrderData UInt16 := .ofLE UInt16
 
 /--
 Bitwise complement, also known as bitwise negation, for 16-bit unsigned integers. Usually accessed
@@ -767,6 +775,9 @@ instance : HMod UInt64 Nat UInt64 := ⟨UInt64.modn⟩
 instance : Div UInt64       := ⟨UInt64.div⟩
 instance : LT UInt64        := ⟨UInt64.lt⟩
 instance : LE UInt64        := ⟨UInt64.le⟩
+
+@[no_expose]
+instance : OrderData UInt64 := .ofLE UInt64
 
 /--
 Bitwise complement, also known as bitwise negation, for 64-bit unsigned integers. Usually accessed

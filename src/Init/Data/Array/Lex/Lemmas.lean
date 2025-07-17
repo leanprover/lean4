@@ -137,7 +137,7 @@ protected theorem lt_of_le_of_lt [LT α]
     [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
     [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
-  List.lt_of_le_of_lt h₁ h₂
+  List.lt_of_le_of_lt_legacy h₁ h₂
 
 protected theorem le_trans [LT α]
     [Std.Irrefl (· < · : α → α → Prop)]
@@ -186,10 +186,24 @@ protected theorem le_iff_lt_or_eq [LT α]
     {xs ys : Array α} : xs ≤ ys ↔ xs < ys ∨ xs = ys := by
   simpa using List.le_iff_lt_or_eq (l₁ := xs.toList) (l₂ := ys.toList)
 
+protected theorem le_antisymm [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α]
+    {xs ys : Array α} : xs ≤ ys → ys ≤ xs → xs = ys := by
+  simpa using List.le_antisymm (as := xs.toList) (bs := ys.toList)
+
 instance [LT α]
     [Std.Total (¬ · < · : α → α → Prop)] :
     Std.Total (· ≤ · : Array α → Array α → Prop) where
   total := Array.le_total
+
+instance [LT α] : OrderData (Array α) := .ofLE (Array α)
+
+instance [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α] :
+    LinearOrder (Array α) := by
+  apply LinearOrder.ofLE
+  case le_refl => apply Array.le_refl
+  case le_antisymm => apply Array.le_antisymm
+  case le_total => apply Array.le_total
+  case le_trans => apply Array.le_trans
 
 @[simp] theorem lex_eq_true_iff_lt [BEq α] [LawfulBEq α] [LT α] [DecidableLT α]
     {xs ys : Array α} : lex xs ys = true ↔ xs < ys := by

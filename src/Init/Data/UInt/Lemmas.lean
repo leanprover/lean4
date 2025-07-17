@@ -15,6 +15,7 @@ public import all Init.Data.BitVec.Basic
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.Nat.Div.Lemmas
 public import Init.System.Platform
+public import Std.Classes.Ord.New.Factories
 
 public section
 
@@ -205,6 +206,17 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   open $typeName (le_antisymm_iff) in
   protected theorem le_antisymm {a b : $typeName} (h₁ : a ≤ b) (h₂ : b ≤ a) : a = b :=
     le_antisymm_iff.2 ⟨h₁, h₂⟩
+
+  instance : OrderData $typeName := .ofLE $typeName
+
+  open $typeName renaming
+    le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
+  instance : LinearOrder $typeName := by
+    apply LinearOrder.ofLE
+    case le_refl => apply le_refl'
+    case le_antisymm => apply le_antisymm'
+    case le_total => apply le_total'
+    case le_trans => apply le_trans'
 
   @[simp] protected theorem ofNat_one : ofNat 1 = 1 := (rfl)
 

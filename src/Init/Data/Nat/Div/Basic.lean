@@ -350,12 +350,7 @@ theorem mod_le (x y : Nat) : x % y ≤ x := by
 theorem mod_lt_of_lt {a b c : Nat} (h : a < c) : a % b < c :=
   Nat.lt_of_le_of_lt (Nat.mod_le _ _) h
 
-@[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := by
-  rw [mod_eq]
-  have : ¬ (0 < b ∧ b = 0) := by
-    intro ⟨h₁, h₂⟩
-    simp_all
-  simp [this]
+@[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := rfl
 
 @[simp] theorem mod_self (n : Nat) : n % n = 0 := by
   rw [mod_eq_sub_mod (Nat.le_refl _), Nat.sub_self, zero_mod]

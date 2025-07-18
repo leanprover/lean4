@@ -1117,7 +1117,7 @@ For a `match` expression with `n` cases, the `split` tactic generates at most `n
 For example, given `n : Nat`, and a target `if n = 0 then Q else R`, `split` will generate
 one goal with hypothesis `n = 0` and target `Q`, and a second goal with hypothesis
 `¬n = 0` and target `R`.  Note that the introduced hypothesis is unnamed, and is commonly
-renamed used the `case` or `next` tactics.
+renamed using the `case` or `next` tactics.
 
 - `split` will split the goal (target).
 - `split at h` will split the hypothesis `h`.

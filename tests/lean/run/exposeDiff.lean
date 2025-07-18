@@ -1,8 +1,9 @@
 /--
-error: tactic 'apply' failed, could not unify the type of `x`
+error: Tactic `apply` failed: could not unify the type of `x`
   PUnit.{1}
 with the goal
   PUnit.{0}
+
 x : PUnit
 ⊢ PUnit
 -/
@@ -24,10 +25,11 @@ example (x : PUnit.{1}) : PUnit.{0} :=
   x
 
 /--
-error: tactic 'rfl' failed, the left-hand side
+error: Tactic `rfl` failed: the left-hand side
   ∀ (x : PUnit.{1}), True
 is not definitionally equal to the right-hand side
   ∀ (x : PUnit.{2}), True
+
 ⊢ (∀ (x : PUnit), True) ↔ ∀ (x : PUnit), True
 -/
 #guard_msgs in
@@ -38,10 +40,11 @@ inductive Test where
   | mk (x : Prop)
 
 /--
-error: tactic 'rfl' failed, the left-hand side
+error: Tactic `rfl` failed: the left-hand side
   (Test.mk (∀ (x : PUnit.{1}), True)).1
 is not definitionally equal to the right-hand side
   (Test.mk (∀ (x : PUnit.{2}), True)).1
+
 ⊢ (Test.mk (∀ (x : PUnit), True)).1 = (Test.mk (∀ (x : PUnit), True)).1
 -/
 #guard_msgs in

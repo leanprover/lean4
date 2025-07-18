@@ -259,7 +259,8 @@ example : let x := 2; x = 2 := by
 In `-descend` mode, does not extract embedded let.
 -/
 /--
-error: tactic 'extract_lets' failed, made no progress
+error: Tactic `extract_lets` failed: made no progress
+
 ⊢ (let x := 2;
     x) =
     2
@@ -587,7 +588,8 @@ example : ∀ n : Nat, let x := n; let y := 2; x + y = x + y := by
 Can't extract from underneath another `let` when `underBinder := false`.
 -/
 /--
-error: tactic 'extract_lets' failed, made no progress
+error: Tactic `extract_lets` failed: made no progress
+
 ⊢ ∀ (n : Nat),
     let x := n;
     let y := 2;

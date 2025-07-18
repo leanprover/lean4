@@ -35,7 +35,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α)
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
     (hacc : ∀ (idx : Nat) (hidx : idx < w),
       if curr = 0 then ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ofNat w w).getLsbD idx
-      else ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.clzAuxRec x (curr - 1)).getLsbD idx)
+      else ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.popCountRec x curr w).getLsbD idx)
     :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦

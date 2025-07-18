@@ -674,6 +674,9 @@ example {x : BitVec 8} (h : ¬ x = 0#8) : (x >>> 1).clz = x.clz + 1 := by bv_dec
 example {x y : BitVec 8} : x.clz < y.clz → y < x := by bv_decide
 example {x : BitVec 8} : x.clz ≤ 8 := by bv_decide
 
+-- POPCOUNT
+#eval (2#3).popCountRec 0 3
+
 section
 
 namespace NormalizeMul

@@ -23,6 +23,8 @@ public import Init.Data.Order.Factories
 
 public section
 
+open Std
+
 set_option linter.missingDocs true
 
 namespace BitVec

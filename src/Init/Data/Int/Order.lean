@@ -13,6 +13,8 @@ import Init.Data.Order.Lemmas
 
 public section
 
+open Std
+
 /-!
 # Results about the order properties of the integers, and the integers as an ordered ring.
 -/

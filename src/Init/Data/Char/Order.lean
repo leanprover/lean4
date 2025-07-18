@@ -5,6 +5,8 @@ public import Init.Data.Char.Basic
 import Init.Data.Char.Lemmas
 public import Init.Data.Order.Factories
 
+open Std
+
 public instance : OrderData Char := .ofLE Char
 
 public instance : LinearOrder Char := by

@@ -20,6 +20,8 @@ import Init.Data.Order.Lemmas
 
 public section
 
+open Std
+
 open Lean in
 set_option hygiene false in
 macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do

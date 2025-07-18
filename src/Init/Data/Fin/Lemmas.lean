@@ -17,6 +17,8 @@ import Init.Data.Order.Lemmas
 
 public section
 
+open Std
+
 namespace Fin
 
 @[simp] theorem ofNat_zero (n : Nat) [NeZero n] : Fin.ofNat n 0 = 0 := rfl

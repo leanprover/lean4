@@ -13,6 +13,8 @@ import Init.Data.Order.Lemmas
 
 public section
 
+open Std
+
 namespace String
 
 protected theorem data_eq_of_eq {a b : String} (h : a = b) : a.data = b.data :=

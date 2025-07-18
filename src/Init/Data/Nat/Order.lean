@@ -5,6 +5,8 @@ public import Init.Data.Nat.Basic
 import Init.Data.Nat.MinMax
 public import Init.Data.Order.Factories
 
+open Std
+
 public instance : OrderData Nat := OrderData.ofLE Nat
 
 public instance : LinearOrder Nat := by

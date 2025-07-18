@@ -1418,13 +1418,15 @@ abbrev eq_natAbs_iff_mul_eq_zero := @natAbs_eq_iff_mul_eq_zero
 
 instance : OrderData Int := .ofLE Int
 
-open Int renaming
-  le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
 instance : LinearOrder Int := by
   apply LinearOrder.ofLE
-  case le_refl => apply le_refl'
-  case le_antisymm => apply le_antisymm'
-  case le_total => apply le_total'
-  case le_trans => apply le_trans'
+  case le_refl => apply Int.le_refl
+  case le_antisymm => apply Int.le_antisymm
+  case le_total => apply Int.le_total
+  case le_trans => apply Int.le_trans
+
+instance : LawfulOrderLT Int where
+  lt_iff := by
+    simp [← Int.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
 
 end Int

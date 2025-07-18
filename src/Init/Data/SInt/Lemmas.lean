@@ -3036,6 +3036,10 @@ instance : LinearOrder Int8 := by
   case le_total => apply le_total'
   case le_trans => apply le_trans'
 
+instance : LawfulOrderLT Int8 where
+  lt_iff := by
+    simp [← Int8.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
+
 instance : OrderData Int16 := .ofLE Int16
 
 open Int16 renaming
@@ -3046,6 +3050,10 @@ instance : LinearOrder Int16 := by
   case le_antisymm => apply le_antisymm'
   case le_total => apply le_total'
   case le_trans => apply le_trans'
+
+instance : LawfulOrderLT Int16 where
+  lt_iff := by
+    simp [← Int16.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
 
 instance : OrderData Int32 := .ofLE Int32
 
@@ -3058,6 +3066,10 @@ instance : LinearOrder Int32 := by
   case le_total => apply le_total'
   case le_trans => apply le_trans'
 
+instance : LawfulOrderLT Int32 where
+  lt_iff := by
+    simp [← Int32.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
+
 instance : OrderData Int64 := .ofLE Int64
 
 open Int64 renaming
@@ -3069,6 +3081,10 @@ instance : LinearOrder Int64 := by
   case le_total => apply le_total'
   case le_trans => apply le_trans'
 
+instance : LawfulOrderLT Int64 where
+  lt_iff := by
+    simp [← Int64.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
+
 instance : OrderData ISize := .ofLE ISize
 
 open ISize renaming
@@ -3079,6 +3095,10 @@ instance : LinearOrder ISize := by
   case le_antisymm => apply le_antisymm'
   case le_total => apply le_total'
   case le_trans => apply le_trans'
+
+instance : LawfulOrderLT ISize where
+  lt_iff := by
+    simp [← ISize.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
 
 protected theorem Int8.add_neg_eq_sub {a b : Int8} : a + -b = a - b := Int8.toBitVec_inj.1 BitVec.add_neg_eq_sub
 protected theorem Int16.add_neg_eq_sub {a b : Int16} : a + -b = a - b := Int16.toBitVec_inj.1 BitVec.add_neg_eq_sub

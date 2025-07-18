@@ -13,6 +13,7 @@ public import Init.ByCases
 public import Init.Conv
 public import Init.Omega
 public import Std.Classes.Ord.New.Factories
+import Std.Classes.Ord.New.Instances
 
 public section
 

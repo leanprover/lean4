@@ -21,7 +21,7 @@ def l2 := fun _ => 0
 /--
 error: Failed to infer type of theorem `t`
 
-Note: All holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
+Note: All parameter types and holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be
 ---
 error: type of theorem 't' is not a proposition
   ?m.65
@@ -32,7 +32,7 @@ theorem t : _ := _
 /--
 error: Failed to infer type of example
 
-Note: When the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed
+Note: Because this declaration's type has been explicitly provided, all parameter types and holes (e.g., `_`) in its header are resolved before its body is processed; information from the declaration body cannot be used to infer what these values should be
 -/
 #guard_msgs in
 example : _ := _

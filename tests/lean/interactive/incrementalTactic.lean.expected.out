@@ -45,9 +45,10 @@ t 2
    "severity": 1,
    "range":
    {"start": {"line": 2, "character": 9}, "end": {"line": 2, "character": 11}},
-   "message": "unknown identifier 'no'",
+   "message": "Unknown identifier `no`",
    "fullRange":
-   {"start": {"line": 2, "character": 9}, "end": {"line": 2, "character": 11}}},
+   {"start": {"line": 2, "character": 9}, "end": {"line": 2, "character": 11}},
+   "code": "lean.unknownIdentifier"},
   {"source": "Lean 4",
    "severity": 1,
    "range":
@@ -121,7 +122,7 @@ s
    "severity": 1,
    "range":
    {"start": {"line": 3, "character": 8}, "end": {"line": 3, "character": 21}},
-   "message": "unknown identifier 'noSuchTheorem'",
+   "message": "Unknown identifier `noSuchTheorem`",
    "fullRange":
-   {"start": {"line": 3, "character": 8},
-    "end": {"line": 3, "character": 21}}}]}
+   {"start": {"line": 3, "character": 8}, "end": {"line": 3, "character": 21}},
+   "code": "lean.unknownIdentifier"}]}

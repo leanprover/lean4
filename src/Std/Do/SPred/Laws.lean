@@ -3,8 +3,12 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Std.Do.SPred.Notation
+public import Std.Do.SPred.Notation
+
+@[expose] public section
 
 namespace Std.Do.SPred
 

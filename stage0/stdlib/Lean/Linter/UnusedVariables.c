@@ -25,7 +25,6 @@ LEAN_EXPORT lean_object* l_Lean_Linter_initFn___lam__0____x40_Lean_Linter_Unused
 LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_followAliases(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lean_Linter_UnusedVariables_unusedVariables_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__2____x40_Lean_Linter_UnusedVariables___hyg_125_;
-extern lean_object* l_Lean_Elab_Term_instImpl____x40_Lean_Elab_Term___hyg_11701_;
 static lean_object* l_panic___at___Lean_Elab_InfoTree_visitM_go___at___Lean_Linter_collectMacroExpansions_x3f_go___at___Lean_Linter_collectMacroExpansions_x3f___at___Lean_Linter_UnusedVariables_unusedVariables_spec__4_spec__4_spec__6_spec__6___redArg___closed__0;
 static lean_object* l_Lean_Linter_initFn___lam__1___closed__3____x40_Lean_Linter_UnusedVariables___hyg_1021_;
 static lean_object* l_Lean_Linter_initFn___lam__2___closed__9____x40_Lean_Linter_UnusedVariables___hyg_640_;
@@ -566,6 +565,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Linter_UnusedVariables_0__Lean_Linter_
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_visitAssignments_visitNode_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_unusedVariables_spec__21___closed__0;
 lean_object* lean_array_uget(lean_object*, size_t);
+extern lean_object* l_Lean_Elab_Term_instImpl____x40_Lean_Elab_Term___hyg_11700_;
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_visitM_x27___at___Lean_Linter_UnusedVariables_collectReferences_go_spec__11_spec__11_spec__12___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lean_Linter_UnusedVariables_unusedVariables_spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
@@ -10796,7 +10796,7 @@ lean_object* x_455; lean_object* x_456; lean_object* x_457;
 x_455 = lean_ctor_get(x_438, 1);
 lean_inc(x_455);
 lean_dec_ref(x_438);
-x_456 = l_Lean_Elab_Term_instImpl____x40_Lean_Elab_Term___hyg_11701_;
+x_456 = l_Lean_Elab_Term_instImpl____x40_Lean_Elab_Term___hyg_11700_;
 x_457 = l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___redArg(x_455, x_456);
 lean_dec(x_455);
 if (lean_obj_tag(x_457) == 0)

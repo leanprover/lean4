@@ -1,0 +1,7 @@
+name = "test"
+defaultTargets = ["Test"]
+
+[[lean_lib]]
+name = "Test"
+globs = "Test.+"
+leanOptions.experimental.module = true

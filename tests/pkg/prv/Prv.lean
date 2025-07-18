@@ -6,7 +6,7 @@ import Prv.Foo
 #guard_msgs in
 #check { name := "leo", val := 15 : Foo }.val
 
-/-- error: unknown identifier 'a' -/
+/-- error: Unknown identifier `a` -/
 #guard_msgs in
 #check a
 
@@ -26,6 +26,6 @@ def m1 : Name "hello" := {}
 #guard_msgs in
 def m2 : Name "hello" := ⟨"hello"⟩
 
-/-- error: unknown constant 'Name.mk' -/
+/-- error: Unknown constant `Name.mk` -/
 #guard_msgs in
 def m3 : Name "hello" := Name.mk "hello"

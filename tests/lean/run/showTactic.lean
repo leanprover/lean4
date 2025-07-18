@@ -103,7 +103,7 @@ The first goal is re-elaborated with error recovery.
 -/
 
 /--
-error: unknown identifier 'a'
+error: Unknown identifier `a`
 ---
 error: unsolved goals
 case refine_1

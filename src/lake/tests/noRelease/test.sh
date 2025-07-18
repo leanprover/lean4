@@ -94,4 +94,4 @@ test_run build dep:release
 
 # Cleanup
 rm -rf dep/.git
-rm -f prdouced.out
+rm -f produced*

@@ -12,7 +12,7 @@ public import Init.Data.Nat.Power2
 public import Init.Data.Int.Bitwise
 public import Init.Data.BitVec.BasicAux
 
-public section
+@[expose] public section
 
 /-!
 We define the basic algebraic structure of bitvectors. We choose the `Fin` representation over
@@ -736,10 +736,10 @@ def twoPow (w : Nat) (i : Nat) : BitVec w := 1#w <<< i
 end bitwise
 
 /-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/
-def intMin (w : Nat) := twoPow w (w - 1)
+@[expose] def intMin (w : Nat) := twoPow w (w - 1)
 
 /-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
-def intMax (w : Nat) := (twoPow w (w - 1)) - 1
+@[expose] def intMax (w : Nat) := (twoPow w (w - 1)) - 1
 
 /--
 Computes a hash of a bitvector, combining 64-bit words using `mixHash`.

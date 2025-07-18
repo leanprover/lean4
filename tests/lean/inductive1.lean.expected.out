@@ -28,4 +28,4 @@ inductive1.lean:108:7-108:10: error(lean.ctorResultingTypeMismatch): Unexpected 
   T1
 but found
   Nat
-inductive1.lean:118:7-118:11: error: unknown identifier 'cons'
+inductive1.lean:118:7-118:11: error(lean.unknownIdentifier): Unknown identifier `cons`

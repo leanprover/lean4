@@ -52,7 +52,7 @@ cp "$CACHE_DIR/inputs/test.jsonl" .lake/backup-inputs.json
 # and equivalent to the standard artifact
 local_art="$(LAKE_CACHE_DIR= $LAKE query +Test:o)"
 cache_art="$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query +Test:o)"
-test_exp "$(dirname -- "$cache_art")" = "$CACHE_DIR/artifacts"
+test_exp "$(norm_dirname "$cache_art")" = "$CACHE_DIR/artifacts"
 test_exp "$cache_art" != "$local_art"
 test_cmd cmp -s "$cache_art" "$local_art"
 
@@ -62,7 +62,7 @@ test_cached() {
   target="$1"; shift
   art="$(LAKE_CACHE_DIR="$CACHE_DIR" $LAKE query $target)"
   echo "${1:-?} artifact cached: $target -> $art"
-  test ${1:-} "$(dirname -- "$art")" = "$CACHE_DIR/artifacts"
+  test ${1:-} "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
 }
 test_cached test:exe
 test_cached Test:static
@@ -73,6 +73,12 @@ test_cached +Test:dynlib !
 test_cached +Test:olean
 test_cached +Test:ilean !
 test_cached +Test:c
+LAKE_CACHE_DIR="$CACHE_DIR" test_run build +Module
+test_cached +Module:olean
+test_cached +Module:olean.server
+test_cached +Module:olean.private
+test_cached +Module:ir !
+
 
 # Verify no `.hash` files end up in the cache directory
 check_diff /dev/null <(ls -1 "$CACHE_DIR/*.hash" 2>/dev/null)

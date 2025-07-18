@@ -3,8 +3,13 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license.
 Authors: Lars König, Sebastian Graf
 -/
+module
+
 prelude
-import Std.Do.SPred.SPred
+public import Std.Do.SPred.SPred
+meta import Init.NotationExtra
+
+@[expose] public section
 
 namespace Std.Do
 
@@ -30,7 +35,7 @@ macro_rules
 
 /-- Remove an `spred` layer from a `term` syntax object. -/
 -- inverts the rules above.
-partial def SPred.Notation.unpack [Monad m] [MonadRef m] [MonadQuotation m] : Term → m Term
+meta def SPred.Notation.unpack [Monad m] [MonadRef m] [MonadQuotation m] : Term → m Term
   | `(spred($P))             => do `($P)
   | `(($P))                  => do `(($(← unpack P)))
   | `(if $c then $t else $e) => do
@@ -90,7 +95,7 @@ macro_rules
 namespace SPred.Notation
 
 @[app_unexpander SVal.curry]
-private def unexpandCurry : Unexpander
+meta def unexpandCurry : Unexpander
   | `($_ $t $ts*) => do
     match t with
     | `(fun $_ => { down := $e }) => if ts.isEmpty then ``(⌜$e⌝) else ``(⌜$e⌝ $ts*)
@@ -98,7 +103,7 @@ private def unexpandCurry : Unexpander
   | _ => throw ()
 
 @[app_unexpander SVal.uncurry]
-private def unexpandUncurry : Unexpander
+meta def unexpandUncurry : Unexpander
   | `($_ $f $ts*) => do
     match f with
     | `(SVal.getThe $t) => if ts.isEmpty then ``(‹$t›ₛ) else ``(‹$t›ₛ $ts*)
@@ -106,7 +111,7 @@ private def unexpandUncurry : Unexpander
   | _ => throw ()
 
 @[app_unexpander SPred.entails]
-private def unexpandEntails : Unexpander
+meta def unexpandEntails : Unexpander
   | `($_ $P $Q)  => do
     let P ← unpack P; let Q ← unpack Q;
     match P with
@@ -115,42 +120,42 @@ private def unexpandEntails : Unexpander
   | _ => throw ()
 
 @[app_unexpander SPred.bientails]
-private def unexpandBientails : Unexpander
+meta def unexpandBientails : Unexpander
   | `($_ $P $Q)  => do
     let P ← unpack P; let Q ← unpack Q;
     ``($P ⊣⊢ₛ $Q)
   | _ => throw ()
 
 @[app_unexpander SPred.and]
-private def unexpandAnd : Unexpander
+meta def unexpandAnd : Unexpander
   | `($_ $P $Q) => do
     let P ← unpack P; let Q ← unpack Q;
     ``(spred($P ∧ $Q))
   | _ => throw ()
 
 @[app_unexpander SPred.or]
-private def unexpandOr : Unexpander
+meta def unexpandOr : Unexpander
   | `($_ $P $Q) => do
     let P ← unpack P; let Q ← unpack Q;
     ``(spred($P ∨ $Q))
   | _ => throw ()
 
 @[app_unexpander SPred.not]
-private def unexpandNot : Unexpander
+meta def unexpandNot : Unexpander
   | `($_ $P) => do
     let P ← unpack P;
     ``(spred(¬ $P))
   | _ => throw ()
 
 @[app_unexpander SPred.imp]
-private def unexpandImp : Unexpander
+meta def unexpandImp : Unexpander
   | `($_ $P $Q) => do
     let P ← unpack P; let Q ← unpack Q;
     ``(spred($P → $Q))
   | _ => throw ()
 
 @[app_unexpander SPred.forall]
-private def unexpandForall : Unexpander
+meta def unexpandForall : Unexpander
   | `($_ fun $x:ident => ∀ $y:ident $[$z:ident]*, $Ψ) => do
     let Ψ ← unpack Ψ
     ``(spred(∀ $x:ident $y:ident $[$z:ident]*, $Ψ))
@@ -160,7 +165,7 @@ private def unexpandForall : Unexpander
   | _ => throw ()
 
 @[app_unexpander SPred.exists]
-private def unexpandExists : Unexpander
+meta def unexpandExists : Unexpander
   | `($_ fun $x:ident => ∃ $y:ident $[$z:ident]*, $Ψ) => do
     let Ψ ← unpack Ψ
     ``(spred(∃ $x:ident $y:ident $[$z:ident]*, $Ψ))
@@ -170,7 +175,7 @@ private def unexpandExists : Unexpander
   | _ => throw ()
 
 @[app_unexpander SPred.iff]
-private def unexpandIff : Unexpander
+meta def unexpandIff : Unexpander
   | `($_ $P $Q) => do
     let P ← unpack P; let Q ← unpack Q;
     ``(spred($P ↔ $Q))

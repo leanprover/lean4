@@ -30,7 +30,7 @@ def associativeQueryOperations : AssociationTable .subexpression associativeCont
   title := "Associative query operations"
   description := "Operations that take as input an associative container and return a 'single' piece of information (e.g., `GetElem` or `isEmpty`, but not `toList`)."
   dataSources n :=
-    (DataSource.declarationsInNamespace n .definitionsOnly)
+    (DataSource.definitionsInNamespace n)
       |>.map Subexpression.declaration
       |>.or (DataSource.getElem n)
 
@@ -39,7 +39,7 @@ def associativeCreationOperations : AssociationTable .subexpression associativeC
   title := "Associative creation operations"
   description := "Operations that create a new associative container"
   dataSources n :=
-    (DataSource.declarationsInNamespace n .definitionsOnly)
+    (DataSource.definitionsInNamespace n)
       |>.map Subexpression.declaration
       |>.or (DataSource.emptyCollection n)
 
@@ -48,7 +48,7 @@ def associativeModificationOperations : AssociationTable .subexpression associat
   title := "Associative modification operations"
   description := "Operations that both accept and return an associative container"
   dataSources n :=
-    (DataSource.declarationsInNamespace n .definitionsOnly)
+    (DataSource.definitionsInNamespace n)
       |>.map Subexpression.declaration
 
 def associativeCreateThenQuery : Table .subexpression .subexpression .declaration associativeContainers where

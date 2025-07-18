@@ -25,7 +25,7 @@ error: Failed to realize constant myTest.fun_cases:
       in the application
         motive x✝ h_1
 ---
-error: unknown identifier 'myTest.fun_cases'
+error: Unknown identifier `myTest.fun_cases`
 -/
 #guard_msgs in
 def foo := @myTest.fun_cases

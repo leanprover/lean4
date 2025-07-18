@@ -3,8 +3,12 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Internal.Formula.Lemmas
+public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Lemmas
+
+@[expose] public section
 
 /-!
 This module contains the implementation of RUP-based clause adding for the default LRAT checker

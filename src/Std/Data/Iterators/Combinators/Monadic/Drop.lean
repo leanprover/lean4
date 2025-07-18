@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.Consumers.Collect
-import Init.Data.Iterators.Consumers.Loop
-import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Consumers.Collect
+public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.Iterators.Internal.Termination
+
+@[expose] public section
 
 /-!
 This file provides the iterator combinator `IterM.drop`.
@@ -110,7 +114,7 @@ private def Drop.instFinitenessRelation [Iterator α m β] [Monad m]
 
 instance Drop.instFinite [Iterator α m β] [Monad m] [Finite α m] :
     Finite (Drop α m β) m :=
-  Finite.of_finitenessRelation instFinitenessRelation
+  by exact Finite.of_finitenessRelation instFinitenessRelation
 
 private def Drop.ProductiveRel (m : Type w → Type w') [Iterator α m β] [Productive α m] :
     IterM (α := Drop α m β) m β → IterM (α := Drop α m β) m β → Prop :=
@@ -148,7 +152,7 @@ private def Drop.instProductivenessRelation [Iterator α m β] [Monad m]
 
 instance Drop.instProductive [Iterator α m β] [Monad m] [Productive α m] :
     Productive (Drop α m β) m :=
-  Productive.of_productivenessRelation instProductivenessRelation
+  by exact Productive.of_productivenessRelation instProductivenessRelation
 
 instance Drop.instIteratorCollect {n : Type w → Type w'} [Monad m] [Monad n] [Iterator α m β] [Finite α m] :
     IteratorCollect (Drop α m β) m n :=

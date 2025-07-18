@@ -82,17 +82,17 @@ def hasConst [Monad m] [MonadEnv m] (constName : Name) (skipRealize := true) : m
 def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantInfo := do
   match (← getEnv).find? constName with
   | some info => pure info
-  | none      => throwError "unknown constant '{.ofConstName constName}'"
+  | none      => throwError "Unknown constant `{.ofConstName constName}`"
 
 def getConstVal [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantVal := do
   match (← getEnv).findConstVal? constName with
   | some val => pure val
-  | none     => throwError "unknown constant '{mkConst constName}'"
+  | none     => throwError "Unknown constant `{mkConst constName}`"
 
 def getAsyncConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) (skipRealize := false) : m AsyncConstantInfo := do
   match (← getEnv).findAsync? (skipRealize := skipRealize) constName with
   | some val => pure val
-  | none     => throwError "unknown constant '{mkConst constName}'"
+  | none     => throwError "Unknown constant `{mkConst constName}`"
 
 def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
   let info ← getConstVal constName

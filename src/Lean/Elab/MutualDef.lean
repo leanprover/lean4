@@ -124,6 +124,14 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
   else
     pure ()
 
+/--
+The error name for "failed to infer definition type" errors.
+
+We cannot use `logNamedError` here because the error is logged later, after attempting to synthesize
+metavariables, in `logUnassignedUsingErrorInfos`.
+-/
+def failedToInferDefTypeErrorName := `lean.inferDefTypeFailed
+
 private def registerFailedToInferDefTypeInfo (type : Expr) (view : DefView) :
     TermElabM Unit :=
   let ref := view.type?.getD <| match view.kind with
@@ -138,7 +146,7 @@ private def registerFailedToInferDefTypeInfo (type : Expr) (view : DefView) :
       else m!"instance"
     | .theorem  => m!"theorem `{view.declId}`"
     | _         => m!"definition `{view.declId}`"
-  registerCustomErrorIfMVar type ref m!"Failed to infer type of {msg}"
+  registerCustomErrorIfMVar type ref (m!"Failed to infer type of {msg}".tagWithErrorName failedToInferDefTypeErrorName)
 
 /--
   Return `some [b, c]` if the given `views` are representing a declaration of the form
@@ -159,12 +167,16 @@ private def getPendingMVarErrorMessage (views : Array DefView) : MessageData :=
   | some ids =>
     let idsStr := ", ".intercalate <| ids.map fun id => s!"`{id}`"
     let paramsStr := ", ".intercalate <| ids.map fun id => s!"`({id} : _)`"
-    MessageData.note m!"Recall that you cannot declare multiple constants in a single declaration. The identifier(s) {idsStr} are being interpreted as parameters {paramsStr}."
+    MessageData.note m!"Multiple constants cannot be declared in a single declaration. \
+      The identifier(s) {idsStr} are being interpreted as parameters {paramsStr}."
   | none =>
     if views.all fun view => view.kind.isTheorem then
-      MessageData.note "All holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be"
+      MessageData.note "All parameter types and holes (e.g., `_`) in the header of a theorem are resolved \
+        before the proof is processed; information from the proof cannot be used to infer what these values should be"
     else
-      MessageData.note "When the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
+      MessageData.note "Because this declaration's type has been explicitly provided, all parameter \
+        types and holes (e.g., `_`) in its header are resolved before its body is processed; \
+        information from the declaration body cannot be used to infer what these values should be"
 
 /--
 Convert terms of the form `OfNat <type> (OfNat.ofNat Nat <num> ..)` into `OfNat <type> <num>`.
@@ -1235,8 +1247,10 @@ where
   finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
     withExporting (isExporting :=
-      !headers.all (fun header =>
-        !header.modifiers.isInferredPublic env || header.modifiers.attrs.any (·.name == `no_expose)) &&
+      headers.any (fun header =>
+        header.modifiers.isInferredPublic env &&
+        !header.modifiers.isMeta &&
+        !header.modifiers.attrs.any (·.name == `no_expose)) &&
       (isExporting ||
        headers.all (fun header => (header.kind matches .abbrev | .instance)) ||
        (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||

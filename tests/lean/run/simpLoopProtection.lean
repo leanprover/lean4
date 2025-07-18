@@ -16,7 +16,7 @@ Note: Possibly caused by: `id`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -33,7 +33,7 @@ Note: Possibly caused by: `id`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -84,7 +84,7 @@ Note: Possibly caused by: `ab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -105,7 +105,7 @@ Note: Possibly caused by: `ab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -126,7 +126,7 @@ Note: Possibly caused by: `← ab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -144,7 +144,7 @@ Note: Possibly caused by: `h`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -168,7 +168,7 @@ Note: Possibly caused by: `Nat.add_assoc`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -188,7 +188,7 @@ Note: Possibly caused by: `Tree.size`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -224,7 +224,7 @@ warning: Possibly looping simp theorem: `baab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -274,7 +274,7 @@ Note: Possibly caused by: `c`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -301,7 +301,7 @@ Note: Possibly caused by: `c`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -323,7 +323,7 @@ Note: Possibly caused by: `c`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -339,7 +339,7 @@ Simp? does not print the warnings for now. Let’s see if users find that helpfu
 -/
 
 /--
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -352,7 +352,7 @@ But we can turn it on:
 -/
 set_option linter.loopingSimpArgs true in
 /--
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information
@@ -391,7 +391,7 @@ Note: Possibly caused by: `ab`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---
-error: tactic 'simp' failed, nested error:
+error: Tactic `simp` failed with a nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit
 use `set_option diagnostics true` to get diagnostic information

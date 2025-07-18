@@ -37,6 +37,7 @@ error: Tactic `rfl` failed: the left-hand side
   foo 0
 is not definitionally equal to the right-hand side
   0
+
 ⊢ foo 0 = 0
 -/
 #guard_msgs in
@@ -48,6 +49,7 @@ error: Tactic `rfl` failed: the left-hand side
   foo (n + 1)
 is not definitionally equal to the right-hand side
   foo n
+
 n : Nat
 ⊢ foo (n + 1) = foo n
 -/

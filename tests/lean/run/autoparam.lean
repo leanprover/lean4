@@ -21,6 +21,7 @@ x + x
 error: could not synthesize default value for parameter 'h' using tactics
 ---
 error: Tactic `assumption` failed
+
 ⊢ 1 = 2
 -/
 #guard_msgs in example := f 1 2

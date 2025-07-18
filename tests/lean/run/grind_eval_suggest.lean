@@ -61,6 +61,7 @@ macro "bad_tac" : tactic => `(tactic| eval_suggest (intros; (attempt_all | rfl |
 
 /--
 error: Tactic `try?` failed: consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
+
 ⊢ True
 -/
 #guard_msgs (error) in

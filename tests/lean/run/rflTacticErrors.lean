@@ -17,6 +17,7 @@ error: Tactic `rfl` failed: the left-hand side
   false
 is not definitionally equal to the right-hand side
   true
+
 ⊢ false = true
 -/
 #guard_msgs in
@@ -35,6 +36,7 @@ error: Tactic `rfl` failed: the left-hand side
   42
 is not definitionally equal to the right-hand side
   23
+
 ⊢ P 42 23
 -/
 #guard_msgs in
@@ -49,6 +51,7 @@ error: Tactic `rfl` failed: the left-hand side
   @withImplicitNat 42
 is not definitionally equal to the right-hand side
   @withImplicitNat 23
+
 ⊢ P withImplicitNat withImplicitNat
 -/
 #guard_msgs in
@@ -91,12 +94,14 @@ example : Q true true   := by apply_rfl
 /--
 error: Tactic `rfl` failed: no @[refl] lemma registered for relation
   Q'
+
 ⊢ Q' true true
 -/
 #guard_msgs in example : Q' true true  := by apply_rfl -- Error
 /--
 error: Tactic `rfl` failed: no @[refl] lemma registered for relation
   R
+
 ⊢ R true true
 -/
 #guard_msgs in example : R true true   := by apply_rfl -- Error
@@ -109,6 +114,7 @@ example : Q true true   := by with_reducible apply_rfl
 /--
 error: Tactic `rfl` failed: no @[refl] lemma registered for relation
   Q'
+
 ⊢ Q' true true
 -/
 #guard_msgs in
@@ -116,6 +122,7 @@ example : Q' true true  := by with_reducible apply_rfl -- Error
 /--
 error: Tactic `rfl` failed: no @[refl] lemma registered for relation
   R
+
 ⊢ R true true
 -/
 #guard_msgs in
@@ -134,6 +141,7 @@ example : Q true' true   := by apply_rfl
 /--
 error: Tactic `rfl` failed: no @[refl] lemma registered for relation
   Q'
+
 ⊢ Q' true' true'
 -/
 #guard_msgs in
@@ -141,6 +149,7 @@ example : Q' true' true  := by apply_rfl -- Error
 /--
 error: Tactic `rfl` failed: no @[refl] lemma registered for relation
   R
+
 ⊢ R true' true'
 -/
 #guard_msgs in
@@ -154,6 +163,7 @@ example : Q true' true   := by with_reducible apply_rfl -- NB: No error, Q and t
 /--
 error: Tactic `rfl` failed: no @[refl] lemma registered for relation
   Q'
+
 ⊢ Q' true' true'
 -/
 #guard_msgs in
@@ -161,6 +171,7 @@ example : Q' true' true  := by with_reducible apply_rfl -- Error
 /--
 error: Tactic `rfl` failed: no @[refl] lemma registered for relation
   R
+
 ⊢ R true' true'
 -/
 #guard_msgs in
@@ -179,6 +190,7 @@ example : Q true'' true   := by apply_rfl
 /--
 error: Tactic `rfl` failed: no @[refl] lemma registered for relation
   Q'
+
 ⊢ Q' true'' true''
 -/
 #guard_msgs in
@@ -186,6 +198,7 @@ example : Q' true'' true  := by apply_rfl -- Error
 /--
 error: Tactic `rfl` failed: no @[refl] lemma registered for relation
   R
+
 ⊢ R true'' true''
 -/
 #guard_msgs in
@@ -196,6 +209,7 @@ error: Tactic `rfl` failed: the left-hand side
   true''
 is not definitionally equal to the right-hand side
   true
+
 ⊢ true'' = true
 -/
 #guard_msgs in
@@ -210,6 +224,7 @@ with the goal
 
 Note: The full type of 'HEq.refl' is
   ∀ {α : Sort _} (a : α), a ≍ a
+
 ⊢ true'' ≍ true
 -/
 #guard_msgs in
@@ -219,6 +234,7 @@ error: Tactic `rfl` failed: the left-hand side
   True''
 is not definitionally equal to the right-hand side
   True
+
 ⊢ True'' ↔ True
 -/
 #guard_msgs in
@@ -228,6 +244,7 @@ error: Tactic `rfl` failed: the left-hand side
   true''
 is not definitionally equal to the right-hand side
   true
+
 ⊢ P true'' true
 -/
 #guard_msgs in
@@ -237,6 +254,7 @@ error: Tactic `rfl` failed: the left-hand side
   true''
 is not definitionally equal to the right-hand side
   true
+
 ⊢ Q true'' true
 -/
 #guard_msgs in
@@ -246,6 +264,7 @@ error: Tactic `rfl` failed: the left-hand side
   true''
 is not definitionally equal to the right-hand side
   true
+
 ⊢ Q' true'' true
 -/
 #guard_msgs in
@@ -255,6 +274,7 @@ error: Tactic `rfl` failed: the left-hand side
   true''
 is not definitionally equal to the right-hand side
   true
+
 ⊢ R true'' true
 -/
 #guard_msgs in
@@ -266,6 +286,7 @@ error: Tactic `rfl` failed: the left-hand side
   false
 is not definitionally equal to the right-hand side
   true
+
 ⊢ false = true
 -/
 #guard_msgs in
@@ -278,6 +299,7 @@ with the goal
 
 Note: The full type of 'HEq.refl' is
   ∀ {α : Sort _} (a : α), a ≍ a
+
 ⊢ false ≍ true
 -/
 #guard_msgs in
@@ -287,6 +309,7 @@ error: Tactic `rfl` failed: the left-hand side
   False
 is not definitionally equal to the right-hand side
   True
+
 ⊢ False ↔ True
 -/
 #guard_msgs in
@@ -296,6 +319,7 @@ error: Tactic `rfl` failed: the left-hand side
   false
 is not definitionally equal to the right-hand side
   true
+
 ⊢ P false true
 -/
 #guard_msgs in
@@ -305,6 +329,7 @@ error: Tactic `rfl` failed: the left-hand side
   false
 is not definitionally equal to the right-hand side
   true
+
 ⊢ Q false true
 -/
 #guard_msgs in
@@ -314,6 +339,7 @@ error: Tactic `rfl` failed: the left-hand side
   false
 is not definitionally equal to the right-hand side
   true
+
 ⊢ Q' false true
 -/
 #guard_msgs in
@@ -323,6 +349,7 @@ error: Tactic `rfl` failed: the left-hand side
   false
 is not definitionally equal to the right-hand side
   true
+
 ⊢ R false true
 -/
 #guard_msgs in
@@ -333,6 +360,7 @@ error: Tactic `rfl` failed: the left-hand side
   false
 is not definitionally equal to the right-hand side
   true
+
 ⊢ false = true
 -/
 #guard_msgs in
@@ -345,6 +373,7 @@ with the goal
 
 Note: The full type of 'HEq.refl' is
   ∀ {α : Sort _} (a : α), a ≍ a
+
 ⊢ false ≍ true
 -/
 #guard_msgs in
@@ -354,6 +383,7 @@ error: Tactic `rfl` failed: the left-hand side
   False
 is not definitionally equal to the right-hand side
   True
+
 ⊢ False ↔ True
 -/
 #guard_msgs in
@@ -363,6 +393,7 @@ error: Tactic `rfl` failed: the left-hand side
   false
 is not definitionally equal to the right-hand side
   true
+
 ⊢ P false true
 -/
 #guard_msgs in
@@ -372,6 +403,7 @@ error: Tactic `rfl` failed: the left-hand side
   false
 is not definitionally equal to the right-hand side
   true
+
 ⊢ Q false true
 -/
 #guard_msgs in
@@ -381,6 +413,7 @@ error: Tactic `rfl` failed: the left-hand side
   false
 is not definitionally equal to the right-hand side
   true
+
 ⊢ Q' false true
 -/
 #guard_msgs in
@@ -390,6 +423,7 @@ error: Tactic `rfl` failed: the left-hand side
   false
 is not definitionally equal to the right-hand side
   true
+
 ⊢ R false true
 -/
 #guard_msgs in
@@ -405,6 +439,7 @@ with the goal
 
 Note: The full type of 'HEq.refl' is
   ∀ {α : Sort _} (a : α), a ≍ a
+
 ⊢ true ≍ 1
 -/
 #guard_msgs in
@@ -417,6 +452,7 @@ with the goal
 
 Note: The full type of 'HEq.refl' is
   ∀ {α : Sort _} (a : α), a ≍ a
+
 ⊢ true ≍ 1
 -/
 #guard_msgs in
@@ -432,6 +468,7 @@ error: Tactic `rfl` failed: the left-hand side
   true
 is not definitionally equal to the right-hand side
   false
+
 ⊢ S true false
 -/
 #guard_msgs in
@@ -441,6 +478,7 @@ error: Tactic `rfl` failed: the left-hand side
   true
 is not definitionally equal to the right-hand side
   false
+
 ⊢ S true false
 -/
 #guard_msgs in

@@ -21,6 +21,7 @@ with the goal
 
 Note: The full type of `@congrArg` is
   ∀ {α : Sort _} {β : Sort _} {a₁ a₂ : α} (f : α → β), a₁ = a₂ → f a₁ = f a₂
+
 ⊢ OfNat.ofNat 0 = OfNat.ofNat 1
 -/
 #guard_msgs in
@@ -37,6 +38,7 @@ with the goal
 
 Note: The full type of `@congrArg` is
   ∀ {α : Sort _} {β : Sort _} {a₁ a₂ : α} (f : α → β), a₁ = a₂ → f a₁ = f a₂
+
 ⊢ OfNat.ofNat 0 = OfNat.ofNat 1
 -/
 #guard_msgs in

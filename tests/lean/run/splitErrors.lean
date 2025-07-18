@@ -23,6 +23,7 @@ example (x y : Bool) : (if x && y then 1 else 2) > (if x || y then 0 else 1) := 
 error: Tactic `split` failed: Could not split an `if` or `match` expression in the goal
 
 Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
+
 ⊢ False
 -/
 #guard_msgs in
@@ -35,6 +36,7 @@ error: Tactic `split` failed: Could not split the goal or any of the following h
 Note: `split at *` does not attempt to split at non-propositional hypotheses or those on which other hypotheses depend. It may still be possible to manually split a hypothesis using `split at`
 
 Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
+
 h1 : True
 ⊢ False
 -/
@@ -49,6 +51,7 @@ error: Tactic `split` failed: Could not split an `if` or `match` expression in t
 Hint: If you meant to destruct this conjunction, use the `cases` tactic instead
 
 Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
+
 p q : Prop
 h : p ∧ q
 ⊢ p
@@ -63,6 +66,7 @@ error: Tactic `split` failed: Could not split an `if` or `match` expression in t
 Hint: If you meant to destruct this structure, use the `cases` tactic instead
 
 Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
+
 α : Sort u_1
 R : α → α → Prop
 h : Equivalence R
@@ -76,6 +80,7 @@ example {R : α → α → Prop} (h : Equivalence R) : False := by
 error: Tactic `split` failed: Could not split the goal or any of the following hypotheses: `t`, `use_dep`
 
 Note: `split at *` does not attempt to split at non-propositional hypotheses or those on which other hypotheses depend. It may still be possible to manually split a hypothesis using `split at`
+
 t : True
 dep : if 1 ≥ 0 then True else False
 use_dep : dep = dep
@@ -91,6 +96,7 @@ example : False := by
 
 /--
 error: Tactic `split` failed: Could not split an `if` or `match` expression in the type `Nat` of `x`
+
 x : Nat := if true = true then 3 else 4
 ⊢ False
 -/
@@ -104,6 +110,7 @@ example : False := by
 error: Tactic `split` failed: Could not split an `if` or `match` expression in the type `True` of `h`
 
 Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
+
 h : True
 ⊢ False
 -/

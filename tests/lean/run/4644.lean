@@ -17,6 +17,7 @@ error: Tactic `rfl` failed: the left-hand side
   check_sorted #[0, 3, 3, 5, 8, 10, 10, 10]
 is not definitionally equal to the right-hand side
   true
+
 ⊢ check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] = true
 -/
 #guard_msgs in

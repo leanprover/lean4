@@ -9,6 +9,7 @@ def Foo (a b : Nat) : Prop := a = b
 /--
 error: Tactic `rfl` failed: no @[refl] lemma registered for relation
   Foo
+
 ⊢ Foo 1 1
 -/
 #guard_msgs in

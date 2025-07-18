@@ -260,6 +260,7 @@ In `-descend` mode, does not extract embedded let.
 -/
 /--
 error: Tactic `extract_lets` failed: made no progress
+
 ⊢ (let x := 2;
     x) =
     2
@@ -588,6 +589,7 @@ Can't extract from underneath another `let` when `underBinder := false`.
 -/
 /--
 error: Tactic `extract_lets` failed: made no progress
+
 ⊢ ∀ (n : Nat),
     let x := n;
     let y := 2;

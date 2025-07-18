@@ -199,6 +199,7 @@ When `-types`, doesn't lift out of binder type.
 -/
 /--
 error: Tactic `lift_lets` failed: made no progress
+
 ⊢ (fun x => Nat) 2
 -/
 #guard_msgs in
@@ -284,6 +285,7 @@ Doesn't lift from implicit arguments by default
 -/
 /--
 error: Tactic `lift_lets` failed: made no progress
+
 ⊢ id = id
 -/
 #guard_msgs in

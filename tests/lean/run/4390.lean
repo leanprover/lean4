@@ -12,6 +12,7 @@ decreasing_by sorry
 
 /--
 error: Tactic `split` failed: Could not split an `if` or `match` expression in the goal
+
 state : Nat
 p :
   (match h : step state with

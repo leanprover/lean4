@@ -17,6 +17,7 @@ set_option linter.missingDocs false
 /--
 error: Tactic `left` failed:
 left tactic works for inductive types with exactly 2 constructors
+
 ⊢ Unit
 -/
 #guard_msgs in
@@ -29,6 +30,7 @@ inductive F
 /--
 error: Tactic `left` failed:
 left tactic works for inductive types with exactly 2 constructors
+
 ⊢ F
 -/
 #guard_msgs in
@@ -43,6 +45,7 @@ example : G := by
 
 /--
 error: Tactic `left` failed: target is not an inductive datatype
+
 ⊢ Type
 -/
 #guard_msgs in

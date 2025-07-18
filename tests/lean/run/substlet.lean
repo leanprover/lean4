@@ -97,6 +97,7 @@ The tactic sees `m + 1 = n + 2` and fails.
 /--
 error: Tactic `subst` failed: invalid equality proof, it is not of the form (x = t) or (t = x)
   v = n + 2
+
 n : Nat
 h : n = 0
 m : Nat := n + 1

@@ -14,7 +14,7 @@ t 2
    "range":
    {"start": {"line": 4, "character": 12}, "end": {"line": 4, "character": 13}},
    "message":
-   "Tactic `introN` failed: insufficient number of binders\na n : Nat\n⊢ True",
+   "Tactic `introN` failed: insufficient number of binders\n\na n : Nat\n⊢ True",
    "fullRange":
    {"start": {"line": 4, "character": 12},
     "end": {"line": 4, "character": 13}}},
@@ -73,7 +73,7 @@ s
    "range":
    {"start": {"line": 2, "character": 8}, "end": {"line": 2, "character": 25}},
    "message":
-   "Tactic `rewrite` failed: did not find instance of the pattern in the target expression\n  0\n⊢ True",
+   "Tactic `rewrite` failed: did not find instance of the pattern in the target expression\n  0\n\n⊢ True",
    "fullRange":
    {"start": {"line": 2, "character": 8},
     "end": {"line": 2, "character": 25}}}]}

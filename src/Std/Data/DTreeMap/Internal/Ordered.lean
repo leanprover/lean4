@@ -6,7 +6,7 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Std.Classes.Ord.Basic
+public import Init.Data.Order.Ord
 public import Std.Data.DTreeMap.Internal.Def
 public import Std.Data.Internal.Cut
 

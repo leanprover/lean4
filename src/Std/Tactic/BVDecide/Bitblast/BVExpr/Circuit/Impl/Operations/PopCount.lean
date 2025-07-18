@@ -25,10 +25,10 @@ namespace bitblast
 def blastPopCount (aig : AIG α) (x : AIG.RefVec aig w) :
     AIG.RefVecEntry α w :=
   let wconst : AIG.RefVec aig w := blastConst aig (w := w) w
-  go aig x w 0 wconst
+  go aig x 0 wconst
 where
-  go (aig : AIG α) (x : AIG.RefVec aig w) (fuel : Nat) (curr : Nat) (acc : AIG.RefVec aig w) :=
-    if hf : 0 < fuel then
+  go (aig : AIG α) (x : AIG.RefVec aig w) (curr : Nat) (acc : AIG.RefVec aig w) :=
+    if hf : curr < w then
       -- create curr constant node
       let currConst : AIG.RefVec aig w := blastConst aig (w := w) curr
       let zero : AIG.RefVec aig w := blastConst aig (w := w) 0
@@ -60,18 +60,18 @@ where
       let x := res.vec
       have := AIG.RefVec.zip_le_size ..
       let acc := acc.cast this
-      go aig x (fuel - 1) (curr + 1) acc
+      go aig x (curr + 1) acc
     else
       ⟨aig, acc⟩
-  termination_by fuel
+  termination_by (w - curr)
 
 namespace blastPopCount
 
 end blastPopCount
 
-theorem blastPopCount.go_le_size (aig : AIG α) (fuel : Nat) (curr : Nat) (acc : AIG.RefVec aig w)
+theorem blastPopCount.go_le_size (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
     (xc : AIG.RefVec aig w) :
-    aig.decls.size ≤ (go aig xc fuel curr acc).aig.decls.size := by
+    aig.decls.size ≤ (go aig xc curr acc).aig.decls.size := by
   unfold go
   sorry
   -- dsimp only
@@ -86,10 +86,10 @@ theorem blastPopCount.go_le_size (aig : AIG α) (fuel : Nat) (curr : Nat) (acc :
   -- · simp
 -- termination_by fuel
 
-theorem blastPopCount.go_decl_eq (aig : AIG α) (fuel : Nat) (curr : Nat) (acc : AIG.RefVec aig w)
+theorem blastPopCount.go_decl_eq (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
     (xc : AIG.RefVec aig w) :
     ∀ (idx : Nat) h1 h2,
-        (go aig xc fuel curr acc).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by sorry
+        (go aig xc curr acc).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by sorry
 --   generalize hgo : go aig xc fuel acc = res
 --   unfold go at hgo
 --   dsimp only at hgo

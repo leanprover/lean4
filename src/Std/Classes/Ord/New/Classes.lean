@@ -3,6 +3,25 @@ module
 prelude
 public import Init.Core
 
+/-!
+# Order-related typeclasses
+
+This module provides the typeclasses used to state that basic operations on some type `α`
+reflect a certain well-behaved order structure on `α`.
+
+The basic operations are provided by typeclasses such as `LE α`, `LT α`, `Ord α` or `Min α`.
+All of them describe at least some way to compare elements in `α`. Usually, any subset of them
+is available and can show (or needs) that these comparisons are well-behaved in some sense.
+
+For example, one could merely require that the available operations reflect a preorder
+(where the less-or-equal relation only needs to be reflexive and transitive). Alternatively,
+one could require a full linear order (additionally requiring antisymmetry and totality of the
+less-or-equal relation).
+
+In order to be independent from the actually available set of basic operations, these lawfulness
+properties are stated for a separate typeclass `OrderData α`. See the docstring of
+`OrderData` for a more detailed explanation for its necessity.
+-/
 
 /--
 This data-carrying typeclass defines which elements of `α` are less, and less or equal, to

@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Char.Order
 public import Init.Data.Char.Lemmas
 public import Init.Data.List.Lex
+import Std.Classes.Ord.New.Instances
 
 public section
 

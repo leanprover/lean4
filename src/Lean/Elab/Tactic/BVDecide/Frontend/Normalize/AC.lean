@@ -240,7 +240,7 @@ construct and return a proof of `x = y`.
 
 Uses `grind`'s CommRing theory solver internally to construct said proof. -/
 def proveEqualityByGrindCommRing (x y : Expr) : MetaM Expr := do
-  trace[Meta.Tactic.bv] m!"Proving equality by AC: {indentD x} = {indentD y}"
+  trace[Meta.Tactic.bv] m!"Proving equality by grind: {indentD x} = {indentD y}"
   let expectedType ← mkEq x y
   let mvar ← mkFreshExprMVar expectedType
   let config := {}
@@ -249,7 +249,6 @@ def proveEqualityByGrindCommRing (x y : Expr) : MetaM Expr := do
     throwError "grind failed with leftover goal: {indentD (← g.ppState)}"
   else
     instantiateMVars mvar
-
 
 /--
 Given an expression `P lhs rhs`, where `lhs, rhs : ty` and `P : $ty → $ty → _`,

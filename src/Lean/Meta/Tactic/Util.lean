@@ -36,8 +36,8 @@ def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) 
 
 def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg? : Option MessageData := none) : MetaM α :=
   match msg? with
-  | none => throwError "tactic '{tacticName}' failed\n{mvarId}"
-  | some msg => throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
+  | none => throwError "Tactic `{tacticName}` failed\n{mvarId}"
+  | some msg => throwError "Tactic `{tacticName}` failed: {msg}\n{mvarId}"
 
 /--
 Rethrows the error as a nested error with the given tactic name prepended.

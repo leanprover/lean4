@@ -37,7 +37,7 @@ def emptyNats :=
   []
 ```
 ```output
-Failed to infer type of `emptyNats`
+Failed to infer type of definition `emptyNats`
 ```
 
 ```lean fixed (title := "Fixed (type annotation)")

@@ -17,6 +17,7 @@ public import all Std.Data.Internal.List.Defs
 public import Std.Classes.Ord.Basic
 import Init.Data.Subtype.Order
 import Init.Data.Order.Lemmas
+public import Init.Data.Order.Ord
 
 public section
 

@@ -665,7 +665,7 @@ def buildStaticLib
   (libFile : FilePath) (oFileJobs : Array (Job FilePath)) (thin :=  false)
 : SpawnM (Job FilePath) :=
   (Job.collectArray oFileJobs "objs").mapM fun oFiles => do
-    buildArtifactUnlessUpToDate libFile (ext := "a") do
+    buildArtifactUnlessUpToDate libFile (ext := "a") (restore := true) do
       compileStaticLib libFile oFiles (← getLeanAr) thin
 
 private def mkLinkObjArgs
@@ -719,9 +719,9 @@ def buildSharedLib
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     addTrace (← extraDepTrace)
-    -- `restore := plugin` because Lean plugins are required to have a specific name
+    -- Lean plugins are required to have a specific name
     -- and thus need to copied from the cache with that name
-    let libFile ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := plugin) do
+    let libFile ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
       let libs ← if linkDeps then mkLinkOrder libs else pure #[]
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs
       compileSharedLib libFile args linker
@@ -742,9 +742,9 @@ def buildLeanSharedLib
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- shared libraries are platform-dependent artifacts
-    -- `restore := plugin` because Lean plugins are required to have a specific name
+    -- Lean plugins are required to have a specific name
     -- and thus need to copied from the cache with that name
-    let libFile ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := plugin) do
+    let libFile ← buildArtifactUnlessUpToDate libFile (ext := sharedLibExt) (restore := true) do
       let lean ← getLeanInstall
       let libs ← if linkDeps then mkLinkOrder libs else pure #[]
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++
@@ -766,7 +766,7 @@ def buildLeanExe
     addLeanTrace
     addPureTrace traceArgs "traceArgs"
     addPlatformTrace -- executables are platform-dependent artifacts
-    buildArtifactUnlessUpToDate exeFile (ext := FilePath.exeExtension) (exe := true) do
+    buildArtifactUnlessUpToDate exeFile (ext := FilePath.exeExtension) (exe := true) (restore := true) do
       let lean ← getLeanInstall
       let libs ← mkLinkOrder libs
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs ++

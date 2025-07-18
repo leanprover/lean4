@@ -3,7 +3,7 @@ module
 prelude
 public import Init.Data.Char.Basic
 import Init.Data.Char.Lemmas
-public import Std.Classes.Ord.New.Factories
+public import Init.Data.Order.Factories
 
 public instance : OrderData Char := .ofLE Char
 

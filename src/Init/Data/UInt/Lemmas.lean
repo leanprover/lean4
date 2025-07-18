@@ -15,8 +15,8 @@ public import all Init.Data.BitVec.Basic
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.Nat.Div.Lemmas
 public import Init.System.Platform
-public import Std.Classes.Ord.New.Factories
-import Std.Classes.Ord.New.Instances
+public import Init.Data.Order.Factories
+import Init.Data.Order.Lemmas
 
 public section
 

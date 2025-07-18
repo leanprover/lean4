@@ -8,8 +8,8 @@ module
 prelude
 public import Init.Data.UInt.BasicAux
 public import Init.Data.BitVec.Basic
-public import Std.Classes.Ord.New.Classes
-import Std.Classes.Ord.New.Factories
+public import Init.Data.Order.Classes
+import Init.Data.Order.Factories
 
 @[expose] public section
 

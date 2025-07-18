@@ -3,7 +3,7 @@ module
 prelude
 public import Init.Data.Nat.Basic
 import Init.Data.Nat.MinMax
-public import Std.Classes.Ord.New.Factories
+public import Init.Data.Order.Factories
 
 public instance : OrderData Nat := OrderData.ofLE Nat
 

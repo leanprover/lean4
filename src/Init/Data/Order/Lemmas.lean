@@ -1,7 +1,7 @@
 module
 
 prelude
-public import Std.Classes.Ord.New.Classes
+public import Init.Data.Order.Classes
 import Init.SimpLemmas
 import Init.Classical
 

@@ -11,7 +11,7 @@ public import Init.Data.Vector.Lemmas
 public import all Init.Data.Array.Lex.Basic
 public import Init.Data.Array.Lex.Lemmas
 import Init.Data.Range.Polymorphic.Lemmas
-import Std.Classes.Ord.New.Instances
+import Init.Data.Order.Lemmas
 
 public section
 

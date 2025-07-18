@@ -254,14 +254,16 @@ protected theorem le_antisymm {x y : Fin n} (h1 : x ≤ y) (h2 : y ≤ x) : x = 
 
 instance : OrderData (Fin n) := .ofLE (Fin n)
 
-open Fin renaming
-  le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
 instance : LinearOrder (Fin n) := by
   apply LinearOrder.ofLE
-  case le_refl => apply le_refl'
-  case le_antisymm => apply le_antisymm'
-  case le_total => apply le_total'
-  case le_trans => apply le_trans'
+  case le_refl => apply Fin.le_refl
+  case le_antisymm => apply Fin.le_antisymm
+  case le_total => apply Fin.le_total
+  case le_trans => apply Fin.le_trans
+
+instance : LawfulOrderLT (Fin n) where
+  lt_iff := by
+    simp [← Fin.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
 
 @[simp, grind =] theorem val_rev (i : Fin n) : rev i = n - (i + 1) := rfl
 

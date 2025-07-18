@@ -19,7 +19,7 @@ public import Init.Data.Int.LemmasAux
 public import Init.Data.Int.Pow
 public import Init.Data.Int.LemmasAux
 public import Init.Data.BitVec.Bootstrap
-public import Std.Classes.Ord.New.Factories
+public import Init.Data.Order.Factories
 
 public section
 

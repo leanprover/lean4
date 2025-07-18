@@ -101,7 +101,7 @@ where
       else if (← isFnStructureConst type.getAppFn) then pure <| some "structure"
       else pure <| none
     if let some kind := kind? then
-      return .hint' m!"To destruct a {kind}, use the `cases` tactic"
+      return .hint' m!"If you meant to destruct this {kind}, use the `cases` tactic instead"
     else
       return .nil
 

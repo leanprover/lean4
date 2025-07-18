@@ -46,7 +46,7 @@ example : False := by
 /--
 error: Tactic `split` failed: Could not split an `if` or `match` expression in the type `p ∧ q` of `h`
 
-Hint: To destruct a conjunction, use the `cases` tactic
+Hint: If you meant to destruct this conjunction, use the `cases` tactic instead
 
 Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
 p q : Prop
@@ -60,7 +60,7 @@ example {p q : Prop} (h : p ∧ q) : p := by
 /--
 error: Tactic `split` failed: Could not split an `if` or `match` expression in the type `Equivalence R` of `h`
 
-Hint: To destruct a structure, use the `cases` tactic
+Hint: If you meant to destruct this structure, use the `cases` tactic instead
 
 Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
 α : Sort u_1

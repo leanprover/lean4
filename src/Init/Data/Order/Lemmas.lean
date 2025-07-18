@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Order.Classes
 import Init.SimpLemmas
 import Init.Classical
+public import Init.Data.BEq
+public import Init.Data.Order.Ord
 
 namespace Std
 
@@ -89,6 +91,15 @@ public theorem not_lt {α : Type u} [LT α] [LE α] [OrderData α] [Std.Total (�
     [LawfulOrderLE α] [LawfulOrderLT α] {a b : α} :
     ¬ a < b ↔ b ≤ a := by
   simp [lt_iff_le_and_not_ge, Classical.not_not, Std.Total.total]
+
+public scoped instance Classical.Order.instLT {α : Type u} [OrderData α] :
+    LT α where
+  lt a b := OrderData.IsLE a b ∧ ¬ OrderData.IsLE b a
+
+open Classical.Order in
+public instance Classical.Order.instLawfulOrderLT {α : Type u} [OrderData α] :
+    LawfulOrderLT α where
+  lt_iff _ _ := Iff.rfl
 
 public instance {α : Type u} [LT α] [OrderData α] [LawfulOrderLT α] :
     Std.Asymm (α := α) (· < ·) where
@@ -276,5 +287,98 @@ public theorem max_eq_or {α : Type u} [Max α] [MaxEqOr α] {a b : α} :
   MaxEqOr.max_eq_or a b
 
 end Max
+
+section BEq
+
+theorem beq_iff_le_and_ge {α : Type u} [BEq α] [LE α] [OrderData α] [LawfulOrderBEq α]
+    [LawfulOrderLE α] {a b : α} : a == b ↔ a ≤ b ∧ b ≤ a := by
+  simp [LawfulOrderBEq.beq_iff_isLE_and_isLE, LawfulOrderLE.le_iff]
+
+instance {α : Type u} [BEq α] [OrderData α] [LawfulOrderBEq α] [Preorder α] : EquivBEq α where
+  rfl := by open scoped Classical.Order in simp [beq_iff_le_and_ge, le_refl]
+  symm := by open scoped Classical.Order in simp_all [beq_iff_le_and_ge]
+  trans hab hbc := by
+    open scoped Classical.Order in
+    simp only [beq_iff_le_and_ge] at hab hbc ⊢
+    exact ⟨le_trans hab.1 hbc.1, le_trans hbc.2 hab.2⟩
+
+instance {α : Type u} [BEq α] [OrderData α] [LawfulOrderBEq α] [PartialOrder α] : LawfulBEq α where
+  eq_of_beq := by
+    open scoped Classical.Order in
+    simp only [beq_iff_le_and_ge, and_imp]
+    apply le_antisymm
+
+public noncomputable scoped instance Classical.Order.instBEq {α : Type u} [OrderData α] :
+    BEq α where
+  beq a b :=
+    haveI := Classical.propDecidable -- For some reason, `open Classical in` does not work here.
+    OrderData.IsLE a b ∧ OrderData.IsLE b a
+
+open Classical.Order in
+public instance Classical.Order.instLawfulOrderBEq {α : Type u} [OrderData α] :
+    LawfulOrderBEq α where
+  beq_iff_isLE_and_isLE a b := by simp [BEq.beq]
+
+end BEq
+
+section Ord
+
+theorem compare_isLE {α : Type u} [Ord α] [LE α] [OrderData α] [LawfulOrderOrd α] [LawfulOrderLE α]
+    {a b : α} : (compare a b).isLE ↔ a ≤ b := by
+  simp [LawfulOrderLE.le_iff, ← LawfulOrderOrd.compare_isLE_iff]
+
+theorem compare_isGE {α : Type u} [Ord α] [LE α] [OrderData α] [LawfulOrderOrd α] [LawfulOrderLE α]
+    {a b : α} : (compare a b).isGE ↔ b ≤ a := by
+  simp [LawfulOrderLE.le_iff, ← LawfulOrderOrd.compare_isGE_iff]
+
+theorem compare_eq_lt {α : Type u} [Ord α] [LT α] [OrderData α] [LawfulOrderOrd α] [LawfulOrderLT α]
+    {a b : α} : compare a b = .lt ↔ a < b := by
+  rw [LawfulOrderLT.lt_iff, ← LawfulOrderOrd.compare_isLE_iff, ← LawfulOrderOrd.compare_isGE_iff]
+  cases compare a b <;> simp
+
+theorem compare_eq_gt {α : Type u} [Ord α] [LT α] [OrderData α] [LawfulOrderOrd α] [LawfulOrderLT α]
+    {a b : α} : compare a b = .gt ↔ b < a := by
+  rw [LawfulOrderLT.lt_iff, ← LawfulOrderOrd.compare_isGE_iff, ← LawfulOrderOrd.compare_isLE_iff]
+  cases compare a b <;> simp
+
+instance {α : Type u} [Ord α] [OrderData α] [LawfulOrderOrd α] : OrientedOrd α where
+  eq_swap {a b} := by
+    open Classical.Order in
+    cases h : compare a b
+    case lt =>
+      rw [compare_eq_lt] at h
+      simp [compare_eq_gt.mpr h]
+    case gt =>
+      rw [compare_eq_gt] at h
+      simp [compare_eq_lt.mpr h]
+    case eq =>
+      apply Eq.symm
+      apply Ordering.eq_eq_of_isLE_of_isGE
+      · open Classical.Order in
+        rw [Ordering.isLE_swap, compare_isGE, ← compare_isLE, h, Ordering.isLE_eq]
+      · open Classical.Order in
+        rw [Ordering.isGE_swap, compare_isLE, ← compare_isGE, h, Ordering.isGE_eq]
+
+instance {α : Type u} [Ord α] [OrderData α] [LawfulOrderOrd α] [Preorder α] : TransOrd α where
+  isLE_trans := by
+    open scoped Classical.Order in
+    simp only [compare_isLE]
+    apply le_trans
+
+instance {α : Type u} [Ord α] [BEq α] [OrderData α] [LawfulOrderOrd α] [LawfulOrderBEq α] :
+    LawfulBEqOrd α where
+  compare_eq_iff_beq := by
+    open scoped Classical.Order in
+    simp [Ordering.eq_eq_iff_isLE_and_isGE, compare_isLE, compare_isGE, beq_iff_le_and_ge]
+
+instance {α : Type u} [Ord α] [OrderData α] [LawfulOrderOrd α] [PartialOrder α] : LawfulEqOrd α where
+  eq_of_compare {a b} := by
+    open Classical.Order in
+    rw [← beq_iff_eq (a := a), LawfulOrderBEq.beq_iff_isLE_and_isLE,
+      ← LawfulOrderLE.le_iff, ← LawfulOrderLE.le_iff,
+      ← compare_isLE, ← compare_isGE, Ordering.eq_eq_iff_isLE_and_isGE]
+    simp
+
+end Ord
 
 end Std

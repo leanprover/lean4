@@ -95,9 +95,7 @@ def isScalar : IRType → Bool
   | _        => false
 
 def isObj : IRType → Bool
-  | object  => true
-  | tagged  => true
-  | tobject => true
+  | object | erased | tagged | tobject => true
   | _       => false
 
 def isPossibleRef : IRType → Bool

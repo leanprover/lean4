@@ -42,7 +42,7 @@
         dec x_2;
         inc x_8;
         ret x_8
-    def Exp.casesOn._override (x_1 : ◾) (x_2 : tobj) (x_3 : tobj) (x_4 : tobj) (x_5 : @& tobj) (x_6 : @& tobj) (x_7 : @& tobj) (x_8 : @& tobj) (x_9 : @& tobj) : tobj :=
+    def Exp.casesOn._override (x_1 : @& ◾) (x_2 : tobj) (x_3 : tobj) (x_4 : tobj) (x_5 : @& tobj) (x_6 : @& tobj) (x_7 : @& tobj) (x_8 : @& tobj) (x_9 : @& tobj) : tobj :=
       case x_2 : tobj of
       Exp.var._impl →
         dec x_4;
@@ -100,6 +100,7 @@
       dec x_7;
       dec x_6;
       dec x_5;
+      dec x_1;
       ret x_10
 [Compiler.IR] [result]
     def Exp.var._override (x_1 : u32) : tobj :=

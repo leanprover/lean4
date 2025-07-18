@@ -99,3 +99,15 @@ example : False := by
   let x := if true then 3 else 4
   set_option trace.split.failure true in
   split at x
+
+/--
+error: Tactic `split` failed: Could not split an `if` or `match` expression in the type `True` of `h`
+
+Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
+h : True
+⊢ False
+-/
+#guard_msgs in
+example : False := by
+  have h : True := trivial
+  split at h

@@ -90,11 +90,12 @@ where
         m!"Could not split the goal, and no hypotheses that could be automatically split were found" ++ note ++ traceHint
 
   mkCasesHint (type : Expr) : MessageData := MessageData.ofLazyM do
-    let isFnStructureConst (t : Expr) : MetaM Bool :=
+    let isFnStructureConst (t : Expr) : MetaM Bool := do
       if let .const c _ := t.getAppFn then
-        (isStructureLike · c) <$> getEnv
+        let env ← getEnv
+        return isStructure env c && (getStructureFields env c).size > 0
       else
-        pure false
+        return false
     let kind? ←
       if type.isAppOf ``And then pure <| some "conjunction"
       else if type.isAppOf ``Prod then pure <| some "pair"

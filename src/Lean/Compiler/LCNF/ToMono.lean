@@ -330,7 +330,15 @@ partial def Code.toMono (code : Code) : ToMonoM Code := do
       return .let oneDecl (.let decl (← k.toMono))
     | _ =>
       return code.updateLet! (← decl.toMono) (← k.toMono)
-  | .fun decl k | .jp decl k => return code.updateFun! (← decl.toMono) (← k.toMono)
+  | .fun decl k | .jp decl k =>
+    let decl ← decl.toMono
+    if decl.type.isErased then
+      eraseFunDecl decl
+      let decl := { decl with value := .erased }
+      modifyLCtx fun lctx => lctx.addLetDecl decl
+      return .let decl (← k.toMono)
+    else
+      return code.updateFun! decl (← k.toMono)
   | .unreach type => return .unreach (← toMonoType type)
   | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)
   | .return fvarId =>

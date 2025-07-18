@@ -26,6 +26,9 @@ def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
   updateFunDeclInfo code
   traceM `Compiler.simp.inline.info do return m!"{decl.name}:{Format.nest 2 (← (← get).funDeclInfoMap.format)}"
   traceM `Compiler.simp.step do ppDecl decl
+  for param in decl.params do
+    if param.type.isErased then
+      addSubst param.fvarId .erased
   let code ← simp code
   let s ← get
   let code ← code.applyRenaming s.binderRenaming

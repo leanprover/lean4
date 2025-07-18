@@ -3,6 +3,8 @@ module
 prelude
 public import Init.Core
 
+namespace Std
+
 /-!
 # Order-related typeclasses
 
@@ -186,3 +188,5 @@ the other.
 public class LawfulOrderMax (α : Type u) [Max α] [OrderData α] extends MaxEqOr α, LawfulOrderSup α
 
 end Max
+
+end Std

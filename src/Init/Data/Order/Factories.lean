@@ -4,6 +4,8 @@ prelude
 public import Init.Data.Order.Classes
 import Init.SimpLemmas
 
+namespace Std
+
 /-!
 This module provides utilities for the creation of order-related typeclass instances.
 -/
@@ -100,3 +102,5 @@ public def LawfulOrderMax.ofLE {α : Type u} [OrderData α] [Max α] [LE α] [La
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) : LawfulOrderMax α where
   toLawfulOrderSup := .ofLE max_le_iff
   toMaxEqOr := .ofLE max_eq_or
+
+end Std

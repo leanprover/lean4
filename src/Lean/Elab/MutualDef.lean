@@ -130,7 +130,7 @@ The error name for "failed to infer definition type" errors.
 We cannot use `logNamedError` here because the error is logged later, after attempting to synthesize
 metavariables, in `logUnassignedUsingErrorInfos`.
 -/
-def failedToInferDefErrorName := `lean.inferDefTypeFailed
+def failedToInferDefTypeErrorName := `lean.inferDefTypeFailed
 
 private def registerFailedToInferDefTypeInfo (type : Expr) (view : DefView) :
     TermElabM Unit :=
@@ -146,7 +146,7 @@ private def registerFailedToInferDefTypeInfo (type : Expr) (view : DefView) :
       else m!"instance"
     | .theorem  => m!"theorem `{view.declId}`"
     | _         => m!"definition `{view.declId}`"
-  registerCustomErrorIfMVar type ref (m!"Failed to infer type of {msg}".tagWithErrorName failedToInferDefErrorName)
+  registerCustomErrorIfMVar type ref (m!"Failed to infer type of {msg}".tagWithErrorName failedToInferDefTypeErrorName)
 
 /--
   Return `some [b, c]` if the given `views` are representing a declaration of the form

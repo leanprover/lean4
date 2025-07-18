@@ -16,8 +16,8 @@ occurs in the header of a declaration, this error is often accompanied by
 
 Note that if a declaration is annotated with an explicit resulting type—even one that contains
 holes—Lean will not use information from the definition body to infer parameter types. It may
-therefore be necessary to explicitly annotate the types of variables whose types are otherwise
-inferable without the resulting-type annotation. See the "uninferred binder due to resulting type
+therefore be necessary to explicitly specify the types of parameters whose types would otherwise be
+inferable without the resulting-type annotation; see the "uninferred binder due to resulting type
 annotation" example below for a demonstration. In `theorem` declarations, the body is never used to
 infer the types of binders, so any binders whose types cannot be inferred from the rest of the
 theorem type must include a type annotation.
@@ -82,6 +82,7 @@ its binder.
 
 
 ## Attempting to name an example declaration
+
 ```lean broken
 example trivial_proof : True :=
   trivial
@@ -116,11 +117,11 @@ opaque n : Nat
 ```
 
 This example incorrectly attempts to define multiple constants with a single `opaque` declaration.
-Such a declaration can define only one constant: it is not possible to list identifiers after
-`opaque` or `def` to define them all to have the same type (or value). Such a declaration is instead
-elaborated as defining a single constant (e.g., `m` above) with parameters given by the subsequent
-identifiers (`n`), whose types are unspecified and cannot be inferred. To define multiple global
-constants, it is necessary to declare each separately.
+Such a declaration can define only one constant: it is not possible to list multiple identifiers
+after `opaque` or `def` to define them all to have the same type (or value). Such a declaration is
+instead elaborated as defining a single constant (e.g., `m` above) with parameters given by the
+subsequent identifiers (`n`), whose types are unspecified and cannot be inferred. To define multiple
+global constants, it is necessary to declare each separately.
 
 ## Attempting to define multiple structure fields on the same line
 

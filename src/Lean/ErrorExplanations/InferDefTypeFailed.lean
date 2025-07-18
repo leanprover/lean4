@@ -8,7 +8,7 @@ import Lean.ErrorExplanation
 
 /--
 This error occurs when the type of a definition is not fully specified and Lean is unable to infer
-the type from the available information. If the definition has parameters, this error refers only to
+its type from the available information. If the definition has parameters, this error refers only to
 the resulting type after the colon (the error
 [`lean.inferBinderTypeFailed`](lean-manual://errorExplanation/lean.inferBinderTypeFailed) indicates
 that a parameter type could not be inferred).

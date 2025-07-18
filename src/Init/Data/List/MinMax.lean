@@ -13,6 +13,8 @@ import Init.Data.Order.Lemmas
 
 public section
 
+open Std
+
 /-!
 # Lemmas about `List.min?` and `List.max?.
 -/

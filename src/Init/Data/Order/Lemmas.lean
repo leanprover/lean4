@@ -5,6 +5,8 @@ public import Init.Data.Order.Classes
 import Init.SimpLemmas
 import Init.Classical
 
+namespace Std
+
 /-!
 This module provides typeclass instances and lemmas about order-related typeclasses such as
 `LE` and `OrderData`.
@@ -269,3 +271,5 @@ public theorem max_eq_or {α : Type u} [Max α] [MaxEqOr α] {a b : α} :
   MaxEqOr.max_eq_or a b
 
 end Max
+
+end Std

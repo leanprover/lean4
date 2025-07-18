@@ -307,7 +307,7 @@ builtin_initialize defaultInstanceExtension : SimplePersistentEnvExtension Defau
 
 def addDefaultInstance (declName : Name) (prio : Nat := 0) : MetaM Unit := do
   match (← getEnv).find? declName with
-  | none => throwError "unknown constant '{declName}'"
+  | none => throwError "Unknown constant `{declName}`"
   | some info =>
     forallTelescopeReducing info.type fun _ type => do
       match type.getAppFn with

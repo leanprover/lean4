@@ -11,7 +11,7 @@ import Lean.Elab.Command
 namespace Lean.Elab.Command
 
 private def throwUnknownId (id : Name) : CommandElabM Unit :=
-  throwError "unknown identifier '{.ofConstName id}'"
+  throwError "Unknown identifier `{.ofConstName id}`"
 
 private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
   match levelParams with

@@ -822,7 +822,7 @@ where
   appendExtra (msg : MessageData) : MessageData :=
     match extraMsg? with
     | none => msg
-    | some extraMsg => msg ++ extraMsg
+    | some extraMsg => msg.composePreservingKind extraMsg
 
 /--
   Try to log errors for the unassigned metavariables `pendingMVarIds`.
@@ -1998,7 +1998,7 @@ where
            isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
         throwAutoBoundImplicitLocal n
       else
-        throwUnknownIdentifierAt stx m!"unknown identifier '{Lean.mkConst n}'"
+        throwUnknownIdentifierAt stx m!"Unknown identifier `{Lean.mkConst n}`"
     mkConsts candidates explicitLevels
 
 /--

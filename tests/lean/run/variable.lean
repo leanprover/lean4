@@ -6,7 +6,7 @@ theorem t1 : n = n := by induction n <;> rfl
 
 /-! Variables mentioned only in the body should not be included. -/
 variable {n : Nat} in
-/-- error: unknown identifier 'n' -/
+/-- error: Unknown identifier `n` -/
 #guard_msgs in
 theorem t2 : ∃ (n : Nat), n = n := by exists n
 

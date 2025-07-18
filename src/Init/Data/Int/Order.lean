@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Int.Lemmas
 public import Init.ByCases
+public import Std.Classes.Ord.New.Factories
 
 public section
 
@@ -1414,5 +1415,16 @@ theorem natAbs_eq_iff_mul_eq_zero : natAbs a = n ↔ (a - n) * (a + n) = 0 := by
 
 @[deprecated natAbs_eq_iff_mul_eq_zero (since := "2025-03-11")]
 abbrev eq_natAbs_iff_mul_eq_zero := @natAbs_eq_iff_mul_eq_zero
+
+instance : OrderData Int := .ofLE Int
+
+open Int renaming
+  le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
+instance : LinearOrder Int := by
+  apply LinearOrder.ofLE
+  case le_refl => apply le_refl'
+  case le_antisymm => apply le_antisymm'
+  case le_total => apply le_total'
+  case le_trans => apply le_trans'
 
 end Int

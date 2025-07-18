@@ -10,7 +10,7 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
 import Std.Sat.AIG.If
 
 /-!
-This module contains the implementation of a bitblaster for `BitVec.clz`.
+This module contains the implementation of a bitblaster for `BitVec.popCount`.
 -/
 
 namespace Std.Tactic.BVDecide
@@ -73,18 +73,62 @@ theorem blastPopCount.go_le_size (aig : AIG α) (curr : Nat) (acc : AIG.RefVec a
     (xc : AIG.RefVec aig w) :
     aig.decls.size ≤ (go aig xc curr acc).aig.decls.size := by
   unfold go
-  sorry
-  -- dsimp only
-  -- split
-  -- · simp [AIG.RefVec.zip_le_size]
-  --   sorry
-  -- · simp
-  -- dsimp only
-  -- split
-  -- · refine Nat.le_trans ?_ (by apply go_le_size)x
-  --   sorry
-  -- · simp
--- termination_by fuel
+  dsimp only
+  split
+  · refine Nat.le_trans ?_ (by apply go_le_size)
+    refine
+      AIG.RefVec.zip_le_size_of_le_aig_size
+        (blastSub
+            (AIG.RefVec.ite (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).aig
+                { discr := (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).ref,
+                  lhs := (blastConst aig ↑curr).cast (go._proof_1 aig xc),
+                  rhs := acc.cast (go._proof_1 aig xc) }).aig
+            {
+              lhs :=
+                (xc.cast (go._proof_1 aig xc)).cast
+                  (go._proof_2 aig xc curr acc (go._proof_1 aig xc)),
+              rhs :=
+                blastConst
+                  (AIG.RefVec.ite (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).aig
+                      { discr := (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).ref,
+                        lhs := (blastConst aig ↑curr).cast (go._proof_1 aig xc),
+                        rhs := acc.cast (go._proof_1 aig xc) }).aig
+                  1 }).aig
+        {
+          lhs :=
+            ((xc.cast (go._proof_1 aig xc)).cast
+                  (go._proof_2 aig xc curr acc (go._proof_1 aig xc))).cast
+              (go._proof_3 aig xc curr acc (go._proof_1 aig xc)
+                (go._proof_2 aig xc curr acc (go._proof_1 aig xc))),
+          rhs :=
+            (blastSub
+                (AIG.RefVec.ite (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).aig
+                    { discr := (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).ref,
+                      lhs := (blastConst aig ↑curr).cast (go._proof_1 aig xc),
+                      rhs := acc.cast (go._proof_1 aig xc) }).aig
+                {
+                  lhs :=
+                    (xc.cast (go._proof_1 aig xc)).cast
+                      (go._proof_2 aig xc curr acc (go._proof_1 aig xc)),
+                  rhs :=
+                    blastConst
+                      (AIG.RefVec.ite (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).aig
+                          { discr := (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).ref,
+                            lhs := (blastConst aig ↑curr).cast (go._proof_1 aig xc),
+                            rhs := acc.cast (go._proof_1 aig xc) }).aig
+                      1 }).vec }
+        AIG.mkAndCached ?_
+    simp
+    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastSub)
+    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
+    unfold BVPred.mkEq
+    refine
+      AIG.RefVec.fold_le_size_of_le_aig_size
+        (AIG.RefVec.zip aig { lhs := xc, rhs := blastConst aig 0#w } AIG.mkBEqCached).aig
+        (AIG.RefVec.zip aig { lhs := xc, rhs := blastConst aig 0#w } AIG.mkBEqCached).vec
+        AIG.mkAndCached ?_
+    exact AIG.RefVec.zip_le_size aig { lhs := xc, rhs := blastConst aig 0#w } AIG.mkBEqCached
+  · simp
 
 theorem blastPopCount.go_decl_eq (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
     (xc : AIG.RefVec aig w) :

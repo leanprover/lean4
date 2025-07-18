@@ -10,11 +10,17 @@ This module provides typeclass instances and lemmas about order-related typeclas
 `LE` and `OrderData`.
 -/
 
+section Subtype
+
 public instance {α : Type u} [LE α] {P : α → Prop} : LE (Subtype P) where
   le a b := a.val ≤ b.val
 
 public instance {α : Type u} [OrderData α] {P : α → Prop} : OrderData (Subtype P) where
   IsLE a b := OrderData.IsLE a.val b.val
+
+end Subtype
+
+section AxiomaticInstances
 
 public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [PartialOrder α] :
     Std.Antisymm (fun a b : α => a ≤ b) where
@@ -33,6 +39,8 @@ public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Preorde
 public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [LinearPreorder α] :
     Std.Total (α := α) (· ≤ ·) where
   total a b := by simpa [LawfulOrderLE.le_iff] using LinearPreorder.le_total a b
+
+end AxiomaticInstances
 
 section LE
 

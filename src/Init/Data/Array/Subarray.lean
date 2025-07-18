@@ -161,7 +161,8 @@ instance : Inhabited (Subarray α) :=
   ⟨{}⟩
 
 /-!
-`ForIn` and `foldlM` are implemented in `Init.Data.Slice.Array.Iterator` using the slice iterator.
+`ForIn`, `foldlM`, `foldl` and other operations are implemented in `Init.Data.Slice.Array.Iterator`
+using the slice iterator.
 -/
 
 /--

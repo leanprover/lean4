@@ -13,6 +13,8 @@ import Init.Data.Order.Factories
 
 @[expose] public section
 
+open Std
+
 set_option linter.missingDocs true
 
 open Nat

@@ -113,7 +113,7 @@ def isErased : IRType → Bool
   | _ => false
 
 def boxed : IRType → IRType
-  | object | erased | float | float32 => object
+  | object | float | float32 => object
   | tagged | uint8 | uint16 => tagged
   | _ => tobject
 

@@ -141,10 +141,79 @@ theorem blastPopCount.go_decl_eq (aig : AIG α) (curr : Nat) (acc : AIG.RefVec a
   · rw [← hgo]
     intros
     rw [blastPopCount.go_decl_eq, AIG.RefVec.zip_decl_eq, AIG.LawfulVecOperator.decl_eq (f := blastSub)]
-    · sorry
-    · sorry
-    · sorry
-    · sorry
+    · rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
+      · apply AIG.LawfulOperator.decl_eq (f := BVPred.mkEq)
+      · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
+        (expose_names; exact h2)
+      · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
+        apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
+        (expose_names; exact h2)
+    · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastSub)
+      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
+      unfold BVPred.mkEq
+      refine
+        AIG.RefVec.fold_lt_size_of_lt_aig_size
+          (AIG.RefVec.zip aig { lhs := xc, rhs := blastConst aig 0 } AIG.mkBEqCached).aig
+          (AIG.RefVec.zip aig { lhs := xc, rhs := blastConst aig 0 } AIG.mkBEqCached).vec
+          AIG.mkAndCached ?_
+      (expose_names;
+        exact
+          AIG.RefVec.zip_lt_size_of_lt_aig_size aig { lhs := xc, rhs := blastConst aig 0 }
+            AIG.mkBEqCached h2)
+    · refine
+      AIG.RefVec.zip_lt_size_of_lt_aig_size
+        (blastSub
+            (AIG.RefVec.ite (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).aig
+                { discr := (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).ref,
+                  lhs := (blastConst aig ↑curr).cast (go._proof_1 aig xc),
+                  rhs := acc.cast (go._proof_1 aig xc) }).aig
+            {
+              lhs :=
+                (xc.cast (go._proof_1 aig xc)).cast
+                  (go._proof_2 aig xc curr acc (go._proof_1 aig xc)),
+              rhs :=
+                blastConst
+                  (AIG.RefVec.ite (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).aig
+                      { discr := (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).ref,
+                        lhs := (blastConst aig ↑curr).cast (go._proof_1 aig xc),
+                        rhs := acc.cast (go._proof_1 aig xc) }).aig
+                  1 }).aig
+        {
+          lhs :=
+            ((xc.cast (go._proof_1 aig xc)).cast
+                  (go._proof_2 aig xc curr acc (go._proof_1 aig xc))).cast
+              (go._proof_3 aig xc curr acc (go._proof_1 aig xc)
+                (go._proof_2 aig xc curr acc (go._proof_1 aig xc))),
+          rhs :=
+            (blastSub
+                (AIG.RefVec.ite (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).aig
+                    { discr := (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).ref,
+                      lhs := (blastConst aig ↑curr).cast (go._proof_1 aig xc),
+                      rhs := acc.cast (go._proof_1 aig xc) }).aig
+                {
+                  lhs :=
+                    (xc.cast (go._proof_1 aig xc)).cast
+                      (go._proof_2 aig xc curr acc (go._proof_1 aig xc)),
+                  rhs :=
+                    blastConst
+                      (AIG.RefVec.ite (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).aig
+                          { discr := (BVPred.mkEq aig { lhs := xc, rhs := blastConst aig 0 }).ref,
+                            lhs := (blastConst aig ↑curr).cast (go._proof_1 aig xc),
+                            rhs := acc.cast (go._proof_1 aig xc) }).aig
+                      1 }).vec }
+        AIG.mkAndCached ?_
+      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastSub)
+      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
+      unfold BVPred.mkEq
+      refine
+        AIG.RefVec.fold_lt_size_of_lt_aig_size
+          (AIG.RefVec.zip aig { lhs := xc, rhs := blastConst aig 0 } AIG.mkBEqCached).aig
+          (AIG.RefVec.zip aig { lhs := xc, rhs := blastConst aig 0 } AIG.mkBEqCached).vec
+          AIG.mkAndCached ?_
+      (expose_names;
+        exact
+          AIG.RefVec.zip_lt_size_of_lt_aig_size aig { lhs := xc, rhs := blastConst aig 0 }
+            AIG.mkBEqCached h2)
   · simp [← hgo]
 termination_by w - curr
 

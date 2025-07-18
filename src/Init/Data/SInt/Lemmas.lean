@@ -3025,6 +3025,61 @@ protected theorem Int64.lt_asymm {a b : Int64} : a < b → ¬b < a :=
 protected theorem ISize.lt_asymm {a b : ISize} : a < b → ¬b < a :=
   fun hab hba => ISize.lt_irrefl (ISize.lt_trans hab hba)
 
+instance : OrderData Int8 := .ofLE Int8
+
+open Int8 renaming
+  le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
+instance : LinearOrder Int8 := by
+  apply LinearOrder.ofLE
+  case le_refl => apply le_refl'
+  case le_antisymm => apply le_antisymm'
+  case le_total => apply le_total'
+  case le_trans => apply le_trans'
+
+instance : OrderData Int16 := .ofLE Int16
+
+open Int16 renaming
+  le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
+instance : LinearOrder Int16 := by
+  apply LinearOrder.ofLE
+  case le_refl => apply le_refl'
+  case le_antisymm => apply le_antisymm'
+  case le_total => apply le_total'
+  case le_trans => apply le_trans'
+
+instance : OrderData Int32 := .ofLE Int32
+
+open Int32 renaming
+  le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
+instance : LinearOrder Int32 := by
+  apply LinearOrder.ofLE
+  case le_refl => apply le_refl'
+  case le_antisymm => apply le_antisymm'
+  case le_total => apply le_total'
+  case le_trans => apply le_trans'
+
+instance : OrderData Int64 := .ofLE Int64
+
+open Int64 renaming
+  le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
+instance : LinearOrder Int64 := by
+  apply LinearOrder.ofLE
+  case le_refl => apply le_refl'
+  case le_antisymm => apply le_antisymm'
+  case le_total => apply le_total'
+  case le_trans => apply le_trans'
+
+instance : OrderData ISize := .ofLE ISize
+
+open ISize renaming
+  le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
+instance : LinearOrder ISize := by
+  apply LinearOrder.ofLE
+  case le_refl => apply le_refl'
+  case le_antisymm => apply le_antisymm'
+  case le_total => apply le_total'
+  case le_trans => apply le_trans'
+
 protected theorem Int8.add_neg_eq_sub {a b : Int8} : a + -b = a - b := Int8.toBitVec_inj.1 BitVec.add_neg_eq_sub
 protected theorem Int16.add_neg_eq_sub {a b : Int16} : a + -b = a - b := Int16.toBitVec_inj.1 BitVec.add_neg_eq_sub
 protected theorem Int32.add_neg_eq_sub {a b : Int32} : a + -b = a - b := Int32.toBitVec_inj.1 BitVec.add_neg_eq_sub

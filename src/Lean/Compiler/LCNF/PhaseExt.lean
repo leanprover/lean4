@@ -8,6 +8,81 @@ import Lean.Compiler.LCNF.PassManager
 
 namespace Lean.Compiler.LCNF
 
+/-- Meta status of local declarations, not persisted. -/
+private builtin_initialize declMetaExt : EnvExtension (List Name × NameSet) ←
+  registerEnvExtension
+    (mkInitial := pure ([], {}))
+    (asyncMode := .sync)
+    (replay? := some <| fun oldState newState _ s =>
+      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
+      newEntries.foldl (init := s) fun s n =>
+        if s.1.contains n then
+          s
+        else
+          (n :: s.1, s.2.insert n))
+
+/-- Whether a declaration should be exported for interpretation. -/
+def isDeclMeta (env : Environment) (declName : Name) : Bool :=
+  if !env.header.isModule then
+    true
+  else
+    -- The interpreter may call the boxed variant even if the IR does not directly reference it, so
+    -- use same visibility as base decl.
+    -- Note that boxed decls are created after the `inferVisibility` pass.
+    let inferFor := match declName with
+      | .str n "_boxed" => n
+      | n               => n
+    declMetaExt.getState env |>.2.contains inferFor
+
+/-- Marks a declaration to be exported for interpretation. -/
+def setDeclMeta (env : Environment) (declName : Name) : Environment :=
+  if isDeclMeta env declName then
+    env
+  else
+    declMetaExt.modifyState env fun s =>
+      (declName :: s.1, s.2.insert declName)
+
+/-- Modifiers adjusting export behavior of compiler declarations for `import`. -/
+inductive DeclVisibility where
+  /-- Do not export. -/
+  | «private»
+  /-- Export signature only, as `opaque` extern. -/
+  | «opaque»
+  /-- Export full LCNF, IR signatures. -/
+  | transparent
+deriving Inhabited, BEq, Repr, Ord
+
+instance : LE DeclVisibility := leOfOrd
+
+/-- Visibility of local declarations, not persisted. -/
+private builtin_initialize declVisibilityExt : EnvExtension (List Name × NameMap DeclVisibility) ←
+  registerEnvExtension
+    (mkInitial := pure ([], {}))
+    (asyncMode := .sync)
+    (replay? := some <| fun oldState newState _ s =>
+      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
+      newEntries.foldl (init := s) fun s n =>
+        if s.1.contains n then
+          s
+        else
+          (n :: s.1, s.2.insert n (newState.2.find? n).get!))
+
+def getDeclVisibility (env : Environment) (declName : Name) : DeclVisibility :=
+  -- The IR compiler may call the boxed variant it introduces after we do visibility inference, so
+  -- use same visibility as base decl.
+  let inferFor := match declName with
+    | .str n "_boxed" => n
+    | n               => n
+  declVisibilityExt.getState env |>.2.find? inferFor
+    |>.getD (if env.header.isModule then .private else .transparent)
+
+def bumpDeclVisibility (env : Environment) (declName : Name) (visibility : DeclVisibility) : Environment :=
+  if getDeclVisibility env declName ≥ visibility then
+    env
+  else
+    declVisibilityExt.modifyState env fun s =>
+      (declName :: s.1, s.2.insert declName visibility)
+
 abbrev DeclExtState := PHashMap Name Decl
 
 private abbrev declLt (a b : Decl) :=
@@ -36,13 +111,12 @@ def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt :=
     exportEntriesFnEx env s level := Id.run do
       let mut entries := sortedDecls s
       if level != .private then
-        entries := entries.map fun decl =>
-          if decl.isTemplateLikeCore env then
-            -- ensure templates are available to downstream modules
-            decl
-          else
-            -- hide body but not signature
-            { decl with value := .extern { arity? := decl.getArity, entries := [.opaque decl.name] } }
+        entries := entries.filterMap fun decl =>
+          match getDeclVisibility env decl.name with
+          | .private => none
+          | .opaque => some { decl with
+            value := .extern { arity? := decl.getArity, entries := [.opaque decl.name] } }
+          | _ => some decl
       return entries
     statsFn := fun s =>
       let numEntries := s.foldl (init := 0) (fun count _ _ => count + 1)

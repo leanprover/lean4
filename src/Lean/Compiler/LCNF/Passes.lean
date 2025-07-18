@@ -20,10 +20,13 @@ import Lean.Compiler.LCNF.ReduceArity
 import Lean.Compiler.LCNF.ElimDeadBranches
 import Lean.Compiler.LCNF.StructProjCases
 import Lean.Compiler.LCNF.ExtractClosed
+import Lean.Compiler.LCNF.Visibility
 
 namespace Lean.Compiler.LCNF
 
 open PassInstaller
+
+namespace Pass
 
 def init : Pass where
   name  := `init
@@ -56,6 +59,18 @@ def saveMono : Pass where
     (← normalizeFVarIds decl).saveMono
     return decl
   shouldAlwaysRunCheck := true
+
+def inferVisibility : Pass where
+  occurrence := 0
+  phase := .mono
+  name := `inferVisibility
+  run decls := do
+    LCNF.inferVisibility decls
+    return decls
+
+end Pass
+
+open Pass
 
 def builtinPassManager : PassManager := {
   passes := #[
@@ -94,7 +109,9 @@ def builtinPassManager : PassManager := {
     simp (occurrence := 5) (phase := .mono),
     cse (occurrence := 2) (phase := .mono),
     saveMono,  -- End of mono phase
-    extractClosed
+    extractClosed,
+    -- should come last so it can see all created decls
+    Pass.inferVisibility
   ]
 }
 

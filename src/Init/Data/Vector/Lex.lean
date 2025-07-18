@@ -133,16 +133,35 @@ protected theorem le_total [LT α]
     [i : Std.Total (¬ · < · : α → α → Prop)] (xs ys : Vector α n) : xs ≤ ys ∨ ys ≤ xs :=
   Array.le_total _ _
 
+protected theorem le_antisymm [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α]
+    {xs ys : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys ≤ xs) : xs = ys :=
+  Vector.toArray_inj.mp <| Array.le_antisymm h₁ h₂
+
 instance [LT α]
     [Std.Total (¬ · < · : α → α → Prop)] :
     Std.Total (· ≤ · : Vector α n → Vector α n → Prop) where
   total := Vector.le_total
+
+instance [LT α] : OrderData (Vector α n) := .ofLE (Vector α n)
+
+instance [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α] :
+    LinearOrder (Vector α n) := by
+  apply LinearOrder.ofLE
+  case le_refl => apply Vector.le_refl
+  case le_antisymm => apply Vector.le_antisymm
+  case le_total => apply Vector.le_total
+  case le_trans => apply Vector.le_trans
 
 @[simp] protected theorem not_lt [LT α]
     {xs ys : Vector α n} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
 
 @[simp] protected theorem not_le [LT α]
     {xs ys : Vector α n} : ¬ ys ≤ xs ↔ xs < ys := Classical.not_not
+
+instance [LT α] [Std.Total (¬ · < · : α → α → Prop)] : LawfulOrderLT (Vector α n) where
+  lt_iff _ _ := by
+    open Classical in
+    simp [← Vector.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
 
 protected theorem le_of_lt [LT α]
     [i : Std.Total (¬ · < · : α → α → Prop)]

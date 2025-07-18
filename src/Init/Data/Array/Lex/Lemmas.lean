@@ -12,6 +12,7 @@ public import Init.Data.Array.Lemmas
 public import Init.Data.List.Lex
 import Init.Data.Range.Polymorphic.Lemmas
 import Init.Data.Range.Polymorphic.NatLemmas
+import Std.Classes.Ord.New.Instances
 
 public section
 

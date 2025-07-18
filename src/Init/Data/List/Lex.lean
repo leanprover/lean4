@@ -9,6 +9,7 @@ prelude
 public import Init.Data.List.Lemmas
 public import Init.Data.List.Nat.TakeDrop
 public import Std.Classes.Ord.New.Factories
+import Std.Classes.Ord.New.Instances
 
 public section
 

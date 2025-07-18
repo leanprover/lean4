@@ -20,7 +20,7 @@ example (x y : Bool) : (if x && y then 1 else 2) > (if x || y then 0 else 1) := 
   split x && y
 
 /--
-error: tactic 'split' failed, Could not split an `if` or `match` expression in the goal
+error: Tactic `split` failed: Could not split an `if` or `match` expression in the goal
 
 Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
 ⊢ False
@@ -30,7 +30,7 @@ example : False := by
   split
 
 /--
-error: tactic 'split' failed, Could not split the goal or any of the following hypotheses: `h1`
+error: Tactic `split` failed: Could not split the goal or any of the following hypotheses: `h1`
 
 Note: `split at *` does not attempt to split at non-propositional hypotheses or those on which other hypotheses depend. It may still be possible to manually split a hypothesis using `split at`
 
@@ -44,7 +44,7 @@ example : False := by
   split at *
 
 /--
-error: tactic 'split' failed, Could not split an `if` or `match` expression in the type `p ∧ q` of `h`
+error: Tactic `split` failed: Could not split an `if` or `match` expression in the type `p ∧ q` of `h`
 
 Hint: To destruct a conjunction, use the `cases` tactic
 
@@ -58,7 +58,7 @@ example {p q : Prop} (h : p ∧ q) : p := by
   split at h
 
 /--
-error: tactic 'split' failed, Could not split an `if` or `match` expression in the type `Equivalence R` of `h`
+error: Tactic `split` failed: Could not split an `if` or `match` expression in the type `Equivalence R` of `h`
 
 Hint: To destruct a structure, use the `cases` tactic
 
@@ -73,7 +73,7 @@ example {R : α → α → Prop} (h : Equivalence R) : False := by
   split at h
 
 /--
-error: tactic 'split' failed, Could not split the goal or any of the following hypotheses: `t`, `use_dep`
+error: Tactic `split` failed: Could not split the goal or any of the following hypotheses: `t`, `use_dep`
 
 Note: `split at *` does not attempt to split at non-propositional hypotheses or those on which other hypotheses depend. It may still be possible to manually split a hypothesis using `split at`
 t : True
@@ -90,7 +90,7 @@ example : False := by
   split at *
 
 /--
-error: tactic 'split' failed, Could not split an `if` or `match` expression in the type `Nat` of `x`
+error: Tactic `split` failed: Could not split an `if` or `match` expression in the type `Nat` of `x`
 x : Nat := if true = true then 3 else 4
 ⊢ False
 -/

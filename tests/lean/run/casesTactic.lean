@@ -7,7 +7,7 @@ Error messages when not an inductive type.
 -/
 
 /--
-error: tactic 'cases' failed, major premise type is not an inductive type
+error: Tactic `cases` failed: major premise type is not an inductive type
   Prop
 
 Explanation: the 'cases' tactic is for constructor-based reasoning as well as for applying custom
@@ -23,7 +23,7 @@ example (p : Prop) : True := by
   cases p
 
 /--
-error: tactic 'cases' failed, major premise type is not an inductive type
+error: Tactic `cases` failed: major premise type is not an inductive type
   Type
 
 Explanation: the 'cases' tactic is for constructor-based reasoning as well as for applying custom
@@ -41,7 +41,7 @@ example (α : Type) : True := by
   cases α
 
 /--
-error: tactic 'cases' failed, major premise type is not an inductive type
+error: Tactic `cases` failed: major premise type is not an inductive type
   Bool → Bool
 
 Explanation: the 'cases' tactic is for constructor-based reasoning as well as for applying custom

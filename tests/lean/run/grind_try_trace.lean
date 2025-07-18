@@ -176,7 +176,7 @@ example : foo x > 0 := by
   sorry
 
 /--
-error: tactic 'try?' failed, consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
+error: Tactic `try?` failed: consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
 x : Nat
 ⊢ foo x > 0
 -/

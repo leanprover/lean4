@@ -1,5 +1,5 @@
 /--
-error: tactic 'apply' failed, could not unify the conclusion of `h`
+error: Tactic `apply` failed: could not unify the conclusion of `h`
   True
 with the goal
   False
@@ -14,7 +14,7 @@ example (h : 1 = 1 → True) : False := by
   apply h
 
 /--
-error: tactic 'apply' failed, could not unify the type of `h`
+error: Tactic `apply` failed: could not unify the type of `h`
   1 = 1 → True
 with the goal
   2 = 2 → False
@@ -26,7 +26,7 @@ example (h : 1 = 1 → True) : 2 = 2 → False := by
   apply h
 
 /--
-error: tactic 'apply' failed, could not unify the conclusion of `h`
+error: Tactic `apply` failed: could not unify the conclusion of `h`
   1 = 1 → True
 with the goal
   2 = 2 → False
@@ -41,7 +41,7 @@ example (h : 3 = 3 → 1 = 1 → True) : 2 = 2 → False := by
   apply h
 
 /--
-error: tactic 'apply' failed, could not unify the type of `h`
+error: Tactic `apply` failed: could not unify the type of `h`
   True
 with the goal
   False

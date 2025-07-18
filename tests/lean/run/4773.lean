@@ -1,5 +1,5 @@
 /--
-error: tactic 'exact' failed, attempting to close the goal using
+error: Tactic `exact` failed: attempting to close the goal using
   ?loop
 this is often due occurs-check failure
 case loop

@@ -13,7 +13,7 @@ def check_sorted [x: LE α] [DecidableRel x.le] (a: Array α): Bool :=
   sorted_from_var a 0
 
 /--
-error: tactic 'rfl' failed, the left-hand side
+error: Tactic `rfl` failed: the left-hand side
   check_sorted #[0, 3, 3, 5, 8, 10, 10, 10]
 is not definitionally equal to the right-hand side
   true

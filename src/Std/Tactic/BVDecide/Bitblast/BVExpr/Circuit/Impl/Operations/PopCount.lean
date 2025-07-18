@@ -133,21 +133,20 @@ theorem blastPopCount.go_le_size (aig : AIG α) (curr : Nat) (acc : AIG.RefVec a
 theorem blastPopCount.go_decl_eq (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
     (xc : AIG.RefVec aig w) :
     ∀ (idx : Nat) h1 h2,
-        (go aig xc curr acc).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by sorry
---   generalize hgo : go aig xc fuel acc = res
---   unfold go at hgo
---   dsimp only at hgo
---   split at hgo
---   · rw [← hgo]
---     intros
---     simp [AIG.RefVec.zip_le_size]
---     rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.zip)]
---     sorry
---     -- rw [blastPopCount.go_decl_eq, AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
---     -- apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
---     -- assumption
---   · simp [← hgo]
--- termination_by w - curr
+        (go aig xc curr acc).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+  generalize hgo : go aig xc curr acc = res
+  unfold go at hgo
+  dsimp only at hgo
+  split at hgo
+  · rw [← hgo]
+    intros
+    rw [blastPopCount.go_decl_eq, AIG.RefVec.zip_decl_eq, AIG.LawfulVecOperator.decl_eq (f := blastSub)]
+    · sorry
+    · sorry
+    · sorry
+    · sorry
+  · simp [← hgo]
+termination_by w - curr
 
 instance : AIG.LawfulVecOperator α AIG.RefVec blastPopCount where
   le_size := by

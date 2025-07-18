@@ -12,6 +12,7 @@ public import Init.Ext
 public import Init.ByCases
 public import Init.Conv
 public import Init.Omega
+public import Std.Classes.Ord.New.Factories
 
 public section
 
@@ -250,6 +251,17 @@ protected theorem le_antisymm_iff {x y : Fin n} : x = y ↔ x ≤ y ∧ y ≤ x 
 
 protected theorem le_antisymm {x y : Fin n} (h1 : x ≤ y) (h2 : y ≤ x) : x = y :=
   Fin.le_antisymm_iff.2 ⟨h1, h2⟩
+
+instance : OrderData (Fin n) := .ofLE (Fin n)
+
+open Fin renaming
+  le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
+instance : LinearOrder (Fin n) := by
+  apply LinearOrder.ofLE
+  case le_refl => apply le_refl'
+  case le_antisymm => apply le_antisymm'
+  case le_total => apply le_total'
+  case le_trans => apply le_trans'
 
 @[simp, grind =] theorem val_rev (i : Fin n) : rev i = n - (i + 1) := rfl
 

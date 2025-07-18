@@ -170,4 +170,11 @@ public class LawfulOrderMax (α : Type u) [Max α] [LE α] extends MaxEqOr α, L
 
 end Max
 
+section BEq
+
+public class LawfulOrderBEq (α : Type u) [BEq α] [OrderData α] where
+  beq_iff_isLE_and_isLE : ∀ a b : α, a == b ↔ OrderData.IsLE a b ∧ OrderData.IsLE b a
+
+end BEq
+
 end Std

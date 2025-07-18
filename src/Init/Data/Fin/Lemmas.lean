@@ -12,8 +12,8 @@ public import Init.Ext
 public import Init.ByCases
 public import Init.Conv
 public import Init.Omega
-public import Std.Classes.Ord.New.Factories
-import Std.Classes.Ord.New.Instances
+public import Init.Data.Order.Factories
+import Init.Data.Order.Lemmas
 
 public section
 

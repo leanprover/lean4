@@ -5,6 +5,11 @@ public import Std.Classes.Ord.New.Classes
 import Init.SimpLemmas
 import Init.Classical
 
+/-!
+This module provides typeclass instances and lemmas about order-related typeclasses such as
+`LE` and `OrderData`.
+-/
+
 public instance {α : Type u} [LE α] {P : α → Prop} : LE (Subtype P) where
   le a b := a.val ≤ b.val
 
@@ -140,6 +145,10 @@ end LT
 
 section Min
 
+/--
+If both `a` and `b` satisfy some property `P`, then so does `min a b`, because it is equal to
+either `a` or `b`.
+-/
 public def MinEqOr.elim {α : Type u} [Min α] [MinEqOr α] {P : α → Prop} {a b : α} (ha : P a) (hb : P b) :
     P (min a b) := by
   cases MinEqOr.min_eq_or a b <;> simp_all
@@ -197,6 +206,10 @@ end Min
 
 section Max
 
+/--
+If both `a` and `b` satisfy some property `P`, then so does `max a b`, because it is equal to
+either `a` or `b`.
+-/
 public def MaxEqOr.elim {α : Type u} [Max α] [MaxEqOr α] {P : α → Prop} {a b : α} (ha : P a) (hb : P b) :
     P (max a b) := by
   cases MaxEqOr.max_eq_or a b <;> simp_all

@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Int.Lemmas
 public import Init.ByCases
 public import Std.Classes.Ord.New.Factories
+import Std.Classes.Ord.New.Instances
 
 public section
 

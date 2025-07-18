@@ -15,7 +15,7 @@ public import Init.Data.Int.LemmasAux
 public import all Init.Data.UInt.Basic
 public import Init.Data.UInt.Lemmas
 public import Init.System.Platform
-import Std.Classes.Ord.New.Instances
+import Init.Data.Order.Lemmas
 
 public section
 

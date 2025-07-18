@@ -73,6 +73,12 @@ test_cached +Test:dynlib !
 test_cached +Test:olean
 test_cached +Test:ilean !
 test_cached +Test:c
+LAKE_CACHE_DIR="$CACHE_DIR" test_run build +Module
+test_cached +Module:olean
+test_cached +Module:olean.server
+test_cached +Module:olean.private
+test_cached +Module:ir !
+
 
 # Verify no `.hash` files end up in the cache directory
 check_diff /dev/null <(ls -1 "$CACHE_DIR/*.hash" 2>/dev/null)

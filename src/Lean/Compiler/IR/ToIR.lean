@@ -237,10 +237,13 @@ where
     let type := (← toIRType decl.type).boxed
     return .vdecl var type (.ap fnVar args) (← lowerCode k)
 
-  mkPartialApp (e : Expr) (restArgs : Array Arg) : M FnBody := do
+  mkOverApplication (name : Name) (numParams : Nat) (args : Array Arg) : M FnBody := do
     let var ← bindVar decl.fvarId
     let tmpVar ← newVar
-    return .vdecl tmpVar .tobject e (.vdecl var .tobject (.ap tmpVar restArgs) (← lowerCode k))
+    let firstArgs := args.extract 0 numParams
+    let restArgs := args.extract numParams args.size
+    return .vdecl tmpVar .tobject (.fap name firstArgs) <|
+           .vdecl var .tobject (.ap tmpVar restArgs) (← lowerCode k)
 
   tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
     if let some decl ← LCNF.getMonoDecl? name then
@@ -251,9 +254,7 @@ where
       else if numArgs == numParams then
         return some (← mkFap name args)
       else
-        let firstArgs := args.extract 0 numParams
-        let restArgs := args.extract numParams numArgs
-        return some (← mkPartialApp (.fap name firstArgs) restArgs)
+        return some (← mkOverApplication name numParams args)
     else
       return none
 

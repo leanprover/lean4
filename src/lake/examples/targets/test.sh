@@ -76,10 +76,15 @@ cat ./.lake/build/meow.txt | grep Meow!
 
 # Test shared lib facets
 test ! -f ./.lake/build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
-test ! -f ./.lake/build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
+test ! -f ./.lake/build/lib/libBar.$SHARED_LIB_EXT
 $LAKE build Foo:shared Bar
 test -f ./.lake/build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
-test -f ./.lake/build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
+test -f ./.lake/build/lib/libBar.$SHARED_LIB_EXT
+
+# Test static lib facet
+test ! -f ./.lake/build/lib/libBar.a
+$LAKE build Foo:shared Bar:static
+test -f ./.lake/build/lib/libBar.a
 
 # Test dynlib facet
 test ! -f ./.lake/build/lib/lean/Foo.$SHARED_LIB_EXT

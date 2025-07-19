@@ -9,6 +9,8 @@ prelude
 public import Std.Do.Triple.Basic
 public import Std.Do.WP
 
+set_option interpreter.prefer_native false -- bootstrapping workaround
+
 @[expose] public section
 
 /-!

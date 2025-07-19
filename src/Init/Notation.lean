@@ -689,11 +689,30 @@ This is the same as `#eval show MetaM Unit from do discard doSeq`.
 syntax (name := runMeta) "run_meta " doSeq : command
 
 /--
+The flag `proofs` determines whether proofs should be reduced (default `false`).
+-/
+syntax reduceOptProofs := &"proofs"
+
+/--
+The flag `types` determines whether types (including propositions) should be reduced (default `false`).
+-/
+syntax reduceOptTypes := &"types"
+
+set_option linter.missingDocs false in
+syntax reduceOpts := reduceOptProofs <|> reduceOptTypes
+
+set_option linter.missingDocs false in
+syntax reduceConfigItem := atomic((" +" <|> " -") noWs reduceOpts) <|> atomic(" (" reduceOpts " := " (&"true" <|> &"false") ")")
+
+set_option linter.missingDocs false in
+syntax reduceConfig := reduceConfigItem*
+
+/--
 `#reduce <expression>` reduces the expression `<expression>` to its normal form. This
 involves applying reduction rules until no further reduction is possible.
 
 By default, proofs and types within the expression are not reduced. Use modifiers
-`(proofs := true)`  and `(types := true)` to reduce them.
+`+proofs` and `+types` to reduce them.
 Recall that propositions are types in Lean.
 
 **Warning:** This can be a computationally expensive operation,
@@ -702,7 +721,7 @@ especially for complex expressions.
 Consider using `#eval <expression>` for simple evaluation/execution
 of expressions.
 -/
-syntax (name := reduceCmd) "#reduce " (atomic("(" &"proofs" " := " &"true" ")"))? (atomic("(" &"types" " := " &"true" ")"))? term : command
+syntax (name := reduceCmd) "#reduce" reduceConfig ppSpace term : command
 
 set_option linter.missingDocs false in
 syntax guardMsgsFilterAction := &"check" <|> &"drop" <|> &"pass"

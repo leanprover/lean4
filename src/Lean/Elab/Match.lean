@@ -151,9 +151,13 @@ def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array Matc
     let patterns ← matchAlt.patterns.mapM expandMacros
     pure { matchAlt with patterns := patterns }
 
+-- TODO: enable new variants after stage0 update
 private def getMatchGeneralizing? : Syntax → Option Bool
-  | `(match (generalizing := true)  $[$motive]? $_discrs,* with $_alts:matchAlt*) => some true
-  | `(match (generalizing := false) $[$motive]? $_discrs,* with $_alts:matchAlt*) => some false
+  | `(match $g:generalizingParam $[$motive]? $_discrs,* with $_alts:matchAlt*) =>
+    match g with
+    | `(generalizingParam| (generalizing := true)) => some true
+    | `(generalizingParam| (generalizing := false)) => some false
+    | _ => none
   | _ => none
 
 /-- Given the `stx` of a single match alternative, return a corresponding `MatchAltView`. -/

@@ -37,6 +37,8 @@ structure BuildConfig where
   out : OutStream := .stderr
   /-- Whether to use ANSI escape codes in build output. -/
   ansiMode : AnsiMode := .auto
+  /-- Whether to print a message when the build finishes successfully (if not quiet). -/
+  showSuccess : Bool := false
 
 /--
 Whether the build should show progress information.

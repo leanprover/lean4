@@ -92,7 +92,9 @@ def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig := d
   }
 
 /-- Make a `BuildConfig` from a `LakeOptions`. -/
-def LakeOptions.mkBuildConfig (opts : LakeOptions) (out := OutStream.stderr) : BuildConfig where
+def LakeOptions.mkBuildConfig
+  (opts : LakeOptions) (out := OutStream.stderr) (showSuccess := false)
+: BuildConfig where
   oldMode := opts.oldMode
   trustHash := opts.trustHash
   noBuild := opts.noBuild
@@ -100,7 +102,7 @@ def LakeOptions.mkBuildConfig (opts : LakeOptions) (out := OutStream.stderr) : B
   failLv := opts.failLv
   outLv := opts.outLv
   ansiMode := opts.ansiMode
-  out := out
+  out; showSuccess
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
 
@@ -361,11 +363,8 @@ protected def build : CliM PUnit := do
   specs.forM fun spec =>
     unless spec.buildable do
       throw <| .invalidBuildTarget spec.info.key.toSimpleString
-  let buildConfig := mkBuildConfig opts (out := .stdout)
-  let showProgress := buildConfig.showProgress
+  let buildConfig := mkBuildConfig opts (out := .stdout) (showSuccess := true)
   ws.runBuild (buildSpecs specs) buildConfig
-  if showProgress then
-    IO.println "Build completed successfully."
 
 protected def checkBuild : CliM PUnit := do
   processOptions lakeOption

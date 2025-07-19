@@ -31,7 +31,7 @@ EOF
 $LAKE build targets/bark_bark | awk '/Ran/,0' | diff -u --strip-trailing-cr <(cat << 'EOF'
 ℹ [1/2] Ran targets/bark
 info: Bark!
-Build completed successfully.
+Build completed successfully (2 jobs).
 EOF
 ) -
 $LAKE build targets:print_name | awk '/Ran/,/^targets/' | diff -u --strip-trailing-cr <(cat << 'EOF'

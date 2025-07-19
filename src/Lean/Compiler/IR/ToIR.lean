@@ -84,6 +84,12 @@ def lowerArg (a : LCNF.Arg) : M Arg := do
     | some (.joinPoint ..) | none => panic! "unexpected value"
   | .erased | .type .. => return .erased
 
+def lowerArgWithParam (a : LCNF.Arg) (p : LCNF.Param) : M Arg := do
+  if p.type.isErased then
+    return .erased
+  else
+    lowerArg a
+
 inductive TranslatedProj where
   | expr (e : Expr)
   | erased
@@ -158,9 +164,9 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       lowerCode k
     | some (.joinPoint ..) | none => panic! "unexpected value"
   | .const name _ args =>
-    let irArgs ← args.mapM lowerArg
-    if let some code ← tryIrDecl? name irArgs then
+    if let some code ← tryIrDecl? name args then
       return code
+    let irArgs ← args.mapM lowerArg
     let env ← Lean.getEnv
     match env.find? name with
     | some (.ctorInfo ctorVal) =>
@@ -246,10 +252,17 @@ where
     return .vdecl tmpVar .object (.fap name firstArgs) <|
            .vdecl var type (.ap tmpVar restArgs) (← lowerCode k)
 
-  tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
+  tryIrDecl? (name : Name) (args : Array LCNF.Arg) : M (Option FnBody) := do
     if let some decl ← LCNF.getMonoDecl? name then
-      let numArgs := args.size
       let numParams := decl.params.size
+      let args ← args.mapIdxM fun i arg =>
+        if h : i < numParams then
+          let param := decl.params[i]
+          lowerArgWithParam arg decl.params[i]
+        else
+          lowerArg arg
+
+      let numArgs := args.size
       if numArgs < numParams then
         return some (← mkPap name args)
       else if numArgs == numParams then

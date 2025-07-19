@@ -418,13 +418,30 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
 
 @[builtin_command_elab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)
 
+-- TODO: cleanup after stage0 update
 @[builtin_command_elab Lean.reduceCmd] def elabReduce : CommandElab
   | `(#reduce%$tk $term) => go tk term
   | `(#reduce%$tk (proofs := true) $term) => go tk term (skipProofs := false)
   | `(#reduce%$tk (types := true) $term) => go tk term (skipTypes := false)
   | `(#reduce%$tk (proofs := true) (types := true) $term) => go tk term (skipProofs := false) (skipTypes := false)
-  | _ => throwUnsupportedSyntax
+  | stx =>
+    let tk := stx[0]
+    let term := stx[2]
+    let configItems : TSyntaxArray ``reduceConfigItem := .mk stx[1].getArgs
+    let (proofs, types) := configItems.foldl elabConfig (false, false)
+    go tk term (!proofs) (!types)
 where
+  -- cfg = (proofs, types)
+  setConfigVal (cfg : Bool × Bool) (opt : TSyntax ``reduceOpts) (val : Bool) : Bool × Bool :=
+    match opt with
+    | `(reduceOpts| proofs) => (val, cfg.2)
+    | `(reduceOpts| types) => (cfg.1, val)
+    | _ => cfg
+  elabConfig (cfg : Bool × Bool) (stx : TSyntax ``reduceConfigItem) : Bool × Bool :=
+    match stx with
+    | `(reduceConfigItem| +$opt) | `(reduceConfigItem| ($opt := true)) => setConfigVal cfg opt true
+    | `(reduceConfigItem| -$opt) | `(reduceConfigItem| ($opt := false)) => setConfigVal cfg opt false
+    | _ => cfg
   go (tk : Syntax) (term : Syntax) (skipProofs := true) (skipTypes := true) : CommandElabM Unit :=
     withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
       let e ← Term.elabTerm term none

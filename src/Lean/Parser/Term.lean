@@ -422,9 +422,12 @@ def matchAlts (rhsParser : Parser := termParser) : Parser :=
 @[builtin_doc] def matchDiscr := leading_parser
   optional (atomic (binderIdent >> " : ")) >> termParser
 
+def posPrefix := leading_parser "+"
+def negPrefix := leading_parser "-"
 def trueVal  := leading_parser nonReservedSymbol "true"
 def falseVal := leading_parser nonReservedSymbol "false"
 def generalizingParam := leading_parser
+  atomic ((posPrefix <|> negPrefix) >> checkNoWsBefore >> "generalizing") <|>
   atomic ("(" >> nonReservedSymbol "generalizing") >> " := " >>
     (trueVal <|> falseVal)  >> ")" >> ppSpace
 
@@ -442,7 +445,7 @@ If used as `match h : e, ... with | p, ... => f | ...`, `h : e = p` is available
 within `f`.
 
 When not constructing a proof, `match` does not automatically substitute variables
-matched on in dependent variables' types. Use `match (generalizing := true) ...` to
+matched on in dependent variables' types. Use `match +generalizing ...` to
 enforce this.
 
 Syntax quotations can also be used in a pattern match.

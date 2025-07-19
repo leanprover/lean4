@@ -178,19 +178,35 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
 abbrev extExtension := Meta.Ext.extExtension
 abbrev getExtTheorems := Meta.Ext.getExtTheorems
 
+open Parser Attr in
+private def elabExtConfig (cfg : Bool × Bool) (stx : TSyntax ``extConfigItem) : Bool × Bool :=
+  match stx with
+  | `(extConfigItem| +$opt) | `(extConfigItem| ($opt := true)) => setConfigVal cfg opt true
+  | `(extConfigItem| -$opt) | `(extConfigItem| ($opt := false)) => setConfigVal cfg opt false
+  | _ => cfg
+where
+  -- cfg = (iff, flat)
+  setConfigVal (cfg : Bool × Bool) (opt : TSyntax ``extOpts) (val : Bool) : Bool × Bool :=
+    match opt with
+    | `(extOpts| iff) => (val, cfg.2)
+    | `(extOpts| flat) => (cfg.1, val)
+    | _ => cfg
+
 builtin_initialize registerBuiltinAttribute {
   name := `ext
   descr := "Marks a theorem as an extensionality theorem"
   add := fun declName stx kind => MetaM.run' do
-    let `(attr| ext $[(iff := false%$iffFalse?)]? $[(flat := false%$flatFalse?)]? $(prio)?) := stx
-      | throwError "invalid syntax for 'ext' attribute"
-    let iff := iffFalse?.isNone
-    let flat := flatFalse?.isNone
+    -- TODO: cleanup after stage0 update
+    --let `(attr| ext $[(iff := false%$iffFalse?)]? $[(flat := false%$flatFalse?)]? $(prio)?) := stx
+    --  | throwError "invalid syntax for 'ext' attribute"
+    let cfg : TSyntaxArray ``Parser.Attr.extConfigItem := .mk stx[1].getArgs
+    let prio := stx[2].getOptional?
+    let (iff, flat) := cfg.foldl elabExtConfig (true, true)
     let mut declName := declName
     if isStructure (← getEnv) declName then
       declName ← liftCommandElabM <| withRef stx <| realizeExtTheorem declName flat
-    else if let some stx := flatFalse? then
-      throwErrorAt stx "unexpected 'flat' configuration on @[ext] theorem"
+    else if !flat then
+      throwError "unexpected 'flat' configuration on @[ext] theorem"
     -- Validate and add theorem to environment extension
     let declTy := (← getConstInfo declName).type
     let (_, _, declTy) ← withDefault <| forallMetaTelescopeReducing declTy

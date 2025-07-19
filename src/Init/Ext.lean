@@ -16,14 +16,24 @@ namespace Lean
 namespace Parser.Attr
 
 /--
-The flag `(iff := false)` prevents `ext` from generating an `ext_iff` lemma.
+The flag `iff` determines whether `ext` should generate an `ext_iff` lemma (default `true`).
 -/
-syntax extIff := atomic("(" &"iff" " := " &"false" ")")
+syntax extOptIff := &"iff"
 
 /--
-The flag `(flat := false)` causes `ext` to not flatten parents' fields when generating an `ext` lemma.
+The flag `flat` determines whether `ext` should flatten parents' fields when generating an `ext` lemma (default `true`).
 -/
-syntax extFlat := atomic("(" &"flat" " := " &"false" ")")
+syntax extOptFlat := &"flat"
+
+set_option linter.missingDocs false in
+syntax extOpts := extOptIff <|> extOptFlat
+
+set_option linter.missingDocs false in
+syntax extConfigItem := atomic((" +" <|> " -") noWs extOpts) <|> atomic(" (" extOpts " := " (&"true" <|> &"false") ")")
+
+set_option linter.missingDocs false in
+syntax extConfig := extConfigItem*
+
 
 /--
 Registers an extensionality theorem.
@@ -37,12 +47,12 @@ Registers an extensionality theorem.
 * An optional natural number argument, e.g. `@[ext 9000]`, specifies a priority for the `ext` lemma.
   Higher-priority lemmas are chosen first, and the default is `1000`.
 
-* The flag `@[ext (iff := false)]` disables generating an `ext_iff` theorem.
+* The flag `@[ext -iff]` disables generating an `ext_iff` theorem.
 
-* The flag `@[ext (flat := false)]` causes generated structure extensionality theorems to show inherited fields based on their representation,
+* The flag `@[ext -flat]` causes generated structure extensionality theorems to show inherited fields based on their representation,
   rather than flattening the parents' fields into the lemma's equality hypotheses.
 -/
-syntax (name := ext) "ext" (ppSpace extIff)? (ppSpace extFlat)? (ppSpace prio)? : attr
+syntax (name := ext) "ext" extConfig (ppSpace prio)? : attr
 end Parser.Attr
 
 -- TODO: rename this namespace?

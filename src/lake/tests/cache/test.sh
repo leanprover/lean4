@@ -64,8 +64,8 @@ test_cached() {
   echo "${1:-?} artifact cached: $target -> $art"
   test ${1:-} "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
 }
-test_cached test:exe
-test_cached Test:static
+test_cached test:exe !
+test_cached Test:static !
 test_cached Test:shared !
 test_cached +Test:o.export
 test_cached +Test:o.noexport

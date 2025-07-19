@@ -5547,7 +5547,7 @@ private theorem le_min_iff [Ord α] [TransOrd α] {a b c : (a : α) × β a} :
 
 theorem minEntry?_eq_some_iff [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (a : (a : α) × β a) {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
     minEntry? l = some a ↔ a ∈ l ∧ ∀ b : α, containsKey b l → (compare a.fst b).isLE := by
-  rw [minEntry?, List.min?_eq_some_iff _ _ _ _]
+  rw [minEntry?, List.min?_eq_some_iff_legacy _ _ _ _]
   · simp only [and_congr_right_iff]
     intro hm
     apply Iff.intro

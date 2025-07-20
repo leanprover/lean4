@@ -176,7 +176,8 @@ def getSorryDep (env : Environment) (declName : Name) : Option Name :=
 @[export lean_get_ir_extra_const_names]
 private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) : Array Name :=
   declMapExt.getEntries env |>.toArray.map (·.name)
-    |>.filter fun n => !env.contains n && (level == .private || getDeclVisibility env n != .private)
+    |>.filter fun n => !env.contains n &&
+      (level == .private || getDeclVisibility env n != .private || Compiler.LCNF.isDeclMeta env n)
 
 end IR
 end Lean

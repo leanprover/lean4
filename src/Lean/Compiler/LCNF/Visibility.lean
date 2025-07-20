@@ -26,17 +26,6 @@ where
     | .const declName .. => s.insert declName
     | _ => s
 
-variable (locals : NameMap Decl) in
-private partial def setClosureMeta (root : Name) : CompilerM Unit := do
-  let some d ← pure (locals.find? root) <|> getDecl? root | return
-  d.value.forCodeM fun code =>
-    for ref in collectUsedDecls code do
-      if isDeclMeta (← getEnv) ref then
-        continue
-      trace[Compiler.inferVisibility] m!"Marking {ref} as meta because it is in `meta` closure"
-      modifyEnv (setDeclMeta · ref)
-      setClosureMeta ref
-
 -- TODO: refine? balance run time vs export size
 private def isBodyRelevant (decl : Decl) : CompilerM Bool := do
   -- let opts := (← getOptions)
@@ -50,11 +39,6 @@ partial def inferVisibility (decls : Array Decl) : CompilerM Unit := do
   -- always search in `decls` first.
   let locals := decls.foldl (init := {}) fun l d => l.insert d.name d
   for decl in decls do
-    if metaExt.isTagged (← getEnv) decl.name then
-      trace[Compiler.inferVisibility] m!"Marking {decl.name} as meta because it is tagged with `meta`"
-      modifyEnv (setDeclMeta · decl.name)
-      setClosureMeta locals decl.name
-
     if `_at_ ∈ decl.name.components then  -- TODO: don't?
       trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is a specialization"
       markOpaque locals decl

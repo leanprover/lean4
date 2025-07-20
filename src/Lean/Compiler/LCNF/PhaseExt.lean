@@ -8,40 +8,6 @@ import Lean.Compiler.LCNF.PassManager
 
 namespace Lean.Compiler.LCNF
 
-/-- Meta status of local declarations, not persisted. -/
-private builtin_initialize declMetaExt : EnvExtension (List Name × NameSet) ←
-  registerEnvExtension
-    (mkInitial := pure ([], {}))
-    (asyncMode := .sync)
-    (replay? := some <| fun oldState newState _ s =>
-      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
-      newEntries.foldl (init := s) fun s n =>
-        if s.1.contains n then
-          s
-        else
-          (n :: s.1, s.2.insert n))
-
-/-- Whether a declaration should be exported for interpretation. -/
-def isDeclMeta (env : Environment) (declName : Name) : Bool :=
-  if !env.header.isModule then
-    true
-  else
-    -- The interpreter may call the boxed variant even if the IR does not directly reference it, so
-    -- use same visibility as base decl.
-    -- Note that boxed decls are created after the `inferVisibility` pass.
-    let inferFor := match declName with
-      | .str n "_boxed" => n
-      | n               => n
-    declMetaExt.getState env |>.2.contains inferFor
-
-/-- Marks a declaration to be exported for interpretation. -/
-def setDeclMeta (env : Environment) (declName : Name) : Environment :=
-  if isDeclMeta env declName then
-    env
-  else
-    declMetaExt.modifyState env fun s =>
-      (declName :: s.1, s.2.insert declName)
-
 /-- Modifiers adjusting export behavior of compiler declarations for `import`. -/
 inductive DeclVisibility where
   /-- Do not export. -/

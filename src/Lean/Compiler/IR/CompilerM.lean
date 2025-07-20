@@ -77,6 +77,40 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
   let tmpDecl := Decl.extern declName #[] default default
   decls.binSearch tmpDecl declLt
 
+/-- Meta status of local declarations, not persisted. -/
+private builtin_initialize declMetaExt : EnvExtension (List Name × NameSet) ←
+  registerEnvExtension
+    (mkInitial := pure ([], {}))
+    (asyncMode := .sync)
+    (replay? := some <| fun oldState newState _ s =>
+      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
+      newEntries.foldl (init := s) fun s n =>
+        if s.1.contains n then
+          s
+        else
+          (n :: s.1, s.2.insert n))
+
+/-- Whether a declaration should be exported for interpretation. -/
+def isDeclMeta (env : Environment) (declName : Name) : Bool :=
+  if !env.header.isModule then
+    true
+  else
+    -- The interpreter may call the boxed variant even if the IR does not directly reference it, so
+    -- use same visibility as base decl.
+    -- Note that boxed decls are created after the `inferVisibility` pass.
+    let inferFor := match declName with
+      | .str n "_boxed" => n
+      | n               => n
+    declMetaExt.getState env |>.2.contains inferFor
+
+/-- Marks a declaration to be exported for interpretation. -/
+def setDeclMeta (env : Environment) (declName : Name) : Environment :=
+  if isDeclMeta env declName then
+    env
+  else
+    declMetaExt.modifyState env fun s =>
+      (declName :: s.1, s.2.insert declName)
+
 builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
@@ -89,7 +123,7 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
       -- Do not save all IR even in .olean.private as it will be in .ir anyway
       if env.header.isModule then
         entries.filterMap fun d => do
-          if Compiler.LCNF.isDeclMeta env d.name then
+          if isDeclMeta env d.name then
             return d
           guard <| getDeclVisibility env d.name != .private
           -- Bodies of imported IR decls are not relevant for codegen, only interpretation
@@ -138,6 +172,9 @@ def getDecl (n : Name) : CompilerM Decl := do
   let (some decl) ← findDecl n | throwError s!"unknown declaration '{n}'"
   return decl
 
+def findLocalDecl (n : Name) : CompilerM (Option Decl) :=
+  return declMapExt.getState (← getEnv) |>.find? n
+
 /-- Returns the list of IR declarations in declaration order. -/
 def getDecls (env : Environment) : List Decl :=
   declMapExt.getEntries env
@@ -177,7 +214,7 @@ def getSorryDep (env : Environment) (declName : Name) : Option Name :=
 private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) : Array Name :=
   declMapExt.getEntries env |>.toArray.map (·.name)
     |>.filter fun n => !env.contains n &&
-      (level == .private || getDeclVisibility env n != .private || Compiler.LCNF.isDeclMeta env n)
+      (level == .private || getDeclVisibility env n != .private || isDeclMeta env n)
 
 end IR
 end Lean

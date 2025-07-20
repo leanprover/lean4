@@ -1785,7 +1785,9 @@ private def mkIRData (env : Environment) : ModuleData :=
     entries := exportIREntries env
     constants := default
     constNames := default
-    extraConstNames := getIRExtraConstNames env .private
+    -- make sure to add names of private constants as well as they may not be visible in all
+    -- importers.
+    extraConstNames := getIRExtraConstNames (env.setExporting true) .private
   }
 
 def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do

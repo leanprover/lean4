@@ -78,14 +78,20 @@ def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
 @[inline] def withLetDecl (decl : LetDecl) (x : SpecializeM α) : SpecializeM α := do
   let grd ← isGround decl.value
   let fvarId := decl.fvarId
-  withReader (fun { scope, ground, declName } => { declName, scope := scope.insert fvarId, ground := if grd then ground.insert fvarId else ground }) x
+  withReader (fun ctx => { ctx with
+    scope := ctx.scope.insert fvarId
+    ground := if grd then ctx.ground.insert fvarId else ctx.ground
+  }) x
 
 @[inline] def withFunDecl (decl : FunDecl) (x : SpecializeM α) : SpecializeM α := do
   let ctx ← read
   let grd := allFVar (x := decl.value) fun fvarId =>
     !(ctx.scope.contains fvarId) || ctx.ground.contains fvarId
   let fvarId := decl.fvarId
-  withReader (fun { scope, ground, declName } => { declName, scope := scope.insert fvarId, ground := if grd then ground.insert fvarId else ground }) x
+  withReader (fun ctx => { ctx with
+    scope := ctx.scope.insert fvarId
+    ground := if grd then ctx.ground.insert fvarId else ctx.ground
+  }) x
 
 namespace Collector
 /-!

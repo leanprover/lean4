@@ -1,33 +1,43 @@
-
-opaque T : Type u → Type u
+opaque T : (α : Type u) → [BEq α] → Type u
 
 /--
-error: (kernel) arg #2 of 'Expr'.app' contains a non valid occurrence of the datatypes being declared
+warning: declaration uses 'sorry'
+---
+error: (kernel) application type mismatch
+  @T Expr' sorry
+argument has type
+  _nested.BEq_1
+but function has type
+  [BEq Expr'] → Type
 -/
 #guard_msgs in
 inductive Expr' where
   | leaf : Expr'
-  | app : Expr' → T Expr' → Expr'
+  | app : Expr' → @T Expr' sorry → Expr'
 
 inductive T.Raw (α : Type u) : Type u where
   | mk : α → T.Raw α → T.Raw α -- pseudo-implementation, representative for any kernel-friendly type
+deriving BEq
 
 -- Abstract interface needed for the construction below
+
+variable {α} {β}
+variable [BEq α] [BEq β]
 
 axiom T.WF : T.Raw α → Prop
 axiom T.abs : (x : T.Raw α) → T.WF x → T α
 axiom T.repr : T α → T.Raw α
 axiom T.wf : (t : T α) → T.WF t.repr
-axiom T.abs_repr : T.abs (T.repr x) (T.wf x) = x
-axiom T.repr_abs : T.repr (T.abs x p) = x
-axiom T.Raw.map {α β} : (f : α → β) → T.Raw α → T.Raw β
+axiom T.abs_repr {x : T α} : T.abs (T.repr x) (T.wf x) = x
+axiom T.repr_abs {x : T.Raw α} {h : T.WF x} : T.repr (T.abs x h) = x
+axiom T.Raw.map : (f : α → β) → T.Raw α → T.Raw β
 
 -- Cannot be abstract, since we need to define a nested inductive predicate
-inductive T.Raw.Forall {α : Type u} (p : α → Prop) : T.Raw α → Prop
+inductive T.Raw.Forall (p : α → Prop) : T.Raw α → Prop
   | mk x xs : p x → xs.Forall p → T.Raw.Forall p (T.Raw.mk x xs)
 
 
-axiom T.Raw.wf_map {α β} (f : α → β) (x : T.Raw α) (h : T.WF x) : T.WF (T.Raw.map f x)
+axiom T.Raw.wf_map (f : α → β) (x : T.Raw α) (h : T.WF x) : T.WF (T.Raw.map f x)
 axiom T.Raw.Forall_map {α : Type u} {β : Type v} (f : α → β) (p : β → Prop)
   (m : T.Raw α) (h : ∀ x, p (f x)) :
   T.Raw.Forall p (m.map f)
@@ -42,6 +52,7 @@ axiom T.Raw.attach_map_val (x : T.Raw (Subtype p)) (h : T.Raw.Forall p (x.map Su
 inductive Expr.Raw where
   | leaf : Expr.Raw
   | app : Expr.Raw → T.Raw Expr.Raw → Expr.Raw
+deriving BEq
 
 attribute [pp_nodot] Expr.Raw.app
 
@@ -79,6 +90,9 @@ theorem Expr.WF.app_proj3 (h : Expr.WF (Expr.Raw.app f es)) : es.Forall Expr.WF 
 
 def Expr := Subtype Expr.WF
 
+instance instBEqExpr : BEq Expr where
+  beq e₁ e₂ := e₁.val == e₂.val
+
 -- Fake constructor
 noncomputable def Expr.leaf : Expr where
   val := .leaf
@@ -111,7 +125,7 @@ noncomputable def Expr.casesOn' (motive : Expr → Sort u)
       simp only [T.Raw.map_val_attach] at app
       apply app
 
-theorem heq_of_cast_eq : ∀ (e : α = β) (_ : cast e a = a'), a ≍ a'
+theorem heq_of_cast_eq  {α β} {a : α} {a' : β} : ∀ (e : α = β) (_ : cast e a = a'), a ≍ a'
   | rfl, rfl => .rfl
 
 theorem cast_eq_iff_heq : cast e a = a' ↔ a ≍ a' :=

@@ -89,7 +89,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
 
   -- helpers for type name syntax
   let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
-  let typeId ← `(@$(mkIdent indVal.name) $paramIds*)
+  let typeId ← `(@$(mkCIdent indVal.name) $paramIds*)
 
   `(inductive RpcEncodablePacket where
       $[$ctors:ctor]*

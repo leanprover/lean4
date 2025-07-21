@@ -71,7 +71,7 @@ where
       if assumingParamIdxs.contains i then
         let binder ← `(bracketedBinderF| [Inhabited $arg:ident ])
         binders := binders.push binder
-    let type ← `(Inhabited (@$(mkIdent inductiveTypeName):ident $indArgs:ident*))
+    let type ← `(Inhabited (@$(mkCIdent inductiveTypeName):ident $indArgs:ident*))
     let mut ctorArgs := #[]
     for _ in *...ctorVal.numParams do
       ctorArgs := ctorArgs.push (← `(_))

@@ -2254,9 +2254,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_next_fast_cold(size_t i, unsigne
 }
 
 static inline bool is_utf8_first_byte(unsigned char c) {
-    // We only call this for strings that we assume to be valid UTF-8.
-    // Thus, it is safe to only check that the byte *isn't* a continuation byte.
-    return (c & 0xc0) != 0x80;
+    return (c & 0x80) == 0 || (c & 0xe0) == 0xc0 || (c & 0xf0) == 0xe0 || (c & 0xf8) == 0xf0;
 }
 
 extern "C" LEAN_EXPORT uint8 lean_string_is_valid_pos(b_obj_arg s, b_obj_arg i0) {

@@ -63,14 +63,11 @@ def mustConsume (ctx : Context) (x : VarId) : Bool :=
   .dec x 1 (!info.type.isDefiniteRef) info.persistent b
 
 private def updateRefUsingCtorInfo (ctx : Context) (x : VarId) (c : CtorInfo) : Context :=
-  if c.isRef then
-    ctx
-  else
-    let m := ctx.varMap
-    { ctx with
-      varMap := match m.get? x with
-      | some info => m.insert x { info with type := c.type }
-      | none      => m }
+  let m := ctx.varMap
+  { ctx with
+    varMap := match m.get? x with
+    | some info => m.insert x { info with type := c.type }
+    | none      => m }
 
 private def addDecForAlt (ctx : Context) (caseLiveVars altLiveVars : LiveVarSet) (b : FnBody) : FnBody :=
   caseLiveVars.foldl (init := b) fun b x =>

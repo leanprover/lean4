@@ -676,6 +676,8 @@ example {x : BitVec 8} : x.clz ≤ 8 := by bv_decide
 
 -- POPCOUNT
 #eval (2#3).popCountRec 0 3
+example : (3#4).popCountRec 0 4 = 2 := by bv_decide
+
 
 section
 

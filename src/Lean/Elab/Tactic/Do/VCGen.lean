@@ -409,5 +409,5 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
   -- but optConfig is not a leading_parser, and neither is the syntax for `lemmas`
   let ctx ← mkSpecContext stx[1] stx[2]
   let vcs ← genVCs (← getMainGoal) ctx (fuel := .unlimited)
-  let tac ← `(tactic| try (apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro); trivial))
+  let tac ← `(tactic| try ((try apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro)); trivial))
   for vc in vcs do discard <| runTactic vc tac

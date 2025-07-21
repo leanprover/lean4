@@ -208,7 +208,6 @@ static lean_object* l_Lean_Elab_Command_mkUnexpander___closed__25;
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_removeParenthesesAux___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_Command_addInheritDocDefault_spec__0___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux_spec__1___redArg(size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_____private_Lean_Elab_Notation_0__Lean_Elab_Command_antiquote_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -219,6 +218,7 @@ static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNo
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___closed__4;
 static lean_object* l_Lean_Elab_Command_removeParentheses___closed__1;
+uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___closed__5;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_mkUnexpander___closed__47;
@@ -2258,7 +2258,7 @@ lean_object* x_36; lean_object* x_37; uint8_t x_38;
 x_36 = l_Lean_Syntax_getAntiquotTerm(x_4);
 x_37 = l_Lean_Syntax_getId(x_36);
 lean_dec(x_36);
-x_38 = l_Lean_NameSet_contains(x_32, x_37);
+x_38 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_37, x_32);
 if (x_38 == 0)
 {
 lean_object* x_39; lean_object* x_40; 
@@ -2316,7 +2316,7 @@ lean_object* x_48; lean_object* x_49; uint8_t x_50;
 x_48 = l_Lean_Syntax_getAntiquotTerm(x_4);
 x_49 = l_Lean_Syntax_getId(x_48);
 lean_dec(x_48);
-x_50 = l_Lean_NameSet_contains(x_44, x_49);
+x_50 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_49, x_44);
 if (x_50 == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; 
@@ -2680,7 +2680,7 @@ static lean_object* _init_l_Lean_Elab_Command_hasDuplicateAntiquot___closed__0()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);

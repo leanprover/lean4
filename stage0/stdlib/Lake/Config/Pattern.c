@@ -19,7 +19,6 @@ static lean_object* l_Lake_instIsPatternPathPatDescrFilePath___closed__0;
 LEAN_EXPORT uint8_t l_Lake_StrPatDescr_matches(lean_object*, lean_object*);
 static lean_object* l_Lake_StrPat_verLike___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StrPat_mem(lean_object*);
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Pattern_star(lean_object*, lean_object*);
@@ -112,6 +111,7 @@ static lean_object* l_Lake_PatternDescr_matches___redArg___closed__9;
 static lean_object* l_Lake_PatternDescr_matches___redArg___closed__0;
 static lean_object* l_Lake_versionTagPresets___closed__1;
 static lean_object* l_Lake_Pattern_star___closed__2;
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_ofDescr___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_term___x3d_x7e_____closed__9;
 static lean_object* l_Lake_PatternDescr_empty___closed__1;
@@ -2545,10 +2545,10 @@ static lean_object* _init_l_Lake_versionTagPresets___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lake_StrPat_verLike;
-x_2 = l_Lake_StrPat_verLike___closed__2;
-x_3 = lean_box(0);
-x_4 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
+x_1 = lean_box(1);
+x_2 = l_Lake_StrPat_verLike;
+x_3 = l_Lake_StrPat_verLike___closed__2;
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }
@@ -2556,10 +2556,10 @@ static lean_object* _init_l_Lake_versionTagPresets___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lake_defaultVersionTags;
-x_2 = l_Lake_defaultVersionTags___closed__1;
-x_3 = l_Lake_versionTagPresets___closed__0;
-x_4 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
+x_1 = l_Lake_versionTagPresets___closed__0;
+x_2 = l_Lake_defaultVersionTags;
+x_3 = l_Lake_defaultVersionTags___closed__1;
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }

@@ -2301,7 +2301,8 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_prev(b_obj_arg s, b_obj_arg i0) 
     }
     usize i  = lean_unbox(i0);
     usize sz = lean_string_size(s) - 1;
-    if (i == 0 || i > sz) return lean_box(0);
+    if (i == 0) return lean_box(0);
+    else if (i > sz) return lean_box(i - 1);
     i--;
     char const * str = lean_string_cstr(s);
     while (!is_utf8_first_byte(str[i])) {

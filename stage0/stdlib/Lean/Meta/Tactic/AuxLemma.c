@@ -1159,7 +1159,7 @@ block_100:
 lean_object* x_87; 
 lean_inc(x_10);
 lean_inc_ref(x_9);
-x_87 = l_Lean_addDecl(x_86, x_9, x_10, x_85);
+x_87 = l_Lean_addDecl(x_86, x_9, x_10, x_84);
 if (lean_obj_tag(x_87) == 0)
 {
 if (x_6 == 0)
@@ -1171,7 +1171,7 @@ x_88 = lean_ctor_get(x_87, 1);
 lean_inc(x_88);
 lean_dec_ref(x_87);
 x_19 = x_83;
-x_20 = x_84;
+x_20 = x_85;
 x_21 = x_8;
 x_22 = x_10;
 x_23 = x_88;
@@ -1185,8 +1185,8 @@ lean_inc(x_89);
 lean_dec_ref(x_87);
 lean_inc(x_10);
 lean_inc(x_8);
-lean_inc(x_84);
-x_90 = l_Lean_inferDefEqAttr(x_84, x_7, x_8, x_9, x_10, x_89);
+lean_inc(x_85);
+x_90 = l_Lean_inferDefEqAttr(x_85, x_7, x_8, x_9, x_10, x_89);
 if (lean_obj_tag(x_90) == 0)
 {
 lean_object* x_91; 
@@ -1194,7 +1194,7 @@ x_91 = lean_ctor_get(x_90, 1);
 lean_inc(x_91);
 lean_dec_ref(x_90);
 x_19 = x_83;
-x_20 = x_84;
+x_20 = x_85;
 x_21 = x_8;
 x_22 = x_10;
 x_23 = x_91;
@@ -1203,7 +1203,7 @@ goto block_82;
 else
 {
 uint8_t x_92; 
-lean_dec(x_84);
+lean_dec(x_85);
 lean_dec(x_83);
 lean_dec(x_10);
 lean_dec(x_8);
@@ -1231,7 +1231,7 @@ return x_95;
 else
 {
 uint8_t x_96; 
-lean_dec(x_84);
+lean_dec(x_85);
 lean_dec(x_83);
 lean_dec(x_10);
 lean_dec_ref(x_9);
@@ -1278,9 +1278,9 @@ lean_ctor_set(x_108, 1, x_3);
 lean_ctor_set(x_108, 2, x_107);
 x_109 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_109, 0, x_108);
-x_83 = x_101;
-x_84 = x_103;
-x_85 = x_102;
+x_83 = x_102;
+x_84 = x_101;
+x_85 = x_103;
 x_86 = x_109;
 goto block_100;
 }
@@ -1307,9 +1307,9 @@ lean_ctor_set(x_115, 3, x_114);
 lean_ctor_set_uint8(x_115, sizeof(void*)*4, x_112);
 x_116 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_116, 0, x_115);
-x_83 = x_101;
-x_84 = x_103;
-x_85 = x_102;
+x_83 = x_102;
+x_84 = x_101;
+x_85 = x_103;
 x_86 = x_116;
 goto block_100;
 }
@@ -1409,8 +1409,8 @@ if (x_147 == 0)
 {
 uint8_t x_148; 
 x_148 = l_Lean_Environment_hasUnsafe(x_16, x_3);
-x_101 = x_146;
-x_102 = x_145;
+x_101 = x_145;
+x_102 = x_146;
 x_103 = x_144;
 x_104 = x_148;
 goto block_117;
@@ -1418,8 +1418,8 @@ goto block_117;
 else
 {
 lean_dec_ref(x_16);
-x_101 = x_146;
-x_102 = x_145;
+x_101 = x_145;
+x_102 = x_146;
 x_103 = x_144;
 x_104 = x_147;
 goto block_117;

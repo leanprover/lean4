@@ -3598,6 +3598,7 @@ x_24 = l_reduceCtorEq___lam__2___closed__3;
 x_25 = lean_array_push(x_24, x_4);
 x_26 = 1;
 x_27 = l_Lean_Meta_mkLambdaFVars(x_25, x_22, x_1, x_2, x_1, x_2, x_26, x_8, x_9, x_10, x_11, x_23);
+lean_dec_ref(x_25);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; 

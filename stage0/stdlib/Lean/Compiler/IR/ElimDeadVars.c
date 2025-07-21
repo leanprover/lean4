@@ -17,6 +17,7 @@ static lean_object* l_Lean_IR_initFn___closed__6____x40_Lean_Compiler_IR_ElimDea
 LEAN_EXPORT lean_object* l_Lean_IR_Decl_elimDead(lean_object*);
 static lean_object* l_Lean_IR_initFn___closed__13____x40_Lean_Compiler_IR_ElimDeadVars___hyg_310_;
 uint8_t l_Array_isEmpty___redArg(lean_object*);
+uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_mkIndexSet_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_initFn___closed__5____x40_Lean_Compiler_IR_ElimDeadVars___hyg_310_;
 static lean_object* l_Lean_IR_initFn___closed__9____x40_Lean_Compiler_IR_ElimDeadVars___hyg_310_;
 static lean_object* l_Lean_IR_initFn___closed__17____x40_Lean_Compiler_IR_ElimDeadVars___hyg_310_;
@@ -43,7 +44,6 @@ static lean_object* l_Lean_IR_initFn___closed__1____x40_Lean_Compiler_IR_ElimDea
 static lean_object* l_Lean_IR_initFn___closed__20____x40_Lean_Compiler_IR_ElimDeadVars___hyg_310_;
 lean_object* l_Lean_IR_FnBody_setBody(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_updateBody_x21(lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_findCore___at_____private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectArg_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_initFn___closed__2____x40_Lean_Compiler_IR_ElimDeadVars___hyg_310_;
 static lean_object* l_Lean_IR_initFn___closed__16____x40_Lean_Compiler_IR_ElimDeadVars___hyg_310_;
 static lean_object* l_Lean_IR_initFn___closed__3____x40_Lean_Compiler_IR_ElimDeadVars___hyg_310_;
@@ -82,50 +82,41 @@ uint8_t x_4;
 x_4 = l_Array_isEmpty___redArg(x_1);
 if (x_4 == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_11; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = l_Lean_IR_instInhabitedFnBody;
 x_6 = l_Array_back_x21___redArg(x_5, x_1);
 x_7 = lean_array_pop(x_1);
 switch (lean_obj_tag(x_6)) {
 case 0:
 {
-lean_object* x_15; 
-x_15 = lean_ctor_get(x_6, 0);
-lean_inc(x_15);
-x_11 = x_15;
-goto block_14;
+lean_object* x_14; 
+x_14 = lean_ctor_get(x_6, 0);
+lean_inc(x_14);
+x_8 = x_14;
+goto block_13;
 }
 case 1:
 {
-lean_object* x_16; 
-x_16 = lean_ctor_get(x_6, 0);
-lean_inc(x_16);
-x_11 = x_16;
-goto block_14;
+lean_object* x_15; 
+x_15 = lean_ctor_get(x_6, 0);
+lean_inc(x_15);
+x_8 = x_15;
+goto block_13;
 }
 default: 
 {
-lean_object* x_17; lean_object* x_18; 
-x_17 = lean_box(0);
-x_18 = l_Lean_IR_reshapeWithoutDead_reshape___lam__0(x_6, x_3, x_2, x_7, x_17);
-return x_18;
+lean_object* x_16; lean_object* x_17; 
+x_16 = lean_box(0);
+x_17 = l_Lean_IR_reshapeWithoutDead_reshape___lam__0(x_6, x_3, x_2, x_7, x_16);
+return x_17;
 }
 }
-block_10:
+block_13:
 {
-lean_object* x_8; lean_object* x_9; 
-x_8 = lean_box(0);
-x_9 = l_Lean_IR_reshapeWithoutDead_reshape___lam__0(x_6, x_3, x_2, x_7, x_8);
-return x_9;
-}
-block_14:
-{
-lean_object* x_12; 
-x_12 = l_Lean_RBNode_findCore___at_____private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectArg_spec__0___redArg(x_3, x_11);
-lean_dec(x_11);
-if (lean_obj_tag(x_12) == 0)
-{
-if (x_4 == 0)
+uint8_t x_9; 
+x_9 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_mkIndexSet_spec__0___redArg(x_8, x_3);
+lean_dec(x_8);
+if (x_9 == 0)
 {
 lean_dec(x_6);
 x_1 = x_7;
@@ -133,13 +124,10 @@ goto _start;
 }
 else
 {
-goto block_10;
-}
-}
-else
-{
-lean_dec(x_12);
-goto block_10;
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_box(0);
+x_12 = l_Lean_IR_reshapeWithoutDead_reshape___lam__0(x_6, x_3, x_2, x_7, x_11);
+return x_12;
 }
 }
 }

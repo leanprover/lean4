@@ -899,7 +899,7 @@ x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec_ref(x_21);
 x_24 = lean_unsigned_to_nat(5u);
-x_25 = lean_box(0);
+x_25 = lean_box(1);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);

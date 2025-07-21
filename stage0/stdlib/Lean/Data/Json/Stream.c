@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Json.Stream
-// Imports: Init.System.IO Lean.Data.Json.Parser Lean.Data.Json.Printer Lean.Data.Json.FromToJson
+// Imports: Init.System.IO Lean.Data.Json.Parser Lean.Data.Json.Printer
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -227,7 +227,6 @@ return x_7;
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_Parser(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_Printer(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Json_FromToJson(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Json_Stream(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -240,9 +239,6 @@ res = initialize_Lean_Data_Json_Parser(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Json_Printer(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Json_FromToJson(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_IO_FS_Stream_readJson___closed__0 = _init_l_IO_FS_Stream_readJson___closed__0();

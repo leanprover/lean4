@@ -1627,10 +1627,10 @@ lean_dec_ref(x_2);
 lean_dec(x_1);
 x_121 = lean_unbox(x_114);
 lean_dec(x_114);
-x_6 = x_110;
+x_6 = x_118;
 x_7 = x_121;
 x_8 = x_116;
-x_9 = x_118;
+x_9 = x_110;
 goto block_14;
 }
 else
@@ -1688,10 +1688,10 @@ lean_dec_ref(x_2);
 lean_dec(x_1);
 x_135 = lean_unbox(x_114);
 lean_dec(x_114);
-x_6 = x_110;
+x_6 = x_133;
 x_7 = x_135;
 x_8 = x_116;
-x_9 = x_133;
+x_9 = x_110;
 goto block_14;
 }
 else
@@ -1743,10 +1743,10 @@ lean_inc(x_145);
 lean_dec(x_113);
 x_146 = lean_unbox(x_114);
 lean_dec(x_114);
-x_6 = x_110;
+x_6 = x_145;
 x_7 = x_146;
 x_8 = x_144;
-x_9 = x_145;
+x_9 = x_110;
 goto block_14;
 }
 }
@@ -1793,7 +1793,7 @@ return x_165;
 block_14:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_10 = l_Lean_IR_FnBody_setBody(x_6, x_9);
+x_10 = l_Lean_IR_FnBody_setBody(x_9, x_6);
 x_11 = lean_box(x_7);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
@@ -3167,7 +3167,7 @@ goto block_13;
 block_13:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_8 = lean_box(0);
+x_8 = lean_box(1);
 x_9 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_7);

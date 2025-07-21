@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_InputFile_defaultFacetConf
 lean_object* l_Lake_JobResult_prependLog___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_compress(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_InputFile_0__Lake_InputFile_recFetch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_InputFile_keyword;
 lean_object* l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStderr___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_InputFile_0__Lake_InputFile_recFetch_spec__0_spec__0_spec__2___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -69,6 +68,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 extern lean_object* l_Lake_instDataKindFilePath;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_toJson___at___Lake_stdFormat___at___Lake_InputDir_defaultFacetConfig_spec__0_spec__1(lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_InputFile_0__Lake_InputFile_recFetch_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_ofBuffer(lean_object*);
 lean_object* l_Lake_Job_renew___redArg(lean_object*);
@@ -716,13 +716,13 @@ block_17:
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_12);
+lean_ctor_set(x_14, 1, x_11);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_10);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_11);
+lean_ctor_set(x_16, 1, x_12);
 return x_16;
 }
 block_54:
@@ -764,8 +764,8 @@ lean_dec_ref(x_37);
 x_39 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_____private_Lake_Build_InputFile_0__Lake_InputFile_recFetch_spec__0_spec__0___redArg___closed__4;
 x_40 = l_panic___at___Lean_Name_getString_x21_spec__0(x_39);
 x_10 = x_33;
-x_11 = x_36;
-x_12 = x_32;
+x_11 = x_32;
+x_12 = x_36;
 x_13 = x_40;
 goto block_17;
 }
@@ -775,8 +775,8 @@ lean_object* x_41;
 x_41 = lean_string_from_utf8_unchecked(x_37);
 lean_dec_ref(x_37);
 x_10 = x_33;
-x_11 = x_36;
-x_12 = x_32;
+x_11 = x_32;
+x_12 = x_36;
 x_13 = x_41;
 goto block_17;
 }
@@ -1676,10 +1676,10 @@ static lean_object* _init_l_Lake_InputFile_initFacetConfigs___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lake_InputFile_defaultFacetConfig;
-x_2 = l_Lake_InputFile_defaultFacet;
-x_3 = lean_box(0);
-x_4 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
+x_1 = lean_box(1);
+x_2 = l_Lake_InputFile_defaultFacetConfig;
+x_3 = l_Lake_InputFile_defaultFacet;
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }
@@ -2585,10 +2585,10 @@ static lean_object* _init_l_Lake_InputDir_initFacetConfigs___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lake_InputDir_defaultFacetConfig;
-x_2 = l_Lake_InputDir_defaultFacet;
-x_3 = lean_box(0);
-x_4 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
+x_1 = lean_box(1);
+x_2 = l_Lake_InputDir_defaultFacetConfig;
+x_3 = l_Lake_InputDir_defaultFacet;
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }

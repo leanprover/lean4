@@ -840,7 +840,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__17;
 x_2 = l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__15;
-x_3 = lean_box(0);
+x_3 = lean_box(1);
 x_4 = l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__12;
 x_5 = l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__7;
 x_6 = lean_alloc_ctor(0, 5, 0);
@@ -934,7 +934,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__2
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__23;
 x_3 = l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__21;
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -962,7 +962,7 @@ x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_box(0);
 x_4 = l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__25;
 x_5 = l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__24;
-x_6 = lean_box(0);
+x_6 = lean_box(1);
 x_7 = 0;
 x_8 = l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__20;
 x_9 = l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__19;
@@ -2871,7 +2871,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18;
 x_16 = l_Array_toSubarray___redArg(x_2, x_14, x_15);
 x_17 = l_Array_ofSubarray___redArg(x_16);
 lean_dec_ref(x_16);
-x_18 = l_Lean_Compiler_LCNF_instantiateForall(x_10, x_17, x_11, x_12, x_13);
+x_18 = l_Lean_Compiler_LCNF_instantiateForall(x_11, x_17, x_12, x_10, x_13);
 lean_dec_ref(x_17);
 if (lean_obj_tag(x_18) == 0)
 {
@@ -2885,13 +2885,13 @@ x_21 = l_Lean_Compiler_LCNF_getParamTypes(x_19);
 x_22 = lean_array_get(x_8, x_21, x_9);
 lean_dec(x_9);
 lean_dec_ref(x_21);
-x_23 = l_Lean_Compiler_LCNF_toMonoType(x_22, x_11, x_12, x_20);
+x_23 = l_Lean_Compiler_LCNF_toMonoType(x_22, x_12, x_10, x_20);
 return x_23;
 }
 else
 {
-lean_dec(x_12);
-lean_dec_ref(x_11);
+lean_dec_ref(x_12);
+lean_dec(x_10);
 lean_dec(x_9);
 return x_18;
 }
@@ -3143,9 +3143,9 @@ if (x_85 == 0)
 {
 lean_dec(x_77);
 x_9 = x_78;
-x_10 = x_81;
-x_11 = x_25;
-x_12 = x_26;
+x_10 = x_26;
+x_11 = x_81;
+x_12 = x_25;
 x_13 = x_82;
 x_14 = x_83;
 x_15 = x_84;
@@ -3155,9 +3155,9 @@ else
 {
 lean_dec(x_84);
 x_9 = x_78;
-x_10 = x_81;
-x_11 = x_25;
-x_12 = x_26;
+x_10 = x_26;
+x_11 = x_81;
+x_12 = x_25;
 x_13 = x_82;
 x_14 = x_83;
 x_15 = x_77;

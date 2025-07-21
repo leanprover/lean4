@@ -13,12 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at___Lean_IR_Checker_markIndex_spec__0___redArg___boxed(lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at___Lean_IR_Checker_markIndex_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Checker_withParams___closed__0;
 lean_object* l_Lean_Core_instMonadCoreM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_insert___at___Lean_IR_mkIndexSet_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_getUSizeSize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkScalarType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_throwCheckerError___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -35,8 +32,8 @@ LEAN_EXPORT lean_object* l_Lean_IR_Checker_usizeSize;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_IR_Checker_getDecl___closed__2;
 lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_mkIndexSet_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_maxCtorScalarsSize;
-LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at___Lean_IR_Checker_markIndex_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_throwCheckerError___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_get_max_ctor_fields(lean_object*);
 static lean_object* l_Lean_IR_Checker_checkType___closed__0;
@@ -45,6 +42,7 @@ lean_object* lean_get_max_ctor_tag(lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Checker_checkFullApp___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkExpr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_IR_mkIndexSet_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkScalarType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -173,7 +171,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_getMaxCtorScalarsSize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_withParams___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at___Lean_IR_Checker_markIndex_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Checker_checkJP___closed__1;
 lean_object* l_Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkJP(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -448,61 +445,6 @@ lean_dec_ref(x_2);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at___Lean_IR_Checker_markIndex_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_3; 
-x_3 = lean_box(0);
-return x_3;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_1, 1);
-x_6 = lean_ctor_get(x_1, 2);
-x_7 = lean_ctor_get(x_1, 3);
-x_8 = lean_nat_dec_lt(x_2, x_5);
-if (x_8 == 0)
-{
-uint8_t x_9; 
-x_9 = lean_nat_dec_eq(x_2, x_5);
-if (x_9 == 0)
-{
-x_1 = x_7;
-goto _start;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; 
-lean_inc(x_6);
-lean_inc(x_5);
-x_11 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_11, 0, x_5);
-lean_ctor_set(x_11, 1, x_6);
-x_12 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_12, 0, x_11);
-return x_12;
-}
-}
-else
-{
-x_1 = x_4;
-goto _start;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at___Lean_IR_Checker_markIndex_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_RBNode_findCore___at___Lean_IR_Checker_markIndex_spec__0___redArg(x_2, x_3);
-return x_4;
-}
-}
 static lean_object* _init_l_Lean_IR_Checker_markIndex___closed__0() {
 _start:
 {
@@ -522,83 +464,85 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_markIndex(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = lean_st_ref_get(x_3, x_6);
-x_8 = lean_ctor_get(x_7, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_7, 1);
-lean_inc(x_9);
-lean_dec_ref(x_7);
-x_10 = l_Lean_RBNode_findCore___at___Lean_IR_Checker_markIndex_spec__0___redArg(x_8, x_1);
-lean_dec(x_8);
-if (lean_obj_tag(x_10) == 0)
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-lean_dec_ref(x_2);
-x_11 = lean_st_ref_take(x_3, x_9);
-x_12 = lean_ctor_get(x_11, 0);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_11, 1);
-lean_inc(x_13);
-lean_dec_ref(x_11);
-x_14 = lean_box(0);
-x_15 = l_Lean_RBNode_insert___at___Lean_IR_mkIndexSet_spec__0___redArg(x_12, x_1, x_14);
-x_16 = lean_st_ref_set(x_3, x_15, x_13);
-x_17 = !lean_is_exclusive(x_16);
-if (x_17 == 0)
-{
-lean_object* x_18; 
-x_18 = lean_ctor_get(x_16, 0);
-lean_dec(x_18);
-lean_ctor_set(x_16, 0, x_14);
-return x_16;
-}
-else
-{
-lean_object* x_19; lean_object* x_20; 
-x_19 = lean_ctor_get(x_16, 1);
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
+x_17 = lean_st_ref_get(x_3, x_6);
+x_18 = lean_ctor_get(x_17, 0);
+lean_inc(x_18);
+x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
-lean_dec(x_16);
-x_20 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_20, 0, x_14);
-lean_ctor_set(x_20, 1, x_19);
-return x_20;
+lean_dec_ref(x_17);
+x_20 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_mkIndexSet_spec__0___redArg(x_1, x_18);
+lean_dec(x_18);
+if (x_20 == 0)
+{
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
+lean_dec_ref(x_2);
+x_21 = lean_st_ref_take(x_3, x_19);
+x_22 = lean_ctor_get(x_21, 0);
+lean_inc(x_22);
+x_23 = lean_ctor_get(x_21, 1);
+lean_inc(x_23);
+lean_dec_ref(x_21);
+x_24 = lean_box(0);
+x_25 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_mkIndexSet_spec__0___redArg(x_1, x_22);
+if (x_25 == 0)
+{
+lean_object* x_26; 
+x_26 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_IR_mkIndexSet_spec__1___redArg(x_1, x_24, x_22);
+x_7 = x_23;
+x_8 = x_24;
+x_9 = x_3;
+x_10 = x_26;
+goto block_16;
+}
+else
+{
+lean_dec(x_1);
+x_7 = x_23;
+x_8 = x_24;
+x_9 = x_3;
+x_10 = x_22;
+goto block_16;
 }
 }
 else
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-lean_dec(x_10);
-x_21 = l_Lean_IR_Checker_markIndex___closed__0;
-x_22 = l_Nat_reprFast(x_1);
-x_23 = lean_string_append(x_21, x_22);
-lean_dec_ref(x_22);
-x_24 = l_Lean_IR_Checker_markIndex___closed__1;
-x_25 = lean_string_append(x_23, x_24);
-x_26 = l_Lean_IR_Checker_throwCheckerError___redArg(x_25, x_2, x_3, x_4, x_5, x_9);
-lean_dec_ref(x_25);
-return x_26;
+lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
+x_27 = l_Lean_IR_Checker_markIndex___closed__0;
+x_28 = l_Nat_reprFast(x_1);
+x_29 = lean_string_append(x_27, x_28);
+lean_dec_ref(x_28);
+x_30 = l_Lean_IR_Checker_markIndex___closed__1;
+x_31 = lean_string_append(x_29, x_30);
+x_32 = l_Lean_IR_Checker_throwCheckerError___redArg(x_31, x_2, x_3, x_4, x_5, x_19);
+lean_dec_ref(x_31);
+return x_32;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at___Lean_IR_Checker_markIndex_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
+block_16:
 {
-lean_object* x_3; 
-x_3 = l_Lean_RBNode_findCore___at___Lean_IR_Checker_markIndex_spec__0___redArg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at___Lean_IR_Checker_markIndex_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
+lean_object* x_11; uint8_t x_12; 
+x_11 = lean_st_ref_set(x_9, x_10, x_7);
+x_12 = !lean_is_exclusive(x_11);
+if (x_12 == 0)
 {
-lean_object* x_4; 
-x_4 = l_Lean_RBNode_findCore___at___Lean_IR_Checker_markIndex_spec__0(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_4;
+lean_object* x_13; 
+x_13 = lean_ctor_get(x_11, 0);
+lean_dec(x_13);
+lean_ctor_set(x_11, 0, x_8);
+return x_11;
+}
+else
+{
+lean_object* x_14; lean_object* x_15; 
+x_14 = lean_ctor_get(x_11, 1);
+lean_inc(x_14);
+lean_dec(x_11);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_8);
+lean_ctor_set(x_15, 1, x_14);
+return x_15;
+}
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_markIndex___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -4707,7 +4651,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_checkDecl(lean_object* x_1, lean_object* x_2,
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_6 = lean_box(0);
+x_6 = lean_box(1);
 x_7 = lean_st_mk_ref(x_6, x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);

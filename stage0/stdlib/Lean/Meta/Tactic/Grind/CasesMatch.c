@@ -380,7 +380,6 @@ else
 {
 uint8_t x_31; 
 lean_dec_ref(x_4);
-lean_dec_ref(x_2);
 x_31 = !lean_is_exclusive(x_16);
 if (x_31 == 0)
 {
@@ -405,8 +404,6 @@ else
 {
 uint8_t x_35; 
 lean_dec_ref(x_4);
-lean_dec_ref(x_3);
-lean_dec_ref(x_2);
 x_35 = !lean_is_exclusive(x_10);
 if (x_35 == 0)
 {
@@ -536,6 +533,8 @@ lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_10;
 }
 }

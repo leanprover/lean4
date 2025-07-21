@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_cases___lam__1(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_CasesTypes_contains___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_instInhabitedCasesTypes___closed__1;
 static lean_object* l_Lean_Meta_Grind_cases_throwInductiveExpected___redArg___closed__5;
+lean_object* l_Lean_NameSet_ofList(lean_object*);
 static lean_object* l_Lean_Meta_Grind_validateCasesAttr___closed__3;
 static lean_object* l_Lean_Meta_Grind_validateCasesAttr___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isSplit___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -79,7 +80,6 @@ static lean_object* l_Lean_Meta_Grind_cases___lam__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isCasesAttrCandidate(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_cases_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_cases_spec__0___redArg___closed__0;
-lean_object* l_Lean_RBTree_ofList___at___Lean_ConstantInfo_getUsedConstantsAsSet_spec__0(lean_object*);
 lean_object* l_Lean_PersistentHashMap_erase___at___Lean_MetavarContext_setMVarUserName_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_validateCasesAttr___closed__5;
 lean_object* l_Lean_Meta_generalizeIndices_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -151,12 +151,12 @@ static lean_object* l_Lean_Meta_Grind_validateCasesAttr___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Cases_0__Lean_Meta_Grind_builtinEagerCases___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_cases_throwInductiveExpected___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getCasesTypes___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_cases_throwInductiveExpected___redArg___closed__4;
 lean_object* l_Lean_ScopedEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_validateCasesAttr(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_cases_spec__0___redArg___closed__3;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Cases_0__Lean_Meta_Grind_builtinEagerCases___closed__8;
@@ -438,7 +438,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Meta_Tactic_Grind_Cases_0__Lean_Meta_Grind_builtinEagerCases___closed__17;
-x_2 = l_Lean_RBTree_ofList___at___Lean_ConstantInfo_getUsedConstantsAsSet_spec__0(x_1);
+x_2 = l_Lean_NameSet_ofList(x_1);
 return x_2;
 }
 }
@@ -455,7 +455,7 @@ _start:
 {
 lean_object* x_2; uint8_t x_3; 
 x_2 = l___private_Lean_Meta_Tactic_Grind_Cases_0__Lean_Meta_Grind_builtinEagerCases;
-x_3 = l_Lean_NameSet_contains(x_2, x_1);
+x_3 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_1, x_2);
 return x_3;
 }
 }
@@ -2463,7 +2463,6 @@ lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
-lean_inc_ref(x_24);
 lean_inc_ref(x_1);
 lean_inc(x_4);
 lean_inc(x_3);

@@ -12875,7 +12875,7 @@ x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_13 = lean_array_push(x_4, x_11);
 x_14 = 1;
 x_15 = lean_usize_add(x_3, x_14);

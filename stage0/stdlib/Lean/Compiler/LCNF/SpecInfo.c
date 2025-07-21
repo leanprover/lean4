@@ -168,7 +168,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instReprSpecParamInfo;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_isNoSpecType___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_SpecInfo___hyg_379__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Compiler_LCNF_saveSpecParamInfo_spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at___Lean_Compiler_LCNF_getSpecParamInfoCore_x3f_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_getSpecializationArgs_x3f(lean_object*, lean_object*);
@@ -4666,7 +4666,7 @@ lean_object* x_15; lean_object* x_16; lean_object* x_23; lean_object* x_28; lean
 x_28 = lean_array_fget(x_1, x_9);
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
-x_30 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_2, x_29);
+x_30 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_2, x_29);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; 
@@ -4887,7 +4887,7 @@ lean_object* x_17; lean_object* x_18; lean_object* x_25; lean_object* x_30; lean
 x_30 = lean_array_fget(x_1, x_11);
 x_31 = lean_ctor_get(x_30, 0);
 lean_inc(x_31);
-x_32 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_3, x_31);
+x_32 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_3, x_31);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; lean_object* x_34; 

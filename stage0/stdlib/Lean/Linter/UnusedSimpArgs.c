@@ -3802,7 +3802,7 @@ block_60:
 {
 lean_object* x_59; 
 lean_dec(x_57);
-x_59 = l_Array_qsort_sort___at___Lean_Linter_unusedSimpArgs_spec__15___redArg(x_56, x_55, x_58);
+x_59 = l_Array_qsort_sort___at___Lean_Linter_unusedSimpArgs_spec__15___redArg(x_55, x_56, x_58);
 lean_dec(x_58);
 x_47 = x_59;
 goto block_54;
@@ -3810,23 +3810,23 @@ goto block_54;
 block_66:
 {
 uint8_t x_65; 
-x_65 = lean_nat_dec_le(x_64, x_63);
+x_65 = lean_nat_dec_le(x_64, x_62);
 if (x_65 == 0)
 {
-lean_dec(x_63);
+lean_dec(x_62);
 lean_inc(x_64);
-x_55 = x_64;
-x_56 = x_61;
-x_57 = x_62;
+x_55 = x_61;
+x_56 = x_64;
+x_57 = x_63;
 x_58 = x_64;
 goto block_60;
 }
 else
 {
-x_55 = x_64;
-x_56 = x_61;
-x_57 = x_62;
-x_58 = x_63;
+x_55 = x_61;
+x_56 = x_64;
+x_57 = x_63;
+x_58 = x_62;
 goto block_60;
 }
 }
@@ -3845,16 +3845,16 @@ if (x_72 == 0)
 {
 lean_inc(x_71);
 x_61 = x_67;
-x_62 = x_68;
-x_63 = x_71;
+x_62 = x_71;
+x_63 = x_68;
 x_64 = x_71;
 goto block_66;
 }
 else
 {
 x_61 = x_67;
-x_62 = x_68;
-x_63 = x_71;
+x_62 = x_71;
+x_63 = x_68;
 x_64 = x_25;
 goto block_66;
 }
@@ -4064,7 +4064,7 @@ block_133:
 {
 lean_object* x_132; 
 lean_dec(x_130);
-x_132 = l_Array_qsort_sort___at___Lean_Linter_unusedSimpArgs_spec__15___redArg(x_129, x_128, x_131);
+x_132 = l_Array_qsort_sort___at___Lean_Linter_unusedSimpArgs_spec__15___redArg(x_128, x_129, x_131);
 lean_dec(x_131);
 x_121 = x_132;
 goto block_127;
@@ -4072,23 +4072,23 @@ goto block_127;
 block_139:
 {
 uint8_t x_138; 
-x_138 = lean_nat_dec_le(x_137, x_136);
+x_138 = lean_nat_dec_le(x_137, x_135);
 if (x_138 == 0)
 {
-lean_dec(x_136);
+lean_dec(x_135);
 lean_inc(x_137);
-x_128 = x_137;
-x_129 = x_134;
-x_130 = x_135;
+x_128 = x_134;
+x_129 = x_137;
+x_130 = x_136;
 x_131 = x_137;
 goto block_133;
 }
 else
 {
-x_128 = x_137;
-x_129 = x_134;
-x_130 = x_135;
-x_131 = x_136;
+x_128 = x_134;
+x_129 = x_137;
+x_130 = x_136;
+x_131 = x_135;
 goto block_133;
 }
 }
@@ -4107,16 +4107,16 @@ if (x_145 == 0)
 {
 lean_inc(x_144);
 x_134 = x_140;
-x_135 = x_141;
-x_136 = x_144;
+x_135 = x_144;
+x_136 = x_141;
 x_137 = x_144;
 goto block_139;
 }
 else
 {
 x_134 = x_140;
-x_135 = x_141;
-x_136 = x_144;
+x_135 = x_144;
+x_136 = x_141;
 x_137 = x_99;
 goto block_139;
 }

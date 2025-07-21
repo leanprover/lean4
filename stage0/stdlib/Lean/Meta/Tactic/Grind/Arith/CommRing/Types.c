@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.CommRing.Types
-// Imports: Init.Grind.Ring.OfSemiring Lean.Data.PersistentArray Lean.Data.RBTree Lean.Meta.Tactic.Grind.ExprPtr Lean.Meta.Tactic.Grind.Arith.Util Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+// Imports: Init.Grind.Ring.OfSemiring Lean.Data.PersistentArray Lean.Meta.Tactic.Grind.ExprPtr Lean.Meta.Tactic.Grind.Arith.Util Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -414,7 +414,7 @@ x_2 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__11;
 x_3 = 0;
 x_4 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__10;
 x_5 = lean_box(0);
-x_6 = lean_box(0);
+x_6 = lean_box(1);
 x_7 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__8;
 x_8 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__7;
 x_9 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__5;
@@ -600,7 +600,6 @@ return x_1;
 }
 lean_object* initialize_Init_Grind_Ring_OfSemiring(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_PersistentArray(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_RBTree(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_ExprPtr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Poly(uint8_t builtin, lean_object*);
@@ -613,9 +612,6 @@ res = initialize_Init_Grind_Ring_OfSemiring(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_PersistentArray(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_RBTree(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_ExprPtr(builtin, lean_io_mk_world());

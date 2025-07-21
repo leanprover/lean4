@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Json.Parser
-// Imports: Lean.Data.Json.Basic Lean.Data.RBMap Std.Internal.Parsec
+// Imports: Lean.Data.Json.Basic Std.Internal.Parsec
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -80,6 +80,7 @@ static lean_object* l_Lean_Json_Parser_anyCore___closed__0;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 static lean_object* l_Lean_Json_Parser_anyCore___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_num(lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 uint32_t lean_uint32_lor(uint32_t, uint32_t);
 uint32_t lean_uint32_shift_left(uint32_t, uint32_t);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
@@ -88,7 +89,6 @@ LEAN_EXPORT lean_object* l_Lean_Json_Parser_any(lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_numSign(lean_object*);
 lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(lean_object*);
-lean_object* l_Lean_RBNode_insert___at___Lean_Json_mkObj_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_escapedChar___boxed__const__1;
 uint32_t lean_uint32_land(uint32_t, uint32_t);
 static lean_object* l_Lean_Json_Parser_hexChar___closed__0;
@@ -6019,7 +6019,7 @@ static lean_object* _init_l_Lean_Json_Parser_anyCore___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -6527,7 +6527,7 @@ if (x_142 == 0)
 lean_object* x_143; lean_object* x_144; 
 lean_dec(x_135);
 lean_dec_ref(x_134);
-x_143 = lean_box(0);
+x_143 = lean_box(1);
 x_144 = l_Lean_Json_Parser_objectCore(x_143, x_133);
 if (lean_obj_tag(x_144) == 0)
 {
@@ -6674,7 +6674,7 @@ if (x_181 == 0)
 lean_object* x_182; lean_object* x_183; 
 lean_dec(x_174);
 lean_dec_ref(x_173);
-x_182 = lean_box(0);
+x_182 = lean_box(1);
 x_183 = l_Lean_Json_Parser_objectCore(x_182, x_172);
 if (lean_obj_tag(x_183) == 0)
 {
@@ -7393,7 +7393,7 @@ else
 lean_object* x_60; lean_object* x_61; 
 lean_free_object(x_41);
 x_60 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(x_43);
-x_61 = l_Lean_RBNode_insert___at___Lean_Json_mkObj_spec__0___redArg(x_1, x_24, x_44);
+x_61 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg(x_24, x_44, x_1);
 x_1 = x_61;
 x_2 = x_60;
 goto _start;
@@ -7403,7 +7403,7 @@ else
 {
 lean_object* x_63; lean_object* x_64; 
 x_63 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(x_43);
-x_64 = l_Lean_RBNode_insert___at___Lean_Json_mkObj_spec__0___redArg(x_1, x_24, x_44);
+x_64 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg(x_24, x_44, x_1);
 lean_ctor_set(x_41, 1, x_64);
 lean_ctor_set(x_41, 0, x_63);
 return x_41;
@@ -7443,7 +7443,7 @@ else
 lean_object* x_73; lean_object* x_74; 
 lean_free_object(x_41);
 x_73 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(x_67);
-x_74 = l_Lean_RBNode_insert___at___Lean_Json_mkObj_spec__0___redArg(x_1, x_24, x_44);
+x_74 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg(x_24, x_44, x_1);
 x_1 = x_74;
 x_2 = x_73;
 goto _start;
@@ -7453,7 +7453,7 @@ else
 {
 lean_object* x_76; lean_object* x_77; 
 x_76 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(x_67);
-x_77 = l_Lean_RBNode_insert___at___Lean_Json_mkObj_spec__0___redArg(x_1, x_24, x_44);
+x_77 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg(x_24, x_44, x_1);
 lean_ctor_set(x_41, 1, x_77);
 lean_ctor_set(x_41, 0, x_76);
 return x_41;
@@ -7534,7 +7534,7 @@ else
 {
 lean_object* x_96; lean_object* x_97; 
 x_96 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(x_89);
-x_97 = l_Lean_RBNode_insert___at___Lean_Json_mkObj_spec__0___redArg(x_1, x_24, x_79);
+x_97 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg(x_24, x_79, x_1);
 x_1 = x_97;
 x_2 = x_96;
 goto _start;
@@ -7544,7 +7544,7 @@ else
 {
 lean_object* x_99; lean_object* x_100; lean_object* x_101; 
 x_99 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(x_89);
-x_100 = l_Lean_RBNode_insert___at___Lean_Json_mkObj_spec__0___redArg(x_1, x_24, x_79);
+x_100 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg(x_24, x_79, x_1);
 x_101 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_101, 0, x_99);
 lean_ctor_set(x_101, 1, x_100);
@@ -7680,7 +7680,7 @@ else
 lean_object* x_129; lean_object* x_130; 
 lean_dec(x_112);
 x_129 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(x_122);
-x_130 = l_Lean_RBNode_insert___at___Lean_Json_mkObj_spec__0___redArg(x_1, x_24, x_111);
+x_130 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg(x_24, x_111, x_1);
 x_1 = x_130;
 x_2 = x_129;
 goto _start;
@@ -7690,7 +7690,7 @@ else
 {
 lean_object* x_132; lean_object* x_133; lean_object* x_134; 
 x_132 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(x_122);
-x_133 = l_Lean_RBNode_insert___at___Lean_Json_mkObj_spec__0___redArg(x_1, x_24, x_111);
+x_133 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg(x_24, x_111, x_1);
 if (lean_is_scalar(x_112)) {
  x_134 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -7909,7 +7909,7 @@ else
 lean_object* x_179; lean_object* x_180; 
 lean_dec(x_162);
 x_179 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(x_172);
-x_180 = l_Lean_RBNode_insert___at___Lean_Json_mkObj_spec__0___redArg(x_1, x_140, x_161);
+x_180 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg(x_140, x_161, x_1);
 x_1 = x_180;
 x_2 = x_179;
 goto _start;
@@ -7919,7 +7919,7 @@ else
 {
 lean_object* x_182; lean_object* x_183; lean_object* x_184; 
 x_182 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(x_172);
-x_183 = l_Lean_RBNode_insert___at___Lean_Json_mkObj_spec__0___redArg(x_1, x_140, x_161);
+x_183 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg(x_140, x_161, x_1);
 if (lean_is_scalar(x_162)) {
  x_184 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -8196,7 +8196,7 @@ else
 lean_object* x_238; lean_object* x_239; 
 lean_dec(x_221);
 x_238 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(x_231);
-x_239 = l_Lean_RBNode_insert___at___Lean_Json_mkObj_spec__0___redArg(x_1, x_198, x_220);
+x_239 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg(x_198, x_220, x_1);
 x_1 = x_239;
 x_2 = x_238;
 goto _start;
@@ -8206,7 +8206,7 @@ else
 {
 lean_object* x_241; lean_object* x_242; lean_object* x_243; 
 x_241 = l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(x_231);
-x_242 = l_Lean_RBNode_insert___at___Lean_Json_mkObj_spec__0___redArg(x_1, x_198, x_220);
+x_242 = l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg(x_198, x_220, x_1);
 if (lean_is_scalar(x_221)) {
  x_243 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -8356,7 +8356,6 @@ return x_3;
 }
 }
 lean_object* initialize_Lean_Data_Json_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_RBMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal_Parsec(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Json_Parser(uint8_t builtin, lean_object* w) {
@@ -8364,9 +8363,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Data_Json_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_RBMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Parsec(builtin, lean_io_mk_world());

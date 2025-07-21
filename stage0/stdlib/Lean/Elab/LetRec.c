@@ -919,6 +919,7 @@ lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
+lean_dec(x_21);
 if (lean_obj_tag(x_23) == 0)
 {
 uint8_t x_24; 
@@ -987,6 +988,7 @@ lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
+lean_dec(x_34);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
@@ -3989,7 +3991,6 @@ lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
 lean_dec_ref(x_8);
-lean_dec_ref(x_5);
 return x_13;
 }
 }
@@ -4403,6 +4404,7 @@ _start:
 uint8_t x_13; lean_object* x_14; 
 x_13 = lean_unbox(x_3);
 x_14 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at_____private_Lean_Elab_LetRec_0__Lean_Elab_Term_elabLetRecDeclValues_spec__1_spec__1___redArg___lam__1(x_1, x_2, x_13, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+lean_dec_ref(x_5);
 return x_14;
 }
 }
@@ -5425,6 +5427,7 @@ lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
 lean_dec_ref(x_8);
+lean_dec_ref(x_5);
 if (lean_obj_tag(x_32) == 0)
 {
 uint8_t x_33; 

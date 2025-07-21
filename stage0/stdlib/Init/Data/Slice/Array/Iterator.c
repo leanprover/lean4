@@ -901,7 +901,6 @@ lean_inc(x_9);
 lean_inc(x_6);
 x_12 = lean_apply_2(x_11, x_6, x_9);
 x_13 = lean_unbox(x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_free_object(x_4);
@@ -936,7 +935,6 @@ lean_inc(x_20);
 lean_inc(x_6);
 x_23 = lean_apply_2(x_22, x_6, x_20);
 x_24 = lean_unbox(x_23);
-lean_dec(x_23);
 if (x_24 == 0)
 {
 lean_dec(x_20);
@@ -982,7 +980,6 @@ lean_inc(x_33);
 lean_inc(x_32);
 x_37 = lean_apply_2(x_36, x_32, x_33);
 x_38 = lean_unbox(x_37);
-lean_dec(x_37);
 if (x_38 == 0)
 {
 lean_dec(x_34);

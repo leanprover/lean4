@@ -66,7 +66,7 @@ lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 static lean_object* l_Lean_declareBuiltinDocStringAndRanges___closed__21;
 static lean_object* l_Lean_initFn___closed__2____x40_Lean_BuiltinDocAttr___hyg_207_;
-lean_object* l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isRec___at___Lean_findDeclarationRanges_x3f___at___Lean_declareBuiltinDocStringAndRanges_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_declareBuiltinDocStringAndRanges___closed__18;
@@ -229,7 +229,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
 x_9 = lean_ctor_get(x_7, 0);
-x_10 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_9, x_1);
+x_10 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_9, x_1);
 lean_dec(x_9);
 lean_ctor_set(x_7, 0, x_10);
 return x_7;
@@ -242,7 +242,7 @@ x_12 = lean_ctor_get(x_7, 1);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_dec(x_7);
-x_13 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_11, x_1);
+x_13 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_11, x_1);
 lean_dec(x_11);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);

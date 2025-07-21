@@ -806,7 +806,6 @@ x_14 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_7);
 lean_inc(x_12);
 x_15 = lean_apply_2(x_14, x_12, x_9);
 x_16 = lean_unbox(x_15);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_dec(x_12);

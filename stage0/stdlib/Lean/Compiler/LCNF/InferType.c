@@ -669,7 +669,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_InferType_mkForallParams___redArg
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lean_Compiler_LCNF_InferType_mkForallParams___redArg___closed__4;
 x_3 = l_Lean_Compiler_LCNF_InferType_mkForallParams___redArg___closed__1;
 x_4 = lean_alloc_ctor(0, 3, 0);

@@ -147,6 +147,7 @@ lean_object* l_List_filterMapTR_go___redArg(lean_object*, lean_object*, lean_obj
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_ResolveName___hyg_126_;
 LEAN_EXPORT lean_object* l_Lean_ResolveName_resolveNamespace(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkPrivateName(lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___lam__1___closed__0____x40_Lean_ResolveName___hyg_392_;
 static lean_object* l_Lean_initFn___lam__1___closed__7____x40_Lean_ResolveName___hyg_392_;
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal_unresolveNameCore___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -305,7 +306,6 @@ uint64_t lean_uint64_xor(uint64_t, uint64_t);
 static lean_object* l_Lean_resolveNamespaceCore___redArg___lam__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal_unresolveNameCore___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_find___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_fold___at___Lean_getRevAliases_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal___redArg___lam__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
@@ -747,7 +747,6 @@ x_9 = lean_unbox(x_8);
 if (x_9 == 0)
 {
 size_t x_10; size_t x_11; 
-lean_dec(x_8);
 x_10 = 1;
 x_11 = lean_usize_add(x_4, x_10);
 x_4 = x_11;
@@ -759,7 +758,6 @@ uint8_t x_13;
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_13 = lean_unbox(x_8);
-lean_dec(x_8);
 return x_13;
 }
 }
@@ -4671,21 +4669,21 @@ return x_47;
 block_20:
 {
 uint8_t x_13; 
-x_13 = l_Lean_Name_isPrefixOf(x_4, x_10);
+x_13 = l_Lean_Name_isPrefixOf(x_4, x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; 
 lean_dec(x_12);
-lean_dec_ref(x_11);
+lean_dec_ref(x_10);
 lean_dec(x_8);
-x_14 = l_Lean_resolveLocalName_go(x_9, x_5, x_10, x_4);
-lean_dec(x_10);
+x_14 = l_Lean_resolveLocalName_go(x_9, x_5, x_11, x_4);
+lean_dec(x_11);
 return x_14;
 }
 else
 {
 lean_object* x_15; uint8_t x_16; 
-lean_dec(x_10);
+lean_dec(x_11);
 lean_dec(x_9);
 lean_dec(x_4);
 x_15 = l_Lean_extractMacroScopes(x_12);
@@ -4694,7 +4692,7 @@ lean_dec_ref(x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; 
-lean_dec_ref(x_11);
+lean_dec_ref(x_10);
 lean_dec(x_8);
 lean_dec_ref(x_5);
 x_17 = lean_box(0);
@@ -4703,8 +4701,8 @@ return x_17;
 else
 {
 uint8_t x_18; 
-x_18 = l_Lean_MacroScopesView_isSuffixOf(x_5, x_11);
-lean_dec_ref(x_11);
+x_18 = l_Lean_MacroScopesView_isSuffixOf(x_5, x_10);
+lean_dec_ref(x_10);
 lean_dec_ref(x_5);
 if (x_18 == 0)
 {
@@ -4734,8 +4732,8 @@ lean_inc_ref(x_21);
 x_25 = l_Lean_MacroScopesView_review(x_21);
 x_26 = lean_ctor_get(x_9, 2);
 lean_inc(x_26);
-x_10 = x_25;
-x_11 = x_21;
+x_10 = x_21;
+x_11 = x_25;
 x_12 = x_26;
 goto block_20;
 }
@@ -4758,8 +4756,8 @@ lean_inc_ref(x_30);
 x_31 = l_Lean_MacroScopesView_review(x_30);
 x_32 = lean_ctor_get(x_9, 2);
 lean_inc(x_32);
-x_10 = x_31;
-x_11 = x_30;
+x_10 = x_30;
+x_11 = x_31;
 x_12 = x_32;
 goto block_20;
 }
@@ -4767,7 +4765,7 @@ goto block_20;
 block_42:
 {
 lean_object* x_35; 
-x_35 = l_Lean_RBNode_find___redArg(x_6, x_7, x_34);
+x_35 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(x_6, x_7, x_34);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; 

@@ -60,9 +60,9 @@ uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 lean_object* lean_io_process_spawn(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_test___closed__2;
 static lean_object* l_Lake_Package_uploadRelease___closed__0;
+lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_test___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Package_resolveDriver___lam__0(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_env(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_test(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -85,7 +85,6 @@ uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lake_Package_resolveDriver(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_tar(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_resolveLibTarget(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lake_RBNode_dFind___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lake_Script_run(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_split___at___Lake_Package_resolveDriver_spec__0(lean_object*);
 lean_object* l_String_toName(lean_object*);
@@ -98,6 +97,7 @@ LEAN_EXPORT lean_object* l_String_split___at___Lake_Package_resolveDriver_spec__
 lean_object* l_Lake_proc(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Lake_Package_pack___closed__0;
+lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lake_Package_resolveDriver_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_resolveDriver___closed__7;
@@ -897,7 +897,7 @@ lean_dec(x_41);
 x_42 = lean_ctor_get(x_4, 4);
 lean_inc(x_37);
 x_43 = l_String_toName(x_37);
-x_44 = l_Lake_RBNode_dFind___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(x_42, x_43);
+x_44 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(x_42, x_43);
 lean_dec(x_43);
 if (lean_obj_tag(x_44) == 0)
 {
@@ -945,7 +945,7 @@ lean_dec(x_27);
 x_56 = lean_ctor_get(x_4, 4);
 lean_inc(x_37);
 x_57 = l_String_toName(x_37);
-x_58 = l_Lake_RBNode_dFind___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(x_56, x_57);
+x_58 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(x_56, x_57);
 lean_dec(x_57);
 if (lean_obj_tag(x_58) == 0)
 {
@@ -1005,7 +1005,7 @@ if (lean_is_exclusive(x_27)) {
 x_74 = lean_ctor_get(x_4, 4);
 lean_inc(x_71);
 x_75 = l_String_toName(x_71);
-x_76 = l_Lake_RBNode_dFind___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(x_74, x_75);
+x_76 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(x_74, x_75);
 lean_dec(x_75);
 if (lean_obj_tag(x_76) == 0)
 {
@@ -1274,7 +1274,7 @@ x_18 = lean_ctor_get(x_11, 13);
 lean_inc(x_18);
 lean_inc(x_14);
 x_19 = l_String_toName(x_14);
-x_20 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_18, x_19);
+x_20 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_18, x_19);
 lean_dec(x_18);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -1919,7 +1919,7 @@ x_17 = lean_ctor_get(x_11, 13);
 lean_inc(x_17);
 lean_inc(x_14);
 x_29 = l_String_toName(x_14);
-x_30 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_17, x_29);
+x_30 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_17, x_29);
 lean_dec(x_17);
 if (lean_obj_tag(x_30) == 0)
 {

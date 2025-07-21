@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.InfoTree.Types
-// Imports: Lean.Data.DeclarationRange Lean.Data.OpenDecl Lean.MetavarContext Lean.Environment Lean.Data.Json Lean.Server.Rpc.Basic Lean.Widget.Types
+// Imports: Lean.Data.DeclarationRange Lean.Data.OpenDecl Lean.MetavarContext Lean.Environment Lean.Data.Json.Basic Lean.Server.Rpc.Basic Lean.Widget.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -154,7 +154,7 @@ static lean_object* _init_l_Lean_Elab_instInhabitedTermInfo___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lean_Elab_instInhabitedTermInfo___closed__5;
 x_3 = l_Lean_Elab_instInhabitedTermInfo___closed__1;
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -632,7 +632,7 @@ lean_object* initialize_Lean_Data_DeclarationRange(uint8_t builtin, lean_object*
 lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_MetavarContext(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Json_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Widget_Types(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -652,7 +652,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Environment(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Json(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Json_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_Rpc_Basic(builtin, lean_io_mk_world());

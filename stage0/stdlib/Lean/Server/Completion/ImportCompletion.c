@@ -28,7 +28,6 @@ lean_object* l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___ImportCompletion_isImportCmdCompletionRequest_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_forEachModuleInDir___at___ImportCompletion_collectAvailableImportsFromSrcSearchPath_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_ImportCompletion_isImportNameCompletionRequest___closed__0;
-lean_object* l_Lean_PrefixTreeNode_empty(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -109,6 +108,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___ImportCompletion_isImport
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_forEachModuleInDir___at___ImportCompletion_collectAvailableImportsFromSrcSearchPath_spec__0_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_ImportCompletion_find___lam__0(uint8_t, lean_object*);
+lean_object* l_Lean_NameTrie_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___ImportCompletion_computePartialImportCompletions_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_anyMUnsafe_any___at___Array_anyMUnsafe_any___at___ImportCompletion_isImportNameCompletionRequest_spec__0_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___ImportCompletion_collectAvailableImportsFromSrcSearchPath_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -213,7 +213,7 @@ static lean_object* _init_l_ImportCompletion_AvailableImports_toImportTrie___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_PrefixTreeNode_empty(lean_box(0), lean_box(0));
+x_1 = l_Lean_NameTrie_empty(lean_box(0));
 return x_1;
 }
 }

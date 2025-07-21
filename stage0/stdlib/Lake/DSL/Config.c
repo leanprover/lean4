@@ -68,8 +68,8 @@ static lean_object* l_Lake_DSL_elabDirConst___closed__0;
 static lean_object* l_Lake_DSL_elabGetConfig___closed__8;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_elabDirConst___closed__7;
+lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_elabGetConfig___closed__0;
-lean_object* l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_elabGetConfig___closed__19;
 static lean_object* l_Lake_DSL_elabGetConfig___closed__38;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -902,7 +902,7 @@ lean_inc(x_41);
 lean_dec(x_32);
 x_42 = l_Lean_Syntax_getId(x_30);
 lean_dec(x_30);
-x_43 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_41, x_42);
+x_43 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_41, x_42);
 lean_dec(x_42);
 lean_dec(x_41);
 if (lean_obj_tag(x_43) == 0)
@@ -1164,7 +1164,7 @@ lean_inc(x_152);
 lean_dec(x_143);
 x_153 = l_Lean_Syntax_getId(x_141);
 lean_dec(x_141);
-x_154 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_152, x_153);
+x_154 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_152, x_153);
 lean_dec(x_153);
 lean_dec(x_152);
 if (lean_obj_tag(x_154) == 0)

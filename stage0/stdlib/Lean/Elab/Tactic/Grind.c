@@ -381,7 +381,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_grind(lean_object*, lean_object*, ui
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_Grind_EMatchTheoremKind_isDefault(lean_object*);
-uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at___Lean_Elab_Tactic_elabGrindParams_spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_elabGrindPattern___closed__4;
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at___Lean_Elab_Tactic_elabGrindParams_spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -398,6 +397,7 @@ lean_object* l_Lean_Elab_Term_elabTermAndSynthesize(lean_object*, lean_object*, 
 lean_object* l_List_filterTR_loop___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_validateCasesAttr(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_mkGrindParams___closed__6;
 static lean_object* l_Lean_Elab_Tactic_setGrindParams___closed__4;
 static lean_object* l_Lean_Elab_Tactic_elabGrindPattern___regBuiltin_Lean_Elab_Tactic_elabGrindPattern__1___closed__4;
@@ -13180,7 +13180,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Grind_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l___private_Lean_Elab_Tactic_Grind_0__Lean_Elab_Tactic_elabFallback___closed__12;
 x_3 = l___private_Lean_Elab_Tactic_Grind_0__Lean_Elab_Tactic_elabFallback___closed__9;
 x_4 = lean_alloc_ctor(0, 3, 0);
@@ -16994,7 +16994,7 @@ lean_dec(x_935);
 x_936 = lean_ctor_get(x_26, 0);
 lean_inc(x_936);
 lean_dec(x_26);
-x_937 = l_Lean_NameSet_contains(x_14, x_936);
+x_937 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_936, x_14);
 if (x_937 == 0)
 {
 lean_object* x_938; 
@@ -17132,7 +17132,7 @@ lean_dec(x_25);
 x_979 = lean_ctor_get(x_26, 0);
 lean_inc(x_979);
 lean_dec(x_26);
-x_980 = l_Lean_NameSet_contains(x_14, x_979);
+x_980 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_979, x_14);
 if (x_980 == 0)
 {
 lean_object* x_981; 
@@ -18268,7 +18268,7 @@ if (lean_is_exclusive(x_1021)) {
 x_1352 = lean_ctor_get(x_1022, 0);
 lean_inc(x_1352);
 lean_dec(x_1022);
-x_1353 = l_Lean_NameSet_contains(x_1010, x_1352);
+x_1353 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_1352, x_1010);
 if (x_1353 == 0)
 {
 lean_object* x_1354; 
@@ -18960,7 +18960,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Tactic_evalGrindCore___closed__4;
-x_2 = lean_box(0);
+x_2 = lean_box(1);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

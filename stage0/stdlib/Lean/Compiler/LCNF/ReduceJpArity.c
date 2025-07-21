@@ -38,7 +38,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Compiler_LCNF_
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__18____x40_Lean_Compiler_LCNF_ReduceJpArity___hyg_879_;
 size_t lean_ptr_addr(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_reduceJpArity___boxed(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__4;
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
@@ -48,10 +47,13 @@ lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean
 static lean_object* l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__3;
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__13____x40_Lean_Compiler_LCNF_ReduceJpArity___hyg_879_;
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__14____x40_Lean_Compiler_LCNF_ReduceJpArity___hyg_879_;
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BasicAux_0__mapMonoMImp_go___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_reduceJpArity(uint8_t);
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__6____x40_Lean_Compiler_LCNF_ReduceJpArity___hyg_879_;
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ReduceJpArity_reduce(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -66,11 +68,10 @@ static lean_object* l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__2;
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_____private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_collectType_spec__0___redArg(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__17____x40_Lean_Compiler_LCNF_ReduceJpArity___hyg_879_;
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__5____x40_Lean_Compiler_LCNF_ReduceJpArity___hyg_879_;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_FVarIdSet_insert_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__6;
 static lean_object* l_Lean_Compiler_LCNF_ReduceJpArity_reduce___closed__0;
@@ -94,15 +95,14 @@ static lean_object* l_Lean_Compiler_LCNF_initFn___closed__7____x40_Lean_Compiler
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__8____x40_Lean_Compiler_LCNF_ReduceJpArity___hyg_879_;
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__11____x40_Lean_Compiler_LCNF_ReduceJpArity___hyg_879_;
-lean_object* l_Lean_RBNode_insert___at___Lean_FVarIdSet_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__9____x40_Lean_Compiler_LCNF_ReduceJpArity___hyg_879_;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_InferType_mkForallParams___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Decl_reduceJpArity(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__0____x40_Lean_Compiler_LCNF_ReduceJpArity___hyg_879_;
 size_t lean_usize_land(size_t, size_t);
@@ -381,51 +381,51 @@ x_11 = l_Array_forIn_x27Unsafe_loop___at___Lean_Compiler_LCNF_ReduceJpArity_redu
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_object* x_3; 
-x_3 = lean_box(0);
-return x_3;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_1, 1);
-x_6 = lean_ctor_get(x_1, 2);
-x_7 = lean_ctor_get(x_1, 3);
-x_8 = l_Lean_Name_quickCmp(x_2, x_5);
-switch (x_8) {
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_3 = lean_ctor_get(x_1, 1);
+x_4 = lean_ctor_get(x_1, 2);
+x_5 = lean_ctor_get(x_1, 3);
+x_6 = lean_ctor_get(x_1, 4);
+x_7 = l_Lean_Name_quickCmp(x_2, x_3);
+switch (x_7) {
 case 0:
 {
-x_1 = x_4;
+x_1 = x_5;
 goto _start;
 }
 case 1:
 {
-lean_object* x_10; 
-lean_inc(x_6);
-x_10 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_10, 0, x_6);
-return x_10;
+lean_object* x_9; 
+lean_inc(x_4);
+x_9 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_9, 0, x_4);
+return x_9;
 }
 default: 
 {
-x_1 = x_7;
+x_1 = x_6;
 goto _start;
 }
 }
 }
+else
+{
+lean_object* x_11; 
+x_11 = lean_box(0);
+return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_RBNode_find___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg(x_2, x_3);
+x_4 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg(x_2, x_3);
 return x_4;
 }
 }
@@ -1186,7 +1186,7 @@ lean_dec_ref(x_93);
 x_96 = lean_ctor_get(x_94, 0);
 lean_inc(x_96);
 x_97 = l_Array_reverse___redArg(x_78);
-x_98 = l_Lean_RBNode_insert___at___Lean_FVarIdSet_insert_spec__0___redArg(x_2, x_96, x_97);
+x_98 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_FVarIdSet_insert_spec__1___redArg(x_96, x_97, x_2);
 x_99 = l_Lean_Compiler_LCNF_ReduceJpArity_reduce(x_59, x_98, x_3, x_4, x_5, x_6, x_95);
 if (lean_obj_tag(x_99) == 0)
 {
@@ -1318,7 +1318,7 @@ lean_dec_ref(x_119);
 x_122 = lean_ctor_get(x_120, 0);
 lean_inc(x_122);
 x_123 = l_Array_reverse___redArg(x_78);
-x_124 = l_Lean_RBNode_insert___at___Lean_FVarIdSet_insert_spec__0___redArg(x_2, x_122, x_123);
+x_124 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_FVarIdSet_insert_spec__1___redArg(x_122, x_123, x_2);
 x_125 = l_Lean_Compiler_LCNF_ReduceJpArity_reduce(x_59, x_124, x_3, x_4, x_5, x_6, x_121);
 if (lean_obj_tag(x_125) == 0)
 {
@@ -1618,7 +1618,7 @@ lean_dec_ref(x_188);
 x_191 = lean_ctor_get(x_189, 0);
 lean_inc(x_191);
 x_192 = l_Array_reverse___redArg(x_175);
-x_193 = l_Lean_RBNode_insert___at___Lean_FVarIdSet_insert_spec__0___redArg(x_2, x_191, x_192);
+x_193 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_FVarIdSet_insert_spec__1___redArg(x_191, x_192, x_2);
 x_194 = l_Lean_Compiler_LCNF_ReduceJpArity_reduce(x_59, x_193, x_3, x_4, x_5, x_6, x_190);
 if (lean_obj_tag(x_194) == 0)
 {
@@ -1845,7 +1845,7 @@ x_227 = lean_ctor_get(x_1, 0);
 lean_inc(x_227);
 x_228 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_228);
-x_229 = l_Lean_RBNode_find___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg(x_2, x_227);
+x_229 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg(x_2, x_227);
 lean_dec(x_2);
 if (lean_obj_tag(x_229) == 0)
 {
@@ -2256,21 +2256,21 @@ lean_dec_ref(x_1);
 return x_13;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_RBNode_find___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg(x_1, x_2);
+x_3 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___redArg(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_RBNode_find___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1(x_1, x_2, x_3);
+x_4 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Compiler_LCNF_ReduceJpArity_reduce_spec__1(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_4;
@@ -2492,7 +2492,7 @@ x_11 = lean_ctor_get(x_1, 3);
 x_12 = lean_ctor_get(x_1, 4);
 x_13 = lean_ctor_get(x_1, 5);
 x_14 = l_Lean_Compiler_LCNF_Decl_reduceJpArity___closed__0;
-x_15 = lean_box(0);
+x_15 = lean_box(1);
 x_16 = l_Lean_Compiler_LCNF_DeclValue_mapCodeM___at___Lean_Compiler_LCNF_Decl_reduceJpArity_spec__0(x_14, x_12, x_15, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -2569,7 +2569,7 @@ lean_inc(x_27);
 lean_inc(x_26);
 lean_dec(x_1);
 x_34 = l_Lean_Compiler_LCNF_Decl_reduceJpArity___closed__0;
-x_35 = lean_box(0);
+x_35 = lean_box(1);
 x_36 = l_Lean_Compiler_LCNF_DeclValue_mapCodeM___at___Lean_Compiler_LCNF_Decl_reduceJpArity_spec__0(x_34, x_30, x_35, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_36) == 0)
 {

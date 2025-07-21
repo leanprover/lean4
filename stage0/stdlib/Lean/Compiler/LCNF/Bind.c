@@ -55,7 +55,6 @@ static lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindCompilerM___closed__0;
 static lean_object* l_Lean_throwError___at___Lean_Compiler_LCNF_CompilerM_codeBind_go_spec__0___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindReaderT___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_findCore___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_bind(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkNewParams_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkNewParams_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -69,6 +68,7 @@ static lean_object* l_Lean_throwError___at___Lean_Compiler_LCNF_CompilerM_codeBi
 lean_object* l_Lean_FVarIdSet_insert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_CompilerM_codeBind_go_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_etaExpandCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Compiler_LCNF_CompilerM_codeBind_go_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindReaderT(lean_object*, lean_object*, lean_object*);
@@ -1169,15 +1169,15 @@ return x_73;
 }
 case 3:
 {
-lean_object* x_94; lean_object* x_95; 
+lean_object* x_94; uint8_t x_95; 
 lean_dec_ref(x_4);
 lean_dec(x_1);
 x_94 = lean_ctor_get(x_2, 0);
 lean_inc(x_94);
-x_95 = l_Lean_RBNode_findCore___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__0___redArg(x_3, x_94);
-lean_dec(x_94);
+x_95 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_94, x_3);
 lean_dec(x_3);
-if (lean_obj_tag(x_95) == 0)
+lean_dec(x_94);
+if (x_95 == 0)
 {
 lean_object* x_96; lean_object* x_97; uint8_t x_98; 
 lean_dec_ref(x_2);
@@ -1208,7 +1208,6 @@ return x_101;
 else
 {
 lean_object* x_102; 
-lean_dec(x_95);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -1703,7 +1702,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CompilerM_codeBind(lean_object* x_
 _start:
 {
 lean_object* x_8; lean_object* x_9; 
-x_8 = lean_box(0);
+x_8 = lean_box(1);
 x_9 = l_Lean_Compiler_LCNF_CompilerM_codeBind_go(x_2, x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }

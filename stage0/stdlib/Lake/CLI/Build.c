@@ -123,7 +123,6 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lake_resolveDefaultPackageTarget___closed__1;
 LEAN_EXPORT lean_object* l_Lake_resolveLibTarget(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lake_RBNode_dFind___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildSpec_query___lam__0(lean_object*, uint8_t, lean_object*);
 lean_object* l_Lake_Workspace_findFacetConfig_x3f(lean_object*, lean_object*);
 static lean_object* l_Lake_resolveTargetBaseSpec___closed__2;
@@ -138,6 +137,7 @@ static lean_object* l_Lake_resolveModuleTarget___closed__0;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_buildSpecs_spec__0(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Job_toOpaque___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildSpec_fetch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(lean_object*, lean_object*);
 extern lean_object* l_Lake_ExternLib_staticFacet;
 static lean_object* l_Lake_resolveExeTarget___closed__1;
 uint8_t l_Substring_beq(lean_object*, lean_object*);
@@ -2232,7 +2232,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_ctor_get(x_1, 4);
 lean_inc_ref(x_2);
 x_7 = l_Lake_stringToLegalOrSimpleName(x_2);
-x_8 = l_Lake_RBNode_dFind___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(x_6, x_7);
+x_8 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(x_6, x_7);
 lean_dec(x_7);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -3675,7 +3675,7 @@ if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_1, 4);
-x_6 = l_Lake_RBNode_dFind___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(x_5, x_2);
+x_6 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(x_5, x_2);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; 

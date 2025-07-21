@@ -146,8 +146,8 @@ LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldM___redArg(lean_object
 lean_object* lean_thunk_get_own(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_diagnosticsOfHeaderError(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__15;
+lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__27;
-lean_object* l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__1;
 extern lean_object* l_Lean_MessageLog_empty;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_defaultReportingRange_x3f___boxed(lean_object*);
@@ -314,7 +314,7 @@ static lean_object* _init_l_Lean_Language_Snapshot_instInhabitedDiagnostics___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__3;
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -2275,7 +2275,7 @@ lean_inc_ref(x_50);
 x_51 = lean_ctor_get(x_44, 4);
 lean_inc(x_51);
 x_52 = l_Lean_MessageData_kind(x_51);
-x_53 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_3, x_52);
+x_53 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_3, x_52);
 lean_dec(x_52);
 if (lean_obj_tag(x_53) == 0)
 {

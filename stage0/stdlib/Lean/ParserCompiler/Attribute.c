@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_Lean_mkStateFromImportedEntries___at___Lean_ParserCom
 static lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lam__2___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Environment_evalConst___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lam__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lam__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__12____x40_Lean_ParserCompiler_Attribute___hyg_55_;
@@ -55,11 +54,12 @@ static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lam
 LEAN_EXPORT lean_object* l_Lean_evalConst___at___Lean_ParserCompiler_CombinatorAttribute_runDeclFor_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_realizeGlobalConstNoOverloadWithInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__26____x40_Lean_ParserCompiler_Attribute___hyg_55_;
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__24____x40_Lean_ParserCompiler_Attribute___hyg_55_;
 static lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___redArg___closed__1;
 static lean_object* l___auto___closed__20____x40_Lean_ParserCompiler_Attribute___hyg_55_;
+lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l___auto___closed__22____x40_Lean_ParserCompiler_Attribute___hyg_55_;
-lean_object* l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l___auto___closed__4____x40_Lean_ParserCompiler_Attribute___hyg_55_;
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lam__2(lean_object*);
 static lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___redArg___closed__3;
@@ -683,7 +683,7 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
 lean_dec_ref(x_6);
-x_9 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_4, x_7, x_8);
+x_9 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_7, x_8, x_4);
 x_10 = 1;
 x_11 = lean_usize_add(x_2, x_10);
 x_2 = x_11;
@@ -861,7 +861,7 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
 lean_dec_ref(x_2);
-x_5 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_1, x_3, x_4);
+x_5 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_4, x_1);
 return x_5;
 }
 }
@@ -1097,7 +1097,7 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_5 = lean_alloc_closure((void*)(l_Lean_ParserCompiler_registerCombinatorAttribute___lam__0), 1, 0);
 x_6 = lean_alloc_closure((void*)(l_Lean_ParserCompiler_registerCombinatorAttribute___lam__1), 2, 0);
-x_7 = lean_box(0);
+x_7 = lean_box(1);
 x_8 = lean_alloc_closure((void*)(l_Lean_mkStateFromImportedEntries___at___Lean_ParserCompiler_registerCombinatorAttribute_spec__0___boxed), 2, 1);
 lean_closure_set(x_8, 0, x_7);
 x_9 = lean_box(0);
@@ -1294,9 +1294,9 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* 
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_ctor_get(x_4, 0);
 x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*3);
-x_7 = lean_box(0);
+x_7 = lean_box(1);
 x_8 = l_Lean_SimplePersistentEnvExtension_getState___redArg(x_7, x_4, x_2, x_6);
-x_9 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_8, x_3);
+x_9 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_8, x_3);
 lean_dec(x_8);
 return x_9;
 }

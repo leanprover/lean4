@@ -18,6 +18,7 @@ static lean_object* l_Array_Array_repr___at___Lean_Meta_Match_reprMatchEqns____x
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Meta_Match_registerMatchEqns_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_Array_repr___at___Lean_Meta_Match_reprMatchEqns____x40_Lean_Meta_Match_MatchEqsExt___hyg_51__spec__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_MatchEqns_size___boxed(lean_object*);
+lean_object* l_Std_Format_joinSep___at___List_repr___at___Lean_Environment_dbgFormatAsyncState_spec__10_spec__10(lean_object*, lean_object*);
 lean_object* l_Std_Format_fill(lean_object*);
 static lean_object* l_Array_Array_repr___at___Lean_Meta_Match_reprMatchEqns____x40_Lean_Meta_Match_MatchEqsExt___hyg_51__spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_reprMatchEqns____x40_Lean_Meta_Match_MatchEqsExt___hyg_51_(lean_object*, lean_object*);
@@ -36,7 +37,6 @@ static lean_object* l_Lean_Meta_Match_reprMatchEqns___redArg___closed__8____x40_
 lean_object* l_Nat_reprFast(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Meta_Match_registerMatchEqns___redArg___closed__2;
-lean_object* l_Std_Format_joinSep___at___List_repr___at___Lean_Environment_dbgFormatAsyncState_spec__8_spec__8(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_reprMatchEqns___redArg___closed__11____x40_Lean_Meta_Match_MatchEqsExt___hyg_51_;
 lean_object* lean_nat_to_int(lean_object*);
@@ -246,7 +246,7 @@ if (x_4 == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_5 = lean_array_to_list(x_1);
 x_6 = l_Array_Array_repr___at___Lean_Meta_Match_reprMatchEqns____x40_Lean_Meta_Match_MatchEqsExt___hyg_51__spec__0___closed__3;
-x_7 = l_Std_Format_joinSep___at___List_repr___at___Lean_Environment_dbgFormatAsyncState_spec__8_spec__8(x_5, x_6);
+x_7 = l_Std_Format_joinSep___at___List_repr___at___Lean_Environment_dbgFormatAsyncState_spec__10_spec__10(x_5, x_6);
 x_8 = l_Array_Array_repr___at___Lean_Meta_Match_reprMatchEqns____x40_Lean_Meta_Match_MatchEqsExt___hyg_51__spec__0___closed__5;
 x_9 = l_Array_Array_repr___at___Lean_Meta_Match_reprMatchEqns____x40_Lean_Meta_Match_MatchEqsExt___hyg_51__spec__0___closed__6;
 x_10 = lean_alloc_ctor(5, 2, 0);

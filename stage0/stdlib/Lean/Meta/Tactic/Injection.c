@@ -57,7 +57,6 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 LEAN_EXPORT lean_object* l_Lean_Meta_injections(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
 lean_object* l_Lean_Meta_whnfD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_findCore___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__0___redArg(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_injection(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
@@ -72,6 +71,7 @@ lean_object* l_Lean_FVarIdSet_insert(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_heqToEq(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injectionCore___lam__0___closed__6;
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
+uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injections_go___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_injections_go___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2792,7 +2792,7 @@ return x_17;
 }
 else
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_28; 
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; uint8_t x_28; 
 x_18 = lean_ctor_get(x_2, 0);
 lean_inc(x_18);
 x_19 = lean_ctor_get(x_2, 1);
@@ -2802,8 +2802,8 @@ x_20 = lean_unsigned_to_nat(1u);
 x_21 = lean_nat_sub(x_1, x_20);
 lean_dec(x_1);
 x_22 = lean_nat_add(x_21, x_20);
-x_28 = l_Lean_RBNode_findCore___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__0___redArg(x_5, x_18);
-if (lean_obj_tag(x_28) == 0)
+x_28 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_18, x_5);
+if (x_28 == 0)
 {
 lean_object* x_29; 
 lean_inc_ref(x_6);
@@ -2946,16 +2946,16 @@ if (x_52 == 0)
 uint8_t x_53; 
 x_53 = l_Lean_Exception_isRuntime(x_50);
 lean_dec(x_50);
-x_23 = x_49;
-x_24 = x_51;
+x_23 = x_51;
+x_24 = x_49;
 x_25 = x_53;
 goto block_27;
 }
 else
 {
 lean_dec(x_50);
-x_23 = x_49;
-x_24 = x_51;
+x_23 = x_51;
+x_24 = x_49;
 x_25 = x_52;
 goto block_27;
 }
@@ -3112,7 +3112,6 @@ return x_73;
 }
 else
 {
-lean_dec(x_28);
 lean_dec(x_21);
 lean_dec(x_18);
 x_1 = x_22;
@@ -3123,10 +3122,10 @@ block_27:
 {
 if (x_25 == 0)
 {
-lean_dec_ref(x_23);
+lean_dec_ref(x_24);
 x_1 = x_22;
 x_2 = x_19;
-x_10 = x_24;
+x_10 = x_23;
 goto _start;
 }
 else
@@ -3140,7 +3139,7 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-return x_23;
+return x_24;
 }
 }
 }

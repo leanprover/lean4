@@ -8002,13 +8002,11 @@ lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_13 = lean_unbox(x_11);
-lean_dec(x_11);
 return x_13;
 }
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_dec(x_11);
 x_14 = lean_box(0);
 x_15 = l_Vector_lex___redArg___closed__1;
 x_16 = l_Vector_lex___redArg___closed__2;

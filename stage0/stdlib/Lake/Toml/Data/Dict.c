@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Data.Dict
-// Imports: Lean.Data.NameMap Init.Data.Nat.Fold
+// Imports: Lean.Data.NameMap.Basic Init.Data.Nat.Fold
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -60,6 +60,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_findEntry_x3f(lean_object*, lean_obj
 LEAN_EXPORT uint8_t l_Lake_Toml_RBDict_beq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_push___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_beq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_filter___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Toml_RBDict_contains___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_instEmptyCollection___redArg___boxed(lean_object*);
@@ -77,6 +78,7 @@ static lean_object* l_Lake_Toml_RBDict_empty___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Toml_RBDict_values_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_appendArray___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_findIdx_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Std_DTreeMap_Internal_Impl_contains___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_instHAppendArrayProd___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_values(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_contains___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -85,7 +87,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict(lean_object*, lean_obje
 static lean_object* l_Lake_Toml_RBDict_map___redArg___closed__2;
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_alter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lake_Toml_RBDict_contains_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_filterMap___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_RBDict_map___redArg___closed__8;
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_map___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -107,7 +108,6 @@ lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Toml_RBDict_keys_spec__0___redArg(size_t, size_t, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_filterMap___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_insert___at___Lean_RBTree_fromList_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_isEmpty___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -119,10 +119,10 @@ LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at___Lake_Toml_RBDict_ofArray_spec_
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_find_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_size___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_keys___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_ofArray___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lake_Toml_RBDict_contains_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Toml_RBDict_values_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_fold___redArg(lean_object*, lean_object*, lean_object*);
@@ -165,7 +165,7 @@ static lean_object* _init_l_Lake_Toml_instInhabitedRBDict___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lake_Toml_instInhabitedRBDict___closed__0;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -203,7 +203,7 @@ static lean_object* _init_l_Lake_Toml_RBDict_empty___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lake_Toml_RBDict_empty___closed__0;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -267,7 +267,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_mk_empty_array_with_capacity(x_1);
-x_3 = lean_box(0);
+x_3 = lean_box(1);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
@@ -325,7 +325,7 @@ x_11 = lean_unsigned_to_nat(1u);
 x_12 = lean_nat_sub(x_4, x_11);
 lean_dec(x_4);
 lean_inc(x_2);
-x_13 = l_Lean_RBNode_insert___at___Lean_RBTree_fromList_spec__0___redArg(x_2, x_5, x_10, x_8);
+x_13 = l_Std_DTreeMap_Internal_Impl_insert___redArg(x_2, x_10, x_8, x_5);
 x_4 = x_12;
 x_5 = x_13;
 goto _start;
@@ -345,7 +345,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_array_get_size(x_2);
-x_4 = lean_box(0);
+x_4 = lean_box(1);
 lean_inc(x_3);
 x_5 = l_Nat_foldTR_loop___at___Lake_Toml_RBDict_ofArray_spec__0___redArg(x_2, x_1, x_3, x_3, x_4);
 lean_dec(x_3);
@@ -716,92 +716,15 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lake_Toml_RBDict_contains_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_4; 
-lean_dec(x_3);
-lean_dec(x_1);
-x_4 = lean_box(0);
-return x_4;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_5 = lean_ctor_get(x_2, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_2, 1);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_2, 2);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_2, 3);
-lean_inc(x_8);
-lean_dec(x_2);
-lean_inc(x_1);
-lean_inc(x_3);
-x_9 = lean_apply_2(x_1, x_3, x_6);
-x_10 = lean_unbox(x_9);
-switch (x_10) {
-case 0:
-{
-lean_dec(x_8);
-lean_dec(x_7);
-x_2 = x_5;
-goto _start;
-}
-case 1:
-{
-lean_object* x_12; 
-lean_dec(x_8);
-lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_1);
-x_12 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_12, 0, x_7);
-return x_12;
-}
-default: 
-{
-lean_dec(x_7);
-lean_dec(x_5);
-x_2 = x_8;
-goto _start;
-}
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_RBNode_find___at___Lake_Toml_RBDict_contains_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Lean_RBNode_find___at___Lake_Toml_RBDict_contains_spec__0___redArg(x_2, x_4, x_5);
-return x_6;
-}
-}
 LEAN_EXPORT uint8_t l_Lake_Toml_RBDict_contains___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
+lean_object* x_4; uint8_t x_5; 
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
 lean_dec_ref(x_3);
-x_5 = l_Lean_RBNode_find___at___Lake_Toml_RBDict_contains_spec__0___redArg(x_1, x_4, x_2);
-if (lean_obj_tag(x_5) == 0)
-{
-uint8_t x_6; 
-x_6 = 0;
-return x_6;
-}
-else
-{
-uint8_t x_7; 
-lean_dec(x_5);
-x_7 = 1;
-return x_7;
-}
+x_5 = l_Std_DTreeMap_Internal_Impl_contains___redArg(x_1, x_2, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_Lake_Toml_RBDict_contains(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -839,7 +762,7 @@ lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec_ref(x_3);
-x_6 = l_Lean_RBNode_find___at___Lake_Toml_RBDict_contains_spec__0___redArg(x_1, x_5, x_2);
+x_6 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(x_1, x_5, x_2);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; 
@@ -1065,7 +988,7 @@ lean_inc_ref(x_6);
 x_9 = lean_array_push(x_6, x_8);
 x_10 = lean_array_get_size(x_6);
 lean_dec_ref(x_6);
-x_11 = l_Lean_RBNode_insert___at___Lean_RBTree_fromList_spec__0___redArg(x_1, x_7, x_2, x_10);
+x_11 = l_Std_DTreeMap_Internal_Impl_insert___redArg(x_1, x_2, x_10, x_7);
 lean_ctor_set(x_4, 1, x_11);
 lean_ctor_set(x_4, 0, x_9);
 return x_4;
@@ -1086,7 +1009,7 @@ lean_inc_ref(x_12);
 x_15 = lean_array_push(x_12, x_14);
 x_16 = lean_array_get_size(x_12);
 lean_dec_ref(x_12);
-x_17 = l_Lean_RBNode_insert___at___Lean_RBTree_fromList_spec__0___redArg(x_1, x_13, x_2, x_16);
+x_17 = l_Std_DTreeMap_Internal_Impl_insert___redArg(x_1, x_2, x_16, x_13);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_15);
 lean_ctor_set(x_18, 1, x_17);
@@ -2309,14 +2232,14 @@ lean_dec(x_4);
 return x_8;
 }
 }
-lean_object* initialize_Lean_Data_NameMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_NameMap_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Fold(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Toml_Data_Dict(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_NameMap(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_NameMap_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Fold(builtin, lean_io_mk_world());

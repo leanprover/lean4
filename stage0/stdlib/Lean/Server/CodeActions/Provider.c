@@ -93,8 +93,8 @@ uint8_t l_String_beqRange____x40_Lean_Syntax___hyg_100_(lean_object*, lean_objec
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__1;
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_CodeAction_findInfoTree_x3f_spec__0_spec__0___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__0;
 lean_object* l_Lean_Syntax_getTailInfo(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -178,7 +178,7 @@ x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
-lean_dec(x_19);
+lean_dec_ref(x_19);
 x_22 = l_Array_append___redArg(x_8, x_20);
 lean_dec(x_20);
 x_11 = x_22;
@@ -195,7 +195,7 @@ x_23 = lean_ctor_get(x_19, 0);
 lean_inc(x_23);
 x_24 = lean_ctor_get(x_19, 1);
 lean_inc(x_24);
-lean_dec(x_19);
+lean_dec_ref(x_19);
 x_11 = x_23;
 x_12 = x_24;
 goto block_16;
@@ -2017,11 +2017,11 @@ goto block_19;
 block_15:
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = l_Lean_CodeAction_findTactic_x3f_merge(x_1, x_10);
-lean_dec_ref(x_10);
+x_12 = l_Lean_CodeAction_findTactic_x3f_merge(x_1, x_11);
+lean_dec_ref(x_11);
 x_13 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
-x_8 = x_11;
+x_8 = x_10;
 x_9 = x_13;
 goto _start;
 }
@@ -2029,8 +2029,8 @@ block_19:
 {
 if (lean_obj_tag(x_9) == 0)
 {
-x_10 = x_17;
-x_11 = x_16;
+x_10 = x_16;
+x_11 = x_17;
 goto block_15;
 }
 else
@@ -2038,8 +2038,8 @@ else
 lean_dec(x_9);
 if (x_2 == 0)
 {
-x_10 = x_17;
-x_11 = x_16;
+x_10 = x_16;
+x_11 = x_17;
 goto block_15;
 }
 else
@@ -4211,7 +4211,7 @@ x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
 x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 x_23 = l_Array_append___redArg(x_8, x_21);
 lean_dec(x_21);
 x_11 = x_23;
@@ -4223,7 +4223,7 @@ else
 lean_object* x_24; 
 x_24 = lean_ctor_get(x_20, 1);
 lean_inc(x_24);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 x_11 = x_8;
 x_12 = x_24;
 goto block_16;
@@ -4320,7 +4320,7 @@ x_44 = lean_ctor_get(x_32, 1);
 lean_inc(x_44);
 lean_dec_ref(x_32);
 x_45 = l_Lean_Syntax_getKind(x_44);
-x_46 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_34, x_45);
+x_46 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_34, x_45);
 lean_dec(x_45);
 if (lean_obj_tag(x_46) == 0)
 {
@@ -4491,7 +4491,7 @@ x_44 = lean_ctor_get(x_32, 1);
 lean_inc(x_44);
 lean_dec_ref(x_32);
 x_45 = l_Lean_Syntax_getKind(x_44);
-x_46 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_34, x_45);
+x_46 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_34, x_45);
 lean_dec(x_45);
 if (lean_obj_tag(x_46) == 0)
 {

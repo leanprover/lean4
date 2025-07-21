@@ -26,7 +26,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_Table_decode(lean_object*, lean_object*, le
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_tryDecode_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_instDecodeTomlFilePath___lam__0(lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_optDecode_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_instDecodeTomlBool;
 lean_object* l_Lake_Toml_RBDict_findEntry_x3f___redArg(lean_object*, lean_object*, lean_object*);
@@ -79,6 +78,7 @@ static lean_object* l_Lake_Toml_Value_decodeNat___closed__1;
 static lean_object* l_Lake_Toml_Value_decodeNat___closed__0;
 static lean_object* l_Lake_Toml_Value_decodeValueArray___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_instDecodeTomlFloat;
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_decodeArray___redArg___closed__5;
 static lean_object* l_Lake_Toml_Value_decodeArrayOrSingleton___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_decodeNameMap___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3212,7 +3212,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_Table_decodeNameMap___redArg___lam__0(lean_
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_2, x_1, x_3);
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_1, x_3, x_2);
 return x_4;
 }
 }
@@ -3236,7 +3236,7 @@ static lean_object* _init_l_Lake_Toml_Table_decodeNameMap___redArg___closed__0()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = lean_alloc_closure((void*)(l_EStateM_pure), 5, 4);
 lean_closure_set(x_2, 0, lean_box(0));
 lean_closure_set(x_2, 1, lean_box(0));
@@ -3256,7 +3256,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_2, 0);
 x_6 = lean_ctor_get(x_2, 1);
 lean_dec(x_6);
-x_7 = lean_box(0);
+x_7 = lean_box(1);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_get_size(x_5);
 x_10 = l_Lake_Toml_decodeArray___redArg___closed__9;
@@ -3305,7 +3305,7 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean
 x_19 = lean_ctor_get(x_2, 0);
 lean_inc(x_19);
 lean_dec(x_2);
-x_20 = lean_box(0);
+x_20 = lean_box(1);
 x_21 = lean_unsigned_to_nat(0u);
 x_22 = lean_array_get_size(x_19);
 x_23 = l_Lake_Toml_decodeArray___redArg___closed__9;

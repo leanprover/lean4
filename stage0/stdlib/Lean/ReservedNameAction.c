@@ -328,7 +328,7 @@ lean_object* x_13; size_t x_14; size_t x_15;
 lean_dec(x_11);
 x_13 = lean_ctor_get(x_10, 1);
 lean_inc(x_13);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_14 = 1;
 x_15 = lean_usize_add(x_3, x_14);
 x_3 = x_15;

@@ -189,6 +189,7 @@ LEAN_EXPORT lean_object* l_Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg
 static lean_object* l_Lean_Linter_List_numericalIndices___lam__2___closed__45;
 static lean_object* l_Lean_Linter_List_allowedWidths___closed__5;
 static lean_object* l_Lean_Linter_List_numericalIndices___lam__2___closed__46;
+lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_Linter_List_numericalIndices___lam__2___closed__13;
 static lean_object* l_Lean_Linter_List_numericalIndices___lam__2___closed__59;
@@ -392,7 +393,6 @@ LEAN_EXPORT lean_object* l_Lean_Linter_List_listVariablesLinter___lam__0___boxed
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l_Lean_Linter_List_allowedBitVecWidths___closed__0;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Linter_List_indexLinter_spec__8_spec__8___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_elem___at___Lean_Linter_List_indexLinter_spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_List_allowedListNames___closed__20;
 LEAN_EXPORT lean_object* l_Lean_Linter_List_binders___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7847,7 +7847,7 @@ x_20 = lean_ctor_get(x_19, 1);
 lean_inc(x_20);
 lean_dec_ref(x_19);
 x_21 = l_Lean_Linter_List_binders___lam__0___closed__2;
-x_22 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_21, x_3, x_20);
+x_22 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__0___redArg(x_21, x_3, x_20);
 lean_dec(x_3);
 return x_22;
 }
@@ -7871,7 +7871,7 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec_ref(x_7);
-x_10 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_8, x_3, x_9);
+x_10 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__0___redArg(x_8, x_3, x_9);
 lean_dec(x_3);
 return x_10;
 }

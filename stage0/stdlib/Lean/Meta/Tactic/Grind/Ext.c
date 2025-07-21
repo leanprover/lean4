@@ -3070,6 +3070,7 @@ uint8_t x_85; uint8_t x_86; lean_object* x_87;
 x_85 = 0;
 x_86 = 1;
 x_87 = l_Lean_Meta_mkLambdaFVars(x_83, x_82, x_85, x_81, x_85, x_81, x_86, x_7, x_8, x_9, x_10, x_84);
+lean_dec_ref(x_83);
 if (lean_obj_tag(x_87) == 0)
 {
 lean_object* x_88; lean_object* x_89; lean_object* x_90; uint8_t x_91; 
@@ -4314,6 +4315,7 @@ uint8_t x_550; uint8_t x_551; lean_object* x_552;
 x_550 = 0;
 x_551 = 1;
 x_552 = l_Lean_Meta_mkLambdaFVars(x_548, x_547, x_550, x_546, x_550, x_546, x_551, x_7, x_8, x_9, x_10, x_549);
+lean_dec_ref(x_548);
 if (lean_obj_tag(x_552) == 0)
 {
 lean_object* x_553; lean_object* x_554; lean_object* x_555; lean_object* x_556; lean_object* x_557; lean_object* x_558; lean_object* x_559; 

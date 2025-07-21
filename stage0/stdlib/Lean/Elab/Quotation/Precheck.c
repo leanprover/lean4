@@ -117,10 +117,12 @@ LEAN_EXPORT lean_object* l_Array_filterMapM___at___Lean_Elab_Term_Quotation_prec
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_precheckUnop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addConstInfo___at___Lean_Elab_realizeGlobalConstNoOverloadWithInfo_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quotation_Precheck___hyg_165_(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_precheckUnop___closed__1;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_precheckApp___regBuiltin_Lean_Elab_Term_Quotation_precheckApp__1___closed__0;
 lean_object* l_Lean_Elab_expandMacroImpl_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable___redArg___closed__0;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Elab_liftMacroM___at___Lean_Elab_Term_Quotation_precheck_spec__0_spec__5___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveNamespace(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -158,6 +160,7 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Elab_Term_Quotation_p
 static lean_object* l_Lean_Elab_Term_Quotation_elabPrecheckedQuot___regBuiltin_Lean_Elab_Term_Quotation_elabPrecheckedQuot_declRange__3___closed__1;
 static lean_object* l_Lean_Elab_Term_Quotation_precheck___closed__2;
 static lean_object* l_Lean_Elab_Term_Quotation_precheckIdent___closed__7;
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 double lean_float_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_Term_Quotation_precheckChoice_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_precheckRightact(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -208,7 +211,6 @@ static lean_object* l_Lean_Elab_Term_Quotation_precheckApp___closed__0;
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_precheckBinrelNoProp___regBuiltin_Lean_Elab_Term_Quotation_precheckBinrelNoProp__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_precheckApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_RBNode_any___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_precheckExplicit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_precheckExplicit___regBuiltin_Lean_Elab_Term_Quotation_precheckExplicit__1(lean_object*);
@@ -253,7 +255,6 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_precheckChoice(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_precheckIdent___closed__4;
 static lean_object* l_Lean_Elab_Term_Quotation_precheckIdent___closed__1;
-uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_precheckIdent___regBuiltin_Lean_Elab_Term_Quotation_precheckIdent__1___closed__0;
 static lean_object* l_Lean_Elab_Term_Quotation_precheckLeftact___regBuiltin_Lean_Elab_Term_Quotation_precheckLeftact__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___Lean_Elab_Term_Quotation_precheck_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -264,13 +265,13 @@ static lean_object* l_Lean_Elab_Term_Quotation_elabPrecheckedQuot___regBuiltin_L
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* l_Lean_ResolveName_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_elabPrecheckedQuot(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_precheckBinrel___regBuiltin_Lean_Elab_Term_Quotation_precheckBinrel__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_withNewLocals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_precheckRightact___regBuiltin_Lean_Elab_Term_Quotation_precheckRightact__1___closed__1;
 static lean_object* l_Lean_addTrace___at___Lean_Elab_liftMacroM___at___Lean_Elab_Term_Quotation_precheck_spec__0_spec__1___redArg___closed__1;
 static lean_object* l_Lean_Elab_Term_Quotation_precheckExplicit___regBuiltin_Lean_Elab_Term_Quotation_precheckExplicit__1___closed__0;
 static lean_object* l_Lean_Elab_Term_Quotation_elabPrecheckedQuot___regBuiltin_Lean_Elab_Term_Quotation_elabPrecheckedQuot_declRange__3___closed__6;
-LEAN_EXPORT lean_object* l_Lean_RBNode_any___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_initFn___closed__8____x40_Lean_Elab_Quotation_Precheck___hyg_165_;
 static lean_object* l_Lean_Elab_Term_Quotation_initFn___closed__2____x40_Lean_Elab_Quotation_Precheck___hyg_165_;
 static lean_object* l_Lean_Elab_Term_Quotation_initFn___closed__3____x40_Lean_Elab_Quotation_Precheck___hyg_128_;
@@ -3228,67 +3229,193 @@ return x_11;
 else
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = lean_box(0);
+x_12 = lean_box(1);
 x_13 = l_Lean_Elab_Term_Quotation_precheck(x_1, x_12, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_13;
 }
 }
 }
 }
-LEAN_EXPORT uint8_t l_Lean_RBNode_any___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-if (lean_obj_tag(x_2) == 0)
+if (lean_obj_tag(x_5) == 0)
 {
-uint8_t x_3; 
-x_3 = 0;
-return x_3;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_ctor_get(x_5, 2);
+x_7 = lean_ctor_get(x_5, 3);
+x_8 = lean_ctor_get(x_5, 4);
+lean_inc_ref(x_2);
+x_9 = l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0(x_1, x_2, x_3, x_4, x_7);
+if (lean_obj_tag(x_9) == 0)
+{
+lean_dec_ref(x_2);
+return x_9;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_10; 
-x_4 = lean_ctor_get(x_2, 0);
-x_5 = lean_ctor_get(x_2, 2);
-x_6 = lean_ctor_get(x_2, 3);
-x_10 = lean_expr_eqv(x_1, x_5);
+uint8_t x_10; 
+x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
 {
-uint8_t x_11; 
-x_11 = l_Lean_RBNode_any___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0(x_1, x_4);
-x_7 = x_11;
-goto block_9;
+lean_object* x_11; uint8_t x_12; 
+x_11 = lean_ctor_get(x_9, 0);
+lean_dec(x_11);
+x_12 = lean_expr_eqv(x_1, x_6);
+if (x_12 == 0)
+{
+lean_free_object(x_9);
+lean_inc_ref(x_2);
+{
+lean_object* _tmp_3 = x_2;
+lean_object* _tmp_4 = x_8;
+x_4 = _tmp_3;
+x_5 = _tmp_4;
 }
-else
-{
-x_7 = x_10;
-goto block_9;
-}
-block_9:
-{
-if (x_7 == 0)
-{
-x_2 = x_6;
 goto _start;
 }
 else
 {
-return x_7;
+lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_dec_ref(x_2);
+x_14 = lean_box(x_12);
+x_15 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_15, 0, x_14);
+x_16 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_3);
+lean_ctor_set_tag(x_9, 0);
+lean_ctor_set(x_9, 0, x_16);
+return x_9;
+}
+}
+else
+{
+uint8_t x_17; 
+lean_dec(x_9);
+x_17 = lean_expr_eqv(x_1, x_6);
+if (x_17 == 0)
+{
+lean_inc_ref(x_2);
+{
+lean_object* _tmp_3 = x_2;
+lean_object* _tmp_4 = x_8;
+x_4 = _tmp_3;
+x_5 = _tmp_4;
+}
+goto _start;
+}
+else
+{
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_dec_ref(x_2);
+x_19 = lean_box(x_17);
+x_20 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_20, 0, x_19);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_3);
+x_22 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_22, 0, x_21);
+return x_22;
 }
 }
 }
+}
+else
+{
+lean_object* x_23; 
+lean_dec_ref(x_2);
+x_23 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_23, 0, x_4);
+return x_23;
+}
+}
+}
+static lean_object* _init_l___private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = lean_box(0);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = lean_ctor_get(x_2, 5);
-x_5 = l_Lean_RBNode_any___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0(x_1, x_4);
-x_6 = lean_box(x_5);
-x_7 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_7, 0, x_6);
-lean_ctor_set(x_7, 1, x_3);
-return x_7;
+lean_object* x_4; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_18 = lean_ctor_get(x_2, 5);
+x_19 = lean_box(0);
+x_20 = l___private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable___redArg___closed__0;
+x_21 = l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0(x_1, x_20, x_19, x_20, x_18);
+x_22 = lean_ctor_get(x_21, 0);
+lean_inc(x_22);
+lean_dec_ref(x_21);
+x_4 = x_22;
+goto block_17;
+block_17:
+{
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_4, 0);
+x_7 = lean_ctor_get(x_4, 1);
+lean_dec(x_7);
+if (lean_obj_tag(x_6) == 0)
+{
+uint8_t x_8; lean_object* x_9; 
+x_8 = 0;
+x_9 = lean_box(x_8);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set(x_4, 0, x_9);
+return x_4;
+}
+else
+{
+lean_object* x_10; 
+x_10 = lean_ctor_get(x_6, 0);
+lean_inc(x_10);
+lean_dec(x_6);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set(x_4, 0, x_10);
+return x_4;
+}
+}
+else
+{
+lean_object* x_11; 
+x_11 = lean_ctor_get(x_4, 0);
+lean_inc(x_11);
+lean_dec(x_4);
+if (lean_obj_tag(x_11) == 0)
+{
+uint8_t x_12; lean_object* x_13; lean_object* x_14; 
+x_12 = 0;
+x_13 = lean_box(x_12);
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_13);
+lean_ctor_set(x_14, 1, x_3);
+return x_14;
+}
+else
+{
+lean_object* x_15; lean_object* x_16; 
+x_15 = lean_ctor_get(x_11, 0);
+lean_inc(x_15);
+lean_dec(x_11);
+x_16 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_3);
+return x_16;
+}
+}
+}
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -3299,15 +3426,14 @@ x_9 = l___private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSec
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_any___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_RBNode_any___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0(x_1, x_2);
-lean_dec(x_2);
+lean_object* x_6; 
+x_6 = l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable_spec__0(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
 lean_dec_ref(x_1);
-x_4 = lean_box(x_3);
-return x_4;
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -3610,7 +3736,7 @@ lean_object* x_64; lean_object* x_65; uint8_t x_66;
 x_64 = lean_ctor_get(x_61, 1);
 x_65 = lean_ctor_get(x_61, 0);
 lean_dec(x_65);
-x_66 = l_Lean_NameSet_contains(x_2, x_10);
+x_66 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_10, x_2);
 if (x_66 == 0)
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
@@ -3691,7 +3817,7 @@ lean_object* x_79; uint8_t x_80;
 x_79 = lean_ctor_get(x_61, 1);
 lean_inc(x_79);
 lean_dec(x_61);
-x_80 = l_Lean_NameSet_contains(x_2, x_10);
+x_80 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_10, x_2);
 if (x_80 == 0)
 {
 lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; 
@@ -6613,6 +6739,8 @@ l_Lean_Elab_Term_Quotation_runPrecheck___closed__0 = _init_l_Lean_Elab_Term_Quot
 lean_mark_persistent(l_Lean_Elab_Term_Quotation_runPrecheck___closed__0);
 l_Lean_Elab_Term_Quotation_runPrecheck___closed__1 = _init_l_Lean_Elab_Term_Quotation_runPrecheck___closed__1();
 lean_mark_persistent(l_Lean_Elab_Term_Quotation_runPrecheck___closed__1);
+l___private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable___redArg___closed__0 = _init_l___private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable___redArg___closed__0();
+lean_mark_persistent(l___private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable___redArg___closed__0);
 l_List_forIn_x27_loop___at___Lean_Elab_Term_Quotation_precheckIdent_spec__0___redArg___closed__0 = _init_l_List_forIn_x27_loop___at___Lean_Elab_Term_Quotation_precheckIdent_spec__0___redArg___closed__0();
 lean_mark_persistent(l_List_forIn_x27_loop___at___Lean_Elab_Term_Quotation_precheckIdent_spec__0___redArg___closed__0);
 l_Lean_Elab_Term_Quotation_precheckIdent___closed__0 = _init_l_Lean_Elab_Term_Quotation_precheckIdent___closed__0();

@@ -27,6 +27,7 @@ static lean_object* l_Lean_Compiler_initFn___closed__10____x40_Lean_Compiler_Mai
 static lean_object* l_Lean_Compiler_initFn___closed__4____x40_Lean_Compiler_Main___hyg_89_;
 lean_object* l_Lean_profileitM___at___Lean_traceBlock_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___at___Lean_Compiler_LCNF_Simp_simpJpCases_x3f_spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn___closed__7____x40_Lean_Compiler_Main___hyg_89_;
 static lean_object* l_Lean_Compiler_compile___lam__0___closed__3;
 lean_object* lean_array_to_list(lean_object*);
@@ -42,7 +43,6 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withTraceNode___at___Lean_Core_wrapAsyncAsSnapshot_spec__18___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_mapTR_loop___at___Lean_Compiler_LCNF_Simp_simpJpCases_x3f_spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn___closed__14____x40_Lean_Compiler_Main___hyg_89_;
 static lean_object* l_Lean_Compiler_initFn___closed__13____x40_Lean_Compiler_Main___hyg_89_;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -94,7 +94,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = l_Lean_Compiler_compile___lam__0___closed__1;
 x_7 = lean_array_to_list(x_1);
 x_8 = lean_box(0);
-x_9 = l_List_mapTR_loop___at___Lean_Compiler_LCNF_Simp_simpJpCases_x3f_spec__2(x_7, x_8);
+x_9 = l_List_mapTR_loop___at___Lean_Compiler_LCNF_Simp_simpJpCases_x3f_spec__1(x_7, x_8);
 x_10 = l_Lean_MessageData_ofList(x_9);
 x_11 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_11, 0, x_6);

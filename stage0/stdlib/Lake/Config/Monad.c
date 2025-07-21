@@ -46,6 +46,7 @@ LEAN_EXPORT lean_object* l_Lake_getLeanAr(lean_object*, lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lake_getArtifact_x3f___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_leanSrcPath(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanc___redArg___lam__0(lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLakeSrcDir___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanLibDir___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getElanInstall_x3f(lean_object*, lean_object*, lean_object*);
@@ -67,7 +68,6 @@ LEAN_EXPORT lean_object* l_Lake_findLeanLib_x3f___redArg___lam__0(lean_object*, 
 LEAN_EXPORT lean_object* l_Lake_getLeanLinkSharedFlags___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getAugmentedSharedLibPath___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLeanSrcPath___redArg(lean_object*, lean_object*);
-lean_object* l_Lake_RBNode_dFind___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getArtifact_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_findPackage_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_getLakeInstall___redArg___lam__0___boxed(lean_object*);
@@ -537,7 +537,7 @@ x_3 = lean_ctor_get(x_2, 4);
 lean_inc(x_3);
 lean_dec_ref(x_2);
 x_4 = l_Lake_findPackage_x3f___redArg___lam__0___closed__0;
-x_5 = l_Lake_RBNode_dFind___redArg(x_4, x_3, x_1);
+x_5 = l_Std_DTreeMap_Internal_Impl_get_x3f___redArg(x_4, x_3, x_1);
 return x_5;
 }
 }

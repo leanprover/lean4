@@ -293,7 +293,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = lean_box(0);
 x_2 = lean_box(0);
 x_3 = lean_box(0);
-x_4 = lean_box(0);
+x_4 = lean_box(1);
 x_5 = lean_box(0);
 x_6 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_6, 0, x_5);
@@ -324,7 +324,7 @@ x_14 = lean_box(x_13);
 x_15 = lean_alloc_closure((void*)(l_Lean_Elab_elabSimprocPattern___lam__1___boxed), 2, 1);
 lean_closure_set(x_15, 0, x_14);
 x_16 = l_Lean_Elab_elabSimprocPattern___closed__2;
-x_17 = lean_box(0);
+x_17 = lean_box(1);
 x_18 = lean_box(0);
 x_19 = lean_alloc_ctor(0, 7, 11);
 lean_ctor_set(x_19, 0, x_11);

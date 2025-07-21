@@ -42,6 +42,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArra
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_checkOccs_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_mkIndexSet_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_Linarith_Poly_checkNoElimVars___closed__2;
 static lean_object* l_Lean_Grind_Linarith_Poly_checkOccs_go___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_checkLowers(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -162,7 +163,6 @@ static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_checkUppers___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Meta_Grind_Arith_Linear_checkLeCnstrs_spec__1_spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at___Lean_PersistentHashMap_foldlM___at___Lean_PersistentHashMap_forIn___at___Lean_Meta_Grind_Arith_Linear_checkVars_spec__1_spec__1_spec__1___boxed(lean_object**);
-lean_object* l_Lean_RBNode_findCore___at___Lean_Meta_Grind_Arith_Linear_addOcc_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_Grind_Linarith_Poly_checkOccs_go_spec__0___closed__1;
 static lean_object* l_Lean_Grind_Linarith_Poly_checkCnstrOf___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_checkCnstrOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -933,15 +933,15 @@ x_16 = lean_ctor_get(x_2, 2);
 x_17 = l_Lean_Meta_Grind_Arith_Linear_getOccursOf(x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_17) == 0)
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
 x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
 lean_dec_ref(x_17);
-x_20 = l_Lean_RBNode_findCore___at___Lean_Meta_Grind_Arith_Linear_addOcc_spec__0___redArg(x_18, x_1);
+x_20 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_mkIndexSet_spec__0___redArg(x_1, x_18);
 lean_dec(x_18);
-if (lean_obj_tag(x_20) == 0)
+if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
 x_21 = l_Lean_Grind_Linarith_Poly_checkOccs_go___closed__3;
@@ -950,7 +950,6 @@ return x_22;
 }
 else
 {
-lean_dec(x_20);
 x_2 = x_16;
 x_12 = x_19;
 goto _start;

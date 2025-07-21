@@ -13,11 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Options_toLinterOptions___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Options_toLinterOptions___redArg___lam__0___closed__0;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_297_(lean_object*);
-lean_object* l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_get_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_insertLinterSetEntry(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_instLinterSetsEmptyCollection;
@@ -36,12 +37,14 @@ LEAN_EXPORT lean_object* l_Lean_Linter_linter_all;
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterOptions___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Linter_getLinterValue(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__2____x40_Lean_Linter_Basic___hyg_297_;
-static lean_object* l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0___closed__0;
+static lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1___closed__0;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__2____x40_Lean_Linter_Basic___hyg_39_;
 lean_object* l_Lean_MessageData_note(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterValue___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_get_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__0____x40_Lean_Linter_Basic___hyg_297_;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -60,14 +63,15 @@ LEAN_EXPORT lean_object* l_Lean_Linter_logLint(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_Linter_logLintIf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__4____x40_Lean_Linter_Basic___hyg_297_;
 static lean_object* l_Lean_Linter_logLint___redArg___closed__1;
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterOptions(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterAll___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn___lam__1____x40_Lean_Linter_Basic___hyg_39_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39_(lean_object*);
-lean_object* l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Linter_getLinterAll(lean_object*, uint8_t);
 static lean_object* l_Lean_Linter_initFn___closed__1____x40_Lean_Linter_Basic___hyg_39_;
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_logLintIf___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT uint8_t l_Lean_Linter_LinterOptions_get___at___Lean_Linter_getLinterAll_spec__0(lean_object*, lean_object*, uint8_t);
@@ -83,6 +87,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fol
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__3____x40_Lean_Linter_Basic___hyg_297_;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Linter_getLinterValue_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_get_x3f___at___Lean_Linter_getLinterValue_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_getSet___boxed(lean_object*, lean_object*, lean_object*);
@@ -99,6 +104,7 @@ LEAN_EXPORT lean_object* l_Lean_Options_toLinterOptions(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_mkStateFromImportedEntries___at___Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39__spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_getSet(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
+uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -108,15 +114,16 @@ lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_logLintIf___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_mkStateFromImportedEntries___at___Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39__spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_logLint___redArg___closed__2;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Array_anyMUnsafe_any___at___Lean_Linter_getLinterValue_spec__2_spec__2(lean_object*, lean_object*, size_t, size_t);
 static lean_object* _init_l_Lean_Linter_instLinterSetsEmptyCollection() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 return x_1;
 }
 }
@@ -124,11 +131,55 @@ static lean_object* _init_l_Lean_Linter_instLinterSetsInhabited() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0___closed__0() {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_4 = lean_ctor_get(x_1, 1);
+x_5 = lean_ctor_get(x_1, 2);
+x_6 = lean_ctor_get(x_1, 3);
+x_7 = lean_ctor_get(x_1, 4);
+x_8 = l_Lean_Name_quickCmp(x_2, x_4);
+switch (x_8) {
+case 0:
+{
+x_1 = x_6;
+goto _start;
+}
+case 1:
+{
+lean_inc(x_5);
+return x_5;
+}
+default: 
+{
+x_1 = x_7;
+goto _start;
+}
+}
+}
+else
+{
+lean_inc(x_3);
+return x_3;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0___redArg(x_2, x_3, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -137,62 +188,90 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_3) == 0)
 {
-lean_dec(x_1);
-return x_2;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_13; 
-x_4 = lean_ctor_get(x_3, 0);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
-x_5 = lean_ctor_get(x_3, 1);
+x_5 = lean_ctor_get(x_3, 3);
 lean_inc(x_5);
-x_6 = lean_ctor_get(x_3, 3);
+x_6 = lean_ctor_get(x_3, 4);
 lean_inc(x_6);
 lean_dec(x_3);
 lean_inc(x_1);
-x_7 = l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0(x_1, x_2, x_4);
-x_13 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_7, x_5);
-if (lean_obj_tag(x_13) == 0)
-{
-lean_object* x_14; 
-x_14 = l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0___closed__0;
-x_8 = x_14;
-goto block_12;
-}
-else
-{
-lean_object* x_15; 
-x_15 = lean_ctor_get(x_13, 0);
-lean_inc(x_15);
-lean_dec(x_13);
-x_8 = x_15;
-goto block_12;
-}
-block_12:
-{
-lean_object* x_9; lean_object* x_10; 
+x_7 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1(x_1, x_2, x_5);
+x_8 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1___closed__0;
+x_9 = l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0___redArg(x_7, x_4, x_8);
 lean_inc(x_1);
-x_9 = lean_array_push(x_8, x_1);
-x_10 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_7, x_5, x_9);
-x_2 = x_10;
+x_10 = lean_array_push(x_9, x_1);
+x_11 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_4, x_10, x_7);
+x_2 = x_11;
 x_3 = x_6;
 goto _start;
 }
+else
+{
+lean_dec(x_1);
+return x_2;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1(x_2, x_3, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Linter_insertLinterSetEntry(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0(x_2, x_1, x_3);
+x_4 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1(x_2, x_1, x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0___redArg(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_mkStateFromImportedEntries___at___Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39__spec__0_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
@@ -209,7 +288,7 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
 lean_dec_ref(x_6);
-x_9 = l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0(x_7, x_4, x_8);
+x_9 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1(x_7, x_4, x_8);
 x_10 = 1;
 x_11 = lean_usize_add(x_2, x_10);
 x_2 = x_11;
@@ -379,7 +458,7 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
 lean_dec_ref(x_2);
-x_5 = l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0(x_3, x_1, x_4);
+x_5 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1(x_3, x_1, x_4);
 return x_5;
 }
 }
@@ -433,7 +512,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = lean_alloc_closure((void*)(l_Lean_Linter_initFn___lam__0____x40_Lean_Linter_Basic___hyg_39_), 2, 0);
 x_3 = lean_alloc_closure((void*)(l_Lean_Linter_initFn___lam__1____x40_Lean_Linter_Basic___hyg_39_), 1, 0);
 x_4 = l_Lean_Linter_initFn___closed__3____x40_Lean_Linter_Basic___hyg_39_;
-x_5 = lean_box(0);
+x_5 = lean_box(1);
 x_6 = lean_alloc_closure((void*)(l_Lean_mkStateFromImportedEntries___at___Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_39__spec__0___boxed), 2, 1);
 lean_closure_set(x_6, 0, x_5);
 x_7 = lean_box(0);
@@ -662,7 +741,7 @@ lean_dec_ref(x_2);
 x_7 = lean_ctor_get(x_4, 1);
 lean_inc(x_7);
 lean_dec_ref(x_4);
-x_8 = lean_box(0);
+x_8 = lean_box(1);
 x_9 = lean_alloc_closure((void*)(l_Lean_Options_toLinterOptions___redArg___lam__0), 4, 3);
 lean_closure_set(x_9, 0, x_8);
 lean_closure_set(x_9, 1, x_3);
@@ -682,24 +761,12 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_getSet___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get(x_2, 0);
-x_5 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_3, x_4);
-if (lean_obj_tag(x_5) == 0)
-{
-lean_object* x_6; 
-x_6 = l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0___closed__0;
+x_5 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1___closed__0;
+x_6 = l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0___redArg(x_3, x_4, x_5);
 return x_6;
-}
-else
-{
-lean_object* x_7; 
-x_7 = lean_ctor_get(x_5, 0);
-lean_inc(x_7);
-lean_dec(x_5);
-return x_7;
-}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Linter_LinterOptions_getSet(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1135,7 +1202,7 @@ if (x_12 == 0)
 {
 uint8_t x_13; 
 lean_dec(x_11);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_13 = lean_unbox(x_4);
 x_5 = x_13;
 goto block_8;
@@ -1146,7 +1213,7 @@ if (x_12 == 0)
 {
 uint8_t x_14; 
 lean_dec(x_11);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 x_14 = lean_unbox(x_4);
 x_5 = x_14;
 goto block_8;
@@ -1158,7 +1225,7 @@ x_15 = 0;
 x_16 = lean_usize_of_nat(x_11);
 lean_dec(x_11);
 x_17 = l_Array_anyMUnsafe_any___at___Lean_Linter_getLinterValue_spec__2(x_2, x_9, x_15, x_16);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 if (x_17 == 0)
 {
 uint8_t x_18; 
@@ -1467,8 +1534,8 @@ l_Lean_Linter_instLinterSetsEmptyCollection = _init_l_Lean_Linter_instLinterSets
 lean_mark_persistent(l_Lean_Linter_instLinterSetsEmptyCollection);
 l_Lean_Linter_instLinterSetsInhabited = _init_l_Lean_Linter_instLinterSetsInhabited();
 lean_mark_persistent(l_Lean_Linter_instLinterSetsInhabited);
-l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0___closed__0 = _init_l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0___closed__0();
-lean_mark_persistent(l_Lean_RBNode_fold___at___Lean_Linter_insertLinterSetEntry_spec__0___closed__0);
+l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1___closed__0 = _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1___closed__0();
+lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1___closed__0);
 l_Lean_Linter_initFn___closed__0____x40_Lean_Linter_Basic___hyg_39_ = _init_l_Lean_Linter_initFn___closed__0____x40_Lean_Linter_Basic___hyg_39_();
 lean_mark_persistent(l_Lean_Linter_initFn___closed__0____x40_Lean_Linter_Basic___hyg_39_);
 l_Lean_Linter_initFn___closed__1____x40_Lean_Linter_Basic___hyg_39_ = _init_l_Lean_Linter_initFn___closed__1____x40_Lean_Linter_Basic___hyg_39_();

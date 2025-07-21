@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l_Lake_InputFileConfig___fields;
 static lean_object* l_Lake_InputFileConfig_instConfigMeta___closed__3;
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_instConfigFields(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_path___proj___lam__2(lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Pattern_star(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputDirConfig_filter_instConfigField(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_InputDirConfig_text___proj___lam__0(lean_object*);
@@ -61,6 +60,7 @@ static lean_object* l_Lake_InputFileConfig_instConfigMeta___closed__0;
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_path_instConfigField(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_text_instConfigField(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_text___proj___lam__1___boxed(lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_InputFileConfig_instConfigMeta___closed__2;
 static lean_object* l_Lake_InputDirConfig___fields___closed__3;
 static lean_object* l_Lake_InputFileConfig_instConfigMeta___closed__10;
@@ -529,7 +529,7 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-x_4 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_1, x_3, x_2);
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }
@@ -654,7 +654,7 @@ static lean_object* _init_l_Lake_InputFileConfig_instConfigMeta___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lake_InputFileConfig___fields;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -685,7 +685,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_1 = l_Lake_InputFileConfig___fields;
-x_2 = lean_box(0);
+x_2 = lean_box(1);
 x_3 = l_Lake_InputFileConfig_instConfigMeta___closed__10;
 x_4 = l_Lake_InputFileConfig_instConfigMeta___closed__11;
 if (x_4 == 0)
@@ -1246,7 +1246,7 @@ static lean_object* _init_l_Lake_InputDirConfig_instConfigMeta___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lake_InputDirConfig___fields;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -1284,7 +1284,7 @@ static lean_object* _init_l_Lake_InputDirConfig_instConfigMeta___closed__6() {
 _start:
 {
 lean_object* x_1; size_t x_2; size_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lake_InputDirConfig_instConfigMeta___closed__5;
 x_3 = 0;
 x_4 = l_Lake_InputDirConfig___fields;

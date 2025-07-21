@@ -84,8 +84,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0__Lean_Met
 lean_object* lean_nat_div(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0__Lean_Meta_Grind_Arith_notField___closed__17;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0__Lean_Meta_Grind_Arith_notField___closed__18;
-uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_____private_Std_Data_DTreeMap_Internal_Lemmas_0__Std_DTreeMap_Internal_Impl_modifyMap_spec__0___redArg(lean_object*, lean_object*);
-lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_____private_Std_Data_DTreeMap_Internal_Lemmas_0__Std_DTreeMap_Internal_Impl_modifyMap_spec__1___redArg(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0__Lean_Meta_Grind_Arith_isNotFieldQuick(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0__Lean_Meta_Grind_Arith_notField___closed__12;
 static lean_object* l_Lean_Meta_Grind_Arith_expandDiv___redArg___closed__12;
@@ -123,6 +121,7 @@ lean_object* l_Lean_Meta_Simp_registerBuiltinSimproc(lean_object*, lean_object*,
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandPowAdd_declare__7___closed__8____x40_Lean_Meta_Tactic_Grind_Arith_Simproc___hyg_1168_;
+uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_NameHashSet_insert_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_expandDiv___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_expandPowAdd___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -164,6 +163,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0__Lea
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0__Lean_Meta_Grind_Arith_mkSemiringThm___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_NameHashSet_insert_spec__1___redArg(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandPowAdd_declare__7___closed__4____x40_Lean_Meta_Tactic_Grind_Arith_Simproc___hyg_1168_;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Simproc_0____regBuiltin_Lean_Meta_Grind_Arith_expandDiv_declare__18___closed__6____x40_Lean_Meta_Tactic_Grind_Arith_Simproc___hyg_1955_;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -3988,7 +3988,7 @@ x_17 = 1;
 x_18 = lean_usize_sub(x_16, x_17);
 x_19 = lean_usize_land(x_15, x_18);
 x_20 = lean_array_uget(x_6, x_19);
-x_21 = l_Std_DHashMap_Internal_AssocList_contains___at_____private_Std_Data_DTreeMap_Internal_Lemmas_0__Std_DTreeMap_Internal_Impl_modifyMap_spec__0___redArg(x_3, x_20);
+x_21 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_NameHashSet_insert_spec__0___redArg(x_3, x_20);
 if (x_21 == 0)
 {
 uint8_t x_22; 
@@ -4022,7 +4022,7 @@ lean_dec(x_33);
 if (x_35 == 0)
 {
 lean_object* x_36; 
-x_36 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_____private_Std_Data_DTreeMap_Internal_Lemmas_0__Std_DTreeMap_Internal_Impl_modifyMap_spec__1___redArg(x_29);
+x_36 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_NameHashSet_insert_spec__1___redArg(x_29);
 lean_ctor_set(x_1, 1, x_36);
 lean_ctor_set(x_1, 0, x_27);
 x_2 = x_4;
@@ -4062,7 +4062,7 @@ lean_dec(x_47);
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; 
-x_50 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_____private_Std_Data_DTreeMap_Internal_Lemmas_0__Std_DTreeMap_Internal_Impl_modifyMap_spec__1___redArg(x_43);
+x_50 = l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_NameHashSet_insert_spec__1___redArg(x_43);
 x_51 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_51, 0, x_41);
 lean_ctor_set(x_51, 1, x_50);
@@ -4497,7 +4497,7 @@ x_17 = lean_usize_sub(x_15, x_16);
 x_18 = lean_usize_land(x_14, x_17);
 x_19 = lean_array_uget(x_5, x_18);
 lean_dec_ref(x_5);
-x_20 = l_Std_DHashMap_Internal_AssocList_contains___at_____private_Std_Data_DTreeMap_Internal_Lemmas_0__Std_DTreeMap_Internal_Impl_modifyMap_spec__0___redArg(x_3, x_19);
+x_20 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_NameHashSet_insert_spec__0___redArg(x_3, x_19);
 lean_dec(x_19);
 lean_dec(x_3);
 return x_20;

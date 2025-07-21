@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.GoTo
-// Imports: Lean.Data.Json.FromToJson Lean.Util.Path Lean.Server.Utils
+// Imports: Lean.Data.Json.FromToJson.Basic Lean.Util.Path Lean.Server.Utils
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -56,7 +56,7 @@ static lean_object* l_Lean_Server_instFromJsonGoToKind___closed__0;
 static lean_object* l_Lean_Server_toJsonGoToKind___closed__4____x40_Lean_Server_GoTo___hyg_28_;
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_noConfusion___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_fromJsonGoToKind___closed__2____x40_Lean_Server_GoTo___hyg_67_;
-lean_object* l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_noConfusion___redArg___lam__0(lean_object*);
 static lean_object* l_Lean_Server_toJsonGoToKind___closed__0____x40_Lean_Server_GoTo___hyg_28_;
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksFromDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -648,7 +648,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
 x_11 = lean_ctor_get(x_9, 0);
-x_12 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_11, x_1);
+x_12 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_11, x_1);
 lean_dec(x_11);
 lean_ctor_set(x_9, 0, x_12);
 return x_9;
@@ -661,7 +661,7 @@ x_14 = lean_ctor_get(x_9, 1);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_dec(x_9);
-x_15 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_13, x_1);
+x_15 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_13, x_1);
 lean_dec(x_13);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
@@ -1334,7 +1334,7 @@ lean_dec_ref(x_4);
 return x_9;
 }
 }
-lean_object* initialize_Lean_Data_Json_FromToJson(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Json_FromToJson_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Path(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Utils(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1342,7 +1342,7 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_GoTo(uint8_t builtin, lean_objec
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_Json_FromToJson(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Json_FromToJson_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_Path(builtin, lean_io_mk_world());

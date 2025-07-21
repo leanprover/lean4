@@ -4006,6 +4006,7 @@ lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
 lean_dec_ref(x_12);
+lean_dec_ref(x_36);
 return x_38;
 }
 else

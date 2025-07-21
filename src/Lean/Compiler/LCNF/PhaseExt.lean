@@ -8,20 +8,8 @@ import Lean.Compiler.LCNF.PassManager
 
 namespace Lean.Compiler.LCNF
 
-/-- Modifiers adjusting export behavior of compiler declarations for `import`. -/
-inductive DeclVisibility where
-  /-- Do not export. -/
-  | «private»
-  /-- Export signature only, as `opaque` extern. -/
-  | «opaque»
-  /-- Export full LCNF, IR signatures. -/
-  | transparent
-deriving Inhabited, BEq, Repr, Ord
-
-instance : LE DeclVisibility := leOfOrd
-
-/-- Visibility of local declarations, not persisted. -/
-private builtin_initialize declVisibilityExt : EnvExtension (List Name × NameMap DeclVisibility) ←
+/-- Creates a replayable local environment extension holding a name set. -/
+private def mkDeclSetExt : IO (EnvExtension (List Name × NameSet)) :=
   registerEnvExtension
     (mkInitial := pure ([], {}))
     (asyncMode := .sync)
@@ -31,23 +19,63 @@ private builtin_initialize declVisibilityExt : EnvExtension (List Name × NameMa
         if s.1.contains n then
           s
         else
-          (n :: s.1, s.2.insert n (newState.2.find? n).get!))
+          (n :: s.1, if newState.2.contains n then s.2.insert n else s.2))
 
-def getDeclVisibility (env : Environment) (declName : Name) : DeclVisibility :=
+/--
+Set of declarations to be exported to other modules; visibility shared by base/mono/IR phases.
+-/
+private builtin_initialize publicDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+
+-- The following extensions are per-phase as e.g. a declaration may be inlineable in the mono phase
+-- because it directly unfolds to a `_redArg` call, but making its body in the base phase available
+-- as well may lead to opportunistic inlining there, exposing references to declarations that we did
+-- not export, leading to compilation errors. Ensuring those declarations are exported as well would
+-- be possible, but would mean more information than intended is exported, potentially leading to
+-- surprising rebuilds.
+
+/--
+Set of public declarations whose base bodies should be exported to other modules
+-/
+private builtin_initialize baseTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+/--
+Set of public declarations whose mono bodies should be exported to other modules
+-/
+private builtin_initialize monoTransparentDeclsExt : EnvExtension (List Name × NameSet) ← mkDeclSetExt
+
+private def getTransparencyExt : Phase → EnvExtension (List Name × NameSet)
+  | .base => baseTransparentDeclsExt
+  | .mono => monoTransparentDeclsExt
+
+def isDeclPublic (env : Environment) (declName : Name) : Bool := Id.run do
+  if !env.header.isModule then
+    return true
   -- The IR compiler may call the boxed variant it introduces after we do visibility inference, so
   -- use same visibility as base decl.
   let inferFor := match declName with
     | .str n "_boxed" => n
     | n               => n
-  declVisibilityExt.getState env |>.2.find? inferFor
-    |>.getD (if env.header.isModule then .private else .transparent)
+  let (_, map) := publicDeclsExt.getState env
+  map.contains inferFor
 
-def bumpDeclVisibility (env : Environment) (declName : Name) (visibility : DeclVisibility) : Environment :=
-  if getDeclVisibility env declName ≥ visibility then
+def setDeclPublic (env : Environment) (declName : Name) : Environment :=
+  if isDeclPublic env declName then
     env
   else
-    declVisibilityExt.modifyState env fun s =>
-      (declName :: s.1, s.2.insert declName visibility)
+    publicDeclsExt.modifyState env fun s =>
+      (declName :: s.1, s.2.insert declName)
+
+def isDeclTransparent (env : Environment) (phase : Phase) (declName : Name) : Bool := Id.run do
+  if !env.header.isModule then
+    return true
+  let (_, map) := getTransparencyExt phase |>.getState env
+  map.contains declName
+
+def setDeclTransparent (env : Environment) (phase : Phase) (declName : Name) : Environment :=
+  if isDeclTransparent env phase declName then
+    env
+  else
+    getTransparencyExt phase |>.modifyState env fun s =>
+      (declName :: s.1, s.2.insert declName)
 
 abbrev DeclExtState := PHashMap Name Decl
 
@@ -68,7 +96,7 @@ def DeclExt := PersistentEnvExtension Decl Decl DeclExtState
 instance : Inhabited DeclExt :=
   inferInstanceAs (Inhabited (PersistentEnvExtension Decl Decl DeclExtState))
 
-def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt :=
+def mkDeclExt (phase : Phase) (name : Name := by exact decl_name%) : IO DeclExt :=
   registerPersistentEnvExtension {
     name,
     mkInitial := pure {},
@@ -77,12 +105,12 @@ def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt :=
     exportEntriesFnEx env s level := Id.run do
       let mut entries := sortedDecls s
       if level != .private then
-        entries := entries.filterMap fun decl =>
-          match getDeclVisibility env decl.name with
-          | .private => none
-          | .opaque => some { decl with
-            value := .extern { arity? := decl.getArity, entries := [.opaque decl.name] } }
-          | _ => some decl
+        entries := entries.filterMap fun decl => do
+          guard <| isDeclPublic env decl.name
+          if isDeclTransparent env phase decl.name then
+            some decl
+          else
+            some { decl with value := .extern { arity? := decl.getArity, entries := [.opaque decl.name] } }
       return entries
     statsFn := fun s =>
       let numEntries := s.foldl (init := 0) (fun count _ _ => count + 1)
@@ -96,8 +124,8 @@ def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt :=
           otherState.insert k v
   }
 
-builtin_initialize baseExt : DeclExt ← mkDeclExt
-builtin_initialize monoExt : DeclExt ← mkDeclExt
+builtin_initialize baseExt : DeclExt ← mkDeclExt .base
+builtin_initialize monoExt : DeclExt ← mkDeclExt .mono
 
 def getDeclCore? (env : Environment) (ext : DeclExt) (declName : Name) : Option Decl :=
   match env.getModuleIdxFor? declName with
@@ -134,6 +162,11 @@ def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option Decl) :=
 
 def getDecl? (declName : Name) : CompilerM (Option Decl) := do
   getDeclAt? declName (← getPhase)
+
+def getLocalDecl? (declName : Name) : CompilerM (Option Decl) := do
+  match (← getPhase) with
+  | .base => return baseExt.getState (← getEnv) |>.find? declName
+  | .mono => return monoExt.getState (← getEnv) |>.find? declName
 
 def getExt (phase : Phase) : DeclExt :=
   match phase with

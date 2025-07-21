@@ -13,7 +13,6 @@ import Lean.Compiler.ExportAttr
 import Lean.Compiler.LCNF.PhaseExt
 
 namespace Lean.IR
-open Compiler.LCNF (getDeclVisibility)
 
 inductive LogEntry where
   | step (cls : Name) (decls : Array Decl)
@@ -125,7 +124,7 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
         entries.filterMap fun d => do
           if isDeclMeta env d.name then
             return d
-          guard <| getDeclVisibility env d.name != .private
+          guard <| Compiler.LCNF.isDeclPublic env d.name
           -- Bodies of imported IR decls are not relevant for codegen, only interpretation
           match d with
           | .fdecl f xs ty b info =>
@@ -214,7 +213,7 @@ def getSorryDep (env : Environment) (declName : Name) : Option Name :=
 private def getIRExtraConstNames (env : Environment) (level : OLeanLevel) : Array Name :=
   declMapExt.getEntries env |>.toArray.map (·.name)
     |>.filter fun n => !env.contains n &&
-      (level == .private || getDeclVisibility env n != .private || isDeclMeta env n)
+      (level == .private || Compiler.LCNF.isDeclPublic env n || isDeclMeta env n)
 
 end IR
 end Lean

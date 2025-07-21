@@ -32,7 +32,7 @@ private def isBodyRelevant (decl : Decl) : CompilerM Bool := do
   decl.isTemplateLike
     -- <||> decl.value.isCodeAndM (pure <| ·.sizeLe (compiler.small.get opts))
 
-partial def inferVisibility (decls : Array Decl) : CompilerM Unit := do
+partial def inferVisibility (phase : Phase) (decls : Array Decl) : CompilerM Unit := do
   if !(← getEnv).header.isModule then
     return
   -- We want to visit closed term decls as well but they are not found by `getDecl`, so make sure to
@@ -41,23 +41,22 @@ partial def inferVisibility (decls : Array Decl) : CompilerM Unit := do
   for decl in decls do
     if `_at_ ∈ decl.name.components then  -- TODO: don't?
       trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is a specialization"
-      markOpaque locals decl
+      markPublic locals decl
     else if (← getEnv).setExporting true |>.contains decl.name then
       trace[Compiler.inferVisibility] m!"Marking {decl.name} as opaque because it is a public def"
-      markOpaque locals decl
+      markPublic locals decl
 where
-  markOpaque (locals : NameMap Decl) (decl : Decl) : CompilerM Unit := do
-    if (← isBodyRelevant decl) then
+  markPublic (locals : NameMap Decl) (decl : Decl) : CompilerM Unit := do
+    modifyEnv (setDeclPublic · decl.name)
+    if (← isBodyRelevant decl) && !isDeclTransparent (← getEnv) phase decl.name then
       trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is opaque and its body looks relevant"
-      modifyEnv (bumpDeclVisibility · decl.name .transparent)
+      modifyEnv (setDeclTransparent · phase decl.name)
       decl.value.forCodeM fun code =>
         for ref in collectUsedDecls code do
-          if let some refDecl ← pure (locals.find? ref) <||> getDecl? ref then
-            if getDeclVisibility (← getEnv) ref == .private then
+          if let some refDecl ← pure (locals.find? ref) <||> getLocalDecl? ref then
+            if !isDeclPublic (← getEnv) ref then
               trace[Compiler.inferVisibility] m!"Marking {ref} as opaque because it is used by transparent {decl.name}"
-              markOpaque locals refDecl
-    else
-      modifyEnv (bumpDeclVisibility · decl.name .opaque)
+              markPublic locals refDecl
 
 builtin_initialize
   registerTraceClass `Compiler.inferVisibility

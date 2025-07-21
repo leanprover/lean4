@@ -37,10 +37,10 @@ theorem go_denote_eq {w fuel: Nat} (aig : AIG α)
     (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
     (hacc : ∀ (idx : Nat) (hidx : idx < w),
-      if fuel = 0 then ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ofNat w curr).getLsbD idx
+      if curr = 0 then ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ofNat w w).getLsbD idx
       else
-        if x = 0#w then ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ofNat w curr).getLsbD idx
-        else ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.popCountAuxRec (x &&& (x - 1)) (curr + 1) (fuel - 1)).getLsbD idx)
+        if x = 0#w then ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ofNat w (w - curr)).getLsbD idx
+        else ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.popCountAuxRec (x &&& (x - 1)) (curr - 1)).getLsbD idx)
     :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
@@ -49,7 +49,7 @@ theorem go_denote_eq {w fuel: Nat} (aig : AIG α)
           assign
         ⟧
           =
-        (BitVec.popCountAuxRec x 0 w).getLsbD idx := by
+        (BitVec.popCountAuxRec x w).getLsbD idx := by
     intro idx hidx
     generalize hgo: go aig xc curr acc = res
     unfold go at hgo
@@ -63,8 +63,9 @@ theorem go_denote_eq {w fuel: Nat} (aig : AIG α)
         · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
           · rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkEq)]
             · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastSub)]
-              · sorry
               ·
+                sorry
+              · apply LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
 
                 sorry
             · simp [Ref.hgate]
@@ -79,6 +80,9 @@ theorem go_denote_eq {w fuel: Nat} (aig : AIG α)
         sorry
     · case isFalse h =>
       rw [← hgo]
+      simp [show curr = 0 by omega] at hacc
+      simp [hacc]
+
       sorry
 
 end blastPopCount
@@ -90,7 +94,7 @@ theorem denote_blastPopCount (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (
       ∀ (idx : Nat) (hidx : idx < w),
         ⟦(blastPopCount aig xc).aig, (blastPopCount aig xc).vec.get idx hidx, assign⟧
           =
-        (BitVec.popCountAuxRec x 0 w).getLsbD idx := by
+        (BitVec.popCountAuxRec x w).getLsbD idx := by
   sorry
 
 end bitblast

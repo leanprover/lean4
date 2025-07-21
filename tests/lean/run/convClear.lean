@@ -9,16 +9,16 @@ proof state).
 /- Test basic `clear` functionality: that it correctly removes hypotheses, that removals persist
    after focusing a subterm, and that removals do not propagate beyond the `conv` block -/
 /--
-info: α : Type
+trace: α : Type
 x y z : α
 h₂ : y = z
 | x = y ∧ y = z
 ---
-info: α : Type
+trace: α : Type
 x y z : α
 | x = y
 ---
-info: α : Type
+trace: α : Type
 x y z : α
 h₁ : x = y
 h₂ : y = z
@@ -37,24 +37,24 @@ example (α : Type) (x y z : α) (h₁ : x = y) (h₂ : y = z) : x = y ∧ y = z
 
 /- Ensure `clear` behaves correctly when nesting `conv` blocks -/
 /--
-info: α : Type
+trace: α : Type
 w x y z : α
 h₁ : x = y
 h₂ : y = z
 | y = z
 ---
-info: α : Type
+trace: α : Type
 w x y z : α
 h₂ : y = z
 | y
 ---
-info: α : Type
+trace: α : Type
 w x y z : α
 h₁ : x = y
 h₂ : y = z
 | y = z
 ---
-info: α : Type
+trace: α : Type
 w x y z : α
 h₂ : y = z
 | y = z
@@ -78,12 +78,12 @@ example (α : Type) (w x y z : α) (h₀ : z = w) (h₁ : x = y) (h₂ : y = z) 
 /- Ensure `clear` correctly handles multiple arguments, including by removing them in the correct
    order -/
 /--
-info: α : Type
+trace: α : Type
 y z : α
 h₂ : y = z
 | y = z
 ---
-info: α : Type
+trace: α : Type
 z : α
 | z
 -/
@@ -132,11 +132,11 @@ example (y x : Nat) : x = 2 := by
 
 /- Ensure `clear` interacts correctly with/leaves goals in a usable state for other `conv` tactics -/
 /--
-info: y : Nat
+trace: y : Nat
 h₂ : y = 3
 | 2 + y
 ---
-info: | 2 + 3
+trace: | 2 + 3
 -/
 #guard_msgs in
 example (x y : Nat) (h₁ : x = 2) (h₂ : y = 3) : 2 * (x + y) = 10 := by

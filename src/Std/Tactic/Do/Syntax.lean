@@ -90,6 +90,22 @@ syntax (name := mstart) "mstart" : tactic
 @[inherit_doc Lean.Parser.Tactic.mstopMacro]
 syntax (name := mstop) "mstop" : tactic
 
+@[inherit_doc Lean.Parser.Tactic.mleaveMacro]
+macro (name := mleave) "mleave" : tactic =>
+  `(tactic| (try simp only [
+              $(mkIdent ``Std.Do.SPred.entails_cons):term,
+              $(mkIdent ``Std.Do.SPred.entails_nil):term,
+              $(mkIdent ``Std.Do.SPred.and_cons):term,
+              $(mkIdent ``Std.Do.SPred.and_nil):term,
+              $(mkIdent ``Std.Do.SVal.curry_cons):term,
+              $(mkIdent ``Std.Do.SVal.curry_nil):term,
+              $(mkIdent ``Std.Do.SVal.uncurry_cons):term,
+              $(mkIdent ``Std.Do.SVal.uncurry_nil):term,
+              $(mkIdent ``Std.Do.SVal.getThe_here):term,
+              $(mkIdent ``Std.Do.SVal.getThe_there):term,
+              $(mkIdent ``and_imp):term,
+              $(mkIdent ``true_implies):term]))
+
 declare_syntax_cat mcasesPat
 syntax mcasesPatAlts := sepBy1(mcasesPat, " | ")
 syntax binderIdent : mcasesPat

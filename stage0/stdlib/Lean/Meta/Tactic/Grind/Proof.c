@@ -6878,7 +6878,7 @@ goto block_36;
 }
 else
 {
-lean_object* x_60; lean_object* x_61; uint8_t x_62; uint8_t x_63; uint8_t x_82; lean_object* x_83; uint8_t x_84; uint8_t x_109; uint8_t x_119; 
+lean_object* x_60; uint8_t x_61; lean_object* x_62; uint8_t x_63; uint8_t x_82; lean_object* x_83; uint8_t x_84; uint8_t x_109; uint8_t x_119; 
 x_60 = l_Lean_Expr_constLevels_x21(x_46);
 lean_dec_ref(x_46);
 x_119 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_45, x_57);
@@ -6926,7 +6926,7 @@ lean_dec_ref(x_45);
 lean_dec_ref(x_42);
 lean_dec_ref(x_39);
 x_64 = l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkEqCongrProof___closed__4;
-x_65 = l_panic___at_____private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_findCommon_spec__3(x_64, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_61);
+x_65 = l_panic___at_____private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_findCommon_spec__3(x_64, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_62);
 return x_65;
 }
 else
@@ -6942,7 +6942,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc_ref(x_51);
 lean_inc_ref(x_42);
-x_66 = l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkEqProofCore(x_42, x_51, x_62, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_61);
+x_66 = l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkEqProofCore(x_42, x_51, x_61, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_62);
 if (lean_obj_tag(x_66) == 0)
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; 
@@ -6953,7 +6953,7 @@ lean_inc(x_68);
 lean_dec_ref(x_66);
 lean_inc_ref(x_54);
 lean_inc_ref(x_39);
-x_69 = l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkEqProofCore(x_39, x_54, x_62, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_68);
+x_69 = l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkEqProofCore(x_39, x_54, x_61, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_68);
 if (lean_obj_tag(x_69) == 0)
 {
 uint8_t x_70; 
@@ -7040,8 +7040,8 @@ x_91 = l_Lean_Meta_Grind_Goal_hasSameRoot(x_86, x_42, x_51);
 if (x_91 == 0)
 {
 lean_dec(x_89);
-x_61 = x_90;
-x_62 = x_84;
+x_61 = x_84;
+x_62 = x_90;
 x_63 = x_91;
 goto block_81;
 }
@@ -7051,8 +7051,8 @@ uint8_t x_92;
 lean_inc_ref(x_54);
 lean_inc_ref(x_39);
 x_92 = l_Lean_Meta_Grind_Goal_hasSameRoot(x_89, x_39, x_54);
-x_61 = x_90;
-x_62 = x_84;
+x_61 = x_84;
+x_62 = x_90;
 x_63 = x_92;
 goto block_81;
 }

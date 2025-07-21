@@ -731,6 +731,7 @@ lean_dec_ref(x_32);
 x_34 = lean_array_get_size(x_33);
 x_35 = l_Array_toSubarray___redArg(x_33, x_17, x_34);
 x_36 = l_Array_ofSubarray___redArg(x_35);
+lean_dec_ref(x_35);
 x_37 = 0;
 x_38 = 1;
 x_39 = 1;

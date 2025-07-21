@@ -967,6 +967,7 @@ block_13:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_6 = l_Array_toSubarray___redArg(x_3, x_4, x_5);
 x_7 = l_Array_ofSubarray___redArg(x_6);
+lean_dec_ref(x_6);
 x_8 = l_Lean_Elab_Term_withNarrowedArgTacticReuse___at___Lean_Elab_Tactic_evalClassical_spec__0___redArg___lam__0___closed__1;
 x_9 = lean_box(2);
 x_10 = lean_alloc_ctor(1, 3, 0);

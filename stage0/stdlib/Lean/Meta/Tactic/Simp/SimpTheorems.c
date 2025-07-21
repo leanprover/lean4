@@ -341,6 +341,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_isRflTheorem(lean_object*, lean_object*, le
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at_____private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_eraseIfExists_spec__0_spec__0(lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_preprocessProof(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_addSimpTheorem___closed__4;
+static lean_object* l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__3;
 static lean_object* l_Lean_Meta_reprOrigin___closed__8____x40_Lean_Meta_Tactic_Simp_SimpTheorems___hyg_177_;
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isProjectionFn___at___Lean_Meta_Simp_ignoreEquations_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -394,6 +395,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at___Lean_Persisten
 static lean_object* l___auto___closed__13____x40_Lean_Meta_Tactic_Simp_SimpTheorems___hyg_6935_;
 lean_object* l_Lean_getConstVal___at_____private_Lean_Meta_InferType_0__Lean_Meta_inferConstType_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at_____private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_eraseIfExists_spec__0_spec__0___redArg___closed__0;
+static lean_object* l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__2;
 static lean_object* l_Lean_Meta_reprOrigin___closed__9____x40_Lean_Meta_Tactic_Simp_SimpTheorems___hyg_177_;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_preprocess_go___closed__5;
@@ -1818,7 +1820,7 @@ static lean_object* _init_l_Lean_getAsyncConstInfo___at_____private_Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
+x_1 = lean_mk_string_unchecked("Unknown constant `", 18, 18);
 return x_1;
 }
 }
@@ -1835,7 +1837,7 @@ static lean_object* _init_l_Lean_getAsyncConstInfo___at_____private_Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -2353,7 +2355,7 @@ x_7 = l_Lean_Name_toString(x_5, x_6, x_1);
 x_8 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 x_9 = l_Lean_Meta_instToFormatSimpTheorem___lam__1___closed__1;
-x_10 = l_Nat_reprFast(x_3);
+x_10 = l_Nat_reprFast(x_4);
 x_11 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 x_12 = lean_alloc_ctor(5, 2, 0);
@@ -2367,7 +2369,7 @@ x_15 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_15, 0, x_8);
 lean_ctor_set(x_15, 1, x_14);
 x_16 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_16, 0, x_4);
+lean_ctor_set(x_16, 0, x_3);
 x_17 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
@@ -2379,8 +2381,8 @@ lean_object* x_23;
 x_23 = lean_ctor_get(x_21, 0);
 lean_inc(x_23);
 lean_dec_ref(x_21);
-x_3 = x_19;
-x_4 = x_22;
+x_3 = x_22;
+x_4 = x_19;
 x_5 = x_23;
 goto block_18;
 }
@@ -13068,7 +13070,7 @@ static lean_object* _init_l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' does not have [simp] attribute", 32, 32);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -13081,11 +13083,28 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("' does not have [simp] attribute", 32, 32);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__2;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_SimpTheorems_erase___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_18; 
-x_9 = l_Lean_getAsyncConstInfo___at_____private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_isRflTheoremCore_spec__0___closed__3;
+x_9 = l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__1;
 x_18 = lean_ctor_get(x_7, 0);
 lean_inc(x_18);
 lean_dec_ref(x_7);
@@ -13098,7 +13117,7 @@ x_11 = l_Lean_MessageData_ofName(x_10);
 x_12 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_12, 0, x_9);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__1;
+x_13 = l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__3;
 x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
@@ -16157,6 +16176,10 @@ l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__0 = _init_l_Lean_Meta
 lean_mark_persistent(l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__0);
 l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__1 = _init_l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__1);
+l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__2 = _init_l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__2();
+lean_mark_persistent(l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__2);
+l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__3 = _init_l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__3();
+lean_mark_persistent(l_Lean_Meta_SimpTheorems_erase___redArg___lam__1___closed__3);
 l_Lean_Meta_addSimpTheorem___closed__0 = _init_l_Lean_Meta_addSimpTheorem___closed__0();
 lean_mark_persistent(l_Lean_Meta_addSimpTheorem___closed__0);
 l_Lean_Meta_addSimpTheorem___closed__1 = _init_l_Lean_Meta_addSimpTheorem___closed__1();

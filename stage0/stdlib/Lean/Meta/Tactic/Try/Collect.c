@@ -3228,7 +3228,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___Lean_Meta_Try_Collector_che
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
+x_1 = lean_mk_string_unchecked("Unknown constant `", 18, 18);
 return x_1;
 }
 }
@@ -3245,7 +3245,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___Lean_Meta_Try_Collector_che
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -3360,15 +3360,15 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint
 x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
 lean_ctor_set(x_19, 1, x_17);
-x_20 = lean_array_push(x_13, x_19);
+x_20 = lean_array_push(x_15, x_19);
 x_21 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_21, 0, x_16);
-lean_ctor_set(x_21, 1, x_15);
-lean_ctor_set(x_21, 2, x_12);
-lean_ctor_set(x_21, 3, x_9);
+lean_ctor_set(x_21, 0, x_14);
+lean_ctor_set(x_21, 1, x_9);
+lean_ctor_set(x_21, 2, x_13);
+lean_ctor_set(x_21, 3, x_12);
 lean_ctor_set(x_21, 4, x_20);
-lean_ctor_set(x_21, 5, x_11);
-x_22 = lean_st_ref_set(x_3, x_21, x_14);
+lean_ctor_set(x_21, 5, x_16);
+x_22 = lean_st_ref_set(x_3, x_21, x_11);
 x_23 = !lean_is_exclusive(x_22);
 if (x_23 == 0)
 {
@@ -3507,14 +3507,14 @@ x_60 = lean_box(0);
 x_61 = lean_ctor_get(x_1, 1);
 lean_inc(x_61);
 lean_dec_ref(x_1);
-x_9 = x_57;
+x_9 = x_55;
 x_10 = x_60;
-x_11 = x_59;
-x_12 = x_56;
-x_13 = x_58;
-x_14 = x_53;
-x_15 = x_55;
-x_16 = x_54;
+x_11 = x_53;
+x_12 = x_57;
+x_13 = x_56;
+x_14 = x_54;
+x_15 = x_58;
+x_16 = x_59;
 x_17 = x_36;
 x_18 = x_61;
 goto block_27;

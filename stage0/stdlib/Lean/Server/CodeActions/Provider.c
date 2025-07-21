@@ -2017,11 +2017,11 @@ goto block_19;
 block_15:
 {
 lean_object* x_12; lean_object* x_13; 
-x_12 = l_Lean_CodeAction_findTactic_x3f_merge(x_1, x_11);
-lean_dec_ref(x_11);
+x_12 = l_Lean_CodeAction_findTactic_x3f_merge(x_1, x_10);
+lean_dec_ref(x_10);
 x_13 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
-x_8 = x_10;
+x_8 = x_11;
 x_9 = x_13;
 goto _start;
 }
@@ -2029,8 +2029,8 @@ block_19:
 {
 if (lean_obj_tag(x_9) == 0)
 {
-x_10 = x_16;
-x_11 = x_17;
+x_10 = x_17;
+x_11 = x_16;
 goto block_15;
 }
 else
@@ -2038,8 +2038,8 @@ else
 lean_dec(x_9);
 if (x_2 == 0)
 {
-x_10 = x_16;
-x_11 = x_17;
+x_10 = x_17;
+x_11 = x_16;
 goto block_15;
 }
 else
@@ -2442,21 +2442,21 @@ return x_35;
 block_49:
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
-lean_inc(x_42);
+lean_inc(x_41);
 x_45 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_45, 0, x_42);
+lean_ctor_set(x_45, 0, x_41);
 lean_ctor_set(x_45, 1, x_25);
 lean_inc(x_43);
 x_46 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_46, 0, x_45);
 lean_ctor_set(x_46, 1, x_43);
 x_47 = lean_alloc_ctor(1, 2, 1);
-lean_ctor_set(x_47, 0, x_41);
+lean_ctor_set(x_47, 0, x_42);
 lean_ctor_set(x_47, 1, x_46);
 lean_ctor_set_uint8(x_47, sizeof(void*)*2, x_44);
 x_48 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_48, 0, x_47);
-x_26 = x_42;
+x_26 = x_41;
 x_27 = x_43;
 x_28 = x_48;
 goto block_40;
@@ -2469,8 +2469,8 @@ lean_object* x_58; uint8_t x_59;
 lean_inc(x_1);
 x_58 = lean_apply_1(x_1, x_54);
 x_59 = lean_unbox(x_58);
-x_41 = x_57;
-x_42 = x_55;
+x_41 = x_55;
+x_42 = x_57;
 x_43 = x_56;
 x_44 = x_59;
 goto block_49;
@@ -2478,8 +2478,8 @@ goto block_49;
 else
 {
 lean_dec(x_54);
-x_41 = x_57;
-x_42 = x_55;
+x_41 = x_55;
+x_42 = x_57;
 x_43 = x_56;
 x_44 = x_9;
 goto block_49;
@@ -2489,12 +2489,12 @@ block_68:
 {
 lean_object* x_65; lean_object* x_66; lean_object* x_67; 
 x_65 = lean_unsigned_to_nat(1u);
-x_66 = lean_nat_add(x_63, x_65);
-lean_dec(x_63);
+x_66 = lean_nat_add(x_61, x_65);
+lean_dec(x_61);
 x_67 = lean_nat_shiftr(x_66, x_65);
 lean_dec(x_66);
 x_54 = x_62;
-x_55 = x_61;
+x_55 = x_63;
 x_56 = x_64;
 x_57 = x_67;
 goto block_60;
@@ -2542,9 +2542,9 @@ x_80 = l_Lean_Syntax_getNumArgs(x_74);
 x_81 = lean_nat_dec_lt(x_25, x_80);
 if (x_81 == 0)
 {
-x_61 = x_74;
+x_61 = x_80;
 x_62 = x_79;
-x_63 = x_80;
+x_63 = x_74;
 x_64 = x_73;
 goto block_68;
 }
@@ -2560,9 +2560,9 @@ lean_inc(x_85);
 lean_dec_ref(x_84);
 if (lean_obj_tag(x_85) == 0)
 {
-x_61 = x_74;
+x_61 = x_80;
 x_62 = x_79;
-x_63 = x_80;
+x_63 = x_74;
 x_64 = x_73;
 goto block_68;
 }

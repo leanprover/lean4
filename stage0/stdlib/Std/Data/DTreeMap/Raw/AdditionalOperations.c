@@ -19,10 +19,10 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_filterMap___redArg(lean_object*, lea
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_map___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_filterMap___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_AdditionalOperations_0__instCoeTypeForall__std(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_instCoeTypeForall(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_filterMap_x21___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_map___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_AdditionalOperations_0__instCoeTypeForall__std(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_instCoeTypeForall(lean_object* x_1) {
 _start:
 {
 return lean_box(0);

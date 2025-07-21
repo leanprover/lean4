@@ -261,7 +261,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_____private_Lean_Compiler_LCN
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
+x_1 = lean_mk_string_unchecked("Unknown constant `", 18, 18);
 return x_1;
 }
 }
@@ -278,7 +278,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_____private_Lean_Compiler_LCN
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }

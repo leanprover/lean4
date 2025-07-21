@@ -372,7 +372,6 @@ lean_object* lean_io_mono_nanos_now(lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___redArg___lam__1___closed__4;
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__0;
 lean_object* lean_get_stdin(lean_object*);
-static lean_object* l_IO_FS_Handle_readBinToEnd___closed__0;
 LEAN_EXPORT lean_object* l_IO_FS_instBEqSystemTime;
 static lean_object* l_IO_FS_Stream_ofBuffer___lam__3___closed__1;
 lean_object* lean_io_prim_handle_is_tty(lean_object*, lean_object*);
@@ -5138,19 +5137,11 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_IO_FS_Handle_readBinToEnd___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_ByteArray_empty;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_IO_FS_Handle_readBinToEnd(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_IO_FS_Handle_readBinToEnd___closed__0;
+x_3 = l_ByteArray_empty;
 x_4 = l_IO_FS_Handle_readBinToEndInto_loop(x_1, x_3, x_2);
 return x_4;
 }
@@ -9850,8 +9841,8 @@ goto block_19;
 block_7:
 {
 uint32_t x_5; uint32_t x_6; 
-x_5 = lean_uint32_lor(x_2, x_4);
-x_6 = lean_uint32_lor(x_3, x_5);
+x_5 = lean_uint32_lor(x_3, x_4);
+x_6 = lean_uint32_lor(x_2, x_5);
 return x_6;
 }
 block_15:
@@ -9860,8 +9851,8 @@ if (x_10 == 0)
 {
 uint32_t x_13; 
 x_13 = 0;
-x_2 = x_12;
-x_3 = x_11;
+x_2 = x_11;
+x_3 = x_12;
 x_4 = x_13;
 goto block_7;
 }
@@ -9869,8 +9860,8 @@ else
 {
 uint32_t x_14; 
 x_14 = 1;
-x_2 = x_12;
-x_3 = x_11;
+x_2 = x_11;
+x_3 = x_12;
 x_4 = x_14;
 goto block_7;
 }
@@ -10787,7 +10778,7 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_readBinToEnd(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_IO_FS_Handle_readBinToEnd___closed__0;
+x_3 = l_ByteArray_empty;
 x_4 = l_IO_FS_Stream_readBinToEndInto_loop(x_1, x_3, x_2);
 return x_4;
 }
@@ -11298,7 +11289,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_IO_FS_Handle_readBinToEnd___closed__0;
+x_2 = l_ByteArray_empty;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -12326,8 +12317,6 @@ l_IO_FS_instInhabitedStream___closed__0 = _init_l_IO_FS_instInhabitedStream___cl
 lean_mark_persistent(l_IO_FS_instInhabitedStream___closed__0);
 l_IO_FS_instInhabitedStream = _init_l_IO_FS_instInhabitedStream();
 lean_mark_persistent(l_IO_FS_instInhabitedStream);
-l_IO_FS_Handle_readBinToEnd___closed__0 = _init_l_IO_FS_Handle_readBinToEnd___closed__0();
-lean_mark_persistent(l_IO_FS_Handle_readBinToEnd___closed__0);
 l_IO_FS_Handle_readToEnd___closed__0 = _init_l_IO_FS_Handle_readToEnd___closed__0();
 lean_mark_persistent(l_IO_FS_Handle_readToEnd___closed__0);
 l_IO_FS_Handle_readToEnd___closed__1 = _init_l_IO_FS_Handle_readToEnd___closed__1();

@@ -701,7 +701,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___redArg___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("tactic '", 8, 8);
+x_1 = lean_mk_string_unchecked("Tactic `", 8, 8);
 return x_1;
 }
 }
@@ -718,7 +718,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___redArg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' failed\n", 9, 9);
+x_1 = lean_mk_string_unchecked("` failed\n\n", 10, 10);
 return x_1;
 }
 }
@@ -752,7 +752,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___redArg___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' failed, ", 10, 10);
+x_1 = lean_mk_string_unchecked("` failed: ", 10, 10);
 return x_1;
 }
 }
@@ -769,7 +769,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___redArg___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\n", 1, 1);
+x_1 = lean_mk_string_unchecked("\n\n", 2, 2);
 return x_1;
 }
 }
@@ -917,7 +917,7 @@ static lean_object* _init_l_Lean_Meta_throwNestedTacticEx___redArg___closed__0()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' failed, nested error:\n", 24, 24);
+x_1 = lean_mk_string_unchecked("` failed with a nested error:\n", 30, 30);
 return x_1;
 }
 }

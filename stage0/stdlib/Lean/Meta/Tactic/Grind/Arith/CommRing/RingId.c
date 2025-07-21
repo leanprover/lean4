@@ -1256,23 +1256,23 @@ if (lean_is_scalar(x_34)) {
  x_224 = x_34;
  lean_ctor_set_tag(x_224, 7);
 }
-lean_ctor_set(x_224, 0, x_213);
+lean_ctor_set(x_224, 0, x_214);
 lean_ctor_set(x_224, 1, x_223);
 x_225 = l_Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f___closed__25;
 x_226 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_226, 0, x_224);
 lean_ctor_set(x_226, 1, x_225);
-x_227 = l_Lean_addTrace___at___Lean_Meta_Grind_updateLastTag_spec__1___redArg(x_30, x_226, x_220, x_212, x_218, x_217, x_214);
+x_227 = l_Lean_addTrace___at___Lean_Meta_Grind_updateLastTag_spec__1___redArg(x_30, x_226, x_213, x_216, x_218, x_219, x_215);
 x_228 = lean_ctor_get(x_227, 1);
 lean_inc(x_228);
 lean_dec_ref(x_227);
-x_44 = x_215;
-x_45 = x_219;
-x_46 = x_216;
-x_47 = x_220;
-x_48 = x_212;
+x_44 = x_217;
+x_45 = x_220;
+x_46 = x_212;
+x_47 = x_213;
+x_48 = x_216;
 x_49 = x_218;
-x_50 = x_217;
+x_50 = x_219;
 x_51 = x_228;
 goto block_211;
 }
@@ -1360,15 +1360,15 @@ if (lean_obj_tag(x_243) == 0)
 {
 lean_object* x_253; 
 x_253 = l_Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f___closed__28;
-x_212 = x_235;
-x_213 = x_252;
-x_214 = x_251;
-x_215 = x_243;
-x_216 = x_230;
-x_217 = x_237;
+x_212 = x_230;
+x_213 = x_234;
+x_214 = x_252;
+x_215 = x_251;
+x_216 = x_235;
+x_217 = x_243;
 x_218 = x_236;
-x_219 = x_240;
-x_220 = x_234;
+x_219 = x_237;
+x_220 = x_240;
 x_221 = x_253;
 goto block_229;
 }
@@ -1376,15 +1376,15 @@ else
 {
 lean_object* x_254; 
 x_254 = l_Lean_Meta_Grind_Arith_CommRing_getRingId_x3f_go_x3f___closed__29;
-x_212 = x_235;
-x_213 = x_252;
-x_214 = x_251;
-x_215 = x_243;
-x_216 = x_230;
-x_217 = x_237;
+x_212 = x_230;
+x_213 = x_234;
+x_214 = x_252;
+x_215 = x_251;
+x_216 = x_235;
+x_217 = x_243;
 x_218 = x_236;
-x_219 = x_240;
-x_220 = x_234;
+x_219 = x_237;
+x_220 = x_240;
 x_221 = x_254;
 goto block_229;
 }

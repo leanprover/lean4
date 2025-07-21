@@ -61,7 +61,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__5____x40_Lean_ReducibilityAttrs___hyg_186_(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__14____x40_Lean_ReducibilityAttrs___hyg_1413_;
-static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__41;
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_ReducibilityAttrs___hyg_645_;
 LEAN_EXPORT lean_object* l_Lean_reducibilityExtraExt;
 LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_toCtorIdx(uint8_t);
@@ -209,7 +208,6 @@ static lean_object* l_Lean_initFn___closed__2____x40_Lean_ReducibilityAttrs___hy
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_ReducibilityAttrs___hyg_1454_;
 LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_toAttrString___boxed(lean_object*);
-static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__40;
 static lean_object* l_Lean_initFn___closed__7____x40_Lean_ReducibilityAttrs___hyg_335_;
 static lean_object* l_Lean_initFn___lam__2___closed__0____x40_Lean_ReducibilityAttrs___hyg_186_;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
@@ -1923,7 +1921,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_____private_Lean_Reducibility
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
+x_1 = lean_mk_string_unchecked("Unknown constant `", 18, 18);
 return x_1;
 }
 }
@@ -1940,7 +1938,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_____private_Lean_Reducibility
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -2166,7 +2164,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`", 1, 1);
+x_1 = lean_mk_string_unchecked("failed to set `[semireducible]` for `", 37, 37);
 return x_1;
 }
 }
@@ -2183,7 +2181,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to set `[semireducible]` for `", 37, 37);
+x_1 = lean_mk_string_unchecked("`, declarations are `[semireducible]` by default", 48, 48);
 return x_1;
 }
 }
@@ -2200,7 +2198,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`, declarations are `[semireducible]` by default", 48, 48);
+x_1 = lean_mk_string_unchecked("failed to set `[irreducible]`, `", 32, 32);
 return x_1;
 }
 }
@@ -2217,7 +2215,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to set `[irreducible]`, `", 32, 32);
+x_1 = lean_mk_string_unchecked("failed to set `[local reducible]` for `", 39, 39);
 return x_1;
 }
 }
@@ -2234,7 +2232,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to set `[local reducible]` for `", 39, 39);
+x_1 = lean_mk_string_unchecked("`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution", 110, 110);
 return x_1;
 }
 }
@@ -2251,7 +2249,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution", 110, 110);
+x_1 = lean_mk_string_unchecked("failed to set `[local semireducible]`, `", 40, 40);
 return x_1;
 }
 }
@@ -2268,7 +2266,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to set `[local semireducible]`, `", 40, 40);
+x_1 = lean_mk_string_unchecked("` is currently `", 16, 16);
 return x_1;
 }
 }
@@ -2285,7 +2283,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("` is currently `", 16, 16);
+x_1 = lean_mk_string_unchecked("`, `[irreducible]` expected", 27, 27);
 return x_1;
 }
 }
@@ -2302,7 +2300,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`, `[irreducible]` expected", 27, 27);
+x_1 = lean_mk_string_unchecked("failed to set `[local irreducible]`, `", 38, 38);
 return x_1;
 }
 }
@@ -2319,7 +2317,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to set `[local irreducible]`, `", 38, 38);
+x_1 = lean_mk_string_unchecked("`, `[semireducible]` expected", 29, 29);
 return x_1;
 }
 }
@@ -2336,7 +2334,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`, `[semireducible]` expected", 29, 29);
+x_1 = lean_mk_string_unchecked("failed to set reducibility status for `", 39, 39);
 return x_1;
 }
 }
@@ -2353,7 +2351,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to set reducibility status for `", 39, 39);
+x_1 = lean_mk_string_unchecked("`, the `scoped` modifier is not recommended for this kind of attribute", 70, 70);
 return x_1;
 }
 }
@@ -2370,7 +2368,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`, the `scoped` modifier is not recommended for this kind of attribute", 70, 70);
+x_1 = lean_mk_string_unchecked("` is not a definition", 21, 21);
 return x_1;
 }
 }
@@ -2379,23 +2377,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__38;
-x_2 = l_Lean_stringToMessageData(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__40() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("` is not a definition", 21, 21);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__41() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__40;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -2511,7 +2492,7 @@ lean_dec_ref(x_57);
 x_59 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_59, 0, x_56);
 lean_ctor_set(x_59, 1, x_58);
-x_60 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__15;
+x_60 = l_Lean_getConstInfo___at_____private_Lean_ReducibilityAttrs_0__Lean_validate_spec__0___closed__3;
 x_61 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_61, 0, x_59);
 lean_ctor_set(x_61, 1, x_60);
@@ -2536,12 +2517,12 @@ goto block_14;
 case 1:
 {
 lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; 
-x_66 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__17;
+x_66 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__15;
 x_67 = l_Lean_MessageData_ofName(x_1);
 x_68 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_68, 0, x_66);
 lean_ctor_set(x_68, 1, x_67);
-x_69 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__19;
+x_69 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__17;
 x_70 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_70, 0, x_68);
 lean_ctor_set(x_70, 1, x_69);
@@ -2571,7 +2552,7 @@ lean_dec(x_75);
 if (x_17 == 0)
 {
 lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; 
-x_76 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__21;
+x_76 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__19;
 x_77 = l_Lean_MessageData_ofName(x_1);
 x_78 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_78, 0, x_76);
@@ -2586,7 +2567,7 @@ lean_dec_ref(x_81);
 x_83 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_83, 0, x_80);
 lean_ctor_set(x_83, 1, x_82);
-x_84 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__15;
+x_84 = l_Lean_getConstInfo___at_____private_Lean_ReducibilityAttrs_0__Lean_validate_spec__0___closed__3;
 x_85 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_85, 0, x_83);
 lean_ctor_set(x_85, 1, x_84);
@@ -2656,12 +2637,12 @@ case 0:
 lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; 
 lean_dec(x_26);
 lean_dec(x_21);
-x_90 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__23;
+x_90 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__21;
 x_91 = l_Lean_MessageData_ofName(x_1);
 x_92 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_92, 0, x_90);
 lean_ctor_set(x_92, 1, x_91);
-x_93 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__25;
+x_93 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__23;
 x_94 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_94, 0, x_92);
 lean_ctor_set(x_94, 1, x_93);
@@ -2692,12 +2673,12 @@ if (x_17 == 0)
 {
 lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; 
 lean_dec(x_26);
-x_100 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__27;
+x_100 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__25;
 x_101 = l_Lean_MessageData_ofName(x_1);
 x_102 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_102, 0, x_100);
 lean_ctor_set(x_102, 1, x_101);
-x_103 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__29;
+x_103 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__27;
 x_104 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_104, 0, x_102);
 lean_ctor_set(x_104, 1, x_103);
@@ -2707,7 +2688,7 @@ lean_dec_ref(x_105);
 x_107 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_107, 0, x_104);
 lean_ctor_set(x_107, 1, x_106);
-x_108 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__31;
+x_108 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__29;
 x_109 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_109, 0, x_107);
 lean_ctor_set(x_109, 1, x_108);
@@ -2745,12 +2726,12 @@ if (x_17 == 0)
 {
 lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; 
 lean_dec(x_21);
-x_115 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__33;
+x_115 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__31;
 x_116 = l_Lean_MessageData_ofName(x_1);
 x_117 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_117, 0, x_115);
 lean_ctor_set(x_117, 1, x_116);
-x_118 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__29;
+x_118 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__27;
 x_119 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_119, 0, x_117);
 lean_ctor_set(x_119, 1, x_118);
@@ -2760,7 +2741,7 @@ lean_dec_ref(x_120);
 x_122 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_122, 0, x_119);
 lean_ctor_set(x_122, 1, x_121);
-x_123 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__35;
+x_123 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__33;
 x_124 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_124, 0, x_122);
 lean_ctor_set(x_124, 1, x_123);
@@ -2788,12 +2769,12 @@ default:
 lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; 
 lean_dec(x_26);
 lean_dec(x_21);
-x_129 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__37;
+x_129 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__35;
 x_130 = l_Lean_MessageData_ofName(x_1);
 x_131 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_131, 0, x_129);
 lean_ctor_set(x_131, 1, x_130);
-x_132 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__39;
+x_132 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__37;
 x_133 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_133, 0, x_131);
 lean_ctor_set(x_133, 1, x_132);
@@ -2845,7 +2826,7 @@ x_139 = l_Lean_MessageData_ofName(x_1);
 x_140 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_140, 0, x_138);
 lean_ctor_set(x_140, 1, x_139);
-x_141 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__41;
+x_141 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__39;
 x_142 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_142, 0, x_140);
 lean_ctor_set(x_142, 1, x_141);
@@ -3962,10 +3943,6 @@ l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__38 = _init_l___pri
 lean_mark_persistent(l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__38);
 l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__39 = _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__39();
 lean_mark_persistent(l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__39);
-l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__40 = _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__40();
-lean_mark_persistent(l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__40);
-l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__41 = _init_l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__41();
-lean_mark_persistent(l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__41);
 l___private_Lean_ReducibilityAttrs_0__Lean_addAttr___closed__0 = _init_l___private_Lean_ReducibilityAttrs_0__Lean_addAttr___closed__0();
 lean_mark_persistent(l___private_Lean_ReducibilityAttrs_0__Lean_addAttr___closed__0);
 l___private_Lean_ReducibilityAttrs_0__Lean_addAttr___closed__1 = _init_l___private_Lean_ReducibilityAttrs_0__Lean_addAttr___closed__1();

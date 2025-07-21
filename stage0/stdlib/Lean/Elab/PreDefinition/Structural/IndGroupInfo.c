@@ -2193,6 +2193,7 @@ block_43:
 lean_object* x_38; lean_object* x_39; size_t x_40; size_t x_41; lean_object* x_42; 
 x_38 = l_Array_toSubarray___redArg(x_32, x_36, x_37);
 x_39 = l_Array_ofSubarray___redArg(x_38);
+lean_dec_ref(x_38);
 x_40 = lean_array_size(x_39);
 x_41 = 0;
 x_42 = l_Array_mapMUnsafe_map___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__3(x_35, x_40, x_41, x_39, x_2, x_3, x_4, x_5, x_33);
@@ -2277,6 +2278,7 @@ block_66:
 lean_object* x_61; lean_object* x_62; size_t x_63; size_t x_64; lean_object* x_65; 
 x_61 = l_Array_toSubarray___redArg(x_55, x_59, x_60);
 x_62 = l_Array_ofSubarray___redArg(x_61);
+lean_dec_ref(x_61);
 x_63 = lean_array_size(x_62);
 x_64 = 0;
 x_65 = l_Array_mapMUnsafe_map___at___Lean_Elab_Structural_IndGroupInst_nestedTypeFormers_spec__3(x_58, x_63, x_64, x_62, x_2, x_3, x_4, x_5, x_56);

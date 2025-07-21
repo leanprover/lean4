@@ -3926,7 +3926,7 @@ block_118:
 {
 lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; 
 lean_inc(x_2);
-x_110 = l_Lean_Compiler_LCNF_getDecl_x3f___redArg(x_2, x_106, x_104, x_101);
+x_110 = l_Lean_Compiler_LCNF_getDecl_x3f___redArg(x_2, x_106, x_108, x_104);
 x_111 = lean_ctor_get(x_110, 0);
 lean_inc(x_111);
 x_112 = lean_ctor_get(x_110, 1);
@@ -3942,12 +3942,12 @@ x_115 = 0;
 x_11 = x_114;
 x_12 = x_115;
 x_13 = x_105;
-x_14 = x_103;
-x_15 = x_108;
+x_14 = x_102;
+x_15 = x_101;
 x_16 = x_106;
-x_17 = x_102;
-x_18 = x_107;
-x_19 = x_104;
+x_17 = x_107;
+x_18 = x_103;
+x_19 = x_108;
 x_20 = x_112;
 goto block_100;
 }
@@ -3962,12 +3962,12 @@ lean_dec(x_116);
 x_11 = x_114;
 x_12 = x_117;
 x_13 = x_105;
-x_14 = x_103;
-x_15 = x_108;
+x_14 = x_102;
+x_15 = x_101;
 x_16 = x_106;
-x_17 = x_102;
-x_18 = x_107;
-x_19 = x_104;
+x_17 = x_107;
+x_18 = x_103;
+x_19 = x_108;
 x_20 = x_112;
 goto block_100;
 }
@@ -3983,14 +3983,14 @@ if (lean_obj_tag(x_128) == 0)
 {
 lean_object* x_129; 
 x_129 = lean_unsigned_to_nat(0u);
-x_101 = x_126;
-x_102 = x_123;
-x_103 = x_120;
-x_104 = x_125;
+x_101 = x_121;
+x_102 = x_120;
+x_103 = x_124;
+x_104 = x_126;
 x_105 = x_119;
 x_106 = x_122;
-x_107 = x_124;
-x_108 = x_121;
+x_107 = x_123;
+x_108 = x_125;
 x_109 = x_129;
 goto block_118;
 }
@@ -4000,14 +4000,14 @@ lean_object* x_130;
 x_130 = lean_ctor_get(x_128, 0);
 lean_inc(x_130);
 lean_dec(x_128);
-x_101 = x_126;
-x_102 = x_123;
-x_103 = x_120;
-x_104 = x_125;
+x_101 = x_121;
+x_102 = x_120;
+x_103 = x_124;
+x_104 = x_126;
 x_105 = x_119;
 x_106 = x_122;
-x_107 = x_124;
-x_108 = x_121;
+x_107 = x_123;
+x_108 = x_125;
 x_109 = x_130;
 goto block_118;
 }

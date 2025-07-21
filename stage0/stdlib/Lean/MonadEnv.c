@@ -90,6 +90,7 @@ LEAN_EXPORT lean_object* l_Lean_matchConst___redArg(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_isRec___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_getConstInfoDefn___redArg___lam__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_getAsyncConstInfo___redArg___lam__0(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_matchConstStructure___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -129,6 +130,7 @@ lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_evalConstCheck(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_matchConst___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isRecCore(lean_object*, lean_object*);
+static lean_object* l_Lean_getConstInfoDefn___redArg___lam__0___closed__3;
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_matchConst(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfoRec___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1225,7 +1227,7 @@ static lean_object* _init_l_Lean_getConstInfo___redArg___lam__0___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
+x_1 = lean_mk_string_unchecked("Unknown constant `", 18, 18);
 return x_1;
 }
 }
@@ -1242,7 +1244,7 @@ static lean_object* _init_l_Lean_getConstInfo___redArg___lam__0___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -1546,7 +1548,7 @@ static lean_object* _init_l_Lean_getConstInfoDefn___redArg___lam__0___closed__0(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is not a definition", 21, 21);
+x_1 = lean_mk_string_unchecked("'", 1, 1);
 return x_1;
 }
 }
@@ -1555,6 +1557,23 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_getConstInfoDefn___redArg___lam__0___closed__0;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_getConstInfoDefn___redArg___lam__0___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("' is not a definition", 21, 21);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_getConstInfoDefn___redArg___lam__0___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_getConstInfoDefn___redArg___lam__0___closed__2;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -1579,13 +1598,13 @@ else
 lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec_ref(x_5);
 lean_dec(x_1);
-x_8 = l_Lean_getConstInfo___redArg___lam__0___closed__3;
+x_8 = l_Lean_getConstInfoDefn___redArg___lam__0___closed__1;
 x_9 = 0;
 x_10 = l_Lean_MessageData_ofConstName(x_2, x_9);
 x_11 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_11, 0, x_8);
 lean_ctor_set(x_11, 1, x_10);
-x_12 = l_Lean_getConstInfoDefn___redArg___lam__0___closed__1;
+x_12 = l_Lean_getConstInfoDefn___redArg___lam__0___closed__3;
 x_13 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_13, 0, x_11);
 lean_ctor_set(x_13, 1, x_12);
@@ -1663,7 +1682,7 @@ else
 lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec_ref(x_5);
 lean_dec(x_1);
-x_8 = l_Lean_getConstInfo___redArg___lam__0___closed__3;
+x_8 = l_Lean_getConstInfoDefn___redArg___lam__0___closed__1;
 x_9 = 0;
 x_10 = l_Lean_MessageData_ofConstName(x_2, x_9);
 x_11 = lean_alloc_ctor(7, 2, 0);
@@ -1747,7 +1766,7 @@ else
 lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec_ref(x_5);
 lean_dec(x_1);
-x_8 = l_Lean_getConstInfo___redArg___lam__0___closed__3;
+x_8 = l_Lean_getConstInfoDefn___redArg___lam__0___closed__1;
 x_9 = 0;
 x_10 = l_Lean_MessageData_ofConstName(x_2, x_9);
 x_11 = lean_alloc_ctor(7, 2, 0);
@@ -1831,7 +1850,7 @@ else
 lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec_ref(x_5);
 lean_dec(x_1);
-x_8 = l_Lean_getConstInfo___redArg___lam__0___closed__3;
+x_8 = l_Lean_getConstInfoDefn___redArg___lam__0___closed__1;
 x_9 = 0;
 x_10 = l_Lean_MessageData_ofConstName(x_2, x_9);
 x_11 = lean_alloc_ctor(7, 2, 0);
@@ -3072,6 +3091,10 @@ l_Lean_getConstInfoDefn___redArg___lam__0___closed__0 = _init_l_Lean_getConstInf
 lean_mark_persistent(l_Lean_getConstInfoDefn___redArg___lam__0___closed__0);
 l_Lean_getConstInfoDefn___redArg___lam__0___closed__1 = _init_l_Lean_getConstInfoDefn___redArg___lam__0___closed__1();
 lean_mark_persistent(l_Lean_getConstInfoDefn___redArg___lam__0___closed__1);
+l_Lean_getConstInfoDefn___redArg___lam__0___closed__2 = _init_l_Lean_getConstInfoDefn___redArg___lam__0___closed__2();
+lean_mark_persistent(l_Lean_getConstInfoDefn___redArg___lam__0___closed__2);
+l_Lean_getConstInfoDefn___redArg___lam__0___closed__3 = _init_l_Lean_getConstInfoDefn___redArg___lam__0___closed__3();
+lean_mark_persistent(l_Lean_getConstInfoDefn___redArg___lam__0___closed__3);
 l_Lean_getConstInfoInduct___redArg___lam__0___closed__0 = _init_l_Lean_getConstInfoInduct___redArg___lam__0___closed__0();
 lean_mark_persistent(l_Lean_getConstInfoInduct___redArg___lam__0___closed__0);
 l_Lean_getConstInfoInduct___redArg___lam__0___closed__1 = _init_l_Lean_getConstInfoInduct___redArg___lam__0___closed__1();

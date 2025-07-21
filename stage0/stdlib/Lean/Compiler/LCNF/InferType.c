@@ -5067,7 +5067,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___Lean_Compiler_LCNF_InferTyp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
+x_1 = lean_mk_string_unchecked("Unknown constant `", 18, 18);
 return x_1;
 }
 }
@@ -5084,7 +5084,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___Lean_Compiler_LCNF_InferTyp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -5708,6 +5708,7 @@ block_113:
 lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; 
 x_69 = l_Array_toSubarray___redArg(x_60, x_67, x_68);
 x_70 = l_Array_ofSubarray___redArg(x_69);
+lean_dec_ref(x_69);
 x_71 = l_Lean_mkAppN(x_66, x_70);
 lean_dec_ref(x_70);
 lean_inc(x_8);

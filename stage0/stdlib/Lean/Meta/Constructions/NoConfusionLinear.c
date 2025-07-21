@@ -6442,6 +6442,7 @@ x_12 = lean_array_get_size(x_4);
 lean_inc_ref(x_4);
 x_13 = l_Array_toSubarray___redArg(x_4, x_11, x_12);
 x_14 = l_Array_ofSubarray___redArg(x_13);
+lean_dec_ref(x_13);
 x_15 = l_Array_zip___redArg(x_1, x_14);
 lean_dec_ref(x_14);
 x_16 = lean_unsigned_to_nat(0u);

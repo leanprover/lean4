@@ -18,6 +18,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizePartialTakeOfIteratorLo
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIteratorLoop___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMappedPartial(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIteratorLoop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Iterators_PlausibleIterStep_done(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_size___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIterator___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIteratorCollectPartial(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -49,6 +50,7 @@ lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(le
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIteratorCollect___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Combinators_Monadic_Take_0__Std_Iterators_Take_instFinitenessRelation(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Iterators_Take_instIterator___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIterator___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_take___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -68,6 +70,14 @@ x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_4);
 lean_ctor_set(x_6, 1, x_5);
 return x_6;
+}
+}
+static lean_object* _init_l_Std_Iterators_Take_instIterator___redArg___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Std_Iterators_PlausibleIterStep_done(lean_box(0), lean_box(0), lean_box(0), lean_box(0));
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_Take_instIterator___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -145,10 +155,11 @@ return x_24;
 }
 default: 
 {
-lean_object* x_25; 
+lean_object* x_25; lean_object* x_26; 
 lean_dec(x_1);
-x_25 = lean_apply_2(x_2, lean_box(0), x_3);
-return x_25;
+x_25 = l_Std_Iterators_Take_instIterator___redArg___lam__0___closed__0;
+x_26 = lean_apply_2(x_2, lean_box(0), x_25);
+return x_26;
 }
 }
 }
@@ -171,7 +182,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
-x_9 = lean_box(2);
+x_9 = l_Std_Iterators_Take_instIterator___redArg___lam__0___closed__0;
 x_10 = lean_apply_2(x_1, lean_box(0), x_9);
 return x_10;
 }
@@ -533,6 +544,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Internal_Termination(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Std_Iterators_Take_instIterator___redArg___lam__0___closed__0 = _init_l_Std_Iterators_Take_instIterator___redArg___lam__0___closed__0();
+lean_mark_persistent(l_Std_Iterators_Take_instIterator___redArg___lam__0___closed__0);
 l_Std_Iterators_Take_instIteratorCollect___redArg___lam__0___closed__0 = _init_l_Std_Iterators_Take_instIteratorCollect___redArg___lam__0___closed__0();
 lean_mark_persistent(l_Std_Iterators_Take_instIteratorCollect___redArg___lam__0___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

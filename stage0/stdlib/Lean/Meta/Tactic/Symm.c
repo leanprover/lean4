@@ -3964,8 +3964,8 @@ block_23:
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-lean_dec_ref(x_18);
-x_20 = l_Lean_Meta_SavedState_restore___redArg(x_15, x_6, x_8, x_17);
+lean_dec_ref(x_17);
+x_20 = l_Lean_Meta_SavedState_restore___redArg(x_15, x_6, x_8, x_18);
 lean_dec(x_15);
 x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
@@ -3983,7 +3983,7 @@ lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-return x_18;
+return x_17;
 }
 }
 block_29:
@@ -3995,16 +3995,16 @@ if (x_27 == 0)
 uint8_t x_28; 
 x_28 = l_Lean_Exception_isRuntime(x_25);
 lean_dec_ref(x_25);
-x_17 = x_26;
-x_18 = x_24;
+x_17 = x_24;
+x_18 = x_26;
 x_19 = x_28;
 goto block_23;
 }
 else
 {
 lean_dec_ref(x_25);
-x_17 = x_26;
-x_18 = x_24;
+x_17 = x_24;
+x_18 = x_26;
 x_19 = x_27;
 goto block_23;
 }
@@ -5067,8 +5067,8 @@ block_22:
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; 
-lean_dec_ref(x_17);
-x_19 = l_Lean_Meta_SavedState_restore___redArg(x_14, x_5, x_7, x_16);
+lean_dec_ref(x_16);
+x_19 = l_Lean_Meta_SavedState_restore___redArg(x_14, x_5, x_7, x_17);
 lean_dec(x_14);
 x_20 = lean_ctor_get(x_19, 1);
 lean_inc(x_20);
@@ -5087,7 +5087,7 @@ lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_2);
 lean_dec(x_1);
-return x_17;
+return x_16;
 }
 }
 block_28:
@@ -5099,16 +5099,16 @@ if (x_26 == 0)
 uint8_t x_27; 
 x_27 = l_Lean_Exception_isRuntime(x_24);
 lean_dec_ref(x_24);
-x_16 = x_25;
-x_17 = x_23;
+x_16 = x_23;
+x_17 = x_25;
 x_18 = x_27;
 goto block_22;
 }
 else
 {
 lean_dec_ref(x_24);
-x_16 = x_25;
-x_17 = x_23;
+x_16 = x_23;
+x_17 = x_25;
 x_18 = x_26;
 goto block_22;
 }
@@ -8512,9 +8512,9 @@ block_21:
 {
 if (x_19 == 0)
 {
-lean_dec_ref(x_17);
+lean_dec_ref(x_18);
 x_11 = x_5;
-x_12 = x_18;
+x_12 = x_17;
 goto block_16;
 }
 else
@@ -8526,8 +8526,8 @@ lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 x_20 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_20, 0, x_17);
-lean_ctor_set(x_20, 1, x_18);
+lean_ctor_set(x_20, 0, x_18);
+lean_ctor_set(x_20, 1, x_17);
 return x_20;
 }
 }
@@ -8539,15 +8539,15 @@ if (x_24 == 0)
 {
 uint8_t x_25; 
 x_25 = l_Lean_Exception_isRuntime(x_22);
-x_17 = x_22;
-x_18 = x_23;
+x_17 = x_23;
+x_18 = x_22;
 x_19 = x_25;
 goto block_21;
 }
 else
 {
-x_17 = x_22;
-x_18 = x_23;
+x_17 = x_23;
+x_18 = x_22;
 x_19 = x_24;
 goto block_21;
 }

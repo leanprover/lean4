@@ -2314,6 +2314,7 @@ block_11:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = l_Array_toSubarray___redArg(x_1, x_6, x_7);
 x_9 = l_Array_ofSubarray___redArg(x_8);
+lean_dec_ref(x_8);
 x_10 = l_Array_append___redArg(x_5, x_9);
 lean_dec_ref(x_9);
 return x_10;
@@ -2324,6 +2325,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean
 lean_inc_ref(x_1);
 x_14 = l_Array_toSubarray___redArg(x_1, x_12, x_13);
 x_15 = l_Array_ofSubarray___redArg(x_14);
+lean_dec_ref(x_14);
 x_16 = l_Array_append___redArg(x_15, x_3);
 x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_get_size(x_1);
@@ -2352,6 +2354,7 @@ block_29:
 lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_26 = l_Array_toSubarray___redArg(x_1, x_24, x_25);
 x_27 = l_Array_ofSubarray___redArg(x_26);
+lean_dec_ref(x_26);
 x_28 = l_Array_append___redArg(x_23, x_27);
 lean_dec_ref(x_27);
 return x_28;
@@ -2362,6 +2365,7 @@ lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean
 lean_inc_ref(x_1);
 x_32 = l_Array_toSubarray___redArg(x_1, x_30, x_31);
 x_33 = l_Array_ofSubarray___redArg(x_32);
+lean_dec_ref(x_32);
 x_34 = l_Array_append___redArg(x_33, x_3);
 x_35 = lean_unsigned_to_nat(0u);
 x_36 = lean_array_get_size(x_1);
@@ -2737,6 +2741,7 @@ lean_inc(x_54);
 lean_dec_ref(x_47);
 x_55 = l_Array_toSubarray___redArg(x_50, x_52, x_53);
 x_56 = l_Array_ofSubarray___redArg(x_55);
+lean_dec_ref(x_55);
 x_57 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJmpNewArgs(x_2, x_22, x_56, x_48);
 lean_dec_ref(x_56);
 if (lean_is_scalar(x_51)) {
@@ -3194,6 +3199,7 @@ lean_inc(x_154);
 lean_dec_ref(x_147);
 x_155 = l_Array_toSubarray___redArg(x_150, x_152, x_153);
 x_156 = l_Array_ofSubarray___redArg(x_155);
+lean_dec_ref(x_155);
 x_157 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJmpNewArgs(x_2, x_22, x_156, x_148);
 lean_dec_ref(x_156);
 if (lean_is_scalar(x_151)) {
@@ -3564,6 +3570,7 @@ lean_inc(x_230);
 lean_dec_ref(x_223);
 x_231 = l_Array_toSubarray___redArg(x_226, x_228, x_229);
 x_232 = l_Array_ofSubarray___redArg(x_231);
+lean_dec_ref(x_231);
 x_233 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJmpNewArgs(x_2, x_22, x_232, x_224);
 lean_dec_ref(x_232);
 if (lean_is_scalar(x_227)) {
@@ -3971,6 +3978,7 @@ lean_inc(x_312);
 lean_dec_ref(x_305);
 x_313 = l_Array_toSubarray___redArg(x_308, x_310, x_311);
 x_314 = l_Array_ofSubarray___redArg(x_313);
+lean_dec_ref(x_313);
 x_315 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJmpNewArgs(x_2, x_283, x_314, x_306);
 lean_dec_ref(x_314);
 if (lean_is_scalar(x_309)) {
@@ -4443,6 +4451,7 @@ lean_inc(x_408);
 lean_dec_ref(x_401);
 x_409 = l_Array_toSubarray___redArg(x_404, x_406, x_407);
 x_410 = l_Array_ofSubarray___redArg(x_409);
+lean_dec_ref(x_409);
 x_411 = l___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_mkJmpNewArgs(x_2, x_378, x_410, x_402);
 lean_dec_ref(x_410);
 if (lean_is_scalar(x_405)) {

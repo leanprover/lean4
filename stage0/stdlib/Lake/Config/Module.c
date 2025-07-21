@@ -3085,7 +3085,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_ctor_get(x_2, 2);
-x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*9);
+x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*9 + 1);
 return x_7;
 }
 else

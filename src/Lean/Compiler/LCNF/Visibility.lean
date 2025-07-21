@@ -52,7 +52,7 @@ where
       modifyEnv (bumpDeclVisibility · decl.name .transparent)
       decl.value.forCodeM fun code =>
         for ref in collectUsedDecls code do
-          if let some refDecl ← pure (locals.find? ref) <|> getDecl? ref then
+          if let some refDecl ← pure (locals.find? ref) <||> getDecl? ref then
             if getDeclVisibility (← getEnv) ref == .private then
               trace[Compiler.inferVisibility] m!"Marking {ref} as opaque because it is used by transparent {decl.name}"
               markOpaque locals refDecl

@@ -95,10 +95,17 @@ section Utils
     | terminating
     | running
 
+  def parseParams (paramType : Type) [FromJson paramType] (params : Json) : IO paramType :=
+    match fromJson? params with
+    | Except.ok parsed =>
+      pure parsed
+    | Except.error inner =>
+      throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
+
   structure RequestQueueMap where
     i     : Nat
-    reqs  : Std.TreeMap RequestID (Nat × JsonRpc.Message)
-    queue : Std.TreeMap Nat (RequestID × JsonRpc.Message)
+    reqs  : Std.TreeMap RequestID (Nat × JsonRpc.Request Json)
+    queue : Std.TreeMap Nat (RequestID × JsonRpc.Request Json)
     deriving Inhabited
 
   namespace RequestQueueMap
@@ -110,14 +117,11 @@ section Utils
     instance : EmptyCollection RequestQueueMap where
       emptyCollection := .empty
 
-    def enqueue (m : RequestQueueMap) (req : JsonRpc.Message) : RequestQueueMap := Id.run do
-      let .request id .. := req
-        | panic! "Got non-request in `RequestQueueMap.enqueue`."
-      {
-        i     := m.i + 1
-        reqs  := m.reqs.insert id (m.i, req)
-        queue := m.queue.insert m.i (id, req)
-      }
+    def enqueue (m : RequestQueueMap) (req : JsonRpc.Request Json) : RequestQueueMap := {
+      i     := m.i + 1
+      reqs  := m.reqs.insert req.id (m.i, req)
+      queue := m.queue.insert m.i (req.id, req)
+    }
 
     def erase (m : RequestQueueMap) (id : RequestID) : RequestQueueMap := Id.run do
       let some (i, _) := m.reqs.get? id
@@ -127,10 +131,14 @@ section Utils
         queue := m.queue.erase i
       }
 
+    def get? (m : RequestQueueMap) (id : RequestID) : Option (JsonRpc.Request Json) := do
+      let (_, msg) ← m.reqs.get? id
+      return msg
+
     def contains (m : RequestQueueMap) (id : RequestID) : Bool :=
       m.reqs.contains id
 
-    instance : ForIn m RequestQueueMap (RequestID × JsonRpc.Message) where
+    instance : ForIn m RequestQueueMap (RequestID × JsonRpc.Request Json) where
       forIn map init f := map.queue.forIn (fun _ a b => f a b) init
   end RequestQueueMap
 
@@ -159,13 +167,10 @@ section Utils
         : RequestData
       }
 
-    def enqueue (d : RequestData) (uri : DocumentUri) (req : JsonRpc.Message) : RequestData := Id.run do
-      let .request id .. := req
-        | panic! "Got non-request in `RequestData.enqueue`."
-      return {
-        requestQueues := d.requestQueues.insertIfNew uri ∅ |>.modify uri (·.enqueue req)
-        uriByRequest := d.uriByRequest.insert id uri
-      }
+    def enqueue (d : RequestData) (uri : DocumentUri) (req : JsonRpc.Request Json) : RequestData := {
+      requestQueues := d.requestQueues.insertIfNew uri ∅ |>.modify uri (·.enqueue req)
+      uriByRequest := d.uriByRequest.insert req.id uri
+    }
 
     def erase (d : RequestData) (uri : DocumentUri) (id : RequestID) : RequestData where
       requestQueues := d.requestQueues.modify uri (·.erase id)
@@ -178,6 +183,10 @@ section Utils
 
     def getUri? (d : RequestData) (id : RequestID) : Option DocumentUri :=
       d.uriByRequest.get? id
+
+    def getRequest? (d : RequestData) (uri : DocumentUri) (id : RequestID) : Option (JsonRpc.Request Json) := do
+      let q ← d.requestQueues.get? uri
+      q.get? id
 
     def getRequestQueue (d : RequestData) (uri : DocumentUri) : RequestQueueMap :=
       d.requestQueues.get? uri |>.getD ∅
@@ -194,7 +203,7 @@ section Utils
     def clearWorkerRequestData (m : RequestDataMutex) (uri : DocumentUri) : BaseIO Unit :=
       m.atomically do modify (·.clearWorkerRequestData uri)
 
-    def enqueue (m : RequestDataMutex) (uri : DocumentUri) (req : JsonRpc.Message) : BaseIO Unit :=
+    def enqueue (m : RequestDataMutex) (uri : DocumentUri) (req : JsonRpc.Request Json) : BaseIO Unit :=
       m.atomically do modify (·.enqueue uri req)
 
     def erase (m : RequestDataMutex) (uri : DocumentUri) (id : RequestID) : BaseIO Unit :=
@@ -449,13 +458,17 @@ section ServerM
     for (id, _) in pendingRequests do
       ctx.hOut.writeLspResponseError { id := id, code := code, message := msg }
 
-  def erasePendingRequest (uri : DocumentUri) (id : RequestID) : ServerM Bool := do
+  def eraseGetPendingRequest (uri : DocumentUri) (id : RequestID) : ServerM (Option (JsonRpc.Request Json)) := do
     let ctx ← read
     ctx.requestData.atomically do
       let d ← get
-      let wasPending := d.contains uri id
+      let r := d.getRequest? uri id
       set <| d.erase uri id
-      return wasPending
+      return r
+
+  def erasePendingRequest (uri : DocumentUri) (id : RequestID) : ServerM Bool := do
+    let r? ← eraseGetPendingRequest uri id
+    return r?.isSome
 
   def log (msg : String) : ServerM Unit := do
     let st ← read
@@ -627,6 +640,53 @@ section ServerM
     s.importData.modify fun importData =>
       importData.update fw.doc.uri (.ofList params.importClosure.toList)
 
+  def findDefinitions (p : TextDocumentPositionParams) : ServerM (Array Location) := do
+    let some module ← getFileWorkerMod? p.textDocument.uri
+      | return #[]
+    let references ← getReferences
+    let mut definitions := #[]
+    for ident in references.findAt module p.position (includeStop := true) do
+      if let some ⟨definitionLocation, _, _⟩ := references.definitionOf? ident then
+        definitions := definitions.push definitionLocation
+    return definitions
+
+  def handleResponseSpecialCases (req : JsonRpc.Request Json) (resp : JsonRpc.Response Json) :
+      ServerM (JsonRpc.Response Json) := do
+    match req.method with
+    | "textDocument/definition"
+    | "textDocument/declaration"
+    | "textDocument/typeDefinition" =>
+      let r : Array LeanLocationLink :=
+        match fromJson? resp.result with
+        | .ok r => r
+        | .error e => panic! s!"Expected `LeanLocationLink` in file worker response to definition request. Error: {e}. Got: {resp.result.compress}."
+      let refs ← getReferences
+      let r : Array LeanLocationLink := r.filterMap fun ll => Id.run do
+        let some ident := ll.ident?
+          | return ll
+        let ident : RefIdent := .const ident.module.toString ident.decl.toString
+        let some definitionInfo := refs.definitionOf? ident
+          | return ll
+        let newTargetRange := definitionInfo.location.range
+        return some {
+          ll with toLocationLink := {
+            originSelectionRange? := ll.originSelectionRange?
+            targetUri :=  definitionInfo.location.uri
+            targetRange := newTargetRange
+            targetSelectionRange := newTargetRange
+          }
+        }
+      if r.all (·.isDefault) then
+        -- The file worker produced fallback location links.
+        -- Let's see if we can obtain better ones using the .ileans, just to be safe.
+        let params' ← parseParams TextDocumentPositionParams req.param
+        let definitions ← findDefinitions params'
+        if ! definitions.isEmpty then
+          return { resp with result := toJson definitions }
+      return { resp with result := toJson <| r.map (·.toLocationLink) }
+    | _ =>
+      return resp
+
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
   private partial def forwardMessages (fw : FileWorker) : ServerM (ServerTask WorkerEvent) := do
@@ -677,15 +737,16 @@ section ServerM
         -- Re. `o.writeLspMessage msg`:
         -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
         match msg with
-        | Message.response id _ => do
-          let wasPending ← erasePendingRequest uri id
+        | Message.response id result => do
+          let req? ← eraseGetPendingRequest uri id
           -- In the rare scenario that we detect a file worker crash on the main thread and this task
           -- still has a response to process, it could theoretically happen that we restart the file
           -- worker, discharge all queued requests to it and then get a duplicate response.
           -- This ensures that this scenario can't occur, and we only emit responses for requests
           -- that were still pending.
-          if wasPending then
-            o.writeLspMessage msg
+          if let some req := req? then
+            let resp ← handleResponseSpecialCases req { id, result }
+            o.writeLspMessage resp
         | Message.responseError id code _ _ => do
           let wasPending ← erasePendingRequest uri id
           if code matches .requestCancelled then
@@ -801,11 +862,11 @@ section ServerM
       : ServerM Unit := do
     let some fw ← getFileWorker? uri
       | return
-    if msg matches .request .. then
+    if let some req := JsonRpc.Request.ofMessage? msg then
       -- If we cannot write a notification to the file worker, it is nonetheless safe to discard
       -- the notification here because all non-discardable notifications are handled by the watchdog
       -- itself.
-      (← read).requestData.enqueue uri msg
+      (← read).requestData.enqueue uri req
     match ← getWorkerState fw with
     | WorkerState.cannotWrite | WorkerState.terminating =>
       return
@@ -837,16 +898,6 @@ end ServerM
 section RequestHandling
 
 open FuzzyMatching
-
-def findDefinitions (p : TextDocumentPositionParams) : ServerM (Array Location) := do
-  let some module ← getFileWorkerMod? p.textDocument.uri
-    | return #[]
-  let references ← getReferences
-  let mut definitions := #[]
-  for ident in references.findAt module p.position (includeStop := true) do
-    if let some ⟨definitionLocation, _, _⟩ := references.definitionOf? ident then
-      definitions := definitions.push definitionLocation
-  return definitions
 
 def handleReference (p : ReferenceParams) : ReaderT ReferenceRequestContext IO (Array Location) := do
   let fileWorkerMods := (← read).fileWorkerMods
@@ -1210,13 +1261,6 @@ section NotificationHandling
 end NotificationHandling
 
 section MessageHandling
-  def parseParams (paramType : Type) [FromJson paramType] (params : Json) : IO paramType :=
-    match fromJson? params with
-    | Except.ok parsed =>
-      pure parsed
-    | Except.error inner =>
-      throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
-
   def forwardRequestToWorker (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
     let uri: DocumentUri ←
       if method == "$/lean/rpc/connect" then
@@ -1267,18 +1311,6 @@ section MessageHandling
     let ctx ← read
     let handle α β [FromJson α] [ToJson β] := handleReferenceRequest α β id params
     match method with
-    | "textDocument/definition" | "textDocument/declaration" =>
-      -- If a definition is in a different, modified file, the ilean data should
-      -- have the correct location while the olean still has outdated info from
-      -- the last compilation. This is easier than catching the client's reply and
-      -- fixing the definition's location afterwards, but it doesn't work for
-      -- go-to-type-definition.
-      let params' ← parseParams TextDocumentPositionParams params
-      let definitions ← findDefinitions params'
-      if !definitions.isEmpty then
-        ctx.hOut.writeLspResponse ⟨id, definitions⟩
-      else
-        forwardRequestToWorker id method params
     | "textDocument/references" =>
       handle ReferenceParams (Array Location) handleReference
     | "workspace/symbol" =>

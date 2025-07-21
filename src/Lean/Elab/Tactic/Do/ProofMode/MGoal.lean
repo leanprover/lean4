@@ -50,12 +50,21 @@ def SPred.isPure? : Expr → Option (Level × Expr × Expr)
       .lam _ _ (mkApp2 (.const ``ULift.up _) _ p) _ => some (u, σs, (Expr.lowerLooseBVars p 0 1))
   | _ => none
 
-def emptyHyp (u : Level) (σs : Expr) : Expr := -- ⌜True⌝ standing in for an empty conjunction of hypotheses
-  SPred.mkPure u σs (mkConst ``True)
+def emptyHypName := `emptyHyp
 
-def parseEmptyHyp? (e : Expr) : Option (Level × Expr) := match SPred.isPure? e with
-  | some (u, σs, .const ``True _) => some (u, σs)
-  | _ => none
+def emptyHyp (u : Level) (σs : Expr) : Expr := -- ⌜True⌝ standing in for an empty conjunction of hypotheses
+  Hyp.toExpr { name := emptyHypName, uniq := emptyHypName, p := SPred.mkPure u σs (mkConst ``True) }
+
+def parseEmptyHyp? (e : Expr) : Option (Level × Expr) := do
+  let h ← parseHyp? e
+  unless h.name == emptyHypName || h.name.hasMacroScopes do
+    -- Interpret empty hyps when they are not named `emptyHyp` or have macro scopes
+    -- (= introduced inaccessibly). Otherwise we want to treat it as a regular hypothesis.
+    failure
+  let (u, σs, p) ← SPred.isPure? h.p
+  match p with
+  | .const ``True _ => return (u, σs)
+  | _ => failure
 
 def pushLeftConjunct (pos : SubExpr.Pos) : SubExpr.Pos :=
   pos.pushNaryArg 3 1
@@ -65,18 +74,18 @@ def pushRightConjunct (pos : SubExpr.Pos) : SubExpr.Pos :=
 
 /-- Combine two hypotheses into a conjunction.
 Precondition: Neither `lhs` nor `rhs` is empty (`parseEmptyHyp?`). -/
-def mkAnd! (u : Level) (σs lhs rhs : Expr) : Expr :=
+def SPred.mkAnd! (u : Level) (σs lhs rhs : Expr) : Expr :=
   mkApp3 (mkConst ``SPred.and [u]) σs lhs rhs
 
 /-- Smart constructor that cancels away empty hypotheses,
 along with a proof that `lhs ∧ rhs ⊣⊢ₛ result`. -/
-def mkAnd (u : Level) (σs lhs rhs : Expr) : Expr × Expr :=
+def SPred.mkAnd (u : Level) (σs lhs rhs : Expr) : Expr × Expr :=
   if let some _ := parseEmptyHyp? lhs then
     (rhs, mkApp2 (mkConst ``SPred.true_and [u]) σs rhs)
   else if let some _ := parseEmptyHyp? rhs then
     (lhs, mkApp2 (mkConst ``SPred.and_true [u]) σs lhs)
   else
-    let result := mkAnd! u σs lhs rhs
+    let result := SPred.mkAnd! u σs lhs rhs
     (result, mkApp2 (mkConst ``SPred.bientails.refl [u]) σs result)
 
 def TypeList.mkType (u : Level) : Expr := mkApp (mkConst ``List [.succ u]) (mkSort (.succ u))
@@ -153,7 +162,7 @@ partial def pushForallContextIntoHyps (σs hyps : Expr) : Expr := go #[] #[] hyp
       else if let some hyp := parseHyp? e then
         { hyp with p := wrap revLams revAppArgs hyp.p }.toExpr
       else if let some (u, _σs, lhs, rhs) := parseAnd? e then
-        mkAnd! u σs (go revLams revAppArgs lhs) (go revLams revAppArgs rhs)
+        SPred.mkAnd! u σs (go revLams revAppArgs lhs) (go revLams revAppArgs rhs)
       else if let .lam x ty body info := e then
         if let some a := revAppArgs.back? then
           go revLams revAppArgs.pop (body.instantiate1 a)
@@ -198,7 +207,7 @@ partial def MGoal.renameInaccessibleHyps (goal : MGoal) (idents : Array (TSyntax
       if let some (u, σs, lhs, rhs) := parseAnd? H then
         let rhs ← go rhs -- NB: First go right because those are the "most recent" hypotheses
         let lhs ← go lhs
-        return mkAnd! u σs lhs rhs
+        return SPred.mkAnd! u σs lhs rhs
       return H
 
 def addLocalVarInfo (stx : Syntax) (lctx : LocalContext)

@@ -132,7 +132,7 @@ abbrev IgnoreFunction := Syntax → Syntax.Stack → LinterOptions → Bool
 unsafe def mkIgnoreFnImpl (constName : Name) : ImportM IgnoreFunction := do
   let { env, opts, .. } ← read
   match env.find? constName with
-  | none      => throw ↑s!"unknown constant '{constName}'"
+  | none      => throw ↑s!"Unknown constant `{constName}`"
   | some info =>
     unless info.type.isConstOf ``IgnoreFunction do
       throw ↑s!"unexpected unused_variables_ignore_fn at '{constName}', must be of type `Lean.Linter.IgnoreFunction`"

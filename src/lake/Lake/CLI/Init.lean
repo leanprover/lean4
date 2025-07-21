@@ -409,7 +409,10 @@ def createLeanActionWorkflow (dir : FilePath) (tmp : InitTemplate) : LogIO PUnit
     logVerbose s!"created create-release CI workflow at '{workflowFile}'"
 
 /-- Initialize a new Lake package in the given directory with the given name. -/
-def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.Env) : LoggerIO PUnit := do
+def initPkg
+  (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLang)
+  (env : Lake.Env) (offline := false)
+: LoggerIO PUnit := do
   let configFile :=  dir / defaultConfigFile.addExtension lang.fileExtension
   if (← configFile.pathExists) then
     error "package already initialized"
@@ -483,7 +486,7 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
   [1]: https://github.com/leanprover/lean4/issues/2518
   -/
   let toolchainFile := dir / toolchainFileName
-  if tmp = .mathLax || tmp = .math then
+  if !offline && (tmp matches .mathLax | .math) then
     logInfo "downloading mathlib `lean-toolchain` file"
     try
       download mathToolchainBlobUrl toolchainFile
@@ -491,6 +494,8 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
       logError "failed to download mathlib 'lean-toolchain' file; \
         you can manually copy it from:\n  {mathToolchainUrl}"
       throw errPos
+    -- Create a manifest file based on the dependencies.
+    updateManifest { lakeEnv := env, wsDir := dir }
   else
     if env.toolchain.isEmpty then
       -- Empty githash implies dev build
@@ -502,17 +507,16 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
     else
       IO.FS.writeFile toolchainFile <| env.toolchain ++ "\n"
 
-  -- Create a manifest file based on the dependencies.
-  if tmp = .mathLax || tmp = .math then
-    updateManifest { lakeEnv := env, wsDir := dir }
-
 def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.isEmpty || pkgName.all (· == '.') || pkgName.any (· ∈ ['/', '\\']) then
     error s!"illegal package name '{pkgName}'"
   if pkgName.toLower ∈ ["init", "lean", "lake", "main"] then
     error "reserved package name"
 
-def init (name : String) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.Env) (cwd : FilePath := ".") : LoggerIO PUnit := do
+def init
+  (name : String) (tmp : InitTemplate) (lang : ConfigLang)
+  (env : Lake.Env) (cwd : FilePath := ".") (offline := false)
+: LoggerIO PUnit := do
   let name ← id do
     if name == "." then
       let path ← IO.FS.realPath cwd
@@ -524,13 +528,16 @@ def init (name : String) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.En
   let name := name.trim
   validatePkgName name
   IO.FS.createDirAll cwd
-  initPkg cwd (stringToLegalOrSimpleName name) tmp lang env
+  initPkg cwd (stringToLegalOrSimpleName name) tmp lang env offline
 
-def new (name : String) (tmp : InitTemplate) (lang : ConfigLang)  (env : Lake.Env) (cwd : FilePath := ".") : LoggerIO PUnit := do
+def new
+  (name : String) (tmp : InitTemplate) (lang : ConfigLang)
+  (env : Lake.Env) (cwd : FilePath := ".") (offline := false)
+: LoggerIO PUnit := do
   let name := name.trim
   validatePkgName name
   let name := stringToLegalOrSimpleName name
   let dirName := dotlessName name
   let dir := cwd / dirName
   IO.FS.createDirAll dir
-  initPkg dir name tmp lang env
+  initPkg dir name tmp lang env offline

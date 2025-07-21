@@ -226,8 +226,9 @@ jobs:
         if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |
-          # clean rebuild in case of Makefile changes
-          make -C build update-stage0 && rm -rf build/stage* && make -C build -j$NPROC
+          # clean rebuild in case of Makefile changes/Lake does not detect uncommited stage 0
+          # changes yet
+          make -C build update-stage0 && make -C build/stage1 clean-stdlib && make -C build -j$NPROC
         if: matrix.check-rebootstrap
       - name: CCache stats
         if: always()

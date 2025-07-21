@@ -815,14 +815,14 @@ where
   /-- Append the argument name (if available) to the message.
       Remark: if the argument name contains macro scopes we do not append it. -/
   addArgName (msg : MessageData) (extra : String := "") : TermElabM MessageData := do
-    match (← get).mvarArgNames.find? mvarErrorInfo.mvarId with
+    match (← get).mvarArgNames.get? mvarErrorInfo.mvarId with
     | none => return msg
     | some argName => return if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
 
   appendExtra (msg : MessageData) : MessageData :=
     match extraMsg? with
     | none => msg
-    | some extraMsg => msg ++ extraMsg
+    | some extraMsg => msg.composePreservingKind extraMsg
 
 /--
   Try to log errors for the unassigned metavariables `pendingMVarIds`.
@@ -1269,7 +1269,7 @@ private def postponeElabTermCore (stx : Syntax) (expectedType? : Option Expr) : 
   return mvar
 
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
-  return (← get).syntheticMVars.find? mvarId
+  return (← get).syntheticMVars.get? mvarId
 
 register_builtin_option debug.byAsSorry : Bool := {
   defValue := false
@@ -1998,7 +1998,7 @@ where
            isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
         throwAutoBoundImplicitLocal n
       else
-        throwUnknownIdentifierAt stx m!"unknown identifier '{Lean.mkConst n}'"
+        throwUnknownIdentifierAt stx m!"Unknown identifier `{Lean.mkConst n}`"
     mkConsts candidates explicitLevels
 
 /--

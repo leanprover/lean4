@@ -24,7 +24,7 @@ reordered.
    Makes sure we never reorder `IO` operations.
 
    TODO: mark opaque -/
-def IO.RealWorld : Type := Unit
+@[expose] def IO.RealWorld : Type := Unit
 
 /--
 A monad that can have side effects on the external world or throw exceptions of type `ε`.
@@ -1350,7 +1350,7 @@ output, or error streams.
 For `IO.Process.Stdio.piped`, this type is `IO.FS.Handle`. Otherwise, it is `Unit`, because no
 communication is possible.
 -/
-def Stdio.toHandleType : Stdio → Type
+@[expose] def Stdio.toHandleType : Stdio → Type
   | Stdio.piped   => FS.Handle
   | Stdio.inherit => Unit
   | Stdio.null    => Unit
@@ -1717,7 +1717,7 @@ def readToEnd (s : Stream) : IO String := do
   match String.fromUTF8? data with
   | some s => return s
   | none => throw <| .userError s!"Tried to read from stream containing non UTF-8 data."
-  
+
 /--
 Reads the entire remaining contents of the stream as a UTF-8-encoded array of lines.
 

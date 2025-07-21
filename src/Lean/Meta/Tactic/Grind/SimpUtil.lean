@@ -52,7 +52,7 @@ builtin_simproc_decl simpEq (@Eq _ _ _) := fun e => do
       return .visit { expr := e', proof? := mkApp2 (mkConst ``Grind.bool_eq_to_prop) lhs rhs }
     return .continue
   | _ =>
-    if (← isDefEq lhs rhs) then
+    if lhs == rhs then
       let u := f.constLevels!
       return .done { expr := mkConst ``True, proof? := mkApp2 (mkConst ``eq_self u) α lhs }
     else if rhs == mkConst ``True then

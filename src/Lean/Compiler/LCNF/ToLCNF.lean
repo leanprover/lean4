@@ -66,7 +66,7 @@ partial def bindCases (jpDecl : FunDecl) (cases : Cases) : CompilerM Code := do
   let (alts, s) ← visitAlts cases.alts |>.run {}
   let resultType ← mkCasesResultType alts
   let result := .cases { cases with alts, resultType }
-  let result := s.fold (init := result) fun result _ altJp => .jp altJp result
+  let result := s.foldl (init := result) fun result _ altJp => .jp altJp result
   return .jp jpDecl result
 where
   visitAlts (alts : Array Alt) : BindCasesM (Array Alt) :=
@@ -99,7 +99,7 @@ where
             if binderName.getPrefix == `_alt then
               if let some funDecl ← findFun? f then
                 eraseLetDecl decl
-                if let some altJp := (← get).find? f then
+                if let some altJp := (← get).get? f then
                   /- We already have an auxiliary join point for `f`, then, we just use it. -/
                   return .jmp altJp.fvarId args
                 else
@@ -130,7 +130,7 @@ where
                   return .jmp altJp.fvarId args
           | _ => pure ()
       let k ← go k
-      if let some altJp := (← get).find? decl.fvarId then
+      if let some altJp := (← get).get? decl.fvarId then
         -- The new join point depends on this variable. Thus, we must insert it here
         modify fun s => s.erase decl.fvarId
         return .let decl (.jp altJp k)
@@ -559,23 +559,18 @@ where
         let typeName := casesInfo.declName.getPrefix
         let discr ← visitAppArg args[casesInfo.discrPos]!
         let .inductInfo indVal ← getConstInfo typeName | unreachable!
-        match discr with
-        | .erased | .type .. =>
-          /-
-          This can happen for inductive predicates that can eliminate into type (e.g., `And`, `Iff`).
-          TODO: add support for them. Right now, we have hard-coded support for the ones defined at `Init`.
-          -/
-          throwError "unsupported `{casesInfo.declName}` application during code generation"
-        | .fvar discrFVarId =>
-          for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
-            let (altType, alt) ← visitAlt ctorName numParams args[i]!
-            resultType := joinTypes altType resultType
-            alts := alts.push alt
-          let cases : Cases := { typeName, discr := discrFVarId, resultType, alts }
-          let auxDecl ← mkAuxParam resultType
-          pushElement (.cases auxDecl cases)
-          let result := .fvar auxDecl.fvarId
-          mkOverApplication result args casesInfo.arity
+        let discrFVarId ← match discr with
+          | .fvar discrFVarId => pure discrFVarId
+          | .erased | .type .. => mkAuxLetDecl .erased
+        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
+          let (altType, alt) ← visitAlt ctorName numParams args[i]!
+          resultType := joinTypes altType resultType
+          alts := alts.push alt
+        let cases : Cases := { typeName, discr := discrFVarId, resultType, alts }
+        let auxDecl ← mkAuxParam resultType
+        pushElement (.cases auxDecl cases)
+        let result := .fvar auxDecl.fvarId
+        mkOverApplication result args casesInfo.arity
 
   visitCtor (arity : Nat) (e : Expr) : M Arg :=
     etaIfUnderApplied e arity do
@@ -671,7 +666,7 @@ where
 
   visitProjFn (projInfo : ProjectionFunctionInfo) (e : Expr) : M Arg := do
     let typeName := projInfo.ctorName.getPrefix
-    if isRuntimeBultinType typeName then
+    if isRuntimeBuiltinType typeName then
       let numArgs := e.getAppNumArgs
       let arity := projInfo.numParams + 1
       if numArgs < arity then
@@ -690,15 +685,13 @@ where
         visitQuotLift e
       else if declName == ``Quot.mk then
         visitCtor 3 e
-      else if declName == ``Eq.casesOn || declName == ``Eq.rec || declName == ``Eq.recOn || declName == ``Eq.ndrec then
+      else if declName == ``Eq.rec || declName == ``Eq.recOn || declName == ``Eq.ndrec then
         visitEqRec e
-      else if declName == ``HEq.casesOn || declName == ``HEq.rec || declName == ``HEq.ndrec then
+      else if declName == ``HEq.rec || declName == ``HEq.ndrec then
         visitHEqRec e
       else if declName == ``And.rec || declName == ``Iff.rec then
         visitAndIffRecCore e (minorPos := 3)
-      else if declName == ``And.casesOn || declName == ``Iff.casesOn then
-        visitAndIffRecCore e (minorPos := 4)
-      else if declName == ``False.rec || declName == ``Empty.rec || declName == ``False.casesOn || declName == ``Empty.casesOn then
+      else if declName == ``False.rec || declName == ``Empty.rec then
         visitFalseRec e
       else if declName == ``lcUnreachable then
         visitLcUnreachable e

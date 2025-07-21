@@ -1,3 +1,7 @@
+
+open Int.Linear
+
+set_option trace.grind.debug.proof true in
 theorem ex1 (x y z : Nat) : x < y + z → y + 1 < z → z + x < 3*z := by
   grind
 
@@ -9,7 +13,7 @@ theorem ex3 (x y : Nat) :
     7*y ≤ 9*x + 10 → 9*x ≤ 4 + 7*y → False := by
   grind
 
-open Int.Linear Int.OfNat
+open Int.Linear
 #print ex1
 #print ex2
 #print ex3

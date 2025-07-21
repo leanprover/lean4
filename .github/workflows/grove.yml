@@ -30,8 +30,8 @@ jobs:
           # Check if it's a push to master (no PR number and target branch is master)
           if [ -z "${{ steps.workflow-info.outputs.pullRequestNumber }}" ]; then
             if [ "${{ github.event.workflow_run.head_branch }}" = "master" ]; then
-              echo "Push to master detected. Skipping for now, to be enabled later."
-              echo "should-run=false" >> "$GITHUB_OUTPUT"
+              echo "Push to master detected. Running Grove."
+              echo "should-run=true" >> "$GITHUB_OUTPUT"
             else
               echo "Push to non-master branch, skipping"
               echo "should-run=false" >> "$GITHUB_OUTPUT"
@@ -40,7 +40,7 @@ jobs:
             # Check if it's a PR with grove label
             PR_LABELS='${{ steps.workflow-info.outputs.pullRequestLabels }}'
             if echo "$PR_LABELS" | grep -q '"grove"'; then
-              echo "PR with grove label detected"
+              echo "PR with grove label detected. Running Grove."
               echo "should-run=true" >> "$GITHUB_OUTPUT"
             else
               echo "PR without grove label, skipping"
@@ -51,7 +51,7 @@ jobs:
       - name: Fetch upstream invalidated facts
         if: ${{ steps.should-run.outputs.should-run == 'true' && steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: fetch-upstream
-        uses: TwoFx/grove-action/fetch-upstream@v0.3
+        uses: TwoFx/grove-action/fetch-upstream@v0.4
         with:
           artifact-name: grove-invalidated-facts
           base-ref: master
@@ -64,7 +64,7 @@ jobs:
           commit: ${{ steps.workflow-info.outputs.sourceHeadSha }}
           workflow: ci.yml
           path: artifacts
-          name: build-Linux.*
+          name: "build-Linux release"
           name_is_regexp: true
 
       - name: Unpack toolchain
@@ -95,7 +95,7 @@ jobs:
       - name: Build
         if: ${{ steps.should-run.outputs.should-run == 'true' }}
         id: build
-        uses: TwoFx/grove-action/build@v0.3
+        uses: TwoFx/grove-action/build@v0.4
         with:
           project-path: doc/std/grove
           script-name: grove-stdlib

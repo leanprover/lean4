@@ -111,7 +111,7 @@ private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody := do
   if b == b' then
     return b
   else
-    return .vdecl w IRType.object (.reset c.size x) b'
+    return .vdecl w .tobject (.reset c.size x) b'
 
 private def Dfinalize (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
   | (b, true)  => return b
@@ -139,7 +139,7 @@ private partial def Dmain (x : VarId) (c : CtorInfo) (e : FnBody) : M (FnBody ×
   | .case tid y yType alts =>
     if e.hasLiveVar (← read).lctx x then
       /- If `x` is live in `e`, we recursively process each branch. -/
-      let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => Dmain x c b >>= Dfinalize x c
+      let alts ← alts.mapM fun alt => alt.modifyBodyM fun b => Dmain x c b >>= Dfinalize x c
       return (.case tid y yType alts, true)
     else
       return (e, false)
@@ -181,7 +181,7 @@ partial def R (e : FnBody) : M FnBody := do
     let alreadyFound := (← read).alreadyFound.contains x
     withReader (fun ctx => { ctx with alreadyFound := ctx.alreadyFound.insert x }) do
       let alts ← alts.mapM fun alt => do
-        let alt ← alt.mmodifyBody R
+        let alt ← alt.modifyBodyM R
         match alt with
         | .ctor c b =>
           if c.isScalar || alreadyFound then

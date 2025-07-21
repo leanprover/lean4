@@ -80,7 +80,7 @@ where
       | .alt ctorName ps k => withDiscrCtor c.discr ctorName ps <| go k
     | .return .. | .unreach .. => return ()
     | .jmp fvarId args =>
-      if let some info := (← get).find? fvarId then
+      if let some info := (← get).get? fvarId then
         let .fvar argFVarId := args[info.paramIdx]! | return ()
         let some ctorName ← findCtorName? argFVarId | return ()
         modify fun map => map.insert fvarId <| { info with ctorNames := info.ctorNames.insert ctorName }
@@ -231,7 +231,7 @@ where
       return code
 
   visitJp? (decl : FunDecl) (k : Code) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt DiscrM) (Option Code) := do
-    let some info := (← read).find? decl.fvarId | return none
+    let some info := (← read).get? decl.fvarId | return none
     if info.ctorNames.isEmpty then return none
     -- This join point satisfies `isJpCases?` and there are jumps with constructors in `info` to it.
     let (decls, cases) := extractJpCases decl.value
@@ -272,8 +272,8 @@ where
     return LCNF.attachCodeDecls jpAltDecls code
 
   visitJmp? (fvarId : FVarId) (args : Array Arg) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt DiscrM) (Option Code) := do
-    let some ctorJpAltMap := (← get).find? fvarId | return none
-    let some info := (← read).find? fvarId | return none
+    let some ctorJpAltMap := (← get).get? fvarId | return none
+    let some info := (← read).get? fvarId | return none
     let .fvar argFVarId := args[info.paramIdx]! | return none
     let some ctorInfo ← findCtor? argFVarId | return none
     let some jpAlt := ctorJpAltMap.find? ctorInfo.getName | return none

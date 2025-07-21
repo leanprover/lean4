@@ -28,6 +28,18 @@ info: theorem trfl : f = 1 :=
 #guard_msgs in
 #print trfl
 
+/-! Metadata of private decls should not be exported. -/
+
+-- Should not fail with 'unknown constant `inst*`
+/--
+error: failed to synthesize
+  X
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in
+def fX : X := inferInstance
+
 /-- error: dsimp made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [t]; exact hP1
@@ -62,31 +74,31 @@ has type
 #guard_msgs in
 #check f.eq_unfold
 
-/-- error: unknown constant 'f_struct.eq_1' -/
+/-- error: Unknown constant `f_struct.eq_1` -/
 #guard_msgs in
 #check f_struct.eq_1
 
-/-- error: unknown constant 'f_struct.eq_def' -/
+/-- error: Unknown constant `f_struct.eq_def` -/
 #guard_msgs in
 #check f_struct.eq_def
 
-/-- error: unknown constant 'f_struct.eq_unfold' -/
+/-- error: Unknown constant `f_struct.eq_unfold` -/
 #guard_msgs in
 #check f_struct.eq_unfold
 
-/-- error: unknown constant 'f_wfrec.eq_1' -/
+/-- error: Unknown constant `f_wfrec.eq_1` -/
 #guard_msgs in
 #check f_wfrec.eq_1
 
-/-- error: unknown constant 'f_wfrec.eq_def' -/
+/-- error: Unknown constant `f_wfrec.eq_def` -/
 #guard_msgs in
 #check f_wfrec.eq_def
 
-/-- error: unknown constant 'f_wfrec.eq_unfold' -/
+/-- error: Unknown constant `f_wfrec.eq_unfold` -/
 #guard_msgs in
 #check f_wfrec.eq_unfold
 
-/-- error: unknown constant 'f_wfrec.induct_unfolding' -/
+/-- error: Unknown constant `f_wfrec.induct_unfolding` -/
 #guard_msgs(pass trace, all) in
 #check f_wfrec.induct_unfolding
 

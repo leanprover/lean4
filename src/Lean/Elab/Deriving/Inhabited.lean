@@ -10,7 +10,7 @@ import Lean.Elab.Deriving.Basic
 namespace Lean.Elab
 open Command Meta Parser Term
 
-private abbrev IndexSet := RBTree Nat compare
+private abbrev IndexSet := Std.TreeSet Nat
 private abbrev LocalInst2Index := FVarIdMap Nat
 
 private def implicitBinderF := Parser.Term.implicitBinder
@@ -51,7 +51,7 @@ where
       let visit {ω} : StateRefT IndexSet (ST ω) Unit :=
         e.forEachWhere Expr.isFVar fun e =>
           let fvarId := e.fvarId!
-          match localInst2Index.find? fvarId with
+          match localInst2Index.get? fvarId with
           | some idx => modify (·.insert idx)
           | none => pure ()
       runST (fun _ => visit |>.run usedInstIdxs) |>.2
@@ -78,7 +78,8 @@ where
     for _ in *...ctorVal.numFields do
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
     let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
-    `(instance $binders:bracketedBinder* : $type := $val)
+    let privTk? := guard (isPrivateName inductiveTypeName) *> some .missing
+    `($[private%$privTk?]? instance $binders:bracketedBinder* : $type := $val)
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName

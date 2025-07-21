@@ -146,7 +146,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_getRecAppSyntax_x3f(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -192,7 +192,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_hasRecAppSyntax(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }

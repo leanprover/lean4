@@ -3,11 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.SimpLemmas
-import Init.Data.Bool
-import Init.Data.BitVec.Lemmas
-import Init.Data.BitVec.Decidable
+public import Init.SimpLemmas
+public import Init.Data.Bool
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.BitVec.Decidable
+
+@[expose] public section
 
 /-!
 This module contains the `Bool` simplifying part of the `bv_normalize` simp set.

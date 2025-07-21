@@ -169,7 +169,7 @@ x_2 = lean_box(x_1);
 x_3 = lean_alloc_closure((void*)(l_float32Spec___lam__0___boxed), 3, 1);
 lean_closure_set(x_3, 0, x_2);
 x_4 = lean_box(0);
-lean_inc(x_3);
+lean_inc_ref(x_3);
 x_5 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
@@ -182,10 +182,7 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_float32Spec___lam__0(x_4, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -195,9 +192,9 @@ _start:
 {
 float x_3; float x_4; float x_5; lean_object* x_6; 
 x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_float32(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_float32_add(x_3, x_4);
 x_6 = lean_box_float32(x_5);
 return x_6;
@@ -208,9 +205,9 @@ _start:
 {
 float x_3; float x_4; float x_5; lean_object* x_6; 
 x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_float32(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_float32_sub(x_3, x_4);
 x_6 = lean_box_float32(x_5);
 return x_6;
@@ -221,9 +218,9 @@ _start:
 {
 float x_3; float x_4; float x_5; lean_object* x_6; 
 x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_float32(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_float32_mul(x_3, x_4);
 x_6 = lean_box_float32(x_5);
 return x_6;
@@ -234,9 +231,9 @@ _start:
 {
 float x_3; float x_4; float x_5; lean_object* x_6; 
 x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_float32(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_float32_div(x_3, x_4);
 x_6 = lean_box_float32(x_5);
 return x_6;
@@ -247,7 +244,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float32_negate(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -269,7 +266,7 @@ _start:
 {
 float x_2; uint32_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float32_to_bits(x_2);
 x_4 = lean_box_uint32(x_3);
 return x_4;
@@ -376,9 +373,9 @@ _start:
 {
 float x_3; float x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_float32(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_float32_beq(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -405,9 +402,9 @@ _start:
 {
 float x_3; float x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_float32(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_float32_decLt(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -418,9 +415,9 @@ _start:
 {
 float x_3; float x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_float32(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_float32_decLe(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -431,7 +428,7 @@ _start:
 {
 float x_2; lean_object* x_3; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float32_to_string(x_2);
 return x_3;
 }
@@ -441,7 +438,7 @@ _start:
 {
 float x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float32_to_uint8(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -452,7 +449,7 @@ _start:
 {
 float x_2; uint16_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float32_to_uint16(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -463,7 +460,7 @@ _start:
 {
 float x_2; uint32_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float32_to_uint32(x_2);
 x_4 = lean_box_uint32(x_3);
 return x_4;
@@ -474,7 +471,7 @@ _start:
 {
 float x_2; uint64_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float32_to_uint64(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
@@ -485,7 +482,7 @@ _start:
 {
 float x_2; size_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float32_to_usize(x_2);
 x_4 = lean_box_usize(x_3);
 return x_4;
@@ -496,7 +493,7 @@ _start:
 {
 float x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float32_isnan(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -507,7 +504,7 @@ _start:
 {
 float x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float32_isfinite(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -518,7 +515,7 @@ _start:
 {
 float x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float32_isinf(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -529,7 +526,7 @@ _start:
 {
 float x_2; lean_object* x_3; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float32_frexp(x_2);
 return x_3;
 }
@@ -555,7 +552,6 @@ _start:
 {
 uint8_t x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_uint8_to_float32(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -566,7 +562,6 @@ _start:
 {
 uint16_t x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_uint16_to_float32(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -652,7 +647,7 @@ _start:
 {
 float x_3; lean_object* x_4; 
 x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_Float32_repr(x_3, x_2);
 lean_dec(x_2);
 return x_4;
@@ -687,7 +682,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = sinf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -698,7 +693,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = cosf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -709,7 +704,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = tanf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -720,7 +715,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = asinf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -731,7 +726,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = acosf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -742,7 +737,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = atanf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -753,9 +748,9 @@ _start:
 {
 float x_3; float x_4; float x_5; lean_object* x_6; 
 x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_float32(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = atan2f(x_3, x_4);
 x_6 = lean_box_float32(x_5);
 return x_6;
@@ -766,7 +761,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = sinhf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -777,7 +772,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = coshf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -788,7 +783,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = tanhf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -799,7 +794,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = asinhf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -810,7 +805,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = acoshf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -821,7 +816,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = atanhf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -832,7 +827,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = expf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -843,7 +838,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = exp2f(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -854,7 +849,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = logf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -865,7 +860,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = log2f(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -876,7 +871,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = log10f(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -887,9 +882,9 @@ _start:
 {
 float x_3; float x_4; float x_5; lean_object* x_6; 
 x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_float32(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = powf(x_3, x_4);
 x_6 = lean_box_float32(x_5);
 return x_6;
@@ -900,7 +895,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = sqrtf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -911,7 +906,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = cbrtf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -922,7 +917,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = ceilf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -933,7 +928,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = floorf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -944,7 +939,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = roundf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -955,7 +950,7 @@ _start:
 {
 float x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = fabsf(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;
@@ -1005,9 +1000,9 @@ _start:
 {
 float x_3; float x_4; float x_5; lean_object* x_6; 
 x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_float32(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_instMinFloat32___lam__0(x_3, x_4);
 x_6 = lean_box_float32(x_5);
 return x_6;
@@ -1041,9 +1036,9 @@ _start:
 {
 float x_3; float x_4; float x_5; lean_object* x_6; 
 x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_unbox_float32(x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_instMaxFloat32___lam__0(x_3, x_4);
 x_6 = lean_box_float32(x_5);
 return x_6;
@@ -1054,7 +1049,7 @@ _start:
 {
 float x_3; float x_4; lean_object* x_5; 
 x_3 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_float32_scaleb(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box_float32(x_4);
@@ -1066,7 +1061,7 @@ _start:
 {
 float x_2; double x_3; lean_object* x_4; 
 x_2 = lean_unbox_float32(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float32_to_float(x_2);
 x_4 = lean_box_float(x_3);
 return x_4;
@@ -1077,7 +1072,7 @@ _start:
 {
 double x_2; float x_3; lean_object* x_4; 
 x_2 = lean_unbox_float(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_float_to_float32(x_2);
 x_4 = lean_box_float32(x_3);
 return x_4;

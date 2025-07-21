@@ -19,11 +19,13 @@ If `p` holds for most subterms, then it is more efficient to use `forEach f e`.
 namespace ForEachExprWhere
 abbrev cacheSize : USize := 8192 - 1
 
+private def notAnExpr : Unit × Unit := ⟨⟨⟩, ⟨⟩⟩
+
 structure State where
   /--
   Implements caching trick similar to the one used at `FindExpr` and `ReplaceExpr`.
   -/
-  visited : Array Expr   -- Remark: our "unsafe" implementation relies on the fact that `()` is not a valid Expr
+  visited : Array Expr   -- Remark: our "unsafe" implementation relies on the fact that `notAnExpr` is not a valid Expr
   /--
   Set of visited subterms that satisfy the predicate `p`.
   We have to use this set to make sure `f` is applied at most once of each subterm that satisfies `p`.
@@ -31,7 +33,7 @@ structure State where
   checked : Std.HashSet Expr
 
 unsafe def initCache : State := {
-  visited := .replicate cacheSize.toNat (cast lcProof ())
+  visited := .replicate cacheSize.toNat (cast lcProof notAnExpr)
   checked := {}
 }
 

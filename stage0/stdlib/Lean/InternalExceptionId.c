@@ -59,7 +59,7 @@ static lean_object* _init_l_Lean_instInhabitedInternalExceptionId() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 return x_1;
 }
 }
@@ -250,7 +250,7 @@ x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_12 = lean_array_push(x_10, x_1);
 x_13 = lean_st_ref_set(x_3, x_12, x_11);
 x_14 = !lean_is_exclusive(x_13);
@@ -286,7 +286,7 @@ x_20 = lean_alloc_closure((void*)(l_Lean_registerInternalExceptionId___lam__0___
 x_21 = l_Lean_registerInternalExceptionId___closed__1;
 x_22 = l_Lean_Name_toString(x_1, x_8, x_20);
 x_23 = lean_string_append(x_21, x_22);
-lean_dec(x_22);
+lean_dec_ref(x_22);
 x_24 = l_Lean_registerInternalExceptionId___closed__2;
 x_25 = lean_string_append(x_23, x_24);
 x_26 = lean_alloc_ctor(18, 1, 0);
@@ -313,7 +313,7 @@ x_31 = lean_ctor_get(x_30, 0);
 lean_inc(x_31);
 x_32 = lean_ctor_get(x_30, 1);
 lean_inc(x_32);
-lean_dec(x_30);
+lean_dec_ref(x_30);
 x_33 = lean_array_push(x_31, x_1);
 x_34 = lean_st_ref_set(x_3, x_33, x_32);
 x_35 = lean_ctor_get(x_34, 1);
@@ -345,7 +345,7 @@ x_39 = lean_alloc_closure((void*)(l_Lean_registerInternalExceptionId___lam__0___
 x_40 = l_Lean_registerInternalExceptionId___closed__1;
 x_41 = l_Lean_Name_toString(x_1, x_29, x_39);
 x_42 = lean_string_append(x_40, x_41);
-lean_dec(x_41);
+lean_dec_ref(x_41);
 x_43 = l_Lean_registerInternalExceptionId___closed__2;
 x_44 = lean_string_append(x_42, x_43);
 x_45 = lean_alloc_ctor(18, 1, 0);
@@ -367,7 +367,7 @@ lean_dec(x_3);
 x_6 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_7 = l_Array_anyMUnsafe_any___at___Array_contains___at___Lean_registerInternalExceptionId_spec__0_spec__0(x_1, x_2, x_5, x_6);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_8 = lean_box(x_7);
 return x_8;
@@ -379,7 +379,7 @@ _start:
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Array_contains___at___Lean_registerInternalExceptionId_spec__0(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -389,7 +389,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_registerInternalExceptionId___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -409,7 +409,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_2 = l_Lean_InternalExceptionId_toString___closed__0;
 x_3 = l_Nat_reprFast(x_1);
 x_4 = lean_string_append(x_2, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_4;
 }
 }

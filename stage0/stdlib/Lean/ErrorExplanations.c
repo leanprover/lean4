@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ErrorExplanations
-// Imports: Lean.ErrorExplanations.CtorResultingTypeMismatch Lean.ErrorExplanations.DependsOnNoncomputable Lean.ErrorExplanations.InductiveParamMismatch Lean.ErrorExplanations.InductiveParamMissing Lean.ErrorExplanations.InvalidDottedIdent Lean.ErrorExplanations.RedundantMatchAlt
+// Imports: Lean.ErrorExplanations.CtorResultingTypeMismatch Lean.ErrorExplanations.DependsOnNoncomputable Lean.ErrorExplanations.InductiveParamMismatch Lean.ErrorExplanations.InductiveParamMissing Lean.ErrorExplanations.InferBinderTypeFailed Lean.ErrorExplanations.InferDefTypeFailed Lean.ErrorExplanations.InvalidDottedIdent Lean.ErrorExplanations.RedundantMatchAlt Lean.ErrorExplanations.UnknownIdentifier
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,8 +17,11 @@ lean_object* initialize_Lean_ErrorExplanations_CtorResultingTypeMismatch(uint8_t
 lean_object* initialize_Lean_ErrorExplanations_DependsOnNoncomputable(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ErrorExplanations_InductiveParamMismatch(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ErrorExplanations_InductiveParamMissing(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_ErrorExplanations_InferBinderTypeFailed(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_ErrorExplanations_InferDefTypeFailed(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ErrorExplanations_InvalidDottedIdent(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ErrorExplanations_RedundantMatchAlt(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_ErrorExplanations_UnknownIdentifier(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_ErrorExplanations(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -36,10 +39,19 @@ lean_dec_ref(res);
 res = initialize_Lean_ErrorExplanations_InductiveParamMissing(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_ErrorExplanations_InferBinderTypeFailed(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_ErrorExplanations_InferDefTypeFailed(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_ErrorExplanations_InvalidDottedIdent(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_ErrorExplanations_RedundantMatchAlt(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_ErrorExplanations_UnknownIdentifier(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

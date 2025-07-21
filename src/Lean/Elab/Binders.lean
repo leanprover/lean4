@@ -178,9 +178,21 @@ private def toBinderViews (stx : Syntax) : TermElabM (Array BinderView) := do
   else
     throwUnsupportedSyntax
 
-private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit := do
-  registerCustomErrorIfMVar type ref "failed to infer binder type"
-  registerLevelMVarErrorExprInfo type ref m!"failed to infer universe levels in binder type"
+/--
+The error name for "failed to infer binder type" errors.
+
+We cannot use `logNamedError` here because the error is logged later, after attempting to synthesize
+metavariables, in `logUnassignedUsingErrorInfos`.
+-/
+def failedToInferBinderTypeErrorName := `lean.inferBinderTypeFailed
+
+private def registerFailedToInferBinderTypeInfo (type : Expr) (view : BinderView) : TermElabM Unit := do
+  let msg := if view.id.getId.hasMacroScopes then
+    m!"binder type"
+  else
+    m!"type of binder `{view.id.getId}`"
+  registerCustomErrorIfMVar type view.ref (m!"Failed to infer {msg}".tagWithErrorName failedToInferBinderTypeErrorName)
+  registerLevelMVarErrorExprInfo type view.ref m!"Failed to infer universe levels in {msg}"
 
 def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit :=
   addTermInfo' (isBinder := true) stx fvar
@@ -212,7 +224,7 @@ private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Ar
       let binderView := binderViews[i]
       ensureAtomicBinderName binderView
       let type ← elabType binderView.type
-      registerFailedToInferBinderTypeInfo type binderView.type
+      registerFailedToInferBinderTypeInfo type binderView
       if binderView.bi.isInstImplicit && checkBinderAnnotations.get (← getOptions) then
         unless (← isClass? type).isSome do
           throwErrorAt binderView.type (m!"invalid binder annotation, type is not a class instance{indentExpr type}" ++ .note "Use the command `set_option checkBinderAnnotations false` to disable the check")
@@ -423,7 +435,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
     ensureAtomicBinderName binderView
     withRef binderView.type <| withLCtx s.lctx s.localInsts do
       let type ← elabType binderView.type
-      registerFailedToInferBinderTypeInfo type binderView.type
+      registerFailedToInferBinderTypeInfo type binderView
       let fvarId ← mkFreshFVarId
       let fvar  := mkFVar fvarId
       let s     := { s with fvars := s.fvars.push fvar }

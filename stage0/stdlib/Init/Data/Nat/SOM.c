@@ -55,7 +55,7 @@ static lean_object* _init_l_Nat_SOM_instInhabitedExpr___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -119,8 +119,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Nat_SOM_Expr_denote(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -153,7 +153,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Nat_SOM_Mon_denote(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -379,7 +379,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Nat_SOM_Poly_denote(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -446,7 +446,7 @@ x_17 = lean_alloc_closure((void*)(l_instDecidableEqNat___boxed), 2, 0);
 x_18 = l_Nat_SOM_Poly_add_go___closed__0;
 lean_inc(x_14);
 lean_inc(x_11);
-lean_inc(x_17);
+lean_inc_ref(x_17);
 x_19 = l_List_decidableLex___redArg(x_17, x_18, x_11, x_14);
 if (x_19 == 0)
 {
@@ -609,7 +609,7 @@ return x_46;
 else
 {
 lean_object* x_47; uint8_t x_48; 
-lean_dec(x_17);
+lean_dec_ref(x_17);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -920,7 +920,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Nat_SOM_Expr_toPoly(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }

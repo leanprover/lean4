@@ -348,7 +348,7 @@ mutual
     Recall that `sizeOf (Expr.app f args)` is definitionally equal to `1 + sizeOf f + Expr._sizeOf_1 args`, but
     `Expr._sizeOf_1 args` is **not** definitionally equal to `sizeOf args`. We need a proof by induction.
   -/
-  private partial def mkSizeOfAuxLemma (lhs rhs : Expr) : M Expr := do
+  private partial def mkSizeOfAuxLemma (lhs rhs : Expr) : M Expr := withIncRecDepth do
     trace[Meta.sizeOf.aux] "{lhs} =?= {rhs}"
     match lhs.getAppFn.const? with
     | none => throwFailed
@@ -442,6 +442,8 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
       let thmName   := mkSizeOfSpecLemmaName ctorName
       let thmParams := params ++ localInsts ++ fields
       let thmType ← mkForallFVars thmParams target
+      trace[Meta.sizeOf] "sizeOf spec theorem name: {thmName}"
+      trace[Meta.sizeOf] "sizeOf spec theorem type: {thmType}"
       let thmValue ← if indInfo.isNested then
         SizeOfSpecNested.main lhs rhs |>.run {
           indInfo, sizeOfFns, ctorName, params, localInsts, recMap
@@ -449,8 +451,6 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
       else
         mkEqRefl rhs
       let thmValue ← mkLambdaFVars thmParams thmValue
-      trace[Meta.sizeOf] "sizeOf spec theorem name: {thmName}"
-      trace[Meta.sizeOf] "sizeOf spec theorem type: {thmType}"
       trace[Meta.sizeOf] "sizeOf spec theorem value: {thmValue}"
       unless (← isDefEq (← inferType thmValue) thmType) do
         throwError "type mismatch"
@@ -481,42 +481,43 @@ register_builtin_option genSizeOfSpec : Bool := {
 }
 
 def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
-  withExporting (isExporting := !isPrivateName typeName) do
-  if (← getEnv).contains ``SizeOf && genSizeOf.get (← getOptions) && !(← isInductivePredicate typeName) then
-    withTraceNode `Meta.sizeOf (fun _ => return m!"{typeName}") do
-      let indInfo ← getConstInfoInduct typeName
-      unless indInfo.isUnsafe do
-        let (fns, recMap) ← mkSizeOfFns typeName
-        for indTypeName in indInfo.all, fn in fns do
-          let indInfo ← getConstInfoInduct indTypeName
-          forallTelescopeReducing indInfo.type fun xs _ =>
-            let params := xs[*...indInfo.numParams]
-            withInstImplicitAsImplict params do
-              let indices := xs[indInfo.numParams...*]
-              mkLocalInstances params fun localInsts => do
-                let us := indInfo.levelParams.map mkLevelParam
-                let indType := mkAppN (mkConst indTypeName us) xs
-                let sizeOfIndType ← mkAppM ``SizeOf #[indType]
-                withLocalDeclD `m indType fun m => do
-                  let v ← mkLambdaFVars #[m] <| mkAppN (mkConst fn us) (params ++ localInsts ++ indices ++ #[m])
-                  let sizeOfMk ← mkAppM ``SizeOf.mk #[v]
-                  let instDeclName := indTypeName ++ `_sizeOf_inst
-                  let instDeclType ← mkForallFVars (xs ++ localInsts) sizeOfIndType
-                  let instDeclValue ← mkLambdaFVars (xs ++ localInsts) sizeOfMk
-                  trace[Meta.sizeOf] ">> {instDeclName} : {instDeclType}"
-                  -- We expose the `sizeOf` instance so that the `spec` theorems can be publicly `defeq`
-                  withExporting do
-                    addDecl <| Declaration.defnDecl {
-                      name        := instDeclName
-                      levelParams := indInfo.levelParams
-                      type        := instDeclType
-                      value       := instDeclValue
-                      safety      := .safe
-                      hints       := .abbrev
-                    }
-                  addInstance instDeclName AttributeKind.global (eval_prio default)
-        if genSizeOfSpec.get (← getOptions) then
-          mkSizeOfSpecTheorems indInfo.all.toArray fns recMap
+  prependError m!"failed to generate `SizeOf` instance for `{.ofConstName typeName}`:" do
+    let indInfo ← withoutExporting <| getConstInfoInduct typeName
+    withExporting (isExporting := !isPrivateName typeName && !indInfo.ctors.any isPrivateName) do
+    if (← getEnv).contains ``SizeOf && genSizeOf.get (← getOptions) && !(← isInductivePredicate typeName) then
+      withTraceNode `Meta.sizeOf (fun _ => return m!"{typeName}") do
+        unless indInfo.isUnsafe do
+          let (fns, recMap) ← mkSizeOfFns typeName
+          for indTypeName in indInfo.all, fn in fns do
+            let indInfo ← getConstInfoInduct indTypeName
+            forallTelescopeReducing indInfo.type fun xs _ =>
+              let params := xs[*...indInfo.numParams]
+              withInstImplicitAsImplict params do
+                let indices := xs[indInfo.numParams...*]
+                mkLocalInstances params fun localInsts => do
+                  let us := indInfo.levelParams.map mkLevelParam
+                  let indType := mkAppN (mkConst indTypeName us) xs
+                  let sizeOfIndType ← mkAppM ``SizeOf #[indType]
+                  withLocalDeclD `m indType fun m => do
+                    let v ← mkLambdaFVars #[m] <| mkAppN (mkConst fn us) (params ++ localInsts ++ indices ++ #[m])
+                    let sizeOfMk ← mkAppM ``SizeOf.mk #[v]
+                    let instDeclName := indTypeName ++ `_sizeOf_inst
+                    let instDeclType ← mkForallFVars (xs ++ localInsts) sizeOfIndType
+                    let instDeclValue ← mkLambdaFVars (xs ++ localInsts) sizeOfMk
+                    trace[Meta.sizeOf] ">> {instDeclName} : {instDeclType}"
+                    -- We expose the `sizeOf` instance so that the `spec` theorems can be publicly `defeq`
+                    withExporting do
+                      addDecl <| Declaration.defnDecl {
+                        name        := instDeclName
+                        levelParams := indInfo.levelParams
+                        type        := instDeclType
+                        value       := instDeclValue
+                        safety      := .safe
+                        hints       := .abbrev
+                      }
+                    addInstance instDeclName AttributeKind.global (eval_prio default)
+          if genSizeOfSpec.get (← getOptions) then
+            mkSizeOfSpecTheorems indInfo.all.toArray fns recMap
 
 builtin_initialize
   registerTraceClass `Meta.sizeOf

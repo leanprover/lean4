@@ -328,7 +328,7 @@ if (lean_obj_tag(x_2) == 1)
 {
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_ctor_get(x_2, 1);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 x_8 = lean_string_dec_eq(x_7, x_3);
 if (x_8 == 0)
 {
@@ -337,14 +337,14 @@ x_9 = l_Lean_isAuxRecursorWithSuffix___closed__0;
 x_10 = lean_string_append(x_3, x_9);
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = lean_string_utf8_byte_size(x_7);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 x_13 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_13, 0, x_7);
 lean_ctor_set(x_13, 1, x_11);
 lean_ctor_set(x_13, 2, x_12);
 x_14 = lean_string_length(x_10);
 x_15 = l_Substring_nextn(x_13, x_14, x_11);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_16 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_16, 0, x_7);
 lean_ctor_set(x_16, 1, x_11);
@@ -360,8 +360,8 @@ goto block_6;
 }
 else
 {
-lean_dec(x_7);
-lean_dec(x_3);
+lean_dec_ref(x_7);
+lean_dec_ref(x_3);
 x_4 = x_8;
 goto block_6;
 }
@@ -369,9 +369,9 @@ goto block_6;
 else
 {
 uint8_t x_20; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_20 = 0;
 return x_20;
 }
@@ -380,7 +380,7 @@ block_6:
 if (x_4 == 0)
 {
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_4;
 }
 else

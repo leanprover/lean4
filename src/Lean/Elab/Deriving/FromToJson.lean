@@ -7,7 +7,7 @@ prelude
 import Lean.Meta.Transform
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
-import Lean.Data.Json.FromToJson
+import Lean.Data.Json.FromToJson.Basic
 
 namespace Lean.Elab.Deriving.FromToJson
 open Lean.Elab.Command
@@ -166,9 +166,9 @@ def mkToJsonAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   if ctx.usePartial then
     let letDecls ← mkLocalInstanceLetDecls ctx ``ToJson header.argNames
     body ← mkLet letDecls body
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Json := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Json := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Json := $body:term)
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Json := $body:term)
 
 def mkFromJsonBody (ctx : Context) (e : Expr) : TermElabM Term := do
   let indName := e.getAppFn.constName!
@@ -188,9 +188,9 @@ def mkFromJsonAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   if ctx.usePartial || indval.isRec then
     let letDecls ← mkLocalInstanceLetDecls ctx ``FromJson header.argNames
     body ← mkLet letDecls body
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Except String $(← mkInductiveApp ctx.typeInfos[i]! header.argNames) := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Except String $(← mkInductiveApp ctx.typeInfos[i]! header.argNames) := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Except String $(← mkInductiveApp ctx.typeInfos[i]! header.argNames) := $body:term)
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Except String $(← mkInductiveApp ctx.typeInfos[i]! header.argNames) := $body:term)
 
 
 def mkToJsonMutualBlock (ctx : Context) : TermElabM Command := do

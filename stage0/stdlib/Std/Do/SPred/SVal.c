@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.SPred.SVal
-// Imports: Init.Data.List.Notation
+// Imports: Init.Data.List.Notation Init.SimpLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -261,7 +261,7 @@ x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_apply_2(x_2, x_3, x_4);
 return x_5;
 }
@@ -460,12 +460,16 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Data_List_Notation(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_SimpLemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Do_SPred_SVal(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_List_Notation(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_SimpLemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Do_SVal_instInhabitedStateTupleNil = _init_l_Std_Do_SVal_instInhabitedStateTupleNil();

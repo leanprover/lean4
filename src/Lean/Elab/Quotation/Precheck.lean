@@ -107,7 +107,8 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
         if quotPrecheck.allowSectionVars.get (← getOptions) && (← isSectionVariable e) then
           return
       | _ => pure ()
-    throwError "unknown identifier '{val}' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check."
+    throwError m!"Unknown identifier `{val}` at quotation precheck"
+      ++ .note "You can use `set_option quotPrecheck false` to disable this check."
   | _ => throwUnsupportedSyntax
 
 @[builtin_quot_precheck Lean.Parser.Term.app] def precheckApp : Precheck

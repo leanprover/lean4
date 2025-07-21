@@ -182,7 +182,7 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Server_instCoeTaskServerTask___lam__0(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
@@ -199,7 +199,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_instCoeTaskServerTask___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -415,7 +415,7 @@ lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg(x_1, x_5, x_6, x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_7;
 }
 }
@@ -428,7 +428,7 @@ lean_dec(x_3);
 x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_8 = l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0(x_1, x_2, x_6, x_7, x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_8;
 }
 }
@@ -437,7 +437,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Server_ServerTask_join___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -446,7 +446,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Server_ServerTask_join(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -1486,7 +1486,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Server_ServerTask_hasFinished___redArg(x_1, x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -1495,7 +1495,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Server_ServerTask_hasFinished(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -2043,7 +2043,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Server_ServerTask_cancel___redArg(x_1, x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -2052,21 +2052,21 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Server_ServerTask_cancel(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Task_asServerTask___redArg(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Task_asServerTask(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_inc(x_2);
+lean_inc_ref(x_2);
 return x_2;
 }
 }
@@ -2075,7 +2075,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Task_asServerTask___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -2084,7 +2084,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Task_asServerTask(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }

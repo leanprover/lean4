@@ -31,6 +31,8 @@ leanOptions = { experimental.module = true }
 # For example, CI will set `-DwarningAsError=true` through this
 moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
 
+${LEAN_EXTRA_LAKEFILE_TOML}
+
 [[lean_lib]]
 name = "Init"
 libName = "${LAKE_LIB_PREFIX}Init"

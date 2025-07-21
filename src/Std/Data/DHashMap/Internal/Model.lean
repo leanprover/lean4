@@ -12,7 +12,7 @@ public import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.HashesTo
 public import Std.Data.DHashMap.Internal.AssocList.Lemmas
 
-public @[expose] section
+@[expose] public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on

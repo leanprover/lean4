@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.CommRing.Types
-// Imports: Init.Grind.Ring.OfSemiring Lean.Data.PersistentArray Lean.Data.RBTree Lean.Meta.Tactic.Grind.ExprPtr Lean.Meta.Tactic.Grind.Arith.Util Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+// Imports: Init.Grind.Ring.OfSemiring Lean.Data.PersistentArray Lean.Meta.Tactic.Grind.ExprPtr Lean.Meta.Tactic.Grind.Arith.Util Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -256,8 +256,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Meta_Grind_Arith_CommRing_EqCnstr_compare(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -267,7 +267,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 return x_2;
 }
 }
@@ -276,7 +276,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Meta_Grind_Arith_CommRing_PolyDerivation_p(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -328,7 +328,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__4;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__2;
 x_4 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__3;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -383,7 +383,7 @@ _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__4;
-x_2 = lean_box(0);
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__2;
 x_4 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__9;
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
@@ -414,7 +414,7 @@ x_2 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__11;
 x_3 = 0;
 x_4 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__10;
 x_5 = lean_box(0);
-x_6 = lean_box(0);
+x_6 = lean_box(1);
 x_7 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__8;
 x_8 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__7;
 x_9 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedRing___closed__5;
@@ -423,7 +423,7 @@ x_11 = lean_box(0);
 x_12 = lean_box(0);
 x_13 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedEqCnstrProof___closed__2;
 x_14 = lean_box(0);
-x_15 = lean_box(0);
+x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_alloc_ctor(0, 30, 2);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_14);
@@ -507,7 +507,7 @@ x_4 = lean_box(0);
 x_5 = lean_box(0);
 x_6 = lean_box(0);
 x_7 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedEqCnstrProof___closed__2;
-x_8 = lean_box(0);
+x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_alloc_ctor(0, 15, 0);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_8);
@@ -575,7 +575,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_CommRing_instInhabitedState___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedState___closed__3;
 x_3 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedState___closed__2;
 x_4 = l_Lean_Meta_Grind_Arith_CommRing_instInhabitedState___closed__0;
@@ -600,7 +600,6 @@ return x_1;
 }
 lean_object* initialize_Init_Grind_Ring_OfSemiring(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_PersistentArray(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_RBTree(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_ExprPtr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Util(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_CommRing_Poly(uint8_t builtin, lean_object*);
@@ -613,9 +612,6 @@ res = initialize_Init_Grind_Ring_OfSemiring(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_PersistentArray(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_RBTree(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_ExprPtr(builtin, lean_io_mk_world());

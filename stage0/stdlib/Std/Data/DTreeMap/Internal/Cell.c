@@ -509,11 +509,10 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; uint8_t x_6; uint8_t x_7; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = lean_apply_1(x_1, x_3);
 x_5 = 1;
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 x_7 = l_instDecidableEqOrdering(x_6, x_5);
 return x_7;
 }

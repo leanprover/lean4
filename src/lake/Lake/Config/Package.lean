@@ -12,7 +12,6 @@ import Lake.Config.ConfigDecl
 import Lake.Config.Script
 import Lake.Config.Cache
 import Lake.Load.Config
-import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
 import Lake.Util.Version
 import Lake.Util.FilePath
@@ -284,7 +283,8 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   and will remove it if it was already there (when Reservoir is next updated).
   -/
   reservoir : Bool := true
-  /-
+
+  /--
   Whether to enables Lake's local, offline artifact cache for the package.
 
   Artifacts (i.e., build products) of packages will be shared across
@@ -296,10 +296,22 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   in their usual location within the build directory. Thus, projects with custom build
   scripts that rely on specific location of artifacts may wish to disable this feature.
 
-  If `none`, the cache will be disabled by default unless the `LAKE_ARTIFACT_CACHE`
-  environment variable is set to true.
+  If `none` (the default), the cache will be disabled by default unless
+  the `LAKE_ARTIFACT_CACHE` environment variable is set to true.
   -/
   enableArtifactCache?, enableArtifactCache : Option Bool := none
+  /--
+  Whether native libraries (of this package) should be prefixed with `lib` on Windows.
+
+  Unlike Unix, Windows does not require native libraries to start with `lib` and,
+  by convention, they usually do not. However, for consistent naming across all platforms,
+  users may wish to enable this.
+
+  Defaults to `false`.
+  -/
+  libPrefixOnWindows : Bool := false
+deriving Inhabited
+
 
 instance : EmptyCollection (PackageConfig n) := ⟨{}⟩
 
@@ -625,7 +637,11 @@ def nativeLibDir (self : Package) : FilePath :=
 @[inline] def irDir (self : Package) : FilePath :=
   self.buildDir / self.config.irDir.normalize
 
-  /-- The package's `enableArtifactCache?` configuration. -/
+/-- The package's `libPrefixOnWindows` configuration. -/
+@[inline] def libPrefixOnWindows (self : Package) : Bool :=
+  self.config.libPrefixOnWindows
+
+/-- The package's `enableArtifactCache?` configuration. -/
 @[inline] def enableArtifactCache? (self : Package) : Option Bool :=
   self.config.enableArtifactCache?
 
@@ -636,7 +652,7 @@ def inputsFileIn (cache : Cache) (self : Package) : FilePath :=
 
 /-- Try to find a target configuration in the package with the given name. -/
 def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=
-  self.targetDeclMap.find? name
+  self.targetDeclMap.get? name
 
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=

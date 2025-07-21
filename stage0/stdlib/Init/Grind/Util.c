@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Grind_nestedDecidable___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_natCastUnexpander___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Grind_matchCondUnexpander(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly___boxed(lean_object*, lean_object*);
@@ -28,6 +29,7 @@ lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_offset(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_natCastUnexpander(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_offsetUnexpander___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Grind_nestedDecidable___redArg___boxed(lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_eqMatchUnexpander___closed__2;
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__1;
@@ -38,6 +40,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_offsetUnexpander___boxed(lean_object*, lea
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_matchCondUnexpander___redArg(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Grind_nestedDecidable(lean_object*, uint8_t);
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Grind_offset___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_offsetUnexpander___closed__0;
@@ -46,6 +49,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_offsetUnexpander(lean_object*, lean_object
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__2;
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__4;
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__5;
+LEAN_EXPORT uint8_t l_Lean_Grind_nestedDecidable___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_matchCondUnexpander___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__7;
 static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__0;
@@ -57,6 +61,38 @@ static lean_object* l_Lean_Grind_nestedProofUnexpander___closed__3;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_eqMatchUnexpander___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_nestedProofUnexpander___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Grind_nestedDecidable___redArg(uint8_t x_1) {
+_start:
+{
+return x_1;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_Grind_nestedDecidable(lean_object* x_1, uint8_t x_2) {
+_start:
+{
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_nestedDecidable___redArg___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox(x_1);
+x_3 = l_Lean_Grind_nestedDecidable___redArg(x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Grind_nestedDecidable___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; uint8_t x_4; lean_object* x_5; 
+x_3 = lean_unbox(x_2);
+x_4 = l_Lean_Grind_nestedDecidable(x_1, x_3);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_simpMatchDiscrsOnly___redArg(lean_object* x_1) {
 _start:
 {

@@ -135,7 +135,7 @@ _start:
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = lean_apply_3(x_5, x_1, x_3, x_4);
 return x_6;
 }

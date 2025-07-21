@@ -53,9 +53,13 @@ The names of the library's root modules
 @[inline] def libName (self : LeanLib) : String :=
   self.config.libName
 
+/-- Whether this library's native binaries should be prefixed with `lib` on Windows. -/
+@[inline] def libPrefixOnWindows (self : LeanLib) : Bool :=
+  self.config.libPrefixOnWindows || self.pkg.libPrefixOnWindows
+
 /-- The file name of the library's static binary (i.e., its `.a`) -/
 @[inline] def staticLibFileName (self : LeanLib) : FilePath :=
-  nameToStaticLib self.config.libName
+  nameToStaticLib self.config.libName self.libPrefixOnWindows
 
 /-- The path to the static library in the package's `libDir`. -/
 @[inline] def staticLibFile (self : LeanLib) : FilePath :=
@@ -67,7 +71,7 @@ The names of the library's root modules
 
 /-- The file name of the library's shared binary (i.e., its `dll`, `dylib`, or `so`) . -/
 @[inline] def sharedLibFileName (self : LeanLib) : FilePath :=
-  nameToSharedLib self.config.libName
+  nameToSharedLib self.config.libName self.libPrefixOnWindows
 
 /-- The path to the shared library in the package's `libDir`. -/
 @[inline] def sharedLibFile (self : LeanLib) : FilePath :=

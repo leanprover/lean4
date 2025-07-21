@@ -279,8 +279,8 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Tactic_BVDecide_BVExpr_bitblast_FullAdderInput_cast(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
@@ -291,12 +291,12 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
+lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 2);
-lean_inc(x_5);
-lean_dec(x_1);
+lean_inc_ref(x_5);
+lean_dec_ref(x_1);
 x_6 = lean_apply_3(x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -314,7 +314,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Add_0__Std_Tactic_BVDecide_BVExpr_bitblast_FullAdderInput_cast_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
@@ -325,12 +325,12 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_4, 2);
-lean_inc(x_7);
-lean_dec(x_4);
+lean_inc_ref(x_7);
+lean_dec_ref(x_4);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_5);
 lean_ctor_set(x_8, 1, x_6);
@@ -416,14 +416,14 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_4, 2);
-lean_inc(x_7);
-lean_dec(x_4);
-lean_inc(x_6);
-lean_inc(x_5);
+lean_inc_ref(x_7);
+lean_dec_ref(x_4);
+lean_inc_ref(x_6);
+lean_inc_ref(x_5);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_5);
 lean_ctor_set(x_8, 1, x_6);
@@ -552,9 +552,9 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_45 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_42, x_44);
 x_46 = lean_ctor_get(x_45, 0);
-lean_inc(x_46);
+lean_inc_ref(x_46);
 x_47 = lean_ctor_get(x_45, 1);
-lean_inc(x_47);
+lean_inc_ref(x_47);
 if (lean_is_exclusive(x_45)) {
  lean_ctor_release(x_45, 0);
  lean_ctor_release(x_45, 1);
@@ -613,9 +613,9 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_64 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_55, x_9);
 x_65 = lean_ctor_get(x_64, 0);
-lean_inc(x_65);
+lean_inc_ref(x_65);
 x_66 = lean_ctor_get(x_64, 1);
-lean_inc(x_66);
+lean_inc_ref(x_66);
 if (lean_is_exclusive(x_64)) {
  lean_ctor_release(x_64, 0);
  lean_ctor_release(x_64, 1);
@@ -639,9 +639,9 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_69 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_65, x_68);
 x_70 = lean_ctor_get(x_69, 0);
-lean_inc(x_70);
+lean_inc_ref(x_70);
 x_71 = lean_ctor_get(x_69, 1);
-lean_inc(x_71);
+lean_inc_ref(x_71);
 if (lean_is_exclusive(x_69)) {
  lean_ctor_release(x_69, 0);
  lean_ctor_release(x_69, 1);
@@ -712,9 +712,9 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_89 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_79, x_9);
 x_90 = lean_ctor_get(x_89, 0);
-lean_inc(x_90);
+lean_inc_ref(x_90);
 x_91 = lean_ctor_get(x_89, 1);
-lean_inc(x_91);
+lean_inc_ref(x_91);
 if (lean_is_exclusive(x_89)) {
  lean_ctor_release(x_89, 0);
  lean_ctor_release(x_89, 1);
@@ -739,9 +739,9 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_95 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_90, x_94);
 x_96 = lean_ctor_get(x_95, 0);
-lean_inc(x_96);
+lean_inc_ref(x_96);
 x_97 = lean_ctor_get(x_95, 1);
-lean_inc(x_97);
+lean_inc_ref(x_97);
 if (lean_is_exclusive(x_95)) {
  lean_ctor_release(x_95, 0);
  lean_ctor_release(x_95, 1);
@@ -820,9 +820,9 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_116 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_105, x_9);
 x_117 = lean_ctor_get(x_116, 0);
-lean_inc(x_117);
+lean_inc_ref(x_117);
 x_118 = lean_ctor_get(x_116, 1);
-lean_inc(x_118);
+lean_inc_ref(x_118);
 if (lean_is_exclusive(x_116)) {
  lean_ctor_release(x_116, 0);
  lean_ctor_release(x_116, 1);
@@ -852,9 +852,9 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_123 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_117, x_122);
 x_124 = lean_ctor_get(x_123, 0);
-lean_inc(x_124);
+lean_inc_ref(x_124);
 x_125 = lean_ctor_get(x_123, 1);
-lean_inc(x_125);
+lean_inc_ref(x_125);
 if (lean_is_exclusive(x_123)) {
  lean_ctor_release(x_123, 0);
  lean_ctor_release(x_123, 1);
@@ -943,9 +943,9 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_146 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_133, x_145);
 x_147 = lean_ctor_get(x_146, 0);
-lean_inc(x_147);
+lean_inc_ref(x_147);
 x_148 = lean_ctor_get(x_146, 1);
-lean_inc(x_148);
+lean_inc_ref(x_148);
 if (lean_is_exclusive(x_146)) {
  lean_ctor_release(x_146, 0);
  lean_ctor_release(x_146, 1);
@@ -979,9 +979,9 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_153 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_147, x_152);
 x_154 = lean_ctor_get(x_153, 0);
-lean_inc(x_154);
+lean_inc_ref(x_154);
 x_155 = lean_ctor_get(x_153, 1);
-lean_inc(x_155);
+lean_inc_ref(x_155);
 if (lean_is_exclusive(x_153)) {
  lean_ctor_release(x_153, 0);
  lean_ctor_release(x_153, 1);
@@ -1031,22 +1031,22 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_mkFullAdder___red
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_inc(x_2);
 lean_inc(x_1);
 x_5 = l_Std_Tactic_BVDecide_BVExpr_bitblast_mkFullAdderOut___redArg(x_1, x_2, x_3, x_4);
 x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_7);
-lean_dec(x_5);
+lean_inc_ref(x_7);
+lean_dec_ref(x_5);
 x_8 = l_Std_Tactic_BVDecide_BVExpr_bitblast_FullAdderInput_cast___redArg(x_4);
 x_9 = l_Std_Tactic_BVDecide_BVExpr_bitblast_mkFullAdderCarry___redArg(x_1, x_2, x_6, x_8);
 x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
+lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_9, 1);
-lean_inc(x_11);
-lean_dec(x_9);
+lean_inc_ref(x_11);
+lean_dec_ref(x_9);
 x_12 = !lean_is_exclusive(x_7);
 if (x_12 == 0)
 {
@@ -1091,7 +1091,7 @@ x_28 = lean_nat_dec_lt(x_7, x_3);
 if (x_28 == 0)
 {
 lean_object* x_40; 
-lean_dec(x_8);
+lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -1142,16 +1142,16 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_13 = l_Std_Tactic_BVDecide_BVExpr_bitblast_mkFullAdder___redArg(x_1, x_2, x_4, x_12);
 x_14 = lean_ctor_get(x_13, 1);
-lean_inc(x_14);
+lean_inc_ref(x_14);
 x_15 = lean_ctor_get(x_13, 0);
-lean_inc(x_15);
+lean_inc_ref(x_15);
 x_16 = lean_ctor_get(x_13, 2);
-lean_inc(x_16);
-lean_dec(x_13);
+lean_inc_ref(x_16);
+lean_dec_ref(x_13);
 x_17 = lean_ctor_get(x_14, 0);
 lean_inc(x_17);
 x_18 = lean_ctor_get_uint8(x_14, sizeof(void*)*1);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_19 = lean_unsigned_to_nat(1u);
 x_20 = lean_nat_add(x_7, x_19);
 lean_dec(x_7);
@@ -1217,8 +1217,8 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd_go___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 lean_dec(x_3);
 return x_10;
 }
@@ -1228,8 +1228,8 @@ _start:
 {
 lean_object* x_12; 
 x_12 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd_go(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
 lean_dec(x_4);
 return x_12;
 }
@@ -1272,7 +1272,7 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd_blast___redArg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_3);
 return x_6;
 }
@@ -1282,7 +1282,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd_blast(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_4);
 return x_7;
 }
@@ -1292,9 +1292,9 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 x_8 = l_Std_Sat_AIG_RefVec_countKnown___redArg(x_3, x_4, x_6);
 x_9 = l_Std_Sat_AIG_RefVec_countKnown___redArg(x_3, x_4, x_7);
 x_10 = lean_nat_dec_lt(x_8, x_9);
@@ -1314,7 +1314,7 @@ lean_dec(x_13);
 lean_ctor_set(x_5, 1, x_6);
 lean_ctor_set(x_5, 0, x_7);
 x_14 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd_blast___redArg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 return x_14;
 }
 else
@@ -1325,17 +1325,17 @@ x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_7);
 lean_ctor_set(x_15, 1, x_6);
 x_16 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd_blast___redArg(x_1, x_2, x_3, x_4, x_15);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 return x_16;
 }
 }
 else
 {
 lean_object* x_17; 
-lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
 x_17 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastAdd_blast___redArg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 return x_17;
 }
 }

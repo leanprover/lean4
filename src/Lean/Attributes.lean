@@ -144,7 +144,7 @@ def registerTagAttribute (name : Name) (descr : String)
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameSet) n => s.insert n
     exportEntriesFn := fun es =>
-      let r : Array Name := es.fold (fun a e => a.push e) #[]
+      let r : Array Name := es.foldl (fun a e => a.push e) #[]
       r.qsort Name.quickLt
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
     asyncMode       := asyncMode
@@ -219,7 +219,7 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
     addImportedFn   := fun s => impl.afterImport s *> pure {}
     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2
     exportEntriesFn := fun m =>
-      let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) #[]
+      let r : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[]
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
   }
@@ -276,7 +276,7 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap α) (p : Name × α) => s.insert p.1 p.2
     exportEntriesFn := fun m =>
-      let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) #[]
+      let r : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[]
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- We assume (and check below) that, if used asynchronously, enum attributes are set only in the
@@ -364,7 +364,7 @@ private def AttributeExtension.mkInitial : IO AttributeExtensionState := do
 
 unsafe def mkAttributeImplOfConstantUnsafe (env : Environment) (opts : Options) (declName : Name) : Except String AttributeImpl :=
   match env.find? declName with
-  | none      => throw ("unknown constant '" ++ toString declName ++ "'")
+  | none      => throw ("Unknown constant `" ++ toString declName ++ "`")
   | some info =>
     match info.type with
     | Expr.const `Lean.AttributeImpl _ => env.evalConst AttributeImpl opts declName

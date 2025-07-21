@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Ring.OfSemiring
 import Lean.Data.PersistentArray
-import Lean.Data.RBTree
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
@@ -45,7 +44,7 @@ protected def EqCnstr.compare (c₁ c₂ : EqCnstr) : Ordering :=
   (compare c₁.p.degree c₂.p.degree) |>.then
   (compare c₁.id c₂.id)
 
-abbrev Queue : Type := RBTree EqCnstr EqCnstr.compare
+abbrev Queue : Type := Std.TreeSet EqCnstr EqCnstr.compare
 
 /--
 A polynomial equipped with a chain of rewrite steps that justifies its equality to the original input.

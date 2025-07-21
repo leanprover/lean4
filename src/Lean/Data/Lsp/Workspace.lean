@@ -6,7 +6,7 @@ Authors: Wojciech Nawrocki
 -/
 prelude
 import Lean.Data.Lsp.Basic
-import Lean.Data.Json
+import Lean.Data.Json.FromToJson.Basic
 
 namespace Lean
 namespace Lsp

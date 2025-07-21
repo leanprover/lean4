@@ -12,7 +12,7 @@ public import Init.Data.UInt.Basic
 public import all Init.Data.UInt.BasicAux
 public import Init.Data.Option.Basic
 
-public section
+@[expose] public section
 universe u
 
 structure ByteArray where

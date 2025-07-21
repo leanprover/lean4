@@ -5,6 +5,7 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
 prelude
 import Lean.Elab.Tactic.Do.ProofMode.MGoal
+import Lean.PrettyPrinter.Delaborator.Basic
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do

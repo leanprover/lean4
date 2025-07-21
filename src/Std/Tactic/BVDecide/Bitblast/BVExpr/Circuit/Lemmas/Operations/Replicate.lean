@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblaster for `BitVec.replicate` from `Impl.Operations.Replicate`.
@@ -28,7 +32,7 @@ private theorem aux1 {a b c : Nat} (h : b < a * c) : 0 < a := by
   · simp_all
   · omega
 
-private theorem aux2 {a b c : Nat} (hidx1 : b < c * a) : b % c < c := by
+theorem aux2 {a b c : Nat} (hidx1 : b < c * a) : b % c < c := by
   apply Nat.mod_lt
   apply aux1
   assumption
@@ -40,7 +44,7 @@ private theorem aux3 {a b c : Nat} (hidx : a < b * c) (h : c < n) : a < b * n :=
     apply aux1
     assumption
 
-private theorem aux4 {a b c : Nat} (hidx : a < b * c) (h : c ≤ n) : a < b * n := by
+theorem aux4 {a b c : Nat} (hidx : a < b * c) (h : c ≤ n) : a < b * n := by
   cases Nat.lt_or_eq_of_le h with
   | inl h => apply aux3 <;> assumption
   | inr h => simp_all

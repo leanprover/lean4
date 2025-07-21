@@ -110,7 +110,7 @@ static lean_object* _init_l_Lean_Grind_instInhabitedConfig___closed__0() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = 0;
 x_3 = lean_alloc_ctor(0, 6, 21);
 lean_ctor_set(x_3, 0, x_1);
@@ -793,8 +793,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_280_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

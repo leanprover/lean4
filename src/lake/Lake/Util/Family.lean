@@ -100,11 +100,11 @@ Putting this all together, one can do something like the following:
 ```lean
 opaque FooFam (idx : Name) : Type
 
-abbrev FooMap := DRBMap Name FooFam Name.quickCmp
+abbrev FooMap := Std.DTreeMap Name FooFam Name.quickCmp
 def FooMap.insert (self : FooMap) (idx : Name) [FamilyOut FooFam idx α] (a : α) : FooMap :=
-  DRBMap.insert self idx (toFamily a)
-def FooMap.find? (self : FooMap) (idx : Name) [FamilyOut FooFam idx α] : Option α :=
-  ofFamily <$> DRBMap.find? self idx
+  Std.DTreeMap.insert self idx (toFamily a)
+def FooMap.get? (self : FooMap) (idx : Name) [FamilyOut FooFam idx α] : Option α :=
+  ofFamily <$> Std.DTreeMap.get? self idx
 
 family_def bar : FooFam `bar := Nat
 family_def baz : FooFam `baz := String
@@ -112,7 +112,7 @@ def foo := Id.run do
   let mut map : FooMap := {}
   map := map.insert `bar 5
   map := map.insert `baz "str"
-  return map.find? `bar
+  return map.get? `bar
 
 #eval foo -- 5
 ```

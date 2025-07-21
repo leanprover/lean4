@@ -103,7 +103,7 @@ x_3 = lean_box(0);
 x_4 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedToIntInfo___closed__4;
 x_5 = lean_box(0);
 x_6 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedToIntInfo___closed__2;
-x_7 = lean_box(0);
+x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_alloc_ctor(0, 26, 0);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_6);

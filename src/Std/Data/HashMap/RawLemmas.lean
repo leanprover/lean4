@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.RawLemmas
-import Std.Data.HashMap.Raw
+public import Std.Data.DHashMap.RawLemmas
+public import Std.Data.HashMap.Raw
+import all Std.Data.DHashMap.Raw
+
+@[expose] public section
 
 /-!
 # Hash map lemmas

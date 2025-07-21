@@ -16,7 +16,7 @@ def «01f88623-fa5f-4380-9772-b30f2fec5c94» : AssociationTable.Fact .subexpress
   rowState := #[⟨"Std.DHashMap", "Std.DHashMap.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.DHashMap.isEmpty,
-      renderedStatement := "Std.DHashMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α} (m : Std.DHashMap α β) : Bool",
+      renderedStatement := "Std.DHashMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α}\n  (m : Std.DHashMap α β) : Bool",
       isDeprecated := false })⟩,⟨"Std.DHashMap.Raw", "Std.DHashMap.Raw.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.DHashMap.Raw.isEmpty,
@@ -24,23 +24,23 @@ def «01f88623-fa5f-4380-9772-b30f2fec5c94» : AssociationTable.Fact .subexpress
       isDeprecated := false })⟩,⟨"Std.ExtDHashMap", "Std.ExtDHashMap.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.ExtDHashMap.isEmpty,
-      renderedStatement := "Std.ExtDHashMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α]\n  [LawfulHashable α] (m : Std.ExtDHashMap α β) : Bool",
+      renderedStatement := "Std.ExtDHashMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α}\n  [EquivBEq α] [LawfulHashable α] (m : Std.ExtDHashMap α β) : Bool",
       isDeprecated := false })⟩,⟨"Std.DTreeMap", "Std.DTreeMap.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.DTreeMap.isEmpty,
-      renderedStatement := "Std.DTreeMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} (t : Std.DTreeMap α β cmp) : Bool",
+      renderedStatement := "Std.DTreeMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.DTreeMap α β cmp) : Bool",
       isDeprecated := false })⟩,⟨"Std.DTreeMap.Raw", "Std.DTreeMap.Raw.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.DTreeMap.Raw.isEmpty,
-      renderedStatement := "Std.DTreeMap.Raw.isEmpty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} (t : Std.DTreeMap.Raw α β cmp) :\n  Bool",
+      renderedStatement := "Std.DTreeMap.Raw.isEmpty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.DTreeMap.Raw α β cmp) : Bool",
       isDeprecated := false })⟩,⟨"Std.ExtDTreeMap", "Std.ExtDTreeMap.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.ExtDTreeMap.isEmpty,
-      renderedStatement := "Std.ExtDTreeMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} (t : Std.ExtDTreeMap α β cmp) :\n  Bool",
+      renderedStatement := "Std.ExtDTreeMap.isEmpty.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.ExtDTreeMap α β cmp) : Bool",
       isDeprecated := false })⟩,⟨"Std.HashMap", "Std.HashMap.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.HashMap.isEmpty,
-      renderedStatement := "Std.HashMap.isEmpty.{u, v} {α : Type u} {β : Type v} {x✝ : BEq α} {x✝¹ : Hashable α} (m : Std.HashMap α β) : Bool",
+      renderedStatement := "Std.HashMap.isEmpty.{u, v} {α : Type u} {β : Type v} {x✝ : BEq α} {x✝¹ : Hashable α}\n  (m : Std.HashMap α β) : Bool",
       isDeprecated := false })⟩,⟨"Std.HashMap.Raw", "Std.HashMap.Raw.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.HashMap.Raw.isEmpty,
@@ -48,19 +48,19 @@ def «01f88623-fa5f-4380-9772-b30f2fec5c94» : AssociationTable.Fact .subexpress
       isDeprecated := false })⟩,⟨"Std.ExtHashMap", "Std.ExtHashMap.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.ExtHashMap.isEmpty,
-      renderedStatement := "Std.ExtHashMap.isEmpty.{u, v} {α : Type u} {β : Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α] [LawfulHashable α]\n  (m : Std.ExtHashMap α β) : Bool",
+      renderedStatement := "Std.ExtHashMap.isEmpty.{u, v} {α : Type u} {β : Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α]\n  [LawfulHashable α] (m : Std.ExtHashMap α β) : Bool",
       isDeprecated := false })⟩,⟨"Std.TreeMap", "Std.TreeMap.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.TreeMap.isEmpty,
-      renderedStatement := "Std.TreeMap.isEmpty.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.TreeMap α β cmp) : Bool",
+      renderedStatement := "Std.TreeMap.isEmpty.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering}\n  (t : Std.TreeMap α β cmp) : Bool",
       isDeprecated := false })⟩,⟨"Std.TreeMap.Raw", "Std.TreeMap.Raw.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.TreeMap.Raw.isEmpty,
-      renderedStatement := "Std.TreeMap.Raw.isEmpty.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.TreeMap.Raw α β cmp) : Bool",
+      renderedStatement := "Std.TreeMap.Raw.isEmpty.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering}\n  (t : Std.TreeMap.Raw α β cmp) : Bool",
       isDeprecated := false })⟩,⟨"Std.ExtTreeMap", "Std.ExtTreeMap.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.ExtTreeMap.isEmpty,
-      renderedStatement := "Std.ExtTreeMap.isEmpty.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.ExtTreeMap α β cmp) : Bool",
+      renderedStatement := "Std.ExtTreeMap.isEmpty.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering}\n  (t : Std.ExtTreeMap α β cmp) : Bool",
       isDeprecated := false })⟩,⟨"Std.HashSet", "Std.HashSet.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.HashSet.isEmpty,
@@ -72,7 +72,7 @@ def «01f88623-fa5f-4380-9772-b30f2fec5c94» : AssociationTable.Fact .subexpress
       isDeprecated := false })⟩,⟨"Std.ExtHashSet", "Std.ExtHashSet.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.ExtHashSet.isEmpty,
-      renderedStatement := "Std.ExtHashSet.isEmpty.{u} {α : Type u} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α] [LawfulHashable α]\n  (m : Std.ExtHashSet α) : Bool",
+      renderedStatement := "Std.ExtHashSet.isEmpty.{u} {α : Type u} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α]\n  [LawfulHashable α] (m : Std.ExtHashSet α) : Bool",
       isDeprecated := false })⟩,⟨"Std.TreeSet", "Std.TreeSet.isEmpty", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.TreeSet.isEmpty,
@@ -97,7 +97,7 @@ def «f084f852-af71-45b6-8ab3-d251a8144f72» : AssociationTable.Fact .subexpress
   rowState := #[⟨"Std.DHashMap", "Std.DHashMap.size", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.DHashMap.size,
-      renderedStatement := "Std.DHashMap.size.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α} (m : Std.DHashMap α β) : Nat",
+      renderedStatement := "Std.DHashMap.size.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α}\n  (m : Std.DHashMap α β) : Nat",
       isDeprecated := false })⟩,⟨"Std.DHashMap.Raw", "Std.DHashMap.Raw.size", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.DHashMap.Raw.size,
@@ -105,23 +105,23 @@ def «f084f852-af71-45b6-8ab3-d251a8144f72» : AssociationTable.Fact .subexpress
       isDeprecated := false })⟩,⟨"Std.ExtDHashMap", "Std.ExtDHashMap.size", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.ExtDHashMap.size,
-      renderedStatement := "Std.ExtDHashMap.size.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α]\n  [LawfulHashable α] (m : Std.ExtDHashMap α β) : Nat",
+      renderedStatement := "Std.ExtDHashMap.size.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α}\n  [EquivBEq α] [LawfulHashable α] (m : Std.ExtDHashMap α β) : Nat",
       isDeprecated := false })⟩,⟨"Std.DTreeMap", "Std.DTreeMap.size", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.DTreeMap.size,
-      renderedStatement := "Std.DTreeMap.size.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} (t : Std.DTreeMap α β cmp) : Nat",
+      renderedStatement := "Std.DTreeMap.size.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.DTreeMap α β cmp) : Nat",
       isDeprecated := false })⟩,⟨"Std.DTreeMap.Raw", "Std.DTreeMap.Raw.size", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.DTreeMap.Raw.size,
-      renderedStatement := "Std.DTreeMap.Raw.size.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} (t : Std.DTreeMap.Raw α β cmp) : Nat",
+      renderedStatement := "Std.DTreeMap.Raw.size.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.DTreeMap.Raw α β cmp) : Nat",
       isDeprecated := false })⟩,⟨"Std.ExtDTreeMap", "Std.ExtDTreeMap.size", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.ExtDTreeMap.size,
-      renderedStatement := "Std.ExtDTreeMap.size.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} (t : Std.ExtDTreeMap α β cmp) : Nat",
+      renderedStatement := "Std.ExtDTreeMap.size.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.ExtDTreeMap α β cmp) : Nat",
       isDeprecated := false })⟩,⟨"Std.HashMap", "Std.HashMap.size", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.HashMap.size,
-      renderedStatement := "Std.HashMap.size.{u, v} {α : Type u} {β : Type v} {x✝ : BEq α} {x✝¹ : Hashable α} (m : Std.HashMap α β) : Nat",
+      renderedStatement := "Std.HashMap.size.{u, v} {α : Type u} {β : Type v} {x✝ : BEq α} {x✝¹ : Hashable α}\n  (m : Std.HashMap α β) : Nat",
       isDeprecated := false })⟩,⟨"Std.HashMap.Raw", "Std.HashMap.Raw.size", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.HashMap.Raw.size,
@@ -129,19 +129,19 @@ def «f084f852-af71-45b6-8ab3-d251a8144f72» : AssociationTable.Fact .subexpress
       isDeprecated := false })⟩,⟨"Std.ExtHashMap", "Std.ExtHashMap.size", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.ExtHashMap.size,
-      renderedStatement := "Std.ExtHashMap.size.{u, v} {α : Type u} {β : Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α] [LawfulHashable α]\n  (m : Std.ExtHashMap α β) : Nat",
+      renderedStatement := "Std.ExtHashMap.size.{u, v} {α : Type u} {β : Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α]\n  [LawfulHashable α] (m : Std.ExtHashMap α β) : Nat",
       isDeprecated := false })⟩,⟨"Std.TreeMap", "Std.TreeMap.size", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.TreeMap.size,
-      renderedStatement := "Std.TreeMap.size.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.TreeMap α β cmp) : Nat",
+      renderedStatement := "Std.TreeMap.size.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering}\n  (t : Std.TreeMap α β cmp) : Nat",
       isDeprecated := false })⟩,⟨"Std.TreeMap.Raw", "Std.TreeMap.Raw.size", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.TreeMap.Raw.size,
-      renderedStatement := "Std.TreeMap.Raw.size.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.TreeMap.Raw α β cmp) : Nat",
+      renderedStatement := "Std.TreeMap.Raw.size.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering}\n  (t : Std.TreeMap.Raw α β cmp) : Nat",
       isDeprecated := false })⟩,⟨"Std.ExtTreeMap", "Std.ExtTreeMap.size", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.ExtTreeMap.size,
-      renderedStatement := "Std.ExtTreeMap.size.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.ExtTreeMap α β cmp) : Nat",
+      renderedStatement := "Std.ExtTreeMap.size.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering}\n  (t : Std.ExtTreeMap α β cmp) : Nat",
       isDeprecated := false })⟩,⟨"Std.HashSet", "Std.HashSet.size", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.HashSet.size,
@@ -178,11 +178,11 @@ def «f4e6fa70-5aed-439d-aaad-5f4ced65bf7b» : AssociationTable.Fact .subexpress
   rowState := #[⟨"Std.DTreeMap", "Std.DTreeMap.any", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.DTreeMap.any,
-      renderedStatement := "Std.DTreeMap.any.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} (t : Std.DTreeMap α β cmp)\n  (p : (a : α) → β a → Bool) : Bool",
+      renderedStatement := "Std.DTreeMap.any.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool",
       isDeprecated := false })⟩,⟨"Std.DTreeMap.Raw", "Std.DTreeMap.Raw.any", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.DTreeMap.Raw.any,
-      renderedStatement := "Std.DTreeMap.Raw.any.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} (t : Std.DTreeMap.Raw α β cmp)\n  (p : (a : α) → β a → Bool) : Bool",
+      renderedStatement := "Std.DTreeMap.Raw.any.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.DTreeMap.Raw α β cmp) (p : (a : α) → β a → Bool) : Bool",
       isDeprecated := false })⟩,⟨"Std.ExtDTreeMap", "Std.ExtDTreeMap.any", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.ExtDTreeMap.any,
@@ -190,11 +190,11 @@ def «f4e6fa70-5aed-439d-aaad-5f4ced65bf7b» : AssociationTable.Fact .subexpress
       isDeprecated := false })⟩,⟨"Std.TreeMap", "Std.TreeMap.any", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.TreeMap.any,
-      renderedStatement := "Std.TreeMap.any.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.TreeMap α β cmp) (p : α → β → Bool) :\n  Bool",
+      renderedStatement := "Std.TreeMap.any.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.TreeMap α β cmp)\n  (p : α → β → Bool) : Bool",
       isDeprecated := false })⟩,⟨"Std.TreeMap.Raw", "Std.TreeMap.Raw.any", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.TreeMap.Raw.any,
-      renderedStatement := "Std.TreeMap.Raw.any.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.TreeMap.Raw α β cmp)\n  (p : α → β → Bool) : Bool",
+      renderedStatement := "Std.TreeMap.Raw.any.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering}\n  (t : Std.TreeMap.Raw α β cmp) (p : α → β → Bool) : Bool",
       isDeprecated := false })⟩,⟨"Std.ExtTreeMap", "Std.ExtTreeMap.any", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.ExtTreeMap.any,
@@ -202,7 +202,7 @@ def «f4e6fa70-5aed-439d-aaad-5f4ced65bf7b» : AssociationTable.Fact .subexpress
       isDeprecated := false })⟩,⟨"Std.HashSet", "Std.HashSet.any", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.HashSet.any,
-      renderedStatement := "Std.HashSet.any.{u} {α : Type u} {x✝ : BEq α} {x✝¹ : Hashable α} (m : Std.HashSet α) (p : α → Bool) : Bool",
+      renderedStatement := "Std.HashSet.any.{u} {α : Type u} {x✝ : BEq α} {x✝¹ : Hashable α} (m : Std.HashSet α)\n  (p : α → Bool) : Bool",
       isDeprecated := false })⟩,⟨"Std.HashSet.Raw", "Std.HashSet.Raw.any", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.HashSet.Raw.any,
@@ -210,15 +210,15 @@ def «f4e6fa70-5aed-439d-aaad-5f4ced65bf7b» : AssociationTable.Fact .subexpress
       isDeprecated := false })⟩,⟨"Std.TreeSet", "Std.TreeSet.any", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.TreeSet.any,
-      renderedStatement := "Std.TreeSet.any.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet α cmp) (p : α → Bool) : Bool",
+      renderedStatement := "Std.TreeSet.any.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet α cmp) (p : α → Bool) :\n  Bool",
       isDeprecated := false })⟩,⟨"Std.TreeSet.Raw", "Std.TreeSet.Raw.any", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.TreeSet.Raw.any,
-      renderedStatement := "Std.TreeSet.Raw.any.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet.Raw α cmp) (p : α → Bool) : Bool",
+      renderedStatement := "Std.TreeSet.Raw.any.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet.Raw α cmp)\n  (p : α → Bool) : Bool",
       isDeprecated := false })⟩,⟨"Std.ExtTreeSet", "Std.ExtTreeSet.any", Grove.Framework.Subexpression.State.declaration
   (Grove.Framework.Declaration.def
     { name := `Std.ExtTreeSet.any,
-      renderedStatement := "Std.ExtTreeSet.any.{u} {α : Type u} {cmp : α → α → Ordering} [Std.TransCmp cmp] (t : Std.ExtTreeSet α cmp)\n  (p : α → Bool) : Bool",
+      renderedStatement := "Std.ExtTreeSet.any.{u} {α : Type u} {cmp : α → α → Ordering} [Std.TransCmp cmp]\n  (t : Std.ExtTreeSet α cmp) (p : α → Bool) : Bool",
       isDeprecated := false })⟩,]
   metadata := {
     status := .bad
@@ -228,62 +228,51 @@ def «c1d181f6-3204-4956-946f-e81619f9feb4» : AssociationTable.Fact .subexpress
   widgetId := "associative-query-operations"
   factId := "c1d181f6-3204-4956-946f-e81619f9feb4"
   rowId := "c1d181f6-3204-4956-946f-e81619f9feb4"
-  rowState := #[⟨"Std.DTreeMap", "Std.DTreeMap.all", .declaration (Declaration.def {
-    name := `Std.DTreeMap.all
-    renderedStatement := "Std.DTreeMap.all.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} (t : Std.DTreeMap α β cmp)\n  (p : (a : α) → β a → Bool) : Bool"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.DTreeMap.Raw", "Std.DTreeMap.Raw.all", .declaration (Declaration.def {
-    name := `Std.DTreeMap.Raw.all
-    renderedStatement := "Std.DTreeMap.Raw.all.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} (t : Std.DTreeMap.Raw α β cmp)\n  (p : (a : α) → β a → Bool) : Bool"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.ExtDTreeMap", "Std.ExtDTreeMap.all", .declaration (Declaration.def {
-    name := `Std.ExtDTreeMap.all
-    renderedStatement := "Std.ExtDTreeMap.all.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [Std.TransCmp cmp]\n  (t : Std.ExtDTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.TreeMap", "Std.TreeMap.all", .declaration (Declaration.def {
-    name := `Std.TreeMap.all
-    renderedStatement := "Std.TreeMap.all.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.TreeMap α β cmp) (p : α → β → Bool) :\n  Bool"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.TreeMap.Raw", "Std.TreeMap.Raw.all", .declaration (Declaration.def {
-    name := `Std.TreeMap.Raw.all
-    renderedStatement := "Std.TreeMap.Raw.all.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.TreeMap.Raw α β cmp)\n  (p : α → β → Bool) : Bool"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.ExtTreeMap", "Std.ExtTreeMap.all", .declaration (Declaration.def {
-    name := `Std.ExtTreeMap.all
-    renderedStatement := "Std.ExtTreeMap.all.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} [Std.TransCmp cmp]\n  (t : Std.ExtTreeMap α β cmp) (p : α → β → Bool) : Bool"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.HashSet", "Std.HashSet.all", .declaration (Declaration.def {
-    name := `Std.HashSet.all
-    renderedStatement := "Std.HashSet.all.{u} {α : Type u} {x✝ : BEq α} {x✝¹ : Hashable α} (m : Std.HashSet α) (p : α → Bool) : Bool"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.HashSet.Raw", "Std.HashSet.Raw.all", .declaration (Declaration.def {
-    name := `Std.HashSet.Raw.all
-    renderedStatement := "Std.HashSet.Raw.all.{u} {α : Type u} (m : Std.HashSet.Raw α) (p : α → Bool) : Bool"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.TreeSet", "Std.TreeSet.all", .declaration (Declaration.def {
-    name := `Std.TreeSet.all
-    renderedStatement := "Std.TreeSet.all.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet α cmp) (p : α → Bool) : Bool"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.TreeSet.Raw", "Std.TreeSet.Raw.all", .declaration (Declaration.def {
-    name := `Std.TreeSet.Raw.all
-    renderedStatement := "Std.TreeSet.Raw.all.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet.Raw α cmp) (p : α → Bool) : Bool"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.ExtTreeSet", "Std.ExtTreeSet.all", .declaration (Declaration.def {
-    name := `Std.ExtTreeSet.all
-    renderedStatement := "Std.ExtTreeSet.all.{u} {α : Type u} {cmp : α → α → Ordering} [Std.TransCmp cmp] (t : Std.ExtTreeSet α cmp)\n  (p : α → Bool) : Bool"
-    isDeprecated := false
-  }
-)⟩,]
+  rowState := #[⟨"Std.DTreeMap", "Std.DTreeMap.all", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.DTreeMap.all,
+      renderedStatement := "Std.DTreeMap.all.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool",
+      isDeprecated := false })⟩,⟨"Std.DTreeMap.Raw", "Std.DTreeMap.Raw.all", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.DTreeMap.Raw.all,
+      renderedStatement := "Std.DTreeMap.Raw.all.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  (t : Std.DTreeMap.Raw α β cmp) (p : (a : α) → β a → Bool) : Bool",
+      isDeprecated := false })⟩,⟨"Std.ExtDTreeMap", "Std.ExtDTreeMap.all", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.ExtDTreeMap.all,
+      renderedStatement := "Std.ExtDTreeMap.all.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [Std.TransCmp cmp]\n  (t : Std.ExtDTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool",
+      isDeprecated := false })⟩,⟨"Std.TreeMap", "Std.TreeMap.all", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.TreeMap.all,
+      renderedStatement := "Std.TreeMap.all.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.TreeMap α β cmp)\n  (p : α → β → Bool) : Bool",
+      isDeprecated := false })⟩,⟨"Std.TreeMap.Raw", "Std.TreeMap.Raw.all", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.TreeMap.Raw.all,
+      renderedStatement := "Std.TreeMap.Raw.all.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering}\n  (t : Std.TreeMap.Raw α β cmp) (p : α → β → Bool) : Bool",
+      isDeprecated := false })⟩,⟨"Std.ExtTreeMap", "Std.ExtTreeMap.all", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.ExtTreeMap.all,
+      renderedStatement := "Std.ExtTreeMap.all.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} [Std.TransCmp cmp]\n  (t : Std.ExtTreeMap α β cmp) (p : α → β → Bool) : Bool",
+      isDeprecated := false })⟩,⟨"Std.HashSet", "Std.HashSet.all", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.HashSet.all,
+      renderedStatement := "Std.HashSet.all.{u} {α : Type u} {x✝ : BEq α} {x✝¹ : Hashable α} (m : Std.HashSet α)\n  (p : α → Bool) : Bool",
+      isDeprecated := false })⟩,⟨"Std.HashSet.Raw", "Std.HashSet.Raw.all", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.HashSet.Raw.all,
+      renderedStatement := "Std.HashSet.Raw.all.{u} {α : Type u} (m : Std.HashSet.Raw α) (p : α → Bool) : Bool",
+      isDeprecated := false })⟩,⟨"Std.TreeSet", "Std.TreeSet.all", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.TreeSet.all,
+      renderedStatement := "Std.TreeSet.all.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet α cmp) (p : α → Bool) :\n  Bool",
+      isDeprecated := false })⟩,⟨"Std.TreeSet.Raw", "Std.TreeSet.Raw.all", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.TreeSet.Raw.all,
+      renderedStatement := "Std.TreeSet.Raw.all.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet.Raw α cmp)\n  (p : α → Bool) : Bool",
+      isDeprecated := false })⟩,⟨"Std.ExtTreeSet", "Std.ExtTreeSet.all", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.ExtTreeSet.all,
+      renderedStatement := "Std.ExtTreeSet.all.{u} {α : Type u} {cmp : α → α → Ordering} [Std.TransCmp cmp]\n  (t : Std.ExtTreeSet α cmp) (p : α → Bool) : Bool",
+      isDeprecated := false })⟩,]
   metadata := {
     status := .bad
     comment := "Missing for some containers"
@@ -292,97 +281,79 @@ def «efe57f41-7db7-4303-b3a6-5216a70c43ce» : AssociationTable.Fact .subexpress
   widgetId := "associative-query-operations"
   factId := "efe57f41-7db7-4303-b3a6-5216a70c43ce"
   rowId := "efe57f41-7db7-4303-b3a6-5216a70c43ce"
-  rowState := #[⟨"Std.DHashMap", "Std.DHashMap.getD", .declaration (Declaration.def {
-    name := `Std.DHashMap.getD
-    renderedStatement := "Std.DHashMap.getD.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [LawfulBEq α]\n  (m : Std.DHashMap α β) (a : α) (fallback : β a) : β a"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.DHashMap.Raw", "Std.DHashMap.Raw.getD", .declaration (Declaration.def {
-    name := `Std.DHashMap.Raw.getD
-    renderedStatement := "Std.DHashMap.Raw.getD.{u, v} {α : Type u} {β : α → Type v} [BEq α] [Hashable α] [LawfulBEq α] (m : Std.DHashMap.Raw α β)\n  (a : α) (fallback : β a) : β a"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.ExtDHashMap", "Std.ExtDHashMap.getD", .declaration (Declaration.def {
-    name := `Std.ExtDHashMap.getD
-    renderedStatement := "Std.ExtDHashMap.getD.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [LawfulBEq α]\n  (m : Std.ExtDHashMap α β) (a : α) (fallback : β a) : β a"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.DTreeMap", "Std.DTreeMap.getD", .declaration (Declaration.def {
-    name := `Std.DTreeMap.getD
-    renderedStatement := "Std.DTreeMap.getD.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [Std.LawfulEqCmp cmp]\n  (t : Std.DTreeMap α β cmp) (a : α) (fallback : β a) : β a"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.DTreeMap.Raw", "Std.DTreeMap.Raw.getD", .declaration (Declaration.def {
-    name := `Std.DTreeMap.Raw.getD
-    renderedStatement := "Std.DTreeMap.Raw.getD.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [Std.LawfulEqCmp cmp]\n  (t : Std.DTreeMap.Raw α β cmp) (a : α) (fallback : β a) : β a"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.ExtDTreeMap", "Std.ExtDTreeMap.getD", .declaration (Declaration.def {
-    name := `Std.ExtDTreeMap.getD
-    renderedStatement := "Std.ExtDTreeMap.getD.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [Std.TransCmp cmp]\n  [Std.LawfulEqCmp cmp] (t : Std.ExtDTreeMap α β cmp) (a : α) (fallback : β a) : β a"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.HashMap", "Std.HashMap.getD", .declaration (Declaration.def {
-    name := `Std.HashMap.getD
-    renderedStatement := "Std.HashMap.getD.{u, v} {α : Type u} {β : Type v} {x✝ : BEq α} {x✝¹ : Hashable α} (m : Std.HashMap α β) (a : α)\n  (fallback : β) : β"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.HashMap.Raw", "Std.HashMap.Raw.getD", .declaration (Declaration.def {
-    name := `Std.HashMap.Raw.getD
-    renderedStatement := "Std.HashMap.Raw.getD.{u, v} {α : Type u} {β : Type v} [BEq α] [Hashable α] (m : Std.HashMap.Raw α β) (a : α)\n  (fallback : β) : β"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.ExtHashMap", "Std.ExtHashMap.getD", .declaration (Declaration.def {
-    name := `Std.ExtHashMap.getD
-    renderedStatement := "Std.ExtHashMap.getD.{u, v} {α : Type u} {β : Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α] [LawfulHashable α]\n  (m : Std.ExtHashMap α β) (a : α) (fallback : β) : β"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.TreeMap", "Std.TreeMap.getD", .declaration (Declaration.def {
-    name := `Std.TreeMap.getD
-    renderedStatement := "Std.TreeMap.getD.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.TreeMap α β cmp) (a : α)\n  (fallback : β) : β"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.TreeMap.Raw", "Std.TreeMap.Raw.getD", .declaration (Declaration.def {
-    name := `Std.TreeMap.Raw.getD
-    renderedStatement := "Std.TreeMap.Raw.getD.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.TreeMap.Raw α β cmp) (a : α)\n  (fallback : β) : β"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.ExtTreeMap", "Std.ExtTreeMap.getD", .declaration (Declaration.def {
-    name := `Std.ExtTreeMap.getD
-    renderedStatement := "Std.ExtTreeMap.getD.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} [Std.TransCmp cmp]\n  (t : Std.ExtTreeMap α β cmp) (a : α) (fallback : β) : β"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.HashSet", "Std.HashSet.getD", .declaration (Declaration.def {
-    name := `Std.HashSet.getD
-    renderedStatement := "Std.HashSet.getD.{u} {α : Type u} [BEq α] [Hashable α] (m : Std.HashSet α) (a fallback : α) : α"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.HashSet.Raw", "Std.HashSet.Raw.getD", .declaration (Declaration.def {
-    name := `Std.HashSet.Raw.getD
-    renderedStatement := "Std.HashSet.Raw.getD.{u} {α : Type u} [BEq α] [Hashable α] (m : Std.HashSet.Raw α) (a fallback : α) : α"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.ExtHashSet", "Std.ExtHashSet.getD", .declaration (Declaration.def {
-    name := `Std.ExtHashSet.getD
-    renderedStatement := "Std.ExtHashSet.getD.{u} {α : Type u} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α] [LawfulHashable α]\n  (m : Std.ExtHashSet α) (a fallback : α) : α"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.TreeSet", "Std.TreeSet.getD", .declaration (Declaration.def {
-    name := `Std.TreeSet.getD
-    renderedStatement := "Std.TreeSet.getD.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet α cmp) (a fallback : α) : α"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.TreeSet.Raw", "Std.TreeSet.Raw.getD", .declaration (Declaration.def {
-    name := `Std.TreeSet.Raw.getD
-    renderedStatement := "Std.TreeSet.Raw.getD.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet.Raw α cmp) (a fallback : α) : α"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.ExtTreeSet", "Std.ExtTreeSet.getD", .declaration (Declaration.def {
-    name := `Std.ExtTreeSet.getD
-    renderedStatement := "Std.ExtTreeSet.getD.{u} {α : Type u} {cmp : α → α → Ordering} [Std.TransCmp cmp] (t : Std.ExtTreeSet α cmp)\n  (a fallback : α) : α"
-    isDeprecated := false
-  }
-)⟩,]
+  rowState := #[⟨"Std.DHashMap", "Std.DHashMap.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.DHashMap.getD,
+      renderedStatement := "Std.DHashMap.getD.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [LawfulBEq α]\n  (m : Std.DHashMap α β) (a : α) (fallback : β a) : β a",
+      isDeprecated := false })⟩,⟨"Std.DHashMap.Raw", "Std.DHashMap.Raw.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.DHashMap.Raw.getD,
+      renderedStatement := "Std.DHashMap.Raw.getD.{u, v} {α : Type u} {β : α → Type v} [BEq α] [Hashable α] [LawfulBEq α]\n  (m : Std.DHashMap.Raw α β) (a : α) (fallback : β a) : β a",
+      isDeprecated := false })⟩,⟨"Std.ExtDHashMap", "Std.ExtDHashMap.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.ExtDHashMap.getD,
+      renderedStatement := "Std.ExtDHashMap.getD.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α}\n  [LawfulBEq α] (m : Std.ExtDHashMap α β) (a : α) (fallback : β a) : β a",
+      isDeprecated := false })⟩,⟨"Std.DTreeMap", "Std.DTreeMap.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.DTreeMap.getD,
+      renderedStatement := "Std.DTreeMap.getD.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  [Std.LawfulEqCmp cmp] (t : Std.DTreeMap α β cmp) (a : α) (fallback : β a) : β a",
+      isDeprecated := false })⟩,⟨"Std.DTreeMap.Raw", "Std.DTreeMap.Raw.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.DTreeMap.Raw.getD,
+      renderedStatement := "Std.DTreeMap.Raw.getD.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  [Std.LawfulEqCmp cmp] (t : Std.DTreeMap.Raw α β cmp) (a : α) (fallback : β a) : β a",
+      isDeprecated := false })⟩,⟨"Std.ExtDTreeMap", "Std.ExtDTreeMap.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.ExtDTreeMap.getD,
+      renderedStatement := "Std.ExtDTreeMap.getD.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  [Std.TransCmp cmp] [Std.LawfulEqCmp cmp] (t : Std.ExtDTreeMap α β cmp) (a : α) (fallback : β a) :\n  β a",
+      isDeprecated := false })⟩,⟨"Std.HashMap", "Std.HashMap.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.HashMap.getD,
+      renderedStatement := "Std.HashMap.getD.{u, v} {α : Type u} {β : Type v} {x✝ : BEq α} {x✝¹ : Hashable α}\n  (m : Std.HashMap α β) (a : α) (fallback : β) : β",
+      isDeprecated := false })⟩,⟨"Std.HashMap.Raw", "Std.HashMap.Raw.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.HashMap.Raw.getD,
+      renderedStatement := "Std.HashMap.Raw.getD.{u, v} {α : Type u} {β : Type v} [BEq α] [Hashable α] (m : Std.HashMap.Raw α β)\n  (a : α) (fallback : β) : β",
+      isDeprecated := false })⟩,⟨"Std.ExtHashMap", "Std.ExtHashMap.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.ExtHashMap.getD,
+      renderedStatement := "Std.ExtHashMap.getD.{u, v} {α : Type u} {β : Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α]\n  [LawfulHashable α] (m : Std.ExtHashMap α β) (a : α) (fallback : β) : β",
+      isDeprecated := false })⟩,⟨"Std.TreeMap", "Std.TreeMap.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.TreeMap.getD,
+      renderedStatement := "Std.TreeMap.getD.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} (t : Std.TreeMap α β cmp)\n  (a : α) (fallback : β) : β",
+      isDeprecated := false })⟩,⟨"Std.TreeMap.Raw", "Std.TreeMap.Raw.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.TreeMap.Raw.getD,
+      renderedStatement := "Std.TreeMap.Raw.getD.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering}\n  (t : Std.TreeMap.Raw α β cmp) (a : α) (fallback : β) : β",
+      isDeprecated := false })⟩,⟨"Std.ExtTreeMap", "Std.ExtTreeMap.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.ExtTreeMap.getD,
+      renderedStatement := "Std.ExtTreeMap.getD.{u, v} {α : Type u} {β : Type v} {cmp : α → α → Ordering} [Std.TransCmp cmp]\n  (t : Std.ExtTreeMap α β cmp) (a : α) (fallback : β) : β",
+      isDeprecated := false })⟩,⟨"Std.HashSet", "Std.HashSet.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.HashSet.getD,
+      renderedStatement := "Std.HashSet.getD.{u} {α : Type u} [BEq α] [Hashable α] (m : Std.HashSet α) (a fallback : α) : α",
+      isDeprecated := false })⟩,⟨"Std.HashSet.Raw", "Std.HashSet.Raw.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.HashSet.Raw.getD,
+      renderedStatement := "Std.HashSet.Raw.getD.{u} {α : Type u} [BEq α] [Hashable α] (m : Std.HashSet.Raw α)\n  (a fallback : α) : α",
+      isDeprecated := false })⟩,⟨"Std.ExtHashSet", "Std.ExtHashSet.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.ExtHashSet.getD,
+      renderedStatement := "Std.ExtHashSet.getD.{u} {α : Type u} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α] [LawfulHashable α]\n  (m : Std.ExtHashSet α) (a fallback : α) : α",
+      isDeprecated := false })⟩,⟨"Std.TreeSet", "Std.TreeSet.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.TreeSet.getD,
+      renderedStatement := "Std.TreeSet.getD.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet α cmp)\n  (a fallback : α) : α",
+      isDeprecated := false })⟩,⟨"Std.TreeSet.Raw", "Std.TreeSet.Raw.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.TreeSet.Raw.getD,
+      renderedStatement := "Std.TreeSet.Raw.getD.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet.Raw α cmp)\n  (a fallback : α) : α",
+      isDeprecated := false })⟩,⟨"Std.ExtTreeSet", "Std.ExtTreeSet.getD", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.ExtTreeSet.getD,
+      renderedStatement := "Std.ExtTreeSet.getD.{u} {α : Type u} {cmp : α → α → Ordering} [Std.TransCmp cmp]\n  (t : Std.ExtTreeSet α cmp) (a fallback : α) : α",
+      isDeprecated := false })⟩,]
   metadata := {
     status := .done
     comment := ""
@@ -391,73 +362,61 @@ def «e23b1119-3b57-433e-a68d-68fd70b9943d» : AssociationTable.Fact .subexpress
   widgetId := "associative-query-operations"
   factId := "e23b1119-3b57-433e-a68d-68fd70b9943d"
   rowId := "e23b1119-3b57-433e-a68d-68fd70b9943d"
-  rowState := #[⟨"Std.DHashMap", "Std.DHashMap.get", .declaration (Declaration.def {
-    name := `Std.DHashMap.get
-    renderedStatement := "Std.DHashMap.get.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [LawfulBEq α]\n  (m : Std.DHashMap α β) (a : α) (h : a ∈ m) : β a"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.DHashMap.Raw", "Std.DHashMap.Raw.Const.get", .declaration (Declaration.def {
-    name := `Std.DHashMap.Raw.Const.get
-    renderedStatement := "Std.DHashMap.Raw.Const.get.{u, v} {α : Type u} {β : Type v} [BEq α] [Hashable α] (m : Std.DHashMap.Raw α fun x => β)\n  (a : α) (h : a ∈ m) : β"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.ExtDHashMap", "Std.ExtDHashMap.get", .declaration (Declaration.def {
-    name := `Std.ExtDHashMap.get
-    renderedStatement := "Std.ExtDHashMap.get.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [LawfulBEq α]\n  (m : Std.ExtDHashMap α β) (a : α) (h : a ∈ m) : β a"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.DTreeMap", "Std.DTreeMap.get", .declaration (Declaration.def {
-    name := `Std.DTreeMap.get
-    renderedStatement := "Std.DTreeMap.get.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [Std.LawfulEqCmp cmp]\n  (t : Std.DTreeMap α β cmp) (a : α) (h : a ∈ t) : β a"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.DTreeMap.Raw", "Std.DTreeMap.Raw.get", .declaration (Declaration.def {
-    name := `Std.DTreeMap.Raw.get
-    renderedStatement := "Std.DTreeMap.Raw.get.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [Std.LawfulEqCmp cmp]\n  (t : Std.DTreeMap.Raw α β cmp) (a : α) (h : a ∈ t) : β a"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.ExtDTreeMap", "Std.ExtDTreeMap.get", .declaration (Declaration.def {
-    name := `Std.ExtDTreeMap.get
-    renderedStatement := "Std.ExtDTreeMap.get.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [Std.TransCmp cmp]\n  [Std.LawfulEqCmp cmp] (t : Std.ExtDTreeMap α β cmp) (a : α) (h : a ∈ t) : β a"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.HashMap", "app (GetElem.getElem) (Std.HashMap*)", Grove.Framework.Subexpression.State.predicate
+  rowState := #[⟨"Std.DHashMap", "Std.DHashMap.get", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.DHashMap.get,
+      renderedStatement := "Std.DHashMap.get.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α} [LawfulBEq α]\n  (m : Std.DHashMap α β) (a : α) (h : a ∈ m) : β a",
+      isDeprecated := false })⟩,⟨"Std.DHashMap.Raw", "Std.DHashMap.Raw.Const.get", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.DHashMap.Raw.Const.get,
+      renderedStatement := "Std.DHashMap.Raw.Const.get.{u, v} {α : Type u} {β : Type v} [BEq α] [Hashable α]\n  (m : Std.DHashMap.Raw α fun x => β) (a : α) (h : a ∈ m) : β",
+      isDeprecated := false })⟩,⟨"Std.ExtDHashMap", "Std.ExtDHashMap.get", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.ExtDHashMap.get,
+      renderedStatement := "Std.ExtDHashMap.get.{u, v} {α : Type u} {β : α → Type v} {x✝ : BEq α} {x✝¹ : Hashable α}\n  [LawfulBEq α] (m : Std.ExtDHashMap α β) (a : α) (h : a ∈ m) : β a",
+      isDeprecated := false })⟩,⟨"Std.DTreeMap", "Std.DTreeMap.get", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.DTreeMap.get,
+      renderedStatement := "Std.DTreeMap.get.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [Std.LawfulEqCmp cmp]\n  (t : Std.DTreeMap α β cmp) (a : α) (h : a ∈ t) : β a",
+      isDeprecated := false })⟩,⟨"Std.DTreeMap.Raw", "Std.DTreeMap.Raw.get", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.DTreeMap.Raw.get,
+      renderedStatement := "Std.DTreeMap.Raw.get.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}\n  [Std.LawfulEqCmp cmp] (t : Std.DTreeMap.Raw α β cmp) (a : α) (h : a ∈ t) : β a",
+      isDeprecated := false })⟩,⟨"Std.ExtDTreeMap", "Std.ExtDTreeMap.get", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.ExtDTreeMap.get,
+      renderedStatement := "Std.ExtDTreeMap.get.{u, v} {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} [Std.TransCmp cmp]\n  [Std.LawfulEqCmp cmp] (t : Std.ExtDTreeMap α β cmp) (a : α) (h : a ∈ t) : β a",
+      isDeprecated := false })⟩,⟨"Std.HashMap", "app (GetElem.getElem) (Std.HashMap*)", Grove.Framework.Subexpression.State.predicate
   { key := "app (GetElem.getElem) (Std.HashMap*)", displayShort := "Std.HashMap[·]" }⟩,⟨"Std.HashMap.Raw", "app (GetElem.getElem) (Std.HashMap.Raw*)", Grove.Framework.Subexpression.State.predicate
   { key := "app (GetElem.getElem) (Std.HashMap.Raw*)", displayShort := "Std.HashMap.Raw[·]" }⟩,⟨"Std.ExtHashMap", "app (GetElem.getElem) (Std.ExtHashMap*)", Grove.Framework.Subexpression.State.predicate
   { key := "app (GetElem.getElem) (Std.ExtHashMap*)", displayShort := "Std.ExtHashMap[·]" }⟩,⟨"Std.TreeMap", "app (GetElem.getElem) (Std.TreeMap*)", Grove.Framework.Subexpression.State.predicate
   { key := "app (GetElem.getElem) (Std.TreeMap*)", displayShort := "Std.TreeMap[·]" }⟩,⟨"Std.TreeMap.Raw", "app (GetElem.getElem) (Std.TreeMap.Raw*)", Grove.Framework.Subexpression.State.predicate
   { key := "app (GetElem.getElem) (Std.TreeMap.Raw*)", displayShort := "Std.TreeMap.Raw[·]" }⟩,⟨"Std.ExtTreeMap", "app (GetElem.getElem) (Std.ExtTreeMap*)", Grove.Framework.Subexpression.State.predicate
-  { key := "app (GetElem.getElem) (Std.ExtTreeMap*)", displayShort := "Std.ExtTreeMap[·]" }⟩,⟨"Std.HashSet", "Std.HashSet.get", .declaration (Declaration.def {
-    name := `Std.HashSet.get
-    renderedStatement := "Std.HashSet.get.{u} {α : Type u} [BEq α] [Hashable α] (m : Std.HashSet α) (a : α) (h : a ∈ m) : α"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.HashSet.Raw", "Std.HashSet.Raw.get", .declaration (Declaration.def {
-    name := `Std.HashSet.Raw.get
-    renderedStatement := "Std.HashSet.Raw.get.{u} {α : Type u} [BEq α] [Hashable α] (m : Std.HashSet.Raw α) (a : α) (h : a ∈ m) : α"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.ExtHashSet", "Std.ExtHashSet.get", .declaration (Declaration.def {
-    name := `Std.ExtHashSet.get
-    renderedStatement := "Std.ExtHashSet.get.{u} {α : Type u} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α] [LawfulHashable α]\n  (m : Std.ExtHashSet α) (a : α) (h : a ∈ m) : α"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.TreeSet", "Std.TreeSet.get", .declaration (Declaration.def {
-    name := `Std.TreeSet.get
-    renderedStatement := "Std.TreeSet.get.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet α cmp) (a : α) (h : a ∈ t) : α"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.TreeSet.Raw", "Std.TreeSet.Raw.get", .declaration (Declaration.def {
-    name := `Std.TreeSet.Raw.get
-    renderedStatement := "Std.TreeSet.Raw.get.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet.Raw α cmp) (a : α) (h : a ∈ t) : α"
-    isDeprecated := false
-  }
-)⟩,⟨"Std.ExtTreeSet", "Std.ExtTreeSet.get", .declaration (Declaration.def {
-    name := `Std.ExtTreeSet.get
-    renderedStatement := "Std.ExtTreeSet.get.{u} {α : Type u} {cmp : α → α → Ordering} [Std.TransCmp cmp] (t : Std.ExtTreeSet α cmp) (a : α)\n  (h : a ∈ t) : α"
-    isDeprecated := false
-  }
-)⟩,]
+  { key := "app (GetElem.getElem) (Std.ExtTreeMap*)", displayShort := "Std.ExtTreeMap[·]" }⟩,⟨"Std.HashSet", "Std.HashSet.get", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.HashSet.get,
+      renderedStatement := "Std.HashSet.get.{u} {α : Type u} [BEq α] [Hashable α] (m : Std.HashSet α) (a : α) (h : a ∈ m) : α",
+      isDeprecated := false })⟩,⟨"Std.HashSet.Raw", "Std.HashSet.Raw.get", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.HashSet.Raw.get,
+      renderedStatement := "Std.HashSet.Raw.get.{u} {α : Type u} [BEq α] [Hashable α] (m : Std.HashSet.Raw α) (a : α)\n  (h : a ∈ m) : α",
+      isDeprecated := false })⟩,⟨"Std.ExtHashSet", "Std.ExtHashSet.get", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.ExtHashSet.get,
+      renderedStatement := "Std.ExtHashSet.get.{u} {α : Type u} {x✝ : BEq α} {x✝¹ : Hashable α} [EquivBEq α] [LawfulHashable α]\n  (m : Std.ExtHashSet α) (a : α) (h : a ∈ m) : α",
+      isDeprecated := false })⟩,⟨"Std.TreeSet", "Std.TreeSet.get", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.TreeSet.get,
+      renderedStatement := "Std.TreeSet.get.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet α cmp) (a : α)\n  (h : a ∈ t) : α",
+      isDeprecated := false })⟩,⟨"Std.TreeSet.Raw", "Std.TreeSet.Raw.get", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.TreeSet.Raw.get,
+      renderedStatement := "Std.TreeSet.Raw.get.{u} {α : Type u} {cmp : α → α → Ordering} (t : Std.TreeSet.Raw α cmp) (a : α)\n  (h : a ∈ t) : α",
+      isDeprecated := false })⟩,⟨"Std.ExtTreeSet", "Std.ExtTreeSet.get", Grove.Framework.Subexpression.State.declaration
+  (Grove.Framework.Declaration.def
+    { name := `Std.ExtTreeSet.get,
+      renderedStatement := "Std.ExtTreeSet.get.{u} {α : Type u} {cmp : α → α → Ordering} [Std.TransCmp cmp]\n  (t : Std.ExtTreeSet α cmp) (a : α) (h : a ∈ t) : α",
+      isDeprecated := false })⟩,]
   metadata := {
     status := .bad
     comment := "Should *Set have GetElem?"

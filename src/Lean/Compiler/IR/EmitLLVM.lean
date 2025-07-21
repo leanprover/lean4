@@ -322,8 +322,9 @@ def toLLVMType (t : IRType) : M llvmctx (LLVM.LLVMType llvmctx) := do
   -- TODO: how to cleanly size_t in LLVM? We can do eg. instantiate the current target and query for size.
   | IRType.usize      => LLVM.size_tType llvmctx
   | IRType.object     => do LLVM.pointerType (← LLVM.i8Type llvmctx)
+  | IRType.tagged     => do LLVM.pointerType (← LLVM.i8Type llvmctx)
   | IRType.tobject    => do LLVM.pointerType (← LLVM.i8Type llvmctx)
-  | IRType.irrelevant => do LLVM.pointerType (← LLVM.i8Type llvmctx)
+  | IRType.erased     => do LLVM.pointerType (← LLVM.i8Type llvmctx)
   | IRType.struct _ _ => panic! "not implemented yet"
   | IRType.union _ _  => panic! "not implemented yet"
 
@@ -485,8 +486,8 @@ def emitFnDeclAux (mod : LLVM.Module llvmctx)
         let retty ← (toLLVMType decl.resultType)
         let mut argtys := #[]
         for p in ps do
-          -- if it is extern, then we must not add irrelevant args
-          if !(isExternC env decl.name) || !p.ty.isIrrelevant then
+          -- if it is extern, then we must not add erased args
+          if !(isExternC env decl.name) || !p.ty.isErased then
             argtys := argtys.push (← toLLVMType p.ty)
         -- TODO (bollu): simplify this API, this code of `closureMaxArgs` is duplicated in multiple places.
         if argtys.size > closureMaxArgs && isBoxedName decl.name then
@@ -548,11 +549,11 @@ def emitLhsSlotStore (builder : LLVM.Builder llvmctx)
 def emitArgSlot_ (builder : LLVM.Builder llvmctx)
     (x : Arg) : M llvmctx (LLVM.LLVMType llvmctx × LLVM.Value llvmctx) := do
   match x with
-  | Arg.var x => emitLhsSlot_ x
-  | _ => do
+  | .var x => emitLhsSlot_ x
+  | .erased => do
     let slotty ← LLVM.voidPtrType llvmctx
-    let slot ← buildPrologueAlloca builder slotty "irrelevant_slot"
-    let v ← callLeanBox builder (← constIntSizeT 0) "irrelevant_val"
+    let slot ← buildPrologueAlloca builder slotty "erased_slot"
+    let v ← callLeanBox builder (← constIntSizeT 0) "erased_val"
     let _ ← LLVM.buildStore builder v slot
     return (slotty, slot)
 
@@ -645,7 +646,7 @@ def emitSimpleExternalCall (builder : LLVM.Builder llvmctx)
   let mut args := #[]
   let mut argTys := #[]
   for (p, y) in ps.zip ys do
-    if !p.ty.isIrrelevant then
+    if !p.ty.isErased then
       let (_yty, yv) ← emitArgVal builder y ""
       argTys := argTys.push (← toLLVMType p.ty)
       args := args.push yv

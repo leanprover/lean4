@@ -254,8 +254,8 @@ def utf8PrevAux : List Char → Pos → Pos → Pos
 
 /--
 Returns the position in a string before a specified position, `p`. If `p = ⟨0⟩`, returns `0`. If `p`
-is out of bounds, returns the position one byte before `p`. Otherwise, if `p` occurs in the middle
-of a multi-byte character, returns the beginning position of that character.
+is greater than `endPos`, returns the position one byte before `p`. Otherwise, if `p` occurs in the
+middle of a multi-byte character, returns the beginning position of that character.
 
 For example, `"L∃∀N".prev ⟨3⟩` is `⟨1⟩`, since byte 3 occurs in the middle of the multi-byte
 character `'∃'` that starts at byte 1.

@@ -12,7 +12,6 @@ import Lake.Config.ConfigDecl
 import Lake.Config.Script
 import Lake.Config.Cache
 import Lake.Load.Config
-import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
 import Lake.Util.Version
 import Lake.Util.FilePath
@@ -301,7 +300,6 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   the `LAKE_ARTIFACT_CACHE` environment variable is set to true.
   -/
   enableArtifactCache?, enableArtifactCache : Option Bool := none
-
   /--
   Whether native libraries (of this package) should be prefixed with `lib` on Windows.
 
@@ -312,6 +310,8 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   Defaults to `false`.
   -/
   libPrefixOnWindows : Bool := false
+deriving Inhabited
+
 
 instance : EmptyCollection (PackageConfig n) := ⟨{}⟩
 
@@ -652,7 +652,7 @@ def inputsFileIn (cache : Cache) (self : Package) : FilePath :=
 
 /-- Try to find a target configuration in the package with the given name. -/
 def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=
-  self.targetDeclMap.find? name
+  self.targetDeclMap.get? name
 
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=

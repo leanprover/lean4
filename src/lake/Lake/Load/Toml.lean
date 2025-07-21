@@ -402,7 +402,7 @@ where
       let some name ← tryDecode? <| stringToLegalOrSimpleName <$> t.decode `name
         | return r
       let (decls, map) := r
-      if let some orig := map.find? name then
+      if let some orig := map.get? name then
         modify fun es => es.push <| .mk val.ref s!"\
           {pkg}: target '{name}' was already defined as a '{orig.kind}', \
           but then redefined as a '{kind}'"

@@ -8,7 +8,6 @@ prelude
 import Lean.Data.Lsp.Internal
 import Lean.Data.Lsp.Extra
 import Lean.Server.Utils
-import Std.Data.TreeMap
 import Lean.Elab.Import
 import Std.Data.TreeSet.Basic
 

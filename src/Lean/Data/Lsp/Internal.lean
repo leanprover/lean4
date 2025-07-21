@@ -8,7 +8,6 @@ prelude
 import Lean.Expr
 import Lean.Data.Lsp.Basic
 import Lean.Data.JsonRpc
-import Std.Data.TreeMap
 
 set_option linter.missingDocs true -- keep it documented
 
@@ -196,7 +195,7 @@ instance : ToJson ModuleRefs where
 instance : FromJson ModuleRefs where
   fromJson? j := do
     let node ← j.getObj?
-    node.foldM (init := ∅) fun m k v =>
+    node.foldlM (init := ∅) fun m k v =>
       return m.insert (← RefIdent.fromJson? (← Json.parse k)) (← fromJson? v)
 
 /--

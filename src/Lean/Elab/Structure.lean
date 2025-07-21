@@ -450,7 +450,7 @@ private def hasFieldName (fieldName : Name) : StructElabM Bool :=
 
 private def findFieldInfoByFVarId? (fvarId : FVarId) : StructElabM (Option StructFieldInfo) := do
   let s ← get
-  return s.fvarIdFieldIdx.find? fvarId |>.map fun idx => s.fields[idx]!
+  return s.fvarIdFieldIdx.get? fvarId |>.map fun idx => s.fields[idx]!
 
 /--
 Inserts a field info into the current state.
@@ -1242,7 +1242,7 @@ private def resolveFieldDefaults (structName : Name) : StructElabM Unit := do
     if fieldInfo.default?.isSome then
       replaceFieldInfo { fieldInfo with resolvedDefault? := fieldInfo.default? }
     else if !fieldInfo.inheritedDefaults.isEmpty then
-      let inheritedDefaults := fieldInfo.inheritedDefaults.insertionSort fun d1 d2 => resOrderMap.find! d1.1 < resOrderMap.find! d2.1
+      let inheritedDefaults := fieldInfo.inheritedDefaults.insertionSort fun d1 d2 => resOrderMap.get! d1.1 < resOrderMap.get! d2.1
       trace[Elab.structure] "inherited defaults for '{fieldInfo.name}' are {repr inheritedDefaults}"
       replaceFieldInfo { fieldInfo with
         inheritedDefaults

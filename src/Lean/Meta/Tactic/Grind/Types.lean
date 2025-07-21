@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Tactics
 import Init.Data.Queue
-import Std.Data.TreeSet
+import Std.Data.TreeSet.Basic
 import Lean.HeadIndex
 import Lean.Meta.Basic
 import Lean.Meta.CongrTheorems

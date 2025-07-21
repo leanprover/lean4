@@ -488,7 +488,7 @@ def resolveConflict (h : UnsatProof) : SearchM Unit := do
     trace[grind.debug.cutsat.search.backtrack] "resolved diseq split: {← c'.pp}"
     c'.assert
   | .cooper pred hs decVars' =>
-    let decVars' := decVars.union decVars'
+    let decVars' := decVars.merge decVars'
     let n := pred.numCases
     let hs := hs.push (c.fvarId, h)
     trace[grind.debug.cutsat.search.backtrack] "cooper #{hs.size + 1}, {← pred.pp}, {hs.map fun p => p.1.name}"

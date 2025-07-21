@@ -59,8 +59,8 @@ instance : Coe Syntax DataValue := ⟨.ofSyntax⟩
 /--
 A key-value map. We use it to represent user-selected options and `Expr.mdata`.
 
-Remark: we do not use `RBMap` here because we need to manipulate `KVMap` objects in
-C++ and `RBMap` is implemented in Lean. So, we use just a `List` until we can
+Remark: we do not use a Lean `Std.TreeMap` here because we need to manipulate `KVMap` objects in
+C++ and `Std.TreeMap` is implemented in Lean. So, we use just a `List` until we can
 generate C++ code from Lean code.
 -/
 structure KVMap where

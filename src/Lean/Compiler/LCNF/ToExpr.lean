@@ -13,7 +13,7 @@ namespace ToExpr
 private abbrev LevelMap := FVarIdMap Nat
 
 private def _root_.Lean.FVarId.toExpr (offset : Nat) (m : LevelMap) (fvarId : FVarId) : Expr :=
-  match m.find? fvarId with
+  match m.get? fvarId with
   | some level => .bvar (offset - level - 1)
   | none => .fvar fvarId
 

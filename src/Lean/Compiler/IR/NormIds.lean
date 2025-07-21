@@ -39,7 +39,7 @@ namespace NormalizeIds
 abbrev M := ReaderT IndexRenaming Id
 
 def normIndex (x : Index) : M Index := fun m =>
-  match m.find? x with
+  match m.get? x with
   | some y => y
   | none   => x
 

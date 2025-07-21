@@ -7,12 +7,9 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 prelude
 import Init.System.IO
 import Std.Sync.Mutex
-import Std.Data.TreeMap
 import Init.Data.ByteArray
-import Lean.Data.RBMap
 
 import Lean.Data.FuzzyMatching
-import Lean.Data.Json
 import Lean.Data.Lsp
 import Lean.Server.Utils
 import Lean.Server.Requests
@@ -260,7 +257,7 @@ end FileWorker
 
 section ServerM
   abbrev FileWorkerMap := Std.TreeMap DocumentUri FileWorker
-  abbrev ImportMap := RBMap DocumentUri (RBTree DocumentUri compare) compare
+  abbrev ImportMap := Std.TreeMap DocumentUri (Std.TreeSet DocumentUri)
 
   /-- Global import data for all open files managed by this watchdog. -/
   structure ImportData where
@@ -270,15 +267,15 @@ section ServerM
     importedBy : ImportMap
 
   /-- Updates `d` with the new set of `imports` for the file `uri`. -/
-  def ImportData.update (d : ImportData) (uri : DocumentUri) (imports : RBTree DocumentUri compare)
+  def ImportData.update (d : ImportData) (uri : DocumentUri) (imports : Std.TreeSet DocumentUri)
       : ImportData := Id.run do
-    let oldImports     := d.imports.findD uri ∅
-    let removedImports := oldImports.diff imports
-    let addedImports   := imports.diff oldImports
+    let oldImports     := d.imports.getD uri ∅
+    let removedImports := oldImports.eraseMany imports
+    let addedImports   := imports.eraseMany oldImports
     let mut importedBy := d.importedBy
 
     for removedImport in removedImports do
-      let importedByRemovedImport' := importedBy.find! removedImport |>.erase uri
+      let importedByRemovedImport' := importedBy.get! removedImport |>.erase uri
       if importedByRemovedImport'.isEmpty then
         importedBy := importedBy.erase removedImport
       else
@@ -286,7 +283,7 @@ section ServerM
 
     for addedImport in addedImports do
       importedBy :=
-        importedBy.findD addedImport ∅
+        importedBy.getD addedImport ∅
           |>.insert uri
           |> importedBy.insert addedImport
 
@@ -308,7 +305,7 @@ section ServerM
     sourceUri : DocumentUri
     localID   : RequestID
 
-  abbrev PendingServerRequestMap := RBMap RequestID RequestIDTranslation compare
+  abbrev PendingServerRequestMap := Std.TreeMap RequestID RequestIDTranslation
 
   structure ServerRequestData where
     pendingServerRequests : PendingServerRequestMap
@@ -330,7 +327,7 @@ section ServerM
       (data     : ServerRequestData)
       (globalID : RequestID)
       : Option RequestIDTranslation × ServerRequestData :=
-    let translation? := data.pendingServerRequests.find? globalID
+    let translation? := data.pendingServerRequests.get? globalID
     let data := { data with pendingServerRequests := data.pendingServerRequests.erase globalID }
     (translation?, data)
 
@@ -1101,7 +1098,7 @@ def handlePrepareRename (p : PrepareRenameParams) : ReaderT ReferenceRequestCont
 def handleRename (p : RenameParams) : ReaderT ReferenceRequestContext IO Lsp.WorkspaceEdit := do
   if (String.toName p.newName).isAnonymous then
     throwServerError s!"Can't rename: `{p.newName}` is not an identifier"
-  let mut refs : Std.HashMap DocumentUri (RBMap Lsp.Position Lsp.Position compare) := ∅
+  let mut refs : Std.HashMap DocumentUri (Std.TreeMap Lsp.Position Lsp.Position) := ∅
   for { uri, range } in (← handleReference { p with context.includeDeclaration := true }) do
     refs := refs.insert uri <| (refs.getD uri ∅).insert range.start range.end
   -- We have to filter the list of changes to put the ranges in order and
@@ -1161,7 +1158,7 @@ section NotificationHandling
     let s ← read
     let fileWorkers ← s.fileWorkersRef.get
     let importData  ← s.importData.get
-    let dependents := importData.importedBy.findD p.textDocument.uri ∅
+    let dependents := importData.importedBy.getD p.textDocument.uri ∅
 
     for ⟨uri, _⟩ in fileWorkers do
       if ! dependents.contains uri then
@@ -1178,7 +1175,7 @@ section NotificationHandling
     if ! leanChanges.isEmpty then
       let importData ← (← read).importData.get
       for (c, _) in leanChanges do
-        let dependents := importData.importedBy.findD c.uri ∅
+        let dependents := importData.importedBy.getD c.uri ∅
         for dependent in dependents do
           notifyAboutStaleDependency dependent c.uri
     if ! ileanChanges.isEmpty then
@@ -1595,10 +1592,10 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   startLoadingReferences referenceData
   let fileWorkersRef ← IO.mkRef (Std.TreeMap.empty : FileWorkerMap)
   let serverRequestData ← IO.mkRef {
-    pendingServerRequests := RBMap.empty
+    pendingServerRequests := Std.TreeMap.empty
     freshServerRequestID  := 0
   }
-  let importData ← IO.mkRef ⟨RBMap.empty, RBMap.empty⟩
+  let importData ← IO.mkRef ⟨Std.TreeMap.empty, Std.TreeMap.empty⟩
   let requestData ← RequestDataMutex.new
   let i ← maybeTee "wdIn.txt" false i
   let o ← maybeTee "wdOut.txt" true o

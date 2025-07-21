@@ -7,7 +7,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 prelude
 import Lean.Data.Lsp.Capabilities
 import Lean.Data.Lsp.Workspace
-import Lean.Data.Json
 
 /-! Functionality to do with initializing and shutting down
 the server ("General Messages" section of LSP spec). -/

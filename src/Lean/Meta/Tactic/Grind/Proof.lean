@@ -68,7 +68,7 @@ Recall that this expression must exist since it is the root itself in the
 worst case.
 -/
 private def findCommon (lhs rhs : Expr) : GoalM Expr := do
-  let mut visited : RBMap Nat Expr compare := {}
+  let mut visited : Std.TreeMap Nat Expr := {}
   let mut it := lhs
   -- Mark elements found following the path from `lhs` to the root.
   repeat
@@ -80,7 +80,7 @@ private def findCommon (lhs rhs : Expr) : GoalM Expr := do
   it := rhs
   repeat
     let n ← getENode it
-    if let some common := visited.find? n.idx then
+    if let some common := visited.get? n.idx then
       return common
     let some target := n.target? | unreachable! --
     it := target

@@ -12,7 +12,7 @@
         let _x.3 := f _x.2;
         return _x.3
 [Compiler.result] size: 1
-    def g (α : ◾) (n : Nat) (a : lcAny) (b : lcAny) (f : lcAny → lcAny) : lcAny :=
+    def g (α : ◾) (n : Nat) (a : lcAny) (b : ◾) (f : lcAny → lcAny) : lcAny :=
       let _x.1 := g._redArg n a f;
       return _x.1
 [Compiler.result] size: 1

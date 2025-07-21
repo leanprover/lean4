@@ -300,8 +300,6 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   the `LAKE_ARTIFACT_CACHE` environment variable is set to true.
   -/
   enableArtifactCache?, enableArtifactCache : Option Bool := none
-deriving Inhabited
-
   /--
   Whether native libraries (of this package) should be prefixed with `lib` on Windows.
 
@@ -312,6 +310,8 @@ deriving Inhabited
   Defaults to `false`.
   -/
   libPrefixOnWindows : Bool := false
+deriving Inhabited
+
 
 instance : EmptyCollection (PackageConfig n) := ⟨{}⟩
 

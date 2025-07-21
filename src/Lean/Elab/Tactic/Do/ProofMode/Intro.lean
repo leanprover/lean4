@@ -11,20 +11,29 @@ namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic
 open Lean Elab Tactic Meta
 
-partial def mIntro [Monad m] [MonadControlT MetaM m] (goal : MGoal) (ident : TSyntax ``binderIdent) (k : MGoal → m (α × Expr)) : m (α × Expr) :=
-  controlAt MetaM fun map => do
-  let some (σs, H, T) := goal.target.app3? ``SPred.imp | throwError "Target not an implication {goal.target}"
-  let (name, ref) ← getFreshHypName ident
-  let uniq ← mkFreshId
+partial def mIntro [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m] (goal : MGoal) (ident : TSyntax ``binderIdent) (k : MGoal → m (α × Expr)) : m (α × Expr) := do
+  if let some (σs, H, T) := goal.target.app3? ``SPred.imp then
+  let (name, ref) ← liftMetaM <| getFreshHypName ident
+  let uniq ← liftMetaM mkFreshId
   let hyp := Hyp.mk name uniq H
   addHypInfo ref σs hyp (isBinder := true)
   let Q := goal.hyps
   let H := hyp.toExpr
   let (P, hand) := mkAnd goal.u goal.σs goal.hyps H
-  map do
-    let (a, prf) ← k { goal with hyps := P, target := T }
-    let prf := mkApp7 (mkConst ``Intro.intro [goal.u]) σs P Q H T hand prf
-    return (a, prf)
+  let (a, prf) ← k { goal with hyps := P, target := T }
+  let prf := mkApp7 (mkConst ``Intro.intro [goal.u]) σs P Q H T hand prf
+  return (a, prf)
+  else if let .letE name type val body _nondep := goal.target then
+    let name ← match ident with
+    | `(binderIdent| $name:ident) => pure name.getId
+    | `(binderIdent| $_) => liftMetaM <| mkFreshUserName name
+    -- Even if `_nondep = true` we want to retain the value of the let binding for the proof.
+    withLetDecl name type val (nondep := false) fun val => do
+      let (a, prf) ← k { goal with target := body.instantiate1 val }
+      let prf ← liftMetaM <| mkLetFVars #[val] prf
+      return (a, prf)
+  else
+    liftMetaM <| throwError "Target not an implication or let-binding {goal.target}"
 
 -- This is regular MVar.intro, but it takes care not to leave the proof mode by preserving metadata
 partial def mIntroForall [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m] (goal : MGoal) (ident : TSyntax ``binderIdent) (k : MGoal → m (α × Expr)) : m (α × Expr) :=

@@ -115,6 +115,11 @@ structure Config where
   When `true` (default: `true`), uses procedure for handling linear integer arithmetic for `Int` and `Nat`.
   -/
   cutsat := true
+  /--
+  Maximum exponent eagerly evaluated while computing bounds for `ToInt` and
+  the characteristic of a ring.
+  -/
+  exp : Nat := 2^20
   deriving Inhabited, BEq
 
 end Lean.Grind

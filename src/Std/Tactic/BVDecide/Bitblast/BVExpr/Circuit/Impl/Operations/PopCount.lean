@@ -25,12 +25,17 @@ namespace bitblast
 def blastPopCount (aig : AIG α) (x : AIG.RefVec aig w) :
     AIG.RefVecEntry α w :=
   let zero : AIG.RefVec aig w := blastConst aig (w := w) 0
-  go aig x w zero
+  go aig x (w + 1) zero
 where
+  /-
+   + curr ≤ w + 1
+   + x = popCountAuxAnd (w + 1 - curr)
+   + acc = if x = 0#w then (w + 1 - curr) else popCountAuxRec x_init (curr - 1)
+  -/
   go (aig : AIG α) (x : AIG.RefVec aig w) (curr : Nat) (acc : AIG.RefVec aig w) :=
     if hc : 0 < curr then
       -- create curr constant node
-      let currConst : AIG.RefVec aig w := blastConst aig (w := w) (w - curr)
+      let currConst : AIG.RefVec aig w := blastConst aig (w := w) (w - (curr - 1))
       let zero : AIG.RefVec aig w := blastConst aig (w := w) 0
       -- create node x = 0
       let res := BVPred.mkEq aig ⟨x, zero⟩
@@ -62,21 +67,10 @@ where
       let acc := acc.cast this
       go aig x (curr - 1) acc
     else
-      -- last node
-      let currConst : AIG.RefVec aig w := blastConst aig (w := w) w
-      let zero : AIG.RefVec aig w := blastConst aig (w := w) 0
-      -- create node x = 0
-      let res := BVPred.mkEq aig ⟨x, zero⟩
-      let aig := res.aig
-      let cond := res.ref
-      have := AIG.LawfulOperator.le_size (f := BVPred.mkEq) ..
-      let currConst := currConst.cast this
-      let acc := acc.cast this
-      -- ite (x = 0),  w - curr, acc
-      let res := AIG.RefVec.ite aig ⟨cond, currConst, acc⟩
-      let aig := res.aig
-      let acc := res.vec
       ⟨aig, acc⟩
+    /-
+      (go aig x curr acc) = popCountAuxRec x w
+    -/
   termination_by curr
 
 namespace blastPopCount

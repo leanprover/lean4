@@ -109,6 +109,8 @@ def assertNatCast (e : Expr) (x : Var) : GoalM Unit := do
   let_expr instNatCastInt := inst | return ()
   if a.isAppOf ``OfNat.ofNat then return () -- we don't want to propagate constraints such as `2 ≥ 0`
   if (← get').natDef.contains { expr := a } then return ()
+  -- Ensure `a` is marked as a `Nat` variable. This can happen when the `natCast` was introduced by the user.
+  discard <| mkNatVar a
   let p := .add (-1) x (.num 0)
   let c := { p, h := .ofNatNonneg a : LeCnstr}
   c.assert

@@ -1903,16 +1903,17 @@ private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLev
   self.getData? (if level ≥ .server then level else .exported)
 
 /-- The module data that should be used for accessing IR for interpretation. -/
-private def ImportedModule.loadIRData? (self : ImportedModule) (arts : NameMap ModuleArtifacts)
+private def ImportedModule.loadIRData? (self : ImportedModule) (arts : NameMap ImportArtifacts)
     (level : OLeanLevel):
     IO (Option (ModuleData × Option CompactedRegion)) := do
   if (level < .server && self.irPhases == .runtime) || !self.mainModule?.any (·.isModule) then
     return self.mainModule?.map (·, none)
-  let fname ← match arts.find? self.module with
-    | some { ir? := some ir } => pure ir
-    -- If Lake tells us we don't need IR, we should not look for it ourselves
-    | some _ => return none
-    | none => do
+  let fname ← do
+    if let some arts := arts.find? self.module then
+      let some ir := arts.ir?
+        | return none -- If Lake tells us we don't need IR, we should not look for it ourselves
+      pure ir
+    else
       let mFile ← findOLean self.module
       pure <| mFile.withExtension "ir"
   let (data, region) ← readModuleData fname
@@ -2074,7 +2075,7 @@ Constructs environment from `importModulesCore` results.
 See also `importModules` for parameter documentation.
 -/
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv loadExts : Bool) (level := OLeanLevel.private) (arts : NameMap ModuleArtifacts := {}) :
+    (leakEnv loadExts : Bool) (level := OLeanLevel.private) (arts : NameMap ImportArtifacts := {}) :
     IO Environment := do
   let isModule := level != .private
   let modules := s.moduleNames.filterMap (s.moduleNameMap[·]?)
@@ -2216,7 +2217,7 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
   withImporting do
     plugins.forM Lean.loadPlugin
     let (_, s) ← importModulesCore (isModule := level != .private) imports arts |>.run
-    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
+    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level) (arts := arts)
       s imports opts trustLevel
 
 /--

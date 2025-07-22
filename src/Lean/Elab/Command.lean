@@ -656,7 +656,7 @@ The environment linter framework needs to be able to run linters with the same c
 as `liftTermElabM`, so we expose that context as a public function here.
 -/
 def mkMetaContext : Meta.Context := {
-  config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
+  keyedConfig := Meta.Config.toConfigWithKey { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
 }
 
 open Lean.Parser.Term in

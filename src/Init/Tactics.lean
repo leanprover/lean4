@@ -2046,6 +2046,16 @@ macro (name := mstopMacro) (priority:=low) "mstop" : tactic =>
 
 
 /--
+Leaves the stateful proof mode of `Std.Do.SPred`, tries to eta-expand through all definitions
+related to the logic of the `Std.Do.SPred` and gently simplifies the resulting pure Lean
+proposition. This is often the right thing to do after `mvcgen` in order for automation to prove
+the goal.
+-/
+macro (name := mleaveMacro) (priority:=low) "mleave" : tactic =>
+  Macro.throwError "to use `mleave`, please include `import Std.Tactic.Do`"
+
+
+/--
 Like `rcases`, but operating on stateful `Std.Do.SPred` goals.
 Example: Given a goal `h : (P ∧ (Q ∨ R) ∧ (Q → R)) ⊢ₛ R`,
 `mcases h with ⟨-, ⟨hq | hr⟩, hqr⟩` will yield two goals:

@@ -677,7 +677,7 @@ example {x : BitVec 8} : x.clz ≤ 8 := by bv_decide
 -- POPCOUNT
 example : (0#8).popCount = 0 := by bv_decide
 example : (BitVec.allOnes 8).popCount = 8 := by bv_decide
-example : (3#4).popCount = 2 := by bv_decide
+example : (5#4).popCount = 2 := by bv_decide
 
 section
 

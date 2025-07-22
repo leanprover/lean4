@@ -85,6 +85,9 @@ structure DeclNameGenerator where
 
 namespace DeclNameGenerator
 
+def ofPrefix (namePrefix : Name) : DeclNameGenerator :=
+  { namePrefix }
+
 private def idxs (g : DeclNameGenerator) : List Nat :=
   g.idx :: g.parentIdxs
 

@@ -11,6 +11,7 @@ public import Init.Data.Slice.Array.Iterator
 public import Init.Data.Range
 public import Std.Data.HashMap.Basic
 public import Init.Omega
+import Init.Data.Iterators.Combinators.ULift  -- TODO: necessary because of codegen issue
 
 public section
 
@@ -62,7 +63,7 @@ structure Histogram.Entry (α : Type u) (lsize rsize : Nat) where
   rightWF : rightCount = 0 ↔ rightIndex = none
 
 /-- A histogram for arrays maps each element to a count and, if applicable, an index.-/
-def Histogram (α : Type u) (lsize rsize : Nat) [BEq α] [Hashable α] :=
+@[expose] def Histogram (α : Type u) (lsize rsize : Nat) [BEq α] [Hashable α] :=
   Std.HashMap α (Histogram.Entry α lsize rsize)
 
 
@@ -110,7 +111,6 @@ def matchPrefix (left right : Subarray α) : Array α × Subarray α × Subarray
     else (pref, left.drop pref.size, right.drop pref.size)
   termination_by left.size - pref.size
   go #[]
-
 
 /-- Given two `Subarray`s, find their common suffix and return their differing prefixes -/
 def matchSuffix (left right : Subarray α) : Subarray α × Subarray α × Array α :=

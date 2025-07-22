@@ -38,7 +38,7 @@ def extractLetsAddVarInfo (ids : Array Syntax) (fvars : Array FVarId) : TacticM 
 
 declare_config_elab elabExtractLetsConfig ExtractLetsConfig
 
-@[builtin_tactic extractLets] elab_rules : tactic
+@[builtin_tactic extractLets] def evalExtractLets : Tactic
   | `(tactic| extract_lets $cfg:optConfig $ids* $[$loc?:location]?) => do
     let mut config ← elabExtractLetsConfig cfg
     let givenNames := (ids.map getNameOfIdent').toList
@@ -54,6 +54,7 @@ declare_config_elab elabExtractLetsConfig ExtractLetsConfig
           return (fvars, [mvarId])
         extractLetsAddVarInfo ids fvars)
       (failed := fun _ => throwError "'extract_lets' tactic failed")
+  | _ => throwUnsupportedSyntax
 
 /-!
 ### `lift_lets`
@@ -61,23 +62,25 @@ declare_config_elab elabExtractLetsConfig ExtractLetsConfig
 
 declare_config_elab elabLiftLetsConfig LiftLetsConfig
 
-@[builtin_tactic liftLets] elab_rules : tactic
+@[builtin_tactic liftLets] def evalLiftLets : Tactic
   | `(tactic| lift_lets $cfg:optConfig $[$loc?:location]?) => do
     let mut config ← elabLiftLetsConfig cfg
     withLocation (expandOptLocation (Lean.mkOptionalNode loc?))
       (atLocal := fun h => liftMetaTactic1 fun mvarId => mvarId.liftLetsLocalDecl h config)
       (atTarget := liftMetaTactic1 fun mvarId => mvarId.liftLets config)
       (failed := fun _ => throwError "'lift_lets' tactic failed")
+  | _ => throwUnsupportedSyntax
 
 /-!
 ### `let_to_have`
 -/
 
-@[builtin_tactic letToHave] elab_rules : tactic
+@[builtin_tactic letToHave] def evalLetToHave : Tactic
   | `(tactic| let_to_have $[$loc?:location]?) => do
     withLocation (expandOptLocation (Lean.mkOptionalNode loc?))
       (atLocal := fun h => liftMetaTactic1 fun mvarId => mvarId.letToHaveLocalDecl h)
       (atTarget := liftMetaTactic1 fun mvarId => mvarId.letToHave)
       (failed := fun _ => throwError "'let_to_have' tactic failed")
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

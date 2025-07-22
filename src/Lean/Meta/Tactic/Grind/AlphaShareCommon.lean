@@ -56,10 +56,10 @@ structure AlphaKey where
   expr : Expr
 
 instance : Hashable AlphaKey where
-  hash k := alphaHash k.expr
+  hash k := private alphaHash k.expr
 
 instance : BEq AlphaKey where
-  beq k₁ k₂ := alphaEq k₁.expr k₂.expr
+  beq k₁ k₂ := private alphaEq k₁.expr k₂.expr
 
 structure AlphaShareCommon.State where
   map : PHashMap ExprPtr Expr := {}

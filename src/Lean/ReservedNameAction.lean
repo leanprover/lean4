@@ -18,7 +18,7 @@ The action returns `true` if it "handled" the given name.
 
 Remark: usually when one install a reserved name predicate, an associated action is also installed.
 -/
-def ReservedNameAction := Name → CoreM Bool
+@[expose] def ReservedNameAction := Name → CoreM Bool
 
 private builtin_initialize reservedNameActionsRef : IO.Ref (Array ReservedNameAction) ← IO.mkRef #[]
 

@@ -9,6 +9,7 @@ prelude
 public import Lean.Server.InfoUtils
 public import Lean.Data.Lsp
 public import Init.Data.List.Sort.Basic
+meta import Lean.Parser.Term
 
 public section
 

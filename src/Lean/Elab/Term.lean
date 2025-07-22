@@ -20,6 +20,7 @@ public import Lean.Elab.DeclarationRange
 public import Lean.Elab.WhereFinally
 public import Lean.Language.Basic
 public import Lean.Elab.InfoTree.InlayHints
+public meta import Lean.Parser.Term
 
 public section
 

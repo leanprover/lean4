@@ -25,8 +25,8 @@ structure JsonNumber where
 
 namespace JsonNumber
 
-protected def fromNat (n : Nat) : JsonNumber := ⟨n, 0⟩
-protected def fromInt (n : Int) : JsonNumber := ⟨n, 0⟩
+@[expose] protected def fromNat (n : Nat) : JsonNumber := ⟨n, 0⟩
+@[expose] protected def fromInt (n : Int) : JsonNumber := ⟨n, 0⟩
 
 instance : Coe Nat JsonNumber := ⟨JsonNumber.fromNat⟩
 instance : Coe Int JsonNumber := ⟨JsonNumber.fromInt⟩

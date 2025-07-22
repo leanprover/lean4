@@ -319,8 +319,8 @@ Add the entry `fvarId ↦ fvarId'` to the free variable substitution.
 @[inline, inherit_doc normLetValueImp] def normLetValue [MonadFVarSubst m t] [Monad m] (e : LetValue) : m LetValue :=
   return normLetValueImp (← getSubst) e t
 
-@[inherit_doc normExprImp]
-abbrev normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
+@[inherit_doc normExprImp, inline]
+def normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
   normExprImp s e translator
 
 /--

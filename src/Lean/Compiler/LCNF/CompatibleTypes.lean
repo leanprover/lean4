@@ -25,7 +25,7 @@ We claim it is "defensible" to say this sanity checker is a linter. If the sanit
 and performance may suffer at runtime.
 Here is an example of code that "abuses" dependent types:
 ```
-def Tuple (α : Type u) : Nat → Type u
+@[expose] def Tuple (α : Type u) : Nat → Type u
   | 0   => PUnit
   | 1   => α
   | n+2 => α × Tuple α (n+1)

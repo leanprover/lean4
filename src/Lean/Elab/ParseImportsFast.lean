@@ -24,7 +24,7 @@ structure State where
   importAll     : Bool := false
   deriving Inhabited
 
-def Parser := String → State → State
+@[expose] def Parser := String → State → State
 
 instance : Inhabited Parser where
   default := fun _ s => s

@@ -79,7 +79,7 @@ def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name
   loop extractionResult.name []
 
 /-- Transform sequence of pushes and appends into acceptable code -/
-def ArrayStxBuilder := Sum (Array Term) Term
+@[expose] def ArrayStxBuilder := Sum (Array Term) Term
 
 namespace ArrayStxBuilder
 
@@ -278,7 +278,7 @@ elab_stx_quot Parser.Command.quot
 /-! # match -/
 
 /-- an "alternative" of patterns plus right-hand side -/
-private abbrev Alt := List Term × Term
+abbrev Alt := List Term × Term
 
 /--
   In a single match step, we match the first discriminant against the "head" of the first pattern of the first

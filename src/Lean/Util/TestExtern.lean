@@ -6,11 +6,11 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Lean.Elab.SyntheticMVars
 public import Lean.Elab.Command
-public import Lean.Meta.Tactic.Unfold
-public import Lean.Meta.Eval
-public import Lean.Compiler.ImplementedByAttr
+meta import Lean.Meta.Tactic.Unfold
+meta import Lean.Meta.Eval
+meta import Lean.Compiler.ImplementedByAttr
+meta import Lean.Elab.Command
 
 public section
 
@@ -18,7 +18,7 @@ open Lean Elab Meta Command Term Compiler
 
 syntax (name := testExternCmd) "test_extern " term : command
 
-@[command_elab testExternCmd] unsafe def elabTestExtern : CommandElab
+@[command_elab testExternCmd] meta unsafe def elabTestExtern : CommandElab
   | `(test_extern $t:term) => liftTermElabM do
     let t ← elabTermAndSynthesize t none
     match t.getAppFn with

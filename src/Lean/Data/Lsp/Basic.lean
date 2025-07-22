@@ -121,7 +121,7 @@ structure TextEdit where
   deriving ToJson, FromJson
 
 /-- An array of `TextEdit`s to be performed in sequence. -/
-def TextEditBatch := Array TextEdit
+@[expose] def TextEditBatch := Array TextEdit
 
 instance : FromJson TextEditBatch :=
   ⟨@fromJson? (Array TextEdit) _⟩
@@ -322,7 +322,7 @@ structure DocumentFilter where
   pattern?  : Option String := none
   deriving ToJson, FromJson
 
-def DocumentSelector := Array DocumentFilter
+@[expose] def DocumentSelector := Array DocumentFilter
 
 instance : FromJson DocumentSelector :=
   ⟨@fromJson? (Array DocumentFilter) _⟩

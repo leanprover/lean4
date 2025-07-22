@@ -14,7 +14,7 @@ namespace Lean.Meta.Grind.Arith.CommRing
 
 private abbrev M := StateT Ring MetaM
 
-instance : MonadRing M where
+private instance : MonadRing M where
   getRing := get
   modifyRing := modify
   canonExpr e := return e
@@ -29,19 +29,19 @@ private def toOption (cls : Name) (header : Thunk MessageData) (msgs : Array Mes
 private def push (msgs : Array MessageData) (msg? : Option MessageData) : Array MessageData :=
   if let some msg := msg? then msgs.push msg else msgs
 
-def ppBasis? : M (Option MessageData) := do
+private def ppBasis? : M (Option MessageData) := do
   let mut basis := #[]
   for c in (← getRing).basis do
     basis := basis.push (toTraceElem (← c.denoteExpr))
   return toOption `basis "Basis" basis
 
-def ppDiseqs? : M (Option MessageData) := do
+private def ppDiseqs? : M (Option MessageData) := do
   let mut diseqs := #[]
   for d in (← getRing).diseqs do
     diseqs := diseqs.push (toTraceElem (← d.denoteExpr))
   return toOption `diseqs "Disequalities" diseqs
 
-def ppRing? : M (Option MessageData) := do
+private def ppRing? : M (Option MessageData) := do
   let msgs := #[]
   let msgs := push msgs (← ppBasis?)
   let msgs := push msgs (← ppDiseqs?)

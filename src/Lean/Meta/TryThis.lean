@@ -79,7 +79,7 @@ interesting fields:
 * `className`: the CSS classes applied to the link
 * `style`: A `Json` object with additional inline CSS styles such as `color` or `textDecoration`.
 -/
-def SuggestionStyle := Json deriving Inhabited, ToJson
+@[expose] def SuggestionStyle := Json deriving Inhabited, ToJson
 
 /-- Style as an error. By default, decorates the text with an undersquiggle; providing the argument
 `decorated := false` turns this off. -/

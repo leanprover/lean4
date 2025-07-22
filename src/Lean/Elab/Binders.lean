@@ -13,6 +13,7 @@ public import Lean.Elab.SyntheticMVars
 public import Lean.Elab.PreDefinition.TerminationHint
 public import Lean.Elab.Match
 public import Lean.Compiler.MetaAttr
+meta import Lean.Parser.Term
 
 public section
 

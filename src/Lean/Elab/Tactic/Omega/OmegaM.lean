@@ -66,7 +66,7 @@ abbrev OmegaM' := StateRefT State (ReaderT Context CanonM)
 /--
 Cache of expressions that have been visited, and their reflection as a linear combination.
 -/
-def Cache : Type := Std.HashMap Expr (LinearCombo × OmegaM' Expr)
+@[expose] def Cache : Type := Std.HashMap Expr (LinearCombo × OmegaM' Expr)
 
 /--
 The `OmegaM` monad maintains two pieces of state:

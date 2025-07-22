@@ -117,7 +117,7 @@ inductive Message where
   | responseError (id : RequestID) (code : ErrorCode) (message : String) (data? : Option Json)
   deriving Inhabited
 
-def Batch := Array Message
+@[expose] def Batch := Array Message
 
 /-- Generic version of `Message.request`.
 
@@ -217,7 +217,7 @@ def ResponseError.ofMessage? : Message → Option (ResponseError Json)
 instance : Coe String RequestID := ⟨RequestID.str⟩
 instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩
 
-private def RequestID.lt : RequestID → RequestID → Bool
+@[expose] def RequestID.lt : RequestID → RequestID → Bool
   | RequestID.str a, RequestID.str b            => a < b
   | RequestID.num a, RequestID.num b            => a < b
   | RequestID.null,  RequestID.num _            => true
@@ -225,7 +225,7 @@ private def RequestID.lt : RequestID → RequestID → Bool
   | RequestID.num _, RequestID.str _            => true
   | _, _ /- str < *, num < null, null < null -/ => false
 
-private def RequestID.ltProp : LT RequestID :=
+@[expose] def RequestID.ltProp : LT RequestID :=
   ⟨fun a b => RequestID.lt a b = true⟩
 
 instance : LT RequestID :=

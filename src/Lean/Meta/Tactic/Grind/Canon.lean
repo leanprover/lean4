@@ -132,7 +132,7 @@ private inductive ShouldCanonResult where
   deriving Inhabited
 
 instance : Repr ShouldCanonResult where
-  reprPrec r _ := match r with
+  reprPrec r _ := private match r with
     | .canonType => "canonType"
     | .canonInst => "canonInst"
     | .canonImplicit => "canonImplicit"

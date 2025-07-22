@@ -30,10 +30,10 @@ private def TreeMap.fromJson? {cmp} [FromJson α] (j : Json) :
   o.foldlM (fun x k v => x.insert k <$> Lean.fromJson? v) ∅
 
 instance [ToJson α] : ToJson (Std.TreeMap String α compare) where
-  toJson := TreeMap.toJson
+  toJson := private TreeMap.toJson
 
 instance {cmp} [FromJson α] : FromJson (Std.TreeMap String α cmp) where
-  fromJson? := TreeMap.fromJson?
+  fromJson? := private TreeMap.fromJson?
 
 
 end Lean

@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.ScopedEnvExtension
 public import Lean.DocString
+public meta import Init.Data.String.Extra
 
 public section
 

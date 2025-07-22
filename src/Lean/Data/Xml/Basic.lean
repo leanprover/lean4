@@ -14,7 +14,7 @@ public section
 namespace Lean
 namespace Xml
 
-def Attributes := Std.TreeMap String String
+@[expose] def Attributes := Std.TreeMap String String
 instance : ToString Attributes := ⟨λ as => as.foldl (λ s n v => s ++ s!" {n}=\"{v}\"") ""⟩
 
 mutual

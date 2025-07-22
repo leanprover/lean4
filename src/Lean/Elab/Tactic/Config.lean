@@ -10,6 +10,7 @@ public import Lean.Meta.Eval
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.SyntheticMVars
 public import Lean.Linter.MissingDocs
+meta import Lean.Parser.Tactic
 
 public section
 
@@ -24,7 +25,7 @@ private structure ConfigItemView where
   (bool : Bool := false)
 
 /-- Interprets the `config` as an array of option/value pairs. -/
-private def mkConfigItemViews (c : TSyntaxArray ``configItem) : Array ConfigItemView :=
+def mkConfigItemViews (c : TSyntaxArray ``configItem) : Array ConfigItemView :=
   c.map fun item =>
     match item with
     | `(configItem| ($option:ident := $value)) => { ref := item, option, value }
@@ -65,7 +66,7 @@ private partial def expandField (structName : Name) (field : Name) : MetaM (Name
     return (field' ++ field'', projFn)
 
 /-- Elaborates a tactic configuration. -/
-private def elabConfig (recover : Bool) (structName : Name) (items : Array ConfigItemView) : TermElabM Expr :=
+def elabConfig (recover : Bool) (structName : Name) (items : Array ConfigItemView) : TermElabM Expr :=
   withoutModifyingStateWithInfoAndMessages <| withLCtx {} {} <| withSaveInfoContext do
     let mkStructInst (source? : Option Term) (fields : TSyntaxArray ``Parser.Term.structInstField) : TermElabM Term :=
       match source? with

@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Data.Json.FromToJson
-public import Lean.Syntax
+public meta import Lean.Syntax
 
 public section
 

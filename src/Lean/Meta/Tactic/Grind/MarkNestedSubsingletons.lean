@@ -108,7 +108,7 @@ where
     let e ← foldProjs e
     normalizeLevels e
 
-def markNestedProof (e : Expr) : M Expr := do
+private def markNestedProof (e : Expr) : M Expr := do
   let prop ← inferType e
   let prop ← markNestedSubsingletons.preprocess prop
   return mkApp2 (mkConst ``Grind.nestedProof) prop e

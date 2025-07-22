@@ -14,6 +14,9 @@ public import Lean.Meta.CollectFVars
 public import Lean.Meta.Tactic.ExposeNames
 public import Lean.Meta.TryThis
 public import Lean.Meta.Hint
+meta import Lean.Meta.Hint
+
+public section
 
 /-!
 # "Try this" code action and tactic suggestions

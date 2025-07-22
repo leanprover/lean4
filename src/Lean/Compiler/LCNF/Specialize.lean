@@ -16,6 +16,7 @@ public import Lean.Compiler.LCNF.PhaseExt
 public import Lean.Compiler.LCNF.MonadScope
 public import Lean.Compiler.LCNF.Closure
 public import Lean.Compiler.LCNF.FVarUtil
+import all Lean.Compiler.LCNF.ToExpr
 
 public section
 

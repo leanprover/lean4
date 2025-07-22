@@ -9,6 +9,7 @@ prelude
 public import Lean.ToExpr
 public import Lean.Util.Path
 public import Lean.Elab.Term
+meta import Lean.Elab.Term
 
 public section
 

@@ -12,7 +12,7 @@ public section
 namespace Lean
 universe u v w
 
-def RBTree (α : Type u) (cmp : α → α → Ordering) : Type u :=
+@[expose] def RBTree (α : Type u) (cmp : α → α → Ordering) : Type u :=
   RBMap α Unit cmp
 
 instance : Inhabited (RBTree α p) where

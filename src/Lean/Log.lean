@@ -15,6 +15,8 @@ public import Lean.DocString.Links
 public import Lean.ErrorExplanations
 public import Lean.Data.Json.Basic
 
+public section
+
 namespace Lean
 
 /--

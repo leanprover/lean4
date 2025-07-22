@@ -42,7 +42,7 @@ partial def mkAdmProj (packedInst : Expr) (i : Nat) (e : Expr) : MetaM Expr := d
     assert! i == 0
     return e
 
-def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
+@[expose] def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
   let mut insts := #[inst]
   while insts.size < n do
     let inst := insts.back!

@@ -13,6 +13,7 @@ public import Lean.Server.Utils
 public import Lean.Data.Lsp.Internal
 public import Lean.Util.CollectFVars
 public import Lean.Util.ForEachExpr
+meta import Lean.Parser.Module
 
 public section
 

@@ -10,7 +10,7 @@ public import Lean.Elab.Term
 public import Lean.Elab.BindersUtil
 public import Lean.Elab.PatternVar
 public import Lean.Elab.Quotation.Util
-public import Lean.Parser.Do
+meta import Lean.Parser.Do
 
 public section
 

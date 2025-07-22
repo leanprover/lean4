@@ -14,7 +14,7 @@ public section
 
 namespace Lean
 
-def Options := KVMap
+@[expose] def Options := KVMap
 
 def Options.empty : Options  := {}
 instance : Inhabited Options where
@@ -30,7 +30,7 @@ structure OptionDecl where
   descr    : String := ""
   deriving Inhabited
 
-def OptionDecls := NameMap OptionDecl
+@[expose] def OptionDecls := NameMap OptionDecl
 
 instance : Inhabited OptionDecls := ⟨({} : NameMap OptionDecl)⟩
 

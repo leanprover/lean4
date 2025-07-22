@@ -37,7 +37,7 @@ structure MatcherInfo where
   -/
   discrInfos   : Array DiscrInfo
 
-def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
+@[expose] def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
   info.altNumParams.size
 
 def MatcherInfo.arity (info : MatcherInfo) : Nat :=

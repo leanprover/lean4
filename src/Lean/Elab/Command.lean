@@ -13,6 +13,9 @@ public import Lean.Elab.SyntheticMVars
 public import Lean.Elab.SetOption
 public import Lean.Language.Basic
 public import Lean.Meta.ForEachExpr
+public meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab.Command
 
@@ -92,7 +95,7 @@ structure State where
   nextMacroScope : Nat := firstFrontendMacroScope + 1
   maxRecDepth    : Nat
   ngen           : NameGenerator := {}
-  auxDeclNGen    : DeclNameGenerator := {}
+  auxDeclNGen    : DeclNameGenerator := .ofPrefix .anonymous
   infoState      : InfoState := {}
   traceState     : TraceState := {}
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
@@ -164,7 +167,7 @@ def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options :=
   scopes      := [{ header := "", opts }]
   maxRecDepth := maxRecDepth.get opts
   -- Outside of declarations, fall back to a module-specific prefix
-  auxDeclNGen := { namePrefix := mkPrivateName env .anonymous }
+  auxDeclNGen := .ofPrefix <| mkPrivateName env .anonymous
 }
 
 /- Linters should be loadable as plugins, so store in a global IO ref instead of an attribute managed by the

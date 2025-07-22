@@ -145,7 +145,7 @@ theorem minNatAbs_eq_nonzero_iff (xs : List Int) (w : z ≠ 0) :
     xs.minNatAbs = z ↔ (∃ y ∈ xs, y.natAbs = z) ∧ (∀ y ∈ xs, z ≤ y.natAbs ∨ y = 0) := by
   simp [minNatAbs, nonzeroMinimum_eq_nonzero_iff w]
 
-@[simp] theorem minNatAbs_nil : ([] : List Int).minNatAbs = 0 := rfl
+@[simp] theorem minNatAbs_nil : ([] : List Int).minNatAbs = 0 := (rfl)
 
 /-- The maximum absolute value in a list of integers. -/
 def maxNatAbs (xs : List Int) : Nat := xs.map Int.natAbs |>.max? |>.getD 0

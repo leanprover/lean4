@@ -95,7 +95,7 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
   let tmpDecl := { tmpDecl with name := declName }
   decls.binSearch tmpDecl declLt
 
-def DeclExt := PersistentEnvExtension Decl Decl DeclExtState
+@[expose] def DeclExt := PersistentEnvExtension Decl Decl DeclExtState
 
 instance : Inhabited DeclExt :=
   inferInstanceAs (Inhabited (PersistentEnvExtension Decl Decl DeclExtState))

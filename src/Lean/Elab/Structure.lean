@@ -441,10 +441,10 @@ Monad for elaborating parents and fields of a `structure`.
 -/
 private abbrev StructElabM := StateT State TermElabM
 
-instance : Inhabited (StructElabM α) where
+private instance : Inhabited (StructElabM α) where
   default := throw default
 
-def runStructElabM (k : StructElabM α) (init : State := {}) : TermElabM α := k.run' init
+private def runStructElabM (k : StructElabM α) (init : State := {}) : TermElabM α := k.run' init
 
 private def addParentInfo (parent : StructParentInfo) : StructElabM Unit := do
   modify fun s => { s with parents := s.parents.push parent }

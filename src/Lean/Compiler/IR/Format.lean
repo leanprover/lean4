@@ -17,7 +17,7 @@ private def formatArg : Arg → Format
   | Arg.var id => format id
   | Arg.erased => "◾"
 
-instance : ToFormat Arg := ⟨formatArg⟩
+instance : ToFormat Arg := ⟨private_decl% formatArg⟩
 
 def formatArray {α : Type} [ToFormat α] (args : Array α) : Format :=
   args.foldl (fun r a => r ++ " " ++ format a) Format.nil
@@ -26,7 +26,7 @@ private def formatLitVal : LitVal → Format
   | LitVal.num v => format v
   | LitVal.str v => format (repr v)
 
-instance : ToFormat LitVal := ⟨formatLitVal⟩
+instance : ToFormat LitVal := ⟨private_decl% formatLitVal⟩
 
 private def formatCtorInfo : CtorInfo → Format
   | { name := name, cidx := cidx, usize := usize, ssize := ssize, .. } => Id.run do
@@ -37,7 +37,7 @@ private def formatCtorInfo : CtorInfo → Format
       r := f!"{r}[{name}]"
     r
 
-instance : ToFormat CtorInfo := ⟨formatCtorInfo⟩
+instance : ToFormat CtorInfo := ⟨private_decl% formatCtorInfo⟩
 
 private def formatExpr : Expr → Format
   | Expr.ctor i ys      => format i ++ formatArray ys
@@ -54,7 +54,7 @@ private def formatExpr : Expr → Format
   | Expr.lit v          => format v
   | Expr.isShared x     => "isShared " ++ format x
 
-instance : ToFormat Expr := ⟨formatExpr⟩
+instance : ToFormat Expr := ⟨private_decl% formatExpr⟩
 instance : ToString Expr := ⟨fun e => Format.pretty (format e)⟩
 
 private partial def formatIRType : IRType → Format
@@ -82,7 +82,7 @@ instance : ToString IRType := ⟨toString ∘ format⟩
 private def formatParam : Param → Format
   | { x := name, borrow := b, ty := ty } => "(" ++ format name ++ " : " ++ (if b then "@& " else "") ++ format ty ++ ")"
 
-instance : ToFormat Param := ⟨formatParam⟩
+instance : ToFormat Param := ⟨private_decl% formatParam⟩
 
 def formatAlt (fmt : FnBody → Format) (indent : Nat) : Alt → Format
   | Alt.ctor i b  => format i.name ++ " →" ++ Format.nest indent (Format.line ++ fmt b)

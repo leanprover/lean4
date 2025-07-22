@@ -10,6 +10,7 @@ public import Lean.Meta.Transform
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.Deriving.Util
 public import Lean.Data.Json.FromToJson.Basic
+meta import Lean.Parser.Do
 
 public section
 

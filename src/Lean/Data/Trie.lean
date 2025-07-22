@@ -29,7 +29,7 @@ constructor.
 The code would be a bit less repetitive if we used something like the following
 ```
 mutual
-def Trie α := Option α × ByteAssoc α
+@[expose] def Trie α := Option α × ByteAssoc α
 
 inductive ByteAssoc α where
   | leaf : Trie α

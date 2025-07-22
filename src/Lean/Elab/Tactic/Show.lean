@@ -65,7 +65,8 @@ where
       is not definitionally equal to the target{indentExpr tgt}\n\
       (Errors for other goals omitted)"
 
-@[builtin_tactic «show»] elab_rules : tactic
+@[builtin_tactic «show»] def evalShow : Tactic
   | `(tactic| show $newType:term) => elabShow newType
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

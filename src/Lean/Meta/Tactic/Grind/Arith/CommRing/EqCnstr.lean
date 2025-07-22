@@ -287,7 +287,7 @@ private def checkNumEq0Updated : RingM Unit := do
     for c in basis do
       c.addToQueue
 
-abbrev withCheckingNumEq0 (k : RingM Unit) : RingM Unit := do
+@[inline] def withCheckingNumEq0 (k : RingM Unit) : RingM Unit := do
   try
     k
   finally

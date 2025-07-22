@@ -25,13 +25,13 @@ private def throwFailedToEval (e : Expr) : MetaM α :=
   throwError "reduceEval: failed to evaluate argument{indentExpr e}"
 
 instance : ReduceEval Nat where
-  reduceEval e := do
+  reduceEval e := private do
     let e ← whnf e
     let some n ← evalNat e | throwFailedToEval e
     pure n
 
 instance [ReduceEval α] : ReduceEval (Option α) where
-  reduceEval e := do
+  reduceEval e := private do
     let e ← whnf e
     let Expr.const c .. ← pure e.getAppFn | throwFailedToEval e
     let nargs := e.getAppNumArgs
@@ -40,7 +40,7 @@ instance [ReduceEval α] : ReduceEval (Option α) where
     else throwFailedToEval e
 
 instance : ReduceEval String where
-  reduceEval e := do
+  reduceEval e := private do
     let Expr.lit (Literal.strVal s) ← whnf e | throwFailedToEval e
     pure s
 

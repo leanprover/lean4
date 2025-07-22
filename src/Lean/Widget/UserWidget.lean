@@ -10,6 +10,8 @@ prelude
 public import Lean.Elab.Eval
 public import Lean.Server.Rpc.RequestHandling
 public import Lean.Widget.Types
+meta import Lean.Parser.Term
+meta import Lean.Elab.Command
 
 public section
 
@@ -49,7 +51,7 @@ private abbrev ModuleRegistry := SimplePersistentEnvExtension
   (UInt64 × Name × Expr)
   (Std.TreeMap UInt64 (Name × Expr))
 
-builtin_initialize moduleRegistry : ModuleRegistry ←
+private builtin_initialize moduleRegistry : ModuleRegistry ←
   registerSimplePersistentEnvExtension {
     addImportedFn := fun xss => xss.foldl (Array.foldl (fun s n => s.insert n.1 n.2)) ∅
     addEntryFn    := fun s n => s.insert n.1 n.2
@@ -162,7 +164,7 @@ private abbrev PanelWidgetsExt := SimpleScopedEnvExtension
   (UInt64 × Name)
   (Std.TreeMap UInt64 (List PanelWidgetsExtEntry))
 
-builtin_initialize panelWidgetsExt : PanelWidgetsExt ←
+private builtin_initialize panelWidgetsExt : PanelWidgetsExt ←
   registerSimpleScopedEnvExtension {
     addEntry := fun s (h, n) => s.insert h (.global n :: s.getD h [])
     initial  := .empty
@@ -262,7 +264,7 @@ Note that persistent erasure is not possible, i.e.,
 syntax (name := showPanelWidgetsCmd) "show_panel_widgets " "[" sepBy1(showWidgetSpec, ", ") "]" : command
 
 open Command in
-@[command_elab showPanelWidgetsCmd] def elabShowPanelWidgetsCmd : CommandElab
+@[command_elab showPanelWidgetsCmd] meta def elabShowPanelWidgetsCmd : CommandElab
   | `(show_panel_widgets [ $ws ,*]) => liftTermElabM do
     for w in ws.getElems do
       match w with
@@ -309,7 +311,7 @@ In particular, `<props> : Json` works. -/
 syntax (name := widgetCmd) "#widget " widgetInstanceSpec : command
 
 open Command in
-@[command_elab widgetCmd] def elabWidgetCmd : CommandElab
+@[command_elab widgetCmd] meta def elabWidgetCmd : CommandElab
   | stx@`(#widget $s) => liftTermElabM do
     let wi : Expr ← elabWidgetInstanceSpec s
     let wi : WidgetInstance ← evalWidgetInstance wi

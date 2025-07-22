@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Server.InfoUtils
 public import Lean.Server.Completion.CompletionUtils
+meta import Lean.Parser.Term
 
 public section
 

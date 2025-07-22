@@ -10,6 +10,9 @@ public import Lean.Data.NameTrie
 public import Lean.Util.LakePath
 public import Lean.Server.Completion.CompletionItemData
 public import Lean.Parser.Module
+meta import Lean.Parser.Module
+
+public section
 
 public section
 

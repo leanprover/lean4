@@ -28,6 +28,26 @@ instance instDecidableEq {α} [DecidableEq α] : DecidableEq (Option α) := fun 
     | none => .isFalse Option.noConfusion
     | some b => decidable_of_decidable_of_eq (Option.some.injEq a b).symm
 
+/--
+Equality with `none` is decidable even if the wrapped type does not have decidable equality.
+-/
+instance decidableEqNone (o : Option α) : Decidable (o = none) :=
+  /- We use a `match` instead of transferring from `isNone_iff_eq_none` for
+    compatibility with the `DecidableEq` instance. -/
+  match o with
+  | none => .isTrue rfl
+  | some _ => .isFalse Option.noConfusion
+
+/--
+Equality with `none` is decidable even if the wrapped type does not have decidable equality.
+-/
+instance decidableNoneEq (o : Option α) : Decidable (none = o) :=
+  /- We use a `match` instead of transferring from `isNone_iff_eq_none` for
+    compatibility with the `DecidableEq` instance. -/
+  match o with
+  | none => .isTrue rfl
+  | some _ => .isFalse Option.noConfusion
+
 deriving instance BEq for Option
 
 @[simp, grind =] theorem getD_none : getD none a = a := rfl

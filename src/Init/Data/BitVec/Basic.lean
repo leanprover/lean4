@@ -879,12 +879,12 @@ def popCountAuxAnd (x : BitVec w) (n : Nat) :=
 /-- Tail-recursive definition of popcount.
   The bitwidth of `x` explictly boundspop the number of recursions, thus bounding the depth of the circuit as well
   correctness of def -/
-def popCountAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
-    match n with
-  | 0 => BitVec.ofNat w w
-  | n' + 1 => if x = 0#w then BitVec.ofNat w (w - n) else popCountAuxRec (x &&& (x - 1)) n'
+def popCountAuxRec (x r: BitVec w) (n : Nat):=
+  match n with
+  | 0 => r
+  | n' + 1 => if x.getLsbD n' then x.popCountAuxRec (r + 1) n' else x.popCountAuxRec r n'
 
 /-- Count the number of bits with value one in a bitvec -/
-def popCount{w : Nat} (x : BitVec w) : BitVec w := popCountAuxRec x w
+def popCount{w : Nat} (x : BitVec w) : BitVec w := popCountAuxRec x 0 w
 
 end BitVec

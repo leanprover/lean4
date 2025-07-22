@@ -5853,22 +5853,11 @@ theorem clzAuxRec_eq_clzAuxRec_of_getLsbD_false {x : BitVec w} (h : ∀ i, n < i
 
 @[simp]
 theorem popCountAuxRec_zero {x : BitVec w} :
-    x.popCountAuxRec 0 = BitVec.ofNat w w := by rfl
+    x.popCountAuxRec r 0 = r := by rfl
 
 @[simp]
 theorem popCountAuxRec_succ {x : BitVec w} :
-    x.popCountAuxRec (n + 1) = if x = 0#w then BitVec.ofNat w (w - (n + 1)) else (x &&& (x - 1)).popCountAuxRec n := by rfl
-
-@[simp]
-theorem popCountAuxAnd_zero {x : BitVec w} :
-    x.popCountAuxAnd 0 = x := by rfl
-
-@[simp]
-theorem popCountAuxAnd_succ {x : BitVec w} :
-    x.popCountAuxAnd (n + 1) = (x &&& (x - 1)).popCountAuxAnd n := by rfl
-
-theorem popCountAuxRec_succ_eq_popCountAuxAnd {w n : Nat} {x : BitVec w} :
-    x.popCountAuxRec (n + 1) = if x = 0#w then BitVec.ofNat w (w - (n + 1)) else (x.popCountAuxAnd 1).popCountAuxRec n := by simp
+    x.popCountAuxRec r (n + 1) = if x.getLsbD n then x.popCountAuxRec (r + 1) n else x.popCountAuxRec r n := by rfl
 
 /-! ### Inequalities (le / lt) -/
 

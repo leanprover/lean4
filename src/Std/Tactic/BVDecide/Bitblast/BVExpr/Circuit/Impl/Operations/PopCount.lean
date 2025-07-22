@@ -24,108 +24,65 @@ namespace bitblast
 
 def blastPopCount (aig : AIG α) (x : AIG.RefVec aig w) :
     AIG.RefVecEntry α w :=
-  let wconst : AIG.RefVec aig w := blastConst aig (w := w) w
-  go aig x (w + 1) wconst
+  let zero : AIG.RefVec aig w := blastConst aig (w := w) 0
+  go aig x w (by omega) zero
 where
-  go (aig : AIG α) (x : AIG.RefVec aig w) (curr : Nat) (acc : AIG.RefVec aig w) :=
-    if hc : 0 < curr then
-      -- create curr constant node
-      let currConst : AIG.RefVec aig w := blastConst aig (w := w) (w - (curr - 1))
-      let zero : AIG.RefVec aig w := blastConst aig (w := w) 0
-      -- create node x = 0
-      let res := BVPred.mkEq aig ⟨x, zero⟩
+  go (aig : AIG α) (x : AIG.RefVec aig w) (n : Nat) (hn : n ≤ w) (acc : AIG.RefVec aig w) :=
+    if hc : 0 < n then
+      let one : AIG.RefVec aig w := blastConst aig (w := w) 1
+      let res : AIG.RefVecEntry α w := blastAdd aig ⟨acc, one⟩
       let aig := res.aig
-      let cond := res.ref
-      have := AIG.LawfulOperator.le_size (f := BVPred.mkEq) ..
-      let currConst := currConst.cast this
-      let x := x.cast this
+      let add := res.vec
+      have := AIG.LawfulVecOperator.le_size (f := blastAdd) ..
       let acc := acc.cast this
-      -- ite (x = 0),  w - curr, acc
-      let res := AIG.RefVec.ite aig ⟨cond, currConst, acc⟩
+      let x := x.cast this
+      let res := AIG.RefVec.ite aig ⟨x.get (n - 1) (by omega), add, acc⟩
       let aig := res.aig
       let acc := res.vec
       have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
+      let add := add.cast this
       let x := x.cast this
-      -- sub := x - 1
-      let one : AIG.RefVec aig w := blastConst aig (w := w) 1
-      let res : AIG.RefVecEntry α w := blastSub aig ⟨x, one⟩
-      let aig := res.aig
-      let sub : AIG.RefVec aig w := res.vec
-      have := AIG.LawfulVecOperator.le_size (f := blastSub) ..
-      let x := x.cast this
-      let acc := acc.cast this
-      -- x :=& sub
-      let res : AIG.RefVecEntry α w := AIG.RefVec.zip aig ⟨x, sub⟩ AIG.mkAndCached
-      let aig := res.aig
-      let x := res.vec
-      have := AIG.RefVec.zip_le_size ..
-      let acc := acc.cast this
-      go aig x (curr - 1) acc
+      go aig x (n - 1) (by omega) acc
     else
       ⟨aig, acc⟩
-    /-
-      (go aig x curr acc) = popCountAuxRec x w
-    -/
-  termination_by curr
+  termination_by n
 
 namespace blastPopCount
 
 end blastPopCount
 
-theorem blastPopCount.go_le_size (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
+theorem blastPopCount.go_le_size (aig : AIG α) (curr : Nat) (hc : curr ≤ w) (acc : AIG.RefVec aig w)
     (xc : AIG.RefVec aig w) :
-    aig.decls.size ≤ (go aig xc curr acc).aig.decls.size := by
+    aig.decls.size ≤ (go aig xc curr hc acc).aig.decls.size := by
   unfold go
   dsimp only
   split
   · apply Nat.le_trans ?_ (by apply go_le_size)
-    apply AIG.RefVec.zip_le_size_of_le_aig_size
-    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastSub)
     apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-    apply AIG.LawfulOperator.le_size_of_le_aig_size (f := BVPred.mkEq)
+    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastAdd)
     simp
-  · simp only [BitVec.ofNat_eq_ofNat, BitVec.natCast_eq_ofNat]
-    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-    apply AIG.LawfulOperator.le_size_of_le_aig_size (f := BVPred.mkEq)
-    simp
+  · simp
 
-theorem blastPopCount.go_decl_eq (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
+theorem blastPopCount.go_decl_eq (aig : AIG α) (curr : Nat) (hc : curr ≤ w) (acc : AIG.RefVec aig w)
     (xc : AIG.RefVec aig w) :
     ∀ (idx : Nat) h1 h2,
-        (go aig xc curr acc).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
-  generalize hgo : go aig xc curr acc = res
+        (go aig xc curr hc acc).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+  generalize hgo : go aig xc curr hc acc = res
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  · case isTrue =>
-    rw [← hgo]
+  · rw [← hgo]
     intros
     rename_i h
-    rw [blastPopCount.go_decl_eq, AIG.RefVec.zip_decl_eq, AIG.LawfulVecOperator.decl_eq (f := blastSub),
-      AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-    · apply AIG.LawfulOperator.decl_eq (f := BVPred.mkEq)
-    · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
-      exact h
-    · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
-      exact h
-    · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastSub)
+    rw [blastPopCount.go_decl_eq, AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite),
+      AIG.LawfulVecOperator.decl_eq (f := blastAdd)]
+    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastAdd)
+    · exact h
+    · intros
       apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
+      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastAdd)
       exact h
-    · apply AIG.RefVec.zip_lt_size_of_lt_aig_size
-      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastSub)
-      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
-      apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
-      exact h
-  · case isFalse =>
-    simp [← hgo]
-    intros
-    rename_i h
-    rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-    apply AIG.LawfulOperator.decl_eq (f := BVPred.mkEq)
-    apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
-    exact h
+  · simp [← hgo]
 
 instance : AIG.LawfulVecOperator α AIG.RefVec blastPopCount where
   le_size := by

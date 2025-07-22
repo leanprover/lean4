@@ -4,10 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.System.IO
-import Lean.Data.Json.Stream
-import Lean.Data.Json.FromToJson.Basic
+public import Init.System.IO
+public import Lean.Data.Json.Stream
+public import Lean.Data.Json.FromToJson.Basic
+
+public section
 
 /-! Implementation of JSON-RPC 2.0 (https://www.jsonrpc.org/specification)
 for use in the LSP server. -/

@@ -3,14 +3,18 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.List.BasicAux
-import Lean.Expr
-import Lean.Meta.Instances
-import Lean.Compiler.ExternAttr
-import Lean.Compiler.InlineAttrs
-import Lean.Compiler.Specialize
-import Lean.Compiler.LCNF.Types
+public import Init.Data.List.BasicAux
+public import Lean.Expr
+public import Lean.Meta.Instances
+public import Lean.Compiler.ExternAttr
+public import Lean.Compiler.InlineAttrs
+public import Lean.Compiler.Specialize
+public import Lean.Compiler.LCNF.Types
+
+public section
 
 namespace Lean.Compiler.LCNF
 

@@ -3,19 +3,23 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.FindMVar
-import Lean.Util.CollectFVars
-import Lean.Parser.Term
-import Lean.Meta.Hint
-import Lean.Meta.KAbstract
-import Lean.Meta.Tactic.ElimInfo
-import Lean.Elab.Term
-import Lean.Elab.Binders
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.Arg
-import Lean.Elab.RecAppSyntax
-import Lean.Meta.Hint
+public import Lean.Util.FindMVar
+public import Lean.Util.CollectFVars
+public import Lean.Parser.Term
+public import Lean.Meta.Hint
+public import Lean.Meta.KAbstract
+public import Lean.Meta.Tactic.ElimInfo
+public import Lean.Elab.Term
+public import Lean.Elab.Binders
+public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.Arg
+public import Lean.Elab.RecAppSyntax
+public import Lean.Meta.Hint
+
+public section
 
 namespace Lean.Elab.Term
 open Meta

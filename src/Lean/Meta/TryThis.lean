@@ -3,12 +3,16 @@ Copyright (c) 2021 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro, Thomas Murrills
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.Message
-import Lean.Elab.InfoTree.Types
-import Lean.Data.Lsp.Basic
-import Lean.PrettyPrinter
+public import Lean.CoreM
+public import Lean.Message
+public import Lean.Elab.InfoTree.Types
+public import Lean.Data.Lsp.Basic
+public import Lean.PrettyPrinter
+
+public section
 
 /-!
 # "Try this" data types

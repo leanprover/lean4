@@ -3,14 +3,18 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Hashable
-import Init.Data.Int
-import Lean.Data.KVMap
-import Lean.Data.SMap
-import Lean.Level
-import Std.Data.HashSet.Basic
-import Std.Data.TreeSet.Basic
+public import Init.Data.Hashable
+public import Init.Data.Int
+public import Lean.Data.KVMap
+public import Lean.Data.SMap
+public import Lean.Level
+public import Std.Data.HashSet.Basic
+public import Std.Data.TreeSet.Basic
+
+public section
 
 namespace Lean
 

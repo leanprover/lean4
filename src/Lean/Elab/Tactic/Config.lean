@@ -3,11 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller
 -/
+module
+
 prelude
-import Lean.Meta.Eval
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.SyntheticMVars
-import Lean.Linter.MissingDocs
+public import Lean.Meta.Eval
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.SyntheticMVars
+public import Lean.Linter.MissingDocs
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta Parser.Tactic Command

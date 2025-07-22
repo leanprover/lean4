@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Lets
-import Lean.Elab.Tactic.Location
+public import Lean.Meta.Tactic.Lets
+public import Lean.Elab.Tactic.Location
+
+public section
 
 /-!
 # Tactics to manipulate `let` expressions

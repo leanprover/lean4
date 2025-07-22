@@ -3,17 +3,21 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Elab.PreDefinition.TerminationMeasure
-import Lean.Elab.PreDefinition.Mutual
-import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Elab.PreDefinition.Structural.FindRecArg
-import Lean.Elab.PreDefinition.Structural.Preprocess
-import Lean.Elab.PreDefinition.Structural.BRecOn
-import Lean.Elab.PreDefinition.Structural.IndPred
-import Lean.Elab.PreDefinition.Structural.Eqns
-import Lean.Elab.PreDefinition.Structural.SmartUnfolding
-import Lean.Meta.Tactic.TryThis
+public import Lean.Elab.PreDefinition.TerminationMeasure
+public import Lean.Elab.PreDefinition.Mutual
+public import Lean.Elab.PreDefinition.Structural.Basic
+public import Lean.Elab.PreDefinition.Structural.FindRecArg
+public import Lean.Elab.PreDefinition.Structural.Preprocess
+public import Lean.Elab.PreDefinition.Structural.BRecOn
+public import Lean.Elab.PreDefinition.Structural.IndPred
+public import Lean.Elab.PreDefinition.Structural.Eqns
+public import Lean.Elab.PreDefinition.Structural.SmartUnfolding
+public import Lean.Meta.Tactic.TryThis
+
+public section
 
 namespace Lean.Elab
 namespace Structural

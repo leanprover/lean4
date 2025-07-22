@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Json
-import Lean.Data.Lsp.BasicAux
+public import Lean.Data.Json
+public import Lean.Data.Lsp.BasicAux
+
+public section
 
 /-! Defines most of the 'Basic Structures' in the LSP specification
 (https://microsoft.github.io/language-server-protocol/specifications/specification-current/),

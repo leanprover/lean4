@@ -3,10 +3,14 @@ Copyright (c) 2023 Leonardo de Moura. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Hashable
-import Std.Data.HashSet.Basic
-import Std.Data.HashMap.Basic
+public import Init.Data.Hashable
+public import Std.Data.HashSet.Basic
+public import Std.Data.HashMap.Basic
+
+public section
 
 namespace Lean
 

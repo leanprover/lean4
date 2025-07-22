@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Json.FromToJson.Basic
-import Lean.Server.Rpc.Basic
+public import Lean.Data.Json.FromToJson.Basic
+public import Lean.Server.Rpc.Basic
+
+public section
 
 namespace Lean.Widget
 open Server

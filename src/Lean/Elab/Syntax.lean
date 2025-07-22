@@ -3,10 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Command
-import Lean.Parser.Syntax
-import Lean.Elab.Util
+public import Lean.Elab.Command
+public import Lean.Parser.Syntax
+public import Lean.Elab.Util
+
+public section
 
 namespace Lean.Elab.Term
 /--

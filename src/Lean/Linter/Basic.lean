@@ -3,10 +3,14 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König
 -/
+module
+
 prelude
-import Lean.Data.Options
-import Lean.MonadEnv
-import Lean.Log
+public import Lean.Data.Options
+public import Lean.MonadEnv
+public import Lean.Log
+
+public section
 
 namespace Lean.Linter
 

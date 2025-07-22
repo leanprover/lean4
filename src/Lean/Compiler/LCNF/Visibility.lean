@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.MetaAttr
-import Lean.Compiler.ImplementedByAttr
+public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.MetaAttr
+public import Lean.Compiler.ImplementedByAttr
+
+public section
 
 namespace Lean.Compiler.LCNF
 

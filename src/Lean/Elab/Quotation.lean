@@ -5,14 +5,18 @@ Authors: Sebastian Ullrich
 
 Elaboration of syntax quotations as terms and patterns (in `match_syntax`). See also `./Hygiene.lean` for the basic
 hygiene workings and data types. -/
+module
+
 prelude
-import Lean.Syntax
-import Lean.ResolveName
-import Lean.Elab.Term
-import Lean.Elab.Quotation.Util
-import Lean.Elab.Quotation.Precheck
-import Lean.Elab.Syntax
-import Lean.Parser.Syntax
+public import Lean.Syntax
+public import Lean.ResolveName
+public import Lean.Elab.Term
+public import Lean.Elab.Quotation.Util
+public import Lean.Elab.Quotation.Precheck
+public import Lean.Elab.Syntax
+public import Lean.Parser.Syntax
+
+public section
 
 namespace Lean.Elab.Term.Quotation
 open Lean.Parser.Term

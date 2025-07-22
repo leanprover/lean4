@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Meta.SynthInstance
-import Lean.Meta.AppBuilder
+public import Lean.Meta.Transform
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.AppBuilder
+
+public section
 
 namespace Lean.Meta
 

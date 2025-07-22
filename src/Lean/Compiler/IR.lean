@@ -3,33 +3,37 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.AddExtern
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.Format
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.PushProj
-import Lean.Compiler.IR.ElimDeadVars
-import Lean.Compiler.IR.SimpCase
-import Lean.Compiler.IR.ResetReuse
-import Lean.Compiler.IR.NormIds
-import Lean.Compiler.IR.Checker
-import Lean.Compiler.IR.Borrow
-import Lean.Compiler.IR.Boxing
-import Lean.Compiler.IR.RC
-import Lean.Compiler.IR.ExpandResetReuse
-import Lean.Compiler.IR.UnboxResult
-import Lean.Compiler.IR.ElimDeadBranches
-import Lean.Compiler.IR.EmitC
-import Lean.Compiler.IR.Sorry
-import Lean.Compiler.IR.ToIR
-import Lean.Compiler.IR.ToIRType
-import Lean.Compiler.IR.Meta
+public import Lean.Compiler.IR.AddExtern
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.Format
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.PushProj
+public import Lean.Compiler.IR.ElimDeadVars
+public import Lean.Compiler.IR.SimpCase
+public import Lean.Compiler.IR.ResetReuse
+public import Lean.Compiler.IR.NormIds
+public import Lean.Compiler.IR.Checker
+public import Lean.Compiler.IR.Borrow
+public import Lean.Compiler.IR.Boxing
+public import Lean.Compiler.IR.RC
+public import Lean.Compiler.IR.ExpandResetReuse
+public import Lean.Compiler.IR.UnboxResult
+public import Lean.Compiler.IR.ElimDeadBranches
+public import Lean.Compiler.IR.EmitC
+public import Lean.Compiler.IR.Sorry
+public import Lean.Compiler.IR.ToIR
+public import Lean.Compiler.IR.ToIRType
+public import Lean.Compiler.IR.Meta
 
 -- The following imports are not required by the compiler. They are here to ensure that there
 -- are no orphaned modules.
-import Lean.Compiler.IR.LLVMBindings
-import Lean.Compiler.IR.EmitLLVM
+public import Lean.Compiler.IR.LLVMBindings
+public import Lean.Compiler.IR.EmitLLVM
+
+public section
 
 namespace Lean.IR
 

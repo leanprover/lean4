@@ -4,12 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers
 -/
+module
+
 prelude
-import Lean.Meta.PPGoal
-import Lean.Widget.InteractiveCode
-import Lean.Widget.InteractiveGoal
-import Lean.Data.Lsp.Extra
-import Lean.Elab.InfoTree
+public import Lean.Meta.PPGoal
+public import Lean.Widget.InteractiveCode
+public import Lean.Widget.InteractiveGoal
+public import Lean.Data.Lsp.Extra
+public import Lean.Elab.InfoTree
+
+public section
 
 namespace Lean.Widget
 

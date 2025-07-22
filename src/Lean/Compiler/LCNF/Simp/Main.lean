@@ -3,19 +3,23 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.ImplementedByAttr
-import Lean.Compiler.LCNF.ElimDead
-import Lean.Compiler.LCNF.AlphaEqv
-import Lean.Compiler.LCNF.PrettyPrinter
-import Lean.Compiler.LCNF.Bind
-import Lean.Compiler.LCNF.Simp.FunDeclInfo
-import Lean.Compiler.LCNF.Simp.InlineCandidate
-import Lean.Compiler.LCNF.Simp.InlineProj
-import Lean.Compiler.LCNF.Simp.Used
-import Lean.Compiler.LCNF.Simp.DefaultAlt
-import Lean.Compiler.LCNF.Simp.SimpValue
-import Lean.Compiler.LCNF.Simp.ConstantFold
+public import Lean.Compiler.ImplementedByAttr
+public import Lean.Compiler.LCNF.ElimDead
+public import Lean.Compiler.LCNF.AlphaEqv
+public import Lean.Compiler.LCNF.PrettyPrinter
+public import Lean.Compiler.LCNF.Bind
+public import Lean.Compiler.LCNF.Simp.FunDeclInfo
+public import Lean.Compiler.LCNF.Simp.InlineCandidate
+public import Lean.Compiler.LCNF.Simp.InlineProj
+public import Lean.Compiler.LCNF.Simp.Used
+public import Lean.Compiler.LCNF.Simp.DefaultAlt
+public import Lean.Compiler.LCNF.Simp.SimpValue
+public import Lean.Compiler.LCNF.Simp.ConstantFold
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace Simp

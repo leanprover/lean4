@@ -3,10 +3,14 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König
 -/
+module
+
 prelude
-import Lean.Data.Options
-import Lean.Server.InfoUtils
-import Lean.Linter.Basic
+public import Lean.Data.Options
+public import Lean.Server.InfoUtils
+public import Lean.Linter.Basic
+
+public section
 
 namespace Lean.Linter
 

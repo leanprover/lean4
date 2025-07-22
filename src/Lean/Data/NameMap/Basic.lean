@@ -3,11 +3,15 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Std.Data.HashSet.Basic
-import Std.Data.TreeSet.Basic
-import Lean.Data.SSet
-import Lean.Data.Name
+public import Std.Data.HashSet.Basic
+public import Std.Data.TreeSet.Basic
+public import Lean.Data.SSet
+public import Lean.Data.Name
+
+public section
 
 namespace Lean
 

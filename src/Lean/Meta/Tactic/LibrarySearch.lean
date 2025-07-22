@@ -3,11 +3,15 @@ Copyright (c) 2021-2023 Gabriel Ebner and Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Joe Hendrix, Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.Nat.MinMax
-import Lean.Meta.LazyDiscrTree
-import Lean.Meta.Tactic.SolveByElim
-import Lean.Util.Heartbeats
+public import Init.Data.Nat.MinMax
+public import Lean.Meta.LazyDiscrTree
+public import Lean.Meta.Tactic.SolveByElim
+public import Lean.Util.Heartbeats
+
+public section
 
 /-!
 # Library search

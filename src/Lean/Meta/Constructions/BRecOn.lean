@@ -3,13 +3,17 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Init.Data.Range.Polymorphic.Stream
-import Lean.Meta.InferType
-import Lean.AuxRecursor
-import Lean.AddDecl
-import Lean.Meta.CompletionName
-import Lean.Meta.PProdN
+public import Init.Data.Range.Polymorphic.Stream
+public import Lean.Meta.InferType
+public import Lean.AuxRecursor
+public import Lean.AddDecl
+public import Lean.Meta.CompletionName
+public import Lean.Meta.PProdN
+
+public section
 
 namespace Lean
 open Meta

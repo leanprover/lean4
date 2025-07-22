@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mac Malone
 -/
+module
+
 prelude
-import Lean.Elab.Frontend
-import Lean.Elab.ParseImportsFast
-import Lean.Compiler.IR.EmitC
+public import Lean.Elab.Frontend
+public import Lean.Elab.ParseImportsFast
+public import Lean.Compiler.IR.EmitC
+
+public section
 
 /-  Lean companion to  `shell.cpp` -/
 

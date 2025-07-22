@@ -3,11 +3,15 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Init.NotationExtra
-import Lean.Elab.BuiltinNotation
-import Std.Do.PostCond
-import Std.Do.Triple.Basic
+public import Init.NotationExtra
+public import Lean.Elab.BuiltinNotation
+public import Std.Do.PostCond
+public import Std.Do.Triple.Basic
+
+public section
 
 namespace Std.Do
 

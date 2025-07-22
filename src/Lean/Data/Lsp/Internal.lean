@@ -4,10 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Joscha Mennicken
 -/
+module
+
 prelude
-import Lean.Expr
-import Lean.Data.Lsp.Basic
-import Lean.Data.JsonRpc
+public import Lean.Expr
+public import Lean.Data.Lsp.Basic
+public import Lean.Data.JsonRpc
+
+public section
 
 set_option linter.missingDocs true -- keep it documented
 

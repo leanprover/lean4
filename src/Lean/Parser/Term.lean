@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Parser.Attr
-import Lean.Parser.Level
-import Lean.Parser.Term.Doc
+public import Lean.Parser.Attr
+public import Lean.Parser.Level
+public import Lean.Parser.Term.Doc
+
+public section
 
 namespace Lean
 namespace Parser

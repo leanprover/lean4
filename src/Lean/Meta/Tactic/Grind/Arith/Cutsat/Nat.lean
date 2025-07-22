@@ -3,11 +3,15 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Int.OfNat
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+public import Init.Data.Int.OfNat
+public import Lean.Meta.Tactic.Grind.Simp
+public import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 

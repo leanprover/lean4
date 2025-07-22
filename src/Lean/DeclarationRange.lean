@@ -3,9 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.DeclarationRange
-import Lean.MonadEnv
+public import Lean.Data.DeclarationRange
+public import Lean.MonadEnv
+
+public section
 
 /-!
 # Environment extension for declaration ranges

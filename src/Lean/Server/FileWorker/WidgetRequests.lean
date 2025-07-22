@@ -4,14 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-prelude
-import Lean.Widget.Basic
-import Lean.Widget.InteractiveCode
-import Lean.Widget.InteractiveGoal
-import Lean.Widget.InteractiveDiagnostic
+module
 
-import Lean.Server.Rpc.RequestHandling
-import Lean.Server.FileWorker.RequestHandling
+prelude
+public import Lean.Widget.Basic
+public import Lean.Widget.InteractiveCode
+public import Lean.Widget.InteractiveGoal
+public import Lean.Widget.InteractiveDiagnostic
+
+public import Lean.Server.Rpc.RequestHandling
+public import Lean.Server.FileWorker.RequestHandling
+
+public section
 
 /-! Registers all widget-related RPC procedures. -/
 

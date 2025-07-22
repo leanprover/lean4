@@ -3,12 +3,16 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.Command
-import Lean.Meta.Tactic.Unfold
-import Lean.Meta.Eval
-import Lean.Compiler.ImplementedByAttr
+public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.Command
+public import Lean.Meta.Tactic.Unfold
+public import Lean.Meta.Eval
+public import Lean.Compiler.ImplementedByAttr
+
+public section
 
 open Lean Elab Meta Command Term Compiler
 

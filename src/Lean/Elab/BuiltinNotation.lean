@@ -3,15 +3,19 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Compiler.BorrowedAnnotation
-import Lean.Meta.KAbstract
-import Lean.Meta.Closure
-import Lean.Meta.MatchUtil
-import Lean.Compiler.ImplementedByAttr
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.Eval
-import Lean.Elab.Binders
+public import Lean.Compiler.BorrowedAnnotation
+public import Lean.Meta.KAbstract
+public import Lean.Meta.Closure
+public import Lean.Meta.MatchUtil
+public import Lean.Compiler.ImplementedByAttr
+public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.Eval
+public import Lean.Elab.Binders
+
+public section
 
 namespace Lean.Elab.Term
 open Meta

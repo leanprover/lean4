@@ -3,16 +3,20 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Eqns
-import Lean.Meta.CtorRecognizer
-import Lean.Util.CollectFVars
-import Lean.Util.ForEachExprWhere
-import Lean.Meta.Tactic.Split
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Refl
-import Lean.Meta.Match.MatchEqs
-import Lean.DefEqAttrib
+public import Lean.Meta.Eqns
+public import Lean.Meta.CtorRecognizer
+public import Lean.Util.CollectFVars
+public import Lean.Util.ForEachExprWhere
+public import Lean.Meta.Tactic.Split
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Refl
+public import Lean.Meta.Match.MatchEqs
+public import Lean.DefEqAttrib
+
+public section
 
 namespace Lean.Elab.Eqns
 open Meta

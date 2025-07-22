@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Extension
+public import Lean.Parser.Extension
 -- necessary for auto-generation
-import Lean.PrettyPrinter.Parenthesizer
-import Lean.PrettyPrinter.Formatter
+public import Lean.PrettyPrinter.Parenthesizer
+public import Lean.PrettyPrinter.Formatter
+
+public section
 
 namespace Lean
 namespace Parser

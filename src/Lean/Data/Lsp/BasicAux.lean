@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Json.FromToJson.Basic
+public import Lean.Data.Json.FromToJson.Basic
+
+public section
 
 /-
 This module exists to cut the dependency on `Std.Data.TreeMap.AdditionalOperations` from a large

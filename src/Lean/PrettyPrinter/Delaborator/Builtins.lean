@@ -3,15 +3,19 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura, Gabriel Ebner, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.PrettyPrinter.Delaborator.Attributes
-import Lean.PrettyPrinter.Delaborator.Basic
-import Lean.PrettyPrinter.Delaborator.SubExpr
-import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
-import Lean.Parser.Do
-import Lean.Parser.Command
-import Lean.Meta.CoeAttr
-import Lean.Meta.Structure
+public import Lean.PrettyPrinter.Delaborator.Attributes
+public import Lean.PrettyPrinter.Delaborator.Basic
+public import Lean.PrettyPrinter.Delaborator.SubExpr
+public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+public import Lean.Parser.Do
+public import Lean.Parser.Command
+public import Lean.Meta.CoeAttr
+public import Lean.Meta.Structure
+
+public section
 
 namespace Lean.PrettyPrinter.Delaborator
 open Lean.Meta

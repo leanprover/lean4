@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.PrettyPrinter
-import Lean.Compiler.LCNF.CompatibleTypes
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.PrettyPrinter
+public import Lean.Compiler.LCNF.CompatibleTypes
+
+public section
 
 namespace Lean.Compiler.LCNF
 

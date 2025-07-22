@@ -3,14 +3,18 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.CNF
-import Std.Sat.AIG.RelabelNat
-import Std.Tactic.BVDecide.Bitblast
-import Std.Tactic.BVDecide.Syntax
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
-import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
+public import Std.Sat.AIG.CNF
+public import Std.Sat.AIG.RelabelNat
+public import Std.Tactic.BVDecide.Bitblast
+public import Std.Tactic.BVDecide.Syntax
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.SatAtBVLogical
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize
+public import Lean.Elab.Tactic.BVDecide.Frontend.LRAT
+
+public section
 
 /-!
 This module provides the implementation of the `bv_decide` frontend itself.

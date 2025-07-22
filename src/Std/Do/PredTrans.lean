@@ -137,19 +137,6 @@ def pushArg {σ : Type u} (x : StateT σ (PredTrans ps) α) : PredTrans (.arg σ
       rw [← ((x s).conjunctive _ _).to_eq]
   }
 
-def popArg {ps : PostShape} {α} (x : PredTrans (.arg σ ps) α) : StateT σ (PredTrans ps) α := fun s =>
-  { apply Q := x.apply (fun r s' => Q.1 (r, s'), Q.2) s,
-    conjunctive := by
-      intro Q₁ Q₂
-      apply SPred.bientails.of_eq
-      dsimp
-      have {Q₁ Q₂}: spred(x.apply Q₁ ∧ x.apply Q₂) s = spred(x.apply (Q₁ ∧ₚ Q₂) s) := by
-        rw[congrFun (x.conjunctive _ _).to_eq _]
-      simp only [SPred.and] at this
-      simp only [this]
-      rfl
-  }
-
 -- The interpretation of `ExceptT ε (PredTrans ps) α` into `PredTrans (.except ε ps) α`
 def pushExcept {ps : PostShape} {α ε} (x : ExceptT ε (PredTrans ps) α) : PredTrans (.except ε ps) α :=
   { apply Q := x.apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2),
@@ -162,28 +149,6 @@ def pushExcept {ps : PostShape} {α ε} (x : ExceptT ε (PredTrans ps) α) : Pre
       ext x
       cases x <;> simp
   }
-
-def popExcept {ps : PostShape} {α} (x : PredTrans (.except ε ps) α) : ExceptT ε (PredTrans ps) α :=
-  { apply Q := x.apply (fun a => Q.1 (.ok a), fun e => Q.1 (.error e), Q.2),
-    conjunctive := by
-      intro Q₁ Q₂
-      apply SPred.bientails.of_eq
-      dsimp
-      rw[← (x.conjunctive _ _).to_eq]
-      rfl
-  }
-
-instance instMonadLiftArg : MonadLift (PredTrans m) (PredTrans (.arg σ m)) where
-  monadLift x := pushArg (StateT.lift x)
-
-instance instMonadLiftExcept : MonadLift (PredTrans m) (PredTrans (.except ε m)) where
-  monadLift x := pushExcept (ExceptT.lift x)
-
-instance instMonadFunctorArg : MonadFunctor (PredTrans m) (PredTrans (.arg σ m)) where
-  monadMap f x := pushArg (fun s => f (popArg x s))
-
-instance instMonadFunctorExcept : MonadFunctor (PredTrans m) (PredTrans (.except ε m)) where
-  monadMap f x := pushExcept (f x.popExcept)
 
 @[simp]
 def pushArg_apply {ps} {α σ : Type u} {Q : PostCond α (.arg σ ps)} (f : σ → PredTrans ps (α × σ)) :
@@ -198,48 +163,3 @@ def dite_apply {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : c → Pre
 
 def ite_apply {ps} {Q : PostCond α ps} (c : Prop) [Decidable c] (t : PredTrans ps α) (e : PredTrans ps α) :
   (if c then t else e).apply Q = if c then t.apply Q else e.apply Q := by split <;> rfl
-
-@[simp]
-def monadLiftArg_apply {ps} {Q : PostCond α (.arg σ ps)} (t : PredTrans ps α) :
-  (MonadLift.monadLift t : PredTrans (.arg σ ps) α).apply Q = fun s => t.apply (fun a => Q.1 a s, Q.2) := rfl
-
-@[simp]
-def monadLiftExcept_apply {ps} {Q : PostCond α (.except ε ps)} (t : PredTrans ps α) :
-  (MonadLift.monadLift t : PredTrans (.except ε ps) α).apply Q = t.apply (fun a => Q.1 a, Q.2.2) := rfl
-
-@[simp]
-def monadMapArg_apply {ps} {Q : PostCond α (.arg σ ps)} (f : ∀{β}, PredTrans ps β → PredTrans ps β) (t : PredTrans (.arg σ ps) α) :
-  (MonadFunctor.monadMap (m:=PredTrans ps) f t).apply Q = fun s => (f (t.popArg s)).apply (fun (a, s) => Q.1 a s, Q.2) := rfl
-
-@[simp]
-def monadMapExcept_apply {ps} {Q : PostCond α (.except ε ps)} (f : ∀{β}, PredTrans ps β → PredTrans ps β) (t : PredTrans (.except ε ps) α) :
-  (MonadFunctor.monadMap (m:=PredTrans ps) f t).apply Q = (f t.popExcept).apply (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2) := rfl
-
-@[simp]
-def popArg_apply {ps} {Q : PostCond (α × σ) ps} (t : PredTrans (.arg σ ps) α) :
-  (t.popArg s).apply Q = t.apply (fun a s => Q.1 (a, s), Q.2) s := rfl
-
-@[simp]
-def popExcept_apply {ps} {Q : PostCond (Except ε α) ps} (t : PredTrans (.except ε ps) α) :
-  (t.popExcept).apply Q = t.apply (fun a => Q.1 (.ok a), fun e => Q.1 (.error e), Q.2) := rfl
-
-@[simp]
-theorem pushArg_popArg : pushArg (popArg x) = x := rfl
-
-@[simp]
-theorem popArg_pushArg : popArg (pushArg f) = f := rfl
-
--- Just a reminder for me that the following would not hold for a suitable defn of pushReader and popReader:
---theorem pushReader_popReader : pushReader (popReader x) = x := sorry
---  goal: x.apply (fun a x => Q.1 a x✝, Q.2) x✝ = x.apply Q x✝
-
-@[simp]
-theorem pushExcept_popExcept : pushExcept (popExcept x) = x := rfl
-
-@[simp]
-theorem popExcept_pushExcept : popExcept (pushExcept x) = x := by
-  ext Q
-  simp only [ExceptT.run, popExcept, pushExcept]
-  congr
-  ext x
-  cases x <;> simp

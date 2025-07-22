@@ -147,3 +147,22 @@ Behavior of `String.prev` (`lean_string_utf8_prev`) in special cases (see issue 
 #test "L∃∀N".prev ⟨2 ^ 128⟩ = ⟨2 ^ 128 - 1⟩ -- large non-scalar
 #test "L∃∀N".prev ⟨2 ^ 63⟩ = ⟨2 ^ 63 - 1⟩ -- scalar boundary (64-bit)
 #test "L∃∀N".prev ⟨2 ^ 31⟩ = ⟨2 ^ 31 - 1⟩ -- scalar boundary (32-bit)
+
+/-!
+Behavior of `String.next` (`lean_string_utf8_next`) in special cases (see issue #9440).
+-/
+
+#test "L∃∀N".next ⟨0⟩ = ⟨1⟩
+#test "L∃∀N".next ⟨1⟩ = ⟨4⟩
+#test "L∃∀N".next ⟨2⟩ = ⟨3⟩
+#test "L∃∀N".next ⟨3⟩ = ⟨4⟩
+#test "L∃∀N".next ⟨4⟩ = ⟨7⟩
+#test "L∃∀N".next ⟨5⟩ = ⟨6⟩
+#test "L∃∀N".next ⟨6⟩ = ⟨7⟩
+#test "L∃∀N".next ⟨7⟩ = ⟨8⟩
+#test "L∃∀N".next ⟨8⟩ = ⟨9⟩
+#test "L∃∀N".next ⟨9⟩ = ⟨10⟩
+#test "L∃∀N".next ⟨99⟩ = ⟨100⟩ -- small value out of bounds
+#test "L∃∀N".next ⟨2 ^ 128 - 1⟩ = ⟨2 ^ 128⟩ -- large non-scalar
+#test "L∃∀N".next ⟨2 ^ 63 - 1⟩ = ⟨2 ^ 63⟩ -- scalar boundary (64-bit)
+#test "L∃∀N".next ⟨2 ^ 31 - 1⟩ = ⟨2 ^ 31⟩ -- scalar boundary (32-bit)

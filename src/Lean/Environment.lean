@@ -1908,13 +1908,10 @@ private def ImportedModule.loadIRData? (self : ImportedModule) (arts : NameMap M
     IO (Option (ModuleData × Option CompactedRegion)) := do
   if (level < .server && self.irPhases == .runtime) || !self.mainModule?.any (·.isModule) then
     return self.mainModule?.map (·, none)
-  let fname ← match arts.find? self.module with
-    | some { ir? := some ir } => pure ir
-    -- If Lake tells us we don't need IR, we should not look for it ourselves
-    | some _ => return none
-    | none => do
+  let fname ←
+    arts.find? self.module |>.bind (·.ir?) |>.getDM do
       let mFile ← findOLean self.module
-      pure <| mFile.withExtension "ir"
+      return mFile.withExtension "ir"
   let (data, region) ← readModuleData fname
   return some (data, some region)
 

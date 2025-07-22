@@ -77,7 +77,7 @@ builtin_initialize
 /-- The syntax `{ tacs }` is an alternative syntax for `· tacs`.
 It runs the tactics in sequence, and fails if the goal is not solved. -/
 @[builtin_doc] def tacticSeqBracketed : Parser := leading_parser
-  "{" >> sepByIndentSemicolon tacticParser >> ppDedent (ppLine >> "}")
+  "{ " >> sepByIndentSemicolon tacticParser >> ppDedent ppLine >> "}"
 
 /-- A sequence of tactics in brackets, or a delimiter-free indented sequence of tactics.
 Delimiter-free indentation is determined by the *first* tactic of the sequence. -/
@@ -498,7 +498,7 @@ def structInstFieldBinder :=
 def optTypeForStructInst : Parser := optional (atomic (typeSpec >> notFollowedBy "}" "}"))
 /- `x` is an abbreviation for `x := x` -/
 def structInstField := ppGroup <| leading_parser
-  structInstLVal >> optional (many (checkColGt >> structInstFieldBinder) >> optTypeForStructInst >> ppDedent structInstFieldDeclParser)
+  structInstLVal >> optional (many (checkColGt >> ppSpace >> structInstFieldBinder) >> optTypeForStructInst >> ppDedent structInstFieldDeclParser)
 /-
 Tags the structure instance field syntax with a `Lean.Parser.Term.structInstFields` syntax node.
 This node is used to enable structure instance field completion in the whitespace
@@ -590,7 +590,7 @@ def letIdDecl   := leading_parser (withAnonymousAntiquot := false)
 /- Remark: `requireParens` forces the pattern to have parentheses, for trying before `letIdDecl`.
    We need this because for `let (rfl) := h`, which would parse as `letIdDecl` due to `hygieneInfo`. -/
 def letPatDecl (requireParens := false) := leading_parser (withAnonymousAntiquot := false)
-  atomic ((if requireParens then lookahead "(" >> paren else termParser) >> pushNone >> optType >> " := ") >> termParser
+  atomic (ppSpace >> (if requireParens then lookahead "(" >> paren else termParser) >> pushNone >> optType >> " := ") >> termParser
 /-
   Remark: the following `(" := " <|> matchAlts)` is a hack we use
   to produce a better error message at `letDecl`.

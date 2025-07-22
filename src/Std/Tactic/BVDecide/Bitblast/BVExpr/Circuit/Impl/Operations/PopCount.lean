@@ -92,27 +92,29 @@ theorem blastPopCount.go_decl_eq (aig : AIG α) (curr : Nat) (acc : AIG.RefVec a
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  · rw [← hgo]
+  · case isTrue =>
+    rw [← hgo]
     intros
-    rename_i h2
+    rename_i h
     rw [blastPopCount.go_decl_eq, AIG.RefVec.zip_decl_eq, AIG.LawfulVecOperator.decl_eq (f := blastSub),
       AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
     · apply AIG.LawfulOperator.decl_eq (f := BVPred.mkEq)
     · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
-      exact h2
+      exact h
     · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
       apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
-      exact h2
+      exact h
     · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastSub)
       apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
       apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
-      exact h2
+      exact h
     · apply AIG.RefVec.zip_lt_size_of_lt_aig_size
       apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastSub)
       apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
       apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
-      exact h2
-  · simp [← hgo]
+      exact h
+  · case isFalse =>
+    simp [← hgo]
 
 instance : AIG.LawfulVecOperator α AIG.RefVec blastPopCount where
   le_size := by

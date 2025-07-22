@@ -869,10 +869,16 @@ def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
 
 /-- Count the number of trailing zeros. -/
 def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
+/-- Defining the values of `x` -/
+
+def popCountAuxAnd (x : BitVec w) (n : Nat) :=
+  match n with
+  | 0 => x
+  | n' + 1 => popCountAuxAnd (x &&& (x - 1)) n'
 
 /-- Tail-recursive definition of popcount.
-  The bitwidth of `x` explictly bounds the number of recursions, thus bounding the depth of the circuit as well
-  correctness of def: https://live.lean-lang.org/#codez=CYUwZgBADg9lDCMCuA7ALgQSQDwEogGMIBvAdwgC4IA5AQzQF8IAKbSiAIQEs0A1QiKQCULFOzpoRVbnwHkKAXgBQEVRAC29AgAsIY0j20qIAHwgAGCAoB8nHvwIA6GGAmDBxsygDkEANQQAIxWtlyQbAoWAMTkaNogYjIOzq707szkALR6IiAANgDOINBwiKiYOPhErBAAZPUsbNmBQiI+SkoA9JnZZegQccUoSOoARiAAThAuEKM8BYKGEAButHlIxTAoxVxitLM8ywKZnUqgkLAIyOhk4vRMNdL2clJ2skTykZd9FXgCbKQOucBiACmh2ABJADyEAAqigeJRlKptLQju5FBAAKzGMAwKbYNi7CAAbUsVAATAA9UgAXQgwBgxhRaOKbExSUIKTc5EJzIgeRA4PUSHBlyRFn5eKmc3BxLJ7DpDKZajUYQg2EcAHMhQAZAqjAAiB3BkTQEw2A3iYnFmPFAUCHVVPQg0McUAmu3BYAAhAAiAojaaQIrg2ULLgLYiXJiRaOla6/KoawQMP389XiwAGRCUruUsH8iACrQlXVD3Z7+r6/QAxDAQ3Xp1X5IpliteiDVgDKsPg8AAol2u+n+W6PV68mI/SOoiBVnkQWClEA -/
+  The bitwidth of `x` explictly boundspop the number of recursions, thus bounding the depth of the circuit as well
+  correctness of def -/
 def popCountAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
     match n with
   | 0 => BitVec.ofNat w w

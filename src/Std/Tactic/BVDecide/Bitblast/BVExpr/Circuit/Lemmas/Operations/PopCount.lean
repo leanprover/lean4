@@ -30,60 +30,82 @@ namespace BVExpr
 namespace bitblast
 namespace blastPopCount
 
-example (x : Nat) (hx : 0 < x) : ∃ y, x = y + 1 := by
-  exact Nat.exists_eq_add_one.mpr hx
-
-theorem go_denote_eq {w fuel: Nat} (aig : AIG α)
-    (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
+theorem go_denote_eq {w : Nat} (aig : AIG α) (h : curr ≤ w)
+    (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (xc' : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
+    (hx' : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc'.get idx hidx, assign⟧ = (x.popCountAuxAnd curr).getLsbD idx)
     (hacc : ∀ (idx : Nat) (hidx : idx < w),
-      if curr = 0 then ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ofNat w w).getLsbD idx
-      else
-        if x = 0#w then ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ofNat w (w - curr)).getLsbD idx
-        else ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.popCountAuxRec (x &&& (x - 1)) (curr - 1)).getLsbD idx)
+      ⟦aig, acc.get idx hidx, assign⟧ =
+        if w - curr = 0 then (BitVec.ofNat w 0).getLsbD idx
+        else (BitVec.popCountAuxRec x (w - curr - 1)).getLsbD idx)
     :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
-          (go aig xc curr acc).aig,
-          (go aig xc curr acc).vec.get idx hidx,
+          (go aig xc' curr acc).aig,
+          (go aig xc' curr acc).vec.get idx hidx,
           assign
         ⟧
           =
-        (BitVec.popCountAuxRec x w).getLsbD idx := by
-    intro idx hidx
-    generalize hgo: go aig xc curr acc = res
-    unfold go at hgo
-    split at hgo
-    · case isTrue h =>
-      simp at hgo
-      rw [← hgo, go_denote_eq]
-      · intro idx hidx
-        simp
-        rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastSub)]
-        · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
-          · rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkEq)]
-            · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastSub)]
-              ·
-                sorry
-              · apply LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
+        (BitVec.popCountAuxRec x w).getLsbD idx := by sorry
+    -- intro idx hidx
+    -- generalize hgo: go aig xc curr acc = res
+    -- unfold go at hgo
+    -- split at hgo
+    -- · case isTrue h =>
+    --   simp only [BitVec.ofNat_eq_ofNat, BitVec.natCast_eq_ofNat, RefVec.cast_cast] at hgo
+    --   rw [← hgo, go_denote_eq (x := x &&& (x - 1))]
+    --   · let curr' := curr - 1
+    --     simp [show curr = curr' + 1 by omega]
+    --     rw [BitVec.popCountAuxRec_succ]
 
-                sorry
-            · simp [Ref.hgate]
-      · intro idx hidx
-        simp
-        split
-        ·
-          sorry
-        ·
-          sorry
-      ·
-        sorry
-    · case isFalse h =>
-      rw [← hgo]
-      simp [show curr = 0 by omega] at hacc
-      simp [hacc]
+    --     sorry
+    --   · simp
+    --     omega
+    --   · simp
+    --     sorry
+    --   · simp
+    --     sorry
+      -- go_denote_eq]
+      -- · let curr' := curr - 1
+      --   simp [show curr = curr' + 1 by omega]
+      --   rw [BitVec.popCountAuxRec_succ]
+      --   simp [show ¬ curr = 0 by omega] at hacc
+      --   by_cases hx0 : x = 0#w
+      --   · simp [hx0]
+      --     simp [hx0] at hacc
+      --     sorry
+      --   · simp [hx0]
+      --     sorry
+      -- · sorry
+      -- · sorry
+      -- · sorry
+      -- · sorry
+      -- · sorry
+      -- · intro  hidx
+      --   simp
+      --   rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastSub)]
+      --   · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
+      --     · rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkEq)]
+      --       · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastSub)]
+      --         · sorry
+      --         · apply LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
 
-      sorry
+
+
+      --           sorry
+      --       · simp [Ref.hgate]
+      -- · intro idx hidx
+      --   simp
+      --   split
+      --   ·
+      --     sorry
+      --   ·
+      --     sorry
+      -- ·
+    -- · case isFalse h =>
+    --   rw [← hgo]
+    --   simp [show curr = 0 by omega] at hacc
+    --   simp [show curr = 0 by omega, BitVec.popCountAuxRec_zero]
 
 end blastPopCount
 

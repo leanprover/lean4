@@ -5,10 +5,13 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.AddDecl
+import Lean.Class
 import Lean.ReservedNameAction
 import Lean.ResolveName
 import Lean.Meta.AppBuilder
-import Lean.Class
+import Lean.Meta.Tactic.Subst
+import Lean.Meta.Tactic.Intro
+import Lean.Meta.Tactic.Assert
 
 namespace Lean.Meta
 
@@ -133,32 +136,6 @@ private def fixKindsForDependencies (info : FunInfo) (kinds : Array CongrArgKind
           break
   return kinds
 
-/--
-(Tries to) cast expression `e` to the given type using the equations `eqs`.
-`deps` contains the indices of the relevant equalities.
-Remark: deps is sorted.
--/
-private partial def mkCast (e : Expr) (type : Expr) (deps : Array Nat) (eqs : Array (Option Expr)) : MetaM Expr := do
-  let rec go (i : Nat) (type : Expr) : MetaM Expr := do
-     if i < deps.size then
-       match eqs[deps[i]!]! with
-       | none => go (i+1) type
-       | some major =>
-         let some (_, lhs, rhs) := (← inferType major).eq? | unreachable!
-         if (← pure major.isFVar <&&> dependsOn type major.fvarId!) then
-           let motive ← mkLambdaFVars #[rhs, major] type
-           let typeNew := type.replaceFVar rhs lhs |>.replaceFVar major (← mkEqRefl lhs)
-           let minor ← go (i+1) typeNew
-           mkEqRec motive minor major
-         else
-           let motive ← mkLambdaFVars #[rhs] type
-           let typeNew := type.replaceFVar rhs lhs
-           let minor ← go (i+1) typeNew
-           mkEqNDRec motive minor major
-     else
-       return e
-  go 0 type
-
 /-- Returns `true` if `kinds` contains `.cast` or `.subsingletonInst` -/
 private def hasCastLike (kinds : Array CongrArgKind) : Bool :=
   kinds.any fun kind => kind matches .cast | .subsingletonInst
@@ -261,6 +238,63 @@ def getCongrSimpKindsForArgZero (info : FunInfo) : MetaM (Array CongrArgKind) :=
   return fixKindsForDependencies info result
 
 /--
+Auxiliary type for applying `mkCast` at `mkCongrSimpCore?`
+-/
+private inductive EqInfo where
+  | /-- `fvarId` is an equality for "type casting." -/
+    hyp (fvarId : FVarId)
+  | /--
+    `lhs` and `rhs` are `Decidable` instances which should have the same type after
+    we have applied other type casting operations. We use the helper theorem `Decidable.eq`
+    to perform the type cast operation.
+    -/
+    decSubsingleton (lhs rhs : FVarId)
+
+/--
+Helper function for applying the substitution `s`.
+It assumes that all entries in `s` map free variables to free variables.
+-/
+private def getFVarId (s : FVarSubst) (fvarId : FVarId) : FVarId :=
+  if let some h := s.find? fvarId then h.fvarId! else fvarId
+
+/--
+(Tries to) cast free variable `fvarId` to the given type using the equations `eqs`.
+`deps` contains the indices of the relevant equalities.
+Remark: deps is sorted.
+-/
+private partial def mkCast (fvarId : FVarId) (type : Expr) (deps : Array Nat) (eqs : Array (Option EqInfo)) : MetaM Expr := do
+  -- Remark: we use the `subst` tactic to avoid re-implementing the `revert`/`intro` logic used there.
+  let eqs := deps.filterMap fun idx => eqs[idx]!
+  if eqs.isEmpty then return mkFVar fvarId
+  let mvar ← mkFreshExprMVar type
+  let mut mvarId := mvar.mvarId!
+  let mut s : FVarSubst := {}
+  for eq in eqs do
+    match eq with
+    | .hyp fvarId =>
+      let fvarId := getFVarId s fvarId
+      let (s', mvarId') ← substCore mvarId fvarId (symm := true) s
+      s := s'
+      mvarId := mvarId'
+    | .decSubsingleton lhsFVarId rhsFVarId =>
+      let lhsFVarId := getFVarId s lhsFVarId
+      let rhsFVarId := getFVarId s rhsFVarId
+      let lhs := mkFVar lhsFVarId
+      let rhs := mkFVar rhsFVarId
+      let eq ← mvarId.withContext <| mkEq lhs rhs
+      let h ← mvarId.withContext <| mkAppM ``Subsingleton.elim #[lhs, rhs]
+      mvarId ← mvarId.assert `h eq h
+      let (fvarId', mvarId') ← mvarId.intro1
+      let (s', mvarId') ← substCore mvarId' fvarId' (symm := true) s
+      s := s'
+      mvarId := mvarId'
+  let fvarId := getFVarId s fvarId
+  mvarId.assign (mkFVar fvarId)
+  let r ← instantiateMVars mvar
+  trace[Meta.debug] "{r} : {← inferType r}"
+  return r
+
+/--
 Creates a congruence theorem that is useful for the simplifier and `congr` tactic.
 -/
 partial def mkCongrSimpCore? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) (subsingletonInstImplicitRhs : Bool := true) : MetaM (Option CongrTheorem) := do
@@ -277,7 +311,7 @@ where
     Create a congruence theorem that is useful for the simplifier.
     In this kind of theorem, if the i-th argument is a `cast` argument, then the theorem
     contains an input `a_i` representing the i-th argument in the left-hand-side, and
-    it appears with a cast (e.g., `Eq.drec ... a_i ...`) in the right-hand-side.
+    it appears with a cast (e.g., `Eq.rec ... a_i ...`) in the right-hand-side.
     The idea is that the right-hand-side of this theorem "tells" the simplifier
     how the resulting term looks like. -/
   mk? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) : MetaM (Option CongrTheorem) := do
@@ -285,7 +319,7 @@ where
       let fType ← inferType f
       forallBoundedTelescope fType kinds.size (cleanupAnnotations := true) fun lhss _ => do
         if lhss.size != kinds.size then return none
-        let rec go (i : Nat) (rhss : Array Expr) (eqs : Array (Option Expr)) (hyps : Array Expr) : MetaM CongrTheorem := do
+        let rec go (i : Nat) (rhss : Array Expr) (eqs : Array (Option EqInfo)) (hyps : Array Expr) : MetaM CongrTheorem := do
           if i == kinds.size then
             let lhs := mkAppN f lhss
             let rhs := mkAppN f rhss
@@ -300,11 +334,11 @@ where
               let localDecl ← lhss[i]!.fvarId!.getDecl
               withLocalDecl localDecl.userName localDecl.binderInfo localDecl.type fun rhs => do
               withLocalDeclD (localDecl.userName.appendBefore "e_") (← mkEq lhss[i]! rhs) fun eq => do
-                go (i+1) (rhss.push rhs) (eqs.push eq) (hyps.push rhs |>.push eq)
+                go (i+1) (rhss.push rhs) (eqs.push <| some <| .hyp eq.fvarId!) (hyps.push rhs |>.push eq)
             | .fixed => go (i+1) (rhss.push lhss[i]!) (eqs.push none) hyps
             | .cast =>
               let rhsType := (← inferType lhss[i]!).replaceFVars (lhss[*...rhss.size]) rhss
-              let rhs ← mkCast lhss[i]! rhsType info.paramInfo[i]!.backDeps eqs
+              let rhs ← mkCast lhss[i]!.fvarId! rhsType info.paramInfo[i]!.backDeps eqs
               go (i+1) (rhss.push rhs) (eqs.push none) hyps
             | .subsingletonInst =>
               -- The `lhs` does not need to instance implicit since it can be inferred from the LHS
@@ -314,9 +348,7 @@ where
                 let rhsType := lhsType.replaceFVars (lhss[*...rhss.size]) rhss
                 let rhsBi   := if subsingletonInstImplicitRhs then .instImplicit else .implicit
                 withLocalDecl (← lhss[i]!.fvarId!.getDecl).userName rhsBi rhsType fun rhs => do
-                  let lhs' ← mkCast lhs rhsType info.paramInfo[i]!.backDeps eqs
-                  let heq ← mkAppM ``Subsingleton.elim #[lhs', rhs]
-                  go (i+1) (rhss.push rhs) (eqs.push heq) (hyps.push rhs)
+                  go (i+1) (rhss.push rhs) (eqs.push <| some <| .decSubsingleton lhs.fvarId! rhs.fvarId!) (hyps.push rhs)
         return some (← go 0 #[] #[] #[])
     catch _ =>
       return none

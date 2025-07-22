@@ -285,7 +285,7 @@ example : c > 0 := by simp only [c, ac]
 /--
 warning: Possibly looping simp theorem: `dc`
 
-Note: Possibly caused by: `c` and `ac`
+Note: Possibly caused by: `ac` and `c`
 
 Hint: You can disable a simp theorem from the default simp set by passing `- theoremName` to `simp`.
 ---

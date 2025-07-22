@@ -200,23 +200,29 @@ def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
   ctx.simpTheorems.isDeclToUnfold declName
 
 structure UsedSimps where
-  -- We should use `PHashMap` because we backtrack the contents of `UsedSimps`
-  -- The natural number tracks the insertion order
-  map  : PHashMap Origin Nat := {}
+  /-
+  We should use `PHashMap` because we backtrack the contents of `UsedSimps`
+  The natural number tracks the insertion order.
+  We also track the theorem in order to output it in the correct order.
+  For `simp`s without associated `SimpTheorem`s (e.g. local vars and simprocs), this value is
+  instead `(default : SimpTheorem)` which in particular has `keys := #[]`.
+
+  Note: The theorem may be ambiguous (e.g. for equation lemmas) but in that case they should all
+  share the same priority and should be closely together in the discrimination tree so it shouldn't
+  matter.
+  -/
+  map  : PHashMap Origin (Nat × SimpTheorem) := {}
   size : Nat := 0
   deriving Inhabited
 
 def UsedSimps.contains (s : UsedSimps) (thmId : Origin) : Bool :=
   s.map.contains thmId
 
-def UsedSimps.insert (s : UsedSimps) (thmId : Origin) : UsedSimps :=
-  if s.map.contains thmId then
+def UsedSimps.insert (s : UsedSimps) (origin : Origin) (thm : SimpTheorem) : UsedSimps :=
+  if s.map.contains origin then
     s
   else match s with
-    | { map, size } => { map := map.insert thmId size, size := size + 1 }
-
-def UsedSimps.toArray (s : UsedSimps) : Array Origin :=
-  s.map.toArray.qsort (·.2 < ·.2) |>.map (·.1)
+    | { map, size } => { map := map.insert origin (size, thm), size := size + 1 }
 
 structure Diagnostics where
   /-- Number of times each simp theorem has been used/applied. -/
@@ -489,7 +495,7 @@ def recordTriedSimpTheorem (thmId : Origin) : SimpM Unit := do
     let cNew := if let some c := s.triedThmCounter.find? thmId then c + 1 else 1
     { s with triedThmCounter := s.triedThmCounter.insert thmId cNew }
 
-def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
+def recordSimpTheorem (thmId : Origin) (thm : SimpTheorem) : SimpM Unit := do
   modifyDiag fun s =>
     let cNew := if let some c := s.usedThmCounter.find? thmId then c + 1 else 1
     { s with usedThmCounter := s.usedThmCounter.insert thmId cNew }
@@ -508,7 +514,7 @@ def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
       else
         pure thmId
     | _ => pure thmId
-  modify fun s => { s with usedTheorems := s.usedTheorems.insert thmId }
+  modify fun s => { s with usedTheorems := s.usedTheorems.insert thmId thm }
 
 def recordCongrTheorem (declName : Name) : SimpM Unit := do
   modifyDiag fun s =>
@@ -850,7 +856,7 @@ This also means that `usedZetaDelta` set might be reporting fvars in `zetaDeltaS
 private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (zetaDeltaSet : FVarIdSet) (usedZetaDelta : FVarIdSet) : UsedSimps :=
   zetaDeltaSet.foldl (init := s) fun s fvarId =>
     if usedZetaDelta.contains fvarId then
-      s.insert <| .fvar fvarId
+      s.insert (.fvar fvarId) default
     else
       s
 

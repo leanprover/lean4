@@ -398,10 +398,10 @@ private def evalSuggestSimpTrace : TryTactic := fun tac => do (← getMainGoal).
   | `(tactic| simp? $_:optConfig $[only%$only]? $[[$args,*]]? $(loc)?) =>
     let tac ← simpTraceToSimp tac
     let { ctx, simprocs, .. } ← mkSimpContext tac (eraseLocal := false)
-    let stats ← simpLocation ctx (simprocs := simprocs) none <| (loc.map expandLocation).getD (.targets #[] true)
+    let stats ← simpLocation ctx simprocs none <| (loc.map expandLocation).getD (.targets #[] true)
     trace[try.debug] "`simp` succeeded"
     if (← read).config.only then
-      let tac' ← mkSimpCallStx tac stats.usedTheorems
+      let tac' ← mkSimpCallStx tac ctx simprocs stats.usedTheorems
       mkTrySuggestions #[tac, tac']
     else
       return tac

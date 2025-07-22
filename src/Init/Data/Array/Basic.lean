@@ -2151,7 +2151,7 @@ Examples:
 
 /-! ### Repr and ToString -/
 
-protected def Array.repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
+protected def repr {α : Type u} [Repr α] (xs : Array α) : Std.Format :=
   let _ : Std.ToFormat α := ⟨repr⟩
   if xs.size == 0 then
     "#[]"

@@ -93,7 +93,7 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
           -/
           let e? ← withReducibleAndInstances <| unfoldDefinition? e
           if e?.isSome then
-            recordSimpTheorem (.decl cinfo.name)
+            recordSimpTheorem (.decl cinfo.name) default
           return e?
         else
           /-
@@ -115,7 +115,7 @@ private def reduceFVar (cfg : Config) (thms : SimpTheoremsArray) (e : Expr) : Si
   let localDecl ← getFVarLocalDecl e
   if cfg.zetaDelta || thms.isLetDeclToUnfold e.fvarId! || localDecl.isImplementationDetail then
     if !cfg.zetaDelta && thms.isLetDeclToUnfold e.fvarId! then
-      recordSimpTheorem (.fvar localDecl.fvarId)
+      recordSimpTheorem (.fvar localDecl.fvarId) default
     let some v := localDecl.value? | return e
     return v
   else
@@ -158,7 +158,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
        || (smartUnfolding.get options && (← getEnv).contains (mkSmartUnfoldingNameFor fName)) then
       unfoldDefinitionAny? e
     else
-      -- `We are not unfolding partial applications, and `fName` does not have smart unfolding support.
+      -- We are not unfolding partial applications, and `fName` does not have smart unfolding support.
       -- Thus, we must check whether the arity of the function >= number of arguments.
       let some cinfo := (← getEnv).find? fName | return none
       let some value := cinfo.value? | return none
@@ -213,7 +213,7 @@ private def reduceStep (e : Expr) : SimpM Expr := do
   match (← unfold? e) with
   | some e' =>
     trace[Meta.Tactic.simp.rewrite] "unfold {.ofConst e.getAppFn}, {e} ==> {e'}"
-    recordSimpTheorem (.decl e.getAppFn.constName!)
+    recordSimpTheorem (.decl e.getAppFn.constName!) default
     return e'
   | none => foldRawNatLit e
 
@@ -237,7 +237,7 @@ where
     | e => k xs e
 
 /--
-We use `withNewlemmas` whenever updating the local context.
+We use `withNewLemmas` whenever updating the local context.
 -/
 def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
   if (← getConfig).contextual then
@@ -1273,7 +1273,6 @@ def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray :
           return (none, stats)
       if target != targetNew then
         mvarIdNew ← mvarIdNew.replaceTargetDefEq targetNew
-      pure () -- FIXME: bug in do notation if this is removed?
     if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
       throwError "dsimp made no progress"
     return (some mvarIdNew, stats)

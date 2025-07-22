@@ -37,7 +37,7 @@ def mkLoopWarningMsg (thm : SimpTheorem) : SimpM MessageData := do
   msg := msg ++ m!"Possibly looping simp theorem: `{← ppOrigin thm.origin}`"
 
   let mut others := #[]
-  for other in (← get).usedTheorems.toArray do
+  for (other, _) in (← get).usedTheorems.map do
     if other != thm.origin  then
       others := others.push other
   unless others.isEmpty do

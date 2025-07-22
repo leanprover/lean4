@@ -928,10 +928,10 @@ For the induction:
 @[elab_as_elim] def reverseInduction {motive : Fin (n + 1) → Sort _} (last : motive (Fin.last n))
     (cast : ∀ i : Fin n, motive i.succ → motive (castSucc i)) (i : Fin (n + 1)) : motive i :=
   let rec go (j : Nat) (h) (h2 : i ≤ j) (x : motive ⟨j, h⟩) : motive i :=
-    if hi : i.1 = j then (show i = ⟨j, h⟩ by simp [← hi]) ▸ x
+    if hi : i.1 = j then _root_.cast (by simp [← hi]) x
     else match j with
       | 0 => by omega
-      | j+1 => go j (by omega) (by omega) (cast ⟨j, by omega⟩ x)
+      | j + 1 => go j (by omega) (by omega) (cast ⟨j, by omega⟩ x)
   go _ _ (by omega) last
 
 @[simp] theorem reverseInduction_last {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ} :

@@ -24,14 +24,9 @@ namespace bitblast
 
 def blastPopCount (aig : AIG α) (x : AIG.RefVec aig w) :
     AIG.RefVecEntry α w :=
-  let zero : AIG.RefVec aig w := blastConst aig (w := w) 0
-  go aig x (w + 1) zero
+  let wconst : AIG.RefVec aig w := blastConst aig (w := w) w
+  go aig x (w + 1) wconst
 where
-  /-
-   + curr ≤ w + 1
-   + x = popCountAuxAnd (w + 1 - curr)
-   + acc = if x = 0#w then (w + 1 - curr) else popCountAuxRec x_init (curr - 1)
-  -/
   go (aig : AIG α) (x : AIG.RefVec aig w) (curr : Nat) (acc : AIG.RefVec aig w) :=
     if hc : 0 < curr then
       -- create curr constant node

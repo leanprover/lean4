@@ -118,6 +118,7 @@ static lean_object* l_Lean_Server_initFn___lam__1___closed__7____x40_Lean_Server
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Server_handleCodeAction_spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_initFn___lam__1____x40_Lean_Server_CodeActions_Basic___hyg_528_(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_declareBuiltin(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_registerTagAttribute_spec__0_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_initFn___lam__2___closed__15____x40_Lean_Server_CodeActions_Basic___hyg_528_;
 lean_object* l_Lean_Environment_evalConstCheck___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
@@ -156,7 +157,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_instCodeActionProviderInhabited___lam__0(
 static lean_object* l_Lean_Server_fromJsonCodeActionResolveData___closed__14____x40_Lean_Server_CodeActions_Basic___hyg_136_;
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_mkModuleData_spec__2_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldrM___at___Lean_Server_handleCodeAction_spec__6(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_fromJsonCodeActionResolveData___closed__13____x40_Lean_Server_CodeActions_Basic___hyg_136_;
 static lean_object* l_Lean_Server_initFn___lam__1___closed__6____x40_Lean_Server_CodeActions_Basic___hyg_528_;
@@ -2857,7 +2857,7 @@ block_58:
 lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; 
 x_15 = lean_mk_empty_array_with_capacity(x_14);
 lean_dec(x_14);
-x_16 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_mkModuleData_spec__2_spec__2(x_15, x_13);
+x_16 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_registerTagAttribute_spec__0_spec__0(x_15, x_13);
 x_17 = lean_array_size(x_16);
 x_18 = 0;
 lean_inc_ref(x_16);

@@ -28,7 +28,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_run___cl
 lean_object* l_instMonadControlTOfPure___redArg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_run___closed__6;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_PreProcessM_lookupInterestingStructure___redArg___closed__0;
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_run___closed__29;
 double lean_float_div(double, double);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_run___closed__15;
@@ -151,6 +151,7 @@ static lean_object* l_Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Fronte
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_PreProcessM_getConfig(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_run___closed__34;
 extern lean_object* l_Lean_trace_profiler_threshold;
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_PreProcessM_lookupInterestingStructure___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0___redArg___closed__2;
 lean_object* l_Lean_instMonadAlwaysExceptReaderT___redArg(lean_object*);
@@ -167,7 +168,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_PreProce
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_PreProcessM_markInterestingEnum___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_PreProcessM_markInterestingMatcher___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_run___closed__24;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_run___closed__12;
 lean_object* l_Lean_Meta_instMonadMetaM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8469,7 +8469,7 @@ if (x_273 == 0)
 {
 lean_object* x_274; uint8_t x_275; 
 x_274 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0___redArg___closed__3;
-x_275 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_13, x_274);
+x_275 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_13, x_274);
 if (x_275 == 0)
 {
 lean_object* x_276; 
@@ -8925,7 +8925,7 @@ lean_dec_ref(x_147);
 x_150 = lean_float_of_nat(x_142);
 x_151 = lean_float_of_nat(x_148);
 x_152 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0___redArg___closed__3;
-x_153 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_13, x_152);
+x_153 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_13, x_152);
 if (x_153 == 0)
 {
 lean_dec(x_13);
@@ -8947,7 +8947,7 @@ if (x_143 == 0)
 {
 lean_object* x_154; lean_object* x_155; double x_156; double x_157; double x_158; 
 x_154 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0___redArg___closed__4;
-x_155 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_13, x_154);
+x_155 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_13, x_154);
 lean_dec(x_13);
 x_156 = lean_float_of_nat(x_155);
 x_157 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0___redArg___closed__5;
@@ -8968,7 +8968,7 @@ else
 {
 lean_object* x_159; lean_object* x_160; double x_161; 
 x_159 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0___redArg___closed__4;
-x_160 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_13, x_159);
+x_160 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_13, x_159);
 lean_dec(x_13);
 x_161 = lean_float_of_nat(x_160);
 lean_inc_ref(x_145);
@@ -9176,7 +9176,7 @@ x_233 = lean_float_div(x_231, x_232);
 x_234 = lean_float_of_nat(x_229);
 x_235 = lean_float_div(x_234, x_232);
 x_236 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0___redArg___closed__3;
-x_237 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_13, x_236);
+x_237 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_13, x_236);
 if (x_237 == 0)
 {
 lean_dec(x_13);
@@ -9198,7 +9198,7 @@ if (x_224 == 0)
 {
 lean_object* x_238; lean_object* x_239; double x_240; double x_241; double x_242; 
 x_238 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0___redArg___closed__4;
-x_239 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_13, x_238);
+x_239 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_13, x_238);
 lean_dec(x_13);
 x_240 = lean_float_of_nat(x_239);
 x_241 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0___redArg___closed__5;
@@ -9219,7 +9219,7 @@ else
 {
 lean_object* x_243; lean_object* x_244; double x_245; 
 x_243 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0___redArg___closed__4;
-x_244 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_13, x_243);
+x_244 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_13, x_243);
 lean_dec(x_13);
 x_245 = lean_float_of_nat(x_244);
 lean_inc_ref(x_226);
@@ -9246,7 +9246,7 @@ x_249 = lean_ctor_get(x_247, 1);
 lean_inc(x_249);
 lean_dec_ref(x_247);
 x_250 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0___redArg___closed__7;
-x_251 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_13, x_250);
+x_251 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_13, x_250);
 if (x_251 == 0)
 {
 lean_object* x_252; lean_object* x_253; lean_object* x_254; lean_object* x_255; 

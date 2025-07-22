@@ -23,7 +23,7 @@ lean_object* l_Lean_addBuiltinDocString(lean_object*, lean_object*, lean_object*
 static lean_object* l_Lean_validateDefEqAttr___lam__1___closed__3;
 static lean_object* l_Lean_TagAttribute_setTag___at___Lean_inferDefEqAttr_spec__0___lam__1___closed__14;
 static lean_object* l_Lean_validateDefEqAttr___closed__15;
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_TagAttribute_setTag___at___Lean_inferDefEqAttr_spec__0___lam__1___closed__12;
@@ -137,6 +137,7 @@ static lean_object* l_Lean_validateDefEqAttr___closed__30;
 extern lean_object* l_Lean_warningAsError;
 LEAN_EXPORT uint8_t l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_inferDefEqAttr_spec__1_spec__1_spec__1___lam__0(uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DefEqAttrib_0__Lean_isRflProofCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_inferDefEqAttr_spec__1_spec__1_spec__1___closed__0;
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_DefEqAttrib___hyg_456_;
 extern lean_object* l_Lean_diagnostics;
@@ -161,7 +162,6 @@ static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lea
 LEAN_EXPORT lean_object* l_Lean_validateDefEqAttr___lam__0(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_defeqAttr___regBuiltin_Lean_defeqAttr_declRange__3___closed__1;
 static lean_object* l_Lean_TagAttribute_setTag___at___Lean_inferDefEqAttr_spec__0___closed__0;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DefEqAttrib_0__Lean_isRflProofCore___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_logError___at___Lean_inferDefEqAttr_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_TagAttribute_setTag___at___Lean_inferDefEqAttr_spec__0___lam__1___closed__5;
@@ -361,7 +361,7 @@ x_27 = l___private_Lean_DefEqAttrib_0__Lean_isDefEqCareful___closed__0;
 x_28 = 0;
 x_29 = l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(x_13, x_27, x_28);
 x_30 = l___private_Lean_DefEqAttrib_0__Lean_isDefEqCareful___closed__1;
-x_31 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_29, x_30);
+x_31 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_29, x_30);
 x_218 = l_Lean_Kernel_isDiagnosticsEnabled(x_25);
 lean_dec_ref(x_25);
 if (x_218 == 0)
@@ -436,7 +436,7 @@ x_74 = lean_ctor_get_uint8(x_47, 16);
 x_75 = lean_ctor_get_uint8(x_47, 17);
 x_76 = lean_ctor_get_uint8(x_47, 18);
 x_77 = l___private_Lean_DefEqAttrib_0__Lean_isDefEqCareful___closed__2;
-x_78 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_29, x_77);
+x_78 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_29, x_77);
 if (lean_is_scalar(x_24)) {
  x_79 = lean_alloc_ctor(0, 13, 2);
 } else {
@@ -592,7 +592,7 @@ x_121 = lean_ctor_get_uint8(x_47, 17);
 x_122 = lean_ctor_get_uint8(x_47, 18);
 lean_dec(x_47);
 x_123 = l___private_Lean_DefEqAttrib_0__Lean_isDefEqCareful___closed__2;
-x_124 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_29, x_123);
+x_124 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_29, x_123);
 if (lean_is_scalar(x_24)) {
  x_125 = lean_alloc_ctor(0, 13, 2);
 } else {
@@ -783,7 +783,7 @@ if (lean_is_exclusive(x_142)) {
  x_171 = lean_box(0);
 }
 x_172 = l___private_Lean_DefEqAttrib_0__Lean_isDefEqCareful___closed__2;
-x_173 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_29, x_172);
+x_173 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_29, x_172);
 if (lean_is_scalar(x_24)) {
  x_174 = lean_alloc_ctor(0, 13, 2);
 } else {
@@ -4838,7 +4838,7 @@ else
 {
 lean_object* x_153; uint8_t x_154; 
 x_153 = l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_inferDefEqAttr_spec__1_spec__1_spec__1___closed__0;
-x_154 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_145, x_153);
+x_154 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_145, x_153);
 lean_dec(x_145);
 x_134 = x_146;
 x_135 = x_150;

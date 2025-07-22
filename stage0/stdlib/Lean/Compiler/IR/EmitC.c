@@ -55,7 +55,7 @@ static lean_object* l_Lean_IR_EmitC_emitMainFn___closed__45;
 static lean_object* l_Lean_IR_EmitC_emitReuse___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitLit___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
-lean_object* l_Lean_IR_findEnvDecl(lean_object*, lean_object*);
+lean_object* lean_ir_find_env_decl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_toStringArgs(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitDeclInit___closed__3;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_IR_EmitC_emitInitFn_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -770,7 +770,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_ctor_get(x_4, 0);
 lean_inc(x_1);
-x_7 = l_Lean_IR_findEnvDecl(x_6, x_1);
+x_7 = lean_ir_find_env_decl(x_6, x_1);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -806,7 +806,7 @@ lean_inc(x_17);
 lean_inc(x_16);
 lean_dec(x_4);
 lean_inc(x_1);
-x_18 = l_Lean_IR_findEnvDecl(x_16, x_1);
+x_18 = lean_ir_find_env_decl(x_16, x_1);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 

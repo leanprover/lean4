@@ -102,6 +102,7 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_delabLetE___regBuiltin_Lean
 static lean_object* l_Lean_Meta_instantiateStructDefaultValueFn_x3f___at_____private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_collectStructFields_spec__0___closed__1;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabProj___closed__2;
 lean_object* lean_private_to_user_name(lean_object*);
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabDoElems___lam__4(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_Formatter_orelse_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabDivRatCore___closed__0;
@@ -115,7 +116,6 @@ lean_object* l_Lean_getPPNotation___boxed(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__6;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_PrettyPrinter_Delaborator_getParamKinds_spec__0___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withAppArg___at_____private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_withoutParentProjections_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabMProdMk___regBuiltin_Lean_PrettyPrinter_Delaborator_delabMProdMk__1___closed__0;
 extern lean_object* l_Lean_pp_fullNames;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabNameMkStr___regBuiltin_Lean_PrettyPrinter_Delaborator_delabNameMkStr__17(lean_object*);
@@ -868,6 +868,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabSigmaCore(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_filterMapM___at___Lean_PrettyPrinter_Delaborator_delabAppImplicitCore_tryAppUnexpanders_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabForallParamsWithSignature_delabParamsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_PrettyPrinter_Delaborator_delabDo_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withBindingBody___at_____private_Lean_PrettyPrinter_Delaborator_Builtins_0__Lean_PrettyPrinter_Delaborator_skippingBinders_loop_visitLambda_spec__0___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabConstWithSignature___lam__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1074,7 +1075,6 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_delabConst___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabPProdMkCore___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabSeq___lam__0___closed__2;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_withMDataOptions___redArg___closed__1;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabLit___closed__5;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabNameMkStr___regBuiltin_Lean_PrettyPrinter_Delaborator_delabNameMkStr__17___closed__0;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_coeDelaborator_delabHead___lam__0___closed__4;
@@ -53200,7 +53200,7 @@ x_26 = l_Lean_PrettyPrinter_Delaborator_delabForallParamsWithSignature_delabTy__
 x_27 = 1;
 x_28 = l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(x_13, x_26, x_27);
 x_29 = l_Lean_PrettyPrinter_Delaborator_delabForallParamsWithSignature_delabTy___closed__1;
-x_30 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_28, x_29);
+x_30 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_28, x_29);
 x_75 = l_Lean_Kernel_isDiagnosticsEnabled(x_25);
 lean_dec_ref(x_25);
 if (x_75 == 0)
@@ -53238,7 +53238,7 @@ block_49:
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 x_45 = l_Lean_PrettyPrinter_Delaborator_delabForallParamsWithSignature_delabTy___closed__2;
-x_46 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_28, x_45);
+x_46 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_28, x_45);
 if (lean_is_scalar(x_24)) {
  x_47 = lean_alloc_ctor(0, 13, 2);
 } else {
@@ -56244,7 +56244,7 @@ x_29 = l_Lean_PrettyPrinter_Delaborator_delabConstWithSignature___lam__0___close
 x_30 = 1;
 x_31 = l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(x_28, x_29, x_30);
 x_32 = l_Lean_PrettyPrinter_Delaborator_delabForallParamsWithSignature_delabTy___closed__1;
-x_33 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_31, x_32);
+x_33 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_31, x_32);
 x_78 = l_Lean_Kernel_isDiagnosticsEnabled(x_26);
 lean_dec_ref(x_26);
 if (x_78 == 0)
@@ -56282,7 +56282,7 @@ block_52:
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 x_48 = l_Lean_PrettyPrinter_Delaborator_delabForallParamsWithSignature_delabTy___closed__2;
-x_49 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_31, x_48);
+x_49 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_31, x_48);
 if (lean_is_scalar(x_25)) {
  x_50 = lean_alloc_ctor(0, 13, 2);
 } else {

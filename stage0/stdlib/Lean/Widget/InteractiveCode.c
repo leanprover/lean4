@@ -78,6 +78,7 @@ static lean_object* l_Lean_Widget_instToJsonRpcEncodablePacket___closed__0____x4
 static lean_object* l_Lean_Widget_fromJsonDiffTag___closed__0____x40_Lean_Widget_InteractiveCode___hyg_68_;
 LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonDiffTag____x40_Lean_Widget_InteractiveCode___hyg_68_(lean_object*);
 static lean_object* l_Lean_Widget_toJsonDiffTag___closed__7____x40_Lean_Widget_InteractiveCode___hyg_11_;
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonDiffTag___lam__1____x40_Lean_Widget_InteractiveCode___hyg_68____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_fromJsonRpcEncodablePacket___closed__2____x40_Lean_Widget_InteractiveCode___hyg_365_;
 LEAN_EXPORT lean_object* l_Lean_Widget_CodeWithInfos_mergePosMap___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -94,7 +95,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Widget_TaggedText_re
 lean_object* l_Lean_Json_parseTagged(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_365__spec__0_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_365_(lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_fromJsonDiffTag___lam__4___closed__0____x40_Lean_Widget_InteractiveCode___hyg_68_;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -2026,7 +2026,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_5, 7);
 lean_inc(x_16);
 x_17 = l_Lean_Widget_ppExprTagged___closed__0;
-x_18 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_14, x_17);
+x_18 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_14, x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; 

@@ -532,6 +532,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabCoeFunNotation___redArg___closed__1;
 static lean_object* l_Lean_Elab_Term_elabLeadingParserMacro___regBuiltin_Lean_Elab_Term_elabLeadingParserMacro_declRange__3___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabCoe___regBuiltin_Lean_Elab_Term_elabCoe_declRange__3(lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Syntax_replaceM___at___Lean_Elab_Term_expandCDot_x3f_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabCoe___regBuiltin_Lean_Elab_Term_elabCoe__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandAssert___boxed(lean_object*, lean_object*, lean_object*);
@@ -641,7 +642,6 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_expandAssert___closed__10;
 static lean_object* l_Lean_Elab_Term_expandDbgTrace___regBuiltin_Lean_Elab_Term_expandDbgTrace_declRange__3___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabParserMacroAux(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_expandSuffices___closed__9;
 LEAN_EXPORT uint8_t l_List_isPerm___at___Lean_Elab_Term_elabCDotFunctionAlias_x3f_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabSubst___regBuiltin_Lean_Elab_Term_elabSubst__1(lean_object*);
@@ -12397,7 +12397,7 @@ x_13 = lean_ctor_get(x_6, 5);
 x_14 = lean_unsigned_to_nat(3u);
 x_15 = l_Lean_Syntax_getArg(x_1, x_14);
 x_16 = l_Lean_Elab_Term_elabDebugAssert___lam__0___closed__2;
-x_17 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_12, x_16);
+x_17 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_12, x_16);
 if (x_17 == 0)
 {
 lean_object* x_18; 

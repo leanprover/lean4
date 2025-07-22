@@ -21,8 +21,8 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forIn___at___Lean_Meta_collectAboveThreshold___at___Lean_Meta_Simp_mkSimpDiagSummary_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_logInfo___at___Lean_Meta_reportDiag_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_reportDiag___closed__2;
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_Meta_collectAboveThreshold___at___Lean_Meta_Simp_mkSimpDiagSummary_spec__0_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_mkSimpDiagSummary_spec__4___redArg(uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -905,7 +905,7 @@ x_8 = lean_ctor_get(x_5, 2);
 x_9 = lean_alloc_closure((void*)(l_Lean_Meta_Simp_mkSimpDiagSummary___lam__0___boxed), 2, 0);
 x_10 = lean_alloc_closure((void*)(l_Lean_Meta_Simp_mkSimpDiagSummary___lam__1___boxed), 1, 0);
 x_11 = l_Lean_Meta_Simp_mkSimpDiagSummary___closed__0;
-x_12 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_8, x_11);
+x_12 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_8, x_11);
 x_13 = l_Lean_Meta_collectAboveThreshold___at___Lean_Meta_Simp_mkSimpDiagSummary_spec__0(x_1, x_12, x_10, x_9);
 x_14 = l_Array_isEmpty___redArg(x_13);
 if (x_14 == 0)

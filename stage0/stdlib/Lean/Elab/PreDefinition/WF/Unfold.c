@@ -29,8 +29,8 @@ static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_W
 static lean_object* l_Lean_Elab_WF_initFn___closed__2____x40_Lean_Elab_PreDefinition_WF_Unfold___hyg_2546_;
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_rwFixEq___lam__2___closed__8;
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___closed__10;
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___closed__11;
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_mkUnfoldEq___lam__2___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_mkUnfoldEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___closed__7;
@@ -139,6 +139,7 @@ static lean_object* l_Lean_Elab_WF_mkUnfoldEq___lam__2___closed__5;
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_rwFixEq___lam__2___closed__16;
 static lean_object* l_Lean_Elab_WF_initFn___closed__17____x40_Lean_Elab_PreDefinition_WF_Unfold___hyg_2546_;
 static lean_object* l_Lean_Elab_WF_mkBinaryUnfoldEq___lam__0___closed__3;
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_rwFixEq___lam__2___closed__9;
 extern lean_object* l_Lean_diagnostics;
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___closed__34;
@@ -165,7 +166,6 @@ static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_W
 lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
 static lean_object* l_Lean_Elab_WF_initFn___closed__11____x40_Lean_Elab_PreDefinition_WF_Unfold___hyg_2546_;
 lean_object* l_Lean_Expr_bindingDomain_x21(lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFnCleanup___redArg(lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___closed__27;
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_rwFixEq___lam__2___closed__20;
@@ -5017,7 +5017,7 @@ lean_dec(x_10);
 x_27 = l_Lean_Elab_WF_mkUnfoldEq___lam__2___closed__0;
 x_28 = l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(x_14, x_27, x_1);
 x_29 = l_Lean_Elab_WF_mkUnfoldEq___lam__2___closed__1;
-x_30 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_28, x_29);
+x_30 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_28, x_29);
 x_75 = l_Lean_Kernel_isDiagnosticsEnabled(x_26);
 lean_dec_ref(x_26);
 if (x_75 == 0)
@@ -5055,7 +5055,7 @@ block_49:
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 x_45 = l_Lean_Elab_WF_mkUnfoldEq___lam__2___closed__2;
-x_46 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_28, x_45);
+x_46 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_28, x_45);
 if (lean_is_scalar(x_25)) {
  x_47 = lean_alloc_ctor(0, 13, 2);
 } else {

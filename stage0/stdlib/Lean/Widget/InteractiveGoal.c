@@ -173,6 +173,7 @@ static lean_object* l_Lean_Widget_instInhabitedInteractiveHypothesisBundle___clo
 LEAN_EXPORT lean_object* l_Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_1809____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Widget_TaggedText_mapM___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_enc____x40_Lean_Widget_InteractiveGoal___hyg_5__spec__2_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Widget_instRpcEncodableInteractiveGoals_enc____x40_Lean_Widget_InteractiveGoal___hyg_3401__spec__0(size_t, size_t, lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_682____boxed(lean_object*);
 static lean_object* l_Lean_Widget_withGoalCtx___redArg___lam__1___closed__0;
 lean_object* l_Except_orElseLazy___redArg(lean_object*, lean_object*);
@@ -209,7 +210,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Widget_instRpcEncoda
 lean_object* l_Lean_Json_parseTagged(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Widget_goalToInteractive_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instToJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_765_;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_enc____x40_Lean_Widget_InteractiveGoal___hyg_5__spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal___hyg_5__spec__0(size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_InteractiveGoalCore_pretty___closed__2;
@@ -10889,9 +10889,9 @@ lean_inc(x_7);
 x_8 = lean_alloc_closure((void*)(l_Lean_Widget_goalToInteractive___lam__0), 8, 0);
 x_9 = l_Lean_Widget_instRpcEncodableInteractiveGoal_enc___closed__0____x40_Lean_Widget_InteractiveGoal___hyg_1176_;
 x_10 = l_Lean_Widget_goalToInteractive___closed__0;
-x_11 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_7, x_10);
+x_11 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_7, x_10);
 x_12 = l_Lean_Widget_goalToInteractive___closed__1;
-x_13 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_7, x_12);
+x_13 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_7, x_12);
 lean_dec(x_7);
 x_14 = lean_box(x_13);
 x_15 = lean_box(x_11);

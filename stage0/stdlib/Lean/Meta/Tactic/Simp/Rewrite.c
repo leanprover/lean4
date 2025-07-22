@@ -64,10 +64,10 @@ LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at___Lean_withTraceNode___at__
 LEAN_EXPORT lean_object* l_Array_insertionSort_swapLoop___at___Array_insertionSort_traverse___at___Lean_Meta_Simp_rewrite_x3f_rewriteNoIndex_x3f_spec__0_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_dischargeEqnThmHypothesis_x3f___closed__3;
 static lean_object* l_Lean_Meta_Simp_simpUsingDecide___redArg___closed__4;
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_dischargeEqnThmHypothesis_x3f_go_x3f___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_SimpTheoremsArray_isErased(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_DischargeResult_ofNat___boxed(lean_object*);
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_mkDefaultMethods___closed__1;
 lean_object* l_Array_reverse___redArg(lean_object*);
 lean_object* l_Lean_Meta_unifyEq_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -369,6 +369,7 @@ lean_object* lean_dsimp(lean_object*, lean_object*, lean_object*, lean_object*, 
 extern lean_object* l_Lean_trace_profiler_threshold;
 static lean_object* l_Lean_Meta_Simp_drewritePre___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryTheoremCore_go___closed__6;
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_recordTriedSimpTheorem___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_Meta_Simp_sevalGround_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isRflTheorem(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -450,7 +451,6 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_simpMatch
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_rewrite_x3f_rewriteUsingIndex_x3f_spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at___Lean_withTraceNode___at___Lean_Meta_Simp_discharge_x3f_x27_spec__2_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addTrace___at___Lean_Meta_Simp_congrArgs_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_simpUsingDecide___redArg___closed__17;
 LEAN_EXPORT lean_object* l_Lean_MVarId_isAssignable___at___Lean_hasAssignableMVar___at_____private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryTheoremCore_go_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isTracingEnabledFor___at___Lean_Meta_Simp_congrArgs_spec__0___redArg(lean_object*, lean_object*, lean_object*);
@@ -1926,7 +1926,7 @@ if (x_274 == 0)
 {
 lean_object* x_275; uint8_t x_276; 
 x_275 = l_Lean_withTraceNode___at___Lean_Meta_Simp_discharge_x3f_x27_spec__2___redArg___closed__3;
-x_276 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_14, x_275);
+x_276 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_14, x_275);
 if (x_276 == 0)
 {
 lean_object* x_277; 
@@ -2391,7 +2391,7 @@ lean_dec_ref(x_148);
 x_151 = lean_float_of_nat(x_143);
 x_152 = lean_float_of_nat(x_149);
 x_153 = l_Lean_withTraceNode___at___Lean_Meta_Simp_discharge_x3f_x27_spec__2___redArg___closed__3;
-x_154 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_14, x_153);
+x_154 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_14, x_153);
 if (x_154 == 0)
 {
 lean_dec(x_14);
@@ -2413,7 +2413,7 @@ if (x_145 == 0)
 {
 lean_object* x_155; lean_object* x_156; double x_157; double x_158; double x_159; 
 x_155 = l_Lean_withTraceNode___at___Lean_Meta_Simp_discharge_x3f_x27_spec__2___redArg___closed__4;
-x_156 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_14, x_155);
+x_156 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_14, x_155);
 lean_dec(x_14);
 x_157 = lean_float_of_nat(x_156);
 x_158 = l_Lean_withTraceNode___at___Lean_Meta_Simp_discharge_x3f_x27_spec__2___redArg___closed__5;
@@ -2434,7 +2434,7 @@ else
 {
 lean_object* x_160; lean_object* x_161; double x_162; 
 x_160 = l_Lean_withTraceNode___at___Lean_Meta_Simp_discharge_x3f_x27_spec__2___redArg___closed__4;
-x_161 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_14, x_160);
+x_161 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_14, x_160);
 lean_dec(x_14);
 x_162 = lean_float_of_nat(x_161);
 lean_inc_ref(x_146);
@@ -2643,7 +2643,7 @@ x_234 = lean_float_div(x_232, x_233);
 x_235 = lean_float_of_nat(x_230);
 x_236 = lean_float_div(x_235, x_233);
 x_237 = l_Lean_withTraceNode___at___Lean_Meta_Simp_discharge_x3f_x27_spec__2___redArg___closed__3;
-x_238 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_14, x_237);
+x_238 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_14, x_237);
 if (x_238 == 0)
 {
 lean_dec(x_14);
@@ -2665,7 +2665,7 @@ if (x_226 == 0)
 {
 lean_object* x_239; lean_object* x_240; double x_241; double x_242; double x_243; 
 x_239 = l_Lean_withTraceNode___at___Lean_Meta_Simp_discharge_x3f_x27_spec__2___redArg___closed__4;
-x_240 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_14, x_239);
+x_240 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_14, x_239);
 lean_dec(x_14);
 x_241 = lean_float_of_nat(x_240);
 x_242 = l_Lean_withTraceNode___at___Lean_Meta_Simp_discharge_x3f_x27_spec__2___redArg___closed__5;
@@ -2686,7 +2686,7 @@ else
 {
 lean_object* x_244; lean_object* x_245; double x_246; 
 x_244 = l_Lean_withTraceNode___at___Lean_Meta_Simp_discharge_x3f_x27_spec__2___redArg___closed__4;
-x_245 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_14, x_244);
+x_245 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_14, x_244);
 lean_dec(x_14);
 x_246 = lean_float_of_nat(x_245);
 lean_inc_ref(x_227);
@@ -2713,7 +2713,7 @@ x_250 = lean_ctor_get(x_248, 1);
 lean_inc(x_250);
 lean_dec_ref(x_248);
 x_251 = l_Lean_withTraceNode___at___Lean_Meta_Simp_discharge_x3f_x27_spec__2___redArg___closed__7;
-x_252 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_14, x_251);
+x_252 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_14, x_251);
 if (x_252 == 0)
 {
 lean_object* x_253; lean_object* x_254; lean_object* x_255; lean_object* x_256; 
@@ -7466,7 +7466,7 @@ lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_obje
 x_12 = lean_ctor_get(x_9, 2);
 lean_inc(x_12);
 x_13 = l_Lean_Meta_Simp_synthesizeArgs___closed__0;
-x_14 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_12, x_13);
+x_14 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_12, x_13);
 lean_dec(x_12);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_get_size(x_2);
@@ -13086,7 +13086,7 @@ else
 {
 lean_object* x_153; uint8_t x_154; 
 x_153 = l_Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_Meta_Simp_rewrite_x3f_rewriteUsingIndex_x3f_spec__2_spec__2_spec__2___redArg___closed__0;
-x_154 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_145, x_153);
+x_154 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_145, x_153);
 lean_dec(x_145);
 x_134 = x_147;
 x_135 = x_144;
@@ -13391,7 +13391,7 @@ x_136 = lean_ctor_get_uint8(x_15, sizeof(void*)*13 + 1);
 x_137 = lean_ctor_get(x_15, 12);
 lean_inc_ref(x_137);
 x_177 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_rewrite_x3f_rewriteUsingIndex_x3f_spec__5_spec__5___closed__16;
-x_178 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_127, x_177);
+x_178 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_127, x_177);
 if (x_178 == 0)
 {
 x_166 = x_178;
@@ -13401,7 +13401,7 @@ else
 {
 lean_object* x_179; uint8_t x_180; 
 x_179 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_rewrite_x3f_rewriteUsingIndex_x3f_spec__5_spec__5___closed__14;
-x_180 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_127, x_179);
+x_180 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_127, x_179);
 x_166 = x_180;
 goto block_176;
 }
@@ -13565,7 +13565,7 @@ lean_dec(x_168);
 x_171 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_rewrite_x3f_rewriteUsingIndex_x3f_spec__5_spec__5___closed__14;
 x_172 = l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(x_127, x_171, x_88);
 x_173 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_rewrite_x3f_rewriteUsingIndex_x3f_spec__5_spec__5___closed__15;
-x_174 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_172, x_173);
+x_174 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_172, x_173);
 x_175 = l_Lean_Kernel_isDiagnosticsEnabled(x_170);
 lean_dec_ref(x_170);
 if (x_175 == 0)
@@ -13635,7 +13635,7 @@ block_124:
 {
 lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; 
 x_105 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_rewrite_x3f_rewriteUsingIndex_x3f_spec__5_spec__5___closed__6;
-x_106 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_90, x_105);
+x_106 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_90, x_105);
 x_107 = lean_alloc_ctor(0, 13, 2);
 lean_ctor_set(x_107, 0, x_91);
 lean_ctor_set(x_107, 1, x_92);
@@ -14075,7 +14075,7 @@ x_136 = lean_ctor_get_uint8(x_15, sizeof(void*)*13 + 1);
 x_137 = lean_ctor_get(x_15, 12);
 lean_inc_ref(x_137);
 x_177 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_rewrite_x3f_rewriteUsingIndex_x3f_spec__5_spec__5___closed__16;
-x_178 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_127, x_177);
+x_178 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_127, x_177);
 if (x_178 == 0)
 {
 x_166 = x_178;
@@ -14085,7 +14085,7 @@ else
 {
 lean_object* x_179; uint8_t x_180; 
 x_179 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_rewrite_x3f_rewriteUsingIndex_x3f_spec__5_spec__5___closed__14;
-x_180 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_127, x_179);
+x_180 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_127, x_179);
 x_166 = x_180;
 goto block_176;
 }
@@ -14249,7 +14249,7 @@ lean_dec(x_168);
 x_171 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_rewrite_x3f_rewriteUsingIndex_x3f_spec__5_spec__5___closed__14;
 x_172 = l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(x_127, x_171, x_88);
 x_173 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_rewrite_x3f_rewriteUsingIndex_x3f_spec__5_spec__5___closed__15;
-x_174 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_172, x_173);
+x_174 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_172, x_173);
 x_175 = l_Lean_Kernel_isDiagnosticsEnabled(x_170);
 lean_dec_ref(x_170);
 if (x_175 == 0)
@@ -14319,7 +14319,7 @@ block_124:
 {
 lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; 
 x_105 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_rewrite_x3f_rewriteUsingIndex_x3f_spec__5_spec__5___closed__6;
-x_106 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_90, x_105);
+x_106 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_90, x_105);
 x_107 = lean_alloc_ctor(0, 13, 2);
 lean_ctor_set(x_107, 0, x_91);
 lean_ctor_set(x_107, 1, x_92);
@@ -32478,7 +32478,7 @@ _start:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_1, 2);
 x_5 = l_Lean_Meta_Simp_mkDefaultMethods___closed__0;
-x_6 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_4, x_5);
+x_6 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_4, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 

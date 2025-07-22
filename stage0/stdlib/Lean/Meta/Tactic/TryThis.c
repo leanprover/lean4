@@ -42,8 +42,8 @@ static lean_object* l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__
 static lean_object* l_Lean_Meta_Tactic_TryThis_tryThisWidget___closed__0;
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___lam__0___closed__64;
 static lean_object* l_Lean_Meta_Tactic_TryThis_tryThisWidget___closed__2;
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___lam__0(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_InfoTree_foldInfo___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addSuggestionCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -214,6 +214,7 @@ static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___lam__0___clos
 lean_object* l_Lean_Server_addBuiltinCodeActionProvider(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_mkExactSuggestionSyntax___lam__0(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addExactSuggestionCore___closed__4;
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___Lean_Meta_Tactic_TryThis_addRewriteSuggestion_spec__0___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_addExactSuggestion___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___lam__0___closed__28;
@@ -268,7 +269,6 @@ static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___lam__0___clos
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_mkFailedToMakeTacticMsg___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_mkValidatedTactic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___lam__0___closed__32;
 lean_object* l_Lean_Widget_savePanelWidgetInfo(uint64_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___lam__0___closed__86;
@@ -1092,7 +1092,7 @@ x_26 = l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__0;
 x_27 = 0;
 x_28 = l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(x_12, x_26, x_27);
 x_29 = l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__1;
-x_30 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_28, x_29);
+x_30 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_28, x_29);
 x_75 = l_Lean_Kernel_isDiagnosticsEnabled(x_24);
 lean_dec_ref(x_24);
 if (x_75 == 0)
@@ -1130,7 +1130,7 @@ block_49:
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 x_45 = l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__2;
-x_46 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_28, x_45);
+x_46 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_28, x_45);
 if (lean_is_scalar(x_23)) {
  x_47 = lean_alloc_ctor(0, 13, 2);
 } else {
@@ -4335,7 +4335,7 @@ x_28 = l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_mkExactS
 x_29 = 0;
 x_30 = l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(x_13, x_28, x_29);
 x_31 = l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__1;
-x_32 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_30, x_31);
+x_32 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_30, x_31);
 x_77 = l_Lean_Kernel_isDiagnosticsEnabled(x_25);
 lean_dec_ref(x_25);
 if (x_77 == 0)
@@ -4373,7 +4373,7 @@ block_51:
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
 x_47 = l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__2;
-x_48 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_30, x_47);
+x_48 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_30, x_47);
 if (lean_is_scalar(x_24)) {
  x_49 = lean_alloc_ctor(0, 13, 2);
 } else {
@@ -5083,7 +5083,7 @@ x_211 = l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_mkExact
 x_212 = 0;
 x_213 = l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(x_198, x_211, x_212);
 x_214 = l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__1;
-x_215 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_213, x_214);
+x_215 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_213, x_214);
 x_264 = l_Lean_Kernel_isDiagnosticsEnabled(x_210);
 lean_dec_ref(x_210);
 if (x_264 == 0)
@@ -5946,7 +5946,7 @@ block_238:
 {
 lean_object* x_230; lean_object* x_231; lean_object* x_232; lean_object* x_233; lean_object* x_234; lean_object* x_235; uint8_t x_236; 
 x_230 = l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__2;
-x_231 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_213, x_230);
+x_231 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_213, x_230);
 if (lean_is_scalar(x_209)) {
  x_232 = lean_alloc_ctor(0, 13, 2);
 } else {

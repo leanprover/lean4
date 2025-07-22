@@ -35,9 +35,9 @@ static lean_object* l_Lean_Elab_WF_applyCleanWfTactic___closed__13;
 static lean_object* l_Lean_Elab_WF_applyCleanWfTactic___closed__2;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_initFn___closed__2____x40_Lean_Elab_PreDefinition_WF_Basic___hyg_5_;
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_applyCleanWfTactic___closed__12;
 static lean_object* l_Lean_Elab_WF_applyCleanWfTactic___closed__4;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_applyCleanWfTactic___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_WF_Basic___hyg_5_(lean_object*);
 static lean_object* l_Lean_Elab_WF_initFn___closed__1____x40_Lean_Elab_PreDefinition_WF_Basic___hyg_5_;
@@ -300,7 +300,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_7, 5);
 lean_inc(x_11);
 x_12 = l_Lean_Elab_WF_applyCleanWfTactic___closed__0;
-x_13 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_10, x_12);
+x_13 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_10, x_12);
 lean_dec(x_10);
 if (x_13 == 0)
 {

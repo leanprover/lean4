@@ -127,6 +127,7 @@ static lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___a
 LEAN_EXPORT uint8_t l_Lake_Toml_KeyTy_isValidPrefix(uint8_t);
 lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_instInhabitedElabState___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Toml_KeyTy_noConfusion___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabArrayTable___closed__1;
@@ -150,7 +151,6 @@ static lean_object* l_Lean_logAt___at___Lean_logErrorAt___at___Lake_Toml_elabTom
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_elabSubKeys(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabKeyval___closed__0;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__2(uint8_t, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lake_Toml_elabSubKeys_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lake_Toml_elabSubKeys_spec__2_spec__2___closed__2;
@@ -7556,7 +7556,7 @@ else
 {
 lean_object* x_139; uint8_t x_140; 
 x_139 = l_Lean_logAt___at___Lean_logErrorAt___at___Lake_Toml_elabToml_spec__0_spec__0___closed__1;
-x_140 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_131, x_139);
+x_140 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_131, x_139);
 lean_dec(x_131);
 x_120 = x_130;
 x_121 = x_129;

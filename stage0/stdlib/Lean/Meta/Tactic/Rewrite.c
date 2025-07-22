@@ -75,6 +75,7 @@ extern lean_object* l_Lean_Meta_tactic_skipAssignedInstances;
 static lean_object* l_Lean_MVarId_rewrite___lam__1___closed__6;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_MVarId_rewrite_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_rewrite___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_rewrite___lam__1___closed__4;
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
@@ -87,7 +88,6 @@ static lean_object* l_Lean_MVarId_rewrite___closed__0;
 static lean_object* l_Lean_MVarId_rewrite___lam__1___closed__15;
 static lean_object* l_Lean_MVarId_rewrite___lam__1___closed__23;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Array_contains___at___Lean_MVarId_rewrite_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_rewrite___lam__1___closed__24;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_MVarId_rewrite_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1117,7 +1117,7 @@ lean_ctor_set(x_132, 1, x_131);
 x_133 = l_Lean_Expr_const___override(x_129, x_132);
 x_134 = l_Lean_mkApp6(x_133, x_102, x_93, x_92, x_91, x_101, x_99);
 x_135 = l_Lean_MVarId_rewrite___lam__1___closed__7;
-x_136 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_128, x_135);
+x_136 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_128, x_135);
 lean_dec(x_128);
 if (x_136 == 0)
 {

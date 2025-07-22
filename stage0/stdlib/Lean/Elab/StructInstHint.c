@@ -23,7 +23,7 @@ LEAN_EXPORT uint8_t l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___lam__0(lea
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_StructInst_mkMissingFieldsHint_isSingleLineStyle___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_Term_StructInst_mkMissingFieldsHint_findLineEnd___lam__0(uint32_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_StructInst_mkMissingFieldsHint_mkFieldsHintView_x3f___closed__4;
 lean_object* l_Lean_Syntax_getHeadInfo(lean_object*);
 lean_object* l_Lean_PrettyPrinter_delab(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -77,6 +77,7 @@ static lean_object* l_Lean_Elab_Term_StructInst_mkMissingFieldsHint_mkFieldsHint
 lean_object* l_Lean_Syntax_getSepArgs(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_diagnostics;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__3(lean_object*, size_t, size_t, lean_object*);
@@ -90,7 +91,6 @@ uint8_t l_String_anyAux___at___Lean_Parser_Term_Doc_getRecommendedSpellingString
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_String_findAux(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__0_spec__0___redArg___closed__3;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__0_spec__0___redArg___closed__2;
 static lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__0_spec__0___redArg___closed__4;
 lean_object* l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(lean_object*, lean_object*, uint8_t);
@@ -876,7 +876,7 @@ x_48 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_Term_
 x_49 = 0;
 x_50 = l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(x_35, x_48, x_49);
 x_51 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__0_spec__0___redArg___closed__3;
-x_52 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_50, x_51);
+x_52 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_50, x_51);
 x_113 = l_Lean_Kernel_isDiagnosticsEnabled(x_46);
 lean_dec_ref(x_46);
 if (x_113 == 0)
@@ -901,7 +901,7 @@ block_87:
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
 x_67 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__0_spec__0___redArg___closed__4;
-x_68 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_50, x_67);
+x_68 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_50, x_67);
 x_69 = lean_alloc_ctor(0, 13, 2);
 lean_ctor_set(x_69, 0, x_53);
 lean_ctor_set(x_69, 1, x_54);
@@ -1235,7 +1235,7 @@ x_49 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_Term_
 x_50 = 0;
 x_51 = l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(x_36, x_49, x_50);
 x_52 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__0_spec__0___redArg___closed__3;
-x_53 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_51, x_52);
+x_53 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_51, x_52);
 x_114 = l_Lean_Kernel_isDiagnosticsEnabled(x_47);
 lean_dec_ref(x_47);
 if (x_114 == 0)
@@ -1260,7 +1260,7 @@ block_88:
 {
 lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; 
 x_68 = l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_Term_StructInst_mkMissingFieldsHint_spec__0_spec__0___redArg___closed__4;
-x_69 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_51, x_68);
+x_69 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_51, x_68);
 x_70 = lean_alloc_ctor(0, 13, 2);
 lean_ctor_set(x_70, 0, x_54);
 lean_ctor_set(x_70, 1, x_55);
@@ -1822,7 +1822,7 @@ block_52:
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; uint8_t x_50; lean_object* x_51; 
 x_31 = l_Lean_Elab_Term_StructInst_mkMissingFieldsHint___closed__0;
-x_32 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_27, x_31);
+x_32 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_27, x_31);
 lean_dec(x_27);
 lean_inc(x_30);
 x_33 = lean_apply_1(x_29, x_30);

@@ -143,6 +143,7 @@ lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, l
 static lean_object* l_Lean_Widget_initFn___closed__3____x40_Lean_Widget_Diff___hyg_5_;
 LEAN_EXPORT uint8_t l_Lean_Widget_ExprDiffTag_toDiffTag(uint8_t, uint8_t);
 uint8_t l_Lean_LocalContext_contains(lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_withChangePos___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_mapM___at___Lean_Widget_CodeWithInfos_mergePosMap___at___Lean_Widget_addDiffTags_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Widget_exprDiffCore_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -173,7 +174,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Widget_diffHypothese
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_initFn___closed__2____x40_Lean_Widget_Diff___hyg_5_;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___Lean_Widget_exprDiffCore_spec__0(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instAppendExprDiff___lam__0___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -8778,7 +8778,7 @@ lean_object* x_9; lean_object* x_10; uint8_t x_11;
 x_9 = lean_ctor_get(x_6, 2);
 lean_inc(x_9);
 x_10 = l_Lean_Widget_diffInteractiveGoals___closed__0;
-x_11 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_9, x_10);
+x_11 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_9, x_10);
 lean_dec(x_9);
 if (x_11 == 0)
 {

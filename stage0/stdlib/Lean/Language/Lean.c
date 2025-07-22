@@ -28,8 +28,8 @@ lean_object* l_Lean_Elab_processHeaderCore(lean_object*, lean_object*, uint8_t, 
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_parseCmd___lam__9(lean_object*, lean_object*, lean_object*, size_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Lean_process_processHeader___closed__0;
 lean_object* l_Lean_Language_SnapshotTask_get___redArg(lean_object*);
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 extern lean_object* l_Lean_Language_Lean_instToSnapshotTreeHeaderProcessedSnapshot;
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_Language_Snapshot_Diagnostics_ofMessageLog(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___redArg___closed__16;
 double lean_float_div(double, double);
@@ -198,6 +198,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Language_Lean_pro
 static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___redArg___closed__7;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Language_SnapshotTask_cancelRec___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Lean_process_processHeader___lam__1___closed__36;
 extern lean_object* l_Lean_diagnostics;
 static lean_object* l_List_forIn_x27_loop___at___Lean_Language_Lean_reparseOptions_spec__0___redArg___closed__1;
@@ -249,7 +250,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArra
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_parseCmd___lam__15(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Lean_process_parseCmd___lam__10___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_parseHeader___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 lean_object* l_panic___at___Lean_Name_getString_x21_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_parseHeader___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Lean_process_processHeader___lam__1___closed__34;
@@ -2466,7 +2466,7 @@ x_28 = lean_box(0);
 x_29 = lean_unsigned_to_nat(1u);
 x_30 = lean_box(0);
 x_31 = l_Lean_Language_Lean_process_doElab___closed__1;
-x_32 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_25, x_31);
+x_32 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_25, x_31);
 x_33 = 1;
 if (x_32 == 0)
 {
@@ -2643,7 +2643,7 @@ lean_closure_set(x_79, 0, x_26);
 lean_closure_set(x_79, 1, x_78);
 lean_closure_set(x_79, 2, x_19);
 x_80 = l_Lean_Language_Lean_process_doElab___closed__5;
-x_81 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_25, x_80);
+x_81 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_25, x_80);
 lean_dec(x_25);
 x_82 = l_IO_FS_withIsolatedStreams___at___Lean_Language_Lean_process_doElab_spec__0___redArg(x_79, x_81, x_6, x_20);
 x_83 = lean_ctor_get(x_82, 0);
@@ -2772,7 +2772,7 @@ x_128 = lean_box(0);
 x_129 = lean_unsigned_to_nat(1u);
 x_130 = lean_box(0);
 x_131 = l_Lean_Language_Lean_process_doElab___closed__1;
-x_132 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_125, x_131);
+x_132 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_125, x_131);
 x_133 = 1;
 if (x_132 == 0)
 {
@@ -2903,7 +2903,7 @@ lean_closure_set(x_166, 0, x_126);
 lean_closure_set(x_166, 1, x_165);
 lean_closure_set(x_166, 2, x_119);
 x_167 = l_Lean_Language_Lean_process_doElab___closed__5;
-x_168 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_125, x_167);
+x_168 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_125, x_167);
 lean_dec(x_125);
 x_169 = l_IO_FS_withIsolatedStreams___at___Lean_Language_Lean_process_doElab_spec__0___redArg(x_166, x_168, x_6, x_120);
 x_170 = lean_ctor_get(x_169, 0);
@@ -4893,7 +4893,7 @@ x_53 = lean_box(0);
 x_54 = lean_box(0);
 x_55 = l_Lean_Core_getMaxHeartbeats(x_10);
 x_56 = l_Lean_Language_Lean_process_parseCmd___lam__9___closed__8;
-x_57 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_10, x_56);
+x_57 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_10, x_56);
 x_127 = l_Lean_Kernel_isDiagnosticsEnabled(x_52);
 lean_dec_ref(x_52);
 if (x_127 == 0)
@@ -4918,7 +4918,7 @@ block_103:
 {
 lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_60 = l_Lean_Language_Lean_process_parseCmd___lam__9___closed__9;
-x_61 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_10, x_60);
+x_61 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_10, x_60);
 lean_inc(x_3);
 lean_inc_ref(x_51);
 lean_inc_ref(x_50);
@@ -6275,7 +6275,7 @@ lean_closure_set(x_266, 7, x_238);
 lean_closure_set(x_266, 8, x_265);
 lean_closure_set(x_266, 9, x_20);
 lean_closure_set(x_266, 10, x_23);
-x_267 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_24, x_25);
+x_267 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_24, x_25);
 if (x_267 == 0)
 {
 lean_free_object(x_260);
@@ -6541,7 +6541,7 @@ lean_closure_set(x_303, 7, x_238);
 lean_closure_set(x_303, 8, x_302);
 lean_closure_set(x_303, 9, x_20);
 lean_closure_set(x_303, 10, x_23);
-x_304 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_24, x_25);
+x_304 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_24, x_25);
 if (x_304 == 0)
 {
 lean_dec_ref(x_246);
@@ -7123,7 +7123,7 @@ if (lean_is_exclusive(x_32)) {
  x_35 = lean_box(0);
 }
 x_246 = l_Lean_Language_Lean_process_doElab___closed__1;
-x_465 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_17, x_246);
+x_465 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_17, x_246);
 if (x_465 == 0)
 {
 x_460 = x_465;
@@ -7813,7 +7813,7 @@ lean_closure_set(x_281, 7, x_249);
 lean_closure_set(x_281, 8, x_280);
 lean_closure_set(x_281, 9, x_13);
 lean_closure_set(x_281, 10, x_16);
-x_282 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_17, x_246);
+x_282 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_17, x_246);
 if (x_282 == 0)
 {
 lean_free_object(x_275);
@@ -8087,7 +8087,7 @@ lean_closure_set(x_318, 7, x_249);
 lean_closure_set(x_318, 8, x_317);
 lean_closure_set(x_318, 9, x_13);
 lean_closure_set(x_318, 10, x_16);
-x_319 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_17, x_246);
+x_319 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_17, x_246);
 if (x_319 == 0)
 {
 lean_dec(x_269);
@@ -9524,7 +9524,7 @@ lean_inc(x_147);
 x_163 = lean_alloc_closure((void*)(l_Lean_Language_Lean_process_parseCmd___lam__8___boxed), 2, 1);
 lean_closure_set(x_163, 0, x_147);
 x_164 = l_Lean_Language_Lean_process_doElab___closed__1;
-x_165 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_144, x_164);
+x_165 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_144, x_164);
 lean_dec(x_144);
 if (x_165 == 0)
 {
@@ -11520,7 +11520,7 @@ if (x_565 == 0)
 {
 lean_object* x_566; uint8_t x_567; 
 x_566 = l_Lean_Language_Lean_process_processHeader___lam__1___closed__24;
-x_567 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_562, x_566);
+x_567 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_562, x_566);
 if (x_567 == 0)
 {
 lean_object* x_568; lean_object* x_569; 

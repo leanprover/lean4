@@ -3265,7 +3265,7 @@ lean_object* x_12; lean_object* x_13;
 lean_dec(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_12 = lean_box(8);
+x_12 = lean_box(7);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_4);

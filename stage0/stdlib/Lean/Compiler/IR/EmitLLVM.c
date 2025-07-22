@@ -89,7 +89,7 @@ static lean_object* l_Lean_IR_EmitLLVM_callLeanIOMarkEndInitialization___redArg_
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_addJpTostate___redArg(lean_object*, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanMarkPersistentFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
-lean_object* l_Lean_IR_findEnvDecl(lean_object*, lean_object*);
+lean_object* lean_ir_find_env_decl(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitExternCall___closed__4;
 LEAN_EXPORT lean_object* l_Lean_IR_getModuleGlobals___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___redArg(lean_object*);
@@ -2369,7 +2369,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_1);
-x_9 = l_Lean_IR_findEnvDecl(x_8, x_1);
+x_9 = lean_ir_find_env_decl(x_8, x_1);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
@@ -2401,7 +2401,7 @@ x_16 = lean_ctor_get(x_6, 0);
 lean_inc(x_16);
 lean_dec(x_6);
 lean_inc(x_1);
-x_17 = l_Lean_IR_findEnvDecl(x_16, x_1);
+x_17 = lean_ir_find_env_decl(x_16, x_1);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
@@ -2448,7 +2448,7 @@ if (lean_is_exclusive(x_26)) {
  x_29 = lean_box(0);
 }
 lean_inc(x_1);
-x_30 = l_Lean_IR_findEnvDecl(x_28, x_1);
+x_30 = lean_ir_find_env_decl(x_28, x_1);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; uint8_t x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 

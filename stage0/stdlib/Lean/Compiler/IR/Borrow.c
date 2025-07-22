@@ -38,7 +38,7 @@ LEAN_EXPORT uint8_t l_Lean_IR_Borrow_updateParamSet___lam__0(lean_object*, lean_
 static lean_object* l_Lean_IR_initFn___closed__19____x40_Lean_Compiler_IR_Borrow___hyg_3023_;
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_IR_Borrow_InitParamMap_visitFnBody_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lean_IR_Borrow_ParamMap_fmt_spec__0___closed__2;
-lean_object* l_Lean_IR_findEnvDecl(lean_object*, lean_object*);
+lean_object* lean_ir_find_env_decl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_markModified___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Borrow_mkInitParamMap___closed__0;
 static lean_object* l_Lean_IR_Borrow_mkInitParamMap___closed__2;
@@ -4429,7 +4429,7 @@ lean_inc(x_23);
 lean_dec_ref(x_1);
 x_24 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_24);
-x_25 = l_Lean_IR_findEnvDecl(x_24, x_23);
+x_25 = lean_ir_find_env_decl(x_24, x_23);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; lean_object* x_27; 
@@ -4510,7 +4510,7 @@ lean_inc(x_49);
 lean_dec_ref(x_1);
 x_50 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_50);
-x_51 = l_Lean_IR_findEnvDecl(x_50, x_49);
+x_51 = lean_ir_find_env_decl(x_50, x_49);
 if (lean_obj_tag(x_51) == 0)
 {
 lean_object* x_52; lean_object* x_53; 

@@ -75,6 +75,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_mkModel___lam__1___boxed
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkModel___closed__2;
 LEAN_EXPORT lean_object* l_panic___at___Lean_Meta_Grind_Arith_Offset_mkModel_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at___Lean_Meta_Grind_Arith_Offset_mkModel_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_Arith_Offset_mkModel_spec__11___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_Arith_Offset_mkModel_spec__10___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_Arith_Offset_mkModel_spec__8_spec__8___redArg___closed__2;
@@ -87,7 +88,6 @@ lean_object* l_Lean_PersistentArray_get_x21___redArg(lean_object*, lean_object*,
 lean_object* l_outOfBounds___redArg(lean_object*);
 static lean_object* l_panic___at___Lean_Meta_Grind_Arith_Offset_mkModel_spec__2___closed__0;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_Arith_Offset_mkModel_spec__8___redArg___boxed(lean_object**);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_Arith_Offset_mkModel_spec__5_spec__5___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_Arith_Offset_mkModel_spec__8_spec__8___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_Arith_Offset_mkModel_spec__8_spec__8___redArg___closed__5;
@@ -1030,7 +1030,7 @@ goto block_25;
 block_37:
 {
 uint8_t x_36; 
-x_36 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_34, x_1);
+x_36 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_34, x_1);
 lean_dec(x_34);
 if (x_36 == 0)
 {
@@ -1329,7 +1329,7 @@ goto block_27;
 block_39:
 {
 uint8_t x_38; 
-x_38 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_35, x_1);
+x_38 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_35, x_1);
 lean_dec(x_35);
 if (x_38 == 0)
 {
@@ -2845,7 +2845,7 @@ x_14 = lean_box(0);
 x_15 = lean_box(0);
 x_16 = 0;
 x_17 = l_Lean_Meta_Grind_Arith_Offset_mkModel___closed__0;
-x_18 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_10, x_17);
+x_18 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_10, x_17);
 lean_dec(x_10);
 x_19 = lean_box(0);
 lean_inc(x_11);

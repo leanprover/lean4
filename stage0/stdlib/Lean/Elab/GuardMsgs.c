@@ -170,6 +170,7 @@ lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardMsgs_MessageOrdering_noConfusion___redArg(uint8_t, uint8_t);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___redArg___lam__0___closed__0;
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsFilterSeverity___redArg___closed__9;
@@ -210,7 +211,6 @@ lean_object* l_String_replace(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at___Lean_Elab_Tactic_GuardMsgs_WhitespaceMode_apply_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lean_Elab_Tactic_GuardMsgs_WhitespaceMode_apply_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeM_x3f___at___Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction_spec__0(lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___closed__13;
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec___closed__3;
 lean_object* l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__2(uint8_t, lean_object*, size_t, size_t, lean_object*);
@@ -4544,7 +4544,7 @@ x_104 = lean_ctor_get(x_103, 1);
 lean_inc(x_104);
 lean_dec(x_103);
 x_105 = l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___closed__8;
-x_106 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_104, x_105);
+x_106 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_104, x_105);
 lean_dec(x_104);
 if (x_106 == 0)
 {
@@ -4633,7 +4633,7 @@ x_133 = lean_ctor_get(x_132, 1);
 lean_inc(x_133);
 lean_dec(x_132);
 x_134 = l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___closed__8;
-x_135 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_133, x_134);
+x_135 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_133, x_134);
 lean_dec(x_133);
 if (x_135 == 0)
 {
@@ -4930,7 +4930,7 @@ x_231 = lean_ctor_get(x_230, 1);
 lean_inc(x_231);
 lean_dec(x_230);
 x_232 = l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___closed__8;
-x_233 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_231, x_232);
+x_233 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_231, x_232);
 lean_dec(x_231);
 if (x_233 == 0)
 {

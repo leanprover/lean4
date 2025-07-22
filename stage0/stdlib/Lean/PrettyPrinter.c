@@ -27,9 +27,9 @@ static lean_object* l_Lean_PrettyPrinter_ppExprLegacy___closed__40;
 lean_object* l_Lean_ParserCompiler_registerParserCompiler___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext___at___Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_1022__spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_initFn___closed__6____x40_Lean_PrettyPrinter___hyg_1102_;
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_ppUsing___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_registerParserCompilers___closed__5;
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_initFn___closed__0____x40_Lean_PrettyPrinter___hyg_1022_;
 static lean_object* l_Lean_MessageData_signature___closed__0;
 static lean_object* l_Lean_PrettyPrinter_ppExprLegacy___closed__27;
@@ -61,6 +61,7 @@ static lean_object* l_Lean_PrettyPrinter_ppConstNameWithInfos___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext___at___Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_1022__spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_format(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint8_t l_Lean_PrettyPrinter_ppExprLegacy___closed__39;
+lean_object* l_Lean_Option_register___at___Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ConfigOptions___hyg_196__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_get_num_heartbeats(lean_object*);
 static lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_maybePrependExprSizes___redArg___closed__3;
 lean_object* l_panic___redArg(lean_object*, lean_object*);
@@ -141,6 +142,7 @@ static lean_object* l_Lean_PrettyPrinter_registerParserCompilers___closed__6;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_ppExprLegacy___closed__31;
 static lean_object* l_Lean_MessageData_signature___closed__1;
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_diagnostics;
 lean_object* lean_mk_syntax_ident(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_initFn___closed__3____x40_Lean_PrettyPrinter___hyg_1102_;
@@ -170,7 +172,6 @@ static lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_maybePr
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_initFn___lam__0____x40_Lean_PrettyPrinter___hyg_1022____boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext___at___Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_1022__spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MessageData_ofFormatWithInfosM___lam__0___closed__0;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_initFn___closed__9____x40_Lean_PrettyPrinter___hyg_1102_;
 extern lean_object* l_Lean_PrettyPrinter_combinatorParenthesizerAttribute;
 static lean_object* l_Lean_PrettyPrinter_initFn___closed__6____x40_Lean_PrettyPrinter___hyg_152_;
@@ -196,7 +197,6 @@ static lean_object* l_Lean_PrettyPrinter_ppExprLegacy___closed__35;
 static lean_object* l_Lean_PrettyPrinter_ppSignature___closed__2;
 static lean_object* l_Lean_PrettyPrinter_initFn___closed__4____x40_Lean_PrettyPrinter___hyg_1102_;
 static lean_object* l_Lean_PrettyPrinter_ppExprLegacy___closed__16;
-lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_Profile___hyg_5__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_initFn___closed__5____x40_Lean_PrettyPrinter___hyg_152_;
 static lean_object* l_Lean_PrettyPrinter_ppExprLegacy___closed__17;
 static lean_object* l_Lean_PrettyPrinter_registerParserCompilers___closed__3;
@@ -560,7 +560,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_PrettyPrinter_initFn___closed__2____x40_Lean_PrettyPrinter___hyg_152_;
 x_3 = l_Lean_PrettyPrinter_initFn___closed__4____x40_Lean_PrettyPrinter___hyg_152_;
 x_4 = l_Lean_PrettyPrinter_initFn___closed__7____x40_Lean_PrettyPrinter___hyg_152_;
-x_5 = l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_Profile___hyg_5__spec__0(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at___Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ConfigOptions___hyg_196__spec__0(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
@@ -650,7 +650,7 @@ _start:
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_3, 2);
 x_6 = l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_maybePrependExprSizes___redArg___closed__0;
-x_7 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_5, x_6);
+x_7 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_5, x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; 
@@ -1757,7 +1757,7 @@ _start:
 lean_object* x_1; lean_object* x_2; uint8_t x_3; 
 x_1 = l_Lean_PrettyPrinter_ppExprLegacy___closed__38;
 x_2 = lean_box(0);
-x_3 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_2, x_1);
+x_3 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_2, x_1);
 return x_3;
 }
 }
@@ -1775,7 +1775,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_PrettyPrinter_ppExprLegacy___closed__40;
 x_2 = lean_box(0);
-x_3 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_2, x_1);
+x_3 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_2, x_1);
 return x_3;
 }
 }
@@ -1893,7 +1893,7 @@ goto block_193;
 block_94:
 {
 lean_object* x_57; lean_object* x_58; lean_object* x_59; 
-x_57 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_4, x_40);
+x_57 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_4, x_40);
 lean_dec_ref(x_40);
 x_58 = lean_alloc_ctor(0, 13, 2);
 lean_ctor_set(x_58, 0, x_43);
@@ -2209,7 +2209,7 @@ lean_ctor_set(x_167, 11, x_153);
 lean_ctor_set(x_167, 12, x_28);
 lean_ctor_set_uint8(x_167, sizeof(void*)*13, x_155);
 lean_ctor_set_uint8(x_167, sizeof(void*)*13 + 1, x_34);
-x_168 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_4, x_154);
+x_168 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_4, x_154);
 x_169 = l_Lean_Kernel_isDiagnosticsEnabled(x_164);
 lean_dec_ref(x_164);
 if (x_169 == 0)
@@ -2492,7 +2492,7 @@ x_13 = lean_box(0);
 x_14 = l_List_mapTR_loop___at___Lean_mkConstWithLevelParams___at___Lean_Meta_registerCoercion_spec__0_spec__0(x_12, x_13);
 x_15 = l_Lean_Expr_const___override(x_1, x_14);
 x_16 = l_Lean_PrettyPrinter_ppSignature___closed__0;
-x_17 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_11, x_16);
+x_17 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_11, x_16);
 lean_dec(x_11);
 if (x_17 == 0)
 {
@@ -2701,7 +2701,7 @@ x_65 = lean_box(0);
 x_66 = l_List_mapTR_loop___at___Lean_mkConstWithLevelParams___at___Lean_Meta_registerCoercion_spec__0_spec__0(x_64, x_65);
 x_67 = l_Lean_Expr_const___override(x_1, x_66);
 x_68 = l_Lean_PrettyPrinter_ppSignature___closed__0;
-x_69 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_63, x_68);
+x_69 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_63, x_68);
 lean_dec(x_63);
 if (x_69 == 0)
 {

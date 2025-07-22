@@ -398,6 +398,7 @@ static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExtHyps___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_evalExt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lam__0___closed__31;
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_evalApplyExtTheorem___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -472,7 +473,6 @@ static lean_object* l_Lean_Elab_Tactic_Ext_evalExt___regBuiltin_Lean_Elab_Tactic
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lam__0___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lam__0___closed__28;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___lam__0___closed__8;
 static lean_object* l_Lean_Elab_Tactic_Ext_getExtTheorems___closed__2;
 static lean_object* l_Lean_Elab_Tactic_Ext_tryIntros___redArg___closed__6;
@@ -17534,7 +17534,7 @@ lean_dec(x_80);
 x_84 = lean_ctor_get(x_66, 2);
 lean_inc(x_84);
 x_85 = l_Lean_Elab_Tactic_Ext_evalExt___closed__3;
-x_86 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_84, x_85);
+x_86 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_84, x_85);
 lean_dec(x_84);
 if (x_86 == 0)
 {

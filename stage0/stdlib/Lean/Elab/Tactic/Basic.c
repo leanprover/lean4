@@ -64,10 +64,10 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_instMonadBacktrackSavedStateTacticM_
 static lean_object* l_Lean_Elab_Tactic_evalTactic_handleEx___closed__10;
 lean_object* l_Lean_Language_SnapshotTask_get___redArg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_instMonadTacticM___closed__4;
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalTactic_handleEx___closed__24;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Basic_0__Lean_Elab_Tactic_TacticM_runCore_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Elab_liftMacroM___at___Lean_Elab_Tactic_evalTactic_expandEval_spec__0_spec__1___redArg___closed__3;
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_ensureHasNoMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalTactic_expandEval___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_withoutTacticIncrementality___at___Lean_Elab_Tactic_evalTactic_eval_spec__7___redArg___lam__1___boxed(lean_object*, lean_object*);
@@ -425,6 +425,7 @@ static lean_object* l_Lean_Elab_Tactic_initFn___closed__4____x40_Lean_Elab_Tacti
 extern lean_object* l_Lean_trace_profiler_threshold;
 uint8_t l_Lean_MetavarContext_isAnonymousMVar(lean_object*, lean_object*);
 lean_object* l_Lean_Language_SnapshotTask_cancelRec___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___Lean_Elab_Tactic_evalTactic_eval_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_instMonadTacticM___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_liftMetaTacticAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -505,7 +506,6 @@ static lean_object* l_Lean_Elab_Tactic_instOrElseTacticM___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_liftMetaMAtMain___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Elab_Tactic_evalTactic_eval_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_initFn___closed__6____x40_Lean_Elab_Tactic_Basic___hyg_955_;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_initFn___closed__7____x40_Lean_Elab_Tactic_Basic___hyg_8926_;
 LEAN_EXPORT lean_object* l_Lean_Elab_withMacroExpansionInfo___at___Lean_Elab_Tactic_adaptExpander_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_withMacroExpansion___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1617,7 +1617,7 @@ else
 {
 lean_object* x_153; uint8_t x_154; 
 x_153 = l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_Elab_Term_reportUnsolvedGoals_spec__0_spec__0_spec__0___closed__1;
-x_154 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_145, x_153);
+x_154 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_145, x_153);
 lean_dec(x_145);
 x_134 = x_147;
 x_135 = x_143;
@@ -19133,7 +19133,7 @@ if (x_275 == 0)
 {
 lean_object* x_276; uint8_t x_277; 
 x_276 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_evalTactic_spec__0___redArg___closed__2;
-x_277 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_15, x_276);
+x_277 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_15, x_276);
 if (x_277 == 0)
 {
 lean_object* x_278; 
@@ -19607,7 +19607,7 @@ lean_dec_ref(x_149);
 x_152 = lean_float_of_nat(x_143);
 x_153 = lean_float_of_nat(x_150);
 x_154 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_evalTactic_spec__0___redArg___closed__2;
-x_155 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_15, x_154);
+x_155 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_15, x_154);
 if (x_155 == 0)
 {
 lean_dec(x_15);
@@ -19629,7 +19629,7 @@ if (x_145 == 0)
 {
 lean_object* x_156; lean_object* x_157; double x_158; double x_159; double x_160; 
 x_156 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_evalTactic_spec__0___redArg___closed__3;
-x_157 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_15, x_156);
+x_157 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_15, x_156);
 lean_dec(x_15);
 x_158 = lean_float_of_nat(x_157);
 x_159 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_evalTactic_spec__0___redArg___closed__4;
@@ -19650,7 +19650,7 @@ else
 {
 lean_object* x_161; lean_object* x_162; double x_163; 
 x_161 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_evalTactic_spec__0___redArg___closed__3;
-x_162 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_15, x_161);
+x_162 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_15, x_161);
 lean_dec(x_15);
 x_163 = lean_float_of_nat(x_162);
 lean_inc_ref(x_147);
@@ -19860,7 +19860,7 @@ x_235 = lean_float_div(x_233, x_234);
 x_236 = lean_float_of_nat(x_231);
 x_237 = lean_float_div(x_236, x_234);
 x_238 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_evalTactic_spec__0___redArg___closed__2;
-x_239 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_15, x_238);
+x_239 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_15, x_238);
 if (x_239 == 0)
 {
 lean_dec(x_15);
@@ -19882,7 +19882,7 @@ if (x_226 == 0)
 {
 lean_object* x_240; lean_object* x_241; double x_242; double x_243; double x_244; 
 x_240 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_evalTactic_spec__0___redArg___closed__3;
-x_241 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_15, x_240);
+x_241 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_15, x_240);
 lean_dec(x_15);
 x_242 = lean_float_of_nat(x_241);
 x_243 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_evalTactic_spec__0___redArg___closed__4;
@@ -19903,7 +19903,7 @@ else
 {
 lean_object* x_245; lean_object* x_246; double x_247; 
 x_245 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_evalTactic_spec__0___redArg___closed__3;
-x_246 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_15, x_245);
+x_246 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_15, x_245);
 lean_dec(x_15);
 x_247 = lean_float_of_nat(x_246);
 lean_inc_ref(x_228);
@@ -19930,7 +19930,7 @@ x_251 = lean_ctor_get(x_249, 1);
 lean_inc(x_251);
 lean_dec_ref(x_249);
 x_252 = l_Lean_withTraceNode___at___Lean_Elab_Tactic_evalTactic_spec__0___redArg___closed__6;
-x_253 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_15, x_252);
+x_253 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_15, x_252);
 if (x_253 == 0)
 {
 lean_object* x_254; lean_object* x_255; lean_object* x_256; lean_object* x_257; 
@@ -22170,7 +22170,7 @@ else
 {
 lean_object* x_153; uint8_t x_154; 
 x_153 = l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_Elab_Term_reportUnsolvedGoals_spec__0_spec__0_spec__0___closed__1;
-x_154 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_145, x_153);
+x_154 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_145, x_153);
 lean_dec(x_145);
 x_134 = x_144;
 x_135 = x_143;

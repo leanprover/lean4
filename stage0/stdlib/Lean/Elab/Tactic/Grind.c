@@ -298,6 +298,7 @@ lean_object* l_List_mapTR_loop___at___Lean_filterFieldList___at___Lean_realizeGl
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_List_mapTR_loop___at___Lean_ensureNonAmbiguous___at___Lean_realizeGlobalConstNoOverload_spec__0_spec__1(lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___Lean_Elab_Tactic_mkGrindOnly_spec__1___redArg___closed__34;
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_elabGrindParams_addEMatchTheorem___closed__5;
 static lean_object* l_Lean_Elab_Tactic_setGrindParams___closed__2;
@@ -351,7 +352,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashSet_toList___at___Lean_Elab_Tactic
 static lean_object* l_Lean_Elab_Tactic_setGrindParams___closed__8;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Elab_Tactic_elabGrindParams_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___Lean_Elab_Tactic_mkGrindOnly_spec__1___redArg___closed__24;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalGrind___closed__0;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Elab_Tactic_mkGrindOnly_spec__4___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instMonadMetaM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13880,7 +13880,7 @@ lean_closure_set(x_22, 1, x_21);
 lean_closure_set(x_22, 2, x_19);
 lean_closure_set(x_22, 3, x_16);
 x_23 = l_Lean_Elab_Tactic_evalGrindCore___closed__0;
-x_24 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_20, x_23);
+x_24 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_20, x_23);
 lean_dec(x_20);
 if (x_24 == 0)
 {

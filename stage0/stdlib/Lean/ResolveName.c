@@ -128,7 +128,6 @@ uint8_t l_List_elem___at___Lean_Environment_realizeConst_spec__4(lean_object*, l
 lean_object* l_Option_isNone___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__3____x40_Lean_ResolveName___hyg_392_;
 LEAN_EXPORT lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolvePrivateName(lean_object*, lean_object*);
-lean_object* l_Lean_PersistentHashMap_foldl___at___Lean_mkModuleData_spec__4___redArg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Expr_dbgToString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveLocalName___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -221,6 +220,7 @@ lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, l
 extern lean_object* l_Lean_rootNamespace;
 static lean_object* l_Lean_resolveNamespace___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_ResolveName_resolveNamespaceUsingScope_x3f(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_foldl___at___Lean_mkModuleData_spec__2___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_fold___at___Lean_getRevAliases_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveLocalName_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_ensureNoOverload___redArg___closed__2;
@@ -1717,7 +1717,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; 
 lean_dec(x_8);
-x_10 = l_Lean_PersistentHashMap_foldl___at___Lean_mkModuleData_spec__4___redArg(x_5, x_1, x_2);
+x_10 = l_Lean_PersistentHashMap_foldl___at___Lean_mkModuleData_spec__2___redArg(x_5, x_1, x_2);
 return x_10;
 }
 else
@@ -1728,7 +1728,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; 
 lean_dec(x_8);
-x_12 = l_Lean_PersistentHashMap_foldl___at___Lean_mkModuleData_spec__4___redArg(x_5, x_1, x_2);
+x_12 = l_Lean_PersistentHashMap_foldl___at___Lean_mkModuleData_spec__2___redArg(x_5, x_1, x_2);
 return x_12;
 }
 else
@@ -1739,7 +1739,7 @@ x_14 = lean_usize_of_nat(x_8);
 lean_dec(x_8);
 lean_inc(x_1);
 x_15 = l_Array_foldlMUnsafe_fold___at___Lean_SMap_fold___at___Lean_getRevAliases_spec__0_spec__1___redArg(x_1, x_6, x_13, x_14, x_2);
-x_16 = l_Lean_PersistentHashMap_foldl___at___Lean_mkModuleData_spec__4___redArg(x_5, x_1, x_15);
+x_16 = l_Lean_PersistentHashMap_foldl___at___Lean_mkModuleData_spec__2___redArg(x_5, x_1, x_15);
 return x_16;
 }
 }

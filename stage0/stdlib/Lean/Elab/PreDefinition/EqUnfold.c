@@ -23,8 +23,8 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___closed__0;
 static lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__0___closed__5;
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871__spec__0___redArg___closed__16;
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_reverse___redArg(lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
@@ -81,6 +81,7 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Le
 static lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__0___closed__3;
 static lean_object* l_Lean_Meta_tryURefl___closed__2;
 static lean_object* l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871__spec__0___redArg___closed__23;
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_diagnostics;
 static lean_object* l_Lean_Meta_tryURefl___closed__1;
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
@@ -94,7 +95,6 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_getConstUnfold
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__1(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871__spec__0___redArg___closed__2;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(lean_object*, lean_object*, uint8_t);
@@ -266,7 +266,7 @@ x_31 = l_Lean_Meta_tryURefl___closed__0;
 x_32 = 0;
 x_33 = l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(x_18, x_31, x_32);
 x_34 = l_Lean_Meta_tryURefl___closed__1;
-x_35 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_33, x_34);
+x_35 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_33, x_34);
 x_98 = l_Lean_Kernel_isDiagnosticsEnabled(x_30);
 lean_dec_ref(x_30);
 if (x_98 == 0)
@@ -321,7 +321,7 @@ block_72:
 {
 lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
 x_50 = l_Lean_Meta_tryURefl___closed__2;
-x_51 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_33, x_50);
+x_51 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_33, x_50);
 if (lean_is_scalar(x_29)) {
  x_52 = lean_alloc_ctor(0, 13, 2);
 } else {

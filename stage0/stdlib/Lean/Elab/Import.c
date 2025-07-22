@@ -62,6 +62,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_HeaderSyntax_toModuleHeader(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_printImportSrcs_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_println___at___Lean_Elab_printImports_spec__0(lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_HeaderSyntax_isModule(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -74,7 +75,6 @@ lean_object* l_IO_print___at___IO_println___at___Lean_Environment_displayStats_s
 static lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lean_Elab_HeaderSyntax_imports_spec__2_spec__2___redArg___closed__0;
 static lean_object* l_panic___at___Lean_Elab_HeaderSyntax_imports_spec__0___closed__0;
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__5;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__11;
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__12;
 static lean_object* l_Lean_Elab_HeaderSyntax_imports___closed__8;
@@ -1661,7 +1661,7 @@ else
 {
 lean_object* x_59; uint8_t x_60; 
 x_59 = l_Lean_Elab_processHeaderCore___closed__1;
-x_60 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_4, x_59);
+x_60 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_4, x_59);
 if (x_60 == 0)
 {
 uint8_t x_61; 

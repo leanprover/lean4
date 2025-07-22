@@ -507,6 +507,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_dischargeFailEntails___at___Lean_
 static lean_object* l_Lean_Elab_Tactic_Do_step___closed__0;
 static lean_object* l_Lean_Elab_Tactic_Do_initFn___closed__11____x40_Lean_Elab_Tactic_Do_VCGen___hyg_5_;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_Do_elabMVCGen_spec__0___redArg___closed__0;
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Do_VCGen_0__Lean_Elab_Tactic_Do_mkSpecContext___closed__13;
 static lean_object* l_Lean_Elab_Tactic_Do_mvcgen__step___closed__30;
 lean_object* l_Array_extract___redArg(lean_object*, lean_object*, lean_object*);
@@ -610,7 +611,6 @@ static lean_object* l_Lean_Elab_Tactic_Do_initFn___closed__14____x40_Lean_Elab_T
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___at___Lean_Elab_Tactic_Do_ProofMode_mTryFrame___at___Lean_Elab_Tactic_Do_mSpec___at___Lean_Elab_Tactic_Do_step_onWPApp_spec__3_spec__8_spec__8___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_step___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mFrameCore___at___Lean_Elab_Tactic_Do_ProofMode_mTryFrame___at___Lean_Elab_Tactic_Do_mSpec___at___Lean_Elab_Tactic_Do_step_onWPApp_spec__3_spec__8_spec__8___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mIntroForall___at___Lean_Elab_Tactic_Do_step_onLambda_spec__0___redArg___closed__2;
 lean_object* l_Lean_Expr_appFnCleanup___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_elabMVCGen___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -28478,7 +28478,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_151 = lean_ctor_get(x_8, 2);
 lean_inc(x_151);
 x_152 = l_Lean_Elab_Tactic_Do_elabMVCGen___lam__1___closed__19;
-x_153 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_151, x_152);
+x_153 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_151, x_152);
 lean_dec(x_151);
 if (x_153 == 0)
 {

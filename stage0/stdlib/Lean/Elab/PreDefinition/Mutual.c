@@ -24,7 +24,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Mutual_withCommonTelescope_go___redArg(lean
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Meta_generateEagerEqns(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Mutual_addPreDefAttributes(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 lean_object* l_Array_reverse___redArg(lean_object*);
 lean_object* l_Lean_Elab_addNonRec(lean_object*, uint8_t, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary___lam__0___boxed(lean_object*);
@@ -78,6 +78,7 @@ LEAN_EXPORT lean_object* l_Lean_setIrreducibleAttribute___at___Lean_Elab_Mutual_
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_Mutual_withCommonTelescope_go_spec__0(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_diagnostics;
 lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_setReducibilityStatusCore(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
 static lean_object* l_Array_anyMUnsafe_any___at___Lean_Elab_Mutual_addPreDefAttributes_spec__2___closed__2;
@@ -88,7 +89,6 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Lean_Elab_Mutual_withCommonTel
 static lean_object* l_Lean_setReducibilityStatus___at___Lean_setIrreducibleAttribute___at___Lean_Elab_Mutual_addPreDefAttributes_spec__0_spec__0___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Elab_Mutual_addPreDefAttributes_spec__5_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bindingDomain_x21(lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Mutual_withCommonTelescope(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Mutual_addPreDefAttributes_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(lean_object*, lean_object*, uint8_t);
@@ -904,7 +904,7 @@ x_42 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__0;
 x_43 = 1;
 x_44 = l_Lean_Option_set___at___Lean_Environment_realizeConst_spec__2(x_23, x_42, x_43);
 x_45 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__1;
-x_46 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_44, x_45);
+x_46 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_44, x_45);
 x_121 = l_Lean_Kernel_isDiagnosticsEnabled(x_35);
 lean_dec_ref(x_35);
 if (x_121 == 0)
@@ -942,7 +942,7 @@ block_95:
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_61 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__2;
-x_62 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_44, x_61);
+x_62 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_44, x_61);
 if (lean_is_scalar(x_34)) {
  x_63 = lean_alloc_ctor(0, 13, 2);
 } else {

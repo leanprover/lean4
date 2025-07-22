@@ -59,12 +59,12 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_parseToken(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_checkStackTop_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_orelse_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_OneLine_pretty___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Formatter_0__Lean_PrettyPrinter_Formatter_SourceInfo_getExprPos_x3f___boxed(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Formatter_many1Unbox_formatter___closed__0;
 lean_object* l_EStateM_instMonad___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_fill(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_OneLine_instMonadPrettyFormatM___lam__6(lean_object*, lean_object*, lean_object*);
@@ -137,6 +137,7 @@ lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean
 static lean_object* l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__4;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_error_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_FormatterM_orElse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_register___at___Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ConfigOptions___hyg_196__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_formatCommand___closed__0;
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_OneLine_continuation;
@@ -362,6 +363,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_PrettyPrinter_Formatter_u
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_rawCh_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_formatterAttribute___regBuiltin_Lean_PrettyPrinter_formatterAttribute_declRange__3___closed__4;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__7;
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___at___Std_Format_prettyM___at___Lean_PrettyPrinter_OneLine_pretty_spec__1_spec__1___lam__4___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Formatter_trailingNode_formatter___redArg___lam__0___closed__1;
@@ -433,7 +435,6 @@ static lean_object* l_Lean_PrettyPrinter_Formatter_nameLitNoAntiquot_formatter__
 static lean_object* l_panic___at___Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter_spec__0___closed__0;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_categoryFormatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_simp_macro_scopes(lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_lookahead_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_scientificLitNoAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_PrettyPrinter_Formatter_concat_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -497,7 +498,6 @@ static lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___redArg___closed__
 static lean_object* l_Lean_PrettyPrinter_combinatorFormatterAttribute___regBuiltin_Lean_PrettyPrinter_combinatorFormatterAttribute_docString__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Format_getIndent(lean_object*);
-lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_Profile___hyg_5__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_backtrackExceptionId;
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_OneLine_instMonadPrettyFormatM;
@@ -10783,7 +10783,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_PrettyPrinter_initFn___closed__2____x40_Lean_PrettyPrinter_Formatter___hyg_5209_;
 x_3 = l_Lean_PrettyPrinter_initFn___closed__4____x40_Lean_PrettyPrinter_Formatter___hyg_5209_;
 x_4 = l_Lean_PrettyPrinter_initFn___closed__5____x40_Lean_PrettyPrinter_Formatter___hyg_5209_;
-x_5 = l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_Profile___hyg_5__spec__0(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at___Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ConfigOptions___hyg_196__spec__0(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
@@ -14410,7 +14410,7 @@ lean_dec(x_62);
 x_65 = lean_array_get(x_37, x_64, x_48);
 lean_dec_ref(x_64);
 x_66 = l_Lean_PrettyPrinter_format___closed__5;
-x_67 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_55, x_66);
+x_67 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_55, x_66);
 if (x_67 == 0)
 {
 lean_object* x_68; lean_object* x_69; 
@@ -14427,7 +14427,7 @@ else
 {
 lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; 
 x_70 = l_Lean_PrettyPrinter_format___closed__6;
-x_71 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_55, x_70);
+x_71 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_55, x_70);
 lean_dec(x_55);
 x_72 = l_Lean_PrettyPrinter_OneLine_pretty(x_65, x_71);
 lean_dec(x_71);
@@ -14526,7 +14526,7 @@ lean_dec(x_91);
 x_94 = lean_array_get(x_37, x_93, x_48);
 lean_dec_ref(x_93);
 x_95 = l_Lean_PrettyPrinter_format___closed__5;
-x_96 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_83, x_95);
+x_96 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_83, x_95);
 if (x_96 == 0)
 {
 lean_object* x_97; lean_object* x_98; 
@@ -14543,7 +14543,7 @@ else
 {
 lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; 
 x_99 = l_Lean_PrettyPrinter_format___closed__6;
-x_100 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_83, x_99);
+x_100 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_83, x_99);
 lean_dec(x_83);
 x_101 = l_Lean_PrettyPrinter_OneLine_pretty(x_94, x_100);
 lean_dec(x_100);
@@ -14708,7 +14708,7 @@ lean_dec(x_146);
 x_149 = lean_array_get(x_120, x_148, x_131);
 lean_dec_ref(x_148);
 x_150 = l_Lean_PrettyPrinter_format___closed__5;
-x_151 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_138, x_150);
+x_151 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_138, x_150);
 if (x_151 == 0)
 {
 lean_object* x_152; lean_object* x_153; 
@@ -14725,7 +14725,7 @@ else
 {
 lean_object* x_154; lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; 
 x_154 = l_Lean_PrettyPrinter_format___closed__6;
-x_155 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_138, x_154);
+x_155 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_138, x_154);
 lean_dec(x_138);
 x_156 = l_Lean_PrettyPrinter_OneLine_pretty(x_149, x_155);
 lean_dec(x_155);

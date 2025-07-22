@@ -97,6 +97,7 @@ lean_object* l_Lean_Elab_Command_instMonadCommandElabM___lam__1(lean_object*, le
 LEAN_EXPORT lean_object* l_Lean_Linter_constructorNameAsVariable___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_visitM_x27___at___Lean_Linter_constructorNameAsVariable_spec__6_spec__6_spec__6___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_Linter_constructorNameAsVariable_spec__14___redArg___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_constructorNameAsVariable_spec__13___closed__0;
 LEAN_EXPORT lean_object* l_Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_constructorNameAsVariable_spec__10_spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Linter_constructorNameAsVariable_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -118,7 +119,6 @@ uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_constructorNameAsVariable_spec__13___closed__12;
 uint8_t l_String_Range_contains(lean_object*, lean_object*, uint8_t);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_constructorNameAsVariable_spec__13___closed__11;
 static lean_object* l_Lean_Linter_constructorNameAsVariable___lam__3___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsVariable___hyg_1337_(lean_object*);
@@ -3547,7 +3547,7 @@ x_103 = lean_ctor_get(x_102, 3);
 lean_inc(x_103);
 lean_dec_ref(x_102);
 x_104 = l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_constructorNameAsVariable_spec__13___closed__0;
-x_105 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_103, x_104);
+x_105 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_103, x_104);
 lean_dec(x_103);
 if (x_105 == 0)
 {

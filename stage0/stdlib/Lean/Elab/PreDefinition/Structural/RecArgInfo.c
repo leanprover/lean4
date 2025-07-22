@@ -32,7 +32,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Structura
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Structural_reprIndGroupInst___redArg____x40_Lean_Elab_PreDefinition_Structural_IndGroupInfo___hyg_298_(lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__0;
-uint8_t l_Array_contains___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit_spec__3(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_instInhabitedRecArgInfo;
 lean_object* l_Lean_Level_ofNat(lean_object*);
@@ -78,6 +77,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Structural_RecArgInfo_pickIndicesMajor_spec__1_spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_reprRecArgInfo___redArg___closed__12____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo___hyg_80_;
 static lean_object* l_Lean_Elab_Structural_reprRecArgInfo___redArg___closed__15____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo___hyg_80_;
+uint8_t l_Array_contains___at_____private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs_spec__4(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
@@ -663,7 +663,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 _start:
 {
 lean_object* x_7; uint8_t x_13; 
-x_13 = l_Array_contains___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit_spec__3(x_1, x_6);
+x_13 = l_Array_contains___at_____private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs_spec__4(x_1, x_6);
 if (x_13 == 0)
 {
 uint8_t x_14; 
@@ -720,7 +720,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 _start:
 {
 lean_object* x_9; uint8_t x_15; 
-x_15 = l_Array_contains___at_____private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit_spec__3(x_1, x_8);
+x_15 = l_Array_contains___at_____private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs_spec__4(x_1, x_8);
 if (x_15 == 0)
 {
 uint8_t x_16; 

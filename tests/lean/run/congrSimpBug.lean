@@ -59,3 +59,15 @@ info: test7.congr_simp.{u} {α : Type u} {i : DecidableEq α} [i✝ : DecidableE
 -/
 #guard_msgs in
 #check test7.congr_simp
+
+def test8 (p : Prop) [Decidable p] (_ : decide p = true) : Nat := 3
+
+/--
+info: test8.congr_simp (p p✝ : Prop) (e_p : p = p✝) {inst✝ : Decidable p} [Decidable p✝] (x✝ : decide p = true) :
+  test8 p x✝ =
+    test8 p✝
+      (Eq.ndrec (motive := fun p => ∀ [inst : Decidable p], decide p = true)
+        (fun [inst : Decidable p] => Subsingleton.elim inst✝ inst ▸ x✝) e_p)
+-/
+#guard_msgs in
+#check test8.congr_simp

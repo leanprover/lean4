@@ -30,9 +30,10 @@ def addExtern (declName : Name) (externAttrData : ExternAttrData) : CoreM Unit :
     nextVarIndex := nextVarIndex + 1
   let irType ← toIRType type
   let decl := .extern declName params irType externAttrData
-  -- TODO: Remove this code duplication once IR.CompilerM is based on CoreM.
-  Lean.modifyEnv fun env => addDeclAux env decl
+  addDecl decl
+  if !isPrivateName decl.name then
+    modifyEnv (Compiler.LCNF.setDeclPublic · decl.name)
   if ExplicitBoxing.requiresBoxedVersion (← Lean.getEnv) decl then
-    Lean.modifyEnv fun env => addDeclAux env (ExplicitBoxing.mkBoxedVersion decl)
+    addDecl (ExplicitBoxing.mkBoxedVersion decl)
 
 end Lean.IR

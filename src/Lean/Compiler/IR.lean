@@ -24,6 +24,7 @@ import Lean.Compiler.IR.EmitC
 import Lean.Compiler.IR.Sorry
 import Lean.Compiler.IR.ToIR
 import Lean.Compiler.IR.ToIRType
+import Lean.Compiler.IR.Meta
 
 -- The following imports are not required by the compiler. They are here to ensure that there
 -- are no orphaned modules.
@@ -67,6 +68,7 @@ def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `result decls
   checkDecls decls
   addDecls decls
+  inferMeta decls
   return decls
 
 builtin_initialize

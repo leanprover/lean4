@@ -1743,6 +1743,9 @@ private def looksLikeOldCodegenName : Name → Bool
   | .str _ s => s.startsWith "_cstage" || s.startsWith "_spec_" || s.startsWith "_elambda"
   | _        => false
 
+@[extern "lean_get_ir_extra_const_names"]
+private opaque getIRExtraConstNames : Environment → OLeanLevel → Array Name
+
 def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO ModuleData := do
   let pExts ← persistentEnvExtensionsRef.get
   let entries := pExts.map fun pExt => Id.run do
@@ -1769,20 +1772,22 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
       |>.qsort (lt := fun c₁ c₂ => c₁.name.quickCmp c₂.name == .lt)
   let constNames := constants.map (·.name)
   return { env.header with
-    extraConstNames := env.checked.get.extraConstNames.toArray
+    extraConstNames := getIRExtraConstNames env level
     constNames, constants, entries
   }
 
 @[extern "lean_ir_export_entries"]
 private opaque exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry)
 
-private def mkIRData (env : Environment) : IO ModuleData := do
+private def mkIRData (env : Environment) : ModuleData :=
   -- TODO: should we use a more specific/efficient data format for IR?
-  return { env.header with
+  { env.header with
     entries := exportIREntries env
     constants := default
     constNames := default
-    extraConstNames := default
+    -- make sure to add names of private constants as well as they may not be visible in all
+    -- importers.
+    extraConstNames := getIRExtraConstNames (env.setExporting true) .private
   }
 
 def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
@@ -1793,7 +1798,7 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
       (← mkPart .exported),
       (← mkPart .server),
       (← mkPart .private)]
-    saveModuleData (fname.withExtension "ir") env.mainModule (← mkIRData env)
+    saveModuleData (fname.withExtension "ir") env.mainModule (mkIRData env)
   else
     saveModuleData fname env.mainModule (← mkModuleData env)
 
@@ -1897,17 +1902,18 @@ private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLev
   -- fall back to `exported` outside the server
   self.getData? (if level ≥ .server then level else .exported)
 
-/-- The module data that should be used for codegen purposes. -/
+/-- The module data that should be used for accessing IR for interpretation. -/
 private def ImportedModule.loadIRData? (self : ImportedModule) (arts : NameMap ModuleArtifacts)
     (level : OLeanLevel):
-    IO (Option (ModuleData × CompactedRegion)) := do
+    IO (Option (ModuleData × Option CompactedRegion)) := do
   if (level < .server && self.irPhases == .runtime) || !self.mainModule?.any (·.isModule) then
-    return none
+    return self.mainModule?.map (·, none)
   let fname ←
     arts.find? self.module |>.bind (·.ir?) |>.getDM do
       let mFile ← findOLean self.module
       return mFile.withExtension "ir"
-  readModuleData fname
+  let (data, region) ← readModuleData fname
+  return some (data, some region)
 
 structure ImportState where
   private moduleNameMap : Std.HashMap Name ImportedModule := {}
@@ -1996,7 +2002,7 @@ where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
     -- `B ≥ public`?
     let isExported := isExported && i.isExported
     let irPhases :=
-      if !isModule then .all
+      if importAll then .all
       else if isMeta || i.isMeta then .comptime
       else .runtime
     let goRec imports := do
@@ -2073,8 +2079,15 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     let some data := mod.mainModule? |
       throw <| IO.userError s!"missing data file for module {mod.module}"
     return data
-  let numPrivateConsts := moduleData.foldl (init := 0) fun numPrivateConsts data => Id.run do
-    numPrivateConsts + data.constants.size + data.extraConstNames.size
+  let irData ← modules.mapM fun mod => do
+    let some data ← mod.loadIRData? arts level |
+      throw <| IO.userError s!"missing IR data file for module {mod.module}"
+    return data
+  let (irData, irRegions) := irData.unzip
+  let numPrivateConsts := moduleData.foldl (init := 0) fun numPrivateConsts data =>
+    numPrivateConsts + data.constants.size
+  let numPrivateConsts := irData.foldl (init := numPrivateConsts) fun numPrivateConsts data =>
+    numPrivateConsts + data.extraConstNames.size
   let numPublicConsts := modules.foldl (init := 0) fun numPublicConsts mod => Id.run do
     if !mod.isExported then numPublicConsts else
       let some data := mod.publicModule? | numPublicConsts
@@ -2095,8 +2108,9 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
           else if !subsumesInfo cinfoPrev cinfo then
             throwAlreadyImported s const2ModIdx modIdx cname
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
-    for cname in data.extraConstNames do
-      const2ModIdx := const2ModIdx.insertIfNew cname modIdx
+    if let some data := irData[modIdx]? then
+      for cname in data.extraConstNames do
+        const2ModIdx := const2ModIdx.insertIfNew cname modIdx
 
   if isModule then
     for mod in modules.filter (·.isExported) do
@@ -2127,15 +2141,12 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let publicConstants : ConstMap := SMap.fromHashMap publicConstantMap false
   let publicBase := { privateBase with constants := publicConstants, header.regions := #[] }
   let extensions ← setImportedEntries privateBase.extensions moduleData
-  let irData? ← modules.mapM (·.loadIRData? arts level)
   -- fall back to basic data when not in server
   let serverData := modules.mapIdx (fun idx mod => mod.serverData? level |>.getD moduleData[idx]!)
-  let irData := irData?.mapIdx (fun idx ir => ir.map (·.1) |>.getD moduleData[idx]!)
-  let irRegions := irData?.filterMap (·.map (·.2))
   let privateBase := { privateBase with
     extensions
     irBaseExts := (← setImportedEntries privateBase.extensions irData)
-    header.regions := privateBase.header.regions ++ irRegions
+    header.regions := privateBase.header.regions ++ irRegions.filterMap id
   }
   let mut env : Environment := {
     base.private := privateBase

@@ -31,83 +31,46 @@ namespace bitblast
 namespace blastPopCount
 
 theorem go_denote_eq {w : Nat} (aig : AIG α) (h : curr ≤ w)
-    (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (xc' : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
-    (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
-    (hx' : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc'.get idx hidx, assign⟧ = (x.popCountAuxAnd (w - curr)).getLsbD idx)
+    (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
+    (hx' : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = (x.popCountAuxAnd (w - cur - 1)).getLsbD idx)
     (hacc : ∀ (idx : Nat) (hidx : idx < w),
       ⟦aig, acc.get idx hidx, assign⟧ =
-        (if curr = 0 then x.popCountAuxRec w
-        else if (x.popCountAuxAnd curr) = 0#w then BitVec.ofNat w (w - curr) else (x.popCountAuxAnd (curr + 1)).popCountAuxRec (curr - 1)).getLsbD idx)
+        (if curr = 0 then x.popCountAuxRec (w - 1)
+        else if (x.popCountAuxAnd (w - curr)) = 0#w then BitVec.ofNat w (w - curr) else x.popCountAuxRec (curr - 1)).getLsbD idx)
     :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
-          (go aig xc' curr acc).aig,
-          (go aig xc' curr acc).vec.get idx hidx,
+          (go aig xc curr acc).aig,
+          (go aig xc curr acc).vec.get idx hidx,
           assign
         ⟧
           =
         (BitVec.popCountAuxRec x w).getLsbD idx := by
     intro idx hidx
-    generalize hgo: go aig xc' curr acc = res
+    generalize hgo: go aig xc curr acc = res
     unfold go at hgo
     split at hgo
     · case isTrue h =>
       simp at hgo
       rw [← hgo, go_denote_eq]
       · omega
-      ·
-        exact
-        (RefVec.zip
-            (blastSub
-                (RefVec.ite (BVPred.mkEq aig { lhs := xc', rhs := blastConst aig 0#w }).aig
-                    { discr := (BVPred.mkEq aig { lhs := xc', rhs := blastConst aig 0#w }).ref,
-                      lhs := (blastConst aig (BitVec.ofNat w w - BitVec.ofNat w curr)).cast ⋯,
-                      rhs := acc.cast ⋯ }).aig
-                { lhs := xc'.cast ⋯,
-                  rhs :=
-                    blastConst
-                      (RefVec.ite (BVPred.mkEq aig { lhs := xc', rhs := blastConst aig 0#w }).aig
-                          {
-                            discr :=
-                              (BVPred.mkEq aig { lhs := xc', rhs := blastConst aig 0#w }).ref,
-                            lhs := (blastConst aig (BitVec.ofNat w w - BitVec.ofNat w curr)).cast ⋯,
-                            rhs := acc.cast ⋯ }).aig
-                      1#w }).aig
-            { lhs := xc'.cast ⋯,
-              rhs :=
-                (blastSub
-                    (RefVec.ite (BVPred.mkEq aig { lhs := xc', rhs := blastConst aig 0#w }).aig
-                        { discr := (BVPred.mkEq aig { lhs := xc', rhs := blastConst aig 0#w }).ref,
-                          lhs := (blastConst aig (BitVec.ofNat w w - BitVec.ofNat w curr)).cast ⋯,
-                          rhs := acc.cast ⋯ }).aig
-                    { lhs := xc'.cast ⋯,
-                      rhs :=
-                        blastConst
-                          (RefVec.ite
-                              (BVPred.mkEq aig { lhs := xc', rhs := blastConst aig 0#w }).aig
-                              {
-                                discr :=
-                                  (BVPred.mkEq aig { lhs := xc', rhs := blastConst aig 0#w }).ref,
-                                lhs :=
-                                  (blastConst aig (BitVec.ofNat w w - BitVec.ofNat w curr)).cast ⋯,
-                                rhs := acc.cast ⋯ }).aig
-                          1#w }).vec }
-            mkAndCached).vec
-      · simp
-        intros
-        sorry
-      · simp [show ¬ curr = 0 by omega] at *
-        simp_all
-        intros
+      · intros
+        simp
+        simp [show w - (curr - 1) = w - curr + 1 by omega]
+
         sorry
       · simp
+        intros
         sorry
     · case isFalse h =>
       rw [← hgo]
-      simp [show curr = 0 by omega] at *
+      have hcurr0 : curr = 0 := by omega
+      have : w - curr = w := by omega
+      simp [hcurr0] at hacc
+      simp [hcurr0] at hx'
+      simp
       split
       · case _ h =>
-
         sorry
       · case _ h =>
         sorry

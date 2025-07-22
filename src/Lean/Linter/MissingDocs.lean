@@ -90,8 +90,8 @@ builtin_initialize
       let fnNameStx ← Attribute.Builtin.getIdent stx
       let key ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
       unless decl.levelParams.isEmpty && (decl.type == .const ``Handler [] || decl.type == .const ``SimpleHandler []) do
-        throwError "Unexpected type for missing docs handler: Expected `MissingDocs.Handler` or \
-          `MissingDocs.SimpleHandler`, but `{declName}` has type{indentExpr decl.type}"
+        throwError m!"Unexpected type for missing docs handler: Expected `{.ofConstName ``Handler}` or \
+          `{.ofConstName ``SimpleHandler}`, but `{declName}` has type{indentExpr decl.type}"
       if builtin then
         let h := if decl.type == .const ``SimpleHandler [] then
           mkApp (mkConst ``SimpleHandler.toHandler) (mkConst declName)

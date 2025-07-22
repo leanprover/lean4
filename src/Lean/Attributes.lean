@@ -50,7 +50,7 @@ instance : ToString AttributeKind where
 structure AttributeImpl extends AttributeImplCore where
   /-- This is run when the attribute is applied to a declaration `decl`. `stx` is the syntax of the attribute including arguments. -/
   add (decl : Name) (stx : Syntax) (kind : AttributeKind) : AttrM Unit
-  erase (decl : Name) : AttrM Unit := throwError "Attribute cannot be erased"
+  erase (decl : Name) : AttrM Unit := throwError "Attribute `[{name}]` cannot be erased"
   deriving Inhabited
 
 builtin_initialize attributeMapRef : IO.Ref (Std.HashMap Name AttributeImpl) ← IO.mkRef {}
@@ -58,7 +58,7 @@ builtin_initialize attributeMapRef : IO.Ref (Std.HashMap Name AttributeImpl) ←
 /-- Low level attribute registration function. -/
 def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
   let m ← attributeMapRef.get
-  if m.contains attr.name then throw (IO.userError s!"Invalid builtin attribute declaration: `{attr.name}` has already been used")
+  if m.contains attr.name then throw (IO.userError s!"Invalid builtin attribute declaration: `[{attr.name}]` has already been registered")
   unless (← initializing) do
     throw (IO.userError "Failed to register attribute: Attributes can only be registered during initialization")
   attributeMapRef.modify fun m => m.insert attr.name attr
@@ -125,18 +125,18 @@ section
 variable [Monad m] [MonadError m]
 
 def throwAttrMustBeGlobal (name : Name) (kind : AttributeKind) : m α :=
-  throwError m!"Invalid attribute kind: Attribute `{name}` must be global, not `{kind}`"
-    ++ .hint' m!"Delete the `{kind}` modifier to make this attribute global"
+  throwError m!"Invalid attribute kind: Attribute `[{name}]` must be global, not `{kind}`"
 
 def throwAttrDeclInImportedModule (attrName declName : Name) : m α :=
-  throwError "Cannot register attribute `{attrName}`: Declaration `{.ofConstName declName}` is in an imported module"
+  throwError "Cannot add attribute `[{attrName}]` to declaration `{.ofConstName declName}` because it is in an imported module"
 
 def throwAttrNotInAsyncCtx (attrName declName : Name) (asyncPrefix? : Option Name) : m α :=
   let asyncPrefix := asyncPrefix?.map (m!" `{·}`") |>.getD .nil
-  throwError "Cannot register attribute `{attrName}`: Declaration `{.ofConstName declName}` is not from the present async context {asyncPrefix}"
+  throwError "Cannot add attribute `[{attrName}]` to declaration `{.ofConstName declName}` because it is not from the present async context{asyncPrefix}"
 
-def throwAttrDeclNotOfExpectedType (name : Name) (type : Expr) : m α :=
-  throwError m!"Cannot register attribute `{name}`: This attribute can only be added to declarations of type `{type}`"
+def throwAttrDeclNotOfExpectedType (attrName declName : Name) (givenType expectedType : Expr) : m α :=
+  throwError m!"Cannot add attribute `[{attrName}]`: Declaration `{declName}` has type{indentExpr givenType}\n\
+    but `[{attrName}]` can only be added to declarations of type{indentExpr expectedType}"
 end
 
 /--
@@ -267,9 +267,9 @@ def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment)
 
 def setParam (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
   if (env.getModuleIdxFor? decl).isSome then
-    Except.error (s!"Invalid `{attr.attr.name}.setParam`: Declaration `{decl}` is in an imported module")
+    Except.error (s!"Failed to add parametric attribute `[{attr.attr.name}]` to `{decl}`: Declaration is in an imported module")
   else if ((attr.ext.getState env).find? decl).isSome then
-    Except.error (s!"Invalid `{attr.attr.name}.setParam`: Attribute has already been set")
+    Except.error (s!"Failed to add parametric attribute `[{attr.attr.name}]` to `{decl}`: Attribute has already been set")
   else
     Except.ok (attr.ext.addEntry env (decl, param))
 
@@ -334,12 +334,13 @@ def getValue [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl
   | none        => (attr.ext.findStateAsync env decl).find? decl
 
 def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment := do
+  let pfx := s!"Internal error calling `{attrs.ext.name}.setValue` for `{decl}`"
   if (env.getModuleIdxFor? decl).isSome then
-    throw s!"Invalid `{attrs.ext.name}.setValue`: Declaration `{decl}` is in an imported module"
+    throw s!"{pfx}: Declaration is in an imported module"
   if !env.asyncMayContain decl then
-    throw s!"Invalid `{attrs.ext.name}.setValue`: Declaration `{decl}` is not from this async context `{env.asyncPrefix?}`"
+    throw s!"{pfx}: Declaration is not from this async context `{env.asyncPrefix?}`"
   if ((attrs.ext.findStateAsync env decl).find? decl).isSome then
-    throw s!"Invalid `{attrs.ext.name}.setValue`: Attribute has already been set"
+    throw s!"{pfx}: Attribute has already been set"
   return attrs.ext.addEntry env (decl, val)
 
 end EnumAttributes
@@ -386,7 +387,7 @@ unsafe def mkAttributeImplOfConstantUnsafe (env : Environment) (opts : Options) 
   | some info =>
     match info.type with
     | Expr.const `Lean.AttributeImpl _ => env.evalConst AttributeImpl opts declName
-    | _ => throw s!"Unexpected attribute implementation type at `{declName}` (`AttributeImpl` expected)"
+    | _ => throw s!"Unexpected attribute implementation type: `{declName}` is not of type `Lean.AttributeImpl`"
 
 @[implemented_by mkAttributeImplOfConstantUnsafe]
 opaque mkAttributeImplOfConstant (env : Environment) (opts : Options) (declName : Name) : Except String AttributeImpl

@@ -13,6 +13,13 @@ inductive InlineAttributeKind where
   | inline | noinline | macroInline | inlineIfReduce | alwaysInline
   deriving Inhabited, BEq, Hashable
 
+private def InlineAttributeKind.toAttrString : InlineAttributeKind → String
+  | .inline => "inline"
+  | .noinline => "noinline"
+  | .macroInline => "macro_inline"
+  | .inlineIfReduce => "inline_if_reduce"
+  | .alwaysInline => "always_inline"
+
 /--
 This is an approximate test for testing whether `declName` can be annotated with the `[macro_inline]` attribute or not.
 -/
@@ -61,10 +68,11 @@ builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
      (`macro_inline, "mark definition to always be inlined before ANF conversion", .macroInline),
      (`always_inline, "mark definition to be always inlined", .alwaysInline)]
     fun declName kind => do
-      ofExcept <| checkIsDefinition (← getEnv) declName
+      ofExcept <| (checkIsDefinition (← getEnv) declName).mapError fun e =>
+        s!"Cannot add attribute `[{kind.toAttrString}]`: {e}"
       if kind matches .macroInline then
         unless (← isValidMacroInline declName) do
-          throwError "invalid use of `[macro_inline]` attribute at `{declName}`, it is not supported in this kind of declaration, declaration must be a non-recursive definition"
+          throwError "Cannot add `[macro_inline]` attribute to `{declName}`: This attribute does not support this kind of declaration; only non-recursive definitions are supported"
 
 def setInlineAttribute (env : Environment) (declName : Name) (kind : InlineAttributeKind) : Except String Environment :=
   inlineAttrs.setValue env declName kind

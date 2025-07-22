@@ -89,8 +89,9 @@ builtin_initialize
     add             := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
-      unless (← getConstInfo decl).type.isConstOf ``CodeActionProvider do
-        throwAttrDeclNotOfExpectedType name (mkConst ``Lean.Server.CodeActionProvider)
+      let declType := (← getConstInfo decl).type
+      unless declType.isConstOf ``CodeActionProvider do
+        throwAttrDeclNotOfExpectedType name decl declType (mkConst ``Lean.Server.CodeActionProvider)
       let env ← getEnv
       if builtin then
         let h := mkConst decl

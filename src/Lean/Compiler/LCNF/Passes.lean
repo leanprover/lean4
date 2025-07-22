@@ -142,8 +142,7 @@ def addPass (declName : Name) : CoreM Unit := do
     let managerNew ← runFromDecl (← getPassManager) declName
     modifyEnv fun env => passManagerExt.addEntry env (declName, managerNew)
   | _ =>
-    throwError "Invalid `cpass`: This attribute can only be added to declarations of type \
-      `PassInstaller`, but `{declName}` has type{indentExpr info.type}"
+    throwAttrDeclNotOfExpectedType `cpass declName info.type (mkConst ``PassInstaller)
 
 builtin_initialize
   registerBuiltinAttribute {

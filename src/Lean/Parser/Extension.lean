@@ -474,8 +474,8 @@ def getParserPriority (args : Syntax) : Except String Nat :=
   | 0 => pure 0
   | 1 => match (args.getArg 0).isNatLit? with
     | some prio => pure prio
-    | none => throw "invalid parser attribute, numeral expected"
-  | _ => throw "invalid parser attribute, no argument or numeral expected"
+    | none => throw s!"Invalid parser attribute: Numeral expected, but found `{args.getArg 0}`"
+  | _ => throw "Invalid parser attribute: No argument or numeral expected"
 
 private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
     (declName : Name) (stx : Syntax) (kind : AttributeKind) : AttrM Unit := do

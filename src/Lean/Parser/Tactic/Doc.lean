@@ -184,7 +184,7 @@ builtin_initialize
     add := fun decl stx kind => do
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
       let `(«tactic_tag»|tactic_tag $tags*) := stx
-        | throwError "Invalid `{name}` attribute syntax"
+        | throwError "Invalid `[{name}]` attribute syntax"
       if (← getEnv).find? decl |>.isSome then
         if !(isTactic (← getEnv) decl) then
           throwErrorAt stx "`{decl}` is not a tactic"

@@ -127,9 +127,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
         let key ← df.evalKey true stx
         let decl ← getConstInfo declName
         let throwUnexpectedType :=
-          throwError m!"Cannot register attribute `{df.builtinName}`: `{declName}` has type\
-            {indentExpr decl.type}\nbut this attribute can only be added to declarations of type\
-            {indentD <| .ofConstName df.valueTypeName}"
+          throwAttrDeclNotOfExpectedType df.builtinName declName decl.type (mkConst df.valueTypeName)
         match decl.type with
         | Expr.const c _ =>
           if c != df.valueTypeName then throwUnexpectedType

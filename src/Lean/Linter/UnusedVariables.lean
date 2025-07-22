@@ -173,8 +173,9 @@ builtin_initialize
     add             := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
-      unless (← getConstInfo decl).type.isConstOf ``IgnoreFunction do
-        throwAttrDeclNotOfExpectedType name (mkConst ``Lean.Linter.IgnoreFunction)
+      let declType := (← getConstInfo decl).type
+      unless declType.isConstOf ``IgnoreFunction do
+        throwAttrDeclNotOfExpectedType name decl declType (mkConst ``Lean.Linter.IgnoreFunction)
       let env ← getEnv
       if builtin then
         let h := mkConst decl

@@ -35,28 +35,25 @@ private def isBodyRelevant (decl : Decl) : CompilerM Bool := do
 partial def inferVisibility (phase : Phase) (decls : Array Decl) : CompilerM Unit := do
   if !(← getEnv).header.isModule then
     return
-  -- We want to visit closed term decls as well but they are not found by `getDecl`, so make sure to
-  -- always search in `decls` first.
-  let locals := decls.foldl (init := {}) fun l d => l.insert d.name d
   for decl in decls do
     if `_at_ ∈ decl.name.components then  -- TODO: don't?
       trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is a specialization"
-      markPublic locals decl
+      markPublic decl
     else if (← getEnv).setExporting true |>.contains decl.name then
       trace[Compiler.inferVisibility] m!"Marking {decl.name} as opaque because it is a public def"
-      markPublic locals decl
+      markPublic decl
 where
-  markPublic (locals : NameMap Decl) (decl : Decl) : CompilerM Unit := do
+  markPublic (decl : Decl) : CompilerM Unit := do
     modifyEnv (setDeclPublic · decl.name)
     if (← isBodyRelevant decl) && !isDeclTransparent (← getEnv) phase decl.name then
       trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is opaque and its body looks relevant"
       modifyEnv (setDeclTransparent · phase decl.name)
       decl.value.forCodeM fun code =>
         for ref in collectUsedDecls code do
-          if let some refDecl ← pure (locals.find? ref) <||> getLocalDecl? ref then
+          if let some refDecl ← getLocalDecl? ref then
             if !isDeclPublic (← getEnv) ref then
               trace[Compiler.inferVisibility] m!"Marking {ref} as opaque because it is used by transparent {decl.name}"
-              markPublic locals refDecl
+              markPublic refDecl
 
 builtin_initialize
   registerTraceClass `Compiler.inferVisibility

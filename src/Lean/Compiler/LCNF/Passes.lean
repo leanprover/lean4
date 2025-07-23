@@ -111,10 +111,9 @@ def builtinPassManager : PassManager := {
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
     cse (occurrence := 2) (phase := .mono),
+    Pass.inferVisibility .mono,
     saveMono,  -- End of mono phase
     extractClosed,
-    -- should come last so it can see all created decls
-    Pass.inferVisibility .mono
   ]
 }
 

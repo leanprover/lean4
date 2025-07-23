@@ -96,9 +96,11 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
   for declName in declNames do
     if let some fnName := Compiler.getImplementedBy? (← getEnv) declName then
       if !isDeclPublic (← getEnv) fnName then
-        if let some decl ← getLocalDecl? fnName then
+        if let some decl ← getLocalDeclAt? fnName .base then
           trace[Compiler.inferVisibility] m!"Marking {fnName} as opaque because it implements {declName}"
           LCNF.markDeclPublicRec .base decl
+          if let some decl ← getLocalDeclAt? fnName .mono then
+            LCNF.markDeclPublicRec .mono decl
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return #[]
   for declName in declNames do

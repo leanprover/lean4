@@ -167,10 +167,13 @@ def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option Decl) :=
 def getDecl? (declName : Name) : CompilerM (Option Decl) := do
   getDeclAt? declName (← getPhase)
 
-def getLocalDecl? (declName : Name) : CompilerM (Option Decl) := do
-  match (← getPhase) with
+def getLocalDeclAt? (declName : Name) (phase : Phase) : CompilerM (Option Decl) := do
+  match phase with
   | .base => return baseExt.getState (← getEnv) |>.find? declName
   | .mono => return monoExt.getState (← getEnv) |>.find? declName
+
+def getLocalDecl? (declName : Name) : CompilerM (Option Decl) := do
+  getLocalDeclAt? declName (← getPhase)
 
 def getExt (phase : Phase) : DeclExt :=
   match phase with

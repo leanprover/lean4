@@ -46,7 +46,7 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := 
     modifyEnv (setDeclTransparent · phase decl.name)
     decl.value.forCodeM fun code =>
       for ref in collectUsedDecls code do
-        if let some refDecl ← getLocalDecl? ref then
+        if let some refDecl ← getLocalDeclAt? ref phase then
           if !isDeclPublic (← getEnv) ref then
             trace[Compiler.inferVisibility] m!"Marking {ref} as opaque because it is used by transparent {decl.name}"
             markDeclPublicRec phase refDecl

@@ -21,6 +21,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic___aux__Init__TacticsExtra______mac
 static lean_object* l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___lam__4___closed__2;
 static lean_object* l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___lam__0___closed__7;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse_spec__0(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_tacticApply__mod__cast_____closed__0;
 static lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic___aux__Init__TacticsExtra______macroRules__Lean__Parser__Tactic__tacticRw__mod__cast________1_spec__0___redArg___closed__0;
 static lean_object* l_Lean_Parser_Tactic_tacticRw__mod__cast_________closed__5;
@@ -44,7 +45,6 @@ static lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic___aux__Init
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Init__TacticsExtra______macroRules__Lean__Parser__Tactic__tacIfThenElse__1___lam__0___closed__1;
 static lean_object* l_Lean_Parser_Tactic_tacticIterate___________closed__13;
-lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw________1_spec__0(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tacticRw__mod__cast______;
 static lean_object* l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___closed__0;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__TacticsExtra______macroRules__Lean__Parser__Tactic__tacDepIfThenElse__1___lam__0___closed__4;
@@ -214,6 +214,7 @@ static lean_object* l_Lean_Parser_Tactic___aux__Init__TacticsExtra______macroRul
 static lean_object* l_Lean_Parser_Tactic_tacticIterate___________closed__7;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic___aux__Init__TacticsExtra______macroRules__Lean__Parser__Tactic__tacticRw__mod__cast________1_spec__0___redArg___closed__6;
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_tacticExact__mod__cast_____closed__3;
 static lean_object* l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___closed__2;
 static lean_object* l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___lam__0___closed__15;
@@ -232,6 +233,30 @@ static lean_object* l_Lean_Parser_Tactic___aux__Init__TacticsExtra______macroRul
 static lean_object* l_Lean_Parser_Tactic___aux__Init__TacticsExtra______macroRules__Lean__Parser__Tactic__tacticIterate__________1___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mkNumLit(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; 
+x_4 = lean_usize_dec_lt(x_2, x_1);
+if (x_4 == 0)
+{
+return x_3;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; lean_object* x_10; 
+x_5 = lean_array_uget(x_3, x_2);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = lean_array_uset(x_3, x_2, x_6);
+x_8 = 1;
+x_9 = lean_usize_add(x_2, x_8);
+x_10 = lean_array_uset(x_7, x_2, x_5);
+x_2 = x_9;
+x_3 = x_10;
+goto _start;
+}
+}
+}
 static lean_object* _init_l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___lam__0___closed__0() {
 _start:
 {
@@ -1778,7 +1803,7 @@ x_69 = l_Array_append___redArg(x_17, x_24);
 lean_dec(x_24);
 x_70 = lean_array_size(x_69);
 x_71 = 0;
-x_72 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw________1_spec__0(x_70, x_71, x_69);
+x_72 = l_Array_mapMUnsafe_map___at_____private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse_spec__0(x_70, x_71, x_69);
 x_73 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___closed__19;
 x_74 = l_Lean_mkSepArray(x_72, x_73);
 lean_dec_ref(x_72);
@@ -1892,7 +1917,7 @@ x_123 = l_Array_append___redArg(x_17, x_24);
 lean_dec(x_24);
 x_124 = lean_array_size(x_123);
 x_125 = 0;
-x_126 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw________1_spec__0(x_124, x_125, x_123);
+x_126 = l_Array_mapMUnsafe_map___at_____private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse_spec__0(x_124, x_125, x_123);
 x_127 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___closed__19;
 x_128 = l_Lean_mkSepArray(x_126, x_127);
 lean_dec_ref(x_126);
@@ -2036,7 +2061,7 @@ x_183 = l_Array_append___redArg(x_17, x_136);
 lean_dec(x_136);
 x_184 = lean_array_size(x_183);
 x_185 = 0;
-x_186 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw________1_spec__0(x_184, x_185, x_183);
+x_186 = l_Array_mapMUnsafe_map___at_____private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse_spec__0(x_184, x_185, x_183);
 x_187 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___closed__19;
 x_188 = l_Lean_mkSepArray(x_186, x_187);
 lean_dec_ref(x_186);
@@ -2241,7 +2266,7 @@ x_255 = l_Array_append___redArg(x_200, x_206);
 lean_dec(x_206);
 x_256 = lean_array_size(x_255);
 x_257 = 0;
-x_258 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw________1_spec__0(x_256, x_257, x_255);
+x_258 = l_Array_mapMUnsafe_map___at_____private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse_spec__0(x_256, x_257, x_255);
 x_259 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___closed__19;
 x_260 = l_Lean_mkSepArray(x_258, x_259);
 lean_dec_ref(x_258);
@@ -2333,6 +2358,18 @@ lean_ctor_set(x_274, 1, x_273);
 return x_274;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+size_t x_4; size_t x_5; lean_object* x_6; 
+x_4 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_5 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_6 = l_Array_mapMUnsafe_map___at_____private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse_spec__0(x_4, x_5, x_3);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -4057,7 +4094,7 @@ x_41 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___la
 x_42 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___lam__0___closed__11;
 x_43 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___lam__0___closed__16;
 x_44 = lean_array_size(x_33);
-x_45 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw________1_spec__0(x_44, x_30, x_33);
+x_45 = l_Array_mapMUnsafe_map___at_____private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse_spec__0(x_44, x_30, x_33);
 x_46 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___closed__19;
 x_47 = l_Lean_mkSepArray(x_45, x_46);
 lean_dec_ref(x_45);
@@ -4103,7 +4140,7 @@ x_64 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___la
 x_65 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___lam__0___closed__11;
 x_66 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___lam__0___closed__16;
 x_67 = lean_array_size(x_55);
-x_68 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw________1_spec__0(x_67, x_30, x_55);
+x_68 = l_Array_mapMUnsafe_map___at_____private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse_spec__0(x_67, x_30, x_55);
 x_69 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___closed__19;
 x_70 = l_Lean_mkSepArray(x_68, x_69);
 lean_dec_ref(x_68);

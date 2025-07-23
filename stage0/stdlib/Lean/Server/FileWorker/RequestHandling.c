@@ -359,7 +359,7 @@ static lean_object* l_Lean_Server_FileWorker_initFn___closed__25____x40_Lean_Ser
 static lean_object* l_Lean_Server_FileWorker_handlePlainGoal___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Server_FileWorker_handlePlainGoal_spec__1(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDocumentHighlight___lam__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Lsp_toJsonLeanLocationLink____x40_Lean_Data_Lsp_Internal___hyg_4706_(lean_object*);
+lean_object* l_Lean_Lsp_toJsonLeanLocationLink____x40_Lean_Data_Lsp_Internal___hyg_4602_(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___closed__17;
 lean_object* l_Lean_Syntax_reprint(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_parseRequestParams___at___Lean_Server_registerLspRequestHandler___at___Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10397__spec__6_spec__6(lean_object*);
@@ -17680,7 +17680,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x
 x_5 = lean_array_uget(x_3, x_2);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
-x_8 = l_Lean_Lsp_toJsonLeanLocationLink____x40_Lean_Data_Lsp_Internal___hyg_4706_(x_5);
+x_8 = l_Lean_Lsp_toJsonLeanLocationLink____x40_Lean_Data_Lsp_Internal___hyg_4602_(x_5);
 x_9 = 1;
 x_10 = lean_usize_add(x_2, x_9);
 x_11 = lean_array_uset(x_7, x_2, x_8);

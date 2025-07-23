@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_ErrorExplanation___hyg_3465____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_summaryWithSeverity___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_matchHeader(lean_object*, lean_object*, lean_object*);
@@ -37,6 +38,7 @@ LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_reprCodeInfo___redArg____x40_Le
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock___closed__2;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanations___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_ErrorExplanation___hyg_3465_(lean_object*, lean_object*);
 static lean_object* l_Lean_ErrorExplanation_reprValidationState___redArg___closed__0____x40_Lean_ErrorExplanation___hyg_1517_;
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_reprValidationState____x40_Lean_ErrorExplanation___hyg_1517_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_ValidationState_get(lean_object*);
@@ -51,7 +53,9 @@ LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_instToJsonMetadata;
 lean_object* l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasErrorExplanation___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
+static lean_object* l_Lean_initFn___closed__0____x40_Lean_ErrorExplanation___hyg_3465_;
 static lean_object* l_Lean_ErrorExplanation_CodeInfo_parse___closed__1;
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__2____x40_Lean_ErrorExplanation___hyg_3465_(lean_object*);
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_ErrorExplanation_fromJsonMetadata____x40_Lean_ErrorExplanation___hyg_53__spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_instInputValidationStateStringNat___lam__0(lean_object*);
@@ -91,7 +95,6 @@ static lean_object* l_Lean_ErrorExplanation_fromJsonMetadata___closed__1____x40_
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_ValidationState_ofSource_spec__0(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_manyCore___at___Lean_ErrorExplanation_CodeInfo_parse_stringContents_spec__0___closed__3;
 static lean_object* l_Lean_ErrorExplanation_fromJsonMetadata___closed__6____x40_Lean_ErrorExplanation___hyg_53_;
-static lean_object* l_Lean_initFn___closed__0____x40_Lean_ErrorExplanation___hyg_3491_;
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_instReprValidationState___closed__0;
 static lean_object* l_Lean_ErrorExplanation_reprCodeInfo___redArg___closed__6____x40_Lean_ErrorExplanation___hyg_593_;
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanations___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -111,9 +114,9 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock___closed__10;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__1_spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_repr___at___Array_Array_repr___at___Lean_ErrorExplanation_reprValidationState____x40_Lean_ErrorExplanation___hyg_1517__spec__0_spec__0___redArg(lean_object*);
 static lean_object* l_Lean_ErrorExplanation_summaryWithSeverity___closed__1;
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_ErrorExplanation_reprCodeInfo___redArg___closed__1____x40_Lean_ErrorExplanation___hyg_593_;
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_manyD___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanationsRaw(lean_object*);
@@ -141,6 +144,7 @@ static lean_object* l_Prod_repr___at___Array_Array_repr___at___Lean_ErrorExplana
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_labelingExampleErrors___redArg___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_instInputValidationStateStringNat___lam__2___boxed(lean_object*);
 static lean_object* l_Lean_ErrorExplanation_fromJsonMetadata___closed__7____x40_Lean_ErrorExplanation___hyg_53_;
+lean_object* l_Std_Format_joinSep___at___Lean_Syntax_formatStxAux_spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_ErrorExplanation_reprValidationState___redArg___closed__6____x40_Lean_ErrorExplanation___hyg_1517_;
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_CodeInfo_instReprKind;
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_fence(lean_object*, lean_object*);
@@ -148,6 +152,7 @@ static lean_object* l_Lean_getErrorExplanationsSorted___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanationsSorted___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanation_x3f___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ErrorExplanation_CodeInfo_parse_namedAttr___closed__0;
 lean_object* l_Lean_toJsonMessageSeverity____x40_Lean_Message___hyg_203_(uint8_t);
 lean_object* l_String_splitOnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -170,11 +175,9 @@ lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_many1D(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanationRaw_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at___Lean_ErrorExplanation_reprCodeInfo____x40_Lean_ErrorExplanation___hyg_593__spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491_(lean_object*);
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_fence___closed__1;
 static lean_object* l_Lean_ErrorExplanation_fromJsonMetadata___closed__13____x40_Lean_ErrorExplanation___hyg_53_;
 lean_object* lean_string_mk(lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Prod_repr___at___Array_Array_repr___at___Lean_ErrorExplanation_reprValidationState____x40_Lean_ErrorExplanation___hyg_1517__spec__0_spec__0___redArg___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_instInputValidationStateStringNat___lam__4(lean_object*, lean_object*);
 static lean_object* l_Lean_ErrorExplanation_fromJsonMetadata___closed__5____x40_Lean_ErrorExplanation___hyg_53_;
@@ -182,7 +185,6 @@ static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_V
 static lean_object* l_Lean_ErrorExplanation_instReprCodeInfo___closed__0;
 LEAN_EXPORT lean_object* l_Lean_hasErrorExplanation___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_instReprValidationState;
-static lean_object* l_Lean_initFn___closed__1____x40_Lean_ErrorExplanation___hyg_3491_;
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Array_Array_repr___at___Lean_ErrorExplanation_reprValidationState____x40_Lean_ErrorExplanation___hyg_1517__spec__0_spec__1___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_getErrorExplanationsRaw_spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasErrorExplanation___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -201,6 +203,7 @@ static lean_object* l_Lean_ErrorExplanation_fromJsonMetadata___closed__9____x40_
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanations___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_ValidationM_run(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ErrorExplanation_toJsonMetadata___closed__0____x40_Lean_ErrorExplanation___hyg_237_;
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_instFromJsonMetadata;
@@ -209,6 +212,7 @@ static lean_object* l_Lean_ErrorExplanation_CodeInfo_reprKind___closed__1____x40
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_manyThenEOF(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock___closed__6;
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
+static lean_object* l_Lean_initFn___closed__1____x40_Lean_ErrorExplanation___hyg_3465_;
 static uint8_t l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_ValidationState_ofSource___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_CodeInfo_beqKind____x40_Lean_ErrorExplanation___hyg_472____boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_fromJsonSerialMessage____x40_Lean_Message___hyg_4129__spec__0(lean_object*, lean_object*);
@@ -219,11 +223,10 @@ static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_p
 LEAN_EXPORT lean_object* l_Prod_repr___at___Array_Array_repr___at___Lean_ErrorExplanation_reprValidationState____x40_Lean_ErrorExplanation___hyg_1517__spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_CodeInfo_reprKind____x40_Lean_ErrorExplanation___hyg_379____boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_instInhabitedValidationState___closed__1;
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_ErrorExplanation___hyg_3491_(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_ErrorExplanation___hyg_3491_(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___redArg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_Internal_Parsec_String_pstring(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_examplesHeader___closed__2;
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__1_spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_examplesHeader___closed__1;
 static lean_object* l_Lean_ErrorExplanation_reprValidationState___redArg___closed__2____x40_Lean_ErrorExplanation___hyg_1517_;
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_instToStringKind;
@@ -245,6 +248,7 @@ static lean_object* l_Option_repr___at___Lean_ErrorExplanation_reprCodeInfo____x
 LEAN_EXPORT lean_object* l_Option_repr___at___Lean_ErrorExplanation_reprCodeInfo____x40_Lean_ErrorExplanation___hyg_593__spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_matchHeader___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_manyCore___at___Lean_ErrorExplanation_CodeInfo_parse_stringContents_spec__0___closed__6;
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_ErrorExplanation___hyg_3465_(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Array_Array_repr___at___Lean_ErrorExplanation_reprValidationState____x40_Lean_ErrorExplanation___hyg_1517__spec__0___closed__1;
 static lean_object* l_Prod_repr___at___Array_Array_repr___at___Lean_ErrorExplanation_reprValidationState____x40_Lean_ErrorExplanation___hyg_1517__spec__0_spec__0___redArg___closed__1;
@@ -278,14 +282,14 @@ static lean_object* l_Lean_getErrorExplanationsRaw___closed__0;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Array_qsort_sort___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ErrorExplanation_reprCodeInfo___redArg___closed__11____x40_Lean_ErrorExplanation___hyg_593_;
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ErrorExplanation_CodeInfo_Kind_ofString___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_manyNotD___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_ErrorExplanation_fromJsonMetadata____x40_Lean_ErrorExplanation___hyg_53__spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_ErrorExplanation_reprValidationState___redArg___closed__3____x40_Lean_ErrorExplanation___hyg_1517_;
 static lean_object* l_Lean_ErrorExplanation_fromJsonMetadata___closed__2____x40_Lean_ErrorExplanation___hyg_53_;
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__2____x40_Lean_ErrorExplanation___hyg_3491_(lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanationRaw_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465_(lean_object*);
 static lean_object* l_Lean_ErrorExplanation_CodeInfo_parse_namedAttr___closed__3;
 static lean_object* l_Lean_ErrorExplanation_reprCodeInfo___redArg___closed__18____x40_Lean_ErrorExplanation___hyg_593_;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
@@ -308,7 +312,6 @@ LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_CodeInfo_Kind_noConfusion___red
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_labelingExampleErrors___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_CodeInfo_Kind_ofString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_singleExample___lam__0___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Format_joinSep___at___Lean_Syntax_formatStxAux_spec__1(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_ErrorExplanation_CodeInfo_parse_infoString_spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_CodeInfo_instBEqKind;
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_singleExample(lean_object*);
@@ -319,7 +322,6 @@ LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanat
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ErrorExplanation_CodeInfo_Kind_toCtorIdx(uint8_t);
 lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_Parsec_String_skipWs(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_ErrorExplanation___hyg_3491____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getErrorExplanation_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at___Lean_ErrorExplanation_reprCodeInfo____x40_Lean_ErrorExplanation___hyg_593__spec__1___boxed(lean_object*, lean_object*);
 uint8_t l_Substring_beq(lean_object*, lean_object*);
@@ -334,11 +336,9 @@ static lean_object* l_Array_Array_repr___at___Lean_ErrorExplanation_reprValidati
 static lean_object* l_Lean_ErrorExplanation_fromJsonMetadata___closed__11____x40_Lean_ErrorExplanation___hyg_53_;
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_ErrorExplanation_instToJsonMetadata___closed__0;
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 size_t lean_array_size(lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_instInputValidationStateStringNat;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_ErrorExplanation_reprValidationState___redArg___closed__4____x40_Lean_ErrorExplanation___hyg_1517_;
@@ -5256,7 +5256,7 @@ lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_1);
 x_11 = l_List_reverse___redArg(x_10);
 x_12 = l_Prod_repr___at___Array_Array_repr___at___Lean_ErrorExplanation_reprValidationState____x40_Lean_ErrorExplanation___hyg_1517__spec__0_spec__0___redArg___closed__0;
-x_13 = l_Std_Format_joinSep___at___Lean_Syntax_formatStxAux_spec__1(x_11, x_12);
+x_13 = l_Std_Format_joinSep___at___Lean_Syntax_formatStxAux_spec__2(x_11, x_12);
 x_14 = l_Lean_ErrorExplanation_CodeInfo_reprKind___closed__5____x40_Lean_ErrorExplanation___hyg_379_;
 x_15 = l_Prod_repr___at___Array_Array_repr___at___Lean_ErrorExplanation_reprValidationState____x40_Lean_ErrorExplanation___hyg_1517__spec__0_spec__0___redArg___closed__2;
 x_16 = lean_alloc_ctor(5, 2, 0);
@@ -5299,7 +5299,7 @@ lean_ctor_set(x_30, 0, x_29);
 lean_ctor_set(x_30, 1, x_27);
 x_31 = l_List_reverse___redArg(x_30);
 x_32 = l_Prod_repr___at___Array_Array_repr___at___Lean_ErrorExplanation_reprValidationState____x40_Lean_ErrorExplanation___hyg_1517__spec__0_spec__0___redArg___closed__0;
-x_33 = l_Std_Format_joinSep___at___Lean_Syntax_formatStxAux_spec__1(x_31, x_32);
+x_33 = l_Std_Format_joinSep___at___Lean_Syntax_formatStxAux_spec__2(x_31, x_32);
 x_34 = l_Lean_ErrorExplanation_CodeInfo_reprKind___closed__5____x40_Lean_ErrorExplanation___hyg_379_;
 x_35 = l_Prod_repr___at___Array_Array_repr___at___Lean_ErrorExplanation_reprValidationState____x40_Lean_ErrorExplanation___hyg_1517__spec__0_spec__0___redArg___closed__2;
 x_36 = lean_alloc_ctor(5, 2, 0);
@@ -9008,7 +9008,7 @@ x_3 = l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_ValidationM_run
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -9032,7 +9032,7 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__1_spec__1(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__1_spec__1(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; uint8_t x_11; 
@@ -9069,7 +9069,7 @@ x_17 = 0;
 x_18 = lean_usize_of_nat(x_14);
 lean_dec(x_14);
 lean_inc_ref(x_1);
-x_19 = l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__0(x_1, x_12, x_17, x_18, x_5);
+x_19 = l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__0(x_1, x_12, x_17, x_18, x_5);
 lean_dec_ref(x_12);
 x_6 = x_19;
 goto block_10;
@@ -9092,7 +9092,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__1(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__1(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; uint8_t x_11; 
@@ -9129,7 +9129,7 @@ x_17 = 0;
 x_18 = lean_usize_of_nat(x_14);
 lean_dec(x_14);
 lean_inc_ref(x_1);
-x_19 = l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__0(x_1, x_12, x_17, x_18, x_5);
+x_19 = l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__0(x_1, x_12, x_17, x_18, x_5);
 lean_dec_ref(x_12);
 x_6 = x_19;
 goto block_10;
@@ -9146,12 +9146,12 @@ block_10:
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = 1;
 x_8 = lean_usize_add(x_3, x_7);
-x_9 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__1_spec__1(x_1, x_2, x_8, x_4, x_6);
+x_9 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__1_spec__1(x_1, x_2, x_8, x_4, x_6);
 return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_ErrorExplanation___hyg_3491_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_ErrorExplanation___hyg_3465_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -9164,7 +9164,7 @@ x_5 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___r
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_ErrorExplanation___hyg_3491_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_ErrorExplanation___hyg_3465_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
@@ -9194,13 +9194,13 @@ size_t x_8; size_t x_9; lean_object* x_10;
 x_8 = 0;
 x_9 = lean_usize_of_nat(x_5);
 lean_dec(x_5);
-x_10 = l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__1(x_1, x_2, x_8, x_9, x_3);
+x_10 = l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__1(x_1, x_2, x_8, x_9, x_3);
 return x_10;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__2____x40_Lean_ErrorExplanation___hyg_3491_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__2____x40_Lean_ErrorExplanation___hyg_3465_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -9208,7 +9208,7 @@ x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_ErrorExplanation___hyg_3491_() {
+static lean_object* _init_l_Lean_initFn___closed__0____x40_Lean_ErrorExplanation___hyg_3465_() {
 _start:
 {
 lean_object* x_1; 
@@ -9216,26 +9216,26 @@ x_1 = lean_mk_string_unchecked("errorExplanationExt", 19, 19);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_ErrorExplanation___hyg_3491_() {
+static lean_object* _init_l_Lean_initFn___closed__1____x40_Lean_ErrorExplanation___hyg_3465_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_initFn___closed__0____x40_Lean_ErrorExplanation___hyg_3491_;
+x_1 = l_Lean_initFn___closed__0____x40_Lean_ErrorExplanation___hyg_3465_;
 x_2 = l_Lean_ErrorExplanation_fromJsonMetadata___closed__1____x40_Lean_ErrorExplanation___hyg_53_;
 x_3 = l_Lean_Name_mkStr2(x_2, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_2 = lean_alloc_closure((void*)(l_Lean_initFn___lam__0____x40_Lean_ErrorExplanation___hyg_3491_), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_initFn___lam__0____x40_Lean_ErrorExplanation___hyg_3465_), 2, 0);
 lean_inc_ref(x_2);
-x_3 = lean_alloc_closure((void*)(l_Lean_initFn___lam__1____x40_Lean_ErrorExplanation___hyg_3491____boxed), 2, 1);
+x_3 = lean_alloc_closure((void*)(l_Lean_initFn___lam__1____x40_Lean_ErrorExplanation___hyg_3465____boxed), 2, 1);
 lean_closure_set(x_3, 0, x_2);
-x_4 = lean_alloc_closure((void*)(l_Lean_initFn___lam__2____x40_Lean_ErrorExplanation___hyg_3491_), 1, 0);
-x_5 = l_Lean_initFn___closed__1____x40_Lean_ErrorExplanation___hyg_3491_;
+x_4 = lean_alloc_closure((void*)(l_Lean_initFn___lam__2____x40_Lean_ErrorExplanation___hyg_3465_), 1, 0);
+x_5 = l_Lean_initFn___closed__1____x40_Lean_ErrorExplanation___hyg_3465_;
 x_6 = lean_box(0);
 x_7 = 2;
 x_8 = lean_box(0);
@@ -9251,7 +9251,7 @@ x_10 = l_Lean_registerSimplePersistentEnvExtension___redArg(x_9, x_1);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; 
@@ -9259,12 +9259,12 @@ x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_8 = l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__0(x_1, x_2, x_6, x_7, x_5);
+x_8 = l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__0(x_1, x_2, x_6, x_7, x_5);
 lean_dec_ref(x_2);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; 
@@ -9272,12 +9272,12 @@ x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_8 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__1_spec__1(x_1, x_2, x_6, x_7, x_5);
+x_8 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__1_spec__1(x_1, x_2, x_6, x_7, x_5);
 lean_dec_ref(x_2);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; 
@@ -9285,16 +9285,16 @@ x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_8 = l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491__spec__1(x_1, x_2, x_6, x_7, x_5);
+x_8 = l_Array_foldlMUnsafe_fold___at___Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465__spec__1(x_1, x_2, x_6, x_7, x_5);
 lean_dec_ref(x_2);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_ErrorExplanation___hyg_3491____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_ErrorExplanation___hyg_3465____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_initFn___lam__1____x40_Lean_ErrorExplanation___hyg_3491_(x_1, x_2);
+x_3 = l_Lean_initFn___lam__1____x40_Lean_ErrorExplanation___hyg_3465_(x_1, x_2);
 lean_dec_ref(x_2);
 return x_3;
 }
@@ -10147,11 +10147,11 @@ l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_sing
 lean_mark_persistent(l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_singleExample___closed__0);
 l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation___closed__0 = _init_l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation___closed__0();
 lean_mark_persistent(l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation___closed__0);
-l_Lean_initFn___closed__0____x40_Lean_ErrorExplanation___hyg_3491_ = _init_l_Lean_initFn___closed__0____x40_Lean_ErrorExplanation___hyg_3491_();
-lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_ErrorExplanation___hyg_3491_);
-l_Lean_initFn___closed__1____x40_Lean_ErrorExplanation___hyg_3491_ = _init_l_Lean_initFn___closed__1____x40_Lean_ErrorExplanation___hyg_3491_();
-lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_ErrorExplanation___hyg_3491_);
-if (builtin) {res = l_Lean_initFn____x40_Lean_ErrorExplanation___hyg_3491_(lean_io_mk_world());
+l_Lean_initFn___closed__0____x40_Lean_ErrorExplanation___hyg_3465_ = _init_l_Lean_initFn___closed__0____x40_Lean_ErrorExplanation___hyg_3465_();
+lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_ErrorExplanation___hyg_3465_);
+l_Lean_initFn___closed__1____x40_Lean_ErrorExplanation___hyg_3465_ = _init_l_Lean_initFn___closed__1____x40_Lean_ErrorExplanation___hyg_3465_();
+lean_mark_persistent(l_Lean_initFn___closed__1____x40_Lean_ErrorExplanation___hyg_3465_);
+if (builtin) {res = l_Lean_initFn____x40_Lean_ErrorExplanation___hyg_3465_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_errorExplanationExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_errorExplanationExt);

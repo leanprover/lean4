@@ -48,6 +48,7 @@ static lean_object* l_Lean_Server_Test_Runner_ident___closed__1;
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__31_spec__31___redArg___closed__33;
 static lean_object* l_Lean_Server_Test_Runner_Client_fromJsonHyp___closed__1____x40_Lean_Server_Test_Runner___hyg_245_;
 static lean_object* l_Lean_Server_Test_Runner_main_readFirstResponse___closed__32;
+lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonLeanIdentifier____x40_Lean_Data_Lsp_Internal___hyg_3774__spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_main_readFirstResponse___closed__15;
 static lean_object* l_Lean_Server_Test_Runner_instFromJsonPanelWidgetInstance___closed__9;
 static lean_object* l_Lean_Server_Test_Runner_Client_fromJsonHyp___closed__19____x40_Lean_Server_Test_Runner___hyg_245_;
@@ -141,7 +142,6 @@ static lean_object* l_Std_Internal_Parsec_manyCharsCore___at___Lean_Server_Test_
 static lean_object* l_Lean_Server_Test_Runner_Client_reprHyp___redArg___closed__6____x40_Lean_Server_Test_Runner___hyg_429_;
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__31_spec__31___redArg___closed__12;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonLeanIdentifier____x40_Lean_Data_Lsp_Internal___hyg_3878__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_Test_Runner_main_spec__27___redArg(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_main_readFirstResponse___closed__47;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__36(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5016,7 +5016,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_array_uget(x_3, x_2);
 x_7 = l_Lean_Server_Test_Runner_instFromJsonPanelWidgetInstance___lam__0___closed__0;
 lean_inc(x_6);
-x_8 = l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonLeanIdentifier____x40_Lean_Data_Lsp_Internal___hyg_3878__spec__0(x_6, x_7);
+x_8 = l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonLeanIdentifier____x40_Lean_Data_Lsp_Internal___hyg_3774__spec__0(x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; 

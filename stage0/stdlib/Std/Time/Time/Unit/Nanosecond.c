@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_Offset_ofInt(lean_object*);
 static lean_object* l_Std_Time_Nanosecond_instOffsetInhabited___closed__6;
 static lean_object* l_Std_Time_Nanosecond_instOffsetSub___closed__0;
-lean_object* l_Nat_cast___at___Int_bmod_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_instOrdinalLE;
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_instOffsetInhabited;
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_Ordinal_ofFin(lean_object*);
@@ -31,6 +30,7 @@ LEAN_EXPORT uint8_t l_Std_Time_Nanosecond_instSpanDecidableEq(lean_object*, lean
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_instDecidableLtOffset___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_Ordinal_ofInt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_instOrdOrdinal;
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Nanosecond_instOffsetRepr_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_Ordinal_instDecidableLtOfDay___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_instOffsetRepr;
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_instOfNatOrdinal___boxed(lean_object*);
@@ -291,6 +291,14 @@ x_1 = l_Std_Time_Nanosecond_instOrdOrdinal___closed__2;
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Nanosecond_instOffsetRepr_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Std_Time_Nanosecond_instOffsetRepr___closed__0() {
 _start:
 {
@@ -331,7 +339,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(1u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -352,7 +360,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(1000000000u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }

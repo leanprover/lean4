@@ -86,7 +86,7 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_lo
 lean_object* l_List_head_x21___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__7_spec__7___closed__3;
-lean_object* l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__2(uint8_t, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__3(uint8_t, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__5_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_logLint___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_anyMUnsafe_any___at___Lean_Linter_suspiciousUnexpanderPatterns_spec__4___closed__0;
@@ -2130,7 +2130,7 @@ lean_ctor_set(x_154, 1, x_149);
 x_155 = 0;
 x_156 = lean_usize_of_nat(x_150);
 lean_dec(x_150);
-x_157 = l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__2(x_144, x_148, x_155, x_156, x_154);
+x_157 = l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__3(x_144, x_148, x_155, x_156, x_154);
 lean_dec_ref(x_148);
 x_158 = lean_ctor_get(x_157, 1);
 lean_inc(x_158);

@@ -416,6 +416,7 @@ LEAN_EXPORT lean_object* l_panic___at___Lean_Elab_InfoTree_visitM_go___at___Lean
 static lean_object* l_Array_mapMUnsafe_map___at___Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1381__spec__0___closed__1;
 uint64_t l_String_hashRange____x40_Lean_Syntax___hyg_174_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_followAliases___boxed(lean_object*, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__3(uint8_t, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_UnusedVariables_visitAssignments_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_visitAssignments___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Linter_UnusedVariables_unusedVariables_spec__28___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -430,7 +431,6 @@ LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables
 static lean_object* l_Lean_Linter_initFn___lam__0___closed__7____x40_Lean_Linter_UnusedVariables___hyg_1381_;
 uint8_t l_String_Range_contains(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Linter_initFn___closed__3____x40_Lean_Linter_UnusedVariables___hyg_640_;
-lean_object* l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__2(uint8_t, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_Linter_UnusedVariables_unusedVariables_spec__22___redArg(uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lean_Linter_UnusedVariables_unusedVariables_spec__25___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_setEnv___at___Lean_compileDecls_spec__0___redArg(lean_object*, lean_object*, lean_object*);
@@ -4466,7 +4466,7 @@ lean_ctor_set(x_84, 1, x_79);
 x_85 = 0;
 x_86 = lean_usize_of_nat(x_80);
 lean_dec(x_80);
-x_87 = l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__2(x_64, x_78, x_85, x_86, x_84);
+x_87 = l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__3(x_64, x_78, x_85, x_86, x_84);
 lean_dec_ref(x_78);
 x_88 = lean_ctor_get(x_87, 1);
 lean_inc(x_88);

@@ -202,6 +202,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeMAux___at___Lean_Persist
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___closed__3;
 lean_object* l_Lean_Syntax_setArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsFilterSeverity___redArg___closed__2;
+lean_object* l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__3(uint8_t, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___closed__9;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec_spec__0_spec__0___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___regBuiltin_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs_declRange__3(lean_object*);
@@ -213,7 +214,6 @@ LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___Lean_Elab_
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeM_x3f___at___Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___closed__13;
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec___closed__3;
-lean_object* l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__2(uint8_t, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardMsgs_MessageOrdering_noConfusion___redArg___boxed(lean_object*, lean_object*);
 uint8_t l_String_anyAux___at___Lean_Name_isInaccessibleUserName_spec__0(uint32_t, lean_object*, lean_object*, lean_object*);
@@ -2935,7 +2935,7 @@ lean_ctor_set(x_83, 1, x_77);
 x_84 = 0;
 x_85 = lean_usize_of_nat(x_79);
 lean_dec(x_79);
-x_86 = l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__2(x_68, x_76, x_84, x_85, x_83);
+x_86 = l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__3(x_68, x_76, x_84, x_85, x_83);
 lean_dec_ref(x_76);
 x_87 = lean_ctor_get(x_86, 1);
 lean_inc(x_87);

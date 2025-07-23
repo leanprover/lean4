@@ -27,6 +27,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_evalCodeActionProviderUnsafe___at___Lean_Server_handleCodeAction_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Server_handleCodeAction_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_initFn___lam__2___closed__3____x40_Lean_Server_CodeActions_Basic___hyg_528_;
+lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonLeanIdentifier____x40_Lean_Data_Lsp_Internal___hyg_3774__spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_fromJsonCodeActionResolveData___closed__4____x40_Lean_Server_CodeActions_Basic___hyg_136_;
 static lean_object* l_Lean_Server_fromJsonCodeActionResolveData___closed__0____x40_Lean_Server_CodeActions_Basic___hyg_136_;
 lean_object* l_Lean_Json_mkObj(lean_object*);
@@ -81,7 +82,6 @@ lean_object* l_EIO_ofExcept___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_1549_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Array_toJson___at___Lean_Server_registerLspRequestHandler___at___Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_1224__spec__0_spec__2_spec__2(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instCoeCodeActionLazyCodeAction___lam__0(lean_object*);
-lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonLeanIdentifier____x40_Lean_Data_Lsp_Internal___hyg_3878__spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_initFn___closed__0____x40_Lean_Server_CodeActions_Basic___hyg_469_;
 LEAN_EXPORT lean_object* l_Lean_evalConstCheck___at_____private_Lean_Server_CodeActions_Basic_0__Lean_Server_evalCodeActionProviderUnsafe___at___Lean_Server_handleCodeAction_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_parseRequestParams___at___Lean_Server_handleCodeActionResolve_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -689,7 +689,7 @@ lean_inc(x_15);
 lean_dec_ref(x_3);
 x_16 = l_Lean_Server_toJsonCodeActionResolveData___closed__1____x40_Lean_Server_CodeActions_Basic___hyg_70_;
 lean_inc(x_1);
-x_17 = l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonLeanIdentifier____x40_Lean_Data_Lsp_Internal___hyg_3878__spec__0(x_1, x_16);
+x_17 = l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonLeanIdentifier____x40_Lean_Data_Lsp_Internal___hyg_3774__spec__0(x_1, x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 uint8_t x_18; 

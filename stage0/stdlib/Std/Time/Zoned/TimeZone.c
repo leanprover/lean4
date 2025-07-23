@@ -31,6 +31,7 @@ static lean_object* l_Std_Time_reprTimeZone___redArg___closed__6____x40_Std_Time
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__10____x40_Std_Time_Zoned_TimeZone___hyg_62_;
 lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__7____x40_Std_Time_Zoned_TimeZone___hyg_62_;
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_reprTimeZone____x40_Std_Time_Zoned_TimeZone___hyg_62__spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_reprTimeZone____x40_Std_Time_Zoned_TimeZone___hyg_62____boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__9____x40_Std_Time_Zoned_TimeZone___hyg_62_;
 lean_object* lean_nat_to_int(lean_object*);
@@ -49,7 +50,6 @@ static lean_object* l_Std_Time_reprTimeZone___redArg___closed__1____x40_Std_Time
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__12____x40_Std_Time_Zoned_TimeZone___hyg_62_;
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__15____x40_Std_Time_Zoned_TimeZone___hyg_62_;
 LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqTimeZone___boxed(lean_object*, lean_object*);
-lean_object* l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(lean_object*);
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__22____x40_Std_Time_Zoned_TimeZone___hyg_62_;
 LEAN_EXPORT lean_object* l_Std_Time_decEqTimeZone____x40_Std_Time_Zoned_TimeZone___hyg_160____boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_reprTimeZone___redArg___closed__13____x40_Std_Time_Zoned_TimeZone___hyg_62_;
@@ -111,6 +111,14 @@ _start:
 lean_object* x_1; 
 x_1 = l_Std_Time_instInhabitedTimeZone___closed__2;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_reprTimeZone____x40_Std_Time_Zoned_TimeZone___hyg_62__spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_reprTimeZone___redArg___closed__0____x40_Std_Time_Zoned_TimeZone___hyg_62_() {
@@ -302,7 +310,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(2u);
-x_2 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }

@@ -37,6 +37,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_Null_NullCertExt_check
 lean_object* l_Int_gcd(lean_object*, lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_Stepwise_mkSemiringAddRightCancelPrefix___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_4511_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_EqCnstr_toExprProof___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_EqCnstr_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_Stepwise_setEqUnsat_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_EqCnstr_mkNullCertExt___closed__1;
@@ -268,7 +269,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_M
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_Stepwise_withSemiringContext___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_denoteExpr_denoteTerm___at___Lean_Grind_CommRing_Poly_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_EqCnstr_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_Stepwise_setEqUnsat_spec__0_spec__0_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_replace___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint64_t l_Lean_Grind_CommRing_hashPoly____x40_Init_Grind_Ring_Poly___hyg_5359_(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_Stepwise_mkImpEqExprProof___closed__8;
 extern lean_object* l_Lean_Grind_CommRing_instInhabitedPoly;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at___Lean_Meta_Grind_Arith_CommRing_Stepwise_setEqUnsat_spec__17___boxed(lean_object**);
@@ -342,7 +342,6 @@ uint64_t lean_usize_to_uint64(size_t);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_Null_propagateEq___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteExpr_go___at___Lean_Grind_CommRing_Mon_denoteExpr___at___Lean_Grind_CommRing_Poly_denoteExpr_denoteTerm___at___Lean_Grind_CommRing_Poly_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_getPolyConst_spec__0_spec__4_spec__6_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_5109_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_EqCnstr_toExprProof___closed__13;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
@@ -525,7 +524,6 @@ LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_getNegFn___at___Lean_Meta_Grind_Arith_CommRing_denoteNum___at___Lean_Grind_CommRing_Poly_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_EqCnstr_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_Stepwise_setEqUnsat_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__1___redArg(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_EqCnstr_toPreNullCert___closed__0;
-uint64_t l_Lean_Grind_CommRing_hashMon____x40_Init_Grind_Ring_Poly___hyg_1824_(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Lean_Meta_Grind_Arith_CommRing_Stepwise_mkPolyDecl_spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_Stepwise_mkStepBasicPrefix___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_Stepwise_getSContext___closed__11;
@@ -660,6 +658,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__L
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Util_0__Lean_Meta_Grind_Arith_CommRing_mkPowFn___at___Lean_Meta_Grind_Arith_CommRing_getPowFn___at___Lean_Grind_CommRing_Power_denoteExpr___at___Lean_Grind_CommRing_Mon_denoteExpr___at___Lean_Grind_CommRing_Poly_denoteExpr_denoteTerm___at___Lean_Grind_CommRing_Poly_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_getPolyConst_spec__0_spec__4_spec__6_spec__6_spec__6_spec__6___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_Null_NullCertExt_toNullCert___boxed(lean_object*);
+uint64_t l_Lean_Grind_CommRing_hashMon____x40_Init_Grind_Ring_Poly___hyg_1772_(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_Null_setEqUnsat___closed__16;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_Stepwise_getSContext___closed__33;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_Stepwise_mkSemiringPrefix_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -754,6 +753,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_EqCnstr_mkNullCertExt(
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_EqCnstr_toExprProof___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Power_denoteExpr___at___Lean_Grind_CommRing_Mon_denoteExpr___at___Lean_Grind_CommRing_Poly_denoteExpr_denoteTerm___at___Lean_Grind_CommRing_Poly_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_getPolyConst_spec__0_spec__4_spec__6_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_Stepwise_getSemiringIdOf___closed__1;
+uint64_t l_Lean_Grind_CommRing_hashPoly____x40_Init_Grind_Ring_Poly___hyg_4761_(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_Stepwise_withProofContext___lam__0___closed__2;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Lean_Meta_Grind_Arith_CommRing_Stepwise_mkMonDecl_spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_Null_caching_unsafe__1___redArg(lean_object*);
@@ -799,7 +799,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_Null_PreNullCert_combi
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Util_0__Lean_Meta_Grind_Arith_CommRing_mkPowFn___at___Lean_Meta_Grind_Arith_CommRing_getPowFn___at___Lean_Grind_CommRing_Power_denoteExpr___at___Lean_Grind_CommRing_Mon_denoteExpr___at___Lean_Grind_CommRing_Poly_denoteExpr_denoteTerm___at___Lean_Grind_CommRing_Poly_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_getPolyConst_spec__0_spec__4_spec__6_spec__6_spec__6_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_SafePoly_0__Lean_Meta_Grind_Arith_CommRing_mulMon(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Mon_denoteExpr___at___Lean_Grind_CommRing_Poly_denoteExpr_denoteTerm___at___Lean_Grind_CommRing_Poly_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_EqCnstr_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_Stepwise_setEqUnsat_spec__0_spec__0_spec__4_spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Grind_CommRing_beqMon____x40_Init_Grind_Ring_Poly___hyg_1622_(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_getAddFn___at___Lean_Grind_CommRing_Poly_denoteExpr_go___at___Lean_Grind_CommRing_Poly_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_EqCnstr_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_Stepwise_setEqUnsat_spec__0_spec__0_spec__12_spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_getNegFn___at___Lean_Meta_Grind_Arith_CommRing_denoteNum___at___Lean_Grind_CommRing_Poly_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_getPolyConst_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -810,6 +809,7 @@ lean_object* l_Lean_Meta_instMonadMetaM___lam__1(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_Null_NullCertExt_applyEqs_go___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_CommRing_getAddFn___at___Lean_Grind_CommRing_Poly_denoteExpr_go___at___Lean_Grind_CommRing_Poly_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_getPolyConst_spec__0_spec__12_spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_getMulFn___at___Lean_Grind_CommRing_Poly_denoteExpr_denoteTerm___at___Lean_Grind_CommRing_Poly_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_getPolyConst_spec__0_spec__4_spec__4___closed__2;
+uint8_t l_Lean_Grind_CommRing_beqMon____x40_Init_Grind_Ring_Poly___hyg_1570_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_CommRing_MonadRing_synthInstance___at_____private_Lean_Meta_Tactic_Grind_Arith_CommRing_Util_0__Lean_Meta_Grind_Arith_CommRing_mkUnaryFn___at___Lean_Meta_Grind_Arith_CommRing_getNegFn___at___Lean_Meta_Grind_Arith_CommRing_denoteNum___at___Lean_Grind_CommRing_Poly_denoteExpr___at___Lean_Meta_Grind_Arith_CommRing_getPolyConst_spec__0_spec__0_spec__0_spec__0_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_Stepwise_caching___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Proof_0__Lean_Meta_Grind_Arith_CommRing_Stepwise_withProofContext___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10707,7 +10707,7 @@ lean_inc_ref(x_19);
 lean_dec_ref(x_1);
 x_20 = lean_ctor_get(x_2, 0);
 x_21 = l_Lean_Grind_CommRing_Poly_mulConst_x27(x_19, x_20, x_14);
-x_22 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_5109_(x_21, x_18);
+x_22 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_4511_(x_21, x_18);
 lean_dec(x_18);
 lean_dec_ref(x_21);
 x_23 = lean_box(x_22);
@@ -10727,7 +10727,7 @@ lean_inc_ref(x_26);
 lean_dec_ref(x_1);
 x_27 = lean_ctor_get(x_2, 0);
 x_28 = l_Lean_Grind_CommRing_Poly_mulConst_x27(x_26, x_27, x_14);
-x_29 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_5109_(x_28, x_24);
+x_29 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_4511_(x_28, x_24);
 lean_dec(x_24);
 lean_dec_ref(x_28);
 x_30 = lean_box(x_29);
@@ -18225,7 +18225,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_ctor_get(x_2, 2);
-x_7 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_5109_(x_4, x_1);
+x_7 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_4511_(x_4, x_1);
 if (x_7 == 0)
 {
 x_2 = x_6;
@@ -18501,7 +18501,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
-x_6 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_5109_(x_4, x_1);
+x_6 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_4511_(x_4, x_1);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -18539,7 +18539,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint64_t x_7; uint64_t x_8
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_array_get_size(x_1);
-x_7 = l_Lean_Grind_CommRing_hashPoly____x40_Init_Grind_Ring_Poly___hyg_5359_(x_4);
+x_7 = l_Lean_Grind_CommRing_hashPoly____x40_Init_Grind_Ring_Poly___hyg_4761_(x_4);
 x_8 = 32;
 x_9 = lean_uint64_shift_right(x_7, x_8);
 x_10 = lean_uint64_xor(x_7, x_9);
@@ -18570,7 +18570,7 @@ lean_inc(x_23);
 lean_inc(x_22);
 lean_dec(x_2);
 x_25 = lean_array_get_size(x_1);
-x_26 = l_Lean_Grind_CommRing_hashPoly____x40_Init_Grind_Ring_Poly___hyg_5359_(x_22);
+x_26 = l_Lean_Grind_CommRing_hashPoly____x40_Init_Grind_Ring_Poly___hyg_4761_(x_22);
 x_27 = 32;
 x_28 = lean_uint64_shift_right(x_26, x_27);
 x_29 = lean_uint64_xor(x_26, x_28);
@@ -18684,7 +18684,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = lean_ctor_get(x_3, 1);
 x_7 = lean_ctor_get(x_3, 2);
-x_8 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_5109_(x_5, x_1);
+x_8 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_4511_(x_5, x_1);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -18711,7 +18711,7 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_3);
-x_13 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_5109_(x_10, x_1);
+x_13 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_4511_(x_10, x_1);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -18766,7 +18766,7 @@ x_20 = lean_ctor_get(x_16, 1);
 lean_inc_ref(x_20);
 lean_dec_ref(x_16);
 x_21 = lean_array_get_size(x_20);
-x_22 = l_Lean_Grind_CommRing_hashPoly____x40_Init_Grind_Ring_Poly___hyg_5359_(x_1);
+x_22 = l_Lean_Grind_CommRing_hashPoly____x40_Init_Grind_Ring_Poly___hyg_4761_(x_1);
 x_23 = 32;
 x_24 = lean_uint64_shift_right(x_22, x_23);
 x_25 = lean_uint64_xor(x_22, x_24);
@@ -19047,7 +19047,7 @@ x_117 = lean_ctor_get(x_16, 1);
 lean_inc_ref(x_117);
 lean_dec_ref(x_16);
 x_118 = lean_array_get_size(x_117);
-x_119 = l_Lean_Grind_CommRing_hashPoly____x40_Init_Grind_Ring_Poly___hyg_5359_(x_1);
+x_119 = l_Lean_Grind_CommRing_hashPoly____x40_Init_Grind_Ring_Poly___hyg_4761_(x_1);
 x_120 = 32;
 x_121 = lean_uint64_shift_right(x_119, x_120);
 x_122 = lean_uint64_xor(x_119, x_121);
@@ -21059,7 +21059,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_ctor_get(x_2, 2);
-x_7 = l_Lean_Grind_CommRing_beqMon____x40_Init_Grind_Ring_Poly___hyg_1622_(x_4, x_1);
+x_7 = l_Lean_Grind_CommRing_beqMon____x40_Init_Grind_Ring_Poly___hyg_1570_(x_4, x_1);
 if (x_7 == 0)
 {
 x_2 = x_6;
@@ -21098,7 +21098,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
-x_6 = l_Lean_Grind_CommRing_beqMon____x40_Init_Grind_Ring_Poly___hyg_1622_(x_4, x_1);
+x_6 = l_Lean_Grind_CommRing_beqMon____x40_Init_Grind_Ring_Poly___hyg_1570_(x_4, x_1);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -21136,7 +21136,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint64_t x_7; uint64_t x_8
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_array_get_size(x_1);
-x_7 = l_Lean_Grind_CommRing_hashMon____x40_Init_Grind_Ring_Poly___hyg_1824_(x_4);
+x_7 = l_Lean_Grind_CommRing_hashMon____x40_Init_Grind_Ring_Poly___hyg_1772_(x_4);
 x_8 = 32;
 x_9 = lean_uint64_shift_right(x_7, x_8);
 x_10 = lean_uint64_xor(x_7, x_9);
@@ -21167,7 +21167,7 @@ lean_inc(x_23);
 lean_inc(x_22);
 lean_dec(x_2);
 x_25 = lean_array_get_size(x_1);
-x_26 = l_Lean_Grind_CommRing_hashMon____x40_Init_Grind_Ring_Poly___hyg_1824_(x_22);
+x_26 = l_Lean_Grind_CommRing_hashMon____x40_Init_Grind_Ring_Poly___hyg_1772_(x_22);
 x_27 = 32;
 x_28 = lean_uint64_shift_right(x_26, x_27);
 x_29 = lean_uint64_xor(x_26, x_28);
@@ -21281,7 +21281,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = lean_ctor_get(x_3, 1);
 x_7 = lean_ctor_get(x_3, 2);
-x_8 = l_Lean_Grind_CommRing_beqMon____x40_Init_Grind_Ring_Poly___hyg_1622_(x_5, x_1);
+x_8 = l_Lean_Grind_CommRing_beqMon____x40_Init_Grind_Ring_Poly___hyg_1570_(x_5, x_1);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -21308,7 +21308,7 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_3);
-x_13 = l_Lean_Grind_CommRing_beqMon____x40_Init_Grind_Ring_Poly___hyg_1622_(x_10, x_1);
+x_13 = l_Lean_Grind_CommRing_beqMon____x40_Init_Grind_Ring_Poly___hyg_1570_(x_10, x_1);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -21363,7 +21363,7 @@ x_20 = lean_ctor_get(x_16, 1);
 lean_inc_ref(x_20);
 lean_dec_ref(x_16);
 x_21 = lean_array_get_size(x_20);
-x_22 = l_Lean_Grind_CommRing_hashMon____x40_Init_Grind_Ring_Poly___hyg_1824_(x_1);
+x_22 = l_Lean_Grind_CommRing_hashMon____x40_Init_Grind_Ring_Poly___hyg_1772_(x_1);
 x_23 = 32;
 x_24 = lean_uint64_shift_right(x_22, x_23);
 x_25 = lean_uint64_xor(x_22, x_24);
@@ -21644,7 +21644,7 @@ x_117 = lean_ctor_get(x_16, 1);
 lean_inc_ref(x_117);
 lean_dec_ref(x_16);
 x_118 = lean_array_get_size(x_117);
-x_119 = l_Lean_Grind_CommRing_hashMon____x40_Init_Grind_Ring_Poly___hyg_1824_(x_1);
+x_119 = l_Lean_Grind_CommRing_hashMon____x40_Init_Grind_Ring_Poly___hyg_1772_(x_1);
 x_120 = 32;
 x_121 = lean_uint64_shift_right(x_119, x_120);
 x_122 = lean_uint64_xor(x_119, x_121);

@@ -167,7 +167,6 @@ LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subYearsClip___boxed(lean_obje
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subMonthsRollOver___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_ZonedDateTime_weekday(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_withYearClip(lean_object*, lean_object*);
-lean_object* l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_instHSubOffset__6___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toDateTime___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_dayOfYear___closed__1;
@@ -5123,7 +5122,7 @@ lean_inc(x_46);
 lean_dec_ref(x_45);
 x_47 = lean_nat_abs(x_46);
 lean_dec(x_46);
-x_48 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_47);
+x_48 = lean_nat_to_int(x_47);
 x_49 = lean_int_sub(x_41, x_48);
 lean_dec(x_48);
 lean_dec(x_41);

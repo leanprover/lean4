@@ -24,7 +24,6 @@ static lean_object* l_Std_Tactic_BVDecide_BVUnOp_instToString___closed__0;
 static lean_object* l_Std_Tactic_BVDecide_BVExpr_toString___closed__2;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_hashBVUnOp____x40_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic___hyg_1114____boxed(lean_object*);
 LEAN_EXPORT uint64_t l_Std_Tactic_BVDecide_BVExpr_instHashable___lam__0(lean_object*);
-lean_object* l_Nat_cast___at___Int_bmod_spec__0(lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_BVUnOp_toString___closed__4;
 lean_object* l_BitVec_setWidth(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVBinOp_noConfusion___redArg(uint8_t, uint8_t);
@@ -139,6 +138,7 @@ static lean_object* l_Std_Tactic_BVDecide_reprBVBit___redArg___closed__17____x40
 lean_object* l_BitVec_rotateRight(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_BVBinOp_toString___closed__2;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_eval___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Tactic_BVDecide_reprBVBit____x40_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic___hyg_294__spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_hashCode___override___redArg___boxed(lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_BVUnOp_toString___closed__2;
 lean_object* lean_nat_lxor(lean_object*, lean_object*);
@@ -318,6 +318,14 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Tactic_BVDecide_reprBVBit____x40_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic___hyg_294__spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Std_Tactic_BVDecide_reprBVBit___redArg___closed__0____x40_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic___hyg_294_() {
 _start:
 {
@@ -471,7 +479,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(2u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }

@@ -135,6 +135,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_elimDeadBranches(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_findArgValue___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_getD___at___Lean_IR_UnreachableBranches_findVarValue_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_Value_addChoice___closed__0;
+lean_object* l_Std_Format_joinSep___at___Lean_Syntax_formatStxAux_spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_getFunctionSummary_x3f___closed__0;
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_IR_UnreachableBranches_updateVarAssignment_spec__0___redArg(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -313,7 +314,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_UnreachableBranch
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_1073_(lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_reprValue___closed__5____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_182_;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
-lean_object* l_Std_Format_joinSep___at___Lean_Syntax_formatStxAux_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_findVarValue(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_UnreachableBranches_inferStep_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
@@ -1693,7 +1693,7 @@ lean_dec_ref(x_1);
 x_57 = lean_box(0);
 x_58 = l_List_mapTR_loop___at___Lean_IR_UnreachableBranches_Value_toFormat_spec__1(x_56, x_57);
 x_59 = l_Lean_IR_UnreachableBranches_Value_toFormat___closed__9;
-x_60 = l_Std_Format_joinSep___at___Lean_Syntax_formatStxAux_spec__1(x_58, x_59);
+x_60 = l_Std_Format_joinSep___at___Lean_Syntax_formatStxAux_spec__2(x_58, x_59);
 x_61 = l_List_repr___at___Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_182__spec__3___redArg___closed__3;
 x_62 = l_Lean_IR_UnreachableBranches_Value_toFormat___closed__6;
 x_63 = lean_alloc_ctor(5, 2, 0);

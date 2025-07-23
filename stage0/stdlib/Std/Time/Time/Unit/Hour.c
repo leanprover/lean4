@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_Std_Time_Hour_instInhabitedOrdinal___closed__6;
-lean_object* l_Nat_cast___at___Int_bmod_spec__0(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Hour_instOffsetRepr_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Hour_Ordinal_shiftTo1BasedHour___boxed(lean_object*);
 static lean_object* l_Std_Time_Hour_instOrdOrdinal___closed__2;
 static lean_object* l_Std_Time_Hour_Ordinal_shiftTo1BasedHour___closed__3;
@@ -373,6 +373,14 @@ x_1 = l_Std_Time_Hour_instOrdOrdinal___closed__2;
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Hour_instOffsetRepr_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Std_Time_Hour_instOffsetRepr___closed__0() {
 _start:
 {
@@ -413,7 +421,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(3600u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }

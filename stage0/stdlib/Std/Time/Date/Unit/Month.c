@@ -17,7 +17,7 @@ static lean_object* l_Std_Time_Month_Ordinal_toSeconds___closed__1;
 static lean_object* l_Std_Time_Month_instInhabitedOrdinal___closed__4;
 static lean_object* l_Std_Time_Month_Ordinal_days___closed__6;
 LEAN_EXPORT uint8_t l_Std_Time_Month_instDecidableLtOffset(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_monthSizesNonLeap;
+static lean_object* l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_monthSizesNonLeap;
 static lean_object* l_Std_Time_Month_Quarter_ofMonth___closed__1;
 static lean_object* l___auto___closed__24____x40_Std_Time_Date_Unit_Month___hyg_398_;
 static lean_object* l_Std_Time_Month_Ordinal_december___closed__2;
@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Month_instOffsetSub;
 LEAN_EXPORT uint8_t l_Std_Time_Month_instDecidableLtOrdinal(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Std_Time_Month_Ordinal_february___closed__5;
-lean_object* l_Nat_cast___at___Int_bmod_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_toSeconds(uint8_t, lean_object*);
 static lean_object* l_Std_Time_Month_Ordinal_toNat___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Month_instInhabitedQuarter;
@@ -85,7 +84,6 @@ static lean_object* l___auto___closed__3____x40_Std_Time_Date_Unit_Month___hyg_3
 static lean_object* l_Std_Time_Month_Ordinal_may___closed__2;
 static lean_object* l_Std_Time_Month_Ordinal_august___closed__1;
 lean_object* lean_int_emod(lean_object*, lean_object*);
-static lean_object* l_Std_Time_Month_Ordinal_toSeconds___closed__26;
 static lean_object* l_Std_Time_Month_instInhabitedOrdinal___closed__9;
 static lean_object* l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_monthSizesNonLeap___closed__5;
 static lean_object* l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_cumulativeSizes___closed__0;
@@ -101,6 +99,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Month_instOffsetAdd;
 static lean_object* l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_monthSizesNonLeap___closed__17;
 static lean_object* l_Std_Time_Month_Ordinal_october___closed__1;
 lean_object* l_instReprInt___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Month_Ordinal_toSeconds_spec__0(lean_object*);
 static lean_object* l_Std_Time_Month_Ordinal_may___closed__5;
 static lean_object* l_Std_Time_Month_Ordinal_days___closed__17;
 static lean_object* l_Std_Time_Month_Ordinal_days___closed__30;
@@ -193,7 +192,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Month_instOrdOrdinal;
 static lean_object* l_Std_Time_Month_Ordinal_days___closed__20;
 static lean_object* l_Std_Time_Month_instInhabitedOrdinal___closed__0;
 static lean_object* l_Std_Time_Month_instOrdOrdinal___closed__2;
-static lean_object* l_Std_Time_Month_Ordinal_toSeconds___closed__25;
 LEAN_EXPORT lean_object* l_Std_Time_Month_Offset_ofInt(lean_object*);
 static lean_object* l_Std_Time_Month_Ordinal_november___closed__3;
 static lean_object* l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_cumulativeSizes___closed__18;
@@ -222,7 +220,6 @@ static lean_object* l_Std_Time_Month_Ordinal_october___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_october;
 static lean_object* l_Std_Time_Month_instOffsetMul___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Month_Quarter_ofMonth(lean_object*);
-static lean_object* l_Std_Time_Month_Ordinal_cumulativeDays___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Month_instOffsetDecidableEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_may;
 static lean_object* l_Std_Time_Month_instInhabitedOrdinal___closed__8;
@@ -297,7 +294,7 @@ static lean_object* l_Std_Time_Month_Ordinal_toSeconds___closed__21;
 static lean_object* l_Std_Time_Month_Ordinal_february___closed__0;
 lean_object* l_Int_mul___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_cumulativeSizes___closed__1;
-LEAN_EXPORT lean_object* l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_cumulativeSizes;
+static lean_object* l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_cumulativeSizes;
 static lean_object* l_Std_Time_Month_Ordinal_toSeconds___closed__15;
 lean_object* l_Int_toNat(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Month_instOrdinalDecidableEq(lean_object*, lean_object*);
@@ -2191,12 +2188,20 @@ return x_5;
 }
 }
 }
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Month_Ordinal_toSeconds_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_1 = lean_unsigned_to_nat(31u);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -2204,8 +2209,8 @@ static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(31u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_1 = lean_unsigned_to_nat(59u);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -2213,8 +2218,8 @@ static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(59u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_1 = lean_unsigned_to_nat(90u);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -2222,8 +2227,8 @@ static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(90u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_1 = lean_unsigned_to_nat(120u);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -2231,8 +2236,8 @@ static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(120u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_1 = lean_unsigned_to_nat(151u);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -2240,8 +2245,8 @@ static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(151u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_1 = lean_unsigned_to_nat(181u);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -2249,8 +2254,8 @@ static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(181u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_1 = lean_unsigned_to_nat(212u);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -2258,8 +2263,8 @@ static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(212u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_1 = lean_unsigned_to_nat(243u);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -2267,8 +2272,8 @@ static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(243u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_1 = lean_unsigned_to_nat(273u);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -2276,8 +2281,8 @@ static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(273u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_1 = lean_unsigned_to_nat(304u);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -2285,8 +2290,8 @@ static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(304u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_1 = lean_unsigned_to_nat(334u);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -2294,18 +2299,19 @@ static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(334u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_1 = lean_unsigned_to_nat(12u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__12() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(12u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Std_Time_Month_Ordinal_toNat___closed__0;
+x_2 = l_Std_Time_Month_Ordinal_toSeconds___closed__11;
+x_3 = lean_array_push(x_2, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__13() {
@@ -2421,28 +2427,9 @@ return x_3;
 static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__24() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Time_Month_Ordinal_toSeconds___closed__11;
-x_2 = l_Std_Time_Month_Ordinal_toSeconds___closed__23;
-x_3 = lean_array_push(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__25() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(86400u);
 x_2 = lean_nat_to_int(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Std_Time_Month_Ordinal_toSeconds___closed__26() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(86400u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
 return x_2;
 }
 }
@@ -2452,9 +2439,9 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = l_Std_Time_Day_instOffsetInhabited;
 x_4 = lean_nat_abs(x_2);
-x_5 = l_Std_Time_Month_Ordinal_toSeconds___closed__24;
+x_5 = l_Std_Time_Month_Ordinal_toSeconds___closed__23;
 x_6 = lean_array_get(x_3, x_5, x_4);
-x_7 = l_Std_Time_Month_Ordinal_toSeconds___closed__25;
+x_7 = l_Std_Time_Month_Ordinal_toSeconds___closed__24;
 x_8 = lean_int_mul(x_6, x_7);
 lean_dec(x_6);
 if (x_1 == 0)
@@ -2474,11 +2461,10 @@ return x_8;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = l_Std_Time_Month_Ordinal_toSeconds___closed__26;
-x_12 = l_Std_Time_Second_instOffsetAdd;
-x_13 = lean_apply_2(x_12, x_8, x_11);
-return x_13;
+lean_object* x_11; lean_object* x_12; 
+x_11 = l_Std_Time_Second_instOffsetAdd;
+x_12 = lean_apply_2(x_11, x_8, x_7);
+return x_12;
 }
 }
 }
@@ -2831,7 +2817,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_monthSizesNonLeap___closed__9;
-x_2 = l_Std_Time_Month_Ordinal_toSeconds___closed__12;
+x_2 = l_Std_Time_Month_Ordinal_toSeconds___closed__11;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3058,7 +3044,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_cumulativeSizes___closed__0;
-x_2 = l_Std_Time_Month_Ordinal_toSeconds___closed__12;
+x_2 = l_Std_Time_Month_Ordinal_toSeconds___closed__11;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3195,7 +3181,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(30u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -3234,7 +3220,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Time_Month_instOfNatOrdinal___closed__0;
-x_2 = l_Std_Time_Month_Ordinal_toSeconds___closed__1;
+x_2 = l_Std_Time_Month_Ordinal_toSeconds___closed__0;
 x_3 = lean_int_sub(x_2, x_1);
 return x_3;
 }
@@ -3284,7 +3270,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(28u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -3393,7 +3379,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Time_Month_Ordinal_days___closed__9;
-x_2 = l_Std_Time_Month_Ordinal_toSeconds___closed__12;
+x_2 = l_Std_Time_Month_Ordinal_toSeconds___closed__11;
 x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
@@ -3513,7 +3499,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(29u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -3612,52 +3598,43 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Std_Time_Month_Ordinal_cumulativeDays___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_Month_Ordinal_cumulativeDays(uint8_t x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = l_Std_Time_Month_Ordinal_toSeconds___closed__0;
-x_4 = l_Std_Time_Month_Ordinal_toSeconds___closed__24;
-x_5 = l_Std_Time_Month_Quarter_ofMonth___closed__1;
-x_6 = lean_int_add(x_2, x_5);
-x_7 = l_Int_toNat(x_6);
-lean_dec(x_6);
-x_8 = lean_array_fget(x_4, x_7);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_3 = l_Std_Time_Month_Ordinal_toNat___closed__0;
+x_4 = l_Std_Time_Month_Ordinal_toSeconds___closed__23;
+x_5 = l_Std_Time_Month_instOfNatOrdinal___closed__0;
+x_6 = l_Std_Time_Month_Quarter_ofMonth___closed__1;
+x_7 = lean_int_add(x_2, x_6);
+x_8 = l_Int_toNat(x_7);
 lean_dec(x_7);
+x_9 = lean_array_fget(x_4, x_8);
+lean_dec(x_8);
 if (x_1 == 0)
 {
-lean_object* x_9; lean_object* x_10; 
-x_9 = l_Std_Time_Day_instOffsetAdd;
-x_10 = lean_apply_2(x_9, x_8, x_3);
-return x_10;
+lean_object* x_10; lean_object* x_11; 
+x_10 = l_Std_Time_Day_instOffsetAdd;
+x_11 = lean_apply_2(x_10, x_9, x_3);
+return x_11;
 }
 else
 {
-lean_object* x_11; uint8_t x_12; 
-x_11 = l_Std_Time_Month_Ordinal_days___closed__0;
-x_12 = lean_int_dec_lt(x_11, x_2);
-if (x_12 == 0)
+lean_object* x_12; uint8_t x_13; 
+x_12 = l_Std_Time_Month_Ordinal_days___closed__0;
+x_13 = lean_int_dec_lt(x_12, x_2);
+if (x_13 == 0)
 {
-lean_object* x_13; lean_object* x_14; 
-x_13 = l_Std_Time_Day_instOffsetAdd;
-x_14 = lean_apply_2(x_13, x_8, x_3);
-return x_14;
+lean_object* x_14; lean_object* x_15; 
+x_14 = l_Std_Time_Day_instOffsetAdd;
+x_15 = lean_apply_2(x_14, x_9, x_3);
+return x_15;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = l_Std_Time_Month_Ordinal_cumulativeDays___closed__0;
+lean_object* x_16; lean_object* x_17; 
 x_16 = l_Std_Time_Day_instOffsetAdd;
-x_17 = lean_apply_2(x_16, x_8, x_15);
+x_17 = lean_apply_2(x_16, x_9, x_5);
 return x_17;
 }
 }
@@ -4081,10 +4058,6 @@ l_Std_Time_Month_Ordinal_toSeconds___closed__23 = _init_l_Std_Time_Month_Ordinal
 lean_mark_persistent(l_Std_Time_Month_Ordinal_toSeconds___closed__23);
 l_Std_Time_Month_Ordinal_toSeconds___closed__24 = _init_l_Std_Time_Month_Ordinal_toSeconds___closed__24();
 lean_mark_persistent(l_Std_Time_Month_Ordinal_toSeconds___closed__24);
-l_Std_Time_Month_Ordinal_toSeconds___closed__25 = _init_l_Std_Time_Month_Ordinal_toSeconds___closed__25();
-lean_mark_persistent(l_Std_Time_Month_Ordinal_toSeconds___closed__25);
-l_Std_Time_Month_Ordinal_toSeconds___closed__26 = _init_l_Std_Time_Month_Ordinal_toSeconds___closed__26();
-lean_mark_persistent(l_Std_Time_Month_Ordinal_toSeconds___closed__26);
 l_Std_Time_Month_Ordinal_toMinutes___closed__0 = _init_l_Std_Time_Month_Ordinal_toMinutes___closed__0();
 lean_mark_persistent(l_Std_Time_Month_Ordinal_toMinutes___closed__0);
 l_Std_Time_Month_Ordinal_toDays___closed__0 = _init_l_Std_Time_Month_Ordinal_toDays___closed__0();
@@ -4289,8 +4262,6 @@ l_Std_Time_Month_Ordinal_days___closed__37 = _init_l_Std_Time_Month_Ordinal_days
 lean_mark_persistent(l_Std_Time_Month_Ordinal_days___closed__37);
 l_Std_Time_Month_Ordinal_days___closed__38 = _init_l_Std_Time_Month_Ordinal_days___closed__38();
 lean_mark_persistent(l_Std_Time_Month_Ordinal_days___closed__38);
-l_Std_Time_Month_Ordinal_cumulativeDays___closed__0 = _init_l_Std_Time_Month_Ordinal_cumulativeDays___closed__0();
-lean_mark_persistent(l_Std_Time_Month_Ordinal_cumulativeDays___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

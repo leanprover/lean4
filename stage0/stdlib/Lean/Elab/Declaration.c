@@ -41,6 +41,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabDeclaration___lam__1(lean_objec
 lean_object* l_Lean_Macro_throwUnsupported___redArg(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_isInstanceDef(lean_object*);
+lean_object* l_Array_mapMUnsafe_map___at_____private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse_spec__0(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_setDeclIdName___closed__2;
 static lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_isNamedDef___closed__15;
 static lean_object* l_Lean_Elab_Command_expandMutualPreamble___regBuiltin_Lean_Elab_Command_expandMutualPreamble_declRange__3___closed__3;
@@ -90,7 +91,6 @@ static lean_object* l_Lean_ensureNonAmbiguous___at___Lean_Elab_Command_elabAttr_
 static lean_object* l_Lean_Elab_Command_elabInitialize___closed__61;
 static lean_object* l_Lean_Elab_Command_elabInitialize___closed__31;
 extern lean_object* l_Lean_Elab_Command_inductiveElabAttr;
-lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw________1_spec__0(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabDeclaration___regBuiltin_Lean_Elab_Command_elabDeclaration__5(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabMutual___regBuiltin_Lean_Elab_Command_elabMutual_declRange__3___closed__2;
 lean_object* l_Lean_Elab_Command_elabInductive(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13567,7 +13567,7 @@ lean_ctor_set(x_173, 0, x_164);
 lean_ctor_set(x_173, 1, x_172);
 x_174 = lean_array_size(x_159);
 x_175 = 0;
-x_176 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw________1_spec__0(x_174, x_175, x_159);
+x_176 = l_Array_mapMUnsafe_map___at_____private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse_spec__0(x_174, x_175, x_159);
 x_177 = l_Lean_Elab_Command_elabInitialize___closed__43;
 x_178 = l_Lean_mkSepArray(x_176, x_177);
 lean_dec_ref(x_176);

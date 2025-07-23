@@ -271,7 +271,6 @@ LEAN_EXPORT lean_object* l_Std_Time_DateTime_toDateTimeWithZoneString(lean_objec
 static lean_object* l_Std_Time_Formats_rfc822___closed__16;
 LEAN_EXPORT lean_object* l_Std_Time_Formats_leanTime24HourNoNanos;
 static lean_object* l_Std_Time_Formats_leanDateTimeWithZone___closed__2;
-lean_object* l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_format___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toRFC850String(lean_object*);
 static lean_object* l_Std_Time_PlainTime_fromTime24Hour___lam__0___closed__1;
@@ -4738,7 +4737,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Time_PlainTime_fromTime24Hour___lam__0___closed__0;
-x_2 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }

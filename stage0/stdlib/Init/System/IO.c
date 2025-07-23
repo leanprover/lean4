@@ -45,7 +45,6 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_FileType_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_EIO_toIO(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonad___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_cast___at___Int_bmod_spec__0(lean_object*);
 static lean_object* l_instOrElseEIO___closed__2;
 LEAN_EXPORT lean_object* l_IO_FS_instInhabitedStream___lam__1(size_t, lean_object*);
 uint8_t lean_byte_array_fget(lean_object*, lean_object*);
@@ -194,6 +193,7 @@ LEAN_EXPORT lean_object* l_IO_FS_FileType_noConfusion(lean_object*, uint8_t, uin
 LEAN_EXPORT lean_object* l_IO_FS_Handle_readBinToEnd___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_bindTask___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___IO_FS_reprDirEntry____x40_Init_System_IO___hyg_2837__spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_EIO_mapTask___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_lines(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_instInhabitedStream___lam__0(lean_object*);
@@ -300,7 +300,7 @@ static lean_object* l_IO_FS_reprSystemTime___redArg___closed__3____x40_Init_Syst
 LEAN_EXPORT lean_object* l_IO_sleep___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_IO_Process_run___closed__1;
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_noConfusion___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_readBinToEndInto_loop___boxed__const__1;
+static lean_object* l_IO_FS_Stream_readBinToEndInto_loop___boxed__const__1;
 LEAN_EXPORT lean_object* l_instMonadEIO(lean_object*);
 static lean_object* l_IO_FS_Handle_lines___closed__0;
 LEAN_EXPORT lean_object* l_IO_FS_Handle_readBinToEndInto_loop___boxed(lean_object*, lean_object*, lean_object*);
@@ -424,7 +424,6 @@ static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21__
 LEAN_EXPORT lean_object* l_IO_FS_reprSystemTime____x40_Init_System_IO___hyg_3106____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BaseIO_mapTasks___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EIO_toBaseIO(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_IO_FS_reprDirEntry___redArg___closed__18____x40_Init_System_IO___hyg_2837_;
 LEAN_EXPORT lean_object* l_IO_sleep___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_reprTaskState____x40_Init_System_IO___hyg_1436____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_unsafeBaseIO___redArg(lean_object*);
@@ -5691,6 +5690,14 @@ x_7 = lean_apply_2(x_4, x_6, x_3);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_cast___at___IO_FS_reprDirEntry____x40_Init_System_IO___hyg_2837__spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_IO_FS_reprDirEntry___redArg___closed__0____x40_Init_System_IO___hyg_2837_() {
 _start:
 {
@@ -5843,22 +5850,13 @@ static lean_object* _init_l_IO_FS_reprDirEntry___redArg___closed__16____x40_Init
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(2u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_IO_FS_reprDirEntry___redArg___closed__17____x40_Init_System_IO___hyg_2837_() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
 x_1 = l_IO_FS_reprDirEntry___redArg___closed__0____x40_Init_System_IO___hyg_2837_;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_IO_FS_reprDirEntry___redArg___closed__18____x40_Init_System_IO___hyg_2837_() {
+static lean_object* _init_l_IO_FS_reprDirEntry___redArg___closed__17____x40_Init_System_IO___hyg_2837_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5930,12 +5928,12 @@ lean_ctor_set_uint8(x_28, sizeof(void*)*1, x_14);
 x_29 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_29, 0, x_23);
 lean_ctor_set(x_29, 1, x_28);
-x_30 = l_IO_FS_reprDirEntry___redArg___closed__16____x40_Init_System_IO___hyg_2837_;
-x_31 = l_IO_FS_reprDirEntry___redArg___closed__17____x40_Init_System_IO___hyg_2837_;
+x_30 = l_IO_reprTaskState___closed__6____x40_Init_System_IO___hyg_1436_;
+x_31 = l_IO_FS_reprDirEntry___redArg___closed__16____x40_Init_System_IO___hyg_2837_;
 x_32 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_29);
-x_33 = l_IO_FS_reprDirEntry___redArg___closed__18____x40_Init_System_IO___hyg_2837_;
+x_33 = l_IO_FS_reprDirEntry___redArg___closed__17____x40_Init_System_IO___hyg_2837_;
 x_34 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_34, 0, x_32);
 lean_ctor_set(x_34, 1, x_33);
@@ -6007,12 +6005,12 @@ lean_ctor_set_uint8(x_63, sizeof(void*)*1, x_49);
 x_64 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_64, 0, x_58);
 lean_ctor_set(x_64, 1, x_63);
-x_65 = l_IO_FS_reprDirEntry___redArg___closed__16____x40_Init_System_IO___hyg_2837_;
-x_66 = l_IO_FS_reprDirEntry___redArg___closed__17____x40_Init_System_IO___hyg_2837_;
+x_65 = l_IO_reprTaskState___closed__6____x40_Init_System_IO___hyg_1436_;
+x_66 = l_IO_FS_reprDirEntry___redArg___closed__16____x40_Init_System_IO___hyg_2837_;
 x_67 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_67, 0, x_66);
 lean_ctor_set(x_67, 1, x_64);
-x_68 = l_IO_FS_reprDirEntry___redArg___closed__18____x40_Init_System_IO___hyg_2837_;
+x_68 = l_IO_FS_reprDirEntry___redArg___closed__17____x40_Init_System_IO___hyg_2837_;
 x_69 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_69, 0, x_67);
 lean_ctor_set(x_69, 1, x_68);
@@ -6581,12 +6579,12 @@ lean_ctor_set_uint8(x_24, sizeof(void*)*1, x_9);
 x_25 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_25, 0, x_18);
 lean_ctor_set(x_25, 1, x_24);
-x_26 = l_IO_FS_reprDirEntry___redArg___closed__16____x40_Init_System_IO___hyg_2837_;
-x_27 = l_IO_FS_reprDirEntry___redArg___closed__17____x40_Init_System_IO___hyg_2837_;
+x_26 = l_IO_reprTaskState___closed__6____x40_Init_System_IO___hyg_1436_;
+x_27 = l_IO_FS_reprDirEntry___redArg___closed__16____x40_Init_System_IO___hyg_2837_;
 x_28 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_25);
-x_29 = l_IO_FS_reprDirEntry___redArg___closed__18____x40_Init_System_IO___hyg_2837_;
+x_29 = l_IO_FS_reprDirEntry___redArg___closed__17____x40_Init_System_IO___hyg_2837_;
 x_30 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_29);
@@ -7013,12 +7011,12 @@ lean_ctor_set_uint8(x_45, sizeof(void*)*1, x_12);
 x_46 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_46, 0, x_41);
 lean_ctor_set(x_46, 1, x_45);
-x_47 = l_IO_FS_reprDirEntry___redArg___closed__16____x40_Init_System_IO___hyg_2837_;
-x_48 = l_IO_FS_reprDirEntry___redArg___closed__17____x40_Init_System_IO___hyg_2837_;
+x_47 = l_IO_reprTaskState___closed__6____x40_Init_System_IO___hyg_1436_;
+x_48 = l_IO_FS_reprDirEntry___redArg___closed__16____x40_Init_System_IO___hyg_2837_;
 x_49 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_49, 0, x_48);
 lean_ctor_set(x_49, 1, x_46);
-x_50 = l_IO_FS_reprDirEntry___redArg___closed__18____x40_Init_System_IO___hyg_2837_;
+x_50 = l_IO_FS_reprDirEntry___redArg___closed__17____x40_Init_System_IO___hyg_2837_;
 x_51 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_51, 0, x_49);
 lean_ctor_set(x_51, 1, x_50);
@@ -12359,8 +12357,6 @@ l_IO_FS_reprDirEntry___redArg___closed__16____x40_Init_System_IO___hyg_2837_ = _
 lean_mark_persistent(l_IO_FS_reprDirEntry___redArg___closed__16____x40_Init_System_IO___hyg_2837_);
 l_IO_FS_reprDirEntry___redArg___closed__17____x40_Init_System_IO___hyg_2837_ = _init_l_IO_FS_reprDirEntry___redArg___closed__17____x40_Init_System_IO___hyg_2837_();
 lean_mark_persistent(l_IO_FS_reprDirEntry___redArg___closed__17____x40_Init_System_IO___hyg_2837_);
-l_IO_FS_reprDirEntry___redArg___closed__18____x40_Init_System_IO___hyg_2837_ = _init_l_IO_FS_reprDirEntry___redArg___closed__18____x40_Init_System_IO___hyg_2837_();
-lean_mark_persistent(l_IO_FS_reprDirEntry___redArg___closed__18____x40_Init_System_IO___hyg_2837_);
 l_IO_FS_instReprDirEntry___closed__0 = _init_l_IO_FS_instReprDirEntry___closed__0();
 lean_mark_persistent(l_IO_FS_instReprDirEntry___closed__0);
 l_IO_FS_instReprDirEntry = _init_l_IO_FS_instReprDirEntry();

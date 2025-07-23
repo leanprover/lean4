@@ -612,12 +612,12 @@ if (lean_is_exclusive(x_30)) {
 x_34 = lean_ctor_get(x_27, 0);
 lean_inc(x_34);
 x_35 = l_Lean_Grind_Linarith_Poly_coeff(x_34, x_26);
-x_36 = lean_int_neg(x_35);
 lean_inc(x_1);
-x_37 = l_Lean_Grind_Linarith_Poly_mul(x_1, x_36);
-lean_dec(x_36);
-x_38 = l_Lean_Grind_Linarith_Poly_mul(x_34, x_24);
-x_39 = l_Lean_Grind_Linarith_Poly_combine(x_37, x_38);
+x_36 = l_Lean_Grind_Linarith_Poly_mul(x_1, x_35);
+x_37 = lean_int_neg(x_24);
+x_38 = l_Lean_Grind_Linarith_Poly_mul(x_34, x_37);
+lean_dec(x_37);
+x_39 = l_Lean_Grind_Linarith_Poly_combine(x_36, x_38);
 x_46 = lean_unbox(x_31);
 lean_dec(x_31);
 if (x_46 == 0)

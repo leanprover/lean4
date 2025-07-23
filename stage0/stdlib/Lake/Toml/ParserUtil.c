@@ -59,7 +59,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_litFn(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_PrettyPrinter_Parenthesizer_visitToken___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_strAtom_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_getSyntaxExprPos_x3f(lean_object*);
-lean_object* l_Lean_PrettyPrinter_Formatter_rawCh_formatter(uint32_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Formatter_rawCh_formatter(uint32_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_stackSize(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_digitPairFn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_dynamicNode_formatter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1707,16 +1707,17 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lake_Toml_chAtom_formatter___redArg(uint32_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; 
-x_7 = l_Lean_PrettyPrinter_Formatter_rawCh_formatter(x_1, x_2, x_3, x_4, x_5, x_6);
-return x_7;
+uint8_t x_7; lean_object* x_8; 
+x_7 = 0;
+x_8 = l_Lean_PrettyPrinter_Formatter_rawCh_formatter(x_1, x_7, x_2, x_3, x_4, x_5, x_6);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Toml_chAtom_formatter(uint32_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Lean_PrettyPrinter_Formatter_rawCh_formatter(x_1, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Lake_Toml_chAtom_formatter___redArg(x_1, x_4, x_5, x_6, x_7, x_8);
 return x_9;
 }
 }

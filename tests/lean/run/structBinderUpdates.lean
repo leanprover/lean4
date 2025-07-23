@@ -178,6 +178,20 @@ If this is not intended to be an override, use a binder with a type, for example
 structure WithLp (p : Nat) (V : Type) where toLp (n) ::
   ofLp : V
 
+/-!
+Even if `n` is used by `ofLp`, the restriction is still in place.
+Motivation 1: the fields themselves have the same restriction, so it's for consistency.
+Motivation 2: we should be able to tell whether the param binder update is legit without looking at all the fields.
+-/
+/--
+error: only parameters appearing in the declaration header may have their binders kinds be overridden
+
+If this is not intended to be an override, use a binder with a type, for example '(x : _)'.
+-/
+#guard_msgs in
+structure WithLp (p : Nat) (V : Type) where toLp (n) ::
+  ofLp : Fin n → V
+
 /-- error: Expecting binders that update binder kinds of type parameters. -/
 #guard_msgs in
 structure WithLp (p : Nat) (V : Type) where toLp (m : Int) ::

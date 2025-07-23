@@ -16,8 +16,8 @@ theorem setZeroHead_spec :
    setZeroHead
    ⦃⇓ _ => ⌜∃ ns', (#gns).toList = 0 :: ns'⌝⦄ := by
   mvcgen [setZeroHead]
-  -- We want `mintro`duce the tuple `t` here in order for us not having to repeat its
+  -- We want to see and name the tuple `t` here in order for us not having to repeat its
   -- definition in t.2.toList.tail below
-  mintro t
+  rename_i t
   simp
   exists t.2.toList.tail

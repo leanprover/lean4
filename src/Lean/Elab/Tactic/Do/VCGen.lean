@@ -262,6 +262,8 @@ where
     let f := T.getAppFn
     if f.isLambda then
       return ← onLambda goal name
+    if f.isLet then
+      return ← onLet goal name
     if f.isConstOf ``SPred.imp then
       return ← onImp goal name
     else if f.isConstOf ``PredTrans.apply then
@@ -269,6 +271,11 @@ where
     onFail { goal with target := T } name
 
   onImp goal name : VCGenM Expr := ifOutOfFuel (onFail goal name) do
+    burnOne
+    (·.2) <$> mIntro goal (← `(binderIdent| _)) (fun g =>
+        do return ((), ← onGoal g name))
+
+  onLet goal name : VCGenM Expr := ifOutOfFuel (onFail goal name) do
     burnOne
     (·.2) <$> mIntro goal (← `(binderIdent| _)) (fun g =>
         do return ((), ← onGoal g name))

@@ -54,8 +54,7 @@ def Result.mkEqSymm (e : Expr) (r : Simp.Result) : MetaM Simp.Result :=
 abbrev Cache := SExprMap Result
 
 /--
-A cache of automatically generated congruence theorems, keyed by the head function and the requested arity.
-The arity of the corresponding `CongrTheorem` might be lower.
+A cache of automatically generated congruence theorems, keyed by the head function and the arity.
 -/
 abbrev CongrCache := Std.HashMap (Expr × Nat) (Option CongrTheorem)
 
@@ -652,25 +651,19 @@ Retrieve auto-generated congruence lemma for `f`.
 Remark: If all argument kinds are `fixed` or `eq`, it returns `none` because
 using simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof.
 -/
-def mkCongrSimp? (f : Expr) (arity : Nat) : SimpM (Option CongrTheorem) := do profileitM Exception "congr simp thm" (← getOptions) do
+def mkCongrSimp? (f : Expr) (maxArgs : Nat) : SimpM (Option CongrTheorem) := do profileitM Exception "congr simp thm" (← getOptions) do
   if f.isConst then if (← isMatcher f.constName!) then
     -- We always use simple congruence theorems for auxiliary match applications
     return none
-  match (← get).congrCache[(f, arity)]? with
+  let info ← getFunInfo f maxArgs
+  match (← get).congrCache[(f, info.getArity)]? with
   | some thm? => return thm?
   | none =>
-    let thm? ← go?
-    modify fun s => { s with congrCache := s.congrCache.insert (f, arity) thm? }
-    if let some thm := thm? then
-      -- If the resulting arity is lower than requested, we assume that that's the maximum possible arity for `f`
-      -- and update the cache accordingly.
-      if thm.argKinds.size < arity then
-        for arity' in thm.argKinds.size...arity do
-          modify fun s => { s with congrCache := s.congrCache.insert (f, arity') thm? }
+    let thm? ← go? info
+    modify fun s => { s with congrCache := s.congrCache.insert (f, info.getArity) thm? }
     return thm?
 where
-  go? : SimpM (Option CongrTheorem) := do
-    let info ← getFunInfo f arity
+  go? (info : FunInfo) : SimpM (Option CongrTheorem) := do
     let argKinds ← getCongrSimpKinds f info
     if argKinds.all fun k => match k with | .fixed | .eq => true | _ => false then
       /- See remark above. -/

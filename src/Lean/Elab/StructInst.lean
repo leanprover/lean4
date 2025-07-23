@@ -1279,11 +1279,23 @@ Otherwise, we use the type of the first source.
 Possibly returns the expected structure type as well.
 -/
 private def getStructName (expectedType? : Option Expr) (sourceView : SourcesView) : TermElabM (Name × Option Expr) := do
-  tryPostponeIfNoneOrMVar expectedType?
   match expectedType? with
-  | none => useSource ()
+  | none =>
+    tryPostpone
+    useSource ()
   | some expectedType =>
-    let expectedType ← whnf expectedType
+    let mut expectedType ← whnf expectedType
+    if expectedType.getAppFn.isMVar then
+      /-
+      The expected type is possibly waiting on some instance problems.
+      Rather than immediately postponing, let's try synthesizing them,
+      since when there are nested structure instances,
+      often later fields depend on the fields of this structure instance.
+      -/
+      synthesizeSyntheticMVars (postpone := .yes)
+      expectedType ← whnf expectedType
+      if expectedType.getAppFn.isMVar then
+        tryPostpone
     match expectedType.getAppFn with
     | Expr.const constName _ =>
       unless isStructure (← getEnv) constName do

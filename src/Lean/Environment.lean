@@ -1778,7 +1778,8 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
       (← mkPart .exported),
       (← mkPart .server),
       (← mkPart .private)]
-    saveModuleData (fname.withExtension "ir") env.mainModule (mkIRData env)
+    -- Make sure to change the module name so we derive a different base address
+    saveModuleData (fname.withExtension "ir") (env.mainModule ++ `ir) (mkIRData env)
   else
     saveModuleData fname env.mainModule (← mkModuleData env)
 

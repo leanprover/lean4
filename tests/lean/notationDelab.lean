@@ -1,3 +1,10 @@
+-- TODO(kmill) remove after stage0 update
+@[app_unexpander Unit.unit] meta def unexpandUnit' : Lean.PrettyPrinter.Unexpander
+  | `($(_)) => `(())
+@[app_unexpander Prod.mk] meta def unexpandProdMk' : Lean.PrettyPrinter.Unexpander
+  | `($(_) $x ($y, $ys,*)) => `(($x, $y, $ys,*))
+  | `($(_) $x $y)          => `(($x, $y))
+  | _                      => throw ()
 notation "unitTest " x => Prod.mk x ()
 
 #check unitTest 42

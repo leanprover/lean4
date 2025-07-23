@@ -4,6 +4,9 @@ import Lean.Parser
 open Lean
 open Std.Format open Std
 
+-- TODO(kmill): re-enable after stage0 update
+#exit
+
 def unparenAux (parens body : Syntax) : Syntax :=
 match parens.getHeadInfo, body.getHeadInfo, body.getTailInfo, parens.getTailInfo with
 | SourceInfo.original lead _ _ _, SourceInfo.original _ pos trail pos',

@@ -1503,7 +1503,7 @@ private def isLambdaWithImplicit (stx : Syntax) : Bool :=
 
 private partial def dropTermParens : Syntax → Syntax := fun stx =>
   match stx with
-  | `(($stx)) => dropTermParens stx
+  | `($_:hygienicLParen $stx)) => dropTermParens stx
   | _         => stx
 
 private def isHole (stx : Syntax) : Bool :=
@@ -1521,7 +1521,7 @@ private def isNoImplicitLambda (stx : Syntax) : Bool :=
 
 private def isTypeAscription (stx : Syntax) : Bool :=
   match stx with
-  | `(($_ : $[$_]?)) => true
+  | `($_:hygienicLParen $_ : $[$_]?)) => true
   | _                => false
 
 def hasNoImplicitLambdaAnnotation (type : Expr) : Bool :=

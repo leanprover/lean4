@@ -237,12 +237,28 @@ See also the `sorry` tactic, which is short for `exact sorry`.
 -/
 @[builtin_term_parser] def «sorry» := leading_parser
   "sorry"
+-- Left parenthesis with hygiene info, for cdot function expansion.
+-- This is a pseudokind for bootstrapping purposes.
+def hygienicLParen : Parser :=
+  withAntiquot (mkAntiquot "hygienicLParen" decl_name% (anonymous := false) (isPseudoKind := true)) <|
+    leadingNode decl_name% (eval_prec max) ("(" >> hygieneInfo)
+-- TODO(kmill): remove this formatter after stage0 update
+open PrettyPrinter.Formatter Syntax.MonadTraverser in
+@[combinator_formatter Lean.Parser.Term.hygienicLParen]
+def hygienicLParen.formatter : PrettyPrinter.Formatter := do
+  let info := (← getCur).getHeadInfo
+  withMaybeTag info.getPos? (pushToken info "(" false)
+  goLeft
+@[combinator_parenthesizer Lean.Parser.Term.hygienicLParen]
+def hygienicLParen.parenthesizer : PrettyPrinter.Parenthesizer := do
+  PrettyPrinter.Parenthesizer.visitToken
 /--
 A placeholder for an implicit lambda abstraction's variable. The lambda abstraction is scoped to the surrounding parentheses.
-For example, `(· + ·)` is equivalent to `fun x y => x + y`.
+For example, `(· + ·)` is equivalent to `fun x y => x + y`. Tuple notation and type ascription notation also serve as scopes.
+Note that `(· : ty)` expands to `((fun x => x) : ty)`, so `ty` should be a function type.
 -/
-@[builtin_term_parser] def cdot   := leading_parser
-  symbol "·" <|> "."
+@[builtin_term_parser] def cdot := leading_parser
+  unicodeSymbol "·" "." >> hygieneInfo
 /--
 Type ascription notation: `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.
 An empty type ascription `(e :)` elaborates `e` without the expected type.
@@ -250,11 +266,11 @@ This is occasionally useful when Lean's heuristics for filling arguments from th
 do not yield the right result.
 -/
 @[builtin_term_parser] def typeAscription := leading_parser
-  "(" >> (withoutPosition (withoutForbidden (termParser >> " :" >> optional (ppSpace >> termParser)))) >> ")"
+  hygienicLParen >> (withoutPosition (withoutForbidden (termParser >> " :" >> optional (ppSpace >> termParser)))) >> ")"
 
 /-- Tuple notation; `()` is short for `Unit.unit`, `(a, b, c)` for `Prod.mk a (Prod.mk b c)`, etc. -/
 @[builtin_term_parser] def tuple := leading_parser
-  "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
+  hygienicLParen >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
 
 recommended_spelling "mk" for "(a, b)" in [Prod.mk, tuple]
 
@@ -265,10 +281,10 @@ Can also be used for creating simple functions when combined with `·`. Here are
   - `(· + ·)` is shorthand for `fun x y => x + y`
   - `(f · a b)` is shorthand for `fun x => f x a b`
   - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`
-  - also applies to other parentheses-like notations such as `(·, 1)`
+  - also applies to other parentheses-like notations such as `(·, 1)` and `(· : Nat → Nat)`
 -/
 @[builtin_term_parser] def paren := leading_parser
-  "(" >> withoutPosition (withoutForbidden (ppDedentIfGrouped termParser)) >> ")"
+  hygienicLParen >> withoutPosition (withoutForbidden (ppDedentIfGrouped termParser)) >> ")"
 /--
 The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the
 expected type is an inductive type with a single constructor `c`.

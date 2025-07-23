@@ -73,6 +73,8 @@ where
     | stx =>
       if stx.isAnyAntiquot then
         false
+      else if stx.isOfKind hygieneInfoKind then
+        false
       else
         stx.getArgs.any hasQuotedIdent
 
@@ -122,10 +124,10 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
   | _ => throwUnsupportedSyntax
 
 @[builtin_quot_precheck Lean.Parser.Term.typeAscription] def precheckTypeAscription : Precheck
-  | `(($e : $type)) => do
+  | `($_:hygienicLParen $e : $type)) => do
     precheck e
     precheck type
-  | `(($e :)) => precheck e
+  | `($_:hygienicLParen $e :)) => precheck e
   | _ => throwUnsupportedSyntax
 
 @[builtin_quot_precheck Lean.Parser.Term.explicit] def precheckExplicit : Precheck
@@ -175,6 +177,9 @@ section ExpressionTree
 @[builtin_quot_precheck Lean.Parser.Term.unop] def precheckUnop : Precheck
   | `(unop% $f $a) => do precheck f; precheck a
   | _ => throwUnsupportedSyntax
+
+@[builtin_quot_precheck Lean.Parser.Term.hygieneInfo] def precheckHygieneInfo : Precheck
+  | _ => pure ()
 
 end ExpressionTree
 

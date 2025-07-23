@@ -290,8 +290,8 @@ where
   extra state, and return it. Otherwise, we just return `stx`.
   -/
   go : Syntax → StateT (Array Ident) MacroM Syntax
-  | stx@`(($(_))) => pure stx
-  | stx@`(·) => do
+  | stx@`($_:hygienicLParen$(_))) => pure stx
+  | stx@`($_:cdot) => do
     let name ← MonadQuotation.addMacroScope <| Name.mkSimple s!"x{(← get).size + 1}"
     let id := mkIdentFrom stx name (canonical := true)
     modify (fun s => s.push id)
@@ -347,33 +347,33 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
 where
   expandCDotArg? (stx : Term) : MacroM (Option Term) :=
     match stx with
-    | `(($e)) => Term.expandCDot? e
+    | `($_:hygienicLParen$e)) => Term.expandCDot? e
     | _ => Term.expandCDot? stx
 
 @[builtin_macro Lean.Parser.Term.paren] def expandParen : Macro
-  | `(($e)) => return (← expandCDot? e).getD e
+  | `($_:hygienicLParen$e)) => return (← expandCDot? e).getD e
   | _       => Macro.throwUnsupported
 
 @[builtin_macro Lean.Parser.Term.tuple] def expandTuple : Macro
-  | `(()) => ``(Unit.unit)
-  | `(($e, $es,*)) => do
+  | `($_:hygienicLParen)) => ``(Unit.unit)
+  | `($_:hygienicLParen $e, $es,*)) => do
     let pairs ← mkPairs (#[e] ++ es)
     return (← expandCDot? pairs).getD pairs
   | _ => Macro.throwUnsupported
 
 @[builtin_macro Lean.Parser.Term.typeAscription] def expandTypeAscription : Macro
-  | `(($e : $(type)?)) => do
+  | `($_:hygienicLParen$e : $(type)?)) => do
     match (← expandCDot? e) with
     | some e => `(($e : $(type)?))
     | none   => Macro.throwUnsupported
   | _ => Macro.throwUnsupported
 
 @[builtin_term_elab typeAscription] def elabTypeAscription : TermElab
-  | `(($e : $type)), _ => do
+  | `($_:hygienicLParen$e : $type)), _ => do
     let type ← withSynthesize (postpone := .yes) <| elabType type
     let e ← elabTerm e type
     ensureHasType type e
-  | `(($e :)), expectedType? => do
+  | `($_:hygienicLParen$e :)), expectedType? => do
     let e ← withSynthesize (postpone := .no) <| elabTerm e none
     ensureHasType expectedType? e
   | _, _ => throwUnsupportedSyntax

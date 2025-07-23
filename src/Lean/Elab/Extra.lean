@@ -194,7 +194,7 @@ where
     | `(unop% $f $arg) => processUnOp s f arg
     | `(leftact% $f $lhs $rhs) => processBinOp s .leftact f lhs rhs
     | `(rightact% $f $lhs $rhs) => processBinOp s .rightact f lhs rhs
-    | `(($e)) =>
+    | `($_:hygienicLParen $e)) =>
       if hasCDot e then
         processLeaf s
       else

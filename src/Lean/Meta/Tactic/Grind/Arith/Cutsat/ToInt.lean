@@ -8,6 +8,7 @@ import Init.Grind.ToIntLemmas
 import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.Tactic.Grind.Arith.EvalNum
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -20,18 +21,6 @@ private def throwMissingDecl (declName : Name) : MetaM Unit :=
 private def checkDecl (declName : Name) : MetaM Unit := do
   unless (← getEnv).contains declName do
     throwMissingDecl declName
-
--- TODO: improve this function
-private def evalInt? (e : Expr) : MetaM (Option Int) := do
-  let e ← whnfD e
-  match_expr e with
-  | Int.ofNat a =>
-    let some a ← getNatValue? (← whnfD a) | return none
-    return some (a : Int)
-  | Int.negSucc a =>
-    let some a ← getNatValue? (← whnfD a) | return none
-    return some (- (a : Int) - 1)
-  | _ => return none
 
 def getToIntId? (type : Expr) : GoalM (Option Nat) := do
   if let some id? := (← get').toIntIds.find? { expr := type } then

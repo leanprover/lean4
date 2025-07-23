@@ -51,12 +51,12 @@ open Meta
     | some expectedType =>
       let expectedType ← whnf expectedType
       matchConstInduct expectedType.getAppFn
-        (fun _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type {indentExpr expectedType}")
+        (fun _ => throwError "Invalid `⟨...⟩` notation: The expected type{indentExpr expectedType}\nis not an inductive type")
         (fun ival _ => do
           match ival.ctors with
           | [ctor] =>
             if isInaccessiblePrivateName (← getEnv) ctor then
-              throwError "invalid ⟨...⟩ notation, constructor for `{ival.name}` is marked as private"
+              throwError "Invalid `⟨...⟩` notation: Constructor for `{ival.name}` is marked as private"
             let cinfo ← getConstInfoCtor ctor
             let numExplicitFields ← forallTelescopeReducing cinfo.type fun xs _ => do
               let mut n := 0
@@ -66,19 +66,22 @@ open Meta
               return n
             let args := args.getElems
             if args.size < numExplicitFields then
-              throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' has #{numExplicitFields} explicit fields, but only #{args.size} provided"
+              throwError "Insufficient number of arguments to `⟨...⟩` constructor: Constructor \
+                `{ctor}` has {numExplicitFields} explicit fields, but only {args.size} were provided"
             let newStx ← if args.size == numExplicitFields then
               `($(mkCIdentFrom stx ctor (canonical := true)) $(args)*)
             else if numExplicitFields == 0 then
-              throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' does not have explicit fields, but #{args.size} provided"
+              throwError "Insufficient number of arguments to `⟨...⟩` constructor: Constructor \
+                `{ctor}` does not have explicit fields, but {args.size} were provided"
             else
               let extra := args[(numExplicitFields-1)...args.size]
               let newLast ← `(⟨$[$extra],*⟩)
               let newArgs := args[*...(numExplicitFields-1)].toArray.push newLast
               `($(mkCIdentFrom stx ctor (canonical := true)) $(newArgs)*)
             withMacroExpansion stx newStx $ elabTerm newStx expectedType?
-          | _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor {indentExpr expectedType}")
-    | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
+          | [] => throwError "Invalid `⟨...⟩` notation: The expected type{indentExpr expectedType}\nhas no constructors"
+          | _ => throwError "Invalid `⟨...⟩` notation: This notation can only be used when the expected type is an inductive type with a single constructor, but the expected type{indentExpr expectedType}\nhas {ival.ctors.length} constructors")
+    | none => throwError "Invalid `⟨...⟩`: The expected type of this term is not known"
   | _ => throwUnsupportedSyntax
 
 @[builtin_term_elab borrowed] def elabBorrowed : TermElab := fun stx expectedType? =>

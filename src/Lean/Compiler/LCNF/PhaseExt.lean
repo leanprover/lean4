@@ -139,10 +139,10 @@ def getMonoDecl? (declName : Name) : CoreM (Option Decl) := do
   return getDeclCore? (← getEnv) monoExt declName
 
 def saveBaseDeclCore (env : Environment) (decl : Decl) : Environment :=
-  baseExt.addEntry (env.addExtraName decl.name) decl
+  baseExt.addEntry env decl
 
 def saveMonoDeclCore (env : Environment) (decl : Decl) : Environment :=
-  monoExt.addEntry (env.addExtraName decl.name) decl
+  monoExt.addEntry env decl
 
 def Decl.saveBase (decl : Decl) : CoreM Unit :=
   modifyEnv (saveBaseDeclCore · decl)

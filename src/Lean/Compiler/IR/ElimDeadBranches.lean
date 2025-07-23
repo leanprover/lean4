@@ -128,7 +128,7 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (FunId ×
   }
 
 def addFunctionSummary (env : Environment) (fid : FunId) (v : Value) : Environment :=
-  functionSummariesExt.addEntry (env.addExtraName fid) (fid, v)
+  functionSummariesExt.addEntry env (fid, v)
 
 def getFunctionSummary? (env : Environment) (fid : FunId) : Option Value :=
   match env.getModuleIdxFor? fid with

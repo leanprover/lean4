@@ -61,7 +61,7 @@ def findDecl (n : Name) : M (Option Decl) :=
   return findEnvDecl (← Lean.getEnv) n
 
 def addDecl (d : Decl) : M Unit :=
-  Lean.modifyEnv fun env => declMapExt.addEntry (env.addExtraName d.name) d
+  Lean.modifyEnv fun env => declMapExt.addEntry env d
 
 def lowerLitValue (v : LCNF.LitValue) : LitVal × IRType :=
   match v with

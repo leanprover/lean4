@@ -19,7 +19,7 @@ namespace Lean.Meta.Grind.Arith.Linear
 private def _root_.Lean.Grind.Linarith.Poly.substVar (p : Poly) : LinearM (Option (Var × EqCnstr × Poly)) := do
   let some (a, x, c) ← p.findVarToSubst | return none
   let b := c.p.coeff x
-  let p' := p.mul (-b) |>.combine (c.p.mul a)
+  let p' := p.mul b |>.combine (c.p.mul (-a))
   trace[grind.debug.linarith.subst] "{← p.denoteExpr}, {a}, {← getVar x}, {← c.denoteExpr}, {b}, {← p'.denoteExpr}"
   return some (x, c, p')
 

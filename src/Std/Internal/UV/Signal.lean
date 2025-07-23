@@ -20,7 +20,7 @@ open Std.Net
 Creates a new promise that is resolved when the `signum` signal is received.
 -/
 @[extern "lean_uv_signal_wait"]
-opaque waitFor (signum : Int) : IO (IO.Promise (Except IO.Error Unit))
+opaque waitFor (signum : Int32) : IO (IO.Promise (Except IO.Error Unit))
 
 end Signal
 end UV

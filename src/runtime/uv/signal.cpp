@@ -16,7 +16,7 @@ typedef struct {
     lean_object* promise;
 } signal_req_t;
 
-/* Std.Internal.UV.Signal.wait (signum : Int) : IO (IO.Promise (Except IO.Error Unit)) */
+/* Std.Internal.UV.Signal.wait (signum : Int32) : IO (IO.Promise (Except IO.Error Unit)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_wait(lean_obj_arg signum_obj, obj_arg /* w */) {
     int signum = lean_scalar_to_int(signum_obj);
 
@@ -54,24 +54,26 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_wait(lean_obj_arg signum_obj,
         });
     }, signum);
 
-    event_loop_unlock(&global_ev);
-
     if (result < 0) {
         lean_dec(promise);
         lean_dec(promise);
+
         uv_close((uv_handle_t*)&req->signal, [](uv_handle_t* handle) {
             signal_req_t* req = (signal_req_t*)handle->data;
             free(req);
         });
+
+        event_loop_unlock(&global_ev);
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
+    event_loop_unlock(&global_ev);
     return lean_io_result_mk_ok(promise);
 }
 
 #else
 
-/* Std.Internal.UV.Signal.wait (signum : Int) : IO (IO.Promise (Except IO.Error Unit)) */
+/* Std.Internal.UV.Signal.wait (signum : Int32) : IO (IO.Promise (Except IO.Error Unit)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_wait(lean_obj_arg signum_obj, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")

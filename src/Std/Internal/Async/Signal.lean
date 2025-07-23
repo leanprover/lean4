@@ -14,7 +14,8 @@ namespace IO
 namespace Async
 
 /--
-Unix style signals for Unix and Windows.
+Unix style signals for Unix and Windows. SIGKILL and SIGSTOP are missing because they cannot be caught.
+SIGPIPE is not present because it's usually handled by the runtime.
 -/
 inductive Signal
 
@@ -63,11 +64,6 @@ inductive Signal
   Bad system call.
   -/
   | sigsys
-
-  /--
-  Broken pipe.
-  -/
-  | sigpipe
 
   /--
   Real-time timer expired.
@@ -167,9 +163,9 @@ deriving Repr, DecidableEq
 namespace Signal
 
 /--
-Converts a `Signal` to its corresponding `Int` value as defined in the libc `signal.h`.
+Converts a `Signal` to its corresponding `Int32` value as defined in the libc `signal.h`.
 -/
-def toInt : Signal → Int
+def toInt32 : Signal → Int32
   | .sighup => 1
   | .sigint => 2
   | .sigquit => 3
@@ -177,7 +173,6 @@ def toInt : Signal → Int
   | .sigabrt => 6
   | .sigemt => 7
   | .sigsys => 12
-  | .sigpipe => 13
   | .sigalrm => 14
   | .sigterm => 15
   | .sigurg => 16
@@ -201,7 +196,7 @@ Waits for a `Signal` and returns an async task that completes when the signal oc
 -/
 @[inline]
 def wait (s : Signal) : IO (AsyncTask Unit) := do
-  let promise ← UV.Signal.waitFor s.toInt
+  let promise ← UV.Signal.waitFor s.toInt32
   return .ofPromise promise
 
 end Signal

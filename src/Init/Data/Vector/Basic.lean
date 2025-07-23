@@ -56,7 +56,7 @@ macro_rules
   | `(#v[ $elems,* ]) => `(Vector.mk (n := $(quote elems.getElems.size)) #[$elems,*] rfl)
 
 @[app_unexpander Vector.mk]
-def _root_.unexpandVectorMk : Lean.PrettyPrinter.Unexpander
+meta def unexpandMk : Lean.PrettyPrinter.Unexpander
   | `($_ #[ $elems,* ] $_) => `(#v[ $elems,* ])
   | _ => throw ()
 

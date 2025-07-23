@@ -134,6 +134,13 @@ def setStack (stack : Array Format) : FormatterM Unit :=
 private def push (f : Format) : FormatterM Unit :=
   modify fun st => { st with stack := st.stack.push f, isUngrouped := false }
 
+/--
+Resets the state associated with the lead word,
+inhibiting any automatic whitespace insertion between tokens.
+-/
+private def resetLeadWord : FormatterM Unit := do
+  modify fun st => { st with leadWord := "", leadWordIdent := false }
+
 def pushWhitespace (f : Format) : FormatterM Unit := do
   push f
   modify fun st => { st with leadWord := "", leadWordIdent := false, isUngrouped := false }
@@ -438,7 +445,10 @@ def symbolNoAntiquot.formatter (sym : String) : Formatter := do
 
 @[combinator_formatter nonReservedSymbolNoAntiquot] def nonReservedSymbolNoAntiquot.formatter := symbolNoAntiquot.formatter
 
-@[combinator_formatter rawCh] def rawCh.formatter (ch : Char) := symbolNoAntiquot.formatter ch.toString
+@[combinator_formatter rawCh] def rawCh.formatter (ch : Char) (trailingWs : Bool := false) := do
+  unless trailingWs do
+    resetLeadWord
+  symbolNoAntiquot.formatter ch.toString
 
 @[combinator_formatter unicodeSymbolNoAntiquot]
 def unicodeSymbolNoAntiquot.formatter (sym asciiSym : String) : Formatter := do
@@ -525,7 +535,7 @@ def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
 @[combinator_formatter checkStackTop] def checkStackTop.formatter : Formatter := pure ()
 @[combinator_formatter checkNoWsBefore] def checkNoWsBefore.formatter : Formatter :=
   -- prevent automatic whitespace insertion
-  modify fun st => { st with leadWord := "", leadWordIdent := false }
+  resetLeadWord
 @[combinator_formatter checkLinebreakBefore] def checkLinebreakBefore.formatter : Formatter := pure ()
 @[combinator_formatter checkTailWs] def checkTailWs.formatter : Formatter := pure ()
 @[combinator_formatter checkColEq] def checkColEq.formatter : Formatter := pure ()

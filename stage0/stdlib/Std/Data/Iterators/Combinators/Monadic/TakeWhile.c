@@ -28,6 +28,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_takeWhileM___boxed(lean_object*, 
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_takeWhileWithPostcondition___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_TakeWhile_instIterator___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_TakeWhile_instIterator___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Iterators_PlausibleIterStep_done(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Iterators_IterM_DefaultConsumers_size___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_instIteratorSizeTakeWhileOfFiniteOfIteratorLoop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_TakeWhile_instIterator___redArg(lean_object*, lean_object*, lean_object*);
@@ -55,6 +56,7 @@ lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___redArg(lean_obje
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_takeWhileM___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_TakeWhile_instIteratorLoop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Combinators_Monadic_TakeWhile_0__Std_Iterators_TakeWhile_instProductivenessRelation(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Iterators_TakeWhile_instIterator___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_Iterators_TakeWhile_instIteratorCollectPartial(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_TakeWhile_instIteratorForPartial___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_TakeWhile_instIterator___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -91,7 +93,7 @@ _start:
 lean_object* x_6; 
 x_6 = l_Std_Iterators_IterM_takeWhileWithPostcondition(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_6;
 }
 }
@@ -124,7 +126,7 @@ _start:
 lean_object* x_7; 
 x_7 = l_Std_Iterators_IterM_takeWhileM(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 return x_7;
 }
@@ -158,9 +160,17 @@ _start:
 lean_object* x_7; 
 x_7 = l_Std_Iterators_IterM_takeWhile(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 return x_7;
+}
+}
+static lean_object* _init_l_Std_Iterators_TakeWhile_instIterator___redArg___lam__0___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Std_Iterators_PlausibleIterStep_done(lean_box(0), lean_box(0), lean_box(0), lean_box(0));
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_TakeWhile_instIterator___redArg___lam__0(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
@@ -170,7 +180,7 @@ if (x_3 == 0)
 {
 lean_object* x_4; lean_object* x_5; 
 lean_dec(x_2);
-x_4 = lean_box(2);
+x_4 = l_Std_Iterators_TakeWhile_instIterator___redArg___lam__0___closed__0;
 x_5 = lean_apply_2(x_1, lean_box(0), x_4);
 return x_5;
 }
@@ -185,7 +195,8 @@ return x_6;
 LEAN_EXPORT lean_object* l_Std_Iterators_TakeWhile_instIterator___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-if (lean_obj_tag(x_4) == 0)
+switch (lean_obj_tag(x_4)) {
+case 0:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_4, 1);
@@ -197,13 +208,23 @@ x_7 = lean_apply_1(x_2, x_5);
 x_8 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_7, x_6);
 return x_8;
 }
-else
+case 1:
 {
 lean_object* x_9; 
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 x_9 = lean_apply_2(x_1, lean_box(0), x_4);
 return x_9;
+}
+default: 
+{
+lean_object* x_10; lean_object* x_11; 
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+x_10 = l_Std_Iterators_TakeWhile_instIterator___redArg___lam__0___closed__0;
+x_11 = lean_apply_2(x_1, lean_box(0), x_10);
+return x_11;
+}
 }
 }
 }
@@ -223,12 +244,12 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 lean_dec_ref(x_1);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 lean_dec_ref(x_4);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_7 = lean_alloc_closure((void*)(l_Std_Iterators_TakeWhile_instIterator___redArg___lam__1), 4, 3);
 lean_closure_set(x_7, 0, x_6);
 lean_closure_set(x_7, 1, x_3);
@@ -247,12 +268,12 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_4, 1);
-lean_inc(x_8);
+lean_inc_ref(x_8);
 lean_dec_ref(x_4);
 x_9 = lean_ctor_get(x_7, 1);
-lean_inc(x_9);
+lean_inc_ref(x_9);
 lean_dec_ref(x_7);
-lean_inc(x_8);
+lean_inc_ref(x_8);
 x_10 = lean_alloc_closure((void*)(l_Std_Iterators_TakeWhile_instIterator___redArg___lam__1), 4, 3);
 lean_closure_set(x_10, 0, x_9);
 lean_closure_set(x_10, 1, x_6);
@@ -286,8 +307,8 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l___private_Std_Data_Iterators_Combinators_Monadic_TakeWhile_0__Std_Iterators_TakeWhile_instFinitenessRelation(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_7);
+lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 return x_8;
 }
@@ -305,8 +326,8 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l___private_Std_Data_Iterators_Combinators_Monadic_TakeWhile_0__Std_Iterators_TakeWhile_instProductivenessRelation(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_7);
+lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 return x_8;
 }
@@ -336,12 +357,12 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 lean_dec_ref(x_1);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_dec_ref(x_5);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_8 = lean_alloc_closure((void*)(l_Std_Iterators_TakeWhile_instIterator___redArg___lam__1), 4, 3);
 lean_closure_set(x_8, 0, x_7);
 lean_closure_set(x_8, 1, x_4);
@@ -371,12 +392,12 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 lean_dec_ref(x_1);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_dec_ref(x_5);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_8 = lean_alloc_closure((void*)(l_Std_Iterators_TakeWhile_instIterator___redArg___lam__1), 4, 3);
 lean_closure_set(x_8, 0, x_7);
 lean_closure_set(x_8, 1, x_4);
@@ -418,12 +439,12 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_2, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 lean_dec_ref(x_2);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_dec_ref(x_5);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_8 = lean_alloc_closure((void*)(l_Std_Iterators_TakeWhile_instIterator___redArg___lam__1), 4, 3);
 lean_closure_set(x_8, 0, x_7);
 lean_closure_set(x_8, 1, x_1);
@@ -451,7 +472,7 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Std_Iterators_TakeWhile_instIteratorLoop(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 return x_10;
 }
 }
@@ -470,12 +491,12 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 lean_dec_ref(x_1);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_dec_ref(x_5);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_8 = lean_alloc_closure((void*)(l_Std_Iterators_TakeWhile_instIterator___redArg___lam__1), 4, 3);
 lean_closure_set(x_8, 0, x_7);
 lean_closure_set(x_8, 1, x_4);
@@ -503,7 +524,7 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Std_Iterators_TakeWhile_instIteratorForPartial(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 return x_10;
 }
 }
@@ -514,17 +535,17 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 lean_dec_ref(x_4);
-lean_inc(x_5);
-lean_inc(x_3);
+lean_inc_ref(x_5);
+lean_inc_ref(x_3);
 x_7 = lean_alloc_closure((void*)(l_Std_Iterators_TakeWhile_instIterator___redArg___lam__1), 4, 3);
 lean_closure_set(x_7, 0, x_6);
 lean_closure_set(x_7, 1, x_3);
 lean_closure_set(x_7, 2, x_5);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_8 = lean_alloc_closure((void*)(l_Std_Iterators_TakeWhile_instIterator___redArg___lam__2), 4, 3);
 lean_closure_set(x_8, 0, x_2);
 lean_closure_set(x_8, 1, x_5);
@@ -555,7 +576,7 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Std_Iterators_instIteratorSizeTakeWhileOfFiniteOfIteratorLoop(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 return x_9;
 }
 }
@@ -566,17 +587,17 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 lean_dec_ref(x_4);
-lean_inc(x_5);
-lean_inc(x_3);
+lean_inc_ref(x_5);
+lean_inc_ref(x_3);
 x_7 = lean_alloc_closure((void*)(l_Std_Iterators_TakeWhile_instIterator___redArg___lam__1), 4, 3);
 lean_closure_set(x_7, 0, x_6);
 lean_closure_set(x_7, 1, x_3);
 lean_closure_set(x_7, 2, x_5);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_8 = lean_alloc_closure((void*)(l_Std_Iterators_TakeWhile_instIterator___redArg___lam__2), 4, 3);
 lean_closure_set(x_8, 0, x_2);
 lean_closure_set(x_8, 1, x_5);
@@ -606,7 +627,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Iterators_instIteratorSizePartialTakeWhileOfIteratorLoopPartial(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_8;
 }
 }
@@ -643,6 +664,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_PostconditionMonad(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Std_Iterators_TakeWhile_instIterator___redArg___lam__0___closed__0 = _init_l_Std_Iterators_TakeWhile_instIterator___redArg___lam__0___closed__0();
+lean_mark_persistent(l_Std_Iterators_TakeWhile_instIterator___redArg___lam__0___closed__0);
 l_Std_Iterators_TakeWhile_instIteratorCollect___redArg___lam__0___closed__0 = _init_l_Std_Iterators_TakeWhile_instIteratorCollect___redArg___lam__0___closed__0();
 lean_mark_persistent(l_Std_Iterators_TakeWhile_instIteratorCollect___redArg___lam__0___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

@@ -349,7 +349,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_____private_Lean_Compiler_Inl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown constant '", 18, 18);
+x_1 = lean_mk_string_unchecked("Unknown constant `", 18, 18);
 return x_1;
 }
 }
@@ -366,7 +366,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_____private_Lean_Compiler_Inl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -418,7 +418,7 @@ lean_object* x_18;
 lean_dec(x_1);
 x_18 = lean_ctor_get(x_11, 0);
 lean_inc(x_18);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 lean_ctor_set(x_5, 0, x_18);
 return x_5;
 }
@@ -458,7 +458,7 @@ lean_object* x_30; lean_object* x_31;
 lean_dec(x_1);
 x_30 = lean_ctor_get(x_23, 0);
 lean_inc(x_30);
-lean_dec(x_23);
+lean_dec_ref(x_23);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_20);
@@ -578,7 +578,7 @@ if (lean_obj_tag(x_6) == 1)
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_8 = !lean_is_exclusive(x_5);
 if (x_8 == 0)
 {
@@ -634,7 +634,7 @@ return x_17;
 else
 {
 uint8_t x_24; lean_object* x_25; 
-lean_dec(x_22);
+lean_dec_ref(x_22);
 x_24 = 0;
 x_25 = lean_box(x_24);
 lean_ctor_set(x_17, 0, x_25);
@@ -670,7 +670,7 @@ return x_32;
 else
 {
 uint8_t x_33; lean_object* x_34; lean_object* x_35; 
-lean_dec(x_30);
+lean_dec_ref(x_30);
 x_33 = 0;
 x_34 = lean_box(x_33);
 x_35 = lean_alloc_ctor(0, 2, 0);
@@ -749,7 +749,7 @@ return x_52;
 else
 {
 uint8_t x_53; lean_object* x_54; lean_object* x_55; 
-lean_dec(x_50);
+lean_dec_ref(x_50);
 x_53 = 0;
 x_54 = lean_box(x_53);
 if (lean_is_scalar(x_47)) {
@@ -1712,7 +1712,7 @@ else
 lean_object* x_9; uint8_t x_10; uint8_t x_11; 
 x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_10 = lean_unbox(x_9);
 lean_dec(x_9);
 x_11 = l_Lean_Compiler_beqInlineAttributeKind____x40_Lean_Compiler_InlineAttrs___hyg_18_(x_2, x_10);

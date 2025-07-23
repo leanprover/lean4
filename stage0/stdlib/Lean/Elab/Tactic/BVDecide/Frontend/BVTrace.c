@@ -172,7 +172,7 @@ else
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_13 = lean_ctor_get(x_10, 0);
 lean_inc(x_13);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_14 = l_Lean_Elab_Term_getDeclName_x3f___redArg(x_1, x_7);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
@@ -198,7 +198,7 @@ lean_inc(x_19);
 lean_dec_ref(x_14);
 x_20 = lean_ctor_get(x_15, 0);
 lean_inc(x_20);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_21 = l_Lean_getRefPos___at___Lean_getRefPosition___at___Lean_Elab_Term_elabPanic_spec__0_spec__0___redArg(x_5, x_19);
 lean_dec_ref(x_5);
 x_22 = !lean_is_exclusive(x_21);

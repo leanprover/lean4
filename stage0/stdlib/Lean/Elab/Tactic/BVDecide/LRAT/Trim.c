@@ -891,7 +891,7 @@ x_4 = l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_findInitialId(x_1, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 uint8_t x_5; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
 {
@@ -919,7 +919,7 @@ if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
 lean_dec(x_8);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
 {
@@ -1075,7 +1075,7 @@ x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_8 = l_Array_foldlMUnsafe_fold___at___Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run_spec__6(x_1, x_2, x_6, x_7, x_5);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_8;
 }
 }
@@ -2138,14 +2138,14 @@ else
 lean_object* x_38; 
 x_38 = lean_ctor_get(x_36, 0);
 lean_inc(x_38);
-lean_dec(x_36);
+lean_dec_ref(x_36);
 switch (lean_obj_tag(x_38)) {
 case 0:
 {
 lean_object* x_39; lean_object* x_40; 
 x_39 = lean_ctor_get(x_38, 1);
 lean_inc_ref(x_39);
-lean_dec(x_38);
+lean_dec_ref(x_38);
 x_40 = l_Array_append___redArg(x_12, x_39);
 lean_dec_ref(x_39);
 x_1 = x_40;
@@ -2157,7 +2157,7 @@ case 1:
 lean_object* x_42; lean_object* x_43; 
 x_42 = lean_ctor_get(x_38, 2);
 lean_inc_ref(x_42);
-lean_dec(x_38);
+lean_dec_ref(x_38);
 x_43 = l_Array_append___redArg(x_12, x_42);
 lean_dec_ref(x_42);
 x_1 = x_43;
@@ -2171,7 +2171,7 @@ x_45 = lean_ctor_get(x_38, 3);
 lean_inc_ref(x_45);
 x_46 = lean_ctor_get(x_38, 4);
 lean_inc_ref(x_46);
-lean_dec(x_38);
+lean_dec_ref(x_38);
 x_47 = lean_array_get_size(x_46);
 x_48 = lean_mk_empty_array_with_capacity(x_47);
 x_49 = lean_nat_dec_lt(x_5, x_47);
@@ -2214,7 +2214,7 @@ goto block_19;
 }
 default: 
 {
-lean_dec(x_38);
+lean_dec_ref(x_38);
 x_1 = x_12;
 x_3 = x_20;
 goto _start;
@@ -2571,7 +2571,7 @@ else
 lean_object* x_58; 
 x_58 = lean_ctor_get(x_55, 0);
 lean_inc(x_58);
-lean_dec(x_55);
+lean_dec_ref(x_55);
 x_17 = x_5;
 x_18 = x_58;
 goto block_26;
@@ -2620,7 +2620,7 @@ else
 lean_object* x_80; 
 x_80 = lean_ctor_get(x_77, 0);
 lean_inc(x_80);
-lean_dec(x_77);
+lean_dec_ref(x_77);
 x_17 = x_62;
 x_18 = x_80;
 goto block_26;
@@ -2796,7 +2796,7 @@ else
 lean_object* x_60; 
 x_60 = lean_ctor_get(x_57, 0);
 lean_inc(x_60);
-lean_dec(x_57);
+lean_dec_ref(x_57);
 x_19 = x_7;
 x_20 = x_60;
 goto block_28;
@@ -2845,7 +2845,7 @@ else
 lean_object* x_82; 
 x_82 = lean_ctor_get(x_79, 0);
 lean_inc(x_82);
-lean_dec(x_79);
+lean_dec_ref(x_79);
 x_19 = x_64;
 x_20 = x_82;
 goto block_28;

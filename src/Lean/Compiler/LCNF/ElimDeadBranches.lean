@@ -253,7 +253,9 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
-    toArrayFn := fun s => s.toArray.qsort decLt
+    exportEntriesFnEx? := some fun env s _ _ =>
+      let entries := s.toArray.qsort decLt
+      entries.filter (isDeclPublic env ·.1)
     asyncMode := .sync  -- compilation is non-parallel anyway
     replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s ⟨e, n⟩ => s.insert e n)
   }
@@ -262,7 +264,7 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
 Add a `Value` for a function name.
 -/
 def addFunctionSummary (env : Environment) (fid : Name) (v : Value) : Environment :=
-  functionSummariesExt.addEntry (env.addExtraName fid) (fid, v)
+  functionSummariesExt.addEntry env (fid, v)
 
 /--
 Obtain the `Value` for a function name if possible.

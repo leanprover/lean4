@@ -819,7 +819,7 @@ private def addConstImportData
   let { ngen, core := core_cache, «meta» := meta_cache } ← cacheRef.get
   let mstate : Meta.State := { cache := meta_cache }
   cacheRef.set (Cache.empty ngen)
-  let ctx : Meta.Context := { config := { transparency := .reducible } }
+  let ctx : Meta.Context := { keyedConfig := Config.toConfigWithKey { transparency := .reducible } }
   let cm := (act name constInfo).run ctx mstate
   let cstate : Core.State := {env, cache := core_cache, ngen}
   match ←(cm.run cctx cstate).toBaseIO with

@@ -121,7 +121,7 @@ abbrev SimprocExtension := ScopedEnvExtension SimprocOLeanEntry SimprocEntry Sim
 unsafe def getSimprocFromDeclImpl (declName : Name) : ImportM (Sum Simproc DSimproc) := do
   let ctx ← read
   match ctx.env.find? declName with
-  | none      => throw <| IO.userError ("unknown constant '" ++ toString declName ++ "'")
+  | none      => throw <| IO.userError ("Unknown constant `" ++ toString declName ++ "`")
   | some info =>
     match info.type with
     | .const ``Simproc _ =>

@@ -82,7 +82,7 @@ def toIRType (type : Lean.Expr) : CoreM IRType := do
     -- All mono types are in headBeta form.
     let .const name _ := type.getAppFn | unreachable!
     nameToIRType name
-  | .forallE .. => return .tobject
+  | .forallE .. => return .object
   | .mdata _ b => toIRType b
   | _ => unreachable!
 

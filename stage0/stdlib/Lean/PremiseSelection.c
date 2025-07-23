@@ -299,7 +299,7 @@ x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 2);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_array_push(x_1, x_3);
 x_1 = x_5;
 x_2 = x_4;
@@ -584,7 +584,7 @@ else
 lean_object* x_18; lean_object* x_19; 
 x_18 = lean_ctor_get(x_15, 0);
 lean_inc(x_18);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_19 = lean_apply_7(x_18, x_1, x_2, x_3, x_4, x_5, x_6, x_10);
 return x_19;
 }
@@ -922,7 +922,7 @@ block_21:
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-lean_dec_ref(x_12);
+lean_dec_ref(x_13);
 x_15 = l_Lean_PremiseSelection_elabSetPremiseSelector___lam__0___closed__1;
 x_16 = l_Lean_MessageData_ofSyntax(x_1);
 x_17 = lean_alloc_ctor(7, 2, 0);
@@ -932,7 +932,7 @@ x_18 = l_Lean_PremiseSelection_elabSetPremiseSelector___lam__0___closed__3;
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Lean_throwError___at___Lean_Elab_Term_throwErrorIfErrors_spec__0___redArg(x_19, x_5, x_6, x_7, x_8, x_9, x_10, x_13);
+x_20 = l_Lean_throwError___at___Lean_Elab_Term_throwErrorIfErrors_spec__0___redArg(x_19, x_5, x_6, x_7, x_8, x_9, x_10, x_12);
 lean_dec(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
@@ -949,7 +949,7 @@ lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_1);
-return x_12;
+return x_13;
 }
 }
 block_27:
@@ -961,16 +961,16 @@ if (x_25 == 0)
 uint8_t x_26; 
 x_26 = l_Lean_Exception_isRuntime(x_23);
 lean_dec_ref(x_23);
-x_12 = x_22;
-x_13 = x_24;
+x_12 = x_24;
+x_13 = x_22;
 x_14 = x_26;
 goto block_21;
 }
 else
 {
 lean_dec_ref(x_23);
-x_12 = x_22;
-x_13 = x_24;
+x_12 = x_24;
+x_13 = x_22;
 x_14 = x_25;
 goto block_21;
 }
@@ -1344,7 +1344,7 @@ lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_46 = !lean_is_exclusive(x_11);
 if (x_46 == 0)
 {

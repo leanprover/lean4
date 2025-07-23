@@ -411,7 +411,7 @@ else
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_24 = lean_ctor_get(x_20, 0);
 lean_inc(x_24);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 x_25 = l_Lean_Elab_Tactic_expandLocation(x_24);
 lean_dec(x_24);
 x_26 = l_Lean_Elab_Tactic_withLocation(x_25, x_17, x_15, x_16, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);

@@ -360,7 +360,6 @@ lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_2);
 lean_inc(x_5);
-lean_inc_ref(x_29);
 x_31 = l_Lean_Elab_Tactic_Conv___aux__Lean__Elab__Tactic__Conv__Lets______elabRules__Lean__Parser__Tactic__Conv__extractLets__1___lam__1(x_29, x_4, x_5, x_2, x_30, x_6, x_11, x_12, x_13, x_14, x_24);
 if (lean_obj_tag(x_31) == 0)
 {
@@ -371,6 +370,7 @@ lean_dec_ref(x_31);
 lean_inc(x_27);
 lean_inc(x_2);
 x_33 = l_Lean_Elab_Tactic_Conv___aux__Lean__Elab__Tactic__Conv__Lets______elabRules__Lean__Parser__Tactic__Conv__extractLets__1___lam__1(x_29, x_4, x_5, x_2, x_2, x_27, x_11, x_12, x_13, x_14, x_32);
+lean_dec_ref(x_29);
 if (lean_obj_tag(x_33) == 0)
 {
 uint8_t x_34; 
@@ -489,7 +489,6 @@ lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_2);
 lean_inc(x_5);
-lean_inc_ref(x_55);
 x_57 = l_Lean_Elab_Tactic_Conv___aux__Lean__Elab__Tactic__Conv__Lets______elabRules__Lean__Parser__Tactic__Conv__extractLets__1___lam__1(x_55, x_4, x_5, x_2, x_56, x_6, x_11, x_12, x_13, x_14, x_24);
 if (lean_obj_tag(x_57) == 0)
 {
@@ -500,6 +499,7 @@ lean_dec_ref(x_57);
 lean_inc(x_53);
 lean_inc(x_2);
 x_59 = l_Lean_Elab_Tactic_Conv___aux__Lean__Elab__Tactic__Conv__Lets______elabRules__Lean__Parser__Tactic__Conv__extractLets__1___lam__1(x_55, x_4, x_5, x_2, x_2, x_53, x_11, x_12, x_13, x_14, x_58);
+lean_dec_ref(x_55);
 if (lean_obj_tag(x_59) == 0)
 {
 lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
@@ -1218,6 +1218,7 @@ _start:
 uint8_t x_12; lean_object* x_13; 
 x_12 = lean_unbox(x_2);
 x_13 = l_Lean_Elab_Tactic_Conv___aux__Lean__Elab__Tactic__Conv__Lets______elabRules__Lean__Parser__Tactic__Conv__extractLets__1___lam__1(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+lean_dec_ref(x_1);
 return x_13;
 }
 }

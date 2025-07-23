@@ -300,7 +300,7 @@ return x_16;
 else
 {
 lean_object* x_17; 
-lean_dec(x_7);
+lean_dec_ref(x_7);
 lean_dec_ref(x_3);
 x_17 = lean_box(0);
 return x_17;
@@ -312,7 +312,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean
 lean_dec_ref(x_3);
 x_18 = lean_ctor_get(x_6, 0);
 lean_inc(x_18);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_19 = lean_ctor_get(x_18, 1);
 lean_inc(x_19);
 x_20 = lean_ctor_get(x_19, 1);
@@ -1180,7 +1180,7 @@ else
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_16 = lean_ctor_get(x_9, 0);
 lean_inc(x_16);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc_ref(x_17);
 x_18 = l_Lean_Elab_Tactic_Do_ProofMode_parseHyp_x3f(x_17);
@@ -1203,7 +1203,7 @@ else
 lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; 
 x_21 = lean_ctor_get(x_18, 0);
 lean_inc(x_21);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 x_22 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_22);
 lean_dec_ref(x_1);

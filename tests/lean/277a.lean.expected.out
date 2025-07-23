@@ -1,1 +1,1 @@
-277a.lean:4:7-4:15: error: unknown identifier 'nonexistent'
+277a.lean:4:7-4:15: error(lean.unknownIdentifier): Unknown identifier `nonexistent`

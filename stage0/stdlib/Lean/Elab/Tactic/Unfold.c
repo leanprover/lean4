@@ -798,7 +798,7 @@ lean_inc(x_22);
 x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec_ref(x_21);
-lean_inc(x_18);
+lean_inc_ref(x_18);
 x_24 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalUnfold_go___lam__0___boxed), 11, 1);
 lean_closure_set(x_24, 0, x_18);
 x_25 = lean_unbox(x_22);
@@ -831,7 +831,7 @@ return x_31;
 else
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-lean_dec(x_18);
+lean_dec_ref(x_18);
 lean_inc(x_20);
 x_32 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_zetaDeltaLocalDecl___boxed), 11, 1);
 lean_closure_set(x_32, 0, x_20);
@@ -845,7 +845,7 @@ else
 {
 uint8_t x_35; 
 lean_dec(x_20);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 lean_dec_ref(x_11);
 lean_dec(x_12);
 lean_dec(x_10);
@@ -882,7 +882,7 @@ lean_inc(x_39);
 lean_dec_ref(x_17);
 x_40 = lean_ctor_get(x_18, 0);
 lean_inc(x_40);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 lean_inc(x_40);
 x_41 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalUnfold_go___lam__1___boxed), 11, 1);
 lean_closure_set(x_41, 0, x_40);
@@ -1077,7 +1077,7 @@ lean_inc(x_87);
 x_88 = lean_ctor_get(x_86, 1);
 lean_inc(x_88);
 lean_dec_ref(x_86);
-lean_inc(x_83);
+lean_inc_ref(x_83);
 x_89 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalUnfold_go___lam__0___boxed), 11, 1);
 lean_closure_set(x_89, 0, x_83);
 x_90 = lean_unbox(x_87);
@@ -1110,7 +1110,7 @@ return x_96;
 else
 {
 lean_object* x_97; lean_object* x_98; lean_object* x_99; 
-lean_dec(x_83);
+lean_dec_ref(x_83);
 lean_inc(x_85);
 x_97 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_zetaDeltaLocalDecl___boxed), 11, 1);
 lean_closure_set(x_97, 0, x_85);
@@ -1124,7 +1124,7 @@ else
 {
 lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; 
 lean_dec(x_85);
-lean_dec(x_83);
+lean_dec_ref(x_83);
 lean_dec_ref(x_81);
 lean_dec(x_12);
 lean_dec(x_10);
@@ -1163,7 +1163,7 @@ lean_inc(x_104);
 lean_dec_ref(x_82);
 x_105 = lean_ctor_get(x_83, 0);
 lean_inc(x_105);
-lean_dec(x_83);
+lean_dec_ref(x_83);
 lean_inc(x_105);
 x_106 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalUnfold_go___lam__1___boxed), 11, 1);
 lean_closure_set(x_106, 0, x_105);

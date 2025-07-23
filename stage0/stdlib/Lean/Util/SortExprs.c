@@ -1051,7 +1051,7 @@ x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_8 = l_Array_foldlMUnsafe_fold___at___Lean_sortExprs_spec__6(x_1, x_2, x_6, x_7, x_5);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_8;
 }
 }

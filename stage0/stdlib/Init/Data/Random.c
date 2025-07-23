@@ -761,7 +761,7 @@ x_9 = lean_ctor_get(x_5, 1);
 lean_inc(x_9);
 lean_dec_ref(x_5);
 x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
+lean_inc_ref(x_10);
 x_11 = lean_apply_1(x_10, x_9);
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)
@@ -862,7 +862,7 @@ block_48:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_inc(x_2);
 x_8 = lean_apply_1(x_7, x_2);
 x_9 = !lean_is_exclusive(x_8);

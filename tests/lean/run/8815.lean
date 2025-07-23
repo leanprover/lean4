@@ -10,13 +10,13 @@ example (P Q : Prop) (hQ : Q) (hP : P) : P := by simp [*, -hQ]
 /-- error: simp made no progress -/
 #guard_msgs in example (P Q : Prop) (hQ : Q) (hP : P) : P := by simp [*, -hP]
 
-/-- error: unknown constant 'hQ' -/
+/-- error: Unknown constant `hQ` -/
 #guard_msgs in example (P Q : Prop) (hQ : Q) (hP : P) : P := by simp [-hQ, *]
 
 #guard_msgs in example (P Q : Prop) (hQ : Q) (hP : P) : P := by simp_all [-hQ]
 
 /--
-error: unknown constant 'hQ'
+error: Unknown constant `hQ`
 ---
 error: simp made no progress
 -/

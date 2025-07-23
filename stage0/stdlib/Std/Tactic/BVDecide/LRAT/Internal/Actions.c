@@ -316,7 +316,7 @@ else
 lean_object* x_17; lean_object* x_18; 
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_18 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray(x_1, x_17);
 lean_dec(x_17);
 if (lean_obj_tag(x_18) == 0)
@@ -381,7 +381,7 @@ else
 lean_object* x_31; lean_object* x_32; 
 x_31 = lean_ctor_get(x_29, 0);
 lean_inc(x_31);
-lean_dec(x_29);
+lean_dec_ref(x_29);
 x_32 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray(x_1, x_31);
 lean_dec(x_31);
 if (lean_obj_tag(x_32) == 0)
@@ -499,7 +499,7 @@ else
 lean_object* x_57; lean_object* x_58; 
 x_57 = lean_ctor_get(x_55, 0);
 lean_inc(x_57);
-lean_dec(x_55);
+lean_dec_ref(x_55);
 x_58 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray(x_1, x_57);
 lean_dec(x_57);
 if (lean_obj_tag(x_58) == 0)
@@ -614,7 +614,7 @@ else
 lean_object* x_80; lean_object* x_81; 
 x_80 = lean_ctor_get(x_78, 0);
 lean_inc(x_80);
-lean_dec(x_78);
+lean_dec_ref(x_78);
 x_81 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray(x_1, x_80);
 lean_dec(x_80);
 if (lean_obj_tag(x_81) == 0)
@@ -744,7 +744,7 @@ else
 lean_object* x_105; lean_object* x_106; 
 x_105 = lean_ctor_get(x_103, 0);
 lean_inc(x_105);
-lean_dec(x_103);
+lean_dec_ref(x_103);
 x_106 = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray(x_1, x_105);
 lean_dec(x_105);
 if (lean_obj_tag(x_106) == 0)

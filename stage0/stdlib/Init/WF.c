@@ -62,7 +62,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_invImage(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_5;
 }
 }
@@ -87,7 +87,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_measure(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -104,7 +104,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_sizeOfWFRel(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -136,7 +136,7 @@ if (x_13 == 0)
 uint8_t x_14; 
 lean_dec(x_9);
 lean_dec(x_7);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_14 = lean_unbox(x_12);
 return x_14;
 }
@@ -155,8 +155,8 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_3);
+lean_dec_ref(x_1);
 x_17 = lean_unbox(x_10);
 return x_17;
 }
@@ -249,7 +249,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_PSigma_lex(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_5;
 }
 }
@@ -266,7 +266,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_PSigma_instWellFoundedRelation(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_5;
 }
 }

@@ -106,7 +106,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_inc(x_2);
 return x_2;
 }
@@ -115,7 +115,7 @@ else
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_apply_1(x_3, x_4);
 return x_5;
 }

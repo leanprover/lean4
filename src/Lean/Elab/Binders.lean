@@ -178,12 +178,20 @@ private def toBinderViews (stx : Syntax) : TermElabM (Array BinderView) := do
   else
     throwUnsupportedSyntax
 
+/--
+The error name for "failed to infer binder type" errors.
+
+We cannot use `logNamedError` here because the error is logged later, after attempting to synthesize
+metavariables, in `logUnassignedUsingErrorInfos`.
+-/
+def failedToInferBinderTypeErrorName := `lean.inferBinderTypeFailed
+
 private def registerFailedToInferBinderTypeInfo (type : Expr) (view : BinderView) : TermElabM Unit := do
   let msg := if view.id.getId.hasMacroScopes then
     m!"binder type"
   else
     m!"type of binder `{view.id.getId}`"
-  registerCustomErrorIfMVar type view.ref m!"Failed to infer {msg}"
+  registerCustomErrorIfMVar type view.ref (m!"Failed to infer {msg}".tagWithErrorName failedToInferBinderTypeErrorName)
   registerLevelMVarErrorExprInfo type view.ref m!"Failed to infer universe levels in {msg}"
 
 def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit :=

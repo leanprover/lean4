@@ -17,7 +17,7 @@ namespace Data
 
 Tries have typically many nodes with small degree, where a linear scan
 through the (compact) `ByteArray` is faster than using binary search or
-search trees like `RBTree`.
+search trees like `Std.TreeMap`.
 
 Moreover, many nodes have degree 1, which justifies the special case `Node1`
 constructor.

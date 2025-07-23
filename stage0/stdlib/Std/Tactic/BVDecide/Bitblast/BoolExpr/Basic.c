@@ -366,7 +366,7 @@ return x_4;
 case 1:
 {
 uint8_t x_5; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_ctor_get_uint8(x_2, 0);
 lean_dec_ref(x_2);
 if (x_5 == 0)
@@ -404,7 +404,7 @@ x_14 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_14);
 lean_dec_ref(x_2);
 x_15 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__3;
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_16 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_13);
 x_17 = lean_string_append(x_15, x_16);
 lean_dec_ref(x_16);
@@ -432,13 +432,13 @@ x_29 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_29);
 lean_dec_ref(x_2);
 x_30 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__6;
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_31 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_27);
 x_32 = lean_string_append(x_30, x_31);
 lean_dec_ref(x_31);
 x_33 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__4;
 x_34 = lean_string_append(x_32, x_33);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_35 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_28);
 x_36 = lean_string_append(x_34, x_35);
 lean_dec_ref(x_35);
@@ -498,7 +498,7 @@ return x_5;
 case 1:
 {
 uint8_t x_6; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_ctor_get_uint8(x_2, 0);
 lean_dec_ref(x_2);
 return x_6;
@@ -532,7 +532,7 @@ lean_inc_ref(x_12);
 x_13 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_13);
 lean_dec_ref(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_14 = l_Std_Tactic_BVDecide_BoolExpr_eval___redArg(x_1, x_12);
 x_15 = l_Std_Tactic_BVDecide_BoolExpr_eval___redArg(x_1, x_13);
 x_16 = l_Std_Tactic_BVDecide_Gate_eval(x_11, x_14, x_15);
@@ -548,7 +548,7 @@ lean_inc_ref(x_18);
 x_19 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_19);
 lean_dec_ref(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_20 = l_Std_Tactic_BVDecide_BoolExpr_eval___redArg(x_1, x_17);
 if (x_20 == 0)
 {

@@ -577,7 +577,7 @@ else
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = l_Option_repr___at___Lake_reprBinderSyntaxView____x40_Lake_Util_Binder___hyg_347__spec__0___closed__3;
 x_6 = l_Lean_Syntax_reprTSyntax___redArg____x40_Init_Meta___hyg_2324_(x_4);
 x_7 = lean_alloc_ctor(5, 2, 0);
@@ -2569,7 +2569,7 @@ else
 lean_object* x_26; lean_object* x_27; 
 x_26 = lean_ctor_get(x_6, 0);
 lean_inc(x_26);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_27 = l_Array_mkArray1___redArg(x_26);
 x_18 = x_27;
 goto block_24;

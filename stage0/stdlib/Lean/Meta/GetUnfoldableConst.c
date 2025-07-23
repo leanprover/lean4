@@ -570,7 +570,7 @@ lean_inc(x_12);
 lean_dec_ref(x_6);
 x_13 = lean_ctor_get(x_7, 0);
 lean_inc(x_13);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_14 = lean_apply_5(x_13, x_11, x_1, x_3, x_4, x_12);
 return x_14;
 }
@@ -1261,7 +1261,7 @@ lean_dec(x_18);
 if (x_19 == 0)
 {
 uint8_t x_20; 
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_20 = !lean_is_exclusive(x_17);
 if (x_20 == 0)
 {
@@ -1313,7 +1313,7 @@ return x_29;
 else
 {
 uint8_t x_30; 
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_30 = !lean_is_exclusive(x_17);
 if (x_30 == 0)
 {
@@ -1337,7 +1337,7 @@ return x_33;
 case 2:
 {
 lean_object* x_34; 
-lean_dec(x_15);
+lean_dec_ref(x_15);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 x_34 = l_Lean_Meta_getTheoremInfo___redArg(x_16, x_2, x_12);
@@ -1347,7 +1347,7 @@ return x_34;
 default: 
 {
 lean_dec(x_16);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);

@@ -156,7 +156,7 @@ lean_inc(x_26);
 lean_dec_ref(x_18);
 x_27 = lean_ctor_get(x_19, 0);
 lean_inc(x_27);
-lean_dec(x_19);
+lean_dec_ref(x_19);
 lean_inc(x_4);
 lean_ctor_set(x_8, 1, x_27);
 lean_ctor_set(x_8, 0, x_4);
@@ -253,7 +253,7 @@ lean_inc(x_44);
 lean_dec_ref(x_37);
 x_45 = lean_ctor_get(x_38, 0);
 lean_inc(x_45);
-lean_dec(x_38);
+lean_dec_ref(x_38);
 lean_inc(x_4);
 x_46 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_46, 0, x_4);
@@ -310,7 +310,7 @@ lean_object* x_11;
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_6);
 lean_ctor_set(x_11, 1, x_9);
@@ -327,7 +327,7 @@ x_13 = lean_ctor_get(x_6, 1);
 x_14 = lean_ctor_get(x_6, 0);
 lean_dec(x_14);
 x_15 = lean_array_uget(x_3, x_5);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_13);
@@ -343,7 +343,7 @@ uint8_t x_18;
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_18 = !lean_is_exclusive(x_16);
 if (x_18 == 0)
 {
@@ -380,7 +380,7 @@ lean_inc(x_24);
 lean_dec_ref(x_16);
 x_25 = lean_ctor_get(x_17, 0);
 lean_inc(x_25);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 lean_inc(x_2);
 lean_ctor_set(x_6, 1, x_25);
 lean_ctor_set(x_6, 0, x_2);
@@ -399,7 +399,7 @@ lean_dec(x_13);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_29 = !lean_is_exclusive(x_16);
 if (x_29 == 0)
 {
@@ -427,7 +427,7 @@ x_33 = lean_ctor_get(x_6, 1);
 lean_inc(x_33);
 lean_dec(x_6);
 x_34 = lean_array_uget(x_3, x_5);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_33);
@@ -443,7 +443,7 @@ lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 if (lean_is_exclusive(x_35)) {
@@ -477,7 +477,7 @@ lean_inc(x_42);
 lean_dec_ref(x_35);
 x_43 = lean_ctor_get(x_36, 0);
 lean_inc(x_43);
-lean_dec(x_36);
+lean_dec_ref(x_36);
 lean_inc(x_2);
 x_44 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_44, 0, x_2);
@@ -497,7 +497,7 @@ lean_dec(x_33);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_48 = lean_ctor_get(x_35, 0);
 lean_inc(x_48);
 x_49 = lean_ctor_get(x_35, 1);
@@ -684,7 +684,7 @@ x_25 = lean_ctor_get(x_15, 0);
 lean_dec(x_25);
 x_26 = lean_ctor_get(x_17, 0);
 lean_inc(x_26);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 lean_ctor_set(x_15, 0, x_26);
 return x_15;
 }
@@ -696,7 +696,7 @@ lean_inc(x_27);
 lean_dec(x_15);
 x_28 = lean_ctor_get(x_17, 0);
 lean_inc(x_28);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 x_29 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_29, 0, x_28);
 lean_ctor_set(x_29, 1, x_27);
@@ -792,7 +792,7 @@ if (lean_is_exclusive(x_39)) {
 }
 x_49 = lean_ctor_get(x_41, 0);
 lean_inc(x_49);
-lean_dec(x_41);
+lean_dec_ref(x_41);
 if (lean_is_scalar(x_48)) {
  x_50 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -900,7 +900,7 @@ x_72 = lean_ctor_get(x_62, 0);
 lean_dec(x_72);
 x_73 = lean_ctor_get(x_64, 0);
 lean_inc(x_73);
-lean_dec(x_64);
+lean_dec_ref(x_64);
 lean_ctor_set(x_62, 0, x_73);
 return x_62;
 }
@@ -912,7 +912,7 @@ lean_inc(x_74);
 lean_dec(x_62);
 x_75 = lean_ctor_get(x_64, 0);
 lean_inc(x_75);
-lean_dec(x_64);
+lean_dec_ref(x_64);
 x_76 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_76, 0, x_75);
 lean_ctor_set(x_76, 1, x_74);
@@ -1011,7 +1011,7 @@ if (lean_is_exclusive(x_87)) {
 }
 x_97 = lean_ctor_get(x_89, 0);
 lean_inc(x_97);
-lean_dec(x_89);
+lean_dec_ref(x_89);
 if (lean_is_scalar(x_96)) {
  x_98 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -1061,7 +1061,7 @@ lean_object* x_11;
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_6);
 lean_ctor_set(x_11, 1, x_9);
@@ -1078,7 +1078,7 @@ x_13 = lean_ctor_get(x_6, 1);
 x_14 = lean_ctor_get(x_6, 0);
 lean_dec(x_14);
 x_15 = lean_array_uget(x_3, x_5);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_13);
@@ -1094,7 +1094,7 @@ uint8_t x_18;
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_18 = !lean_is_exclusive(x_16);
 if (x_18 == 0)
 {
@@ -1160,7 +1160,7 @@ lean_inc(x_28);
 lean_dec_ref(x_16);
 x_29 = lean_ctor_get(x_17, 0);
 lean_inc(x_29);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 lean_inc(x_2);
 lean_ctor_set(x_6, 1, x_29);
 lean_ctor_set(x_6, 0, x_2);
@@ -1179,7 +1179,7 @@ lean_dec(x_13);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_33 = !lean_is_exclusive(x_16);
 if (x_33 == 0)
 {
@@ -1207,7 +1207,7 @@ x_37 = lean_ctor_get(x_6, 1);
 lean_inc(x_37);
 lean_dec(x_6);
 x_38 = lean_array_uget(x_3, x_5);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_37);
@@ -1223,7 +1223,7 @@ lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_41 = lean_ctor_get(x_39, 1);
 lean_inc(x_41);
 if (lean_is_exclusive(x_39)) {
@@ -1271,7 +1271,7 @@ lean_inc(x_48);
 lean_dec_ref(x_39);
 x_49 = lean_ctor_get(x_40, 0);
 lean_inc(x_49);
-lean_dec(x_40);
+lean_dec_ref(x_40);
 lean_inc(x_2);
 x_50 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_50, 0, x_2);
@@ -1291,7 +1291,7 @@ lean_dec(x_37);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_54 = lean_ctor_get(x_39, 0);
 lean_inc(x_54);
 x_55 = lean_ctor_get(x_39, 1);
@@ -1438,7 +1438,7 @@ x_13 = lean_ctor_get(x_10, 0);
 lean_dec(x_13);
 x_14 = lean_ctor_get(x_11, 0);
 lean_inc(x_14);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 lean_ctor_set(x_10, 0, x_14);
 return x_10;
 }
@@ -1450,7 +1450,7 @@ lean_inc(x_15);
 lean_dec(x_10);
 x_16 = lean_ctor_get(x_11, 0);
 lean_inc(x_16);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
 lean_ctor_set(x_17, 1, x_15);
@@ -1465,7 +1465,7 @@ lean_inc(x_18);
 lean_dec_ref(x_10);
 x_19 = lean_ctor_get(x_11, 0);
 lean_inc(x_19);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_20 = lean_alloc_closure((void*)(l_Lean_PersistentArray_forIn___at___Lean_Elab_Tactic_InfoTrees_elabInfoTrees_spec__1___lam__0___boxed), 7, 2);
 lean_closure_set(x_20, 0, x_1);
 lean_closure_set(x_20, 1, x_2);
@@ -1526,7 +1526,7 @@ x_35 = lean_ctor_get(x_25, 0);
 lean_dec(x_35);
 x_36 = lean_ctor_get(x_27, 0);
 lean_inc(x_36);
-lean_dec(x_27);
+lean_dec_ref(x_27);
 lean_ctor_set(x_25, 0, x_36);
 return x_25;
 }
@@ -1538,7 +1538,7 @@ lean_inc(x_37);
 lean_dec(x_25);
 x_38 = lean_ctor_get(x_27, 0);
 lean_inc(x_38);
-lean_dec(x_27);
+lean_dec_ref(x_27);
 x_39 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
 lean_ctor_set(x_39, 1, x_37);
@@ -1921,7 +1921,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___regBuilti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("`/-- ... -/ #guard_msgs in cmd` captures the messages generated by the command `cmd`\nand checks that they match the contents of the docstring.\n\nBasic example:\n```lean\n/--\nerror: unknown identifier 'x'\n-/\n#guard_msgs in\nexample : α := x\n```\nThis checks that there is such an error and then consumes the message.\n\nBy default, the command captures all messages, but the filter condition can be adjusted.\nFor example, we can select only warnings:\n```lean\n/--\nwarning: declaration uses 'sorry'\n-/\n#guard_msgs(warning) in\nexample : α := sorry\n```\nor only errors\n```lean\n#guard_msgs(error) in\nexample : α := sorry\n```\nIn the previous example, since warnings are not captured there is a warning on `sorry`.\nWe can drop the warning completely with\n```lean\n#guard_msgs(error, drop warning) in\nexample : α := sorry\n```\n\nIn general, `#guard_msgs` accepts a comma-separated list of configuration clauses in parentheses:\n```\n#guard_msgs (configElt,*) in cmd\n```\nBy default, the configuration list is `(check all, whitespace := normalized, ordering := exact)`.\n\nMessage filters select messages by severity:\n- `info`, `warning`, `error`: (non-trace) messages with the given severity level.\n- `trace`: trace messages\n- `all`: all messages.\n\nThe filters can be prefixed with the action to take:\n- `check` (the default): capture and check the message\n- `drop`: drop the message\n- `pass`: let the message pass through\n\nIf no filter is specified, `check all` is assumed.  Otherwise, these filters are processed in\nleft-to-right order, with an implicit `pass all` at the end.\n\nWhitespace handling (after trimming leading and trailing whitespace):\n- `whitespace := exact` requires an exact whitespace match.\n- `whitespace := normalized` converts all newline characters to a space before matching\n  (the default). This allows breaking long lines.\n- `whitespace := lax` collapses whitespace to a single space before matching.\n\nMessage ordering:\n- `ordering := exact` uses the exact ordering of the messages (the default).\n- `ordering := sorted` sorts the messages in lexicographic order.\n  This helps with testing commands that are non-deterministic in their ordering.\n\nFor example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop\neverything else.\n\nThe command elaborator has special support for `#guard_msgs` for linting.\nThe `#guard_msgs` itself wants to capture linter warnings,\nso it elaborates the command it is attached to as if it were a top-level command.\nHowever, the command elaborator runs linters for *all* top-level commands,\nwhich would include `#guard_msgs` itself, and would cause duplicate and/or uncaptured linter warnings.\nThe top-level command elaborator only runs the linters if `#guard_msgs` is not present.\n", 2733, 2729);
+x_1 = lean_mk_string_unchecked("`/-- ... -/ #guard_msgs in cmd` captures the messages generated by the command `cmd`\nand checks that they match the contents of the docstring.\n\nBasic example:\n```lean\n/--\nerror: Unknown identifier `x`\n-/\n#guard_msgs in\nexample : α := x\n```\nThis checks that there is such an error and then consumes the message.\n\nBy default, the command captures all messages, but the filter condition can be adjusted.\nFor example, we can select only warnings:\n```lean\n/--\nwarning: declaration uses 'sorry'\n-/\n#guard_msgs(warning) in\nexample : α := sorry\n```\nor only errors\n```lean\n#guard_msgs(error) in\nexample : α := sorry\n```\nIn the previous example, since warnings are not captured there is a warning on `sorry`.\nWe can drop the warning completely with\n```lean\n#guard_msgs(error, drop warning) in\nexample : α := sorry\n```\n\nIn general, `#guard_msgs` accepts a comma-separated list of configuration clauses in parentheses:\n```\n#guard_msgs (configElt,*) in cmd\n```\nBy default, the configuration list is `(check all, whitespace := normalized, ordering := exact)`.\n\nMessage filters select messages by severity:\n- `info`, `warning`, `error`: (non-trace) messages with the given severity level.\n- `trace`: trace messages\n- `all`: all messages.\n\nThe filters can be prefixed with the action to take:\n- `check` (the default): capture and check the message\n- `drop`: drop the message\n- `pass`: let the message pass through\n\nIf no filter is specified, `check all` is assumed.  Otherwise, these filters are processed in\nleft-to-right order, with an implicit `pass all` at the end.\n\nWhitespace handling (after trimming leading and trailing whitespace):\n- `whitespace := exact` requires an exact whitespace match.\n- `whitespace := normalized` converts all newline characters to a space before matching\n  (the default). This allows breaking long lines.\n- `whitespace := lax` collapses whitespace to a single space before matching.\n\nMessage ordering:\n- `ordering := exact` uses the exact ordering of the messages (the default).\n- `ordering := sorted` sorts the messages in lexicographic order.\n  This helps with testing commands that are non-deterministic in their ordering.\n\nFor example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop\neverything else.\n\nThe command elaborator has special support for `#guard_msgs` for linting.\nThe `#guard_msgs` itself wants to capture linter warnings,\nso it elaborates the command it is attached to as if it were a top-level command.\nHowever, the command elaborator runs linters for *all* top-level commands,\nwhich would include `#guard_msgs` itself, and would cause duplicate and/or uncaptured linter warnings.\nThe top-level command elaborator only runs the linters if `#guard_msgs` is not present.\n", 2733, 2729);
 return x_1;
 }
 }

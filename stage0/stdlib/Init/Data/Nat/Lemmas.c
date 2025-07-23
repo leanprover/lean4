@@ -81,13 +81,13 @@ x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_nat_dec_eq(x_1, x_3);
 if (x_4 == 1)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_5 = lean_alloc_closure((void*)(l_Nat_decidableBallLT___redArg___lam__0___boxed), 3, 1);
 lean_closure_set(x_5, 0, x_2);
 x_6 = lean_unsigned_to_nat(1u);
@@ -96,7 +96,7 @@ x_8 = l_Nat_decidableBallLT___redArg(x_7, x_5);
 if (x_8 == 0)
 {
 lean_dec(x_7);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_8;
 }
 else
@@ -270,7 +270,7 @@ x_4 = lean_nat_dec_eq(x_2, x_3);
 if (x_4 == 1)
 {
 uint8_t x_5; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = 0;
 return x_5;
 }
@@ -279,7 +279,7 @@ else
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_2, x_6);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_8 = l_Nat_decidableExistsLT___redArg(x_1, x_7);
 if (x_8 == 0)
 {
@@ -291,7 +291,7 @@ return x_10;
 else
 {
 lean_dec(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_8;
 }
 }
@@ -382,14 +382,14 @@ x_4 = lean_nat_dec_eq(x_1, x_3);
 if (x_4 == 1)
 {
 uint8_t x_5; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = 0;
 return x_5;
 }
 else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_6 = lean_alloc_closure((void*)(l_Nat_decidableExistsLT_x27___redArg___lam__0___boxed), 3, 1);
 lean_closure_set(x_6, 0, x_2);
 x_7 = lean_unsigned_to_nat(1u);
@@ -405,7 +405,7 @@ return x_11;
 else
 {
 lean_dec(x_8);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_9;
 }
 }

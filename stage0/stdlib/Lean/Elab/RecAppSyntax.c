@@ -94,7 +94,7 @@ if (lean_obj_tag(x_7) == 5)
 lean_object* x_8; 
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 lean_ctor_set(x_4, 0, x_8);
 return x_4;
 }
@@ -118,7 +118,7 @@ if (lean_obj_tag(x_10) == 5)
 lean_object* x_11; lean_object* x_12; 
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_12 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 return x_12;

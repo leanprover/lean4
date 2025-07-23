@@ -57,7 +57,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_unsigned_to_nat(2u);
 x_8 = lean_nat_div(x_2, x_7);
 x_9 = lean_nat_div(x_3, x_7);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_10 = l_Nat_bitwise(x_1, x_8, x_9);
 lean_dec(x_9);
 lean_dec(x_8);

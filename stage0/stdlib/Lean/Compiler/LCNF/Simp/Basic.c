@@ -67,7 +67,7 @@ else
 lean_object* x_13; 
 x_13 = lean_ctor_get(x_8, 0);
 lean_inc(x_13);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 if (lean_obj_tag(x_13) == 4)
 {
 uint8_t x_14; 
@@ -82,7 +82,7 @@ x_17 = lean_ctor_get(x_13, 0);
 lean_inc(x_17);
 x_18 = lean_ctor_get(x_13, 1);
 lean_inc_ref(x_18);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_19 = lean_array_get_size(x_18);
 lean_dec_ref(x_18);
 x_20 = lean_unsigned_to_nat(0u);
@@ -112,7 +112,7 @@ x_24 = lean_ctor_get(x_13, 0);
 lean_inc(x_24);
 x_25 = lean_ctor_get(x_13, 1);
 lean_inc_ref(x_25);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_26 = lean_array_get_size(x_25);
 lean_dec_ref(x_25);
 x_27 = lean_unsigned_to_nat(0u);
@@ -164,7 +164,7 @@ return x_34;
 }
 else
 {
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_1);
 return x_4;
 }

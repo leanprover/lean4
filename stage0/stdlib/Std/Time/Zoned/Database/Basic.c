@@ -314,7 +314,6 @@ lean_inc(x_12);
 lean_inc(x_3);
 x_14 = lean_apply_2(x_13, x_3, x_12);
 x_15 = lean_unbox(x_14);
-lean_dec(x_14);
 if (x_15 == 0)
 {
 lean_dec(x_12);
@@ -346,7 +345,6 @@ lean_inc(x_21);
 lean_inc(x_3);
 x_23 = lean_apply_2(x_22, x_3, x_21);
 x_24 = lean_unbox(x_23);
-lean_dec(x_23);
 if (x_24 == 0)
 {
 lean_object* x_25; 
@@ -421,7 +419,6 @@ lean_inc(x_18);
 lean_inc(x_3);
 x_20 = lean_apply_2(x_19, x_3, x_18);
 x_21 = lean_unbox(x_20);
-lean_dec(x_20);
 if (x_21 == 0)
 {
 lean_dec(x_18);
@@ -454,7 +451,6 @@ lean_inc(x_27);
 lean_inc(x_3);
 x_29 = lean_apply_2(x_28, x_3, x_27);
 x_30 = lean_unbox(x_29);
-lean_dec(x_29);
 if (x_30 == 0)
 {
 lean_object* x_31; 
@@ -524,7 +520,6 @@ x_33 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_19);
 lean_inc(x_30);
 x_34 = lean_apply_2(x_33, x_30, x_31);
 x_35 = lean_unbox(x_34);
-lean_dec(x_34);
 if (x_35 == 0)
 {
 lean_dec(x_30);
@@ -623,7 +618,6 @@ x_24 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_19);
 lean_inc(x_21);
 x_25 = lean_apply_2(x_24, x_21, x_22);
 x_26 = lean_unbox(x_25);
-lean_dec(x_25);
 if (x_26 == 0)
 {
 lean_dec(x_21);

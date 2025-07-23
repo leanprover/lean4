@@ -1078,7 +1078,7 @@ else
 {
 lean_object* x_216; lean_object* x_217; lean_object* x_218; 
 lean_dec_ref(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_1);
 x_216 = l___private_Init_TacticsExtra_0__Lean_Parser_Tactic_expandIfThenElse___lam__0___closed__28;
 x_217 = lean_alloc_ctor(0, 2, 0);
@@ -1262,7 +1262,7 @@ else
 {
 uint8_t x_40; 
 lean_dec_ref(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_40 = !lean_is_exclusive(x_5);
 if (x_40 == 0)
 {
@@ -1423,7 +1423,7 @@ else
 {
 uint8_t x_40; 
 lean_dec_ref(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_40 = !lean_is_exclusive(x_5);
 if (x_40 == 0)
 {
@@ -2078,7 +2078,7 @@ lean_free_object(x_13);
 lean_dec(x_17);
 lean_dec(x_16);
 lean_dec_ref(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_195 = !lean_is_exclusive(x_19);
 if (x_195 == 0)
 {
@@ -2281,7 +2281,7 @@ lean_object* x_267; lean_object* x_268; lean_object* x_269; lean_object* x_270;
 lean_dec(x_200);
 lean_dec(x_199);
 lean_dec_ref(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_267 = lean_ctor_get(x_202, 0);
 lean_inc(x_267);
 x_268 = lean_ctor_get(x_202, 1);
@@ -2311,7 +2311,7 @@ uint8_t x_271;
 lean_dec_ref(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_3);
 x_271 = !lean_is_exclusive(x_12);

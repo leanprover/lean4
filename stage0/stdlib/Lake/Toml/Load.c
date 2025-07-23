@@ -17,8 +17,8 @@ lean_object* l_Lean_Core_getMaxHeartbeats(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_Toml_loadToml___closed__18;
 static lean_object* l_Lake_Toml_loadToml___closed__29;
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_loadToml___closed__12;
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_loadToml___closed__17;
 lean_object* l_Lake_Toml_elabToml(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Data_Trie_empty(lean_object*);
@@ -55,12 +55,12 @@ static lean_object* l_Lake_Toml_loadToml___closed__2;
 lean_object* l_Lake_mkExceptionMessage(lean_object*, lean_object*);
 extern lean_object* l_Lean_MessageLog_empty;
 static lean_object* l_Lake_Toml_loadToml___closed__15;
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_diagnostics;
 static lean_object* l_Lake_Toml_loadToml___closed__23;
 extern lean_object* l_Lean_inheritedTraceOptions;
 static lean_object* l_Lake_Toml_loadToml___closed__30;
 LEAN_EXPORT lean_object* l_Lake_Toml_loadToml(lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_loadToml___closed__6;
 static lean_object* l_Lake_Toml_loadToml___closed__5;
 static lean_object* l_Lake_Toml_loadToml___closed__4;
@@ -280,7 +280,7 @@ static lean_object* _init_l_Lake_Toml_loadToml___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lake_Toml_loadToml___closed__17;
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -376,7 +376,7 @@ _start:
 lean_object* x_1; lean_object* x_2; uint8_t x_3; 
 x_1 = l_Lake_Toml_loadToml___closed__26;
 x_2 = lean_box(0);
-x_3 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_2, x_1);
+x_3 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_2, x_1);
 return x_3;
 }
 }
@@ -394,7 +394,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_Toml_loadToml___closed__28;
 x_2 = lean_box(0);
-x_3 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_2, x_1);
+x_3 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_2, x_1);
 return x_3;
 }
 }
@@ -441,7 +441,7 @@ x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
 x_8 = l_Lake_Toml_toml;
 x_9 = lean_ctor_get(x_8, 1);
-lean_inc(x_9);
+lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_1, 1);
@@ -780,7 +780,7 @@ lean_dec_ref(x_10);
 lean_dec(x_6);
 x_113 = lean_ctor_get(x_20, 0);
 lean_inc(x_113);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 x_114 = l_Lake_mkParserErrorMessage(x_1, x_19, x_113);
 lean_dec_ref(x_19);
 x_115 = l_Lean_MessageLog_empty;
@@ -800,7 +800,7 @@ lean_inc(x_117);
 lean_dec(x_4);
 x_119 = l_Lake_Toml_toml;
 x_120 = lean_ctor_get(x_119, 1);
-lean_inc(x_120);
+lean_inc_ref(x_120);
 x_121 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_121);
 x_122 = lean_ctor_get(x_1, 1);
@@ -1119,7 +1119,7 @@ lean_dec_ref(x_121);
 lean_dec(x_117);
 x_213 = lean_ctor_get(x_131, 0);
 lean_inc(x_213);
-lean_dec(x_131);
+lean_dec_ref(x_131);
 x_214 = l_Lake_mkParserErrorMessage(x_1, x_130, x_213);
 lean_dec_ref(x_130);
 x_215 = l_Lean_MessageLog_empty;

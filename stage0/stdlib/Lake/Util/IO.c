@@ -51,7 +51,7 @@ else
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_ctor_get(x_3, 0);
 lean_inc(x_6);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_7 = l_IO_FS_createDirAll(x_6, x_2);
 lean_dec(x_6);
 return x_7;
@@ -84,7 +84,7 @@ lean_inc(x_4);
 if (lean_obj_tag(x_4) == 11)
 {
 uint8_t x_5; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_5 = !lean_is_exclusive(x_3);
 if (x_5 == 0)
 {

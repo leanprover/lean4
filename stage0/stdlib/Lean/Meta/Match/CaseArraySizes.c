@@ -592,6 +592,7 @@ x_15 = lean_array_push(x_2, x_6);
 x_16 = 1;
 x_17 = 1;
 x_18 = l_Lean_Meta_mkForallFVars(x_15, x_13, x_3, x_16, x_16, x_17, x_7, x_8, x_9, x_10, x_14);
+lean_dec_ref(x_15);
 if (lean_obj_tag(x_18) == 0)
 {
 uint8_t x_19; 

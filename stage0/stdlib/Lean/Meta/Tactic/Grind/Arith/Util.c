@@ -2231,7 +2231,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_CollectDecVars_CollectDecVarsM
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lean_Meta_Grind_Arith_CollectDecVars_CollectDecVarsM_run___closed__4;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);

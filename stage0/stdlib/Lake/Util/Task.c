@@ -124,7 +124,7 @@ LEAN_EXPORT lean_object* l_Lake_instMonadTask__lake___lam__8(lean_object* x_1, l
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_6 = lean_alloc_closure((void*)(l_Lake_instMonadTask__lake___lam__7), 3, 2);
 lean_closure_set(x_6, 0, x_5);
 lean_closure_set(x_6, 1, x_1);

@@ -33,7 +33,7 @@ _start:
 lean_object* x_3; 
 x_3 = lean_replace_expr(x_1, x_2);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -51,7 +51,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Expr_replace(x_1, x_2);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -59,7 +59,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_replaceNoCache(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_3; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc_ref(x_2);
 x_3 = lean_apply_1(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
@@ -73,7 +73,7 @@ lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_5);
 lean_inc_ref(x_4);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_6 = l_Lean_Expr_replaceNoCache(x_1, x_4);
 lean_inc_ref(x_5);
 x_7 = l_Lean_Expr_replaceNoCache(x_1, x_5);
@@ -125,7 +125,7 @@ x_19 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_19);
 x_20 = lean_ctor_get_uint8(x_2, sizeof(void*)*3 + 8);
 lean_inc_ref(x_18);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_21 = l_Lean_Expr_replaceNoCache(x_1, x_18);
 lean_inc_ref(x_19);
 x_22 = l_Lean_Expr_replaceNoCache(x_1, x_19);
@@ -190,7 +190,7 @@ x_36 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_36);
 x_37 = lean_ctor_get_uint8(x_2, sizeof(void*)*3 + 8);
 lean_inc_ref(x_35);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_38 = l_Lean_Expr_replaceNoCache(x_1, x_35);
 lean_inc_ref(x_36);
 x_39 = l_Lean_Expr_replaceNoCache(x_1, x_36);
@@ -257,10 +257,10 @@ x_54 = lean_ctor_get(x_2, 3);
 lean_inc_ref(x_54);
 x_55 = lean_ctor_get_uint8(x_2, sizeof(void*)*4 + 8);
 lean_inc_ref(x_52);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_56 = l_Lean_Expr_replaceNoCache(x_1, x_52);
 lean_inc_ref(x_53);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_57 = l_Lean_Expr_replaceNoCache(x_1, x_53);
 lean_inc_ref(x_54);
 x_58 = l_Lean_Expr_replaceNoCache(x_1, x_54);
@@ -378,7 +378,7 @@ return x_2;
 }
 default: 
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -387,10 +387,10 @@ else
 {
 lean_object* x_87; 
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_87 = lean_ctor_get(x_3, 0);
 lean_inc(x_87);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_87;
 }
 }

@@ -97,7 +97,7 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_ctor_get(x_4, 0);
 lean_inc(x_12);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_13 = lean_alloc_closure((void*)(l_Task_mapList_go___redArg___lam__1), 3, 2);
 lean_closure_set(x_13, 0, x_5);
 lean_closure_set(x_13, 1, x_1);
@@ -109,7 +109,7 @@ else
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_15 = lean_ctor_get(x_4, 0);
 lean_inc(x_15);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_16 = lean_box(x_3);
 lean_inc(x_2);
 x_17 = lean_alloc_closure((void*)(l_Task_mapList_go___redArg___lam__2___boxed), 6, 5);

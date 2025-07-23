@@ -305,7 +305,7 @@ if (lean_obj_tag(x_1) == 1)
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = l_Lean_Compiler_LCNF_Simp_markUsedFVar___redArg(x_4, x_2, x_3);
 return x_5;
 }
@@ -402,7 +402,7 @@ case 2:
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_1, 2);
 lean_inc(x_10);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = l_Lean_Compiler_LCNF_Simp_markUsedFVar___redArg(x_10, x_3, x_9);
 return x_11;
 }
@@ -411,7 +411,7 @@ case 3:
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_12 = lean_ctor_get(x_1, 2);
 lean_inc_ref(x_12);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_array_get_size(x_12);
 x_15 = lean_box(0);
@@ -459,7 +459,7 @@ x_23 = lean_ctor_get(x_1, 0);
 lean_inc(x_23);
 x_24 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_24);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_25 = l_Lean_Compiler_LCNF_Simp_markUsedFVar___redArg(x_23, x_3, x_9);
 x_26 = !lean_is_exclusive(x_25);
 if (x_26 == 0)

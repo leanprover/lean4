@@ -120,7 +120,7 @@ x_13 = lean_ctor_get(x_5, 1);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_5, 2);
 lean_inc(x_14);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
@@ -276,7 +276,7 @@ else
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_12 = lean_box(0);
 x_13 = l_Lean_Meta_KExprMap_find_x3f___redArg___closed__0;
 x_14 = l_Lean_AssocList_forIn_loop___at___Lean_Meta_KExprMap_find_x3f_spec__1___redArg(x_2, x_13, x_12, x_13, x_11, x_3, x_4, x_5, x_6, x_7);
@@ -325,7 +325,7 @@ x_24 = lean_ctor_get(x_14, 0);
 lean_dec(x_24);
 x_25 = lean_ctor_get(x_16, 0);
 lean_inc(x_25);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 lean_ctor_set(x_14, 0, x_25);
 return x_14;
 }
@@ -337,7 +337,7 @@ lean_inc(x_26);
 lean_dec(x_14);
 x_27 = lean_ctor_get(x_16, 0);
 lean_inc(x_27);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 x_28 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_26);
@@ -736,7 +736,7 @@ else
 lean_object* x_15; lean_object* x_16; 
 x_15 = lean_ctor_get(x_10, 0);
 lean_inc(x_15);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_16 = l___private_Lean_Meta_KExprMap_0__Lean_Meta_updateList___redArg(x_15, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_16) == 0)
 {

@@ -84,7 +84,7 @@ return x_15;
 }
 default: 
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }

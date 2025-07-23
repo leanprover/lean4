@@ -126,7 +126,7 @@ x_15 = lean_ctor_get(x_4, 3);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_4, 4);
 lean_inc(x_16);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
@@ -149,7 +149,7 @@ lean_inc(x_19);
 lean_dec_ref(x_17);
 x_20 = lean_ctor_get(x_18, 0);
 lean_inc(x_20);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 x_21 = l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f_spec__0___lam__0(x_20, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_19);
 lean_dec(x_12);
 lean_dec_ref(x_11);
@@ -754,7 +754,7 @@ else
 lean_object* x_35; lean_object* x_36; 
 x_35 = lean_ctor_get(x_33, 0);
 lean_inc(x_35);
-lean_dec(x_33);
+lean_dec_ref(x_33);
 if (lean_is_scalar(x_31)) {
  x_36 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -869,7 +869,7 @@ else
 lean_object* x_60; lean_object* x_61; 
 x_60 = lean_ctor_get(x_58, 0);
 lean_inc(x_60);
-lean_dec(x_58);
+lean_dec_ref(x_58);
 if (lean_is_scalar(x_56)) {
  x_61 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -938,7 +938,7 @@ return x_71;
 }
 else
 {
-lean_dec(x_15);
+lean_dec_ref(x_15);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
@@ -1039,7 +1039,7 @@ return x_20;
 else
 {
 uint8_t x_21; 
-lean_dec(x_12);
+lean_dec_ref(x_12);
 x_21 = !lean_is_exclusive(x_11);
 if (x_21 == 0)
 {
@@ -1281,7 +1281,7 @@ lean_inc(x_22);
 lean_dec_ref(x_12);
 x_23 = lean_ctor_get(x_13, 0);
 lean_inc(x_23);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_24 = l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_22);
 if (lean_obj_tag(x_24) == 0)
 {
@@ -1328,7 +1328,7 @@ x_35 = lean_ctor_get(x_24, 0);
 lean_dec(x_35);
 x_36 = lean_ctor_get(x_25, 0);
 lean_inc(x_36);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 x_37 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_43_(x_23, x_36);
 lean_dec(x_36);
 lean_dec(x_23);
@@ -1344,7 +1344,7 @@ lean_inc(x_39);
 lean_dec(x_24);
 x_40 = lean_ctor_get(x_25, 0);
 lean_inc(x_40);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 x_41 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_43_(x_23, x_40);
 lean_dec(x_40);
 lean_dec(x_23);

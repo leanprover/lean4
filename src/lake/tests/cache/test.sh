@@ -64,8 +64,8 @@ test_cached() {
   echo "${1:-?} artifact cached: $target -> $art"
   test ${1:-} "$(norm_dirname "$art")" = "$CACHE_DIR/artifacts"
 }
-test_cached test:exe
-test_cached Test:static
+test_cached test:exe !
+test_cached Test:static !
 test_cached Test:shared !
 test_cached +Test:o.export
 test_cached +Test:o.noexport
@@ -77,8 +77,7 @@ LAKE_CACHE_DIR="$CACHE_DIR" test_run build +Module
 test_cached +Module:olean
 test_cached +Module:olean.server
 test_cached +Module:olean.private
-test_cached +Module:ir !
-
+test_cached +Module:ir
 
 # Verify no `.hash` files end up in the cache directory
 check_diff /dev/null <(ls -1 "$CACHE_DIR/*.hash" 2>/dev/null)

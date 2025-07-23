@@ -23,7 +23,6 @@ LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_toLeanConfig_instConfigParent(lean
 static lean_object* l_Lake_LeanExeConfig_instConfigMeta___closed__5;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_LeanExeConfig___fields___closed__29;
-lean_object* l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanExeConfig_srcDir___proj___lam__3___closed__0;
 static size_t l_Lake_LeanExeConfig_instConfigMeta___closed__14;
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_toLeanConfig___proj(lean_object*);
@@ -98,6 +97,7 @@ static lean_object* l_Lake_instInhabitedLeanExeConfig___closed__0;
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_exeName___proj___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_supportInterpreter_instConfigField(lean_object*);
 static lean_object* l_Lake_LeanExeConfig___fields___closed__21;
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_root___proj___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_srcDir___proj(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_nativeFacets_instConfigField(lean_object*);
@@ -1325,7 +1325,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 6);
-lean_inc(x_3);
+lean_inc_ref(x_3);
 lean_dec_ref(x_1);
 x_4 = lean_box(x_2);
 x_5 = lean_apply_1(x_3, x_4);
@@ -2105,7 +2105,7 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-x_4 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_1, x_3, x_2);
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }
@@ -2230,7 +2230,7 @@ static lean_object* _init_l_Lake_LeanExeConfig_instConfigMeta___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lake_LeanExeConfig___fields;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -2261,7 +2261,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_1 = l_Lake_LeanExeConfig___fields;
-x_2 = lean_box(0);
+x_2 = lean_box(1);
 x_3 = l_Lake_LeanExeConfig_instConfigMeta___closed__10;
 x_4 = l_Lake_LeanExeConfig_instConfigMeta___closed__11;
 if (x_4 == 0)

@@ -156,6 +156,40 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
   else
     return .visit
 
+/--
+Auxiliary function for normalizing the arguments of `OfNat.ofNat` during canonicalization.
+This is needed because satellite solvers create `Nat` and `Int` numerals using the
+APIs `mkNatLit` and `mkIntLit`, which produce terms of the form
+`@OfNat.ofNat Nat <num> inst` and `@OfNat.ofNat Int <num> inst`.
+This becomes a problem when a term in the input goal has already been canonicalized
+and its type is not exactly `Nat` or `Int`. For example, in issue #9477, we have:
+```
+structure T where
+upper_bound : Nat
+def T.range (a : T) := 0...a.upper_bound
+theorem range\_lower (a : T) : a.range.lower = 0 := by rfl
+```
+Here, the `0` in `range_lower` is actually represented as:
+```
+(@OfNat.ofNat
+  (Std.PRange.Bound (Std.PRange.RangeShape.lower (Std.PRange.RangeShape.mk Std.PRange.BoundShape.closed Std.PRange.BoundShape.open)) Nat)
+  (nat_lit 0)
+  (instOfNatNat (nat_lit 0)))
+```
+Without this normalization step, the satellite solver would need to handle multiple
+representations for `(0 : Nat)` and `(0 : Int)`, complicating reasoning.
+-/
+-- Remark: This is not a great solution. We should consider writing a custom canonicalizer for
+-- `OfNat.ofNat` and other constants with built-in support in `grind`.
+private def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := do
+  if h : args.size = 3 then
+    let inst := args[2]
+    if (← isInstOfNatNat inst) && !args[0].isConstOf ``Nat then
+      return some <| args.set 0 Nat.mkType
+    else if (← isInstOfNatInt inst) && !args[0].isConstOf ``Int then
+      return some <| args.set 0 Int.mkType
+  return none
+
 /-- Canonicalizes nested types, type formers, and instances in `e`. -/
 partial def canon (e : Expr) : GoalM Expr := do profileitM Exception "grind canon" (← getOptions) do
   trace_goal[grind.debug.canon] "{e}"
@@ -184,8 +218,14 @@ where
           let e' := if isSameExpr prop prop' then e else mkAppN f (args.set! 0 prop')
           pure e'
         else
-          let pinfos := (← getFunInfo f).paramInfo
           let mut modified := false
+          let args ← if f.isConstOf ``OfNat.ofNat then
+            let some args ← normOfNatArgs? args | pure args
+            modified := true
+            pure args
+          else
+            pure args
+          let pinfos := (← getFunInfo f).paramInfo
           let mut args := args.toVector
           for h : i in *...args.size do
             let arg := args[i]

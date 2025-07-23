@@ -72,7 +72,7 @@ else
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
 {
@@ -322,7 +322,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_11 = l_Lean_Meta_Grind_Arith_Offset_toMessageData___redArg___closed__1;
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_12 = lean_apply_1(x_1, x_3);
 x_13 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_13, 0, x_11);
@@ -356,7 +356,7 @@ else
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 lean_dec(x_9);
 x_25 = l_Lean_Meta_Grind_Arith_Offset_toMessageData___redArg___closed__1;
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_26 = lean_apply_1(x_1, x_3);
 x_27 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_27, 0, x_25);
@@ -384,7 +384,7 @@ x_34 = lean_unsigned_to_nat(1u);
 x_35 = lean_nat_sub(x_33, x_34);
 lean_dec(x_33);
 x_36 = l_Lean_Meta_Grind_Arith_Offset_toMessageData___redArg___closed__1;
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_37 = lean_apply_1(x_1, x_3);
 x_38 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_38, 0, x_36);

@@ -239,7 +239,7 @@ def Code.getRef? : Code → Option Syntax
   | .matchExpr ref ..    => ref
   | .jmp ref ..          => ref
 
-abbrev VarSet := RBMap Name Syntax Name.cmp
+abbrev VarSet := Std.TreeMap Name Syntax Name.cmp
 
 /-- A code block, and the collection of variables updated by it. -/
 structure CodeBlock where
@@ -247,7 +247,7 @@ structure CodeBlock where
   uvars : VarSet := {} -- set of variables updated by `code`
 
 private def varSetToArray (s : VarSet) : Array Var :=
-  s.fold (fun xs _ x => xs.push x) #[]
+  s.foldl (fun xs _ x => xs.push x) #[]
 
 private def varsToMessageData (vars : Array Var) : MessageData :=
   MessageData.joinSep (vars.toList.map fun n => MessageData.ofName (n.getId.simpMacroScopes)) " "
@@ -540,7 +540,7 @@ partial def extendUpdatedVars (c : CodeBlock) (ws : VarSet) : TermElabM CodeBloc
     pure { c with uvars := ws }
 
 private def union (s₁ s₂ : VarSet) : VarSet :=
-  s₁.fold (·.insert ·) s₂
+  s₁.foldl (·.insert ·) s₂
 
 /--
 Given two code blocks `c₁` and `c₂`, make sure they have the same set of updated variables.
@@ -1578,7 +1578,7 @@ mutual
       -- semantic no-op that replaces the `uvars`' position information (which all point inside the loop)
       -- with that of the respective mutable declarations outside the loop, which allows the language
       -- server to identify them as conceptually identical variables
-      let uvars := uvars.map fun v => ctx.mutableVars.findD v.getId v
+      let uvars := uvars.map fun v => ctx.mutableVars.getD v.getId v
       let uvarsTuple ← liftMacroM do mkTuple uvars
       if hasReturn forInBodyCodeBlock.code then
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody

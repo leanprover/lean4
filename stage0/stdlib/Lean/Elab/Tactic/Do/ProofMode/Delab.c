@@ -18,7 +18,6 @@ lean_object* l_Lean_Core_instMonadCoreM___lam__0___boxed(lean_object*, lean_obje
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal___regBuiltin___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal__1___closed__19;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal___regBuiltin___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal__1___closed__0;
 static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses___closed__0;
 static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal___closed__6;
@@ -85,14 +84,15 @@ LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___at_____private_Lean_El
 static lean_object* l_Std_Do_SPred_Notation_unpack___at_____private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses_spec__4___redArg___closed__21;
 static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal___regBuiltin___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal__1___closed__22;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do_SPred_Notation_unpack___at_____private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses_spec__4___redArg___closed__25;
 static lean_object* l_Std_Do_SPred_Notation_unpack___at_____private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses_spec__4___redArg___closed__17;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___at_____private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses_spec__2___redArg___closed__0;
 static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal___regBuiltin___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal__1___closed__18;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withAppFn___at_____private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabHypMarker___regBuiltin___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabHypMarker__1___closed__3;
+lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_SPred_Notation_unpack___at_____private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal___regBuiltin___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal__1___closed__8;
@@ -397,11 +397,11 @@ lean_dec(x_29);
 x_71 = lean_ctor_get(x_70, 0);
 lean_inc_ref(x_71);
 x_72 = lean_ctor_get(x_70, 2);
-lean_inc(x_72);
+lean_inc_ref(x_72);
 x_73 = lean_ctor_get(x_70, 3);
-lean_inc(x_73);
+lean_inc_ref(x_73);
 x_74 = lean_ctor_get(x_70, 4);
-lean_inc(x_74);
+lean_inc_ref(x_74);
 if (lean_is_exclusive(x_70)) {
  lean_ctor_release(x_70, 0);
  lean_ctor_release(x_70, 1);
@@ -500,11 +500,11 @@ if (lean_is_exclusive(x_104)) {
 x_107 = lean_ctor_get(x_105, 0);
 lean_inc_ref(x_107);
 x_108 = lean_ctor_get(x_105, 2);
-lean_inc(x_108);
+lean_inc_ref(x_108);
 x_109 = lean_ctor_get(x_105, 3);
-lean_inc(x_109);
+lean_inc_ref(x_109);
 x_110 = lean_ctor_get(x_105, 4);
-lean_inc(x_110);
+lean_inc_ref(x_110);
 if (lean_is_exclusive(x_105)) {
  lean_ctor_release(x_105, 0);
  lean_ctor_release(x_105, 1);
@@ -566,11 +566,11 @@ lean_dec(x_11);
 x_128 = lean_ctor_get(x_127, 0);
 lean_inc_ref(x_128);
 x_129 = lean_ctor_get(x_127, 2);
-lean_inc(x_129);
+lean_inc_ref(x_129);
 x_130 = lean_ctor_get(x_127, 3);
-lean_inc(x_130);
+lean_inc_ref(x_130);
 x_131 = lean_ctor_get(x_127, 4);
-lean_inc(x_131);
+lean_inc_ref(x_131);
 if (lean_is_exclusive(x_127)) {
  lean_ctor_release(x_127, 0);
  lean_ctor_release(x_127, 1);
@@ -625,11 +625,11 @@ if (lean_is_exclusive(x_143)) {
 x_146 = lean_ctor_get(x_144, 0);
 lean_inc_ref(x_146);
 x_147 = lean_ctor_get(x_144, 2);
-lean_inc(x_147);
+lean_inc_ref(x_147);
 x_148 = lean_ctor_get(x_144, 3);
-lean_inc(x_148);
+lean_inc_ref(x_148);
 x_149 = lean_ctor_get(x_144, 4);
-lean_inc(x_149);
+lean_inc_ref(x_149);
 if (lean_is_exclusive(x_144)) {
  lean_ctor_release(x_144, 0);
  lean_ctor_release(x_144, 1);
@@ -721,7 +721,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___at_____private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses_spec__2___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(33u);
-x_3 = lean_unsigned_to_nat(112u);
+x_3 = lean_unsigned_to_nat(111u);
 x_4 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___at_____private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses_spec__2___redArg___closed__1;
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___at_____private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses_spec__2___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -747,7 +747,7 @@ lean_inc(x_13);
 lean_dec_ref(x_10);
 x_14 = lean_ctor_get(x_11, 1);
 lean_inc_ref(x_14);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_15 = !lean_is_exclusive(x_3);
 if (x_15 == 0)
 {
@@ -823,7 +823,7 @@ else
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 lean_dec(x_11);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_33 = lean_ctor_get(x_10, 1);
 lean_inc(x_33);
 lean_dec_ref(x_10);
@@ -1637,7 +1637,7 @@ return x_16;
 else
 {
 lean_object* x_17; lean_object* x_18; 
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_17 = lean_alloc_closure((void*)(l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses), 8, 1);
 lean_closure_set(x_17, 0, x_1);
 lean_inc(x_7);
@@ -1681,7 +1681,7 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean
 lean_dec(x_11);
 x_24 = lean_ctor_get(x_14, 0);
 lean_inc(x_24);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_25 = lean_ctor_get(x_1, 0);
 lean_inc(x_25);
 x_26 = lean_ctor_get(x_1, 1);
@@ -1697,7 +1697,7 @@ if (lean_is_exclusive(x_1)) {
 x_28 = lean_ctor_get(x_24, 0);
 lean_inc(x_28);
 lean_dec(x_24);
-x_69 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_25, x_28);
+x_69 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_25, x_28);
 if (lean_obj_tag(x_69) == 0)
 {
 lean_object* x_70; 
@@ -1712,7 +1712,7 @@ else
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_77; uint8_t x_78; 
 x_71 = lean_ctor_get(x_69, 0);
 lean_inc(x_71);
-lean_dec(x_69);
+lean_dec_ref(x_69);
 x_72 = lean_unsigned_to_nat(1u);
 x_73 = lean_nat_add(x_71, x_72);
 x_77 = lean_unsigned_to_nat(0u);
@@ -1780,7 +1780,7 @@ x_45 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_45, 0, x_42);
 lean_ctor_set(x_45, 1, x_44);
 x_46 = l_Lean_Syntax_node3(x_42, x_43, x_40, x_45, x_38);
-x_47 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_25, x_28, x_29);
+x_47 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_28, x_29, x_25);
 x_48 = lean_array_push(x_26, x_46);
 if (lean_is_scalar(x_27)) {
  x_49 = lean_alloc_ctor(0, 2, 0);
@@ -1814,7 +1814,7 @@ x_58 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_58, 0, x_55);
 lean_ctor_set(x_58, 1, x_57);
 x_59 = l_Lean_Syntax_node3(x_55, x_56, x_53, x_58, x_50);
-x_60 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_25, x_28, x_29);
+x_60 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_28, x_29, x_25);
 x_61 = lean_array_push(x_26, x_59);
 if (lean_is_scalar(x_27)) {
  x_62 = lean_alloc_ctor(0, 2, 0);
@@ -1863,7 +1863,7 @@ return x_67;
 }
 else
 {
-lean_dec(x_13);
+lean_dec_ref(x_13);
 lean_dec(x_11);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -1911,7 +1911,7 @@ return x_88;
 else
 {
 lean_object* x_89; lean_object* x_90; 
-lean_dec(x_87);
+lean_dec_ref(x_87);
 x_89 = lean_alloc_closure((void*)(l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal_delabHypotheses), 8, 1);
 lean_closure_set(x_89, 0, x_1);
 lean_inc(x_7);
@@ -1955,7 +1955,7 @@ lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean
 lean_dec(x_83);
 x_96 = lean_ctor_get(x_86, 0);
 lean_inc(x_96);
-lean_dec(x_86);
+lean_dec_ref(x_86);
 x_97 = lean_ctor_get(x_1, 0);
 lean_inc(x_97);
 x_98 = lean_ctor_get(x_1, 1);
@@ -1971,7 +1971,7 @@ if (lean_is_exclusive(x_1)) {
 x_100 = lean_ctor_get(x_96, 0);
 lean_inc(x_100);
 lean_dec(x_96);
-x_129 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_97, x_100);
+x_129 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_97, x_100);
 if (lean_obj_tag(x_129) == 0)
 {
 lean_object* x_130; 
@@ -1986,7 +1986,7 @@ else
 lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_137; uint8_t x_138; 
 x_131 = lean_ctor_get(x_129, 0);
 lean_inc(x_131);
-lean_dec(x_129);
+lean_dec_ref(x_129);
 x_132 = lean_unsigned_to_nat(1u);
 x_133 = lean_nat_add(x_131, x_132);
 x_137 = lean_unsigned_to_nat(0u);
@@ -2061,7 +2061,7 @@ x_118 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_118, 0, x_115);
 lean_ctor_set(x_118, 1, x_117);
 x_119 = l_Lean_Syntax_node3(x_115, x_116, x_113, x_118, x_109);
-x_120 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_97, x_100, x_101);
+x_120 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_100, x_101, x_97);
 x_121 = lean_array_push(x_98, x_119);
 if (lean_is_scalar(x_99)) {
  x_122 = lean_alloc_ctor(0, 2, 0);
@@ -2116,7 +2116,7 @@ return x_127;
 else
 {
 lean_object* x_143; 
-lean_dec(x_85);
+lean_dec_ref(x_85);
 lean_dec(x_83);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -2169,7 +2169,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Elab_Tactic_Do_ProofMode_Delab_0__Lean_Elab_Tactic_Do_ProofMode_delabMGoal___closed__0;
-x_2 = lean_box(0);
+x_2 = lean_box(1);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

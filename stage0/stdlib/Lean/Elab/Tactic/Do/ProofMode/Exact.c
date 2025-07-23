@@ -933,7 +933,7 @@ x_50 = lean_ctor_get(x_42, 0);
 lean_dec(x_50);
 x_51 = lean_ctor_get(x_43, 0);
 lean_inc(x_51);
-lean_dec(x_43);
+lean_dec_ref(x_43);
 x_52 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_exactPure___closed__10;
 x_53 = l_Lean_Expr_const___override(x_52, x_21);
 x_54 = l_Lean_mkApp6(x_53, x_26, x_17, x_27, x_28, x_51, x_23);
@@ -948,7 +948,7 @@ lean_inc(x_55);
 lean_dec(x_42);
 x_56 = lean_ctor_get(x_43, 0);
 lean_inc(x_56);
-lean_dec(x_43);
+lean_dec_ref(x_43);
 x_57 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_exactPure___closed__10;
 x_58 = l_Lean_Expr_const___override(x_57, x_21);
 x_59 = l_Lean_mkApp6(x_58, x_26, x_17, x_27, x_28, x_56, x_23);
@@ -1069,7 +1069,7 @@ if (lean_is_exclusive(x_71)) {
 }
 x_81 = lean_ctor_get(x_72, 0);
 lean_inc(x_81);
-lean_dec(x_72);
+lean_dec_ref(x_72);
 x_82 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_exactPure___closed__10;
 x_83 = l_Lean_Expr_const___override(x_82, x_21);
 x_84 = l_Lean_mkApp6(x_83, x_26, x_17, x_27, x_28, x_81, x_23);
@@ -1235,7 +1235,7 @@ if (lean_is_exclusive(x_110)) {
 }
 x_120 = lean_ctor_get(x_111, 0);
 lean_inc(x_120);
-lean_dec(x_111);
+lean_dec_ref(x_111);
 x_121 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_exactPure___closed__10;
 x_122 = l_Lean_Expr_const___override(x_121, x_98);
 x_123 = l_Lean_mkApp6(x_122, x_93, x_17, x_94, x_95, x_120, x_90);
@@ -1444,7 +1444,7 @@ if (lean_is_exclusive(x_155)) {
 }
 x_166 = lean_ctor_get(x_156, 0);
 lean_inc(x_166);
-lean_dec(x_156);
+lean_dec_ref(x_156);
 x_167 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_exactPure___closed__10;
 x_168 = l_Lean_Expr_const___override(x_167, x_143);
 x_169 = l_Lean_mkApp6(x_168, x_138, x_129, x_139, x_140, x_166, x_134);
@@ -1570,7 +1570,7 @@ else
 lean_object* x_33; lean_object* x_34; 
 x_33 = lean_ctor_get(x_30, 0);
 lean_inc(x_33);
-lean_dec(x_30);
+lean_dec_ref(x_30);
 lean_inc(x_10);
 lean_inc_ref(x_9);
 lean_inc(x_8);
@@ -1654,7 +1654,7 @@ lean_inc(x_44);
 lean_dec_ref(x_34);
 x_45 = lean_ctor_get(x_35, 0);
 lean_inc(x_45);
-lean_dec(x_35);
+lean_dec_ref(x_35);
 x_12 = x_45;
 x_13 = x_4;
 x_14 = x_7;

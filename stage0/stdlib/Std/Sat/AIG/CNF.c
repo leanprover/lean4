@@ -314,7 +314,7 @@ _start:
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 lean_dec_ref(x_3);
@@ -325,7 +325,7 @@ return x_6;
 else
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = lean_ctor_get(x_3, 0);
 lean_inc(x_7);
 lean_dec_ref(x_3);
@@ -502,7 +502,7 @@ LEAN_EXPORT uint8_t l_Std_Sat_AIG_toCNF_cnfSatAssignment(lean_object* x_1, lean_
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_4 = lean_alloc_closure((void*)(l_Std_Sat_AIG_toCNF_cnfSatAssignment___lam__0___boxed), 3, 2);
 lean_closure_set(x_4, 0, x_1);
 lean_closure_set(x_4, 1, x_2);
@@ -544,7 +544,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec_ref(x_1);
@@ -554,7 +554,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_dec_ref(x_1);
@@ -1069,7 +1069,7 @@ case 1:
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_11 = l_Std_Sat_AIG_toCNF_State_addAtom___redArg(x_10, x_3, x_2);
 return x_11;
 }
@@ -1080,7 +1080,7 @@ x_12 = lean_ctor_get(x_8, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_8, 1);
 lean_inc(x_13);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_shiftr(x_12, x_14);
 x_16 = l_Std_Sat_AIG_toCNF_go___redArg(x_1, x_15, x_3);

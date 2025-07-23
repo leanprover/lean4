@@ -6,7 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Init.System.IO
-import Lean.Data.Json
+import Lean.Data.Json.Basic
 import Lean.Data.Lsp.Communication
 import Lean.Data.Lsp.Diagnostics
 import Lean.Data.Lsp.Extra

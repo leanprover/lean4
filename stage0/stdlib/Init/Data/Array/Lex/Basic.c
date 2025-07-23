@@ -621,7 +621,7 @@ lean_object* x_23; lean_object* x_24; lean_object* x_25;
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec_ref(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_23 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_23, 0, x_13);
 x_24 = lean_alloc_ctor(0, 2, 0);
@@ -806,14 +806,13 @@ x_14 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_7);
 lean_inc(x_12);
 x_15 = lean_apply_2(x_14, x_12, x_9);
 x_16 = lean_unbox(x_15);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_dec(x_12);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_13;
 }
 else
@@ -841,7 +840,7 @@ else
 lean_object* x_22; uint8_t x_23; 
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
-lean_dec(x_21);
+lean_dec_ref(x_21);
 x_23 = lean_unbox(x_22);
 lean_dec(x_22);
 return x_23;

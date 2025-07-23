@@ -63,7 +63,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_nat_add(x_2, x_3);
 x_8 = lean_nat_shiftr(x_7, x_4);
 lean_dec(x_7);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_9 = l_Lean_RArray_ofFn_go___redArg(x_1, x_2, x_8);
 lean_inc(x_8);
 x_10 = l_Lean_RArray_ofFn_go___redArg(x_1, x_8, x_3);
@@ -191,7 +191,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec_ref(x_1);
@@ -201,7 +201,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_1, 1);
@@ -251,7 +251,7 @@ lean_inc_ref(x_13);
 lean_dec_ref(x_5);
 lean_inc_ref(x_4);
 lean_inc_ref(x_3);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 lean_inc_ref(x_1);
 x_14 = l_Lean_RArray_toExpr_go___redArg(x_1, x_2, x_3, x_4, x_12, x_6);
 x_15 = lean_ctor_get(x_14, 0);
@@ -394,7 +394,7 @@ else
 {
 uint8_t x_19; 
 lean_dec_ref(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_19 = !lean_is_exclusive(x_9);
 if (x_19 == 0)

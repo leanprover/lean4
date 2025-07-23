@@ -32,7 +32,7 @@ else
 lean_object* x_3; uint8_t x_4; uint8_t x_7; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc(x_3);
 x_7 = l_Lean_Meta_Simp_Arith_isLinearTerm(x_3);
 if (x_7 == 0)

@@ -224,7 +224,7 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_9;
 }
@@ -601,7 +601,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
+lean_inc_ref(x_10);
 lean_dec_ref(x_1);
 x_11 = lean_apply_8(x_10, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_11;
@@ -612,7 +612,7 @@ _start:
 {
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_ctor_get(x_7, 1);
-lean_inc(x_16);
+lean_inc_ref(x_16);
 lean_dec_ref(x_7);
 x_17 = lean_apply_8(x_16, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 return x_17;

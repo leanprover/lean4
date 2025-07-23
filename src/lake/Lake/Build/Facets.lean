@@ -67,6 +67,8 @@ structure ModuleImportInfo where
   trace : BuildTrace
   /-- Transitive import trace for an `import` of the module with the module system enabled. -/
   transTrace : BuildTrace
+  /-- Transitive import trace for a `meta import` of the module with the module system enabled. -/
+  metaTransTrace : BuildTrace
   /--
   Transitive import trace for an `import all` of the module from a module with the module system
   enabled or an `import` of the module from a module without it.
@@ -80,8 +82,10 @@ builtin_facet importInfo : Module => ModuleImportInfo
 structure ModuleExportInfo where
   /-- Artifacts directly needed for an `import` of the module with the module system enabled. -/
   arts : ImportArtifacts
-  /-- The trace produced by mixing the traces of `arts`. -/
+  /-- The trace of the module's public olean. -/
   artsTrace : BuildTrace
+  /-- The trace of the module's public olean and IR. -/
+  metaArtsTrace : BuildTrace
   /--
   Artifacts directly needed for an `import` of the module from a module without the module
   system enabled or `import all` of the module from a module with it enabled.
@@ -91,6 +95,8 @@ structure ModuleExportInfo where
   allArtsTrace : BuildTrace
   /-- Transitive import trace for an `import` of the module with the module system enabled. -/
   transTrace : BuildTrace
+  /-- Transitive import trace for a `meta import` of the module with the module system enabled. -/
+  metaTransTrace : BuildTrace
   /--
   Transitive import trace for an `import all` of the module from a module with the module system
   enabled or an `import` of the module from a module without it.

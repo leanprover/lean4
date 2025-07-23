@@ -51,8 +51,8 @@ lean_inc_ref(x_5);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_5);
 lean_ctor_set(x_8, 1, x_6);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_9 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_3, x_8);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_10);
@@ -116,8 +116,8 @@ if (lean_is_scalar(x_12)) {
 }
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_22 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_18, x_21);
 x_23 = !lean_is_exclusive(x_22);
 if (x_23 == 0)
@@ -237,8 +237,8 @@ if (lean_is_scalar(x_12)) {
 }
 lean_ctor_set(x_51, 0, x_49);
 lean_ctor_set(x_51, 1, x_50);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_52 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_48, x_51);
 x_53 = lean_ctor_get(x_52, 0);
 lean_inc_ref(x_53);
@@ -300,8 +300,8 @@ if (x_41 == 0)
 lean_object* x_53; 
 lean_dec_ref(x_6);
 lean_dec(x_5);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_53 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_53, 0, x_4);
 lean_ctor_set(x_53, 1, x_9);
@@ -346,8 +346,8 @@ x_12 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_12, 0, x_6);
 lean_ctor_set(x_12, 1, x_10);
 lean_ctor_set(x_12, 2, x_11);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_13 = l_Std_Sat_AIG_mkIfCached___redArg(x_1, x_2, x_4, x_12);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc_ref(x_14);

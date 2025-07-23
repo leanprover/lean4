@@ -182,7 +182,7 @@ else
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_17 = lean_ctor_get(x_10, 0);
 lean_inc(x_17);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_18 = lean_ctor_get(x_9, 1);
 lean_inc(x_18);
 if (lean_is_exclusive(x_9)) {
@@ -424,7 +424,7 @@ else
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_17 = lean_ctor_get(x_10, 0);
 lean_inc(x_17);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_18 = lean_ctor_get(x_9, 1);
 lean_inc(x_18);
 if (lean_is_exclusive(x_9)) {
@@ -709,7 +709,7 @@ lean_inc(x_13);
 lean_dec_ref(x_5);
 x_14 = lean_ctor_get(x_6, 0);
 lean_inc(x_14);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_15 = l_Std_Time_Database_Windows_getZoneRules___closed__5;
 x_16 = l_Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__0(x_1, x_15, x_13);
 if (lean_obj_tag(x_16) == 0)

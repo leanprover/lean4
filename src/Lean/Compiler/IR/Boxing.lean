@@ -85,9 +85,9 @@ def eqvTypes (t₁ t₂ : IRType) : Bool :=
   (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
 structure BoxingContext where
-  f : FunId := default
+  f : FunId
   localCtx : LocalContext := {}
-  resultType : IRType := .erased
+  resultType : IRType
   decls : Array Decl
   env : Environment
 
@@ -315,12 +315,11 @@ partial def visitFnBody : FnBody → M FnBody
     pure other
 
 def run (env : Environment) (decls : Array Decl) : Array Decl :=
-  let ctx : BoxingContext := { decls := decls, env := env }
   let decls := decls.foldl (init := #[]) fun newDecls decl =>
     match decl with
-    | .fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
+    | .fdecl f xs resultType b _ =>
       let nextIdx  := decl.maxIndex + 1
-      let (b, s)   := (withParams xs (visitFnBody b) { ctx with f := f, resultType := t }).run { nextIdx := nextIdx }
+      let (b, s)   := withParams xs (visitFnBody b) { f, resultType, decls, env } |>.run { nextIdx }
       let newDecls := newDecls ++ s.auxDecls
       let newDecl  := decl.updateBody! b
       let newDecl  := newDecl.elimDead

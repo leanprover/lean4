@@ -297,7 +297,7 @@ else
 lean_object* x_11; uint8_t x_12; 
 x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_12 = l_Lean_isMeta(x_1, x_2);
 if (x_12 == 0)
 {

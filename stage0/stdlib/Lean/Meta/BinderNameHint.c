@@ -170,7 +170,7 @@ return x_4;
 else
 {
 uint8_t x_5; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_5 = 1;
 return x_5;
 }
@@ -677,11 +677,11 @@ lean_dec(x_8);
 x_70 = lean_ctor_get(x_69, 0);
 lean_inc_ref(x_70);
 x_71 = lean_ctor_get(x_69, 2);
-lean_inc(x_71);
+lean_inc_ref(x_71);
 x_72 = lean_ctor_get(x_69, 3);
-lean_inc(x_72);
+lean_inc_ref(x_72);
 x_73 = lean_ctor_get(x_69, 4);
-lean_inc(x_73);
+lean_inc_ref(x_73);
 if (lean_is_exclusive(x_69)) {
  lean_ctor_release(x_69, 0);
  lean_ctor_release(x_69, 1);
@@ -1632,7 +1632,7 @@ lean_dec(x_2);
 lean_dec_ref(x_1);
 x_292 = lean_ctor_get(x_117, 0);
 lean_inc(x_292);
-lean_dec(x_117);
+lean_dec_ref(x_117);
 lean_ctor_set(x_98, 1, x_3);
 lean_ctor_set(x_98, 0, x_292);
 return x_96;
@@ -2415,7 +2415,7 @@ lean_dec(x_2);
 lean_dec_ref(x_1);
 x_479 = lean_ctor_get(x_309, 0);
 lean_inc(x_479);
-lean_dec(x_309);
+lean_dec_ref(x_309);
 x_480 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_480, 0, x_479);
 lean_ctor_set(x_480, 1, x_3);
@@ -3222,7 +3222,7 @@ lean_dec(x_2);
 lean_dec_ref(x_1);
 x_669 = lean_ctor_get(x_499, 0);
 lean_inc(x_669);
-lean_dec(x_499);
+lean_dec_ref(x_499);
 if (lean_is_scalar(x_484)) {
  x_670 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -3239,7 +3239,7 @@ return x_671;
 block_15:
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = lean_st_ref_set(x_2, x_9, x_7);
+x_10 = lean_st_ref_set(x_2, x_9, x_8);
 lean_dec(x_2);
 x_11 = !lean_is_exclusive(x_10);
 if (x_11 == 0)
@@ -3247,7 +3247,7 @@ if (x_11 == 0)
 lean_object* x_12; 
 x_12 = lean_ctor_get(x_10, 0);
 lean_dec(x_12);
-lean_ctor_set(x_10, 0, x_8);
+lean_ctor_set(x_10, 0, x_7);
 return x_10;
 }
 else
@@ -3257,7 +3257,7 @@ x_13 = lean_ctor_get(x_10, 1);
 lean_inc(x_13);
 lean_dec(x_10);
 x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_8);
+lean_ctor_set(x_14, 0, x_7);
 lean_ctor_set(x_14, 1, x_13);
 return x_14;
 }
@@ -3319,8 +3319,8 @@ lean_object* x_50;
 x_50 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_____private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_visit_spec__2___redArg(x_43);
 lean_ctor_set(x_20, 1, x_50);
 lean_ctor_set(x_20, 0, x_41);
-x_7 = x_21;
-x_8 = x_16;
+x_7 = x_16;
+x_8 = x_21;
 x_9 = x_20;
 goto block_15;
 }
@@ -3328,8 +3328,8 @@ else
 {
 lean_ctor_set(x_20, 1, x_43);
 lean_ctor_set(x_20, 0, x_41);
-x_7 = x_21;
-x_8 = x_16;
+x_7 = x_16;
+x_8 = x_21;
 x_9 = x_20;
 goto block_15;
 }
@@ -3342,8 +3342,8 @@ x_52 = lean_array_uset(x_24, x_37, x_51);
 x_53 = l_Std_DHashMap_Internal_AssocList_replace___at_____private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_visit_spec__5___redArg(x_1, x_17, x_38);
 x_54 = lean_array_uset(x_52, x_37, x_53);
 lean_ctor_set(x_20, 1, x_54);
-x_7 = x_21;
-x_8 = x_16;
+x_7 = x_16;
+x_8 = x_21;
 x_9 = x_20;
 goto block_15;
 }
@@ -3399,8 +3399,8 @@ x_82 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_____private_Lean_MetavarCon
 x_83 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_83, 0, x_73);
 lean_ctor_set(x_83, 1, x_82);
-x_7 = x_21;
-x_8 = x_16;
+x_7 = x_16;
+x_8 = x_21;
 x_9 = x_83;
 goto block_15;
 }
@@ -3410,8 +3410,8 @@ lean_object* x_84;
 x_84 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_84, 0, x_73);
 lean_ctor_set(x_84, 1, x_75);
-x_7 = x_21;
-x_8 = x_16;
+x_7 = x_16;
+x_8 = x_21;
 x_9 = x_84;
 goto block_15;
 }
@@ -3426,8 +3426,8 @@ x_88 = lean_array_uset(x_86, x_69, x_87);
 x_89 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_89, 0, x_55);
 lean_ctor_set(x_89, 1, x_88);
-x_7 = x_21;
-x_8 = x_16;
+x_7 = x_16;
+x_8 = x_21;
 x_9 = x_89;
 goto block_15;
 }

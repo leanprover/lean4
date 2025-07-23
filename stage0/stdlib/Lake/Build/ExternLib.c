@@ -20,7 +20,6 @@ lean_object* l_Lake_JobResult_prependLog___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_compress(lean_object*);
 static lean_object* l_Lake_buildLeanSharedLibOfStatic___lam__0___closed__4;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_computeDynlibOfShared___lam__0___closed__2;
 lean_object* l_List_toString___at___Lean_rewriteManualLinksCore_rw_spec__0(lean_object*);
 lean_object* l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0(lean_object*, lean_object*, lean_object*);
@@ -94,6 +93,7 @@ LEAN_EXPORT lean_object* l_Lake_ExternLib_recBuildShared(lean_object*, lean_obje
 extern lean_object* l_Lake_instDataKindFilePath;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdout___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_fileStem(lean_object*);
@@ -233,7 +233,7 @@ x_23 = lean_ctor_get(x_20, 0);
 lean_inc(x_23);
 x_24 = lean_ctor_get(x_20, 1);
 lean_inc(x_24);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 lean_inc(x_23);
 x_25 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_25, 0, x_23);
@@ -304,7 +304,7 @@ x_39 = lean_ctor_get(x_20, 0);
 lean_inc(x_39);
 x_40 = lean_ctor_get(x_20, 1);
 lean_inc(x_40);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 x_41 = lean_box(0);
 x_42 = l_IO_withStdout___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0_spec__0___redArg___lam__0(x_17, x_22, x_41, x_40, x_21);
 x_43 = lean_ctor_get(x_42, 0);
@@ -398,7 +398,7 @@ x_23 = lean_ctor_get(x_20, 0);
 lean_inc(x_23);
 x_24 = lean_ctor_get(x_20, 1);
 lean_inc(x_24);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 lean_inc(x_23);
 x_25 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_25, 0, x_23);
@@ -469,7 +469,7 @@ x_39 = lean_ctor_get(x_20, 0);
 lean_inc(x_39);
 x_40 = lean_ctor_get(x_20, 1);
 lean_inc(x_40);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 x_41 = lean_box(0);
 x_42 = l_IO_withStdin___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0_spec__1___redArg___lam__0(x_17, x_22, x_41, x_40, x_21);
 x_43 = lean_ctor_get(x_42, 0);
@@ -563,7 +563,7 @@ x_23 = lean_ctor_get(x_20, 0);
 lean_inc(x_23);
 x_24 = lean_ctor_get(x_20, 1);
 lean_inc(x_24);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 lean_inc(x_23);
 x_25 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_25, 0, x_23);
@@ -634,7 +634,7 @@ x_39 = lean_ctor_get(x_20, 0);
 lean_inc(x_39);
 x_40 = lean_ctor_get(x_20, 1);
 lean_inc(x_40);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 x_41 = lean_box(0);
 x_42 = l_IO_withStderr___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0_spec__2___redArg___lam__0(x_17, x_22, x_41, x_40, x_21);
 x_43 = lean_ctor_get(x_42, 0);
@@ -790,7 +790,7 @@ x_32 = lean_ctor_get(x_30, 0);
 lean_inc(x_32);
 x_33 = lean_ctor_get(x_30, 1);
 lean_inc(x_33);
-lean_dec(x_30);
+lean_dec_ref(x_30);
 x_34 = lean_st_ref_get(x_23, x_31);
 lean_dec(x_23);
 x_35 = lean_ctor_get(x_34, 0);
@@ -962,7 +962,7 @@ lean_inc_ref(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_10 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0___redArg(x_1, x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -987,7 +987,7 @@ x_90 = lean_ctor_get(x_11, 0);
 lean_inc(x_90);
 x_91 = lean_ctor_get(x_11, 1);
 lean_inc(x_91);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_92 = lean_ctor_get(x_90, 0);
 lean_inc(x_92);
 x_93 = lean_ctor_get(x_90, 1);
@@ -1019,7 +1019,7 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_33 = x_106;
 goto block_89;
 }
@@ -1034,7 +1034,7 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_33 = x_108;
 goto block_89;
 }
@@ -1046,10 +1046,10 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_109 = lean_ctor_get(x_11, 1);
 lean_inc(x_109);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_16 = x_109;
 x_17 = x_12;
 goto block_32;
@@ -1726,7 +1726,7 @@ lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_10;
 }
 }
@@ -2423,7 +2423,7 @@ x_12 = l_Lake_buildLeanSharedLibOfStatic___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, 
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_12;
@@ -2442,7 +2442,7 @@ LEAN_EXPORT lean_object* l_Lake_ExternLib_recBuildShared___lam__0(lean_object* x
 _start:
 {
 lean_object* x_10; lean_object* x_11; 
-lean_inc(x_3);
+lean_inc_ref(x_3);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -2540,7 +2540,7 @@ lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 x_36 = !lean_is_exclusive(x_10);
 if (x_36 == 0)
@@ -2988,7 +2988,7 @@ else
 lean_object* x_36; uint8_t x_37; 
 x_36 = lean_ctor_get(x_9, 0);
 lean_inc(x_36);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_37 = l_System_Platform_isWindows;
 if (x_37 == 0)
 {
@@ -3139,7 +3139,7 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_9;
 }
 }
@@ -3174,7 +3174,7 @@ lean_inc_ref(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_10 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0___redArg(x_1, x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -3199,7 +3199,7 @@ x_90 = lean_ctor_get(x_11, 0);
 lean_inc(x_90);
 x_91 = lean_ctor_get(x_11, 1);
 lean_inc(x_91);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_92 = lean_ctor_get(x_90, 0);
 lean_inc(x_92);
 x_93 = lean_ctor_get(x_90, 1);
@@ -3231,7 +3231,7 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_33 = x_106;
 goto block_89;
 }
@@ -3246,7 +3246,7 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_33 = x_108;
 goto block_89;
 }
@@ -3258,10 +3258,10 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_109 = lean_ctor_get(x_11, 1);
 lean_inc(x_109);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_16 = x_109;
 x_17 = x_12;
 goto block_32;
@@ -3512,7 +3512,7 @@ LEAN_EXPORT lean_object* l_Lake_ExternLib_recComputeDynlib___lam__0(lean_object*
 _start:
 {
 lean_object* x_9; lean_object* x_10; 
-lean_inc(x_2);
+lean_inc_ref(x_2);
 lean_inc_ref(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -3599,7 +3599,7 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_30 = !lean_is_exclusive(x_9);
 if (x_30 == 0)
 {
@@ -3902,7 +3902,7 @@ lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_10;
 }
 }
@@ -4048,10 +4048,10 @@ static lean_object* _init_l_Lake_ExternLib_initFacetConfigs___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lake_ExternLib_defaultFacetConfig;
-x_2 = l_Lake_ExternLib_defaultFacet;
-x_3 = lean_box(0);
-x_4 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
+x_1 = lean_box(1);
+x_2 = l_Lake_ExternLib_defaultFacetConfig;
+x_3 = l_Lake_ExternLib_defaultFacet;
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }
@@ -4059,10 +4059,10 @@ static lean_object* _init_l_Lake_ExternLib_initFacetConfigs___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lake_ExternLib_staticFacetConfig;
-x_2 = l_Lake_ExternLib_staticFacet;
-x_3 = l_Lake_ExternLib_initFacetConfigs___closed__0;
-x_4 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
+x_1 = l_Lake_ExternLib_initFacetConfigs___closed__0;
+x_2 = l_Lake_ExternLib_staticFacetConfig;
+x_3 = l_Lake_ExternLib_staticFacet;
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }
@@ -4070,10 +4070,10 @@ static lean_object* _init_l_Lake_ExternLib_initFacetConfigs___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lake_ExternLib_sharedFacetConfig;
-x_2 = l_Lake_ExternLib_sharedFacet;
-x_3 = l_Lake_ExternLib_initFacetConfigs___closed__1;
-x_4 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
+x_1 = l_Lake_ExternLib_initFacetConfigs___closed__1;
+x_2 = l_Lake_ExternLib_sharedFacetConfig;
+x_3 = l_Lake_ExternLib_sharedFacet;
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }
@@ -4081,10 +4081,10 @@ static lean_object* _init_l_Lake_ExternLib_initFacetConfigs___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lake_ExternLib_dynlibFacetConfig;
-x_2 = l_Lake_ExternLib_dynlibFacet;
-x_3 = l_Lake_ExternLib_initFacetConfigs___closed__2;
-x_4 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
+x_1 = l_Lake_ExternLib_initFacetConfigs___closed__2;
+x_2 = l_Lake_ExternLib_dynlibFacetConfig;
+x_3 = l_Lake_ExternLib_dynlibFacet;
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }

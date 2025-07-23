@@ -80,9 +80,9 @@ but is expected to have type
 Elaboration errors are just labeled, not unique, to limit cascading errors.
 -/
 /--
-error: unknown identifier 'a'
+error: Unknown identifier `a`
 ---
-error: unknown identifier 'b'
+error: Unknown identifier `b`
 ---
 trace: ⊢ sorry = sorry
 -/
@@ -94,9 +94,9 @@ example : a = b := by trace_state; rfl
 Showing that the sorries in the previous test are labeled.
 -/
 /--
-error: unknown identifier 'a'
+error: Unknown identifier `a`
 ---
-error: unknown identifier 'b'
+error: Unknown identifier `b`
 ---
 trace: ⊢ sorry `«sorry:106:10» = sorry `«sorry:106:14»
 -/

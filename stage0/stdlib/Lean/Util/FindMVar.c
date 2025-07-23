@@ -29,7 +29,7 @@ x_4 = l_Lean_Expr_hasExprMVar(x_2);
 if (x_4 == 0)
 {
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 else
@@ -42,8 +42,8 @@ return x_5;
 else
 {
 lean_dec_ref(x_2);
-lean_dec(x_1);
-lean_inc(x_3);
+lean_dec_ref(x_1);
+lean_inc_ref(x_3);
 return x_3;
 }
 }
@@ -80,8 +80,8 @@ return x_13;
 else
 {
 lean_dec_ref(x_2);
-lean_dec(x_1);
-lean_inc(x_3);
+lean_dec_ref(x_1);
+lean_inc_ref(x_3);
 return x_3;
 }
 }
@@ -93,7 +93,7 @@ lean_inc_ref(x_14);
 x_15 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_15);
 lean_dec_ref(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_16 = l_Lean_FindMVar_visit(x_1, x_14, x_3);
 x_17 = l_Lean_FindMVar_visit(x_1, x_15, x_16);
 lean_dec(x_16);
@@ -135,9 +135,9 @@ lean_inc_ref(x_23);
 x_24 = lean_ctor_get(x_2, 3);
 lean_inc_ref(x_24);
 lean_dec_ref(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_25 = l_Lean_FindMVar_visit(x_1, x_22, x_3);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_26 = l_Lean_FindMVar_visit(x_1, x_23, x_25);
 lean_dec(x_25);
 x_27 = l_Lean_FindMVar_visit(x_1, x_24, x_26);
@@ -165,7 +165,7 @@ return x_31;
 default: 
 {
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc(x_3);
 return x_3;
 }
@@ -173,7 +173,7 @@ return x_3;
 block_9:
 {
 lean_object* x_7; lean_object* x_8; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_7 = l_Lean_FindMVar_visit(x_1, x_4, x_6);
 x_8 = l_Lean_FindMVar_visit(x_1, x_5, x_7);
 lean_dec(x_7);

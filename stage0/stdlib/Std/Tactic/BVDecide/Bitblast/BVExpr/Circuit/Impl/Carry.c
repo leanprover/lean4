@@ -35,8 +35,8 @@ if (x_19 == 0)
 {
 lean_object* x_31; 
 lean_dec(x_7);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_4);
 lean_ctor_set(x_31, 1, x_8);
@@ -80,8 +80,8 @@ x_11 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
 lean_ctor_set(x_11, 2, x_8);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_12 = l_Std_Tactic_BVDecide_BVExpr_bitblast_mkFullAdderCarry___redArg(x_1, x_2, x_4, x_11);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc_ref(x_13);

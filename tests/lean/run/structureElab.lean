@@ -75,7 +75,7 @@ info: def TestD1.D1.x._default : Nat :=
 id 1
 -/
 #guard_msgs in #print D1.x._default
-/-- error: unknown constant 'D2.x._default' -/
+/-- error: Unknown constant `D2.x._default` -/
 #guard_msgs in #print D2.x._default
 /--
 info: def TestD1.D2.x._inherited_default : Nat :=
@@ -87,7 +87,7 @@ info: def TestD1.D3.x._default : Nat :=
 id 3
 -/
 #guard_msgs in #print D3.x._default
-/-- error: unknown constant 'D4.x._default' -/
+/-- error: Unknown constant `D4.x._default` -/
 #guard_msgs in #print D4.x._default
 /--
 info: def TestD1.D4.x._inherited_default : Nat :=
@@ -112,14 +112,14 @@ info: def TestD2.D1.x._default : {α : Type} → {inst : Inhabited α} → α :=
 fun {α} {inst} => id default
 -/
 #guard_msgs in #print D1.x._default
-/-- error: unknown constant 'D2.x._default' -/
+/-- error: Unknown constant `D2.x._default` -/
 #guard_msgs in #print D2.x._default
 /--
 info: def TestD2.D2.x._inherited_default : {α : Type} → {inst : Inhabited α} → α :=
 fun {α} {inst} => id default
 -/
 #guard_msgs in #print D2.x._inherited_default
-/-- error: unknown constant 'D3.x._default' -/
+/-- error: Unknown constant `D3.x._default` -/
 #guard_msgs in #print D3.x._default
 /--
 info: def TestD2.D3.x._inherited_default : Nat :=

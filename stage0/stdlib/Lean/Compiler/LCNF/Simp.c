@@ -1956,7 +1956,7 @@ _start:
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = 0;
-x_3 = lean_box(0);
+x_3 = lean_box(1);
 x_4 = l_Lean_Compiler_LCNF_Decl_simp_go___closed__4;
 x_5 = lean_alloc_ctor(0, 7, 1);
 lean_ctor_set(x_5, 0, x_4);
@@ -2003,7 +2003,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_LCNF_Decl_simp_go___closed__8;
-x_2 = lean_box(0);
+x_2 = lean_box(1);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -2087,7 +2087,7 @@ lean_inc(x_25);
 lean_dec_ref(x_20);
 x_26 = lean_ctor_get(x_18, 0);
 lean_inc(x_26);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 x_1 = x_26;
 x_7 = x_25;
 goto _start;

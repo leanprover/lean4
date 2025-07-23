@@ -170,13 +170,13 @@ private partial def mkLoadOrder (libs : Array Dynlib) : FetchM (Array Dynlib) :=
   | .ok (_, order) => pure order
   | .error cycle => error s!"library dependency cycle:\n{formatCycle cycle}"
 where
-  go lib (ps : List String) (v : RBMap String Unit compare) (o : Array Dynlib) := do
+  go lib (ps : List String) (v : Std.TreeSet String compare) (o : Array Dynlib) := do
     if v.contains lib.name then
       return (v, o)
     if ps.contains lib.name then
       throw (lib.name :: ps)
     let ps := lib.name :: ps
-    let v := v.insert lib.name ()
+    let v := v.insert lib.name
     let (v, o) ← lib.deps.foldlM (init := (v, o)) fun (v, o) lib =>
       go lib ps v o
     let o := o.push lib
@@ -222,7 +222,7 @@ private partial def fetchTransImportArts
   let q ← directImports.foldlM (init := #[]) fun q imp => do
     let some mod := imp.module? | return q
     let input ← (← mod.input.fetch).await
-    return input.imports.foldl (init := q) fun q imp =>
+    return input.imports.foldr (init := q) fun imp q =>
       if let some mod := imp.module? then
         q.push (mod, imp.importAll || importAll)
       else q
@@ -234,26 +234,20 @@ where
       let q := q.pop
       if let some arts := s.find? mod.name then
         -- may need to promote a module system `import` to an `import all`
-        -- size of 1 = non-module, 2 = module system `import`, 3 = `import all`
-        unless importAll && arts.oleanParts.size == 2 do
+        -- size of 1 = non-module, 3 = module system `import`, 4 = `import all`
+        unless importAll && arts.size == 3 do
           return ← walk s q
       let info ← (← mod.exportInfo.fetch).await
       let arts := if importAll then info.allArts else info.arts
       let s := s.insert mod.name arts
       let input ← (← mod.input.fetch).await
-      let q := input.imports.foldl (init := q) fun q imp =>
+      let q := input.imports.foldr (init := q) fun imp q =>
         if let some mod := imp.module? then
           q.push (mod, importAll)
         else q
       walk s q
     else
       return s
-
-private def noServerOLeanError :=
-  "No server olean generated. Ensure the module system is enabled."
-
-private def noPrivateOLeanError :=
-  "No private olean generated. Ensure the module system is enabled."
 
 private def fetchImportInfo
   (fileName : String) (modName : Name) (header : ModuleHeader)
@@ -263,6 +257,7 @@ private def fetchImportInfo
     directArts := {}
     trace := .nil s!"imports"
     transTrace := .nil s!"{modName} transitive imports",
+    metaTransTrace := .nil s!"{modName} transitive imports (meta)",
     allTransTrace := .nil s!"{modName} transitive imports (all)"
   }
   let impArtsJob : Job ModuleImportInfo := .pure info
@@ -295,12 +290,26 @@ private def fetchImportInfo
           |>.withoutInputs
       }
       if imp.isExported then
-        {info with
-          transTrace := info.transTrace
-            |>.mix impInfo.transTrace
-            |>.mix impInfo.artsTrace.withoutInputs
+        let info := {info with
+          metaTransTrace := info.transTrace
+            |>.mix impInfo.metaTransTrace
+            |>.mix impInfo.metaArtsTrace.withoutInputs
             |>.withoutInputs
         }
+        if imp.isMeta then
+          {info with
+            transTrace := info.transTrace
+              |>.mix impInfo.metaTransTrace
+              |>.mix impInfo.metaArtsTrace.withoutInputs
+              |>.withoutInputs
+          }
+        else
+          {info with
+            transTrace := info.transTrace
+              |>.mix impInfo.transTrace
+              |>.mix impInfo.artsTrace.withoutInputs
+              |>.withoutInputs
+          }
       else
         info
 
@@ -310,35 +319,51 @@ def Module.importInfoFacetConfig : ModuleFacetConfig importInfoFacet :=
     let header ← (← mod.header.fetch).await
     fetchImportInfo mod.relLeanFile.toString mod.name header
 
-  /-- Computes the import artifacts and transitive import trace of a module's imports. -/
+private def noServerOLeanError :=
+  "No server olean generated. Ensure the module system is enabled."
+
+private def noPrivateOLeanError :=
+  "No private olean generated. Ensure the module system is enabled."
+
+private def noIRError :=
+  "No `.ir` generated. Ensure the module system is enabled."
+
+/-- Computes the import artifacts and transitive import trace of a module's imports. -/
 def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportInfo) := do
   (← mod.leanArts.fetch).mapM (sync := true) fun arts => do
     let header ← (← mod.header.fetch).await
     let importInfo ← (← mod.importInfo.fetch).await
     let artsTrace := BuildTrace.nil s!"{mod.name}:importArts"
+    let metaArtsTrace := BuildTrace.nil s!"{mod.name}:importArts (meta)"
     let allArtsTrace := BuildTrace.nil s!"{mod.name}:importAllArts"
     let olean := arts.olean
     if header.isModule then
       let some oleanServer := arts.oleanServer?
         | error noServerOLeanError
+      let some ir := arts.ir?
+        | error noIRError
       let some oleanPrivate := arts.oleanPrivate?
         | error noPrivateOLeanError
       return {
-        arts := ⟨#[olean.path, oleanServer.path]⟩
+        arts := .ofArray #[olean.path, ir.path, oleanServer.path]
         artsTrace := artsTrace.mix olean.trace
-        allArts := ⟨#[olean.path, oleanServer.path, oleanPrivate.path]⟩
-        allArtsTrace:= allArtsTrace.mix
-          olean.trace |>.mix oleanServer.trace |>.mix oleanPrivate.trace
+        metaArtsTrace := metaArtsTrace.mix olean.trace |>.mix ir.trace
+        allArts := .ofArray #[olean.path, ir.path, oleanServer.path, oleanPrivate.path]
+        allArtsTrace := allArtsTrace.mix
+          olean.trace |>.mix ir.trace |>.mix oleanServer.trace |>.mix oleanPrivate.trace
         transTrace := importInfo.transTrace
+        metaTransTrace := importInfo.metaTransTrace
         allTransTrace := importInfo.allTransTrace
       }
     else
       return {
         arts := ⟨#[olean.path]⟩
         artsTrace := artsTrace.mix olean.trace
+        metaArtsTrace := metaArtsTrace.mix olean.trace
         allArts := ⟨#[olean.path]⟩
         allArtsTrace:= allArtsTrace.mix olean.trace
         transTrace := importInfo.transTrace
+        metaTransTrace := importInfo.metaTransTrace
         allTransTrace := importInfo.allTransTrace
       }
 
@@ -500,7 +525,6 @@ updates the data structure with the new paths.
 -/
 private def Module.restoreArtifacts (mod : Module) (cached : ModuleOutputArtifacts) : JobM ModuleOutputArtifacts := do
   return {cached with
-    ir? := ← cached.ir?.mapM (restore mod.irFile)
     ilean := ← restore mod.ileanFile cached.ilean
   }
 where
@@ -558,7 +582,7 @@ private def Module.buildLean
   mod.computeOutputHashes setup.isModule
 
 private def traceOptions (opts : LeanOptions) (caption := "opts") : BuildTrace :=
-  opts.values.fold (init := .nil caption) fun t n v =>
+  opts.values.foldl (init := .nil caption) fun t n v =>
     let opt := s!"-D{n}={v.asCliFlagValue}"
     t.mix <| .ofHash (pureHash opt) opt
 
@@ -649,8 +673,7 @@ def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
 
 /-- The `ModuleFacetConfig` for the builtin `irFacet`. -/
 def Module.irFacetConfig : ModuleFacetConfig irFacet :=
-  mkFacetJobConfig <| fetchOLeanCore "ir" (·.ir?)
-    "No `.ir` generated. Ensure the module system is enabled."
+  mkFacetJobConfig <| fetchOLeanCore "ir" (·.ir?) noIRError
 
 /-- The `ModuleFacetConfig` for the builtin `cFacet`. -/
 def Module.cFacetConfig : ModuleFacetConfig cFacet :=

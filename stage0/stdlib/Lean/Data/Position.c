@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Position
-// Imports: Lean.Data.Format Lean.Data.Json Lean.ToExpr
+// Imports: Lean.Data.Format Lean.Data.Json.FromToJson.Basic Lean.ToExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -561,7 +561,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_4);
 x_1 = x_5;
 x_2 = x_6;
@@ -1820,7 +1820,7 @@ else
 lean_object* x_10; 
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 return x_10;
 }
 }
@@ -1852,7 +1852,7 @@ return x_2;
 }
 }
 lean_object* initialize_Lean_Data_Format(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Json_FromToJson_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ToExpr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Position(uint8_t builtin, lean_object* w) {
@@ -1862,7 +1862,7 @@ _G_initialized = true;
 res = initialize_Lean_Data_Format(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Json(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Json_FromToJson_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_ToExpr(builtin, lean_io_mk_world());

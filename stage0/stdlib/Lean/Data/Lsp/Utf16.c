@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp.Utf16
-// Imports: Init.Data.String Lean.Data.Lsp.Basic Lean.Data.Position Lean.DeclarationRange
+// Imports: Init.Data.String Lean.Data.Lsp.BasicAux Lean.Data.Position Lean.DeclarationRange
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -717,7 +717,7 @@ return x_30;
 }
 }
 lean_object* initialize_Init_Data_String(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Lsp_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Lsp_BasicAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Position(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DeclarationRange(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -728,7 +728,7 @@ _G_initialized = true;
 res = initialize_Init_Data_String(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Basic(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Lsp_BasicAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Position(builtin, lean_io_mk_world());

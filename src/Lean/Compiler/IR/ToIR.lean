@@ -61,7 +61,7 @@ def findDecl (n : Name) : M (Option Decl) :=
   return findEnvDecl (← Lean.getEnv) n
 
 def addDecl (d : Decl) : M Unit :=
-  Lean.modifyEnv fun env => declMapExt.addEntry (env.addExtraName d.name) d
+  Lean.modifyEnv fun env => declMapExt.addEntry env d
 
 def lowerLitValue (v : LCNF.LitValue) : LitVal × IRType :=
   match v with
@@ -239,11 +239,12 @@ where
 
   mkOverApplication (name : Name) (numParams : Nat) (args : Array Arg) : M FnBody := do
     let var ← bindVar decl.fvarId
+    let type := (← toIRType decl.type).boxed
     let tmpVar ← newVar
     let firstArgs := args.extract 0 numParams
     let restArgs := args.extract numParams args.size
-    return .vdecl tmpVar .tobject (.fap name firstArgs) <|
-           .vdecl var .tobject (.ap tmpVar restArgs) (← lowerCode k)
+    return .vdecl tmpVar .object (.fap name firstArgs) <|
+           .vdecl var type (.ap tmpVar restArgs) (← lowerCode k)
 
   tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
     if let some decl ← LCNF.getMonoDecl? name then

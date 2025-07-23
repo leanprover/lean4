@@ -1117,7 +1117,7 @@ For a `match` expression with `n` cases, the `split` tactic generates at most `n
 For example, given `n : Nat`, and a target `if n = 0 then Q else R`, `split` will generate
 one goal with hypothesis `n = 0` and target `Q`, and a second goal with hypothesis
 `¬n = 0` and target `R`.  Note that the introduced hypothesis is unnamed, and is commonly
-renamed used the `case` or `next` tactics.
+renamed using the `case` or `next` tactics.
 
 - `split` will split the goal (target).
 - `split at h` will split the hypothesis `h`.
@@ -2043,6 +2043,16 @@ a bit differently.
 -/
 macro (name := mstopMacro) (priority:=low) "mstop" : tactic =>
   Macro.throwError "to use `mstop`, please include `import Std.Tactic.Do`"
+
+
+/--
+Leaves the stateful proof mode of `Std.Do.SPred`, tries to eta-expand through all definitions
+related to the logic of the `Std.Do.SPred` and gently simplifies the resulting pure Lean
+proposition. This is often the right thing to do after `mvcgen` in order for automation to prove
+the goal.
+-/
+macro (name := mleaveMacro) (priority:=low) "mleave" : tactic =>
+  Macro.throwError "to use `mleave`, please include `import Std.Tactic.Do`"
 
 
 /--

@@ -28,7 +28,6 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_instHSubOffset__3;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_addMonthsClip___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_era___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_addYearsClip(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subWeeks___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_reprPlainDateTime___redArg___closed__7____x40_Std_Time_DateTime_PlainDateTime___hyg_420_;
 static lean_object* l_Std_Time_instInhabitedPlainDateTime___closed__16;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_addMilliseconds___boxed(lean_object*, lean_object*);
@@ -54,6 +53,7 @@ static lean_object* l_Std_Time_PlainDateTime_instHSubOffset___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_addMinutes(lean_object*, lean_object*);
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__2;
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__11;
+extern lean_object* l_Std_Time_Second_instOffsetNeg;
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__19;
 LEAN_EXPORT lean_object* l_Std_Time_instOrdPlainDateTime___lam__1___boxed(lean_object*);
 static lean_object* l_Std_Time_reprPlainDateTime___redArg___closed__6____x40_Std_Time_DateTime_PlainDateTime___hyg_420_;
@@ -91,11 +91,11 @@ static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__17
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 lean_object* l_Fin_add(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainDateTime___closed__17;
+extern lean_object* l_Std_Time_Nanosecond_instOffsetNeg;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_addDays___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_reprPlainDateTime___redArg___closed__14____x40_Std_Time_DateTime_PlainDateTime___hyg_420_;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_instHAddOffset__5;
 LEAN_EXPORT lean_object* l_Std_Time_instDecidableEqPlainDateTime___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subSeconds___boxed(lean_object*, lean_object*);
 lean_object* l_compareOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_withMonthRollOver(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_inLeapYear___boxed(lean_object*);
@@ -124,7 +124,6 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_instHAddOffset__3;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subDays(lean_object*, lean_object*);
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__8;
 lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subNanoseconds___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_reprPlainDateTime____x40_Std_Time_DateTime_PlainDateTime___hyg_420____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_nanosecond___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_reprPlainDateTime____x40_Std_Time_DateTime_PlainDateTime___hyg_420_(lean_object*, lean_object*);
@@ -138,6 +137,7 @@ lean_object* l_Std_Time_ValidDate_dayOfYear(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_hour___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instOrdPlainDateTime___lam__0___boxed(lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainDateTime___closed__14;
+extern lean_object* l_Std_Time_Hour_instOffsetNeg;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Std_Time_PlainDateTime_ofTimestampAssumingUTC_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_weekday___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_instHSubOffset__6;
@@ -165,6 +165,7 @@ LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_withYearClip(lean_object*, lea
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_minute(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_addWeeks(lean_object*, lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
+extern lean_object* l_Std_Time_Millisecond_instOffsetNeg;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_withMinutes(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_instHAddDuration___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainDateTime___closed__6;
@@ -187,11 +188,11 @@ static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__33
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__16;
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__23;
 static lean_object* l_Std_Time_instInhabitedPlainDateTime___closed__19;
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subMilliseconds___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instOrdPlainDateTime___lam__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subMilliseconds(lean_object*, lean_object*);
 lean_object* l_Std_Time_PlainDate_rollOver(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_withWeekday(lean_object*, uint8_t);
+extern lean_object* l_Std_Time_Day_instOffsetNeg;
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__3;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_instHAddDuration;
 static lean_object* l_Std_Time_instInhabitedPlainDateTime___closed__33;
@@ -203,7 +204,6 @@ static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__7;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_addSeconds___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainDateTime___closed__29;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_weekOfMonth___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subHours___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subMonthsClip(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainDateTime___closed__13;
 lean_object* lean_int_mul(lean_object*, lean_object*);
@@ -225,7 +225,6 @@ static lean_object* l_Std_Time_reprPlainDateTime___redArg___closed__9____x40_Std
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__13;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_instHSubOffset__2;
 uint8_t l_Std_Time_Year_Offset_era(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subDays___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__5;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_addNanoseconds(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instOrdPlainDateTime;
@@ -258,6 +257,7 @@ static lean_object* l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__1;
 static lean_object* l_Std_Time_instReprPlainDateTime___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_minute___boxed(lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainDateTime___closed__37;
+extern lean_object* l_Std_Time_Week_instOffsetNeg;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_withNanoseconds(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instInhabitedPlainDateTime___closed__25;
 static lean_object* l_Std_Time_reprPlainDateTime___redArg___closed__4____x40_Std_Time_DateTime_PlainDateTime___hyg_420_;
@@ -266,6 +266,7 @@ static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__1;
 static lean_object* l_Std_Time_PlainDateTime_instHAddOffset__1___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_withDaysRollOver(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
+extern lean_object* l_Std_Time_Minute_instOffsetNeg;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_weekOfYear(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_withMilliseconds(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_atDate(lean_object*, lean_object*);
@@ -296,7 +297,6 @@ static lean_object* l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__0;
 static lean_object* l_Std_Time_instInhabitedPlainDateTime___closed__28;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subYearsRollOver(lean_object*, lean_object*);
 static lean_object* l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__20;
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subMinutes___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_reprPlainDateTime___redArg___closed__15____x40_Std_Time_DateTime_PlainDateTime___hyg_420_;
 static lean_object* l_Std_Time_PlainDateTime_instHSubOffset__6___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_second___boxed(lean_object*);
@@ -955,7 +955,6 @@ x_5 = l_Std_Time_reprPlainDateTime___redArg___closed__5____x40_Std_Time_DateTime
 x_6 = l_Std_Time_reprPlainDateTime___redArg___closed__6____x40_Std_Time_DateTime_PlainDateTime___hyg_420_;
 x_7 = l_Std_Time_reprPlainDateTime___redArg___closed__7____x40_Std_Time_DateTime_PlainDateTime___hyg_420_;
 x_8 = l_Std_Time_reprPlainDate___redArg____x40_Std_Time_Date_PlainDate___hyg_347_(x_3);
-lean_dec_ref(x_3);
 lean_ctor_set_tag(x_1, 4);
 lean_ctor_set(x_1, 1, x_8);
 lean_ctor_set(x_1, 0, x_7);
@@ -982,7 +981,6 @@ x_18 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_5);
 x_19 = l_Std_Time_reprPlainTime___redArg____x40_Std_Time_Time_PlainTime___hyg_411_(x_4);
-lean_dec_ref(x_4);
 x_20 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_20, 0, x_7);
 lean_ctor_set(x_20, 1, x_19);
@@ -1021,7 +1019,6 @@ x_32 = l_Std_Time_reprPlainDateTime___redArg___closed__5____x40_Std_Time_DateTim
 x_33 = l_Std_Time_reprPlainDateTime___redArg___closed__6____x40_Std_Time_DateTime_PlainDateTime___hyg_420_;
 x_34 = l_Std_Time_reprPlainDateTime___redArg___closed__7____x40_Std_Time_DateTime_PlainDateTime___hyg_420_;
 x_35 = l_Std_Time_reprPlainDate___redArg____x40_Std_Time_Date_PlainDate___hyg_347_(x_30);
-lean_dec_ref(x_30);
 x_36 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_36, 0, x_34);
 lean_ctor_set(x_36, 1, x_35);
@@ -1048,7 +1045,6 @@ x_46 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_46, 0, x_45);
 lean_ctor_set(x_46, 1, x_32);
 x_47 = l_Std_Time_reprPlainTime___redArg____x40_Std_Time_Time_PlainTime___hyg_411_(x_31);
-lean_dec_ref(x_31);
 x_48 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_48, 0, x_34);
 lean_ctor_set(x_48, 1, x_47);
@@ -1206,7 +1202,6 @@ x_6 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__0;
 x_7 = lean_int_mul(x_5, x_6);
 lean_dec(x_5);
 x_8 = l_Std_Time_PlainTime_toSeconds(x_2);
-lean_dec_ref(x_2);
 x_9 = lean_int_add(x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -1729,9 +1724,9 @@ block_9:
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_7, 0, x_3);
-lean_ctor_set(x_7, 1, x_5);
-lean_ctor_set(x_7, 2, x_2);
-lean_ctor_set(x_7, 3, x_4);
+lean_ctor_set(x_7, 1, x_2);
+lean_ctor_set(x_7, 2, x_4);
+lean_ctor_set(x_7, 3, x_5);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_7);
@@ -1740,35 +1735,35 @@ return x_8;
 block_22:
 {
 lean_object* x_18; uint8_t x_19; 
-x_18 = l_Std_Time_Month_Ordinal_days(x_17, x_14);
-x_19 = lean_int_dec_lt(x_18, x_11);
+x_18 = l_Std_Time_Month_Ordinal_days(x_17, x_15);
+x_19 = lean_int_dec_lt(x_18, x_16);
 if (x_19 == 0)
 {
 lean_object* x_20; 
 lean_dec(x_18);
 x_20 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_20, 0, x_13);
-lean_ctor_set(x_20, 1, x_14);
-lean_ctor_set(x_20, 2, x_11);
-x_2 = x_10;
-x_3 = x_12;
-x_4 = x_15;
-x_5 = x_16;
+lean_ctor_set(x_20, 1, x_15);
+lean_ctor_set(x_20, 2, x_16);
+x_2 = x_11;
+x_3 = x_10;
+x_4 = x_12;
+x_5 = x_14;
 x_6 = x_20;
 goto block_9;
 }
 else
 {
 lean_object* x_21; 
-lean_dec(x_11);
+lean_dec(x_16);
 x_21 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_21, 0, x_13);
-lean_ctor_set(x_21, 1, x_14);
+lean_ctor_set(x_21, 1, x_15);
 lean_ctor_set(x_21, 2, x_18);
-x_2 = x_10;
-x_3 = x_12;
-x_4 = x_15;
-x_5 = x_16;
+x_2 = x_11;
+x_3 = x_10;
+x_4 = x_12;
+x_5 = x_14;
 x_6 = x_21;
 goto block_9;
 }
@@ -1776,57 +1771,57 @@ goto block_9;
 block_49:
 {
 lean_object* x_41; lean_object* x_42; uint8_t x_43; 
-x_41 = lean_int_mod(x_35, x_32);
-x_42 = lean_nat_to_int(x_36);
+x_41 = lean_int_mod(x_36, x_32);
+x_42 = lean_nat_to_int(x_35);
 x_43 = lean_int_dec_eq(x_41, x_42);
 lean_dec(x_41);
 if (x_43 == 0)
 {
 lean_dec(x_42);
-x_10 = x_33;
-x_11 = x_40;
-x_12 = x_34;
-x_13 = x_35;
-x_14 = x_37;
-x_15 = x_38;
-x_16 = x_39;
+x_10 = x_34;
+x_11 = x_33;
+x_12 = x_37;
+x_13 = x_36;
+x_14 = x_38;
+x_15 = x_39;
+x_16 = x_40;
 x_17 = x_43;
 goto block_22;
 }
 else
 {
 lean_object* x_44; uint8_t x_45; uint8_t x_46; 
-x_44 = lean_int_mod(x_35, x_30);
+x_44 = lean_int_mod(x_36, x_30);
 x_45 = lean_int_dec_eq(x_44, x_42);
 lean_dec(x_44);
 x_46 = l_instDecidableNot___redArg(x_45);
 if (x_46 == 0)
 {
 lean_object* x_47; uint8_t x_48; 
-x_47 = lean_int_mod(x_35, x_28);
+x_47 = lean_int_mod(x_36, x_28);
 x_48 = lean_int_dec_eq(x_47, x_42);
 lean_dec(x_42);
 lean_dec(x_47);
-x_10 = x_33;
-x_11 = x_40;
-x_12 = x_34;
-x_13 = x_35;
-x_14 = x_37;
-x_15 = x_38;
-x_16 = x_39;
+x_10 = x_34;
+x_11 = x_33;
+x_12 = x_37;
+x_13 = x_36;
+x_14 = x_38;
+x_15 = x_39;
+x_16 = x_40;
 x_17 = x_48;
 goto block_22;
 }
 else
 {
 lean_dec(x_42);
-x_10 = x_33;
-x_11 = x_40;
-x_12 = x_34;
-x_13 = x_35;
-x_14 = x_37;
-x_15 = x_38;
-x_16 = x_39;
+x_10 = x_34;
+x_11 = x_33;
+x_12 = x_37;
+x_13 = x_36;
+x_14 = x_38;
+x_15 = x_39;
+x_16 = x_40;
 x_17 = x_46;
 goto block_22;
 }
@@ -1836,13 +1831,13 @@ block_72:
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; uint8_t x_69; 
 x_61 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__13;
-x_62 = lean_int_emod(x_56, x_61);
-x_63 = lean_int_ediv(x_56, x_61);
+x_62 = lean_int_emod(x_58, x_61);
+x_63 = lean_int_ediv(x_58, x_61);
 x_64 = lean_int_emod(x_63, x_61);
 lean_dec(x_63);
 x_65 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__14;
-x_66 = lean_int_ediv(x_56, x_65);
-lean_dec(x_56);
+x_66 = lean_int_ediv(x_58, x_65);
+lean_dec(x_58);
 x_67 = lean_int_emod(x_55, x_53);
 lean_dec(x_55);
 x_68 = l_Fin_succ___redArg(x_57);
@@ -1853,13 +1848,13 @@ if (x_69 == 0)
 lean_object* x_70; 
 lean_dec(x_68);
 x_70 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__15;
-x_33 = x_62;
+x_33 = x_64;
 x_34 = x_66;
-x_35 = x_59;
-x_36 = x_58;
-x_37 = x_60;
+x_35 = x_56;
+x_36 = x_59;
+x_37 = x_62;
 x_38 = x_67;
-x_39 = x_64;
+x_39 = x_60;
 x_40 = x_70;
 goto block_49;
 }
@@ -1867,13 +1862,13 @@ else
 {
 lean_object* x_71; 
 x_71 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_68);
-x_33 = x_62;
+x_33 = x_64;
 x_34 = x_66;
-x_35 = x_59;
-x_36 = x_58;
-x_37 = x_60;
+x_35 = x_56;
+x_36 = x_59;
+x_37 = x_62;
 x_38 = x_67;
-x_39 = x_64;
+x_39 = x_60;
 x_40 = x_71;
 goto block_49;
 }
@@ -1911,8 +1906,8 @@ lean_dec(x_76);
 x_93 = lean_int_add(x_91, x_92);
 lean_dec(x_92);
 lean_dec(x_91);
-x_94 = lean_int_mul(x_30, x_74);
-lean_dec(x_74);
+x_94 = lean_int_mul(x_30, x_73);
+lean_dec(x_73);
 x_95 = lean_int_add(x_93, x_94);
 lean_dec(x_94);
 lean_dec(x_93);
@@ -1934,9 +1929,9 @@ x_102 = lean_unsigned_to_nat(2u);
 x_103 = lean_nat_add(x_88, x_102);
 lean_dec(x_88);
 x_104 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_103);
-x_56 = x_73;
+x_56 = x_84;
 x_57 = x_99;
-x_58 = x_84;
+x_58 = x_74;
 x_59 = x_97;
 x_60 = x_104;
 goto block_72;
@@ -1949,9 +1944,9 @@ lean_dec(x_97);
 x_106 = lean_nat_sub(x_88, x_100);
 lean_dec(x_88);
 x_107 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_106);
-x_56 = x_73;
+x_56 = x_84;
 x_57 = x_99;
-x_58 = x_84;
+x_58 = x_74;
 x_59 = x_105;
 x_60 = x_107;
 goto block_72;
@@ -2002,8 +1997,8 @@ x_127 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC___closed__33;
 x_128 = lean_int_dec_eq(x_126, x_127);
 if (x_128 == 0)
 {
-x_109 = x_120;
-x_110 = x_122;
+x_109 = x_122;
+x_110 = x_120;
 x_111 = x_121;
 x_112 = x_126;
 x_113 = x_125;
@@ -2014,8 +2009,8 @@ else
 lean_object* x_129; 
 x_129 = lean_int_sub(x_126, x_51);
 lean_dec(x_126);
-x_109 = x_120;
-x_110 = x_122;
+x_109 = x_122;
+x_110 = x_120;
 x_111 = x_121;
 x_112 = x_129;
 x_113 = x_125;
@@ -3130,47 +3125,40 @@ uint8_t x_3;
 x_3 = !lean_is_exclusive(x_1);
 if (x_3 == 0)
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_int_neg(x_2);
-x_6 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_4);
-x_7 = lean_int_add(x_6, x_5);
-lean_dec(x_5);
+x_5 = l_Std_Time_Day_instOffsetNeg;
+x_6 = lean_apply_1(x_5, x_2);
+x_7 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_4);
+x_8 = lean_int_add(x_7, x_6);
 lean_dec(x_6);
-x_8 = l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch(x_7);
 lean_dec(x_7);
-lean_ctor_set(x_1, 0, x_8);
+x_9 = l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch(x_8);
+lean_dec(x_8);
+lean_ctor_set(x_1, 0, x_9);
 return x_1;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_9 = lean_ctor_get(x_1, 0);
-x_10 = lean_ctor_get(x_1, 1);
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_10 = lean_ctor_get(x_1, 0);
+x_11 = lean_ctor_get(x_1, 1);
+lean_inc(x_11);
 lean_inc(x_10);
-lean_inc(x_9);
 lean_dec(x_1);
-x_11 = lean_int_neg(x_2);
-x_12 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_9);
-x_13 = lean_int_add(x_12, x_11);
-lean_dec(x_11);
-lean_dec(x_12);
-x_14 = l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch(x_13);
+x_12 = l_Std_Time_Day_instOffsetNeg;
+x_13 = lean_apply_1(x_12, x_2);
+x_14 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_10);
+x_15 = lean_int_add(x_14, x_13);
 lean_dec(x_13);
-x_15 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_15, 0, x_14);
-lean_ctor_set(x_15, 1, x_10);
-return x_15;
+lean_dec(x_14);
+x_16 = l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch(x_15);
+lean_dec(x_15);
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_16);
+lean_ctor_set(x_17, 1, x_11);
+return x_17;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subDays___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Time_PlainDateTime_subDays(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_Std_Time_PlainDateTime_addWeeks___closed__0() {
@@ -3241,53 +3229,46 @@ uint8_t x_3;
 x_3 = !lean_is_exclusive(x_1);
 if (x_3 == 0)
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_int_neg(x_2);
-x_6 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_4);
-x_7 = l_Std_Time_PlainDateTime_addWeeks___closed__0;
-x_8 = lean_int_mul(x_5, x_7);
-lean_dec(x_5);
-x_9 = lean_int_add(x_6, x_8);
-lean_dec(x_8);
+x_5 = l_Std_Time_Week_instOffsetNeg;
+x_6 = lean_apply_1(x_5, x_2);
+x_7 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_4);
+x_8 = l_Std_Time_PlainDateTime_addWeeks___closed__0;
+x_9 = lean_int_mul(x_6, x_8);
 lean_dec(x_6);
-x_10 = l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch(x_9);
+x_10 = lean_int_add(x_7, x_9);
 lean_dec(x_9);
-lean_ctor_set(x_1, 0, x_10);
+lean_dec(x_7);
+x_11 = l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch(x_10);
+lean_dec(x_10);
+lean_ctor_set(x_1, 0, x_11);
 return x_1;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_11 = lean_ctor_get(x_1, 0);
-x_12 = lean_ctor_get(x_1, 1);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_12 = lean_ctor_get(x_1, 0);
+x_13 = lean_ctor_get(x_1, 1);
+lean_inc(x_13);
 lean_inc(x_12);
-lean_inc(x_11);
 lean_dec(x_1);
-x_13 = lean_int_neg(x_2);
-x_14 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_11);
-x_15 = l_Std_Time_PlainDateTime_addWeeks___closed__0;
-x_16 = lean_int_mul(x_13, x_15);
-lean_dec(x_13);
-x_17 = lean_int_add(x_14, x_16);
+x_14 = l_Std_Time_Week_instOffsetNeg;
+x_15 = lean_apply_1(x_14, x_2);
+x_16 = l_Std_Time_PlainDate_toDaysSinceUNIXEpoch(x_12);
+x_17 = l_Std_Time_PlainDateTime_addWeeks___closed__0;
+x_18 = lean_int_mul(x_15, x_17);
+lean_dec(x_15);
+x_19 = lean_int_add(x_16, x_18);
+lean_dec(x_18);
 lean_dec(x_16);
-lean_dec(x_14);
-x_18 = l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch(x_17);
-lean_dec(x_17);
-x_19 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_19, 0, x_18);
-lean_ctor_set(x_19, 1, x_12);
-return x_19;
+x_20 = l_Std_Time_PlainDate_ofDaysSinceUNIXEpoch(x_19);
+lean_dec(x_19);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_13);
+return x_21;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subWeeks___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Time_PlainDateTime_subWeeks(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_addMonthsClip(lean_object* x_1, lean_object* x_2) {
@@ -3691,48 +3672,40 @@ return x_3;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subNanoseconds(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_3 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_1);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec_ref(x_3);
-x_6 = lean_int_neg(x_2);
-x_7 = l_Std_Time_Duration_ofNanoseconds(x_6);
-lean_dec(x_6);
-x_8 = lean_ctor_get(x_7, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_7, 1);
+x_6 = l_Std_Time_Nanosecond_instOffsetNeg;
+x_7 = lean_apply_1(x_6, x_2);
+x_8 = l_Std_Time_Duration_ofNanoseconds(x_7);
+lean_dec(x_7);
+x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
-lean_dec_ref(x_7);
-x_10 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__1;
-x_11 = lean_int_mul(x_4, x_10);
+x_10 = lean_ctor_get(x_8, 1);
+lean_inc(x_10);
+lean_dec_ref(x_8);
+x_11 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__1;
+x_12 = lean_int_mul(x_4, x_11);
 lean_dec(x_4);
-x_12 = lean_int_add(x_11, x_5);
+x_13 = lean_int_add(x_12, x_5);
 lean_dec(x_5);
-lean_dec(x_11);
-x_13 = lean_int_mul(x_8, x_10);
-lean_dec(x_8);
-x_14 = lean_int_add(x_13, x_9);
-lean_dec(x_9);
-lean_dec(x_13);
-x_15 = lean_int_add(x_12, x_14);
-lean_dec(x_14);
 lean_dec(x_12);
-x_16 = l_Std_Time_Duration_ofNanoseconds(x_15);
+x_14 = lean_int_mul(x_9, x_11);
+lean_dec(x_9);
+x_15 = lean_int_add(x_14, x_10);
+lean_dec(x_10);
+lean_dec(x_14);
+x_16 = lean_int_add(x_13, x_15);
 lean_dec(x_15);
-x_17 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_16);
-return x_17;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subNanoseconds___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Time_PlainDateTime_subNanoseconds(x_1, x_2);
-lean_dec(x_2);
-return x_3;
+lean_dec(x_13);
+x_17 = l_Std_Time_Duration_ofNanoseconds(x_16);
+lean_dec(x_16);
+x_18 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_17);
+return x_18;
 }
 }
 static lean_object* _init_l_Std_Time_PlainDateTime_addHours___closed__0() {
@@ -3795,51 +3768,43 @@ return x_3;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subHours(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_3 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_1);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec_ref(x_3);
-x_6 = lean_int_neg(x_2);
-x_7 = l_Std_Time_PlainDateTime_addHours___closed__0;
-x_8 = lean_int_mul(x_6, x_7);
-lean_dec(x_6);
-x_9 = l_Std_Time_Duration_ofNanoseconds(x_8);
-lean_dec(x_8);
-x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
-x_11 = lean_ctor_get(x_9, 1);
+x_6 = l_Std_Time_Hour_instOffsetNeg;
+x_7 = lean_apply_1(x_6, x_2);
+x_8 = l_Std_Time_PlainDateTime_addHours___closed__0;
+x_9 = lean_int_mul(x_7, x_8);
+lean_dec(x_7);
+x_10 = l_Std_Time_Duration_ofNanoseconds(x_9);
+lean_dec(x_9);
+x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-lean_dec_ref(x_9);
-x_12 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__1;
-x_13 = lean_int_mul(x_4, x_12);
+x_12 = lean_ctor_get(x_10, 1);
+lean_inc(x_12);
+lean_dec_ref(x_10);
+x_13 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__1;
+x_14 = lean_int_mul(x_4, x_13);
 lean_dec(x_4);
-x_14 = lean_int_add(x_13, x_5);
+x_15 = lean_int_add(x_14, x_5);
 lean_dec(x_5);
-lean_dec(x_13);
-x_15 = lean_int_mul(x_10, x_12);
-lean_dec(x_10);
-x_16 = lean_int_add(x_15, x_11);
-lean_dec(x_11);
-lean_dec(x_15);
-x_17 = lean_int_add(x_14, x_16);
-lean_dec(x_16);
 lean_dec(x_14);
-x_18 = l_Std_Time_Duration_ofNanoseconds(x_17);
+x_16 = lean_int_mul(x_11, x_13);
+lean_dec(x_11);
+x_17 = lean_int_add(x_16, x_12);
+lean_dec(x_12);
+lean_dec(x_16);
+x_18 = lean_int_add(x_15, x_17);
 lean_dec(x_17);
-x_19 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_18);
-return x_19;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subHours___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Time_PlainDateTime_subHours(x_1, x_2);
-lean_dec(x_2);
-return x_3;
+lean_dec(x_15);
+x_19 = l_Std_Time_Duration_ofNanoseconds(x_18);
+lean_dec(x_18);
+x_20 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_19);
+return x_20;
 }
 }
 static lean_object* _init_l_Std_Time_PlainDateTime_addMinutes___closed__0() {
@@ -3902,51 +3867,43 @@ return x_3;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subMinutes(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_3 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_1);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec_ref(x_3);
-x_6 = lean_int_neg(x_2);
-x_7 = l_Std_Time_PlainDateTime_addMinutes___closed__0;
-x_8 = lean_int_mul(x_6, x_7);
-lean_dec(x_6);
-x_9 = l_Std_Time_Duration_ofNanoseconds(x_8);
-lean_dec(x_8);
-x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
-x_11 = lean_ctor_get(x_9, 1);
+x_6 = l_Std_Time_Minute_instOffsetNeg;
+x_7 = lean_apply_1(x_6, x_2);
+x_8 = l_Std_Time_PlainDateTime_addMinutes___closed__0;
+x_9 = lean_int_mul(x_7, x_8);
+lean_dec(x_7);
+x_10 = l_Std_Time_Duration_ofNanoseconds(x_9);
+lean_dec(x_9);
+x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-lean_dec_ref(x_9);
-x_12 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__1;
-x_13 = lean_int_mul(x_4, x_12);
+x_12 = lean_ctor_get(x_10, 1);
+lean_inc(x_12);
+lean_dec_ref(x_10);
+x_13 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__1;
+x_14 = lean_int_mul(x_4, x_13);
 lean_dec(x_4);
-x_14 = lean_int_add(x_13, x_5);
+x_15 = lean_int_add(x_14, x_5);
 lean_dec(x_5);
-lean_dec(x_13);
-x_15 = lean_int_mul(x_10, x_12);
-lean_dec(x_10);
-x_16 = lean_int_add(x_15, x_11);
-lean_dec(x_11);
-lean_dec(x_15);
-x_17 = lean_int_add(x_14, x_16);
-lean_dec(x_16);
 lean_dec(x_14);
-x_18 = l_Std_Time_Duration_ofNanoseconds(x_17);
+x_16 = lean_int_mul(x_11, x_13);
+lean_dec(x_11);
+x_17 = lean_int_add(x_16, x_12);
+lean_dec(x_12);
+lean_dec(x_16);
+x_18 = lean_int_add(x_15, x_17);
 lean_dec(x_17);
-x_19 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_18);
-return x_19;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subMinutes___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Time_PlainDateTime_subMinutes(x_1, x_2);
-lean_dec(x_2);
-return x_3;
+lean_dec(x_15);
+x_19 = l_Std_Time_Duration_ofNanoseconds(x_18);
+lean_dec(x_18);
+x_20 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_19);
+return x_20;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_addSeconds(lean_object* x_1, lean_object* x_2) {
@@ -3999,50 +3956,42 @@ return x_3;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subSeconds(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_3 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_1);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec_ref(x_3);
-x_6 = lean_int_neg(x_2);
-x_7 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__1;
-x_8 = lean_int_mul(x_6, x_7);
-lean_dec(x_6);
-x_9 = l_Std_Time_Duration_ofNanoseconds(x_8);
-lean_dec(x_8);
-x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
-x_11 = lean_ctor_get(x_9, 1);
+x_6 = l_Std_Time_Second_instOffsetNeg;
+x_7 = lean_apply_1(x_6, x_2);
+x_8 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__1;
+x_9 = lean_int_mul(x_7, x_8);
+lean_dec(x_7);
+x_10 = l_Std_Time_Duration_ofNanoseconds(x_9);
+lean_dec(x_9);
+x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-lean_dec_ref(x_9);
-x_12 = lean_int_mul(x_4, x_7);
+x_12 = lean_ctor_get(x_10, 1);
+lean_inc(x_12);
+lean_dec_ref(x_10);
+x_13 = lean_int_mul(x_4, x_8);
 lean_dec(x_4);
-x_13 = lean_int_add(x_12, x_5);
+x_14 = lean_int_add(x_13, x_5);
 lean_dec(x_5);
-lean_dec(x_12);
-x_14 = lean_int_mul(x_10, x_7);
-lean_dec(x_10);
-x_15 = lean_int_add(x_14, x_11);
-lean_dec(x_11);
-lean_dec(x_14);
-x_16 = lean_int_add(x_13, x_15);
-lean_dec(x_15);
 lean_dec(x_13);
-x_17 = l_Std_Time_Duration_ofNanoseconds(x_16);
+x_15 = lean_int_mul(x_11, x_8);
+lean_dec(x_11);
+x_16 = lean_int_add(x_15, x_12);
+lean_dec(x_12);
+lean_dec(x_15);
+x_17 = lean_int_add(x_14, x_16);
 lean_dec(x_16);
-x_18 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_17);
-return x_18;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subSeconds___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Time_PlainDateTime_subSeconds(x_1, x_2);
-lean_dec(x_2);
-return x_3;
+lean_dec(x_14);
+x_18 = l_Std_Time_Duration_ofNanoseconds(x_17);
+lean_dec(x_17);
+x_19 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_18);
+return x_19;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_addMilliseconds(lean_object* x_1, lean_object* x_2) {
@@ -4096,51 +4045,43 @@ return x_3;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subMilliseconds(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_3 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_1);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec_ref(x_3);
-x_6 = lean_int_neg(x_2);
-x_7 = l_Std_Time_PlainDateTime_withMilliseconds___closed__1;
-x_8 = lean_int_mul(x_6, x_7);
-lean_dec(x_6);
-x_9 = l_Std_Time_Duration_ofNanoseconds(x_8);
-lean_dec(x_8);
-x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
-x_11 = lean_ctor_get(x_9, 1);
+x_6 = l_Std_Time_Millisecond_instOffsetNeg;
+x_7 = lean_apply_1(x_6, x_2);
+x_8 = l_Std_Time_PlainDateTime_withMilliseconds___closed__1;
+x_9 = lean_int_mul(x_7, x_8);
+lean_dec(x_7);
+x_10 = l_Std_Time_Duration_ofNanoseconds(x_9);
+lean_dec(x_9);
+x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-lean_dec_ref(x_9);
-x_12 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__1;
-x_13 = lean_int_mul(x_4, x_12);
+x_12 = lean_ctor_get(x_10, 1);
+lean_inc(x_12);
+lean_dec_ref(x_10);
+x_13 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC___closed__1;
+x_14 = lean_int_mul(x_4, x_13);
 lean_dec(x_4);
-x_14 = lean_int_add(x_13, x_5);
+x_15 = lean_int_add(x_14, x_5);
 lean_dec(x_5);
-lean_dec(x_13);
-x_15 = lean_int_mul(x_10, x_12);
-lean_dec(x_10);
-x_16 = lean_int_add(x_15, x_11);
-lean_dec(x_11);
-lean_dec(x_15);
-x_17 = lean_int_add(x_14, x_16);
-lean_dec(x_16);
 lean_dec(x_14);
-x_18 = l_Std_Time_Duration_ofNanoseconds(x_17);
+x_16 = lean_int_mul(x_11, x_13);
+lean_dec(x_11);
+x_17 = lean_int_add(x_16, x_12);
+lean_dec(x_12);
+lean_dec(x_16);
+x_18 = lean_int_add(x_15, x_17);
 lean_dec(x_17);
-x_19 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_18);
-return x_19;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_subMilliseconds___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Time_PlainDateTime_subMilliseconds(x_1, x_2);
-lean_dec(x_2);
-return x_3;
+lean_dec(x_15);
+x_19 = l_Std_Time_Duration_ofNanoseconds(x_18);
+lean_dec(x_18);
+x_20 = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(x_19);
+return x_20;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_year(lean_object* x_1) {
@@ -4557,7 +4498,7 @@ static lean_object* _init_l_Std_Time_PlainDateTime_instHSubOffset___closed__0() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_subDays___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_subDays), 2, 0);
 return x_1;
 }
 }
@@ -4589,7 +4530,7 @@ static lean_object* _init_l_Std_Time_PlainDateTime_instHSubOffset__1___closed__0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_subWeeks___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_subWeeks), 2, 0);
 return x_1;
 }
 }
@@ -4621,7 +4562,7 @@ static lean_object* _init_l_Std_Time_PlainDateTime_instHSubOffset__2___closed__0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_subHours___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_subHours), 2, 0);
 return x_1;
 }
 }
@@ -4653,7 +4594,7 @@ static lean_object* _init_l_Std_Time_PlainDateTime_instHSubOffset__3___closed__0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_subMinutes___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_subMinutes), 2, 0);
 return x_1;
 }
 }
@@ -4709,7 +4650,7 @@ static lean_object* _init_l_Std_Time_PlainDateTime_instHSubOffset__5___closed__0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_subSeconds___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_subSeconds), 2, 0);
 return x_1;
 }
 }
@@ -4741,7 +4682,7 @@ static lean_object* _init_l_Std_Time_PlainDateTime_instHSubOffset__6___closed__0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_subNanoseconds___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDateTime_subNanoseconds), 2, 0);
 return x_1;
 }
 }

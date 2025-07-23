@@ -236,11 +236,11 @@ lean_dec(x_8);
 x_50 = lean_ctor_get(x_49, 0);
 lean_inc_ref(x_50);
 x_51 = lean_ctor_get(x_49, 2);
-lean_inc(x_51);
+lean_inc_ref(x_51);
 x_52 = lean_ctor_get(x_49, 3);
-lean_inc(x_52);
+lean_inc_ref(x_52);
 x_53 = lean_ctor_get(x_49, 4);
-lean_inc(x_53);
+lean_inc_ref(x_53);
 if (lean_is_exclusive(x_49)) {
  lean_ctor_release(x_49, 0);
  lean_ctor_release(x_49, 1);
@@ -490,7 +490,7 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean
 lean_dec_ref(x_9);
 x_24 = lean_ctor_get(x_14, 0);
 lean_inc(x_24);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_25 = lean_ctor_get(x_24, 1);
 lean_inc(x_25);
 x_26 = lean_ctor_get(x_25, 1);
@@ -730,7 +730,7 @@ return x_37;
 }
 else
 {
-lean_dec(x_34);
+lean_dec_ref(x_34);
 lean_dec_ref(x_26);
 lean_dec(x_31);
 lean_dec(x_30);
@@ -945,7 +945,7 @@ return x_91;
 }
 else
 {
-lean_dec(x_88);
+lean_dec_ref(x_88);
 lean_dec_ref(x_86);
 lean_dec(x_84);
 lean_dec(x_83);
@@ -1210,7 +1210,7 @@ return x_166;
 else
 {
 lean_object* x_167; lean_object* x_168; 
-lean_dec(x_12);
+lean_dec_ref(x_12);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec_ref(x_9);
@@ -1377,7 +1377,7 @@ lean_inc(x_24);
 lean_dec_ref(x_16);
 x_25 = lean_ctor_get(x_17, 0);
 lean_inc(x_25);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 x_26 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_assumptionPure___closed__3;
 lean_inc_ref(x_13);
 x_27 = l_Lean_Expr_const___override(x_26, x_13);
@@ -1589,7 +1589,7 @@ else
 lean_object* x_36; lean_object* x_37; 
 x_36 = lean_ctor_get(x_33, 0);
 lean_inc(x_36);
-lean_dec(x_33);
+lean_dec_ref(x_33);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
@@ -1617,7 +1617,7 @@ goto block_26;
 }
 else
 {
-lean_dec(x_38);
+lean_dec_ref(x_38);
 lean_dec(x_36);
 x_11 = x_37;
 goto block_26;
@@ -1688,7 +1688,7 @@ lean_inc(x_16);
 lean_dec_ref(x_11);
 x_17 = lean_ctor_get(x_12, 0);
 lean_inc(x_17);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 x_18 = l_Lean_MVarId_assign___at___Lean_Elab_Tactic_refineCore_spec__0___redArg(x_1, x_17, x_7, x_16);
 x_19 = lean_ctor_get(x_18, 1);
 lean_inc(x_19);

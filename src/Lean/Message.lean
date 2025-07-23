@@ -442,13 +442,19 @@ code.
 def errorNameSuffix := "_namedError"
 
 /--
+Creates a tag (i.e., message kind) for an error message with (user-facing) name `errorName`.
+-/
+def kindOfErrorName (errorName : Name) : Name :=
+  .str errorName errorNameSuffix
+
+/--
 Produces a `MessageData` tagged with an identifier for error `name`.
 
 Note: this function generally should not be called directly; instead, use the macros `logNamedError`
 and `throwNamedError`.
 -/
 def MessageData.tagWithErrorName (msg : MessageData) (name : Name) : MessageData :=
-  .tagged (.str name errorNameSuffix) msg
+  .tagged (kindOfErrorName name) msg
 
 /--
 If the provided name is labeled as a diagnostic name, removes the label and returns the
@@ -564,7 +570,7 @@ def add (msg : Message) (log : MessageLog) : MessageLog :=
 protected def append (l₁ l₂ : MessageLog) : MessageLog where
   reported := l₁.reported ++ l₂.reported
   unreported := l₁.unreported ++ l₂.unreported
-  loggedKinds := l₁.loggedKinds.union l₂.loggedKinds
+  loggedKinds := l₁.loggedKinds.merge l₂.loggedKinds
 
 instance : Append MessageLog :=
   ⟨MessageLog.append⟩

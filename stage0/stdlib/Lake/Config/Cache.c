@@ -491,7 +491,7 @@ goto block_10;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_fget(x_11, x_15);
 x_17 = l_UInt64_fromJson_x3f(x_16);
@@ -1595,7 +1595,7 @@ lean_inc(x_31);
 if (lean_obj_tag(x_31) == 11)
 {
 uint8_t x_32; 
-lean_dec(x_31);
+lean_dec_ref(x_31);
 lean_dec_ref(x_1);
 x_32 = !lean_is_exclusive(x_5);
 if (x_32 == 0)
@@ -1827,7 +1827,7 @@ x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_12, 1);
 lean_inc(x_15);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 x_16 = 1;
 x_17 = lean_usize_add(x_3, x_16);
 x_3 = x_17;
@@ -1838,7 +1838,7 @@ goto _start;
 }
 else
 {
-lean_dec(x_12);
+lean_dec_ref(x_12);
 return x_11;
 }
 }
@@ -2775,8 +2775,8 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_DHashMap_Internal_AssocList_foldlM___at___Lake_CacheMap_save_spec__3(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_5;
 }
 }
@@ -2790,8 +2790,8 @@ x_8 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_9 = l_Array_foldlMUnsafe_fold___at___Lake_CacheMap_save_spec__4(x_1, x_2, x_3, x_7, x_8, x_6);
 lean_dec_ref(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_9;
 }
 }

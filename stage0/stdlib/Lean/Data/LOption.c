@@ -49,7 +49,7 @@ _start:
 switch (lean_obj_tag(x_2)) {
 case 0:
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -71,10 +71,10 @@ if (lean_obj_tag(x_3) == 1)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_7 = lean_ctor_get(x_3, 0);
 lean_inc(x_7);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_8 = lean_apply_2(x_1, x_6, x_7);
 x_9 = lean_unbox(x_8);
 return x_9;
@@ -83,15 +83,15 @@ else
 {
 uint8_t x_10; 
 lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_10 = 0;
 return x_10;
 }
 }
 default: 
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 if (lean_obj_tag(x_3) == 2)
 {
 uint8_t x_11; 
@@ -194,7 +194,7 @@ switch (lean_obj_tag(x_2)) {
 case 0:
 {
 lean_object* x_3; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lean_instToStringLOption___redArg___lam__0___closed__0;
 return x_3;
 }
@@ -203,7 +203,7 @@ case 1:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Lean_instToStringLOption___redArg___lam__0___closed__1;
 x_6 = lean_apply_1(x_1, x_4);
 x_7 = lean_string_append(x_5, x_6);
@@ -215,7 +215,7 @@ return x_9;
 default: 
 {
 lean_object* x_10; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = l_Lean_instToStringLOption___redArg___lam__0___closed__3;
 return x_10;
 }
@@ -332,10 +332,10 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = lean_ctor_get(x_3, 1);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 lean_dec_ref(x_3);
 x_6 = lean_alloc_closure((void*)(l_toLOptionM___redArg___lam__0), 2, 1);
 lean_closure_set(x_6, 0, x_5);
@@ -350,10 +350,10 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 lean_dec_ref(x_3);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_dec_ref(x_5);
 x_8 = lean_alloc_closure((void*)(l_toLOptionM___redArg___lam__0), 2, 1);
 lean_closure_set(x_8, 0, x_7);

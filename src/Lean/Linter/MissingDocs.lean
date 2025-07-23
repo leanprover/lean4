@@ -34,7 +34,7 @@ unsafe def mkHandlerUnsafe (constName : Name) : ImportM Handler := do
   let env  := (← read).env
   let opts := (← read).opts
   match env.find? constName with
-  | none      => throw ↑s!"unknown constant '{constName}'"
+  | none      => throw ↑s!"Unknown constant `{constName}`"
   | some info => match info.type with
     | Expr.const ``SimpleHandler _ => do
       let h ← IO.ofExcept $ env.evalConst SimpleHandler opts constName

@@ -686,7 +686,7 @@ uint8_t x_4; lean_object* x_5;
 x_4 = l_Lake_Toml_RBDict_beq___at___Lake_Toml_beqValue____x40_Lake_Toml_Data_Value___hyg_171__spec__1(x_1, x_2, x_3);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_box(x_4);
 return x_5;
 }
@@ -1994,7 +1994,7 @@ if (lean_is_exclusive(x_18)) {
 }
 x_22 = lean_ctor_get(x_19, 1);
 lean_inc_ref(x_22);
-lean_dec(x_19);
+lean_dec_ref(x_19);
 x_23 = l_Array_isEmpty___redArg(x_22);
 if (x_23 == 0)
 {
@@ -2162,7 +2162,7 @@ lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean
 lean_dec_ref(x_4);
 x_62 = lean_ctor_get(x_19, 1);
 lean_inc_ref(x_62);
-lean_dec(x_19);
+lean_dec_ref(x_19);
 x_63 = lean_ctor_get(x_18, 0);
 lean_inc(x_63);
 lean_dec_ref(x_18);
@@ -2304,7 +2304,7 @@ if (lean_is_exclusive(x_18)) {
 }
 x_22 = lean_ctor_get(x_19, 1);
 lean_inc_ref(x_22);
-lean_dec(x_19);
+lean_dec_ref(x_19);
 x_23 = l_Array_isEmpty___redArg(x_22);
 if (x_23 == 0)
 {
@@ -2472,7 +2472,7 @@ lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean
 lean_dec_ref(x_4);
 x_62 = lean_ctor_get(x_19, 1);
 lean_inc_ref(x_62);
-lean_dec(x_19);
+lean_dec_ref(x_19);
 x_63 = lean_ctor_get(x_18, 0);
 lean_inc(x_63);
 lean_dec_ref(x_18);

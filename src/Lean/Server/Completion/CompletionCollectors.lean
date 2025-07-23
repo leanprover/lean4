@@ -314,7 +314,7 @@ section DotCompletionUtils
   strip the private prefix from deep in the name, letting us reject most names without
   having to scan the full name first.
   -/
-  private def NameSetModPrivate := RBTree Name cmpModPrivate
+  private def NameSetModPrivate := Std.TreeSet Name cmpModPrivate
 
   /--
     Given a type, try to extract relevant type names for dot notation field completion.
@@ -427,7 +427,7 @@ def dotCompletion
     let nameSet ← try
       getDotCompletionTypeNameSet (← instantiateMVars (← inferType info.expr))
     catch _ =>
-      pure RBTree.empty
+      pure Std.TreeSet.empty
     if nameSet.isEmpty then
       return
 
@@ -462,7 +462,7 @@ def dotIdCompletion
     let nameSet ← try
       getDotCompletionTypeNameSet resultTypeFn
     catch _ =>
-      pure RBTree.empty
+      pure Std.TreeSet.empty
 
     forEligibleDeclsWithCancellationM fun declName c => do
       let unnormedTypeName := declName.getPrefix
@@ -545,7 +545,7 @@ def optionCompletion
     : IO (Array CompletionItem) :=
   ctx.runMetaM {} do
     -- HACK(WN): unfold the type so ForIn works
-    let (decls : RBMap _ _ _) ← getOptionDecls
+    let (decls : Std.TreeMap _ _ _) ← getOptionDecls
     let opts ← getOptions
     -- `stx` is from `"set_option " >> ident`
     return trailingDotCompletion decls stx[1] caps ctx fun name decl textEdit? => {

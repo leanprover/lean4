@@ -623,7 +623,7 @@ case 1:
 lean_object* x_9; lean_object* x_10; 
 x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = l_Lean_CollectLevelParams_visitLevel(x_9, x_2);
 return x_10;
 }
@@ -634,7 +634,7 @@ x_11 = lean_ctor_get(x_1, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_1, 1);
 lean_inc(x_12);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = x_11;
 x_4 = x_12;
 x_5 = x_2;
@@ -647,7 +647,7 @@ x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_1, 1);
 lean_inc(x_14);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = x_13;
 x_4 = x_14;
 x_5 = x_2;
@@ -658,7 +658,7 @@ case 4:
 lean_object* x_15; uint8_t x_16; 
 x_15 = lean_ctor_get(x_1, 0);
 lean_inc(x_15);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_16 = !lean_is_exclusive(x_2);
 if (x_16 == 0)
 {
@@ -737,7 +737,7 @@ x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Lean_CollectLevelParams_visitLevel(x_3, x_1);
 x_1 = x_5;
 x_2 = x_4;

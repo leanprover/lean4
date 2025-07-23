@@ -52,10 +52,10 @@ LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeGet___redArg___boxed(le
 LEAN_EXPORT lean_object* l_Lake_NConfigDecl_targetConfig_x3f___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig___redArg___boxed(lean_object*);
 static lean_object* l_Lake_instInhabitedTargetConfig___lam__0___closed__3;
-lean_object* l_Lake_RBNode_dFind___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeMk(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedTargetConfig___lam__0___closed__2;
+lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedTargetConfig___lam__0___closed__1;
 static lean_object* l_Lake_instInhabitedTargetConfig___lam__0___closed__7;
@@ -186,7 +186,7 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_9;
 }
@@ -472,7 +472,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 11);
-x_4 = l_Lake_RBNode_dFind___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(x_3, x_1);
+x_4 = l_Std_DTreeMap_Internal_Impl_get_x3f___at___Lake_Package_findTargetDecl_x3f_spec__0___redArg(x_3, x_1);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; 

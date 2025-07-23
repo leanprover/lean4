@@ -68,8 +68,8 @@ static lean_object* l_Lake_DSL_elabDirConst___closed__0;
 static lean_object* l_Lake_DSL_elabGetConfig___closed__8;
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_elabDirConst___closed__7;
+lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_elabGetConfig___closed__0;
-lean_object* l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_elabGetConfig___closed__19;
 static lean_object* l_Lake_DSL_elabGetConfig___closed__38;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -290,7 +290,7 @@ else
 lean_object* x_33; uint8_t x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
 x_33 = lean_ctor_get(x_24, 0);
 lean_inc(x_33);
-lean_dec(x_24);
+lean_dec_ref(x_24);
 x_34 = 0;
 x_35 = l_Lean_SourceInfo_fromRef(x_1, x_34);
 x_36 = l_Lean_Syntax_mkStrLit(x_33, x_35);
@@ -899,10 +899,10 @@ else
 lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_41 = lean_ctor_get(x_32, 0);
 lean_inc(x_41);
-lean_dec(x_32);
+lean_dec_ref(x_32);
 x_42 = l_Lean_Syntax_getId(x_30);
 lean_dec(x_30);
-x_43 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_41, x_42);
+x_43 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_41, x_42);
 lean_dec(x_42);
 lean_dec(x_41);
 if (lean_obj_tag(x_43) == 0)
@@ -1080,7 +1080,7 @@ lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; 
 lean_free_object(x_22);
 x_115 = lean_ctor_get(x_43, 0);
 lean_inc(x_115);
-lean_dec(x_43);
+lean_dec_ref(x_43);
 x_116 = lean_st_ref_get(x_8, x_25);
 x_117 = lean_ctor_get(x_116, 0);
 lean_inc(x_117);
@@ -1161,10 +1161,10 @@ else
 lean_object* x_152; lean_object* x_153; lean_object* x_154; 
 x_152 = lean_ctor_get(x_143, 0);
 lean_inc(x_152);
-lean_dec(x_143);
+lean_dec_ref(x_143);
 x_153 = l_Lean_Syntax_getId(x_141);
 lean_dec(x_141);
-x_154 = l_Lean_RBNode_find___at___Lean_NameMap_contains_spec__0___redArg(x_152, x_153);
+x_154 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_152, x_153);
 lean_dec(x_153);
 lean_dec(x_152);
 if (lean_obj_tag(x_154) == 0)
@@ -1268,7 +1268,7 @@ else
 lean_object* x_193; lean_object* x_194; lean_object* x_195; lean_object* x_196; lean_object* x_197; lean_object* x_198; lean_object* x_199; uint8_t x_200; lean_object* x_201; lean_object* x_202; lean_object* x_203; lean_object* x_204; lean_object* x_205; lean_object* x_206; lean_object* x_207; lean_object* x_208; lean_object* x_209; lean_object* x_210; lean_object* x_211; lean_object* x_212; 
 x_193 = lean_ctor_get(x_154, 0);
 lean_inc(x_193);
-lean_dec(x_154);
+lean_dec_ref(x_154);
 x_194 = lean_st_ref_get(x_8, x_136);
 x_195 = lean_ctor_get(x_194, 0);
 lean_inc(x_195);

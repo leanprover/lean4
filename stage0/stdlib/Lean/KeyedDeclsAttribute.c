@@ -89,11 +89,11 @@ LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_init___redArg___lam__8___box
 LEAN_EXPORT lean_object* l_Lean_evalConstCheck___at___Lean_KeyedDeclsAttribute_init_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState___closed__0;
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_ExtensionState_erase(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_KeyedDeclsAttribute_mkStateOfTable___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_ExtensionState_erase___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__23____x40_Lean_KeyedDeclsAttribute___hyg_787_;
 lean_object* lean_decl_get_sorry_dep(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_init___redArg___lam__0(lean_object*);
@@ -113,7 +113,6 @@ LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_KeyedDeclsAttribute_getVa
 static lean_object* l___auto___closed__17____x40_Lean_KeyedDeclsAttribute___hyg_787_;
 static lean_object* l_Lean_KeyedDeclsAttribute_init___redArg___lam__10___closed__13;
 static lean_object* l_Lean_KeyedDeclsAttribute_init___redArg___lam__10___closed__2;
-static lean_object* l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1___closed__1;
 static lean_object* l___auto___closed__3____x40_Lean_KeyedDeclsAttribute___hyg_787_;
 static lean_object* l_Lean_KeyedDeclsAttribute_init___redArg___lam__10___closed__6;
 static lean_object* l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState___closed__10;
@@ -138,7 +137,6 @@ static lean_object* l___auto___closed__1____x40_Lean_KeyedDeclsAttribute___hyg_7
 static lean_object* l_Lean_KeyedDeclsAttribute_instInhabitedDef___closed__0;
 uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_169_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_mkStateOfTable(lean_object*, lean_object*);
-static lean_object* l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1___closed__0;
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_init___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__4____x40_Lean_KeyedDeclsAttribute___hyg_787_;
 lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
@@ -172,6 +170,7 @@ static lean_object* l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState___clo
 lean_object* l___private_Lean_ToExpr_0__Lean_Name_toExprAux(lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_init___redArg___lam__10___closed__11;
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_init___redArg___lam__2(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_empty___at___Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_397__spec__0(lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_add___at___Lean_KeyedDeclsAttribute_init_spec__1___redArg___closed__1;
 lean_object* l_Lean_PersistentHashMap_empty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___redArg(lean_object*, lean_object*);
@@ -489,7 +488,7 @@ else
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_7, 0);
 lean_inc(x_10);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 lean_ctor_set_tag(x_3, 1);
 lean_ctor_set(x_3, 1, x_10);
 lean_ctor_set(x_3, 0, x_2);
@@ -521,7 +520,7 @@ else
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_17 = lean_ctor_get(x_13, 0);
 lean_inc(x_17);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_18 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_18, 0, x_2);
 lean_ctor_set(x_18, 1, x_17);
@@ -728,7 +727,7 @@ lean_inc_ref(x_4);
 lean_dec(x_3);
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec_ref(x_4);
@@ -748,32 +747,6 @@ x_6 = l_List_foldl___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__0___redA
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1___closed__0;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1___closed__1;
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_mkStateOfTable___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -782,14 +755,21 @@ x_4 = l_List_foldl___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__0___redA
 return x_4;
 }
 }
+static lean_object* _init_l_Lean_KeyedDeclsAttribute_mkStateOfTable___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_PersistentHashMap_empty___at___Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_397__spec__0(lean_box(0));
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_mkStateOfTable___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = lean_alloc_closure((void*)(l_Lean_KeyedDeclsAttribute_mkStateOfTable___redArg___lam__0___boxed), 3, 0);
 x_3 = lean_box(0);
-x_4 = l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1(lean_box(0));
-lean_inc_ref(x_4);
+x_4 = l_Lean_KeyedDeclsAttribute_mkStateOfTable___redArg___closed__0;
 x_5 = l_Lean_SMap_fold___at___Lean_getRevAliases_spec__0___redArg(x_2, x_4, x_1);
 x_6 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_6, 0, x_3);
@@ -812,8 +792,8 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_List_foldl___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__0(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_6;
 }
 }
@@ -1820,7 +1800,7 @@ lean_dec(x_14);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 x_31 = !lean_is_exclusive(x_22);
 if (x_31 == 0)
@@ -1845,12 +1825,12 @@ return x_34;
 else
 {
 lean_object* x_35; 
-lean_dec(x_21);
+lean_dec_ref(x_21);
 lean_dec(x_14);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 x_35 = lean_box(0);
@@ -1907,7 +1887,7 @@ lean_dec(x_14);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 x_49 = lean_ctor_get(x_40, 0);
 lean_inc(x_49);
@@ -1934,12 +1914,12 @@ return x_52;
 else
 {
 lean_object* x_53; lean_object* x_54; 
-lean_dec(x_39);
+lean_dec_ref(x_39);
 lean_dec(x_14);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 x_53 = lean_box(0);
@@ -1956,7 +1936,7 @@ uint8_t x_55;
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 x_55 = !lean_is_exclusive(x_13);
@@ -2309,9 +2289,9 @@ if (x_77 == 0)
 lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; 
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_78 = l_Lean_KeyedDeclsAttribute_init___redArg___lam__10___closed__12;
 x_79 = l_Lean_MessageData_ofName(x_7);
@@ -2396,7 +2376,7 @@ lean_dec(x_37);
 if (x_38 == 0)
 {
 lean_dec(x_31);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
 x_14 = x_12;
 x_15 = x_35;
@@ -2444,14 +2424,14 @@ else
 lean_dec(x_12);
 lean_dec_ref(x_11);
 lean_dec(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_53;
 }
 }
 else
 {
 lean_dec(x_31);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
 x_14 = x_12;
 x_15 = x_35;
@@ -2465,7 +2445,7 @@ else
 lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
 lean_dec_ref(x_36);
 lean_dec(x_31);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
 x_57 = l_Lean_KeyedDeclsAttribute_init___redArg___lam__10___closed__1;
 x_58 = l_Lean_MessageData_ofName(x_8);
@@ -2497,7 +2477,7 @@ lean_dec(x_31);
 lean_dec(x_12);
 lean_dec_ref(x_11);
 lean_dec(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_1);
 x_67 = !lean_is_exclusive(x_33);
@@ -2526,7 +2506,7 @@ uint8_t x_71;
 lean_dec(x_12);
 lean_dec_ref(x_11);
 lean_dec(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_1);
 x_71 = !lean_is_exclusive(x_30);
@@ -2616,14 +2596,14 @@ lean_inc_ref(x_21);
 x_22 = lean_ctor_get(x_1, 3);
 lean_inc(x_22);
 x_23 = lean_ctor_get(x_1, 4);
-lean_inc(x_23);
+lean_inc_ref(x_23);
 x_24 = lean_ctor_get(x_1, 5);
-lean_inc(x_24);
+lean_inc_ref(x_24);
 x_25 = l_Lean_KeyedDeclsAttribute_init___redArg___closed__0;
-lean_inc(x_24);
+lean_inc_ref(x_24);
 lean_inc(x_17);
 lean_inc(x_22);
-lean_inc(x_23);
+lean_inc_ref(x_23);
 x_26 = lean_alloc_closure((void*)(l_Lean_KeyedDeclsAttribute_init___redArg___lam__6___boxed), 10, 4);
 lean_closure_set(x_26, 0, x_23);
 lean_closure_set(x_26, 1, x_22);
@@ -2701,8 +2681,8 @@ return x_59;
 }
 else
 {
-lean_dec(x_24);
-lean_dec(x_23);
+lean_dec_ref(x_24);
+lean_dec_ref(x_23);
 lean_dec(x_22);
 lean_dec(x_19);
 x_27 = x_18;
@@ -3075,7 +3055,7 @@ else
 lean_object* x_19; 
 x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 x_10 = x_19;
 goto block_15;
 }
@@ -3312,10 +3292,8 @@ l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState___closed__10 = _init_l_Le
 lean_mark_persistent(l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState___closed__10);
 l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState___closed__11 = _init_l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState___closed__11();
 lean_mark_persistent(l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState___closed__11);
-l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1___closed__0 = _init_l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1___closed__0();
-lean_mark_persistent(l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1___closed__0);
-l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1___closed__1 = _init_l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1___closed__1();
-lean_mark_persistent(l_Lean_PersistentHashMap_empty___at___Lean_KeyedDeclsAttribute_mkStateOfTable_spec__1___closed__1);
+l_Lean_KeyedDeclsAttribute_mkStateOfTable___redArg___closed__0 = _init_l_Lean_KeyedDeclsAttribute_mkStateOfTable___redArg___closed__0();
+lean_mark_persistent(l_Lean_KeyedDeclsAttribute_mkStateOfTable___redArg___closed__0);
 l_Lean_KeyedDeclsAttribute_ExtensionState_erase___redArg___closed__0 = _init_l_Lean_KeyedDeclsAttribute_ExtensionState_erase___redArg___closed__0();
 lean_mark_persistent(l_Lean_KeyedDeclsAttribute_ExtensionState_erase___redArg___closed__0);
 l_Lean_KeyedDeclsAttribute_ExtensionState_erase___redArg___closed__1 = _init_l_Lean_KeyedDeclsAttribute_ExtensionState_erase___redArg___closed__1();

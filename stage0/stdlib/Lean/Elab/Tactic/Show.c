@@ -502,7 +502,7 @@ lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -538,7 +538,7 @@ lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -612,7 +612,7 @@ else
 lean_object* x_21; 
 x_21 = lean_ctor_get(x_15, 1);
 lean_inc(x_21);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_17 = x_21;
 goto block_20;
 }
@@ -626,7 +626,7 @@ return x_19;
 }
 else
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; uint8_t x_35; uint8_t x_50; 
+lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; uint8_t x_35; uint8_t x_50; 
 x_22 = lean_ctor_get(x_3, 0);
 lean_inc(x_22);
 x_23 = lean_ctor_get(x_3, 1);
@@ -675,8 +675,8 @@ block_34:
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; 
-lean_dec_ref(x_25);
-x_30 = l_Lean_Elab_Tactic_SavedState_restore___redArg(x_28, x_26, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_27);
+lean_dec_ref(x_28);
+x_30 = l_Lean_Elab_Tactic_SavedState_restore___redArg(x_27, x_25, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_26);
 x_31 = lean_ctor_get(x_30, 1);
 lean_inc(x_31);
 lean_dec_ref(x_30);
@@ -694,7 +694,7 @@ goto _start;
 }
 else
 {
-lean_dec_ref(x_28);
+lean_dec_ref(x_27);
 lean_dec(x_24);
 lean_dec(x_23);
 lean_dec(x_22);
@@ -709,7 +709,7 @@ lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_25;
+return x_28;
 }
 }
 block_49:
@@ -776,20 +776,20 @@ if (x_45 == 0)
 uint8_t x_46; 
 x_46 = l_Lean_Exception_isRuntime(x_42);
 lean_dec(x_42);
-x_25 = x_41;
-x_26 = x_44;
-x_27 = x_43;
-x_28 = x_37;
+x_25 = x_44;
+x_26 = x_43;
+x_27 = x_37;
+x_28 = x_41;
 x_29 = x_46;
 goto block_34;
 }
 else
 {
 lean_dec(x_42);
-x_25 = x_41;
-x_26 = x_44;
-x_27 = x_43;
-x_28 = x_37;
+x_25 = x_44;
+x_26 = x_43;
+x_27 = x_37;
+x_28 = x_41;
 x_29 = x_45;
 goto block_34;
 }

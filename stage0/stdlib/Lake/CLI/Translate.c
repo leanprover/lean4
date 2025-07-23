@@ -22,7 +22,7 @@ lean_object* l_Lean_Core_getMaxHeartbeats(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_mkConfigString___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(lean_object*, lean_object*);
+lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeTSyntax(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -59,6 +59,7 @@ static lean_object* l_Lake_Package_mkConfigString___closed__28;
 static lean_object* l_Lake_Package_mkConfigString___closed__37;
 static lean_object* l_Lake_Package_mkConfigString___closed__9;
 static lean_object* l_Lake_Package_mkConfigString___closed__0;
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_diagnostics;
 static lean_object* l_Lake_Package_mkConfigString___closed__8;
 extern lean_object* l_Lean_inheritedTraceOptions;
@@ -68,7 +69,6 @@ static lean_object* l_Lake_Package_mkConfigString___closed__25;
 static lean_object* l_Lake_Package_mkConfigString___closed__23;
 static lean_object* l_Lake_Package_mkConfigString___closed__15;
 static lean_object* l_Lake_Package_mkConfigString___closed__31;
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Lake_CLI_Translate_0__Lake_descopeSyntax_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__36;
@@ -451,7 +451,7 @@ static lean_object* _init_l_Lake_Package_mkConfigString___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lake_Package_mkConfigString___closed__18;
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -591,7 +591,7 @@ _start:
 lean_object* x_1; lean_object* x_2; uint8_t x_3; 
 x_1 = l_Lake_Package_mkConfigString___closed__31;
 x_2 = lean_box(0);
-x_3 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_2, x_1);
+x_3 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_2, x_1);
 return x_3;
 }
 }
@@ -609,7 +609,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_Package_mkConfigString___closed__33;
 x_2 = lean_box(0);
-x_3 = l_Lean_Option_get___at___Lean_profiler_threshold_getSecs_spec__0(x_2, x_1);
+x_3 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_2, x_1);
 return x_3;
 }
 }
@@ -883,7 +883,7 @@ lean_inc(x_104);
 lean_dec_ref(x_63);
 x_105 = lean_ctor_get(x_103, 1);
 lean_inc_ref(x_105);
-lean_dec(x_103);
+lean_dec_ref(x_103);
 x_106 = l_Lean_MessageData_toString(x_105, x_104);
 x_107 = lean_ctor_get(x_106, 0);
 lean_inc(x_107);
@@ -904,7 +904,7 @@ lean_inc(x_110);
 lean_dec_ref(x_63);
 x_111 = lean_ctor_get(x_103, 0);
 lean_inc(x_111);
-lean_dec(x_103);
+lean_dec_ref(x_103);
 x_112 = l_Lake_Package_mkConfigString___closed__36;
 x_113 = l_Nat_reprFast(x_111);
 x_114 = lean_string_append(x_112, x_113);

@@ -722,7 +722,7 @@ lean_object* x_92; lean_object* x_93;
 lean_dec_ref(x_2);
 x_92 = lean_ctor_get(x_91, 0);
 lean_inc(x_92);
-lean_dec(x_91);
+lean_dec_ref(x_91);
 x_93 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_93, 0, x_92);
 lean_ctor_set(x_93, 1, x_3);

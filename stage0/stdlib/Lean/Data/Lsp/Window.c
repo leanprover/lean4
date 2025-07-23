@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp.Window
-// Imports: Lean.Data.Json
+// Imports: Lean.Data.Json.FromToJson.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -578,7 +578,7 @@ if (lean_obj_tag(x_5) == 2)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
@@ -1054,7 +1054,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_4);
 x_1 = x_5;
 x_2 = x_6;
@@ -1474,7 +1474,7 @@ if (lean_obj_tag(x_1) == 4)
 lean_object* x_2; size_t x_3; size_t x_4; lean_object* x_5; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_array_size(x_2);
 x_4 = 0;
 x_5 = l_Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___fromJsonShowMessageRequestParams____x40_Lean_Data_Lsp_Window___hyg_461__spec__0_spec__0_spec__0_spec__0(x_3, x_4, x_2);
@@ -2046,7 +2046,7 @@ else
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Array_toJson___at___Lean_Json_opt___at___toJsonShowMessageRequestParams____x40_Lean_Data_Lsp_Window___hyg_606__spec__0_spec__0(x_4);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_1);
@@ -2204,13 +2204,13 @@ x_1 = l_instShowMessageResponseToJson___closed__0;
 return x_1;
 }
 }
-lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Json_FromToJson_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Lsp_Window(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_Json(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Json_FromToJson_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instFromJsonMessageType___lam__0___closed__0 = _init_l_instFromJsonMessageType___lam__0___closed__0();

@@ -31,7 +31,6 @@ static lean_object* l_Lake_BuildType_leancArgs___closed__12;
 static lean_object* l_Lake_reprLeanConfig___redArg___closed__17____x40_Lake_Config_LeanConfig___hyg_1177_;
 static lean_object* l_Lake_BuildType_ofString_x3f___closed__1;
 static lean_object* l_Lake_reprBuildType___closed__1____x40_Lake_Config_LeanConfig___hyg_20_;
-lean_object* l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanConfig_instConfigMeta___closed__8;
 static lean_object* l_Lake_LeanConfig___fields___closed__40;
 static lean_object* l_Lake_reprBuildType___closed__0____x40_Lake_Config_LeanConfig___hyg_20_;
@@ -198,6 +197,7 @@ LEAN_EXPORT lean_object* l_Lake_LeanConfig_moreServerOptions___proj___lam__2(lea
 static lean_object* l_Lake_BuildType_leanOptions___closed__1;
 static lean_object* l_Lake_reprLeanConfig___redArg___closed__39____x40_Lake_Config_LeanConfig___hyg_1177_;
 static lean_object* l_Lake_LeanConfig_instConfigMeta___closed__2;
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToStringBackend;
 static lean_object* l_Lake_BuildType_leancArgs___closed__9;
 static lean_object* l_Lake_LeanConfig___fields___closed__29;
@@ -2020,7 +2020,7 @@ _start:
 {
 if (lean_obj_tag(x_4) == 0)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -2037,7 +2037,7 @@ lean_inc(x_1);
 lean_ctor_set_tag(x_4, 5);
 lean_ctor_set(x_4, 1, x_1);
 lean_ctor_set(x_4, 0, x_3);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_8 = lean_apply_1(x_2, x_6);
 x_9 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_9, 0, x_4);
@@ -2058,7 +2058,7 @@ lean_inc(x_1);
 x_13 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_13, 0, x_3);
 lean_ctor_set(x_13, 1, x_1);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_14 = lean_apply_1(x_2, x_11);
 x_15 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
@@ -2099,7 +2099,7 @@ lean_object* x_5; lean_object* x_6;
 lean_dec(x_2);
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_Lean_reprLeanOption___redArg____x40_Lean_Util_LeanOptions___hyg_564_(x_5);
 return x_6;
 }
@@ -2108,7 +2108,7 @@ else
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_alloc_closure((void*)(l_Std_Format_joinSep___at___Array_Array_repr___at___Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1177__spec__0_spec__0___lam__0), 1, 0);
 x_9 = l_Lean_reprLeanOption___redArg____x40_Lean_Util_LeanOptions___hyg_564_(x_7);
 x_10 = l_List_foldl___at___Std_Format_joinSep___at___Array_Array_repr___at___Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1177__spec__0_spec__0_spec__0(x_2, x_8, x_9, x_4);
@@ -2282,7 +2282,7 @@ _start:
 {
 if (lean_obj_tag(x_4) == 0)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -2299,7 +2299,7 @@ lean_inc(x_1);
 lean_ctor_set_tag(x_4, 5);
 lean_ctor_set(x_4, 1, x_1);
 lean_ctor_set(x_4, 0, x_3);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_8 = lean_apply_1(x_2, x_6);
 x_9 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_9, 0, x_4);
@@ -2320,7 +2320,7 @@ lean_inc(x_1);
 x_13 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_13, 0, x_3);
 lean_ctor_set(x_13, 1, x_1);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_14 = lean_apply_1(x_2, x_11);
 x_15 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
@@ -2358,7 +2358,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_alloc_closure((void*)(l_Std_Format_joinSep___at___Array_Array_repr___at___Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1177__spec__4_spec__4___lam__0), 1, 0);
 if (lean_obj_tag(x_5) == 0)
 {
@@ -2421,7 +2421,7 @@ _start:
 {
 if (lean_obj_tag(x_4) == 0)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -2438,7 +2438,7 @@ lean_inc(x_1);
 lean_ctor_set_tag(x_4, 5);
 lean_ctor_set(x_4, 1, x_1);
 lean_ctor_set(x_4, 0, x_3);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_8 = lean_apply_1(x_2, x_6);
 x_9 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_9, 0, x_4);
@@ -2459,7 +2459,7 @@ lean_inc(x_1);
 x_13 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_13, 0, x_3);
 lean_ctor_set(x_13, 1, x_1);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_14 = lean_apply_1(x_2, x_11);
 x_15 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
@@ -2488,7 +2488,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_alloc_closure((void*)(l_Std_Format_joinSep___at___Array_Array_repr___at___Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1177__spec__4_spec__4___lam__0), 1, 0);
 if (lean_obj_tag(x_5) == 0)
 {
@@ -6739,7 +6739,7 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-x_4 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_1, x_3, x_2);
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }
@@ -6864,7 +6864,7 @@ static lean_object* _init_l_Lake_LeanConfig_instConfigMeta___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_box(1);
 x_2 = l_Lake_LeanConfig___fields;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
@@ -6895,7 +6895,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_1 = l_Lake_LeanConfig___fields;
-x_2 = lean_box(0);
+x_2 = lean_box(1);
 x_3 = l_Lake_LeanConfig_instConfigMeta___closed__10;
 x_4 = l_Lake_LeanConfig_instConfigMeta___closed__11;
 if (x_4 == 0)
@@ -6995,10 +6995,10 @@ static lean_object* _init_l_Lake_BuildType_leanOptions___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lake_BuildType_leanOptions___closed__2;
-x_2 = l_Lake_BuildType_leanOptions___closed__1;
-x_3 = lean_box(0);
-x_4 = l_Lean_RBNode_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
+x_1 = lean_box(1);
+x_2 = l_Lake_BuildType_leanOptions___closed__2;
+x_3 = l_Lake_BuildType_leanOptions___closed__1;
+x_4 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_3, x_2, x_1);
 return x_4;
 }
 }
@@ -7017,7 +7017,7 @@ else
 {
 lean_object* x_4; 
 lean_dec(x_2);
-x_4 = lean_box(0);
+x_4 = lean_box(1);
 return x_4;
 }
 }

@@ -124,6 +124,14 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
   else
     pure ()
 
+/--
+The error name for "failed to infer definition type" errors.
+
+We cannot use `logNamedError` here because the error is logged later, after attempting to synthesize
+metavariables, in `logUnassignedUsingErrorInfos`.
+-/
+def failedToInferDefTypeErrorName := `lean.inferDefTypeFailed
+
 private def registerFailedToInferDefTypeInfo (type : Expr) (view : DefView) :
     TermElabM Unit :=
   let ref := view.type?.getD <| match view.kind with
@@ -138,7 +146,7 @@ private def registerFailedToInferDefTypeInfo (type : Expr) (view : DefView) :
       else m!"instance"
     | .theorem  => m!"theorem `{view.declId}`"
     | _         => m!"definition `{view.declId}`"
-  registerCustomErrorIfMVar type ref m!"Failed to infer type of {msg}"
+  registerCustomErrorIfMVar type ref (m!"Failed to infer type of {msg}".tagWithErrorName failedToInferDefTypeErrorName)
 
 /--
   Return `some [b, c]` if the given `views` are representing a declaration of the form
@@ -159,12 +167,16 @@ private def getPendingMVarErrorMessage (views : Array DefView) : MessageData :=
   | some ids =>
     let idsStr := ", ".intercalate <| ids.map fun id => s!"`{id}`"
     let paramsStr := ", ".intercalate <| ids.map fun id => s!"`({id} : _)`"
-    MessageData.note m!"Recall that you cannot declare multiple constants in a single declaration. The identifier(s) {idsStr} are being interpreted as parameters {paramsStr}."
+    MessageData.note m!"Multiple constants cannot be declared in a single declaration. \
+      The identifier(s) {idsStr} are being interpreted as parameters {paramsStr}."
   | none =>
     if views.all fun view => view.kind.isTheorem then
-      MessageData.note "All holes (e.g., `_`) in the header of a theorem are resolved before the proof is processed; information from the proof cannot be used to infer what these values should be"
+      MessageData.note "All parameter types and holes (e.g., `_`) in the header of a theorem are resolved \
+        before the proof is processed; information from the proof cannot be used to infer what these values should be"
     else
-      MessageData.note "When the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
+      MessageData.note "Because this declaration's type has been explicitly provided, all parameter \
+        types and holes (e.g., `_`) in its header are resolved before its body is processed; \
+        information from the declaration body cannot be used to infer what these values should be"
 
 /--
 Convert terms of the form `OfNat <type> (OfNat.ofNat Nat <num> ..)` into `OfNat <type> <num>`.
@@ -776,7 +788,7 @@ private def modifyUsedFVars (f : UsedFVarsMap → UsedFVarsMap) : M Unit := modi
 
 -- merge s₂ into s₁
 private def merge (s₁ s₂ : FVarIdSet) : M FVarIdSet :=
-  s₂.foldM (init := s₁) fun s₁ k => do
+  s₂.foldlM (init := s₁) fun s₁ k => do
     if s₁.contains k then
       return s₁
     else
@@ -785,14 +797,14 @@ private def merge (s₁ s₂ : FVarIdSet) : M FVarIdSet :=
 
 private def updateUsedVarsOf (fvarId : FVarId) : M Unit := do
   let usedFVarsMap ← getUsedFVarsMap
-  match usedFVarsMap.find? fvarId with
+  match usedFVarsMap.get? fvarId with
   | none         => return ()
   | some fvarIds =>
-    let fvarIdsNew ← fvarIds.foldM (init := fvarIds) fun fvarIdsNew fvarId' => do
+    let fvarIdsNew ← fvarIds.foldlM (init := fvarIds) fun fvarIdsNew fvarId' => do
       if fvarId == fvarId' then
         return fvarIdsNew
       else
-        match usedFVarsMap.find? fvarId' with
+        match usedFVarsMap.get? fvarId' with
         | none => return fvarIdsNew
           /- We are being sloppy here `otherFVarIds` may contain free variables that are
              not in the context of the let-rec associated with fvarId.
@@ -825,8 +837,8 @@ private def mkFreeVarMap [Monad m] [MonadMCtx m]
   let mut freeVarMap := {}
   for toLift in letRecsToLift do
     let lctx       := toLift.lctx
-    let fvarIdsSet := usedFVarsMap.find? toLift.fvarId |>.get!
-    let fvarIds    := fvarIdsSet.fold (init := #[]) fun fvarIds fvarId =>
+    let fvarIdsSet := usedFVarsMap.get? toLift.fvarId |>.get!
+    let fvarIds    := fvarIdsSet.foldl (init := #[]) fun fvarIds fvarId =>
       if lctx.contains fvarId && !recFVarIds.contains fvarId then
         fvarIds.push fvarId
       else
@@ -851,7 +863,7 @@ private def preprocess (e : Expr) : TermElabM Expr := do
 
 /-- Push free variables in `s` to `toProcess` if they are not already there. -/
 private def pushNewVars (toProcess : Array FVarId) (s : CollectFVars.State) : Array FVarId :=
-  s.fvarSet.fold (init := toProcess) fun toProcess fvarId =>
+  s.fvarSet.foldl (init := toProcess) fun toProcess fvarId =>
     if toProcess.contains fvarId then toProcess else toProcess.push fvarId
 
 private def pushLocalDecl (toProcess : Array FVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) (kind : LocalDeclKind)
@@ -931,7 +943,7 @@ private def mkLetRecClosureFor (toLift : LetRecToLift) (freeVars : Array FVarId)
     let s ← mkClosureFor freeVars <| xs.map fun x => lctx.get! x.fvarId!
     /- Apply original type binder info and user-facing names to local declarations. -/
     let typeLocalDecls := s.localDecls.map fun localDecl =>
-      if let some (userName, bi) := userNameBinderInfoMap.find? localDecl.fvarId then
+      if let some (userName, bi) := userNameBinderInfoMap.get? localDecl.fvarId then
         localDecl.setBinderInfo bi |>.setUserName userName
       else
         localDecl
@@ -961,7 +973,7 @@ private def mkLetRecClosures (sectionVars : Array Expr) (mainFVarIds : Array FVa
       -- We have to recompute the `freeVarMap` in this case. This overhead should not be an issue in practice.
       freeVarMap ← mkFreeVarMap sectionVars mainFVarIds recFVarIds letRecsToLift
     let toLift := letRecsToLift[i]!
-    result := result.push (← mkLetRecClosureFor toLift (freeVarMap.find? toLift.fvarId).get!)
+    result := result.push (← mkLetRecClosureFor toLift (freeVarMap.get? toLift.fvarId).get!)
   return result.toList
 
 /-- Mapping from FVarId of mutually recursive functions being defined to "closure" expression. -/
@@ -986,13 +998,13 @@ def isApplicable (r : Replacement) (e : Expr) : Bool :=
       .done
 
 def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
-  -- Remark: if `r` is not a singlenton, then declaration is using `mutual` or `let rec`,
+  -- Remark: if `r` is not a singleton, then declaration is using `mutual` or `let rec`,
   -- and there is a big chance `isApplicable r e` is true.
-  if r.isSingleton && !isApplicable r e then
+  if r.size == 1 && !isApplicable r e then
     e
   else
     e.replace fun e => match e with
-      | .fvar fvarId => match r.find? fvarId with
+      | .fvar fvarId => match r.get? fvarId with
         | some c => some c
         | _      => none
       | _ => none

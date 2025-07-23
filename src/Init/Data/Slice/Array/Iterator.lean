@@ -99,17 +99,26 @@ none
 def Subarray.foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=
   Slice.foldlM f (init := init) as
 
+/--
+Folds an operation from left to right over the elements in a subarray.
+An accumulator of type `β` is constructed by starting with `init` and combining each
+element of the subarray with the current accumulator value in turn.
+Examples:
+ * `#["red", "green", "blue"].toSubarray.foldl (· + ·.length) 0 = 12`
+ * `#["red", "green", "blue"].toSubarray.popFront.foldl (· + ·.length) 0 = 9`
+-/
+@[inline]
+def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Subarray α) : β :=
+  Slice.foldl f (init := init) as
+
 namespace Array
 
 /--
 Allocates a new array that contains the contents of the subarray.
 -/
 @[coe]
-def ofSubarray (s : Subarray α) : Array α := Id.run do
-  let mut as := mkEmpty (s.stop - s.start)
-  for a in s do
-    as := as.push a
-  return as
+def ofSubarray (s : Subarray α) : Array α :=
+  Slice.toArray s
 
 instance : Coe (Subarray α) (Array α) := ⟨ofSubarray⟩
 
@@ -129,3 +138,7 @@ instance [ToString α] : ToString (Subarray α) where
   toString s := toString s.toArray
 
 end Array
+
+@[inherit_doc Array.ofSubarray]
+def Subarray.toArray (s : Subarray α) : Array α :=
+  Array.ofSubarray s

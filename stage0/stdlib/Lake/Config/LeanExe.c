@@ -462,13 +462,13 @@ x_8 = l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__0;
 x_9 = l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__2;
 x_10 = 0;
 x_11 = l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__4;
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_inc_ref(x_6);
 lean_inc_ref(x_5);
 lean_inc_ref(x_4);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
-x_12 = lean_alloc_ctor(0, 9, 1);
+x_12 = lean_alloc_ctor(0, 9, 2);
 lean_ctor_set(x_12, 0, x_2);
 lean_ctor_set(x_12, 1, x_3);
 lean_ctor_set(x_12, 2, x_8);
@@ -479,6 +479,7 @@ lean_ctor_set(x_12, 6, x_6);
 lean_ctor_set(x_12, 7, x_11);
 lean_ctor_set(x_12, 8, x_7);
 lean_ctor_set_uint8(x_12, sizeof(void*)*9, x_10);
+lean_ctor_set_uint8(x_12, sizeof(void*)*9 + 1, x_10);
 return x_12;
 }
 }

@@ -42,6 +42,7 @@ lean_object* l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_mkConst
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMLeft___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMLeft___regBuiltin_Lean_Elab_Tactic_Do_ProofMode_elabMLeft__1(lean_object*);
 lean_object* l_Lean_Elab_Tactic_replaceMainGoal___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMLeft___regBuiltin_Lean_Elab_Tactic_Do_ProofMode_elabMLeft__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMLeft___redArg___lam__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -67,7 +68,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMRight(lean_object*
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mLeftRightCore___closed__8;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_parseMGoal_x3f(lean_object*);
-lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMLeft(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMRight___regBuiltin_Lean_Elab_Tactic_Do_ProofMode_elabMRight__1___closed__0;
 static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_mLeftRightCore___closed__0() {
@@ -190,7 +190,7 @@ lean_inc(x_17);
 x_18 = lean_ctor_get(x_16, 1);
 lean_inc(x_18);
 lean_dec_ref(x_16);
-x_19 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__1___redArg(x_17, x_4, x_18);
+x_19 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__0___redArg(x_17, x_4, x_18);
 x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_19, 1);
@@ -212,7 +212,7 @@ else
 lean_object* x_25; lean_object* x_26; 
 x_25 = lean_ctor_get(x_22, 0);
 lean_inc(x_25);
-lean_dec(x_22);
+lean_dec_ref(x_22);
 x_26 = lean_ctor_get(x_25, 3);
 lean_inc_ref(x_26);
 if (lean_obj_tag(x_26) == 5)
@@ -281,18 +281,18 @@ lean_inc_ref(x_40);
 lean_dec_ref(x_28);
 x_41 = lean_ctor_get(x_30, 1);
 lean_inc_ref(x_41);
-lean_dec(x_30);
+lean_dec_ref(x_30);
 x_42 = lean_ctor_get(x_31, 1);
 lean_inc_ref(x_42);
-lean_dec(x_31);
+lean_dec_ref(x_31);
 x_43 = lean_ctor_get(x_32, 1);
 lean_inc_ref(x_43);
-lean_dec(x_32);
+lean_dec_ref(x_32);
 x_44 = lean_ctor_get(x_33, 0);
 lean_inc(x_44);
 x_45 = lean_ctor_get(x_33, 1);
 lean_inc_ref(x_45);
-lean_dec(x_33);
+lean_dec_ref(x_33);
 if (lean_obj_tag(x_44) == 0)
 {
 lean_object* x_76; uint8_t x_77; 
@@ -535,9 +535,9 @@ return x_74;
 else
 {
 lean_dec(x_33);
-lean_dec(x_32);
-lean_dec(x_31);
-lean_dec(x_30);
+lean_dec_ref(x_32);
+lean_dec_ref(x_31);
+lean_dec_ref(x_30);
 lean_dec_ref(x_28);
 lean_dec_ref(x_27);
 lean_dec_ref(x_26);
@@ -554,8 +554,8 @@ goto block_15;
 else
 {
 lean_dec(x_32);
-lean_dec(x_31);
-lean_dec(x_30);
+lean_dec_ref(x_31);
+lean_dec_ref(x_30);
 lean_dec_ref(x_28);
 lean_dec_ref(x_27);
 lean_dec_ref(x_26);
@@ -572,7 +572,7 @@ goto block_15;
 else
 {
 lean_dec(x_31);
-lean_dec(x_30);
+lean_dec_ref(x_30);
 lean_dec_ref(x_28);
 lean_dec_ref(x_27);
 lean_dec_ref(x_26);

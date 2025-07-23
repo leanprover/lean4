@@ -434,7 +434,7 @@ x_33 = lean_ctor_get(x_26, 0);
 lean_inc(x_33);
 x_34 = lean_ctor_get(x_26, 2);
 lean_inc(x_34);
-lean_dec(x_26);
+lean_dec_ref(x_26);
 x_35 = l_Lean_Elab_Tactic_evalInjection___lam__0___closed__1;
 x_36 = l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_checkUnusedIds(x_35, x_23, x_34, x_7, x_8, x_9, x_10, x_32);
 if (lean_obj_tag(x_36) == 0)
@@ -899,7 +899,7 @@ x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec_ref(x_21);
 x_24 = lean_unsigned_to_nat(5u);
-x_25 = lean_box(0);
+x_25 = lean_box(1);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
@@ -951,7 +951,7 @@ x_34 = lean_ctor_get(x_27, 0);
 lean_inc(x_34);
 x_35 = lean_ctor_get(x_27, 1);
 lean_inc(x_35);
-lean_dec(x_27);
+lean_dec_ref(x_27);
 x_36 = l_Lean_Elab_Tactic_evalInjections___lam__0___closed__1;
 x_37 = l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_checkUnusedIds(x_36, x_22, x_35, x_6, x_7, x_8, x_9, x_33);
 if (lean_obj_tag(x_37) == 0)

@@ -108,6 +108,7 @@ static lean_object* l_Std_Time_Month_Ordinal_days___closed__32;
 static lean_object* l_Std_Time_Month_Ordinal_days___closed__21;
 static lean_object* l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_monthSizesNonLeap___closed__24;
 lean_object* l_Std_Time_Internal_Bounded_instOrd___lam__0___boxed(lean_object*);
+extern lean_object* l_Std_Time_Day_instOffsetAdd;
 lean_object* l_Int_sub___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_monthSizesNonLeap___closed__32;
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
@@ -185,6 +186,7 @@ static lean_object* l_Std_Time_Month_Ordinal_days___closed__28;
 static lean_object* l_Std_Time_Month_Ordinal_days___closed__12;
 static lean_object* l___private_Std_Time_Date_Unit_Month_0__Std_Time_Month_Ordinal_monthSizesNonLeap___closed__10;
 static lean_object* l_Std_Time_Month_Ordinal_may___closed__1;
+extern lean_object* l_Std_Time_Second_instOffsetAdd;
 LEAN_EXPORT lean_object* l_Std_Time_Month_Offset_ofNat(lean_object*);
 static lean_object* l_Std_Time_Month_Ordinal_december___closed__4;
 LEAN_EXPORT lean_object* l_Std_Time_Month_instOrdOrdinal;
@@ -2472,11 +2474,11 @@ return x_8;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = l_Std_Time_Month_Ordinal_toSeconds___closed__26;
-x_12 = lean_int_add(x_8, x_11);
-lean_dec(x_8);
-return x_12;
+x_12 = l_Std_Time_Second_instOffsetAdd;
+x_13 = lean_apply_2(x_12, x_8, x_11);
+return x_13;
 }
 }
 }
@@ -3633,30 +3635,30 @@ x_8 = lean_array_fget(x_4, x_7);
 lean_dec(x_7);
 if (x_1 == 0)
 {
-lean_object* x_9; 
-x_9 = lean_int_add(x_8, x_3);
-lean_dec(x_8);
-return x_9;
+lean_object* x_9; lean_object* x_10; 
+x_9 = l_Std_Time_Day_instOffsetAdd;
+x_10 = lean_apply_2(x_9, x_8, x_3);
+return x_10;
 }
 else
 {
-lean_object* x_10; uint8_t x_11; 
-x_10 = l_Std_Time_Month_Ordinal_days___closed__0;
-x_11 = lean_int_dec_lt(x_10, x_2);
-if (x_11 == 0)
-{
-lean_object* x_12; 
-x_12 = lean_int_add(x_8, x_3);
-lean_dec(x_8);
-return x_12;
-}
-else
+lean_object* x_11; uint8_t x_12; 
+x_11 = l_Std_Time_Month_Ordinal_days___closed__0;
+x_12 = lean_int_dec_lt(x_11, x_2);
+if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
-x_13 = l_Std_Time_Month_Ordinal_cumulativeDays___closed__0;
-x_14 = lean_int_add(x_8, x_13);
-lean_dec(x_8);
+x_13 = l_Std_Time_Day_instOffsetAdd;
+x_14 = lean_apply_2(x_13, x_8, x_3);
 return x_14;
+}
+else
+{
+lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = l_Std_Time_Month_Ordinal_cumulativeDays___closed__0;
+x_16 = l_Std_Time_Day_instOffsetAdd;
+x_17 = lean_apply_2(x_16, x_8, x_15);
+return x_17;
 }
 }
 }

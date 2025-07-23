@@ -923,7 +923,7 @@ else
 lean_object* x_22; lean_object* x_23; 
 x_22 = lean_ctor_get(x_15, 0);
 lean_inc(x_22);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_23 = lean_array_push(x_5, x_22);
 x_17 = x_23;
 goto block_21;

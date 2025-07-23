@@ -151,7 +151,7 @@ else
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = l_Lean_mkPrivateName(x_1, x_6);
 lean_dec_ref(x_1);
 x_8 = lean_name_eq(x_7, x_2);

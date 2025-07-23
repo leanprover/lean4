@@ -59,8 +59,11 @@ test_out "Built Test.NonModuleTransImport" build Test.NonModuleTransImport -v
 echo "# TEST: private edit"
 test_cmd sed_i 's/bar/baz/' Test/Generated/Module.lean
 old_hash=$(cat .lake/build/lib/lean/Test/Generated/Module.olean.private.hash)
+old_pub_hash=$(cat .lake/build/lib/lean/Test/Generated/Module.olean.hash)
 test_out "Built Test.Generated.Module" build Test.Generated.Module -v
+new_pub_hash=$(cat .lake/build/lib/lean/Test/Generated/Module.olean.hash)
 new_hash=$(cat .lake/build/lib/lean/Test/Generated/Module.olean.private.hash)
+test_exp $old_pub_hash == $new_pub_hash
 test_exp $old_hash != $new_hash
 # should not trigger a rebuild on a plain `import` in a module
 test_run build Test.ModuleImport --no-build
@@ -82,6 +85,34 @@ test_exp $old_hash != $new_hash
 # should not trigger a rebuild on a plain `import` in a module
 test_run build Test.ModuleImport --no-build
 # should trigger a rebuild on an `import all` in a module
+test_out "Built Test.ModuleImportAll" build Test.ModuleImportAll -v
+# should trigger a rebuild for a non-module direct import
+test_out "Built Test.NonModuleImport" build Test.NonModuleImport -v
+# should trigger a rebuild for a non-module transitive import
+test_out "Built Test.NonModuleTransImport" build Test.NonModuleTransImport -v
+
+# Tests a meta edit of an import
+echo "# TEST: meta edit"
+test_cmd sed_i 's/baz/ipsum/' Test/Generated/Module.lean
+old_hash=$(cat .lake/build/lib/lean/Test/Generated/Module.ir.hash)
+old_pub_hash=$(cat .lake/build/lib/lean/Test/Generated/Module.olean.hash)
+test_out "Built Test.Generated.Module" build Test.Generated.Module -v
+new_pub_hash=$(cat .lake/build/lib/lean/Test/Generated/Module.olean.hash)
+new_hash=$(cat .lake/build/lib/lean/Test/Generated/Module.ir.hash)
+test_exp $old_pub_hash == $new_pub_hash
+test_exp $old_hash != $new_hash
+# should not trigger a rebuild on a plain `import` in a module
+test_run build Test.ModuleImport --no-build
+# should trigger a rebuild on a `meta import`
+test_out "Built Test.ModuleMetaImport" build Test.ModuleMetaImport -v
+test_out "Built Test.ModulePrivateMetaImport" build Test.ModulePrivateMetaImport -v
+# should trigger a rebuild on a transitive `meta import`
+test_out "Built Test.ModuleMetaTransImport" build Test.ModuleMetaTransImport -v
+# should trigger a rebuild on module transitive import of a `public meta import`
+test_out "Built Test.ModuleTransMetaImport" build Test.ModuleTransMetaImport -v
+# should not trigger a rebuild on module transitive import of a private `meta import`
+test_run build Test.ModuleTransPrivateMetaImport --no-build
+# should trigger a rebuild on an `import all`
 test_out "Built Test.ModuleImportAll" build Test.ModuleImportAll -v
 # should trigger a rebuild for a non-module direct import
 test_out "Built Test.NonModuleImport" build Test.NonModuleImport -v

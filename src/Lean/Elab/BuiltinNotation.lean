@@ -291,7 +291,7 @@ where
   -/
   go : Syntax → StateT (Array Ident) MacroM Syntax
   | stx@`($_:hygienicLParen$(_))) => pure stx
-  | stx@`(·) => do
+  | stx@`($_:cdot) => do
     let name ← MonadQuotation.addMacroScope <| Name.mkSimple s!"x{(← get).size + 1}"
     let id := mkIdentFrom stx name (canonical := true)
     modify (fun s => s.push id)

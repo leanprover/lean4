@@ -940,7 +940,7 @@ lean_dec(x_8);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 x_18 = lean_ctor_get(x_5, 1);
-lean_inc(x_18);
+lean_inc_ref(x_18);
 lean_dec_ref(x_5);
 x_19 = lean_box(0);
 x_20 = lean_apply_2(x_18, lean_box(0), x_19);
@@ -956,7 +956,7 @@ x_5 = l_Lean_KVMap_instValueNat;
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 x_8 = lean_alloc_closure((void*)(l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___redArg___lam__0___boxed), 6, 5);
 lean_closure_set(x_8, 0, x_5);
 lean_closure_set(x_8, 1, x_4);
@@ -1496,7 +1496,7 @@ else
 lean_object* x_35; lean_object* x_36; 
 x_35 = lean_ctor_get(x_33, 0);
 lean_inc(x_35);
-lean_dec(x_33);
+lean_dec_ref(x_33);
 x_36 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at___Lean_Elab_Level_elabLevel_spec__2(x_35, x_2, x_30);
 lean_dec_ref(x_2);
 if (lean_obj_tag(x_36) == 0)
@@ -1711,7 +1711,7 @@ else
 lean_object* x_80; lean_object* x_81; 
 x_80 = lean_ctor_get(x_78, 0);
 lean_inc(x_80);
-lean_dec(x_78);
+lean_dec_ref(x_78);
 x_81 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at___Lean_Elab_Level_elabLevel_spec__2(x_80, x_2, x_3);
 lean_dec_ref(x_2);
 if (lean_obj_tag(x_81) == 0)
@@ -2121,7 +2121,7 @@ else
 lean_object* x_185; lean_object* x_186; 
 x_185 = lean_ctor_get(x_183, 0);
 lean_inc(x_185);
-lean_dec(x_183);
+lean_dec_ref(x_183);
 x_186 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at___Lean_Elab_Level_elabLevel_spec__2(x_185, x_161, x_180);
 lean_dec_ref(x_161);
 if (lean_obj_tag(x_186) == 0)
@@ -2327,7 +2327,7 @@ else
 lean_object* x_224; lean_object* x_225; 
 x_224 = lean_ctor_get(x_222, 0);
 lean_inc(x_224);
-lean_dec(x_222);
+lean_dec_ref(x_222);
 x_225 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at___Lean_Elab_Level_elabLevel_spec__2(x_224, x_161, x_3);
 lean_dec_ref(x_161);
 if (lean_obj_tag(x_225) == 0)

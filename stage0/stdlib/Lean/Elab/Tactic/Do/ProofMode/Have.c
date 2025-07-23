@@ -199,7 +199,7 @@ else
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 x_23 = lean_ctor_get(x_1, 0);
 lean_inc(x_23);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_24 = l_Lean_mkFreshId___at___Lean_Elab_Tactic_Do_ProofMode_elabMspecializePure_spec__0___redArg(x_15, x_16);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
@@ -1205,7 +1205,7 @@ lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_27 = !lean_is_exclusive(x_23);
 if (x_27 == 0)
 {
@@ -1266,7 +1266,7 @@ lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_38 = lean_ctor_get(x_34, 0);
 lean_inc(x_38);
 x_39 = lean_ctor_get(x_34, 1);

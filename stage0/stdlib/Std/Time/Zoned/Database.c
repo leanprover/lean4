@@ -447,7 +447,7 @@ x_31 = lean_ctor_get(x_13, 0);
 lean_dec(x_31);
 x_32 = lean_ctor_get(x_15, 0);
 lean_inc(x_32);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 lean_ctor_set(x_13, 0, x_32);
 return x_13;
 }
@@ -459,7 +459,7 @@ lean_inc(x_33);
 lean_dec(x_13);
 x_34 = lean_ctor_get(x_15, 0);
 lean_inc(x_34);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_35 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_35, 0, x_34);
 lean_ctor_set(x_35, 1, x_33);
@@ -499,7 +499,7 @@ lean_inc(x_40);
 lean_dec_ref(x_5);
 x_41 = lean_ctor_get(x_6, 0);
 lean_inc(x_41);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_42 = l_Std_Time_Database_TZdb_readRulesFromDisk(x_41, x_1, x_40);
 return x_42;
 }

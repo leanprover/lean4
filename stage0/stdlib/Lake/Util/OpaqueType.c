@@ -1585,7 +1585,7 @@ else
 lean_object* x_180; lean_object* x_181; 
 x_180 = lean_ctor_get(x_113, 0);
 lean_inc(x_180);
-lean_dec(x_113);
+lean_dec_ref(x_113);
 x_181 = l_Array_mkArray1___redArg(x_180);
 x_12 = x_118;
 x_13 = x_139;

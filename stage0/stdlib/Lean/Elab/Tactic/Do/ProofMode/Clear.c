@@ -366,7 +366,7 @@ else
 lean_object* x_22; lean_object* x_23; 
 x_22 = lean_ctor_get(x_19, 0);
 lean_inc(x_22);
-lean_dec(x_19);
+lean_dec_ref(x_19);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);

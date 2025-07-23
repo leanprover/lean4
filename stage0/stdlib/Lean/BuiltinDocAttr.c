@@ -608,7 +608,7 @@ lean_inc(x_95);
 lean_dec_ref(x_92);
 x_96 = lean_ctor_get(x_93, 0);
 lean_inc(x_96);
-lean_dec(x_93);
+lean_dec_ref(x_93);
 x_97 = l_Lean_declareBuiltinDocStringAndRanges___closed__19;
 lean_inc(x_1);
 x_98 = l_Lean_Name_append(x_1, x_97);
@@ -684,7 +684,7 @@ else
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; 
 x_16 = lean_ctor_get(x_9, 0);
 lean_inc(x_16);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc_ref(x_17);
 x_18 = lean_ctor_get(x_17, 0);

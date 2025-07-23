@@ -238,7 +238,7 @@ return x_15;
 else
 {
 lean_object* x_21; lean_object* x_22; uint8_t x_23; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_21 = l_Lean_Elab_WF_withAppN___lam__0___closed__1;
 x_22 = l_Lean_throwError___at___Lean_getConstInfo___at___Lean_Meta_mkConstWithFreshMVarLevels_spec__0_spec__0___redArg(x_21, x_7, x_8, x_9, x_10, x_11);
@@ -330,7 +330,7 @@ lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_1);
 return x_37;
 }
@@ -466,7 +466,7 @@ goto block_16;
 }
 else
 {
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_10 = x_2;
 goto block_16;
 }
@@ -2230,7 +2230,7 @@ return x_41;
 }
 else
 {
-lean_dec(x_29);
+lean_dec_ref(x_29);
 x_9 = x_4;
 x_10 = x_8;
 goto block_14;
@@ -2302,7 +2302,7 @@ return x_55;
 }
 else
 {
-lean_dec(x_42);
+lean_dec_ref(x_42);
 lean_ctor_set(x_4, 0, x_45);
 x_9 = x_4;
 x_10 = x_8;
@@ -2420,7 +2420,7 @@ return x_79;
 else
 {
 lean_object* x_80; 
-lean_dec(x_65);
+lean_dec_ref(x_65);
 x_80 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_80, 0, x_68);
 lean_ctor_set(x_80, 1, x_57);
@@ -3695,8 +3695,8 @@ lean_object* x_18;
 x_18 = l_Array_mapFinIdxM_map___at___Lean_Elab_WF_preDefsFromUnaryNonRec_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_9);
 lean_dec_ref(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
 lean_dec_ref(x_1);
 return x_18;
 }

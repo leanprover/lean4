@@ -647,7 +647,7 @@ else
 lean_object* x_11; 
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 return x_11;
 }
 }
@@ -938,7 +938,7 @@ else
 lean_object* x_11; 
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 return x_11;
 }
 }
@@ -1035,7 +1035,7 @@ else
 lean_object* x_11; 
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 return x_11;
 }
 }
@@ -1132,7 +1132,7 @@ else
 lean_object* x_11; 
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 return x_11;
 }
 }
@@ -1332,7 +1332,7 @@ else
 lean_object* x_11; 
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 return x_11;
 }
 }
@@ -1505,7 +1505,7 @@ else
 lean_object* x_11; 
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 return x_11;
 }
 }
@@ -1678,7 +1678,7 @@ else
 lean_object* x_11; 
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 return x_11;
 }
 }
@@ -1714,7 +1714,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_1;
 }
 else
@@ -1843,7 +1843,7 @@ else
 lean_object* x_11; 
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 return x_11;
 }
 }
@@ -1954,7 +1954,7 @@ else
 lean_object* x_11; 
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 return x_11;
 }
 }
@@ -2069,7 +2069,7 @@ else
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = l_Lake_Module_keyword;
 x_7 = l_Lake_FacetConfig_toKind_x3f___redArg(x_6, x_5);
 return x_7;
@@ -2110,7 +2110,7 @@ else
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = l_Lake_Package_keyword;
 x_7 = l_Lake_FacetConfig_toKind_x3f___redArg(x_6, x_5);
 return x_7;
@@ -2151,7 +2151,7 @@ else
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = l_Array_forIn_x27Unsafe_loop___at___Lake_Workspace_findLeanLib_x3f_spec__0___closed__1;
 x_7 = l_Lake_FacetConfig_toKind_x3f___redArg(x_6, x_5);
 return x_7;

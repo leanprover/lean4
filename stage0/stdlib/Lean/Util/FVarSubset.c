@@ -203,7 +203,7 @@ return x_6;
 }
 else
 {
-lean_dec(x_10);
+lean_dec_ref(x_10);
 return x_5;
 }
 }

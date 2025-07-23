@@ -166,8 +166,8 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Sat_AIG_mkNotCached(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_6;
 }
 }
@@ -484,8 +484,8 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_47; lean_object* x_48; lean_object* x_49; uint8_t x_50; 
 lean_inc_ref(x_4);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_26 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_3, x_4);
 x_27 = lean_ctor_get(x_26, 0);
 lean_inc_ref(x_27);
@@ -741,8 +741,8 @@ goto block_10;
 block_46:
 {
 lean_object* x_30; uint8_t x_31; 
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_30 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_27, x_29);
 x_31 = lean_ctor_get_uint8(x_28, sizeof(void*)*1);
 if (x_31 == 0)
@@ -880,8 +880,8 @@ goto block_69;
 block_69:
 {
 lean_object* x_60; 
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_60 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_3, x_59);
 if (x_55 == 0)
 {
@@ -982,8 +982,8 @@ goto block_90;
 block_90:
 {
 lean_object* x_81; 
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_81 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_3, x_80);
 if (x_76 == 0)
 {
@@ -1101,8 +1101,8 @@ goto block_114;
 block_114:
 {
 lean_object* x_105; 
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_105 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_3, x_104);
 if (x_99 == 0)
 {
@@ -1235,8 +1235,8 @@ lean_ctor_set_uint8(x_31, sizeof(void*)*1, x_29);
 x_32 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_32, 0, x_30);
 lean_ctor_set(x_32, 1, x_31);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_33 = l_Std_Sat_AIG_mkGateCached___redArg(x_1, x_2, x_27, x_32);
 x_34 = lean_ctor_get_uint8(x_28, sizeof(void*)*1);
 if (x_34 == 0)

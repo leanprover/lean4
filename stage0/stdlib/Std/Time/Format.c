@@ -158,7 +158,6 @@ lean_object* l_Std_Time_PlainDateTime_weekOfMonth(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_toISO8601String___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Formats_longDateFormat___closed__4;
 static lean_object* l_Std_Time_PlainTime_fromTime12Hour___lam__0___closed__0;
-LEAN_EXPORT lean_object* l_Std_Time_PlainTime_format___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_toAscTimeString(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainDate_parse(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_instRepr(lean_object*);
@@ -3637,7 +3636,7 @@ switch (lean_obj_tag(x_2)) {
 case 0:
 {
 lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 lean_dec_ref(x_1);
@@ -3706,7 +3705,7 @@ return x_22;
 case 3:
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_23 = lean_ctor_get(x_1, 0);
 lean_inc(x_23);
 x_24 = l_Std_Time_PlainDate_format___lam__0___closed__0;
@@ -3880,7 +3879,7 @@ return x_59;
 case 9:
 {
 uint8_t x_60; lean_object* x_61; lean_object* x_62; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_60 = l_Std_Time_PlainDate_weekday(x_1);
 x_61 = lean_box(x_60);
 x_62 = lean_alloc_ctor(1, 1, 0);
@@ -4017,7 +4016,7 @@ else
 lean_object* x_12; 
 x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 return x_12;
 }
 }
@@ -4370,9 +4369,12 @@ switch (lean_obj_tag(x_2)) {
 case 12:
 {
 lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec_ref(x_1);
 x_4 = l_Std_Time_HourMarker_ofOrdinal(x_3);
+lean_dec(x_3);
 x_5 = lean_box(x_4);
 x_6 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
@@ -4388,7 +4390,10 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_8 = lean_ctor_get(x_2, 0);
 lean_dec(x_8);
 x_9 = lean_ctor_get(x_1, 0);
+lean_inc(x_9);
+lean_dec_ref(x_1);
 x_10 = l_Std_Time_Hour_Ordinal_toRelative(x_9);
+lean_dec(x_9);
 lean_ctor_set_tag(x_2, 1);
 lean_ctor_set(x_2, 0, x_10);
 return x_2;
@@ -4398,7 +4403,10 @@ else
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 lean_dec(x_2);
 x_11 = lean_ctor_get(x_1, 0);
+lean_inc(x_11);
+lean_dec_ref(x_1);
 x_12 = l_Std_Time_Hour_Ordinal_toRelative(x_11);
+lean_dec(x_11);
 x_13 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
 return x_13;
@@ -4414,8 +4422,11 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18;
 x_15 = lean_ctor_get(x_2, 0);
 lean_dec(x_15);
 x_16 = lean_ctor_get(x_1, 0);
+lean_inc(x_16);
+lean_dec_ref(x_1);
 x_17 = l_Std_Time_PlainTime_format___lam__0___closed__0;
 x_18 = lean_int_emod(x_16, x_17);
+lean_dec(x_16);
 lean_ctor_set_tag(x_2, 1);
 lean_ctor_set(x_2, 0, x_18);
 return x_2;
@@ -4425,8 +4436,11 @@ else
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 lean_dec(x_2);
 x_19 = lean_ctor_get(x_1, 0);
+lean_inc(x_19);
+lean_dec_ref(x_1);
 x_20 = l_Std_Time_PlainTime_format___lam__0___closed__0;
 x_21 = lean_int_emod(x_19, x_20);
+lean_dec(x_19);
 x_22 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
 return x_22;
@@ -4442,7 +4456,10 @@ lean_object* x_24; lean_object* x_25; lean_object* x_26;
 x_24 = lean_ctor_get(x_2, 0);
 lean_dec(x_24);
 x_25 = lean_ctor_get(x_1, 0);
+lean_inc(x_25);
+lean_dec_ref(x_1);
 x_26 = l_Std_Time_Hour_Ordinal_shiftTo1BasedHour(x_25);
+lean_dec(x_25);
 lean_ctor_set_tag(x_2, 1);
 lean_ctor_set(x_2, 0, x_26);
 return x_2;
@@ -4452,7 +4469,10 @@ else
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 lean_dec(x_2);
 x_27 = lean_ctor_get(x_1, 0);
+lean_inc(x_27);
+lean_dec_ref(x_1);
 x_28 = l_Std_Time_Hour_Ordinal_shiftTo1BasedHour(x_27);
+lean_dec(x_27);
 x_29 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_29, 0, x_28);
 return x_29;
@@ -4469,6 +4489,7 @@ x_31 = lean_ctor_get(x_2, 0);
 lean_dec(x_31);
 x_32 = lean_ctor_get(x_1, 0);
 lean_inc(x_32);
+lean_dec_ref(x_1);
 lean_ctor_set_tag(x_2, 1);
 lean_ctor_set(x_2, 0, x_32);
 return x_2;
@@ -4479,6 +4500,7 @@ lean_object* x_33; lean_object* x_34;
 lean_dec(x_2);
 x_33 = lean_ctor_get(x_1, 0);
 lean_inc(x_33);
+lean_dec_ref(x_1);
 x_34 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_34, 0, x_33);
 return x_34;
@@ -4495,6 +4517,7 @@ x_36 = lean_ctor_get(x_2, 0);
 lean_dec(x_36);
 x_37 = lean_ctor_get(x_1, 1);
 lean_inc(x_37);
+lean_dec_ref(x_1);
 lean_ctor_set_tag(x_2, 1);
 lean_ctor_set(x_2, 0, x_37);
 return x_2;
@@ -4505,6 +4528,7 @@ lean_object* x_38; lean_object* x_39;
 lean_dec(x_2);
 x_38 = lean_ctor_get(x_1, 1);
 lean_inc(x_38);
+lean_dec_ref(x_1);
 x_39 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_39, 0, x_38);
 return x_39;
@@ -4521,6 +4545,7 @@ x_41 = lean_ctor_get(x_2, 0);
 lean_dec(x_41);
 x_42 = lean_ctor_get(x_1, 2);
 lean_inc(x_42);
+lean_dec_ref(x_1);
 lean_ctor_set_tag(x_2, 1);
 lean_ctor_set(x_2, 0, x_42);
 return x_2;
@@ -4531,6 +4556,7 @@ lean_object* x_43; lean_object* x_44;
 lean_dec(x_2);
 x_43 = lean_ctor_get(x_1, 2);
 lean_inc(x_43);
+lean_dec_ref(x_1);
 x_44 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_44, 0, x_43);
 return x_44;
@@ -4547,6 +4573,7 @@ x_46 = lean_ctor_get(x_2, 0);
 lean_dec(x_46);
 x_47 = lean_ctor_get(x_1, 3);
 lean_inc(x_47);
+lean_dec_ref(x_1);
 lean_ctor_set_tag(x_2, 1);
 lean_ctor_set(x_2, 0, x_47);
 return x_2;
@@ -4557,6 +4584,7 @@ lean_object* x_48; lean_object* x_49;
 lean_dec(x_2);
 x_48 = lean_ctor_get(x_1, 3);
 lean_inc(x_48);
+lean_dec_ref(x_1);
 x_49 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_49, 0, x_48);
 return x_49;
@@ -4572,6 +4600,7 @@ lean_object* x_51; lean_object* x_52;
 x_51 = lean_ctor_get(x_2, 0);
 lean_dec(x_51);
 x_52 = l_Std_Time_PlainTime_toMilliseconds(x_1);
+lean_dec_ref(x_1);
 lean_ctor_set_tag(x_2, 1);
 lean_ctor_set(x_2, 0, x_52);
 return x_2;
@@ -4581,6 +4610,7 @@ else
 lean_object* x_53; lean_object* x_54; 
 lean_dec(x_2);
 x_53 = l_Std_Time_PlainTime_toMilliseconds(x_1);
+lean_dec_ref(x_1);
 x_54 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_54, 0, x_53);
 return x_54;
@@ -4597,6 +4627,7 @@ x_56 = lean_ctor_get(x_2, 0);
 lean_dec(x_56);
 x_57 = lean_ctor_get(x_1, 3);
 lean_inc(x_57);
+lean_dec_ref(x_1);
 lean_ctor_set_tag(x_2, 1);
 lean_ctor_set(x_2, 0, x_57);
 return x_2;
@@ -4607,6 +4638,7 @@ lean_object* x_58; lean_object* x_59;
 lean_dec(x_2);
 x_58 = lean_ctor_get(x_1, 3);
 lean_inc(x_58);
+lean_dec_ref(x_1);
 x_59 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_59, 0, x_58);
 return x_59;
@@ -4640,6 +4672,7 @@ default:
 {
 lean_object* x_65; 
 lean_dec(x_2);
+lean_dec_ref(x_1);
 x_65 = lean_box(0);
 return x_65;
 }
@@ -4670,7 +4703,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);
 lean_dec_ref(x_4);
-x_9 = lean_alloc_closure((void*)(l_Std_Time_PlainTime_format___lam__0___boxed), 2, 1);
+x_9 = lean_alloc_closure((void*)(l_Std_Time_PlainTime_format___lam__0), 2, 1);
 lean_closure_set(x_9, 0, x_1);
 x_10 = l_Std_Time_GenericFormat_formatGeneric___redArg(x_8, x_9);
 if (lean_obj_tag(x_10) == 0)
@@ -4684,19 +4717,10 @@ else
 lean_object* x_12; 
 x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 return x_12;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_PlainTime_format___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Time_PlainTime_format___lam__0(x_1, x_2);
-lean_dec_ref(x_1);
-return x_3;
 }
 }
 static lean_object* _init_l_Std_Time_PlainTime_fromTime24Hour___lam__0___closed__0() {
@@ -5532,7 +5556,7 @@ switch (lean_obj_tag(x_2)) {
 case 0:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_3);
 lean_dec_ref(x_1);
@@ -5907,7 +5931,7 @@ return x_94;
 case 9:
 {
 lean_object* x_95; uint8_t x_96; lean_object* x_97; lean_object* x_98; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_95 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_95);
 lean_dec_ref(x_1);
@@ -5978,7 +6002,7 @@ return x_112;
 case 12:
 {
 lean_object* x_113; lean_object* x_114; uint8_t x_115; lean_object* x_116; lean_object* x_117; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_113 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_113);
 lean_dec_ref(x_1);
@@ -6323,7 +6347,6 @@ x_191 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_191);
 lean_dec_ref(x_1);
 x_192 = l_Std_Time_PlainTime_toNanoseconds(x_191);
-lean_dec_ref(x_191);
 lean_ctor_set_tag(x_2, 1);
 lean_ctor_set(x_2, 0, x_192);
 return x_2;
@@ -6336,7 +6359,6 @@ x_193 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_193);
 lean_dec_ref(x_1);
 x_194 = l_Std_Time_PlainTime_toNanoseconds(x_193);
-lean_dec_ref(x_193);
 x_195 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_195, 0, x_194);
 return x_195;
@@ -6391,7 +6413,7 @@ else
 lean_object* x_12; 
 x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 return x_12;
 }
 }

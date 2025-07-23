@@ -224,7 +224,7 @@ _start:
 if (lean_obj_tag(x_4) == 0)
 {
 lean_dec_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -232,7 +232,7 @@ else
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_6 = l_Lake_JsonObject_insertSome___redArg___closed__0;
 x_7 = lean_apply_1(x_1, x_5);
 x_8 = l_Std_DTreeMap_Internal_Impl_insert_x21___redArg(x_6, x_3, x_7, x_2);
@@ -246,7 +246,7 @@ _start:
 if (lean_obj_tag(x_5) == 0)
 {
 lean_dec_ref(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 else
@@ -254,7 +254,7 @@ else
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = l_Lake_JsonObject_insertSome___redArg___closed__0;
 x_8 = lean_apply_1(x_2, x_6);
 x_9 = l_Std_DTreeMap_Internal_Impl_insert_x21___redArg(x_7, x_4, x_8, x_3);
@@ -592,7 +592,7 @@ lean_dec(x_11);
 x_59 = lean_nat_add(x_58, x_26);
 lean_dec(x_26);
 lean_dec(x_58);
-lean_inc(x_10);
+lean_inc_ref(x_10);
 if (lean_is_scalar(x_24)) {
  x_60 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -642,12 +642,12 @@ else
 {
 lean_object* x_68; lean_object* x_69; 
 lean_dec(x_24);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 lean_dec(x_7);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -665,7 +665,7 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_11);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 lean_dec(x_7);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -1294,9 +1294,9 @@ lean_dec(x_173);
 lean_dec(x_165);
 lean_dec(x_164);
 lean_dec(x_163);
-lean_dec(x_162);
+lean_dec_ref(x_162);
 lean_dec(x_160);
-lean_dec(x_157);
+lean_dec_ref(x_157);
 lean_dec(x_156);
 lean_dec(x_155);
 lean_dec(x_154);
@@ -1312,7 +1312,7 @@ lean_dec(x_173);
 lean_dec(x_165);
 lean_dec(x_164);
 lean_dec(x_163);
-lean_dec(x_162);
+lean_dec_ref(x_162);
 lean_dec(x_160);
 lean_dec(x_158);
 lean_dec(x_156);
@@ -1779,7 +1779,7 @@ lean_object* x_317; lean_object* x_318; uint8_t x_319;
 x_317 = lean_nat_add(x_314, x_316);
 lean_dec(x_316);
 lean_dec(x_314);
-lean_inc(x_284);
+lean_inc_ref(x_284);
 if (lean_is_scalar(x_310)) {
  x_318 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -1903,9 +1903,9 @@ lean_free_object(x_5);
 lean_dec(x_287);
 lean_dec(x_286);
 lean_dec(x_285);
-lean_dec(x_284);
+lean_dec_ref(x_284);
 lean_dec(x_282);
-lean_dec(x_152);
+lean_dec_ref(x_152);
 lean_dec(x_151);
 lean_dec(x_150);
 lean_dec(x_149);
@@ -1921,7 +1921,7 @@ lean_free_object(x_5);
 lean_dec(x_287);
 lean_dec(x_286);
 lean_dec(x_285);
-lean_dec(x_284);
+lean_dec_ref(x_284);
 lean_dec(x_282);
 lean_dec(x_153);
 lean_dec(x_151);
@@ -1999,7 +1999,7 @@ lean_object* x_363; lean_object* x_364; lean_object* x_365; lean_object* x_366;
 x_363 = lean_nat_add(x_360, x_362);
 lean_dec(x_362);
 lean_dec(x_360);
-lean_inc(x_284);
+lean_inc_ref(x_284);
 if (lean_is_scalar(x_356)) {
  x_364 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -2115,9 +2115,9 @@ lean_object* x_385; lean_object* x_386;
 lean_dec(x_287);
 lean_dec(x_286);
 lean_dec(x_285);
-lean_dec(x_284);
+lean_dec_ref(x_284);
 lean_dec(x_282);
-lean_dec(x_152);
+lean_dec_ref(x_152);
 lean_dec(x_151);
 lean_dec(x_150);
 lean_dec(x_149);
@@ -2132,7 +2132,7 @@ lean_object* x_387; lean_object* x_388;
 lean_dec(x_287);
 lean_dec(x_286);
 lean_dec(x_285);
-lean_dec(x_284);
+lean_dec_ref(x_284);
 lean_dec(x_282);
 lean_dec(x_153);
 lean_dec(x_151);
@@ -2678,7 +2678,7 @@ lean_dec(x_460);
 x_505 = lean_nat_add(x_503, x_473);
 lean_dec(x_473);
 lean_dec(x_503);
-lean_inc(x_458);
+lean_inc_ref(x_458);
 if (lean_is_scalar(x_472)) {
  x_506 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -2728,12 +2728,12 @@ else
 {
 lean_object* x_514; lean_object* x_515; 
 lean_dec(x_472);
-lean_dec(x_463);
+lean_dec_ref(x_463);
 lean_dec(x_462);
 lean_dec(x_461);
 lean_dec(x_460);
 lean_dec(x_459);
-lean_dec(x_458);
+lean_dec_ref(x_458);
 lean_dec(x_7);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -2751,7 +2751,7 @@ lean_dec(x_462);
 lean_dec(x_461);
 lean_dec(x_460);
 lean_dec(x_459);
-lean_dec(x_458);
+lean_dec_ref(x_458);
 lean_dec(x_7);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -3190,7 +3190,7 @@ x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(x_4, x_2, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_Lake_JsonObject_get___redArg___closed__0;
 x_7 = lean_string_append(x_6, x_3);
 lean_dec_ref(x_3);
@@ -3203,7 +3203,7 @@ else
 lean_object* x_9; lean_object* x_10; 
 x_9 = lean_ctor_get(x_5, 0);
 lean_inc(x_9);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_10 = lean_apply_1(x_1, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -3253,7 +3253,7 @@ x_6 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(x_5, x_3, x_4);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_7 = l_Lake_JsonObject_get___redArg___closed__0;
 x_8 = lean_string_append(x_7, x_4);
 lean_dec_ref(x_4);
@@ -3266,7 +3266,7 @@ else
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_6, 0);
 lean_inc(x_10);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_11 = lean_apply_1(x_2, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -3317,7 +3317,7 @@ if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; 
 lean_dec_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 return x_6;
@@ -3327,7 +3327,7 @@ else
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_ctor_get(x_5, 0);
 lean_inc(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_8 = l_Option_fromJson_x3f___redArg(x_1, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -3378,7 +3378,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; 
 lean_dec_ref(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
@@ -3388,7 +3388,7 @@ else
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = l_Option_fromJson_x3f___redArg(x_2, x_8);
 if (lean_obj_tag(x_9) == 0)
 {

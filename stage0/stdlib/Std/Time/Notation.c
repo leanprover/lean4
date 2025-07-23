@@ -1485,7 +1485,7 @@ else
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_15 = lean_ctor_get(x_1, 0);
 lean_inc(x_15);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_16 = lean_ctor_get(x_2, 1);
 lean_inc(x_16);
 x_17 = lean_ctor_get(x_2, 2);
@@ -1951,7 +1951,7 @@ default:
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; 
 x_37 = lean_ctor_get(x_1, 0);
 lean_inc(x_37);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_38 = lean_ctor_get(x_2, 1);
 lean_inc(x_38);
 x_39 = lean_ctor_get(x_2, 2);
@@ -5883,7 +5883,7 @@ case 0:
 {
 uint8_t x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get_uint8(x_1, 0);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_5 = l___private_Std_Time_Notation_0__Std_Time_convertText(x_4, x_2, x_3);
 x_6 = !lean_is_exclusive(x_5);
@@ -5963,7 +5963,7 @@ case 1:
 lean_object* x_39; lean_object* x_40; uint8_t x_41; 
 x_39 = lean_ctor_get(x_1, 0);
 lean_inc(x_39);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_40 = l___private_Std_Time_Notation_0__Std_Time_convertYear(x_39, x_2, x_3);
 x_41 = !lean_is_exclusive(x_40);
@@ -6043,7 +6043,7 @@ case 2:
 lean_object* x_74; lean_object* x_75; uint8_t x_76; 
 x_74 = lean_ctor_get(x_1, 0);
 lean_inc(x_74);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_75 = l___private_Std_Time_Notation_0__Std_Time_convertYear(x_74, x_2, x_3);
 x_76 = !lean_is_exclusive(x_75);
@@ -6123,7 +6123,7 @@ case 3:
 lean_object* x_109; lean_object* x_110; uint8_t x_111; 
 x_109 = lean_ctor_get(x_1, 0);
 lean_inc(x_109);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_110 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_109, x_2, x_3);
 x_111 = !lean_is_exclusive(x_110);
@@ -6203,7 +6203,7 @@ case 4:
 lean_object* x_144; 
 x_144 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_144);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 if (lean_obj_tag(x_144) == 0)
 {
 lean_object* x_145; lean_object* x_146; uint8_t x_147; 
@@ -6520,7 +6520,7 @@ case 5:
 lean_object* x_284; lean_object* x_285; uint8_t x_286; 
 x_284 = lean_ctor_get(x_1, 0);
 lean_inc(x_284);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_285 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_284, x_2, x_3);
 x_286 = !lean_is_exclusive(x_285);
@@ -6600,7 +6600,7 @@ case 6:
 lean_object* x_319; 
 x_319 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_319);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 if (lean_obj_tag(x_319) == 0)
 {
 lean_object* x_320; lean_object* x_321; uint8_t x_322; 
@@ -6917,7 +6917,7 @@ case 7:
 lean_object* x_459; lean_object* x_460; uint8_t x_461; 
 x_459 = lean_ctor_get(x_1, 0);
 lean_inc(x_459);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_460 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_459, x_2, x_3);
 x_461 = !lean_is_exclusive(x_460);
@@ -6997,7 +6997,7 @@ case 8:
 lean_object* x_494; lean_object* x_495; uint8_t x_496; 
 x_494 = lean_ctor_get(x_1, 0);
 lean_inc(x_494);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_495 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_494, x_2, x_3);
 x_496 = !lean_is_exclusive(x_495);
@@ -7076,7 +7076,7 @@ case 9:
 {
 uint8_t x_529; lean_object* x_530; uint8_t x_531; 
 x_529 = lean_ctor_get_uint8(x_1, 0);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_530 = l___private_Std_Time_Notation_0__Std_Time_convertText(x_529, x_2, x_3);
 x_531 = !lean_is_exclusive(x_530);
@@ -7156,7 +7156,7 @@ case 10:
 lean_object* x_564; 
 x_564 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_564);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 if (lean_obj_tag(x_564) == 0)
 {
 lean_object* x_565; lean_object* x_566; uint8_t x_567; 
@@ -7473,7 +7473,7 @@ case 11:
 lean_object* x_704; lean_object* x_705; uint8_t x_706; 
 x_704 = lean_ctor_get(x_1, 0);
 lean_inc(x_704);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_705 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_704, x_2, x_3);
 x_706 = !lean_is_exclusive(x_705);
@@ -7552,7 +7552,7 @@ case 12:
 {
 uint8_t x_739; lean_object* x_740; uint8_t x_741; 
 x_739 = lean_ctor_get_uint8(x_1, 0);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_740 = l___private_Std_Time_Notation_0__Std_Time_convertText(x_739, x_2, x_3);
 x_741 = !lean_is_exclusive(x_740);
@@ -7632,7 +7632,7 @@ case 13:
 lean_object* x_774; lean_object* x_775; uint8_t x_776; 
 x_774 = lean_ctor_get(x_1, 0);
 lean_inc(x_774);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_775 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_774, x_2, x_3);
 x_776 = !lean_is_exclusive(x_775);
@@ -7712,7 +7712,7 @@ case 14:
 lean_object* x_809; lean_object* x_810; uint8_t x_811; 
 x_809 = lean_ctor_get(x_1, 0);
 lean_inc(x_809);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_810 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_809, x_2, x_3);
 x_811 = !lean_is_exclusive(x_810);
@@ -7792,7 +7792,7 @@ case 15:
 lean_object* x_844; lean_object* x_845; uint8_t x_846; 
 x_844 = lean_ctor_get(x_1, 0);
 lean_inc(x_844);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_845 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_844, x_2, x_3);
 x_846 = !lean_is_exclusive(x_845);
@@ -7872,7 +7872,7 @@ case 16:
 lean_object* x_879; lean_object* x_880; uint8_t x_881; 
 x_879 = lean_ctor_get(x_1, 0);
 lean_inc(x_879);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_880 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_879, x_2, x_3);
 x_881 = !lean_is_exclusive(x_880);
@@ -7952,7 +7952,7 @@ case 17:
 lean_object* x_914; lean_object* x_915; uint8_t x_916; 
 x_914 = lean_ctor_get(x_1, 0);
 lean_inc(x_914);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_915 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_914, x_2, x_3);
 x_916 = !lean_is_exclusive(x_915);
@@ -8032,7 +8032,7 @@ case 18:
 lean_object* x_949; lean_object* x_950; uint8_t x_951; 
 x_949 = lean_ctor_get(x_1, 0);
 lean_inc(x_949);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_950 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_949, x_2, x_3);
 x_951 = !lean_is_exclusive(x_950);
@@ -8112,7 +8112,7 @@ case 19:
 lean_object* x_984; lean_object* x_985; uint8_t x_986; 
 x_984 = lean_ctor_get(x_1, 0);
 lean_inc(x_984);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_985 = l___private_Std_Time_Notation_0__Std_Time_convertFraction(x_984, x_2, x_3);
 x_986 = !lean_is_exclusive(x_985);
@@ -8192,7 +8192,7 @@ case 20:
 lean_object* x_1019; lean_object* x_1020; uint8_t x_1021; 
 x_1019 = lean_ctor_get(x_1, 0);
 lean_inc(x_1019);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_1020 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_1019, x_2, x_3);
 x_1021 = !lean_is_exclusive(x_1020);
@@ -8272,7 +8272,7 @@ case 21:
 lean_object* x_1054; lean_object* x_1055; uint8_t x_1056; 
 x_1054 = lean_ctor_get(x_1, 0);
 lean_inc(x_1054);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_1055 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_1054, x_2, x_3);
 x_1056 = !lean_is_exclusive(x_1055);
@@ -8352,7 +8352,7 @@ case 22:
 lean_object* x_1089; lean_object* x_1090; uint8_t x_1091; 
 x_1089 = lean_ctor_get(x_1, 0);
 lean_inc(x_1089);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_1090 = l___private_Std_Time_Notation_0__Std_Time_convertNumber(x_1089, x_2, x_3);
 x_1091 = !lean_is_exclusive(x_1090);
@@ -8458,7 +8458,7 @@ case 24:
 {
 uint8_t x_1135; lean_object* x_1136; uint8_t x_1137; 
 x_1135 = lean_ctor_get_uint8(x_1, 0);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_1136 = l___private_Std_Time_Notation_0__Std_Time_convertZoneName(x_1135, x_2, x_3);
 x_1137 = !lean_is_exclusive(x_1136);
@@ -8537,7 +8537,7 @@ case 25:
 {
 uint8_t x_1170; lean_object* x_1171; uint8_t x_1172; 
 x_1170 = lean_ctor_get_uint8(x_1, 0);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_1171 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetO(x_1170, x_2, x_3);
 x_1172 = !lean_is_exclusive(x_1171);
@@ -8616,7 +8616,7 @@ case 26:
 {
 uint8_t x_1205; lean_object* x_1206; uint8_t x_1207; 
 x_1205 = lean_ctor_get_uint8(x_1, 0);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_1206 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetX(x_1205, x_2, x_3);
 x_1207 = !lean_is_exclusive(x_1206);
@@ -8695,7 +8695,7 @@ case 27:
 {
 uint8_t x_1240; lean_object* x_1241; uint8_t x_1242; 
 x_1240 = lean_ctor_get_uint8(x_1, 0);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_1241 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetX(x_1240, x_2, x_3);
 x_1242 = !lean_is_exclusive(x_1241);
@@ -8774,7 +8774,7 @@ default:
 {
 uint8_t x_1275; lean_object* x_1276; uint8_t x_1277; 
 x_1275 = lean_ctor_get_uint8(x_1, 0);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_1276 = l___private_Std_Time_Notation_0__Std_Time_convertOffsetZ(x_1275, x_2, x_3);
 x_1277 = !lean_is_exclusive(x_1276);

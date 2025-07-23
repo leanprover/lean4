@@ -1083,7 +1083,7 @@ else
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 x_19 = l_System_FilePath_fileName___closed__2;
 x_20 = lean_nat_add(x_18, x_19);
 lean_dec(x_18);
@@ -1185,7 +1185,7 @@ x_10 = lean_nat_dec_eq(x_8, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_11 = lean_string_utf8_extract(x_3, x_9, x_8);
 lean_dec(x_8);
 lean_dec(x_3);
@@ -1211,7 +1211,7 @@ x_14 = lean_nat_dec_eq(x_12, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_15 = lean_string_utf8_extract(x_3, x_13, x_12);
 lean_dec(x_12);
 lean_dec(x_3);
@@ -1253,7 +1253,7 @@ else
 lean_object* x_3; uint32_t x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = 46;
 x_5 = lean_string_utf8_byte_size(x_3);
 lean_inc(x_5);
@@ -1351,7 +1351,7 @@ else
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_5 = l_System_FilePath_join(x_4, x_2);
 return x_5;
 }
@@ -1382,7 +1382,7 @@ else
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_5 = lean_string_utf8_byte_size(x_2);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_nat_dec_eq(x_5, x_6);
@@ -1433,7 +1433,7 @@ else
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_5 = lean_string_utf8_byte_size(x_2);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_nat_dec_eq(x_5, x_6);

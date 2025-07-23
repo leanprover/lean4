@@ -209,8 +209,8 @@ x_6 = lean_nat_dec_eq(x_3, x_5);
 if (x_6 == 1)
 {
 lean_object* x_7; 
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_7 = l_Fin_elim0(lean_box(0), x_4);
 return x_7;
 }
@@ -223,7 +223,7 @@ x_10 = lean_nat_dec_eq(x_4, x_5);
 if (x_10 == 1)
 {
 lean_object* x_11; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_11 = lean_apply_1(x_1, x_9);
 return x_11;
 }
@@ -231,7 +231,7 @@ else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_nat_sub(x_4, x_8);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_13 = l_Fin_succRec___redArg(x_1, x_2, x_9, x_12);
 x_14 = lean_apply_3(x_2, x_9, x_12, x_13);
 return x_14;
@@ -311,7 +311,7 @@ x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_nat_dec_eq(x_3, x_4);
 if (x_5 == 1)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_inc(x_1);
 return x_1;
 }
@@ -320,7 +320,7 @@ else
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_8 = l_Fin_induction_go___redArg(x_1, x_2, x_7);
 x_9 = lean_apply_2(x_2, x_7, x_8);
 return x_9;
@@ -497,7 +497,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_7);
 x_8 = lean_apply_2(x_1, x_7, x_4);
 x_3 = x_7;
@@ -507,7 +507,7 @@ goto _start;
 else
 {
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_4;
 }
 }
@@ -582,14 +582,14 @@ x_6 = lean_nat_dec_eq(x_1, x_5);
 if (x_6 == 1)
 {
 lean_object* x_7; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_2, lean_box(0));
 return x_7;
 }
 else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_sub(x_1, x_8);
 x_10 = lean_apply_5(x_4, x_9, lean_box(0), lean_box(0), x_2, lean_box(0));
@@ -686,7 +686,7 @@ x_5 = lean_nat_dec_lt(x_4, x_1);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = lean_nat_sub(x_4, x_1);
 lean_dec(x_4);
 x_7 = lean_apply_1(x_3, x_6);
@@ -695,7 +695,7 @@ return x_7;
 else
 {
 lean_object* x_8; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_8 = lean_apply_1(x_2, x_4);
 return x_8;
 }

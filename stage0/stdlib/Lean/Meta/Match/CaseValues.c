@@ -1625,7 +1625,7 @@ x_17 = lean_ctor_get(x_6, 0);
 lean_inc(x_17);
 x_18 = lean_ctor_get(x_6, 1);
 lean_inc(x_18);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_inc(x_4);
 lean_inc(x_2);
 x_19 = lean_name_append_index_after(x_2, x_4);

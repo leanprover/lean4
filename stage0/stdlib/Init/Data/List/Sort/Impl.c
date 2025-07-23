@@ -143,7 +143,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_5; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = l_List_reverseAux___redArg(x_4, x_3);
 return x_5;
 }
@@ -152,7 +152,7 @@ else
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_6; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_List_reverseAux___redArg(x_4, x_2);
 return x_6;
 }
@@ -167,7 +167,7 @@ x_9 = lean_ctor_get(x_3, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_3, 1);
 lean_inc(x_10);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_9);
 lean_inc(x_7);
 x_11 = lean_apply_2(x_1, x_7, x_9);
@@ -258,35 +258,35 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_7; 
-lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 x_7 = lean_apply_2(x_4, x_2, x_3);
 return x_7;
 }
 else
 {
-lean_dec(x_4);
+lean_dec_ref(x_4);
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_8; 
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_8 = lean_apply_3(x_5, x_1, x_3, lean_box(0));
 return x_8;
 }
 else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_1, 1);
 lean_inc(x_10);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_ctor_get(x_2, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_2, 1);
 lean_inc(x_12);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_13 = lean_apply_5(x_6, x_9, x_10, x_11, x_12, x_3);
 return x_13;
 }
@@ -324,35 +324,35 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_6; 
-lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 x_6 = lean_apply_1(x_3, x_2);
 return x_6;
 }
 else
 {
-lean_dec(x_3);
+lean_dec_ref(x_3);
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_7; 
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = lean_apply_2(x_4, x_1, lean_box(0));
 return x_7;
 }
 else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_1, 1);
 lean_inc(x_9);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = lean_ctor_get(x_2, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_2, 1);
 lean_inc(x_11);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_12 = lean_apply_4(x_5, x_8, x_9, x_10, x_11);
 return x_12;
 }
@@ -474,7 +474,7 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_6; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_6 = lean_apply_4(x_5, x_1, x_2, x_3, lean_box(0));
 return x_6;
 }
@@ -492,15 +492,15 @@ if (x_10 == 1)
 lean_object* x_11; 
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_11 = lean_apply_4(x_5, x_1, x_2, x_3, lean_box(0));
 return x_11;
 }
 else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_5);
+lean_dec_ref(x_1);
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_sub(x_2, x_12);
 lean_dec(x_2);
@@ -1148,7 +1148,7 @@ x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_nat_dec_eq(x_2, x_4);
 if (x_5 == 1)
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 else
@@ -1160,7 +1160,7 @@ x_8 = lean_nat_dec_eq(x_7, x_4);
 if (x_8 == 1)
 {
 lean_dec(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 else
@@ -1180,12 +1180,12 @@ lean_dec_ref(x_12);
 x_15 = lean_nat_add(x_11, x_6);
 x_16 = lean_nat_shiftr(x_15, x_6);
 lean_dec(x_15);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_17 = l_List_MergeSort_Internal_mergeSortTR_run___redArg(x_1, x_16, x_13);
 lean_dec(x_16);
 x_18 = lean_nat_shiftr(x_11, x_6);
 lean_dec(x_11);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_19 = l_List_MergeSort_Internal_mergeSortTR_run___redArg(x_1, x_18, x_14);
 lean_dec(x_18);
 x_20 = l_List_MergeSort_Internal_mergeTR___redArg(x_17, x_19, x_1);
@@ -1229,8 +1229,8 @@ x_7 = lean_nat_dec_eq(x_1, x_6);
 if (x_7 == 1)
 {
 lean_object* x_8; 
-lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 lean_dec(x_2);
 x_8 = lean_apply_1(x_3, lean_box(0));
 return x_8;
@@ -1238,7 +1238,7 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_1, x_9);
 x_11 = lean_nat_dec_eq(x_10, x_6);
@@ -1246,7 +1246,7 @@ if (x_11 == 1)
 {
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_10);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_12 = lean_ctor_get(x_2, 0);
 lean_inc(x_12);
 lean_dec(x_2);
@@ -1256,7 +1256,7 @@ return x_13;
 else
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_14 = lean_nat_sub(x_10, x_9);
 lean_dec(x_10);
 x_15 = lean_apply_2(x_5, x_14, x_2);
@@ -1463,7 +1463,7 @@ x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_nat_dec_eq(x_2, x_4);
 if (x_5 == 1)
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 else
@@ -1475,7 +1475,7 @@ x_8 = lean_nat_dec_eq(x_7, x_4);
 if (x_8 == 1)
 {
 lean_dec(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 else
@@ -1495,12 +1495,12 @@ lean_dec_ref(x_12);
 x_15 = lean_nat_add(x_11, x_6);
 x_16 = lean_nat_shiftr(x_15, x_6);
 lean_dec(x_15);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_17 = l_List_MergeSort_Internal_mergeSortTR_u2082_run_x27___redArg(x_1, x_16, x_13);
 lean_dec(x_16);
 x_18 = lean_nat_shiftr(x_11, x_6);
 lean_dec(x_11);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_19 = l_List_MergeSort_Internal_mergeSortTR_u2082_run___redArg(x_1, x_18, x_14);
 lean_dec(x_18);
 x_20 = l_List_MergeSort_Internal_mergeTR___redArg(x_17, x_19, x_1);
@@ -1525,7 +1525,7 @@ x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_nat_dec_eq(x_2, x_4);
 if (x_5 == 1)
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 else
@@ -1537,7 +1537,7 @@ x_8 = lean_nat_dec_eq(x_7, x_4);
 if (x_8 == 1)
 {
 lean_dec(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 else
@@ -1557,12 +1557,12 @@ lean_dec_ref(x_12);
 x_15 = lean_nat_add(x_11, x_6);
 x_16 = lean_nat_shiftr(x_15, x_6);
 lean_dec(x_15);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_17 = l_List_MergeSort_Internal_mergeSortTR_u2082_run_x27___redArg(x_1, x_16, x_14);
 lean_dec(x_16);
 x_18 = lean_nat_shiftr(x_11, x_6);
 lean_dec(x_11);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_19 = l_List_MergeSort_Internal_mergeSortTR_u2082_run___redArg(x_1, x_18, x_13);
 lean_dec(x_18);
 x_20 = l_List_MergeSort_Internal_mergeTR___redArg(x_17, x_19, x_1);
@@ -1669,39 +1669,39 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_6; 
-lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 x_6 = lean_apply_1(x_3, x_2);
 return x_6;
 }
 else
 {
 lean_object* x_7; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; 
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_9 = lean_apply_2(x_4, x_8, x_2);
 return x_9;
 }
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_7, 1);
 lean_inc(x_12);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_13 = lean_apply_4(x_5, x_10, x_11, x_12, x_2);
 return x_13;
 }

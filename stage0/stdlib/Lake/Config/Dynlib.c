@@ -120,7 +120,7 @@ _start:
 {
 if (lean_obj_tag(x_4) == 0)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -137,7 +137,7 @@ lean_inc(x_1);
 lean_ctor_set_tag(x_4, 5);
 lean_ctor_set(x_4, 1, x_1);
 lean_ctor_set(x_4, 0, x_3);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_8 = lean_apply_1(x_2, x_6);
 x_9 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_9, 0, x_4);
@@ -158,7 +158,7 @@ lean_inc(x_1);
 x_13 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_13, 0, x_3);
 lean_ctor_set(x_13, 1, x_1);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_14 = lean_apply_1(x_2, x_11);
 x_15 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
@@ -199,7 +199,7 @@ lean_object* x_5; lean_object* x_6;
 lean_dec(x_2);
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_Lake_reprDynlib___redArg____x40_Lake_Config_Dynlib___hyg_67_(x_5);
 return x_6;
 }
@@ -208,7 +208,7 @@ else
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_alloc_closure((void*)(l_Std_Format_joinSep___at___Array_Array_repr___at___Lake_reprDynlib____x40_Lake_Config_Dynlib___hyg_67__spec__0_spec__0___lam__0), 1, 0);
 x_9 = l_Lake_reprDynlib___redArg____x40_Lake_Config_Dynlib___hyg_67_(x_7);
 x_10 = l_List_foldl___at___Std_Format_joinSep___at___Array_Array_repr___at___Lake_reprDynlib____x40_Lake_Config_Dynlib___hyg_67__spec__0_spec__0_spec__0(x_2, x_8, x_9, x_4);

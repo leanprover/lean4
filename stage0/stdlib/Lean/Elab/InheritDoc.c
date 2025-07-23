@@ -959,7 +959,7 @@ lean_inc(x_49);
 lean_dec_ref(x_20);
 x_50 = lean_ctor_get(x_21, 0);
 lean_inc(x_50);
-lean_dec(x_21);
+lean_dec_ref(x_21);
 x_51 = l_Lean_addDocStringCore___at___Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3__spec__1(x_3, x_50, x_12, x_13, x_49);
 lean_dec(x_13);
 lean_dec_ref(x_12);
@@ -1062,7 +1062,7 @@ lean_inc(x_72);
 lean_dec_ref(x_55);
 x_73 = lean_ctor_get(x_56, 0);
 lean_inc(x_73);
-lean_dec(x_56);
+lean_dec_ref(x_56);
 x_74 = l_Lean_addDocStringCore___at___Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3__spec__1(x_3, x_73, x_12, x_13, x_72);
 lean_dec(x_13);
 lean_dec_ref(x_12);
@@ -1097,7 +1097,7 @@ else
 lean_object* x_87; lean_object* x_88; lean_object* x_89; 
 x_87 = lean_ctor_get(x_78, 0);
 lean_inc(x_87);
-lean_dec(x_78);
+lean_dec_ref(x_78);
 x_88 = lean_box(0);
 lean_inc(x_80);
 lean_inc_ref(x_79);
@@ -1143,7 +1143,7 @@ goto block_75;
 }
 else
 {
-lean_dec(x_99);
+lean_dec_ref(x_99);
 if (x_77 == 0)
 {
 lean_object* x_101; 
@@ -1335,7 +1335,7 @@ goto block_75;
 }
 else
 {
-lean_dec(x_136);
+lean_dec_ref(x_136);
 if (x_77 == 0)
 {
 lean_object* x_138; 
@@ -1528,7 +1528,7 @@ else
 lean_object* x_178; lean_object* x_179; lean_object* x_180; 
 x_178 = lean_ctor_get(x_78, 0);
 lean_inc(x_178);
-lean_dec(x_78);
+lean_dec_ref(x_78);
 x_179 = lean_box(0);
 lean_inc(x_80);
 lean_inc_ref(x_175);
@@ -1580,7 +1580,7 @@ goto block_75;
 }
 else
 {
-lean_dec(x_190);
+lean_dec_ref(x_190);
 if (x_77 == 0)
 {
 lean_object* x_192; 

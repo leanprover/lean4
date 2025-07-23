@@ -368,7 +368,7 @@ lean_object* x_14; lean_object* x_15;
 lean_dec_ref(x_1);
 x_14 = lean_ctor_get(x_10, 0);
 lean_inc(x_14);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_15 = l_Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData___hyg_19_(x_14);
 if (lean_obj_tag(x_15) == 0)
 {

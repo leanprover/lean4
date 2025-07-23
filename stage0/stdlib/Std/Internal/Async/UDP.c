@@ -529,7 +529,7 @@ return x_45;
 else
 {
 lean_object* x_46; lean_object* x_47; 
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_46 = lean_ctor_get(x_43, 1);
 lean_inc(x_46);
 lean_dec_ref(x_43);

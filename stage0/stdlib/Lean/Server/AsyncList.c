@@ -265,7 +265,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 uint8_t x_3; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = !lean_is_exclusive(x_2);
 if (x_3 == 0)
 {
@@ -339,7 +339,7 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_4);
 x_6 = lean_apply_1(x_1, x_4);
 x_7 = lean_unbox(x_6);
@@ -357,7 +357,7 @@ else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_box(0);
 lean_ctor_set_tag(x_2, 1);
 lean_ctor_set(x_2, 1, x_11);
@@ -377,7 +377,7 @@ x_16 = lean_ctor_get(x_2, 1);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_dec(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_15);
 x_17 = lean_apply_1(x_1, x_15);
 x_18 = lean_unbox(x_17);
@@ -394,7 +394,7 @@ else
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_dec(x_16);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_22 = lean_box(0);
 x_23 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_23, 0, x_15);
@@ -413,7 +413,7 @@ case 1:
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_27 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_27);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_28 = lean_alloc_closure((void*)(l_IO_AsyncList_waitUntil___redArg___lam__1), 2, 1);
 lean_closure_set(x_28, 0, x_1);
 x_29 = l_Lean_Server_ServerTask_bindCheap___redArg(x_27, x_28);
@@ -422,7 +422,7 @@ return x_29;
 default: 
 {
 lean_object* x_30; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_30 = l_IO_AsyncList_waitUntil___redArg___closed__1;
 return x_30;
 }
@@ -478,7 +478,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 uint8_t x_3; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = !lean_is_exclusive(x_2);
 if (x_3 == 0)
 {
@@ -539,8 +539,8 @@ x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
-lean_dec(x_2);
-lean_inc(x_1);
+lean_dec_ref(x_2);
+lean_inc_ref(x_1);
 lean_inc(x_3);
 x_5 = lean_apply_1(x_1, x_3);
 x_6 = lean_unbox(x_5);
@@ -554,7 +554,7 @@ else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 lean_dec(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_8, 0, x_3);
 x_9 = lean_alloc_ctor(1, 1, 0);
@@ -568,7 +568,7 @@ case 1:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_11);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_12 = lean_alloc_closure((void*)(l_IO_AsyncList_waitFind_x3f___redArg___lam__0), 2, 1);
 lean_closure_set(x_12, 0, x_1);
 x_13 = l_Lean_Server_ServerTask_bindCheap___redArg(x_11, x_12);
@@ -577,7 +577,7 @@ return x_13;
 default: 
 {
 lean_object* x_14; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_14 = l_IO_AsyncList_waitFind_x3f___redArg___closed__1;
 return x_14;
 }
@@ -755,7 +755,7 @@ case 1:
 lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
 x_32 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_32);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_33 = l_Lean_Server_ServerTask_hasFinished___redArg(x_32, x_2);
 x_34 = lean_ctor_get(x_33, 0);
 lean_inc(x_34);
@@ -856,7 +856,7 @@ lean_free_object(x_33);
 lean_dec(x_34);
 x_61 = lean_ctor_get(x_51, 0);
 lean_inc(x_61);
-lean_dec(x_51);
+lean_dec_ref(x_51);
 x_1 = x_61;
 x_2 = x_49;
 goto _start;
@@ -906,7 +906,7 @@ lean_object* x_72;
 lean_dec(x_34);
 x_72 = lean_ctor_get(x_64, 0);
 lean_inc(x_72);
-lean_dec(x_64);
+lean_dec_ref(x_64);
 x_1 = x_72;
 x_2 = x_63;
 goto _start;
@@ -940,7 +940,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_4; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_List_reverse___redArg(x_3);
 return x_4;
 }
@@ -953,7 +953,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_8 = l_Lean_Server_ServerTask_mapCheap___redArg(x_1, x_6);
 lean_ctor_set(x_2, 1, x_3);
 lean_ctor_set(x_2, 0, x_8);
@@ -973,7 +973,7 @@ x_11 = lean_ctor_get(x_2, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_12 = l_Lean_Server_ServerTask_mapCheap___redArg(x_1, x_10);
 x_13 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
@@ -1174,7 +1174,7 @@ case 1:
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
 x_34 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_34);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_35 = lean_alloc_closure((void*)(l_IO_AsyncList_getFinishedPrefixWithTimeout_go___redArg___lam__0), 1, 0);
 x_36 = lean_alloc_closure((void*)(l_IO_AsyncList_getFinishedPrefixWithTimeout_go___redArg___lam__1), 1, 0);
 x_37 = l_Lean_Server_ServerTask_mapCheap___redArg(x_35, x_34);
@@ -1195,7 +1195,7 @@ lean_inc(x_44);
 if (lean_obj_tag(x_44) == 0)
 {
 uint8_t x_45; 
-lean_dec(x_44);
+lean_dec_ref(x_44);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 x_45 = !lean_is_exclusive(x_43);
@@ -1226,7 +1226,7 @@ else
 lean_object* x_51; 
 x_51 = lean_ctor_get(x_44, 0);
 lean_inc(x_51);
-lean_dec(x_44);
+lean_dec_ref(x_44);
 if (lean_obj_tag(x_51) == 0)
 {
 uint8_t x_52; 
@@ -1321,7 +1321,7 @@ lean_inc(x_77);
 lean_dec_ref(x_43);
 x_78 = lean_ctor_get(x_51, 0);
 lean_inc(x_78);
-lean_dec(x_51);
+lean_dec_ref(x_51);
 x_3 = x_78;
 x_4 = x_77;
 goto _start;

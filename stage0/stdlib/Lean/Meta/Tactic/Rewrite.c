@@ -1284,7 +1284,7 @@ lean_dec_ref(x_102);
 lean_dec_ref(x_101);
 lean_dec_ref(x_100);
 lean_dec_ref(x_99);
-lean_dec(x_98);
+lean_dec_ref(x_98);
 lean_dec(x_97);
 lean_dec_ref(x_96);
 lean_dec_ref(x_95);
@@ -2512,7 +2512,7 @@ else
 lean_object* x_444; lean_object* x_445; 
 x_444 = lean_ctor_get(x_435, 0);
 lean_inc(x_444);
-lean_dec(x_435);
+lean_dec_ref(x_435);
 x_445 = lean_ctor_get(x_444, 1);
 lean_inc(x_445);
 if (x_6 == 0)

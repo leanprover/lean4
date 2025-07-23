@@ -474,7 +474,7 @@ x_14 = lean_ctor_get(x_3, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_3, 2);
 lean_inc(x_15);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_inc(x_14);
 x_22 = l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_typeAnalysisPass_analyzeStructure_spec__0(x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_22) == 0)
@@ -541,7 +541,7 @@ goto block_21;
 else
 {
 lean_object* x_45; lean_object* x_46; uint8_t x_47; 
-lean_dec(x_42);
+lean_dec_ref(x_42);
 x_45 = l_Std_DHashMap_Internal_AssocList_forInStep_go___at___Std_DHashMap_Internal_AssocList_forInStep_go___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_addStructureSimpLemmas_spec__1_spec__1___redArg___closed__2;
 x_46 = l_Lean_isTracingEnabledFor___at___Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0_spec__0___redArg(x_45, x_9, x_34);
 x_47 = !lean_is_exclusive(x_46);
@@ -840,7 +840,7 @@ goto block_21;
 else
 {
 lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; uint8_t x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; uint8_t x_148; 
-lean_dec(x_117);
+lean_dec_ref(x_117);
 x_120 = l_Std_DHashMap_Internal_AssocList_forInStep_go___at___Std_DHashMap_Internal_AssocList_forInStep_go___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_addStructureSimpLemmas_spec__1_spec__1___redArg___closed__2;
 x_121 = l_Lean_isTracingEnabledFor___at___Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0_spec__0___redArg(x_120, x_9, x_34);
 x_122 = lean_ctor_get(x_121, 0);
@@ -1104,7 +1104,7 @@ x_15 = lean_ctor_get(x_4, 0);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_4, 2);
 lean_inc(x_16);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_inc(x_15);
 x_23 = l_Lean_getConstInfoInduct___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_typeAnalysisPass_analyzeStructure_spec__0(x_15, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_23) == 0)
@@ -1171,7 +1171,7 @@ goto block_22;
 else
 {
 lean_object* x_46; lean_object* x_47; uint8_t x_48; 
-lean_dec(x_43);
+lean_dec_ref(x_43);
 x_46 = l_Std_DHashMap_Internal_AssocList_forInStep_go___at___Std_DHashMap_Internal_AssocList_forInStep_go___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_addStructureSimpLemmas_spec__1_spec__1___redArg___closed__2;
 x_47 = l_Lean_isTracingEnabledFor___at___Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0_spec__0___redArg(x_46, x_10, x_35);
 x_48 = !lean_is_exclusive(x_47);
@@ -1470,7 +1470,7 @@ goto block_22;
 else
 {
 lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; uint8_t x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; uint8_t x_149; 
-lean_dec(x_118);
+lean_dec_ref(x_118);
 x_121 = l_Std_DHashMap_Internal_AssocList_forInStep_go___at___Std_DHashMap_Internal_AssocList_forInStep_go___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_addStructureSimpLemmas_spec__1_spec__1___redArg___closed__2;
 x_122 = l_Lean_isTracingEnabledFor___at___Lean_withTraceNode___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline_spec__0_spec__0___redArg(x_121, x_10, x_35);
 x_123 = lean_ctor_get(x_122, 0);
@@ -1758,7 +1758,7 @@ x_25 = lean_ctor_get(x_22, 0);
 lean_dec(x_25);
 x_26 = lean_ctor_get(x_23, 0);
 lean_inc(x_26);
-lean_dec(x_23);
+lean_dec_ref(x_23);
 lean_ctor_set(x_22, 0, x_26);
 return x_22;
 }
@@ -1770,7 +1770,7 @@ lean_inc(x_27);
 lean_dec(x_22);
 x_28 = lean_ctor_get(x_23, 0);
 lean_inc(x_28);
-lean_dec(x_23);
+lean_dec_ref(x_23);
 x_29 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_29, 0, x_28);
 lean_ctor_set(x_29, 1, x_27);
@@ -1785,7 +1785,7 @@ lean_inc(x_30);
 lean_dec_ref(x_22);
 x_31 = lean_ctor_get(x_23, 0);
 lean_inc(x_31);
-lean_dec(x_23);
+lean_dec_ref(x_23);
 x_32 = 1;
 x_33 = lean_usize_add(x_10, x_32);
 x_10 = x_33;
@@ -2157,10 +2157,10 @@ lean_object* x_17;
 x_17 = l_Std_DHashMap_Internal_AssocList_forInStep_go___at___Lean_Elab_Tactic_BVDecide_Frontend_Normalize_addStructureSimpLemmas_spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec(x_11);
 lean_dec_ref(x_10);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 return x_17;
 }
 }
@@ -2194,10 +2194,10 @@ x_21 = l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_Tactic_BVDecide_Frontend_No
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec_ref(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 return x_21;
 }
 }
@@ -3127,7 +3127,7 @@ else
 lean_object* x_16; lean_object* x_17; uint64_t x_18; uint64_t x_19; uint64_t x_20; uint64_t x_21; uint64_t x_22; uint64_t x_23; uint64_t x_24; size_t x_25; size_t x_26; size_t x_27; size_t x_28; size_t x_29; lean_object* x_30; uint8_t x_31; lean_object* x_32; 
 x_16 = lean_ctor_get(x_14, 0);
 lean_inc(x_16);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_17 = lean_array_get_size(x_2);
 x_18 = l_Lean_Name_hash___override(x_16);
 x_19 = 32;
@@ -3177,7 +3177,7 @@ else
 lean_object* x_39; lean_object* x_40; uint64_t x_41; uint64_t x_42; uint64_t x_43; uint64_t x_44; uint64_t x_45; uint64_t x_46; uint64_t x_47; size_t x_48; size_t x_49; size_t x_50; size_t x_51; size_t x_52; lean_object* x_53; uint8_t x_54; lean_object* x_55; lean_object* x_56; 
 x_39 = lean_ctor_get(x_36, 0);
 lean_inc(x_39);
-lean_dec(x_36);
+lean_dec_ref(x_36);
 x_40 = lean_array_get_size(x_2);
 x_41 = l_Lean_Name_hash___override(x_39);
 x_42 = 32;
@@ -3314,14 +3314,14 @@ if (lean_obj_tag(x_32) == 0)
 lean_object* x_33; lean_object* x_34; 
 x_33 = lean_ctor_get(x_23, 0);
 lean_inc(x_33);
-lean_dec(x_23);
+lean_dec_ref(x_23);
 x_34 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_structuresPass_postprocess(x_33, x_2, x_3, x_4, x_5, x_6, x_7, x_24);
 return x_34;
 }
 else
 {
-lean_dec(x_32);
-lean_dec(x_23);
+lean_dec_ref(x_32);
+lean_dec_ref(x_23);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 x_25 = x_4;
@@ -3442,14 +3442,14 @@ if (lean_obj_tag(x_57) == 0)
 lean_object* x_58; lean_object* x_59; 
 x_58 = lean_ctor_get(x_48, 0);
 lean_inc(x_58);
-lean_dec(x_48);
+lean_dec_ref(x_48);
 x_59 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_structuresPass_postprocess(x_58, x_2, x_3, x_4, x_5, x_6, x_7, x_49);
 return x_59;
 }
 else
 {
-lean_dec(x_57);
-lean_dec(x_48);
+lean_dec_ref(x_57);
+lean_dec_ref(x_48);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 x_50 = x_4;

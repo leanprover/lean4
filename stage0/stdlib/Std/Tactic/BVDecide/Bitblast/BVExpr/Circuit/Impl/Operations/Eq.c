@@ -25,8 +25,8 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_mkEq___redArg(lean_object*
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_6 = lean_alloc_closure((void*)(l_Std_Sat_AIG_mkBEqCached), 5, 3);
 lean_closure_set(x_6, 0, lean_box(0));
 lean_closure_set(x_6, 1, x_1);

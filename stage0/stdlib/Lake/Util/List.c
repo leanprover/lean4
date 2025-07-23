@@ -20,7 +20,7 @@ _start:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -32,11 +32,11 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_6 = l_Lake_List_squeeze___redArg(x_1, x_5);
 if (lean_obj_tag(x_6) == 0)
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_ctor_set(x_2, 1, x_6);
 return x_2;
 }
@@ -69,12 +69,12 @@ x_11 = lean_ctor_get(x_2, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_12 = l_Lake_List_squeeze___redArg(x_1, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_13 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_13, 0, x_10);
 lean_ctor_set(x_13, 1, x_12);

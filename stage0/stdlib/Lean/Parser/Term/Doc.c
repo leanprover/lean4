@@ -1017,7 +1017,7 @@ else
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
-lean_dec(x_21);
+lean_dec_ref(x_21);
 x_23 = lean_ctor_get(x_22, 1);
 lean_inc(x_23);
 lean_dec(x_22);
@@ -1100,7 +1100,7 @@ else
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
-lean_dec(x_21);
+lean_dec_ref(x_21);
 x_23 = lean_ctor_get(x_22, 1);
 lean_inc(x_23);
 lean_dec(x_22);
@@ -1166,7 +1166,7 @@ else
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_17 = l_Array_append___redArg(x_13, x_16);
 lean_dec(x_16);
 return x_17;
@@ -1506,7 +1506,7 @@ else
 lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; 
 x_26 = lean_ctor_get(x_4, 0);
 lean_inc(x_26);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_27 = l_Lean_Parser_Term_Doc_getRecommendedSpellingString_indentLine___closed__0;
 x_28 = l_Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__6;
 x_29 = l_Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__7;
@@ -1531,14 +1531,14 @@ if (lean_obj_tag(x_33) == 0)
 lean_object* x_34; 
 x_34 = lean_ctor_get(x_32, 0);
 lean_inc(x_34);
-lean_dec(x_32);
+lean_dec_ref(x_32);
 x_12 = x_34;
 goto block_22;
 }
 else
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-lean_dec(x_33);
+lean_dec_ref(x_33);
 x_35 = l_Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__5;
 x_36 = lean_string_append(x_11, x_35);
 x_37 = l_List_mapTR_loop___at___Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet_spec__0(x_32, x_31);

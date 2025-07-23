@@ -1533,12 +1533,12 @@ x_7 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(x_1, x_2, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_8 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_8);
 lean_dec_ref(x_3);
 x_9 = lean_ctor_get(x_8, 1);
-lean_inc(x_9);
+lean_inc_ref(x_9);
 lean_dec_ref(x_8);
 x_10 = lean_apply_2(x_9, lean_box(0), x_5);
 return x_10;
@@ -1549,7 +1549,7 @@ lean_object* x_11; lean_object* x_12;
 lean_dec_ref(x_3);
 x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_12 = lean_apply_2(x_4, x_5, x_11);
 return x_12;
 }
@@ -1574,12 +1574,12 @@ return x_7;
 else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_8);
 lean_dec_ref(x_1);
 x_9 = lean_ctor_get(x_8, 1);
-lean_inc(x_9);
+lean_inc_ref(x_9);
 lean_dec_ref(x_8);
 x_10 = lean_apply_2(x_9, lean_box(0), x_4);
 return x_10;
@@ -1665,7 +1665,7 @@ x_6 = lean_usize_dec_lt(x_3, x_2);
 if (x_6 == 0)
 {
 lean_object* x_7; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_4);
 lean_ctor_set(x_7, 1, x_5);
@@ -1675,7 +1675,7 @@ else
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; size_t x_14; size_t x_15; lean_object* x_16; 
 x_8 = lean_array_uget(x_4, x_3);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_9 = l_Lean_Widget_TaggedText_rewriteM___at___Lean_Widget_tagCodeInfos_go_spec__0___redArg(x_1, x_8, x_5);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
@@ -1709,7 +1709,7 @@ switch (lean_obj_tag(x_2)) {
 case 0:
 {
 lean_object* x_4; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
@@ -1830,7 +1830,7 @@ else
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_10 = l_Lean_Widget_tagCodeInfos_go___lam__0___closed__0;
 lean_inc_ref(x_2);
 x_11 = lean_alloc_ctor(0, 3, 0);
@@ -2204,7 +2204,7 @@ lean_dec(x_15);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_70 = l_Lean_getPPInstantiateMVars(x_14);
 lean_dec(x_14);
 if (x_70 == 0)

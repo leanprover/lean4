@@ -1155,7 +1155,7 @@ lean_inc(x_29);
 lean_dec_ref(x_9);
 x_30 = lean_ctor_get(x_10, 0);
 lean_inc(x_30);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_31 = l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___redArg(x_3, x_6, x_29);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
@@ -1786,7 +1786,7 @@ lean_dec(x_5);
 lean_dec_ref(x_4);
 x_26 = lean_ctor_get(x_22, 0);
 lean_inc(x_26);
-lean_dec(x_22);
+lean_dec_ref(x_22);
 x_27 = !lean_is_exclusive(x_21);
 if (x_27 == 0)
 {
@@ -1982,7 +1982,7 @@ lean_dec(x_5);
 lean_dec_ref(x_4);
 x_66 = lean_ctor_get(x_62, 0);
 lean_inc(x_66);
-lean_dec(x_62);
+lean_dec_ref(x_62);
 x_67 = lean_ctor_get(x_61, 1);
 lean_inc(x_67);
 if (lean_is_exclusive(x_61)) {

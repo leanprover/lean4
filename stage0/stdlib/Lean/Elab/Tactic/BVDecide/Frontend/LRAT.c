@@ -239,13 +239,13 @@ else
 lean_object* x_6; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; 
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_7;
 }
 else
@@ -364,7 +364,7 @@ else
 lean_object* x_33; 
 x_33 = lean_ctor_get(x_30, 0);
 lean_inc(x_33);
-lean_dec(x_30);
+lean_dec_ref(x_30);
 x_13 = x_33;
 goto block_29;
 }
@@ -1841,7 +1841,7 @@ lean_inc(x_7);
 lean_dec_ref(x_5);
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___lam__2___closed__1;
 x_10 = l_Lean_stringToMessageData(x_8);
 lean_dec(x_8);
@@ -1866,7 +1866,7 @@ x_16 = lean_ctor_get(x_5, 0);
 lean_dec(x_16);
 x_17 = lean_ctor_get(x_6, 0);
 lean_inc(x_17);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_ctor_set(x_5, 0, x_17);
 return x_5;
 }
@@ -1878,7 +1878,7 @@ lean_inc(x_18);
 lean_dec(x_5);
 x_19 = lean_ctor_get(x_6, 0);
 lean_inc(x_19);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_18);
@@ -2709,7 +2709,7 @@ else
 {
 uint8_t x_35; 
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_35 = !lean_is_exclusive(x_5);
 if (x_35 == 0)
 {
@@ -3162,7 +3162,7 @@ if (lean_obj_tag(x_24) == 0)
 uint8_t x_25; 
 lean_dec(x_13);
 lean_dec_ref(x_12);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 lean_dec_ref(x_4);
 x_25 = !lean_is_exclusive(x_23);
 if (x_25 == 0)
@@ -3283,7 +3283,7 @@ else
 uint8_t x_50; 
 lean_dec(x_13);
 lean_dec_ref(x_12);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 lean_dec_ref(x_4);
 x_50 = !lean_is_exclusive(x_23);
 if (x_50 == 0)
@@ -3311,8 +3311,8 @@ uint8_t x_54;
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec_ref(x_11);
-lean_dec(x_9);
-lean_dec(x_7);
+lean_dec_ref(x_9);
+lean_dec_ref(x_7);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);

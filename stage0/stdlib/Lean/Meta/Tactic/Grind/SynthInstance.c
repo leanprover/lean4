@@ -79,7 +79,7 @@ if (x_12 == 0)
 if (lean_obj_tag(x_10) == 0)
 {
 lean_dec(x_11);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 return x_9;
 }
 else
@@ -87,7 +87,7 @@ else
 lean_object* x_13; uint8_t x_14; 
 x_13 = lean_ctor_get(x_10, 0);
 lean_inc(x_13);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_14 = lean_nat_dec_eq(x_3, x_13);
 lean_dec(x_13);
 if (x_14 == 0)
@@ -181,7 +181,7 @@ else
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_ctor_get(x_13, 0);
 lean_inc(x_16);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_17 = l_Lean_profileitM___at___Lean_Meta_letToHave_spec__1___redArg(x_8, x_7, x_11, x_16, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_7);
 return x_17;
@@ -312,7 +312,7 @@ x_17 = lean_ctor_get(x_7, 0);
 lean_dec(x_17);
 x_18 = lean_ctor_get(x_8, 0);
 lean_inc(x_18);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 lean_ctor_set(x_7, 0, x_18);
 return x_7;
 }
@@ -324,7 +324,7 @@ lean_inc(x_19);
 lean_dec(x_7);
 x_20 = lean_ctor_get(x_8, 0);
 lean_inc(x_20);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_19);
@@ -436,7 +436,7 @@ lean_inc(x_18);
 lean_dec_ref(x_8);
 x_19 = lean_ctor_get(x_9, 0);
 lean_inc(x_19);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_20 = l_Lean_Meta_isExprDefEq(x_1, x_19, x_3, x_4, x_5, x_6, x_18);
 return x_20;
 }

@@ -929,7 +929,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_8; 
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = x_8;
 goto block_7;
 }
@@ -1499,7 +1499,7 @@ else
 lean_object* x_19; uint8_t x_20; 
 x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 x_20 = lean_unbox(x_19);
 lean_dec(x_19);
 return x_20;
@@ -1510,7 +1510,7 @@ else
 lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 x_21 = lean_ctor_get(x_14, 0);
 lean_inc(x_21);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_22 = l_Lean_getReducibilityStatusCore___closed__4;
 x_23 = 0;
 x_24 = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(x_13, x_22, x_1, x_21, x_23);
@@ -1563,7 +1563,7 @@ else
 lean_object* x_35; lean_object* x_36; uint8_t x_37; 
 x_35 = lean_ctor_get(x_34, 0);
 lean_inc(x_35);
-lean_dec(x_34);
+lean_dec_ref(x_34);
 x_36 = lean_ctor_get(x_35, 1);
 lean_inc(x_36);
 lean_dec(x_35);
@@ -1583,7 +1583,7 @@ lean_dec(x_2);
 lean_dec_ref(x_1);
 x_38 = lean_ctor_get(x_12, 0);
 lean_inc(x_38);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 x_39 = lean_unbox(x_38);
 lean_dec(x_38);
 return x_39;
@@ -1620,7 +1620,7 @@ else
 lean_object* x_47; uint8_t x_48; 
 x_47 = lean_ctor_get(x_45, 0);
 lean_inc(x_47);
-lean_dec(x_45);
+lean_dec_ref(x_45);
 x_48 = lean_unbox(x_47);
 lean_dec(x_47);
 return x_48;
@@ -1631,7 +1631,7 @@ else
 lean_object* x_49; lean_object* x_50; uint8_t x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; uint8_t x_55; 
 x_49 = lean_ctor_get(x_42, 0);
 lean_inc(x_49);
-lean_dec(x_42);
+lean_dec_ref(x_42);
 x_50 = l_Lean_getReducibilityStatusCore___closed__4;
 x_51 = 0;
 x_52 = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(x_41, x_50, x_1, x_49, x_51);
@@ -1683,7 +1683,7 @@ else
 lean_object* x_64; lean_object* x_65; uint8_t x_66; 
 x_64 = lean_ctor_get(x_63, 0);
 lean_inc(x_64);
-lean_dec(x_63);
+lean_dec_ref(x_63);
 x_65 = lean_ctor_get(x_64, 1);
 lean_inc(x_65);
 lean_dec(x_64);
@@ -1702,7 +1702,7 @@ lean_dec(x_2);
 lean_dec_ref(x_1);
 x_67 = lean_ctor_get(x_40, 0);
 lean_inc(x_67);
-lean_dec(x_40);
+lean_dec_ref(x_40);
 x_68 = lean_unbox(x_67);
 lean_dec(x_67);
 return x_68;
@@ -1814,7 +1814,7 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_15 = l_Lean_getReducibilityStatusCore___closed__0;
 x_16 = lean_box(x_3);
 x_17 = lean_alloc_ctor(0, 2, 0);
@@ -2017,7 +2017,7 @@ lean_object* x_18;
 lean_dec(x_1);
 x_18 = lean_ctor_get(x_11, 0);
 lean_inc(x_18);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 lean_ctor_set(x_5, 0, x_18);
 return x_5;
 }
@@ -2057,7 +2057,7 @@ lean_object* x_30; lean_object* x_31;
 lean_dec(x_1);
 x_30 = lean_ctor_get(x_23, 0);
 lean_inc(x_30);
-lean_dec(x_23);
+lean_dec_ref(x_23);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_20);
@@ -2439,7 +2439,7 @@ x_22 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__4;
 if (lean_obj_tag(x_19) == 1)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_33; uint8_t x_34; 
-lean_dec(x_19);
+lean_dec_ref(x_19);
 x_23 = lean_st_ref_get(x_5, x_20);
 x_24 = lean_ctor_get(x_23, 0);
 lean_inc(x_24);
@@ -2625,7 +2625,7 @@ goto block_48;
 }
 else
 {
-lean_dec(x_50);
+lean_dec_ref(x_50);
 goto block_48;
 }
 block_48:
@@ -3518,13 +3518,13 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 lean_dec_ref(x_1);
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
 lean_dec_ref(x_2);
 x_7 = lean_ctor_get(x_4, 1);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_dec_ref(x_4);
 x_8 = lean_alloc_closure((void*)(l_Lean_getReducibilityStatus___redArg___lam__0), 3, 2);
 lean_closure_set(x_8, 0, x_3);
@@ -3556,7 +3556,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = lean_box(x_3);
 x_6 = lean_alloc_closure((void*)(l_Lean_setReducibilityStatus___redArg___lam__0___boxed), 3, 2);
@@ -3649,9 +3649,9 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 lean_dec_ref(x_4);
 x_7 = l_Lean_getReducibilityStatus___redArg(x_1, x_2, x_3);
 x_8 = lean_alloc_closure((void*)(l_Lean_isReducible___redArg___lam__0___boxed), 2, 1);
@@ -3708,9 +3708,9 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 lean_dec_ref(x_4);
 x_7 = l_Lean_getReducibilityStatus___redArg(x_1, x_2, x_3);
 x_8 = lean_alloc_closure((void*)(l_Lean_isIrreducible___redArg___lam__0___boxed), 2, 1);

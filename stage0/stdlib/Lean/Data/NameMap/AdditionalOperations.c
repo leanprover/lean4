@@ -33,15 +33,15 @@ x_5 = lean_ctor_get(x_2, 3);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_2, 4);
 lean_inc(x_6);
-lean_dec(x_2);
-lean_inc(x_1);
+lean_dec_ref(x_2);
+lean_inc_ref(x_1);
 lean_inc(x_3);
 x_7 = lean_apply_2(x_1, x_3, x_4);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 lean_dec(x_3);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_8 = l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0___redArg(x_1, x_5);
 x_9 = l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0___redArg(x_1, x_6);
 x_10 = l_Std_DTreeMap_Internal_Impl_link2___redArg(x_8, x_9);
@@ -52,8 +52,8 @@ else
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
-lean_dec(x_7);
-lean_inc(x_1);
+lean_dec_ref(x_7);
+lean_inc_ref(x_1);
 x_12 = l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0___redArg(x_1, x_5);
 x_13 = l_Std_DTreeMap_Internal_Impl_filterMap___at___Lean_NameMap_filterMap_spec__0___redArg(x_1, x_6);
 x_14 = l_Std_DTreeMap_Internal_Impl_link___redArg(x_3, x_11, x_12, x_13);
@@ -63,7 +63,7 @@ return x_14;
 else
 {
 lean_object* x_15; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_15 = lean_box(1);
 return x_15;
 }

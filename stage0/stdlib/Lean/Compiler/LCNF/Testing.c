@@ -2274,7 +2274,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; 
 x_15 = lean_array_uget(x_4, x_5);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc_ref(x_2);
 x_16 = lean_apply_2(x_1, x_2, x_15);
 x_17 = lean_unbox(x_16);
@@ -2299,7 +2299,7 @@ else
 {
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_18;
 }
 }
@@ -2308,7 +2308,7 @@ else
 lean_object* x_24; 
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_7);
 lean_ctor_set(x_24, 1, x_13);
@@ -2346,7 +2346,7 @@ lean_dec(x_15);
 lean_dec(x_12);
 lean_dec_ref(x_4);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_ctor_set(x_10, 0, x_16);
 return x_10;
 }
@@ -2360,7 +2360,7 @@ lean_dec(x_15);
 lean_dec(x_12);
 lean_dec_ref(x_4);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_ctor_set(x_10, 0, x_16);
 return x_10;
 }
@@ -2396,7 +2396,7 @@ lean_dec(x_25);
 lean_dec(x_22);
 lean_dec_ref(x_4);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_28 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_23);
@@ -2413,7 +2413,7 @@ lean_dec(x_25);
 lean_dec(x_22);
 lean_dec_ref(x_4);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_30 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_30, 0, x_26);
 lean_ctor_set(x_30, 1, x_23);
@@ -2975,7 +2975,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_19;
 }
 }
@@ -2994,7 +2994,7 @@ x_6 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
 x_7 = lean_ctor_get(x_3, 1);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_3, 2);
-lean_inc(x_8);
+lean_inc_ref(x_8);
 x_9 = lean_unsigned_to_nat(0u);
 lean_inc(x_7);
 lean_inc_ref(x_3);
@@ -3455,7 +3455,7 @@ lean_dec_ref(x_11);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_12, 2);
-lean_inc(x_15);
+lean_inc_ref(x_15);
 lean_dec(x_12);
 lean_inc(x_9);
 lean_inc_ref(x_8);
@@ -3478,12 +3478,12 @@ x_30 = lean_nat_dec_lt(x_28, x_29);
 if (x_30 == 0)
 {
 uint8_t x_31; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_31 = lean_nat_dec_lt(x_29, x_28);
 if (x_31 == 0)
 {
 uint8_t x_32; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_32 = lean_nat_dec_eq(x_28, x_29);
 lean_dec(x_29);
 if (x_32 == 0)
@@ -3511,7 +3511,7 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_34 = lean_box(0);
 lean_ctor_set(x_16, 0, x_34);
 return x_16;
@@ -3524,7 +3524,7 @@ lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean
 lean_dec(x_29);
 lean_dec(x_28);
 lean_free_object(x_16);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_35 = l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___lam__3___closed__0;
 x_36 = l_Lean_Name_toString(x_14, x_31, x_2);
 x_37 = lean_string_append(x_35, x_36);
@@ -3543,8 +3543,8 @@ lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean
 lean_dec(x_29);
 lean_dec(x_28);
 lean_free_object(x_16);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_41 = l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___lam__3___closed__0;
 x_42 = l_Lean_Name_toString(x_14, x_30, x_3);
 x_43 = lean_string_append(x_41, x_42);
@@ -3586,12 +3586,12 @@ x_59 = lean_nat_dec_lt(x_57, x_58);
 if (x_59 == 0)
 {
 uint8_t x_60; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_60 = lean_nat_dec_lt(x_58, x_57);
 if (x_60 == 0)
 {
 uint8_t x_61; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_61 = lean_nat_dec_eq(x_57, x_58);
 lean_dec(x_58);
 if (x_61 == 0)
@@ -3617,7 +3617,7 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_63 = lean_box(0);
 x_64 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_64, 0, x_63);
@@ -3631,7 +3631,7 @@ else
 lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
 lean_dec(x_58);
 lean_dec(x_57);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_65 = l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___lam__3___closed__0;
 x_66 = l_Lean_Name_toString(x_14, x_60, x_2);
 x_67 = lean_string_append(x_65, x_66);
@@ -3649,8 +3649,8 @@ else
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 lean_dec(x_58);
 lean_dec(x_57);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_71 = l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___lam__3___closed__0;
 x_72 = l_Lean_Name_toString(x_14, x_59, x_3);
 x_73 = lean_string_append(x_71, x_72);
@@ -3688,9 +3688,9 @@ lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_77 = !lean_is_exclusive(x_16);
 if (x_77 == 0)
 {
@@ -3879,7 +3879,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec_ref(x_14);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_17 = lean_apply_1(x_1, x_12);
 x_18 = lean_apply_1(x_1, x_15);
 lean_inc(x_18);
@@ -4306,7 +4306,7 @@ lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);

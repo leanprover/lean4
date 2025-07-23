@@ -231,7 +231,7 @@ else
 lean_object* x_29; 
 x_29 = lean_ctor_get(x_26, 0);
 lean_inc(x_29);
-lean_dec(x_26);
+lean_dec_ref(x_26);
 x_7 = x_29;
 goto block_24;
 }

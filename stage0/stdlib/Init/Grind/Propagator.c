@@ -1368,7 +1368,7 @@ else
 lean_object* x_97; lean_object* x_98; 
 x_97 = lean_ctor_get(x_69, 0);
 lean_inc(x_97);
-lean_dec(x_69);
+lean_dec_ref(x_69);
 x_98 = l_Array_mkArray1___redArg(x_97);
 x_6 = x_95;
 x_7 = x_92;

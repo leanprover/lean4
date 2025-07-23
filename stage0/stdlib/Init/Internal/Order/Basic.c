@@ -563,7 +563,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_ctor_get(x_1, 1);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 lean_dec_ref(x_1);
 x_3 = lean_apply_1(x_2, lean_box(0));
 return x_3;
@@ -795,7 +795,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_ctor_get(x_1, 1);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 lean_dec_ref(x_1);
 x_3 = lean_apply_1(x_2, lean_box(0));
 return x_3;
@@ -830,7 +830,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Order_lfp(x_1, x_2, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_4;
 }
 }
@@ -855,7 +855,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Order_lfp__monotone(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_5;
 }
 }
@@ -864,7 +864,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_ctor_get(x_1, 1);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 lean_dec_ref(x_1);
 x_3 = lean_apply_1(x_2, lean_box(0));
 return x_3;
@@ -883,7 +883,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Order_fix(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_5;
 }
 }
@@ -900,7 +900,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Order_instOrderPi(x_1, x_2, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_4;
 }
 }
@@ -910,7 +910,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_apply_1(x_1, x_2);
 x_4 = lean_ctor_get(x_3, 1);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_dec_ref(x_3);
 x_5 = lean_apply_1(x_4, lean_box(0));
 return x_5;
@@ -930,7 +930,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_apply_1(x_1, x_2);
 x_4 = lean_ctor_get(x_3, 1);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_dec_ref(x_3);
 x_5 = lean_apply_1(x_4, lean_box(0));
 return x_5;
@@ -1011,7 +1011,7 @@ _start:
 {
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = !lean_is_exclusive(x_2);
 if (x_5 == 0)
@@ -1068,7 +1068,7 @@ _start:
 {
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = !lean_is_exclusive(x_2);
 if (x_5 == 0)
@@ -1191,7 +1191,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Order_instCCPOExceptTOfMonadOfPartialOrder(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 return x_7;
 }
@@ -1258,7 +1258,7 @@ return x_8;
 else
 {
 lean_object* x_9; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_3);
 return x_9;

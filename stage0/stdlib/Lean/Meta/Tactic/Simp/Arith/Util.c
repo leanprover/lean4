@@ -1180,7 +1180,7 @@ return x_3;
 else
 {
 uint8_t x_4; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = 1;
 return x_4;
 }

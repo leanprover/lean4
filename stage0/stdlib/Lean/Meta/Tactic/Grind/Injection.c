@@ -205,7 +205,7 @@ lean_inc(x_101);
 if (lean_obj_tag(x_101) == 0)
 {
 lean_object* x_102; 
-lean_dec(x_97);
+lean_dec_ref(x_97);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -223,13 +223,13 @@ else
 lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; uint8_t x_107; 
 x_103 = lean_ctor_get(x_97, 0);
 lean_inc(x_103);
-lean_dec(x_97);
+lean_dec_ref(x_97);
 x_104 = lean_ctor_get(x_103, 0);
 lean_inc_ref(x_104);
 lean_dec(x_103);
 x_105 = lean_ctor_get(x_101, 0);
 lean_inc(x_105);
-lean_dec(x_101);
+lean_dec_ref(x_101);
 x_106 = lean_ctor_get(x_105, 0);
 lean_inc_ref(x_106);
 lean_dec(x_105);
@@ -418,7 +418,7 @@ lean_inc(x_21);
 lean_dec_ref(x_19);
 x_22 = lean_ctor_get(x_20, 1);
 lean_inc_ref(x_22);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 lean_inc(x_2);
 x_23 = l_Lean_MVarId_getTag(x_2, x_3, x_4, x_5, x_6, x_21);
 if (lean_obj_tag(x_23) == 0)

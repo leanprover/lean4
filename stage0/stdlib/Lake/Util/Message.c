@@ -121,7 +121,7 @@ else
 lean_object* x_27; 
 x_27 = lean_ctor_get(x_25, 0);
 lean_inc(x_27);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 x_14 = x_27;
 goto block_24;
 }
@@ -494,7 +494,7 @@ x_5 = lean_ctor_get(x_2, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_2, 1);
 lean_inc(x_6);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_7 = 0;
 x_8 = 1;
 x_9 = l_Lake_mkMessageString(x_5, x_7, x_8, x_3);

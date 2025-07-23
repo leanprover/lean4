@@ -378,7 +378,7 @@ lean_dec_ref(x_8);
 lean_dec_ref(x_2);
 x_26 = lean_ctor_get(x_22, 0);
 lean_inc(x_26);
-lean_dec(x_22);
+lean_dec_ref(x_22);
 return x_26;
 }
 }
@@ -1064,7 +1064,7 @@ goto block_20;
 }
 else
 {
-lean_dec(x_12);
+lean_dec_ref(x_12);
 lean_inc(x_1);
 x_16 = x_1;
 x_17 = x_13;
@@ -1338,7 +1338,7 @@ goto block_20;
 }
 else
 {
-lean_dec(x_12);
+lean_dec_ref(x_12);
 lean_inc(x_1);
 x_16 = x_1;
 x_17 = x_13;

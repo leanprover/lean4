@@ -888,7 +888,7 @@ lean_inc(x_20);
 lean_dec_ref(x_9);
 x_21 = lean_ctor_get(x_10, 0);
 lean_inc(x_21);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 lean_inc(x_7);
 lean_inc_ref(x_6);
 lean_inc(x_5);
@@ -949,7 +949,7 @@ else
 lean_object* x_93; lean_object* x_94; 
 x_93 = lean_ctor_get(x_32, 0);
 lean_inc(x_93);
-lean_dec(x_32);
+lean_dec_ref(x_32);
 lean_inc(x_7);
 lean_inc_ref(x_6);
 lean_inc(x_5);

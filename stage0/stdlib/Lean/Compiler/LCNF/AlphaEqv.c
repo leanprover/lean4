@@ -147,7 +147,7 @@ else
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_ctor_get(x_4, 0);
 lean_inc(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = lean_name_eq(x_1, x_6);
 lean_dec(x_6);
 return x_7;
@@ -523,7 +523,7 @@ else
 lean_object* x_15; uint8_t x_16; 
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_16 = lean_unbox(x_15);
 lean_dec(x_15);
 return x_16;
@@ -863,7 +863,7 @@ else
 lean_object* x_15; uint8_t x_16; 
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_16 = lean_unbox(x_15);
 lean_dec(x_15);
 return x_16;
@@ -908,7 +908,7 @@ lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = l_Lean_Compiler_LCNF_beqLitValue____x40_Lean_Compiler_LCNF_Basic___hyg_275_(x_4, x_5);
 lean_dec_ref(x_5);
 return x_6;
@@ -951,7 +951,7 @@ x_14 = lean_ctor_get(x_2, 1);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_2, 2);
 lean_inc(x_15);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_19 = lean_name_eq(x_10, x_13);
 lean_dec(x_13);
 if (x_19 == 0)
@@ -1006,7 +1006,7 @@ x_26 = lean_ctor_get(x_2, 1);
 lean_inc(x_26);
 x_27 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_27);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_31 = lean_name_eq(x_22, x_25);
 lean_dec(x_25);
 if (x_31 == 0)
@@ -1057,7 +1057,7 @@ x_36 = lean_ctor_get(x_2, 0);
 lean_inc(x_36);
 x_37 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_37);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_38 = l_Lean_Compiler_LCNF_AlphaEqv_eqvFVar(x_34, x_36, x_3);
 lean_dec(x_36);
 if (x_38 == 0)
@@ -1151,7 +1151,7 @@ lean_dec(x_14);
 lean_dec(x_11);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_16;
 }
 else
@@ -1210,7 +1210,7 @@ lean_dec(x_5);
 if (x_7 == 0)
 {
 lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_7;
 }
 else
@@ -2470,7 +2470,7 @@ else
 lean_object* x_18; uint8_t x_19; 
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 x_19 = lean_unbox(x_18);
 lean_dec(x_18);
 return x_19;

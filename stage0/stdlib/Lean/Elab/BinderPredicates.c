@@ -1320,7 +1320,7 @@ else
 lean_object* x_155; lean_object* x_156; lean_object* x_157; lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; lean_object* x_165; 
 x_155 = lean_ctor_get(x_145, 0);
 lean_inc(x_155);
-lean_dec(x_145);
+lean_dec_ref(x_145);
 x_156 = l_Lean_Elab_Command_elabBinderPred___closed__35;
 lean_inc_ref(x_135);
 x_157 = l_Lean_Name_mkStr4(x_5, x_6, x_135, x_156);
@@ -1459,7 +1459,7 @@ else
 lean_object* x_210; lean_object* x_211; 
 x_210 = lean_ctor_get(x_178, 0);
 lean_inc(x_210);
-lean_dec(x_178);
+lean_dec_ref(x_178);
 x_211 = l_Array_mkArray1___redArg(x_210);
 x_125 = x_204;
 x_126 = x_198;
@@ -1623,7 +1623,7 @@ else
 lean_object* x_258; lean_object* x_259; 
 x_258 = lean_ctor_get(x_214, 0);
 lean_inc(x_258);
-lean_dec(x_214);
+lean_dec_ref(x_214);
 x_259 = l_Lean_Syntax_getId(x_258);
 x_167 = x_226;
 x_168 = x_259;

@@ -1944,7 +1944,7 @@ lean_object* x_29; lean_object* x_30; uint8_t x_31;
 lean_dec(x_7);
 x_29 = lean_ctor_get(x_10, 0);
 lean_inc(x_29);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_30 = lean_ctor_get(x_9, 1);
 lean_inc(x_30);
 lean_dec_ref(x_9);
@@ -2040,7 +2040,7 @@ lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean
 lean_dec(x_38);
 x_55 = lean_ctor_get(x_41, 0);
 lean_inc(x_55);
-lean_dec(x_41);
+lean_dec_ref(x_41);
 x_56 = lean_ctor_get(x_40, 1);
 lean_inc(x_56);
 lean_dec_ref(x_40);
@@ -2216,7 +2216,7 @@ else
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; uint8_t x_51; 
 x_46 = lean_ctor_get(x_39, 0);
 lean_inc(x_46);
-lean_dec(x_39);
+lean_dec_ref(x_39);
 x_47 = lean_ctor_get(x_38, 1);
 lean_inc(x_47);
 lean_dec_ref(x_38);

@@ -301,7 +301,7 @@ case 1:
 lean_object* x_3; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_1 = x_3;
 goto _start;
 }
@@ -310,7 +310,7 @@ default:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc(x_5);
 x_6 = lean_alloc_closure((void*)(l_Std_Do_FailConds_const___redArg___lam__1___boxed), 3, 2);
 lean_closure_set(x_6, 0, x_5);
@@ -357,28 +357,28 @@ _start:
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
-lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
 lean_inc(x_2);
 return x_2;
 }
 case 1:
 {
 lean_object* x_5; lean_object* x_6; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_apply_2(x_3, lean_box(0), x_5);
 return x_6;
 }
 default: 
 {
 lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_apply_2(x_4, lean_box(0), x_7);
 return x_8;
 }
@@ -908,30 +908,30 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_7; 
-lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 x_7 = lean_apply_2(x_4, x_2, x_3);
 return x_7;
 }
 case 1:
 {
 lean_object* x_8; lean_object* x_9; 
-lean_dec(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_6);
+lean_dec_ref(x_4);
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_9 = lean_apply_4(x_5, lean_box(0), x_8, x_2, x_3);
 return x_9;
 }
 default: 
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_apply_4(x_6, lean_box(0), x_10, x_2, x_3);
 return x_11;
 }
@@ -975,7 +975,7 @@ case 1:
 lean_object* x_5; 
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_1 = x_5;
 goto _start;
 }
@@ -984,7 +984,7 @@ default:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_ctor_get(x_2, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_2, 1);

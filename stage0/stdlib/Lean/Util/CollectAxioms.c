@@ -91,7 +91,7 @@ x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_8 = l_Lean_CollectAxioms_collect(x_6, x_2, x_3);
 x_9 = lean_ctor_get(x_8, 1);
@@ -199,7 +199,7 @@ else
 lean_object* x_16; 
 x_16 = lean_ctor_get(x_13, 0);
 lean_inc(x_16);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 switch (lean_obj_tag(x_16)) {
 case 0:
 {
@@ -207,7 +207,7 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean
 lean_dec_ref(x_3);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc_ref(x_17);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc_ref(x_18);
 lean_dec_ref(x_17);
@@ -224,7 +224,7 @@ return x_22;
 case 4:
 {
 lean_object* x_23; lean_object* x_24; 
-lean_dec(x_16);
+lean_dec_ref(x_16);
 lean_dec(x_11);
 lean_dec_ref(x_5);
 lean_dec_ref(x_2);
@@ -243,7 +243,7 @@ lean_dec_ref(x_5);
 lean_dec(x_1);
 x_25 = lean_ctor_get(x_16, 0);
 lean_inc_ref(x_25);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc_ref(x_26);
 x_27 = lean_ctor_get(x_25, 4);
@@ -268,7 +268,7 @@ lean_dec_ref(x_5);
 lean_dec(x_1);
 x_32 = lean_ctor_get(x_16, 0);
 lean_inc_ref(x_32);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 x_33 = lean_ctor_get(x_32, 0);
 lean_inc_ref(x_33);
 lean_dec_ref(x_32);
@@ -286,7 +286,7 @@ lean_dec_ref(x_5);
 lean_dec(x_1);
 x_36 = lean_ctor_get(x_16, 0);
 lean_inc_ref(x_36);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 x_37 = lean_ctor_get(x_36, 0);
 lean_inc_ref(x_37);
 lean_dec_ref(x_36);
@@ -358,7 +358,7 @@ else
 lean_object* x_54; 
 x_54 = lean_ctor_get(x_51, 0);
 lean_inc(x_54);
-lean_dec(x_51);
+lean_dec_ref(x_51);
 switch (lean_obj_tag(x_54)) {
 case 0:
 {
@@ -366,7 +366,7 @@ lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean
 lean_dec_ref(x_49);
 x_55 = lean_ctor_get(x_54, 0);
 lean_inc_ref(x_55);
-lean_dec(x_54);
+lean_dec_ref(x_54);
 x_56 = lean_ctor_get(x_55, 0);
 lean_inc_ref(x_56);
 lean_dec_ref(x_55);
@@ -383,7 +383,7 @@ return x_60;
 case 4:
 {
 lean_object* x_61; lean_object* x_62; 
-lean_dec(x_54);
+lean_dec_ref(x_54);
 lean_dec(x_48);
 lean_dec_ref(x_5);
 lean_dec_ref(x_2);
@@ -402,7 +402,7 @@ lean_dec_ref(x_5);
 lean_dec(x_1);
 x_63 = lean_ctor_get(x_54, 0);
 lean_inc_ref(x_63);
-lean_dec(x_54);
+lean_dec_ref(x_54);
 x_64 = lean_ctor_get(x_63, 0);
 lean_inc_ref(x_64);
 x_65 = lean_ctor_get(x_63, 4);
@@ -427,7 +427,7 @@ lean_dec_ref(x_5);
 lean_dec(x_1);
 x_70 = lean_ctor_get(x_54, 0);
 lean_inc_ref(x_70);
-lean_dec(x_54);
+lean_dec_ref(x_54);
 x_71 = lean_ctor_get(x_70, 0);
 lean_inc_ref(x_71);
 lean_dec_ref(x_70);
@@ -445,7 +445,7 @@ lean_dec_ref(x_5);
 lean_dec(x_1);
 x_74 = lean_ctor_get(x_54, 0);
 lean_inc_ref(x_74);
-lean_dec(x_54);
+lean_dec_ref(x_54);
 x_75 = lean_ctor_get(x_74, 0);
 lean_inc_ref(x_75);
 lean_dec_ref(x_74);
@@ -556,13 +556,13 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 lean_dec_ref(x_1);
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
 lean_dec_ref(x_2);
 x_7 = lean_ctor_get(x_4, 1);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_dec_ref(x_4);
 x_8 = lean_alloc_closure((void*)(l_Lean_collectAxioms___redArg___lam__0), 3, 2);
 lean_closure_set(x_8, 0, x_3);

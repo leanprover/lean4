@@ -62,7 +62,7 @@ LEAN_EXPORT lean_object* l_Lean_Level_replace(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_3; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_2);
 x_3 = lean_apply_1(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
@@ -73,7 +73,7 @@ case 1:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Lean_Level_replace(x_1, x_4);
 x_6 = l_Lean_Level_succ___override(x_5);
 return x_6;
@@ -85,8 +85,8 @@ x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_2, 1);
 lean_inc(x_8);
-lean_dec(x_2);
-lean_inc(x_1);
+lean_dec_ref(x_2);
+lean_inc_ref(x_1);
 x_9 = l_Lean_Level_replace(x_1, x_7);
 x_10 = l_Lean_Level_replace(x_1, x_8);
 x_11 = l_Lean_mkLevelMax_x27(x_9, x_10);
@@ -99,8 +99,8 @@ x_12 = lean_ctor_get(x_2, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_2, 1);
 lean_inc(x_13);
-lean_dec(x_2);
-lean_inc(x_1);
+lean_dec_ref(x_2);
+lean_inc_ref(x_1);
 x_14 = l_Lean_Level_replace(x_1, x_12);
 x_15 = l_Lean_Level_replace(x_1, x_13);
 x_16 = l_Lean_mkLevelIMax_x27(x_14, x_15);
@@ -108,7 +108,7 @@ return x_16;
 }
 default: 
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -117,10 +117,10 @@ else
 {
 lean_object* x_17; 
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_17 = lean_ctor_get(x_3, 0);
 lean_inc(x_17);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_17;
 }
 }
@@ -200,7 +200,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_4; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_List_reverse___redArg(x_3);
 return x_4;
 }
@@ -213,7 +213,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_8 = l_Lean_Level_replace(x_1, x_6);
 lean_ctor_set(x_2, 1, x_3);
 lean_ctor_set(x_2, 0, x_8);
@@ -233,7 +233,7 @@ x_11 = lean_ctor_get(x_2, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_12 = l_Lean_Level_replace(x_1, x_10);
 x_13 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
@@ -328,7 +328,7 @@ lean_inc_ref(x_28);
 x_29 = lean_ctor_get(x_3, 1);
 lean_inc_ref(x_29);
 lean_inc_ref(x_28);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_30 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit(x_1, x_2, x_28, x_4);
 x_31 = lean_ctor_get(x_30, 0);
 lean_inc(x_31);
@@ -393,7 +393,7 @@ x_49 = lean_ctor_get(x_3, 2);
 lean_inc_ref(x_49);
 x_50 = lean_ctor_get_uint8(x_3, sizeof(void*)*3 + 8);
 lean_inc_ref(x_48);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_51 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit(x_1, x_2, x_48, x_4);
 x_52 = lean_ctor_get(x_51, 0);
 lean_inc(x_52);
@@ -471,7 +471,7 @@ x_73 = lean_ctor_get(x_3, 2);
 lean_inc_ref(x_73);
 x_74 = lean_ctor_get_uint8(x_3, sizeof(void*)*3 + 8);
 lean_inc_ref(x_72);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_75 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit(x_1, x_2, x_72, x_4);
 x_76 = lean_ctor_get(x_75, 0);
 lean_inc(x_76);
@@ -551,7 +551,7 @@ x_98 = lean_ctor_get(x_3, 3);
 lean_inc_ref(x_98);
 x_99 = lean_ctor_get_uint8(x_3, sizeof(void*)*4 + 8);
 lean_inc_ref(x_96);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_100 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit(x_1, x_2, x_96, x_4);
 x_101 = lean_ctor_get(x_100, 0);
 lean_inc(x_101);
@@ -559,7 +559,7 @@ x_102 = lean_ctor_get(x_100, 1);
 lean_inc(x_102);
 lean_dec_ref(x_100);
 lean_inc_ref(x_97);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_103 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit(x_1, x_2, x_97, x_102);
 x_104 = lean_ctor_get(x_103, 0);
 lean_inc(x_104);
@@ -707,7 +707,7 @@ return x_147;
 default: 
 {
 lean_object* x_148; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_148 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_148, 0, x_3);
 lean_ctor_set(x_148, 1, x_4);
@@ -719,7 +719,7 @@ else
 {
 lean_object* x_149; lean_object* x_150; 
 lean_dec_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_149 = lean_array_uget(x_6, x_8);
 lean_dec_ref(x_6);
 x_150 = lean_alloc_ctor(0, 2, 0);
@@ -927,7 +927,7 @@ lean_inc_ref(x_15);
 x_16 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_16);
 lean_inc_ref(x_15);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_17 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(x_1, x_15);
 lean_inc_ref(x_16);
 x_18 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(x_1, x_16);
@@ -979,7 +979,7 @@ x_30 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_30);
 x_31 = lean_ctor_get_uint8(x_2, sizeof(void*)*3 + 8);
 lean_inc_ref(x_29);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_32 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(x_1, x_29);
 lean_inc_ref(x_30);
 x_33 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(x_1, x_30);
@@ -1044,7 +1044,7 @@ x_47 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_47);
 x_48 = lean_ctor_get_uint8(x_2, sizeof(void*)*3 + 8);
 lean_inc_ref(x_46);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_49 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(x_1, x_46);
 lean_inc_ref(x_47);
 x_50 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(x_1, x_47);
@@ -1111,10 +1111,10 @@ x_65 = lean_ctor_get(x_2, 3);
 lean_inc_ref(x_65);
 x_66 = lean_ctor_get_uint8(x_2, sizeof(void*)*4 + 8);
 lean_inc_ref(x_63);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_67 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(x_1, x_63);
 lean_inc_ref(x_64);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_68 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(x_1, x_64);
 lean_inc_ref(x_65);
 x_69 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(x_1, x_65);
@@ -1232,7 +1232,7 @@ return x_2;
 }
 default: 
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }

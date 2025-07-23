@@ -85,7 +85,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_DTreeMap_filterMap(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_7;
 }
 }
@@ -110,7 +110,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_DTreeMap_map(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_7;
 }
 }

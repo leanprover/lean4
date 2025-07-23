@@ -2108,7 +2108,7 @@ goto block_53;
 block_17:
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_11 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Attr_0__Lean_Elab_Tactic_BVDecide_Frontend_addBuiltin___closed__1;
 x_12 = l_Lean_throwError___at___Lean_throwKernelException___at___Lean_ofExceptKernelException___at___Lean_addDecl_addAsAxiom_spec__0_spec__0_spec__0___redArg(x_11, x_8, x_9, x_10);
 lean_dec(x_9);
@@ -2185,16 +2185,16 @@ if (lean_obj_tag(x_29) == 0)
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
 x_30 = lean_ctor_get(x_25, 1);
 lean_inc_ref(x_30);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 x_31 = lean_ctor_get(x_26, 1);
 lean_inc_ref(x_31);
-lean_dec(x_26);
+lean_dec_ref(x_26);
 x_32 = lean_ctor_get(x_27, 1);
 lean_inc_ref(x_32);
-lean_dec(x_27);
+lean_dec_ref(x_27);
 x_33 = lean_ctor_get(x_28, 1);
 lean_inc_ref(x_33);
-lean_dec(x_28);
+lean_dec_ref(x_28);
 x_34 = l_Lean_Elab_Tactic_BVDecide_Frontend_initFn___closed__4____x40_Lean_Elab_Tactic_BVDecide_Frontend_Attr___hyg_7_;
 x_35 = lean_string_dec_eq(x_33, x_34);
 lean_dec_ref(x_33);
@@ -2283,10 +2283,10 @@ return x_48;
 else
 {
 lean_dec(x_29);
-lean_dec(x_28);
-lean_dec(x_27);
-lean_dec(x_26);
-lean_dec(x_25);
+lean_dec_ref(x_28);
+lean_dec_ref(x_27);
+lean_dec_ref(x_26);
+lean_dec_ref(x_25);
 lean_dec(x_3);
 lean_dec(x_1);
 x_7 = x_23;
@@ -2299,9 +2299,9 @@ goto block_17;
 else
 {
 lean_dec(x_28);
-lean_dec(x_27);
-lean_dec(x_26);
-lean_dec(x_25);
+lean_dec_ref(x_27);
+lean_dec_ref(x_26);
+lean_dec_ref(x_25);
 lean_dec(x_3);
 lean_dec(x_1);
 x_7 = x_23;
@@ -2314,8 +2314,8 @@ goto block_17;
 else
 {
 lean_dec(x_27);
-lean_dec(x_26);
-lean_dec(x_25);
+lean_dec_ref(x_26);
+lean_dec_ref(x_25);
 lean_dec(x_3);
 lean_dec(x_1);
 x_7 = x_23;
@@ -2328,7 +2328,7 @@ goto block_17;
 else
 {
 lean_dec(x_26);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 lean_dec(x_3);
 lean_dec(x_1);
 x_7 = x_23;

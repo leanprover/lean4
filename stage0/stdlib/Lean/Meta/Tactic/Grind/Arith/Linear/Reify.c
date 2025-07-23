@@ -366,7 +366,7 @@ lean_object* x_10; lean_object* x_11; uint8_t x_12;
 x_10 = l_Lean_Meta_Grind_getConfig___redArg(x_3, x_9);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
-x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*6 + 11);
+x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*7 + 11);
 lean_dec(x_11);
 if (x_12 == 0)
 {
@@ -2482,7 +2482,7 @@ x_111 = lean_ctor_get(x_106, 0);
 lean_dec(x_111);
 x_112 = lean_ctor_get(x_107, 0);
 lean_inc(x_112);
-lean_dec(x_107);
+lean_dec_ref(x_107);
 lean_ctor_set(x_106, 0, x_112);
 return x_106;
 }
@@ -2494,7 +2494,7 @@ lean_inc(x_113);
 lean_dec(x_106);
 x_114 = lean_ctor_get(x_107, 0);
 lean_inc(x_114);
-lean_dec(x_107);
+lean_dec_ref(x_107);
 x_115 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_115, 0, x_114);
 lean_ctor_set(x_115, 1, x_113);
@@ -2586,7 +2586,7 @@ x_125 = lean_ctor_get(x_120, 0);
 lean_dec(x_125);
 x_126 = lean_ctor_get(x_121, 0);
 lean_inc(x_126);
-lean_dec(x_121);
+lean_dec_ref(x_121);
 lean_ctor_set(x_120, 0, x_126);
 return x_120;
 }
@@ -2598,7 +2598,7 @@ lean_inc(x_127);
 lean_dec(x_120);
 x_128 = lean_ctor_get(x_121, 0);
 lean_inc(x_128);
-lean_dec(x_121);
+lean_dec_ref(x_121);
 x_129 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_129, 0, x_128);
 lean_ctor_set(x_129, 1, x_127);
@@ -4322,7 +4322,7 @@ return x_134;
 }
 else
 {
-lean_dec(x_132);
+lean_dec_ref(x_132);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -4384,7 +4384,7 @@ return x_138;
 }
 else
 {
-lean_dec(x_136);
+lean_dec_ref(x_136);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);

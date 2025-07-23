@@ -1245,7 +1245,7 @@ x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
 lean_dec_ref(x_17);
 x_19 = l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___lam__0___closed__0;
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_3);
 x_20 = l_Lean_Json_getObjValAs_x3f___redArg(x_3, x_1, x_19);
 if (lean_obj_tag(x_20) == 0)
@@ -1258,7 +1258,7 @@ else
 {
 uint8_t x_21; 
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_21 = !lean_is_exclusive(x_20);
 if (x_21 == 0)
 {
@@ -1861,7 +1861,7 @@ if (lean_obj_tag(x_1) == 4)
 lean_object* x_2; size_t x_3; size_t x_4; lean_object* x_5; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_array_size(x_2);
 x_4 = 0;
 x_5 = l_Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonDidChangeTextDocumentParams____x40_Lean_Data_Lsp_TextSync___hyg_607__spec__0_spec__0_spec__0(x_3, x_4, x_2);

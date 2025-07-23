@@ -270,7 +270,7 @@ else
 lean_object* x_139; 
 x_139 = lean_ctor_get(x_15, 0);
 lean_inc(x_139);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_30 = x_139;
 x_31 = x_5;
 x_32 = x_6;
@@ -633,7 +633,7 @@ lean_inc_ref(x_21);
 lean_dec_ref(x_16);
 x_22 = lean_ctor_get(x_17, 0);
 lean_inc(x_22);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 x_58 = lean_array_fget(x_2, x_4);
 lean_inc(x_8);
 lean_inc_ref(x_7);
@@ -1159,7 +1159,7 @@ return x_7;
 }
 else
 {
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_7;
 }
 }

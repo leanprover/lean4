@@ -92,7 +92,7 @@ if (lean_obj_tag(x_6) == 0)
 uint8_t x_7; 
 lean_dec_ref(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_7 = !lean_is_exclusive(x_6);
 if (x_7 == 0)
 {
@@ -245,8 +245,8 @@ x_5 = l_Lean_Json_getObj_x3f(x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {

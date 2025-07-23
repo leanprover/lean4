@@ -113,8 +113,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_PersistentHashSet_empty___redArg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -123,8 +123,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_PersistentHashSet_empty(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -149,8 +149,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_PersistentHashSet_instInhabited___redArg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -159,8 +159,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_PersistentHashSet_instInhabited(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -185,8 +185,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_PersistentHashSet_instEmptyCollection___redArg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -195,8 +195,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_PersistentHashSet_instEmptyCollection(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -232,8 +232,8 @@ _start:
 uint8_t x_5; lean_object* x_6; 
 x_5 = l_Lean_PersistentHashSet_isEmpty(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -429,8 +429,8 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Lean_PersistentHashSet_foldM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_10;
 }
 }
@@ -559,8 +559,8 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_PersistentHashSet_fold(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_8;
 }
 }
@@ -688,8 +688,8 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lean_PersistentHashMap_toList___at___Lean_PersistentHashSet_toList_spec__0(x_1, x_2, x_3, x_4, x_5);
 lean_dec_ref(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_6;
 }
 }
@@ -699,8 +699,8 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_PersistentHashSet_toList___redArg(x_1, x_2, x_3);
 lean_dec_ref(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_4;
 }
 }
@@ -710,8 +710,8 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_PersistentHashSet_toList(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_5;
 }
 }
@@ -749,8 +749,8 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Lean_PersistentHashSet_forIn(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 return x_10;
 }
 }
@@ -775,8 +775,8 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_PersistentHashSet_instForIn(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
 return x_5;
 }
 }

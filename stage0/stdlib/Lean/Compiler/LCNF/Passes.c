@@ -2186,16 +2186,16 @@ if (lean_obj_tag(x_23) == 0)
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; 
 x_24 = lean_ctor_get(x_19, 1);
 lean_inc_ref(x_24);
-lean_dec(x_19);
+lean_dec_ref(x_19);
 x_25 = lean_ctor_get(x_20, 1);
 lean_inc_ref(x_25);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 x_26 = lean_ctor_get(x_21, 1);
 lean_inc_ref(x_26);
-lean_dec(x_21);
+lean_dec_ref(x_21);
 x_27 = lean_ctor_get(x_22, 1);
 lean_inc_ref(x_27);
-lean_dec(x_22);
+lean_dec_ref(x_22);
 x_28 = l_Lean_Compiler_LCNF_initFn___closed__0____x40_Lean_Compiler_LCNF_Passes___hyg_744_;
 x_29 = lean_string_dec_eq(x_27, x_28);
 lean_dec_ref(x_27);
@@ -2491,10 +2491,10 @@ return x_101;
 else
 {
 lean_dec(x_23);
-lean_dec(x_22);
-lean_dec(x_21);
-lean_dec(x_20);
-lean_dec(x_19);
+lean_dec_ref(x_22);
+lean_dec_ref(x_21);
+lean_dec_ref(x_20);
+lean_dec_ref(x_19);
 lean_dec(x_1);
 x_8 = x_2;
 x_9 = x_3;
@@ -2504,9 +2504,9 @@ goto block_17;
 else
 {
 lean_dec(x_22);
-lean_dec(x_21);
-lean_dec(x_20);
-lean_dec(x_19);
+lean_dec_ref(x_21);
+lean_dec_ref(x_20);
+lean_dec_ref(x_19);
 lean_dec(x_1);
 x_8 = x_2;
 x_9 = x_3;
@@ -2516,8 +2516,8 @@ goto block_17;
 else
 {
 lean_dec(x_21);
-lean_dec(x_20);
-lean_dec(x_19);
+lean_dec_ref(x_20);
+lean_dec_ref(x_19);
 lean_dec(x_1);
 x_8 = x_2;
 x_9 = x_3;
@@ -2527,7 +2527,7 @@ goto block_17;
 else
 {
 lean_dec(x_20);
-lean_dec(x_19);
+lean_dec_ref(x_19);
 lean_dec(x_1);
 x_8 = x_2;
 x_9 = x_3;

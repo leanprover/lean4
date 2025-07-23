@@ -589,7 +589,7 @@ lean_object* x_27; lean_object* x_28; uint8_t x_29;
 x_27 = l_Lean_Meta_Grind_getConfig___redArg(x_21, x_18);
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);
-x_29 = lean_ctor_get_uint8(x_28, sizeof(void*)*6 + 11);
+x_29 = lean_ctor_get_uint8(x_28, sizeof(void*)*7 + 11);
 lean_dec(x_28);
 if (x_29 == 0)
 {
@@ -758,7 +758,7 @@ lean_object* x_20;
 lean_dec(x_1);
 x_20 = lean_ctor_get(x_13, 0);
 lean_inc(x_20);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 lean_ctor_set(x_7, 0, x_20);
 return x_7;
 }
@@ -798,7 +798,7 @@ lean_object* x_32; lean_object* x_33;
 lean_dec(x_1);
 x_32 = lean_ctor_get(x_25, 0);
 lean_inc(x_32);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 x_33 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set(x_33, 1, x_22);

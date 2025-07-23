@@ -183,8 +183,8 @@ x_11 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftLeftConst_go(x_1, x_2, x_
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_11;
 }
 }
@@ -225,8 +225,8 @@ lean_object* x_7;
 x_7 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftLeftConst(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec_ref(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_7;
 }
 }
@@ -242,8 +242,8 @@ x_10 = lean_nat_dec_lt(x_9, x_6);
 if (x_10 == 0)
 {
 lean_object* x_11; 
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 lean_inc_ref(x_7);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_4);
@@ -349,8 +349,8 @@ lean_object* x_12;
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_4);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_5);
 lean_ctor_set(x_12, 1, x_8);
@@ -369,8 +369,8 @@ lean_ctor_set(x_14, 0, x_4);
 lean_ctor_set(x_14, 1, x_8);
 lean_ctor_set(x_14, 2, x_6);
 lean_ctor_set(x_14, 3, x_13);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_15 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftLeft_twoPowShift___redArg(x_1, x_2, x_3, x_5, x_14);
 lean_dec_ref(x_14);
 x_16 = lean_ctor_get(x_15, 0);
@@ -434,8 +434,8 @@ lean_ctor_set(x_11, 0, x_6);
 lean_ctor_set(x_11, 1, x_7);
 lean_ctor_set(x_11, 2, x_8);
 lean_ctor_set(x_11, 3, x_9);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_12 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftLeft_twoPowShift___redArg(x_1, x_2, x_3, x_4, x_11);
 lean_dec_ref(x_11);
 x_13 = lean_ctor_get(x_12, 0);
@@ -451,8 +451,8 @@ else
 lean_object* x_16; 
 lean_dec_ref(x_8);
 lean_dec(x_6);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_4);
 lean_ctor_set(x_16, 1, x_7);

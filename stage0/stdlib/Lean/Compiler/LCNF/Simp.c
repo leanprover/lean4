@@ -2087,7 +2087,7 @@ lean_inc(x_25);
 lean_dec_ref(x_20);
 x_26 = lean_ctor_get(x_18, 0);
 lean_inc(x_26);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 x_1 = x_26;
 x_7 = x_25;
 goto _start;

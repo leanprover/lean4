@@ -112,7 +112,7 @@ _start:
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_4);
 x_6 = l_BitVec_instDecidableForallBitVecSucc(x_1, x_2, x_3, x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_1);
 x_7 = lean_box(x_6);
 return x_7;
@@ -187,7 +187,7 @@ _start:
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_4);
 x_6 = l_BitVec_instDecidableExistsBitVecSucc(x_1, x_2, x_3, x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_1);
 x_7 = lean_box(x_6);
 return x_7;

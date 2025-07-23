@@ -39,7 +39,7 @@ lean_object* x_34;
 lean_dec(x_2);
 x_34 = lean_ctor_get(x_33, 0);
 lean_inc(x_34);
-lean_dec(x_33);
+lean_dec_ref(x_33);
 x_5 = x_34;
 goto block_32;
 }

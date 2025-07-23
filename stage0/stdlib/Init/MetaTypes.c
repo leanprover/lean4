@@ -1630,10 +1630,10 @@ if (lean_obj_tag(x_2) == 1)
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_ctor_get(x_2, 0);
 lean_inc(x_11);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_3 = x_10;
 x_4 = x_11;
 goto block_7;
@@ -1642,7 +1642,7 @@ else
 {
 uint8_t x_12; 
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_12 = 0;
 return x_12;
 }
@@ -1654,10 +1654,10 @@ if (lean_obj_tag(x_2) == 2)
 lean_object* x_13; lean_object* x_14; 
 x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_14 = lean_ctor_get(x_2, 0);
 lean_inc(x_14);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_3 = x_13;
 x_4 = x_14;
 goto block_7;
@@ -1666,7 +1666,7 @@ else
 {
 uint8_t x_15; 
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_15 = 0;
 return x_15;
 }

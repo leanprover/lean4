@@ -439,7 +439,7 @@ goto block_80;
 }
 else
 {
-lean_dec(x_83);
+lean_dec_ref(x_83);
 x_73 = x_3;
 goto block_80;
 }

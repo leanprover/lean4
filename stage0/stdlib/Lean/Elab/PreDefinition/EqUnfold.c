@@ -973,7 +973,7 @@ lean_object* x_20; lean_object* x_21;
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec_ref(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 x_20 = lean_ctor_get(x_15, 1);
 lean_inc(x_20);
@@ -991,7 +991,7 @@ lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 x_22 = !lean_is_exclusive(x_15);
 if (x_22 == 0)
@@ -2311,7 +2311,7 @@ x_19 = lean_ctor_get(x_6, 0);
 lean_inc(x_19);
 x_20 = lean_ctor_get(x_6, 1);
 lean_inc(x_20);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_inc(x_19);
 lean_inc_ref(x_1);
 x_21 = l_Lean_Environment_isSafeDefinition(x_1, x_19);
@@ -2452,7 +2452,7 @@ goto block_17;
 }
 else
 {
-lean_dec(x_22);
+lean_dec_ref(x_22);
 x_11 = x_23;
 x_12 = x_21;
 goto block_17;
@@ -2506,7 +2506,7 @@ x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_11);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_12 = l_Lean_Meta_getConstUnfoldEqnFor_x3f___closed__6;
 x_13 = lean_string_dec_eq(x_11, x_12);
 lean_dec_ref(x_11);
@@ -2573,7 +2573,7 @@ x_31 = lean_ctor_get(x_26, 0);
 lean_dec(x_31);
 x_32 = lean_ctor_get(x_28, 0);
 lean_inc(x_32);
-lean_dec(x_28);
+lean_dec_ref(x_28);
 lean_ctor_set(x_26, 0, x_32);
 return x_26;
 }
@@ -2585,7 +2585,7 @@ lean_inc(x_33);
 lean_dec(x_26);
 x_34 = lean_ctor_get(x_28, 0);
 lean_inc(x_34);
-lean_dec(x_28);
+lean_dec_ref(x_28);
 x_35 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_35, 0, x_34);
 lean_ctor_set(x_35, 1, x_33);
@@ -2673,7 +2673,7 @@ if (lean_is_exclusive(x_51)) {
 }
 x_57 = lean_ctor_get(x_53, 0);
 lean_inc(x_57);
-lean_dec(x_53);
+lean_dec_ref(x_53);
 if (lean_is_scalar(x_56)) {
  x_58 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -2763,8 +2763,8 @@ x_15 = lean_unbox(x_5);
 x_16 = lean_unbox(x_6);
 x_17 = l_List_forIn_x27_loop___at___Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_871__spec__0(x_1, x_2, x_3, x_4, x_15, x_16, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_4);
+lean_dec_ref(x_7);
+lean_dec_ref(x_4);
 return x_17;
 }
 }

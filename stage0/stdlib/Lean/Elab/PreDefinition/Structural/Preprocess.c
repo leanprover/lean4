@@ -97,7 +97,7 @@ return x_3;
 }
 else
 {
-lean_dec(x_8);
+lean_dec_ref(x_8);
 return x_4;
 }
 }

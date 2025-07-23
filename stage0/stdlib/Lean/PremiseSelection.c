@@ -299,7 +299,7 @@ x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 2);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_array_push(x_1, x_3);
 x_1 = x_5;
 x_2 = x_4;
@@ -584,7 +584,7 @@ else
 lean_object* x_18; lean_object* x_19; 
 x_18 = lean_ctor_get(x_15, 0);
 lean_inc(x_18);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_19 = lean_apply_7(x_18, x_1, x_2, x_3, x_4, x_5, x_6, x_10);
 return x_19;
 }
@@ -1344,7 +1344,7 @@ lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_46 = !lean_is_exclusive(x_11);
 if (x_46 == 0)
 {

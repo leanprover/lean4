@@ -570,7 +570,7 @@ if (x_6 == 0)
 lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; size_t x_62; lean_object* x_63; 
 x_56 = lean_ctor_get(x_36, 0);
 lean_inc(x_56);
-lean_dec(x_36);
+lean_dec_ref(x_36);
 x_57 = l_Lean_Elab_LibrarySearch_exact_x3f___lam__3___closed__5;
 x_58 = lean_unsigned_to_nat(90u);
 lean_inc_ref(x_13);
@@ -659,7 +659,7 @@ lean_dec(x_3);
 lean_dec(x_2);
 x_69 = lean_ctor_get(x_36, 0);
 lean_inc(x_69);
-lean_dec(x_36);
+lean_dec_ref(x_36);
 x_70 = l_Array_isEmpty___redArg(x_69);
 lean_dec(x_69);
 if (x_70 == 0)
@@ -842,7 +842,7 @@ else
 lean_object* x_32; 
 x_32 = lean_ctor_get(x_2, 0);
 lean_inc(x_32);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_26 = x_32;
 goto block_30;
 }
@@ -1928,7 +1928,7 @@ lean_inc(x_33);
 lean_dec_ref(x_16);
 x_34 = lean_ctor_get(x_17, 0);
 lean_inc(x_34);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 x_35 = l_Array_isEmpty___redArg(x_34);
 lean_dec(x_34);
 if (x_35 == 0)
@@ -2048,8 +2048,8 @@ lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_28 = !lean_is_exclusive(x_20);
 if (x_28 == 0)
 {

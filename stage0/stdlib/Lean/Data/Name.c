@@ -289,7 +289,7 @@ case 1:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_Lean_Name_str___override(x_2, x_3);
 return x_4;
 }
@@ -298,7 +298,7 @@ default:
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_Lean_Name_num___override(x_2, x_5);
 return x_6;
 }
@@ -322,7 +322,7 @@ x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_box(0);
 x_6 = l_Lean_Name_str___override(x_5, x_4);
 x_7 = l_Lean_Name_componentsRev(x_3);
@@ -338,7 +338,7 @@ x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_1, 1);
 lean_inc(x_10);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_box(0);
 x_12 = l_Lean_Name_num___override(x_11, x_10);
 x_13 = l_Lean_Name_componentsRev(x_9);
@@ -1226,7 +1226,7 @@ x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_string_utf8_byte_size(x_4);
 lean_inc_ref(x_4);
@@ -1315,7 +1315,7 @@ return x_5;
 default: 
 {
 uint8_t x_24; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_24 = 1;
 return x_24;
 }
@@ -1551,7 +1551,7 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 uint8_t x_3; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_3 = 0;
 return x_3;
 }
@@ -1562,8 +1562,8 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_5);
-lean_dec(x_1);
-lean_inc(x_2);
+lean_dec_ref(x_1);
+lean_inc_ref(x_2);
 x_6 = lean_apply_1(x_2, x_5);
 x_7 = lean_unbox(x_6);
 if (x_7 == 0)
@@ -1575,7 +1575,7 @@ else
 {
 uint8_t x_9; 
 lean_dec(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_9 = lean_unbox(x_6);
 return x_9;
 }
@@ -1585,7 +1585,7 @@ default:
 lean_object* x_10; 
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_1 = x_10;
 goto _start;
 }

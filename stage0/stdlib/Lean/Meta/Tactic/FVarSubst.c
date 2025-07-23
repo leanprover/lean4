@@ -421,7 +421,7 @@ lean_object* x_5;
 lean_dec(x_2);
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_5;
 }
 }
@@ -610,7 +610,7 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 2);
 lean_inc(x_6);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_inc(x_1);
 x_7 = l_Lean_Meta_FVarSubst_apply(x_1, x_5);
 lean_dec(x_5);

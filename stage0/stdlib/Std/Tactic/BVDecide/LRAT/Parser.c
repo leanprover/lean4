@@ -8413,7 +8413,7 @@ lean_object* x_8; lean_object* x_9;
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = l_Std_Tactic_BVDecide_LRAT_Parser_Text_skipNewline___closed__2;
 x_9 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_9, 0, x_3);
@@ -8431,7 +8431,7 @@ x_12 = lean_uint8_dec_eq(x_10, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_13 = lean_apply_1(x_1, x_3);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -8450,7 +8450,7 @@ else
 {
 uint8_t x_18; 
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_18 = !lean_is_exclusive(x_13);
 if (x_18 == 0)
 {
@@ -8474,7 +8474,7 @@ return x_21;
 else
 {
 lean_object* x_22; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_3);
 lean_ctor_set(x_22, 1, x_2);
@@ -8534,7 +8534,7 @@ lean_object* x_8; lean_object* x_9;
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = l_Std_Tactic_BVDecide_LRAT_Parser_Text_skipNewline___closed__2;
 x_9 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_9, 0, x_3);
@@ -8560,7 +8560,7 @@ goto block_23;
 else
 {
 lean_object* x_28; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_28 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_28, 0, x_3);
 lean_ctor_set(x_28, 1, x_2);
@@ -8579,7 +8579,7 @@ x_12 = lean_uint8_dec_eq(x_10, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_13 = lean_apply_1(x_1, x_3);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -8598,7 +8598,7 @@ else
 {
 uint8_t x_18; 
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_18 = !lean_is_exclusive(x_13);
 if (x_18 == 0)
 {
@@ -8622,7 +8622,7 @@ return x_21;
 else
 {
 lean_object* x_22; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_3);
 lean_ctor_set(x_22, 1, x_2);

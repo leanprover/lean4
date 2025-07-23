@@ -386,7 +386,7 @@ if (lean_obj_tag(x_1) == 1)
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_Lean_Compiler_LCNF_FindUsed_visitFVar___redArg(x_5, x_2, x_3, x_4);
 return x_6;
 }
@@ -534,7 +534,7 @@ if (lean_obj_tag(x_25) == 1)
 lean_object* x_28; lean_object* x_29; lean_object* x_30; uint8_t x_31; 
 x_28 = lean_ctor_get(x_25, 0);
 lean_inc(x_28);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 x_29 = lean_array_uget(x_1, x_3);
 x_30 = lean_ctor_get(x_29, 0);
 lean_inc(x_30);
@@ -586,7 +586,7 @@ if (lean_obj_tag(x_34) == 1)
 lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; 
 x_38 = lean_ctor_get(x_34, 0);
 lean_inc(x_38);
-lean_dec(x_34);
+lean_dec_ref(x_34);
 x_39 = lean_array_uget(x_1, x_3);
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
@@ -647,7 +647,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at__
 _start:
 {
 lean_object* x_8; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_8 = lean_apply_1(x_1, x_3);
 switch (lean_obj_tag(x_8)) {
 case 0:
@@ -657,7 +657,7 @@ x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 lean_inc_ref(x_5);
 x_11 = l_Lean_Compiler_LCNF_FindUsed_visitArg___redArg(x_10, x_5, x_6, x_7);
 x_12 = lean_ctor_get(x_11, 1);
@@ -678,7 +678,7 @@ case 1:
 lean_object* x_14; 
 x_14 = lean_ctor_get(x_8, 0);
 lean_inc(x_14);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_3 = x_14;
 goto _start;
 }
@@ -686,7 +686,7 @@ default:
 {
 lean_object* x_16; 
 lean_dec_ref(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_4);
 lean_ctor_set(x_16, 1, x_7);
@@ -707,7 +707,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at__
 _start:
 {
 lean_object* x_8; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_8 = lean_apply_1(x_1, x_3);
 switch (lean_obj_tag(x_8)) {
 case 0:
@@ -717,7 +717,7 @@ x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 lean_dec(x_9);
@@ -741,7 +741,7 @@ case 1:
 lean_object* x_15; 
 x_15 = lean_ctor_get(x_8, 0);
 lean_inc(x_15);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_3 = x_15;
 goto _start;
 }
@@ -749,7 +749,7 @@ default:
 {
 lean_object* x_17; 
 lean_dec_ref(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_4);
 lean_ctor_set(x_17, 1, x_7);
@@ -938,7 +938,7 @@ case 2:
 lean_object* x_9; lean_object* x_10; 
 x_9 = lean_ctor_get(x_1, 2);
 lean_inc(x_9);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = l_Lean_Compiler_LCNF_FindUsed_visitFVar___redArg(x_9, x_2, x_3, x_8);
 return x_10;
 }
@@ -951,7 +951,7 @@ x_12 = lean_ctor_get(x_1, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_1, 2);
 lean_inc_ref(x_13);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_14 = lean_ctor_get(x_11, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_11, 3);
@@ -1180,7 +1180,7 @@ x_80 = lean_ctor_get(x_1, 0);
 lean_inc(x_80);
 x_81 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_81);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_82 = l_Lean_Compiler_LCNF_FindUsed_visitFVar___redArg(x_80, x_2, x_3, x_8);
 x_83 = !lean_is_exclusive(x_82);
@@ -1845,7 +1845,7 @@ lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
@@ -3457,7 +3457,7 @@ uint8_t x_5;
 x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_4;
 }
 else
@@ -3466,7 +3466,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x
 x_6 = lean_array_uget(x_4, x_3);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_4, x_3, x_7);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_9 = lean_apply_1(x_1, x_6);
 x_10 = 1;
 x_11 = lean_usize_add(x_3, x_10);
@@ -3607,7 +3607,7 @@ lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_32 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_32, 0, x_2);
 lean_ctor_set(x_32, 1, x_8);
@@ -3945,7 +3945,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_12 = lean_array_uget(x_2, x_3);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc_ref(x_12);
 x_13 = lean_apply_1(x_1, x_12);
 x_14 = lean_unbox(x_13);
@@ -3965,7 +3965,7 @@ goto block_10;
 }
 else
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_5;
 }
 block_10:
@@ -6603,7 +6603,7 @@ x_8 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_9 = l_Array_foldlMUnsafe_fold___at___Lean_Compiler_LCNF_Decl_reduceArity_spec__3(x_1, x_2, x_3, x_7, x_8, x_6);
 lean_dec_ref(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_9;
 }

@@ -1722,7 +1722,7 @@ else
 lean_object* x_113; lean_object* x_114; 
 x_113 = lean_ctor_get(x_99, 0);
 lean_inc(x_113);
-lean_dec(x_99);
+lean_dec_ref(x_99);
 x_114 = l_Array_mkArray1___redArg(x_113);
 x_14 = x_105;
 x_15 = x_111;
@@ -2451,7 +2451,7 @@ else
 lean_object* x_132; lean_object* x_133; 
 x_132 = lean_ctor_get(x_13, 0);
 lean_inc(x_132);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_133 = l_Array_mkArray1___redArg(x_132);
 x_25 = x_133;
 goto block_130;
@@ -2741,7 +2741,7 @@ goto block_46;
 block_23:
 {
 lean_object* x_21; lean_object* x_22; 
-lean_dec(x_20);
+lean_dec_ref(x_20);
 x_21 = l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__0___closed__0;
 x_22 = l_Lean_Macro_throwErrorAt___redArg(x_1, x_21, x_18, x_19);
 lean_dec(x_1);
@@ -2800,7 +2800,7 @@ lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean
 lean_dec_ref(x_32);
 x_34 = lean_ctor_get(x_24, 1);
 lean_inc_ref(x_34);
-lean_dec(x_24);
+lean_dec_ref(x_24);
 x_35 = l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___lam__0___closed__1;
 x_36 = lean_string_append(x_34, x_35);
 x_37 = l_Lean_Name_str___override(x_16, x_36);
@@ -2818,7 +2818,7 @@ lean_dec(x_30);
 lean_dec(x_29);
 lean_dec(x_27);
 lean_dec(x_26);
-lean_dec(x_24);
+lean_dec_ref(x_24);
 lean_dec(x_16);
 lean_dec(x_14);
 lean_dec(x_13);
@@ -3038,7 +3038,7 @@ lean_inc(x_47);
 lean_dec_ref(x_38);
 x_48 = lean_ctor_get(x_39, 0);
 lean_inc(x_48);
-lean_dec(x_39);
+lean_dec_ref(x_39);
 x_49 = l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__3;
 x_50 = l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__4;
 x_51 = 0;
@@ -3189,7 +3189,7 @@ lean_inc(x_89);
 lean_dec_ref(x_80);
 x_90 = lean_ctor_get(x_81, 0);
 lean_inc(x_90);
-lean_dec(x_81);
+lean_dec_ref(x_81);
 x_91 = l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__3;
 x_92 = l_Lake___aux__Lake__Build__Data______macroRules__Lake__builtinFacetCommand__1___closed__4;
 x_93 = 0;
@@ -3879,7 +3879,7 @@ else
 lean_object* x_120; lean_object* x_121; 
 x_120 = lean_ctor_get(x_99, 0);
 lean_inc(x_120);
-lean_dec(x_99);
+lean_dec_ref(x_99);
 x_121 = l_Array_mkArray1___redArg(x_120);
 x_18 = x_115;
 x_19 = x_100;
@@ -4137,7 +4137,7 @@ else
 lean_object* x_42; lean_object* x_43; 
 x_42 = lean_ctor_get(x_34, 0);
 lean_inc(x_42);
-lean_dec(x_34);
+lean_dec_ref(x_34);
 x_43 = l_Array_mkArray1___redArg(x_42);
 x_16 = x_39;
 x_17 = x_37;
@@ -4388,7 +4388,7 @@ else
 lean_object* x_42; lean_object* x_43; 
 x_42 = lean_ctor_get(x_34, 0);
 lean_inc(x_42);
-lean_dec(x_34);
+lean_dec_ref(x_34);
 x_43 = l_Array_mkArray1___redArg(x_42);
 x_16 = x_37;
 x_17 = x_39;
@@ -4656,7 +4656,7 @@ else
 lean_object* x_42; lean_object* x_43; 
 x_42 = lean_ctor_get(x_34, 0);
 lean_inc(x_42);
-lean_dec(x_34);
+lean_dec_ref(x_34);
 x_43 = l_Array_mkArray1___redArg(x_42);
 x_16 = x_36;
 x_17 = x_39;
@@ -4936,7 +4936,7 @@ else
 lean_object* x_47; lean_object* x_48; 
 x_47 = lean_ctor_get(x_34, 0);
 lean_inc(x_47);
-lean_dec(x_34);
+lean_dec_ref(x_34);
 x_48 = l_Array_mkArray1___redArg(x_47);
 x_16 = x_39;
 x_17 = x_44;
@@ -5286,7 +5286,7 @@ else
 lean_object* x_65; lean_object* x_66; 
 x_65 = lean_ctor_get(x_48, 0);
 lean_inc(x_65);
-lean_dec(x_48);
+lean_dec_ref(x_48);
 x_66 = l_Array_mkArray1___redArg(x_65);
 x_18 = x_60;
 x_19 = x_53;

@@ -200,7 +200,7 @@ x_5 = lean_ctor_get(x_3, 3);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 4);
 lean_inc(x_6);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_inc(x_1);
 x_7 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1(x_1, x_2, x_5);
 x_8 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1_spec__1___closed__0;
@@ -270,7 +270,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Linter_insertLinterSetEntry_spec__1(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_5;
 }
 }
@@ -584,12 +584,12 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_2, 0);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 lean_dec_ref(x_1);
 x_7 = l_Lean_KVMap_findCore(x_5, x_3);
 if (lean_obj_tag(x_7) == 0)
 {
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_inc(x_4);
 return x_4;
 }
@@ -598,7 +598,7 @@ else
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_9 = lean_apply_1(x_6, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
@@ -610,7 +610,7 @@ else
 lean_object* x_10; 
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 return x_10;
 }
 }
@@ -652,13 +652,13 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 lean_dec_ref(x_1);
 x_6 = l_Lean_KVMap_findCore(x_4, x_3);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; 
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = lean_box(0);
 return x_7;
 }
@@ -667,7 +667,7 @@ else
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = lean_apply_1(x_5, x_8);
 return x_9;
 }
@@ -733,13 +733,13 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 lean_dec_ref(x_1);
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
 lean_dec_ref(x_2);
 x_7 = lean_ctor_get(x_4, 1);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_dec_ref(x_4);
 x_8 = lean_box(1);
 x_9 = lean_alloc_closure((void*)(l_Lean_Options_toLinterOptions___redArg___lam__0), 4, 3);
@@ -810,7 +810,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_5 = lean_alloc_closure((void*)(l_Lean_Linter_getLinterOptions___redArg___lam__0), 3, 2);
 lean_closure_set(x_5, 0, x_1);
 lean_closure_set(x_5, 1, x_3);
@@ -921,12 +921,12 @@ else
 lean_object* x_6; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 if (lean_obj_tag(x_6) == 1)
 {
 uint8_t x_7; 
 x_7 = lean_ctor_get_uint8(x_6, 0);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_7;
 }
 else
@@ -1004,7 +1004,7 @@ if (lean_obj_tag(x_7) == 1)
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_ctor_get_uint8(x_7, 0);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_9 = lean_box(x_8);
 lean_ctor_set(x_4, 0, x_9);
 return x_4;
@@ -1028,7 +1028,7 @@ if (lean_obj_tag(x_11) == 1)
 {
 uint8_t x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_ctor_get_uint8(x_11, 0);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_13 = lean_box(x_12);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
@@ -1452,12 +1452,12 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13;
 lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 x_11 = lean_ctor_get(x_2, 1);
-lean_inc(x_11);
+lean_inc_ref(x_11);
 lean_dec_ref(x_2);
 x_12 = lean_box(0);
 x_13 = lean_apply_2(x_11, lean_box(0), x_12);
@@ -1479,7 +1479,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
+lean_inc_ref(x_10);
 lean_inc(x_4);
 lean_inc_ref(x_1);
 x_11 = lean_alloc_closure((void*)(l_Lean_Linter_logLintIf___redArg___lam__0___boxed), 9, 8);

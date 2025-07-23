@@ -992,7 +992,7 @@ return x_8;
 }
 else
 {
-lean_inc(x_4);
+lean_inc_ref(x_4);
 return x_4;
 }
 }
@@ -1033,7 +1033,7 @@ x_3 = lean_ctor_get(x_1, 2);
 lean_inc(x_3);
 lean_dec_ref(x_1);
 x_4 = lean_ctor_get(x_3, 8);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_dec(x_3);
 x_5 = lean_box(x_2);
 x_6 = lean_apply_1(x_4, x_5);

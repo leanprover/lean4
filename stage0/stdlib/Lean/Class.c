@@ -712,7 +712,7 @@ else
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = l_Array_isEmpty___redArg(x_5);
 lean_dec(x_5);
 if (x_6 == 0)

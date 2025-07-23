@@ -390,7 +390,7 @@ goto block_20;
 else
 {
 lean_object* x_58; lean_object* x_59; 
-lean_dec(x_45);
+lean_dec_ref(x_45);
 x_58 = lean_ctor_get(x_48, 1);
 lean_inc(x_58);
 lean_dec_ref(x_48);
@@ -410,7 +410,7 @@ else
 {
 uint8_t x_60; 
 lean_dec(x_47);
-lean_dec(x_45);
+lean_dec_ref(x_45);
 lean_dec_ref(x_43);
 lean_dec(x_13);
 lean_dec(x_11);
@@ -447,7 +447,7 @@ lean_inc(x_64);
 lean_dec_ref(x_44);
 x_65 = lean_ctor_get(x_45, 0);
 lean_inc(x_65);
-lean_dec(x_45);
+lean_dec_ref(x_45);
 lean_inc(x_13);
 lean_inc_ref(x_43);
 lean_inc(x_11);

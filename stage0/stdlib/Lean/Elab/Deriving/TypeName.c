@@ -212,7 +212,7 @@ lean_dec_ref(x_2);
 lean_dec(x_1);
 x_18 = lean_ctor_get(x_11, 0);
 lean_inc(x_18);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 lean_ctor_set(x_5, 0, x_18);
 return x_5;
 }
@@ -253,7 +253,7 @@ lean_dec_ref(x_2);
 lean_dec(x_1);
 x_30 = lean_ctor_get(x_23, 0);
 lean_inc(x_30);
-lean_dec(x_23);
+lean_dec_ref(x_23);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_20);

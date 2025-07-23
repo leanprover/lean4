@@ -582,7 +582,7 @@ lean_object* x_22;
 lean_dec(x_1);
 x_22 = lean_ctor_get(x_13, 0);
 lean_inc(x_22);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 lean_ctor_set(x_8, 0, x_22);
 return x_8;
 }
@@ -623,7 +623,7 @@ lean_object* x_35; lean_object* x_36;
 lean_dec(x_1);
 x_35 = lean_ctor_get(x_26, 0);
 lean_inc(x_35);
-lean_dec(x_26);
+lean_dec_ref(x_26);
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_24);
@@ -834,7 +834,7 @@ else
 lean_object* x_10; uint8_t x_11; 
 x_10 = lean_ctor_get(x_7, 0);
 lean_inc(x_10);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 lean_inc_ref(x_1);
 x_11 = l_Lean_Meta_SimpTheorems_isLemma(x_1, x_10);
 if (x_11 == 0)

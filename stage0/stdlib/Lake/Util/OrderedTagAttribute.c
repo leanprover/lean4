@@ -928,7 +928,7 @@ if (x_15 == 0)
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 lean_dec(x_4);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_16 = l_Lake_registerOrderedTagAttribute___lam__7___closed__1;
 x_17 = l_Lean_MessageData_ofName(x_3);
 lean_ctor_set_tag(x_10, 7);
@@ -1081,10 +1081,10 @@ return x_27;
 else
 {
 lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
-lean_dec(x_26);
+lean_dec_ref(x_26);
 lean_dec(x_4);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_60 = l_Lake_registerOrderedTagAttribute___lam__7___closed__1;
 x_61 = l_Lean_MessageData_ofName(x_3);
 lean_ctor_set_tag(x_21, 7);
@@ -1213,10 +1213,10 @@ return x_68;
 else
 {
 lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; 
-lean_dec(x_67);
+lean_dec_ref(x_67);
 lean_dec(x_4);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_90 = l_Lake_registerOrderedTagAttribute___lam__7___closed__1;
 x_91 = l_Lean_MessageData_ofName(x_3);
 x_92 = lean_alloc_ctor(7, 2, 0);
@@ -1247,7 +1247,7 @@ if (x_97 == 0)
 lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; 
 lean_dec(x_4);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_98 = l_Lake_registerOrderedTagAttribute___lam__7___closed__1;
 x_99 = l_Lean_MessageData_ofName(x_3);
 x_100 = lean_alloc_ctor(7, 2, 0);
@@ -1383,10 +1383,10 @@ return x_110;
 else
 {
 lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; lean_object* x_137; 
-lean_dec(x_109);
+lean_dec_ref(x_109);
 lean_dec(x_4);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_132 = l_Lake_registerOrderedTagAttribute___lam__7___closed__1;
 x_133 = l_Lean_MessageData_ofName(x_3);
 if (lean_is_scalar(x_107)) {
@@ -1416,7 +1416,7 @@ lean_dec_ref(x_7);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_10;
 }
 }
@@ -1544,7 +1544,7 @@ else
 {
 uint8_t x_36; 
 lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 x_36 = !lean_is_exclusive(x_17);
@@ -1657,7 +1657,7 @@ else
 lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_11 = lean_ctor_get(x_5, 0);
 lean_inc(x_11);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_12 = lean_ctor_get(x_1, 1);
 x_13 = 0;
 x_14 = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(x_4, x_12, x_2, x_11, x_13);

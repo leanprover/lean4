@@ -186,7 +186,7 @@ _start:
 {
 if (lean_obj_tag(x_4) == 0)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -203,7 +203,7 @@ lean_inc(x_1);
 lean_ctor_set_tag(x_4, 5);
 lean_ctor_set(x_4, 1, x_1);
 lean_ctor_set(x_4, 0, x_3);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_8 = lean_apply_1(x_2, x_6);
 x_9 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_9, 0, x_4);
@@ -224,7 +224,7 @@ lean_inc(x_1);
 x_13 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_13, 0, x_3);
 lean_ctor_set(x_13, 1, x_1);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_14 = lean_apply_1(x_2, x_11);
 x_15 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
@@ -288,7 +288,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_alloc_closure((void*)(l_Std_Format_joinSep___at___List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_180__spec__0_spec__0___lam__0___boxed), 1, 0);
 if (lean_obj_tag(x_5) == 0)
 {
@@ -416,7 +416,7 @@ else
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = l_List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_180__spec__0___redArg___closed__5;
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_4 = l_Std_Format_joinSep___at___List_repr_x27___at___Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_180__spec__0_spec__0(x_1, x_3);
 x_5 = !lean_is_exclusive(x_1);
 if (x_5 == 0)

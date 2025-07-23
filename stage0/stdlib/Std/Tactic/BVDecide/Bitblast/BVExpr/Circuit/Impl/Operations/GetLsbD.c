@@ -94,8 +94,8 @@ lean_object* x_6;
 x_6 = l_Std_Tactic_BVDecide_BVPred_blastGetLsbD(x_1, x_2, x_3, x_4, x_5);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_6;
 }
 }

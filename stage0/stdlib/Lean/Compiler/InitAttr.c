@@ -366,7 +366,7 @@ else
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l___private_Lean_Compiler_InitAttr_0__Lean_isUnitType(x_4);
 lean_dec(x_4);
 return x_5;
@@ -593,7 +593,7 @@ else
 lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
-lean_dec(x_28);
+lean_dec_ref(x_28);
 x_30 = lean_ctor_get(x_29, 0);
 lean_inc(x_30);
 x_31 = lean_ctor_get(x_29, 1);
@@ -766,7 +766,7 @@ else
 lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
 x_30 = lean_ctor_get(x_29, 0);
 lean_inc(x_30);
-lean_dec(x_29);
+lean_dec_ref(x_29);
 x_31 = lean_ctor_get(x_30, 0);
 lean_inc(x_31);
 x_32 = lean_ctor_get(x_30, 1);
@@ -2982,7 +2982,7 @@ lean_inc(x_26);
 lean_dec_ref(x_9);
 x_27 = lean_ctor_get(x_10, 0);
 lean_inc(x_27);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_28 = lean_box(0);
 lean_inc(x_4);
 lean_inc_ref(x_3);
@@ -3035,7 +3035,7 @@ else
 lean_object* x_44; lean_object* x_45; uint8_t x_46; 
 x_44 = lean_ctor_get(x_38, 0);
 lean_inc(x_44);
-lean_dec(x_38);
+lean_dec_ref(x_38);
 x_45 = l_Lean_ConstantInfo_type(x_7);
 lean_dec(x_7);
 x_46 = lean_expr_eqv(x_45, x_44);
@@ -3104,7 +3104,7 @@ else
 lean_object* x_61; lean_object* x_62; uint8_t x_63; 
 x_61 = lean_ctor_get(x_55, 0);
 lean_inc(x_61);
-lean_dec(x_55);
+lean_dec_ref(x_55);
 x_62 = l_Lean_ConstantInfo_type(x_7);
 lean_dec(x_7);
 x_63 = lean_expr_eqv(x_62, x_61);
@@ -3222,7 +3222,7 @@ else
 lean_object* x_88; lean_object* x_89; uint8_t x_90; 
 x_88 = lean_ctor_get(x_81, 0);
 lean_inc(x_88);
-lean_dec(x_81);
+lean_dec_ref(x_81);
 x_89 = l_Lean_ConstantInfo_type(x_7);
 lean_dec(x_7);
 x_90 = lean_expr_eqv(x_89, x_88);
@@ -4321,7 +4321,7 @@ lean_inc(x_6);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; 
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = lean_box(0);
 return x_7;
 }
@@ -4405,7 +4405,7 @@ else
 lean_object* x_7; 
 x_7 = lean_ctor_get(x_5, 0);
 lean_inc(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 if (lean_obj_tag(x_7) == 0)
 {
 uint8_t x_8; 
@@ -4511,7 +4511,7 @@ return x_4;
 else
 {
 uint8_t x_5; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_5 = 1;
 return x_5;
 }

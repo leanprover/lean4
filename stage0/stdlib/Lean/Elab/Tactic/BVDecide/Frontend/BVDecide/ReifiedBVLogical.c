@@ -1048,7 +1048,7 @@ lean_object* x_22; uint8_t x_23;
 lean_dec_ref(x_3);
 x_22 = lean_ctor_get(x_2, 0);
 lean_inc(x_22);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_23 = !lean_is_exclusive(x_4);
 if (x_23 == 0)
 {

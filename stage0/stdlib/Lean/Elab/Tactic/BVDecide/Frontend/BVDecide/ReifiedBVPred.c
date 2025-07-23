@@ -143,7 +143,7 @@ lean_object* x_33;
 lean_dec(x_1);
 x_33 = lean_ctor_get(x_20, 0);
 lean_inc(x_33);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 x_23 = x_33;
 goto block_31;
 }
@@ -838,7 +838,7 @@ lean_dec_ref(x_4);
 lean_dec(x_1);
 x_23 = lean_ctor_get(x_3, 0);
 lean_inc(x_23);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_24 = !lean_is_exclusive(x_5);
 if (x_24 == 0)
 {

@@ -206,7 +206,7 @@ else
 lean_object* x_6; 
 x_6 = lean_ctor_get(x_3, 0);
 lean_inc(x_6);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_6;
 }
 }

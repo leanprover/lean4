@@ -379,7 +379,7 @@ lean_dec_ref(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec_ref(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 x_19 = !lean_is_exclusive(x_14);
 if (x_19 == 0)
@@ -515,7 +515,7 @@ lean_inc(x_60);
 if (lean_obj_tag(x_60) == 0)
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
-lean_dec(x_60);
+lean_dec_ref(x_60);
 lean_dec_ref(x_15);
 x_61 = lean_ctor_get(x_59, 1);
 lean_inc(x_61);
@@ -537,7 +537,7 @@ lean_inc(x_66);
 lean_dec_ref(x_59);
 x_67 = lean_ctor_get(x_60, 2);
 lean_inc(x_67);
-lean_dec(x_60);
+lean_dec_ref(x_60);
 x_68 = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___lam__1(x_3, x_2, x_4, x_1, x_67, x_14, x_15, x_5, x_6, x_7, x_8, x_66);
 return x_68;
 }
@@ -554,7 +554,7 @@ lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_69 = !lean_is_exclusive(x_59);
 if (x_69 == 0)
 {
@@ -637,7 +637,7 @@ lean_dec_ref(x_15);
 lean_dec_ref(x_14);
 lean_dec_ref(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_35 = lean_ctor_get(x_32, 1);
 lean_inc(x_35);
 lean_dec_ref(x_32);
@@ -708,7 +708,7 @@ lean_dec_ref(x_14);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_53 = !lean_is_exclusive(x_32);
 if (x_53 == 0)
 {
@@ -889,7 +889,7 @@ lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_16 = !lean_is_exclusive(x_10);
 if (x_16 == 0)
 {

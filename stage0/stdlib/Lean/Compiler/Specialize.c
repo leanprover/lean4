@@ -1001,7 +1001,7 @@ else
 lean_object* x_43; lean_object* x_44; lean_object* x_45; uint8_t x_48; 
 x_43 = lean_ctor_get(x_28, 0);
 lean_inc(x_43);
-lean_dec(x_28);
+lean_dec_ref(x_28);
 x_48 = l_Array_contains___at_____private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs_spec__4(x_6, x_43);
 if (x_48 == 0)
 {
@@ -1320,7 +1320,7 @@ else
 lean_object* x_43; lean_object* x_44; lean_object* x_45; uint8_t x_48; 
 x_43 = lean_ctor_get(x_28, 0);
 lean_inc(x_43);
-lean_dec(x_28);
+lean_dec_ref(x_28);
 x_48 = l_Array_contains___at_____private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs_spec__4(x_6, x_43);
 if (x_48 == 0)
 {
@@ -2701,7 +2701,7 @@ return x_4;
 else
 {
 uint8_t x_5; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_5 = 1;
 return x_5;
 }

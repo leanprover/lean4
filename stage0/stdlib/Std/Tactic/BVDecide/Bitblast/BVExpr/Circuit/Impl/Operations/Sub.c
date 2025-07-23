@@ -28,8 +28,8 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_8 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___redArg(x_1, x_2, x_3, x_4, x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_9);
@@ -48,8 +48,8 @@ x_13 = lean_ctor_get(x_5, 1);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_5);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_14 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___redArg(x_1, x_2, x_3, x_4, x_13);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc_ref(x_15);

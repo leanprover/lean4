@@ -279,7 +279,7 @@ else
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc_ref(x_11);
 x_12 = lean_ctor_get(x_11, 0);
@@ -373,7 +373,7 @@ x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc_ref(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = l_Lean_Meta_SorryLabelView_encode___redArg___closed__0;
 x_8 = lean_string_dec_eq(x_6, x_7);
 lean_dec_ref(x_6);
@@ -416,24 +416,24 @@ if (lean_obj_tag(x_14) == 2)
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_15 = lean_ctor_get(x_5, 1);
 lean_inc(x_15);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_16 = lean_ctor_get(x_10, 1);
 lean_inc(x_16);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_17 = lean_ctor_get(x_11, 1);
 lean_inc(x_17);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_18 = lean_ctor_get(x_12, 1);
 lean_inc(x_18);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 x_19 = lean_ctor_get(x_13, 1);
 lean_inc(x_19);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_20 = lean_ctor_get(x_14, 0);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_14, 1);
 lean_inc(x_21);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_19);
@@ -458,11 +458,11 @@ else
 {
 lean_object* x_28; 
 lean_dec(x_14);
-lean_dec(x_13);
-lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_5);
+lean_dec_ref(x_13);
+lean_dec_ref(x_12);
+lean_dec_ref(x_11);
+lean_dec_ref(x_10);
+lean_dec_ref(x_5);
 x_28 = lean_box(0);
 return x_28;
 }
@@ -471,10 +471,10 @@ else
 {
 lean_object* x_29; 
 lean_dec(x_13);
-lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_5);
+lean_dec_ref(x_12);
+lean_dec_ref(x_11);
+lean_dec_ref(x_10);
+lean_dec_ref(x_5);
 x_29 = lean_box(0);
 return x_29;
 }
@@ -483,9 +483,9 @@ else
 {
 lean_object* x_30; 
 lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_5);
+lean_dec_ref(x_11);
+lean_dec_ref(x_10);
+lean_dec_ref(x_5);
 x_30 = lean_box(0);
 return x_30;
 }
@@ -494,8 +494,8 @@ else
 {
 lean_object* x_31; 
 lean_dec(x_11);
-lean_dec(x_10);
-lean_dec(x_5);
+lean_dec_ref(x_10);
+lean_dec_ref(x_5);
 x_31 = lean_box(0);
 return x_31;
 }
@@ -504,7 +504,7 @@ else
 {
 lean_object* x_32; 
 lean_dec(x_10);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_32 = lean_box(0);
 return x_32;
 }
@@ -821,7 +821,7 @@ else
 lean_object* x_24; lean_object* x_25; 
 x_24 = lean_ctor_get(x_23, 0);
 lean_inc(x_24);
-lean_dec(x_23);
+lean_dec_ref(x_23);
 x_25 = l_Lean_Syntax_getTailPos_x3f(x_10, x_22);
 lean_dec(x_10);
 if (lean_obj_tag(x_25) == 0)
@@ -1105,7 +1105,7 @@ else
 lean_object* x_28; lean_object* x_29; 
 x_28 = lean_ctor_get(x_26, 0);
 lean_inc(x_28);
-lean_dec(x_26);
+lean_dec_ref(x_26);
 x_29 = l_Lean_Meta_SorryLabelView_decode_x3f(x_28);
 return x_29;
 }
@@ -1118,7 +1118,7 @@ lean_object* x_30; lean_object* x_31;
 lean_dec_ref(x_13);
 x_30 = lean_ctor_get(x_14, 0);
 lean_inc(x_30);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_31 = l_Lean_Meta_SorryLabelView_decode_x3f(x_30);
 return x_31;
 }

@@ -513,7 +513,7 @@ lean_inc(x_41);
 lean_dec_ref(x_32);
 x_42 = lean_ctor_get(x_14, 0);
 lean_inc(x_42);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_43 = l_Lean_Elab_Command_getRef___redArg(x_15, x_41);
 x_44 = lean_ctor_get(x_43, 0);
 lean_inc(x_44);
@@ -644,7 +644,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = lean_apply_1(x_2, x_3);
 if (lean_obj_tag(x_5) == 0)
@@ -677,7 +677,7 @@ return x_12;
 else
 {
 uint8_t x_13; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_13 = !lean_is_exclusive(x_5);
 if (x_13 == 0)
 {
@@ -1566,7 +1566,7 @@ lean_object* x_195;
 lean_dec(x_22);
 x_195 = lean_ctor_get(x_2, 0);
 lean_inc(x_195);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_49 = x_195;
 goto block_194;
 }
@@ -2461,7 +2461,7 @@ lean_object* x_317;
 lean_dec(x_219);
 x_317 = lean_ctor_get(x_2, 0);
 lean_inc(x_317);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_242 = x_317;
 goto block_316;
 }

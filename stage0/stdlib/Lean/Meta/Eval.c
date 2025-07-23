@@ -1259,7 +1259,7 @@ lean_dec_ref(x_100);
 lean_dec(x_99);
 lean_dec_ref(x_98);
 lean_dec(x_97);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_184 = !lean_is_exclusive(x_106);
 if (x_184 == 0)
 {
@@ -1326,7 +1326,7 @@ else
 lean_object* x_208; lean_object* x_209; lean_object* x_210; lean_object* x_211; uint8_t x_212; 
 lean_dec_ref(x_205);
 lean_dec(x_197);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_208 = l_Lean_Meta_evalExprCore___redArg___lam__0___closed__19;
 x_209 = l_Lean_indentExpr(x_201);
 lean_ctor_set_tag(x_199, 7);
@@ -1396,7 +1396,7 @@ else
 lean_object* x_223; lean_object* x_224; lean_object* x_225; lean_object* x_226; lean_object* x_227; lean_object* x_228; lean_object* x_229; lean_object* x_230; lean_object* x_231; 
 lean_dec_ref(x_220);
 lean_dec(x_197);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_223 = l_Lean_Meta_evalExprCore___redArg___lam__0___closed__19;
 x_224 = l_Lean_indentExpr(x_216);
 x_225 = lean_alloc_ctor(7, 2, 0);
@@ -1482,7 +1482,7 @@ else
 lean_object* x_243; lean_object* x_244; lean_object* x_245; lean_object* x_246; lean_object* x_247; lean_object* x_248; lean_object* x_249; lean_object* x_250; lean_object* x_251; lean_object* x_252; 
 lean_dec_ref(x_240);
 lean_dec(x_232);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_243 = l_Lean_Meta_evalExprCore___redArg___lam__0___closed__19;
 x_244 = l_Lean_indentExpr(x_235);
 if (lean_is_scalar(x_237)) {
@@ -1646,7 +1646,7 @@ lean_object* x_299;
 lean_dec_ref(x_290);
 x_299 = lean_ctor_get(x_298, 0);
 lean_inc(x_299);
-lean_dec(x_298);
+lean_dec_ref(x_298);
 x_254 = x_291;
 x_255 = x_292;
 x_256 = x_293;

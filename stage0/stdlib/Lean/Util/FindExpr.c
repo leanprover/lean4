@@ -40,7 +40,7 @@ _start:
 lean_object* x_3; 
 x_3 = lean_find_expr(x_1, x_2);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -58,7 +58,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Expr_find_x3f(x_1, x_2);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -87,7 +87,7 @@ return x_5;
 else
 {
 uint8_t x_6; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_6 = 1;
 return x_6;
 }
@@ -206,7 +206,7 @@ _start:
 lean_object* x_3; 
 x_3 = lean_find_ext_expr(x_1, x_2);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -224,7 +224,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Expr_findExt_x3f(x_1, x_2);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }

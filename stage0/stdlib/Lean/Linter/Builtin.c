@@ -1512,7 +1512,7 @@ else
 lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; 
 x_35 = lean_ctor_get(x_32, 0);
 lean_inc(x_35);
-lean_dec(x_32);
+lean_dec_ref(x_32);
 x_36 = lean_unsigned_to_nat(3u);
 x_37 = l_Lean_Syntax_getArg(x_23, x_36);
 x_38 = l_Lean_Syntax_matchesNull(x_37, x_22);
@@ -1824,7 +1824,7 @@ else
 lean_object* x_99; lean_object* x_100; lean_object* x_101; uint8_t x_102; 
 x_99 = lean_ctor_get(x_96, 0);
 lean_inc(x_99);
-lean_dec(x_96);
+lean_dec_ref(x_96);
 x_100 = l_Lean_Syntax_getArg(x_81, x_26);
 x_101 = l_Lean_Linter_suspiciousUnexpanderPatterns___lam__0___closed__15;
 lean_inc(x_100);

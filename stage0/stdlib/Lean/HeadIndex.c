@@ -510,7 +510,7 @@ case 0:
 lean_object* x_24; lean_object* x_25; lean_object* x_35; uint8_t x_36; 
 x_24 = lean_ctor_get(x_1, 0);
 lean_inc(x_24);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_35 = lean_unsigned_to_nat(1024u);
 x_36 = lean_nat_dec_le(x_35, x_2);
 if (x_36 == 0)
@@ -552,7 +552,7 @@ case 1:
 lean_object* x_39; lean_object* x_40; lean_object* x_50; uint8_t x_51; 
 x_39 = lean_ctor_get(x_1, 0);
 lean_inc(x_39);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_50 = lean_unsigned_to_nat(1024u);
 x_51 = lean_nat_dec_le(x_50, x_2);
 if (x_51 == 0)
@@ -594,7 +594,7 @@ case 2:
 lean_object* x_54; lean_object* x_55; lean_object* x_65; uint8_t x_66; 
 x_54 = lean_ctor_get(x_1, 0);
 lean_inc(x_54);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_65 = lean_unsigned_to_nat(1024u);
 x_66 = lean_nat_dec_le(x_65, x_2);
 if (x_66 == 0)
@@ -702,7 +702,7 @@ case 4:
 lean_object* x_91; lean_object* x_92; lean_object* x_102; uint8_t x_103; 
 x_91 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_91);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_102 = lean_unsigned_to_nat(1024u);
 x_103 = lean_nat_dec_le(x_102, x_2);
 if (x_103 == 0)
@@ -1364,7 +1364,7 @@ lean_object* x_4;
 lean_dec_ref(x_1);
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }

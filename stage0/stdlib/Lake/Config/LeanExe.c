@@ -462,7 +462,7 @@ x_8 = l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__0;
 x_9 = l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__2;
 x_10 = 0;
 x_11 = l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__4;
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_inc_ref(x_6);
 lean_inc_ref(x_5);
 lean_inc_ref(x_4);

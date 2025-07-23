@@ -539,7 +539,7 @@ else
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = lean_unbox(x_5);
 if (x_6 == 0)
 {
@@ -585,7 +585,7 @@ return x_4;
 else
 {
 uint8_t x_5; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 x_5 = 1;
 return x_5;
@@ -1062,7 +1062,7 @@ if (lean_obj_tag(x_7) == 5)
 lean_object* x_13; uint8_t x_14; 
 x_13 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_13);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*6);
 lean_dec_ref(x_13);
 if (x_14 == 0)
@@ -1192,7 +1192,7 @@ return x_15;
 else
 {
 uint8_t x_16; 
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_16 = !lean_is_exclusive(x_6);
 if (x_16 == 0)
 {
@@ -1302,7 +1302,7 @@ lean_inc(x_16);
 lean_dec_ref(x_8);
 x_17 = lean_ctor_get(x_9, 0);
 lean_inc(x_17);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_18 = l_Lean_Meta_isInductivePredicate_x3f(x_17, x_3, x_4, x_5, x_6, x_16);
 return x_18;
 }
@@ -2230,7 +2230,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc_ref(x_37);
 x_38 = lean_ctor_get(x_35, 2);
 lean_inc_ref(x_38);
-lean_dec(x_35);
+lean_dec_ref(x_35);
 if (x_5 == 0)
 {
 lean_inc(x_6);
@@ -2967,7 +2967,7 @@ lean_inc(x_20);
 if (lean_obj_tag(x_20) == 5)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-lean_dec(x_20);
+lean_dec_ref(x_20);
 x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
 lean_dec_ref(x_19);

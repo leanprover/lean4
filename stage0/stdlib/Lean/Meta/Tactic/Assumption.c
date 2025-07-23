@@ -84,7 +84,7 @@ else
 lean_object* x_22; lean_object* x_23; uint8_t x_36; 
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 x_36 = l_Lean_LocalDecl_isImplementationDetail(x_22);
 if (x_36 == 0)
 {
@@ -251,7 +251,7 @@ goto _start;
 }
 else
 {
-lean_dec(x_17);
+lean_dec_ref(x_17);
 lean_dec(x_14);
 lean_dec(x_7);
 lean_dec_ref(x_6);
@@ -332,7 +332,7 @@ return x_14;
 }
 else
 {
-lean_dec(x_12);
+lean_dec_ref(x_12);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -502,7 +502,7 @@ lean_inc(x_23);
 lean_dec_ref(x_13);
 x_24 = lean_ctor_get(x_14, 0);
 lean_inc(x_24);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_25 = l_Lean_Expr_fvar___override(x_24);
 x_26 = l_Lean_MVarId_assign___at___Lean_Meta_getLevel_spec__0___redArg(x_1, x_25, x_4, x_23);
 lean_dec(x_4);

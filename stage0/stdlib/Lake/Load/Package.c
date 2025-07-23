@@ -108,7 +108,7 @@ return x_6;
 else
 {
 lean_object* x_13; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_13 = l_System_FilePath_pathExists(x_1, x_2);
 lean_dec_ref(x_1);
 return x_13;
@@ -156,7 +156,7 @@ return x_14;
 else
 {
 lean_object* x_15; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_15 = l_Lake_resolvePath(x_1, x_2);
 return x_15;
 }
@@ -1330,7 +1330,7 @@ else
 lean_object* x_262; lean_object* x_263; uint8_t x_264; 
 x_262 = lean_ctor_get(x_21, 0);
 lean_inc(x_262);
-lean_dec(x_21);
+lean_dec_ref(x_21);
 lean_inc_ref(x_11);
 x_263 = l_Lake_resolvePath(x_11, x_4);
 x_264 = !lean_is_exclusive(x_263);
@@ -2220,7 +2220,7 @@ else
 lean_object* x_118; uint8_t x_119; 
 x_118 = lean_ctor_get(x_117, 0);
 lean_inc(x_118);
-lean_dec(x_117);
+lean_dec_ref(x_117);
 x_119 = lean_unbox(x_118);
 lean_dec(x_118);
 x_114 = x_119;

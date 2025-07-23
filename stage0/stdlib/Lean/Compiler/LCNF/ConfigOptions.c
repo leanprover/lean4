@@ -637,13 +637,13 @@ else
 lean_object* x_6; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 if (lean_obj_tag(x_6) == 3)
 {
 lean_object* x_7; 
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_7;
 }
 else
@@ -673,12 +673,12 @@ else
 lean_object* x_7; 
 x_7 = lean_ctor_get(x_5, 0);
 lean_inc(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 if (lean_obj_tag(x_7) == 1)
 {
 uint8_t x_8; 
 x_8 = lean_ctor_get_uint8(x_7, 0);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 return x_8;
 }
 else

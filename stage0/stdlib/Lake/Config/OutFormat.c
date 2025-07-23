@@ -180,14 +180,14 @@ return x_7;
 LEAN_EXPORT lean_object* l_Lake_instToTextOfToString___redArg(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instToTextOfToString(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_inc(x_2);
+lean_inc_ref(x_2);
 return x_2;
 }
 }
@@ -196,7 +196,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_instToTextOfToString___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -205,7 +205,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_instToTextOfToString(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -406,7 +406,7 @@ if (x_15 == 0)
 {
 lean_dec(x_13);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = x_11;
 goto block_10;
 }
@@ -418,7 +418,7 @@ if (x_16 == 0)
 {
 lean_dec(x_13);
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = x_11;
 goto block_10;
 }
@@ -549,14 +549,14 @@ _start:
 if (x_3 == 0)
 {
 lean_object* x_5; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_apply_1(x_1, x_4);
 return x_5;
 }
 else
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_apply_1(x_2, x_4);
 x_7 = l_Lean_Json_compress(x_6);
 return x_7;

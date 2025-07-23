@@ -361,7 +361,7 @@ if (x_7 == 0)
 {
 lean_dec(x_5);
 lean_dec_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -372,7 +372,7 @@ if (x_8 == 0)
 {
 lean_dec(x_5);
 lean_dec_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -399,7 +399,7 @@ if (x_7 == 0)
 {
 lean_dec(x_5);
 lean_dec_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -410,7 +410,7 @@ if (x_8 == 0)
 {
 lean_dec(x_5);
 lean_dec_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -744,7 +744,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_4; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_List_reverse___redArg(x_3);
 return x_4;
 }
@@ -757,7 +757,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_6);
 x_8 = lean_apply_1(x_1, x_6);
 x_9 = lean_unbox(x_8);
@@ -788,7 +788,7 @@ x_13 = lean_ctor_get(x_2, 1);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_12);
 x_14 = lean_apply_1(x_1, x_12);
 x_15 = lean_unbox(x_14);
@@ -825,7 +825,7 @@ _start:
 {
 if (lean_obj_tag(x_3) == 0)
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -835,8 +835,8 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
-lean_dec(x_3);
-lean_inc(x_1);
+lean_dec_ref(x_3);
+lean_inc_ref(x_1);
 x_6 = lean_apply_2(x_1, x_2, x_4);
 x_2 = x_6;
 x_3 = x_5;
@@ -941,10 +941,10 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = lean_ctor_get(x_4, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_4, 1);
@@ -1113,11 +1113,11 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 2);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 3);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_1, 4);
 lean_inc(x_7);
 x_8 = lean_ctor_get_uint8(x_1, sizeof(void*)*6);
@@ -1132,7 +1132,7 @@ lean_closure_set(x_11, 1, x_6);
 x_12 = lean_alloc_closure((void*)(l_Lean_registerSimplePersistentEnvExtension___redArg___lam__2), 1, 0);
 x_13 = lean_alloc_closure((void*)(l_Lean_registerSimplePersistentEnvExtension___redArg___lam__3___boxed), 1, 0);
 x_14 = lean_box(0);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_15 = lean_alloc_closure((void*)(l_Lean_registerSimplePersistentEnvExtension___redArg___lam__4___boxed), 5, 2);
 lean_closure_set(x_15, 0, x_5);
 lean_closure_set(x_15, 1, x_14);
@@ -1805,7 +1805,7 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_1);
 x_9 = l_Lean_TagDeclarationExtension_tag___closed__5;
@@ -1979,7 +1979,7 @@ else
 lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
 x_13 = lean_ctor_get(x_5, 0);
 lean_inc(x_13);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_14 = l_Lean_TagDeclarationExtension_isTagged___closed__0;
 x_15 = 0;
 x_16 = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(x_14, x_1, x_2, x_13, x_15);
@@ -2225,7 +2225,7 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_1, x_4);
 if (lean_obj_tag(x_6) == 0)
 {
@@ -2238,7 +2238,7 @@ else
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_4, x_8, x_2);
 x_2 = x_9;
 x_3 = x_5;
@@ -2598,7 +2598,7 @@ else
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_31 = lean_ctor_get(x_29, 0);
 lean_inc(x_31);
-lean_dec(x_29);
+lean_dec_ref(x_29);
 x_32 = l_Lean_MapDeclarationExtension_insert___redArg___closed__5;
 x_33 = l_Lean_Name_toString(x_31, x_10, x_9);
 x_34 = l_addParenHeuristic(x_33);
@@ -2634,7 +2634,7 @@ return x_39;
 else
 {
 lean_object* x_40; lean_object* x_41; 
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_1);
@@ -2704,7 +2704,7 @@ else
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_10 = lean_ctor_get(x_7, 0);
 lean_inc(x_10);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_11 = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(x_6, x_2, x_3, x_10, x_5);
 lean_dec(x_10);
 lean_dec_ref(x_3);
@@ -2865,7 +2865,7 @@ else
 lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_9 = lean_ctor_get(x_6, 0);
 lean_inc(x_9);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_10 = 0;
 x_11 = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(x_5, x_2, x_3, x_9, x_10);
 lean_dec(x_9);

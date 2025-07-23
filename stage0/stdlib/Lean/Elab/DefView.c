@@ -784,7 +784,7 @@ else
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_19 = lean_ctor_get(x_4, 0);
 lean_inc(x_19);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_19, 1);
@@ -895,7 +895,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lean_Elab_instToSnapshotTreeHeaderProcessedSnapshot___lam__0___closed__12;
 return x_3;
 }
@@ -904,7 +904,7 @@ else
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 4);
@@ -926,7 +926,7 @@ else
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_21 = lean_ctor_get(x_6, 0);
 lean_inc(x_21);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
 x_23 = lean_ctor_get(x_21, 1);
@@ -1612,7 +1612,7 @@ goto block_32;
 block_24:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_14 = l_Array_toSubarray___redArg(x_9, x_12, x_13);
+x_14 = l_Array_toSubarray___redArg(x_11, x_12, x_13);
 x_15 = l_Array_ofSubarray___redArg(x_14);
 lean_dec_ref(x_14);
 x_16 = l_Lean_Elab_Command_mkDefViewOfAbbrev___closed__7;
@@ -1623,8 +1623,8 @@ lean_ctor_set(x_18, 1, x_16);
 lean_ctor_set(x_18, 2, x_15);
 x_19 = lean_unsigned_to_nat(1u);
 x_20 = l_Lean_Syntax_getArg(x_2, x_19);
-x_21 = l_Lean_Syntax_getArg(x_2, x_8);
-lean_dec(x_8);
+x_21 = l_Lean_Syntax_getArg(x_2, x_9);
+lean_dec(x_9);
 x_22 = lean_box(0);
 x_23 = lean_alloc_ctor(0, 9, 1);
 lean_ctor_set(x_23, 0, x_2);
@@ -1635,7 +1635,7 @@ lean_ctor_set(x_23, 4, x_6);
 lean_ctor_set(x_23, 5, x_7);
 lean_ctor_set(x_23, 6, x_21);
 lean_ctor_set(x_23, 7, x_22);
-lean_ctor_set(x_23, 8, x_11);
+lean_ctor_set(x_23, 8, x_8);
 lean_ctor_set_uint8(x_23, sizeof(void*)*9, x_10);
 return x_23;
 }
@@ -1650,10 +1650,10 @@ x_30 = lean_array_get_size(x_27);
 x_31 = lean_nat_dec_le(x_28, x_30);
 if (x_31 == 0)
 {
-x_8 = x_28;
-x_9 = x_27;
+x_8 = x_25;
+x_9 = x_28;
 x_10 = x_26;
-x_11 = x_25;
+x_11 = x_27;
 x_12 = x_29;
 x_13 = x_30;
 goto block_24;
@@ -1661,10 +1661,10 @@ goto block_24;
 else
 {
 lean_dec(x_30);
-x_8 = x_28;
-x_9 = x_27;
+x_8 = x_25;
+x_9 = x_28;
 x_10 = x_26;
-x_11 = x_25;
+x_11 = x_27;
 x_12 = x_29;
 x_13 = x_28;
 goto block_24;
@@ -2229,7 +2229,7 @@ else
 lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; uint8_t x_120; 
 x_116 = lean_ctor_get(x_49, 0);
 lean_inc(x_116);
-lean_dec(x_49);
+lean_dec_ref(x_49);
 x_117 = l_Lean_Elab_Command_mkDefViewOfInstance___closed__9;
 x_118 = l_Lean_isTracingEnabledFor___at___Lean_withTraceNode___at___Lean_Elab_Command_runLinters_spec__6_spec__6___redArg(x_117, x_4, x_25);
 x_119 = lean_ctor_get(x_118, 0);
@@ -2779,7 +2779,7 @@ else
 lean_object* x_282; lean_object* x_283; lean_object* x_284; lean_object* x_285; uint8_t x_286; 
 x_282 = lean_ctor_get(x_238, 0);
 lean_inc(x_282);
-lean_dec(x_238);
+lean_dec_ref(x_238);
 x_283 = l_Lean_Elab_Command_mkDefViewOfInstance___closed__9;
 x_284 = l_Lean_isTracingEnabledFor___at___Lean_withTraceNode___at___Lean_Elab_Command_runLinters_spec__6_spec__6___redArg(x_283, x_4, x_25);
 x_285 = lean_ctor_get(x_284, 0);
@@ -3149,7 +3149,7 @@ else
 lean_object* x_391; lean_object* x_392; lean_object* x_393; lean_object* x_394; uint8_t x_395; 
 x_391 = lean_ctor_get(x_347, 0);
 lean_inc(x_391);
-lean_dec(x_347);
+lean_dec_ref(x_347);
 x_392 = l_Lean_Elab_Command_mkDefViewOfInstance___closed__9;
 x_393 = l_Lean_isTracingEnabledFor___at___Lean_withTraceNode___at___Lean_Elab_Command_runLinters_spec__6_spec__6___redArg(x_392, x_4, x_323);
 x_394 = lean_ctor_get(x_393, 0);
@@ -3780,7 +3780,7 @@ else
 lean_object* x_121; lean_object* x_122; 
 x_121 = lean_ctor_get(x_51, 0);
 lean_inc(x_121);
-lean_dec(x_51);
+lean_dec_ref(x_51);
 x_122 = l_Lean_Elab_Command_mkDefViewOfOpaque___lam__0(x_2, x_10, x_1, x_9, x_121, x_3, x_4, x_5);
 return x_122;
 }

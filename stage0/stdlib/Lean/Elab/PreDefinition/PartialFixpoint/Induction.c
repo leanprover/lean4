@@ -392,7 +392,7 @@ static lean_object* l_Lean_Elab_PartialFixpoint_mkAdmProj___closed__10;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_deriveInduction_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_deriveInduction_spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_PartialFixpoint_deriveInduction_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_PProdN_reduceProjs(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_PProdN_reduceProjs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_PartialFixpoint_initFn___lam__0___closed__21____x40_Lean_Elab_PreDefinition_PartialFixpoint_Induction___hyg_4936_;
 static lean_object* l_Lean_Elab_PartialFixpoint_unfoldPredRel___closed__7;
 static lean_object* l_initFn___closed__14____x40_Lean_Elab_PreDefinition_PartialFixpoint_Induction___hyg_7134_;
@@ -2483,7 +2483,7 @@ else
 lean_object* x_7; 
 x_7 = lean_ctor_get(x_5, 0);
 lean_inc(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 return x_7;
 }
 }
@@ -2621,7 +2621,7 @@ else
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 x_22 = lean_ctor_get(x_15, 0);
 lean_inc(x_22);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_23 = lean_ctor_get(x_22, 1);
 lean_inc_ref(x_23);
 x_24 = lean_ctor_get(x_22, 4);
@@ -2722,7 +2722,7 @@ else
 lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; 
 x_52 = lean_ctor_get(x_45, 0);
 lean_inc(x_52);
-lean_dec(x_45);
+lean_dec_ref(x_45);
 x_53 = lean_ctor_get(x_52, 1);
 lean_inc_ref(x_53);
 x_54 = lean_ctor_get(x_52, 4);
@@ -3165,7 +3165,7 @@ if (lean_obj_tag(x_7) == 1)
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_16 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_16);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_17 = lean_box(0);
 x_18 = l_Lean_Name_str___override(x_17, x_16);
 x_10 = x_18;
@@ -3427,7 +3427,9 @@ x_25 = lean_array_get(x_7, x_4, x_5);
 x_26 = l_Lean_Expr_app___override(x_25, x_24);
 lean_inc(x_15);
 lean_inc_ref(x_14);
-x_27 = l_Lean_Meta_PProdN_reduceProjs(x_26, x_14, x_15, x_19);
+lean_inc(x_13);
+lean_inc_ref(x_12);
+x_27 = l_Lean_Meta_PProdN_reduceProjs(x_26, x_12, x_13, x_14, x_15, x_19);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; lean_object* x_29; size_t x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; lean_object* x_36; 
@@ -6175,7 +6177,7 @@ lean_inc(x_307);
 lean_dec_ref(x_298);
 x_308 = lean_ctor_get(x_299, 0);
 lean_inc(x_308);
-lean_dec(x_299);
+lean_dec_ref(x_299);
 x_309 = l_Lean_Expr_cleanupAnnotations(x_308);
 x_310 = l_Lean_Expr_isApp(x_309);
 if (x_310 == 0)
@@ -10266,7 +10268,7 @@ x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = 0;
 x_6 = l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo;
 x_7 = l_Lean_Elab_PartialFixpoint_getInductionPrinciplePostfix___closed__5;
@@ -10305,7 +10307,7 @@ else
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; uint8_t x_23; 
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_17 = lean_ctor_get(x_16, 1);
 lean_inc_ref(x_17);
 x_18 = lean_ctor_get(x_16, 4);
@@ -10342,7 +10344,7 @@ else
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; uint8_t x_34; 
 x_27 = lean_ctor_get(x_26, 0);
 lean_inc(x_27);
-lean_dec(x_26);
+lean_dec_ref(x_26);
 x_28 = lean_ctor_get(x_27, 1);
 lean_inc_ref(x_28);
 x_29 = lean_ctor_get(x_27, 4);
@@ -10381,7 +10383,7 @@ else
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; 
 x_39 = lean_ctor_get(x_37, 0);
 lean_inc(x_39);
-lean_dec(x_37);
+lean_dec_ref(x_37);
 x_40 = lean_ctor_get(x_39, 1);
 lean_inc_ref(x_40);
 x_41 = lean_ctor_get(x_39, 4);
@@ -10754,7 +10756,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean
 lean_free_object(x_5);
 x_12 = lean_ctor_get(x_1, 0);
 lean_inc(x_12);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_13 = lean_box(1);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = l_Lean_Elab_PartialFixpoint_initFn___lam__0___closed__18____x40_Lean_Elab_PreDefinition_PartialFixpoint_Induction___hyg_4936_;
@@ -10937,7 +10939,7 @@ if (lean_obj_tag(x_1) == 1)
 lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; uint8_t x_64; uint8_t x_65; uint8_t x_66; uint8_t x_67; lean_object* x_68; uint64_t x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; 
 x_57 = lean_ctor_get(x_1, 0);
 lean_inc(x_57);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_58 = lean_box(1);
 x_59 = lean_unsigned_to_nat(0u);
 x_60 = l_Lean_Elab_PartialFixpoint_initFn___lam__0___closed__18____x40_Lean_Elab_PreDefinition_PartialFixpoint_Induction___hyg_4936_;
@@ -11246,7 +11248,7 @@ else
 lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_10 = l_Array_foldlMUnsafe_fold___at___Lean_Elab_PartialFixpoint_isOptionFixpoint_spec__3___closed__1;
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = l_Lean_Expr_isAppOfArity(x_9, x_10, x_11);
@@ -11356,7 +11358,7 @@ else
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; 
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = lean_ctor_get(x_8, 1);
 lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_8, 2);
@@ -11390,7 +11392,7 @@ else
 lean_object* x_20; uint8_t x_21; 
 x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
-lean_dec(x_19);
+lean_dec_ref(x_19);
 x_21 = l_Lean_ConstantInfo_hasValue(x_20, x_18);
 if (x_21 == 0)
 {
@@ -11551,7 +11553,7 @@ return x_16;
 }
 else
 {
-lean_dec(x_15);
+lean_dec_ref(x_15);
 return x_14;
 }
 }
@@ -11607,7 +11609,7 @@ x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Lean_Elab_PartialFixpoint_isPartialCorrectnessName___closed__0;
 x_6 = lean_string_dec_eq(x_4, x_5);
 lean_dec_ref(x_4);
@@ -12385,7 +12387,7 @@ lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_4);
 lean_ctor_set(x_11, 1, x_9);
@@ -12400,7 +12402,7 @@ lean_inc(x_8);
 lean_inc_ref(x_7);
 lean_inc(x_6);
 lean_inc_ref(x_5);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_14 = l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getParamNames_spec__1___redArg(x_12, x_1, x_13, x_13, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -12428,7 +12430,7 @@ lean_dec_ref(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_23 = !lean_is_exclusive(x_14);
 if (x_23 == 0)
 {
@@ -13295,7 +13297,7 @@ lean_dec_ref(x_10);
 lean_dec_ref(x_9);
 lean_dec(x_8);
 lean_dec_ref(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_4);
 x_36 = !lean_is_exclusive(x_17);
 if (x_36 == 0)
@@ -14679,7 +14681,7 @@ lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_31;
 }
 }
@@ -14947,7 +14949,7 @@ x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = l_Lean_Elab_PartialFixpoint_isPartialCorrectnessName___closed__0;
 x_8 = lean_string_dec_eq(x_6, x_7);
 lean_dec_ref(x_6);

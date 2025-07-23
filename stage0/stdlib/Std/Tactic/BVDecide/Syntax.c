@@ -1430,7 +1430,7 @@ else
 lean_object* x_113; lean_object* x_114; 
 x_113 = lean_ctor_get(x_77, 0);
 lean_inc(x_113);
-lean_dec(x_77);
+lean_dec_ref(x_77);
 x_114 = l_Array_mkArray1___redArg(x_113);
 x_32 = x_109;
 x_33 = x_108;
@@ -1645,7 +1645,7 @@ else
 lean_object* x_66; lean_object* x_67; 
 x_66 = lean_ctor_get(x_41, 0);
 lean_inc(x_66);
-lean_dec(x_41);
+lean_dec_ref(x_41);
 x_67 = l_Array_mkArray1___redArg(x_66);
 x_4 = x_32;
 x_5 = x_56;

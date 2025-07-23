@@ -409,7 +409,7 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lake_reprModuleFacet____x40_Lake_Build_Facets___hyg_39_(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_5;
 }
 }

@@ -3975,7 +3975,7 @@ lean_object* x_129;
 lean_dec(x_94);
 x_129 = lean_ctor_get(x_78, 0);
 lean_inc(x_129);
-lean_dec(x_78);
+lean_dec_ref(x_78);
 x_10 = x_124;
 x_11 = x_79;
 x_12 = x_81;
@@ -4104,7 +4104,7 @@ else
 lean_object* x_183; lean_object* x_184; 
 x_183 = lean_ctor_get(x_143, 0);
 lean_inc(x_183);
-lean_dec(x_143);
+lean_dec_ref(x_143);
 x_184 = l_Array_mkArray1___redArg(x_183);
 x_77 = x_132;
 x_78 = x_146;
@@ -4228,7 +4228,7 @@ else
 lean_object* x_217; lean_object* x_218; 
 x_217 = lean_ctor_get(x_143, 0);
 lean_inc(x_217);
-lean_dec(x_143);
+lean_dec_ref(x_143);
 x_218 = l_Array_mkArray1___redArg(x_217);
 x_77 = x_132;
 x_78 = x_146;
@@ -4308,7 +4308,7 @@ else
 lean_object* x_240; lean_object* x_241; lean_object* x_242; lean_object* x_243; uint8_t x_244; 
 x_240 = lean_ctor_get(x_237, 0);
 lean_inc(x_240);
-lean_dec(x_237);
+lean_dec_ref(x_237);
 x_241 = lean_unsigned_to_nat(8u);
 x_242 = l_Lean_Syntax_getArg(x_1, x_241);
 x_243 = l_Lean_unifConstraint___closed__1;
@@ -12206,7 +12206,7 @@ else
 lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; 
 x_104 = lean_ctor_get(x_77, 0);
 lean_inc(x_104);
-lean_dec(x_77);
+lean_dec_ref(x_77);
 x_105 = l_Lean_expandExplicitBindersAux_loop___redArg___closed__15;
 lean_inc_ref(x_78);
 x_106 = l_Lean_Name_mkStr4(x_4, x_5, x_78, x_105);
@@ -12264,7 +12264,7 @@ else
 lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; uint8_t x_130; 
 x_125 = lean_ctor_get(x_122, 0);
 lean_inc(x_125);
-lean_dec(x_122);
+lean_dec_ref(x_122);
 x_126 = l_Lean_expandExplicitBindersAux_loop___redArg___closed__1;
 x_127 = l_Lean_Syntax_getArgs(x_113);
 lean_dec(x_113);
@@ -13052,7 +13052,7 @@ else
 lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; size_t x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
 x_17 = lean_ctor_get(x_14, 0);
 lean_inc(x_17);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_18 = lean_ctor_get(x_2, 5);
 x_19 = 0;
 x_20 = l_Lean_SourceInfo_fromRef(x_18, x_19);

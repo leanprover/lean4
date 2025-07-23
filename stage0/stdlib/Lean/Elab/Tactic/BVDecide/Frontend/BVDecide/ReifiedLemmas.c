@@ -120,7 +120,7 @@ else
 lean_object* x_40; 
 x_40 = lean_ctor_get(x_25, 0);
 lean_inc(x_40);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 x_28 = x_40;
 goto block_38;
 }
@@ -743,7 +743,7 @@ else
 lean_object* x_40; 
 x_40 = lean_ctor_get(x_25, 0);
 lean_inc(x_40);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 x_28 = x_40;
 goto block_38;
 }
@@ -1237,7 +1237,7 @@ lean_inc(x_23);
 lean_dec_ref(x_15);
 x_24 = lean_ctor_get(x_16, 0);
 lean_inc(x_24);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 x_25 = l_Lean_Elab_Tactic_BVDecide_Frontend_LemmaM_addLemma___redArg(x_24, x_9, x_23);
 x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
@@ -1282,7 +1282,7 @@ lean_inc(x_35);
 lean_dec_ref(x_27);
 x_36 = lean_ctor_get(x_28, 0);
 lean_inc(x_36);
-lean_dec(x_28);
+lean_dec_ref(x_28);
 x_37 = l_Lean_Elab_Tactic_BVDecide_Frontend_LemmaM_addLemma___redArg(x_36, x_9, x_35);
 return x_37;
 }

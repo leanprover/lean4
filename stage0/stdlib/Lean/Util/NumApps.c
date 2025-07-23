@@ -200,7 +200,7 @@ else
 lean_object* x_48; 
 x_48 = lean_ctor_get(x_46, 0);
 lean_inc(x_48);
-lean_dec(x_46);
+lean_dec_ref(x_46);
 x_40 = x_48;
 goto block_45;
 }

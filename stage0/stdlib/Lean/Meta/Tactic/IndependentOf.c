@@ -59,7 +59,7 @@ x_12 = lean_ctor_get(x_3, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_3, 1);
 lean_inc(x_13);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_inc(x_7);
 lean_inc_ref(x_6);
 lean_inc(x_5);

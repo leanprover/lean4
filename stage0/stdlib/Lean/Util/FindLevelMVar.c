@@ -45,7 +45,7 @@ x_4 = l_Lean_Level_hasMVar(x_2);
 if (x_4 == 0)
 {
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 else
@@ -58,8 +58,8 @@ return x_5;
 else
 {
 lean_dec(x_2);
-lean_dec(x_1);
-lean_inc(x_3);
+lean_dec_ref(x_1);
+lean_inc_ref(x_3);
 return x_3;
 }
 }
@@ -74,7 +74,7 @@ case 1:
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_2, 0);
 lean_inc(x_10);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_11 = l_Lean_FindLevelMVar_visitLevel(x_1, x_10, x_3);
 return x_11;
 }
@@ -85,7 +85,7 @@ x_12 = lean_ctor_get(x_2, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_2, 1);
 lean_inc(x_13);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = x_12;
 x_5 = x_13;
 x_6 = x_3;
@@ -98,7 +98,7 @@ x_14 = lean_ctor_get(x_2, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_2, 1);
 lean_inc(x_15);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = x_14;
 x_5 = x_15;
 x_6 = x_3;
@@ -109,7 +109,7 @@ case 5:
 lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_16 = lean_ctor_get(x_2, 0);
 lean_inc(x_16);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_inc(x_16);
 x_17 = lean_apply_1(x_1, x_16);
 x_18 = lean_unbox(x_17);
@@ -130,7 +130,7 @@ return x_19;
 default: 
 {
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 lean_inc(x_3);
 return x_3;
 }
@@ -138,7 +138,7 @@ return x_3;
 block_9:
 {
 lean_object* x_7; lean_object* x_8; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_7 = l_Lean_FindLevelMVar_visitLevel(x_1, x_5, x_6);
 x_8 = l_Lean_FindLevelMVar_visitLevel(x_1, x_4, x_7);
 lean_dec(x_7);
@@ -174,7 +174,7 @@ x_4 = l_Lean_Expr_hasLevelMVar(x_2);
 if (x_4 == 0)
 {
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 else
@@ -187,7 +187,7 @@ return x_5;
 else
 {
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -213,7 +213,7 @@ size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11;
 x_8 = 1;
 x_9 = lean_usize_sub(x_3, x_8);
 x_10 = lean_array_uget(x_2, x_9);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_11 = lean_alloc_closure((void*)(l_Array_foldrMUnsafe_fold___at___List_foldrTR___at___Lean_FindLevelMVar_main_spec__0_spec__0___lam__0), 4, 3);
 lean_closure_set(x_11, 0, x_5);
 lean_closure_set(x_11, 1, x_1);
@@ -225,7 +225,7 @@ goto _start;
 else
 {
 lean_object* x_13; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_13 = lean_apply_1(x_5, x_6);
 return x_13;
 }
@@ -244,7 +244,7 @@ if (x_8 == 0)
 lean_object* x_9; 
 lean_dec(x_6);
 lean_dec_ref(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_9 = lean_apply_1(x_2, x_4);
 return x_9;
 }
@@ -300,7 +300,7 @@ lean_inc_ref(x_15);
 x_16 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_16);
 lean_dec_ref(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_17 = l_Lean_FindLevelMVar_visit(x_1, x_15, x_3);
 x_18 = l_Lean_FindLevelMVar_visit(x_1, x_16, x_17);
 return x_18;
@@ -341,9 +341,9 @@ lean_inc_ref(x_24);
 x_25 = lean_ctor_get(x_2, 3);
 lean_inc_ref(x_25);
 lean_dec_ref(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_26 = l_Lean_FindLevelMVar_visit(x_1, x_23, x_3);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_27 = l_Lean_FindLevelMVar_visit(x_1, x_24, x_26);
 x_28 = l_Lean_FindLevelMVar_visit(x_1, x_25, x_27);
 return x_28;
@@ -369,14 +369,14 @@ return x_32;
 default: 
 {
 lean_dec_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
 block_9:
 {
 lean_object* x_7; lean_object* x_8; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_7 = l_Lean_FindLevelMVar_visit(x_1, x_4, x_6);
 x_8 = l_Lean_FindLevelMVar_visit(x_1, x_5, x_7);
 return x_8;

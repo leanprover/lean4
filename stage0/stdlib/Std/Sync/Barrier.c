@@ -98,7 +98,7 @@ LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___a
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 lean_inc(x_5);
 x_7 = lean_apply_2(x_1, x_5, x_6);
 x_8 = lean_ctor_get(x_7, 0);
@@ -122,7 +122,7 @@ else
 {
 uint8_t x_14; 
 lean_dec(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_14 = !lean_is_exclusive(x_7);
 if (x_14 == 0)
 {

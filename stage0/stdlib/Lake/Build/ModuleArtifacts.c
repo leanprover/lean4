@@ -100,7 +100,7 @@ else
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_ctor_get(x_3, 0);
 lean_inc(x_12);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_13 = lean_array_push(x_11, x_12);
 x_5 = x_13;
 goto block_8;
@@ -116,7 +116,7 @@ else
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_ctor_get(x_4, 0);
 lean_inc(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = lean_array_push(x_5, x_6);
 return x_7;
 }
@@ -232,7 +232,7 @@ else
 lean_object* x_36; lean_object* x_37; uint64_t x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
 x_36 = lean_ctor_get(x_3, 0);
 lean_inc(x_36);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_37 = l_Lake_ModuleOutputHashes_toJson___closed__4;
 x_38 = lean_unbox_uint64(x_36);
 lean_dec(x_36);
@@ -401,7 +401,7 @@ if (lean_obj_tag(x_1) == 4)
 lean_object* x_2; size_t x_3; size_t x_4; lean_object* x_5; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_array_size(x_2);
 x_4 = 0;
 x_5 = l_Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Lake_ModuleOutputHashes_fromJson_x3f_spec__0_spec__0(x_3, x_4, x_2);
@@ -821,7 +821,7 @@ else
 lean_object* x_117; lean_object* x_118; 
 x_117 = lean_ctor_get(x_115, 0);
 lean_inc(x_117);
-lean_dec(x_115);
+lean_dec_ref(x_115);
 x_118 = l_Option_fromJson_x3f___at___Lake_ModuleOutputHashes_fromJson_x3f_spec__2(x_117);
 if (lean_obj_tag(x_118) == 0)
 {
@@ -1020,7 +1020,7 @@ else
 lean_object* x_83; lean_object* x_84; 
 x_83 = lean_ctor_get(x_81, 0);
 lean_inc(x_83);
-lean_dec(x_81);
+lean_dec_ref(x_81);
 x_84 = l_UInt64_fromJson_x3f(x_83);
 if (lean_obj_tag(x_84) == 0)
 {
@@ -1083,7 +1083,7 @@ else
 lean_object* x_98; lean_object* x_99; 
 x_98 = lean_ctor_get(x_95, 0);
 lean_inc(x_98);
-lean_dec(x_95);
+lean_dec_ref(x_95);
 x_99 = l_Option_fromJson_x3f___at___Lake_ModuleOutputHashes_fromJson_x3f_spec__2(x_98);
 if (lean_obj_tag(x_99) == 0)
 {

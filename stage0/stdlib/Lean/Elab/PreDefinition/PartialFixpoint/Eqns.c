@@ -1519,7 +1519,7 @@ if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec(x_9);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_14 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_deltaLHSUntilFix___lam__1___closed__3;
 x_15 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_deltaLHSUntilFix___lam__1___closed__7;
 x_16 = l_Lean_Meta_throwTacticEx___redArg(x_14, x_1, x_15, x_3, x_4, x_5, x_6, x_10);
@@ -1629,7 +1629,7 @@ lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_35 = !lean_is_exclusive(x_8);
 if (x_35 == 0)

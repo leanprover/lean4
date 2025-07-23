@@ -317,7 +317,7 @@ if (lean_obj_tag(x_2) == 0)
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId(x_3);
 return x_4;
 }
@@ -326,7 +326,7 @@ else
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId(x_5);
 if (x_6 == 0)
 {
@@ -739,7 +739,7 @@ return x_5;
 else
 {
 uint8_t x_6; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 x_6 = 1;
 return x_6;

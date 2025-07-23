@@ -166,7 +166,7 @@ return x_13;
 else
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_11);
+lean_dec_ref(x_11);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_2);
@@ -1401,7 +1401,7 @@ else
 lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; 
 x_139 = lean_ctor_get(x_124, 0);
 lean_inc(x_139);
-lean_dec(x_124);
+lean_dec_ref(x_124);
 x_140 = l_Lean_Elab_Tactic_Conv_evalSimpTrace___lam__1___closed__5;
 lean_inc(x_123);
 x_141 = lean_alloc_ctor(2, 2, 0);
@@ -1486,7 +1486,7 @@ else
 lean_object* x_170; lean_object* x_171; lean_object* x_172; lean_object* x_173; lean_object* x_174; 
 x_170 = lean_ctor_get(x_154, 0);
 lean_inc(x_170);
-lean_dec(x_154);
+lean_dec_ref(x_154);
 x_171 = l_Lean_SourceInfo_fromRef(x_170, x_6);
 lean_dec(x_170);
 x_172 = l_Lean_Elab_Tactic_Conv_evalSimpTrace___lam__1___closed__7;
@@ -1569,7 +1569,7 @@ else
 lean_object* x_201; lean_object* x_202; 
 x_201 = lean_ctor_get(x_187, 0);
 lean_inc(x_201);
-lean_dec(x_187);
+lean_dec_ref(x_187);
 x_202 = l_Array_mkArray1___redArg(x_201);
 x_148 = x_198;
 x_149 = x_182;
@@ -1641,7 +1641,7 @@ else
 lean_object* x_214; lean_object* x_215; 
 x_214 = lean_ctor_get(x_187, 0);
 lean_inc(x_214);
-lean_dec(x_187);
+lean_dec_ref(x_187);
 x_215 = l_Array_mkArray1___redArg(x_214);
 x_148 = x_211;
 x_149 = x_182;
@@ -3086,7 +3086,7 @@ else
 lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; 
 x_137 = lean_ctor_get(x_123, 0);
 lean_inc(x_137);
-lean_dec(x_123);
+lean_dec_ref(x_123);
 x_138 = l_Lean_Elab_Tactic_Conv_evalSimpTrace___lam__1___closed__5;
 lean_inc(x_131);
 x_139 = lean_alloc_ctor(2, 2, 0);
@@ -3187,7 +3187,7 @@ else
 lean_object* x_171; lean_object* x_172; lean_object* x_173; lean_object* x_174; lean_object* x_175; 
 x_171 = lean_ctor_get(x_146, 0);
 lean_inc(x_171);
-lean_dec(x_146);
+lean_dec_ref(x_146);
 x_172 = l_Lean_SourceInfo_fromRef(x_171, x_6);
 lean_dec(x_171);
 x_173 = l_Lean_Elab_Tactic_Conv_evalSimpTrace___lam__1___closed__7;
@@ -3270,7 +3270,7 @@ else
 lean_object* x_188; lean_object* x_189; lean_object* x_190; lean_object* x_191; lean_object* x_192; 
 x_188 = lean_ctor_get(x_146, 0);
 lean_inc(x_188);
-lean_dec(x_146);
+lean_dec_ref(x_146);
 x_189 = l_Lean_SourceInfo_fromRef(x_188, x_6);
 lean_dec(x_188);
 x_190 = l_Lean_Elab_Tactic_Conv_evalSimpTrace___lam__1___closed__7;

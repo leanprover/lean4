@@ -238,7 +238,7 @@ _start:
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
@@ -263,23 +263,23 @@ return x_15;
 else
 {
 lean_dec(x_7);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_9;
 }
 }
 else
 {
 lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_16 = lean_ctor_get(x_5, 0);
 lean_inc(x_16);
 x_17 = lean_ctor_get(x_5, 1);
 lean_inc(x_17);
 lean_dec_ref(x_5);
 x_18 = 1;
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_19 = l_Lean_Name_toString(x_16, x_18, x_4);
 x_20 = l_Lean_OpenDecl_instToString___lam__2___closed__1;
 x_21 = lean_string_append(x_19, x_20);

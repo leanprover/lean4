@@ -389,7 +389,7 @@ else
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_Lake_DSL_expandAttrs___closed__5;
 lean_inc(x_3);
 x_5 = l_Lean_Syntax_isOfKind(x_3, x_4);
@@ -1769,7 +1769,7 @@ else
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_12 = lean_ctor_get(x_1, 0);
 lean_inc(x_12);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_13 = l_Lake_DSL_simpleBinder___closed__1;
 lean_inc(x_12);
 x_14 = l_Lean_Syntax_isOfKind(x_12, x_13);
@@ -2274,7 +2274,7 @@ else
 lean_object* x_49; lean_object* x_50; uint8_t x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; 
 x_49 = lean_ctor_get(x_36, 0);
 lean_inc(x_49);
-lean_dec(x_36);
+lean_dec_ref(x_36);
 x_50 = lean_ctor_get(x_49, 1);
 lean_inc(x_50);
 x_51 = lean_ctor_get_uint8(x_49, sizeof(void*)*2);
@@ -2508,7 +2508,7 @@ else
 lean_object* x_50; lean_object* x_51; uint8_t x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
 x_50 = lean_ctor_get(x_37, 0);
 lean_inc(x_50);
-lean_dec(x_37);
+lean_dec_ref(x_37);
 x_51 = lean_ctor_get(x_50, 1);
 lean_inc(x_51);
 x_52 = lean_ctor_get_uint8(x_50, sizeof(void*)*2);
@@ -2737,7 +2737,7 @@ x_6 = lean_ctor_get(x_2, 3);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_2, 4);
 lean_inc(x_7);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_8 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Lake_DSL_mkConfigFields_spec__3___redArg(x_1, x_6, x_3);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -2963,7 +2963,7 @@ x_13 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lak
 lean_dec(x_9);
 lean_dec_ref(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_13;
 }
 }
@@ -2979,7 +2979,7 @@ x_13 = l_Array_forIn_x27Unsafe_loop___at___Lake_DSL_mkConfigFields_spec__1(x_1, 
 lean_dec(x_9);
 lean_dec_ref(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_13;
 }
 }
@@ -3159,7 +3159,7 @@ lean_dec(x_3);
 lean_dec_ref(x_2);
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = l_Lake_DSL_expandIdentOrStrAsIdent(x_10);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
@@ -4724,11 +4724,11 @@ lean_dec(x_9);
 x_249 = lean_ctor_get(x_248, 0);
 lean_inc_ref(x_249);
 x_250 = lean_ctor_get(x_248, 2);
-lean_inc(x_250);
+lean_inc_ref(x_250);
 x_251 = lean_ctor_get(x_248, 3);
-lean_inc(x_251);
+lean_inc_ref(x_251);
 x_252 = lean_ctor_get(x_248, 4);
-lean_inc(x_252);
+lean_inc_ref(x_252);
 if (lean_is_exclusive(x_248)) {
  lean_ctor_release(x_248, 0);
  lean_ctor_release(x_248, 1);

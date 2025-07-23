@@ -2447,7 +2447,7 @@ else
 lean_object* x_119; lean_object* x_120; lean_object* x_121; 
 x_119 = lean_ctor_get(x_43, 0);
 lean_inc(x_119);
-lean_dec(x_43);
+lean_dec_ref(x_43);
 x_120 = l_Std_DHashMap_Internal_Raw___aux__Std__Data__DHashMap__RawLemmas______macroRules__Std__DHashMap__Internal__Raw__tacticSimp__to__rawUsing____1___closed__51;
 x_121 = lean_array_push(x_120, x_119);
 x_4 = x_80;

@@ -2463,7 +2463,7 @@ x_97 = l_Lean_Meta_Simp_initFn___closed__3____x40_Lean_Meta_Tactic_Simp_LoopProt
 if (x_86 == 0)
 {
 lean_free_object(x_90);
-lean_dec(x_81);
+lean_dec_ref(x_81);
 x_10 = x_92;
 x_11 = x_82;
 x_12 = x_94;
@@ -2528,7 +2528,7 @@ lean_ctor_set(x_104, 0, x_103);
 x_105 = l_Lean_Meta_Simp_initFn___closed__3____x40_Lean_Meta_Tactic_Simp_LoopProtection___hyg_5_;
 if (x_86 == 0)
 {
-lean_dec(x_81);
+lean_dec_ref(x_81);
 x_10 = x_100;
 x_11 = x_82;
 x_12 = x_102;
@@ -2600,7 +2600,7 @@ else
 lean_object* x_119; 
 x_119 = lean_ctor_get(x_118, 0);
 lean_inc(x_119);
-lean_dec(x_118);
+lean_dec_ref(x_118);
 x_81 = x_110;
 x_82 = x_111;
 x_83 = x_113;
@@ -2637,7 +2637,7 @@ else
 lean_object* x_131; 
 x_131 = lean_ctor_get(x_129, 0);
 lean_inc(x_131);
-lean_dec(x_129);
+lean_dec_ref(x_129);
 x_110 = x_121;
 x_111 = x_127;
 x_112 = x_128;

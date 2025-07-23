@@ -809,7 +809,7 @@ lean_object* x_19;
 lean_dec_ref(x_3);
 x_19 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_19);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 switch (lean_obj_tag(x_19)) {
 case 0:
 {
@@ -906,7 +906,7 @@ case 2:
 lean_object* x_43; lean_object* x_44; 
 x_43 = lean_ctor_get(x_2, 2);
 lean_inc(x_43);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_44 = l_Lean_Compiler_LCNF_ExtractClosed_shouldExtractFVar(x_43, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_43);
 return x_44;
@@ -918,7 +918,7 @@ x_45 = lean_ctor_get(x_2, 0);
 lean_inc(x_45);
 x_46 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_46);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_123 = lean_ctor_get(x_3, 1);
 lean_inc_ref(x_123);
 x_124 = lean_unsigned_to_nat(0u);
@@ -1143,14 +1143,14 @@ else
 lean_object* x_88; 
 x_88 = lean_ctor_get(x_87, 0);
 lean_inc(x_88);
-lean_dec(x_87);
+lean_dec_ref(x_87);
 switch (lean_obj_tag(x_88)) {
 case 1:
 {
 lean_object* x_89; lean_object* x_90; lean_object* x_91; uint8_t x_92; 
 x_89 = lean_ctor_get(x_88, 0);
 lean_inc_ref(x_89);
-lean_dec(x_88);
+lean_dec_ref(x_88);
 x_90 = lean_ctor_get(x_89, 0);
 lean_inc_ref(x_90);
 lean_dec_ref(x_89);
@@ -1167,7 +1167,7 @@ goto block_75;
 case 6:
 {
 lean_object* x_93; lean_object* x_94; uint8_t x_95; 
-lean_dec(x_88);
+lean_dec_ref(x_88);
 x_93 = lean_unsigned_to_nat(0u);
 x_94 = lean_array_get_size(x_46);
 x_95 = lean_nat_dec_lt(x_93, x_94);
@@ -1293,14 +1293,14 @@ else
 lean_object* x_109; 
 x_109 = lean_ctor_get(x_108, 0);
 lean_inc(x_109);
-lean_dec(x_108);
+lean_dec_ref(x_108);
 switch (lean_obj_tag(x_109)) {
 case 1:
 {
 lean_object* x_110; lean_object* x_111; lean_object* x_112; uint8_t x_113; 
 x_110 = lean_ctor_get(x_109, 0);
 lean_inc_ref(x_110);
-lean_dec(x_109);
+lean_dec_ref(x_109);
 x_111 = lean_ctor_get(x_110, 0);
 lean_inc_ref(x_111);
 lean_dec_ref(x_110);
@@ -1317,7 +1317,7 @@ goto block_75;
 case 6:
 {
 lean_object* x_114; lean_object* x_115; uint8_t x_116; 
-lean_dec(x_109);
+lean_dec_ref(x_109);
 x_114 = lean_unsigned_to_nat(0u);
 x_115 = lean_array_get_size(x_46);
 x_116 = lean_nat_dec_lt(x_114, x_115);
@@ -1396,7 +1396,7 @@ x_138 = lean_ctor_get(x_2, 0);
 lean_inc(x_138);
 x_139 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_139);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_inc_ref(x_3);
 x_140 = l_Lean_Compiler_LCNF_ExtractClosed_shouldExtractFVar(x_138, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_138);
@@ -1553,7 +1553,7 @@ else
 lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; 
 x_19 = lean_ctor_get(x_10, 0);
 lean_inc(x_19);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_20 = lean_ctor_get(x_9, 1);
 lean_inc(x_20);
 lean_dec_ref(x_9);
@@ -2331,7 +2331,7 @@ lean_dec_ref(x_159);
 lean_dec_ref(x_107);
 x_192 = lean_ctor_get(x_167, 0);
 lean_inc(x_192);
-lean_dec(x_167);
+lean_dec_ref(x_167);
 x_193 = l_Lean_Compiler_LCNF_eraseCode___redArg(x_164, x_5, x_158);
 lean_dec_ref(x_164);
 x_194 = lean_ctor_get(x_193, 1);
@@ -3047,7 +3047,7 @@ lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_33 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_33, 0, x_2);
 lean_ctor_set(x_33, 1, x_9);

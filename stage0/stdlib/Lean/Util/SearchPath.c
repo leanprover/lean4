@@ -177,7 +177,7 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_____aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1_spec__0___closed__4;
 x_7 = l_Lean_mkStrLit(x_4);
 x_8 = l_Lean_Expr_app___override(x_6, x_7);

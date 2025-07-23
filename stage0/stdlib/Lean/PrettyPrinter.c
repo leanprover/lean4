@@ -1285,7 +1285,7 @@ else
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; 
 x_47 = lean_ctor_get(x_12, 0);
 lean_inc(x_47);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 x_48 = l_Lean_PrettyPrinter_ppConstNameWithInfos___closed__3;
 x_49 = l_Lean_ConstantInfo_levelParams(x_47);
 lean_dec(x_47);
@@ -1964,7 +1964,7 @@ lean_inc(x_70);
 lean_dec_ref(x_59);
 x_71 = lean_ctor_get(x_69, 1);
 lean_inc_ref(x_71);
-lean_dec(x_69);
+lean_dec_ref(x_69);
 x_72 = l_Lean_MessageData_toString(x_71, x_70);
 x_73 = !lean_is_exclusive(x_72);
 if (x_73 == 0)
@@ -2004,7 +2004,7 @@ x_81 = lean_ctor_get(x_59, 0);
 lean_dec(x_81);
 x_82 = lean_ctor_get(x_69, 0);
 lean_inc(x_82);
-lean_dec(x_69);
+lean_dec_ref(x_69);
 x_83 = l_Lean_PrettyPrinter_ppExprLegacy___closed__23;
 x_84 = l_Nat_reprFast(x_82);
 x_85 = lean_string_append(x_83, x_84);
@@ -2022,7 +2022,7 @@ lean_inc(x_87);
 lean_dec(x_59);
 x_88 = lean_ctor_get(x_69, 0);
 lean_inc(x_88);
-lean_dec(x_69);
+lean_dec_ref(x_69);
 x_89 = l_Lean_PrettyPrinter_ppExprLegacy___closed__23;
 x_90 = l_Nat_reprFast(x_88);
 x_91 = lean_string_append(x_89, x_90);
@@ -3153,9 +3153,9 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
+lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = lean_alloc_closure((void*)(l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext___redArg___lam__0), 2, 1);
 lean_closure_set(x_5, 0, x_3);
@@ -3273,7 +3273,7 @@ return x_26;
 else
 {
 lean_dec(x_9);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 return x_7;
 }
 }
@@ -3397,7 +3397,7 @@ return x_24;
 else
 {
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_5;
 }
 }

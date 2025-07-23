@@ -686,7 +686,7 @@ lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_145 = lean_ctor_get(x_7, 0);
 lean_inc(x_145);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_146 = lean_box(0);
 x_147 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_147, 0, x_145);
@@ -1013,7 +1013,7 @@ lean_inc_ref(x_66);
 lean_dec(x_51);
 x_67 = lean_ctor_get(x_52, 0);
 lean_inc(x_67);
-lean_dec(x_52);
+lean_dec_ref(x_52);
 lean_inc(x_1);
 x_68 = l_Lean_MVarId_getTag(x_1, x_2, x_3, x_4, x_5, x_65);
 if (lean_obj_tag(x_68) == 0)
@@ -1392,7 +1392,7 @@ lean_inc_ref(x_145);
 lean_dec(x_136);
 x_146 = lean_ctor_get(x_137, 0);
 lean_inc(x_146);
-lean_dec(x_137);
+lean_dec_ref(x_137);
 lean_inc(x_1);
 x_147 = l_Lean_MVarId_getTag(x_1, x_2, x_3, x_4, x_5, x_144);
 if (lean_obj_tag(x_147) == 0)
@@ -1871,7 +1871,7 @@ else
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_20 = lean_ctor_get(x_17, 0);
 lean_inc(x_20);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 x_21 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_strip(x_20);
 x_22 = l_Lean_MVarId_setType___redArg(x_1, x_21, x_7, x_16);
 return x_22;

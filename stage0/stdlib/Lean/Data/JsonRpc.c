@@ -406,10 +406,10 @@ if (lean_obj_tag(x_2) == 0)
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_string_dec_lt(x_3, x_4);
 if (x_5 == 0)
 {
@@ -443,7 +443,7 @@ else
 {
 uint8_t x_10; 
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = 0;
 return x_10;
 }
@@ -454,8 +454,8 @@ switch (lean_obj_tag(x_2)) {
 case 0:
 {
 uint8_t x_11; 
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_11 = 2;
 return x_11;
 }
@@ -464,10 +464,10 @@ case 1:
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_12 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_12);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_13 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_13);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_inc_ref(x_13);
 lean_inc_ref(x_12);
 x_14 = l_Lean_JsonNumber_lt(x_12, x_13);
@@ -500,7 +500,7 @@ return x_18;
 default: 
 {
 uint8_t x_19; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_19 = 0;
 return x_19;
 }
@@ -585,7 +585,7 @@ case 0:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lean_JsonRpc_instToStringRequestID___lam__0___closed__0;
 x_4 = lean_string_append(x_3, x_2);
 lean_dec_ref(x_2);
@@ -597,7 +597,7 @@ case 1:
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = l_Lean_JsonNumber_toString(x_6);
 return x_7;
 }
@@ -1868,7 +1868,7 @@ lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec(x_6);
 lean_dec_ref(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_10;
 }
 else
@@ -1881,7 +1881,7 @@ if (x_11 == 0)
 {
 lean_dec(x_9);
 lean_dec(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_11;
 }
 else
@@ -2060,7 +2060,7 @@ else
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = l_Lean_Json_Structured_toJson(x_3);
 return x_4;
 }
@@ -2152,7 +2152,7 @@ if (x_8 == 0)
 {
 lean_dec(x_7);
 lean_dec(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_8;
 }
 else
@@ -2399,7 +2399,7 @@ if (x_8 == 0)
 {
 lean_dec(x_7);
 lean_dec(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_8;
 }
 else
@@ -2597,7 +2597,7 @@ lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_12;
 }
 else
@@ -2610,7 +2610,7 @@ lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_13;
 }
 else
@@ -2623,7 +2623,7 @@ if (x_14 == 0)
 {
 lean_dec(x_11);
 lean_dec(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_14;
 }
 else
@@ -2691,7 +2691,7 @@ lean_inc(x_3);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = !lean_is_exclusive(x_2);
 if (x_4 == 0)
 {
@@ -2938,10 +2938,10 @@ if (lean_obj_tag(x_2) == 0)
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_string_dec_lt(x_3, x_4);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
@@ -2951,7 +2951,7 @@ else
 {
 uint8_t x_6; 
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = 0;
 return x_6;
 }
@@ -2962,8 +2962,8 @@ switch (lean_obj_tag(x_2)) {
 case 0:
 {
 uint8_t x_7; 
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_7 = 1;
 return x_7;
 }
@@ -2972,17 +2972,17 @@ case 1:
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_9 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_9);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_10 = l_Lean_JsonNumber_lt(x_8, x_9);
 return x_10;
 }
 default: 
 {
 uint8_t x_11; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_11 = 0;
 return x_11;
 }
@@ -3311,7 +3311,7 @@ switch (lean_obj_tag(x_3)) {
 case 0:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_9 = lean_ctor_get(x_3, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_3, 1);
@@ -3402,7 +3402,7 @@ goto block_8;
 case 1:
 {
 uint8_t x_32; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_32 = !lean_is_exclusive(x_3);
 if (x_32 == 0)
 {
@@ -3449,8 +3449,8 @@ goto block_8;
 case 2:
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_48 = lean_ctor_get(x_3, 0);
 lean_inc(x_48);
 x_49 = lean_ctor_get(x_3, 1);
@@ -3546,7 +3546,7 @@ goto block_8;
 default: 
 {
 lean_object* x_67; uint8_t x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_90; lean_object* x_91; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_67 = lean_ctor_get(x_3, 0);
 lean_inc(x_67);
 x_68 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
@@ -3846,10 +3846,10 @@ if (lean_obj_tag(x_21) == 0)
 {
 uint8_t x_22; 
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_22 = !lean_is_exclusive(x_21);
 if (x_22 == 0)
 {
@@ -3877,17 +3877,17 @@ if (lean_obj_tag(x_25) == 3)
 lean_object* x_26; lean_object* x_27; uint8_t x_28; 
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc_ref(x_26);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 x_27 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__1;
 x_28 = lean_string_dec_eq(x_26, x_27);
 lean_dec_ref(x_26);
 if (x_28 == 0)
 {
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 goto block_7;
 }
 else
@@ -3906,7 +3906,7 @@ lean_object* x_82; lean_object* x_83; lean_object* x_84;
 x_82 = lean_ctor_get(x_30, 0);
 lean_inc(x_82);
 x_83 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__5;
-lean_inc(x_3);
+lean_inc_ref(x_3);
 lean_inc(x_5);
 x_84 = l_Lean_Json_getObjValAs_x3f___redArg(x_5, x_3, x_83);
 if (lean_obj_tag(x_84) == 0)
@@ -3919,8 +3919,8 @@ else
 {
 lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_91; lean_object* x_92; 
 lean_dec_ref(x_30);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 x_85 = lean_ctor_get(x_84, 0);
 lean_inc(x_85);
 if (lean_is_exclusive(x_84)) {
@@ -3984,8 +3984,8 @@ if (lean_obj_tag(x_30) == 0)
 {
 uint8_t x_31; 
 lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 x_31 = !lean_is_exclusive(x_30);
 if (x_31 == 0)
 {
@@ -4014,8 +4014,8 @@ if (lean_obj_tag(x_36) == 0)
 {
 uint8_t x_37; 
 lean_dec(x_34);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 x_37 = !lean_is_exclusive(x_36);
 if (x_37 == 0)
 {
@@ -4046,7 +4046,7 @@ if (lean_obj_tag(x_42) == 0)
 uint8_t x_43; 
 lean_dec(x_40);
 lean_dec(x_34);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_43 = !lean_is_exclusive(x_42);
 if (x_43 == 0)
 {
@@ -4156,13 +4156,13 @@ block_81:
 {
 lean_object* x_63; lean_object* x_64; 
 x_63 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__5;
-lean_inc(x_3);
+lean_inc_ref(x_3);
 lean_inc(x_5);
 x_64 = l_Lean_Json_getObjValAs_x3f___redArg(x_5, x_3, x_63);
 if (lean_obj_tag(x_64) == 0)
 {
 lean_dec_ref(x_64);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 if (lean_obj_tag(x_30) == 0)
 {
 goto block_62;
@@ -4186,8 +4186,8 @@ else
 uint8_t x_68; 
 lean_dec_ref(x_30);
 lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 x_68 = !lean_is_exclusive(x_67);
 if (x_68 == 0)
 {
@@ -4219,8 +4219,8 @@ else
 {
 lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 lean_dec_ref(x_30);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 x_74 = lean_ctor_get(x_64, 0);
 lean_inc(x_74);
 lean_dec_ref(x_64);
@@ -4266,10 +4266,10 @@ else
 {
 lean_dec(x_25);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 goto block_7;
 }
 }
@@ -4390,8 +4390,8 @@ if (lean_obj_tag(x_23) == 0)
 {
 uint8_t x_24; 
 lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_24 = !lean_is_exclusive(x_23);
 if (x_24 == 0)
 {
@@ -4419,15 +4419,15 @@ if (lean_obj_tag(x_27) == 3)
 lean_object* x_28; lean_object* x_29; uint8_t x_30; 
 x_28 = lean_ctor_get(x_27, 0);
 lean_inc_ref(x_28);
-lean_dec(x_27);
+lean_dec_ref(x_27);
 x_29 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__1;
 x_30 = lean_string_dec_eq(x_28, x_29);
 lean_dec_ref(x_28);
 if (x_30 == 0)
 {
 lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 goto block_21;
 }
 else
@@ -4460,8 +4460,8 @@ else
 lean_dec_ref(x_70);
 lean_dec_ref(x_36);
 lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 goto block_5;
 }
 }
@@ -4584,8 +4584,8 @@ x_58 = l_Lean_Json_getObjValAs_x3f___redArg(x_3, x_32, x_57);
 if (lean_obj_tag(x_58) == 0)
 {
 lean_dec_ref(x_58);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 if (lean_obj_tag(x_36) == 0)
 {
 goto block_56;
@@ -4659,8 +4659,8 @@ else
 {
 lean_dec(x_27);
 lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 goto block_21;
 }
 }
@@ -4827,7 +4827,7 @@ if (lean_obj_tag(x_5) == 2)
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
@@ -5214,7 +5214,7 @@ if (lean_obj_tag(x_35) == 3)
 lean_object* x_36; lean_object* x_37; uint8_t x_38; 
 x_36 = lean_ctor_get(x_35, 0);
 lean_inc_ref(x_36);
-lean_dec(x_35);
+lean_dec_ref(x_35);
 x_37 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__1;
 x_38 = lean_string_dec_eq(x_36, x_37);
 lean_dec_ref(x_36);
@@ -5745,7 +5745,7 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean
 lean_free_object(x_7);
 lean_dec(x_13);
 lean_dec(x_11);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_15 = l_IO_FS_Stream_readRequestAs___redArg___closed__0;
 x_16 = lean_string_append(x_15, x_3);
 lean_dec_ref(x_3);
@@ -5851,7 +5851,7 @@ if (x_52 == 0)
 lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; 
 lean_dec(x_51);
 lean_dec(x_49);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_53 = l_IO_FS_Stream_readRequestAs___redArg___closed__0;
 x_54 = lean_string_append(x_53, x_3);
 lean_dec_ref(x_3);
@@ -5956,7 +5956,7 @@ lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean
 lean_dec(x_82);
 lean_dec(x_81);
 lean_dec(x_79);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_84 = l_IO_FS_Stream_readRequestAs___redArg___closed__0;
 x_85 = lean_string_append(x_84, x_3);
 lean_dec_ref(x_3);
@@ -6045,7 +6045,7 @@ return x_111;
 else
 {
 lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 x_112 = lean_ctor_get(x_6, 1);
 lean_inc(x_112);
@@ -6070,7 +6070,7 @@ x_128 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_128);
 x_129 = lean_ctor_get(x_7, 2);
 lean_inc(x_129);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_130 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__4;
 if (lean_obj_tag(x_127) == 0)
 {
@@ -6149,7 +6149,7 @@ x_149 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_149);
 x_150 = lean_ctor_get(x_7, 1);
 lean_inc(x_150);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_151 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__5;
 x_152 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_152, 0, x_149);
@@ -6171,7 +6171,7 @@ x_157 = lean_ctor_get(x_7, 0);
 lean_inc(x_157);
 x_158 = lean_ctor_get(x_7, 1);
 lean_inc(x_158);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_159 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__4;
 if (lean_obj_tag(x_157) == 0)
 {
@@ -6248,7 +6248,7 @@ x_176 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_176);
 x_177 = lean_ctor_get(x_7, 2);
 lean_inc(x_177);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_178 = l_Lean_JsonRpc_instToJsonMessage___closed__1;
 x_198 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__4;
 if (lean_obj_tag(x_174) == 0)
@@ -6492,7 +6492,7 @@ return x_125;
 else
 {
 uint8_t x_222; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 x_222 = !lean_is_exclusive(x_6);
 if (x_222 == 0)
@@ -6580,7 +6580,7 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_free_object(x_7);
 lean_dec(x_12);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_14 = l_IO_FS_Stream_readRequestAs___redArg___closed__0;
 x_15 = lean_string_append(x_14, x_3);
 lean_dec_ref(x_3);
@@ -6683,7 +6683,7 @@ if (x_50 == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
 lean_dec(x_49);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_51 = l_IO_FS_Stream_readRequestAs___redArg___closed__0;
 x_52 = lean_string_append(x_51, x_3);
 lean_dec_ref(x_3);
@@ -6782,7 +6782,7 @@ if (x_80 == 0)
 lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; 
 lean_dec(x_79);
 lean_dec(x_78);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_81 = l_IO_FS_Stream_readRequestAs___redArg___closed__0;
 x_82 = lean_string_append(x_81, x_3);
 lean_dec_ref(x_3);
@@ -6870,7 +6870,7 @@ return x_108;
 else
 {
 lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 x_109 = lean_ctor_get(x_6, 1);
 lean_inc(x_109);
@@ -6895,7 +6895,7 @@ x_125 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_125);
 x_126 = lean_ctor_get(x_7, 2);
 lean_inc(x_126);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_127 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__4;
 if (lean_obj_tag(x_124) == 0)
 {
@@ -6974,7 +6974,7 @@ x_146 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_146);
 x_147 = lean_ctor_get(x_7, 1);
 lean_inc(x_147);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_148 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__5;
 x_149 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_149, 0, x_146);
@@ -6996,7 +6996,7 @@ x_154 = lean_ctor_get(x_7, 0);
 lean_inc(x_154);
 x_155 = lean_ctor_get(x_7, 1);
 lean_inc(x_155);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_156 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__4;
 if (lean_obj_tag(x_154) == 0)
 {
@@ -7073,7 +7073,7 @@ x_173 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_173);
 x_174 = lean_ctor_get(x_7, 2);
 lean_inc(x_174);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_175 = l_Lean_JsonRpc_instToJsonMessage___closed__1;
 x_195 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__4;
 if (lean_obj_tag(x_171) == 0)
@@ -7317,7 +7317,7 @@ return x_122;
 else
 {
 uint8_t x_219; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 x_219 = !lean_is_exclusive(x_6);
 if (x_219 == 0)
@@ -7433,7 +7433,7 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; 
 lean_free_object(x_7);
 lean_dec(x_18);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_20 = l_IO_FS_Stream_readResponseAs___redArg___closed__0;
 switch (lean_obj_tag(x_3)) {
 case 0:
@@ -7441,7 +7441,7 @@ case 0:
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 x_32 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_32);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_33 = l_Lean_JsonRpc_instToStringRequestID___lam__0___closed__0;
 x_34 = lean_string_append(x_33, x_32);
 lean_dec_ref(x_32);
@@ -7454,7 +7454,7 @@ case 1:
 lean_object* x_36; lean_object* x_37; 
 x_36 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_36);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_37 = l_Lean_JsonNumber_toString(x_36);
 x_21 = x_37;
 goto block_31;
@@ -7479,7 +7479,7 @@ if (lean_obj_tag(x_17) == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_25 = lean_ctor_get(x_17, 0);
 lean_inc_ref(x_25);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 x_26 = l_Lean_JsonRpc_instToStringRequestID___lam__0___closed__0;
 x_27 = lean_string_append(x_26, x_25);
 lean_dec_ref(x_25);
@@ -7493,7 +7493,7 @@ else
 lean_object* x_29; lean_object* x_30; 
 x_29 = lean_ctor_get(x_17, 0);
 lean_inc_ref(x_29);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 x_30 = l_Lean_JsonNumber_toString(x_29);
 x_10 = x_24;
 x_11 = x_30;
@@ -7584,7 +7584,7 @@ if (x_60 == 0)
 {
 lean_object* x_61; lean_object* x_62; 
 lean_dec(x_59);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_61 = l_IO_FS_Stream_readResponseAs___redArg___closed__0;
 switch (lean_obj_tag(x_3)) {
 case 0:
@@ -7592,7 +7592,7 @@ case 0:
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_73 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_73);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_74 = l_Lean_JsonRpc_instToStringRequestID___lam__0___closed__0;
 x_75 = lean_string_append(x_74, x_73);
 lean_dec_ref(x_73);
@@ -7605,7 +7605,7 @@ case 1:
 lean_object* x_77; lean_object* x_78; 
 x_77 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_77);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_78 = l_Lean_JsonNumber_toString(x_77);
 x_62 = x_78;
 goto block_72;
@@ -7630,7 +7630,7 @@ if (lean_obj_tag(x_58) == 0)
 lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; 
 x_66 = lean_ctor_get(x_58, 0);
 lean_inc_ref(x_66);
-lean_dec(x_58);
+lean_dec_ref(x_58);
 x_67 = l_Lean_JsonRpc_instToStringRequestID___lam__0___closed__0;
 x_68 = lean_string_append(x_67, x_66);
 lean_dec_ref(x_66);
@@ -7644,7 +7644,7 @@ else
 lean_object* x_70; lean_object* x_71; 
 x_70 = lean_ctor_get(x_58, 0);
 lean_inc_ref(x_70);
-lean_dec(x_58);
+lean_dec_ref(x_58);
 x_71 = l_Lean_JsonNumber_toString(x_70);
 x_10 = x_65;
 x_11 = x_71;
@@ -7714,7 +7714,7 @@ else
 {
 lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; 
 lean_dec(x_9);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec(x_3);
 x_94 = l_IO_FS_Stream_readResponseAs___redArg___closed__3;
 x_95 = l_Lean_JsonRpc_instToJsonMessage___closed__0;
@@ -7729,7 +7729,7 @@ x_108 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_108);
 x_109 = lean_ctor_get(x_7, 2);
 lean_inc(x_109);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_110 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__4;
 if (lean_obj_tag(x_107) == 0)
 {
@@ -7808,7 +7808,7 @@ x_129 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_129);
 x_130 = lean_ctor_get(x_7, 1);
 lean_inc(x_130);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_131 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__5;
 x_132 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_132, 0, x_129);
@@ -7830,7 +7830,7 @@ x_137 = lean_ctor_get(x_7, 0);
 lean_inc(x_137);
 x_138 = lean_ctor_get(x_7, 1);
 lean_inc(x_138);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_139 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__4;
 if (lean_obj_tag(x_137) == 0)
 {
@@ -7907,7 +7907,7 @@ x_156 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_156);
 x_157 = lean_ctor_get(x_7, 2);
 lean_inc(x_157);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_158 = l_Lean_JsonRpc_instToJsonMessage___closed__1;
 x_178 = l_Lean_JsonRpc_instToJsonMessage___lam__0___closed__4;
 if (lean_obj_tag(x_154) == 0)
@@ -8163,7 +8163,7 @@ return x_14;
 else
 {
 uint8_t x_202; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec(x_3);
 x_202 = !lean_is_exclusive(x_6);
 if (x_202 == 0)
@@ -8227,7 +8227,7 @@ else
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Lean_Json_Structured_toJson(x_4);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_1);
@@ -9000,7 +9000,7 @@ if (lean_is_exclusive(x_3)) {
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_14; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_14 = lean_box(0);
 x_10 = x_14;
 goto block_13;

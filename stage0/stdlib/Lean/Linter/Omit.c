@@ -379,7 +379,7 @@ if (x_15 == 0)
 lean_object* x_16; 
 lean_dec_ref(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_16 = lean_box(0);
 lean_ctor_set(x_6, 0, x_16);
 return x_6;
@@ -402,7 +402,7 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21;
 lean_free_object(x_6);
 x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 x_20 = l_Lean_Linter_omit___lam__1___closed__2;
 x_21 = l_Lean_Linter_logLint___at___Lean_Linter_omit_spec__0(x_14, x_19, x_20, x_3, x_4, x_9);
 lean_dec(x_19);
@@ -435,7 +435,7 @@ if (x_29 == 0)
 lean_object* x_30; lean_object* x_31; 
 lean_dec_ref(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_30 = lean_box(0);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
@@ -461,7 +461,7 @@ else
 lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_35 = lean_ctor_get(x_32, 0);
 lean_inc(x_35);
-lean_dec(x_32);
+lean_dec_ref(x_32);
 x_36 = l_Lean_Linter_omit___lam__1___closed__2;
 x_37 = l_Lean_Linter_logLint___at___Lean_Linter_omit_spec__0(x_28, x_35, x_36, x_3, x_4, x_23);
 lean_dec(x_35);

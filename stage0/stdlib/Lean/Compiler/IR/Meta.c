@@ -170,7 +170,7 @@ x_3 = lean_ctor_get(x_1, 2);
 lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 3);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 switch (lean_obj_tag(x_3)) {
 case 6:
 {
@@ -218,7 +218,7 @@ x_14 = lean_ctor_get(x_1, 2);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_1, 3);
 lean_inc(x_15);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_16 = l___private_Lean_Compiler_IR_Meta_0__Lean_IR_collectUsedFDecls_collectFnBody(x_14, x_2);
 x_17 = lean_ctor_get(x_16, 1);
 lean_inc(x_17);
@@ -232,7 +232,7 @@ case 10:
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
 x_19 = lean_ctor_get(x_1, 3);
 lean_inc_ref(x_19);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_20 = lean_unsigned_to_nat(0u);
 x_21 = lean_array_get_size(x_19);
 x_22 = lean_box(0);
@@ -285,7 +285,7 @@ case 0:
 lean_object* x_31; 
 x_31 = lean_ctor_get(x_1, 3);
 lean_inc(x_31);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_1 = x_31;
 goto _start;
 }
@@ -294,7 +294,7 @@ case 1:
 lean_object* x_33; 
 x_33 = lean_ctor_get(x_1, 3);
 lean_inc(x_33);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_1 = x_33;
 goto _start;
 }
@@ -303,7 +303,7 @@ case 2:
 lean_object* x_35; 
 x_35 = lean_ctor_get(x_1, 3);
 lean_inc(x_35);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_1 = x_35;
 goto _start;
 }
@@ -312,7 +312,7 @@ case 3:
 lean_object* x_37; 
 x_37 = lean_ctor_get(x_1, 2);
 lean_inc(x_37);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_1 = x_37;
 goto _start;
 }
@@ -321,7 +321,7 @@ case 4:
 lean_object* x_39; 
 x_39 = lean_ctor_get(x_1, 3);
 lean_inc(x_39);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_1 = x_39;
 goto _start;
 }
@@ -330,7 +330,7 @@ case 5:
 lean_object* x_41; 
 x_41 = lean_ctor_get(x_1, 5);
 lean_inc(x_41);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_1 = x_41;
 goto _start;
 }
@@ -339,7 +339,7 @@ case 6:
 lean_object* x_43; 
 x_43 = lean_ctor_get(x_1, 2);
 lean_inc(x_43);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_1 = x_43;
 goto _start;
 }
@@ -348,7 +348,7 @@ case 7:
 lean_object* x_45; 
 x_45 = lean_ctor_get(x_1, 2);
 lean_inc(x_45);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_1 = x_45;
 goto _start;
 }
@@ -357,7 +357,7 @@ case 8:
 lean_object* x_47; 
 x_47 = lean_ctor_get(x_1, 1);
 lean_inc(x_47);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_1 = x_47;
 goto _start;
 }
@@ -366,7 +366,7 @@ case 9:
 lean_object* x_49; 
 x_49 = lean_ctor_get(x_1, 1);
 lean_inc(x_49);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_1 = x_49;
 goto _start;
 }
@@ -549,7 +549,7 @@ x_8 = lean_ctor_get(x_3, 3);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_3, 4);
 lean_inc(x_9);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_10 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__0_spec__0(x_1, x_2, x_8, x_4, x_5, x_6);
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
@@ -600,7 +600,7 @@ x_23 = lean_ctor_get(x_17, 0);
 lean_dec(x_23);
 x_24 = lean_ctor_get(x_18, 0);
 lean_inc(x_24);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 x_58 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__0_spec__0___closed__6;
 x_59 = l_Lean_isTracingEnabledFor___at___Lean_withTraceNode___at___Lean_Core_wrapAsyncAsSnapshot_spec__18_spec__18___redArg(x_58, x_4, x_22);
 x_60 = lean_ctor_get(x_59, 0);
@@ -772,7 +772,7 @@ lean_inc(x_78);
 lean_dec(x_17);
 x_79 = lean_ctor_get(x_18, 0);
 lean_inc(x_79);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 x_104 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__0_spec__0___closed__6;
 x_105 = l_Lean_isTracingEnabledFor___at___Lean_withTraceNode___at___Lean_Core_wrapAsyncAsSnapshot_spec__18_spec__18___redArg(x_104, x_4, x_78);
 x_106 = lean_ctor_get(x_105, 0);
@@ -942,7 +942,7 @@ x_8 = lean_ctor_get(x_3, 3);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_3, 4);
 lean_inc(x_9);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_10 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__0_spec__0(x_1, x_2, x_8, x_4, x_5, x_6);
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
@@ -986,7 +986,7 @@ x_23 = lean_ctor_get(x_17, 0);
 lean_dec(x_23);
 x_24 = lean_ctor_get(x_18, 0);
 lean_inc(x_24);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 x_58 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__0_spec__0___closed__6;
 x_59 = l_Lean_isTracingEnabledFor___at___Lean_withTraceNode___at___Lean_Core_wrapAsyncAsSnapshot_spec__18_spec__18___redArg(x_58, x_4, x_22);
 x_60 = lean_ctor_get(x_59, 0);
@@ -1144,7 +1144,7 @@ lean_inc(x_78);
 lean_dec(x_17);
 x_79 = lean_ctor_get(x_18, 0);
 lean_inc(x_79);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 x_104 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Compiler_IR_Meta_0__Lean_IR_setClosureMeta_spec__0_spec__0___closed__6;
 x_105 = l_Lean_isTracingEnabledFor___at___Lean_withTraceNode___at___Lean_Core_wrapAsyncAsSnapshot_spec__18_spec__18___redArg(x_104, x_4, x_78);
 x_106 = lean_ctor_get(x_105, 0);

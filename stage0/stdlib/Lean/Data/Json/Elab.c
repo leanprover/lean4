@@ -1595,7 +1595,7 @@ x_9 = lean_usize_dec_lt(x_6, x_5);
 if (x_9 == 0)
 {
 lean_object* x_10; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_10 = lean_alloc_ctor(0, 2, 0);
@@ -1621,7 +1621,7 @@ if (x_29 == 0)
 lean_object* x_30; 
 lean_dec_ref(x_13);
 lean_dec(x_11);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_30 = l_Lean_Macro_throwUnsupported___redArg(x_8);
@@ -1647,7 +1647,7 @@ if (x_35 == 0)
 lean_object* x_36; 
 lean_dec(x_31);
 lean_dec_ref(x_13);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_36 = l_Lean_Macro_throwUnsupported___redArg(x_8);
@@ -1666,7 +1666,7 @@ else
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 x_37 = l_Lean_Syntax_getId(x_31);
 lean_dec(x_31);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_38 = l_Lean_Name_toString(x_37, x_33, x_4);
 x_39 = lean_box(2);
 x_40 = l_Lean_Syntax_mkStrLit(x_38, x_39);
@@ -3066,7 +3066,7 @@ lean_object* x_102; size_t x_103; lean_object* x_104; size_t x_105; lean_object*
 lean_dec(x_11);
 x_102 = lean_ctor_get(x_84, 0);
 lean_inc(x_102);
-lean_dec(x_84);
+lean_dec_ref(x_84);
 x_103 = lean_array_size(x_102);
 lean_inc(x_102);
 x_104 = l_Array_mapMUnsafe_map___at___Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__1(x_103, x_83, x_102);

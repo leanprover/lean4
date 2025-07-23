@@ -182,6 +182,7 @@ structure WithLp (p : Nat) (V : Type) where toLp (n) ::
 Even if `n` is used by `ofLp`, the restriction is still in place.
 Motivation 1: the fields themselves have the same restriction, so it's for consistency.
 Motivation 2: we should be able to tell whether the param binder update is legit without looking at all the fields.
+Motivation 3: the constructor type is constructed before we know which `variable`s will be included. That would take participation of MutualInductive.
 -/
 /--
 error: only parameters appearing in the declaration header may have their binders kinds be overridden

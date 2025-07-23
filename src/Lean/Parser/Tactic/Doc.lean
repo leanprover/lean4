@@ -74,7 +74,7 @@ builtin_initialize
       unless ((← getEnv).getModuleIdxFor? decl).isNone do
         throwAttrDeclInImportedModule name decl
       let `(«tactic_alt»|tactic_alt $tgt) := stx
-        | throwError "Invalid syntax for `{name}` attribute"
+        | throwError "Invalid `[{name}]` attribute syntax"
 
       let tgtName ← Lean.Elab.realizeGlobalConstNoOverloadWithInfo tgt
 

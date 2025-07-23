@@ -183,7 +183,7 @@ builtin_initialize registerBuiltinAttribute {
   descr := "Marks a theorem as an extensionality theorem"
   add := fun declName stx kind => MetaM.run' do
     let `(attr| ext $[(iff := false%$iffFalse?)]? $[(flat := false%$flatFalse?)]? $(prio)?) := stx
-      | throwError "Invalid syntax for `[ext]` attribute"
+      | throwError "Invalid `[ext]` attribute syntax"
     let iff := iffFalse?.isNone
     let flat := flatFalse?.isNone
     let mut declName := declName

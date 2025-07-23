@@ -58,7 +58,7 @@ builtin_initialize attributeMapRef : IO.Ref (Std.HashMap Name AttributeImpl) ←
 /-- Low level attribute registration function. -/
 def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
   let m ← attributeMapRef.get
-  if m.contains attr.name then throw (IO.userError s!"Invalid builtin attribute declaration: `[{attr.name}]` has already been registered")
+  if m.contains attr.name then throw (IO.userError s!"Invalid builtin attribute declaration: `{attr.name}` has already been used")
   unless (← initializing) do
     throw (IO.userError "Failed to register attribute: Attributes can only be registered during initialization")
   attributeMapRef.modify fun m => m.insert attr.name attr
@@ -125,7 +125,7 @@ section
 variable [Monad m] [MonadError m]
 
 def throwAttrMustBeGlobal (name : Name) (kind : AttributeKind) : m α :=
-  throwError m!"Invalid attribute kind: Attribute `[{name}]` must be global, not `{kind}`"
+  throwError m!"Invalid attribute scope: Attribute `[{name}]` must be global, not `{kind}`"
 
 def throwAttrDeclInImportedModule (attrName declName : Name) : m α :=
   throwError "Cannot add attribute `[{attrName}]` to declaration `{.ofConstName declName}` because it is in an imported module"

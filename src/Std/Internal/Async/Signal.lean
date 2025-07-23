@@ -3,10 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time
-import Std.Internal.UV.Signal
-import Std.Internal.Async.Select
+public import Std.Time
+public import Std.Internal.UV.Signal
+public import Std.Internal.Async.Select
 
 namespace Std
 namespace Internal

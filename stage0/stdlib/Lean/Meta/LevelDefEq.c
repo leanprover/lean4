@@ -2333,7 +2333,7 @@ return x_16;
 block_46:
 {
 uint8_t x_21; 
-x_21 = lean_ctor_get_uint8(x_18, sizeof(void*)*7 + 9);
+x_21 = lean_ctor_get_uint8(x_18, sizeof(void*)*7 + 1);
 lean_dec_ref(x_18);
 if (x_21 == 0)
 {

@@ -995,7 +995,7 @@ lean_dec(x_23);
 if (x_42 == 0)
 {
 uint8_t x_43; lean_object* x_44; uint8_t x_45; 
-x_43 = lean_ctor_get_uint8(x_4, sizeof(void*)*7 + 8);
+x_43 = lean_ctor_get_uint8(x_4, sizeof(void*)*7);
 x_44 = lean_ctor_get(x_4, 1);
 lean_inc(x_44);
 x_45 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_11, x_44);
@@ -1079,7 +1079,7 @@ goto _start;
 block_40:
 {
 uint8_t x_39; 
-x_39 = lean_ctor_get_uint8(x_35, sizeof(void*)*7 + 8);
+x_39 = lean_ctor_get_uint8(x_35, sizeof(void*)*7);
 x_25 = x_35;
 x_26 = x_39;
 x_27 = x_36;
@@ -1106,7 +1106,7 @@ lean_dec(x_46);
 if (x_65 == 0)
 {
 uint8_t x_66; lean_object* x_67; uint8_t x_68; 
-x_66 = lean_ctor_get_uint8(x_4, sizeof(void*)*7 + 8);
+x_66 = lean_ctor_get_uint8(x_4, sizeof(void*)*7);
 x_67 = lean_ctor_get(x_4, 1);
 lean_inc(x_67);
 x_68 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_11, x_67);
@@ -1190,7 +1190,7 @@ goto _start;
 block_63:
 {
 uint8_t x_62; 
-x_62 = lean_ctor_get_uint8(x_58, sizeof(void*)*7 + 8);
+x_62 = lean_ctor_get_uint8(x_58, sizeof(void*)*7);
 x_48 = x_58;
 x_49 = x_62;
 x_50 = x_59;

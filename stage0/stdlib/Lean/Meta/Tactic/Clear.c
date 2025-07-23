@@ -1348,8 +1348,8 @@ if (lean_obj_tag(x_66) == 0)
 {
 x_10 = x_6;
 x_11 = x_8;
-x_12 = x_56;
-x_13 = x_7;
+x_12 = x_7;
+x_13 = x_56;
 x_14 = x_64;
 x_15 = x_63;
 x_16 = x_5;
@@ -1366,8 +1366,8 @@ lean_dec_ref(x_66);
 x_68 = l_Array_eraseIdx___redArg(x_62, x_67);
 x_10 = x_6;
 x_11 = x_8;
-x_12 = x_56;
-x_13 = x_7;
+x_12 = x_7;
+x_13 = x_56;
 x_14 = x_64;
 x_15 = x_63;
 x_16 = x_5;
@@ -1606,9 +1606,9 @@ block_31:
 uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_19 = 2;
 x_20 = lean_unsigned_to_nat(0u);
-x_21 = l_Lean_Meta_mkFreshExprMVarAt(x_14, x_18, x_12, x_19, x_17, x_20, x_16, x_10, x_13, x_11, x_15);
+x_21 = l_Lean_Meta_mkFreshExprMVarAt(x_14, x_18, x_13, x_19, x_17, x_20, x_16, x_10, x_12, x_11, x_15);
 lean_dec(x_11);
-lean_dec_ref(x_13);
+lean_dec_ref(x_12);
 lean_dec_ref(x_16);
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);

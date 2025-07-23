@@ -5770,38 +5770,36 @@ return x_10;
 }
 else
 {
-lean_object* x_11; uint64_t x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; 
+lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; 
 x_11 = lean_ctor_get(x_3, 0);
-x_12 = lean_ctor_get_uint64(x_3, sizeof(void*)*7);
-x_13 = lean_ctor_get_uint8(x_3, sizeof(void*)*7 + 8);
-x_14 = lean_ctor_get(x_3, 1);
-x_15 = lean_ctor_get(x_3, 3);
-x_16 = lean_ctor_get(x_3, 4);
-x_17 = lean_ctor_get(x_3, 5);
-x_18 = lean_ctor_get(x_3, 6);
-x_19 = lean_ctor_get_uint8(x_3, sizeof(void*)*7 + 9);
-x_20 = lean_ctor_get_uint8(x_3, sizeof(void*)*7 + 10);
-lean_inc(x_18);
+x_12 = lean_ctor_get_uint8(x_3, sizeof(void*)*7);
+x_13 = lean_ctor_get(x_3, 1);
+x_14 = lean_ctor_get(x_3, 3);
+x_15 = lean_ctor_get(x_3, 4);
+x_16 = lean_ctor_get(x_3, 5);
+x_17 = lean_ctor_get(x_3, 6);
+x_18 = lean_ctor_get_uint8(x_3, sizeof(void*)*7 + 1);
+x_19 = lean_ctor_get_uint8(x_3, sizeof(void*)*7 + 2);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_inc(x_14);
+lean_inc(x_13);
 lean_inc(x_11);
 lean_dec(x_3);
-x_21 = lean_alloc_ctor(0, 7, 11);
-lean_ctor_set(x_21, 0, x_11);
-lean_ctor_set(x_21, 1, x_14);
-lean_ctor_set(x_21, 2, x_1);
-lean_ctor_set(x_21, 3, x_15);
-lean_ctor_set(x_21, 4, x_16);
-lean_ctor_set(x_21, 5, x_17);
-lean_ctor_set(x_21, 6, x_18);
-lean_ctor_set_uint64(x_21, sizeof(void*)*7, x_12);
-lean_ctor_set_uint8(x_21, sizeof(void*)*7 + 8, x_13);
-lean_ctor_set_uint8(x_21, sizeof(void*)*7 + 9, x_19);
-lean_ctor_set_uint8(x_21, sizeof(void*)*7 + 10, x_20);
-x_22 = lean_apply_5(x_2, x_21, x_4, x_5, x_6, x_7);
-return x_22;
+x_20 = lean_alloc_ctor(0, 7, 3);
+lean_ctor_set(x_20, 0, x_11);
+lean_ctor_set(x_20, 1, x_13);
+lean_ctor_set(x_20, 2, x_1);
+lean_ctor_set(x_20, 3, x_14);
+lean_ctor_set(x_20, 4, x_15);
+lean_ctor_set(x_20, 5, x_16);
+lean_ctor_set(x_20, 6, x_17);
+lean_ctor_set_uint8(x_20, sizeof(void*)*7, x_12);
+lean_ctor_set_uint8(x_20, sizeof(void*)*7 + 1, x_18);
+lean_ctor_set_uint8(x_20, sizeof(void*)*7 + 2, x_19);
+x_21 = lean_apply_5(x_2, x_20, x_4, x_5, x_6, x_7);
+return x_21;
 }
 }
 }

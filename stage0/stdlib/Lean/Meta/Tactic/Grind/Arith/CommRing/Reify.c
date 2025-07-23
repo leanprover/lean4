@@ -2796,7 +2796,6 @@ x_27 = l_Lean_mkAppB(x_26, x_2, x_3);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
-lean_inc_ref(x_8);
 lean_inc(x_23);
 x_28 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Util_0__Lean_Meta_Grind_Arith_CommRing_mkPowFn_checkInst(x_23, x_27, x_8, x_9, x_10, x_11, x_24);
 if (lean_obj_tag(x_28) == 0)
@@ -3906,7 +3905,6 @@ lean_dec_ref(x_25);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
-lean_inc_ref(x_6);
 lean_inc(x_32);
 x_33 = l_Lean_Meta_Grind_Arith_CommRing_getIntCastFn_checkInst(x_32, x_30, x_6, x_7, x_8, x_9, x_26);
 if (lean_obj_tag(x_33) == 0)
@@ -4264,7 +4262,6 @@ lean_dec_ref(x_21);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
-lean_inc_ref(x_9);
 lean_inc(x_28);
 x_29 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Util_0__Lean_Meta_Grind_Arith_CommRing_mkNatCastFn_checkInst(x_28, x_26, x_9, x_10, x_11, x_12, x_22);
 if (lean_obj_tag(x_29) == 0)

@@ -2240,7 +2240,7 @@ if (x_28 == 0)
 {
 lean_object* x_29; uint8_t x_30; 
 lean_dec_ref(x_22);
-x_29 = l_Lean_Meta_SavedState_restore___redArg(x_25, x_20, x_24, x_26);
+x_29 = l_Lean_Meta_SavedState_restore___redArg(x_25, x_20, x_24, x_27);
 lean_dec_ref(x_25);
 x_30 = !lean_is_exclusive(x_29);
 if (x_30 == 0)
@@ -2256,7 +2256,7 @@ x_8 = x_20;
 x_9 = x_21;
 x_10 = x_23;
 x_11 = x_24;
-x_12 = x_27;
+x_12 = x_26;
 x_13 = x_29;
 x_14 = x_33;
 x_15 = x_31;
@@ -2277,7 +2277,7 @@ x_8 = x_20;
 x_9 = x_21;
 x_10 = x_23;
 x_11 = x_24;
-x_12 = x_27;
+x_12 = x_26;
 x_13 = x_36;
 x_14 = x_35;
 x_15 = x_34;
@@ -2286,7 +2286,7 @@ goto block_19;
 }
 else
 {
-lean_dec(x_27);
+lean_dec(x_26);
 lean_dec_ref(x_25);
 lean_dec(x_24);
 lean_dec_ref(x_23);
@@ -2311,8 +2311,8 @@ x_22 = x_44;
 x_23 = x_40;
 x_24 = x_42;
 x_25 = x_41;
-x_26 = x_46;
-x_27 = x_43;
+x_26 = x_43;
+x_27 = x_46;
 x_28 = x_48;
 goto block_37;
 }
@@ -2325,8 +2325,8 @@ x_22 = x_44;
 x_23 = x_40;
 x_24 = x_42;
 x_25 = x_41;
-x_26 = x_46;
-x_27 = x_43;
+x_26 = x_43;
+x_27 = x_46;
 x_28 = x_47;
 goto block_37;
 }

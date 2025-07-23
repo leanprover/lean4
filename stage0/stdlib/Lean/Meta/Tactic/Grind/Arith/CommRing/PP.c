@@ -2644,6 +2644,7 @@ lean_inc_ref(x_2);
 x_27 = l_Lean_mkAppB(x_26, x_2, x_3);
 lean_inc(x_23);
 x_28 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Util_0__Lean_Meta_Grind_Arith_CommRing_mkPowFn_checkInst(x_23, x_27, x_5, x_6, x_7, x_8, x_21);
+lean_dec_ref(x_5);
 if (lean_obj_tag(x_28) == 0)
 {
 uint8_t x_29; 
@@ -2720,6 +2721,7 @@ lean_inc_ref(x_2);
 x_47 = l_Lean_mkAppB(x_46, x_2, x_3);
 lean_inc(x_43);
 x_48 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Util_0__Lean_Meta_Grind_Arith_CommRing_mkPowFn_checkInst(x_43, x_47, x_5, x_6, x_7, x_8, x_21);
+lean_dec_ref(x_5);
 if (lean_obj_tag(x_48) == 0)
 {
 lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; 

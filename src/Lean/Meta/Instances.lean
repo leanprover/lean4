@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Data.Range.Polymorphic.Stream
 import Lean.ScopedEnvExtension
 import Lean.Meta.GlobalInstances
 import Lean.Meta.DiscrTree
@@ -89,6 +90,8 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
   registerSimpleScopedEnvExtension {
     initial  := {}
     addEntry := addInstanceEntry
+    exportEntry? := fun level e =>
+      guard (level == .private || e.globalName?.any (!isPrivateName ·)) *> e
   }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
@@ -147,7 +150,7 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
     if let .const className .. := classTy.getAppFn then
       forallTelescopeReducing (← inferType classTy.getAppFn) fun args _ => do
       let mut pos := (getOutParamPositions? (← getEnv) className).getD #[]
-      for arg in args, i in [:args.size] do
+      for arg in args, i in *...args.size do
         if (← inferType arg).isAppOf ``semiOutParam then
           pos := pos.push i
       return pos
@@ -173,7 +176,7 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
   -- These are assumed to not be mvars during TC search (or at least not assignable)
   let tyOutParams ← getSemiOutParamPositionsOf ty
   let tyArgs := ty.getAppArgs
-  for tyArg in tyArgs, i in [:tyArgs.size] do
+  for tyArg in tyArgs, i in *...tyArgs.size do
     unless tyOutParams.contains i do
       assignMVarsIn tyArg
 
@@ -193,7 +196,7 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
       let argTy ← whnf argTy
       let argOutParams ← getSemiOutParamPositionsOf argTy
       let argTyArgs := argTy.getAppArgs
-      for i in [:argTyArgs.size], argTyArg in argTyArgs do
+      for i in *...argTyArgs.size, argTyArg in argTyArgs do
         if !argOutParams.contains i && argTyArg.hasExprMVar then
           return false
       return true
@@ -232,6 +235,17 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   let synthOrder ← computeSynthOrder c projInfo?
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
 
+/--
+Registers type class instances.
+
+The `instance` command, which expands to `@[instance] def`, is usually preferred over using this
+attribute directly. However it might sometimes still be necessary to use this attribute directly,
+in particular for `opaque` instances.
+
+To assign priorities to instances, `@[instance prio]` can be used (where `prio` is a priority).
+This corresponds to the `instance (priority := prio)` notation.
+-/
+@[builtin_doc]
 builtin_initialize
   registerBuiltinAttribute {
     name  := `instance

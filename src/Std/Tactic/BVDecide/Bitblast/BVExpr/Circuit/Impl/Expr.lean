@@ -3,22 +3,27 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Reverse
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Clz
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec` expressions (`BVExpr`).
@@ -129,9 +134,7 @@ where
       ⟨⟨res, this⟩, cache⟩
     | .const val =>
       let res := bitblast.blastConst aig val
-      have := AIG.LawfulVecOperator.le_size (f := bitblast.blastConst) ..
-      let cache := cache.cast this
-      ⟨⟨res, this⟩, cache⟩
+      ⟨⟨⟨aig, res⟩, by simp⟩, cache⟩
     | .bin lhsExpr op rhsExpr =>
       let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhsExpr cache
       let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhsExpr cache
@@ -226,6 +229,12 @@ where
           dsimp only at heaig
           omega
         ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastReverse) ..)⟩
+      | .clz =>
+        let res := bitblast.blastClz eaig evec
+        have := by
+          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastClz)
+          omega
+        ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastClz) ..)⟩
     | .append lhs rhs h =>
       let ⟨⟨⟨aig, lhs⟩, hlaig⟩, cache⟩ := goCache aig lhs cache
       let ⟨⟨⟨aig, rhs⟩, hraig⟩, cache⟩ := goCache aig rhs cache
@@ -316,7 +325,7 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
   unfold go
   split
   · rw [AIG.LawfulVecOperator.decl_eq (f := blastVar)]
-  · rw [AIG.LawfulVecOperator.decl_eq (f := blastConst)]
+  · simp
   · next op lhsExpr rhsExpr =>
     have hl := (goCache aig lhsExpr cache).result.property
     have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
@@ -337,7 +346,7 @@ theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
         · apply Nat.le_trans <;> assumption
   · next op expr =>
     match op with
-    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse =>
+    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. | .reverse | .clz =>
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [goCache_decl_eq]
       have := (goCache aig expr cache).result.property

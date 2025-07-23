@@ -8,10 +8,13 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 
 namespace Lean.Meta.Grind.Arith.CommRing
 
-instance : MonadGetRing (ReaderT Ring MetaM) where
-  getRing := read
+private abbrev M := StateT Ring MetaM
 
-private def M := ReaderT Goal (StateT (Array MessageData) MetaM)
+instance : MonadRing M where
+  getRing := get
+  modifyRing := modify
+  canonExpr e := return e
+  synthInstance? e := Meta.synthInstance? e none
 
 private def toOption (cls : Name) (header : Thunk MessageData) (msgs : Array MessageData) : Option MessageData :=
   if msgs.isEmpty then
@@ -22,20 +25,19 @@ private def toOption (cls : Name) (header : Thunk MessageData) (msgs : Array Mes
 private def push (msgs : Array MessageData) (msg? : Option MessageData) : Array MessageData :=
   if let some msg := msg? then msgs.push msg else msgs
 
-def ppBasis? : ReaderT Ring MetaM (Option MessageData) := do
+def ppBasis? : M (Option MessageData) := do
   let mut basis := #[]
-  for cs in (← getRing).varToBasis do
-    for c in cs do
-      basis := basis.push (toTraceElem (← c.denoteExpr))
+  for c in (← getRing).basis do
+    basis := basis.push (toTraceElem (← c.denoteExpr))
   return toOption `basis "Basis" basis
 
-def ppDiseqs? : ReaderT Ring MetaM (Option MessageData) := do
+def ppDiseqs? : M (Option MessageData) := do
   let mut diseqs := #[]
   for d in (← getRing).diseqs do
     diseqs := diseqs.push (toTraceElem (← d.denoteExpr))
   return toOption `diseqs "Disequalities" diseqs
 
-def ppRing? : ReaderT Ring MetaM (Option MessageData) := do
+def ppRing? : M (Option MessageData) := do
   let msgs := #[]
   let msgs := push msgs (← ppBasis?)
   let msgs := push msgs (← ppDiseqs?)
@@ -44,7 +46,7 @@ def ppRing? : ReaderT Ring MetaM (Option MessageData) := do
 def pp? (goal : Goal) : MetaM (Option MessageData) := do
   let mut msgs := #[]
   for ring in goal.arith.ring.rings do
-    let some msg ← ppRing? ring | pure ()
+    let some msg ← ppRing? |>.run' ring | pure ()
     msgs := msgs.push msg
   if msgs.isEmpty then
     return none

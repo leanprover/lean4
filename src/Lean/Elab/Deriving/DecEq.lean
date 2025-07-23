@@ -45,7 +45,7 @@ where
       for ctorName₂ in indVal.ctors do
         let mut patterns := #[]
         -- add `_` pattern for indices
-        for _ in [:indVal.numIndices] do
+        for _ in *...indVal.numIndices do
           patterns := patterns.push (← `(_))
         if ctorName₁ == ctorName₂ then
           let alt ← forallTelescopeReducing ctorInfo.type fun xs type => do
@@ -54,11 +54,11 @@ where
             let mut ctorArgs1 := #[]
             let mut ctorArgs2 := #[]
             -- add `_` for inductive parameters, they are inaccessible
-            for _ in [:indVal.numParams] do
+            for _ in *...indVal.numParams do
               ctorArgs1 := ctorArgs1.push (← `(_))
               ctorArgs2 := ctorArgs2.push (← `(_))
             let mut todo := #[]
-            for i in [:ctorInfo.numFields] do
+            for i in *...ctorInfo.numFields do
               let x := xs[indVal.numParams + i]!
               if type.containsFVar x.fvarId! then
                 -- If resulting type depends on this field, we don't need to compare
@@ -97,12 +97,12 @@ def mkAuxFunction (ctx : Context) (auxFunName : Name) (indVal : InductiveVal): T
     then `(Parser.Termination.suffix|termination_by structural $target₁)
     else `(Parser.Termination.suffix|)
   let type    ← `(Decidable ($target₁ = $target₂))
-  `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
+  `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term
     $termSuffix:suffix)
 
 def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do
   let mut res : Array (TSyntax `command) := #[]
-  for i in [:ctx.auxFunNames.size] do
+  for i in *...ctx.auxFunNames.size do
     let auxFunName := ctx.auxFunNames[i]!
     let indVal     := ctx.typeInfos[i]!
     res := res.push (← mkAuxFunction ctx auxFunName indVal)

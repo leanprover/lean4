@@ -55,6 +55,7 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
+char ** lean_setup_args(int argc, char ** argv);
 void lean_initialize();
 
   #if defined(WIN32) || defined(_WIN32)
@@ -67,6 +68,7 @@ void lean_initialize();
   SetConsoleOutputCP(CP_UTF8);
   #endif
   lean_object* in; lean_object* res;
+argv = lean_setup_args(argc, argv);
 lean_initialize();
 lean_set_panic_messages(false);
 res = initialize_LakeMain(1 /* builtin */, lean_io_mk_world());

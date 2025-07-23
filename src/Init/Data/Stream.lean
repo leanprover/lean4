@@ -6,8 +6,12 @@ Authors: Sebastian Ullrich, Andrew Kent, Leonardo de Moura
 module
 
 prelude
-import Init.Data.Array.Subarray
-import Init.Data.Range
+public import Init.Data.Range
+public import Init.Data.Array.Subarray
+
+import Init.Data.Slice.Array.Basic
+
+public section
 
 /-!
 Remark: we considered using the following alternative design
@@ -66,8 +70,9 @@ instance (priority := low) [Stream ρ α] : ForIn m ρ α where
 instance : ToStream (List α) (List α) where
   toStream c := c
 
+@[no_expose]
 instance : ToStream (Array α) (Subarray α) where
-  toStream a := a[:a.size]
+  toStream a := a[*...*]
 
 instance : ToStream (Subarray α) (Subarray α) where
   toStream a := a
@@ -97,7 +102,7 @@ instance : Stream (Subarray α) α where
     if h : s.start < s.stop then
       have : s.start + 1 ≤ s.stop := Nat.succ_le_of_lt h
       some (s.array[s.start]'(Nat.lt_of_lt_of_le h s.stop_le_array_size),
-        { s with start := s.start + 1, start_le_stop := this })
+        ⟨{ s.internalRepresentation with start := s.start + 1, start_le_stop := this }⟩)
     else
       none
 

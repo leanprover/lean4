@@ -6,9 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.UInt.Basic
-import Init.Data.String.Basic
-import Init.Data.ByteArray.Basic
+public import Init.Data.UInt.Basic
+public import Init.Data.String.Basic
+public import Init.Data.ByteArray.Basic
+
+public section
 universe u
 
 instance : Hashable Nat where
@@ -56,9 +58,6 @@ instance : Hashable UInt64 where
 
 instance : Hashable USize where
   hash n := n.toUInt64
-
-instance : Hashable ByteArray where
-  hash as := as.foldl (fun r a => mixHash r (hash a)) 7
 
 instance : Hashable (Fin n) where
   hash v := v.val.toUInt64

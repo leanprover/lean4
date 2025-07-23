@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.HashMap.RawLemmas
-import Std.Data.HashSet.Raw
+public import Std.Data.HashMap.RawLemmas
+public import Std.Data.HashSet.Raw
+
+@[expose] public section
 
 /-!
 # Hash set lemmas
@@ -68,7 +72,7 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   HashMap.Raw.mem_iff_contains
 
-@[simp, grind]
+@[simp, grind _=_]
 theorem contains_iff_mem {a : α} : m.contains a ↔ a ∈ m :=
   HashMap.Raw.contains_iff_mem
 
@@ -167,7 +171,7 @@ theorem contains_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : �
 theorem mem_insert_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} : k ∈ m.insert k :=
   HashMap.Raw.mem_insertIfNew_self h.out
 
-@[grind =]theorem size_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+@[grind =] theorem size_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     (m.insert k).size = if k ∈ m then m.size else m.size + 1 :=
   HashMap.Raw.size_insertIfNew h.out
 
@@ -251,7 +255,7 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a 
     m.contains a = (m.get? a).isSome :=
   HashMap.Raw.contains_eq_isSome_getKey? h.out
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     (m.get? a).isSome = m.contains a :=
   (contains_eq_isSome_get? h).symm

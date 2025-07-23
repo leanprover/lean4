@@ -6,7 +6,9 @@ Authors: Mario Carneiro, Markus Himmel
 module
 
 prelude
-import Init.Data.Bool
+public import Init.Data.Bool
+
+public section
 
 set_option linter.missingDocs true
 
@@ -27,7 +29,7 @@ class EquivBEq (α) [BEq α] : Prop extends PartialEquivBEq α, ReflBEq α
 theorem BEq.symm [BEq α] [PartialEquivBEq α] {a b : α} : a == b → b == a :=
   PartialEquivBEq.symm
 
-@[grind] theorem BEq.comm [BEq α] [PartialEquivBEq α] {a b : α} : (a == b) = (b == a) :=
+theorem BEq.comm [BEq α] [PartialEquivBEq α] {a b : α} : (a == b) = (b == a) :=
   Bool.eq_iff_iff.2 ⟨BEq.symm, BEq.symm⟩
 
 theorem bne_comm [BEq α] [PartialEquivBEq α] {a b : α} : (a != b) = (b != a) := by

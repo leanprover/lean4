@@ -8,6 +8,7 @@ import Lean.Meta.IntInstTesters
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -29,7 +30,8 @@ def mkVarImpl (expr : Expr) : GoalM Var := do
   }
   markAsCutsatTerm expr
   assertNatCast expr var
-  assertDenoteAsIntNonneg expr
+  assertNonneg expr var
+  assertToIntBounds expr var
   return var
 
 def isInt (e : Expr) : GoalM Bool := do

@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.BitVec.Bitblast
-import Init.Data.AC
-import Std.Tactic.BVDecide.Normalize.Bool
-import Std.Tactic.BVDecide.Normalize.Canonicalize
-import Init.Data.SInt.Basic
+public import Init.Data.BitVec.Bitblast
+public import Init.Data.AC
+public import Std.Tactic.BVDecide.Normalize.Bool
+public import Std.Tactic.BVDecide.Normalize.Canonicalize
+public import Init.Data.SInt.Basic
+
+@[expose] public section
 
 /-!
 This module contains the `BitVec` simplifying part of the `bv_normalize` simp set.
@@ -40,6 +44,7 @@ theorem BitVec.ge_ule (x y : BitVec w) : x ≥ y ↔ ((!x.ult y) = true) := by
 
 attribute [bv_normalize] BitVec.zeroExtend_eq_setWidth
 attribute [bv_normalize] BitVec.truncate_eq_setWidth
+attribute [bv_normalize] BitVec.setWidth'_eq
 
 attribute [bv_normalize] BitVec.extractLsb
 attribute [bv_normalize] BitVec.msb_eq_getLsbD_last
@@ -58,7 +63,7 @@ attribute [bv_normalize] BitVec.ofNat_eq_ofNat
 
 @[bv_normalize]
 theorem BitVec.ofNatLT_reduce (n : Nat) (h) : BitVec.ofNatLT n h = BitVec.ofNat w n := by
-  simp [BitVec.ofNatLT, BitVec.ofNat, Fin.ofNat', Nat.mod_eq_of_lt h]
+  simp [BitVec.ofNatLT, BitVec.ofNat, Fin.ofNat, Nat.mod_eq_of_lt h]
 
 @[bv_normalize]
 theorem BitVec.ofBool_eq_if (b : Bool) : BitVec.ofBool b = bif b then 1#1 else 0#1 := by
@@ -140,7 +145,7 @@ attribute [bv_normalize] BitVec.twoPow_eq
 @[bv_normalize]
 theorem BitVec.getElem_eq_getLsbD (a : BitVec w) (i : Nat) (h : i < w) :
     a[i]'h = a.getLsbD i := by
-  simp [BitVec.getLsbD_eq_getElem?_getD, BitVec.getElem?_eq, h]
+  simp [h]
 
 -- The side condition about being in bounds gets resolved if i and w are constant.
 attribute [bv_normalize] BitVec.getMsbD_eq_getLsbD
@@ -187,11 +192,11 @@ theorem BitVec.one_plus_not_eq_not_plus_one (x : BitVec w) : (1#w + ~~~x) = (~~~
 
 theorem BitVec.and_contra (a : BitVec w) : a &&& ~~~a = 0#w := by
   ext i h
-  simp [h]
+  simp
 
 theorem BitVec.and_contra' (a : BitVec w) : ~~~a &&& a = 0#w := by
   ext i h
-  simp [h]
+  simp
 
 theorem BitVec.add_not (a : BitVec w) : a + ~~~a = (-1#w) := by
   ext

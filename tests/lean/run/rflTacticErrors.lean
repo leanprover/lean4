@@ -1,10 +1,14 @@
 
+set_option pp.mvars.levels false
+
 /-!
 This file tests the `rfl` tactic:
  * Extensibility
  * Error messages
  * Effect of `with_reducible`
 -/
+
+set_option pp.mvars.levels false
 
 -- First, let's see what `rfl` does:
 
@@ -80,7 +84,7 @@ and all using `apply_rfl` and `with_reducible apply_rfl`
 -- Syntactic equal
 
 example : true = true   := by apply_rfl
-example : HEq true true := by apply_rfl
+example : true ≍ true := by apply_rfl
 example : True ↔ True   := by apply_rfl
 example : P true true   := by apply_rfl
 example : Q true true   := by apply_rfl
@@ -98,7 +102,7 @@ error: tactic 'rfl' failed, no @[refl] lemma registered for relation
 #guard_msgs in example : R true true   := by apply_rfl -- Error
 
 example : true = true   := by with_reducible apply_rfl
-example : HEq true true := by with_reducible apply_rfl
+example : true ≍ true := by with_reducible apply_rfl
 example : True ↔ True   := by with_reducible apply_rfl
 example : P true true   := by with_reducible apply_rfl
 example : Q true true   := by with_reducible apply_rfl
@@ -123,7 +127,7 @@ abbrev true' := true
 abbrev True' := True
 
 example : true' = true   := by apply_rfl
-example : HEq true' true := by apply_rfl
+example : true' ≍ true := by apply_rfl
 example : True' ↔ True   := by apply_rfl
 example : P true' true   := by apply_rfl
 example : Q true' true   := by apply_rfl
@@ -143,7 +147,7 @@ error: tactic 'rfl' failed, no @[refl] lemma registered for relation
 example : R true' true   := by apply_rfl -- Error
 
 example : true' = true   := by with_reducible apply_rfl
-example : HEq true' true := by with_reducible apply_rfl
+example : true' ≍ true := by with_reducible apply_rfl
 example : True' ↔ True   := by with_reducible apply_rfl
 example : P true' true   := by with_reducible apply_rfl
 example : Q true' true   := by with_reducible apply_rfl -- NB: No error, Q and true' reducible
@@ -168,7 +172,7 @@ def true'' := true
 def True'' := True
 
 example : true'' = true   := by apply_rfl
-example : HEq true'' true := by apply_rfl
+example : true'' ≍ true := by apply_rfl
 example : True'' ↔ True   := by apply_rfl
 example : P true'' true   := by apply_rfl
 example : Q true'' true   := by apply_rfl
@@ -196,6 +200,8 @@ is not definitionally equal to the right-hand side
 -/
 #guard_msgs in
 example : true'' = true   := by with_reducible apply_rfl -- Error
+
+
 /--
 error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
   @HEq ?α ?a ?α ?a
@@ -203,11 +209,11 @@ with the goal
   @HEq Bool true'' Bool true
 
 Note: The full type of 'HEq.refl' is
-  ∀ {α : Sort ?u.601} (a : α), HEq a a
-⊢ HEq true'' true
+  ∀ {α : Sort _} (a : α), a ≍ a
+⊢ true'' ≍ true
 -/
 #guard_msgs in
-example : HEq true'' true := by with_reducible apply_rfl -- Error
+example : true'' ≍ true := by with_reducible apply_rfl -- Error
 /--
 error: tactic 'rfl' failed, the left-hand side
   True''
@@ -266,16 +272,16 @@ is not definitionally equal to the right-hand side
 example : false = true   := by apply_rfl -- Error
 /--
 error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
-  HEq ?a ?a
+  ?a ≍ ?a
 with the goal
-  HEq false true
+  false ≍ true
 
 Note: The full type of 'HEq.refl' is
-  ∀ {α : Sort ?u.653} (a : α), HEq a a
-⊢ HEq false true
+  ∀ {α : Sort _} (a : α), a ≍ a
+⊢ false ≍ true
 -/
 #guard_msgs in
-example : HEq false true := by apply_rfl -- Error
+example : false ≍ true := by apply_rfl -- Error
 /--
 error: tactic 'rfl' failed, the left-hand side
   False
@@ -333,16 +339,16 @@ is not definitionally equal to the right-hand side
 example : false = true   := by with_reducible apply_rfl -- Error
 /--
 error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
-  HEq ?a ?a
+  ?a ≍ ?a
 with the goal
-  HEq false true
+  false ≍ true
 
 Note: The full type of 'HEq.refl' is
-  ∀ {α : Sort ?u.705} (a : α), HEq a a
-⊢ HEq false true
+  ∀ {α : Sort _} (a : α), a ≍ a
+⊢ false ≍ true
 -/
 #guard_msgs in
-example : HEq false true := by with_reducible apply_rfl -- Error
+example : false ≍ true := by with_reducible apply_rfl -- Error
 /--
 error: tactic 'rfl' failed, the left-hand side
   False
@@ -393,28 +399,28 @@ example : R false true   := by with_reducible apply_rfl -- Error
 
 /--
 error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
-  HEq ?a ?a
+  ?a ≍ ?a
 with the goal
-  HEq true 1
+  true ≍ 1
 
 Note: The full type of 'HEq.refl' is
-  ∀ {α : Sort ?u.774} (a : α), HEq a a
-⊢ HEq true 1
+  ∀ {α : Sort _} (a : α), a ≍ a
+⊢ true ≍ 1
 -/
 #guard_msgs in
-example : HEq true 1 := by apply_rfl -- Error
+example : true ≍ 1 := by apply_rfl -- Error
 /--
 error: tactic 'apply' failed, could not unify the conclusion of 'HEq.refl'
-  HEq ?a ?a
+  ?a ≍ ?a
 with the goal
-  HEq true 1
+  true ≍ 1
 
 Note: The full type of 'HEq.refl' is
-  ∀ {α : Sort ?u.815} (a : α), HEq a a
-⊢ HEq true 1
+  ∀ {α : Sort _} (a : α), a ≍ a
+⊢ true ≍ 1
 -/
 #guard_msgs in
-example : HEq true 1 := by with_reducible apply_rfl -- Error
+example : true ≍ 1 := by with_reducible apply_rfl -- Error
 
 -- Rfl lemma with side condition:
 -- Error message should show left-over goal

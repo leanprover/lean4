@@ -171,9 +171,13 @@ where
   | n + 1 => .ctor ``Nat.succ #[goSmall n]
 
 def ofLCNFLit : LCNF.LitValue → Value
-| .natVal n => ofNat n
+| .nat n => ofNat n
 -- TODO: We could make this much more precise but the payoff is questionable
-| .strVal .. => .top
+| .str .. => .top
+| .uint8 v => ofNat (UInt8.toNat v)
+| .uint16 v => ofNat (UInt16.toNat v)
+| .uint32 v => ofNat (UInt32.toNat v)
+| .uint64 v | .usize v => ofNat (UInt64.toNat v)
 
 partial def proj : Value → Nat → Value
 | .ctor _ vs , i => vs.getD i bot
@@ -205,25 +209,27 @@ partial def getLiteral (v : Value) : CompilerM (Option ((Array CodeDecl) × FVar
     return none
 where
   go : Value → CompilerM ((Array CodeDecl) × FVarId)
-  | .ctor `Nat.zero #[] .. => do
-    let decl ← mkAuxLetDecl <| .value <| .natVal <| 0
+  | .ctor ``Nat.zero #[] .. => do
+    let decl ← mkAuxLetDecl <| .lit <| .nat <| 0
     return (#[.let decl], decl.fvarId)
-  | .ctor `Nat.succ #[val] .. => do
+  | .ctor ``Nat.succ #[val] .. => do
     let val := getNatConstant val + 1
-    let decl ← mkAuxLetDecl <| .value <| .natVal <| val
+    let decl ← mkAuxLetDecl <| .lit <| .nat <| val
     return (#[.let decl], decl.fvarId)
-  | .ctor i vs => do
-    let args ← vs.mapM go
+  | .ctor ctorName vs => do
+    let some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | unreachable!
+    let fields ← vs.mapM go
     let flatten acc := fun (decls, var) => (acc.fst ++ decls, acc.snd.push <| .fvar var)
-    let (decls, params) := args.foldl (init := (#[], Array.mkEmpty args.size)) flatten
-    let letVal : LetValue := .const i [] params
+    let (decls, args) :=
+      fields.foldl (init := (#[], Array.replicate ctorInfo.numParams .erased)) flatten
+    let letVal : LetValue := .const ctorName [] args
     let letDecl ← mkAuxLetDecl letVal
     return (decls.push <| .let letDecl, letDecl.fvarId)
   | _ => unreachable!
 
   getNatConstant : Value → Nat
-  | .ctor `Nat.zero #[] .. => 0
-  | .ctor `Nat.succ #[val] .. => getNatConstant val + 1
+  | .ctor ``Nat.zero #[] .. => 0
+  | .ctor ``Nat.succ #[val] .. => getNatConstant val + 1
   | _ => panic! "Not a well formed Nat constant Value"
 
 end Value
@@ -296,7 +302,7 @@ structure InterpState where
   `Value`s of functions in the `InterpContext` use during computation of
   the fixpoint. Afterwards they are stored into the `Environment`.
   -/
-  funVals     : PArray Value
+  funVals     : Array Value
 
 /--
 The monad which powers the abstract interpreter.
@@ -389,7 +395,7 @@ def updateFunDeclParamsAssignment (params : Array Param) (args : Array Arg) : In
   to top.
   -/
   if params.size != args.size then
-    for param in params[args.size:] do
+    for param in params[args.size...*] do
       ret := (← findVarValue param.fvarId) == .bot
       updateVarAssignment param.fvarId .top
   return ret
@@ -456,7 +462,7 @@ where
   -/
   interpLetValue (letVal : LetValue) : InterpM Value := do
     match letVal with
-    | .value val => return .ofLCNFLit val
+    | .lit val => return .ofLCNFLit val
     | .proj _ idx struct => return (← findVarValue struct).proj idx
     | .const declName _ args =>
       let env ← getEnv
@@ -471,7 +477,7 @@ where
           return .top
       | none =>
         let some (.ctorInfo info) := env.find? declName | return .top
-        let args := args[info.numParams:].toArray
+        let args := args[info.numParams...*].toArray
         if info.numFields == args.size then
           return .ctor declName (← args.mapM findArgValue)
         else
@@ -521,7 +527,7 @@ ones. Return whether any `Value` got updated in the process.
 -/
 def inferStep : InterpM Bool := do
   let ctx ← read
-  for h : idx in [0:ctx.decls.size] do
+  for h : idx in *...ctx.decls.size do
     let decl := ctx.decls[idx]
     if !decl.safe then
       continue

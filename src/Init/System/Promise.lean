@@ -6,7 +6,9 @@ Authors: Gabriel Ebner
 module
 
 prelude
-import Init.System.IO
+public import Init.System.IO
+
+public section
 
 set_option linter.missingDocs true
 
@@ -75,7 +77,7 @@ def Promise.result := @Promise.result!
 /--
 Like `Promise.result`, but resolves to `dflt` if the promise is dropped without ever being resolved.
 -/
-@[macro_inline] def Promise.resultD (promise : Promise α) (dflt : α) : Task α :=
+@[macro_inline, expose] def Promise.resultD (promise : Promise α) (dflt : α) : Task α :=
   promise.result?.map (sync := true) (·.getD dflt)
 
 /--

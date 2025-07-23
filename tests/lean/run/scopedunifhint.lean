@@ -28,27 +28,27 @@ set_option pp.mvars false
 def x : Nat := 10
 
 /--
-error: Application type mismatch: In the application
-  mul ?_ x
-the argument
+error: Application type mismatch: The argument
   x
 has type
-  Nat : Type
+  Nat
 but is expected to have type
-  Magma.α ?_ : Type _
+  Magma.α ?_
+in the application
+  mul ?_ x
 -/
 #guard_msgs in
 #check mul x x           -- Error: unification hint is not active
 
 /--
-error: Application type mismatch: In the application
-  mul ?_ (x, x)
-the argument
+error: Application type mismatch: The argument
   (x, x)
 has type
-  Nat × Nat : Type
+  Nat × Nat
 but is expected to have type
-  Magma.α ?_ : Type _
+  Magma.α ?_
+in the application
+  mul ?_ (x, x)
 -/
 #guard_msgs in
 #check mul (x, x) (x, x) -- Error: no unification hint
@@ -56,14 +56,14 @@ but is expected to have type
 local infix:65 (priority := high) "*" => mul
 
 /--
-error: Application type mismatch: In the application
-  ?_*x
-the argument
+error: Application type mismatch: The argument
   x
 has type
-  Nat : Type
+  Nat
 but is expected to have type
-  Magma.α ?_ : Type _
+  Magma.α ?_
+in the application
+  ?_*x
 -/
 #guard_msgs in
 #check x*x -- Error: unification hint is not active
@@ -74,14 +74,14 @@ open Algebra -- activate unification hints
 #check x*x -- works
 
 /--
-error: Application type mismatch: In the application
-  ?_*(x, x)
-the argument
+error: Application type mismatch: The argument
   (x, x)
 has type
-  Nat × Nat : Type
+  Nat × Nat
 but is expected to have type
-  Magma.α ?_ : Type _
+  Magma.α ?_
+in the application
+  ?_*(x, x)
 -/
 #guard_msgs in
 #check mul (x, x) (x, x) -- still error
@@ -102,14 +102,14 @@ local unif_hint (s : Magma) (m : Magma) (n : Magma) (β : Type u) (δ : Type v) 
 end Sec1
 
 /--
-error: Application type mismatch: In the application
-  ?_*(x, x)
-the argument
+error: Application type mismatch: The argument
   (x, x)
 has type
-  Nat × Nat : Type
+  Nat × Nat
 but is expected to have type
-  Magma.α ?_ : Type _
+  Magma.α ?_
+in the application
+  ?_*(x, x)
 -/
 #guard_msgs in
 #check (x, x) * (x, x) -- error, local hint is not active after end of section anymore

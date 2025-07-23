@@ -71,12 +71,14 @@ open LazyDiscrTree (InitEntry findMatches)
 
 private def addImport (name : Name) (constInfo : ConstantInfo) :
     MetaM (Array (InitEntry (Name × DeclMod))) :=
+  -- Don't report lemmas from metaprogramming namespaces.
+  if name.isMetaprogramming then return #[] else
   forallTelescope constInfo.type fun _ type => do
     let e ← InitEntry.fromExpr type (name, DeclMod.none)
     let a := #[e]
     if e.key == .const ``Iff 2 then
-      let a := a.push (←e.mkSubEntry 0 (name, DeclMod.mp))
-      let a := a.push (←e.mkSubEntry 1 (name, DeclMod.mpr))
+      let a := a.push (← e.mkSubEntry 0 (name, DeclMod.mp))
+      let a := a.push (← e.mkSubEntry 1 (name, DeclMod.mpr))
       pure a
     else
       pure a
@@ -142,8 +144,8 @@ def interleaveWith {α β γ} (f : α → γ) (x : Array α) (g : β → γ) (y 
     Id.run do
   let mut res := Array.mkEmpty (x.size + y.size)
   let n := min x.size y.size
-  for h : i in [0:n] do
-    have p : i < min x.size y.size := h.2.1
+  for h : i in *...n do
+    have p : i < min x.size y.size := Std.PRange.lt_upper_of_mem h
     have q : i < x.size := Nat.le_trans p (Nat.min_le_left ..)
     have r : i < y.size := Nat.le_trans p (Nat.min_le_right ..)
     res := res.push (f x[i])

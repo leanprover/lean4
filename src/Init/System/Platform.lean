@@ -6,8 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Nat.Basic
-import Init.Data.String.Basic
+public import Init.Data.Nat.Basic
+public import Init.Data.String.Basic
+
+public section
 
 namespace System
 namespace Platform

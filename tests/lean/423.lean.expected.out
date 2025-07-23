@@ -1,32 +1,32 @@
-423.lean:3:35-3:40: error: Application type mismatch: In the application
-  HAdd.hAdd a
-the argument
+423.lean:3:35-3:40: error: Application type mismatch: The argument
   a
 has type
-  T : Sort u
-but is expected to have type
-  Nat : Type
-423.lean:5:37-5:38: error: Application type mismatch: In the application
+  T
+of sort `Sort u` but is expected to have type
+  Nat
+of sort `Type` in the application
+  HAdd.hAdd a
+423.lean:5:37-5:38: error: Application type mismatch: The argument
+  T
+has type
+  Sort u
+of sort `Type u` but is expected to have type
+  Type ?u
+of sort `Type (?u + 1)` in the application
   Add T
-the argument
+423.lean:5:47-5:48: error: Application type mismatch: The argument
   T
 has type
-  Sort u : Type u
-but is expected to have type
-  Type ?u : Type (?u + 1)
-423.lean:5:47-5:48: error: Application type mismatch: In the application
+  Sort u
+of sort `Type u` but is expected to have type
+  Type ?u
+of sort `Type (?u + 1)` in the application
   OfNat T
-the argument
-  T
-has type
-  Sort u : Type u
-but is expected to have type
-  Type ?u : Type (?u + 1)
-423.lean:5:55-5:60: error: Application type mismatch: In the application
-  HAdd.hAdd a
-the argument
+423.lean:5:55-5:60: error: Application type mismatch: The argument
   a
 has type
-  T : Sort u
-but is expected to have type
-  Nat : Type
+  T
+of sort `Sort u` but is expected to have type
+  Nat
+of sort `Type` in the application
+  HAdd.hAdd a

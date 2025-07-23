@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.System.IO
+public import Init.System.IO
+
+public section
 universe u
 
 /-!

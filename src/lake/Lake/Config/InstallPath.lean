@@ -8,6 +8,7 @@ prelude
 import Init.Control.Option
 import Init.Data.Option.Coe
 import Lean.Compiler.FFI
+import Lake.Config.Dynlib
 import Lake.Util.NativeLib
 import Lake.Config.Defaults
 
@@ -30,6 +31,26 @@ structure ElanInstall where
   binDir := home / "bin"
   toolchainsDir := home / "toolchains"
   deriving Inhabited, Repr
+
+/-- Convert an Elan toolchain name to an Elan toolchain directory name. -/
+@[inline] partial def toolchain2Dir (toolchain : String) : FilePath :=
+  go "" 0
+where
+  go (acc : String) (pos : String.Pos) : FilePath :=
+    if h : toolchain.atEnd pos then
+      FilePath.mk acc
+    else
+      let c := toolchain.get' pos h
+      let pos' := toolchain.next' pos h
+      if c = '/' then
+        go (acc ++ "--") pos'
+      else if c = ':'  then
+        go (acc ++ "---") pos'
+      else
+        go (acc.push c) pos'
+
+@[inline] def ElanInstall.toolchainDir (toolchain : String) (elan : ElanInstall) : FilePath :=
+  elan.toolchainsDir / toolchain2Dir toolchain
 
 /-- Standard path of `lean` in a Lean installation. -/
 def leanExe (sysroot : FilePath) :=
@@ -114,9 +135,15 @@ structure LakeInstall where
   srcDir := home
   binDir := home / defaultBuildDir / defaultBinDir
   libDir := home / defaultBuildDir / defaultLeanLibDir
-  sharedLib := libDir / nameToSharedLib "Lake"
+  sharedDynlib : Dynlib := {
+    name := "Lake"
+    path := libDir / nameToSharedLib "Lake"
+  }
   lake := binDir / lakeExe
   deriving Inhabited, Repr
+
+@[inline] def LakeInstall.sharedLib (self : LakeInstall) : FilePath :=
+  self.sharedDynlib.path
 
 /-- Construct a Lake installation co-located with the specified Lean installation. -/
 def LakeInstall.ofLean (lean : LeanInstall) : LakeInstall where
@@ -124,9 +151,10 @@ def LakeInstall.ofLean (lean : LeanInstall) : LakeInstall where
   srcDir := lean.srcDir / "lake"
   binDir := lean.binDir
   libDir := lean.leanLibDir
-  sharedLib :=
+  sharedDynlib :=
     let lib := s!"libLake_shared.{sharedLibExt}"
-    if Platform.isWindows then lean.binDir / lib else lean.leanLibDir / lib
+    let path := if Platform.isWindows then lean.binDir / lib else lean.leanLibDir / lib
+    {name := "Lake_shared", path}
   lake := lean.binDir / lakeExe
 
 /-! ## Detection Functions -/

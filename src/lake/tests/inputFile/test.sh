@@ -18,7 +18,7 @@ baz
 untraced
 untraced
 EOF
-) exe test
+) -q exe test
 
 # Test Lean<->TOML equivalence
 echo "# TEST: Lean->TOML translation"
@@ -63,7 +63,7 @@ traced
 untraced
 untraced
 EOF
-) exe test
+) -q exe test
 
 # Cleanup
-rm -f produced.out
+rm -f produced*

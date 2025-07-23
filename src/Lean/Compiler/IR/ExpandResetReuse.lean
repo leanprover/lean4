@@ -49,23 +49,11 @@ partial def consumed (x : VarId) : FnBody → Bool
   | e => !e.isTerminal && consumed x e.body
 
 abbrev Mask := Array (Option VarId)
-abbrev ProjCounts := Std.HashMap (VarId × Nat) Nat
-
-partial def computeProjCounts (bs : Array FnBody) : ProjCounts :=
-  let incrementCountIfProj r b :=
-    if let .vdecl _ _ (.proj i v) _ := b then
-      r.alter (v, i) fun
-      | some n => some (n + 1)
-      | none => some 1
-    else
-      r
-  bs.foldl incrementCountIfProj Std.HashMap.emptyWithCapacity
 
 /-- Auxiliary function for eraseProjIncFor -/
-partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (projCounts : ProjCounts)
-    (mask : Mask) (keep : Array FnBody) : Array FnBody × Mask :=
+partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (keep : Array FnBody) : Array FnBody × Mask :=
   let done (_ : Unit)        := (bs ++ keep.reverse, mask)
-  let keepInstr (b : FnBody) := eraseProjIncForAux y bs.pop projCounts mask (keep.push b)
+  let keepInstr (b : FnBody) := eraseProjIncForAux y bs.pop mask (keep.push b)
   if h : bs.size < 2 then done ()
   else
     let b := bs.back!
@@ -77,10 +65,7 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (projCounts : Pro
       let b' := bs[bs.size - 2]
       match b' with
       | .vdecl w _ (.proj i x) _ =>
-        -- We disable the inc optimization if there are multiple projections with the same base
-        -- and index, because the downstream transformations are incapable of correctly handling
-        -- the aliasing.
-        if w == z && y == x && projCounts[(x, i)]! == 1 then
+        if w == z && y == x then
           /- Found
              ```
              let z := proj[i] y
@@ -92,7 +77,7 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (projCounts : Pro
           let mask := mask.set! i (some z)
           let keep := keep.push b'
           let keep := if n == 1 then keep else keep.push (FnBody.inc z (n-1) c p FnBody.nil)
-          eraseProjIncForAux y bs projCounts mask keep
+          eraseProjIncForAux y bs mask keep
         else done ()
       | _ => done ()
     | _ => done ()
@@ -100,7 +85,7 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (projCounts : Pro
 /-- Try to erase `inc` instructions on projections of `y` occurring in the tail of `bs`.
    Return the updated `bs` and a bit mask specifying which `inc`s have been removed. -/
 def eraseProjIncFor (n : Nat) (y : VarId) (bs : Array FnBody) : Array FnBody × Mask :=
-  eraseProjIncForAux y bs (computeProjCounts bs) (.replicate n none) #[]
+  eraseProjIncForAux y bs (.replicate n none) #[]
 
 /-- Replace `reuse x ctor ...` with `ctor ...`, and remove `dec x` -/
 partial def reuseToCtor (x : VarId) : FnBody → FnBody
@@ -154,7 +139,7 @@ def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
     | some _ => pure b -- code took ownership of this field
     | none   => do
       let fld ← mkFresh
-      pure (FnBody.vdecl fld IRType.object (Expr.proj i y) (FnBody.dec fld 1 true false b))
+      pure (FnBody.vdecl fld .tobject (Expr.proj i y) (FnBody.dec fld 1 true false b))
 
 def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
   zs.size.fold (init := b) fun i _ b => FnBody.set y i zs[i] b
@@ -162,11 +147,11 @@ def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
 /-- Given `set x[i] := y`, return true iff `y := proj[i] x` -/
 def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=
   match y with
-  | Arg.var y =>
+  | .var y =>
     match ctx.projMap[y]? with
     | some (Expr.proj j w) => j == i && w == x
     | _ => false
-  | _ => false
+  | .erased => false
 
 /-- Given `uset x[i] := y`, return true iff `y := uproj[i] x` -/
 def isSelfUSet (ctx : Context) (x : VarId) (i : Nat) (y : VarId) : Bool :=
@@ -272,7 +257,7 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
     let v ← searchAndExpand v #[]
     searchAndExpand b (push bs (FnBody.jdecl j xs v FnBody.nil))
   | FnBody.case tid x xType alts,   bs => do
-    let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => searchAndExpand b #[]
+    let alts ← alts.mapM fun alt => alt.modifyBodyM fun b => searchAndExpand b #[]
     return reshape bs (FnBody.case tid x xType alts)
   | b, bs =>
     if b.isTerminal then return reshape bs b
@@ -292,5 +277,7 @@ end ExpandResetReuse
 /-- (Try to) expand `reset` and `reuse` instructions. -/
 def Decl.expandResetReuse (d : Decl) : Decl :=
   (ExpandResetReuse.main d).normalizeIds
+
+builtin_initialize registerTraceClass `compiler.ir.expand_reset_reuse (inherited := true)
 
 end Lean.IR

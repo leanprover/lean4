@@ -1,4 +1,3 @@
-set_option grind.warning false
 set_option grind.debug true
 
 /--
@@ -261,14 +260,14 @@ theorem ex1 (p : Prop) (a1 a2 a3 : Nat) : (p ↔ a2 ≤ a1) → ¬p → a2 + 3 �
   grind
 
 /--
-info: theorem ex1._proof_1 : ∀ {a4 : Nat} (p : Prop) (a1 a2 a3 : Nat),
+info: theorem ex1._proof_1_1 : ∀ {a4 : Nat} (p : Prop) (a1 a2 a3 : Nat),
   (p ↔ a2 ≤ a1) → ¬p → a2 + 3 ≤ a3 → (p ↔ a4 ≤ a3 + 2) → a1 ≤ a4 :=
 fun {a4} p a1 a2 a3 =>
   intro_with_eq (p ↔ a2 ≤ a1) (p = (a2 ≤ a1)) (¬p → a2 + 3 ≤ a3 → (p ↔ a4 ≤ a3 + 2) → a1 ≤ a4) (iff_eq p (a2 ≤ a1))
     fun h h_1 h_2 =>
     intro_with_eq (p ↔ a4 ≤ a3 + 2) (p = (a4 ≤ a3 + 2)) (a1 ≤ a4) (iff_eq p (a4 ≤ a3 + 2)) fun h_3 =>
       Classical.byContradiction
-        (intro_with_eq (¬a1 ≤ a4) (a4 + 1 ≤ a1) False (Nat.not_ge_eq a4 a1) fun h_4 =>
+        (intro_with_eq (¬a1 ≤ a4) (a4 + 1 ≤ a1) False (Nat.not_le_eq a1 a4) fun h_4 =>
           Eq.mp
             (Eq.trans (Eq.symm (eq_true h_4))
               (Nat.lo_eq_false_of_lo a1 a4 7 1 rfl_true
@@ -278,7 +277,7 @@ fun {a4} p a1 a2 a3 =>
 -/
 #guard_msgs in
 open Lean Grind in
-#print ex1._proof_1
+#print ex1._proof_1_1
 
 /-! Propagate `cnstr = False` tests -/
 
@@ -397,11 +396,6 @@ example (a : Nat) : a < 2 → a = 5 → False := by
   grind
 
 example (a : Nat) : a < 2 → a = b → b = c → c = 5 → False := by
-  grind
-
-#guard_msgs (trace) in -- none of the numerals should be internalized by the offset module
-set_option trace.grind.offset.internalize true in
-example (a b c d e : Nat) : a = 1 → b = 2 → c = 3 → d = 4 → e = 5 → a ≠ e := by
   grind
 
 example (a b : Nat) : a + 1 = b → b = 0 → False := by

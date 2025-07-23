@@ -11,7 +11,7 @@ namespace Lean.Parser.Command
 Builtin parsers for `grind` related commands
 -/
 @[builtin_command_parser] def grindPattern := leading_parser
-  "grind_pattern " >>  ident >> darrow >> sepBy1 termParser ","
+  Term.attrKind >> "grind_pattern " >>  ident >> darrow >> sepBy1 termParser ","
 
 @[builtin_command_parser] def initGrindNorm := leading_parser
   "init_grind_norm " >> many ident >> "| " >> many ident

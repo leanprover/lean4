@@ -48,7 +48,13 @@ Author: Leonardo de Moura
 #endif
 
 #if !defined(__STDC_VERSION_STDLIB_H__) || __STDC_VERSION_STDLIB_H__ < 202311L
-extern "C" LEAN_EXPORT __attribute__((weak)) void free_sized(void *ptr, size_t) {
+extern "C" LEAN_EXPORT
+#if defined(__GLIBC__) && (defined(__GNUC__) || defined(__clang__))
+// glibc tacks on `__attribute__((nothrow))` to its declarations. In C++ this requires either
+// `__attribute__((nothrow))` to be present or `noexcept`.
+__attribute__((nothrow))
+#endif
+__attribute__((weak)) void free_sized(void *ptr, size_t) {
     free(ptr);
 }
 #endif
@@ -73,8 +79,10 @@ static void abort_on_panic() {
     }
 }
 
+FILE * g_saved_stderr = stderr;
+
 extern "C" LEAN_EXPORT void lean_internal_panic(char const * msg) {
-    std::cerr << "INTERNAL PANIC: " << msg << "\n";
+    fprintf(g_saved_stderr, "INTERNAL PANIC: %s\n", msg);
     abort_on_panic();
     std::exit(1);
 }
@@ -102,13 +110,17 @@ extern "C" LEAN_EXPORT void lean_set_panic_messages(bool flag) {
     g_panic_messages = flag;
 }
 
-static void panic_eprintln(char const * line, bool force_stderr) {
+static void panic_eprintln(char const * line, size_t size, bool force_stderr) {
     if (force_stderr || g_exit_on_panic || should_abort_on_panic()) {
         // If we are about to kill the process, we should skip the Lean stderr buffer
-        std::cerr << line << "\n";
+        std::cerr.write(line, size) << "\n";
     } else {
-        io_eprintln(lean_mk_string(line));
+        io_eprintln(lean_mk_string_from_bytes(line, size));
     }
+}
+
+static void panic_eprintln(char const * line, bool force_stderr) {
+    panic_eprintln(line, strlen(line), force_stderr);
 }
 
 static void print_backtrace(bool force_stderr) {
@@ -130,9 +142,10 @@ static void print_backtrace(bool force_stderr) {
 #endif
 }
 
-extern "C" LEAN_EXPORT void lean_panic(char const * msg, bool force_stderr = false) {
+// Morally, `{msg, size}` is an `std::string_view`.
+static void lean_panic_impl(char const * msg, size_t size, bool force_stderr = false) {
     if (g_panic_messages) {
-        panic_eprintln(msg, force_stderr);
+        panic_eprintln(msg, size, force_stderr);
 #if LEAN_SUPPORTS_BACKTRACE
         char * bt_env = getenv("LEAN_BACKTRACE");
         if (!bt_env || strcmp(bt_env, "0") != 0) {
@@ -148,8 +161,12 @@ extern "C" LEAN_EXPORT void lean_panic(char const * msg, bool force_stderr = fal
     }
 }
 
+extern "C" LEAN_EXPORT void lean_panic(char const * msg, bool force_stderr = false) {
+    lean_panic_impl(msg, strlen(msg), force_stderr);
+}
+
 extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg) {
-    lean_panic(lean_string_cstr(msg));
+    lean_panic_impl(lean_string_cstr(msg), lean_string_size(msg) - 1);  // remove the null terminator
     lean_dec(msg);
     return default_val;
 }
@@ -157,14 +174,6 @@ extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg
 extern "C" LEAN_EXPORT object * lean_sorry(uint8) {
     lean_internal_panic("executed 'sorry'");
     lean_unreachable();
-}
-
-extern "C" LEAN_EXPORT void lean_inc_ref_cold(lean_object * o) {
-    std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), 1, std::memory_order_relaxed);
-}
-
-extern "C" LEAN_EXPORT void lean_inc_ref_n_cold(lean_object * o, unsigned n) {
-    std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), (int)n, std::memory_order_relaxed);
 }
 
 extern "C" LEAN_EXPORT size_t lean_object_byte_size(lean_object * o) {
@@ -1934,6 +1943,10 @@ extern "C" LEAN_EXPORT object * lean_mk_ascii_string_unchecked(char const * s) {
     return lean_mk_string_unchecked(s, len, len);
 }
 
+extern "C" LEAN_EXPORT obj_res lean_decode_lossy_utf8(b_obj_arg a) {
+    return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
+}
+
 extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(b_obj_arg a) {
     return lean_mk_string_from_bytes_unchecked(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
 }
@@ -2653,6 +2666,7 @@ extern "C" LEAN_EXPORT lean_external_class * lean_register_external_class(lean_e
 }
 
 void initialize_object() {
+    g_saved_stderr = stderr;  // Save original pointer early
     g_ext_classes       = new std::vector<external_object_class*>();
     g_ext_classes_mutex = new mutex();
     g_array_empty       = lean_alloc_array(0, 0);

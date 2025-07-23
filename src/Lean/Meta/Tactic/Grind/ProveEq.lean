@@ -8,12 +8,18 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Simp
 
 namespace Lean.Meta.Grind
+/--
+A lighter version of `preprocess` which produces a definitionally equal term,
+but ensures assumptions made by `grind` are satisfied.
+-/
+def preprocessLight (e : Expr) : GoalM Expr := do
+  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← unfoldReducible e))))))
 
 /--
 If `e` has not been internalized yet, instantiate metavariables, unfold reducible, canonicalize,
 and internalize the result.
 
-This is an auxliary function used at `proveEq?` and `proveHEq?`.
+This is an auxiliary function used at `proveEq?` and `proveHEq?`.
 -/
 private def ensureInternalized (e : Expr) : GoalM Expr := do
   if (← alreadyInternalized e) then
@@ -24,7 +30,7 @@ private def ensureInternalized (e : Expr) : GoalM Expr := do
     `¬ a = []` and `b ≠ []` by congruence closure even when `a` and `b` are in the same
     equivalence class.
     -/
-    let e ← shareCommon (← canon (← unfoldReducible (← instantiateMVars e)))
+    let e ← preprocessLight (← instantiateMVars e)
     internalize e 0
     return e
 

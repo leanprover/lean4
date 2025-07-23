@@ -22,8 +22,21 @@ protected structure String.Range where
 def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := false) : Bool :=
   r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)
 
-def String.Range.includes (super sub : String.Range) : Bool :=
-  super.start <= sub.start && super.stop >= sub.stop
+/--
+Checks whether `sub` is contained in `super`.
+`includeSuperStop` and `includeSubStop` control whether `super` and `sub` have
+an inclusive upper bound.
+-/
+def String.Range.includes (super sub : String.Range)
+    (includeSuperStop := false) (includeSubStop := false) : Bool :=
+  super.start <= sub.start && (
+    if includeSuperStop && !includeSubStop then
+      sub.stop.byteIdx <= super.stop.byteIdx + 1
+    else if !includeSuperStop && includeSubStop then
+      sub.stop < super.stop
+    else
+      sub.stop <= super.stop
+  )
 
 def String.Range.overlaps (first second : String.Range)
     (includeFirstStop := false) (includeSecondStop := false) : Bool :=
@@ -222,7 +235,7 @@ partial def hasIdent (id : Name) : Syntax → Bool
   | stx => fn stx
 
 @[inline] def rewriteBottomUp (fn : Syntax → Syntax) (stx : Syntax) : Syntax :=
-  Id.run <| stx.rewriteBottomUpM fn
+  Id.run <| stx.rewriteBottomUpM (pure <| fn ·)
 
 private def updateInfo : SourceInfo → String.Pos → String.Pos → SourceInfo
   | SourceInfo.original lead pos trail endPos, leadStart, trailStop =>
@@ -366,7 +379,7 @@ partial def reprint (stx : Syntax) : Option String := do
         -- this visit the first arg twice, but that should hardly be a problem
         -- given that choice nodes are quite rare and small
         let s0 ← reprint args[0]!
-        for arg in args[1:] do
+        for arg in args[1...*] do
           let s' ← reprint arg
           guard (s0 == s')
     | _ => pure ()
@@ -609,7 +622,7 @@ where
   go (stack : Syntax.Stack) (stx : Syntax) : Option Syntax.Stack := Id.run do
     if accept stx then
       return (stx, 0) :: stack  -- the first index is arbitrary as there is no preceding element
-    for i in [0:stx.getNumArgs] do
+    for i in *...stx.getNumArgs do
       if visit stx[i] then
         if let some stack := go ((stx, i) :: stack) stx[i] then
           return stack

@@ -50,7 +50,7 @@ where
       let r := mkApp F (← loop F args[fixedPrefixSize]!)
       let decreasingProp := (← whnf (← inferType r)).bindingDomain!
       let r := mkApp r (← mkDecreasingProof decreasingProp)
-      return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
+      return mkAppN r (← args[fixedPrefixSize<...*].toArray.mapM (loop F))
 
   processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if e.isAppOf recFnName then
@@ -84,9 +84,9 @@ where
     | Expr.forallE n d b c =>
       withLocalDecl n c (← loop F d) fun x => do
         mkForallFVars #[x] (← loop F (b.instantiate1 x))
-    | Expr.letE n type val body _ =>
-      withLetDecl n (← loop F type) (← loop F val) fun x => do
-        mkLetFVars #[x] (← loop F (body.instantiate1 x)) (usedLetOnly := false)
+    | Expr.letE n type val body nondep =>
+      mapLetDecl n (← loop F type) (← loop F val) (nondep := nondep) (usedLetOnly := false) fun x => do
+        loop F (body.instantiate1 x)
     | Expr.mdata d b =>
       if let some stx := getRecAppSyntax? e then
         withRef stx <| loop F b
@@ -150,7 +150,7 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
     let minor ← lambdaTelescope args[4]! fun xs body => do
         let a := xs[0]!
         let xNew := xs[1]!
-        let valNew ← mkLambdaFVars xs[2:] body
+        let valNew ← mkLambdaFVars xs[2...*] body
         let FTypeNew := FDecl.type.replaceFVar x (← mkAppOptM `PSigma.mk #[α, β, a, xNew])
         withLocalDeclD FDecl.userName FTypeNew fun FNew => do
           mkLambdaFVars #[a, xNew, FNew] (← processPSigmaCasesOn xNew FNew valNew k)

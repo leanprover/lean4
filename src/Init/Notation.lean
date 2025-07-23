@@ -8,8 +8,9 @@ Notation for operators defined at Prelude.lean
 module
 
 prelude
-import Init.Prelude
-import Init.Coe
+public import Init.Coe
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 namespace Lean
@@ -27,14 +28,14 @@ of a lean file. For example, `def foo := 1` is a `command`, as is
 `namespace Foo` and `end Foo`. Commands generally have an effect on the state of
 adding something to the environment (like a new definition), as well as
 commands like `variable` which modify future commands within a scope. -/
-def command : Category := {}
+meta def command : Category := {}
 
 /-- `term` is the builtin syntax category for terms. A term denotes an expression
 in lean's type theory, for example `2 + 2` is a term. The difference between
 `Term` and `Expr` is that the former is a kind of syntax, while the latter is
 the result of elaboration. For example `by simp` is also a `Term`, but it elaborates
 to different `Expr`s depending on the context. -/
-def term : Category := {}
+meta def term : Category := {}
 
 /-- `tactic` is the builtin syntax category for tactics. These appear after
 `by` in proofs, and they are programs that take in the proof context
@@ -44,28 +45,28 @@ a term of the expected type. For example, `simp` is a tactic, used in:
 example : 2 + 2 = 4 := by simp
 ```
 -/
-def tactic : Category := {}
+meta def tactic : Category := {}
 
 /-- `doElem` is a builtin syntax category for elements that can appear in the `do` notation.
 For example, `let x ← e` is a `doElem`, and a `do` block consists of a list of `doElem`s. -/
-def doElem : Category := {}
+meta def doElem : Category := {}
 
 /-- `structInstFieldDecl` is the syntax category for value declarations for fields in structure instance notation.
 For example, the `:= 1` and `| 0 => 0 | n + 1 => n` in `{ x := 1, f | 0 => 0 | n + 1 => n }` are in the `structInstFieldDecl` class. -/
-def structInstFieldDecl : Category := {}
+meta def structInstFieldDecl : Category := {}
 
 /-- `level` is a builtin syntax category for universe levels.
 This is the `u` in `Sort u`: it can contain `max` and `imax`, addition with
 constants, and variables. -/
-def level : Category := {}
+meta def level : Category := {}
 
 /-- `attr` is a builtin syntax category for attributes.
 Declarations can be annotated with attributes using the `@[...]` notation. -/
-def attr : Category := {}
+meta def attr : Category := {}
 
 /-- `stx` is a builtin syntax category for syntax. This is the abbreviated
 parser notation used inside `syntax` and `macro` declarations. -/
-def stx : Category := {}
+meta def stx : Category := {}
 
 /-- `prio` is a builtin syntax category for priorities.
 Priorities are used in many different attributes.
@@ -73,7 +74,7 @@ Higher numbers denote higher priority, and for example typeclass search will
 try high priority instances before low priority.
 In addition to literals like `37`, you can also use `low`, `mid`, `high`, as well as
 add and subtract priorities. -/
-def prio : Category := {}
+meta def prio : Category := {}
 
 /-- `prec` is a builtin syntax category for precedences. A precedence is a value
 that expresses how tightly a piece of syntax binds: for example `1 + 2 * 3` is
@@ -84,7 +85,7 @@ In addition to literals like `37`, there are some special named precedence level
 * `max` for the highest precedence used in term parsers (not actually the maximum possible value)
 * `lead` for the precedence of terms not supposed to be used as arguments
 and you can also add and subtract precedences. -/
-def prec : Category := {}
+meta def prec : Category := {}
 
 end Parser.Category
 
@@ -295,6 +296,7 @@ recommended_spelling "PProd" for "×'" in [PProd, «term_×'_»]
 @[inherit_doc] prefix:75 "-"     => Neg.neg
 @[inherit_doc] prefix:100 "~~~"  => Complement.complement
 @[inherit_doc] postfix:max "⁻¹"  => Inv.inv
+@[inherit_doc] infixr:73 " • " => HSMul.hSMul
 
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
@@ -312,6 +314,40 @@ macro_rules | `($x % $y)   => `(binop% HMod.hMod $x $y)
 macro_rules | `($x ^ $y)   => `(rightact% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
 macro_rules | `(- $x)      => `(unop% Neg.neg $x)
+/-!
+We have a macro to make `x • y` notation participate in the expression tree elaborator,
+like other arithmetic expressions such as `+`, `*`, `/`, `^`, `=`, inequalities, etc.
+The macro is using the `leftact%` elaborator introduced in
+[this RFC](https://github.com/leanprover/lean4/issues/2854).
+
+As a concrete example of the effect of this macro, consider
+```lean
+variable [Ring R] [AddCommMonoid M] [Module R M] (r : R) (N : Submodule R M) (m : M) (n : N)
+#check m + r • n
+```
+Without the macro, the expression would elaborate as `m + ↑(r • n : ↑N) : M`.
+With the macro, the expression elaborates as `m + r • (↑n : M) : M`.
+To get the first interpretation, one can write `m + (r • n :)`.
+
+Here is a quick review of the expression tree elaborator:
+1. It builds up an expression tree of all the immediately accessible operations
+   that are marked with `binop%`, `unop%`, `leftact%`, `rightact%`, `binrel%`, etc.
+2. It elaborates every leaf term of this tree
+   (without an expected type, so as if it were temporarily wrapped in `(... :)`).
+3. Using the types of each elaborated leaf, it computes a supremum type they can all be
+   coerced to, if such a supremum exists.
+4. It inserts coercions around leaf terms wherever needed.
+
+The hypothesis is that individual expression trees tend to be calculations with respect
+to a single algebraic structure.
+
+Note(kmill): If we were to remove `HSMul` and switch to using `SMul` directly,
+then the expression tree elaborator would not be able to insert coercions within the right operand;
+they would likely appear as `↑(x • y)` rather than `x • ↑y`, unlike other arithmetic operations.
+-/
+
+@[inherit_doc HSMul.hSMul]
+macro_rules | `($x • $y) => `(leftact% HSMul.hSMul $x $y)
 
 recommended_spelling "or" for "|||" in [HOr.hOr, «term_|||_»]
 recommended_spelling "xor" for "^^^" in [HXor.hXor, «term_^^^_»]
@@ -323,6 +359,7 @@ recommended_spelling "mul" for "*" in [HMul.hMul, «term_*_»]
 recommended_spelling "div" for "/" in [HDiv.hDiv, «term_/_»]
 recommended_spelling "mod" for "%" in [HMod.hMod, «term_%_»]
 recommended_spelling "pow" for "^" in [HPow.hPow, «term_^_»]
+recommended_spelling "smul" for "•" in [HSMul.hSMul, «term_•_»]
 recommended_spelling "append" for "++" in [HAppend.hAppend, «term_++_»]
 /-- when used as a unary operator -/
 recommended_spelling "neg" for "-" in [Neg.neg, «term-_»]
@@ -341,6 +378,8 @@ recommended_spelling "not" for "~~~" in [Complement.complement, «term~~~_»]
 @[inherit_doc] infix:50 " > "  => GT.gt
 @[inherit_doc] infix:50 " = "  => Eq
 @[inherit_doc] infix:50 " == " => BEq.beq
+@[inherit_doc] infix:50 " ≍ "  => HEq
+
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
   We redefine the macros below to be able to use the auxiliary `binrel%` elaboration helper for binary relations.
@@ -394,7 +433,7 @@ recommended_spelling "not" for "!" in [not, «term!_»]
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 
 recommended_spelling "mem" for "∈" in [Membership.mem, «term_∈_»]
-recommended_spelling "not_mem" for "∉" in [«term_∉_»]
+recommended_spelling "notMem" for "∉" in [«term_∉_»]
 
 @[inherit_doc] infixr:67 " :: " => List.cons
 @[inherit_doc] infixr:100 " <$> " => Functor.map
@@ -493,8 +532,21 @@ is interpreted as `f (g x)` rather than `(f g) x`.
 syntax:min term " <| " term:min : term
 
 macro_rules
-  | `($f $args* <| $a) => `($f $args* $a)
-  | `($f <| $a) => `($f $a)
+  | `($f $args* <| $a) =>
+    if a.raw.isMissing then
+      -- Ensures that `$f $args* <|` is elaborated as `$f $args*`, not `$f $args* sorry`.
+      -- For the latter, the elaborator produces `TermInfo` where the missing argument has already
+      -- been applied as `sorry`, which inhibits some language server functionality that relies
+      -- on this `TermInfo` (e.g. signature help).
+      -- The parser will still produce an error for `$f $args* <|` in this case.
+      `($f $args*)
+    else
+      `($f $args* $a)
+  | `($f <| $a) =>
+    if a.raw.isMissing then
+      `($f)
+    else
+      `($f $a)
 
 /--
 Haskell-like pipe operator `|>`. `x |> f` means the same as the same as `f x`,
@@ -515,8 +567,21 @@ is interpreted as `f (g x)` rather than `(f g) x`.
 syntax:min term atomic(" $" ws) term:min : term
 
 macro_rules
-  | `($f $args* $ $a) => `($f $args* $a)
-  | `($f $ $a) => `($f $a)
+  | `($f $args* $ $a) =>
+    if a.raw.isMissing then
+      -- Ensures that `$f $args* $` is elaborated as `$f $args*`, not `$f $args* sorry`.
+      -- For the latter, the elaborator produces `TermInfo` where the missing argument has already
+      -- been applied as `sorry`, which inhibits some language server functionality that relies
+      -- on this `TermInfo` (e.g. signature help).
+      -- The parser will still produce an error for `$f $args* <|` in this case.
+      `($f $args*)
+    else
+      `($f $args* $a)
+  | `($f $ $a) =>
+    if a.raw.isMissing then
+      `($f)
+    else
+      `($f $a)
 
 @[inherit_doc Subtype] syntax "{ " withoutPosition(ident (" : " term)? " // " term) " }" : term
 

@@ -200,6 +200,14 @@ def monitorJobs
   let (_,s) ← Monitor.main initJobs |>.run ctx s
   return s.failures
 
+/-- Save input mappings to the local Lake artifact cache (if enabled). -/
+def Workspace.saveInputs (ws : Workspace) : LogIO Unit := do
+  unless ws.lakeCache.isDisabled do
+    ws.packages.forM fun pkg => do
+      if let some ref := pkg.cacheRef? then
+        let inputsFile := pkg.inputsFileIn ws.lakeCache
+        (← ref.get).save inputsFile
+
 /--
 Run a build function in the Workspace's context using the provided configuration.
 Reports incremental build progress and build logs. In quiet mode, only reports
@@ -224,6 +232,16 @@ def Workspace.runFetchM
   let showOptional := cfg.verbosity = .verbose
   let failures ← monitorJobs #[job] ctx.registeredJobs
     out failLv outLv minAction showOptional useAnsi showProgress
+  -- Save input mappings to cache
+  match (← ws.saveInputs {}) with
+  | .ok _ log =>
+    if !log.isEmpty && cfg.verbosity = .verbose then
+      print! out "There were issues saving input mappings to the local artifact cache:\n"
+      log.replay (logger := .stream out outLv useAnsi)
+  | .error _ log =>
+    print! out "Failed to save input mappings to the local artifact cache.\n"
+    if cfg.verbosity = .verbose then
+      log.replay (logger := .stream out outLv useAnsi)
   -- Failure Report
   if failures.isEmpty then
     let some a ← job.wait?

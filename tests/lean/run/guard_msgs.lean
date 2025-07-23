@@ -1,5 +1,7 @@
 import Lean.Elab.Command
 
+set_option guard_msgs.diff false
+
 #guard_msgs in
 /-- error: unknown identifier 'x' -/
 #guard_msgs in
@@ -52,7 +54,7 @@ numerals are polymorphic in Lean, but the numeral `22` cannot be used in a conte
   α
 due to the absence of the instance above
 
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs(error) in
 example : α := 22
@@ -108,7 +110,8 @@ Lax whitespace
 /--
 error: failed to synthesize
   DecidableEq (Nat → Nat)
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs (whitespace := lax) in
 #synth DecidableEq (Nat → Nat)
@@ -116,7 +119,8 @@ Additional diagnostic information may be available using the `set_option diagnos
 /--
 error: failed to synthesize
   DecidableEq (Nat → Nat)
-Additional diagnostic information may be available using the `set_option diagnostics true` command.
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs (whitespace := lax) in
 #synth DecidableEq (Nat → Nat)
@@ -151,7 +155,8 @@ set_option linter.unusedVariables true
 #guard_msgs in
 /--
 warning: unused variable `n`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
 -/
 #guard_msgs in
 example (n : Nat) : True := trivial
@@ -159,7 +164,8 @@ example (n : Nat) : True := trivial
 #guard_msgs in
 /--
 warning: unused variable `n`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
 -/
 #guard_msgs in
 #guard_msgs (info) in

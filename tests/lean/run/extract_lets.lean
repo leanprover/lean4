@@ -91,7 +91,8 @@ Too many names, linter warning.
 -/
 /--
 warning: unused name
-note: this linter can be disabled with `set_option linter.tactic.unusedName false`
+
+Note: This linter can be disabled with `set_option linter.tactic.unusedName false`
 ---
 trace: z : Nat := 2
 z' : Nat := 1 + 1
@@ -184,7 +185,7 @@ example : (let x := 2; x) = (let y := 2; y) := by
   rfl
 
 /-!
-Works with `have` (`let_fun`)
+Works with `have`
 -/
 /--
 trace: a✝ : Nat := 2
@@ -283,13 +284,13 @@ example : let x := 2; let y := 3; let z := 3; x = 2 + y - z := by
   rfl
 
 /-!
-`-descend` works with `have` (`let_fun`)
+`-descend` works with `have` (`have`)
 -/
 /--
 trace: a✝ : Nat := 2
-⊢ (let_fun x := a✝;
+⊢ (have x := a✝;
     x) =
-    let_fun y := a✝ + 0;
+    have y := a✝ + 0;
     y
 -/
 #guard_msgs in
@@ -651,11 +652,11 @@ example : ∀ n : Nat, n = (let x := n; x) := by
   rfl
 
 /-!
-Same example, but testing `letFun`.
+Same example, but testing `have`.
 -/
 /--
 trace: ⊢ ∀ (n : Nat),
-    let_fun x := n;
+    have x := n;
     n = x
 -/
 #guard_msgs in
@@ -672,7 +673,7 @@ and whether the second is a `have` or `let`.
 -/
 /--
 trace: ⊢ ∀ (n : Nat),
-    let_fun x := n;
+    have x := n;
     x = x
 -/
 #guard_msgs in
@@ -724,8 +725,8 @@ Without merging
 -/
 /--
 trace: ⊢ ∀ (n : Nat),
-    let_fun x := n;
-    let_fun x' := n;
+    have x := n;
+    have x' := n;
     x = x'
 -/
 #guard_msgs in

@@ -6,10 +6,12 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Count
-import Init.Data.List.Find
-import Init.Data.List.MinMax
-import Init.Data.Nat.Lemmas
+public import Init.Data.List.Count
+public import Init.Data.List.Find
+public import Init.Data.List.MinMax
+public import Init.Data.Nat.Lemmas
+
+public section
 
 /-!
 # Miscellaneous `List` lemmas, that require more `Nat` lemmas than are available in `Init.Data.List.Lemmas`.
@@ -26,6 +28,7 @@ namespace List
 
 /-! ### dropLast -/
 
+@[grind _=_]
 theorem tail_dropLast {l : List α} : tail (dropLast l) = dropLast (tail l) := by
   ext1
   simp only [getElem?_tail, getElem?_dropLast, length_tail]
@@ -35,7 +38,7 @@ theorem tail_dropLast {l : List α} : tail (dropLast l) = dropLast (tail l) := b
   · omega
   · rfl
 
-@[simp] theorem dropLast_reverse {l : List α} : l.reverse.dropLast = l.tail.reverse := by
+@[simp, grind _=_] theorem dropLast_reverse {l : List α} : l.reverse.dropLast = l.tail.reverse := by
   apply ext_getElem
   · simp
   · intro i h₁ h₂
@@ -67,7 +70,7 @@ theorem length_filterMap_pos_iff {xs : List α} {f : α → Option β} :
   | cons x xs ih =>
     simp only [filterMap, mem_cons, exists_prop, exists_eq_or_imp]
     split
-    · simp_all [ih]
+    · simp_all
     · simp_all
 
 @[simp]
@@ -114,8 +117,8 @@ section intersperse
 
 variable {l : List α} {sep : α} {i : Nat}
 
-@[simp] theorem length_intersperse : (l.intersperse sep).length = 2 * l.length - 1 := by
-  fun_induction intersperse <;> simp only [intersperse, length_cons, length_nil] at *
+@[simp, grind =] theorem length_intersperse : (l.intersperse sep).length = 2 * l.length - 1 := by
+  fun_induction intersperse <;> simp only [length_cons, length_nil] at *
   rename_i h _
   have := length_pos_iff.mpr h
   omega
@@ -193,7 +196,7 @@ theorem mem_eraseIdx_iff_getElem {x : α} :
   | a::l, 0 => by simp [mem_iff_getElem, Nat.succ_lt_succ_iff]
   | a::l, k+1 => by
     rw [← Nat.or_exists_add_one]
-    simp [mem_eraseIdx_iff_getElem, @eq_comm _ a, succ_inj, Nat.succ_lt_succ_iff]
+    simp [mem_eraseIdx_iff_getElem, @eq_comm _ a, Nat.succ_lt_succ_iff]
 
 theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ i ≠ k, l[i]? = some x := by
   simp only [mem_eraseIdx_iff_getElem, getElem_eq_iff, exists_and_left]

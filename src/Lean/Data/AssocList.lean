@@ -38,7 +38,7 @@ def isEmpty : AssocList α β → Bool
     foldlM f d es
 
 @[inline] def foldl (f : δ → α → β → δ) (init : δ) (as : AssocList α β) : δ :=
-  Id.run (foldlM f init as)
+  Id.run (foldlM (pure <| f · · ·) init as)
 
 def toList (as : AssocList α β) : List (α × β) :=
   as.foldl (init := []) (fun r a b => (a, b)::r) |>.reverse

@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.TreeMap.Raw.Basic
-import Std.Data.TreeSet.Basic
+public import Std.Data.TreeMap.Raw.Basic
+public import Std.Data.TreeSet.Basic
+
+@[expose] public section
 
 /-
 # Tree sets with unbundled well-formedness invariant
@@ -88,7 +92,14 @@ instance : EmptyCollection (Raw α cmp) where
 instance : Inhabited (Raw α cmp) where
   default := ∅
 
-@[simp]
+/-- Two tree sets are equivalent in the sense of Equiv iff all the values are equal. -/
+structure Equiv (m₁ m₂ : Raw α cmp) where
+  /-- Internal implementation detail of the tree map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
+
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : Raw α cmp) = ∅ :=
   rfl
 
@@ -298,7 +309,7 @@ def forIn (f : α → δ → m (ForInStep δ)) (init : δ) (t : Raw α cmp) : m 
 instance : ForM m (Raw α cmp) α where
   forM t f := t.forM f
 
-instance {t : Type w → Type w} : ForIn t (Raw α cmp) α where
+instance : ForIn m (Raw α cmp) α where
   forIn t init f := t.forIn (fun a acc => f a acc) init
 
 @[inline, inherit_doc TreeSet.empty]

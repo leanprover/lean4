@@ -2,7 +2,7 @@ import Prv.Foo
 
 #check { name := "leo", val := 15 : Foo }
 #check { name := "leo", val := 15 : Foo }.name
-/-- error: field 'val' from structure 'Foo' is private -/
+/-- error: Field `val` from structure `Foo` is private -/
 #guard_msgs in
 #check { name := "leo", val := 15 : Foo }.val
 
@@ -15,7 +15,7 @@ error: overloaded, errors ⏎
   failed to synthesize
     EmptyCollection (Name "hello")
   ⏎
-  Additional diagnostic information may be available using the `set_option diagnostics true` command.
+  Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
   ⏎
   invalid {...} notation, constructor for 'Name' is marked as private
 -/

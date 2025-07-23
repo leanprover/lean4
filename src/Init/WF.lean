@@ -6,9 +6,11 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.SizeOf
-import Init.BinderNameHint
-import Init.Data.Nat.Basic
+public import Init.SizeOf
+public import Init.BinderNameHint
+public import Init.Data.Nat.Basic
+
+public section
 
 @[expose] section
 
@@ -42,8 +44,7 @@ noncomputable abbrev Acc.ndrecOn.{u1, u2} {α : Sort u2} {r : α → α → Prop
 namespace Acc
 variable {α : Sort u} {r : α → α → Prop}
 
--- `def` for `WellFounded.fix`
-def inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
+theorem inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
   h₁.recOn (fun _ ac₁ _ h₂ => ac₁ y h₂) h₂
 
 end Acc
@@ -76,8 +77,8 @@ class WellFoundedRelation (α : Sort u) where
   wf  : WellFounded rel
 
 namespace WellFounded
--- `def` for `WellFounded.fix`
-def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
+
+theorem apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
   wf.rec (fun p => p) a
 
 section
@@ -157,21 +158,13 @@ end Subrelation
 namespace InvImage
 variable {α : Sort u} {β : Sort v} {r : β → β → Prop}
 
-private def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x := by
-  induction ac with
-  | intro x acx ih =>
-    intro z e
-    apply Acc.intro
-    intro y lt
-    subst x
-    apply ih (f y) lt y rfl
+theorem accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x :=
+  Acc.recOn ac fun _ _ ih => fun _ e => Acc.intro _ (fun y lt => ih (f y) (e ▸ lt) y rfl)
 
--- `def` for `WellFounded.fix`
-def accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
+theorem accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
   accAux f ac a rfl
 
--- `def` for `WellFounded.fix`
-def wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
+theorem wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
   ⟨fun a => accessible f (apply h (f a))⟩
 end InvImage
 
@@ -255,8 +248,7 @@ abbrev measure {α : Sort u} (f : α → Nat) : WellFoundedRelation α :=
 abbrev sizeOfWFRel {α : Sort u} [SizeOf α] : WellFoundedRelation α :=
   measure sizeOf
 
-instance (priority := low) [SizeOf α] : WellFoundedRelation α :=
-  sizeOfWFRel
+attribute [instance low] sizeOfWFRel
 
 namespace Prod
 open WellFounded

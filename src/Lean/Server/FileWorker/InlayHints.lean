@@ -168,7 +168,7 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
     s.oldInlayHints.filter fun (ihi : Elab.InlayHintInfo) =>
       ! invalidOldInlayHintsRange.contains ihi.position
   let newInlayHints : Array Elab.InlayHintInfo ← (·.2) <$> StateT.run (s := #[]) do
-    for s in snaps[oldFinishedSnaps:] do
+    for s in snaps[oldFinishedSnaps...*] do
       s.infoTree.visitM' (postNode := fun ci i _ => do
         let .ofCustomInfo i := i
           | return
@@ -201,8 +201,8 @@ def handleInlayHintsDidChange (p : DidChangeTextDocumentParams)
 where
 
   updateOldInlayHints (oldInlayHints : Array Elab.InlayHintInfo) : RequestM (Array Elab.InlayHintInfo) := do
-    let meta := (← read).doc.meta
-    let text := meta.text
+    let doc := (← read).doc.meta
+    let text := doc.text
     let mut updatedOldInlayHints := #[]
     for ihi in oldInlayHints do
       let mut ihi := ihi
@@ -211,7 +211,7 @@ where
         let .rangeChange changeRange newText := c
           | return #[] -- `fullChange` => all old inlay hints invalidated
         let changeRange := text.lspRangeToUtf8Range changeRange
-        let some ihi' := applyEditToHint? meta.mod ihi changeRange newText
+        let some ihi' := applyEditToHint? doc.mod ihi changeRange newText
           | -- Change in some position of inlay hint => inlay hint invalidated
             inlayHintInvalidated := true
             break

@@ -20,7 +20,7 @@ def getRelevantCtorFields (ctorName : Name) : CoreM (Array Bool) := do
   Meta.MetaM.run' do
     Meta.forallTelescopeReducing info.type fun xs _ => do
       let mut result := #[]
-      for x in xs[info.numParams:] do
+      for x in xs[info.numParams...*] do
         let type ← Meta.inferType x
         result := result.push !(← Meta.isProp type <||> Meta.isTypeFormerType type)
       return result
@@ -35,6 +35,9 @@ structure TrivialStructureInfo where
   fieldIdx  : Nat
   deriving Inhabited, Repr
 
+builtin_initialize trivialStructureInfoExt : CacheExtension Name (Option TrivialStructureInfo) ←
+  CacheExtension.register
+
 /--
 Return `some fieldIdx` if `declName` is the name of an inductive datatype s.t.
 - It does not have builtin support in the runtime.
@@ -42,13 +45,22 @@ Return `some fieldIdx` if `declName` is the name of an inductive datatype s.t.
 - This constructor has only one computationally relevant field.
 -/
 def hasTrivialStructure? (declName : Name) : CoreM (Option TrivialStructureInfo) := do
-  if isRuntimeBultinType declName then return none
+  match (← trivialStructureInfoExt.find? declName) with
+  | some info? => return info?
+  | none =>
+    let info? ← fillCache
+    trivialStructureInfoExt.insert declName info?
+    return info?
+where fillCache : CoreM (Option TrivialStructureInfo) := do
+  if isRuntimeBuiltinType declName then return none
   let .inductInfo info ← getConstInfo declName | return none
   if info.isUnsafe || info.isRec then return none
   let [ctorName] := info.ctors | return none
+  let ctorType ← getOtherDeclBaseType ctorName []
+  if ctorType.isErased then return none
   let mask ← getRelevantCtorFields ctorName
   let mut result := none
-  for h : i in [:mask.size] do
+  for h : i in *...mask.size do
     if mask[i] then
       if result.isSome then return none
       result := some { ctorName, fieldIdx := i, numParams := info.numParams }
@@ -81,25 +93,22 @@ partial def toMonoType (type : Expr) : CoreM Expr := do
     | .const ``lcErased _ => return erasedExpr
     | _ => mkArrow (← toMonoType d) monoB
   | .sort _ => return erasedExpr
-  | .mdata _ b => toMonoType b
+  | .mdata d b => return .mdata d (← toMonoType b)
   | _ => return anyExpr
 where
   visitApp (f : Expr) (args : Array Expr) : CoreM Expr := do
     match f with
-    | .const ``lcErased _ =>
-      if args.all (·.isErased) then
-        return erasedExpr
-      else
-        return anyExpr
+    | .const ``lcErased _ => return erasedExpr
     | .const ``lcAny _ => return anyExpr
     | .const ``Decidable _ => return mkConst ``Bool
     | .const declName us =>
       if let some info ← hasTrivialStructure? declName then
         let ctorType ← getOtherDeclBaseType info.ctorName []
-        toMonoType (getParamTypes (← instantiateForall ctorType args[:info.numParams]))[info.fieldIdx]!
+        toMonoType (getParamTypes (← instantiateForall ctorType args[*...info.numParams]))[info.fieldIdx]!
       else
         let mut result := mkConst declName
         let mut type ← getOtherDeclBaseType declName us
+        if type.isErased then return erasedExpr
         for arg in args do
           let .forallE _ d b _ := type.headBeta | unreachable!
           let arg := arg.headBeta

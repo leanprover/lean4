@@ -7,8 +7,10 @@ prelude
 import Lake.Util.Name
 import Lake.Util.NativeLib
 import Lake.Config.InstallPath
+import Lake.Config.Cache
 
-open System Lean
+open System
+open Lean hiding SearchPath
 
 /-! # Lake's Environment
 Definitions related to a Lake environment.
@@ -37,6 +39,10 @@ structure Env where
   Can be overridden on a per-command basis with`--try-cache`.
   -/
   noCache : Bool
+  /-- Whether the Lake artifact cache should be enabled by default (i.e., `LAKE_ARTIFACT_CACHE`). -/
+  enableArtifactCache : Bool
+  /-- The directory of the Lake cache. Set by `LAKE_CACHE_DIR`. If `none`, the cache is disabled. -/
+  lakeCache : Cache
   /-- The initial Elan toolchain of the environment (i.e., `ELAN_TOOLCHAIN`). -/
   initToolchain : String
   /-- The initial Lean library search path of the environment (i.e., `LEAN_PATH`). -/
@@ -47,9 +53,52 @@ structure Env where
   initSharedLibPath : SearchPath
   /-- The initial binary search path of the environment (i.e., `PATH`). -/
   initPath : SearchPath
+  /--
+  The preferred toolchain of the environment. May be empty.
+
+  Either `initToolchain` or, if none, Lake's `Lean.toolchain`.
+  -/
+  toolchain : String
   deriving Inhabited
 
+/-- Returns the home directory of the current user (if possible). -/
+def getUserHome? : BaseIO (Option FilePath) := do
+  if System.Platform.isWindows then
+    let some drive ← IO.getEnv "HOMEDRIVE"
+      | return none
+    let some path ← IO.getEnv "HOMEPATH"
+      | return none
+    return drive ++ path
+  else if let some home ← IO.getEnv "HOME" then
+    return home
+  else
+    return none
+
+/-- Returns the system directory that can be used to store caches (if one exists). -/
+def getSystemCacheHome? : BaseIO (Option FilePath) := do
+  if let some cacheHome ← IO.getEnv "XDG_CACHE_HOME" then
+    return FilePath.mk cacheHome
+  else if let some userHome ← getUserHome? then
+    return userHome / ".cache"
+  else
+    return none
+
 namespace Env
+
+/-- Compute the Lean toolchain string used by Lake from the process environment. -/
+def computeToolchain : BaseIO String := do
+  return (← IO.getEnv "ELAN_TOOLCHAIN").getD Lean.toolchain
+
+/-- Compute the cache location used by Lake from the process environment. May be disabled. -/
+def computeCache (elan? : Option ElanInstall) (toolchain : String) : BaseIO Cache := do
+  if let some cacheDir ← IO.getEnv "LAKE_CACHE_DIR" then
+    return ⟨cacheDir⟩
+  else if let some elan := elan? then
+    return ⟨elan.toolchainDir toolchain / "lake" / "cache"⟩
+  else if let some cacheHome ← getSystemCacheHome? then
+    return ⟨cacheHome / "lake"⟩
+  else
+    return ⟨""⟩
 
 /--
 Compute a `Lake.Env` object from the given installs
@@ -60,13 +109,19 @@ def compute
   (noCache : Option Bool := none)
 : EIO String Env := do
   let reservoirBaseUrl ← getUrlD "RESERVOIR_API_BASE_URL" "https://reservoir.lean-lang.org/api"
+  let elanToolchain? ← IO.getEnv "ELAN_TOOLCHAIN"
+  let initToolchain := elanToolchain?.getD ""
+  let toolchain := elanToolchain?.getD Lean.toolchain
   return {
     lake, lean, elan?,
     pkgUrlMap := ← computePkgUrlMap
     reservoirApiUrl := ← getUrlD "RESERVOIR_API_URL" s!"{reservoirBaseUrl}/v1"
     noCache := (noCache <|> (← IO.getEnv "LAKE_NO_CACHE").bind envToBool?).getD false
+    enableArtifactCache := (← IO.getEnv "LAKE_ARTIFACT_CACHE").bind envToBool? |>.getD false
+    lakeCache := ← computeCache elan? toolchain
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
-    initToolchain := (← IO.getEnv "ELAN_TOOLCHAIN").getD ""
+    toolchain
+    initToolchain
     initLeanPath := ← getSearchPath "LEAN_PATH",
     initLeanSrcPath := ← getSearchPath "LEAN_SRC_PATH",
     initSharedLibPath := ← getSearchPath sharedLibPathEnvVar,
@@ -94,13 +149,6 @@ custom builds of Lean.
 -/
 def leanGithash (env : Env) : String :=
   if env.githashOverride.isEmpty then env.lean.githash else env.githashOverride
-
-/--
-The preferred toolchain of the environment. May be empty.
-Tries `env.initToolchain` first and then Lake's `Lean.toolchain`.
--/
-def toolchain (env : Env) : String :=
-  if env.initToolchain.isEmpty then Lean.toolchain else env.initToolchain
 
 /--
 The binary search path of the environment (i.e., `PATH`).
@@ -163,6 +211,9 @@ def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE", env.lake.lake.toString),
     ("LAKE_HOME", env.lake.home.toString),
     ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
+    ("LAKE_NO_CACHE", toString env.noCache),
+    ("LAKE_ARTIFACT_CACHE", toString env.enableArtifactCache),
+    ("LAKE_CACHE_DIR", if env.lakeCache.isDisabled then none else env.lakeCache.dir.toString),
     ("LEAN", env.lean.lean.toString),
     ("LEAN_GITHASH", env.leanGithash),
     ("LEAN_SYSROOT", env.lean.sysroot.toString),

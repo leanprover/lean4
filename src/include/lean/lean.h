@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #define LEAN_USING_STD using namespace std; /* NOLINT */
 extern "C" {
 #else
+#include <stdatomic.h>
 #define  LEAN_USING_STD
 #endif
 
@@ -416,6 +417,11 @@ void free(void *);  // avoid including big `stdlib.h`
 #endif
 
 #if !defined(__STDC_VERSION_STDLIB_H__) || __STDC_VERSION_STDLIB_H__ < 202311L
+#if defined(__GLIBC__) && (defined(__GNUC__) || defined(__clang__))
+// glibc tacks on `__attribute__((nothrow))` to its declarations. In C++ this requires either
+// `__attribute__((nothrow))` to be present or `noexcept`.
+__attribute__((nothrow))
+#endif
 void free_sized(void* ptr, size_t);
 #endif
 
@@ -478,23 +484,20 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
     return (_Atomic(int)*)(&(o->m_rc));
 }
 
-LEAN_EXPORT void lean_inc_ref_cold(lean_object * o);
-LEAN_EXPORT void lean_inc_ref_n_cold(lean_object * o, unsigned n);
-
-static inline void lean_inc_ref(lean_object * o) {
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        o->m_rc++;
-    } else if (o->m_rc != 0) {
-        lean_inc_ref_cold(o);
-    }
-}
-
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc += n;
     } else if (o->m_rc != 0) {
-        lean_inc_ref_n_cold(o, n);
+#ifdef __cplusplus
+        std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
+#else
+        atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
+#endif
     }
+}
+
+static inline void lean_inc_ref(lean_object * o) {
+    lean_inc_ref_n(o, 1);
 }
 
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);

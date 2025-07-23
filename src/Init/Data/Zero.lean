@@ -6,7 +6,9 @@ Authors: Gabriel Ebner, Mario Carneiro
 module
 
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 
 /-!
 Instances converting between `Zero α` and `OfNat α (nat_lit 0)`.
@@ -34,6 +36,7 @@ The fundamental power operation in a monoid.
 This function should not be used directly; it is often used to implement a `Pow M Nat` instance,
 but end users should use the `a ^ n` notation instead.
 -/
+@[expose]
 def npowRec [One M] [Mul M] : Nat → M → M
   | 0, _ => 1
   | n + 1, a => npowRec n a * a

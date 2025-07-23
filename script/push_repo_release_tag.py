@@ -3,6 +3,32 @@ import sys
 import subprocess
 import requests
 
+def check_gh_auth():
+    """Check if GitHub CLI is properly authenticated."""
+    try:
+        result = subprocess.run(["gh", "auth", "status"], capture_output=True, text=True)
+        if result.returncode != 0:
+            return False, result.stderr
+        return True, None
+    except FileNotFoundError:
+        return False, "GitHub CLI (gh) is not installed. Please install it first."
+    except Exception as e:
+        return False, f"Error checking authentication: {e}"
+
+def handle_gh_error(error_output):
+    """Handle GitHub CLI errors and provide helpful messages."""
+    if "Not Found (HTTP 404)" in error_output:
+        return "Repository not found or access denied. Please check:\n" \
+               "1. The repository name is correct\n" \
+               "2. You have access to the repository\n" \
+               "3. Your GitHub CLI authentication is valid"
+    elif "Bad credentials" in error_output or "invalid" in error_output.lower():
+        return "Authentication failed. Please run 'gh auth login' to re-authenticate."
+    elif "rate limit" in error_output.lower():
+        return "GitHub API rate limit exceeded. Please try again later."
+    else:
+        return f"GitHub API error: {error_output}"
+
 def main():
     if len(sys.argv) != 4:
         print("Usage: ./push_repo_release_tag.py <repo> <branch> <version_tag>")
@@ -12,6 +38,13 @@ def main():
 
     if branch not in {"master", "main"}:
         print(f"Error: Branch '{branch}' is not 'master' or 'main'.")
+        sys.exit(1)
+
+    # Check GitHub CLI authentication first
+    auth_ok, auth_error = check_gh_auth()
+    if not auth_ok:
+        print(f"Authentication error: {auth_error}")
+        print("\nTo fix this, run: gh auth login")
         sys.exit(1)
 
     # Get the `lean-toolchain` file content
@@ -43,12 +76,23 @@ def main():
                 for tag in existing_tags:
                     print(tag.replace("refs/tags/", ""))
                 sys.exit(1)
+        elif list_tags_output.returncode != 0:
+            # Handle API errors when listing tags
+            error_msg = handle_gh_error(list_tags_output.stderr)
+            print(f"Error checking existing tags: {error_msg}")
+            sys.exit(1)
 
         # Get the SHA of the branch
         get_sha_cmd = [
             "gh", "api", f"repos/{repo}/git/ref/heads/{branch}", "--jq", ".object.sha"
         ]
-        sha_result = subprocess.run(get_sha_cmd, capture_output=True, text=True, check=True)
+        sha_result = subprocess.run(get_sha_cmd, capture_output=True, text=True)
+        
+        if sha_result.returncode != 0:
+            error_msg = handle_gh_error(sha_result.stderr)
+            print(f"Error getting branch SHA: {error_msg}")
+            sys.exit(1)
+            
         sha = sha_result.stdout.strip()
 
         # Create the tag
@@ -58,11 +102,20 @@ def main():
             "-F", f"ref=refs/tags/{version_tag}",
             "-F", f"sha={sha}"
         ]
-        subprocess.run(create_tag_cmd, capture_output=True, text=True, check=True)
+        create_result = subprocess.run(create_tag_cmd, capture_output=True, text=True)
+        
+        if create_result.returncode != 0:
+            error_msg = handle_gh_error(create_result.stderr)
+            print(f"Error creating tag: {error_msg}")
+            sys.exit(1)
 
         print(f"Successfully created and pushed tag '{version_tag}' to {repo}.")
     except subprocess.CalledProcessError as e:
-        print(f"Error while creating/pushing tag: {e.stderr.strip() if e.stderr else e}")
+        error_msg = handle_gh_error(e.stderr.strip() if e.stderr else str(e))
+        print(f"Error while creating/pushing tag: {error_msg}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

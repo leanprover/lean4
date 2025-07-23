@@ -6,9 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
-import Init.Data.Int.Basic
-import Init.Data.ToString.Basic
+public import Init.Core
+public import Init.Data.Int.Basic
+public import Init.Data.ToString.Basic
+
+public section
 
 structure FloatSpec where
   float : Type
@@ -161,8 +163,7 @@ This function does not reduce in the kernel. It is compiled to the C inequality 
   match a, b with
   | ⟨a⟩, ⟨b⟩ => floatSpec.decLe a b
 
-instance floatDecLt (a b : Float) : Decidable (a < b) := Float.decLt a b
-instance floatDecLe (a b : Float) : Decidable (a ≤ b) := Float.decLe a b
+attribute [instance] Float.decLt Float.decLe
 
 /--
 Converts a floating-point number to a string.

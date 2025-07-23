@@ -20,7 +20,7 @@ def a : A := ⟨ 0 ⟩
 def b : B := { a with }
 /--
 info: def b : B :=
-let __src := a;
+have __src := a;
 { toA := __src }
 -/
 #guard_msgs in #print b
@@ -28,7 +28,7 @@ let __src := a;
 def c : C := { a with }
 /--
 info: def c : C :=
-let __src := a;
+have __src := a;
 { toB := { toA := __src } }
 -/
 #guard_msgs in #print c
@@ -36,7 +36,7 @@ let __src := a;
 def d : D := { c with }
 /--
 info: def d : D :=
-let __src := c;
+have __src := c;
 { toB := __src.toB }
 -/
 #guard_msgs in #print d

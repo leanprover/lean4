@@ -17,8 +17,9 @@ Build info is what is the data passed to a Lake build function to facilitate
 the build.
 -/
 
+open System Lean
+
 namespace Lake
-open Lean (Name)
 
 /-- The type of Lake's build info. -/
 inductive BuildInfo
@@ -130,6 +131,22 @@ data_type extern_lib : ExternLib
 data_type input_file : InputFile
 data_type input_dir : InputDir
 
+/-- An import statement with its resolved module within the workspace. -/
+structure ModuleImport extends Import where
+  module? : Option Module
+
+/-- A module's source file path plus its parsed header. -/
+structure ModuleInput where
+  path : FilePath
+  header : ModuleHeader
+  imports : Array ModuleImport
+
+/--
+The module's processed Lean source file.
+Combines tracing the file with parsing its header.
+-/
+builtin_facet input : Module => ModuleInput
+
 /-- The direct local imports of the Lean module. -/
 builtin_facet imports : Module => Array Module
 
@@ -177,6 +194,15 @@ abbrev BuildInfo.moduleFacet (module : Module) (facet : Name) : BuildInfo :=
 
 namespace Module
 
+@[inherit_doc inputFacet] abbrev input (self : Module) :=
+  self.facetCore inputFacet
+
+@[inherit_doc leanFacet] abbrev lean (self : Module) :=
+  self.facetCore leanFacet
+
+@[inherit_doc headerFacet] abbrev header (self : Module) :=
+  self.facetCore headerFacet
+
 @[inherit_doc importsFacet] abbrev imports (self : Module) :=
   self.facetCore importsFacet
 
@@ -186,17 +212,41 @@ namespace Module
 @[inherit_doc precompileImportsFacet] abbrev precompileImports (self : Module) :=
   self.facetCore precompileImportsFacet
 
+@[inherit_doc setupFacet] abbrev setup  (self : Module) :=
+  self.facetCore setupFacet
+
 @[inherit_doc depsFacet] abbrev deps  (self : Module) :=
   self.facetCore depsFacet
 
-@[inherit_doc leanArtsFacet] abbrev leanArts  (self : Module) :=
+@[inherit_doc importInfoFacet] abbrev importInfo (self : Module) :=
+  self.facetCore importInfoFacet
+
+@[inherit_doc exportInfoFacet] abbrev exportInfo (self : Module) :=
+  self.facetCore exportInfoFacet
+
+@[inherit_doc importArtsFacet] abbrev importArts (self : Module) :=
+  self.facetCore importArtsFacet
+
+@[inherit_doc importAllArtsFacet] abbrev importAllArts (self : Module) :=
+  self.facetCore importAllArtsFacet
+
+@[inherit_doc leanArtsFacet] abbrev leanArts (self : Module) :=
   self.facetCore leanArtsFacet
 
 @[inherit_doc oleanFacet] abbrev olean (self : Module) :=
   self.facetCore oleanFacet
 
+@[inherit_doc oleanServerFacet] abbrev oleanServer (self : Module) :=
+  self.facetCore oleanServerFacet
+
+@[inherit_doc oleanPrivateFacet] abbrev oleanPrivate (self : Module) :=
+  self.facetCore oleanPrivateFacet
+
 @[inherit_doc ileanFacet] abbrev ilean (self : Module)  :=
   self.facetCore ileanFacet
+
+@[inherit_doc irFacet] abbrev ir (self : Module) :=
+  self.facetCore irFacet
 
 @[inherit_doc cFacet] abbrev c (self : Module) :=
   self.facetCore cFacet

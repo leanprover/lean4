@@ -3,8 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Internal.WF
+import all Std.Data.Internal.List.Associative
+import all Std.Data.DHashMap.Internal.Defs
+public import Std.Data.DHashMap.Internal.WF
+import all Std.Data.DHashMap.Raw
+meta import all Std.Data.DHashMap.Basic
+
+public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -73,7 +81,7 @@ namespace Raw₀
 variable (m : Raw₀ α β)
 
 @[simp]
-theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.size = 0 := rfl
+theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.size = 0 := (rfl)
 
 set_option linter.missingDocs false in
 @[deprecated size_emptyWithCapacity (since := "2025-03-12")]
@@ -1210,12 +1218,12 @@ theorem insertMany_ind {motive : Raw₀ α β → Prop} (m : Raw₀ α β) (l : 
 @[simp]
 theorem insertMany_nil :
     m.insertMany [] = m := by
-  simp [insertMany, Id.run]
+  simp [insertMany]
 
 @[simp]
 theorem insertMany_list_singleton {k : α} {v : β k} :
     m.insertMany [⟨k, v⟩] = m.insert k v := by
-  simp [insertMany, Id.run]
+  simp [insertMany]
 
 theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     (m.insertMany (⟨k, v⟩ :: l)).1 = ((m.insert k v).insertMany l).1 := by
@@ -1412,12 +1420,12 @@ theorem insertMany_ind {motive : Raw₀ α (fun _ => β) → Prop} (m : Raw₀ �
 @[simp]
 theorem insertMany_nil :
     insertMany m [] = m := by
-  simp [insertMany, Id.run]
+  simp [insertMany]
 
 @[simp]
 theorem insertMany_list_singleton {k : α} {v : β} :
     insertMany m [⟨k, v⟩] = m.insert k v := by
-  simp [insertMany, Id.run]
+  simp [insertMany]
 
 theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
     (insertMany m (⟨k, v⟩ :: l)).1 = (insertMany (m.insert k v) l).1 := by
@@ -1613,12 +1621,12 @@ theorem insertManyIfNewUnit_ind {motive : Raw₀ α (fun _ => Unit) → Prop}
 @[simp]
 theorem insertManyIfNewUnit_nil :
     insertManyIfNewUnit m [] = m := by
-  simp [insertManyIfNewUnit, Id.run]
+  simp [insertManyIfNewUnit]
 
 @[simp]
 theorem insertManyIfNewUnit_list_singleton {k : α} :
     insertManyIfNewUnit m [k] = m.insertIfNew k () := by
-  simp [insertManyIfNewUnit, Id.run]
+  simp [insertManyIfNewUnit]
 
 theorem insertManyIfNewUnit_cons {l : List α} {k : α} :
     (insertManyIfNewUnit m (k :: l)).1 = (insertManyIfNewUnit (m.insertIfNew k ()) l).1 := by

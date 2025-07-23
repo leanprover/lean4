@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+public import Std.Sat.AIG.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+
+@[expose] public section
 
 /-!
 This module contains basic infrastructure for converting between variable assignments of `BVExpr`

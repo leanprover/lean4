@@ -379,7 +379,7 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := wi
     if let some info ← getMatcherInfo? c then
       if inst.getAppNumArgs == info.arity then
         let args := inst.getAppArgs
-        for i in [0:info.numDiscrs] do
+        for i in *...info.numDiscrs do
           let inst' := args[info.numParams + 1 + i]!
           if (← Meta.isClass? (← inferType inst')) == ``Decidable then
             let inst'' ← whnf inst'
@@ -514,21 +514,19 @@ where
           reduction got stuck at the '{.ofConstName ``Decidable}' instance{indentExpr reason}"
       let hint :=
         if reason.isAppOf ``Eq.rec then
-          m!"\n\n\
-          Hint: Reduction got stuck on '▸' ({.ofConstName ``Eq.rec}), \
-          which suggests that one of the '{.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
-          To avoid tactics, make use of functions such as \
-          '{.ofConstName ``inferInstanceAs}' or '{.ofConstName ``decidable_of_decidable_of_iff}' \
-          to alter a proposition."
+          .hint' m!"Reduction got stuck on '▸' ({.ofConstName ``Eq.rec}), \
+            which suggests that one of the '{.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
+            To avoid tactics, make use of functions such as \
+            '{.ofConstName ``inferInstanceAs}' or '{.ofConstName ``decidable_of_decidable_of_iff}' \
+            to alter a proposition."
         else if reason.isAppOf ``Classical.choice then
-          m!"\n\n\
-          Hint: Reduction got stuck on '{.ofConstName ``Classical.choice}', \
-          which indicates that a '{.ofConstName ``Decidable}' instance \
-          is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
-          The '{tacticName}' tactic works by evaluating a decision procedure via reduction, \
-          and it cannot make progress with such instances. \
-          This can occur due to the 'opened scoped Classical' command, which enables the instance \
-          '{.ofConstName ``Classical.propDecidable}'."
+          .hint' m!"Reduction got stuck on '{.ofConstName ``Classical.choice}', \
+            which indicates that a '{.ofConstName ``Decidable}' instance \
+            is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
+            The '{tacticName}' tactic works by evaluating a decision procedure via reduction, \
+            and it cannot make progress with such instances. \
+            This can occur due to the 'opened scoped Classical' command, which enables the instance \
+            '{.ofConstName ``Classical.propDecidable}'."
         else
           MessageData.nil
       return m!"\

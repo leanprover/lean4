@@ -72,7 +72,7 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
 
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
-  let name := Name.str declName unfoldThmSuffix
+  let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
   realizeConst declName name (doRealize name)
   return name
 where
@@ -97,6 +97,7 @@ where
         catch e =>
           throwError "failed to generate unfold theorem for '{declName}':\n{e.toMessageData}"
       let type ← mkForallFVars xs type
+      let type ← letToHave type
       let value ← mkLambdaFVars xs goal
       addDecl <| Declaration.thmDecl {
         name, type, value
@@ -104,7 +105,7 @@ where
       }
 
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
-  let name := Name.str declName unfoldThmSuffix
+  let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
   let env ← getEnv
   if env.contains name then return name
   let some info := eqnInfoExt.find? env declName | return none

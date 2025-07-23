@@ -29,6 +29,14 @@ builtin_initialize monotoneExt :
     initial := {}
   }
 
+/--
+Registers a monotonicity theorem for `partial_fixpoint`.
+
+Monotonicity theorems should have `Lean.Order.monotone ...` as a conclusion. They are used in the
+`monotonicity` tactic (scoped in the `Lean.Order` namespace) to automatically prove monotonicity
+for functions defined using `partial_fixpoint`.
+-/
+@[builtin_doc]
 builtin_initialize registerBuiltinAttribute {
   name := `partial_fixpoint_monotone
   descr := "monotonicity theorem"
@@ -57,7 +65,7 @@ private def defaultFailK (f : Expr) (monoThms : Array Name) : MetaM α :=
   throwError "Failed to prove monotonicity of:{indentExpr f}\n{extraMsg}"
 
 private def applyConst (goal : MVarId) (name : Name) : MetaM (List MVarId) := do
-  mapError (f := (m!"Could not apply {.ofConstName name}:{indentD ·}")) do
+  prependError m!"Could not apply {.ofConstName name}:" do
     goal.applyConst name (cfg := { synthAssignedInstances := false})
 
 /--
@@ -103,7 +111,7 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
     return [goal]
 
   match_expr type with
-  | monotone α inst_α β inst_β f =>
+  | monotone α inst_α _ _ f =>
     -- Ensure f is not headed by a redex and headed by at least one lambda, and clean some
     -- redexes left by some of the lemmas we tend to apply
     let f ← instantiateMVars f
@@ -126,7 +134,7 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
       return [goal'.mvarId!]
 
     -- Handle let
-    if let .letE n t v b _nonDep := e then
+    if let .letE n t v b nondep := e then
       if t.hasLooseBVars || v.hasLooseBVars then
         -- We cannot float the let to the context, so just zeta-reduce.
         let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 v)
@@ -135,32 +143,12 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
         return [goal'.mvarId!]
       else
         -- No recursive call in t or v, so float out
-        let goal' ← withLetDecl n t v fun x => do
+        let goal' ← withLetDecl n t v (nondep := nondep) fun x => do
           let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 x)
           let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp type.appFn! b')
-          goal.assign (← mkLetFVars #[x] goal')
+          goal.assign (← mkLetFVars (generalizeNondepLet := false) #[x] goal')
           pure goal'
         return [goal'.mvarId!]
-
-    -- Float `letFun` to the environment.
-    -- (cannot use `applyConst`, it tends to reduce the let redex)
-    match_expr e with
-    | letFun γ _ v b =>
-      if γ.hasLooseBVars || v.hasLooseBVars then
-        failK f #[]
-      let b' := f.updateLambdaE! f.bindingDomain! b
-      let p  ← mkAppOptM ``monotone_letFun #[α, β, γ, inst_α, inst_β, v, b']
-      let new_goals ← mapError (f := (m!"Could not apply {p}:{indentD ·}")) do
-        goal.apply p
-      let [new_goal] := new_goals
-          | throwError "Unexpected number of goals after {.ofConstName ``monotone_letFun}."
-      let (_, new_goal) ←
-        if b.isLambda then
-          new_goal.intro b.bindingName!
-        else
-          new_goal.intro1
-      return [new_goal]
-    | _ => pure ()
 
     -- Handle lambdas, preserving the name of the binder
     if e.isLambda then
@@ -200,7 +188,7 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
     if let some info := isMatcherAppCore? (← getEnv) e then
       let candidate ← id do
         let args := e.getAppArgs
-        for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+        for i in info.getFirstDiscrPos...(info.getFirstDiscrPos + info.numDiscrs) do
           if args[i]!.hasLooseBVars then
             return false
         return true

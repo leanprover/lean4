@@ -6,8 +6,10 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Lemmas
-import Init.Data.List.Pairwise
+public import Init.Data.List.Lemmas
+public import Init.Data.List.Pairwise
+
+public section
 
 /-!
 # Lemmas about `List.min?` and `List.max?.

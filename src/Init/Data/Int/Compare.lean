@@ -6,8 +6,10 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro, Paul Reichert
 module
 
 prelude
-import all Init.Data.Ord
-import Init.Data.Int.Order
+public import all Init.Data.Ord
+public import Init.Data.Int.Order
+
+public section
 
 /-! # Basic lemmas about comparing integers
 
@@ -37,7 +39,7 @@ theorem compare_eq_ite_le (a b : Int) :
   · next hlt => simp [Int.le_of_lt hlt, Int.not_le.2 hlt]
   · next hge =>
     split
-    · next hgt => simp [Int.le_of_lt hgt, Int.not_le.2 hgt]
+    · next hgt => simp [Int.not_le.2 hgt]
     · next hle => simp [Int.not_lt.1 hge, Int.not_lt.1 hle]
 
 protected theorem compare_swap (a b : Int) : (compare a b).swap = compare b a := by

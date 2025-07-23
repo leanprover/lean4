@@ -5,7 +5,6 @@ Authors: Marc Huisinga
 -/
 prelude
 import Lean.Data.NameTrie
-import Lean.Util.Paths
 import Lean.Util.LakePath
 import Lean.Server.Completion.CompletionItemData
 import Lean.Parser.Module
@@ -24,15 +23,16 @@ def AvailableImports.toImportTrie (imports : AvailableImports) : ImportTrie := I
     importTrie := importTrie.insert i i
   return importTrie
 
-/-- Checks whether `completionPos` points at the position after an incomplete `import` statement. -/
 def isImportNameCompletionRequest (headerStx : TSyntax ``Parser.Module.header) (completionPos : String.Pos) : Bool := Id.run do
   let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
     | return false
   return importsStx.any fun importStx => Id.run do
     let importStx := importStx.raw
-    let importCmd := importStx[1]
-    let allTk? := importStx[2].getOptional?
-    let importId := importStx[3]
+    -- `importStx[0] == "private"?`
+    -- `importStx[1] == "meta"?`
+    let importCmd := importStx[2]
+    let allTk? := importStx[3].getOptional?
+    let importId := importStx[4]
     let keywordsTailPos := allTk?.bind (·.getTailPos?) <|> importCmd.getTailPos?
     return importId.isMissing && keywordsTailPos.isSome && completionPos == keywordsTailPos.get! + ' '
 
@@ -52,7 +52,7 @@ def computePartialImportCompletions
   let `(Parser.Module.header| $[module]? $[prelude]? $importsStx*) := headerStx
     | return #[]
   let some (completePrefix, incompleteSuffix) := importsStx.findSome? fun importStx => do
-      let `(Parser.Module.«import»| $[private]? import $[all]? $importId $[.%$trailingDotTk?$_]?) := importStx
+      let `(Parser.Module.«import»| $[public]? $[meta]? import $[all]? $importId $[.%$trailingDotTk?$_]?) := importStx
         | unreachable!
       match trailingDotTk? with
       | none =>

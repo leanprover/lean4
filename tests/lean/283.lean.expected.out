@@ -1,8 +1,8 @@
-283.lean:1:24-1:25: error: Application type mismatch: In the application
-  f f
-the argument
+283.lean:1:24-1:25: error: Application type mismatch: The argument
   f
 has type
-  ?m : Sort ?u
-but is expected to have type
-  optParam (Sort ?u) t : Type ?u
+  ?m
+of sort `Sort ?u` but is expected to have type
+  optParam (Sort ?u) t
+of sort `Type ?u` in the application
+  f f

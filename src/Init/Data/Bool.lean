@@ -6,7 +6,9 @@ Authors: F. G. Dorais
 module
 
 prelude
-import Init.NotationExtra
+public import Init.NotationExtra
+
+public section
 
 
 namespace Bool
@@ -434,9 +436,9 @@ Converts `true` to `1` and `false` to `0`.
 -/
 @[expose] def toNat (b : Bool) : Nat := cond b 1 0
 
-@[simp, bitvec_to_nat] theorem toNat_false : false.toNat = 0 := rfl
+@[simp, bitvec_to_nat, grind =] theorem toNat_false : false.toNat = 0 := rfl
 
-@[simp, bitvec_to_nat] theorem toNat_true : true.toNat = 1 := rfl
+@[simp, bitvec_to_nat, grind =] theorem toNat_true : true.toNat = 1 := rfl
 
 theorem toNat_le (c : Bool) : c.toNat ≤ 1 := by
   cases c <;> trivial
@@ -455,11 +457,11 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-def toInt (b : Bool) : Int := cond b 1 0
+@[expose] def toInt (b : Bool) : Int := cond b 1 0
 
-@[simp] theorem toInt_false : false.toInt = 0 := rfl
+@[simp, grind =] theorem toInt_false : false.toInt = 0 := rfl
 
-@[simp] theorem toInt_true : true.toInt = 1 := rfl
+@[simp, grind =] theorem toInt_true : true.toInt = 1 := rfl
 
 /-! ### ite -/
 
@@ -488,7 +490,7 @@ def toInt (b : Bool) : Int := cond b 1 0
 
 @[simp] theorem ite_eq_true_else_eq_false {q : Prop} :
     (if b = true then q else b = false) ↔ (b = true → q) := by
-  cases b <;> simp [not_eq_self]
+  cases b <;> simp
 
 /-
 `not_ite_eq_true_eq_true` and related theorems below are added for

@@ -6,8 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Fin.Basic
-import Init.Data.BitVec.BasicAux
+public import Init.Data.Fin.Basic
+public import Init.Data.BitVec.BasicAux
+
+public section
 
 @[expose] section
 
@@ -220,7 +222,7 @@ instance UInt32.instOfNat : OfNat UInt32 n := ⟨UInt32.ofNat n⟩
 
 theorem UInt32.ofNatLT_lt_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
      n < m → UInt32.ofNatLT n h1 < UInt32.ofNat m := by
-  simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.ofNat',
+  simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.ofNat,
     Nat.mod_eq_of_lt h2, imp_self]
 
 @[deprecated UInt32.ofNatLT_lt_of_lt (since := "2025-02-13")]
@@ -229,7 +231,7 @@ theorem UInt32.ofNat'_lt_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt
 
 theorem UInt32.lt_ofNatLT_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
      m < n → UInt32.ofNat m < UInt32.ofNatLT n h1 := by
-  simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.ofNat',
+  simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.ofNat,
     Nat.mod_eq_of_lt h2, imp_self]
 
 @[deprecated UInt32.lt_ofNatLT_of_lt (since := "2025-02-13")]
@@ -336,9 +338,6 @@ theorem usize_size_eq : USize.size = 4294967296 ∨ USize.size = 184467440737095
 theorem usize_size_pos : 0 < USize.size :=
   USize.size_pos
 
-@[deprecated USize.size_pos (since := "2024-11-24")] theorem usize_size_gt_zero : USize.size > 0 :=
-  USize.size_pos
-
 /-- Converts a `USize` into the corresponding `Fin USize.size`. -/
 def USize.toFin (x : USize) : Fin USize.size := x.toBitVec.toFin
 @[deprecated USize.toFin (since := "2025-02-12"), inherit_doc USize.toFin]
@@ -437,5 +436,4 @@ Examples:
 def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 
-instance (a b : USize) : Decidable (a < b) := USize.decLt a b
-instance (a b : USize) : Decidable (a ≤ b) := USize.decLe a b
+attribute [instance] USize.decLt USize.decLe

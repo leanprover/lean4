@@ -190,7 +190,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
                 | $[some $ids:ident],* => $(quote inner)
                 | $[_%$ids],*          => Array.empty)
             | _ =>
-              let arr ← ids[:ids.size - 1].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back!
+              let arr ← ids[*...(ids.size - 1)].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back!
               `(Array.map (fun $(← mkTuple ids) => $(inner[0]!)) $arr)
           let arr ← if k == `sepBy then
             `(mkSepArray $arr $(getSepStxFromSplice arg))
@@ -655,7 +655,7 @@ The parameter `alts` provides position information for alternatives.
 -/
 private def checkUnusedAlts (stx : Syntax) (alts : Array Syntax) (altIdxMap : NameMap Nat) (ignoreIfUnused : IdxSet) : TermElabM Syntax := do
   let (stx, used) ← findUsedAlts stx altIdxMap
-  for h : i in [:alts.size] do
+  for h : i in *...alts.size do
     unless used.contains i || ignoreIfUnused.contains i do
       logErrorAt alts[i] s!"redundant alternative #{i+1}"
   return stx

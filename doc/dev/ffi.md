@@ -68,7 +68,7 @@ The memory order of the fields is derived from the types and order of the fields
 * Fields of type `USize`
 * Other scalar fields, in decreasing order by size
 
-Within each group the fields are ordered in declaration order. **Warning**: Trivial wrapper types still count toward a field being treated as non-scalar for this purpose.
+Within each group the fields are ordered in declaration order. Trivial wrapper types count as their underlying wrapped type for this purpose.
 
 * To access fields of the first kind, use `lean_ctor_get(val, i)` to get the `i`th non-scalar field.
 * To access `USize` fields, use `lean_ctor_get_usize(val, n+i)` to get the `i`th usize field and `n` is the total number of fields of the first kind.
@@ -80,32 +80,32 @@ structure S where
   ptr_1 : Array Nat
   usize_1 : USize
   sc64_1 : UInt64
-  ptr_2 : { x : UInt64 // x > 0 } -- wrappers don't count as scalars
-  sc64_2 : Float -- `Float` is 64 bit
+  sc64_2 : { x : UInt64 // x > 0 } -- wrappers of scalars count as scalars
+  sc64_3 : Float -- `Float` is 64 bit
   sc8_1 : Bool
   sc16_1 : UInt16
   sc8_2 : UInt8
-  sc64_3 : UInt64
+  sc64_4 : UInt64
   usize_2 : USize
-  ptr_3 : Char -- trivial wrapper around `UInt32`
-  sc32_1 : UInt32
+  sc32_1 : Char -- trivial wrapper around `UInt32`
+  sc32_2 : UInt32
   sc16_2 : UInt16
 ```
 would get re-sorted into the following memory order:
 
 * `S.ptr_1` - `lean_ctor_get(val, 0)`
-* `S.ptr_2` - `lean_ctor_get(val, 1)`
-* `S.ptr_3` - `lean_ctor_get(val, 2)`
-* `S.usize_1` - `lean_ctor_get_usize(val, 3)`
-* `S.usize_2` - `lean_ctor_get_usize(val, 4)`
-* `S.sc64_1` - `lean_ctor_get_uint64(val, sizeof(void*)*5)`
-* `S.sc64_2` - `lean_ctor_get_float(val, sizeof(void*)*5 + 8)`
-* `S.sc64_3` - `lean_ctor_get_uint64(val, sizeof(void*)*5 + 16)`
-* `S.sc32_1` - `lean_ctor_get_uint32(val, sizeof(void*)*5 + 24)`
-* `S.sc16_1` - `lean_ctor_get_uint16(val, sizeof(void*)*5 + 28)`
-* `S.sc16_2` - `lean_ctor_get_uint16(val, sizeof(void*)*5 + 30)`
-* `S.sc8_1` - `lean_ctor_get_uint8(val, sizeof(void*)*5 + 32)`
-* `S.sc8_2` - `lean_ctor_get_uint8(val, sizeof(void*)*5 + 33)`
+* `S.usize_1` - `lean_ctor_get_usize(val, 1)`
+* `S.usize_2` - `lean_ctor_get_usize(val, 2)`
+* `S.sc64_1` - `lean_ctor_get_uint64(val, sizeof(void*)*3)`
+* `S.sc64_2` - `lean_ctor_get_uint64(val, sizeof(void*)*3 + 8)`
+* `S.sc64_3` - `lean_ctor_get_float(val, sizeof(void*)*3 + 16)`
+* `S.sc64_4` - `lean_ctor_get_uint64(val, sizeof(void*)*3 + 24)`
+* `S.sc32_1` - `lean_ctor_get_uint32(val, sizeof(void*)*3 + 32)`
+* `S.sc32_2` - `lean_ctor_get_uint32(val, sizeof(void*)*3 + 36)`
+* `S.sc16_1` - `lean_ctor_get_uint16(val, sizeof(void*)*3 + 40)`
+* `S.sc16_2` - `lean_ctor_get_uint16(val, sizeof(void*)*3 + 42)`
+* `S.sc8_1` - `lean_ctor_get_uint8(val, sizeof(void*)*3 + 44)`
+* `S.sc8_2` - `lean_ctor_get_uint8(val, sizeof(void*)*3 + 45)`
 
 ### Borrowing
 
@@ -131,14 +131,21 @@ Thus `[init]` functions are run iff their module is imported, regardless of whet
 
 The initializer for module `A.B` is called `initialize_A_B` and will automatically initialize any imported modules.
 Module initializers are idempotent (when run with the same `builtin` flag), but not thread-safe.
+
+**Important for process-related functionality**: If your application needs to use process-related functions from libuv, such as `Std.Internal.IO.Process.getProcessTitle` and `Std.Internal.IO.Process.setProcessTitle`, you must call `lean_setup_args(argc, argv)` (which returns a potentially modified `argv` that must be used in place of the original) **before** calling `lean_initialize()` or `lean_initialize_runtime_module()`. This sets up process handling capabilities correctly, which is essential for certain system-level operations that Lean's runtime may depend on.
+
 Together with initialization of the Lean runtime, you should execute code like the following exactly once before accessing any Lean declarations:
+
 ```c
 void lean_initialize_runtime_module();
 void lean_initialize();
+char ** lean_setup_args(int argc, char ** argv);
+
 lean_object * initialize_A_B(uint8_t builtin, lean_object *);
 lean_object * initialize_C(uint8_t builtin, lean_object *);
 ...
 
+argv = lean_setup_args(argc, argv); // if using process-related functionality
 lean_initialize_runtime_module();
 //lean_initialize();  // necessary (and replaces `lean_initialize_runtime_module`) if you (indirectly) access the `Lean` package
 

@@ -81,7 +81,7 @@ where
       let alt ← forallTelescopeReducing ctorInfo.type fun xs _ => do
         let mut patterns := #[]
         -- add `_` pattern for indices, before the constructor's pattern
-        for _ in [:indVal.numIndices] do
+        for _ in *...indVal.numIndices do
           patterns := patterns.push (← `(_))
         let mut ctorArgs := #[]
         let mut rhsArgs : Array Term := #[]
@@ -93,11 +93,11 @@ where
           else
             ``(toExpr $a)
         -- add `_` pattern for inductive parameters, which are inaccessible
-        for i in [:ctorInfo.numParams] do
+        for i in *...ctorInfo.numParams do
           let a := mkIdent header.argNames[i]!
           ctorArgs := ctorArgs.push (← `(_))
           rhsArgs := rhsArgs.push <| ← mkArg xs[i]! a
-        for i in [:ctorInfo.numFields] do
+        for i in *...ctorInfo.numFields do
           let a := mkIdent (← mkFreshUserName `a)
           ctorArgs := ctorArgs.push a
           rhsArgs := rhsArgs.push <| ← mkArg xs[ctorInfo.numParams + i]! a
@@ -123,9 +123,9 @@ def mkLocalInstanceLetDecls (ctx : Deriving.Context) (argNames : Array Name) (le
   for indVal in ctx.typeInfos, auxFunName in ctx.auxFunNames do
     let currArgNames ← mkInductArgNames indVal
     let numParams    := indVal.numParams
-    let currIndices  := currArgNames[numParams:]
+    let currIndices  := currArgNames[numParams...*]
     let binders      ← mkImplicitBinders currIndices
-    let argNamesNew  := argNames[:numParams] ++ currIndices
+    let argNamesNew  := argNames[*...numParams] ++ currIndices
     let indType      ← mkInductiveApp indVal argNamesNew
     let instName     ← mkFreshUserName `localinst
     let toTypeExpr   ← mkToTypeExpr indVal argNames
@@ -178,7 +178,7 @@ Wraps the resulting definition commands in `mutual ... end`.
 -/
 def mkAuxFunctions (ctx : Deriving.Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
-  for i in [:ctx.typeInfos.size] do
+  for i in *...ctx.typeInfos.size do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
   `(mutual $auxDefs:command* end)
 

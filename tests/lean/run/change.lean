@@ -138,8 +138,7 @@ example (ty : {α : Prop // Nonempty α}) : ty.val := by
 Fails, type hint can't hint enough since `.some _` is postponed.
 -/
 /--
-error: invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant
-  ?_
+error: Invalid dotted identifier notation: The expected type of `.some` could not be determined
 -/
 #guard_msgs in example : some true = (some true).map id := by
   change _ = .some _

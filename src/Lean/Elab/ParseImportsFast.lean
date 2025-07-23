@@ -15,6 +15,7 @@ structure State where
   error?        : Option String := none
   isModule      : Bool := false
   -- per-import fields to be consumed by `moduleIdent`
+  isMeta        : Bool := false
   isExported    : Bool := false
   importAll     : Bool := false
   deriving Inhabited
@@ -147,7 +148,7 @@ def State.pushImport (i : Import) (s : State) : State :=
 
 partial def moduleIdent : Parser := fun input s =>
   let finalize (module : Name) : Parser := fun input s =>
-    whitespace input (s.pushImport { module, importAll := s.importAll, isExported := s.isExported })
+    whitespace input (s.pushImport { module, isMeta := s.isMeta, importAll := s.importAll, isExported := s.isExported })
   let rec parse (module : Name) (s : State) :=
     let i := s.pos
     if h : input.atEnd i then
@@ -188,42 +189,39 @@ partial def moduleIdent : Parser := fun input s =>
   let s := p input s
   match s.error? with
   | none => many p input s
-  | some _ => { pos, error? := none, imports := s.imports.shrink size }
+  | some _ => { s with pos, error? := none, imports := s.imports.shrink size }
+
+def setIsMeta (isMeta : Bool) : Parser := fun _ s =>
+  { s with isMeta }
 
 def setIsExported (isExported : Bool) : Parser := fun _ s =>
-  { s with isExported := isExported }
+  { s with isExported := isExported || !s.isModule }
 
 def setImportAll (importAll : Bool) : Parser := fun _ s =>
   { s with importAll }
 
 def main : Parser :=
-  keywordCore "module" (fun _ s => { s with isModule := true }) (fun _ s => s) >>
+  keywordCore "module" (fun _ s => s) (fun _ s => { s with isModule := true }) >>
   keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
-  many (keywordCore "private" (setIsExported true) (setIsExported false) >>
+  many (keywordCore "public" (setIsExported false) (setIsExported true) >>
+    keywordCore "meta" (setIsMeta false) (setIsMeta true) >>
     keyword "import" >>
     keywordCore "all" (setImportAll false) (setImportAll true) >>
     moduleIdent)
 
 end ParseImports
 
-deriving instance ToJson for Import
-
-structure ParseImportsResult where
-  imports  : Array Import
-  isModule : Bool
-  deriving ToJson
-
 /--
 Simpler and faster version of `parseImports`. We use it to implement Lake.
 -/
-def parseImports' (input : String) (fileName : String) : IO ParseImportsResult := do
+def parseImports' (input : String) (fileName : String) : IO ModuleHeader := do
   let s := ParseImports.main input (ParseImports.whitespace input {})
   match s.error? with
   | none => return { s with }
   | some err => throw <| IO.userError s!"{fileName}: {err}"
 
 structure PrintImportResult where
-  result?  : Option ParseImportsResult := none
+  result?  : Option ModuleHeader := none
   errors   : Array String := #[]
   deriving ToJson
 
@@ -231,7 +229,6 @@ structure PrintImportsResult where
   imports : Array PrintImportResult
   deriving ToJson
 
-@[export lean_print_imports_json]
 def printImportsJson (fileNames : Array String) : IO Unit := do
   let rs ← fileNames.mapM fun fn => do
     try

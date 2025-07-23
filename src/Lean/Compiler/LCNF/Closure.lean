@@ -41,7 +41,7 @@ structure State where
   /--
   Set of already visited free variables.
   -/
-  visited : FVarIdSet := {}
+  visited : FVarIdHashSet := {}
   /--
   Free variables that must become new parameters of the code being specialized.
   -/
@@ -86,7 +86,7 @@ mutual
 
   partial def collectLetValue (e : LetValue) : ClosureM Unit := do
     match e with
-    | .erased | .value .. => return ()
+    | .erased | .lit .. => return ()
     | .proj _ _ fvarId => collectFVar fvarId
     | .const _ _ args => args.forM collectArg
     | .fvar fvarId args => collectFVar fvarId; args.forM collectArg

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Arith.Util
 
 namespace Int.Linear
 def Poly.isZero : Poly → Bool
@@ -52,22 +53,15 @@ def getVar (x : Var) : GoalM Expr :=
 def hasVar (e : Expr) : GoalM Bool :=
   return (← get').varMap.contains { expr := e }
 
+def isIntTerm (e : Expr) : GoalM Bool :=
+  hasVar e
+
 /-- Returns `true` if `x` has been eliminated using an equality constraint. -/
 def eliminated (x : Var) : GoalM Bool :=
   return (← get').elimEqs[x]!.isSome
 
 @[extern "lean_grind_cutsat_assert_eq"] -- forward definition
 opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
-
--- TODO: PArray.shrink and PArray.resize
-partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
-  if a.size > sz then shrink a.pop sz else a
-
-partial def resize (a : PArray Rat) (sz : Nat) : PArray Rat :=
-  if a.size > sz then shrink a sz else go a
-where
-  go (a : PArray Rat) : PArray Rat :=
-    if a.size < sz then go (a.push 0) else a
 
 /-- Resets the assignment of any variable bigger or equal to `x`. -/
 def resetAssignmentFrom (x : Var) : GoalM Unit := do

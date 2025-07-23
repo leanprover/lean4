@@ -10,6 +10,7 @@ import Lake.Config.WorkspaceConfig
 import Lake.Config.Dependency
 import Lake.Config.ConfigDecl
 import Lake.Config.Script
+import Lake.Config.Cache
 import Lake.Load.Config
 import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
@@ -283,8 +284,22 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   and will remove it if it was already there (when Reservoir is next updated).
   -/
   reservoir : Bool := true
+  /-
+  Whether to enables Lake's local, offline artifact cache for the package.
 
-deriving Inhabited
+  Artifacts (i.e., build products) of packages will be shared across
+  local copies by storing them in a cache associated with the Lean toolchain.
+  This can significantly reduce initial build times and disk space usage when
+  working with multiple copies of large projects or large dependencies.
+
+  As a caveat, build targets which support the artifact cache will not be stored
+  in their usual location within the build directory. Thus, projects with custom build
+  scripts that rely on specific location of artifacts may wish to disable this feature.
+
+  If `none`, the cache will be disabled by default unless the `LAKE_ARTIFACT_CACHE`
+  environment variable is set to true.
+  -/
+  enableArtifactCache?, enableArtifactCache : Option Bool := none
 
 instance : EmptyCollection (PackageConfig n) := ⟨{}⟩
 
@@ -351,10 +366,13 @@ structure Package where
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
+  /--
+  Input-to-content map for hashes of package artifacts.
+  If `none`, the artifact cache is disabled for the package.
+  -/
+  cacheRef? : Option CacheRef := none
 
-instance : Nonempty Package :=
-  have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
-  ⟨by constructor <;> exact default⟩
+deriving Inhabited
 
 instance : Hashable Package where hash pkg := hash pkg.name
 instance : BEq Package where beq p1 p2 := p1.name == p2.name
@@ -513,8 +531,8 @@ namespace Package
   self.config.moreGlobalServerArgs
 
 /-- The package's `moreServerOptions` configuration appended to its `leanOptions` configuration. -/
-@[inline] def moreServerOptions (self : Package) : Array LeanOption :=
-  self.config.leanOptions ++ self.config.moreServerOptions
+@[inline] def moreServerOptions (self : Package) : LeanOptions :=
+  LeanOptions.ofArray self.config.leanOptions ++ self.config.moreServerOptions
 
 /-- The package's `buildType` configuration. -/
 @[inline] def buildType (self : Package) : BuildType :=
@@ -533,12 +551,12 @@ namespace Package
   self.config.plugins
 
 /-- The package's `leanOptions` configuration. -/
-@[inline] def leanOptions (self : Package) : Array LeanOption :=
-  self.config.leanOptions
+@[inline] def leanOptions (self : Package) : LeanOptions :=
+  .ofArray self.config.leanOptions
 
 /-- The package's `moreLeanArgs` configuration appended to its `leanOptions` configuration. -/
 @[inline] def moreLeanArgs (self : Package) : Array String :=
-  self.config.leanOptions.map (·.asCliArg) ++ self.config.moreLeanArgs
+  self.config.moreLeanArgs
 
 /-- The package's `weakLeanArgs` configuration. -/
 @[inline] def weakLeanArgs (self : Package) : Array String :=
@@ -606,6 +624,15 @@ def nativeLibDir (self : Package) : FilePath :=
 /-- The package's `buildDir` joined with its `irDir` configuration. -/
 @[inline] def irDir (self : Package) : FilePath :=
   self.buildDir / self.config.irDir.normalize
+
+  /-- The package's `enableArtifactCache?` configuration. -/
+@[inline] def enableArtifactCache? (self : Package) : Option Bool :=
+  self.config.enableArtifactCache?
+
+/-- The file where the package's input-to-content mapping is stored in the Lake cache. -/
+def inputsFileIn (cache : Cache) (self : Package) : FilePath :=
+  let pkgName := self.name.toString (escape := false)
+  cache.inputsFile pkgName
 
 /-- Try to find a target configuration in the package with the given name. -/
 def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=

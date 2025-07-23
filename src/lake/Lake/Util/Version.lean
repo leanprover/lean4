@@ -126,7 +126,7 @@ def ToolchainVer.ofString (ver : String) : ToolchainVer := Id.run do
   let colonPos := ver.posOf ':'
   let (origin, tag) :=
     if h : colonPos < ver.endPos then
-      let pos := ver.next' colonPos (by simp_all [h, String.endPos, String.atEnd])
+      let pos := ver.next' colonPos (by simp_all [String.endPos, String.atEnd])
       (ver.extract 0 colonPos, ver.extract pos ver.endPos)
     else
       ("", ver)

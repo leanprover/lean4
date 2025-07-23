@@ -64,18 +64,12 @@ Checks whether the declaration was originally declared as a theorem; see also
 def wasOriginallyTheorem (env : Environment) (declName : Name) : Bool :=
   getOriginalConstKind? env declName |>.map (· matches .thm) |>.getD false
 
--- HACK: remove together with MutualDef HACK when `[dsimp]` is introduced
-private def isSimpleRflProof (proof : Expr) : Bool :=
-  if let .lam _ _ proof _ := proof then
-    isSimpleRflProof proof
-  else
-    proof.isAppOfArity ``rfl 2
-
-private def looksLikeRelevantTheoremProofType (type : Expr) : Bool :=
-  if let .forallE _ _ type _ := type then
-    looksLikeRelevantTheoremProofType type
-  else
-    type.isAppOfArity ``WellFounded 2
+/-- If `warn.sorry` is set to true, then, so long as the message log does not already have any errors,
+declarations with `sorryAx` generate the "declaration uses 'sorry'" warning. -/
+register_builtin_option warn.sorry : Bool := {
+  defValue := true
+  descr    := "warn about uses of `sorry` in declarations added to the environment"
+}
 
 def addDecl (decl : Declaration) : CoreM Unit := do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
@@ -84,21 +78,12 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   -- namespaces
   modifyEnv (decl.getNames.foldl registerNamePrefixes)
 
-  if !Elab.async.get (← getOptions) then
-    return (← addSynchronously)
-
   -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until
   -- kernel checking has finished; not all cases are supported yet
   let mut exportedInfo? := none
   let (name, info, kind) ← match decl with
     | .thmDecl thm =>
-      let exportProof := !(← getEnv).header.isModule ||
-        -- We should preserve rfl theorems but also we should not override a decision to hide by the
-        -- MutualDef elaborator via `withoutExporting`
-        (← getEnv).isExporting && isSimpleRflProof thm.value ||
-        -- TODO: this is horrible...
-        looksLikeRelevantTheoremProofType thm.type
-      if !exportProof then
+      if (← getEnv).header.isModule then
         exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
       pure (thm.name, .thmInfo thm, .thm)
     | .defnDecl defn | .mutualDefnDecl [defn] =>
@@ -106,49 +91,51 @@ def addDecl (decl : Declaration) : CoreM Unit := do
         exportedInfo? := some <| .axiomInfo { defn with isUnsafe := defn.safety == .unsafe }
       pure (defn.name, .defnInfo defn, .defn)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
-    | _ => return (← addSynchronously)
+    | _ => return (← doAdd)
 
-  -- preserve original constant kind in extension if different from exported one
-  if exportedInfo?.isSome then
-    modifyEnv (privateConstKindsExt.insert · name kind)
+  if decl.getTopLevelNames.all isPrivateName then
+    exportedInfo? := none
+  else
+    -- preserve original constant kind in extension if different from exported one
+    if exportedInfo?.isSome then
+      modifyEnv (privateConstKindsExt.insert · name kind)
+    else
+      exportedInfo? := some info
 
   -- no environment extension changes to report after kernel checking; ensures we do not
   -- accidentally wait for this snapshot when querying extension states
   let env ← getEnv
   let async ← env.addConstAsync (reportExts := false) name kind
-    (exportedKind := exportedInfo?.map (.ofConstantInfo) |>.getD kind)
+    (exportedKind? := exportedInfo?.map (.ofConstantInfo))
   -- report preliminary constant info immediately
-  async.commitConst async.asyncEnv (some info) exportedInfo?
+  async.commitConst async.asyncEnv (some info) (exportedInfo? <|> info)
   setEnv async.mainEnv
-  let cancelTk ← IO.CancelToken.new
-  let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
+
+  let doAddAndCommit := do
     setEnv async.asyncEnv
     try
       doAdd
     finally
       async.commitCheckEnv (← getEnv)
-  let t ← BaseIO.mapTask checkAct env.checked
-  let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+
+  if Elab.async.get (← getOptions) then
+    let cancelTk ← IO.CancelToken.new
+    let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
+    let t ← BaseIO.mapTask checkAct env.checked
+    let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
+    Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+  else
+    try
+      doAddAndCommit
+    finally
+      setEnv async.mainEnv
 where
-  addSynchronously := do
-    doAdd
-    -- make constants known to the elaborator; in the synchronous case, we can simply read them from
-    -- the kernel env
-    for n in decl.getNames do
-      let env ← getEnv
-      let some info := env.checked.get.find? n | unreachable!
-      -- do *not* report extensions in synchronous case at this point as they are usually set only
-      -- after adding the constant itself
-      let res ← env.addConstAsync (reportExts := false) n (.ofConstantInfo info)
-      res.commitConst env (info? := info)
-      res.commitCheckEnv res.asyncEnv
-      setEnv res.mainEnv
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
-        if !(← MonadLog.hasErrors) && decl.hasSorry then
-          logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
+        if warn.sorry.get (← getOptions) then
+          if !(← MonadLog.hasErrors) && decl.hasSorry then
+            logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
         try
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
             |> ofExceptKernelException

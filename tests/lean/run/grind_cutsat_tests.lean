@@ -1,5 +1,3 @@
-set_option grind.warning false
-
 example (w x y z : Int) :
   2*w + 3*x - 4*y + z = 10 →
   w - x + 2*y - 3*z = 5 →

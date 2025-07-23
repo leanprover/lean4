@@ -95,9 +95,9 @@ private def checkParents (e : Expr) : GoalM Unit := do
 
 private def checkPtrEqImpliesStructEq : GoalM Unit := do
   let exprs ← getExprs
-  for h₁ : i in [: exprs.size] do
+  for h₁ : i in *...exprs.size do
     let e₁ := exprs[i]
-    for h₂ : j in [i+1 : exprs.size] do
+    for h₂ : j in (i+1)...exprs.size do
       let e₂ := exprs[j]
       -- We don't have multiple nodes for the same expression
       assert! !isSameExpr e₁ e₂
@@ -123,7 +123,7 @@ def checkInvariants (expensive := false) : GoalM Unit := do
     for e in (← getExprs) do
       let node ← getENode e
       checkParents node.self
-      if isSameExpr node.self node.root then
+      if node.isRoot then
         checkEqc node
     if expensive then
       checkPtrEqImpliesStructEq

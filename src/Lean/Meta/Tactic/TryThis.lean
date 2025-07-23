@@ -86,7 +86,7 @@ export default function ({ suggestions, range, header, isInline, style }) {
     inner)
 }"
 
--- Because we can't reference `builtin_widget_module` in `Lean.Meta.Hint`, we add the attribute here
+-- Because we can't use `builtin_widget_module` in `Lean.Meta.Hint`, we add the attribute here
 attribute [builtin_widget_module] Hint.tryThisDiffWidget
 
 /-! # Code action -/
@@ -106,7 +106,7 @@ apply the replacement.
     unless stxRange.start.line ≤ params.range.end.line do return result
     unless params.range.start.line ≤ stxRange.end.line do return result
     let mut result := result
-    for h : i in [:suggestionTexts.size] do
+    for h : i in *...suggestionTexts.size do
       let (newText, title?) := suggestionTexts[i]
       let title := title?.getD <| (codeActionPrefix?.getD "Try this: ") ++ newText
       result := result.push {
@@ -426,19 +426,19 @@ def addHaveSuggestion (ref : Syntax) (h? : Option Name) (t? : Option Expr) (e : 
       let tstx ← delabToRefinableSyntax t
       if prop then
         match h? with
-        | some h => pure (← `(tactic| have $(mkIdent h) : $tstx := $estx), m!"have {h} : {t} := {e}")
+        | some h => pure (← `(tactic| have $(mkIdent h):ident : $tstx := $estx), m!"have {h} : {t} := {e}")
         | none => pure (← `(tactic| have : $tstx := $estx), m!"have : {t} := {e}")
       else
         let h := h?.getD `_
-        pure (← `(tactic| let $(mkIdent h) : $tstx := $estx), m!"let {h} : {t} := {e}")
+        pure (← `(tactic| let $(mkIdent h):ident : $tstx := $estx), m!"let {h} : {t} := {e}")
     else
       if prop then
         match h? with
-        | some h => pure (← `(tactic| have $(mkIdent h) := $estx), m!"have {h} := {e}")
+        | some h => pure (← `(tactic| have $(mkIdent h):ident := $estx), m!"have {h} := {e}")
         | none => pure (← `(tactic| have := $estx), m!"have := {e}")
       else
         let h := h?.getD `_
-        pure (← `(tactic| let $(mkIdent h) := $estx), m!"let {h} := {e}")
+        pure (← `(tactic| let $(mkIdent h):ident := $estx), m!"let {h} := {e}")
     pure (tac, ← addMessageContext msg)
   if let some checkState := checkState? then
     let some (tac', msg') ← mkValidatedTactic tac msg checkState

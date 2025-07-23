@@ -9,10 +9,10 @@ id.{u} {α : Sort u} (a : α) : α
 precissues.lean:17:10-17:13: error: unexpected token 'let'; expected command
 1 : Nat
 id
-  (let_fun this := True.intro;
+  (have this := True.intro;
   this) : True
 0 =
-  let_fun this := 1;
+  have this := 1;
   this : Prop
 0 =
   let x := 0;

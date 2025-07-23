@@ -389,7 +389,7 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
   let mut mvarId := mvar0.mvarId!
   if heqNum > 0 then
     mvarId := (← mvarId.introN heqPos).2
-    for _ in [:heqNum] do
+    for _ in *...heqNum do
       let (h, mvarId') ← mvarId.intro1
       mvarId ← subst mvarId' h
     trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
@@ -411,11 +411,11 @@ where
       <|>
       (casesOnStuckLHS mvarId)
       <|>
-      (do let mvarId' ← simpIfTarget mvarId (useDecide := true)
+      (do let mvarId' ← simpIfTarget mvarId (useDecide := true) (useNewSemantics := true)
           if mvarId' == mvarId then throwError "simpIf failed"
           return #[mvarId'])
       <|>
-      (do if let some (s₁, s₂) ← splitIfTarget? mvarId then
+      (do if let some (s₁, s₂) ← splitIfTarget? mvarId (useNewSemantics := true) then
             let mvarId₁ ← trySubst s₁.mvarId s₁.fvarId
             return #[mvarId₁, s₂.mvarId]
           else
@@ -518,7 +518,7 @@ where
     -- If we find one we must extend `convertCastEqRec`.
     unless e.isAppOf ``Eq.ndrec do return false
     unless e.getAppNumArgs > 6 do return false
-    for arg in e.getAppArgs[6:] do
+    for arg in e.getAppArgs[6...*] do
       if arg.isFVar && (← read).contains arg.fvarId! then
         return true
     return true
@@ -544,15 +544,15 @@ where
           (t₂ : Foo l₂) → ((s₁ : Foo l₂) → motive (Foo.cons s₁)) → ((x : Foo l₂) → motive x) → motive t₂ :=
     fun {l₂} t₂ motive t₂_1 h_1 h_2 =>
       (fun t₂_2 =>
-          Foo.casesOn (motive := fun a x => l₂ = a → HEq t₂_1 x → motive t₂_1) t₂_2
+          Foo.casesOn (motive := fun a x => l₂ = a → t₂_1 ≍ x → motive t₂_1) t₂_2
             (fun h =>
               Eq.ndrec (motive := fun {l₂} =>
                 (t₂ t₂ : Foo l₂) →
                   (motive : Foo l₂ → Sort u_1) →
-                    ((s₁ : Foo l₂) → motive (Foo.cons s₁)) → ((x : Foo l₂) → motive x) → HEq t₂ Foo.nil → motive t₂)
+                    ((s₁ : Foo l₂) → motive (Foo.cons s₁)) → ((x : Foo l₂) → motive x) → t₂ ≍ Foo.nil → motive t₂)
                 (fun t₂ t₂ motive h_1 h_2 h => Eq.symm (eq_of_heq h) ▸ h_2 Foo.nil) (Eq.symm h) t₂ t₂_1 motive h_1 h_2) --- HERE
             fun {l} t h =>
-            Eq.ndrec (motive := fun {l} => (t : Foo l) → HEq t₂_1 (Foo.cons t) → motive t₂_1)
+            Eq.ndrec (motive := fun {l} => (t : Foo l) → t₂_1 ≍ Foo.cons t → motive t₂_1)
               (fun t h => Eq.symm (eq_of_heq h) ▸ h_1 t) h t)
         t₂_1 (Eq.refl l₂) (HEq.refl t₂_1)
     ```
@@ -571,7 +571,7 @@ where
     e.withApp fun f args => do
       let mut argsNew := args
       let mut isAlt := #[]
-      for i in [6:args.size] do
+      for i in 6...args.size do
         let arg := argsNew[i]!
         if arg.isFVar then
           match (← read).find? arg.fvarId! with
@@ -606,8 +606,8 @@ where
                 trace[Meta.Match.matchEqs] "altNew: {altNew} : {altTypeNew}"
                 -- Replace `rhs` with `x` (the lambda binder in the motive)
                 let mut altTypeNewAbst := (← kabstract altTypeNew rhs).instantiate1 x
-                -- Replace args[6:6+i] with `motiveTypeArgsNew`
-                for j in [:i] do
+                -- Replace args[6...(6+i)] with `motiveTypeArgsNew`
+                for j in *...i do
                   altTypeNewAbst := (← kabstract altTypeNewAbst argsNew[6+j]!).instantiate1 motiveTypeArgsNew[j]!
                 let localDecl ← motiveTypeArg.fvarId!.getDecl
                 withLocalDecl localDecl.userName localDecl.binderInfo altTypeNewAbst fun motiveTypeArgNew =>
@@ -623,7 +623,7 @@ where
       argsNew := argsNew.set! 2 motiveNew
       -- Construct the new minor premise for the `Eq.ndrec` application.
       -- First, we use `eqRecNewPrefix` to infer the new minor premise binders for `Eq.ndrec`
-      let eqRecNewPrefix := mkAppN f argsNew[:3] -- `Eq.ndrec` minor premise is the fourth argument.
+      let eqRecNewPrefix := mkAppN f argsNew[*...3] -- `Eq.ndrec` minor premise is the fourth argument.
       let .forallE _ minorTypeNew .. ← whnf (← inferType eqRecNewPrefix) | unreachable!
       trace[Meta.Match.matchEqs] "new minor type: {minorTypeNew}"
       let minor := args[3]!
@@ -631,7 +631,7 @@ where
         let mut minorBodyNew := minor
         -- We have to extend the mapping to make sure `convertTemplate` can "fix" occurrences of the refined minor premises
         let mut m ← read
-        for h : i in [:isAlt.size] do
+        for h : i in *...isAlt.size do
           if isAlt[i] then
             -- `convertTemplate` will correct occurrences of the alternative
             let alt := args[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
@@ -750,19 +750,19 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
   let numDiscrEqs := getNumEqsFromDiscrInfos matchInfo.discrInfos
   forallTelescopeReducing constInfo.type fun xs matchResultType => do
     let mut eqnNames := #[]
-    let params := xs[:matchInfo.numParams]
+    let params := xs[*...matchInfo.numParams]
     let motive := xs[matchInfo.getMotivePos]!
-    let alts   := xs[xs.size - matchInfo.numAlts:]
+    let alts   := xs[(xs.size - matchInfo.numAlts)...*]
     let firstDiscrIdx := matchInfo.numParams + 1
-    let discrs := xs[firstDiscrIdx : firstDiscrIdx + matchInfo.numDiscrs]
+    let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
     let mut notAlts := #[]
     let mut idx := 1
     let mut splitterAltTypes := #[]
     let mut splitterAltNumParams := #[]
     let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
-    for i in [:alts.size] do
+    for i in *...alts.size do
       let altNumParams := matchInfo.altNumParams[i]!
-      let thmName := baseName ++ ((`eq).appendIndexAfter idx)
+      let thmName := Name.str baseName eqnThmSuffixBase |>.appendIndexAfter idx
       eqnNames := eqnNames.push thmName
       let (notAlt, splitterAltType, splitterAltNumParam, argMask) ←
           forallAltTelescope (← inferType alts[i]!) altNumParams numDiscrEqs
@@ -833,7 +833,7 @@ def congrEqn1ThmSuffix := congrEqnThmSuffixBasePrefix ++ "1"
 example : congrEqn1ThmSuffix = "congr_eq_1" := rfl
 
 /-- Returns `true` if `s` is of the form `congr_eq_<idx>` -/
-def iscongrEqnReservedNameSuffix (s : String) : Bool :=
+def isCongrEqnReservedNameSuffix (s : String) : Bool :=
   congrEqnThmSuffixBasePrefix.isPrefixOf s && (s.drop congrEqnThmSuffixBasePrefix.length).isNat
 
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/
@@ -871,14 +871,14 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
   let numDiscrEqs := matchInfo.getNumDiscrEqs
   forallTelescopeReducing constInfo.type fun xs _matchResultType => do
     let mut eqnNames := #[]
-    let params := xs[:matchInfo.numParams]
+    let params := xs[*...matchInfo.numParams]
     let motive := xs[matchInfo.getMotivePos]!
-    let alts   := xs[xs.size - matchInfo.numAlts:]
+    let alts   := xs[(xs.size - matchInfo.numAlts)...*]
     let firstDiscrIdx := matchInfo.numParams + 1
-    let discrs := xs[firstDiscrIdx : firstDiscrIdx + matchInfo.numDiscrs]
+    let discrs := xs[firstDiscrIdx...(firstDiscrIdx + matchInfo.numDiscrs)]
     let mut notAlts := #[]
     let mut idx := 1
-    for i in [:alts.size] do
+    for i in *...alts.size do
       let altNumParams := matchInfo.altNumParams[i]!
       let thmName := (Name.str baseName congrEqnThmSuffixBase).appendIndexAfter idx
       eqnNames := eqnNames.push thmName
@@ -928,10 +928,10 @@ builtin_initialize registerTraceClass `Meta.Match.matchEqs
 
 private def isMatchEqName? (env : Environment) (n : Name) : Option (Name × Bool) := do
   let .str p s := n | failure
-  guard <| isEqnReservedNameSuffix s || s == "splitter" || iscongrEqnReservedNameSuffix s
+  guard <| isEqnReservedNameSuffix s || s == "splitter" || isCongrEqnReservedNameSuffix s
   let p ← privateToUserName? p
   guard <| isMatcherCore env p
-  return (p, iscongrEqnReservedNameSuffix s)
+  return (p, isCongrEqnReservedNameSuffix s)
 
 builtin_initialize registerReservedNamePredicate (isMatchEqName? · · |>.isSome)
 

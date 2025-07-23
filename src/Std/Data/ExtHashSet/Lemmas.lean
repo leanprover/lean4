@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.ExtHashMap.Lemmas
-import Std.Data.ExtHashSet.Basic
+public import Std.Data.ExtHashMap.Lemmas
+public import Std.Data.ExtHashSet.Basic
+
+@[expose] public section
 
 /-!
 # Extensional hash set lemmas
@@ -55,7 +59,7 @@ theorem not_insert_eq_empty [EquivBEq α] [LawfulHashable α] {k : α} :
 theorem mem_iff_contains [EquivBEq α] [LawfulHashable α] {a : α} : a ∈ m ↔ m.contains a :=
   ExtHashMap.mem_iff_contains
 
-@[simp, grind]
+@[simp, grind _=_]
 theorem contains_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} : m.contains a ↔ a ∈ m :=
   ExtHashMap.contains_iff_mem
 
@@ -191,7 +195,7 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (m.get? a).isSome :=
   ExtHashMap.contains_eq_isSome_getKey?
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
     (m.get? a).isSome = m.contains a :=
   contains_eq_isSome_get?.symm

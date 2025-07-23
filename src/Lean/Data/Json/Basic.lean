@@ -45,7 +45,7 @@ protected def normalize : JsonNumber → Int × Nat × Int
       let mut mAbs := m.natAbs
       let nDigits := countDigits mAbs
       -- eliminate trailing zeros
-      for _ in [0:nDigits] do
+      for _ in *...nDigits do
         if mAbs % 10 = 0 then
           mAbs := mAbs / 10
         else
@@ -77,11 +77,8 @@ def lt (a b : JsonNumber) : Bool :=
     else if ae > be then false
     else am < bm
 
-def ltProp : LT JsonNumber :=
+instance ltProp : LT JsonNumber :=
   ⟨fun a b => lt a b = true⟩
-
-instance : LT JsonNumber :=
-  ltProp
 
 instance (a b : JsonNumber) : Decidable (a < b) :=
   inferInstanceAs (Decidable (lt a b = true))

@@ -121,7 +121,7 @@ where
     let mut paramsNew := #[]
     let singleton : FVarIdSet := ({} : FVarIdSet).insert params[targetParamIdx]!.fvarId
     let dependsOnDiscr := k.dependsOn singleton || decls.any (·.dependsOn singleton)
-    for h : i in [:params.size] do
+    for h : i in *...params.size do
       let param := params[i]
       if targetParamIdx == i then
         if dependsOnDiscr then
@@ -137,9 +137,9 @@ where
 /-- Create the arguments for a jump to an auxiliary join point created using `mkJpAlt`. -/
 private def mkJmpNewArgs (args : Array Arg) (targetParamIdx : Nat) (fields : Array Arg) (dependsOnTarget : Bool) : Array Arg :=
   if dependsOnTarget then
-    args[:targetParamIdx+1] ++ fields ++ args[targetParamIdx+1:]
+    args[*...=targetParamIdx] ++ fields ++ args[targetParamIdx<...*]
   else
-    args[:targetParamIdx] ++ fields ++ args[targetParamIdx+1:]
+    args[*...targetParamIdx] ++ fields ++ args[targetParamIdx<...*]
 
 /--
 Create the arguments for a jump to an auxiliary join point created using `mkJpAlt`.
@@ -283,14 +283,14 @@ where
     else
       match ctorInfo with
       | .ctor ctorVal ctorArgs =>
-         let fields := ctorArgs[ctorVal.numParams:]
+         let fields := ctorArgs[ctorVal.numParams...*]
          let argsNew := mkJmpNewArgs args info.paramIdx fields jpAlt.dependsOnDiscr
          return some <| .jmp jpAlt.decl.fvarId argsNew
       | .natVal 0 =>
         let argsNew := mkJmpNewArgs args info.paramIdx #[] jpAlt.dependsOnDiscr
         return some <| .jmp jpAlt.decl.fvarId argsNew
       | .natVal (n+1) =>
-        let auxDecl ← mkAuxLetDecl (.value (.natVal n))
+        let auxDecl ← mkAuxLetDecl (.lit (.nat n))
         let argsNew := mkJmpNewArgs args info.paramIdx #[.fvar auxDecl.fvarId] jpAlt.dependsOnDiscr
         return some <| .let auxDecl (.jmp jpAlt.decl.fvarId argsNew)
 

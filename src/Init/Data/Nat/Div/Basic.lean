@@ -6,9 +6,12 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.WF
-import Init.WFTactics
-import Init.Data.Nat.Basic
+public import Init.WF
+public import Init.WFTactics
+public import Init.Data.Nat.Basic
+public meta import Init.MetaTypes
+
+public section
 
 @[expose] section
 
@@ -75,7 +78,7 @@ private theorem div.go.fuel_congr (x y fuel1 fuel2 : Nat) (hy : 0 < y) (h1 : x <
 termination_by structural fuel1
 
 theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 := by
-  show Nat.div _ _ = ite _ (Nat.div _ _ + 1) _
+  change Nat.div _ _ = ite _ (Nat.div _ _ + 1) _
   unfold Nat.div
   split
   next =>
@@ -257,7 +260,7 @@ protected def mod : @& Nat → @& Nat → Nat
 instance instMod : Mod Nat := ⟨Nat.mod⟩
 
 protected theorem modCore_eq_mod (n m : Nat) : Nat.modCore n m = n % m := by
-  show Nat.modCore n m = Nat.mod n m
+  change Nat.modCore n m = Nat.mod n m
   match n, m with
   | 0, _ =>
     rw [Nat.modCore_eq]
@@ -511,7 +514,7 @@ theorem sub_mul_div_of_le (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x /
         rw [mul_succ] at h₁
         exact h₁
       rw [sub_succ, ← IH h₂, div_eq_sub_div h₀ h₃]
-      simp [Nat.pred_succ, mul_succ, Nat.sub_sub]
+      simp [mul_succ, Nat.sub_sub]
 
 theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - (x + 1)) / n = p - ((x / n) + 1) := by
   have npos : 0 < n := (eq_zero_or_pos _).resolve_left fun n0 => by
@@ -521,7 +524,7 @@ theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - (x + 1)) / n = p -
     rw [Nat.mul_sub_right_distrib, Nat.mul_comm]
     exact Nat.sub_le_sub_left ((div_lt_iff_lt_mul npos).1 (lt_succ_self _)) _
   focus
-    show succ (pred (n * p - x)) ≤ (succ (pred (p - x / n))) * n
+    change succ (pred (n * p - x)) ≤ (succ (pred (p - x / n))) * n
     rw [succ_pred_eq_of_pos (Nat.sub_pos_of_lt h₁),
       fun h => succ_pred_eq_of_pos (Nat.sub_pos_of_lt h)] -- TODO: why is the function needed?
     focus

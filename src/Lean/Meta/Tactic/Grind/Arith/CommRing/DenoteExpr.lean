@@ -4,23 +4,25 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Ring.OfSemiring
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Var
+import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 
 namespace Lean.Meta.Grind.Arith.CommRing
 /-!
 Helper functions for converting reified terms back into their denotations.
 -/
 
-variable [Monad M] [MonadGetRing M]
+variable [Monad M] [MonadError M] [MonadLiftT MetaM M] [MonadRing M]
 
-private def denoteNum (k : Int) : M Expr := do
+def denoteNum (k : Int) : M Expr := do
   let ring ← getRing
   let n := mkRawNatLit k.natAbs
   let ofNatInst := mkApp3 (mkConst ``Grind.Semiring.ofNat [ring.u]) ring.type ring.semiringInst n
   let n := mkApp3 (mkConst ``OfNat.ofNat [ring.u]) ring.type n ofNatInst
   if k < 0 then
-    return mkApp ring.negFn n
+    return mkApp (← getNegFn) n
   else
     return n
 
@@ -29,7 +31,7 @@ def _root_.Lean.Grind.CommRing.Power.denoteExpr (pw : Power) : M Expr := do
   if pw.k == 1 then
     return x
   else
-    return mkApp2 (← getRing).powFn x (toExpr pw.k)
+    return mkApp2 (← getPowFn) x (toExpr pw.k)
 
 def _root_.Lean.Grind.CommRing.Mon.denoteExpr (m : Mon) : M Expr := do
   match m with
@@ -39,7 +41,7 @@ where
   go (m : Mon) (acc : Expr) : M Expr := do
     match m with
     | .unit => return acc
-    | .mult pw m => go m (mkApp2 (← getRing).mulFn acc (← pw.denoteExpr))
+    | .mult pw m => go m (mkApp2 (← getMulFn) acc (← pw.denoteExpr))
 
 def _root_.Lean.Grind.CommRing.Poly.denoteExpr (p : Poly) : M Expr := do
   match p with
@@ -50,13 +52,13 @@ where
     if k == 1 then
       m.denoteExpr
     else
-      return mkApp2 (← getRing).mulFn (← denoteNum k) (← m.denoteExpr)
+      return mkApp2 (← getMulFn) (← denoteNum k) (← m.denoteExpr)
 
   go (p : Poly) (acc : Expr) : M Expr := do
     match p with
     | .num 0 => return acc
-    | .num k => return mkApp2 (← getRing).addFn acc (← denoteNum k)
-    | .add k m p => go p (mkApp2 (← getRing).addFn acc (← denoteTerm k m))
+    | .num k => return mkApp2 (← getAddFn) acc (← denoteNum k)
+    | .add k m p => go p (mkApp2 (← getAddFn) acc (← denoteTerm k m))
 
 def _root_.Lean.Grind.CommRing.Expr.denoteExpr (e : RingExpr) : M Expr := do
   go e
@@ -64,11 +66,11 @@ where
   go : RingExpr → M Expr
   | .num k => denoteNum k
   | .var x => return (← getRing).vars[x]!
-  | .add a b => return mkApp2 (← getRing).addFn (← go a) (← go b)
-  | .sub a b => return mkApp2 (← getRing).subFn (← go a) (← go b)
-  | .mul a b => return mkApp2 (← getRing).mulFn (← go a) (← go b)
-  | .pow a k => return mkApp2 (← getRing).powFn (← go a) (toExpr k)
-  | .neg a => return mkApp (← getRing).negFn (← go a)
+  | .add a b => return mkApp2 (← getAddFn) (← go a) (← go b)
+  | .sub a b => return mkApp2 (← getSubFn) (← go a) (← go b)
+  | .mul a b => return mkApp2 (← getMulFn) (← go a) (← go b)
+  | .pow a k => return mkApp2 (← getPowFn) (← go a) (toExpr k)
+  | .neg a => return mkApp (← getNegFn) (← go a)
 
 private def mkEq (a b : Expr) : M Expr := do
   let r ← getRing
@@ -82,5 +84,15 @@ def PolyDerivation.denoteExpr (d : PolyDerivation) : M Expr := do
 
 def DiseqCnstr.denoteExpr (c : DiseqCnstr) : M Expr := do
   return mkNot (← mkEq (← c.d.denoteExpr) (← denoteNum 0))
+
+def _root_.Lean.Grind.Ring.OfSemiring.Expr.denoteAsRingExpr (e : SemiringExpr) : SemiringM Expr := do
+  shareCommon (← go e)
+where
+  go : SemiringExpr → SemiringM Expr
+  | .num k => denoteNum k
+  | .var x => return mkApp (← getToQFn) (← getSemiring).vars[x]!
+  | .add a b => return mkApp2 (← getAddFn) (← go a) (← go b)
+  | .mul a b => return mkApp2 (← getMulFn) (← go a) (← go b)
+  | .pow a k => return mkApp2 (← getPowFn) (← go a) (toExpr k)
 
 end Lean.Meta.Grind.Arith.CommRing

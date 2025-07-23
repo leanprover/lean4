@@ -5,6 +5,8 @@ Author: Marc Huisinga
 -/
 import Lean.Data.AssocList
 import Std.Data.HashMap
+import Std.Data.Iterators.Producers.Range
+import Std.Data.Iterators.Combinators.StepSize
 
 open Lean
 
@@ -274,7 +276,7 @@ partial def readSolution? (p : Problem) : Option Solution := Id.run <| do
   if p.equations.any (fun _ eq => eq.const ≠ 0) then
     return some Solution.unsat
   let mut assignment : Array (Option Int) := mkArray p.nVars none
-  for i in [0:p.nVars] do
+  for i in *...p.nVars do
     assignment := readSolution i assignment
   return Solution.sat <| assignment.map (·.get!)
 where
@@ -341,14 +343,14 @@ def main (args : List String) : IO UInt32 := do
   let nEquations ← header.ithVal 0 "amount of equations"
   let nVars ← header.ithVal 1 "amount of variables"
   let mut equations : HashMap Nat Equation := ∅
-  for line in lines[1:] do
+  for line in lines[1...*] do
     let elems := line.splitOn.toArray
     let nTerms ← elems.ithVal 0 "amount of equation terms"
     let 0 ← elems.ithVal (elems.size - 1) "end of line symbol"
       | error "Non-zero end of line symbol"
     let const ← elems.ithVal (elems.size - 2) "constant value"
     let mut coeffs := ∅
-    for i in [1:elems.size-2:2] do
+    for i in ((1 : Nat)...(elems.size-2)).iter.stepSize 2 do
       let coeff ← elems.ithVal i "coefficient"
       let varIdx ← elems.ithVal (i + 1) "variable index"
       if varIdx < 1 then

@@ -246,7 +246,7 @@ def transform
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let mut motiveBody' ← onMotive motiveArgs motiveBody
 
-    -- Prepend `(x = e) →` or `(HEq x e) → ` to the motive when an equality is requested
+    -- Prepend `(x = e) →` or `(x ≍ e) → ` to the motive when an equality is requested
     -- and not already present, and remember whether we added an Eq or a HEq
     let mut addHEqualities : Array (Option Bool) := #[]
     for arg in motiveArgs, discr in discrs', di in matcherApp.discrInfos do
@@ -282,7 +282,7 @@ def transform
     let aux1 := mkApp aux1 motive'
     let aux1 := mkAppN aux1 discrs'
     unless (← isTypeCorrect aux1) do
-      mapError (f := (m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}\n{indentD ·}")) do
+      prependError m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}\nfailed with" do
         check aux1
     let origAltTypes ← inferArgumentTypesN matcherApp.alts.size aux1
 
@@ -294,12 +294,12 @@ def transform
     let aux2 := mkApp aux2 motive'
     let aux2 := mkAppN aux2 discrs'
     unless (← isTypeCorrect aux2) do
-      mapError (f := (m!"failed to transform matcher, type error when constructing splitter motive:{indentExpr aux2}\n{indentD ·}")) do
+      prependError m!"failed to transform matcher, type error when constructing splitter motive:{indentExpr aux2}\nfailed with" do
         check aux2
     let altTypes ← inferArgumentTypesN matcherApp.alts.size aux2
 
     let mut alts' := #[]
-    for altIdx in [:matcherApp.alts.size],
+    for altIdx in *...matcherApp.alts.size,
         alt in matcherApp.alts,
         numParams in matcherApp.altNumParams,
         splitterNumParams in matchEqns.splitterAltNumParams,
@@ -340,7 +340,7 @@ def transform
     let altTypes ← inferArgumentTypesN matcherApp.alts.size aux
 
     let mut alts' := #[]
-    for altIdx in [:matcherApp.alts.size],
+    for altIdx in *...matcherApp.alts.size,
         alt in matcherApp.alts,
         numParams in matcherApp.altNumParams,
         altType in altTypes do
@@ -403,8 +403,8 @@ def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
       let propAlts ← matcherApp.alts.mapM fun termAlt =>
         lambdaTelescope termAlt fun xs termAltBody => do
           -- We have alt parameters and parameters corresponding to the extra args
-          let xs1 := xs[0 : xs.size - nExtra]
-          let xs2 := xs[xs.size - nExtra : xs.size]
+          let xs1 := xs[*...(xs.size - nExtra)]
+          let xs2 := xs[(xs.size - nExtra)...xs.size]
           -- logInfo m!"altIH: {xs} => {altIH}"
           let altType ← inferType termAltBody
           for x in xs2 do

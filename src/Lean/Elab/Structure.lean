@@ -197,8 +197,10 @@ private def defaultCtorName := `mk
 /-
 The structure constructor syntax is
 ```
-leading_parser try (declModifiers >> ident >> " :: ")
+def structCtor := leading_parser
+  declModifiers true >> ident >> many Term.bracketedBinder >> " :: "
 ```
+and `structStx[4]` is `optional (" where " >> optional structCtor >> structFields)`.
 -/
 private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name)
     (forcePrivate : Bool) : TermElabM CtorView := do
@@ -229,9 +231,11 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let name := ctor[1].getId
       let declName := structDeclName ++ name
       let declName ← applyVisibility ctorModifiers.visibility declName
+      -- `binders` is type parameter binder overrides; this will be validated when the constructor is created in `Structure.mkCtor`.
+      let binders := ctor[2]
       addDocString' declName ctorModifiers.docString?
       addDeclarationRangesFromSyntax declName ctor[1]
-      pure { ref := ctor[1], declId := ctor[1], modifiers := ctorModifiers, declName }
+      pure { ref := ctor[1], declId := ctor[1], modifiers := ctorModifiers, declName, binders }
 
 /--
 ```
@@ -1112,18 +1116,23 @@ Builds a constructor for the type, for adding the inductive type to the environm
 -/
 private def mkCtor (view : StructView) (r : ElabHeaderResult) (params : Array Expr) : StructElabM Constructor :=
   withRef view.ref do
+  let (binders, paramInfoOverrides) ← elabParamInfoUpdates params view.ctor.binders.getArgs
+  unless binders.isEmpty do
+    throwErrorAt (mkNullNode binders) "Expecting binders that update binder kinds of type parameters."
+  trace[Elab.structure] "constructor param overrides {view.ctor.binders}"
   let lctx ← mkCtorLCtx
   let type ← instantiateMVars <| mkAppN r.indFVar params
   let fieldInfos := (← get).fields
   let fieldCtorFVars := fieldInfos |>.filter (·.kind.isInCtor) |>.map (·.fvar)
   let type := lctx.mkForall fieldCtorFVars type
-  withLCtx lctx {} do
+  withFreshCache <| withLCtx lctx {} do
     trace[Elab.structure] "constructor type before reductions:{indentExpr type}"
     let type ← fieldNormalizeExpr type
     trace[Elab.structure] "constructor type after reductions:{indentExpr type}"
     let type ← mkForallFVars params type
     let type ← instantiateMVars type
     let type := type.inferImplicit params.size true
+    let type := type.updateForallBinderInfos <| params.toList.map fun e => paramInfoOverrides[e]?.map Prod.snd
     trace[Elab.structure] "full constructor type:{indentExpr type}"
     pure { name := view.ctor.declName, type }
 

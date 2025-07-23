@@ -223,7 +223,7 @@ def structFields         := leading_parser
       structExplicitBinder <|> structImplicitBinder <|>
       structInstBinder <|> structSimpleBinder)
 def structCtor           := leading_parser
-  atomic (ppIndent (declModifiers true >> ident >> " :: "))
+  atomic (ppIndent (declModifiers true >> ident >> many (ppSpace >> Term.bracketedBinder) >> " :: "))
 def structureTk          := leading_parser
   "structure "
 def classTk              := leading_parser

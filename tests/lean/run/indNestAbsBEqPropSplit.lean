@@ -46,6 +46,13 @@ def List.join [PropSplit α β P] : (ys : List β) → Forall P ys → List α
   | [], _ => []
   | x::xs, h => PropSplit.join x (match h with | .cons h _ => h) :: List.join xs (match h with | .cons _ hs => hs)
 
+theorem List.join_data [PropSplit α β P] (xs : List α) :
+    List.join (List.data xs) (List.prop xs) = xs := by
+  induction xs
+  · rfl
+  · simp_all [List.data, List.join, PropSplit.join_split]
+
+
 instance [PropSplit α β P] : PropSplit (List α) (List β) (List.Forall P) where
   data := List.data
   prop := List.prop
@@ -54,10 +61,7 @@ instance [PropSplit α β P] : PropSplit (List α) (List β) (List.Forall P) whe
     induction xs
     · rfl
     · simp_all [List.data, List.join, PropSplit.split_join]
-  join_split xs := by
-    induction xs
-    · rfl
-    · simp_all [List.data, List.join, PropSplit.join_split]
+  join_split := List.join_data
 
 -- Trivial Instance for pure data
 
@@ -72,12 +76,13 @@ instance [PropSplit α β P] : PropSplit (List α) (List β) (List.Forall P) whe
 
 -- Simple Instance for subtypes
 
--- instance {P : α → Prop} : PropSplit (Subtype P) α P where
---   data := Subtype.val
---   prop := Subtype.property
---   join := Subtype.mk
---   split_join _ _ := rfl
---   join_split _ := rfl
+@[reducible]
+def instSubtypeSimple {P : α → Prop} : PropSplit (Subtype P) α P where
+  data := Subtype.val
+  prop := Subtype.property
+  join := Subtype.mk
+  split_join _ _ := rfl
+  join_split _ := rfl
 
 -- Not so simple instance for subtypes
 
@@ -220,7 +225,21 @@ theorem heq_motive_f_congr2
   cases hy
   rfl
 
-theorem heq_motive_f_congr2_4
+theorem heq_motive_f_congr1_2
+  {α1 : Type v1}
+  {γ : Type uu}
+  (con : α1 → γ)
+  {hyp1 : α1 → Sort u1}
+  (motive : γ → Sort u3)
+  (hyp : ∀ x1 (_h1 : hyp1 x1),  motive (con x1))
+  (x1 x1' : α1) (hx1 : x1 = x1')
+  (h1 : hyp1 x1) (h1' : hyp1 x1') (hh1 : h1 ≍ h1')
+  : hyp x1 h1 ≍ hyp x1' h1' := by
+  cases hx1
+  cases hh1
+  rfl
+
+theorem heq_motive_f_congr2_2
   {α1 : Type v1}
   {α2 : Type v2}
   {γ : Type uu}
@@ -238,6 +257,23 @@ theorem heq_motive_f_congr2_4
   cases hx2
   cases hh1
   cases hh2
+  rfl
+
+theorem heq_motive_f_congr1_1_1
+  {α1 : Sort v1}
+  {α2 : α1 → Sort v2}
+  {γ : Type uu}
+  (con : (x : α1) → α2 x → γ)
+  {ih : (x : α1) → α2 x → Sort u1}
+  (motive : γ → Sort u3)
+  (hyp : ∀ x1 x2 (_h1 : ih x1 x2), motive (con x1 x2))
+  (x1 x1' : α1) (hx1 : x1 = x1')
+  (x2 : α2 x1) (x2' : α2 x1') (hx2 : x2 ≍ x2')
+  (h1 : ih x1 x2) (h1' : ih x1' x2') (hh1 : h1 ≍ h1')
+  : hyp x1 x2 h1 ≍ hyp x1' x2' h1' := by
+  cases hx1
+  cases hx2
+  cases hh1
   rfl
 
 
@@ -335,8 +371,8 @@ noncomputable def Expr.rec_1' : (t : T Expr) → motive_2 t :=
         simpa [Expr.app, PropSplit.split_join] using
           app (PropSplit.join f (match h with | Expr.WF.app h _ => h))
               (PropSplit.join es (match h with | Expr.WF.app _ h => h))
-              (ih1 (match h with | Expr.WF.app h _ => h))
-              (ih2 (match h with | Expr.WF.app _ h => h)))
+              (ih1 _)
+              (ih2 _))
       (fun es ih h => by
         simpa [Expr.nest, PropSplit.split_join] using
           nest (PropSplit.join es (match h with | Expr.WF.nest h => h))
@@ -351,8 +387,8 @@ noncomputable def Expr.rec_1' : (t : T Expr) → motive_2 t :=
           cons
             (PropSplit.join x (match h with | List.Forall.cons h _ => h))
             (PropSplit.join xs (match h with | List.Forall.cons _ h => h))
-            (ih1 (match h with | List.Forall.cons h _ => h))
-            (ih2 (match h with | List.Forall.cons _ h => h)))
+            (ih1 _)
+            (ih2 _))
   fun t =>
     by simpa [PropSplit.join_split] using go (PropSplit.data t)  (PropSplit.prop t)
 
@@ -368,8 +404,222 @@ theorem Expr.rec'_eq2 :
   unfold Expr.rec' Expr.rec_1' Expr.app
   simp [PropSplit.data]
   simp only [cast_eq_iff_heq]
-  apply heq_motive_f_congr2_4
+  apply heq_motive_f_congr2_2
   · exact PropSplit.join_split f
   · exact PropSplit.join_split es
   · rfl
   · simp only [heq_cast_iff_heq, heq_eq_eq]
+
+end rec
+
+-- New experiment: Vectors
+
+/--
+error: (kernel) invalid nested inductive datatype 'Eq', nested inductive datatypes parameters cannot contain local variables.
+-/
+#guard_msgs in
+inductive VTree' : (n : Nat) → Type u where
+  | node : Vector (VTree' n) (n + 1) → VTree' n
+
+/--
+error: (kernel) invalid nested inductive datatype 'Eq', nested inductive datatypes parameters cannot contain local variables.
+-/
+#guard_msgs in
+inductive VTree'' : Type u where
+  | node : Vector VTree'' 3 → VTree''
+
+@[simp] theorem List.length_join [PropSplit α β P] (xs : List β) (h : List.Forall P xs) :
+    List.length (List.join (α := α) xs h) = xs.length  := by
+  induction xs <;> grind [List.join]
+
+structure Vector.Raw (α : Type u) : Type u where
+  toList : List α
+
+inductive Vector.Prop (P : α → Prop) : (n : Nat) → (xs : Vector.Raw α) → Prop where
+  | mk : (length : xs.length = n) → (prop : List.Forall P xs) → Vector.Prop P n (Vector.Raw.mk xs)
+
+def Vector.ofList {α : Type u} {n : Nat} (xs : List α) (h : xs.length = n) : Vector α n :=
+  Vector.mk (List.toArray xs) (by simpa [PropSplit.join] using h)
+
+@[simp] theorem Vector.ofList_toList : Vector.ofList (Vector.toList x) h = x := by
+  simp [Vector.ofList]
+  rw [← @Vector.toList_toArray]
+
+@[simp] theorem Vector.toList_ofList {α : Type u} {n : Nat} (xs : List α)
+  (h : xs.length = n) :
+    Vector.toList (Vector.ofList xs h) = xs := by
+  simp [Vector.ofList]
+
+instance [PropSplit α β P] :
+    PropSplit (Vector α n) (Vector.Raw β) (Vector.Prop P n) where
+  data v := Vector.Raw.mk (PropSplit.data v.toList)
+  prop v := Vector.Prop.mk ((List.length_map _).symm ▸ v.length_toList) (PropSplit.prop v.toList)
+  join xs h := match xs with
+    | .mk xs => Vector.ofList
+      (PropSplit.join xs (match h with | .mk _ h' => h'))
+      (by match h with | .mk h' _ => simpa [PropSplit.join] using h')
+  split_join x h := match x with
+    | .mk x => by simpa using PropSplit.split_join x _
+  join_split x := by
+    have := PropSplit.join_split x.toList
+    simp [this]
+
+inductive VTree.Raw : Type u where
+  | node (cs : Vector.Raw VTree.Raw) : VTree.Raw
+
+-- We cannot do the variant where n is decreasing
+-- (local varibles in paramter restriction)
+-- but we can do this
+inductive VTree.WF : VTree.Raw → Prop where
+  | node {cs} (h : Vector.Prop VTree.WF 3 cs) : VTree.WF (VTree.Raw.node cs)
+
+def VTree := Subtype VTree.WF
+
+instance : PropSplit VTree VTree.Raw VTree.WF := instSubtypeSimple
+
+-- fake constructor
+
+def VTree.node (cs : Vector VTree 3) : VTree where
+  val := VTree.Raw.node (PropSplit.data cs)
+  property := VTree.WF.node (PropSplit.prop cs)
+
+/--
+info: recursor VTree.Raw.rec.{u_1, u} : {motive_1 : VTree.Raw → Sort u_1} →
+  {motive_2 : Vector.Raw VTree.Raw → Sort u_1} →
+    {motive_3 : List VTree.Raw → Sort u_1} →
+      ((cs : Vector.Raw VTree.Raw) → motive_2 cs → motive_1 (VTree.Raw.node cs)) →
+        ((toList : List VTree.Raw) → motive_3 toList → motive_2 { toList := toList }) →
+          motive_3 [] →
+            ((head : VTree.Raw) → (tail : List VTree.Raw) → motive_1 head → motive_3 tail → motive_3 (head :: tail)) →
+              (t : VTree.Raw) → motive_1 t
+-/
+#guard_msgs in
+#print VTree.Raw.rec
+
+section rec
+
+variable
+  {motive_1 : VTree → Sort u}
+  {motive_2 : Vector VTree 3 → Sort u}
+  {motive_3 : List VTree → Sort u}
+  (node : (cs : Vector VTree 3) → motive_2 cs → motive_1 (VTree.node cs))
+  (toList : (xs : List VTree) → (h : xs.length = 3) → motive_3 xs → motive_2 (Vector.ofList xs h))
+  (nil : motive_3 [])
+  (cons : (head : VTree) → (tail : List VTree) → motive_1 head → motive_3 tail → motive_3 (head :: tail))
+
+noncomputable def VTree.rec' : (t : VTree) → motive_1 t :=
+  let go : (x : VTree.Raw) → (h : VTree.WF x) → motive_1 (PropSplit.join x h) :=
+    @VTree.Raw.rec
+      (fun x => ∀ h, motive_1 (PropSplit.join x h))
+      (fun x => ∀ h, motive_2 (PropSplit.join x h))
+      (fun x => ∀ h, motive_3 (PropSplit.join x h))
+      (fun cs ih h => by
+        simpa [VTree.node, PropSplit.split_join] using
+          node (PropSplit.join cs (match h with | VTree.WF.node h => h)) (ih _))
+      (fun xs ih h =>
+        toList (PropSplit.join xs (match h with | .mk _ h => h))
+          (by simpa [PropSplit.join] using (match h with | .mk h _ => h))
+          (ih _)
+      )
+      (fun h => nil)
+      (fun head tail ih1 ih2 h =>
+        cons
+          (PropSplit.join head (match h with | List.Forall.cons h _ => h))
+          (PropSplit.join tail (match h with | List.Forall.cons _ h => h))
+          (ih1 _)
+          (ih2 _))
+  fun t => go (PropSplit.data t)  (PropSplit.prop t)
+
+noncomputable def VTree.rec_1' : (t : Vector VTree 3) → motive_2 t :=
+  let go : (x : Vector.Raw VTree.Raw) → (h : Vector.Prop VTree.WF 3 x) → motive_2 (PropSplit.join x h) :=
+    @VTree.Raw.rec_1
+      (fun x => ∀ h, motive_1 (PropSplit.join x h))
+      (fun x => ∀ h, motive_2 (PropSplit.join x h))
+      (fun x => ∀ h, motive_3 (PropSplit.join x h))
+      (fun cs ih h => by
+        simpa [VTree.node, PropSplit.split_join] using
+          node (PropSplit.join cs (match h with | VTree.WF.node h => h)) (ih _))
+      (fun xs ih h =>
+        toList (PropSplit.join xs (match h with | .mk _ h => h))
+          (by simpa [PropSplit.join] using (match h with | .mk h _ => h))
+          (ih _)
+      )
+      (fun h => nil)
+      (fun head tail ih1 ih2 h =>
+        cons
+          (PropSplit.join head (match h with | List.Forall.cons h _ => h))
+          (PropSplit.join tail (match h with | List.Forall.cons _ h => h))
+          (ih1 _)
+          (ih2 _))
+  fun t => by
+    simpa [PropSplit.join_split] using go (PropSplit.data t) (PropSplit.prop t)
+
+noncomputable def VTree.rec_2' : (t : List VTree) → motive_3 t :=
+  let go : (x : List VTree.Raw) → (h : List.Forall VTree.WF x) → motive_3 (PropSplit.join x h) :=
+    @VTree.Raw.rec_2
+      (fun x => ∀ h, motive_1 (PropSplit.join x h))
+      (fun x => ∀ h, motive_2 (PropSplit.join x h))
+      (fun x => ∀ h, motive_3 (PropSplit.join x h))
+      (fun cs ih h => by
+        simpa [VTree.node, PropSplit.split_join] using
+          node (PropSplit.join cs (match h with | VTree.WF.node h => h)) (ih _))
+      (fun xs ih h =>
+        toList (PropSplit.join xs (match h with | .mk _ h => h))
+          (by simpa [PropSplit.join] using (match h with | .mk h _ => h))
+          (ih _)
+      )
+      (fun h => nil)
+      (fun head tail ih1 ih2 h =>
+        cons
+          (PropSplit.join head (match h with | List.Forall.cons h _ => h))
+          (PropSplit.join tail (match h with | List.Forall.cons _ h => h))
+          (ih1 _)
+          (ih2 _))
+  fun t => by
+    simpa [PropSplit.join_split] using go (PropSplit.data t) (PropSplit.prop t)
+
+theorem VTree.rec'_eq1 :
+    VTree.rec' node toList nil cons (.node xs) =
+      node xs (VTree.rec_1' node toList nil cons xs) := by
+  unfold VTree.rec' VTree.rec_1' VTree.node
+  simp [PropSplit.data]
+  simp only [cast_eq_iff_heq]
+  apply heq_motive_f_congr1_2
+  · exact PropSplit.join_split xs
+  · simp only [heq_cast_iff_heq, heq_eq_eq]
+
+theorem HEq_Prop
+  (p : Prop) (q : Prop) (h1 : p) (h2 : q) (_h : p = q) : h1 ≍ h2 := by simp [*]
+
+theorem VTree.rec_1'_eq1 :
+    VTree.rec_1' node toList nil cons (.ofList xs h) =
+      toList xs h (VTree.rec_2' node toList nil cons xs) := by
+  unfold VTree.rec_1' VTree.rec_2'
+  simp only [eq_mp_eq_cast, cast_eq_iff_heq]
+  apply heq_motive_f_congr1_1_1
+        (α2 := fun xs => xs.length = 3)
+        (ih := fun x _ => motive_3 x)
+  · exact PropSplit.join_split xs
+  · apply HEq_Prop
+    congr
+    simp [PropSplit.join, PropSplit.data, List.join_data, Vector.toList_ofList]
+  · simp only [heq_cast_iff_heq]
+    rfl
+
+theorem VTree.rec_2'_eq1 :
+    VTree.rec_2' node toList nil cons .nil = nil := by rfl
+
+
+theorem VTree.rec_2'_eq2 :
+    VTree.rec_2' node toList nil cons (.cons x xs) =
+      cons x xs (VTree.rec' node toList nil cons x) (VTree.rec_2' node toList nil cons xs) := by
+  unfold VTree.rec_2' VTree.rec'
+  simp only [eq_mp_eq_cast, cast_eq_iff_heq]
+  apply heq_motive_f_congr2_2
+  · exact PropSplit.join_split _
+  · exact PropSplit.join_split _
+  · rfl
+  · simp [heq_cast_iff_heq]
+    rfl
+
+end rec

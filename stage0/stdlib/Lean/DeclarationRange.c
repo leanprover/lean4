@@ -39,6 +39,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 uint8_t lean_is_no_confusion(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRangesCore_x3f___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9024_(uint8_t, uint8_t);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_initFn____x40_Lean_DeclarationRange___hyg_45__spec__0_spec__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_isRec___redArg(lean_object*, lean_object*, lean_object*);
@@ -57,7 +58,6 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___redArg___lam__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_addDeclarationRanges___redArg___lam__0___closed__0;
-uint8_t l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9069_(uint8_t, uint8_t);
 lean_object* l_Lean_MapDeclarationExtension_find_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -150,7 +150,7 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = 1;
-x_5 = l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9069_(x_3, x_4);
+x_5 = l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9024_(x_3, x_4);
 x_6 = lean_box(x_5);
 if (lean_obj_tag(x_6) == 0)
 {

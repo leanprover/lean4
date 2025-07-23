@@ -937,7 +937,7 @@ lean_inc_ref(x_135);
 x_136 = lean_ctor_get(x_121, 0);
 lean_inc_ref(x_136);
 lean_dec(x_121);
-x_137 = lean_array_to_list(x_98);
+x_137 = lean_array_to_list(x_97);
 lean_inc(x_100);
 x_138 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_138, 0, x_100);
@@ -946,7 +946,7 @@ lean_ctor_set(x_138, 2, x_107);
 x_139 = lean_box(0);
 lean_inc(x_100);
 lean_ctor_set_tag(x_119, 1);
-lean_ctor_set(x_119, 1, x_97);
+lean_ctor_set(x_119, 1, x_98);
 lean_ctor_set(x_119, 0, x_100);
 x_140 = lean_alloc_ctor(0, 4, 1);
 lean_ctor_set(x_140, 0, x_138);
@@ -1078,7 +1078,7 @@ lean_inc_ref(x_162);
 x_163 = lean_ctor_get(x_148, 0);
 lean_inc_ref(x_163);
 lean_dec(x_148);
-x_164 = lean_array_to_list(x_98);
+x_164 = lean_array_to_list(x_97);
 lean_inc(x_100);
 x_165 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_165, 0, x_100);
@@ -1088,7 +1088,7 @@ x_166 = lean_box(0);
 lean_inc(x_100);
 x_167 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_167, 0, x_100);
-lean_ctor_set(x_167, 1, x_97);
+lean_ctor_set(x_167, 1, x_98);
 x_168 = lean_alloc_ctor(0, 4, 1);
 lean_ctor_set(x_168, 0, x_165);
 lean_ctor_set(x_168, 1, x_99);
@@ -1194,8 +1194,8 @@ lean_dec(x_102);
 lean_dec_ref(x_101);
 lean_dec(x_100);
 lean_dec_ref(x_99);
-lean_dec_ref(x_98);
-lean_dec(x_97);
+lean_dec(x_98);
+lean_dec_ref(x_97);
 x_176 = !lean_is_exclusive(x_117);
 if (x_176 == 0)
 {
@@ -1226,8 +1226,8 @@ lean_dec(x_102);
 lean_dec_ref(x_101);
 lean_dec(x_100);
 lean_dec_ref(x_99);
-lean_dec_ref(x_98);
-lean_dec(x_97);
+lean_dec(x_98);
+lean_dec_ref(x_97);
 x_180 = !lean_is_exclusive(x_109);
 if (x_180 == 0)
 {
@@ -1257,8 +1257,8 @@ lean_dec(x_102);
 lean_dec_ref(x_101);
 lean_dec(x_100);
 lean_dec_ref(x_99);
-lean_dec_ref(x_98);
-lean_dec(x_97);
+lean_dec(x_98);
+lean_dec_ref(x_97);
 lean_dec_ref(x_1);
 x_184 = !lean_is_exclusive(x_106);
 if (x_184 == 0)
@@ -1310,8 +1310,8 @@ if (x_207 == 0)
 {
 lean_free_object(x_199);
 lean_free_object(x_195);
-x_97 = x_206;
-x_98 = x_205;
+x_97 = x_205;
+x_98 = x_206;
 x_99 = x_201;
 x_100 = x_197;
 x_101 = x_189;
@@ -1380,8 +1380,8 @@ x_222 = l_Lean_Expr_hasMVar(x_216);
 if (x_222 == 0)
 {
 lean_free_object(x_195);
-x_97 = x_221;
-x_98 = x_220;
+x_97 = x_220;
+x_98 = x_221;
 x_99 = x_216;
 x_100 = x_197;
 x_101 = x_189;
@@ -1466,8 +1466,8 @@ x_242 = l_Lean_Expr_hasMVar(x_235);
 if (x_242 == 0)
 {
 lean_dec(x_237);
-x_97 = x_241;
-x_98 = x_240;
+x_97 = x_240;
+x_98 = x_241;
 x_99 = x_235;
 x_100 = x_232;
 x_101 = x_189;

@@ -821,6 +821,12 @@ if(LEAN_INSTALL_PREFIX)
   set(CMAKE_INSTALL_PREFIX "${LEAN_INSTALL_PREFIX}/lean-${LEAN_VERSION_STRING}${LEAN_INSTALL_SUFFIX}")
 endif()
 
+if (STAGE GREATER 1)
+  # The build of stage2+ may depend on local changes made to src/ that are not reflected by the
+  # commit hash in stage1/bin/lean, so we make sure to disable the global cache
+  string(APPEND LEAN_EXTRA_LAKEFILE_TOML "\n\nenableArtifactCache = false")
+endif()
+
 # Escape for `make`. Yes, twice.
 string(REPLACE "$" "\\\$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
 configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)

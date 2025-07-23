@@ -71,7 +71,6 @@ uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 static lean_object* l___auto___closed__9____x40_Lean_Compiler_LCNF_PhaseExt___hyg_570_;
 static lean_object* l_Lean_Compiler_LCNF_forEachModuleDecl___closed__0;
 lean_object* l_Lean_stringToMessageData(lean_object*);
-lean_object* l_Lean_Environment_addExtraName(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkDeclExt___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_forEachMainModuleDecl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkDeclExt___lam__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2404,25 +2403,19 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_saveBaseDeclCore(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-x_4 = l_Lean_Compiler_LCNF_getBaseDecl_x3f___redArg___closed__0;
-x_5 = l_Lean_Environment_addExtraName(x_1, x_3);
-x_6 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_4, x_5, x_2);
-return x_6;
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Lean_Compiler_LCNF_getBaseDecl_x3f___redArg___closed__0;
+x_4 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_3, x_1, x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_saveMonoDeclCore(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-x_4 = l_Lean_Compiler_LCNF_getMonoDecl_x3f___redArg___closed__0;
-x_5 = l_Lean_Environment_addExtraName(x_1, x_3);
-x_6 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_4, x_5, x_2);
-return x_6;
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Lean_Compiler_LCNF_getMonoDecl_x3f___redArg___closed__0;
+x_4 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_3, x_1, x_2);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_Decl_saveBase___redArg___closed__0() {

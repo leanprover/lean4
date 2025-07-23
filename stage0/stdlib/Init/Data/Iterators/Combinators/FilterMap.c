@@ -78,9 +78,9 @@ _start:
 lean_object* x_9; 
 x_9 = l_Std_Iterators_Iter_filterMapWithPostcondition(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
+lean_dec_ref(x_4);
 return x_9;
 }
 }
@@ -113,9 +113,9 @@ _start:
 lean_object* x_8; 
 x_8 = l_Std_Iterators_Iter_filterWithPostcondition(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
+lean_dec_ref(x_3);
 return x_8;
 }
 }
@@ -148,9 +148,9 @@ _start:
 lean_object* x_9; 
 x_9 = l_Std_Iterators_Iter_mapWithPostcondition(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
+lean_dec_ref(x_4);
 return x_9;
 }
 }
@@ -183,9 +183,9 @@ _start:
 lean_object* x_9; 
 x_9 = l_Std_Iterators_Iter_filterMapM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
+lean_dec_ref(x_4);
 return x_9;
 }
 }
@@ -218,9 +218,9 @@ _start:
 lean_object* x_8; 
 x_8 = l_Std_Iterators_Iter_filterM(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
+lean_dec_ref(x_3);
 return x_8;
 }
 }
@@ -253,9 +253,9 @@ _start:
 lean_object* x_9; 
 x_9 = l_Std_Iterators_Iter_mapM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
+lean_dec_ref(x_4);
 return x_9;
 }
 }
@@ -288,8 +288,8 @@ _start:
 lean_object* x_7; 
 x_7 = l_Std_Iterators_Iter_filterMap(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 return x_7;
 }
 }
@@ -322,8 +322,8 @@ _start:
 lean_object* x_6; 
 x_6 = l_Std_Iterators_Iter_filter(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
 return x_6;
 }
 }
@@ -356,8 +356,8 @@ _start:
 lean_object* x_7; 
 x_7 = l_Std_Iterators_Iter_map(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 return x_7;
 }
 }

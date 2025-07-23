@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Internal.WF.Defs
-import Std.Data.DTreeMap.Internal.Cell
-import Std.Data.Internal.Cut
+public import Std.Data.DTreeMap.Internal.WF.Defs
+public import Std.Data.DTreeMap.Internal.Cell
+public import Std.Data.Internal.Cut
+
+@[expose] public section
 
 /-!
 # Model implementations of tree map functions

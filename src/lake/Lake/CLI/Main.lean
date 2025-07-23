@@ -48,6 +48,7 @@ structure LakeOptions where
   outLv? : Option LogLevel := .none
   ansiMode : AnsiMode := .auto
   outFormat : OutFormat := .text
+  offline : Bool := false
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -91,7 +92,9 @@ def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig := d
   }
 
 /-- Make a `BuildConfig` from a `LakeOptions`. -/
-def LakeOptions.mkBuildConfig (opts : LakeOptions) (out := OutStream.stderr) : BuildConfig where
+def LakeOptions.mkBuildConfig
+  (opts : LakeOptions) (out := OutStream.stderr) (showSuccess := false)
+: BuildConfig where
   oldMode := opts.oldMode
   trustHash := opts.trustHash
   noBuild := opts.noBuild
@@ -99,7 +102,7 @@ def LakeOptions.mkBuildConfig (opts : LakeOptions) (out := OutStream.stderr) : B
   failLv := opts.failLv
   outLv := opts.outLv
   ansiMode := opts.ansiMode
-  out := out
+  out; showSuccess
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
 
@@ -195,6 +198,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
 | "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
 | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
+| "--offline"     => modifyThe LakeOptions ({· with offline := true})
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
 | "--log-level"   => do
@@ -340,14 +344,14 @@ protected def new : CliM PUnit := do
   let opts ← getThe LakeOptions
   let name ← takeArg "package name"
   let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
-  noArgsRem do new name tmp lang (← opts.computeEnv) opts.rootDir
+  noArgsRem do new name tmp lang (← opts.computeEnv) opts.rootDir opts.offline
 
 protected def init : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let name := ← takeArgD "."
   let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
-  noArgsRem do init name tmp lang (← opts.computeEnv) opts.rootDir
+  noArgsRem do init name tmp lang (← opts.computeEnv) opts.rootDir opts.offline
 
 protected def build : CliM PUnit := do
   processOptions lakeOption
@@ -359,11 +363,8 @@ protected def build : CliM PUnit := do
   specs.forM fun spec =>
     unless spec.buildable do
       throw <| .invalidBuildTarget spec.info.key.toSimpleString
-  let buildConfig := mkBuildConfig opts (out := .stdout)
-  let showProgress := buildConfig.showProgress
+  let buildConfig := mkBuildConfig opts (out := .stdout) (showSuccess := true)
   ws.runBuild (buildSpecs specs) buildConfig
-  if showProgress then
-    IO.println "Build completed successfully."
 
 protected def checkBuild : CliM PUnit := do
   processOptions lakeOption
@@ -549,7 +550,8 @@ private def evalLeanFile
       mkArgs path setup mod.leanArgs
     else
       let header ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
-      let setup ← mkModuleSetup ws leanFile.toString header ws.leanOptions buildConfig
+      let setup ← ws.runBuild (cfg := buildConfig) do
+        setupExternalModule leanFile.toString header ws.leanOptions
       mkArgs path setup ws.root.moreLeanArgs
   let spawnArgs : IO.Process.SpawnArgs := {
     args := args ++ moreArgs

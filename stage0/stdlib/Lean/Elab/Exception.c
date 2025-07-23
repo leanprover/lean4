@@ -273,8 +273,8 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-lean_dec(x_1);
+lean_inc_ref(x_2);
+lean_dec_ref(x_1);
 x_3 = l_Lean_Elab_throwPostpone___redArg___closed__1;
 x_4 = lean_apply_2(x_2, lean_box(0), x_3);
 return x_4;
@@ -313,8 +313,8 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-lean_dec(x_1);
+lean_inc_ref(x_2);
+lean_dec_ref(x_1);
 x_3 = l_Lean_Elab_throwUnsupportedSyntax___redArg___closed__1;
 x_4 = lean_apply_2(x_2, lean_box(0), x_3);
 return x_4;
@@ -495,7 +495,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Elab_isAutoBoundImplicitLocalException_x3f(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -583,8 +583,8 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-lean_dec(x_1);
+lean_inc_ref(x_2);
+lean_dec_ref(x_1);
 x_3 = l_Lean_Elab_throwAbortCommand___redArg___closed__1;
 x_4 = lean_apply_2(x_2, lean_box(0), x_3);
 return x_4;
@@ -623,8 +623,8 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-lean_dec(x_1);
+lean_inc_ref(x_2);
+lean_dec_ref(x_1);
 x_3 = l_Lean_Elab_throwAbortTerm___redArg___closed__1;
 x_4 = lean_apply_2(x_2, lean_box(0), x_3);
 return x_4;
@@ -663,8 +663,8 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-lean_dec(x_1);
+lean_inc_ref(x_2);
+lean_dec_ref(x_1);
 x_3 = l_Lean_Elab_throwAbortTactic___redArg___closed__1;
 x_4 = lean_apply_2(x_2, lean_box(0), x_3);
 return x_4;
@@ -702,7 +702,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Elab_isAbortTacticException(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -764,7 +764,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_mkMessageCore(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_7 = l_Lean_FileMap_toPosition(x_2, x_5);
 x_8 = l_Lean_FileMap_toPosition(x_2, x_6);
 x_9 = lean_alloc_ctor(1, 1, 0);
@@ -788,7 +788,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_4);
-lean_dec(x_4);
 x_8 = l_Lean_Elab_mkMessageCore(x_1, x_2, x_3, x_7, x_5, x_6);
 lean_dec(x_6);
 lean_dec(x_5);

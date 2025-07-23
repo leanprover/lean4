@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Std.Do.Triple.Basic
-import Std.Do.WP
+public import Std.Do.Triple.Basic
+public import Std.Do.WP
+
+@[expose] public section
 
 /-!
 # Hoare triple specifications for select functions
@@ -32,12 +36,24 @@ structure Zipper {α : Type u} (l : List α) : Type u where
   suff : List α
   property : rpref.reverse ++ suff = l
 
+@[simp]
 abbrev Zipper.pref {α} {l : List α} (s : List.Zipper l) : List α := s.rpref.reverse
 
 abbrev Zipper.begin (l : List α) : Zipper l := ⟨[],l,rfl⟩
 abbrev Zipper.end (l : List α) : Zipper l := ⟨l.reverse,[],by simp⟩
 abbrev Zipper.tail (s : Zipper l) (h : s.suff = hd::tl) : Zipper l :=
   { rpref := hd::s.rpref, suff := tl, property := by simp [s.property, ←h] }
+
+@[grind →]
+theorem range_elim : List.range' s n = xs ++ i :: ys → i = s + xs.length := by
+  intro h
+  induction xs generalizing s n
+  case nil => cases n <;> simp_all[List.range']
+  case cons head tail ih =>
+    cases n <;> simp[List.range'] at h
+    have := ih h.2
+    simp[ih h.2]
+    omega
 
 end Std.List
 
@@ -160,7 +176,7 @@ theorem Spec.set_StateT [Monad m] [WPMonad m psm] :
 
 @[spec]
 theorem Spec.modifyGet_StateT [Monad m] [WPMonad m ps] :
-  ⦃fun s => Q.1 (f s).1 (f s).2⦄ (MonadStateOf.modifyGet f : StateT σ m α) ⦃Q⦄ := by
+  ⦃fun s => let t := f s; Q.1 t.1 t.2⦄ (MonadStateOf.modifyGet f : StateT σ m α) ⦃Q⦄ := by
     simp [Triple]
 
 /-! # `ExceptT` -/
@@ -205,7 +221,7 @@ theorem Spec.set_EStateM :
 
 @[spec]
 theorem Spec.modifyGet_EStateM :
-    ⦃fun s => Q.1 (f s).1 (f s).2⦄ (MonadStateOf.modifyGet f : EStateM ε σ α) ⦃Q⦄ := SPred.entails.rfl
+    ⦃fun s => let t := f s; Q.1 t.1 t.2⦄ (MonadStateOf.modifyGet f : EStateM ε σ α) ⦃Q⦄ := SPred.entails.rfl
 
 @[spec]
 theorem Spec.throw_EStateM :

@@ -50,10 +50,20 @@ should not be unfolded by `unfoldReducible`.
 def isGrindGadget (declName : Name) : Bool :=
   declName == ``Grind.EqMatch
 
+def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
+  let env ← getEnv
+  return Option.isSome <| e.find? fun e => Id.run do
+    let .const declName _ := e | return false
+    if getReducibilityStatusCore env declName matches .reducible then
+      return !isGrindGadget declName
+    else
+      return false
+
 /--
 Unfolds all `reducible` declarations occurring in `e`.
 -/
-def unfoldReducible (e : Expr) : MetaM Expr :=
+def unfoldReducible (e : Expr) : MetaM Expr := do
+  if !(← isUnfoldReducibleTarget e) then return e
   let pre (e : Expr) : MetaM TransformStep := do
     let .const declName _ := e.getAppFn | return .continue
     unless (← isReducible declName) do return .continue
@@ -116,6 +126,7 @@ Recall that we still have to process `Expr.forallE` because of `ForallProp.lean`
 Moreover, we may not want to reduce `p → q` to `¬p ∨ q` when `(p q : Prop)`.
 -/
 def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
+  if Option.isNone <| e.find? fun e => e.isMData then return e
   let pre (e : Expr) := do
     match e with
     | .letE .. | .lam .. => return .done e
@@ -127,6 +138,7 @@ def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
 Converts nested `Expr.proj`s into projection applications if possible.
 -/
 def foldProjs (e : Expr) : MetaM Expr := do
+  if Option.isNone <| e.find? fun e => e.isProj then return e
   let post (e : Expr) := do
     let .proj structName idx s := e | return .done e
     let some info := getStructureInfo? (← getEnv) structName |

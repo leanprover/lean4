@@ -3,9 +3,13 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation
-import Std.Tactic.BVDecide.LRAT.Internal.CNF
+public import Std.Tactic.BVDecide.LRAT.Internal.Formula.Implementation
+public import Std.Tactic.BVDecide.LRAT.Internal.CNF
+
+@[expose] public section
 
 /-!
 This module contains basic statements about the invariants that are satisfied by the LRAT checker
@@ -54,7 +58,7 @@ theorem assignmentsInvariant_of_strongAssignmentsInvariant {n : Nat} (f : Defaul
   apply Exists.intro hsize
   intro i b hb p pf
   specialize h i b hb
-  simp only [(· ⊨ ·), 
+  simp only [(· ⊨ ·),
     Bool.decide_coe, List.all_eq_true] at pf
   specialize pf (unit (i, b)) h
   simpa [(· ⊨ ·), Clause.eval, unit_eq, Clause.toList] using pf

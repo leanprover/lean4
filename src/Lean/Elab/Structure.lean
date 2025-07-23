@@ -200,12 +200,15 @@ The structure constructor syntax is
 leading_parser try (declModifiers >> ident >> " :: ")
 ```
 -/
-private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM CtorView := do
+private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name)
+    (forcePrivate : Bool) : TermElabM CtorView := do
   let useDefault := do
+    let visibility := if forcePrivate then .private else .regular
     let declName := structDeclName ++ defaultCtorName
+    let declName ← applyVisibility visibility declName
     let ref := structStx[1].mkSynthetic
     addDeclarationRangesFromSyntax declName ref
-    pure { ref, declId := ref, modifiers := default, declName }
+    pure { ref, declId := ref, modifiers := { (default : Modifiers) with visibility }, declName }
   if structStx[4].isNone then
     useDefault
   else
@@ -221,6 +224,8 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
         throwError "invalid 'private' constructor in a 'private' structure"
       if ctorModifiers.isProtected && structModifiers.isPrivate then
         throwError "invalid 'protected' constructor in a 'private' structure"
+      if !ctorModifiers.isPrivate && forcePrivate then
+        throwError "invalid constructor visibility, must be private in presence of private fields"
       let name := ctor[1].getId
       let declName := structDeclName ++ name
       let declName ← applyVisibility ctorModifiers.visibility declName
@@ -377,8 +382,11 @@ def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM Str
       pure type?
   let parents ← expandParents exts
   let derivingClasses ← getOptDerivingClasses stx[5]
-  let ctor ← expandCtor stx modifiers declName
   let fields ← expandFields stx modifiers declName
+  -- Private fields imply a private constructor (in the module system only, for back-compat)
+  let ctor ← expandCtor
+    (forcePrivate := (← getEnv).header.isModule && fields.any (·.modifiers.isPrivate))
+    stx modifiers declName
   fields.forM fun field => do
     if field.declName == ctor.declName then
       throwErrorAt field.ref "invalid field name '{field.name}', it is equal to structure constructor name"
@@ -442,7 +450,7 @@ private def hasFieldName (fieldName : Name) : StructElabM Bool :=
 
 private def findFieldInfoByFVarId? (fvarId : FVarId) : StructElabM (Option StructFieldInfo) := do
   let s ← get
-  return s.fvarIdFieldIdx.find? fvarId |>.map fun idx => s.fields[idx]!
+  return s.fvarIdFieldIdx.get? fvarId |>.map fun idx => s.fields[idx]!
 
 /--
 Inserts a field info into the current state.
@@ -930,6 +938,7 @@ private def elabParamInfoUpdates (structParams : Array Expr) (binders : Array Sy
 
 private def elabFieldTypeValue (structParams : Array Expr) (view : StructFieldView) :
     StructElabM (Option Expr × ExprMap (Syntax × BinderInfo) × Option StructFieldDefault) := do
+  withoutExporting (when := view.modifiers.isPrivate) do
   let state ← get
   let binders := view.binders.getArgs
   let (binders, paramInfoOverrides) ← elabParamInfoUpdates structParams binders
@@ -939,14 +948,15 @@ private def elabFieldTypeValue (structParams : Array Expr) (view : StructFieldVi
       match view.default? with
       | none => return (none, paramInfoOverrides, none)
       | some (.optParam valStx) =>
-        Term.synthesizeSyntheticMVarsNoPostponing
-        let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
-        let value ← Term.withoutAutoBoundImplicit <| Term.elabTerm valStx none
-        let value ← runStructElabM (init := state) <| solveParentMVars value
-        registerFailedToInferFieldType view.name (← inferType value) view.nameId
-        registerFailedToInferDefaultValue view.name value valStx
-        let value ← mkLambdaFVars params value
-        return (none, paramInfoOverrides, StructFieldDefault.optParam value)
+        withoutExporting (when := view.modifiers.isPrivate) do
+          Term.synthesizeSyntheticMVarsNoPostponing
+          let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
+          let value ← Term.withoutAutoBoundImplicit <| Term.elabTerm valStx none
+          let value ← runStructElabM (init := state) <| solveParentMVars value
+          registerFailedToInferFieldType view.name (← inferType value) view.nameId
+          registerFailedToInferDefaultValue view.name value valStx
+          let value ← mkLambdaFVars params value
+          return (none, paramInfoOverrides, StructFieldDefault.optParam value)
       | some (.autoParam tacticStx) =>
         throwErrorAt tacticStx "invalid field declaration, type must be provided when auto-param tactic is used"
     | some typeStx =>
@@ -960,13 +970,14 @@ private def elabFieldTypeValue (structParams : Array Expr) (view : StructFieldVi
         let type ← mkForallFVars params type
         return (type, paramInfoOverrides, none)
       | some (.optParam valStx) =>
-        let value ← Term.withoutAutoBoundImplicit <| Term.elabTermEnsuringType valStx type
-        let value ← runStructElabM (init := state) <| solveParentMVars value
-        registerFailedToInferDefaultValue view.name value valStx
-        Term.synthesizeSyntheticMVarsNoPostponing
-        let type  ← mkForallFVars params type
-        let value ← mkLambdaFVars params value
-        return (type, paramInfoOverrides, StructFieldDefault.optParam value)
+        withoutExporting (when := view.modifiers.isPrivate) do
+          let value ← Term.withoutAutoBoundImplicit <| Term.elabTermEnsuringType valStx type
+          let value ← runStructElabM (init := state) <| solveParentMVars value
+          registerFailedToInferDefaultValue view.name value valStx
+          Term.synthesizeSyntheticMVarsNoPostponing
+          let type  ← mkForallFVars params type
+          let value ← mkLambdaFVars params value
+          return (type, paramInfoOverrides, StructFieldDefault.optParam value)
       | some (.autoParam tacticStx) =>
         let name := mkAutoParamFnOfProjFn view.declName
         discard <| Term.declareTacticSyntax tacticStx name
@@ -1231,7 +1242,7 @@ private def resolveFieldDefaults (structName : Name) : StructElabM Unit := do
     if fieldInfo.default?.isSome then
       replaceFieldInfo { fieldInfo with resolvedDefault? := fieldInfo.default? }
     else if !fieldInfo.inheritedDefaults.isEmpty then
-      let inheritedDefaults := fieldInfo.inheritedDefaults.insertionSort fun d1 d2 => resOrderMap.find! d1.1 < resOrderMap.find! d2.1
+      let inheritedDefaults := fieldInfo.inheritedDefaults.insertionSort fun d1 d2 => resOrderMap.get! d1.1 < resOrderMap.get! d2.1
       trace[Elab.structure] "inherited defaults for '{fieldInfo.name}' are {repr inheritedDefaults}"
       replaceFieldInfo { fieldInfo with
         inheritedDefaults
@@ -1288,7 +1299,8 @@ private def addDefaults (levelParams : List Name) (params : Array Expr) (replace
           (← mkDefinitionValInferrringUnsafe declName levelParams type value ReducibilityHints.abbrev)
     for fieldInfo in fieldInfos do
       if let some (.optParam value) := fieldInfo.default? then
-        addDefault (mkDefaultFnOfProjFn fieldInfo.declName) value
+        withoutExporting (when := isPrivateName fieldInfo.declName) do
+          addDefault (mkDefaultFnOfProjFn fieldInfo.declName) value
       else if let some (.optParam value) := fieldInfo.resolvedDefault? then
         addDefault (mkInheritedDefaultFnOfProjFn fieldInfo.declName) value
 

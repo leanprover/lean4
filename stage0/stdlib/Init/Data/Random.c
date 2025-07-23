@@ -397,7 +397,7 @@ x_22 = lean_ctor_get(x_1, 0);
 lean_inc(x_22);
 x_23 = lean_ctor_get(x_1, 1);
 lean_inc(x_23);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_24 = lean_unsigned_to_nat(53668u);
 x_25 = lean_nat_div(x_22, x_24);
 x_26 = lean_nat_to_int(x_25);
@@ -706,7 +706,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_instRandomGenStdGen___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -749,7 +749,7 @@ x_7 = lean_nat_dec_eq(x_4, x_6);
 if (x_7 == 1)
 {
 lean_dec(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_5;
 }
 else
@@ -759,9 +759,9 @@ x_8 = lean_ctor_get(x_5, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_5, 1);
 lean_inc(x_9);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
+lean_inc_ref(x_10);
 x_11 = lean_apply_1(x_10, x_9);
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)
@@ -862,7 +862,7 @@ block_48:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 lean_inc(x_2);
 x_8 = lean_apply_1(x_7, x_2);
 x_9 = !lean_is_exclusive(x_8);
@@ -1073,7 +1073,7 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = l_ByteArray_toUInt64LE_x21(x_4);
 lean_dec(x_4);
 x_7 = lean_uint64_to_nat(x_6);
@@ -1168,7 +1168,7 @@ x_7 = lean_ctor_get(x_4, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_4, 1);
 lean_inc(x_8);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_9 = l_stdNext(x_8);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
@@ -1374,13 +1374,13 @@ x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_8 = l_randNat___at___IO_rand_spec__0(x_6, x_1, x_2);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_11 = lean_st_ref_set(x_4, x_10, x_7);
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)

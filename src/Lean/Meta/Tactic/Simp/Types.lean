@@ -643,21 +643,36 @@ Retrieve auto-generated congruence lemma for `f`.
 Remark: If all argument kinds are `fixed` or `eq`, it returns `none` because
 using simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof.
 -/
-def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do
+def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do profileitM Exception "congr simp thm" (← getOptions) do
   if f.isConst then if (← isMatcher f.constName!) then
     -- We always use simple congruence theorems for auxiliary match applications
-    return none
-  let info ← getFunInfo f
-  let kinds ← getCongrSimpKinds f info
-  if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
-    /- See remark above. -/
     return none
   match (← get).congrCache[f]? with
   | some thm? => return thm?
   | none =>
-    let thm? ← mkCongrSimpCore? f info kinds
+    let thm? ← go?
     modify fun s => { s with congrCache := s.congrCache.insert f thm? }
     return thm?
+where
+  go? : SimpM (Option CongrTheorem) := do
+    let info ← getFunInfo f
+    let argKinds ← getCongrSimpKinds f info
+    if argKinds.all fun k => match k with | .fixed | .eq => true | _ => false then
+      /- See remark above. -/
+      return none
+    else if !(← getConfig).congrConsts then
+      mkCongrSimpCore? f info argKinds
+    else if let .const declName us := f then
+      let some thm ← mkCongrSimpForConst? declName us | mkCongrSimpCore? f info argKinds
+      if thm.argKinds == argKinds then
+        trace[congr.thm] "used global `{thm.proof.getAppFn}`"
+        return some thm
+      else
+        trace[congr.thm] "argKind mismatch while generating congr_simp theorem for `{declName}`"
+        mkCongrSimpCore? f info argKinds
+    else
+      mkCongrSimpCore? f info argKinds
+
 
 /--
 Try to use automatically generated congruence theorems. See `mkCongrSimp?`.
@@ -833,7 +848,7 @@ ones that allow zeta-delta reducing fvars not in `zetaDeltaSet` (e.g. `withInfer
 This also means that `usedZetaDelta` set might be reporting fvars in `zetaDeltaSet` that weren't "used".
 -/
 private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (zetaDeltaSet : FVarIdSet) (usedZetaDelta : FVarIdSet) : UsedSimps :=
-  zetaDeltaSet.fold (init := s) fun s fvarId =>
+  zetaDeltaSet.foldl (init := s) fun s fvarId =>
     if usedZetaDelta.contains fvarId then
       s.insert <| .fvar fvarId
     else

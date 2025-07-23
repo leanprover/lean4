@@ -3,14 +3,18 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Init.Data.List.Erase
-import Init.Data.Array.Lemmas
-import Std.Data.HashMap
-import Std.Sat.CNF.Basic
-import Std.Tactic.BVDecide.LRAT.Internal.PosFin
-import Std.Tactic.BVDecide.LRAT.Internal.Assignment
-import Init.Grind
+public import Init.Data.List.Erase
+public import Init.Data.Array.Lemmas
+public import Std.Data.HashMap
+public import Std.Sat.CNF.Basic
+public import Std.Tactic.BVDecide.LRAT.Internal.PosFin
+public import Std.Tactic.BVDecide.LRAT.Internal.Assignment
+public import Init.Grind
+
+@[expose] public section
 
 namespace Std.Tactic.BVDecide
 namespace LRAT
@@ -170,7 +174,7 @@ attribute [local grind] ofArray.foldl_folder_none_eq_none
 theorem ofArray.mem_of_mem_of_foldl_folder_eq_some
     (h : List.foldl DefaultClause.ofArray.folder (some acc) ls = some acc') (l) (h : l ∈ acc.toList) :
       l ∈ acc'.toList := by
-  induction ls generalizing acc with grind (gen := 7)
+  induction ls generalizing acc with grind
 
 attribute [local grind] ofArray.mem_of_mem_of_foldl_folder_eq_some
 
@@ -183,7 +187,7 @@ theorem ofArray.folder_foldl_mem_of_mem
   | cons x xs ih =>
     simp at hl h
     rw [DefaultClause.ofArray.folder.eq_def] at h -- TODO why doesn't `grind` handle this?
-    rcases hl <;> grind (gen := 7)
+    rcases hl <;> grind
 
 @[inline, local grind]
 def delete (c : DefaultClause n) (l : Literal (PosFin n)) : DefaultClause n where

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Log
-// Imports: Lean.Util.Sorry Lean.Widget.Types Lean.Message Lean.DocString.Links Lean.ErrorExplanations
+// Imports: Lean.Util.Sorry Lean.Widget.Types Lean.Message Lean.DocString.Links Lean.ErrorExplanations Lean.Data.Json.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -140,15 +140,15 @@ x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_ctor_get(x_2, 2);
 x_7 = lean_ctor_get(x_2, 3);
 x_8 = lean_ctor_get(x_2, 4);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_9 = lean_alloc_closure((void*)(l_Lean_instMonadLogOfMonadLift___redArg___lam__0), 3, 2);
 lean_closure_set(x_9, 0, x_8);
 lean_closure_set(x_9, 1, x_1);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_10 = lean_apply_2(x_1, lean_box(0), x_4);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_11 = lean_apply_2(x_1, lean_box(0), x_5);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_12 = lean_apply_2(x_1, lean_box(0), x_6);
 x_13 = lean_apply_2(x_1, lean_box(0), x_7);
 lean_ctor_set(x_2, 4, x_9);
@@ -172,15 +172,15 @@ lean_inc(x_16);
 lean_inc(x_15);
 lean_inc(x_14);
 lean_dec(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_19 = lean_alloc_closure((void*)(l_Lean_instMonadLogOfMonadLift___redArg___lam__0), 3, 2);
 lean_closure_set(x_19, 0, x_18);
 lean_closure_set(x_19, 1, x_1);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_20 = lean_apply_2(x_1, lean_box(0), x_14);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_21 = lean_apply_2(x_1, lean_box(0), x_15);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_22 = lean_apply_2(x_1, lean_box(0), x_16);
 x_23 = lean_apply_2(x_1, lean_box(0), x_17);
 x_24 = lean_alloc_ctor(0, 5, 0);
@@ -219,7 +219,7 @@ else
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_ctor_get(x_4, 0);
 lean_inc(x_7);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_8 = lean_apply_2(x_1, lean_box(0), x_7);
 return x_8;
 }
@@ -230,16 +230,16 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
+lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
+lean_inc_ref(x_4);
+lean_dec_ref(x_1);
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
-lean_dec(x_3);
+lean_inc_ref(x_6);
+lean_dec_ref(x_3);
 x_7 = lean_alloc_closure((void*)(l_Lean_getRefPos___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_7, 0, x_6);
 x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_7);
@@ -289,15 +289,15 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
+lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_2, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
-lean_dec(x_3);
-lean_inc(x_4);
+lean_inc_ref(x_6);
+lean_dec_ref(x_3);
+lean_inc_ref(x_4);
 x_7 = lean_alloc_closure((void*)(l_Lean_getRefPosition___redArg___lam__1), 5, 4);
 lean_closure_set(x_7, 0, x_6);
 lean_closure_set(x_7, 1, x_1);
@@ -405,7 +405,7 @@ static lean_object* _init_l_Lean_errorDescriptionWidget___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\nimport { createElement } from 'react';\nexport default function ({ code, explanationUrl }) {\n  const sansText = { fontFamily: 'var(--vscode-font-family)' }\n\n  const codeSpan = createElement('span', {}, [\n    createElement('span', { style: sansText }, 'Error code: '), code])\n  const brSpan = createElement('span', {}, '\\n')\n  const linkSpan = createElement('span', { style: sansText },\n    createElement('a', { href: explanationUrl }, 'View explanation'))\n\n  const all = createElement('div', { style: { marginTop: '1em' } }, [codeSpan, brSpan, linkSpan])\n  return all\n}", 569, 569);
+x_1 = lean_mk_string_unchecked("\nimport { createElement } from 'react';\nexport default function ({ code, explanationUrl }) {\n  const sansText = { fontFamily: 'var(--vscode-font-family)' }\n\n  const codeSpan = createElement('span', {}, [\n    createElement('span', { style: sansText }, 'Error code: '), code])\n  const brSpan = createElement('span', {}, '\\n')\n  const linkSpan = createElement('span', { style: sansText },\n    createElement('a', { href: explanationUrl, target: '_blank', rel: 'noreferrer noopener' },\n      'View explanation'))\n\n  const all = createElement('div', { style: { marginTop: '1em' } }, [codeSpan, brSpan, linkSpan])\n  return all\n}", 621, 621);
 return x_1;
 }
 }
@@ -534,7 +534,7 @@ x_11 = 1;
 x_12 = l_Lean_Name_toString(x_5, x_11, x_8);
 x_13 = lean_string_append(x_10, x_12);
 x_14 = lean_string_append(x_9, x_13);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_15 = l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed___closed__3;
 x_16 = l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed___closed__4;
 lean_ctor_set_tag(x_3, 3);
@@ -584,7 +584,7 @@ x_36 = 1;
 x_37 = l_Lean_Name_toString(x_30, x_36, x_33);
 x_38 = lean_string_append(x_35, x_37);
 x_39 = lean_string_append(x_34, x_38);
-lean_dec(x_38);
+lean_dec_ref(x_38);
 x_40 = l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed___closed__3;
 x_41 = l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed___closed__4;
 x_42 = lean_alloc_ctor(3, 1, 0);
@@ -627,7 +627,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -636,7 +636,7 @@ LEAN_EXPORT lean_object* l_Lean_logAt___redArg___lam__0(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_10 = l_Lean_FileMap_toPosition(x_1, x_2);
 x_11 = l_Lean_FileMap_toPosition(x_1, x_3);
 x_12 = lean_alloc_ctor(1, 1, 0);
@@ -682,7 +682,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean
 x_12 = lean_box(x_3);
 x_13 = lean_box(x_4);
 x_14 = lean_box(x_5);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 x_15 = lean_alloc_closure((void*)(l_Lean_logAt___redArg___lam__1___boxed), 10, 9);
 lean_closure_set(x_15, 0, x_11);
 lean_closure_set(x_15, 1, x_1);
@@ -717,7 +717,7 @@ else
 lean_object* x_27; 
 x_27 = lean_ctor_get(x_25, 0);
 lean_inc(x_27);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 x_21 = x_27;
 goto block_24;
 }
@@ -727,7 +727,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean
 x_14 = lean_box(x_2);
 x_15 = lean_box(x_3);
 x_16 = lean_box(x_4);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_17 = lean_alloc_closure((void*)(l_Lean_logAt___redArg___lam__2___boxed), 11, 10);
 lean_closure_set(x_17, 0, x_12);
 lean_closure_set(x_17, 1, x_13);
@@ -759,7 +759,7 @@ else
 lean_object* x_23; 
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
-lean_dec(x_22);
+lean_dec_ref(x_22);
 x_12 = x_21;
 x_13 = x_23;
 goto block_19;
@@ -807,12 +807,12 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_1, 2);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_1, 4);
-lean_inc(x_15);
-lean_dec(x_1);
+lean_inc_ref(x_15);
+lean_dec_ref(x_1);
 x_16 = lean_box(x_3);
 x_17 = lean_box(x_11);
 x_18 = lean_box(x_4);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_19 = lean_alloc_closure((void*)(l_Lean_logAt___redArg___lam__3___boxed), 11, 10);
 lean_closure_set(x_19, 0, x_2);
 lean_closure_set(x_19, 1, x_16);
@@ -856,7 +856,7 @@ goto block_22;
 else
 {
 uint8_t x_24; 
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_24 = l_Lean_MessageData_hasSyntheticSorry(x_6);
 x_10 = x_24;
 goto block_22;
@@ -867,13 +867,13 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_11 = lean_ctor_get(x_1, 1);
-lean_inc(x_11);
-lean_dec(x_1);
+lean_inc_ref(x_11);
+lean_dec_ref(x_1);
 x_12 = lean_box(x_10);
 x_13 = lean_box(x_8);
 x_14 = lean_box(x_7);
 x_15 = lean_box(x_9);
-lean_inc(x_11);
+lean_inc_ref(x_11);
 x_16 = lean_alloc_closure((void*)(l_Lean_logAt___redArg___lam__4___boxed), 10, 9);
 lean_closure_set(x_16, 0, x_2);
 lean_closure_set(x_16, 1, x_5);
@@ -890,17 +890,17 @@ return x_17;
 else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 x_18 = lean_ctor_get(x_1, 0);
-lean_inc(x_18);
-lean_dec(x_1);
+lean_inc_ref(x_18);
+lean_dec_ref(x_1);
 x_19 = lean_ctor_get(x_18, 1);
-lean_inc(x_19);
-lean_dec(x_18);
+lean_inc_ref(x_19);
+lean_dec_ref(x_18);
 x_20 = lean_box(0);
 x_21 = lean_apply_2(x_19, lean_box(0), x_20);
 return x_21;
@@ -921,11 +921,8 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; uint8_t x_12; lean_object* x_13; 
 x_10 = lean_unbox(x_4);
-lean_dec(x_4);
 x_11 = lean_unbox(x_5);
-lean_dec(x_5);
 x_12 = lean_unbox(x_6);
-lean_dec(x_6);
 x_13 = l_Lean_logAt___redArg___lam__0(x_1, x_2, x_3, x_10, x_11, x_12, x_7, x_8, x_9);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -937,11 +934,8 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; uint8_t x_13; lean_object* x_14; 
 x_11 = lean_unbox(x_4);
-lean_dec(x_4);
 x_12 = lean_unbox(x_5);
-lean_dec(x_5);
 x_13 = lean_unbox(x_6);
-lean_dec(x_6);
 x_14 = l_Lean_logAt___redArg___lam__1(x_1, x_2, x_3, x_11, x_12, x_13, x_7, x_8, x_9, x_10);
 return x_14;
 }
@@ -951,11 +945,8 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_12 = lean_unbox(x_3);
-lean_dec(x_3);
 x_13 = lean_unbox(x_4);
-lean_dec(x_4);
 x_14 = lean_unbox(x_5);
-lean_dec(x_5);
 x_15 = l_Lean_logAt___redArg___lam__2(x_1, x_2, x_12, x_13, x_14, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_15;
 }
@@ -965,11 +956,8 @@ _start:
 {
 uint8_t x_12; uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_12 = lean_unbox(x_2);
-lean_dec(x_2);
 x_13 = lean_unbox(x_3);
-lean_dec(x_3);
 x_14 = lean_unbox(x_4);
-lean_dec(x_4);
 x_15 = l_Lean_logAt___redArg___lam__3(x_1, x_12, x_13, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_11);
 lean_dec(x_1);
@@ -981,13 +969,9 @@ _start:
 {
 uint8_t x_11; uint8_t x_12; uint8_t x_13; uint8_t x_14; lean_object* x_15; 
 x_11 = lean_unbox(x_3);
-lean_dec(x_3);
 x_12 = lean_unbox(x_4);
-lean_dec(x_4);
 x_13 = lean_unbox(x_8);
-lean_dec(x_8);
 x_14 = lean_unbox(x_9);
-lean_dec(x_9);
 x_15 = l_Lean_logAt___redArg___lam__4(x_1, x_2, x_11, x_12, x_5, x_6, x_7, x_13, x_14, x_10);
 lean_dec(x_10);
 return x_15;
@@ -998,9 +982,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_7);
-lean_dec(x_7);
 x_10 = lean_unbox(x_8);
-lean_dec(x_8);
 x_11 = l_Lean_logAt___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_9, x_10);
 return x_11;
 }
@@ -1010,9 +992,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; lean_object* x_12; 
 x_10 = lean_unbox(x_8);
-lean_dec(x_8);
 x_11 = lean_unbox(x_9);
-lean_dec(x_9);
 x_12 = l_Lean_logAt(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_10, x_11);
 return x_12;
 }
@@ -1122,7 +1102,7 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_8 = lean_ctor_get(x_1, 1);
-lean_inc(x_8);
+lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_2, 1);
 lean_inc(x_9);
 x_10 = lean_box(x_6);
@@ -1152,9 +1132,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_6);
-lean_dec(x_6);
 x_10 = lean_unbox(x_7);
-lean_dec(x_7);
 x_11 = l_Lean_log___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_9, x_10, x_8);
 return x_11;
 }
@@ -1164,9 +1142,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; lean_object* x_10; 
 x_8 = lean_unbox(x_6);
-lean_dec(x_6);
 x_9 = lean_unbox(x_7);
-lean_dec(x_7);
 x_10 = l_Lean_log___redArg(x_1, x_2, x_3, x_4, x_5, x_8, x_9);
 return x_10;
 }
@@ -1176,9 +1152,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = lean_unbox(x_7);
-lean_dec(x_7);
 x_10 = lean_unbox(x_8);
-lean_dec(x_8);
 x_11 = l_Lean_log(x_1, x_2, x_3, x_4, x_5, x_6, x_9, x_10);
 return x_11;
 }
@@ -1339,6 +1313,7 @@ lean_object* initialize_Lean_Widget_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Message(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DocString_Links(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ErrorExplanations(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Json_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Log(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1357,6 +1332,9 @@ res = initialize_Lean_DocString_Links(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_ErrorExplanations(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Json_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_initFn___closed__0____x40_Lean_Log___hyg_204_ = _init_l_Lean_initFn___closed__0____x40_Lean_Log___hyg_204_();

@@ -1,5 +1,5 @@
-macroStack.lean:4:5-4:6: error: unknown identifier 'x'
-macroStack.lean:8:6-8:7: error: unknown identifier 'x'
+macroStack.lean:4:5-4:6: error(lean.unknownIdentifier): Unknown identifier `x`
+macroStack.lean:8:6-8:7: error: Unknown identifier `x`
 with resulting expansion
   binrel% GT.gt✝ x 0
 while expanding

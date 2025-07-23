@@ -478,7 +478,7 @@ if (lean_obj_tag(x_21) == 0)
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_22 = lean_ctor_get(x_21, 1);
 lean_inc(x_22);
-lean_dec(x_21);
+lean_dec_ref(x_21);
 x_23 = l_Lean_Parser_Tactic_initFn___closed__17____x40_Lean_Parser_Tactic___hyg_5_;
 x_24 = l_Lean_PrettyPrinter_Formatter_registerAlias(x_2, x_23, x_22);
 if (lean_obj_tag(x_24) == 0)
@@ -486,7 +486,7 @@ if (lean_obj_tag(x_24) == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_25 = lean_ctor_get(x_24, 1);
 lean_inc(x_25);
-lean_dec(x_24);
+lean_dec_ref(x_24);
 x_26 = l_Lean_Parser_Tactic_initFn___closed__18____x40_Lean_Parser_Tactic___hyg_5_;
 x_27 = l_Lean_PrettyPrinter_Parenthesizer_registerAlias(x_2, x_26, x_25);
 x_7 = x_27;
@@ -510,7 +510,7 @@ if (lean_obj_tag(x_7) == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_9 = l_Lean_Parser_Tactic_initFn___closed__11____x40_Lean_Parser_Tactic___hyg_5_;
 x_10 = l_Lean_Parser_Tactic_initFn___closed__12____x40_Lean_Parser_Tactic___hyg_5_;
 x_11 = l_Lean_Parser_Tactic_initFn___closed__13____x40_Lean_Parser_Tactic___hyg_5_;
@@ -521,7 +521,7 @@ if (lean_obj_tag(x_13) == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_15 = l_Lean_Parser_Tactic_initFn___closed__15____x40_Lean_Parser_Tactic___hyg_5_;
 x_16 = l_Lean_PrettyPrinter_Formatter_registerAlias(x_9, x_15, x_14);
 if (lean_obj_tag(x_16) == 0)
@@ -529,7 +529,7 @@ if (lean_obj_tag(x_16) == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_17 = lean_ctor_get(x_16, 1);
 lean_inc(x_17);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 x_18 = l_Lean_Parser_Tactic_initFn___closed__16____x40_Lean_Parser_Tactic___hyg_5_;
 x_19 = l_Lean_PrettyPrinter_Parenthesizer_registerAlias(x_9, x_18, x_17);
 return x_19;
@@ -2472,7 +2472,7 @@ if (lean_obj_tag(x_7) == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_9 = l_Lean_Parser_Tactic_initFn___closed__6____x40_Lean_Parser_Tactic___hyg_259_;
 x_10 = l_Lean_PrettyPrinter_Formatter_registerAlias(x_2, x_9, x_8);
 if (lean_obj_tag(x_10) == 0)
@@ -2480,7 +2480,7 @@ if (lean_obj_tag(x_10) == 0)
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_12 = l_Lean_Parser_Tactic_initFn___closed__7____x40_Lean_Parser_Tactic___hyg_259_;
 x_13 = l_Lean_PrettyPrinter_Parenthesizer_registerAlias(x_2, x_12, x_11);
 return x_13;

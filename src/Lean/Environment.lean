@@ -1743,6 +1743,9 @@ private def looksLikeOldCodegenName : Name → Bool
   | .str _ s => s.startsWith "_cstage" || s.startsWith "_spec_" || s.startsWith "_elambda"
   | _        => false
 
+@[extern "lean_get_ir_extra_const_names"]
+private opaque getIRExtraConstNames : Environment → OLeanLevel → Array Name
+
 def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO ModuleData := do
   let pExts ← persistentEnvExtensionsRef.get
   let entries := pExts.map fun pExt => Id.run do
@@ -1760,25 +1763,31 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     -- (this branch makes very sure all kernel constants are exported eventually)
     kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
   else
-    constNames.filterMap fun n =>
-      env.find? n <|>
-      guard (looksLikeOldCodegenName n) *> kenv.find? n
+    constNames.filterMap (fun n =>
+        env.find? n <|>
+        guard (looksLikeOldCodegenName n) *> kenv.find? n)
+      -- While `constants.foldStage2` itself results in a deterministic ordering, then filtering out
+      -- some elements leaves the order of remaining dependent on those filtered elements, which
+      -- would make `.olean` output dependent on `.olean.private`, so we re-sort them here.
+      |>.qsort (lt := fun c₁ c₂ => c₁.name.quickCmp c₂.name == .lt)
   let constNames := constants.map (·.name)
   return { env.header with
-    extraConstNames := env.checked.get.extraConstNames.toArray
+    extraConstNames := getIRExtraConstNames env level
     constNames, constants, entries
   }
 
 @[extern "lean_ir_export_entries"]
 private opaque exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry)
 
-private def mkIRData (env : Environment) : IO ModuleData := do
+private def mkIRData (env : Environment) : ModuleData :=
   -- TODO: should we use a more specific/efficient data format for IR?
-  return { env.header with
+  { env.header with
     entries := exportIREntries env
     constants := default
     constNames := default
-    extraConstNames := default
+    -- make sure to add names of private constants as well as they may not be visible in all
+    -- importers.
+    extraConstNames := getIRExtraConstNames (env.setExporting true) .private
   }
 
 def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
@@ -1789,7 +1798,7 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
       (← mkPart .exported),
       (← mkPart .server),
       (← mkPart .private)]
-    saveModuleData (fname.withExtension "ir") env.mainModule (← mkIRData env)
+    saveModuleData (fname.withExtension "ir") env.mainModule (mkIRData env)
   else
     saveModuleData fname env.mainModule (← mkModuleData env)
 
@@ -1893,17 +1902,22 @@ private def ImportedModule.serverData? (self : ImportedModule) (level : OLeanLev
   -- fall back to `exported` outside the server
   self.getData? (if level ≥ .server then level else .exported)
 
-/-- The module data that should be used for codegen purposes. -/
-private def ImportedModule.loadIRData? (self : ImportedModule) (arts : NameMap ModuleArtifacts)
+/-- The module data that should be used for accessing IR for interpretation. -/
+private def ImportedModule.loadIRData? (self : ImportedModule) (arts : NameMap ImportArtifacts)
     (level : OLeanLevel):
-    IO (Option (ModuleData × CompactedRegion)) := do
+    IO (Option (ModuleData × Option CompactedRegion)) := do
   if (level < .server && self.irPhases == .runtime) || !self.mainModule?.any (·.isModule) then
-    return none
-  let fname ←
-    arts.find? self.module |>.bind (·.ir?) |>.getDM do
+    return self.mainModule?.map (·, none)
+  let fname ← do
+    if let some arts := arts.find? self.module then
+      let some ir := arts.ir?
+        | return none -- If Lake tells us we don't need IR, we should not look for it ourselves
+      pure ir
+    else
       let mFile ← findOLean self.module
-      return mFile.withExtension "ir"
-  readModuleData fname
+      pure <| mFile.withExtension "ir"
+  let (data, region) ← readModuleData fname
+  return some (data, some region)
 
 structure ImportState where
   private moduleNameMap : Std.HashMap Name ImportedModule := {}
@@ -1992,7 +2006,7 @@ where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
     -- `B ≥ public`?
     let isExported := isExported && i.isExported
     let irPhases :=
-      if !isModule then .all
+      if importAll then .all
       else if isMeta || i.isMeta then .comptime
       else .runtime
     let goRec imports := do
@@ -2061,7 +2075,7 @@ Constructs environment from `importModulesCore` results.
 See also `importModules` for parameter documentation.
 -/
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv loadExts : Bool) (level := OLeanLevel.private) (arts : NameMap ModuleArtifacts := {}) :
+    (leakEnv loadExts : Bool) (level := OLeanLevel.private) (arts : NameMap ImportArtifacts := {}) :
     IO Environment := do
   let isModule := level != .private
   let modules := s.moduleNames.filterMap (s.moduleNameMap[·]?)
@@ -2069,8 +2083,15 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     let some data := mod.mainModule? |
       throw <| IO.userError s!"missing data file for module {mod.module}"
     return data
-  let numPrivateConsts := moduleData.foldl (init := 0) fun numPrivateConsts data => Id.run do
-    numPrivateConsts + data.constants.size + data.extraConstNames.size
+  let irData ← modules.mapM fun mod => do
+    let some data ← mod.loadIRData? arts level |
+      throw <| IO.userError s!"missing IR data file for module {mod.module}"
+    return data
+  let (irData, irRegions) := irData.unzip
+  let numPrivateConsts := moduleData.foldl (init := 0) fun numPrivateConsts data =>
+    numPrivateConsts + data.constants.size
+  let numPrivateConsts := irData.foldl (init := numPrivateConsts) fun numPrivateConsts data =>
+    numPrivateConsts + data.extraConstNames.size
   let numPublicConsts := modules.foldl (init := 0) fun numPublicConsts mod => Id.run do
     if !mod.isExported then numPublicConsts else
       let some data := mod.publicModule? | numPublicConsts
@@ -2091,8 +2112,9 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
           else if !subsumesInfo cinfoPrev cinfo then
             throwAlreadyImported s const2ModIdx modIdx cname
       const2ModIdx := const2ModIdx.insertIfNew cname modIdx
-    for cname in data.extraConstNames do
-      const2ModIdx := const2ModIdx.insertIfNew cname modIdx
+    if let some data := irData[modIdx]? then
+      for cname in data.extraConstNames do
+        const2ModIdx := const2ModIdx.insertIfNew cname modIdx
 
   if isModule then
     for mod in modules.filter (·.isExported) do
@@ -2123,15 +2145,12 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let publicConstants : ConstMap := SMap.fromHashMap publicConstantMap false
   let publicBase := { privateBase with constants := publicConstants, header.regions := #[] }
   let extensions ← setImportedEntries privateBase.extensions moduleData
-  let irData? ← modules.mapM (·.loadIRData? arts level)
   -- fall back to basic data when not in server
   let serverData := modules.mapIdx (fun idx mod => mod.serverData? level |>.getD moduleData[idx]!)
-  let irData := irData?.mapIdx (fun idx ir => ir.map (·.1) |>.getD moduleData[idx]!)
-  let irRegions := irData?.filterMap (·.map (·.2))
   let privateBase := { privateBase with
     extensions
     irBaseExts := (← setImportedEntries privateBase.extensions irData)
-    header.regions := privateBase.header.regions ++ irRegions
+    header.regions := privateBase.header.regions ++ irRegions.filterMap id
   }
   let mut env : Environment := {
     base.private := privateBase
@@ -2198,7 +2217,7 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
   withImporting do
     plugins.forM Lean.loadPlugin
     let (_, s) ← importModulesCore (isModule := level != .private) imports arts |>.run
-    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
+    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level) (arts := arts)
       s imports opts trustLevel
 
 /--
@@ -2362,7 +2381,7 @@ where
     Note that this function cannot guarantee that `typeName` is in fact the name of the type `α`. -/
 unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : Name) (constName : Name) : ExceptT String Id α :=
   match env.find? constName with
-  | none      => throw ("unknown constant '" ++ toString constName ++ "'")
+  | none      => throw ("Unknown constant `" ++ toString constName ++ "`")
   | some info =>
     match info.type with
     | Expr.const c _ =>
@@ -2532,9 +2551,13 @@ def withExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : 
   finally
     modifyEnv (·.setExporting old)
 
-/-- Sets `Environment.isExporting` to false while executing `x`. -/
-def withoutExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α) : m α :=
-  withExporting (isExporting := false) x
+/-- If `when` is true, sets `Environment.isExporting` to false while executing `x`. -/
+def withoutExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
+    (when : Bool := true) : m α :=
+  if when then
+    withExporting (isExporting := false) x
+  else
+    x
 
 /-- Constructs a DefinitionVal, inferring the `unsafe` field -/
 def mkDefinitionValInferrringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelParams : List Name)

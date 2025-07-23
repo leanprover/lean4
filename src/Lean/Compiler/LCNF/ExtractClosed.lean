@@ -149,8 +149,7 @@ def extractClosed : Pass where
   phase := .mono
   name := `extractClosed
   run := fun decls => do
-    -- Reuse the option from the old compiler for now.
-    if (← getOptions).getBool `compiler.extract_closed true then
+    if (← getConfig).extractClosed then
       decls.foldlM (init := #[]) fun newDecls decl =>
         return newDecls ++ (← decl.extractClosed decls)
     else

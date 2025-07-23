@@ -57,7 +57,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_ob
 x_7 = lean_unsigned_to_nat(2u);
 x_8 = lean_nat_div(x_2, x_7);
 x_9 = lean_nat_div(x_3, x_7);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_10 = l_Nat_bitwise(x_1, x_8, x_9);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -72,7 +72,6 @@ x_16 = lean_box(x_13);
 x_17 = lean_box(x_15);
 x_18 = lean_apply_2(x_1, x_16, x_17);
 x_19 = lean_unbox(x_18);
-lean_dec(x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; 
@@ -97,7 +96,6 @@ x_23 = lean_box(x_6);
 x_24 = lean_box(x_5);
 x_25 = lean_apply_2(x_1, x_23, x_24);
 x_26 = lean_unbox(x_25);
-lean_dec(x_25);
 if (x_26 == 0)
 {
 return x_4;
@@ -117,7 +115,6 @@ x_28 = lean_box(x_27);
 x_29 = lean_box(x_5);
 x_30 = lean_apply_2(x_1, x_28, x_29);
 x_31 = lean_unbox(x_30);
-lean_dec(x_30);
 if (x_31 == 0)
 {
 return x_4;

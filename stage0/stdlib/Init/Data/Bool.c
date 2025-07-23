@@ -114,9 +114,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Bool_xor(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -380,7 +378,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_6 = lean_box(1);
 x_7 = lean_alloc_ctor(1, 2, 0);
@@ -397,7 +395,7 @@ x_9 = lean_ctor_get(x_2, 2);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_2, 5);
 lean_inc(x_10);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
 x_13 = lean_unsigned_to_nat(2u);
@@ -543,26 +541,23 @@ _start:
 uint8_t x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = 1;
 x_3 = lean_box(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_4 = lean_apply_1(x_1, x_3);
 x_5 = lean_unbox(x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_unbox(x_4);
-lean_dec(x_4);
 return x_6;
 }
 else
 {
 uint8_t x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-lean_dec(x_4);
 x_7 = 0;
 x_8 = lean_box(x_7);
 x_9 = lean_apply_1(x_1, x_8);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 return x_10;
 }
 }
@@ -599,7 +594,7 @@ _start:
 uint8_t x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = 1;
 x_3 = lean_box(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_4 = lean_apply_1(x_1, x_3);
 x_5 = lean_unbox(x_4);
 if (x_5 == 0)
@@ -607,15 +602,13 @@ if (x_5 == 0)
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_apply_1(x_1, x_4);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 return x_7;
 }
 else
 {
 uint8_t x_8; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 return x_8;
 }
 }
@@ -682,9 +675,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Bool_instDecidableLe(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -710,9 +701,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Bool_instDecidableLt(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -744,9 +733,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Bool_instMax___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -778,9 +765,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Bool_instMin___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -808,7 +793,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Bool_toNat(x_2);
 return x_3;
 }
@@ -853,7 +837,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Bool_toInt(x_2);
 return x_3;
 }

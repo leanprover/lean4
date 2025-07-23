@@ -96,9 +96,9 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_Sat_AIG_RefVec_empty(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_5;
 }
 }
@@ -133,23 +133,23 @@ _start:
 lean_object* x_6; 
 x_6 = l_Std_Sat_AIG_RefVec_emptyWithCapacity(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast_x27___redArg(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_inc(x_7);
+lean_inc_ref(x_7);
 return x_7;
 }
 }
@@ -158,7 +158,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Sat_AIG_RefVec_cast_x27___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -167,26 +167,26 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Std_Sat_AIG_RefVec_cast_x27(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast___redArg(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_inc(x_7);
+lean_inc_ref(x_7);
 return x_7;
 }
 }
@@ -195,7 +195,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Sat_AIG_RefVec_cast___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -204,12 +204,12 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Std_Sat_AIG_RefVec_cast(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_7);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_9;
 }
 }
@@ -283,7 +283,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Std_Sat_AIG_RefVec_get___redArg(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -293,11 +293,11 @@ _start:
 lean_object* x_9; 
 x_9 = l_Std_Sat_AIG_RefVec_get(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_9;
 }
 }
@@ -338,7 +338,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Sat_AIG_RefVec_push___redArg(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -347,11 +347,11 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Sat_AIG_RefVec_push(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_8;
 }
 }
@@ -377,9 +377,9 @@ _start:
 lean_object* x_9; 
 x_9 = l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_RefVec_get_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_9;
 }
 }
@@ -404,7 +404,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Sat_AIG_RefVec_append___redArg(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -413,12 +413,12 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Std_Sat_AIG_RefVec_append(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_9;
 }
 }
@@ -429,7 +429,7 @@ uint8_t x_5;
 x_5 = lean_nat_dec_lt(x_3, x_1);
 if (x_5 == 0)
 {
-lean_inc(x_4);
+lean_inc_ref(x_4);
 return x_4;
 }
 else
@@ -470,7 +470,7 @@ uint8_t x_9;
 x_9 = lean_nat_dec_lt(x_7, x_5);
 if (x_9 == 0)
 {
-lean_inc(x_8);
+lean_inc_ref(x_8);
 return x_8;
 }
 else
@@ -509,9 +509,9 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_Sat_AIG_RefVec_getD___redArg(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_5;
 }
@@ -521,13 +521,13 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Std_Sat_AIG_RefVec_getD(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_9;
 }
 }
@@ -587,8 +587,8 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Sat_AIG_RefVec_countKnown_go___redArg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_6;
 }
@@ -598,11 +598,11 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Std_Sat_AIG_RefVec_countKnown_go(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_9;
 }
 }
@@ -628,8 +628,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Sat_AIG_RefVec_countKnown___redArg(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -639,11 +639,11 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Sat_AIG_RefVec_countKnown(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_7;
 }
 }
@@ -700,11 +700,11 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Std_Sat_AIG_BinaryRefVec_cast(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_9;
 }
 }
@@ -713,10 +713,10 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
+lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
+lean_inc_ref(x_4);
+lean_dec_ref(x_1);
 x_5 = lean_apply_2(x_2, x_3, x_4);
 return x_5;
 }
@@ -734,10 +734,10 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_9;
 }
 }

@@ -60,7 +60,7 @@ def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
     let some (.ctorInfo val) := (← getEnv).find? declName | return none
     return some <| .ctor val args
   | some _ => return none
-  | none => return (← read).discrCtorMap.find? fvarId
+  | none => return (← read).discrCtorMap.get? fvarId
 
 def findCtorName? (fvarId : FVarId) : DiscrM (Option Name) := do
   let some ctorInfo ← findCtor? fvarId | return none

@@ -142,7 +142,7 @@ x_41 = lean_ctor_get(x_26, 0);
 lean_inc(x_41);
 lean_dec(x_26);
 x_42 = lean_ctor_get(x_4, 0);
-lean_inc(x_42);
+lean_inc_ref(x_42);
 if (lean_is_exclusive(x_4)) {
  lean_ctor_release(x_4, 0);
  x_43 = x_4;
@@ -167,10 +167,10 @@ return x_46;
 else
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_47 = lean_ctor_get(x_26, 0);
 lean_inc(x_47);
-lean_dec(x_26);
+lean_dec_ref(x_26);
 x_48 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_48, 0, x_47);
 x_49 = lean_apply_2(x_2, lean_box(0), x_48);
@@ -182,7 +182,7 @@ block_22:
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_8 = lean_box(0);
 x_9 = lean_apply_2(x_2, lean_box(0), x_8);
 return x_9;
@@ -225,7 +225,7 @@ return x_19;
 else
 {
 lean_object* x_20; lean_object* x_21; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_20 = l_Lean_Linter_collectMacroExpansions_x3f_go___redArg___lam__1___closed__0;
 x_21 = lean_apply_2(x_2, lean_box(0), x_20);
 return x_21;
@@ -239,11 +239,11 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_4, 1);
-lean_inc(x_5);
-lean_dec(x_4);
-lean_inc(x_5);
+lean_inc_ref(x_5);
+lean_dec_ref(x_4);
+lean_inc_ref(x_5);
 x_6 = lean_alloc_closure((void*)(l_Lean_Linter_collectMacroExpansions_x3f_go___redArg___lam__0___boxed), 4, 1);
 lean_closure_set(x_6, 0, x_5);
 x_7 = lean_alloc_closure((void*)(l_Lean_Linter_collectMacroExpansions_x3f_go___redArg___lam__1___boxed), 6, 2);
@@ -267,9 +267,9 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Linter_collectMacroExpansions_x3f_go___redArg___lam__0(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_5;
 }
 }
@@ -278,9 +278,9 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Lean_Linter_collectMacroExpansions_x3f_go___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_5);
+lean_dec_ref(x_3);
+lean_dec_ref(x_1);
 return x_7;
 }
 }
@@ -296,7 +296,7 @@ else
 lean_object* x_6; 
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 if (lean_obj_tag(x_6) == 0)
 {
 goto block_5;
@@ -342,12 +342,12 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
-lean_dec(x_4);
+lean_inc_ref(x_6);
+lean_dec_ref(x_4);
 x_7 = l_Lean_Linter_collectMacroExpansions_x3f_go___redArg(x_1, x_2, x_3);
 x_8 = lean_alloc_closure((void*)(l_Lean_Linter_collectMacroExpansions_x3f___redArg___lam__0), 2, 1);
 lean_closure_set(x_8, 0, x_6);

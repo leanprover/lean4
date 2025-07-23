@@ -80,10 +80,10 @@ def FnBody.hasLiveVar (b : FnBody) (ctx : LocalContext) (x : VarId) : Bool :=
   (IsLive.visitFnBody x.idx b).run' ctx
 
 abbrev LiveVarSet   := VarIdSet
-abbrev JPLiveVarMap := RBMap JoinPointId LiveVarSet (fun j₁ j₂ => compare j₁.idx j₂.idx)
+abbrev JPLiveVarMap := Std.TreeMap JoinPointId LiveVarSet (fun j₁ j₂ => compare j₁.idx j₂.idx)
 
 def mkLiveVarSet (x : VarId) : LiveVarSet :=
-  RBTree.empty.insert x
+  Std.TreeSet.empty.insert x
 
 namespace LiveVars
 
@@ -93,8 +93,8 @@ abbrev Collector := LiveVarSet → LiveVarSet
 @[inline] private def collectVar (x : VarId) : Collector := fun s => s.insert x
 
 private def collectArg : Arg → Collector
-  | Arg.var x  => collectVar x
-  | _          => skip
+  | .var x  => collectVar x
+  | .erased => skip
 
 private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector := fun s =>
   as.foldl (fun s a => f a s) s
@@ -103,10 +103,10 @@ private def collectArgs (as : Array Arg) : Collector :=
   collectArray as collectArg
 
 private def accumulate (s' : LiveVarSet) : Collector :=
-  fun s => s'.fold (fun s x => s.insert x) s
+  fun s => s'.foldl (fun s x => s.insert x) s
 
 private def collectJP (m : JPLiveVarMap) (j : JoinPointId) : Collector :=
-  match m.find? j with
+  match m.get? j with
   | some xs => accumulate xs
   | none    => skip -- unreachable for well-formed code
 

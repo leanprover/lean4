@@ -6,7 +6,7 @@ SHELL := $(LEAN_BASH) -eo pipefail
 
 # any absolute path to the stdlib breaks the Makefile
 export LEAN_PATH=
-ifeq "${USE_LAKE} ${STAGE}" "ON 1"
+ifeq "${USE_LAKE}" "ON"
   export LEAN_CC=${CMAKE_C_COMPILER}
 else
   export LEAN_CC=${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}
@@ -36,12 +36,11 @@ endif
 # These can be phony since the inner Makefile/Lake will have the correct dependencies and avoid rebuilds
 .PHONY: Init Std Lean leanshared Lake libLake_shared lake lean
 
-# As the build directory is part of the lakefile.toml, only use it for stage 1 for now
-ifeq "${USE_LAKE} ${STAGE}" "ON 1"
+ifeq "${USE_LAKE}" "ON"
 
 # build in parallel
 Init:
-	${PREV_STAGE}/bin/lake build $(LAKE_EXTRA_ARGS)
+	${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml $(LAKE_EXTRA_ARGS)
 
 Std Lean Lake Leanc: Init
 

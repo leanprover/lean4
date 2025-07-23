@@ -31,6 +31,7 @@ uint64_t lean_int64_neg(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getZoneRules_toLocalTime(lean_object*);
 uint8_t lean_int64_dec_le(uint64_t, uint64_t);
+lean_object* lean_mk_io_user_error(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__1___boxed(lean_object*, lean_object*);
 static uint64_t l_Std_Time_Database_Windows_getZoneRules___closed__1;
@@ -58,9 +59,8 @@ uint64_t x_5; uint8_t x_6; lean_object* x_7;
 x_5 = lean_unbox_uint64(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = lean_windows_get_next_transition(x_1, x_5, x_6, x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_7;
 }
 }
@@ -84,8 +84,8 @@ x_4 = lean_ctor_get(x_1, 2);
 x_5 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
 x_6 = 0;
 x_7 = 1;
-lean_inc(x_3);
-lean_inc(x_4);
+lean_inc_ref(x_3);
+lean_inc_ref(x_4);
 lean_inc(x_2);
 x_8 = lean_alloc_ctor(0, 3, 3);
 lean_ctor_set(x_8, 0, x_2);
@@ -102,7 +102,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Time_Database_Windows_getZoneRules_toLocalTime(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -182,7 +182,7 @@ else
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_17 = lean_ctor_get(x_10, 0);
 lean_inc(x_17);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_18 = lean_ctor_get(x_9, 1);
 lean_inc(x_18);
 if (lean_is_exclusive(x_9)) {
@@ -424,7 +424,7 @@ else
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_17 = lean_ctor_get(x_10, 0);
 lean_inc(x_17);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_18 = lean_ctor_get(x_9, 1);
 lean_inc(x_18);
 if (lean_is_exclusive(x_9)) {
@@ -628,8 +628,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Time_Database_Windows_getZoneRules___closed__2;
-x_2 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = lean_mk_io_user_error(x_1);
 return x_2;
 }
 }
@@ -707,10 +706,10 @@ else
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_13 = lean_ctor_get(x_5, 1);
 lean_inc(x_13);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_14 = lean_ctor_get(x_6, 0);
 lean_inc(x_14);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_15 = l_Std_Time_Database_Windows_getZoneRules___closed__5;
 x_16 = l_Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__0(x_1, x_15, x_13);
 if (lean_obj_tag(x_16) == 0)
@@ -843,7 +842,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Loop_forIn_loop___at___Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__0_spec__0(x_1, x_2, x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_4;
 }
 }
@@ -852,7 +851,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__0(x_1, x_2, x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_4;
 }
 }
@@ -861,7 +860,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Time_Database_Windows_getZoneRules(x_1, x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -878,7 +877,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Time_Database_WindowsDb_toCtorIdx(x_1);
-lean_dec(x_1);
 return x_2;
 }
 }
@@ -911,8 +909,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_Std_Time_Database_WindowsDb_noConfusion(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
 return x_6;
 }
 }
@@ -945,7 +941,7 @@ x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = l_Std_Time_Database_Windows_getZoneRules(x_5, x_6);
 lean_dec(x_5);
 return x_7;
@@ -991,8 +987,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Time_Database_WindowsDb_inst___lam__0(x_1, x_2, x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -1001,7 +996,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Time_Database_WindowsDb_inst___lam__1(x_1, x_2);
-lean_dec(x_1);
 return x_3;
 }
 }

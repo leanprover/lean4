@@ -160,7 +160,7 @@ _start:
 lean_object* x_6; 
 x_6 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastRotateLeft_go___redArg(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_6;
 }
@@ -171,11 +171,11 @@ _start:
 lean_object* x_11; 
 x_11 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastRotateLeft_go(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_6);
+lean_dec_ref(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_11;
 }
 }
@@ -193,7 +193,7 @@ x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_mk_empty_array_with_capacity(x_1);
 x_9 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastRotateLeft_go___redArg(x_1, x_5, x_6, x_7, x_8);
 lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_ctor_set(x_3, 1, x_9);
 lean_ctor_set(x_3, 0, x_2);
 return x_3;
@@ -210,7 +210,7 @@ x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_mk_empty_array_with_capacity(x_1);
 x_14 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastRotateLeft_go___redArg(x_1, x_10, x_11, x_12, x_13);
 lean_dec(x_11);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_2);
 lean_ctor_set(x_15, 1, x_14);
@@ -241,8 +241,8 @@ _start:
 lean_object* x_7; 
 x_7 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastRotateLeft(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_7;
 }
 }

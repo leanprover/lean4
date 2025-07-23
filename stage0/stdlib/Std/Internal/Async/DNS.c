@@ -21,6 +21,7 @@ lean_object* l_IO_Promise_result_x21___redArg(lean_object*);
 lean_object* l_Except_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getNameInfo___boxed(lean_object*, lean_object*);
 lean_object* lean_uv_dns_get_info(lean_object*, lean_object*, uint8_t, lean_object*);
+extern lean_object* l_Task_Priority_default;
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Function_uncurry(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_DNS_getAddrInfo___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -119,8 +120,8 @@ _start:
 lean_object* x_5; 
 x_5 = l_Std_Internal_IO_Async_DNS_getAddrInfo(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_5;
 }
 }
@@ -160,7 +161,7 @@ lean_closure_set(x_9, 0, lean_box(0));
 lean_closure_set(x_9, 1, lean_box(0));
 lean_closure_set(x_9, 2, lean_box(0));
 lean_closure_set(x_9, 3, x_8);
-x_10 = lean_unsigned_to_nat(0u);
+x_10 = l_Task_Priority_default;
 x_11 = 0;
 x_12 = lean_task_map(x_9, x_7, x_10, x_11);
 lean_ctor_set(x_3, 0, x_12);
@@ -187,7 +188,7 @@ lean_closure_set(x_18, 0, lean_box(0));
 lean_closure_set(x_18, 1, lean_box(0));
 lean_closure_set(x_18, 2, lean_box(0));
 lean_closure_set(x_18, 3, x_17);
-x_19 = lean_unsigned_to_nat(0u);
+x_19 = l_Task_Priority_default;
 x_20 = 0;
 x_21 = lean_task_map(x_18, x_16, x_19, x_20);
 x_22 = lean_alloc_ctor(0, 2, 0);
@@ -225,7 +226,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Internal_IO_Async_DNS_getNameInfo(x_1, x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }

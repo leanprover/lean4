@@ -26,7 +26,9 @@ partial def collect (c : Name) : M Unit := do
     -- We should take the constant from the kernel env, which may differ from the one in the elab
     -- env in case of (async) errors.
     match env.checked.get.find? c with
-    | some (ConstantInfo.axiomInfo _)  => modify fun s => { s with axioms := s.axioms.push c }
+    | some (ConstantInfo.axiomInfo v)  =>
+        modify fun s => { s with axioms := (s.axioms.push c) }
+        collectExpr v.type
     | some (ConstantInfo.defnInfo v)   => collectExpr v.type *> collectExpr v.value
     | some (ConstantInfo.thmInfo v)    => collectExpr v.type *> collectExpr v.value
     | some (ConstantInfo.opaqueInfo v) => collectExpr v.type *> collectExpr v.value

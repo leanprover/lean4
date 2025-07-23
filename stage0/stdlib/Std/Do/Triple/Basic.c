@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Std_Do_unexpandTriple___closed__2;
 static lean_object* l_Std_Do_triple___closed__0;
 static lean_object* l_Std_Do_triple___closed__16;
-static lean_object* l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__4;
 static lean_object* l_Std_Do_triple___closed__4;
 static lean_object* l_Std_Do_triple___closed__8;
 static lean_object* l_Std_Do_triple___closed__21;
 static lean_object* l_Std_Do_triple___closed__5;
+static lean_object* l_Std_Do_unexpandTriple___closed__4;
 static lean_object* l_Std_Do_triple___closed__12;
 static lean_object* l_Std_Do_triple___closed__1;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -32,7 +32,7 @@ static lean_object* l_Std_Do_triple___closed__22;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 static lean_object* l_Std_Do_triple___closed__18;
 static lean_object* l_Std_Do_triple___closed__2;
-lean_object* l_Std_Do_SPred_Notation_unpack___at_____private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandEntails_spec__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_unexpandTriple(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do_triple___closed__24;
 static lean_object* l_Std_Do_triple___closed__11;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -40,19 +40,19 @@ uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Std_Do_triple___closed__9;
 static lean_object* l_Std_Do_triple___closed__15;
 static lean_object* l_Std_Do_triple___closed__23;
+lean_object* l_Std_Do_SPred_Notation_unpack___at___Std_Do_SPred_Notation_unexpandEntails_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do_triple___closed__7;
-static lean_object* l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__0;
+static lean_object* l_Std_Do_unexpandTriple___closed__1;
+LEAN_EXPORT lean_object* l_Std_Do_unexpandTriple___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do_triple___closed__19;
 LEAN_EXPORT lean_object* l_Std_Do_triple;
+static lean_object* l_Std_Do_unexpandTriple___closed__3;
 static lean_object* l_Std_Do_triple___closed__6;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple(lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__2;
 static lean_object* l_Std_Do_triple___closed__13;
-static lean_object* l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__3;
-static lean_object* l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__1;
+static lean_object* l_Std_Do_unexpandTriple___closed__0;
 static lean_object* l_Std_Do_triple___closed__3;
 static lean_object* l_Std_Do_triple___closed__14;
 static lean_object* _init_l_Std_Do_triple___closed__0() {
@@ -326,7 +326,7 @@ x_1 = l_Std_Do_triple___closed__24;
 return x_1;
 }
 }
-static lean_object* _init_l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__0() {
+static lean_object* _init_l_Std_Do_unexpandTriple___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -334,7 +334,7 @@ x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__1() {
+static lean_object* _init_l_Std_Do_unexpandTriple___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -342,7 +342,7 @@ x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__2() {
+static lean_object* _init_l_Std_Do_unexpandTriple___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -350,7 +350,7 @@ x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__3() {
+static lean_object* _init_l_Std_Do_unexpandTriple___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -358,23 +358,23 @@ x_1 = lean_mk_string_unchecked("app", 3, 3);
 return x_1;
 }
 }
-static lean_object* _init_l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__4() {
+static lean_object* _init_l_Std_Do_unexpandTriple___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__3;
-x_2 = l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__2;
-x_3 = l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__1;
-x_4 = l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__0;
+x_1 = l_Std_Do_unexpandTriple___closed__3;
+x_2 = l_Std_Do_unexpandTriple___closed__2;
+x_3 = l_Std_Do_unexpandTriple___closed__1;
+x_4 = l_Std_Do_unexpandTriple___closed__0;
 x_5 = l_Lean_Name_mkStr4(x_4, x_3, x_2, x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Do_unexpandTriple(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__4;
+x_4 = l_Std_Do_unexpandTriple___closed__4;
 lean_inc(x_1);
 x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
@@ -410,7 +410,7 @@ else
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_14 = l_Lean_Syntax_getArg(x_9, x_8);
-x_15 = l_Std_Do_SPred_Notation_unpack___at_____private_Std_Do_SPred_Notation_0__Std_Do_SPred_Notation_unexpandEntails_spec__0(x_14, x_2, x_3);
+x_15 = l_Std_Do_SPred_Notation_unpack___at___Std_Do_SPred_Notation_unexpandEntails_spec__0(x_14, x_2, x_3);
 x_16 = !lean_is_exclusive(x_15);
 if (x_16 == 0)
 {
@@ -434,8 +434,8 @@ lean_inc(x_23);
 x_28 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_28, 0, x_23);
 lean_ctor_set(x_28, 1, x_27);
-lean_inc(x_28);
-lean_inc(x_26);
+lean_inc_ref(x_28);
+lean_inc_ref(x_26);
 x_29 = l_Lean_Syntax_node7(x_23, x_24, x_26, x_17, x_28, x_19, x_26, x_21, x_28);
 lean_ctor_set(x_15, 0, x_29);
 return x_15;
@@ -466,8 +466,8 @@ lean_inc(x_37);
 x_42 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_42, 0, x_37);
 lean_ctor_set(x_42, 1, x_41);
-lean_inc(x_42);
-lean_inc(x_40);
+lean_inc_ref(x_42);
+lean_inc_ref(x_40);
 x_43 = l_Lean_Syntax_node7(x_37, x_38, x_40, x_30, x_42, x_33, x_40, x_35, x_42);
 x_44 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_44, 0, x_43);
@@ -478,11 +478,11 @@ return x_44;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Do_unexpandTriple___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple(x_1, x_2, x_3);
+x_4 = l_Std_Do_unexpandTriple(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
 }
@@ -552,16 +552,16 @@ l_Std_Do_triple___closed__24 = _init_l_Std_Do_triple___closed__24();
 lean_mark_persistent(l_Std_Do_triple___closed__24);
 l_Std_Do_triple = _init_l_Std_Do_triple();
 lean_mark_persistent(l_Std_Do_triple);
-l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__0 = _init_l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__0();
-lean_mark_persistent(l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__0);
-l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__1 = _init_l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__1();
-lean_mark_persistent(l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__1);
-l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__2 = _init_l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__2();
-lean_mark_persistent(l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__2);
-l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__3 = _init_l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__3();
-lean_mark_persistent(l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__3);
-l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__4 = _init_l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__4();
-lean_mark_persistent(l___private_Std_Do_Triple_Basic_0__Std_Do_unexpandTriple___closed__4);
+l_Std_Do_unexpandTriple___closed__0 = _init_l_Std_Do_unexpandTriple___closed__0();
+lean_mark_persistent(l_Std_Do_unexpandTriple___closed__0);
+l_Std_Do_unexpandTriple___closed__1 = _init_l_Std_Do_unexpandTriple___closed__1();
+lean_mark_persistent(l_Std_Do_unexpandTriple___closed__1);
+l_Std_Do_unexpandTriple___closed__2 = _init_l_Std_Do_unexpandTriple___closed__2();
+lean_mark_persistent(l_Std_Do_unexpandTriple___closed__2);
+l_Std_Do_unexpandTriple___closed__3 = _init_l_Std_Do_unexpandTriple___closed__3();
+lean_mark_persistent(l_Std_Do_unexpandTriple___closed__3);
+l_Std_Do_unexpandTriple___closed__4 = _init_l_Std_Do_unexpandTriple___closed__4();
+lean_mark_persistent(l_Std_Do_unexpandTriple___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

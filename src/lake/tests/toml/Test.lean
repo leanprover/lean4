@@ -51,16 +51,6 @@ def testInvalid (tomlFile : FilePath) : BaseIO TestOutcome := do
   | .fail l => return .pass (← mkMessageLogString l)
   | .error e => return .error (toString e)
 
-@[inline] def Fin.forM [Monad m] (n) (f : Fin n → m Unit) : m Unit :=
-  loop 0
-where
-  loop (i : Nat) : m Unit := do
-    if h : i < n then let a ← f ⟨i, h⟩; loop (i+1) else pure ()
-  termination_by n - i
-
-local instance [Monad m] : ForIn m (RBNode α β) ((a : α) × β a) where
-  forIn t init f := t.forIn init (fun a b acc => f ⟨a, b⟩ acc)
-
 def expectBEq [BEq α] [ToString α] (actual expected : α) : Except String Unit := do
   unless actual == expected do
     throw s!"expected '{expected}', got '{actual}'"
@@ -68,9 +58,9 @@ def expectBEq [BEq α] [ToString α] (actual expected : α) : Except String Unit
 def expectPrimitive (actualTy : String) (expected : Json) : Except String String := do
   let .ok expected := expected.getObj?
     | throw s!"expected non-primitive, got '{actualTy}'"
-  let some ty := expected.find compare "type"
+  let some ty := expected.get?  "type"
     | throw s!"expected non-primitive, got '{actualTy}'"
-  let some val := expected.find compare "value"
+  let some val := expected.get? "value"
     | throw s!"expected non-primitive, got '{actualTy}'"
   let .ok val := val.getStr?
     | throw s!"expected non-primitive, got '{actualTy}'"
@@ -111,7 +101,7 @@ partial def expectValue (actual : Value) (expected : Json) : Except String Unit 
     let .ok expVs := expected.getArr?
       | throw "expected non-array, got array"
     if h_size : actVs.size = expVs.size then
-      Fin.forM actVs.size fun i => expectValue actVs[i] (expVs[i]'(h_size ▸ i.isLt))
+      actVs.size.forM fun i _ => expectValue actVs[i] expVs[i]
     else
       throw s!"expected array of size {expVs.size}, got {actVs.size}:\n{actual}"
   | .table _ t => expectTable t expected

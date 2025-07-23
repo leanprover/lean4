@@ -17,7 +17,7 @@ open Lean.Compiler (LCNF.CacheExtension LCNF.isTypeFormerType LCNF.toLCNFType LC
 
 def irTypeForEnum (numCtors : Nat) : IRType :=
   if numCtors == 1 then
-    .object
+    .tagged
   else if numCtors < Nat.pow 2 8 then
     .uint8
   else if numCtors < Nat.pow 2 16 then
@@ -25,7 +25,7 @@ def irTypeForEnum (numCtors : Nat) : IRType :=
   else if numCtors < Nat.pow 2 32 then
     .uint32
   else
-    .object
+    .tagged
 
 builtin_initialize irTypeExt : LCNF.CacheExtension Name IRType ←
   LCNF.CacheExtension.register
@@ -46,24 +46,34 @@ where fillCache : CoreM IRType := do
     | ``USize => return .usize
     | ``Float => return .float
     | ``Float32 => return .float32
-    | ``lcErased => return .irrelevant
+    | ``lcErased => return .erased
+    -- `Int` is specified as an inductive type with two constructors that have relevant arguments,
+    -- but it has the same runtime representation as `Nat` and thus needs to be special-cased here.
+    | ``Int => return .tobject
     | _ =>
       let env ← Lean.getEnv
-      let some (.inductInfo inductiveVal) := env.find? name | return .object
+      let some (.inductInfo inductiveVal) := env.find? name | return .tobject
       let ctorNames := inductiveVal.ctors
       let numCtors := ctorNames.length
+      let mut numScalarCtors := 0
       for ctorName in ctorNames do
         let some (.ctorInfo ctorInfo) := env.find? ctorName | unreachable!
-        let isRelevant ← Meta.MetaM.run' <|
-                         Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
+        let hasRelevantField ← Meta.MetaM.run' <|
+                               Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
           for field in params[ctorInfo.numParams...*] do
             let fieldType ← field.fvarId!.getType
             let lcnfFieldType ← LCNF.toLCNFType fieldType
             let monoFieldType ← LCNF.toMonoType lcnfFieldType
             if !monoFieldType.isErased then return true
           return false
-        if isRelevant then return .object
-      return irTypeForEnum numCtors
+        if !hasRelevantField then
+          numScalarCtors := numScalarCtors + 1
+      if numScalarCtors == numCtors then
+        return irTypeForEnum numCtors
+      else if numScalarCtors == 0 then
+        return .object
+      else
+        return .tobject
 
 def toIRType (type : Lean.Expr) : CoreM IRType := do
   match type with
@@ -73,11 +83,12 @@ def toIRType (type : Lean.Expr) : CoreM IRType := do
     let .const name _ := type.getAppFn | unreachable!
     nameToIRType name
   | .forallE .. => return .object
+  | .mdata _ b => toIRType b
   | _ => unreachable!
 
 inductive CtorFieldInfo where
-  | irrelevant
-  | object (i : Nat)
+  | erased
+  | object (i : Nat) (type : IRType)
   | usize  (i : Nat)
   | scalar (sz : Nat) (offset : Nat) (type : IRType)
   deriving Inhabited
@@ -85,8 +96,8 @@ inductive CtorFieldInfo where
 namespace CtorFieldInfo
 
 def format : CtorFieldInfo → Format
-  | irrelevant => "◾"
-  | object i   => f!"obj@{i}"
+  | erased => "◾"
+  | object i type => f!"obj@{i}:{type}"
   | usize i    => f!"usize@{i}"
   | scalar sz offset type => f!"scalar#{sz}@{offset}:{type}"
 
@@ -122,13 +133,14 @@ where fillCache := do
       let fieldType ← field.fvarId!.getType
       let lcnfFieldType ← LCNF.toLCNFType fieldType
       let monoFieldType ← LCNF.toMonoType lcnfFieldType
-      let ctorField ← match (← toIRType monoFieldType) with
-      | .object | .tobject => do
+      let irFieldType ← toIRType monoFieldType
+      let ctorField ← match irFieldType with
+      | .object | .tagged | .tobject => do
         let i := nextIdx
         nextIdx := nextIdx + 1
-        pure <| .object i
+        pure <| .object i irFieldType
       | .usize => pure <| .usize 0
-      | .irrelevant => .pure <| .irrelevant
+      | .erased => .pure <| .erased
       | .uint8 =>
         has1BScalar := true
         .pure <| .scalar 1 0 .uint8
@@ -155,7 +167,7 @@ where fillCache := do
       | .usize _ => do
         let i ← modifyGet fun nextIdx => (nextIdx, nextIdx + 1)
         return .usize i
-      | .object _ | .scalar .. | .irrelevant => return field
+      | .object .. | .scalar .. | .erased => return field
     let numUSize := nextIdx - numObjs
     let adjustScalarsForSize (fields : Array CtorFieldInfo) (size : Nat) (nextOffset : Nat)
         : Array CtorFieldInfo × Nat :=
@@ -167,7 +179,7 @@ where fillCache := do
             return .scalar sz offset type
           else
             return field
-        | .object _ | .usize _ | .irrelevant => return field
+        | .object .. | .usize _ | .erased => return field
     let mut nextOffset := 0
     if has8BScalar then
       ⟨fields, nextOffset⟩ := adjustScalarsForSize fields 8 nextOffset

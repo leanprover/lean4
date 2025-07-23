@@ -166,8 +166,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_50_(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -238,12 +238,12 @@ _start:
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_8 = 1;
 x_9 = l_Lean_Name_toString(x_6, x_8, x_1);
 x_10 = lean_box(0);
@@ -255,37 +255,37 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15;
 x_12 = l_Lean_OpenDecl_instToString___lam__2___closed__0;
 x_13 = l_List_toString___redArg(x_3, x_7);
 x_14 = lean_string_append(x_12, x_13);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_15 = lean_string_append(x_9, x_14);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 return x_15;
 }
 else
 {
 lean_dec(x_7);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_9;
 }
 }
 else
 {
 lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_16 = lean_ctor_get(x_5, 0);
 lean_inc(x_16);
 x_17 = lean_ctor_get(x_5, 1);
 lean_inc(x_17);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_18 = 1;
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_19 = l_Lean_Name_toString(x_16, x_18, x_4);
 x_20 = l_Lean_OpenDecl_instToString___lam__2___closed__1;
 x_21 = lean_string_append(x_19, x_20);
 x_22 = l_Lean_Name_toString(x_17, x_18, x_4);
 x_23 = lean_string_append(x_21, x_22);
-lean_dec(x_22);
+lean_dec_ref(x_22);
 return x_23;
 }
 }
@@ -305,7 +305,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = lean_alloc_closure((void*)(l_Lean_OpenDecl_instToString___lam__0___boxed), 1, 0);
 x_2 = l_Lean_Name_instToString;
 x_3 = l_Lean_OpenDecl_instToString___closed__0;
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_4 = lean_alloc_closure((void*)(l_Lean_OpenDecl_instToString___lam__2), 5, 4);
 lean_closure_set(x_4, 0, x_1);
 lean_closure_set(x_4, 1, x_3);
@@ -319,7 +319,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_OpenDecl_instToString___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }

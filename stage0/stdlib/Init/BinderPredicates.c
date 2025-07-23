@@ -1055,7 +1055,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_6 = lean_box(1);
 x_7 = lean_alloc_ctor(1, 2, 0);
@@ -1075,7 +1075,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_9);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_12 = lean_box(1);
 x_13 = lean_alloc_ctor(1, 2, 0);
@@ -1100,7 +1100,7 @@ x_19 = l_Lean_Syntax_isOfKind(x_15, x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_20 = lean_box(1);
 x_21 = lean_alloc_ctor(1, 2, 0);
@@ -1117,7 +1117,7 @@ x_23 = lean_ctor_get(x_2, 2);
 lean_inc(x_23);
 x_24 = lean_ctor_get(x_2, 5);
 lean_inc(x_24);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_25 = lean_unsigned_to_nat(2u);
 x_26 = l_Lean_Syntax_getArg(x_1, x_25);
 x_27 = lean_unsigned_to_nat(4u);
@@ -1144,7 +1144,7 @@ lean_ctor_set(x_40, 0, x_29);
 lean_ctor_set(x_40, 1, x_36);
 lean_ctor_set(x_40, 2, x_38);
 lean_ctor_set(x_40, 3, x_39);
-lean_inc(x_40);
+lean_inc_ref(x_40);
 lean_inc(x_29);
 x_41 = l_Lean_Syntax_node1(x_29, x_10, x_40);
 lean_inc(x_29);
@@ -1192,7 +1192,7 @@ else
 lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; uint8_t x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; 
 x_59 = lean_ctor_get(x_2, 5);
 lean_inc(x_59);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_60 = lean_unsigned_to_nat(2u);
 x_61 = l_Lean_Syntax_getArg(x_1, x_60);
 x_62 = lean_unsigned_to_nat(4u);
@@ -1322,7 +1322,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_6 = lean_box(1);
 x_7 = lean_alloc_ctor(1, 2, 0);
@@ -1342,7 +1342,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_9);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_12 = lean_box(1);
 x_13 = lean_alloc_ctor(1, 2, 0);
@@ -1367,7 +1367,7 @@ x_19 = l_Lean_Syntax_isOfKind(x_15, x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_20 = lean_box(1);
 x_21 = lean_alloc_ctor(1, 2, 0);
@@ -1384,7 +1384,7 @@ x_23 = lean_ctor_get(x_2, 2);
 lean_inc(x_23);
 x_24 = lean_ctor_get(x_2, 5);
 lean_inc(x_24);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_25 = lean_unsigned_to_nat(2u);
 x_26 = l_Lean_Syntax_getArg(x_1, x_25);
 x_27 = lean_unsigned_to_nat(4u);
@@ -1409,7 +1409,7 @@ lean_ctor_set(x_38, 0, x_29);
 lean_ctor_set(x_38, 1, x_34);
 lean_ctor_set(x_38, 2, x_36);
 lean_ctor_set(x_38, 3, x_37);
-lean_inc(x_38);
+lean_inc_ref(x_38);
 lean_inc(x_29);
 x_39 = l_Lean_Syntax_node1(x_29, x_33, x_38);
 x_40 = l_Lean___aux__Init__BinderPredicates______macroRules__Lean__term_u2203_____x2c____1___closed__18;
@@ -1451,7 +1451,7 @@ else
 lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; uint8_t x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; 
 x_54 = lean_ctor_get(x_2, 5);
 lean_inc(x_54);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_55 = lean_unsigned_to_nat(2u);
 x_56 = l_Lean_Syntax_getArg(x_1, x_55);
 x_57 = lean_unsigned_to_nat(4u);
@@ -1671,7 +1671,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean___aux__Init__BinderPredicates______macroRules__Lean__termSatisfies__binder__pred_x25______1(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -1839,7 +1839,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean___aux__Init__BinderPredicates______macroRules__Lean__termSatisfies__binder__pred_x25______2(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -2007,7 +2007,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean___aux__Init__BinderPredicates______macroRules__Lean__termSatisfies__binder__pred_x25______3(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -2175,7 +2175,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean___aux__Init__BinderPredicates______macroRules__Lean__termSatisfies__binder__pred_x25______4(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -2343,7 +2343,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean___aux__Init__BinderPredicates______macroRules__Lean__termSatisfies__binder__pred_x25______5(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -2511,7 +2511,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean___aux__Init__BinderPredicates______macroRules__Lean__termSatisfies__binder__pred_x25______6(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -2679,7 +2679,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean___aux__Init__BinderPredicates______macroRules__Lean__termSatisfies__binder__pred_x25______7(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -2847,7 +2847,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean___aux__Init__BinderPredicates______macroRules__Lean__termSatisfies__binder__pred_x25______8(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -3015,7 +3015,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean___aux__Init__BinderPredicates______macroRules__Lean__termSatisfies__binder__pred_x25______9(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -3183,7 +3183,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean___aux__Init__BinderPredicates______macroRules__Lean__termSatisfies__binder__pred_x25______10(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -3351,7 +3351,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean___aux__Init__BinderPredicates______macroRules__Lean__termSatisfies__binder__pred_x25______11(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }

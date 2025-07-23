@@ -411,11 +411,11 @@ where
       <|>
       (casesOnStuckLHS mvarId)
       <|>
-      (do let mvarId' ← simpIfTarget mvarId (useDecide := true)
+      (do let mvarId' ← simpIfTarget mvarId (useDecide := true) (useNewSemantics := true)
           if mvarId' == mvarId then throwError "simpIf failed"
           return #[mvarId'])
       <|>
-      (do if let some (s₁, s₂) ← splitIfTarget? mvarId then
+      (do if let some (s₁, s₂) ← splitIfTarget? mvarId (useNewSemantics := true) then
             let mvarId₁ ← trySubst s₁.mvarId s₁.fvarId
             return #[mvarId₁, s₂.mvarId]
           else
@@ -574,7 +574,7 @@ where
       for i in 6...args.size do
         let arg := argsNew[i]!
         if arg.isFVar then
-          match (← read).find? arg.fvarId! with
+          match (← read).get? arg.fvarId! with
           | some (altNew, _, _) =>
             argsNew := argsNew.set! i altNew
             trace[Meta.Match.matchEqs] "arg: {arg} : {← inferType arg}, altNew: {altNew} : {← inferType altNew}"
@@ -635,7 +635,7 @@ where
           if isAlt[i] then
             -- `convertTemplate` will correct occurrences of the alternative
             let alt := args[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
-            let some (_, numParams, argMask) := m.find? alt.fvarId! | unreachable!
+            let some (_, numParams, argMask) := m.get? alt.fvarId! | unreachable!
             -- We add a new entry to `m` to make sure `convertTemplate` will correct the occurrences of the alternative
             m := m.insert minorArgsNew[i]!.fvarId! (minorArgsNew[i]!, numParams, argMask)
           unless minorBodyNew.isLambda do
@@ -659,7 +659,7 @@ where
         return .done (← convertCastEqRec e)
       else
         let Expr.fvar fvarId .. := e.getAppFn | return .continue
-        let some (altNew, numParams, argMask) := (← read).find? fvarId | return .continue
+        let some (altNew, numParams, argMask) := (← read).get? fvarId | return .continue
         trace[Meta.Match.matchEqs] ">> argMask: {argMask}, e: {e}, {altNew}"
         let mut newArgs := #[]
         let argMask := trimFalseTrail argMask

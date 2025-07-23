@@ -99,10 +99,10 @@ if (lean_obj_tag(x_6) == 5)
 {
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-lean_dec(x_6);
+lean_inc_ref(x_7);
+lean_dec_ref(x_6);
 x_8 = lean_ctor_get_uint8(x_7, sizeof(void*)*6);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 if (x_8 == 0)
 {
 uint8_t x_9; 
@@ -134,7 +134,7 @@ else
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_15 = lean_ctor_get(x_5, 1);
 lean_inc(x_15);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_16 = l_Lean_IR_UnboxResult_initFn___lam__0___closed__1____x40_Lean_Compiler_IR_UnboxResult___hyg_3_;
 x_17 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_Attribute_Builtin_ensureNoArgs_spec__0_spec__0___redArg(x_16, x_2, x_3, x_15);
 return x_17;
@@ -146,7 +146,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20;
 lean_dec(x_6);
 x_18 = lean_ctor_get(x_5, 1);
 lean_inc(x_18);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_19 = l_Lean_IR_UnboxResult_initFn___lam__0___closed__3____x40_Lean_Compiler_IR_UnboxResult___hyg_3_;
 x_20 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_Attribute_Builtin_ensureNoArgs_spec__0_spec__0___redArg(x_19, x_2, x_3, x_18);
 return x_20;
@@ -265,7 +265,7 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_IR_UnboxResult_initFn___lam__0____x40_Lean_Compiler_IR_UnboxResult___hyg_3_(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_5;
 }
 }

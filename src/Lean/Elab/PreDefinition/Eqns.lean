@@ -44,8 +44,12 @@ def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let mvarId' ← Split.simpMatchTarget mvarId
   if mvarId != mvarId' then return some mvarId' else return none
 
-def simpIf? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let mvarId' ← simpIfTarget mvarId (useDecide := true)
+/--
+Simplify `if-then-expression`s in the goal target.
+If `useNewSemantics` is `true`, the flag `backward.split` is ignored.
+-/
+def simpIf? (mvarId : MVarId) (useNewSemantics := false) : MetaM (Option MVarId) := do
+  let mvarId' ← simpIfTarget mvarId (useDecide := true) (useNewSemantics := useNewSemantics)
   if mvarId != mvarId' then return some mvarId' else return none
 
 private def findMatchToSplit? (deepRecursiveSplit : Bool) (env : Environment) (e : Expr)
@@ -369,7 +373,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) 
       return ()
     else if let some mvarId ← simpMatch? mvarId then
       go mvarId
-    else if let some mvarId ← simpIf? mvarId then
+    else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
       go mvarId
     else if let some mvarId ← whnfReducibleLHS? mvarId then
       go mvarId
@@ -381,7 +385,7 @@ private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) 
       | TacticResultCNM.noChange =>
         if let some mvarIds ← casesOnStuckLHS? mvarId then
           mvarIds.forM go
-        else if let some mvarIds ← splitTarget? mvarId then
+        else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
           mvarIds.forM go
         else
           throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
@@ -459,7 +463,7 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
       if let some mvarId ← simpMatch? mvarId then
         return (← go mvarId)
 
-    if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
+    if let some mvarIds ← splitTarget? mvarId (splitIte := false) (useNewSemantics := true) then
       return (← mvarIds.forM go)
 
     if (← tryContradiction mvarId) then

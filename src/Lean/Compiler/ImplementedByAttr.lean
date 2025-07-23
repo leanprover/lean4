@@ -8,6 +8,7 @@ import Lean.Attributes
 import Lean.Declaration
 import Lean.MonadEnv
 import Lean.Elab.InfoTree
+import Lean.Compiler.LCNF.PhaseExt
 
 namespace Lean.Compiler
 
@@ -60,10 +61,11 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
         throwError "invalid 'implemented_by' argument '{fnName}', '{fnName}' has type{indentExpr fnType}\nbut '{declName}' has type{indentExpr declType}"
       if decl.name == fnDecl.name then
         throwError "invalid 'implemented_by' argument '{fnName}', function cannot be implemented by itself"
+      trace[Compiler.inferVisibility] m!"Marking {fnName} as opaque because it implements {decl.name}"
+      modifyEnv (LCNF.setDeclPublic · fnName)
       return fnName
 }
 
-@[export lean_get_implemented_by]
 def getImplementedBy? (env : Environment) (declName : Name) : Option Name :=
   implementedByAttr.getParam? env declName
 

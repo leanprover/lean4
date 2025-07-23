@@ -189,7 +189,7 @@ x_4 = l_Lean_AssocList_contains___at___Lean_Meta_FVarSubst_contains_spec__0___re
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-lean_inc(x_3);
+lean_inc_ref(x_3);
 lean_inc(x_2);
 x_5 = lean_alloc_closure((void*)(l_Lean_Meta_FVarSubst_insert___lam__0___boxed), 3, 2);
 lean_closure_set(x_5, 0, x_2);
@@ -203,7 +203,7 @@ return x_7;
 }
 else
 {
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 return x_1;
 }
@@ -214,8 +214,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Meta_FVarSubst_insert___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -421,7 +421,7 @@ lean_object* x_5;
 lean_dec(x_2);
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_5;
 }
 }
@@ -454,14 +454,14 @@ return x_5;
 }
 else
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
 else
 {
 lean_object* x_6; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = lean_box(0);
 return x_6;
 }
@@ -479,7 +479,7 @@ x_4 = l_Lean_Expr_hasFVar(x_2);
 if (x_4 == 0)
 {
 lean_dec(x_1);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 return x_2;
 }
 else
@@ -490,13 +490,13 @@ lean_object* x_5; lean_object* x_6;
 x_5 = lean_alloc_closure((void*)(l_Lean_Meta_FVarSubst_apply___lam__0___boxed), 2, 1);
 lean_closure_set(x_5, 0, x_1);
 x_6 = lean_replace_expr(x_5, x_2);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 return x_6;
 }
 else
 {
 lean_dec(x_1);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 return x_2;
 }
 }
@@ -504,7 +504,7 @@ return x_2;
 else
 {
 lean_dec(x_1);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 return x_2;
 }
 }
@@ -523,7 +523,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Meta_FVarSubst_apply(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }
@@ -610,7 +610,7 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 2);
 lean_inc(x_6);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_inc(x_1);
 x_7 = l_Lean_Meta_FVarSubst_apply(x_1, x_5);
 lean_dec(x_5);
@@ -642,7 +642,7 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_2, 3);
 x_5 = l_Lean_Meta_FVarSubst_apply(x_1, x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_ctor_set(x_2, 3, x_5);
 return x_2;
 }
@@ -661,7 +661,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_dec(x_2);
 x_12 = l_Lean_Meta_FVarSubst_apply(x_1, x_9);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_13 = lean_alloc_ctor(0, 4, 2);
 lean_ctor_set(x_13, 0, x_6);
 lean_ctor_set(x_13, 1, x_7);
@@ -683,9 +683,9 @@ x_15 = lean_ctor_get(x_2, 3);
 x_16 = lean_ctor_get(x_2, 4);
 lean_inc(x_1);
 x_17 = l_Lean_Meta_FVarSubst_apply(x_1, x_15);
-lean_dec(x_15);
+lean_dec_ref(x_15);
 x_18 = l_Lean_Meta_FVarSubst_apply(x_1, x_16);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 lean_ctor_set(x_2, 4, x_18);
 lean_ctor_set(x_2, 3, x_17);
 return x_2;
@@ -708,9 +708,9 @@ lean_inc(x_19);
 lean_dec(x_2);
 lean_inc(x_1);
 x_26 = l_Lean_Meta_FVarSubst_apply(x_1, x_22);
-lean_dec(x_22);
+lean_dec_ref(x_22);
 x_27 = l_Lean_Meta_FVarSubst_apply(x_1, x_23);
-lean_dec(x_23);
+lean_dec_ref(x_23);
 x_28 = lean_alloc_ctor(1, 5, 2);
 lean_ctor_set(x_28, 0, x_19);
 lean_ctor_set(x_28, 1, x_20);
@@ -737,7 +737,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Expr_applyFVarSubst(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }

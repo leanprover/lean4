@@ -215,7 +215,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lake_instToTomlName___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -283,7 +283,7 @@ _start:
 {
 double x_2; lean_object* x_3; 
 x_2 = lean_unbox_float(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Lake_instToTomlFloat___lam__0(x_2);
 return x_3;
 }
@@ -312,7 +312,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lake_instToTomlBool___lam__0(x_2);
 return x_3;
 }
@@ -527,7 +526,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -535,7 +534,7 @@ else
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_apply_1(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
@@ -602,8 +601,8 @@ x_7 = lean_nat_dec_lt(x_3, x_5);
 if (x_7 == 0)
 {
 lean_dec(x_5);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_4;
 }
 else
@@ -613,8 +612,8 @@ x_8 = lean_nat_dec_le(x_5, x_5);
 if (x_8 == 0)
 {
 lean_dec(x_5);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_4;
 }
 else
@@ -705,7 +704,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(0);
 return x_3;
 }
@@ -714,7 +713,7 @@ else
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_apply_1(x_1, x_4);
 return x_5;
 }
@@ -743,7 +742,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(0);
 return x_3;
 }
@@ -813,7 +812,7 @@ else
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 x_7 = l_Lake_Toml_instSmartInsertOfToToml_x3f___redArg___lam__0___closed__0;
 x_8 = l_Lake_Toml_RBDict_insert___redArg(x_7, x_2, x_6, x_4);
 return x_8;
@@ -842,9 +841,9 @@ _start:
 {
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_5 = l_Array_isEmpty___redArg(x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
@@ -858,7 +857,7 @@ return x_9;
 }
 else
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -887,9 +886,9 @@ return x_8;
 }
 else
 {
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_4;
 }
 }
@@ -932,7 +931,7 @@ return x_10;
 }
 else
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -972,7 +971,7 @@ _start:
 if (lean_obj_tag(x_3) == 0)
 {
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_4;
 }
 else
@@ -980,7 +979,7 @@ else
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = lean_apply_1(x_1, x_5);
 x_7 = l_Lake_Toml_instSmartInsertOfToToml_x3f___redArg___lam__0___closed__0;
 x_8 = l_Lake_Toml_RBDict_insert___redArg(x_7, x_2, x_6, x_4);
@@ -994,7 +993,7 @@ _start:
 if (lean_obj_tag(x_4) == 0)
 {
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_5;
 }
 else
@@ -1002,7 +1001,7 @@ else
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_ctor_get(x_4, 0);
 lean_inc(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = lean_apply_1(x_2, x_6);
 x_8 = l_Lake_Toml_instSmartInsertOfToToml_x3f___redArg___lam__0___closed__0;
 x_9 = l_Lake_Toml_RBDict_insert___redArg(x_8, x_3, x_7, x_5);
@@ -1053,7 +1052,7 @@ if (x_2 == 0)
 {
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_5;
 }
 else
@@ -1073,7 +1072,7 @@ if (x_3 == 0)
 {
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_6;
 }
 else
@@ -1091,7 +1090,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lake_Toml_Table_insertIf___redArg(x_1, x_6, x_3, x_4, x_5);
 return x_7;
 }
@@ -1101,7 +1099,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lake_Toml_Table_insertIf(x_1, x_2, x_7, x_4, x_5, x_6);
 return x_8;
 }
@@ -1121,7 +1118,7 @@ else
 {
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_5;
 }
 }
@@ -1141,7 +1138,7 @@ else
 {
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_6;
 }
 }
@@ -1151,7 +1148,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_2);
-lean_dec(x_2);
 x_7 = l_Lake_Toml_Table_insertUnless___redArg(x_1, x_6, x_3, x_4, x_5);
 return x_7;
 }
@@ -1161,7 +1157,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_3);
-lean_dec(x_3);
 x_8 = l_Lake_Toml_Table_insertUnless(x_1, x_2, x_7, x_4, x_5, x_6);
 return x_8;
 }
@@ -1173,7 +1168,6 @@ lean_object* x_7; uint8_t x_8;
 lean_inc(x_4);
 x_7 = lean_apply_2(x_2, x_4, x_5);
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -1186,7 +1180,7 @@ else
 {
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_6;
 }
 }
@@ -1198,7 +1192,6 @@ lean_object* x_8; uint8_t x_9;
 lean_inc(x_5);
 x_8 = lean_apply_2(x_3, x_5, x_6);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -1211,7 +1204,7 @@ else
 {
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_7;
 }
 }

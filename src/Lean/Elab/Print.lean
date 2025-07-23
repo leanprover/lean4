@@ -11,7 +11,7 @@ import Lean.Elab.Command
 namespace Lean.Elab.Command
 
 private def throwUnknownId (id : Name) : CommandElabM Unit :=
-  throwError "unknown identifier '{.ofConstName id}'"
+  throwError "Unknown identifier `{.ofConstName id}`"
 
 private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
   match levelParams with
@@ -145,7 +145,7 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
           let fi ← getFieldOrigin source field
           let proj := fi.projFn
           let modifier := if isPrivateName proj then "private " else ""
-          let ftype ← inferType (fieldMap.find! field)
+          let ftype ← inferType (fieldMap.get! field)
           let value ←
             if let some stx := autoParams.find? field then
               let stx : TSyntax ``Parser.Tactic.tacticSeq := ⟨stx⟩

@@ -43,10 +43,10 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Iter_inductSteps___redArg(lean_object* 
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_3 = lean_alloc_closure((void*)(l_Std_Iterators_Iter_inductSteps___redArg___lam__0___boxed), 4, 1);
 lean_closure_set(x_3, 0, x_1);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_4 = lean_alloc_closure((void*)(l_Std_Iterators_Iter_inductSteps___redArg___lam__1), 3, 1);
 lean_closure_set(x_4, 0, x_1);
 x_5 = lean_apply_3(x_1, x_2, x_3, x_4);
@@ -75,7 +75,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Iterators_Iter_inductSteps(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_8;
 }
 }
@@ -91,7 +91,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_Iter_inductSkips___redArg(lean_object* 
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_3 = lean_alloc_closure((void*)(l_Std_Iterators_Iter_inductSkips___redArg___lam__0), 3, 1);
 lean_closure_set(x_3, 0, x_1);
 x_4 = lean_apply_2(x_1, x_2, x_3);
@@ -111,7 +111,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Iterators_Iter_inductSkips(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_8;
 }
 }

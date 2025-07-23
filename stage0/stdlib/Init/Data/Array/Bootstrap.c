@@ -86,7 +86,7 @@ _start:
 lean_object* x_4; 
 x_4 = l_Array_get_x21___redArg(x_1, x_2, x_3);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -97,7 +97,7 @@ _start:
 lean_object* x_5; 
 x_5 = l_Array_get_x21(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 return x_5;
 }
@@ -110,7 +110,7 @@ x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_nat_dec_eq(x_1, x_4);
 if (x_5 == 1)
 {
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_inc(x_2);
 return x_2;
 }
@@ -161,14 +161,14 @@ x_5 = lean_nat_dec_eq(x_1, x_4);
 if (x_5 == 1)
 {
 lean_object* x_6; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = lean_apply_1(x_2, lean_box(0));
 return x_6;
 }
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_1, x_7);
 x_9 = lean_apply_2(x_3, x_8, lean_box(0));
@@ -199,7 +199,7 @@ _start:
 lean_object* x_8; 
 x_8 = l___private_Init_Data_Array_Bootstrap_0__Array_forIn_x27_loop_match__3_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_8;
 }
 }

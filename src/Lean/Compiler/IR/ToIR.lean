@@ -63,23 +63,26 @@ def findDecl (n : Name) : M (Option Decl) :=
 def addDecl (d : Decl) : M Unit :=
   Lean.modifyEnv fun env => declMapExt.addEntry (env.addExtraName d.name) d
 
-def lowerLitValue (v : LCNF.LitValue) : LitVal :=
+def lowerLitValue (v : LCNF.LitValue) : LitVal × IRType :=
   match v with
-  | .nat n => .num n
-  | .str s => .str s
-  | .uint8 v => .num (UInt8.toNat v)
-  | .uint16 v => .num (UInt16.toNat v)
-  | .uint32 v => .num (UInt32.toNat v)
-  | .uint64 v | .usize v => .num (UInt64.toNat v)
+  | .nat n =>
+    let type := if n < UInt32.size then .tagged else .tobject
+    ⟨.num n, type⟩
+  | .str s => ⟨.str s, .object⟩
+  | .uint8 v => ⟨.num (UInt8.toNat v), .uint8⟩
+  | .uint16 v => ⟨.num (UInt16.toNat v), .uint16⟩
+  | .uint32 v => ⟨.num (UInt32.toNat v), .uint32⟩
+  | .uint64 v => ⟨.num (UInt64.toNat v), .uint64⟩
+  | .usize v => ⟨.num (UInt64.toNat v), .usize⟩
 
 def lowerArg (a : LCNF.Arg) : M Arg := do
   match a with
   | .fvar fvarId =>
     match (← get).fvars[fvarId]? with
     | some (.var varId) => return .var varId
-    | some .erased => return .irrelevant
+    | some .erased => return .erased
     | some (.joinPoint ..) | none => panic! "unexpected value"
-  | .erased | .type .. => return .irrelevant
+  | .erased | .type .. => return .erased
 
 inductive TranslatedProj where
   | expr (e : Expr)
@@ -89,10 +92,10 @@ inductive TranslatedProj where
 def lowerProj (base : VarId) (ctorInfo : CtorInfo) (field : CtorFieldInfo)
     : TranslatedProj × IRType :=
   match field with
-  | .object i => ⟨.expr (.proj i base), .object⟩
+  | .object i irType => ⟨.expr (.proj i base), irType⟩
   | .usize i => ⟨.expr (.uproj i base), .usize⟩
   | .scalar _ offset irType => ⟨.expr (.sproj (ctorInfo.size + ctorInfo.usize) offset base), irType⟩
-  | .irrelevant => ⟨.erased, .irrelevant⟩
+  | .erased => ⟨.erased, .erased⟩
 
 def lowerParam (p : LCNF.Param) : M Param := do
   let x ← bindVar p.fvarId
@@ -118,13 +121,13 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
     | some (.var varId) =>
       return .case cases.typeName
                    varId
-                   (← toIRType cases.resultType)
+                   (← nameToIRType cases.typeName)
                    (← cases.alts.mapM (lowerAlt varId))
     | some (.joinPoint ..) | some .erased | none => panic! "unexpected value"
   | .return fvarId =>
     let arg := match (← get).fvars[fvarId]? with
     | some (.var varId) => .var varId
-    | some .erased => .irrelevant
+    | some .erased => .erased
     | some (.joinPoint ..) | none => panic! "unexpected value"
     return .ret arg
   | .unreach .. => return .unreachable
@@ -133,7 +136,9 @@ partial def lowerCode (c : LCNF.Code) : M FnBody := do
 partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
   match decl.value with
   | .lit litValue =>
-    mkExpr (.lit (lowerLitValue litValue))
+    let var ← bindVar decl.fvarId
+    let ⟨litValue, type⟩ := lowerLitValue litValue
+    return .vdecl var type (.lit litValue) (← lowerCode k)
   | .proj typeName i fvarId =>
     match (← get).fvars[fvarId]? with
     | some (.var varId) =>
@@ -152,12 +157,6 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
       bindErased decl.fvarId
       lowerCode k
     | some (.joinPoint ..) | none => panic! "unexpected value"
-  | .const ``Nat.succ _ args =>
-    let irArgs ← args.mapM lowerArg
-    let var ← bindVar decl.fvarId
-    let tmpVar ← newVar
-    let k := (.vdecl var .object (.fap ``Nat.add #[irArgs[0]!, (.var tmpVar)]) (← lowerCode k))
-    return .vdecl tmpVar .object (.lit (.num 1)) k
   | .const name _ args =>
     let irArgs ← args.mapM lowerArg
     if let some code ← tryIrDecl? name irArgs then
@@ -166,50 +165,42 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     match env.find? name with
     | some (.ctorInfo ctorVal) =>
       if isExtern env name then
-        return (← mkExpr (.fap name irArgs))
+        return (← mkFap name irArgs)
 
       let type ← nameToIRType ctorVal.induct
       if type.isScalar then
         let var ← bindVar decl.fvarId
         return .vdecl var type (.lit (.num ctorVal.cidx)) (← lowerCode k)
 
-      assert! type == .object
       let ⟨ctorInfo, fields⟩ ← getCtorLayout name
-      let args := args.extract (start := ctorVal.numParams)
+      let irArgs := irArgs.extract (start := ctorVal.numParams)
       let objArgs : Array Arg ← do
         let mut result : Array Arg := #[]
-        for i in *...fields.size do
-          match args[i]! with
-          | .fvar fvarId =>
-            if let some (.var varId) := (← get).fvars[fvarId]? then
-              if fields[i]! matches .object .. then
-                result := result.push (.var varId)
-          | .type _ | .erased =>
-            if fields[i]! matches .object .. then
-              result := result.push .irrelevant
+        for h : i in *...fields.size do
+          match fields[i] with
+          | .object .. =>
+            result := result.push irArgs[i]!
+          | .usize .. | .scalar .. | .erased => pure ()
         pure result
       let objVar ← bindVar decl.fvarId
       let rec lowerNonObjectFields (_ : Unit) : M FnBody :=
-        let rec loop (usizeCount : Nat) (i : Nat) : M FnBody := do
-          match args[i]? with
-          | some (.fvar fvarId) =>
-            match (← get).fvars[fvarId]? with
-            | some (.var varId) =>
-              match fields[i]! with
-              | .usize .. =>
-                let k ← loop (usizeCount + 1) (i + 1)
-                return .uset objVar (ctorInfo.size + usizeCount) varId k
-              | .scalar _ offset argType =>
-                let k ← loop usizeCount (i + 1)
-                return .sset objVar (ctorInfo.size + ctorInfo.usize) offset varId argType k
-              | .object .. | .irrelevant => loop usizeCount (i + 1)
-            | _ => loop usizeCount (i + 1)
-          | some (.type _) | some .erased => loop usizeCount (i + 1)
+        let rec loop (i : Nat) : M FnBody := do
+          match irArgs[i]? with
+          | some (.var varId) =>
+            match fields[i]! with
+            | .usize usizeIdx =>
+              let k ← loop (i + 1)
+              return .uset objVar usizeIdx varId k
+            | .scalar _ offset argType =>
+              let k ← loop (i + 1)
+              return .sset objVar (ctorInfo.size + ctorInfo.usize) offset varId argType k
+            | .object .. | .erased => loop (i + 1)
+          | some .erased => loop (i + 1)
           | none => lowerCode k
-        loop 0 0
-      return .vdecl objVar type (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())
+        loop 0
+      return .vdecl objVar ctorInfo.type (.ctor ctorInfo objArgs) (← lowerNonObjectFields ())
     | some (.defnInfo ..) | some (.opaqueInfo ..) =>
-      mkExpr (.fap name irArgs)
+      mkFap name irArgs
     | some (.axiomInfo ..) | .some (.quotInfo ..) | .some (.inductInfo ..) | .some (.thmInfo ..) =>
       throwNamedError lean.dependsOnNoncomputable f!"'{name}' not supported by code generator; consider marking definition as 'noncomputable'"
     | some (.recInfo ..) =>
@@ -219,7 +210,7 @@ partial def lowerLet (decl : LCNF.LetDecl) (k : LCNF.Code) : M FnBody := do
     match (← get).fvars[fvarId]? with
     | some (.var id) =>
       let irArgs ← args.mapM lowerArg
-      mkExpr (.ap id irArgs)
+      mkAp id irArgs
     | some .erased => mkErased ()
     | some (.joinPoint ..) | none => panic! "unexpected value"
   | .erased => mkErased ()
@@ -228,34 +219,43 @@ where
     bindVarToVarId decl.fvarId v
     lowerCode k
 
-  mkExpr (e : Expr) : M FnBody := do
-    let var ← bindVar decl.fvarId
-    let type ← match e with
-    | .ctor .. | .pap .. | .ap .. | .proj .. => pure <| .object
-    | _ => toIRType decl.type
-    return .vdecl var type e (← lowerCode k)
-
   mkErased (_ : Unit) : M FnBody := do
     bindErased decl.fvarId
     lowerCode k
 
-  mkPartialApp (e : Expr) (restArgs : Array Arg) : M FnBody := do
+  mkFap (name : Name) (args : Array Arg) : M FnBody := do
     let var ← bindVar decl.fvarId
+    let type ← toIRType decl.type
+    return .vdecl var type (.fap name args) (← lowerCode k)
+
+  mkPap (name : Name) (args : Array Arg) : M FnBody := do
+    let var ← bindVar decl.fvarId
+    return .vdecl var .object (.pap name args) (← lowerCode k)
+
+  mkAp (fnVar : VarId) (args : Array Arg) : M FnBody := do
+    let var ← bindVar decl.fvarId
+    let type := (← toIRType decl.type).boxed
+    return .vdecl var type (.ap fnVar args) (← lowerCode k)
+
+  mkOverApplication (name : Name) (numParams : Nat) (args : Array Arg) : M FnBody := do
+    let var ← bindVar decl.fvarId
+    let type := (← toIRType decl.type).boxed
     let tmpVar ← newVar
-    return .vdecl tmpVar .object e (.vdecl var .object (.ap tmpVar restArgs) (← lowerCode k))
+    let firstArgs := args.extract 0 numParams
+    let restArgs := args.extract numParams args.size
+    return .vdecl tmpVar .object (.fap name firstArgs) <|
+           .vdecl var type (.ap tmpVar restArgs) (← lowerCode k)
 
   tryIrDecl? (name : Name) (args : Array Arg) : M (Option FnBody) := do
     if let some decl ← LCNF.getMonoDecl? name then
       let numArgs := args.size
       let numParams := decl.params.size
       if numArgs < numParams then
-        return some (← mkExpr (.pap name args))
+        return some (← mkPap name args)
       else if numArgs == numParams then
-        return some (← mkExpr (.fap name args))
+        return some (← mkFap name args)
       else
-        let firstArgs := args.extract 0 numParams
-        let restArgs := args.extract numParams numArgs
-        return some (← mkPartialApp (.fap name firstArgs) restArgs)
+        return some (← mkOverApplication name numParams args)
     else
       return none
 

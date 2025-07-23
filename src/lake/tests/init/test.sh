@@ -67,14 +67,16 @@ rm -rf hello
 # Test math-lax template
 
 echo "# TEST: math-lax template"
-test_run new qed math-lax.lean || true # ignore toolchain download errors
-# Remove the require, since we do not wish to download mathlib during tests
+# Use `--offline` and remove the `require`,
+# since we do not wish to download mathlib during tests
+test_run new qed math-lax.lean --offline
 sed_i '/^require.*/{N;d;}' qed/lakefile.lean
 test_run -d qed build Qed
 test -f qed/.lake/build/lib/lean/Qed.olean
 rm -rf qed
-test_run new qed math-lax.toml || true # ignore toolchain download errors
-# Remove the require, since we do not wish to download mathlib during tests
+# Use `--offline` and remove the `require`,
+# since we do not wish to download mathlib during tests
+test_run new qed math-lax.toml --offline
 sed_i '/^\[\[require\]\]/{N;N;N;d;}' qed/lakefile.toml
 test_run -d qed build Qed
 test -f qed/.lake/build/lib/lean/Qed.olean

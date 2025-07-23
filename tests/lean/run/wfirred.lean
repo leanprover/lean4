@@ -33,10 +33,11 @@ example : foo (n+1) = foo n := rfl
 
 -- also for closed terms
 /--
-error: tactic 'rfl' failed, the left-hand side
+error: Tactic `rfl` failed: the left-hand side
   foo 0
 is not definitionally equal to the right-hand side
   0
+
 ⊢ foo 0 = 0
 -/
 #guard_msgs in
@@ -44,10 +45,11 @@ example : foo 0 = 0 := by rfl
 
 -- It only works on closed terms:
 /--
-error: tactic 'rfl' failed, the left-hand side
+error: Tactic `rfl` failed: the left-hand side
   foo (n + 1)
 is not definitionally equal to the right-hand side
   foo n
+
 n : Nat
 ⊢ foo (n + 1) = foo n
 -/

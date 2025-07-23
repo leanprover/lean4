@@ -40,7 +40,7 @@ x_22 = lean_nat_dec_lt(x_3, x_1);
 if (x_22 == 0)
 {
 lean_object* x_23; 
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_3);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_2);
@@ -81,17 +81,17 @@ goto block_21;
 block_21:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_8 = lean_apply_2(x_6, x_2, x_7);
 x_9 = lean_ctor_get(x_8, 1);
-lean_inc(x_9);
+lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_8, 0);
-lean_inc(x_10);
-lean_dec(x_8);
+lean_inc_ref(x_10);
+lean_dec_ref(x_8);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get_uint8(x_9, sizeof(void*)*1);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_13 = lean_unsigned_to_nat(1u);
 x_14 = lean_nat_add(x_3, x_13);
 lean_dec(x_3);
@@ -123,7 +123,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Sat_AIG_RefVec_map_go___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_1);
 return x_7;
 }
@@ -133,10 +133,10 @@ _start:
 {
 lean_object* x_13; 
 x_13 = l_Std_Sat_AIG_RefVec_map_go(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_13;
 }
 }
@@ -145,14 +145,14 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_3, 1);
-lean_inc(x_5);
-lean_dec(x_3);
+lean_inc_ref(x_5);
+lean_dec_ref(x_3);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_mk_empty_array_with_capacity(x_1);
 x_8 = l_Std_Sat_AIG_RefVec_map_go___redArg(x_1, x_2, x_6, x_7, x_4, x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_8;
 }
 }
@@ -179,8 +179,8 @@ _start:
 lean_object* x_7; 
 x_7 = l_Std_Sat_AIG_RefVec_map(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_7;
 }
 }

@@ -3,11 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Nat.Compare
-import Std.Data.DTreeMap.Internal.Balancing
-import Std.Data.DTreeMap.Internal.Queries
-import Std.Classes.Ord.Basic
+public import Init.Data.Nat.Compare
+public import Std.Data.DTreeMap.Internal.Balancing
+public import Std.Data.DTreeMap.Internal.Queries
+public import Std.Classes.Ord.Basic
+
+@[expose] public section
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -828,7 +832,7 @@ def mergeWith! [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a �
 namespace Const
 
 variable {β : Type v}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 /--
 Changes the mapping of the key `k` by applying the function `f` to the current mapped value

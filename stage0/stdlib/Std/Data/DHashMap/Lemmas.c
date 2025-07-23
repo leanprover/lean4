@@ -28,8 +28,8 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_DHashMap_Equiv_instTrans(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
 return x_5;
 }
 }
@@ -46,8 +46,8 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_DHashMap_isSetoid(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
 return x_5;
 }
 }

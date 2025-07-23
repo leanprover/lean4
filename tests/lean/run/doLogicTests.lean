@@ -508,7 +508,7 @@ theorem add_unfold [Monad m] [WPMonad m sh] :
 
 theorem mkFreshPair_triple : ⦃⌜True⌝⦄ mkFreshPair ⦃⇓ (a, b) => ⌜a ≠ b⌝⦄ := by
   mvcgen [mkFreshPair]
-  simp_all [SPred.entails_elim_cons]
+  simp_all [SPred.entails_cons]
 
 theorem sum_loop_spec :
   ⦃⌜True⌝⦄

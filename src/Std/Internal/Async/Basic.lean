@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving, Sofia Rodrigues, Mac Malone
 -/
+module
+
 prelude
-import Init.Core
-import Init.System.IO
-import Init.System.Promise
+public import Init.Core
+public import Init.System.IO
+public import Init.System.Promise
+
+public section
 
 namespace Std
 namespace Internal
@@ -377,7 +381,7 @@ end MaybeTask
 /--
 An asynchronous computation that never fails.
 -/
-def BaseAsync (α : Type) := BaseIO (MaybeTask α)
+@[expose] def BaseAsync (α : Type) := BaseIO (MaybeTask α)
 
 namespace BaseAsync
 
@@ -495,7 +499,7 @@ end BaseAsync
 /--
 An asynchronous computation that may produce an error of type `ε`.
 -/
-def EAsync (ε : Type) (α : Type) := BaseAsync (Except ε α)
+@[expose] def EAsync (ε : Type) (α : Type) := BaseAsync (Except ε α)
 
 namespace EAsync
 

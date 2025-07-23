@@ -17,7 +17,7 @@ Build info is what is the data passed to a Lake build function to facilitate
 the build.
 -/
 
-open Lean
+open System Lean
 
 namespace Lake
 
@@ -131,6 +131,22 @@ data_type extern_lib : ExternLib
 data_type input_file : InputFile
 data_type input_dir : InputDir
 
+/-- An import statement with its resolved module within the workspace. -/
+structure ModuleImport extends Import where
+  module? : Option Module
+
+/-- A module's source file path plus its parsed header. -/
+structure ModuleInput where
+  path : FilePath
+  header : ModuleHeader
+  imports : Array ModuleImport
+
+/--
+The module's processed Lean source file.
+Combines tracing the file with parsing its header.
+-/
+builtin_facet input : Module => ModuleInput
+
 /-- The direct local imports of the Lean module. -/
 builtin_facet imports : Module => Array Module
 
@@ -201,6 +217,18 @@ namespace Module
 
 @[inherit_doc depsFacet] abbrev deps  (self : Module) :=
   self.facetCore depsFacet
+
+@[inherit_doc importInfoFacet] abbrev importInfo (self : Module) :=
+  self.facetCore importInfoFacet
+
+@[inherit_doc exportInfoFacet] abbrev exportInfo (self : Module) :=
+  self.facetCore exportInfoFacet
+
+@[inherit_doc importArtsFacet] abbrev importArts (self : Module) :=
+  self.facetCore importArtsFacet
+
+@[inherit_doc importAllArtsFacet] abbrev importAllArts (self : Module) :=
+  self.facetCore importAllArtsFacet
 
 @[inherit_doc leanArtsFacet] abbrev leanArts (self : Module) :=
   self.facetCore leanArtsFacet

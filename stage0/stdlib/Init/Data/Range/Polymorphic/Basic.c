@@ -84,13 +84,13 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = lean_apply_1(x_1, x_4);
 if (lean_obj_tag(x_6) == 0)
 {
 uint8_t x_7; 
 lean_dec(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_7 = 1;
 return x_7;
 }
@@ -99,10 +99,9 @@ else
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = lean_apply_2(x_2, x_5, x_8);
 x_10 = lean_unbox(x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 uint8_t x_11; 
@@ -126,13 +125,13 @@ x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_10 = lean_apply_1(x_5, x_8);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; 
 lean_dec(x_9);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_11 = 1;
 return x_11;
 }
@@ -141,10 +140,9 @@ else
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_13 = lean_apply_2(x_6, x_9, x_12);
 x_14 = lean_unbox(x_13);
-lean_dec(x_13);
 if (x_14 == 0)
 {
 uint8_t x_15; 
@@ -174,11 +172,9 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; uint8_t x_10; lean_object* x_11; 
 x_8 = lean_unbox(x_1);
-lean_dec(x_1);
 x_9 = lean_unbox(x_2);
-lean_dec(x_2);
 x_10 = l_Std_PRange_isEmpty(x_8, x_9, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_11 = lean_box(x_10);
 return x_11;
 }
@@ -641,7 +637,7 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = lean_box(1);
 x_7 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
@@ -657,7 +653,7 @@ x_9 = lean_ctor_get(x_2, 2);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_2, 5);
 lean_inc(x_10);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_11 = 0;
 x_12 = l_Lean_SourceInfo_fromRef(x_10, x_11);
 lean_dec(x_10);
@@ -761,7 +757,7 @@ lean_inc(x_12);
 x_62 = l_Lean_Syntax_node1(x_12, x_21, x_61);
 lean_inc(x_12);
 x_63 = l_Lean_Syntax_node1(x_12, x_20, x_62);
-lean_inc(x_19);
+lean_inc_ref(x_19);
 lean_inc(x_12);
 x_64 = l_Lean_Syntax_node2(x_12, x_17, x_19, x_63);
 x_65 = l_Std_PRange___aux__Init__Data__Range__Polymorphic__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__47;

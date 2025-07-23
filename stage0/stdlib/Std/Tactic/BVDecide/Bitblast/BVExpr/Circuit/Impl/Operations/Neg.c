@@ -25,8 +25,8 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNeg___redArg
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_6 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNot___redArg(x_1, x_2, x_3, x_4, x_5);
 x_7 = !lean_is_exclusive(x_6);
 if (x_7 == 0)

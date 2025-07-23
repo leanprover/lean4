@@ -62,8 +62,8 @@ x_7 = lean_ctor_get(x_2, 2);
 x_8 = lean_alloc_ctor(1, 0, 1);
 x_9 = lean_unbox(x_5);
 lean_ctor_set_uint8(x_8, 0, x_9);
-lean_inc(x_7);
-lean_inc(x_6);
+lean_inc_ref(x_7);
+lean_inc_ref(x_6);
 x_10 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_10, 0, x_3);
 lean_ctor_set(x_10, 1, x_8);
@@ -219,7 +219,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Option_register___at___Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_6__spec__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_5;
 }
 }
@@ -379,17 +379,17 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_byte_size(x_1);
 lean_inc(x_3);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
 lean_ctor_set(x_4, 2, x_3);
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = l_Substring_nextn(x_4, x_5, x_2);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = l_String_anyAux___at_____private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix_spec__0(x_1, x_3, x_6);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 if (x_7 == 0)
 {
 uint8_t x_8; 
@@ -410,7 +410,7 @@ _start:
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_String_anyAux___at_____private_Lean_Elab_AutoBound_0__Lean_Elab_isValidAutoBoundSuffix_spec__0(x_1, x_2, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_box(x_4);
 return x_5;
 }
@@ -436,15 +436,15 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
+lean_inc_ref(x_4);
+lean_dec_ref(x_1);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_string_length(x_4);
 x_7 = lean_nat_dec_lt(x_5, x_6);
 lean_dec(x_6);
 if (x_7 == 0)
 {
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_7;
 }
 else
@@ -457,7 +457,7 @@ return x_8;
 }
 else
 {
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_2;
 }
 }
@@ -466,7 +466,7 @@ else
 {
 uint8_t x_9; 
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_9 = 0;
 return x_9;
 }
@@ -485,7 +485,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Elab_isValidAutoBoundImplicitName(x_1, x_3);
 x_5 = lean_box(x_4);
 return x_5;
@@ -500,8 +499,8 @@ lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
+lean_inc_ref(x_4);
+lean_dec_ref(x_1);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
@@ -511,7 +510,7 @@ x_10 = lean_nat_dec_lt(x_8, x_9);
 lean_dec(x_9);
 if (x_10 == 0)
 {
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_10;
 }
 else
@@ -538,7 +537,7 @@ goto block_7;
 }
 else
 {
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_2;
 }
 }
@@ -546,7 +545,7 @@ return x_2;
 else
 {
 uint8_t x_16; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec(x_3);
 x_16 = 0;
 return x_16;
@@ -555,7 +554,7 @@ block_7:
 {
 if (x_5 == 0)
 {
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_5;
 }
 else
@@ -580,7 +579,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_Elab_isValidAutoBoundLevelName(x_1, x_3);
 x_5 = lean_box(x_4);
 return x_5;

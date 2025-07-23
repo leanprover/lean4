@@ -166,8 +166,8 @@ _start:
 {
 if (lean_obj_tag(x_3) == 0)
 {
-lean_dec(x_2);
-lean_inc(x_1);
+lean_dec_ref(x_2);
+lean_inc_ref(x_1);
 return x_1;
 }
 else
@@ -177,11 +177,11 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_____aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1_spec__0___closed__4;
 x_7 = l_Lean_mkStrLit(x_4);
 x_8 = l_Lean_Expr_app___override(x_6, x_7);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_9 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_____aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1_spec__0(x_1, x_2, x_5);
 x_10 = l_Lean_mkAppB(x_2, x_8, x_9);
 return x_10;
@@ -348,7 +348,7 @@ x_8 = l_Lean_Syntax_isOfKind(x_1, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_9 = l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_liftMacroM___at_____private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux_spec__0_spec__4___redArg(x_6);
 return x_9;
 }
@@ -359,7 +359,7 @@ x_10 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search
 x_11 = l_Lean_logWarning___at___Lean_Linter_checkDeprecated___at_____private_Lean_Elab_Term_0__Lean_Elab_Term_checkDeprecatedCore_spec__0_spec__2___redArg(x_10, x_2, x_3, x_4, x_5, x_6);
 x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
-lean_dec(x_11);
+lean_dec_ref(x_11);
 x_13 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___redArg___closed__3;
 x_14 = lean_st_ref_get(x_13, x_12);
 x_15 = !lean_is_exclusive(x_14);
@@ -405,7 +405,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_____aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1_spec__0(x_1, x_2, x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_4;
 }
 }
@@ -416,7 +416,7 @@ lean_object* x_7;
 x_7 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_7;
 }
 }
@@ -427,9 +427,9 @@ lean_object* x_10;
 x_10 = l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
 lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 return x_10;
 }

@@ -3,8 +3,12 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Internal.Formula.RatAddResult
+public import Std.Tactic.BVDecide.LRAT.Internal.Formula.RatAddResult
+
+@[expose] public section
 
 /-!
 This module contains the verification of RAT-based clause adding for the default LRAT checker
@@ -171,7 +175,7 @@ theorem assignmentsInvariant_insertRatUnits {n : Nat} (f : DefaultFormula n)
     rcases hp1 with ⟨i1, hp1⟩
     rcases hp2 with ⟨i2, hp2⟩
     simp only [Fin.getElem_fin] at h1 h2
-    simp only [Clause.toList, unit_eq, List.mem_singleton, 
+    simp only [Clause.toList, unit_eq, List.mem_singleton,
       j1_unit, j2_unit] at hp1 hp2
     simp_all
     simp [hp2.1, ← hp1.1, hp1.2] at hp2
@@ -486,14 +490,14 @@ theorem safe_insert_of_performRatCheck_fold_success {n : Nat} (f : DefaultFormul
   · intro fc_unsat p pf
     by_cases pc : p ⊨ c
     · specialize fc_unsat p
-      simp only [(· ⊨ ·), 
+      simp only [(· ⊨ ·),
         Bool.decide_coe, List.all_eq_true, Classical.not_forall, exists_prop] at fc_unsat
       rcases fc_unsat with ⟨c', c'_in_fc, pc'⟩
       rw [insert_iff] at c'_in_fc
       rcases c'_in_fc with c'_eq_c | c'_in_f
       · simp only [c'_eq_c] at pc'
         exact pc' pc
-      · simp only [(· ⊨ ·), 
+      · simp only [(· ⊨ ·),
           Bool.decide_coe, List.all_eq_true] at pf
         exact pc' <| pf c' c'_in_f
     · rw [← Clause.limplies_iff_mem] at pivot_in_c

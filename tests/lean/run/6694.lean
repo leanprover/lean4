@@ -18,7 +18,7 @@ def foo := ()
 
 def foo := ()
 end
-/-- error: unknown identifier 'foo' -/
+/-- error: Unknown identifier `foo` -/
 #guard_msgs in #check foo
 
 /--
@@ -32,7 +32,7 @@ private def foo := ()
 
 def foo := ()
 end
-/-- error: unknown identifier 'foo' -/
+/-- error: Unknown identifier `foo` -/
 #guard_msgs in #check foo
 
 /--
@@ -48,9 +48,9 @@ def y :=
 
 def y.z := 42
 end
-/-- error: unknown identifier 'y' -/
+/-- error: Unknown identifier `y` -/
 #guard_msgs in #check y
-/-- error: unknown identifier 'y.z' -/
+/-- error: Unknown identifier `y.z` -/
 #guard_msgs in #check y.z
 
 /--
@@ -66,9 +66,9 @@ where b := 4
 
 def a.b := 42
 end
-/-- error: unknown identifier 'a' -/
+/-- error: Unknown identifier `a` -/
 #guard_msgs in #check a
-/-- error: unknown identifier 'a.b' -/
+/-- error: Unknown identifier `a.b` -/
 #guard_msgs in #check a.b
 
 /--
@@ -84,11 +84,11 @@ mutual
   inductive Bar.foo
   | mk : Bar.foo
 end
-/-- error: unknown identifier 'Bar' -/
+/-- error: Unknown identifier `Bar` -/
 #guard_msgs in #check Bar
-/-- error: unknown identifier 'Bar.foo' -/
+/-- error: Unknown identifier `Bar.foo` -/
 #guard_msgs in #check Bar.foo
-/-- error: unknown identifier 'Bar.foo.mk' -/
+/-- error: Unknown identifier `Bar.foo.mk` -/
 #guard_msgs in #check Bar.foo.mk
 
 /--
@@ -104,9 +104,9 @@ mutual
   inductive Private
   | mk
 end
-/-- error: unknown identifier 'Private' -/
+/-- error: Unknown identifier `Private` -/
 #guard_msgs in #check Private
-/-- error: unknown identifier 'Private.mk' -/
+/-- error: Unknown identifier `Private.mk` -/
 #guard_msgs in #check Private.mk
 
 /--
@@ -122,9 +122,9 @@ mutual
   inductive PrivateConstructor.priv
   | mk
 end
-/-- error: unknown identifier 'PrivateConstructor' -/
+/-- error: Unknown identifier `PrivateConstructor` -/
 #guard_msgs in #check PrivateConstructor
-/-- error: unknown identifier 'PrivateConstructor.priv' -/
+/-- error: Unknown identifier `PrivateConstructor.priv` -/
 #guard_msgs in #check PrivateConstructor.priv
 
 /--
@@ -140,11 +140,11 @@ mutual
   inductive Baz.foo
   | mk : Baz.foo
 end
-/-- error: unknown identifier 'Baz' -/
+/-- error: Unknown identifier `Baz` -/
 #guard_msgs in #check Baz
-/-- error: unknown identifier 'Baz.foo' -/
+/-- error: Unknown identifier `Baz.foo` -/
 #guard_msgs in #check Baz.foo
-/-- error: unknown identifier 'Baz.foo.mk' -/
+/-- error: Unknown identifier `Baz.foo.mk` -/
 #guard_msgs in #check Baz.foo.mk
 
 /--
@@ -161,9 +161,9 @@ mutual
   | bar : Foo
   | foo : Foo → Foo
 end
-/-- error: unknown identifier 'Foo' -/
+/-- error: Unknown identifier `Foo` -/
 #guard_msgs in #check Foo
-/-- error: unknown identifier 'Foo.bar' -/
+/-- error: Unknown identifier `Foo.bar` -/
 #guard_msgs in #check Foo.bar
-/-- error: unknown identifier 'Foo.foo' -/
+/-- error: Unknown identifier `Foo.foo` -/
 #guard_msgs in #check Foo.foo

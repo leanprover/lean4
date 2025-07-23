@@ -69,7 +69,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Result_toCtorIdx(x_2);
 return x_3;
 }
@@ -111,9 +110,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Tactic_BVDecide_LRAT_Internal_Result_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -123,9 +120,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Tactic_BVDecide_LRAT_Internal_Result_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -196,9 +191,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqResult(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -266,7 +259,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_instToStringResult___lam__0(x_2);
 return x_3;
 }
@@ -278,8 +270,8 @@ if (lean_obj_tag(x_4) == 0)
 {
 uint8_t x_5; 
 lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_5 = 1;
 return x_5;
 }
@@ -292,20 +284,20 @@ switch (lean_obj_tag(x_6)) {
 case 0:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = lean_ctor_get(x_6, 1);
-lean_inc(x_7);
-lean_dec(x_6);
+lean_inc_ref(x_7);
+lean_dec_ref(x_6);
 x_8 = lean_ctor_get(x_2, 4);
-lean_inc(x_8);
-lean_dec(x_2);
+lean_inc_ref(x_8);
+lean_dec_ref(x_2);
 x_9 = lean_ctor_get(x_1, 2);
 lean_inc(x_9);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = lean_apply_3(x_8, x_3, x_9, x_7);
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_12 = lean_unbox(x_11);
 lean_dec(x_11);
 if (x_12 == 0)
@@ -326,14 +318,14 @@ case 1:
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_15 = lean_ctor_get(x_4, 1);
 lean_inc(x_15);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_16 = lean_ctor_get(x_6, 1);
 lean_inc(x_16);
 x_17 = lean_ctor_get(x_6, 2);
-lean_inc(x_17);
-lean_dec(x_6);
+lean_inc_ref(x_17);
+lean_dec_ref(x_6);
 x_18 = lean_ctor_get(x_2, 4);
-lean_inc(x_18);
+lean_inc_ref(x_18);
 x_19 = lean_apply_3(x_18, x_3, x_16, x_17);
 x_20 = lean_ctor_get(x_19, 1);
 lean_inc(x_20);
@@ -342,10 +334,10 @@ lean_dec(x_20);
 if (x_21 == 0)
 {
 uint8_t x_22; 
-lean_dec(x_19);
+lean_dec_ref(x_19);
 lean_dec(x_15);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_22 = 2;
 return x_22;
 }
@@ -354,7 +346,7 @@ else
 lean_object* x_23; 
 x_23 = lean_ctor_get(x_19, 0);
 lean_inc(x_23);
-lean_dec(x_19);
+lean_dec_ref(x_19);
 x_3 = x_23;
 x_4 = x_15;
 goto _start;
@@ -365,18 +357,18 @@ case 2:
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
 x_25 = lean_ctor_get(x_4, 1);
 lean_inc(x_25);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_26 = lean_ctor_get(x_6, 1);
 lean_inc(x_26);
 x_27 = lean_ctor_get(x_6, 2);
-lean_inc(x_27);
+lean_inc_ref(x_27);
 x_28 = lean_ctor_get(x_6, 3);
-lean_inc(x_28);
+lean_inc_ref(x_28);
 x_29 = lean_ctor_get(x_6, 4);
-lean_inc(x_29);
-lean_dec(x_6);
+lean_inc_ref(x_29);
+lean_dec_ref(x_6);
 x_30 = lean_ctor_get(x_2, 5);
-lean_inc(x_30);
+lean_inc_ref(x_30);
 x_31 = lean_apply_5(x_30, x_3, x_26, x_27, x_28, x_29);
 x_32 = lean_ctor_get(x_31, 1);
 lean_inc(x_32);
@@ -385,10 +377,10 @@ lean_dec(x_32);
 if (x_33 == 0)
 {
 uint8_t x_34; 
-lean_dec(x_31);
+lean_dec_ref(x_31);
 lean_dec(x_25);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_34 = 2;
 return x_34;
 }
@@ -397,7 +389,7 @@ else
 lean_object* x_35; 
 x_35 = lean_ctor_get(x_31, 0);
 lean_inc(x_35);
-lean_dec(x_31);
+lean_dec_ref(x_31);
 x_3 = x_35;
 x_4 = x_25;
 goto _start;
@@ -408,12 +400,12 @@ default:
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 x_37 = lean_ctor_get(x_4, 1);
 lean_inc(x_37);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_38 = lean_ctor_get(x_6, 0);
-lean_inc(x_38);
-lean_dec(x_6);
+lean_inc_ref(x_38);
+lean_dec_ref(x_6);
 x_39 = lean_ctor_get(x_2, 3);
-lean_inc(x_39);
+lean_inc_ref(x_39);
 x_40 = lean_apply_2(x_39, x_3, x_38);
 x_3 = x_40;
 x_4 = x_37;
@@ -445,8 +437,7 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_11 = lean_box(x_10);
 return x_11;
 }

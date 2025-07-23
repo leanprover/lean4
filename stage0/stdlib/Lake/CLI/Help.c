@@ -580,7 +580,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_helpScript(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -1069,7 +1069,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_help(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }

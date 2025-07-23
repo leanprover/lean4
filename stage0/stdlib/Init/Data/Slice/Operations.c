@@ -158,7 +158,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Slice_size(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_3);
 return x_7;
 }
@@ -220,7 +220,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Slice_toArray(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_3);
 return x_8;
 }
@@ -268,7 +268,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Slice_toList(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_3);
 return x_8;
 }
@@ -412,7 +412,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Std_Slice_foldlM___redArg___lam__1(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
@@ -429,10 +429,10 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-lean_dec(x_1);
+lean_inc_ref(x_8);
+lean_dec_ref(x_1);
 x_9 = lean_apply_2(x_2, x_7, x_5);
-lean_inc(x_8);
+lean_inc_ref(x_8);
 x_10 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_3, x_9);
 x_11 = lean_apply_4(x_8, lean_box(0), lean_box(0), x_4, x_10);
 return x_11;
@@ -443,11 +443,11 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
+lean_inc_ref(x_6);
+lean_dec_ref(x_1);
 x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-lean_dec(x_6);
+lean_inc_ref(x_7);
+lean_dec_ref(x_6);
 x_8 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__0), 1, 0);
 x_9 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__1___boxed), 1, 0);
 x_10 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__2), 4, 0);
@@ -465,11 +465,11 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_13 = lean_ctor_get(x_5, 0);
-lean_inc(x_13);
-lean_dec(x_5);
+lean_inc_ref(x_13);
+lean_dec_ref(x_5);
 x_14 = lean_ctor_get(x_13, 0);
-lean_inc(x_14);
-lean_dec(x_13);
+lean_inc_ref(x_14);
+lean_dec_ref(x_13);
 x_15 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__0), 1, 0);
 x_16 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__1___boxed), 1, 0);
 x_17 = lean_alloc_closure((void*)(l_Std_Slice_foldlM___redArg___lam__2), 4, 0);
@@ -487,7 +487,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Slice_foldlM___redArg___lam__1(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -496,7 +496,7 @@ _start:
 {
 lean_object* x_13; 
 x_13 = l_Std_Slice_foldlM(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 lean_dec(x_8);
 return x_13;
 }
@@ -546,7 +546,7 @@ _start:
 {
 lean_object* x_11; 
 x_11 = l_Std_Slice_foldl(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 lean_dec(x_6);
 return x_11;
 }

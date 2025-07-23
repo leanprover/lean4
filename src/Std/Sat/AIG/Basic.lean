@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Data.HashSet
-import Init.Data.Vector.Basic
+public import Std.Data.HashSet
+public import Init.Data.Vector.Basic
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -28,7 +32,7 @@ on the input.
 -/
 structure Fanin where
   private of ::
-    private val : Nat
+    val : Nat
   deriving Hashable, Repr, DecidableEq, Inhabited
 
 namespace Fanin
@@ -496,7 +500,7 @@ macro_rules
 | `(⟦$aig, $ref, $assign⟧) => `(denote $assign (Entrypoint.mk $aig $ref))
 
 @[app_unexpander AIG.denote]
-def unexpandDenote : Lean.PrettyPrinter.Unexpander
+meta def unexpandDenote : Lean.PrettyPrinter.Unexpander
   | `($(_) {aig := $aig, start := $start, inv := $hbound} $assign) =>
     `(⟦$aig, ⟨$start, $hbound⟩, $assign⟧)
   | `($(_) $entry $assign) => `(⟦$entry, $assign⟧)

@@ -7,6 +7,7 @@ prelude
 import Init.Guard
 import Std.Do.WP
 import Std.Do.Triple
+import Lean.Meta.Tactic.Split
 import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.Meta
 import Lean.Elab.Tactic.Do.ProofMode.Basic
@@ -385,19 +386,20 @@ def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : TacticM (Array MVarId
   mvar.withContext do
   let (prf, vcs) ← step ctx (fuel := fuel) goal (← mvar.getTag)
   mvar.assign prf
-  replaceMainGoal vcs.toList
   return vcs
 
 @[builtin_tactic Lean.Parser.Tactic.mvcgenStep]
 def elabMVCGenStep : Tactic := fun stx => withMainContext do
   let ctx ← mkSpecContext stx[1] stx[3]
   let n := if stx[2].isNone then 1 else stx[2][0].toNat
-  discard <| genVCs (← getMainGoal) ctx (fuel := .limited n)
+  let vcs ← genVCs (← getMainGoal) ctx (fuel := .limited n)
+  replaceMainGoal vcs.toList
 
 @[builtin_tactic Lean.Parser.Tactic.mvcgenNoTrivial]
 def elabMVCGenNoTrivial : Tactic := fun stx => withMainContext do
   let ctx ← mkSpecContext stx[0] stx[1]
-  discard <| genVCs (← getMainGoal) ctx (fuel := .unlimited)
+  let vcs ← genVCs (← getMainGoal) ctx (fuel := .unlimited)
+  replaceMainGoal vcs.toList
 
 @[builtin_tactic Lean.Parser.Tactic.mvcgen]
 def elabMVCGen : Tactic := fun stx => withMainContext do
@@ -408,5 +410,11 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
   -- but optConfig is not a leading_parser, and neither is the syntax for `lemmas`
   let ctx ← mkSpecContext stx[1] stx[2]
   let vcs ← genVCs (← getMainGoal) ctx (fuel := .unlimited)
-  let tac ← `(tactic| try (apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro); trivial))
-  for vc in vcs do discard <| runTactic vc tac
+  let tac ← `(tactic| (try (try apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro)); trivial))
+  let mut s := {}
+  let mut newVCs := #[]
+  for vc in vcs do
+    let (vcs, s') ← runTactic vc tac (s := s)
+    s := s'
+    newVCs := newVCs ++ vcs
+  replaceMainGoal newVCs.toList

@@ -8,15 +8,15 @@ inductive sublist : List α → List α → Prop
 namespace Lean.PrefixTreeNode
 
 namespace Ex1
-inductive WellFormed (cmp : α → α → Ordering) : PrefixTreeNode α β → Prop where
+inductive WellFormed (cmp : α → α → Ordering) : PrefixTreeNode α β cmp → Prop where
   | emptyWff    : WellFormed cmp empty
-  | insertWff  {t : PrefixTreeNode α β} {k : List α} {val : β} : WellFormed cmp t → WellFormed cmp (insert t cmp k val)
+  | insertWff  {t : PrefixTreeNode α β cmp} {k : List α} {val : β} : WellFormed cmp t → WellFormed cmp (insert cmp t k val)
 end Ex1
 
 namespace Ex2
-inductive WellFormed (cmp : α → α → Ordering) : PrefixTreeNode α β → Prop where
+inductive WellFormed (cmp : α → α → Ordering) : PrefixTreeNode α β cmp → Prop where
   | emptyWff   : WellFormed cmp empty
-  | insertWff  : WellFormed cmp t → WellFormed cmp (insert t cmp k val)
+  | insertWff  : WellFormed cmp t → WellFormed cmp (insert cmp t k val)
 end Ex2
 
 end Lean.PrefixTreeNode

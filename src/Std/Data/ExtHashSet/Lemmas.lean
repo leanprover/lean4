@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.ExtHashMap.Lemmas
-import Std.Data.ExtHashSet.Basic
+public import Std.Data.ExtHashMap.Lemmas
+public import Std.Data.ExtHashSet.Basic
+
+@[expose] public section
 
 /-!
 # Extensional hash set lemmas

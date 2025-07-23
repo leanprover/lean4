@@ -195,7 +195,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_List_format___redArg___closed__1;
 return x_3;
 }
@@ -203,7 +203,7 @@ else
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = l_List_format___redArg___closed__4;
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_5 = l_Std_Format_joinSep___redArg(x_1, x_2, x_4);
 x_6 = !lean_is_exclusive(x_2);
 if (x_6 == 0)
@@ -374,7 +374,7 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = l_Option_format___redArg___closed__1;
 return x_3;
 }
@@ -383,7 +383,7 @@ else
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = l_Option_format___redArg___closed__3;
 x_6 = lean_apply_1(x_1, x_4);
 x_7 = lean_alloc_ctor(5, 2, 0);
@@ -632,7 +632,7 @@ lean_object* x_5; lean_object* x_6;
 lean_dec(x_2);
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 return x_6;
@@ -642,7 +642,7 @@ else
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 x_9 = l_List_foldl___at___Std_Format_joinSep___at___String_toFormat_spec__0_spec__0(x_2, x_8, x_4);
@@ -689,7 +689,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_box(0);
 x_10 = l_String_splitOnAux(x_1, x_6, x_8, x_8, x_8, x_9);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_2 = x_10;
 goto block_5;
 }

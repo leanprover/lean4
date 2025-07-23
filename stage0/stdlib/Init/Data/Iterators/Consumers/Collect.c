@@ -112,7 +112,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Iterators_Iter_toArray(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_7;
 }
 }
@@ -157,7 +157,7 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Iterators_Iter_Partial_toArray(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_6;
 }
 }
@@ -326,7 +326,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Iterators_Iter_toList(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_7;
 }
 }
@@ -357,7 +357,7 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Iterators_Iter_Partial_toList(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 return x_6;
 }
 }

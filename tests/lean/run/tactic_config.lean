@@ -184,7 +184,7 @@ example : True := by
 Responds to recovery mode. In this, `ctac` fails, doesn't report anything, and then execution continues to `exact`.
 -/
 
-/-- error: unknown identifier 'blah' -/
+/-- error: Unknown identifier `blah` -/
 #guard_msgs in
 example : True := by
   first | ctac +x | exact blah

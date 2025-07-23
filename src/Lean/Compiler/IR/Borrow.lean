@@ -196,7 +196,7 @@ def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=
   xs.size.forM fun i _ => do
     let x := xs[i]
     let p := ps[i]!
-    unless p.borrow do ownArg x
+    unless p.borrow || p.ty.isScalar do ownArg x
 
 /-- For each xs[i], if xs[i] is owned, then mark ps[i] as owned.
    We use this action to preserve tail calls. That is, if we have
@@ -301,6 +301,8 @@ def inferBorrow (decls : Array Decl) : CompilerM (Array Decl) := do
   let env ← getEnv
   let paramMap := Borrow.infer env decls
   pure (Borrow.applyParamMap decls paramMap)
+
+builtin_initialize registerTraceClass `compiler.ir.borrow (inherited := true)
 
 end IR
 end Lean

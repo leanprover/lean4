@@ -565,7 +565,7 @@ x_5 = lean_nat_dec_eq(x_3, x_4);
 if (x_5 == 1)
 {
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -575,15 +575,14 @@ x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 x_8 = lean_array_fget(x_2, x_3);
 x_9 = lean_array_fget(x_2, x_7);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_10 = lean_apply_2(x_1, x_8, x_9);
 x_11 = lean_unbox(x_10);
-lean_dec(x_10);
 if (x_11 == 0)
 {
 lean_dec(x_7);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -616,7 +615,7 @@ if (x_6 == 1)
 {
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -629,7 +628,7 @@ if (x_8 == 0)
 {
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -639,7 +638,7 @@ x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_4, x_9);
 lean_dec(x_4);
 lean_inc(x_3);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_11 = l_Array_insertionSort_swapLoop___redArg(x_1, x_2, x_3);
 x_12 = lean_nat_add(x_3, x_9);
 lean_dec(x_3);

@@ -3,9 +3,13 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Init.ByCases
-import Std.Do.SPred.Laws
+public import Init.ByCases
+public import Std.Do.SPred.Laws
+
+@[expose] public section
 
 /-!
 # Derived laws of `SPred`
@@ -157,8 +161,6 @@ theorem and_right_comm : (P ∧ Q) ∧ R ⊣⊢ₛ (P ∧ R) ∧ Q := and_assoc.
 
 theorem entails_pure_intro (P Q : Prop) (h : P → Q) : entails ⌜P⌝ (σs := σs) ⌜Q⌝ := pure_elim' fun hp => pure_intro (h hp)
 
-@[simp] theorem entails_elim_nil (P Q : SPred []) : entails P Q ↔ P.down → Q.down := iff_of_eq rfl
-theorem entails_elim_cons {σ : Type u} (P Q : SPred (σ::σs)) : P ⊢ₛ Q ↔ ∀ s, (P s ⊢ₛ Q s) := by simp only [entails]
 @[simp] theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝:= by simp [entails]
 @[simp] theorem entails_true_intro (P Q : SPred σs) : ⊢ₛ P → Q ↔ P ⊢ₛ Q := Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
 

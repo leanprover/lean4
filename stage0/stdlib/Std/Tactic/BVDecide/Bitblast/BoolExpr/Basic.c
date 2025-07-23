@@ -85,7 +85,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Tactic_BVDecide_Gate_toCtorIdx(x_2);
 return x_3;
 }
@@ -127,9 +126,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_Std_Tactic_BVDecide_Gate_noConfusion___redArg(x_3, x_4);
 return x_5;
 }
@@ -139,9 +136,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Tactic_BVDecide_Gate_noConfusion(x_1, x_5, x_6, x_4);
 return x_7;
 }
@@ -214,7 +209,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Tactic_BVDecide_Gate_toString(x_2);
 return x_3;
 }
@@ -293,11 +287,8 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox(x_3);
-lean_dec(x_3);
 x_7 = l_Std_Tactic_BVDecide_Gate_eval(x_4, x_5, x_6);
 x_8 = lean_box(x_7);
 return x_8;
@@ -368,16 +359,16 @@ case 0:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = lean_apply_1(x_1, x_3);
 return x_4;
 }
 case 1:
 {
 uint8_t x_5; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_ctor_get_uint8(x_2, 0);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -395,12 +386,12 @@ case 2:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = lean_ctor_get(x_2, 0);
-lean_inc(x_8);
-lean_dec(x_2);
+lean_inc_ref(x_8);
+lean_dec_ref(x_2);
 x_9 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__2;
 x_10 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_8);
 x_11 = lean_string_append(x_9, x_10);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 return x_11;
 }
 case 3:
@@ -408,24 +399,24 @@ case 3:
 uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_12 = lean_ctor_get_uint8(x_2, sizeof(void*)*2);
 x_13 = lean_ctor_get(x_2, 0);
-lean_inc(x_13);
+lean_inc_ref(x_13);
 x_14 = lean_ctor_get(x_2, 1);
-lean_inc(x_14);
-lean_dec(x_2);
+lean_inc_ref(x_14);
+lean_dec_ref(x_2);
 x_15 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__3;
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_16 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_13);
 x_17 = lean_string_append(x_15, x_16);
-lean_dec(x_16);
+lean_dec_ref(x_16);
 x_18 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__4;
 x_19 = lean_string_append(x_17, x_18);
 x_20 = l_Std_Tactic_BVDecide_Gate_toString(x_12);
 x_21 = lean_string_append(x_19, x_20);
-lean_dec(x_20);
+lean_dec_ref(x_20);
 x_22 = lean_string_append(x_21, x_18);
 x_23 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_14);
 x_24 = lean_string_append(x_22, x_23);
-lean_dec(x_23);
+lean_dec_ref(x_23);
 x_25 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__5;
 x_26 = lean_string_append(x_24, x_25);
 return x_26;
@@ -434,27 +425,27 @@ default:
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
 x_27 = lean_ctor_get(x_2, 0);
-lean_inc(x_27);
+lean_inc_ref(x_27);
 x_28 = lean_ctor_get(x_2, 1);
-lean_inc(x_28);
+lean_inc_ref(x_28);
 x_29 = lean_ctor_get(x_2, 2);
-lean_inc(x_29);
-lean_dec(x_2);
+lean_inc_ref(x_29);
+lean_dec_ref(x_2);
 x_30 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__6;
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_31 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_27);
 x_32 = lean_string_append(x_30, x_31);
-lean_dec(x_31);
+lean_dec_ref(x_31);
 x_33 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__4;
 x_34 = lean_string_append(x_32, x_33);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_35 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_28);
 x_36 = lean_string_append(x_34, x_35);
-lean_dec(x_35);
+lean_dec_ref(x_35);
 x_37 = lean_string_append(x_36, x_33);
 x_38 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg(x_1, x_29);
 x_39 = lean_string_append(x_37, x_38);
-lean_dec(x_38);
+lean_dec_ref(x_38);
 x_40 = l_Std_Tactic_BVDecide_BoolExpr_toString___redArg___closed__5;
 x_41 = lean_string_append(x_39, x_40);
 return x_41;
@@ -499,26 +490,25 @@ case 0:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = lean_apply_1(x_1, x_3);
 x_5 = lean_unbox(x_4);
-lean_dec(x_4);
 return x_5;
 }
 case 1:
 {
 uint8_t x_6; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = lean_ctor_get_uint8(x_2, 0);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_6;
 }
 case 2:
 {
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_ctor_get(x_2, 0);
-lean_inc(x_7);
-lean_dec(x_2);
+lean_inc_ref(x_7);
+lean_dec_ref(x_2);
 x_8 = l_Std_Tactic_BVDecide_BoolExpr_eval___redArg(x_1, x_7);
 if (x_8 == 0)
 {
@@ -538,11 +528,11 @@ case 3:
 uint8_t x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; uint8_t x_15; uint8_t x_16; 
 x_11 = lean_ctor_get_uint8(x_2, sizeof(void*)*2);
 x_12 = lean_ctor_get(x_2, 0);
-lean_inc(x_12);
+lean_inc_ref(x_12);
 x_13 = lean_ctor_get(x_2, 1);
-lean_inc(x_13);
-lean_dec(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_13);
+lean_dec_ref(x_2);
+lean_inc_ref(x_1);
 x_14 = l_Std_Tactic_BVDecide_BoolExpr_eval___redArg(x_1, x_12);
 x_15 = l_Std_Tactic_BVDecide_BoolExpr_eval___redArg(x_1, x_13);
 x_16 = l_Std_Tactic_BVDecide_Gate_eval(x_11, x_14, x_15);
@@ -552,23 +542,23 @@ default:
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_17 = lean_ctor_get(x_2, 0);
-lean_inc(x_17);
+lean_inc_ref(x_17);
 x_18 = lean_ctor_get(x_2, 1);
-lean_inc(x_18);
+lean_inc_ref(x_18);
 x_19 = lean_ctor_get(x_2, 2);
-lean_inc(x_19);
-lean_dec(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_19);
+lean_dec_ref(x_2);
+lean_inc_ref(x_1);
 x_20 = l_Std_Tactic_BVDecide_BoolExpr_eval___redArg(x_1, x_17);
 if (x_20 == 0)
 {
-lean_dec(x_18);
+lean_dec_ref(x_18);
 x_2 = x_19;
 goto _start;
 }
 else
 {
-lean_dec(x_19);
+lean_dec_ref(x_19);
 x_2 = x_18;
 goto _start;
 }
@@ -661,7 +651,6 @@ _start:
 {
 uint8_t x_6; lean_object* x_7; 
 x_6 = lean_unbox(x_1);
-lean_dec(x_1);
 x_7 = l___private_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic_0__Std_Tactic_BVDecide_Gate_toString_match__1_splitter___redArg(x_6, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -675,7 +664,6 @@ _start:
 {
 uint8_t x_7; lean_object* x_8; 
 x_7 = lean_unbox(x_2);
-lean_dec(x_2);
 x_8 = l___private_Std_Tactic_BVDecide_Bitblast_BoolExpr_Basic_0__Std_Tactic_BVDecide_Gate_toString_match__1_splitter(x_1, x_7, x_3, x_4, x_5, x_6);
 lean_dec(x_6);
 lean_dec(x_5);

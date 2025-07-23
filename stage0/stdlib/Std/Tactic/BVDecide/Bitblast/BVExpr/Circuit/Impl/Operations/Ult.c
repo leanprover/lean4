@@ -39,14 +39,14 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_8 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNot___redArg(x_1, x_2, x_3, x_4, x_7);
 x_9 = lean_ctor_get(x_8, 0);
-lean_inc(x_9);
+lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_8, 1);
-lean_inc(x_10);
-lean_dec(x_8);
+lean_inc_ref(x_10);
+lean_dec_ref(x_8);
 x_11 = 1;
 x_12 = l_Std_Tactic_BVDecide_BVPred_mkUlt___redArg___closed__0;
 lean_ctor_set(x_5, 1, x_10);
@@ -56,7 +56,7 @@ lean_ctor_set(x_13, 1, x_5);
 lean_ctor_set(x_13, 2, x_12);
 x_14 = l_Std_Tactic_BVDecide_BVExpr_bitblast_mkOverflowBit___redArg(x_1, x_2, x_9, x_13);
 x_15 = lean_ctor_get(x_14, 1);
-lean_inc(x_15);
+lean_inc_ref(x_15);
 x_16 = lean_ctor_get_uint8(x_15, sizeof(void*)*1);
 if (x_16 == 0)
 {
@@ -183,14 +183,14 @@ x_41 = lean_ctor_get(x_5, 1);
 lean_inc(x_41);
 lean_inc(x_40);
 lean_dec(x_5);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_42 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastNot___redArg(x_1, x_2, x_3, x_4, x_41);
 x_43 = lean_ctor_get(x_42, 0);
-lean_inc(x_43);
+lean_inc_ref(x_43);
 x_44 = lean_ctor_get(x_42, 1);
-lean_inc(x_44);
-lean_dec(x_42);
+lean_inc_ref(x_44);
+lean_dec_ref(x_42);
 x_45 = 1;
 x_46 = l_Std_Tactic_BVDecide_BVPred_mkUlt___redArg___closed__0;
 x_47 = lean_alloc_ctor(0, 2, 0);
@@ -202,13 +202,13 @@ lean_ctor_set(x_48, 1, x_47);
 lean_ctor_set(x_48, 2, x_46);
 x_49 = l_Std_Tactic_BVDecide_BVExpr_bitblast_mkOverflowBit___redArg(x_1, x_2, x_43, x_48);
 x_50 = lean_ctor_get(x_49, 1);
-lean_inc(x_50);
+lean_inc_ref(x_50);
 x_51 = lean_ctor_get_uint8(x_50, sizeof(void*)*1);
 if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; 
 x_52 = lean_ctor_get(x_49, 0);
-lean_inc(x_52);
+lean_inc_ref(x_52);
 if (lean_is_exclusive(x_49)) {
  lean_ctor_release(x_49, 0);
  lean_ctor_release(x_49, 1);
@@ -246,7 +246,7 @@ else
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; uint8_t x_62; lean_object* x_63; lean_object* x_64; 
 x_58 = lean_ctor_get(x_49, 0);
-lean_inc(x_58);
+lean_inc_ref(x_58);
 if (lean_is_exclusive(x_49)) {
  lean_ctor_release(x_49, 0);
  lean_ctor_release(x_49, 1);

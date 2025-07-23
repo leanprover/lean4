@@ -129,6 +129,6 @@ info: theorem f_exp_wfrec.induct_unfolding : ∀ (motive : Nat → Nat → Nat �
 
 public def pub := priv
 
-/-- error: unknown identifier 'priv' -/
+/-- error: Unknown identifier `priv` -/
 #guard_msgs in
 @[expose] public def pub' := priv

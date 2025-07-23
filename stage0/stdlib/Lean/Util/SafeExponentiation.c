@@ -223,7 +223,7 @@ if (x_13 == 0)
 {
 uint8_t x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec(x_12);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_14 = 1;
 x_15 = lean_box(x_14);
@@ -245,11 +245,11 @@ if (x_20 == 0)
 lean_object* x_21; 
 lean_dec(x_19);
 lean_dec(x_12);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_21 = lean_ctor_get(x_18, 1);
 lean_inc(x_21);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 x_5 = x_21;
 goto block_9;
 }
@@ -258,26 +258,26 @@ else
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
 x_22 = lean_ctor_get(x_18, 1);
 lean_inc(x_22);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 x_23 = lean_ctor_get(x_11, 0);
 lean_inc(x_23);
 x_24 = lean_alloc_closure((void*)(l_Lean_checkExponent___lam__0___boxed), 1, 0);
 x_25 = l_Lean_checkExponent___closed__3;
 x_26 = l_Nat_reprFast(x_1);
 x_27 = lean_string_append(x_25, x_26);
-lean_dec(x_26);
+lean_dec_ref(x_26);
 x_28 = l_Lean_checkExponent___closed__4;
 x_29 = lean_string_append(x_27, x_28);
 x_30 = l_Nat_reprFast(x_12);
 x_31 = lean_string_append(x_29, x_30);
-lean_dec(x_30);
+lean_dec_ref(x_30);
 x_32 = l_Lean_checkExponent___closed__5;
 x_33 = lean_string_append(x_31, x_32);
 x_34 = lean_unbox(x_19);
 lean_dec(x_19);
 x_35 = l_Lean_Name_toString(x_23, x_34, x_24);
 x_36 = lean_string_append(x_33, x_35);
-lean_dec(x_35);
+lean_dec_ref(x_35);
 x_37 = l_Lean_checkExponent___closed__6;
 x_38 = lean_string_append(x_36, x_37);
 x_39 = lean_alloc_ctor(3, 1, 0);
@@ -286,7 +286,7 @@ x_40 = l_Lean_MessageData_ofFormat(x_39);
 x_41 = l_Lean_logWarning___at___Lean_checkExponent_spec__0(x_40, x_2, x_3, x_22);
 x_42 = lean_ctor_get(x_41, 1);
 lean_inc(x_42);
-lean_dec(x_41);
+lean_dec_ref(x_41);
 x_5 = x_42;
 goto block_9;
 }
@@ -317,7 +317,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_checkExponent___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }

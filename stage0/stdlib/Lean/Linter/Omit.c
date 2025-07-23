@@ -39,10 +39,10 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_logLint___at___Lean_Linter_omit_spec__0___closed__2;
 static lean_object* l_Lean_Linter_logLint___at___Lean_Linter_omit_spec__0___closed__3;
 static lean_object* l_Lean_Linter_omit___lam__0___closed__2;
+uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_addLinter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_omit_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_head_x21___redArg(lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_omit_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Omit___hyg_171_(lean_object*);
@@ -372,14 +372,14 @@ x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
 lean_dec(x_12);
 x_14 = l_Lean_Linter_omit___lam__1___closed__0;
-x_15 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_13, x_14);
+x_15 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_13, x_14);
 lean_dec(x_13);
 if (x_15 == 0)
 {
 lean_object* x_16; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_16 = lean_box(0);
 lean_ctor_set(x_6, 0, x_16);
 return x_6;
@@ -391,7 +391,7 @@ x_17 = l_Lean_Syntax_findAux(x_1, x_2);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_18 = lean_box(0);
 lean_ctor_set(x_6, 0, x_18);
 return x_6;
@@ -402,7 +402,7 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21;
 lean_free_object(x_6);
 x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
-lean_dec(x_17);
+lean_dec_ref(x_17);
 x_20 = l_Lean_Linter_omit___lam__1___closed__2;
 x_21 = l_Lean_Linter_logLint___at___Lean_Linter_omit_spec__0(x_14, x_19, x_20, x_3, x_4, x_9);
 lean_dec(x_19);
@@ -428,14 +428,14 @@ x_27 = lean_ctor_get(x_26, 1);
 lean_inc(x_27);
 lean_dec(x_26);
 x_28 = l_Lean_Linter_omit___lam__1___closed__0;
-x_29 = l_Lean_Option_get___at_____private_Lean_Util_Profile_0__Lean_get__profiler_spec__0(x_27, x_28);
+x_29 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_27, x_28);
 lean_dec(x_27);
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_30 = lean_box(0);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
@@ -449,7 +449,7 @@ x_32 = l_Lean_Syntax_findAux(x_1, x_2);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; lean_object* x_34; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_33 = lean_box(0);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
@@ -461,7 +461,7 @@ else
 lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_35 = lean_ctor_get(x_32, 0);
 lean_inc(x_35);
-lean_dec(x_32);
+lean_dec_ref(x_32);
 x_36 = l_Lean_Linter_omit___lam__1___closed__2;
 x_37 = l_Lean_Linter_logLint___at___Lean_Linter_omit_spec__0(x_28, x_35, x_36, x_3, x_4, x_23);
 lean_dec(x_35);

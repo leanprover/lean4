@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Tactics
 import Init.Data.Queue
-import Std.Data.TreeSet
+import Std.Data.TreeSet.Basic
 import Lean.HeadIndex
 import Lean.Meta.Basic
 import Lean.Meta.CongrTheorems
@@ -327,6 +327,16 @@ def shareCommon (e : Expr) : GrindM Expr := do
   modify fun s => { s with scState }
   return e
 
+/--
+Returns `true` if `e` has already been hash-consed.
+Recall that we use `shareCommon` as the last step of the preprocessing
+function `preprocess`.
+Later, we create terms using new terms that have already been preprocessed,
+and we skip preprocessing steps by checking whether `inShareCommon` returns `true`
+-/
+def inShareCommon (e : Expr) : GrindM Bool := do
+  return (← get).scState.map.contains { expr := e }
+
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=
   return isSameExpr e (← getTrueExpr)
@@ -477,6 +487,7 @@ private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
     mixHash (hashRoot enodes d) (hashRoot enodes b)
   else match_expr e with
   | Grind.nestedProof p _ => hashRoot enodes p
+  | Grind.nestedDecidable p _ => mixHash 13 (hashRoot enodes p)
   | Eq _ lhs rhs => goEq lhs rhs
   | _ => go e 17
 where
@@ -500,12 +511,12 @@ private partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
   | Grind.nestedProof p₁ _ =>
     let_expr Grind.nestedProof p₂ _ := b | false
     hasSameRoot enodes p₁ p₂
-  | Eq α₁ lhs₁ rhs₁ =>
-    let_expr Eq α₂ lhs₂ rhs₂ := b | false
-    if isSameExpr α₁ α₂ then
-      goEq lhs₁ rhs₁ lhs₂ rhs₂
-    else
-      go a b
+  | Grind.nestedDecidable p₁ _ =>
+    let_expr Grind.nestedDecidable p₂ _ := b | false
+    hasSameRoot enodes p₁ p₂
+  | Eq _ lhs₁ rhs₁ =>
+    let_expr Eq _ lhs₂ rhs₂ := b | false
+    goEq lhs₁ rhs₁ lhs₂ rhs₂
   | _ =>
     if a.isApp && b.isApp then
       go a b

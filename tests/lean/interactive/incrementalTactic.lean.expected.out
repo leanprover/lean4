@@ -14,7 +14,7 @@ t 2
    "range":
    {"start": {"line": 4, "character": 12}, "end": {"line": 4, "character": 13}},
    "message":
-   "tactic 'introN' failed, insufficient number of binders\na n : Nat\n⊢ True",
+   "Tactic `introN` failed: insufficient number of binders\n\na n : Nat\n⊢ True",
    "fullRange":
    {"start": {"line": 4, "character": 12},
     "end": {"line": 4, "character": 13}}},
@@ -45,9 +45,10 @@ t 2
    "severity": 1,
    "range":
    {"start": {"line": 2, "character": 9}, "end": {"line": 2, "character": 11}},
-   "message": "unknown identifier 'no'",
+   "message": "Unknown identifier `no`",
    "fullRange":
-   {"start": {"line": 2, "character": 9}, "end": {"line": 2, "character": 11}}},
+   {"start": {"line": 2, "character": 9}, "end": {"line": 2, "character": 11}},
+   "code": "lean.unknownIdentifier"},
   {"source": "Lean 4",
    "severity": 1,
    "range":
@@ -73,7 +74,7 @@ s
    "range":
    {"start": {"line": 2, "character": 8}, "end": {"line": 2, "character": 25}},
    "message":
-   "tactic 'rewrite' failed, did not find instance of the pattern in the target expression\n  0\n⊢ True",
+   "Tactic `rewrite` failed: did not find instance of the pattern in the target expression\n  0\n\n⊢ True",
    "fullRange":
    {"start": {"line": 2, "character": 8},
     "end": {"line": 2, "character": 25}}}]}
@@ -121,7 +122,7 @@ s
    "severity": 1,
    "range":
    {"start": {"line": 3, "character": 8}, "end": {"line": 3, "character": 21}},
-   "message": "unknown identifier 'noSuchTheorem'",
+   "message": "Unknown identifier `noSuchTheorem`",
    "fullRange":
-   {"start": {"line": 3, "character": 8},
-    "end": {"line": 3, "character": 21}}}]}
+   {"start": {"line": 3, "character": 8}, "end": {"line": 3, "character": 21}},
+   "code": "lean.unknownIdentifier"}]}

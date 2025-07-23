@@ -32,10 +32,29 @@ def addCongrTable (e : Expr) : GoalM Unit := do
           return ()
     trace_goal[grind.debug.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
-    let node ← getENode e
-    setENode e { node with congr := e' }
+    if (← swapCgrRepr e e') then
+      /-
+      Recall that `isDiseq` and `mkDiseqProof?` are implemented using the the congruence table.
+      So, if `e` is an equality `a = b`, and is the equivalence class of `False`, but `e'` is not,
+      we **must** make `e` the representative of the congruence class.
+      The equivalence classes of `e` and `e'` will be merged eventually since we used `pushEqHEq` above,
+      but assume that a conflict is detected before we merge the equivalence classes of `e` and `e'`,
+      and we try to construct a proof that uses the fact that `a ≠ b`. To retrieve this disequality
+      we must ensure that `e` is still the congruence root.
+      -/
+      modify fun s => { s with congrTable := s.congrTable.insert { e } }
+      let node ← getENode e'
+      setENode e' { node with congr := e }
+    else
+      let node ← getENode e
+      setENode e { node with congr := e' }
   else
     modify fun s => { s with congrTable := s.congrTable.insert { e } }
+where
+  swapCgrRepr (e e' : Expr) : GoalM Bool := do
+    let_expr Eq _ _ _ := e | return false
+    unless (← isEqFalse e) do return false
+    return !(← isEqFalse e')
 
 /--
 Given an application `e` of the form `f a_1 ... a_n`,
@@ -393,13 +412,19 @@ where
         checkAndAddSplitCandidate e
         pushCastHEqs e
         addMatchEqns f generation
-        if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
+        if args.size == 2 && f.isConstOf ``Grind.nestedProof then
           -- We only internalize the proposition. We can skip the proof because of
           -- proof irrelevance
           let c := args[0]!
           internalizeImpl c generation e
           registerParent e c
           pushEqTrue c <| mkApp2 (mkConst ``eq_true) c args[1]!
+        else if args.size == 2 && f.isConstOf ``Grind.nestedDecidable then
+          -- We only internalize the proposition. We can skip the instance because it is
+          -- a subsingleton
+          let c := args[0]!
+          internalizeImpl c generation e
+          registerParent e c
         else if f.isConstOf ``ite && args.size == 5 then
           let c := args[1]!
           internalizeImpl c generation e

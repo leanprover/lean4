@@ -2,7 +2,7 @@ import Std.Data.HashMap
 import Std.Data.Iterators
 
 /-!
-Benchmark the built-in `Std.Data.HashMap`, inspired by:
+Benchmark for the built-in `Std.Data.HashMap`, inspired by:
 - https://github.com/google/hashtable-benchmarks
 - https://github.com/rust-lang/hashbrown/blob/master/benches/bench.rs
 

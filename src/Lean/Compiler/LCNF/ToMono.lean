@@ -23,9 +23,12 @@ def Param.toMono (param : Param) : ToMonoM Param := do
     modify fun s => { s with typeParams := s.typeParams.insert param.fvarId }
   param.update (← toMonoType param.type)
 
+def throwNoncomputableError {α : Type} (declName : Name) : ToMonoM α :=
+  throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName declName}', which is 'noncomputable'"
+
 def checkFVarUse (fvarId : FVarId) : ToMonoM Unit := do
   if let some declName := (← get).noncomputableVars.get? fvarId then
-    throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName declName}', which is 'noncomputable'"
+    throwNoncomputableError declName
 
 def checkFVarUseDeferred (resultFVar fvarId : FVarId) : ToMonoM Unit := do
   if let some declName := (← get).noncomputableVars.get? fvarId then
@@ -89,6 +92,11 @@ partial def LetValue.toMono (e : LetValue) (resultFVar : FVarId) : ToMonoM LetVa
       return args[1]!.toLetValue
     else if declName == ``Quot.mk || declName == ``Quot.lcInv then
       return args[2]!.toLetValue
+    else if declName == ``Nat.zero then
+      return .lit (.nat 0)
+    else if declName == ``Nat.succ then
+      -- This should have been handled in Code.toMono.
+      unreachable!
     else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then
       if let some info ← hasTrivialStructure? ctorInfo.induct then
         args[ctorInfo.numParams + info.fieldIdx]!.toLetValue.toMono resultFVar
@@ -313,7 +321,15 @@ partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases) : ToMo
 
 partial def Code.toMono (code : Code) : ToMonoM Code := do
   match code with
-  | .let decl k => return code.updateLet! (← decl.toMono) (← k.toMono)
+  | .let decl k =>
+    match decl.value with
+    | .const ``Nat.succ _ args =>
+      let #[arg] := args | unreachable!
+      let oneDecl ← mkAuxLetDecl (.lit (.nat 1))
+      let decl ← decl.update decl.type (.const ``Nat.add [] #[arg, .fvar oneDecl.fvarId])
+      return .let oneDecl (.let decl (← k.toMono))
+    | _ =>
+      return code.updateLet! (← decl.toMono) (← k.toMono)
   | .fun decl k | .jp decl k => return code.updateFun! (← decl.toMono) (← k.toMono)
   | .unreach type => return .unreach (← toMonoType type)
   | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)

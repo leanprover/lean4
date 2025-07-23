@@ -330,8 +330,9 @@ def elabMutual : CommandElab := fun stx => do
       -- otherwise the info context created by `with_decl_name` will be incomplete and break the
       -- call hierarchy
       addDeclarationRangesForBuiltin fullId ⟨defStx.raw[0]⟩ defStx.raw[1]
+      let privTk? := guard (isPrivateName fullId) *> some .missing
       elabCommand (← `(
-        $[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% $(mkIdent fullId) do $doSeq
+        $[private%$privTk?]? $[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% $(mkIdent fullId) do $doSeq
         $defStx:command))
     else
       let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(_)? $[unsafe%$unsafe?]?) := declModifiers

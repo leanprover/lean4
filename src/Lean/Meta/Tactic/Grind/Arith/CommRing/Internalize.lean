@@ -46,11 +46,11 @@ private def isForbiddenParent (parent? : Option Expr) : Bool :=
 private partial def toInt? (e : Expr) : RingM (Option Int) := do
   match_expr e with
   | Neg.neg _ i a =>
-    if isNegInst (← getRing) i then return (- .) <$> (← toInt? a) else return none
+    if (← isNegInst i) then return (- .) <$> (← toInt? a) else return none
   | IntCast.intCast _ i a =>
-    if isIntCastInst (← getRing) i then getIntValue? a else return none
+    if (← isIntCastInst i) then getIntValue? a else return none
   | NatCast.natCast _ i a =>
-    if isNatCastInst (← getRing) i then
+    if (← isNatCastInst i) then
       let some v ← getNatValue? a | return none
       return some (Int.ofNat v)
     else
@@ -61,8 +61,8 @@ private partial def toInt? (e : Expr) : RingM (Option Int) := do
   | _ => return none
 
 private def isInvInst (inst : Expr) : RingM Bool := do
-  let some fn := (← getRing).invFn? | return false
-  return isSameExpr fn.appArg! inst
+  if (← getRing).fieldInst?.isNone then return false
+  return isSameExpr (← getInvFn).appArg! inst
 
 /--
 Given `e` of the form `@Inv.inv _ inst a`,
@@ -80,7 +80,7 @@ private def processInv (e inst a : Expr) : RingM Unit := do
     if (← hasChar) then
       let (charInst, c) ← getCharInst
       if c == 0 then
-        let expected ← mkEq (mkApp2 ring.mulFn a e) (← denoteNum 1)
+        let expected ← mkEq (mkApp2 (← getMulFn) a e) (← denoteNum 1)
         pushNewFact <| mkExpectedPropHint
           (mkApp5 (mkConst ``Grind.CommRing.inv_int_eq [ring.u]) ring.type fieldInst charInst (mkIntLit k) reflBoolTrue)
           expected
@@ -90,7 +90,7 @@ private def processInv (e inst a : Expr) : RingM Unit := do
           (mkApp6 (mkConst ``Grind.CommRing.inv_zero_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst (mkIntLit k) reflBoolTrue)
           expected
       else
-        let expected ← mkEq (mkApp2 ring.mulFn a e) (← denoteNum 1)
+        let expected ← mkEq (mkApp2 (← getMulFn) a e) (← denoteNum 1)
         pushNewFact <| mkExpectedPropHint
           (mkApp6 (mkConst ``Grind.CommRing.inv_int_eqC [ring.u]) ring.type (mkNatLit c) fieldInst charInst (mkIntLit k) reflBoolTrue)
           expected

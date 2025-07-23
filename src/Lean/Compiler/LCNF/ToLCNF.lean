@@ -510,7 +510,7 @@ where
       match app with
       | .fvar f =>
         let mut argsNew := #[]
-        for h :i in [arity : args.size] do
+        for h : i in arity...args.size do
           argsNew := argsNew.push (← visitAppArg args[i])
         letValueToArg <| .fvar f argsNew
       | .erased | .type .. => return .erased
@@ -559,23 +559,18 @@ where
         let typeName := casesInfo.declName.getPrefix
         let discr ← visitAppArg args[casesInfo.discrPos]!
         let .inductInfo indVal ← getConstInfo typeName | unreachable!
-        match discr with
-        | .erased | .type .. =>
-          /-
-          This can happen for inductive predicates that can eliminate into type (e.g., `And`, `Iff`).
-          TODO: add support for them. Right now, we have hard-coded support for the ones defined at `Init`.
-          -/
-          throwError "unsupported `{casesInfo.declName}` application during code generation"
-        | .fvar discrFVarId =>
-          for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
-            let (altType, alt) ← visitAlt ctorName numParams args[i]!
-            resultType := joinTypes altType resultType
-            alts := alts.push alt
-          let cases : Cases := { typeName, discr := discrFVarId, resultType, alts }
-          let auxDecl ← mkAuxParam resultType
-          pushElement (.cases auxDecl cases)
-          let result := .fvar auxDecl.fvarId
-          mkOverApplication result args casesInfo.arity
+        let discrFVarId ← match discr with
+          | .fvar discrFVarId => pure discrFVarId
+          | .erased | .type .. => mkAuxLetDecl .erased
+        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
+          let (altType, alt) ← visitAlt ctorName numParams args[i]!
+          resultType := joinTypes altType resultType
+          alts := alts.push alt
+        let cases : Cases := { typeName, discr := discrFVarId, resultType, alts }
+        let auxDecl ← mkAuxParam resultType
+        pushElement (.cases auxDecl cases)
+        let result := .fvar auxDecl.fvarId
+        mkOverApplication result args casesInfo.arity
 
   visitCtor (arity : Nat) (e : Expr) : M Arg :=
     etaIfUnderApplied e arity do
@@ -614,6 +609,12 @@ where
 
   visitFalseRec (e : Expr) : M Arg :=
     let arity := 2
+    etaIfUnderApplied e arity do
+      let type ← toLCNFType (← liftMetaM do Meta.inferType e)
+      mkUnreachable type
+
+  visitLcUnreachable (e : Expr) : M Arg :=
+    let arity := 1
     etaIfUnderApplied e arity do
       let type ← toLCNFType (← liftMetaM do Meta.inferType e)
       mkUnreachable type
@@ -684,16 +685,16 @@ where
         visitQuotLift e
       else if declName == ``Quot.mk then
         visitCtor 3 e
-      else if declName == ``Eq.casesOn || declName == ``Eq.rec || declName == ``Eq.recOn || declName == ``Eq.ndrec then
+      else if declName == ``Eq.rec || declName == ``Eq.recOn || declName == ``Eq.ndrec then
         visitEqRec e
-      else if declName == ``HEq.casesOn || declName == ``HEq.rec || declName == ``HEq.ndrec then
+      else if declName == ``HEq.rec || declName == ``HEq.ndrec then
         visitHEqRec e
       else if declName == ``And.rec || declName == ``Iff.rec then
         visitAndIffRecCore e (minorPos := 3)
-      else if declName == ``And.casesOn || declName == ``Iff.casesOn then
-        visitAndIffRecCore e (minorPos := 4)
-      else if declName == ``False.rec || declName == ``Empty.rec || declName == ``False.casesOn || declName == ``Empty.casesOn then
+      else if declName == ``False.rec || declName == ``Empty.rec then
         visitFalseRec e
+      else if declName == ``lcUnreachable then
+        visitLcUnreachable e
       else if let some casesInfo ← getCasesInfo? declName then
         visitCases casesInfo e
       else if let some arity ← getCtorArity? declName then

@@ -311,7 +311,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake___aux__Lake__Util__Sugar______macroRules__Lake__termTry__Else____1(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -566,7 +566,7 @@ lean_inc(x_14);
 x_22 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_22, 0, x_14);
 lean_ctor_set(x_22, 1, x_20);
-lean_inc(x_22);
+lean_inc_ref(x_22);
 lean_inc(x_14);
 x_23 = l_Lean_Syntax_node2(x_14, x_21, x_22, x_10);
 x_24 = l_Lake___aux__Lake__Util__Sugar______macroRules__Lake__doElemTry__Else____1___closed__10;
@@ -574,8 +574,8 @@ lean_inc(x_14);
 x_25 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_25, 0, x_14);
 lean_ctor_set(x_25, 1, x_24);
-lean_inc(x_25);
-lean_inc(x_19);
+lean_inc_ref(x_25);
+lean_inc_ref(x_19);
 lean_inc(x_14);
 x_26 = l_Lean_Syntax_node3(x_14, x_17, x_19, x_23, x_25);
 x_27 = l_Lake___aux__Lake__Util__Sugar______macroRules__Lake__termTry__Else____1___closed__2;
@@ -602,7 +602,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake___aux__Lake__Util__Sugar______macroRules__Lake__doElemTry__Else____1(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_4;
 }
 }

@@ -31,7 +31,7 @@ instance [ReflCmp cmp] {n} : ReflCmp (Vector.compareLex cmp (n := n)) where
   compare_self := ReflCmp.compare_self (cmp := Array.compareLex cmp)
 
 instance [LawfulEqCmp cmp] {n} : LawfulEqCmp (Vector.compareLex cmp (n := n)) where
-  eq_of_compare := by simp [Vector.compareLex_eq_compareLex_toArray, LawfulEqCmp.compare_eq_iff_eq]
+  eq_of_compare := by simp [Vector.compareLex_eq_compareLex_toArray]
 
 instance [BEq α] [LawfulBEqCmp cmp] {n} : LawfulBEqCmp (Vector.compareLex cmp (n := n)) where
   compare_eq_iff_beq := by simp [Vector.compareLex_eq_compareLex_toArray,

@@ -81,7 +81,7 @@ static lean_object* _init_l_Lean_Try_instInhabitedConfig___closed__0() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = lean_unsigned_to_nat(0u);
 x_2 = 0;
 x_3 = lean_alloc_ctor(0, 1, 7);
 lean_ctor_set(x_3, 0, x_1);

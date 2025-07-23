@@ -7,6 +7,7 @@ prelude
 import Init.Guard
 import Std.Do.WP
 import Std.Do.Triple
+import Lean.Meta.Tactic.Split
 import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.Meta
 import Lean.Elab.Tactic.Do.ProofMode.Basic
@@ -291,11 +292,12 @@ where
     | c@WP.wp m ps instWP α e =>
       let e ← instantiateMVarsIfMVarApp e
       let e := e.headBeta
+      let [u, _] := c.constLevels! | panic! "PredTrans.apply has wrong number of levels"
       trace[Elab.Tactic.Do.vcgen] "Target: {e}"
       let goalWithNewProg e' :=
         let wp' := mkApp5 c m ps instWP α e'
         let args' := args.set! 2 wp'
-        { goal with target := mkAppN (mkConst ``PredTrans.apply) args' }
+        { goal with target := mkAppN (mkConst ``PredTrans.apply [u]) args' }
 
       -- lambda-expressions
       if e.getAppFn'.isLambda && false then
@@ -347,6 +349,15 @@ where
       -- apply specifications
       if f.isConst then
         burnOne
+        -- First try to split Ifs. Just like for match splitting
+        if f.isConstOf ``ite || f.isConstOf ``dite then
+          -- Just like for match splitting above
+          let mvar ← mkFreshExprSyntheticOpaqueMVar goal.toExpr (tag := name)
+          let some (pos, neg) ← splitIfTarget? mvar.mvarId!
+            | liftMetaM <| throwError "Failed to split if {e}"
+          assignMVars [pos.mvarId, neg.mvarId]
+          return mvar
+        -- Now try looking up and applying a spec
         try
           let specThm ← findSpec ctx.specThms wp
           trace[Elab.Tactic.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
@@ -355,6 +366,7 @@ where
           return prf
         catch ex =>
           trace[Elab.Tactic.Do.vcgen] "Failed to find spec. Trying simp. Reason: {ex.toMessageData}"
+        -- Last resort: Simp and try again
         let res ← Simp.simp e
         unless res.expr != e do return ← onFail goal name
         burnOne

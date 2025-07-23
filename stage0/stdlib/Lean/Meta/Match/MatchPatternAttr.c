@@ -124,7 +124,7 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_initFn___lam__0____x40_Lean_Meta_Match_MatchPatternAttr___hyg_3_(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_5;
 }

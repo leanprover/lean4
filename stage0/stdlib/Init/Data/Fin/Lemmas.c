@@ -45,7 +45,6 @@ LEAN_EXPORT lean_object* l_Fin_induction_go___boxed(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Fin_induction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_cases___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Fin_intCast___redArg___closed__0;
-uint8_t l_instDecidableEqFin___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_lastCases___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_NatCast_instNatCast___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_succRec___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -484,7 +483,7 @@ LEAN_EXPORT lean_object* l_Fin_reverseInduction___redArg(lean_object* x_1, lean_
 _start:
 {
 uint8_t x_5; 
-x_5 = l_instDecidableEqFin___redArg(x_4, x_1);
+x_5 = lean_nat_dec_eq(x_4, x_1);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 

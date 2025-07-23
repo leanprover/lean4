@@ -63,7 +63,7 @@ def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α 
   pure a
 
 private def popScopes (numScopes : Nat) : CommandElabM Unit :=
-  for _ in [0:numScopes] do
+  for _ in *...numScopes do
     popScope
 
 private def innermostScopeName? : List Scope → Option Name
@@ -87,7 +87,7 @@ private def checkEndHeader : Name → List Scope → Option Name
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
   match stx with
-  | `(Parser.Command.section| $[public%$publicTk]? $[@[expose%$expTk]]? $[noncomputable%$ncTk]? section $(header?)?) =>
+  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $(header?)?) =>
     -- TODO: allow more attributes?
     let attrs ← if expTk.isSome then
       pure [← `(Parser.Term.attrInstance| expose)]

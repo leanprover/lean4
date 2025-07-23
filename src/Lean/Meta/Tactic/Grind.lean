@@ -12,7 +12,7 @@ import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.Canon
-import Lean.Meta.Tactic.Grind.MarkNestedProofs
+import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.Propagate
@@ -33,6 +33,7 @@ import Lean.Meta.Tactic.Grind.MBTC
 import Lean.Meta.Tactic.Grind.Lookahead
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
 import Lean.Meta.Tactic.Grind.ReflCmp
+import Lean.Meta.Tactic.Grind.SynthInstance
 
 namespace Lean
 

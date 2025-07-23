@@ -284,7 +284,7 @@ set_option linter.indexVariables false in
     (xs.drop i).toArray = xs.toArray.extract i n := by
   simp [drop]
 
-@[simp, grind] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
+@[simp, grind =] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
 
 @[simp, grind] theorem toArray_emptyWithCapacity {cap} :
     (Vector.emptyWithCapacity (α := α) cap).toArray = Array.emptyWithCapacity cap := rfl
@@ -828,7 +828,7 @@ theorem getElem?_eq_none {xs : Vector α n} (h : n ≤ i) : xs[i]? = none := by
 
 -- This is a more aggressive pattern than for `List/Array.getElem?_eq_none`, because
 -- `length/size` won't appear.
-grind_pattern Vector.getElem?_eq_none => n ≤ i, xs[i]?
+grind_pattern Vector.getElem?_eq_none => xs[i]?
 
 @[simp] theorem getElem?_eq_getElem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i]? = some xs[i] :=
   getElem?_pos ..
@@ -1219,12 +1219,12 @@ instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ 
     as.contains a = decide (a ∈ as) := by
   rw [Bool.eq_iff_iff, contains_iff, decide_eq_true_iff]
 
-@[simp] theorem any_push [BEq α] {as : Vector α n} {a : α} {p : α → Bool} :
+@[simp] theorem any_push {as : Vector α n} {a : α} {p : α → Bool} :
     (as.push a).any p = (as.any p || p a) := by
   rcases as with ⟨as, rfl⟩
   simp
 
-@[simp] theorem all_push [BEq α] {as : Vector α n} {a : α} {p : α → Bool} :
+@[simp] theorem all_push {as : Vector α n} {a : α} {p : α → Bool} :
     (as.push a).all p = (as.all p && p a) := by
   rcases as with ⟨as, rfl⟩
   simp
@@ -1287,10 +1287,11 @@ theorem mem_set {xs : Vector α n} {i : Nat} {a : α} (hi : i < n) : a ∈ xs.se
   simp [mem_iff_getElem]
   exact ⟨i, (by simpa using hi), by simp⟩
 
-@[grind →]
 theorem mem_or_eq_of_mem_set {xs : Vector α n} {i : Nat} {a b : α} {hi : i < n} (h : a ∈ xs.set i b) : a ∈ xs ∨ a = b := by
   cases xs
   simpa using Array.mem_or_eq_of_mem_set (by simpa using h)
+
+grind_pattern mem_or_eq_of_mem_set => a ∈ xs.set i b
 
 /-! ### setIfInBounds -/
 

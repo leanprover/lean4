@@ -1189,7 +1189,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Internal_IO_Process_reprResourceUsageStats___redArg____x40_Std_Internal_Async_Process___hyg_159_(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -1199,7 +1199,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Std_Internal_IO_Process_reprResourceUsageStats____x40_Std_Internal_Async_Process___hyg_159_(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -1445,7 +1445,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Internal_IO_Process_setProcessTitle(x_1, x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -1714,10 +1714,10 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = l_Std_Internal_IO_Process_getResourceUsage___closed__0;
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
+lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
-lean_dec(x_3);
+lean_inc_ref(x_4);
+lean_dec_ref(x_3);
 x_5 = lean_alloc_closure((void*)(l_Std_Internal_IO_Process_getResourceUsage___lam__0___boxed), 1, 0);
 x_6 = l_Std_Internal_IO_Process_getResourceUsage___closed__1;
 x_7 = l_Functor_mapRev___redArg(x_4, x_6, x_5);
@@ -1730,7 +1730,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Internal_IO_Process_getResourceUsage___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }

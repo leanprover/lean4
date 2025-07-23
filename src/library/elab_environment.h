@@ -35,8 +35,6 @@ public:
     }
 
     environment to_kernel_env() const;
-
-    // TODO: delete together with old compiler
     operator environment() const { return to_kernel_env(); }
 };
 }

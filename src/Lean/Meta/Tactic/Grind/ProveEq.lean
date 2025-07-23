@@ -13,7 +13,7 @@ A lighter version of `preprocess` which produces a definitionally equal term,
 but ensures assumptions made by `grind` are satisfied.
 -/
 def preprocessLight (e : Expr) : GoalM Expr := do
-  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedProofs (← unfoldReducible e))))))
+  shareCommon (← canon (← normalizeLevels (← foldProjs (← eraseIrrelevantMData (← markNestedSubsingletons (← unfoldReducible e))))))
 
 /--
 If `e` has not been internalized yet, instantiate metavariables, unfold reducible, canonicalize,

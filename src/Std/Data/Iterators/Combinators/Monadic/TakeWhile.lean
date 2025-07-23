@@ -3,14 +3,18 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Nat.Lemmas
-import Init.RCases
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.Consumers.Monadic.Collect
-import Init.Data.Iterators.Consumers.Monadic.Loop
-import Init.Data.Iterators.Internal.Termination
-import Init.Data.Iterators.PostconditionMonad
+public import Init.Data.Nat.Lemmas
+public import Init.RCases
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.PostconditionMonad
+
+@[expose] public section
 
 /-!
 # Monadic `takeWhile` iterator combinator
@@ -207,7 +211,7 @@ private def TakeWhile.instFinitenessRelation [Monad m] [Iterator α m β]
 
 instance TakeWhile.instFinite [Monad m] [Iterator α m β] [Finite α m] {P} :
     Finite (TakeWhile α m β P) m :=
-  Finite.of_finitenessRelation instFinitenessRelation
+  by exact Finite.of_finitenessRelation instFinitenessRelation
 
 private def TakeWhile.instProductivenessRelation [Monad m] [Iterator α m β]
     [Productive α m] {P} :
@@ -222,7 +226,7 @@ private def TakeWhile.instProductivenessRelation [Monad m] [Iterator α m β]
 
 instance TakeWhile.instProductive [Monad m] [Iterator α m β] [Productive α m] {P} :
     Productive (TakeWhile α m β P) m :=
-  Productive.of_productivenessRelation instProductivenessRelation
+  by exact Productive.of_productivenessRelation instProductivenessRelation
 
 instance TakeWhile.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Productive α m] {P} :
     IteratorCollect (TakeWhile α m β P) m n :=

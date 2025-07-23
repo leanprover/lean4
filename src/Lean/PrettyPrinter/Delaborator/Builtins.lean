@@ -184,7 +184,7 @@ def getParamKinds (f : Expr) (args : Array Expr) : MetaM (Array ParamKind) := do
     let mut result : Array ParamKind := Array.mkEmpty args.size
     let mut fnType ← inferType f
     let mut j := 0
-    for i in [0:args.size] do
+    for i in *...args.size do
       unless fnType.isForall do
         fnType ← withTransparency .all <| whnf (fnType.instantiateRevRange j i args)
         j := i
@@ -776,7 +776,7 @@ partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOpti
     let st ← withDummyBinders (st.info.discrInfos.map (·.hName?)) (← getExpr) fun hNames? => do
       let hNames := hNames?.filterMap id
       let mut st := {st with hNames? := hNames?}
-      for i in [0:st.alts.size] do
+      for i in *...st.alts.size do
         st ← withTheReader SubExpr (fun _ => st.alts[i]!) do
           -- We save the variables names here to be able to implement safe shadowing.
           -- The pattern delaboration must use the names saved here.

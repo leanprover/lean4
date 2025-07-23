@@ -97,11 +97,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386 pkgconf:i386
         if: matrix.cmultilib
-      - name: Cache
+      - name: Restore Cache
         id: restore-cache
         uses: actions/cache/restore@v4
         with:
-          # NOTE: must be in sync with `save` below
+          # NOTE: must be in sync with `save` below and with `restore-cache` in `update-stage0.yml`
           path: |
             .ccache
             ${{ matrix.name == 'Linux Lake' && false && 'build/stage1/**/*.trace
@@ -226,8 +226,9 @@ jobs:
         if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |
-          # clean rebuild in case of Makefile changes
-          make -C build update-stage0 && rm -rf build/stage* && make -C build -j$NPROC
+          # clean rebuild in case of Makefile changes/Lake does not detect uncommited stage 0
+          # changes yet
+          make -C build update-stage0 && make -C build/stage1 clean-stdlib && make -C build -j$NPROC
         if: matrix.check-rebootstrap
       - name: CCache stats
         if: always()

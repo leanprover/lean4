@@ -88,7 +88,7 @@ x_8 = lean_string_append(x_7, x_3);
 x_9 = l_Lean_Xml_instToStringAttributes___lam__0___closed__2;
 x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_string_append(x_1, x_10);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 return x_11;
 }
 }
@@ -124,8 +124,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Xml_instToStringAttributes___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_4;
 }
 }
@@ -170,7 +170,7 @@ x_12 = lean_string_append(x_11, x_5);
 x_13 = l_Lean_Xml_instToStringAttributes___lam__0___closed__2;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = lean_string_append(x_7, x_14);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_1 = x_15;
 x_2 = x_6;
 goto _start;
@@ -190,7 +190,7 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_5 = lean_array_uget(x_3, x_2);
-x_6 = lean_box(0);
+x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_array_uset(x_3, x_2, x_6);
 x_8 = l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString(x_5);
 x_9 = 1;
@@ -212,7 +212,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = lean_string_append(x_4, x_6);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
@@ -254,19 +254,19 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_19; size_t x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 2);
-lean_inc(x_4);
-lean_dec(x_1);
+lean_inc_ref(x_4);
+lean_dec_ref(x_1);
 x_5 = l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__0;
 x_6 = lean_string_append(x_5, x_2);
 x_7 = l_Lean_Xml_instToStringAttributes___lam__1___closed__0;
 x_8 = l_Lean_RBNode_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__0(x_7, x_3);
 lean_dec(x_3);
 x_9 = lean_string_append(x_6, x_8);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_10 = l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__1;
 x_11 = lean_string_append(x_9, x_10);
 x_19 = lean_array_size(x_4);
@@ -278,7 +278,7 @@ x_24 = lean_nat_dec_lt(x_22, x_23);
 if (x_24 == 0)
 {
 lean_dec(x_23);
-lean_dec(x_21);
+lean_dec_ref(x_21);
 x_12 = x_7;
 goto block_18;
 }
@@ -289,7 +289,7 @@ x_25 = lean_nat_dec_le(x_23, x_23);
 if (x_25 == 0)
 {
 lean_dec(x_23);
-lean_dec(x_21);
+lean_dec_ref(x_21);
 x_12 = x_7;
 goto block_18;
 }
@@ -299,7 +299,7 @@ size_t x_26; lean_object* x_27;
 x_26 = lean_usize_of_nat(x_23);
 lean_dec(x_23);
 x_27 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2(x_21, x_20, x_26, x_7);
-lean_dec(x_21);
+lean_dec_ref(x_21);
 x_12 = x_27;
 goto block_18;
 }
@@ -308,11 +308,11 @@ block_18:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_13 = lean_string_append(x_11, x_12);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 x_14 = l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 x_16 = lean_string_append(x_15, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_17 = lean_string_append(x_16, x_10);
 return x_17;
 }
@@ -342,8 +342,8 @@ case 0:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
-lean_dec(x_1);
+lean_inc_ref(x_2);
+lean_dec_ref(x_1);
 x_3 = l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString(x_2);
 return x_3;
 }
@@ -351,11 +351,11 @@ case 1:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
+lean_inc_ref(x_4);
+lean_dec_ref(x_1);
 x_5 = l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__0;
 x_6 = lean_string_append(x_5, x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__1;
 x_8 = lean_string_append(x_6, x_7);
 return x_8;
@@ -364,8 +364,8 @@ default:
 {
 lean_object* x_9; 
 x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
-lean_dec(x_1);
+lean_inc_ref(x_9);
+lean_dec_ref(x_1);
 return x_9;
 }
 }
@@ -401,7 +401,7 @@ lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_spec__2(x_1, x_5, x_6, x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_7;
 }
 }

@@ -64,12 +64,12 @@ trace: [Compiler.result] size: 5
 [Compiler.result] size: 9
     def _eval (a.1 : Lean.Elab.Command.Context) (a.2 : lcAny) (a.3 : PUnit) : EStateM.Result Lean.Exception PUnit
       PUnit :=
-      let _x.4 : String := "Erased";
-      let _x.5 : String := "mk";
-      let _x.6 : Lean.Name := Lean.Name.mkStr2 _x.4 _x.5;
+      let _x.4 : String := _eval._closed_0;
+      let _x.5 : String := _eval._closed_1;
+      let _x.6 : Lean.Name := _eval._closed_2;
       let _x.7 : Nat := 1;
-      let _x.8 : Array Lean.Name := Array.mkEmpty ◾ _x.7;
-      let _x.9 : Array Lean.Name := Array.push ◾ _x.8 _x.6;
+      let _x.8 : Array Lean.Name := _eval._closed_3;
+      let _x.9 : Array Lean.Name := _eval._closed_4;
       let _x.10 : PUnit := PUnit.unit;
       let _f.11 : Lean.Elab.Term.Context →
         lcAny →

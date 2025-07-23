@@ -20,17 +20,17 @@ LEAN_EXPORT lean_object* l_Lean_withImporting(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_withImporting___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initializing(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_runInitializersRef;
+LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag___hyg_3_(lean_object*);
 LEAN_EXPORT lean_object* lean_enable_initializer_execution(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_importingRef;
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_3_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_25_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withImporting___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_initializing(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withImporting___redArg___lam__0(lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_3_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag___hyg_25_(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag___hyg_3_(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -57,7 +57,7 @@ return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_25_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag___hyg_25_(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -168,7 +168,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8;
 lean_dec(x_3);
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc(x_5);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_6 = l_Lean_initializing___closed__0;
 x_7 = lean_st_ref_get(x_6, x_5);
 x_8 = !lean_is_exclusive(x_7);
@@ -223,7 +223,7 @@ x_5 = lean_box(x_2);
 x_6 = lean_st_ref_set(x_1, x_5, x_4);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_8 = l_Lean_enableInitializersExecution___closed__0;
 x_9 = lean_box(x_2);
 x_10 = lean_st_ref_set(x_8, x_9, x_7);
@@ -257,7 +257,7 @@ x_5 = lean_box(x_4);
 x_6 = lean_st_ref_set(x_3, x_5, x_2);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_8 = 0;
 x_9 = lean_apply_1(x_1, x_7);
 if (lean_obj_tag(x_9) == 0)
@@ -267,12 +267,12 @@ x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 lean_inc(x_10);
 x_12 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_12, 0, x_10);
 x_13 = l_Lean_withImporting___redArg___lam__0(x_3, x_8, x_12, x_11);
-lean_dec(x_12);
+lean_dec_ref(x_12);
 x_14 = !lean_is_exclusive(x_13);
 if (x_14 == 0)
 {
@@ -301,7 +301,7 @@ x_18 = lean_ctor_get(x_9, 0);
 lean_inc(x_18);
 x_19 = lean_ctor_get(x_9, 1);
 lean_inc(x_19);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_20 = lean_box(0);
 x_21 = l_Lean_withImporting___redArg___lam__0(x_3, x_8, x_20, x_19);
 x_22 = !lean_is_exclusive(x_21);
@@ -341,7 +341,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l_Lean_withImporting___redArg___lam__0(x_1, x_5, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_1);
@@ -357,12 +356,12 @@ _G_initialized = true;
 res = initialize_Init_System_IO(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-if (builtin) {res = l_Lean_initFn____x40_Lean_ImportingFlag___hyg_3_(lean_io_mk_world());
+if (builtin) {res = l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag___hyg_3_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l___private_Lean_ImportingFlag_0__Lean_importingRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_ImportingFlag_0__Lean_importingRef);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn____x40_Lean_ImportingFlag___hyg_25_(lean_io_mk_world());
+}if (builtin) {res = l___private_Lean_ImportingFlag_0__Lean_initFn____x40_Lean_ImportingFlag___hyg_25_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l___private_Lean_ImportingFlag_0__Lean_runInitializersRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_ImportingFlag_0__Lean_runInitializersRef);

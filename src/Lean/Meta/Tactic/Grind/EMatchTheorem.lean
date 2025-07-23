@@ -485,17 +485,6 @@ def isEMatchTheorem (declName : Name) : CoreM Bool := do
 def resetEMatchTheoremsExt : CoreM Unit := do
   modifyEnv fun env => ematchTheoremsExt.modifyState env fun _ => {}
 
--- TODO: delete after update stage0. We will set them to priority 0
-/--
-Symbols with built-in support in `grind` are unsuitable as pattern candidates for E-matching.
-This is because `grind` performs normalization operations and uses specialized data structures
-to implement these symbols, which may interfere with E-matching behavior.
--/
--- TODO: create attribute?
-private def forbiddenDeclNames := #[``Eq, ``HEq, ``Iff, ``And, ``Or, ``Not]
-
-private def isForbidden (declName : Name) := forbiddenDeclNames.contains declName
-
 /--
 Auxiliary function to expand a pattern containing forbidden application symbols
 into a multi-pattern.
@@ -578,10 +567,22 @@ private structure Context where
 
 abbrev M := ReaderT Context StateRefT State MetaM
 
-def isCandidateSymbol (declName : Name) : M Bool := do
+/-- Helper declaration for finding bootstrapping issues. See `isCandidateSymbol`. -/
+private abbrev badForPatterns := [``Eq, ``HEq, ``Iff, ``And, ``Or, ``Not]
+
+def isCandidateSymbol (declName : Name) (root : Bool) : M Bool := do
   let ctx ← read
-  return ctx.symPrios.getPrio declName ≥ ctx.minPrio
-    && !isForbidden declName -- TODO: delete after update stage0
+  let prio := ctx.symPrios.getPrio declName
+  -- Priority 0 are never considered, they are treated as forbidden
+  if prio == 0 then return false
+  -- Remark: uncomment the following code to fix bootstrapping issues
+  -- if declName ∈ badForPatterns then
+  --  throwError "INSERT `import Init.Grind.Tactics`, otherwise a pattern containing `{declName}` will be used, prio: {prio}"
+  -- If it is the root symbol, then we check whether `prio ≥ minPrio`
+  if root then
+    return prio ≥ ctx.minPrio
+  else
+    return true
 
 private def saveSymbol (h : HeadIndex) : M Unit := do
   if let .const declName := h then
@@ -661,12 +662,12 @@ def getPatternArgKinds (f : Expr) (numArgs : Nat) : MetaM (Array PatternArgKind)
       else
         return .relevant
 
-private def getPatternFn? (pattern : Expr) (inSupport : Bool) (argKind : PatternArgKind) : M (Option Expr) := do
+private def getPatternFn? (pattern : Expr) (inSupport : Bool) (root : Bool) (argKind : PatternArgKind) : M (Option Expr) := do
   if !pattern.isApp && !pattern.isConst then
     return none
   else match pattern.getAppFn with
     | f@(.const declName _) =>
-      if !(← isCandidateSymbol declName) then
+      if !(← isCandidateSymbol declName root) then
         return none
       if declName == ``Grind.genPattern || declName == ``Grind.genHEqPattern then
         return some f
@@ -681,21 +682,21 @@ private def getPatternFn? (pattern : Expr) (inSupport : Bool) (argKind : Pattern
     | _ =>
       return none
 
-private partial def go (pattern : Expr) (inSupport : Bool) : M Expr := do
+private partial def go (pattern : Expr) (inSupport : Bool) (root : Bool) : M Expr := do
   if let some (e, k) := isOffsetPattern? pattern then
     let e ← goArg e inSupport .relevant
     if e == dontCare then
       return dontCare
     else
       return mkOffsetPattern e k
-  let some f ← getPatternFn? pattern inSupport .relevant
+  let some f ← getPatternFn? pattern inSupport root .relevant
     | throwError "invalid pattern, (non-forbidden) application expected{indentExpr pattern}"
   assert! f.isConst || f.isFVar
   unless f.isConstOf ``Grind.eqBwdPattern do
     saveSymbol f.toHeadIndex
   let mut args := pattern.getAppArgs.toVector
   let patternArgKinds ← getPatternArgKinds f args.size
-  for h : i in [:args.size] do
+  for h : i in *...args.size do
     let arg := args[i]
     let argKind := patternArgKinds[i]?.getD .relevant
     args := args.set i (← goArg arg (inSupport || argKind.isSupport) argKind)
@@ -715,17 +716,17 @@ where
           saveBVar idx
           pure arg
       | _ =>
-        if let some _ ← getPatternFn? arg inSupport argKind then
-          go arg inSupport
+        if let some _ ← getPatternFn? arg inSupport (root := false) argKind then
+          go arg inSupport (root := false)
         else
           pure dontCare
 
 def main (patterns : List Expr) (symPrios : SymbolPriorities) (minPrio : Nat) : MetaM (List Expr × List HeadIndex × Std.HashSet Nat) := do
-  let (patterns, s) ← patterns.mapM (go (inSupport := false)) { symPrios, minPrio } |>.run {}
+  let (patterns, s) ← patterns.mapM (go (inSupport := false) (root := true)) { symPrios, minPrio } |>.run {}
   return (patterns, s.symbols.toList, s.bvarsFound)
 
 def normalizePattern (e : Expr) : M Expr := do
-  go e (inSupport := false)
+  go e (inSupport := false) (root := true)
 
 end NormalizePattern
 
@@ -830,7 +831,7 @@ private def checkCoverage (thmProof : Expr) (numParams : Nat) (bvarsFound : Std.
       if !modified then
         break
     let mut pos := #[]
-    for h : i in [:xs.size] do
+    for h : i in *...xs.size do
       let fvarId := xs[i].fvarId!
       unless fvarsFound.contains fvarId do
         pos := pos.push i
@@ -844,7 +845,7 @@ private def ppParamsAt (proof : Expr) (numParams : Nat) (paramPos : List Nat) : 
   forallBoundedTelescope (← inferType proof) numParams fun xs _ => do
     let mut msg := m!""
     let mut first := true
-    for h : i in [:xs.size] do
+    for h : i in *...xs.size do
       if paramPos.contains i then
         let x := xs[i]
         if first then first := false else msg := msg ++ "\n"
@@ -862,7 +863,7 @@ Pattern variables are represented using de Bruijn indices.
 def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams : Nat) (proof : Expr)
     (patterns : List Expr) (kind : EMatchTheoremKind) (showInfo := false) : MetaM EMatchTheorem := do
   -- the patterns have already been selected, there is no point in using priorities here
-  let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns {} (minPrio := 1)
+  let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns (← getGlobalSymbolPriorities) (minPrio := 1)
   if symbols.isEmpty then
     throwError "invalid pattern for `{← origin.pp}`{indentD (patterns.map ppPattern)}\nthe pattern does not contain constant symbols for indexing"
   trace[grind.ematch.pattern] "{← origin.pp}: {patterns.map ppPattern}"
@@ -934,8 +935,8 @@ def mkEMatchEqTheorem (declName : Name) (normalizePattern := true) (useLhs : Boo
 Adds an E-matching theorem to the environment.
 See `mkEMatchTheorem`.
 -/
-def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) (kind : EMatchTheoremKind) : MetaM Unit := do
-  ematchTheoremsExt.add (← mkEMatchTheorem declName numParams patterns kind)
+def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) (kind : EMatchTheoremKind) (attrKind := AttributeKind.global) : MetaM Unit := do
+  ematchTheoremsExt.add (← mkEMatchTheorem declName numParams patterns kind) attrKind
 
 /--
 Adds an E-matching equality theorem to the environment.
@@ -970,7 +971,7 @@ private abbrev CollectorM := ReaderT Collector.Context $ StateRefT Collector.Sta
 /-- Similar to `getPatternFn?`, but operates on expressions that do not contain loose de Bruijn variables. -/
 private def isPatternFnCandidate (f : Expr) : CollectorM Bool := do
   match f with
-  | .const declName _ => NormalizePattern.isCandidateSymbol declName
+  | .const declName _ => NormalizePattern.isCandidateSymbol declName (root := true)
   | .fvar .. => return !(← read).xs.contains f
   | _ => return false
 
@@ -1122,7 +1123,9 @@ def EMatchTheoremKind.gen : EMatchTheoremKind → Bool
 private def collectUsedPriorities (prios : SymbolPriorities) (searchPlaces : Array Expr) : Array Nat := Id.run do
   let mut s : Std.HashSet Nat := {}
   for place in searchPlaces do
-    s := place.foldConsts (init := s) fun declName s => s.insert <| prios.getPrio declName
+    s := place.foldConsts (init := s) fun declName s =>
+      let prio := prios.getPrio declName
+      if prio > 0 then s.insert prio else s
   let r := s.toArray
   if r.isEmpty then
     return #[eval_prio default]

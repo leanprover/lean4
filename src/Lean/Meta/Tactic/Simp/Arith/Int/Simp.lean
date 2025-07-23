@@ -105,36 +105,30 @@ def simpLe? (e : Expr) (checkIfModified : Bool) : MetaM (Option (Expr × Expr)) 
 
 def simpRel? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   if let some arg := e.not? then
-    let mut eNew?   := none
-    let mut thmName := Name.anonymous
+    let mut eNew? := none
+    let mut h₁    := default
     match_expr arg with
     | LE.le α _ lhs rhs =>
       let_expr Int ← α | pure ()
       eNew?   := some (mkIntLE (mkIntAdd rhs (mkIntLit 1)) lhs)
-      thmName := ``Int.not_le_eq
+      h₁      := mkApp2 (mkConst ``Int.not_le_eq) lhs rhs
     | GE.ge α _ lhs rhs =>
       let_expr Int ← α | pure ()
       eNew?   := some (mkIntLE (mkIntAdd lhs (mkIntLit 1)) rhs)
-      thmName := ``Int.not_ge_eq
+      h₁      := mkApp2 (mkConst ``Int.not_ge_eq) lhs rhs
     | LT.lt α _ lhs rhs =>
       let_expr Int ← α | pure ()
       eNew?   := some (mkIntLE rhs lhs)
-      thmName := ``Int.not_lt_eq
+      h₁      := mkApp2 (mkConst ``Int.not_lt_eq) lhs rhs
     | GT.gt α _ lhs rhs =>
       let_expr Int ← α | pure ()
       eNew?   := some (mkIntLE lhs rhs)
-      thmName := ``Int.not_gt_eq
+      h₁      := mkApp2 (mkConst ``Int.not_gt_eq) lhs rhs
     | _ => pure ()
-    if let some eNew := eNew? then
-      let h₁ := mkApp2 (mkConst thmName) (arg.getArg! 2) (arg.getArg! 3)
-      -- Already modified
-      if let some (eNew', h₂) ← simpLe? eNew (checkIfModified := false) then
-        let h  := mkApp6 (mkConst ``Eq.trans [levelOne]) (mkSort levelZero) e eNew eNew' h₁ h₂
-        return some (eNew', h)
-      else
-        return some (eNew, h₁)
-    else
-      return none
+    let some eNew := eNew? | return none
+    let some (eNew', h₂) ← simpLe? eNew (checkIfModified := false) | return (eNew, h₁)
+    let h  := mkApp6 (mkConst ``Eq.trans [levelOne]) (mkSort levelZero) e eNew eNew' h₁ h₂
+    return some (eNew', h)
   else
     simpLe? e (checkIfModified := true)
 

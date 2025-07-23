@@ -9,6 +9,7 @@ import Lean.Parser.Term
 import Lean.Meta.Structure
 import Lean.Elab.App
 import Lean.Elab.Binders
+import Lean.Elab.StructInstHint
 import Lean.PrettyPrinter
 
 /-!
@@ -407,7 +408,7 @@ private def mkCtorHeader (ctorVal : ConstructorVal) (structureType? : Option Exp
   let mut type ← instantiateTypeLevelParams cinfo.toConstantVal us
   let mut params : Array Expr := #[]
   let mut instMVars : Array MVarId := #[]
-  for _ in [0 : ctorVal.numParams] do
+  for _ in *...ctorVal.numParams do
     let .forallE _ d b bi := type
       | throwError "unexpected constructor type"
     let param ←
@@ -747,6 +748,7 @@ private structure PendingField where
   deps : NameSet
   val? : Option Expr
 
+
 /--
 Synthesize pending optParams.
 -/
@@ -812,7 +814,7 @@ private def synthOptParamFields : StructInstM Unit := do
             toRemove := toRemove.push selected.fieldName
           else
             assignErrors := assignErrors.push m!"\
-              occurs check failed, field '{selected.fieldName}' of type{indentExpr fieldType}\n\
+              Occurs check failed: Field `{selected.fieldName}` of type{indentExpr fieldType}\n\
               cannot be assigned the default value{indentExpr selectedVal}"
         else
           assignErrors := assignErrors.push m!"\
@@ -833,22 +835,29 @@ private def synthOptParamFields : StructInstM Unit := do
         for pendingField in pendingFields do
           if let some mvarId ← isFieldNotSolved? pendingField.fieldName then
             registerCustomErrorIfMVar (.mvar mvarId) (← read).view.ref m!"\
-              cannot synthesize placeholder for field '{pendingField.fieldName}'"
+              Cannot synthesize placeholder for field `{pendingField.fieldName}`"
         return
       let assignErrorsMsg := MessageData.joinSep (assignErrors.map (m!"\n\n" ++ ·)).toList ""
       let mut requiredErrors : Array MessageData := #[]
+      let mut unsolvedFields : Std.HashSet Name := {}
       for pendingField in pendingFields do
         if (← isFieldNotSolved? pendingField.fieldName).isNone then
+          unsolvedFields := unsolvedFields.insert pendingField.fieldName
           let e := (← get).fieldMap.find! pendingField.fieldName
           requiredErrors := requiredErrors.push m!"\
-            field '{pendingField.fieldName}' must be explicitly provided, its synthesized value is{indentExpr e}"
+            Field `{pendingField.fieldName}` must be explicitly provided; its synthesized value is{indentExpr e}"
       let requiredErrorsMsg := MessageData.joinSep (requiredErrors.map (m!"\n\n" ++ ·)).toList ""
       let missingFields := pendingFields |>.filter (fun pending => pending.val?.isNone)
       -- TODO(kmill): when fields are all stuck, report better.
       -- For now, just report all pending fields in case there are no obviously missing ones.
       let missingFields := if missingFields.isEmpty then pendingFields else missingFields
-      let missing := missingFields |>.map (s!"'{·.fieldName}'") |>.toList
-      let msg := m!"fields missing: {", ".intercalate missing}{assignErrorsMsg}{requiredErrorsMsg}"
+      let missing := missingFields |>.map (s!"`{·.fieldName}`") |>.toList
+      let missingFieldsValues ← missingFields.mapM fun field => do
+        if unsolvedFields.contains field.fieldName then
+          pure <| (field.fieldName, some <| (← get).fieldMap.find! field.fieldName)
+        else pure (field.fieldName, none)
+      let missingFieldsHint ← mkMissingFieldsHint missingFieldsValues (← read).view.ref
+      let msg := m!"Fields missing: {", ".intercalate missing}{assignErrorsMsg}{requiredErrorsMsg}{missingFieldsHint}"
       if (← readThe Term.Context).errToSorry then
         -- Assign all pending problems using synthetic sorries and log an error.
         for pendingField in pendingFields do
@@ -1182,7 +1191,7 @@ private def elabStructInstView (s : StructInstView) (structName : Name) (structT
   let env ← getEnv
   let ctorVal := getStructureCtor env structName
   if isPrivateNameFromImportedModule env ctorVal.name then
-    throwError "invalid \{...} notation, constructor for '{structName}' is marked as private"
+    throwError "invalid \{...} notation, constructor for '{.ofConstName structName}' is marked as private"
   let { ctorFn, ctorFnType, structType, levels, params } ← mkCtorHeader ctorVal structType?
   let (_, fields) ← expandFields structName s.fields (recover := (← read).errToSorry)
   let fields ← addSourceFields structName s.sources.explicit fields

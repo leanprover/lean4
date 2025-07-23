@@ -88,11 +88,11 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = l_Lake_initFn___lam__0___closed__2____x40_Lake_DSL_Attributes___hyg_4_;
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_9 = l_Lean_logWarningAt___at___Lake_initFn____x40_Lake_DSL_Attributes___hyg_4__spec__0(x_3, x_8, x_5, x_6, x_7);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 x_11 = lean_box(x_4);
 x_12 = lean_apply_6(x_1, x_2, x_3, x_11, x_5, x_6, x_10);
 return x_12;
@@ -265,7 +265,7 @@ _start:
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = l_Lake_initFn___closed__0____x40_Lake_DSL_Attributes___hyg_4_;
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
+lean_inc_ref(x_3);
 x_4 = !lean_is_exclusive(x_3);
 if (x_4 == 0)
 {
@@ -332,7 +332,7 @@ lean_inc(x_27);
 lean_inc(x_26);
 lean_dec(x_3);
 x_29 = lean_ctor_get(x_26, 2);
-lean_inc(x_29);
+lean_inc_ref(x_29);
 x_30 = lean_ctor_get_uint8(x_26, sizeof(void*)*3);
 if (lean_is_exclusive(x_26)) {
  lean_ctor_release(x_26, 0);
@@ -382,7 +382,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_4);
-lean_dec(x_4);
 x_9 = l_Lake_initFn___lam__0____x40_Lake_DSL_Attributes___hyg_4_(x_1, x_2, x_3, x_8, x_5, x_6, x_7);
 return x_9;
 }

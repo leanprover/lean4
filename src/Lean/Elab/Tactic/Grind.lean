@@ -21,27 +21,32 @@ open Command Term in
 @[builtin_command_elab Lean.Parser.Command.grindPattern]
 def elabGrindPattern : CommandElab := fun stx => do
   match stx with
-  | `(grind_pattern $thmName:ident => $terms,*) => do
-    liftTermElabM do
-      let declName ← resolveGlobalConstNoOverload thmName
-      discard <| addTermInfo thmName (← mkConstWithLevelParams declName)
-      let info ← getConstInfo declName
-      forallTelescope info.type fun xs _ => do
-        let patterns ← terms.getElems.mapM fun term => do
-          let pattern ← Term.elabTerm term none
-          synthesizeSyntheticMVarsUsingDefault
-          let pattern ← instantiateMVars pattern
-          let pattern ← Grind.preprocessPattern pattern
-          return pattern.abstract xs
-        Grind.addEMatchTheorem declName xs.size patterns.toList .user
+  | `(grind_pattern $thmName:ident => $terms,*) => go thmName terms .global
+  | `(scoped grind_pattern $thmName:ident => $terms,*) => go thmName terms .scoped
+  | `(local grind_pattern $thmName:ident => $terms,*) => go thmName terms .local
   | _ => throwUnsupportedSyntax
+where
+  go (thmName : TSyntax `ident) (terms : Syntax.TSepArray `term ",") (kind : AttributeKind) : CommandElabM Unit := liftTermElabM do
+    let declName ← resolveGlobalConstNoOverload thmName
+    discard <| addTermInfo thmName (← mkConstWithLevelParams declName)
+    let info ← getConstInfo declName
+    forallTelescope info.type fun xs _ => do
+      let patterns ← terms.getElems.mapM fun term => do
+        let pattern ← Term.elabTerm term none
+        synthesizeSyntheticMVarsUsingDefault
+        let pattern ← instantiateMVars pattern
+        let pattern ← Grind.preprocessPattern pattern
+        return pattern.abstract xs
+      Grind.addEMatchTheorem declName xs.size patterns.toList .user kind
 
 open Command in
 @[builtin_command_elab Lean.Parser.resetGrindAttrs]
 def elabResetGrindAttrs : CommandElab := fun _ => liftTermElabM do
   Grind.resetCasesExt
   Grind.resetEMatchTheoremsExt
-  Grind.resetSymbolPrioExt
+  -- Remark: we do not reset symbol priorities because we would have to then set
+  -- `[grind symbol 0] Eq` after a `reset_grind_attr%` command.
+  -- Grind.resetSymbolPrioExt
 
 open Command Term in
 @[builtin_command_elab Lean.Parser.Command.initGrindNorm]

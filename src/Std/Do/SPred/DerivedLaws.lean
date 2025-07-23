@@ -3,9 +3,13 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Init.ByCases
-import Std.Do.SPred.Laws
+public import Init.ByCases
+public import Std.Do.SPred.Laws
+
+@[expose] public section
 
 /-!
 # Derived laws of `SPred`
@@ -16,15 +20,16 @@ the laws in `Std.Do.Laws`.
 
 namespace Std.Do.SPred
 
-variable {σs : List Type} {P P' Q Q' R R' : SPred σs} {φ φ₁ φ₂ : Prop}
+universe u
+variable {σs : List (Type u)} {P P' Q Q' R R' : SPred σs} {φ φ₁ φ₂ : Prop}
 
-theorem entails.rfl {σs : List Type} {P : SPred σs} : P ⊢ₛ P := entails.refl P
+theorem entails.rfl : P ⊢ₛ P := entails.refl P
 
-theorem bientails.rfl {σs : List Type} {P : SPred σs} : P ⊣⊢ₛ P := bientails.refl P
-theorem bientails.of_eq {σs : List Type} {P Q : SPred σs} (h : P = Q) : P ⊣⊢ₛ Q := h ▸ .rfl
+theorem bientails.rfl {P : SPred σs} : P ⊣⊢ₛ P := bientails.refl P
+theorem bientails.of_eq {P Q : SPred σs} (h : P = Q) : P ⊣⊢ₛ Q := h ▸ .rfl
 
-theorem bientails.mp {σs : List Type} {P Q : SPred σs} : (P ⊣⊢ₛ Q) → (P ⊢ₛ Q) := fun h => (bientails.iff.mp h).1
-theorem bientails.mpr {σs : List Type} {P Q : SPred σs} : (P ⊣⊢ₛ Q) → (Q ⊢ₛ P) := fun h => (bientails.iff.mp h).2
+theorem bientails.mp {P Q : SPred σs} : (P ⊣⊢ₛ Q) → (P ⊢ₛ Q) := fun h => (bientails.iff.mp h).1
+theorem bientails.mpr {P Q : SPred σs} : (P ⊣⊢ₛ Q) → (Q ⊢ₛ P) := fun h => (bientails.iff.mp h).2
 
 /-! # Connectives -/
 
@@ -145,7 +150,7 @@ theorem pure_forall {φ : α → Prop} : (∀ x, (⌜φ x⌝ : SPred σs)) ⊣�
 theorem pure_exists {φ : α → Prop} : (∃ x, ⌜φ x⌝ : SPred σs) ⊣⊢ₛ ⌜∃ x, φ x⌝ := bientails.iff.mpr ⟨exists_elim fun a => pure_mono (⟨a, ·⟩), pure_elim' fun ⟨x, h⟩ => (pure_intro h).trans (exists_intro' x .rfl)⟩
 
 @[simp] theorem true_intro_simp : (Q ⊢ₛ ⌜True⌝) ↔ True := iff_true_intro true_intro
-@[simp] theorem true_intro_simp_nil {Q : SPred []} : (Q ⊢ₛ True) ↔ True := true_intro_simp
+@[simp] theorem true_intro_simp_nil {Q : SPred []} : (Q ⊢ₛ ⌜True⌝) ↔ True := true_intro_simp
 
 /-! # Miscellaneous -/
 
@@ -154,27 +159,27 @@ theorem and_right_comm : (P ∧ Q) ∧ R ⊣⊢ₛ (P ∧ R) ∧ Q := and_assoc.
 
 /-! # Working with entailment -/
 
-theorem entails_pure_intro {σs : List Type} (P Q : Prop) (h : P → Q) : entails ⌜P⌝ (σs := σs) ⌜Q⌝ := pure_elim' fun hp => pure_intro (h hp)
+theorem entails_pure_intro (P Q : Prop) (h : P → Q) : entails ⌜P⌝ (σs := σs) ⌜Q⌝ := pure_elim' fun hp => pure_intro (h hp)
 
-@[simp] theorem entails_elim_nil (P Q : SPred []) : entails P Q ↔ P → Q := iff_of_eq rfl
-theorem entails_elim_cons {σ : Type} {σs : List Type} (P Q : SPred (σ::σs)) : P ⊢ₛ Q ↔ ∀ s, (P s ⊢ₛ Q s) := by simp only [entails]
-@[simp] theorem entails_pure_elim_cons {σ : Type} {σs : List Type} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝:= by simp [entails]
-@[simp] theorem entails_true_intro {σs : List Type} (P Q : SPred σs) : ⊢ₛ P → Q ↔ P ⊢ₛ Q := Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
+@[simp] theorem entails_elim_nil (P Q : SPred []) : entails P Q ↔ P.down → Q.down := iff_of_eq rfl
+theorem entails_elim_cons {σ : Type u} (P Q : SPred (σ::σs)) : P ⊢ₛ Q ↔ ∀ s, (P s ⊢ₛ Q s) := by simp only [entails]
+@[simp] theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝:= by simp [entails]
+@[simp] theorem entails_true_intro (P Q : SPred σs) : ⊢ₛ P → Q ↔ P ⊢ₛ Q := Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
 
 /-! # Tactic support -/
 
 namespace Tactic
 
 /-- Tautology in `SPred` as a quotable definition. -/
-abbrev tautological {σs : List Type} (Q : SPred σs) : Prop := ⊢ₛ Q
+abbrev tautological (Q : SPred σs) : Prop := ⊢ₛ Q
 
-class PropAsSPredTautology (φ : Prop) {σs : outParam (List Type)} (P : outParam (SPred σs)) : Prop where
+class PropAsSPredTautology (φ : Prop) {σs : outParam (List (Type u))} (P : outParam (SPred σs)) : Prop where
   iff : φ ↔ ⊢ₛ P
-instance : PropAsSPredTautology (σs := []) φ φ where iff := true_imp_iff.symm
+instance {φ : ULift Prop} : PropAsSPredTautology.{0} (σs := []) φ.down φ where iff := true_imp_iff.symm
 instance : PropAsSPredTautology (P ⊢ₛ Q) spred(P → Q) where iff := (entails_true_intro P Q).symm
 instance : PropAsSPredTautology (⊢ₛ P) P where iff := Iff.rfl
 
-class IsPure {σs : List Type} (P : SPred σs) (φ : outParam Prop) where to_pure : P ⊣⊢ₛ ⌜φ⌝
+class IsPure (P : SPred σs) (φ : outParam Prop) where to_pure : P ⊣⊢ₛ ⌜φ⌝
 instance (σs) : IsPure (σs:=σs) ⌜φ⌝ φ where to_pure := .rfl
 instance (σs) : IsPure (σs:=σs) spred(⌜φ⌝ → ⌜ψ⌝) (φ → ψ) where to_pure := pure_imp
 instance (σs) : IsPure (σs:=σs) spred(⌜φ⌝ ∧ ⌜ψ⌝) (φ ∧ ψ) where to_pure := pure_and
@@ -182,9 +187,10 @@ instance (σs) : IsPure (σs:=σs) spred(⌜φ⌝ ∨ ⌜ψ⌝) (φ ∨ ψ) wher
 instance (σs) (P : α → Prop) : IsPure (σs:=σs) spred(∃ x, ⌜P x⌝) (∃ x, P x) where to_pure := pure_exists
 instance (σs) (P : α → Prop) : IsPure (σs:=σs) spred(∀ x, ⌜P x⌝) (∀ x, P x) where to_pure := pure_forall
 instance (σs) (P : SPred (σ::σs)) [inst : IsPure P φ] : IsPure (σs:=σs) spred(P s) φ where to_pure := (iff_of_eq bientails_cons).mp inst.to_pure s
-instance (P : Prop) : IsPure (σs:=[]) P P where to_pure := Iff.rfl
+instance (φ : Prop) : IsPure (σs:=[]) ⌜φ⌝ φ where to_pure := Iff.rfl
+instance (P : SPred []) : IsPure (σs:=[]) P P.down where to_pure := Iff.rfl
 
-class IsAnd {σs : List Type} (P : SPred σs) (Q₁ Q₂ : outParam (SPred σs)) where
+class IsAnd (P : SPred σs) (Q₁ Q₂ : outParam (SPred σs)) where
   to_and : P ⊣⊢ₛ Q₁ ∧ Q₂
 instance (σs) (Q₁ Q₂ : SPred σs) : IsAnd (σs:=σs) spred(Q₁ ∧ Q₂) Q₁ Q₂ where to_and := .rfl
 instance (σs) : IsAnd (σs:=σs) ⌜p ∧ q⌝ ⌜p⌝ ⌜q⌝ where to_and := pure_and.symm
@@ -193,34 +199,34 @@ instance (σs) (P Q₁ Q₂ : σ → SPred σs) [base : ∀ s, IsAnd (P s) (Q₁
 theorem ProofMode.start_entails {φ : Prop} [PropAsSPredTautology φ P] : (⊢ₛ P) → φ := PropAsSPredTautology.iff.mpr
 theorem ProofMode.elim_entails {φ : Prop} [PropAsSPredTautology φ P] : φ → (⊢ₛ P) := PropAsSPredTautology.iff.mp
 
-theorem Assumption.left {σs : List Type} {P Q R : SPred σs} (h : P ⊢ₛ R) : P ∧ Q ⊢ₛ R := and_elim_l.trans h
-theorem Assumption.right {σs : List Type} {P Q R : SPred σs} (h : Q ⊢ₛ R) : P ∧ Q ⊢ₛ R := and_elim_r.trans h
-theorem SCases.add_goal {σs} {P Q H T : SPred σs} (hand : Q ∧ H ⊣⊢ₛ P) (hgoal : P ⊢ₛ T) : Q ∧ H ⊢ₛ T := hand.mp.trans hgoal
-theorem SCases.clear {σs} {Q H T : SPred σs} (hgoal : Q ∧ ⌜True⌝ ⊢ₛ T) : Q ∧ H ⊢ₛ T := (and_mono_r true_intro).trans hgoal
-theorem SCases.pure {σs} {Q T : SPred σs} (hgoal : Q ∧ ⌜True⌝ ⊢ₛ T) : Q ⊢ₛ T := (and_intro .rfl true_intro).trans hgoal
-theorem SCases.and_1 {σs} {Q H₁' H₂' H₁₂' T : SPred σs} (hand : H₁' ∧ H₂' ⊣⊢ₛ H₁₂') (hgoal : Q ∧ H₁₂' ⊢ₛ T) : (Q ∧ H₁') ∧ H₂' ⊢ₛ T := ((and_congr_r hand.symm).trans and_assoc.symm).mpr.trans hgoal
-theorem SCases.and_2 {σs} {Q H₁' H₂ T : SPred σs} (hgoal : (Q ∧ H₁') ∧ H₂ ⊢ₛ T) : (Q ∧ H₂) ∧ H₁' ⊢ₛ T := and_right_comm.mp.trans hgoal
-theorem SCases.and_3 {σs} {Q H₁ H₂ H T : SPred σs} (hand : H ⊣⊢ₛ H₁ ∧ H₂) (hgoal : (Q ∧ H₂) ∧ H₁ ⊢ₛ T) : Q ∧ H ⊢ₛ T := (and_congr_r hand).mp.trans (and_assoc.mpr.trans (and_right_comm.mp.trans hgoal))
-theorem SCases.exists {σs : List Type} {Q : SPred σs} {ψ : α → SPred σs} {T : SPred σs} (h : ∀ a, Q ∧ ψ a ⊢ₛ T) : Q ∧ (∃ a, ψ a) ⊢ₛ T := imp_elim' (exists_elim fun a => imp_intro (entails.trans and_symm (h a)))
-theorem Clear.clear {σs : List Type} {P P' A Q : SPred σs} (hfocus : P ⊣⊢ₛ P' ∧ A) (h : P' ⊢ₛ Q) : P ⊢ₛ Q := hfocus.mp.trans <| (and_mono_l h).trans and_elim_l
-theorem Exact.assumption {σs : List Type} {P P' A : SPred σs} (h : P ⊣⊢ₛ P' ∧ A) : P ⊢ₛ A := h.mp.trans and_elim_r
-theorem Exact.from_tautology {σs : List Type} {P T : SPred σs} [PropAsSPredTautology φ T] (h : φ) : P ⊢ₛ T := true_intro.trans (PropAsSPredTautology.iff.mp h)
-theorem Focus.this {σs : List Type} {P : SPred σs} : P ⊣⊢ₛ ⌜True⌝ ∧ P := true_and.symm
-theorem Focus.left {σs : List Type} {P P' Q C R : SPred σs} (h₁ : P ⊣⊢ₛ P' ∧ R) (h₂ : P' ∧ Q ⊣⊢ₛ C) : P ∧ Q ⊣⊢ₛ C ∧ R := (and_congr_l h₁).trans (and_right_comm.trans (and_congr_l h₂))
-theorem Focus.right {σs : List Type} {P Q Q' C R : SPred σs} (h₁ : Q ⊣⊢ₛ Q' ∧ R) (h₂ : P ∧ Q' ⊣⊢ₛ C) : P ∧ Q ⊣⊢ₛ C ∧ R := (and_congr_r h₁).trans (and_assoc.symm.trans (and_congr_l h₂))
+theorem Assumption.left {P Q R : SPred σs} (h : P ⊢ₛ R) : P ∧ Q ⊢ₛ R := and_elim_l.trans h
+theorem Assumption.right {P Q R : SPred σs} (h : Q ⊢ₛ R) : P ∧ Q ⊢ₛ R := and_elim_r.trans h
+theorem Cases.add_goal {σs} {P Q H T : SPred σs} (hand : Q ∧ H ⊣⊢ₛ P) (hgoal : P ⊢ₛ T) : Q ∧ H ⊢ₛ T := hand.mp.trans hgoal
+theorem Cases.clear {σs} {Q H T : SPred σs} (hgoal : Q ∧ ⌜True⌝ ⊢ₛ T) : Q ∧ H ⊢ₛ T := (and_mono_r true_intro).trans hgoal
+theorem Cases.pure {σs} {Q T : SPred σs} (hgoal : Q ∧ ⌜True⌝ ⊢ₛ T) : Q ⊢ₛ T := (and_intro .rfl true_intro).trans hgoal
+theorem Cases.and_1 {σs} {Q H₁' H₂' H₁₂' T : SPred σs} (hand : H₁' ∧ H₂' ⊣⊢ₛ H₁₂') (hgoal : Q ∧ H₁₂' ⊢ₛ T) : (Q ∧ H₁') ∧ H₂' ⊢ₛ T := ((and_congr_r hand.symm).trans and_assoc.symm).mpr.trans hgoal
+theorem Cases.and_2 {σs} {Q H₁' H₂ T : SPred σs} (hgoal : (Q ∧ H₁') ∧ H₂ ⊢ₛ T) : (Q ∧ H₂) ∧ H₁' ⊢ₛ T := and_right_comm.mp.trans hgoal
+theorem Cases.and_3 {σs} {Q H₁ H₂ H T : SPred σs} (hand : H ⊣⊢ₛ H₁ ∧ H₂) (hgoal : (Q ∧ H₂) ∧ H₁ ⊢ₛ T) : Q ∧ H ⊢ₛ T := (and_congr_r hand).mp.trans (and_assoc.mpr.trans (and_right_comm.mp.trans hgoal))
+theorem Cases.exists {Q : SPred σs} {ψ : α → SPred σs} {T : SPred σs} (h : ∀ a, Q ∧ ψ a ⊢ₛ T) : Q ∧ (∃ a, ψ a) ⊢ₛ T := imp_elim' (exists_elim fun a => imp_intro (entails.trans and_symm (h a)))
+theorem Clear.clear {P P' A Q : SPred σs} (hfocus : P ⊣⊢ₛ P' ∧ A) (h : P' ⊢ₛ Q) : P ⊢ₛ Q := hfocus.mp.trans <| (and_mono_l h).trans and_elim_l
+theorem Exact.assumption {P P' A : SPred σs} (h : P ⊣⊢ₛ P' ∧ A) : P ⊢ₛ A := h.mp.trans and_elim_r
+theorem Exact.from_tautology {P T : SPred σs} [PropAsSPredTautology φ T] (h : φ) : P ⊢ₛ T := true_intro.trans (PropAsSPredTautology.iff.mp h)
+theorem Focus.this {P : SPred σs} : P ⊣⊢ₛ ⌜True⌝ ∧ P := true_and.symm
+theorem Focus.left {P P' Q C R : SPred σs} (h₁ : P ⊣⊢ₛ P' ∧ R) (h₂ : P' ∧ Q ⊣⊢ₛ C) : P ∧ Q ⊣⊢ₛ C ∧ R := (and_congr_l h₁).trans (and_right_comm.trans (and_congr_l h₂))
+theorem Focus.right {P Q Q' C R : SPred σs} (h₁ : Q ⊣⊢ₛ Q' ∧ R) (h₂ : P ∧ Q' ⊣⊢ₛ C) : P ∧ Q ⊣⊢ₛ C ∧ R := (and_congr_r h₁).trans (and_assoc.symm.trans (and_congr_l h₂))
 theorem Focus.rewrite_hyps {σs} {P Q R : SPred σs} (hrw : P ⊣⊢ₛ Q) (hgoal : Q ⊢ₛ R) : P ⊢ₛ R := hrw.mp.trans hgoal
-theorem Have.dup {σs : List Type} {P Q H T : SPred σs} (hfoc : P ⊣⊢ₛ Q ∧ H) (hgoal : P ∧ H ⊢ₛ T) : P ⊢ₛ T := (and_intro .rfl (hfoc.mp.trans and_elim_r)).trans hgoal
-theorem Have.have {σs : List Type} {P H PH T : SPred σs} (hand : P ∧ H ⊣⊢ₛ PH) (hhave : P ⊢ₛ H) (hgoal : PH ⊢ₛ T) : P ⊢ₛ T := (and_intro .rfl hhave).trans (hand.mp.trans hgoal)
-theorem Have.replace {σs : List Type} {P H H' PH PH' T : SPred σs} (hfoc : PH ⊣⊢ₛ P ∧ H ) (hand : P ∧ H' ⊣⊢ₛ PH') (hhave : PH ⊢ₛ H') (hgoal : PH' ⊢ₛ T) : PH ⊢ₛ T := (and_intro (hfoc.mp.trans and_elim_l) hhave).trans (hand.mp.trans hgoal)
-theorem Intro.intro {σs : List Type} {P Q H T : SPred σs} (hand : Q ∧ H ⊣⊢ₛ P) (h : P ⊢ₛ T) : Q ⊢ₛ H → T := imp_intro (hand.mp.trans h)
-theorem Pure.thm {σs : List Type} {P Q T : SPred σs} {φ : Prop} [IsPure Q φ] (h : φ → P ⊢ₛ T) : P ∧ Q ⊢ₛ T := by
+theorem Have.dup {P Q H T : SPred σs} (hfoc : P ⊣⊢ₛ Q ∧ H) (hgoal : P ∧ H ⊢ₛ T) : P ⊢ₛ T := (and_intro .rfl (hfoc.mp.trans and_elim_r)).trans hgoal
+theorem Have.have {P H PH T : SPred σs} (hand : P ∧ H ⊣⊢ₛ PH) (hhave : P ⊢ₛ H) (hgoal : PH ⊢ₛ T) : P ⊢ₛ T := (and_intro .rfl hhave).trans (hand.mp.trans hgoal)
+theorem Have.replace {P H H' PH PH' T : SPred σs} (hfoc : PH ⊣⊢ₛ P ∧ H ) (hand : P ∧ H' ⊣⊢ₛ PH') (hhave : PH ⊢ₛ H') (hgoal : PH' ⊢ₛ T) : PH ⊢ₛ T := (and_intro (hfoc.mp.trans and_elim_l) hhave).trans (hand.mp.trans hgoal)
+theorem Intro.intro {P Q H T : SPred σs} (hand : Q ∧ H ⊣⊢ₛ P) (h : P ⊢ₛ T) : Q ⊢ₛ H → T := imp_intro (hand.mp.trans h)
+theorem Pure.thm {P Q T : SPred σs} {φ : Prop} [IsPure Q φ] (h : φ → P ⊢ₛ T) : P ∧ Q ⊢ₛ T := by
   apply pure_elim
   · exact and_elim_r.trans IsPure.to_pure.mp
   · intro hp
     exact and_elim_l.trans (h hp)
 /-- A generalization of `pure_intro` exploiting `IsPure`. -/
-theorem Pure.intro {σs : List Type} {P Q : SPred σs} {φ : Prop} [IsPure Q φ] (hp : φ) : P ⊢ₛ Q := (pure_intro hp).trans IsPure.to_pure.mpr
-theorem Revert.revert {σs : List Type} {P Q H T : SPred σs} (hfoc : P ⊣⊢ₛ Q ∧ H) (h : Q ⊢ₛ H → T) : P ⊢ₛ T := hfoc.mp.trans (imp_elim h)
+theorem Pure.intro {P Q : SPred σs} {φ : Prop} [IsPure Q φ] (hp : φ) : P ⊢ₛ Q := (pure_intro hp).trans IsPure.to_pure.mpr
+theorem Revert.revert {P Q H T : SPred σs} (hfoc : P ⊣⊢ₛ Q ∧ H) (h : Q ⊢ₛ H → T) : P ⊢ₛ T := hfoc.mp.trans (imp_elim h)
 theorem Specialize.imp_stateful {P P' Q R : SPred σs}
     (hrefocus : P ∧ (Q → R) ⊣⊢ₛ P' ∧ Q) : P ∧ (Q → R) ⊢ₛ P ∧ R := by
   calc spred(P ∧ (Q → R))
@@ -241,17 +247,18 @@ theorem Specialize.pure_start {φ : Prop} {H P T : SPred σs} [PropAsSPredTautol
 theorem Specialize.pure_taut {σs} {φ} {P : SPred σs} [IsPure P φ] (h : φ) : ⊢ₛ P := (pure_intro h).trans IsPure.to_pure.mpr
 theorem Specialize.focus {P P' Q R : SPred σs} (hfocus : P ⊣⊢ₛ P' ∧ Q) (hnew : P' ∧ Q ⊢ₛ R) : P ⊢ₛ R := hfocus.mp.trans hnew
 
-class SimpAnd {σs : List Type} (P Q : SPred σs) (PQ : outParam (SPred σs)) : Prop where
+class SimpAnd (P Q : SPred σs) (PQ : outParam (SPred σs)) : Prop where
   simp_and : P ∧ Q ⊣⊢ₛ PQ
 instance (σs) (P Q : SPred σs) : SimpAnd P Q (spred(P ∧ Q)) where simp_and := .rfl
 instance (σs) (P : SPred σs) : SimpAnd P ⌜True⌝ P where simp_and := and_true
 instance (σs) (P : SPred σs) : SimpAnd ⌜True⌝ P P where simp_and := true_and
 
-class HasFrame {σs : List Type} (P : SPred σs) (P' : outParam (SPred σs)) (φ : outParam Prop) : Prop where
+class HasFrame (P : SPred σs) (P' : outParam (SPred σs)) (φ : outParam Prop) : Prop where
   reassoc : P ⊣⊢ₛ P' ∧ ⌜φ⌝
 instance (σs) : HasFrame (σs:=σs) ⌜φ⌝ ⌜True⌝ φ where reassoc := true_and.symm
 instance (σs) (P P' Q QP : SPred σs) [HasFrame P Q φ] [SimpAnd Q P' QP]: HasFrame (σs:=σs) spred(P ∧ P') QP φ where reassoc := ((and_congr_l HasFrame.reassoc).trans and_right_comm).trans (and_congr_l SimpAnd.simp_and)
 instance (σs) (P P' Q' PQ : SPred σs) [HasFrame P' Q' φ] [SimpAnd P Q' PQ]: HasFrame (σs:=σs) spred(P ∧ P') PQ φ where reassoc := ((and_congr_r HasFrame.reassoc).trans and_assoc.symm).trans (and_congr_l SimpAnd.simp_and)
+instance (σs) (P P' : SVal.StateTuple σs → Prop) (Q : SPred σs) [HasFrame spred(SVal.curry (fun t => ⟨P t⟩) ∧ SVal.curry (fun t => ⟨P' t⟩)) Q φ] : HasFrame (σs:=σs) (SVal.curry fun t => ⟨P t ∧ P' t⟩) Q φ where reassoc := and_curry.symm.trans HasFrame.reassoc
 instance (σs) (P : SPred σs) : HasFrame (σs:=σs) spred(⌜φ⌝ ∧ P) P φ where reassoc := and_comm
 instance (σs) (P : SPred σs) : HasFrame (σs:=σs) spred(P ∧ ⌜φ⌝) P φ where reassoc := .rfl
 instance (σs) (P P' Q Q' QQ : SPred σs) [HasFrame P Q φ] [HasFrame P' Q' ψ] [SimpAnd Q Q' QQ]: HasFrame (σs:=σs) spred(P ∧ P') QQ (φ ∧ ψ) where
@@ -277,9 +284,10 @@ instance (σs) (P Q : SPred σs) [HasFrame P Q ψ] : HasFrame (σs:=σs) spred(P
              <| and_congr_r (and_comm.trans pure_and)
 -- The following instance comes last so that it gets the highest priority.
 -- It's the most efficient and best solution if valid
-instance {P : Prop} : HasFrame (σs:=[]) P ⌜True⌝ P where reassoc := true_and.symm
+instance {φ : Prop} : HasFrame (σs:=[]) ⌜φ⌝ ⌜True⌝ φ where reassoc := true_and.symm
+instance {P : SPred []} : HasFrame (σs:=[]) P ⌜True⌝ P.down where reassoc := true_and.symm
 
-theorem Frame.frame {σs : List Type} {P Q T : SPred σs} {φ : Prop} [HasFrame P Q φ]
+theorem Frame.frame {P Q T : SPred σs} {φ : Prop} [HasFrame P Q φ]
   (h : φ → Q ⊢ₛ T) : P ⊢ₛ T := by
     apply SPred.pure_elim
     · exact HasFrame.reassoc.mp.trans SPred.and_elim_r

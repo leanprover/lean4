@@ -115,14 +115,14 @@ where
         return false
       else
         let infos ← getParamsInfo aFn aArgs.size
-        for i in [:infos.size] do
+        for i in *...infos.size do
           -- We ignore instance implicit arguments during comparison
           if !infos[i]!.isInstImplicit then
             if (← lt aArgs[i]! bArgs[i]!) then
               return true
             else if (← lt bArgs[i]! aArgs[i]!) then
               return false
-        for i in [infos.size:aArgs.size] do
+        for i in infos.size...aArgs.size do
           if (← lt aArgs[i]! bArgs[i]!) then
             return true
           else if (← lt bArgs[i]! aArgs[i]!) then
@@ -153,12 +153,12 @@ where
     | .app ..           =>
       a.withApp fun f args => do
         let infos ← getParamsInfo f args.size
-        for i in [:infos.size] do
+        for i in *...infos.size do
           -- We ignore instance implicit arguments during comparison
           if !infos[i]!.isInstImplicit then
             if !(← lt args[i]! b) then
               return false
-        for h : i in [infos.size:args.size] do
+        for h : i in infos.size...args.size do
           if !(← lt args[i] b) then
             return false
         return true

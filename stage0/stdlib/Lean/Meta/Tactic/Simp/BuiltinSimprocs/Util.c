@@ -232,10 +232,10 @@ _start:
 {
 lean_object* x_8; 
 lean_inc(x_6);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 lean_inc(x_4);
-lean_inc(x_3);
-lean_inc(x_1);
+lean_inc_ref(x_3);
+lean_inc_ref(x_1);
 x_8 = l_Lean_Meta_mkDecide(x_1, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -244,7 +244,7 @@ x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_11 = 1;
 if (x_2 == 0)
 {
@@ -268,7 +268,7 @@ x_20 = lean_array_push(x_19, x_1);
 x_21 = lean_array_push(x_20, x_18);
 x_22 = lean_array_push(x_21, x_15);
 x_23 = l_Lean_mkAppN(x_17, x_22);
-lean_dec(x_22);
+lean_dec_ref(x_22);
 x_24 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = lean_alloc_ctor(0, 2, 1);
@@ -297,7 +297,7 @@ x_33 = lean_array_push(x_32, x_1);
 x_34 = lean_array_push(x_33, x_31);
 x_35 = lean_array_push(x_34, x_27);
 x_36 = l_Lean_mkAppN(x_30, x_35);
-lean_dec(x_35);
+lean_dec_ref(x_35);
 x_37 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_37, 0, x_36);
 x_38 = lean_alloc_ctor(0, 2, 1);
@@ -316,7 +316,7 @@ else
 {
 uint8_t x_41; 
 lean_dec(x_9);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_41 = !lean_is_exclusive(x_13);
 if (x_41 == 0)
 {
@@ -359,7 +359,7 @@ x_53 = lean_array_push(x_52, x_1);
 x_54 = lean_array_push(x_53, x_51);
 x_55 = lean_array_push(x_54, x_48);
 x_56 = l_Lean_mkAppN(x_50, x_55);
-lean_dec(x_55);
+lean_dec_ref(x_55);
 x_57 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_57, 0, x_56);
 x_58 = lean_alloc_ctor(0, 2, 1);
@@ -388,7 +388,7 @@ x_66 = lean_array_push(x_65, x_1);
 x_67 = lean_array_push(x_66, x_64);
 x_68 = lean_array_push(x_67, x_60);
 x_69 = l_Lean_mkAppN(x_63, x_68);
-lean_dec(x_68);
+lean_dec_ref(x_68);
 x_70 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_70, 0, x_69);
 x_71 = lean_alloc_ctor(0, 2, 1);
@@ -407,7 +407,7 @@ else
 {
 uint8_t x_74; 
 lean_dec(x_9);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_74 = !lean_is_exclusive(x_46);
 if (x_74 == 0)
 {
@@ -433,10 +433,10 @@ else
 {
 uint8_t x_78; 
 lean_dec(x_6);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_1);
+lean_dec_ref(x_3);
+lean_dec_ref(x_1);
 x_78 = !lean_is_exclusive(x_8);
 if (x_78 == 0)
 {
@@ -471,7 +471,6 @@ _start:
 {
 uint8_t x_8; lean_object* x_9; 
 x_8 = lean_unbox(x_2);
-lean_dec(x_2);
 x_9 = l_Lean_Meta_Simp_evalPropStep___redArg(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
@@ -481,10 +480,9 @@ _start:
 {
 uint8_t x_11; lean_object* x_12; 
 x_11 = lean_unbox(x_2);
-lean_dec(x_2);
 x_12 = l_Lean_Meta_Simp_evalPropStep(x_1, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec(x_3);
 return x_12;
 }

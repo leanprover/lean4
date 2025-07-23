@@ -73,7 +73,8 @@ export default function ({ code, explanationUrl }) {
     createElement('span', { style: sansText }, 'Error code: '), code])
   const brSpan = createElement('span', {}, '\\n')
   const linkSpan = createElement('span', { style: sansText },
-    createElement('a', { href: explanationUrl }, 'View explanation'))
+    createElement('a', { href: explanationUrl, target: '_blank', rel: 'noreferrer noopener' },
+      'View explanation'))
 
   const all = createElement('div', { style: { marginTop: '1em' } }, [codeSpan, brSpan, linkSpan])
   return all

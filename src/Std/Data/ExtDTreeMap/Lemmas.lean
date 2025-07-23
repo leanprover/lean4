@@ -3,8 +3,12 @@ Copyright (c) 2025 Robin Arnez. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robin Arnez
 -/
+module
+
 prelude
-import Std.Data.ExtDTreeMap.Basic
+public import Std.Data.ExtDTreeMap.Basic
+
+@[expose] public section
 
 /-!
 # Extensional dependent tree map lemmas
@@ -22,7 +26,7 @@ universe u v w w'
 namespace Std.ExtDTreeMap
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering} {t : ExtDTreeMap α β cmp}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 @[simp, grind =]
 theorem isEmpty_empty : (∅ : ExtDTreeMap α β cmp).isEmpty :=

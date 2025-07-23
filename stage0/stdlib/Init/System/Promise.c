@@ -164,7 +164,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_io_promise_result_opt(x_1);
 x_4 = lean_io_get_task_state(x_3, x_2);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 if (lean_obj_tag(x_5) == 2)

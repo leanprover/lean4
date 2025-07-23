@@ -3,12 +3,16 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.Internal.Termination
-import Init.Data.Iterators.Consumers.Monadic.Access
-import Init.Data.Iterators.Consumers.Monadic.Collect
-import Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.Consumers.Monadic.Access
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+
+@[expose] public section
 
 /-!
 This module implements a combinator that only yields every `n`-th element of another iterator.

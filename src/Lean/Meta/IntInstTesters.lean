@@ -56,5 +56,13 @@ def isInstLTInt (e : Expr) : MetaM Bool := do
 def isInstLEInt (e : Expr) : MetaM Bool := do
   let_expr Int.instLEInt ← e | return false
   return true
-
+def isInstNatPowInt (e : Expr) : MetaM Bool := do
+  let_expr Int.instNatPow ← e | return false
+  return true
+def isInstPowInt (e : Expr) : MetaM Bool := do
+  let_expr instPowNat _ i ← e | return false
+  isInstNatPowInt i
+def isInstHPowInt (e : Expr) : MetaM Bool := do
+  let_expr instHPow _ _ i ← e | return false
+  isInstPowInt i
 end Lean.Meta

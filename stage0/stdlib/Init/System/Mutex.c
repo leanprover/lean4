@@ -155,7 +155,6 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 lean_dec(x_7);
-lean_dec(x_6);
 x_9 = lean_alloc_closure((void*)(l_IO_Condvar_wait___boxed), 3, 2);
 lean_closure_set(x_9, 0, x_1);
 lean_closure_set(x_9, 1, x_2);
@@ -199,12 +198,12 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = lean_box(0);
 lean_inc(x_8);
 x_10 = lean_alloc_closure((void*)(l_IO_Condvar_waitUntil___redArg___lam__0___boxed), 3, 2);
@@ -246,7 +245,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_IO_Condvar_waitUntil___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -255,7 +253,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 x_10 = l_IO_Condvar_waitUntil___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_9);
 return x_10;
 }
@@ -265,8 +262,6 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_IO_Condvar_waitUntil___redArg___lam__2(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-lean_dec(x_4);
 return x_6;
 }
 }
@@ -275,7 +270,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_IO_Condvar_waitUntil___redArg___lam__3(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -301,7 +295,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_IO_instCoeOutMutexBaseMutex___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -412,21 +406,21 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
+lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-lean_dec(x_6);
+lean_inc_ref(x_7);
+lean_dec_ref(x_6);
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_9 = lean_ctor_get(x_4, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_4, 1);
 lean_inc(x_10);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_12 = lean_alloc_closure((void*)(l_IO_Mutex_atomically___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(x_12, 0, x_5);
 lean_closure_set(x_12, 1, x_9);
@@ -460,7 +454,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_IO_Mutex_atomically___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -469,7 +462,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_IO_Mutex_atomically___redArg___lam__1(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -506,7 +499,7 @@ LEAN_EXPORT lean_object* l_IO_Mutex_atomicallyOnce___redArg(lean_object* x_1, le
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_8 = l_ReaderT_instMonad___redArg(x_1);
 x_9 = lean_ctor_get(x_4, 1);
 lean_inc(x_9);
@@ -522,7 +515,7 @@ lean_closure_set(x_13, 0, lean_box(0));
 lean_closure_set(x_13, 1, lean_box(0));
 lean_closure_set(x_13, 2, x_12);
 x_14 = l_IO_Condvar_waitUntil___redArg(x_8, x_13, x_5, x_9, x_6);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_15 = lean_alloc_closure((void*)(l_ReaderT_bind), 8, 7);
 lean_closure_set(x_15, 0, lean_box(0));
 lean_closure_set(x_15, 1, lean_box(0));
@@ -548,7 +541,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_IO_Mutex_atomicallyOnce___redArg___lam__0(x_1, x_2, x_3);
-lean_dec(x_2);
 return x_4;
 }
 }

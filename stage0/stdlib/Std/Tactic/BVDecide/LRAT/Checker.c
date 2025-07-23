@@ -94,30 +94,22 @@ goto _start;
 LEAN_EXPORT uint8_t l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-uint8_t x_3; uint8_t x_4; 
-x_3 = 1;
-x_4 = 0;
 if (x_1 == 0)
 {
 if (x_2 == 0)
 {
+uint8_t x_3; 
+x_3 = 1;
 return x_3;
 }
 else
 {
-return x_4;
+return x_1;
 }
 }
 else
 {
-if (x_2 == 0)
-{
-return x_4;
-}
-else
-{
-return x_3;
-}
+return x_2;
 }
 }
 }
@@ -160,7 +152,7 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean
 x_13 = lean_ctor_get(x_9, 1);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_9, 2);
-lean_inc(x_14);
+lean_inc_ref(x_14);
 x_15 = lean_alloc_closure((void*)(l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0___boxed), 2, 0);
 lean_inc(x_1);
 x_16 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___boxed), 3, 1);
@@ -242,9 +234,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -287,7 +277,7 @@ lean_dec(x_4);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
-lean_inc(x_9);
+lean_inc_ref(x_9);
 lean_dec(x_7);
 x_10 = lean_apply_2(x_3, x_8, x_9);
 return x_10;
@@ -303,7 +293,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_7, 1);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_7, 2);
-lean_inc(x_13);
+lean_inc_ref(x_13);
 lean_dec(x_7);
 x_14 = lean_apply_3(x_4, x_11, x_12, x_13);
 return x_14;
@@ -319,11 +309,11 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_7, 1);
 lean_inc(x_16);
 x_17 = lean_ctor_get(x_7, 2);
-lean_inc(x_17);
+lean_inc_ref(x_17);
 x_18 = lean_ctor_get(x_7, 3);
-lean_inc(x_18);
+lean_inc_ref(x_18);
 x_19 = lean_ctor_get(x_7, 4);
-lean_inc(x_19);
+lean_inc_ref(x_19);
 lean_dec(x_7);
 x_20 = lean_apply_5(x_6, x_15, x_16, x_17, x_18, x_19);
 return x_20;
@@ -335,7 +325,7 @@ lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 x_21 = lean_ctor_get(x_7, 0);
-lean_inc(x_21);
+lean_inc_ref(x_21);
 lean_dec(x_7);
 x_22 = lean_apply_1(x_5, x_21);
 return x_22;

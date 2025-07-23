@@ -115,7 +115,7 @@ if (x_2 == 0)
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = l_Lake_nameToStaticLib___closed__0;
 x_4 = lean_string_append(x_3, x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = l_Lake_nameToStaticLib___closed__1;
 x_6 = lean_string_append(x_4, x_5);
 return x_6;
@@ -167,7 +167,7 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = l_Lake_nameToStaticLib___closed__0;
 x_5 = lean_string_append(x_4, x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_6 = l_Lake_nameToSharedLib___closed__0;
 x_7 = lean_string_append(x_5, x_6);
 return x_7;
@@ -177,7 +177,7 @@ else
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = l_Lake_nameToStaticLib___closed__0;
 x_9 = lean_string_append(x_8, x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = l_Lake_nameToSharedLib___closed__1;
 x_11 = lean_string_append(x_9, x_10);
 return x_11;
@@ -320,7 +320,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_getSearchPath(x_1, x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }

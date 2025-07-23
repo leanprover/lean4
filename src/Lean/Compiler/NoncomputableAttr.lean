@@ -17,7 +17,6 @@ def addNoncomputable (env : Environment) (declName : Name) : Environment :=
 /--
 Returns `true` when the given declaration is tagged `noncomputable`.
 -/
-@[export lean_is_noncomputable]
 def isNoncomputable (env : Environment) (declName : Name) : Bool :=
   noncomputableExt.isTagged env declName
 

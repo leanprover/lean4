@@ -140,7 +140,7 @@ else
 lean_object* x_33; uint8_t x_34; 
 x_33 = l_Lean_Expr_getAppFn(x_1);
 x_34 = l_Lean_Expr_isMData(x_33);
-lean_dec(x_33);
+lean_dec_ref(x_33);
 x_9 = x_34;
 goto block_31;
 }
@@ -158,8 +158,8 @@ block_31:
 if (x_9 == 0)
 {
 lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_5 = x_4;
 goto block_8;
 }
@@ -171,18 +171,18 @@ if (lean_obj_tag(x_10) == 10)
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
-lean_inc(x_12);
-lean_dec(x_10);
+lean_inc_ref(x_12);
+lean_dec_ref(x_10);
 x_13 = l_Lean_MData_isRecApp(x_11);
 if (x_13 == 0)
 {
-lean_dec(x_12);
+lean_dec_ref(x_12);
 lean_dec(x_11);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = x_4;
 goto block_8;
 }
@@ -210,8 +210,8 @@ return x_23;
 else
 {
 lean_object* x_24; lean_object* x_25; 
-lean_dec(x_10);
-lean_dec(x_1);
+lean_dec_ref(x_10);
+lean_dec_ref(x_1);
 x_24 = l_Lean_Elab_WF_floatRecApp___lam__1___closed__4;
 x_25 = l_panic___at___Lean_Elab_WF_floatRecApp_spec__0(x_24, x_2, x_3, x_4);
 if (lean_obj_tag(x_25) == 0)
@@ -219,7 +219,7 @@ if (lean_obj_tag(x_25) == 0)
 lean_object* x_26; 
 x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 x_5 = x_26;
 goto block_8;
 }
@@ -266,8 +266,8 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_WF_floatRecApp___lam__0(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_5;
 }
 }

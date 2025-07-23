@@ -290,7 +290,7 @@ x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_24 = lean_unbox(x_8);
 lean_dec(x_8);
 if (x_24 == 0)
@@ -316,10 +316,9 @@ x_13 = lean_st_ref_set(x_5, x_12, x_9);
 if (x_10 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_1);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_15 = lean_apply_1(x_3, x_14);
 return x_15;
 }
@@ -329,7 +328,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19;
 lean_dec(x_3);
 x_16 = lean_ctor_get(x_13, 1);
 lean_inc(x_16);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_1);
 x_18 = lean_io_promise_resolve(x_17, x_6, x_16);
@@ -383,7 +382,7 @@ if (lean_obj_tag(x_2) == 0)
 lean_object* x_9; 
 x_9 = lean_ctor_get(x_2, 0);
 lean_inc(x_9);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_4 = x_9;
 x_5 = x_3;
 goto block_8;
@@ -436,7 +435,7 @@ x_20 = lean_ctor_get(x_14, 0);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_14, 1);
 lean_inc(x_21);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_4 = x_20;
 x_5 = x_21;
 goto block_8;
@@ -483,7 +482,7 @@ x_30 = lean_ctor_get(x_24, 0);
 lean_inc(x_30);
 x_31 = lean_ctor_get(x_24, 1);
 lean_inc(x_31);
-lean_dec(x_24);
+lean_dec_ref(x_24);
 x_4 = x_30;
 x_5 = x_31;
 goto block_8;
@@ -625,7 +624,7 @@ lean_dec(x_5);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = 1;
 x_10 = lean_task_map(x_6, x_7, x_8, x_9);
-lean_inc(x_10);
+lean_inc_ref(x_10);
 x_11 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Sleep_selector___lam__3), 4, 2);
 lean_closure_set(x_11, 0, x_10);
 lean_closure_set(x_11, 1, x_8);
@@ -655,7 +654,7 @@ lean_dec(x_16);
 x_20 = lean_unsigned_to_nat(0u);
 x_21 = 1;
 x_22 = lean_task_map(x_18, x_19, x_20, x_21);
-lean_inc(x_22);
+lean_inc_ref(x_22);
 x_23 = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Sleep_selector___lam__3), 4, 2);
 lean_closure_set(x_23, 0, x_22);
 lean_closure_set(x_23, 1, x_20);
@@ -703,7 +702,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_Internal_IO_Async_Waiter_race___at___Std_Internal_IO_Async_Sleep_selector_spec__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_5;
 }
 }
@@ -712,7 +711,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Internal_IO_Async_Sleep_selector___lam__2(x_1, x_2, x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_4;
 }
 }
@@ -721,7 +720,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_Internal_IO_Async_Sleep_selector___lam__4(x_1, x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -758,7 +757,7 @@ x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = lean_uv_timer_next(x_7, x_8);
 lean_dec(x_7);
 if (lean_obj_tag(x_9) == 0)
@@ -870,7 +869,7 @@ x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = l_Std_Internal_IO_Async_Sleep_selector(x_7, x_8);
 lean_dec(x_7);
 return x_9;

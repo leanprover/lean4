@@ -3,8 +3,12 @@ Copyright (c) 2025 Robin Arnez. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robin Arnez, Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Lemmas
+public import Std.Data.DTreeMap.Lemmas
+
+@[expose] public section
 
 /-!
 # Extensional dependent tree maps
@@ -24,7 +28,6 @@ set_option linter.missingDocs true
 universe u v w w₂
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 attribute [local instance] Std.DTreeMap.isSetoid
 
@@ -113,6 +116,7 @@ theorem ExtDTreeMap.inductionOn₂ {motive : ExtDTreeMap α β cmp → ExtDTreeM
   t₁.inductionOn fun _ => t₂.inductionOn fun _ => mk _ _
 
 namespace ExtDTreeMap
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 @[inline, inherit_doc DTreeMap.empty]
 def empty : ExtDTreeMap α β cmp :=

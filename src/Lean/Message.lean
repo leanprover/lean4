@@ -6,6 +6,7 @@ Author: Sebastian Ullrich, Leonardo de Moura
 Message type used by the Lean frontend
 -/
 prelude
+import Init.Data.Slice.Array
 import Lean.Data.Position
 import Lean.Data.OpenDecl
 import Lean.MetavarContext
@@ -713,7 +714,7 @@ instance : ToMessageData MVarId        := ⟨MessageData.ofGoal⟩
 instance : ToMessageData MessageData   := ⟨id⟩
 instance [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList <| as.map toMessageData⟩
 instance [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
-instance [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toArray.toList⟩
+instance [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toList⟩
 instance [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩
 instance [ToMessageData α] [ToMessageData β] : ToMessageData (α × β) :=
   ⟨fun (a, b) => .paren <| toMessageData a ++ "," ++ Format.line ++ toMessageData b⟩

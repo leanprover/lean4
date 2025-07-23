@@ -23,14 +23,12 @@ def Param.toMono (param : Param) : ToMonoM Param := do
     modify fun s => { s with typeParams := s.typeParams.insert param.fvarId }
   param.update (← toMonoType param.type)
 
-def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Option LetValue) := do
-  let some (.ctorInfo ctorInfo) := (← getEnv).find? declName | return none
-  let some info ← hasTrivialStructure? ctorInfo.induct | return none
-  return args[ctorInfo.numParams + info.fieldIdx]!.toLetValue
+def throwNoncomputableError {α : Type} (declName : Name) : ToMonoM α :=
+  throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName declName}', which is 'noncomputable'"
 
 def checkFVarUse (fvarId : FVarId) : ToMonoM Unit := do
   if let some declName := (← get).noncomputableVars.get? fvarId then
-    throwNamedError lean.dependsOnNoncomputable f!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{declName}', which is 'noncomputable'"
+    throwNoncomputableError declName
 
 def checkFVarUseDeferred (resultFVar fvarId : FVarId) : ToMonoM Unit := do
   if let some declName := (← get).noncomputableVars.get? fvarId then
@@ -51,6 +49,23 @@ def argToMono (arg : Arg) : ToMonoM Arg := argToMonoBase checkFVarUse arg
 
 def argToMonoDeferredCheck (resultFVar : FVarId) (arg : Arg) : ToMonoM Arg :=
   argToMonoBase (checkFVarUseDeferred resultFVar) arg
+
+def argsToMonoWithFnType (resultFVar : FVarId) (args : Array Arg) (type : Expr)
+    : ToMonoM (Array Arg) := do
+  let mut remainingType : Option Expr := some type
+  let mut result := Array.emptyWithCapacity args.size
+  for arg in args do
+    let monoArg ← if let some (.forallE _ d b _ ) := remainingType then
+      remainingType := some b
+      if d.isErased then
+        pure .erased
+      else
+        argToMonoDeferredCheck resultFVar arg
+    else
+      remainingType := none
+      argToMonoDeferredCheck resultFVar arg
+    result := result.push monoArg
+  return result
 
 def ctorAppToMono (resultFVar : FVarId) (ctorInfo : ConstructorVal) (args : Array Arg)
     : ToMonoM LetValue := do
@@ -75,15 +90,27 @@ partial def LetValue.toMono (e : LetValue) (resultFVar : FVarId) : ToMonoM LetVa
       -- Decidable.decide is the identity function since Decidable
       -- and Bool have the same runtime representation.
       return args[1]!.toLetValue
-    else if let some e' ← isTrivialConstructorApp? declName args then
-      e'.toMono resultFVar
+    else if declName == ``Quot.mk || declName == ``Quot.lcInv then
+      return args[2]!.toLetValue
+    else if declName == ``Nat.zero then
+      return .lit (.nat 0)
+    else if declName == ``Nat.succ then
+      -- This should have been handled in Code.toMono.
+      unreachable!
     else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then
-      ctorAppToMono resultFVar ctorInfo args
+      if let some info ← hasTrivialStructure? ctorInfo.induct then
+        args[ctorInfo.numParams + info.fieldIdx]!.toLetValue.toMono resultFVar
+      else
+        ctorAppToMono resultFVar ctorInfo args
     else
       let env ← getEnv
       if isNoncomputable env declName && !(isExtern env declName) then
         modify fun s => { s with noncomputableVars := s.noncomputableVars.insert resultFVar declName }
-      return .const declName [] (← args.mapM (argToMonoDeferredCheck resultFVar))
+      let args ← if let some monoDecl ← getMonoDecl? declName then
+        argsToMonoWithFnType resultFVar args monoDecl.type
+      else
+        args.mapM (argToMonoDeferredCheck resultFVar)
+      return .const declName [] args
   | .fvar fvarId args =>
     if (← get).typeParams.contains fvarId then
       return .erased
@@ -111,13 +138,13 @@ def LetDecl.toMono (decl : LetDecl) : ToMonoM LetDecl := do
 def mkFieldParamsForComputedFields (ctorType : Expr) (numParams : Nat) (numNewFields : Nat)
     (oldFields : Array Param) : ToMonoM (Array Param) := do
   let mut type := ctorType
-  for _ in [0:numParams] do
+  for _ in *...numParams do
     match type with
     | .forallE _ _ body _ =>
       type := body
     | _ => unreachable!
   let mut newFields := Array.emptyWithCapacity (oldFields.size + numNewFields)
-  for _ in [0:numNewFields] do
+  for _ in *...numNewFields do
     match type with
     | .forallE name fieldType body _ =>
       let param ← mkParam name (← toMonoType fieldType) false
@@ -294,7 +321,15 @@ partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases) : ToMo
 
 partial def Code.toMono (code : Code) : ToMonoM Code := do
   match code with
-  | .let decl k => return code.updateLet! (← decl.toMono) (← k.toMono)
+  | .let decl k =>
+    match decl.value with
+    | .const ``Nat.succ _ args =>
+      let #[arg] := args | unreachable!
+      let oneDecl ← mkAuxLetDecl (.lit (.nat 1))
+      let decl ← decl.update decl.type (.const ``Nat.add [] #[arg, .fvar oneDecl.fvarId])
+      return .let oneDecl (.let decl (← k.toMono))
+    | _ =>
+      return code.updateLet! (← decl.toMono) (← k.toMono)
   | .fun decl k | .jp decl k => return code.updateFun! (← decl.toMono) (← k.toMono)
   | .unreach type => return .unreach (← toMonoType type)
   | .jmp fvarId args => return code.updateJmp! fvarId (← args.mapM argToMono)

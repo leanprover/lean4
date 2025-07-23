@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 prelude
-import Lean.Meta
+import Lean.Meta.Tactic.Simp
 
 namespace Lean.Elab.Tactic.Do
 

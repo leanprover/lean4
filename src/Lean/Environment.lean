@@ -1760,9 +1760,13 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     -- (this branch makes very sure all kernel constants are exported eventually)
     kenv.constants.foldStage2 (fun cs _ c => cs.push c) #[]
   else
-    constNames.filterMap fun n =>
-      env.find? n <|>
-      guard (looksLikeOldCodegenName n) *> kenv.find? n
+    constNames.filterMap (fun n =>
+        env.find? n <|>
+        guard (looksLikeOldCodegenName n) *> kenv.find? n)
+      -- While `constants.foldStage2` itself results in a deterministic ordering, then filtering out
+      -- some elements leaves the order of remaining dependent on those filtered elements, which
+      -- would make `.olean` output dependent on `.olean.private`, so we re-sort them here.
+      |>.qsort (lt := fun c₁ c₂ => c₁.name.quickCmp c₂.name == .lt)
   let constNames := constants.map (·.name)
   return { env.header with
     extraConstNames := env.checked.get.extraConstNames.toArray
@@ -1800,7 +1804,7 @@ We only consider extensions starting with index `>= startingAt`.
 def mkExtNameMap (startingAt : Nat) : IO (Std.HashMap Name Nat) := do
   let descrs ← persistentEnvExtensionsRef.get
   let mut result := {}
-  for h : i in [startingAt : descrs.size] do
+  for h : i in startingAt...descrs.size do
     let descr := descrs[i]
     result := result.insert descr.name i
   return result
@@ -1816,7 +1820,7 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
       { s with importedEntries := .replicate mods.size #[] }
   /- For each module `mod`, and `mod.entries`, if the extension name is one of the extensions after `startingAt`, set `entries` -/
   let extNameIdx ← mkExtNameMap startingAt
-  for h : modIdx in [:mods.size] do
+  for h : modIdx in *...mods.size do
     let mod := mods[modIdx]
     for (extName, entries) in mod.entries do
       if let some entryIdx := extNameIdx[extName]? then
@@ -2078,7 +2082,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts + numPublicConsts)
   let mut privateConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts)
   let mut publicConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPublicConsts)
-  for h : modIdx in [0:moduleData.size] do
+  for h : modIdx in *...moduleData.size do
     let data := moduleData[modIdx]
     for cname in data.constNames, cinfo in data.constants do
       match privateConstantMap.getThenInsertIfNew? cname cinfo with
@@ -2532,9 +2536,13 @@ def withExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : 
   finally
     modifyEnv (·.setExporting old)
 
-/-- Sets `Environment.isExporting` to false while executing `x`. -/
-def withoutExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α) : m α :=
-  withExporting (isExporting := false) x
+/-- If `when` is true, sets `Environment.isExporting` to false while executing `x`. -/
+def withoutExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
+    (when : Bool := true) : m α :=
+  if when then
+    withExporting (isExporting := false) x
+  else
+    x
 
 /-- Constructs a DefinitionVal, inferring the `unsafe` field -/
 def mkDefinitionValInferringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelParams : List Name)

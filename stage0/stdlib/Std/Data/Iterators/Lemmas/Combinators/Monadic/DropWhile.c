@@ -87,7 +87,7 @@ _start:
 {
 lean_object* x_12; 
 x_12 = l___private_Std_Data_Iterators_Lemmas_Combinators_Monadic_DropWhile_0__Std_Iterators_DropWhile_instIterator_match__3_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_12;
@@ -125,7 +125,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l___private_Std_Data_Iterators_Lemmas_Combinators_Monadic_DropWhile_0__Std_Iterators_DropWhile_instIterator_match__1_splitter___redArg(x_4, x_2, x_3);
 return x_5;
 }
@@ -135,7 +134,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_6);
-lean_dec(x_6);
 x_10 = l___private_Std_Data_Iterators_Lemmas_Combinators_Monadic_DropWhile_0__Std_Iterators_DropWhile_instIterator_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_9, x_7, x_8);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -231,7 +229,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l___private_Std_Data_Iterators_Lemmas_Combinators_Monadic_DropWhile_0__Std_Iterators_IterM_step__intermediateDropWhileWithPostcondition_match__1_splitter___redArg(x_4, x_2, x_3);
 return x_5;
 }
@@ -241,7 +238,6 @@ _start:
 {
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_6);
-lean_dec(x_6);
 x_10 = l___private_Std_Data_Iterators_Lemmas_Combinators_Monadic_DropWhile_0__Std_Iterators_IterM_step__intermediateDropWhileWithPostcondition_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_9, x_7, x_8);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -283,7 +279,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l___private_Std_Data_Iterators_Lemmas_Combinators_Monadic_DropWhile_0__Std_Iterators_IterM_step__intermediateDropWhileM_match__1_splitter___redArg(x_4, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -295,7 +290,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l___private_Std_Data_Iterators_Lemmas_Combinators_Monadic_DropWhile_0__Std_Iterators_IterM_step__intermediateDropWhileM_match__1_splitter(x_1, x_5, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -337,7 +331,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l___private_Std_Data_Iterators_Lemmas_Combinators_Monadic_DropWhile_0__Std_Iterators_IterM_step__intermediateDropWhile_match__1_splitter___redArg(x_4, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -349,7 +342,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l___private_Std_Data_Iterators_Lemmas_Combinators_Monadic_DropWhile_0__Std_Iterators_IterM_step__intermediateDropWhile_match__1_splitter(x_1, x_5, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);

@@ -32,6 +32,11 @@ builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache 
   registerSimplePersistentEnvExtension {
     addEntryFn    := addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addEntry {} es).switch
+    exportEntriesFnEx? := some fun _ _ entries level =>
+      if level == .private then
+        entries.toArray
+      else
+        #[]
     asyncMode     := .sync
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
       (!·.contains ·.key) addEntry

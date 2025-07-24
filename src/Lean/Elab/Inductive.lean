@@ -41,9 +41,17 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
         logErrorAt leadingDocComment "duplicate doc string"
       ctorModifiers := { ctorModifiers with docString? := some ⟨leadingDocComment⟩ }
     if ctorModifiers.isPrivate && modifiers.isPrivate then
-      throwError "invalid 'private' constructor in a 'private' inductive datatype"
+      let hint ← do
+        let .original .. := ctor[2].getHeadInfo | pure .nil
+        let some range := ctor[2][2].getRangeWithTrailing? | pure .nil
+        MessageData.hint "Remove `private` modifier from constructor" #[{
+          suggestion := ""
+          span? := Syntax.ofRange range
+          toCodeActionTitle? := some fun _ => "Delete `private` modifier"
+        }]
+      throwError "Constructor cannot be marked `private` becuase it is already in a `private` inductive datatype"
     if ctorModifiers.isProtected && modifiers.isPrivate then
-      throwError "invalid 'protected' constructor in a 'private' inductive datatype"
+      throwError "Constructor cannot be `protected` because it is in a `private` inductive datatype"
     checkValidCtorModifier ctorModifiers
     let ctorName := ctor.getIdAt 3
     let ctorName := declName ++ ctorName

@@ -227,11 +227,26 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let ctorModifiers ← elabModifiers ctor[0]
       checkValidCtorModifier ctorModifiers
       if ctorModifiers.isPrivate && structModifiers.isPrivate then
-        throwError "Invalid modifier: Constructor cannot be marked `private` because this structure is already `private`"
+        let hint ← do
+          let .original .. := ctor[0].getHeadInfo | pure .nil
+          let some range := ctor[0][2].getRangeWithTrailing? | pure .nil
+          MessageData.hint "Remove `private` modifier from constructor" #[{
+            suggestion := ""
+            span? := Syntax.ofRange range
+            toCodeActionTitle? := some fun _ => "Delete `private` modifier"
+          }]
+        throwError m!"Constructor cannot be marked `private` because it is already in a `private` structure" ++ hint
       if ctorModifiers.isProtected && structModifiers.isPrivate then
-        throwError "Invalid modifier: Constructor cannot be marked `protected` because this structure is `private`"
+        throwError "Constructor cannot be `protected` because this structure is `private`"
       if !ctorModifiers.isPrivate && forcePrivate then
-        throwError "Invalid modifier: Constructor must be marked `private` because one or more of this structure's fields are `private`"
+        let hint ← do
+          let .original .. := ctor[0].getHeadInfo | pure .nil
+          MessageData.hint m!"Mark constructor as `private`" #[{
+            suggestion := "private "
+            span? := ctor[0][2]
+            toCodeActionTitle? := some fun _ => "Make constructor private"
+          }]
+        throwError m!"Constructor must be `private` because one or more of this structure's fields are `private`" ++ hint
       let name := ctor[1].getId
       let declName := structDeclName ++ name
       let declName ← applyVisibility ctorModifiers.visibility declName

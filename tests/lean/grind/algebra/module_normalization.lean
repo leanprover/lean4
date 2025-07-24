@@ -1,4 +1,4 @@
--- Tests for `grind` as a module normalization tactic, when only `NatModule`, `IntModule`, or `RatModule` is available.
+-- Tests for `grind` as a module normalization tactic, when only `NatModule` is available.
 
 open Lean.Grind
 

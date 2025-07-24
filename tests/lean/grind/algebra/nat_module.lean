@@ -15,7 +15,7 @@ end IntModule
 -- We could solve these problems by embedding the NatModule in its Grothendieck completion.
 section NatModule
 
-variable (M : Type) [NatModule M]
+variable (M : Type) [NatModule M] [AddRightCancel M]
 
 example (x y : M) : 2 * x + 3 * y + x = 3 * (x + y) := by grind
 

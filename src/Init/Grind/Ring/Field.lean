@@ -16,6 +16,7 @@ namespace Lean.Grind
 A field is a commutative ring with inverses for all non-zero elements.
 -/
 class Field (α : Type u) extends CommRing α, Inv α, Div α where
+  [zpow : HPow α Int α]
   /-- Division is multiplication by the inverse. -/
   div_eq_mul_inv : ∀ a b : α, a / b = a * b⁻¹
   /-- Zero is not equal to one: fields are non trivial.-/
@@ -24,8 +25,14 @@ class Field (α : Type u) extends CommRing α, Inv α, Div α where
   inv_zero : (0 : α)⁻¹ = 0
   /-- The inverse of a non-zero element is a right inverse. -/
   mul_inv_cancel : ∀ {a : α}, a ≠ 0 → a * a⁻¹ = 1
+  /-- The zeroth power of any element is one. -/
+  zpow_zero : ∀ a : α, a ^ (0 : Int) = 1
+  /-- The first power of any element is the element itself. -/
+  zpow_one : ∀ a : α, a ^ (1 : Int) = a
+  /-- Power to a sum is the product of the powers. -/
+  zpow_add : ∀ a : α, ∀ n m : Int, a ^ (n + m) = a ^ n * a ^ m
 
-attribute [instance 100] Field.toInv Field.toDiv
+attribute [instance 100] Field.toInv Field.toDiv Field.zpow
 
 namespace Field
 
@@ -118,6 +125,15 @@ theorem of_pow_eq_zero (a : α) (n : Nat) : a^n = 0 → a = 0 := by
     rw [Semiring.mul_assoc, this, Semiring.mul_one, Semiring.zero_mul] at h
     have := ih h
     contradiction
+
+theorem zpow_neg (a : α) (n : Int) : a ^ (-n) = (a ^ n)⁻¹ := by
+  apply eq_inv_of_mul_eq_one
+  rw [← zpow_add, Int.add_left_neg, zpow_zero]
+
+theorem zpow_natCast (a : α) (n : Nat) : a ^ (n : Int) = a ^ n := by
+  induction n
+  next => simp [zpow_zero, Semiring.pow_zero]
+  next n ih => rw [Int.natCast_add_one, zpow_add, ih, zpow_one, Semiring.pow_succ]
 
 instance [IsCharP α 0] : NoNatZeroDivisors α := NoNatZeroDivisors.mk' <| by
   intro a b h w

@@ -150,7 +150,6 @@ theorem pure_forall {φ : α → Prop} : (∀ x, (⌜φ x⌝ : SPred σs)) ⊣�
 theorem pure_exists {φ : α → Prop} : (∃ x, ⌜φ x⌝ : SPred σs) ⊣⊢ₛ ⌜∃ x, φ x⌝ := bientails.iff.mpr ⟨exists_elim fun a => pure_mono (⟨a, ·⟩), pure_elim' fun ⟨x, h⟩ => (pure_intro h).trans (exists_intro' x .rfl)⟩
 
 @[simp] theorem true_intro_simp : (Q ⊢ₛ ⌜True⌝) ↔ True := iff_true_intro true_intro
-@[simp] theorem true_intro_simp_nil {Q : SPred []} : (Q ⊢ₛ ⌜True⌝) ↔ True := true_intro_simp
 
 /-! # Miscellaneous -/
 

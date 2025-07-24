@@ -62,7 +62,7 @@ def removeParenthesesAux (parens body : Syntax) : Syntax :=
 
 partial def removeParentheses (stx : Syntax) : MacroM Syntax := do
   match stx with
-  | `($_:hygienicLParen $e)) => pure $ removeParenthesesAux stx (←removeParentheses $ (←Term.expandCDot? e).getD e)
+  | `(($h:hygieneInfo $e)) => pure $ removeParenthesesAux stx (← removeParentheses $ (← Term.expandCDot? e h.getHygieneInfo).getD e)
   | _ =>
     match stx with
     | .node info kind args => pure $ .node info kind (←args.mapM removeParentheses)

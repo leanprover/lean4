@@ -238,20 +238,8 @@ See also the `sorry` tactic, which is short for `exact sorry`.
 @[builtin_term_parser] def «sorry» := leading_parser
   "sorry"
 -- Left parenthesis with hygiene info, for cdot function expansion.
--- This is a pseudokind for bootstrapping purposes.
-def hygienicLParen : Parser :=
-  withAntiquot (mkAntiquot "hygienicLParen" decl_name% (anonymous := false) (isPseudoKind := true)) <|
-    leadingNode decl_name% (eval_prec max) ("(" >> hygieneInfo)
--- TODO(kmill): remove this formatter after stage0 update
-open PrettyPrinter.Formatter Syntax.MonadTraverser in
-@[combinator_formatter Lean.Parser.Term.hygienicLParen]
-def hygienicLParen.formatter : PrettyPrinter.Formatter := do
-  let info := (← getCur).getHeadInfo
-  withMaybeTag info.getPos? (pushToken info "(" false)
-  goLeft
-@[combinator_parenthesizer Lean.Parser.Term.hygienicLParen]
-def hygienicLParen.parenthesizer : PrettyPrinter.Parenthesizer := do
-  PrettyPrinter.Parenthesizer.visitToken
+def hygienicLParen : Parser := leading_parser (withAnonymousAntiquot := false)
+  "(" >> hygieneInfo
 /--
 A placeholder for an implicit lambda abstraction's variable. The lambda abstraction is scoped to the surrounding parentheses.
 For example, `(· + ·)` is equivalent to `fun x y => x + y`. Tuple notation and type ascription notation also serve as scopes.

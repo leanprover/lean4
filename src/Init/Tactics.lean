@@ -1997,6 +1997,13 @@ macro (name := mrevertMacro) (priority:=low) "mrevert" : tactic =>
 
 
 /--
+`mrename_i` is like `rename_i`, but names inaccessible stateful hypotheses in a `Std.Do.SPred` goal.
+-/
+macro (name := mrenameIMacro) (priority:=low) "mrename_i" : tactic =>
+  Macro.throwError "to use `mrename_i`, please include `import Std.Tactic.Do`"
+
+
+/--
 `mspecialize` is like `specialize`, but operating on a stateful `Std.Do.SPred` goal.
 It specializes a hypothesis from the stateful context with hypotheses from either the pure
 or stateful context or pure terms.

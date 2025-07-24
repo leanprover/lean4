@@ -31,8 +31,26 @@ theorem clear (P Q : SPred σs) : P ⊢ₛ Q → Q := by
   mclear HP
   mexact HQ
 
+/--
+trace: σs : List Type
+P Q : SPred σs
+⊢ ⏎
+  h✝¹ : Q
+  h✝ : P
+  ⊢ₛ Q
+-/
+#guard_msgs in
 theorem assumption (P Q : SPred σs) : Q ⊢ₛ P → Q := by
-  mintro _ _
+  mintro _
+  mintro _
+  -- NB: We want
+  --   h✝¹ : Q
+  --   h✝ : P
+  -- Not
+  --   h✝ : Q
+  --   h✝¹ : P
+  -- just like for `intro _ _`.
+  trace_state
   massumption
 
 theorem assumption_pure (P Q : SPred σs) (hP : ⊢ₛ P): Q ⊢ₛ P := by
@@ -46,10 +64,22 @@ theorem move (Q : SPred σs) (ψ : φ → ⊢ₛ Q): ⌜φ⌝ ⊢ₛ Q := by
   mpure Hφ
   mexact (ψ Hφ)
 
+/--
+trace: σs : List Type
+φ₁ φ₂ : Prop
+Q : SPred σs
+⊢ ⏎
+  Hφ1 : ⌜φ₁⌝
+  Hφ2 : ⌜φ₂⌝
+  HQ : Q
+  ⊢ₛ Q
+-/
+#guard_msgs in
 theorem move_multiple (Q : SPred σs) : ⌜φ₁⌝ ⊢ₛ ⌜φ₂⌝ → Q → Q := by
   mintro Hφ1
   mintro Hφ2
   mintro HQ
+  trace_state
   mpure Hφ1
   mpure Hφ2
   mexact HQ
@@ -58,6 +88,16 @@ theorem move_conjunction (Q : SPred σs) : (⌜φ₁⌝ ∧ ⌜φ₂⌝) ⊢ₛ 
   mintro Hφ
   mintro HQ
   mpure Hφ
+  mexact HQ
+
+theorem rename_i1 (P Q R : SPred σs) : ⊢ₛ P → Q → R → Q := by
+  mintro _ _ _
+  mrename_i HQ _
+  mexact HQ
+
+theorem rename_i2 (P Q R : SPred σs) : ⊢ₛ P → Q → R → R → Q := by
+  mintro H H H H
+  mrename_i _ HQ _
   mexact HQ
 
 end pure
@@ -85,8 +125,9 @@ namespace frame
 theorem move (P Q : SPred σs) : ⊢ₛ ⌜p⌝ ∧ Q ∧ ⌜q⌝ ∧ ⌜r⌝ ∧ P ∧ ⌜s⌝ ∧ ⌜t⌝ → Q := by
   mintro _
   mframe
-  mcases h with hP
-  mexact h
+  mrename_i HQ H
+  mcases H with HP
+  mexact HQ
 
 theorem move_multiple (P Q : SPred σs) : ⊢ₛ ⌜p⌝ ∧ Q ∧ ⌜q⌝ ∧ ⌜r⌝ ∧ P ∧ ⌜s⌝ ∧ ⌜t⌝ → Q := by
   mintro h

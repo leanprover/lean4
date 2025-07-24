@@ -144,6 +144,33 @@ def dropStateList (σs : Expr) (n : Nat) : MetaM Expr := do
     σs := σs'
   return σs
 
+partial def MGoal.renameInaccessibleHyps (goal : MGoal) (idents : Array (TSyntax ``binderIdent)) : MetaM MGoal := do
+  let (hyps, (_, idents)) ← StateT.run (go goal.hyps) ({}, idents) -- NB: idents in reverse order
+  unless idents.isEmpty do
+    throwError "mrename_i: Could not find inaccessible hypotheses for {idents} in {goal.toExpr}"
+  return { goal with hyps := hyps }
+  where
+    go (H : Expr) : StateT (NameSet × Array (TSyntax ``binderIdent)) MetaM Expr := do
+      let mut (shadowed, idents) ← StateT.get
+      if idents.isEmpty then
+        return H
+      if let some _ := parseEmptyHyp? H then
+        return H
+      if let some hyp := parseHyp? H then
+        if hyp.name.hasMacroScopes || shadowed.contains hyp.name then
+          if let `(binderIdent| $name:ident) := idents.back! then
+            let hyp := { hyp with name := name.getId }
+            StateT.set (shadowed, idents.pop)
+            return hyp.toExpr
+          idents := idents.pop
+        StateT.set (shadowed.insert hyp.name, idents)
+        return H
+      if let some (u, σs, lhs, rhs) := parseAnd? H then
+        let rhs ← go rhs -- NB: First go right because those are the "most recent" hypotheses
+        let lhs ← go lhs
+        return mkAnd! u σs lhs rhs
+      return H
+
 def addLocalVarInfo (stx : Syntax) (lctx : LocalContext)
     (expr : Expr) (expectedType? : Option Expr) (isBinder := false) : MetaM Unit := do
   Elab.withInfoContext' (pure ())

@@ -78,6 +78,9 @@ macro (name := mpureIntro) "mpure_intro" : tactic =>
 @[inherit_doc Lean.Parser.Tactic.mrevertMacro]
 syntax (name := mrevert) "mrevert" colGt ident : tactic
 
+@[inherit_doc Lean.Parser.Tactic.mrenameIMacro]
+syntax (name := mrenameI) "mrename_i" (ppSpace colGt binderIdent)+ : tactic
+
 @[inherit_doc Lean.Parser.Tactic.mspecializeMacro]
 syntax (name := mspecialize) "mspecialize" ident (colGt term:max)* : tactic
 

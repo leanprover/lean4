@@ -82,7 +82,8 @@ partial def dischargePostEntails (α : Expr) (ps : Expr) (Q : Expr) (Q' : Expr) 
     let Q'1a := (← mkProj' ``Prod 0 Q').betaRev #[a]
     let σs := mkApp (mkConst ``PostShape.args [u]) ps
     let uniq ← liftMetaM mkFreshId
-    let goal := MGoal.mk u σs (Hyp.mk `h uniq Q1a).toExpr Q'1a
+    let name ← liftMetaM <| mkFreshUserName `h
+    let goal := MGoal.mk u σs (Hyp.mk name uniq Q1a).toExpr Q'1a
     mkLambdaFVars #[a] (← mkFreshExprSyntheticOpaqueMVar goal.toExpr (goalTag ++ `success))
   let prf₂ ← dischargeFailEntails u ps (← mkProj' ``Prod 1 Q) (← mkProj' ``Prod 1 Q') (goalTag ++ `except)
   mkAppM ``And.intro #[prf₁, prf₂]
@@ -107,7 +108,7 @@ partial def dischargeFailEntails (u : Level) (ps : Expr) (Q : Expr) (Q' : Expr) 
       let Q'1e := (← mkProj' ``Prod 0 Q').betaRev #[e]
       let σs := mkApp (mkConst ``PostShape.args [u]) ps
       let uniq ← liftMetaM mkFreshId
-      let goal := MGoal.mk u σs (Hyp.mk `h uniq Q1e).toExpr Q'1e
+      let goal := MGoal.mk u σs (Hyp.mk (← liftMetaM <| mkFreshUserName `h) uniq Q1e).toExpr Q'1e
       mkLambdaFVars #[e] (← mkFreshExprSyntheticOpaqueMVar goal.toExpr (goalTag ++ `handle))
     let prf₂ ← dischargeFailEntails u ps (← mkProj' ``Prod 1 Q) (← mkProj' ``Prod 1 Q') (goalTag ++ `except)
     return ← mkAppM ``And.intro #[prf₁, prf₂] -- This is just a bit too painful to construct by hand

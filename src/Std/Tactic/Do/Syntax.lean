@@ -97,6 +97,18 @@ macro (name := mleave) "mleave" : tactic =>
               $(mkIdent ``Std.Do.SPred.entails_nil):term,
               $(mkIdent ``Std.Do.SPred.and_cons):term,
               $(mkIdent ``Std.Do.SPred.and_nil):term,
+              $(mkIdent ``Std.Do.SPred.or_cons):term,
+              $(mkIdent ``Std.Do.SPred.or_nil):term,
+              $(mkIdent ``Std.Do.SPred.not_cons):term,
+              $(mkIdent ``Std.Do.SPred.not_nil):term,
+              $(mkIdent ``Std.Do.SPred.imp_cons):term,
+              $(mkIdent ``Std.Do.SPred.imp_nil):term,
+              $(mkIdent ``Std.Do.SPred.iff_cons):term,
+              $(mkIdent ``Std.Do.SPred.iff_nil):term,
+              $(mkIdent ``Std.Do.SPred.exists_cons):term,
+              $(mkIdent ``Std.Do.SPred.exists_nil):term,
+              $(mkIdent ``Std.Do.SPred.forall_cons):term,
+              $(mkIdent ``Std.Do.SPred.forall_nil):term,
               $(mkIdent ``Std.Do.SVal.curry_cons):term,
               $(mkIdent ``Std.Do.SVal.curry_nil):term,
               $(mkIdent ``Std.Do.SVal.uncurry_cons):term,
@@ -219,8 +231,7 @@ Like `mspec`, but does not attempt slight simplification and closing of trivial 
 ```
 mspec_no_simp $spec
 all_goals
-  ((try simp only [SPred.true_intro_simp, SPred.true_intro_simp_nil, SVal.curry_cons,
-                   SVal.uncurry_cons, SVal.getThe_here, SVal.getThe_there]);
+  ((try simp only [SPred.true_intro_simp, SVal.curry_cons, SVal.uncurry_cons, SVal.getThe_here, SVal.getThe_there]);
    (try mpure_intro; trivial))
 ```
 -/
@@ -232,7 +243,6 @@ macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>
   `(tactic| (mspec_no_simp $[$spec]?
              all_goals ((try simp only [
                           $(mkIdent ``Std.Do.SPred.true_intro_simp):term,
-                          $(mkIdent ``Std.Do.SPred.true_intro_simp_nil):term,
                           $(mkIdent ``Std.Do.SVal.curry_cons):term,
                           $(mkIdent ``Std.Do.SVal.uncurry_nil):term,
                           $(mkIdent ``Std.Do.SVal.uncurry_cons):term,

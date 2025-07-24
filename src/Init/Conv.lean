@@ -191,10 +191,10 @@ syntax (name := simpMatch) "simp_match" : conv
 syntax (name := clear) "clear" (ppSpace colGt term:max)+ : conv
 
 /-- Executes the given tactic block without converting `conv` goal into a regular goal. -/
-syntax (name := nestedTacticCore) "tactic'" " => " tacticSeq : conv
+syntax (name := nestedTacticCore) "tactic'" " => " tacticSeqIndentGt : conv
 
 /-- Focuses, converts the `conv` goal `⊢ lhs` into a regular goal `⊢ lhs = rhs`, and then executes the given tactic block. -/
-syntax (name := nestedTactic) "tactic" " => " tacticSeq : conv
+syntax (name := nestedTactic) "tactic" " => " tacticSeqIndentGt : conv
 
 /-- Executes the given conv block without converting regular goal into a `conv` goal. -/
 syntax (name := convTactic) "conv'" " => " convSeq : tactic

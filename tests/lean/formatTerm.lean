@@ -24,19 +24,19 @@ def fmt (stx : CoreM Syntax) : CoreM Format := do PrettyPrinter.ppTerm ⟨← st
 
 #eval fmt `(by
   try
-  skip
-  skip)
+    skip
+    skip)
 
 set_option format.indent 3 in
 #eval fmt `(by
   try
-  skip
-  skip)
+    skip
+    skip)
 set_option format.indent 4 in
 #eval fmt `(by
   try
-  skip
-  skip)
+    skip
+    skip)
 set_option format.indent 4 in
 #eval fmt `(by
   try

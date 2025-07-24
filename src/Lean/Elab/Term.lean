@@ -1514,9 +1514,7 @@ private def isHole (stx : Syntax) : Bool :=
   stx.isOfKind ``Lean.Parser.Term.hole || stx.isOfKind ``Lean.Parser.Term.syntheticHole
 
 private def isTacticBlock (stx : Syntax) : Bool :=
-  match stx with
-  | `(by $_:tacticSeq) => true
-  | _ => false
+  stx.isOfKind ``Lean.Parser.Term.byTactic
 
 private def isNoImplicitLambda (stx : Syntax) : Bool :=
   match stx with

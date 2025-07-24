@@ -85,14 +85,14 @@ It runs the tactics in sequence, and fails if the goal is not solved. -/
 
 /-- A sequence of tactics in brackets, or a delimiter-free indented sequence of tactics.
 Delimiter-free indentation is determined by the *first* tactic of the sequence. -/
-@[builtin_doc] def tacticSeq := leading_parser
+@[run_builtin_parser_attribute_hooks, builtin_doc] def tacticSeq := leading_parser
   tacticSeqBracketed <|> tacticSeq1Indented
 
 /-- Same as [`tacticSeq`] but requires delimiter-free tactic sequence to have strict indentation.
 The strict indentation requirement only apply to *nested* `by`s, as top-level `by`s do not have a
 position set. -/
-@[builtin_doc] def tacticSeqIndentGt := withAntiquot (mkAntiquot "tacticSeq" ``tacticSeq) <| node ``tacticSeq <|
-  tacticSeqBracketed <|> (checkColGt "indented tactic sequence" >> tacticSeq1Indented)
+@[run_builtin_parser_attribute_hooks, builtin_doc] def tacticSeqIndentGt := withAntiquot (mkAntiquot "tacticSeq" ``tacticSeq) <| node ``tacticSeq <|
+  tacticSeqBracketed <|> withCheckColGt (errorMsg := "indented tactic sequence") tacticSeq1Indented (fun _ s => s.pushSyntax mkNullNode)
 
 /- Raw sequence for quotation and grouping -/
 def seq1 :=
@@ -870,7 +870,7 @@ A named subsection of `where ... finally`. In the future, sections such as `decr
 syntactic sugar for an `where ... finally` subsection `| decreasing => ...`.
 -/
 def whereFinallySubsection := leading_parser
-  ppLine >> "| " >> ident >> darrow >> Tactic.tacticSeq
+  ppLine >> "| " >> ident >> darrow >> Tactic.tacticSeqIndentGt
 
 /--
 The `finally` section trailing a `where` opens a tactic block to fill in `?hole`s in the definition body.

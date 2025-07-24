@@ -18,6 +18,7 @@ import Lean.Compiler.LCNF.Check
 import Lean.Compiler.LCNF.PullLetDecls
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.CSE
+public import Lean.Compiler.LCNF.Visibility
 
 namespace Lean.Compiler.LCNF
 /--
@@ -88,6 +89,12 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
   and it often creates a very deep recursion.
   Moreover, some declarations get very big during simplification.
   -/
+  for declName in declNames do
+    if let some fnName := Compiler.getImplementedBy? (← getEnv) declName then
+      if !isDeclPublic (← getEnv) fnName then
+        if let some decl ← getLocalDecl? fnName then
+          trace[Compiler.inferVisibility] m!"Marking {fnName} as opaque because it implements {declName}"
+          LCNF.markDeclPublicRec .base decl
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return #[]
   for declName in declNames do

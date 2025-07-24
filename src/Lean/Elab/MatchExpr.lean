@@ -112,7 +112,7 @@ Creates a fresh identifier for representing the continuation function used to
 execute the RHS of the given alternative, and stores it in the field `k`.
 -/
 def initK (alt : Alt) : MacroM Alt := withFreshMacroScope do
-  -- Remark: the compiler frontend implemented in C++ currently detects joinpoints created by
+  -- Remark: the compiler frontend implemented in C++ currently detects join points created by
   -- the "do" notation by testing the name. See hack at method `visit_let` at `lcnf.cpp`
   -- We will remove this hack when we re-implement the compiler frontend in Lean.
   let k : Ident ← `(__do_jp)
@@ -157,7 +157,7 @@ alternatives `alts`, and else-alternative `elseAlt`.
 partial def generate (discr : Term) (alts : List Alt) (elseAlt : ElseAlt) : MacroM Syntax := do
   let alts ← alts.mapM initK
   let discr' ← `(__discr)
-  -- Remark: the compiler frontend implemented in C++ currently detects joinpoints created by
+  -- Remark: the compiler frontend implemented in C++ currently detects join points created by
   -- the "do" notation by testing the name. See hack at method `visit_let` at `lcnf.cpp`
   -- We will remove this hack when we re-implement the compiler frontend in Lean.
   let kElse ← `(__do_jp)

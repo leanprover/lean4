@@ -422,6 +422,12 @@
     <<: *time
     cmd: lean simp_subexpr.lean
 - attributes:
+    description: simp_congr
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean simp_congr.lean
+- attributes:
     description: nat_repr
     tags: [fast, suite]
   run_config:

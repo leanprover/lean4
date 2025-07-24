@@ -40,14 +40,14 @@ example (v : Vec Nat 1) : Nat :=
 
 -- Does not work: Aliases find that `v` could be the `TypeVec` argument since `TypeVec` is an abbrev for `Vec`.
 /--
-error: Application type mismatch: In the application
-  @DVec.hd ?_ v
-the argument
+error: Application type mismatch: The argument
   v
 has type
-  Vec Nat 1 : Type
-but is expected to have type
-  TypeVec (?_ + 1) : Type (_ + 1)
+  Vec Nat 1
+of sort `Type` but is expected to have type
+  TypeVec (?_ + 1)
+of sort `Type (_ + 1)` in the application
+  @DVec.hd ?_ v
 -/
 #guard_msgs in set_option pp.mvars false in
 example (v : Vec Nat 1) : Nat :=

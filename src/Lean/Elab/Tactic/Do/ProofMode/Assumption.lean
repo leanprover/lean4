@@ -18,20 +18,20 @@ partial def MGoal.assumption (goal : MGoal) : OptionT MetaM Expr := do
     failure
   if let some hyp := parseHyp? goal.hyps then
     guard (← isDefEq hyp.p goal.target)
-    return mkApp2 (mkConst ``SPred.entails.refl) goal.σs hyp.p
-  if let some (σs, lhs, rhs) := parseAnd? goal.hyps then
+    return mkApp2 (mkConst ``SPred.entails.refl [goal.u]) goal.σs hyp.p
+  if let some (u, σs, lhs, rhs) := parseAnd? goal.hyps then
     -- NB: Need to prefer rhs over lhs, like the goal view (Lean.Elab.Tactic.Do.ProofMode.Display).
-    mkApp5 (mkConst ``Assumption.right) σs lhs rhs goal.target <$> assumption { goal with hyps := rhs }
+    mkApp5 (mkConst ``Assumption.right [u]) σs lhs rhs goal.target <$> assumption { goal with hyps := rhs }
     <|>
-    mkApp5 (mkConst ``Assumption.left) σs lhs rhs goal.target <$> assumption { goal with hyps := lhs }
+    mkApp5 (mkConst ``Assumption.left [u]) σs lhs rhs goal.target <$> assumption { goal with hyps := lhs }
   else
     panic! s!"assumption: hypothesis without proper metadata: {goal.hyps}"
 
 def MGoal.assumptionPure (goal : MGoal) : OptionT MetaM Expr := do
-  let φ := mkApp2 (mkConst ``tautological) goal.σs goal.target
+  let φ := mkApp2 (mkConst ``tautological [goal.u]) goal.σs goal.target
   let fvarId ← OptionT.mk (findLocalDeclWithType? φ)
-  let inst ← synthInstance? (mkApp3 (mkConst ``PropAsSPredTautology) φ goal.σs goal.target)
-  return mkApp6 (mkConst ``Exact.from_tautology) φ goal.σs goal.hyps goal.target inst (.fvar fvarId)
+  let inst ← synthInstance? (mkApp3 (mkConst ``PropAsSPredTautology [goal.u]) φ goal.σs goal.target)
+  return mkApp6 (mkConst ``Exact.from_tautology [goal.u]) goal.σs φ goal.hyps goal.target inst (.fvar fvarId)
 
 @[builtin_tactic Lean.Parser.Tactic.massumption]
 def elabMAssumption : Tactic | _ => do

@@ -5,9 +5,9 @@ set_option pp.mvars false
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  f x = x + 1 : Prop
+  f x = x + 1
 -/
 #guard_msgs in
 example : f x = x + 1 :=
@@ -23,9 +23,9 @@ end
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  f x = x + 1 : Prop
+  f x = x + 1
 -/
 #guard_msgs in
 example : f x = x + 1 :=
@@ -39,9 +39,9 @@ end Boo
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  f x = x + 1 : Prop
+  f x = x + 1
 -/
 #guard_msgs in
 example : f x = x + 1 :=
@@ -55,9 +55,9 @@ example : f x = x + 1 :=
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  f x = x + 1 : Prop
+  f x = x + 1
 -/
 #guard_msgs in
 example : f x = x + 1 :=

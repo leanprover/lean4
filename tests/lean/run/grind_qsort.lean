@@ -87,7 +87,7 @@ attribute [grind] Vector.Perm.extract'
 
 variable (lt : α → α → Bool) (lo hi : Nat)
 
-@[simp, grind] theorem size_qsort (as : Array α) :
+@[simp, grind =] theorem size_qsort (as : Array α) :
     (qsort as lt lo hi).size = as.size := by
   grind [qsort]
 
@@ -127,7 +127,7 @@ private theorem getElem_qpartition_snd_of_lt_lo (as : Vector α n)
     (k : Nat) (h : k < lo) : (qpartition as lt lo hi).2[k] = as[k] := by
   grind [qpartition, getElem_qpartition_loop_snd_of_lt_lo]
 
-@[local grind] private theorem getElem_qsort_sort_of_lt_lo
+@[local grind =] private theorem getElem_qsort_sort_of_lt_lo
     (as : Vector α n)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
     (i : Nat) (h : i < lo) : (qsort.sort lt as lo hi)[i] = as[i] := by
@@ -191,6 +191,7 @@ private theorem qpartition_spec₁
     (w_mid : mid = (qpartition as lt lo hi).fst.1) (hmid : mid < n)
     (w_as : as' = (qpartition as lt lo hi).2) :
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
+  set_option trace.grind.ematch.pattern true in
   grind [qpartition, qpartition_loop_spec₁]
 
 /--

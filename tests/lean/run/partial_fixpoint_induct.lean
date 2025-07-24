@@ -8,7 +8,7 @@ info: loop.fixpoint_induct (motive : (Nat → Unit) → Prop) (adm : Lean.Order.
 #guard_msgs in #check loop.fixpoint_induct
 
 
-/-- error: unknown constant 'loop.partial_correctness' -/
+/-- error: Unknown constant `loop.partial_correctness` -/
 #guard_msgs in #check loop.partial_correctness
 
 
@@ -98,7 +98,7 @@ info: dependent2''a.fixpoint_induct (m : Nat) (b : Bool) (motive_1 : (Nat → if
 -/
 #guard_msgs in #check dependent2''a.fixpoint_induct
 
-/-- error: unknown constant 'dependent2''b.fixpoint_induct' -/
+/-- error: Unknown constant `dependent2''b.fixpoint_induct` -/
 #guard_msgs in #check dependent2''b.fixpoint_induct
 
 

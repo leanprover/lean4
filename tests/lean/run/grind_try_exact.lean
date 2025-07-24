@@ -21,7 +21,8 @@ example: True → Q x → True → P x := by
 theorem Qall {x y : Nat} : Q x := sorry
 
 /--
-error: tactic 'try?' failed, consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
+error: Tactic `try?` failed: consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
+
 x : Nat
 ⊢ Q x
 -/

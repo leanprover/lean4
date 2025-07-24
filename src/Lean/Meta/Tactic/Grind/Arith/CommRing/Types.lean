@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Ring.OfSemiring
 import Lean.Data.PersistentArray
-import Lean.Data.RBTree
 import Lean.Meta.Tactic.Grind.ExprPtr
 import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
@@ -45,7 +44,7 @@ protected def EqCnstr.compare (c₁ c₂ : EqCnstr) : Ordering :=
   (compare c₁.p.degree c₂.p.degree) |>.then
   (compare c₁.id c₂.id)
 
-abbrev Queue : Type := RBTree EqCnstr EqCnstr.compare
+abbrev Queue : Type := Std.TreeSet EqCnstr EqCnstr.compare
 
 /--
 A polynomial equipped with a chain of rewrite steps that justifies its equality to the original input.
@@ -165,16 +164,16 @@ structure Ring where
   noZeroDivInst? : Option Expr
   /-- `Field` instance for `type` if available. -/
   fieldInst?     : Option Expr
-  addFn          : Expr
-  mulFn          : Expr
-  subFn          : Expr
-  negFn          : Expr
-  powFn          : Expr
-  intCastFn      : Expr
-  natCastFn      : Expr
+  addFn?         : Option Expr := none
+  mulFn?         : Option Expr := none
+  subFn?         : Option Expr := none
+  negFn?         : Option Expr := none
+  powFn?         : Option Expr := none
+  intCastFn?     : Option Expr := none
+  natCastFn?     : Option Expr := none
   /-- Inverse if `fieldInst?` is `some inst` -/
-  invFn?         : Option Expr
-  one            : Expr
+  invFn?         : Option Expr := none
+  one?           : Option Expr := none
   /--
   Mapping from variables to their denotations.
   Remark each variable can be in only one ring.
@@ -230,12 +229,12 @@ structure Semiring where
   /-- `CommSemiring` instance for `type` -/
   commSemiringInst   : Expr
   /-- `AddRightCancel` instance for `type` if available. -/
-  addRightCancelInst? : Option Expr
-  toQFn          : Expr
-  addFn          : Expr
-  mulFn          : Expr
-  powFn          : Expr
-  natCastFn      : Expr
+  addRightCancelInst? : Option (Option Expr) := none
+  toQFn?         : Option Expr := none
+  addFn?         : Option Expr := none
+  mulFn?         : Option Expr := none
+  powFn?         : Option Expr := none
+  natCastFn?     : Option Expr := none
   /-- Mapping from Lean expressions to their representations as `SemiringExpr` -/
   denote         : PHashMap ExprPtr SemiringExpr := {}
   /--

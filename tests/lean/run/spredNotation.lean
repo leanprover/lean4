@@ -26,19 +26,19 @@ variable
 #check P ⊣⊢ₛ Q
 
 
-/-- info: ⌜φ⌝ : SVal [Nat, Char, Bool] Prop -/
+/-- info: ⌜φ⌝ : SVal [Nat, Char, Bool] (ULift Prop) -/
 #guard_msgs in
 #check (⌜φ⌝ : SPred [Nat,Char,Bool])
 
 -- TODO: Figure out how to delaborate away tuple below
 /--
-info: ⌜7 + ‹Nat›ₛ tuple = if ‹Bool›ₛ tuple = true then 13 else 7⌝ : SVal [Nat, Char, Bool] Prop
+info: ⌜7 + ‹Nat›ₛ tuple = if ‹Bool›ₛ tuple = true then 13 else 7⌝ : SVal [Nat, Char, Bool] (ULift Prop)
 -/
 #guard_msgs in
 #check (⌜7 + ‹Nat›ₛ = if ‹Bool›ₛ then 13 else 7⌝ : SPred [Nat,Char,Bool])
 
 private abbrev theChar : SVal [Nat,Char,Bool] Char := fun _ c _ => c
-/-- info: ⌜#theChar tuple = 'a'⌝ : SVal [Nat, Char, Bool] Prop -/
+/-- info: ⌜#theChar tuple = 'a'⌝ : SVal [Nat, Char, Bool] (ULift Prop) -/
 #guard_msgs in
 #check ⌜#theChar = 'a'⌝
 
@@ -144,7 +144,7 @@ private abbrev theChar : SVal [Nat,Char,Bool] Char := fun _ c _ => c
 info: if true = true then
   match (1, 2) with
   | (x, y) => Φ x y
-else ⌜False⌝ : SVal [Nat, Char, Bool] Prop
+else ⌜False⌝ : SVal [Nat, Char, Bool] (ULift Prop)
 -/
 #guard_msgs in
 #check spred(if true then term(match (1,2) with | (x,y) => Φ x y) else ⌜False⌝)
@@ -173,4 +173,4 @@ info: ∀ (a b n o : Nat) (s : Nat × Nat), ⌜a = n ∧ b = o⌝ ⊢ₛ ⌜s.fs
 -/
 #guard_msgs in
 set_option linter.unusedVariables false in
-#check ∀ (a b n o : Nat) (s : Nat × Nat), (SVal.curry fun f => a = n ∧ b = o) ⊢ₛ SVal.curry fun f => s.1 = n ∧ a = n + 1 ∧ b = o
+#check ∀ (a b n o : Nat) (s : Nat × Nat), (SVal.curry fun f => ULift.up (a = n ∧ b = o)) ⊢ₛ SVal.curry fun f => ULift.up (s.1 = n ∧ a = n + 1 ∧ b = o)

@@ -5,9 +5,9 @@ set_option pp.mvars false
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  2 + 2 = 5 : Prop
+  2 + 2 = 5
 -/
 #guard_msgs in
 example : 2 + 2 = 5 := rfl -- This is not a theorem

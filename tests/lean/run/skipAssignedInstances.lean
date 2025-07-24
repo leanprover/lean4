@@ -69,7 +69,8 @@ example [Decidable u] [Decidable v] : decide (u ∧ (v → False)) = (decide u &
 
 set_option tactic.skipAssignedInstances false in
 /--
-error: tactic 'rewrite' failed, failed to assign synthesized instance
+error: Tactic `rewrite` failed: failed to assign synthesized instance
+
 u v : Prop
 inst✝¹ : Decidable u
 inst✝ : Decidable v

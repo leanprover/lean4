@@ -13,6 +13,11 @@ public def f := 1
 /-- A theorem. -/
 public theorem t : f = 1 := testSorry
 
+public class X
+
+/-- A local instance of a public class. -/
+instance : X := ⟨⟩
+
 -- Check that the theorem types are checked in exported context, where `f` is not defeq to `1`
 -- (but `fexp` is)
 
@@ -20,9 +25,9 @@ public theorem t : f = 1 := testSorry
 error: type mismatch
   y
 has type
-  Vector Unit 1 : Type
+  Vector Unit 1
 but is expected to have type
-  Vector Unit f : Type
+  Vector Unit f
 -/
 #guard_msgs in
 public theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := testSorry
@@ -100,7 +105,7 @@ def priv := 2
 
 /-! Private decls should not be accessible in exported contexts. -/
 
-/-- error: unknown identifier 'priv' -/
+/-- error: Unknown identifier `priv` -/
 #guard_msgs in
 public abbrev h := priv
 

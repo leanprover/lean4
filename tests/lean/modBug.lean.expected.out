@@ -1,8 +1,8 @@
-modBug.lean:1:48-1:64: error: Application type mismatch: In the application
-  Nat.zero_ne_one (Nat.mod_zero 1)
-the argument
+modBug.lean:1:48-1:64: error: Application type mismatch: The argument
   Nat.mod_zero 1
 has type
-  1 % 0 = 1 : Prop
+  1 % 0 = 1
 but is expected to have type
-  0 = 1 : Prop
+  0 = 1
+in the application
+  Nat.zero_ne_one (Nat.mod_zero 1)

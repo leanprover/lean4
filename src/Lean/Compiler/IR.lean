@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Compiler.IR.AddExtern
 import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.Format
 import Lean.Compiler.IR.CompilerM
@@ -23,6 +24,7 @@ import Lean.Compiler.IR.EmitC
 import Lean.Compiler.IR.Sorry
 import Lean.Compiler.IR.ToIR
 import Lean.Compiler.IR.ToIRType
+import Lean.Compiler.IR.Meta
 
 -- The following imports are not required by the compiler. They are here to ensure that there
 -- are no orphaned modules.
@@ -36,14 +38,14 @@ register_builtin_option compiler.reuse : Bool := {
   descr    := "heuristically insert reset/reuse instruction pairs"
 }
 
-private def compileAux (decls : Array Decl) : CompilerM Unit := do
+def compile (decls : Array Decl) : CompilerM (Array Decl) := do
   logDecls `init decls
   checkDecls decls
   let mut decls ← elimDeadBranches decls
   logDecls `elim_dead_branches decls
   decls := decls.map Decl.pushProj
   logDecls `push_proj decls
-  if compiler.reuse.get (← read) then
+  if compiler.reuse.get (← getOptions) then
     decls := decls.map Decl.insertResetReuse
     logDecls `reset_reuse decls
   decls := decls.map Decl.elimDead
@@ -57,7 +59,7 @@ private def compileAux (decls : Array Decl) : CompilerM Unit := do
   logDecls `boxing decls
   decls ← explicitRC decls
   logDecls `rc decls
-  if compiler.reuse.get (← read) then
+  if compiler.reuse.get (← getOptions) then
     decls := decls.map Decl.expandResetReuse
     logDecls `expand_reset_reuse decls
   decls := decls.map Decl.pushProj
@@ -66,29 +68,12 @@ private def compileAux (decls : Array Decl) : CompilerM Unit := do
   logDecls `result decls
   checkDecls decls
   addDecls decls
+  inferMeta decls
+  return decls
 
-@[export lean_ir_compile]
-def compile (env : Environment) (opts : Options) (decls : Array Decl) : Log × (Except String Environment) :=
-  match (compileAux decls opts).run { env := env } with
-  | EStateM.Result.ok     _  s => (s.log, Except.ok s.env)
-  | EStateM.Result.error msg s => (s.log, Except.error msg)
-
-def addBoxedVersionAux (decl : Decl) : CompilerM Unit := do
-  let env ← getEnv
-  if !ExplicitBoxing.requiresBoxedVersion env decl then
-    pure ()
-  else
-    let decl := ExplicitBoxing.mkBoxedVersion decl
-    let decls : Array Decl := #[decl]
-    let decls ← explicitRC decls
-    decls.forM fun decl => modifyEnv fun env => addDeclAux env decl
-    pure ()
-
--- Remark: we are ignoring the `Log` here. This should be fine.
-@[export lean_ir_add_boxed_version]
-def addBoxedVersion (env : Environment) (decl : Decl) : Except String Environment :=
-  match (addBoxedVersionAux decl Options.empty).run { env := env } with
-  | EStateM.Result.ok     _  s => Except.ok s.env
-  | EStateM.Result.error msg _ => Except.error msg
+builtin_initialize
+  registerTraceClass `compiler.ir
+  registerTraceClass `compiler.ir.init (inherited := true)
+  registerTraceClass `compiler.ir.result (inherited := true)
 
 end Lean.IR

@@ -35,9 +35,9 @@ set_option pp.mvars false
 error: type mismatch
   limit.π sorry sorry
 has type
-  sorry : Sort _
+  sorry
 but is expected to have type
-  limit f → sorry : Sort (imax (max (u + 1) (v + 1)) _)
+  limit f → sorry
 -/
 #guard_msgs in
 theorem pi_lift_π_apply {C : Type v} [Category.{v} C] (f : Functor' C (Type max v u)) :

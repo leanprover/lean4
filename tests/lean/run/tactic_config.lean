@@ -184,7 +184,7 @@ example : True := by
 Responds to recovery mode. In this, `ctac` fails, doesn't report anything, and then execution continues to `exact`.
 -/
 
-/-- error: unknown identifier 'blah' -/
+/-- error: Unknown identifier `blah` -/
 #guard_msgs in
 example : True := by
   first | ctac +x | exact blah
@@ -197,9 +197,9 @@ Elaboration errors cause the tactic to use the default configuration.
 error: type mismatch
   false
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  B : Type
+  B
 ---
 info: config is { b := { toA := { x := true } } }
 ---
@@ -239,9 +239,9 @@ elab "my_command" cfg:Parser.Tactic.optConfig : command => do
 error: type mismatch
   true
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  Nat : Type
+  Nat
 ---
 info: config is { x := 0, y := false }
 -/

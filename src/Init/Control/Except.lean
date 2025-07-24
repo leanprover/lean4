@@ -12,7 +12,7 @@ public import Init.Control.Basic
 public import Init.Control.Id
 public import Init.Coe
 
-public section
+@[expose] public section
 
 namespace Except
 variable {ε : Type u}

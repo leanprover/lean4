@@ -121,7 +121,7 @@ abbrev SimprocExtension := ScopedEnvExtension SimprocOLeanEntry SimprocEntry Sim
 unsafe def getSimprocFromDeclImpl (declName : Name) : ImportM (Sum Simproc DSimproc) := do
   let ctx ← read
   match ctx.env.find? declName with
-  | none      => throw <| IO.userError ("unknown constant '" ++ toString declName ++ "'")
+  | none      => throw <| IO.userError ("Unknown constant `" ++ toString declName ++ "`")
   | some info =>
     match info.type with
     | .const ``Simproc _ =>
@@ -188,7 +188,7 @@ def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs
 def SimprocEntry.try (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM Step := do
   let mut extraArgs := #[]
   let mut e := e
-  for _ in [:numExtraArgs] do
+  for _ in *...numExtraArgs do
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse
@@ -204,7 +204,7 @@ def SimprocEntry.try (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM 
 def SimprocEntry.tryD (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM DStep := do
   let mut extraArgs := #[]
   let mut e := e
-  for _ in [:numExtraArgs] do
+  for _ in *...numExtraArgs do
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse

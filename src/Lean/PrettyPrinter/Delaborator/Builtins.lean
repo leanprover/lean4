@@ -136,7 +136,7 @@ def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
     let pos ← getPos
     for (k, v) in m do
       if (`pp).isPrefixOf k then
-        let opts := posOpts.find? pos |>.getD {}
+        let opts := posOpts.get? pos |>.getD {}
         posOpts := posOpts.insert pos (opts.insert k v)
     withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr x
   | _ => x
@@ -184,7 +184,7 @@ def getParamKinds (f : Expr) (args : Array Expr) : MetaM (Array ParamKind) := do
     let mut result : Array ParamKind := Array.mkEmpty args.size
     let mut fnType ← inferType f
     let mut j := 0
-    for i in [0:args.size] do
+    for i in *...args.size do
       unless fnType.isForall do
         fnType ← withTransparency .all <| whnf (fnType.instantiateRevRange j i args)
         j := i
@@ -588,7 +588,7 @@ private partial def collectStructFields
       unless ← getPPOption getPPStructureInstancesDefaults do
         if let some defFn := getEffectiveDefaultFnForField? (← getEnv) structName fieldName then
           -- Use `withNewMCtxDepth` to prevent delaborator from solving metavariables.
-          if let some (_, defValue) ← withNewMCtxDepth <| instantiateStructDefaultValueFn? defFn levels params (pure ∘ fieldValues.find?) then
+          if let some (_, defValue) ← withNewMCtxDepth <| instantiateStructDefaultValueFn? defFn levels params (pure ∘ fieldValues.get?) then
             if ← withReducible <| withNewMCtxDepth <| isDefEq defValue (← getExpr) then
               -- Default value matches, skip the field.
               return (i + 1, fieldValues, fields)
@@ -776,7 +776,7 @@ partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOpti
     let st ← withDummyBinders (st.info.discrInfos.map (·.hName?)) (← getExpr) fun hNames? => do
       let hNames := hNames?.filterMap id
       let mut st := {st with hNames? := hNames?}
-      for i in [0:st.alts.size] do
+      for i in *...st.alts.size do
         st ← withTheReader SubExpr (fun _ => st.alts[i]!) do
           -- We save the variables names here to be able to implement safe shadowing.
           -- The pattern delaboration must use the names saved here.

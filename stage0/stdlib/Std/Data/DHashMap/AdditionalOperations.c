@@ -395,8 +395,8 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_DHashMap_filterMap(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 return x_8;
 }
 }
@@ -492,8 +492,8 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_DHashMap_map(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_5);
-lean_dec(x_4);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
 return x_8;
 }
 }

@@ -176,6 +176,10 @@ def main (init : Array OpaqueJob) : MonitorM PUnit := do
 
 end Monitor
 
+structure MonitorResult where
+  failures : Array String
+  numJobs : Nat
+
 /-- The job monitor function. An auxiliary definition for `runFetchM`. -/
 def monitorJobs
   (initJobs : Array OpaqueJob)
@@ -187,7 +191,7 @@ def monitorJobs
   (resetCtrl : String := "")
   (initFailures : Array String := #[])
   (updateFrequency := 100)
-: BaseIO (Array String) := do
+: BaseIO MonitorResult := do
   let ctx := {
     jobs, out, failLv, outLv, minAction, showOptional
     useAnsi, showProgress, updateFrequency
@@ -198,7 +202,7 @@ def monitorJobs
     failures := initFailures
   }
   let (_,s) ← Monitor.main initJobs |>.run ctx s
-  return s.failures
+  return {failures := s.failures, numJobs := s.totalJobs}
 
 /-- Save input mappings to the local Lake artifact cache (if enabled). -/
 def Workspace.saveInputs (ws : Workspace) : LogIO Unit := do
@@ -222,6 +226,7 @@ def Workspace.runFetchM
   let outLv := cfg.outLv
   let failLv := cfg.failLv
   let showProgress := cfg.showProgress
+  let showSuccess := cfg.showSuccess
   let ctx ← mkBuildContext ws cfg
   -- Job Computation
   let caption := "job computation"
@@ -230,7 +235,7 @@ def Workspace.runFetchM
   -- Job Monitor
   let minAction := if cfg.verbosity = .verbose then .unknown else .fetch
   let showOptional := cfg.verbosity = .verbose
-  let failures ← monitorJobs #[job] ctx.registeredJobs
+  let {failures, numJobs} ← monitorJobs #[job] ctx.registeredJobs
     out failLv outLv minAction showOptional useAnsi showProgress
   -- Save input mappings to cache
   match (← ws.saveInputs {}) with
@@ -246,6 +251,9 @@ def Workspace.runFetchM
   if failures.isEmpty then
     let some a ← job.wait?
       | error "top-level build failed"
+    if showProgress && showSuccess then
+      let jobs := if numJobs == 1 then "1 job" else s!"{numJobs} jobs"
+      print! out s!"Build completed successfully ({jobs}).\n"
     return a
   else
     print! out "Some required builds logged failures:\n"

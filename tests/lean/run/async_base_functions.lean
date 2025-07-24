@@ -5,7 +5,7 @@ open Std
 
 open Std.Internal.IO.Async
 
-def wait (ms : Nat) (ref : Std.Mutex Nat) (val : Nat) : Async Unit := do
+def wait (ms : UInt32) (ref : Std.Mutex Nat) (val : Nat) : Async Unit := do
   ref.atomically (·.modify (· * val))
   IO.sleep ms
   ref.atomically (·.modify (· + val))

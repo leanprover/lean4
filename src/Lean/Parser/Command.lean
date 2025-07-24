@@ -247,8 +247,8 @@ def «structure»          := leading_parser
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
 def sectionHeader := leading_parser
-  optional ("public ") >>
   optional ("@[" >> nonReservedSymbol "expose" >> "] ") >>
+  optional ("public ") >>
   optional ("noncomputable ")
 /--
 A `section`/`end` pair delimits the scope of `variable`, `include, `open`, `set_option`, and `local`

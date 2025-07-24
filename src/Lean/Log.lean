@@ -11,6 +11,7 @@ import Lean.DocString.Links
 -- This import is necessary to ensure that any users of the `logNamedError` macros have access to
 -- all declared explanations:
 import Lean.ErrorExplanations
+import Lean.Data.Json.Basic
 
 namespace Lean
 
@@ -73,7 +74,8 @@ export default function ({ code, explanationUrl }) {
     createElement('span', { style: sansText }, 'Error code: '), code])
   const brSpan = createElement('span', {}, '\\n')
   const linkSpan = createElement('span', { style: sansText },
-    createElement('a', { href: explanationUrl }, 'View explanation'))
+    createElement('a', { href: explanationUrl, target: '_blank', rel: 'noreferrer noopener' },
+      'View explanation'))
 
   const all = createElement('div', { style: { marginTop: '1em' } }, [codeSpan, brSpan, linkSpan])
   return all
@@ -90,10 +92,10 @@ private def MessageData.appendDescriptionWidgetIfNamed (msg : MessageData) : Mes
     let inst := {
       id := ``errorDescriptionWidget
       javascriptHash := errorDescriptionWidget.javascriptHash
-      props := return json% {
-        code: $(toString errorName),
-        explanationUrl: $url
-      }
+      props := return Json.mkObj [
+        ("code", toString errorName),
+        ("explanationUrl", url)
+      ]
     }
     -- Note: we do not generate corresponding message data for the widget because it pollutes
     -- console output

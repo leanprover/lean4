@@ -47,13 +47,11 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_logInfoAt___at___Lean_Elab_Time_elabTimeCmd_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; lean_object* x_10; 
-x_6 = lean_box(0);
-x_7 = lean_box(0);
-x_8 = lean_unbox(x_6);
-x_9 = lean_unbox(x_7);
-x_10 = l_Lean_logAt___at___Lean_logErrorAt___at___Lean_Elab_logException___at___Lean_Elab_Command_runLinters_spec__0_spec__0_spec__0(x_1, x_2, x_8, x_9, x_3, x_4, x_5);
-return x_10;
+uint8_t x_6; uint8_t x_7; lean_object* x_8; 
+x_6 = 0;
+x_7 = 0;
+x_8 = l_Lean_logAt___at___Lean_logErrorAt___at___Lean_Elab_logException___at___Lean_Elab_Command_runLinters_spec__0_spec__0_spec__0(x_1, x_2, x_6, x_7, x_3, x_4, x_5);
+return x_8;
 }
 }
 static lean_object* _init_l_Lean_Elab_Time_elabTimeCmd___closed__0() {
@@ -136,7 +134,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; 
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 x_7 = l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_elabCommand_go_spec__1_spec__5___redArg(x_4);
 return x_7;
@@ -149,11 +147,11 @@ x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
 lean_inc(x_3);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 x_13 = l_Lean_Elab_Command_elabCommand(x_12, x_2, x_3, x_10);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -279,7 +277,7 @@ else
 {
 lean_dec(x_9);
 lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_13;
 }

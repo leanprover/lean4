@@ -84,7 +84,7 @@ return x_15;
 }
 default: 
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -103,7 +103,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Iterators_IterStep_bundledQuotient(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 return x_8;
 }
 }
@@ -119,7 +119,7 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_QuotStep_bundledQuotient(lean_obj
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Std_Iterators_IterM_QuotStep_bundledQuotient___redArg(x_4, x_8);
+x_9 = l_Std_Iterators_IterStep_bundledQuotient___redArg(x_4, x_8);
 return x_9;
 }
 }
@@ -129,7 +129,7 @@ _start:
 lean_object* x_9; 
 x_9 = l_Std_Iterators_IterM_QuotStep_bundledQuotient(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 return x_9;
 }
 }

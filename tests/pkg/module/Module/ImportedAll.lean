@@ -16,9 +16,9 @@ testSorry
 error: type mismatch
   y
 has type
-  Vector Unit 1 : Type
+  Vector Unit 1
 but is expected to have type
-  Vector Unit f : Type
+  Vector Unit f
 -/
 #guard_msgs in
 public theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := sorry
@@ -129,6 +129,6 @@ info: theorem f_exp_wfrec.induct_unfolding : ∀ (motive : Nat → Nat → Nat �
 
 public def pub := priv
 
-/-- error: unknown identifier 'priv' -/
+/-- error: Unknown identifier `priv` -/
 #guard_msgs in
 @[expose] public def pub' := priv

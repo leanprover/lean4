@@ -240,7 +240,7 @@ where
       if indFVars.contains f then
         let mut args := e.getAppArgs
         -- Prefer throwing an "argument mismatch" error rather than a "missing parameter" one
-        for i in [:min args.size params.size] do
+        for i in *...min args.size params.size do
           let param := params[i]!
           let arg := args[i]!
           unless (← isDefEq param arg) do

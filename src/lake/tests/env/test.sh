@@ -28,7 +28,8 @@ test_out "hello" -d ../../examples/hello env printenv PATH
 # Test other variables are set
 test_eq "false" env printenv LAKE_NO_CACHE
 test_eq "false" env printenv LAKE_ARTIFACT_CACHE
-test_run env printenv LAKE_CACHE_DIR
+# No cache directory is available in Windows CI (i.e., Windows Server)
+# test_run env printenv LAKE_CACHE_DIR
 
 # Test that `env` preserves the input environment for certain variables
 echo "# TEST: Setting variables for lake env"

@@ -36,7 +36,6 @@ LEAN_EXPORT lean_object* l_Lean_Grind_instToIntFinCoOfNatIntCast___boxed(lean_ob
 lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_GrindInstances_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_int8_to_int(uint8_t);
-lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt64UintOfNatNat___lam__0(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntIntIi;
 lean_object* lean_int32_to_int(uint32_t);
@@ -120,7 +119,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_instToIntFinCoOfNatIntCast___lam__0(lean_o
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_nat_to_int(x_1);
+x_2 = l_instNatCastInt___lam__0(x_1);
 return x_2;
 }
 }
@@ -146,7 +145,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_uint8_to_nat(x_1);
-x_3 = lean_nat_to_int(x_2);
+x_3 = l_instNatCastInt___lam__0(x_2);
 return x_3;
 }
 }
@@ -163,7 +162,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Grind_instToIntUInt8UintOfNatNat___lam__0(x_2);
 return x_3;
 }
@@ -173,7 +171,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_uint16_to_nat(x_1);
-x_3 = lean_nat_to_int(x_2);
+x_3 = l_instNatCastInt___lam__0(x_2);
 return x_3;
 }
 }
@@ -190,7 +188,6 @@ _start:
 {
 uint16_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Grind_instToIntUInt16UintOfNatNat___lam__0(x_2);
 return x_3;
 }
@@ -200,7 +197,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_uint32_to_nat(x_1);
-x_3 = lean_nat_to_int(x_2);
+x_3 = l_instNatCastInt___lam__0(x_2);
 return x_3;
 }
 }
@@ -227,7 +224,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_uint64_to_nat(x_1);
-x_3 = lean_nat_to_int(x_2);
+x_3 = l_instNatCastInt___lam__0(x_2);
 return x_3;
 }
 }
@@ -254,7 +251,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_usize_to_nat(x_1);
-x_3 = lean_nat_to_int(x_2);
+x_3 = l_instNatCastInt___lam__0(x_2);
 return x_3;
 }
 }
@@ -297,7 +294,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Grind_instToIntInt8SintOfNatNat___lam__0(x_2);
 return x_3;
 }
@@ -309,43 +305,43 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = lean_apply_2(x_2, x_6, x_7);
 return x_8;
 }
 case 1:
 {
 lean_object* x_9; lean_object* x_10; 
-lean_dec(x_4);
-lean_dec(x_2);
+lean_dec_ref(x_4);
+lean_dec_ref(x_2);
 x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_10 = lean_apply_1(x_3, x_9);
 return x_10;
 }
 case 2:
 {
 lean_object* x_11; lean_object* x_12; 
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 x_11 = lean_ctor_get(x_1, 0);
 lean_inc(x_11);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_12 = lean_apply_1(x_4, x_11);
 return x_12;
 }
 default: 
 {
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 lean_inc(x_5);
 return x_5;
 }
@@ -399,7 +395,6 @@ _start:
 {
 uint16_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Lean_Grind_instToIntInt16SintOfNatNat___lam__0(x_2);
 return x_3;
 }

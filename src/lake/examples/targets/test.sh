@@ -31,7 +31,7 @@ EOF
 $LAKE build targets/bark_bark | awk '/Ran/,0' | diff -u --strip-trailing-cr <(cat << 'EOF'
 ℹ [1/2] Ran targets/bark
 info: Bark!
-Build completed successfully.
+Build completed successfully (2 jobs).
 EOF
 ) -
 $LAKE build targets:print_name | awk '/Ran/,/^targets/' | diff -u --strip-trailing-cr <(cat << 'EOF'
@@ -76,10 +76,15 @@ cat ./.lake/build/meow.txt | grep Meow!
 
 # Test shared lib facets
 test ! -f ./.lake/build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
-test ! -f ./.lake/build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
+test ! -f ./.lake/build/lib/libBar.$SHARED_LIB_EXT
 $LAKE build Foo:shared Bar
 test -f ./.lake/build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
-test -f ./.lake/build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
+test -f ./.lake/build/lib/libBar.$SHARED_LIB_EXT
+
+# Test static lib facet
+test ! -f ./.lake/build/lib/libBar.a
+$LAKE build Foo:shared Bar:static
+test -f ./.lake/build/lib/libBar.a
 
 # Test dynlib facet
 test ! -f ./.lake/build/lib/lean/Foo.$SHARED_LIB_EXT

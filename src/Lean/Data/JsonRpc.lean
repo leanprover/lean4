@@ -6,8 +6,8 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Init.System.IO
-import Lean.Data.RBTree
-import Lean.Data.Json
+import Lean.Data.Json.Stream
+import Lean.Data.Json.FromToJson.Basic
 
 /-! Implementation of JSON-RPC 2.0 (https://www.jsonrpc.org/specification)
 for use in the LSP server. -/
@@ -131,6 +131,14 @@ structure Request (α : Type u) where
 instance [ToJson α] : CoeOut (Request α) Message :=
   ⟨fun r => Message.request r.id r.method (toStructured? r.param).toOption⟩
 
+def Request.ofMessage? : Message → Option (Request Json)
+  | .request id method params? => some {
+      id
+      method
+      param := toJson params?
+    }
+  | _ => none
+
 /-- Generic version of `Message.notification`.
 
 A notification message. A processed notification message must not send a response back. They work like events.
@@ -145,6 +153,13 @@ structure Notification (α : Type u) where
 
 instance [ToJson α] : CoeOut (Notification α) Message :=
   ⟨fun r => Message.notification r.method (toStructured? r.param).toOption⟩
+
+def Notification.ofMessage? : Message → Option (Notification Json)
+  | .notification method params? => some {
+      method
+      param := toJson params?
+    }
+  | _ => none
 
 /-- Generic version of `Message.response`.
 
@@ -164,6 +179,10 @@ structure Response (α : Type u) where
 
 instance [ToJson α] : CoeOut (Response α) Message :=
   ⟨fun r => Message.response r.id (toJson r.result)⟩
+
+def Response.ofMessage? : Message → Option (Response Json)
+  | .response id result => some { id, result }
+  | _ => none
 
 /-- Generic version of `Message.responseError`.
 
@@ -186,6 +205,10 @@ instance [ToJson α] : CoeOut (ResponseError α) Message :=
 
 instance : CoeOut (ResponseError Unit) Message :=
   ⟨fun r => Message.responseError r.id r.code r.message none⟩
+
+def ResponseError.ofMessage? : Message → Option (ResponseError Json)
+  | .responseError id code message data? => some { id, code, message, data? }
+  | _ => none
 
 instance : Coe String RequestID := ⟨RequestID.str⟩
 instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩

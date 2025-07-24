@@ -212,12 +212,14 @@ private def Config.toKey (c : Config) : UInt64 :=
 /-- Configuration with key produced by `Config.toKey`. -/
 structure ConfigWithKey where
   private mk ::
-  config : Config
-  key    : UInt64
-  deriving Inhabited
+  config : Config := {}
+  key    : UInt64 := config.toKey
+
+instance : Inhabited ConfigWithKey where  -- #9463
+  default := private {}
 
 def Config.toConfigWithKey (c : Config) : ConfigWithKey :=
-  { config := c, key := c.toKey }
+  { config := c }
 
 /--
 Function parameter information cache.
@@ -446,8 +448,7 @@ register_builtin_option maxSynthPendingDepth : Nat := {
   Contextual information for the `MetaM` monad.
 -/
 structure Context where
-  private config    : Config               := {}
-  private configKey : UInt64               := config.toKey
+  keyedConfig : ConfigWithKey := default
   /--
   When `trackZetaDelta = true`, we track all free variables that have been zetaDelta-expanded.
   That is, suppose the local context contains
@@ -498,6 +499,10 @@ structure Context where
    This is not a great solution, but a proper solution would require a more sophisticased caching mechanism.
   -/
   inTypeClassResolution : Bool := false
+deriving Inhabited
+
+def Context.config (c : Context) : Config := c.keyedConfig.config
+def Context.configKey (c : Context) : UInt64 := c.keyedConfig.key
 
 /--
 The `MetaM` monad is a core component of Lean's metaprogramming framework, facilitating the
@@ -1107,14 +1112,12 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 @[inline] def withConfig (f : Config → Config) : n α → n α :=
   mapMetaM <| withReader fun ctx =>
     let config := f ctx.config
-    let configKey := config.toKey
-    { ctx with config, configKey }
+    { ctx with keyedConfig := { config } }
 
 @[inline] def withConfigWithKey (c : ConfigWithKey) : n α → n α :=
   mapMetaM <| withReader fun ctx =>
     let config := c.config
-    let configKey := c.key
-    { ctx with config, configKey }
+    { ctx with keyedConfig := { config } }
 
 @[inline] def withCanUnfoldPred (p : Config → ConstantInfo → CoreM Bool) : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with canUnfold? := p })
@@ -1216,8 +1219,8 @@ def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
 @[inline] private def Context.setTransparency (ctx : Context) (transparency : TransparencyMode) : Context :=
   let config := { ctx.config with transparency }
   -- Recall that `transparency` is stored in the first 2 bits
-  let configKey : UInt64 := ((ctx.configKey >>> (2 : UInt64)) <<< 2) ||| transparency.toUInt64
-  { ctx with config, configKey }
+  let key : UInt64 := ((ctx.configKey >>> (2 : UInt64)) <<< 2) ||| transparency.toUInt64
+  { ctx with keyedConfig := { config, key } }
 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
   -- We avoid `withConfig` for performance reasons.
@@ -1972,11 +1975,11 @@ def withMCtx (mctx : MetavarContext) : n α → n α :=
 def withoutModifyingMCtx : n α → n α :=
   mapMetaM fun x => do
     let mctx ← getMCtx
+    let cache := (← get).cache
     try
       x
     finally
-      resetCache
-      setMCtx mctx
+      modify fun s => { s with cache, mctx }
 
 @[inline] private def approxDefEqImp (x : MetaM α) : MetaM α :=
   withConfig (fun config => { config with foApprox := true, ctxApprox := true, quasiPatternApprox := true}) x
@@ -2088,7 +2091,7 @@ def instantiateForallWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
   let mut e := e
   let mut res := Array.mkEmpty args.size
   let mut j := 0
-  for i in [0:args.size] do
+  for i in *...args.size do
     unless e.isForall do
       e ← whnf (e.instantiateRevRange j i args)
       j := i
@@ -2117,7 +2120,7 @@ def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
   let mut e := e
   let mut res := Array.mkEmpty args.size
   let mut j := 0
-  for i in [0:args.size] do
+  for i in *...args.size do
     unless e.isLambda do
       e ← whnf (e.instantiateRevRange j i args)
       j := i
@@ -2544,6 +2547,38 @@ where
       unreachable!
 
 end Meta
+
+open Meta
+
+namespace PPContext
+
+def runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
+  Prod.fst <$> x.toIO { options := ppCtx.opts, currNamespace := ppCtx.currNamespace
+                        openDecls := ppCtx.openDecls
+                        fileName := "<PrettyPrinter>", fileMap := default
+                        diag     := getDiag ppCtx.opts }
+                      { env := ppCtx.env, ngen := { namePrefix := `_pp_uniq } }
+
+def runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
+  ppCtx.runCoreM <| x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
+
+end PPContext
+
+/--
+Turns a `MetaM MessageData` into a `MessageData.lazy` which will run the monadic value.
+The optional array of expressions is used to set the `hasSyntheticSorry` fields, and should
+comprise the expressions that are included in the message data.
+-/
+def MessageData.ofLazyM (f : MetaM MessageData) (es : Array Expr := #[]) : MessageData :=
+  .lazy
+    (f := fun ppctxt => do
+      match (← ppctxt.runMetaM f |>.toBaseIO) with
+      | .ok fmt => return fmt
+      | .error ex => return m!"[Error pretty printing: {ex}]"
+      )
+    (hasSyntheticSorry := fun mvarctxt => es.any (fun a =>
+        instantiateMVarsCore mvarctxt a |>.1.hasSyntheticSorry
+    ))
 
 builtin_initialize
   registerTraceClass `Meta.isLevelDefEq.postponed

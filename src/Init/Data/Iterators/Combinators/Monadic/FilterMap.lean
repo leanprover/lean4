@@ -231,14 +231,14 @@ instance {α β γ : Type w} {m : Type w → Type w'}
   .defaultImplementation
 
 instance FilterMap.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type w → Type w'''}
+    {n : Type w → Type w''} {o : Type x → Type x'}
     [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] :
     IteratorLoop (FilterMap α m n lift f) n o :=
   .defaultImplementation
 
 instance FilterMap.instIteratorLoopPartial {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type w → Type w'''}
+    {n : Type w → Type w''} {o : Type x → Type x'}
     [Monad n] [Monad o] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} :
     IteratorLoopPartial (FilterMap α m n lift f) n o :=
@@ -274,14 +274,14 @@ instance Map.instIteratorCollectPartial {α β γ : Type w} {m : Type w → Type
       it.internalState.inner (m := m)
 
 instance Map.instIteratorLoop {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
+    {n : Type w → Type w''} {o : Type x → Type x'} [Monad n] [Monad o] [Iterator α m β]
     {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} :
     IteratorLoop (Map α m n lift f) n o :=
   .defaultImplementation
 
 instance Map.instIteratorLoopPartial {α β γ : Type w} {m : Type w → Type w'}
-    {n : Type w → Type w''} {o : Type w → Type x} [Monad n] [Monad o] [Iterator α m β]
+    {n : Type w → Type w''} {o : Type x → Type x'} [Monad n] [Monad o] [Iterator α m β]
     {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n γ} :
     IteratorLoopPartial (Map α m n lift f) n o :=

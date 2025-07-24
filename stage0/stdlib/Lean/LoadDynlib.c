@@ -67,7 +67,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_dynlib_load(x_1, x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -76,7 +76,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_dynlib_get(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -111,7 +111,7 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = lean_runtime_mark_persistent(x_4, x_5);
 x_7 = !lean_is_exclusive(x_6);
 if (x_7 == 0)
@@ -165,7 +165,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_load_dynlib(x_1, x_2);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_3;
 }
 }
@@ -299,7 +299,7 @@ x_21 = l_Lean_loadPlugin___closed__3;
 x_22 = l_String_stripSuffix(x_20, x_21);
 x_23 = l_Lean_loadPlugin___closed__4;
 x_24 = lean_string_append(x_23, x_22);
-lean_dec(x_22);
+lean_dec_ref(x_22);
 x_25 = lean_dynlib_get(x_17, x_24);
 if (lean_obj_tag(x_25) == 0)
 {
@@ -307,7 +307,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29;
 lean_dec(x_17);
 x_26 = l_Lean_loadPlugin___closed__5;
 x_27 = lean_string_append(x_26, x_24);
-lean_dec(x_24);
+lean_dec_ref(x_24);
 x_28 = l_Lean_loadPlugin___closed__1;
 x_29 = lean_string_append(x_27, x_28);
 lean_ctor_set_tag(x_7, 18);
@@ -319,17 +319,17 @@ return x_15;
 else
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-lean_dec(x_24);
+lean_dec_ref(x_24);
 lean_free_object(x_15);
 lean_free_object(x_7);
 x_30 = lean_ctor_get(x_25, 0);
 lean_inc(x_30);
-lean_dec(x_25);
+lean_dec_ref(x_25);
 lean_inc(x_17);
 x_31 = lean_runtime_mark_persistent(x_17, x_18);
 x_32 = lean_ctor_get(x_31, 1);
 lean_inc(x_32);
-lean_dec(x_31);
+lean_dec_ref(x_31);
 x_33 = lean_dynlib_symbol_run_as_init(x_17, x_30, x_32);
 lean_dec(x_30);
 lean_dec(x_17);
@@ -350,7 +350,7 @@ x_38 = l_Lean_loadPlugin___closed__3;
 x_39 = l_String_stripSuffix(x_37, x_38);
 x_40 = l_Lean_loadPlugin___closed__4;
 x_41 = lean_string_append(x_40, x_39);
-lean_dec(x_39);
+lean_dec_ref(x_39);
 x_42 = lean_dynlib_get(x_34, x_41);
 if (lean_obj_tag(x_42) == 0)
 {
@@ -358,7 +358,7 @@ lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean
 lean_dec(x_34);
 x_43 = l_Lean_loadPlugin___closed__5;
 x_44 = lean_string_append(x_43, x_41);
-lean_dec(x_41);
+lean_dec_ref(x_41);
 x_45 = l_Lean_loadPlugin___closed__1;
 x_46 = lean_string_append(x_44, x_45);
 lean_ctor_set_tag(x_7, 18);
@@ -371,16 +371,16 @@ return x_47;
 else
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
-lean_dec(x_41);
+lean_dec_ref(x_41);
 lean_free_object(x_7);
 x_48 = lean_ctor_get(x_42, 0);
 lean_inc(x_48);
-lean_dec(x_42);
+lean_dec_ref(x_42);
 lean_inc(x_34);
 x_49 = lean_runtime_mark_persistent(x_34, x_35);
 x_50 = lean_ctor_get(x_49, 1);
 lean_inc(x_50);
-lean_dec(x_49);
+lean_dec_ref(x_49);
 x_51 = lean_dynlib_symbol_run_as_init(x_34, x_48, x_50);
 lean_dec(x_48);
 lean_dec(x_34);
@@ -442,7 +442,7 @@ x_63 = l_Lean_loadPlugin___closed__3;
 x_64 = l_String_stripSuffix(x_62, x_63);
 x_65 = l_Lean_loadPlugin___closed__4;
 x_66 = lean_string_append(x_65, x_64);
-lean_dec(x_64);
+lean_dec_ref(x_64);
 x_67 = lean_dynlib_get(x_58, x_66);
 if (lean_obj_tag(x_67) == 0)
 {
@@ -450,7 +450,7 @@ lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean
 lean_dec(x_58);
 x_68 = l_Lean_loadPlugin___closed__5;
 x_69 = lean_string_append(x_68, x_66);
-lean_dec(x_66);
+lean_dec_ref(x_66);
 x_70 = l_Lean_loadPlugin___closed__1;
 x_71 = lean_string_append(x_69, x_70);
 x_72 = lean_alloc_ctor(18, 1, 0);
@@ -468,16 +468,16 @@ return x_73;
 else
 {
 lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; 
-lean_dec(x_66);
+lean_dec_ref(x_66);
 lean_dec(x_60);
 x_74 = lean_ctor_get(x_67, 0);
 lean_inc(x_74);
-lean_dec(x_67);
+lean_dec_ref(x_67);
 lean_inc(x_58);
 x_75 = lean_runtime_mark_persistent(x_58, x_59);
 x_76 = lean_ctor_get(x_75, 1);
 lean_inc(x_76);
-lean_dec(x_75);
+lean_dec_ref(x_75);
 x_77 = lean_dynlib_symbol_run_as_init(x_58, x_74, x_76);
 lean_dec(x_74);
 lean_dec(x_58);
@@ -572,7 +572,7 @@ x_99 = l_Lean_loadPlugin___closed__3;
 x_100 = l_String_stripSuffix(x_98, x_99);
 x_101 = l_Lean_loadPlugin___closed__4;
 x_102 = lean_string_append(x_101, x_100);
-lean_dec(x_100);
+lean_dec_ref(x_100);
 x_103 = lean_dynlib_get(x_94, x_102);
 if (lean_obj_tag(x_103) == 0)
 {
@@ -580,7 +580,7 @@ lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; 
 lean_dec(x_94);
 x_104 = l_Lean_loadPlugin___closed__5;
 x_105 = lean_string_append(x_104, x_102);
-lean_dec(x_102);
+lean_dec_ref(x_102);
 x_106 = l_Lean_loadPlugin___closed__1;
 x_107 = lean_string_append(x_105, x_106);
 if (lean_is_scalar(x_92)) {
@@ -603,17 +603,17 @@ return x_109;
 else
 {
 lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; 
-lean_dec(x_102);
+lean_dec_ref(x_102);
 lean_dec(x_96);
 lean_dec(x_92);
 x_110 = lean_ctor_get(x_103, 0);
 lean_inc(x_110);
-lean_dec(x_103);
+lean_dec_ref(x_103);
 lean_inc(x_94);
 x_111 = lean_runtime_mark_persistent(x_94, x_95);
 x_112 = lean_ctor_get(x_111, 1);
 lean_inc(x_112);
-lean_dec(x_111);
+lean_dec_ref(x_111);
 x_113 = lean_dynlib_symbol_run_as_init(x_94, x_110, x_112);
 lean_dec(x_110);
 lean_dec(x_94);

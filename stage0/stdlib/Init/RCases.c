@@ -439,8 +439,8 @@ return x_2;
 static lean_object* _init_l_Lean_Parser_Tactic_rcasesPatMed___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = 0;
 x_2 = l_Lean_Parser_Tactic_rcasesPatMed___closed__4;
 x_3 = l_Lean_Parser_Tactic_rcasesPatMed___closed__3;
 x_4 = l_Lean_Parser_Tactic_rcasesPat_quot___closed__12;
@@ -448,8 +448,7 @@ x_5 = lean_alloc_ctor(11, 3, 1);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_2);
-x_6 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_6);
+lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_1);
 return x_5;
 }
 }
@@ -997,8 +996,8 @@ return x_2;
 static lean_object* _init_l_Lean_Parser_Tactic_rcasesPat_tuple___closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = 0;
 x_2 = l_Lean_Parser_Tactic_rcasesPat_tuple___closed__6;
 x_3 = l_Lean_Parser_Tactic_rcasesPat_tuple___closed__4;
 x_4 = l_Lean_Parser_Tactic_rcasesPatLo;
@@ -1006,8 +1005,7 @@ x_5 = lean_alloc_ctor(10, 3, 1);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_2);
-x_6 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_6);
+lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_1);
 return x_5;
 }
 }
@@ -1469,13 +1467,12 @@ return x_5;
 static lean_object* _init_l_Lean_Parser_Tactic_rcases___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 0;
 x_2 = l_Lean_Parser_Tactic_rcases___closed__0;
 x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_2);
-x_4 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_4);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }
@@ -1490,8 +1487,8 @@ return x_1;
 static lean_object* _init_l_Lean_Parser_Tactic_rcases___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = 0;
 x_2 = l_Lean_Parser_Tactic_rcasesPat_tuple___closed__6;
 x_3 = l_Lean_Parser_Tactic_rcasesPat_tuple___closed__4;
 x_4 = l_Lean_Parser_Tactic_rcases___closed__3;
@@ -1499,8 +1496,7 @@ x_5 = lean_alloc_ctor(10, 3, 1);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_2);
-x_6 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_6);
+lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_1);
 return x_5;
 }
 }
@@ -1621,13 +1617,12 @@ return x_5;
 static lean_object* _init_l_Lean_Parser_Tactic_obtain___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 0;
 x_2 = l_Lean_Parser_Tactic_obtain___closed__0;
 x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_2);
-x_4 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_4);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }
@@ -1733,8 +1728,8 @@ return x_2;
 static lean_object* _init_l_Lean_Parser_Tactic_obtain___closed__12() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = 0;
 x_2 = l_Lean_Parser_Tactic_rcasesPat_tuple___closed__6;
 x_3 = l_Lean_Parser_Tactic_rcasesPat_tuple___closed__4;
 x_4 = l_Lean_Parser_Tactic_rcasesPatLo___closed__8;
@@ -1742,8 +1737,7 @@ x_5 = lean_alloc_ctor(11, 3, 1);
 lean_ctor_set(x_5, 0, x_4);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_2);
-x_6 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_6);
+lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_1);
 return x_5;
 }
 }
@@ -1832,13 +1826,12 @@ return x_5;
 static lean_object* _init_l_Lean_Parser_Tactic_rintro___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 0;
 x_2 = l_Lean_Parser_Tactic_rintro___closed__0;
 x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_2);
-x_4 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_4);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }

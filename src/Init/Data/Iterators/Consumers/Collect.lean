@@ -10,7 +10,7 @@ public import Init.Data.Iterators.Basic
 public import Init.Data.Iterators.Consumers.Partial
 public import Init.Data.Iterators.Consumers.Monadic.Collect
 
-public section
+@[expose] public section
 
 /-!
 # Collectors

@@ -3,16 +3,16 @@ import Lean.Elab.Command
 set_option guard_msgs.diff false
 
 #guard_msgs in
-/-- error: unknown identifier 'x' -/
+/-- error: Unknown identifier `x` -/
 #guard_msgs in
 example : α := x
 
 /--
-error: unknown identifier 'x'
+error: Unknown identifier `x`
 ---
 error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
-error: unknown identifier 'x'
+error: Unknown identifier `x`
 -/
 #guard_msgs in
 #guard_msgs in
@@ -42,7 +42,7 @@ example : α := sorry
 example : α := sorry
 
 #guard_msgs in
-/-- error: unknown identifier 'x' -/
+/-- error: Unknown identifier `x` -/
 #guard_msgs(error, drop warning) in
 example : α := x
 

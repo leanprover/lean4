@@ -37,8 +37,8 @@ x_7 = lean_ctor_get(x_2, 2);
 lean_inc(x_5);
 x_8 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_8, 0, x_5);
-lean_inc(x_7);
-lean_inc(x_6);
+lean_inc_ref(x_7);
+lean_inc_ref(x_6);
 x_9 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_9, 0, x_3);
 lean_ctor_set(x_9, 1, x_8);
@@ -184,7 +184,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Option_register___at___Lean_initFn____x40_Lean_Util_RecDepth___hyg_5__spec__0(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_5;
 }
 }

@@ -3,8 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Dany Fabian, Henrik Böving
 -/
+module
+
 prelude
-import Std.Internal.Parsec.Basic
+public import Std.Internal.Parsec.Basic
+
+public section
 
 namespace Std.Internal
 namespace Parsec

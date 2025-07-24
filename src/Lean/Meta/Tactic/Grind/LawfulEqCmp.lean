@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.SynthInstance
 
 /-!
 Support for type class `LawfulEqCmp`.
@@ -38,7 +39,7 @@ where
     let u ← getLevel α
     let some u ← decLevel? u | return none
     let lawfulEqCmp := mkApp2 (mkConst ``Std.LawfulEqCmp [u]) α op
-    let .some lawfulEqCmpInst ← trySynthInstance lawfulEqCmp | return none
+    let some lawfulEqCmpInst ← synthInstanceMeta? lawfulEqCmp | return none
     return some <| mkApp3 (mkConst ``Std.LawfulEqCmp.eq_of_compare [u]) α op lawfulEqCmpInst
 
 def propagateLawfulEqCmp (e : Expr) : GoalM Unit := do

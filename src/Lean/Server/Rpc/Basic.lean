@@ -6,7 +6,7 @@ Authors: Wojciech Nawrocki
 -/
 prelude
 import Init.Dynamic
-import Lean.Data.Json
+import Lean.Data.Json.FromToJson.Basic
 
 /-! Allows LSP clients to make Remote Procedure Calls to the server.
 

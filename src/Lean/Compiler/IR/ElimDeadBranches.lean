@@ -16,7 +16,7 @@ inductive Value where
   | top -- any value
   | ctor (i : CtorInfo) (vs : Array Value)
   | choice (vs : List Value)
-  deriving Inhabited, Repr
+  deriving Inhabited, BEq, Repr
 
 protected partial def Value.toFormat : Value → Format
   | Value.bot => "⊥"
@@ -36,18 +36,6 @@ instance : ToString Value where
   toString v := toString (format v)
 
 namespace Value
-
-protected partial def beq : Value → Value → Bool
-  | bot, bot => true
-  | top, top => true
-  | ctor i₁ vs₁, ctor i₂ vs₂ => i₁ == i₂ && Array.isEqv vs₁ vs₂ Value.beq
-  | choice vs₁, choice vs₂ =>
-    vs₁.all (fun v₁ => vs₂.any fun v₂ => Value.beq v₁ v₂)
-    &&
-    vs₂.all (fun v₂ => vs₁.any fun v₁ => Value.beq v₁ v₂)
-  | _, _ => false
-
-instance : BEq Value := ⟨Value.beq⟩
 
 partial def addChoice (merge : Value → Value → Value) : List Value → Value → List Value
   | [], v => [v]
@@ -132,13 +120,15 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (FunId ×
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
-    toArrayFn := fun s => sortEntries s.toArray
+    exportEntriesFnEx? := some fun env s _ _ =>
+      let entries := sortEntries s.toArray
+      entries.filter (Compiler.LCNF.isDeclPublic env ·.1)
     asyncMode := .sync  -- compilation is non-parallel anyway
     replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s ⟨e, n⟩ => s.insert e n)
   }
 
 def addFunctionSummary (env : Environment) (fid : FunId) (v : Value) : Environment :=
-  functionSummariesExt.addEntry (env.addExtraName fid) (fid, v)
+  functionSummariesExt.addEntry env (fid, v)
 
 def getFunctionSummary? (env : Environment) (fid : FunId) : Option Value :=
   match env.getModuleIdxFor? fid with
@@ -170,8 +160,8 @@ def findVarValue (x : VarId) : M Value := do
 
 def findArgValue (arg : Arg) : M Value :=
   match arg with
-  | Arg.var x => findVarValue x
-  | _         => pure top
+  | .var x => findVarValue x
+  | .erased => pure top
 
 def updateVarAssignment (x : VarId) (v : Value) : M Unit := do
   let v' ← findVarValue x
@@ -332,8 +322,7 @@ end UnreachableBranches
 open UnreachableBranches
 
 def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
-  let s ← get
-  let env := s.env
+  let env ← getEnv
   let assignments : Array Assignment := decls.map fun _ => {}
   let funVals := mkPArray decls.size Value.bot
   let visitedJps := decls.map fun _ => {}
@@ -342,10 +331,11 @@ def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   let (_, s) := (inferMain ctx).run s
   let funVals := s.funVals
   let assignments := s.assignments
-  modify fun s =>
-    let env := decls.size.fold (init := s.env) fun i _ env =>
+  modifyEnv fun env =>
+    decls.size.fold (init := env) fun i _ env =>
       addFunctionSummary env decls[i].name funVals[i]!
-    { s with env := env }
   return decls.mapIdx fun i decl => elimDead assignments[i]! decl
+
+builtin_initialize registerTraceClass `compiler.ir.elim_dead_branches (inherited := true)
 
 end Lean.IR

@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Std.Do.WP.Basic
-import Std.Do.WP.Monad
+public import Std.Do.WP.Basic
+public import Std.Do.WP.Monad
+
+@[expose] public section
 
 /-!
 # Simp lemmas for working with weakest preconditions
@@ -20,8 +24,8 @@ namespace Std.Do.WP
 
 open WPMonad
 
-universe u
-variable {m : Type → Type u} {ps : PostShape}
+universe u v
+variable {m : Type u → Type v} {ps : PostShape.{u}}
 
 /-! ## `WP` -/
 
@@ -149,11 +153,11 @@ theorem modifyGetThe_MonadStateOf [WP m ps] [MonadStateOf σ m] (f : σ → α �
 
 @[simp]
 theorem modify_MonadStateOf [WP m ps] [MonadStateOf σ m] (f : σ → σ) :
-  wp⟦modify f : m PUnit⟧ Q = wp⟦MonadStateOf.modifyGet fun s => ((), f s) : m PUnit⟧ Q := rfl
+  wp⟦modify f : m PUnit⟧ Q = wp⟦MonadStateOf.modifyGet fun s => (⟨⟩, f s) : m PUnit⟧ Q := rfl
 
 @[simp]
 theorem modifyThe_MonadStateOf [WP m ps] [MonadStateOf σ m] (f : σ → σ) :
-  wp⟦modifyThe σ f : m PUnit⟧ Q = wp⟦MonadStateOf.modifyGet fun s => ((), f s) : m PUnit⟧ Q := rfl
+  wp⟦modifyThe σ f : m PUnit⟧ Q = wp⟦MonadStateOf.modifyGet fun s => (⟨⟩, f s) : m PUnit⟧ Q := rfl
 
 -- instances
 
@@ -210,19 +214,19 @@ open MonadFunctor renaming monadMap → mmap
 -- that enjoys quite a tricky definition.
 -- However, we found that relying on specialised lemmas is both much simpler and more reliable.
 @[simp]
-theorem monadMap_StateT (m : Type → Type u) [Monad m] [WP m ps]
+theorem monadMap_StateT [Monad m] [WP m ps]
   (f : ∀{β}, m β → m β) {α} (x : StateT σ m α) (Q : PostCond α (.arg σ ps)) :
     wp⟦mmap (m:=m) f x⟧ Q = fun s => wp⟦f (x.run s)⟧ (fun (a, s) => Q.1 a s, Q.2) := by
   simp [wp, MonadFunctor.monadMap, StateT.run]
 
 @[simp]
-theorem monadMap_ReaderT (m : Type → Type u) [Monad m] [WP m ps]
+theorem monadMap_ReaderT [Monad m] [WP m ps]
   (f : ∀{β}, m β → m β) {α} (x : ReaderT ρ m α) (Q : PostCond α (.arg ρ ps)) :
     wp⟦mmap (m:=m) f x⟧ Q = fun s => wp⟦f (x.run s)⟧ (fun a => Q.1 a s, Q.2) := by
   simp [wp, MonadFunctor.monadMap, ReaderT.run]
 
 @[simp]
-theorem monadMap_ExceptT (m : Type → Type u) [Monad m] [WP m ps]
+theorem monadMap_ExceptT [Monad m] [WP m ps]
   (f : ∀{β}, m β → m β) {α} (x : ExceptT ε m α) (Q : PostCond α (.except ε ps)) :
     wp⟦mmap (m:=m) f x⟧ Q = wp⟦f x.run⟧ (fun | .ok a => Q.1 a | .error e => Q.2.1 e, Q.2.2) := by
   simp [wp, MonadFunctor.monadMap, ExceptT.run]

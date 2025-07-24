@@ -3,9 +3,13 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.LRAT.Internal.Entails
-import Std.Tactic.BVDecide.LRAT.Internal.Clause
+public import Std.Tactic.BVDecide.LRAT.Internal.Entails
+public import Std.Tactic.BVDecide.LRAT.Internal.Clause
+
+@[expose] public section
 
 /-!
 This module contains the definition of the `Formula` typeclass. It is the interface that needs to

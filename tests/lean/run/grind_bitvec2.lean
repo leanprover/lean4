@@ -1,5 +1,3 @@
-
-
 set_option linter.unusedSimpArgs false
 
 open BitVec
@@ -325,7 +323,7 @@ theorem sub_toNat_mod_cancel {x : BitVec w} (h : ¬ x = 0#w) :
 theorem sub_toNat_mod_cancel_of_toNat {x : BitVec w} (h : x.toNat ≠ 0) :
     (2 ^ w - x.toNat) % 2 ^ w = 2 ^ w - x.toNat := by
   have := x.isLt
-  grind [Nat.mod_eq_of_lt]
+  grind [= Nat.mod_eq_of_lt]
 
 theorem toNat_mod_cancel_of_lt {x : BitVec n} (h : n < m) : x.toNat % (2 ^ m) = x.toNat := by
   have : 2 ^ n < 2 ^ m := Nat.pow_lt_pow_of_lt (by omega) h
@@ -457,7 +455,7 @@ theorem toInt_eq_toNat_of_lt {x : BitVec n} (h : 2 * x.toNat < 2^n) :
   grind [toInt_eq_toNat_cond]
 
 theorem msb_eq_false_iff_two_mul_lt {x : BitVec w} : x.msb = false ↔ 2 * x.toNat < 2^w := by
-  cases w <;> grind [Nat.pow_succ, msb_eq_decide]
+  cases w <;> grind [msb_eq_decide]
 
 grind_pattern msb_eq_false_iff_two_mul_lt => x.msb, x.toNat
 
@@ -760,10 +758,12 @@ theorem toNat_eq_nat {x : BitVec w} {y : Nat} :
   · intro eq
     simp [Nat.mod_eq_of_lt, eq]
 
+grind_pattern toNat_eq_nat => BitVec.ofNat w y, x.toNat
+
 /-- Moves one-sided right toNat equality to BitVec equality. -/
 theorem nat_eq_toNat {x : BitVec w} {y : Nat} :
     (y = x.toNat) ↔ (y < 2^w ∧ (x = BitVec.ofNat w y)) := by
-  grind [toNat_eq_nat]
+  grind
 
 theorem getElem?_setWidth' (x : BitVec w) (i : Nat) (h : w ≤ v) :
     (setWidth' h x)[i]? = if i < v then some (x.getLsbD i) else none := by grind

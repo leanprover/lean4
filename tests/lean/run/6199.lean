@@ -31,7 +31,7 @@ Decimal tests
 #guard_msgs in #term "(1_00_)"
 -- Starting with `_` is an identifier:
 /--
-error: unknown identifier '_10'
+error: Unknown identifier `_10`
 ---
 info: sorry : ?_
 -/

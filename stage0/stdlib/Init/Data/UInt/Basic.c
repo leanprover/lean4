@@ -22,7 +22,6 @@ LEAN_EXPORT lean_object* l_UInt32_ofNatCore___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instComplementUInt32;
 LEAN_EXPORT lean_object* l_USize_toUInt16___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_USize_mul___boxed(lean_object*, lean_object*);
-lean_object* lean_uint16_to_nat(uint16_t);
 LEAN_EXPORT uint8_t l_UInt8_ofNatCore(lean_object*, lean_object*);
 uint32_t lean_bool_to_uint32(uint8_t);
 LEAN_EXPORT lean_object* l_instPowUInt32Nat;
@@ -37,10 +36,10 @@ LEAN_EXPORT lean_object* l_USize_lor___boxed(lean_object*, lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
 LEAN_EXPORT lean_object* l_instMulUInt64;
 LEAN_EXPORT lean_object* l_UInt64_toUSize___boxed(lean_object*);
-lean_object* lean_uint32_to_nat(uint32_t);
 uint8_t lean_uint8_lor(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_UInt8_sub___boxed(lean_object*, lean_object*);
 static lean_object* l_instSubUInt8___closed__0;
+lean_object* l_UInt16_toFin(uint16_t);
 LEAN_EXPORT lean_object* l_UInt64_shiftRight___boxed(lean_object*, lean_object*);
 static lean_object* l_instOrOpUSize___closed__0;
 LEAN_EXPORT lean_object* l_UInt32_add___boxed(lean_object*, lean_object*);
@@ -65,6 +64,7 @@ LEAN_EXPORT lean_object* l_UInt16_xor___boxed(lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_instMaxUSize;
 uint8_t lean_uint16_dec_lt(uint16_t, uint16_t);
+lean_object* l_UInt8_toFin(uint8_t);
 LEAN_EXPORT lean_object* l_Bool_toUInt8___boxed(lean_object*);
 static lean_object* l_instModUInt8___closed__0;
 LEAN_EXPORT lean_object* l_UInt32_ofNatCore___redArg___boxed(lean_object*);
@@ -219,7 +219,6 @@ LEAN_EXPORT lean_object* l_instMaxUInt16___lam__0___boxed(lean_object*, lean_obj
 static lean_object* l_instOrOpUInt64___closed__0;
 uint16_t lean_uint16_shift_right(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_UInt32_pow___boxed(lean_object*, lean_object*);
-lean_object* lean_uint8_to_nat(uint8_t);
 uint64_t lean_uint64_add(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_instSubUInt8;
 uint64_t lean_uint64_of_nat(lean_object*);
@@ -241,7 +240,6 @@ LEAN_EXPORT lean_object* l_instMinUInt64___lam__0___boxed(lean_object*, lean_obj
 extern lean_object* l_System_Platform_numBits;
 LEAN_EXPORT lean_object* l_instHModUInt16Nat;
 size_t lean_uint16_to_usize(uint16_t);
-lean_object* lean_usize_to_nat(size_t);
 uint8_t lean_uint8_mul(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_instShiftRightUInt16;
 static lean_object* l_UInt32_ofInt___closed__0;
@@ -361,6 +359,7 @@ static lean_object* l_instSubUInt32___closed__0;
 uint8_t lean_uint8_shift_right(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_USize_toUInt8___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_USize_shiftLeft___boxed(lean_object*, lean_object*);
+lean_object* l_UInt32_toFin(uint32_t);
 static lean_object* l_instAndOpUInt32___closed__0;
 LEAN_EXPORT lean_object* l_UInt64_ofInt___boxed(lean_object*);
 uint8_t lean_uint8_of_nat(lean_object*);
@@ -428,7 +427,6 @@ LEAN_EXPORT lean_object* l_UInt64_sub___boxed(lean_object*, lean_object*);
 static lean_object* l_instComplementUInt32___closed__0;
 LEAN_EXPORT lean_object* l_instAndOpUInt64;
 LEAN_EXPORT lean_object* l_instNegUInt64;
-lean_object* lean_uint64_to_nat(uint64_t);
 LEAN_EXPORT lean_object* l_UInt64_land___boxed(lean_object*, lean_object*);
 uint8_t lean_uint8_of_nat(lean_object*);
 static lean_object* l_UInt8_ofInt___closed__1;
@@ -450,6 +448,8 @@ LEAN_EXPORT lean_object* l_instXorUInt16;
 size_t lean_usize_div(size_t, size_t);
 LEAN_EXPORT lean_object* l_instShiftLeftUSize;
 LEAN_EXPORT size_t l_USize_pow(size_t, lean_object*);
+lean_object* l_USize_toFin(size_t);
+lean_object* l_UInt64_toFin(uint64_t);
 LEAN_EXPORT lean_object* l_UInt8_mul___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_UInt8_ofFin(lean_object* x_1) {
 _start:
@@ -568,9 +568,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint8_add(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -581,9 +579,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint8_sub(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -594,9 +590,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint8_mul(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -607,9 +601,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint8_div(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -644,7 +636,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_UInt8_pow(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -656,9 +647,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint8_mod(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -677,7 +666,7 @@ LEAN_EXPORT uint8_t l_UInt8_modn(uint8_t x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = lean_uint8_to_nat(x_1);
+x_3 = l_UInt8_toFin(x_1);
 x_4 = lean_nat_mod(x_3, x_2);
 lean_dec(x_3);
 x_5 = l_Nat_cast___at___UInt8_modn_spec__0(x_4);
@@ -700,7 +689,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_UInt8_modn(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -712,9 +700,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint8_land(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -725,9 +711,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint8_lor(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -738,9 +722,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint8_xor(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -751,9 +733,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint8_shift_left(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -764,9 +744,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint8_shift_right(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -905,7 +883,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_uint8_complement(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -916,7 +893,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_uint8_neg(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -1039,7 +1015,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_bool_to_uint8(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -1050,9 +1025,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint8_dec_lt(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1063,9 +1036,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint8_dec_le(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1099,9 +1070,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_instMaxUInt8___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1135,9 +1104,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_instMinUInt8___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1251,9 +1218,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint16_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint16_add(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1264,9 +1229,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint16_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint16_sub(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1277,9 +1240,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint16_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint16_mul(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1290,9 +1251,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint16_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint16_div(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1327,7 +1286,6 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_UInt16_pow(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -1339,9 +1297,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint16_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint16_mod(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1360,7 +1316,7 @@ LEAN_EXPORT uint16_t l_UInt16_modn(uint16_t x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint16_t x_6; 
-x_3 = lean_uint16_to_nat(x_1);
+x_3 = l_UInt16_toFin(x_1);
 x_4 = lean_nat_mod(x_3, x_2);
 lean_dec(x_3);
 x_5 = l_Nat_cast___at___UInt16_modn_spec__0(x_4);
@@ -1383,7 +1339,6 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_UInt16_modn(x_3, x_2);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
@@ -1395,9 +1350,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint16_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint16_land(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1408,9 +1361,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint16_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint16_lor(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1421,9 +1372,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint16_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint16_xor(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1434,9 +1383,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint16_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint16_shift_left(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1447,9 +1394,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint16_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint16_shift_right(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1588,7 +1533,6 @@ _start:
 {
 uint16_t x_2; uint16_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_uint16_complement(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -1599,7 +1543,6 @@ _start:
 {
 uint16_t x_2; uint16_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_uint16_neg(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -1722,7 +1665,6 @@ _start:
 {
 uint8_t x_2; uint16_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_bool_to_uint16(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -1733,9 +1675,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint16_dec_lt(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1746,9 +1686,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = lean_uint16_dec_le(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1782,9 +1720,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint16_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_instMaxUInt16___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -1818,9 +1754,7 @@ _start:
 {
 uint16_t x_3; uint16_t x_4; uint16_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = lean_unbox(x_2);
-lean_dec(x_2);
 x_5 = l_instMinUInt16___lam__0(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
@@ -2043,7 +1977,7 @@ LEAN_EXPORT uint32_t l_UInt32_modn(uint32_t x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint32_t x_6; 
-x_3 = lean_uint32_to_nat(x_1);
+x_3 = l_UInt32_toFin(x_1);
 x_4 = lean_nat_mod(x_3, x_2);
 lean_dec(x_3);
 x_5 = l_Nat_cast___at___UInt32_modn_spec__0(x_4);
@@ -2389,7 +2323,6 @@ _start:
 {
 uint8_t x_2; uint32_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_bool_to_uint32(x_2);
 x_4 = lean_box_uint32(x_3);
 return x_4;
@@ -2612,7 +2545,7 @@ LEAN_EXPORT uint64_t l_UInt64_modn(uint64_t x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint64_t x_6; 
-x_3 = lean_uint64_to_nat(x_1);
+x_3 = l_UInt64_toFin(x_1);
 x_4 = lean_nat_mod(x_3, x_2);
 lean_dec(x_3);
 x_5 = l_Nat_cast___at___UInt64_modn_spec__0(x_4);
@@ -2974,7 +2907,6 @@ _start:
 {
 uint8_t x_2; uint64_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_bool_to_uint64(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
@@ -3269,7 +3201,7 @@ LEAN_EXPORT size_t l_USize_modn(size_t x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; size_t x_6; 
-x_3 = lean_usize_to_nat(x_1);
+x_3 = l_USize_toFin(x_1);
 x_4 = lean_nat_mod(x_3, x_2);
 lean_dec(x_3);
 x_5 = l_Nat_cast___at___USize_modn_spec__0(x_4);
@@ -3379,7 +3311,6 @@ _start:
 {
 uint8_t x_2; size_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_uint8_to_usize(x_2);
 x_4 = lean_box_usize(x_3);
 return x_4;
@@ -3401,7 +3332,6 @@ _start:
 {
 uint16_t x_2; size_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_uint16_to_usize(x_2);
 x_4 = lean_box_usize(x_3);
 return x_4;
@@ -3681,7 +3611,6 @@ _start:
 {
 uint8_t x_2; size_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = lean_bool_to_usize(x_2);
 x_4 = lean_box_usize(x_3);
 return x_4;

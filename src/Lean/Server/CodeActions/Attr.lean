@@ -90,7 +90,7 @@ def CommandCodeActions.insert (self : CommandCodeActions)
     { self with onAnyCmd := self.onAnyCmd.push action }
   else
     { self with onCmd := tacticKinds.foldl (init := self.onCmd) fun m a =>
-        m.insert a ((m.findD a #[]).push action) }
+        m.insert a ((m.getD a #[]).push action) }
 
 builtin_initialize builtinCmdCodeActions : IO.Ref CommandCodeActions ← IO.mkRef {}
 

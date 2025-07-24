@@ -73,9 +73,9 @@ def tooMany₃ : Foo → Foo → Prop
 error: type mismatch
   True
 has type
-  Prop : Type
+  Prop
 but is expected to have type
-  Foo → Prop : Type
+  Foo → Prop
 -/
 #guard_msgs in
 def tooFew₁ : Foo → Foo → Prop
@@ -196,9 +196,9 @@ error: Not enough patterns in match alternative: Expected 2, but found 1:
 error: type mismatch
   fun b => True
 has type
-  ?_ → Prop : Sort (max 1 _)
+  ?_ → Prop
 but is expected to have type
-  Prop : Type
+  Prop
 -/
 #guard_msgs in
 def matchTooFewFn : Foo → Foo → Prop := fun a b =>

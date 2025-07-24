@@ -752,6 +752,8 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 
 @[inherit_doc] infix:50 " != " => bne
 
+macro_rules | `($x != $y) => `(binrel_no_prop% bne $x $y)
+
 recommended_spelling "bne" for "!=" in [bne, «term_!=_»]
 
 /-- `ReflBEq α` says that the `BEq` implementation is reflexive. -/
@@ -852,6 +854,8 @@ and asserts that `a` and `b` are not equal.
   ¬(a = b)
 
 @[inherit_doc] infix:50 " ≠ "  => Ne
+
+macro_rules | `($x ≠ $y) => `(binrel% Ne $x $y)
 
 recommended_spelling "ne" for "≠" in [Ne, «term_≠_»]
 

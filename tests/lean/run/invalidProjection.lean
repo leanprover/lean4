@@ -21,6 +21,9 @@ example (h1 : P n h) (h2 : P m h') := h1.1 = h2.2
 error: Invalid projection: Index `3` is invalid for this structure; it must be between 1 and 2
 
 Note: The expression `x` has type `Nat × Nat × Nat` which has only 2 fields
+
+Hint: n-tuples in Lean are actually nested pairs. To access the 3rd component of this tuple, use the projection `.2.2` instead:
+  3̵2̲.̲2̲
 -/
 #guard_msgs in
 example (x : Nat × Nat × Nat) := x.3
@@ -85,12 +88,3 @@ which has propositional type
 -/
 #guard_msgs in
 def foo (h : ∃ x: Nat, True) := h.1
-
-/--
-error: unknown identifier 'foo'
----
-error: unknown identifier 'foo'
--/
-#guard_msgs in
-theorem contradiction : False :=
-  (by decide : 0 ≠ 1) (show foo ⟨0, trivial⟩ = foo ⟨1, trivial⟩ from rfl)

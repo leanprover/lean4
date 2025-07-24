@@ -26,7 +26,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Std_TreeSet_Raw_Equiv_instTrans(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 return x_3;
 }
 }

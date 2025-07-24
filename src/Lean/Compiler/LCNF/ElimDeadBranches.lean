@@ -209,25 +209,27 @@ partial def getLiteral (v : Value) : CompilerM (Option ((Array CodeDecl) × FVar
     return none
 where
   go : Value → CompilerM ((Array CodeDecl) × FVarId)
-  | .ctor `Nat.zero #[] .. => do
+  | .ctor ``Nat.zero #[] .. => do
     let decl ← mkAuxLetDecl <| .lit <| .nat <| 0
     return (#[.let decl], decl.fvarId)
-  | .ctor `Nat.succ #[val] .. => do
+  | .ctor ``Nat.succ #[val] .. => do
     let val := getNatConstant val + 1
     let decl ← mkAuxLetDecl <| .lit <| .nat <| val
     return (#[.let decl], decl.fvarId)
-  | .ctor i vs => do
-    let args ← vs.mapM go
+  | .ctor ctorName vs => do
+    let some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | unreachable!
+    let fields ← vs.mapM go
     let flatten acc := fun (decls, var) => (acc.fst ++ decls, acc.snd.push <| .fvar var)
-    let (decls, params) := args.foldl (init := (#[], Array.mkEmpty args.size)) flatten
-    let letVal : LetValue := .const i [] params
+    let (decls, args) :=
+      fields.foldl (init := (#[], Array.replicate ctorInfo.numParams .erased)) flatten
+    let letVal : LetValue := .const ctorName [] args
     let letDecl ← mkAuxLetDecl letVal
     return (decls.push <| .let letDecl, letDecl.fvarId)
   | _ => unreachable!
 
   getNatConstant : Value → Nat
-  | .ctor `Nat.zero #[] .. => 0
-  | .ctor `Nat.succ #[val] .. => getNatConstant val + 1
+  | .ctor ``Nat.zero #[] .. => 0
+  | .ctor ``Nat.succ #[val] .. => getNatConstant val + 1
   | _ => panic! "Not a well formed Nat constant Value"
 
 end Value
@@ -251,7 +253,9 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
-    toArrayFn := fun s => s.toArray.qsort decLt
+    exportEntriesFnEx? := some fun env s _ _ =>
+      let entries := s.toArray.qsort decLt
+      entries.filter (isDeclPublic env ·.1)
     asyncMode := .sync  -- compilation is non-parallel anyway
     replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s ⟨e, n⟩ => s.insert e n)
   }
@@ -260,7 +264,7 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
 Add a `Value` for a function name.
 -/
 def addFunctionSummary (env : Environment) (fid : Name) (v : Value) : Environment :=
-  functionSummariesExt.addEntry (env.addExtraName fid) (fid, v)
+  functionSummariesExt.addEntry env (fid, v)
 
 /--
 Obtain the `Value` for a function name if possible.
@@ -300,7 +304,7 @@ structure InterpState where
   `Value`s of functions in the `InterpContext` use during computation of
   the fixpoint. Afterwards they are stored into the `Environment`.
   -/
-  funVals     : PArray Value
+  funVals     : Array Value
 
 /--
 The monad which powers the abstract interpreter.
@@ -525,7 +529,7 @@ ones. Return whether any `Value` got updated in the process.
 -/
 def inferStep : InterpM Bool := do
   let ctx ← read
-  for h : idx in [0:ctx.decls.size] do
+  for h : idx in *...ctx.decls.size do
     let decl := ctx.decls[idx]
     if !decl.safe then
       continue

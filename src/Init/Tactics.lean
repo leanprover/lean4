@@ -663,7 +663,7 @@ A simp lemma specification is:
 * optional `←` to use the lemma backward
 * `thm` for the theorem to rewrite with
 -/
-syntax simpLemma := (simpPre <|> simpPost)? patternIgnore("← " <|> "<- ")? term
+syntax simpLemma := ppGroup((simpPre <|> simpPost)? patternIgnore("← " <|> "<- ")? term)
 /-- An erasure specification `-thm` says to remove `thm` from the simp set -/
 syntax simpErase := "-" term:max
 /-- The simp lemma specification `*` means to rewrite with all hypotheses -/
@@ -1117,7 +1117,7 @@ For a `match` expression with `n` cases, the `split` tactic generates at most `n
 For example, given `n : Nat`, and a target `if n = 0 then Q else R`, `split` will generate
 one goal with hypothesis `n = 0` and target `Q`, and a second goal with hypothesis
 `¬n = 0` and target `R`.  Note that the introduced hypothesis is unnamed, and is commonly
-renamed used the `case` or `next` tactics.
+renamed using the `case` or `next` tactics.
 
 - `split` will split the goal (target).
 - `split at h` will split the hypothesis `h`.
@@ -2046,6 +2046,16 @@ macro (name := mstopMacro) (priority:=low) "mstop" : tactic =>
 
 
 /--
+Leaves the stateful proof mode of `Std.Do.SPred`, tries to eta-expand through all definitions
+related to the logic of the `Std.Do.SPred` and gently simplifies the resulting pure Lean
+proposition. This is often the right thing to do after `mvcgen` in order for automation to prove
+the goal.
+-/
+macro (name := mleaveMacro) (priority:=low) "mleave" : tactic =>
+  Macro.throwError "to use `mleave`, please include `import Std.Tactic.Do`"
+
+
+/--
 Like `rcases`, but operating on stateful `Std.Do.SPred` goals.
 Example: Given a goal `h : (P ∧ (Q ∨ R) ∧ (Q → R)) ⊢ₛ R`,
 `mcases h with ⟨-, ⟨hq | hr⟩, hqr⟩` will yield two goals:
@@ -2117,7 +2127,7 @@ the verification conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
   success and failure continuations.
 * `?pre` and `?post.*` goals introduce their stateful hypothesis as `h`.
 * Any uninstantiated MVar arising from instantiation of `foo_spec` becomes a new subgoal.
-* If the goal looks like `fun s => _ ⊢ₛ _` then `mspec` will first `mintro ∀s`.
+* If the target of the stateful goal looks like `fun s => _` then `mspec` will first `mintro ∀s`.
 * If `P` has schematic variables that can be instantiated by doing `mintro ∀s`, for example
   `foo_spec : ∀(n:Nat), ⦃⌜n = ‹Nat›ₛ⌝⦄ foo ⦃Q⦄`, then `mspec` will do `mintro ∀s` first to
   instantiate `n = s`.

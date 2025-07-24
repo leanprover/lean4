@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.HashMap.Lemmas
-// Imports: Std.Data.DHashMap.Lemmas Std.Data.HashMap.Basic Std.Data.HashMap.AdditionalOperations
+// Imports: Std.Data.DHashMap.Lemmas Std.Data.HashMap.Basic Std.Data.HashMap.AdditionalOperations Std.Data.DHashMap.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,7 +24,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_inc(x_3);
 return x_3;
 }
@@ -33,7 +33,7 @@ else
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
@@ -76,14 +76,15 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_HashMap_Equiv_instTrans(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
 return x_5;
 }
 }
 lean_object* initialize_Std_Data_DHashMap_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashMap_AdditionalOperations(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_HashMap_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -96,6 +97,9 @@ res = initialize_Std_Data_HashMap_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashMap_AdditionalOperations(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_DHashMap_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

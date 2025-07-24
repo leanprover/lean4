@@ -55,8 +55,10 @@ unsafe def replaceUnsafeM (f? : Level → Option Level) (size : USize) (e : Expr
         | e                      => pure e
   visit e
 
+private def notAnExpr : Unit × Unit := ⟨⟨⟩, ⟨⟩⟩
+
 unsafe def initCache : State :=
-  { keys    := .replicate cacheSize.toNat (cast lcProof ()), -- `()` is not a valid `Expr`
+  { keys    := .replicate cacheSize.toNat (cast lcProof notAnExpr), -- `notAnExpr` is not a valid `Expr`
     results := .replicate cacheSize.toNat default }
 
 unsafe def replaceUnsafe (f? : Level → Option Level) (e : Expr) : Expr :=

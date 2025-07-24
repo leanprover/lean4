@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mac Malone
 -/
 prelude
-import Lean.Data.Json
+import Lean.Data.Json.Parser
+import Lean.Data.Json.FromToJson.Basic
 import Lean.Util.LeanOptions
 
 /-!
@@ -43,20 +44,37 @@ Module data files used for an `import` statement.
 This structure is designed for efficient JSON serialization.
 -/
 structure ImportArtifacts where
-  oleanParts : Array System.FilePath
+  ofArray ::
+    toArray : Array System.FilePath
   deriving Repr, Inhabited
 
-instance : ToJson ImportArtifacts := ⟨(toJson ·.oleanParts)⟩
-instance : FromJson ImportArtifacts := ⟨(.mk <$> fromJson? ·)⟩
+instance : ToJson ImportArtifacts := ⟨(toJson ·.toArray)⟩
+instance : FromJson ImportArtifacts := ⟨(.ofArray <$> fromJson? ·)⟩
+
+def ImportArtifacts.size (arts : ImportArtifacts) :=
+  arts.toArray.size
 
 def ImportArtifacts.olean? (arts : ImportArtifacts) :=
-  arts.oleanParts[0]?
+  arts.toArray[0]?
+
+def ImportArtifacts.ir? (arts : ImportArtifacts) :=
+  arts.toArray[1]?
 
 def ImportArtifacts.oleanServer? (arts : ImportArtifacts) :=
-  arts.oleanParts[1]?
+  arts.toArray[2]?
 
 def ImportArtifacts.oleanPrivate? (arts : ImportArtifacts) :=
-  arts.oleanParts[2]?
+  arts.toArray[3]?
+
+def ImportArtifacts.oleanParts (arts : ImportArtifacts) : Array System.FilePath := Id.run do
+  let mut fnames := #[]
+  if let some mFile := arts.olean? then
+    fnames := fnames.push mFile
+    if let some sFile := arts.oleanServer? then
+      fnames := fnames.push sFile
+      if let some pFile := arts.oleanPrivate? then
+        fnames := fnames.push pFile
+  return fnames
 
 /-- Files containing data for a single module. -/
 structure ModuleArtifacts where

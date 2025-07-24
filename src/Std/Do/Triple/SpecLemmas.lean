@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Std.Do.Triple.Basic
-import Std.Do.WP
+public import Std.Do.Triple.Basic
+public import Std.Do.WP
+
+@[expose] public section
 
 /-!
 # Hoare triple specifications for select functions
@@ -32,12 +36,24 @@ structure Zipper {α : Type u} (l : List α) : Type u where
   suff : List α
   property : rpref.reverse ++ suff = l
 
+@[simp]
 abbrev Zipper.pref {α} {l : List α} (s : List.Zipper l) : List α := s.rpref.reverse
 
 abbrev Zipper.begin (l : List α) : Zipper l := ⟨[],l,rfl⟩
 abbrev Zipper.end (l : List α) : Zipper l := ⟨l.reverse,[],by simp⟩
 abbrev Zipper.tail (s : Zipper l) (h : s.suff = hd::tl) : Zipper l :=
   { rpref := hd::s.rpref, suff := tl, property := by simp [s.property, ←h] }
+
+@[grind →]
+theorem range_elim : List.range' s n = xs ++ i :: ys → i = s + xs.length := by
+  intro h
+  induction xs generalizing s n
+  case nil => cases n <;> simp_all[List.range']
+  case cons head tail ih =>
+    cases n <;> simp[List.range'] at h
+    have := ih h.2
+    simp[ih h.2]
+    omega
 
 end Std.List
 
@@ -49,31 +65,17 @@ namespace Std.Do
 @[inherit_doc Std.Do.triple]
 local notation:lead (priority := high) "⦃" P "⦄ " x:lead " ⦃" Q "⦄" => Triple x (spred(P)) spred(Q)
 
-/-! # If/Then/Else -/
-
-@[spec]
-theorem Spec.ite {α m ps} {P : Assertion ps} {Q : PostCond α ps} (c : Prop) [Decidable c] [WP m ps] (t : m α) (e : m α)
-    (ifTrue : c → ⦃P⦄ t ⦃Q⦄) (ifFalse : ¬c → ⦃P⦄ e ⦃Q⦄) :
-    ⦃P⦄ if c then t else e ⦃Q⦄ := by
-  split <;> apply_rules
-
-@[spec]
-theorem Spec.dite {α m ps} {P : Assertion ps} {Q : PostCond α ps} (c : Prop) [Decidable c] [WP m ps] (t : c → m α) (e : ¬ c → m α)
-    (ifTrue : (h : c) → ⦃P⦄ t h ⦃Q⦄) (ifFalse : (h : ¬ c) → ⦃P⦄ e h ⦃Q⦄) :
-    ⦃P⦄ if h : c then t h else e h ⦃Q⦄ := by
-  split <;> apply_rules
-
 /-! # `Monad` -/
 
-universe u
-variable {m : Type → Type u} {ps : PostShape}
+universe u v
+variable {m : Type u → Type v} {ps : PostShape.{u}}
 
 theorem Spec.pure' [Monad m] [WPMonad m ps] {P : Assertion ps} {Q : PostCond α ps}
     (h : P ⊢ₛ Q.1 a) :
     ⦃P⦄ Pure.pure (f:=m) a ⦃Q⦄ := Triple.pure a h
 
 @[spec]
-theorem Spec.pure {m : Type → Type u} {ps : PostShape} [Monad m] [WPMonad m ps] {α} {a : α} {Q : PostCond α ps} :
+theorem Spec.pure [Monad m] [WPMonad m ps] {α} {a : α} {Q : PostCond α ps} :
   ⦃Q.1 a⦄ Pure.pure (f:=m) a ⦃Q⦄ := Spec.pure' .rfl
 
 theorem Spec.bind' [Monad m] [WPMonad m ps] {x : m α} {f : α → m β} {P : Assertion ps} {Q : PostCond β ps}
@@ -81,15 +83,15 @@ theorem Spec.bind' [Monad m] [WPMonad m ps] {x : m α} {f : α → m β} {P : As
     ⦃P⦄ (x >>= f) ⦃Q⦄ := Triple.bind x f h (fun _ => .rfl)
 
 @[spec]
-theorem Spec.bind {m : Type → Type u} {ps : PostShape} [Monad m] [WPMonad m ps] {α β} {x : m α} {f : α → m β} {Q : PostCond β ps} :
+theorem Spec.bind [Monad m] [WPMonad m ps] {α β} {x : m α} {f : α → m β} {Q : PostCond β ps} :
   ⦃wp⟦x⟧ (fun a => wp⟦f a⟧ Q, Q.2)⦄ (x >>= f) ⦃Q⦄ := Spec.bind' .rfl
 
 @[spec]
-theorem Spec.map {m : Type → Type u} {ps : PostShape} [Monad m] [WPMonad m ps] {α β} {x : m α} {f : α → β} {Q : PostCond β ps} :
+theorem Spec.map [Monad m] [WPMonad m ps] {α β} {x : m α} {f : α → β} {Q : PostCond β ps} :
   ⦃wp⟦x⟧ (fun a => Q.1 (f a), Q.2)⦄ (f <$> x) ⦃Q⦄ := by simp [Triple, SPred.entails.refl]
 
 @[spec]
-theorem Spec.seq {m : Type → Type u} {ps : PostShape} [Monad m] [WPMonad m ps] {α β} {x : m (α → β)} {y : m α} {Q : PostCond β ps} :
+theorem Spec.seq [Monad m] [WPMonad m ps] {α β} {x : m (α → β)} {y : m α} {Q : PostCond β ps} :
   ⦃wp⟦x⟧ (fun f => wp⟦y⟧ (fun a => Q.1 (f a), Q.2), Q.2)⦄ (x <*> y) ⦃Q⦄ := by simp [Triple, SPred.entails.refl]
 
 /-! # `MonadLift` -/
@@ -170,11 +172,11 @@ theorem Spec.get_StateT [Monad m] [WPMonad m psm] :
 
 @[spec]
 theorem Spec.set_StateT [Monad m] [WPMonad m psm] :
-  ⦃fun _ => Q.1 () s⦄ (MonadStateOf.set s : StateT σ m PUnit) ⦃Q⦄ := by simp [Triple]
+  ⦃fun _ => Q.1 ⟨⟩ s⦄ (MonadStateOf.set s : StateT σ m PUnit) ⦃Q⦄ := by simp [Triple]
 
 @[spec]
 theorem Spec.modifyGet_StateT [Monad m] [WPMonad m ps] :
-  ⦃fun s => Q.1 (f s).1 (f s).2⦄ (MonadStateOf.modifyGet f : StateT σ m α) ⦃Q⦄ := by
+  ⦃fun s => let t := f s; Q.1 t.1 t.2⦄ (MonadStateOf.modifyGet f : StateT σ m α) ⦃Q⦄ := by
     simp [Triple]
 
 /-! # `ExceptT` -/
@@ -219,7 +221,7 @@ theorem Spec.set_EStateM :
 
 @[spec]
 theorem Spec.modifyGet_EStateM :
-    ⦃fun s => Q.1 (f s).1 (f s).2⦄ (MonadStateOf.modifyGet f : EStateM ε σ α) ⦃Q⦄ := SPred.entails.rfl
+    ⦃fun s => let t := f s; Q.1 t.1 t.2⦄ (MonadStateOf.modifyGet f : EStateM ε σ α) ⦃Q⦄ := SPred.entails.rfl
 
 @[spec]
 theorem Spec.throw_EStateM :
@@ -302,7 +304,7 @@ theorem Spec.tryCatch_ExceptT_lift [WP m ps] [Monad m] [MonadExceptOf ε m] (Q :
 /-! # `ForIn` -/
 
 @[spec]
-theorem Spec.forIn'_list {α : Type} {β : Type} {m : Type → Type v} {ps : PostShape}
+theorem Spec.forIn'_list {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : PostCond (β × List.Zipper xs) ps)
@@ -336,7 +338,7 @@ theorem Spec.forIn'_list {α : Type} {β : Type} {m : Type → Type v} {ps : Pos
         exact this
 
 -- using the postcondition as a constant invariant:
-theorem Spec.forIn'_list_const_inv {α : Type} {β : Type} {m : Type → Type v} {ps : PostShape}
+theorem Spec.forIn'_list_const_inv {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     {inv : PostCond β ps}
@@ -347,8 +349,9 @@ theorem Spec.forIn'_list_const_inv {α : Type} {β : Type} {m : Type → Type v}
     ⦃inv.1 init⦄ forIn' xs init f ⦃inv⦄ :=
   Spec.forIn'_list (fun p => inv.1 p.1, inv.2) (fun b _ x hx _ _ => step x hx b)
 
+set_option pp.universes true in
 @[spec]
-theorem Spec.forIn_list {α : Type} {β : Type} {m : Type → Type v} {ps : PostShape}
+theorem Spec.forIn_list {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : α → β → m (ForInStep β)}
     (inv : PostCond (β × List.Zipper xs) ps)
@@ -363,7 +366,7 @@ theorem Spec.forIn_list {α : Type} {β : Type} {m : Type → Type v} {ps : Post
   exact Spec.forIn'_list inv (fun b rpref x _ suff h => step b rpref x suff h)
 
 -- using the postcondition as a constant invariant:
-theorem Spec.forIn_list_const_inv {α : Type} {β : Type} {m : Type → Type v} {ps : PostShape}
+theorem Spec.forIn_list_const_inv {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : α → β → m (ForInStep β)}
     {inv : PostCond β ps}
@@ -375,7 +378,7 @@ theorem Spec.forIn_list_const_inv {α : Type} {β : Type} {m : Type → Type v} 
   Spec.forIn_list (fun p => inv.1 p.1, inv.2) (fun b _ hd _ _ => step hd b)
 
 @[spec]
-theorem Spec.foldlM_list {α : Type} {β : Type} {m : Type → Type v} {ps : PostShape}
+theorem Spec.foldlM_list {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : β → α → m β}
     (inv : PostCond (β × List.Zipper xs) ps)
@@ -392,7 +395,7 @@ theorem Spec.foldlM_list {α : Type} {β : Type} {m : Type → Type v} {ps : Pos
   exact step
 
 -- using the postcondition as a constant invariant:
-theorem Spec.foldlM_list_const_inv {α : Type} {β : Type} {m : Type → Type v} {ps : PostShape}
+theorem Spec.foldlM_list_const_inv {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : β → α → m β}
     {inv : PostCond β ps}
@@ -434,7 +437,7 @@ theorem Spec.forIn_range {β : Type} {m : Type → Type v} {ps : PostShape}
   apply Spec.forIn_list inv step
 
 @[spec]
-theorem Spec.forIn'_array {α : Type} {β : Type} {m : Type → Type v} {ps : PostShape}
+theorem Spec.forIn'_array {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : Array α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : PostCond (β × List.Zipper xs.toList) ps)
@@ -450,7 +453,7 @@ theorem Spec.forIn'_array {α : Type} {β : Type} {m : Type → Type v} {ps : Po
   apply Spec.forIn'_list inv (fun b rpref x hx suff h => step b rpref x (by simp[hx]) suff h)
 
 @[spec]
-theorem Spec.forIn_array {α : Type} {β : Type} {m : Type → Type v} {ps : PostShape}
+theorem Spec.forIn_array {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : Array α} {init : β} {f : α → β → m (ForInStep β)}
     (inv : PostCond (β × List.Zipper xs.toList) ps)
@@ -466,7 +469,7 @@ theorem Spec.forIn_array {α : Type} {β : Type} {m : Type → Type v} {ps : Pos
   apply Spec.forIn_list inv step
 
 @[spec]
-theorem Spec.foldlM_array {α : Type} {β : Type} {m : Type → Type v} {ps : PostShape}
+theorem Spec.foldlM_array {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : Array α} {init : β} {f : β → α → m β}
     (inv : PostCond (β × List.Zipper xs.toList) ps)

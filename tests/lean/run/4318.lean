@@ -34,9 +34,9 @@ example (n : Nat) : 0 = 1 :=
 
 /--
 error: 'calc' expression has type
-  0 = 1 : Prop
+  0 = 1
 but is expected to have type
-  0 < 1 : Prop
+  0 < 1
 -/
 #guard_msgs in
 example : 0 < 1 :=
@@ -71,9 +71,9 @@ Tactic mode `calc`. Calc extension fails due to expected type mismatch, so repor
 -/
 /--
 error: 'calc' expression has type
-  0 < n - n : Prop
+  0 < n - n
 but is expected to have type
-  0 ≤ 1 : Prop
+  0 ≤ 1
 -/
 #guard_msgs in
 example (n : Nat) : 0 ≤ 1 := by

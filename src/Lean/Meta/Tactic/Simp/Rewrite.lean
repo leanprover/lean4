@@ -162,7 +162,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
      This simple approach was good enough for Mathlib 3 -/
   let mut extraArgs := #[]
   let mut e := e
-  for _ in [:numExtraArgs] do
+  for _ in *...numExtraArgs do
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse
@@ -289,11 +289,6 @@ where
   catch _ =>
     return .continue
 
-private def isNatExpr (e : Expr) : MetaM Bool := do
-  let type ← inferType e
-  let_expr Nat ← type | return false
-  return true
-
 def simpArith (e : Expr) : SimpM Step := do
   unless (← getConfig).arith do
     return .continue
@@ -305,18 +300,19 @@ def simpArith (e : Expr) : SimpM Step := do
     if let some (e', h) ← Arith.Int.simpEq? e then
       return .visit { expr := e', proof? := h }
     return .continue
-  let isNat ← isNatExpr e
-  if Arith.isLinearTerm e isNat then
-    if Arith.parentIsTarget (← getContext).parent? isNat then
+  if let some α := Arith.isLinearTerm? e then
+    if Arith.parentIsTarget (← getContext).parent? then
       -- We mark `cache := false` to ensure we do not miss simplifications.
       return .continue (some { expr := e, cache := false })
-    if isNat then
+    match_expr α with
+    | Nat =>
       let some (e', h) ← Arith.Nat.simpExpr? e | pure ()
       return .visit { expr := e', proof? := h }
-    else
+    | Int =>
       let some (e', h) ← Arith.Int.simpExpr? e | pure ()
       return .visit { expr := e', proof? := h }
-    return .continue
+    | _ =>
+      return .continue
   if Arith.isDvdCnstr e then
     let some (e', h) ← Arith.Int.simpDvd? e | pure ()
     return .visit { expr := e', proof? := h }
@@ -337,7 +333,7 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
   let args  := e.getAppArgsN n
   let mut r : Result := { expr := f }
   let mut modified := false
-  for i in [0 : info.numDiscrs] do
+  for i in *...info.numDiscrs do
     let arg := args[i]!
     if i < infos.size && !infos[i]!.hasFwdDeps then
       let argNew ← simp arg
@@ -353,7 +349,7 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
       r ← mkCongrFun r argNew
   unless modified do
     return none
-  for h : i in [info.numDiscrs : args.size] do
+  for h : i in info.numDiscrs...args.size do
     let arg := args[i]
     r ← mkCongrFun r arg
   return some r

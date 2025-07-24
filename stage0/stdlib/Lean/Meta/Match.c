@@ -174,13 +174,12 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_3_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_initFn___closed__2____x40_Lean_Meta_Match___hyg_3_;
-x_3 = lean_box(0);
+x_3 = 0;
 x_4 = l_Lean_initFn___closed__14____x40_Lean_Meta_Match___hyg_3_;
-x_5 = lean_unbox(x_3);
-x_6 = l_Lean_registerTraceClass(x_2, x_5, x_4, x_1);
-return x_6;
+x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
+return x_5;
 }
 }
 lean_object* initialize_Lean_Meta_Match_MatchPatternAttr(uint8_t builtin, lean_object*);

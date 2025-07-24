@@ -13,9 +13,9 @@ termination_by n => n
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  foo 0 = 0 : Prop
+  foo 0 = 0
 -/
 #guard_msgs in
 example : foo 0 = 0 := rfl
@@ -24,19 +24,20 @@ example : foo 0 = 0 := rfl
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  foo (n + 1) = foo n : Prop
+  foo (n + 1) = foo n
 -/
 #guard_msgs in
 example : foo (n+1) = foo n := rfl
 
 -- also for closed terms
 /--
-error: tactic 'rfl' failed, the left-hand side
+error: Tactic `rfl` failed: the left-hand side
   foo 0
 is not definitionally equal to the right-hand side
   0
+
 ⊢ foo 0 = 0
 -/
 #guard_msgs in
@@ -44,10 +45,11 @@ example : foo 0 = 0 := by rfl
 
 -- It only works on closed terms:
 /--
-error: tactic 'rfl' failed, the left-hand side
+error: Tactic `rfl` failed: the left-hand side
   foo (n + 1)
 is not definitionally equal to the right-hand side
   foo n
+
 n : Nat
 ⊢ foo (n + 1) = foo n
 -/
@@ -64,9 +66,9 @@ unseal foo
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  foo 0 = 0 : Prop
+  foo 0 = 0
 -/
 #guard_msgs in
 example : foo 0 = 0 := rfl
@@ -75,9 +77,9 @@ example : foo 0 = 0 := rfl
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  foo (n + 1) = foo n : Prop
+  foo (n + 1) = foo n
 -/
 #guard_msgs in
 example : foo (n+1) = foo n := rfl
@@ -90,9 +92,9 @@ end Unsealed
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  foo 0 = 0 : Prop
+  foo 0 = 0
 -/
 #guard_msgs in
 example : foo 0 = 0 := rfl
@@ -110,9 +112,9 @@ termination_by n => n
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  foo = bar : Prop
+  foo = bar
 -/
 #guard_msgs in
 example : foo = bar := rfl
@@ -134,9 +136,9 @@ seal baz in
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  baz 0 = 0 : Prop
+  baz 0 = 0
 -/
 #guard_msgs in
 example : baz 0 = 0 := rfl
@@ -156,9 +158,9 @@ seal quux in
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  quux 0 = 0 : Prop
+  quux 0 = 0
 -/
 #guard_msgs in
 example : quux 0 = 0 := rfl

@@ -10,6 +10,7 @@ import Lean.Data.KVMap
 import Lean.Data.SMap
 import Lean.Level
 import Std.Data.HashSet.Basic
+import Std.Data.TreeSet.Basic
 
 namespace Lean
 
@@ -214,17 +215,23 @@ instance : Repr FVarId where
 
 /--
 A set of unique free variable identifiers.
-This is a persistent data structure implemented using red-black trees. -/
-def FVarIdSet := RBTree FVarId (Name.quickCmp ·.name ·.name)
+This is a persistent data structure implemented using `Std.TreeSet`. -/
+def FVarIdSet := Std.TreeSet FVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
-instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
+instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
 def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
-  RBTree.insert s fvarId
+  Std.TreeSet.insert s fvarId
 
 def FVarIdSet.union (vs₁ vs₂ : FVarIdSet) : FVarIdSet :=
-  vs₁.fold (init := vs₂) (·.insert ·)
+  vs₁.foldl (init := vs₂) (·.insert ·)
+
+def FVarIdSet.ofList (l : List FVarId) : FVarIdSet :=
+  Std.TreeSet.ofList l _
+
+def FVarIdSet.ofArray (l : Array FVarId) : FVarIdSet :=
+  Std.TreeSet.ofArray l _
 
 /--
 A set of unique free variable identifiers implemented using hashtables.
@@ -235,13 +242,13 @@ def FVarIdHashSet := Std.HashSet FVarId
 
 /--
 A mapping from free variable identifiers to values of type `α`.
-This is a persistent data structure implemented using red-black trees. -/
-def FVarIdMap (α : Type) := RBMap FVarId α (Name.quickCmp ·.name ·.name)
+This is a persistent data structure implemented using `Std.TreeMap`. -/
+def FVarIdMap (α : Type) := Std.TreeMap FVarId α (Name.quickCmp ·.name ·.name)
 
 def FVarIdMap.insert (s : FVarIdMap α) (fvarId : FVarId) (a : α) : FVarIdMap α :=
-  RBMap.insert s fvarId a
+  Std.TreeMap.insert s fvarId a
 
-instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
+instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
 instance : Inhabited (FVarIdMap α) where
   default := {}
@@ -254,22 +261,28 @@ structure MVarId where
 instance : Repr MVarId where
   reprPrec n p := reprPrec n.name p
 
-def MVarIdSet := RBTree MVarId (Name.quickCmp ·.name ·.name)
+def MVarIdSet := Std.TreeSet MVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
 def MVarIdSet.insert (s : MVarIdSet) (mvarId : MVarId) : MVarIdSet :=
-  RBTree.insert s mvarId
+  Std.TreeSet.insert s mvarId
 
-instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
+def MVarIdSet.ofList (l : List MVarId) : MVarIdSet :=
+  Std.TreeSet.ofList l _
 
-def MVarIdMap (α : Type) := RBMap MVarId α (Name.quickCmp ·.name ·.name)
+def MVarIdSet.ofArray (l : Array MVarId) : MVarIdSet :=
+  Std.TreeSet.ofArray l _
+
+instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
+
+def MVarIdMap (α : Type) := Std.TreeMap MVarId α (Name.quickCmp ·.name ·.name)
 
 def MVarIdMap.insert (s : MVarIdMap α) (mvarId : MVarId) (a : α) : MVarIdMap α :=
-  RBMap.insert s mvarId a
+  Std.TreeMap.insert s mvarId a
 
-instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
+instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
-instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (RBMap ..) ..)
+instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) ..)
 
 instance : Inhabited (MVarIdMap α) where
   default := {}
@@ -2198,6 +2211,9 @@ private def natSubFn : Expr :=
 private def natMulFn : Expr :=
   mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHMul
 
+private def natPowFn : Expr :=
+  mkApp4 (mkConst ``HPow.hPow [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHPow
+
 /-- Given `a : Nat`, returns `Nat.succ a` -/
 def mkNatSucc (a : Expr) : Expr :=
   mkApp (mkConst ``Nat.succ) a
@@ -2213,6 +2229,10 @@ def mkNatSub (a b : Expr) : Expr :=
 /-- Given `a b : Nat`, returns `a * b` -/
 def mkNatMul (a b : Expr) : Expr :=
   mkApp2 natMulFn a b
+
+/-- Given `a b : Nat`, returns `a ^ b` -/
+def mkNatPow (a b : Expr) : Expr :=
+  mkApp2 natPowFn a b
 
 private def natLEPred : Expr :=
   mkApp2 (mkConst ``LE.le [0]) Nat.mkType Nat.mkInstLE
@@ -2313,7 +2333,7 @@ def mkIntDiv (a b : Expr) : Expr :=
 def mkIntMod (a b : Expr) : Expr :=
   mkApp2 intModFn a b
 
-/-- Given `a : Int`, returns `NatCast.natCast a` -/
+/-- Given `a : Nat`, returns `NatCast.natCast (R := Int) a` -/
 def mkIntNatCast (a : Expr) : Expr :=
   mkApp intNatCastFn a
 

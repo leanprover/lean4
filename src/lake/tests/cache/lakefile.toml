@@ -5,6 +5,10 @@ enableArtifactCache = true
 name = "Test"
 
 [[lean_lib]]
+name = "Module"
+leanOptions.experimental.module = true
+
+[[lean_lib]]
 name = "Ignored"
 
 [[lean_exe]]

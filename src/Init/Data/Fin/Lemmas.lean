@@ -927,24 +927,34 @@ For the induction:
 -/
 @[elab_as_elim] def reverseInduction {motive : Fin (n + 1) → Sort _} (last : motive (Fin.last n))
     (cast : ∀ i : Fin n, motive i.succ → motive (castSucc i)) (i : Fin (n + 1)) : motive i :=
-  if hi : i = Fin.last n then _root_.cast (congrArg motive hi.symm) last
-  else
-    let j : Fin n := ⟨i, Nat.lt_of_le_of_ne (Nat.le_of_lt_succ i.2) fun h => hi (Fin.ext h)⟩
-    cast _ (reverseInduction last cast j.succ)
-termination_by n + 1 - i
-decreasing_by decreasing_with
-  -- FIXME: we put the proof down here to avoid getting a dummy `have` in the definition
-  try simp only [Nat.succ_sub_succ_eq_sub]
-  exact Nat.add_sub_add_right .. ▸ Nat.sub_lt_sub_left i.2 (Nat.lt_succ_self i)
+  let rec go (j : Nat) (h) (h2 : i ≤ j) (x : motive ⟨j, h⟩) : motive i :=
+    if hi : i.1 = j then _root_.cast (by simp [← hi]) x
+    else match j with
+      | 0 => by omega
+      | j + 1 => go j (by omega) (by omega) (cast ⟨j, by omega⟩ x)
+  go _ _ (by omega) last
 
 @[simp] theorem reverseInduction_last {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ} :
     (reverseInduction zero succ (Fin.last n) : motive (Fin.last n)) = zero := by
-  rw [reverseInduction]; simp
+  rw [reverseInduction, reverseInduction.go]; simp
+
+@[simp] theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) → Sort _} {succ}
+    (i : Fin n) (j : Nat) (h) (h2 : i.1 < j) (zero : motive ⟨j, h⟩) :
+    reverseInduction.go (motive := motive) succ i.castSucc j h (Nat.le_of_lt h2) zero =
+      succ i (reverseInduction.go succ i.succ j h h2 zero) := by
+  induction j generalizing i with
+  | zero => omega
+  | succ j ih =>
+    rw [reverseInduction.go, dif_neg (by exact Nat.ne_of_lt h2)]
+    by_cases hij : i = j
+    · subst hij; simp [reverseInduction.go]
+    dsimp only
+    rw [ih _ _ (by omega), eq_comm, reverseInduction.go, dif_neg (by change i.1 + 1 ≠ _; omega)]
 
 @[simp] theorem reverseInduction_castSucc {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ}
     (i : Fin n) : reverseInduction (motive := motive) zero succ (castSucc i) =
       succ i (reverseInduction zero succ i.succ) := by
-  rw [reverseInduction, dif_neg (Fin.ne_of_lt (Fin.castSucc_lt_last i))]; rfl
+  rw [reverseInduction, reverseInduction_castSucc_aux _ _ _ i.isLt, reverseInduction]
 
 /--
 Proves a statement by cases on the underlying `Nat` value in a `Fin (n + 1)`, checking whether the

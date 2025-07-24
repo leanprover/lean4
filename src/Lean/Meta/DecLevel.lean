@@ -70,6 +70,9 @@ def decLevel (u : Level) : MetaM Level := do
 def getDecLevel (type : Expr) : MetaM Level := do
   decLevel (← getLevel type)
 
+def getDecLevel? (type : Expr) : MetaM (Option Level) := do
+  decLevel? (← getLevel type)
+
 builtin_initialize
   registerTraceClass `Meta.isLevelDefEq.step
 

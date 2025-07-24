@@ -46,6 +46,8 @@ LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lam__0(lean_object*, le
 lean_object* l_System_FilePath_components(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_parseTZIfFromDisk___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_default___closed__10;
+lean_object* lean_mk_io_user_error(lean_object*);
+static lean_object* l_Std_Time_Database_TZdb_parseTZif___closed__0;
 static lean_object* l_Std_Time_Database_TZdb_default___closed__7;
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_parseTZIfFromDisk(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_default;
@@ -184,16 +186,24 @@ x_1 = l_Std_Time_Database_TZdb_default___closed__10;
 return x_1;
 }
 }
+static lean_object* _init_l_Std_Time_Database_TZdb_parseTZif___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Std_Time_TimeZone_TZif_parse), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_parseTZif(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_alloc_closure((void*)(l_Std_Time_TimeZone_TZif_parse), 1, 0);
+x_3 = l_Std_Time_Database_TZdb_parseTZif___closed__0;
 x_4 = l_Std_Internal_Parsec_ByteArray_Parser_run___redArg(x_3, x_1);
 if (lean_obj_tag(x_4) == 0)
 {
 uint8_t x_5; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
 {
@@ -215,7 +225,7 @@ else
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_4, 0);
 lean_inc(x_8);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_9 = l_Std_Time_TimeZone_convertTZif(x_8, x_2);
 lean_dec(x_8);
 return x_9;
@@ -227,41 +237,26 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-uint8_t x_3; 
-x_3 = !lean_is_exclusive(x_1);
-if (x_3 == 0)
-{
-lean_object* x_4; 
-lean_ctor_set_tag(x_1, 18);
-x_4 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-return x_4;
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec_ref(x_1);
+x_4 = lean_mk_io_user_error(x_3);
+x_5 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_5, 0, x_4);
+lean_ctor_set(x_5, 1, x_2);
+return x_5;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_6, 0, x_5);
-x_7 = lean_alloc_ctor(1, 2, 0);
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec_ref(x_1);
+x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_2);
 return x_7;
-}
-}
-else
-{
-lean_object* x_8; lean_object* x_9; 
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_2);
-return x_9;
 }
 }
 }
@@ -311,7 +306,7 @@ x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = l_Std_Time_Database_TZdb_parseTZif(x_5, x_2);
 x_8 = l_IO_ofExcept___at___Std_Time_Database_TZdb_parseTZIfFromDisk_spec__0___redArg(x_7, x_6);
 return x_8;
@@ -319,7 +314,7 @@ return x_8;
 else
 {
 uint8_t x_9; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_9 = !lean_is_exclusive(x_4);
 if (x_9 == 0)
 {
@@ -352,14 +347,13 @@ x_14 = lean_ctor_get(x_4, 0);
 lean_dec(x_14);
 x_15 = l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__0;
 x_16 = lean_string_append(x_15, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_17 = l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__1;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = lean_string_append(x_18, x_1);
 x_20 = l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__2;
 x_21 = lean_string_append(x_19, x_20);
-x_22 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_22, 0, x_21);
+x_22 = lean_mk_io_user_error(x_21);
 lean_ctor_set(x_4, 0, x_22);
 return x_4;
 }
@@ -371,14 +365,13 @@ lean_inc(x_23);
 lean_dec(x_4);
 x_24 = l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__0;
 x_25 = lean_string_append(x_24, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_26 = l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__1;
 x_27 = lean_string_append(x_25, x_26);
 x_28 = lean_string_append(x_27, x_1);
 x_29 = l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__2;
 x_30 = lean_string_append(x_28, x_29);
-x_31 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_31, 0, x_30);
+x_31 = lean_mk_io_user_error(x_30);
 x_32 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_23);
@@ -392,7 +385,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Time_Database_TZdb_parseTZIfFromDisk(x_1, x_2, x_3);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_4;
 }
 }
@@ -427,7 +420,7 @@ if (x_7 == 0)
 lean_object* x_8; 
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_8 = lean_box(0);
 return x_8;
 }
@@ -443,7 +436,7 @@ if (x_11 == 0)
 lean_object* x_12; 
 lean_dec(x_10);
 lean_dec(x_6);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_12 = lean_box(0);
 return x_12;
 }
@@ -454,7 +447,7 @@ x_13 = lean_array_fget(x_3, x_6);
 lean_dec(x_6);
 x_14 = lean_array_fget(x_3, x_10);
 lean_dec(x_10);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_15 = l_Std_Time_Database_TZdb_idFromPath___closed__0;
 x_16 = lean_string_dec_eq(x_14, x_15);
 if (x_16 == 0)
@@ -467,7 +460,7 @@ x_20 = l_Substring_takeRightWhileAux___at___Lean_Syntax_isToken_spec__0(x_14, x_
 x_21 = lean_string_utf8_extract(x_14, x_19, x_20);
 lean_dec(x_20);
 lean_dec(x_19);
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_22 = l_Std_Time_Database_TZdb_idFromPath___closed__1;
 x_23 = lean_string_append(x_21, x_22);
 x_24 = lean_string_utf8_byte_size(x_13);
@@ -476,9 +469,9 @@ x_26 = l_Substring_takeRightWhileAux___at___Lean_Syntax_isToken_spec__0(x_13, x_
 x_27 = lean_string_utf8_extract(x_13, x_25, x_26);
 lean_dec(x_26);
 lean_dec(x_25);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_28 = lean_string_append(x_23, x_27);
-lean_dec(x_27);
+lean_dec_ref(x_27);
 x_29 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_29, 0, x_28);
 return x_29;
@@ -486,7 +479,7 @@ return x_29;
 else
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
-lean_dec(x_14);
+lean_dec_ref(x_14);
 x_30 = lean_unsigned_to_nat(0u);
 x_31 = lean_string_utf8_byte_size(x_13);
 x_32 = l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0(x_13, x_31, x_30);
@@ -494,7 +487,7 @@ x_33 = l_Substring_takeRightWhileAux___at___Lean_Syntax_isToken_spec__0(x_13, x_
 x_34 = lean_string_utf8_extract(x_13, x_32, x_33);
 lean_dec(x_33);
 lean_dec(x_32);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_35 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
 return x_35;
@@ -516,8 +509,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Std_Time_Database_TZdb_localRules___closed__0;
-x_2 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = lean_mk_io_user_error(x_1);
 return x_2;
 }
 }
@@ -525,7 +517,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_localRules(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_3 = lean_io_realpath(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
@@ -540,7 +532,7 @@ x_7 = l_Std_Time_Database_TZdb_idFromPath(x_5);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_8 = l_Std_Time_Database_TZdb_localRules___closed__1;
 lean_ctor_set_tag(x_3, 1);
 lean_ctor_set(x_3, 0, x_8);
@@ -552,9 +544,9 @@ lean_object* x_9; lean_object* x_10;
 lean_free_object(x_3);
 x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_10 = l_Std_Time_Database_TZdb_parseTZIfFromDisk(x_1, x_9, x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_10;
 }
 }
@@ -570,7 +562,7 @@ x_13 = l_Std_Time_Database_TZdb_idFromPath(x_11);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_14 = l_Std_Time_Database_TZdb_localRules___closed__1;
 x_15 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
@@ -582,9 +574,9 @@ else
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_ctor_get(x_13, 0);
 lean_inc(x_16);
-lean_dec(x_13);
+lean_dec_ref(x_13);
 x_17 = l_Std_Time_Database_TZdb_parseTZIfFromDisk(x_1, x_16, x_12);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_17;
 }
 }
@@ -592,7 +584,7 @@ return x_17;
 else
 {
 uint8_t x_18; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_18 = !lean_is_exclusive(x_3);
 if (x_18 == 0)
 {
@@ -620,7 +612,7 @@ _start:
 lean_object* x_4; lean_object* x_5; 
 x_4 = l_System_FilePath_join(x_1, x_2);
 x_5 = l_Std_Time_Database_TZdb_parseTZIfFromDisk(x_4, x_2, x_3);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_5;
 }
 }
@@ -629,8 +621,8 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-lean_dec(x_1);
+lean_inc_ref(x_3);
+lean_dec_ref(x_1);
 x_4 = l_Std_Time_Database_TZdb_localRules(x_3, x_2);
 return x_4;
 }
@@ -647,9 +639,8 @@ lean_dec(x_9);
 if (x_10 == 0)
 {
 uint8_t x_11; 
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_4);
+lean_dec_ref(x_2);
 x_11 = !lean_is_exclusive(x_8);
 if (x_11 == 0)
 {
@@ -678,10 +669,10 @@ return x_16;
 else
 {
 lean_object* x_17; lean_object* x_18; 
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_17 = lean_ctor_get(x_8, 1);
 lean_inc(x_17);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_18 = l_Std_Time_Database_TZdb_readRulesFromDisk(x_4, x_2, x_17);
 if (lean_obj_tag(x_18) == 0)
 {
@@ -725,7 +716,6 @@ return x_29;
 else
 {
 uint8_t x_30; 
-lean_dec(x_3);
 x_30 = !lean_is_exclusive(x_18);
 if (x_30 == 0)
 {
@@ -797,13 +787,13 @@ if (lean_obj_tag(x_7) == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; lean_object* x_16; 
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = lean_ctor_get(x_2, 1);
-lean_inc(x_9);
-lean_dec(x_2);
+lean_inc_ref(x_9);
+lean_dec_ref(x_2);
 x_10 = lean_box(0);
 x_11 = l_Std_Time_Database_TZdb_inst___lam__2___closed__1;
-lean_inc(x_3);
+lean_inc_ref(x_3);
 x_12 = lean_alloc_closure((void*)(l_Std_Time_Database_TZdb_inst___lam__1___boxed), 7, 3);
 lean_closure_set(x_12, 0, x_11);
 lean_closure_set(x_12, 1, x_3);
@@ -831,11 +821,10 @@ x_20 = lean_ctor_get(x_16, 0);
 lean_dec(x_20);
 x_21 = l_Std_Time_Database_TZdb_inst___lam__2___closed__2;
 x_22 = lean_string_append(x_21, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_23 = l_Std_Time_Database_TZdb_inst___lam__2___closed__3;
 x_24 = lean_string_append(x_22, x_23);
-x_25 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_25, 0, x_24);
+x_25 = lean_mk_io_user_error(x_24);
 lean_ctor_set_tag(x_16, 1);
 lean_ctor_set(x_16, 0, x_25);
 return x_16;
@@ -848,11 +837,10 @@ lean_inc(x_26);
 lean_dec(x_16);
 x_27 = l_Std_Time_Database_TZdb_inst___lam__2___closed__2;
 x_28 = lean_string_append(x_27, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_29 = l_Std_Time_Database_TZdb_inst___lam__2___closed__3;
 x_30 = lean_string_append(x_28, x_29);
-x_31 = lean_alloc_ctor(18, 1, 0);
-lean_ctor_set(x_31, 0, x_30);
+x_31 = lean_mk_io_user_error(x_30);
 x_32 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_26);
@@ -862,7 +850,7 @@ return x_32;
 else
 {
 uint8_t x_33; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_33 = !lean_is_exclusive(x_16);
 if (x_33 == 0)
 {
@@ -871,7 +859,7 @@ x_34 = lean_ctor_get(x_16, 0);
 lean_dec(x_34);
 x_35 = lean_ctor_get(x_18, 0);
 lean_inc(x_35);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 lean_ctor_set(x_16, 0, x_35);
 return x_16;
 }
@@ -883,7 +871,7 @@ lean_inc(x_36);
 lean_dec(x_16);
 x_37 = lean_ctor_get(x_18, 0);
 lean_inc(x_37);
-lean_dec(x_18);
+lean_dec_ref(x_18);
 x_38 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_38, 0, x_37);
 lean_ctor_set(x_38, 1, x_36);
@@ -894,7 +882,7 @@ return x_38;
 else
 {
 uint8_t x_39; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_39 = !lean_is_exclusive(x_16);
 if (x_39 == 0)
 {
@@ -918,14 +906,14 @@ return x_42;
 else
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; 
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_43 = lean_ctor_get(x_6, 1);
 lean_inc(x_43);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_44 = lean_ctor_get(x_7, 0);
 lean_inc(x_44);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_45 = l_Std_Time_Database_TZdb_readRulesFromDisk(x_44, x_3, x_43);
 return x_45;
 }
@@ -958,7 +946,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Time_Database_TZdb_inst___lam__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 return x_8;
 }
 }
@@ -1007,6 +995,8 @@ l_Std_Time_Database_TZdb_default___closed__10 = _init_l_Std_Time_Database_TZdb_d
 lean_mark_persistent(l_Std_Time_Database_TZdb_default___closed__10);
 l_Std_Time_Database_TZdb_default = _init_l_Std_Time_Database_TZdb_default();
 lean_mark_persistent(l_Std_Time_Database_TZdb_default);
+l_Std_Time_Database_TZdb_parseTZif___closed__0 = _init_l_Std_Time_Database_TZdb_parseTZif___closed__0();
+lean_mark_persistent(l_Std_Time_Database_TZdb_parseTZif___closed__0);
 l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__0 = _init_l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__0();
 lean_mark_persistent(l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__0);
 l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__1 = _init_l_Std_Time_Database_TZdb_parseTZIfFromDisk___closed__1();

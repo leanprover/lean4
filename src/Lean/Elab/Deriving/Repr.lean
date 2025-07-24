@@ -29,7 +29,7 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term :
     let mut fields ← `(Format.nil)
     if xs.size != numParams + fieldNames.size then
       throwError "'deriving Repr' failed, unexpected number of fields in structure"
-    for h : i in [:fieldNames.size] do
+    for h : i in *...fieldNames.size do
       let fieldName := fieldNames[i]
       let fieldNameLit := Syntax.mkStrLit (toString fieldName)
       let x := xs[numParams + i]!
@@ -54,12 +54,12 @@ where
       let alt ← forallTelescopeReducing ctorInfo.type fun xs _ => do
         let mut patterns := #[]
         -- add `_` pattern for indices
-        for _ in [:indVal.numIndices] do
+        for _ in *...indVal.numIndices do
           patterns := patterns.push (← `(_))
         let mut ctorArgs := #[]
         let mut rhs : Term := Syntax.mkStrLit (toString ctorInfo.name)
         rhs ← `(Format.text $rhs)
-        for h : i in [:xs.size] do
+        for h : i in *...xs.size do
           -- Note: some inductive parameters are explicit if they were promoted from indices,
           -- so we process all constructor arguments in the same loop.
           let x := xs[i]
@@ -97,13 +97,13 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     body ← mkLet letDecls body
   let binders    := header.binders
   if ctx.usePartial then
-    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
+    `(@[no_expose] partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
   else
-    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
+    `(@[no_expose] def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
-  for i in [:ctx.typeInfos.size] do
+  for i in *...ctx.typeInfos.size do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
   `(mutual
      $auxDefs:command*

@@ -182,7 +182,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
         let ctorInfo ← getConstInfoCtor ctorName
         let params := majorType.getAppArgs.shrink ctorInfo.numParams
         let mut result := mkAppN (mkConst ctorName us) params
-        for i in [:ctorInfo.numFields] do
+        for i in *...ctorInfo.numFields do
           result := mkApp result (← mkProjFn ctorInfo us params i major)
         return result
     | _ => return major
@@ -664,7 +664,7 @@ where
           | .partialApp   => pure e
           | .stuck _      => pure e
           | .notMatcher   =>
-            let .const cname lvls := f' | return e
+            let .const cname lvls := f'.getAppFn | return e
             let some cinfo := (← getEnv).find? cname | return e
             match cinfo with
             | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)

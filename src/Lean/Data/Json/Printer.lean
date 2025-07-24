@@ -96,7 +96,7 @@ partial def render : Json → Format
   | obj kvs =>
     let renderKV : String → Json → Format := fun k v =>
       Format.group (renderString k ++ ":" ++ Format.line ++ render v);
-    let kvs := Format.joinSep (kvs.fold (fun acc k j => renderKV k j :: acc) []) ("," ++ Format.line);
+    let kvs := Format.joinSep (kvs.foldl (fun acc k j => renderKV k j :: acc) []) ("," ++ Format.line);
     Format.bracket "{" kvs "}"
 end
 
@@ -124,7 +124,7 @@ where go (acc : String) : List Json.CompressWorkItem → String
     | num s      => go (acc ++ s.toString) is
     | str s      => go (renderString s acc) is
     | arr elems  => go (acc ++ "[") ((elems.map arrayElem).toListAppend (arrayEnd :: is))
-    | obj kvs    => go (acc ++ "{") (kvs.fold (init := []) (fun acc k j => objectField k j :: acc) ++ [objectEnd] ++ is)
+    | obj kvs    => go (acc ++ "{") (kvs.foldl (init := []) (fun acc k j => objectField k j :: acc) ++ [objectEnd] ++ is)
   | arrayElem j :: arrayEnd :: is      => go acc (json j :: arrayEnd :: is)
   | arrayElem j :: is                  => go acc (json j :: comma :: is)
   | arrayEnd :: is                     => go (acc ++ "]") is

@@ -204,7 +204,7 @@ LEAN_EXPORT lean_object* l_Subarray_split___redArg(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_3 = l_Subarray_take___redArg(x_1, x_2);
 x_4 = l_Subarray_drop___redArg(x_1, x_2);
 x_5 = lean_alloc_ctor(0, 2, 0);

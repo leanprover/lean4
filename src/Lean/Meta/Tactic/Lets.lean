@@ -272,7 +272,7 @@ where
     else
       let (paramInfos, _) ← instantiateForallWithParamInfos (← inferType f) args
       let mut args := args
-      for i in [0:args.size] do
+      for i in *...args.size do
         if paramInfos[i]!.binderInfo.isExplicit then
           args := args.set! i (← extractCore fvars args[i]!)
       return mkAppN f' args

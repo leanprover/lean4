@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Add
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftLeft
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Add
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftLeft
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
+
+@[expose] public section
 
 
 /-!
@@ -152,7 +156,7 @@ theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
       · simp [Ref.hgate]
     · intro idx hidx
       rw [BitVec.mulRec_zero_eq]
-      simp only [Nat.succ_eq_add_one, RefVec.denote_ite, 
+      simp only [Nat.succ_eq_add_one, RefVec.denote_ite,
         denote_blastConst,
         BitVec.ofNat_eq_ofNat, BitVec.getLsbD_zero, Bool.if_false_right,
         Bool.decide_eq_true]

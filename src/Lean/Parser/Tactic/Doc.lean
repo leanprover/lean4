@@ -36,7 +36,7 @@ builtin_initialize tacticAlternativeExt
     addImportedFn := fun _ => pure {},
     addEntryFn := fun as (src, tgt) => as.insert src tgt,
     exportEntriesFn := fun es =>
-      es.fold (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
+      es.foldl (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
   }
 
 /--
@@ -114,7 +114,7 @@ builtin_initialize knownTacticTagExt
     addImportedFn := fun _ => pure {},
     addEntryFn := fun as (src, tgt) => as.insert src tgt,
     exportEntriesFn := fun es =>
-      es.fold (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
+      es.foldl (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
   }
 
 /--
@@ -149,7 +149,7 @@ def allTagsWithInfo [Monad m] [MonadEnv m] : m (List (Name × String × Option S
   for arr in knownTacticTagExt.toEnvExtension.getState env |>.importedEntries do
     for (tag, info) in arr do
       found := found.insert tag info
-  let arr := found.fold (init := #[]) (fun arr k v => arr.push (k, v))
+  let arr := found.foldl (init := #[]) (fun arr k v => arr.push (k, v))
   pure (arr.qsort (·.1.toString < ·.1.toString) |>.toList)
 
 /--
@@ -167,7 +167,7 @@ builtin_initialize tacticTagExt
   registerPersistentEnvExtension {
     mkInitial := pure {},
     addImportedFn := fun _ => pure {},
-    addEntryFn := fun tags (decl, newTag) => tags.insert decl (tags.findD decl {} |>.insert newTag)
+    addEntryFn := fun tags (decl, newTag) => tags.insert decl (tags.getD decl {} |>.insert newTag)
     exportEntriesFn := fun tags => Id.run do
       let mut exported := #[]
       for (decl, dTags) in tags do
@@ -234,9 +234,9 @@ builtin_initialize tacticDocExtExt
   registerPersistentEnvExtension {
     mkInitial := pure {},
     addImportedFn := fun _ => pure {},
-    addEntryFn := fun es (x, ext) => es.insert x (es.findD x #[] |>.push ext),
+    addEntryFn := fun es (x, ext) => es.insert x (es.getD x #[] |>.push ext),
     exportEntriesFn := fun es =>
-      es.fold (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
+      es.foldl (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
   }
 
 /-- Gets the extensions declared for the documentation for the given canonical tactic name -/

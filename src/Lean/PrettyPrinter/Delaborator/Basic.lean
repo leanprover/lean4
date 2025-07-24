@@ -165,7 +165,7 @@ def getExprKind : DelabM Name := do
 def getOptionsAtCurrPos : DelabM Options := do
   let ctx ← read
   let mut opts ← getOptions
-  if let some opts' := ctx.optionsPerPos.find? (← getPos) then
+  if let some opts' := ctx.optionsPerPos.get? (← getPos) then
     for (k, v) in opts' do
       opts := opts.insert k v
   return opts
@@ -187,7 +187,7 @@ def withOptionAtCurrPos (k : Name) (v : DataValue) (x : DelabM α) : DelabM α :
   let pos ← getPos
   withReader
     (fun ctx =>
-      let opts' := ctx.optionsPerPos.find? pos |>.getD {} |>.insert k v
+      let opts' := ctx.optionsPerPos.get? pos |>.getD {} |>.insert k v
       { ctx with optionsPerPos := ctx.optionsPerPos.insert pos opts' })
     x
 

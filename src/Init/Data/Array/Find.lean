@@ -26,11 +26,11 @@ open Nat
 
 /-! ### findSome? -/
 
-@[simp, grind] theorem findSome?_empty : (#[] : Array α).findSome? f = none := rfl
-@[simp, grind] theorem findSome?_push {xs : Array α} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
+@[simp, grind =] theorem findSome?_empty : (#[] : Array α).findSome? f = none := rfl
+@[simp, grind =] theorem findSome?_push {xs : Array α} : (xs.push a).findSome? f = (xs.findSome? f).or (f a) := by
   cases xs; simp [List.findSome?_append]
 
-@[grind]
+@[grind =]
 theorem findSome?_singleton {a : α} {f : α → Option β} : #[a].findSome? f = f a := by
   simp
 

@@ -16,6 +16,7 @@ import Lean.Elab.Tactic.Do.ProofMode.Pure
 import Lean.Elab.Tactic.Do.ProofMode.Frame
 import Lean.Elab.Tactic.Do.ProofMode.LeftRight
 import Lean.Elab.Tactic.Do.ProofMode.Constructor
+import Lean.Elab.Tactic.Do.ProofMode.RenameI
 import Lean.Elab.Tactic.Do.ProofMode.Specialize
 import Lean.Elab.Tactic.Do.ProofMode.Cases
 import Lean.Elab.Tactic.Do.ProofMode.Exfalso

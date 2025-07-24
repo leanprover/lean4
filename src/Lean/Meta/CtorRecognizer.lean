@@ -35,18 +35,19 @@ def isConstructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
 
 /--
 Similar to `isConstructorApp?`, but uses `whnf`.
-It also uses `isOffset?` for `Nat`.
+It also uses `isOffset?` for `Nat` if (`useOffset := true`)
 
 See also `Lean.Meta.constructorApp'?`.
 -/
-def isConstructorApp'? (e : Expr) : MetaM (Option ConstructorVal) := do
-  if let some (_, k) ← isOffset? e then
-    if k = 0 then
-      return none
-    else
-      let .ctorInfo val ← getConstInfo ``Nat.succ | return none
-      return some val
-  else if let some r ← isConstructorApp? e then
+def isConstructorApp'? (e : Expr) (useOffset : Bool := true) : MetaM (Option ConstructorVal) := do
+  if useOffset then
+    if let some (_, k) ← isOffset? e then
+      if k = 0 then
+        return none
+      else
+        let .ctorInfo val ← getConstInfo ``Nat.succ | return none
+        return some val
+  if let some r ← isConstructorApp? e then
     return r
   else try
     /-
@@ -98,15 +99,11 @@ def constructorApp'? (e : Expr) : MetaM (Option (ConstructorVal × Array Expr)) 
       let .ctorInfo val ← getConstInfo ``Nat.succ | return none
       if k = 1 then return some (val, #[e])
       else return some (val, #[mkNatAdd e (toExpr (k-1))])
-  else if let some r ← constructorApp? e then
-    return some r
-  else try
-    /-
-    We added the `try` block here because `whnf` fails at terms `n ^ m`
-    when `m` is a big numeral, and `n` is a numeral. This is a little bit hackish.
-    -/
-    constructorApp? (← whnf e)
-  catch _ =>
-    return none
+  /-
+  We added the `try` block here because `whnf` fails at terms `n ^ m`
+  when `m` is a big numeral, and `n` is a numeral. This is a little bit hackish.
+  -/
+  let e ← try whnf e catch _ => pure e
+  constructorApp? (← litToCtor e)
 
 end Lean.Meta

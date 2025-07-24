@@ -158,20 +158,6 @@ theorem zero_zsmul (a : Q α) : zsmul 0 a = zero := by
   induction a using Quot.ind
   next a => cases a; simp
 
-theorem zsmul_zero (a : Int) : zsmul a (zero : Q α) = zero := by
-  simp
-
-theorem zsmul_add (a : Int) (b c : Q α) : zsmul a (add b c) = add (zsmul a b) (zsmul a c) := by
-  induction b using Q.ind
-  induction c using Q.ind
-  next b c =>
-  cases b; cases c; simp
-  split <;>
-  · apply Quot.sound
-    refine ⟨0, ?_⟩
-    simp
-    ac_rfl
-
 theorem add_zsmul (a b : Int) (c : Q α) : zsmul (a + b) c = add (zsmul a c) (zsmul b c) := by
   induction c using Q.ind
   next c =>
@@ -228,7 +214,7 @@ def ofNatModule : IntModule (Q α) := {
   add, sub, neg,
   add_comm, add_assoc, add_zero,
   neg_add_cancel, sub_eq_add_neg,
-  one_zsmul, zero_zsmul, zsmul_zero, zsmul_add, add_zsmul,
+  one_zsmul, zero_zsmul, add_zsmul,
   zsmul_natCast_eq_nsmul
 }
 

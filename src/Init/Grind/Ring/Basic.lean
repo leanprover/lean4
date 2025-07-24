@@ -157,10 +157,8 @@ theorem ofNat_add (a b : Nat) : OfNat.ofNat (α := α) (a + b) = OfNat.ofNat a +
 instance toNatModule [I : Semiring α] : NatModule α :=
   { I with
     zero_nsmul a := by rw [nsmul_eq_natCast_mul, ← ofNat_eq_natCast, zero_mul]
-    one_nsmul a := by rw [nsmul_eq_natCast_mul, ← ofNat_eq_natCast, one_mul]
-    add_nsmul n m a := by rw [nsmul_eq_natCast_mul, ← ofNat_eq_natCast, ofNat_add, right_distrib, ofNat_eq_natCast, ofNat_eq_natCast, ← nsmul_eq_natCast_mul, ← nsmul_eq_natCast_mul]
-    nsmul_zero n := by rw [nsmul_eq_natCast_mul, mul_zero]
-    nsmul_add n a b := by rw [nsmul_eq_natCast_mul, ← ofNat_eq_natCast, left_distrib, ofNat_eq_natCast, ← nsmul_eq_natCast_mul, ← nsmul_eq_natCast_mul] }
+    add_one_nsmul n a := by rw [nsmul_eq_natCast_mul, ← ofNat_eq_natCast, ofNat_add, right_distrib,
+      ofNat_eq_natCast, ← nsmul_eq_natCast_mul, ofNat_eq_natCast, natCast_one, one_mul] }
 
 theorem natCast_add (a b : Nat) : ((a + b : Nat) : α) = ((a : α) + (b : α)) := by
   rw [← ofNat_eq_natCast, ← ofNat_eq_natCast, ofNat_add, ofNat_eq_natCast, ofNat_eq_natCast]
@@ -295,10 +293,7 @@ instance toIntModule [I : Ring α] : IntModule α :=
   { I, Semiring.toNatModule (α := α) with
     zero_zsmul a := by rw [← Int.natCast_zero, zsmul_natCast_eq_nsmul, zero_nsmul]
     one_zsmul a := by rw [← Int.natCast_one, zsmul_natCast_eq_nsmul, one_nsmul]
-    add_zsmul n m a := by rw [zsmul_eq_intCast_mul, intCast_add, right_distrib, zsmul_eq_intCast_mul, zsmul_eq_intCast_mul]
-    zsmul_zero n := by rw [zsmul_eq_intCast_mul, mul_zero]
-    zsmul_add n a b := by
-      rw [zsmul_eq_intCast_mul, left_distrib, zsmul_eq_intCast_mul, zsmul_eq_intCast_mul] }
+    add_zsmul n m a := by rw [zsmul_eq_intCast_mul, intCast_add, right_distrib, zsmul_eq_intCast_mul, zsmul_eq_intCast_mul] }
 
 private theorem intCast_mul_aux (x y : Nat) : ((x * y : Int) : α) = ((x : α) * (y : α)) := by
   rw [Int.ofNat_mul_ofNat, intCast_natCast, natCast_mul]

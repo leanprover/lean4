@@ -101,10 +101,8 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
   let ps := decl.params
   let env ← getEnv
   if ps.isEmpty then
-    if isExternal then emit "extern "
-    -- The first half is a pre-module system approximation, we keep it around for the benefit of
-    -- unported code.
-    else if isClosedTermName env decl.name || !Compiler.LCNF.isDeclPublic env decl.name then emit "static "
+    if isClosedTermName env decl.name then emit "static "
+    else if isExternal then emit "extern "
     else emit "LEAN_EXPORT "
   else
     if !isExternal then emit "LEAN_EXPORT "

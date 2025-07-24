@@ -55,7 +55,10 @@ def inferVisibility (phase : Phase) (decls : Array Decl) : CompilerM Unit := do
   if !(← getEnv).header.isModule then
     return
   for decl in decls do
-    if (← getEnv).setExporting true |>.contains decl.name then
+    if `_at_ ∈ decl.name.components then  -- TODO: don't?
+      trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is a specialization"
+      markDeclPublicRec phase decl
+    else if (← getEnv).setExporting true |>.contains decl.name then
       trace[Compiler.inferVisibility] m!"Marking {decl.name} as opaque because it is a public def"
       markDeclPublicRec phase decl
 

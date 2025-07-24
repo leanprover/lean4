@@ -91,13 +91,11 @@ partial def toMonoType (type : Expr) : CoreM Expr := do
   match type with
   | .const .. => visitApp type #[]
   | .app .. => type.withApp visitApp
-  | .forallE n d b bi =>
+  | .forallE _ d b _ =>
     let monoB ← toMonoType (b.instantiate1 anyExpr)
     match monoB with
     | .const ``lcErased _ => return erasedExpr
-    | _ =>
-      -- preserve parameter names for readability and to avoid recompilation from signature changes
-      return .forallE n (← toMonoType d) monoB bi
+    | _ => mkArrow (← toMonoType d) monoB
   | .sort _ => return erasedExpr
   | .mdata d b => return .mdata d (← toMonoType b)
   | _ => return anyExpr

@@ -7,15 +7,11 @@ rm -rf .lake/build
 
 mkdir -p Rebuild
 cat <<EOF > Rebuild/Basic.lean
--- File autocreated by test.sh
-
 module
 
 set_option compiler.small 0
 
 public def hello := "world"
-
-public def testSpec (xs : List Nat) : List Nat := xs.map (fun x => x + 1)
 EOF
 
 lake build
@@ -45,8 +41,4 @@ test_unchanged
 
 # Private definitions do not matter.
 echo 'def privd : Nat := 0' >> Rebuild/Basic.lean
-test_unchanged
-
-# Specializations do not matter.
-sed_i 's/x + 1/x + 2/' Rebuild/Basic.lean
 test_unchanged

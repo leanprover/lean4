@@ -109,8 +109,26 @@ def sortMVarIdArrayByIndex [MonadMCtx m] [Monad m] (mvarIds : Array MVarId) : m 
     else
       Name.quickLt mvarId₁.name mvarId₂.name
 
-def sortMVarIdsByIndex [MonadMCtx m] [Monad m] (mvarIds : List MVarId) : m (List MVarId) :=
-  return (← sortMVarIdArrayByIndex mvarIds.toArray).toList
+def sortMVarIdsByIndex [MonadMCtx m] [Monad m] (mvarIds : Array MVarId) : m (Array MVarId) :=
+  return (← sortMVarIdArrayByIndex mvarIds)
+
+/--
+Execute `k`, and collect any fresh metavariables created during the execution of `k`.
+-/
+def collectFreshMVars [Monad m] [MonadLiftT MetaM m] (k : m Expr) : m (Expr × Array MVarId) := do
+  let mvarCounterSaved := (← liftMetaM getMCtx).mvarCounter
+  let val ← k
+  let newMVarIds ← getMVarsNoDelayed val
+  /- Filter out all mvars that were created prior to `k`. -/
+  let newMVarIds ← filterOldMVars newMVarIds mvarCounterSaved
+  /-
+  We sort the new metavariable ids by index to ensure the new goals are ordered using the order the metavariables have been created.
+  See issue #1682.
+  Potential problem: if elaboration of subterms is delayed the order the new metavariables are created may not match the order they
+  appear in the `.lean` file. We should tell users to prefer tagged goals.
+  -/
+  let newMVarIds ← liftMetaM <| sortMVarIdsByIndex newMVarIds
+  return (val, newMVarIds)
 
 /--
 Execute `k`, and collect new "holes" in the resulting expression.
@@ -148,25 +166,15 @@ def withCollectingNewGoalsFrom (k : TacticM Expr) (parentTag : Name) (tagSuffix 
     go
 where
   go := do
-    let mvarCounterSaved := (← getMCtx).mvarCounter
-    let val ← k
-    let newMVarIds ← getMVarsNoDelayed val
+    let (val, newMVarIds) ← collectFreshMVars k
     /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
     let newMVarIds ← newMVarIds.filterM fun mvarId => return !(← Term.isLetRecAuxMVar mvarId)
-    /- Filter out all mvars that were created prior to `k`. -/
-    let newMVarIds ← filterOldMVars newMVarIds mvarCounterSaved
     /- If `allowNaturalHoles := false`, all natural mvarIds must be assigned.
     Passing this guard ensures that `newMVarIds` does not contain unassigned natural mvars. -/
     unless allowNaturalHoles do
       let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← mvarId.getKind).isNatural
       logUnassignedAndAbort naturalMVarIds
-    /-
-    We sort the new metavariable ids by index to ensure the new goals are ordered using the order the metavariables have been created.
-    See issue #1682.
-    Potential problem: if elaboration of subterms is delayed the order the new metavariables are created may not match the order they
-    appear in the `.lean` file. We should tell users to prefer tagged goals.
-    -/
-    let newMVarIds ← sortMVarIdsByIndex newMVarIds.toList
+    let newMVarIds := newMVarIds.toList
     tagUntaggedGoals parentTag tagSuffix newMVarIds
     return (val, newMVarIds)
 

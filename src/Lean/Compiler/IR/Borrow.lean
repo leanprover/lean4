@@ -25,7 +25,7 @@ def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool   := Std.HashMap.
 /-! We perform borrow inference in a block of mutually recursive functions.
    Join points are viewed as local functions, and are identified using
    their local id + the name of the surrounding function.
-   We keep a mapping from function and joint points to parameters (`Array Param`).
+   We keep a mapping from function and join points to parameters (`Array Param`).
    Recall that `Param` contains the field `borrow`. -/
 namespace ParamMap
 

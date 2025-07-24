@@ -231,7 +231,7 @@ def updateJPParamsAssignment (j : JoinPointId) (ys : Array Param) (xs : Array Ar
 private partial def resetNestedJPParams : FnBody → M Unit
   | FnBody.jdecl _ ys _ k => do
     ys.forM resetParamAssignment
-    /- Remark we don't need to reset the parameters of joint-points
+    /- Remark we don't need to reset the parameters of join points
       nested in `b` since they will be reset if this JP is used. -/
     resetNestedJPParams k
   | FnBody.case _ _ _ alts =>

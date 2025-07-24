@@ -29,7 +29,7 @@ namespace Lean.IR
 namespace IsLive
 /--
   We use `State Context` instead of `ReaderT Context Id` because we remove
-  non local joint points from `Context` whenever we visit them instead of
+  non local join points from `Context` whenever we visit them instead of
   maintaining a set of visited non local join points.
 
   Remark: we don't need to track local join points because we assume there is

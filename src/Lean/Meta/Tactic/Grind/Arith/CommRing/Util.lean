@@ -258,7 +258,7 @@ def getInvFn : m Expr := do
 
 private def mkPowFn (u : Level) (type : Expr) (semiringInst : Expr) : m Expr := do
   let inst ← MonadRing.synthInstance <| mkApp3 (mkConst ``HPow [u, 0, u]) type Nat.mkType type
-  let inst' := mkApp2 (mkConst ``Grind.Semiring.toHPow [u]) type semiringInst
+  let inst' := mkApp2 (mkConst ``Grind.Semiring.npow [u]) type semiringInst
   checkInst inst inst'
   canonExpr <| mkApp4 (mkConst ``HPow.hPow [u, 0, u]) type Nat.mkType type inst
 where

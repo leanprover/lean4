@@ -41,7 +41,7 @@ Use `Ring` instead if the type also has negation,
 `CommSemiring` if the multiplication is commutative,
 or `CommRing` if the type has negation and multiplication is commutative.
 -/
-class Semiring (α : Type u) extends Add α, Mul α, HPow α Nat α where
+class Semiring (α : Type u) extends Add α, Mul α where
   /--
   In every semiring there is a canonical map from the natural numbers to the semiring,
   providing the values of `0` and `1`. Note that this function need not be injective.
@@ -54,6 +54,8 @@ class Semiring (α : Type u) extends Add α, Mul α, HPow α Nat α where
   [ofNat : ∀ n, OfNat α n]
   /-- Scalar multiplication by natural numbers. -/
   [nsmul : HMul Nat α α]
+  /-- Exponentiation by a natural number. -/
+  [npow : HPow α Nat α]
   /-- Zero is the right identity for addition. -/
   add_zero : ∀ a : α, a + 0 = a
   /-- Addition is commutative. -/
@@ -129,7 +131,7 @@ class CommRing (α : Type u) extends Ring α, CommSemiring α
 -- so that in downstream libraries with their own `CommRing` class,
 -- the path `CommRing -> Add` is found before `CommRing -> Lean.Grind.CommRing -> Add`.
 -- (And similarly for the other parents.)
-attribute [instance 100] Semiring.toAdd Semiring.toMul Semiring.toHPow Ring.toNeg Ring.toSub
+attribute [instance 100] Semiring.toAdd Semiring.toMul Semiring.npow Ring.toNeg Ring.toSub
 
 -- This is a low-priority instance, to avoid conflicts with existing `OfNat`, `NatCast`, and `IntCast` instances.
 attribute [instance 100] Semiring.ofNat

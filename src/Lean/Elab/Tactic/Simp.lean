@@ -598,7 +598,7 @@ def warnUnusedSimpArgs (simpArgs : Array (Syntax × ElabSimpArgResult)) (usedSim
 where
   /--
   For equational theorems, usedTheorems record the declaration name. So if the user
-  specified `foo.eq_1`, we get `foo` in `usedTheores`, but we still want to mark
+  specified `foo.eq_1`, we get `foo` in `usedTheorems`, but we still want to mark
   `foo.eq_1` as used.
   (cf. `recordSimpTheorem`)
   This may lead to unused, explicitly given `foo.eq_1` to not be warned about. Ok for now,

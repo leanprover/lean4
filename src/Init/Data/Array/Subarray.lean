@@ -267,8 +267,8 @@ An accumulator of type `β` is constructed by starting with `init` and combining
 subarray with the current accumulator value in turn, moving from the end to the start.
 
 Examples:
- * `#eval #["red", "green", "blue"].toSubarray.foldr (·.length + ·) 0 = 12`
- * `#["red", "green", "blue"].toSubarray.popFront.foldlr (·.length + ·) 0 = 9`
+ * `#["red", "green", "blue"].toSubarray.foldr (·.length + ·) 0 = 12`
+ * `#["red", "green", "blue"].toSubarray.popFront.foldr (·.length + ·) 0 = 9`
 -/
 @[inline]
 def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Subarray α) : β :=

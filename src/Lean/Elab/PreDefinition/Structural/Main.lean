@@ -158,7 +158,7 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Arra
           let preDefs' ← elimMutualRecursion preDefs fixedParamPerms' xs' recArgInfos
           return (recArgPoss, preDefs', fixedParamPerms')
 
-def reporttermMeasure (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
+def reportTermMeasure (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
   if let some ref := preDef.termination.terminationBy?? then
     let fn ← lambdaTelescope preDef.value fun xs _ => mkLambdaFVars xs xs[recArgPos]!
     let termMeasure : TerminationMeasure:= {ref := .missing, structural := true, fn}
@@ -171,7 +171,7 @@ def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (
   let names := preDefs.map (·.declName)
   let ((recArgPoss, preDefsNonRec, fixedParamPerms), state) ← run <| inferRecArgPos preDefs termMeasure?s
   for recArgPos in recArgPoss, preDef in preDefs do
-    reporttermMeasure preDef recArgPos
+    reportTermMeasure preDef recArgPos
   state.addMatchers.forM liftM
   preDefsNonRec.forM fun preDefNonRec => do
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec

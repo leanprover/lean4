@@ -373,7 +373,7 @@ attribute [bv_normalize] BitVec.extractLsb'_and
 attribute [bv_normalize] BitVec.extractLsb'_xor
 
 @[bv_normalize]
-theorem BitVec.exctractLsb'_if {x y : BitVec w} (s l : Nat) :
+theorem BitVec.extractLsb'_if {x y : BitVec w} (s l : Nat) :
     BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
   cases c <;> simp
 

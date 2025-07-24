@@ -161,7 +161,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
         if expectedType.headBeta.isForall then
           /-
           If `code` returns a function, we create an auxiliary local function declaration (and eta-expand it)
-          instead of creating a joinpoint that takes a closure as an argument.
+          instead of creating a join point that takes a closure as an argument.
           -/
           let auxFunDecl ← mkAuxFunDecl #[] code
           let auxFunDecl ← auxFunDecl.etaExpand

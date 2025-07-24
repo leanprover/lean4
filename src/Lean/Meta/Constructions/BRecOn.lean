@@ -105,7 +105,7 @@ private def mkBelowFromRec (recName : Name) (nParams : Nat)
     let type ← mkForallFVars below_params (.sort rlvl)
     val ← mkLambdaFVars below_params val
 
-    mkDefinitionValInferrringUnsafe belowName recVal.levelParams type val .abbrev
+    mkDefinitionValInferringUnsafe belowName recVal.levelParams type val .abbrev
 
   addDecl (.defnDecl decl)
   setReducibleAttribute decl.name
@@ -262,7 +262,7 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
       let type ← mkForallFVars below_params (mkAppN motives[idx]! (indices ++ #[major]))
       val ← mkLambdaFVars below_params val
 
-      mkDefinitionValInferrringUnsafe brecOnName blps type val .abbrev
+      mkDefinitionValInferringUnsafe brecOnName blps type val .abbrev
 
   addDecl (.defnDecl decl)
   setReducibleAttribute decl.name

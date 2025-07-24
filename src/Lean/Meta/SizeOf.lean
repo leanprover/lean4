@@ -141,7 +141,7 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
       let val := mkAppN recFn (params ++ motives)
       forallBoundedTelescope (← inferType val) recInfo.numMinors fun minorFVars' _ =>
       mkSizeOfMinors motiveFVars minorFVars minorFVars' fun minors => do
-        withInstImplicitAsImplict params do
+        withInstImplicitAsImplicit params do
           let sizeOfParams := params ++ localInsts ++ indices ++ #[major]
           let sizeOfType ← mkForallFVars sizeOfParams nat
           let val := mkAppN val (minors ++ indices ++ #[major])
@@ -492,7 +492,7 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
             let indInfo ← getConstInfoInduct indTypeName
             forallTelescopeReducing indInfo.type fun xs _ =>
               let params := xs[*...indInfo.numParams]
-              withInstImplicitAsImplict params do
+              withInstImplicitAsImplicit params do
                 let indices := xs[indInfo.numParams...*]
                 mkLocalInstances params fun localInsts => do
                   let us := indInfo.levelParams.map mkLevelParam

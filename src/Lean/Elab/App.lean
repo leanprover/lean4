@@ -353,7 +353,7 @@ private def shouldPropagateExpectedTypeFor (nextArg : Arg) : Bool :=
 
   We have considered adding the following extra conditions
     a) The resultant type does not contain any type metavariable.
-    b) The resultant type contains a nontype metavariable.
+    b) The resultant type contains a non-type metavariable.
 
   These two conditions would restrict the method to simple functions that are "morally" in
   the Hindley&Milner fragment.
@@ -508,7 +508,7 @@ private partial def isNextOutParamOfLocalInstanceAndResult : M Bool := do
   let type := (← get).fType.bindingBody!
   unless isResultType type 0 do
     return false
-  if (← hasLocalInstaceWithOutParams type) then
+  if (← hasLocalInstanceWithOutParams type) then
     let x := mkFVar (← mkFreshFVarId)
     isOutParamOfLocalInstance x (type.instantiate1 x)
   else
@@ -521,13 +521,13 @@ where
     | _                => false
 
   /-- (quick filter) Return true if `type` contains a binder `[C ...]` where `C` is a class containing outparams. -/
-  hasLocalInstaceWithOutParams (type : Expr) : CoreM Bool := do
+  hasLocalInstanceWithOutParams (type : Expr) : CoreM Bool := do
     let .forallE _ d b bi := type | return false
     if bi.isInstImplicit then
       if let .const declName .. := d.getAppFn then
         if hasOutParams (← getEnv) declName then
           return true
-    hasLocalInstaceWithOutParams b
+    hasLocalInstanceWithOutParams b
 
   isOutParamOfLocalInstance (x : Expr) (type : Expr) : MetaM Bool := do
     let .forallE _ d b bi := type | return false

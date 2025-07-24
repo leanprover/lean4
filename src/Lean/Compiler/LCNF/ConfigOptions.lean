@@ -13,7 +13,7 @@ User controlled configuration options for the code generator.
 -/
 structure ConfigOptions where
   /--
-  Any function declaration or join point with size `≤ smallThresold` is inlined
+  Any function declaration or join point with size `≤ smallThreshold` is inlined
   even if there are multiple occurrences.
   -/
   smallThreshold : Nat := 1

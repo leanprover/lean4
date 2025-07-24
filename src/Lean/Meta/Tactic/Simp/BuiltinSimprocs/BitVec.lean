@@ -288,7 +288,7 @@ builtin_dsimproc [simp, seval] reduceShiftLeftZeroExtend (shiftLeftZeroExtend _ 
   return .done <| toExpr (v.value.shiftLeftZeroExtend m)
 
 /-- Simplification procedure for `extractLsb'` on `BitVec`s. -/
-builtin_dsimproc [simp, seval] reduceExtracLsb' (extractLsb' _ _ _) := fun e => do
+builtin_dsimproc [simp, seval] reduceExtractLsb' (extractLsb' _ _ _) := fun e => do
   let_expr extractLsb' _ start len v ← e | return .continue
   let some v ← fromExpr? v | return .continue
   let some start ← Nat.fromExpr? start | return .continue

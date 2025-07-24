@@ -27,7 +27,7 @@ def mkRecOn (n : Name) : MetaM Unit := do
       xs[(AC_size)...(AC_size + recInfo.numMinors)]
     let type ← mkForallFVars vs t
     let value ← mkLambdaFVars vs e
-    mkDefinitionValInferrringUnsafe (mkRecOnName n) recInfo.levelParams type value .abbrev
+    mkDefinitionValInferringUnsafe (mkRecOnName n) recInfo.levelParams type value .abbrev
 
   addDecl (.defnDecl decl)
   setReducibleAttribute decl.name

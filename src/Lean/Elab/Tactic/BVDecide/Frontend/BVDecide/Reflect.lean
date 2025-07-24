@@ -124,7 +124,7 @@ structure Atom where
   atomNumber : Nat
   /--
   Whether the atom is synthetic. The effect of this is that values for this atom are not considered
-  for the counter example deriviation. This is for example useful when we introduce an atom over
+  for the counter example derivation. This is for example useful when we introduce an atom over
   an expression, together with additional lemmas that fully describe the behavior of the atom.
   -/
   synthetic : Bool

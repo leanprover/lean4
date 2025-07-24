@@ -28,7 +28,7 @@ structure BVDecideConfig where
   -/
   binaryProofs : Bool := true
   /--
-  Canonicalize with respect to associativity and commutativitiy.
+  Canonicalize with respect to associativity and commutativity.
   -/
   acNf : Bool := false
   /--

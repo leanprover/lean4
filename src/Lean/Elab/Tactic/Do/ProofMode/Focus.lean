@@ -10,8 +10,8 @@ namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic ProofMode
 open Lean Elab.Tactic Meta
 
-/-- The result of focussing the context of a goal `goal : MGoal` on a particular hypothesis.
-The focussed hypothesis is returned as `focusHyp : Expr`, along with the
+/-- The result of focusing the context of a goal `goal : MGoal` on a particular hypothesis.
+The focused hypothesis is returned as `focusHyp : Expr`, along with the
 residual `restHyps : Expr` and a `proof : Expr` for the property
 `goal.hyps ⊣⊢ₛ restHyps ∧ focusHyp`. -/
 structure FocusResult where

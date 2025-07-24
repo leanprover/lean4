@@ -106,7 +106,7 @@ inductive ExplorationStep [Ord α] (k : α → Ordering) where
       recursion will terminate. -/
   | eq : List ((a : α) × β a) → Cell α β k → List ((a : α) × β a) → ExplorationStep k
   /-- Needle was larger than key at this node: return key-value pair and unexplored left subtree,
-      recursion will containue in right subtree. -/
+      recursion will continue in right subtree. -/
   | gt : List ((a : α) × β a) → (a : α) → k a = .gt → β a → ExplorationStep k
 
 /-- General tree-traversal function. Internal implementation detail of the tree map -/

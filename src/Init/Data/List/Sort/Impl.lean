@@ -100,7 +100,7 @@ theorem splitRevAt_eq (i : Nat) (l : List α) : splitRevAt i l = ((l.take i).rev
 
 /--
 An intermediate speed-up for `mergeSort`.
-This version uses the tail-recurive `mergeTR` function as a subroutine.
+This version uses the tail-recursive `mergeTR` function as a subroutine.
 
 This is not the final version we use at runtime, as `mergeSortTR₂` is faster.
 This definition is useful as an intermediate step in proving the `@[csimp]` lemma for `mergeSortTR₂`.

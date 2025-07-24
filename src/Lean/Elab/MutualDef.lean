@@ -1149,7 +1149,7 @@ def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefVie
         try
           go
         finally
-          reportDiag -- else wouldn't surivive `withoutModifyingEnv`
+          reportDiag -- else wouldn't survive `withoutModifyingEnv`
   else
     go
 where

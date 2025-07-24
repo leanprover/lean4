@@ -79,6 +79,7 @@ def appendSection (m : Array MessageData) (cls : Name) (header : String) (s : Di
     let header := if resultSummary then s!"{header} (max: {s.max}, num: {s.data.size}):" else header
     m.push <| .trace { cls } header s.data
 
+/-- Logs diagnostics and resets the counters -/
 def reportDiag : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
     let unfoldCounter := (← get).diag.unfoldCounter
@@ -102,5 +103,8 @@ def reportDiag : MetaM Unit := do
     unless m.isEmpty do
       let m := m.push "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"
       logInfo <| .trace { cls := `diag, collapsed := false } "Diagnostics" m
+    -- Reset any reported diagnostics, so that `reportDiag` can be called again
+    modify (fun s => { s with diag := {} })
+    modifyEnv (Kernel.setDiagnostics · {})
 
 end Lean.Meta

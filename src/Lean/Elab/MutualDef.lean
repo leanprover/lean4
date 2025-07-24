@@ -1146,7 +1146,10 @@ def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefVie
     withoutModifyingEnv do
       -- save correct environment in info tree
       withSaveInfoContext do
-        go
+        try
+          go
+        finally
+          reportDiag -- else wouldn't survive `withoutModifyingEnv`
   else
     go
 where

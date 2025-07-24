@@ -96,15 +96,6 @@ def liftSimpM (x : SimpM α) : VCGenM α := do
 instance : MonadLift SimpM VCGenM where
   monadLift x := liftSimpM x
 
-syntax (name := mvcgen_step) "mvcgen_step" optConfig
- (num)? (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
-
-syntax (name := mvcgen_no_trivial) "mvcgen_no_trivial" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
-
-syntax (name := mvcgen) "mvcgen" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
-
 private def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false) : TacticM Context := do
   let config ← elabConfig optConfig
   let mut specThms ← getSpecTheorems

@@ -16,6 +16,10 @@ universe u v
 
 namespace Classical
 
+/-- Using `Classical.choice`, extracts a term from a `Nonempty` type. -/
+protected noncomputable abbrev arbitrary (α) [h : Nonempty α] : α :=
+  Classical.choice h
+
 noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop) (h : ∃ x, p x) : {x // p x} :=
   choice <| let ⟨x, px⟩ := h; ⟨⟨x, px⟩⟩
 

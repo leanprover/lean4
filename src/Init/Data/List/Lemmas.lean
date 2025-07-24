@@ -13,6 +13,7 @@ public import all Init.Data.List.BasicAux
 public import all Init.Data.List.Control
 public import Init.Control.Lawful.Basic
 public import Init.BinderPredicates
+public import Init.GetElemV
 
 public section
 
@@ -3728,6 +3729,20 @@ set_option linter.deprecated false in
 @[deprecated mem_iff_getElem? (since := "2025-02-12")]
 theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a := by
   simp [getElem?_eq_some_iff, Fin.exists_iff, mem_iff_get]
+
+/-! ### `getElemV` -/
+
+noncomputable instance : GetElemV (List α) Nat α where
+  getElemV xs i := if h : i < xs.length then xs[i] else Classical.arbitrary α
+
+instance : LawfulGetElemV (List α) Nat α (fun xs i => i < xs.length) where
+  getElemV_def xs i := by
+    simp [getElemV]
+    split <;> simp_all
+
+theorem getElemV_map [Nonempty α] [Nonempty β] {xs : List α} {f : α → β} (h : i < xs.length) :
+    (xs.map f)[i]ᵛ = f xs[i]ᵛ := by
+  simp_all [LawfulGetElemV.getElemV_def]
 
 /-! ### Deprecations -/
 

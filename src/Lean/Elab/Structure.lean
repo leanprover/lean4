@@ -198,6 +198,19 @@ structure StructFieldInfo where
 
 private def defaultCtorName := `mk
 
+/--
+Creates a hint to delete a `private` modifier from the decl modifiers `stx` of either a field or a
+constructor (indicated by the value of `fieldKindDescr`) if such a modifier exists.
+-/
+private def mkDeletePrivateFieldHint (stx : TSyntax ``Parser.Command.declModifiers) (fieldKindDescr : String) := do
+  let .original .. := stx.raw.getHeadInfo | pure .nil
+  let some range := stx.raw[2].getRangeWithTrailing? | pure .nil
+  MessageData.hint m!"Remove `private` modifier from {fieldKindDescr}" #[{
+    suggestion := ""
+    span? := Syntax.ofRange range
+    toCodeActionTitle? := some fun _ => "Delete `private` modifier"
+  }]
+
 /-
 The structure constructor syntax is
 ```
@@ -227,24 +240,23 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let ctorModifiers ← elabModifiers ctor[0]
       checkValidCtorModifier ctorModifiers
       if ctorModifiers.isPrivate && structModifiers.isPrivate then
-        let hint ← do
-          let .original .. := ctor[0].getHeadInfo | pure .nil
-          let some range := ctor[0][2].getRangeWithTrailing? | pure .nil
-          MessageData.hint "Remove `private` modifier from constructor" #[{
-            suggestion := ""
-            span? := Syntax.ofRange range
-            toCodeActionTitle? := some fun _ => "Delete `private` modifier"
-          }]
+        let hint ← mkDeletePrivateFieldHint ctor[0] "constructor"
         throwError m!"Constructor cannot be marked `private` because it is already in a `private` structure" ++ hint
       if ctorModifiers.isProtected && structModifiers.isPrivate then
         throwError "Constructor cannot be `protected` because this structure is `private`"
       if !ctorModifiers.isPrivate && forcePrivate then
         let hint ← do
-          let .original .. := ctor[0].getHeadInfo | pure .nil
+          let .original .. := ctor.getHeadInfo | pure .nil
+          let spanSuggestion? :=
+            if ctor[0][2].getRange?.isSome then
+              some (ctor[0][2], "private")
+            -- Place `private` after the doc comment, or else before other modifiers, or else before the identifier
+            else if let some pos := ctor[0][0].getTrailingTailPos? <|> ctor[0].getPos? <|> ctor[1].getPos? then
+              some (Syntax.ofRange ⟨pos, pos⟩, "private ")
+            else none
+          let some (span?, suggestion) := spanSuggestion? | pure .nil
           MessageData.hint m!"Mark constructor as `private`" #[{
-            suggestion := "private "
-            span? := ctor[0][2]
-            toCodeActionTitle? := some fun _ => "Make constructor private"
+            suggestion, span?, toCodeActionTitle? := some fun _ => "Mark constructor private"
           }]
         throwError m!"Constructor must be `private` because one or more of this structure's fields are `private`" ++ hint
       let name := ctor[1].getId
@@ -326,7 +338,8 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
     let fieldModifiers ← elabModifiers fieldBinder[0]
     checkValidFieldModifier fieldModifiers
     if fieldModifiers.isPrivate && structModifiers.isPrivate then
-      throwError "Field cannot be marked `private` because it is already in a `private` structure"
+      let hint ← mkDeletePrivateFieldHint fieldBinder[0] "field"
+      throwError m!"Field cannot be marked `private` because it is already in a `private` structure" ++ hint
     if fieldModifiers.isProtected && structModifiers.isPrivate then
       throwError "Field cannot be marked `protected` because this structure is `private`"
     let (binders, type?, default?) ←

@@ -343,7 +343,10 @@ def elabMutual : CommandElab := fun stx => do
         | throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
       let attrs := (attrs?.map (·.getElems)).getD #[]
       let attrs := attrs.push (← `(Lean.Parser.Term.attrInstance| $attrId:ident))
-      elabCommand (← `($[$doc?:docComment]? @[$[$attrs],*] $[unsafe%$unsafe?]? def initFn : IO Unit := do $doSeq))
+      -- `[builtin_init]` can be private as it is used for local codegen only but `[init]` must be
+      -- available for the interpreter.
+      let privTk? := guard (attrId.getId == `builtin_init) *> some .missing
+      elabCommand (← `($[$doc?:docComment]? @[$[$attrs],*] $[private%$privTk?]? $[unsafe%$unsafe?]? def initFn : IO Unit := do $doSeq))
   | _ => throwUnsupportedSyntax
 
 builtin_initialize

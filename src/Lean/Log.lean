@@ -70,9 +70,8 @@ A widget for displaying error names and explanation links.
 -- create circular imports. Instead, we add this attribute post-hoc in `Lean.ErrorExplanation`.
 def errorDescriptionWidget : Widget.Module where
   javascript := "
-public import { createElement } from 'react';
+import { createElement } from 'react';
 
-public section
 export default function ({ code, explanationUrl }) {
   const sansText = { fontFamily: 'var(--vscode-font-family)' }
 

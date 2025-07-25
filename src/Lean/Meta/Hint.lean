@@ -50,10 +50,9 @@ be able to use this widget. Instead, we register the attribute post-hoc when we 
 -/
 def tryThisDiffWidget : Widget.Module where
   javascript := "
-public import * as React from 'react';
-public import { EditorContext, EnvPosContext } from '@leanprover/infoview';
+import * as React from 'react';
+import { EditorContext, EnvPosContext } from '@leanprover/infoview';
 
-public section
 const e = React.createElement;
 export default function ({ diff, range, suggestion }) {
   const pos = React.useContext(EnvPosContext)

@@ -50,10 +50,9 @@ where `<replacement*>` is a link which will perform the replacement.
 -/
 @[builtin_widget_module] def tryThisWidget : Widget.Module where
   javascript := "
-public import * as React from 'react';
-public import { EditorContext, EnvPosContext } from '@leanprover/infoview';
+import * as React from 'react';
+import { EditorContext, EnvPosContext } from '@leanprover/infoview';
 
-public section
 const e = React.createElement;
 export default function ({ suggestions, range, header, isInline, style }) {
   const pos = React.useContext(EnvPosContext)

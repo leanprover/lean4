@@ -40,16 +40,14 @@ inductive ExternEntry where
    encoding: ```.arity? = 2, .entries = [standard `cpp "ioPrimPrintln"]```
 -/
 structure ExternAttrData where
-  arity?   : Option Nat := none
   entries  : List ExternEntry
   deriving Inhabited, BEq, Hashable
 
 -- def externEntry := leading_parser optional ident >> optional (nonReservedSymbol "inline ") >> strLit
 -- @[builtin_attr_parser] def extern     := leading_parser nonReservedSymbol "extern " >> optional numLit >> many externEntry
 private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
-  let arity?  := if stx[1].isNone then none else some <| stx[1][0].isNatLit?.getD 0
   let entriesStx := stx[2].getArgs
-  if entriesStx.size == 0 && arity? == none then
+  if entriesStx.size == 0 then
     return { entries := [ ExternEntry.adhoc `all ] }
   let mut entries := #[]
   for entryStx in entriesStx do
@@ -61,7 +59,7 @@ private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
       entries := entries.push <| ExternEntry.standard backend str
     else
       entries := entries.push <| ExternEntry.inline backend str
-  return { arity? := arity?, entries := entries.toList }
+  return { entries := entries.toList }
 
 -- Forward declaration
 @[extern "lean_add_extern"]
@@ -141,25 +139,5 @@ def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option S
   match entry with
   | ExternEntry.standard _ n => pure n
   | _ => failure
-
-private def getExternConstArity (declName : Name) : CoreM Nat := do
-  let fromSignature : Unit → CoreM Nat := fun _ => do
-    let cinfo ← getConstInfo declName
-    let (arity, _) ← (Meta.forallTelescopeReducing cinfo.type fun xs _ => pure xs.size : MetaM Nat).run
-    return arity
-  let env ← getEnv
-  match getExternAttrData? env declName with
-  | none      => fromSignature ()
-  | some data => match data.arity? with
-    | some arity => return arity
-    | none       => fromSignature ()
-
-def getExternConstArityExport (env : Environment) (declName : Name) : IO (Option Nat) := do
-  try
-    let (arity, _) ← (getExternConstArity declName).toIO { fileName := "<compiler>", fileMap := default } { env := env }
-    return some arity
-  catch
-   | IO.Error.userError _   => return none
-   | _  => return none
 
 end Lean

@@ -274,13 +274,16 @@ private def ModuleImportInfo.addImport
         directArts := info.directArts.insert mod.name expInfo.allArts
         trace := info.trace.mix expInfo.allTransTrace |>.mix expInfo.allArtsTrace.withoutInputs
       }
-    else if !info.directArts.contains mod.name then -- do not demote `import all`
-      {info with
-        directArts := info.directArts.insert mod.name expInfo.arts
-        trace := info.trace.mix expInfo.transTrace |>.mix expInfo.artsTrace.withoutInputs
-      }
     else
-      info
+      let info :=
+        if !info.directArts.contains mod.name then -- do not demote `import all`
+          {info with directArts := info.directArts.insert mod.name expInfo.arts}
+        else
+          info
+      if imp.isMeta then
+        {info with trace := info.trace.mix expInfo.metaTransTrace |>.mix expInfo.metaArtsTrace.withoutInputs}
+      else
+        {info with trace := info.trace.mix expInfo.transTrace |>.mix expInfo.artsTrace.withoutInputs}
   let info := {info with
     legacyTransTrace := info.legacyTransTrace
       |>.mix expInfo.legacyTransTrace
@@ -299,7 +302,7 @@ private def ModuleImportInfo.addImport
       {info with
         allTransTrace := info.allTransTrace
           |>.mix expInfo.metaTransTrace
-          |>.mix expInfo.artsTrace.withoutInputs
+          |>.mix expInfo.metaArtsTrace.withoutInputs
           |>.withoutInputs
       }
     else

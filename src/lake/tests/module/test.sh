@@ -44,7 +44,7 @@ test_cmd_fails grep -F "Test/Generated/Module.olean.private" .lake/build/ir/Test
 test_run build Test.ModuleTransPrivateImport
 test_cmd_fails grep -F "Test/Generated/Module.olean" .lake/build/ir/Test/ModuleTransPrivateImport.setup.json
 
-# Build all tests before making edits
+# Build all tests before making an edit
 test_run build
 
 # Tests a public edit of an import
@@ -67,6 +67,9 @@ test_run build Test.ModuleTransPrivateImport --no-build
 test_out "Built Test.ModuleAllTransPrivateImport" build Test.ModuleAllTransPrivateImport -v
 # should trigger a rebuild for a non-module transitive import
 test_out "Built Test.NonModuleTransImport" build Test.NonModuleTransImport -v
+
+# Build all tests before making an edit
+test_run build
 
 # Tests a private edit of an import
 echo "# TEST: private edit"
@@ -94,6 +97,9 @@ test_out "Built Test.ModulePromoteTransImport" build Test.ModulePromoteTransImpo
 # should trigger a rebuild for a non-module transitive import
 test_out "Built Test.NonModuleTransImport" build Test.NonModuleTransImport -v
 
+# Build all tests before making an edit
+test_run build
+
 # Tests a server edit of an import
 echo "# TEST: server edit"
 test_cmd sed_i '/-- insert here/{G;}' Test/Generated/Module.lean
@@ -109,6 +115,9 @@ test_out "Built Test.ModuleImportAll" build Test.ModuleImportAll -v
 test_out "Built Test.NonModuleImport" build Test.NonModuleImport -v
 # should trigger a rebuild for a non-module transitive import
 test_out "Built Test.NonModuleTransImport" build Test.NonModuleTransImport -v
+
+# Build all tests before making an edit
+test_run build
 
 # Tests a meta edit of an import
 echo "# TEST: meta edit"

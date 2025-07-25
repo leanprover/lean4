@@ -1,0 +1,6 @@
+{"textDocument": {"uri": "file:///tacticInduction.lean"},
+ "position": {"line": 9, "character": 10}}
+{"rendered":
+ "```lean\ncase nil\nbs : List Nat\n⊢ ([].append bs).length = [].length + bs.length\n```",
+ "goals":
+ ["case nil\nbs : List Nat\n⊢ ([].append bs).length = [].length + bs.length"]}

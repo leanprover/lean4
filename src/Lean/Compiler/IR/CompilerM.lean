@@ -133,9 +133,9 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
           match d with
           | .fdecl f xs ty b info =>
             if let some (.str _ s) := getExportNameFor? env f then
-              return .extern f xs ty { arity? := xs.size, entries := [.standard `all s] }
+              return .extern f xs ty { entries := [.standard `all s] }
             else
-              return .extern f xs ty { arity? := xs.size, entries := [.opaque f] }
+              return .extern f xs ty { entries := [.opaque f] }
           | d => some d
       else entries
     -- Written to on codegen environment branch but accessed from other elaboration branches when

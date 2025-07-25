@@ -81,7 +81,7 @@ def etaPolyApp? (letDecl : LetDecl) : OptionT SimpM FunDecl := do
   guard <| (← read).config.etaPoly
   let .const declName us args := letDecl.value | failure
   let some info := (← getEnv).find? declName | failure
-  guard <| hasLocalInst info.type
+  guard <| (← hasLocalInst info.type)
   guard <| !(← Meta.isInstance declName)
   let some decl ← getDecl? declName | failure
   guard <| decl.getArity > args.size

@@ -49,9 +49,9 @@ instance (priority := 0) : FormatQuery α := ⟨nullFormat⟩
 instance [ToText α] [ToJson α] : FormatQuery α := ⟨stdFormat⟩
 instance : FormatQuery Unit := ⟨nullFormat⟩
 
-def ppImport (imp : Import) : String := Id.run do
-  let mut s := ""
-  if imp.isExported then
+def ppImport (imp : Import) (isModule : Bool) (init := "") : String := Id.run do
+  let mut s := init
+  if isModule && imp.isExported then
     s := s ++ "public "
   if imp.isMeta then
     s := s ++ "meta "
@@ -61,10 +61,10 @@ def ppImport (imp : Import) : String := Id.run do
   s := s ++ imp.module.toString
   return s
 
-instance : ToText Import := ⟨ppImport⟩
-
 def ppModuleHeader (header : ModuleHeader) : String :=
-  let imps := toText header.imports
-  if header.isModule then s!"module\n{imps}" else imps
+  let isModule := header.isModule
+  let s := if isModule then "module prelude" else "prelude"
+  header.imports.foldl (init := s) fun s imp =>
+    ppImport imp isModule (s.push '\n')
 
 instance : ToText ModuleHeader := ⟨ppModuleHeader⟩

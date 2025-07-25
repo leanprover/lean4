@@ -39,12 +39,12 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (h : curr ≤ w)
     :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
-          (go aig xc curr acc).aig,
-          (go aig xc curr acc).vec.get idx hidx,
+          (go aig xc 0 acc).aig,
+          (go aig xc 0 acc).vec.get idx hidx,
           assign
         ⟧
           =
-        (BitVec.popCountAuxRec x 0 curr).getLsbD idx := by
+        (BitVec.popCountAuxRec x 0 w).getLsbD idx := by
     intro idx hidx
     generalize hgo: go aig xc curr acc = res
     unfold go at hgo
@@ -57,9 +57,10 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (h : curr ≤ w)
         sorry
       · sorry
     · case isFalse h =>
-      rw [← hgo]
-      simp [show ¬ curr = 0 by omega] at hacc
-      simp [hacc]
+      sorry
+      -- rw [← hgo]
+      -- simp [show ¬ curr = 0 by omega] at hacc
+      -- simp [hacc]
 
 end blastPopCount
 
@@ -70,7 +71,7 @@ theorem denote_blastPopCount (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (
       ∀ (idx : Nat) (hidx : idx < w),
         ⟦(blastPopCount aig xc).aig, (blastPopCount aig xc).vec.get idx hidx, assign⟧
           =
-        (BitVec.popCountAuxRec x w 0).getLsbD idx := by
+        (BitVec.popCountAuxRec x 0 0).getLsbD idx := by
   sorry
 
 end bitblast

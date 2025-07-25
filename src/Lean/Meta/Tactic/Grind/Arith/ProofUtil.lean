@@ -25,4 +25,14 @@ def mkLetOfMap {_ : Hashable α} {_ : BEq α} (m : Std.HashMap α Expr) (e : Exp
       i := i - 1
     return e
 
+def mkLambdaN (ns : Array Name) (xs : Array Expr) (xsTypes : Array Expr) (b : Expr) : Expr :=
+  if _ : xs.size ≠ xsTypes.size ∨ xs.size ≠ ns.size then unreachable! else
+  let b := b.abstract xs
+  xs.size.foldRev (init := b) fun i _ b =>
+    let n := ns[i]
+    let x := xs[i]
+    let xType := xsTypes[i]
+    let xType := xType.abstractRange i xs
+    mkLambda n .default xType b
+
 end Lean.Meta.Grind.Arith

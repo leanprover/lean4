@@ -1681,7 +1681,7 @@ theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
   cases xs
   simp
 
-@[grind] theorem filterMap_some {xs : Array α} : filterMap some xs = xs := by
+@[simp, grind] theorem filterMap_some {xs : Array α} : filterMap some xs = xs := by
   cases xs
   simp
 

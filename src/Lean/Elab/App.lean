@@ -1332,8 +1332,8 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
            we needn't wait to check if this is actually a constant. If `suffix?` is non-`none`, we
            prefer to throw the "unknown constant" error (because of monad namespaces like `IO` and
            auxiliary declarations like `mutual_induct`) -/
-        throwLValErrorAt fullRef e eType <| mkUnknownIdentifierMessage m!"Invalid field `{fieldName}`: \
-          The environment does not contain `{Name.str `Function fieldName}`"
+        throwLValErrorAt fullRef e eType (← mkUnknownIdentifierMessage (declHint := fullName)
+          m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`")
     | .fieldIdx .. =>
       throwLValError e eType "Invalid projection: Projections cannot be used on functions"
   else if eType.getAppFn.isMVar then
@@ -1386,7 +1386,8 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     -- Then search the environment
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName
-    let msg := mkUnknownIdentifierMessage m!"Invalid field `{fieldName}`: The environment does not contain `{Name.mkStr structName fieldName}`"
+    let msg ← mkUnknownIdentifierMessage (declHint := fullName)
+      m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`"
     throwLValErrorAt fullRef e eType msg
   | none, LVal.fieldName _ _ (some suffix) fullRef =>
     -- This may be a function constant whose implicit arguments have already been filled in:

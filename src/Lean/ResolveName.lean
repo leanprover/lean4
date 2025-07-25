@@ -302,7 +302,7 @@ def resolveUniqueNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadErr
   | nss => throwError s!"ambiguous namespace '{id.getId}', possible interpretations: '{nss}'"
 
 /-- Helper function for `resolveGlobalConstCore`. -/
-def filterFieldList [Monad m] [MonadError m] (n : Name) (cs : List (Name × List String)) : m (List Name) := do
+def filterFieldList [Monad m] [MonadEnv m] [MonadError m] (n : Name) (cs : List (Name × List String)) : m (List Name) := do
   let cs := cs.filter fun (_, fieldList) => fieldList.isEmpty
   if cs.isEmpty then throwUnknownConstantAt (← getRef) n
   return cs.map (·.1)

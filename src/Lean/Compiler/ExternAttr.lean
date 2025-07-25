@@ -36,8 +36,6 @@ inductive ExternEntry where
    encoding: ```.entries = [inline `cpp "#1 + #2"]```
 - `@[extern cpp "foo" llvm adhoc]`
    encoding: ```.entries = [standard `cpp "foo", adhoc `llvm]```
-- `@[extern 2 cpp "io_prim_println"]`
-   encoding: ```.arity? = 2, .entries = [standard `cpp "ioPrimPrintln"]```
 -/
 structure ExternAttrData where
   entries  : List ExternEntry
@@ -46,7 +44,7 @@ structure ExternAttrData where
 -- def externEntry := leading_parser optional ident >> optional (nonReservedSymbol "inline ") >> strLit
 -- @[builtin_attr_parser] def extern     := leading_parser nonReservedSymbol "extern " >> optional numLit >> many externEntry
 private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
-  let entriesStx := stx[2].getArgs
+  let entriesStx := stx[1].getArgs
   if entriesStx.size == 0 then
     return { entries := [ ExternEntry.adhoc `all ] }
   let mut entries := #[]

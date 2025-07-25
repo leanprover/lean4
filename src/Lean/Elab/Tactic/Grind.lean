@@ -56,7 +56,7 @@ def elabInitGrindNorm : CommandElab := fun stx =>
         Grind.registerNormTheorems pre post
   | _ => throwUnsupportedSyntax
 
-def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool) : MetaM Grind.Params := do
+def elabGrindParams (params : Grind.Params) (ps : TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool) : MetaM Grind.Params := do
   let mut params := params
   for p in ps do
     match p with

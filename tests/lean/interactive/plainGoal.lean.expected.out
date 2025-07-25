@@ -170,10 +170,10 @@ null
 {"rendered": "```lean\ncase left\n⊢ True\n```", "goals": ["case left\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 139, "character": 34}}
-{"rendered": "```lean\nx✝ : Nat\n⊢ True\n```", "goals": ["x✝ : Nat\n⊢ True"]}
+{"rendered": "no goals", "goals": []}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 142, "character": 34}}
-{"rendered": "```lean\nx✝ : Nat\n⊢ True\n```", "goals": ["x✝ : Nat\n⊢ True"]}
+{"rendered": "no goals", "goals": []}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 145, "character": 34}}
 {"rendered": "```lean\nx✝ : Nat\n⊢ True\n```", "goals": ["x✝ : Nat\n⊢ True"]}

@@ -1936,10 +1936,10 @@ private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
   return fnames
 
 partial def importModulesCore
-    (imports : Array Import) (isModule := false) (arts : NameMap ImportArtifacts := {}) :
+    (imports : Array Import) (globalLevel : OLeanLevel := .private) (arts : NameMap ImportArtifacts := {}) :
     ImportStateM Unit := do
-  go imports (importAll := true) (isExported := isModule) (isMeta := false)
-  if isModule then
+  go imports (importAll := true) (isExported := globalLevel < .private) (isMeta := false)
+  if globalLevel < .private then
     for i in imports do
       if let some mod := (← get).moduleNameMap[i.module]?.bind (·.mainModule?) then
         if !mod.isModule then
@@ -1989,7 +1989,7 @@ where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
     if !(i.isExported || importAll) then
       continue
     -- `B ≥ privateAll`?
-    let importAll := !isModule || (importAll && i.importAll)
+    let importAll := globalLevel == .private || (importAll && i.importAll)
     -- `B ≥ public`?
     let isExported := isExported && i.isExported
     let irPhases :=
@@ -2014,7 +2014,7 @@ where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
       if let some arts := arts.find? i.module then
         -- Opportunistically load all available parts.
         -- Producer (e.g., Lake) should limit parts to the proper import level.
-        pure arts.oleanParts
+        pure <| arts.oleanParts (inServer := globalLevel ≥ .server)
       else
         findOLeanParts i.module
     let parts ← readModuleDataParts fnames
@@ -2202,7 +2202,7 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     plugins.forM Lean.loadPlugin
-    let (_, s) ← importModulesCore (isModule := level != .private) imports arts |>.run
+    let (_, s) ← importModulesCore (globalLevel := level) imports arts |>.run
     finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level) (arts := arts)
       s imports opts trustLevel
 

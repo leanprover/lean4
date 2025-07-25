@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.Structure
-import Lean.Meta.AppBuilder
+public import Lean.AddDecl
+public import Lean.Structure
+public import Lean.Meta.AppBuilder
+
+public section
 
 /-!
 # Structure methods that require `MetaM` infrastructure
@@ -106,7 +110,7 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
                 else
                   Declaration.thmDecl { cval with value := projVal }
             else
-              let decl ← mkDefinitionValInferrringUnsafe projName indVal.levelParams projType projVal ReducibilityHints.abbrev
+              let decl ← mkDefinitionValInferringUnsafe projName indVal.levelParams projType projVal ReducibilityHints.abbrev
               -- Projections have special compiler support. No need to compile.
               addDecl <| Declaration.defnDecl decl
               -- Recall: we want instance projections to be in "reducible canonical form"

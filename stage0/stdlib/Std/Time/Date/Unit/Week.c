@@ -18,7 +18,6 @@ static lean_object* l___auto___closed__22____x40_Std_Time_Date_Unit_Week___hyg_3
 static lean_object* l_Std_Time_Week_Ordinal_instInhabitedOfMonth___closed__3;
 static lean_object* l_Std_Time_Week_Ordinal_instInhabitedOfMonth___closed__2;
 static lean_object* l___auto___closed__10____x40_Std_Time_Date_Unit_Week___hyg_346_;
-lean_object* l_Nat_cast___at___Int_bmod_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Week_instOrdinalLE;
 LEAN_EXPORT lean_object* l_Std_Time_Week_Offset_toMilliseconds___boxed(lean_object*);
 static lean_object* l___auto___closed__9____x40_Std_Time_Date_Unit_Week___hyg_346_;
@@ -151,7 +150,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Week_instOffsetNeg;
 LEAN_EXPORT lean_object* l_Std_Time_Week_Offset_ofInt(lean_object*);
 static lean_object* l___auto___closed__24____x40_Std_Time_Date_Unit_Week___hyg_346_;
 static lean_object* l_Std_Time_Week_instInhabitedOrdinal___closed__7;
-static lean_object* l_Std_Time_Week_Offset_toDays___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Week_Offset_toSeconds(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Week_Offset_ofMinutes___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Week_instDecidableLeOrdinal___boxed(lean_object*, lean_object*);
@@ -178,6 +176,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Week_instOrdOrdinal;
 LEAN_EXPORT lean_object* l_Std_Time_Week_Offset_toHours___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Week_Offset_ofSeconds___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Week_Ordinal_instOrdOfMonth;
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Week_instOffsetRepr_spec__0(lean_object*);
 static lean_object* l___auto___closed__7____x40_Std_Time_Date_Unit_Week___hyg_346_;
 LEAN_EXPORT lean_object* l_Std_Time_Week_Ordinal_ofInt___redArg(lean_object*);
 static lean_object* l_Std_Time_Week_Ordinal_instInhabitedOfMonth___closed__7;
@@ -434,6 +433,14 @@ x_1 = l_Std_Time_Week_instOrdOrdinal___closed__2;
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Week_instOffsetRepr_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Std_Time_Week_instOffsetRepr___closed__0() {
 _start:
 {
@@ -474,7 +481,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(86400u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -495,7 +502,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(7u);
-x_2 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -1440,20 +1447,11 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Time_Week_Offset_toDays___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(7u);
-x_2 = lean_nat_to_int(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_Week_Offset_toDays(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Std_Time_Week_Offset_toDays___closed__0;
+x_2 = l_Std_Time_Week_instOffsetInhabited___closed__2;
 x_3 = lean_int_mul(x_1, x_2);
 return x_3;
 }
@@ -1471,7 +1469,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Week_Offset_ofDays(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Std_Time_Week_Offset_toDays___closed__0;
+x_2 = l_Std_Time_Week_instOffsetInhabited___closed__2;
 x_3 = lean_int_ediv(x_1, x_2);
 return x_3;
 }
@@ -1668,8 +1666,6 @@ l_Std_Time_Week_Offset_toMinutes___closed__0 = _init_l_Std_Time_Week_Offset_toMi
 lean_mark_persistent(l_Std_Time_Week_Offset_toMinutes___closed__0);
 l_Std_Time_Week_Offset_toHours___closed__0 = _init_l_Std_Time_Week_Offset_toHours___closed__0();
 lean_mark_persistent(l_Std_Time_Week_Offset_toHours___closed__0);
-l_Std_Time_Week_Offset_toDays___closed__0 = _init_l_Std_Time_Week_Offset_toDays___closed__0();
-lean_mark_persistent(l_Std_Time_Week_Offset_toDays___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

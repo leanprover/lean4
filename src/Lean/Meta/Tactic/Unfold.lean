@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Eqns
-import Lean.Meta.Tactic.Delta
-import Lean.Meta.Tactic.Simp.Main
+public import Lean.Meta.Eqns
+public import Lean.Meta.Tactic.Delta
+public import Lean.Meta.Tactic.Simp.Main
+
+public section
 
 namespace Lean.Meta
 

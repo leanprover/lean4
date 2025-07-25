@@ -3,15 +3,19 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Do.ProofMode.MGoal
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic ProofMode
 open Lean Elab.Tactic Meta
 
-/-- The result of focussing the context of a goal `goal : MGoal` on a particular hypothesis.
-The focussed hypothesis is returned as `focusHyp : Expr`, along with the
+/-- The result of focusing the context of a goal `goal : MGoal` on a particular hypothesis.
+The focused hypothesis is returned as `focusHyp : Expr`, along with the
 residual `restHyps : Expr` and a `proof : Expr` for the property
 `goal.hyps ⊣⊢ₛ restHyps ∧ focusHyp`. -/
 structure FocusResult where

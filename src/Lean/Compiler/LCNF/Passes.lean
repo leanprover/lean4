@@ -3,24 +3,28 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.PullLetDecls
-import Lean.Compiler.LCNF.CSE
-import Lean.Compiler.LCNF.Simp
-import Lean.Compiler.LCNF.PullFunDecls
-import Lean.Compiler.LCNF.ReduceJpArity
-import Lean.Compiler.LCNF.JoinPoints
-import Lean.Compiler.LCNF.Specialize
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.ToMono
-import Lean.Compiler.LCNF.LambdaLifting
-import Lean.Compiler.LCNF.FloatLetIn
-import Lean.Compiler.LCNF.ReduceArity
-import Lean.Compiler.LCNF.ElimDeadBranches
-import Lean.Compiler.LCNF.StructProjCases
-import Lean.Compiler.LCNF.ExtractClosed
-import Lean.Compiler.LCNF.Visibility
+public import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.PullLetDecls
+public import Lean.Compiler.LCNF.CSE
+public import Lean.Compiler.LCNF.Simp
+public import Lean.Compiler.LCNF.PullFunDecls
+public import Lean.Compiler.LCNF.ReduceJpArity
+public import Lean.Compiler.LCNF.JoinPoints
+public import Lean.Compiler.LCNF.Specialize
+public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.ToMono
+public import Lean.Compiler.LCNF.LambdaLifting
+public import Lean.Compiler.LCNF.FloatLetIn
+public import Lean.Compiler.LCNF.ReduceArity
+public import Lean.Compiler.LCNF.ElimDeadBranches
+public import Lean.Compiler.LCNF.StructProjCases
+public import Lean.Compiler.LCNF.ExtractClosed
+public import Lean.Compiler.LCNF.Visibility
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -111,8 +115,8 @@ def builtinPassManager : PassManager := {
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
     cse (occurrence := 2) (phase := .mono),
-    Pass.inferVisibility .mono,
     saveMono,  -- End of mono phase
+    Pass.inferVisibility .mono,
     extractClosed,
   ]
 }

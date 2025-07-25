@@ -3,14 +3,18 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Int.Linear
-import Std.Internal.Rat
-import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ExprPtr
-import Lean.Meta.Tactic.Grind.Arith.Util
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
+public import Init.Data.Int.Linear
+public import Std.Internal.Rat
+public import Lean.Data.PersistentArray
+public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Lean.Meta.Tactic.Grind.Arith.Util
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToIntInfo
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -247,7 +251,7 @@ structure State where
   justification objects contain terms using variables before the reordering.
   -/
   vars' : PArray Expr := {}
-  /-- `varVap` before variables were reordered. -/
+  /-- `varMap` before variables were reordered. -/
   varMap' : PHashMap ExprPtr Var := {}
   /--
   The field `natToIntMap` contains a mapping

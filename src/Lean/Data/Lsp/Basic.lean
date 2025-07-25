@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Json
-import Lean.Data.Lsp.BasicAux
+public import Lean.Data.Json
+public import Lean.Data.Lsp.BasicAux
+
+public section
 
 /-! Defines most of the 'Basic Structures' in the LSP specification
 (https://microsoft.github.io/language-server-protocol/specifications/specification-current/),
@@ -117,7 +121,7 @@ structure TextEdit where
   deriving ToJson, FromJson
 
 /-- An array of `TextEdit`s to be performed in sequence. -/
-def TextEditBatch := Array TextEdit
+@[expose] def TextEditBatch := Array TextEdit
 
 instance : FromJson TextEditBatch :=
   ⟨@fromJson? (Array TextEdit) _⟩
@@ -318,7 +322,7 @@ structure DocumentFilter where
   pattern?  : Option String := none
   deriving ToJson, FromJson
 
-def DocumentSelector := Array DocumentFilter
+@[expose] def DocumentSelector := Array DocumentFilter
 
 instance : FromJson DocumentSelector :=
   ⟨@fromJson? (Array DocumentFilter) _⟩

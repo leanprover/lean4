@@ -3,15 +3,19 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.Sorry
-import Lean.Widget.Types
-import Lean.Message
-import Lean.DocString.Links
+public import Lean.Util.Sorry
+public import Lean.Widget.Types
+public import Lean.Message
+public import Lean.DocString.Links
 -- This import is necessary to ensure that any users of the `logNamedError` macros have access to
 -- all declared explanations:
-import Lean.ErrorExplanations
-import Lean.Data.Json.Basic
+public import Lean.ErrorExplanations
+public import Lean.Data.Json.Basic
+
+public section
 
 namespace Lean
 
@@ -67,6 +71,7 @@ A widget for displaying error names and explanation links.
 def errorDescriptionWidget : Widget.Module where
   javascript := "
 import { createElement } from 'react';
+
 export default function ({ code, explanationUrl }) {
   const sansText = { fontFamily: 'var(--vscode-font-family)' }
 

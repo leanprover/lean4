@@ -3,10 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.ShareCommon
-import Lean.Util.MonadCache
-import Lean.LocalContext
+public import Init.ShareCommon
+public import Lean.Util.MonadCache
+public import Lean.LocalContext
+import Init.Data.Slice
+
+public section
 
 namespace Lean
 
@@ -640,7 +645,7 @@ structure State where
 
 private abbrev M := StateM State
 
-instance : MonadMCtx M where
+private instance : MonadMCtx M where
   getMCtx := return (← get).mctx
   modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
 
@@ -694,7 +699,7 @@ private def shouldVisit (e : Expr) : M Bool := do
       | _                    => pure false
   visit e
 
-@[inline] partial def main (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
+@[inline] private partial def main (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
   if !e.hasFVar && !e.hasMVar then pure false else dep pf pm e
 
 end DependsOn

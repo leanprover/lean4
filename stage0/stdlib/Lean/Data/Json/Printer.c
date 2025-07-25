@@ -39,7 +39,6 @@ uint8_t lean_byte_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Json_compress_go_spec__0(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__219;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__242;
-static lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__2;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__183;
 lean_object* lean_uint32_to_nat(uint32_t);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__46;
@@ -47,7 +46,6 @@ static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable_
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__7;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__47;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__1;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__85;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__83;
@@ -94,6 +92,7 @@ static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable_
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__138;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__58;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__103;
+static lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__0;
 static lean_object* l_Lean_Json_render___closed__12;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
@@ -170,11 +169,10 @@ lean_object* lean_array_to_list(lean_object*);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__6;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__249;
 static lean_object* l_Lean_Json_render___closed__16;
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__205;
-static lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__1;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__73;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__227;
+static lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__1;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__161;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__228;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__142;
@@ -202,12 +200,14 @@ static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable_
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__71;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__190;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__36;
+LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Lean_Json_render_spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__66;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__108;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__180;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__2;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__200;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__156;
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__243;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__67;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__135;
@@ -229,6 +229,7 @@ static lean_object* l_Lean_Json_render___closed__7;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__248;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__112;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__148;
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_render___closed__15;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__107;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__92;
@@ -239,6 +240,7 @@ static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable_
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__98;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__222;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__130;
+static lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__2;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__3;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__237;
 static lean_object* l_Lean_Json_render___closed__1;
@@ -262,10 +264,10 @@ static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable_
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__72;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__20;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__166;
+LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Lean_Json_render_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__150;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__128;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__43;
-static lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__0;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__54;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__230;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__56;
@@ -290,7 +292,7 @@ static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable_
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__213;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__102;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__232;
-lean_object* l_Std_Format_joinSep___at___Lean_Syntax_formatStxAux_spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Json_render_spec__3(lean_object*);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__4;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__187;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__193;
@@ -358,7 +360,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeA
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__12;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__182;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__255;
-LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__152;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__192;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Json_render_spec__0(size_t, size_t, lean_object*);
@@ -3560,7 +3562,101 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__0() {
+LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Lean_Json_render_spec__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_dec(x_1);
+return x_2;
+}
+else
+{
+uint8_t x_4; 
+x_4 = !lean_is_exclusive(x_3);
+if (x_4 == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_3, 0);
+x_6 = lean_ctor_get(x_3, 1);
+lean_inc(x_1);
+lean_ctor_set_tag(x_3, 5);
+lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 0, x_2);
+x_7 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_7, 0, x_3);
+lean_ctor_set(x_7, 1, x_5);
+x_2 = x_7;
+x_3 = x_6;
+goto _start;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_9 = lean_ctor_get(x_3, 0);
+x_10 = lean_ctor_get(x_3, 1);
+lean_inc(x_10);
+lean_inc(x_9);
+lean_dec(x_3);
+lean_inc(x_1);
+x_11 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_11, 0, x_2);
+lean_ctor_set(x_11, 1, x_1);
+x_12 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_12, 0, x_11);
+lean_ctor_set(x_12, 1, x_9);
+x_2 = x_12;
+x_3 = x_10;
+goto _start;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Lean_Json_render_spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_3; 
+lean_dec(x_2);
+x_3 = lean_box(0);
+return x_3;
+}
+else
+{
+lean_object* x_4; 
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; 
+lean_dec(x_2);
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+lean_dec_ref(x_1);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec_ref(x_1);
+x_7 = l_List_foldl___at___Std_Format_joinSep___at___Lean_Json_render_spec__1_spec__1(x_2, x_6, x_4);
+return x_7;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Json_render_spec__3(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -3568,7 +3664,7 @@ x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__1() {
+static lean_object* _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3576,17 +3672,17 @@ x_1 = lean_mk_string_unchecked(":", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__2() {
+static lean_object* _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__1;
+x_1 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__1;
 x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -3601,13 +3697,13 @@ lean_inc(x_5);
 x_6 = lean_ctor_get(x_2, 4);
 lean_inc(x_6);
 lean_dec_ref(x_2);
-x_7 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1(x_1, x_5);
-x_8 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__0;
+x_7 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4(x_1, x_5);
+x_8 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__0;
 x_9 = l_Lean_Json_renderString(x_3, x_8);
 lean_dec(x_3);
 x_10 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
-x_11 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__2;
+x_11 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__2;
 x_12 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
@@ -3636,11 +3732,11 @@ return x_1;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1(x_1, x_2);
+x_3 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4(x_1, x_2);
 return x_3;
 }
 }
@@ -3870,7 +3966,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_13 = lean_ctor_get(x_1, 0);
-x_14 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__0;
+x_14 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__0;
 x_15 = l_Lean_Json_renderString(x_13, x_14);
 lean_dec_ref(x_13);
 lean_ctor_set(x_1, 0, x_15);
@@ -3882,7 +3978,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19;
 x_16 = lean_ctor_get(x_1, 0);
 lean_inc(x_16);
 lean_dec(x_1);
-x_17 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__0;
+x_17 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__0;
 x_18 = l_Lean_Json_renderString(x_16, x_17);
 lean_dec_ref(x_16);
 x_19 = lean_alloc_ctor(3, 1, 0);
@@ -3901,7 +3997,7 @@ x_22 = 0;
 x_23 = l_Array_mapMUnsafe_map___at___Lean_Json_render_spec__0(x_21, x_22, x_20);
 x_24 = lean_array_to_list(x_23);
 x_25 = l_Lean_Json_render___closed__8;
-x_26 = l_Std_Format_joinSep___at___Lean_Syntax_formatStxAux_spec__1(x_24, x_25);
+x_26 = l_Std_Format_joinSep___at___Lean_Json_render_spec__1(x_24, x_25);
 x_27 = l_Lean_Json_render___closed__11;
 x_28 = l_Lean_Json_render___closed__12;
 x_29 = lean_alloc_ctor(5, 2, 0);
@@ -3927,9 +4023,9 @@ x_35 = lean_ctor_get(x_1, 0);
 lean_inc(x_35);
 lean_dec_ref(x_1);
 x_36 = lean_box(0);
-x_37 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1(x_36, x_35);
+x_37 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4(x_36, x_35);
 x_38 = l_Lean_Json_render___closed__8;
-x_39 = l_Std_Format_joinSep___at___Lean_Syntax_formatStxAux_spec__1(x_37, x_38);
+x_39 = l_Std_Format_joinSep___at___Lean_Json_render_spec__1(x_37, x_38);
 x_40 = l_Lean_Json_render___closed__11;
 x_41 = l_Lean_Json_render___closed__16;
 x_42 = lean_alloc_ctor(5, 2, 0);
@@ -4394,7 +4490,7 @@ lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; 
 lean_dec(x_89);
 x_103 = l_Lean_Json_renderString(x_90, x_1);
 lean_dec_ref(x_90);
-x_104 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__1;
+x_104 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__1;
 x_105 = lean_string_append(x_103, x_104);
 x_106 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_106, 0, x_91);
@@ -4417,7 +4513,7 @@ block_101:
 lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; 
 x_93 = l_Lean_Json_renderString(x_90, x_1);
 lean_dec_ref(x_90);
-x_94 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__1;
+x_94 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__1;
 x_95 = lean_string_append(x_93, x_94);
 x_96 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_96, 0, x_91);
@@ -4512,7 +4608,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_compress(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__0;
+x_2 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__0;
 x_3 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_3, 0, x_1);
 x_4 = lean_box(0);
@@ -5103,12 +5199,12 @@ l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__4 = _init_l_
 lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__4);
 l_Lean_Json_renderString___closed__0 = _init_l_Lean_Json_renderString___closed__0();
 lean_mark_persistent(l_Lean_Json_renderString___closed__0);
-l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__0 = _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__0();
-lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__0);
-l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__1 = _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__1();
-lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__1);
-l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__2 = _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__2();
-lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__1_spec__1___closed__2);
+l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__0 = _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__0();
+lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__0);
+l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__1 = _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__1();
+lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__1);
+l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__2 = _init_l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__2();
+lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_render_spec__4_spec__4___closed__2);
 l_Lean_Json_render___closed__0 = _init_l_Lean_Json_render___closed__0();
 lean_mark_persistent(l_Lean_Json_render___closed__0);
 l_Lean_Json_render___closed__1 = _init_l_Lean_Json_render___closed__1();

@@ -3,14 +3,18 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.PropagatorAttr
-import Lean.Meta.Tactic.Grind.Arith.Offset
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
-import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
-import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
-import Lean.Meta.Tactic.Grind.Arith.Linear.Search
+public import Lean.Meta.Tactic.Grind.PropagatorAttr
+public import Lean.Meta.Tactic.Grind.Arith.Offset
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
+public import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Search
+
+public section
 
 namespace Lean.Meta.Grind.Arith
 

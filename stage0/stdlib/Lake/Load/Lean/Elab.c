@@ -34,6 +34,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lake_fromJsonConfigT
 lean_object* l_Lean_Json_mkObj(lean_object*);
 lean_object* lean_io_remove_file(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___Std_DHashMap_Internal_AssocList_get_x3f___at___Lake_importModulesUsingCache_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Firefox_fromJsonCategory____x40_Lean_Util_Profiler___hyg_245__spec__1(lean_object*, lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
@@ -93,6 +94,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_forM___at___Lean_MessageLog_forM
 static lean_object* l_Lake_importConfigFileCore_lakeExts___closed__51;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Std_DHashMap_Internal_AssocList_foldlM___at___Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lake_importModulesUsingCache_spec__3_spec__3_spec__4_spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_try_lock(lean_object*, uint8_t, lean_object*);
+lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_SMap_find_x3f_x27___at_____private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected_showName_spec__2_spec__2___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_fromJsonConfigTrace___closed__0____x40_Lake_Load_Lean_Elab___hyg_1008_;
 lean_object* l_Lean_EnvExtension_setState___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -133,6 +135,7 @@ static lean_object* l_Lake_importConfigFileCore_lakeExts___closed__23;
 static lean_object* l_Lake_importConfigFileCore_lakeExts___closed__18;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lake_importModulesUsingCache_spec__3___redArg(lean_object*);
 static lean_object* l_Lake_importConfigFileCore_lakeExts___closed__5;
+lean_object* l_List_flatMapTR_go___at___Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_390__spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_PersistentArray_forMAux___at___Lean_PersistentArray_forM___at___Lean_MessageLog_forM___at___Lake_elabConfigFile_spec__0_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forM___at___Lean_MessageLog_forM___at___Lake_elabConfigFile_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_fromJsonConfigTrace___closed__1____x40_Lake_Load_Lean_Elab___hyg_1008_;
@@ -224,7 +227,6 @@ static lean_object* l_Lake_importModulesUsingCache___closed__1;
 LEAN_EXPORT lean_object* l_Lake_importConfigFileCore_lakeExts;
 static lean_object* l_Lake_importConfigFileCore_lakeExts___closed__4;
 lean_object* lean_array_uget(lean_object*, size_t);
-lean_object* l_Lean_Json_getObjValAs_x3f___at___IO_FS_Stream_readMessage_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_elabConfigFile___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lake_importModulesUsingCache_spec__3_spec__3___redArg(lean_object*, lean_object*, lean_object*);
@@ -244,7 +246,6 @@ LEAN_EXPORT lean_object* l_Lake_configModuleName;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_Array_foldlMUnsafe_fold___at___Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lake_importModulesUsingCache_spec__3_spec__3_spec__3(lean_object*, size_t, size_t, uint64_t);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_List_flatMapTR_go___at___Lean_Lsp_toJsonPosition____x40_Lean_Data_Lsp_BasicAux___hyg_225__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lake_importModulesUsingCache_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_importConfigFile___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_fromJsonConfigTrace___lam__0____x40_Lake_Load_Lean_Elab___hyg_1008_(lean_object*);
@@ -276,7 +277,6 @@ lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l_Lake_importConfigFile___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lake_fromJsonConfigTrace____x40_Lake_Load_Lean_Elab___hyg_1008__spec__0(lean_object*, lean_object*);
-lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_SMap_find_x3f_x27___at___Lean_Kernel_Environment_find_x3f_spec__0_spec__0___redArg(lean_object*, lean_object*);
 uint8_t l_Lean_MessageLog_hasErrors(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_beqImport____x40_Lake_Load_Lean_Elab___hyg_6_(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -3472,7 +3472,7 @@ x_30 = 1;
 x_31 = lean_usize_sub(x_29, x_30);
 x_32 = lean_usize_land(x_28, x_31);
 x_33 = lean_array_uget(x_19, x_32);
-x_34 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_SMap_find_x3f_x27___at___Lean_Kernel_Environment_find_x3f_spec__0_spec__0___redArg(x_15, x_33);
+x_34 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_SMap_find_x3f_x27___at_____private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected_showName_spec__2_spec__2___redArg(x_15, x_33);
 lean_dec(x_33);
 lean_dec(x_15);
 if (lean_obj_tag(x_34) == 0)
@@ -3584,7 +3584,7 @@ x_30 = 1;
 x_31 = lean_usize_sub(x_29, x_30);
 x_32 = lean_usize_land(x_28, x_31);
 x_33 = lean_array_uget(x_19, x_32);
-x_34 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_SMap_find_x3f_x27___at___Lean_Kernel_Environment_find_x3f_spec__0_spec__0___redArg(x_15, x_33);
+x_34 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_SMap_find_x3f_x27___at_____private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected_showName_spec__2_spec__2___redArg(x_15, x_33);
 lean_dec(x_33);
 lean_dec(x_15);
 if (lean_obj_tag(x_34) == 0)
@@ -4054,7 +4054,7 @@ x_28 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_28, 0, x_10);
 lean_ctor_set(x_28, 1, x_27);
 x_29 = l_Lake_toJsonConfigTrace___closed__4____x40_Lake_Load_Lean_Elab___hyg_928_;
-x_30 = l_List_flatMapTR_go___at___Lean_Lsp_toJsonPosition____x40_Lean_Data_Lsp_BasicAux___hyg_225__spec__0(x_28, x_29);
+x_30 = l_List_flatMapTR_go___at___Lean_Firefox_toJsonCategory____x40_Lean_Util_Profiler___hyg_390__spec__2(x_28, x_29);
 x_31 = l_Lean_Json_mkObj(x_30);
 return x_31;
 }
@@ -4214,7 +4214,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lake_toJsonConfigTrace___closed__0____x40_Lake_Load_Lean_Elab___hyg_928_;
 lean_inc(x_1);
-x_3 = l_Lean_Json_getObjValAs_x3f___at___IO_FS_Stream_readMessage_spec__2(x_1, x_2);
+x_3 = l_Lean_Json_getObjValAs_x3f___at___Lean_Firefox_fromJsonCategory____x40_Lean_Util_Profiler___hyg_245__spec__1(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -4299,7 +4299,7 @@ lean_inc(x_35);
 lean_dec_ref(x_3);
 x_36 = l_Lake_toJsonConfigTrace___closed__1____x40_Lake_Load_Lean_Elab___hyg_928_;
 lean_inc(x_1);
-x_37 = l_Lean_Json_getObjValAs_x3f___at___IO_FS_Stream_readMessage_spec__2(x_1, x_36);
+x_37 = l_Lean_Json_getObjValAs_x3f___at___Lean_Firefox_fromJsonCategory____x40_Lean_Util_Profiler___hyg_245__spec__1(x_1, x_36);
 if (lean_obj_tag(x_37) == 0)
 {
 uint8_t x_38; 

@@ -826,8 +826,12 @@ The `have` tactic is for adding hypotheses to the local context of the main goal
   It is convenient for types that have only one applicable constructor.
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
+* The syntax `have (eq := h) pat := e` is equivalent to `match h : e with | pat => _`,
+  which adds the equation `h : e = pat` to the local context.
+
+The tactic supports all the same syntax variants and options as the `have` term.
 -/
-syntax "have " letConfig letDecl : tactic
+syntax "have" letConfig letDecl : tactic
 macro_rules
   -- special case: when given a nested `by` block, move it outside of the `refine` to enable
   -- incrementality
@@ -878,8 +882,12 @@ The `let` tactic is for adding definitions to the local context of the main goal
   It is convenient for types that let only one applicable constructor.
   For example, given `p : α × β × γ`, `let ⟨x, y, z⟩ := p` produces the
   local variables `x : α`, `y : β`, and `z : γ`.
+* The syntax `let (eq := h) pat := e` is equivalent to `match h : e with | pat => _`,
+  which adds the equation `h : e = pat` to the local context.
+
+The tactic supports all the same syntax variants and options as the `let` term.
 -/
-macro "let " c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
+macro "let" c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
 
 /-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
 The syntax is the same as term-mode `let rec`. -/
@@ -890,24 +898,21 @@ macro_rules
 /-- Similar to `refine_lift`, but using `refine'` -/
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
-macro (name := tacticHave') "have' " c:letConfig d:letDecl : tactic => `(tactic| refine_lift' have $c:letConfig $d:letDecl; ?_)
-set_option linter.missingDocs false in -- OK, because `tactic_alt` causes inheritance of docs
-macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
-attribute [tactic_alt tacticHave'] «tacticHave'_:=_»
+macro (name := tacticHave') "have'" c:letConfig d:letDecl : tactic => `(tactic| refine_lift' have $c:letConfig $d:letDecl; ?_)
 /-- Similar to `let`, but using `refine'` -/
-macro "let' " c:letConfig d:letDecl : tactic => `(tactic| refine_lift' let $c:letConfig $d:letDecl; ?_)
+macro "let'" c:letConfig d:letDecl : tactic => `(tactic| refine_lift' let $c:letConfig $d:letDecl; ?_)
 
 /--
 The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
 where `foo` is a constructor of the inductive type and `a b c` are the arguments
 to the constructor.
 -/
-syntax inductionAltLHS := withPosition("| " (("@"? ident) <|> hole) (colGt (ident <|> hole))*)
+syntax inductionAltLHS := ppDedent(ppLine) withPosition("| " (("@"? ident) <|> hole) (colGt (ident <|> hole))*)
 /--
 In induction alternative, which can have 1 or more cases on the left
 and `_`, `?_`, or a tactic sequence after the `=>`.
 -/
-syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
+syntax inductionAlt  := inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
 /--
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
@@ -1989,6 +1994,13 @@ example (P Q R : SPred σs) : P ∧ Q ∧ R ⊢ₛ P → R := by
 -/
 macro (name := mrevertMacro) (priority:=low) "mrevert" : tactic =>
   Macro.throwError "to use `mrevert`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mrename_i` is like `rename_i`, but names inaccessible stateful hypotheses in a `Std.Do.SPred` goal.
+-/
+macro (name := mrenameIMacro) (priority:=low) "mrename_i" : tactic =>
+  Macro.throwError "to use `mrename_i`, please include `import Std.Tactic.Do`"
 
 
 /--

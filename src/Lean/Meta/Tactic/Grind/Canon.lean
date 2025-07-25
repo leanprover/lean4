@@ -3,14 +3,18 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Lean.Meta.Basic
-import Lean.Meta.FunInfo
-import Lean.Util.FVarSubset
-import Lean.Util.PtrSet
-import Lean.Util.FVarSubset
-import Lean.Meta.Tactic.Grind.Types
+public import Init.Grind.Util
+public import Lean.Meta.Basic
+public import Lean.Meta.FunInfo
+public import Lean.Util.FVarSubset
+public import Lean.Util.PtrSet
+public import Lean.Util.FVarSubset
+public import Lean.Meta.Tactic.Grind.Types
+
+public section
 
 namespace Lean.Meta.Grind
 namespace Canon
@@ -128,7 +132,7 @@ private inductive ShouldCanonResult where
   deriving Inhabited
 
 instance : Repr ShouldCanonResult where
-  reprPrec r _ := match r with
+  reprPrec r _ := private match r with
     | .canonType => "canonType"
     | .canonInst => "canonInst"
     | .canonImplicit => "canonImplicit"

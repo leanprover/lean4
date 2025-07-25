@@ -3,13 +3,17 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.PullFunDecls
-import Lean.Compiler.LCNF.FVarUtil
-import Lean.Compiler.LCNF.ScopeM
-import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.PullFunDecls
+public import Lean.Compiler.LCNF.FVarUtil
+public import Lean.Compiler.LCNF.ScopeM
+public import Lean.Compiler.LCNF.InferType
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -378,7 +382,7 @@ def withNewAltScope (alt : Alt) (x : ExtendM α) : ExtendM α := do
 
 /--
 Use all of the above functions to find free variables declared outside
-of join points that said join points can be reasonaly extended by. Reasonable
+of join points that said join points can be reasonably extended by. Reasonable
 meaning that in case the current join point is nested within a function
 declaration we will not extend it by free variables declared before the
 function declaration because we cannot lift join points outside of function

@@ -3,10 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Structure
-import Lean.Elab.Attributes
-import Lean.DocString.Add
+public import Lean.Structure
+public import Lean.Elab.Attributes
+public import Lean.DocString.Add
+public import Lean.Parser.Command
+meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab
 
@@ -101,7 +107,7 @@ def Modifiers.isPartial : Modifiers → Bool
 
 /--
 Whether the declaration is explicitly `partial` or should be considered as such via `meta`. In the
-latter case, elaborators should not produce an error if partialty is unnecessary.
+latter case, elaborators should not produce an error if partiality is unnecessary.
 -/
 def Modifiers.isInferredPartial : Modifiers → Bool
   | { recKind := .partial, .. }  => true

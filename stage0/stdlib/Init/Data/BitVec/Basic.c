@@ -29,7 +29,6 @@ LEAN_EXPORT lean_object* l_BitVec_getLsb_x3f(lean_object*, lean_object*, lean_ob
 lean_object* l_List_asString(lean_object*);
 static lean_object* l_BitVec_term_____x23_______closed__20;
 lean_object* l_List_lengthTR___redArg(lean_object*);
-lean_object* l_Nat_cast___at___Int_bmod_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_setWidth(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_ofNatLt(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_ofBoolListLE___boxed(lean_object*);
@@ -119,6 +118,7 @@ LEAN_EXPORT uint8_t l_BitVec_getLsbD(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_append___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_ofBoolListLE(lean_object*);
 LEAN_EXPORT uint64_t l_BitVec_hash(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___BitVec_toInt_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_intMin___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_umod___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_neg(lean_object*, lean_object*);
@@ -198,7 +198,7 @@ LEAN_EXPORT lean_object* l_BitVec_rotateLeft___boxed(lean_object*, lean_object*,
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_rotateLeftAux___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_toHex___boxed__const__1;
+static lean_object* l_BitVec_toHex___boxed__const__1;
 LEAN_EXPORT lean_object* l_BitVec_instDiv(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_intMin(lean_object*);
 LEAN_EXPORT uint8_t l_BitVec_getMsb(lean_object*, lean_object*, lean_object*);
@@ -837,6 +837,14 @@ lean_dec(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_cast___at___BitVec_toInt_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_BitVec_toInt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -849,8 +857,8 @@ lean_dec(x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = l_Nat_cast___at___Int_bmod_spec__0(x_2);
-x_8 = l_Nat_cast___at___Int_bmod_spec__0(x_5);
+x_7 = lean_nat_to_int(x_2);
+x_8 = lean_nat_to_int(x_5);
 x_9 = lean_int_sub(x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -860,7 +868,7 @@ else
 {
 lean_object* x_10; 
 lean_dec(x_5);
-x_10 = l_Nat_cast___at___Int_bmod_spec__0(x_2);
+x_10 = lean_nat_to_int(x_2);
 return x_10;
 }
 }

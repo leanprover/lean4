@@ -21,6 +21,7 @@ LEAN_EXPORT uint8_t l_Std_Internal_IO_Process_ordPId____x40_Std_Internal_Async_P
 lean_object* lean_uv_os_getpriority(uint64_t, lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__16____x40_Std_Internal_Async_Process___hyg_160_;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_setPriority(uint64_t, uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Internal_IO_Process_reprResourceUsageStats____x40_Std_Internal_Async_Process___hyg_160__spec__0(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__45____x40_Std_Internal_Async_Process___hyg_160_;
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__30____x40_Std_Internal_Async_Process___hyg_160_;
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__33____x40_Std_Internal_Async_Process___hyg_160_;
@@ -88,7 +89,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getExecutablePath(lean_object
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__51____x40_Std_Internal_Async_Process___hyg_160_;
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__29____x40_Std_Internal_Async_Process___hyg_160_;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_getPriority(uint64_t, lean_object*);
-lean_object* l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__50____x40_Std_Internal_Async_Process___hyg_160_;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_setPriority___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__2____x40_Std_Internal_Async_Process___hyg_160_;
@@ -137,6 +137,14 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_freeMemory(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprPId___lam__0___closed__0;
 lean_object* lean_uv_os_getppid(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__4____x40_Std_Internal_Async_Process___hyg_160_;
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Internal_IO_Process_reprResourceUsageStats____x40_Std_Internal_Async_Process___hyg_160__spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__0____x40_Std_Internal_Async_Process___hyg_160_() {
 _start:
 {
@@ -605,7 +613,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(2u);
-x_2 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }

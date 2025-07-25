@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Meta.Match.MatcherApp.Basic
-import Lean.Elab.Tactic.Simp
+public import Lean.Meta.Transform
+public import Lean.Meta.Match.MatcherApp.Basic
+public import Lean.Elab.Tactic.Simp
+
+public section
 
 /-!
 This module implements the preprocessing of function definitions involved in well-founded recursion.
@@ -152,7 +156,7 @@ builtin_dsimproc paramLet (_) := fun e => do
 
 /--
 Transforms non-Prop `have`s to `let`s, so that the values can be used in GuessLex and decreasing-by proofs.
-These `have`s may have been introdued by `simp`, which converts `let`s to `have`s.
+These `have`s may have been introduced by `simp`, which converts `let`s to `have`s.
 -/
 private def nonPropHaveToLet (e : Expr) : MetaM Expr := do
   Meta.transform e (pre := fun e => do

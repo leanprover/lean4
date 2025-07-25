@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Meta.Constructions.CasesOn
-import Lean.Compiler.ImplementedByAttr
-import Lean.Elab.PreDefinition.WF.Eqns
+public import Lean.Meta.Constructions.CasesOn
+public import Lean.Compiler.ImplementedByAttr
+public import Lean.Elab.PreDefinition.WF.Eqns
+
+public section
 
 /-!
 # Computed fields

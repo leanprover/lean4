@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVPred
+public import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVPred
+
+public section
 
 /-!
 Provides the logic for reifying `BitVec` problems with boolean substructure.
@@ -38,7 +42,7 @@ def ofPred (bvPred : ReifiedBVPred) : M ReifiedBVLogical := do
   return ⟨boolExpr, bvPred.originalExpr, proof, expr⟩
 
 /--
-Construct an uninterrpeted `Bool` atom from `t`.
+Construct an uninterpreted `Bool` atom from `t`.
 -/
 def boolAtom (t : Expr) : M (Option ReifiedBVLogical) := do
   let some pred ← ReifiedBVPred.boolAtom t | return none

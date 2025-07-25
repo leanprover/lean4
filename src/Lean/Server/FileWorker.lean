@@ -4,30 +4,34 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.System.IO
-import Std.Sync.Channel
+public import Init.System.IO
+public import Std.Sync.Channel
 
-import Lean.Environment
+public import Lean.Environment
 
-import Lean.Data.Lsp
-import Lean.Data.Json.FromToJson.Basic
+public import Lean.Data.Lsp
+public import Lean.Data.Json.FromToJson.Basic
 
-import Lean.LoadDynlib
-import Lean.Language.Lean
+public import Lean.LoadDynlib
+public import Lean.Language.Lean
 
-import Lean.Server.Utils
-import Lean.Server.AsyncList
-import Lean.Server.References
+public import Lean.Server.Utils
+public import Lean.Server.AsyncList
+public import Lean.Server.References
 
-import Lean.Server.FileWorker.Utils
-import Lean.Server.FileWorker.RequestHandling
-import Lean.Server.FileWorker.WidgetRequests
-import Lean.Server.FileWorker.SetupFile
-import Lean.Server.Rpc.Basic
-import Lean.Widget.InteractiveDiagnostic
-import Lean.Server.Completion.ImportCompletion
-import Lean.Server.CodeActions.UnknownIdentifier
+public import Lean.Server.FileWorker.Utils
+public import Lean.Server.FileWorker.RequestHandling
+public import Lean.Server.FileWorker.WidgetRequests
+public import Lean.Server.FileWorker.SetupFile
+public import Lean.Server.Rpc.Basic
+public import Lean.Widget.InteractiveDiagnostic
+public import Lean.Server.Completion.ImportCompletion
+public import Lean.Server.CodeActions.UnknownIdentifier
+
+public section
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.

@@ -35,7 +35,7 @@ macro_rules
 
 /-- Remove an `spred` layer from a `term` syntax object. -/
 -- inverts the rules above.
-meta def SPred.Notation.unpack [Monad m] [MonadRef m] [MonadQuotation m] : Term → m Term
+partial def SPred.Notation.unpack [Monad m] [MonadRef m] [MonadQuotation m] : Term → m Term
   | `(spred($P))             => do `($P)
   | `(($P))                  => do `(($(← unpack P)))
   | `(if $c then $t else $e) => do

@@ -1429,12 +1429,12 @@ theorem filterMap_eq_map {f : α → β} : filterMap (some ∘ f) = map f := by
 theorem filterMap_eq_map' {f : α → β} : filterMap (fun x => some (f x)) = map f :=
   filterMap_eq_map
 
-@[simp] theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
+theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
   funext l
   erw [filterMap_eq_map]
   simp
 
-@[grind] theorem filterMap_some {l : List α} : filterMap some l = l := by
+@[simp, grind] theorem filterMap_some {l : List α} : filterMap some l = l := by
   rw [filterMap_some_fun, id]
 
 theorem map_filterMap_some_eq_filter_map_isSome {f : α → Option β} {l : List α} :

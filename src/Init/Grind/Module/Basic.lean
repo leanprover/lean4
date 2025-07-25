@@ -51,14 +51,8 @@ class NatModule (M : Type u) extends AddCommMonoid M where
   [nsmul : HMul Nat M M]
   /-- Scalar multiplication by zero is zero. -/
   zero_nsmul : ∀ a : M, 0 * a = 0
-  /-- Scalar multiplication by one is the identity. -/
-  one_nsmul : ∀ a : M, 1 * a = a
-  /-- Scalar multiplication is distributive over addition in the natural numbers. -/
-  add_nsmul : ∀ n m : Nat, ∀ a : M, (n + m) * a = n * a + m * a
-  /-- Scalar multiplication of zero is zero. -/
-  nsmul_zero : ∀ n : Nat, n * (0 : M) = 0
-  /-- Scalar multiplication is distributive over addition in the module. -/
-  nsmul_add : ∀ n : Nat, ∀ a b : M, n * (a + b) = n * a + n * b
+  /-- Scalar multiplication by a successor. -/
+  add_one_nsmul : ∀ n : Nat, ∀ a : M, (n + 1) * a = n * a + a
 
 attribute [instance 100] NatModule.toAddCommMonoid NatModule.nsmul
 
@@ -79,22 +73,22 @@ class IntModule (M : Type u) extends AddCommGroup M where
   one_zsmul : ∀ a : M, (1 : Int) * a = a
   /-- Scalar multiplication is distributive over addition in the integers. -/
   add_zsmul : ∀ n m : Int, ∀ a : M, (n + m) * a = n * a + m * a
-  /-- Scalar multiplication of zero is zero. -/
-  zsmul_zero : ∀ n : Int, n * (0 : M) = 0
-  /-- Scalar multiplication by integers is distributive over addition in the module. -/
-  zsmul_add : ∀ n : Int, ∀ a b : M, n * (a + b) = n * a + n * b
   /-- Scalar multiplication by natural numbers is consistent with scalar multiplication by integers. -/
   zsmul_natCast_eq_nsmul : ∀ n : Nat, ∀ a : M, (n : Int) * a = n * a
 
 attribute [instance 100] IntModule.toAddCommGroup IntModule.zsmul
 
-instance (priority := 100) IntModule.toNatModule [I : IntModule M] : NatModule M :=
+namespace IntModule
+
+variable {M : Type u} [IntModule M]
+
+instance (priority := 100) toNatModule [I : IntModule M] : NatModule M :=
   { I with
     zero_nsmul a := by rw [← zsmul_natCast_eq_nsmul, Int.natCast_zero, zero_zsmul]
-    one_nsmul a := by rw [← zsmul_natCast_eq_nsmul, Int.natCast_one, one_zsmul]
-    add_nsmul n m a := by rw [← zsmul_natCast_eq_nsmul, Int.natCast_add, add_zsmul, zsmul_natCast_eq_nsmul, zsmul_natCast_eq_nsmul]
-    nsmul_zero n := by rw [← zsmul_natCast_eq_nsmul, zsmul_zero]
-    nsmul_add n a b := by rw [← zsmul_natCast_eq_nsmul, zsmul_add, zsmul_natCast_eq_nsmul, zsmul_natCast_eq_nsmul] }
+    add_one_nsmul n a := by rw [← zsmul_natCast_eq_nsmul, Int.natCast_add_one, add_zsmul,
+      zsmul_natCast_eq_nsmul, one_zsmul] }
+
+end IntModule
 
 namespace AddCommMonoid
 
@@ -173,6 +167,25 @@ namespace NatModule
 
 variable {M : Type u} [NatModule M]
 
+theorem one_nsmul (a : M) : 1 * a = a := by
+  rw [← Nat.zero_add 1, add_one_nsmul, zero_nsmul, AddCommMonoid.zero_add]
+
+theorem add_nsmul (n m : Nat) (a : M) : (n + m) * a = n * a + m * a := by
+  induction m with
+  | zero => rw [Nat.add_zero, zero_nsmul, AddCommMonoid.add_zero]
+  | succ m ih => rw [add_one_nsmul, ← Nat.add_assoc, add_one_nsmul, ih, AddCommMonoid.add_assoc]
+
+theorem nsmul_zero (n : Nat) : n * (0 : M) = 0 := by
+  induction n with
+  | zero => rw [zero_nsmul]
+  | succ n ih => rw [add_one_nsmul, ih, AddCommMonoid.zero_add]
+
+theorem nsmul_add (n : Nat) (a b : M) : n * (a + b) = n * a + n * b := by
+  induction n with
+  | zero => rw [zero_nsmul, zero_nsmul, zero_nsmul, AddCommMonoid.zero_add]
+  | succ n ih => rw [add_one_nsmul, add_one_nsmul, add_one_nsmul, ih, AddCommMonoid.add_assoc,
+      AddCommMonoid.add_left_comm (n * b), AddCommMonoid.add_assoc]
+
 theorem mul_nsmul (n m : Nat) (a : M) : (n * m) * a = n * (m * a) := by
   induction n with
   | zero => simp [zero_nsmul]
@@ -196,6 +209,17 @@ variable {M : Type u} [IntModule M]
 theorem neg_zsmul (n : Int) (a : M) : (-n) * a = - (n * a) := by
   apply (add_left_inj (n * a)).mp
   rw [← add_zsmul, Int.add_left_neg, zero_zsmul, neg_add_cancel]
+
+theorem zsmul_zero (n : Int) : n * (0 : M) = 0 := by
+  match n with
+  | (n : Nat) => rw [zsmul_natCast_eq_nsmul, NatModule.nsmul_zero]
+  | -(n + 1 : Nat) => rw [neg_zsmul, zsmul_natCast_eq_nsmul, NatModule.nsmul_zero, neg_zero]
+
+theorem zsmul_add (n : Int) (a b : M) : n * (a + b) = n * a + n * b := by
+  match n with
+  | (n : Nat) => rw [zsmul_natCast_eq_nsmul, NatModule.nsmul_add, zsmul_natCast_eq_nsmul, zsmul_natCast_eq_nsmul]
+  | -(n + 1 : Nat) => rw [neg_zsmul, zsmul_natCast_eq_nsmul, NatModule.nsmul_add,
+      neg_zsmul, zsmul_natCast_eq_nsmul, neg_zsmul, zsmul_natCast_eq_nsmul, neg_add]
 
 theorem zsmul_neg (n : Int) (a : M) : n * (-a) = - (n * a) := by
   apply (add_left_inj (n * a)).mp
@@ -231,7 +255,7 @@ For a module over the integers this is equivalent to
 (See the alternative constructor `NoNatZeroDivisors.mk'`,
 and the theorem `eq_zero_of_mul_eq_zero`.)
 -/
-class NoNatZeroDivisors (α : Type u) [HMul Nat α α] where
+class NoNatZeroDivisors (α : Type u) [NatModule α] where
   /-- If `k * a ≠ k * b` then `k ≠ 0` or `a ≠ b`.-/
   no_nat_zero_divisors : ∀ (k : Nat) (a b : α), k ≠ 0 → k * a = k * b → a = b
 

@@ -25,6 +25,7 @@ static lean_object* l___auto___closed__9____x40_Std_Time_Date_Unit_Day___hyg_427
 static lean_object* l___auto___closed__10____x40_Std_Time_Date_Unit_Day___hyg_427_;
 LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toHours(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofNanoseconds___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Day_instOffsetRepr_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toMinutes(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_instOfNatOffset(lean_object*);
 static lean_object* l___auto___closed__13____x40_Std_Time_Date_Unit_Day___hyg_427_;
@@ -111,7 +112,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofMilliseconds(lean_object*);
 static lean_object* l_Std_Time_Day_instInhabitedOrdinal___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Day_instOrdinalLE;
 static lean_object* l___auto___closed__16____x40_Std_Time_Date_Unit_Day___hyg_427_;
-lean_object* l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Day_instDecidableLeOffset(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Day_instOffsetInhabited___closed__1;
 static lean_object* l___auto___closed__15____x40_Std_Time_Date_Unit_Day___hyg_427_;
@@ -165,7 +165,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofNat(lean_object*);
 lean_object* l_instOrdInt___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_instDecidableLeOffset___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Day_Ordinal_instReprOfYear(uint8_t);
-static lean_object* l_Std_Time_Day_Offset_toSeconds___closed__0;
 static lean_object* l___auto___closed__4____x40_Std_Time_Date_Unit_Day___hyg_427_;
 static lean_object* l_Std_Time_Day_instOffsetRepr___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Day_Ordinal_instInhabitedOfYear___boxed(lean_object*);
@@ -450,6 +449,14 @@ x_1 = l_Std_Time_Day_instOrdOrdinal___closed__2;
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Day_instOffsetRepr_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Std_Time_Day_instOffsetRepr___closed__0() {
 _start:
 {
@@ -490,7 +497,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(86400u);
-x_2 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -1484,20 +1491,11 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Time_Day_Offset_toSeconds___closed__0() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(86400u);
-x_2 = lean_nat_to_int(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_toSeconds(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Std_Time_Day_Offset_toSeconds___closed__0;
+x_2 = l_Std_Time_Day_instOffsetInhabited___closed__0;
 x_3 = lean_int_mul(x_1, x_2);
 return x_3;
 }
@@ -1515,7 +1513,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Day_Offset_ofSeconds(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Std_Time_Day_Offset_toSeconds___closed__0;
+x_2 = l_Std_Time_Day_instOffsetInhabited___closed__0;
 x_3 = lean_int_ediv(x_1, x_2);
 return x_3;
 }
@@ -1770,8 +1768,6 @@ l_Std_Time_Day_Offset_toNanoseconds___closed__0 = _init_l_Std_Time_Day_Offset_to
 lean_mark_persistent(l_Std_Time_Day_Offset_toNanoseconds___closed__0);
 l_Std_Time_Day_Offset_toMilliseconds___closed__0 = _init_l_Std_Time_Day_Offset_toMilliseconds___closed__0();
 lean_mark_persistent(l_Std_Time_Day_Offset_toMilliseconds___closed__0);
-l_Std_Time_Day_Offset_toSeconds___closed__0 = _init_l_Std_Time_Day_Offset_toSeconds___closed__0();
-lean_mark_persistent(l_Std_Time_Day_Offset_toSeconds___closed__0);
 l_Std_Time_Day_Offset_toMinutes___closed__0 = _init_l_Std_Time_Day_Offset_toMinutes___closed__0();
 lean_mark_persistent(l_Std_Time_Day_Offset_toMinutes___closed__0);
 l_Std_Time_Day_Offset_toHours___closed__0 = _init_l_Std_Time_Day_Offset_toHours___closed__0();

@@ -3,14 +3,18 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Hashable
-import Init.Data.Int
-import Lean.Data.KVMap
-import Lean.Data.SMap
-import Lean.Level
-import Std.Data.HashSet.Basic
-import Std.Data.TreeSet.Basic
+public import Init.Data.Hashable
+public import Init.Data.Int
+public import Lean.Data.KVMap
+public import Lean.Data.SMap
+public import Lean.Level
+public import Std.Data.HashSet.Basic
+public import Std.Data.TreeSet.Basic
+
+public section
 
 namespace Lean
 
@@ -75,7 +79,7 @@ inductive BinderInfo where
   | implicit
   /-- Strict implicit binder annotation, e.g., `{{ x : α }}` -/
   | strictImplicit
-  /-- Local instance binder annotataion, e.g., `[Decidable α]` -/
+  /-- Local instance binder annotation, e.g., `[Decidable α]` -/
   | instImplicit
   deriving Inhabited, BEq, Repr
 
@@ -129,7 +133,7 @@ Cached hash code, cached results, and other data for `Expr`.
 Remark: this is mostly an internal datastructure used to implement `Expr`,
 most will never have to use it.
 -/
-def Expr.Data := UInt64
+@[expose] def Expr.Data := UInt64
 
 instance: Inhabited Expr.Data :=
   inferInstanceAs (Inhabited UInt64)
@@ -216,7 +220,7 @@ instance : Repr FVarId where
 /--
 A set of unique free variable identifiers.
 This is a persistent data structure implemented using `Std.TreeSet`. -/
-def FVarIdSet := Std.TreeSet FVarId (Name.quickCmp ·.name ·.name)
+@[expose] def FVarIdSet := Std.TreeSet FVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
 instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
@@ -237,13 +241,13 @@ def FVarIdSet.ofArray (l : Array FVarId) : FVarIdSet :=
 A set of unique free variable identifiers implemented using hashtables.
 Hashtables are faster than red-black trees if they are used linearly.
 They are not persistent data-structures. -/
-def FVarIdHashSet := Std.HashSet FVarId
+@[expose] def FVarIdHashSet := Std.HashSet FVarId
   deriving Inhabited, EmptyCollection
 
 /--
 A mapping from free variable identifiers to values of type `α`.
 This is a persistent data structure implemented using `Std.TreeMap`. -/
-def FVarIdMap (α : Type) := Std.TreeMap FVarId α (Name.quickCmp ·.name ·.name)
+@[expose] def FVarIdMap (α : Type) := Std.TreeMap FVarId α (Name.quickCmp ·.name ·.name)
 
 def FVarIdMap.insert (s : FVarIdMap α) (fvarId : FVarId) (a : α) : FVarIdMap α :=
   Std.TreeMap.insert s fvarId a
@@ -261,7 +265,7 @@ structure MVarId where
 instance : Repr MVarId where
   reprPrec n p := reprPrec n.name p
 
-def MVarIdSet := Std.TreeSet MVarId (Name.quickCmp ·.name ·.name)
+@[expose] def MVarIdSet := Std.TreeSet MVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
 def MVarIdSet.insert (s : MVarIdSet) (mvarId : MVarId) : MVarIdSet :=
@@ -275,7 +279,7 @@ def MVarIdSet.ofArray (l : Array MVarId) : MVarIdSet :=
 
 instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
-def MVarIdMap (α : Type) := Std.TreeMap MVarId α (Name.quickCmp ·.name ·.name)
+@[expose] def MVarIdMap (α : Type) := Std.TreeMap MVarId α (Name.quickCmp ·.name ·.name)
 
 def MVarIdMap.insert (s : MVarIdMap α) (mvarId : MVarId) (a : α) : MVarIdMap α :=
   Std.TreeMap.insert s mvarId a
@@ -660,7 +664,7 @@ def mkProj (structName : Name) (idx : Nat) (struct : Expr) : Expr :=
 /--
 `.app f a` is now the preferred form.
 -/
-@[match_pattern] def mkApp (f a : Expr) : Expr :=
+@[match_pattern, expose] def mkApp (f a : Expr) : Expr :=
   .app f a
 
 /--
@@ -691,16 +695,16 @@ def mkSimpleThunk (type : Expr) : Expr :=
 @[inline] def mkHave (x : Name) (t : Expr) (v : Expr) (b : Expr) : Expr :=
   .letE x t v b true
 
-@[match_pattern] def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
-@[match_pattern] def mkApp2 (f a b : Expr) := mkAppB f a b
-@[match_pattern] def mkApp3 (f a b c : Expr) := mkApp (mkAppB f a b) c
-@[match_pattern] def mkApp4 (f a b c d : Expr) := mkAppB (mkAppB f a b) c d
-@[match_pattern] def mkApp5 (f a b c d e : Expr) := mkApp (mkApp4 f a b c d) e
-@[match_pattern] def mkApp6 (f a b c d e₁ e₂ : Expr) := mkAppB (mkApp4 f a b c d) e₁ e₂
-@[match_pattern] def mkApp7 (f a b c d e₁ e₂ e₃ : Expr) := mkApp3 (mkApp4 f a b c d) e₁ e₂ e₃
-@[match_pattern] def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e₁ e₂ e₃ e₄
-@[match_pattern] def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
-@[match_pattern] def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
+@[match_pattern, expose] def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
+@[match_pattern, expose] def mkApp2 (f a b : Expr) := mkAppB f a b
+@[match_pattern, expose] def mkApp3 (f a b c : Expr) := mkApp (mkAppB f a b) c
+@[match_pattern, expose] def mkApp4 (f a b c d : Expr) := mkAppB (mkAppB f a b) c d
+@[match_pattern, expose] def mkApp5 (f a b c d e : Expr) := mkApp (mkApp4 f a b c d) e
+@[match_pattern, expose] def mkApp6 (f a b c d e₁ e₂ : Expr) := mkAppB (mkApp4 f a b c d) e₁ e₂
+@[match_pattern, expose] def mkApp7 (f a b c d e₁ e₂ e₃ : Expr) := mkApp3 (mkApp4 f a b c d) e₁ e₂ e₃
+@[match_pattern, expose] def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e₁ e₂ e₃ e₄
+@[match_pattern, expose] def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
+@[match_pattern, expose] def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
 
 /--
 `.lit l` is now the preferred form.
@@ -866,7 +870,7 @@ def isFVarOf : Expr → FVarId → Bool
   | _, _ => false
 
 /-- Return `true` if the given expression is a forall-expression aka (dependent) arrow. -/
-def isForall : Expr → Bool
+@[expose] def isForall : Expr → Bool
   | forallE .. => true
   | _          => false
 

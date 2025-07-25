@@ -3,11 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.InferType
-import Lean.Compiler.LCNF.Util
-import Lean.Compiler.LCNF.BaseTypes
-import Lean.Compiler.LCNF.CompilerM
+public import Lean.Meta.InferType
+public import Lean.Compiler.LCNF.Util
+public import Lean.Compiler.LCNF.BaseTypes
+public import Lean.Compiler.LCNF.CompilerM
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -87,11 +91,13 @@ partial def toMonoType (type : Expr) : CoreM Expr := do
   match type with
   | .const .. => visitApp type #[]
   | .app .. => type.withApp visitApp
-  | .forallE _ d b _ =>
+  | .forallE n d b bi =>
     let monoB ← toMonoType (b.instantiate1 anyExpr)
     match monoB with
     | .const ``lcErased _ => return erasedExpr
-    | _ => mkArrow (← toMonoType d) monoB
+    | _ =>
+      -- preserve parameter names for readability and to avoid recompilation from signature changes
+      return .forallE n (← toMonoType d) monoB bi
   | .sort _ => return erasedExpr
   | .mdata d b => return .mdata d (← toMonoType b)
   | _ => return anyExpr

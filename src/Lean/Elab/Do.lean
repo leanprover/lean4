@@ -3,12 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Term
-import Lean.Elab.BindersUtil
-import Lean.Elab.PatternVar
-import Lean.Elab.Quotation.Util
-import Lean.Parser.Do
+public import Lean.Elab.Term
+public import Lean.Elab.BindersUtil
+public import Lean.Elab.PatternVar
+public import Lean.Elab.Quotation.Util
+meta import Lean.Parser.Do
+
+public section
 
 -- HACK: avoid code explosion until heuristics are improved
 set_option compiler.reuse false
@@ -252,7 +256,7 @@ private def varSetToArray (s : VarSet) : Array Var :=
 private def varsToMessageData (vars : Array Var) : MessageData :=
   MessageData.joinSep (vars.toList.map fun n => MessageData.ofName (n.getId.simpMacroScopes)) " "
 
-partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
+partial def CodeBlock.toMessageData (codeBlock : CodeBlock) : MessageData :=
   let us := MessageData.ofList <| (varSetToArray codeBlock.uvars).toList.map MessageData.ofSyntax
   let rec loop : Code → MessageData
     | .decl xs _ k           => m!"let {varsToMessageData xs} := ...\n{loop k}"
@@ -365,7 +369,7 @@ def mkFreshJP (ps : Array (Var × Bool)) (body : Code) : TermElabM JPDecl := do
     pure #[(y.raw, false)]
   else
     pure ps
-  -- Remark: the compiler frontend implemented in C++ currently detects jointpoints created by
+  -- Remark: the compiler frontend implemented in C++ currently detects join points created by
   -- the "do" notation by testing the name. See hack at method `visit_let` at `lcnf.cpp`
   -- We will remove this hack when we re-implement the compiler frontend in Lean.
   let name ← mkFreshUserName `__do_jp
@@ -387,7 +391,7 @@ def eraseOptVar (rs : VarSet) (x? : Option Var) : VarSet :=
   | none   => rs
   | some x => rs.insert x.getId x
 
-/-- Create a new jointpoint for `c`, and jump to it with the variables `rs` -/
+/-- Create a new join point for `c`, and jump to it with the variables `rs` -/
 def mkSimpleJmp (ref : Syntax) (rs : VarSet) (c : Code) : StateRefT (Array JPDecl) TermElabM Code := do
   let xs := varSetToArray rs
   let jp ← addFreshJP (xs.map fun x => (x, true)) c
@@ -397,8 +401,8 @@ def mkSimpleJmp (ref : Syntax) (rs : VarSet) (c : Code) : StateRefT (Array JPDec
   else
     return Code.jmp ref jp xs
 
-/-- Create a new joinpoint that takes `rs` and `val` as arguments. `val` must be syntax representing a pure value.
-   The body of the joinpoint is created using `mkJPBody yFresh`, where `yFresh`
+/-- Create a new join point that takes `rs` and `val` as arguments. `val` must be syntax representing a pure value.
+   The body of the join point is created using `mkJPBody yFresh`, where `yFresh`
    is a fresh variable created by this method. -/
 def mkJmp (ref : Syntax) (rs : VarSet) (val : Syntax) (mkJPBody : Syntax → MacroM Code) : StateRefT (Array JPDecl) TermElabM Code := do
   let xs := varSetToArray rs
@@ -1099,7 +1103,7 @@ def mkJoinPoint (j : Name) (ps : Array (Syntax × Bool)) (body : Syntax) (k : Sy
   let pTypes ← ps.mapM fun ⟨id, useTypeOf⟩ => do if useTypeOf then `(type_of% $id) else `(_)
   let ps     := ps.map (·.1)
   /-
-  We use `let_delayed` instead of `let` for joinpoints to make sure `$k` is elaborated before `$body`.
+  We use `let_delayed` instead of `let` for join points to make sure `$k` is elaborated before `$body`.
   By elaborating `$k` first, we "learn" more about `$body`'s type.
   For example, consider the following example `do` expression
   ```
@@ -1119,7 +1123,7 @@ def mkJoinPoint (j : Name) (ps : Array (Syntax × Bool)) (body : Syntax) (k : Sy
   else
     jp ()
   ```
-  If we use the regular `let` instead of `let_delayed`, the joinpoint `jp` will be elaborated and its type will be inferred to be `Unit → IO (IO.Ref Bool)`.
+  If we use the regular `let` instead of `let_delayed`, the join point `jp` will be elaborated and its type will be inferred to be `Unit → IO (IO.Ref Bool)`.
   Then, we get a typing error at `jp ()`. By using `let_delayed`, we first elaborate `if x > 0 ...` and learn that `jp` has type `Unit → IO Unit`.
   Then, we get the expected type mismatch error at `IO.mkRef true`. -/
   `(let_delayed $(← mkIdentFromRef j):ident $[($ps : $pTypes)]* : $((← read).m) _ := $body; $k)

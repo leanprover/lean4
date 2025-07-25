@@ -3,15 +3,19 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Ordered.Module
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.SynthInstance
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
-import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
-import Lean.Meta.Tactic.Grind.Arith.Linear.Util
-import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+public import Init.Grind.Ordered.Module
+public import Lean.Meta.Tactic.Grind.Simp
+public import Lean.Meta.Tactic.Grind.SynthInstance
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -103,9 +107,9 @@ private def mkOrderedRingInst? (u : Level) (type : Expr) (semiringInst? preorder
   return some inst
 
 private def mkNoNatZeroDivInst? (u : Level) (type : Expr) : GoalM (Option Expr) := do
-  let hmulNat := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
-  let some hmulInst ← synthInstance? hmulNat | return none
-  synthInstance? <| mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type hmulInst
+  let natModuleType := mkApp (mkConst ``Grind.NatModule [u]) type
+  let some natModuleInst ← synthInstance? natModuleType | return none
+  synthInstance? <| mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type natModuleInst
 
 def getStructId? (type : Expr) : GoalM (Option Nat) := do
   unless (← getConfig).linarith do return none

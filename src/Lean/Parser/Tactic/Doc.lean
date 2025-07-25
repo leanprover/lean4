@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
+module
+
 prelude
-import Lean.Attributes
-import Lean.DocString.Extension
-import Lean.Elab.InfoTree.Main
-import Lean.Parser.Attr
-import Lean.Parser.Extension
+public import Lean.Attributes
+public import Lean.DocString.Extension
+public import Lean.Elab.InfoTree.Main
+meta import Lean.Parser.Attr
+public import Lean.Parser.Extension
+
+public section
 
 set_option linter.missingDocs true
 

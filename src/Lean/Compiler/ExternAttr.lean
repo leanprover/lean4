@@ -3,13 +3,17 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.List.BasicAux
-import Lean.Expr
-import Lean.Environment
-import Lean.Attributes
-import Lean.ProjFns
-import Lean.Meta.Basic
+public import Init.Data.List.BasicAux
+public import Lean.Expr
+public import Lean.Environment
+public import Lean.Attributes
+public import Lean.ProjFns
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean
 
@@ -127,7 +131,7 @@ def getExternEntryFor (d : ExternAttrData) (backend : Name) : Option ExternEntry
 def isExtern (env : Environment) (fn : Name) : Bool :=
   getExternAttrData? env fn |>.isSome
 
-/-- We say a Lean function marked as `[extern "<c_fn_nane>"]` is for all backends, and it is implemented using `extern "C"`.
+/-- We say a Lean function marked as `[extern "<c_fn_name>"]` is for all backends, and it is implemented using `extern "C"`.
    Thus, there is no name mangling. -/
 def isExternC (env : Environment) (fn : Name) : Bool :=
   match getExternAttrData? env fn with

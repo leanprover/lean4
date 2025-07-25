@@ -3,11 +3,15 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Meta.InferType
-import Lean.AuxRecursor
-import Lean.AddDecl
-import Lean.Meta.CompletionName
+public import Lean.Meta.InferType
+public import Lean.AuxRecursor
+public import Lean.AddDecl
+public import Lean.Meta.CompletionName
+
+public section
 
 open Lean Meta
 
@@ -27,7 +31,7 @@ def mkRecOn (n : Name) : MetaM Unit := do
       xs[(AC_size)...(AC_size + recInfo.numMinors)]
     let type ← mkForallFVars vs t
     let value ← mkLambdaFVars vs e
-    mkDefinitionValInferrringUnsafe (mkRecOnName n) recInfo.levelParams type value .abbrev
+    mkDefinitionValInferringUnsafe (mkRecOnName n) recInfo.levelParams type value .abbrev
 
   addDecl (.defnDecl decl)
   setReducibleAttribute decl.name

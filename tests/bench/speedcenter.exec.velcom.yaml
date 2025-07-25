@@ -20,13 +20,13 @@
     cmd: |
       # build only up to make-stdlib so Lake doesn't repeat its output, then finish the build to get
       # the executables for further benchmarks, ignore output
-      bash -c 'set -eo pipefail; find ${BUILD:-../../build/release}/stage2 -name "*.olean" -delete; make LEAN_OPTS="-Dprofiler=true -Dprofiler.threshold=9999999 --stats" -C ${BUILD:-../../build/release}/stage2 --output-sync -j$(nproc) make_stdlib 2>&1 | ./accumulate_profile.py; make -C ${BUILD:-../../build/release}/stage2 -j$(nproc) 1>&2'
+      bash -c 'set -eo pipefail; find ${BUILD:-../../build/release}/stage3 -name "*.olean" -delete; make LEAN_OPTS="-Dprofiler=true -Dprofiler.threshold=9999999 --stats" -C ${BUILD:-../../build/release}/stage3 --output-sync -j$(nproc) make_stdlib 2>&1 | ./accumulate_profile.py; make -C ${BUILD:-../../build/release}/stage3 -j$(nproc) 1>&2'
     max_runs: 2
     parse_output: true
   # initialize stage2 cmake + warmup
   build_config:
     cmd: |
-      bash -c 'make -C ${BUILD:-../../build/release} stage2 -j$(nproc)'
+      bash -c 'make -C ${BUILD:-../../build/release} stage3 -j$(nproc)'
 - attributes:
     description: stdlib size
     tags: [deterministic, fast]
@@ -422,6 +422,12 @@
     <<: *time
     cmd: lean simp_subexpr.lean
 - attributes:
+    description: simp_congr
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean simp_congr.lean
+- attributes:
     description: nat_repr
     tags: [fast, suite]
   run_config:
@@ -553,3 +559,30 @@
     parse_output: true
   build_config:
     cmd: ./compile.sh treemap.lean
+- attributes:
+    description: phashmap.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./phashmap.lean.out 11 10000
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh phashmap.lean
+- attributes:
+    description: grind_bitvec2.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean ../lean/run/grind_bitvec2.lean
+- attributes:
+    description: grind_list2.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean ../lean/run/grind_list2.lean
+- attributes:
+    description: grind_ring_5.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean ../lean/run/grind_ring_5.lean

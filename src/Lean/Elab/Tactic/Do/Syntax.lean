@@ -3,11 +3,15 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Init.NotationExtra
-import Lean.Elab.BuiltinNotation
-import Std.Do.PostCond
-import Std.Do.Triple.Basic
+public import Init.NotationExtra
+public import Lean.Elab.BuiltinNotation
+public import Std.Do.PostCond
+public import Std.Do.Triple.Basic
+
+public section
 
 namespace Std.Do
 
@@ -15,7 +19,7 @@ open Lean Parser Meta Elab Term PrettyPrinter Delaborator
 
 open Std.Do in
 @[builtin_delab app.Std.Do.PostCond.total]
-private meta def unexpandPostCondTotal : Delab := do
+private def unexpandPostCondTotal : Delab := do
   match ← SubExpr.withAppArg <| delab with
   | `(fun $xs:term* => $e) =>
     let t ← `(⇓ $xs* => $(← SPred.Notation.unpack e))
@@ -23,7 +27,7 @@ private meta def unexpandPostCondTotal : Delab := do
   | t => `($(mkIdent ``PostCond.total):term $t)
 
 @[inherit_doc Triple, builtin_doc, builtin_term_elab triple]
-private meta def elabTriple : TermElab
+private def elabTriple : TermElab
   | `(⦃$P⦄ $x ⦃$Q⦄), _ => do
     -- In a simple world, this would just be a macro expanding to
     -- `Triple $x spred($P) spred($Q)`.

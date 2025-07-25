@@ -3,15 +3,19 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.RecDepth
-import Lean.Util.Trace
-import Lean.Log
-import Lean.ResolveName
-import Lean.Elab.InfoTree.Types
-import Lean.MonadEnv
-import Lean.Elab.Exception
-import Lean.Language.Basic
+public import Lean.Util.RecDepth
+public import Lean.Util.Trace
+public import Lean.Log
+public import Lean.ResolveName
+public import Lean.Elab.InfoTree.Types
+public import Lean.MonadEnv
+public import Lean.Elab.Exception
+public import Lean.Language.Basic
+
+public section
 
 namespace Lean
 register_builtin_option diagnostics : Bool := {
@@ -80,6 +84,9 @@ structure DeclNameGenerator where
   deriving Inhabited
 
 namespace DeclNameGenerator
+
+def ofPrefix (namePrefix : Name) : DeclNameGenerator :=
+  { namePrefix }
 
 private def idxs (g : DeclNameGenerator) : List Nat :=
   g.idx :: g.parentIdxs

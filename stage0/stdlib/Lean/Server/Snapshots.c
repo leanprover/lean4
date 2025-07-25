@@ -28,6 +28,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runTermElabM___boxed(l
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCoreM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__0;
+static lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_env(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -49,6 +50,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM___redA
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCoreM___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_liftTermElabM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_env___boxed(lean_object*);
+extern lean_object* l_Lean_firstFrontendMacroScope;
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_msgLog___boxed(lean_object*);
 static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__1;
@@ -150,7 +152,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__2;
 x_2 = lean_unsigned_to_nat(2u);
-x_3 = lean_unsigned_to_nat(45u);
+x_3 = lean_unsigned_to_nat(49u);
 x_4 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__1;
 x_5 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -228,6 +230,14 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Server_Snapshots_Snapshot_runCommandElabM___redArg___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_firstFrontendMacroScope;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -267,7 +277,7 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec_ref(x_12);
 x_15 = lean_box(0);
-x_16 = lean_unsigned_to_nat(1u);
+x_16 = l_Lean_Server_Snapshots_Snapshot_runCommandElabM___redArg___closed__0;
 x_17 = lean_box(0);
 x_18 = lean_box(0);
 x_19 = lean_box(0);
@@ -454,6 +464,8 @@ l_Lean_Server_Snapshots_Snapshot_infoTree___closed__2 = _init_l_Lean_Server_Snap
 lean_mark_persistent(l_Lean_Server_Snapshots_Snapshot_infoTree___closed__2);
 l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3 = _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3();
 lean_mark_persistent(l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3);
+l_Lean_Server_Snapshots_Snapshot_runCommandElabM___redArg___closed__0 = _init_l_Lean_Server_Snapshots_Snapshot_runCommandElabM___redArg___closed__0();
+lean_mark_persistent(l_Lean_Server_Snapshots_Snapshot_runCommandElabM___redArg___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.FreeVars
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.FreeVars
+
+public section
 
 namespace Lean.IR
 
@@ -29,7 +33,7 @@ namespace Lean.IR
 namespace IsLive
 /--
   We use `State Context` instead of `ReaderT Context Id` because we remove
-  non local joint points from `Context` whenever we visit them instead of
+  non local join points from `Context` whenever we visit them instead of
   maintaining a set of visited non local join points.
 
   Remark: we don't need to track local join points because we assume there is

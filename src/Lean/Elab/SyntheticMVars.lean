@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Util
-import Lean.Util.NumObjs
-import Lean.Util.ForEachExpr
-import Lean.Util.OccursCheck
-import Lean.Elab.Tactic.Basic
-import Lean.Meta.AbstractNestedProofs
+public import Lean.Meta.Tactic.Util
+public import Lean.Util.NumObjs
+public import Lean.Util.ForEachExpr
+public import Lean.Util.OccursCheck
+public import Lean.Elab.Tactic.Basic
+public import Lean.Meta.AbstractNestedProofs
+
+public section
 
 namespace Lean.Elab.Term
 open Tactic (TacticM evalTactic getUnsolvedGoals withTacticInfoContext)
@@ -70,14 +74,14 @@ private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Opti
       | _              => unreachable!
 
 /--
-  Try to synthesize `mvarId` by starting using a default instance with the give privority.
+  Try to synthesize `mvarId` by starting using a default instance with the given priority.
   This method succeeds only if the metavariable of fully synthesized.
 
   Remark: In the past, we would return a list of pending TC problems, but this was problematic since
   a default instance may create subproblems that cannot be solved.
 
   Remark: The new approach also has limitations because other pending metavariables are not taken into account
-  while backtraking. That is, we fail to synthesize `mvarId` because we reach subproblems that are stuck,
+  while backtracking. That is, we fail to synthesize `mvarId` because we reach subproblems that are stuck,
   but we could "unstuck" them if we tried to solve other pending metavariables. Considering all pending metavariables
   into a single backtracking search seems to be too expensive, and potentially generate incomprehensible error messages.
   This is particularly true if we consider pending metavariables for "postponed" elaboration steps.
@@ -314,9 +318,9 @@ inductive PostponeBehavior where
   -/
   | no
   /--
-  Synthectic metavariables associated with type class resolution can be postponed.
+  Synthetic metavariables associated with type class resolution can be postponed.
   Motivation: this kind of metavariable are not synthetic opaque, and can be assigned by `isDefEq`.
-  Unviverse constraints can also be postponed.
+  Universe constraints can also be postponed.
   -/
   | «partial»
   deriving Inhabited, Repr, BEq

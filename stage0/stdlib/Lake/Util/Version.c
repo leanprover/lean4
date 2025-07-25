@@ -55,7 +55,6 @@ LEAN_EXPORT lean_object* l_Lake_instOrdSemVerCore;
 static lean_object* l_Lake_ToolchainVer_prOrigin___closed__0;
 LEAN_EXPORT lean_object* l_Lake_instToJsonSemVerCore___lam__0(lean_object*);
 static lean_object* l_Lake_reprToolchainVer___closed__1____x40_Lake_Util_Version___hyg_1585_;
-LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__String_atEnd_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_SemVerCore_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instLTStdVer;
 static lean_object* l_Lake_reprToolchainVer___closed__3____x40_Lake_Util_Version___hyg_1585_;
@@ -138,7 +137,6 @@ LEAN_EXPORT lean_object* l_Lake_instMaxSemVerCore;
 LEAN_EXPORT lean_object* l_Lake_StdVer_parse___boxed(lean_object*);
 static lean_object* l_Lake_reprSemVerCore___redArg___closed__2____x40_Lake_Util_Version___hyg_54_;
 LEAN_EXPORT lean_object* l_Lake_instToJsonSemVerCore;
-LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__String_atEnd_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_reprStdVer___redArg____x40_Lake_Util_Version___hyg_964_(lean_object*);
 static lean_object* l_Lake_reprSemVerCore___redArg___closed__8____x40_Lake_Util_Version___hyg_54_;
 static lean_object* l_Lake_reprToolchainVer___closed__10____x40_Lake_Util_Version___hyg_1585_;
@@ -2671,22 +2669,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lake_ToolchainVer_prOrigin___closed__0;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__String_atEnd_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_apply_2(x_3, x_1, x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lake_Util_Version_0__String_atEnd_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_apply_2(x_4, x_2, x_3);
-return x_5;
 }
 }
 static lean_object* _init_l_Lake_ToolchainVer_ofString___closed__0() {

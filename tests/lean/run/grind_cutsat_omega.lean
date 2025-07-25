@@ -236,7 +236,6 @@ example (x y : Nat) (_ : 2 ≤ x) (_ : x ≤ 3) (_ : 2 ≤ y) (_ : y ≤ 3) :
 example : 2^7 < 165 := by grind
 example (x : Nat) (_ : x % 2^7 < 3) : x % 128 < 5 := by grind
 
-set_option debug.skipKernelTC true in -- TODO: kernel deep recursion
 example (a : Nat) :
     (((a + (2 ^ 64 - 1)) % 2 ^ 64 + 1) * 8 - 1 - (a + (2 ^ 64 - 1)) % 2 ^ 64 * 8 + 1) = 8 := by
   grind

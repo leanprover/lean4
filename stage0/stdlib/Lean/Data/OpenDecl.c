@@ -13,17 +13,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_50__spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_OpenDecl_instInhabited___closed__0;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_rootNamespace___closed__0;
 LEAN_EXPORT lean_object* l_Lean_OpenDecl_instToString;
+LEAN_EXPORT lean_object* l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_51__spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_OpenDecl_instInhabited;
 static lean_object* l_Lean_OpenDecl_instToString___lam__2___closed__1;
+LEAN_EXPORT uint8_t l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_51_(lean_object*, lean_object*);
 uint8_t l_List_beq___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_OpenDecl_instToString___closed__0;
 LEAN_EXPORT lean_object* l_Lean_removeRoot(lean_object*);
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_51____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_OpenDecl_instToString___lam__2___closed__0;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_rootNamespace;
@@ -31,17 +33,15 @@ LEAN_EXPORT lean_object* l_Lean_OpenDecl_instToString___lam__2(lean_object*, lea
 static lean_object* l_Lean_rootNamespace___closed__1;
 static lean_object* l_Lean_instBEqOpenDecl___closed__0;
 extern lean_object* l_Lean_Name_instToString;
-LEAN_EXPORT uint8_t l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_50__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_OpenDecl_instToString___lam__0___boxed(lean_object*);
 lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_OpenDecl_instToString___lam__0(lean_object*);
 lean_object* l_List_toString___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqOpenDecl;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_50_(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_50____boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_50__spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_51__spec__0(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_51__spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -89,7 +89,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_50_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_51_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -109,7 +109,7 @@ return x_7;
 else
 {
 uint8_t x_8; 
-x_8 = l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_50__spec__0(x_4, x_6);
+x_8 = l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_51__spec__0(x_4, x_6);
 return x_8;
 }
 }
@@ -150,22 +150,22 @@ return x_16;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_50__spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_51__spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_50__spec__0(x_1, x_2);
+x_3 = l_List_beq___at___Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_51__spec__0(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_50____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_51____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_50_(x_1, x_2);
+x_3 = l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_51_(x_1, x_2);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
@@ -176,7 +176,7 @@ static lean_object* _init_l_Lean_instBEqOpenDecl___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_50____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_51____boxed), 2, 0);
 return x_1;
 }
 }

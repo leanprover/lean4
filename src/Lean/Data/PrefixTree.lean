@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Std.Data.TreeMap.Raw.Basic
+public import Std.Data.TreeMap.Raw.Basic
+
+public section
 
 namespace Lean
 
@@ -81,7 +85,7 @@ inductive WellFormed (cmp : α → α → Ordering) : PrefixTreeNode α β cmp �
 
 end PrefixTreeNode
 
-def PrefixTree (α : Type u) (β : Type v) (cmp : α → α → Ordering) : Type (max u v) :=
+@[expose] def PrefixTree (α : Type u) (β : Type v) (cmp : α → α → Ordering) : Type (max u v) :=
   { t : PrefixTreeNode α β cmp // t.WellFormed cmp }
 
 open PrefixTreeNode

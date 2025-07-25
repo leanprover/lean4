@@ -227,14 +227,14 @@ theorem right_distrib (a b c : Q α) : mul (add a b) c = add (mul a c) (mul b c)
   cases a; cases b; cases c; simp; apply Quot.sound
   simp [Semiring.right_distrib]; refine ⟨0, ?_⟩; ac_rfl
 
-def hPow (a : Q α) (n : Nat)  : Q α :=
+def npow (a : Q α) (n : Nat)  : Q α :=
   match n with
   | 0 => natCast 1
-  | n+1 => mul (hPow a n) a
+  | n+1 => mul (npow a n) a
 
-private theorem pow_zero (a : Q α) : hPow a 0 = natCast 1 := rfl
+private theorem pow_zero (a : Q α) : npow a 0 = natCast 1 := rfl
 
-private theorem pow_succ (a : Q α) (n : Nat) : hPow a (n+1) = mul (hPow a n) a := rfl
+private theorem pow_succ (a : Q α) (n : Nat) : npow a (n+1) = mul (npow a n) a := rfl
 
 def nsmul (n : Nat) (a : Q α) : Q α :=
   mul (natCast n) a
@@ -261,7 +261,8 @@ def ofSemiring : Ring (Q α) := {
   ofNat   := fun n => ⟨natCast n⟩
   natCast := ⟨natCast⟩
   intCast := ⟨intCast⟩
-  add, sub, mul, neg, hPow
+  npow := ⟨npow⟩
+  add, sub, mul, neg,
   add_comm, add_assoc, add_zero
   neg_add_cancel, sub_eq_add_neg
   mul_one, one_mul, zero_mul, mul_zero, mul_assoc,

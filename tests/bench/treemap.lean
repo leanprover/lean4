@@ -155,6 +155,26 @@ def benchInsertSequentialMissEmpty (_seed : UInt64) (size : Nat) : IO Nat := do
       todo := todo - size
 
 /--
+Return the average time it takes to `insert` a new element into a treemap that is being used in a
+non linear fashion.
+-/
+def benchInsertRandomMissEmptyShared (seed : UInt64) (size : Nat) : IO Nat := do
+  let checks := size * REP
+  timeNanos checks do
+    let mut todo := checks
+    while todo != 0 do
+      let mut map : Std.TreeMap UInt64 _ := {}
+      let mut maps := Array.emptyWithCapacity size
+      for val in iterRand seed |>.take size |>.allowNontermination do
+        map := map.insert val s!"{val}"
+        if map.isEmpty then
+          throw <| .userError "Fail"
+        maps := maps.push map
+      todo := todo - size
+      if maps.size != size then
+        throw <| .userError "Fail"
+
+/--
 Return the average time it takes to `erase` an existing and `insert` a new element into a treemap.
 -/
 def benchEraseInsert (seed : UInt64) (size : Nat) : IO Nat := do
@@ -184,6 +204,7 @@ def main (args : List String) : IO Unit := do
     ("insertHit", benchInsertHit),
     ("insertRandomMissEmpty", benchInsertRandomMissEmpty),
     ("insertSequentialMissEmpty", benchInsertSequentialMissEmpty),
+    ("insertRandomMissEmptyShared", benchInsertRandomMissEmptyShared),
     ("eraseInsert", benchEraseInsert),
   ]
 

@@ -349,7 +349,6 @@ theorem Spec.forIn'_list_const_inv {α β : Type u}
     ⦃inv.1 init⦄ forIn' xs init f ⦃inv⦄ :=
   Spec.forIn'_list (fun p => inv.1 p.1, inv.2) (fun b _ x hx _ _ => step x hx b)
 
-set_option pp.universes true in
 @[spec]
 theorem Spec.forIn_list {α β : Type u}
     [Monad m] [WPMonad m ps]

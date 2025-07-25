@@ -50,6 +50,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lake_Workspace_addFacetsFromEnv_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lake_Workspace_addFacetsFromEnv_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_Parser_TokenMap_insert_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__11_spec__11___lam__0(uint8_t, lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_unsafeEvalConstCheck_throwUnexpectedType___redArg___lam__0___boxed(lean_object*);
@@ -89,6 +90,7 @@ static lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___La
 LEAN_EXPORT uint8_t l_Lake_Package_loadFromEnv___lam__7(uint8_t, lean_object*);
 static lean_object* l_Lake_Package_loadFromEnv___closed__7;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__11_spec__11(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_ofExcept___at_____private_Lean_Parser_Extension_0__Lean_Parser_addBuiltinParserCategory_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lake_Package_loadFromEnv_spec__15_spec__15(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__3_spec__3(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -107,7 +109,6 @@ LEAN_EXPORT lean_object* l_Lake_mkTagMap___redArg___lam__1(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lake_mkOrdTagMap___at___Lake_Package_loadFromEnv_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_targetAttr;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_PackageDecl_loadFromEnv___closed__3;
 LEAN_EXPORT lean_object* l_Lake_Package_loadFromEnv___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -128,6 +129,7 @@ LEAN_EXPORT lean_object* l_Lake_mkOrdTagMap___at___Lake_Package_loadFromEnv_spec
 LEAN_EXPORT lean_object* l_Lake_mkTagMap___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_moduleFacetAttr;
 extern lean_object* l_Lake_instImpl____x40_Lake_Config_FacetConfig___hyg_460_;
+lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Parser_TokenMap_insert_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_loadFromEnv___closed__10;
 LEAN_EXPORT lean_object* l_Lake_mkDTagMap___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_lintDriverAttr;
@@ -205,7 +207,6 @@ lean_object* l_Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__11(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkDTagMap___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_ofExcept___at___IO_FS_Stream_readJson_spec__0___redArg(lean_object*, lean_object*);
 extern lean_object* l_Lake_packageFacetAttr;
 LEAN_EXPORT lean_object* l_Lake_Package_loadFromEnv___lam__7___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_unsafeEvalConstCheck_throwUnexpectedType___redArg___lam__0(lean_object* x_1) {
@@ -1091,7 +1092,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14;
 x_12 = lean_ctor_get(x_1, 0);
 lean_inc(x_12);
 x_13 = lean_array_uget(x_6, x_5);
-x_14 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_12, x_13);
+x_14 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Parser_TokenMap_insert_spec__0___redArg(x_12, x_13);
 lean_dec(x_12);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -1203,7 +1204,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14;
 x_12 = lean_ctor_get(x_1, 0);
 lean_inc(x_12);
 x_13 = lean_array_uget(x_6, x_5);
-x_14 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_12, x_13);
+x_14 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Parser_TokenMap_insert_spec__0___redArg(x_12, x_13);
 lean_dec(x_12);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -1509,7 +1510,7 @@ else
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_array_uget(x_6, x_5);
-x_13 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_1, x_12);
+x_13 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Parser_TokenMap_insert_spec__0___redArg(x_1, x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
@@ -1578,7 +1579,7 @@ else
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_array_uget(x_6, x_5);
-x_13 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_1, x_12);
+x_13 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Parser_TokenMap_insert_spec__0___redArg(x_1, x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
@@ -1876,7 +1877,7 @@ lean_inc(x_12);
 x_13 = lean_array_uget(x_6, x_5);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_6, x_5, x_14);
-x_24 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_12, x_13);
+x_24 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Parser_TokenMap_insert_spec__0___redArg(x_12, x_13);
 lean_dec(x_12);
 if (lean_obj_tag(x_24) == 0)
 {
@@ -2015,7 +2016,7 @@ lean_inc(x_12);
 x_13 = lean_array_uget(x_6, x_5);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_6, x_5, x_14);
-x_24 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_12, x_13);
+x_24 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Parser_TokenMap_insert_spec__0___redArg(x_12, x_13);
 lean_dec(x_12);
 if (lean_obj_tag(x_24) == 0)
 {
@@ -2167,7 +2168,7 @@ lean_inc(x_12);
 x_13 = lean_array_uget(x_6, x_5);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_6, x_5, x_14);
-x_24 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_12, x_13);
+x_24 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Parser_TokenMap_insert_spec__0___redArg(x_12, x_13);
 lean_dec(x_12);
 if (lean_obj_tag(x_24) == 0)
 {
@@ -2306,7 +2307,7 @@ lean_inc(x_12);
 x_13 = lean_array_uget(x_6, x_5);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_6, x_5, x_14);
-x_24 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_12, x_13);
+x_24 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Parser_TokenMap_insert_spec__0___redArg(x_12, x_13);
 lean_dec(x_12);
 if (lean_obj_tag(x_24) == 0)
 {
@@ -2466,7 +2467,7 @@ if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; size_t x_15; size_t x_16; 
 lean_dec(x_12);
-x_14 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_11, x_10, x_6);
+x_14 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_Parser_TokenMap_insert_spec__1___redArg(x_11, x_10, x_6);
 x_15 = 1;
 x_16 = lean_usize_add(x_4, x_15);
 x_4 = x_16;
@@ -2554,7 +2555,7 @@ if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; size_t x_15; size_t x_16; lean_object* x_17; 
 lean_dec(x_12);
-x_14 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_11, x_10, x_6);
+x_14 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_Parser_TokenMap_insert_spec__1___redArg(x_11, x_10, x_6);
 x_15 = 1;
 x_16 = lean_usize_add(x_4, x_15);
 x_17 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lake_Package_loadFromEnv_spec__15_spec__15(x_1, x_2, x_3, x_16, x_5, x_14, x_7, x_8);
@@ -2660,7 +2661,7 @@ lean_object* x_10; lean_object* x_11;
 lean_inc(x_7);
 lean_inc_ref(x_1);
 x_10 = l_Lake_unsafeEvalConstCheck___redArg(x_1, x_2, x_3, x_7);
-x_11 = l_IO_ofExcept___at___IO_FS_Stream_readJson_spec__0___redArg(x_10, x_9);
+x_11 = l_IO_ofExcept___at_____private_Lean_Parser_Extension_0__Lean_Parser_addBuiltinParserCategory_spec__0___redArg(x_10, x_9);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; uint8_t x_16; 
@@ -2888,7 +2889,7 @@ lean_closure_set(x_7, 2, x_6);
 x_8 = l_Lake_Package_loadFromEnv___closed__0;
 lean_inc_ref(x_2);
 x_9 = l_Lake_mkOrdTagMap___at___Lake_Package_loadFromEnv_spec__0___redArg(x_2, x_8, x_7);
-x_10 = l_IO_ofExcept___at___IO_FS_Stream_readJson_spec__0___redArg(x_9, x_5);
+x_10 = l_IO_ofExcept___at_____private_Lean_Parser_Extension_0__Lean_Parser_addBuiltinParserCategory_spec__0___redArg(x_9, x_5);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; size_t x_27; size_t x_28; lean_object* x_29; lean_object* x_30; 
@@ -3916,7 +3917,7 @@ x_242 = lean_array_size(x_241);
 lean_inc_ref(x_2);
 x_243 = l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__10(x_2, x_3, x_72, x_242, x_28, x_241);
 lean_dec(x_3);
-x_244 = l_IO_ofExcept___at___IO_FS_Stream_readJson_spec__0___redArg(x_243, x_236);
+x_244 = l_IO_ofExcept___at_____private_Lean_Parser_Extension_0__Lean_Parser_addBuiltinParserCategory_spec__0___redArg(x_243, x_236);
 if (lean_obj_tag(x_244) == 0)
 {
 lean_object* x_245; lean_object* x_246; lean_object* x_247; lean_object* x_248; size_t x_249; lean_object* x_250; lean_object* x_251; 
@@ -4621,7 +4622,7 @@ x_379 = lean_array_size(x_378);
 lean_inc_ref(x_2);
 x_380 = l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__10(x_2, x_3, x_72, x_379, x_28, x_378);
 lean_dec(x_3);
-x_381 = l_IO_ofExcept___at___IO_FS_Stream_readJson_spec__0___redArg(x_380, x_236);
+x_381 = l_IO_ofExcept___at_____private_Lean_Parser_Extension_0__Lean_Parser_addBuiltinParserCategory_spec__0___redArg(x_380, x_236);
 if (lean_obj_tag(x_381) == 0)
 {
 lean_object* x_382; lean_object* x_383; lean_object* x_384; lean_object* x_385; size_t x_386; lean_object* x_387; lean_object* x_388; 

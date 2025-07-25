@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Environment
-import Lean.Exception
-import Lean.Declaration
-import Lean.Log
-import Lean.AuxRecursor
-import Lean.Compiler.Old
+public import Lean.Environment
+public import Lean.Exception
+public import Lean.Declaration
+public import Lean.Log
+public import Lean.AuxRecursor
+public import Lean.Compiler.Old
+
+public section
 
 namespace Lean
 
@@ -82,17 +86,17 @@ def hasConst [Monad m] [MonadEnv m] (constName : Name) (skipRealize := true) : m
 def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantInfo := do
   match (← getEnv).find? constName with
   | some info => pure info
-  | none      => throwError "Unknown constant `{.ofConstName constName}`"
+  | none      => throwUnknownConstant constName
 
 def getConstVal [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantVal := do
   match (← getEnv).findConstVal? constName with
   | some val => pure val
-  | none     => throwError "Unknown constant `{mkConst constName}`"
+  | none     => throwUnknownConstant constName
 
 def getAsyncConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) (skipRealize := false) : m AsyncConstantInfo := do
   match (← getEnv).findAsync? (skipRealize := skipRealize) constName with
   | some val => pure val
-  | none     => throwError "Unknown constant `{mkConst constName}`"
+  | none     => throwUnknownConstant constName
 
 def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
   let info ← getConstVal constName

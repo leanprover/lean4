@@ -17,25 +17,26 @@ LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x21(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Meta_MVarRenaming_find_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Meta_MVarRenaming_find_x3f_spec__0___redArg___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_mvar___override(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_MVarRenaming_isEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__1;
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_replace_expr(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__0;
-lean_object* l_panic___at___Lean_Expr_mvarId_x21_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Meta_MVarRenaming_find_x3f_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_panic___at___Lean_Meta_MVarRenaming_find_x21_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_insert(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_MVarIdSet_insert_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x3f(lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Meta_MVarRenaming_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_isEmpty___boxed(lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x21___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply___lam__0___boxed(lean_object*, lean_object*);
@@ -152,6 +153,15 @@ lean_dec(x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_panic___at___Lean_Meta_MVarRenaming_find_x21_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = lean_panic_fn(x_2, x_1);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__0() {
 _start:
 {
@@ -198,7 +208,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = l_Lean_Meta_MVarRenaming_find_x21___closed__3;
-x_5 = l_panic___at___Lean_Expr_mvarId_x21_spec__0(x_4);
+x_5 = l_panic___at___Lean_Meta_MVarRenaming_find_x21_spec__0(x_4);
 return x_5;
 }
 else
@@ -255,7 +265,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_ctor_get(x_4, 0);
-x_8 = l_Lean_Expr_mvar___override(x_7);
+x_8 = l_Lean_mkMVar(x_7);
 lean_ctor_set(x_4, 0, x_8);
 return x_4;
 }
@@ -265,7 +275,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_9 = lean_ctor_get(x_4, 0);
 lean_inc(x_9);
 lean_dec(x_4);
-x_10 = l_Lean_Expr_mvar___override(x_9);
+x_10 = l_Lean_mkMVar(x_9);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 return x_11;

@@ -231,7 +231,7 @@ def getUpTime : IO Second.Offset := do
   return .ofNat <| UInt64.toNat (← UV.System.uptime)
 
 /--
-Ghe current high-resolution timestamp in nanoseconds. It is relative to an arbitrary time in the past.
+The current high-resolution timestamp in nanoseconds. It is relative to an arbitrary time in the past.
 -/
 @[inline]
 def getHighResolutionTime : IO Nanosecond.Offset := do

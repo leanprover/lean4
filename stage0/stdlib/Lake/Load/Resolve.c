@@ -177,7 +177,6 @@ lean_object* l_Array_foldlMUnsafe_fold___at___Lake_updateGitPkg_spec__0(lean_obj
 LEAN_EXPORT lean_object* l_Lake_DepStackT_run(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_recFetch___at___Lake_recFetch___at_____private_Lake_Load_Resolve_0__Lake_Workspace_runResolveT___at___Lake_Workspace_materializeDeps_spec__5_spec__6_spec__6___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_process_child_wait(lean_object*, lean_object*, lean_object*);
-uint8_t l_List_elem___at___Lean_Environment_realizeConst_spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___redArg___lam__13(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_validateDep(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -355,6 +354,7 @@ lean_object* l_Lake_Reservoir_fetchPkg_x3f(lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lake_formatCycle___at___Lake_depCycleError___at_____private_Lake_Load_Resolve_0__Lake_Workspace_runResolveT___at___Lake_Workspace_updateAndMaterializeCore___elam__5_spec__4_spec__5_spec__5_spec__5___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_recFetch___at___Lake_recFetch___at_____private_Lake_Load_Resolve_0__Lake_Workspace_runResolveT___at___Lake_Workspace_updateAndMaterializeCore___elam__5___at___Lake_Workspace_updateAndMaterializeCore_spec__12_spec__15_spec__15_spec__15___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_formatCycle___at___Lake_depCycleError___at_____private_Lake_Load_Resolve_0__Lake_Workspace_runResolveT___at___Lake_Workspace_updateAndMaterializeCore___elam__5_spec__4_spec__5_spec__5(lean_object*);
+uint8_t l_List_elem___at___Lean_Elab_Command_addUnivLevel_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lake_Workspace_updateToolchain_spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_Lake_restartCode;
 static lean_object* l_Lake_Workspace_updateToolchain___closed__12;
@@ -418,6 +418,7 @@ LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_resolve
 lean_object* l_Lean_Name_beq___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Resolve_0__Lake_reuseManifest___closed__5;
+lean_object* l_IO_ofExcept___at___Lean_Meta_Simp_getSimprocFromDeclImpl_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_____private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___at___Lake_Workspace_materializeDeps___elam__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_runResolveT___at___Lake_Workspace_materializeDeps_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DepStackT_run___redArg(lean_object*, lean_object*);
@@ -429,7 +430,6 @@ static lean_object* l___private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsC
 static lean_object* l_Lake_PackageEntry_materialize___at_____private_Lake_Load_Resolve_0__Lake_updateAndMaterializeDep_spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___Array_foldrMUnsafe_fold___at_____private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___at___Lake_Workspace_updateAndMaterializeCore___elam__0_spec__0_spec__1_spec__1___lam__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_loadPackageCore(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_ofExcept___at___Lean_mkAttributeImplOfEntry_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___Array_foldrMUnsafe_fold___at_____private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___at___Lake_Workspace_updateAndMaterializeCore___elam__0___at___Lake_Workspace_updateAndMaterializeCore_spec__1_spec__1_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lake_Load_Resolve_0__Lake_Workspace_resolveDepsCore_go___at___Lake_Workspace_materializeDeps___elam__0___at___Lake_Workspace_materializeDeps_spec__0_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_validateManifest___elam__0___closed__3;
@@ -880,7 +880,7 @@ lean_inc(x_61);
 lean_dec_ref(x_41);
 x_62 = l_Lake_Workspace_addFacetsFromEnv(x_61, x_3, x_5);
 lean_dec(x_3);
-x_63 = l_IO_ofExcept___at___Lean_mkAttributeImplOfEntry_spec__0___redArg(x_62, x_57);
+x_63 = l_IO_ofExcept___at___Lean_Meta_Simp_getSimprocFromDeclImpl_spec__0___redArg(x_62, x_57);
 if (lean_obj_tag(x_63) == 0)
 {
 uint8_t x_64; 
@@ -974,7 +974,7 @@ lean_inc(x_86);
 lean_dec_ref(x_41);
 x_87 = l_Lake_Workspace_addFacetsFromEnv(x_86, x_3, x_5);
 lean_dec(x_3);
-x_88 = l_IO_ofExcept___at___Lean_mkAttributeImplOfEntry_spec__0___redArg(x_87, x_57);
+x_88 = l_IO_ofExcept___at___Lean_Meta_Simp_getSimprocFromDeclImpl_spec__0___redArg(x_87, x_57);
 if (lean_obj_tag(x_88) == 0)
 {
 lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; 
@@ -1190,7 +1190,7 @@ lean_inc(x_132);
 lean_dec_ref(x_117);
 x_133 = l_Lake_Workspace_addFacetsFromEnv(x_132, x_3, x_5);
 lean_dec(x_3);
-x_134 = l_IO_ofExcept___at___Lean_mkAttributeImplOfEntry_spec__0___redArg(x_133, x_128);
+x_134 = l_IO_ofExcept___at___Lean_Meta_Simp_getSimprocFromDeclImpl_spec__0___redArg(x_133, x_128);
 if (lean_obj_tag(x_134) == 0)
 {
 lean_object* x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; 
@@ -1562,7 +1562,7 @@ lean_inc(x_217);
 lean_dec_ref(x_201);
 x_218 = l_Lake_Workspace_addFacetsFromEnv(x_217, x_3, x_5);
 lean_dec(x_3);
-x_219 = l_IO_ofExcept___at___Lean_mkAttributeImplOfEntry_spec__0___redArg(x_218, x_213);
+x_219 = l_IO_ofExcept___at___Lean_Meta_Simp_getSimprocFromDeclImpl_spec__0___redArg(x_218, x_213);
 if (lean_obj_tag(x_219) == 0)
 {
 lean_object* x_220; lean_object* x_221; lean_object* x_222; lean_object* x_223; lean_object* x_224; lean_object* x_225; 
@@ -14723,7 +14723,7 @@ if (x_12 == 0)
 lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_13 = lean_ctor_get(x_8, 0);
 x_14 = lean_ctor_get(x_8, 1);
-x_15 = l_List_elem___at___Lean_Environment_realizeConst_spec__4(x_1, x_13);
+x_15 = l_List_elem___at___Lean_Elab_Command_addUnivLevel_spec__0(x_1, x_13);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -14800,7 +14800,7 @@ x_35 = lean_ctor_get(x_8, 1);
 lean_inc(x_35);
 lean_inc(x_34);
 lean_dec(x_8);
-x_36 = l_List_elem___at___Lean_Environment_realizeConst_spec__4(x_1, x_34);
+x_36 = l_List_elem___at___Lean_Elab_Command_addUnivLevel_spec__0(x_1, x_34);
 if (x_36 == 0)
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
@@ -16459,7 +16459,7 @@ _start:
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_ctor_get(x_2, 0);
 lean_inc(x_8);
-x_9 = l_List_elem___at___Lean_Environment_realizeConst_spec__4(x_8, x_3);
+x_9 = l_List_elem___at___Lean_Elab_Command_addUnivLevel_spec__0(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -16536,7 +16536,7 @@ _start:
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_ctor_get(x_2, 0);
 lean_inc(x_8);
-x_9 = l_List_elem___at___Lean_Environment_realizeConst_spec__4(x_8, x_3);
+x_9 = l_List_elem___at___Lean_Elab_Command_addUnivLevel_spec__0(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -17336,7 +17336,7 @@ _start:
 lean_object* x_9; uint8_t x_10; 
 x_9 = lean_ctor_get(x_3, 0);
 lean_inc(x_9);
-x_10 = l_List_elem___at___Lean_Environment_realizeConst_spec__4(x_9, x_4);
+x_10 = l_List_elem___at___Lean_Elab_Command_addUnivLevel_spec__0(x_9, x_4);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -17415,7 +17415,7 @@ _start:
 lean_object* x_9; uint8_t x_10; 
 x_9 = lean_ctor_get(x_3, 0);
 lean_inc(x_9);
-x_10 = l_List_elem___at___Lean_Environment_realizeConst_spec__4(x_9, x_4);
+x_10 = l_List_elem___at___Lean_Elab_Command_addUnivLevel_spec__0(x_9, x_4);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -25672,7 +25672,7 @@ _start:
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
-x_8 = l_List_elem___at___Lean_Environment_realizeConst_spec__4(x_7, x_3);
+x_8 = l_List_elem___at___Lean_Elab_Command_addUnivLevel_spec__0(x_7, x_3);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -25748,7 +25748,7 @@ _start:
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_ctor_get(x_2, 0);
 lean_inc(x_7);
-x_8 = l_List_elem___at___Lean_Environment_realizeConst_spec__4(x_7, x_3);
+x_8 = l_List_elem___at___Lean_Elab_Command_addUnivLevel_spec__0(x_7, x_3);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 

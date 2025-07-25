@@ -16,12 +16,14 @@ extern "C" {
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCaseKind___closed__8;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__14;
+extern lean_object* l_Lean_instFVarIdSetInhabited;
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at___Lean_mkFreshFVarId___at___Lean_Meta_Grind_Arith_Cutsat_mkCase_spec__0_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_setImprecise___redArg___boxed(lean_object*, lean_object*);
-lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_eqv___boxed(lean_object*, lean_object*);
+lean_object* l_instHashableProd___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__8;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__18;
+LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_134_(uint8_t, uint8_t);
 static size_t l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__5;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCaseKind___closed__0;
 lean_object* l_instHashableInt___lam__0___boxed(lean_object*);
@@ -30,8 +32,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__1
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__24;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__3;
 LEAN_EXPORT lean_object* l_Lean_mkFreshFVarId___at___Lean_Meta_Grind_Arith_Cutsat_mkCase_spec__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_133____boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_133_(uint8_t, uint8_t);
+lean_object* l_instBEqProd___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_Search_Kind_toCtorIdx(uint8_t);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__6;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__19;
@@ -57,7 +58,9 @@ lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__11;
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at___Lean_mkFreshFVarId___at___Lean_Meta_Grind_Arith_Cutsat_mkCase_spec__0_spec__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_Search_Kind_noConfusion___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__20;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_134____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCaseKind___closed__9;
 lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase;
@@ -78,7 +81,6 @@ lean_object* l_Lean_FVarIdSet_insert(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCaseKind___closed__7;
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Cutsat_Search_instInhabitedKind;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__1;
-lean_object* l_instBEqProd___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Int_instDecidableEq___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCaseKind___closed__4;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__27;
@@ -95,7 +97,6 @@ lean_object* l_Lean_PersistentHashMap_empty(lean_object*, lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkCase___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__26;
 lean_object* l_Lean_Expr_hash___boxed(lean_object*);
-lean_object* l_instHashableProd___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_setImprecise___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkCase(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -204,7 +205,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCaseKind__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(1);
+x_1 = l_Lean_instFVarIdSetInhabited;
 x_2 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCaseKind___closed__8;
 x_3 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCaseKind___closed__7;
 x_4 = lean_alloc_ctor(1, 3, 0);
@@ -252,9 +253,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__2;
 x_2 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__1;
-x_3 = lean_alloc_closure((void*)(l_instHashableProd___redArg___lam__0___boxed), 3, 2);
-lean_closure_set(x_3, 0, x_2);
-lean_closure_set(x_3, 1, x_1);
+x_3 = l_instHashableProd___redArg(x_2, x_1);
 return x_3;
 }
 }
@@ -499,8 +498,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_alloc_closure((void*)(l_Int_instDecidableEq___boxed), 2, 0);
-x_2 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_instBEqOfDecidableEq___redArg(x_1);
 return x_2;
 }
 }
@@ -510,9 +508,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__23;
 x_2 = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCase___closed__0;
-x_3 = lean_alloc_closure((void*)(l_instBEqProd___redArg___lam__0___boxed), 4, 2);
-lean_closure_set(x_3, 0, x_2);
-lean_closure_set(x_3, 1, x_1);
+x_3 = l_instBEqProd___redArg(x_2, x_1);
 return x_3;
 }
 }
@@ -730,7 +726,7 @@ x_1 = 0;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_133_(uint8_t x_1, uint8_t x_2) {
+LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_134_(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -742,13 +738,13 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_133____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_134____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_unbox(x_1);
 x_4 = lean_unbox(x_2);
-x_5 = l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_133_(x_3, x_4);
+x_5 = l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_134_(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -757,7 +753,7 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_Search_instBEqKind___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_133____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_134____boxed), 2, 0);
 return x_1;
 }
 }
@@ -774,7 +770,7 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = 0;
-x_4 = l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_133_(x_1, x_3);
+x_4 = l_Lean_Meta_Grind_Arith_Cutsat_Search_beqKind____x40_Lean_Meta_Tactic_Grind_Arith_Cutsat_SearchM___hyg_134_(x_1, x_3);
 x_5 = lean_box(x_4);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
@@ -1725,7 +1721,7 @@ lean_inc(x_172);
 x_173 = lean_ctor_get(x_168, 1);
 lean_inc_ref(x_173);
 x_174 = lean_ctor_get(x_168, 2);
-lean_inc_ref(x_174);
+lean_inc(x_174);
 x_175 = lean_ctor_get(x_168, 3);
 lean_inc_ref(x_175);
 x_176 = lean_ctor_get(x_168, 4);

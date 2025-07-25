@@ -217,15 +217,13 @@ private def computeModuleDeps
   return {dynlibs, plugins}
 
 private partial def fetchTransImportArts
-  (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (importAll : Bool)
+  (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (nonModule : Bool)
 : FetchM (NameMap ImportArtifacts) := do
   let q ← directImports.foldlM (init := #[]) fun q imp => do
     let some mod := imp.module? | return q
     let input ← (← mod.input.fetch).await
-    return input.imports.foldr (init := q) fun imp q =>
-      if let some mod := imp.module? then
-        q.push (mod, imp.importAll || importAll)
-      else q
+    let importAll := strictOr nonModule imp.importAll
+    return enqueue importAll input q
   walk directArts q
 where
   walk s q := do
@@ -241,25 +239,108 @@ where
       let arts := if importAll then info.allArts else info.arts
       let s := s.insert mod.name arts
       let input ← (← mod.input.fetch).await
-      let q := input.imports.foldr (init := q) fun imp q =>
-        if let some mod := imp.module? then
-          q.push (mod, importAll)
-        else q
+      let q := enqueue importAll input q
       walk s q
     else
       return s
+  enqueue importAll input q :=
+    input.imports.foldr (init := q) fun imp q =>
+      if let some mod := imp.module? then
+        if importAll || imp.isExported then
+          q.push (mod, nonModule || (importAll && imp.importAll))
+        else q
+      else q
+
+private def ModuleImportInfo.nil (modName : Name) : ModuleImportInfo where
+  directArts := {}
+  trace := .nil s!"imports"
+  transTrace := .nil s!"{modName} transitive imports (public)"
+  metaTransTrace := .nil s!"{modName} transitive imports (meta)"
+  allTransTrace := .nil s!"{modName} transitive imports (all)"
+  legacyTransTrace := .nil s!"{modName} transitive imports (legacy)"
+
+private def ModuleImportInfo.addImport
+  (info : ModuleImportInfo) (nonModule : Bool)
+  (mod : Module) (imp : Import) (expInfo : ModuleExportInfo)
+: ModuleImportInfo :=
+  let info :=
+    if nonModule then
+      {info with
+        directArts := info.directArts.insert mod.name expInfo.allArts
+        trace := info.trace.mix expInfo.legacyTransTrace |>.mix expInfo.allArtsTrace.withoutInputs
+      }
+    else if imp.importAll then
+      {info with
+        directArts := info.directArts.insert mod.name expInfo.allArts
+        trace := info.trace.mix expInfo.allTransTrace |>.mix expInfo.allArtsTrace.withoutInputs
+      }
+    else
+      let info :=
+        if !info.directArts.contains mod.name then -- do not demote `import all`
+          {info with directArts := info.directArts.insert mod.name expInfo.arts}
+        else
+          info
+      if imp.isMeta then
+        {info with trace := info.trace.mix expInfo.metaTransTrace |>.mix expInfo.metaArtsTrace.withoutInputs}
+      else
+        {info with trace := info.trace.mix expInfo.transTrace |>.mix expInfo.artsTrace.withoutInputs}
+  let info := {info with
+    legacyTransTrace := info.legacyTransTrace
+      |>.mix expInfo.legacyTransTrace
+      |>.mix expInfo.allArtsTrace.withoutInputs
+      |>.withoutInputs
+  }
+  let info :=
+    if imp.importAll then
+      {info with
+        allTransTrace := info.allTransTrace
+          |>.mix expInfo.allTransTrace
+          |>.mix expInfo.allArtsTrace.withoutInputs
+          |>.withoutInputs
+      }
+    else if imp.isMeta then
+      {info with
+        allTransTrace := info.allTransTrace
+          |>.mix expInfo.metaTransTrace
+          |>.mix expInfo.metaArtsTrace.withoutInputs
+          |>.withoutInputs
+      }
+    else
+      {info with
+        allTransTrace := info.allTransTrace
+          |>.mix expInfo.transTrace
+          |>.mix expInfo.artsTrace.withoutInputs
+          |>.withoutInputs
+      }
+  if imp.isExported then
+    let info := {info with
+      metaTransTrace := info.metaTransTrace
+        |>.mix expInfo.metaTransTrace
+        |>.mix expInfo.metaArtsTrace.withoutInputs
+        |>.withoutInputs
+    }
+    if imp.isMeta then
+      {info with
+        transTrace := info.transTrace
+          |>.mix expInfo.metaTransTrace
+          |>.mix expInfo.metaArtsTrace.withoutInputs
+          |>.withoutInputs
+      }
+    else
+      {info with
+        transTrace := info.transTrace
+          |>.mix expInfo.transTrace
+          |>.mix expInfo.artsTrace.withoutInputs
+          |>.withoutInputs
+      }
+  else
+    info
 
 private def fetchImportInfo
   (fileName : String) (modName : Name) (header : ModuleHeader)
 : FetchM (Job ModuleImportInfo) := do
-  let notModule := !header.isModule
-  let info : ModuleImportInfo := {
-    directArts := {}
-    trace := .nil s!"imports"
-    transTrace := .nil s!"{modName} transitive imports",
-    metaTransTrace := .nil s!"{modName} transitive imports (meta)",
-    allTransTrace := .nil s!"{modName} transitive imports (all)"
-  }
+  let nonModule := !header.isModule
+  let info := ModuleImportInfo.nil modName
   let impArtsJob : Job ModuleImportInfo := .pure info
   header.imports.foldlM (init := impArtsJob) fun s imp => do
     if modName = imp.module then
@@ -268,50 +349,7 @@ private def fetchImportInfo
     let some mod ← findModule? imp.module
       | return s
     let importJob ← mod.exportInfo.fetch
-    let importAll := strictOr imp.importAll notModule
-    return s.zipWith (other := importJob) fun info impInfo =>
-      let info :=
-        if importAll then
-          {info with
-            directArts := info.directArts.insert mod.name impInfo.allArts
-            trace := info.trace.mix impInfo.allTransTrace |>.mix impInfo.allArtsTrace.withoutInputs
-          }
-        else if !info.directArts.contains mod.name then -- do not demote `import all`
-          {info with
-            directArts := info.directArts.insert mod.name impInfo.arts
-            trace := info.trace.mix impInfo.transTrace |>.mix impInfo.artsTrace.withoutInputs
-          }
-        else
-          info
-      let info := {info with
-        allTransTrace := info.allTransTrace
-          |>.mix impInfo.allTransTrace
-          |>.mix impInfo.allArtsTrace.withoutInputs
-          |>.withoutInputs
-      }
-      if imp.isExported then
-        let info := {info with
-          metaTransTrace := info.transTrace
-            |>.mix impInfo.metaTransTrace
-            |>.mix impInfo.metaArtsTrace.withoutInputs
-            |>.withoutInputs
-        }
-        if imp.isMeta then
-          {info with
-            transTrace := info.transTrace
-              |>.mix impInfo.metaTransTrace
-              |>.mix impInfo.metaArtsTrace.withoutInputs
-              |>.withoutInputs
-          }
-        else
-          {info with
-            transTrace := info.transTrace
-              |>.mix impInfo.transTrace
-              |>.mix impInfo.artsTrace.withoutInputs
-              |>.withoutInputs
-          }
-      else
-        info
+    return s.zipWith (·.addImport nonModule mod imp ·) importJob
 
 /-- The `ModuleFacetConfig` for the builtin `importInfoFacet`. -/
 def Module.importInfoFacetConfig : ModuleFacetConfig importInfoFacet :=
@@ -354,6 +392,7 @@ def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportInfo) := d
         transTrace := importInfo.transTrace
         metaTransTrace := importInfo.metaTransTrace
         allTransTrace := importInfo.allTransTrace
+        legacyTransTrace := importInfo.legacyTransTrace
       }
     else
       return {
@@ -365,6 +404,7 @@ def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportInfo) := d
         transTrace := importInfo.transTrace
         metaTransTrace := importInfo.metaTransTrace
         allTransTrace := importInfo.allTransTrace
+        legacyTransTrace := importInfo.legacyTransTrace
       }
 
 /-- The `ModuleFacetConfig` for the builtin `exportInfoFacet`. -/

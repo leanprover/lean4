@@ -4,15 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Zwarich
 -/
 
+module
+
 prelude
-import Lean.CoreM
-import Lean.Compiler.BorrowedAnnotation
-import Lean.Compiler.ExternAttr
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.Boxing
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.ToIRType
-import Lean.Compiler.LCNF.MonoTypes
+public import Lean.CoreM
+public import Lean.Compiler.BorrowedAnnotation
+public import Lean.Compiler.ExternAttr
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.Boxing
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.ToIRType
+public import Lean.Compiler.LCNF.MonoTypes
+
+public section
 
 namespace Lean.IR
 

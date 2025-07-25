@@ -58,6 +58,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_divConst___boxed(lean_object
 lean_object* l_Lean_Grind_CommRing_Poly_mulConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_degree(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_gcdCoeffs_go___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Grind_CommRing_Poly_spol_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_Poly_size___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_Poly_0__Lean_Grind_CommRing_Mon_sharesVar_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
@@ -922,6 +923,14 @@ lean_dec_ref(x_3);
 x_6 = l_Lean_Grind_CommRing_Poly_combineC(x_1, x_2, x_5);
 return x_6;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Grind_CommRing_Poly_spol_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Grind_CommRing_Poly_spol___closed__0() {

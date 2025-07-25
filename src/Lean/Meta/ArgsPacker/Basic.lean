@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Init.Data.Array.Basic
+public import Init.Data.Array.Basic
+
+public section
 
 /-!
 The basic data type and namespace for the `Lean.Meta.ArgsPacker` modules.

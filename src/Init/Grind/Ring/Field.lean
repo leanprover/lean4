@@ -16,6 +16,7 @@ namespace Lean.Grind
 A field is a commutative ring with inverses for all non-zero elements.
 -/
 class Field (α : Type u) extends CommRing α, Inv α, Div α where
+  [zpow : HPow α Int α]
   /-- Division is multiplication by the inverse. -/
   div_eq_mul_inv : ∀ a b : α, a / b = a * b⁻¹
   /-- Zero is not equal to one: fields are non trivial.-/
@@ -24,8 +25,14 @@ class Field (α : Type u) extends CommRing α, Inv α, Div α where
   inv_zero : (0 : α)⁻¹ = 0
   /-- The inverse of a non-zero element is a right inverse. -/
   mul_inv_cancel : ∀ {a : α}, a ≠ 0 → a * a⁻¹ = 1
+  /-- The zeroth power of any element is one. -/
+  zpow_zero : ∀ a : α, a ^ (0 : Int) = 1
+  /-- The (n+1)-st power of any element is the element multiplied by the n-th power. -/
+  zpow_succ : ∀ (a : α) (n : Nat), a ^ (n + 1 : Int) = a ^ (n : Int) * a
+  /-- Raising to a negative power is the inverse of raising to the positive power. -/
+  zpow_neg : ∀ (a : α) (n : Int), a ^ (-n) = (a ^ n)⁻¹
 
-attribute [instance 100] Field.toInv Field.toDiv
+attribute [instance 100] Field.toInv Field.toDiv Field.zpow
 
 namespace Field
 
@@ -53,6 +60,13 @@ theorem inv_inv (a : α) : a⁻¹⁻¹ = a := by
   · symm
     apply eq_inv_of_mul_eq_one
     exact mul_inv_cancel h
+
+theorem inv_eq_iff_eq_iff (a b : α) : a⁻¹ = b ↔ a = b⁻¹ := by
+  constructor
+  · intro h
+    rw [← h, inv_inv]
+  · intro h
+    rw [h, inv_inv]
 
 theorem inv_neg (a : α) : (-a)⁻¹ = -a⁻¹ := by
   by_cases h : a = 0
@@ -92,7 +106,7 @@ theorem of_mul_eq_zero {a b : α} : a*b = 0 → a = 0 ∨ b = 0 := by
   have := Field.zero_ne_one (α := α)
   simp [h] at this
 
-theorem mul_inv (a b : α) : (a*b)⁻¹ = a⁻¹*b⁻¹ := by
+theorem inv_mul (a b : α) : (a*b)⁻¹ = a⁻¹*b⁻¹ := by
   cases (Classical.em (a = 0)); simp [*, Semiring.zero_mul, Field.inv_zero]
   cases (Classical.em (b = 0)); simp [*, Semiring.mul_zero, Field.inv_zero]
   cases (Classical.em (a*b = 0)); simp [*, Field.inv_zero]
@@ -118,6 +132,42 @@ theorem of_pow_eq_zero (a : α) (n : Nat) : a^n = 0 → a = 0 := by
     rw [Semiring.mul_assoc, this, Semiring.mul_one, Semiring.zero_mul] at h
     have := ih h
     contradiction
+
+theorem zpow_natCast (a : α) (n : Nat) : a ^ (n : Int) = a ^ n := by
+  induction n
+  next => simp [zpow_zero, Semiring.pow_zero]
+  next n ih => rw [Int.natCast_add_one, zpow_succ, ih, Semiring.pow_succ]
+
+theorem zpow_one (a : α) : a ^ (1 : Int) = a := by
+  have : (1 : Int) = 0 + 1 := rfl
+  rw [this, ← Int.natCast_zero, zpow_succ, Int.natCast_zero, zpow_zero, Semiring.one_mul]
+
+theorem zpow_neg_one (a : α) : a ^ (-1) = a⁻¹ := by
+  rw [zpow_neg, zpow_one]
+
+theorem zpow_add_one {a : α} (h : a ≠ 0) (n : Int) : a ^ (n + 1) = a ^ n * a := by
+  match n with
+  | (n : Nat) => rw [zpow_succ, zpow_natCast]
+  | -(n + 1 : Nat) =>
+    rw [zpow_neg, Int.natCast_add, Int.cast_ofNat_Int, Int.neg_add, Int.neg_add_cancel_right,
+      zpow_neg, zpow_succ, inv_mul, Semiring.mul_assoc, inv_mul_cancel h, Semiring.mul_one]
+
+theorem zpow_sub_one {a : α} (h : a ≠ 0) (n : Int) : a ^ (n - 1) = a ^ n * a⁻¹ := by
+  have h₁ := zpow_add_one h (-n)
+  have h₂ : -n + 1 = - (n - 1) := by omega
+  rw [h₂, zpow_neg, inv_eq_iff_eq_iff] at h₁
+  rw [h₁, inv_mul, zpow_neg, inv_inv]
+
+theorem zpow_add {a : α} (h : a ≠ 0) (m n : Int) : a ^ (m + n) = a ^ m * a ^ n := by
+  match n with
+  | (n : Nat) =>
+    induction n with
+    | zero => simp [zpow_zero, Semiring.mul_one]
+    | succ n ih => rw [Int.natCast_add_one, zpow_succ, ← Int.add_assoc, zpow_add_one h, ih, Semiring.mul_assoc]
+  | -(n + 1 : Nat) =>
+    induction n with
+    | zero => simp [Int.add_neg_one, zpow_sub_one h, zpow_neg_one]
+    | succ n ih => rw [Int.natCast_add_one, Int.neg_add, Int.add_neg_one, ← Int.add_sub_assoc, zpow_sub_one h, zpow_sub_one h, ih, Semiring.mul_assoc]
 
 instance [IsCharP α 0] : NoNatZeroDivisors α := NoNatZeroDivisors.mk' <| by
   intro a b h w

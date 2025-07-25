@@ -33,7 +33,7 @@ structure DateTime (tz : TimeZone) where
 
   /--
   `Date` is a `Thunk` containing the `PlainDateTime` that represents the local date and time, it's
-  used for accessing data like `day` and `month` without having to recompute the data everytime.
+  used for accessing data like `day` and `month` without having to recompute the data every time.
   -/
   date : Thunk PlainDateTime
 

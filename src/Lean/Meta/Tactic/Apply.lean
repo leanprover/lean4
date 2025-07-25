@@ -3,12 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Siddhartha Gadgil
 -/
+module
+
 prelude
-import Lean.Util.FindMVar
-import Lean.Meta.SynthInstance
-import Lean.Meta.CollectMVars
-import Lean.Meta.Tactic.Util
-import Lean.PrettyPrinter
+public import Lean.Util.FindMVar
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.CollectMVars
+public import Lean.Meta.Tactic.Util
+public import Lean.PrettyPrinter
+
+public section
 
 namespace Lean.Meta
 /--

@@ -3,22 +3,26 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller
 -/
+module
+
 prelude
-import Lean.Util.ForEachExprWhere
-import Lean.Util.ReplaceLevel
-import Lean.Util.ReplaceExpr
-import Lean.Util.CollectLevelParams
-import Lean.Meta.Constructions
-import Lean.Meta.CollectFVars
-import Lean.Meta.SizeOf
-import Lean.Meta.Injective
-import Lean.Meta.IndPredBelow
-import Lean.Elab.Command
-import Lean.Elab.ComputedFields
-import Lean.Elab.DefView
-import Lean.Elab.DeclUtil
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.DeclarationRange
+public import Lean.Util.ForEachExprWhere
+public import Lean.Util.ReplaceLevel
+public import Lean.Util.ReplaceExpr
+public import Lean.Util.CollectLevelParams
+public import Lean.Meta.Constructions
+public import Lean.Meta.CollectFVars
+public import Lean.Meta.SizeOf
+public import Lean.Meta.Injective
+public import Lean.Meta.IndPredBelow
+public import Lean.Elab.Command
+public import Lean.Elab.ComputedFields
+public import Lean.Elab.DefView
+public import Lean.Elab.DeclUtil
+public import Lean.Elab.Deriving.Basic
+public import Lean.Elab.DeclarationRange
+
+public section
 
 /-!
 # Elaborator framework for (mutual) inductives
@@ -189,7 +193,7 @@ builtin_initialize inductiveElabAttr : KeyedDeclsAttribute InductiveElabDescr â†
   }
 
 /--
-Returns true if the syntax partipates in the mutual inductive elaborator.
+Returns true if the syntax participates in the mutual inductive elaborator.
 These do not need to be commands. In fact `inductive` and `structure` are registered
 on the `Lean.Parser.Command.inductive` and `Lean.Parser.Command.structure` syntaxes.
 -/

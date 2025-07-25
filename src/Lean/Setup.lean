@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mac Malone
 -/
+module
+
 prelude
-import Lean.Data.Json.Parser
-import Lean.Data.Json.FromToJson.Basic
-import Lean.Util.LeanOptions
+public import Lean.Data.Json.Parser
+public import Lean.Data.Json.FromToJson.Basic
+public import Lean.Util.LeanOptions
+
+public section
 
 /-!
 # Module Setup Information
@@ -66,12 +70,15 @@ def ImportArtifacts.oleanServer? (arts : ImportArtifacts) :=
 def ImportArtifacts.oleanPrivate? (arts : ImportArtifacts) :=
   arts.toArray[3]?
 
-def ImportArtifacts.oleanParts (arts : ImportArtifacts) : Array System.FilePath := Id.run do
+def ImportArtifacts.oleanParts (inServer : Bool) (arts : ImportArtifacts) : Array System.FilePath := Id.run do
   let mut fnames := #[]
   if let some mFile := arts.olean? then
     fnames := fnames.push mFile
     if let some sFile := arts.oleanServer? then
-      fnames := fnames.push sFile
+      -- For uniformity, Lake always provides us with .olean.server, so load it only when we are in
+      -- server mode or we need it to load further files.
+      if inServer || arts.oleanPrivate?.isSome then
+        fnames := fnames.push sFile
       if let some pFile := arts.oleanPrivate? then
         fnames := fnames.push pFile
   return fnames

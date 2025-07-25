@@ -3,9 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Simp.Arith.Util
-import Lean.Meta.Tactic.Simp.Arith.Int.Basic
+public import Lean.Meta.Tactic.Simp.Arith.Util
+public import Lean.Meta.Tactic.Simp.Arith.Int.Basic
+
+public section
 
 def Int.Linear.Poly.gcdAll : Poly → Nat
   | .num k => k.natAbs
@@ -156,15 +160,16 @@ def simpDvd? (e : Expr) : MetaM (Option (Expr × Expr)) := do
       return some (rhs, mkExpectedPropHint h (mkPropEq lhs rhs))
 
 def simpExpr? (lhs : Expr) : MetaM (Option (Expr × Expr)) := do
-  let (e, atoms) ← toLinearExpr lhs
-  let p  := e.norm
-  let e' := p.toExpr
-  if e != e' then
-    -- We only return some if monomials were fused
-    let h := mkApp4 (mkConst ``Int.Linear.Expr.eq_of_norm_eq) (← toContextExpr atoms) (toExpr e) (toExpr p) reflBoolTrue
-    let rhs ← p.denoteExpr (atoms[·]!)
-    return some (rhs, mkExpectedPropHint h (mkIntEq lhs rhs))
-  else
-    return none
+  let (e, ctx) ← toLinearExpr lhs
+  withAbstractAtoms ctx ``Int fun ctx => do
+    let p  := e.norm
+    let e' := p.toExpr
+    if e != e' then
+      let h := mkApp4 (mkConst ``Int.Linear.Expr.eq_of_norm_eq) (← toContextExpr ctx) (toExpr e) (toExpr p) reflBoolTrue
+      let lhs ← e.denoteExpr (ctx[·]!)
+      let rhs ← p.denoteExpr (ctx[·]!)
+      return some (rhs, mkExpectedPropHint h (mkIntEq lhs rhs))
+    else
+      return none
 
 end Lean.Meta.Simp.Arith.Int

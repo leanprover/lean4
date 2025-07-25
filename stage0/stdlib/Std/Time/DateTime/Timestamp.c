@@ -96,7 +96,6 @@ static lean_object* l_Std_Time_Timestamp_instHSubOffset__6___closed__0;
 uint8_t l_Std_Time_Duration_instDecidableLt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_addDays___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_toSecondsSinceUnixEpoch(lean_object*);
-lean_object* l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(lean_object*);
 static lean_object* l_Std_Time_Timestamp_instHAddOffset___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHAddDuration;
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_subDays(lean_object*, lean_object*);
@@ -112,6 +111,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHAddOffset__1;
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_ofMillisecondsSinceUnixEpoch(lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 static lean_object* l_Std_Time_Timestamp_instHSubOffset__2___closed__0;
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_reprTimestamp____x40_Std_Time_DateTime_Timestamp___hyg_191__spec__0(lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_toNanosecondsSinceUnixEpoch___boxed(lean_object*);
 static lean_object* l_Std_Time_Timestamp_instHAddOffset__1___closed__0;
@@ -179,6 +179,14 @@ uint8_t l_Std_Time_decEqDuration____x40_Std_Time_Duration___hyg_369_(lean_object
 extern lean_object* l_Std_Time_Second_instOffsetToString;
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_addDuration(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_instHAddOffset;
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_reprTimestamp____x40_Std_Time_DateTime_Timestamp___hyg_191__spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Std_Time_reprTimestamp___redArg___closed__0____x40_Std_Time_DateTime_Timestamp___hyg_191_() {
 _start:
 {
@@ -277,7 +285,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(2u);
-x_2 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }

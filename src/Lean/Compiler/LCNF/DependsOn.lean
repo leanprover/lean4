@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Basic
+public import Lean.Compiler.LCNF.Basic
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -42,10 +46,10 @@ private partial def depOn (c : Code) : M Bool :=
   | .return fvarId => fvarDepOn fvarId
   | .unreach _ => return false
 
-abbrev LetDecl.dependsOn (decl : LetDecl) (s : FVarIdSet) :  Bool :=
+@[inline] def LetDecl.dependsOn (decl : LetDecl) (s : FVarIdSet) :  Bool :=
   decl.depOn s
 
-abbrev FunDecl.dependsOn (decl : FunDecl) (s : FVarIdSet) :  Bool :=
+@[inline] def FunDecl.dependsOn (decl : FunDecl) (s : FVarIdSet) :  Bool :=
   typeDepOn decl.type s || depOn decl.value s
 
 def CodeDecl.dependsOn (decl : CodeDecl) (s : FVarIdSet) : Bool :=

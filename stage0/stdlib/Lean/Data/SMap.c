@@ -51,7 +51,6 @@ static lean_object* l_Lean_SMap_instInhabited___closed__4;
 LEAN_EXPORT lean_object* l_Lean_SMap_findD___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_foldM___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_instReprTupleOfRepr___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_contains___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_replace___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_toList___redArg(lean_object*, lean_object*, lean_object*);
@@ -75,6 +74,7 @@ LEAN_EXPORT lean_object* l_Lean_SMap_insert_x27(lean_object*, lean_object*, lean
 lean_object* l_List_foldl___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_SMap_find_x21___redArg___closed__2;
+lean_object* l_instReprTupleOfRepr___redArg(lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_numBuckets___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1208,7 +1208,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_SMap_find_x21___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(61u);
+x_3 = lean_unsigned_to_nat(65u);
 x_4 = l_Lean_SMap_find_x21___redArg___closed__1;
 x_5 = l_Lean_SMap_find_x21___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -2615,8 +2615,7 @@ LEAN_EXPORT lean_object* l_Lean_instReprSMap___redArg(lean_object* x_1, lean_obj
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_alloc_closure((void*)(l_instReprTupleOfRepr___redArg___lam__0), 3, 1);
-lean_closure_set(x_5, 0, x_4);
+x_5 = l_instReprTupleOfRepr___redArg(x_4);
 x_6 = lean_alloc_closure((void*)(l_Prod_repr___boxed), 6, 4);
 lean_closure_set(x_6, 0, lean_box(0));
 lean_closure_set(x_6, 1, lean_box(0));

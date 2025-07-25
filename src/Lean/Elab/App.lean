@@ -1581,7 +1581,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     | LValResolution.projFn baseStructName structName fieldName =>
       let f ← mkBaseProjections baseStructName structName f
       let some info := getFieldInfo? (← getEnv) baseStructName fieldName | unreachable!
-      if isPrivateNameFromImportedModule (← getEnv) info.projFn then
+      if isInaccessiblePrivateName (← getEnv) info.projFn then
         throwError "Field `{fieldName}` from structure `{structName}` is private"
       let projFn ← mkConst info.projFn
       let projFn ← addProjTermInfo lval.getRef projFn

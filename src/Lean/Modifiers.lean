@@ -22,12 +22,10 @@ def mkPrivateName (env : Environment) (n : Name) : Name :=
   -- is private to *this* module.
   mkPrivateNameCore env.mainModule <| privateToUserName n
 
-def isPrivateNameFromImportedModule (env : Environment) (n : Name) : Bool :=
+def isInaccessiblePrivateName (env : Environment) (n : Name) : Bool :=
   if env.header.isModule then
     -- Allow access through `import all`.
-    -- TODO: this should not be relevant as soon as we make sure we never export any kind of private
-    -- constant.
-    !env.contains n && (env.setExporting false).contains n
+    env.isExporting && isPrivateName n
   else match privateToUserName? n with
     | some userName => mkPrivateName env userName != n
     | _ => false

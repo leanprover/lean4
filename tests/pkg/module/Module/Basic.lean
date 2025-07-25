@@ -211,3 +211,26 @@ info: theorem f_exp_wfrec.eq_unfold : f_exp_wfrec = fun x x_1 =>
   | n.succ, acc => f_exp_wfrec n (acc + 1)
 -/
 #guard_msgs in #print sig f_exp_wfrec.eq_unfold
+
+/-! Private fields should force private ctors. -/
+
+public structure StructWithPrivateField where
+  private x : Nat
+
+/--
+info: structure StructWithPrivateField : Type
+number of parameters: 0
+fields:
+  private StructWithPrivateField.x : Nat
+constructor:
+  private StructWithPrivateField.mk (x : Nat) : StructWithPrivateField
+-/
+#guard_msgs in
+#print StructWithPrivateField
+
+#check { x := 1 : StructWithPrivateField }
+
+/-- error: invalid {...} notation, constructor for 'StructWithPrivateField' is marked as private -/
+#guard_msgs in
+#with_exporting
+#check { x := 1 : StructWithPrivateField }

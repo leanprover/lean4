@@ -45,7 +45,7 @@ structure ZonedDateTime where
   timezone : TimeZone
 
 instance : Inhabited ZonedDateTime where
-  default := ⟨Thunk.mk Inhabited.default, Inhabited.default, Inhabited.default, Inhabited.default⟩
+  default := private ⟨Thunk.mk Inhabited.default, Inhabited.default, Inhabited.default, Inhabited.default⟩
 
 namespace ZonedDateTime
 open DateTime

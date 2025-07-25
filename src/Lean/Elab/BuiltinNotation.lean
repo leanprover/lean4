@@ -47,11 +47,13 @@ open Meta
   match stx with
   | `(⟨$args,*⟩) => do
     tryPostponeIfNoneOrMVar expectedType?
+    let expTypeUnknownMsg := "Invalid `⟨...⟩` notation: The expected type of this term could not be determined"
     match expectedType? with
     | some expectedType =>
       let expectedType ← whnf expectedType
+      if expectedType.getAppFn.isMVar then throwError expTypeUnknownMsg
       matchConstInduct expectedType.getAppFn
-        (fun _ => throwError "Invalid `⟨...⟩` notation: The expected type{indentExpr expectedType}\nis not an inductive type")
+        (fun _ => throwError "Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}is not an inductive type")
         (fun ival _ => do
           match ival.ctors with
           | [ctor] =>
@@ -79,9 +81,10 @@ open Meta
               let newArgs := args[*...(numExplicitFields-1)].toArray.push newLast
               `($(mkCIdentFrom stx ctor (canonical := true)) $(newArgs)*)
             withMacroExpansion stx newStx $ elabTerm newStx expectedType?
-          | [] => throwError "Invalid `⟨...⟩` notation: The expected type{indentExpr expectedType}\nhas no constructors"
-          | _ => throwError "Invalid `⟨...⟩` notation: This notation can only be used when the expected type is an inductive type with a single constructor, but the expected type{indentExpr expectedType}\nhas {ival.ctors.length} constructors")
-    | none => throwError "Invalid `⟨...⟩`: The expected type of this term is not known"
+          | [] => throwError "Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}has no constructors"
+          | _ => throwError m!"Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}has more than one constructor"
+                  ++ .note m!"This notation can only be used when the expected type is an inductive type with a single constructor")
+    | none => throwError expTypeUnknownMsg
   | _ => throwUnsupportedSyntax
 
 @[builtin_term_elab borrowed] def elabBorrowed : TermElab := fun stx expectedType? =>

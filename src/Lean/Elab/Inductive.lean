@@ -49,7 +49,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
           span? := Syntax.ofRange range
           toCodeActionTitle? := some fun _ => "Delete `private` modifier"
         }]
-      throwError "Constructor cannot be marked `private` becuase it is already in a `private` inductive datatype"
+      throwError "Constructor cannot be marked `private` because it is already in a `private` inductive datatype"
     if ctorModifiers.isProtected && modifiers.isPrivate then
       throwError "Constructor cannot be `protected` because it is in a `private` inductive datatype"
     checkValidCtorModifier ctorModifiers

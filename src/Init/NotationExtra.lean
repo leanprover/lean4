@@ -77,7 +77,7 @@ macro_rules
     for (c₁, c₂) in cs₁.zip cs₂ |>.reverse do
       body ← `($c₁ = $c₂ → $body)
     let hint : Ident ← `(hint)
-    `($[$doc?:docComment]? @[$kind unification_hint] def $(n.getD hint) $bs* : Sort _ := $body)
+    `($[$doc?:docComment]? @[$kind unification_hint, expose] def $(n.getD hint) $bs* : Sort _ := $body)
 end Lean
 
 open Lean

@@ -640,17 +640,20 @@ def Decl.instantiateParamsLevelParams (decl : Decl) (us : List Level) : Array Pa
 /--
 Return `true` if the arrow type contains an instance implicit argument.
 -/
-def hasLocalInst (type : Expr) : Bool :=
+def hasLocalInst (type : Expr) : CoreM Bool := do
   match type with
-  | .forallE _ _ b bi => bi.isInstImplicit || hasLocalInst b
-  | _ => false
+  | .forallE _ d b bi =>
+    (pure bi.isInstImplicit) <||>
+    ((pure bi.isImplicit) <&&> (pure (← isArrowClass? d).isSome)) <||>
+    hasLocalInst b
+  | _ => return false
 
 /--
 Return `true` if `decl` is supposed to be inlined/specialized.
 -/
 def Decl.isTemplateLike (decl : Decl) : CoreM Bool := do
   let env ← getEnv
-  if hasLocalInst decl.type then
+  if ← hasLocalInst decl.type then
     return true -- `decl` applications will be specialized
   else if Meta.isInstanceCore env decl.name then
     return true -- `decl` is "fuel" for code specialization

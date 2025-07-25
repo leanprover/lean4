@@ -7,10 +7,14 @@ Additional snapshot functionality that needs further imports.
 Authors: Sebastian Ullrich
 -/
 
+module
+
 prelude
-import Lean.Language.Basic
-import Lean.CoreM
-import Lean.Elab.InfoTree
+public import Lean.Language.Basic
+public import Lean.CoreM
+public import Lean.Elab.InfoTree
+
+public section
 
 namespace Lean.Language
 

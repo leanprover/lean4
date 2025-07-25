@@ -3,12 +3,16 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.BinderPredicates
-import Init.Data.Int.Order
-import Init.Data.List.MinMax
-import Init.Data.Nat.MinMax
-import Init.Data.Option.Lemmas
+public import Init.BinderPredicates
+public import Init.Data.Int.Order
+public import Init.Data.List.MinMax
+public import Init.Data.Nat.MinMax
+public import Init.Data.Option.Lemmas
+
+public section
 
 /-!
 # `List.nonzeroMinimum`, `List.minNatAbs`, `List.maxNatAbs`
@@ -141,7 +145,7 @@ theorem minNatAbs_eq_nonzero_iff (xs : List Int) (w : z ≠ 0) :
     xs.minNatAbs = z ↔ (∃ y ∈ xs, y.natAbs = z) ∧ (∀ y ∈ xs, z ≤ y.natAbs ∨ y = 0) := by
   simp [minNatAbs, nonzeroMinimum_eq_nonzero_iff w]
 
-@[simp] theorem minNatAbs_nil : ([] : List Int).minNatAbs = 0 := rfl
+@[simp] theorem minNatAbs_nil : ([] : List Int).minNatAbs = 0 := (rfl)
 
 /-- The maximum absolute value in a list of integers. -/
 def maxNatAbs (xs : List Int) : Nat := xs.map Int.natAbs |>.max? |>.getD 0

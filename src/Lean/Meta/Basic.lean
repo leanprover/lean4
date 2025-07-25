@@ -3,15 +3,19 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.LOption
-import Lean.Environment
-import Lean.Class
-import Lean.ReducibilityAttrs
-import Lean.Util.ReplaceExpr
-import Lean.Util.MonadBacktrack
-import Lean.Compiler.InlineAttrs
-import Lean.Meta.TransparencyMode
+public import Lean.Data.LOption
+public import Lean.Environment
+public import Lean.Class
+public import Lean.ReducibilityAttrs
+public import Lean.Util.ReplaceExpr
+public import Lean.Util.MonadBacktrack
+public import Lean.Compiler.InlineAttrs
+public import Lean.Meta.TransparencyMode
+
+public section
 
 /-!
 This module provides four (mutually dependent) goodies that are needed for building the elaborator and tactic frameworks.
@@ -213,7 +217,7 @@ private def Config.toKey (c : Config) : UInt64 :=
 structure ConfigWithKey where
   private mk ::
   config : Config := {}
-  key    : UInt64 := config.toKey
+  key    : UInt64 := private_decl% config.toKey
 
 instance : Inhabited ConfigWithKey where  -- #9463
   default := private {}
@@ -310,7 +314,7 @@ structure InfoCacheKey where
   deriving Inhabited, BEq
 
 instance : Hashable InfoCacheKey where
-  hash := fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
+  hash := private fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
 
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
@@ -348,7 +352,7 @@ instance : BEq ExprConfigCacheKey where
     a.configKey == b.configKey
 
 instance : Hashable ExprConfigCacheKey where
-  hash := fun { expr, configKey } => mixHash (hash expr) (hash configKey)
+  hash := private fun { expr, configKey } => mixHash (hash expr) (hash configKey)
 
 abbrev InferTypeCache := PersistentHashMap ExprConfigCacheKey Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
@@ -362,7 +366,7 @@ structure DefEqCacheKey where
   deriving Inhabited, BEq
 
 instance : Hashable DefEqCacheKey where
-  hash := fun { lhs, rhs, configKey } => mixHash (hash lhs) <| mixHash (hash rhs) (hash configKey)
+  hash := private fun { lhs, rhs, configKey } => mixHash (hash lhs) <| mixHash (hash rhs) (hash configKey)
 
 /--
 A mapping `(s, t) ↦ isDefEq s t`.
@@ -525,7 +529,7 @@ The key operations provided by `MetaM` are:
 The following is a small example that demonstrates how to obtain and manipulate the type of a
 `Fin` expression:
 ```
-import Lean
+public import Lean
 
 open Lean Meta
 
@@ -756,7 +760,9 @@ the kernel typechecker. The kernel typechecker is invoked when a definition is a
 
 Here are examples of type-incorrect terms for which `inferType` succeeds:
 ```lean
-import Lean
+public import Lean
+
+public section
 
 open Lean Meta
 

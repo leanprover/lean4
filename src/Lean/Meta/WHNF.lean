@@ -3,17 +3,21 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Structure
-import Lean.Util.Recognizers
-import Lean.Util.SafeExponentiation
-import Lean.Meta.GetUnfoldableConst
-import Lean.Meta.FunInfo
-import Lean.Meta.Offset
-import Lean.Meta.CtorRecognizer
-import Lean.Meta.Match.MatcherInfo
-import Lean.Meta.Match.MatchPatternAttr
-import Lean.Meta.Transform
+public import Lean.Structure
+public import Lean.Util.Recognizers
+public import Lean.Util.SafeExponentiation
+public import Lean.Meta.GetUnfoldableConst
+public import Lean.Meta.FunInfo
+public import Lean.Meta.Offset
+public import Lean.Meta.CtorRecognizer
+public import Lean.Meta.Match.MatcherInfo
+public import Lean.Meta.Match.MatchPatternAttr
+public import Lean.Meta.Transform
+
+public section
 
 namespace Lean.Meta
 

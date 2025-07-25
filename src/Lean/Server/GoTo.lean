@@ -4,13 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Sebastian Ullrich, Lars König, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Json.FromToJson.Basic
-import Lean.Util.Path
-import Lean.Server.Utils
-import Lean.Data.Lsp.Internal
-import Lean.Util.CollectFVars
-import Lean.Util.ForEachExpr
+public import Lean.Data.Json.FromToJson.Basic
+public import Lean.Util.Path
+public import Lean.Server.Utils
+public import Lean.Data.Lsp.Internal
+public import Lean.Util.CollectFVars
+public import Lean.Util.ForEachExpr
+meta import Lean.Parser.Module
+
+public section
 
 namespace Lean.Server
 

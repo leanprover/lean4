@@ -3,15 +3,19 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Omega.LinearCombo
-import Init.Omega.Int
-import Init.Omega.Logic
-import Init.Data.BitVec.Basic
-import Lean.Meta.AppBuilder
-import Lean.Meta.Canonicalizer
-import Std.Data.HashMap.Basic
-import Std.Data.HashSet.Basic
+public import Init.Omega.LinearCombo
+public import Init.Omega.Int
+public import Init.Omega.Logic
+public import Init.Data.BitVec.Basic
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.Canonicalizer
+public import Std.Data.HashMap.Basic
+public import Std.Data.HashSet.Basic
+
+public section
 
 /-!
 # The `OmegaM` state monad.
@@ -62,7 +66,7 @@ abbrev OmegaM' := StateRefT State (ReaderT Context CanonM)
 /--
 Cache of expressions that have been visited, and their reflection as a linear combination.
 -/
-def Cache : Type := Std.HashMap Expr (LinearCombo × OmegaM' Expr)
+@[expose] def Cache : Type := Std.HashMap Expr (LinearCombo × OmegaM' Expr)
 
 /--
 The `OmegaM` monad maintains two pieces of state:

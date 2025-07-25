@@ -3,13 +3,17 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.CongrTheorems
-import Lean.Meta.Tactic.Assert
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.Refl
-import Lean.Meta.Tactic.Assumption
+public import Lean.Meta.CongrTheorems
+public import Lean.Meta.Tactic.Assert
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Clear
+public import Lean.Meta.Tactic.Refl
+public import Lean.Meta.Tactic.Assumption
+
+public section
 
 namespace Lean
 open Meta

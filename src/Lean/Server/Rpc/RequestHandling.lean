@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-prelude
-import Lean.Data.Lsp.Extra
-import Lean.Server.Requests
+module
 
-import Lean.Server.Rpc.Basic
+prelude
+public import Lean.Data.Lsp.Extra
+public import Lean.Server.Requests
+
+public import Lean.Server.Rpc.Basic
+
+public section
 
 namespace Lean.Server
 

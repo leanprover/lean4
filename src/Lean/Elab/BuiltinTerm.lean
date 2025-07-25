@@ -3,12 +3,17 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Closure
-import Lean.Meta.Diagnostics
-import Lean.Elab.Open
-import Lean.Elab.SetOption
-import Lean.Elab.Eval
+public import Lean.Meta.Closure
+public import Lean.Meta.Diagnostics
+public import Lean.Elab.Open
+public import Lean.Elab.SetOption
+public import Lean.Elab.Eval
+meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab.Term
 open Meta

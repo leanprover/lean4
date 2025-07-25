@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Meta.InferType
-import Lean.Meta.WHNF
-import Lean.PrettyPrinter.Delaborator.Attributes
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.Structure
+public import Lean.Meta.InferType
+public import Lean.Meta.WHNF
+public import Lean.PrettyPrinter.Delaborator.Attributes
+public import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.Structure
+
+public section
 
 /-!
 # Functions for analyzing projections for pretty printing

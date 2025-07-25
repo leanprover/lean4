@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Attributes
+public import Lean.Attributes
+
+public section
 
 
 namespace Lean.Compiler
@@ -77,7 +81,7 @@ private def hasInlineAttrCore (env : Environment) (kind : InlineAttributeKind) (
   | some k => kind == k
   | _ => false
 
-abbrev hasInlineAttribute (env : Environment) (declName : Name) : Bool :=
+@[inline] def hasInlineAttribute (env : Environment) (declName : Name) : Bool :=
   hasInlineAttrCore env .inline declName
 
 def hasInlineIfReduceAttribute (env : Environment) (declName : Name) : Bool :=
@@ -89,7 +93,7 @@ def hasNoInlineAttribute (env : Environment) (declName : Name) : Bool :=
 def hasMacroInlineAttribute (env : Environment) (declName : Name) : Bool :=
   hasInlineAttrCore env .macroInline declName
 
-abbrev hasAlwaysInlineAttribute (env : Environment) (declName : Name) : Bool :=
+@[inline] def hasAlwaysInlineAttribute (env : Environment) (declName : Name) : Bool :=
   hasInlineAttrCore env .alwaysInline declName
 
 end Lean.Compiler

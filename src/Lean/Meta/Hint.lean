@@ -4,15 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
 
+module
+
 prelude
 
-import Lean.CoreM
-import Lean.Data.Lsp.Utf16
-import Lean.Message
-import Lean.Meta.TryThis
-import Lean.Util.Diff
-import Lean.Widget.Types
-import Lean.PrettyPrinter
+public import Lean.CoreM
+public import Lean.Data.Lsp.Utf16
+public import Lean.Message
+public import Lean.Meta.TryThis
+public import Lean.Util.Diff
+public import Lean.Widget.Types
+public import Lean.PrettyPrinter
+
+public section
 
 namespace Lean.Meta.Hint
 
@@ -46,8 +50,10 @@ be able to use this widget. Instead, we register the attribute post-hoc when we 
 -/
 def tryThisDiffWidget : Widget.Module where
   javascript := "
-import * as React from 'react';
-import { EditorContext, EnvPosContext } from '@leanprover/infoview';
+public import * as React from 'react';
+public import { EditorContext, EnvPosContext } from '@leanprover/infoview';
+
+public section
 const e = React.createElement;
 export default function ({ diff, range, suggestion }) {
   const pos = React.useContext(EnvPosContext)

@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.MetaAttr
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.MetaAttr
+
+public section
 
 namespace Lean.IR
 

@@ -3,16 +3,20 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Constructor
-import Lean.Meta.Tactic.Assert
-import Lean.Meta.Tactic.AuxLemma
-import Lean.Meta.Tactic.Cleanup
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.Rename
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.Config
-import Lean.Elab.SyntheticMVars
+public import Lean.Meta.Tactic.Constructor
+public import Lean.Meta.Tactic.Assert
+public import Lean.Meta.Tactic.AuxLemma
+public import Lean.Meta.Tactic.Cleanup
+public import Lean.Meta.Tactic.Clear
+public import Lean.Meta.Tactic.Rename
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.Config
+public import Lean.Elab.SyntheticMVars
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta

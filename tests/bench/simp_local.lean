@@ -34,6 +34,7 @@ axiom iter_succ : iter (s i) g x = iter i g (iter i g x)
 
 noncomputable def steps : N := s (s (s (s (s (s (s z))))))
 
+set_option maxHeartbeats 250000
 set_option maxRecDepth 100000
 set_option Elab.async false
 

@@ -8,10 +8,14 @@ driver. See the [server readme](../Server/README.md#worker-architecture) for an 
 Authors: Sebastian Ullrich
 -/
 
+module
+
 prelude
-import Init.System.Promise
-import Lean.Parser.Types
-import Lean.Util.Trace
+public import Init.System.Promise
+public import Lean.Parser.Types
+public import Lean.Util.Trace
+
+public section
 
 set_option linter.missingDocs true
 

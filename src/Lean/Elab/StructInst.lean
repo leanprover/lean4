@@ -3,14 +3,18 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller
 -/
+module
+
 prelude
-import Lean.Util.FindExpr
-import Lean.Parser.Term
-import Lean.Meta.Structure
-import Lean.Elab.App
-import Lean.Elab.Binders
-import Lean.Elab.StructInstHint
-import Lean.PrettyPrinter
+public import Lean.Util.FindExpr
+public import Lean.Parser.Term
+public import Lean.Meta.Structure
+public import Lean.Elab.App
+public import Lean.Elab.Binders
+public import Lean.Elab.StructInstHint
+public import Lean.PrettyPrinter
+
+public section
 
 /-!
 # Structure instance elaborator
@@ -314,8 +318,8 @@ private def formatStruct : StructInstView → Format
     else
       "{" ++ format (source.explicit.map (·.stx)) ++ " with " ++ fieldsFmt ++ implicitFmt ++ "}"
 
-instance : ToFormat FieldView := ⟨formatField⟩
-instance : ToFormat StructInstView := ⟨formatStruct⟩
+instance : ToFormat FieldView := ⟨private_decl% formatField⟩
+instance : ToFormat StructInstView := ⟨private_decl% formatStruct⟩
 
 /--
 Converts a `FieldLHS` back into syntax. This assumes the `ref` fields have the correct structure.
@@ -488,14 +492,14 @@ private structure ExpandedField where
 
 private def ExpandedField.isNested (f : ExpandedField) : Bool := f.val matches .nested ..
 
-instance : ToMessageData ExpandedFieldVal where
+private instance : ToMessageData ExpandedFieldVal where
   toMessageData
     | .term stx => m!"term {stx}"
     | .proj fvarId stx parentStructName _ => m!"proj {Expr.fvar fvarId} {.ofConstName parentStructName}{indentD stx}"
     | .source fvar => m!"source {fvar}"
     | .nested fieldViews sources => m!"nested {MessageData.joinSep (sources.map (·.stx)).toList ", "} {MessageData.joinSep (fieldViews.map (indentD <| toMessageData ·)).toList "\n"}"
 
-instance : ToMessageData ExpandedField where
+private instance : ToMessageData ExpandedField where
   toMessageData field := m!"field '{field.name}' is {field.val}"
 
 abbrev ExpandedFields := NameMap ExpandedField

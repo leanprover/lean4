@@ -3,14 +3,18 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Message
-import Lean.InternalExceptionId
-import Lean.Data.Options
-import Lean.Util.MonadCache
+public import Lean.Message
+public import Lean.InternalExceptionId
+public import Lean.Data.Options
+public import Lean.Util.MonadCache
 -- This import is necessary to ensure that any users of the `throwNamedError` macros have access to
 -- all declared explanations:
-import Lean.ErrorExplanations
+public import Lean.ErrorExplanations
+
+public section
 
 namespace Lean
 

@@ -3,9 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Structure
-import Lean.Elab.MutualInductive
+public import Lean.Meta.Structure
+public import Lean.Elab.MutualInductive
+
+public section
 
 namespace Lean.Elab.Command
 
@@ -437,10 +441,10 @@ Monad for elaborating parents and fields of a `structure`.
 -/
 private abbrev StructElabM := StateT State TermElabM
 
-instance : Inhabited (StructElabM α) where
+private instance : Inhabited (StructElabM α) where
   default := throw default
 
-def runStructElabM (k : StructElabM α) (init : State := {}) : TermElabM α := k.run' init
+private def runStructElabM (k : StructElabM α) (init : State := {}) : TermElabM α := k.run' init
 
 private def addParentInfo (parent : StructParentInfo) : StructElabM Unit := do
   modify fun s => { s with parents := s.parents.push parent }

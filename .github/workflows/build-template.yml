@@ -199,7 +199,7 @@ jobs:
           path: pack/*
       - name: Lean stats
         run: |
-          build/stage1/bin/lean --stats src/Lean.lean
+          build/stage1/bin/lean --stats src/Lean.lean -Dexperimental.module=true
         if: ${{ !matrix.cross }}
       - name: Test
         id: test

@@ -3,10 +3,14 @@ Copyright (c) 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.PrettyPrinter
-import Lean.Meta.Basic
-import Lean.Meta.Instances
+public import Lean.PrettyPrinter
+public import Lean.Meta.Basic
+public import Lean.Meta.Instances
+
+public section
 
 namespace Lean.Meta
 

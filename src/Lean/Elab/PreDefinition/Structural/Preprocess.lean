@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Elab.RecAppSyntax
-import Lean.Meta.WHNF
+public import Lean.Meta.Transform
+public import Lean.Elab.RecAppSyntax
+public import Lean.Meta.WHNF
+
+public section
 
 namespace Lean.Elab.Structural
 open Meta

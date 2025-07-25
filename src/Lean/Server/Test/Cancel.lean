@@ -4,8 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.Basic
+meta import Lean.Elab.Tactic.Basic
+
+public section
 
 /-!
 Helpers for testing cancellation in interactive tests. Put here because of `initialize` restrictions

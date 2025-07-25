@@ -3,15 +3,19 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Zwarich
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Basic
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.ToIRType
-import Lean.CoreM
-import Lean.Environment
+public import Lean.Compiler.LCNF.Basic
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.ToIRType
+public import Lean.CoreM
+public import Lean.Environment
+
+public section
 
 namespace Lean.IR
 

@@ -3,14 +3,18 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Do.ProofMode.Basic
-import Lean.Elab.Tactic.Do.ProofMode.Intro
-import Lean.Elab.Tactic.Do.ProofMode.Pure
-import Lean.Elab.Tactic.Do.ProofMode.Frame
-import Lean.Elab.Tactic.Do.ProofMode.Assumption
-import Lean.Elab.Tactic.Do.Attr
-import Std.Do.Triple
+public import Lean.Elab.Tactic.Do.ProofMode.Basic
+public import Lean.Elab.Tactic.Do.ProofMode.Intro
+public import Lean.Elab.Tactic.Do.ProofMode.Pure
+public import Lean.Elab.Tactic.Do.ProofMode.Frame
+public import Lean.Elab.Tactic.Do.ProofMode.Assumption
+public import Lean.Elab.Tactic.Do.Attr
+public import Std.Do.Triple
+
+public section
 
 namespace Lean.Elab.Tactic.Do
 open Lean Elab Tactic Meta

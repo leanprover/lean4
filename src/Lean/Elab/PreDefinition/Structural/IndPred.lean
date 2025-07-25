@@ -3,11 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
+module
+
 prelude
-import Lean.Meta.IndPredBelow
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Elab.PreDefinition.Structural.RecArgInfo
+public import Lean.Meta.IndPredBelow
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Structural.Basic
+public import Lean.Elab.PreDefinition.Structural.RecArgInfo
+
+public section
 
 namespace Lean.Elab.Structural
 open Meta

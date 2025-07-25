@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Match
-import Lean.Meta.InferType
-import Lean.Meta.Check
-import Lean.Meta.Tactic.Split
+public import Lean.Meta.Match
+public import Lean.Meta.InferType
+public import Lean.Meta.Check
+public import Lean.Meta.Tactic.Split
+
+public section
 
 namespace Lean.Meta.MatcherApp
 

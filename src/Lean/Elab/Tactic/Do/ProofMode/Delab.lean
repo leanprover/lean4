@@ -3,9 +3,13 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Do.ProofMode.MGoal
-import Lean.PrettyPrinter.Delaborator.Basic
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+public import Lean.PrettyPrinter.Delaborator.Basic
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do

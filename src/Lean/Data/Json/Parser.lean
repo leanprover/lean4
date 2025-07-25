@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Data.Json.Basic
-import Std.Internal.Parsec
+public import Lean.Data.Json.Basic
+public import Std.Internal.Parsec
+
+public section
 
 open Std.Internal.Parsec
 open Std.Internal.Parsec.String

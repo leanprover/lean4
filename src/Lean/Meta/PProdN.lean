@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.InferType
-import Lean.Meta.Transform
+public import Lean.Meta.InferType
+public import Lean.Meta.Transform
+
+public section
 
 /-!
 This module provides functions to pack and unpack values using nested `PProd` or `And`,

@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.Meta.AppBuilder
-import Lean.Meta.CompletionName
+public import Lean.AddDecl
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.CompletionName
+
+public section
 
 /-!
 This module produces a construction for the `noConfusionType` that is linear in size in the number of

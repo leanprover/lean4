@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Types
+public import Lean.Parser.Types
+
+public section
 
 /-!
 # Basic Lean parser infrastructure
@@ -1581,7 +1585,7 @@ def eoi : Parser := {
 }
 
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
-def TokenMap (α : Type) := Std.TreeMap Name (List α) Name.quickCmp
+@[expose] def TokenMap (α : Type) := Std.TreeMap Name (List α) Name.quickCmp
 
 namespace TokenMap
 

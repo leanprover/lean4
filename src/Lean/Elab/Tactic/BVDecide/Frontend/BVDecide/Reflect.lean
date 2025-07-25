@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Data.HashMap
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Lean.Meta.AppBuilder
-import Lean.ToExpr
-import Lean.Data.RArray
+public import Std.Data.HashMap
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+public import Lean.Meta.AppBuilder
+public import Lean.ToExpr
+public import Lean.Data.RArray
+
+public section
 
 /-!
 This module contains the implementation of the reflection monad, used by all other components of this

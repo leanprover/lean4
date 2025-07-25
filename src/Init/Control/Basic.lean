@@ -9,7 +9,7 @@ prelude
 public import Init.Core
 public import Init.BinderNameHint
 
-public section
+@[expose] public section
 
 universe u v w
 

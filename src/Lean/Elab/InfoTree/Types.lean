@@ -4,14 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Data.DeclarationRange
-import Lean.Data.OpenDecl
-import Lean.MetavarContext
-import Lean.Environment
-import Lean.Data.Json.Basic
-import Lean.Server.Rpc.Basic
-import Lean.Widget.Types
+public import Lean.Data.DeclarationRange
+public import Lean.Data.OpenDecl
+public import Lean.MetavarContext
+public import Lean.Environment
+public import Lean.Data.Json.Basic
+public import Lean.Server.Rpc.Basic
+public import Lean.Widget.Types
+
+public section
 
 namespace Lean.Elab
 

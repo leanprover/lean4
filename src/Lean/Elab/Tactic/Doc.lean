@@ -3,11 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
+module
+
 prelude
-import Lean.DocString
-import Lean.Elab.Command
-import Lean.Parser.Tactic.Doc
-import Lean.Parser.Command
+public import Lean.DocString
+public import Lean.Elab.Command
+
+public section
 
 namespace Lean.Elab.Tactic.Doc
 open Lean.Parser.Tactic.Doc

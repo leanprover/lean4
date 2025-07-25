@@ -5,14 +5,18 @@ Authors: Sebastian Ullrich
 
 Elaboration of syntax quotations as terms and patterns (in `match_syntax`). See also `./Hygiene.lean` for the basic
 hygiene workings and data types. -/
+module
+
 prelude
-import Lean.Syntax
-import Lean.ResolveName
-import Lean.Elab.Term
-import Lean.Elab.Quotation.Util
-import Lean.Elab.Quotation.Precheck
-import Lean.Elab.Syntax
-import Lean.Parser.Syntax
+public import Lean.Syntax
+public import Lean.ResolveName
+public import Lean.Elab.Term
+public import Lean.Elab.Quotation.Util
+public import Lean.Elab.Quotation.Precheck
+public import Lean.Elab.Syntax
+public import Lean.Parser.Syntax
+
+public section
 
 namespace Lean.Elab.Term.Quotation
 open Lean.Parser.Term
@@ -75,7 +79,7 @@ def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name
   loop extractionResult.name []
 
 /-- Transform sequence of pushes and appends into acceptable code -/
-def ArrayStxBuilder := Sum (Array Term) Term
+@[expose] def ArrayStxBuilder := Sum (Array Term) Term
 
 namespace ArrayStxBuilder
 
@@ -274,7 +278,7 @@ elab_stx_quot Parser.Command.quot
 /-! # match -/
 
 /-- an "alternative" of patterns plus right-hand side -/
-private abbrev Alt := List Term × Term
+abbrev Alt := List Term × Term
 
 /--
   In a single match step, we match the first discriminant against the "head" of the first pattern of the first

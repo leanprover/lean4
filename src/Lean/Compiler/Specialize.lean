@@ -28,20 +28,22 @@ private def elabSpecArgs (declName : Name) (args : Array Syntax) : MetaM (Array 
     let mut result := #[]
     for arg in args do
       if let some idx := arg.isNatLit? then
-        if idx == 0 then throwErrorAt arg "invalid specialization argument index, index must be greater than 0"
+        if idx == 0 then throwErrorAt arg "Invalid specialization argument index `0`: Index must be greater than 0"
         let idx := idx - 1
         if h : idx >= argNames.size then
-          throwErrorAt arg "invalid argument index, `{declName}` has #{argNames.size} arguments"
+          throwErrorAt arg "Invalid argument index `{idx}`: `{.ofConstName declName}` has only {argNames.size} arguments"
         else
-          if result.contains idx then throwErrorAt arg "invalid specialization argument index, `{argNames[idx]}` has already been specified as a specialization candidate"
+          if result.contains idx then throwErrorAt arg "Invalid specialization argument index `{idx + 1}`: \
+            The argument at this index (`{argNames[idx]}`) has already been specified as a specialization candidate"
           result := result.push idx
       else
         let argName := arg.getId
         if let some idx := argNames.idxOf? argName then
-          if result.contains idx then throwErrorAt arg "invalid specialization argument name `{argName}`, it has already been specified as a specialization candidate"
+          if result.contains idx then throwErrorAt arg "Invalid specialization argument name `{argName}`: \
+            It has already been specified as a specialization candidate"
           result := result.push idx
         else
-          throwErrorAt arg "invalid specialization argument name `{argName}`, `{declName}` does have an argument with this name"
+          throwErrorAt arg "Invalid specialization argument name `{argName}`: `{.ofConstName declName}` does not have an argument with this name"
     return result.qsort (·<·)
 
 /--

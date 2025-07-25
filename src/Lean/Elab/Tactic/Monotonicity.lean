@@ -44,7 +44,7 @@ builtin_initialize registerBuiltinAttribute {
     let declTy := (← getConstInfo decl).type
     let (xs, _, targetTy) ← withReducible <| forallMetaTelescopeReducing declTy
     let_expr monotone α inst_α β inst_β f := targetTy |
-      throwError "@[partial_fixpoint_monotone] attribute only applies to lemmas proving {.ofConstName ``monotone}"
+      throwError "`[partial_fixpoint_monotone]` attribute only applies to lemmas proving {.ofConstName ``monotone}"
     let f := f.headBeta
     let f ← if f.isLambda then pure f else etaExpand f
     let f := headBetaUnderLambda f

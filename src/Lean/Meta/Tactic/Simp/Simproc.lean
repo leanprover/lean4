@@ -145,7 +145,7 @@ def eraseSimprocAttr (ext : SimprocExtension) (declName : Name) : AttrM Unit := 
 def addSimprocAttrCore (ext : SimprocExtension) (declName : Name) (kind : AttributeKind) (post : Bool) : CoreM Unit := do
   let proc ← getSimprocFromDecl declName
   let some keys ← getSimprocDeclKeys? declName |
-    throwError "Invalid [simproc] attribute: `{declName}` is not a simproc"
+    throwError "Invalid `[simproc]` attribute: `{declName}` is not a simproc"
   ext.add { declName, post, keys, proc } kind
 
 def Simprocs.addCore (s : Simprocs) (keys : Array SimpTheoremKey) (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : Simprocs :=
@@ -160,7 +160,7 @@ Implements attributes `builtin_simproc` and `builtin_sevalproc`.
 -/
 def addSimprocBuiltinAttrCore (ref : IO.Ref Simprocs) (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit := do
   let some keys := (← builtinSimprocDeclsRef.get).keys[declName]? |
-    throw (IO.userError s!"Invalid [builtin_simproc] attribute: `{declName}` is not a builtin simproc")
+    throw (IO.userError s!"Invalid `[builtin_simproc]` attribute: `{declName}` is not a builtin simproc")
   ref.modify fun s => s.addCore keys declName post proc
 
 def addSimprocBuiltinAttr (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit :=
@@ -176,12 +176,12 @@ def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs
     catch e =>
       if (← isBuiltinSimproc declName) then
         let some proc := (← builtinSimprocDeclsRef.get).procs[declName]?
-          | throwError "Invalid [simproc] attribute: `{declName}` is not a simproc"
+          | throwError "Invalid `[simproc]` attribute: `{declName}` is not a simproc"
         pure proc
       else
         throw e
   let some keys ← getSimprocDeclKeys? declName |
-    throwError "Invalid [simproc] attribute: `{declName}` is not a simproc"
+    throwError "Invalid `[simproc]` attribute: `{declName}` is not a simproc"
   return s.addCore keys declName post proc
 
 def SimprocEntry.try (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM Step := do

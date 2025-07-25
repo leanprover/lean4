@@ -58,7 +58,7 @@ with
 builtin_initialize computedFieldAttr : TagAttribute ←
   registerTagAttribute `computed_field "Marks a function as a computed field of an inductive" fun _ => do
     unless (← getOptions).getBool `elaboratingComputedFields do
-      throwError "The @[computed_field] attribute can only be used in the with-block of an inductive"
+      throwError "The `[computed_field]` attribute can only be used in the with-block of an inductive"
 
 def mkUnsafeCastTo (expectedType : Expr) (e : Expr) : MetaM Expr :=
   mkAppOptM ``unsafeCast #[none, expectedType, e]

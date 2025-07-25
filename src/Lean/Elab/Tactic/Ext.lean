@@ -190,12 +190,12 @@ builtin_initialize registerBuiltinAttribute {
     if isStructure (← getEnv) declName then
       declName ← liftCommandElabM <| withRef stx <| realizeExtTheorem declName flat
     else if let some stx := flatFalse? then
-      throwErrorAt stx "unexpected 'flat' configuration on @[ext] theorem"
+      throwErrorAt stx "Unexpected `flat` configuration on `[ext]` theorem"
     -- Validate and add theorem to environment extension
     let declTy := (← getConstInfo declName).type
     let (_, _, declTy) ← withDefault <| forallMetaTelescopeReducing declTy
     let failNotEq := throwError "\
-      @[ext] attribute only applies to structures and to theorems proving 'x = y' where 'x' and 'y' are variables, \
+      `[ext]` attribute only applies to structures and to theorems proving `x = y` where `x` and `y` are variables, \
       but this theorem proves{indentD declTy}"
     let some (ty, lhs, rhs) := declTy.eq? | failNotEq
     unless lhs.isMVar && rhs.isMVar do failNotEq

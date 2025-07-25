@@ -95,7 +95,7 @@ def Positions.mapMwith {α β m} [Monad m] [Inhabited β] (f : α → Array β �
     (positions : Positions) (ys : Array α) (xs : Array β) : m (Array γ) := do
   assert! positions.size = ys.size
   assert! positions.numIndices = xs.size
-  (Array.zip ys positions).mapM fun ⟨y, poss⟩ => f y (poss.map (xs[·]!))
+  ys.zipWithM (bs := positions) fun y poss => f y (poss.map (xs[·]!))
 
 end Lean.Elab.Structural
 

@@ -1956,16 +1956,16 @@ def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
     false
 
 @[semireducible, specialize] -- This is otherwise irreducible because it uses well-founded recursion.
-def zipWithAux (as : Array α) (bs : Array β) (f : α → β → γ) (i : Nat) (cs : Array γ) : Array γ :=
+def zipWithMAux {m : Type v → Type w} [Monad m] (as : Array α) (bs : Array β) (f : α → β → m γ) (i : Nat) (cs : Array γ) : m (Array γ) := do
   if h : i < as.size then
     let a := as[i]
     if h : i < bs.size then
       let b := bs[i]
-      zipWithAux as bs f (i+1) <| cs.push <| f a b
+      zipWithMAux as bs f (i+1) <| cs.push (← f a b)
     else
-      cs
+      return cs
   else
-    cs
+    return cs
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 /--
@@ -1979,7 +1979,7 @@ Examples:
 * `#[x₁, x₂, x₃].zipWith f #[y₁, y₂, y₃, y₄] = #[f x₁ y₁, f x₂ y₂, f x₃ y₃]`
 -/
 @[inline] def zipWith (f : α → β → γ) (as : Array α) (bs : Array β) : Array γ :=
-  zipWithAux as bs f 0 #[]
+  Id.run (zipWithMAux as bs (pure <| f · ·) 0 #[])
 
 /--
 Combines two arrays into an array of pairs in which the first and second components are the
@@ -2015,6 +2015,13 @@ where go (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) :=
     cs
   termination_by max as.size bs.size - i
   decreasing_by simp_wf; decreasing_trivial_pre_omega
+
+/--
+Applies a monadic function to the corresponding elements of two arrays, left-to-right, stopping at
+the end of the shorter array. `zipWithM f as bs` is equivalent to `mapM id (zipWith f as bs)`.
+-/
+@[inline] def zipWithM {m : Type v → Type w} [Monad m] (f : α → β → m γ) (as : Array α) (bs : Array β) : m (Array γ) :=
+  zipWithMAux as bs f 0 #[]
 
 /--
 Separates an array of pairs into two arrays that contain the respective first and second components.

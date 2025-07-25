@@ -149,8 +149,8 @@ def refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
     let auxType ← inferType aux
     forallTelescope auxType fun altAuxs _ => do
       let altAuxTys ← altAuxs.mapM (inferType ·)
-      (Array.zip matcherApp.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
-        forallBoundedTelescope altAuxTy altNumParams fun fvs body => do
+      matcherApp.altNumParams.zipWithM (bs := altAuxTys) fun altNumParams altAuxTy => do
+        forallBoundedTelescope altAuxTy (some altNumParams) fun fvs body => do
           unless fvs.size = altNumParams do
             throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
           -- extract type from our synthetic equality

@@ -398,39 +398,40 @@ theorem isPrefixOfAux_toArray_zero [BEq α] (l₁ l₂ : List α) (hle : l₁.le
         rw [ih]
         simp_all
 
-theorem zipWithAux_toArray_succ (as : List α) (bs : List β) (f : α → β → γ) (i : Nat) (xs : Array γ) :
-    zipWithAux as.toArray bs.toArray f (i + 1) xs = zipWithAux as.tail.toArray bs.tail.toArray f i xs := by
-  rw [zipWithAux]
-  conv => rhs; rw [zipWithAux]
+theorem zipWithMAux_toArray_succ {m : Type u → Type v} [Monad m] (as : List α) (bs : List β) (f : α → β → m γ) (i : Nat) (xs : Array γ) :
+    zipWithMAux as.toArray bs.toArray f (i + 1) xs = zipWithMAux as.tail.toArray bs.tail.toArray f i xs := by
+  rw [zipWithMAux]
+  conv => rhs; rw [zipWithMAux]
   simp only [size_toArray, getElem_toArray, length_tail, getElem_tail]
   split <;> rename_i h₁
   · split <;> rename_i h₂
-    · rw [dif_pos (by omega), dif_pos (by omega), zipWithAux_toArray_succ]
+    · rw [dif_pos (by omega), dif_pos (by omega)]
+      simp only [zipWithMAux_toArray_succ as bs f (i+1)]
     · rw [dif_pos (by omega)]
       rw [dif_neg (by omega)]
   · rw [dif_neg (by omega)]
 
-theorem zipWithAux_toArray_succ' (as : List α) (bs : List β) (f : α → β → γ) (i : Nat) (xs : Array γ) :
-    zipWithAux as.toArray bs.toArray f (i + 1) xs = zipWithAux (as.drop (i+1)).toArray (bs.drop (i+1)).toArray f 0 xs := by
+theorem zipWithMAux_toArray_succ' {m : Type u → Type v} [Monad m] (as : List α) (bs : List β) (f : α → β → m γ) (i : Nat) (xs : Array γ) :
+    zipWithMAux as.toArray bs.toArray f (i + 1) xs = zipWithMAux (as.drop (i+1)).toArray (bs.drop (i+1)).toArray f 0 xs := by
   induction i generalizing as bs xs with
-  | zero => simp [zipWithAux_toArray_succ]
+  | zero => simp [zipWithMAux_toArray_succ]
   | succ i ih =>
-    rw [zipWithAux_toArray_succ, ih]
+    rw [zipWithMAux_toArray_succ, ih]
     simp
 
-theorem zipWithAux_toArray_zero (f : α → β → γ) (as : List α) (bs : List β) (xs : Array γ) :
-    zipWithAux as.toArray bs.toArray f 0 xs = xs ++ (List.zipWith f as bs).toArray := by
-  rw [Array.zipWithAux]
+theorem zipWithMAux_toArray_zero {m : Type u → Type v} [Monad m] [LawfulMonad m] (f : α → β → m γ) (as : List α) (bs : List β) (xs : Array γ) :
+    zipWithMAux as.toArray bs.toArray f 0 xs = do return xs ++ (← List.zipWithM f as bs).toArray := by
+  rw [Array.zipWithMAux]
   match as, bs with
   | [], _ => simp
   | _, [] => simp
   | a :: as, b :: bs =>
-    simp [zipWith_cons_cons, zipWithAux_toArray_succ', zipWithAux_toArray_zero, push_append_toArray]
+    simp [zipWithMAux_toArray_succ', zipWithMAux_toArray_zero, push_append_toArray]
 
 @[simp, grind =] theorem zipWith_toArray (as : List α) (bs : List β) (f : α → β → γ) :
     Array.zipWith f as.toArray bs.toArray = (List.zipWith f as bs).toArray := by
   rw [Array.zipWith]
-  simp [zipWithAux_toArray_zero]
+  simp [zipWithMAux_toArray_zero, ← zipWithM'_eq_zipWithM]
 
 @[simp, grind =] theorem zip_toArray (as : List α) (bs : List β) :
     Array.zip as.toArray bs.toArray = (List.zip as bs).toArray := by
@@ -473,6 +474,11 @@ theorem zipWithAll_go_toArray (as : List α) (bs : List β) (f : Option α → O
 @[simp, grind =] theorem zipWithAll_toArray (f : Option α → Option β → γ) (as : List α) (bs : List β) :
     Array.zipWithAll f as.toArray bs.toArray = (List.zipWithAll f as bs).toArray := by
   simp [Array.zipWithAll, zipWithAll_go_toArray]
+
+@[simp, grind =] theorem zipWithM_toArray {m : Type u → Type v} [Monad m] [LawfulMonad m] (f : α → β → m γ) (as : List α) (bs : List β) :
+    Array.zipWithM f as.toArray bs.toArray = do return (← List.zipWithM f as bs).toArray := by
+  rw [Array.zipWithM]
+  simp [zipWithMAux_toArray_zero]
 
 @[simp, grind =] theorem toArray_appendList (l₁ l₂ : List α) :
     l₁.toArray ++ l₂ = (l₁ ++ l₂).toArray := by

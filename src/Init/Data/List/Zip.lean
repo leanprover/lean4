@@ -127,7 +127,7 @@ theorem zipWith_foldl_eq_zip_foldl {f : α → β → γ} {i : δ} {g : δ → �
 theorem zipWith_eq_nil_iff {f : α → β → γ} {l l'} : zipWith f l l' = [] ↔ l = [] ∨ l' = [] := by
   cases l <;> cases l' <;> simp
 
-@[grind =]
+@[simp, grind =]
 theorem map_zipWith {δ : Type _} {f : α → β} {g : γ → δ → α} {l : List γ} {l' : List δ} :
     map f (zipWith g l l') = zipWith (fun x y => f (g x y)) l l' := by
   induction l generalizing l' with

@@ -184,7 +184,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
              this may generate weird error messages, when it doesn't work. -/
           trace[Elab.definition.structural] "below before matcherApp.addArg: {below} : {← inferType below}"
           if let some matcherApp ← matcherApp.addArg? below then
-            let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
+            let altsNew ← matcherApp.alts.zipWithM (bs := matcherApp.altNumParams) fun alt numParams =>
               lambdaBoundedTelescope alt numParams fun xs altBody => do
                 trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"
                 unless xs.size = numParams do

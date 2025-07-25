@@ -168,7 +168,7 @@ where
     let args' ← args.mapM (withNestedParser ∘ process)
     -- wrap lone string literals in `<|>` in dedicated node (#1275)
     let args' ← if aliasName == `orelse then  -- TODO: generalize if necessary
-      args.zip args' |>.mapM fun (arg, arg') => do
+      args.zipWithM (bs := args') fun arg arg' => do
         let mut #[arg] := arg.getArgs | return arg'
         let sym ← match arg with
           | `(stx| &$sym) => pure sym

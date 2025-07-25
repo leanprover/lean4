@@ -96,12 +96,12 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms
   trace[Elab.definition.structural] "assignments of type formers of {indInfo.name} to functions: {positions}"
 
   -- Construct the common `.brecOn` arguments
-  let motives ← (Array.zip recArgInfos values).mapM fun (r, v) => mkBRecOnMotive r v
+  let motives ← recArgInfos.zipWithM (bs := values) fun r v => mkBRecOnMotive r v
   trace[Elab.definition.structural] "motives: {motives}"
   let brecOnConst ← mkBRecOnConst recArgInfos positions motives
   let FTypes ← inferBRecOnFTypes recArgInfos positions brecOnConst
   trace[Elab.definition.structural] "FTypes: {FTypes}"
-  let FArgs ← (recArgInfos.zip (values.zip FTypes)).mapM fun (r, (v, t)) =>
+  let FArgs ← recArgInfos.zipWithM (bs := values.zip FTypes) fun r (v, t) =>
     mkBRecOnF recArgInfos positions r v t
   trace[Elab.definition.structural] "FArgs: {FArgs}"
   -- Assemble the individual `.brecOn` applications

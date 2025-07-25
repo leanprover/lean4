@@ -179,7 +179,6 @@ def preprocess (e : Expr) : MetaM Simp.Result := do
   -- Transform `let`s to `have`s to enable `simp` entering let bodies.
   let e ← letToHave e
   lambdaTelescope e fun xs _ => do
-
     -- Annotate all xs with `wfParam`
     let xs' ← xs.mapM mkWfParam
     let e' := e.beta xs'

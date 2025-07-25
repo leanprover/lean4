@@ -103,9 +103,9 @@ private def mkOrderedRingInst? (u : Level) (type : Expr) (semiringInst? preorder
   return some inst
 
 private def mkNoNatZeroDivInst? (u : Level) (type : Expr) : GoalM (Option Expr) := do
-  let hmulNat := mkApp3 (mkConst ``HMul [0, u, u]) Nat.mkType type type
-  let some hmulInst ← synthInstance? hmulNat | return none
-  synthInstance? <| mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type hmulInst
+  let natModuleType := mkApp (mkConst ``Grind.NatModule [u]) type
+  let some natModuleInst ← synthInstance? natModuleType | return none
+  synthInstance? <| mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type natModuleInst
 
 def getStructId? (type : Expr) : GoalM (Option Nat) := do
   unless (← getConfig).linarith do return none

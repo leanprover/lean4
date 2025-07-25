@@ -245,7 +245,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
         withRestoreOrSaveFull reusableResult? none do
         withReuseContext view.headerRef do
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
-        Term.withDeclNameAndModifiers declName view.modifiers <| withAutoBoundImplicit <| withLevelNames levelNames <|
+        Term.withModifiers view.modifiers <| Term.withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
           elabBindersEx view.binders.getArgs fun xs => do
             let refForElabFunType := view.value
             let mut type ← match view.type? with
@@ -313,6 +313,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
           tacSnap? := guard newTacTask?.isSome *> some { old? := oldTacSnap?, new := tacPromise }
           bodySnap? := some { old? := oldBodySnap?, new := bodyPromise }
         }
+
 
       headers := headers.push newHeader
     return headers
@@ -525,7 +526,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (views : Array Def
       -- Use original view modifiers to preserve deprecated attribute for theorems (issue #8942)
       let originalView := views[i]!
       let modifiersToUse := if header.kind.isTheorem then originalView.modifiers else header.modifiers
-      Term.withDeclNameAndModifiers header.declName modifiersToUse <| withLevelNames header.levelNames do
+      Term.withModifiers modifiersToUse <| Term.withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← declValToTerm header.value header.type
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
       forallBoundedTelescope header.type header.numParams fun xs type => do

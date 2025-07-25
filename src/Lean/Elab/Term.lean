@@ -19,10 +19,10 @@ import Lean.Elab.WhereFinally
 import Lean.Language.Basic
 import Lean.Elab.InfoTree.InlayHints
 
-/-- Internal option to track when we're elaborating inside a deprecated declaration (issue #8942) -/
-register_builtin_option _elaboratingDeprecatedDecl : Bool := {
+/-- Internal option to suppress deprecation warnings when elaborating inside a deprecated declaration (issue #8942) -/
+register_builtin_option diagnostics.suppressDeprecationWarnings : Bool := {
   defValue := false
-  descr := "(internal) set to true when elaborating inside a deprecated declaration"
+  descr := "(internal) suppress deprecation warnings when elaborating inside a deprecated declaration"
 }
 
 namespace Lean.Elab
@@ -37,7 +37,6 @@ structure SavedContext where
   macroStack : MacroStack
   errToSorry : Bool
   levelNames : List Name
-  isDeclDeprecated : Bool
 
 /-- The kind of a tactic metavariable, used for additional error reporting. -/
 inductive TacticMVarKind
@@ -273,8 +272,6 @@ namespace Term
 structure Context where
   declName? : Option Name := none
   macroStack        : MacroStack      := []
-  /-- Whether the current declaration being elaborated is deprecated (issue #8942) -/
-  isDeclDeprecated : Bool := false
   /--
      When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
      The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
@@ -653,17 +650,21 @@ def hasDeprecatedAttr (modifiers : Modifiers) : Bool :=
   modifiers.attrs.any fun attr => attr.name == `deprecated
 
 /--
-Executes `x` with the deprecation status of the current declaration set.
+Executes `x` with deprecation status set based on modifiers.
 -/
-def withDeclDeprecated (isDeprecated : Bool) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with isDeclDeprecated := isDeprecated }) x
+def withModifiers (modifiers : Modifiers) (x : TermElabM α) : TermElabM α := do
+  let isDeprecated := hasDeprecatedAttr modifiers
+  let alreadySuppressed := diagnostics.suppressDeprecationWarnings.get (← getOptions)
+  if isDeprecated || alreadySuppressed then
+    withOptions (fun opts => opts.setBool `diagnostics.suppressDeprecationWarnings true) x
+  else
+    x
 
 /--
 Executes `x` in the context of the given declaration name with deprecation status set based on modifiers.
 -/
-def withDeclNameAndModifiers (name : Name) (modifiers : Modifiers) (x : TermElabM α) : TermElabM α :=
-  let isDeprecated := hasDeprecatedAttr modifiers
-  withDeclName name <| withDeclDeprecated isDeprecated x
+def withDeclNameAndModifiers (name : Name) (modifiers : Modifiers) (x : TermElabM α) : TermElabM α := do
+  withModifiers modifiers <| withDeclName name x
 
 /-- Update the universe level parameter names. -/
 def setLevelNames (levelNames : List Name) : TermElabM Unit :=
@@ -1274,14 +1275,13 @@ def saveContext : TermElabM SavedContext :=
     openDecls  := (← getOpenDecls)
     errToSorry := (← read).errToSorry
     levelNames := (← get).levelNames
-    isDeclDeprecated := (← read).isDeclDeprecated
   }
 
 /--
   Execute `x` with the context saved using `saveContext`.
 -/
 def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α := do
-  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry, isDeclDeprecated := savedCtx.isDeclDeprecated }) <|
+  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry }) <|
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x
 
@@ -1961,13 +1961,10 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
 private def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
   if (← read).checkDeprecated then
     -- Suppress deprecation warnings when inside a deprecated declaration (issue #8942)
-    if (← read).isDeclDeprecated then
+    let suppressWarnings := diagnostics.suppressDeprecationWarnings.get (← getOptions)
+
+    if suppressWarnings then
       return
-    -- Additional check: if we're elaborating a deprecated declaration, suppress warnings (issue #8942)
-    -- This handles cases where the deprecation context is lost during elaboration
-    if let some currentDeclName := (← read).declName? then
-      if Linter.isDeprecated (← getEnv) currentDeclName then
-        return
     Linter.checkDeprecated constName
 
 /--

@@ -679,9 +679,9 @@ example {x : BitVec 8} (h : x = 0#8) : x.ctz = x.clz := by bv_decide
 example {x : BitVec 8} (h : ¬ x = 0#8) : (x <<< 1).ctz = x.ctz + 1 := by bv_decide
 example {x : BitVec 8} : x.ctz ≤ 8 := by bv_decide
 -- POPCOUNT
-example : (0#8).popCount = 0 := by bv_decide
-example : (BitVec.allOnes 8).popCount = 8 := by bv_decide
-example : (5#4).popCount = 2 := by bv_decide
+example {x : BitVec 8} (h : x = 0#8) : x.popCount = 0 := by bv_decide
+example {x : BitVec 8} : (x >>> 1).popCount ≤ x.popCount := by bv_decide
+example {x : BitVec 8} : x.popCount ≤ 8 := by bv_decide
 
 section
 

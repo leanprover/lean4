@@ -660,12 +660,6 @@ def withModifiers (modifiers : Modifiers) (x : TermElabM α) : TermElabM α := d
   else
     x
 
-/--
-Executes `x` in the context of the given declaration name with deprecation status set based on modifiers.
--/
-def withDeclNameAndModifiers (name : Name) (modifiers : Modifiers) (x : TermElabM α) : TermElabM α := do
-  withModifiers modifiers <| withDeclName name x
-
 /-- Update the universe level parameter names. -/
 def setLevelNames (levelNames : List Name) : TermElabM Unit :=
   modify fun s => { s with levelNames := levelNames }

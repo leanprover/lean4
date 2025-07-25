@@ -1,4 +1,4 @@
-struct1.lean:9:14-9:17: error: invalid resulting type, expecting 'Type _' or 'Prop'
+struct1.lean:9:14-9:17: error: Invalid resulting type: Expected `Type _` or `Prop`
 struct1.lean:12:20-12:29: error: expected structure
 
 Hint: This error is possibly due to a change in the `structure` syntax. Now the syntax is `structure S : Type extends P` rather than `structure S extends P : Type`.

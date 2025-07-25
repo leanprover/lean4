@@ -5,7 +5,7 @@
 set_option linter.deprecated true
 
 /--
-warning: 'inductive ... :=' has been deprecated in favor of 'inductive ... where'.
+warning: `inductive ... :=` has been deprecated in favor of `inductive ... where`
 
 Note: This linter can be disabled with `set_option linter.deprecated false`
 -/

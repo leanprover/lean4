@@ -118,12 +118,9 @@ def ExternEntry.backend : ExternEntry → Name
   | ExternEntry.standard n _ => n
   | ExternEntry.opaque ..    => `all
 
-def getExternEntryForAux (backend : Name) : List ExternEntry → Option ExternEntry
-  | []    => none
-  | e::es =>
-    if e.backend == `all then some e
-    else if e.backend == backend then some e
-    else getExternEntryForAux backend es
+def getExternEntryForAux (backend : Name) (entries : List ExternEntry) : Option ExternEntry :=
+  entries.find? fun e =>
+    e.backend == `all || e.backend == backend
 
 def getExternEntryFor (d : ExternAttrData) (backend : Name) : Option ExternEntry :=
   getExternEntryForAux backend d.entries

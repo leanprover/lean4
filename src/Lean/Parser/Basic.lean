@@ -223,6 +223,7 @@ inductive OrElseOnAntiquotBehavior where
 def orelseFnCore (p q : ParserFn) (antiquotBehavior := OrElseOnAntiquotBehavior.merge) : ParserFn := fun c s => Id.run do
   let iniSz  := s.stackSize
   let iniPos := s.pos
+  let iniRecErrSize := s.recoveredErrors.size
   let mut s  := p c s
   match s.errorMsg with
   | some errorMsg =>
@@ -235,10 +236,17 @@ def orelseFnCore (p q : ParserFn) (antiquotBehavior := OrElseOnAntiquotBehavior.
     if antiquotBehavior == .acceptLhs || s.stackSize != iniSz + 1 || !pBack.isAntiquots then
       return s
     let pPos := s.pos
+    let iniRecErrSize' := s.recoveredErrors.size
+    let pRecovered := iniRecErrSize' > iniRecErrSize
     s := s.restore iniSz iniPos
     s := q c s
-    if s.hasError then
-      return s.restore iniSz pPos |>.pushSyntax pBack
+    let qRecovered := s.recoveredErrors.size > iniRecErrSize'
+    -- If `q` failed or recovered, we prefer `p`.
+    if s.hasError || qRecovered then
+      return s |>.restore iniSz pPos |>.restoreRecoveredErrors iniRecErrSize' |>.pushSyntax pBack
+    -- If `p` recovered, then use `q`, which we know is error- and recovery-free
+    if pRecovered then
+      return s |>.restoreRecoveredErrors iniRecErrSize
     -- If `q` made more progress than `p`, we prefer its result.
     -- Thus `(structInstField| $id := $val) is interpreted as
     -- `(structInstField| $id:ident := $val:term), not
@@ -1510,26 +1518,6 @@ interpret `exact` as an identifier and try to revert a variable named `exact`.
 This parser has arity 0 - it does not capture anything. -/
 @[builtin_doc] def checkColGt (errorMsg : String := "checkColGt") : Parser where
   fn := checkColGtFn errorMsg
-
-def withCheckColGtFn (f : ParserFn) (onFail : ParserFn) (errorMsg : String := "checkColGt") : ParserFn := fun c s =>
-  let iniSz  := s.stackSize
-  let iniPos := s.pos
-  let s := checkColGtFn errorMsg c s
-  if let some msg := s.errorMsg then
-    let err := (s.pos, s.stxStack, msg)
-    let s := { s.restore iniSz iniPos with
-      recoveredErrors := s.recoveredErrors.push err }
-    onFail c s
-  else
-    f c s
-
-/--
-The `withCheckColGt` parser combinator ensures that `checkColGt` succeeds before running `f`.
-If `checkColGt` fails, then the error is added to `recoverErrors` and `onFail` is called on the restored state.
--/
-@[builtin_doc] def withCheckColGt (p : Parser) (onFail : ParserFn) (errorMsg : String := "checkColGt") : Parser :=
-  { info := p.info
-    fn := withCheckColGtFn p.fn onFail errorMsg }
 
 def checkLineEqFn (errorMsg : String) : ParserFn := fun c s =>
   match c.savedPos? with

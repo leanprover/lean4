@@ -530,7 +530,6 @@ def sepByNoAntiquot.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
 @[combinator_parenthesizer checkColEq, expose] def checkColEq.parenthesizer : Parenthesizer := pure ()
 @[combinator_parenthesizer checkColGe, expose] def checkColGe.parenthesizer : Parenthesizer := pure ()
 @[combinator_parenthesizer checkColGt, expose] def checkColGt.parenthesizer : Parenthesizer := pure ()
-@[combinator_parenthesizer withCheckColGt, expose] def withCheckColGt.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 @[combinator_parenthesizer checkLineEq, expose] def checkLineEq.parenthesizer : Parenthesizer := pure ()
 @[combinator_parenthesizer eoi, expose] def eoi.parenthesizer : Parenthesizer := pure ()
 @[combinator_parenthesizer checkNoImmediateColon, expose] def checkNoImmediateColon.parenthesizer : Parenthesizer := pure ()

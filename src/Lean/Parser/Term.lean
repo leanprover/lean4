@@ -83,16 +83,45 @@ It runs the tactics in sequence, and fails if the goal is not solved. -/
 @[builtin_doc] def tacticSeqBracketed : Parser := leading_parser
   "{ " >> sepByIndentSemicolon tacticParser >> ppDedent ppLine >> "}"
 
+def recoverEmptyTacticSeqFn (f : ParserFn) : ParserFn := fun c s =>
+  let iniSz := s.stackSize
+  let iniPos := s.pos
+  let s := f c s
+  if let some err := s.errorMsg then
+    if s.pos > iniPos then
+      -- Commit to error
+      s
+    else
+      -- Recover the error and push an empty tactic sequence
+      let s := { s with recoveredErrors := s.recoveredErrors.push (s.pos, s.stxStack, err) }
+      let s := s.restore iniSz iniPos
+      s |>.pushSyntax (mkNode ``tacticSeq1Indented #[mkNullNode])
+  else
+    s
+
+/--
+Runs `p`, and if it fails without consuming any input,
+recovers the error and pushes an empty `tacticSeq1Indented`.
+-/
+def recoverEmptyTacticSeq (p : Parser) : Parser :=
+  { info := p.info, fn := recoverEmptyTacticSeqFn p.fn }
+
+@[combinator_formatter recoverEmptyTacticSeq]
+def recoverEmptyTacticSeq.formatter (fmt : PrettyPrinter.Formatter) := fmt
+
+@[combinator_parenthesizer recoverEmptyTacticSeq]
+def recoverEmptyTacticSeq.parenthesizer (p : PrettyPrinter.Parenthesizer) : PrettyPrinter.Parenthesizer := p
+
 /-- A sequence of tactics in brackets, or a delimiter-free indented sequence of tactics.
 Delimiter-free indentation is determined by the *first* tactic of the sequence. -/
 @[run_builtin_parser_attribute_hooks, builtin_doc] def tacticSeq := leading_parser
-  tacticSeqBracketed <|> tacticSeq1Indented
+  recoverEmptyTacticSeq (tacticSeqBracketed <|> tacticSeq1Indented)
 
 /-- Same as [`tacticSeq`] but requires delimiter-free tactic sequence to have strict indentation.
 The strict indentation requirement only apply to *nested* `by`s, as top-level `by`s do not have a
 position set. -/
 @[run_builtin_parser_attribute_hooks, builtin_doc] def tacticSeqIndentGt := withAntiquot (mkAntiquot "tacticSeq" ``tacticSeq) <| node ``tacticSeq <|
-  tacticSeqBracketed <|> withCheckColGt (errorMsg := "indented tactic sequence") tacticSeq1Indented (fun _ s => s.pushSyntax mkNullNode)
+  recoverEmptyTacticSeq (tacticSeqBracketed <|> (checkColGt "indented tactic sequence" >> tacticSeq1Indented))
 
 /- Raw sequence for quotation and grouping -/
 def seq1 :=

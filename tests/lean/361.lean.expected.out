@@ -4,7 +4,7 @@ p q r : Prop
 h1 : p ∨ q
 h2 : p → q
 ⊢ q
-361.lean:6:0: error: expected indented tactic sequence
+361.lean:6:0: error: unexpected end of input; expected '{' or indented tactic sequence
 361.lean:5:11-5:13: error: unsolved goals
 p q r : Prop
 h2 : p → q

@@ -1,10 +1,11 @@
 theorem byTopLevelNoIndent : ∀ (n : Nat), n > 1 → n > 1 :=
 fun n h => h
-byStrictIndent.lean:12:2: error: expected indented tactic sequence
+byStrictIndent.lean:12:2: error: expected '{' or indented tactic sequence
 byStrictIndent.lean:11:25-11:27: error: unsolved goals
 n : Nat
 h : n > 0
 ⊢ n > 1
+byStrictIndent.lean:13:2-13:7: error: no goals to be solved
 byStrictIndent.lean:16:54-18:9: error: unsolved goals
 n : Nat
 h : n > 0

@@ -98,6 +98,14 @@ def getAsyncConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) (
   | some val => pure val
   | none     => throwUnknownConstant constName
 
+def isInductive? [Monad m] [MonadEnv m] (declName : Name) : m (Option InductiveVal) := do
+  match (← getEnv).findAsync? declName with
+  | some info@{ kind := .induct, .. } =>
+    match info.toConstantInfo with
+    | .inductInfo val => pure (some val)
+    | _ => unreachable!
+  | _ => pure none
+
 def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
   let info ← getConstVal constName
   return mkConst constName (info.levelParams.map mkLevelParam)

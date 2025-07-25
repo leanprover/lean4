@@ -34,7 +34,7 @@ where
   go (thmName : TSyntax `ident) (terms : Syntax.TSepArray `term ",") (kind : AttributeKind) : CommandElabM Unit := liftTermElabM do
     let declName ← resolveGlobalConstNoOverload thmName
     discard <| addTermInfo thmName (← mkConstWithLevelParams declName)
-    let info ← getConstInfo declName
+    let info ← getConstVal declName
     forallTelescope info.type fun xs _ => do
       let patterns ← terms.getElems.mapM fun term => do
         let pattern ← Term.elabTerm term none
@@ -121,16 +121,16 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
   return params
 where
   addEMatchTheorem (params : Grind.Params) (declName : Name) (kind : Grind.EMatchTheoremKind) : MetaM Grind.Params := do
-    let info ← getConstInfo declName
-    match info with
-    | .thmInfo _ | .axiomInfo _ | .ctorInfo _ =>
+    let info ← getAsyncConstInfo declName
+    match info.kind with
+    | .thm | .axiom | .ctor =>
       match kind with
       | .eqBoth gen =>
         let params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen) params.symPrios) }
         return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqRhs gen) params.symPrios) }
       | _ =>
         return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName kind params.symPrios) }
-    | .defnInfo _ =>
+    | .defn =>
       if (← isReducible declName) then
         throwError "`{declName}` is a reducible definition, `grind` automatically unfolds them"
       if !kind.isEqLhs && !kind.isDefault then

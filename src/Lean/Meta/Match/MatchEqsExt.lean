@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Basic
+import Lean.Meta.Eqns
 
 public section
 
@@ -49,6 +50,10 @@ opaque getEquationsFor (matchDeclName : Name) : MetaM MatchEqns
 Returns `true` if `declName` is the name of a `match` equational theorem.
 -/
 def isMatchEqnTheorem (env : Environment) (declName : Name) : Bool := Id.run do
-  matchEqnsExt.findStateAsync env declName |>.eqns.contains declName
+  -- avoid blocking on async decls whose names look nothing like matchers
+  let .str _ s := declName.eraseMacroScopes | return false
+  if !isEqnLikeSuffix s then
+    return false
+  (matchEqnsExt.findStateAsync env declName).eqns.contains declName
 
 end Lean.Meta.Match

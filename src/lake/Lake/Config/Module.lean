@@ -22,8 +22,8 @@ structure Module where
   -/
   keyName : Name := name
 
-instance : ToText Module := ⟨(·.name.toString)⟩
 instance : ToJson Module := ⟨(toJson ·.name)⟩
+instance : ToString Module := ⟨(·.name.toString)⟩
 
 instance : Hashable Module where hash m := hash m.keyName
 instance : BEq Module where beq m n := m.keyName == n.keyName

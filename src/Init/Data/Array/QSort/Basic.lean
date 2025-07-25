@@ -17,6 +17,8 @@ set_option linter.listVariables true -- Enforce naming conventions for `List`/`A
 
 namespace Array
 
+-- cf https://en.wikipedia.org/wiki/Quicksort#Repeated_elements
+
 /--
 Internal implementation of `Array.qsort`.
 

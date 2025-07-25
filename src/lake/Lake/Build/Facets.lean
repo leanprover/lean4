@@ -67,13 +67,12 @@ structure ModuleImportInfo where
   trace : BuildTrace
   /-- Transitive import trace for an `import` of the module with the module system enabled. -/
   transTrace : BuildTrace
-  /-- Transitive import trace for a `meta import` of the module with the module system enabled. -/
+  /-- Transitive import trace for a `meta import` of the module. -/
   metaTransTrace : BuildTrace
-  /--
-  Transitive import trace for an `import all` of the module from a module with the module system
-  enabled or an `import` of the module from a module without it.
-  -/
+  /-- Transitive import trace for an `import all` of the module. -/
   allTransTrace : BuildTrace
+  /-- Transitive import trace for an `import` of the module without the module system enabled. -/
+  legacyTransTrace : BuildTrace
 
 /-- **For internal use only.** Information about the imports of this module. -/
 builtin_facet importInfo : Module => ModuleImportInfo
@@ -95,13 +94,12 @@ structure ModuleExportInfo where
   allArtsTrace : BuildTrace
   /-- Transitive import trace for an `import` of the module with the module system enabled. -/
   transTrace : BuildTrace
-  /-- Transitive import trace for a `meta import` of the module with the module system enabled. -/
+  /-- Transitive import trace for a `meta import` of the module. -/
   metaTransTrace : BuildTrace
-  /--
-  Transitive import trace for an `import all` of the module from a module with the module system
-  enabled or an `import` of the module from a module without it.
-  -/
+  /-- Transitive import trace for an `import all` of the module. -/
   allTransTrace : BuildTrace
+  /-- Transitive import trace for an `import` of the module without the module system enabled. -/
+  legacyTransTrace : BuildTrace
 
 /-- **For internal use only.** Information useful to importers of this module. -/
 builtin_facet exportInfo : Module => ModuleExportInfo

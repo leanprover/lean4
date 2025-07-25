@@ -1,5 +1,5 @@
 module
 
-import Test.ModuleImport
+public import Test.Generated.Module
 import all Test.Generated.Module
-public import Test.Generated.Module -- no demotion
+public import Test.Generated.Module

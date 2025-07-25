@@ -1932,7 +1932,7 @@ partial def importModulesCore
     (imports : Array Import) (globalLevel : OLeanLevel := .private) (arts : NameMap ImportArtifacts := {}) :
     ImportStateM Unit := do
   go imports (importAll := true) (isExported := globalLevel < .private) (isMeta := false)
-  if globalLevel == .private then
+  if globalLevel < .private then
     for i in imports do
       if let some mod := (← get).moduleNameMap[i.module]?.bind (·.mainModule?) then
         if !mod.isModule then

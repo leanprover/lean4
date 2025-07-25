@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.Triple.Basic
-// Imports: Std.Do.WP Std.Do.SPred
+// Imports: Std.Do.WP Std.Do.SPred.Notation
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1646,7 +1646,7 @@ return x_4;
 }
 }
 lean_object* initialize_Std_Do_WP(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Do_SPred(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Do_SPred_Notation(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Do_Triple_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1655,7 +1655,7 @@ _G_initialized = true;
 res = initialize_Std_Do_WP(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Do_SPred(builtin, lean_io_mk_world());
+res = initialize_Std_Do_SPred_Notation(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Do_triple___closed__0 = _init_l_Std_Do_triple___closed__0();

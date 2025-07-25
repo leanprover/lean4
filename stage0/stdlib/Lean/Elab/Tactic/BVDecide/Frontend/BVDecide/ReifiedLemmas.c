@@ -13,14 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondFalseLemma(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__4;
-lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__17;
@@ -30,6 +28,7 @@ lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_ofPred___redA
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__7;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondFalseLemma___redArg___closed__0;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__5;
+lean_object* l_Lean_mkApp2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__9;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__14;
@@ -39,6 +38,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTru
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___lam__0___boxed(lean_object**);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__12;
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondFalseLemma___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__8;
@@ -52,7 +52,6 @@ lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkNot___redAr
 lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___lam__0___closed__0;
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LemmaM_addLemma___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondFalseLemma___redArg___closed__1;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__13;
@@ -62,6 +61,7 @@ lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkEvalExpr(le
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondFalseLemma___redArg___lam__0___boxed(lean_object**);
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_mkBinPred___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkGate___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondFalseLemma___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -131,12 +131,12 @@ x_29 = lean_ctor_get(x_3, 0);
 lean_inc(x_29);
 lean_dec_ref(x_3);
 lean_inc(x_5);
-x_30 = l_Lean_Expr_const___override(x_4, x_5);
+x_30 = l_Lean_mkConst(x_4, x_5);
 x_31 = l_Lean_mkNatLit(x_29);
 x_32 = l_Lean_mkApp4(x_30, x_31, x_6, x_7, x_8);
 x_33 = l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___lam__0___closed__0;
 x_34 = l_Lean_Name_mkStr6(x_9, x_10, x_11, x_12, x_13, x_33);
-x_35 = l_Lean_Expr_const___override(x_34, x_5);
+x_35 = l_Lean_mkConst(x_34, x_5);
 x_36 = l_Lean_mkApp4(x_35, x_14, x_22, x_28, x_32);
 if (lean_is_scalar(x_27)) {
  x_37 = lean_alloc_ctor(0, 2, 0);
@@ -240,7 +240,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__2;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -303,7 +303,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__9;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -377,7 +377,7 @@ x_13 = l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redA
 x_14 = lean_box(0);
 x_15 = l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__3;
 lean_inc_ref(x_4);
-x_16 = l_Lean_Expr_app___override(x_15, x_4);
+x_16 = l_Lean_mkApp(x_15, x_4);
 lean_inc_ref(x_16);
 lean_inc_ref(x_4);
 x_17 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkNot___redArg(x_1, x_4, x_16, x_12);
@@ -461,7 +461,7 @@ lean_dec_ref(x_39);
 x_42 = l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__10;
 lean_inc(x_25);
 lean_inc_ref(x_16);
-x_43 = l_Lean_mkAppB(x_42, x_16, x_25);
+x_43 = l_Lean_mkApp2(x_42, x_16, x_25);
 x_44 = 3;
 lean_inc_ref(x_43);
 x_45 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkGate___redArg(x_18, x_40, x_16, x_25, x_44, x_43, x_41);
@@ -562,7 +562,7 @@ lean_dec_ref(x_70);
 x_73 = l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__10;
 lean_inc(x_25);
 lean_inc_ref(x_16);
-x_74 = l_Lean_mkAppB(x_73, x_16, x_25);
+x_74 = l_Lean_mkApp2(x_73, x_16, x_25);
 x_75 = 3;
 lean_inc_ref(x_74);
 x_76 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkGate___redArg(x_18, x_71, x_16, x_25, x_75, x_74, x_72);
@@ -754,12 +754,12 @@ x_29 = lean_ctor_get(x_3, 0);
 lean_inc(x_29);
 lean_dec_ref(x_3);
 lean_inc(x_5);
-x_30 = l_Lean_Expr_const___override(x_4, x_5);
+x_30 = l_Lean_mkConst(x_4, x_5);
 x_31 = l_Lean_mkNatLit(x_29);
 x_32 = l_Lean_mkApp4(x_30, x_31, x_6, x_7, x_8);
 x_33 = l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___lam__0___closed__0;
 x_34 = l_Lean_Name_mkStr6(x_9, x_10, x_11, x_12, x_13, x_33);
-x_35 = l_Lean_Expr_const___override(x_34, x_5);
+x_35 = l_Lean_mkConst(x_34, x_5);
 x_36 = l_Lean_mkApp4(x_35, x_14, x_22, x_28, x_32);
 if (lean_is_scalar(x_27)) {
  x_37 = lean_alloc_ctor(0, 2, 0);
@@ -933,7 +933,7 @@ x_36 = lean_box(0);
 x_37 = l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__10;
 lean_inc(x_18);
 lean_inc_ref(x_4);
-x_38 = l_Lean_mkAppB(x_37, x_4, x_18);
+x_38 = l_Lean_mkApp2(x_37, x_4, x_18);
 x_39 = 3;
 lean_inc_ref(x_38);
 lean_inc_ref(x_4);
@@ -1037,7 +1037,7 @@ x_69 = lean_box(0);
 x_70 = l_Lean_Elab_Tactic_BVDecide_Frontend_addCondLemmas_mkCondTrueLemma___redArg___closed__10;
 lean_inc(x_18);
 lean_inc_ref(x_4);
-x_71 = l_Lean_mkAppB(x_70, x_4, x_18);
+x_71 = l_Lean_mkApp2(x_70, x_4, x_18);
 x_72 = 3;
 lean_inc_ref(x_71);
 lean_inc_ref(x_4);

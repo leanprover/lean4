@@ -19,7 +19,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofPoly___closed__13;
 lean_object* l_Lean_mkNatLit(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__3;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofPoly___closed__10;
-lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__11;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_instToExprPoly___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__19;
@@ -33,11 +32,13 @@ static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__17;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofPoly___closed__2;
 lean_object* l_Lean_Level_ofNat(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__5;
+lean_object* l_Lean_mkApp2(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofPoly___closed__12;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_instToExprExpr___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofPoly___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_instToExprExpr___closed__2;
+lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofPoly___closed__8;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofPoly___closed__20;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_instToExprExpr;
@@ -56,7 +57,6 @@ static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__18;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofPoly___closed__17;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__0;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__14;
-lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofPoly___closed__5;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -67,6 +67,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__7;
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofPoly___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_ofPoly(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__6;
+lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_instToExprPoly;
 lean_object* l_Lean_instToExprInt_mkNat(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_ofPoly___closed__18;
@@ -142,7 +143,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_Arith_Linear_ofPoly___closed__5;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -173,7 +174,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_Arith_Linear_ofPoly___closed__8;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -381,7 +382,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_Arith_Linear_instToExprPoly___closed__1;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -440,7 +441,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__2;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -471,7 +472,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__5;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -494,7 +495,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__7;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -525,7 +526,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__10;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -548,7 +549,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__12;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -579,7 +580,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__15;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -610,7 +611,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__18;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }
@@ -632,7 +633,7 @@ lean_inc(x_3);
 lean_dec_ref(x_1);
 x_4 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__6;
 x_5 = l_Lean_mkNatLit(x_3);
-x_6 = l_Lean_Expr_app___override(x_4, x_5);
+x_6 = l_Lean_mkApp(x_4, x_5);
 return x_6;
 }
 case 2:
@@ -646,7 +647,7 @@ lean_dec_ref(x_1);
 x_9 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__8;
 x_10 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr(x_7);
 x_11 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr(x_8);
-x_12 = l_Lean_mkAppB(x_9, x_10, x_11);
+x_12 = l_Lean_mkApp2(x_9, x_10, x_11);
 return x_12;
 }
 case 3:
@@ -660,7 +661,7 @@ lean_dec_ref(x_1);
 x_15 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__11;
 x_16 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr(x_13);
 x_17 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr(x_14);
-x_18 = l_Lean_mkAppB(x_15, x_16, x_17);
+x_18 = l_Lean_mkApp2(x_15, x_16, x_17);
 return x_18;
 }
 case 4:
@@ -671,7 +672,7 @@ lean_inc(x_19);
 lean_dec_ref(x_1);
 x_20 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__13;
 x_21 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr(x_19);
-x_22 = l_Lean_Expr_app___override(x_20, x_21);
+x_22 = l_Lean_mkApp(x_20, x_21);
 return x_22;
 }
 case 5:
@@ -685,7 +686,7 @@ lean_dec_ref(x_1);
 x_25 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr___closed__16;
 x_26 = l_Lean_mkNatLit(x_23);
 x_27 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr(x_24);
-x_28 = l_Lean_mkAppB(x_25, x_26, x_27);
+x_28 = l_Lean_mkApp2(x_25, x_26, x_27);
 return x_28;
 }
 default: 
@@ -727,7 +728,7 @@ block_35:
 {
 lean_object* x_33; lean_object* x_34; 
 x_33 = l_Lean_Meta_Grind_Arith_Linear_ofLinExpr(x_30);
-x_34 = l_Lean_mkAppB(x_31, x_32, x_33);
+x_34 = l_Lean_mkApp2(x_31, x_32, x_33);
 return x_34;
 }
 }
@@ -760,7 +761,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_Arith_Linear_instToExprExpr___closed__1;
-x_3 = l_Lean_Expr_const___override(x_2, x_1);
+x_3 = l_Lean_mkConst(x_2, x_1);
 return x_3;
 }
 }

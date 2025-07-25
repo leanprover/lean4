@@ -216,7 +216,7 @@ def propagateLinarith : PendingTheoryPropagation → GoalM Unit
   | _ => return ()
 
 /--
-Tries to apply beta-reductiong using the parent applications of the functions in `fns` with
+Tries to apply beta-reduction using the parent applications of the functions in `fns` with
 the lambda expressions in `lams`.
 -/
 def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do

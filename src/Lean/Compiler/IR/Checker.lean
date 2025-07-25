@@ -46,7 +46,7 @@ def throwCheckerError {α : Type} (msg : String) : M α := do
 def markIndex (i : Index) : M Unit := do
   let s ← get
   if s.foundVars.contains i then
-    throwCheckerError s!"variable / joinpoint index {i} has already been used"
+    throwCheckerError s!"variable / join point index {i} has already been used"
   modify fun s => { s with foundVars := s.foundVars.insert i }
 
 def markVar (x : VarId) : M Unit :=

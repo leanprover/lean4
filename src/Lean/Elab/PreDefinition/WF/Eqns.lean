@@ -59,7 +59,7 @@ builtin_initialize
 /--
 This is a hack to fix fallout from #8519, where a non-exposed wfrec definition `foo`
 in a module would cause `foo.eq_def` to be defined eagerly and privately,
-but it should still be visible from non-mudule files.
+but it should still be visible from non-module files.
 
 So we create a unfold equation generator that aliases an existing private `eq_def` to
 wherever the current module expects it.

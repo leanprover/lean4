@@ -152,7 +152,7 @@ structure Config where
   we use approximations when solving postponed universe constraints.
   Examples:
   - `max u ?v =?= u` is solved with `?v := u` and ignoring the solution `?v := 0`.
-  - `max u w =?= mav u ?v` is solved with `?v := w` ignoring the solution `?v := max u w`
+  - `max u w =?= max u ?v` is solved with `?v := w` ignoring the solution `?v := max u w`
   -/
   univApprox : Bool := true
   /-- If `true`, reduce recursor/matcher applications, e.g., `Nat.rec true (fun _ _ => false) Nat.zero` reduces to `true` -/
@@ -500,7 +500,7 @@ structure Context where
   /--
   `inTypeClassResolution := true` when `isDefEq` is invoked at `tryResolve` in the type class
    resolution module. We don't use `isDefEqProjDelta` when performing TC resolution due to performance issues.
-   This is not a great solution, but a proper solution would require a more sophisticased caching mechanism.
+   This is not a great solution, but a proper solution would require a more sophisticated caching mechanism.
   -/
   inTypeClassResolution : Bool := false
 deriving Inhabited
@@ -1784,7 +1784,7 @@ where
       k acc
 
 /--
-Variant of `withLocalDecls` using `Binderinfo.default`
+Variant of `withLocalDecls` using `BinderInfo.default`
 -/
 def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n Expr))) (k : (xs : Array Expr) → n α) : n α :=
   withLocalDecls
@@ -1824,7 +1824,7 @@ def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
 /--
  Execute `k` using a local context where any `x` in `xs` that is tagged as
  instance implicit is treated as a regular implicit. -/
-def withInstImplicitAsImplict (xs : Array Expr) (k : MetaM α) : MetaM α := do
+def withInstImplicitAsImplicit (xs : Array Expr) (k : MetaM α) : MetaM α := do
   let newBinderInfos ← xs.filterMapM fun x => do
     let bi ← x.fvarId!.getBinderInfo
     if bi == .instImplicit then
@@ -1887,7 +1887,7 @@ private def withExistingLocalDeclsImp (decls : List LocalDecl) (k : MetaM α) : 
   After executing `k`, the local context is restored.
 
   Remark: this method is used, for example, to implement the `match`-compiler.
-  Each `match`-alternative commes with a local declarations (corresponding to pattern variables),
+  Each `match`-alternative comes with a local declarations (corresponding to pattern variables),
   and we use `withExistingLocalDecls` to add them to the local context before we process
   them.
 -/
@@ -1935,7 +1935,7 @@ def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α
   mapMetaM <| withLocalContextImp lctx localInsts
 
 /--
-Simpler version of `withLCtx` which just updates the local context. It is the resposability of the
+Simpler version of `withLCtx` which just updates the local context. It is the responsibility of the
 caller ensure the local instances are also properly updated.
 -/
 def withLCtx' (lctx : LocalContext) : n α → n α :=

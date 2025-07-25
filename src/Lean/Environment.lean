@@ -1632,7 +1632,7 @@ attribute [inherit_doc PersistentEnvExtension.exportEntriesFn]
 /--
 Auxiliary function to signal to the structure instance elaborator that `default` should be used as
 the default value for a field but only if `_otherField` has been given, which is added as an
-artifical dependency.
+artificial dependency.
 -/
 def useDefaultIfOtherFieldGiven (default : α) (_otherField : β) : α :=
   default
@@ -2546,7 +2546,7 @@ def withoutExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x
     x
 
 /-- Constructs a DefinitionVal, inferring the `unsafe` field -/
-def mkDefinitionValInferrringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelParams : List Name)
+def mkDefinitionValInferringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelParams : List Name)
     (type : Expr) (value : Expr) (hints : ReducibilityHints) : m DefinitionVal := do
   let env ← getEnv
   let safety := if env.hasUnsafe type || env.hasUnsafe value then DefinitionSafety.unsafe else DefinitionSafety.safe

@@ -186,7 +186,7 @@ where
         else if auxParam.type.headBeta.isForall then
           /-
           `cases` produces a function. Thus, we create a local function to store
-          result instead of a joinpoint that takes a closure.
+          result instead of a join point that takes a closure.
           -/
           eraseParam auxParam
           let auxFunDecl := { auxParam with params := #[], value := .cases cases : FunDecl }

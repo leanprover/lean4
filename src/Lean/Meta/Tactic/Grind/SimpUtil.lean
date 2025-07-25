@@ -182,7 +182,12 @@ protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
   thms ← addDeclToUnfold thms ``Bool.xor
   thms ← addDeclToUnfold thms ``Ne
   Simp.mkContext
-    (config := { arith := true, zeta := config.zeta, zetaDelta := config.zetaDelta, catchRuntime := false })
+    (config :=
+      { arith := true, zeta := config.zeta,
+        zetaDelta := config.zetaDelta,
+        catchRuntime := false,
+        -- `implicitDefEqProofs := true` a recurrent source of performance problems in the kernel
+        implicitDefEqProofs := false })
     (simpTheorems := #[thms])
     (congrTheorems := (← getSimpCongrTheorems))
 

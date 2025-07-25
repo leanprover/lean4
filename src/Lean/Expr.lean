@@ -79,7 +79,7 @@ inductive BinderInfo where
   | implicit
   /-- Strict implicit binder annotation, e.g., `{{ x : α }}` -/
   | strictImplicit
-  /-- Local instance binder annotataion, e.g., `[Decidable α]` -/
+  /-- Local instance binder annotation, e.g., `[Decidable α]` -/
   | instImplicit
   deriving Inhabited, BEq, Repr
 

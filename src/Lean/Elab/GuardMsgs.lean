@@ -131,7 +131,7 @@ structure GuardMsgFailure where
 deriving TypeName
 
 /--
-Makes trailing whitespace visible and protectes them against trimming by the editor, by appending
+Makes trailing whitespace visible and protects them against trimming by the editor, by appending
 the symbol ⏎ to such a line (and also to any line that ends with such a symbol, to avoid
 ambiguities in the case the message already had that symbol).
 -/

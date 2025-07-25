@@ -60,7 +60,7 @@ structure BinderView where
 
   Potential better solution: add a binder syntax category, an extensible `elabBinder`
   (like we have `elabTerm`), and perform all macro expansion steps at `elabBinder` and
-  record them in the infro tree.
+  record them in the info tree.
   -/
   ref  : Syntax
   id   : Syntax
@@ -628,7 +628,7 @@ private def checkMatchAltPatternCounts (matchAlts : Syntax) (numDiscrs : Nat) (e
   ```
   expands into
   ```
-  fux x_1 x_2 =>
+  fun x_1 x_2 =>
     let rec
       f x := g x + 1,
       g : Nat → Nat

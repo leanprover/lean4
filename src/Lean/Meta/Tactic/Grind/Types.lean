@@ -1116,7 +1116,7 @@ Notifies the cutsat module that `a ≠ b` where
 @[extern "lean_process_cutsat_diseq"] -- forward definition
 opaque Arith.Cutsat.processNewDiseq (a b : Expr) : GoalM Unit
 
-/-- Returns `true` if `e` is a nonegative numeral and has type `Int`. -/
+/-- Returns `true` if `e` is a nonnegative numeral and has type `Int`. -/
 def isNonnegIntNum (e : Expr) : Bool := Id.run do
   let_expr OfNat.ofNat _ _ inst := e | false
   let_expr instOfNat _ := inst | false

@@ -121,7 +121,7 @@ def resetMVarUserNames (toReset : Array MVarId) : MetaM Unit := do
 /--
   Similar to `mkForallFVars`, but tries to infer better binder names when `xs` contains metavariables.
   Let `?m` be a metavariable in `xs` s.t. `?m` does not have a user facing name.
-  Then, we try to find an application `f ... ?m` in the other binder typer and `type`, and
+  Then, we try to find an application `f ... ?m` in the other binder type and `type`, and
   (temporarily) use the corresponding parameter name (with a fresh macro scope) as the user facing name for `?m`.
   The "renaming" is temporary.
 -/

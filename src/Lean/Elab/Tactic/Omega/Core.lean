@@ -191,7 +191,7 @@ structure Problem where
   proveFalse?_spec : possible || proveFalse?.isSome := by rfl
   /--
   If we have found a contradiction,
-  `explanation?` will contain a human readable account of the deriviation.
+  `explanation?` will contain a human readable account of the derivation.
   -/
   explanation? : Thunk String := ""
 

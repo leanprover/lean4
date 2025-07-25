@@ -113,7 +113,7 @@ theorem nonzeroMinimum_le_iff {xs : List Nat} {y : Nat} :
     | .inl h => simp [h]
     | .inr ⟨x, m, le, ne⟩ => exact Nat.le_trans (nonzeroMinimum_le m ne) le
 
-theorem nonzeroMininum_map_le_nonzeroMinimum (f : α → β) (p : α → Nat) (q : β → Nat) (xs : List α)
+theorem nonzeroMinimum_map_le_nonzeroMinimum (f : α → β) (p : α → Nat) (q : β → Nat) (xs : List α)
     (h : ∀ a, a ∈ xs → (p a = 0 ↔ q (f a) = 0))
     (w : ∀ a, a ∈ xs → p a ≠ 0 → q (f a) ≤ p a) :
     ((xs.map f).map q).nonzeroMinimum ≤ (xs.map p).nonzeroMinimum := by

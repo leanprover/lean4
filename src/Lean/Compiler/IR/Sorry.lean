@@ -38,15 +38,15 @@ where
       | some (.fdecl (info := { sorryDep? := some g, .. }) ..) => found g
       | _ => return ()
 
-partial def visitFndBody (b : FnBody) : ExceptT Name M Unit := do
+partial def visitFnBody (b : FnBody) : ExceptT Name M Unit := do
   match b with
-  | .vdecl _ _ v b   => visitExpr v; visitFndBody b
-  | .jdecl _ _ v b   => visitFndBody v; visitFndBody b
-  | .case _ _ _ alts => alts.forM fun alt => visitFndBody alt.body
+  | .vdecl _ _ v b   => visitExpr v; visitFnBody b
+  | .jdecl _ _ v b   => visitFnBody v; visitFnBody b
+  | .case _ _ _ alts => alts.forM fun alt => visitFnBody alt.body
   | _ =>
     unless b.isTerminal do
       let (_, b) := b.split
-      visitFndBody b
+      visitFnBody b
 
 def visitDecl (d : Decl) : M Unit := do
   match d with
@@ -54,7 +54,7 @@ def visitDecl (d : Decl) : M Unit := do
     match (← get).localSorryMap.find? f with
     | some _ => return ()
     | none =>
-      match (← visitFndBody b |>.run) with
+      match (← visitFnBody b |>.run) with
       | .ok _    => return ()
       | .error g =>
         modify fun s => {

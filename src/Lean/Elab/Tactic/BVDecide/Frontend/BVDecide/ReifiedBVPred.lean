@@ -58,7 +58,7 @@ and `rhs`.
 def mkBinPred (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (pred : BVBinPred)
     (origExpr : Expr) : M (Option ReifiedBVPred) := do
   if h : lhs.width = rhs.width then
-    let congrThm := congrThmofBinPred pred
+    let congrThm := congrThmOfBinPred pred
     let bvExpr : BVPred := .bin (w := lhs.width) lhs.bvExpr pred (h ▸ rhs.bvExpr)
     let expr :=
       mkApp4
@@ -87,7 +87,7 @@ def mkBinPred (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (pred : BVBinPr
   else
     return none
 where
-  congrThmofBinPred (pred : BVBinPred) : Name :=
+  congrThmOfBinPred (pred : BVBinPred) : Name :=
     match pred with
     | .eq => ``Std.Tactic.BVDecide.Reflect.BitVec.beq_congr
     | .ult => ``Std.Tactic.BVDecide.Reflect.BitVec.ult_congr

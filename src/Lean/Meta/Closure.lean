@@ -380,7 +380,7 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool
   let result ← Closure.mkValueTypeClosure type value zetaDelta
   let env ← getEnv
   let hints := ReducibilityHints.regular (getMaxHeight env result.value + 1)
-  let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList
+  let decl := Declaration.defnDecl (← mkDefinitionValInferringUnsafe name result.levelParams.toList
     result.type result.value  hints)
   addDecl decl
   if compile then

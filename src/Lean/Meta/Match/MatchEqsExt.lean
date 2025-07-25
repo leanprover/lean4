@@ -41,7 +41,7 @@ def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : CoreM Uni
 
 /-
   Forward definition. We want to use `getEquationsFor` in the simplifier,
- `getEquationsFor` depends on `mkEquationsfor` which uses the simplifier. -/
+ `getEquationsFor` depends on `mkEquationsFor` which uses the simplifier. -/
 @[extern "lean_get_match_equations_for"]
 opaque getEquationsFor (matchDeclName : Name) : MetaM MatchEqns
 

@@ -288,9 +288,8 @@ structure Context where
   /--
      When `autoBoundImplicit` is set to true, instead of producing
      an "unknown identifier" error for unbound variables, we generate an
-     internal exception. This exception is caught at `elabBinders` and
-     `elabTypeWithUnboldImplicit`. Both methods add implicit declarations
-     for the unbound variable and try again. -/
+     internal exception. This exception is caught at `withAutoBoundImplicit`
+     which adds an implicit declaration for the unbound variable and tries again. -/
   autoBoundImplicit  : Bool            := false
   autoBoundImplicits : PArray Expr := {}
   /--

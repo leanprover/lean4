@@ -55,7 +55,7 @@ mutual
   Remark: the order is not really total on terms since
    - We instance implicit arguments.
    - We ignore metadata.
-   - We ignore universe parameterst at constants.
+   - We ignore universe parameters at constants.
 -/
 partial def main (a b : Expr) (mode : ReduceMode := .none) : MetaM Bool := do
   lt a b

@@ -382,7 +382,7 @@ def withNewAltScope (alt : Alt) (x : ExtendM α) : ExtendM α := do
 
 /--
 Use all of the above functions to find free variables declared outside
-of join points that said join points can be reasonaly extended by. Reasonable
+of join points that said join points can be reasonably extended by. Reasonable
 meaning that in case the current join point is nested within a function
 declaration we will not extend it by free variables declared before the
 function declaration because we cannot lift join points outside of function

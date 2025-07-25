@@ -713,7 +713,7 @@ private def assignOutParams (type : Expr) (result : Expr) : MetaM Bool := do
   return defEq
 
 /--
-Auxiliary function for converting the `AbstractMVarsResult` returned by `SynthIntance.main` into an `Expr`.
+Auxiliary function for converting the `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 -/
 private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do
   let some abstResult := abstResult? | return none
@@ -749,7 +749,7 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   return some result
 
 /--
-Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthIntance.main` into an `Expr`.
+Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 This function tries to avoid the potentially expensive `check` at `applyCachedAbstractResult?`.
 -/
 private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do

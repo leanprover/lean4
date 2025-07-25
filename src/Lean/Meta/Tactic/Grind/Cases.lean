@@ -116,7 +116,7 @@ def eraseCasesAttr (declName : Name) : CoreM Unit := do
 /--
 We say a free variable is "simple" to be processed by the cases tactic IF:
 - It is the latest and consequently there are no forward dependencies, OR
-- It is not a proposion.
+- It is not a proposition.
 -/
 private def isSimpleFVar (e : Expr) : MetaM Bool := do
   let .fvar fvarId := e | return false

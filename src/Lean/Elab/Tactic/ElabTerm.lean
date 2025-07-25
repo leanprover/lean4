@@ -202,7 +202,7 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
   withCollectingNewGoalsFrom (elabTermEnsuringType stx expectedType?) (← parentTag?.getDM getMainTag) tagSuffix allowNaturalHoles
 
 /-- If `allowNaturalHoles == true`, then we allow the resultant expression to contain unassigned "natural" metavariables.
-   Recall that "natutal" metavariables are created for explicit holes `_` and implicit arguments. They are meant to be
+   Recall that "natural" metavariables are created for explicit holes `_` and implicit arguments. They are meant to be
    filled by typing constraints.
    "Synthetic" metavariables are meant to be filled by tactics and are usually created using the synthetic hole notation `?<hole-name>`. -/
 def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : TacticM Unit := do

@@ -42,7 +42,7 @@ def ofPred (bvPred : ReifiedBVPred) : M ReifiedBVLogical := do
   return ⟨boolExpr, bvPred.originalExpr, proof, expr⟩
 
 /--
-Construct an uninterrpeted `Bool` atom from `t`.
+Construct an uninterpreted `Bool` atom from `t`.
 -/
 def boolAtom (t : Expr) : M (Option ReifiedBVLogical) := do
   let some pred ← ReifiedBVPred.boolAtom t | return none

@@ -152,9 +152,9 @@ Moreover, `C₁` is definitionally equal to `l t s`, and `C₂` is definitionall
 Then, if `grind` infers that `t = a` and `s = b`, it will detect that `l t s` and `l a b` are
 equal by congruence, and consequently `C₁` is equal to `C₂`.
 
-Gruesome details for heterogenenous equalities.
+Gruesome details for heterogeneous equalities.
 
-When pattern matching on indexing families, the generated conditions often use heterogenenous equalities. Here is an example:
+When pattern matching on indexing families, the generated conditions often use heterogeneous equalities. Here is an example:
 ```
 (∀ (x : Vec α 0), n = 0 → as ≍ Vec.nil → bs ≍ x → False)
 ```
@@ -167,8 +167,8 @@ to abstract its type. The following is produced in this case.
  n (Vec α n) as (Vec α n) bs)
 ```
 The example makes it clear why this is needed, `as` and `bs` depend on `n`.
-Note that we can abstract the type without introducing typer errors because
-heterogenenous equality is used for `as` and `bs`.
+Note that we can abstract the type without introducing type errors because
+heterogeneous equality is used for `as` and `bs`.
 -/
 def collectMatchCondLhssAndAbstract (matchCond : Expr) : GoalM (Array Expr × Expr) := do
   let_expr Grind.MatchCond e := matchCond | return (#[], matchCond)
@@ -228,7 +228,7 @@ where
       return false
 
 /--
-Returns `true` if `e` is a `Grind.MatchCond`, and it has been satifisfied.
+Returns `true` if `e` is a `Grind.MatchCond`, and it has been satisfied.
 Recall that we use `Grind.MatchCond` to annotate conditional `match`-equations.
 Consider the following example:
 ```
@@ -255,7 +255,7 @@ the following auxiliary `Grind.MatchCond` terms for an application `f a b`:
 `isSatisfied` uses the fact that constructor applications and literal values
 are always the root of their equivalence classes.
 -/
-private partial def isStatisfied (e : Expr) : GoalM Bool := do
+private partial def isSatisfied (e : Expr) : GoalM Bool := do
   let_expr Grind.MatchCond e ← e | return false
   let mut e := e
   repeat
@@ -415,10 +415,10 @@ where
 builtin_grind_propagator propagateMatchCondUp ↑Grind.MatchCond := fun e => do
   trace_goal[grind.debug.matchCond] "visiting{indentExpr e}"
   if (← isEqTrue e) then
-    unless (← isStatisfied e) do
+    unless (← isSatisfied e) do
       tryToProveFalse e
   else
-    if !(← isStatisfied e) then return ()
+    if !(← isSatisfied e) then return ()
     let some h ← mkMatchCondProof? e
        | reportIssue! "failed to construct proof for{indentExpr e}"; return ()
     trace_goal[grind.debug.matchCond] "{← inferType h}"
@@ -427,7 +427,7 @@ builtin_grind_propagator propagateMatchCondUp ↑Grind.MatchCond := fun e => do
 /-- Propagates `MatchCond` downwards -/
 builtin_grind_propagator propagateMatchCondDown ↓Grind.MatchCond := fun e => do
   if (← isEqTrue e) then
-    unless (← isStatisfied e) do
+    unless (← isSatisfied e) do
       tryToProveFalse e
 
 end Lean.Meta.Grind

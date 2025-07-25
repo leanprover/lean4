@@ -168,13 +168,13 @@ def mayOmitSizeOf (is_mutual : Bool) (args : Array Expr) (x : Expr) : MetaM Bool
     catch _ =>
       pure false
 
-/-- Sets the user names for the given freevars in `xs`. -/
+/-- Sets the user names for the given free variables in `xs`. -/
 def withUserNames {α} (xs : Array Expr) (ns : Array Name) (k : MetaM α) : MetaM α := do
   let mut lctx ←  getLCtx
   for x in xs, n in ns do lctx := lctx.setUserName x.fvarId! n
   withLCtx' lctx k
 
-/-- Create one measure for each (eligible) parameter of the given predefintion.  -/
+/-- Create one measure for each (eligible) parameter of the given predefinition.  -/
 def simpleMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (userVarNamess : Array (Array Name)) : MetaM (Array (Array BasicMeasure)) := do
   let is_mutual : Bool := preDefs.size > 1

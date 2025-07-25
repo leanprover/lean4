@@ -360,14 +360,14 @@ def optionalFn (p : ParserFn) : ParserFn := fun c s =>
   let s      := if s.hasError && s.pos == iniPos then s.restore iniSz iniPos else s
   s.mkNode nullKind iniSz
 
-@[noinline] def optionaInfo (p : ParserInfo) : ParserInfo := {
+@[noinline] def optionalInfo (p : ParserInfo) : ParserInfo := {
   collectTokens := p.collectTokens
   collectKinds  := p.collectKinds
   firstTokens   := p.firstTokens.toOptional
 }
 
 def optionalNoAntiquot (p : Parser) : Parser := {
-  info := optionaInfo p.info
+  info := optionalInfo p.info
   fn   := optionalFn p.fn
 }
 
@@ -1928,7 +1928,7 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : 
   Implements a variant of Pratt's algorithm. In Pratt's algorithms tokens have a right and left binding power.
   In our implementation, parsers have precedence instead. This method selects a parser (or more, via
   `longestMatchFn`) from `leadingTable` based on the current token. Note that the unindexed `leadingParsers` parsers
-  are also tried. We have the unidexed `leadingParsers` because some parsers do not have a "first token". Example:
+  are also tried. We have the unindexed `leadingParsers` because some parsers do not have a "first token". Example:
   ```
   syntax term:51 "≤" ident "<" term "|" term : index
   ```

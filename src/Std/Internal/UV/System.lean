@@ -44,7 +44,7 @@ structure RUsage where
 deriving Repr, Inhabited
 
 /--
-Represents the breaskdown of CPU time usage in milliseconds.
+Represents the breakdown of CPU time usage in milliseconds.
 -/
 structure CPUTimes where
   user : UInt64

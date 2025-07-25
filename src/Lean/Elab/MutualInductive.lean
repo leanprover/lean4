@@ -193,7 +193,7 @@ builtin_initialize inductiveElabAttr : KeyedDeclsAttribute InductiveElabDescr â†
   }
 
 /--
-Returns true if the syntax partipates in the mutual inductive elaborator.
+Returns true if the syntax participates in the mutual inductive elaborator.
 These do not need to be commands. In fact `inductive` and `structure` are registered
 on the `Lean.Parser.Command.inductive` and `Lean.Parser.Command.structure` syntaxes.
 -/

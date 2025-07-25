@@ -1183,7 +1183,7 @@ private partial def mkFlatCtor (levelParams : List Name) (params : Array Expr) (
   let flatCtorName := mkFlatCtorOfStructCtorName ctor.name
   let valType ← replaceIndFVars (← instantiateMVars (← inferType val))
   let valType := valType.inferImplicit params.size true
-  addDecl <| Declaration.defnDecl (← mkDefinitionValInferrringUnsafe flatCtorName levelParams valType val .abbrev)
+  addDecl <| Declaration.defnDecl (← mkDefinitionValInferringUnsafe flatCtorName levelParams valType val .abbrev)
 
 private partial def checkResultingUniversesForFields (fieldInfos : Array StructFieldInfo) (u : Level) : TermElabM Unit := do
   for info in fieldInfos do
@@ -1309,7 +1309,7 @@ private def addDefaults (levelParams : List Name) (params : Array Expr) (replace
         let type ← inferType value
         -- No need to compile the definition, since it is only used during elaboration.
         addDecl <| Declaration.defnDecl
-          (← mkDefinitionValInferrringUnsafe declName levelParams type value ReducibilityHints.abbrev)
+          (← mkDefinitionValInferringUnsafe declName levelParams type value ReducibilityHints.abbrev)
     for fieldInfo in fieldInfos do
       if let some (.optParam value) := fieldInfo.default? then
         withoutExporting (when := isPrivateName fieldInfo.declName) do

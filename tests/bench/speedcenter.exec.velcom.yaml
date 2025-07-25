@@ -559,3 +559,12 @@
     parse_output: true
   build_config:
     cmd: ./compile.sh treemap.lean
+- attributes:
+    description: phashmap.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./phashmap.lean.out 11 10000
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh phashmap.lean

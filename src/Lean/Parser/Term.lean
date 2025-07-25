@@ -759,7 +759,7 @@ indicates the function is expected to be structural recursive on the argument. I
 the body of the `termination_by` clause must be one of the function's parameters.
 
 If omitted, a termination measure will be inferred. If written as `termination_by?`,
-the inferrred termination measure will be suggested.
+the inferred termination measure will be suggested.
 
 -/
 @[builtin_doc] def terminationBy := leading_parser

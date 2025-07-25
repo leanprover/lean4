@@ -26,6 +26,24 @@ instance : ToText Json := ⟨Json.compress⟩
 instance [ToText α] : ToText (List α) := ⟨(·.foldl (s!"{·}{toText ·}\n") "" |>.dropRight 1)⟩
 instance [ToText α] : ToText (Array α) := ⟨(·.foldl (s!"{·}{toText ·}\n") "" |>.dropRight 1)⟩
 
+/-- Class used to format target output as text for `lake query`. -/
+class QueryText (α : Type u) where
+  queryText : α → String
+
+export QueryText (queryText)
+
+instance (priority := 0) : QueryText α := ⟨fun _ => ""⟩
+instance (priority := low) [ToText α] : QueryText α := ⟨toText⟩
+
+/-- Class used to format target output as JSON for `lake query -J`. -/
+class QueryJson (α : Type u) where
+  queryJson : α → Json
+
+export QueryJson (queryJson)
+
+instance (priority := 0) : QueryJson α := ⟨fun _ => .null⟩
+instance (priority := low) [ToJson α] : QueryJson α := ⟨toJson⟩
+
 /-- Class used to format target output for `lake query`. -/
 class FormatQuery (α : Type u) where
   formatQuery : OutFormat → α → String
@@ -38,15 +56,13 @@ def nullFormat (fmt : OutFormat) (_ : α) : String :=
   | .text => ""
   | .json => Json.null.compress
 
-instance (priority := 0) : FormatQuery α := ⟨nullFormat⟩
-
-/-- Format function that uses `ToText` and `ToJson` to print output. -/
-@[specialize] def stdFormat [ToText α] [ToJson α]  (fmt : OutFormat) (a : α) : String :=
+/-- Format function that uses `QueryText` and `QueryJson` to print output. -/
+@[specialize] def stdFormat [QueryText α] [QueryJson α]  (fmt : OutFormat) (a : α) : String :=
   match fmt with
-  | .text => toText a
-  | .json => toJson a |>.compress
+  | .text => queryText a
+  | .json => queryJson a |>.compress
 
-instance [ToText α] [ToJson α] : FormatQuery α := ⟨stdFormat⟩
+instance [QueryText α] [QueryJson α] : FormatQuery α := ⟨stdFormat⟩
 instance : FormatQuery Unit := ⟨nullFormat⟩
 
 def ppImport (imp : Import) (isModule : Bool) (init := "") : String := Id.run do

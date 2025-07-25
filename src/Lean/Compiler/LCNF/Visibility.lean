@@ -32,8 +32,9 @@ where
 
 -- TODO: refine? balance run time vs export size
 private def isBodyRelevant (decl : Decl) : CompilerM Bool := do
-  let opts := (← getOptions)
-  decl.isTemplateLike <||> decl.value.isCodeAndM (pure <| ·.sizeLe (compiler.small.get opts))
+  -- let opts := (← getOptions)
+  decl.isTemplateLike
+    -- <||> decl.value.isCodeAndM (pure <| ·.sizeLe (compiler.small.get opts))
 
 /--
 Marks the given declaration as to be exported and recursively infers the correct visibility of its

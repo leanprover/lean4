@@ -334,15 +334,15 @@ def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
       -- `suggestionsArr = #[suggestion.toTryThisSuggestion].map ...` (see `processSuggestions`)
       let suggestionText := suggestionArr[0]!.2.1
       let map ← getFileMap
-      let rangeContents := Substring.mk map.source range.start range.stop |>.toString
+      let rangeContents := map.source.extract range.start range.stop
       let mut edits := readableDiff rangeContents suggestionText suggestion.diffGranularity
       if let some previewRange := suggestion.previewSpan? >>= Syntax.getRange? then
         if previewRange.includes range then
           let map ← getFileMap
           if previewRange.start < range.start then
-            edits := #[(.skip, (Substring.mk map.source previewRange.start range.start).toString)] ++ edits
+            edits := #[(.skip, (map.source.extract previewRange.start range.start))] ++ edits
           if range.stop < previewRange.stop then
-            edits := edits.push (.skip, (Substring.mk map.source range.stop previewRange.stop).toString)
+            edits := edits.push (.skip, (map.source.extract range.stop previewRange.stop))
       let diffJson := mkDiffJson edits
       let json := json% {
         diff: $diffJson,

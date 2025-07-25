@@ -58,6 +58,18 @@ def append (s t : NameSet) : NameSet :=
 instance : Append NameSet where
   append := NameSet.append
 
+instance : Singleton Name NameSet where
+  singleton := fun n => (∅ : NameSet).insert n
+
+instance : Union NameSet where
+  union := NameSet.append
+
+instance : Inter NameSet where
+  inter := fun s t => s.foldl (fun r n => if t.contains n then r.insert n else r) {}
+
+instance : SDiff NameSet where
+  sdiff := fun s t => t.foldl (fun s n => s.erase n) s
+
 /-- `filter f s` returns the `NameSet` consisting of all `x` in `s` where `f x` returns `true`. -/
 def filter (f : Name → Bool) (s : NameSet) : NameSet := Std.TreeSet.filter f s
 

@@ -64,13 +64,15 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
 
 def simpExpr? (input : Expr) : MetaM (Option (Expr × Expr)) := do
   let (e, ctx) ← toLinearExpr input
-  let p  := e.toPoly
-  let p' := p.norm
-  let e' : LinearExpr := p'.toExpr
-  if e' == e then
-    return none
-  let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr e) (toExpr e') reflBoolTrue
-  let r ← e'.toArith ctx
-  return some (r, mkExpectedPropHint p (mkNatEq input r))
+  withAbstractAtoms ctx ``Nat fun ctx => do
+    let p  := e.toPoly
+    let p' := p.norm
+    let e' : LinearExpr := p'.toExpr
+    if e' == e then
+      return none
+    let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr e) (toExpr e') reflBoolTrue
+    let l ← e.toArith ctx
+    let r ← e'.toArith ctx
+    return some (r, mkExpectedPropHint p (mkNatEq l r))
 
 end Lean.Meta.Simp.Arith.Nat

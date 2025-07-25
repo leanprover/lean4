@@ -38,7 +38,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
     let mut ctorModifiers ← elabModifiers ⟨ctor[2]⟩
     if let some leadingDocComment := ctor[0].getOptional? then
       if ctorModifiers.docString?.isSome then
-        logErrorAt leadingDocComment "duplicate doc string"
+        logErrorAt leadingDocComment "Duplicate doc string"
       ctorModifiers := { ctorModifiers with docString? := some ⟨leadingDocComment⟩ }
     if ctorModifiers.isPrivate && modifiers.isPrivate then
       let hint ← do
@@ -49,7 +49,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
           span? := Syntax.ofRange range
           toCodeActionTitle? := some fun _ => "Delete `private` modifier"
         }]
-      throwError "Constructor cannot be marked `private` because it is already in a `private` inductive datatype"
+      throwError m!"Constructor cannot be marked `private` because it is already in a `private` inductive datatype" ++ hint
     if ctorModifiers.isProtected && modifiers.isPrivate then
       throwError "Constructor cannot be `protected` because it is in a `private` inductive datatype"
     checkValidCtorModifier ctorModifiers
@@ -66,7 +66,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
   if decl[3][0].isToken ":=" then
     -- https://github.com/leanprover/lean4/issues/5236
     withRef decl[0] <| Linter.logLintIf Linter.linter.deprecated decl[3]
-      "'inductive ... :=' has been deprecated in favor of 'inductive ... where'."
+      "`inductive ... :=` has been deprecated in favor of `inductive ... where`"
   return {
     ref             := decl
     shortDeclName   := name

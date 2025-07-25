@@ -255,7 +255,7 @@ For a module over the integers this is equivalent to
 (See the alternative constructor `NoNatZeroDivisors.mk'`,
 and the theorem `eq_zero_of_mul_eq_zero`.)
 -/
-class NoNatZeroDivisors (α : Type u) [HMul Nat α α] where
+class NoNatZeroDivisors (α : Type u) [NatModule α] where
   /-- If `k * a ≠ k * b` then `k ≠ 0` or `a ≠ b`.-/
   no_nat_zero_divisors : ∀ (k : Nat) (a b : α), k ≠ 0 → k * a = k * b → a = b
 

@@ -18,9 +18,9 @@ def getIsCharInst? (u : Level) (type : Expr) (semiringInst : Expr) : GoalM (Opti
   return some (charInst, n)
 
 def getNoZeroDivInst? (u : Level) (type : Expr) : GoalM (Option Expr) := do
-  let hmulType := mkApp3 (mkConst ``HMul [0, u, u]) (mkConst ``Nat []) type type
-  let some hmulInst ← synthInstance? hmulType | return none
-  let noZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type hmulInst
+  let natModuleType := mkApp (mkConst ``Grind.NatModule [u]) type
+  let some natModuleInst ← synthInstance? natModuleType | return none
+  let noZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type natModuleInst
   synthInstance? noZeroDivType
 
 end Lean.Meta.Grind.Arith

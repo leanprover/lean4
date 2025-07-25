@@ -34,14 +34,12 @@ static lean_object* l_Lean_Compiler_LCNF_markDeclPublicRec___closed__6;
 static lean_object* l_Lean_Compiler_LCNF_markDeclPublicRec___closed__3;
 static lean_object* l_Lean_addTrace___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__1___redArg___closed__7;
 uint8_t lean_usize_dec_eq(size_t, size_t);
-lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Compiler_LCNF_inferVisibility_spec__0(uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Compiler_LCNF_inferVisibility_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__9____x40_Lean_Compiler_LCNF_Visibility___hyg_1024_;
-static lean_object* l_Lean_Compiler_LCNF_markDeclPublicRec___lam__0___closed__0;
 lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__12____x40_Lean_Compiler_LCNF_Visibility___hyg_1024_;
 static lean_object* l_Lean_Compiler_LCNF_initFn___closed__7____x40_Lean_Compiler_LCNF_Visibility___hyg_1024_;
@@ -86,7 +84,6 @@ static lean_object* l_Lean_Compiler_LCNF_initFn___closed__11____x40_Lean_Compile
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Compiler_LCNF_inferVisibility_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_isBodyRelevant(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_NameSet_empty;
 static double l_Lean_addTrace___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__1___redArg___closed__8;
 static lean_object* l_Lean_Compiler_LCNF_markDeclPublicRec___closed__0;
 extern lean_object* l_Lean_Compiler_LCNF_compiler_small;
@@ -104,6 +101,7 @@ static lean_object* l_Lean_addTrace___at___Lean_Compiler_LCNF_markDeclPublicRec_
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_markDeclPublicRec___lam__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_addTrace___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__1___redArg___closed__10;
 size_t lean_array_size(lean_object*);
@@ -321,7 +319,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_find(x_1, x_3);
+x_5 = l_Lean_KVMap_findCore(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_inc(x_4);
@@ -2833,19 +2831,11 @@ return x_11;
 }
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_markDeclPublicRec___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_markDeclPublicRec___lam__0(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_10 = l_Lean_Compiler_LCNF_markDeclPublicRec___lam__0___closed__0;
+x_10 = lean_box(1);
 x_11 = l___private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_collectUsedDecls(x_4, x_10);
 x_12 = lean_box(0);
 x_13 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2___redArg(x_1, x_12, x_2, x_3, x_12, x_11, x_5, x_6, x_7, x_8, x_9);
@@ -4987,8 +4977,6 @@ l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInSt
 lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__3);
 l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__4 = _init_l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__4();
 lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__4);
-l_Lean_Compiler_LCNF_markDeclPublicRec___lam__0___closed__0 = _init_l_Lean_Compiler_LCNF_markDeclPublicRec___lam__0___closed__0();
-lean_mark_persistent(l_Lean_Compiler_LCNF_markDeclPublicRec___lam__0___closed__0);
 l_Lean_Compiler_LCNF_markDeclPublicRec___closed__0 = _init_l_Lean_Compiler_LCNF_markDeclPublicRec___closed__0();
 lean_mark_persistent(l_Lean_Compiler_LCNF_markDeclPublicRec___closed__0);
 l_Lean_Compiler_LCNF_markDeclPublicRec___closed__1 = _init_l_Lean_Compiler_LCNF_markDeclPublicRec___closed__1();

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMRight___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,7 +56,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMLeft___redArg(lean
 lean_object* l_Lean_Elab_Tactic_replaceMainGoal___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMLeft___redArg___lam__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_LeftRight_0__Lean_Elab_Tactic_Do_ProofMode_elabMRight___regBuiltin_Lean_Elab_Tactic_Do_ProofMode_elabMRight__1___closed__0;
 static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_LeftRight_0__Lean_Elab_Tactic_Do_ProofMode_elabMLeft___regBuiltin_Lean_Elab_Tactic_Do_ProofMode_elabMLeft__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Elab_Tactic_Do_ProofMode_mLeftRightCore_spec__2___redArg(lean_object*, lean_object*, lean_object*);
@@ -990,7 +990,7 @@ x_54 = lean_box(0);
 lean_ctor_set_tag(x_50, 1);
 lean_ctor_set(x_50, 1, x_54);
 lean_ctor_set(x_50, 0, x_34);
-x_55 = l_Lean_mkConst(x_46, x_50);
+x_55 = l_Lean_Expr_const___override(x_46, x_50);
 lean_inc(x_52);
 x_56 = l_Lean_mkApp5(x_55, x_40, x_36, x_39, x_38, x_52);
 x_57 = l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_mLeftRightCore_spec__3___redArg(x_2, x_56, x_4, x_53);
@@ -1031,7 +1031,7 @@ x_66 = lean_box(0);
 x_67 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_67, 0, x_34);
 lean_ctor_set(x_67, 1, x_66);
-x_68 = l_Lean_mkConst(x_46, x_67);
+x_68 = l_Lean_Expr_const___override(x_46, x_67);
 lean_inc(x_64);
 x_69 = l_Lean_mkApp5(x_68, x_40, x_36, x_39, x_38, x_64);
 x_70 = l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_mLeftRightCore_spec__3___redArg(x_2, x_69, x_4, x_65);

@@ -66,7 +66,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_noConfusion___redArg(uint8_
 static lean_object* l_Lean_Meta_ACLt_main_getParamsInfo___closed__0;
 static lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_config;
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
-extern lean_object* l_Lean_levelZero;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_ACLt_main_allChildrenLt_spec__1___boxed(lean_object**);
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
@@ -1898,7 +1897,7 @@ static lean_object* _init_l_Lean_Meta_ACLt_main_ltApp___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_levelZero;
+x_1 = lean_box(0);
 x_2 = l_Lean_Expr_sort___override(x_1);
 return x_2;
 }

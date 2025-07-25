@@ -22,7 +22,6 @@ lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_o
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__34;
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__16;
 LEAN_EXPORT lean_object* l_Lean_IR_instToStringIRType___lam__0(lean_object*);
-static lean_object* l_Lean_IR_instToStringExpr___lam__0___closed__0;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__4;
 LEAN_EXPORT lean_object* l_Lean_IR_instToStringExpr;
 LEAN_EXPORT lean_object* l_Lean_IR_formatArray___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -148,7 +147,6 @@ lean_object* l_Lean_formatKVMap(lean_object*);
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__31;
 LEAN_EXPORT lean_object* l_Lean_IR_instToFormatLitVal;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__8;
-extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Nat_cast___at_____private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType_spec__2(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatParam___closed__5;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__1;
@@ -1820,20 +1818,12 @@ x_1 = l_Lean_IR_instToFormatExpr___closed__0;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_IR_instToStringExpr___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_IR_instToStringExpr___lam__0(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr(x_1);
-x_3 = l_Lean_IR_instToStringExpr___lam__0___closed__0;
+x_3 = lean_unsigned_to_nat(120u);
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_format_pretty(x_2, x_3, x_4, x_4);
 return x_5;
@@ -2433,7 +2423,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_instToStringIRType___lam__0(lean_object* x_1)
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_IR_instToStringExpr___lam__0___closed__0;
+x_2 = lean_unsigned_to_nat(120u);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_format_pretty(x_1, x_2, x_3, x_3);
 return x_4;
@@ -3724,7 +3714,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_IR_formatFnBodyHead(x_1);
-x_3 = l_Lean_IR_instToStringExpr___lam__0___closed__0;
+x_3 = lean_unsigned_to_nat(120u);
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_format_pretty(x_2, x_3, x_4, x_4);
 return x_5;
@@ -4644,7 +4634,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = lean_unsigned_to_nat(2u);
 x_3 = l_Lean_IR_formatFnBody_loop(x_2, x_1);
-x_4 = l_Lean_IR_instToStringExpr___lam__0___closed__0;
+x_4 = lean_unsigned_to_nat(120u);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_format_pretty(x_3, x_4, x_5, x_5);
 return x_6;
@@ -4810,7 +4800,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = lean_unsigned_to_nat(2u);
 x_3 = l_Lean_IR_formatDecl(x_1, x_2);
-x_4 = l_Lean_IR_instToStringExpr___lam__0___closed__0;
+x_4 = lean_unsigned_to_nat(120u);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_format_pretty(x_3, x_4, x_5, x_5);
 return x_6;
@@ -4961,8 +4951,6 @@ l_Lean_IR_instToFormatExpr___closed__0 = _init_l_Lean_IR_instToFormatExpr___clos
 lean_mark_persistent(l_Lean_IR_instToFormatExpr___closed__0);
 l_Lean_IR_instToFormatExpr = _init_l_Lean_IR_instToFormatExpr();
 lean_mark_persistent(l_Lean_IR_instToFormatExpr);
-l_Lean_IR_instToStringExpr___lam__0___closed__0 = _init_l_Lean_IR_instToStringExpr___lam__0___closed__0();
-lean_mark_persistent(l_Lean_IR_instToStringExpr___lam__0___closed__0);
 l_Lean_IR_instToStringExpr = _init_l_Lean_IR_instToStringExpr();
 lean_mark_persistent(l_Lean_IR_instToStringExpr);
 l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__0 = _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__0();

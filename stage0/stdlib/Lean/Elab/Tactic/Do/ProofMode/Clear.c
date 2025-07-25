@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_restGoal(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__0___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__5___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46,7 +47,6 @@ static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___closed__6;
 lean_object* l_Lean_Elab_Tactic_replaceMainGoal___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__4___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -836,7 +836,7 @@ x_46 = lean_box(0);
 lean_ctor_set_tag(x_29, 1);
 lean_ctor_set(x_29, 1, x_46);
 lean_ctor_set(x_29, 0, x_33);
-x_47 = l_Lean_mkConst(x_45, x_29);
+x_47 = l_Lean_Expr_const___override(x_45, x_29);
 lean_inc(x_31);
 x_48 = l_Lean_mkApp7(x_47, x_34, x_35, x_38, x_37, x_36, x_39, x_31);
 x_49 = l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__4___redArg(x_1, x_48, x_9, x_32);
@@ -914,7 +914,7 @@ x_76 = lean_box(0);
 x_77 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_77, 0, x_63);
 lean_ctor_set(x_77, 1, x_76);
-x_78 = l_Lean_mkConst(x_75, x_77);
+x_78 = l_Lean_Expr_const___override(x_75, x_77);
 lean_inc(x_61);
 x_79 = l_Lean_mkApp7(x_78, x_64, x_65, x_68, x_67, x_66, x_69, x_61);
 x_80 = l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__4___redArg(x_1, x_79, x_9, x_62);

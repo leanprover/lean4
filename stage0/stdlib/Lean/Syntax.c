@@ -245,6 +245,7 @@ LEAN_EXPORT lean_object* l_Lean_SyntaxNode_getArgs___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_unreachIsNodeAtom(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_isEscapedAntiquot(lean_object*);
+lean_object* l_List_zipWith___at___List_zip_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_Stack_matches___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_instForInTopDown_loop___at___Lean_Syntax_instForInTopDown_loop___at___Lean_Syntax_reprint_spec__1_spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_SourceInfo_getRangeWithTrailing_x3f(uint8_t, lean_object*);
@@ -266,7 +267,6 @@ static lean_object* l_String_reprRange___redArg___closed__4____x40_Lean_Syntax__
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Syntax_identComponents_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SourceInfo_getRange_x3f(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDown_loop(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT uint8_t l_Lean_Syntax_structRangeEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_mkAntiquotNode(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Syntax_asNode___closed__3;
@@ -279,7 +279,6 @@ static lean_object* l_Lean_isLitKind___closed__3;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Syntax_findStack_x3f_go_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_filterMapM___at___Lean_Syntax_antiquotKinds_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__10;
-static lean_object* l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6;
 static lean_object* l_List_mapTR_loop___at___Lean_Syntax_identComponents_spec__1___closed__0;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Syntax_identComponents_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_rewriteBottomUp___closed__0;
@@ -429,7 +428,6 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_unreachIsNodeIdent___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_goUp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_hashRange____x40_Lean_Syntax___hyg_175____boxed(lean_object*);
-lean_object* l_List_zipWith___at___List_zip_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_rewriteBottomUp___closed__7;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___at___Lean_Syntax_reprint_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_String_reprRange___redArg___closed__1____x40_Lean_Syntax___hyg_43_;
@@ -2406,14 +2404,6 @@ static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_mk_string_unchecked(" !=\n", 4, 4);
 return x_1;
 }
@@ -2446,12 +2436,12 @@ lean_closure_set(x_9, 0, x_8);
 x_10 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__4;
 x_11 = lean_box(0);
 x_12 = l_Lean_Syntax_formatStx(x_2, x_11, x_5);
-x_13 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5;
+x_13 = lean_unsigned_to_nat(120u);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_format_pretty(x_12, x_13, x_14, x_14);
 x_16 = lean_string_append(x_10, x_15);
 lean_dec_ref(x_15);
-x_17 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6;
+x_17 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = l_Lean_Syntax_formatStx(x_3, x_11, x_5);
 x_20 = lean_format_pretty(x_19, x_13, x_14, x_14);
@@ -2812,12 +2802,12 @@ lean_closure_set(x_9, 0, x_8);
 x_10 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__4;
 x_11 = lean_box(0);
 x_12 = l_Lean_Syntax_formatStx(x_2, x_11, x_5);
-x_13 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5;
+x_13 = lean_unsigned_to_nat(120u);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_format_pretty(x_12, x_13, x_14, x_14);
 x_16 = lean_string_append(x_10, x_15);
 lean_dec_ref(x_15);
-x_17 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6;
+x_17 = l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = l_Lean_Syntax_formatStx(x_3, x_11, x_5);
 x_20 = lean_format_pretty(x_19, x_13, x_14, x_14);
@@ -5120,7 +5110,7 @@ else
 lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec_ref(x_9);
 lean_dec_ref(x_3);
-x_19 = l_List_zipWith___at___List_zip_spec__0___redArg(x_11, x_15);
+x_19 = l_List_zipWith___at___List_zip_spec__0(lean_box(0), lean_box(0), x_11, x_15);
 x_20 = lean_box(0);
 x_21 = l_List_mapTR_loop___at___Lean_Syntax_identComponents_spec__1(x_4, x_7, x_8, x_6, x_19, x_20);
 lean_dec(x_7);
@@ -9821,8 +9811,6 @@ l_Lean_Syntax_structRangeEqWithTraceReuse___closed__4 = _init_l_Lean_Syntax_stru
 lean_mark_persistent(l_Lean_Syntax_structRangeEqWithTraceReuse___closed__4);
 l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5 = _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5();
 lean_mark_persistent(l_Lean_Syntax_structRangeEqWithTraceReuse___closed__5);
-l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6 = _init_l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6();
-lean_mark_persistent(l_Lean_Syntax_structRangeEqWithTraceReuse___closed__6);
 l_Lean_Syntax_getAtomVal___closed__0 = _init_l_Lean_Syntax_getAtomVal___closed__0();
 lean_mark_persistent(l_Lean_Syntax_getAtomVal___closed__0);
 l_Lean_Syntax_asNode___closed__0 = _init_l_Lean_Syntax_asNode___closed__0();

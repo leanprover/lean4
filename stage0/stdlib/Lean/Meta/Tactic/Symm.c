@@ -313,7 +313,6 @@ uint64_t l_Lean_Meta_TransparencyMode_toUInt64(uint8_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_beqMVarId____x40_Lean_Expr___hyg_1814____boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
-extern lean_object* l_Lean_instFVarIdSetEmptyCollection;
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at___Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_89__spec__8___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_89__spec__0_spec__0_spec__0_spec__0_spec__0___closed__8;
@@ -4352,7 +4351,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Meta_Symm_initFn___lam__0____x40_Lean_Meta_Tactic_Symm___hyg_89____boxed), 4, 0);
-x_3 = l_Lean_instFVarIdSetEmptyCollection;
+x_3 = lean_box(1);
 x_4 = lean_alloc_closure((void*)(l_Lean_Meta_Symm_initFn___lam__1____x40_Lean_Meta_Tactic_Symm___hyg_89____boxed), 7, 1);
 lean_closure_set(x_4, 0, x_3);
 x_5 = l_Lean_Meta_Symm_initFn___closed__3____x40_Lean_Meta_Tactic_Symm___hyg_89_;

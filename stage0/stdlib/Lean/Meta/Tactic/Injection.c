@@ -88,13 +88,13 @@ lean_object* l_Lean_FVarIdSet_insert(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_heqToEq(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injectionCore___lam__0___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at___Lean_Meta_getCtorNumPropFields_spec__1___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injections_go___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_injections_go___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_injectionIntro_go(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injectionCore___lam__0___closed__1;
 lean_object* l_Lean_Meta_SavedState_restore___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_Meta_saveState___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_tryClear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -104,7 +104,6 @@ uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_injections___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_injections_go_spec__0___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injectionCore___lam__0___closed__3;
-lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injectionCore___lam__0___closed__8;
 LEAN_EXPORT lean_object* l_Lean_MVarId_assign___at___Lean_Meta_injectionCore_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -112,8 +111,8 @@ LEAN_EXPORT lean_object* l_Lean_commitIfNoEx___at___Lean_Meta_injections_go_spec
 lean_object* l_Lean_FVarId_getDecl___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqOfHEq(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injections_go___closed__4;
+lean_object* l_Lean_Expr_fvar___override(lean_object*);
 static lean_object* l_Lean_Meta_injectionCore___lam__0___closed__12;
-lean_object* l_Lean_mkFVar(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FVarId_getType___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -967,14 +966,20 @@ lean_inc(x_3);
 x_281 = l_Lean_FVarId_getDecl___redArg(x_3, x_4, x_6, x_7, x_280);
 if (lean_obj_tag(x_281) == 0)
 {
-lean_object* x_282; lean_object* x_283; lean_object* x_284; lean_object* x_285; 
+lean_object* x_282; lean_object* x_283; lean_object* x_284; lean_object* x_327; 
 x_282 = lean_ctor_get(x_281, 0);
 lean_inc(x_282);
 x_283 = lean_ctor_get(x_281, 1);
 lean_inc(x_283);
 lean_dec_ref(x_281);
-x_284 = l_Lean_LocalDecl_type(x_282);
+x_327 = lean_ctor_get(x_282, 3);
+lean_inc_ref(x_327);
 lean_dec(x_282);
+x_284 = x_327;
+goto block_326;
+block_326:
+{
+lean_object* x_285; 
 lean_inc(x_7);
 lean_inc_ref(x_6);
 lean_inc(x_5);
@@ -989,7 +994,7 @@ x_287 = lean_ctor_get(x_285, 1);
 lean_inc(x_287);
 lean_dec_ref(x_285);
 lean_inc(x_3);
-x_288 = l_Lean_mkFVar(x_3);
+x_288 = l_Lean_Expr_fvar___override(x_3);
 x_289 = l_Lean_Meta_injectionCore___lam__0___closed__16;
 x_290 = lean_unsigned_to_nat(4u);
 x_291 = l_Lean_Expr_isAppOfArity(x_286, x_289, x_290);
@@ -1214,9 +1219,10 @@ return x_325;
 }
 }
 }
+}
 else
 {
-uint8_t x_326; 
+uint8_t x_328; 
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -1224,29 +1230,29 @@ lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_326 = !lean_is_exclusive(x_281);
-if (x_326 == 0)
+x_328 = !lean_is_exclusive(x_281);
+if (x_328 == 0)
 {
 return x_281;
 }
 else
 {
-lean_object* x_327; lean_object* x_328; lean_object* x_329; 
-x_327 = lean_ctor_get(x_281, 0);
-x_328 = lean_ctor_get(x_281, 1);
-lean_inc(x_328);
-lean_inc(x_327);
+lean_object* x_329; lean_object* x_330; lean_object* x_331; 
+x_329 = lean_ctor_get(x_281, 0);
+x_330 = lean_ctor_get(x_281, 1);
+lean_inc(x_330);
+lean_inc(x_329);
 lean_dec(x_281);
-x_329 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_329, 0, x_327);
-lean_ctor_set(x_329, 1, x_328);
-return x_329;
+x_331 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_331, 0, x_329);
+lean_ctor_set(x_331, 1, x_330);
+return x_331;
 }
 }
 }
 else
 {
-uint8_t x_330; 
+uint8_t x_332; 
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -1254,23 +1260,23 @@ lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_330 = !lean_is_exclusive(x_279);
-if (x_330 == 0)
+x_332 = !lean_is_exclusive(x_279);
+if (x_332 == 0)
 {
 return x_279;
 }
 else
 {
-lean_object* x_331; lean_object* x_332; lean_object* x_333; 
-x_331 = lean_ctor_get(x_279, 0);
-x_332 = lean_ctor_get(x_279, 1);
-lean_inc(x_332);
-lean_inc(x_331);
+lean_object* x_333; lean_object* x_334; lean_object* x_335; 
+x_333 = lean_ctor_get(x_279, 0);
+x_334 = lean_ctor_get(x_279, 1);
+lean_inc(x_334);
+lean_inc(x_333);
 lean_dec(x_279);
-x_333 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_333, 0, x_331);
-lean_ctor_set(x_333, 1, x_332);
-return x_333;
+x_335 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_335, 0, x_333);
+lean_ctor_set(x_335, 1, x_334);
+return x_335;
 }
 }
 block_16:
@@ -1553,7 +1559,7 @@ x_94 = lean_ctor_get(x_92, 1);
 lean_inc(x_94);
 lean_dec_ref(x_92);
 lean_inc(x_93);
-x_95 = l_Lean_mkApp(x_68, x_93);
+x_95 = l_Lean_Expr_app___override(x_68, x_93);
 x_96 = l_Lean_MVarId_assign___at___Lean_Meta_injectionCore_spec__0___redArg(x_1, x_95, x_20, x_94);
 x_97 = !lean_is_exclusive(x_96);
 if (x_97 == 0)
@@ -2128,7 +2134,7 @@ x_223 = lean_ctor_get(x_221, 1);
 lean_inc(x_223);
 lean_dec_ref(x_221);
 lean_inc(x_222);
-x_224 = l_Lean_mkApp(x_199, x_222);
+x_224 = l_Lean_Expr_app___override(x_199, x_222);
 x_225 = l_Lean_MVarId_assign___at___Lean_Meta_injectionCore_spec__0___redArg(x_1, x_224, x_20, x_223);
 x_226 = lean_ctor_get(x_225, 1);
 lean_inc(x_226);

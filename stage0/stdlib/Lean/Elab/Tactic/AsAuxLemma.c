@@ -21,6 +21,7 @@ uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assign___at___elabAsAuxLemma_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
+lean_object* l_Lean_Expr_mvar___override(lean_object*);
 lean_object* l_Lean_Elab_Tactic_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_elabAsAuxLemma___closed__2;
 LEAN_EXPORT lean_object* l_Lean_MVarId_assign___at___elabAsAuxLemma_spec__3___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -60,7 +61,6 @@ LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___elabAsAuxLemma_spec__2(l
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 static lean_object* l_elabAsAuxLemma___closed__0;
 LEAN_EXPORT lean_object* l_elabAsAuxLemma(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkMVar(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_AsAuxLemma_0__elabAsAuxLemma___regBuiltin_elabAsAuxLemma__1___closed__2;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -634,7 +634,7 @@ else
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_inc(x_13);
-x_22 = l_Lean_mkMVar(x_13);
+x_22 = l_Lean_Expr_mvar___override(x_13);
 x_23 = l_Lean_instantiateMVars___at___elabAsAuxLemma_spec__2___redArg(x_22, x_8, x_18);
 x_24 = lean_ctor_get(x_23, 0);
 lean_inc(x_24);

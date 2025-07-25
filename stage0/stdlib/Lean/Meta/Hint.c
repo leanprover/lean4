@@ -94,6 +94,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldrM___at___Lean_Di
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___Lean_Diff_lcs___at___Lean_Diff_diff___at___Lean_Meta_Hint_readableDiff_wordDiff_spec__2_spec__2_spec__16(lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageData_hint(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_foldl___at___Array_appendList_spec__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Diff_Histogram_addLeft___at___Lean_Diff_lcs___at___Lean_Diff_diff___at___Lean_Meta_Hint_readableDiff_mkWhitespaceDiff_spec__1_spec__1_spec__5_spec__7_spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_matchSuffix_go___at___Lean_Diff_matchSuffix___at___Lean_Diff_lcs___at___Lean_Diff_diff___at___Lean_Meta_Hint_readableDiff_mkWhitespaceDiff_spec__1_spec__1_spec__3_spec__3(lean_object*, lean_object*, lean_object*);
@@ -107,7 +108,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Diff_diff___at___Lea
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Diff_diff___at___Lean_Meta_Hint_readableDiff_wordDiff_spec__2_spec__22(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Meta_Hint_readableDiff_wordDiff___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Hint_DiffGranularity_noConfusion___redArg___boxed(lean_object*, lean_object*);
-lean_object* l_List_foldl___at___Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___Lean_Diff_diff___at___Lean_Meta_Hint_readableDiff_mkWhitespaceDiff_spec__1_spec__24___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Diff_beqAction____x40_Lean_Util_Diff___hyg_126_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_addLeft___at___Lean_Diff_lcs___at___Lean_Diff_diff___at___Lean_Meta_Hint_readableDiff_mkWhitespaceDiff_spec__1_spec__1_spec__5___redArg(lean_object*, lean_object*, uint32_t);
@@ -229,7 +229,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Hint_readableDiff_joinEdits(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_Diff_matchPrefix___at___Lean_Diff_lcs___at___Lean_Diff_diff___at___Lean_Meta_Hint_readableDiff_wordDiff_spec__2_spec__2_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Diff_diff___at___Lean_Meta_Hint_readableDiff_wordDiff_spec__2_spec__27___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_addLeft___at___Lean_Diff_lcs___at___Lean_Diff_diff___at___Lean_Meta_Hint_readableDiff_wordDiff_spec__2_spec__2_spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_toList(lean_object*);
 static lean_object* l_Lean_Diff_lcs___at___Lean_Diff_diff___at___Lean_Meta_Hint_readableDiff_mkWhitespaceDiff_spec__1_spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Hint_readableDiff_joinCharDiff(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Hint_readableDiff_wordDiff___boxed(lean_object*, lean_object*);
@@ -366,7 +365,7 @@ static lean_object* _init_l_Lean_Meta_Hint_tryThisDiffWidget___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\npublic import * as React from 'react';\npublic import { EditorContext, EnvPosContext } from '@leanprover/infoview';\n\npublic section\nconst e = React.createElement;\nexport default function ({ diff, range, suggestion }) {\n  const pos = React.useContext(EnvPosContext)\n  const editorConnection = React.useContext(EditorContext)\n  const insStyle = { className: 'information' }\n  const delStyle = {\n    style: { color: 'var(--vscode-errorForeground)', textDecoration: 'line-through' }\n  }\n  const defStyle = {\n    style: { color: 'var(--vscode-textLink-foreground)' }\n  }\n  function onClick() {\n    editorConnection.api.applyEdit({\n      changes: { [pos.uri]: [{ range, newText: suggestion }] }\n    })\n  }\n\n  const spans = diff.map (comp =>\n    comp.type === 'deletion' \? e('span', delStyle, comp.text) :\n    comp.type === 'insertion' \? e('span', insStyle, comp.text) :\n      e('span', defStyle, comp.text)\n  )\n  const fullDiff = e('span',\n    { onClick,\n      title: 'Apply suggestion',\n      className: 'link pointer dim font-code',\n      style: { display: 'inline-block', verticalAlign: 'text-top' } },\n    spans)\n  return fullDiff\n}", 1130, 1130);
+x_1 = lean_mk_string_unchecked("\nimport * as React from 'react';\nimport { EditorContext, EnvPosContext } from '@leanprover/infoview';\n\nconst e = React.createElement;\nexport default function ({ diff, range, suggestion }) {\n  const pos = React.useContext(EnvPosContext)\n  const editorConnection = React.useContext(EditorContext)\n  const insStyle = { className: 'information' }\n  const delStyle = {\n    style: { color: 'var(--vscode-errorForeground)', textDecoration: 'line-through' }\n  }\n  const defStyle = {\n    style: { color: 'var(--vscode-textLink-foreground)' }\n  }\n  function onClick() {\n    editorConnection.api.applyEdit({\n      changes: { [pos.uri]: [{ range, newText: suggestion }] }\n    })\n  }\n\n  const spans = diff.map (comp =>\n    comp.type === 'deletion' \? e('span', delStyle, comp.text) :\n    comp.type === 'insertion' \? e('span', insStyle, comp.text) :\n      e('span', defStyle, comp.text)\n  )\n  const fullDiff = e('span',\n    { onClick,\n      title: 'Apply suggestion',\n      className: 'link pointer dim font-code',\n      style: { display: 'inline-block', verticalAlign: 'text-top' } },\n    spans)\n  return fullDiff\n}", 1101, 1101);
 return x_1;
 }
 }
@@ -803,7 +802,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = l_List_flatMapTR_go___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_mkDiffString_spec__0___closed__0;
 lean_ctor_set(x_1, 1, x_6);
-x_7 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_1);
+x_7 = l_List_foldl___at___Array_appendList_spec__0(lean_box(0), x_2, x_1);
 x_1 = x_5;
 x_2 = x_7;
 goto _start;
@@ -820,7 +819,7 @@ x_11 = l_List_flatMapTR_go___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_mkD
 x_12 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_12, 0, x_9);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_12);
+x_13 = l_List_foldl___at___Array_appendList_spec__0(lean_box(0), x_2, x_12);
 x_1 = x_10;
 x_2 = x_13;
 goto _start;
@@ -868,7 +867,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_5 = lean_ctor_get(x_1, 1);
 x_6 = l_List_flatMapTR_go___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_mkDiffString_spec__1___closed__0;
 lean_ctor_set(x_1, 1, x_6);
-x_7 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_1);
+x_7 = l_List_foldl___at___Array_appendList_spec__0(lean_box(0), x_2, x_1);
 x_1 = x_5;
 x_2 = x_7;
 goto _start;
@@ -885,7 +884,7 @@ x_11 = l_List_flatMapTR_go___at_____private_Lean_Meta_Hint_0__Lean_Meta_Hint_mkD
 x_12 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_12, 0, x_9);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_12);
+x_13 = l_List_foldl___at___Array_appendList_spec__0(lean_box(0), x_2, x_12);
 x_1 = x_10;
 x_2 = x_13;
 goto _start;
@@ -11707,7 +11706,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Hint_readableDiff_splitChars(lean_object* x
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_String_toList(x_1);
+x_2 = lean_string_data(x_1);
 x_3 = lean_array_mk(x_2);
 return x_3;
 }
@@ -11825,11 +11824,11 @@ goto block_53;
 block_44:
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; uint8_t x_39; 
-x_31 = lean_nat_shiftr(x_30, x_28);
+x_31 = lean_nat_shiftr(x_30, x_29);
 lean_dec(x_30);
-x_32 = lean_nat_add(x_27, x_31);
+x_32 = lean_nat_add(x_28, x_31);
 lean_dec(x_31);
-lean_dec(x_27);
+lean_dec(x_28);
 lean_inc_ref(x_1);
 x_33 = l_Lean_Meta_Hint_readableDiff_splitChars(x_1);
 lean_inc_ref(x_2);
@@ -11842,9 +11841,9 @@ x_39 = lean_nat_dec_lt(x_36, x_37);
 if (x_39 == 0)
 {
 lean_dec(x_37);
-x_15 = x_32;
-x_16 = x_35;
-x_17 = x_29;
+x_15 = x_27;
+x_16 = x_32;
+x_17 = x_35;
 x_18 = x_38;
 goto block_25;
 }
@@ -11855,9 +11854,9 @@ x_40 = lean_nat_dec_le(x_37, x_37);
 if (x_40 == 0)
 {
 lean_dec(x_37);
-x_15 = x_32;
-x_16 = x_35;
-x_17 = x_29;
+x_15 = x_27;
+x_16 = x_32;
+x_17 = x_35;
 x_18 = x_38;
 goto block_25;
 }
@@ -11868,9 +11867,9 @@ x_41 = 0;
 x_42 = lean_usize_of_nat(x_37);
 lean_dec(x_37);
 x_43 = l_Array_foldlMUnsafe_fold___at___Lean_Meta_Hint_readableDiff_spec__0(x_35, x_41, x_42, x_38);
-x_15 = x_32;
-x_16 = x_35;
-x_17 = x_29;
+x_15 = x_27;
+x_16 = x_32;
+x_17 = x_35;
 x_18 = x_43;
 goto block_25;
 }
@@ -11888,18 +11887,18 @@ x_52 = lean_nat_dec_le(x_45, x_46);
 if (x_52 == 0)
 {
 lean_dec(x_46);
-x_27 = x_51;
-x_28 = x_50;
-x_29 = x_49;
+x_27 = x_49;
+x_28 = x_51;
+x_29 = x_50;
 x_30 = x_45;
 goto block_44;
 }
 else
 {
 lean_dec(x_45);
-x_27 = x_51;
-x_28 = x_50;
-x_29 = x_49;
+x_27 = x_49;
+x_28 = x_51;
+x_29 = x_50;
 x_30 = x_46;
 goto block_44;
 }
@@ -11931,9 +11930,9 @@ block_14:
 if (x_7 == 0)
 {
 uint8_t x_8; 
-lean_dec_ref(x_5);
-x_8 = lean_nat_dec_le(x_6, x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
+x_8 = lean_nat_dec_le(x_6, x_5);
+lean_dec(x_5);
 lean_dec(x_6);
 if (x_8 == 0)
 {
@@ -11954,12 +11953,12 @@ else
 {
 size_t x_11; size_t x_12; lean_object* x_13; 
 lean_dec(x_6);
-lean_dec(x_4);
+lean_dec(x_5);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_11 = lean_array_size(x_5);
+x_11 = lean_array_size(x_4);
 x_12 = 0;
-x_13 = l_Array_mapMUnsafe_map___at___Lean_Meta_Hint_readableDiff_joinCharDiff_spec__0(x_11, x_12, x_5);
+x_13 = l_Array_mapMUnsafe_map___at___Lean_Meta_Hint_readableDiff_joinCharDiff_spec__0(x_11, x_12, x_4);
 return x_13;
 }
 }
@@ -11968,8 +11967,8 @@ block_25:
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
 x_19 = lean_array_get_size(x_18);
 lean_dec_ref(x_18);
-x_20 = l_Lean_Meta_Hint_readableDiff_joinEdits___redArg(x_16);
-lean_dec_ref(x_16);
+x_20 = l_Lean_Meta_Hint_readableDiff_joinEdits___redArg(x_17);
+lean_dec_ref(x_17);
 x_21 = lean_array_get_size(x_20);
 x_22 = lean_unsigned_to_nat(3u);
 x_23 = lean_nat_dec_le(x_21, x_22);
@@ -11977,19 +11976,19 @@ lean_dec(x_21);
 if (x_23 == 0)
 {
 uint8_t x_24; 
-x_24 = lean_nat_dec_le(x_19, x_17);
-lean_dec(x_17);
-x_4 = x_15;
-x_5 = x_20;
+x_24 = lean_nat_dec_le(x_19, x_15);
+lean_dec(x_15);
+x_4 = x_20;
+x_5 = x_16;
 x_6 = x_19;
 x_7 = x_24;
 goto block_14;
 }
 else
 {
-lean_dec(x_17);
-x_4 = x_15;
-x_5 = x_20;
+lean_dec(x_15);
+x_4 = x_20;
+x_5 = x_16;
 x_6 = x_19;
 x_7 = x_23;
 goto block_14;

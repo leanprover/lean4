@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint64_t l_Lean_hashExternAttrData____x40_Lean_Compiler_ExternAttr___hyg_441_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Compiler_LCNF_hashParams_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_hashAlt(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashAlts___boxed(lean_object*);
@@ -22,6 +21,7 @@ uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_instHashableCode___lam__0(lean_object*);
 LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_hashDeclValue____x40_Lean_Compiler_LCNF_DeclHash___hyg_274_(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
+uint64_t l_Lean_hashExternAttrData____x40_Lean_Compiler_ExternAttr___hyg_413_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashDeclValue____x40_Lean_Compiler_LCNF_DeclHash___hyg_274____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashParams___boxed(lean_object*);
 LEAN_EXPORT uint64_t l_Array_foldlMUnsafe_fold___at___Lean_Compiler_LCNF_hashAlts_spec__0(lean_object*, size_t, size_t, uint64_t);
@@ -576,7 +576,7 @@ else
 lean_object* x_6; uint64_t x_7; uint64_t x_8; uint64_t x_9; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = 1;
-x_8 = l_Lean_hashExternAttrData____x40_Lean_Compiler_ExternAttr___hyg_441_(x_6);
+x_8 = l_Lean_hashExternAttrData____x40_Lean_Compiler_ExternAttr___hyg_413_(x_6);
 x_9 = lean_uint64_mix_hash(x_7, x_8);
 return x_9;
 }

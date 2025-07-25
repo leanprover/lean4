@@ -20,6 +20,7 @@ LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Elab_Tactic_evalCal
 static lean_object* l_Lean_Elab_Tactic_evalCalc___closed__4;
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_getResetInfoTrees___at___Lean_Elab_withInfoTreeContext___at___Lean_Elab_Tactic_evalCalc_spec__3_spec__3___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 static lean_object* l_Lean_Elab_getResetInfoTrees___at___Lean_Elab_withInfoTreeContext___at___Lean_Elab_Tactic_evalCalc_spec__3_spec__3___redArg___closed__1;
@@ -43,7 +44,6 @@ lean_object* l_Lean_Elab_Term_elabCalcSteps(lean_object*, lean_object*, lean_obj
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_getResetInfoTrees___at___Lean_Elab_withInfoTreeContext___at___Lean_Elab_Tactic_evalCalc_spec__3_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalCalc___closed__5;
-lean_object* l_Lean_mkApp2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_pushGoals___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Tactic_evalCalc_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalCalc___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1239,7 +1239,7 @@ lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean
 x_67 = lean_ctor_get(x_63, 1);
 lean_inc(x_67);
 lean_dec_ref(x_63);
-x_68 = l_Lean_mkApp2(x_60, x_53, x_62);
+x_68 = l_Lean_mkAppB(x_60, x_53, x_62);
 x_69 = l_Lean_Elab_Tactic_evalCalc___lam__2___closed__4;
 x_70 = l_Lean_Name_mkStr2(x_5, x_69);
 x_71 = l_Lean_Name_append(x_6, x_70);
@@ -1493,7 +1493,7 @@ block_34:
 {
 if (x_32 == 0)
 {
-lean_dec_ref(x_31);
+lean_dec_ref(x_30);
 lean_dec(x_17);
 x_20 = x_7;
 x_21 = x_8;
@@ -1501,7 +1501,7 @@ x_22 = x_9;
 x_23 = x_10;
 x_24 = x_11;
 x_25 = x_12;
-x_26 = x_30;
+x_26 = x_31;
 goto block_29;
 }
 else
@@ -1523,8 +1523,8 @@ if (lean_is_scalar(x_17)) {
  x_33 = x_17;
  lean_ctor_set_tag(x_33, 1);
 }
-lean_ctor_set(x_33, 0, x_31);
-lean_ctor_set(x_33, 1, x_30);
+lean_ctor_set(x_33, 0, x_30);
+lean_ctor_set(x_33, 1, x_31);
 return x_33;
 }
 }
@@ -1536,15 +1536,15 @@ if (x_37 == 0)
 {
 uint8_t x_38; 
 x_38 = l_Lean_Exception_isRuntime(x_35);
-x_30 = x_36;
-x_31 = x_35;
+x_30 = x_35;
+x_31 = x_36;
 x_32 = x_38;
 goto block_34;
 }
 else
 {
-x_30 = x_36;
-x_31 = x_35;
+x_30 = x_35;
+x_31 = x_36;
 x_32 = x_37;
 goto block_34;
 }

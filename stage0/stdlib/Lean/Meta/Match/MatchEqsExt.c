@@ -51,7 +51,6 @@ static lean_object* l_Lean_Meta_Match_registerMatchEqns___redArg___closed__2;
 static lean_object* l_Lean_Meta_Match_reprMatchEqns___redArg___closed__9____x40_Lean_Meta_Match_MatchEqsExt___hyg_52_;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_reprMatchEqns___redArg___closed__3____x40_Lean_Meta_Match_MatchEqsExt___hyg_52_;
-lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_findStateAsyncUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_reprMatchEqns___redArg____x40_Lean_Meta_Match_MatchEqsExt___hyg_52_(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Array_Array_repr___at___Lean_Meta_Match_reprMatchEqns____x40_Lean_Meta_Match_MatchEqsExt___hyg_52__spec__4_spec__4___lam__0(lean_object*);
@@ -80,6 +79,7 @@ static lean_object* l_Lean_Meta_Match_instInhabitedMatchEqnsExtState___closed__0
 lean_object* lean_usize_to_nat(size_t);
 static lean_object* l_Array_Array_repr___at___Lean_Meta_Match_reprMatchEqns____x40_Lean_Meta_Match_MatchEqsExt___hyg_52__spec__0___closed__4;
 static lean_object* l_Lean_Meta_Match_instReprMatchEqns___closed__0;
+lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_findStateAsyncUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_MatchEqns_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_isMatchEqnTheorem___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Array_Array_repr___at___Lean_Meta_Match_reprMatchEqns____x40_Lean_Meta_Match_MatchEqsExt___hyg_52__spec__4_spec__4(lean_object*, lean_object*);
@@ -1467,10 +1467,10 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t 
 x_3 = l_Lean_Meta_Match_instInhabitedMatchEqnsExtState;
 x_4 = l_Lean_Meta_Match_registerMatchEqns___redArg___closed__0;
 lean_inc(x_2);
-x_5 = l___private_Lean_Environment_0__Lean_EnvExtension_findStateAsyncUnsafe(lean_box(0), x_3, x_4, x_1, x_2);
+x_5 = l___private_Lean_Environment_0__Lean_EnvExtension_findStateAsyncUnsafe___redArg(x_3, x_4, x_1, x_2);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc_ref(x_6);
-lean_dec_ref(x_5);
+lean_dec(x_5);
 x_7 = l_Lean_PersistentHashMap_contains___at___Lean_Meta_Match_isMatchEqnTheorem_spec__0___redArg(x_6, x_2);
 lean_dec(x_2);
 return x_7;

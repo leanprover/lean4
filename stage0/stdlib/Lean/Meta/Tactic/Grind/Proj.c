@@ -48,6 +48,7 @@ lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 uint8_t l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateProjEq___closed__2;
+lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateProjEq___closed__4;
@@ -58,7 +59,6 @@ LEAN_EXPORT lean_object* l_Lean_addTrace___at___Lean_Meta_Grind_propagateProjEq_
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getProjectionFnInfo_x3f___at___Lean_Meta_Grind_propagateProjEq_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_shareCommon___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_addTrace___at___Lean_Meta_Grind_propagateProjEq_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -864,7 +864,7 @@ if (x_125 == 0)
 lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; 
 x_126 = l_Lean_Expr_appFn_x21(x_1);
 lean_inc(x_49);
-x_127 = l_Lean_mkApp(x_126, x_49);
+x_127 = l_Lean_Expr_app___override(x_126, x_49);
 x_128 = l_Lean_Meta_Grind_shareCommon___redArg(x_127, x_5, x_50);
 x_129 = lean_ctor_get(x_128, 0);
 lean_inc(x_129);
@@ -1332,7 +1332,7 @@ if (x_206 == 0)
 lean_object* x_207; lean_object* x_208; lean_object* x_209; lean_object* x_210; lean_object* x_211; lean_object* x_212; lean_object* x_213; lean_object* x_214; lean_object* x_215; lean_object* x_216; 
 x_207 = l_Lean_Expr_appFn_x21(x_1);
 lean_inc(x_145);
-x_208 = l_Lean_mkApp(x_207, x_145);
+x_208 = l_Lean_Expr_app___override(x_207, x_145);
 x_209 = l_Lean_Meta_Grind_shareCommon___redArg(x_208, x_5, x_146);
 x_210 = lean_ctor_get(x_209, 0);
 lean_inc(x_210);
@@ -1859,7 +1859,7 @@ if (x_311 == 0)
 lean_object* x_312; lean_object* x_313; lean_object* x_314; lean_object* x_315; lean_object* x_316; lean_object* x_317; lean_object* x_318; lean_object* x_319; lean_object* x_320; lean_object* x_321; 
 x_312 = l_Lean_Expr_appFn_x21(x_1);
 lean_inc(x_250);
-x_313 = l_Lean_mkApp(x_312, x_250);
+x_313 = l_Lean_Expr_app___override(x_312, x_250);
 x_314 = l_Lean_Meta_Grind_shareCommon___redArg(x_313, x_5, x_251);
 x_315 = lean_ctor_get(x_314, 0);
 lean_inc(x_315);

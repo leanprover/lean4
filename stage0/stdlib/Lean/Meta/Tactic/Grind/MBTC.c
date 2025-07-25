@@ -104,7 +104,6 @@ LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_Meta_Grind_mbtc_spec__24
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableNat___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mbtc___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_levelZero;
 lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_Meta_Grind_mbtc_spec__16___lam__0___boxed(lean_object**);
 LEAN_EXPORT uint8_t l_Array_qsort_sort___at___Lean_Meta_Grind_mbtc_spec__24___redArg___lam__0(lean_object*, lean_object*);
@@ -8096,7 +8095,7 @@ static lean_object* _init_l_Lean_PersistentArray_forInAux___at___Lean_Persistent
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_levelZero;
+x_1 = lean_box(0);
 x_2 = l_Lean_Expr_sort___override(x_1);
 return x_2;
 }

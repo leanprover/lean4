@@ -24,7 +24,6 @@ LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_reprLeanOption____x40_Lean_Util_
 static lean_object* l_Lean_reprLeanOption___redArg___closed__0____x40_Lean_Util_LeanOptions___hyg_565_;
 static lean_object* l_List_repr___at___Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_680__spec__1___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_680____boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_LeanOptions_toOptions___closed__0;
 LEAN_EXPORT lean_object* l_Lean_instFromJsonLeanOptions___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LeanOptions_ofArray(lean_object*);
 static lean_object* l_Lean_LeanOptionValue_asCliFlagValue___closed__2;
@@ -54,6 +53,7 @@ static lean_object* l_Lean_reprLeanOptionValue___closed__9____x40_Lean_Util_Lean
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_LeanOptions_fromOptions_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_reprLeanOption___redArg___closed__3____x40_Lean_Util_LeanOptions___hyg_565_;
 static lean_object* l_Lean_reprLeanOptions___redArg___closed__5____x40_Lean_Util_LeanOptions___hyg_680_;
+lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instCoeBoolLeanOptionValue___lam__0___boxed(lean_object*);
 static lean_object* l_List_repr___at___Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_680__spec__1___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_LeanOptions_append_spec__1_spec__1(lean_object*, lean_object*);
@@ -155,7 +155,6 @@ lean_object* l_Bool_repr___redArg(uint8_t);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Lean_NameMap_fromJson_x3f___redArg(lean_object*, lean_object*);
 static lean_object* l_Prod_repr___at___List_repr___at___Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_680__spec__1_spec__1___redArg___closed__4;
-lean_object* l_Lean_KVMap_insert(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_LeanOptions_append_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instCoeNatLeanOptionValue;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
@@ -169,7 +168,6 @@ LEAN_EXPORT lean_object* l_Lean_instValueLeanOptionValue;
 static lean_object* l_Lean_reprLeanOption___redArg___closed__1____x40_Lean_Util_LeanOptions___hyg_565_;
 LEAN_EXPORT lean_object* l_Lean_instFromJsonLeanOptions;
 static lean_object* l_Lean_instFromJsonLeanOptions___closed__0;
-extern lean_object* l_Lean_KVMap_empty;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_reprLeanOptionValue___closed__7____x40_Lean_Util_LeanOptions___hyg_54_;
 lean_object* lean_array_get_size(lean_object*);
@@ -2507,7 +2505,7 @@ x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 lean_dec_ref(x_7);
 x_9 = l_Lean_LeanOptionValue_toDataValue(x_4);
-x_10 = l_Lean_KVMap_insert(x_8, x_3, x_9);
+x_10 = l_Lean_KVMap_insertCore(x_8, x_3, x_9);
 x_1 = x_10;
 x_2 = x_6;
 goto _start;
@@ -2521,19 +2519,11 @@ return x_12;
 }
 }
 }
-static lean_object* _init_l_Lean_LeanOptions_toOptions___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_KVMap_empty;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_LeanOptions_toOptions(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_LeanOptions_toOptions___closed__0;
+x_2 = lean_box(0);
 x_3 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_LeanOptions_toOptions_spec__0(x_2, x_1);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
@@ -3994,8 +3984,6 @@ l_Lean_instHAppendLeanOptionsArrayLeanOption___closed__0 = _init_l_Lean_instHApp
 lean_mark_persistent(l_Lean_instHAppendLeanOptionsArrayLeanOption___closed__0);
 l_Lean_instHAppendLeanOptionsArrayLeanOption = _init_l_Lean_instHAppendLeanOptionsArrayLeanOption();
 lean_mark_persistent(l_Lean_instHAppendLeanOptionsArrayLeanOption);
-l_Lean_LeanOptions_toOptions___closed__0 = _init_l_Lean_LeanOptions_toOptions___closed__0();
-lean_mark_persistent(l_Lean_LeanOptions_toOptions___closed__0);
 l_Lean_LeanOptions_fromOptions_x3f___closed__0 = _init_l_Lean_LeanOptions_fromOptions_x3f___closed__0();
 lean_mark_persistent(l_Lean_LeanOptions_fromOptions_x3f___closed__0);
 l_Lean_instFromJsonLeanOptions___closed__0 = _init_l_Lean_instFromJsonLeanOptions___closed__0();

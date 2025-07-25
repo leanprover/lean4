@@ -69,7 +69,6 @@ LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_noConfusion___boxed(lean_obje
 LEAN_EXPORT lean_object* l_Lean_reducibilityExtraExt;
 extern lean_object* l_Lean_unknownIdentifierMessageTag;
 LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_toCtorIdx(uint8_t);
-lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__38;
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -308,6 +307,7 @@ static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConsta
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_instInhabitedReducibilityStatus;
 LEAN_EXPORT lean_object* l_Lean_beqReducibilityStatus____x40_Lean_ReducibilityAttrs___hyg_135____boxed(lean_object*, lean_object*);
+lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setReducibilityStatus___redArg(lean_object*, lean_object*, uint8_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_PersistentEnvExtension_findStateAsync___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2910,7 +2910,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_find(x_1, x_3);
+x_5 = l_Lean_KVMap_findCore(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 

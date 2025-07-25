@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMConstructor___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872____boxed(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_Constructor_0__Lean_Elab_Tactic_Do_ProofMode_elabMConstructor___regBuiltin_Lean_Elab_Tactic_Do_ProofMode_elabMConstructor__1___closed__6;
@@ -47,7 +48,6 @@ static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mConstructorCore___closed__7
 lean_object* l_Lean_Elab_Tactic_replaceMainGoal___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mConstructorCore___closed__8;
-lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_mConstructorCore_spec__3___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___Lean_Elab_Tactic_Do_ProofMode_elabMConstructor_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -918,7 +918,7 @@ x_66 = lean_box(0);
 lean_ctor_set_tag(x_61, 1);
 lean_ctor_set(x_61, 1, x_66);
 lean_ctor_set(x_61, 0, x_35);
-x_67 = l_Lean_mkConst(x_65, x_61);
+x_67 = l_Lean_Expr_const___override(x_65, x_61);
 lean_inc(x_63);
 lean_inc(x_57);
 x_68 = l_Lean_mkApp6(x_67, x_41, x_37, x_40, x_39, x_57, x_63);
@@ -969,7 +969,7 @@ x_81 = lean_box(0);
 x_82 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_82, 0, x_35);
 lean_ctor_set(x_82, 1, x_81);
-x_83 = l_Lean_mkConst(x_80, x_82);
+x_83 = l_Lean_Expr_const___override(x_80, x_82);
 lean_inc(x_78);
 lean_inc(x_57);
 x_84 = l_Lean_mkApp6(x_83, x_41, x_37, x_40, x_39, x_57, x_78);
@@ -1040,7 +1040,7 @@ if (lean_is_scalar(x_98)) {
 }
 lean_ctor_set(x_101, 0, x_35);
 lean_ctor_set(x_101, 1, x_100);
-x_102 = l_Lean_mkConst(x_99, x_101);
+x_102 = l_Lean_Expr_const___override(x_99, x_101);
 lean_inc(x_96);
 lean_inc(x_91);
 x_103 = l_Lean_mkApp6(x_102, x_41, x_37, x_40, x_39, x_91, x_96);
@@ -1257,7 +1257,7 @@ if (lean_is_scalar(x_140)) {
 }
 lean_ctor_set(x_143, 0, x_111);
 lean_ctor_set(x_143, 1, x_142);
-x_144 = l_Lean_mkConst(x_141, x_143);
+x_144 = l_Lean_Expr_const___override(x_141, x_143);
 lean_inc(x_138);
 lean_inc(x_132);
 x_145 = l_Lean_mkApp6(x_144, x_116, x_113, x_115, x_114, x_132, x_138);

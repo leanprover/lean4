@@ -23,6 +23,7 @@ lean_object* l_Int_sub___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_instCommRingInt___closed__3;
 lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_Lean_Grind_instCommRingInt___closed__8;
+lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lean_Grind_instCommRingInt___closed__6;
 lean_object* l_instOfNat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingInt___lam__0___boxed(lean_object*, lean_object*);
@@ -43,7 +44,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingInt___lam__0(lean_object* x_1,
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_instNatCastInt___lam__0(x_1);
+x_3 = lean_nat_to_int(x_1);
 x_4 = lean_int_mul(x_3, x_2);
 lean_dec(x_3);
 return x_4;

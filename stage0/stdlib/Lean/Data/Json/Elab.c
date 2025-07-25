@@ -28,7 +28,6 @@ static lean_object* l_Lean_Json_json_quot___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Json_json_x2d____1;
 static lean_object* l_Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1___closed__36;
 static lean_object* l_Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1___closed__47;
-lean_object* l_Lean_TSyntax_getId(lean_object*);
 static lean_object* l_Lean_Json_json_quot___closed__15;
 static lean_object* l_Array_mapMUnsafe_map___at___Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__4___closed__7;
 static lean_object* l_Lean_Json_json_quot___closed__3;
@@ -51,6 +50,7 @@ static lean_object* l_Lean_Json_json_quot___closed__14;
 static lean_object* l_Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1___closed__17;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1___closed__44;
+lean_object* l_Lean_Syntax_getId(lean_object*);
 static lean_object* l_Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1___closed__83;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -1674,7 +1674,7 @@ goto block_20;
 else
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
-x_37 = l_Lean_TSyntax_getId(x_31);
+x_37 = l_Lean_Syntax_getId(x_31);
 lean_dec(x_31);
 lean_inc_ref(x_4);
 x_38 = l_Lean_Name_toString(x_37, x_33, x_4);

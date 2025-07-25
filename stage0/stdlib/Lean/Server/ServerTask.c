@@ -75,7 +75,6 @@ LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Server_ServerTask_waitAny
 lean_object* lean_io_map_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCostly(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__22____x40_Lean_Server_ServerTask___hyg_843_;
-extern lean_object* l_Task_Priority_default;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__11____x40_Lean_Server_ServerTask___hyg_843_;
@@ -107,7 +106,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedServerTask___redArg(lean_obj
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_cancel___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_bindCostly(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__16____x40_Lean_Server_ServerTask___hyg_843_;
-extern lean_object* l_Task_Priority_dedicated;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_mapTaskCheap___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Task_asServerTask(lean_object*, lean_object*);
@@ -241,7 +239,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_mapCheap___redArg(lean_object*
 _start:
 {
 lean_object* x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = l_Task_Priority_default;
+x_3 = lean_unsigned_to_nat(0u);
 x_4 = 1;
 x_5 = lean_task_map(x_1, x_2, x_3, x_4);
 return x_5;
@@ -259,7 +257,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_mapCostly___redArg(lean_object
 _start:
 {
 lean_object* x_3; uint8_t x_4; lean_object* x_5; 
-x_3 = l_Task_Priority_dedicated;
+x_3 = lean_unsigned_to_nat(9u);
 x_4 = 0;
 x_5 = lean_task_map(x_1, x_2, x_3, x_4);
 return x_5;
@@ -287,7 +285,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_bindCheap___redArg___lam__0), 2, 1);
 lean_closure_set(x_3, 0, x_2);
-x_4 = l_Task_Priority_default;
+x_4 = lean_unsigned_to_nat(0u);
 x_5 = 1;
 x_6 = lean_task_bind(x_1, x_3, x_4, x_5);
 return x_6;
@@ -307,7 +305,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
 x_3 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_bindCheap___redArg___lam__0), 2, 1);
 lean_closure_set(x_3, 0, x_2);
-x_4 = l_Task_Priority_dedicated;
+x_4 = lean_unsigned_to_nat(9u);
 x_5 = 0;
 x_6 = lean_task_bind(x_1, x_3, x_4, x_5);
 return x_6;
@@ -456,7 +454,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_asTask___redArg(lean_ob
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Task_Priority_dedicated;
+x_3 = lean_unsigned_to_nat(9u);
 x_4 = lean_io_as_task(x_1, x_3, x_2);
 x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
@@ -490,7 +488,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_mapTaskCheap___redArg(l
 _start:
 {
 lean_object* x_4; uint8_t x_5; lean_object* x_6; uint8_t x_7; 
-x_4 = l_Task_Priority_default;
+x_4 = lean_unsigned_to_nat(0u);
 x_5 = 1;
 x_6 = lean_io_map_task(x_1, x_2, x_4, x_5, x_3);
 x_7 = !lean_is_exclusive(x_6);
@@ -525,7 +523,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_mapTaskCostly___redArg(
 _start:
 {
 lean_object* x_4; uint8_t x_5; lean_object* x_6; uint8_t x_7; 
-x_4 = l_Task_Priority_dedicated;
+x_4 = lean_unsigned_to_nat(9u);
 x_5 = 0;
 x_6 = lean_io_map_task(x_1, x_2, x_4, x_5, x_3);
 x_7 = !lean_is_exclusive(x_6);
@@ -587,7 +585,7 @@ _start:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_BaseIO_bindTaskCheap___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_2);
-x_5 = l_Task_Priority_default;
+x_5 = lean_unsigned_to_nat(0u);
 x_6 = 1;
 x_7 = lean_io_bind_task(x_1, x_4, x_5, x_6, x_3);
 x_8 = !lean_is_exclusive(x_7);
@@ -624,7 +622,7 @@ _start:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_BaseIO_bindTaskCheap___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_2);
-x_5 = l_Task_Priority_dedicated;
+x_5 = lean_unsigned_to_nat(9u);
 x_6 = 0;
 x_7 = lean_io_bind_task(x_1, x_4, x_5, x_6, x_3);
 x_8 = !lean_is_exclusive(x_7);
@@ -727,7 +725,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_EIO_asTask___redArg___lam__0), 2, 1);
 lean_closure_set(x_3, 0, x_1);
-x_4 = l_Task_Priority_dedicated;
+x_4 = lean_unsigned_to_nat(9u);
 x_5 = lean_io_as_task(x_3, x_4, x_2);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
@@ -829,7 +827,7 @@ _start:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_EIO_mapTaskCheap___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_1);
-x_5 = l_Task_Priority_default;
+x_5 = lean_unsigned_to_nat(0u);
 x_6 = 1;
 x_7 = lean_io_map_task(x_4, x_2, x_5, x_6, x_3);
 x_8 = !lean_is_exclusive(x_7);
@@ -866,7 +864,7 @@ _start:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_EIO_mapTaskCheap___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_1);
-x_5 = l_Task_Priority_dedicated;
+x_5 = lean_unsigned_to_nat(9u);
 x_6 = 0;
 x_7 = lean_io_map_task(x_4, x_2, x_5, x_6, x_3);
 x_8 = !lean_is_exclusive(x_7);
@@ -964,7 +962,7 @@ _start:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_2);
-x_5 = l_Task_Priority_default;
+x_5 = lean_unsigned_to_nat(0u);
 x_6 = 1;
 x_7 = lean_io_bind_task(x_1, x_4, x_5, x_6, x_3);
 x_8 = !lean_is_exclusive(x_7);
@@ -1001,7 +999,7 @@ _start:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_2);
-x_5 = l_Task_Priority_dedicated;
+x_5 = lean_unsigned_to_nat(9u);
 x_6 = 0;
 x_7 = lean_io_bind_task(x_1, x_4, x_5, x_6, x_3);
 x_8 = !lean_is_exclusive(x_7);
@@ -1104,7 +1102,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_IO_asTask___redArg___lam__0), 2, 1);
 lean_closure_set(x_3, 0, x_1);
-x_4 = l_Task_Priority_dedicated;
+x_4 = lean_unsigned_to_nat(9u);
 x_5 = lean_io_as_task(x_3, x_4, x_2);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
@@ -1206,7 +1204,7 @@ _start:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_IO_mapTaskCheap___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_1);
-x_5 = l_Task_Priority_default;
+x_5 = lean_unsigned_to_nat(0u);
 x_6 = 1;
 x_7 = lean_io_map_task(x_4, x_2, x_5, x_6, x_3);
 x_8 = !lean_is_exclusive(x_7);
@@ -1243,7 +1241,7 @@ _start:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_IO_mapTaskCheap___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_1);
-x_5 = l_Task_Priority_dedicated;
+x_5 = lean_unsigned_to_nat(9u);
 x_6 = 0;
 x_7 = lean_io_map_task(x_4, x_2, x_5, x_6, x_3);
 x_8 = !lean_is_exclusive(x_7);
@@ -1341,7 +1339,7 @@ _start:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_IO_bindTaskCheap___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_2);
-x_5 = l_Task_Priority_default;
+x_5 = lean_unsigned_to_nat(0u);
 x_6 = 1;
 x_7 = lean_io_bind_task(x_1, x_4, x_5, x_6, x_3);
 x_8 = !lean_is_exclusive(x_7);
@@ -1378,7 +1376,7 @@ _start:
 lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_alloc_closure((void*)(l_Lean_Server_ServerTask_IO_bindTaskCheap___redArg___lam__0), 3, 1);
 lean_closure_set(x_4, 0, x_2);
-x_5 = l_Task_Priority_dedicated;
+x_5 = lean_unsigned_to_nat(9u);
 x_6 = 0;
 x_7 = lean_io_bind_task(x_1, x_4, x_5, x_6, x_3);
 x_8 = !lean_is_exclusive(x_7);

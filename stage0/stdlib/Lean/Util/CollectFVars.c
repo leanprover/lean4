@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_CollectFVars_visit_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_instFVarIdSetInhabited;
 static lean_object* l_Lean_CollectFVars_instInhabitedState___closed__3;
 size_t lean_uint64_to_usize(uint64_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -124,7 +123,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_CollectFVars_instInhabitedState___closed__5;
-x_2 = l_Lean_instFVarIdSetInhabited;
+x_2 = lean_box(1);
 x_3 = l_Lean_CollectFVars_instInhabitedState___closed__4;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_3);

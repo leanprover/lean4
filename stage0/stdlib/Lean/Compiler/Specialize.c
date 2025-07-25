@@ -239,7 +239,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at_____private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs_spec__9_spec__9(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_Specialize_0__Lean_Compiler_specializeAttr___regBuiltin_Lean_Compiler_specializeAttr_declRange__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Compiler_hasNospecializeAttribute___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_instFVarIdSetEmptyCollection;
 lean_object* l_Lean_Environment_setExporting(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_____private_Lean_Compiler_Specialize_0__Lean_Compiler_elabSpecArgs_spec__11___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -3447,7 +3446,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_initFn___lam__0____x40_Lean_Compiler_Specialize___hyg_748____boxed), 5, 0);
 x_3 = lean_alloc_closure((void*)(l_Lean_Compiler_initFn___lam__1____x40_Lean_Compiler_Specialize___hyg_748____boxed), 3, 0);
-x_4 = l_Lean_instFVarIdSetEmptyCollection;
+x_4 = lean_box(1);
 x_5 = lean_alloc_closure((void*)(l_Lean_Compiler_initFn___lam__2____x40_Lean_Compiler_Specialize___hyg_748____boxed), 6, 1);
 lean_closure_set(x_5, 0, x_4);
 x_6 = l_Lean_Compiler_initFn___closed__5____x40_Lean_Compiler_Specialize___hyg_748_;

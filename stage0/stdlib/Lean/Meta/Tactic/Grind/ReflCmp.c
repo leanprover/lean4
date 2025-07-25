@@ -13,10 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_synthInstanceMeta_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_isEqv___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_getReflCmpThm_x3f___redArg___closed__1;
 static lean_object* l_Lean_Meta_Grind_getReflCmpThm_x3f_go_x3f___closed__3;
@@ -28,7 +30,6 @@ static lean_object* l_Lean_Meta_Grind_getReflCmpThm_x3f_go_x3f___closed__2;
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getReflCmpThm_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkApp2(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_decLevel_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -36,7 +37,6 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_getReflCmpThm_x3f_go_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getReflCmpThm_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
-lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_getReflCmpThm_x3f_go_x3f___closed__5;
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 lean_object* l_Lean_Meta_Grind_instBEqExprPtr___lam__0___boxed(lean_object*, lean_object*);
@@ -363,10 +363,10 @@ x_61 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_61, 0, x_59);
 lean_ctor_set(x_61, 1, x_60);
 lean_inc_ref(x_61);
-x_62 = l_Lean_mkConst(x_12, x_61);
+x_62 = l_Lean_Expr_const___override(x_12, x_61);
 lean_inc_ref(x_1);
 lean_inc_ref(x_24);
-x_63 = l_Lean_mkApp2(x_62, x_24, x_1);
+x_63 = l_Lean_mkAppB(x_62, x_24, x_1);
 x_64 = l_Lean_Meta_Grind_synthInstanceMeta_x3f(x_63, x_2, x_3, x_4, x_5, x_58);
 if (lean_obj_tag(x_64) == 0)
 {
@@ -395,7 +395,7 @@ if (x_68 == 0)
 lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; 
 x_69 = lean_ctor_get(x_65, 0);
 x_70 = l_Lean_Meta_Grind_getReflCmpThm_x3f_go_x3f___closed__6;
-x_71 = l_Lean_mkConst(x_70, x_61);
+x_71 = l_Lean_Expr_const___override(x_70, x_61);
 x_72 = l_Lean_mkApp3(x_71, x_24, x_1, x_69);
 lean_ctor_set(x_65, 0, x_72);
 return x_64;
@@ -407,7 +407,7 @@ x_73 = lean_ctor_get(x_65, 0);
 lean_inc(x_73);
 lean_dec(x_65);
 x_74 = l_Lean_Meta_Grind_getReflCmpThm_x3f_go_x3f___closed__6;
-x_75 = l_Lean_mkConst(x_74, x_61);
+x_75 = l_Lean_Expr_const___override(x_74, x_61);
 x_76 = l_Lean_mkApp3(x_75, x_24, x_1, x_73);
 x_77 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_77, 0, x_76);
@@ -431,7 +431,7 @@ if (lean_is_exclusive(x_65)) {
  x_80 = lean_box(0);
 }
 x_81 = l_Lean_Meta_Grind_getReflCmpThm_x3f_go_x3f___closed__6;
-x_82 = l_Lean_mkConst(x_81, x_61);
+x_82 = l_Lean_Expr_const___override(x_81, x_61);
 x_83 = l_Lean_mkApp3(x_82, x_24, x_1, x_79);
 if (lean_is_scalar(x_80)) {
  x_84 = lean_alloc_ctor(1, 1, 0);
@@ -692,10 +692,10 @@ x_125 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_125, 0, x_123);
 lean_ctor_set(x_125, 1, x_124);
 lean_inc_ref(x_125);
-x_126 = l_Lean_mkConst(x_12, x_125);
+x_126 = l_Lean_Expr_const___override(x_12, x_125);
 lean_inc_ref(x_1);
 lean_inc_ref(x_24);
-x_127 = l_Lean_mkApp2(x_126, x_24, x_1);
+x_127 = l_Lean_mkAppB(x_126, x_24, x_1);
 x_128 = l_Lean_Meta_Grind_synthInstanceMeta_x3f(x_127, x_2, x_3, x_4, x_5, x_122);
 if (lean_obj_tag(x_128) == 0)
 {
@@ -732,7 +732,7 @@ if (lean_is_exclusive(x_129)) {
  x_133 = lean_box(0);
 }
 x_134 = l_Lean_Meta_Grind_getReflCmpThm_x3f_go_x3f___closed__6;
-x_135 = l_Lean_mkConst(x_134, x_125);
+x_135 = l_Lean_Expr_const___override(x_134, x_125);
 x_136 = l_Lean_mkApp3(x_135, x_24, x_1, x_132);
 if (lean_is_scalar(x_133)) {
  x_137 = lean_alloc_ctor(1, 1, 0);
@@ -1118,10 +1118,10 @@ x_196 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_196, 0, x_194);
 lean_ctor_set(x_196, 1, x_195);
 lean_inc_ref(x_196);
-x_197 = l_Lean_mkConst(x_12, x_196);
+x_197 = l_Lean_Expr_const___override(x_12, x_196);
 lean_inc_ref(x_1);
 lean_inc_ref(x_163);
-x_198 = l_Lean_mkApp2(x_197, x_163, x_1);
+x_198 = l_Lean_mkAppB(x_197, x_163, x_1);
 x_199 = l_Lean_Meta_Grind_synthInstanceMeta_x3f(x_198, x_2, x_3, x_4, x_5, x_193);
 if (lean_obj_tag(x_199) == 0)
 {
@@ -1158,7 +1158,7 @@ if (lean_is_exclusive(x_200)) {
  x_204 = lean_box(0);
 }
 x_205 = l_Lean_Meta_Grind_getReflCmpThm_x3f_go_x3f___closed__6;
-x_206 = l_Lean_mkConst(x_205, x_196);
+x_206 = l_Lean_Expr_const___override(x_205, x_196);
 x_207 = l_Lean_mkApp3(x_206, x_163, x_1, x_203);
 if (lean_is_scalar(x_204)) {
  x_208 = lean_alloc_ctor(1, 1, 0);
@@ -1698,10 +1698,10 @@ x_294 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_294, 0, x_292);
 lean_ctor_set(x_294, 1, x_293);
 lean_inc_ref(x_294);
-x_295 = l_Lean_mkConst(x_249, x_294);
+x_295 = l_Lean_Expr_const___override(x_249, x_294);
 lean_inc_ref(x_1);
 lean_inc_ref(x_261);
-x_296 = l_Lean_mkApp2(x_295, x_261, x_1);
+x_296 = l_Lean_mkAppB(x_295, x_261, x_1);
 x_297 = l_Lean_Meta_Grind_synthInstanceMeta_x3f(x_296, x_2, x_3, x_4, x_5, x_291);
 if (lean_obj_tag(x_297) == 0)
 {
@@ -1738,7 +1738,7 @@ if (lean_is_exclusive(x_298)) {
  x_302 = lean_box(0);
 }
 x_303 = l_Lean_Meta_Grind_getReflCmpThm_x3f_go_x3f___closed__6;
-x_304 = l_Lean_mkConst(x_303, x_294);
+x_304 = l_Lean_Expr_const___override(x_303, x_294);
 x_305 = l_Lean_mkApp3(x_304, x_261, x_1, x_301);
 if (lean_is_scalar(x_302)) {
  x_306 = lean_alloc_ctor(1, 1, 0);

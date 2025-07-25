@@ -29,7 +29,6 @@ static lean_object* l_Lean_Widget_instFromJsonDiffTag___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Widget_DiffTag_noConfusion___redArg(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonDiffTag___lam__0____x40_Lean_Widget_InteractiveCode___hyg_69____boxed(lean_object*);
 lean_object* l_Lean_Widget_TaggedText_prettyTagged(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableSubexprInfo___closed__2;
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at___Lean_Widget_instRpcEncodableSubexprInfo_dec____x40_Lean_Widget_InteractiveCode___hyg_293__spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Widget_tagCodeInfos_go_spec__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -49,12 +48,12 @@ extern lean_object* l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_6_;
 LEAN_EXPORT lean_object* l_Lean_Widget_CodeWithInfos_pretty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonDiffTag___lam__1____x40_Lean_Widget_InteractiveCode___hyg_69_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_tagCodeInfos_go(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_foldl___at___Array_appendList_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instToJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_618_;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_366__spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_toJsonDiffTag___closed__7____x40_Lean_Widget_InteractiveCode___hyg_12_;
 static lean_object* l_Lean_Widget_toJsonDiffTag___closed__10____x40_Lean_Widget_InteractiveCode___hyg_12_;
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
-lean_object* l_List_foldl___at___Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_DiffTag_noConfusion___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_toJsonDiffTag___closed__0____x40_Lean_Widget_InteractiveCode___hyg_12_;
@@ -106,7 +105,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_DiffTag_noConfusion(lean_object*, uint8_t
 LEAN_EXPORT lean_object* l_Lean_Widget_CodeWithInfos_mergePosMap___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Except_orElseLazy___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_SubExpr_Pos_fromString_x3f(lean_object*);
-extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonDiffTag___lam__5____x40_Lean_Widget_InteractiveCode___hyg_69____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableSubexprInfo_enc___closed__0____x40_Lean_Widget_InteractiveCode___hyg_293_;
 LEAN_EXPORT lean_object* l_Lean_Widget_DiffTag_toCtorIdx(uint8_t);
@@ -128,7 +126,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_instFromJsonRpcEncodablePacket____x40_Lea
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_366__spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonDiffTag___lam__0____x40_Lean_Widget_InteractiveCode___hyg_69_(lean_object*);
-static lean_object* l_Lean_Widget_ppExprTagged___closed__4;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_fromJsonDiffTag___closed__1____x40_Lean_Widget_InteractiveCode___hyg_69_;
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_Widget_ppExprTagged_spec__0___boxed(lean_object*, lean_object*);
@@ -149,6 +146,7 @@ size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Widget_ppExprTagged_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_DiffTag_noConfusion___redArg___lam__0(lean_object*);
 lean_object* l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcDecode___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -1095,7 +1093,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec_ref(x_1);
-x_6 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_4);
+x_6 = l_List_foldl___at___Array_appendList_spec__0(lean_box(0), x_2, x_4);
 x_1 = x_5;
 x_2 = x_6;
 goto _start;
@@ -1216,6 +1214,7 @@ if (lean_is_exclusive(x_1)) {
 }
 x_7 = l_Lean_Widget_instRpcEncodableSubexprInfo_enc___closed__0____x40_Lean_Widget_InteractiveCode___hyg_293_;
 x_8 = l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcEncode___redArg(x_7, x_3, x_2);
+lean_dec_ref(x_3);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
@@ -2161,7 +2160,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_find(x_1, x_3);
+x_5 = l_Lean_KVMap_findCore(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
@@ -2318,7 +2317,7 @@ static lean_object* _init_l_Lean_Widget_ppExprTagged___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
+x_1 = lean_mk_string_unchecked("", 0, 0);
 return x_1;
 }
 }
@@ -2326,24 +2325,16 @@ static lean_object* _init_l_Lean_Widget_ppExprTagged___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("", 0, 0);
+x_1 = l_Array_empty(lean_box(0));
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Widget_ppExprTagged___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Array_empty(lean_box(0));
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Widget_ppExprTagged___closed__4() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Widget_ppExprTagged___closed__3;
-x_2 = l_Lean_Widget_ppExprTagged___closed__2;
+x_1 = l_Lean_Widget_ppExprTagged___closed__2;
+x_2 = l_Lean_Widget_ppExprTagged___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -2413,9 +2404,9 @@ x_37 = lean_ctor_get(x_33, 2);
 lean_inc_ref(x_37);
 lean_dec(x_33);
 x_38 = lean_unsigned_to_nat(0u);
-x_39 = l_Lean_Widget_ppExprTagged___closed__1;
+x_39 = lean_unsigned_to_nat(120u);
 x_40 = l_Lean_Widget_TaggedText_prettyTagged(x_23, x_38, x_39);
-x_41 = l_Lean_Widget_ppExprTagged___closed__4;
+x_41 = l_Lean_Widget_ppExprTagged___closed__3;
 x_42 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_42, 0, x_35);
 lean_ctor_set(x_42, 1, x_41);
@@ -2465,9 +2456,9 @@ x_53 = lean_ctor_get(x_49, 2);
 lean_inc_ref(x_53);
 lean_dec(x_49);
 x_54 = lean_unsigned_to_nat(0u);
-x_55 = l_Lean_Widget_ppExprTagged___closed__1;
+x_55 = lean_unsigned_to_nat(120u);
 x_56 = l_Lean_Widget_TaggedText_prettyTagged(x_23, x_54, x_55);
-x_57 = l_Lean_Widget_ppExprTagged___closed__4;
+x_57 = l_Lean_Widget_ppExprTagged___closed__3;
 x_58 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_58, 0, x_51);
 lean_ctor_set(x_58, 1, x_57);
@@ -2721,8 +2712,6 @@ l_Lean_Widget_ppExprTagged___closed__2 = _init_l_Lean_Widget_ppExprTagged___clos
 lean_mark_persistent(l_Lean_Widget_ppExprTagged___closed__2);
 l_Lean_Widget_ppExprTagged___closed__3 = _init_l_Lean_Widget_ppExprTagged___closed__3();
 lean_mark_persistent(l_Lean_Widget_ppExprTagged___closed__3);
-l_Lean_Widget_ppExprTagged___closed__4 = _init_l_Lean_Widget_ppExprTagged___closed__4();
-lean_mark_persistent(l_Lean_Widget_ppExprTagged___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

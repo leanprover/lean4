@@ -5257,8 +5257,8 @@ goto block_90;
 block_68:
 {
 lean_object* x_43; lean_object* x_44; 
-x_43 = l_Array_back_x21___redArg(x_38, x_39);
-lean_dec_ref(x_39);
+x_43 = l_Array_back_x21___redArg(x_39, x_38);
+lean_dec_ref(x_38);
 lean_inc_ref(x_13);
 lean_inc(x_43);
 x_44 = l_Lake_Toml_elabSimpleKey(x_43, x_13, x_14, x_42);
@@ -5403,8 +5403,8 @@ if (x_78 == 0)
 {
 lean_dec(x_77);
 lean_dec_ref(x_76);
-x_38 = x_74;
-x_39 = x_73;
+x_38 = x_73;
+x_39 = x_74;
 x_40 = x_75;
 x_41 = x_12;
 x_42 = x_15;
@@ -5418,8 +5418,8 @@ if (x_79 == 0)
 {
 lean_dec(x_77);
 lean_dec_ref(x_76);
-x_38 = x_74;
-x_39 = x_73;
+x_38 = x_73;
+x_39 = x_74;
 x_40 = x_75;
 x_41 = x_12;
 x_42 = x_15;
@@ -5448,8 +5448,8 @@ lean_inc(x_84);
 x_85 = lean_ctor_get(x_82, 1);
 lean_inc(x_85);
 lean_dec(x_82);
-x_38 = x_74;
-x_39 = x_73;
+x_38 = x_73;
+x_39 = x_74;
 x_40 = x_84;
 x_41 = x_85;
 x_42 = x_83;
@@ -5640,8 +5640,8 @@ goto block_90;
 block_68:
 {
 lean_object* x_43; lean_object* x_44; 
-x_43 = l_Array_back_x21___redArg(x_38, x_39);
-lean_dec_ref(x_39);
+x_43 = l_Array_back_x21___redArg(x_39, x_38);
+lean_dec_ref(x_38);
 lean_inc_ref(x_13);
 lean_inc(x_43);
 x_44 = l_Lake_Toml_elabSimpleKey(x_43, x_13, x_14, x_42);
@@ -5786,8 +5786,8 @@ if (x_78 == 0)
 {
 lean_dec(x_77);
 lean_dec_ref(x_76);
-x_38 = x_74;
-x_39 = x_73;
+x_38 = x_73;
+x_39 = x_74;
 x_40 = x_75;
 x_41 = x_12;
 x_42 = x_15;
@@ -5801,8 +5801,8 @@ if (x_79 == 0)
 {
 lean_dec(x_77);
 lean_dec_ref(x_76);
-x_38 = x_74;
-x_39 = x_73;
+x_38 = x_73;
+x_39 = x_74;
 x_40 = x_75;
 x_41 = x_12;
 x_42 = x_15;
@@ -5831,8 +5831,8 @@ lean_inc(x_84);
 x_85 = lean_ctor_get(x_82, 1);
 lean_inc(x_85);
 lean_dec(x_82);
-x_38 = x_74;
-x_39 = x_73;
+x_38 = x_73;
+x_39 = x_74;
 x_40 = x_84;
 x_41 = x_85;
 x_42 = x_83;

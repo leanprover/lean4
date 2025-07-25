@@ -35,14 +35,13 @@ lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*, uint8_t);
 size_t lean_ptr_addr(lean_object*);
 static lean_object* l_Lean_Expr_FoldConstsImpl_foldUnsafe___redArg___closed__4;
 size_t lean_usize_of_nat(lean_object*);
-static lean_object* l_Lean_Expr_getUsedConstantsAsSet___closed__0;
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 uint64_t lean_usize_to_uint64(size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Expr_FoldConstsImpl_fold_visit_spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_FoldConstsImpl_foldUnsafe___redArg___closed__5;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_FoldConstsImpl_foldUnsafe___redArg___closed__6;
-lean_object* l_Lean_NameSet_append(lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_NameSet_append_spec__1_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_getUsedConstants___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_foldUnsafe___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
@@ -52,7 +51,6 @@ LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_fold_visit(lean_object*, lea
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Expr_FoldConstsImpl_fold_visit_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Expr_FoldConstsImpl_fold_visit_spec__0___redArg___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_NameSet_empty;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Expr_FoldConstsImpl_fold_visit_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_fold_visit___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -774,20 +772,12 @@ x_3 = l_Lean_NameSet_insert(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Expr_getUsedConstantsAsSet___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Expr_getUsedConstantsAsSet(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Expr_getUsedConstantsAsSet___lam__0), 2, 0);
-x_3 = l_Lean_Expr_getUsedConstantsAsSet___closed__0;
+x_3 = lean_box(1);
 x_4 = l_Lean_Expr_FoldConstsImpl_foldUnsafe___redArg___closed__6;
 x_5 = l_Lean_Expr_FoldConstsImpl_fold_visit___redArg(x_2, x_1, x_3, x_4);
 x_6 = lean_ctor_get(x_5, 0);
@@ -818,7 +808,7 @@ x_7 = lean_ctor_get(x_6, 1);
 lean_inc_ref(x_7);
 lean_dec_ref(x_6);
 x_8 = l_Lean_Expr_getUsedConstantsAsSet(x_7);
-x_9 = l_Lean_NameSet_append(x_3, x_8);
+x_9 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_NameSet_append_spec__1_spec__1(x_3, x_8);
 return x_9;
 }
 case 5:
@@ -831,7 +821,7 @@ x_11 = lean_ctor_get(x_10, 4);
 lean_inc(x_11);
 lean_dec_ref(x_10);
 x_12 = l_Lean_NameSet_ofList(x_11);
-x_13 = l_Lean_NameSet_append(x_3, x_12);
+x_13 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_NameSet_append_spec__1_spec__1(x_3, x_12);
 return x_13;
 }
 case 6:
@@ -846,9 +836,9 @@ lean_dec_ref(x_14);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 lean_dec_ref(x_15);
-x_17 = l_Lean_Expr_getUsedConstantsAsSet___closed__0;
+x_17 = lean_box(1);
 x_18 = l_Lean_NameSet_insert(x_17, x_16);
-x_19 = l_Lean_NameSet_append(x_3, x_18);
+x_19 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_NameSet_append_spec__1_spec__1(x_3, x_18);
 return x_19;
 }
 case 7:
@@ -861,15 +851,15 @@ x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
 lean_dec_ref(x_20);
 x_22 = l_Lean_NameSet_ofList(x_21);
-x_23 = l_Lean_NameSet_append(x_3, x_22);
+x_23 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_NameSet_append_spec__1_spec__1(x_3, x_22);
 return x_23;
 }
 default: 
 {
 lean_object* x_24; lean_object* x_25; 
 lean_dec_ref(x_1);
-x_24 = l_Lean_Expr_getUsedConstantsAsSet___closed__0;
-x_25 = l_Lean_NameSet_append(x_3, x_24);
+x_24 = lean_box(1);
+x_25 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_NameSet_append_spec__1_spec__1(x_3, x_24);
 return x_25;
 }
 }
@@ -882,7 +872,7 @@ x_26 = lean_ctor_get(x_5, 0);
 lean_inc(x_26);
 lean_dec_ref(x_5);
 x_27 = l_Lean_Expr_getUsedConstantsAsSet(x_26);
-x_28 = l_Lean_NameSet_append(x_3, x_27);
+x_28 = l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_NameSet_append_spec__1_spec__1(x_3, x_27);
 return x_28;
 }
 }
@@ -920,8 +910,6 @@ l_Lean_Expr_FoldConstsImpl_foldUnsafe___redArg___closed__6 = _init_l_Lean_Expr_F
 lean_mark_persistent(l_Lean_Expr_FoldConstsImpl_foldUnsafe___redArg___closed__6);
 l_Lean_Expr_getUsedConstants___closed__0 = _init_l_Lean_Expr_getUsedConstants___closed__0();
 lean_mark_persistent(l_Lean_Expr_getUsedConstants___closed__0);
-l_Lean_Expr_getUsedConstantsAsSet___closed__0 = _init_l_Lean_Expr_getUsedConstantsAsSet___closed__0();
-lean_mark_persistent(l_Lean_Expr_getUsedConstantsAsSet___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

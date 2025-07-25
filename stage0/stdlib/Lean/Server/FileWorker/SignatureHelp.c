@@ -83,9 +83,7 @@ static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___lam__1___closed__0;
 lean_object* l_Lean_PrettyPrinter_ppTerm(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_anyMUnsafe_any___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2___closed__0;
-extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_____private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0(lean_object*, lean_object*);
-static lean_object* l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__2;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1___closed__0;
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_toCtorIdx(uint8_t);
@@ -626,21 +624,13 @@ return x_66;
 static lean_object* _init_l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(1u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__2() {
+static lean_object* _init_l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -732,7 +722,7 @@ if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_28 = lean_ctor_get(x_18, 0);
-x_29 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__0;
+x_29 = lean_unsigned_to_nat(120u);
 x_30 = lean_unsigned_to_nat(0u);
 x_31 = lean_format_pretty(x_28, x_29, x_30, x_30);
 x_32 = lean_box(0);
@@ -743,9 +733,9 @@ lean_ctor_set(x_35, 0, x_31);
 lean_ctor_set(x_35, 1, x_32);
 lean_ctor_set(x_35, 2, x_33);
 lean_ctor_set(x_35, 3, x_34);
-x_36 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__1;
+x_36 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__0;
 x_37 = lean_array_push(x_36, x_35);
-x_38 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__2;
+x_38 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__1;
 x_39 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_39, 0, x_37);
 lean_ctor_set(x_39, 1, x_38);
@@ -759,7 +749,7 @@ lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean
 x_40 = lean_ctor_get(x_18, 0);
 lean_inc(x_40);
 lean_dec(x_18);
-x_41 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__0;
+x_41 = lean_unsigned_to_nat(120u);
 x_42 = lean_unsigned_to_nat(0u);
 x_43 = lean_format_pretty(x_40, x_41, x_42, x_42);
 x_44 = lean_box(0);
@@ -770,9 +760,9 @@ lean_ctor_set(x_47, 0, x_43);
 lean_ctor_set(x_47, 1, x_44);
 lean_ctor_set(x_47, 2, x_45);
 lean_ctor_set(x_47, 3, x_46);
-x_48 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__1;
+x_48 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__0;
 x_49 = lean_array_push(x_48, x_47);
-x_50 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__2;
+x_50 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__1;
 x_51 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_51, 0, x_49);
 lean_ctor_set(x_51, 1, x_50);
@@ -798,7 +788,7 @@ if (lean_is_exclusive(x_18)) {
  lean_dec_ref(x_18);
  x_55 = lean_box(0);
 }
-x_56 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__0;
+x_56 = lean_unsigned_to_nat(120u);
 x_57 = lean_unsigned_to_nat(0u);
 x_58 = lean_format_pretty(x_54, x_56, x_57, x_57);
 x_59 = lean_box(0);
@@ -809,9 +799,9 @@ lean_ctor_set(x_62, 0, x_58);
 lean_ctor_set(x_62, 1, x_59);
 lean_ctor_set(x_62, 2, x_60);
 lean_ctor_set(x_62, 3, x_61);
-x_63 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__1;
+x_63 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__0;
 x_64 = lean_array_push(x_63, x_62);
-x_65 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__2;
+x_65 = l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__1;
 x_66 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_66, 0, x_64);
 lean_ctor_set(x_66, 1, x_65);
@@ -3163,8 +3153,6 @@ l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__0 = _ini
 lean_mark_persistent(l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__0);
 l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__1 = _init_l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__1();
 lean_mark_persistent(l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__1);
-l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__2 = _init_l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__2();
-lean_mark_persistent(l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp___closed__2);
 l_Lean_Server_FileWorker_SignatureHelp_SearchControl_noConfusion___redArg___closed__0 = _init_l_Lean_Server_FileWorker_SignatureHelp_SearchControl_noConfusion___redArg___closed__0();
 lean_mark_persistent(l_Lean_Server_FileWorker_SignatureHelp_SearchControl_noConfusion___redArg___closed__0);
 l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__0 = _init_l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__0();

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_PersistentHashMap_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkAuxLemma___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAuxDeclName___at___Lean_Meta_mkAuxLemma_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -50,6 +49,7 @@ static lean_object* l_Lean_Meta_instInhabitedAuxLemmas___closed__1;
 static lean_object* l_Lean_Meta_instInhabitedAuxLemmas___closed__0;
 LEAN_EXPORT uint8_t l_Lean_Meta_beqAuxLemmaKey____x40_Lean_Meta_Tactic_AuxLemma___hyg_29_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_beqAuxLemmaKey____x40_Lean_Meta_Tactic_AuxLemma___hyg_29____boxed(lean_object*, lean_object*);
+lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkAuxLemma___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkAuxLemma___closed__2;
 static lean_object* l_Lean_Meta_mkAuxLemma___lam__2___closed__0;
@@ -950,7 +950,7 @@ x_119 = l_Lean_Meta_instInhabitedAuxLemmas;
 x_120 = l_Lean_Meta_instBEqAuxLemmaKey___closed__0;
 x_121 = l_Lean_Meta_instHashableAuxLemmaKey___closed__0;
 lean_inc_ref(x_16);
-x_122 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe(lean_box(0), x_119, x_17, x_16, x_18);
+x_122 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_119, x_17, x_16, x_18);
 if (x_118 == 0)
 {
 uint8_t x_170; 
@@ -1328,7 +1328,7 @@ block_141:
 if (x_123 == 0)
 {
 lean_object* x_130; 
-lean_dec_ref(x_122);
+lean_dec(x_122);
 lean_dec(x_15);
 lean_dec_ref(x_2);
 lean_dec(x_1);
@@ -1398,7 +1398,7 @@ block_164:
 if (x_5 == 0)
 {
 lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; uint8_t x_149; 
-lean_dec_ref(x_122);
+lean_dec(x_122);
 lean_dec(x_15);
 x_145 = l_Lean_mkAuxDeclName___at___Lean_Meta_mkAuxLemma_spec__0___redArg(x_144, x_10, x_14);
 x_146 = lean_ctor_get(x_145, 0);
@@ -1456,7 +1456,7 @@ lean_closure_set(x_153, 7, x_152);
 lean_closure_set(x_153, 8, x_2);
 lean_closure_set(x_153, 9, x_3);
 lean_closure_set(x_153, 10, x_16);
-lean_inc_ref(x_122);
+lean_inc(x_122);
 x_154 = l_Lean_PersistentHashMap_find_x3f___redArg(x_120, x_121, x_122, x_143);
 if (lean_obj_tag(x_154) == 0)
 {
@@ -1499,7 +1499,7 @@ goto block_141;
 else
 {
 lean_dec_ref(x_153);
-lean_dec_ref(x_122);
+lean_dec(x_122);
 lean_dec(x_15);
 lean_dec(x_10);
 lean_dec_ref(x_9);
@@ -1537,7 +1537,7 @@ else
 {
 lean_object* x_163; 
 lean_dec_ref(x_153);
-lean_dec_ref(x_122);
+lean_dec(x_122);
 lean_dec(x_15);
 lean_dec(x_10);
 lean_dec_ref(x_9);

@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Tactic_Do_ProofMode_elabMRevert_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872____boxed(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mRevertStep___closed__2;
 lean_object* l_Lean_PersistentHashMap_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -44,7 +45,6 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mRevertStep___closed__0;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMRevert_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMRevert___closed__3;
@@ -199,7 +199,7 @@ x_22 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_22, 0, x_16);
 lean_ctor_set(x_22, 1, x_21);
 lean_inc_ref(x_22);
-x_23 = l_Lean_mkConst(x_20, x_22);
+x_23 = l_Lean_Expr_const___override(x_20, x_22);
 lean_inc_ref(x_19);
 lean_inc_ref(x_12);
 lean_inc_ref(x_17);
@@ -218,7 +218,7 @@ if (x_26 == 0)
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_27 = lean_ctor_get(x_25, 0);
 x_28 = l_Lean_Elab_Tactic_Do_ProofMode_mRevertStep___closed__8;
-x_29 = l_Lean_mkConst(x_28, x_22);
+x_29 = l_Lean_Expr_const___override(x_28, x_22);
 x_30 = l_Lean_mkApp7(x_29, x_17, x_18, x_13, x_12, x_19, x_14, x_27);
 lean_ctor_set(x_25, 0, x_30);
 return x_25;
@@ -232,7 +232,7 @@ lean_inc(x_32);
 lean_inc(x_31);
 lean_dec(x_25);
 x_33 = l_Lean_Elab_Tactic_Do_ProofMode_mRevertStep___closed__8;
-x_34 = l_Lean_mkConst(x_33, x_22);
+x_34 = l_Lean_Expr_const___override(x_33, x_22);
 x_35 = l_Lean_mkApp7(x_34, x_17, x_18, x_13, x_12, x_19, x_14, x_31);
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
@@ -271,7 +271,7 @@ x_43 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_43, 0, x_37);
 lean_ctor_set(x_43, 1, x_42);
 lean_inc_ref(x_43);
-x_44 = l_Lean_mkConst(x_41, x_43);
+x_44 = l_Lean_Expr_const___override(x_41, x_43);
 lean_inc_ref(x_40);
 lean_inc_ref(x_12);
 lean_inc_ref(x_38);
@@ -300,7 +300,7 @@ if (lean_is_exclusive(x_47)) {
  x_50 = lean_box(0);
 }
 x_51 = l_Lean_Elab_Tactic_Do_ProofMode_mRevertStep___closed__8;
-x_52 = l_Lean_mkConst(x_51, x_43);
+x_52 = l_Lean_Expr_const___override(x_51, x_43);
 x_53 = l_Lean_mkApp7(x_52, x_38, x_39, x_13, x_12, x_40, x_14, x_48);
 if (lean_is_scalar(x_50)) {
  x_54 = lean_alloc_ctor(0, 2, 0);

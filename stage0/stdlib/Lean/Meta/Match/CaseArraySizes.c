@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_getArrayArgType_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Meta_caseArraySizes_spec__3_spec__3___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_getArrayArgType_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_caseArraySizes___lam__0___closed__3;
@@ -70,7 +71,6 @@ lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Meta_caseArraySizes_spec__3_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__0;
 static lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_mkArrayGetLit___closed__0;
-lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedCaseArraySizesSubgoal;
 lean_object* l_Lean_Meta_whnfD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_caseArraySizes___lam__0___closed__0;
@@ -115,9 +115,9 @@ static lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_mkAr
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Meta_caseArraySizes_spec__0(size_t, size_t, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* l_Lean_Expr_fvar___override(lean_object*);
 size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_Meta_getArrayArgType___closed__5;
-lean_object* l_Lean_mkFVar(lean_object*);
 static lean_object* l_Lean_Meta_caseArraySizes___lam__0___closed__1;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_assign___at_____private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_spec__0___redArg___closed__0;
@@ -2333,7 +2333,7 @@ x_59 = l_Lean_Expr_fvarId_x21(x_58);
 lean_dec_ref(x_58);
 x_60 = lean_array_fget(x_1, x_9);
 lean_inc(x_59);
-x_61 = l_Lean_mkFVar(x_59);
+x_61 = l_Lean_Expr_fvar___override(x_59);
 x_62 = lean_box(x_3);
 x_63 = lean_box(x_17);
 x_64 = lean_box(x_32);
@@ -2646,7 +2646,7 @@ x_59 = l_Lean_Expr_fvarId_x21(x_58);
 lean_dec_ref(x_58);
 x_60 = lean_array_fget(x_1, x_9);
 lean_inc(x_59);
-x_61 = l_Lean_mkFVar(x_59);
+x_61 = l_Lean_Expr_fvar___override(x_59);
 x_62 = lean_box(x_3);
 x_63 = lean_box(x_17);
 x_64 = lean_box(x_32);
@@ -2842,7 +2842,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_caseArraySizes___lam__0___closed__3;
-x_3 = l_Lean_mkConst(x_2, x_1);
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
 }
@@ -3150,7 +3150,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_caseArraySizes(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_11 = l_Lean_mkFVar(x_2);
+x_11 = l_Lean_Expr_fvar___override(x_2);
 x_12 = l_Lean_Meta_caseArraySizes___closed__1;
 x_13 = l_Lean_Meta_caseArraySizes___closed__2;
 lean_inc_ref(x_11);

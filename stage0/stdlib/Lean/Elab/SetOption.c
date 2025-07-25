@@ -22,6 +22,7 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabSetOption___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabSetOption___redArg___lam__1___closed__3;
 lean_object* l_Lean_stringToMessageData(lean_object*);
+lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabSetOption_setOption___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabSetOption___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -48,7 +49,6 @@ static lean_object* l_Lean_Elab_elabSetOption_setOption___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabSetOption_setOption___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabSetOption___redArg___lam__0(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_KVMap_insert(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_DataValue_sameCtor(lean_object*, lean_object*);
 lean_object* l_Lean_getOptionDecl(lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
@@ -63,7 +63,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_elabSetOption_setOption___redArg___lam__0(l
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = l_Lean_KVMap_insert(x_4, x_1, x_2);
+x_5 = l_Lean_KVMap_insertCore(x_4, x_1, x_2);
 x_6 = lean_apply_2(x_3, lean_box(0), x_5);
 return x_6;
 }

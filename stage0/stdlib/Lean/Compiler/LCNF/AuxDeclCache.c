@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_List_lengthTR___redArg(lean_object*);
 lean_object* l_Lean_PersistentHashMap_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -51,6 +50,7 @@ lean_object* l_Lean_Compiler_LCNF_normalizeFVarIds(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CacheExtension_find_x3f___at___Lean_Compiler_LCNF_cacheAuxDecl_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_instInhabited(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___Lean_Compiler_LCNF_CacheExtension_register___at___Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_4__spec__0_spec__0(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_cacheAuxDecl___redArg___closed__0;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -644,10 +644,10 @@ x_9 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
 x_10 = l_Lean_Compiler_LCNF_CacheExtension_register___at___Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_4__spec__0___redArg___closed__0;
 x_11 = l_Lean_Compiler_LCNF_CacheExtension_register___at___Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_4__spec__0___redArg___closed__1;
 x_12 = l_Lean_Compiler_LCNF_CacheExtension_find_x3f___at___Lean_Compiler_LCNF_cacheAuxDecl_spec__0___redArg___closed__1;
-x_13 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe(lean_box(0), x_12, x_1, x_8, x_9);
+x_13 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_12, x_1, x_8, x_9);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
-lean_dec_ref(x_13);
+lean_dec(x_13);
 x_15 = l_Lean_PersistentHashMap_find_x3f___redArg(x_10, x_11, x_14, x_2);
 lean_ctor_set(x_5, 0, x_15);
 return x_5;
@@ -667,10 +667,10 @@ x_19 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
 x_20 = l_Lean_Compiler_LCNF_CacheExtension_register___at___Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_4__spec__0___redArg___closed__0;
 x_21 = l_Lean_Compiler_LCNF_CacheExtension_register___at___Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_4__spec__0___redArg___closed__1;
 x_22 = l_Lean_Compiler_LCNF_CacheExtension_find_x3f___at___Lean_Compiler_LCNF_cacheAuxDecl_spec__0___redArg___closed__1;
-x_23 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe(lean_box(0), x_22, x_1, x_18, x_19);
+x_23 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_22, x_1, x_18, x_19);
 x_24 = lean_ctor_get(x_23, 1);
 lean_inc(x_24);
-lean_dec_ref(x_23);
+lean_dec(x_23);
 x_25 = l_Lean_PersistentHashMap_find_x3f___redArg(x_20, x_21, x_24, x_2);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);

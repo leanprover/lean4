@@ -132,6 +132,7 @@ static lean_object* l_Lean_Lsp_fromJsonChangeAnnotationSupport___closed__7____x4
 static lean_object* l_Lean_Lsp_fromJsonShowDocumentClientCapabilities___closed__6____x40_Lean_Data_Lsp_Capabilities___hyg_508_;
 static lean_object* l_Lean_Lsp_fromJsonCompletionClientCapabilities___closed__6____x40_Lean_Data_Lsp_Capabilities___hyg_166_;
 static lean_object* l_Lean_Lsp_instFromJsonClientCapabilities___closed__0;
+lean_object* l_List_foldl___at___Array_appendList_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonServerCapabilities____x40_Lean_Data_Lsp_Capabilities___hyg_2143__spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonServerCapabilities___closed__2____x40_Lean_Data_Lsp_Capabilities___hyg_2143_;
 static lean_object* l_Lean_Lsp_fromJsonServerCapabilities___closed__3____x40_Lean_Data_Lsp_Capabilities___hyg_2143_;
@@ -143,7 +144,6 @@ static lean_object* l_Lean_Lsp_fromJsonShowDocumentClientCapabilities___closed__
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonTextDocumentClientCapabilities;
 LEAN_EXPORT lean_object* l_Lean_Json_opt___at___Lean_Lsp_toJsonCompletionClientCapabilities____x40_Lean_Data_Lsp_Capabilities___hyg_138__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonShowDocumentClientCapabilities____x40_Lean_Data_Lsp_Capabilities___hyg_508__spec__0___boxed(lean_object*, lean_object*);
-lean_object* l_List_foldl___at___Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_toJsonTextDocumentClientCapabilities___closed__0____x40_Lean_Data_Lsp_Capabilities___hyg_273_;
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonLeanServerCapabilities___closed__0;
@@ -569,7 +569,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec_ref(x_1);
-x_6 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_4);
+x_6 = l_List_foldl___at___Array_appendList_spec__0(lean_box(0), x_2, x_4);
 x_1 = x_5;
 x_2 = x_6;
 goto _start;

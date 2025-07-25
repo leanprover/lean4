@@ -20,8 +20,8 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Serve
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceCompletionItem;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData___hyg_20__spec__0___boxed(lean_object*, lean_object*);
+lean_object* l_List_foldl___at___Array_appendList_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__2;
-lean_object* l_List_foldl___at___Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__0;
 LEAN_EXPORT uint8_t l_Lean_Lsp_fromJsonCompletionItemData___lam__0____x40_Lean_Server_Completion_CompletionItemData___hyg_20_(lean_object*);
@@ -293,7 +293,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec_ref(x_1);
-x_6 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_4);
+x_6 = l_List_foldl___at___Array_appendList_spec__0(lean_box(0), x_2, x_4);
 x_1 = x_5;
 x_2 = x_6;
 goto _start;

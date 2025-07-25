@@ -88,7 +88,7 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : Tactic
             setGoals gs'
         else
           -- Admit remaining goals outside the TacticInfo so that the infoview
-          -- can't report "no goals" in incomplete proofs.
+          -- won't report "no goals" in incomplete proofs.
           closeUsingOrAdmit <| withInfo <| evalTactic rhs
       finally
         pushGoals goals

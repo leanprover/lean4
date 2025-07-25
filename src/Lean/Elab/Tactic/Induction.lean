@@ -74,20 +74,22 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : Tactic
     let rhs := getAltRHS alt
     withCaseRef (getAltDArrow alt) rhs do
       let goals ← getGoals
-      setGoals []
       try
         setGoals [mvarId]
-        withTacticInfoContext (mkNullNode #[getAltLhses alt, getAltDArrow alt]) do
-          addInfo
-          if isHoleRHS rhs then
-            mvarId.withContext do
-              let mvarDecl ← mvarId.getDecl
-              -- Elaborate ensuring that `_` is interpreted as `?_`.
-              let (val, gs') ← elabTermWithHoles rhs mvarDecl.type `induction (parentTag? := mvarDecl.userName) (allowNaturalHoles := true)
-              mvarId.assign val
-              setGoals gs'
-          else
-            closeUsingOrAdmit <| evalTactic rhs
+        let withInfo (m : TacticM Unit) :=
+          withTacticInfoContext (mkNullNode #[getAltLhses alt, getAltDArrow alt]) do
+            addInfo; m
+        if isHoleRHS rhs then
+          withInfo <| mvarId.withContext do
+            let mvarDecl ← mvarId.getDecl
+            -- Elaborate ensuring that `_` is interpreted as `?_`.
+            let (val, gs') ← elabTermWithHoles rhs mvarDecl.type `induction (parentTag? := mvarDecl.userName) (allowNaturalHoles := true)
+            mvarId.assign val
+            setGoals gs'
+        else
+          -- Admit remaining goals outside the TacticInfo so that the infoview
+          -- can't report "no goals" in incomplete proofs.
+          closeUsingOrAdmit <| withInfo <| evalTactic rhs
       finally
         pushGoals goals
 

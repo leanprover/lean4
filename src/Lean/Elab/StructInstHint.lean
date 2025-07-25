@@ -114,19 +114,11 @@ def mkMissingFieldsHint (fields : Array (Name × Option Expr)) (stx : Syntax) : 
   let suggestionText := preWs ++ suggestionText ++ postWs
   let insPos := view.lastFieldTailPos?.getD <| interveningLineEndPos?.getD view.leaderTailPos
   let width := Tactic.TryThis.format.inputWidth.get (← getOptions)
-  let maxFullPreviewLength := 50
-  let showFullPreview : Bool :=
-    if let some range := stx.getRange? then
-      let length := fileMap.source.offsetOfPos range.stop - fileMap.source.offsetOfPos range.start
-      length < maxFullPreviewLength
-    else
-      false
+  -- Limit only the span of the suggestion so the code action appears everywhere in the structure
   let suggestion := {
-    suggestion := suggestionText.pretty width indent (col insPos)
-    -- Limit only the span of the suggestion so the code action appears everywhere in the structure
-    span? := Syntax.ofRange ⟨insPos, insPos⟩
+    suggestion := suggestionText.pretty width indent (col insPos),
+    span? := Syntax.ofRange ⟨insPos, insPos⟩,
     toCodeActionTitle? := some fun _ => "Add missing fields"
-    previewSpan? := if showFullPreview then some stx else none
   }
   MessageData.hint m!"Add missing fields:" #[suggestion]
 where

@@ -7,7 +7,6 @@ module
 
 prelude
 public import Lean.Parser.Extra
-public meta import Lean.Parser.Extra  -- `register_parser_alias` indirect dependency... but do we want that?
 
 public section
 

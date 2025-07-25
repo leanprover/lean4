@@ -24,8 +24,9 @@ let x6 := ⟨6⟩
 Foo.sum [x1, x2, x3, x5, x6]
 
 /--
-error: invalid constructor ⟨...⟩, expected type must be an inductive type ⏎
+error: Invalid `⟨...⟩` notation: The expected type
   ?_
+is not an inductive type
 ---
 info: let x1 := { n := 1 };
 let x2 := { n := 2 };

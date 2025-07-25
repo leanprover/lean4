@@ -75,7 +75,7 @@ inductive P (α : Sort u) : Sort u where
 Errors for `structure` are specialized to talking about fields.
 -/
 /--
-error: invalid universe level for field 'α', has type
+error: Invalid universe level for field `α`: Field has type
   Type
 at universe level
   2
@@ -93,7 +93,7 @@ Errors for `structure` talk about parent projection fields too.
 structure A' where
   α : Type
 /--
-error: invalid universe level for field 'α', has type
+error: Invalid universe level for field `α`: Field has type
   Type
 at universe level
   2

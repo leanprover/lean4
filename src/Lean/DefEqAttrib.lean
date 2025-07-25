@@ -7,7 +7,9 @@ module
 
 prelude
 
-public import Lean.PrettyPrinter
+public import Lean.Meta.Basic
+import Lean.Meta.Check
+import Lean.Meta.WHNF
 
 public section
 

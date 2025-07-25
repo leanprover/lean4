@@ -245,7 +245,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
         withRestoreOrSaveFull reusableResult? none do
         withReuseContext view.headerRef do
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
-        withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
+        Term.withDeclNameAndModifiers declName view.modifiers <| withAutoBoundImplicit <| withLevelNames levelNames <|
           elabBindersEx view.binders.getArgs fun xs => do
             let refForElabFunType := view.value
             let mut type ← match view.type? with
@@ -313,6 +313,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
           tacSnap? := guard newTacTask?.isSome *> some { old? := oldTacSnap?, new := tacPromise }
           bodySnap? := some { old? := oldBodySnap?, new := bodyPromise }
         }
+
       headers := headers.push newHeader
     return headers
 where
@@ -504,8 +505,8 @@ private def useProofAsSorry (k : DefKind) : CoreM Bool := do
         return true
   return false
 
-private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
-  headers.mapM fun header => do
+private def elabFunValues (headers : Array DefViewElabHeader) (views : Array DefView) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
+  headers.mapIdxM fun i header => do
     let mut reusableResult? := none
     if let some snap := header.bodySnap? then
       if let some old := snap.old? then
@@ -521,7 +522,10 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
     let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
       withReuseContext header.value do
       withTraceNode `Elab.definition.value (fun _ => pure header.declName) do
-      withDeclName header.declName <| withLevelNames header.levelNames do
+      -- Use original view modifiers to preserve deprecated attribute for theorems (issue #8942)
+      let originalView := views[i]!
+      let modifiersToUse := if header.kind.isTheorem then originalView.modifiers else header.modifiers
+      Term.withDeclNameAndModifiers header.declName modifiersToUse <| withLevelNames header.levelNames do
       let valStx ← declValToTerm header.value header.type
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
       forallBoundedTelescope header.type header.numParams fun xs type => do
@@ -1263,7 +1267,7 @@ where
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
     let values ← try
-      let values ← elabFunValues headers vars sc
+      let values ← elabFunValues headers views vars sc
       Term.synthesizeSyntheticMVarsNoPostponing
       values.mapM (instantiateMVarsProfiling ·)
     catch ex =>

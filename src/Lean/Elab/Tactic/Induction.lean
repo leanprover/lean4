@@ -321,7 +321,7 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
 
 open Language in
 def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altStxs? : Option (Array Syntax))
-    (initialInfo : Info) (tacStx : Syntax)
+    (mkInitialInfo : TacticM Info) (tacStx : Syntax)
     (numEqs : Nat := 0) (generalized : Array FVarId := #[]) (toClear : Array FVarId := #[])
     (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
   let hasAlts := altStxs?.isSome
@@ -331,7 +331,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altS
     -- we need to take all the info trees we have produced so far and re-nest them
     -- inside this node as well
     let treesSaved ← getResetInfoTrees
-    withInfoContext ((modifyInfoState fun s => { s with trees := treesSaved }) *> goWithInfo) (pure initialInfo)
+    withInfoContext ((modifyInfoState fun s => { s with trees := treesSaved }) *> goWithInfo) mkInitialInfo
   else goWithInfo
 where
   -- continuation in the correct info context
@@ -882,7 +882,7 @@ private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Ar
     (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
   let mvarId ← getMainGoal
   -- save initial info before main goal is reassigned
-  let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
+  let mkInitInfo := mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
   let tag ← mvarId.getTag
   mvarId.withContext do
     checkInductionTargets targets
@@ -900,7 +900,7 @@ private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Ar
       withAltsOfOptInductionAlts optInductionAlts fun alts? => do
         let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
         mvarId.assign result.elimApp
-        ElimApp.evalAlts elimInfo result.alts optPreTac alts? initInfo stx[0]
+        ElimApp.evalAlts elimInfo result.alts optPreTac alts? mkInitInfo stx[0]
           (generalized := generalized) (toClear := targetFVarIds) (toTag := toTag)
         appendGoals result.others.toList
 
@@ -1005,7 +1005,7 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
   let targetRef := stx[1]
   let mvarId ← getMainGoal
   -- save initial info before main goal is reassigned
-  let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
+  let mkInitInfo := mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
   let tag ← mvarId.getTag
   mvarId.withContext do
     let result ← withRef targetRef <| ElimApp.mkElimApp elimInfo targets tag
@@ -1023,7 +1023,7 @@ def evalCasesCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
       Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := inductionAltsPos stx) fun optInductionAlts => do
       withAltsOfOptInductionAlts optInductionAlts fun alts => do
         let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-        ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo stx[0]
+        ElimApp.evalAlts elimInfo result.alts optPreTac alts mkInitInfo stx[0]
           (numEqs := targets.size) (toClear := targetsNew) (toTag := toTag)
 
 @[builtin_tactic Lean.Parser.Tactic.cases, builtin_incremental]

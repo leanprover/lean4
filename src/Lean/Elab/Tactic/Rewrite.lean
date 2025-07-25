@@ -79,7 +79,7 @@ declare_config_elab elabRewriteConfig Rewrite.Config
 
 @[builtin_tactic Lean.Parser.Tactic.rewriteSeq] def evalRewriteSeq : Tactic := fun stx => do
   let cfg ← elabRewriteConfig stx[1]
-  let loc := expandOptLocation stx[3]
+  let loc   := expandOptLocation stx[3]
   withRWRulesSeq stx[0] stx[2] fun symm term => do
     withLocation loc
       (rewriteLocalDecl term symm · cfg)

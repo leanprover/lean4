@@ -74,7 +74,8 @@ inductive LocalDecl where
     `ldecl`s are `cdecl`s (for example, when reverting variables). As a consequence, nondep `ldecl`s may
     have type-incorrect values. This design decision allows metaprograms to not have to think about nondep `ldecl`s,
     so long as `LocalDecl` values are consumed through `LocalDecl.isLet` and `LocalDecl.value?` with `(allowNondep := false)`.
-    **Rule:** never use `(generalizeNondepLet := false)` in `mkBinding`-family functions within a local context you do not own.
+    **Rule:** never use `(generalizeNondepLet := false)` in `mkBinding`-family functions
+    on a local context entry you did not create.
     See `LocalDecl.setNondep` for some additional discussion.
   - Where then do nondep ldecls come from? Common functions are `Meta.mapLetDecl`, `Meta.withLetDecl`, and `Meta.letTelescope`.
     The `have` term syntax makes use of a nondep ldecl as well.

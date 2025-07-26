@@ -1275,11 +1275,15 @@ This function trusts that `xs` has all forward dependencies that appear in `e` a
 - If `usedLetOnly := true` then `let` expressions are created only for used (let-) variables.
 - If `generalizeNondepLet := true` then nondependent let variables become `forall` or `lambda` expressions
   according to the value of `usedOnly`.
-  Generally, `generalizeNondepLet` should be `true` *unless* `mkBinding` is being used when leaving a telescope combinator (like `Meta.lambdaLetTelescope`).
-  This needs to be `true` when making terms that should remain type correct with respect to the same `lctx`;
-  for example, if `e' ← mkBinding true lctx xs e (generalizeNondepLet := true)` and `xs' ← xs.filterM (FVarId.isLetVar · false)`,
-  then one has that `mkAppN e' xs'` is definitionally equal to `e` with respect to `lctx`.
-  **Note:** `generalizeNondepLet := true` is the common case, so `mkBinding` API uses it as the default.
+  Generally, `generalizeNondepLet` should be `true`
+  *unless* all nondep entries in `xs` have known provenance,
+  e.g. when leaving a telescope combinator like `Meta.lambdaLetTelescope`.
+  See also `LocalDecl.ldecl`.
+  - This needs to be `true` when making terms that should remain type correct with respect to the same `lctx`;
+    for example, if `e' ← mkBinding true lctx xs e (generalizeNondepLet := true)`
+    and `xs' ← xs.filterM (FVarId.isLetVar · false)`,
+    then one has that `mkAppN e' xs'` is definitionally equal to `e` with respect to `lctx`.
+  - **Note:** `generalizeNondepLet := true` is the common case, so `mkBinding` API uses it as the default.
 -/
 def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) (generalizeNondepLet : Bool) : M Expr := do
   let e ← abstractRange xs xs.size e

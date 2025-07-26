@@ -362,7 +362,7 @@ def withoutRecover (x : TacticM α) : TacticM α :=
   withReader (fun ctx => { ctx with recover := false }) x
 
 /--
-Like `throwErrorAt`, but if recovery is enabled, log the error instead.
+Like `throwErrorAt`, but, if recovery is enabled, logs the error instead.
 -/
 def throwOrLogErrorAt (ref : Syntax) (msg : MessageData) : TacticM Unit := do
   if (← read).recover then
@@ -371,7 +371,7 @@ def throwOrLogErrorAt (ref : Syntax) (msg : MessageData) : TacticM Unit := do
     throwErrorAt ref msg
 
 /--
-Like `throwError`, but if recovery is enabled, log the error instead.
+Like `throwError`, but, if recovery is enabled, logs the error instead.
 -/
 def throwOrLogError (msg : MessageData) : TacticM Unit := do
   throwOrLogErrorAt (← getRef) msg

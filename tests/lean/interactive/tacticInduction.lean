@@ -3,7 +3,7 @@
 -/
 
 /-!
-On an incomplete proof, the goal is visible at least the first alternative.
+On an incomplete proof, the goal is visible at least for the first alternative.
 -/
 example (as bs : List Nat) : (as.append bs).length = as.length + bs.length := by
   induction as with

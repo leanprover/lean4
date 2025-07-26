@@ -187,12 +187,6 @@ example : BadDepStruct :=
   { bdt := .mk }
            --^ codeAction
 
-
-structure DateES where
-  día : Nat
-  mes : Nat
-  año : Nat
-
 /-! ## Multi-byte characters in indentation offset -/
 def números : Nat × Nat := {}
                          --^ codeAction

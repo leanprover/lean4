@@ -51,13 +51,17 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := 
             trace[Compiler.inferVisibility] m!"Marking {ref} as opaque because it is used by transparent {decl.name}"
             markDeclPublicRec phase refDecl
 
-def inferVisibility (phase : Phase) (decls : Array Decl) : CompilerM Unit := do
-  if !(← getEnv).header.isModule then
-    return
-  for decl in decls do
-    if (← getEnv).setExporting true |>.contains decl.name then
-      trace[Compiler.inferVisibility] m!"Marking {decl.name} as opaque because it is a public def"
-      markDeclPublicRec phase decl
+def inferVisibility (phase : Phase) : Pass where
+  occurrence := 0
+  phase
+  name := `inferVisibility
+  run decls := do
+    if (← getEnv).header.isModule then
+      for decl in decls do
+        if (← getEnv).setExporting true |>.contains decl.name then
+          trace[Compiler.inferVisibility] m!"Marking {decl.name} as opaque because it is a public def"
+          markDeclPublicRec phase decl
+    return decls
 
 builtin_initialize
   registerTraceClass `Compiler.inferVisibility

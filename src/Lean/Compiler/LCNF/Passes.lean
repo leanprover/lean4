@@ -64,14 +64,6 @@ def saveMono : Pass where
     return decl
   shouldAlwaysRunCheck := true
 
-def inferVisibility (phase : Phase) : Pass where
-  occurrence := 0
-  phase
-  name := `inferVisibility
-  run decls := do
-    LCNF.inferVisibility phase decls
-    return decls
-
 end Pass
 
 open Pass
@@ -99,7 +91,7 @@ def builtinPassManager : PassManager := {
     saveBase, -- End of base phase
     -- should come last so it can see all created decls
     -- pass must be run for each phase; see `base/monoTransparentDeclsExt`
-    Pass.inferVisibility .base,
+    inferVisibility (phase := .base),
     toMono,
     simp (occurrence := 3) (phase := .mono),
     reduceJpArity (phase := .mono),
@@ -116,7 +108,7 @@ def builtinPassManager : PassManager := {
     simp (occurrence := 5) (phase := .mono),
     cse (occurrence := 2) (phase := .mono),
     saveMono,  -- End of mono phase
-    Pass.inferVisibility .mono,
+    inferVisibility (phase := .mono),
     extractClosed,
   ]
 }

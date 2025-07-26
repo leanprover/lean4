@@ -26,6 +26,12 @@ register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
   descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
 }
 
+register_builtin_option backward.isDefEq.transparencyEscalation : Bool := {
+  defValue := false
+  group    := "backward compatibility"
+  descr    := "increases transparency level when processing implicit arguments."
+}
+
 /--
   Return `true` if `e` is of the form `fun (x_1 ... x_n) => ?m y_1 ... y_k)`, and `?m` is unassigned.
   Remark: `n`, `k` may be 0.
@@ -186,6 +192,12 @@ private def trySynthPending (e : Expr) : MetaM Bool := do
   | some mvarId => Meta.synthPending mvarId
   | none        => pure false
 
+abbrev withEscalatedTransparency {α : Type} (x : MetaM α) : MetaM α := do
+  if backward.isDefEq.transparencyEscalation.get (← getOptions) then
+    withInferTypeConfig x
+  else
+    withAtLeastTransparency .instances x
+
 /--
   Result type for `isDefEqArgsFirstPass`.
 -/
@@ -308,14 +320,14 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     if info.isInstImplicit then
       discard <| trySynthPending a₁
       discard <| trySynthPending a₂
-    unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
+    unless (← withEscalatedTransparency <| Meta.isExprDefEqAux a₁ a₂) do
       return false
   for i in postponedHO do
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!
     if info.isInstImplicit then
-      unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
+      unless (← withEscalatedTransparency <| Meta.isExprDefEqAux a₁ a₂) do
        return false
     else
       unless (← Meta.isExprDefEqAux a₁ a₂) do
@@ -1601,7 +1613,7 @@ private def etaEq (t s : Expr) : Bool :=
   Then, we can enable the flag only when applying `simp` and `rw` theorems.
 -/
 private def withProofIrrelTransparency (k : MetaM α) : MetaM α :=
-  withInferTypeConfig k
+  withEscalatedTransparency k
 
 private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
   if (← getConfig).proofIrrelevance then

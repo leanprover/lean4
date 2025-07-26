@@ -31,7 +31,8 @@ instance [S α] : OfNatSound α where
 
 theorem S.ofNat_mul [S α] (n m : Nat) : (OfNat.ofNat n : α) * OfNat.ofNat m = OfNat.ofNat (n * m) := by
   induction m with
-  | zero => rw [S.mul_zero, Nat.mul_zero]
+  | zero => set_option backward.isDefEq.transparencyEscalation true in
+            rw [S.mul_zero, Nat.mul_zero]
   | succ m ih =>
     show OfNat.ofNat (α := α) n * OfNat.ofNat (m + 1) = OfNat.ofNat (n * m.succ)
     rw [Nat.mul_succ, ← ofNat_add, ← ofNat_add, ← ih, left_distrib]

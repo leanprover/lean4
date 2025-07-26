@@ -207,24 +207,25 @@ Initializes the elaborator associated to the given syntax.
 def mkInductiveView (modifiers : Modifiers) (stx : Syntax) : TermElabM InductiveElabStep1 := do
   let handlers := inductiveElabAttr.getValues (← getEnv) stx.getKind
   if handlers.isEmpty then
-    throwErrorAt stx "no '@[inductive_elab]' for '{.ofConstName stx.getKind}'"
+    throwErrorAt stx "Failed to elaborate inductive type declaration: There is no `@[inductive_elab]` \
+      handler for `{.ofConstName stx.getKind}` syntax"
   handlers[0]!.mkInductiveView modifiers stx
 
 def checkValidInductiveModifier [Monad m] [MonadError m] (modifiers : Modifiers) : m Unit := do
   if modifiers.isNoncomputable then
-    throwError "Invalid use of `noncomputable` in inductive declaration"
+    throwError "Invalid modifier: Inductive declarations cannot be marked as `noncomputable`"
   if modifiers.isPartial then
-    throwError "Invalid use of `partial` in inductive declaration"
+    throwError "Invalid modifier: Inductive declarations cannot be marked as `partial`"
 
 def checkValidCtorModifier [Monad m] [MonadError m] (modifiers : Modifiers) : m Unit := do
   if modifiers.isNoncomputable then
-    throwError "Invalid use of `noncomputable` in constructor declaration"
+    throwError "Invalid modifier: Constructors cannot be marked as `noncomputable`"
   if modifiers.isPartial then
-    throwError "Invalid use of `partial` in constructor declaration"
+    throwError "Invalid modifier: Constructors cannot be marked as `partial`"
   if modifiers.isUnsafe then
-    throwError "Invalid use of `unsafe` in constructor declaration"
+    throwError "Invalid modifier: Constructors cannot be marked as `unsafe`"
   if modifiers.attrs.size != 0 then
-    throwError "Invalid use of attributes in constructor declaration"
+    throwError "Invalid attribute: Attributes cannot be added to constructors"
 
 private def checkUnsafe (rs : Array PreElabHeaderResult) : TermElabM Unit := do
   let isUnsafe := rs[0]!.view.modifiers.isUnsafe
@@ -232,7 +233,7 @@ private def checkUnsafe (rs : Array PreElabHeaderResult) : TermElabM Unit := do
     unless r.view.modifiers.isUnsafe == isUnsafe do
       let unsafeStr (b : Bool) := if b then "unsafe" else "safe"
       throwErrorAt r.view.ref m!"Invalid mutually inductive types: `{r.view.declName}` is {unsafeStr (!isUnsafe)}, \
-        but {rs[0]!.view.declName} is {unsafeStr isUnsafe}"
+        but `{rs[0]!.view.declName}` is {unsafeStr isUnsafe}"
         ++ .note m!"Safe and unsafe inductive declarations cannot both occur in the same `mutual` block"
 
 private def checkClass (rs : Array PreElabHeaderResult) : TermElabM Unit := do
@@ -245,8 +246,8 @@ private def checkNumParams (rs : Array PreElabHeaderResult) : TermElabM Nat := d
   let numParams := rs[0]!.numParams
   for r in rs do
     unless r.numParams == numParams do
-      throwErrorAt r.view.ref m!"Invalid mutually inductive types: This type has {r.numParams} parameters, \
-        but the preceding inductive type `{rs[0]!.view.declName}` has {numParams}"
+      throwErrorAt r.view.ref m!"Invalid mutually inductive types: `{r.view.shortDeclName}` has {r.numParams} \
+        parameter(s), but the preceding type `{rs[0]!.view.shortDeclName}` has {numParams}"
         ++ .note m!"All inductive types declared in the same `mutual` block must have the same parameters"
   return numParams
 
@@ -312,10 +313,12 @@ private def elabHeadersAux (views : Array InductiveView) (i : Nat) (acc : Array 
           let type ← mkForallFVars indices type
           if view.allowIndices then
             unless (← isTypeFormerType type) do
-              throwErrorAt typeStx "Invalid resulting type: Expected `Sort _` or an indexed family of sorts"
+              throwErrorAt typeStx m!"Invalid resulting type: Expected a sort or an indexed family of sorts"
+                ++ .hint' m!"Examples of valid sorts include `Type _`, `Sort _`, and `Prop`"
           else
             unless (← whnfD type).isSort do
-              throwErrorAt typeStx "Invalid resulting type: Expected `Type _` or `Prop`"
+              throwErrorAt typeStx m!"Invalid resulting type: Expected a sort"
+                ++ .hint' m!"Examples of valid sorts include `Type _`, `Sort _`, and `Prop`"
           return (type, indices.size)
         let params ← Term.addAutoBoundImplicits params (view.declId.getTailPos? (canonicalOnly := true))
         trace[Elab.inductive] "header params: {params}, type: {type}"
@@ -360,19 +363,27 @@ private def withInductiveLocalDecls (rs : Array PreElabHeaderResult) (x : Array 
         x params indFVars
     loop 0 #[]
 
+private def throwLevelNameMismatch [Monad m] [MonadError m]
+    (curNames prevNames : List Name) (curDeclName prevDeclName : Name) : m α :=
+  let listNames (names : List Name) := MessageData.joinSep (names.map (m!"`{·}`")) ", "
+  throwError m!"Universe parameter mismatch in mutually inductive types: `{curDeclName}` \
+    has universe parameters{indentD (listNames curNames)}\nbut the preceding declaration \
+    `{prevDeclName}` has{indentD (listNames prevNames)}"
+    ++ .note m!"All inductive declarations in the same `mutual` block must have the same universe level parameters"
+
 private def InductiveElabStep1.checkLevelNames (views : Array InductiveView) : TermElabM Unit := do
   if h : views.size > 1 then
     let levelNames := views[0].levelNames
     for view in views do
       unless view.levelNames == levelNames do
-        throwErrorAt view.ref "Invalid inductive type: Universe parameters mismatch in mutually inductive datatypes"
+        withRef view.ref <| throwLevelNameMismatch view.levelNames levelNames view.shortDeclName views[0].shortDeclName
 
 private def ElabHeaderResult.checkLevelNames (rs : Array PreElabHeaderResult) : TermElabM Unit := do
   if h : rs.size > 1 then
     let levelNames := rs[0].levelNames
     for r in rs do
       unless r.levelNames == levelNames do
-        throwErrorAt r.view.ref "Invalid inductive type: Universe parameters mismatch in mutually inductive datatypes"
+        throwLevelNameMismatch r.levelNames levelNames r.view.declName rs[0].view.shortDeclName
 
 private def getArity (indType : InductiveType) : MetaM Nat :=
   forallTelescopeReducing indType.type fun xs _ => return xs.size
@@ -616,11 +627,11 @@ private def collectUniverses (views : Array InductiveView) (r : Level) (rOffset 
         Universe inference suggests using{indentD <| mkSort inferred}\n\
         if the resulting universe level should be at the above universe level or higher.\n\n\
         Explanation: At this point in elaboration, universe level unification has committed to using a \
-        resulting universe level of the form '{Level.addOffset r rOffset}'. \
+        resulting universe level of the form `{Level.addOffset r rOffset}`. \
         Constructor argument universe levels must be no greater than the resulting universe level, and this condition implies the following constraint(s):\
         {MessageData.joinSep badConstraints.toList ""}\n\
         However, such constraint(s) usually indicate that the resulting universe level should have been in a different form. \
-        For example, if the resulting type is of the form 'Sort (_ + 1)' and a constructor argument is in universe `Sort u`, \
+        For example, if the resulting type is of the form `Sort (_ + 1)` and a constructor argument is in universe `Sort u`, \
         then universe inference would yield `Sort (u + 1)`, \
         but the resulting type `Sort (max 1 u)` would avoid being in a higher universe than necessary."
   return acc.levels

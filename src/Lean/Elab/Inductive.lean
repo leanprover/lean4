@@ -35,18 +35,23 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
     def ctor := leading_parser optional docComment >> "\n| " >> declModifiers >> rawIdent >> optDeclSig
     ```
     -/
-    let mut ctorModifiers ← elabModifiers ⟨ctor[2]⟩
+    let modifiersStx := ctor[2]
+    let mut ctorModifiers ← elabModifiers ⟨modifiersStx⟩
     if let some leadingDocComment := ctor[0].getOptional? then
       if ctorModifiers.docString?.isSome then
         logErrorAt leadingDocComment "Duplicate doc string"
       ctorModifiers := { ctorModifiers with docString? := some ⟨leadingDocComment⟩ }
     if ctorModifiers.isPrivate && modifiers.isPrivate then
       let hint ← do
-        let .original .. := ctor[2].getHeadInfo | pure .nil
-        let some range := ctor[2][2].getRangeWithTrailing? | pure .nil
+        let .original .. := modifiersStx.getHeadInfo | pure .nil
+        let some range := modifiersStx[2].getRangeWithTrailing? | pure .nil
+        -- Drop the doc comment from both the `declModifiers` and outer `ctor`, as well as
+        -- everything after the constructor name (yielding invalid syntax with the desired range)
+        let previewSpan? := ctor.modifyArgs (·[2...4].toArray.modify 0 (·.modifyArgs (·[1...*])))
         MessageData.hint "Remove `private` modifier from constructor" #[{
           suggestion := ""
           span? := Syntax.ofRange range
+          previewSpan?
           toCodeActionTitle? := some fun _ => "Delete `private` modifier"
         }]
       throwError m!"Constructor cannot be marked `private` because it is already in a `private` inductive datatype" ++ hint

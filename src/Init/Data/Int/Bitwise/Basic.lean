@@ -6,8 +6,10 @@ Authors: Mario Carneiro
 module
 
 prelude
-import Init.Data.Int.Basic
-import Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Int.Basic
+public import Init.Data.Nat.Bitwise.Basic
+
+public section
 
 namespace Int
 
@@ -41,6 +43,7 @@ Examples:
 * `(-0b1000 : Int) >>> 1 = -0b0100`
 * `(-0b0111 : Int) >>> 1 = -0b0100`
 -/
+@[expose]
 protected def shiftRight : Int → Nat → Int
   | Int.ofNat n, s => Int.ofNat (n >>> s)
   | Int.negSucc n, s => Int.negSucc (n >>> s)

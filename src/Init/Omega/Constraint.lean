@@ -6,13 +6,18 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Omega.LinearCombo
-import Init.Omega.Int
+public import Init.Omega.LinearCombo
+public import Init.Omega.Int
+
+public section
 
 /-!
 A `Constraint` consists of an optional lower and upper bound (inclusive),
 constraining a value to a set of the form `∅`, `{x}`, `[x, y]`, `[x, ∞)`, `(-∞, y]`, or `(-∞, ∞)`.
 -/
+
+-- most defs used in proofs by reflection
+@[expose] section
 
 namespace Lean.Omega
 

@@ -6,8 +6,10 @@ Author: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Data.List.Basic
-import Init.Data.Char.Basic
+public import Init.Data.List.Basic
+public import Init.Data.Char.Basic
+
+public section
 
 universe u
 
@@ -41,7 +43,7 @@ Non-strict inequality on strings, typically used via the `≤` operator.
 
 `a ≤ b` is defined to mean `¬ b < a`.
 -/
-@[reducible] protected def le (a b : String) : Prop := ¬ b < a
+@[expose, reducible] protected def le (a b : String) : Prop := ¬ b < a
 
 instance : LE String :=
   ⟨String.le⟩
@@ -57,7 +59,7 @@ Examples:
 * `"abc".length = 3`
 * `"L∃∀N".length = 4`
 -/
-@[extern "lean_string_length"]
+@[extern "lean_string_length", expose]
 def length : (@& String) → Nat
   | ⟨s⟩ => s.length
 
@@ -71,7 +73,7 @@ Examples:
 * `"abc".push 'd' = "abcd"`
 * `"".push 'a' = "a"`
 -/
-@[extern "lean_string_push"]
+@[extern "lean_string_push", expose]
 def push : String → Char → String
   | ⟨s⟩, c => ⟨s ++ [c]⟩
 
@@ -85,7 +87,7 @@ Examples:
  * `"abc" ++ "def" = "abcdef"`
  * `"" ++ "" = ""`
 -/
-@[extern "lean_string_append"]
+@[extern "lean_string_append", expose]
 def append : String → (@& String) → String
   | ⟨a⟩, ⟨b⟩ => ⟨a ++ b⟩
 
@@ -145,7 +147,7 @@ Examples:
 * `"abc".get ⟨3⟩ = (default : Char)` because byte `3` is at the end of the string.
 * `"L∃∀N".get ⟨2⟩ = (default : Char)` because byte `2` is in the middle of `'∃'`.
 -/
-@[extern "lean_string_utf8_get"]
+@[extern "lean_string_utf8_get", expose]
 def get (s : @& String) (p : @& Pos) : Char :=
   match s with
   | ⟨s⟩ => utf8GetAux s 0 p
@@ -182,7 +184,7 @@ This function is overridden with an efficient implementation in runtime code. Se
 Examples
 * `"abc".get! ⟨1⟩ = 'b'`
 -/
-@[extern "lean_string_utf8_get_bang"]
+@[extern "lean_string_utf8_get_bang", expose]
 def get! (s : @& String) (p : @& Pos) : Char :=
   match s with
   | ⟨s⟩ => utf8GetAux s 0 p
@@ -218,52 +220,53 @@ If both the replacement character and the replaced character are 7-bit ASCII cha
 string is not shared, then it is updated in-place and not copied.
 
 Examples:
-* `abc.modify ⟨1⟩ Char.toUpper = "aBc"`
-* `abc.modify ⟨3⟩ Char.toUpper = "abc"`
+* `"abc".modify ⟨1⟩ Char.toUpper = "aBc"`
+* `"abc".modify ⟨3⟩ Char.toUpper = "abc"`
 -/
 def modify (s : String) (i : Pos) (f : Char → Char) : String :=
   s.set i <| f <| s.get i
 
 /--
-Returns the next position in a string after position `p`. The result is unspecified if `p` is not a
-valid position or if `p = s.endPos`.
+Returns the next position in a string after position `p`. If `p` is not a valid position or
+`p = s.endPos`, returns the position one byte after `p`.
 
 A run-time bounds check is performed to determine whether `p` is at the end of the string. If a
 bounds check has already been performed, use `String.next'` to avoid a repeated check.
 
-Some examples where the result is unspecified:
-* `"abc".next ⟨3⟩`, since `3 = "abc".endPos`
-* `"L∃∀N".next ⟨2⟩`, since `2` points into the middle of a multi-byte UTF-8 character
+Some examples of edge cases:
+* `"abc".next ⟨3⟩ = ⟨4⟩`, since `3 = "abc".endPos`
+* `"L∃∀N".next ⟨2⟩ = ⟨3⟩`, since `2` points into the middle of a multi-byte UTF-8 character
 
 Examples:
 * `"abc".get ("abc".next 0) = 'b'`
 * `"L∃∀N".get (0 |> "L∃∀N".next |> "L∃∀N".next) = '∀'`
 -/
-@[extern "lean_string_utf8_next"]
+@[extern "lean_string_utf8_next", expose]
 def next (s : @& String) (p : @& Pos) : Pos :=
   let c := get s p
   p + c
 
 def utf8PrevAux : List Char → Pos → Pos → Pos
-  | [],    _, _ => 0
+  | [],    _, p => ⟨p.byteIdx - 1⟩
   | c::cs, i, p =>
     let i' := i + c
-    if i' = p then i else utf8PrevAux cs i' p
+    if p ≤ i' then i else utf8PrevAux cs i' p
 
 /--
 Returns the position in a string before a specified position, `p`. If `p = ⟨0⟩`, returns `0`. If `p`
-is not a valid position, the result is unspecified.
+is greater than `endPos`, returns the position one byte before `p`. Otherwise, if `p` occurs in the
+middle of a multi-byte character, returns the beginning position of that character.
 
-For example, `"L∃∀N".prev ⟨3⟩` is unspecified, since byte 3 occurs in the middle of the multi-byte
-character `'∃'`.
+For example, `"L∃∀N".prev ⟨3⟩` is `⟨1⟩`, since byte 3 occurs in the middle of the multi-byte
+character `'∃'` that starts at byte 1.
 
 Examples:
 * `"abc".get ("abc".endPos |> "abc".prev) = 'c'`
 * `"L∃∀N".get ("L∃∀N".endPos |> "L∃∀N".prev |> "L∃∀N".prev |> "L∃∀N".prev) = '∃'`
 -/
-@[extern "lean_string_utf8_prev"]
+@[extern "lean_string_utf8_prev", expose]
 def prev : (@& String) → (@& Pos) → Pos
-  | ⟨s⟩, p => if p = 0 then 0 else utf8PrevAux s 0 p
+  | ⟨s⟩, p => utf8PrevAux s 0 p
 
 /--
 Returns the first character in `s`. If `s = ""`, returns `(default : Char)`.
@@ -322,7 +325,7 @@ Examples:
 * `"abc".get' 0 (by decide) = 'a'`
 * `let lean := "L∃∀N"; lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'`
 -/
-@[extern "lean_string_utf8_get_fast"]
+@[extern "lean_string_utf8_get_fast", expose]
 def get' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Char :=
   match s with
   | ⟨s⟩ => utf8GetAux s 0 p
@@ -337,14 +340,14 @@ Requires evidence, `h`, that `p` is within bounds. No run-time bounds check is p
 A typical pattern combines `String.next'` with a dependent `if`-expression to avoid the overhead of
 an additional bounds check. For example:
 ```
-def next? (s: String) (p : String.Pos) : Option Char :=
+def next? (s : String) (p : String.Pos) : Option Char :=
   if h : s.atEnd p then none else s.get (s.next' p h)
 ```
 
 Example:
 * `let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'`
 -/
-@[extern "lean_string_utf8_next_fast"]
+@[extern "lean_string_utf8_next_fast", expose]
 def next' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Pos :=
   let c := get s p
   p + c
@@ -367,20 +370,17 @@ protected theorem Pos.ne_zero_of_lt : {a b : Pos} → a < b → b ≠ 0
 theorem lt_next (s : String) (i : Pos) : i.1 < (s.next i).1 :=
   Nat.add_lt_add_left (Char.utf8Size_pos _) _
 
-theorem utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos), p ≠ 0 →
+theorem utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos), i < p → p ≠ 0 →
     (utf8PrevAux cs i p).1 < p.1
-  | [], _, _, h =>
-    Nat.lt_of_le_of_lt (Nat.zero_le _)
-      (Nat.zero_lt_of_ne_zero (mt (congrArg Pos.mk) h))
-  | c::cs, i, p, h => by
+  | [], _, _, _, h => Nat.sub_one_lt (mt (congrArg Pos.mk) h)
+  | c::cs, i, p, h, h' => by
     simp [utf8PrevAux]
-    apply iteInduction (motive := (Pos.byteIdx · < _)) <;> intro h'
-    next => exact h' ▸ Nat.add_lt_add_left (Char.utf8Size_pos _) _
-    next => exact utf8PrevAux_lt_of_pos _ _ _ h
+    apply iteInduction (motive := (Pos.byteIdx · < _)) <;> intro h''
+    next => exact h
+    next => exact utf8PrevAux_lt_of_pos _ _ _ (Nat.lt_of_not_le h'') h'
 
-theorem prev_lt_of_pos (s : String) (i : Pos) (h : i ≠ 0) : (s.prev i).1 < i.1 := by
-  simp [prev, h]
-  exact utf8PrevAux_lt_of_pos _ _ _ h
+theorem prev_lt_of_pos (s : String) (i : Pos) (h : i ≠ 0) : (s.prev i).1 < i.1 :=
+  utf8PrevAux_lt_of_pos _ _ _ (Nat.zero_lt_of_ne_zero (mt (congrArg Pos.mk) h)) h
 
 def posOfAux (s : String) (c : Char) (stopPos : Pos) (pos : Pos) : Pos :=
   if h : pos < stopPos then
@@ -417,7 +417,7 @@ Returns the position of the last occurrence of a character, `c`, in a string `s`
 contain `c`, returns `none`.
 
 Examples:
-* `"abcabc".refPosOf 'a' = some ⟨3⟩`
+* `"abcabc".revPosOf 'a' = some ⟨3⟩`
 * `"abcabc".revPosOf 'z' = none`
 * `"L∃∀N".revPosOf '∀' = some ⟨4⟩`
 -/
@@ -586,7 +586,7 @@ decreasing_by
   focus
     rename_i i₀ j₀ _ eq h'
     rw [show (s.next i₀ - sep.next j₀).1 = (i₀ - j₀).1 by
-      show (_ + Char.utf8Size _) - (_ + Char.utf8Size _) = _
+      change (_ + Char.utf8Size _) - (_ + Char.utf8Size _) = _
       rw [(beq_iff_eq ..).1 eq, Nat.add_sub_add_right]; rfl]
     right; exact Nat.sub_lt_sub_left
       (Nat.lt_of_le_of_lt (Nat.le_add_right ..) (Nat.gt_of_not_le (mt decide_eq_true h')))
@@ -669,7 +669,7 @@ Examples:
  * `String.singleton '"' = "\""`
  * `String.singleton '𝒫' = "𝒫"`
 -/
-@[inline] def singleton (c : Char) : String :=
+@[inline,expose] def singleton (c : Char) : String :=
   "".push c
 
 /--
@@ -1513,7 +1513,7 @@ in it are digits.
 Use `Substring.toNat?` to convert such a substring to a natural number.
 -/
 @[inline] def isNat (s : Substring) : Bool :=
-  s.all fun c => c.isDigit
+  !s.isEmpty && s.all fun c => c.isDigit
 
 /--
 Checks whether the substring can be interpreted as the decimal representation of a natural number,
@@ -1954,7 +1954,7 @@ Examples:
  * `'L'.toString = "L"`
  * `'"'.toString = "\""`
 -/
-@[inline] protected def toString (c : Char) : String :=
+@[inline, expose] protected def toString (c : Char) : String :=
   String.singleton c
 
 @[simp] theorem length_toString (c : Char) : c.toString.length = 1 := rfl
@@ -2066,7 +2066,11 @@ end Pos
 
 theorem lt_next' (s : String) (p : Pos) : p < next s p := lt_next ..
 
-@[simp] theorem prev_zero (s : String) : prev s 0 = 0 := rfl
+@[simp] theorem prev_zero (s : String) : prev s 0 = 0 := by
+  cases s with | mk cs
+  cases cs
+  next => rfl
+  next => simp [prev, utf8PrevAux, Pos.le_iff]
 
 @[simp] theorem get'_eq (s : String) (p : Pos) (h) : get' s p h = get s p := rfl
 

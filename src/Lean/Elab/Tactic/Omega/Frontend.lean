@@ -70,9 +70,9 @@ def mkEvalRflProof (e : Expr) (lc : LinearCombo) : OmegaM Expr := do
 def mkCoordinateEvalAtomsEq (e : Expr) (n : Nat) : OmegaM Expr := do
   if n < 10 then
     let atoms ← atoms
-    let tail ← mkListLit (.const ``Int []) atoms[n+1:].toArray.toList
+    let tail ← mkListLit (.const ``Int []) atoms[n<...*].toArray.toList
     let lem := .str ``LinearCombo s!"coordinate_eval_{n}"
-    mkEqSymm (mkAppN (.const lem []) (atoms[:n+1].toArray.push tail))
+    mkEqSymm (mkAppN (.const lem []) (atoms[*...=n].toArray.push tail))
   else
     let atoms ← atomsCoeffs
     let n := toExpr n
@@ -559,7 +559,7 @@ where
   varNames (mask : Array Bool) : MetaM (Array String) := do
     let mut names := #[]
     let mut next := 0
-    for h : i in [:mask.size] do
+    for h : i in *...mask.size do
       if mask[i] then
         while ← inScope (varNameOf next) do next := next + 1
         names := names.push (varNameOf next)
@@ -672,7 +672,6 @@ open Lean Elab Tactic Parser.Tactic
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. -/
 def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
-  let declName? ← Term.getDeclName?
   liftMetaFinishingTactic fun g => do
     if debug.terminalTacticsAsSorry.get (← getOptions) then
       g.admit
@@ -685,7 +684,7 @@ def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
         trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"
         omega hyps g'.mvarId! cfg
         -- Omega proofs are typically rather large, so hide them in a separate definition
-        let e ← mkAuxTheorem (prefix? := declName?) type (← instantiateMVarsProfiling g') (zetaDelta := true)
+        let e ← mkAuxTheorem type (← instantiateMVarsProfiling g') (zetaDelta := true)
         g.assign e
 
 

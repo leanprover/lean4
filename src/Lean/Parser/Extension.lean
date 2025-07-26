@@ -218,7 +218,7 @@ builtin_initialize parserAlias2kindRef : IO.Ref (NameMap SyntaxNodeKind) ← IO.
 builtin_initialize parserAliases2infoRef : IO.Ref (NameMap ParserAliasInfo) ← IO.mkRef {}
 
 def getParserAliasInfo (aliasName : Name) : IO ParserAliasInfo := do
-  return (← parserAliases2infoRef.get).findD aliasName {}
+  return (← parserAliases2infoRef.get).getD aliasName {}
 
 -- Later, we define macro `register_parser_alias` which registers a parser, formatter and parenthesizer
 def registerAlias (aliasName declName : Name) (p : ParserAliasValue) (kind? : Option SyntaxNodeKind := none) (info : ParserAliasInfo := {}) : IO Unit := do
@@ -252,7 +252,7 @@ unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : Par
   let env  := (← read).env
   let opts := (← read).opts
   match env.find? constName with
-  | none      => throw ↑s!"unknown constant '{constName}'"
+  | none      => throw ↑s!"Unknown constant `{constName}`"
   | some info =>
     match info.type with
     | Expr.const `Lean.Parser.TrailingParser _ =>

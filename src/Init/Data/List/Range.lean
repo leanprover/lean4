@@ -6,8 +6,10 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Pairwise
-import Init.Data.List.Zip
+public import Init.Data.List.Pairwise
+public import Init.Data.List.Zip
+
+public section
 
 /-!
 # Lemmas about `List.range` and `List.zipIdx`
@@ -28,7 +30,7 @@ open Nat
 /-! ### range' -/
 
 theorem range'_succ {s n step} : range' s (n + 1) step = s :: range' (s + step) n step := by
-  simp [range', Nat.add_succ, Nat.mul_succ]
+  simp [range']
 
 @[simp] theorem length_range' {s step} : ∀ {n : Nat}, length (range' s n step) = n
   | 0 => rfl
@@ -88,7 +90,7 @@ theorem getElem?_range' {s step} :
   (getElem?_eq_some_iff.1 <| getElem?_range' (by simpa using H)).2
 
 theorem head?_range' : (range' s n).head? = if n = 0 then none else some s := by
-  induction n <;> simp_all [range'_succ, head?_append]
+  induction n <;> simp_all [range'_succ]
 
 @[simp] theorem head_range' (h) : (range' s n).head h = s := by
   repeat simp_all [head?_range', head_eq_iff_head?_eq_some]
@@ -141,6 +143,8 @@ theorem range'_eq_cons_iff : range' s n = a :: xs ↔ s = a ∧ 0 < n ∧ xs = r
     simp [eq_comm]
 
 /-! ### range -/
+
+@[simp, grind =] theorem range_one : range 1 = [0] := rfl
 
 theorem range_loop_range' : ∀ s n, range.loop s (range' s n) = range' 0 (n + s)
   | 0, _ => rfl
@@ -223,7 +227,7 @@ theorem zipIdx_eq_nil_iff {l : List α} {i : Nat} : List.zipIdx l i = [] ↔ l =
   | [], _ => rfl
   | _ :: _, _ => congrArg Nat.succ length_zipIdx
 
-@[simp]
+@[simp, grind =]
 theorem getElem?_zipIdx :
     ∀ {l : List α} {i j}, (zipIdx l i)[j]? = l[j]?.map fun a => (a, i + j)
   | [], _, _ => rfl
@@ -232,7 +236,7 @@ theorem getElem?_zipIdx :
     simp only [zipIdx_cons, getElem?_cons_succ]
     exact getElem?_zipIdx.trans <| by rw [Nat.add_right_comm]; rfl
 
-@[simp]
+@[simp, grind =]
 theorem getElem_zipIdx {l : List α} (h : i < (l.zipIdx j).length) :
     (l.zipIdx j)[i] = (l[i]'(by simpa [length_zipIdx] using h), j + i) := by
   simp only [length_zipIdx] at h
@@ -240,15 +244,15 @@ theorem getElem_zipIdx {l : List α} (h : i < (l.zipIdx j).length) :
   simp only [getElem?_zipIdx, getElem?_eq_getElem h]
   simp
 
-@[simp]
+@[simp, grind =]
 theorem tail_zipIdx {l : List α} {i : Nat} : (zipIdx l i).tail = zipIdx l.tail (i + 1) := by
   induction l generalizing i with
   | nil => simp
-  | cons _ l ih => simp [ih, zipIdx_cons]
+  | cons _ l ih => simp [zipIdx_cons]
 
 theorem map_snd_add_zipIdx_eq_zipIdx {l : List α} {n k : Nat} :
     map (Prod.map id (· + n)) (zipIdx l k) = zipIdx l (n + k) :=
-  ext_getElem? fun i ↦ by simp [(· ∘ ·), Nat.add_comm, Nat.add_left_comm]; rfl
+  ext_getElem? fun i ↦ by simp [Nat.add_comm, Nat.add_left_comm]; rfl
 
 theorem zipIdx_cons' {i : Nat} {x : α} {xs : List α} :
     zipIdx (x :: xs) i = (x, i) :: (zipIdx xs i).map (Prod.map id (· + 1)) := by
@@ -326,12 +330,12 @@ theorem getElem_enumFrom (l : List α) (n) (i : Nat) (h : i < (l.enumFrom n).len
 theorem tail_enumFrom (l : List α) (n : Nat) : (enumFrom n l).tail = enumFrom (n + 1) l.tail := by
   induction l generalizing n with
   | nil => simp
-  | cons _ l ih => simp [ih, enumFrom_cons]
+  | cons _ l ih => simp [enumFrom_cons]
 
 @[deprecated map_snd_add_zipIdx_eq_zipIdx (since := "2025-01-21"), simp]
 theorem map_fst_add_enumFrom_eq_enumFrom (l : List α) (n k : Nat) :
     map (Prod.map (· + n) id) (enumFrom k l) = enumFrom (n + k) l :=
-  ext_getElem? fun i ↦ by simp [(· ∘ ·), Nat.add_comm, Nat.add_left_comm]; rfl
+  ext_getElem? fun i ↦ by simp [Nat.add_comm, Nat.add_left_comm]; rfl
 
 @[deprecated map_snd_add_zipIdx_eq_zipIdx (since := "2025-01-21"), simp]
 theorem map_fst_add_enum_eq_enumFrom (l : List α) (n : Nat) :

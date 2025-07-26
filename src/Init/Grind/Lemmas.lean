@@ -6,11 +6,13 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Core
-import Init.SimpLemmas
-import Init.Classical
-import Init.ByCases
-import Init.Grind.Util
+public import Init.Core
+public import Init.SimpLemmas
+public import Init.Classical
+public import Init.ByCases
+public import Init.Grind.Util
+
+public section
 
 namespace Lean.Grind
 
@@ -89,6 +91,12 @@ theorem beq_eq_true_of_eq {α : Type u} {_ : BEq α} {_ : LawfulBEq α} {a b : �
 theorem beq_eq_false_of_diseq {α : Type u} {_ : BEq α} {_ : LawfulBEq α} {a b : α} (h : ¬ a = b) : (a == b) = false := by
   simp[*]
 
+theorem eq_of_beq_eq_true {α : Type u} {_ : BEq α} {_ : LawfulBEq α} {a b : α} (h : (a == b) = true) : a = b := by
+  simp [beq_iff_eq.mp h]
+
+theorem ne_of_beq_eq_false {α : Type u} {_ : BEq α} {_ : LawfulBEq α} {a b : α} (h : (a == b) = false) : (a = b) = False := by
+  simp [beq_eq_false_iff_ne.mp h]
+
 /-! Bool.and -/
 
 theorem Bool.and_eq_of_eq_true_left {a b : Bool} (h : a = true) : (a && b) = b := by simp [h]
@@ -123,6 +131,11 @@ theorem Bool.eq_true_of_not_eq_false' {a : Bool} (h : ¬ a = false) : a = true :
 theorem Bool.false_of_not_eq_self {a : Bool} (h : (!a) = a) : False := by
   by_cases a <;> simp_all
 
+theorem Bool.ne_of_eq_true_of_eq_false {a b : Bool} (h₁ : a = true) (h₂ : b = false) : (a = b) = False := by
+  cases a <;> cases b <;> simp_all
+theorem Bool.ne_of_eq_false_of_eq_true {a b : Bool} (h₁ : a = false) (h₂ : b = true) : (a = b) = False := by
+  cases a <;> cases b <;> simp_all
+
 /- The following two helper theorems are used to case-split `a = b` representing `iff`. -/
 theorem of_eq_eq_true {a b : Prop} (h : (a = b) = True) : (a ∧ b) ∨ (¬ a ∧ ¬ b) := by
   by_cases a <;> by_cases b <;> simp_all
@@ -147,17 +160,17 @@ theorem dite_cond_eq_false' {α : Sort u} {c : Prop} {_ : Decidable c} {a : c �
 
 theorem eqRec_heq.{u_1, u_2} {α : Sort u_2} {a : α}
         {motive : (x : α) → a = x → Sort u_1} (v : motive a (Eq.refl a)) {b : α} (h : a = b)
-        : HEq (@Eq.rec α a motive v b h) v := by
+        : @Eq.rec α a motive v b h ≍ v := by
  subst h; rfl
 
 theorem eqRecOn_heq.{u_1, u_2} {α : Sort u_2} {a : α}
         {motive : (x : α) → a = x → Sort u_1} {b : α} (h : a = b) (v : motive a (Eq.refl a))
-        : HEq (@Eq.recOn α a motive b h v) v := by
+        : @Eq.recOn α a motive b h v ≍ v := by
  subst h; rfl
 
 theorem eqNDRec_heq.{u_1, u_2} {α : Sort u_2} {a : α}
         {motive : α → Sort u_1} (v : motive a) {b : α} (h : a = b)
-        : HEq (@Eq.ndrec α a motive v b h) v := by
+        : @Eq.ndrec α a motive v b h ≍ v := by
  subst h; rfl
 
 /-! decide -/

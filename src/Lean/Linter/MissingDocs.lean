@@ -11,7 +11,7 @@ import Lean.Elab.SetOption
 import Lean.Linter.Util
 
 namespace Lean.Linter
-open Elab.Command Parser.Command
+open Elab.Command Parser Command
 open Parser.Term hiding «set_option»
 
 register_builtin_option linter.missingDocs : Bool := {
@@ -19,7 +19,7 @@ register_builtin_option linter.missingDocs : Bool := {
   descr := "enable the 'missing documentation' linter"
 }
 
-def getLinterMissingDocs (o : Options) : Bool := getLinterValue linter.missingDocs o
+def getLinterMissingDocs (o : LinterOptions) : Bool := getLinterValue linter.missingDocs o
 
 
 namespace MissingDocs
@@ -34,7 +34,7 @@ unsafe def mkHandlerUnsafe (constName : Name) : ImportM Handler := do
   let env  := (← read).env
   let opts := (← read).opts
   match env.find? constName with
-  | none      => throw ↑s!"unknown constant '{constName}'"
+  | none      => throw ↑s!"Unknown constant `{constName}`"
   | some info => match info.type with
     | Expr.const ``SimpleHandler _ => do
       let h ← IO.ofExcept $ env.evalConst SimpleHandler opts constName
@@ -68,7 +68,7 @@ def getHandlers (env : Environment) : NameMap Handler := (missingDocsExt.getStat
 partial def missingDocs : Linter where
   run stx := do
     if let some h := (getHandlers (← getEnv)).find? stx.getKind then
-      h (getLinterMissingDocs (← getOptions)) stx
+      h (getLinterMissingDocs (← getLinterOptions)) stx
 
 builtin_initialize addLinter missingDocs
 
@@ -120,7 +120,7 @@ def hasInheritDoc (attrs : Syntax) : Bool :=
     attr[1][0].getId.eraseMacroScopes == `inherit_doc
 
 def declModifiersPubNoDoc (mods : Syntax) : Bool :=
-  mods[2][0].getKind != ``«private» && mods[0].isNone && !hasInheritDoc mods[1]
+  mods[2][0].getKind != ``Command.private && mods[0].isNone && !hasInheritDoc mods[1]
 
 def lintDeclHead (k : SyntaxNodeKind) (id : Syntax) : CommandElabM Unit := do
   if k == ``«abbrev» then lintNamed id "public abbrev"
@@ -134,7 +134,7 @@ def lintDeclHead (k : SyntaxNodeKind) (id : Syntax) : CommandElabM Unit := do
 @[builtin_missing_docs_handler declaration]
 def checkDecl : SimpleHandler := fun stx => do
   let head := stx[0]; let rest := stx[1]
-  if head[2][0].getKind == ``«private» then return -- not private
+  if head[2][0].getKind == ``Command.private then return -- not private
   let k := rest.getKind
   if declModifiersPubNoDoc head then -- no doc string
     lintDeclHead k rest[1][0]
@@ -149,7 +149,7 @@ def checkDecl : SimpleHandler := fun stx => do
         if declModifiersPubNoDoc head then -- no doc string
           lintField rest[1][0] stx[1] "computed field"
   else if rest.getKind == ``«structure» then
-    unless rest[5][2].isNone do
+    unless rest[4][2].isNone do
       let redecls : Std.HashSet String.Pos :=
         (← get).infoState.trees.foldl (init := {}) fun s tree =>
           tree.foldInfo (init := s) fun _ info s =>
@@ -163,7 +163,7 @@ def checkDecl : SimpleHandler := fun stx => do
         if let some range := stx.getRange? then
           if redecls.contains range.start then return
         lintField parent stx "public field"
-      for stx in rest[5][2][0].getArgs do
+      for stx in rest[4][2][0].getArgs do
         let head := stx[0]
         if declModifiersPubNoDoc head then
           if stx.getKind == ``structSimpleBinder then

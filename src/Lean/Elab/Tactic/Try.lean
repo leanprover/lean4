@@ -168,7 +168,7 @@ private def getTacsSolvedAll (tacs2 : Array (Array (TSyntax `tactic))) : Array (
   else
     let mut r := #[]
     for tac2 in tacs2[0]! do
-      if tacs2[1:].all (·.contains tac2) then
+      if tacs2[1...*].all (·.contains tac2) then
         r := r.push tac2
     return r
 
@@ -184,7 +184,7 @@ private def getKindsSolvedAll (tacss : Array (Array (TSyntax `tactic))) : Array 
     let mut r := #[]
     for tacs0 in tacss[0]! do
       let k := tacs0.raw.getKind
-      if tacss[1:].all fun tacs => tacs.any fun tac => tac.raw.getKind == k then
+      if tacss[1...*].all fun tacs => tacs.any fun tac => tac.raw.getKind == k then
         r := r.push k
     return r
 
@@ -285,7 +285,7 @@ private def mergeAll? (tacs : Array (TSyntax `tactic)) : TryTacticM (Option (TSy
   if tacs.any fun tac => tac.raw.getKind != tac0.raw.getKind then
     return none
   let mut tac := tac0
-  for h : i in [1:tacs.size] do
+  for h : i in 1...tacs.size do
     let some tac' := merge? tac tacs[i]
       | return none
     tac := tac'
@@ -432,7 +432,7 @@ private def evalSuggestChain (tac1 tac2 : TSyntax `tactic) : TryTacticM (TSyntax
 private def evalSuggestSeq (tacs : Array (TSyntax `tactic)) : TryTacticM (TSyntax `tactic) := do
   if (← read).terminal then
     let mut result := #[]
-    for i in [:tacs.size - 1] do
+    for i in *...(tacs.size - 1 : Nat) do
       result := appendSeq result (← withNonTerminal <| evalSuggest tacs[i]!)
     let suggestions ← getSuggestionOfTactic (← evalSuggest tacs.back!) |>.mapM fun tac =>
       mkSeq (appendSeq result tac) (terminal := true)
@@ -582,7 +582,7 @@ def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (config : Try.Config :=
     evalSuggest tac |>.run { terminal := true, root := tac, config }
   catch _ =>
     throwEvalAndSuggestFailed config
-  let s := (getSuggestions tac')[:config.max].toArray
+  let s := (getSuggestions tac')[*...config.max].toArray
   if s.isEmpty then
     throwEvalAndSuggestFailed config
   else
@@ -610,7 +610,7 @@ private def setGrindParams (tac : TSyntax `tactic) (params : Array (TSyntax ``Pa
 /-- Given a set of declaration names, returns `grind` parameters of the form `= <declName>` -/
 private def mkGrindEqnParams (declNames : Array Name) : MetaM (Array (TSyntax ``Parser.Tactic.grindParam)) := do
   declNames.mapM fun declName => do
-    `(Parser.Tactic.grindParam| = $(← toIdent declName))
+    `(Parser.Tactic.grindParam| = $(← toIdent declName):ident)
 
 private def mkGrindStx (info : Try.Info) : MetaM (TSyntax `tactic) := do
   let grind ← `(tactic| grind?)

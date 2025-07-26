@@ -152,14 +152,14 @@ Gruesome details for heterogenenous equalities.
 
 When pattern matching on indexing families, the generated conditions often use heterogenenous equalities. Here is an example:
 ```
-(∀ (x : Vec α 0), n = 0 → HEq as Vec.nil → HEq bs x → False)
+(∀ (x : Vec α 0), n = 0 → as ≍ Vec.nil → bs ≍ x → False)
 ```
 In this case, it is not sufficient to abstract the left-hand side. We also have
 to abstract its type. The following is produced in this case.
 ```
 (#[n, Vec α n, as, Vec α n, bs],
  (fun (x_0 : Nat) (ty_1 : Type u_1) (x_1 : ty_1) (ty_2 : Type u_1) (x_2 : ty_2) =>
-    ∀ (x : Vec α 0), x_0 = 0 → HEq x_1 Vec.nil → HEq x_2 x → False)
+    ∀ (x : Vec α 0), x_0 = 0 → x_1 ≍ Vec.nil → x_2 ≍ x → False)
  n (Vec α n) as (Vec α n) bs)
 ```
 The example makes it clear why this is needed, `as` and `bs` depend on `n`.
@@ -212,7 +212,7 @@ where
       if ctorLhs.name ≠ ctorRhs.name then return true
       let lhsArgs := root.self.getAppArgs
       let rhsArgs := rhs.getAppArgs
-      for i in [ctorLhs.numParams : ctorLhs.numParams + ctorLhs.numFields] do
+      for i in ctorLhs.numParams...(ctorLhs.numParams + ctorLhs.numFields) do
         if (← isFalse lhsArgs[i]! rhsArgs[i]!) then
           return true
       return false
@@ -262,6 +262,8 @@ private partial def isStatisfied (e : Expr) : GoalM Bool := do
     e := b
   return false
 
+-- TODO: we don't have support for offset equalities
+
 /-- Constructs a proof for a satisfied `match`-expression condition. -/
 private partial def mkMatchCondProof? (e : Expr) : GoalM (Option Expr) := do
   let_expr Grind.MatchCond f ← e | return none
@@ -286,6 +288,8 @@ where
       | reportIssue! "found term that has not been internalized{indentExpr lhs}\nwhile trying to construct a proof for `MatchCond`{indentExpr e}"
         return none
     let isHEq := α?.isSome
+    unless (← hasSameType root.self rhs) do
+      return none
     let h ← if isHEq then
       mkEqOfHEq (← mkHEqTrans (← mkHEqProof root.self lhs) h) (check := false)
     else
@@ -388,7 +392,7 @@ where
       let some ctorInfo ← isConstructorApp? ctor | return ctor
       let mut ctorArgs := ctor.getAppArgs
       let mut modified := false
-      for i in [ctorInfo.numParams : ctorInfo.numParams + ctorInfo.numFields] do
+      for i in ctorInfo.numParams...(ctorInfo.numParams + ctorInfo.numFields) do
         let arg  := ctorArgs[i]!
         let arg' ← go arg
         unless isSameExpr arg arg' do

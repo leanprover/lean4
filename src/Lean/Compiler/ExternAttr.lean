@@ -17,7 +17,8 @@ inductive ExternEntry where
   | adhoc    (backend : Name)
   | inline   (backend : Name) (pattern : String)
   | standard (backend : Name) (fn : String)
-  | foreign  (backend : Name) (fn : String)
+  /-- Call to a Lean function without exported IR. -/
+  | opaque   (fn : Name)
   deriving BEq, Hashable
 
 /--
@@ -58,25 +59,24 @@ private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
       entries := entries.push <| ExternEntry.inline backend str
   return { arity? := arity?, entries := entries.toList }
 
+-- Forward declaration
 @[extern "lean_add_extern"]
-opaque addExtern (env : Environment) (n : Name) : ExceptT String Id Environment
+opaque addExtern (declName : Name) (externAttrData : ExternAttrData) : CoreM Unit
 
 builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
   registerParametricAttribute {
     name := `extern
     descr := "builtin and foreign functions"
     getParam := fun _ stx => syntaxToExternAttrData stx
-    afterSet := fun declName _ => do
+    afterSet := fun declName externAttrData => do
       let env ← getEnv
       if env.isProjectionFn declName || env.isConstructor declName then
         if let some (.thmInfo ..) := env.find? declName then
           -- We should not mark theorems as extern
           return ()
-        let env ← ofExcept <| addExtern env declName
-        setEnv env
+        addExtern declName externAttrData
   }
 
-@[export lean_get_extern_attr_data]
 def getExternAttrData? (env : Environment) (n : Name) : Option ExternAttrData :=
   externAttr.getParam? env n
 
@@ -112,7 +112,7 @@ def ExternEntry.backend : ExternEntry → Name
   | ExternEntry.adhoc n      => n
   | ExternEntry.inline n _   => n
   | ExternEntry.standard n _ => n
-  | ExternEntry.foreign n _  => n
+  | ExternEntry.opaque ..    => `all
 
 def getExternEntryForAux (backend : Name) : List ExternEntry → Option ExternEntry
   | []    => none
@@ -139,7 +139,6 @@ def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option S
   let entry ← getExternEntryFor data? backend
   match entry with
   | ExternEntry.standard _ n => pure n
-  | ExternEntry.foreign _ n  => pure n
   | _ => failure
 
 private def getExternConstArity (declName : Name) : CoreM Nat := do
@@ -154,7 +153,6 @@ private def getExternConstArity (declName : Name) : CoreM Nat := do
     | some arity => return arity
     | none       => fromSignature ()
 
-@[export lean_get_extern_const_arity]
 def getExternConstArityExport (env : Environment) (declName : Name) : IO (Option Nat) := do
   try
     let (arity, _) ← (getExternConstArity declName).toIO { fileName := "<compiler>", fileMap := default } { env := env }

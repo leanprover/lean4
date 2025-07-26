@@ -103,8 +103,13 @@ def inferConstType (declName : Name) (us : List Level) : CompilerM Expr := do
 
 def inferLitValueType (value : LitValue) : Expr :=
   match value with
-  | .natVal .. => mkConst ``Nat
-  | .strVal .. => mkConst ``String
+  | .nat .. => mkConst ``Nat
+  | .str .. => mkConst ``String
+  | .uint8 .. => mkConst ``UInt8
+  | .uint16 .. => mkConst ``UInt16
+  | .uint32 .. => mkConst ``UInt32
+  | .uint64 .. => mkConst ``UInt64
+  | .usize .. => mkConst ``USize
 
 mutual
   partial def inferArgType (arg : Arg) : InferTypeM Expr :=
@@ -126,7 +131,7 @@ mutual
   partial def inferLetValueType (e : LetValue) : InferTypeM Expr := do
     match e with
     | .erased => return erasedExpr
-    | .value v => return inferLitValueType v
+    | .lit v => return inferLitValueType v
     | .proj structName idx fvarId => inferProjType structName idx fvarId
     | .const declName us args => inferAppTypeCore (← inferConstType declName us) args
     | .fvar fvarId args => inferAppTypeCore (← getType fvarId) args
@@ -134,7 +139,7 @@ mutual
   partial def inferAppTypeCore (fType : Expr) (args : Array Arg) : InferTypeM Expr := do
     let mut j := 0
     let mut fType := fType
-    for i in [:args.size] do
+    for i in *...args.size do
       fType := fType.headBeta
       match fType with
       | .forallE _ _ b _ => fType := b
@@ -149,7 +154,7 @@ mutual
     let mut j := 0
     let mut fType ← inferType e.getAppFn
     let args := e.getAppArgs
-    for i in [:args.size] do
+    for i in *...args.size do
       fType := fType.headBeta
       match fType with
       | .forallE _ _ b _ => fType := b
@@ -175,8 +180,8 @@ mutual
         if structVal.numParams + structVal.numIndices != structTypeArgs.size then
           failed ()
         else do
-          let mut ctorType ← inferAppType (mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[:structVal.numParams])
-          for _ in [:idx] do
+          let mut ctorType ← inferAppType (mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[*...structVal.numParams])
+          for _ in *...idx do
             match ctorType with
             | .forallE _ _ body _ =>
               if body.hasLooseBVars then
@@ -262,7 +267,7 @@ def Code.inferParamType (params : Array Param) (code : Code) : CompilerM Expr :=
   let xs := params.map fun p => .fvar p.fvarId
   InferType.mkForallFVars xs type |>.run {}
 
-def AltCore.inferType (alt : Alt) : CompilerM Expr :=
+def Alt.inferType (alt : Alt) : CompilerM Expr :=
   alt.getCode.inferType
 
 def mkAuxLetDecl (e : LetValue) (prefixName := `_x) : CompilerM LetDecl := do
@@ -287,7 +292,7 @@ def mkCasesResultType (alts : Array Alt) : CompilerM Expr := do
   if alts.isEmpty then
     throwError "`Code.bind` failed, empty `cases` found"
   let mut resultType ← alts[0]!.inferType
-  for alt in alts[1:] do
+  for alt in alts[1...*] do
     resultType := joinTypes resultType (← alt.inferType)
   return resultType
 

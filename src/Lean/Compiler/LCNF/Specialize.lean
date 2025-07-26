@@ -32,6 +32,11 @@ builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache 
   registerSimplePersistentEnvExtension {
     addEntryFn    := addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addEntry {} es).switch
+    exportEntriesFnEx? := some fun _ _ entries level =>
+      if level == .private then
+        entries.toArray
+      else
+        #[]
     asyncMode     := .sync
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
       (!·.contains ·.key) addEntry
@@ -53,6 +58,7 @@ structure Context where
   Set of let-declarations in scope that do not depend on parameters.
   -/
   ground : FVarIdSet := {}
+  underApplied : FVarIdSet := {}
   /--
   Name of the declaration being processed
   -/
@@ -77,8 +83,37 @@ def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
 
 @[inline] def withLetDecl (decl : LetDecl) (x : SpecializeM α) : SpecializeM α := do
   let grd ← isGround decl.value
+  let isUnderApplied ←
+    match decl.value with
+    | .const fnName _ args =>
+      match ← getDecl? fnName with
+      -- This ascription to `Bool` is required to avoid this being inferred as `Prop`,
+      -- even with a type specified on the `let` binding.
+      | some { params, .. } => pure ((args.size < params.size) : Bool)
+      | none => pure false
+    | .fvar fnFVarId args =>
+      match ← findFunDecl? fnFVarId with
+      -- This ascription to `Bool` is required to avoid this being inferred as `Prop`,
+      -- even with a type specified on the `let` binding.
+      | some { params, .. } => pure ((args.size < params.size) : Bool)
+      | none => pure false
+    | _ => pure false
   let fvarId := decl.fvarId
-  withReader (fun { scope, ground, declName } => { declName, scope := scope.insert fvarId, ground := if grd then ground.insert fvarId else ground }) x
+  withReader (x := x) fun ctx => { ctx with
+    scope := ctx.scope.insert fvarId
+    underApplied := if isUnderApplied then ctx.underApplied.insert fvarId else ctx.underApplied
+    ground := if grd then ctx.ground.insert fvarId else ctx.ground
+  }
+
+@[inline] def withFunDecl (decl : FunDecl) (x : SpecializeM α) : SpecializeM α := do
+  let ctx ← read
+  let grd := allFVar (x := decl.value) fun fvarId =>
+    !(ctx.scope.contains fvarId) || ctx.ground.contains fvarId
+  let fvarId := decl.fvarId
+  withReader (x := x) fun ctx => { ctx with
+    scope := ctx.scope.insert fvarId
+    ground := if grd then ctx.ground.insert fvarId else ctx.ground
+  }
 
 namespace Collector
 /-!
@@ -143,7 +178,9 @@ def collect (paramsInfo : Array SpecParamInfo) (args : Array Arg) : SpecializeM 
   let lctx := (← getThe CompilerM.State).lctx
   let abstract (fvarId : FVarId) : Bool :=
     -- We convert let-declarations that are not ground into parameters
-    !lctx.funDecls.contains fvarId && !ctx.ground.contains fvarId
+    !lctx.funDecls.contains fvarId &&
+    !ctx.underApplied.contains fvarId &&
+    !ctx.ground.contains fvarId
   Closure.run (inScope := ctx.scope.contains) (abstract := abstract) do
     let mut argMask := #[]
     for paramInfo in paramsInfo, arg in args do
@@ -231,12 +268,12 @@ where
     for param in decl.params, arg in argMask do
       if let some arg := arg then
         let arg ← normArg arg
-        modify fun s => s.insert param.fvarId arg.toExpr
+        modify fun s => s.insert param.fvarId arg
       else
         -- Keep the parameter
         let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
         params := params.push (← internalizeParam param)
-    for param in decl.params[argMask.size:] do
+    for param in decl.params[argMask.size...*] do
       let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
       params := params.push (← internalizeParam param)
     let code := code.instantiateValueLevelParams decl.levelParams us
@@ -259,10 +296,14 @@ def getRemainingArgs (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Arr
   for info in paramsInfo, arg in args do
     if info matches .other then
       result := result.push arg
-  return result ++ args[paramsInfo.size:]
+  return result ++ args[paramsInfo.size...*]
 
-def paramsToVarSet (params : Array Param) : FVarIdSet :=
-  params.foldl (fun r p => r.insert p.fvarId) {}
+def paramsToGroundVars (params : Array Param) : CompilerM FVarIdSet :=
+  params.foldlM (init := {}) fun r p => do
+    if isTypeFormerType p.type || (← isArrowClass? p.type).isSome then
+      return r.insert p.fvarId
+    else
+      return r
 
 mutual
   /--
@@ -298,7 +339,7 @@ mutual
       specDecl.saveBase
       let specDecl ← specDecl.simp {}
       let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
-      let ground := paramsToVarSet specDecl.params
+      let ground ← paramsToGroundVars specDecl.params
       let value ← withReader (fun _ => { declName := specDecl.name, ground }) do
          withParams specDecl.params <| specDecl.value.mapCodeM visitCode
       let specDecl := { specDecl with value }
@@ -317,7 +358,11 @@ mutual
         decl ← decl.updateValue value
       let k ← withLetDecl decl <| visitCode k
       return code.updateLet! decl k
-    | .fun decl k | .jp decl k =>
+    | .fun decl k =>
+      let decl ← visitFunDecl decl
+      let k ← withFunDecl decl <| visitCode k
+      return code.updateFun! decl k
+    | .jp decl k =>
       let decl ← visitFunDecl decl
       let k ← withFVar decl.fvarId <| visitCode k
       return code.updateFun! decl k
@@ -341,7 +386,7 @@ def main (decl : Decl) : SpecializeM Decl := do
 end Specialize
 
 partial def Decl.specialize (decl : Decl) : CompilerM (Array Decl) := do
-  let ground := Specialize.paramsToVarSet decl.params
+  let ground ← Specialize.paramsToGroundVars decl.params
   let (decl, s) ← Specialize.main decl |>.run { declName := decl.name, ground } |>.run {}
   return s.decls.push decl
 

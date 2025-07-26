@@ -36,19 +36,23 @@ register_builtin_option quotPrecheck.allowSectionVars : Bool := {
   descr    := "Allow occurrences of section variables in checked quotations, it is useful when declaring local notation."
 }
 
-unsafe def mkPrecheckAttribute : IO (KeyedDeclsAttribute Precheck) :=
+/--
+Registers a double backtick syntax quotation pre-check.
+
+`@[quot_precheck k]` registers a declaration of type `Lean.Elab.Term.Quotation.Precheck` for the
+syntax node kind `k`. It should implement eager name analysis on the passed syntax by throwing an
+exception on unbound identifiers, and calling `precheck` recursively on nested terms, potentially
+with an extended local context (`withNewLocal`). Macros without registered precheck hook are
+unfolded, and identifier-less syntax is ultimately assumed to be well-formed.
+-/
+@[builtin_doc]
+unsafe builtin_initialize precheckAttribute : KeyedDeclsAttribute Precheck ←
   KeyedDeclsAttribute.init {
     builtinName := `builtin_quot_precheck,
     name := `quot_precheck,
-    descr    := "Register a double backtick syntax quotation pre-check.
-
-[quot_precheck k] registers a declaration of type `Lean.Elab.Term.Quotation.Precheck` for the `SyntaxNodeKind` `k`.
-It should implement eager name analysis on the passed syntax by throwing an exception on unbound identifiers,
-and calling `precheck` recursively on nested terms, potentially with an extended local context (`withNewLocal`).
-Macros without registered precheck hook are unfolded, and identifier-less syntax is ultimately assumed to be well-formed.",
+    descr    := "Register a double backtick syntax quotation pre-check.",
     valueTypeName := ``Precheck
-  } `Lean.Elab.Term.Quotation.precheckAttribute
-@[builtin_init mkPrecheckAttribute] opaque precheckAttribute : KeyedDeclsAttribute Precheck
+  }
 
 partial def precheck : Precheck := fun stx => do
   if let p::_ := precheckAttribute.getValues (← getEnv) stx.getKind then
@@ -103,7 +107,8 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
         if quotPrecheck.allowSectionVars.get (← getOptions) && (← isSectionVariable e) then
           return
       | _ => pure ()
-    throwError "unknown identifier '{val}' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check."
+    throwError m!"Unknown identifier `{val}` at quotation precheck"
+      ++ .note "You can use `set_option quotPrecheck false` to disable this check."
   | _ => throwUnsupportedSyntax
 
 @[builtin_quot_precheck Lean.Parser.Term.app] def precheckApp : Precheck

@@ -60,7 +60,8 @@ example (h : 0 + x = y) : f x = f y := by
 macro "bad_tac" : tactic => `(tactic| eval_suggest (intros; (attempt_all | rfl | grind?); simp))
 
 /--
-error: tactic 'try?' failed, consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
+error: Tactic `try?` failed: consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
+
 ⊢ True
 -/
 #guard_msgs (error) in

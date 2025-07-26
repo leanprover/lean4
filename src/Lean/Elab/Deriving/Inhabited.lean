@@ -10,7 +10,7 @@ import Lean.Elab.Deriving.Basic
 namespace Lean.Elab
 open Command Meta Parser Term
 
-private abbrev IndexSet := RBTree Nat compare
+private abbrev IndexSet := Std.TreeSet Nat
 private abbrev LocalInst2Index := FVarIdMap Nat
 
 private def implicitBinderF := Parser.Term.implicitBinder
@@ -51,7 +51,7 @@ where
       let visit {ω} : StateRefT IndexSet (ST ω) Unit :=
         e.forEachWhere Expr.isFVar fun e =>
           let fvarId := e.fvarId!
-          match localInst2Index.find? fvarId with
+          match localInst2Index.get? fvarId with
           | some idx => modify (·.insert idx)
           | none => pure ()
       runST (fun _ => visit |>.run usedInstIdxs) |>.2
@@ -63,7 +63,7 @@ where
     let ctorVal ← getConstInfoCtor ctorName
     let mut indArgs := #[]
     let mut binders := #[]
-    for i in [:indVal.numParams + indVal.numIndices] do
+    for i in *...indVal.numParams + indVal.numIndices do
       let arg := mkIdent (← mkFreshUserName `a)
       indArgs := indArgs.push arg
       let binder ← `(bracketedBinderF| { $arg:ident })
@@ -71,22 +71,23 @@ where
       if assumingParamIdxs.contains i then
         let binder ← `(bracketedBinderF| [Inhabited $arg:ident ])
         binders := binders.push binder
-    let type ← `(Inhabited (@$(mkIdent inductiveTypeName):ident $indArgs:ident*))
+    let type ← `(Inhabited (@$(mkCIdent inductiveTypeName):ident $indArgs:ident*))
     let mut ctorArgs := #[]
-    for _ in [:ctorVal.numParams] do
+    for _ in *...ctorVal.numParams do
       ctorArgs := ctorArgs.push (← `(_))
-    for _ in [:ctorVal.numFields] do
+    for _ in *...ctorVal.numFields do
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
     let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
-    `(instance $binders:bracketedBinder* : $type := $val)
+    let privTk? := guard (isPrivateName inductiveTypeName) *> some .missing
+    `($[private%$privTk?]? instance $binders:bracketedBinder* : $type := $val)
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName
     forallTelescopeReducing ctorVal.type fun xs _ =>
-      addLocalInstancesForParams xs[:ctorVal.numParams] fun localInst2Index => do
+      addLocalInstancesForParams xs[*...ctorVal.numParams] fun localInst2Index => do
         let mut usedInstIdxs := {}
         let mut ok := true
-        for h : i in [ctorVal.numParams:xs.size] do
+        for h : i in ctorVal.numParams...xs.size do
           let x := xs[i]
           let instType ← mkAppM `Inhabited #[(← inferType x)]
           trace[Elab.Deriving.inhabited] "checking {instType} for '{ctorName}'"

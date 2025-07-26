@@ -13,7 +13,7 @@ namespace ToExpr
 private abbrev LevelMap := FVarIdMap Nat
 
 private def _root_.Lean.FVarId.toExpr (offset : Nat) (m : LevelMap) (fvarId : FVarId) : Expr :=
-  match m.find? fvarId with
+  match m.get? fvarId with
   | some level => .bvar (offset - level - 1)
   | none => .fvar fvarId
 
@@ -79,7 +79,7 @@ private def Arg.toExprM (arg : Arg) : ToExprM Expr :=
   return arg.toExpr.abstract' (← read) (← get)
 
 mutual
-partial def FunDeclCore.toExprM (decl : FunDecl) : ToExprM Expr :=
+partial def FunDecl.toExprM (decl : FunDecl) : ToExprM Expr :=
   withParams decl.params do mkLambdaM decl.params (← decl.value.toExprM)
 
 partial def Code.toExprM (code : Code) : ToExprM Expr := do
@@ -107,7 +107,7 @@ end
 def Code.toExpr (code : Code) (xs : Array FVarId := #[]) : Expr :=
   run' code.toExprM xs
 
-def FunDeclCore.toExpr (decl : FunDecl) (xs : Array FVarId := #[]) : Expr :=
+def FunDecl.toExpr (decl : FunDecl) (xs : Array FVarId := #[]) : Expr :=
   run' decl.toExprM xs
 
 end Lean.Compiler.LCNF

@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Date
-import Std.Time.Time
+public import Std.Time.Date
+public import Std.Time.Time
+
+public section
 
 namespace Std
 namespace Time
@@ -155,6 +159,12 @@ instance : LE Duration where
 
 instance {x y : Duration} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.toNanoseconds ≤ y.toNanoseconds))
+
+instance : LT Duration where
+  lt d1 d2 := d1.toNanoseconds < d2.toNanoseconds
+
+instance {x y : Duration} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.toNanoseconds < y.toNanoseconds))
 
 /--
 Converts a `Duration` to a `Minute.Offset`

@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Random
-import Std.Internal.Async.Basic
+public import Init.Data.Array.Basic
+public import Init.Data.Random
+public import Std.Internal.Async.Basic
+
+public section
 
 /-!
 This module contains the implementation of a fair and data-loss free IO multiplexing primitive.
@@ -32,6 +36,7 @@ structure Waiter (α : Type) where
 Swap out the `IO.Promise` within the `Waiter`. Note that the part which determines whether the
 `Waiter` is finished is not swapped out.
 -/
+@[inline]
 def Waiter.withPromise (w : Waiter α) (p : IO.Promise (Except IO.Error β)) : Waiter β :=
   Waiter.mk w.finished p
 
@@ -48,6 +53,14 @@ def Waiter.race [Monad m] [MonadLiftT (ST IO.RealWorld) m] (w : Waiter α)
     win w.promise
   else
     lose
+
+/--
+Atomically checks whether the `Waiter` has already finished. Note that right after this function
+call ends this might have already changed.
+-/
+@[inline]
+def Waiter.checkFinished [Monad m] [MonadLiftT (ST IO.RealWorld) m] (w : Waiter α) : m Bool := do
+  w.finished.get
 
 /--
 An event source that can be multiplexed using `Selectable.one`, see the documentation of

@@ -14,7 +14,7 @@ inductive InlineAttributeKind where
   deriving Inhabited, BEq, Hashable
 
 /--
-  This is an approximate test for testing whether `declName` can be annotated with the `[macro_inline]` attribute or not.
+This is an approximate test for testing whether `declName` can be annotated with the `[macro_inline]` attribute or not.
 -/
 private def isValidMacroInline (declName : Name) : CoreM Bool := do
   let .defnInfo info ← getConstInfo declName
@@ -32,6 +32,27 @@ private def isValidMacroInline (declName : Name) : CoreM Bool := do
     return false
   return true
 
+/--
+Changes the inlining behavior. This attribute comes in several variants:
+- `@[inline]`: marks the definition to be inlined when it is appropriate.
+- `@[inline_if_reduce]`: marks the definition to be inlined if an application of it after inlining
+  and applying reduction isn't a `match` expression. This attribute can be used for inlining
+  structurally recursive functions.
+- `@[noinline]`: marks the definition to never be inlined.
+- `@[always_inline]`: marks the definition to always be inlined.
+- `@[macro_inline]`: marks the definition to always be inlined at the beginning of compilation.
+  This makes it possible to define functions that evaluate some of their parameters lazily.
+  Example:
+  ```
+  @[macro_inline]
+  def test (x y : Nat) : Nat :=
+    if x = 42 then x else y
+
+  #eval test 42 (2^1000000000000) -- doesn't compute 2^1000000000000
+  ```
+  Only non-recursive functions may be marked `@[macro_inline]`.
+-/
+@[builtin_doc]
 builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
   registerEnumAttributes
     [(`inline, "mark definition to be inlined", .inline),
@@ -70,30 +91,5 @@ def hasMacroInlineAttribute (env : Environment) (declName : Name) : Bool :=
 
 abbrev hasAlwaysInlineAttribute (env : Environment) (declName : Name) : Bool :=
   hasInlineAttrCore env .alwaysInline declName
-
--- TODO: delete rest of the file after we have old code generator
-
-private partial def hasInlineAttrAux (env : Environment) (kind : InlineAttributeKind) (n : Name) : Bool :=
-  /- We never inline auxiliary declarations created by eager lambda lifting -/
-  if isEagerLambdaLiftingName n then false
-  else match inlineAttrs.getValue env n with
-    | some k => kind == k
-    | none   => if n.isInternal then hasInlineAttrAux env kind n.getPrefix else false
-
-@[export lean_has_inline_attribute]
-def hasInlineAttributeOld (env : Environment) (n : Name) : Bool :=
-  hasInlineAttrAux env InlineAttributeKind.inline n
-
-@[export lean_has_inline_if_reduce_attribute]
-def hasInlineIfReduceAttributeOld (env : Environment) (n : Name) : Bool :=
-  hasInlineAttrAux env InlineAttributeKind.inlineIfReduce n
-
-@[export lean_has_noinline_attribute]
-def hasNoInlineAttributeOld (env : Environment) (n : Name) : Bool :=
-  hasInlineAttrAux env InlineAttributeKind.noinline n
-
-@[export lean_has_macro_inline_attribute]
-def hasMacroInlineAttributeOld (env : Environment) (n : Name) : Bool :=
-  hasInlineAttrAux env InlineAttributeKind.macroInline n
 
 end Lean.Compiler

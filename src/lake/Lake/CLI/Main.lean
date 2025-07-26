@@ -5,7 +5,6 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Load
-import Lake.Build.Imports
 import Lake.Util.Error
 import Lake.Util.MainM
 import Lake.Util.Cli
@@ -20,7 +19,7 @@ import Lake.CLI.Serve
 -- # CLI
 
 open System
-open Lean (Json toJson fromJson? LeanPaths NameMap)
+open Lean (Json toJson fromJson? NameMap)
 
 namespace Lake
 
@@ -49,6 +48,7 @@ structure LakeOptions where
   outLv? : Option LogLevel := .none
   ansiMode : AnsiMode := .auto
   outFormat : OutFormat := .text
+  offline : Bool := false
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -92,7 +92,9 @@ def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig := d
   }
 
 /-- Make a `BuildConfig` from a `LakeOptions`. -/
-def LakeOptions.mkBuildConfig (opts : LakeOptions) (out := OutStream.stderr) : BuildConfig where
+def LakeOptions.mkBuildConfig
+  (opts : LakeOptions) (out := OutStream.stderr) (showSuccess := false)
+: BuildConfig where
   oldMode := opts.oldMode
   trustHash := opts.trustHash
   noBuild := opts.noBuild
@@ -100,7 +102,7 @@ def LakeOptions.mkBuildConfig (opts : LakeOptions) (out := OutStream.stderr) : B
   failLv := opts.failLv
   outLv := opts.outLv
   ansiMode := opts.ansiMode
-  out := out
+  out; showSuccess
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
 
@@ -196,6 +198,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
 | "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
 | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
+| "--offline"     => modifyThe LakeOptions ({· with offline := true})
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
 | "--log-level"   => do
@@ -341,14 +344,14 @@ protected def new : CliM PUnit := do
   let opts ← getThe LakeOptions
   let name ← takeArg "package name"
   let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
-  noArgsRem do new name tmp lang (← opts.computeEnv) opts.rootDir
+  noArgsRem do new name tmp lang (← opts.computeEnv) opts.rootDir opts.offline
 
 protected def init : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let name := ← takeArgD "."
   let (tmp, lang) ← parseTemplateLangSpec <| ← takeArgD ""
-  noArgsRem do init name tmp lang (← opts.computeEnv) opts.rootDir
+  noArgsRem do init name tmp lang (← opts.computeEnv) opts.rootDir opts.offline
 
 protected def build : CliM PUnit := do
   processOptions lakeOption
@@ -360,11 +363,8 @@ protected def build : CliM PUnit := do
   specs.forM fun spec =>
     unless spec.buildable do
       throw <| .invalidBuildTarget spec.info.key.toSimpleString
-  let buildConfig := mkBuildConfig opts (out := .stdout)
-  let showProgress := buildConfig.showProgress
+  let buildConfig := mkBuildConfig opts (out := .stdout) (showSuccess := true)
   ws.runBuild (buildSpecs specs) buildConfig
-  if showProgress then
-    IO.println "Build completed successfully."
 
 protected def checkBuild : CliM PUnit := do
   processOptions lakeOption
@@ -446,8 +446,14 @@ protected def setupFile : CliM PUnit := do
   let loadConfig ← mkLoadConfig opts
   let buildConfig := mkBuildConfig opts
   let filePath ← takeArg "file path"
-  let imports ← takeArgs
-  setupFile loadConfig filePath imports buildConfig
+  let header? ← takeArg?
+  noArgsRem do
+  let header ← header?.mapM  fun header => do
+    let header ← if header == "-" then IO.getStdin >>= (·.getLine) else pure header
+    match Json.parse header >>= fromJson? with
+    | .ok header => pure header
+    | .error e => error s!"failed to parse header JSON: {e}"
+  setupFile loadConfig filePath header buildConfig
 
 protected def test : CliM PUnit := do
   processOptions lakeOption
@@ -537,34 +543,33 @@ private def evalLeanFile
 : LoggerIO UInt32 := do
   let some path ← resolvePath? leanFile
     | error s!"file not found: {leanFile}"
-  let spawnArgs ← id do
+  let args ← do
     if let some mod := ws.findModuleBySrc? path then
-      let deps ← ws.runBuild (withRegisterJob s!"setup ({mod.name})" do mod.deps.fetch) buildConfig
-      return mkSpawnArgs ws path deps (some mod.rootDir) mod.leanArgs
+      let setup ← ws.runBuild (cfg := buildConfig) do
+        withRegisterJob s!"{mod.name}:setup" do mod.setup.fetch
+      mkArgs path setup mod.leanArgs
     else
-      let res ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
-      let imports := res.imports.filterMap (ws.findModule? ·.module)
-      let deps ← ws.runBuild (buildImportsAndDeps leanFile imports) buildConfig
-      return mkSpawnArgs ws path deps none ws.root.moreLeanArgs
+      let header ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
+      let setup ← ws.runBuild (cfg := buildConfig) do
+        setupExternalModule leanFile.toString header ws.leanOptions
+      mkArgs path setup ws.root.moreLeanArgs
+  let spawnArgs : IO.Process.SpawnArgs := {
+    args := args ++ moreArgs
+    cmd := ws.lakeEnv.lean.lean.toString
+    env := ws.augmentedEnvVars
+  }
   logVerbose (mkCmdLog spawnArgs)
   let child ← IO.Process.spawn spawnArgs
   child.wait
 where
-  mkSpawnArgs ws leanFile deps rootDir? cfgArgs := Id.run do
-    let mut args := cfgArgs.push leanFile.toString
-    if let some rootDir := rootDir? then
-      args := args ++ #["-R", rootDir.toString]
-    let {dynlibs, plugins} := deps
-    for dynlib in dynlibs do
-      args := args ++ #["--load-dynlib", dynlib.path.toString]
-    for plugin in plugins do
-      args := args ++ #["--plugin", plugin.path.toString]
-    return {
-      args := args ++ moreArgs
-      cmd := ws.lakeEnv.lean.lean.toString
-      env := ws.augmentedEnvVars
-      : IO.Process.SpawnArgs
-    }
+  mkArgs leanFile setup cfgArgs := do
+    let args := cfgArgs.push leanFile.toString
+    let (h, setupFile) ← IO.FS.createTempFile
+    let contents := (toJson setup).compress
+    logVerbose s!"module setup: {contents}"
+    h.putStr contents
+    let args := args ++ #["--setup", setupFile.toString]
+    return args
 
 protected def lean : CliM PUnit := do
   processOptions lakeOption

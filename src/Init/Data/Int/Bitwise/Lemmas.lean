@@ -6,9 +6,11 @@ Authors: Siddharth Bhat, Jeremy Avigad
 module
 
 prelude
-import Init.Data.Nat.Bitwise.Lemmas
-import Init.Data.Int.Bitwise.Basic
-import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Nat.Bitwise.Lemmas
+public import all Init.Data.Int.Bitwise.Basic
+public import Init.Data.Int.DivMod.Lemmas
+
+public section
 
 namespace Int
 
@@ -21,6 +23,7 @@ theorem natCast_shiftRight (n s : Nat) : (n : Int) >>> s = n >>> s := rfl
 theorem negSucc_shiftRight (m n : Nat) :
     -[m+1] >>> n = -[m >>>n +1] := rfl
 
+@[grind _=_]
 theorem shiftRight_add (i : Int) (m n : Nat) :
     i >>> (m + n) = i >>> m >>> n := by
   simp only [shiftRight_eq, Int.shiftRight]

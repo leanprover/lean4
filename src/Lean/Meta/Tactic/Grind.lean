@@ -12,7 +12,7 @@ import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.Canon
-import Lean.Meta.Tactic.Grind.MarkNestedProofs
+import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.Propagate
@@ -31,6 +31,9 @@ import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.MBTC
 import Lean.Meta.Tactic.Grind.Lookahead
+import Lean.Meta.Tactic.Grind.LawfulEqCmp
+import Lean.Meta.Tactic.Grind.ReflCmp
+import Lean.Meta.Tactic.Grind.SynthInstance
 
 namespace Lean
 
@@ -42,7 +45,6 @@ builtin_initialize registerTraceClass `grind.eqc
 builtin_initialize registerTraceClass `grind.internalize
 builtin_initialize registerTraceClass `grind.ematch
 builtin_initialize registerTraceClass `grind.ematch.pattern
-builtin_initialize registerTraceClass `grind.ematch.pattern.search
 builtin_initialize registerTraceClass `grind.ematch.instance
 builtin_initialize registerTraceClass `grind.ematch.instance.assignment
 builtin_initialize registerTraceClass `grind.eqResolution
@@ -71,6 +73,7 @@ builtin_initialize registerTraceClass `grind.debug.final
 builtin_initialize registerTraceClass `grind.debug.forallPropagator
 builtin_initialize registerTraceClass `grind.debug.split
 builtin_initialize registerTraceClass `grind.debug.canon
+builtin_initialize registerTraceClass `grind.debug.ematch.activate
 builtin_initialize registerTraceClass `grind.debug.ematch.pattern
 builtin_initialize registerTraceClass `grind.debug.beta
 builtin_initialize registerTraceClass `grind.debug.internalize
@@ -81,7 +84,6 @@ builtin_initialize registerTraceClass `grind.debug.mbtc
 builtin_initialize registerTraceClass `grind.debug.ematch
 builtin_initialize registerTraceClass `grind.debug.proveEq
 builtin_initialize registerTraceClass `grind.debug.pushNewFact
-builtin_initialize registerTraceClass `grind.debug.ematch.activate
 builtin_initialize registerTraceClass `grind.debug.appMap
 builtin_initialize registerTraceClass `grind.debug.ext
 

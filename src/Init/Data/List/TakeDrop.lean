@@ -6,7 +6,10 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Lemmas
+public import all Init.Data.List.Basic
+public import Init.Data.List.Lemmas
+
+public section
 
 /-!
 # Lemmas about `List.take` and `List.drop`.
@@ -30,6 +33,11 @@ theorem take_cons {l : List α} (h : 0 < i) : (a :: l).take i = a :: l.take (i -
   | zero => exact absurd h (Nat.lt_irrefl _)
   | succ i => rfl
 
+theorem drop_cons {l : List α} (h : 0 < i) : (a :: l).drop i = l.drop (i - 1) := by
+  cases i with
+  | zero => exact absurd h (Nat.lt_irrefl _)
+  | succ i => rfl
+
 @[simp]
 theorem drop_one : ∀ {l : List α}, l.drop 1 = l.tail
   | [] | _ :: _ => rfl
@@ -40,7 +48,7 @@ theorem drop_one : ∀ {l : List α}, l.drop 1 = l.tail
   | _ + 1, [] => rfl
   | _ + 1, x :: _ => congrArg (cons x) (take_append_drop ..)
 
-@[simp] theorem length_drop : ∀ {i : Nat} {l : List α}, (drop i l).length = l.length - i
+@[simp, grind =] theorem length_drop : ∀ {i : Nat} {l : List α}, (drop i l).length = l.length - i
   | 0, _ => rfl
   | succ i, [] => Eq.symm (Nat.zero_sub (succ i))
   | succ i, x :: l => calc
@@ -130,8 +138,6 @@ theorem drop_eq_nil_iff {l : List α} {i : Nat} : l.drop i = [] ↔ l.length ≤
     · simp
     · simp only [drop] at h
       simpa [Nat.succ_le_succ_iff] using hi h
-
-@[deprecated drop_eq_nil_iff (since := "2024-09-10")] abbrev drop_eq_nil_iff_le := @drop_eq_nil_iff
 
 @[simp]
 theorem take_eq_nil_iff {l : List α} {k : Nat} : l.take k = [] ↔ k = 0 ∨ l = [] := by
@@ -243,7 +249,7 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
     ∀ {l : List α} {i : Nat}, (l.take i).map f = (l.map f).take i
   | [], i => by simp
   | _, 0 => by simp
-  | _ :: tl, n + 1 => by dsimp; rw [map_take]
+  | _ :: tl, n + 1 => by simp [map_take]
 
 @[simp] theorem map_drop {f : α → β} :
     ∀ {l : List α} {i : Nat}, (l.drop i).map f = (l.map f).drop i
@@ -252,6 +258,17 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
   | _ :: tl, n + 1 => by
     dsimp
     rw [map_drop]
+
+theorem drop_eq_extract {l : List α} {k : Nat} :
+    l.drop k = l.extract k := by
+  induction l generalizing k
+  case nil => simp
+  case cons _ _ ih =>
+    match k with
+    | 0 => simp
+    | _ + 1 =>
+      simp only [List.drop_succ_cons, List.length_cons, ih]
+      simp only [List.extract_eq_drop_take, List.drop_succ_cons, Nat.succ_sub_succ]
 
 /-! ### takeWhile and dropWhile -/
 
@@ -335,7 +352,7 @@ theorem takeWhile_filterMap {f : α → Option β} {p : β → Bool} {l : List �
     · simp only [takeWhile_cons, h]
       split <;> simp_all
     · simp [takeWhile_cons, h, ih]
-      split <;> simp_all [filterMap_cons]
+      split <;> simp_all
 
 theorem dropWhile_filterMap {f : α → Option β} {p : β → Bool} {l : List α} :
     (l.filterMap f).dropWhile p = (l.dropWhile fun a => (f a).all p).filterMap f := by
@@ -347,7 +364,7 @@ theorem dropWhile_filterMap {f : α → Option β} {p : β → Bool} {l : List �
     · simp only [dropWhile_cons, h]
       split <;> simp_all
     · simp [dropWhile_cons, h, ih]
-      split <;> simp_all [filterMap_cons]
+      split <;> simp_all
 
 theorem takeWhile_filter {p q : α → Bool} {l : List α} :
     (l.filter p).takeWhile q = (l.takeWhile fun a => !p a || q a).filter p := by
@@ -378,7 +395,7 @@ theorem takeWhile_append {xs ys : List α} :
     (l₁ ++ l₂).takeWhile p = l₁ ++ l₂.takeWhile p := by
   induction l₁ with
   | nil => simp
-  | cons x xs ih => simp_all [takeWhile_cons]
+  | cons x xs ih => simp_all
 
 theorem dropWhile_append {xs ys : List α} :
     (xs ++ ys).dropWhile p =
@@ -393,7 +410,7 @@ theorem dropWhile_append {xs ys : List α} :
     (l₁ ++ l₂).dropWhile p = l₂.dropWhile p := by
   induction l₁ with
   | nil => simp
-  | cons x xs ih => simp_all [dropWhile_cons]
+  | cons x xs ih => simp_all
 
 @[simp] theorem takeWhile_replicate_eq_filter {p : α → Bool} :
     (replicate n a).takeWhile p = (replicate n a).filter p := by
@@ -425,7 +442,7 @@ theorem take_takeWhile {l : List α} {p : α → Bool} :
   induction l generalizing i with
   | nil => simp
   | cons x xs ih =>
-    by_cases h : p x <;> cases i <;> simp [takeWhile_cons, h, ih, take_succ_cons]
+    by_cases h : p x <;> cases i <;> simp [h, ih, take_succ_cons]
 
 @[simp] theorem all_takeWhile {l : List α} : (l.takeWhile p).all p = true := by
   induction l with
@@ -446,13 +463,13 @@ theorem replace_takeWhile [BEq α] [LawfulBEq α] {l : List α} {p : α → Bool
     simp only [takeWhile_cons, replace_cons]
     split <;> rename_i h₁ <;> split <;> rename_i h₂
     · simp_all
-    · simp [replace_cons, h₂, takeWhile_cons, h₁, ih]
+    · simp [replace_cons, h₂, h₁, ih]
     · simp_all
     · simp_all
 
 /-! ### splitAt -/
 
-@[simp] theorem splitAt_eq {i : Nat} {l : List α} : splitAt i l = (l.take i, l.drop i) := by
+@[simp, grind =] theorem splitAt_eq {i : Nat} {l : List α} : splitAt i l = (l.take i, l.drop i) := by
   rw [splitAt, splitAt_go, reverse_nil, nil_append]
   split <;> simp_all [take_of_length_le, drop_of_length_le]
 

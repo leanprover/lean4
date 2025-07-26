@@ -31,9 +31,9 @@ builtin_initialize recommendedSpellingByNameExt
   registerPersistentEnvExtension {
     mkInitial := pure {},
     addImportedFn := fun _ => pure {},
-    addEntryFn := fun es (rec, xs) => xs.foldl (init := es) fun es x => es.insert x (es.findD x #[] |>.push rec),
+    addEntryFn := fun es (rec, xs) => xs.foldl (init := es) fun es x => es.insert x (es.getD x #[] |>.push rec),
     exportEntriesFn := fun es =>
-      es.fold (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
+      es.foldl (fun a src tgt => a.push (src, tgt)) #[] |>.qsort (Name.quickLt ·.1 ·.1)
   }
 
 /-- Recommended spellings for notations, stored in such a way that it is easy to generate a table

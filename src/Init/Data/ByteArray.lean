@@ -6,5 +6,5 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.ByteArray.Basic
-import Init.Data.ByteArray.AdditionalOperations
+public import Init.Data.ByteArray.Basic
+public import Init.Data.ByteArray.AdditionalOperations

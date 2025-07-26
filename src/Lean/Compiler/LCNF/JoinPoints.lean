@@ -467,7 +467,7 @@ abbrev ReduceAnalysisM := ReaderT AnalysisCtx StateRefT AnalysisState ScopeM
 abbrev ReduceActionM := ReaderT AnalysisState CompilerM
 
 def isInJpScope (jp : FVarId) (var : FVarId) : ReduceAnalysisM Bool := do
-  return (← read).jpScopes.find! jp |>.contains var
+  return (← read).jpScopes.get! jp |>.contains var
 
 open ScopeM
 
@@ -542,17 +542,17 @@ where
       cs.alts.forM visitor
     | .jmp fn args =>
       let decl ← getFunDecl fn
-      if let some knownArgs := (← get).jpJmpArgs.find? fn then
+      if let some knownArgs := (← get).jpJmpArgs.get? fn then
         let mut newArgs := knownArgs
         for (param, arg) in decl.params.zip args do
           if let some knownVal := newArgs[param.fvarId]? then
-            if arg.toExpr != knownVal then
+            if arg != knownVal then
               newArgs := newArgs.erase param.fvarId
         modify fun s => { s with jpJmpArgs := s.jpJmpArgs.insert fn newArgs }
       else
         let folder := fun acc (param, arg) => do
           if (← allFVarM (isInJpScope fn) arg) then
-            return acc.insert param.fvarId arg.toExpr
+            return acc.insert param.fvarId arg
           else
             return acc
         let interestingArgs ← decl.params.zip args |>.foldlM (init := {}) folder
@@ -562,7 +562,7 @@ where
   goReduce (code : Code) : ReduceActionM Code := do
     match code with
     | .jp decl k =>
-      if let some reducibleArgs := (← read).jpJmpArgs.find? decl.fvarId then
+      if let some reducibleArgs := (← read).jpJmpArgs.get? decl.fvarId then
         let filter param := do
           let erasable := reducibleArgs.contains param.fvarId
           if erasable then
@@ -582,7 +582,7 @@ where
       else
         return Code.updateFun! code decl (← goReduce k)
     | .jmp fn args =>
-      let reducibleArgs := (← read).jpJmpArgs.find! fn
+      let reducibleArgs := (← read).jpJmpArgs.get! fn
       let decl ← getFunDecl fn
       let newParams := decl.params.zip args
         |>.filter (!reducibleArgs.contains ·.fst.fvarId)

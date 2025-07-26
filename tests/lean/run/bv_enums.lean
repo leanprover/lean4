@@ -41,7 +41,6 @@ structure Pair where
 
 -- large inductive
 example (a b c : Pair) (h1 : a = b) (h2 : b.x < c.x) (h3 : b.s = c.s) : a.s = c.s ∧ a.x < c.x := by
-  bv_normalize
   bv_decide
 
 end Ex1
@@ -160,7 +159,7 @@ open Lean Meta
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f4.match_2
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f4.match_3
   return res matches none
 
 def Foo.f5 : Foo → BitVec 64

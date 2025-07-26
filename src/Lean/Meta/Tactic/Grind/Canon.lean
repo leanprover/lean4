@@ -38,7 +38,7 @@ but it does not solve all problems. For example, consider a situation where we h
 and `(b : BitVec m)`, along with instances `inst1 n : Add (BitVec n)` and `inst2 m : Add (BitVec m)` where `inst1`
 and `inst2` are structurally different. Now consider the terms `a + a` and `b + b`. After canonicalization, the two
 additions will still use structurally different (and definitionally different) instances: `inst1 n` and `inst2 m`.
-Furthermore, `grind` will not be able to infer that  `HEq (a + a) (b + b)` even if we add the assumptions `n = m` and `HEq a b`.
+Furthermore, `grind` will not be able to infer that  `a + a ≍ b + b` even if we add the assumptions `n = m` and `a ≍ b`.
 -/
 
 @[inline] private def get' : GoalM State :=
@@ -77,7 +77,15 @@ def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBou
   let eType ← inferType e
   let cs := s.argMap.find? key |>.getD []
   for (c, cType) in cs do
-    -- We first check the typesr
+    /-
+    We first check the types
+    The following checks are a performance bottleneck.
+    For example, in the test `grind_ite.lean`, there are many checks of the form:
+    ```
+    w_4 ∈ assign.insert v true → Prop =?= w_1 ∈ assign.insert v false → Prop
+    ```
+    where `grind` unfolds the definition of `DHashMap.insert` and `TreeMap.insert`.
+    -/
     if (← withDefault <| isDefEq eType cType) then
       if (← isDefEq e c) then
         -- We used to check `c.fvarsSubset e` because it is not
@@ -86,13 +94,13 @@ def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBou
         -- Moreover, we store the canonicalizer state in the `Goal` because we case-split
         -- and different locals are added in different branches.
         modify' fun s => { s with canon := s.canon.insert e c }
-        trace_goal[grind.debugn.canon] "found {e} ===> {c}"
+        trace_goal[grind.debug.canon] "found {e} ===> {c}"
         return c
       if useIsDefEqBounded then
         -- If `e` and `c` are not types, we use `isDefEqBounded`
         if (← isDefEqBounded e c parent) then
           modify' fun s => { s with canon := s.canon.insert e c }
-          trace_goal[grind.debugn.canon] "found using `isDefEqBounded`: {e} ===> {c}"
+          trace_goal[grind.debug.canon] "found using `isDefEqBounded`: {e} ===> {c}"
           return c
   trace_goal[grind.debug.canon] "({f}, {i}) ↦ {e}"
   modify' fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key ((e, eType)::cs) }
@@ -114,7 +122,7 @@ private inductive ShouldCanonResult where
     canonImplicit
   | /-
     Term is not a proof, type (former), nor an instance.
-    Thus, it must be recursively visited by the canonizer.
+    Thus, it must be recursively visited by the canonicalizer.
     -/
     visit
   deriving Inhabited
@@ -148,38 +156,92 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
   else
     return .visit
 
-unsafe def canonImpl (e : Expr) : GoalM Expr := do
-  visit e |>.run' mkPtrMap
+/--
+Auxiliary function for normalizing the arguments of `OfNat.ofNat` during canonicalization.
+This is needed because satellite solvers create `Nat` and `Int` numerals using the
+APIs `mkNatLit` and `mkIntLit`, which produce terms of the form
+`@OfNat.ofNat Nat <num> inst` and `@OfNat.ofNat Int <num> inst`.
+This becomes a problem when a term in the input goal has already been canonicalized
+and its type is not exactly `Nat` or `Int`. For example, in issue #9477, we have:
+```
+structure T where
+upper_bound : Nat
+def T.range (a : T) := 0...a.upper_bound
+theorem range\_lower (a : T) : a.range.lower = 0 := by rfl
+```
+Here, the `0` in `range_lower` is actually represented as:
+```
+(@OfNat.ofNat
+  (Std.PRange.Bound (Std.PRange.RangeShape.lower (Std.PRange.RangeShape.mk Std.PRange.BoundShape.closed Std.PRange.BoundShape.open)) Nat)
+  (nat_lit 0)
+  (instOfNatNat (nat_lit 0)))
+```
+Without this normalization step, the satellite solver would need to handle multiple
+representations for `(0 : Nat)` and `(0 : Int)`, complicating reasoning.
+-/
+-- Remark: This is not a great solution. We should consider writing a custom canonicalizer for
+-- `OfNat.ofNat` and other constants with built-in support in `grind`.
+private def normOfNatArgs? (args : Array Expr) : MetaM (Option (Array Expr)) := do
+  if h : args.size = 3 then
+    let inst := args[2]
+    if (← isInstOfNatNat inst) && !args[0].isConstOf ``Nat then
+      return some <| args.set 0 Nat.mkType
+    else if (← isInstOfNatInt inst) && !args[0].isConstOf ``Int then
+      return some <| args.set 0 Int.mkType
+  return none
+
+/-- Canonicalizes nested types, type formers, and instances in `e`. -/
+partial def canon (e : Expr) : GoalM Expr := do profileitM Exception "grind canon" (← getOptions) do
+  trace_goal[grind.debug.canon] "{e}"
+  visit e |>.run' {}
 where
-  visit (e : Expr) : StateRefT (PtrMap Expr Expr) GoalM Expr := do
+  visit (e : Expr) : StateRefT (Std.HashMap ExprPtr Expr) GoalM Expr := do
     unless e.isApp || e.isForall do return e
+    if (← inShareCommon e) then return e
     -- Check whether it is cached
-    if let some r := (← get).find? e then
+    if let some r := (← get).get? { expr := e } then
       return r
     let e' ← match e with
       | .app .. => e.withApp fun f args => do
-        if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
+        if f.isConstOf ``Grind.nestedProof && args.size == 2 then
           let prop := args[0]!
           let prop' ← visit prop
           if let some r := (← get').proofCanon.find? prop' then
             pure r
           else
-            let e' := if ptrEq prop prop' then e else mkAppN f (args.set! 0 prop')
+            let e' := if isSameExpr prop prop' then e else mkAppN f (args.set! 0 prop')
             modify' fun s => { s with proofCanon := s.proofCanon.insert prop' e' }
             pure e'
+        else if f.isConstOf ``Grind.nestedDecidable && args.size == 2 then
+          let prop := args[0]!
+          let prop' ← visit prop
+          let e' := if isSameExpr prop prop' then e else mkAppN f (args.set! 0 prop')
+          pure e'
         else
-          let pinfos := (← getFunInfo f).paramInfo
           let mut modified := false
+          let args ← if f.isConstOf ``OfNat.ofNat then
+            let some args ← normOfNatArgs? args | pure args
+            modified := true
+            pure args
+          else
+            pure args
+          let pinfos := (← getFunInfo f).paramInfo
           let mut args := args.toVector
-          for h : i in [:args.size] do
+          for h : i in *...args.size do
             let arg := args[i]
             trace_goal[grind.debug.canon] "[{repr (← shouldCanon pinfos i arg)}]: {arg} : {← inferType arg}"
             let arg' ← match (← shouldCanon pinfos i arg) with
-            | .canonType  => canonType e f i arg
-            | .canonInst  => canonInst e f i arg
-            | .canonImplicit => canonImplicit e f i (← visit arg)
-            | .visit      => visit arg
-            unless ptrEq arg arg' do
+              | .canonType => canonType e f i arg
+              | .canonImplicit => canonImplicit e f i (← visit arg)
+              | .visit => visit arg
+              | .canonInst =>
+                if arg.isAppOfArity ``Grind.nestedDecidable 2 then
+                  let prop := arg.appFn!.appArg!
+                  let prop' ← visit prop
+                  if isSameExpr prop prop' then pure arg else pure (mkApp2 arg.appFn!.appFn! prop' arg.appArg!)
+                else
+                  canonInst e f i arg
+            unless isSameExpr arg arg' do
               args := args.set i arg'
               modified := true
           pure <| if modified then mkAppN f args.toArray else e
@@ -190,14 +252,11 @@ where
         let b' ← if b.hasLooseBVars then pure b else visit b
         pure <| e.updateForallE! d' b'
       | _ => unreachable!
-    modify fun s => s.insert e e'
+    modify fun s => s.insert { expr := e } e'
     return e'
 
 end Canon
 
-/-- Canonicalizes nested types, type formers, and instances in `e`. -/
-def canon (e : Expr) : GoalM Expr := do
-  trace_goal[grind.debug.canon] "{e}"
-  unsafe Canon.canonImpl e
+export Canon (canon)
 
 end Lean.Meta.Grind

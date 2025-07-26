@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-set -euxo pipefail
-
-LAKE=${LAKE:-../../.lake/build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
+# Since committing a Git repository to a Git repository is not well-supported,
+# We reinitialize the repository on each test.
+echo "# SETUP"
+set -x
 git init
 git checkout -b master
 git config user.name test
@@ -16,8 +18,12 @@ git commit --allow-empty -m "commit 2"
 git tag v2
 git commit --allow-empty -m "commit 3"
 git tag etc
+set +x
 
-$LAKE reservoir-config | diff -u --strip-trailing-cr expected.json -
+# Test that Lake produces the expected Reservoir configuration.
+echo "# TEST"
+test_out_diff expected.json reservoir-config
 
-# Cleanup git repo
+# Cleanup
 rm -rf .git
+rm -f produced*

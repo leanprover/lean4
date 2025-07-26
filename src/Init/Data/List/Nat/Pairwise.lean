@@ -6,9 +6,11 @@ Authors: Mario Carneiro, James Gallicchio
 module
 
 prelude
-import Init.Data.Fin.Lemmas
-import Init.Data.List.Nat.TakeDrop
-import Init.Data.List.Pairwise
+public import Init.Data.Fin.Lemmas
+public import Init.Data.List.Nat.TakeDrop
+public import Init.Data.List.Pairwise
+
+public section
 
 /-!
 # Lemmas about `List.Pairwise`
@@ -55,7 +57,7 @@ theorem sublist_eq_map_getElem {l l' : List α} (h : l' <+ l) : ∃ is : List (F
     simp [Function.comp_def, pairwise_map, IH, ← get_eq_getElem, get_cons_zero, get_cons_succ']
 
 set_option linter.listVariables false in
-theorem pairwise_iff_getElem : Pairwise R l ↔
+theorem pairwise_iff_getElem {l : List α} : Pairwise R l ↔
     ∀ (i j : Nat) (_hi : i < l.length) (_hj : j < l.length) (_hij : i < j), R l[i] l[j] := by
   rw [pairwise_iff_forall_sublist]
   constructor <;> intro h

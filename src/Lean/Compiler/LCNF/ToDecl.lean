@@ -27,9 +27,9 @@ private def normalizeAlt (e : Expr) (numParams : Nat) : MetaM Expr :=
     if xs.size == numParams then
       return e
     else if xs.size > numParams then
-      let body ← Meta.mkLambdaFVars xs[numParams:] body
+      let body ← Meta.mkLambdaFVars xs[numParams...*] body
       let body ← Meta.withLetDecl (← mkFreshUserName `_k) (← Meta.inferType body) body fun x => Meta.mkLetFVars #[x] x
-      Meta.mkLambdaFVars xs[:numParams] body
+      Meta.mkLambdaFVars xs[*...numParams] body
     else
       Meta.forallBoundedTelescope (← Meta.inferType e) (numParams - xs.size) fun ys _ =>
         Meta.mkLambdaFVars (xs ++ ys) (mkAppN e ys)
@@ -131,11 +131,6 @@ def toDecl (declName : Name) : CompilerM Decl := do
       let value ← inlineMatchers value
       /- Recall that `inlineMatchers` may have exposed `ite`s and `dite`s which are tagged as `[macro_inline]`. -/
       let value ← macroInline value
-      /-
-      Remark: we have disabled the following transformatbion, we will perform it at phase 2, after code specialization.
-      It prevents many optimizations (e.g., "cases-of-ctor").
-      -/
-      -- let value ← applyCasesOnImplementedBy value
       return (type, value)
     let code ← toLCNF value
     let decl ← if let .fun decl (.return _) := code then

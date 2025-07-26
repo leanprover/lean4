@@ -26,6 +26,7 @@ import Lean.Meta.Match
 import Lean.Meta.ReduceEval
 import Lean.Meta.Closure
 import Lean.Meta.AbstractNestedProofs
+import Lean.Meta.LetToHave
 import Lean.Meta.ForEachExpr
 import Lean.Meta.Transform
 import Lean.Meta.PPGoal
@@ -52,3 +53,5 @@ import Lean.Meta.CheckTactic
 import Lean.Meta.Canonicalizer
 import Lean.Meta.Diagnostics
 import Lean.Meta.BinderNameHint
+import Lean.Meta.TryThis
+import Lean.Meta.Hint

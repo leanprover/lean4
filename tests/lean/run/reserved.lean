@@ -27,7 +27,7 @@ def f.eq_2_ := 10 -- Should be ok
 #guard_msgs in
 #check f.eq_1
 
-/-- error: unknown identifier 'f.eq_2' -/
+/-- error: Unknown identifier `f.eq_2` -/
 #guard_msgs (error) in
 #check f.eq_2
 
@@ -79,7 +79,7 @@ info: fact.eq_def (x✝ : Nat) :
 #guard_msgs in
 #check fact.eq_2
 
-/-- error: unknown identifier 'fact.eq_3' -/
+/-- error: Unknown identifier `fact.eq_3` -/
 #guard_msgs (error) in
 #check fact.eq_3
 

@@ -26,40 +26,51 @@ structure EqnInfo extends EqnInfoCore where
   deriving Inhabited
 
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
-  trace[Elab.definition.structural.eqns] "proving: {type}"
-  withNewMCtxDepth do
-    let main ← mkFreshExprSyntheticOpaqueMVar type
-    let (_, mvarId) ← main.mvarId!.intros
-    unless (← tryURefl mvarId) do -- catch easy cases
-      go (← deltaLHS mvarId)
-    instantiateMVars main
+  withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} proving:{indentExpr type}") do
+    withNewMCtxDepth do
+      let main ← mkFreshExprSyntheticOpaqueMVar type
+      let (_, mvarId) ← main.mvarId!.intros
+      unless (← tryURefl mvarId) do -- catch easy cases
+        go (← deltaLHS mvarId)
+      instantiateMVars main
 where
   go (mvarId : MVarId) : MetaM Unit := do
-    trace[Elab.definition.structural.eqns] "step\n{MessageData.ofGoal mvarId}"
-    if (← tryURefl mvarId) then
-      return ()
-    else if (← tryContradiction mvarId) then
-      return ()
-    else if let some mvarId ← whnfReducibleLHS? mvarId then
-      go mvarId
-    else if let some mvarId ← simpMatch? mvarId then
-      go mvarId
-    else if let some mvarId ← simpIf? mvarId then
-      go mvarId
-    else
-      let ctx ← Simp.mkContext
-      match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
-      | TacticResultCNM.closed => return ()
-      | TacticResultCNM.modified mvarId => go mvarId
-      | TacticResultCNM.noChange =>
-        if let some mvarId ← deltaRHS? mvarId declName then
+    withTraceNode `Elab.definition.structural.eqns (return m!"{exceptEmoji ·} step:\n{MessageData.ofGoal mvarId}") do
+      if (← tryURefl mvarId) then
+        trace[Elab.definition.structural.eqns] "tryURefl succeeded"
+        return ()
+      else if (← tryContradiction mvarId) then
+        trace[Elab.definition.structural.eqns] "tryContadiction succeeded"
+        return ()
+      else if let some mvarId ← whnfReducibleLHS? mvarId then
+        trace[Elab.definition.structural.eqns] "whnfReducibleLHS succeeded"
+        go mvarId
+      else if let some mvarId ← simpMatch? mvarId then
+        trace[Elab.definition.structural.eqns] "simpMatch? succeeded"
+        go mvarId
+      else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
+        trace[Elab.definition.structural.eqns] "simpIf? succeeded"
+        go mvarId
+      else
+        let ctx ← Simp.mkContext
+        match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
+        | TacticResultCNM.closed =>
+          trace[Elab.definition.structural.eqns] "simpTargetStar closed the goal"
+        | TacticResultCNM.modified mvarId =>
+          trace[Elab.definition.structural.eqns] "simpTargetStar modified the goal"
           go mvarId
-        else if let some mvarIds ← casesOnStuckLHS? mvarId then
-          mvarIds.forM go
-        else if let some mvarIds ← splitTarget? mvarId then
-          mvarIds.forM go
-        else
-          throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+        | TacticResultCNM.noChange =>
+          if let some mvarId ← deltaRHS? mvarId declName then
+            trace[Elab.definition.structural.eqns] "deltaRHS? succeeded"
+            go mvarId
+          else if let some mvarIds ← casesOnStuckLHS? mvarId then
+            trace[Elab.definition.structural.eqns] "casesOnStuckLHS? succeeded"
+            mvarIds.forM go
+          else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
+            trace[Elab.definition.structural.eqns] "splitTarget? succeeded"
+            mvarIds.forM go
+          else
+            throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
 def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do
@@ -68,25 +79,26 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     let target ← mkEq (mkAppN (Lean.mkConst info.declName us) xs) body
     let goal ← mkFreshExprSyntheticOpaqueMVar target
     mkEqnTypes info.declNames goal.mvarId!
-  let baseName := info.declName
   let mut thmNames := #[]
-  for h : i in [: eqnTypes.size] do
+  for h : i in *...eqnTypes.size do
     let type := eqnTypes[i]
-    trace[Elab.definition.structural.eqns] "eqnType {i}: {type}"
-    let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
+    trace[Elab.definition.structural.eqns] "eqnType {i+1}: {type}"
+    let name := mkEqLikeNameFor (← getEnv) info.declName s!"{eqnThmSuffixBasePrefix}{i+1}"
     thmNames := thmNames.push name
     -- determinism: `type` should be independent of the environment changes since `baseName` was
     -- added
-    realizeConst baseName name (doRealize name type)
+    realizeConst info.declNames[0]! name (doRealize name type)
   return thmNames
 where
   doRealize name type := withOptions (tactic.hygienic.set · false) do
     let value ← mkProof info.declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
+    let type ← letToHave type
     addDecl <| Declaration.thmDecl {
       name, type, value
       levelParams := info.levelParams
     }
+    inferDefEqAttr name
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
@@ -102,9 +114,32 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   else
     return none
 
+/-- Generate the "unfold" lemma for `declName`. -/
+def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
+  let name := mkEqLikeNameFor (← getEnv) info.declName unfoldThmSuffix
+  realizeConst info.declNames[0]! name (doRealize name)
+  return name
+where
+  doRealize name := withOptions (tactic.hygienic.set · false) do
+    lambdaTelescope info.value fun xs body => do
+      let us := info.levelParams.map mkLevelParam
+      let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
+      let goal ← mkFreshExprSyntheticOpaqueMVar type
+      mkUnfoldProof declName goal.mvarId!
+      let type ← mkForallFVars xs type
+      let type ← letToHave type
+      let value ← mkLambdaFVars xs (← instantiateMVars goal)
+      addDecl <| Declaration.thmDecl {
+        name, type, value
+        levelParams := info.levelParams
+      }
+      inferDefEqAttr name
+
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
-  let env ← getEnv
-  Eqns.getUnfoldFor? declName fun _ => eqnInfoExt.find? env declName |>.map (·.toEqnInfoCore)
+  if let some info := eqnInfoExt.find? (← getEnv) declName then
+    return some (← mkUnfoldEq declName info)
+  else
+    return none
 
 @[export lean_get_structural_rec_arg_pos]
 def getStructuralRecArgPosImp? (declName : Name) : CoreM (Option Nat) := do

@@ -46,7 +46,7 @@ abbrev CodeWithInfos := TaggedText SubexprInfo
 def CodeWithInfos.mergePosMap [Monad m] (merger : SubexprInfo → α → m SubexprInfo) (pm : Lean.SubExpr.PosMap α) (tt : CodeWithInfos) : m CodeWithInfos :=
   if pm.isEmpty then return tt else
   tt.mapM (fun (info : SubexprInfo) =>
-    match pm.find? info.subexprPos with
+    match pm.get? info.subexprPos with
     | some a => merger info a
     | none => pure info
   )
@@ -59,19 +59,19 @@ def SubexprInfo.withDiffTag (tag : DiffTag) (c : SubexprInfo) : SubexprInfo :=
 
 /-- Tags pretty-printed code with infos from the delaborator. -/
 partial def tagCodeInfos (ctx : Elab.ContextInfo) (infos : SubExpr.PosMap Elab.Info) (tt : TaggedText (Nat × Nat))
-    : CodeWithInfos :=
+    : BaseIO CodeWithInfos :=
   go tt
 where
-  go (tt : TaggedText (Nat × Nat)) :=
-    tt.rewrite fun (n, _) subTt =>
-      match infos.find? n with
+  go (tt : TaggedText (Nat × Nat)) : BaseIO (TaggedText SubexprInfo) :=
+    tt.rewriteM fun (n, _) subTt => do
+      match infos.get? n with
       | none   => go subTt
       | some i =>
         let t : SubexprInfo := {
-          info := WithRpcRef.mk { ctx, info := i, children := .empty }
+          info := ← WithRpcRef.mk { ctx, info := i, children := .empty }
           subexprPos := n
         }
-        TaggedText.tag t (go subTt)
+        return TaggedText.tag t (← go subTt)
 
 open PrettyPrinter Delaborator in
 /--
@@ -93,6 +93,6 @@ def ppExprTagged (e : Expr) (delab : Delab := Delaborator.delab) : MetaM CodeWit
     fileMap       := default
     ngen          := (← getNGen)
   }
-  return tagCodeInfos ctx infos tt
+  tagCodeInfos ctx infos tt
 
 end Lean.Widget

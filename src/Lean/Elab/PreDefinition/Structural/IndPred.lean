@@ -29,7 +29,7 @@ private def replaceIndPredRecApp (fixedParamPerm : FixedParamPerm) (funType : Ex
           trace[Elab.definition.structural] "too few arguments, expected {t.getAppNumArgs}, found {ys.size}. Underapplied recursive call?"
           return false
         if (← (t.getAppArgs.zip ys).allM (fun (t,s) => isDefEq t s)) then
-          main.mvarId!.assign (mkAppN (mkAppN localDecl.toExpr mvars) ys[t.getAppNumArgs:])
+          main.mvarId!.assign (mkAppN (mkAppN localDecl.toExpr mvars) ys[t.getAppNumArgs...*])
           return ← mvars.allM fun v => do
             unless (← v.mvarId!.isAssigned) do
               trace[Elab.definition.structural] "Cannot use {mkFVar localDecl.fvarId}: parameter {v} remains unassigned"
@@ -50,9 +50,9 @@ private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : E
     | Expr.forallE n d b c =>
       withLocalDecl n c (← loop d) fun x => do
         mkForallFVars #[x] (← loop (b.instantiate1 x))
-    | Expr.letE n type val body _ =>
-      withLetDecl n (← loop type) (← loop val) fun x => do
-        mkLetFVars #[x] (← loop (body.instantiate1 x))
+    | Expr.letE n type val body nondep =>
+      mapLetDecl n (← loop type) (← loop val) (nondep := nondep) fun x => do
+        loop (body.instantiate1 x)
     | Expr.mdata d b => do
       if let some stx := getRecAppSyntax? e then
         withRef stx <| loop b

@@ -1,27 +1,31 @@
 #!/usr/bin/env bash
-set -euxo pipefail
-
-LAKE=${LAKE:-../../build/bin/lake}
+source ../common.sh
 
 ./clean.sh
 
+test_run update
+
 # Skip test if we don't have LLVM backend in the Lean toolchain
-if [[ ! $(lean --features) =~ LLVM ]]; then
+echo "# Check if LLVM enabled"
+if [[ ! $($LAKE env lean --features) =~ LLVM ]]; then
   echo "Skipping test: 'lean' does not have LLVM backend enabled"
   exit 0
 fi
 
-$LAKE update
-$LAKE build -v | grep --color "Main.bc.o" # check that we build using the bitcode object file.
+echo "# TESTS"
+test_out "Main.bc.o" build -v  # check that we build using the bitcode object file.
 
 # If we have the LLVM backend, check that the `lakefile.lean` is aware of this.
-lake script run llvm-bitcode-gen/hasLLVMBackend | grep --color true
+test_out "true" script run llvm-bitcode-gen/hasLLVMBackend
 
 # If we have the LLVM backend in the Lean toolchain, then we expect this to
 # print `true`, as this queries the same flag that Lake queries to check the presence
 # of the LLVM toolchian.
-./.lake/build/bin/llvm-bitcode-gen | grep --color true
+test_out -q exe llvm-bitcode-gen | grep --color true
 
 # If we have the LLVM backend, check that lake builds bitcode artefacts.
 test -f .lake/build/ir/LlvmBitcodeGen.bc
 test -f .lake/build/ir/Main.bc
+
+# cleanup
+rm -f produced.out

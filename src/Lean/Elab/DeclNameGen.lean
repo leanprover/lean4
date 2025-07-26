@@ -64,7 +64,7 @@ private partial def winnowExpr (e : Expr) : MetaM Expr := do
         let mut fty ← inferType f
         let mut j := 0
         let mut e' ← visit f
-        for h : i in [0:args.size] do
+        for h : i in *...args.size do
           unless fty.isForall do
             fty ← withTransparency .all <| whnf <| fty.instantiateRevRange j i args
             j := i
@@ -215,7 +215,7 @@ def mkBaseNameWithSuffix (pre : String) (type : Expr) : MetaM Name := do
   let name := pre ++ name
   let project := (← getMainModule).getRoot
   -- Collect the modules for each constant that appeared.
-  let modules ← st.consts.foldM (init := Array.mkEmpty st.consts.size) fun mods name => return mods.push (← findModuleOf? name)
+  let modules ← st.consts.foldlM (init := Array.mkEmpty st.consts.size) fun mods name => return mods.push (← findModuleOf? name)
   -- We can avoid adding the suffix if the instance refers to module-local names.
   let isModuleLocal := modules.any Option.isNone
   -- We can also avoid adding the full module suffix if the instance refers to "project"-local names.

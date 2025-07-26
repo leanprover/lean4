@@ -20,11 +20,16 @@ def isProtected (env : Environment) (n : Name) : Bool :=
 def mkPrivateName (env : Environment) (n : Name) : Name :=
   -- If name is already private, remove previous suffix first. We need to ensure the resulting name
   -- is private to *this* module.
-  Name.mkNum (privateHeader ++ env.mainModule) 0 ++ privateToUserName n
+  mkPrivateNameCore env.mainModule <| privateToUserName n
 
 def isPrivateNameFromImportedModule (env : Environment) (n : Name) : Bool :=
-  match privateToUserName? n with
-  | some userName => mkPrivateName env userName != n
-  | _ => false
+  if env.header.isModule then
+    -- Allow access through `import all`.
+    -- TODO: this should not be relevant as soon as we make sure we never export any kind of private
+    -- constant.
+    !env.contains n && (env.setExporting false).contains n
+  else match privateToUserName? n with
+    | some userName => mkPrivateName env userName != n
+    | _ => false
 
 end Lean

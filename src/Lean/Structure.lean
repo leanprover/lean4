@@ -474,7 +474,7 @@ partial def mergeStructureResolutionOrders [Monad m] [MonadEnv m]
     let (good, name) ← selectParent resOrders
 
     unless good || relaxed do
-      let conflicts := resOrders |>.filter (·[1:].any (· == name)) |>.map (·[0]!) |>.qsort Name.lt |>.eraseReps
+      let conflicts := resOrders |>.filter (·[1...*].any (· == name)) |>.map (·[0]!) |>.qsort Name.lt |>.eraseReps
       defects := defects.push {
         isDirectParent := parentNames.contains name
         badParent := name
@@ -491,12 +491,12 @@ where
   selectParent (resOrders : Array (Array Name)) : m (Bool × Name) := do
     -- Assumption: every resOrder is nonempty.
     -- `n'` is for relaxation, to stop paying attention to end of `resOrders` when finding a good parent.
-    for n' in [0 : resOrders.size] do
+    for n' in *...resOrders.size do
       let hi := resOrders.size - n'
-      for i in [0 : hi] do
+      for i in *...hi do
         let parent := resOrders[i]![0]!
-        let consistent resOrder := resOrder[1:].all (· != parent)
-        if resOrders[0:i].all consistent && resOrders[i+1:hi].all consistent then
+        let consistent resOrder := resOrder[1...*].all (· != parent)
+        if resOrders[*...<i].all consistent && resOrders[i<...hi].all consistent then
           return (n' == 0, parent)
     -- unreachable, but correct default:
     return (false, resOrders[0]![0]!)

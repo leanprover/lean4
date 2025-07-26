@@ -58,4 +58,4 @@ def h (x := 10) (y := 20) : Nat := x + y
 #check let f := fun (x : optParam Nat 10) => x + 1; f + f 1
 #check (fun (x : optParam Nat 10) => x)
 
-#check let_fun x := 10; x + 1
+#check have x := 10; x + 1

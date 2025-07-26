@@ -6,7 +6,7 @@ example (p q : Prop) : p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → F
 opaque R : Nat → Prop
 
 /--
-info: [grind] working on goal `grind`
+trace: [grind] working on goal `grind`
 [grind.eqc] (if p then a else b) = c
 [grind.eqc] R a = True
 [grind.eqc] R b = True
@@ -23,7 +23,7 @@ info: [grind] working on goal `grind`
 [grind.eqc] R b = R c
 [grind] closed `grind.2`
 -/
-#guard_msgs (info) in
+#guard_msgs (trace) in
 set_option trace.grind true in
 example (p : Prop) [Decidable p] (a b c : Nat) : (if p then a else b) = c → R a → R b → R c := by
   grind

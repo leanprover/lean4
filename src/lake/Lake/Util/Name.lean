@@ -4,9 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
+import Std.Classes.Ord.String
+import Std.Classes.Ord.UInt
 import Lean.Data.Json
-import Lean.Data.NameMap
-import Lake.Util.DRBMap
+import Lean.Data.NameMap.Basic
 import Lake.Util.RBArray
 
 open Lean
@@ -21,31 +22,16 @@ If that fails, defaults to making it a simple name (e.g., `Lean.Name.mkSimple`).
 def stringToLegalOrSimpleName (s : String) : Name :=
   if s.toName.isAnonymous then Lean.Name.mkSimple s else s.toName
 
-@[inline] def NameMap.empty : NameMap α := RBMap.empty
+@[inline] def NameMap.empty : NameMap α := mkNameMap α
 
-instance : ForIn m (NameMap α) (Name × α) where
-  forIn self init f := self.forIn init f
-
-instance : Coe (RBMap Name α Name.quickCmp) (NameMap α) := ⟨id⟩
+instance : Coe (Std.TreeMap Name α Name.quickCmp) (NameMap α) := ⟨id⟩
 
 abbrev OrdNameMap α := RBArray Name α Name.quickCmp
 @[inline] def OrdNameMap.empty : OrdNameMap α := RBArray.empty
 @[inline] def mkOrdNameMap (α : Type) : OrdNameMap α := RBArray.empty
 
-abbrev DNameMap α := DRBMap Name α Name.quickCmp
-@[inline] def DNameMap.empty : DNameMap α := DRBMap.empty
-
-instance [ToJson α] : ToJson (NameMap α) where
-  toJson m := Json.obj <| m.fold (fun n k v => n.insert compare k.toString (toJson v)) .leaf
-
-instance [FromJson α] : FromJson (NameMap α) where
-  fromJson? j := do
-    (← j.getObj?).foldM (init := {}) fun m k v =>
-      let k := k.toName
-      if k.isAnonymous then
-        throw "expected name"
-      else
-        return m.insert k (← fromJson? v)
+abbrev DNameMap α := Std.DTreeMap Name α Name.quickCmp
+@[inline] def DNameMap.empty : DNameMap α := Std.DTreeMap.empty
 
 /-! # Name Helpers -/
 
@@ -68,7 +54,7 @@ theorem eq_anonymous_of_isAnonymous {n : Name} : (h : n.isAnonymous) → n = .an
 
 @[simp] theorem isPrefixOf_append {n m : Name} : ¬ n.hasMacroScopes → ¬ m.hasMacroScopes → n.isPrefixOf (n ++ m) := by
   intro h1 h2
-  show n.isPrefixOf (n.append m)
+  change n.isPrefixOf (n.append m)
   simp_all [Name.append]
   clear h2; induction m <;> simp [*, Name.appendCore, isPrefixOf]
 
@@ -79,28 +65,28 @@ theorem eq_anonymous_of_isAnonymous {n : Name} : (h : n.isAnonymous) → n = .an
 | .str .., .num .. => by simp [quickCmpAux]
 | .num p₁ n₁, .num p₂ n₂ => by
   simp only [quickCmpAux]; split <;>
-  simp_all [quickCmpAux_iff_eq, show ∀ p, (p → False) ↔ ¬ p from fun _ => .rfl]
+  simp_all [quickCmpAux_iff_eq]
 | .str p₁ s₁, .str p₂ s₂ => by
   simp only [quickCmpAux]; split <;>
-  simp_all [quickCmpAux_iff_eq, show ∀ p, (p → False) ↔ ¬ p from fun _ => .rfl]
+  simp_all [quickCmpAux_iff_eq]
 
-instance : LawfulCmpEq Name quickCmpAux where
-  eq_of_cmp := quickCmpAux_iff_eq.mp
-  cmp_rfl := quickCmpAux_iff_eq.mpr rfl
+instance : Std.LawfulEqCmp Name.quickCmpAux where
+  eq_of_compare := quickCmpAux_iff_eq.mp
+  compare_self := quickCmpAux_iff_eq.mpr rfl
 
 theorem eq_of_quickCmp {n n' : Name} : n.quickCmp n' = .eq → n = n' := by
   unfold Name.quickCmp
   intro h_cmp; split at h_cmp
-  next => exact eq_of_cmp h_cmp
+  next => exact Std.LawfulEqCmp.eq_of_compare h_cmp
   next => contradiction
 
 theorem quickCmp_rfl {n : Name} : n.quickCmp n = .eq := by
   unfold Name.quickCmp
-  split <;> exact cmp_rfl
+  split <;> exact Std.ReflCmp.compare_self
 
-instance : LawfulCmpEq Name Name.quickCmp where
-  eq_of_cmp := eq_of_quickCmp
-  cmp_rfl := quickCmp_rfl
+instance : Std.LawfulEqCmp Name.quickCmp where
+  eq_of_compare := eq_of_quickCmp
+  compare_self := quickCmp_rfl
 
 open Syntax in
 def quoteFrom (ref : Syntax) (n : Name) (canonical := false) : Term :=

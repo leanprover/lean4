@@ -6,8 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Option.Basic
-import Init.Util
+public import Init.Data.Option.Basic
+public import Init.Util
+
+public section
 
 universe u
 
@@ -16,7 +18,7 @@ namespace Option
 /--
 Extracts the value from an `Option`, panicking on `none`.
 -/
-@[inline] def get! {α : Type u} [Inhabited α] : Option α → α
+@[inline, expose] def get! {α : Type u} [Inhabited α] : Option α → α
   | some x => x
   | none   => panic! "value is none"
 

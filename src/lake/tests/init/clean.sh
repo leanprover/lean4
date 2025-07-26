@@ -1,3 +1,4 @@
+rm -f produced.out
 rm -rf hello
 rm -rf HelloWorld
 rm -rf hello-world
@@ -8,3 +9,4 @@ rm -rf 123-hello
 rm -rf A-B-C-D
 rm -rf meta
 rm -rf qed
+rm -rf mathlib_standards

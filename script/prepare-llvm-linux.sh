@@ -55,7 +55,8 @@ $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
 $CP $GLIBC/lib/libpthread_nonshared.a stage1/lib/glibc
 for f in $GLIBC/lib/{ld,lib{c,dl,m,rt,pthread}}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()
-echo -n " -DLEAN_STANDALONE=ON"
+# We build cadical using the custom toolchain on Linux to avoid glibc versioning issues
+echo -n " -DLEAN_STANDALONE=ON -DCADICAL_USE_CUSTOM_CXX=ON"
 echo -n " -DCMAKE_CXX_COMPILER=$PWD/llvm-host/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
 echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-}'"
 # use target compiler directly when not cross-compiling
@@ -67,8 +68,9 @@ fi
 # use `-nostdinc` to make sure headers are not visible by default (in particular, not to `#include_next` in the clang headers),
 # but do not change sysroot so users can still link against system libs
 echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"
-# ld.so is usually included by the libc.so linker script but we discard those
-echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='--sysroot ROOT -L ROOT/lib -L ROOT/lib/glibc ROOT/lib/glibc/libc_nonshared.a ROOT/lib/glibc/libpthread_nonshared.a -Wl,--as-needed -Wl,-Bstatic -lgmp -lunwind -luv -Wl,-Bdynamic ROOT/lib/glibc/ld.so -Wl,--no-as-needed -fuse-ld=lld'"
+# ld.so is usually included by the libc.so linker script but we discard those. Make sure it is linked to only after `libc.so` like in the original
+# linker script so that no libc symbols are bound to it instead.
+echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='--sysroot ROOT -L ROOT/lib -L ROOT/lib/glibc -lc -lc_nonshared -Wl,--as-needed -l:ld.so -Wl,--no-as-needed -lpthread_nonshared -Wl,--as-needed -Wl,-Bstatic -lgmp -lunwind -luv -Wl,-Bdynamic -Wl,--no-as-needed -fuse-ld=lld'"
 # when not using the above flags, link GMP dynamically/as usual
 echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-Wl,--as-needed -lgmp -luv -lpthread -ldl -lrt -Wl,--no-as-needed'"
 # do not set `LEAN_CC` for tests

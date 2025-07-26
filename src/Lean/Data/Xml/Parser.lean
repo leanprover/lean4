@@ -411,7 +411,7 @@ protected def elementPrefix : Parser (Array Content → Element) := do
   let name ← Name
   let attributes ← many (attempt <| S *> Attribute)
   optional S *> pure ()
-  return Element.Element name (RBMap.fromList attributes.toList compare)
+  return Element.Element name (Std.TreeMap.ofList attributes.toList compare)
 
 /-- https://www.w3.org/TR/xml/#NT-EmptyElemTag -/
 def EmptyElemTag (elem : Array Content → Element) : Parser Element := do

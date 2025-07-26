@@ -65,17 +65,14 @@ end Term
 
 def DerivingHandler := (typeNames : Array Name) → CommandElabM Bool
 
-/-- Deprecated - `DerivingHandler` no longer assumes arguments -/
-@[deprecated DerivingHandler (since := "2024-09-09")]
-def DerivingHandlerNoArgs := (typeNames : Array Name) → CommandElabM Bool
-
 builtin_initialize derivingHandlersRef : IO.Ref (NameMap (List DerivingHandler)) ← IO.mkRef {}
 
-/-- A `DerivingHandler` is called on the fully qualified names of all types it is running for
-as well as the syntax of a `with` argument, if present.
+/--
+Registers a deriving handler for a class. This function should be called in an `initialize` block.
 
-For example, `deriving instance Foo with fooArgs for Bar, Baz` invokes
-``fooHandler #[`Bar, `Baz] `(fooArgs)``. -/
+A `DerivingHandler` is called on the fully qualified names of all types it is running for. For
+example, `deriving instance Foo for Bar, Baz` invokes ``fooHandler #[`Bar, `Baz]``.
+-/
 def registerDerivingHandler (className : Name) (handler : DerivingHandler) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register deriving handler, it can only be registered during initialization")
@@ -87,6 +84,9 @@ def defaultHandler (className : Name) (typeNames : Array Name) : CommandElabM Un
   throwError "default handlers have not been implemented yet, class: '{className}' types: {typeNames}"
 
 def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandElabM Unit := do
+  -- When any of the types are private, the deriving handler will need access to the private scope
+  -- (and should also make sure to put its outputs in the private scope).
+  withoutExporting (when := typeNames.any isPrivateName) do
   withTraceNode `Elab.Deriving (fun _ => return m!"running deriving handlers for '{className}'") do
     match (← derivingHandlersRef.get).find? className with
     | some handlers =>

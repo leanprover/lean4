@@ -833,7 +833,10 @@ def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState �
     mkNodeToken numLitKind startPos c s
   else
     let curr := input.get' i h
-    if curr == '.' || curr == 'e' || curr == 'E' then
+    let j := input.next i
+    if ∃ hj : ¬ input.atEnd j, curr = '.' && input.get' j hj = '.' then
+      mkNodeToken numLitKind startPos c s
+    else if curr == '.' || curr == 'e' || curr == 'E' then
       parseScientific s
     else
       mkNodeToken numLitKind startPos c s
@@ -1477,7 +1480,8 @@ that the `else` is not less indented than the `if` it matches with.
 
 This parser has arity 0 - it does not capture anything. -/
 @[builtin_doc] def checkColGe (errorMsg : String := "checkColGe") : Parser where
-  fn := checkColGeFn errorMsg
+  fn   := checkColGeFn errorMsg
+  info := epsilonInfo
 
 def checkColGtFn (errorMsg : String) : ParserFn := fun c s =>
   match c.savedPos? with
@@ -1577,21 +1581,21 @@ def eoi : Parser := {
 }
 
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
-def TokenMap (α : Type) := RBMap Name (List α) Name.quickCmp
+def TokenMap (α : Type) := Std.TreeMap Name (List α) Name.quickCmp
 
 namespace TokenMap
 
 def insert (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
-  match map.find? k with
-  | none    => RBMap.insert map k [v]
-  | some vs => RBMap.insert map k (v::vs)
+  match map.get? k with
+  | none    => Std.TreeMap.insert map k [v]
+  | some vs => Std.TreeMap.insert map k (v::vs)
 
 instance : Inhabited (TokenMap α) where
-  default := RBMap.empty
+  default := Std.TreeMap.empty
 
-instance : EmptyCollection (TokenMap α) := ⟨RBMap.empty⟩
+instance : EmptyCollection (TokenMap α) := ⟨Std.TreeMap.empty⟩
 
-instance : ForIn m (TokenMap α) (Name × List α) := inferInstanceAs (ForIn _ (RBMap ..) _)
+instance : ForIn m (TokenMap α) (Name × List α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) _)
 
 end TokenMap
 
@@ -1610,7 +1614,7 @@ Specifies how the parsing table lookup function behaves for identifiers.
 The function `Lean.Parser.prattParser` uses two tables: one each for leading and trailing parsers.
 These tables map tokens to parsers. Because keyword tokens are distinct from identifier tokens,
 keywords and identifiers cannot be confused, even when they are syntactically identical.
-Specifying an alternative leading identifier behavior allows greater flexiblity and makes it
+Specifying an alternative leading identifier behavior allows greater flexibility and makes it
 possible to avoid reserved keywords in some situations.
 
 When the leading token is syntactically an identifier, the current syntax category's
@@ -1676,7 +1680,7 @@ abbrev ParserCategories := PersistentHashMap Name ParserCategory
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) (behavior : LeadingIdentBehavior) : ParserState × List α :=
   let (s, stx) := peekToken c s
   let find (n : Name) : ParserState × List α :=
-    match map.find? n with
+    match map.get? n with
     | some as => (s, as)
     | _       => (s, [])
   match stx with
@@ -1685,16 +1689,16 @@ def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState
     match behavior with
     | .default => find identKind
     | .symbol =>
-      match map.find? val with
+      match map.get? val with
       | some as => (s, as)
       | none    => find identKind
     | .both =>
-      match map.find? val with
+      match map.get? val with
       | some as =>
         if val == identKind then
           (s, as)  -- avoid running the same parsers twice
         else
-          match map.find? identKind with
+          match map.get? identKind with
           | some as' => (s, as ++ as')
           | _        => (s, as)
       | none    => find identKind
@@ -1975,7 +1979,7 @@ def foldArgsM (s : Syntax) (f : Syntax → β → m β) (b : β) : m β :=
   s.getArgs.foldlM (flip f) b
 
 def foldArgs (s : Syntax) (f : Syntax → β → β) (b : β) : β :=
-  Id.run (s.foldArgsM f b)
+  Id.run (s.foldArgsM (pure <| f · ·) b)
 
 def forArgsM (s : Syntax) (f : Syntax → m Unit) : m Unit :=
   s.foldArgsM (fun s _ => f s) ()

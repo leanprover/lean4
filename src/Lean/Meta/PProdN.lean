@@ -104,7 +104,7 @@ def proj (n i : Nat) (t e : Expr) : Expr := Id.run <| do
   unless i < n do panic! "PProdN.proj: {i} not less than {n}"
   let mut t := t
   let mut value := e
-  for _ in [:i] do
+  for _ in *...i do
       value := mkPProdSnd t value
       t := mkTypeSnd t
   if i+1 < n then
@@ -119,7 +119,7 @@ def projs (n : Nat) (t e : Expr) : Array Expr :=
 /-- Given a value of type `t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/
 def projM (n i : Nat) (e : Expr) : MetaM Expr := do
   let mut value := e
-  for _ in [:i] do
+  for _ in *...i do
       value ← mkPProdSndM value
   if i+1 < n then
     mkPProdFstM value
@@ -182,18 +182,29 @@ def stripProjs (e : Expr) : Expr :=
   | e => e
 
 /--
-Reduces `⟨x,y⟩.1` redexes for `PProd` and `And`
+Reduces `⟨x,y⟩.1` or `⟨x,y⟩.fst` redexes for `PProd` and `And`
 -/
-def reduceProjs (e : Expr) : CoreM Expr := do
+def reduceProjs (e : Expr) : MetaM Expr := do
   Core.transform e (post := fun e => do
-    if e.isProj then
-      if e.projExpr!.isAppOfArity ``PProd.mk 4 || e.projExpr!.isAppOfArity ``And.intro 2 then
-        if e.projIdx! == 0 then
-          return .continue e.projExpr!.appFn!.appArg!
+    match_expr e with
+    | PProd.fst _ _ e' => reduce e' 0
+    | And.left _ _ e'  => reduce e' 0
+    | PProd.snd _ _ e' => reduce e' 1
+    | And.right _ _ e' => reduce e' 1
+    | _ =>
+        if e.isProj then
+          reduce e.projExpr! e.projIdx!
         else
-          return .continue e.projExpr!.appArg!
-    return .continue
+          return .continue
   )
+where
+  reduce (e : Expr) (i : Nat) : MetaM TransformStep := do
+    if e.isAppOfArity ``PProd.mk 4 || e.isAppOfArity ``And.intro 2 then
+      if i = 0 then
+        return .continue e.appFn!.appArg!
+      else
+        return .continue e.appArg!
+    return .continue
 
 end PProdN
 

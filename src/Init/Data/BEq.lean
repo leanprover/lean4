@@ -6,7 +6,9 @@ Authors: Mario Carneiro, Markus Himmel
 module
 
 prelude
-import Init.Data.Bool
+public import Init.Data.Bool
+
+public section
 
 set_option linter.missingDocs true
 

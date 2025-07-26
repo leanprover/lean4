@@ -22,6 +22,8 @@ structure FacetConfig (name : Name) : Type where
   buildable : Bool := true
   /-- Format this facet's output (e.g., for `lake query`). -/
   format : OutFormat → FacetOut name → String
+  /-- Whether the fetch of this facet should be cached in the Lake build store. -/
+  memoize : Bool := true
   deriving Inhabited
 
 protected abbrev FacetConfig.name (_ : FacetConfig name) := name
@@ -54,9 +56,10 @@ def FacetConfig.toKind? (kind : Name) (self : FacetConfig name) : Option (KFacet
   [outKind : OptDataKind β]
   [i : FamilyOut DataType kind α]
   [o : FamilyOut FacetOut facet β]
-  (build : α → FetchM (Job β)) (buildable := true)
+  (build : α → FetchM (Job β))
+  (buildable := true) (memoize := true)
 : KFacetConfig kind facet where
-  buildable
+  buildable; memoize
   outKind := o.fam_eq ▸ outKind
   fetchFn := i.fam_eq ▸ o.fam_eq ▸ build
   format := o.fam_eq ▸ formatQuery

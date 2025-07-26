@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.BEq
-import Init.Data.Hashable
-import Std.Data.DHashMap.Internal.Defs
+public import Init.Data.BEq
+public import Init.Data.Hashable
+public import Std.Data.DHashMap.Internal.Defs
+
+public section
 
 /-!
 # Dependent hash maps with unbundled well-formedness invariant
@@ -357,7 +361,7 @@ map in some order.
 
 /-- Folds the given function over the mappings in the hash map in some order. -/
 @[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (b.foldM f init)
+  Id.run (b.foldM (pure <| f · · ·) init)
 
 namespace Internal
 
@@ -376,7 +380,7 @@ Internal implementation detail of the hash map.
 Folds the given function over the mappings in the hash map in the reverse order used
 by `foldM`. -/
 @[inline] def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (foldRevM f init b)
+  Id.run (foldRevM (pure <| f · · ·) init b)
 
 end Internal
 
@@ -395,7 +399,7 @@ by `foldM`. -/
 @[inline, deprecated "Deprecated without replacement. If the order does not matter, use fold."
   (since := "2025-03-07")]
 def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (Internal.foldRevM f init b)
+  Id.run (Internal.foldRevM (pure <| f · · ·) init b)
 
 /-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=

@@ -6,8 +6,10 @@ Author: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-import Init.Core
-import Init.BinderNameHint
+public import Init.Core
+public import Init.BinderNameHint
+
+public section
 
 universe u v w
 
@@ -49,7 +51,7 @@ abbrev forIn_eq_forin' := @forIn_eq_forIn'
 /--
 Extracts the value from a `ForInStep`, ignoring whether it is `ForInStep.done` or `ForInStep.yield`.
 -/
-def ForInStep.value (x : ForInStep α) : α :=
+@[expose] def ForInStep.value (x : ForInStep α) : α :=
   match x with
   | ForInStep.done b => b
   | ForInStep.yield b => b

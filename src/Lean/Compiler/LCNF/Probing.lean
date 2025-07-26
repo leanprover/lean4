@@ -54,7 +54,7 @@ where
     | .fun decl k | .jp decl k =>
       go decl.value
       go k
-    | .cases (cases : CasesCore Code) => cases.alts.forM (go ·.getCode)
+    | .cases cs => cs.alts.forM (go ·.getCode)
     | .jmp .. | .return .. | .unreach .. => return ()
   start (decls : Array Decl) : StateRefT (Array LetValue) CompilerM Unit :=
     decls.forM (·.value.forCodeM go)
@@ -165,10 +165,10 @@ def count : Probe α Nat := fun data => return #[data.size]
 def sum : Probe Nat Nat := fun data => return #[data.foldl (init := 0) (·+·)]
 
 @[inline]
-def tail (n : Nat) : Probe α α := fun data => return data[data.size - n:]
+def tail (n : Nat) : Probe α α := fun data => return data[(data.size - n)...*]
 
 @[inline]
-def head (n : Nat) : Probe α α := fun data => return data[:n]
+def head (n : Nat) : Probe α α := fun data => return data[*...n]
 
 def runOnDeclsNamed (declNames : Array Name) (probe : Probe Decl β) (phase : Phase := Phase.base): CoreM (Array β) := do
   let ext := getExt phase
@@ -189,7 +189,7 @@ def runGlobally (probe : Probe Decl β) (phase : Phase := Phase.base) : CoreM (A
   let ext := getExt phase
   let env ← getEnv
   let mut decls := #[]
-  for modIdx in [:env.allImportedModuleNames.size] do
+  for modIdx in *...env.allImportedModuleNames.size do
     decls := decls.append <| ext.getModuleEntries env modIdx
   probe decls |>.run (phase := phase)
 

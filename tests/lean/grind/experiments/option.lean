@@ -1,36 +1,42 @@
-/-!
-This file contains WIP notes about potential further `grind` attributes for `Option`.
+open Option
 
--/
+-- TODO: the following lemmas currently fail, but could be solved with some subset of the following attributes:
+-- I haven't added them yet, because the nuclear option of `[grind cases]` is tempting, but a bit scary.
 
-attribute [grind] Option.some_get Option.get_some
-attribute [grind] Option.map_map -- `[grind _=_]`?
-attribute [grind] Option.get_map -- ??
-attribute [grind] Option.map_id_fun Option.map_id_fun'
-attribute [grind] Option.all_guard Option.any_guard
-attribute [grind] Option.bind_map Option.map_bind
-attribute [grind] Option.join_map_eq_map_join
-attribute [grind] Option.join_join -- `[grind _=_]`?
-attribute [grind] Option.map_orElse
+attribute [grind] Option.eq_none_of_isNone
+attribute [grind] Option.toArray_eq_empty_iff
+attribute [grind] Option.toList_eq_nil_iff
 
--- Look again at `Option.guard` lemmas, consider `bind_gaurd`.
--- Fix statement of `isSome_guard`, add `isNone_guard`
+attribute [grind cases] Option
 
-attribute [grind] Option.or_assoc -- unless `grind` gains native associativity support in the meantime!
+theorem toArray_eq_empty_iff {o : Option α} : o.toArray = #[] ↔ o = none := by
+  grind
 
--- attribute [grind] Option.none_beq_none -- warning: this generates just `none` as the pattern!
--- attribute [grind] Option.none_beq_some
--- attribute [grind] Option.some_beq_none -- warning: this generates just `some _` as the pattern!
--- attribute [grind] Option.some_beq_some
+theorem toArray_eq_singleton_iff {o : Option α} : o.toArray = #[a] ↔ o = some a := by
+  grind
 
-attribute [grind] Option.isSome_filter
-attribute [grind] Option.get_filter Option.get_pfilter
+theorem size_toArray_eq_zero_iff {o : Option α} :
+    o.toArray.size = 0 ↔ o = none := by
+  grind
 
-attribute [grind] Option.map_pbind Option.pbind_map
-attribute [grind] Option.map_pmap Option.pmap_map Option.elim_pmap
+theorem toList_eq_nil_iff {o : Option α} : o.toList = [] ↔ o = none := by
+  grind
 
--- Lemmas about inequalities?
+theorem toList_eq_singleton_iff {o : Option α} : o.toList = [a] ↔ o = some a := by
+  grind
 
--- The `min_none_none` family of lemmas result in grind issues:
--- failed to synthesize instance when instantiating Option.min_none_none
---         Min α
+theorem length_toList_eq_zero_iff {o : Option α} :
+    o.toList.length = 0 ↔ o = none := by
+  grind
+
+attribute [grind] Std.IdempotentOp -- Lots more of these!
+
+example [Max α] [Std.IdempotentOp (α := α) max] {p : α → Bool} {o : Option α} :
+    max (o.filter p) o = o := by grind
+
+example [Max α] [Std.IdempotentOp (α := α) max] {o : Option α} {p : (a : α) → o = some a → Bool} :
+    max (o.pfilter p) o = o := by grind
+
+example [Max α] {o o' : Option α} : (max o o').isSome = (o.isSome || o'.isSome) := by grind
+
+example [Max α] {o o' : Option (Option α)} : (max o o').join = max o.join o'.join := by grind

@@ -55,7 +55,7 @@ open Meta
             let cinfo ← getConstInfoCtor ctor
             let numExplicitFields ← forallTelescopeReducing cinfo.type fun xs _ => do
               let mut n := 0
-              for h : i in [cinfo.numParams:xs.size] do
+              for h : i in cinfo.numParams...xs.size do
                 if (← getFVarLocalDecl xs[i]).binderInfo.isExplicit then
                   n := n + 1
               return n
@@ -67,9 +67,9 @@ open Meta
             else if numExplicitFields == 0 then
               throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' does not have explicit fields, but #{args.size} provided"
             else
-              let extra := args[numExplicitFields-1:args.size]
+              let extra := args[(numExplicitFields-1)...args.size]
               let newLast ← `(⟨$[$extra],*⟩)
-              let newArgs := args[0:numExplicitFields-1].toArray.push newLast
+              let newArgs := args[*...(numExplicitFields-1)].toArray.push newLast
               `($(mkCIdentFrom stx ctor (canonical := true)) $(newArgs)*)
             withMacroExpansion stx newStx $ elabTerm newStx expectedType?
           | _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor {indentExpr expectedType}")
@@ -108,7 +108,7 @@ open Meta
     Recall that we do not use the same approach used to elaborate type ascriptions.
     For the `($val : $type)` notation, we just elaborate `val` using `type` and
     ensure it has type `type`. This approach only ensure the type resulting expression
-    is definitionally equal to `type`. For the `show` notation we use `let_fun` to ensure the type
+    is definitionally equal to `type`. For the `show` notation we use `have` to ensure the type
     of the resulting expression is *structurally equal* `type`. Structural equality is important,
     for example, if the resulting expression is a `simp`/`rw` parameter. Here is an example:
     ```
@@ -117,32 +117,19 @@ open Meta
     ```
     -/
     let thisId := mkIdentFrom stx `this
-    let valNew ← `(let_fun $thisId : $(← exprToSyntax type) := $val; $thisId)
+    let valNew ← `(have $thisId:ident : $(← exprToSyntax type) := $val; $thisId)
     elabTerm valNew expectedType?
   | _ => throwUnsupportedSyntax
 
-@[builtin_macro Lean.Parser.Term.have] def expandHave : Macro := fun stx =>
-  match stx with
-  | `(have $hy:hygieneInfo $bs* $[: $type]? := $val; $body) =>
-    `(have $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $type]? := $val; $body)
-  | `(have $hy:hygieneInfo $bs* $[: $type]? $alts; $body)   =>
-    `(have $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $type]? $alts; $body)
-  | `(have $x:ident $bs* $[: $type]? := $val; $body) => `(let_fun $x $bs* $[: $type]? := $val; $body)
-  | `(have $x:ident $bs* $[: $type]? $alts; $body)   => `(let_fun $x $bs* $[: $type]? $alts; $body)
-  | `(have _%$x     $bs* $[: $type]? := $val; $body) => `(let_fun _%$x $bs* $[: $type]? := $val; $body)
-  | `(have _%$x     $bs* $[: $type]? $alts; $body)   => `(let_fun _%$x $bs* $[: $type]? $alts; $body)
-  | `(have $pattern:term $[: $type]? := $val; $body) => `(let_fun $pattern:term $[: $type]? := $val; $body)
-  | _                                                => Macro.throwUnsupported
-
 @[builtin_macro Lean.Parser.Term.suffices] def expandSuffices : Macro
-  | `(suffices%$tk $x:ident      : $type from $val; $body)   => `(have%$tk $x : $type := $body; $val)
+  | `(suffices%$tk $x:ident      : $type from $val; $body)   => `(have%$tk $x:ident : $type := $body; $val)
   | `(suffices%$tk _%$x          : $type from $val; $body)   => `(have%$tk _%$x : $type := $body; $val)
   | `(suffices%$tk $hy:hygieneInfo $type from $val; $body)   => `(have%$tk $hy:hygieneInfo : $type := $body; $val)
   | `(suffices%$tk $x:ident      : $type $b:byTactic'; $body) =>
     -- Pass on `SourceInfo` of `b` to `have`. This is necessary to display the goal state in the
     -- trailing whitespace of `by` and sound since `byTactic` and `byTactic'` are identical.
     let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
-    `(have%$tk $x : $type := $body; $b:byTactic)
+    `(have%$tk $x:ident : $type := $body; $b:byTactic)
   | `(suffices%$tk _%$x          : $type $b:byTactic'; $body) =>
     let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
     `(have%$tk _%$x : $type := $body; $b:byTactic)
@@ -542,30 +529,6 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
         return ← tac expectedType?
     (← unsafe evalTerm (TermElabM Expr) (mkApp (Lean.mkConst ``TermElabM) (Lean.mkConst ``Expr))
       (← `(do $cmds)))
-  | _ => throwUnsupportedSyntax
-
-@[builtin_term_elab Lean.Parser.Term.haveI] def elabHaveI : TermElab := fun stx expectedType? => do
-  match stx with
-  | `(haveI $x:ident $bs* : $ty := $val; $body) =>
-    withExpectedType expectedType? fun expectedType => do
-      let (ty, val) ← elabBinders bs fun bs => do
-        let ty ← elabType ty
-        let val ← elabTermEnsuringType val ty
-        pure (← mkForallFVars bs ty, ← mkLambdaFVars bs val)
-      withLocalDeclD x.getId ty fun x => do
-        return (← (← elabTerm body expectedType).abstractM #[x]).instantiate #[val]
-  | _ => throwUnsupportedSyntax
-
-@[builtin_term_elab Lean.Parser.Term.letI] def elabLetI : TermElab := fun stx expectedType? => do
-  match stx with
-  | `(letI $x:ident $bs* : $ty := $val; $body) =>
-    withExpectedType expectedType? fun expectedType => do
-      let (ty, val) ← elabBinders bs fun bs => do
-        let ty ← elabType ty
-        let val ← elabTermEnsuringType val ty
-        pure (← mkForallFVars bs ty, ← mkLambdaFVars bs val)
-      withLetDecl x.getId ty val fun x => do
-        return (← (← elabTerm body expectedType).abstractM #[x]).instantiate #[val]
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

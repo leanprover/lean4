@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.ReorderVars
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -467,9 +468,6 @@ private def findCase (decVars : FVarIdSet) : SearchM Case := do
     trace[grind.debug.cutsat.search.backtrack] "skipping {case.fvarId.name}"
   unreachable!
 
-private def union (vs₁ vs₂ : FVarIdSet) : FVarIdSet :=
-  vs₁.fold (init := vs₂) (·.insert ·)
-
 def resolveConflict (h : UnsatProof) : SearchM Unit := do
   trace[grind.debug.cutsat.search.backtrack] "resolve conflict, decision stack: {(← get).cases.toList.map fun c => c.fvarId.name}"
   let decVars := h.collectDecVars.run (← get).decVars
@@ -490,7 +488,7 @@ def resolveConflict (h : UnsatProof) : SearchM Unit := do
     trace[grind.debug.cutsat.search.backtrack] "resolved diseq split: {← c'.pp}"
     c'.assert
   | .cooper pred hs decVars' =>
-    let decVars' := union decVars decVars'
+    let decVars' := decVars.merge decVars'
     let n := pred.numCases
     let hs := hs.push (c.fvarId, h)
     trace[grind.debug.cutsat.search.backtrack] "cooper #{hs.size + 1}, {← pred.pp}, {hs.map fun p => p.1.name}"
@@ -504,7 +502,7 @@ def resolveConflict (h : UnsatProof) : SearchM Unit := do
     s.assert
 
 /-- Search for an assignment/model for the linear constraints. -/
-private def searchAssigmentMain : SearchM Unit := do
+private def searchAssignmentMain : SearchM Unit := do
   repeat
     trace[grind.debug.cutsat.search] "main loop"
     checkSystem "cutsat"
@@ -530,19 +528,36 @@ private def resetDecisionStack : SearchM Unit := do
 
 private def searchQLiaAssignment : GoalM Bool := do
   let go : SearchM Bool := do
-    searchAssigmentMain
+    searchAssignmentMain
     let precise := (← get).precise
     resetDecisionStack
     return precise
   go .rat |>.run' {}
 
+private def traceActiveCnstrs : GoalM Unit := do
+  unless (← isTracingEnabledFor `grind.debug.cutsat.search.cnstrs) do return ()
+  let s ← get'
+  for x in [: s.vars.size] do
+    unless (← eliminated x) do
+      if let some dvd := s.dvds[x]! then
+        trace[grind.debug.cutsat.search.cnstrs] "{← dvd.pp}"
+      for c in s.lowers[x]! do
+        trace[grind.debug.cutsat.search.cnstrs] "{← c.pp}"
+      for c in s.uppers[x]! do
+        trace[grind.debug.cutsat.search.cnstrs] "{← c.pp}"
+      for c in s.diseqs[x]! do
+        trace[grind.debug.cutsat.search.cnstrs] "{← c.pp}"
+
 private def searchLiaAssignment : GoalM Unit := do
   let go : SearchM Unit := do
-    searchAssigmentMain
+    searchAssignmentMain
     resetDecisionStack
+  traceActiveCnstrs
+  reorderVars
+  traceActiveCnstrs
   go .int |>.run' {}
 
-def searchAssigment : GoalM Unit := do
+def searchAssignment : GoalM Unit := do
   let precise ← searchQLiaAssignment
   if (← isInconsistent) then return ()
   if !(← getConfig).qlia && !precise then
@@ -563,11 +578,11 @@ There are two kinds of progress:
 
 The result is `false` if module already has a satisfying assignment.
 -/
-def check : GoalM Bool := do
+def check : GoalM Bool := do profileitM Exception "grind cutsat" (← getOptions) do
   if (← hasAssignment) then
     return false
   else
-    searchAssigment
+    searchAssignment
     return true
 
 end Lean.Meta.Grind.Arith.Cutsat

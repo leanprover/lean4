@@ -31,14 +31,14 @@ where
       let alt ← forallTelescopeReducing ctorInfo.type fun xs _ => do
         let mut patterns := #[]
         -- add `_` pattern for indices
-        for _ in [:indVal.numIndices] do
+        for _ in *...indVal.numIndices do
           patterns := patterns.push (← `(_))
         let mut ctorArgs := #[]
         let mut rhs ← `($(quote ctorIdx))
         -- add `_` for inductive parameters, they are inaccessible
-        for _ in [:indVal.numParams] do
+        for _ in *...indVal.numParams do
           ctorArgs := ctorArgs.push (← `(_))
-        for i in [:ctorInfo.numFields] do
+        for i in *...ctorInfo.numFields do
           let x := xs[indVal.numParams + i]!
           let a := mkIdent (← mkFreshUserName `a)
           ctorArgs := ctorArgs.push a
@@ -66,13 +66,13 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let binders    := header.binders
   if ctx.usePartial then
     -- TODO(Dany): Get rid of this code branch altogether once we have well-founded recursion
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
+    `(partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
+    `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
 
 def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
-  for i in [:ctx.typeInfos.size] do
+  for i in *...ctx.typeInfos.size do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
   `(mutual $auxDefs:command* end)
 

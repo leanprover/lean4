@@ -7,7 +7,9 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Data.Array.Set
+public import Init.Data.Array.Set
+
+public section
 
 /-!
 # Helper functions for `Syntax`.

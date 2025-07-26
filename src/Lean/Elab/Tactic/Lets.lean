@@ -26,7 +26,7 @@ register_builtin_option linter.tactic.unusedName : Bool := {
 
 def extractLetsAddVarInfo (ids : Array Syntax) (fvars : Array FVarId) : TacticM Unit :=
   withMainContext do
-    for h : i in [0:ids.size] do
+    for h : i in *...ids.size do
       if h' : i < fvars.size then
         Term.addLocalVarInfo ids[i] (mkFVar fvars[i])
       else
@@ -64,5 +64,16 @@ declare_config_elab elabLiftLetsConfig LiftLetsConfig
       (atLocal := fun h => liftMetaTactic1 fun mvarId => mvarId.liftLetsLocalDecl h config)
       (atTarget := liftMetaTactic1 fun mvarId => mvarId.liftLets config)
       (failed := fun _ => throwError "'lift_lets' tactic failed")
+
+/-!
+### `let_to_have`
+-/
+
+@[builtin_tactic letToHave] elab_rules : tactic
+  | `(tactic| let_to_have $[$loc?:location]?) => do
+    withLocation (expandOptLocation (Lean.mkOptionalNode loc?))
+      (atLocal := fun h => liftMetaTactic1 fun mvarId => mvarId.letToHaveLocalDecl h)
+      (atTarget := liftMetaTactic1 fun mvarId => mvarId.letToHave)
+      (failed := fun _ => throwError "'let_to_have' tactic failed")
 
 end Lean.Elab.Tactic

@@ -89,7 +89,7 @@ error: could not synthesize a 'ToExpr', 'Repr', or 'ToString' instance for type
 /-!
 Elaboration error, does not attempt to evaluate.
 -/
-/-- error: unknown identifier 'x' -/
+/-- error: Unknown identifier `x` -/
 #guard_msgs in #eval 2 + x
 
 /-!

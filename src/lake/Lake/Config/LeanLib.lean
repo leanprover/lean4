@@ -53,9 +53,13 @@ The names of the library's root modules
 @[inline] def libName (self : LeanLib) : String :=
   self.config.libName
 
+/-- Whether this library's native binaries should be prefixed with `lib` on Windows. -/
+@[inline] def libPrefixOnWindows (self : LeanLib) : Bool :=
+  self.config.libPrefixOnWindows || self.pkg.libPrefixOnWindows
+
 /-- The file name of the library's static binary (i.e., its `.a`) -/
 @[inline] def staticLibFileName (self : LeanLib) : FilePath :=
-  nameToStaticLib self.config.libName
+  nameToStaticLib self.config.libName self.libPrefixOnWindows
 
 /-- The path to the static library in the package's `libDir`. -/
 @[inline] def staticLibFile (self : LeanLib) : FilePath :=
@@ -67,11 +71,15 @@ The names of the library's root modules
 
 /-- The file name of the library's shared binary (i.e., its `dll`, `dylib`, or `so`) . -/
 @[inline] def sharedLibFileName (self : LeanLib) : FilePath :=
-  nameToSharedLib self.config.libName
+  nameToSharedLib self.config.libName self.libPrefixOnWindows
 
 /-- The path to the shared library in the package's `libDir`. -/
 @[inline] def sharedLibFile (self : LeanLib) : FilePath :=
   self.pkg.sharedLibDir / self.sharedLibFileName
+
+/-- Whether the shared binary of this library is a valid plugin. -/
+def isPlugin (self : LeanLib) : Bool :=
+  self.roots == #[self.name] && self.libName == self.name.mangle ""
 
 /-- The library's `extraDepTargets` configuration. -/
 @[inline] def extraDepTargets (self : LeanLib) :=
@@ -116,8 +124,9 @@ The arguments to pass to `lean --server` when running the Lean language server.
 - the library's `leanOptions`
 - the library's `moreServerOptions`
 -/
-@[inline] def serverOptions (self : LeanLib) : Array LeanOption :=
-  self.buildType.leanOptions ++ self.pkg.moreServerOptions ++ self.config.leanOptions ++ self.config.moreServerOptions
+@[inline] def serverOptions (self : LeanLib) : LeanOptions :=
+  ({} : LeanOptions) ++ self.buildType.leanOptions ++ self.pkg.moreServerOptions ++
+  self.config.leanOptions ++ self.config.moreServerOptions
 
 /--
 The backend type for modules of this library.
@@ -144,14 +153,22 @@ The targets of the package plus the targets of the library (in that order).
 /--
 The arguments to pass to `lean` when compiling the library's Lean files.
 `leanArgs` is the accumulation of:
-- the build type's `leanArgs`
+- the build type's `leanOptions`
 - the package's `leanOptions`
-- the package's `moreLeanArgs`
 - the library's `leanOptions`
+-/
+@[inline] def leanOptions (self : LeanLib) : LeanOptions :=
+  self.buildType.leanOptions ++ self.pkg.leanOptions ++ self.config.leanOptions
+
+/--
+The arguments to pass to `lean` when compiling the library's Lean files.
+`leanArgs` is the accumulation of:
+- the build type's `leanArgs`
+- the package's `moreLeanArgs`
 - the library's `moreLeanArgs`
 -/
 @[inline] def leanArgs (self : LeanLib) : Array String :=
-  self.buildType.leanArgs ++ self.pkg.moreLeanArgs ++ self.config.leanOptions.map (·.asCliArg) ++ self.config.moreLeanArgs
+ self.buildType.leanArgs ++ self.pkg.moreLeanArgs ++ self.config.moreLeanArgs
 
 /--
 The arguments to weakly pass to `lean` when compiling the library's Lean files.

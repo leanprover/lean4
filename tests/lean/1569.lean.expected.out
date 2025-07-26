@@ -1,1 +1,1 @@
-1569.lean:2:26-2:30: error: unknown identifier 'typo'
+1569.lean:2:26-2:30: error(lean.unknownIdentifier): Unknown identifier `typo`

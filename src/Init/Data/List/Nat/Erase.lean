@@ -6,14 +6,17 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.List.Nat.TakeDrop
-import Init.Data.List.Erase
+public import Init.Data.List.Nat.TakeDrop
+public import Init.Data.List.Erase
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
+@[grind =]
 theorem getElem?_eraseIdx {l : List α} {i : Nat} {j : Nat} :
     (l.eraseIdx i)[j]? = if j < i then l[j]? else l[j + 1]? := by
   rw [eraseIdx_eq_take_drop_succ, getElem?_append]
@@ -28,7 +31,7 @@ theorem getElem?_eraseIdx {l : List α} {i : Nat} {j : Nat} :
     · simp only [length_take, Nat.min_def, Nat.not_lt] at h
       split at h
       · omega
-      · simp_all [getElem?_eq_none]
+      · simp_all
         omega
     · simp only [length_take]
       simp only [length_take, Nat.min_def, Nat.not_lt] at h
@@ -45,10 +48,11 @@ theorem getElem?_eraseIdx_of_lt {l : List α} {i : Nat} {j : Nat} (h : j < i) :
 theorem getElem?_eraseIdx_of_ge {l : List α} {i : Nat} {j : Nat} (h : i ≤ j) :
     (l.eraseIdx i)[j]? = l[j + 1]? := by
   rw [getElem?_eraseIdx]
-  simp only [dite_eq_ite, ite_eq_right_iff]
+  simp only [ite_eq_right_iff]
   intro h'
   omega
 
+@[grind =]
 theorem getElem_eraseIdx {l : List α} {i : Nat} {j : Nat} (h : j < (l.eraseIdx i).length) :
     (l.eraseIdx i)[j] = if h' : j < i then
         l[j]'(by have := length_eraseIdx_le l i; omega)
@@ -123,6 +127,48 @@ theorem eraseIdx_set_gt {l : List α} {i : Nat} {j : Nat} {a : α} (h : i < j) :
       · have t : i ≠ n := by omega
         simp [t]
 
+@[grind =]
+theorem eraseIdx_set {xs : List α} {i : Nat} {a : α} {j : Nat} :
+    (xs.set i a).eraseIdx j =
+      if j < i then
+        (xs.eraseIdx j).set (i - 1) a
+      else if j = i then
+        xs.eraseIdx i
+      else
+        (xs.eraseIdx j).set i a := by
+  split <;> rename_i h'
+  · rw [eraseIdx_set_lt]
+    omega
+  · split <;> rename_i h''
+    · subst h''
+      rw [eraseIdx_set_eq]
+    · rw [eraseIdx_set_gt]
+      omega
+
+theorem set_eraseIdx_le {xs : List α} {i : Nat} {j : Nat} {a : α} (h : i ≤ j) :
+    (xs.eraseIdx i).set j a = (xs.set (j + 1) a).eraseIdx i := by
+  rw [eraseIdx_set_lt]
+  · simp
+  · omega
+
+theorem set_eraseIdx_gt {xs : List α} {i : Nat} {j : Nat} {a : α} (h : j < i) :
+    (xs.eraseIdx i).set j a = (xs.set j a).eraseIdx i := by
+  rw [eraseIdx_set_gt]
+  omega
+
+@[grind =]
+theorem set_eraseIdx {xs : List α} {i : Nat} {j : Nat} {a : α} :
+    (xs.eraseIdx i).set j a =
+      if i ≤ j then
+        (xs.set (j + 1) a).eraseIdx i
+      else
+        (xs.set j a).eraseIdx i := by
+  split <;> rename_i h'
+  · rw [set_eraseIdx_le]
+    omega
+  · rw [set_eraseIdx_gt]
+    omega
+
 @[simp] theorem set_getElem_succ_eraseIdx_succ
     {l : List α} {i : Nat} (h : i + 1 < l.length) :
     (l.eraseIdx (i + 1)).set i l[i + 1] = l.eraseIdx i := by
@@ -143,7 +189,7 @@ theorem eraseIdx_set_gt {l : List α} {i : Nat} {j : Nat} {a : α} (h : i < j) :
       · have t : ¬ n < i := by omega
         simp [t]
 
-@[simp] theorem eraseIdx_length_sub_one {l : List α} :
+@[simp, grind =] theorem eraseIdx_length_sub_one {l : List α} :
     (l.eraseIdx (l.length - 1)) = l.dropLast := by
   apply ext_getElem
   · simp [length_eraseIdx]

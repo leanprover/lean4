@@ -26,7 +26,7 @@ elab "try" t:tactic : tactic => do
 set_option linter.unusedVariables false
 
 /--
-info: case h₁
+trace: case h₁
 x y z : Nat
 h1 : y = z
 h2 : x = x
@@ -47,7 +47,7 @@ h2 : x = x
 h3 : x = y
 ⊢ Nat
 ---
-info: case h₂
+trace: case h₂
 x y z : Nat
 h1 : y = z
 h2 : x = x

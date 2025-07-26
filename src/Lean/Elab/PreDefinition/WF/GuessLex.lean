@@ -107,7 +107,7 @@ case, the user gets to keep both pieces (and may have to rename variables).
 partial
 def naryVarNames (xs : Array Name) : MetaM (Array Name) := do
   let mut ns : Array Name := #[]
-  for h : i in [:xs.size] do
+  for h : i in *...xs.size do
     let n := xs[i]
     let n ← if n.hasMacroScopes then
         freshen ns (.mkSimple s!"x{i+1}")
@@ -241,10 +241,10 @@ where
       loop param d
       withLocalDecl n c d fun x => do
         loop param (b.instantiate1 x)
-    | Expr.letE n type val body _ =>
+    | Expr.letE n type val body nondep =>
       loop param type
       loop param val
-      withLetDecl n type val fun x => do
+      withLetDecl n type val (nondep := nondep) fun x => do
         loop param (body.instantiate1 x)
     | Expr.mdata _d b =>
       if let some stx := getRecAppSyntax? e then
@@ -348,7 +348,7 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedParamPerms : FixedParamP
   lambdaBoundedTelescope unaryPreDef.value (fixedParamPerms.numFixed + 1) fun xs body => do
     unless xs.size == fixedParamPerms.numFixed + 1 do
       throwError "Unexpected number of lambdas in unary pre-definition"
-    let ys := xs[:fixedParamPerms.numFixed]
+    let ys := xs[*...fixedParamPerms.numFixed]
     let param := xs[fixedParamPerms.numFixed]!
     withRecApps unaryPreDef.declName fixedParamPerms.numFixed param body fun param args => do
       unless args.size ≥ fixedParamPerms.numFixed + 1 do
@@ -364,19 +364,22 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedParamPerms : FixedParamP
       RecCallWithContext.create (← getRef) caller callerParams callee calleeArgs
 
 /-- Is the expression a `<`-like comparison of `Nat` expressions -/
-def isNatCmp (e : Expr) : MetaM (Option (Expr × Expr)) := withReducible do
-  let (α, e₁, e₂) ←
-    match_expr e with
-    | LT.lt α _ e₁ e₂ => pure (α, e₁, e₂)
-    | LE.le α _ e₁ e₂ => pure (α, e₁, e₂)
-    | GT.gt α _ e₁ e₂ => pure (α, e₂, e₁)
-    | GE.ge α _ e₁ e₂ => pure (α, e₂, e₁)
-    | _ => return none
+partial def isNatCmp (e : Expr) : MetaM (Option (Expr × Expr)) := withReducible do
+  match_expr e with
+  | Not e' => Option.map (Prod.swap) <$> isNatCmp e'
+  | _ =>
+    let (α, e₁, e₂) ←
+      match_expr e with
+      | LT.lt α _ e₁ e₂ => pure (α, e₁, e₂)
+      | LE.le α _ e₁ e₂ => pure (α, e₁, e₂)
+      | GT.gt α _ e₁ e₂ => pure (α, e₂, e₁)
+      | GE.ge α _ e₁ e₂ => pure (α, e₂, e₁)
+      | _ => return none
 
-  if (←isDefEq α (mkConst ``Nat)) then
-    return some (e₁, e₂)
-  else
-    return none
+    if (←isDefEq α (mkConst ``Nat)) then
+      return some (e₁, e₂)
+    else
+      return none
 
 def complexMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (userVarNamess : Array (Array Name)) (recCalls : Array RecCallWithContext) :
@@ -558,7 +561,7 @@ where
   go (fidx : Nat) : OptionT (ReaderT (Array Nat) (StateM (Array (Array Nat)))) Unit := do
     if h : fidx < numMeasures.size then
       let n := numMeasures[fidx]
-      for idx in [:n] do withReader (·.push idx) (go (fidx + 1))
+      for idx in *...n do withReader (·.push idx) (go (fidx + 1))
     else
       let comb ← read
       unless comb.all (· == comb[0]!) do
@@ -601,7 +604,7 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
     if calls.isEmpty then return .some acc
 
     -- Find the first measure that has at least one < and otherwise only = or <=
-    for h : measureIdx in [:measures.size] do
+    for h : measureIdx in *...measures.size do
       let measure := measures[measureIdx]
       let mut has_lt := false
       let mut all_le := true
@@ -630,20 +633,20 @@ Single space as column separator.
 -/
 def formatTable : Array (Array String) → String := fun xss => Id.run do
   let mut colWidths := xss[0]!.map (fun _ => 0)
-  for hi : i in [:xss.size] do
-    for hj : j in [:xss[i].size] do
+  for hi : i in *...xss.size do
+    for hj : j in *...xss[i].size do
       if xss[i][j].length > colWidths[j]! then
         colWidths := colWidths.set! j xss[i][j].length
   let mut str := ""
-  for hi : i in [:xss.size] do
-    for hj : j in [:xss[i].size] do
+  for hi : i in *...xss.size do
+    for hj : j in *...xss[i].size do
       let s := xss[i][j]
       if j > 0 then -- right-align
-        for _ in [:colWidths[j]! - s.length] do
+        for _ in *...(colWidths[j]! - s.length) do
           str := str ++ " "
       str := str ++ s
       if j = 0 then -- left-align
-        for _ in [:colWidths[j]! - s.length] do
+        for _ in *...(colWidths[j]! - s.length) do
           str := str ++ " "
       if j + 1 < xss[i].size then
         str := str ++ " "
@@ -688,9 +691,9 @@ def collectHeaders {α} (a : StateT (Nat × String) MetaM α) : MetaM (α × Str
 def explainNonMutualFailure (measures : Array BasicMeasure) (rcs : Array RecCallCache) : MetaM Format := do
   let (header, footer) ← collectHeaders (measures.mapM measureHeader)
   let mut table : Array (Array String) := #[#[""] ++ header]
-  for i in [:rcs.size], rc in rcs do
+  for i in *...rcs.size, rc in rcs do
     let mut row := #[s!"{i+1}) {← rc.rcc.posString}"]
-    for argIdx in [:measures.size] do
+    for argIdx in *...measures.size do
       row := row.push (← rc.prettyEntry argIdx argIdx)
     table := table.push row
   let out := formatTable table
@@ -716,14 +719,14 @@ def explainMutualFailure (declNames : Array Name) (measuress : Array (Array Basi
     if caller = callee then
       -- For self-calls, only the diagonal is interesting, so put it into one row
       let mut row := #[""]
-      for argIdx in [:measuress[caller]!.size] do
+      for argIdx in *...measuress[caller]!.size do
         row := row.push (← rc.prettyEntry argIdx argIdx)
       table := table.push row
     else
-      for argIdx in [:measuress[callee]!.size] do
+      for argIdx in *...measuress[callee]!.size do
         let mut row := #[]
         row := row.push headerss[callee]![argIdx]!
-        for paramIdx in [:measuress[caller]!.size] do
+        for paramIdx in *...measuress[caller]!.size do
           row := row.push (← rc.prettyEntry paramIdx argIdx)
         table := table.push row
     r := r ++ formatTable table ++ "\n"
@@ -752,7 +755,7 @@ def mkProdElem (xs : Array Expr) : MetaM Expr := do
   | 1 => return xs[0]!
   | _ =>
     let n := xs.size
-    xs[0:n-1].foldrM (init:=xs[n-1]!) fun x p => mkAppM ``Prod.mk #[x,p]
+    xs[*...(n-1)].foldrM (init:=xs[n-1]!) fun x p => mkAppM ``Prod.mk #[x,p]
 
 def toTerminationMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (userVarNamess : Array (Array Name)) (measuress : Array (Array BasicMeasure))

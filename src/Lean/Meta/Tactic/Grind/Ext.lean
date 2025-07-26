@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.SynthInstance
 
 namespace Lean.Meta.Grind
 /-! Extensionality theorems support. -/
@@ -20,7 +21,7 @@ def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := with
   for mvar in mvars, bi in bis do
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
-      unless (← synthesizeInstanceAndAssign mvar type) do
+      unless (← synthInstanceAndAssign mvar type) do
         reportIssue! "failed to synthesize instance when instantiating extensionality theorem `{thm.declName}` for {indentExpr e}"
         return ()
   -- Remark: `proof c mvars` has type `e`
@@ -35,7 +36,7 @@ def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := with
   if proof'.hasMVar || prop'.hasMVar then
     reportIssue! "failed to apply extensionality theorem `{thm.declName}` for {indentExpr e}\nresulting terms contain metavariables"
     return ()
-  trace[grind.ext] "{prop'}"
-  addNewRawFact proof' prop' ((← getGeneration e) + 1)
+  trace[grind.ext] "{thm.declName}: {prop'}"
+  addNewRawFact proof' prop' ((← getGeneration e) + 1) (.ext thm.declName)
 
 end Lean.Meta.Grind

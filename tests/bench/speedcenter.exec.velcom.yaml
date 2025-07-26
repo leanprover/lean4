@@ -18,7 +18,9 @@
   run_config:
     <<: *time
     cmd: |
-      bash -c 'set -eo pipefail; touch ../../src/Init/Prelude.lean; make LEAN_OPTS="-Dprofiler=true -Dprofiler.threshold=9999" -C ${BUILD:-../../build/release}/stage2 --output-sync -j$(nproc) 2>&1 | ./accumulate_profile.py'
+      # build only up to make-stdlib so Lake doesn't repeat its output, then finish the build to get
+      # the executables for further benchmarks, ignore output
+      bash -c 'set -eo pipefail; find ${BUILD:-../../build/release}/stage2 -name "*.olean" -delete; make LEAN_OPTS="-Dprofiler=true -Dprofiler.threshold=9999999 --stats" -C ${BUILD:-../../build/release}/stage2 --output-sync -j$(nproc) make_stdlib 2>&1 | ./accumulate_profile.py; make -C ${BUILD:-../../build/release}/stage2 -j$(nproc) 1>&2'
     max_runs: 2
     parse_output: true
   # initialize stage2 cmake + warmup
@@ -40,6 +42,8 @@
       find ${BUILD:-build/release}/stage2/lib/lean -name '*.olean.server' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'bytes .olean.private: '
       find ${BUILD:-build/release}/stage2/lib/lean -name '*.olean.private' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
+      echo -n 'bytes .ir: '
+      find ${BUILD:-build/release}/stage2/lib/lean -name '*.ir' -print0 | wc -c --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'lines C: '
       find ${BUILD:-build/release}/stage2/lib/temp -name '*.c' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'lines C++: '
@@ -78,49 +82,57 @@
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../../src/Init/Prelude.lean
+    cwd: ../../src
+    cmd: lean -Dexperimental.module=true Init/Prelude.lean
 - attributes:
     description: Init.Data.List.Sublist async
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../../src/Init/Data/List/Sublist.lean
+    cwd: ../../src
+    cmd: lean -Dexperimental.module=true Init/Data/List/Sublist.lean
 - attributes:
     description: Std.Data.Internal.List.Associative
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../../src/Std/Data/Internal/List/Associative.lean
+    cwd: ../../src
+    cmd: lean -Dexperimental.module=true Std/Data/Internal/List/Associative.lean
 - attributes:
     description: Std.Data.DHashMap.Internal.RawLemmas
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../../src/Std/Data/DHashMap/Internal/RawLemmas.lean
+    cwd: ../../src
+    cmd: lean -Dexperimental.module=true Std/Data/DHashMap/Internal/RawLemmas.lean
 - attributes:
     description: Init.Data.BitVec.Lemmas
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean -Dexperimental.module=true ../../src/Init/Data/BitVec/Lemmas.lean
+    cwd: ../../src
+    cmd: lean -Dexperimental.module=true Init/Data/BitVec/Lemmas.lean
 - attributes:
     description: Init.Data.List.Sublist re-elab -j4
   run_config:
     <<: *time
-    cmd: lean --run ../../script/benchReelabRss.lean lean ../../src/Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
+    cwd: ../../src
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/List/Sublist.lean 10 -j4 -Dexperimental.module=true
     max_runs: 2
 - attributes:
     description: Init.Data.BitVec.Lemmas re-elab
   run_config:
     <<: *time
-    cmd: lean --run ../../script/benchReelabRss.lean lean ../../src/Init/Data/BitVec/Lemmas.lean 2 -j4 -Dexperimental.module=true
+    cwd: ../../src
+    cmd: lean --run ../script/benchReelabRss.lean lean Init/Data/BitVec/Lemmas.lean 2 -j4 -Dexperimental.module=true
     max_runs: 2
 - attributes:
     description: import Lean
     tags: [fast]
   run_config:
     <<: *time
-    cmd: lean ../../src/Lean.lean
+    cwd: ../../src
+    cmd: lean Lean.lean
 - attributes:
     description: tests/compiler
     tags: [deterministic, slow]
@@ -145,7 +157,7 @@
         lean --run ${f%.args} $(cat $f)
       done
       '
-    max_runs: 5
+    max_runs: 2
 - attributes:
     description: binarytrees
     tags: [fast, suite]
@@ -191,6 +203,7 @@
       lake -flakefile-clean.lean clean
       lake -flakefile-clean.lean build
       "
+    max_runs: 2
   build_config:
     cmd: |
       bash -c "
@@ -391,6 +404,24 @@
     <<: *time
     cmd: lean simp_arith1.lean
 - attributes:
+    description: simp_bubblesort_256
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean simp_bubblesort_256.lean
+- attributes:
+    description: simp_local
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean simp_local.lean
+- attributes:
+    description: simp_subexpr
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean simp_subexpr.lean
+- attributes:
     description: nat_repr
     tags: [fast, suite]
   run_config:
@@ -412,6 +443,7 @@
   run_config:
     <<: *time
     cmd: lean workspaceSymbols.lean
+    max_runs: 2
 - attributes:
     description: bv_decide_realworld
     tags: [fast]
@@ -430,18 +462,27 @@
   run_config:
     <<: *time
     cmd: lean bv_decide_mod.lean
+    max_runs: 2
 - attributes:
     description: bv_decide_inequality.lean
     tags: [fast]
   run_config:
     <<: *time
     cmd: lean bv_decide_inequality.lean
+    discarded_runs: 1
+    max_runs: 2
 - attributes:
     description: bv_decide_large_aig.lean
     tags: [fast]
   run_config:
     <<: *time
     cmd: lean bv_decide_large_aig.lean
+- attributes:
+    description: bv_decide_rewriter.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean bv_decide_rewriter.lean
 - attributes:
     description: big_do
     tags: [fast]
@@ -481,3 +522,34 @@
   run_config:
     <<: *time
     cmd: lean riscv-ast.lean
+    max_runs: 2
+- attributes:
+    description: iterators
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean iterators.lean
+- attributes:
+    description: workspaceSymbols with new ranges
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean workspaceSymbolsNewRanges.lean
+- attributes:
+    description: hashmap.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./hashmap.lean.out 11 10000
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh hashmap.lean
+- attributes:
+    description: treemap.lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: ./treemap.lean.out 11 10000
+    parse_output: true
+  build_config:
+    cmd: ./compile.sh treemap.lean

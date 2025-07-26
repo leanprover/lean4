@@ -744,7 +744,7 @@ The result may contain subexpressions that have not been reduced.
 
 See `Lean.Meta.whnfImp` for the implementation.
 -/
-@[extern 6 "lean_whnf"] opaque whnf : Expr → MetaM Expr
+@[extern "lean_whnf"] opaque whnf : Expr → MetaM Expr
 /--
 Returns the inferred type of the given expression. Assumes the expression is type-correct.
 
@@ -798,10 +798,10 @@ def e3 : Expr := .app (.const ``Nat.zero []) (.const ``Nat.zero [])
 
 See `Lean.Meta.inferTypeImp` for the implementation of `inferType`.
 -/
-@[extern 6 "lean_infer_type"] opaque inferType : Expr → MetaM Expr
-@[extern 7 "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
-@[extern 7 "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
-@[extern 6 "lean_synth_pending"] protected opaque synthPending : MVarId → MetaM Bool
+@[extern "lean_infer_type"] opaque inferType : Expr → MetaM Expr
+@[extern "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
+@[extern "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
+@[extern "lean_synth_pending"] protected opaque synthPending : MVarId → MetaM Bool
 
 def whnfForall (e : Expr) : MetaM Expr := do
   let e' ← whnf e

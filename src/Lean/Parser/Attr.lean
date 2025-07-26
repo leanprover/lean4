@@ -52,7 +52,7 @@ namespace Attr
 def externEntry := leading_parser
   optional (ident >> ppSpace) >> optional (nonReservedSymbol "inline ") >> strLit
 @[builtin_attr_parser] def extern     := leading_parser
-  nonReservedSymbol "extern" >> optional (ppSpace >> numLit) >> many (ppSpace >> externEntry)
+  nonReservedSymbol "extern" >> many (ppSpace >> externEntry)
 
 /--
 Declare this tactic to be an alias or alternative form of an existing tactic.

@@ -1829,9 +1829,9 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
   When we a new user-defined attribute declaration is imported, `attributeMapRef` is updated.
   Later, we set this method with code that adds the user-defined attributes that were imported after we initialized `attributeExtension`.
 -/
-@[extern 2 "lean_update_env_attributes"] opaque updateEnvAttributes : Environment → IO Environment
+@[extern "lean_update_env_attributes"] opaque updateEnvAttributes : Environment → IO Environment
 /-- "Forward declaration" for retrieving the number of builtin attributes. -/
-@[extern 1 "lean_get_num_attributes"] opaque getNumBuiltinAttributes : IO Nat
+@[extern "lean_get_num_attributes"] opaque getNumBuiltinAttributes : IO Nat
 
 private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
   let exts ← EnvExtension.ensureExtensionsArraySize env.base.private.extensions

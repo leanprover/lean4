@@ -744,10 +744,18 @@ register_builtin_option tactic.customEliminators : Bool := {
 
 -- `optElimId` is of the form `("using" term)?`
 private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool) : TacticM ElimInfo := do
+  let getBaseName? (elimName : Name) : MetaM (Option Name) := do
+    -- not a precise check, but covers the common cases of T.recOn / T.casesOn
+    -- as well as user defined T.myInductionOn to locate the constructors of T
+    let t := elimName.getPrefix
+    if ← isInductive t then
+      return some t
+    else
+      return none
   if optElimId.isNone then
     if tactic.customEliminators.get (← getOptions) then
       if let some elimName ← getCustomEliminator? targets induction then
-        return ← getElimInfo elimName
+        return ← getElimInfo elimName (← getBaseName? elimName)
     unless targets.size == 1 do
       throwError "Eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
     let indVal ← getInductiveValFromMajor induction targets[0]!
@@ -760,14 +768,9 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
   else
     let elimTerm := optElimId[1]
     let elimExpr ← withRef elimTerm do elabTermForElim elimTerm
-    -- not a precise check, but covers the common cases of T.recOn / T.casesOn
-    -- as well as user defined T.myInductionOn to locate the constructors of T
     let baseName? ← do
       let some elimName := elimExpr.getAppFn.constName? | pure none
-      if ← isInductive elimName.getPrefix then
-        pure (some elimName.getPrefix)
-      else
-        pure none
+      getBaseName? elimName
     withRef elimTerm <| getElimExprInfo elimExpr baseName?
 
 private def shouldGeneralizeTarget (e : Expr) : MetaM Bool := do

@@ -75,8 +75,8 @@ def isSplit (declName : Name) : CoreM Bool := do
   return (← getCasesTypes).isSplit declName
 
 partial def isCasesAttrCandidate? (declName : Name) (eager : Bool) : CoreM (Option Name) := do
-  match (← getConstInfo declName) with
-  | .inductInfo info => if !info.isRec || !eager then return some declName else return none
+  match (← isInductive? declName) with
+  | some info => if !info.isRec || !eager then return some declName else return none
   | _ => return none
 
 def isCasesAttrCandidate (declName : Name) (eager : Bool) : CoreM Bool := do

@@ -465,7 +465,7 @@ def EMatchTheorems.find (s : EMatchTheorems) (origin : Origin) : List EMatchTheo
 def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr := do
   if thm.proof.isConst && thm.levelParams.isEmpty then
     let declName := thm.proof.constName!
-    let info ← getConstInfo declName
+    let info ← getConstVal declName
     if info.levelParams.isEmpty then
       return thm.proof
     else
@@ -881,7 +881,7 @@ def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams 
   }
 
 private def getProofFor (declName : Name) : MetaM Expr := do
-  let info ← getConstInfo declName
+  let info ← getConstVal declName
   -- For theorems, `isProp` has already been checked at declaration time
   unless wasOriginallyTheorem (← getEnv) declName do
     unless (← isProp info.type) do

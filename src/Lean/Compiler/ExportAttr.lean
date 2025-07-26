@@ -58,7 +58,7 @@ builtin_initialize exportAttr : ParametricAttribute Name ←
     getParam := fun _ stx => do
       let exportName ← Attribute.Builtin.getId stx
       unless isValidCppName exportName do
-        throwError "invalid 'export' function name, is not a valid C++ identifier"
+        throwError "Invalid `export` function name: `{exportName}` is not a valid C++ identifier"
       return exportName
   }
 

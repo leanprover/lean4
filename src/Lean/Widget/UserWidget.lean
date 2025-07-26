@@ -68,7 +68,7 @@ builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
       applicationTime := .afterCompilation
       add             := fun decl stx kind => Prod.fst <$> MetaM.run do
         Attribute.Builtin.ensureNoArgs stx
-        unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
+        unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
         let e ← mkAppM ``ToModule.toModule #[.const decl []]
         let mod ← evalModule e
         let env ← getEnv

@@ -138,7 +138,7 @@ def addPass (declName : Name) : CoreM Unit := do
     let managerNew ← runFromDecl (← getPassManager) declName
     modifyEnv fun env => passManagerExt.addEntry env (declName, managerNew)
   | _ =>
-    throwError "invalid 'cpass' only 'PassInstaller's can be added via the 'cpass' attribute: {info.type}"
+    throwAttrDeclNotOfExpectedType `cpass declName info.type (mkConst ``PassInstaller)
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -146,7 +146,7 @@ builtin_initialize
     descr := "compiler passes for the code generator"
     add   := fun declName stx kind => do
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute 'cpass', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `cpass kind
       discard <| addPass declName
     applicationTime := .afterCompilation
   }

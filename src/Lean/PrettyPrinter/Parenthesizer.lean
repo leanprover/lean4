@@ -138,7 +138,7 @@ unsafe builtin_initialize parenthesizerAttribute : KeyedDeclsAttribute Parenthes
       -- `isValidSyntaxNodeKind` is updated only in the next stage for new `[builtin*Parser]`s, but we try to
       -- synthesize a parenthesizer for it immediately, so we just check for a declaration in this case
       unless (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id do
-        throwError "invalid [parenthesizer] argument, unknown syntax kind '{id}'"
+        throwError "Invalid `[parenthesizer]` argument: Unknown syntax kind `{id}`"
       if (← getEnv).contains id && (← Elab.getInfoState).enabled then
         Elab.addConstInfo stx id none
       pure id
@@ -167,7 +167,7 @@ unsafe builtin_initialize categoryParenthesizerAttribute : KeyedDeclsAttribute C
       let stx ← Attribute.Builtin.getIdent stx
       let id := stx.getId
       let some cat := (Parser.parserExtension.getState env).categories.find? id
-        | throwError "invalid [category_parenthesizer] argument, unknown parser category '{toString id}'"
+        | throwError "Invalid `[category_parenthesizer]` argument: Unknown parser category `{toString id}`"
       if (← Elab.getInfoState).enabled && (← getEnv).contains cat.declName then
         Elab.addConstInfo stx cat.declName none
       pure id

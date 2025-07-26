@@ -92,9 +92,10 @@ builtin_initialize
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
-      unless (← getConstInfo decl).type.isConstOf ``CodeActionProvider do
-        throwError "invalid attribute '{name}', must be of type `Lean.Server.CodeActionProvider`"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
+      let declType := (← getConstInfo decl).type
+      unless declType.isConstOf ``CodeActionProvider do
+        throwAttrDeclNotOfExpectedType name decl declType (mkConst ``Lean.Server.CodeActionProvider)
       let env ← getEnv
       if builtin then
         let h := mkConst decl

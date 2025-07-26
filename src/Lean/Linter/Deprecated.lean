@@ -31,7 +31,7 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
     descr := "mark declaration as deprecated",
     getParam := fun _ stx => do
       let `(attr| deprecated $[$id?]? $[$text?]? $[(since := $since?)]?) := stx
-        | throwError "invalid `[deprecated]` attribute"
+        | throwError "Invalid `[deprecated]` attribute syntax"
       let newName? ← id?.mapM Elab.realizeGlobalConstNoOverloadWithInfo
       let text? := text?.map TSyntax.getString
       let since? := since?.map TSyntax.getString

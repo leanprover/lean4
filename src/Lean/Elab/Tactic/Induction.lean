@@ -389,7 +389,7 @@ where
     goWithIncremental #[]
 
   -- continuation in the correct incrementality context
-  goWithIncremental (tacSnaps : Array (SnapshotBundle TacticParsedSnapshot)) : TacticM (List MVarId) := do
+  goWithIncremental (tacSnaps : Array (SnapshotBundle TacticParsedSnapshot)) : TacticM (List MVarId) := withRef tacStx do
     let hasAlts := altStxs?.isSome
     let altStxs := altStxs?.getD #[]
     let mut alts := alts

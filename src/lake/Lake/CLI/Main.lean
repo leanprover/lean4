@@ -541,35 +541,10 @@ private def evalLeanFile
   (ws : Workspace) (leanFile : FilePath)
   (moreArgs : Array String := #[]) (buildConfig : BuildConfig := {})
 : LoggerIO UInt32 := do
-  let some path ← resolvePath? leanFile
-    | error s!"file not found: {leanFile}"
-  let args ← do
-    if let some mod := ws.findModuleBySrc? path then
-      let setup ← ws.runBuild (cfg := buildConfig) do
-        withRegisterJob s!"{mod.name}:setup" do mod.setup.fetch
-      mkArgs path setup mod.leanArgs
-    else
-      let header ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
-      let setup ← ws.runBuild (cfg := buildConfig) do
-        setupExternalModule leanFile.toString header ws.leanOptions
-      mkArgs path setup ws.root.moreLeanArgs
-  let spawnArgs : IO.Process.SpawnArgs := {
-    args := args ++ moreArgs
-    cmd := ws.lakeEnv.lean.lean.toString
-    env := ws.augmentedEnvVars
-  }
-  logVerbose (mkCmdLog spawnArgs)
+  let spawnArgs ← ws.runBuild (cfg := buildConfig) do
+    prepareLeanCommand leanFile moreArgs
   let child ← IO.Process.spawn spawnArgs
   child.wait
-where
-  mkArgs leanFile setup cfgArgs := do
-    let args := cfgArgs.push leanFile.toString
-    let (h, setupFile) ← IO.FS.createTempFile
-    let contents := (toJson setup).compress
-    logVerbose s!"module setup: {contents}"
-    h.putStr contents
-    let args := args ++ #["--setup", setupFile.toString]
-    return args
 
 protected def lean : CliM PUnit := do
   processOptions lakeOption

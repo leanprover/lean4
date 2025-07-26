@@ -8,7 +8,7 @@ import Lake.Config.Context
 import Lake.Config.Workspace
 
 open System
-open Lean (Name NameMap)
+open Lean (Name NameMap LeanOptions)
 
 /-! # Lake Configuration Monads
 Definitions and helpers for interacting with the Lake configuration monads.
@@ -82,6 +82,10 @@ def findPackage? (name : Name) : m (Option (NPackage name)) :=
 def findModule? (name : Name) : m (Option Module) :=
   (·.findModule? name) <$> getWorkspace
 
+@[inherit_doc Workspace.findModuleBySrc?, inline]
+def findModuleBySrc? (path : FilePath) : m (Option Module) :=
+  (·.findModuleBySrc? path) <$> getWorkspace
+
 @[inherit_doc Workspace.findLeanExe?, inline]
 def findLeanExe? (name : Name) : m (Option LeanExe) :=
   (·.findLeanExe? name) <$> getWorkspace
@@ -93,6 +97,18 @@ def findLeanLib? (name : Name) : m (Option LeanLib) :=
 @[inherit_doc Workspace.findExternLib?, inline]
 def findExternLib? (name : Name) : m (Option ExternLib) :=
   (·.findExternLib? name) <$> getWorkspace
+
+@[inherit_doc Workspace.serverOptions, inline]
+def getServerOptions : m LeanOptions :=
+  (·.serverOptions) <$> getWorkspace
+
+@[inherit_doc Workspace.leanOptions, inline]
+def getLeanOptions : m LeanOptions :=
+  (·.leanOptions) <$> getWorkspace
+
+@[inherit_doc Workspace.leanArgs, inline]
+def getLeanArgs : m (Array String) :=
+  (·.leanArgs) <$> getWorkspace
 
 /-- Get the paths added to `LEAN_PATH` by the context's workspace. -/
 @[inline] def getLeanPath : m SearchPath :=

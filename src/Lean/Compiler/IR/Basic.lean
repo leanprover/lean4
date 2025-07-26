@@ -468,9 +468,9 @@ def VarId.alphaEqv (ρ : IndexRenaming) (v₁ v₂ : VarId) : Bool :=
 instance : AlphaEqv VarId := ⟨VarId.alphaEqv⟩
 
 def Arg.alphaEqv (ρ : IndexRenaming) : Arg → Arg → Bool
-  | Arg.var v₁,     Arg.var v₂     => aeqv ρ v₁ v₂
-  | Arg.erased,     Arg.erased     => true
-  | _,              _              => false
+  | .var v₁,     .var v₂     => aeqv ρ v₁ v₂
+  | .erased,     .erased     => true
+  | _,           _           => false
 
 instance : AlphaEqv Arg := ⟨Arg.alphaEqv⟩
 

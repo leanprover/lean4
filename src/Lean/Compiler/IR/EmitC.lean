@@ -542,7 +542,7 @@ def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
 def isTailCall (x : VarId) (v : Expr) (b : FnBody) : M Bool := do
   let ctx ← read;
   match v, b with
-  | Expr.fap f _, FnBody.ret (Arg.var y) => return f == ctx.mainFn && x == y
+  | Expr.fap f _, FnBody.ret (.var y) => return f == ctx.mainFn && x == y
   | _, _ => pure false
 
 def paramEqArg (p : Param) (x : Arg) : Bool :=

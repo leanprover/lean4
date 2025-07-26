@@ -88,8 +88,8 @@ private def isBorrowParamAux (x : VarId) (ys : Array Arg) (consumeParamPred : Na
   ys.size.any fun i _ =>
     let y := ys[i]
     match y with
-    | Arg.erased => false
-    | Arg.var y  => x == y && !consumeParamPred i
+    | .erased => false
+    | .var y  => x == y && !consumeParamPred i
 
 private def isBorrowParam (x : VarId) (ys : Array Arg) (ps : Array Param) : Bool :=
   isBorrowParamAux x ys fun i => ! ps[i]!.borrow
@@ -103,15 +103,15 @@ private def getNumConsumptions (x : VarId) (ys : Array Arg) (consumeParamPred : 
   ys.size.fold (init := 0) fun i _ n =>
     let y := ys[i]
     match y with
-    | Arg.erased => n
-    | Arg.var y  => if x == y && consumeParamPred i then n+1 else n
+    | .erased => n
+    | .var y  => if x == y && consumeParamPred i then n+1 else n
 
 private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred : Nat → Bool) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
   xs.size.fold (init := b) fun i _ b =>
     let x := xs[i]
     match x with
-    | Arg.erased => b
-    | Arg.var x =>
+    | .erased => b
+    | .var x =>
       let info := getVarInfo ctx x
       if !info.type.isPossibleRef || !isFirstOcc xs i then b
       else
@@ -131,8 +131,8 @@ private def addIncBefore (ctx : Context) (xs : Array Arg) (ps : Array Param) (b 
 private def addDecAfterFullApp (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
 xs.size.fold (init := b) fun i _ b =>
   match xs[i] with
-  | Arg.erased => b
-  | Arg.var x  =>
+  | .erased => b
+  | .var x  =>
     /- We must add a `dec` if `x` must be consumed, it is alive after the application,
        and it has been borrowed by the application.
        Remark: `x` may occur multiple times in the application (e.g., `f x y x`).
@@ -203,7 +203,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
       addIncBefore ctx ys ps b bLiveVars
     | (Expr.pap _ ys)        => addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
     | (Expr.ap x ys)         =>
-      let ysx := ys.push (Arg.var x) -- TODO: avoid temporary array allocation
+      let ysx := ys.push (.var x) -- TODO: avoid temporary array allocation
       addIncBeforeConsumeAll ctx ysx (FnBody.vdecl z t v b) bLiveVars
     | (Expr.unbox x)         => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
     | _                      => FnBody.vdecl z t v b  -- Expr.reset, Expr.box, Expr.lit are handled here
@@ -259,10 +259,10 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
     (FnBody.case tid x xType alts, caseLiveVars)
   | b@(FnBody.ret x), ctx =>
     match x with
-    | Arg.var x =>
+    | .var x =>
       let info := getVarInfo ctx x
       if info.type.isPossibleRef && !info.consume then (addInc ctx x b, mkLiveVarSet x) else (b, mkLiveVarSet x)
-    | _         => (b, {})
+    | .erased => (b, {})
   | b@(FnBody.jmp j xs), ctx =>
     let jLiveVars := getJPLiveVars ctx j
     let ps        := getJPParams ctx j

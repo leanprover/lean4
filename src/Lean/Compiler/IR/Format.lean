@@ -14,8 +14,8 @@ namespace Lean
 namespace IR
 
 private def formatArg : Arg → Format
-  | Arg.var id => format id
-  | Arg.erased => "◾"
+  | .var id => format id
+  | .erased => "◾"
 
 instance : ToFormat Arg := ⟨private_decl% formatArg⟩
 

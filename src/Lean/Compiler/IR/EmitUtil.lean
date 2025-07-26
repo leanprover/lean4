@@ -17,7 +17,7 @@ namespace Lean.IR
 /-- Return true iff `b` is of the form `let x := g ys; ret x` -/
 def isTailCallTo (g : Name) (b : FnBody) : Bool :=
   match b with
-  | FnBody.vdecl x _ (Expr.fap f _) (FnBody.ret (Arg.var y)) => x == y && f == g
+  | FnBody.vdecl x _ (Expr.fap f _) (FnBody.ret (.var y)) => x == y && f == g
   | _  => false
 
 def usesModuleFrom (env : Environment) (modulePrefix : Name) : Bool :=

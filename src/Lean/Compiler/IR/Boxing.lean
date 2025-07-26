@@ -52,18 +52,18 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
     let p := ps[i]!
     let q := qs[i]
     if !p.ty.isScalar then
-      pure (newVDecls, xs.push (Arg.var q.x))
+      pure (newVDecls, xs.push (.var q.x))
     else
       let x ← N.mkFresh
-      pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) default), xs.push (Arg.var x))
+      pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) default), xs.push (.var x))
   let r ← N.mkFresh
   let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) default)
   let body ← if !decl.resultType.isScalar then
-    pure <| reshape newVDecls (FnBody.ret (Arg.var r))
+    pure <| reshape newVDecls (FnBody.ret (.var r))
   else
     let newR ← N.mkFresh
     let newVDecls := newVDecls.push (FnBody.vdecl newR .tobject (Expr.box decl.resultType r) default)
-    pure <| reshape newVDecls (FnBody.ret (Arg.var newR))
+    pure <| reshape newVDecls (FnBody.ret (.var newR))
   return Decl.fdecl (mkBoxedName decl.name) qs decl.resultType.boxed body decl.getInfo
 
 def mkBoxedVersion (decl : Decl) : Decl :=
@@ -222,17 +222,17 @@ def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Arr
   for x in xs do
     let expected := typeFromIdx i
     match x with
-    | Arg.erased =>
+    | .erased =>
       xs' := xs'.push x
-    | Arg.var x =>
+    | .var x =>
       let xType ← getVarType x
       if eqvTypes xType expected then
-        xs' := xs'.push (Arg.var x)
+        xs' := xs'.push (.var x)
       else
         let y ← M.mkFresh
         let v ← mkCast x xType expected
         let b := FnBody.vdecl y expected v FnBody.nil
-        xs' := xs'.push (Arg.var y)
+        xs' := xs'.push (.var y)
         bs := bs.push b
     i := i + 1
   return (xs', bs)

@@ -3426,6 +3426,7 @@ x_39 = lean_ctor_get(x_37, 1);
 lean_inc(x_39);
 lean_dec_ref(x_37);
 x_40 = l_Lean_Meta_Grind_getGeneration___redArg(x_2, x_18, x_39);
+lean_dec_ref(x_2);
 x_41 = !lean_is_exclusive(x_40);
 if (x_41 == 0)
 {

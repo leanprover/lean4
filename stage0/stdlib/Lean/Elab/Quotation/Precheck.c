@@ -4321,6 +4321,7 @@ x_60 = l_Lean_Elab_Term_Quotation_precheck___closed__6;
 lean_inc(x_1);
 x_61 = l_Lean_Syntax_getKind(x_1);
 x_62 = l_Lean_KeyedDeclsAttribute_getValues___redArg(x_60, x_59, x_61);
+lean_dec(x_61);
 if (lean_obj_tag(x_62) == 0)
 {
 x_14 = x_2;

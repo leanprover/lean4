@@ -1040,7 +1040,6 @@ x_10 = lean_ctor_get(x_7, 1);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_11);
 lean_dec(x_9);
-lean_inc(x_2);
 x_12 = l_Lean_KeyedDeclsAttribute_getValues___redArg(x_1, x_11, x_2);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -1208,7 +1207,6 @@ lean_dec(x_7);
 x_50 = lean_ctor_get(x_48, 0);
 lean_inc_ref(x_50);
 lean_dec(x_48);
-lean_inc(x_2);
 x_51 = l_Lean_KeyedDeclsAttribute_getValues___redArg(x_1, x_50, x_2);
 if (lean_obj_tag(x_51) == 0)
 {

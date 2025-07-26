@@ -125,7 +125,6 @@ static lean_object* l_Lean_Meta_LazyDiscrTree_addConstImportData___redArg___clos
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_Meta_LazyDiscrTree_logImportFailure___at___Lean_Meta_LazyDiscrTree_createModuleDiscrTree_spec__0_spec__0_spec__0_spec__0_spec__0___closed__7;
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_MatchClone_elimLooseBVarsByBeta___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_createImportedDiscrTree___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_LazyDiscrTree_addConstImportData___redArg___closed__17;
 lean_object* l_Lean_Expr_sort___override(lean_object*);
@@ -367,6 +366,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_pushRootCase(lean_object*, le
 lean_object* l_Lean_Meta_Match_MatcherInfo_getFirstDiscrPos(lean_object*);
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_Meta_LazyDiscrTree_logImportFailure___at___Lean_Meta_LazyDiscrTree_createImportedDiscrTree___at___Lean_Meta_LazyDiscrTree_findImportMatches_spec__0_spec__0_spec__0_spec__0_spec__0___lam__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_instInhabitedPreDiscrTree(lean_object*);
+lean_object* l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at___Lean_Meta_LazyDiscrTree_MatchResult_appendResultsAux___at___Lean_Meta_LazyDiscrTree_findMatchesExt_spec__0_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_MatchResult_appendResults___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_LazyDiscrTree_MatchClone_getKeyArgs___closed__18;
@@ -6272,7 +6272,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_LazyDiscrTree_MatchClone_getKeyArgs___closed__3;
-x_2 = l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg(x_1);
+x_2 = lean_alloc_closure((void*)(l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }

@@ -1423,7 +1423,7 @@ static lean_object* _init_l_Lean_Linter_initFn___lam__2___closed__6____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid `[deprecated]` attribute", 32, 32);
+x_1 = lean_mk_string_unchecked("Invalid `[deprecated]` attribute syntax", 39, 39);
 return x_1;
 }
 }

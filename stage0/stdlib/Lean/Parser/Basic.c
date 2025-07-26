@@ -810,7 +810,6 @@ LEAN_EXPORT lean_object* l_Subarray_findSomeRevM_x3f_find___at_____private_Lean_
 static lean_object* l_Lean_Parser_errorAtSavedPos___closed__0;
 static lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_lookahead___regBuiltin_Lean_Parser_lookahead_docString__1___closed__1;
 static lean_object* l_Lean_Parser_mkAntiquotSplice___closed__2;
-lean_object* l_Pi_instInhabited___redArg(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_eoiFn(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_tokenAntiquotFn___closed__0;
@@ -839,6 +838,7 @@ LEAN_EXPORT lean_object* l_Subarray_findSomeRevM_x3f_find___at_____private_Lean_
 LEAN_EXPORT lean_object* l_Lean_Parser_hexDigitFn(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_mkAntiquot___regBuiltin_Lean_Parser_mkAntiquot_docString__1___closed__1;
 static lean_object* l_Lean_Parser_identFn___closed__0;
+lean_object* l_Pi_instInhabited___redArg___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_eoi___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Parser_anyOfFn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_foldArgs___redArg(lean_object*, lean_object*, lean_object*);
@@ -15901,7 +15901,8 @@ lean_dec_ref(x_4);
 x_6 = l_Lean_Parser_categoryParserFn___closed__0;
 x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*3);
 x_8 = lean_alloc_closure((void*)(l_Lean_Parser_categoryParserFn___lam__0___boxed), 3, 0);
-x_9 = l_Pi_instInhabited___redArg(x_8);
+x_9 = lean_alloc_closure((void*)(l_Pi_instInhabited___redArg___lam__0), 2, 1);
+lean_closure_set(x_9, 0, x_8);
 x_10 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_9, x_6, x_5, x_7);
 x_11 = lean_apply_3(x_10, x_1, x_2, x_3);
 return x_11;

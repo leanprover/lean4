@@ -19444,6 +19444,7 @@ lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
 x_56 = l_Lean_Meta_PProdN_projM(x_53, x_54, x_55, x_9, x_10, x_11, x_12, x_28);
+lean_dec(x_54);
 lean_dec(x_53);
 if (lean_obj_tag(x_56) == 0)
 {

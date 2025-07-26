@@ -38,6 +38,7 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at__
 static lean_object* l_Lean_Linter_List_initFn___closed__6____x40_Lean_Linter_List___hyg_8_;
 LEAN_EXPORT lean_object* l_Lean_Linter_List_bitVecWidths___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_List_allowedListNames___closed__23;
+LEAN_EXPORT lean_object* l___private_Lean_Linter_List_0__Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_3066_(lean_object*);
 lean_object* l_Lean_Elab_Command_getScope___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_Elab_InfoTree_foldInfoM_go___at___Lean_Elab_InfoTree_foldInfoM___at___Lean_Elab_InfoTree_collectTermInfoM___at___Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_List_numericalIndices___lam__2___closed__42;
@@ -149,7 +150,6 @@ static lean_object* l_Lean_Linter_List_allowedListNames___closed__18;
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Linter_List_indexLinter_spec__11_spec__11___redArg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_Elab_InfoTree_foldInfoM_go___at___Lean_Elab_InfoTree_foldInfoM___at___Lean_Elab_InfoTree_collectTermInfoM___at___Lean_Linter_List_binders_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_4589_(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at___Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_List_indexLinter_spec__2_spec__2_spec__2___lam__0___closed__0;
@@ -256,7 +256,6 @@ lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_getInfoTrees___at___Lean_Linter_List_indexLinter_spec__0___redArg(lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_List_numericalWidths___lam__1___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_3066_(lean_object*);
 static lean_object* l_Lean_Linter_List_initFn___closed__8____x40_Lean_Linter_List___hyg_8_;
 LEAN_EXPORT lean_object* l_Lean_Elab_getInfoTrees___at___Lean_Linter_List_indexLinter_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_List_initFn___closed__4____x40_Lean_Linter_List___hyg_47_;
@@ -378,6 +377,7 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at__
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Linter_List_0__Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_4589_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_List_numericalIndices___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Linter_List_indexLinter_spec__13_spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Linter_List_indexLinter_spec__9_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7910,7 +7910,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_3066_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Linter_List_0__Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_3066_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -12866,7 +12866,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_4589_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Linter_List_0__Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_4589_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -13200,7 +13200,7 @@ l_Lean_Linter_List_indexLinter___closed__1 = _init_l_Lean_Linter_List_indexLinte
 lean_mark_persistent(l_Lean_Linter_List_indexLinter___closed__1);
 l_Lean_Linter_List_indexLinter = _init_l_Lean_Linter_List_indexLinter();
 lean_mark_persistent(l_Lean_Linter_List_indexLinter);
-if (builtin) {res = l_Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_3066_(lean_io_mk_world());
+if (builtin) {res = l___private_Lean_Linter_List_0__Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_3066_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }l_Lean_Linter_List_allowedListNames___closed__0 = _init_l_Lean_Linter_List_allowedListNames___closed__0();
@@ -13299,7 +13299,7 @@ l_Lean_Linter_List_listVariablesLinter___closed__1 = _init_l_Lean_Linter_List_li
 lean_mark_persistent(l_Lean_Linter_List_listVariablesLinter___closed__1);
 l_Lean_Linter_List_listVariablesLinter = _init_l_Lean_Linter_List_listVariablesLinter();
 lean_mark_persistent(l_Lean_Linter_List_listVariablesLinter);
-if (builtin) {res = l_Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_4589_(lean_io_mk_world());
+if (builtin) {res = l___private_Lean_Linter_List_0__Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_4589_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

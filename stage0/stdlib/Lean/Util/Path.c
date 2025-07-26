@@ -29,6 +29,7 @@ static lean_object* l_Lean_findLean___closed__0;
 lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_SearchPath_findAllWithExt_spec__0___boxed(lean_object*, lean_object*);
 lean_object* l_System_FilePath_normalize(lean_object*);
+lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_modToFilePath_go___closed__0;
 LEAN_EXPORT lean_object* l_List_findM_x3f___at___Lean_SearchPath_findWithExt_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initSearchPath___closed__0;
@@ -86,7 +87,6 @@ LEAN_EXPORT lean_object* l_Lean_getSrcSearchPath(lean_object*);
 lean_object* l_System_FilePath_components(lean_object*);
 lean_object* l_System_FilePath_parent(lean_object*);
 static lean_object* l_Lean_getBuildDir___closed__0;
-lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 lean_object* l_Lean_Name_getRoot(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SearchPath_findModuleWithExt___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getBuildDir___closed__2;
@@ -237,7 +237,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_alloc_closure((void*)(l_instDecidableEqString___boxed), 2, 0);
-x_2 = l_instBEqOfDecidableEq___redArg(x_1);
+x_2 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }

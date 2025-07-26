@@ -24,6 +24,7 @@ lean_object* l_Lean_Elab_Mutual_cleanPreDef(lean_object*, uint8_t, lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_partialFixpoint_spec__27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__22___redArg___closed__1;
 lean_object* l_Lean_Elab_Term_logUnassignedUsingErrorInfos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__18____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__22___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_partialFixpoint___closed__3;
 extern lean_object* l_Lean_Elab_instInhabitedPreDefinition;
@@ -39,14 +40,15 @@ LEAN_EXPORT lean_object* l_Lean_setEnv___at___Lean_withEnv___at___Lean_Elab_part
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Elab_partialFixpoint_spec__17___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___redArg___boxed(lean_object**);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__2____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_mkMonoPProd___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Elab_partialFixpoint_spec__20_spec__20___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Mutual_addPreDefAttributes(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Elab_partialFixpoint_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at___Lean_withEnv___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__6_spec__6___redArg___closed__0;
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__22____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 static lean_object* l_panic___at___Lean_Elab_partialFixpoint_spec__33___closed__0;
-static lean_object* l_initFn___closed__10____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 lean_object* l_Array_reverse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_partialFixpoint_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -62,6 +64,7 @@ uint8_t l_Array_isEmpty___redArg(lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__9;
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_FixedParamPerm_forallTelescope___at___Lean_Elab_partialFixpoint_spec__32___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__16____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_filterMapM___at___Lean_Elab_partialFixpoint_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaBoundedTelescope___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__4___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isApp(lean_object*);
@@ -77,7 +80,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_par
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___Lean_Elab_partialFixpoint_spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__20;
 lean_object* l_Lean_getRecAppSyntax_x3f(lean_object*);
-static lean_object* l_initFn___closed__6____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_partialFixpoint_spec__27___redArg(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -97,13 +99,13 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_partialFixpoint
 lean_object* l_Lean_Meta_toPartialOrder(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclD___at___Lean_Elab_partialFixpoint_spec__20(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at___Lean_withEnv___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__6_spec__6___redArg___closed__4;
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__8____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Lean_Elab_partialFixpoint___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_addAndCompilePartialRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__16;
 LEAN_EXPORT lean_object* l_Lean_withoutExporting___at___Lean_Elab_partialFixpoint_spec__23___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_FixedParamPerm_forallTelescope___at___Lean_Elab_partialFixpoint_spec__32(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps___lam__0___closed__1;
-static lean_object* l_initFn___closed__2____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Elab_partialFixpoint_spec__17___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Elab_partialFixpoint_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___redArg(lean_object*, lean_object*);
@@ -112,24 +114,31 @@ LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_partialFixpoint_spec__2___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__21____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___boxed(lean_object**);
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__1___closed__7;
 LEAN_EXPORT lean_object* l_Array_finIdxOf_x3f___at___Array_idxOf_x3f___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps_spec__1_spec__1___boxed(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__20____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__4____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___Lean_Elab_partialFixpoint_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__28___redArg___boxed(lean_object**);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__5____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 lean_object* l_Lean_Elab_Term_instInhabitedTermElabM(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__15___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__9____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Array_idxOf_x3f___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Elab_partialFixpoint_spec__20_spec__20___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Lean_Elab_partialFixpoint_spec__34(lean_object*, lean_object*, size_t, size_t);
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_mkMonoPProd___closed__8;
 lean_object* l_Lean_Elab_PartialFixpoint_registerEqnsInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_ofNat(lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__15____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__8___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutExporting___at___Lean_Elab_partialFixpoint_spec__23___redArg___lam__0(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__11____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___redArg___closed__3;
 lean_object* l_Lean_Elab_Term_elabTermEnsuringType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
@@ -148,8 +157,10 @@ LEAN_EXPORT lean_object* l_Lean_addTrace___at___Lean_Elab_partialFixpoint_spec__
 static lean_object* l_Lean_setEnv___at___Lean_withEnv___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__6_spec__6___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__8_spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__14____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_partialFixpoint_spec__5_spec__5_spec__6___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__28_spec__28___redArg___lam__0___boxed(lean_object**);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__12____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_partialFixpoint_spec__30(uint8_t, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_partialFixpoint___lam__3___closed__3;
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__1___closed__2;
@@ -159,6 +170,7 @@ LEAN_EXPORT uint8_t l_Lean_Option_get___at___Lean_Elab_addMacroStack___at___Lean
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__10;
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__4;
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__17____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 lean_object* l_Lean_Meta_mkPackedPPRodInstance(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__1___closed__10;
 lean_object* lean_replace_expr(lean_object*, lean_object*);
@@ -166,9 +178,9 @@ static lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_mkMonoPProd___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_partialFixpoint___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_partialFixpoint___lam__1___closed__13;
-static lean_object* l_initFn___closed__12____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_partialFixpoint___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_partialFixpoint___lam__1___closed__4;
@@ -188,7 +200,6 @@ lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_setEnv___at___Lean_withEnv___at___Lean_Elab_partialFixpoint_spec__18_spec__18___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_initFn___closed__14____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Elab_partialFixpoint_spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withEnv___at___Lean_Elab_partialFixpoint_spec__18___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -210,7 +221,6 @@ LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at
 lean_object* l_Lean_Meta_mkAppM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__28(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps___closed__0;
-static lean_object* l_initFn___closed__7____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Lean_Elab_partialFixpoint_spec__35(lean_object*, uint8_t, lean_object*, size_t, size_t);
@@ -249,7 +259,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_____private_Lean_Elab_
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaBoundedTelescope___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__22___redArg___boxed(lean_object**);
 static lean_object* l_Lean_Elab_partialFixpoint___lam__1___closed__0;
-static lean_object* l_initFn___closed__11____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 lean_object* l_Lean_Meta_mapErrorImp___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -266,7 +275,6 @@ LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_partialFixpoint___lam__3___closed__0;
 extern lean_object* l_Lean_Elab_instInhabitedPartialFixpoint;
-static lean_object* l_initFn___closed__1____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 static lean_object* l_Lean_Elab_partialFixpoint___lam__1___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_partialFixpoint_spec__12(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_partialFixpoint___lam__4___boxed(lean_object*);
@@ -275,7 +283,6 @@ LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaBoundedTelescope___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Elab_partialFixpoint_spec__24___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at___Lean_withEnv___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__6_spec__6___redArg___closed__5;
-static lean_object* l_initFn___closed__9____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_mkMonoPProd___closed__5;
 lean_object* l_Lean_Meta_mkInstPiOfInstForall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_partialFixpoint_spec__5_spec__5_spec__6___closed__2;
@@ -295,7 +302,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___Lean_Elab_partialFix
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__28___boxed(lean_object**);
-static lean_object* l_initFn___closed__5____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 lean_object* l_Lean_Core_betaReduce(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__5___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___Lean_Elab_partialFixpoint_spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -311,9 +317,11 @@ static lean_object* l_Lean_Elab_partialFixpoint___lam__1___closed__10;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25___redArg___boxed(lean_object**);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lean_Elab_partialFixpoint_spec__35___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__10____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 static lean_object* l_Lean_Elab_partialFixpoint___closed__2;
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_mkMonoPProd___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__0____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 lean_object* l___private_Lean_Elab_PreDefinition_FixedParams_0__Lean_Elab_FixedParamPerm_forallTelescopeImpl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__14;
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___redArg___closed__5;
@@ -322,6 +330,7 @@ static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Elab_partialFixpoint_spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withEnv___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_FixedParamPerm_pickVarying___redArg(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__3____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_partialFixpoint_spec__5_spec__5___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__12;
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -337,6 +346,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at__
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___redArg___closed__0;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__19____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__22___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -376,7 +386,6 @@ LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint
 uint8_t l_Lean_Expr_isProp(lean_object*);
 static lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_partialFixpoint_spec__5_spec__5___redArg___closed__2;
 lean_object* l_Lean_Meta_PProdN_mk(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_initFn___closed__13____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__0(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps_spec__0___closed__0;
@@ -391,8 +400,8 @@ static lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec
 LEAN_EXPORT lean_object* l_Array_filterMapM___at___Lean_Elab_partialFixpoint_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__19;
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__0;
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__6____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_panic___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_initFn___closed__8____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Elab_partialFixpoint_spec__17(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static double l_Lean_addTrace___at___Lean_Elab_partialFixpoint_spec__4___redArg___closed__0;
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__1___closed__15;
@@ -408,7 +417,6 @@ lean_object* l_Lean_Level_param___override(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_Meta_getMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_initFn___closed__4____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps___redArg___closed__1;
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_filterMapM___at___Lean_Elab_partialFixpoint_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -436,6 +444,7 @@ static lean_object* l_Lean_addTrace___at___Lean_Elab_partialFixpoint_spec__4___r
 lean_object* l_Lean_Meta_Monotonicity_solveMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__13____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Elab_partialFixpoint_spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -444,7 +453,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Elab_partialFixpoint_spec
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_mkMonoPProd___closed__0;
 uint8_t lean_usize_dec_lt(size_t, size_t);
-static lean_object* l_initFn___closed__3____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Elab_partialFixpoint_spec__24(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__1___closed__13;
 LEAN_EXPORT lean_object* l_Array_finIdxOf_x3f___at___Array_idxOf_x3f___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps_spec__1_spec__1(lean_object*, lean_object*);
@@ -452,6 +460,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_partialFixpoint___lam__3___boxed(lean_objec
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Elab_partialFixpoint_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__7____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 uint8_t l_Lean_Expr_isConst(lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___Lean_Elab_partialFixpoint_spec__9(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -471,8 +480,8 @@ static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__11;
 static lean_object* l_Lean_Elab_partialFixpoint___lam__1___closed__11;
 LEAN_EXPORT lean_object* l_Lean_setEnv___at___Lean_withEnv___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__6_spec__6___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__1____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_partialFixpoint___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_partialFixpoint___lam__1___closed__6;
 lean_object* l_ReaderT_instMonadLift___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -484,7 +493,6 @@ static lean_object* l_Lean_Elab_partialFixpoint___lam__3___closed__5;
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_idxOfAux___at___Array_finIdxOf_x3f___at___Array_idxOf_x3f___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
-static lean_object* l_initFn___closed__0____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps___closed__3;
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___redArg___closed__7;
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__7;
@@ -660,6 +668,7 @@ x_23 = l_Lean_Elab_FixedParamPerm_pickVarying___redArg(x_22, x_20);
 lean_dec_ref(x_20);
 lean_dec_ref(x_22);
 x_24 = l_Lean_Meta_PProdN_proj(x_3, x_14, x_4, x_5);
+lean_dec(x_14);
 x_25 = l_Lean_mkAppN(x_24, x_23);
 lean_dec_ref(x_23);
 lean_ctor_set(x_11, 0, x_25);
@@ -685,6 +694,7 @@ x_35 = l_Lean_Elab_FixedParamPerm_pickVarying___redArg(x_34, x_32);
 lean_dec_ref(x_32);
 lean_dec_ref(x_34);
 x_36 = l_Lean_Meta_PProdN_proj(x_3, x_26, x_4, x_5);
+lean_dec(x_26);
 x_37 = l_Lean_mkAppN(x_36, x_35);
 lean_dec_ref(x_35);
 x_38 = lean_alloc_ctor(1, 1, 0);
@@ -14663,6 +14673,7 @@ lean_dec(x_20);
 lean_dec_ref(x_19);
 lean_dec_ref(x_18);
 lean_dec_ref(x_17);
+lean_dec(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_1);
 return x_30;
@@ -14932,63 +14943,45 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_initFn___closed__0____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__0____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("initFn", 6, 6);
+x_1 = lean_mk_string_unchecked("_private", 8, 8);
 return x_1;
 }
 }
-static lean_object* _init_l_initFn___closed__1____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__1____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_initFn___closed__0____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__0____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 x_2 = lean_box(0);
 x_3 = l_Lean_Name_str___override(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_initFn___closed__2____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("_@", 2, 2);
-return x_1;
-}
-}
-static lean_object* _init_l_initFn___closed__3____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_initFn___closed__2____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
-x_2 = l_initFn___closed__1____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
-x_3 = l_Lean_Name_str___override(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_initFn___closed__4____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__2____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_mkMonoPProd___closed__2;
-x_2 = l_initFn___closed__3____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__1____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 x_3 = l_Lean_Name_str___override(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_initFn___closed__5____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__3____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__7;
-x_2 = l_initFn___closed__4____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__2____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 x_3 = l_Lean_Name_str___override(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_initFn___closed__6____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__4____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
 _start:
 {
 lean_object* x_1; 
@@ -14996,17 +14989,17 @@ x_1 = lean_mk_string_unchecked("PreDefinition", 13, 13);
 return x_1;
 }
 }
-static lean_object* _init_l_initFn___closed__7____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__5____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_initFn___closed__6____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
-x_2 = l_initFn___closed__5____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__4____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__3____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 x_3 = l_Lean_Name_str___override(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_initFn___closed__8____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__6____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
 _start:
 {
 lean_object* x_1; 
@@ -15014,17 +15007,17 @@ x_1 = lean_mk_string_unchecked("PartialFixpoint", 15, 15);
 return x_1;
 }
 }
-static lean_object* _init_l_initFn___closed__9____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__7____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_initFn___closed__8____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
-x_2 = l_initFn___closed__7____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__6____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__5____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 x_3 = l_Lean_Name_str___override(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_initFn___closed__10____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__8____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
 _start:
 {
 lean_object* x_1; 
@@ -15032,17 +15025,113 @@ x_1 = lean_mk_string_unchecked("Main", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_initFn___closed__11____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__9____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_initFn___closed__10____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
-x_2 = l_initFn___closed__9____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__8____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__7____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 x_3 = l_Lean_Name_str___override(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_initFn___closed__12____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__10____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__9____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_3 = l_Lean_Name_num___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__11____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("initFn", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__12____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__11____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__10____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_3 = l_Lean_Name_str___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__13____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("_@", 2, 2);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__14____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__13____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__12____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_3 = l_Lean_Name_str___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__15____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_mkMonoPProd___closed__2;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__14____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_3 = l_Lean_Name_str___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__16____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__7;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__15____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_3 = l_Lean_Name_str___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__17____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__4____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__16____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_3 = l_Lean_Name_str___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__18____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__6____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__17____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_3 = l_Lean_Name_str___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__19____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__8____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__18____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_3 = l_Lean_Name_str___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__20____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
 _start:
 {
 lean_object* x_1; 
@@ -15050,33 +15139,33 @@ x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_initFn___closed__13____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__21____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_initFn___closed__12____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
-x_2 = l_initFn___closed__11____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__20____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__19____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 x_3 = l_Lean_Name_str___override(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_initFn___closed__14____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__22____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(3282u);
-x_2 = l_initFn___closed__13____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__21____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 x_3 = l_Lean_Name_num___override(x_2, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__10;
 x_3 = 0;
-x_4 = l_initFn___closed__14____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
+x_4 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__22____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_;
 x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
 return x_5;
 }
@@ -15367,37 +15456,53 @@ l_Lean_Elab_partialFixpoint___closed__3 = _init_l_Lean_Elab_partialFixpoint___cl
 lean_mark_persistent(l_Lean_Elab_partialFixpoint___closed__3);
 l_Lean_Elab_partialFixpoint___boxed__const__1 = _init_l_Lean_Elab_partialFixpoint___boxed__const__1();
 lean_mark_persistent(l_Lean_Elab_partialFixpoint___boxed__const__1);
-l_initFn___closed__0____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__0____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__0____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__1____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__1____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__1____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__2____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__2____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__2____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__3____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__3____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__3____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__4____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__4____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__4____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__5____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__5____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__5____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__6____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__6____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__6____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__7____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__7____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__7____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__8____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__8____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__8____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__9____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__9____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__9____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__10____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__10____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__10____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__11____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__11____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__11____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__12____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__12____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__12____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__13____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__13____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__13____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-l_initFn___closed__14____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l_initFn___closed__14____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
-lean_mark_persistent(l_initFn___closed__14____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
-if (builtin) {res = l_initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_(lean_io_mk_world());
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__0____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__0____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__0____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__1____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__1____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__1____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__2____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__2____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__2____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__3____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__3____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__3____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__4____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__4____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__4____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__5____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__5____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__5____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__6____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__6____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__6____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__7____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__7____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__7____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__8____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__8____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__8____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__9____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__9____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__9____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__10____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__10____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__10____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__11____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__11____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__11____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__12____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__12____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__12____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__13____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__13____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__13____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__14____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__14____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__14____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__15____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__15____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__15____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__16____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__16____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__16____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__17____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__17____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__17____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__18____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__18____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__18____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__19____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__19____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__19____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__20____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__20____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__20____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__21____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__21____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__21____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__22____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_ = _init_l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__22____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn___closed__22____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_);
+if (builtin) {res = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_3282_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));

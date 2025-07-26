@@ -23218,7 +23218,6 @@ lean_inc(x_53);
 lean_dec_ref(x_51);
 lean_inc_ref(x_50);
 lean_inc(x_3);
-lean_inc_ref(x_2);
 x_54 = l_Lean_Server_handleLspRequest(x_2, x_3, x_50, x_53);
 if (lean_obj_tag(x_54) == 0)
 {

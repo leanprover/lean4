@@ -325,6 +325,7 @@ x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec_ref(x_8);
 x_11 = l_Lean_Meta_Grind_getGeneration___redArg(x_9, x_3, x_10);
+lean_dec(x_9);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);

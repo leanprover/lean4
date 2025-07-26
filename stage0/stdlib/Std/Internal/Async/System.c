@@ -24,6 +24,7 @@ lean_object* lean_uv_os_getenv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at___Std_Internal_IO_Async_System_reprSystemUser____x40_Std_Internal_Async_System___hyg_779__spec__3___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprUserId___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___Prod_repr___at___List_repr___at___Std_Internal_IO_Async_System_reprEnvironment____x40_Std_Internal_Async_System___hyg_2036__spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
+lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_instInhabitedGroupInfo___closed__0;
 lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Internal_IO_Async_System_reprSystemUser____x40_Std_Internal_Async_System___hyg_779__spec__4(lean_object*);
@@ -143,7 +144,6 @@ static lean_object* l_Std_Internal_IO_Async_System_reprGroupInfo___redArg___clos
 extern lean_object* l_Std_Time_Millisecond_instOffsetInhabited;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprGroupId___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Internal_IO_Async_System_decEqUserId____x40_Std_Internal_Async_System___hyg_225_(lean_object*, lean_object*);
-lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_reprCPUTimes____x40_Std_Internal_Async_System___hyg_1410____boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_instInhabitedEnvironment___closed__3;
 static lean_object* l_Std_Internal_IO_Async_System_reprGroupInfo___redArg___closed__0____x40_Std_Internal_Async_System___hyg_932_;
@@ -3743,7 +3743,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_alloc_closure((void*)(l_instDecidableEqString___boxed), 2, 0);
-x_2 = l_instBEqOfDecidableEq___redArg(x_1);
+x_2 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }

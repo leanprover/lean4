@@ -712,6 +712,7 @@ else
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 lean_free_object(x_17);
 x_23 = l_Lean_Meta_Grind_getParents___redArg(x_1, x_2, x_20);
+lean_dec_ref(x_1);
 x_24 = lean_ctor_get(x_23, 0);
 lean_inc(x_24);
 x_25 = lean_ctor_get(x_23, 1);
@@ -827,6 +828,7 @@ else
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
 x_48 = l_Lean_Meta_Grind_getParents___redArg(x_1, x_2, x_44);
+lean_dec_ref(x_1);
 x_49 = lean_ctor_get(x_48, 0);
 lean_inc(x_49);
 x_50 = lean_ctor_get(x_48, 1);

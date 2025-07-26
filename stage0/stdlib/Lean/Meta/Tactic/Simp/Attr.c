@@ -3578,7 +3578,6 @@ x_28 = l_Lean_Syntax_getArg(x_4, x_27);
 lean_dec(x_4);
 lean_inc_ref(x_6);
 x_29 = l_Lean_getAttrParamOptPrio(x_28, x_6, x_7, x_20);
-lean_dec(x_28);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 

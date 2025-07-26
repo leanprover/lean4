@@ -1465,8 +1465,6 @@ if (lean_is_exclusive(x_37)) {
 x_41 = l_Lean_Expr_constLevels_x21(x_34);
 lean_dec_ref(x_34);
 x_88 = l_Lean_Meta_mkOfEqFalseCore(x_3, x_38);
-lean_inc_ref(x_30);
-lean_inc_ref(x_1);
 x_98 = l_Lean_Meta_Grind_isEqv___redArg(x_1, x_30, x_4, x_39);
 x_99 = lean_ctor_get(x_98, 0);
 lean_inc(x_99);
@@ -1483,8 +1481,6 @@ lean_object* x_101; lean_object* x_102;
 x_101 = lean_ctor_get(x_98, 1);
 lean_inc(x_101);
 lean_dec_ref(x_98);
-lean_inc_ref(x_27);
-lean_inc_ref(x_2);
 x_102 = l_Lean_Meta_Grind_isEqv___redArg(x_2, x_27, x_4, x_101);
 x_89 = x_102;
 goto block_97;

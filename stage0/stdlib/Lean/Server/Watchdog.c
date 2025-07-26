@@ -102,6 +102,7 @@ static lean_object* l_Lean_Json_getObjValAs_x3f___at___IO_FS_Stream_readRequestA
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Server_Watchdog_handleModuleHierarchyImports_spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_Watchdog_handleQueryModule_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Watchdog_mkLeanServerCapabilities___closed__16;
+lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_sortModuleImports(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at___Lean_Server_Watchdog_getReferences_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_filterMapM___at___Lean_Server_Watchdog_handlePrepareCallHierarchy_spec__0___closed__0;
@@ -602,7 +603,6 @@ lean_object* l_Lean_FuzzyMatching_fuzzyMatchScoreWithThreshold_x3f(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_log(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_References_updateWorkerRefs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readNotificationAs___at___IO_FS_Stream_readLspNotificationAs___at___Lean_Server_Watchdog_initAndRunWatchdogAux_spec__1_spec__1___closed__22;
-lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 static lean_object* l_Array_filterMapM___at___Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_spec__4___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_forwardMessages_handleMessage___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Watchdog_handleNotification___closed__0;
@@ -34722,7 +34722,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_alloc_closure((void*)(l_instDecidableEqString___boxed), 2, 0);
-x_2 = l_instBEqOfDecidableEq___redArg(x_1);
+x_2 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
@@ -37357,7 +37358,6 @@ if (x_46 == 0)
 {
 lean_object* x_47; lean_object* x_48; 
 lean_inc(x_3);
-lean_inc_ref(x_2);
 x_47 = l_Lean_Server_routeLspRequest(x_2, x_3, x_5);
 x_48 = lean_ctor_get(x_47, 0);
 lean_inc(x_48);

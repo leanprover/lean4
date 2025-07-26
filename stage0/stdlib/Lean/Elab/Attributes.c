@@ -26,6 +26,7 @@ lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkAttrKindGlobal;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabAttrs___redArg___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_elabAttr___redArg___lam__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabAttrs___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabAttr___redArg___lam__6___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_elabAttrs___redArg___lam__1(lean_object*, lean_object*, lean_object*);
@@ -385,7 +386,7 @@ static lean_object* _init_l_Lean_Elab_toAttributeKind___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("scoped attributes must be used inside namespaces", 48, 48);
+x_1 = lean_mk_string_unchecked("Scoped attributes must be used inside namespaces", 48, 48);
 return x_1;
 }
 }
@@ -685,7 +686,7 @@ static lean_object* _init_l_Lean_Elab_elabAttr___redArg___lam__1___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown attribute [", 19, 19);
+x_1 = lean_mk_string_unchecked("Unknown attribute `[", 20, 20);
 return x_1;
 }
 }
@@ -701,8 +702,16 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_elabAttr___redArg___lam__1___closed__2() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("]`", 2, 2);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_elabAttr___redArg___lam__1___closed__3() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_instToFormatAttribute___lam__1___closed__3;
+x_1 = l_Lean_Elab_elabAttr___redArg___lam__1___closed__2;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -724,7 +733,7 @@ x_10 = l_Lean_MessageData_ofName(x_1);
 x_11 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
-x_12 = l_Lean_Elab_elabAttr___redArg___lam__1___closed__2;
+x_12 = l_Lean_Elab_elabAttr___redArg___lam__1___closed__3;
 x_13 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_13, 0, x_11);
 lean_ctor_set(x_13, 1, x_12);
@@ -805,7 +814,7 @@ static lean_object* _init_l_Lean_Elab_elabAttr___redArg___lam__6___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown attribute", 17, 17);
+x_1 = lean_mk_string_unchecked("Unknown attribute", 17, 17);
 return x_1;
 }
 }
@@ -1398,6 +1407,8 @@ l_Lean_Elab_elabAttr___redArg___lam__1___closed__1 = _init_l_Lean_Elab_elabAttr_
 lean_mark_persistent(l_Lean_Elab_elabAttr___redArg___lam__1___closed__1);
 l_Lean_Elab_elabAttr___redArg___lam__1___closed__2 = _init_l_Lean_Elab_elabAttr___redArg___lam__1___closed__2();
 lean_mark_persistent(l_Lean_Elab_elabAttr___redArg___lam__1___closed__2);
+l_Lean_Elab_elabAttr___redArg___lam__1___closed__3 = _init_l_Lean_Elab_elabAttr___redArg___lam__1___closed__3();
+lean_mark_persistent(l_Lean_Elab_elabAttr___redArg___lam__1___closed__3);
 l_Lean_Elab_elabAttr___redArg___lam__6___closed__0 = _init_l_Lean_Elab_elabAttr___redArg___lam__6___closed__0();
 lean_mark_persistent(l_Lean_Elab_elabAttr___redArg___lam__6___closed__0);
 l_Lean_Elab_elabAttr___redArg___lam__6___closed__1 = _init_l_Lean_Elab_elabAttr___redArg___lam__6___closed__1();

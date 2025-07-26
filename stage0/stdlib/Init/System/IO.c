@@ -364,7 +364,6 @@ LEAN_EXPORT lean_object* lean_stream_of_handle(lean_object*);
 LEAN_EXPORT lean_object* l_EIO_chainTask___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* lean_io_process_spawn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_getTID___boxed(lean_object*);
-lean_object* l_EStateM_instInhabited___redArg(lean_object*);
 static lean_object* l_IO_FS_reprSystemTime___redArg___closed__7____x40_Init_System_IO___hyg_3106_;
 LEAN_EXPORT lean_object* l_IO_hasFinished___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_removeDirAll(lean_object*, lean_object*);
@@ -380,6 +379,7 @@ lean_object* lean_get_stdin(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_instBEqSystemTime;
 static lean_object* l_IO_FS_Stream_ofBuffer___lam__3___closed__1;
 lean_object* lean_io_prim_handle_is_tty(lean_object*, lean_object*);
+lean_object* l_EStateM_instInhabited___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_instInhabitedStream___lam__3(lean_object*);
 lean_object* lean_get_stderr(lean_object*);
 static lean_object* l_IO_instReprTaskState___closed__0;
@@ -973,7 +973,8 @@ LEAN_EXPORT lean_object* l_instInhabitedEIO___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_EStateM_instInhabited___redArg(x_1);
+x_2 = lean_alloc_closure((void*)(l_EStateM_instInhabited___redArg___lam__0), 2, 1);
+lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
@@ -981,7 +982,8 @@ LEAN_EXPORT lean_object* l_instInhabitedEIO(lean_object* x_1, lean_object* x_2, 
 _start:
 {
 lean_object* x_4; 
-x_4 = l_EStateM_instInhabited___redArg(x_3);
+x_4 = lean_alloc_closure((void*)(l_EStateM_instInhabited___redArg___lam__0), 2, 1);
+lean_closure_set(x_4, 0, x_3);
 return x_4;
 }
 }

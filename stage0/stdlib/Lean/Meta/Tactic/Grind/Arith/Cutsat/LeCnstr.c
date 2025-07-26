@@ -15065,7 +15065,6 @@ goto block_72;
 block_72:
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
-lean_inc_ref(x_1);
 x_48 = l_Lean_Meta_Grind_getGeneration___redArg(x_1, x_3, x_11);
 x_49 = lean_ctor_get(x_48, 0);
 lean_inc(x_49);
@@ -15770,7 +15769,6 @@ goto block_16;
 else
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; 
-lean_inc_ref(x_1);
 x_77 = l_Lean_Meta_Grind_getGeneration___redArg(x_1, x_52, x_60);
 x_78 = lean_ctor_get(x_77, 0);
 lean_inc(x_78);
@@ -16224,7 +16222,6 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean
 x_18 = lean_ctor_get(x_5, 0);
 lean_inc(x_18);
 lean_dec_ref(x_5);
-lean_inc_ref(x_1);
 x_19 = l_Lean_Meta_Grind_getGeneration___redArg(x_1, x_7, x_15);
 x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);

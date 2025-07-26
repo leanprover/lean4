@@ -2727,7 +2727,6 @@ x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 if (lean_obj_tag(x_6) == 0)
 {
-lean_dec_ref(x_2);
 return x_5;
 }
 else
@@ -2825,6 +2824,8 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Meta_Grind_Arith_Linear_inSameStruct_x3f___redArg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_5;
 }
 }
@@ -2841,6 +2842,8 @@ lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 return x_12;
 }
 }
@@ -2992,14 +2995,12 @@ lean_dec_ref(x_29);
 x_38 = lean_ctor_get(x_30, 0);
 lean_inc(x_38);
 lean_dec_ref(x_30);
-lean_inc_ref(x_1);
 x_39 = l_Lean_Meta_Grind_getGeneration___redArg(x_1, x_4, x_37);
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
 x_41 = lean_ctor_get(x_39, 1);
 lean_inc(x_41);
 lean_dec_ref(x_39);
-lean_inc_ref(x_2);
 x_42 = l_Lean_Meta_Grind_getGeneration___redArg(x_2, x_4, x_41);
 x_43 = lean_ctor_get(x_42, 0);
 lean_inc(x_43);
@@ -17915,8 +17916,6 @@ x_34 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
-lean_inc_ref(x_2);
-lean_inc_ref(x_1);
 x_35 = l_Lean_Meta_Grind_Arith_Linear_inSameStruct_x3f___redArg(x_1, x_2, x_3, x_11);
 x_36 = lean_ctor_get(x_35, 0);
 lean_inc(x_36);
@@ -18654,7 +18653,6 @@ lean_dec_ref(x_29);
 x_38 = lean_ctor_get(x_30, 0);
 lean_inc(x_38);
 lean_dec_ref(x_30);
-lean_inc_ref(x_1);
 x_39 = l_Lean_Meta_Grind_getGeneration___redArg(x_1, x_4, x_37);
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
@@ -18668,7 +18666,6 @@ if (lean_is_exclusive(x_39)) {
  lean_dec_ref(x_39);
  x_42 = lean_box(0);
 }
-lean_inc_ref(x_2);
 x_43 = l_Lean_Meta_Grind_getGeneration___redArg(x_2, x_4, x_41);
 x_44 = lean_ctor_get(x_43, 0);
 lean_inc(x_44);
@@ -19184,8 +19181,6 @@ LEAN_EXPORT lean_object* lean_process_linarith_diseq(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_12; lean_object* x_13; 
-lean_inc_ref(x_2);
-lean_inc_ref(x_1);
 x_12 = l_Lean_Meta_Grind_Arith_Linear_inSameStruct_x3f___redArg(x_1, x_2, x_3, x_11);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);

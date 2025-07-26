@@ -677,7 +677,7 @@ static lean_object* _init_l_Lean_registerOption___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to register option, options can only be registered during initialization", 79, 79);
+x_1 = lean_mk_string_unchecked("Failed to register option: Options can only be registered during initialization", 79, 79);
 return x_1;
 }
 }
@@ -703,7 +703,7 @@ static lean_object* _init_l_Lean_registerOption___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid option declaration '", 28, 28);
+x_1 = lean_mk_string_unchecked("Invalid option declaration `", 28, 28);
 return x_1;
 }
 }
@@ -711,7 +711,7 @@ static lean_object* _init_l_Lean_registerOption___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', option already exists", 24, 24);
+x_1 = lean_mk_string_unchecked("`: Option already exists", 24, 24);
 return x_1;
 }
 }
@@ -1014,7 +1014,7 @@ static lean_object* _init_l_Lean_getOptionDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown option '", 16, 16);
+x_1 = lean_mk_string_unchecked("Unknown option `", 16, 16);
 return x_1;
 }
 }
@@ -1022,7 +1022,7 @@ static lean_object* _init_l_Lean_getOptionDecl___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }

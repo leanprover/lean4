@@ -1976,7 +1976,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instantiateExtTheorem___lam__0(lean_o
 _start:
 {
 lean_object* x_12; lean_object* x_16; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
-lean_inc_ref(x_1);
 x_20 = l_Lean_Meta_Grind_getGeneration___redArg(x_1, x_3, x_11);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
@@ -3775,6 +3774,7 @@ block_80:
 {
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; 
 x_73 = l_Lean_Meta_Grind_getGeneration___redArg(x_1, x_64, x_72);
+lean_dec_ref(x_1);
 x_74 = lean_ctor_get(x_73, 0);
 lean_inc(x_74);
 x_75 = lean_ctor_get(x_73, 1);
@@ -5022,6 +5022,7 @@ block_555:
 {
 lean_object* x_548; lean_object* x_549; lean_object* x_550; lean_object* x_551; lean_object* x_552; lean_object* x_553; lean_object* x_554; 
 x_548 = l_Lean_Meta_Grind_getGeneration___redArg(x_1, x_539, x_547);
+lean_dec_ref(x_1);
 x_549 = lean_ctor_get(x_548, 0);
 lean_inc(x_549);
 x_550 = lean_ctor_get(x_548, 1);

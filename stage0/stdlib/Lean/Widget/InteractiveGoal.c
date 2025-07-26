@@ -7737,7 +7737,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_withGoalCtx___redArg___lam__1(lean_object
 _start:
 {
 lean_object* x_9; 
-lean_inc(x_1);
 x_9 = l_Lean_MetavarContext_findDecl_x3f(x_8, x_1);
 if (lean_obj_tag(x_9) == 0)
 {
@@ -10989,7 +10988,6 @@ x_11 = lean_ctor_get(x_8, 1);
 x_12 = lean_ctor_get(x_10, 0);
 lean_inc_ref(x_12);
 lean_dec(x_10);
-lean_inc(x_1);
 x_13 = l_Lean_MetavarContext_findDecl_x3f(x_12, x_1);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -11051,7 +11049,6 @@ lean_dec(x_8);
 x_31 = lean_ctor_get(x_29, 0);
 lean_inc_ref(x_31);
 lean_dec(x_29);
-lean_inc(x_1);
 x_32 = l_Lean_MetavarContext_findDecl_x3f(x_31, x_1);
 if (lean_obj_tag(x_32) == 0)
 {

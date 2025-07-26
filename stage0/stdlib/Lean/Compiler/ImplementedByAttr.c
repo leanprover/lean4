@@ -1406,7 +1406,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__0____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid 'implemented_by' argument '", 35, 35);
+x_1 = lean_mk_string_unchecked("Invalid `implemented_by` argument `", 35, 35);
 return x_1;
 }
 }
@@ -1423,7 +1423,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__2____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', '", 4, 4);
+x_1 = lean_mk_string_unchecked("`: `", 4, 4);
 return x_1;
 }
 }
@@ -1440,7 +1440,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__4____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' has ", 6, 6);
+x_1 = lean_mk_string_unchecked("` has ", 6, 6);
 return x_1;
 }
 }
@@ -1457,7 +1457,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__6____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" universe level parameter(s), but '", 35, 35);
+x_1 = lean_mk_string_unchecked(" universe level parameter(s), but `", 35, 35);
 return x_1;
 }
 }
@@ -1491,7 +1491,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__10____x40_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' has type", 10, 10);
+x_1 = lean_mk_string_unchecked("` has type", 10, 10);
 return x_1;
 }
 }
@@ -1508,7 +1508,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__12____x40_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\nbut '", 6, 6);
+x_1 = lean_mk_string_unchecked("\nbut `", 6, 6);
 return x_1;
 }
 }
@@ -1525,7 +1525,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__14____x40_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', function cannot be implemented by itself", 43, 43);
+x_1 = lean_mk_string_unchecked("`: Definition cannot be implemented by itself", 45, 45);
 return x_1;
 }
 }

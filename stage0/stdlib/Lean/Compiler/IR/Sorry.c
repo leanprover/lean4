@@ -482,7 +482,7 @@ x_5 = x_19;
 goto _start;
 }
 }
-case 10:
+case 9:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
 x_22 = lean_ctor_get(x_1, 3);
@@ -624,15 +624,6 @@ lean_dec_ref(x_1);
 x_1 = x_54;
 goto _start;
 }
-case 9:
-{
-lean_object* x_56; 
-x_56 = lean_ctor_get(x_1, 1);
-lean_inc(x_56);
-lean_dec_ref(x_1);
-x_1 = x_56;
-goto _start;
-}
 default: 
 {
 goto _start;
@@ -641,16 +632,16 @@ goto _start;
 }
 else
 {
-lean_object* x_59; lean_object* x_60; lean_object* x_61; 
+lean_object* x_57; lean_object* x_58; lean_object* x_59; 
 lean_dec(x_1);
-x_59 = l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___redArg___closed__2;
-x_60 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_60, 0, x_59);
-lean_ctor_set(x_60, 1, x_2);
-x_61 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_61, 0, x_60);
-lean_ctor_set(x_61, 1, x_5);
-return x_61;
+x_57 = l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___redArg___closed__2;
+x_58 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_58, 0, x_57);
+lean_ctor_set(x_58, 1, x_2);
+x_59 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_59, 0, x_58);
+lean_ctor_set(x_59, 1, x_5);
+return x_59;
 }
 }
 }

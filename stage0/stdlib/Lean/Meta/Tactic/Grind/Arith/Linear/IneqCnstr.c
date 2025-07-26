@@ -3835,7 +3835,6 @@ lean_dec_ref(x_32);
 x_41 = lean_ctor_get(x_33, 0);
 lean_inc(x_41);
 lean_dec_ref(x_33);
-lean_inc_ref(x_1);
 x_42 = l_Lean_Meta_Grind_getGeneration___redArg(x_1, x_7, x_40);
 if (x_5 == 0)
 {

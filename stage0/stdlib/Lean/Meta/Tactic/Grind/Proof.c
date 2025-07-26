@@ -9180,8 +9180,6 @@ lean_inc(x_89);
 x_90 = lean_ctor_get(x_88, 1);
 lean_inc(x_90);
 lean_dec_ref(x_88);
-lean_inc_ref(x_51);
-lean_inc_ref(x_42);
 x_91 = l_Lean_Meta_Grind_Goal_hasSameRoot(x_86, x_42, x_51);
 if (x_91 == 0)
 {
@@ -9194,8 +9192,6 @@ goto block_81;
 else
 {
 uint8_t x_92; 
-lean_inc_ref(x_54);
-lean_inc_ref(x_39);
 x_92 = l_Lean_Meta_Grind_Goal_hasSameRoot(x_89, x_39, x_54);
 x_61 = x_84;
 x_62 = x_90;
@@ -9306,8 +9302,6 @@ lean_inc(x_114);
 x_115 = lean_ctor_get(x_113, 1);
 lean_inc(x_115);
 lean_dec_ref(x_113);
-lean_inc_ref(x_54);
-lean_inc_ref(x_42);
 x_116 = l_Lean_Meta_Grind_Goal_hasSameRoot(x_111, x_42, x_54);
 if (x_116 == 0)
 {
@@ -9320,8 +9314,6 @@ goto block_108;
 else
 {
 uint8_t x_117; 
-lean_inc_ref(x_51);
-lean_inc_ref(x_39);
 x_117 = l_Lean_Meta_Grind_Goal_hasSameRoot(x_114, x_39, x_51);
 x_82 = x_115;
 x_83 = x_109;

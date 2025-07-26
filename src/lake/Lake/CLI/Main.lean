@@ -537,22 +537,13 @@ protected def exe : CliM PUnit := do
   let exeFile ← ws.runBuild exe.fetch (mkBuildConfig opts)
   exit <| ← (env exeFile.toString args.toArray).run <| mkLakeContext ws
 
-private def evalLeanFile
-  (ws : Workspace) (leanFile : FilePath)
-  (moreArgs : Array String := #[]) (buildConfig : BuildConfig := {})
-: LoggerIO UInt32 := do
-  let spawnArgs ← ws.runBuild (cfg := buildConfig) do
-    prepareLeanCommand leanFile moreArgs
-  let child ← IO.Process.spawn spawnArgs
-  child.wait
-
 protected def lean : CliM PUnit := do
   processOptions lakeOption
   let leanFile ← takeArg "Lean file"
   let opts ← getThe LakeOptions
   noArgsRem do
   let ws ← loadWorkspace (← mkLoadConfig opts)
-  let rc ← evalLeanFile ws leanFile opts.subArgs.toArray (mkBuildConfig opts)
+  let rc ← ws.evalLeanFile leanFile opts.subArgs.toArray (mkBuildConfig opts)
   exit rc
 
 protected def translateConfig : CliM PUnit := do

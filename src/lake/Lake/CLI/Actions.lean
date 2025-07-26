@@ -6,7 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Build.Run
 import Lake.Build.Targets
-import Lake.Build.Common
+import Lake.Build.Module
 import Lake.CLI.Build
 
 namespace Lake
@@ -89,3 +89,18 @@ def Package.lint (pkg : Package) (args : List String := []) (buildConfig : Build
   else
     let pkgName := pkg.name.toString (escape := false)
     error s!"{pkgName}: invalid lint driver: unknown script or executable '{driver}'"
+
+/--
+Run `lean` on file using configuration from the workspace.
+
+Additional arguments can be passed to `lean` via `moreArgs` and the
+building of dependencies can be further configured via `buildConfig`.
+-/
+def Workspace.evalLeanFile
+  (ws : Workspace) (leanFile : FilePath)
+  (moreArgs : Array String := #[]) (buildConfig : BuildConfig := {})
+: IO UInt32 := do
+  let spawnArgs ← ws.runBuild (cfg := buildConfig) do
+    prepareLeanCommand leanFile moreArgs
+  let child ← IO.Process.spawn spawnArgs
+  child.wait

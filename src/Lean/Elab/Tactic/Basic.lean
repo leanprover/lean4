@@ -361,6 +361,21 @@ instance : MonadExcept Exception TacticM where
 def withoutRecover (x : TacticM α) : TacticM α :=
   withReader (fun ctx => { ctx with recover := false }) x
 
+/--
+Like `throwErrorAt`, but if recovery is enabled, log the error instead.
+-/
+def throwOrLogErrorAt (ref : Syntax) (msg : MessageData) : TacticM Unit := do
+  if (← read).recover then
+    logErrorAt ref msg
+  else
+    throwErrorAt ref msg
+
+/--
+Like `throwError`, but if recovery is enabled, log the error instead.
+-/
+def throwOrLogError (msg : MessageData) : TacticM Unit := do
+  throwOrLogErrorAt (← getRef) msg
+
 @[inline] protected def orElse (x : TacticM α) (y : Unit → TacticM α) : TacticM α := do
   try withoutRecover x catch _ => y ()
 

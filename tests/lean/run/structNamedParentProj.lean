@@ -123,6 +123,17 @@ field notation resolution order:
 -/
 #guard_msgs in #print S2'
 
+structure GP where
+structure P extends toGP : GP where
+/--
+error: Field `toGP` has already been declared as a projection for a parent structure `GP`
+
+Note: This projection was transitively inherited from this structure's immediate parent `P`
+-/
+#guard_msgs in
+structure C extends P where
+  toGP : Unit
+
 /-!
 Structure instances, setting a parent
 -/

@@ -980,7 +980,7 @@ private def elabParamInfoUpdates (structParams : Array Expr) (binders : Array Sy
         Term.addTermInfo' id decl.toExpr
         unless structParams.contains decl.toExpr do
           throwErrorAt id m!"Only parameters appearing in the declaration header may have their binders kinds be overridden"
-            ++ .hint' "If this is not intended to be an override, use a binder with a type: for example, `(x : _)`."
+            ++ .hint' "If this is not intended to be an override, use a binder with a type: for example, `(x : _)`"
         overrides := overrides.insert decl.toExpr (id, bi)
   return (#[], overrides)
 
@@ -1062,11 +1062,11 @@ where
                            kind := StructFieldKind.newField }
             go (i+1)
         | none, some (.autoParam _) =>
-          throwError "Field `{view.name}` has an autoparam but no type"
+          throwError "Field `{view.name}` has an auto-param but no type"
       | some info =>
         let updateDefaultValue : StructElabM α := do
           match view.default? with
-          | none       => throwError "Field `{view.name}` has been declared in parent structure"
+          | none       => throwError "Field `{view.name}` has already been declared in a parent structure"
           | some (.optParam valStx) =>
             if let some type := view.type? then
               throwErrorAt type "Omit the type of field `{view.name}` to set its default value"
@@ -1104,7 +1104,15 @@ where
         match info.kind with
         | StructFieldKind.newField      => throwError "Field `{view.name}` has already been declared"
         | StructFieldKind.subobject n
-        | StructFieldKind.otherParent n => throwError "Unexpected reference to parent field `{n}`" -- improve error message
+        | StructFieldKind.otherParent n =>
+          -- If this were a parent projection, we'd have caught it in the initial check, so it must be a transitive parent
+          let parentMsgs := (← get).parents.map (m!"`{.ofConstName ·.structName}`") |>.toList
+          let inheritanceMsg := if let [parent] := parentMsgs then
+            m!"this structure's immediate parent {parent}"
+          else
+            m!"one of this structure's immediate parents {.orList parentMsgs}"
+          throwError m!"Field `{view.name}` has already been declared as a projection for a parent structure `{.ofConstName n}`"
+            ++ .note m!"This projection was transitively inherited from {inheritanceMsg}"
         | StructFieldKind.copiedField
         | StructFieldKind.fromSubobject => updateDefaultValue
     else

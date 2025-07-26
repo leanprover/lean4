@@ -120,6 +120,10 @@ structure Config where
   the characteristic of a ring.
   -/
   exp : Nat := 2^20
+  /--
+  When `true` (default: `true`), automatically creates an auxiliary theorem to store the proof.
+  -/
+  abstractProof := true
   deriving Inhabited, BEq
 
 end Lean.Grind

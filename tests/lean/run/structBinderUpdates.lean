@@ -106,7 +106,7 @@ variable (α : Type)
 /--
 error: Only parameters appearing in the declaration header may have their binders kinds be overridden
 
-Hint: If this is not intended to be an override, use a binder with a type: for example, `(x : _)`.
+Hint: If this is not intended to be an override, use a binder with a type: for example, `(x : _)`
 -/
 #guard_msgs in
 class Inhabited where
@@ -172,7 +172,7 @@ variable (n : Nat)
 /--
 error: Only parameters appearing in the declaration header may have their binders kinds be overridden
 
-Hint: If this is not intended to be an override, use a binder with a type: for example, `(x : _)`.
+Hint: If this is not intended to be an override, use a binder with a type: for example, `(x : _)`
 -/
 #guard_msgs in
 structure WithLp (p : Nat) (V : Type) where toLp (n) ::
@@ -187,7 +187,7 @@ Motivation 3: the constructor type is constructed before we know which `variable
 /--
 error: Only parameters appearing in the declaration header may have their binders kinds be overridden
 
-Hint: If this is not intended to be an override, use a binder with a type: for example, `(x : _)`.
+Hint: If this is not intended to be an override, use a binder with a type: for example, `(x : _)`
 -/
 #guard_msgs in
 structure WithLp (p : Nat) (V : Type) where toLp (n) ::

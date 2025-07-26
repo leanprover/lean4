@@ -1,4 +1,6 @@
-struct1.lean:9:14-9:17: error: Invalid resulting type: Expected `Type _` or `Prop`
+struct1.lean:9:14-9:17: error: Invalid resulting type: Expected a sort
+
+Hint: Examples of valid sorts include `Type _`, `Sort _`, and `Prop`
 struct1.lean:12:20-12:29: error: expected structure
 
 Hint: This error is possibly due to a change in the `structure` syntax. Now the syntax is `structure S : Type extends P` rather than `structure S extends P : Type`.
@@ -29,7 +31,7 @@ but is expected to have type
 struct1.lean:45:0-45:13: error: Constructor cannot be marked `private` because it is already in a `private` structure
 
 Hint: Remove `private` modifier from constructor
-  p̵r̵i̵v̵a̵t̵e̵ ̵
+  p̵r̵i̵v̵a̵t̵e̵ ̵mk ::
 struct1.lean:48:0-48:15: error: Constructor cannot be `protected` because this structure is `private`
 struct1.lean:51:0-51:19: error: Field cannot be marked `protected` because this structure is `private`
 S : Type

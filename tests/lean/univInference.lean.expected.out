@@ -4,10 +4,10 @@ but the universes of constructor arguments suggest that this could accidentally 
   Sort (max (max 1 u) v)
 if the resulting universe level should be at the above universe level or higher.
 
-Explanation: At this point in elaboration, universe level unification has committed to using a resulting universe level of the form '?u+1'. Constructor argument universe levels must be no greater than the resulting universe level, and this condition implies the following constraint(s):
+Explanation: At this point in elaboration, universe level unification has committed to using a resulting universe level of the form `?u+1`. Constructor argument universe levels must be no greater than the resulting universe level, and this condition implies the following constraint(s):
   u ≤ ?u+1
   v ≤ ?u+1
-However, such constraint(s) usually indicate that the resulting universe level should have been in a different form. For example, if the resulting type is of the form 'Sort (_ + 1)' and a constructor argument is in universe `Sort u`, then universe inference would yield `Sort (u + 1)`, but the resulting type `Sort (max 1 u)` would avoid being in a higher universe than necessary.
+However, such constraint(s) usually indicate that the resulting universe level should have been in a different form. For example, if the resulting type is of the form `Sort (_ + 1)` and a constructor argument is in universe `Sort u`, then universe inference would yield `Sort (u + 1)`, but the resulting type `Sort (max 1 u)` would avoid being in a higher universe than necessary.
 S6 : Sort (max w₁ w₂) → Type w₂ → Sort (max w₁ (w₂ + 1))
 univInference.lean:45:48-45:62: error: Invalid universe polymorphic resulting type: The resulting universe is not `Prop`, but it may be `Prop` for some parameter values:
   Sort (max u v)
@@ -19,10 +19,10 @@ but the universes of constructor arguments suggest that this could accidentally 
   Sort (max (max 1 u) v)
 if the resulting universe level should be at the above universe level or higher.
 
-Explanation: At this point in elaboration, universe level unification has committed to using a resulting universe level of the form '?u+1'. Constructor argument universe levels must be no greater than the resulting universe level, and this condition implies the following constraint(s):
+Explanation: At this point in elaboration, universe level unification has committed to using a resulting universe level of the form `?u+1`. Constructor argument universe levels must be no greater than the resulting universe level, and this condition implies the following constraint(s):
   u ≤ ?u+1
   v ≤ ?u+1
-However, such constraint(s) usually indicate that the resulting universe level should have been in a different form. For example, if the resulting type is of the form 'Sort (_ + 1)' and a constructor argument is in universe `Sort u`, then universe inference would yield `Sort (u + 1)`, but the resulting type `Sort (max 1 u)` would avoid being in a higher universe than necessary.
+However, such constraint(s) usually indicate that the resulting universe level should have been in a different form. For example, if the resulting type is of the form `Sort (_ + 1)` and a constructor argument is in universe `Sort u`, then universe inference would yield `Sort (u + 1)`, but the resulting type `Sort (max 1 u)` would avoid being in a higher universe than necessary.
 univInference.lean:73:48-73:62: error: Invalid universe polymorphic resulting type: The resulting universe is not `Prop`, but it may be `Prop` for some parameter values:
   Sort (max u v)
 

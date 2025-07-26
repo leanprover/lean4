@@ -78,8 +78,7 @@ partial def visitFnBody (fnid : FunId) : FnBody → StateM ParamMap Unit
   | FnBody.case _ _ _ alts => alts.forM fun alt => visitFnBody fnid alt.body
   | e => do
     unless e.isTerminal do
-      let (_, b) := e.split
-      visitFnBody fnid b
+      visitFnBody fnid e.body
 
 def visitDecls (env : Environment) (decls : Array Decl) : StateM ParamMap Unit :=
   decls.forM fun decl => match decl with

@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_initFn___closed__3____x40_Lean_Util_PPExt___hyg_6_;
-lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_Util_PPExt___hyg_46_;
 static lean_object* l_Lean_ppConstNameWithInfos___closed__5;
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__5____x40_Lean_Util_PPExt___hyg_434____boxed(lean_object*, lean_object*, lean_object*);
@@ -34,13 +33,13 @@ static lean_object* l_Lean_formatRawGoal___closed__1;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_initFn___lam__1____x40_Lean_Util_PPExt___hyg_434_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedPPFns___lam__2___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 lean_object* l_Lean_registerEnvExtension___redArg(lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_46_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ppExt;
 static lean_object* l_Lean_ppExprWithInfos___closed__11;
 static lean_object* l_Lean_initFn___closed__4____x40_Lean_Util_PPExt___hyg_6_;
 LEAN_EXPORT lean_object* l_Lean_formatRawTerm___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_mvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_pp_raw_maxDepth;
 LEAN_EXPORT lean_object* l_Lean_pp_raw_showInfo;
 static lean_object* l_Lean_initFn___closed__2____x40_Lean_Util_PPExt___hyg_126_;
@@ -102,6 +101,7 @@ static lean_object* l_Lean_ppExprWithInfos___closed__10;
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_Util_PPExt___hyg_126_;
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__3____x40_Lean_Util_PPExt___hyg_434_(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ppExprWithInfos___closed__0;
+lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_ppExprWithInfos___closed__6;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedPPFns___lam__0___closed__0;
@@ -125,7 +125,7 @@ LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_initFn____x40_Lean_U
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_6_(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__3____x40_Lean_Util_PPExt___hyg_434____boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkMVar(lean_object*);
+lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_pp_rawOnError;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -746,7 +746,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_find(x_1, x_3);
+x_5 = l_Lean_KVMap_findCore(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_inc(x_4);
@@ -781,7 +781,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_find(x_1, x_3);
+x_5 = l_Lean_KVMap_findCore(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
@@ -895,7 +895,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = l_Lean_formatRawGoal___closed__1;
-x_3 = l_Lean_mkMVar(x_1);
+x_3 = l_Lean_Expr_mvar___override(x_1);
 x_4 = lean_expr_dbg_to_string(x_3);
 lean_dec_ref(x_3);
 x_5 = lean_alloc_ctor(3, 1, 0);
@@ -1259,10 +1259,10 @@ lean_dec_ref(x_5);
 x_9 = l_Lean_ppExprWithInfos___closed__1;
 x_10 = lean_ctor_get_uint8(x_9, sizeof(void*)*3);
 x_11 = l_Lean_instInhabitedPPFns;
-x_12 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe(lean_box(0), x_11, x_9, x_4, x_10);
+x_12 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_11, x_9, x_4, x_10);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc_ref(x_13);
-lean_dec_ref(x_12);
+lean_dec(x_12);
 lean_inc_ref(x_2);
 x_14 = lean_apply_3(x_13, x_1, x_2, x_3);
 if (lean_obj_tag(x_14) == 0)
@@ -1532,10 +1532,10 @@ lean_inc(x_5);
 x_6 = l_Lean_ppExprWithInfos___closed__1;
 x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*3);
 x_8 = l_Lean_instInhabitedPPFns;
-x_9 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe(lean_box(0), x_8, x_6, x_4, x_7);
+x_9 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_8, x_6, x_4, x_7);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 lean_inc(x_2);
 x_11 = lean_apply_3(x_10, x_1, x_2, x_3);
 if (lean_obj_tag(x_11) == 0)
@@ -1743,10 +1743,10 @@ lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object
 x_8 = l_Lean_ppExprWithInfos___closed__1;
 x_9 = lean_ctor_get_uint8(x_8, sizeof(void*)*3);
 x_10 = l_Lean_instInhabitedPPFns;
-x_11 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe(lean_box(0), x_10, x_8, x_4, x_9);
+x_11 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_10, x_8, x_4, x_9);
 x_12 = lean_ctor_get(x_11, 2);
 lean_inc_ref(x_12);
-lean_dec_ref(x_11);
+lean_dec(x_11);
 lean_inc(x_2);
 lean_inc_ref(x_1);
 x_13 = lean_apply_3(x_12, x_1, x_2, x_3);
@@ -1916,10 +1916,10 @@ lean_inc_ref(x_4);
 x_5 = l_Lean_ppExprWithInfos___closed__1;
 x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*3);
 x_7 = l_Lean_instInhabitedPPFns;
-x_8 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe(lean_box(0), x_7, x_5, x_4, x_6);
+x_8 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_7, x_5, x_4, x_6);
 x_9 = lean_ctor_get(x_8, 3);
 lean_inc_ref(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = lean_apply_3(x_9, x_1, x_2, x_3);
 return x_10;
 }
@@ -1971,10 +1971,10 @@ lean_inc(x_5);
 x_6 = l_Lean_ppExprWithInfos___closed__1;
 x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*3);
 x_8 = l_Lean_instInhabitedPPFns;
-x_9 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe(lean_box(0), x_8, x_6, x_4, x_7);
+x_9 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_8, x_6, x_4, x_7);
 x_10 = lean_ctor_get(x_9, 4);
 lean_inc_ref(x_10);
-lean_dec_ref(x_9);
+lean_dec(x_9);
 lean_inc(x_2);
 x_11 = lean_apply_3(x_10, x_1, x_2, x_3);
 if (lean_obj_tag(x_11) == 0)

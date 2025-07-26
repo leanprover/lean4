@@ -82,7 +82,7 @@ unsafe builtin_initialize formatterAttribute : KeyedDeclsAttribute Formatter ←
       -- `isValidSyntaxNodeKind` is updated only in the next stage for new `[builtin*Parser]`s, but we try to
       -- synthesize a formatter for it immediately, so we just check for a declaration in this case
       unless (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id do
-        throwError "invalid [formatter] argument, unknown syntax kind '{id}'"
+        throwError "Invalid `[formatter]` argument: Unknown syntax kind `{id}`"
       if (← getEnv).contains id && (← Elab.getInfoState).enabled then
         Elab.addConstInfo stx id none
       pure id

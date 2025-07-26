@@ -53,7 +53,6 @@ static lean_object* l_Lean_Omega_reprConstraint___redArg___closed__7____x40_Init
 LEAN_EXPORT uint8_t l_Lean_Omega_Constraint_sat(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Omega_Constraint_instToString___lam__0___closed__8;
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_instDecidableEqConstraint___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_neg___lam__0___boxed(lean_object*);
 static lean_object* l_Lean_Omega_reprConstraint___redArg___closed__4____x40_Init_Omega_Constraint___hyg_298_;
@@ -2569,7 +2568,7 @@ lean_dec(x_8);
 x_10 = lean_int_sub(x_6, x_9);
 lean_dec(x_9);
 lean_dec(x_6);
-x_11 = l_instNatCastInt___lam__0(x_1);
+x_11 = lean_nat_to_int(x_1);
 x_12 = lean_int_ediv(x_10, x_11);
 lean_dec(x_11);
 lean_dec(x_10);

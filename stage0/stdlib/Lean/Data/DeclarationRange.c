@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_reprDeclarationRange___redArg___closed__21____x40_Lean_Data_DeclarationRange___hyg_322_;
+lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_reprDeclarationRange___redArg___closed__12____x40_Lean_Data_DeclarationRange___hyg_322_;
 static lean_object* l_Lean_instToExprDeclarationRange___lam__0___closed__7;
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
@@ -62,7 +63,6 @@ LEAN_EXPORT lean_object* l_Lean_decEqDeclarationRange____x40_Lean_Data_Declarati
 static lean_object* l_Lean_instToExprDeclarationRanges___closed__0;
 LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_reprDeclarationRange____x40_Lean_Data_DeclarationRange___hyg_322__spec__0(lean_object*);
 static lean_object* l_Lean_reprDeclarationRange___redArg___closed__6____x40_Lean_Data_DeclarationRange___hyg_322_;
-lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instReprDeclarationRange;
 static lean_object* l_Lean_instInhabitedDeclarationRange___closed__0;
 static lean_object* l_Lean_reprDeclarationRange___redArg___closed__16____x40_Lean_Data_DeclarationRange___hyg_322_;
@@ -638,7 +638,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_instToExprDeclarationRange___lam__0___closed__3;
-x_3 = l_Lean_mkConst(x_2, x_1);
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
 }
@@ -667,7 +667,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_instToExprDeclarationRange___lam__0___closed__6;
-x_3 = l_Lean_mkConst(x_2, x_1);
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
 }
@@ -755,7 +755,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_instToExprDeclarationRange___closed__0;
-x_3 = l_Lean_mkConst(x_2, x_1);
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
 }
@@ -1060,7 +1060,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_instToExprDeclarationRanges___lam__0___closed__1;
-x_3 = l_Lean_mkConst(x_2, x_1);
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
 }
@@ -1179,7 +1179,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_Lean_instToExprDeclarationRanges___closed__0;
-x_3 = l_Lean_mkConst(x_2, x_1);
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
 }

@@ -27,7 +27,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion___redArg___lam__0
 LEAN_EXPORT lean_object* l_Lean_Elab_instImpl____x40_Lean_Elab_InfoTree_InlayHints___hyg_327_;
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHint_resolveDeferred(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instImpl___closed__3____x40_Lean_Elab_InfoTree_InlayHints___hyg_327_;
-lean_object* l___private_Init_Dynamic_0__Dynamic_mkImpl(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion___redArg___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHint_toCustomInfo(lean_object*);
@@ -35,10 +34,10 @@ static lean_object* l_Lean_Elab_instImpl___closed__0____x40_Lean_Elab_InfoTree_I
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_beqInlayHintTextEdit____x40_Lean_Elab_InfoTree_InlayHints___hyg_128____boxed(lean_object*, lean_object*);
+lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instBEqInlayHintTextEdit;
 static lean_object* l_Lean_Elab_instBEqInlayHintTextEdit___closed__0;
 static lean_object* l_Lean_Elab_instImpl___closed__1____x40_Lean_Elab_InfoTree_InlayHints___hyg_327_;
-lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_noConfusion(lean_object*, uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InlayHintKind_toCtorIdx(uint8_t x_1) {
 _start:
@@ -223,7 +222,9 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_Elab_instImpl____x40_Lean_Elab_InfoTree_InlayHints___hyg_327_;
 x_3 = lean_box(0);
-x_4 = l___private_Init_Dynamic_0__Dynamic_mkImpl(lean_box(0), x_2, x_1);
+x_4 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_1);
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_3);
 lean_ctor_set(x_5, 1, x_4);
@@ -236,7 +237,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 1);
 x_3 = l_Lean_Elab_instImpl____x40_Lean_Elab_InfoTree_InlayHints___hyg_327_;
-x_4 = l___private_Init_Dynamic_0__Dynamic_get_x3fImpl(lean_box(0), x_2, x_3);
+x_4 = l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___redArg(x_2, x_3);
 return x_4;
 }
 }

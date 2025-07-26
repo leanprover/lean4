@@ -45,8 +45,7 @@ partial def visitFnBody (b : FnBody) : ExceptT Name M Unit := do
   | .case _ _ _ alts => alts.forM fun alt => visitFnBody alt.body
   | _ =>
     unless b.isTerminal do
-      let (_, b) := b.split
-      visitFnBody b
+      visitFnBody b.body
 
 def visitDecl (d : Decl) : M Unit := do
   match d with

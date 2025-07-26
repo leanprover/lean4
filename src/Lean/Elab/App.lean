@@ -959,7 +959,7 @@ builtin_initialize elabAsElim : TagAttribute ←
       let go : MetaM Unit := do
         let info ← getConstInfo declName
         if (← hasOptAutoParams info.type) then
-          throwError "[elab_as_elim] attribute cannot be used in declarations containing optional and auto parameters"
+          throwError "`[elab_as_elim]` attribute cannot be used in declarations containing optional and auto parameters"
         discard <| getElabElimInfo declName
       go.run' {} {}
 

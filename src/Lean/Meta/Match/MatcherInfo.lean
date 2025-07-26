@@ -94,7 +94,10 @@ def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo)
   assert! env.asyncMayContain matcherName
   extension.addEntry env { name := matcherName, info := info }
 
-def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo :=
+def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo := do
+  -- avoid blocking on async decls whose names look nothing like matchers
+  let .str _ s := declName.eraseMacroScopes | none
+  guard <| s.startsWith "match_"
   (extension.findStateAsync env declName).map.find? declName
 
 end Extension

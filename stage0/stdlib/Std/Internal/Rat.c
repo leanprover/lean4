@@ -31,7 +31,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_Rat_instMul;
 static lean_object* l_Std_Internal_instToStringRat___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_Rat_instLT;
 lean_object* l_Nat_reprFast(lean_object*);
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_43____boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_instBEqRat___closed__0;
 LEAN_EXPORT lean_object* l_Std_Internal_instToStringRat___lam__0(lean_object*);
@@ -475,7 +474,7 @@ lean_dec(x_9);
 x_10 = lean_ctor_get(x_1, 0);
 lean_dec(x_10);
 lean_inc(x_5);
-x_11 = l_instNatCastInt___lam__0(x_5);
+x_11 = lean_nat_to_int(x_5);
 x_12 = lean_int_div(x_2, x_11);
 lean_dec(x_11);
 lean_dec(x_2);
@@ -491,7 +490,7 @@ else
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 lean_dec(x_1);
 lean_inc(x_5);
-x_14 = l_instNatCastInt___lam__0(x_5);
+x_14 = lean_nat_to_int(x_5);
 x_15 = lean_int_div(x_2, x_14);
 lean_dec(x_14);
 lean_dec(x_2);
@@ -1519,7 +1518,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_Rat_instOfNat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_2);

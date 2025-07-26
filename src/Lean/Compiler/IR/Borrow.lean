@@ -78,8 +78,7 @@ partial def visitFnBody (fnid : FunId) : FnBody → StateM ParamMap Unit
   | FnBody.case _ _ _ alts => alts.forM fun alt => visitFnBody fnid alt.body
   | e => do
     unless e.isTerminal do
-      let (_, b) := e.split
-      visitFnBody fnid b
+      visitFnBody fnid e.body
 
 def visitDecls (env : Environment) (decls : Array Decl) : StateM ParamMap Unit :=
   decls.forM fun decl => match decl with
@@ -156,8 +155,8 @@ def ownVar (x : VarId) : M Unit := do
 
 def ownArg (x : Arg) : M Unit :=
   match x with
-  | Arg.var x => ownVar x
-  | _         => pure ()
+  | .var x => ownVar x
+  | .erased => pure ()
 
 def ownArgs (xs : Array Arg) : M Unit :=
   xs.forM ownArg
@@ -212,8 +211,8 @@ def ownParamsUsingArgs (xs : Array Arg) (ps : Array Param) : M Unit :=
     let x := xs[i]
     let p := ps[i]!
     match x with
-    | Arg.var x => if (← isOwned x) then ownVar p.x
-    | _         => pure ()
+    | .var x => if (← isOwned x) then ownVar p.x
+    | .erased => pure ()
 
 /-- Mark `xs[i]` as owned if it is one of the parameters `ps`.
    We use this action to mark function parameters that are being "packed" inside constructors.
@@ -229,8 +228,8 @@ def ownArgsIfParam (xs : Array Arg) : M Unit := do
   let ctx ← read
   xs.forM fun x => do
     match x with
-    | Arg.var x => if ctx.paramSet.contains x.idx then ownVar x
-    | _ => pure ()
+    | .var x => if ctx.paramSet.contains x.idx then ownVar x
+    | .erased => pure ()
 
 def collectExpr (z : VarId) : Expr → M Unit
   | Expr.reset _ x      => ownVar z *> ownVar x
@@ -249,7 +248,7 @@ def collectExpr (z : VarId) : Expr → M Unit
 def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit := do
   let ctx ← read
   match v, b with
-  | (Expr.fap g ys), (FnBody.ret (Arg.var z)) =>
+  | (Expr.fap g ys), (FnBody.ret (.var z)) =>
     -- NOTE: we currently support TCO for self-calls only
     if ctx.currFn == g && x == z then
       let ps ← getParamInfo (ParamMap.Key.decl g)

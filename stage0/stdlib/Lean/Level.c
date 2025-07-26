@@ -226,7 +226,6 @@ LEAN_EXPORT lean_object* l_Lean_Level_hasMVar___boxed(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Level_0__Lean_mkLevelMaxCore___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_geq___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_reprLevel___closed__16____x40_Lean_Level___hyg_1014_;
-extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Lean_Level_isZero___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_depth___boxed(lean_object*);
 static lean_object* l_Lean_instReprLevel___closed__0;
@@ -265,7 +264,6 @@ LEAN_EXPORT lean_object* l_Lean_instEmptyCollectionLMVarIdMap(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Level_Data_hasParam(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Level_getLevelOffset(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-static lean_object* l_Lean_Level_instToString___lam__0___closed__0;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_instToString;
 static lean_object* l_Lean_reprLevelMVarId___redArg___closed__2____x40_Lean_Level___hyg_523_;
@@ -5731,21 +5729,13 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Level_instToFormat___lam__0), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Level_instToString___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Level_instToString___lam__0(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = 1;
 x_3 = l_Lean_Level_format(x_1, x_2);
-x_4 = l_Lean_Level_instToString___lam__0___closed__0;
+x_4 = lean_unsigned_to_nat(120u);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_format_pretty(x_3, x_4, x_5, x_5);
 return x_6;
@@ -8952,8 +8942,6 @@ l_Lean_Level_PP_Result_quote___closed__16 = _init_l_Lean_Level_PP_Result_quote__
 lean_mark_persistent(l_Lean_Level_PP_Result_quote___closed__16);
 l_Lean_Level_instToFormat = _init_l_Lean_Level_instToFormat();
 lean_mark_persistent(l_Lean_Level_instToFormat);
-l_Lean_Level_instToString___lam__0___closed__0 = _init_l_Lean_Level_instToString___lam__0___closed__0();
-lean_mark_persistent(l_Lean_Level_instToString___lam__0___closed__0);
 l_Lean_Level_instToString = _init_l_Lean_Level_instToString();
 lean_mark_persistent(l_Lean_Level_instToString);
 l_Lean_Level_instQuoteMkStr1 = _init_l_Lean_Level_instQuoteMkStr1();

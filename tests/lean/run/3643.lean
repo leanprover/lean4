@@ -90,7 +90,7 @@ end Ex2
 section Ex3
 
 -- TODO: allow 'scoped' here? The limitation is in attribute processing itself, not the 'ext' attribute.
-/-- error: scoped attributes must be used inside namespaces -/
+/-- error: Scoped attributes must be used inside namespaces -/
 #guard_msgs in
 @[scoped ext] structure S3' (α β : Type _) where
   a : α

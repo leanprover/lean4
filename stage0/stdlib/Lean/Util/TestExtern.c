@@ -24,7 +24,6 @@ static lean_object* l_testExternCmd___closed__8;
 static lean_object* l_testExternCmd___closed__5;
 static lean_object* l_elabTestExtern___lam__0___closed__2;
 lean_object* l_Lean_Meta_unfold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___elabTestExtern_spec__0___redArg___closed__0;
 static lean_object* l_elabTestExtern___lam__0___closed__0;
 static lean_object* l_testExternCmd___closed__2;
@@ -73,6 +72,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at__
 static lean_object* l_elabTestExtern___lam__0___closed__16;
 static lean_object* l_testExternCmd___closed__7;
 static lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___elabTestExtern_spec__1_spec__2___redArg___closed__1;
+lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 static lean_object* l_elabTestExtern___lam__0___closed__8;
 static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___elabTestExtern_spec__1_spec__2_spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___elabTestExtern_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -88,8 +88,8 @@ lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Elab_Term_elabTermAndSynthesize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___elabTestExtern_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_liftTermElabM___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_testExternCmd;
+lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___elabTestExtern_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_elabTestExtern___lam__0___closed__19;
@@ -382,7 +382,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_find(x_1, x_3);
+x_5 = l_Lean_KVMap_findCore(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
@@ -1121,7 +1121,7 @@ x_29 = lean_ctor_get(x_27, 1);
 lean_inc(x_29);
 lean_dec_ref(x_27);
 x_30 = l_elabTestExtern___lam__0___closed__3;
-x_31 = l_Lean_mkApp(x_30, x_28);
+x_31 = l_Lean_Expr_app___override(x_30, x_28);
 x_32 = l_elabTestExtern___lam__0___closed__6;
 x_33 = 1;
 lean_inc(x_9);

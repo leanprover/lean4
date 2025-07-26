@@ -22739,14 +22739,14 @@ goto block_72;
 block_23:
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_19 = l_Array_append___redArg(x_15, x_18);
+x_19 = l_Array_append___redArg(x_12, x_18);
 lean_dec_ref(x_18);
-lean_inc(x_14);
+lean_inc(x_16);
 x_20 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_20, 0, x_14);
-lean_ctor_set(x_20, 1, x_16);
+lean_ctor_set(x_20, 0, x_16);
+lean_ctor_set(x_20, 1, x_17);
 lean_ctor_set(x_20, 2, x_19);
-x_21 = l_Lean_Syntax_node4(x_14, x_13, x_17, x_12, x_11, x_20);
+x_21 = l_Lean_Syntax_node4(x_16, x_14, x_13, x_15, x_11, x_20);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_3);
@@ -22843,12 +22843,12 @@ if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_68; 
 x_68 = l_Lean_Syntax_SepArray_ofElems___closed__0;
-x_12 = x_67;
-x_13 = x_31;
-x_14 = x_30;
-x_15 = x_35;
-x_16 = x_34;
-x_17 = x_33;
+x_12 = x_35;
+x_13 = x_33;
+x_14 = x_31;
+x_15 = x_67;
+x_16 = x_30;
+x_17 = x_34;
 x_18 = x_68;
 goto block_23;
 }
@@ -22860,12 +22860,12 @@ lean_inc(x_69);
 lean_dec_ref(x_24);
 x_70 = l_Lean_Syntax_SepArray_ofElems___closed__0;
 x_71 = lean_array_push(x_70, x_69);
-x_12 = x_67;
-x_13 = x_31;
-x_14 = x_30;
-x_15 = x_35;
-x_16 = x_34;
-x_17 = x_33;
+x_12 = x_35;
+x_13 = x_33;
+x_14 = x_31;
+x_15 = x_67;
+x_16 = x_30;
+x_17 = x_34;
 x_18 = x_71;
 goto block_23;
 }

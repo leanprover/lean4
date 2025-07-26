@@ -35,7 +35,6 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Expr_NumApps_visit_spec__3_spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_NumApps_main___closed__1;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Expr_NumApps_visit_spec__1___redArg___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_levelZero;
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_NumApps_main___closed__0;
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_Expr_numApps_spec__0___redArg(lean_object*, lean_object*, lean_object*);
@@ -477,7 +476,7 @@ static lean_object* _init_l_Lean_Expr_NumApps_visit___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_levelZero;
+x_1 = lean_box(0);
 x_2 = l_Lean_Expr_sort___override(x_1);
 return x_2;
 }

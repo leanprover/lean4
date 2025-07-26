@@ -22,8 +22,8 @@ static lean_object* l_Lean_Widget_instFromJsonRpcEncodablePacket___closed__0____
 static lean_object* l_Lean_Widget_fromJsonRpcEncodablePacket___closed__1____x40_Lean_Widget_Types___hyg_75_;
 LEAN_EXPORT lean_object* l_Lean_Widget_instFromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_271_;
 static lean_object* l_Lean_Widget_instRpcEncodableWidgetInstance___closed__2;
+lean_object* l_List_foldl___at___Array_appendList_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instToJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_337_;
-lean_object* l_List_foldl___at___Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableWidgetInstance___closed__0;
 lean_object* l_UInt64_fromJson_x3f(lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableWidgetInstance___closed__1;
@@ -174,7 +174,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec_ref(x_1);
-x_6 = l_List_foldl___at___Array_appendList_spec__0___redArg(x_2, x_4);
+x_6 = l_List_foldl___at___Array_appendList_spec__0(lean_box(0), x_2, x_4);
 x_1 = x_5;
 x_2 = x_6;
 goto _start;

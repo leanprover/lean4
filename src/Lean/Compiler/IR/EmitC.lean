@@ -542,7 +542,7 @@ def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
 def isTailCall (x : VarId) (v : Expr) (b : FnBody) : M Bool := do
   let ctx ← read;
   match v, b with
-  | Expr.fap f _, FnBody.ret (Arg.var y) => return f == ctx.mainFn && x == y
+  | Expr.fap f _, FnBody.ret (.var y) => return f == ctx.mainFn && x == y
   | _, _ => pure false
 
 def paramEqArg (p : Param) (x : Arg) : Bool :=
@@ -640,7 +640,6 @@ partial def emitBlock (b : FnBody) : M Unit := do
   | FnBody.set x i y b         => emitSet x i y; emitBlock b
   | FnBody.uset x i y b        => emitUSet x i y; emitBlock b
   | FnBody.sset x i o y t b    => emitSSet x i o y t; emitBlock b
-  | FnBody.mdata _ b           => emitBlock b
   | FnBody.ret x               => emit "return "; emitArg x; emitLn ";"
   | FnBody.case _ x xType alts => emitCase x xType alts
   | FnBody.jmp j xs            => emitJmp j xs

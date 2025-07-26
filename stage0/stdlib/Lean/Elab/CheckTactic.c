@@ -44,7 +44,6 @@ static lean_object* l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__7
 LEAN_EXPORT uint8_t l_Lean_Elab_CheckTactic_elabCheckTactic___lam__0(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_CheckTactic_elabCheckTactic_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_Elab_CheckTactic_elabCheckTactic_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_CheckTactic_elabCheckTactic_spec__1_spec__1_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Elab_CheckTactic_expandCheckSimpFailure___boxed(lean_object*, lean_object*, lean_object*);
@@ -118,6 +117,7 @@ static lean_object* l_Lean_Elab_CheckTactic_expandCheckSimpFailure___closed__0;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_CheckTactic_0__Lean_Elab_CheckTactic_expandCheckSimpFailure___regBuiltin_Lean_Elab_CheckTactic_expandCheckSimpFailure__1___closed__1;
 static lean_object* l_Lean_Elab_CheckTactic_elabCheckTacticFailure___lam__1___closed__1;
+lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_CheckTactic_0__Lean_Elab_CheckTactic_expandCheckSimpFailure___regBuiltin_Lean_Elab_CheckTactic_expandCheckSimpFailure_declRange__3___closed__3;
 static lean_object* l___private_Lean_Elab_CheckTactic_0__Lean_Elab_CheckTactic_elabCheckTacticFailure___regBuiltin_Lean_Elab_CheckTactic_elabCheckTacticFailure_declRange__3___closed__6;
 static lean_object* l___private_Lean_Elab_CheckTactic_0__Lean_Elab_CheckTactic_elabCheckTactic___regBuiltin_Lean_Elab_CheckTactic_elabCheckTactic_declRange__3___closed__3;
@@ -147,7 +147,6 @@ static lean_object* l___private_Lean_Elab_CheckTactic_0__Lean_Elab_CheckTactic_e
 LEAN_EXPORT lean_object* l_Lean_Elab_CheckTactic_elabCheckTacticFailure___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_CheckTactic_0__Lean_Elab_CheckTactic_elabCheckTactic___regBuiltin_Lean_Elab_CheckTactic_elabCheckTactic__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_CheckTactic_elabCheckTacticFailure___lam__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkFreshExprMVar(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_CheckTactic_elabCheckTactic_spec__1_spec__1_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_Elab_CheckTactic_elabCheckTactic_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__5;
@@ -180,6 +179,7 @@ static lean_object* l_Lean_Elab_CheckTactic_elabCheckTactic___lam__1___closed__2
 static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_Elab_CheckTactic_elabCheckTactic_spec__1_spec__1_spec__2_spec__3___closed__0;
 static lean_object* l___private_Lean_Elab_CheckTactic_0__Lean_Elab_CheckTactic_elabCheckTactic___regBuiltin_Lean_Elab_CheckTactic_elabCheckTactic__1___closed__3;
 static lean_object* l___private_Lean_Elab_CheckTactic_0__Lean_Elab_CheckTactic_expandCheckSimp___regBuiltin_Lean_Elab_CheckTactic_expandCheckSimp_declRange__3___closed__1;
+lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_CheckTactic_elabCheckTactic_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_CheckTactic_elabCheckTactic_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_CheckTactic_expandCheckSimpFailure(lean_object*, lean_object*, lean_object*);
@@ -376,7 +376,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_find(x_1, x_3);
+x_5 = l_Lean_KVMap_findCore(x_1, x_3);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; 
@@ -1275,7 +1275,7 @@ lean_ctor_set(x_35, 0, x_33);
 x_36 = 0;
 x_37 = lean_box(0);
 lean_inc_ref(x_11);
-x_38 = l_Lean_Meta_mkFreshExprMVar(x_35, x_36, x_37, x_11, x_12, x_13, x_14, x_34);
+x_38 = l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(x_35, x_36, x_37, x_11, x_12, x_13, x_14, x_34);
 x_39 = !lean_is_exclusive(x_38);
 if (x_39 == 0)
 {
@@ -2879,7 +2879,7 @@ lean_ctor_set(x_405, 0, x_403);
 x_406 = 0;
 x_407 = lean_box(0);
 lean_inc_ref(x_11);
-x_408 = l_Lean_Meta_mkFreshExprMVar(x_405, x_406, x_407, x_11, x_12, x_13, x_14, x_404);
+x_408 = l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(x_405, x_406, x_407, x_11, x_12, x_13, x_14, x_404);
 x_409 = lean_ctor_get(x_408, 0);
 lean_inc(x_409);
 x_410 = lean_ctor_get(x_408, 1);
@@ -4503,7 +4503,7 @@ lean_ctor_set(x_182, 0, x_180);
 x_183 = 0;
 x_184 = lean_box(0);
 lean_inc_ref(x_11);
-x_185 = l_Lean_Meta_mkFreshExprMVar(x_182, x_183, x_184, x_11, x_12, x_13, x_14, x_181);
+x_185 = l___private_Lean_Meta_Basic_0__Lean_Meta_mkFreshExprMVarImpl(x_182, x_183, x_184, x_11, x_12, x_13, x_14, x_181);
 x_186 = lean_ctor_get(x_185, 0);
 lean_inc(x_186);
 x_187 = lean_ctor_get(x_185, 1);

@@ -34,7 +34,6 @@ LEAN_EXPORT uint8_t l_Std_Time_Internal_instOrdUnitVal___lam__0(lean_object*, le
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_convert(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_div___redArg___boxed(lean_object*, lean_object*);
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_instOfNat(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Internal_UnitVal_instToString___lam__0___closed__0;
 LEAN_EXPORT uint8_t l_Std_Time_Internal_instDecidableLeUnitVal___redArg(lean_object*, lean_object*);
@@ -334,7 +333,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ofNat___redArg(lean_object*
 _start:
 {
 lean_object* x_2; 
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -342,7 +341,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Internal_UnitVal_ofNat(lean_object* x_1, lea
 _start:
 {
 lean_object* x_3; 
-x_3 = l_instNatCastInt___lam__0(x_2);
+x_3 = lean_nat_to_int(x_2);
 return x_3;
 }
 }
@@ -615,7 +614,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_nat_abs(x_1);
-x_3 = l_instNatCastInt___lam__0(x_2);
+x_3 = lean_nat_to_int(x_2);
 return x_3;
 }
 }
@@ -624,7 +623,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_nat_abs(x_2);
-x_4 = l_instNatCastInt___lam__0(x_3);
+x_4 = lean_nat_to_int(x_3);
 return x_4;
 }
 }
@@ -659,7 +658,7 @@ lean_inc(x_6);
 lean_dec_ref(x_4);
 x_7 = lean_int_mul(x_3, x_5);
 lean_dec(x_5);
-x_8 = l_instNatCastInt___lam__0(x_6);
+x_8 = lean_nat_to_int(x_6);
 x_9 = lean_int_ediv(x_7, x_8);
 lean_dec(x_8);
 lean_dec(x_7);

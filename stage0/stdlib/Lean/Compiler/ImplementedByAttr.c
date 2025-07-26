@@ -135,6 +135,7 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 static lean_object* l_Lean_withoutExporting___at___Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4__spec__10___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_withoutExporting___at___Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4__spec__10___redArg___closed__2;
+lean_object* l_Lean_Level_param___override(lean_object*);
 static lean_object* l_Lean_Compiler_initFn___lam__2___closed__7____x40_Lean_Compiler_ImplementedByAttr___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4__spec__0_spec__0_spec__0_spec__0_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutExporting___at___Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4__spec__10___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -158,7 +159,6 @@ static lean_object* l_Lean_Compiler_initFn___closed__0____x40_Lean_Compiler_Impl
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn___lam__1____x40_Lean_Compiler_ImplementedByAttr___hyg_4_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn___lam__0____x40_Lean_Compiler_ImplementedByAttr___hyg_4_(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkLevelParam(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4__spec__0_spec__0_spec__0_spec__0_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4__spec__0_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn___lam__2___closed__11____x40_Lean_Compiler_ImplementedByAttr___hyg_4_;
@@ -992,7 +992,7 @@ if (x_4 == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
-x_7 = l_Lean_mkLevelParam(x_5);
+x_7 = l_Lean_Level_param___override(x_5);
 lean_ctor_set(x_1, 1, x_2);
 lean_ctor_set(x_1, 0, x_7);
 {
@@ -1011,7 +1011,7 @@ x_10 = lean_ctor_get(x_1, 1);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_dec(x_1);
-x_11 = l_Lean_mkLevelParam(x_9);
+x_11 = l_Lean_Level_param___override(x_9);
 x_12 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_2);
@@ -1406,7 +1406,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__0____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid 'implemented_by' argument '", 35, 35);
+x_1 = lean_mk_string_unchecked("Invalid `implemented_by` argument `", 35, 35);
 return x_1;
 }
 }
@@ -1423,7 +1423,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__2____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', '", 4, 4);
+x_1 = lean_mk_string_unchecked("`: `", 4, 4);
 return x_1;
 }
 }
@@ -1440,7 +1440,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__4____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' has ", 6, 6);
+x_1 = lean_mk_string_unchecked("` has ", 6, 6);
 return x_1;
 }
 }
@@ -1457,7 +1457,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__6____x40_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(" universe level parameter(s), but '", 35, 35);
+x_1 = lean_mk_string_unchecked(" universe level parameter(s), but `", 35, 35);
 return x_1;
 }
 }
@@ -1491,7 +1491,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__10____x40_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' has type", 10, 10);
+x_1 = lean_mk_string_unchecked("` has type", 10, 10);
 return x_1;
 }
 }
@@ -1508,7 +1508,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__12____x40_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\nbut '", 6, 6);
+x_1 = lean_mk_string_unchecked("\nbut `", 6, 6);
 return x_1;
 }
 }
@@ -1525,7 +1525,7 @@ static lean_object* _init_l_Lean_Compiler_initFn___lam__2___closed__14____x40_Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("', function cannot be implemented by itself", 43, 43);
+x_1 = lean_mk_string_unchecked("`: Definition cannot be implemented by itself", 45, 45);
 return x_1;
 }
 }

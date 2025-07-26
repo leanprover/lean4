@@ -34,7 +34,6 @@ LEAN_EXPORT lean_object* l_Lean_Expr_traverseChildren___redArg___lam__0(lean_obj
 uint8_t l_ptrEqList___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_isArrow___boxed(lean_object*);
-static lean_object* l_Lean_mkAnnotation___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_getAppNumArgs_x27(lean_object*);
 static lean_object* l_Lean_Expr_replaceFVar___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Expr_rawNatLit_x3f(lean_object*);
@@ -56,6 +55,7 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedMVarIdMap(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkNatLit(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_BinderInfo_isInstImplicit___boxed(lean_object*);
 static lean_object* l_Lean_Expr_setPPNumericTypes___closed__1;
+lean_object* l_List_lengthTR___redArg(lean_object*);
 static lean_object* l_Lean_Expr_letBody_x21___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_hashEx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFVarIdSetInhabited;
@@ -206,7 +206,6 @@ static lean_object* l_Lean_reprExpr___closed__35____x40_Lean_Expr___hyg_2962_;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Literal_type___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkDecIsTrue(lean_object*, lean_object*);
-lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instReprData__1___lam__0(uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_data___boxed(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_intSubFn;
@@ -347,6 +346,7 @@ static lean_object* l___private_Lean_Expr_0__Lean_natMulFn___closed__3;
 static lean_object* l_Lean_Expr_appArg_x21_x27___closed__0;
 static lean_object* l_Lean_instReprData__1___lam__0___closed__8;
 LEAN_EXPORT lean_object* l_Lean_MData_empty;
+lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Nat_mkInstMod___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_appArg___redArg___boxed(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_natLEPred___closed__2;
@@ -647,7 +647,6 @@ static lean_object* l___private_Lean_Expr_0__Lean_intNatCastFn;
 LEAN_EXPORT lean_object* l_Lean_Expr_inferImplicit___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_setOption___at___Lean_Expr_setPPExplicit_spec__0(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_Expr_updateLet_x21Impl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_levelZero;
 uint8_t lean_expr_quick_lt(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_intDivFn;
 LEAN_EXPORT lean_object* l_Lean_Expr_isAppOfArity_x27___boxed(lean_object*, lean_object*, lean_object*);
@@ -836,7 +835,6 @@ LEAN_EXPORT lean_object* l_Lean_Expr_updateLambdaE_x21(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_Expr_fvarId_x21___boxed(lean_object*);
 static lean_object* l_Lean_reprExpr___closed__21____x40_Lean_Expr___hyg_2962_;
 static lean_object* l___private_Lean_Expr_0__Lean_intModFn___closed__1;
-lean_object* l_Lean_KVMap_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_getBoundedAppArgs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instForInMVarIdMapProdMVarId(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_binderInfo(lean_object*);
@@ -1038,7 +1036,6 @@ LEAN_EXPORT lean_object* l_Lean_reflBoolTrue;
 static lean_object* l_Lean_reprExpr___closed__31____x40_Lean_Expr___hyg_2962_;
 static lean_object* l_Lean_Expr_updateFVar_x21___closed__0;
 static lean_object* l_Lean_reprLiteral___closed__6____x40_Lean_Expr___hyg_121_;
-lean_object* l_Lean_KVMap_insert(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_isHaveEx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instDecidableLtLiteral___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_isApp___boxed(lean_object*);
@@ -1126,6 +1123,7 @@ LEAN_EXPORT lean_object* l_Lean_mkMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_mkAppRevRange___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_betaRev(lean_object*, lean_object*, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_getArgD___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Int_mkInstAdd;
 LEAN_EXPORT lean_object* l_Lean_mkIntPowNat(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -1163,7 +1161,6 @@ LEAN_EXPORT lean_object* l_Lean_Expr_instantiate1___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Int_mkInstHPow___closed__0;
 static lean_object* l_Lean_Int_mkInstLE___closed__2;
-extern lean_object* l_Lean_KVMap_empty;
 LEAN_EXPORT lean_object* l_List_repr___at___Lean_reprExpr____x40_Lean_Expr___hyg_2962__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_hasLooseBVar___boxed(lean_object*, lean_object*);
@@ -9383,7 +9380,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_levelZero;
+x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -12933,7 +12930,7 @@ static lean_object* _init_l_Lean_Expr_getAppArgs___closed__0() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_levelZero;
+x_1 = lean_box(0);
 x_2 = l_Lean_Expr_sort___override(x_1);
 return x_2;
 }
@@ -17396,7 +17393,7 @@ lean_inc_ref(x_5);
 lean_dec_ref(x_3);
 x_6 = lean_box(0);
 x_7 = lean_apply_1(x_5, x_4);
-x_8 = l_Lean_KVMap_insert(x_6, x_2, x_7);
+x_8 = l_Lean_KVMap_insertCore(x_6, x_2, x_7);
 x_9 = l_Lean_Expr_mdata___override(x_8, x_1);
 return x_9;
 }
@@ -17416,7 +17413,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_4 = lean_box(0);
 x_5 = lean_alloc_ctor(1, 0, 1);
 lean_ctor_set_uint8(x_5, 0, x_3);
-x_6 = l_Lean_KVMap_insert(x_4, x_2, x_5);
+x_6 = l_Lean_KVMap_insertCore(x_4, x_2, x_5);
 x_7 = l_Lean_Expr_mdata___override(x_6, x_1);
 return x_7;
 }
@@ -18672,14 +18669,6 @@ return x_2;
 static lean_object* _init_l_Lean_mkAnnotation___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_KVMap_empty;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_mkAnnotation___closed__1() {
-_start:
-{
 uint8_t x_1; lean_object* x_2; 
 x_1 = 1;
 x_2 = lean_alloc_ctor(1, 0, 1);
@@ -18691,9 +18680,9 @@ LEAN_EXPORT lean_object* l_Lean_mkAnnotation(lean_object* x_1, lean_object* x_2)
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = l_Lean_mkAnnotation___closed__0;
-x_4 = l_Lean_mkAnnotation___closed__1;
-x_5 = l_Lean_KVMap_insert(x_3, x_1, x_4);
+x_3 = lean_box(0);
+x_4 = l_Lean_mkAnnotation___closed__0;
+x_5 = l_Lean_KVMap_insertCore(x_3, x_1, x_4);
 x_6 = l_Lean_Expr_mdata___override(x_5, x_2);
 return x_6;
 }
@@ -18706,7 +18695,7 @@ if (lean_obj_tag(x_2) == 10)
 lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
-x_9 = l_Lean_KVMap_size(x_3);
+x_9 = l_List_lengthTR___redArg(x_3);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_dec_eq(x_9, x_10);
 lean_dec(x_9);
@@ -18836,7 +18825,7 @@ if (lean_obj_tag(x_1) == 10)
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = l___private_Lean_Expr_0__Lean_patternRefAnnotationKey;
-x_4 = l_Lean_KVMap_find(x_2, x_3);
+x_4 = l_Lean_KVMap_findCore(x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; 
@@ -18958,11 +18947,11 @@ x_3 = l_Lean_patternWithRef_x3f(x_1);
 if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_4 = l_Lean_mkAnnotation___closed__0;
+x_4 = lean_box(0);
 x_5 = l___private_Lean_Expr_0__Lean_patternRefAnnotationKey;
 x_6 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_6, 0, x_2);
-x_7 = l_Lean_KVMap_insert(x_4, x_5, x_6);
+x_7 = l_Lean_KVMap_insertCore(x_4, x_5, x_6);
 x_8 = l_Lean_Expr_mdata___override(x_7, x_1);
 return x_8;
 }
@@ -19992,7 +19981,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_mkNatLit___closed__3;
-x_2 = l_Lean_levelZero;
+x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -22387,8 +22376,6 @@ l_Lean_Expr_letFun_x3f___closed__0 = _init_l_Lean_Expr_letFun_x3f___closed__0();
 lean_mark_persistent(l_Lean_Expr_letFun_x3f___closed__0);
 l_Lean_mkAnnotation___closed__0 = _init_l_Lean_mkAnnotation___closed__0();
 lean_mark_persistent(l_Lean_mkAnnotation___closed__0);
-l_Lean_mkAnnotation___closed__1 = _init_l_Lean_mkAnnotation___closed__1();
-lean_mark_persistent(l_Lean_mkAnnotation___closed__1);
 l_Lean_mkInaccessible___closed__0 = _init_l_Lean_mkInaccessible___closed__0();
 lean_mark_persistent(l_Lean_mkInaccessible___closed__0);
 l_Lean_mkInaccessible___closed__1 = _init_l_Lean_mkInaccessible___closed__1();

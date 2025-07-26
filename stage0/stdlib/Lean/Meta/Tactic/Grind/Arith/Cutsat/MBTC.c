@@ -212,14 +212,38 @@ goto _start;
 }
 else
 {
-lean_object* x_31; uint8_t x_32; 
-lean_inc_ref(x_28);
-x_31 = l_Lean_Expr_appFnCleanup___redArg(x_28);
-x_32 = l_Lean_Expr_isApp(x_31);
-if (x_32 == 0)
+lean_object* x_31; lean_object* x_32; uint8_t x_33; 
+x_31 = lean_ctor_get(x_28, 1);
+lean_inc_ref(x_31);
+x_32 = l_Lean_Expr_appFnCleanup___redArg(x_28);
+x_33 = l_Lean_Expr_isApp(x_32);
+if (x_33 == 0)
+{
+lean_dec_ref(x_32);
+lean_dec_ref(x_31);
+lean_free_object(x_18);
+lean_dec(x_14);
+lean_inc_ref(x_1);
+{
+lean_object* _tmp_2 = x_1;
+lean_object* _tmp_3 = x_16;
+lean_object* _tmp_12 = x_22;
+x_3 = _tmp_2;
+x_4 = _tmp_3;
+x_13 = _tmp_12;
+}
+goto _start;
+}
+else
+{
+lean_object* x_35; lean_object* x_36; uint8_t x_37; 
+x_35 = l_Lean_Expr_appFnCleanup___redArg(x_32);
+x_36 = l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f_spec__0___closed__2;
+x_37 = l_Lean_Expr_isConstOf(x_35, x_36);
+lean_dec_ref(x_35);
+if (x_37 == 0)
 {
 lean_dec_ref(x_31);
-lean_dec_ref(x_28);
 lean_free_object(x_18);
 lean_dec(x_14);
 lean_inc_ref(x_1);
@@ -235,34 +259,8 @@ goto _start;
 }
 else
 {
-lean_object* x_34; lean_object* x_35; uint8_t x_36; 
-x_34 = l_Lean_Expr_appFnCleanup___redArg(x_31);
-x_35 = l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f_spec__0___closed__2;
-x_36 = l_Lean_Expr_isConstOf(x_34, x_35);
-lean_dec_ref(x_34);
-if (x_36 == 0)
-{
-lean_dec_ref(x_28);
-lean_free_object(x_18);
-lean_dec(x_14);
-lean_inc_ref(x_1);
-{
-lean_object* _tmp_2 = x_1;
-lean_object* _tmp_3 = x_16;
-lean_object* _tmp_12 = x_22;
-x_3 = _tmp_2;
-x_4 = _tmp_3;
-x_13 = _tmp_12;
-}
-goto _start;
-}
-else
-{
-lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; 
-x_38 = lean_ctor_get(x_28, 1);
-lean_inc_ref(x_38);
-lean_dec_ref(x_28);
-x_39 = l_Lean_Expr_cleanupAnnotations(x_38);
+lean_object* x_39; lean_object* x_40; uint8_t x_41; 
+x_39 = l_Lean_Expr_cleanupAnnotations(x_31);
 x_40 = l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f_spec__0___closed__4;
 x_41 = l_Lean_Expr_isConstOf(x_39, x_40);
 lean_dec_ref(x_39);
@@ -457,14 +455,37 @@ goto _start;
 }
 else
 {
-lean_object* x_72; uint8_t x_73; 
-lean_inc_ref(x_69);
-x_72 = l_Lean_Expr_appFnCleanup___redArg(x_69);
-x_73 = l_Lean_Expr_isApp(x_72);
-if (x_73 == 0)
+lean_object* x_72; lean_object* x_73; uint8_t x_74; 
+x_72 = lean_ctor_get(x_69, 1);
+lean_inc_ref(x_72);
+x_73 = l_Lean_Expr_appFnCleanup___redArg(x_69);
+x_74 = l_Lean_Expr_isApp(x_73);
+if (x_74 == 0)
+{
+lean_dec_ref(x_73);
+lean_dec_ref(x_72);
+lean_dec(x_14);
+lean_inc_ref(x_1);
+{
+lean_object* _tmp_2 = x_1;
+lean_object* _tmp_3 = x_16;
+lean_object* _tmp_12 = x_22;
+x_3 = _tmp_2;
+x_4 = _tmp_3;
+x_13 = _tmp_12;
+}
+goto _start;
+}
+else
+{
+lean_object* x_76; lean_object* x_77; uint8_t x_78; 
+x_76 = l_Lean_Expr_appFnCleanup___redArg(x_73);
+x_77 = l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f_spec__0___closed__2;
+x_78 = l_Lean_Expr_isConstOf(x_76, x_77);
+lean_dec_ref(x_76);
+if (x_78 == 0)
 {
 lean_dec_ref(x_72);
-lean_dec_ref(x_69);
 lean_dec(x_14);
 lean_inc_ref(x_1);
 {
@@ -479,33 +500,8 @@ goto _start;
 }
 else
 {
-lean_object* x_75; lean_object* x_76; uint8_t x_77; 
-x_75 = l_Lean_Expr_appFnCleanup___redArg(x_72);
-x_76 = l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f_spec__0___closed__2;
-x_77 = l_Lean_Expr_isConstOf(x_75, x_76);
-lean_dec_ref(x_75);
-if (x_77 == 0)
-{
-lean_dec_ref(x_69);
-lean_dec(x_14);
-lean_inc_ref(x_1);
-{
-lean_object* _tmp_2 = x_1;
-lean_object* _tmp_3 = x_16;
-lean_object* _tmp_12 = x_22;
-x_3 = _tmp_2;
-x_4 = _tmp_3;
-x_13 = _tmp_12;
-}
-goto _start;
-}
-else
-{
-lean_object* x_79; lean_object* x_80; lean_object* x_81; uint8_t x_82; 
-x_79 = lean_ctor_get(x_69, 1);
-lean_inc_ref(x_79);
-lean_dec_ref(x_69);
-x_80 = l_Lean_Expr_cleanupAnnotations(x_79);
+lean_object* x_80; lean_object* x_81; uint8_t x_82; 
+x_80 = l_Lean_Expr_cleanupAnnotations(x_72);
 x_81 = l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Meta_Tactic_Grind_Arith_Cutsat_MBTC_0__Lean_Meta_Grind_Arith_Cutsat_getAssignmentExt_x3f_spec__0___closed__4;
 x_82 = l_Lean_Expr_isConstOf(x_80, x_81);
 lean_dec_ref(x_80);
@@ -716,6 +712,7 @@ else
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 lean_free_object(x_17);
 x_23 = l_Lean_Meta_Grind_getParents___redArg(x_1, x_2, x_20);
+lean_dec_ref(x_1);
 x_24 = lean_ctor_get(x_23, 0);
 lean_inc(x_24);
 x_25 = lean_ctor_get(x_23, 1);
@@ -831,6 +828,7 @@ else
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; 
 x_48 = l_Lean_Meta_Grind_getParents___redArg(x_1, x_2, x_44);
+lean_dec_ref(x_1);
 x_49 = lean_ctor_get(x_48, 0);
 lean_inc(x_49);
 x_50 = lean_ctor_get(x_48, 1);

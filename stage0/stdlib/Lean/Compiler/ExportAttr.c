@@ -49,6 +49,7 @@ static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at_
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_95__spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
+static lean_object* l_Lean_initFn___lam__2___closed__3____x40_Lean_Compiler_ExportAttr___hyg_95_;
 LEAN_EXPORT lean_object* l_Lean_exportAttr;
 static lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__6;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -72,6 +73,7 @@ static lean_object* l_Lean_isExport___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_Compiler_ExportAttr___hyg_95_;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
+static lean_object* l_Lean_initFn___lam__2___closed__2____x40_Lean_Compiler_ExportAttr___hyg_95_;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_anyAux___at_____private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__1____x40_Lean_Compiler_ExportAttr___hyg_95____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -89,6 +91,7 @@ static lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_exportAttr___re
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_95__spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_95__spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_exportAttr___regBuiltin_Lean_exportAttr_declRange__3___closed__4;
+lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isExport___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_anyAux___at_____private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
@@ -661,7 +664,7 @@ static lean_object* _init_l_Lean_initFn___lam__2___closed__0____x40_Lean_Compile
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid 'export' function name, is not a valid C++ identifier", 61, 61);
+x_1 = lean_mk_string_unchecked("Invalid `export` function name: `", 33, 33);
 return x_1;
 }
 }
@@ -670,6 +673,23 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_initFn___lam__2___closed__0____x40_Lean_Compiler_ExportAttr___hyg_95_;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_initFn___lam__2___closed__2____x40_Lean_Compiler_ExportAttr___hyg_95_() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("` is not a valid C++ identifier", 31, 31);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_initFn___lam__2___closed__3____x40_Lean_Compiler_ExportAttr___hyg_95_() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_initFn___lam__2___closed__2____x40_Lean_Compiler_ExportAttr___hyg_95_;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -687,36 +707,90 @@ x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
+lean_inc(x_7);
 x_9 = l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppName(x_7);
 if (x_9 == 0)
 {
-lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-lean_dec_ref(x_6);
-x_10 = l_Lean_initFn___lam__2___closed__1____x40_Lean_Compiler_ExportAttr___hyg_95_;
-x_11 = l_Lean_throwError___at___Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_95__spec__0___redArg(x_10, x_3, x_4, x_8);
-lean_dec_ref(x_3);
-x_12 = !lean_is_exclusive(x_11);
-if (x_12 == 0)
+uint8_t x_10; 
+x_10 = !lean_is_exclusive(x_6);
+if (x_10 == 0)
 {
-return x_11;
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+x_11 = lean_ctor_get(x_6, 1);
+lean_dec(x_11);
+x_12 = lean_ctor_get(x_6, 0);
+lean_dec(x_12);
+x_13 = l_Lean_initFn___lam__2___closed__1____x40_Lean_Compiler_ExportAttr___hyg_95_;
+x_14 = l_Lean_MessageData_ofName(x_7);
+lean_ctor_set_tag(x_6, 7);
+lean_ctor_set(x_6, 1, x_14);
+lean_ctor_set(x_6, 0, x_13);
+x_15 = l_Lean_initFn___lam__2___closed__3____x40_Lean_Compiler_ExportAttr___hyg_95_;
+x_16 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_16, 0, x_6);
+lean_ctor_set(x_16, 1, x_15);
+x_17 = l_Lean_throwError___at___Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_95__spec__0___redArg(x_16, x_3, x_4, x_8);
+lean_dec_ref(x_3);
+x_18 = !lean_is_exclusive(x_17);
+if (x_18 == 0)
+{
+return x_17;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = lean_ctor_get(x_11, 0);
-x_14 = lean_ctor_get(x_11, 1);
-lean_inc(x_14);
-lean_inc(x_13);
-lean_dec(x_11);
-x_15 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_15, 0, x_13);
-lean_ctor_set(x_15, 1, x_14);
-return x_15;
+lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_19 = lean_ctor_get(x_17, 0);
+x_20 = lean_ctor_get(x_17, 1);
+lean_inc(x_20);
+lean_inc(x_19);
+lean_dec(x_17);
+x_21 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_21, 0, x_19);
+lean_ctor_set(x_21, 1, x_20);
+return x_21;
+}
+}
+else
+{
+lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
+lean_dec(x_6);
+x_22 = l_Lean_initFn___lam__2___closed__1____x40_Lean_Compiler_ExportAttr___hyg_95_;
+x_23 = l_Lean_MessageData_ofName(x_7);
+x_24 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_24, 0, x_22);
+lean_ctor_set(x_24, 1, x_23);
+x_25 = l_Lean_initFn___lam__2___closed__3____x40_Lean_Compiler_ExportAttr___hyg_95_;
+x_26 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_26, 0, x_24);
+lean_ctor_set(x_26, 1, x_25);
+x_27 = l_Lean_throwError___at___Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_95__spec__0___redArg(x_26, x_3, x_4, x_8);
+lean_dec_ref(x_3);
+x_28 = lean_ctor_get(x_27, 0);
+lean_inc(x_28);
+x_29 = lean_ctor_get(x_27, 1);
+lean_inc(x_29);
+if (lean_is_exclusive(x_27)) {
+ lean_ctor_release(x_27, 0);
+ lean_ctor_release(x_27, 1);
+ x_30 = x_27;
+} else {
+ lean_dec_ref(x_27);
+ x_30 = lean_box(0);
+}
+if (lean_is_scalar(x_30)) {
+ x_31 = lean_alloc_ctor(1, 2, 0);
+} else {
+ x_31 = x_30;
+}
+lean_ctor_set(x_31, 0, x_28);
+lean_ctor_set(x_31, 1, x_29);
+return x_31;
 }
 }
 else
 {
 lean_dec(x_8);
+lean_dec(x_7);
 lean_dec_ref(x_3);
 return x_6;
 }
@@ -1101,6 +1175,10 @@ l_Lean_initFn___lam__2___closed__0____x40_Lean_Compiler_ExportAttr___hyg_95_ = _
 lean_mark_persistent(l_Lean_initFn___lam__2___closed__0____x40_Lean_Compiler_ExportAttr___hyg_95_);
 l_Lean_initFn___lam__2___closed__1____x40_Lean_Compiler_ExportAttr___hyg_95_ = _init_l_Lean_initFn___lam__2___closed__1____x40_Lean_Compiler_ExportAttr___hyg_95_();
 lean_mark_persistent(l_Lean_initFn___lam__2___closed__1____x40_Lean_Compiler_ExportAttr___hyg_95_);
+l_Lean_initFn___lam__2___closed__2____x40_Lean_Compiler_ExportAttr___hyg_95_ = _init_l_Lean_initFn___lam__2___closed__2____x40_Lean_Compiler_ExportAttr___hyg_95_();
+lean_mark_persistent(l_Lean_initFn___lam__2___closed__2____x40_Lean_Compiler_ExportAttr___hyg_95_);
+l_Lean_initFn___lam__2___closed__3____x40_Lean_Compiler_ExportAttr___hyg_95_ = _init_l_Lean_initFn___lam__2___closed__3____x40_Lean_Compiler_ExportAttr___hyg_95_();
+lean_mark_persistent(l_Lean_initFn___lam__2___closed__3____x40_Lean_Compiler_ExportAttr___hyg_95_);
 l_Lean_initFn___closed__0____x40_Lean_Compiler_ExportAttr___hyg_95_ = _init_l_Lean_initFn___closed__0____x40_Lean_Compiler_ExportAttr___hyg_95_();
 lean_mark_persistent(l_Lean_initFn___closed__0____x40_Lean_Compiler_ExportAttr___hyg_95_);
 l_Lean_initFn___closed__1____x40_Lean_Compiler_ExportAttr___hyg_95_ = _init_l_Lean_initFn___closed__1____x40_Lean_Compiler_ExportAttr___hyg_95_();

@@ -30,10 +30,9 @@ def registerOrderedTagAttribute (name : Name) (descr : String)
     descr := descr
     add   := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
       let env ← getEnv
-      unless (env.getModuleIdxFor? decl).isNone do
-        throwError "invalid attribute '{name}', declaration is in an imported module"
+      unless (env.getModuleIdxFor? decl).isNone do throwAttrDeclInImportedModule name decl
       validate decl
       modifyEnv fun env => ext.addEntry env decl
   }

@@ -26,11 +26,9 @@ LEAN_EXPORT lean_object* l_Lean_collectAxioms___redArg(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_CollectAxioms_collect_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
 lean_object* lean_task_get_own(lean_object*);
-extern lean_object* l_Lean_NameSet_empty;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_CollectAxioms_collect_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
-static lean_object* l_Lean_collectAxioms___redArg___lam__0___closed__2;
+uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_collectAxioms___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -161,7 +159,7 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc_ref(x_5);
-x_6 = l_Lean_NameSet_contains(x_4, x_1);
+x_6 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(x_1, x_4);
 if (x_6 == 0)
 {
 uint8_t x_7; 
@@ -517,26 +515,18 @@ return x_9;
 static lean_object* _init_l_Lean_collectAxioms___redArg___lam__0___closed__0() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_collectAxioms___redArg___lam__0___closed__1() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_collectAxioms___redArg___lam__0___closed__2() {
+static lean_object* _init_l_Lean_collectAxioms___redArg___lam__0___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_collectAxioms___redArg___lam__0___closed__1;
-x_2 = l_Lean_collectAxioms___redArg___lam__0___closed__0;
+x_1 = l_Lean_collectAxioms___redArg___lam__0___closed__0;
+x_2 = lean_box(1);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -547,7 +537,7 @@ LEAN_EXPORT lean_object* l_Lean_collectAxioms___redArg___lam__0(lean_object* x_1
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_4 = l_Lean_collectAxioms___redArg___lam__0___closed__2;
+x_4 = l_Lean_collectAxioms___redArg___lam__0___closed__1;
 x_5 = l_Lean_CollectAxioms_collect(x_1, x_3, x_4);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
@@ -606,8 +596,6 @@ l_Lean_collectAxioms___redArg___lam__0___closed__0 = _init_l_Lean_collectAxioms_
 lean_mark_persistent(l_Lean_collectAxioms___redArg___lam__0___closed__0);
 l_Lean_collectAxioms___redArg___lam__0___closed__1 = _init_l_Lean_collectAxioms___redArg___lam__0___closed__1();
 lean_mark_persistent(l_Lean_collectAxioms___redArg___lam__0___closed__1);
-l_Lean_collectAxioms___redArg___lam__0___closed__2 = _init_l_Lean_collectAxioms___redArg___lam__0___closed__2();
-lean_mark_persistent(l_Lean_collectAxioms___redArg___lam__0___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

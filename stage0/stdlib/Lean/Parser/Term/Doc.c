@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_Doc_getRecommendedSpellingString___closed__0;
 static lean_object* l_Lean_Parser_Term_Doc_initFn___closed__0____x40_Lean_Parser_Term_Doc___hyg_41_;
@@ -109,6 +108,7 @@ LEAN_EXPORT uint8_t l_Array_qsort_sort___at___Lean_Parser_Term_Doc_initFn____x40
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___hyg_41__spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
+lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__0;
 static lean_object* l_Lean_Parser_Term_Doc_getRecommendedSpellingString_indentLine___closed__1;
 static lean_object* l_Lean_Parser_Term_Doc_initFn___closed__2____x40_Lean_Parser_Term_Doc___hyg_211_;
@@ -1215,11 +1215,11 @@ x_5 = lean_ctor_get_uint8(x_4, sizeof(void*)*3);
 x_6 = lean_box(1);
 x_7 = l_Lean_Parser_Term_Doc_getRecommendedSpellingsForName___closed__0;
 lean_inc_ref(x_1);
-x_8 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe(lean_box(0), x_7, x_4, x_1, x_5);
+x_8 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_7, x_4, x_1, x_5);
 lean_dec_ref(x_4);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_9);
-lean_dec_ref(x_8);
+lean_dec(x_8);
 x_10 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___hyg_41__spec__4_spec__4___closed__0;
 x_11 = lean_array_size(x_9);
 x_12 = 0;

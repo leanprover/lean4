@@ -241,9 +241,6 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
     -- We don't need to insert `y` since we only need to track live variables that are references at runtime
     let s      := s.insert x
     (FnBody.sset x i o y t b, s)
-  | FnBody.mdata m b,          ctx =>
-    let (b, s) := visitFnBody b ctx
-    (FnBody.mdata m b, s)
   | b@(FnBody.case tid x xType alts), ctx =>
     let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap
     let alts         := alts.map fun alt => match alt with

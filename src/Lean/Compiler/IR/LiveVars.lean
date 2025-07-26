@@ -57,7 +57,6 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
   | FnBody.inc x _ _ _ b    => visitVar w x <||> visitFnBody w b
   | FnBody.dec x _ _ _ b    => visitVar w x <||> visitFnBody w b
   | FnBody.del x b          => visitVar w x <||> visitFnBody w b
-  | FnBody.mdata _ b        => visitFnBody w b
   | FnBody.jmp j ys         => visitArgs w ys <||> do
       let ctx ← get
       match ctx.getJPBody j with
@@ -148,7 +147,6 @@ partial def collectFnBody : FnBody → JPLiveVarMap → Collector
   | FnBody.inc x _ _ _ b,    m => collectVar x ∘ collectFnBody b m
   | FnBody.dec x _ _ _ b,    m => collectVar x ∘ collectFnBody b m
   | FnBody.del x b,          m => collectVar x ∘ collectFnBody b m
-  | FnBody.mdata _ b,        m => collectFnBody b m
   | FnBody.ret x,            _ => collectArg x
   | FnBody.case _ x _ alts,  m => collectVar x ∘ collectArray alts (fun alt => collectFnBody alt.body m)
   | FnBody.unreachable,      _ => skip

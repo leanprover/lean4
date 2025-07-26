@@ -101,7 +101,6 @@ def formatFnBodyHead : FnBody → Format
   | FnBody.inc x n _ _ _       => "inc" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x
   | FnBody.dec x n _ _ _       => "dec" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x
   | FnBody.del x _             => "del " ++ format x
-  | FnBody.mdata d _           => "mdata " ++ format d
   | FnBody.case _   x _     _  => "case " ++ format x ++ " of ..."
   | FnBody.jmp j ys            => "jmp " ++ format j ++ formatArray ys
   | FnBody.ret x               => "ret " ++ format x
@@ -122,7 +121,6 @@ partial def formatFnBody (fnBody : FnBody) (indent : Nat := 2) : Format :=
     | FnBody.inc x n _ _ b       => "inc" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ loop b
     | FnBody.dec x n _ _ b       => "dec" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ loop b
     | FnBody.del x b             => "del " ++ format x ++ ";" ++ Format.line ++ loop b
-    | FnBody.mdata d b           => "mdata " ++ format d ++ ";" ++ Format.line ++ loop b
     | FnBody.case _ x xType cs   => "case " ++ format x ++ " : " ++ format xType ++ " of" ++ cs.foldl (fun r c => r ++ Format.line ++ formatAlt loop indent c) Format.nil
     | FnBody.jmp j ys            => "jmp " ++ format j ++ formatArray ys
     | FnBody.ret x               => "ret " ++ format x

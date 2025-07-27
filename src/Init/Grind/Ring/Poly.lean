@@ -240,6 +240,53 @@ def Mon.revlex (m₁ m₂ : Mon) : Ordering :=
 def Mon.grevlex (m₁ m₂ : Mon) : Ordering :=
   compare m₁.degree m₂.degree |>.then (revlex m₁ m₂)
 
+noncomputable def Mon.revlex_k : Mon → Mon → Ordering :=
+  Nat.rec
+    revlexWF
+    (fun _ ih m₁ => Mon.rec
+      (fun m₂ => Mon.rec .eq (fun _ _ _ => .gt) m₂)
+      (fun pw₁ m₁ _ m₂ => Mon.rec
+        .lt
+        (fun pw₂ m₂ _ => Bool.rec
+          (Bool.rec
+            (ih (.mult pw₁ m₁) m₂ |>.then .gt)
+            (ih m₁ (.mult pw₂ m₂) |>.then .lt)
+            (pw₁.x.blt pw₂.x))
+          (ih m₁ m₂ |>.then (powerRevlex pw₁.k pw₂.k))
+          (Nat.beq pw₁.x pw₂.x))
+        m₂)
+      m₁)
+    hugeFuel
+
+noncomputable def Mon.grevlex_k (m₁ m₂ : Mon) : Ordering :=
+  compare m₁.degree m₂.degree |>.then (revlex_k m₁ m₂)
+
+theorem Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.revlex m₂ := by
+  unfold revlex revlex_k
+  generalize hugeFuel = fuel
+  induction fuel generalizing m₁ m₂
+  next => rfl
+  next =>
+    simp [revlexFuel]; split <;> try rfl
+    next ih _ _ pw₁ m₁ pw₂ m₂ =>
+      simp only [cond_eq_if, beq_iff_eq]
+      split
+      next h =>
+        replace h : Nat.beq pw₁.x pw₂.x = true := by rw [Nat.beq_eq, h]
+        simp [h, ← ih m₁ m₂]
+      next h =>
+        replace h : Nat.beq pw₁.x pw₂.x = false := by
+          rw [← Bool.not_eq_true, Nat.beq_eq]; exact h
+        simp only [h]
+        split
+        next h => simp [h, ← ih m₁ (mult pw₂ m₂)]
+        next h =>
+          rw [Bool.not_eq_true] at h
+          simp [h, ← ih (mult pw₁ m₁) m₂]
+
+theorem Mon.grevlex_k_eq_grevlex (m₁ m₂ : Mon) : m₁.grevlex_k m₂ = m₁.grevlex m₂ := by
+  unfold grevlex_k grevlex; simp [revlex_k_eq_revlex]
+
 inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Mon) (p : Poly)
@@ -438,7 +485,7 @@ noncomputable def Poly.combine_k : Poly → Poly → Poly :=
                (ih p₁ p₂)
                (Int.beq' k 0))
             (.add k₁ m₁ (ih p₁ (.add k₂ m₂ p₂)))
-            (m₁.grevlex m₂))
+            (m₁.grevlex_k m₂))
           p₂)
         p₁)
     hugeFuel
@@ -450,7 +497,7 @@ noncomputable def Poly.combine_k : Poly → Poly → Poly :=
   next => simp [Poly.combine.go]; rfl
   next =>
    unfold Poly.combine.go; simp only [Int.add_def]
-   split <;> simp only [← addConst_k_eq_addConst]
+   split <;> simp only [← addConst_k_eq_addConst, ← Mon.grevlex_k_eq_grevlex]
    next ih _ _ k₁ m₁ p₁ k₂ m₂ p₂ =>
     split
     next h =>

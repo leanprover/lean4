@@ -403,6 +403,48 @@ where
         | .gt => .add k₁ m₁ (go fuel p₁ (.add k₂ m₂ p₂))
         | .lt => .add k₂ m₂ (go fuel (.add k₁ m₁ p₁) p₂)
 
+/-- A `Poly.combine` optimized for the kernel. -/
+noncomputable def Poly.combine_k : Poly → Poly → Poly :=
+  Nat.rec Poly.concat
+    (fun _ ih p₁ =>
+      Poly.rec
+        (fun k₁ p₂ => Poly.rec
+          (fun k₂ => .num (k₁ + k₂))
+          (fun k₂ m₂ p₂ _ => addConst (.add k₂ m₂ p₂) k₁)
+          p₂)
+        (fun k₁ m₁ p₁ _ p₂ => Poly.rec
+          (fun k₂ => addConst (.add k₁ m₁ p₁) k₂)
+          (fun k₂ m₂ p₂ _ => Ordering.rec
+            (.add k₂ m₂ (ih (.add k₁ m₁ p₁) p₂))
+            (let k := Int.add k₁ k₂
+             Bool.rec
+               (.add k m₁ (ih p₁ p₂))
+               (ih p₁ p₂)
+               (Int.beq' k 0))
+            (.add k₁ m₁ (ih p₁ (.add k₂ m₂ p₂)))
+            (m₁.grevlex m₂))
+          p₂)
+        p₁)
+    hugeFuel
+
+@[simp] theorem Poly.combine_k_eq_combine (p₁ p₂ : Poly) : p₁.combine_k p₂ = p₁.combine p₂ := by
+  unfold Poly.combine Poly.combine_k
+  generalize hugeFuel = fuel
+  induction fuel generalizing p₁ p₂
+  next => simp [Poly.combine.go]; rfl
+  next =>
+   unfold Poly.combine.go
+   split <;> try rfl
+   next ih _ _ k₁ m₁ p₁ k₂ m₂ p₂ =>
+    split
+    next h =>
+      simp [h, Int.add_def, ← ih p₁ p₂, cond]
+      split
+      next h => rw [← Int.beq'_eq_beq] at h; simp [h]
+      next h => rw [← Int.beq'_eq_beq] at h; simp [h]
+    next h => simp [h]; rw [← ih p₁ (add k₂ m₂ p₂)]; rfl
+    next h => simp [h]; rw [← ih (add k₁ m₁ p₁) p₂]; rfl
+
 @[expose]
 def Poly.mul (p₁ : Poly) (p₂ : Poly) : Poly :=
   go p₁ (.num 0)
@@ -1121,7 +1163,7 @@ theorem core {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
 
 @[expose]
 noncomputable def superpose_cert (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
-  (p₁.mulMon k₁ m₁).combine (p₂.mulMon k₂ m₂) |>.beq' p
+  (p₁.mulMon k₁ m₁).combine_k (p₂.mulMon k₂ m₂) |>.beq' p
 
 theorem superpose {α} [CommRing α] (ctx : Context α) (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : superpose_cert k₁ m₁ p₁ k₂ m₂ p₂ p → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
@@ -1130,7 +1172,7 @@ theorem superpose {α} [CommRing α] (ctx : Context α) (k₁ : Int) (m₁ : Mon
 
 @[expose]
 noncomputable def simp_cert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
-  (p₁.mulConst k₁).combine (p₂.mulMon k₂ m₂) |>.beq' p
+  (p₁.mulConst k₁).combine_k (p₂.mulMon k₂ m₂) |>.beq' p
 
 theorem simp {α} [CommRing α] (ctx : Context α) (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : simp_cert k₁ p₁ k₂ m₂ p₂ p → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
@@ -1175,7 +1217,7 @@ theorem d_init {α} [CommRing α] (ctx : Context α) (p : Poly) : (1:Int) * p.de
 
 @[expose]
 noncomputable def d_step1_cert (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
-  p.beq' (p₁.combine (p₂.mulMon k₂ m₂))
+  p.beq' (p₁.combine_k (p₂.mulMon k₂ m₂))
 
 theorem d_step1 {α} [CommRing α] (ctx : Context α) (k : Int) (init : Poly) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : d_step1_cert p₁ k₂ m₂ p₂ p → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → k * init.denote ctx = p.denote ctx := by
@@ -1184,7 +1226,7 @@ theorem d_step1 {α} [CommRing α] (ctx : Context α) (k : Int) (init : Poly) (p
 
 @[expose]
 noncomputable def d_stepk_cert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
-  p.beq' ((p₁.mulConst k₁).combine (p₂.mulMon k₂ m₂))
+  p.beq' ((p₁.mulConst k₁).combine_k (p₂.mulMon k₂ m₂))
 
 theorem d_stepk {α} [CommRing α] (ctx : Context α) (k₁ : Int) (k : Int) (init : Poly) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : d_stepk_cert k₁ p₁ k₂ m₂ p₂ p → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → (k₁*k : Int) * init.denote ctx = p.denote ctx := by

@@ -173,12 +173,12 @@ null
  "position": {"line": 131, "character": 4}}
 {"rendered": "```lean\ncase left\n⊢ True\n```", "goals": ["case left\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 139, "character": 34}}
+ "position": {"line": 137, "character": 34}}
 {"rendered":
  "```lean\ncase zero\n⊢ True\n```\n---\n```lean\ncase succ\nn✝ : Nat\na✝ : True\n⊢ True\n```",
  "goals": ["case zero\n⊢ True", "case succ\nn✝ : Nat\na✝ : True\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 142, "character": 34}}
+ "position": {"line": 140, "character": 34}}
 {"rendered":
  "```lean\ncase zero\n⊢ True\n```\n---\n```lean\ncase succ\nn✝ : Nat\na✝ : True\n⊢ True\n```",
  "goals": ["case zero\n⊢ True", "case succ\nn✝ : Nat\na✝ : True\n⊢ True"]}

@@ -161,8 +161,10 @@ def grind
     if result.hasFailed then
       throwError "`grind` failed\n{← result.toMessageData}"
     trace[grind.debug.proof] "{← instantiateMVars mvar'}"
-    -- `grind` proofs are often big
-    let e ← if (← isProp type) then
+    -- `grind` proofs are often big, if `abstractProof` is true, we create an auxiliary theorem.
+    let e ← if !config.abstractProof then
+      instantiateMVarsProfiling mvar'
+    else if (← isProp type) then
       mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
     else
       let auxName ← Term.mkAuxName `grind

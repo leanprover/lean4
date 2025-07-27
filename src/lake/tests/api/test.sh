@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefail
-
-LEAN=${LEAN:-lean}
+source ../common.sh
 
 # Run Lean tests
-$LEAN keys.lean
+test_run env lean keys.lean

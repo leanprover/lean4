@@ -4,22 +4,26 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.DeclarationRange
+public import Lean.DeclarationRange
 
-import Lean.Data.Json
-import Lean.Data.Lsp
-import Lean.Elab.Command
+public import Lean.Data.Json.Basic
+public import Lean.Data.Lsp
+public import Lean.Elab.Command
 
-import Lean.Server.RequestCancellation
-import Lean.Server.ServerTask
+public import Lean.Server.RequestCancellation
+public import Lean.Server.ServerTask
 
-import Lean.Server.FileSource
-import Lean.Server.FileWorker.Utils
+public import Lean.Server.FileSource
+public import Lean.Server.FileWorker.Utils
 
-import Lean.Server.Rpc.Basic
+public import Lean.Server.Rpc.Basic
 
-import Std.Sync.Mutex
+public import Std.Sync.Mutex
+
+public section
 
 /-- Checks whether `r` contains `hoverPos`, taking into account EOF according to `text`. -/
 def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : String.Range)
@@ -31,6 +35,30 @@ def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : String.Range)
   -- the end of the file also include a `hoverPos` at the very end of the file.
   let isRangeAtEOF := r.stop == text.source.endPos
   r.contains hoverPos (includeStop := includeStop || isRangeAtEOF)
+
+def Lean.FileMap.rangeOverlapsRequestedRange
+    (text : Lean.FileMap)
+    (documentRange : String.Range)
+    (requestedRange : String.Range)
+    (includeDocumentRangeStop := false)
+    (includeRequestedRangeStop := false)
+    : Bool :=
+  let isDocumentRangeAtEOF := documentRange.stop == text.source.endPos
+  documentRange.overlaps requestedRange
+    (includeFirstStop := includeDocumentRangeStop || isDocumentRangeAtEOF)
+    (includeSecondStop := includeRequestedRangeStop)
+
+def Lean.FileMap.rangeIncludesRequestedRange
+    (text : Lean.FileMap)
+    (documentRange : String.Range)
+    (requestedRange : String.Range)
+    (includeDocumentRangeStop := false)
+    (includeRequestedRangeStop := false)
+    : Bool :=
+  let isDocumentRangeAtEOF := documentRange.stop == text.source.endPos
+  documentRange.includes requestedRange
+    (includeSuperStop := includeDocumentRangeStop || isDocumentRangeAtEOF)
+    (includeSubStop := includeRequestedRangeStop)
 
 namespace Lean.Language
 
@@ -76,13 +104,20 @@ that contains `hoverPos` in its whitespace, which is not necessarily the correct
 partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree)
     (hoverPos : String.Pos) (includeStop : Bool) : ServerTask (Option Elab.InfoTree) :=
   tree.foldSnaps (init := none) fun snap _ => Id.run do
-    let skipChild := .pure (none, .proceed (foldChildren := false))
     let some stx := snap.stx?
-      | return skipChild
+      -- One of the invariants of the snapshot tree is that `stx? = none` implies that
+      -- this entire subtree has no relevant `InfoTree` information, so we can safely discard it
+      -- here.
+      | return .pure (none, .proceed (foldChildren := false))
     let some range := stx.getRangeWithTrailing? (canonicalOnly := true)
-      | return skipChild
+      -- In the worst case, the `infoTreeSnap` of the `CommandParsedSnap` will have canonical
+      -- syntax that we can use here, so ignoring snapshots with non-canonical syntax can only
+      -- at worst break incrementality in request handlers.
+      | return .pure (none, .proceed (foldChildren := true))
     if ! text.rangeContainsHoverPos range hoverPos includeStop then
-      return skipChild
+      -- Subtrees of the snapshot tree always have syntax ranges that are contained in those of
+      -- their parents, so we can terminate early here.
+      return .pure (none, .proceed (foldChildren := false))
     return snap.task.asServerTask.mapCheap fun tree => Id.run do
       let some infoTree := tree.element.infoTree?
         | return (none, .proceed (foldChildren := true))
@@ -161,7 +196,7 @@ abbrev ServerRequestEmitter := (method : String) → (param : Json)
   → BaseIO (ServerTask (ServerRequestResponse Json))
 
 structure RequestContext where
-  rpcSessions          : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
+  rpcSessions          : Std.TreeMap UInt64 (IO.Ref FileWorker.RpcSession)
   doc                  : FileWorker.EditableDocument
   hLog                 : IO.FS.Stream
   initParams           : Lsp.InitializeParams
@@ -350,7 +385,6 @@ where
       | return false
     return hoverPos < startPos
 
-
 open Language in
 /--
 Finds the command syntax and info tree of the first snapshot task containing `pos`, asynchronously.
@@ -364,9 +398,9 @@ def findCmdDataAtPos
     (includeStop : Bool)
     : ServerTask (Option (Syntax × Elab.InfoTree)) :=
   findCmdParsedSnap doc hoverPos |>.bindCheap fun
-    | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos doc.meta.text hoverPos includeStop |>.bindCheap fun
+    | some cmdParsed => toSnapshotTree cmdParsed.elabSnap |>.findInfoTreeAtPos doc.meta.text hoverPos includeStop |>.bindCheap fun
       | some infoTree => .pure <| some (cmdParsed.stx, infoTree)
-      | none          => cmdParsed.infoTreeSnap.task.asServerTask.mapCheap fun s =>
+      | none          => cmdParsed.elabSnap.infoTreeSnap.task.asServerTask.mapCheap fun s =>
         assert! s.infoTree?.isSome
         some (cmdParsed.stx, s.infoTree?.get!)
     | none => .pure none

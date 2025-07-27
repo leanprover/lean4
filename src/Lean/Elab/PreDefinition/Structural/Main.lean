@@ -3,17 +3,21 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Elab.PreDefinition.TerminationMeasure
-import Lean.Elab.PreDefinition.Mutual
-import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Elab.PreDefinition.Structural.FindRecArg
-import Lean.Elab.PreDefinition.Structural.Preprocess
-import Lean.Elab.PreDefinition.Structural.BRecOn
-import Lean.Elab.PreDefinition.Structural.IndPred
-import Lean.Elab.PreDefinition.Structural.Eqns
-import Lean.Elab.PreDefinition.Structural.SmartUnfolding
-import Lean.Meta.Tactic.TryThis
+public import Lean.Elab.PreDefinition.TerminationMeasure
+public import Lean.Elab.PreDefinition.Mutual
+public import Lean.Elab.PreDefinition.Structural.Basic
+public import Lean.Elab.PreDefinition.Structural.FindRecArg
+public import Lean.Elab.PreDefinition.Structural.Preprocess
+public import Lean.Elab.PreDefinition.Structural.BRecOn
+public import Lean.Elab.PreDefinition.Structural.IndPred
+public import Lean.Elab.PreDefinition.Structural.Eqns
+public import Lean.Elab.PreDefinition.Structural.SmartUnfolding
+public import Lean.Meta.Tactic.TryThis
+
+public section
 
 namespace Lean.Elab
 namespace Structural
@@ -158,7 +162,7 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Arra
           let preDefs' ← elimMutualRecursion preDefs fixedParamPerms' xs' recArgInfos
           return (recArgPoss, preDefs', fixedParamPerms')
 
-def reporttermMeasure (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
+def reportTermMeasure (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
   if let some ref := preDef.termination.terminationBy?? then
     let fn ← lambdaTelescope preDef.value fun xs _ => mkLambdaFVars xs xs[recArgPos]!
     let termMeasure : TerminationMeasure:= {ref := .missing, structural := true, fn}
@@ -171,12 +175,11 @@ def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (
   let names := preDefs.map (·.declName)
   let ((recArgPoss, preDefsNonRec, fixedParamPerms), state) ← run <| inferRecArgPos preDefs termMeasure?s
   for recArgPos in recArgPoss, preDef in preDefs do
-    reporttermMeasure preDef recArgPos
+    reportTermMeasure preDef recArgPos
   state.addMatchers.forM liftM
   preDefsNonRec.forM fun preDefNonRec => do
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec
-    -- state.addMatchers.forM liftM
-    mapError (f := (m!"structural recursion failed, produced type incorrect term{indentD ·}")) do
+    prependError m!"structural recursion failed, produced type incorrect term" do
       -- We create the `_unsafe_rec` before we abstract nested proofs.
       -- Reason: the nested proofs may be referring to the _unsafe_rec.
       addNonRec preDefNonRec (applyAttrAfterCompilation := false) (all := names.toList)

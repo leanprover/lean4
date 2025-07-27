@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Basic
+public import Std.Data.DTreeMap.Basic
+
+@[expose] public section
 
 /-!
 # Tree maps
@@ -15,7 +19,7 @@ Lemmas about the operations on `Std.TreeMap` will be available in the
 module `Std.Data.TreeMap.Lemmas`.
 
 See the module `Std.Data.TreeMap.Raw.Basic` for a variant of this type which is safe to use in
-nested inductive types.
+nested inductive types and `Std.Data.ExtTreeMap.Basic` for a variant with extensionality.
 -/
 
 set_option autoImplicit false
@@ -51,6 +55,10 @@ To avoid expensive copies, users should make sure that the tree map is used line
 Internally, the tree maps are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
 
+For use in proofs, the type `Std.ExtTreeMap` of extensional tree maps should be preferred. This
+type comes with several extensionality lemmas and provides the same functions but requires a
+`TransCmp` instance to work with.
+
 These tree maps contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.TreeMap.Raw` and
 `Std.TreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
@@ -71,7 +79,14 @@ instance : EmptyCollection (TreeMap α β cmp) where
 
 instance : Inhabited (TreeMap α β cmp) := ⟨∅⟩
 
-@[simp]
+@[inherit_doc DTreeMap.Equiv]
+structure Equiv (m₁ m₂ : TreeMap α β cmp) where
+  /-- Internal implementation detail of the tree map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infix:50 " ~m " => Equiv
+
+@[simp, grind =]
 theorem empty_eq_emptyc : (empty : TreeMap α β cmp) = ∅ :=
   rfl
 
@@ -216,7 +231,7 @@ def minD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
 def maxEntry? (t : TreeMap α β cmp) : Option (α × β) :=
   DTreeMap.Const.maxEntry? t.inner
 
-@[inline, inherit_doc maxEntry?, deprecated minEntry? (since := "2025-03-13")]
+@[inline, inherit_doc maxEntry?, deprecated maxEntry? (since := "2025-03-13")]
 def max? (t : TreeMap α β cmp) : Option (α × β) :=
   t.maxEntry?
 
@@ -224,7 +239,7 @@ def max? (t : TreeMap α β cmp) : Option (α × β) :=
 def maxEntry (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
   DTreeMap.Const.maxEntry t.inner h
 
-@[inline, inherit_doc maxEntry, deprecated minEntry (since := "2025-03-13")]
+@[inline, inherit_doc maxEntry, deprecated maxEntry (since := "2025-03-13")]
 def max (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
   t.maxEntry h
 
@@ -232,7 +247,7 @@ def max (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
 def maxEntry! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
   DTreeMap.Const.maxEntry! t.inner
 
-@[inline, inherit_doc maxEntry!, deprecated minEntry! (since := "2025-03-13")]
+@[inline, inherit_doc maxEntry!, deprecated maxEntry! (since := "2025-03-13")]
 def max! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
   t.maxEntry!
 
@@ -240,7 +255,7 @@ def max! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
 def maxEntryD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
   DTreeMap.Const.maxEntryD t.inner fallback
 
-@[inline, inherit_doc maxEntryD, deprecated minEntryD (since := "2025-03-13")]
+@[inline, inherit_doc maxEntryD, deprecated maxEntryD (since := "2025-03-13")]
 def maxD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
   t.maxEntryD fallback
 

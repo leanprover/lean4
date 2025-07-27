@@ -74,7 +74,7 @@ def Package.maybeFetchBuildCache (self : Package) : FetchM (Job Bool) := do
 @[inline]
 private def Package.optFacetDetails (self : Package) (facet : Name) : JobM String := do
   if (← getIsVerbose) then
-    return s!" (see '{self.name}:{facet}' for details)"
+    return s!" (see '{self.name}:{Name.eraseHead facet}' for details)"
   else
     return " (run with '-v' for details)"
 
@@ -93,18 +93,15 @@ def Package.maybeFetchBuildCacheWithWarning (self : Package) := do
         let details ← self.optFacetDetails optReservoirBarrelFacet
         logVerbose s!"building from source; failed to fetch Reservoir build{details}"
 
-@[deprecated maybeFetchBuildCacheWithWarning (since := "2024-09-27")]
-def Package.fetchOptRelease := @maybeFetchBuildCacheWithWarning
-
 /--
 Build the `extraDepTargets` for the package.
 Also, if the package is a dependency, maybe fetch its build cache.
 -/
 def Package.recBuildExtraDepTargets (self : Package) : FetchM (Job Unit) :=
   withRegisterJob s!"{self.name}:extraDep" do
-  let mut job := Job.nil
+  let mut job := Job.nil s!"@{self.name}:extraDep"
   -- Fetch build cache if this package is a dependency
-  if self.name ≠ (← getWorkspace).root.name then
+  if self.name ≠ (← getRootPackage).name then
     job := job.add (← self.maybeFetchBuildCacheWithWarning)
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
@@ -161,7 +158,7 @@ private def Package.mkOptBuildArchiveFacetConfig
   (getUrl : Package → JobM String) (headers : Array String := #[])
   [FamilyDef FacetOut facet Bool]
 : PackageFacetConfig facet := mkFacetJobConfig fun pkg =>
-  withRegisterJob s!"{pkg.name}:{facet}" (optional := true) <| Job.async do
+  withRegisterJob s!"{pkg.name}:{Name.eraseHead facet}" (optional := true) <| Job.async do
   try
     let url ← getUrl pkg
     pkg.fetchBuildArchive url (archiveFile pkg) headers
@@ -198,15 +195,9 @@ def Package.barrelFacetConfig : PackageFacetConfig reservoirBarrelFacet :=
 def Package.optGitHubReleaseFacetConfig : PackageFacetConfig optGitHubReleaseFacet :=
   mkOptBuildArchiveFacetConfig buildArchiveFile getReleaseUrl
 
-@[deprecated optGitHubReleaseFacetConfig (since := "2024-09-27")]
-abbrev Package.optReleaseFacetConfig := optGitHubReleaseFacetConfig
-
 /-- The `PackageFacetConfig` for the builtin `gitHubReleaseFacet`. -/
 def Package.gitHubReleaseFacetConfig : PackageFacetConfig gitHubReleaseFacet :=
   mkBuildArchiveFacetConfig optGitHubReleaseFacet "GitHub release"
-
-@[deprecated gitHubReleaseFacetConfig (since := "2024-09-27")]
-abbrev Package.releaseFacetConfig := gitHubReleaseFacetConfig
 
 /--
 Perform a build job after first checking for an (optional) cached build
@@ -220,9 +211,6 @@ def Package.afterBuildCacheAsync (self : Package) (build : JobM (Job α)) : Fetc
   else
     build
 
-@[deprecated afterBuildCacheAsync (since := "2024-09-27")]
-def Package.afterReleaseAsync := @afterBuildCacheAsync
-
 /--
  Perform a build after first checking for an (optional) cached build
  for the package (e.g., from Reservoir or GitHub).
@@ -234,9 +222,6 @@ def Package.afterBuildCacheSync (self : Package) (build : JobM α) : FetchM (Job
       build
   else
     Job.async build
-
-@[deprecated afterBuildCacheSync (since := "2024-09-27")]
-def Package.afterReleaseSync := @afterBuildCacheSync
 
 /--
 A name-configuration map for the initial set of

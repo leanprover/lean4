@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Notation
-import Init.Simproc
+public import Init.Notation
+public import Init.Simproc
+
+@[expose] public section
 
 set_option linter.missingDocs true -- keep it documented
 
@@ -24,7 +28,7 @@ structure BVDecideConfig where
   -/
   binaryProofs : Bool := true
   /--
-  Canonicalize with respect to associativity and commutativitiy.
+  Canonicalize with respect to associativity and commutativity.
   -/
   acNf : Bool := false
   /--
@@ -94,6 +98,12 @@ syntax (name := bvTrace) "bv_decide?" optConfig : tactic
 syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
 
 end Tactic
+
+/--
+Theorems tagged with the `bv_normalize` attribute are used during the rewriting step of the
+`bv_decide` tactic.
+-/
+syntax (name := bv_normalize) "bv_normalize" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 
 /--
 Auxiliary attribute for builtin `bv_normalize` simprocs.

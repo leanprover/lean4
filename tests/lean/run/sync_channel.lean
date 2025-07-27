@@ -33,7 +33,7 @@ def trySend (ch : CloseableChannel Nat) (capacity : Option Nat) : IO Unit := do
 
   -- the unbounded CloseableChannel cannot go out of space so it is pointless to fill it up
   let some capacity := capacity | return ()
-  for i in [:capacity] do
+  for i in *...capacity do
     assertBEq (← ch.trySend i) true
 
   assertBEq (← ch.trySend (capacity + 1)) false

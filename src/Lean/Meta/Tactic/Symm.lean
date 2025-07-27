@@ -3,9 +3,13 @@ Copyright (c) 2022 Siddhartha Gadgil. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Siddhartha Gadgil, Mario Carneiro, Kim Morrison
 -/
+module
+
 prelude
-import Lean.Meta.Reduce
-import Lean.Meta.Tactic.Assert
+public import Lean.Meta.Reduce
+public import Lean.Meta.Tactic.Assert
+
+public section
 
 /-!
 # `symm` tactic
@@ -26,6 +30,12 @@ builtin_initialize symmExt :
     initial := {}
   }
 
+/--
+Tags symmetry lemmas to be used by the `symm` tactic.
+
+A symmetry lemma should be of the form `r x y → r y x` where `r` is an arbitrary relation.
+-/
+@[builtin_doc]
 builtin_initialize registerBuiltinAttribute {
   name := `symm
   descr := "symmetric relation"

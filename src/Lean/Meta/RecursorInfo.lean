@@ -3,10 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.AuxRecursor
-import Lean.Util.FindExpr
-import Lean.Meta.Basic
+public import Lean.AuxRecursor
+public import Lean.Util.FindExpr
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 
@@ -113,7 +117,7 @@ private def getMajorPosDepElim (declName : Name) (majorPos? : Option Nat) (xs : 
 
 private def getParamsPos (declName : Name) (xs : Array Expr) (numParams : Nat) (Iargs : Array Expr) : MetaM (List (Option Nat)) := do
   let mut paramsPos := #[]
-  for i in [:numParams] do
+  for i in *...numParams do
     let x := xs[i]!
     match (← Iargs.findIdxM? fun Iarg => isDefEq Iarg x) with
     | some j => paramsPos := paramsPos.push (some j)
@@ -127,7 +131,7 @@ private def getParamsPos (declName : Name) (xs : Array Expr) (numParams : Nat) (
 
 private def getIndicesPos (declName : Name) (xs : Array Expr) (majorPos numIndices : Nat) (Iargs : Array Expr) : MetaM (List Nat) := do
   let mut indicesPos := #[]
-  for i in [:numIndices] do
+  for i in *...numIndices do
     let i := majorPos - numIndices + i
     let x := xs[i]!
     match (← Iargs.findIdxM? fun Iarg => isDefEq Iarg x) with
@@ -158,7 +162,7 @@ private def getUnivLevelPos (declName : Name) (lparams : List Name) (motiveLvl :
 private def getProduceMotiveAndRecursive (xs : Array Expr) (numParams numIndices majorPos : Nat) (motive : Expr) : MetaM (List Bool × Bool) := do
   let mut produceMotive := #[]
   let mut recursor      := false
-  for h : i in [:xs.size] do
+  for h : i in *...xs.size do
     if i < numParams + 1 then
       continue --skip parameters and motive
     if majorPos - numIndices ≤ i && i ≤ majorPos then

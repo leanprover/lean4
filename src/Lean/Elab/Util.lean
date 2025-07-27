@@ -3,10 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Command
-import Lean.KeyedDeclsAttribute
-import Lean.Elab.Exception
+import Lean.Parser.Extension
+meta import Lean.Parser.Command
+public import Lean.KeyedDeclsAttribute
+public import Lean.Elab.Exception
+
+public section
 
 namespace Lean
 
@@ -123,6 +128,17 @@ unsafe def mkMacroAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute Macro) 
 @[implemented_by mkMacroAttributeUnsafe]
 opaque mkMacroAttribute (ref : Name) : IO (KeyedDeclsAttribute Macro)
 
+/--
+Registers a macro expander for a given syntax node kind.
+
+A macro expander should have type `Lean.Macro` (which is `Lean.Syntax → Lean.MacroM Lean.Syntax`),
+i.e. should take syntax of the given syntax node kind as a parameter and produce different syntax
+in the same syntax category.
+
+The `macro_rules` and `macro` commands should usually be preferred over using this attribute
+directly.
+-/
+@[builtin_doc]
 builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute decl_name%
 
 /--

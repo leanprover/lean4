@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.List.Impl
-import Init.Data.List.Nat.TakeDrop
+public import Init.Data.List.Impl
+public import Init.Data.List.Nat.TakeDrop
+
+public section
 
 /-!
 # Definition of `merge` and `mergeSort`.
@@ -24,7 +28,7 @@ Merges two lists, using `le` to select the first element of the resulting list i
 non-empty.
 
 If both input lists are sorted according to `le`, then the resulting list is also sorted according
-to `le`. `O(min |l| |r|)`.
+to `le`. `O(|xs| + |ys|)`.
 
 This implementation is not tail-recursive, but it is replaced at runtime by a proven-equivalent
 tail-recursive merge.
@@ -42,8 +46,8 @@ def merge (xs ys : List α) (le : α → α → Bool := by exact fun a b => a �
 @[simp] theorem nil_merge (ys : List α) : merge [] ys le = ys := by simp [merge]
 @[simp] theorem merge_right (xs : List α) : merge xs [] le = xs := by
   induction xs with
-  | nil => simp [merge]
-  | cons x xs ih => simp [merge, ih]
+  | nil => simp
+  | cons x xs ih => simp [merge]
 
 /--
 Split a list in two equal parts. If the length is odd, the first part will be one element longer.

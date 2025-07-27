@@ -10,9 +10,9 @@ Basic example.
 error: type mismatch
   rfl
 has type
-  ?_ = ?_ : Prop
+  ?_ = ?_
 but is expected to have type
-  1 = 2 : Prop
+  1 = 2
 -/
 #guard_msgs in example : 1 = 2 := by
   exact rfl
@@ -39,9 +39,9 @@ theorem test {f g : Nat → Nat} (n : Nat) (hfg : ∀ a, f (g a) = a) :
 error: type mismatch
   test n2 ?_
 has type
-  ?_ (?_ n2) = n2 : Prop
+  ?_ (?_ n2) = n2
 but is expected to have type
-  (fun x => x * 2) (g2 n2) = n2 : Prop
+  (fun x => x * 2) (g2 n2) = n2
 -/
 #guard_msgs in
 example {g2 : Nat → Nat} (n2 : Nat) : (fun x => x * 2) (g2 n2) = n2 := by
@@ -56,9 +56,9 @@ def f {a : Nat} (b : Nat) : Prop := a + b = 0
 error: type mismatch
   sorry
 has type
-  @f 0 ?_ : Prop
+  @f 0 ?_
 but is expected to have type
-  @f 1 2 : Prop
+  @f 1 2
 -/
 #guard_msgs in
 example : @f 1 2 := by
@@ -71,9 +71,9 @@ Add type ascriptions for numerals if they have different types.
 error: type mismatch
   Eq.refl 0
 has type
-  (0 : Int) = 0 : Prop
+  (0 : Int) = 0
 but is expected to have type
-  (0 : Nat) = 0 : Prop
+  (0 : Nat) = 0
 -/
 #guard_msgs in example : 0 = (0 : Nat) := by
   exact Eq.refl (0 : Int)
@@ -83,9 +83,9 @@ but is expected to have type
 error: type mismatch
   Eq.refl 1
 has type
-  (1 : Int) = 1 : Prop
+  (1 : Int) = 1
 but is expected to have type
-  (0 : Nat) = 0 : Prop
+  (0 : Nat) = 0
 -/
 #guard_msgs in example : 0 = (0 : Nat) := by
   exact Eq.refl (1 : Int)
@@ -98,9 +98,9 @@ local instance {α : Type _} [OfNat β n] : OfNat (α → β) n where
 error: type mismatch
   Eq.refl (0 1)
 has type
-  (0 : Nat → Int) 1 = 0 1 : Prop
+  (0 : Nat → Int) 1 = 0 1
 but is expected to have type
-  (0 : Nat → Nat) 1 = 0 1 : Prop
+  (0 : Nat → Nat) 1 = 0 1
 -/
 #guard_msgs in example : (0 : Nat → Nat) 1 = (0 : Nat → Nat) 1 := by
   exact Eq.refl ((0 : Nat → Int) 1)
@@ -113,9 +113,9 @@ Exposes differences in pi type domains
 error: type mismatch
   fun h => trivial
 has type
-  (1 : Int) = 1 → True : Prop
+  (1 : Int) = 1 → True
 but is expected to have type
-  (1 : Nat) = 1 → True : Prop
+  (1 : Nat) = 1 → True
 -/
 #guard_msgs in example : (1 : Nat) = 1 → True :=
   fun (h : (1 : Int) = 1) => trivial
@@ -127,9 +127,9 @@ Exposes differences in pi type codomains
 error: type mismatch
   fun h => rfl
 has type
-  True → (1 : Int) = 1 : Prop
+  True → (1 : Int) = 1
 but is expected to have type
-  True → (1 : Nat) = 1 : Prop
+  True → (1 : Nat) = 1
 -/
 #guard_msgs in example : True → (1 : Nat) = 1 :=
   (fun h => rfl : True → (1 : Int) = 1)
@@ -141,9 +141,9 @@ Exposes differences in fun domains
 error: type mismatch
   sorry
 has type
-  { x : Int // x > 0 } : Type
+  { x : Int // x > 0 }
 but is expected to have type
-  { x : Nat // x > 0 } : Type
+  { x : Nat // x > 0 }
 -/
 #guard_msgs in example : {x : Nat // x > 0} :=
   (sorry : {x : Int // x > 0})
@@ -155,9 +155,9 @@ Exposes differences in fun values
 error: type mismatch
   sorry
 has type
-  { x // @decide (p x) (d2 x) = true } : Type
+  { x // @decide (p x) (d2 x) = true }
 but is expected to have type
-  { x // @decide (p x) (d1 x) = true } : Type
+  { x // @decide (p x) (d1 x) = true }
 -/
 #guard_msgs in example (p : Nat → Prop) (d1 d2 : DecidablePred p) :
     {x : Nat // @decide _ (d1 x) = true} :=

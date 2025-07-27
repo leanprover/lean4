@@ -3,11 +3,17 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Diagnostics
-import Lean.Elab.Open
-import Lean.Elab.SetOption
-import Lean.Elab.Eval
+public import Lean.Meta.Closure
+public import Lean.Meta.Diagnostics
+public import Lean.Elab.Open
+public import Lean.Elab.SetOption
+public import Lean.Elab.Eval
+meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
@@ -154,7 +160,10 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
 @[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
   match expectedType? with
   | some expectedType =>
-    mkTacticMVar expectedType stx .term
+    -- `by` switches from an exported to a private context, so we must disallow unassigned
+    -- metavariables in the goal in this case as they could otherwise leak private data back into
+    -- the exported context.
+    mkTacticMVar expectedType stx .term (delayOnMVars := (← getEnv).isExporting)
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")
@@ -287,6 +296,20 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   | none     => throwIllFormedSyntax
   | some msg => elabTermEnsuringType stx[2] expectedType? (errorMsgHeader? := msg)
 
+@[builtin_term_elab valueOf] def elabValueOf : TermElab := fun stx _ => do
+  let ident := stx[1]
+  let some e ← Term.resolveId? stx[1] (withInfo := true)
+    | throwUnknownConstantAt ident ident.getId
+  match e with
+  | .const c us => do
+    let cinfo ← getConstInfo c
+    unless cinfo.hasValue do throwErrorAt ident "Constant has no value."
+    return cinfo.instantiateValueLevelParams! us
+  | .fvar fvarId => do
+    let some val ← fvarId.getValue? | throwErrorAt ident "Local declaration has no value."
+    return val
+  | _ => panic! "resolveId? returned an unexpected expression"
+
 @[builtin_term_elab clear] def elabClear : TermElab := fun stx expectedType? => do
   let some (.fvar fvarId) ← isLocalIdent? stx[1]
     | throwErrorAt stx[1] "not in scope"
@@ -349,5 +372,20 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
 
 @[builtin_term_elab Lean.Parser.Term.namedPattern] def elabNamedPatternErr : TermElab := fun stx _ =>
   throwError "`<identifier>@<term>` is a named pattern and can only be used in pattern matching contexts{indentD stx}"
+
+@[builtin_term_elab «privateDecl»] def elabPrivateDecl : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(Parser.Term.privateDecl| private_decl% $e) =>
+    if (← getEnv).isExporting then
+      let name ← mkAuxDeclName `_private
+      withoutExporting do
+        let e ← elabTermAndSynthesize e expectedType?
+        -- Inline as changing visibility should not affect run time.
+        -- Eventually we would like to be more conscious about inlining of instance fields,
+        -- irrespective of `private` use.
+        mkAuxDefinitionFor name e <* setInlineAttribute name
+    else
+      elabTerm e expectedType?
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

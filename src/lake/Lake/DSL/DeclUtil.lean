@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lake.DSL.Config
 import Lake.Util.Binder
 import Lake.Util.Name
 import Lake.Config.Meta
@@ -117,7 +116,7 @@ def mkConfigFields
       m := m.insert c {ref := id, val}
     else
       logWarningAt id m!"unknown '{.ofConstName tyName}' field '{fieldName}'"
-  let fs ← m.foldM (init := #[]) fun a k {ref, val} => do
+  let fs ← m.foldlM (init := #[]) fun a k {ref, val} => do
     let id := mkIdentFrom ref k true
     -- An unhygienic quotation is used to avoid introducing source info
     -- which will break field auto-completion.

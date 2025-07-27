@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Attributes
+public import Lean.Attributes
+
+public section
 
 namespace Lean
 
@@ -159,14 +163,19 @@ def addClass (env : Environment) (clsName : Name) : Except MessageData Environme
   let outParams ← checkOutParam 0 #[] #[] decl.type
   return classExtension.addEntry env { name := clsName, outParams }
 
-builtin_initialize
+/--
+Registers an inductive type or structure as a type class. Using `class` or `class inductive` is
+generally preferred over using `@[class] structure` or `@[class] inductive` directly.
+-/
+@[builtin_init, builtin_doc]
+private def init :=
   registerBuiltinAttribute {
     name  := `class
     descr := "type class"
     add   := fun decl stx kind => do
       let env ← getEnv
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute 'class', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `class kind
       let env ← ofExcept (addClass env decl)
       setEnv env
   }

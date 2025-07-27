@@ -3,14 +3,18 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Util.HasConstCache
-import Lean.Meta.PProdN
-import Lean.Meta.Match.MatcherApp.Transform
-import Lean.Elab.RecAppSyntax
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Elab.PreDefinition.Structural.RecArgInfo
+public import Lean.Util.HasConstCache
+public import Lean.Meta.PProdN
+public import Lean.Meta.Match.MatcherApp.Transform
+public import Lean.Elab.RecAppSyntax
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Structural.Basic
+public import Lean.Elab.PreDefinition.Structural.RecArgInfo
+
+public section
 
 namespace Lean.Elab.Structural
 open Meta
@@ -71,8 +75,8 @@ private def withBelowDict [Inhabited α] (below : Expr) (numIndParams : Nat)
     unless numIndParams + numTypeFormers < args.size do
       trace[Elab.definition.structural] "unexpected 'below' type{indentExpr belowType}"
       throwToBelowFailed
-    let params := args[:numIndParams]
-    let finalArgs := args[numIndParams+numTypeFormers:]
+    let params := args[*...numIndParams]
+    let finalArgs := args[(numIndParams+numTypeFormers)...*]
     let pre := mkAppN f params
     let motiveTypes ← inferArgumentTypesN numTypeFormers pre
     let numMotives : Nat := positions.numIndices
@@ -133,9 +137,9 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
     | Expr.forallE n d b c =>
       withLocalDecl n c (← loop below d) fun x => do
         mkForallFVars #[x] (← loop below (b.instantiate1 x))
-    | Expr.letE n type val body _ =>
-      withLetDecl n (← loop below type) (← loop below val) fun x => do
-        mkLetFVars #[x] (← loop below (body.instantiate1 x)) (usedLetOnly := false)
+    | Expr.letE n type val body nondep =>
+      mapLetDecl n (← loop below type) (← loop below val) (nondep := nondep) (usedLetOnly := false) fun x => do
+        loop below (body.instantiate1 x)
     | Expr.mdata d b =>
       if let some stx := getRecAppSyntax? e then
         withRef stx <| loop below b
@@ -231,8 +235,7 @@ def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
       mkLambdaFVars (indicesMajorArgs ++ #[below] ++ otherArgs) valueNew
 
 /--
-Given the `motives`, figures out whether to use `.brecOn` or `.binductionOn`, pass
-the right universe levels, the parameters, and the motives.
+Given the `motives`, pass the right universe levels, the parameters, and the motives.
 It was already checked earlier in `checkCodomainsLevel` that the functions live in the same universe.
 -/
 def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
@@ -240,14 +243,7 @@ def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
   let indGroup := recArgInfos[0]!.indGroupInst
   let motive := motives[0]!
   let brecOnUniv ← lambdaTelescope motive fun _ type => getLevel type
-  let indInfo ← getConstInfoInduct indGroup.all[0]!
-  let useBInductionOn := indInfo.isReflexive && brecOnUniv == levelZero
-  let brecOnUniv ←
-    if indInfo.isReflexive && brecOnUniv != levelZero then
-      decLevel brecOnUniv
-    else
-      pure brecOnUniv
-  let brecOnCons := fun idx => indGroup.brecOn useBInductionOn brecOnUniv idx
+  let brecOnCons := fun idx => indGroup.brecOn brecOnUniv idx
   -- Pick one as a prototype
   let brecOnAux := brecOnCons 0
   -- Infer the type of the packed motive arguments

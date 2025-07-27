@@ -3,10 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Combinators
-import Lean.Meta.Tactic.Grind.Canon
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Canon
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -28,7 +31,7 @@ structure MBTC.Context where
   /--
   `eqAssignment x y` returns `true` it the theory variables for `x` and `y` have the same
   interpretation/assignment in the target theory. For example, suppose we have the
-  constraint `x + y ≤ 0`, and cutsat satified it by assignining both `x` and `y` to
+  constraint `x + y ≤ 0`, and cutsat satisfied it by assigning both `x` and `y` to
   `0`. Then, `eqAssignment x y` must return `true`.
   -/
   eqAssignment : Expr → Expr → GoalM Bool
@@ -46,7 +49,7 @@ private def mkCandidate (a b : ArgInfo) (i : Nat) : GoalM SplitInfo := do
     (b.arg, a.arg)
   let eq ← mkEq lhs rhs
   let eq ← shareCommon (← canon eq)
-  return .arg a.app b.app i eq
+  return .arg a.app b.app i eq (.mbtc a.app b.app i)
 
 /-- Model-based theory combination. -/
 def mbtc (ctx : MBTC.Context) : GoalM Bool := do
@@ -55,7 +58,7 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   if (← checkMaxCaseSplit) then return false
   let mut map : Map := {}
   let mut candidates : Candidates := {}
-  for ({ expr := e }, _) in (← get).enodes do
+  for e in (← get).exprs do
     if e.isApp && !e.isEq && !e.isHEq then
     if (← isCongrRoot e) then
     unless (← ctx.isInterpreted e) do
@@ -79,13 +82,13 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   if candidates.isEmpty then
     return false
   if (← get).split.num > (← getConfig).splits then
-    reportIssue "skipping `mbtc`, maximum number of splits has been reached `(splits := {(← getConfig).splits})`"
+    reportIssue! "skipping `mbtc`, maximum number of splits has been reached `(splits := {(← getConfig).splits})`"
     return false
   let result := candidates.toArray.qsort fun c₁ c₂ => c₁.lt c₂
   let result ← result.filterMapM fun info => do
     if (← isKnownCaseSplit info) then
       return none
-    let .arg a b _ eq := info | return none
+    let .arg a b _ eq _ := info | return none
     internalize eq (Nat.max (← getGeneration a) (← getGeneration b))
     return some info
   if result.isEmpty then
@@ -93,12 +96,5 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
   for info in result do
     addSplitCandidate info
   return true
-
-def mbtcTac (ctx : MBTC.Context) : GrindTactic := fun goal => do
-  let (r, goal) ← GoalM.run goal do mbtc ctx
-  if r then
-    return some [goal]
-  else
-    return none
 
 end Lean.Meta.Grind

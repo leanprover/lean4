@@ -3,8 +3,12 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Expr
+public import Lean.Expr
+
+public section
 
 namespace Lean
 /--
@@ -482,7 +486,7 @@ def value! (info : ConstantInfo) (allowOpaque := false) : Expr :=
   | .defnInfo {value, ..}   => value
   | .thmInfo  {value, ..}   => value
   | .opaqueInfo {value, ..} => if allowOpaque then value else panic! "declaration with value expected"
-  | _                       => panic! "declaration with value expected"
+  | _                       => panic! s!"declaration with value expected, but {info.name} has none"
 
 def hints : ConstantInfo → ReducibilityHints
   | .defnInfo {hints, ..} => hints
@@ -504,6 +508,7 @@ def isDefinition : ConstantInfo → Bool
   | .defnInfo _ => true
   | _           => false
 
+@[deprecated "May be inaccurate for theorems imported under the module system, use `Lean.getOriginalConstKind?` instead" (since := "2025-04-24")]
 def isTheorem : ConstantInfo → Bool
   | .thmInfo _ => true
   | _          => false

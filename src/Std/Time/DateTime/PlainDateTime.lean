@@ -3,11 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
+module
+
 prelude
-import Std.Time.Date
-import Std.Time.Time
-import Std.Time.Internal
-import Std.Time.DateTime.Timestamp
+public import Std.Time.Date
+public import Std.Time.Time
+public import Std.Time.Internal
+public import Std.Time.DateTime.Timestamp
+
+public section
 
 namespace Std
 namespace Time
@@ -121,7 +125,7 @@ def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
       break
     remDays := remDays - monLen
 
-  let mday : Fin 31 := Fin.ofNat' _ (Int.toNat remDays)
+  let mday : Fin 31 := Fin.ofNat _ (Int.toNat remDays)
 
   let hmon ←
     if h₁ : mon.val > 10

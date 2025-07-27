@@ -1,7 +1,5 @@
 reset_grind_attrs%
 
-set_option grind.warning false
-
 attribute [grind cases] Or
 attribute [grind =] List.length_nil List.length_cons Option.getD
 
@@ -104,8 +102,10 @@ attribute [local grind] State.update State.find? State.get State.erase
     : (σ.erase x).find? z = if x = z then none else σ.find? z := by
   grind only [= find?_erase_self, = find?_erase, cases Or]
 
-@[grind] theorem State.length_erase_le (σ : State) (x : Var) : (σ.erase x).length ≤ σ.length := by
+theorem State.length_erase_le (σ : State) (x : Var) : (σ.erase x).length ≤ σ.length := by
   induction σ using erase.induct x <;> grind
+
+grind_pattern State.length_erase_le => (σ.erase x).length
 
 def State.length_erase_lt (σ : State) (x : Var) : (σ.erase x).length < σ.length.succ := by
   grind

@@ -40,7 +40,7 @@ forallBoundedTelescope cinfo.type (some 10) $ fun xs body => do { print xs; chec
 pure ()
 
 /--
-info: [Meta.debug] (α β : Type) → α → β → DecidableEq β
+trace: [Meta.debug] (α β : Type) → α → β → DecidableEq β
 [Meta.debug] (β : Type) → ?α → β → DecidableEq β
 [Meta.debug] (b : ?β) → Decidable (?a = b)
 [Meta.debug] Decidable (?a = ?b)

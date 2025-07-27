@@ -3,11 +3,16 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.Cases
-import Lean.Meta.Tactic.Grind.CasesMatch
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Intro
+public import Lean.Meta.Tactic.Grind.Cases
+public import Lean.Meta.Tactic.Grind.CasesMatch
+public import Lean.Meta.Tactic.Grind.SearchM
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -81,21 +86,7 @@ private def isCongrToPrevSplit (c : Expr) : GoalM Bool := do
     if flag then
       return true
     else
-      return c'.isApp && isCongruent (← get).enodes c c'
-
-private def checkForallStatus (e : Expr) : GoalM SplitStatus := do
-  if (← isEqTrue e) then
-    let .forallE _ p q _ := e | return .resolved
-    if (← isEqTrue p <||> isEqFalse p) then
-      return .resolved
-    unless q.hasLooseBVars do
-      if (← isEqTrue q <||> isEqFalse q) then
-        return .resolved
-    return .ready 2
-  else if (← isEqFalse e) then
-    return .resolved
-  else
-    return .notReady
+      return c'.isApp && (← get).isCongruent c c'
 
 private def checkDefaultSplitStatus (e : Expr) : GoalM SplitStatus := do
   match_expr e with
@@ -106,16 +97,12 @@ private def checkDefaultSplitStatus (e : Expr) : GoalM SplitStatus := do
       checkIffStatus e a b
     else
       return .ready 2
-  | ite _ c _ _ _ => checkIteCondStatus c
-  | dite _ c _ _ _ => checkIteCondStatus c
   | _ =>
+    if isIte e || isDIte e then
+      return (← checkIteCondStatus (e.getArg! 1))
     if (← isResolvedCaseSplit e) then
       trace_goal[grind.debug.split] "split resolved: {e}"
       return .resolved
-    if e.isForall then
-      let s ← checkForallStatus e
-      trace_goal[grind.debug.split] "{e}, status: {repr s}"
-      return s
     if (← isCongrToPrevSplit e) then
       return .resolved
     if let some info := isMatcherAppCore? (← getEnv) e then
@@ -156,10 +143,26 @@ def checkSplitInfoArgStatus (a b : Expr) (eq : Expr) : GoalM SplitStatus := do
     it_b := it_b.appFn!
   return .ready 2
 
+private def checkForallStatus (imp : Expr) (h : imp.isForall) : GoalM SplitStatus := do
+  if (← isEqTrue imp) then
+    let p := imp.forallDomain h
+    let q := imp.forallBody h
+    if (← isEqTrue p <||> isEqFalse p) then
+      return .resolved
+    unless q.hasLooseBVars do
+      if (← isEqTrue q <||> isEqFalse q) then
+        return .resolved
+    return .ready 2
+  else if (← isEqFalse imp) then
+    return .resolved
+  else
+    return .notReady
+
 def checkSplitStatus (s : SplitInfo) : GoalM SplitStatus := do
   match s with
-  | .default e => checkDefaultSplitStatus e
-  | .arg a b _ eq => checkSplitInfoArgStatus a b eq
+  | .default e _    => checkDefaultSplitStatus e
+  | .imp e h _      => checkForallStatus e h
+  | .arg a b _ eq _ => checkSplitInfoArgStatus a b eq
 
 private inductive SplitCandidate where
   | none
@@ -216,8 +219,6 @@ private def mkGrindEM (c : Expr) :=
 private def mkCasesMajor (c : Expr) : GoalM Expr := do
   match_expr c with
   | And a b => return mkApp3 (mkConst ``Grind.or_of_and_eq_false) a b (← mkEqFalseProof c)
-  | ite _ c _ _ _ => return mkGrindEM c
-  | dite _ c _ _ _ => return mkGrindEM c
   | Eq _ a b =>
     if isMorallyIff c then
       if (← isEqTrue c) then
@@ -229,45 +230,47 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
       return mkGrindEM c
   | Not e => return mkGrindEM e
   | _ =>
-    if let .forallE _ p _ _ := c then
-      return mkGrindEM p
+    if isIte c || isDIte c then
+      return mkGrindEM (c.getArg! 1)
     else if (← isEqTrue c) then
       return mkOfEqTrueCore c (← mkEqTrueProof c)
     else
       return c
 
-/-- Introduces new hypotheses in each goal. -/
-private def introNewHyp (goals : List Goal) (acc : List Goal) (generation : Nat) : GrindM (List Goal) := do
-  match goals with
-  | [] => return acc.reverse
-  | goal::goals => introNewHyp goals ((← intros generation goal) ++ acc) generation
+private def casesWithTrace (mvarId : MVarId) (major : Expr) : GoalM (List MVarId) := do
+  if (← getConfig).trace then
+    if let .const declName _ := (← whnfD (← inferType major)).getAppFn then
+      saveCases declName false
+  cases mvarId major
 
 /--
-Selects a case-split from the list of candidates,
-and returns a new list of goals if successful.
+Selects a case-split from the list of candidates, and adds new choice point
+(aka backtracking point). Returns true if successful.
 -/
-def splitNext : GrindTactic := fun goal => do
-  let (goals?, _) ← GoalM.run goal do
-    let .some c numCases isRec _ ← selectNextSplit?
-      | return none
-    let c := c.getExpr
-    let gen ← getGeneration c
-    let genNew := if numCases > 1 || isRec then gen+1 else gen
-    markCaseSplitAsResolved c
-    trace_goal[grind.split] "{c}, generation: {gen}"
-    let mvarIds ← if (← isMatcherApp c) then
-      casesMatch (← get).mvarId c
-    else
-      let major ← mkCasesMajor c
-      if (← getConfig).trace then
-        if let .const declName _ := (← whnfD (← inferType major)).getAppFn then
-          saveCases declName false
-      cases (← get).mvarId major
-    let goal ← get
-    let numSubgoals := mvarIds.length
-    let goals := mvarIds.mapIdx fun i mvarId => { goal with mvarId, split.trace := { expr := c, i, num := numSubgoals } :: goal.split.trace }
-    let goals ← introNewHyp goals [] genNew
-    return some goals
-  return goals?
+def splitNext : SearchM Bool := withCurrGoalContext do
+  let .some c numCases isRec _ ← selectNextSplit?
+    | return false
+  let cExpr := c.getExpr
+  let gen ← getGeneration cExpr
+  let genNew := if numCases > 1 || isRec then gen+1 else gen
+  saveSplitDiagInfo cExpr genNew numCases c.source
+  markCaseSplitAsResolved cExpr
+  trace_goal[grind.split] "{cExpr}, generation: {gen}"
+  let mvarId ← mkAuxMVarForCurrGoal
+  let mvarIds ← if let .imp e h _ := c then
+    casesWithTrace mvarId (mkGrindEM (e.forallDomain h))
+  else if (← isMatcherApp cExpr) then
+    casesMatch mvarId cExpr
+  else
+    casesWithTrace mvarId (← mkCasesMajor cExpr)
+  let goal ← getGoal
+  let numSubgoals := mvarIds.length
+  let goals := mvarIds.mapIdx fun i mvarId => { goal with
+    mvarId
+    split.trace := { expr := cExpr, i, num := numSubgoals, source := c.source } :: goal.split.trace
+  }
+  mkChoice (mkMVar mvarId) goals genNew
+  intros genNew
+  return true
 
 end Lean.Meta.Grind

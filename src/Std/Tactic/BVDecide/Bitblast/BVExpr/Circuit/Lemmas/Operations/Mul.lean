@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Add
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftLeft
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Add
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftLeft
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
+
+@[expose] public section
 
 
 /-!
@@ -117,7 +121,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤
     have : rexpr.getLsbD (curr + 1) = false := by
       apply BitVec.getLsbD_of_ge
       omega
-    simp [this]
+    simp
 termination_by w - curr
 
 theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
@@ -144,35 +148,27 @@ theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
     · omega
     · intro idx hidx
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
       · simp [hleft]
       · simp [Ref.hgate]
     · intro idx hidx
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := RefVec.ite)]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
       · simp [hright]
       · simp [Ref.hgate]
     · intro idx hidx
       rw [BitVec.mulRec_zero_eq]
-      simp only [Nat.succ_eq_add_one, RefVec.denote_ite, BinaryRefVec.rhs_get_cast,
-        Ref.gate_cast, BinaryRefVec.lhs_get_cast, denote_blastConst,
-        BitVec.ofNat_eq_ofNat, eval_const, BitVec.getLsbD_zero, Bool.if_false_right,
+      simp only [Nat.succ_eq_add_one, RefVec.denote_ite,
+        denote_blastConst,
+        BitVec.ofNat_eq_ofNat, BitVec.getLsbD_zero, Bool.if_false_right,
         Bool.decide_eq_true]
       split
       · next heq =>
         rw [← hright] at heq
-        · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
-          rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
-          · simp [heq, hleft]
-          · simp [Ref.hgate]
-          · simp [Ref.hgate]
+        · simp [heq, hleft]
         · omega
       · next heq =>
         simp only [Bool.not_eq_true] at heq
         rw [← hright] at heq
-        · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastConst)]
-          · simp [heq]
-          · simp [Ref.hgate]
+        · simp [heq]
         · omega
 
 

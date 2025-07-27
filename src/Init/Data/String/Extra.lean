@@ -3,9 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.ByteArray
-import Init.Data.UInt.Lemmas
+public import all Init.Data.ByteArray.Basic
+public import all Init.Data.String.Basic
+public import Init.Data.UInt.Lemmas
+
+public section
 
 namespace String
 
@@ -116,7 +121,7 @@ Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.o
 the corresponding string, or returns `none` if the array is not a valid UTF-8 encoding of a string.
 -/
 @[inline] def fromUTF8? (a : ByteArray) : Option String :=
-  if h : validateUTF8 a then fromUTF8 a h else none
+  if h : validateUTF8 a then some (fromUTF8 a h) else none
 
 /--
 Decodes an array of bytes that encode a string as [UTF-8](https://en.wikipedia.org/wiki/UTF-8) into
@@ -160,7 +165,7 @@ def toUTF8 (a : @& String) : ByteArray :=
 
 @[simp] theorem size_toUTF8 (s : String) : s.toUTF8.size = s.utf8ByteSize := by
   simp [toUTF8, ByteArray.size, Array.size, utf8ByteSize, List.flatMap]
-  induction s.data <;> simp [List.map, List.flatten, utf8ByteSize.go, Nat.add_comm, *]
+  induction s.data <;> simp [List.map, utf8ByteSize.go, Nat.add_comm, *]
 
 /--
 Accesses the indicated byte in the UTF-8 encoding of a string.
@@ -292,11 +297,11 @@ where
   termination_by text.utf8ByteSize - pos.byteIdx
   decreasing_by
     decreasing_with
-      show text.utf8ByteSize - (text.next (text.next pos)).byteIdx < text.utf8ByteSize - pos.byteIdx
+      change text.utf8ByteSize - (text.next (text.next pos)).byteIdx < text.utf8ByteSize - pos.byteIdx
       have k := Nat.gt_of_not_le <| mt decide_eq_true h
       exact Nat.sub_lt_sub_left k (Nat.lt_trans (String.lt_next text pos) (String.lt_next _ _))
     decreasing_with
-      show text.utf8ByteSize - (text.next pos).byteIdx < text.utf8ByteSize - pos.byteIdx
+      change text.utf8ByteSize - (text.next pos).byteIdx < text.utf8ByteSize - pos.byteIdx
       have k := Nat.gt_of_not_le <| mt decide_eq_true h
       exact Nat.sub_lt_sub_left k (String.lt_next _ _)
 

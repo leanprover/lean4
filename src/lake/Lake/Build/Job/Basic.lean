@@ -126,11 +126,22 @@ protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (DataTyp
 
 instance : Pure Job := ⟨Job.pure⟩
 
+/-- **For internal use.** -/
+@[inline] def traceRoot (a : α) (caption := "<root>")  : Job α :=
+  .ofTask <| .pure <| .ok a {trace := .nil caption}
+
 @[inline] protected def nop (log : Log := {}) (caption := "") : Job Unit :=
   .pure () log caption
 
-@[inline] def nil : Job Unit :=
-  .pure ()
+@[inline] def nil (traceCaption := "<nil>") : Job Unit :=
+  .traceRoot () traceCaption
+
+/--
+Waits for the job and returns it trace.
+Useful if the job is already known to be completed.
+-/
+@[inline] def getTrace (job : Job α) : BuildTrace :=
+  job.task.get.state.trace
 
 /-- Sets the job's caption. -/
 @[inline] def setCaption (caption : String) (job : Job α) : Job α :=

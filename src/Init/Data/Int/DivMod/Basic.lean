@@ -3,8 +3,14 @@ Copyright (c) 2016 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Data.Int.Basic
+public import Init.Data.Int.Basic
+
+public section
+
+@[expose] section
 
 open Nat
 
@@ -42,7 +48,7 @@ Integer division that uses the E-rounding convention. Usually accessed via the `
 Division by zero is defined to be zero, rather than an error.
 
 In the E-rounding convention (Euclidean division), `Int.emod x y` satisfies `0 ≤ Int.emod x y < Int.natAbs y`
-for `y ≠ 0` and `Int.ediv` is the unique function satisfying `Int.emod x y + (Int.edivx y) * y = x`
+for `y ≠ 0` and `Int.ediv` is the unique function satisfying `Int.emod x y + (Int.ediv x y) * y = x`
 for `y ≠ 0`.
 
 This means that `Int.ediv x y` is `⌊x / y⌋` when `y > 0` and `⌈x / y⌉` when `y < 0`.
@@ -74,7 +80,7 @@ def ediv : (@& Int) → (@& Int) → Int
 Integer modulus that uses the E-rounding convention. Usually accessed via the `%` operator.
 
 In the E-rounding convention (Euclidean division), `Int.emod x y` satisfies `0 ≤ Int.emod x y < Int.natAbs y`
-for `y ≠ 0` and `Int.ediv` is the unique function satisfying `Int.emod x y + (Int.edivx y) * y = x`
+for `y ≠ 0` and `Int.ediv` is the unique function satisfying `Int.emod x y + (Int.ediv x y) * y = x`
 for `y ≠ 0`.
 
 This function is overridden by the compiler with an efficient implementation. This definition is
@@ -110,7 +116,10 @@ because mathematical reasoning tends to be easier.
 instance : Mod Int where
   mod := Int.emod
 
-@[norm_cast] theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
+@[simp, norm_cast] theorem natCast_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
+
+@[deprecated natCast_ediv (since := "2025-04-17")]
+theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := natCast_ediv m n
 
 theorem ofNat_ediv_ofNat {a b : Nat} : (↑a / ↑b : Int) = (a / b : Nat) := rfl
 @[norm_cast]
@@ -119,6 +128,28 @@ theorem negSucc_ediv_negSucc {a b : Nat} : ((-[a+1]) / (-[b+1]) : Int) = ((a / (
 theorem ofNat_ediv_negSucc {a b : Nat} : (ofNat a / (-[b+1])) = -(a / (b + 1) : Nat) := rfl
 theorem negSucc_emod_ofNat {a b : Nat} : -[a+1] % (b : Int) = subNatNat b (succ (a % b)) := rfl
 theorem negSucc_emod_negSucc {a b : Nat} : -[a+1] % -[b+1] = subNatNat (b + 1) (succ (a % (b + 1))) := rfl
+
+/--
+Division of two divisible integers. Division by `0` returns `0`.
+
+This operation uses an optimized implementation, specialized for two divisible integers.
+
+This function is overridden at runtime with an efficient implementation. This definition is
+the logical model.
+
+Examples:
+ * `Int.divExact 21 3 (by decide) = 7`
+ * `Int.divExact 21 (-3) (by decide) = -7`
+ * `Int.divExact (-15) 5 (by decide) = -3`
+ * `Int.divExact 0 22 (by decide) = 0`
+ * `Int.divExact 0 0 (by decide) = 0`
+-/
+@[extern "lean_int_div_exact"]
+protected def divExact (x y : @& Int) (h : y ∣ x) : Int :=
+  x / y
+
+@[simp]
+theorem divExact_eq_ediv {x y : Int} (h : y ∣ x) : x.divExact y h = x / y := rfl
 
 /-! ### T-rounding division -/
 

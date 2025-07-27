@@ -31,7 +31,7 @@ def configFileExists (cfgFile : FilePath) : BaseIO Bool :=
     leanFile.pathExists <||> tomlFile.pathExists
 
 /--
-Returns the absolute path of the configuration file (if it exists).
+Returns the normalized real path of the configuration file (if it exists).
 Otherwise, returns an empty string.
 -/
 def realConfigFile (cfgFile : FilePath) : BaseIO FilePath := do
@@ -82,3 +82,11 @@ def loadPackageCore
 def loadPackage (config : LoadConfig) : LogIO Package := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
   (·.1) <$> loadPackageCore "[root]" config
+
+/-- Load the package's input-to-content mapping from the Lake cache (if enabled). -/
+protected def Package.loadInputsFrom (env : Env) (pkg : Package) : LogIO Package := do
+  if env.lakeCache.isDisabled || !(pkg.enableArtifactCache?.getD env.enableArtifactCache) then
+    return pkg
+  else
+    let inputs ← CacheMap.load (pkg.inputsFileIn env.lakeCache)
+    return {pkg with cacheRef? := ← IO.mkRef inputs}

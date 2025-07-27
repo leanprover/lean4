@@ -3,11 +3,16 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Malone
 -/
+module
+
 prelude
-import Init.System.IOError
-import Init.System.FilePath
-import Init.System.ST
-import Init.Data.Ord
+public import Init.System.IOError
+public import Init.System.FilePath
+public import Init.System.ST
+public import Init.Data.Ord
+public import Init.Data.String.Extra
+
+public section
 
 open System
 
@@ -19,7 +24,7 @@ reordered.
    Makes sure we never reorder `IO` operations.
 
    TODO: mark opaque -/
-def IO.RealWorld : Type := Unit
+@[expose] def IO.RealWorld : Type := Unit
 
 /--
 A monad that can have side effects on the external world or throw exceptions of type `ε`.
@@ -34,7 +39,7 @@ A monad that can have side effects on the external world or throw exceptions of 
    def getWorld : IO (IO.RealWorld) := get
    ```
 -/
-def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
+@[expose] def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
 instance : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
 instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
@@ -45,7 +50,7 @@ instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (E
 /--
 An `IO` monad that cannot throw exceptions.
 -/
-def BaseIO := EIO Empty
+@[expose] def BaseIO := EIO Empty
 
 instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
 instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (EIO Empty))
@@ -146,7 +151,7 @@ Because the resulting value is treated as a side-effect-free term, the compiler 
 duplicate, or delete calls to this function. The side effect may even be hoisted into a constant,
 causing the side effect to occur at initialization time, even if it would otherwise never be called.
 -/
-@[inline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
+@[noinline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
   match fn.run () with
   | EStateM.Result.ok a _ => a
 
@@ -564,7 +569,7 @@ def addHeartbeats (count : Nat) : BaseIO Unit := do
 /--
 Whether a file should be opened for reading, writing, creation and writing, or appending.
 
-A the operating system level, this translates to the mode of a file handle (i.e., a set of `open`
+At the operating system level, this translates to the mode of a file handle (i.e., a set of `open`
 flags and an `fdopen` mode).
 
 None of the modes represented by this datatype translate line endings (i.e. `O_BINARY` on Windows).
@@ -725,7 +730,7 @@ Use `IO.getStderr` to get the current standard error stream.
 /--
 Iterates an `IO` action. Starting with an initial state, the action is applied repeatedly until it
 returns a final value in `Sum.inr`. Each time it returns `Sum.inl`, the returned value is treated as
-a new sate.
+a new state.
 -/
 @[specialize] partial def iterate (a : α) (f : α → IO (Sum α β)) : IO β := do
   let v ← f a
@@ -937,7 +942,7 @@ encountered.
 The underlying file is not automatically closed upon encountering an EOF, and subsequent reads from
 the handle may block and/or return data.
 -/
-partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
+def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
   h.readBinToEndInto .empty
 
 /--
@@ -954,12 +959,14 @@ def Handle.readToEnd (h : Handle) : IO String := do
   | none => throw <| .userError s!"Tried to read from handle containing non UTF-8 data."
 
 /--
-Returns the contents of a UTF-8-encoded text file as an array of lines.
+Reads the entire remaining contents of the file handle as a UTF-8-encoded array of lines.
 
 Newline markers are not included in the lines.
+
+The underlying file is not automatically closed, and subsequent reads from the handle may block
+and/or return data.
 -/
-partial def lines (fname : FilePath) : IO (Array String) := do
-  let h ← Handle.mk fname Mode.read
+partial def Handle.lines (h : Handle) : IO (Array String) := do
   let rec read (lines : Array String) := do
     let line ← h.getLine
     if line.length == 0 then
@@ -971,6 +978,15 @@ partial def lines (fname : FilePath) : IO (Array String) := do
     else
       pure <| lines.push line
   read #[]
+
+/--
+Returns the contents of a UTF-8-encoded text file as an array of lines.
+
+Newline markers are not included in the lines.
+-/
+def lines (fname : FilePath) : IO (Array String) := do
+  let h ← Handle.mk fname Mode.read
+  h.lines
 
 /--
 Write the provided bytes to a binary file at the specified path.
@@ -1011,7 +1027,10 @@ inductive FileType where
   | dir
   /-- Ordinary files that have contents and are not directories. -/
   | file
-  /-- Symbolic links that are pointers to other named files. -/
+  /--
+  Symbolic links that are pointers to other named files. Note that `System.FilePath.metadata` never
+  indicates this type as it follows symlinks; use `System.FilePath.symlinkMetadata` instead.
+  -/
   | symlink
   /-- Files that are neither ordinary files, directories, or symbolic links. -/
   | other
@@ -1033,7 +1052,8 @@ instance : LE SystemTime := leOfOrd
 /--
 File metadata.
 
-The metadata for a file can be accessed with `System.FilePath.metadata`.
+The metadata for a file can be accessed with `System.FilePath.metadata`/
+`System.FilePath.symlinkMetadata`.
 -/
 structure Metadata where
   --permissions : ...
@@ -1063,14 +1083,22 @@ is not a directory.
 opaque readDir : @& FilePath → IO (Array IO.FS.DirEntry)
 
 /--
-Returns metadata for the indicated file. Throws an exception if the file does not exist or the
-metadata cannot be accessed.
+Returns metadata for the indicated file, following symlinks. Throws an exception if the file does
+not exist or the metadata cannot be accessed.
 -/
 @[extern "lean_io_metadata"]
 opaque metadata : @& FilePath → IO IO.FS.Metadata
 
 /--
-Checks whether the indicated path can be read and is a directory.
+Returns metadata for the indicated file without following symlinks. Throws an exception if the file
+does not exist or the metadata cannot be accessed.
+-/
+@[extern "lean_io_symlink_metadata"]
+opaque symlinkMetadata : @& FilePath → IO IO.FS.Metadata
+
+/--
+Checks whether the indicated path can be read and is a directory. This function will traverse
+symlinks.
 -/
 def isDir (p : FilePath) : BaseIO Bool := do
   match (← p.metadata.toBaseIO) with
@@ -1078,7 +1106,8 @@ def isDir (p : FilePath) : BaseIO Bool := do
   | Except.error _ => return false
 
 /--
-Checks whether the indicated path points to a file that exists.
+Checks whether the indicated path points to a file that exists. This function will traverse
+symlinks.
 -/
 def pathExists (p : FilePath) : BaseIO Bool :=
   return (← p.metadata.toBaseIO).toBool
@@ -1240,11 +1269,14 @@ partial def createDirAll (p : FilePath) : IO Unit := do
         throw e
 
 /--
-  Fully remove given directory by deleting all contained files and directories in an unspecified order.
-  Fails if any contained entry cannot be deleted or was newly created during execution. -/
+Fully remove given directory by deleting all contained files and directories in an unspecified order.
+Symlinks are deleted but not followed. Fails if any contained entry cannot be deleted or was newly
+created during execution.
+-/
 partial def removeDirAll (p : FilePath) : IO Unit := do
   for ent in (← p.readDir) do
-    if (← ent.path.isDir : Bool) then
+    -- Do not follow symlinks
+    if (← ent.path.symlinkMetadata).type == .dir then
       removeDirAll ent.path
     else
       removeFile ent.path
@@ -1318,7 +1350,7 @@ output, or error streams.
 For `IO.Process.Stdio.piped`, this type is `IO.FS.Handle`. Otherwise, it is `Unit`, because no
 communication is possible.
 -/
-def Stdio.toHandleType : Stdio → Type
+@[expose] def Stdio.toHandleType : Stdio → Type
   | Stdio.piped   => FS.Handle
   | Stdio.inherit => Unit
   | Stdio.null    => Unit
@@ -1355,6 +1387,8 @@ structure SpawnArgs extends StdioConfig where
   and `some` sets the variable to the new value, adding it if necessary. Variables are processed from left to right.
   -/
   env : Array (String × Option String) := #[]
+  /-- Inherit environment variables from the spawning process. -/
+  inheritEnv : Bool := true
   /--
   Starts the child process in a new session and process group using `setsid`. Currently a no-op on
   non-POSIX platforms.
@@ -1442,13 +1476,21 @@ structure Output where
   stderr   : String
 
 /--
-Runs a process to completion and captures its output and exit code. The child process is run with a
-null standard input, and the current process blocks until it has run to completion.
+Runs a process to completion and captures its output and exit code.
+The child process is run with a null standard input or the specified input if provided,
+and the current process blocks until it has run to completion.
 
 The specifications of standard input, output, and error handles in `args` are ignored.
 -/
-def output (args : SpawnArgs) : IO Output := do
-  let child ← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
+def output (args : SpawnArgs) (input? : Option String := none) : IO Output := do
+  let child ←
+    if let some input := input? then
+      let (stdin, child) ← (← spawn { args with stdout := .piped, stderr := .piped, stdin := .piped }).takeStdin
+      stdin.putStr input
+      stdin.flush
+      pure child
+    else
+      spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
   let stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated
   let stderr ← child.stderr.readToEnd
   let exitCode ← child.wait
@@ -1456,14 +1498,19 @@ def output (args : SpawnArgs) : IO Output := do
   pure { exitCode := exitCode, stdout := stdout, stderr := stderr }
 
 /--
-Runs a process to completion, blocking until it terminates. If the child process terminates
-successfully with exit code 0, its standard output is returned. An exception is thrown if it
-terminates with any other exit code.
+Runs a process to completion, blocking until it terminates.
+The child process is run with a null standard input or the specified input if provided,
+If the child process terminates successfully with exit code 0, its standard output is returned.
+An exception is thrown if it terminates with any other exit code.
+
+The specifications of standard input, output, and error handles in `args` are ignored.
 -/
-def run (args : SpawnArgs) : IO String := do
-  let out ← output args
+def run (args : SpawnArgs) (input? : Option String := none) : IO String := do
+  let out ← output args input?
   if out.exitCode != 0 then
-    throw <| IO.userError <| "process '" ++ args.cmd ++ "' exited with code " ++ toString out.exitCode
+    throw <| IO.userError s!"process '{args.cmd}' exited with code {out.exitCode}\
+      \nstderr:\
+      \n{out.stderr}"
   pure out.stdout
 
 /--
@@ -1642,6 +1689,66 @@ def ofBuffer (r : Ref Buffer) : Stream where
     let data := s.toUTF8
     { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size }
   isTty   := pure false
+
+/--
+Reads the entire remaining contents of the stream until an end-of-file marker (EOF) is
+encountered.
+
+The underlying stream is not automatically closed upon encountering an EOF, and subsequent reads from
+the stream may block and/or return data.
+-/
+partial def readBinToEndInto (s : Stream) (buf : ByteArray) : IO ByteArray := do
+  let rec loop (acc : ByteArray) : IO ByteArray := do
+    let buf ← s.read 1024
+    if buf.isEmpty then
+      return acc
+    else
+      loop (acc ++ buf)
+  loop buf
+
+/--
+Reads the entire remaining contents of the stream until an end-of-file marker (EOF) is
+encountered.
+
+The underlying stream is not automatically closed upon encountering an EOF, and subsequent reads from
+the stream may block and/or return data.
+-/
+def readBinToEnd (s : Stream) : IO ByteArray := do
+  s.readBinToEndInto .empty
+
+/--
+Reads the entire remaining contents of the stream as a UTF-8-encoded string. An exception is
+thrown if the contents are not valid UTF-8.
+
+The underlying stream is not automatically closed, and subsequent reads from the stream may block
+and/or return data.
+-/
+def readToEnd (s : Stream) : IO String := do
+  let data ← s.readBinToEnd
+  match String.fromUTF8? data with
+  | some s => return s
+  | none => throw <| .userError s!"Tried to read from stream containing non UTF-8 data."
+
+/--
+Reads the entire remaining contents of the stream as a UTF-8-encoded array of lines.
+
+Newline markers are not included in the lines.
+
+The underlying stream is not automatically closed, and subsequent reads from the stream may block
+and/or return data.
+-/
+partial def lines (s : Stream) : IO (Array String) := do
+  let rec read (lines : Array String) := do
+    let line ← s.getLine
+    if line.length == 0 then
+      pure lines
+    else if line.back == '\n' then
+      let line := line.dropRight 1
+      let line := if line.back == '\r' then line.dropRight 1 else line
+      read <| lines.push line
+    else
+      pure <| lines.push line
+  read #[]
 
 end Stream
 

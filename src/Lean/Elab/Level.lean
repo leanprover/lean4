@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Log
-import Lean.Parser.Level
-import Lean.Elab.Exception
-import Lean.Elab.AutoBound
+public import Lean.Log
+public import Lean.Parser.Level
+public import Lean.Elab.Exception
+public import Lean.Elab.AutoBound
+
+public section
 
 namespace Lean.Elab.Level
 
@@ -60,11 +64,11 @@ partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
     elabLevel (stx.getArg 1)
   else if kind == ``Lean.Parser.Level.max then
     let args := stx.getArg 1 |>.getArgs
-    args[:args.size - 1].foldrM (init := ← elabLevel args.back!) fun stx lvl =>
+    args[*...(args.size - 1)].foldrM (init := ← elabLevel args.back!) fun stx lvl =>
       return mkLevelMax' (← elabLevel stx) lvl
   else if kind == ``Lean.Parser.Level.imax then
     let args := stx.getArg 1 |>.getArgs
-    args[:args.size - 1].foldrM (init := ← elabLevel args.back!) fun stx lvl =>
+    args[*...(args.size - 1)].foldrM (init := ← elabLevel args.back!) fun stx lvl =>
       return mkLevelIMax' (← elabLevel stx) lvl
   else if kind == ``Lean.Parser.Level.hole then
     mkFreshLevelMVar

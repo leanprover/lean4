@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sync.Basic
+public import Std.Sync.Basic
+
+public section
 
 namespace Std
 
@@ -17,7 +21,7 @@ If you want to guard shared state, use `RecursiveMutex α` instead.
 -/
 def BaseRecursiveMutex : Type := RecursiveMutexImpl.type
 
-instance : Nonempty BaseRecursiveMutex := RecursiveMutexImpl.property
+instance : Nonempty BaseRecursiveMutex := by exact RecursiveMutexImpl.property
 
 /-- Creates a new `BaseRecursiveMutex`. -/
 @[extern "lean_io_baserecmutex_new"]
@@ -93,7 +97,7 @@ def RecursiveMutex.tryAtomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m
     (mutex : RecursiveMutex α) (k : AtomicT α m β) : m (Option β) := do
   if ← mutex.mutex.tryLock then
     try
-      k mutex.ref
+      some <$> k mutex.ref
     finally
       mutex.mutex.unlock
   else

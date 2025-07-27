@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Clear
+public import Lean.Meta.Tactic.Clear
+
+public section
 
 namespace Lean.Meta
 
@@ -52,6 +56,13 @@ def _root_.Lean.MVarId.revertAfter (mvarId : MVarId) (fvarId : FVarId) : MetaM (
   mvarId.withContext do
     let localDecl ← fvarId.getDecl
     let fvarIds := (← getLCtx).foldl (init := #[]) (start := localDecl.index+1) fun fvarIds decl => fvarIds.push decl.fvarId
+    mvarId.revert fvarIds (preserveOrder := true) (clearAuxDeclsInsteadOfRevert := true)
+
+/-- Reverts all local declarations starting from `fvarId`. -/
+def _root_.Lean.MVarId.revertFrom (mvarId : MVarId) (fvarId : FVarId) : MetaM (Array FVarId × MVarId) :=
+  mvarId.withContext do
+    let localDecl ← fvarId.getDecl
+    let fvarIds := (← getLCtx).foldl (init := #[]) (start := localDecl.index) fun fvarIds decl => fvarIds.push decl.fvarId
     mvarId.revert fvarIds (preserveOrder := true) (clearAuxDeclsInsteadOfRevert := true)
 
 end Lean.Meta

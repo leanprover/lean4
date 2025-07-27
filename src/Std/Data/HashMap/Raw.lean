@@ -3,23 +3,27 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Raw
+public import Std.Data.DHashMap.Raw
+
+@[expose] public section
 
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-/-
+/-!
 # Hash maps with unbundled well-formedness invariant
 
-This module develops the type `Std.Data.HashMap.Raw` of dependent hash maps with unbundled
+This module develops the type `Std.HashMap.Raw` of dependent hash maps with unbundled
 well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is
-available as `Std.Data.HashMap.Raw.WF` and we prove in this file that all operations preserve
-well-formedness. When in doubt, prefer `HashMap` over `DHashMap.Raw`.
+available as `Std.HashMap.Raw.WF` and we prove in this file that all operations preserve
+well-formedness. When in doubt, prefer `HashMap` over `HashMap.Raw`.
 
-Lemmas about the operations on `Std.Data.HashMap.Raw` are available in the module
+Lemmas about the operations on `Std.HashMap.Raw` are available in the module
 `Std.Data.HashMap.RawLemmas`.
 -/
 
@@ -38,7 +42,7 @@ over `HashMap.Raw`. Lemmas about the operations on `Std.Data.HashMap.Raw` are av
 module `Std.Data.HashMap.RawLemmas`.
 
 This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
+and an array of buckets, where each bucket is a linked list of key-value pairs. The number of buckets
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
 

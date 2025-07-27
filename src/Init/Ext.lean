@@ -3,10 +3,14 @@ Copyright (c) 2021 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Data.ToString.Macro
-import Init.TacticsExtra
-import Init.RCases
+public import Init.Data.ToString.Macro
+public import Init.TacticsExtra
+public import Init.RCases
+
+public section
 
 namespace Lean
 namespace Parser.Attr
@@ -79,6 +83,8 @@ end Lean
 
 attribute [ext] Prod PProd Sigma PSigma
 attribute [ext] funext propext Subtype.eq Array.ext
+
+attribute [grind ext] Array.ext
 
 @[ext] protected theorem PUnit.ext (x y : PUnit) : x = y := rfl
 protected theorem Unit.ext (x y : Unit) : x = y := rfl

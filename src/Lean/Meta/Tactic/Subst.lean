@@ -3,15 +3,19 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.AppBuilder
-import Lean.Meta.MatchUtil
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Revert
-import Lean.Meta.Tactic.Assert
-import Lean.Meta.Tactic.Intro
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.FVarSubst
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.MatchUtil
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Revert
+public import Lean.Meta.Tactic.Assert
+public import Lean.Meta.Tactic.Intro
+public import Lean.Meta.Tactic.Clear
+public import Lean.Meta.Tactic.FVarSubst
+
+public section
 
 namespace Lean.Meta
 
@@ -117,7 +121,7 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
           m!"invalid equality proof, it is not of the form {eqMsg}{indentExpr hLocalDecl.type}\nafter WHNF, variable expected, but obtained{indentExpr a}"
 
 /--
-  Given `h : HEq α a α b` in the given goal, produce a new goal where `h : Eq α a b`.
+  Given `h : @HEq α a α b` in the given goal, produce a new goal where `h : @Eq α a b`.
   If `h` is not of the give form, then just return `(h, mvarId)`
 -/
 def heqToEq (mvarId : MVarId) (fvarId : FVarId) (tryToClear : Bool := true) : MetaM (FVarId × MVarId) :=

@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.Basic
+public import Std.Sat.AIG.Basic
+
+@[expose] public section
 
 /-!
 The lawful operator framework provides free theorems around the typeclass `LawfulOperator`.
@@ -29,6 +33,11 @@ structure IsPrefix (decls1 decls2 : Array (Decl α)) : Prop where
     The prefix and the other array must agree on all elements up until the bound of the prefix
     -/
     idx_eq : ∀ idx (h : idx < decls1.size), decls2[idx]'(by omega) = decls1[idx]'h
+
+theorem IsPrefix.rfl {decls : Array (Decl α)} : IsPrefix decls decls := by
+  apply IsPrefix.of
+  · simp
+  · simp
 
 @[simp]
 theorem IsPrefix_push {decls : Array (Decl α)} : IsPrefix decls (decls.push decl) := by

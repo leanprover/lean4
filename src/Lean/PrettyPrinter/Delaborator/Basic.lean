@@ -3,11 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Elab.Term
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.PrettyPrinter.Delaborator.SubExpr
-import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+public import Lean.KeyedDeclsAttribute
+public import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.PrettyPrinter.Delaborator.SubExpr
+public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+
+public section
 
 /-!
 The delaborator is the first stage of the pretty printer, and the inverse of the
@@ -99,18 +103,21 @@ instance : MonadQuotation DelabM := {
   withFreshMacroScope := fun x => x
 }
 
-unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
+/--
+Registers a delaborator.
+
+`@[delab k]` registers a declaration of type `Lean.PrettyPrinter.Delaborator.Delab` for the
+`Lean.Expr` constructor `k`. Multiple delaborators for a single constructor are tried in turn until
+the first success. If the term to be delaborated is an application of a constant `c`, elaborators
+for `app.c` are tried first; this is also done for `Expr.const`s ("nullary applications") to reduce
+special casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k` is tried first.
+-/
+@[builtin_doc]
+unsafe builtin_initialize delabAttribute : KeyedDeclsAttribute Delab ←
   KeyedDeclsAttribute.init {
     builtinName := `builtin_delab,
     name := `delab,
-    descr    := "Register a delaborator.
-
-  [delab k] registers a declaration of type `Lean.PrettyPrinter.Delaborator.Delab` for the `Lean.Expr`
-  constructor `k`. Multiple delaborators for a single constructor are tried in turn until
-  the first success. If the term to be delaborated is an application of a constant `c`,
-  elaborators for `app.c` are tried first; this is also done for `Expr.const`s (\"nullary applications\")
-  to reduce special casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k`
-  is tried first.",
+    descr    := "Register a delaborator",
     valueTypeName := `Lean.PrettyPrinter.Delaborator.Delab
     evalKey := fun _ stx => do
       let stx ← Attribute.Builtin.getIdent stx
@@ -120,8 +127,7 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
         if (← getEnv).contains c then
           Elab.addConstInfo stx c none
       pure kind
-  } `Lean.PrettyPrinter.Delaborator.delabAttribute
-@[builtin_init mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
+  }
 
 /--
 `@[app_delab c]` registers a delaborator for applications with head constant `c`.
@@ -163,7 +169,7 @@ def getExprKind : DelabM Name := do
 def getOptionsAtCurrPos : DelabM Options := do
   let ctx ← read
   let mut opts ← getOptions
-  if let some opts' := ctx.optionsPerPos.find? (← getPos) then
+  if let some opts' := ctx.optionsPerPos.get? (← getPos) then
     for (k, v) in opts' do
       opts := opts.insert k v
   return opts
@@ -185,7 +191,7 @@ def withOptionAtCurrPos (k : Name) (v : DataValue) (x : DelabM α) : DelabM α :
   let pos ← getPos
   withReader
     (fun ctx =>
-      let opts' := ctx.optionsPerPos.find? pos |>.getD {} |>.insert k v
+      let opts' := ctx.optionsPerPos.get? pos |>.getD {} |>.insert k v
       { ctx with optionsPerPos := ctx.optionsPerPos.insert pos opts' })
     x
 
@@ -323,11 +329,13 @@ inductive OmissionReason
   | deep
   | proof
   | maxSteps
+  | string (s : String)
 
 def OmissionReason.toString : OmissionReason → String
   | deep => "Term omitted due to its depth (see option `pp.deepTerms`)."
   | proof => "Proof omitted (see option `pp.proofs`)."
   | maxSteps => "Term omitted due to reaching the maximum number of steps allowed for pretty printing this expression (see option `pp.maxSteps`)."
+  | string s => s
 
 def addOmissionInfo (pos : Pos) (stx : Syntax) (e : Expr) (reason : OmissionReason) : DelabM Unit := do
   addDelabTermInfo pos stx e (docString? := reason.toString) (explicit := false)
@@ -443,19 +451,27 @@ partial def delab : Delab := do
   else
     return stx
 
-unsafe def mkAppUnexpanderAttribute : IO (KeyedDeclsAttribute Unexpander) :=
+/--
+Registers an unexpander for applications of a given constant.
+
+`@[app_unexpander c]` registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant
+`c`. The unexpander is passed the result of pre-pretty printing the application *without*
+implicitly passed arguments. If `pp.explicit` is set to true or `pp.notation` is set to false,
+it will not be called at all.
+
+Unexpanders work as an alternative for delaborators (`@[app_delab]`) that can be used without
+special imports. This however also makes them much less capable since they can only transform
+syntax and don't have access to the expression tree.
+-/
+@[builtin_doc]
+unsafe builtin_initialize appUnexpanderAttribute : KeyedDeclsAttribute Unexpander ←
   KeyedDeclsAttribute.init {
     name  := `app_unexpander,
-    descr := "Register an unexpander for applications of a given constant.
-
-[app_unexpander c] registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant `c`. The unexpander is
-passed the result of pre-pretty printing the application *without* implicitly passed arguments. If `pp.explicit` is set
-to true or `pp.notation` is set to false, it will not be called at all.",
+    descr := "Register an unexpander for applications of a given constant.",
     valueTypeName := `Lean.PrettyPrinter.Unexpander
     evalKey := fun _ stx => do
       Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
-  } `Lean.PrettyPrinter.Delaborator.appUnexpanderAttribute
-@[builtin_init mkAppUnexpanderAttribute] opaque appUnexpanderAttribute : KeyedDeclsAttribute Unexpander
+  }
 
 end Delaborator
 

@@ -3,8 +3,12 @@ Copyright (c) 2017 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Jacob von Raumer
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Induction
+public import Lean.Elab.Tactic.Induction
+
+public section
 
 namespace Lean.Elab.Tactic.RCases
 open Meta Parser Tactic
@@ -27,11 +31,12 @@ instance : Coe (TSyntax ``rcasesPatMed) (TSyntax ``rcasesPatLo) where
 instance : Coe (TSyntax `rcasesPat) (TSyntax `rintroPat) where
   coe stx := Unhygienic.run `(rintroPat| $stx:rcasesPat)
 
-/-- A list, with a disjunctive meaning (like a list of inductive constructors, or subgoals) -/
-local notation "ListΣ" => List
+-- These frequently cause bootstrapping issues. Commented out for now, using `List/-Σ-/` and `List/-Π-/` instead.
+-- /-- A list, with a disjunctive meaning (like a list of inductive constructors, or subgoals) -/
+-- local notation "ListΣ" => List
 
-/-- A list, with a conjunctive meaning (like a list of constructor arguments, or hypotheses) -/
-local notation "ListΠ" => List
+-- /-- A list, with a conjunctive meaning (like a list of constructor arguments, or hypotheses) -/
+-- local notation "ListΠ" => List
 
 /--
 An `rcases` pattern can be one of the following, in a nested combination:
@@ -65,9 +70,9 @@ inductive RCasesPatt : Type
   /-- A type ascription like `pat : ty` (parentheses are optional) -/
   | typed (ref : Syntax) : RCasesPatt → Term → RCasesPatt
   /-- A tuple constructor like `⟨p1, p2, p3⟩` -/
-  | tuple (ref : Syntax) : ListΠ RCasesPatt → RCasesPatt
+  | tuple (ref : Syntax) : List/-Π-/ RCasesPatt → RCasesPatt
   /-- An alternation / variant pattern `p1 | p2 | p3` -/
-  | alts (ref : Syntax) : ListΣ RCasesPatt → RCasesPatt
+  | alts (ref : Syntax) : List/-Σ-/ RCasesPatt → RCasesPatt
   deriving Repr
 
 namespace RCasesPatt
@@ -97,7 +102,7 @@ def ref : RCasesPatt → Syntax
 /--
 Interpret an rcases pattern as a tuple, where `p` becomes `⟨p⟩` if `p` is not already a tuple.
 -/
-def asTuple : RCasesPatt → Bool × ListΠ RCasesPatt
+def asTuple : RCasesPatt → Bool × List/-Π-/ RCasesPatt
   | paren _ p    => p.asTuple
   | explicit _ p => (true, p.asTuple.2)
   | tuple _ ps   => (false, ps)
@@ -107,7 +112,7 @@ def asTuple : RCasesPatt → Bool × ListΠ RCasesPatt
 Interpret an rcases pattern as an alternation, where non-alternations are treated as one
 alternative.
 -/
-def asAlts : RCasesPatt → ListΣ RCasesPatt
+def asAlts : RCasesPatt → List/-Σ-/ RCasesPatt
   | paren _ p => p.asAlts
   | alts _ ps => ps
   | p         => [p]
@@ -118,7 +123,7 @@ def typed? (ref : Syntax) : RCasesPatt → Option Term → RCasesPatt
   | p, some ty => typed ref p ty
 
 /-- Convert a list of patterns to a tuple pattern, but mapping `[p]` to `p` instead of `⟨p⟩`. -/
-def tuple' : ListΠ RCasesPatt → RCasesPatt
+def tuple' : List/-Π-/ RCasesPatt → RCasesPatt
   | [p] => p
   | ps  => tuple (ps.head?.map (·.ref) |>.getD .missing) ps
 
@@ -126,7 +131,7 @@ def tuple' : ListΠ RCasesPatt → RCasesPatt
 Convert a list of patterns to an alternation pattern, but mapping `[p]` to `p` instead of
 a unary alternation `|p`.
 -/
-def alts' (ref : Syntax) : ListΣ RCasesPatt → RCasesPatt
+def alts' (ref : Syntax) : List/-Σ-/ RCasesPatt → RCasesPatt
   | [p] => p
   | ps  => alts ref ps
 
@@ -139,7 +144,7 @@ becomes `⟨a, b, c, d⟩` instead of `⟨a, b, ⟨c, d⟩⟩`.
 We must be careful to turn `[a, ⟨⟩]` into `⟨a, ⟨⟩⟩` instead of `⟨a⟩` (which will not perform the
 nested match).
 -/
-def tuple₁Core : ListΠ RCasesPatt → ListΠ RCasesPatt
+def tuple₁Core : List/-Π-/ RCasesPatt → List/-Π-/ RCasesPatt
   | []         => []
   | [tuple ref []] => [tuple ref []]
   | [tuple _ ps] => ps
@@ -150,7 +155,7 @@ This function is used for producing rcases patterns based on a case tree. This i
 `tuple₁Core` but it produces a pattern instead of a tuple pattern list, converting `[n]` to `n`
 instead of `⟨n⟩` and `[]` to `_`, and otherwise just converting `[a, b, c]` to `⟨a, b, c⟩`.
 -/
-def tuple₁ : ListΠ RCasesPatt → RCasesPatt
+def tuple₁ : List/-Π-/ RCasesPatt → RCasesPatt
   | []      => default
   | [one ref n] => one ref n
   | ps      => tuple ps.head!.ref $ tuple₁Core ps
@@ -162,7 +167,7 @@ produce a list of alternatives with the same effect. This function calls `tuple�
 individual alternatives, and handles merging `[a, b, c | d]` to `a | b | c | d` instead of
 `a | b | (c | d)`.
 -/
-def alts₁Core : ListΣ (ListΠ RCasesPatt) → ListΣ RCasesPatt
+def alts₁Core : List/-Σ-/ (List/-Π-/ RCasesPatt) → List/-Σ-/ RCasesPatt
   | []          => []
   | [[alts _ ps]] => ps
   | p :: ps     => tuple₁ p :: alts₁Core ps
@@ -174,7 +179,7 @@ specially translate the empty alternation to `⟨⟩`, and translate `|(a | b)` 
 don't have any syntax for unary alternation). Otherwise we can use the regular merging of
 alternations at the last argument so that `a | b | (c | d)` becomes `a | b | c | d`.
 -/
-def alts₁ (ref : Syntax) : ListΣ (ListΠ RCasesPatt) → RCasesPatt
+def alts₁ (ref : Syntax) : List/-Σ-/ (List/-Π-/ RCasesPatt) → RCasesPatt
   | [[]]        => tuple .missing []
   | [[alts ref ps]] => tuple ref ps
   | ps          => alts' ref $ alts₁Core ps
@@ -204,7 +209,7 @@ constructor. The `name` is the name which will be used in the top-level `cases` 
 tactics.
 -/
 def processConstructor (ref : Syntax) (info : Array ParamInfo)
-    (explicit : Bool) (idx : Nat) (ps : ListΠ RCasesPatt) : ListΠ Name × ListΠ RCasesPatt :=
+    (explicit : Bool) (idx : Nat) (ps : List/-Π-/ RCasesPatt) : List/-Π-/ Name × List/-Π-/ RCasesPatt :=
   if _ : idx < info.size then
     if !explicit && info[idx].binderInfo != .default then
       let (ns, tl) := processConstructor ref info explicit (idx+1) ps
@@ -227,7 +232,7 @@ and the list of `(constructor name, patterns)` for each constructor, where `patt
 (conjunctive) list of patterns to apply to each constructor argument.
 -/
 def processConstructors (ref : Syntax) (params : Nat) (altVarNames : Array AltVarNames := #[]) :
-    ListΣ Name → ListΣ RCasesPatt → MetaM (Array AltVarNames × ListΣ (Name × ListΠ RCasesPatt))
+    List/-Σ-/ Name → List/-Σ-/ RCasesPatt → MetaM (Array AltVarNames × List/-Σ-/ (Name × List/-Π-/ RCasesPatt))
   | [], _ => pure (altVarNames, [])
   | c :: cs, ps => do
     let info := (← getFunInfo (← mkConstWithLevelParams c)).paramInfo
@@ -354,7 +359,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
       let rec
       /-- Runs `rcasesContinue` on the first pattern in `r` with a matching `ctorName`.
       The unprocessed patterns (subsequent to the matching pattern) are returned. -/
-      align : ListΠ (Name × ListΠ RCasesPatt) → TermElabM (ListΠ (Name × ListΠ RCasesPatt) × α)
+      align : List/-Π-/ (Name × List/-Π-/ RCasesPatt) → TermElabM (List/-Π-/ (Name × List/-Π-/ RCasesPatt) × α)
       | [] => pure ([], a)
       | (tgt, ps) :: as => do
         if tgt == ctorName then
@@ -372,7 +377,7 @@ earlier arguments. For example `⟨a | b, ⟨c, d⟩⟩` performs the `⟨c, d�
 `a` branch and once on `b`.
 -/
 partial def rcasesContinue (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (a : α)
-  (pats : ListΠ (RCasesPatt × Expr)) (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) :
+  (pats : List/-Π-/ (RCasesPatt × Expr)) (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) :
   TermElabM α :=
   match pats with
   | []  => cont g fs clears a
@@ -435,7 +440,7 @@ def generalizeExceptFVar (goal : MVarId) (args : Array GeneralizeArg) :
     else
       result := result.push (mkFVar fvarIdsNew[j]!)
       j := j+1
-  pure (result, fvarIdsNew[j:], goal)
+  pure (result, fvarIdsNew[j...*], goal)
 
 /--
 Given a list of targets of the form `e` or `h : e`, and a pattern, match all the targets
@@ -523,7 +528,7 @@ partial def rintroContinue (g : MVarId) (fs : FVarSubst) (clears : Array FVarId)
     (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) : TermElabM α := do
   g.withContext (loop 0 g fs clears a)
 where
-  /-- Runs `rintroContinue` on `pats[i:]` -/
+  /-- Runs `rintroContinue` on `pats[i...*]` -/
   loop i g fs clears a := do
     if h : i < pats.size then
       rintroCore g fs clears a ref pats[i] ty? (loop (i+1))

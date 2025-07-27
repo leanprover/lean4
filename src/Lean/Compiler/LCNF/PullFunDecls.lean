@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.DependsOn
-import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.DependsOn
+public import Lean.Compiler.LCNF.PassManager
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace PullFunDecls
@@ -17,7 +21,7 @@ Local function declaration and join point being pulled.
 structure ToPull where
   isFun : Bool
   decl  : FunDecl
-  used  : FVarIdSet
+  used  : FVarIdHashSet
   deriving Inhabited
 
 /--
@@ -86,7 +90,7 @@ partial def attach (ps : Array ToPull) (k : Code) : Code := Id.run do
   return k
 where
   go : StateM (Code × Array Bool) Unit := do
-    for i in [:ps.size] do
+    for i in *...ps.size do
       visit i
 
   visited (i : Nat) : StateM (Code × Array Bool) Bool :=
@@ -96,7 +100,7 @@ where
     unless (← visited i) do
       modify fun (k, visited) => (k, visited.set! i true)
       let pi := ps[i]!
-      for h : j in [:ps.size] do
+      for h : j in *...ps.size do
         unless (← visited j) do
           let pj := ps[j]
           if pj.used.contains pi.decl.fvarId then

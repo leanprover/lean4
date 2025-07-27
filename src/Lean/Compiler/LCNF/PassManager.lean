@@ -3,18 +3,21 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Lean.Attributes
-import Lean.Environment
-import Lean.Meta.Basic
-import Lean.Compiler.LCNF.CompilerM
+public import Lean.Attributes
+public import Lean.Environment
+public import Lean.Meta.Basic
+public import Lean.Compiler.LCNF.CompilerM
+
+public section
 
 namespace Lean.Compiler.LCNF
 
-def Phase.toNat : Phase → Nat
+@[expose] def Phase.toNat : Phase → Nat
   | .base => 0
   | .mono => 1
-  | .impure => 2
 
 instance : LT Phase where
   lt l r := l.toNat < r.toNat
@@ -48,6 +51,11 @@ structure Pass where
   -/
   phaseOut : Phase := phase
   phaseInv : phaseOut ≥ phase := by simp +arith +decide
+  /--
+  Whether IR validation checks should always run after this pass, regardless
+  of configuration options.
+  -/
+  shouldAlwaysRunCheck : Bool := false
   /--
   The name of the `Pass`
   -/
@@ -85,7 +93,6 @@ instance : ToString Phase where
   toString
     | .base => "base"
     | .mono => "mono"
-    | .impure => "impure"
 
 namespace Pass
 
@@ -128,7 +135,7 @@ def withEachOccurrence (targetName : Name) (f : Nat → PassInstaller) : PassIns
   install passes := do
     let highestOccurrence ← PassManager.findHighestOccurrence targetName passes
     let mut passes := passes
-    for occurrence in [0:highestOccurrence+1] do
+    for occurrence in *...=highestOccurrence do
       passes ← f occurrence |>.install passes
     return passes
 

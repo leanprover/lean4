@@ -3,18 +3,21 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Selsam
 -/
+module
+
 prelude
-import Lean.Data.RBMap
-import Lean.Meta.SynthInstance
-import Lean.Meta.CtorRecognizer
-import Lean.Util.FindMVar
-import Lean.Util.FindLevelMVar
-import Lean.Util.CollectLevelParams
-import Lean.Util.ReplaceLevel
-import Lean.PrettyPrinter.Delaborator.FieldNotation
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.PrettyPrinter.Delaborator.SubExpr
-import Lean.Elab.Config
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.CtorRecognizer
+public import Lean.Util.FindMVar
+public import Lean.Util.FindLevelMVar
+public import Lean.Util.CollectLevelParams
+public import Lean.Util.ReplaceLevel
+public import Lean.PrettyPrinter.Delaborator.FieldNotation
+public import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.PrettyPrinter.Delaborator.SubExpr
+public import Lean.Elab.Config
+
+public section
 
 /-!
 The top-down analyzer is an optional preprocessor to the delaborator that aims
@@ -308,7 +311,7 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
     let args := e.getAppArgs
     let fType ← replaceLPsWithVars (← inferType e.getAppFn)
     let (mvars, bInfos, resultType) ← forallMetaBoundedTelescope fType e.getAppArgs.size
-    for h : i in [:mvars.size] do
+    for h : i in *...mvars.size do
       if bInfos[i]! == BinderInfo.instImplicit then
         inspectOutParams args[i]! mvars[i]
       else if bInfos[i]! == BinderInfo.default then
@@ -328,7 +331,7 @@ def checkKnowsType : AnalyzeM Unit := do
     throw $ Exception.internal analyzeFailureId
 
 def annotateBoolAt (n : Name) (pos : Pos) : AnalyzeM Unit := do
-  let opts := (← get).annotations.findD pos {} |>.setBool n true
+  let opts := (← get).annotations.getD pos {} |>.setBool n true
   trace[pp.analyze.annotate] "{pos} {n}"
   modify fun s => { s with annotations := s.annotations.insert pos opts }
 
@@ -480,14 +483,14 @@ mutual
     discard <| processPostponed (mayPostpone := true)
     applyFunBinderHeuristic
     analyzeFn
-    for i in [:(← read).args.size] do analyzeArg i
+    for i in *...(← read).args.size do analyzeArg i
     maybeSetExplicit
 
   where
     collectBottomUps := do
       let { args, mvars, bInfos, ..} ← read
       for target in [fun _ => none, fun i => some mvars[i]!] do
-        for h : i in [:args.size] do
+        for h : i in *...args.size do
           if bInfos[i]! == BinderInfo.default then
             if ← typeUnknown mvars[i]! <&&> canBottomUp args[i] (target i) then
               tryUnify args[i]! mvars[i]!
@@ -495,12 +498,12 @@ mutual
 
     checkOutParams := do
       let { args, mvars, bInfos, ..} ← read
-      for h : i in [:args.size] do
+      for h : i in *...args.size do
         if bInfos[i]! == BinderInfo.instImplicit then inspectOutParams args[i] mvars[i]!
 
     collectHigherOrders := do
       let { args, mvars, bInfos, ..} ← read
-      for h : i in [:args.size] do
+      for h : i in *...args.size do
         if !(bInfos[i]! == BinderInfo.implicit || bInfos[i]! == BinderInfo.strictImplicit) then continue
         if !(← isHigherOrder (← inferType args[i])) then continue
         if getPPAnalyzeTrustId (← getOptions) && isIdLike args[i]! then continue
@@ -520,7 +523,7 @@ mutual
       -- motivation: prevent levels from printing in
       -- Boo.mk : {α : Type u_1} → {β : Type u_2} → α → β → Boo.{u_1, u_2} α β
       let { args, mvars, bInfos, ..} ← read
-      for h : i in [:args.size] do
+      for h : i in *...args.size do
         if bInfos[i]! == BinderInfo.default then
           if ← valUnknown mvars[i]! <&&> isTrivialBottomUp args[i] then
             tryUnify args[i]! mvars[i]!
@@ -533,7 +536,7 @@ mutual
         match ← getExpr, mvarType with
         | Expr.lam .., Expr.forallE _ t b .. =>
           let mut annotated := false
-          for i in [:argIdx] do
+          for i in *...argIdx do
             if ← pure (bInfos[i]! == BinderInfo.implicit) <&&> valUnknown mvars[i]! <&&> withNewMCtxDepth (checkpointDefEq t mvars[i]!) then
               annotateBool `pp.funBinderTypes
               tryUnify args[i]! mvars[i]!
@@ -546,7 +549,7 @@ mutual
 
         | _, _ => return false
 
-      for i in [:args.size] do
+      for i in *...args.size do
         if bInfos[i]! == BinderInfo.default then
           let b ← withNaryArg i (core i (← inferType mvars[i]!))
           if b then modify fun s => { s with funBinders := s.funBinders.set! i true }
@@ -609,7 +612,7 @@ mutual
       let { f, args, bInfos, ..} ← read
       if (← get).namedArgs.any nameNotRoundtrippable then
         annotateBool `pp.explicit
-        for i in [:args.size] do
+        for i in *...args.size do
           if !(← get).provideds[i]! then
             withNaryArg (f.getAppNumArgs + i) do annotateBool `pp.analysis.hole
           if bInfos[i]! == BinderInfo.instImplicit && getPPInstanceTypes (← getOptions) then

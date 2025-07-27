@@ -379,6 +379,7 @@ void object_compactor::operator()(object * o) {
 }
 
 compacted_region::compacted_region(size_t sz, void * data, void * base_addr, bool is_mmap, std::function<void()> free_data):
+    m_size(sz),
     m_base_addr(base_addr),
     m_is_mmap(is_mmap),
     m_free_data(free_data),
@@ -387,15 +388,10 @@ compacted_region::compacted_region(size_t sz, void * data, void * base_addr, boo
     m_end(static_cast<char*>(data)+sz) {
 }
 
-compacted_region::compacted_region(object_compactor const & c):
-    m_begin(malloc(c.size())),
-    m_next(m_begin),
-    m_end(static_cast<char*>(m_begin) + c.size()) {
-    memcpy(m_begin, c.data(), c.size());
-}
-
 compacted_region::~compacted_region() {
-    m_free_data();
+    if (m_free_data) {
+        m_free_data();
+    }
 }
 
 inline object * compacted_region::fix_object_ptr(object * o) {
@@ -505,6 +501,10 @@ object * compacted_region::read() {
 
 extern "C" LEAN_EXPORT uint8 lean_compacted_region_is_memory_mapped(usize region) {
     return reinterpret_cast<compacted_region *>(region)->is_memory_mapped();
+}
+
+extern "C" LEAN_EXPORT usize lean_compacted_region_size(usize region) {
+    return reinterpret_cast<compacted_region *>(region)->size();
 }
 
 extern "C" LEAN_EXPORT obj_res lean_compacted_region_free(usize region, object *) {

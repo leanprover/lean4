@@ -3,10 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Structure
-import Lean.Elab.Attributes
-import Lean.DocString.Add
+public import Lean.Structure
+public import Lean.Elab.Attributes
+public import Lean.DocString.Add
+public import Lean.Parser.Command
+meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab
 
@@ -28,7 +34,7 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfo
     match privateToUserName? declName with
     | none          => throwError "'{.ofConstName declName true}' has already been declared"
     | some declName => throwError "private declaration '{.ofConstName declName true}' has already been declared"
-  if isReservedName env declName then
+  if isReservedName env (privateToUserName declName) || isReservedName env (mkPrivateName (← getEnv) declName) then
     throwError "'{declName}' is a reserved name"
   if env.contains (mkPrivateName env declName) then
     addInfo (mkPrivateName env declName)
@@ -42,7 +48,7 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfo
 
 /-- Declaration visibility modifier. That is, whether a declaration is regular, protected or private. -/
 inductive Visibility where
-  | regular | «protected» | «private»
+  | regular | «protected» | «private» | «public»
   deriving Inhabited
 
 instance : ToString Visibility where
@@ -50,10 +56,31 @@ instance : ToString Visibility where
     | .regular   => "regular"
     | .private   => "private"
     | .protected => "protected"
+    | .public    => "public"
+
+def Visibility.isPrivate : Visibility → Bool
+  | .private   => true
+  | _          => false
+
+def Visibility.isProtected : Visibility → Bool
+  | .protected => true
+  | _          => false
+
+def Visibility.isPublic : Visibility → Bool
+  | .public    => true
+  | _          => false
+
+def Visibility.isInferredPublic (env : Environment) (v : Visibility) : Bool :=
+  if env.isExporting || !env.header.isModule then !v.isPrivate else v.isPublic
 
 /-- Whether a declaration is default, partial or nonrec. -/
 inductive RecKind where
   | «partial» | «nonrec» | default
+  deriving Inhabited
+
+/-- Codegen-relevant modifiers. -/
+inductive ComputeKind where
+  | regular | «meta» | «noncomputable»
   deriving Inhabited
 
 /-- Flags and data added to declarations (eg docstrings, attributes, `private`, `unsafe`, `partial`, ...). -/
@@ -62,31 +89,48 @@ structure Modifiers where
   stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
   docString?      : Option (TSyntax ``Parser.Command.docComment) := none
   visibility      : Visibility := Visibility.regular
-  isNoncomputable : Bool := false
+  computeKind     : ComputeKind := .regular
   recKind         : RecKind := RecKind.default
   isUnsafe        : Bool := false
   attrs           : Array Attribute := #[]
   deriving Inhabited
 
-def Modifiers.isPrivate : Modifiers → Bool
-  | { visibility := .private, .. } => true
-  | _                              => false
-
-def Modifiers.isProtected : Modifiers → Bool
-  | { visibility := .protected, .. } => true
-  | _                                => false
+def Modifiers.isPrivate (m : Modifiers) : Bool := m.visibility.isPrivate
+def Modifiers.isProtected (m : Modifiers) : Bool := m.visibility.isProtected
+def Modifiers.isPublic (m : Modifiers) : Bool := m.visibility.isPublic
+def Modifiers.isInferredPublic (env : Environment) (m : Modifiers) : Bool :=
+  m.visibility.isInferredPublic env
 
 def Modifiers.isPartial : Modifiers → Bool
-  | { recKind := .partial, .. } => true
-  | _                           => false
+  | { recKind := .partial, .. }  => true
+  | _                            => false
+
+/--
+Whether the declaration is explicitly `partial` or should be considered as such via `meta`. In the
+latter case, elaborators should not produce an error if partiality is unnecessary.
+-/
+def Modifiers.isInferredPartial : Modifiers → Bool
+  | { recKind := .partial, .. }  => true
+  | { computeKind := .meta, .. } => true
+  | _                            => false
 
 def Modifiers.isNonrec : Modifiers → Bool
   | { recKind := .nonrec, .. } => true
   | _                          => false
 
+def Modifiers.isMeta (m : Modifiers) : Bool :=
+  m.computeKind matches .meta
+
+def Modifiers.isNoncomputable (m : Modifiers) : Bool :=
+  m.computeKind matches .noncomputable
+
 /-- Adds attribute `attr` in `modifiers` -/
 def Modifiers.addAttr (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.push attr }
+
+/-- Adds attribute `attr` in `modifiers`, at the beginning -/
+def Modifiers.addFirstAttr (modifiers : Modifiers) (attr : Attribute) : Modifiers :=
+  { modifiers with attrs := #[attr] ++ modifiers.attrs }
 
 /-- Filters attributes using `p` -/
 def Modifiers.filterAttrs (modifiers : Modifiers) (p : Attribute → Bool) : Modifiers :=
@@ -99,9 +143,10 @@ instance : ToFormat Modifiers := ⟨fun m =>
      | none     => [])
     ++ (match m.visibility with
      | .regular   => []
+     | .private   => [f!"private"]
      | .protected => [f!"protected"]
-     | .private   => [f!"private"])
-    ++ (if m.isNoncomputable then [f!"noncomputable"] else [])
+     | .public    => [f!"public"])
+    ++ (match m.computeKind with | .regular => [] | .meta => [f!"meta"] | .noncomputable => [f!"noncomputable"])
     ++ (match m.recKind with | RecKind.partial => [f!"partial"] | RecKind.nonrec => [f!"nonrec"] | _ => [])
     ++ (if m.isUnsafe then [f!"unsafe"] else [])
     ++ m.attrs.toList.map (fun attr => format attr)
@@ -123,12 +168,18 @@ section Methods
 
 variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
 
-/-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `protected`, `unsafe`, `noncomputable`, doc string)-/
+/-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `protected`, `unsafe`, `meta`, `noncomputable`, doc string)-/
 def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers := do
   let docCommentStx := stx.raw[0]
   let attrsStx      := stx.raw[1]
   let visibilityStx := stx.raw[2]
-  let noncompStx    := stx.raw[3]
+  let computeKind   :=
+    if stx.raw[3].isNone then
+      .regular
+    else if stx.raw[3][0].getKind == ``Parser.Command.meta then
+      .meta
+    else
+      .noncomputable
   let unsafeStx     := stx.raw[4]
   let recKind       :=
     if stx.raw[5].isNone then
@@ -139,19 +190,19 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
       RecKind.nonrec
   let docString? := docCommentStx.getOptional?.map TSyntax.mk
   let visibility ← match visibilityStx.getOptional? with
-    | none   => pure Visibility.regular
+    | none   => pure .regular
     | some v =>
-      let kind := v.getKind
-      if kind == ``Parser.Command.private then pure Visibility.private
-      else if kind == ``Parser.Command.protected then pure Visibility.protected
-      else throwErrorAt v "unexpected visibility modifier"
+      match v with
+      | `(Parser.Command.visibility| private) => pure .private
+      | `(Parser.Command.visibility| protected) => pure .protected
+      | `(Parser.Command.visibility| public) => pure .public
+      | _ => throwErrorAt v "unexpected visibility modifier"
   let attrs ← match attrsStx.getOptional? with
     | none       => pure #[]
     | some attrs => elabDeclAttrs attrs
   return {
-    stx, docString?, visibility, recKind, attrs,
+    stx, docString?, visibility, computeKind, recKind, attrs,
     isUnsafe        := !unsafeStx.isNone
-    isNoncomputable := !noncompStx.isNone
   }
 
 /--
@@ -160,18 +211,13 @@ If `private`, return the updated name using our internal encoding for private na
 If `protected`, register `declName` as protected in the environment.
 -/
 def applyVisibility (visibility : Visibility) (declName : Name) : m Name := do
-  match visibility with
-  | .private =>
-    let declName := mkPrivateName (← getEnv) declName
-    checkNotAlreadyDeclared declName
-    return declName
-  | .protected =>
-    checkNotAlreadyDeclared declName
+  let mut declName := declName
+  if !visibility.isInferredPublic (← getEnv) then
+    declName := mkPrivateName (← getEnv) declName
+  checkNotAlreadyDeclared declName
+  if visibility matches .protected then
     modifyEnv fun env => addProtected env declName
-    return declName
-  | _ =>
-    checkNotAlreadyDeclared declName
-    pure declName
+  pure declName
 
 def checkIfShadowingStructureField (declName : Name) : m Unit := do
   match declName with

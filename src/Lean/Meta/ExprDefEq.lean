@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Offset
-import Lean.Meta.UnificationHint
-import Lean.Util.OccursCheck
+public import Lean.Meta.Offset
+public import Lean.Meta.UnificationHint
+public import Lean.Util.OccursCheck
+
+public section
 
 namespace Lean.Meta
 
@@ -79,8 +83,8 @@ where
       else if (← isDefEq (← inferType a) (← inferType b)) then
         checkpointDefEq do
           let args := b.getAppArgs
-          let params := args[:ctorVal.numParams].toArray
-          for h : i in [ctorVal.numParams : args.size] do
+          let params := args[*...ctorVal.numParams].toArray
+          for h : i in ctorVal.numParams...args.size do
             let j := i - ctorVal.numParams
             let proj ← mkProjFn ctorVal us params j a
             if ← isProof proj then
@@ -255,7 +259,7 @@ private def isDefEqArgsFirstPass
     (paramInfo : Array ParamInfo) (args₁ args₂ : Array Expr) : MetaM DefEqArgsFirstPassResult := do
   let mut postponedImplicit := #[]
   let mut postponedHO := #[]
-  for h : i in [:paramInfo.size] do
+  for h : i in *...paramInfo.size do
     let info := paramInfo[i]
     let a₁ := args₁[i]!
     let a₂ := args₂[i]!
@@ -291,7 +295,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
   let finfo ← getFunInfoNArgs f args₁.size
   let .ok postponedImplicit postponedHO ← isDefEqArgsFirstPass finfo.paramInfo args₁ args₂ | pure false
   -- finfo.paramInfo.size may be smaller than args₁.size
-  for i in [finfo.paramInfo.size:args₁.size] do
+  for i in finfo.paramInfo.size...args₁.size do
     unless (← Meta.isExprDefEqAux args₁[i]! args₂[i]!) do
       return false
   for i in postponedImplicit do
@@ -327,7 +331,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
   This method also updates the set of local instances, and invokes
   the continuation `k` with the updated set.
 
-  We can't use `withNewLocalInstances` because the `isDeq fvarType d₂`
+  We can't use `withNewLocalInstances` because the `isDefEq fvarType d₂`
   may use local instances. -/
 @[specialize] partial def isDefEqBindingDomain (fvars : Array Expr) (ds₂ : Array Expr) (k : MetaM Bool) : MetaM Bool :=
   let rec loop (i : Nat) := do
@@ -426,13 +430,13 @@ private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : Meta
     mkLambdaFVars ys v (etaReduce := true)
 
 where
-  /-- Return true if there are let-declarions between `xs[0]` and `xs[xs.size-1]`.
+  /-- Return true if there are let-declarations between `xs[0]` and `xs[xs.size-1]`.
      We use it a quick-check to avoid the more expensive collection procedure. -/
   hasLetDeclsInBetween : MetaM Bool := do
     let check (lctx : LocalContext) : Bool := Id.run do
       let start := lctx.getFVar! xs[0]! |>.index
       let stop  := lctx.getFVar! xs.back! |>.index
-      for i in [start+1:stop] do
+      for i in (start+1)...stop do
         match lctx.getAt? i with
         | some localDecl =>
           if localDecl.isLet then
@@ -503,7 +507,7 @@ where
     let start := lctx.getFVar! xs[0]! |>.index
     let stop  := lctx.getFVar! xs.back! |>.index
     let mut ys := #[]
-    for i in [start:stop+1] do
+    for i in start...=stop do
       match lctx.getAt? i with
       | none => pure ()
       | some localDecl =>
@@ -702,8 +706,8 @@ private def cache (e r : Expr) : CheckAssignmentM Unit := do
   modify fun s => { s with cache := s.cache.insert e r }
 
 instance : MonadCache Expr Expr CheckAssignmentM where
-  findCached? := findCached?
-  cache       := cache
+  findCached? := private findCached?
+  cache       := private cache
 
 private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData := do
   let ctx ← read
@@ -728,7 +732,21 @@ mutual
     else
       let lctx := ctxMeta.lctx
       match lctx.findFVar? fvar with
-      | some (.ldecl (value := v) ..) => check v
+      /-
+      Recall: if `nondep := true`, then the ldecl is locally a cdecl, so the `value` field is not relevant.
+      In the following example, switching the indicated `have` for a `let` causes the unification to fail,
+      since then `v` depends on a variable not in `?mvar`'s local context.
+      ```
+      example : Nat → Nat :=
+        let f : Nat → Nat := ?mvar
+        let x : Nat := 2
+        -- if this is a `let`, then `refine rfl` fails.
+        have v := x
+        have : ?mvar v = v := by refine rfl
+        f
+      ```
+      -/
+      | some (.ldecl (nondep := false) (value := v) ..) => check v
       | _ =>
         if ctx.fvars.contains fvar then pure fvar
         else
@@ -851,7 +869,7 @@ mutual
       | .proj _ _ s      => return e.updateProj! (← check s)
       | .lam _ d b _     => return e.updateLambdaE! (← check d) (← check b)
       | .forallE _ d b _ => return e.updateForallE! (← check d) (← check b)
-      | .letE _ t v b _  => return e.updateLet! (← check t) (← check v) (← check b)
+      | .letE _ t v b _  => return e.updateLetE! (← check t) (← check v) (← check b)
       | .bvar ..         => return e
       | .sort ..         => return e
       | .const ..        => return e
@@ -917,7 +935,10 @@ unsafe def checkImpl
     | .fvar fvarId ..  =>
       if mvarDecl.lctx.contains fvarId then
         return true
-      if let some (LocalDecl.ldecl ..) := lctx.find? fvarId then
+      /-
+      Recall: if `nondep := true` then the ldecl is locally a cdecl. See comment in `CheckAssignment.checkFVar`.
+      -/
+      if let some (LocalDecl.ldecl (nondep := false) ..) := lctx.find? fvarId then
         return false -- need expensive CheckAssignment.check
       if fvars.any fun x => x.fvarId! == fvarId then
         return true
@@ -1108,9 +1129,9 @@ private def assignConst (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool :=
         checkTypesAndAssign mvar v
 
 /--
-  Auxiliary procedure for solving `?m args =?= v` when `args[:patternVarPrefix]` contains
+  Auxiliary procedure for solving `?m args =?= v` when `args[*...patternVarPrefix]` contains
   only pairwise distinct free variables.
-  Let `args[:patternVarPrefix] = #[a₁, ..., aₙ]`, and `args[patternVarPrefix:] = #[b₁, ..., bᵢ]`,
+  Let `args[*...patternVarPrefix] = #[a₁, ..., aₙ]`, and `args[patternVarPrefix...*] = #[b₁, ..., bᵢ]`,
   this procedure first reduces the constraint to
   ```
   ?m a₁ ... aₙ =?= fun x₁ ... xᵢ => v
@@ -1134,7 +1155,7 @@ private partial def processConstApprox (mvar : Expr) (args : Array Expr) (patter
   else if patternVarPrefix == 0 then
     defaultCase
   else
-    let argsPrefix : Array Expr := args[:patternVarPrefix]
+    let argsPrefix : Array Expr := args[*...patternVarPrefix]
     let type ← instantiateForall mvarDecl.type argsPrefix
     let suffixSize := numArgs - argsPrefix.size
     forallBoundedTelescope type suffixSize fun xs _ => do
@@ -1178,7 +1199,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
         let args := args.set i arg
         match arg with
         | .fvar fvarId =>
-          if args[0:i].any fun prevArg => prevArg == arg then
+          if args[*...i].any fun prevArg => prevArg == arg then
             useFOApprox args
           else if mvarDecl.lctx.contains fvarId && !cfg.quasiPatternApprox then
             useFOApprox args
@@ -1424,7 +1445,7 @@ private def unfoldDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool 
   Otherwise, use `unfoldDefEq`
 
   Auxiliary method for isDefEqDelta -/
-private def unfoldReducibeDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool := do
+private def unfoldReducibleDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool := do
   if (← shouldReduceReducibleOnly) then
     unfoldDefEq tInfo sInfo t s
   else
@@ -1441,7 +1462,7 @@ private def unfoldReducibeDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : Meta
   This is an auxiliary method for isDefEqDelta.
   If `t` is a (non-class) projection function application and `s` is not ==> `isDefEqRight t (unfold s)`
   If `s` is a (non-class) projection function application and `t` is not ==> `isDefEqRight (unfold t) s`
-  Otherwise, use `unfoldReducibeDefEq`
+  Otherwise, use `unfoldReducibleDefEq`
 
   One motivation for the heuristic above is unification problems such as
   ```
@@ -1472,7 +1493,7 @@ private partial def unfoldNonProjFnDefEq (tInfo sInfo : ConstantInfo) (t s : Exp
   else  match tProjInfo?, sProjInfo? with
     | some _, none => unfold s (unfoldDefEq tInfo sInfo t s) fun s => isDefEqRight sInfo.name t s
     | none, some _ => unfold t (unfoldDefEq tInfo sInfo t s) fun t => isDefEqLeft tInfo.name t s
-    | _, _ => unfoldReducibeDefEq tInfo sInfo t s
+    | _, _ => unfoldReducibleDefEq tInfo sInfo t s
 where
   packedInstanceOf? (projInfo? : Option ProjectionFunctionInfo) (e : Expr) (declName : Name) : MetaM (Option Expr) := do
     let some { fromClass := true, .. } := projInfo? | return none -- It is not a class projection
@@ -1497,7 +1518,7 @@ where
   Remark: 4&5 are implemented by `unfoldNonProjFnDefEq`
   6- If `t` is reducible and `s` is not => then unfold `t` and continue.
   7- If `s` is reducible and `t` is not => then unfold `s` and continue
-  Remark: 6&7 are implemented by `unfoldReducibeDefEq`
+  Remark: 6&7 are implemented by `unfoldReducibleDefEq`
   8- If `t` and `s` do not contain metavariables, then use heuristic used in the Kernel.
      Implemented by `unfoldDefEq`
   9- If `headSymbol (unfold t) == headSymbol s`, then unfold t and continue.
@@ -1624,20 +1645,14 @@ private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM
       pure false
 
 /--
-Removes unnecessary let-decls (both true `let`s and `let_fun`s).
+Consumes unused lets/haves, depending on the current configuration.
+- When `zetaUnused`, all unused lets may be consumed.
+- Otherwise, when `zeta` is true, then unused lets can be consumed, unless they are nondependent and `cfg.zetaHave` is false.
 -/
-private partial def consumeLet : Expr → Expr
-  | e@(.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
-  | e =>
-    if let some (_, _, _, b) := e.letFun? then
-      if b.hasLooseBVars then e else consumeLet b
-    else
-      e
-
 private partial def consumeLetIfZeta (e : Expr) : MetaM Expr := do
   let cfg ← getConfig
   if cfg.zeta || cfg.zetaUnused then
-    return consumeLet e
+    return consumeUnusedLet e (consumeNondep := cfg.zetaUnused || cfg.zetaHave)
   else
     return e
 

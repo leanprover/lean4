@@ -3,9 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.CollectMVars
-import Lean.Meta.Basic
+public import Lean.Util.CollectMVars
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 
@@ -24,7 +28,7 @@ partial def collectMVars (e : Expr) : StateRefT CollectMVars.State MetaM Unit :=
   let resultSavedSize := s.result.size
   let s := e.collectMVars s
   set s
-  for mvarId in s.result[resultSavedSize:] do
+  for mvarId in s.result[resultSavedSize...*] do
     match (← getDelayedMVarAssignment? mvarId) with
     | none   => pure ()
     | some d => collectMVars (mkMVar d.mvarIdPending)

@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Init.System.Platform
-import Init.Data.ToString.Basic
+public import Init.System.Platform
+public import Init.Data.ToString.Basic
+
+public section
 
 namespace System
 open Platform
@@ -132,7 +136,7 @@ def parent (p : FilePath) : Option FilePath :=
     if p.toString.length == lengthOfRootDirectory then
       -- `p` is a root directory
       none
-    else if posOfLastSep p == String.Pos.mk (lengthOfRootDirectory - 1) then
+    else if posOfLastSep p == some (String.Pos.mk (lengthOfRootDirectory - 1)) then
       -- `p` is a direct child of the root
       some ⟨p.toString.extract 0 ⟨lengthOfRootDirectory⟩⟩
     else
@@ -189,7 +193,7 @@ def extension (p : FilePath) : Option String :=
   p.fileName.bind fun fname =>
     match fname.revPosOf '.' with
     | some 0   => none
-    | some pos => fname.extract (pos + '.') fname.endPos
+    | some pos => some <| fname.extract (pos + '.') fname.endPos
     | none     => none
 
 /--

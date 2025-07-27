@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Init.Tactics
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.Meta
-import Lean.MetavarContext
-import Lean.Meta.Closure
+public import Init.Tactics
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.Meta
+public import Lean.MetavarContext
+public import Lean.Meta.Closure
+
+public section
 
 open Lean Meta Elab Tactic Parser.Tactic
 
@@ -20,6 +24,6 @@ def elabAsAuxLemma : Lean.Elab.Tactic.Tactic
   unless mvars.isEmpty do
     throwError "Cannot abstract term into auxiliary lemma because there are open goals."
   let e ← instantiateMVars (mkMVar mvarId)
-  let e ← mkAuxTheorem (prefix? := (← Term.getDeclName?)) (← mvarId.getType) e
+  let e ← mkAuxTheorem (← mvarId.getType) e
   mvarId.assign e
 | _ => throwError "Invalid as_aux_lemma syntax"

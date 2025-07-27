@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #define LEAN_USING_STD using namespace std; /* NOLINT */
 extern "C" {
 #else
+#include <stdatomic.h>
 #define  LEAN_USING_STD
 #endif
 
@@ -116,8 +117,10 @@ reference counting is not needed (== 0). We don't use reference counting for obj
 marked as persistent.
 
 For "small" objects stored in compact regions, the field `m_cs_sz` contains the object size. For "small" objects not
-stored in compact regions, we use the page information to retrieve its size. This is not an option
-with mimalloc, so there we always use `m_cs_sz` (TODO: do everywhere?).
+stored in compact regions, we use the page information to retrieve its size so that we can reuse
+`m_cs_sz` to store the deletion list inline. Using the page information is not an option with
+mimalloc, so there we always use `m_cs_sz`; reusing it for the deletion list is fine in this case as
+we do not need the size after an object has been marked for deletion (see `lean_free_small_object`).
 
 During deallocation and 64-bit machines, the fields `m_rc` and `m_cs_sz` store the next object in the deletion TODO list.
 These two fields together have 48-bits, and this is enough for modern computers.
@@ -414,6 +417,11 @@ void free(void *);  // avoid including big `stdlib.h`
 #endif
 
 #if !defined(__STDC_VERSION_STDLIB_H__) || __STDC_VERSION_STDLIB_H__ < 202311L
+#if defined(__GLIBC__) && (defined(__GNUC__) || defined(__clang__))
+// glibc tacks on `__attribute__((nothrow))` to its declarations. In C++ this requires either
+// `__attribute__((nothrow))` to be present or `noexcept`.
+__attribute__((nothrow))
+#endif
 void free_sized(void* ptr, size_t);
 #endif
 
@@ -421,7 +429,9 @@ static inline void lean_free_small_object(lean_object * o) {
 #ifdef LEAN_SMALL_ALLOCATOR
     lean_free_small(o);
 #elif defined(LEAN_MIMALLOC)
-    mi_free_size((void *)o, o->m_cs_sz);
+    // We must NOT use `m_cs_sz` here as it is repurposed for the deletion list; as `mi_free_size`
+    // is no different from `mi_free` at the time of writing, we don't lose anything from that.
+    mi_free((void *)o);
 #else
     size_t* ptr = (size_t*)o - 1;
     free_sized(ptr, *ptr + sizeof(size_t));
@@ -474,23 +484,20 @@ static inline _Atomic(int) * lean_get_rc_mt_addr(lean_object* o) {
     return (_Atomic(int)*)(&(o->m_rc));
 }
 
-LEAN_EXPORT void lean_inc_ref_cold(lean_object * o);
-LEAN_EXPORT void lean_inc_ref_n_cold(lean_object * o, unsigned n);
-
-static inline void lean_inc_ref(lean_object * o) {
-    if (LEAN_LIKELY(lean_is_st(o))) {
-        o->m_rc++;
-    } else if (o->m_rc != 0) {
-        lean_inc_ref_cold(o);
-    }
-}
-
 static inline void lean_inc_ref_n(lean_object * o, size_t n) {
     if (LEAN_LIKELY(lean_is_st(o))) {
         o->m_rc += n;
     } else if (o->m_rc != 0) {
-        lean_inc_ref_n_cold(o, n);
+#ifdef __cplusplus
+        std::atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, std::memory_order_relaxed);
+#else
+        atomic_fetch_sub_explicit(lean_get_rc_mt_addr(o), n, memory_order_relaxed);
+#endif
     }
+}
+
+static inline void lean_inc_ref(lean_object * o) {
+    lean_inc_ref_n(o, 1);
 }
 
 LEAN_EXPORT void lean_dec_ref_cold(lean_object * o);
@@ -1238,6 +1245,7 @@ LEAN_EXPORT lean_object * lean_nat_big_sub(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_mul(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_overflow_mul(size_t a1, size_t a2);
 LEAN_EXPORT lean_object * lean_nat_big_div(lean_object * a1, lean_object * a2);
+LEAN_EXPORT lean_object * lean_nat_big_div_exact(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_mod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_nat_big_eq(lean_object * a1, lean_object * a2);
 LEAN_EXPORT bool lean_nat_big_le(lean_object * a1, lean_object * a2);
@@ -1318,6 +1326,20 @@ static inline lean_obj_res lean_nat_div(b_lean_obj_arg a1, b_lean_obj_arg a2) {
             return lean_box(n1 / n2);
     } else {
         return lean_nat_big_div(a1, a2);
+    }
+}
+
+// assumes that a1 % a2 = 0
+static inline lean_obj_res lean_nat_div_exact(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        size_t n1 = lean_unbox(a1);
+        size_t n2 = lean_unbox(a2);
+        if (n2 == 0)
+            return lean_box(0);
+        else
+            return lean_box(n1 / n2);
+    } else {
+        return lean_nat_big_div_exact(a1, a2);
     }
 }
 
@@ -1405,10 +1427,21 @@ static inline lean_obj_res lean_nat_lxor(b_lean_obj_arg a1, b_lean_obj_arg a2) {
 }
 
 LEAN_EXPORT lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2);
-LEAN_EXPORT lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2);
+LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a);
+
+static inline lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        size_t s1 = lean_unbox(a1);
+        size_t s2 = lean_unbox(a2);
+        size_t r = (s2 < sizeof(size_t)*8) ? s1 >> s2 : 0;
+        return lean_box(r);
+    } else {
+        return lean_nat_big_shiftr(a1, a2);
+    }
+}
 
 /* Integers */
 
@@ -1419,6 +1452,7 @@ LEAN_EXPORT lean_object * lean_int_big_add(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_sub(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_mul(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_div(lean_object * a1, lean_object * a2);
+LEAN_EXPORT lean_object * lean_int_big_div_exact(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_mod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_ediv(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_emod(lean_object * a1, lean_object * a2);
@@ -1536,6 +1570,30 @@ static inline lean_obj_res lean_int_div(b_lean_obj_arg a1, b_lean_obj_arg a2) {
         }
     } else {
         return lean_int_big_div(a1, a2);
+    }
+}
+
+static inline lean_obj_res lean_int_div_exact(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        if (sizeof(void*) == 8) {
+            /* 64-bit version, we use 64-bit numbers to avoid overflow when v1 == LEAN_MIN_SMALL_INT. */
+            int64_t v1 = lean_scalar_to_int(a1);
+            int64_t v2 = lean_scalar_to_int(a2);
+            if (v2 == 0)
+                return lean_box(0);
+            else
+                return lean_int64_to_int(v1 / v2);
+        } else {
+            /* 32-bit version */
+            int v1 = lean_scalar_to_int(a1);
+            int v2 = lean_scalar_to_int(a2);
+            if (v2 == 0)
+                return lean_box(0);
+            else
+                return lean_int_to_int(v1 / v2);
+        }
+    } else {
+        return lean_int_big_div_exact(a1, a2);
     }
 }
 

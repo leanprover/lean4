@@ -1,4 +1,5 @@
 import Lean.Data.Lsp
+import Lean.Elab.Import
 open Lean
 open Lean.Lsp
 open Lean.JsonRpc
@@ -7,14 +8,12 @@ open Lean.JsonRpc
 Tests language server memory use by repeatedly re-elaborate a given file.
 
 NOTE: only works on Linux for now.
-
-HACK: The line that is to be prepended with a space is hard-coded below to be sufficiently far down
-not to touch the imports for usual files.
 -/
 
 def main (args : List String) : IO Unit := do
   let leanCmd :: file :: iters :: args := args | panic! "usage: script <lean> <file> <#iterations> <server-args>..."
-  let uri := s!"file:///{file}"
+  let file ← IO.FS.realPath file
+  let uri := s!"file://{file}"
   Ipc.runWith leanCmd (#["--worker", "-DstderrAsMessages=false"] ++ args ++ #[uri]) do
   -- for use with heaptrack:
   --Ipc.runWith "heaptrack" (#[leanCmd, "--worker", "-DstderrAsMessages=false"] ++ args ++ #[uri]) do
@@ -33,6 +32,8 @@ def main (args : List String) : IO Unit := do
     Ipc.writeRequest ⟨0, "initialize", { capabilities : InitializeParams }⟩
 
     let text ← IO.FS.readFile file
+    let (_, headerEndPos, _) ← Elab.parseImports text
+    let headerEndPos := FileMap.ofString text |>.leanPosToLspPos headerEndPos
     let mut requestNo : Nat := 1
     let mut versionNo : Nat := 1
     Ipc.writeNotification ⟨"textDocument/didOpen", {
@@ -40,15 +41,14 @@ def main (args : List String) : IO Unit := do
     for i in [0:iters.toNat!] do
       if i > 0 then
         versionNo := versionNo + 1
-        let pos := { line := 19, character := 0 }
         let params : DidChangeTextDocumentParams := {
           textDocument := {
             uri      := uri
             version? := versionNo
           }
           contentChanges := #[TextDocumentContentChangeEvent.rangeChange {
-            start := pos
-            «end» := pos
+            start := headerEndPos
+            «end» := headerEndPos
           } " "]
         }
         let params := toJson params

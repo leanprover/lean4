@@ -3,12 +3,16 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Reduce
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Replace
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.BuiltinTactic
+public import Lean.Meta.Reduce
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Replace
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.BuiltinTactic
+
+public section
 
 namespace Lean.Elab.Tactic.Conv
 open Meta
@@ -100,7 +104,7 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
 
 /-- Evaluate `sepByIndent conv "; " -/
 def evalSepByIndentConv (stx : Syntax) : TacticM Unit := do
-  for arg in stx.getArgs, i in [:stx.getArgs.size] do
+  for arg in stx.getArgs, i in *...stx.getArgs.size do
     if i % 2 == 0 then
       evalTactic arg
     else

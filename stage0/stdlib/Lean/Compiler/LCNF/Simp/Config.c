@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig;
-static lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1;
-static lean_object* _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1() {
+static lean_object* _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__0() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
@@ -32,7 +32,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1;
+x_1 = l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__0;
 return x_1;
 }
 }
@@ -45,8 +45,8 @@ _G_initialized = true;
 res = initialize_Init_Core(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1 = _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1);
+l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__0 = _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__0();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__0);
 l_Lean_Compiler_LCNF_Simp_instInhabitedConfig = _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_instInhabitedConfig);
 return lean_io_result_mk_ok(lean_box(0));

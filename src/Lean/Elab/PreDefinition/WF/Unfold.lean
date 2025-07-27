@@ -3,9 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Eqns
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Eqns
+public import Lean.Meta.Tactic.Apply
+
+public section
 
 namespace Lean.Elab.WF
 open Meta
@@ -48,11 +53,8 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
   else if let some mvarId ← simpMatch? mvarId then
     trace[Elab.definition.wf.eqns] "simpMatch!"
     mkUnfoldProof declName mvarId
-  else if let some mvarId ← simpIf? mvarId then
+  else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
     trace[Elab.definition.wf.eqns] "simpIf!"
-    mkUnfoldProof declName mvarId
-  else if let some mvarId ← whnfReducibleLHS? mvarId then
-    trace[Elab.definition.wf.eqns] "whnfReducibleLHS!"
     mkUnfoldProof declName mvarId
   else
     let ctx ← Simp.mkContext (config := { dsimp := false, etaStruct := .none })
@@ -65,7 +67,7 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
       if let some mvarIds ← casesOnStuckLHS? mvarId then
         trace[Elab.definition.wf.eqns] "case split into {mvarIds.size} goals"
         mvarIds.forM (mkUnfoldProof declName)
-      else if let some mvarIds ← splitTarget? mvarId then
+      else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
         trace[Elab.definition.wf.eqns] "splitTarget into {mvarIds.length} goals"
         mvarIds.forM (mkUnfoldProof declName)
       else
@@ -75,8 +77,8 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
         throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
 def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessProof : Simp.Result) : MetaM Unit := do
-  let baseName := preDef.declName
-  let name := Name.str baseName unfoldThmSuffix
+  let name := mkEqLikeNameFor (← getEnv) preDef.declName unfoldThmSuffix
+  prependError m!"Cannot derive {name}" do
   withOptions (tactic.hygienic.set · false) do
     lambdaTelescope preDef.value fun xs body => do
       let us := preDef.levelParams.map mkLevelParam
@@ -93,12 +95,47 @@ def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessPr
 
       let value ← instantiateMVars main
       let type ← mkForallFVars xs type
+      let type ← letToHave type
       let value ← mkLambdaFVars xs value
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := preDef.levelParams
       }
+      inferDefEqAttr name
       trace[Elab.definition.wf] "mkUnfoldEq defined {.ofConstName name}"
+
+/--
+Derives the equational theorem for the individual functions from the equational
+theorem of `foo._unary` or `foo._binary`.
+
+It should just be a specialization of that one, due to defeq.
+-/
+def mkBinaryUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) : MetaM Unit := do
+  let name := mkEqLikeNameFor (← getEnv) preDef.declName unfoldThmSuffix
+  let unaryEqName:= mkEqLikeNameFor (← getEnv) unaryPreDefName unfoldThmSuffix
+  prependError m!"Cannot derive {name} from {unaryEqName}" do
+  withOptions (tactic.hygienic.set · false) do
+    lambdaTelescope preDef.value fun xs body => do
+      let us := preDef.levelParams.map mkLevelParam
+      let lhs := mkAppN (Lean.mkConst preDef.declName us) xs
+      let type ← mkEq lhs body
+      let main ← mkFreshExprSyntheticOpaqueMVar type
+      let mvarId := main.mvarId!
+      let mvarId ← deltaLHS mvarId -- unfold the function
+      let mvarIds ← mvarId.applyConst unaryEqName
+      unless mvarIds.isEmpty do
+        throwError "Failed to apply '{unaryEqName}' to '{mvarId}'"
+
+      let value ← instantiateMVars main
+      let type ← mkForallFVars xs type
+      let type ← letToHave type
+      let value ← mkLambdaFVars xs value
+      addDecl <| Declaration.thmDecl {
+        name, type, value
+        levelParams := preDef.levelParams
+      }
+      inferDefEqAttr name
+      trace[Elab.definition.wf] "mkBinaryUnfoldEq defined {.ofConstName name}"
 
 builtin_initialize
   registerTraceClass `Elab.definition.wf.eqns

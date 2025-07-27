@@ -3,12 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Term
-import Lean.Elab.BindersUtil
-import Lean.Elab.PatternVar
-import Lean.Elab.Quotation.Util
-import Lean.Parser.Do
+public import Lean.Elab.Term
+public import Lean.Elab.BindersUtil
+public import Lean.Elab.PatternVar
+public import Lean.Elab.Quotation.Util
+meta import Lean.Parser.Do
+
+public section
 
 -- HACK: avoid code explosion until heuristics are improved
 set_option compiler.reuse false
@@ -221,7 +225,7 @@ inductive Code where
   /-- Recall that an if-then-else may declare a variable using `optIdent` for the branches `thenBranch` and `elseBranch`. We store the variable name at `var?`. -/
   | ite          (ref : Syntax) (h? : Option Var) (optIdent : Syntax) (cond : Syntax) (thenBranch : Code) (elseBranch : Code)
   | match        (ref : Syntax) (gen : Syntax) (discrs : Syntax) (optMotive : Syntax) (alts : Array (Alt Code))
-  | matchExpr    (ref : Syntax) (meta : Bool) (discr : Syntax) (alts : Array (AltExpr Code)) (elseBranch : Code)
+  | matchExpr    (ref : Syntax) («meta» : Bool) (discr : Syntax) (alts : Array (AltExpr Code)) (elseBranch : Code)
   | jmp          (ref : Syntax) (jpName : Name) (args : Array Syntax)
   deriving Inhabited
 
@@ -239,7 +243,7 @@ def Code.getRef? : Code → Option Syntax
   | .matchExpr ref ..    => ref
   | .jmp ref ..          => ref
 
-abbrev VarSet := RBMap Name Syntax Name.cmp
+abbrev VarSet := Std.TreeMap Name Syntax Name.cmp
 
 /-- A code block, and the collection of variables updated by it. -/
 structure CodeBlock where
@@ -247,12 +251,12 @@ structure CodeBlock where
   uvars : VarSet := {} -- set of variables updated by `code`
 
 private def varSetToArray (s : VarSet) : Array Var :=
-  s.fold (fun xs _ x => xs.push x) #[]
+  s.foldl (fun xs _ x => xs.push x) #[]
 
 private def varsToMessageData (vars : Array Var) : MessageData :=
   MessageData.joinSep (vars.toList.map fun n => MessageData.ofName (n.getId.simpMacroScopes)) " "
 
-partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
+partial def CodeBlock.toMessageData (codeBlock : CodeBlock) : MessageData :=
   let us := MessageData.ofList <| (varSetToArray codeBlock.uvars).toList.map MessageData.ofSyntax
   let rec loop : Code → MessageData
     | .decl xs _ k           => m!"let {varsToMessageData xs} := ...\n{loop k}"
@@ -268,8 +272,8 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
     | .match _ _ ds _ alts   =>
       m!"match {ds} with"
       ++ alts.foldl (init := m!"") fun acc alt => acc ++ m!"\n| {alt.patterns} => {loop alt.rhs}"
-    | .matchExpr _ meta d alts elseCode =>
-      let r := m!"match_expr {if meta then "" else "(meta := false)"} {d} with"
+    | .matchExpr _ «meta» d alts elseCode =>
+      let r := m!"match_expr {if «meta» then "" else "(meta := false)"} {d} with"
       let r := r ++ alts.foldl (init := m!"") fun acc alt =>
             let acc := acc ++ m!"\n| {if let some var := alt.var? then m!"{var}@" else ""}"
             let acc := acc ++ m!"{alt.funName}"
@@ -341,10 +345,10 @@ partial def convertTerminalActionIntoJmp (code : Code) (jp : Name) (xs : Array V
       return Code.jmp ref jp jmpArgs
     | .match ref g ds t alts =>
       return .match ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← loop alt.rhs) })
-    | .matchExpr ref meta d alts e => do
+    | .matchExpr ref «meta» d alts e => do
       let alts ← alts.mapM fun alt => do pure { alt with rhs := (← loop alt.rhs) }
       let e ← loop e
-      return .matchExpr ref meta d alts e
+      return .matchExpr ref «meta» d alts e
     | c => return c
   loop code
 
@@ -365,7 +369,7 @@ def mkFreshJP (ps : Array (Var × Bool)) (body : Code) : TermElabM JPDecl := do
     pure #[(y.raw, false)]
   else
     pure ps
-  -- Remark: the compiler frontend implemented in C++ currently detects jointpoints created by
+  -- Remark: the compiler frontend implemented in C++ currently detects join points created by
   -- the "do" notation by testing the name. See hack at method `visit_let` at `lcnf.cpp`
   -- We will remove this hack when we re-implement the compiler frontend in Lean.
   let name ← mkFreshUserName `__do_jp
@@ -387,7 +391,7 @@ def eraseOptVar (rs : VarSet) (x? : Option Var) : VarSet :=
   | none   => rs
   | some x => rs.insert x.getId x
 
-/-- Create a new jointpoint for `c`, and jump to it with the variables `rs` -/
+/-- Create a new join point for `c`, and jump to it with the variables `rs` -/
 def mkSimpleJmp (ref : Syntax) (rs : VarSet) (c : Code) : StateRefT (Array JPDecl) TermElabM Code := do
   let xs := varSetToArray rs
   let jp ← addFreshJP (xs.map fun x => (x, true)) c
@@ -397,8 +401,8 @@ def mkSimpleJmp (ref : Syntax) (rs : VarSet) (c : Code) : StateRefT (Array JPDec
   else
     return Code.jmp ref jp xs
 
-/-- Create a new joinpoint that takes `rs` and `val` as arguments. `val` must be syntax representing a pure value.
-   The body of the joinpoint is created using `mkJPBody yFresh`, where `yFresh`
+/-- Create a new join point that takes `rs` and `val` as arguments. `val` must be syntax representing a pure value.
+   The body of the join point is created using `mkJPBody yFresh`, where `yFresh`
    is a fresh variable created by this method. -/
 def mkJmp (ref : Syntax) (rs : VarSet) (val : Syntax) (mkJPBody : Syntax → MacroM Code) : StateRefT (Array JPDecl) TermElabM Code := do
   let xs := varSetToArray rs
@@ -430,10 +434,10 @@ partial def pullExitPointsAux (rs : VarSet) (c : Code) : StateRefT (Array JPDecl
   | .match ref g ds t alts =>
     let alts ← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) }
     return .match ref g ds t alts
-  | .matchExpr ref meta d alts e =>
+  | .matchExpr ref «meta» d alts e =>
     let alts ← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) }
     let e ← pullExitPointsAux rs e
-    return .matchExpr ref meta d alts e
+    return .matchExpr ref «meta» d alts e
 
 /--
 Auxiliary operation for adding new variables to the collection of updated variables in a CodeBlock.
@@ -502,14 +506,14 @@ partial def extendUpdatedVarsAux (c : Code) (ws : VarSet) : TermElabM Code :=
         pullExitPoints c
       else
         return .match ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← update alt.rhs) })
-    | .matchExpr ref meta d alts e =>
+    | .matchExpr ref «meta» d alts e =>
       if alts.any fun alt => alt.vars.any fun x => ws.contains x.getId then
         -- If a pattern variable is shadowing a variable in ws, we `pullExitPoints`
         pullExitPoints c
       else
         let alts ← alts.mapM fun alt => do pure { alt with rhs := (← update alt.rhs) }
         let e ← update e
-        return .matchExpr ref meta d alts e
+        return .matchExpr ref «meta» d alts e
     | .ite ref none o c t e => return .ite ref none o c (← update t) (← update e)
     | .ite ref (some h) o cond t e =>
       if ws.contains h.getId then
@@ -540,7 +544,7 @@ partial def extendUpdatedVars (c : CodeBlock) (ws : VarSet) : TermElabM CodeBloc
     pure { c with uvars := ws }
 
 private def union (s₁ s₂ : VarSet) : VarSet :=
-  s₁.fold (·.insert ·) s₂
+  s₁.foldl (·.insert ·) s₂
 
 /--
 Given two code blocks `c₁` and `c₂`, make sure they have the same set of updated variables.
@@ -623,7 +627,7 @@ def mkMatch (ref : Syntax) (genParam : Syntax) (discrs : Syntax) (optMotive : Sy
     return { ref := alt.ref, vars := alt.vars, patterns := alt.patterns, rhs := rhs.code : Alt Code }
   return { code := .match ref genParam discrs optMotive alts, uvars := ws }
 
-def mkMatchExpr (ref : Syntax) (meta : Bool) (discr : Syntax) (alts : Array (AltExpr CodeBlock)) (elseBranch : CodeBlock) : TermElabM CodeBlock := do
+def mkMatchExpr (ref : Syntax) («meta» : Bool) (discr : Syntax) (alts : Array (AltExpr CodeBlock)) (elseBranch : CodeBlock) : TermElabM CodeBlock := do
   -- nary version of homogenize
   let ws := alts.foldl (union · ·.rhs.uvars) {}
   let ws := union ws elseBranch.uvars
@@ -631,7 +635,7 @@ def mkMatchExpr (ref : Syntax) (meta : Bool) (discr : Syntax) (alts : Array (Alt
     let rhs ← extendUpdatedVars alt.rhs ws
     return { alt with rhs := rhs.code : AltExpr Code }
   let elseBranch ← extendUpdatedVars elseBranch ws
-  return { code := .matchExpr ref meta discr alts elseBranch.code, uvars := ws }
+  return { code := .matchExpr ref «meta» discr alts elseBranch.code, uvars := ws }
 
 /-- Return a code block that executes `terminal` and then `k` with the value produced by `terminal`.
    This method assumes `terminal` is a terminal -/
@@ -648,11 +652,21 @@ def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Var) (k : CodeBlo
   let terminal ← liftMacroM <| convertTerminalActionIntoJmp terminal.code jp xs
   return { code  := attachJP jpDecl terminal, uvars := k.uvars }
 
-def getLetIdDeclVars (letIdDecl : Syntax) : Array Var :=
-  if letIdDecl[0].isIdent then
-    #[letIdDecl[0]]
+def getLetIdVars (letId : Syntax) : Array Var :=
+  assert! letId.isOfKind ``Parser.Term.letId
+  -- def letId := leading_parser binderIdent <|> hygieneInfo
+  if letId[0].isIdent then
+    #[letId[0]]
+  else if letId[0].isOfKind hygieneInfoKind then
+    #[HygieneInfo.mkIdent letId[0] `this (canonical := true)]
   else
     #[]
+
+def getLetIdDeclVars (letIdDecl : Syntax) : Array Var :=
+  assert! letIdDecl.isOfKind ``Parser.Term.letIdDecl
+  -- def letIdLhs : Parser := letId >> many (ppSpace >> letIdBinder) >> optType
+  -- def letIdDecl := leading_parser letIdLhs >> " := " >> termParser
+  getLetIdVars letIdDecl[0]
 
 -- support both regular and syntax match
 def getPatternVarsEx (pattern : Syntax) : TermElabM (Array Var) :=
@@ -664,16 +678,18 @@ def getPatternsVarsEx (patterns : Array Syntax) : TermElabM (Array Var) :=
   Quotation.getPatternsVars patterns
 
 def getLetPatDeclVars (letPatDecl : Syntax) : TermElabM (Array Var) := do
+  -- def letPatDecl := leading_parser termParser >> pushNone >> optType >> " := " >> termParser
   let pattern := letPatDecl[0]
   getPatternVarsEx pattern
 
 def getLetEqnsDeclVars (letEqnsDecl : Syntax) : Array Var :=
-  if letEqnsDecl[0].isIdent then
-    #[letEqnsDecl[0]]
-  else
-    #[]
+  assert! letEqnsDecl.isOfKind ``Parser.Term.letEqnsDecl
+  -- def letIdLhs : Parser := letId >> many (ppSpace >> letIdBinder) >> optType
+  -- def letEqnsDecl := leading_parser letIdLhs >> matchAlts
+  getLetIdVars letEqnsDecl[0]
 
 def getLetDeclVars (letDecl : Syntax) : TermElabM (Array Var) := do
+  -- def letDecl := leading_parser letIdDecl <|> letPatDecl <|> letEqnsDecl
   let arg := letDecl[0]
   if arg.getKind == ``Parser.Term.letIdDecl then
     return getLetIdDeclVars arg
@@ -688,15 +704,9 @@ def getDoLetVars (doLet : Syntax) : TermElabM (Array Var) :=
   -- leading_parser "let " >> optional "mut " >> letDecl
   getLetDeclVars doLet[2]
 
-def getDoHaveVars : Syntax → TermElabM (Array Var)
-  -- NOTE: `hygieneInfo` case should come first as `id` will match anything else
-  | `(doElem| have $info:hygieneInfo $_params* $[$_:typeSpec]? := $_val)
-  | `(doElem| have $info:hygieneInfo $_params* $[$_:typeSpec]? $_eqns:matchAlts) =>
-    return #[HygieneInfo.mkIdent info `this]
-  | `(doElem| have $id $_params* $[$_:typeSpec]? := $_val)
-  | `(doElem| have $id $_params* $[$_:typeSpec]? $_eqns:matchAlts) => return #[id]
-  | `(doElem| have $pat:letPatDecl) => getLetPatDeclVars pat
-  | _ => throwError "unexpected kind of have declaration"
+def getDoHaveVars (doHave : Syntax) : TermElabM (Array Var) :=
+  -- leading_parser "have" >> letDecl
+  getLetDeclVars doHave[1]
 
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Var) := do
   -- letRecDecls is an array of `(group (optional attributes >> letDecl))`
@@ -1067,7 +1077,7 @@ def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFr
     else
       Macro.throwErrorAt decl "unexpected kind of `do` declaration"
   else if kind == ``Parser.Term.doHave then
-    -- The `have` term is of the form  `"have " >> haveDecl >> optSemicolon termParser`
+    -- The `have` term is of the form  `"have " >> letDecl >> optSemicolon termParser`
     let args := decl.getArgs
     let args := args ++ #[mkNullNode /- optional ';' -/, k]
     return mkNode `Lean.Parser.Term.«have» args
@@ -1093,7 +1103,7 @@ def mkJoinPoint (j : Name) (ps : Array (Syntax × Bool)) (body : Syntax) (k : Sy
   let pTypes ← ps.mapM fun ⟨id, useTypeOf⟩ => do if useTypeOf then `(type_of% $id) else `(_)
   let ps     := ps.map (·.1)
   /-
-  We use `let_delayed` instead of `let` for joinpoints to make sure `$k` is elaborated before `$body`.
+  We use `let_delayed` instead of `let` for join points to make sure `$k` is elaborated before `$body`.
   By elaborating `$k` first, we "learn" more about `$body`'s type.
   For example, consider the following example `do` expression
   ```
@@ -1113,7 +1123,7 @@ def mkJoinPoint (j : Name) (ps : Array (Syntax × Bool)) (body : Syntax) (k : Sy
   else
     jp ()
   ```
-  If we use the regular `let` instead of `let_delayed`, the joinpoint `jp` will be elaborated and its type will be inferred to be `Unit → IO (IO.Ref Bool)`.
+  If we use the regular `let` instead of `let_delayed`, the join point `jp` will be elaborated and its type will be inferred to be `Unit → IO (IO.Ref Bool)`.
   Then, we get a typing error at `jp ()`. By using `let_delayed`, we first elaborate `if x > 0 ...` and learn that `jp` has type `Unit → IO Unit`.
   Then, we get the expected type mismatch error at `IO.mkRef true`. -/
   `(let_delayed $(← mkIdentFromRef j):ident $[($ps : $pTypes)]* : $((← read).m) _ := $body; $k)
@@ -1148,7 +1158,7 @@ where
         termAlts := termAlts.push termAlt
       let termMatchAlts := mkNode ``Parser.Term.matchAlts #[mkNullNode termAlts]
       return mkNode ``Parser.Term.«match» #[mkAtomFrom ref "match", genParam, optMotive, discrs, mkAtomFrom ref "with", termMatchAlts]
-    | .matchExpr ref meta d alts elseBranch => withFreshMacroScope do
+    | .matchExpr ref «meta» d alts elseBranch => withFreshMacroScope do
       let d' ← `(discr)
       let mut termAlts := #[]
       for alt in alts do
@@ -1160,7 +1170,7 @@ where
       let elseBranch := mkNode ``Parser.Term.matchExprElseAlt #[mkAtomFrom ref "|", mkHole ref, mkAtomFrom ref "=>", (← toTerm elseBranch)]
       let termMatchExprAlts := mkNode ``Parser.Term.matchExprAlts #[mkNullNode termAlts, elseBranch]
       let body := mkNode ``Parser.Term.matchExpr #[mkAtomFrom ref "match_expr", d', mkAtomFrom ref "with", termMatchExprAlts]
-      if meta then
+      if «meta» then
         `(Bind.bind (instantiateMVarsIfMVarApp $d) fun discr => $body)
       else
         `(let discr := $d; $body)
@@ -1572,7 +1582,7 @@ mutual
       -- semantic no-op that replaces the `uvars`' position information (which all point inside the loop)
       -- with that of the respective mutable declarations outside the loop, which allows the language
       -- server to identify them as conceptually identical variables
-      let uvars := uvars.map fun v => ctx.mutableVars.findD v.getId v
+      let uvars := uvars.map fun v => ctx.mutableVars.getD v.getId v
       let uvarsTuple ← liftMacroM do mkTuple uvars
       if hasReturn forInBodyCodeBlock.code then
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
@@ -1625,7 +1635,7 @@ mutual
   /-- Generate `CodeBlock` for `doMatchExpr; doElems` -/
   partial def doMatchExprToCode (doMatchExpr : Syntax) (doElems: List Syntax) : M CodeBlock := do
     let ref       := doMatchExpr
-    let meta      := doMatchExpr[1].isNone
+    let «meta»    := doMatchExpr[1].isNone
     let discr     := doMatchExpr[2]
     let alts      := doMatchExpr[4][0].getArgs -- Array of `doMatchExprAlt`
     let alts ← alts.mapM fun alt => do
@@ -1637,7 +1647,7 @@ mutual
       let rhs ← doSeqToCode (getDoSeqElems rhs)
       pure { ref, var?, funName, pvars, rhs }
     let elseBranch ← doSeqToCode (getDoSeqElems doMatchExpr[4][1][3])
-    let matchCode ← mkMatchExpr ref meta discr alts elseBranch
+    let matchCode ← mkMatchExpr ref «meta» discr alts elseBranch
     concatWith matchCode doElems
 
   /--

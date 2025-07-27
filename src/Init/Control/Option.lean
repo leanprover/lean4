@@ -3,10 +3,14 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Init.Data.Option.Basic
-import Init.Control.Basic
-import Init.Control.Except
+public import Init.Data.Option.Basic
+public import Init.Control.Basic
+public import Init.Control.Except
+
+public section
 
 set_option linter.missingDocs true
 
@@ -18,7 +22,7 @@ instance : ToBool (Option α) := ⟨Option.isSome⟩
 Adds the ability to fail to a monad. Unlike ordinary exceptions, there is no way to signal why a
 failure occurred.
 -/
-def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
+@[expose] def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
   m (Option α)
 
 /--
@@ -98,7 +102,7 @@ Handles failures by treating them as exceptions of type `Unit`.
 -/
 @[always_inline, inline] protected def tryCatch (x : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α := OptionT.mk do
   let some a ← x | handle ()
-  pure a
+  pure <| some a
 
 instance : MonadExceptOf Unit (OptionT m) where
   throw    := fun _ => OptionT.fail

@@ -4,12 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
-prelude
-import Lean.Data.Json
-import Lean.Data.Lsp.Basic
-import Lean.Data.Lsp.Utf16
+module
 
-import Lean.Message
+prelude
+public import Lean.Data.Lsp.Basic
+public import Lean.Data.Lsp.Utf16
+
+public import Lean.Message
+
+public section
 
 /-! Definitions and functionality for emitting diagnostic information
 such as errors, warnings and #command outputs from the LSP server.

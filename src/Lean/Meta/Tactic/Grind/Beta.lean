@@ -3,8 +3,12 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Types
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -45,7 +49,7 @@ def propagateBetaEqs (lams : Array Expr) (f : Expr) (args : Array Expr) : GoalM 
           h ← mkCongrFun h arg
         let eq ← mkEq lhs rhs
         trace_goal[grind.beta] "{eq}, using {lam}"
-        addNewRawFact h eq (gen+1)
+        addNewRawFact h eq (gen+1) (.beta lam)
 
 private def isPropagateBetaTarget (e : Expr) : GoalM Bool := do
   let .app f _ := e | return false

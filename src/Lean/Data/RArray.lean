@@ -4,9 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Init.Data.RArray
-import Lean.ToExpr
+public import Init.Data.RArray
+public import Lean.Meta.InferType
+public import Lean.Meta.DecLevel
+public import Lean.ToExpr
+
+public section
 
 /-!
 Auxiliary definitions related to `Lean.RArray` that are typically only used in meta-code, in
@@ -35,13 +41,12 @@ theorem RArray.get_ofFn {n : Nat} (f : Fin n → α) (h : 0 < n) (i : Fin n) :
   go 0 n h (Nat.le_refl _) (Nat.zero_le _) i.2
 where
   go lb ub h1 h2 (h3 : lb ≤ i.val) (h3 : i.val < ub) : (ofFn.go f lb ub h1 h2).get i = f i := by
-    induction lb, ub, h1, h2 using RArray.ofFn.go.induct (n := n)
+    fun_induction RArray.ofFn.go
     case case1 =>
-      simp [ofFn.go, RArray.get_eq_getImpl, RArray.getImpl]
+      simp only [get_eq_getImpl, getImpl]
       congr
       omega
     case case2 ih1 ih2 hiu =>
-      rw [ofFn.go]; simp only [↓reduceDIte, *]
       simp [RArray.get_eq_getImpl, RArray.getImpl] at *
       split
       · rw [ih1] <;> omega
@@ -53,23 +58,21 @@ theorem RArray.size_ofFn {n : Nat} (f : Fin n → α) (h : 0 < n) :
   go 0 n h (Nat.le_refl _)
 where
   go lb ub h1 h2 : (ofFn.go f lb ub h1 h2).size = ub - lb := by
-    induction lb, ub, h1, h2 using RArray.ofFn.go.induct (n := n)
-    case case1 => simp [ofFn.go, size]; omega
-    case case2 ih1 ih2 hiu => rw [ofFn.go]; simp +zetaDelta [size, *]; omega
+    fun_induction ofFn.go
+    case case1 => simp [size]
+    case case2 ih1 ih2 hiu => simp[size]; omega
 
-section Meta
-open Lean
-
-def RArray.toExpr (ty : Expr) (f : α → Expr) : RArray α → Expr
-  | .leaf x  =>
-    mkApp2 (mkConst ``RArray.leaf) ty (f x)
-  | .branch p l r =>
-    mkApp4 (mkConst ``RArray.branch) ty (mkRawNatLit p) (l.toExpr ty f) (r.toExpr ty f)
-
-instance [ToExpr α] : ToExpr (RArray α) where
-  toTypeExpr := mkApp (mkConst ``RArray) (toTypeExpr α)
-  toExpr a := a.toExpr (toTypeExpr α) toExpr
-
-end Meta
+open Meta in
+def RArray.toExpr (ty : Expr) (f : α → Expr) (a : RArray α) : MetaM Expr := do
+  let u ← getDecLevel ty
+  let leaf := mkConst ``RArray.leaf [u]
+  let branch := mkConst ``RArray.branch [u]
+  let rec go (a : RArray α) : MetaM Expr := do
+    match a with
+    | .leaf x  =>
+      return mkApp2 leaf ty (f x)
+    | .branch p l r =>
+      return mkApp4 branch ty (mkRawNatLit p) (← go l) (← go r)
+  go a
 
 end Lean

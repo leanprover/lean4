@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
-import Std.Sync.Basic
+public import Std.Sync.Basic
+
+public section
 
 namespace Std
 
@@ -17,7 +21,7 @@ If you want to guard shared state, use `Mutex α` instead.
 -/
 def BaseMutex : Type := BaseMutexImpl.type
 
-instance : Nonempty BaseMutex := BaseMutexImpl.property
+instance : Nonempty BaseMutex := by exact BaseMutexImpl.property
 
 /-- Creates a new `BaseMutex`. -/
 @[extern "lean_io_basemutex_new"]
@@ -81,7 +85,7 @@ to wait until a condition is true. If working with a `BaseMutex` it must:
 -/
 def Condvar : Type := CondvarImpl.type
 
-instance : Nonempty Condvar := CondvarImpl.property
+instance : Nonempty Condvar := by exact CondvarImpl.property
 
 /-- Creates a new condition variable. -/
 @[extern "lean_io_condvar_new"]
@@ -148,7 +152,7 @@ def Mutex.tryAtomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
     (mutex : Mutex α) (k : AtomicT α m β) : m (Option β) := do
   if ← mutex.mutex.tryLock then
     try
-      k mutex.ref
+      some <$> k mutex.ref
     finally
       mutex.mutex.unlock
   else

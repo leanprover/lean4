@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lean.Data.Json
+import Lean.Setup
 
 open Lean
 
@@ -47,4 +47,24 @@ instance (priority := 0) : FormatQuery α := ⟨nullFormat⟩
   | .json => toJson a |>.compress
 
 instance [ToText α] [ToJson α] : FormatQuery α := ⟨stdFormat⟩
-instance: FormatQuery Unit := ⟨nullFormat⟩
+instance : FormatQuery Unit := ⟨nullFormat⟩
+
+def ppImport (imp : Import) : String := Id.run do
+  let mut s := ""
+  if imp.isExported then
+    s := s ++ "public "
+  if imp.isMeta then
+    s := s ++ "meta "
+  s := s ++ "import "
+   if imp.importAll then
+    s := s!"{s}all "
+  s := s ++ imp.module.toString
+  return s
+
+instance : ToText Import := ⟨ppImport⟩
+
+def ppModuleHeader (header : ModuleHeader) : String :=
+  let imps := toText header.imports
+  if header.isModule then s!"module\n{imps}" else imps
+
+instance : ToText ModuleHeader := ⟨ppModuleHeader⟩

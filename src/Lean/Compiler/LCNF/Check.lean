@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.PrettyPrinter
-import Lean.Compiler.LCNF.CompatibleTypes
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.PrettyPrinter
+public import Lean.Compiler.LCNF.CompatibleTypes
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -110,7 +114,7 @@ def isCtorParam (f : Expr) (i : Nat) : CoreM Bool := do
 def checkAppArgs (f : Expr) (args : Array Arg) : CheckM Unit := do
   let mut fType ← inferType f
   let mut j := 0
-  for h : i in [:args.size] do
+  for h : i in *...args.size do
     let arg := args[i]
     if fType.isErased then
       return ()
@@ -140,7 +144,7 @@ def checkAppArgs (f : Expr) (args : Array Arg) : CheckM Unit := do
 
 def checkLetValue (e : LetValue) : CheckM Unit := do
   match e with
-  | .value .. | .erased => pure ()
+  | .lit .. | .erased => pure ()
   | .const declName us args => checkAppArgs (mkConst declName us) args
   | .fvar fvarId args => checkFVar fvarId; checkAppArgs (.fvar fvarId) args
   | .proj _ _ fvarId => checkFVar fvarId

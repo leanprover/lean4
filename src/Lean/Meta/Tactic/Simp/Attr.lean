@@ -3,10 +3,14 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Tactic.Simp.SimpTheorems
-import Lean.Meta.Tactic.Simp.Simproc
+public import Lean.Meta.Tactic.Simp.Types
+public import Lean.Meta.Tactic.Simp.SimpTheorems
+public import Lean.Meta.Tactic.Simp.Simproc
+
+public section
 
 namespace Lean.Meta
 open Simp
@@ -33,13 +37,13 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
           else if info.kind matches .defn then
             if inv then
               throwError "invalid '←' modifier, '{declName}' is a declaration name to be unfolded"
-            if (← SimpTheorems.ignoreEquations declName) then
+            if (← Simp.ignoreEquations declName) then
               ext.add (SimpEntry.toUnfold declName) attrKind
             else if let some eqns ← getEqnsFor? declName then
               for eqn in eqns do
                 addSimpTheorem ext eqn post (inv := false) attrKind prio
               ext.add (SimpEntry.toUnfoldThms declName eqns) attrKind
-              if (← SimpTheorems.unfoldEvenWithEqns declName) then
+              if (← Simp.unfoldEvenWithEqns declName) then
                 ext.add (SimpEntry.toUnfold declName) attrKind
             else
               ext.add (SimpEntry.toUnfold declName) attrKind

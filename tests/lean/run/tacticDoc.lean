@@ -44,7 +44,7 @@ alternatives themselves, or to receive tags or doc extensions.
 
 /-! These tests check that non-tactics can't be alternative forms of tactics -/
 
-/-- error: 'nonTacticTm' is not a tactic -/
+/-- error: `nonTacticTm` is not a tactic -/
 #guard_msgs in
 @[tactic_alt my_trivial]
 syntax (name := nonTacticTm) "nonTactic" : term
@@ -71,23 +71,23 @@ attribute [tactic_alt nonTacticTm] itsATactic'
 
 /-! These tests check that non-tactics can't receive tags -/
 
-/-- error: 'tm' is not a tactic -/
+/-- error: `tm` is not a tactic -/
 #guard_msgs in
 @[tactic_tag finishing]
 syntax (name := tm) "someTerm" : term
 
 
-/-- error: 'tm' is not a tactic -/
+/-- error: `tm` is not a tactic -/
 #guard_msgs in
 attribute [tactic_tag ctrl] tm
 
 /-! These tests check that only known tags may be applied -/
 
-/-- error: unknown tag 'bogus' (expected one of 'ctrl', 'extensible', 'finishing') -/
+/-- error: Unknown tag `bogus` (expected one of `ctrl`, `extensible`, `finishing`) -/
 #guard_msgs in
 attribute [tactic_tag bogus] my_trivial
 
-/-- error: unknown tag 'bogus' (expected one of 'ctrl', 'extensible', 'finishing') -/
+/-- error: Unknown tag `bogus` (expected one of `ctrl`, `extensible`, `finishing`) -/
 #guard_msgs in
 @[tactic_tag bogus]
 syntax "someTactic" : tactic

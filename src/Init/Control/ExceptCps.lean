@@ -3,8 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.Lawful.Basic
+public import Init.Control.Lawful.Basic
+
+public section
 
 /-!
 The Exception monad transformer using CPS style.
@@ -16,14 +20,14 @@ Adds exceptions of type `ε` to a monad `m`.
 Instead of using `Except ε` to model exceptions, this implementation uses continuation passing
 style. This has different performance characteristics from `ExceptT ε`.
 -/
-def ExceptCpsT (ε : Type u) (m : Type u → Type v) (α : Type u) := (β : Type u) → (α → m β) → (ε → m β) → m β
+@[expose] def ExceptCpsT (ε : Type u) (m : Type u → Type v) (α : Type u) := (β : Type u) → (α → m β) → (ε → m β) → m β
 
 namespace ExceptCpsT
 
 /--
 Use a monadic action that may throw an exception as an action that may return an exception's value.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def run {ε α : Type u} [Monad m] (x : ExceptCpsT ε m α) : m (Except ε α) :=
   x _ (fun a => pure (Except.ok a)) (fun e => pure (Except.error e))
 
@@ -41,7 +45,7 @@ Returns the value of a computation, forgetting whether it was an exception or a 
 
 This corresponds to early return.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def runCatch [Monad m] (x : ExceptCpsT α m α) : m α :=
   x α pure pure
 
@@ -61,7 +65,7 @@ instance : MonadExceptOf ε (ExceptCpsT ε m) where
 /--
 Run an action from the transformed monad in the exception monad.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def lift [Monad m] (x : m α) : ExceptCpsT ε m α :=
   fun _ k _ => x >>= k
 

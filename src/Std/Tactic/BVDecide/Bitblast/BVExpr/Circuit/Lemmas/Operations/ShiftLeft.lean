@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
+public import Init.Data.BitVec.Bitblast
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
+
+@[expose] public section
 
 /-!
 This module contains the verification of the bitblasters for `BitVec.shiftLeft` from
@@ -40,18 +45,13 @@ theorem go_get_aux (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
       intros
       rw [go_get_aux]
       rw [AIG.RefVec.get_push_ref_lt]
-      · simp only [Ref.cast, Ref.mk.injEq]
-        rw [AIG.RefVec.get_cast]
-        · simp
-        · assumption
-      · apply go_le_size
     · rw [← hgo]
       intros
       rw [go_get_aux]
       rw [AIG.RefVec.get_push_ref_lt]
   · dsimp only at hgo
     rw [← hgo]
-    simp only [Nat.le_refl, get, Ref.gate_cast, Ref.mk.injEq, true_implies]
+    simp only [Nat.le_refl]
     obtain rfl : curr = w := by omega
     simp
 termination_by w - curr
@@ -110,7 +110,8 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
           rw [go_get]
           rw [AIG.RefVec.get_push_ref_eq']
           · rw [go_denote_mem_prefix]
-            · simp
+            · simp only [Ref.cast_eq]
+              rw [denote_mkConstCached]
             · simp [Ref.hgate]
           · rw [heq]
         · omega
@@ -134,8 +135,7 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
         · next hidx =>
           rw [← hgo]
           rw [go_denote_eq]
-          · simp only [hidx, ↓reduceDIte, RefVec.get_cast, Ref.cast_eq]
-            rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
+          · simp [hidx]
           · omega
       · split
         · omega

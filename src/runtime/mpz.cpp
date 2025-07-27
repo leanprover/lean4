@@ -160,6 +160,12 @@ mpz & mpz::operator*=(unsigned u) { mpz_mul_ui(m_val, m_val, u); return *this; }
 
 mpz & mpz::operator*=(int u) { mpz_mul_si(m_val, m_val, u); return *this; }
 
+mpz mpz::divexact(mpz const & n, mpz const & d) {
+    mpz q;
+    mpz_divexact(q.m_val, n.m_val, d.m_val);
+    return q;
+}
+
 mpz mpz::ediv(mpz const & n, mpz const & d) {
     mpz q;
     mpz_t r;
@@ -755,6 +761,10 @@ mpz & mpz::operator/=(unsigned u) {
 
 mpz & mpz::operator%=(mpz const & o) {
     return rem(o.m_size, o.m_digits);
+}
+
+mpz mpz::divexact(mpz const & n, mpz const & d) {
+    return n / d;
 }
 
 mpz mpz::ediv(mpz const & n, mpz const & d) {

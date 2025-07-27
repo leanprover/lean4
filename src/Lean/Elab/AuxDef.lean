@@ -3,8 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Elab.Command
+public import Lean.Elab.Command
+meta import Lean.Parser.Term
+
+public section
 
 namespace Lean.Elab.Command
 open Lean.Parser.Command
@@ -24,10 +29,13 @@ def elabAuxDef : CommandElab
     let id := `_aux ++ (← getMainModule) ++ `_ ++ id
     let id := String.intercalate "_" <| id.components.map (·.toString (escape := false))
     let ns ← getCurrNamespace
-    -- make sure we only add a single component so that scoped works
-    let id ← mkAuxName (ns.mkStr id) 1
+    -- We use a new generator here because we want more control over the name; the default would
+    -- create a private name that then breaks the macro below. We assume that `aux_def` is not used
+    -- with the same arguments in parallel contexts.
+    let env := (← getEnv).setExporting true
+    let (id, _) := DeclNameGenerator.ofPrefix ns |>.mkUniqueName env («infix» := Name.mkSimple id)
     let id := id.replacePrefix ns Name.anonymous -- TODO: replace with def _root_.id
     elabCommand <|
       ← `($[$doc?:docComment]? $[$attrs?:attributes]?
-          def $(mkIdentFrom (mkNullNode suggestion) id (canonical := true)):ident : $ty := $body)
+          meta def $(mkIdentFrom (mkNullNode suggestion) id (canonical := true)):ident : $ty := $body)
   | _ => throwUnsupportedSyntax

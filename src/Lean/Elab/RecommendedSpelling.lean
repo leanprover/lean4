@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Lean.Parser.Term.Doc
-import Lean.Parser.Command
-import Lean.Elab.Command
+public import Lean.Parser.Term.Doc
+public import Lean.Parser.Command
+public import Lean.Elab.Command
+
+public section
 
 namespace Lean.Elab.Term.Doc
 open Lean.Parser.Term.Doc
@@ -28,7 +32,7 @@ open Lean.Parser.Command
 def allRecommendedSpellings : MetaM (Array RecommendedSpelling) := do
   let all := recommendedSpellingExt.toEnvExtension.getState (← getEnv)
       |>.importedEntries
-      |>.push (recommendedSpellingExt.exportEntriesFn (recommendedSpellingExt.getState (← getEnv)))
+      |>.push (recommendedSpellingExt.exportEntriesFn (← getEnv) (recommendedSpellingExt.getState (← getEnv)) .exported)
   return all.flatMap id
 
 end Lean.Elab.Term.Doc

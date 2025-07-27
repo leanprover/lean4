@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.State
-import Init.Control.Except
-import Init.Data.ToString.Basic
+public import Init.Control.State
+public import Init.Control.Except
+public import Init.Data.ToString.Basic
+
+public section
 universe u v
 
 namespace EStateM

@@ -3,8 +3,12 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Ext
+public import Lean.Meta.Tactic.Ext
+
+public section
 
 namespace Lean.Meta.Grind
 /-! Grind extensionality attribute to mark which `[ext]` theorems should be used. -/
@@ -19,8 +23,9 @@ builtin_initialize extTheoremsExt : SimpleScopedEnvExtension Name ExtTheorems �
   }
 
 def validateExtAttr (declName : Name) : CoreM Unit := do
-  unless (← Ext.isExtTheorem declName) do
-    throwError "invalid `[grind ext]`, `{declName}` is not tagged with `[ext]`"
+  if !(← Ext.isExtTheorem declName) then
+  if !(isStructure (← getEnv) declName) then
+    throwError "invalid `[grind ext]`, `{declName}` is neither tagged with `[ext]` nor is a structure"
 
 def addExtAttr (declName : Name) (attrKind : AttributeKind) : CoreM Unit := do
   validateExtAttr declName

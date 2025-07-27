@@ -3,10 +3,14 @@ Copyright (c) 2022 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.Meta.Check
-import Lean.Util.CollectLevelParams
+public import Lean.AddDecl
+public import Lean.Meta.Check
+public import Lean.Util.CollectLevelParams
+
+public section
 
 namespace Lean.Meta
 
@@ -14,7 +18,7 @@ unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit) (s
   withoutModifyingEnv do
     -- Avoid waiting for all prior compilation if only imported constants are referenced. This is a
     -- very common case for tactic configurations (`Lean.Elab.Tactic.Config`).
-    if value.getUsedConstants.all (← getEnv).base.constants.contains then
+    if value.getUsedConstants.all (← getEnv).isImportedConst then
       modifyEnv fun env => env.importEnv?.getD env
 
     let name ← mkFreshUserName `_tmp

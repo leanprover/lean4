@@ -3,12 +3,16 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Omega.Core
-import Lean.Elab.Tactic.FalseOrByContra
-import Lean.Elab.Tactic.Config
-import Lean.Elab.MutualDef
-import Lean.Meta.Closure
+public import Lean.Elab.Tactic.Omega.Core
+public import Lean.Elab.Tactic.FalseOrByContra
+public import Lean.Elab.Tactic.Config
+public import Lean.Elab.MutualDef
+public import Lean.Meta.Closure
+
+public section
 
 /-!
 # Frontend to the `omega` tactic.
@@ -70,9 +74,9 @@ def mkEvalRflProof (e : Expr) (lc : LinearCombo) : OmegaM Expr := do
 def mkCoordinateEvalAtomsEq (e : Expr) (n : Nat) : OmegaM Expr := do
   if n < 10 then
     let atoms ← atoms
-    let tail ← mkListLit (.const ``Int []) atoms[n+1:].toArray.toList
+    let tail ← mkListLit (.const ``Int []) atoms[n<...*].toArray.toList
     let lem := .str ``LinearCombo s!"coordinate_eval_{n}"
-    mkEqSymm (mkAppN (.const lem []) (atoms[:n+1].toArray.push tail))
+    mkEqSymm (mkAppN (.const lem []) (atoms[*...=n].toArray.push tail))
   else
     let atoms ← atomsCoeffs
     let n := toExpr n
@@ -255,14 +259,14 @@ where
         mkAtomLinearCombo e
     | _ => match n.getAppFnArgs with
     | (``Nat.succ, #[n]) => rewrite e (.app (.const ``Int.ofNat_succ []) n)
-    | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_add []) a b)
+    | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_add []) a b)
     | (``HMul.hMul, #[_, _, _, _, a, b]) =>
       let (lc, prf, r) ← rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
       -- Add the fact that the multiplication is non-negative.
       pure (lc, prf, r.insert (mkApp2 (.const ``Int.ofNat_mul_nonneg []) a b))
-    | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_ediv []) a b)
+    | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_ediv []) a b)
     | (``OfNat.ofNat, #[_, n, _]) => rewrite e (.app (.const ``Int.natCast_ofNat []) n)
-    | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_emod []) a b)
+    | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.natCast_emod []) a b)
     | (``HSub.hSub, #[_, _, _, _, mkApp6 (.const ``HSub.hSub _) _ _ _ _ a b, c]) =>
       rewrite e (mkApp3 (.const ``Int.ofNat_sub_sub []) a b c)
     | (``HPow.hPow, #[_, _, _, _, a, b]) =>
@@ -559,7 +563,7 @@ where
   varNames (mask : Array Bool) : MetaM (Array String) := do
     let mut names := #[]
     let mut next := 0
-    for h : i in [:mask.size] do
+    for h : i in *...mask.size do
       if mask[i] then
         while ← inScope (varNameOf next) do next := next + 1
         names := names.push (varNameOf next)
@@ -672,18 +676,20 @@ open Lean Elab Tactic Parser.Tactic
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. -/
 def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
-  let declName? ← Term.getDeclName?
   liftMetaFinishingTactic fun g => do
-    let some g ← g.falseOrByContra | return ()
-    g.withContext do
-      let type ← g.getType
-      let g' ← mkFreshExprSyntheticOpaqueMVar type
-      let hyps := (← getLocalHyps).toList
-      trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"
-      omega hyps g'.mvarId! cfg
-      -- Omega proofs are typically rather large, so hide them in a separate definition
-      let e ← mkAuxTheorem (prefix? := declName?) type (← instantiateMVarsProfiling g') (zetaDelta := true)
-      g.assign e
+    if debug.terminalTacticsAsSorry.get (← getOptions) then
+      g.admit
+    else
+      let some g ← g.falseOrByContra | return ()
+      g.withContext do
+        let type ← g.getType
+        let g' ← mkFreshExprSyntheticOpaqueMVar type
+        let hyps := (← getLocalHyps).toList
+        trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"
+        omega hyps g'.mvarId! cfg
+        -- Omega proofs are typically rather large, so hide them in a separate definition
+        let e ← mkAuxTheorem type (← instantiateMVarsProfiling g') (zetaDelta := true)
+        g.assign e
 
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. This

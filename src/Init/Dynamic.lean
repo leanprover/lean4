@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 
 open Lean
 
@@ -33,7 +37,7 @@ class TypeName (α : Type) where unsafe mk ::
 class TypeName (α : Type u) where private mk' ::
   private data : (TypeNameData α).type
 
-instance : Nonempty (TypeName α) := (TypeNameData α).property.elim (⟨⟨·⟩⟩)
+instance : Nonempty (TypeName α) := by exact (TypeNameData α).property.elim (⟨⟨·⟩⟩)
 
 /--
 Creates a `TypeName` instance.
@@ -65,7 +69,7 @@ value from `Dynamic` if it has some expected type.
 -/
 def Dynamic : Type := DynamicPointed.type
 
-instance : Nonempty Dynamic := DynamicPointed.property
+instance : Nonempty Dynamic := by exact DynamicPointed.property
 
 private unsafe def Dynamic.typeNameImpl (any : Dynamic) : Name :=
   (unsafeCast any : Name × NonScalar).1

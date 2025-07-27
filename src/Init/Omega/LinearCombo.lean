@@ -3,9 +3,13 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Omega.Coeffs
-import Init.Data.ToString.Macro
+public import Init.Omega.Coeffs
+public import Init.Data.ToString.Macro
+
+public section
 
 /-!
 # Linear combinations
@@ -13,6 +17,9 @@ import Init.Data.ToString.Macro
 We use this data structure while processing hypotheses.
 
 -/
+
+-- most defs used in proofs by reflection
+@[expose] section
 
 namespace Lean.Omega
 
@@ -163,13 +170,13 @@ def mul (l₁ l₂ : LinearCombo) : LinearCombo :=
 theorem mul_eval_of_const_left (l₁ l₂ : LinearCombo) (v : Coeffs) (w : l₁.coeffs.isZero) :
     (mul l₁ l₂).eval v = l₁.eval v * l₂.eval v := by
   have : Coeffs.dot l₁.coeffs v = 0 := IntList.dot_of_left_zero w
-  simp [mul, eval, this, Coeffs.sub_eq_add_neg, Coeffs.dot_distrib_left, Int.add_mul, Int.mul_add,
+  simp [mul, eval, this, Coeffs.sub_eq_add_neg, Coeffs.dot_distrib_left, Int.mul_add,
     Int.mul_comm]
 
 theorem mul_eval_of_const_right (l₁ l₂ : LinearCombo) (v : Coeffs) (w : l₂.coeffs.isZero) :
     (mul l₁ l₂).eval v = l₁.eval v * l₂.eval v := by
   have : Coeffs.dot l₂.coeffs v = 0 := IntList.dot_of_left_zero w
-  simp [mul, eval, this, Coeffs.sub_eq_add_neg, Coeffs.dot_distrib_left, Int.add_mul, Int.mul_add,
+  simp [mul, eval, this, Coeffs.sub_eq_add_neg, Coeffs.dot_distrib_left, Int.mul_add,
     Int.mul_comm]
 
 theorem mul_eval (l₁ l₂ : LinearCombo) (v : Coeffs) (w : l₁.coeffs.isZero ∨ l₂.coeffs.isZero) :

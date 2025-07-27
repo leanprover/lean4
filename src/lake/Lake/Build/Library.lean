@@ -65,7 +65,7 @@ def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
       if shouldExport then " (with exports)" else " (without exports)"
     else
       ""
-  withRegisterJob s!"{self.name}:static{suffix}" do
+  withRegisterJob s!"{self.name}:static{suffix}" <| withCurrPackage self.pkg do
   let mods ← (← self.modules.fetch).await
   let oJobs ← mods.flatMapM fun mod =>
     mod.nativeFacets shouldExport |>.mapM (·.fetch mod)
@@ -89,7 +89,7 @@ def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
 /-! ## Build Shared Lib -/
 
 protected def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := do
-  withRegisterJob s!"{self.name}:shared" do
+  withRegisterJob s!"{self.name}:shared" <| withCurrPackage self.pkg do
   let mods ← (← self.modules.fetch).await
   let objJobs ← mods.flatMapM fun mod =>
     mod.nativeFacets true |>.mapM (·.fetch mod)
@@ -113,7 +113,7 @@ protected def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := d
       (·.push <$> ·.dynlib.fetch) jobs
     return jobs
   buildLeanSharedLib self.libName self.sharedLibFile objJobs libJobs
-    self.weakLinkArgs self.linkArgs (plugin := self.roots.size == 1)
+    self.weakLinkArgs self.linkArgs self.isPlugin
 
 /-- The `LibraryFacetConfig` for the builtin `sharedFacet`. -/
 def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
@@ -124,10 +124,12 @@ def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
 /--
 Build extra target dependencies of the library (e.g., `extraDepTargets`, `needs`). -/
 def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
-  let job ← self.extraDepTargets.foldlM (init := ← self.pkg.extraDep.fetch) fun job target => do
-    return job.mix <| ← self.pkg.fetchTargetJob target
-  let job ← self.config.needs.foldlM (init := job) fun job key => do
-    return job.mix <| ← key.fetchIn self.pkg
+  let mut job := Job.nil s!"{self.pkg.name}/{self.name}:extraDep"
+  job := job.mix (← self.pkg.extraDep.fetch)
+  for target in self.extraDepTargets do
+    job := job.mix (← self.pkg.fetchTargetJob target)
+  for key in self.config.needs do
+    job := job.mix (← key.fetchIn self.pkg)
   return job
 
 /-- The `LibraryFacetConfig` for the builtin `extraDepFacet`. -/

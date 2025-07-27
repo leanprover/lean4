@@ -3,9 +3,31 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Marc Huisinga
 -/
+module
+
 prelude
-import Init.Prelude
-import Lean.Meta.WHNF
+public import Init.Prelude
+public import Lean.Meta.WHNF
+
+public section
+
+partial def String.charactersIn (a b : String) : Bool :=
+  go ⟨0⟩ ⟨0⟩
+where
+  go (aPos bPos : String.Pos) : Bool :=
+    if ha : a.atEnd aPos then
+      true
+    else if hb : b.atEnd bPos then
+      false
+    else
+      let ac := a.get' aPos ha
+      let bc := b.get' bPos hb
+      let bPos := b.next' bPos hb
+      if ac == bc then
+        let aPos := a.next' aPos ha
+        go aPos bPos
+      else
+        go aPos bPos
 
 namespace Lean.Server.Completion
 open Elab
@@ -48,7 +70,7 @@ where
     else
       shortenIn id contextNamespace.getPrefix
 
-def unfoldeDefinitionGuarded? (e : Expr) : MetaM (Option Expr) :=
+def unfoldDefinitionGuarded? (e : Expr) : MetaM (Option Expr) :=
   try Lean.Meta.unfoldDefinition? e catch _ => pure none
 
 partial def getDotCompletionTypeNames (type : Expr) : MetaM (Array Name) :=
@@ -60,7 +82,7 @@ where
     if isStructure (← getEnv) typeName then
       for parentName in (← getAllParentStructures typeName) do
         modify fun s => s.push parentName
-    let some type ← unfoldeDefinitionGuarded? type | return ()
+    let some type ← unfoldDefinitionGuarded? type | return ()
     visit type
 
 end Lean.Server.Completion

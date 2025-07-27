@@ -3,9 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
-import Init.System.IO
-import Init.Control.StateRef
+public import Init.System.IO
+public import Init.Control.StateRef
+
+@[expose] public section
 
 namespace Std
 

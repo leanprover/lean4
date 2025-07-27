@@ -3,11 +3,15 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Offset
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Arith.Offset.Proof
-import Lean.Meta.Tactic.Grind.Arith.Offset.Util
+public import Init.Grind.Offset
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.Offset.Proof
+public import Lean.Meta.Tactic.Grind.Arith.Offset.Util
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Offset
 /-!
@@ -235,7 +239,7 @@ def Cnstr.toExpr (c : Cnstr NodeId) : GoalM Expr := do
 def checkInvariants : GoalM Unit := do
   unless (← isInconsistent) do
   let s ← get'
-  for u in [:s.targets.size], es in s.targets.toArray do
+  for u in *...s.targets.size, es in s.targets.toArray do
     for (v, k) in es do
       let c : Cnstr NodeId := { u, v, k }
       trace[grind.debug.offset] "{c}"
@@ -339,9 +343,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     if let some (b, k) := isNatOffset? e then
       internalizeTerm e b k
     else if let some k := isNatNum? e then
-      -- core module has support for detecting equality between literals
-      unless isEqParent parent? do
-        internalizeTerm e z k
+      internalizeTerm e z k
 
 @[export lean_process_new_offset_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
@@ -353,20 +355,9 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
     addEdge u v 0 <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_1) a b h
     addEdge v u 0 <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_2) a b h
 
-@[export lean_process_new_offset_eq_lit]
-def processNewEqLitImpl (a b : Expr) : GoalM Unit := do
-  unless isSameExpr a b do
-    trace[grind.offset.eq.to] "{a}, {b}"
-    let some k := isNatNum? b | unreachable!
-    let u ← getNodeId a
-    let z ← mkNode (← getNatZeroExpr)
-    let h ← mkEqProof a b
-    addEdge u z k <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_1) a b h
-    addEdge z u (-k) <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_2) a b h
-
 def traceDists : GoalM Unit := do
   let s ← get'
-  for u in [:s.targets.size], es in s.targets.toArray do
+  for u in *...s.targets.size, es in s.targets.toArray do
     for (v, k) in es do
       trace[grind.offset.dist] "#{u} -({k})-> #{v}"
 

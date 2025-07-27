@@ -3,12 +3,16 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.NotationExtra
-import Init.Data.ToString.Macro
-import Init.Data.Int.DivMod.Basic
-import Init.Data.Int.Linear
-import Init.Data.Nat.Gcd
+public import Init.NotationExtra
+public import Init.Data.ToString.Macro
+public import Init.Data.Int.DivMod.Basic
+public import Init.Data.Int.Linear
+public import Init.Data.Nat.Gcd
+
+@[expose] public section
 namespace Std
 namespace Internal
 
@@ -18,7 +22,7 @@ namespace Internal
 -/
 
 structure Rat where
-  private mk ::
+  mk ::
     num : Int
     den : Nat := 1
   deriving Inhabited, BEq, DecidableEq

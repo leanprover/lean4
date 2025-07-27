@@ -3,10 +3,21 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.Meta.AppBuilder
-import Lean.Meta.CompletionName
+public import Lean.AddDecl
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.CompletionName
+public import Lean.Meta.Constructions.NoConfusionLinear
+
+public section
+
+
+register_builtin_option backwards.linearNoConfusionType : Bool := {
+  defValue := true
+  descr    := "use the linear-size construction for the `noConfusionType` declaration of an inductive type. Set to false to use the previous, simpler but quadratic-size construction. "
+}
 
 namespace Lean
 
@@ -21,12 +32,23 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   let recInfo ← getConstInfo (mkRecName declName)
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
-  let name := Name.mkStr declName "noConfusionType"
-  let decl ← ofExceptKernelException (mkNoConfusionTypeCoreImp (← getEnv) declName)
-  addDecl decl
-  setReducibleAttribute name
-  modifyEnv fun env => addToCompletionBlackList env name
-  modifyEnv fun env => addProtected env name
+  let useLinear ←
+    if backwards.linearNoConfusionType.get (← getOptions) then
+      NoConfusionLinear.deps.allM (hasConst · (skipRealize := true))
+    else
+      pure false
+
+  if useLinear then
+    NoConfusionLinear.mkWithCtorType declName
+    NoConfusionLinear.mkWithCtor declName
+    NoConfusionLinear.mkNoConfusionTypeLinear declName
+  else
+    let name := Name.mkStr declName "noConfusionType"
+    let decl ← ofExceptKernelException (mkNoConfusionTypeCoreImp (← getEnv) declName)
+    addDecl decl
+    setReducibleAttribute name
+    modifyEnv fun env => addToCompletionBlackList env name
+    modifyEnv fun env => addProtected env name
 
   let name := Name.mkStr declName "noConfusion"
   let decl ← ofExceptKernelException (mkNoConfusionCoreImp (← getEnv) declName)
@@ -53,7 +75,7 @@ where
     let natType  := mkConst ``Nat
     let declType ← mkArrow enumType natType
     let mut minors := #[]
-    for i in [:numCtors] do
+    for i in *...numCtors do
       minors := minors.push <| mkNatLit i
     withLocalDeclD `x enumType fun x => do
       let motive ← mkLambdaFVars #[x] natType

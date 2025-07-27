@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Meta.CompletionName
+public import Lean.Meta.CompletionName
+
+public section
 
 namespace Lean.Server.Completion
 open Meta
@@ -23,8 +27,8 @@ def getEligibleHeaderDecls (env : Environment) : IO EligibleHeaderDecls := do
   eligibleHeaderDeclsRef.modifyGet fun
     | some eligibleHeaderDecls => (eligibleHeaderDecls, some eligibleHeaderDecls)
     | none =>
-      let (_, eligibleHeaderDecls) :=
-        StateT.run (m := Id) (s := {}) do
+      let (_, eligibleHeaderDecls) := Id.run <|
+        StateT.run (s := {}) do
           -- `map₁` are the header decls
           env.constants.map₁.forM fun declName c => do
             modify fun eligibleHeaderDecls =>

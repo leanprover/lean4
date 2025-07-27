@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.LawfulOperator
-import Std.Sat.AIG.CachedGatesLemmas
-import Init.Data.Vector.Lemmas
+public import Std.Sat.AIG.LawfulOperator
+public import Std.Sat.AIG.CachedGatesLemmas
+public import Init.Data.Vector.Lemmas
+
+@[expose] public section
 
 namespace Std
 namespace Sat
@@ -73,7 +77,7 @@ def push (s : RefVec aig len) (ref : AIG.Ref aig) : RefVec aig (len + 1) :=
 @[simp]
 theorem cast_cast {aig1 aig2 aig3 : AIG α} (s : RefVec aig1 len)
     (h1 : aig1.decls.size ≤ aig2.decls.size) (h2 : aig2.decls.size ≤ aig3.decls.size) :
-    (s.cast h1).cast h2 = s.cast (Nat.le_trans h1 h2) := by rfl
+    (s.cast h1).cast h2 = s.cast (Nat.le_trans h1 h2) := rfl
 
 @[simp]
 theorem get_push_ref_eq (s : RefVec aig len) (ref : AIG.Ref aig) :
@@ -91,7 +95,7 @@ theorem get_push_ref_lt (s : RefVec aig len) (ref : AIG.Ref aig) (idx : Nat)
     (s.push ref).get idx (by omega) = s.get idx hidx := by
   simp only [get, push, Ref.mk.injEq]
   cases ref
-  simp only [Ref.mk.injEq]
+  simp only
   rw [Vector.getElem_push_lt]
   · simp
   · simp [hidx]

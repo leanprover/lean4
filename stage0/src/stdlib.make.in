@@ -6,7 +6,7 @@ SHELL := $(LEAN_BASH) -eo pipefail
 
 # any absolute path to the stdlib breaks the Makefile
 export LEAN_PATH=
-ifeq "${USE_LAKE} ${STAGE}" "ON 1"
+ifeq "${USE_LAKE}" "ON"
   export LEAN_CC=${CMAKE_C_COMPILER}
 else
   export LEAN_CC=${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}
@@ -36,14 +36,13 @@ endif
 # These can be phony since the inner Makefile/Lake will have the correct dependencies and avoid rebuilds
 .PHONY: Init Std Lean leanshared Lake libLake_shared lake lean
 
-# As the build directory is part of the lakefile.toml, only use it for stage 1 for now
-ifeq "${USE_LAKE} ${STAGE}" "ON 1"
+ifeq "${USE_LAKE}" "ON"
 
 # build in parallel
 Init:
-	${PREV_STAGE}/bin/lake build Init Std Lean Lake LakeMain
+	${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml $(LAKE_EXTRA_ARGS)
 
-Std Lean Lake: Init
+Std Lean Lake Leanc: Init
 
 else
 
@@ -59,6 +58,11 @@ Std: Init
 
 Lean: Std
 	+"${LEAN_BIN}/leanmake" lib lib.export PKG=Lean $(LEANMAKE_OPTS)
+
+Leanc: Lean
+ifneq "${STAGE}" "0"
+	+"${LEAN_BIN}/leanmake" -C "${CMAKE_BINARY_DIR}/leanc" lib PKG=Leanc $(LEANMAKE_OPTS) OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" LIB_OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" OLEAN_OUT="${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}"
+endif
 
 Lake:
 # lake is in its own subdirectory, so must adjust relative paths...
@@ -146,5 +150,10 @@ ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_D
 
 lean: ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
 
-Leanc:
-	+"${LEAN_BIN}/leanmake" bin PKG=Leanc BIN_NAME=leanc${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='${CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE}' OUT="${CMAKE_BINARY_DIR}" OLEAN_OUT="${CMAKE_BINARY_DIR}" LEAN_PATH="${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
+${CMAKE_BINARY_DIR}/bin/leanc${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/libLeanc.a
+	@echo "[    ] Building $@"
+# on Windows, must remove file before writing a new one (since the old one may be in use)
+	@rm -f $@
+	"${CMAKE_BINARY_DIR}/leanc.sh" $< ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
+
+leanc: ${CMAKE_BINARY_DIR}/bin/leanc${CMAKE_EXECUTABLE_SUFFIX}

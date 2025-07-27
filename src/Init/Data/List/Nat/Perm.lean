@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.List.Nat.TakeDrop
-import Init.Data.List.Perm
+public import Init.Data.List.Nat.TakeDrop
+public import Init.Data.List.Perm
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.

@@ -3,11 +3,14 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Combinators
-import Lean.Meta.Tactic.Grind.Canon
-import Lean.Meta.Tactic.Grind.MBTC
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
+public import Lean.Meta.Tactic.Grind.Canon
+public import Lean.Meta.Tactic.Grind.MBTC
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -36,8 +39,8 @@ private def eqAssignment (a b : Expr) : GoalM Bool := do
   let some v₂ ← getAssignmentExt? b | return false
   return v₁ == v₂
 
-def mbtcTac : GrindTactic :=
-  Grind.mbtcTac {
+def mbtc : GoalM Bool := do
+  Grind.mbtc {
     hasTheoryVar := hasTheoryVar
     isInterpreted := isInterpreted
     eqAssignment := eqAssignment

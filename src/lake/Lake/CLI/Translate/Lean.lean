@@ -253,7 +253,7 @@ def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
       pure none
   let scope? := if cfg.scope.isEmpty then none else some (toLean cfg.scope)
   let opts? := if cfg.opts.isEmpty then none else some <| Unhygienic.run do
-    cfg.opts.foldM (init := mkCIdent ``NameMap.empty) fun stx opt val =>
+    cfg.opts.foldlM (init := mkCIdent ``NameMap.empty) fun stx opt val =>
       `($stx |>.insert $(toLean opt) $(toLean val))
   `(requireDecl|require $[$scope? /]? $(mkIdent cfg.name):ident $[@ $ver?]?
     $[from $src?]? $[with $opts?]?)

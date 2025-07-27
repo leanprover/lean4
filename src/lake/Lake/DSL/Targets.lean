@@ -5,9 +5,11 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.DSL.DeclUtil
+import Lake.DSL.Syntax
 import Lake.Config.FacetConfig
 import Lake.Config.TargetConfig
 import Lake.Build.Job
+
 
 /-! # DSL for Targets & Facets
 Macros for declaring Lake targets and facets.
@@ -18,8 +20,6 @@ open Lean Parser Elab Command
 
 namespace Lake.DSL
 
-syntax buildDeclSig :=
-  identOrStr (ppSpace simpleBinder)? Term.typeSpec declValSimple
 
 --------------------------------------------------------------------------------
 /-! ## Facet Declarations                                                      -/
@@ -32,19 +32,6 @@ abbrev mkModuleFacetDecl
 : ModuleFacetDecl := .mk (Module.facetKind ++ facet) <| mkFacetJobConfig fun mod => do
   withRegisterJob (mod.facet facet |>.key.toSimpleString)
     (f mod)
-
-/--
-Define a new module facet. Has one form:
-
-```lean
-module_facet «facet-name» (mod : Module) : α :=
-  /- build term of type `FetchM (Job α)` -/
-```
-
-The `mod` parameter (and its type specifier) is optional.
--/
-scoped syntax (name := moduleFacetDecl)
-(docComment)? (Term.attributes)? "module_facet " buildDeclSig : command
 
 @[builtin_macro moduleFacetDecl]
 def expandModuleFacetDecl : Macro := fun stx => do
@@ -72,19 +59,6 @@ abbrev mkPackageFacetDecl
   withRegisterJob (pkg.facet facet |>.key.toSimpleString)
     (f pkg)
 
-/--
-Define a new package facet. Has one form:
-
-```lean
-package_facet «facet-name» (pkg : Package) : α :=
-  /- build term of type `FetchM (Job α)` -/
-```
-
-The `pkg` parameter (and its type specifier) is optional.
--/
-scoped syntax (name := packageFacetDecl)
-(docComment)? (Term.attributes)? "package_facet " buildDeclSig : command
-
 @[builtin_macro packageFacetDecl]
 def expandPackageFacetDecl : Macro := fun stx => do
   let `(packageFacetDecl|$(doc?)? $(attrs?)? package_facet%$kw $sig) := stx
@@ -111,19 +85,6 @@ abbrev mkLibraryFacetDecl
   withRegisterJob (lib.facet facet |>.key.toSimpleString)
     (f lib)
 
-/--
-Define a new library facet. Has one form:
-
-```lean
-library_facet «facet-name» (lib : LeanLib) : α :=
-  /- build term of type `FetchM (Job α)` -/
-```
-
-The `lib` parameter (and its type specifier) is optional.
--/
-scoped syntax (name := libraryFacetDecl)
-(docComment)? (Term.attributes)? "library_facet " buildDeclSig : command
-
 @[builtin_macro libraryFacetDecl]
 def expandLibraryFacetDecl : Macro := fun stx => do
   let `(libraryFacetDecl|$(doc?)? $(attrs?)? library_facet%$kw $sig) := stx
@@ -148,29 +109,14 @@ def expandLibraryFacetDecl : Macro := fun stx => do
 --------------------------------------------------------------------------------
 
 abbrev mkTargetDecl
-  (α) (pkgName target : Name)
-  [OptDataKind α] [FormatQuery α] [FamilyDef (CustomData pkgName) target α]
+  (α) (pkgName «target» : Name)
+  [OptDataKind α] [FormatQuery α] [FamilyDef (CustomData pkgName) «target» α]
   (f : NPackage pkgName → FetchM (Job α))
 : TargetDecl :=
   let cfg := mkTargetJobConfig fun pkg => do
-    withRegisterJob (pkg.target target |>.key.toSimpleString) do
+    withRegisterJob (pkg.target «target» |>.key.toSimpleString) do
       f pkg
-  .mk (.mk pkgName target .anonymous (.mk cfg) (by simp [Name.isAnonymous])) rfl
-
-/--
-Define a new custom target for the package. Has one form:
-
-```lean
-target «target-name» (pkg : NPackage _package.name) : α :=
-  /- build term of type `FetchM (Job α)` -/
-```
-
-The `pkg` parameter (and its type specifier) is optional.
-It is of type `NPackage _package.name` to provably demonstrate the package
-provided is the package in which the target is defined.
--/
-scoped syntax (name := targetCommand)
-(docComment)? (Term.attributes)? "target " buildDeclSig : command
+  .mk (.mk pkgName «target» .anonymous (.mk cfg) (by simp [Name.isAnonymous])) rfl
 
 @[builtin_macro targetCommand]
 def expandTargetCommand : Macro := fun stx => do
@@ -226,20 +172,6 @@ def mkConfigDeclDef
     @[$attrs,*] def configDecl : ConfigDecl := $(id).toConfigDecl
   )
 
-/--
-Define a new Lean library target for the package.
-Can optionally be provided with a configuration of type `LeanLibConfig`.
-Has many forms:
-
-```lean
-lean_lib «target-name»
-lean_lib «target-name» { /- config opts -/ }
-lean_lib «target-name» where /- config opts -/
-```
--/
-scoped syntax (name := leanLibCommand)
-(docComment)? (Term.attributes)? "lean_lib " (identOrStr)? optConfig : command
-
 @[builtin_command_elab leanLibCommand]
 def elabLeanLibCommand : CommandElab := fun stx => do
   let `(leanLibCommand|$(doc?)? $(attrs?)? lean_lib%$kw $(nameStx?)? $cfg) := stx
@@ -252,20 +184,6 @@ def elabLeanLibCommand : CommandElab := fun stx => do
 
 instance : Coe LeanLibCommand Command where
   coe x := ⟨x.raw⟩
-
-/--
-Define a new Lean binary executable target for the package.
-Can optionally be provided with a configuration of type `LeanExeConfig`.
-Has many forms:
-
-```lean
-lean_exe «target-name»
-lean_exe «target-name» { /- config opts -/ }
-lean_exe «target-name» where /- config opts -/
-```
--/
-scoped syntax (name := leanExeCommand)
-(docComment)? (Term.attributes)? "lean_exe " (identOrStr)? optConfig : command
 
 @[builtin_command_elab leanExeCommand]
 def elabLeanExeCommand : CommandElab := fun stx => do
@@ -280,13 +198,6 @@ def elabLeanExeCommand : CommandElab := fun stx => do
 instance : Coe LeanExeCommand Command where
   coe x := ⟨x.raw⟩
 
-/--
-Define a new input file target for the package.
-Can optionally be provided with a configuration of type `InputFileConfig`.
--/
-scoped syntax (name := inputFileCommand)
-(docComment)? (Term.attributes)? "input_file " (identOrStr)? optConfig : command
-
 @[builtin_command_elab inputFileCommand]
 def elabInputfileCommand : CommandElab := fun stx => do
   let `(inputFileCommand|$(doc?)? $(attrs?)? input_file%$kw $(nameStx?)? $cfg) := stx
@@ -299,13 +210,6 @@ def elabInputfileCommand : CommandElab := fun stx => do
 
 instance : Coe InputFileCommand Command where
   coe x := ⟨x.raw⟩
-
-/--
-Define a new input directory target for the package.
-Can optionally be provided with a configuration of type `InputDirConfig`.
--/
-scoped syntax (name := inputDirCommand)
-(docComment)? (Term.attributes)? "input_dir " (identOrStr)? optConfig : command
 
 @[builtin_command_elab inputDirCommand]
 def elabInputDirCommand : CommandElab := fun stx => do
@@ -330,26 +234,6 @@ abbrev mkExternLibDecl
   [FamilyDef (CustomData pkgName) name (ConfigTarget ExternLib.configKind)]
 : ExternLibDecl :=
   mkConfigDecl pkgName name ExternLib.configKind {getPath := cast (by simp)}
-
-syntax externLibDeclSpec :=
-  identOrStr (ppSpace simpleBinder)? declValSimple
-
-/--
-Define a new external library target for the package. Has one form:
-
-```lean
-extern_lib «target-name» (pkg : NPackage _package.name) :=
-  /- build term of type `FetchM (Job FilePath)` -/
-```
-
-The `pkg` parameter (and its type specifier) is optional.
-It is of type `NPackage _package.name` to provably demonstrate the package
-provided is the package in which the target is defined.
-
-The term should build the external library's **static** library.
--/
-scoped syntax (name := externLibCommand)
-(docComment)? (Term.attributes)? "extern_lib " externLibDeclSpec : command
 
 @[builtin_macro externLibCommand]
 def expandExternLibCommand : Macro := fun stx => do

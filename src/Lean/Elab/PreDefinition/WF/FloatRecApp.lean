@@ -3,9 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Elab.RecAppSyntax
+public import Lean.Meta.Transform
+public import Lean.Elab.RecAppSyntax
+
+public section
 
 namespace Lean.Elab.WF
 open Meta
@@ -23,6 +27,7 @@ Preprocesses the expressions to improve the effectiveness of `wfRecursion`.
 
 Unlike `Lean.Elab.Structural.preprocess`, do _not_ beta-reduce, as it could
 remove `let_fun`-lambdas that contain explicit termination proofs.
+(Note(kmill): this last statement no longer affects `let_fun`/`have`.)
 -/
 def floatRecApp (e : Expr) : CoreM Expr :=
   Core.transform e

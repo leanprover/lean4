@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
 
+module
+
 prelude
-import Init.Data.Array.Set
+public import Init.Data.Array.Set
+
+public section
 
 /-!
 # Helper functions for `Syntax`.

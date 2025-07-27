@@ -3,19 +3,28 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Module
+public import Lean.Parser.Module
+
+public section
 
 namespace Lean
 namespace ParseImports
 
 structure State where
-  imports : Array Import := #[]
-  pos     : String.Pos := 0
-  error?  : Option String := none
+  imports       : Array Import := #[]
+  pos           : String.Pos := 0
+  error?        : Option String := none
+  isModule      : Bool := false
+  -- per-import fields to be consumed by `moduleIdent`
+  isMeta        : Bool := false
+  isExported    : Bool := false
+  importAll     : Bool := false
   deriving Inhabited
 
-def Parser := String → State → State
+@[expose] def Parser := String → State → State
 
 instance : Inhabited Parser where
   default := fun _ s => s
@@ -132,8 +141,8 @@ partial def whitespace : Parser := fun input s =>
   else
     false
 
-def State.pushModule (module : Name) (runtimeOnly : Bool) (s : State) : State :=
-  { s with imports := s.imports.push { module, runtimeOnly } }
+def State.pushImport (i : Import) (s : State) : State :=
+  { s with imports := s.imports.push i }
 
 @[inline] def isIdRestCold (c : Char) : Bool :=
   c = '_' || c = '\'' || c == '!' || c == '?' || isLetterLike c || isSubScriptAlnum c
@@ -141,7 +150,9 @@ def State.pushModule (module : Name) (runtimeOnly : Bool) (s : State) : State :=
 @[inline] def isIdRestFast (c : Char) : Bool :=
   c.isAlphanum || (c != '.' && c != '\n' && c != ' ' && isIdRestCold c)
 
-partial def moduleIdent (runtimeOnly : Bool) : Parser := fun input s =>
+partial def moduleIdent : Parser := fun input s =>
+  let finalize (module : Name) : Parser := fun input s =>
+    whitespace input (s.pushImport { module, isMeta := s.isMeta, importAll := s.importAll, isExported := s.isExported })
   let rec parse (module : Name) (s : State) :=
     let i := s.pos
     if h : input.atEnd i then
@@ -161,7 +172,7 @@ partial def moduleIdent (runtimeOnly : Bool) : Parser := fun input s =>
             let s := s.next input s.pos
             parse module s
           else
-            whitespace input (s.pushModule module runtimeOnly)
+            finalize module input s
       else if isIdFirst curr then
         let startPart := i
         let s         := takeWhile isIdRestFast input (s.next' input i h)
@@ -171,7 +182,7 @@ partial def moduleIdent (runtimeOnly : Bool) : Parser := fun input s =>
           let s := s.next input s.pos
           parse module s
         else
-          whitespace input (s.pushModule module runtimeOnly)
+          finalize module input s
       else
         s.mkError "expected identifier"
   parse .anonymous s
@@ -182,30 +193,39 @@ partial def moduleIdent (runtimeOnly : Bool) : Parser := fun input s =>
   let s := p input s
   match s.error? with
   | none => many p input s
-  | some _ => { pos, error? := none, imports := s.imports.shrink size }
+  | some _ => { s with pos, error? := none, imports := s.imports.shrink size }
 
-@[inline] partial def preludeOpt (k : String) : Parser :=
-  keywordCore k (fun _ s => s.pushModule `Init false) (fun _ s => s)
+def setIsMeta (isMeta : Bool) : Parser := fun _ s =>
+  { s with isMeta }
+
+def setIsExported (isExported : Bool) : Parser := fun _ s =>
+  { s with isExported := isExported || !s.isModule }
+
+def setImportAll (importAll : Bool) : Parser := fun _ s =>
+  { s with importAll }
 
 def main : Parser :=
-  preludeOpt "prelude" >>
-  many (keyword "import" >> keywordCore "runtime" (moduleIdent false) (moduleIdent true))
+  keywordCore "module" (fun _ s => s) (fun _ s => { s with isModule := true }) >>
+  keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
+  many (keywordCore "public" (setIsExported false) (setIsExported true) >>
+    keywordCore "meta" (setIsMeta false) (setIsMeta true) >>
+    keyword "import" >>
+    keywordCore "all" (setImportAll false) (setImportAll true) >>
+    moduleIdent)
 
 end ParseImports
 
 /--
 Simpler and faster version of `parseImports`. We use it to implement Lake.
 -/
-def parseImports' (input : String) (fileName : String) : IO (Array Lean.Import) := do
+def parseImports' (input : String) (fileName : String) : IO ModuleHeader := do
   let s := ParseImports.main input (ParseImports.whitespace input {})
   match s.error? with
-  | none => return s.imports
+  | none => return { s with }
   | some err => throw <| IO.userError s!"{fileName}: {err}"
 
-deriving instance ToJson for Import
-
 structure PrintImportResult where
-  imports? : Option (Array Import) := none
+  result?  : Option ModuleHeader := none
   errors   : Array String := #[]
   deriving ToJson
 
@@ -213,12 +233,11 @@ structure PrintImportsResult where
   imports : Array PrintImportResult
   deriving ToJson
 
-@[export lean_print_imports_json]
 def printImportsJson (fileNames : Array String) : IO Unit := do
   let rs ← fileNames.mapM fun fn => do
     try
-      let deps ← parseImports' (← IO.FS.readFile ⟨fn⟩) fn
-      return { imports? := some deps }
+      let res ← parseImports' (← IO.FS.readFile ⟨fn⟩) fn
+      return { result? := some res }
     catch e => return { errors := #[e.toString] }
   IO.println (toJson { imports := rs : PrintImportsResult } |>.compress)
 

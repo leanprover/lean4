@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Internal.AssocList.Basic
-import Std.Data.Internal.List.Associative
+public import all Std.Data.DHashMap.Internal.AssocList.Basic
+public import Std.Data.Internal.List.Associative
+
+public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -29,14 +33,14 @@ namespace Std.DHashMap.Internal.AssocList
 open Std.Internal.List
 open Std.Internal
 
-@[simp] theorem toList_nil : (nil : AssocList α β).toList = [] := rfl
+@[simp] theorem toList_nil : (nil : AssocList α β).toList = [] := (rfl)
 @[simp] theorem toList_cons {l : AssocList α β} {a : α} {b : β a} :
-    (l.cons a b).toList = ⟨a, b⟩ :: l.toList := rfl
+    (l.cons a b).toList = ⟨a, b⟩ :: l.toList := (rfl)
 
 @[simp]
 theorem foldl_eq {f : δ → (a : α) → β a → δ} {init : δ} {l : AssocList α β} :
     l.foldl f init = l.toList.foldl (fun d p => f d p.1 p.2) init := by
-  induction l generalizing init <;> simp_all [foldl, Id.run, foldlM]
+  induction l generalizing init <;> simp_all [foldl, foldlM]
 
 @[simp]
 theorem length_eq {l : AssocList α β} : l.length = l.toList.length := by
@@ -61,7 +65,7 @@ theorem getCast?_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} :
 @[simp]
 theorem contains_eq [BEq α] {l : AssocList α β} {a : α} :
     l.contains a = containsKey a l.toList := by
-  induction l <;> simp_all [contains, List.containsKey]
+  induction l <;> simp_all [contains]
 
 @[simp]
 theorem getCast_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} {h} :
@@ -81,8 +85,8 @@ theorem get_eq {β : Type v} [BEq α] {l : AssocList α (fun _ => β)} {a : α} 
 theorem getCastD_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} {fallback : β a} :
     l.getCastD a fallback = getValueCastD a l.toList fallback := by
   induction l
-  · simp [getCastD, List.getValueCastD]
-  · simp_all [getCastD, List.getValueCastD, List.getValueCastD, List.getValueCast?_cons,
+  · simp [getCastD]
+  · simp_all [getCastD, List.getValueCastD, List.getValueCast?_cons,
       apply_dite (fun x => Option.getD x fallback)]
 
 @[simp]
@@ -200,6 +204,24 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     · exact (ih _).trans (by simpa using perm_middle.symm)
     · exact ih _
 
+theorem filterMap_eq_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
+    l.filterMap (fun k v => some (f k v)) = l.map f := by
+  dsimp [filterMap, map]
+  generalize nil = l'
+  induction l generalizing l' with
+  | nil => rfl
+  | cons k v t ih => simp only [filterMap.go, map.go, ih]
+
+theorem filterMap_eq_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
+    l.filterMap (fun k => Option.guard (fun v => f k v)) = l.filter f := by
+  dsimp [filterMap, filter]
+  generalize nil = l'
+  induction l generalizing l' with
+  | nil => rfl
+  | cons k v t ih =>
+    simp only [filterMap.go, filter.go, ih, Option.guard, cond_eq_if]
+    symm; split <;> rfl
+
 theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
     {l : AssocList α β} :
     Perm (l.alter a f).toList (alterKey a f l.toList) := by
@@ -224,7 +246,7 @@ variable {β : Type v}
 theorem toList_alter [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
     {l : AssocList α (fun _ => β)} : Perm (alter a f l).toList (Const.alterKey a f l.toList) := by
   induction l
-  · simp only [alter, toList_nil, alterKey_nil]
+  · simp only [alter, toList_nil]
     split <;> simp_all
   · rw [toList]
     refine Perm.trans ?_ Const.alterKey_cons_perm.symm
@@ -235,18 +257,18 @@ theorem modify_eq_alter [BEq α] [EquivBEq α] {a : α} {f : β → β} {l : Ass
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl
-  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
+  · next ih => simp only [modify, alter, Option.map_some, ih]
 
 end Const
 
 theorem foldl_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a → δ) :
     l.foldl (fun acc k v => f k v :: acc) acc =
       (l.toList.map (fun p => f p.1 p.2)).reverse ++ acc := by
-  induction l generalizing acc <;> simp_all [AssocList.foldl, AssocList.foldlM, Id.run]
+  induction l generalizing acc <;> simp_all [AssocList.foldl, AssocList.foldlM]
 
 theorem foldr_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a → δ) :
     l.foldr (fun k v acc => f k v :: acc) acc =
       (l.toList.map (fun p => f p.1 p.2)) ++ acc := by
-  induction l generalizing acc <;> simp_all [AssocList.foldr, AssocList.foldrM, Id.run]
+  induction l generalizing acc <;> simp_all [AssocList.foldr, AssocList.foldrM]
 
 end Std.DHashMap.Internal.AssocList

@@ -4,10 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.ScopedEnvExtension
-import Lean.ReservedNameAction
+public import Lean.Meta.Basic
+public import Lean.ScopedEnvExtension
+public import Lean.ReservedNameAction
+
+public section
 
 /-!
 This module defines the data structure and environment extension to remember how to map the
@@ -30,6 +34,7 @@ A `FunIndInfo` indicates how a function's arguments map to the arguments of the 
 The size of `params` also indicates the arity of the function.
 -/
 structure FunIndInfo where
+  funName : Name
   funIndName : Name
   /--
   `true` means that the corresponding level parameter of the function is also a level param
@@ -41,22 +46,31 @@ deriving Inhabited, Repr
 
 builtin_initialize funIndInfoExt : MapDeclarationExtension FunIndInfo ← mkMapDeclarationExtension
 
-def getFunInductName (declName : Name) : Name :=
-  declName ++ `induct
+def getFunInductName (declName : Name) (unfolding : Bool := false) : Name :=
+  if unfolding then
+    declName ++ `induct_unfolding
+  else
+    declName ++ `induct
 
-def getFunCasesName (declName : Name) : Name :=
-  declName ++ `fun_cases
+def getFunCasesName (declName : Name) (unfolding : Bool := false) : Name :=
+  if unfolding then
+    declName ++ `fun_cases_unfolding
+  else
+    declName ++ `fun_cases
 
-def getMutualInductName (declName : Name) : Name :=
-  declName ++ `mutual_induct
+def getMutualInductName (declName : Name) (unfolding : Bool := false) : Name :=
+  if unfolding then
+    declName ++ `mutual_induct_unfolding
+  else
+    declName ++ `mutual_induct
 
-def getFunInduct? (cases : Bool) (declName : Name) : CoreM (Option Name) := do
+def getFunInduct? (unfolding : Bool) (cases : Bool) (declName : Name) : CoreM (Option Name) := do
   let .defnInfo _ ← getConstInfo declName | return none
   try
     let thmName := if cases then
-      getFunCasesName declName
+      getFunCasesName (unfolding := unfolding) declName
     else
-      getFunInductName declName
+      getFunInductName (unfolding := unfolding) declName
     let result ← realizeGlobalConstNoOverloadCore thmName
     return some result
   catch _ =>
@@ -69,8 +83,8 @@ def setFunIndInfo (funIndInfo : FunIndInfo) : CoreM Unit := do
 def getFunIndInfoForInduct?  (inductName : Name) : CoreM (Option FunIndInfo) := do
   return funIndInfoExt.find? (← getEnv) inductName
 
-def getFunIndInfo? (cases : Bool) (funName : Name) : CoreM (Option FunIndInfo) := do
-  let some inductName ← getFunInduct? cases funName | return none
+def getFunIndInfo? (cases : Bool) (unfolding : Bool) (funName : Name) : CoreM (Option FunIndInfo) := do
+  let some inductName ← getFunInduct? (cases := cases) (unfolding := unfolding) funName | return none
   getFunIndInfoForInduct? inductName
 
 end Lean.Meta

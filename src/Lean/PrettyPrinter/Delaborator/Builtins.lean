@@ -3,13 +3,19 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura, Gabriel Ebner, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.PrettyPrinter.Delaborator.Attributes
-import Lean.PrettyPrinter.Delaborator.Basic
-import Lean.PrettyPrinter.Delaborator.SubExpr
-import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
-import Lean.Meta.CoeAttr
-import Lean.Meta.Structure
+public import Lean.PrettyPrinter.Delaborator.Attributes
+public import Lean.PrettyPrinter.Delaborator.Basic
+public import Lean.PrettyPrinter.Delaborator.SubExpr
+public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+public import Lean.Parser.Term
+meta import Lean.Parser.Command
+public import Lean.Meta.CoeAttr
+public import Lean.Meta.Structure
+
+public section
 
 namespace Lean.PrettyPrinter.Delaborator
 open Lean.Meta
@@ -91,32 +97,23 @@ Rather, it is called through the `app` delaborator.
 -/
 def delabConst : Delab := do
   let Expr.const c₀ ls ← getExpr | unreachable!
-  let mut c₀ := c₀
-  let mut c  := c₀
-  if let some n := privateToUserName? c₀ then
+  let unresolveName (n : Name) : DelabM Name := do
+    unresolveNameGlobalAvoidingLocals n (fullNames := ← getPPOption getPPFullNames)
+  let mut c := c₀
+  if isPrivateName c₀ then
     unless (← getPPOption getPPPrivateNames) do
-      if c₀ == mkPrivateName (← getEnv) n then
-        -- The name is defined in this module, so use `n` as the name and unresolve like any other name.
-        c₀ := n
-        c ← unresolveNameGlobal n (fullNames := ← getPPOption getPPFullNames)
-      else
-        -- The name is not defined in this module, so make inaccessible. Unresolving does not make sense to do.
+      c ← unresolveName c
+      if let some n := privateToUserName? c then
+        -- The private name could not be made non-private, so make the result inaccessible
         c ← withFreshMacroScope <| MonadQuotation.addMacroScope n
   else
-    c ← unresolveNameGlobal c (fullNames := ← getPPOption getPPFullNames)
+    c ← unresolveName c
   let stx ←
-    if ls.isEmpty || !(← getPPOption getPPUniverses) then
-      if (← getLCtx).usesUserName c then
-        -- `c` is also a local declaration
-        if c == c₀ && !(← read).inPattern then
-          -- `c` is the fully qualified named. So, we append the `_root_` prefix
-          c := `_root_ ++ c
-        else
-          c := c₀
-      pure <| mkIdent c
-    else
+    if !ls.isEmpty && (← getPPOption getPPUniverses) then
       let mvars ← getPPOption getPPMVarsLevels
       `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
+    else
+      pure <| mkIdent c
 
   let stx ← maybeAddBlockImplicit stx
   if (← getPPOption getPPTagAppFns) then
@@ -143,7 +140,7 @@ def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
     let pos ← getPos
     for (k, v) in m do
       if (`pp).isPrefixOf k then
-        let opts := posOpts.find? pos |>.getD {}
+        let opts := posOpts.get? pos |>.getD {}
         posOpts := posOpts.insert pos (opts.insert k v)
     withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr x
   | _ => x
@@ -191,7 +188,7 @@ def getParamKinds (f : Expr) (args : Array Expr) : MetaM (Array ParamKind) := do
     let mut result : Array ParamKind := Array.mkEmpty args.size
     let mut fnType ← inferType f
     let mut j := 0
-    for i in [0:args.size] do
+    for i in *...args.size do
       unless fnType.isForall do
         fnType ← withTransparency .all <| whnf (fnType.instantiateRevRange j i args)
         j := i
@@ -280,11 +277,11 @@ def needsExplicit (f : Expr) (numArgs : Nat) (paramKinds : Array ParamKind) : Bo
     -- Error calculating ParamKinds, so return `true` to be safe
     paramKinds.size < numArgs
     -- One of the supplied parameters isn't explicit
-    || paramKinds[:numArgs].any (fun param => !param.bInfo.isExplicit)
+    || paramKinds[*...numArgs].any (fun param => !param.bInfo.isExplicit)
     -- The next parameter is implicit or inst implicit
     || (numArgs < paramKinds.size && paramKinds[numArgs]!.bInfo matches .implicit | .instImplicit)
     -- One of the parameters after the supplied parameters is explicit but not regular explicit.
-    || paramKinds[numArgs:].any (fun param => param.bInfo.isExplicit && !param.isRegularExplicit)
+    || paramKinds[numArgs...*].any (fun param => param.bInfo.isExplicit && !param.isRegularExplicit)
 
 /--
 Delaborates a function application in explicit mode.
@@ -366,7 +363,9 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
   let (fnStx, args) ←
     withBoundedAppFnArgs numArgs
       (do return ((← delabHead), Array.mkEmpty numArgs))
-      (fun (fnStx, args) => return (fnStx, args.push (← mkArg paramKinds[args.size]!)))
+      (fun (fnStx, args) =>
+        let isFieldIdx := (some args.size = field?.map Prod.fst)
+        return (fnStx, args.push (← mkArg isFieldIdx paramKinds[args.size]!)))
 
   -- Strip off optional arguments.
   let args := args.popWhile (· matches .optional ..)
@@ -387,7 +386,7 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
         else
           pure none
       if let some obj := obj? then
-        let isFirst := args[0:fieldIdx].all (· matches .skip)
+        let isFirst := args[*...fieldIdx].all (· matches .skip)
         -- Clear the `obj` argument from `args`.
         let args' := args.set! fieldIdx .skip
         let mut head : Term ← `($obj.$(mkIdentFrom fnStx field))
@@ -408,7 +407,7 @@ where
   Delaborates the current argument.
   The argument `remainingArgs` is the number of arguments in the application after this one.
   -/
-  mkArg (param : ParamKind) : DelabM AppImplicitArg := do
+  mkArg (isFieldIdx : Bool) (param : ParamKind) : DelabM AppImplicitArg := do
     let arg ← getExpr
     if ← getPPOption getPPAnalysisSkip then return .skip
     else if ← getPPOption getPPAnalysisHole then return .regular (← `(_))
@@ -418,7 +417,7 @@ where
       -- Assumption: `useAppExplicit` has already detected whether it is ok to omit this argument, if it is the last one.
       -- We will later remove all optional arguments from the end.
       return .optional param.name (← delab)
-    else if param.bInfo.isExplicit then
+    else if isFieldIdx || param.bInfo.isExplicit then
       return .regular (← delab)
     else if ← pure (param.name == `motive) <&&> shouldShowMotive arg (← getOptions) then
       mkNamedArg param.name
@@ -488,7 +487,7 @@ def useAppExplicit (numArgs : Nat) (paramKinds : Array ParamKind) : DelabM Bool 
 
   -- If any of the next parameters is explicit but has an optional value or is an autoparam, fall back to explicit mode.
   -- This is necessary since these are eagerly processed when elaborating.
-  if paramKinds[numArgs:].any fun param => param.bInfo.isExplicit && !param.isRegularExplicit then return true
+  if paramKinds[numArgs...*].any fun param => param.bInfo.isExplicit && !param.isRegularExplicit then return true
 
   return false
 
@@ -593,7 +592,7 @@ private partial def collectStructFields
       unless ← getPPOption getPPStructureInstancesDefaults do
         if let some defFn := getEffectiveDefaultFnForField? (← getEnv) structName fieldName then
           -- Use `withNewMCtxDepth` to prevent delaborator from solving metavariables.
-          if let some (_, defValue) ← withNewMCtxDepth <| instantiateStructDefaultValueFn? defFn levels params (pure ∘ fieldValues.find?) then
+          if let some (_, defValue) ← withNewMCtxDepth <| instantiateStructDefaultValueFn? defFn levels params (pure ∘ fieldValues.get?) then
             if ← withReducible <| withNewMCtxDepth <| isDefEq defValue (← getExpr) then
               -- Default value matches, skip the field.
               return (i + 1, fieldValues, fields)
@@ -638,7 +637,7 @@ def delabStructureInstance : Delab := do
       from the same type family (think `Sigma`), but for now users can write a custom delaborator in such instances.
     -/
     let bis ← forallTelescope s.type fun xs _ => xs.mapM (·.fvarId!.getBinderInfo)
-    if explicit then guard <| bis[s.numParams:].all (·.isExplicit)
+    if explicit then guard <| bis[s.numParams...*].all (·.isExplicit)
     let (_, args) ← withBoundedAppFnArgs s.numFields
       (do return (0, #[]))
       (fun (i, args) => do
@@ -658,7 +657,7 @@ def delabStructureInstance : Delab := do
     -/
     let .const _ levels := (← getExpr).getAppFn | failure
     let args := (← getExpr).getAppArgs
-    let params := args[0:s.numParams]
+    let params := args[*...s.numParams]
     let (_, fields) ← collectStructFields s.induct levels params #[] {} s
     let tyStx? : Option Term ← withType do
       if ← getPPOption getPPStructureInstanceType then delab else pure none
@@ -781,7 +780,7 @@ partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOpti
     let st ← withDummyBinders (st.info.discrInfos.map (·.hName?)) (← getExpr) fun hNames? => do
       let hNames := hNames?.filterMap id
       let mut st := {st with hNames? := hNames?}
-      for i in [0:st.alts.size] do
+      for i in *...st.alts.size do
         st ← withTheReader SubExpr (fun _ => st.alts[i]!) do
           -- We save the variables names here to be able to implement safe shadowing.
           -- The pattern delaboration must use the names saved here.
@@ -800,7 +799,7 @@ partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOpti
         -- Need to reduce since there can be `let`s that are lifted into the matcher type
         forallTelescopeReducing (← getExpr) fun afterParams _ => do
           -- Skip motive and discriminators
-          let alts := Array.ofSubarray afterParams[1 + st.discrs.size:]
+          let alts := Array.ofSubarray afterParams[(1 + st.discrs.size)...*]
           -- Visit minor premises
           alts.mapIdxM fun idx alt => do
             let altTy ← inferType alt
@@ -840,23 +839,6 @@ where
       withBindingBody varNames[i] <| usingNames varNames x (i+1)
     else
       x
-
-/--
-Delaborates applications of the form `letFun v (fun x => b)` as `let_fun x := v; b`.
--/
-@[builtin_delab app.letFun]
-def delabLetFun : Delab := whenPPOption getPPNotation <| withOverApp 4 do
-  let e ← getExpr
-  guard <| e.getAppNumArgs == 4
-  let Expr.lam n _ b _ := e.appArg! | failure
-  let n ← getUnusedName n b
-  let stxV ← withAppFn <| withAppArg delab
-  let (stxN, stxB) ← withAppArg <| withBindingBody' n (mkAnnotatedIdent n) fun stxN => return (stxN, ← delab)
-  if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
-    let stxT ← SubExpr.withNaryArg 0 delab
-    `(let_fun $stxN : $stxT := $stxV; $stxB)
-  else
-    `(let_fun $stxN := $stxV; $stxB)
 
 @[builtin_delab mdata]
 def delabMData : Delab := do
@@ -1033,16 +1015,22 @@ def delabForall : Delab := do
 
 @[builtin_delab letE]
 def delabLetE : Delab := do
-  let Expr.letE n t v b _ ← getExpr | unreachable!
+  let Expr.letE n t v b nondep ← getExpr | unreachable!
   let n ← getUnusedName n b
   let stxV ← descend v 1 delab
-  let (stxN, stxB) ← withLetDecl n t v fun fvar => do
+  let (stxN, stxB) ← withLetDecl n t v (nondep := nondep) fun fvar => do
     let b := b.instantiate1 fvar
     return (← mkAnnotatedIdent n fvar, ← descend b 2 delab)
   if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
     let stxT ← descend t 0 delab
-    `(let $stxN : $stxT := $stxV; $stxB)
-  else `(let $stxN := $stxV; $stxB)
+    if nondep then
+      `(have $stxN : $stxT := $stxV; $stxB)
+    else
+      `(let $stxN : $stxT := $stxV; $stxB)
+  else if nondep then
+    `(have $stxN := $stxV; $stxB)
+  else
+    `(let $stxN := $stxV; $stxB)
 
 @[builtin_delab app.Char.ofNat]
 def delabChar : Delab := do
@@ -1300,24 +1288,17 @@ partial def delabDoElems : DelabM (List Syntax) := do
             prependAndRec `(doElem|let _ ← $ma:term)
       | _ => failure
   else if e.isLet then
-    let Expr.letE n t v b _ ← getExpr | unreachable!
+    let Expr.letE n t v b nondep ← getExpr | unreachable!
     let n ← getUnusedName n b
     let stxT ← descend t 0 delab
     let stxV ← descend v 1 delab
-    withLetDecl n t v fun fvar =>
+    withLetDecl n t v (nondep := nondep) fun fvar =>
       let b := b.instantiate1 fvar
       descend b 2 $
-        prependAndRec `(doElem|let $(mkIdent n) : $stxT := $stxV)
-  else if e.isLetFun then
-    -- letFun.{u, v} : {α : Sort u} → {β : α → Sort v} → (v : α) → ((x : α) → β x) → β v
-    let stxT ← withNaryArg 0 delab
-    let stxV ← withNaryArg 2 delab
-    withAppArg do
-      match (← getExpr) with
-      | Expr.lam .. =>
-        withBindingBodyUnusedName fun n => do
-          prependAndRec `(doElem|have $n:term : $stxT := $stxV)
-      | _ => failure
+        if nondep then
+          prependAndRec `(doElem|have $(mkIdent n) : $stxT := $stxV)
+        else
+          prependAndRec `(doElem|let $(mkIdent n) : $stxT := $stxV)
   else
     let stx ← delab
     return [← `(doElem|$stx:term)]
@@ -1398,7 +1379,7 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
 open Parser Command Term in
 @[run_builtin_parser_attribute_hooks]
 -- use `termParser` instead of `declId` so we can reuse `delabConst`
-def declSigWithId := leading_parser termParser maxPrec >> declSig
+meta def declSigWithId := leading_parser termParser maxPrec >> declSig
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts ``Syntax constName
@@ -1407,18 +1388,12 @@ private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options)
 private opaque evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
 
 /--
-Pretty-prints a constant `c` as `c.{<levels>} <params> : <type>`.
-
-If `universes` is `false`, then the universe level parameters are omitted.
+Pretty-prints the parameters of a `forall`. The pretty-printed parameters are passed to
+`delabForall` at the end.
 -/
-partial def delabConstWithSignature (universes : Bool := true) : Delab := do
-  let e ← getExpr
-  -- use virtual expression node of arity 2 to separate name and type info
-  let idStx ← descend e 0 <|
-    withOptions (pp.universes.set · universes |> (pp.fullNames.set · true)) <|
-      delabConst
-  descend (← inferType e) 1 <|
-    delabParams {} idStx #[]
+partial def delabForallParamsWithSignature
+    (delabForall : (groups : TSyntaxArray ``bracketedBinder) → (type : Term) → DelabM α) : DelabM α := do
+  delabParams {} #[]
 where
   /--
   For types in the signature, we want to be sure pi binder types are pretty printed.
@@ -1430,7 +1405,7 @@ where
   Once it reaches a binder with an inaccessible name, or a name that has already been used,
   the remaining binders appear in pi types after the `:` of the declaration.
   -/
-  delabParams (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) := do
+  delabParams (bindingNames : NameSet) (groups : TSyntaxArray ``bracketedBinder) := do
     let e ← getExpr
     if e.isForall && e.binderInfo.isInstImplicit && e.bindingName!.hasMacroScopes then
       -- Assumption: this instance can be found by instance search, so it does not need to be named.
@@ -1438,14 +1413,14 @@ where
       -- We could check to see whether the instance appears in the type and avoid omitting the instance name,
       -- but this would be the usual case.
       let group ← withBindingDomain do `(bracketedBinderF|[$(← delabTy)])
-      withBindingBody e.bindingName! <| delabParams bindingNames idStx (groups.push group)
+      withBindingBody e.bindingName! <| delabParams bindingNames (groups.push group)
     else if e.isForall && (!e.isArrow || !(e.bindingName!.hasMacroScopes || bindingNames.contains e.bindingName!)) then
-      delabParamsAux bindingNames idStx groups #[]
+      delabParamsAux bindingNames groups #[]
     else
       let (opts', e') ← processSpine {} (← readThe SubExpr)
       withReader (fun ctx => {ctx with optionsPerPos := opts', subExpr := { ctx.subExpr with expr := e' }}) do
         let type ← delabTy
-        `(declSigWithId| $idStx:ident $groups* : $type)
+        delabForall groups type
   /--
   Inner loop for `delabParams`, collecting binders.
   Invariants:
@@ -1453,13 +1428,13 @@ where
   - It has a name that's not inaccessible.
   - It has a name that hasn't been used yet.
   -/
-  delabParamsAux (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) (curIds : Array Ident) := do
+  delabParamsAux (bindingNames : NameSet) (groups : TSyntaxArray ``bracketedBinder) (curIds : Array Ident) := do
     let e@(.forallE n d e' i) ← getExpr | unreachable!
     let n ← if bindingNames.contains n then withFreshMacroScope <| MonadQuotation.addMacroScope n else pure n
     let bindingNames := bindingNames.insert n
     if shouldGroupWithNext bindingNames e e' then
       withBindingBody' n (mkAnnotatedIdent n) fun stxN =>
-        delabParamsAux bindingNames idStx groups (curIds.push stxN)
+        delabParamsAux bindingNames groups (curIds.push stxN)
     else
       /-
       `mkGroup` constructs binder syntax for the binder names `curIds : Array Ident`, which all have the same type and binder info.
@@ -1488,7 +1463,7 @@ where
       withBindingBody' n (mkAnnotatedIdent n) fun stxN => do
         let curIds := curIds.push stxN
         let group ← mkGroup curIds
-        delabParams bindingNames idStx (groups.push group)
+        delabParams bindingNames (groups.push group)
   /-
   Given the forall `e` with body `e'`, determines if the binder from `e'` (if it is a forall) should be grouped with `e`'s binder.
   -/
@@ -1523,5 +1498,32 @@ where
           return (opts, .forallE n' t b' bi)
     else
       return (opts, subExpr.expr)
+
+/--
+Pretty-prints a `forall` similarly to `delabForall`, but explicitly denotes all named parameters.
+-/
+partial def delabForallWithSignature : Delab := do
+  let isProp ← try isProp (← getExpr) catch _ => pure false
+  delabForallParamsWithSignature fun groups type => do
+    if groups.isEmpty then
+      return type
+    else if isProp && (← getPPOption getPPForalls) then
+      `(∀ $groups*, $type)
+    else
+      groups.foldrM (fun group acc => `(depArrow| $group → $acc)) type
+
+/--
+Pretty-prints a constant `c` as `c.{<levels>} <params> : <type>`.
+
+If `universes` is `false`, then the universe level parameters are omitted.
+-/
+partial def delabConstWithSignature (universes : Bool := true) : Delab := do
+  let e ← getExpr
+  -- use virtual expression node of arity 2 to separate name and type info
+  let idStx ← descend e 0 <|
+    withOptions (pp.universes.set · universes |> (pp.fullNames.set · true)) <|
+      delabConst
+  descend (← inferType e) 1 <|
+    delabForallParamsWithSignature fun groups type => `(declSigWithId| $idStx:ident $groups* : $type)
 
 end Lean.PrettyPrinter.Delaborator

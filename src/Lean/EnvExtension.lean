@@ -3,15 +3,19 @@ Copyright (c) 2025 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Environment
+public import Lean.Environment
+
+public section
 
 /-! Further environment extension API; the primitives live in `Lean.Environment`. -/
 
 namespace Lean
 
 /-- Simple `PersistentEnvExtension` that implements `exportEntriesFn` using a list of entries. -/
-def SimplePersistentEnvExtension (α σ : Type) := PersistentEnvExtension α α (List α × σ)
+@[expose] def SimplePersistentEnvExtension (α σ : Type) := PersistentEnvExtension α α (List α × σ)
 
 @[specialize] def mkStateFromImportedEntries {α σ : Type} (addEntryFn : σ → α → σ) (initState : σ) (as : Array (Array α)) : σ :=
   as.foldl (fun r es => es.foldl (fun r e => addEntryFn r e) r) initState
@@ -21,6 +25,8 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) where
   addEntryFn    : σ → α → σ
   addImportedFn : Array (Array α) → σ
   toArrayFn     : List α → Array α := fun es => es.toArray
+  exportEntriesFnEx? :
+    Option (Environment → σ → List α → OLeanLevel → Array α) := none
   asyncMode     : EnvExtension.AsyncMode := .mainOnly
   replay?       : Option ((newEntries : List α) → (newState : σ) → σ → List α × σ) := none
 
@@ -42,7 +48,9 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
     addImportedFn   := fun as => pure ([], descr.addImportedFn as),
     addEntryFn      := fun s e => match s with
       | (entries, s) => (e::entries, descr.addEntryFn s e),
-    exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
+    exportEntriesFnEx env s level := match descr.exportEntriesFnEx? with
+      | some fn => fn env s.2 s.1.reverse level
+      | none    => descr.toArrayFn s.1.reverse
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
     asyncMode := descr.asyncMode
     replay? := descr.replay?.map fun replay oldState newState _ (entries, s) =>
@@ -83,7 +91,7 @@ end SimplePersistentEnvExtension
 
 /-- Environment extension for tagging declarations.
     Declarations must only be tagged in the module where they were declared. -/
-def TagDeclarationExtension := SimplePersistentEnvExtension Name NameSet
+@[expose] def TagDeclarationExtension := SimplePersistentEnvExtension Name NameSet
 
 def mkTagDeclarationExtension (name : Name := by exact decl_name%)
   (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagDeclarationExtension :=
@@ -123,14 +131,15 @@ structure MapDeclarationExtension (α : Type) extends PersistentEnvExtension (Na
 deriving Inhabited
 
 def mkMapDeclarationExtension (name : Name := by exact decl_name%)
-    (exportEntriesFn : NameMap α → Array (Name × α) := (·.toArray)) : IO (MapDeclarationExtension α) :=
+    (exportEntriesFn : Environment → NameMap α → OLeanLevel → Array (Name × α) :=
+      fun _ s _ => s.toArray) :
+    IO (MapDeclarationExtension α) :=
   .mk <$> registerPersistentEnvExtension {
     name            := name,
     mkInitial       := pure {}
     addImportedFn   := fun _ => pure {}
     addEntryFn      := fun s (n, v) => s.insert n v
-    saveEntriesFn   := fun s => s.toArray
-    exportEntriesFn
+    exportEntriesFnEx env s level := exportEntriesFn env s level
     asyncMode       := .async
     replay?         := some fun _ newState newConsts s =>
       newConsts.foldl (init := s) fun s c =>
@@ -144,14 +153,16 @@ namespace MapDeclarationExtension
 def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α) : Environment :=
   have : Inhabited Environment := ⟨env⟩
   assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `MapDeclarationExtension`
-  assert! env.asyncMayContain declName
-  ext.addEntry env (declName, val)
+  if !env.asyncMayContain declName then
+    panic! s!"MapDeclarationExtension.insert: cannot insert {declName} into {ext.name}, it is not contained in {env.asyncPrefix?}"
+  else
+    ext.addEntry env (declName, val)
 
 def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name)
-    (includeServer := false) : Option α :=
+    (level := OLeanLevel.exported) : Option α :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    match (ext.getModuleEntries (includeServer := includeServer) env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
+    match (ext.getModuleEntries (level := level) env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
     | some e => some e.2
     | none   => none
   | none => (ext.findStateAsync env declName).find? declName

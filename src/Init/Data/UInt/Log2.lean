@@ -3,8 +3,12 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.Fin.Log2
+public import Init.Data.Fin.Log2
+
+public section
 
 /--
 Base-two logarithm of 8-bit unsigned integers. Returns `⌊max 0 (log₂ a)⌋`.

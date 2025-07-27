@@ -5,9 +5,15 @@ Authors: Jeremy Avigad, Leonardo de Moura
 
 The integers, with addition, multiplication, and subtraction.
 -/
+module
+
 prelude
-import Init.Data.Cast
-import Init.Data.Nat.Div.Basic
+public import Init.Data.Cast
+public import Init.Data.Nat.Div.Basic
+
+public section
+
+@[expose] section
 
 set_option linter.missingDocs true -- keep it documented
 open Nat
@@ -265,7 +271,7 @@ set_option bootstrap.genMatcherCode false in
 
   Implemented by efficient native code. -/
 @[extern "lean_int_dec_nonneg"]
-private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
+def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   match m with
   | ofNat m => isTrue <| NonNeg.mk m
   | -[_ +1] => isFalse <| fun h => nomatch h

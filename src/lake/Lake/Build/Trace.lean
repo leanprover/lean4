@@ -94,6 +94,8 @@ structure Hash where
   val : UInt64
   deriving BEq, DecidableEq, Repr
 
+instance : Hashable Hash := ⟨Hash.val⟩
+
 namespace Hash
 
 @[inline] def ofNat (n : Nat) :=
@@ -122,6 +124,10 @@ instance : ToString Hash := ⟨Hash.toString⟩
 
 @[inline] def ofString (str : String) :=
   mix nil <| mk <| hash str -- same as Name.mkSimple
+
+/-- Hash of a line-ending normalized string. -/
+@[inline] def ofText (str : String) :=
+  ofString str.crlfToLf
 
 @[inline] def ofByteArray (bytes : ByteArray) : Hash :=
   ⟨hash bytes⟩
@@ -171,10 +177,8 @@ instance : ComputeHash FilePath IO := ⟨computeBinFileHash⟩
 Compute the hash of a text file.
 Normalizes `\r\n` sequences to `\n` for cross-platform compatibility.
 -/
-def computeTextFileHash (file : FilePath) : IO Hash := do
-  let text ← IO.FS.readFile file
-  let text := text.crlfToLf
-  return Hash.ofString text
+def computeTextFileHash (file : FilePath) : IO Hash :=
+  Hash.ofText <$> IO.FS.readFile file
 
 /--
 A wrapper around `FilePath` that adjusts its `ComputeHash` implementation
@@ -185,6 +189,7 @@ structure TextFilePath where
 
 instance : Coe TextFilePath FilePath := ⟨(·.path)⟩
 instance : ComputeHash TextFilePath IO := ⟨(computeTextFileHash ·)⟩
+instance : ToString TextFilePath := ⟨(·.path.toString)⟩
 
 /-- Compute the hash of a file. If `text := true`, normalize line endings. -/
 @[inline] def computeFileHash (file : FilePath) (text := false) : IO Hash :=
@@ -254,34 +259,58 @@ That is, check if the info is newer than `self`.
 
 /-- Trace used for common Lake targets. Combines `Hash` and `MTime`. -/
 structure BuildTrace where
+  caption : String := ""
+  inputs : Array BuildTrace := #[]
   hash : Hash
   mtime : MTime
   deriving Repr
 
 namespace BuildTrace
 
-@[inline] def ofHash (hash : Hash) : BuildTrace :=
-  mk hash 0
+/-- Sets the caption of the trace. -/
+@[inline] def withCaption (caption : String) (self : BuildTrace) : BuildTrace :=
+  {self with caption}
+
+/--
+Clear the inputs of the build trace.
+This is used to remove unnecessary repetition of trace trees across multiple trace files.
+-/
+@[inline] def withoutInputs (self : BuildTrace) : BuildTrace :=
+  {self with inputs := #[]}
+
+@[inline] def ofHash (hash : Hash) (caption := "<hash>") : BuildTrace :=
+  {caption, hash, mtime := 0}
 
 instance : Coe Hash BuildTrace := ⟨ofHash⟩
 
-@[inline] def ofMTime (mtime : MTime) : BuildTrace :=
-  mk Hash.nil mtime
+@[inline] def ofMTime (mtime : MTime) (caption := "<mtime>") : BuildTrace :=
+  {caption, hash := Hash.nil, mtime}
 
 instance : Coe MTime BuildTrace := ⟨ofMTime⟩
 
-def nil : BuildTrace :=
-  mk Hash.nil 0
+def nil (caption := "<nil>")  : BuildTrace :=
+  {caption, hash := Hash.nil, mtime := 0}
 
 instance : NilTrace BuildTrace := ⟨nil⟩
 
-@[specialize] def compute [ComputeHash α m] [MonadLiftT m IO] [GetMTime α] (info : α) : IO BuildTrace :=
-  return mk (← computeHash info) (← getMTime info)
+@[specialize] def compute
+  [ToString α] [ComputeHash α m] [MonadLiftT m IO] [GetMTime α] (info : α)
+: IO BuildTrace :=
+  return {
+    caption := toString info
+    hash := ← computeHash info
+    mtime := ← getMTime info
+  }
 
-instance [ComputeHash α m] [MonadLiftT m IO] [GetMTime α] : ComputeTrace α IO BuildTrace := ⟨compute⟩
+instance
+  [ToString α] [ComputeHash α m] [MonadLiftT m IO] [GetMTime α]
+: ComputeTrace α IO BuildTrace := ⟨compute⟩
 
-def mix (t1 t2 : BuildTrace) : BuildTrace :=
-  mk (Hash.mix t1.hash t2.hash) (max t1.mtime t2.mtime)
+def mix (t1 t2 : BuildTrace) : BuildTrace where
+  caption := t1.caption
+  inputs := t1.inputs.push t2
+  hash := Hash.mix t1.hash t2.hash
+  mtime := max t1.mtime t2.mtime
 
 instance : MixTrace BuildTrace := ⟨mix⟩
 

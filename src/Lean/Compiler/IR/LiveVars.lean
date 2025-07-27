@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.FreeVars
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.FreeVars
+
+public section
 
 namespace Lean.IR
 
@@ -29,7 +33,7 @@ namespace Lean.IR
 namespace IsLive
 /--
   We use `State Context` instead of `ReaderT Context Id` because we remove
-  non local joint points from `Context` whenever we visit them instead of
+  non local join points from `Context` whenever we visit them instead of
   maintaining a set of visited non local join points.
 
   Remark: we don't need to track local join points because we assume there is
@@ -53,7 +57,6 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
   | FnBody.inc x _ _ _ b    => visitVar w x <||> visitFnBody w b
   | FnBody.dec x _ _ _ b    => visitVar w x <||> visitFnBody w b
   | FnBody.del x b          => visitVar w x <||> visitFnBody w b
-  | FnBody.mdata _ b        => visitFnBody w b
   | FnBody.jmp j ys         => visitArgs w ys <||> do
       let ctx ← get
       match ctx.getJPBody j with
@@ -80,13 +83,10 @@ def FnBody.hasLiveVar (b : FnBody) (ctx : LocalContext) (x : VarId) : Bool :=
   (IsLive.visitFnBody x.idx b).run' ctx
 
 abbrev LiveVarSet   := VarIdSet
-abbrev JPLiveVarMap := RBMap JoinPointId LiveVarSet (fun j₁ j₂ => compare j₁.idx j₂.idx)
-
-instance : Inhabited LiveVarSet where
-  default := {}
+abbrev JPLiveVarMap := Std.TreeMap JoinPointId LiveVarSet (fun j₁ j₂ => compare j₁.idx j₂.idx)
 
 def mkLiveVarSet (x : VarId) : LiveVarSet :=
-  RBTree.empty.insert x
+  Std.TreeSet.empty.insert x
 
 namespace LiveVars
 
@@ -96,8 +96,8 @@ abbrev Collector := LiveVarSet → LiveVarSet
 @[inline] private def collectVar (x : VarId) : Collector := fun s => s.insert x
 
 private def collectArg : Arg → Collector
-  | Arg.var x  => collectVar x
-  | _          => skip
+  | .var x  => collectVar x
+  | .erased => skip
 
 private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector := fun s =>
   as.foldl (fun s a => f a s) s
@@ -106,10 +106,10 @@ private def collectArgs (as : Array Arg) : Collector :=
   collectArray as collectArg
 
 private def accumulate (s' : LiveVarSet) : Collector :=
-  fun s => s'.fold (fun s x => s.insert x) s
+  fun s => s'.foldl (fun s x => s.insert x) s
 
 private def collectJP (m : JPLiveVarMap) (j : JoinPointId) : Collector :=
-  match m.find? j with
+  match m.get? j with
   | some xs => accumulate xs
   | none    => skip -- unreachable for well-formed code
 
@@ -147,7 +147,6 @@ partial def collectFnBody : FnBody → JPLiveVarMap → Collector
   | FnBody.inc x _ _ _ b,    m => collectVar x ∘ collectFnBody b m
   | FnBody.dec x _ _ _ b,    m => collectVar x ∘ collectFnBody b m
   | FnBody.del x b,          m => collectVar x ∘ collectFnBody b m
-  | FnBody.mdata _ b,        m => collectFnBody b m
   | FnBody.ret x,            _ => collectArg x
   | FnBody.case _ x _ alts,  m => collectVar x ∘ collectArray alts (fun alt => collectFnBody alt.body m)
   | FnBody.unreachable,      _ => skip

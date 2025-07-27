@@ -3,8 +3,12 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.UInt.BasicAux
+public import Init.Data.UInt.BasicAux
+
+@[expose] public section
 
 /-- Determines if the given integer is a valid [Unicode scalar value](https://www.unicode.org/glossary/#unicode_scalar_value).
 
@@ -18,13 +22,13 @@ namespace Char
 /--
 One character is less than another if its code point is strictly less than the other's.
 -/
-protected def lt (a b : Char) : Prop := a.val < b.val
+@[expose] protected def lt (a b : Char) : Prop := a.val < b.val
 
 /--
 One character is less than or equal to another if its code point is less than or equal to the
 other's.
 -/
-protected def le (a b : Char) : Prop := a.val ≤ b.val
+@[expose] protected def le (a b : Char) : Prop := a.val ≤ b.val
 
 instance : LT Char := ⟨Char.lt⟩
 instance : LE Char := ⟨Char.le⟩

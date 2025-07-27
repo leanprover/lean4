@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
-import Std.Sat.AIG.CachedGatesLemmas
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
+public import Std.Sat.AIG.CachedGatesLemmas
+public import Std.Sat.AIG.LawfulVecOperator
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.add`. The implemented
@@ -168,10 +172,7 @@ def blastAdd (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry �
     blast aig ⟨rhs, lhs⟩
 where
   blast (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry α w :=
-    let res := aig.mkConstCached false
-    let aig := res.aig
-    let cin := res.ref
-    let input := input.cast <| AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
+    let cin := aig.mkConstCached false
     let ⟨lhs, rhs⟩ := input
     go aig lhs rhs 0 (by omega) cin (.emptyWithCapacity w)
 
@@ -238,16 +239,12 @@ instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blast where
     intros
     unfold blast
     dsimp only
-    refine Nat.le_trans ?_ (by apply go_le_size)
-    apply AIG.LawfulOperator.le_size (f := AIG.mkConstCached)
+    apply go_le_size
   decl_eq := by
     intros
     unfold blast
     dsimp only
     rw [go_decl_eq]
-    rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
-    apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := AIG.mkConstCached)
-    assumption
 
 end blastAdd
 

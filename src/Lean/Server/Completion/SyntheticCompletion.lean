@@ -3,9 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.InfoUtils
-import Lean.Server.Completion.CompletionUtils
+public import Lean.Server.InfoUtils
+public import Lean.Server.Completion.CompletionUtils
+meta import Lean.Parser.Term
+
+public section
 
 namespace Lean.Server.Completion
 open Elab
@@ -15,7 +20,7 @@ private def findBest?
     (gt : α → α → Bool)
     (f : ContextInfo → Info → PersistentArray InfoTree → Option α)
     : Option α :=
-  infoTree.visitM (m := Id) (postNode := choose) |>.join
+  (Id.run <| infoTree.visitM (postNode := choose)).join
 where
   choose
       (ctx : ContextInfo)

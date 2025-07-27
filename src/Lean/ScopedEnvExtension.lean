@@ -3,10 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Environment
-import Lean.Data.NameTrie
-import Lean.Attributes
+public import Lean.Environment
+public import Lean.Data.NameTrie
+public import Lean.Attributes
+
+public section
 
 namespace Lean
 
@@ -37,6 +41,7 @@ structure Descr (α : Type) (β : Type) (σ : Type) where
   toOLeanEntry   : β → α
   addEntry       : σ → β → σ
   finalizeImport : σ → σ := id
+  exportEntry?   : OLeanLevel → α → Option α := fun _ => some
 
 instance [Inhabited α] : Inhabited (Descr α β σ) where
   default := {
@@ -90,8 +95,10 @@ def addEntryFn (descr : Descr α β σ) (s : StateStack α β σ) (e : Entry β)
             s
       }
 
-def exportEntriesFn (s : StateStack α β σ) : Array (Entry α) :=
-  s.newEntries.toArray.reverse
+def exportEntriesFn (descr : Descr α β σ) (level : OLeanLevel) (s : StateStack α β σ) : Array (Entry α) :=
+  s.newEntries.toArray.reverse.filterMap fun
+    | .global e => .global <$> descr.exportEntry? level e
+    | .scoped ns e => .scoped ns <$> descr.exportEntry? level e
 
 end ScopedEnvExtension
 
@@ -110,7 +117,7 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
     mkInitial       := mkInitial descr
     addImportedFn   := addImportedFn descr
     addEntryFn      := addEntryFn descr
-    exportEntriesFn := exportEntriesFn
+    exportEntriesFnEx := fun _ s level => exportEntriesFn descr level s
     statsFn         := fun s => format "number of local entries: " ++ format s.newEntries.length
     -- We restrict addition of global and `scoped` entries to the main thread but allow addition of
     -- scopes and local entries in any thread, which are visible only in that thread (see uses of
@@ -212,6 +219,7 @@ structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
   addEntry       : σ → α → σ
   initial        : σ
   finalizeImport : σ → σ := id
+  exportEntry?   : OLeanLevel → α → Option α := fun _ => some
 
 def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α σ) : IO (SimpleScopedEnvExtension α σ) := do
   registerScopedEnvExtension {
@@ -221,6 +229,7 @@ def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α 
     toOLeanEntry   := id
     ofOLeanEntry   := fun _ a => return a
     finalizeImport := descr.finalizeImport
+    exportEntry?   := descr.exportEntry?
   }
 
 end Lean

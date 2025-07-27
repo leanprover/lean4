@@ -80,7 +80,8 @@ The initial configuration and starter files are based on the template:
   std                   library and executable; default
   exe                   executable only
   lib                   library only
-  math                  library only with a mathlib dependency
+  math-lax              library only with a Mathlib dependency
+  math                  library with Mathlib standards for linting and workflows
 
 Templates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML
 version of the configuration file, respectively. The default is TOML."
@@ -112,10 +113,17 @@ USAGE:
 
 A target is specified with a string of the form:
 
-  [[@]<package>/][<target>|[+]<module>][:<facet>]
+  [@[<package>]/][<target>|[+]<module>][:<facet>]
 
-The optional `@` and `+` markers can be used to disambiguate packages
-and modules from other kinds of targets (i.e., executables and libraries).
+You can also use the source path of a module as a target. For example,
+
+  lake build Foo/Bar.lean:o
+
+will build the Lean module (within the workspace) whose source file is
+`Foo/Bar.lean` and compile the generated C file into a native object file.
+
+The `@` and `+` markers can be used to disambiguate packages and modules
+from file paths or other kinds of targets (e.g., executables or libraries).
 
 LIBRARY FACETS:         build the library's ...
   leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)
@@ -135,11 +143,12 @@ MODULE FACETS:          build the module's ...
   dynlib                shared library (e.g., for `--load-dynlib`)
 
 TARGET EXAMPLES:        build the ...
-  a                     default facet of target `a`
+  a                     default facet(s) of target `a`
   @a                    default target(s) of package `a`
-  +A                    Lean artifacts of module `A`
-  a/b                   default facet of target `b` of package `a`
-  a/+A:c                C file of module `A` of package `a`
+  +A                    default facet(s) of module `A`
+  @/a                   default facet(s) of target `a` of the root package
+  @a/b                  default facet(s) of target `b` of package `a`
+  @a/+A:c               C file of module `A` of package `a`
   :foo                  facet `foo` of the root package
 
 A bare `lake build` command will build the default target(s) of the root package.

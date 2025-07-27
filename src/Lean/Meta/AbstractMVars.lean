@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 namespace AbstractMVars
@@ -15,7 +19,8 @@ structure State where
   mctx           : MetavarContext
   nextParamIdx   : Nat := 0
   paramNames     : Array Name := #[]
-  fvars          : Array Expr  := #[]
+  fvars          : Array Expr := #[]
+  mvars          : Array Expr := #[]
   lmap           : Std.HashMap LMVarId Level := {}
   emap           : Std.HashMap MVarId Expr  := {}
   abstractLevels : Bool -- whether to abstract level mvars
@@ -77,7 +82,7 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
     | e@(Expr.mdata _ b)       => return e.updateMData! (← abstractExprMVars b)
     | e@(Expr.lam _ d b _)     => return e.updateLambdaE! (← abstractExprMVars d) (← abstractExprMVars b)
     | e@(Expr.forallE _ d b _) => return e.updateForallE! (← abstractExprMVars d) (← abstractExprMVars b)
-    | e@(Expr.letE _ t v b _)  => return e.updateLet! (← abstractExprMVars t) (← abstractExprMVars v) (← abstractExprMVars b)
+    | e@(Expr.letE _ t v b _)  => return e.updateLetE! (← abstractExprMVars t) (← abstractExprMVars v) (← abstractExprMVars b)
     | e@(Expr.mvar mvarId)     =>
       let decl := (← getMCtx).getDecl mvarId
       if decl.depth != (← getMCtx).depth then
@@ -100,8 +105,9 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
               pure decl.userName
             modify fun s => {
               s with
-              emap  := s.emap.insert mvarId fvar,
-              fvars := s.fvars.push fvar,
+              emap  := s.emap.insert mvarId fvar
+              fvars := s.fvars.push fvar
+              mvars := s.mvars.push e
               lctx  := s.lctx.mkLocalDecl fvarId userName type }
             return fvar
 
@@ -111,7 +117,7 @@ end AbstractMVars
   Abstract (current depth) metavariables occurring in `e`.
   The result contains
   - An array of universe level parameters that replaced universe metavariables occurring in `e`.
-  - The number of (expr) metavariables abstracted.
+  - The metavariables that have been abstracted.
   - And an expression of the form `fun (m_1 : A_1) ... (m_k : A_k) => e'`, where
     `k` equal to the number of (expr) metavariables abstracted, and `e'` is `e` after we
     replace the metavariables.
@@ -126,7 +132,10 @@ end AbstractMVars
 
   If `levels := false`, then level metavariables are not abstracted.
 
-  Application: we use this method to cache the results of type class resolution. -/
+  Application: we use this method to cache the results of type class resolution.
+
+  Application: tactic `MVarId.abstractMVars`
+  -/
 def abstractMVars (e : Expr) (levels : Bool := true): MetaM AbstractMVarsResult := do
   let e ← instantiateMVars e
   let (e, s) := AbstractMVars.abstractExprMVars e
@@ -134,7 +143,7 @@ def abstractMVars (e : Expr) (levels : Bool := true): MetaM AbstractMVarsResult 
   setNGen s.ngen
   setMCtx s.mctx
   let e := s.lctx.mkLambda s.fvars e
-  pure { paramNames := s.paramNames, numMVars := s.fvars.size, expr := e }
+  pure { paramNames := s.paramNames, mvars := s.mvars, expr := e }
 
 def openAbstractMVarsResult (a : AbstractMVarsResult) : MetaM (Array Expr × Array BinderInfo × Expr) := do
   let us ← a.paramNames.mapM fun _ => mkFreshLevelMVar

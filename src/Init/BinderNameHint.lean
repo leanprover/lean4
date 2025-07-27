@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Init.Prelude
-import Init.Tactics
+public import Init.Prelude
+public import Init.Tactics
+
+public section
 
 set_option linter.unusedVariables false in
 /--
@@ -35,8 +39,8 @@ This gadget is supported by
 * `simp`, `dsimp` and `rw` in the right-hand-side of an equation
 * `simp` in the assumptions of congruence rules
 
-It is ineffective in other positions (hyptheses of rewrite rules) or when used by other tactics
+It is ineffective in other positions (hypotheses of rewrite rules) or when used by other tactics
 (e.g. `apply`).
 -/
-@[simp ↓]
+@[simp ↓, expose]
 def binderNameHint {α : Sort u} {β : Sort v} {γ : Sort w} (v : α) (binder : β) (e : γ) : γ := e

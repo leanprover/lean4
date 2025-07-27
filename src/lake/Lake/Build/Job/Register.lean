@@ -16,7 +16,7 @@ Preserves state that downstream jobs want to depend on while resetting
 job-local state that should not be inherited by downstream jobs.
 -/
 @[inline] def JobState.renew (s : JobState) : JobState where
-  trace := s.trace
+  trace := s.trace.withoutInputs
 
 /--
 Resets the job's state after a checkpoint (e.g., registering the job).
@@ -44,9 +44,9 @@ Registers the job for the top-level build monitor,
 /-- Wraps stray I/O, logs, and errors in `x` into the produced job.  -/
 def ensureJob
   [OptDataKind α] (x : FetchM (Job α))
-: FetchM (Job α) := fun fetch stack store ctx log => do
+: FetchM (Job α) := fun fetch pkg? stack store ctx log => do
   let iniPos := log.endPos
-  match (← (withLoggedIO x) fetch stack store ctx log) with
+  match (← (withLoggedIO x) fetch pkg? stack store ctx log) with
   | .ok job log =>
     if iniPos < log.endPos then
       let (log, jobLog) := log.split iniPos
@@ -64,7 +64,7 @@ Registers the produced job for the top-level build monitor
 
 Stray I/O, logs, and errors produced by `x` will be wrapped into the job.
 -/
-def withRegisterJob
+@[inline] def withRegisterJob
   [OptDataKind α] (caption : String) (x : FetchM (Job α)) (optional := false)
 : FetchM (Job α) := do
   let job ← ensureJob x

@@ -3,10 +3,16 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Init.Data.List.Zip
-import Init.Data.Int.DivMod.Bootstrap
-import Init.Data.Nat.Gcd
+public import Init.Data.List.Zip
+public import Init.Data.Int.DivMod.Bootstrap
+public import Init.Data.Nat.Gcd
+
+public section
+
+@[expose] section
 
 namespace Lean.Omega
 
@@ -149,7 +155,7 @@ theorem mul_distrib_left (xs ys zs : IntList) : (xs + ys) * zs = xs * zs + ys * 
     | cons _ _ =>
       cases zs with
       | nil => simp
-      | cons _ _ => simp_all [Int.add_mul]
+      | cons _ _ => simp_all
   | cons x xs ih₁ =>
     cases ys with
     | nil => simp_all
@@ -236,7 +242,7 @@ example : IntList.dot [a, b, c] [x, y, z] = IntList.dot [a, b, c] [x, y, z, w] :
       cases ys with
       | nil => simp
       | cons y ys =>
-        simp only [Nat.zero_eq, set_cons_zero, dot_cons₂, get_cons_zero, Int.sub_mul]
+        simp only [set_cons_zero, dot_cons₂, get_cons_zero, Int.sub_mul]
         rw [Int.add_right_comm, Int.add_comm (x * y), Int.sub_add_cancel]
     | succ i =>
       cases ys with
@@ -286,7 +292,7 @@ theorem gcd_cons_div_right : gcd (x::xs) ∣ gcd xs := by
   apply Nat.gcd_dvd_right
 
 theorem gcd_cons_div_right' : (gcd (x::xs) : Int) ∣ (gcd xs : Int) := by
-  rw [Int.ofNat_dvd_left, Int.natAbs_ofNat]
+  rw [Int.ofNat_dvd_left, Int.natAbs_natCast]
   exact gcd_cons_div_right
 
 theorem gcd_dvd (xs : IntList) {a : Int} (m : a ∈ xs) : (xs.gcd : Int) ∣ a := by

@@ -3,11 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.DeclarationRange
-import Lean.DocString.Links
-import Lean.MonadEnv
-import Init.Data.String.Extra
+public import Lean.DeclarationRange
+public import Lean.DocString.Links
+public import Lean.MonadEnv
+public import Init.Data.String.Extra
+
+public section
 
 -- This module contains the underlying data for docstrings, with as few imports as possible, so that
 -- docstrings can be saved in as much of the compiler as possible.
@@ -58,7 +62,11 @@ structure ModuleDoc where
 private builtin_initialize moduleDocExt : SimplePersistentEnvExtension ModuleDoc (PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.push e
-  toArrayFn     := fun es => es.toArray
+  exportEntriesFnEx? := some fun _ _ es level =>
+    if level < .server then
+      #[]
+    else
+      es.toArray
 }
 
 def addMainModuleDoc (env : Environment) (doc : ModuleDoc) : Environment :=
@@ -68,7 +76,8 @@ def getMainModuleDoc (env : Environment) : PersistentArray ModuleDoc :=
   moduleDocExt.getState env
 
 def getModuleDoc? (env : Environment) (moduleName : Name) : Option (Array ModuleDoc) :=
-  env.getModuleIdx? moduleName |>.map fun modIdx => moduleDocExt.getModuleEntries env modIdx
+  env.getModuleIdx? moduleName |>.map fun modIdx =>
+    moduleDocExt.getModuleEntries (level := .server) env modIdx
 
 def getDocStringText [Monad m] [MonadError m] (stx : TSyntax `Lean.Parser.Command.docComment) : m String :=
   match stx.raw[1] with

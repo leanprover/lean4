@@ -5,7 +5,7 @@ Bla.foo : String
 Boo.Bla.boo == "world" : Bool
 Boo.Bla.boo ++ "world" : String
 Boo.Bla.boo == "world" : Bool
-boo == 100 : Bool
+Boo.boo == 100 : Bool
 Boo.Bla.boo == "world" : Bool
 Boo.boo == 100 : Bool
 Nat.mul10 x : Nat

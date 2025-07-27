@@ -3,16 +3,20 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Constructor
-import Lean.Meta.Tactic.Assert
-import Lean.Meta.Tactic.AuxLemma
-import Lean.Meta.Tactic.Cleanup
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.Rename
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.Config
-import Lean.Elab.SyntheticMVars
+public import Lean.Meta.Tactic.Constructor
+public import Lean.Meta.Tactic.Assert
+public import Lean.Meta.Tactic.AuxLemma
+public import Lean.Meta.Tactic.Cleanup
+public import Lean.Meta.Tactic.Clear
+public import Lean.Meta.Tactic.Rename
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.Config
+public import Lean.Elab.SyntheticMVars
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -109,8 +113,26 @@ def sortMVarIdArrayByIndex [MonadMCtx m] [Monad m] (mvarIds : Array MVarId) : m 
     else
       Name.quickLt mvarId₁.name mvarId₂.name
 
-def sortMVarIdsByIndex [MonadMCtx m] [Monad m] (mvarIds : List MVarId) : m (List MVarId) :=
-  return (← sortMVarIdArrayByIndex mvarIds.toArray).toList
+def sortMVarIdsByIndex [MonadMCtx m] [Monad m] (mvarIds : Array MVarId) : m (Array MVarId) :=
+  return (← sortMVarIdArrayByIndex mvarIds)
+
+/--
+Execute `k`, and collect any fresh metavariables created during the execution of `k`.
+-/
+def collectFreshMVars [Monad m] [MonadLiftT MetaM m] (k : m Expr) : m (Expr × Array MVarId) := do
+  let mvarCounterSaved := (← liftMetaM getMCtx).mvarCounter
+  let val ← k
+  let newMVarIds ← getMVarsNoDelayed val
+  /- Filter out all mvars that were created prior to `k`. -/
+  let newMVarIds ← filterOldMVars newMVarIds mvarCounterSaved
+  /-
+  We sort the new metavariable ids by index to ensure the new goals are ordered using the order the metavariables have been created.
+  See issue #1682.
+  Potential problem: if elaboration of subterms is delayed the order the new metavariables are created may not match the order they
+  appear in the `.lean` file. We should tell users to prefer tagged goals.
+  -/
+  let newMVarIds ← liftMetaM <| sortMVarIdsByIndex newMVarIds
+  return (val, newMVarIds)
 
 /--
 Execute `k`, and collect new "holes" in the resulting expression.
@@ -148,25 +170,15 @@ def withCollectingNewGoalsFrom (k : TacticM Expr) (parentTag : Name) (tagSuffix 
     go
 where
   go := do
-    let mvarCounterSaved := (← getMCtx).mvarCounter
-    let val ← k
-    let newMVarIds ← getMVarsNoDelayed val
+    let (val, newMVarIds) ← collectFreshMVars k
     /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
     let newMVarIds ← newMVarIds.filterM fun mvarId => return !(← Term.isLetRecAuxMVar mvarId)
-    /- Filter out all mvars that were created prior to `k`. -/
-    let newMVarIds ← filterOldMVars newMVarIds mvarCounterSaved
     /- If `allowNaturalHoles := false`, all natural mvarIds must be assigned.
     Passing this guard ensures that `newMVarIds` does not contain unassigned natural mvars. -/
     unless allowNaturalHoles do
       let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← mvarId.getKind).isNatural
       logUnassignedAndAbort naturalMVarIds
-    /-
-    We sort the new metavariable ids by index to ensure the new goals are ordered using the order the metavariables have been created.
-    See issue #1682.
-    Potential problem: if elaboration of subterms is delayed the order the new metavariables are created may not match the order they
-    appear in the `.lean` file. We should tell users to prefer tagged goals.
-    -/
-    let newMVarIds ← sortMVarIdsByIndex newMVarIds.toList
+    let newMVarIds := newMVarIds.toList
     tagUntaggedGoals parentTag tagSuffix newMVarIds
     return (val, newMVarIds)
 
@@ -190,7 +202,7 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
   withCollectingNewGoalsFrom (elabTermEnsuringType stx expectedType?) (← parentTag?.getDM getMainTag) tagSuffix allowNaturalHoles
 
 /-- If `allowNaturalHoles == true`, then we allow the resultant expression to contain unassigned "natural" metavariables.
-   Recall that "natutal" metavariables are created for explicit holes `_` and implicit arguments. They are meant to be
+   Recall that "natural" metavariables are created for explicit holes `_` and implicit arguments. They are meant to be
    filled by typing constraints.
    "Synthetic" metavariables are meant to be filled by tactics and are usually created using the synthetic hole notation `?<hole-name>`. -/
 def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : TacticM Unit := do
@@ -293,7 +305,7 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
 
 @[builtin_tactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>
   match stx with
-  | `(tactic| apply $e) => evalApplyLikeTactic (·.apply) e
+  | `(tactic| apply $e) => evalApplyLikeTactic (·.apply (term? := some m!"`{e}`")) e
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun _ =>
@@ -342,7 +354,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
       let fvarId ← withoutModifyingState <| withNewMCtxDepth <| withoutRecover do
         let type ← elabTerm typeStx none (mayPostpone := true)
         let fvarId? ← (← getLCtx).findDeclRevM? fun localDecl => do
-          if (← isDefEq type localDecl.type) then return localDecl.fvarId else return none
+          if !localDecl.isImplementationDetail && (← isDefEq type localDecl.type) then return localDecl.fvarId else return none
         match fvarId? with
         | none => throwError "failed to find a hypothesis with type{indentExpr type}"
         | some fvarId => return fvarId
@@ -379,7 +391,7 @@ private partial def blameDecideReductionFailure (inst : Expr) : MetaM Expr := wi
     if let some info ← getMatcherInfo? c then
       if inst.getAppNumArgs == info.arity then
         let args := inst.getAppArgs
-        for i in [0:info.numDiscrs] do
+        for i in *...info.numDiscrs do
           let inst' := args[info.numParams + 1 + i]!
           if (← Meta.isClass? (← inferType inst')) == ``Decidable then
             let inst'' ← whnf inst'
@@ -514,21 +526,19 @@ where
           reduction got stuck at the '{.ofConstName ``Decidable}' instance{indentExpr reason}"
       let hint :=
         if reason.isAppOf ``Eq.rec then
-          m!"\n\n\
-          Hint: Reduction got stuck on '▸' ({.ofConstName ``Eq.rec}), \
-          which suggests that one of the '{.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
-          To avoid tactics, make use of functions such as \
-          '{.ofConstName ``inferInstanceAs}' or '{.ofConstName ``decidable_of_decidable_of_iff}' \
-          to alter a proposition."
+          .hint' m!"Reduction got stuck on '▸' ({.ofConstName ``Eq.rec}), \
+            which suggests that one of the '{.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
+            To avoid tactics, make use of functions such as \
+            '{.ofConstName ``inferInstanceAs}' or '{.ofConstName ``decidable_of_decidable_of_iff}' \
+            to alter a proposition."
         else if reason.isAppOf ``Classical.choice then
-          m!"\n\n\
-          Hint: Reduction got stuck on '{.ofConstName ``Classical.choice}', \
-          which indicates that a '{.ofConstName ``Decidable}' instance \
-          is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
-          The '{tacticName}' tactic works by evaluating a decision procedure via reduction, \
-          and it cannot make progress with such instances. \
-          This can occur due to the 'opened scoped Classical' command, which enables the instance \
-          '{.ofConstName ``Classical.propDecidable}'."
+          .hint' m!"Reduction got stuck on '{.ofConstName ``Classical.choice}', \
+            which indicates that a '{.ofConstName ``Decidable}' instance \
+            is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
+            The '{tacticName}' tactic works by evaluating a decision procedure via reduction, \
+            and it cannot make progress with such instances. \
+            This can occur due to the 'opened scoped Classical' command, which enables the instance \
+            '{.ofConstName ``Classical.propDecidable}'."
         else
           MessageData.nil
       return m!"\

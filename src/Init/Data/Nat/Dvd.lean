@@ -3,9 +3,13 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 -/
+module
+
 prelude
-import Init.Data.Nat.Div.Basic
-import Init.Meta
+public import Init.Data.Nat.Div.Basic
+public import Init.Meta
+
+public section
 
 namespace Nat
 
@@ -135,7 +139,7 @@ theorem dvd_sub_iff_left {m n k : Nat} (hkn : k ≤ n) (h : m ∣ k) : m ∣ n -
 
 protected theorem mul_dvd_mul {a b c d : Nat} : a ∣ b → c ∣ d → a * c ∣ b * d
   | ⟨e, he⟩, ⟨f, hf⟩ =>
-    ⟨e * f, by simp [he, hf, Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm]⟩
+    ⟨e * f, by simp [he, hf, Nat.mul_left_comm, Nat.mul_comm]⟩
 
 protected theorem mul_dvd_mul_left (a : Nat) (h : b ∣ c) : a * b ∣ a * c :=
   Nat.mul_dvd_mul (Nat.dvd_refl a) h
@@ -159,7 +163,7 @@ protected theorem dvd_eq_true_of_mod_eq_zero {m n : Nat} (h : n % m == 0) : (m �
   simp [Nat.dvd_of_mod_eq_zero, eq_of_beq h]
 
 protected theorem dvd_eq_false_of_mod_ne_zero {m n : Nat} (h : n % m != 0) : (m ∣ n) = False := by
-  simp [eq_of_beq] at h
+  simp at h
   simp [dvd_iff_mod_eq_zero, h]
 
 end Nat

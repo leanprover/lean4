@@ -49,9 +49,16 @@ namespace LeanExe
   name := self.config.root
   keyName := self.pkg.name ++ self.config.root
 
-/-- Return the root module if the name matches, otherwise return none. -/
+/-- Return the root module if the name matches; otherwise, return `none`. -/
 def isRoot? (name : Name) (self : LeanExe) : Option Module :=
   if name == self.config.root then some self.root else none
+
+/--
+Return the root module if the file stem of the path
+matches the source file. Otherwise, returns `none`.
+-/
+def isRootSrc? (path : FilePath) (self : LeanExe) : Option Module :=
+  if path.withExtension "" == self.root.srcPath "" then some self.root else none
 
 /--
 The file name of binary executable
@@ -104,3 +111,8 @@ end LeanExe
 /-- Locate the named, buildable, but not necessarily importable, module in the package. -/
 def Package.findTargetModule? (mod : Name) (self : Package) : Option Module :=
   self.leanExes.findSomeRev? (·.isRoot? mod) <|> self.findModule? mod
+
+/-- Returns the buildable module in the package whose source file is `path`.  -/
+def Package.findModuleBySrc? (path : FilePath) (self : Package) : Option Module :=
+  self.leanLibs.findSomeRev? (·.findModuleBySrc? path) <|>
+  self.leanExes.findSomeRev? (·.isRootSrc? path)

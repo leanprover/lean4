@@ -3,8 +3,12 @@ Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 -/
+module
+
 prelude
-import Init.ByCases
+public import Init.ByCases
+
+public section
 
 namespace Nat
 
@@ -52,8 +56,8 @@ protected theorem min_le_right (a b : Nat) : min a b ≤ b := by
 protected theorem min_le_left (a b : Nat) : min a b ≤ a :=
   Nat.min_comm .. ▸ Nat.min_le_right ..
 
-protected theorem min_eq_left {a b : Nat} (h : a ≤ b) : min a b = a := if_pos h
-protected theorem min_eq_right {a b : Nat} (h : b ≤ a) : min a b = b :=
+@[simp] protected theorem min_eq_left {a b : Nat} (h : a ≤ b) : min a b = a := if_pos h
+@[simp] protected theorem min_eq_right {a b : Nat} (h : b ≤ a) : min a b = b :=
   Nat.min_comm .. ▸ Nat.min_eq_left h
 
 protected theorem le_min_of_le_of_le {a b c : Nat} : a ≤ b → a ≤ c → a ≤ min b c := by
@@ -111,9 +115,9 @@ protected theorem le_max_left (a b : Nat) : a ≤ max a b := by
 protected theorem le_max_right (a b : Nat) : b ≤ max a b :=
    Nat.max_comm .. ▸ Nat.le_max_left ..
 
-protected theorem max_eq_right {a b : Nat} (h : a ≤ b) : max a b = b := if_pos h
+@[simp] protected theorem max_eq_right {a b : Nat} (h : a ≤ b) : max a b = b := if_pos h
 
-protected theorem max_eq_left {a b : Nat} (h : b ≤ a) : max a b = a :=
+@[simp] protected theorem max_eq_left {a b : Nat} (h : b ≤ a) : max a b = a :=
   Nat.max_comm .. ▸ Nat.max_eq_right h
 
 protected theorem max_le_of_le_of_le {a b c : Nat} : a ≤ c → b ≤ c → max a b ≤ c := by

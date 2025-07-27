@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.LiveVars
-import Lean.Compiler.IR.Format
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.LiveVars
+public import Lean.Compiler.IR.Format
+
+public section
 
 namespace Lean.IR.ResetReuse
 /-!
@@ -111,7 +115,7 @@ private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody := do
   if b == b' then
     return b
   else
-    return .vdecl w IRType.object (.reset c.size x) b'
+    return .vdecl w .tobject (.reset c.size x) b'
 
 private def Dfinalize (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
   | (b, true)  => return b
@@ -139,7 +143,7 @@ private partial def Dmain (x : VarId) (c : CtorInfo) (e : FnBody) : M (FnBody ×
   | .case tid y yType alts =>
     if e.hasLiveVar (← read).lctx x then
       /- If `x` is live in `e`, we recursively process each branch. -/
-      let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => Dmain x c b >>= Dfinalize x c
+      let alts ← alts.mapM fun alt => alt.modifyBodyM fun b => Dmain x c b >>= Dfinalize x c
       return (.case tid y yType alts, true)
     else
       return (e, false)
@@ -181,7 +185,7 @@ partial def R (e : FnBody) : M FnBody := do
     let alreadyFound := (← read).alreadyFound.contains x
     withReader (fun ctx => { ctx with alreadyFound := ctx.alreadyFound.insert x }) do
       let alts ← alts.mapM fun alt => do
-        let alt ← alt.mmodifyBody R
+        let alt ← alt.modifyBodyM R
         match alt with
         | .ctor c b =>
           if c.isScalar || alreadyFound then
@@ -190,7 +194,7 @@ partial def R (e : FnBody) : M FnBody := do
             return alt
           else
             .ctor c <$> D x c b
-        | _ => return alt
+        | .default _ => return alt
       return .case tid x xType alts
   | .jdecl j ys v b =>
     let v ← R v
@@ -212,8 +216,7 @@ partial def collectResets (e : FnBody) : N Unit := do
   | .jdecl _ _ v b => collectResets v; collectResets b
   | .vdecl _ _ (.reset _ x) b => modify fun s => s.insert x; collectResets b
   | e => unless e.isTerminal do
-    let (_, b) := e.split
-    collectResets b
+    collectResets e.body
 
 end ResetReuse
 open ResetReuse
@@ -242,5 +245,7 @@ def Decl.insertResetReuse (d : Decl) : Decl :=
   -/
   d.insertResetReuseCore (relaxedReuse := false)
   |>.insertResetReuseCore (relaxedReuse := true)
+
+builtin_initialize registerTraceClass `compiler.ir.reset_reuse (inherited := true)
 
 end Lean.IR

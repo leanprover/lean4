@@ -3,10 +3,14 @@ Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Elab.ElabRules
-import Lean.Elab.Tactic.Simp
-import Lean.Meta.Tactic.TryThis
+public import Lean.Elab.ElabRules
+public import Lean.Elab.Tactic.Simp
+public import Lean.Meta.Tactic.TryThis
+
+public section
 
 /-!
 # `simp?` tactic
@@ -30,7 +34,8 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
       `(tactic| simp!%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?)
     else
       `(tactic| simp%$tk $cfg:optConfig $[$discharger]? $[only%$o]? $[[$args,*]]? $(loc)?)
-    let { ctx, simprocs, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)
+    let { ctx, simprocs, dischargeWrapper, ..} ← mkSimpContext stx (eraseLocal := false)
+    let ctx := if bang.isSome then ctx.setAutoUnfold else ctx
     let stats ← dischargeWrapper.with fun discharge? =>
       simpLocation ctx (simprocs := simprocs) discharge? <|
         (loc.map expandLocation).getD (.targets #[] true)
@@ -46,9 +51,10 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
       `(tactic| simp_all!%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?)
     else
       `(tactic| simp_all%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?)
-    let { ctx, .. } ← mkSimpContext stx (eraseLocal := true)
+    let { ctx, simprocs, .. } ← mkSimpContext stx (eraseLocal := true)
       (kind := .simpAll) (ignoreStarArg := true)
-    let (result?, stats) ← simpAll (← getMainGoal) ctx
+    let ctx := if bang.isSome then ctx.setAutoUnfold else ctx
+    let (result?, stats) ← simpAll (← getMainGoal) ctx (simprocs := simprocs)
     match result? with
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
@@ -88,6 +94,7 @@ where
       `(tactic| dsimp%$tk $cfg:optConfig $[only%$o]? $[[$args,*]]? $(loc)?)
     let { ctx, simprocs, .. } ←
       withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
+    let ctx := if bang.isSome then ctx.setAutoUnfold else ctx
     let stats ← dsimpLocation' ctx simprocs <| (loc.map expandLocation).getD (.targets #[] true)
     let stx ← mkSimpCallStx stx stats.usedTheorems
     addSuggestion tk stx (origSpan? := ← getRef)

@@ -126,7 +126,8 @@ variable (n : Nat)
 error: cannot update binder annotation of variable 'n' to instance implicit:
 invalid binder annotation, type is not a class instance
   Nat
-use the command `set_option checkBinderAnnotations false` to disable the check
+
+Note: Use the command `set_option checkBinderAnnotations false` to disable the check
 -/
 #guard_msgs in
 variable [n]

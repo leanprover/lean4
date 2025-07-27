@@ -5,14 +5,14 @@ https://github.com/leanprover/lean4/issues/4888
 -/
 
 /--
-error: application type mismatch
-  Nat.succ True
-argument
+error: Application type mismatch: The argument
   True
 has type
-  Prop : Type
+  Prop
 but is expected to have type
-  Nat : Type
+  Nat
+in the application
+  Nat.succ True
 -/
 #guard_msgs in
 theorem bug: True := by

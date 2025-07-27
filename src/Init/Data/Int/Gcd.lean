@@ -3,12 +3,16 @@ Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.Int.Basic
-import Init.Data.Nat.Gcd
-import Init.Data.Nat.Lcm
-import Init.Data.Int.DivMod.Lemmas
-import Init.Data.Int.Pow
+public import Init.Data.Int.Basic
+public import Init.Data.Nat.Gcd
+public import Init.Data.Nat.Lcm
+public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.Pow
+
+public section
 
 /-!
 Definition and lemmas for gcd and lcm over Int
@@ -33,6 +37,7 @@ Examples:
 * `Int.gcd 0 5 = 5`
 * `Int.gcd (-7) 0 = 7`
 -/
+@[expose]
 def gcd (m n : Int) : Nat := m.natAbs.gcd n.natAbs
 
 theorem gcd_eq_natAbs_gcd_natAbs (m n : Int) : gcd m n = Nat.gcd m.natAbs n.natAbs := rfl
@@ -135,7 +140,7 @@ theorem natAbs_div_gcd_pos_of_ne_zero_right (a : Int) (h : b ≠ 0) : 0 < b.natA
   Nat.div_gcd_pos_of_pos_right _ (natAbs_pos.2 h)
 
 theorem ediv_gcd_ne_zero_of_ne_zero_left (b : Int) (h : a ≠ 0) : a / gcd a b ≠ 0 := by
-  rw [← natAbs_pos, natAbs_ediv_of_dvd (gcd_dvd_left _ _), natAbs_ofNat]
+  rw [← natAbs_pos, natAbs_ediv_of_dvd (gcd_dvd_left _ _), natAbs_natCast]
   exact natAbs_div_gcd_pos_of_ne_zero_left _ h
 
 theorem ediv_gcd_ne_zero_if_ne_zero_right (a : Int) (h : b ≠ 0) : b / gcd a b ≠ 0 := by
@@ -393,12 +398,12 @@ theorem pow_gcd_pow_of_gcd_eq_one {n m : Int} {k l : Nat} (h : gcd n m = 1) : gc
 
 theorem gcd_ediv_gcd_ediv_gcd_of_ne_zero_left {n m : Int} (h : n ≠ 0) :
     gcd (n / gcd n m) (m / gcd n m) = 1 := by
-  rw [gcd_ediv (gcd_dvd_left _ _) (gcd_dvd_right _ _), natAbs_ofNat,
+  rw [gcd_ediv (gcd_dvd_left _ _) (gcd_dvd_right _ _), natAbs_natCast,
     Nat.div_self (gcd_pos_of_ne_zero_left _ h)]
 
 theorem gcd_ediv_gcd_ediv_gcd_of_ne_zero_right {n m : Int} (h : m ≠ 0) :
     gcd (n / gcd n m) (m / gcd n m) = 1 := by
-  rw [gcd_ediv (gcd_dvd_left _ _) (gcd_dvd_right _ _), natAbs_ofNat,
+  rw [gcd_ediv (gcd_dvd_left _ _) (gcd_dvd_right _ _), natAbs_natCast,
     Nat.div_self (gcd_pos_of_ne_zero_right _ h)]
 
 theorem gcd_ediv_gcd_ediv_gcd {i j : Int} (h : 0 < gcd i j) : gcd (i / gcd i j) (j / gcd i j) = 1 :=
@@ -426,6 +431,7 @@ Examples:
  * `Int.lcm 0 3 = 0`
  * `Int.lcm (-3) 0 = 0`
 -/
+@[expose]
 def lcm (m n : Int) : Nat := m.natAbs.lcm n.natAbs
 
 theorem lcm_eq_natAbs_lcm_natAbs (m n : Int) : lcm m n = Nat.lcm m.natAbs n.natAbs := rfl
@@ -627,7 +633,7 @@ theorem lcm_mul_left_dvd_mul_lcm (k m n : Nat) : lcm (m * n) k ∣ lcm m k * lcm
   simpa [lcm_comm, Nat.mul_comm] using lcm_mul_right_dvd_mul_lcm _ _ _
 
 theorem lcm_dvd_mul_self_left_iff_dvd_mul {k n m : Nat} : lcm k n ∣ k * m ↔ n ∣ k * m := by
-  simp [← natAbs_dvd_natAbs, natAbs_mul, Nat.lcm_dvd_mul_self_left_iff_dvd_mul,
+  simp [Nat.lcm_dvd_mul_self_left_iff_dvd_mul,
     lcm_eq_natAbs_lcm_natAbs]
 
 theorem lcm_dvd_mul_self_right_iff_dvd_mul {k m n : Nat} : lcm n k ∣ m * k ↔ n ∣ m * k := by

@@ -42,7 +42,8 @@ def buildLeanSharedLibOfStatic
           #[s!"-Wl,-force_load,{staticLib}"]
         else
           #["-Wl,--whole-archive", staticLib.toString, "-Wl,--no-whole-archive"]
-      let args := baseArgs ++ weakArgs ++ traceArgs ++ lean.ccLinkSharedFlags
+      let args := baseArgs ++ weakArgs ++ traceArgs ++
+        #["-L", lean.leanLibDir.toString] ++ lean.ccLinkSharedFlags
       compileSharedLib dynlib args lean.cc
     return dynlib
 
@@ -80,7 +81,7 @@ def ExternLib.recBuildDefault (lib : ExternLib) : FetchM (Job FilePath) :=
 
 /-- The facet configuration for the builtin `ExternLib.dynlibFacet`. -/
 def ExternLib.defaultFacetConfig : ExternLibFacetConfig defaultFacet :=
-  mkFacetJobConfig recBuildDefault
+  mkFacetJobConfig recBuildDefault (memoize := false)
 
 /--
 A name-configuration map for the initial set of

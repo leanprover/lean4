@@ -4,11 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Init.System.IO
-import Lean.Data.Json.Parser
-import Lean.Data.Json.Printer
-import Lean.Data.Json.FromToJson
+public import Init.System.IO
+public import Lean.Data.Json.Parser
+public import Lean.Data.Json.Printer
+
+public section
 
 namespace IO.FS.Stream
 

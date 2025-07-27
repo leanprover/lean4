@@ -10,8 +10,8 @@ import Lake.Config.WorkspaceConfig
 import Lake.Config.Dependency
 import Lake.Config.ConfigDecl
 import Lake.Config.Script
+import Lake.Config.Cache
 import Lake.Load.Config
-import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
 import Lake.Util.Version
 import Lake.Util.FilePath
@@ -31,6 +31,9 @@ namespace Lake
 set_option linter.unusedVariables false in
 /-- A `Package`'s declarative configuration. -/
 configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
+  /-- **For internal use.** Whether this package is Lean itself. -/
+  bootstrap : Bool := false
+
   /--
   **This field is deprecated.**
 
@@ -281,7 +284,34 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   -/
   reservoir : Bool := true
 
+  /--
+  Whether to enables Lake's local, offline artifact cache for the package.
+
+  Artifacts (i.e., build products) of packages will be shared across
+  local copies by storing them in a cache associated with the Lean toolchain.
+  This can significantly reduce initial build times and disk space usage when
+  working with multiple copies of large projects or large dependencies.
+
+  As a caveat, build targets which support the artifact cache will not be stored
+  in their usual location within the build directory. Thus, projects with custom build
+  scripts that rely on specific location of artifacts may wish to disable this feature.
+
+  If `none` (the default), the cache will be disabled by default unless
+  the `LAKE_ARTIFACT_CACHE` environment variable is set to true.
+  -/
+  enableArtifactCache?, enableArtifactCache : Option Bool := none
+  /--
+  Whether native libraries (of this package) should be prefixed with `lib` on Windows.
+
+  Unlike Unix, Windows does not require native libraries to start with `lib` and,
+  by convention, they usually do not. However, for consistent naming across all platforms,
+  users may wish to enable this.
+
+  Defaults to `false`.
+  -/
+  libPrefixOnWindows : Bool := false
 deriving Inhabited
+
 
 instance : EmptyCollection (PackageConfig n) := ⟨{}⟩
 
@@ -315,7 +345,7 @@ structure Package where
   /-- The path to the package's configuration file (relative to `dir`). -/
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
-  relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile
+  relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile |>.normalize
   /-- The package's scope (e.g., in Reservoir). -/
   scope : String
   /-- The URL to this package's Git remote. -/
@@ -348,10 +378,13 @@ structure Package where
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
+  /--
+  Input-to-content map for hashes of package artifacts.
+  If `none`, the artifact cache is disabled for the package.
+  -/
+  cacheRef? : Option CacheRef := none
 
-instance : Nonempty Package :=
-  have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
-  ⟨by constructor <;> exact default⟩
+deriving Inhabited
 
 instance : Hashable Package where hash pkg := hash pkg.name
 instance : BEq Package where beq p1 p2 := p1.name == p2.name
@@ -393,6 +426,10 @@ structure PostUpdateHookDecl where
 
 namespace Package
 
+/-- **For internal use.** Whether this package is Lean itself.  -/
+@[inline] def bootstrap (self : Package) : Bool  :=
+  self.config.bootstrap
+
 /-- The package version. -/
 @[inline] def version (self : Package) : LeanVer  :=
   self.config.version
@@ -422,20 +459,20 @@ namespace Package
   self.config.license
 
 /-- The package's `licenseFiles` configuration. -/
-@[inline] def relLicenseFiles (self : Package) : Array FilePath  :=
-  self.config.licenseFiles
+@[inline] def relLicenseFiles (self : Package) : Array FilePath :=
+  self.config.licenseFiles.map (·.normalize)
 
 /-- The package's `dir` joined with each of its `relLicenseFiles`. -/
 @[inline] def licenseFiles (self : Package) : Array FilePath  :=
-  self.relLicenseFiles.map (self.dir / ·)
+  self.relLicenseFiles.map (self.dir / ·.normalize)
 
 /-- The package's `readmeFile` configuration. -/
 @[inline] def relReadmeFile (self : Package) : FilePath  :=
-  self.config.readmeFile
+  self.config.readmeFile.normalize
 
 /-- The package's `dir` joined with its `relReadmeFile`. -/
 @[inline] def readmeFile (self : Package) : FilePath  :=
-  self.dir / self.config.readmeFile
+  self.dir / self.relReadmeFile
 
 /-- The path to the package's Lake directory relative to `dir` (e.g., `.lake`). -/
 @[inline] def relLakeDir (_ : Package) : FilePath :=
@@ -447,7 +484,7 @@ namespace Package
 
 /-- The path for storing the package's remote dependencies relative to `dir` (i.e., `packagesDir`). -/
 @[inline] def relPkgsDir (self : Package) : FilePath :=
-  self.config.packagesDir
+  self.config.packagesDir.normalize
 
 /-- The package's `dir` joined with its `relPkgsDir`. -/
 @[inline] def pkgsDir (self : Package) : FilePath :=
@@ -459,7 +496,7 @@ namespace Package
 
 /-- The package's `dir` joined with its `buildDir` configuration. -/
 @[inline] def buildDir (self : Package) : FilePath :=
-  self.dir / self.config.buildDir
+  self.dir / self.config.buildDir.normalize
 
 /-- The package's `testDriverArgs` configuration. -/
 @[inline] def testDriverArgs (self : Package) : Array String :=
@@ -506,8 +543,8 @@ namespace Package
   self.config.moreGlobalServerArgs
 
 /-- The package's `moreServerOptions` configuration appended to its `leanOptions` configuration. -/
-@[inline] def moreServerOptions (self : Package) : Array LeanOption :=
-  self.config.leanOptions ++ self.config.moreServerOptions
+@[inline] def moreServerOptions (self : Package) : LeanOptions :=
+  LeanOptions.ofArray self.config.leanOptions ++ self.config.moreServerOptions
 
 /-- The package's `buildType` configuration. -/
 @[inline] def buildType (self : Package) : BuildType :=
@@ -526,12 +563,12 @@ namespace Package
   self.config.plugins
 
 /-- The package's `leanOptions` configuration. -/
-@[inline] def leanOptions (self : Package) : Array LeanOption :=
-  self.config.leanOptions
+@[inline] def leanOptions (self : Package) : LeanOptions :=
+  .ofArray self.config.leanOptions
 
 /-- The package's `moreLeanArgs` configuration appended to its `leanOptions` configuration. -/
 @[inline] def moreLeanArgs (self : Package) : Array String :=
-  self.config.leanOptions.map (·.asCliArg) ++ self.config.moreLeanArgs
+  self.config.moreLeanArgs
 
 /-- The package's `weakLeanArgs` configuration. -/
 @[inline] def weakLeanArgs (self : Package) : Array String :=
@@ -563,7 +600,7 @@ namespace Package
 
 /-- The package's `dir` joined with its `srcDir` configuration. -/
 @[inline] def srcDir (self : Package) : FilePath :=
-  self.dir / self.config.srcDir
+  self.dir / self.config.srcDir.normalize
 
 /-- The package's root directory for `lean` (i.e., `srcDir`). -/
 @[inline] def rootDir (self : Package) : FilePath :=
@@ -571,38 +608,51 @@ namespace Package
 
 /-- The package's `buildDir` joined with its `leanLibDir` configuration. -/
 @[inline] def leanLibDir (self : Package) : FilePath :=
-  self.buildDir / self.config.leanLibDir
+  self.buildDir / self.config.leanLibDir.normalize
 
 /--
 Where static libraries for the package are located.
 The package's `buildDir` joined with its `nativeLibDir` configuration.
 -/
 @[inline] def staticLibDir (self : Package) : FilePath :=
-  self.buildDir / self.config.nativeLibDir
+  self.buildDir / self.config.nativeLibDir.normalize
 
 /--
 Where shared libraries for the package are located.
 The package's `buildDir` joined with its `nativeLibDir` configuration.
 -/
 @[inline] def sharedLibDir (self : Package) : FilePath :=
-  self.buildDir / self.config.nativeLibDir
+  self.buildDir / self.config.nativeLibDir.normalize
 
 /-- The package's `buildDir` joined with its `nativeLibDir` configuration. -/
 @[inline, deprecated "Use staticLibDir or sharedLibDir instead." (since := "2025-03-29")]
 def nativeLibDir (self : Package) : FilePath :=
-  self.buildDir / self.config.nativeLibDir
+  self.buildDir / self.config.nativeLibDir.normalize
 
 /-- The package's `buildDir` joined with its `binDir` configuration. -/
 @[inline] def binDir (self : Package) : FilePath :=
-  self.buildDir / self.config.binDir
+  self.buildDir / self.config.binDir.normalize
 
 /-- The package's `buildDir` joined with its `irDir` configuration. -/
 @[inline] def irDir (self : Package) : FilePath :=
-  self.buildDir / self.config.irDir
+  self.buildDir / self.config.irDir.normalize
+
+/-- The package's `libPrefixOnWindows` configuration. -/
+@[inline] def libPrefixOnWindows (self : Package) : Bool :=
+  self.config.libPrefixOnWindows
+
+/-- The package's `enableArtifactCache?` configuration. -/
+@[inline] def enableArtifactCache? (self : Package) : Option Bool :=
+  self.config.enableArtifactCache?
+
+/-- The file where the package's input-to-content mapping is stored in the Lake cache. -/
+def inputsFileIn (cache : Cache) (self : Package) : FilePath :=
+  let pkgName := self.name.toString (escape := false)
+  cache.inputsFile pkgName
 
 /-- Try to find a target configuration in the package with the given name. -/
 def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=
-  self.targetDeclMap.find? name
+  self.targetDeclMap.get? name
 
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=

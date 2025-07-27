@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Normalize
-import Std.Tactic.BVDecide.Syntax
-import Lean.Elab.Tactic.Simp
-import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+public import Std.Tactic.BVDecide.Normalize
+public import Std.Tactic.BVDecide.Syntax
+public import Lean.Elab.Tactic.Simp
+public import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+
+public section
 
 /-!
 This module contains implementations of simprocs used in the `bv_normalize` simp set.
@@ -18,6 +22,231 @@ namespace Frontend.Normalize
 
 open Lean.Meta
 open Std.Tactic.BVDecide.Normalize
+
+section SimpleUnifiers
+
+builtin_simproc [bv_normalize] bv_and ((_ : BitVec _) &&& (_ : BitVec _)) := fun e => do
+  let_expr HAnd.hAnd ty _ _ _ lhs rhs := e | return .continue
+  let_expr BitVec wExpr := ty | return .continue
+  if lhs == rhs then
+    return .visit { expr := lhs, proof? := some <| mkApp2 (mkConst ``BitVec.and_self) wExpr lhs }
+  else
+    let some w ← getNatValue? wExpr | return .continue
+    let tryIt (notSide other : Expr) : Bool :=
+      let_expr Complement.complement _ _ notSide := notSide | false
+      notSide == other
+
+    if tryIt lhs rhs then
+      let proof := mkApp2 (mkConst ``BitVec.and_contra') wExpr rhs
+      return .visit { expr := toExpr 0#w, proof? := some proof }
+    else if tryIt rhs lhs then
+      let proof := mkApp2 (mkConst ``BitVec.and_contra) wExpr lhs
+      return .visit { expr := toExpr 0#w, proof? := some proof }
+    else
+      return .continue
+
+builtin_simproc [bv_normalize] bv_add ((_ : BitVec _) + (_ : BitVec _)) := fun e => do
+  let_expr HAdd.hAdd ty _ _ _ lhs rhs := e | return .continue
+  let_expr BitVec wExpr := ty | return .continue
+  let some w ← getNatValue? wExpr | return .continue
+  if lhs == rhs then
+    let expr ← mkMul lhs (toExpr 2#w)
+    return .visit { expr , proof? := some <| mkApp2 (mkConst ``BitVec.add_same) wExpr lhs }
+  else
+    let notAdd : MetaM (Option Simp.Step) := do
+      let_expr Complement.complement _ _ lhs := lhs | return none
+      if lhs != rhs then return none
+      let proof := mkApp2 (mkConst ``BitVec.not_add) wExpr rhs
+      return some <| .visit { expr := toExpr (-1#w) , proof? := some proof }
+
+    let addNot : MetaM (Option Simp.Step) := do
+      let_expr Complement.complement _ _ rhs := rhs | return none
+      if lhs != rhs then return none
+      let proof := mkApp2 (mkConst ``BitVec.add_not) wExpr lhs
+      return some <| .visit { expr := toExpr (-1#w) , proof? := some proof }
+
+    let addNeg : MetaM (Option Simp.Step) := do
+      let_expr HAdd.hAdd _ _ _ _ rlhs rrhs := rhs | return none
+      let some ⟨w', rrhsVal⟩ ← getBitVecValue? rrhs | return none
+      if rrhsVal != 1#w' then return none
+      let_expr Complement.complement _ _ rlhs := rlhs | return none
+      if rlhs != lhs then return none
+      let proof := mkApp2 (mkConst ``BitVec.add_neg) wExpr lhs
+      return some <| .visit { expr := toExpr 0#w, proof? := some proof }
+
+    let negAdd : MetaM (Option Simp.Step) := do
+      let_expr HAdd.hAdd _ _ _ _ llhs lrhs := lhs | return none
+      let some ⟨w', lrhsVal⟩ ← getBitVecValue? lrhs | return none
+      if lrhsVal != 1#w' then return none
+      let_expr Complement.complement _ _ llhs := llhs | return none
+      if llhs != rhs then return none
+      let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.neg_add) wExpr rhs
+      return some <| .visit { expr := toExpr 0#w, proof? := some proof }
+
+    let addNegMul : MetaM (Option Simp.Step) := do
+      let some ⟨w', rhsVal⟩ ← getBitVecValue? rhs | return none
+      if rhsVal != 1#w' then return none
+      let_expr Complement.complement _ _ lhs := lhs | return none
+      let_expr HAdd.hAdd _ _ _ _ llhs lrhs := lhs | return none
+      if llhs.isAppOf ``HMul.hMul then
+        let_expr HMul.hMul _ _ _ _ lllhs llrhs := llhs | return none
+        if lllhs == lrhs then
+          let newRhs ← mkAppM ``Complement.complement #[llrhs]
+          let expr ← mkMul lllhs newRhs
+          let proof := mkApp3 (mkConst ``BitVec.add_neg_mul'') wExpr lllhs llrhs
+          return some <| .visit { expr := expr, proof? := some proof }
+        else if llrhs == lrhs then
+          let newLhs ← mkAppM ``Complement.complement #[lllhs]
+          let expr ← mkMul newLhs llrhs
+          let proof := mkApp3 (mkConst ``BitVec.add_neg_mul''') wExpr llrhs lllhs
+          return some <| .visit { expr := expr, proof? := some proof }
+        else
+          return none
+      else if lrhs.isAppOf ``HMul.hMul then
+        let_expr HMul.hMul _ _ _ _ lrlhs lrrhs := lrhs | return none
+        if llhs == lrlhs then
+          let newRhs ← mkAppM ``Complement.complement #[lrrhs]
+          let expr ← mkMul lrlhs newRhs
+          let proof := mkApp3 (mkConst ``BitVec.add_neg_mul) wExpr lrlhs lrrhs
+          return some <| .visit { expr := expr, proof? := some proof }
+        else if llhs == lrrhs then
+          let newLhs ← mkAppM ``Complement.complement #[lrlhs]
+          let expr ← mkMul newLhs lrrhs
+          let proof := mkApp3 (mkConst ``BitVec.add_neg_mul') wExpr lrrhs lrlhs
+          return some <| .visit { expr := expr, proof? := some proof }
+        else
+          return none
+      else
+        return none
+
+    let addShiftLeft : MetaM (Option Simp.Step) := do
+      let_expr HShiftLeft.hShiftLeft _ _ _ _ rlhs rrhs := rhs | return none
+      if lhs != rrhs then return none
+      let expr ← mkAppM ``HOr.hOr #[lhs, rhs]
+      let proof := mkApp3 (mkConst ``BitVec.add_shiftLeft_eq_or_shiftLeft) wExpr lhs rlhs
+      return some <| .visit { expr := expr, proof? := some proof }
+
+    let shiftLeftAdd : MetaM (Option Simp.Step) := do
+      let_expr HShiftLeft.hShiftLeft _ _ _ _ llhs lrhs := lhs | return none
+      if rhs != lrhs then return none
+      let expr ← mkAppM ``HOr.hOr #[lhs, rhs]
+      let proof := mkApp3 (mkConst ``BitVec.shiftLeft_add_eq_shiftLeft_or) wExpr rhs llhs
+      return some <| .visit { expr := expr, proof? := some proof }
+
+    if let some step ← notAdd then return step
+    else if let some step ← addNot then return step
+    else if let some step ← addNeg then return step
+    else if let some step ← negAdd then return step
+    else if let some step ← addNegMul then return step
+    else if let some step ← addShiftLeft then return step
+    else if let some step ← shiftLeftAdd then return step
+    else return .continue
+
+builtin_simproc [bv_normalize] shiftRight_self ((_ : BitVec _) >>> (_ : BitVec _)) := fun e => do
+  let_expr HShiftRight.hShiftRight ty _ _ _ lhs rhs := e | return .continue
+  let_expr BitVec wExpr := ty | return .continue
+  let some w ← getNatValue? wExpr | return .continue
+  if lhs != rhs then return .continue
+  let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.ushiftRight_self) wExpr lhs
+  return .visit { expr := toExpr 0#w, proof? := some proof }
+
+builtin_simproc [bv_normalize] extract_full (BitVec.extractLsb' _ _ _) := fun e => do
+  let_expr BitVec.extractLsb' wExpr startExpr lenExpr targetExpr := e | return .continue
+  let some w ← getNatValue? wExpr | return .continue
+  let some start ← getNatValue? startExpr | return .continue
+  let some len ← getNatValue? lenExpr | return .continue
+  if start != 0 then return .continue
+  if len != w then return .continue
+  let proof := mkApp2 (mkConst ``BitVec.extractLsb'_eq_self) wExpr targetExpr
+  return .visit { expr := targetExpr, proof? := some proof }
+
+def eqSelfProc : Simp.Simproc := fun e => do
+  let_expr Eq ty lhs rhs := e | return .continue
+  if lhs != rhs then return .continue
+  let proof := mkApp2 (mkConst ``eq_self [1]) ty lhs
+  return .visit { expr := mkConst ``True, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_eq_self ((_ : BitVec _) = (_ : BitVec _)) := eqSelfProc
+builtin_simproc [bv_normalize] bool_eq_self ((_ : Bool) = (_ : Bool)) := eqSelfProc
+
+builtin_simproc [bv_normalize] bool_and ((_ : Bool) && (_ : Bool)) := fun e => do
+  let_expr Bool.and lhs rhs := e | return .continue
+  if lhs == rhs then
+    return .visit { expr := lhs, proof? := some (mkApp (mkConst ``Bool.and_self) lhs) }
+  else
+    let andNotSelf : MetaM (Option Simp.Step) := do
+      let_expr Bool.not rhs := rhs | return none
+      if lhs != rhs then return none
+      let proof := mkApp (mkConst ``Bool.and_not_self) lhs
+      return some <| .visit { expr := toExpr false, proof? := some proof }
+
+    let notAndSelf : MetaM (Option Simp.Step) := do
+      let_expr Bool.not lhs := lhs | return none
+      if lhs != rhs then return none
+      let proof := mkApp (mkConst ``Bool.not_and_self) lhs
+      return some <| .visit { expr := toExpr false, proof? := some proof }
+
+    let andSelfLeft : MetaM (Option Simp.Step) := do
+      let_expr Bool.and rlhs rrhs := rhs | return none
+      if lhs != rlhs then return none
+      let expr := mkApp2 (mkConst ``Bool.and) lhs rrhs
+      let proof := mkApp2 (mkConst ``Bool.and_self_left) lhs rrhs
+      return some <| .visit { expr := expr, proof? := some proof }
+
+    let andSelfRight : MetaM (Option Simp.Step) := do
+      let_expr Bool.and llhs lrhs := lhs | return none
+      if rhs != lrhs then return none
+      let expr := mkApp2 (mkConst ``Bool.and) llhs rhs
+      let proof := mkApp2 (mkConst ``Bool.and_self_right) llhs rhs
+      return some <| .visit { expr := expr, proof? := some proof }
+
+    if let some step ← andNotSelf then return step
+    else if let some step ← notAndSelf then return step
+    else if let some step ← andSelfLeft then return step
+    else if let some step ← andSelfRight then return step
+    else return .continue
+
+builtin_simproc [bv_normalize] bv_beq_self ((_ : BitVec _) == (_ : BitVec _)) := fun e => do
+  let_expr BEq.beq _ _ lhs rhs := e | return .continue
+  if lhs != rhs then return .continue
+  return .visit { expr := toExpr true, proof? := some (← mkAppM ``beq_self_eq_true #[lhs]) }
+
+builtin_simproc [bv_normalize] bool_beq ((_ : Bool) == (_ : Bool)) := fun e => do
+  let_expr BEq.beq _ _ lhs rhs := e | return .continue
+  if lhs == rhs then
+    return .visit { expr := toExpr true, proof? := some (← mkAppM ``beq_self_eq_true #[lhs]) }
+  else
+    let notSelf : MetaM (Option Simp.Step) := do
+      let_expr Bool.not rhs := rhs | return none
+      if lhs != rhs then return none
+      let proof := mkApp (mkConst ``Bool.beq_not_self) lhs
+      return some <| .visit { expr := toExpr false, proof? := some proof }
+
+    let selfNot : MetaM (Option Simp.Step) := do
+      let_expr Bool.not lhs := lhs | return none
+      if lhs != rhs then return none
+      let proof := mkApp (mkConst ``Bool.not_beq_self) lhs
+      return some <| .visit { expr := toExpr false, proof? := some proof }
+
+    let selfLeft : MetaM (Option Simp.Step) := do
+      let_expr BEq.beq _ _ rlhs rrhs := rhs | return none
+      if lhs != rlhs then return none
+      let proof := mkApp2 (mkConst ``Bool.beq_self_left) lhs rrhs
+      return some <| .visit { expr := rrhs, proof? := some proof }
+
+    let selfRight : MetaM (Option Simp.Step) := do
+      let_expr BEq.beq _ _ llhs lrhs := lhs | return none
+      if rhs != lrhs then return none
+      let proof := mkApp2 (mkConst ``Bool.beq_self_right) llhs rhs
+      return some <| .visit { expr := llhs, proof? := some proof }
+
+    if let some step ← notSelf then return step
+    else if let some step ← selfNot then return step
+    else if let some step ← selfLeft then return step
+    else if let some step ← selfRight then return step
+    else return .continue
+
+end SimpleUnifiers
 
 builtin_simproc ↓ [bv_normalize] reduceCond (cond _ _ _) := fun e => do
   let_expr f@cond α c tb eb := e | return .continue
@@ -427,18 +656,18 @@ builtin_simproc [bv_normalize] bv_extract_concat
   let some start ← getNatValue? startExpr | return .continue
   let some len ← getNatValue? lenExpr | return .continue
   let some rhsWidth ← getNatValue? rhsWidthExpr | return .continue
-  if start + len < rhsWidth then
+  if start + len ≤ rhsWidth then
     let expr := mkApp4 (mkConst ``BitVec.extractLsb') rhsWidthExpr startExpr lenExpr rhsExpr
     let proof :=
       mkApp7
-        (mkConst ``BitVec.extractLsb'_append_eq_of_lt)
+        (mkConst ``BitVec.extractLsb'_append_eq_of_add_le)
         lhsWidthExpr
         rhsWidthExpr
         lhsExpr
         rhsExpr
         startExpr
         lenExpr
-        (← mkDecideProof (← mkLt (toExpr (start + len)) rhsWidthExpr))
+        (← mkDecideProof (← mkLe (toExpr (start + len)) rhsWidthExpr))
     return .visit { expr := expr, proof? := some proof }
   else if rhsWidth ≤ start then
     let expr := mkApp4 (mkConst ``BitVec.extractLsb') lhsWidthExpr (toExpr (start - rhsWidth)) lenExpr lhsExpr

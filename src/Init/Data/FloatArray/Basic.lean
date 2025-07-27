@@ -3,10 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Array.Basic
-import Init.Data.Float
-import Init.Data.Option.Basic
+public import Init.Data.Array.Basic
+public import Init.Data.Float
+public import Init.Data.Option.Basic
+import Init.Ext
+public import Init.Data.Array.DecidableEq
+
+public section
 universe u
 
 structure FloatArray where
@@ -16,6 +22,11 @@ attribute [extern "lean_float_array_mk"] FloatArray.mk
 attribute [extern "lean_float_array_data"] FloatArray.data
 
 namespace FloatArray
+
+deriving instance BEq for FloatArray
+
+attribute [ext] FloatArray
+
 @[extern "lean_mk_empty_float_array"]
 def emptyWithCapacity (c : @& Nat) : FloatArray :=
   { data := #[] }
@@ -163,7 +174,7 @@ def foldlM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → Float →
 
 @[inline]
 def foldl {β : Type v} (f : β → Float → β) (init : β) (as : FloatArray) (start := 0) (stop := as.size) : β :=
-  Id.run <| as.foldlM f init start stop
+  Id.run <| as.foldlM (pure <| f · ·) init start stop
 
 end FloatArray
 

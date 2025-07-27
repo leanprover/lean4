@@ -3,14 +3,18 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Simproc
-import Init.Grind.Tactics
-import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.Transform
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.Simp.Simproc
+public import Init.Simproc
+public import Init.Grind.Tactics
+public import Lean.Meta.AbstractNestedProofs
+public import Lean.Meta.Transform
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Clear
+public import Lean.Meta.Tactic.Simp.Simproc
+
+public section
 
 namespace Lean.Meta.Grind
 /--
@@ -20,6 +24,19 @@ def _root_.Lean.MVarId.ensureNoMVar (mvarId : MVarId) : MetaM Unit := do
   let type ← instantiateMVars (← mvarId.getType)
   if type.hasExprMVar then
     throwTacticEx `grind mvarId "goal contains metavariables"
+
+/-- Abstracts metavariables occurring in the target. -/
+def _root_.Lean.MVarId.abstractMVars (mvarId : MVarId) : MetaM MVarId := do
+  mvarId.checkNotAssigned `grind
+  let type ← instantiateMVars (← mvarId.getType)
+  unless type.hasExprMVar do return mvarId
+  mvarId.withContext do
+  let r ← Meta.abstractMVars type (levels := false)
+  let typeNew ← lambdaTelescope r.expr fun xs body => mkForallFVars xs body
+  let tag ← mvarId.getTag
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar typeNew tag
+  mvarId.assign (mkAppN mvarNew r.mvars)
+  return mvarNew.mvarId!
 
 def _root_.Lean.MVarId.transformTarget (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := mvarId.withContext do
   mvarId.checkNotAssigned `grind
@@ -37,10 +54,20 @@ should not be unfolded by `unfoldReducible`.
 def isGrindGadget (declName : Name) : Bool :=
   declName == ``Grind.EqMatch
 
+def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
+  let env ← getEnv
+  return Option.isSome <| e.find? fun e => Id.run do
+    let .const declName _ := e | return false
+    if getReducibilityStatusCore env declName matches .reducible then
+      return !isGrindGadget declName
+    else
+      return false
+
 /--
 Unfolds all `reducible` declarations occurring in `e`.
 -/
-def unfoldReducible (e : Expr) : MetaM Expr :=
+def unfoldReducible (e : Expr) : MetaM Expr := do
+  if !(← isUnfoldReducibleTarget e) then return e
   let pre (e : Expr) : MetaM TransformStep := do
     let .const declName _ := e.getAppFn | return .continue
     unless (← isReducible declName) do return .continue
@@ -54,12 +81,6 @@ Unfolds all `reducible` declarations occurring in the goal's target.
 -/
 def _root_.Lean.MVarId.unfoldReducible (mvarId : MVarId) : MetaM MVarId :=
   mvarId.transformTarget Grind.unfoldReducible
-
-/--
-Abstracts nested proofs occurring in the goal's target.
--/
-def _root_.Lean.MVarId.abstractNestedProofs (mvarId : MVarId) (mainDeclName : Name) : MetaM MVarId :=
-  mvarId.transformTarget (Lean.Meta.abstractNestedProofs mainDeclName)
 
 /--
 Beta-reduces the goal's target.
@@ -109,6 +130,7 @@ Recall that we still have to process `Expr.forallE` because of `ForallProp.lean`
 Moreover, we may not want to reduce `p → q` to `¬p ∨ q` when `(p q : Prop)`.
 -/
 def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
+  if Option.isNone <| e.find? fun e => e.isMData then return e
   let pre (e : Expr) := do
     match e with
     | .letE .. | .lam .. => return .done e
@@ -120,6 +142,7 @@ def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
 Converts nested `Expr.proj`s into projection applications if possible.
 -/
 def foldProjs (e : Expr) : MetaM Expr := do
+  if Option.isNone <| e.find? fun e => e.isProj then return e
   let post (e : Expr) := do
     let .proj structName idx s := e | return .done e
     let some info := getStructureInfo? (← getEnv) structName |
@@ -137,8 +160,10 @@ def foldProjs (e : Expr) : MetaM Expr := do
         F ⟶ G
       ```
       We should make `mkProjection` more robust.
+
+      The `mkProjection` function may create new kernel projections. So, we must use `.visit`.
       -/
-      return .done (← withDefault <| mkProjection s fieldName)
+      return .visit (← withDefault <| mkProjection s fieldName)
     else
       trace[grind.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
       return .done e
@@ -157,7 +182,7 @@ def normalizeLevels (e : Expr) : CoreM Expr := do
 
 /--
 Normalizes the given expression using the `grind` simplification theorems and simprocs.
-This function is used for normalzing E-matching patterns. Note that it does not return a proof.
+This function is used for normalizing E-matching patterns. Note that it does not return a proof.
 -/
 @[extern "lean_grind_normalize"] -- forward definition
 opaque normalize (e : Expr) (config : Grind.Config) : MetaM Expr
@@ -207,6 +232,18 @@ def replacePreMatchCond (e : Expr) : MetaM Simp.Result := do
       let_expr Grind.PreMatchCond p := e | return .continue e
       return .continue (markAsMatchCond p)
     let e' ← Core.transform e (pre := pre)
-    return { expr := e', proof? := (← mkExpectedTypeHint (← mkEqRefl e') (← mkEq e e')) }
+    return { expr := e', proof? := mkExpectedPropHint (← mkEqRefl e') (← mkEq e e') }
+
+def isIte (e : Expr) :=
+  e.isAppOf ``ite && e.getAppNumArgs >= 5
+
+def isDIte (e : Expr) :=
+  e.isAppOf ``dite && e.getAppNumArgs >= 5
+
+def getBinOp (e : Expr) : Option Expr :=
+  if !e.isApp then none else
+  let f := e.appFn!
+  if !f.isApp then none else
+  some f.appFn!
 
 end Lean.Meta.Grind

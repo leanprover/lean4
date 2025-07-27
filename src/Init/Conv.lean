@@ -5,9 +5,13 @@ Authors: Leonardo de Moura
 
 Notation for operators defined at Prelude.lean
 -/
+module
+
 prelude
-import Init.Tactics
-import Init.Meta
+public import Init.Tactics
+public meta import Init.Meta
+
+public section
 
 namespace Lean.Parser.Tactic.Conv
 
@@ -258,7 +262,7 @@ resulting in `t'`, which becomes the new target subgoal. -/
 syntax (name := convConvSeq) "conv" " => " convSeq : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s`. -/
-macro dot:patternIgnore("·" <|> ".") s:convSeq : conv => `(conv| {%$dot ($s) })
+macro dot:patternIgnore("· " <|> ". ") s:convSeq : conv => `(conv| {%$dot ($s) })
 
 
 /-- `fail_if_success t` fails if the tactic `t` succeeds. -/
@@ -317,6 +321,31 @@ macro:1 x:conv tk:" <;> " y:conv:0 : conv =>
 syntax "repeat " convSeq : conv
 macro_rules
   | `(conv| repeat $seq) => `(conv| first | ($seq); repeat $seq | skip)
+
+/--
+Extracts `let` and `have` expressions from within the target expression.
+This is the conv mode version of the `extract_lets` tactic.
+
+- `extract_lets` extracts all the lets from the target.
+- `extract_lets x y z` extracts all the lets from the target and uses `x`, `y`, and `z` for the first names.
+  Using `_` for a name leaves it unnamed.
+
+Limitation: the extracted local declarations do not persist outside of the `conv` goal.
+See also `lift_lets`, which does not extract lets as local declarations.
+-/
+syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* : conv
+
+/--
+Lifts `let` and `have` expressions within the target expression as far out as possible.
+This is the conv mode version of the `lift_lets` tactic.
+-/
+syntax (name := liftLets) "lift_lets " optConfig : conv
+
+/--
+Transforms `let` expressions into `have` expressions within the target expression when possible.
+This is the conv mode version of the `let_to_have` tactic.
+-/
+syntax (name := letToHave) "let_to_have" : conv
 
 /--
 `conv => ...` allows the user to perform targeted rewriting on a goal or hypothesis,

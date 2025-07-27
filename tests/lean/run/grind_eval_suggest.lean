@@ -26,7 +26,7 @@ example (x : Nat) : 1 + 1 + f x = x + 2 := by
 info: Try these:
 • rfl
 • simp
-• simp only [Nat.succ_eq_add_one]
+• simp only [Nat.succ_eq_add_one, Nat.add_left_cancel_iff]
 • grind
 • grind only
 -/
@@ -38,7 +38,7 @@ example (x : Nat) : x + 1 = Nat.succ x := by
 info: Try these:
 • · intros; rfl
 • · intros; simp
-• · intros; simp only [Nat.succ_eq_add_one]
+• · intros; simp only [Nat.succ_eq_add_one, Nat.add_left_cancel_iff]
 • · intros; grind
 • · intros; grind only
 -/
@@ -60,7 +60,8 @@ example (h : 0 + x = y) : f x = f y := by
 macro "bad_tac" : tactic => `(tactic| eval_suggest (intros; (attempt_all | rfl | grind?); simp))
 
 /--
-error: tactic 'try?' failed, consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
+error: Tactic `try?` failed: consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
+
 ⊢ True
 -/
 #guard_msgs (error) in

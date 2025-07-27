@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.GlobalInstances
+public import Lean.Meta.GlobalInstances
+
+public section
 
 namespace Lean.Meta
 
@@ -37,7 +41,7 @@ This is part of the implementation of `whnf`.
 External users wanting to look up names should be using `Lean.getConstInfo`.
 -/
 def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
-  let some ainfo := (← getEnv).findAsync? constName | throwUnknownConstant constName
+  let some ainfo := (← getEnv).findAsync? constName | throwUnknownConstantAt (← getRef) constName
   match ainfo.kind with
   | .thm =>
     if (← shouldReduceAll) then

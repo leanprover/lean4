@@ -3,11 +3,15 @@ Copyright (c) 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Core
-import Init.Data.Int.Basic
-import Init.Data.ToString.Basic
-import Init.Data.Float
+public import Init.Core
+public import Init.Data.Int.Basic
+public import Init.Data.ToString.Basic
+public import Init.Data.Float
+
+public section
 
 -- Just show FloatSpec is inhabited.
 opaque float32Spec : FloatSpec := {
@@ -143,7 +147,7 @@ Compares two floating point numbers for strict inequality.
 
 This function does not reduce in the kernel. It is compiled to the C inequality operator.
 -/
-@[extern "lean_float32_decLt"] opaque Float32.decLt (a b : Float32) : Decidable (a < b) :=
+@[extern "lean_float32_decLt", instance] opaque Float32.decLt (a b : Float32) : Decidable (a < b) :=
   match a, b with
   | ⟨a⟩, ⟨b⟩ => float32Spec.decLt a b
 
@@ -152,12 +156,9 @@ Compares two floating point numbers for non-strict inequality.
 
 This function does not reduce in the kernel. It is compiled to the C inequality operator.
 -/
-@[extern "lean_float32_decLe"] opaque Float32.decLe (a b : Float32) : Decidable (a ≤ b) :=
+@[extern "lean_float32_decLe", instance] opaque Float32.decLe (a b : Float32) : Decidable (a ≤ b) :=
   match a, b with
   | ⟨a⟩, ⟨b⟩ => float32Spec.decLe a b
-
-instance float32DecLt (a b : Float32) : Decidable (a < b) := Float32.decLt a b
-instance float32DecLe (a b : Float32) : Decidable (a ≤ b) := Float32.decLe a b
 
 /--
 Converts a floating-point number to a string.
@@ -290,8 +291,11 @@ implementation.
 instance : Inhabited Float32 where
   default := UInt64.toFloat32 0
 
+protected def Float32.repr (n : Float32) (prec : Nat) : Std.Format :=
+  if n < UInt64.toFloat32 0 then Repr.addAppParen (toString n) prec else toString n
+
 instance : Repr Float32 where
-  reprPrec n prec := if n < UInt64.toFloat32 0 then Repr.addAppParen (toString n) prec else toString n
+  reprPrec := Float32.repr
 
 instance : ReprAtom Float32  := ⟨⟩
 

@@ -44,14 +44,19 @@ Useful CMake Configuration Settings
 Pass these along with the `cmake --preset release` command.
 There are also two alternative presets that combine some of these options you can use instead of `release`: `debug` and `sandebug` (sanitize + debug).
 
-* `-D CMAKE_BUILD_TYPE=`\
+* `-DCMAKE_BUILD_TYPE=`\
   Select the build type. Valid values are `RELEASE` (default), `DEBUG`,
   `RELWITHDEBINFO`, and `MINSIZEREL`.
 
-* `-D CMAKE_C_COMPILER=`\
-  `-D CMAKE_CXX_COMPILER=`\
+* `-DCMAKE_C_COMPILER=`\
+  `-DCMAKE_CXX_COMPILER=`\
   Select the C/C++ compilers to use. Official Lean releases currently use Clang;
   see also `.github/workflows/ci.yml` for the CI config.
+
+* `-DUSE_LAKE=ON`\
+  Experimental option to build the core libraries using Lake instead of `lean.mk`.  Caveats:
+  * As native code compilation is still handled by cmake, changes to stage0/ (such as from `git pull`) are picked up only when invoking the build via `make`, not via `Refresh Dependencies` in the editor.
+  * `USE_LAKE` is not yet compatible with `LAKE_ARTIFACT_CACHE`
 
 Lean will automatically use [CCache](https://ccache.dev/) if available to avoid
 redundant builds, especially after stage 0 has been updated.

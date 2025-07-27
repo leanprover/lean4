@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.Completion.SyntheticCompletion
+public import Lean.Server.Completion.SyntheticCompletion
+
+public section
 
 namespace Lean.Server.Completion
 open Elab
@@ -33,6 +37,8 @@ where
     | .namespaceId stx₁, .namespaceId stx₂ =>
       stx₁.eqWithInfo stx₂
     | .option stx₁, .option stx₂ =>
+      stx₁.eqWithInfo stx₂
+    | .errorName stx₁ .., .errorName stx₂ .. =>
       stx₁.eqWithInfo stx₂
     | .endSection stx₁ scopeNames₁, .endSection stx₂ scopeNames₂ =>
       stx₁.eqWithInfo stx₂ && scopeNames₁ == scopeNames₂

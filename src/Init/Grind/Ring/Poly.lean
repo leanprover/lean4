@@ -194,6 +194,13 @@ def powerRevlex (k₁ k₂ : Nat) : Ordering :=
   else bif k₂.blt k₁ then .lt
   else .eq
 
+noncomputable def powerRevlex_k (k₁ k₂ : Nat) : Ordering :=
+  Bool.rec (Bool.rec .eq .lt (Nat.blt k₂ k₁)) .gt (Nat.blt k₁ k₂)
+
+theorem powerRevlex_k_eq_powerRevlex (k₁ k₂ : Nat) : powerRevlex_k k₁ k₂ = powerRevlex k₁ k₂ := by
+  simp [powerRevlex_k, powerRevlex, cond] <;> split <;> simp [*]
+  split <;> simp [*]
+
 @[expose]
 def Power.revlex (p₁ p₂ : Power) : Ordering :=
   p₁.x.revlex p₂.x |>.then (powerRevlex p₁.k p₂.k)
@@ -252,7 +259,7 @@ noncomputable def Mon.revlex_k : Mon → Mon → Ordering :=
             (ih (.mult pw₁ m₁) m₂ |>.then' .gt)
             (ih m₁ (.mult pw₂ m₂) |>.then' .lt)
             (pw₁.x.blt pw₂.x))
-          (ih m₁ m₂ |>.then' (powerRevlex pw₁.k pw₂.k))
+          (ih m₁ m₂ |>.then' (powerRevlex_k pw₁.k pw₂.k))
           (Nat.beq pw₁.x pw₂.x))
         m₂)
       m₁)
@@ -276,7 +283,7 @@ theorem Mon.revlex_k_eq_revlex (m₁ m₂ : Mon) : m₁.revlex_k m₂ = m₁.rev
       split
       next h =>
         replace h : Nat.beq pw₁.x pw₂.x = true := by rw [Nat.beq_eq, h]
-        simp [h, ← ih m₁ m₂, Ordering.then'_eq_then]
+        simp [h, ← ih m₁ m₂, Ordering.then'_eq_then, powerRevlex_k_eq_powerRevlex]
       next h =>
         replace h : Nat.beq pw₁.x pw₂.x = false := by
           rw [← Bool.not_eq_true, Nat.beq_eq]; exact h

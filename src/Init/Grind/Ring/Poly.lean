@@ -454,6 +454,32 @@ where
    | .num k' => .num (k*k')
    | .add k' m p => .add (k*k') m (go p)
 
+noncomputable def Poly.mulConst_k (k : Int) (p : Poly) : Poly :=
+  Bool.rec
+    (Bool.rec
+      (Poly.rec (fun k' => .num (Int.mul k k')) (fun k' m _ ih => .add (Int.mul k k') m ih) p)
+      p (Int.beq' k 1))
+    (.num 0)
+    (Int.beq' k 0)
+
+@[simp] theorem Poly.mulConst_k_eq_mulConst (k : Int) (p : Poly) : p.mulConst_k k = p.mulConst k := by
+  simp [mulConst_k, mulConst, cond_eq_if]; split
+  next =>
+    have h : Int.beq' k 0 = true := by simp [*]
+    simp [h]
+  next =>
+    have h₁ : Int.beq' k 0 = false := by rw [← Bool.not_eq_true, Int.beq'_eq]; assumption
+    split
+    next =>
+      have h₂ : Int.beq' k 1 = true := by simp [*]
+      simp [h₁, h₂]
+    next =>
+      have h₂ : Int.beq' k 1 = false := by rw [← Bool.not_eq_true, Int.beq'_eq]; assumption
+      simp [h₁, h₂]
+      induction p
+      next => rfl
+      next k m p ih => simp [mulConst.go, ← ih]
+
 @[expose]
 def Poly.mulMon (k : Int) (m : Mon) (p : Poly) : Poly :=
   bif k == 0 then
@@ -470,6 +496,43 @@ where
      else
        .add (k*k') m (.num 0)
    | .add k' m' p => .add (k*k') (m.mul m') (go p)
+
+noncomputable def Poly.mulMon_k (k : Int) (m : Mon) (p : Poly) : Poly :=
+  Bool.rec
+    (Bool.rec
+      (Poly.rec
+        (fun k' => Bool.rec (.add (Int.mul k k') m (.num 0)) (.num 0) (Int.beq' k' 0))
+        (fun k' m' _ ih => .add (Int.mul k k') (m.mul m') ih)
+        p)
+      (p.mulConst_k k)
+      (Mon.beq' m .unit))
+    (.num 0)
+    (Int.beq' k 0)
+
+@[simp] theorem Poly.mulMon_k_eq_mulMon (k : Int) (m : Mon) (p : Poly) : p.mulMon_k k m = p.mulMon k m := by
+  simp [mulMon_k, mulMon, cond_eq_if]; split
+  next =>
+    have h : Int.beq' k 0 = true := by simp [*]
+    simp [h]
+  next =>
+    have h₁ : Int.beq' k 0 = false := by rw [← Bool.not_eq_true, Int.beq'_eq]; assumption
+    simp [h₁]; split
+    next h =>
+      have h₂ : m.beq' .unit = true := by rw [Mon.beq'_eq]; simp at h; assumption
+      simp [h₂]
+    next h =>
+      have h₂ : m.beq' .unit = false := by rw [← Bool.not_eq_true, Mon.beq'_eq]; simp at h; assumption
+      simp [h₂]
+      induction p <;> simp [mulMon.go, cond_eq_if]
+      next k =>
+        split
+        next =>
+          have h : Int.beq' k 0 = true := by simp [*]
+          simp [h]
+        next =>
+          have h : Int.beq' k 0 = false := by simp [*]
+          simp [h]
+      next ih => simp [← ih]
 
 @[expose]
 def Poly.combine (p₁ p₂ : Poly) : Poly :=
@@ -1253,7 +1316,7 @@ theorem core {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
 
 @[expose]
 noncomputable def superpose_cert (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
-  (p₁.mulMon k₁ m₁).combine_k (p₂.mulMon k₂ m₂) |>.beq' p
+  (p₁.mulMon_k k₁ m₁).combine_k (p₂.mulMon_k k₂ m₂) |>.beq' p
 
 theorem superpose {α} [CommRing α] (ctx : Context α) (k₁ : Int) (m₁ : Mon) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : superpose_cert k₁ m₁ p₁ k₂ m₂ p₂ p → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
@@ -1262,7 +1325,7 @@ theorem superpose {α} [CommRing α] (ctx : Context α) (k₁ : Int) (m₁ : Mon
 
 @[expose]
 noncomputable def simp_cert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
-  (p₁.mulConst k₁).combine_k (p₂.mulMon k₂ m₂) |>.beq' p
+  (p₁.mulConst_k k₁).combine_k (p₂.mulMon_k k₂ m₂) |>.beq' p
 
 theorem simp {α} [CommRing α] (ctx : Context α) (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : simp_cert k₁ p₁ k₂ m₂ p₂ p → p₁.denote ctx = 0 → p₂.denote ctx = 0 → p.denote ctx = 0 := by
@@ -1271,7 +1334,7 @@ theorem simp {α} [CommRing α] (ctx : Context α) (k₁ : Int) (p₁ : Poly) (k
 
 @[expose]
 noncomputable def mul_cert (p₁ : Poly) (k : Int) (p : Poly) : Bool :=
-  p₁.mulConst k |>.beq' p
+  p₁.mulConst_k k |>.beq' p
 
 @[expose]
 def mul {α} [CommRing α] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
@@ -1281,7 +1344,7 @@ def mul {α} [CommRing α] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
 
 @[expose]
 noncomputable def div_cert (p₁ : Poly) (k : Int) (p : Poly) : Bool :=
-  !Int.beq' k 0 |>.and' (p.mulConst k |>.beq' p₁)
+  !Int.beq' k 0 |>.and' (p.mulConst_k k |>.beq' p₁)
 
 @[expose]
 def div {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (p₁ : Poly) (k : Int) (p : Poly)
@@ -1307,7 +1370,7 @@ theorem d_init {α} [CommRing α] (ctx : Context α) (p : Poly) : (1:Int) * p.de
 
 @[expose]
 noncomputable def d_step1_cert (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
-  p.beq' (p₁.combine_k (p₂.mulMon k₂ m₂))
+  p.beq' (p₁.combine_k (p₂.mulMon_k k₂ m₂))
 
 theorem d_step1 {α} [CommRing α] (ctx : Context α) (k : Int) (init : Poly) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : d_step1_cert p₁ k₂ m₂ p₂ p → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → k * init.denote ctx = p.denote ctx := by
@@ -1316,7 +1379,7 @@ theorem d_step1 {α} [CommRing α] (ctx : Context α) (k : Int) (init : Poly) (p
 
 @[expose]
 noncomputable def d_stepk_cert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly) : Bool :=
-  p.beq' ((p₁.mulConst k₁).combine_k (p₂.mulMon k₂ m₂))
+  p.beq' ((p₁.mulConst_k k₁).combine_k (p₂.mulMon_k k₂ m₂))
 
 theorem d_stepk {α} [CommRing α] (ctx : Context α) (k₁ : Int) (k : Int) (init : Poly) (p₁ : Poly) (k₂ : Int) (m₂ : Mon) (p₂ : Poly) (p : Poly)
     : d_stepk_cert k₁ p₁ k₂ m₂ p₂ p → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → (k₁*k : Int) * init.denote ctx = p.denote ctx := by

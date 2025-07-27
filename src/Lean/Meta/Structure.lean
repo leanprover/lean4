@@ -70,8 +70,6 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
             /- We reset the implicit binder to have it be inferred by `Expr.inferImplicit`.
                However, outparams must be implicit. -/
             lctx := lctx.setBinderInfo fvarId .default
-          else if decl.binderInfo.isInstImplicit && instImplicit then
-            lctx := lctx.setBinderInfo fvarId .implicit
         -- Construct the projection functions:
         let mut ctorType := ctorType
         for h : i in *...projDecls.size do

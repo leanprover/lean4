@@ -81,7 +81,7 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
   let indTyKind ← inferType indTyCon
   let indLevel ← getLevel indTyKind
   let e ← forallBoundedTelescope indTyKind info.numParams fun xs  _ => do
-    withLocalDeclD `P (mkSort v.succ) fun P => do
+    withLocalDeclD `P (mkSort v) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
       let default ← mkArrow (mkConst ``PUnit [indLevel]) P
       let es ← info.ctors.toArray.mapM fun ctorName => do
@@ -115,7 +115,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
   let indTyKind ← inferType indTyCon
   let indLevel ← getLevel indTyKind
   let e ← forallBoundedTelescope indTyKind info.numParams fun xs t => do
-    withLocalDeclD `P (mkSort v.succ) fun P => do
+    withLocalDeclD `P (mkSort v) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
       let withCtorTypeNameApp := mkAppN (mkConst withCtorTypeName (v :: us)) (xs.push P)
       let kType := mkApp withCtorTypeNameApp  ctorIdx
@@ -125,7 +125,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
         let t' ← whnfD t'
         assert! t'.isSort
         withLocalDeclD `x (mkAppN indTyCon (xs ++ ys)) fun x => do
-          let e := mkConst (mkCasesOnName indName) (v.succ :: us)
+          let e := mkConst (mkCasesOnName indName) (v :: us)
           let e := mkAppN e xs
           let motive ← mkLambdaFVars (ys.push x) P
           let e := mkApp e motive
@@ -144,7 +144,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
                 mkLambdaFVars #[h] e
               let «else» ← withLocalDeclD `h (mkNot heq) fun h =>
                 mkLambdaFVars #[h] k'
-              let alt := mkApp5 (mkConst ``dite [v.succ])
+              let alt := mkApp5 (mkConst ``dite [v])
                   P heq (mkApp2 (mkConst ``Nat.decEq) ctorIdx (mkRawNatLit i))
                   «then» «else»
               mkLambdaFVars zs alt
@@ -191,7 +191,7 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
             let alts' ← alts.mapIdxM fun i alt => do
               let altType ← inferType alt
               forallTelescope altType fun zs1 _ => do
-                let alt := mkConst (mkWithCtorName indName) (v :: us)
+                let alt := mkConst (mkWithCtorName indName) (v.succ :: us)
                 let alt := mkAppN alt xs
                 let alt := mkApp alt PType
                 let alt := mkApp alt (mkRawNatLit i)

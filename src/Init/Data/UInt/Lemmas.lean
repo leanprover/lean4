@@ -2781,15 +2781,15 @@ protected theorem USize.pow_succ (x : USize) (n : Nat) : x ^ (n + 1) = x ^ n * x
 @[simp, int_toBitVec] protected theorem USize.toBitVec_pow (a : USize) (n : Nat) : (a ^ n).toBitVec = a.toBitVec ^ n := by
   induction n <;> simp [*, USize.pow_succ, BitVec.pow_succ]
 
-@[simp] protected theorem UInt8.ofBitVec_pow (a : UInt8) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
+@[simp] protected theorem UInt8.ofBitVec_pow (a : BitVec 8) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
   induction n <;> simp [*, UInt8.pow_succ, BitVec.pow_succ]
-@[simp] protected theorem UInt16.ofBitVec_pow (a : UInt16) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
+@[simp] protected theorem UInt16.ofBitVec_pow (a : BitVec 16) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
   induction n <;> simp [*, UInt16.pow_succ, BitVec.pow_succ]
-@[simp] protected theorem UInt32.ofBitVec_pow (a : UInt32) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
+@[simp] protected theorem UInt32.ofBitVec_pow (a : BitVec 32) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
   induction n <;> simp [*, UInt32.pow_succ, BitVec.pow_succ]
-@[simp] protected theorem UInt64.ofBitVec_pow (a : UInt64) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
+@[simp] protected theorem UInt64.ofBitVec_pow (a : BitVec 64) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
   induction n <;> simp [*, UInt64.pow_succ, BitVec.pow_succ]
-@[simp] protected theorem USize.ofBitVec_pow (a : USize) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
+@[simp] protected theorem USize.ofBitVec_pow (a : BitVec System.Platform.numBits) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
   induction n <;> simp [*, USize.pow_succ, BitVec.pow_succ]
 
 protected theorem UInt8.mul_add {a b c : UInt8} : a * (b + c) = a * b + a * c :=

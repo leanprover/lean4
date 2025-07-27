@@ -480,9 +480,9 @@ def Expr.toPoly : Expr → Poly
 def Poly.normEq0 (p : Poly) (c : Nat) : Poly :=
   match p with
   | .num a =>
-    if a % c == 0 then .num 0 else .num a
+    bif a % c == 0 then .num 0 else .num a
   | .add a m p =>
-    if a % c == 0 then normEq0 p c else .add a m (.normEq0 p c)
+    bif a % c == 0 then normEq0 p c else .add a m (.normEq0 p c)
 
 /-!
 **Definitions for the `IsCharP` case**
@@ -1504,10 +1504,10 @@ private theorem of_mod_eq_0 {α} [CommRing α] {a : Int} {c : Nat} : Int.cast c 
 theorem Poly.normEq0_eq {α} [CommRing α] (ctx : Context α) (p : Poly) (c : Nat) (h : Int.cast c = (0 : α)) : (p.normEq0 c).denote ctx = p.denote ctx := by
   induction p
   next a =>
-    simp [denote, normEq0]; split <;> simp [denote]
+    simp [denote, normEq0, cond_eq_if]; split <;> simp [denote]
     next h' => rw [of_mod_eq_0 h h', Ring.intCast_zero]
   next a m p ih =>
-    simp [denote, normEq0]; split <;> simp [denote, zsmul_eq_intCast_mul, *]
+    simp [denote, normEq0, cond_eq_if]; split <;> simp [denote, zsmul_eq_intCast_mul, *]
     next h' => rw [of_mod_eq_0 h h', Semiring.zero_mul, zero_add]
 
 @[expose]

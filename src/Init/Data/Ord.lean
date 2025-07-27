@@ -95,6 +95,10 @@ Ordering.lt
   | .eq => b
   | a => a
 
+/-- Version of `Ordering.then'` for proof by reflection. -/
+noncomputable def then' (a b : Ordering) : Ordering :=
+  Ordering.rec a b a a
+
 /--
 Checks whether the ordering is `eq`.
 -/
@@ -290,6 +294,9 @@ instance : Std.IdempotentOp Ordering.then := ⟨fun _ => then_self⟩
 instance : Std.LawfulIdentity Ordering.then eq where
   left_id _ := eq_then
   right_id _ := then_eq
+
+theorem then'_eq_then (a b : Ordering) : a.then' b = a.then b := by
+  cases a <;> simp [Ordering.then', Ordering.then]
 
 end Lemmas
 

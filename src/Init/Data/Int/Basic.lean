@@ -404,6 +404,12 @@ instance : Min Int := minOfLe
 
 instance : Max Int := maxOfLe
 
+/-- Equality predicate for kernel reduction. -/
+protected noncomputable def beq' (a b : Int) : Bool :=
+  Int.rec
+    (fun a => Int.rec (fun b => Nat.beq a b) (fun _ => false) b)
+    (fun a => Int.rec (fun _ => false) (fun b => Nat.beq a b) b) a
+
 end Int
 
 /--

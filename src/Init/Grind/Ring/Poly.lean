@@ -324,6 +324,21 @@ where
   | .num k' => .num (k' + k)
   | .add k' m p => .add k' m (go p)
 
+noncomputable def Poly.addConst_k (p : Poly) (k : Int) : Poly :=
+  Bool.rec
+    (Poly.rec (fun k' => .num (Int.add k' k)) (fun k' m _ ih => .add k' m ih) p)
+    p
+    (Int.beq' k 0)
+
+theorem Poly.addConst_k_eq_addConst (p : Poly) (k : Int) : addConst_k p k = addConst p k := by
+  unfold addConst_k addConst; rw [cond_eq_if]
+  split
+  next h => rw [← Int.beq'_eq_beq] at h; rw [h]
+  next h =>
+    rw [← Int.beq'_eq_beq, Bool.not_eq_true] at h; simp [h]
+    induction p <;> simp [addConst.go]
+    next ih => rw [← ih]
+
 @[expose]
 def Poly.insert (k : Int) (m : Mon) (p : Poly) : Poly :=
   bif k == 0 then
@@ -410,11 +425,11 @@ noncomputable def Poly.combine_k : Poly → Poly → Poly :=
     (fun _ ih p₁ =>
       Poly.rec
         (fun k₁ p₂ => Poly.rec
-          (fun k₂ => .num (k₁ + k₂))
-          (fun k₂ m₂ p₂ _ => addConst (.add k₂ m₂ p₂) k₁)
+          (fun k₂ => .num (Int.add k₁ k₂))
+          (fun k₂ m₂ p₂ _ => addConst_k (.add k₂ m₂ p₂) k₁)
           p₂)
         (fun k₁ m₁ p₁ _ p₂ => Poly.rec
-          (fun k₂ => addConst (.add k₁ m₁ p₁) k₂)
+          (fun k₂ => addConst_k (.add k₁ m₁ p₁) k₂)
           (fun k₂ m₂ p₂ _ => Ordering.rec
             (.add k₂ m₂ (ih (.add k₁ m₁ p₁) p₂))
             (let k := Int.add k₁ k₂
@@ -434,8 +449,8 @@ noncomputable def Poly.combine_k : Poly → Poly → Poly :=
   induction fuel generalizing p₁ p₂
   next => simp [Poly.combine.go]; rfl
   next =>
-   unfold Poly.combine.go
-   split <;> try rfl
+   unfold Poly.combine.go; simp only [Int.add_def]
+   split <;> simp only [← addConst_k_eq_addConst]
    next ih _ _ k₁ m₁ p₁ k₂ m₂ p₂ =>
     split
     next h =>

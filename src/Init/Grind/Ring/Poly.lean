@@ -101,13 +101,13 @@ instance : LawfulBEq Mon where
 protected noncomputable def Mon.beq' (m₁ : Mon) : Mon → Bool :=
   Mon.rec
     (fun m₂ => Mon.rec true (fun _ _ _ => false) m₂)
-    (fun pw₁ _ ih m₂ => Mon.rec false (fun pw₂ m₂ _ => Power.beq' pw₁ pw₂ && ih m₂) m₂) m₁
+    (fun pw₁ _ ih m₂ => Mon.rec false (fun pw₂ m₂ _ => (Power.beq' pw₁ pw₂).and' (ih m₂)) m₂) m₁
 
 @[simp] theorem Mon.beq'_eq (m₁ m₂ : Mon) : m₁.beq' m₂ = (m₁ = m₂) := by
   induction m₁ generalizing m₂ <;> cases m₂ <;> simp [Mon.beq']
   next pw₁ _ ih _ m₂ =>
   intro; subst pw₁
-  rw [← ih m₂]
+  simp [← ih m₂, ← Bool.and'_eq_and]
   rfl
 
 @[expose]
@@ -251,14 +251,15 @@ protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
     (fun k₁ v₁ _ ih p₂ =>
       Poly.rec
         (fun _ => false)
-        (fun k₂ v₂ p₂ _ => Int.beq' k₁ k₂ && Mon.beq' v₁ v₂ && ih p₂) p₂)
+        (fun k₂ v₂ p₂ _ => (Int.beq' k₁ k₂).and' ((Mon.beq' v₁ v₂).and' (ih p₂))) p₂)
     p₁
 
 @[simp] theorem Poly.beq'_eq (p₁ p₂ : Poly) : p₁.beq' p₂ = (p₁ = p₂) := by
   induction p₁ generalizing p₂ <;> cases p₂ <;> simp [Poly.beq']
   next k₁ m₁ p₁ ih k₂ m₂ p₂ =>
-  rw [← eq_iff_iff, ← and_assoc]
-  congr 1; rw [← ih p₂]; rfl
+  rw [← eq_iff_iff]
+  intro _ _; subst k₁ m₁
+  simp [← ih p₂, ← Bool.and'_eq_and]; rfl
 
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by
@@ -1191,7 +1192,7 @@ def mul {α} [CommRing α] (ctx : Context α) (p₁ : Poly) (k : Int) (p : Poly)
 
 @[expose]
 noncomputable def div_cert (p₁ : Poly) (k : Int) (p : Poly) : Bool :=
-  !Int.beq' k 0 && (p.mulConst k |>.beq' p₁)
+  !Int.beq' k 0 |>.and' (p.mulConst k |>.beq' p₁)
 
 @[expose]
 def div {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (p₁ : Poly) (k : Int) (p : Poly)
@@ -1202,7 +1203,7 @@ def div {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (p₁ : Pol
 
 @[expose]
 noncomputable def unsat_eq_cert (p : Poly) (k : Int) : Bool :=
-  !Int.beq' k 0 && p.beq' (.num k)
+  !Int.beq' k 0 |>.and' (p.beq' (.num k))
 
 @[expose]
 def unsat_eq {α} [CommRing α] (ctx : Context α) [IsCharP α 0] (p : Poly) (k : Int)
@@ -1236,7 +1237,7 @@ theorem d_stepk {α} [CommRing α] (ctx : Context α) (k₁ : Int) (k : Int) (in
 
 @[expose]
 noncomputable def imp_1eq_cert (lhs rhs : Expr) (p₁ p₂ : Poly) : Bool :=
-  (lhs.sub rhs).toPoly.beq' p₁ && p₂.beq' (.num 0)
+  (lhs.sub rhs).toPoly.beq' p₁ |>.and' (p₂.beq' (.num 0))
 
 theorem imp_1eq {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p₁ p₂ : Poly)
     : imp_1eq_cert lhs rhs p₁ p₂ → (1:Int) * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
@@ -1245,7 +1246,7 @@ theorem imp_1eq {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p₁ p�
 
 @[expose]
 noncomputable def imp_keq_cert (lhs rhs : Expr) (k : Int) (p₁ p₂ : Poly) : Bool :=
-  !Int.beq' k 0 && (lhs.sub rhs).toPoly.beq' p₁ && p₂.beq' (.num 0)
+  !Int.beq' k 0 |>.and' ((lhs.sub rhs).toPoly.beq' p₁ |>.and' (p₂.beq' (.num 0)))
 
 theorem imp_keq  {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (k : Int) (lhs rhs : Expr) (p₁ p₂ : Poly)
     : imp_keq_cert lhs rhs k p₁ p₂ → k * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
@@ -1285,7 +1286,7 @@ def mulC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p₁ : Poly) (k
 
 @[expose]
 noncomputable def div_certC (p₁ : Poly) (k : Int) (p : Poly) (c : Nat) : Bool :=
-  !Int.beq' k 0 && (p.mulConstC k c).beq' p₁
+  !Int.beq' k 0 |>.and' ((p.mulConstC k c).beq' p₁)
 
 @[expose]
 def divC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (p₁ : Poly) (k : Int) (p : Poly)
@@ -1305,7 +1306,7 @@ theorem simpC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ : Int
 
 @[expose]
 noncomputable def unsat_eq_certC (p : Poly) (k : Int) (c : Nat) : Bool :=
-  !Int.beq' (k % c) 0 && p.beq' (.num k)
+  !Int.beq' (k % c) 0 |>.and' (p.beq' (.num k))
 
 @[expose]
 def unsat_eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (p : Poly) (k : Int)
@@ -1336,7 +1337,7 @@ theorem d_stepkC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (k₁ : 
 
 @[expose]
 noncomputable def imp_1eq_certC (lhs rhs : Expr) (p₁ p₂ : Poly) (c : Nat) : Bool :=
-  ((lhs.sub rhs).toPolyC c).beq' p₁ && p₂.beq' (.num 0)
+  ((lhs.sub rhs).toPolyC c).beq' p₁ |>.and' (p₂.beq' (.num 0))
 
 theorem imp_1eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs : Expr) (p₁ p₂ : Poly)
     : imp_1eq_certC lhs rhs p₁ p₂ c → (1:Int) * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
@@ -1345,7 +1346,7 @@ theorem imp_1eqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) (lhs rhs
 
 @[expose]
 noncomputable def imp_keq_certC (lhs rhs : Expr) (k : Int) (p₁ p₂ : Poly) (c : Nat) : Bool :=
-  !Int.beq' k 0 && ((lhs.sub rhs).toPolyC c).beq' p₁ && p₂.beq' (.num 0)
+  !Int.beq' k 0 |>.and' (((lhs.sub rhs).toPolyC c).beq' p₁ |>.and' (p₂.beq' (.num 0)))
 
 theorem imp_keqC {α c} [CommRing α] [IsCharP α c] (ctx : Context α) [NoNatZeroDivisors α] (k : Int) (lhs rhs : Expr) (p₁ p₂ : Poly)
     : imp_keq_certC lhs rhs k p₁ p₂ c → k * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
@@ -1550,7 +1551,7 @@ theorem eq_gcd {α} [CommRing α] (ctx : Context α) (a b : Int) (p₁ p₂ p : 
 
 @[expose]
 noncomputable def d_normEq0_cert (c : Nat) (p₁ p₂ p : Poly) : Bool :=
-  p₂.beq' (.num c) && p.beq' (p₁.normEq0 c)
+  p₂.beq' (.num c) |>.and' (p.beq' (p₁.normEq0 c))
 
 theorem d_normEq0 {α} [CommRing α] (ctx : Context α) (k : Int) (c : Nat) (init : Poly) (p₁ p₂ p : Poly)
     : d_normEq0_cert c p₁ p₂ p → k * init.denote ctx = p₁.denote ctx → p₂.denote ctx = 0 → k * init.denote ctx = p.denote ctx := by

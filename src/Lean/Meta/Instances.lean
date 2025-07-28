@@ -157,6 +157,7 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
         if let some j := toSynth.find? (argMVars[·]! == arg) then
           toSynth := toSynth.filter (· != j)
           instParams := instParams.push j
+          arg.mvarId!.assign argVars[j]!
 
   -- We start by assigning all metavariables in non-out-params of the return value.
   -- These are assumed to not be mvars during TC search (or at least not assignable)

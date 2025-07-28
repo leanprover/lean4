@@ -142,10 +142,8 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Lean_
 LEAN_EXPORT lean_object* l_Lean_Meta_transform___at___Lean_Elab_Tactic_Do_elimLetsCore_spec__0___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___Lean_Meta_transformWithCache_visit___at___Lean_Meta_transform___at___Lean_Elab_Tactic_Do_elimLetsCore_spec__0_spec__0_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at___Lean_Meta_transformWithCache_visit_visitLet___at___Lean_Meta_transformWithCache_visit___at___Lean_Meta_transform___at___Lean_Elab_Tactic_Do_elimLetsCore_spec__0_spec__0_spec__8_spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_zipWithAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_elimLets_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__11____x40_Lean_Elab_Tactic_Do_LetElim___hyg_365_;
-LEAN_EXPORT lean_object* l_Array_zipWithAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_elimLetsCore___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_PersistentArray_mapMAux___at___Lean_PersistentArray_mapM___at___Lean_Elab_Tactic_Do_countUsesLCtx_spec__5_spec__5_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -236,6 +234,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___Lean_Meta_transformWit
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Elab_Tactic_Do_FVarUses_add_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_PersistentArray_mapMAux___at___Lean_PersistentArray_mapM___at___Lean_Elab_Tactic_Do_countUsesLCtx_spec__5_spec__5_spec__6___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Elab_Tactic_Do_elimLets_spec__0_spec__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_zipWithMAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872_(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_FVarUses_add(lean_object*, lean_object*);
@@ -401,6 +400,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Elab_Tactic_Do_FVarUses_add_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_transformWithCache_visit_visitLambda___at___Lean_Meta_transformWithCache_visit___at___Lean_Meta_transform___at___Lean_Elab_Tactic_Do_elimLetsCore_spec__0_spec__0_spec__5___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_zipWithMAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_BVarUses_pop___closed__0;
 static lean_object* l___auto___closed__19____x40_Lean_Elab_Tactic_Do_LetElim___hyg_365_;
 size_t lean_usize_land(size_t, size_t);
@@ -2174,7 +2174,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Array_zipWithAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Array_zipWithMAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -2199,20 +2199,20 @@ return x_4;
 }
 else
 {
-lean_object* x_9; uint8_t x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; 
+lean_object* x_9; uint8_t x_10; lean_object* x_11; uint8_t x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_9 = lean_array_fget(x_1, x_3);
 x_10 = lean_unbox(x_9);
 lean_dec(x_9);
 x_11 = lean_array_fget(x_2, x_3);
 x_12 = lean_unbox(x_11);
 lean_dec(x_11);
-x_13 = lean_unsigned_to_nat(1u);
-x_14 = lean_nat_add(x_3, x_13);
+x_13 = l_Lean_Elab_Tactic_Do_Uses_add(x_10, x_12);
+x_14 = lean_unsigned_to_nat(1u);
+x_15 = lean_nat_add(x_3, x_14);
 lean_dec(x_3);
-x_15 = l_Lean_Elab_Tactic_Do_Uses_add(x_10, x_12);
-x_16 = lean_box(x_15);
+x_16 = lean_box(x_13);
 x_17 = lean_array_push(x_4, x_16);
-x_3 = x_14;
+x_3 = x_15;
 x_4 = x_17;
 goto _start;
 }
@@ -2293,7 +2293,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15;
 x_12 = lean_ctor_get(x_2, 0);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = l_Lean_Elab_Tactic_Do_BVarUses_add___redArg___closed__0;
-x_15 = l_Array_zipWithAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0(x_10, x_12, x_13, x_14);
+x_15 = l_Array_zipWithMAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0(x_10, x_12, x_13, x_14);
 lean_dec_ref(x_12);
 lean_dec_ref(x_10);
 lean_ctor_set(x_2, 0, x_15);
@@ -2307,7 +2307,7 @@ lean_inc(x_16);
 lean_dec(x_2);
 x_17 = lean_unsigned_to_nat(0u);
 x_18 = l_Lean_Elab_Tactic_Do_BVarUses_add___redArg___closed__0;
-x_19 = l_Array_zipWithAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0(x_10, x_16, x_17, x_18);
+x_19 = l_Array_zipWithMAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0(x_10, x_16, x_17, x_18);
 lean_dec_ref(x_16);
 lean_dec_ref(x_10);
 x_20 = lean_alloc_ctor(1, 1, 0);
@@ -2326,11 +2326,11 @@ x_4 = l_Lean_Elab_Tactic_Do_BVarUses_add___redArg(x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Array_zipWithAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Array_zipWithMAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_zipWithAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0(x_1, x_2, x_3, x_4);
+x_5 = l_Array_zipWithMAux___at___Lean_Elab_Tactic_Do_BVarUses_add_spec__0(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_5;

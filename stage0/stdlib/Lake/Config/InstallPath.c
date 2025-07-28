@@ -160,7 +160,7 @@ lean_object* l_System_FilePath_addExtension(lean_object*, lean_object*);
 static lean_object* l_Lake_findLeanSysroot_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lake_findLakeInstall_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_reprElanInstall____x40_Lake_Config_InstallPath___hyg_123_(lean_object*, lean_object*);
-lean_object* l_IO_Process_output(lean_object*, lean_object*);
+lean_object* l_IO_Process_output(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_reprLeanInstall___redArg___closed__35____x40_Lake_Config_InstallPath___hyg_670_;
 static lean_object* l_Lake_reprLeanInstall___redArg___closed__21____x40_Lake_Config_InstallPath___hyg_670_;
 static lean_object* l_Lake_reprLeanInstall___redArg___closed__11____x40_Lake_Config_InstallPath___hyg_670_;
@@ -3390,7 +3390,7 @@ lean_ctor_set(x_10, 3, x_5);
 lean_ctor_set(x_10, 4, x_7);
 lean_ctor_set_uint8(x_10, sizeof(void*)*5, x_8);
 lean_ctor_set_uint8(x_10, sizeof(void*)*5 + 1, x_9);
-x_11 = l_IO_Process_output(x_10, x_2);
+x_11 = l_IO_Process_output(x_10, x_5, x_2);
 if (lean_obj_tag(x_11) == 0)
 {
 uint8_t x_12; 
@@ -3534,7 +3534,7 @@ lean_ctor_set(x_11, 3, x_6);
 lean_ctor_set(x_11, 4, x_8);
 lean_ctor_set_uint8(x_11, sizeof(void*)*5, x_9);
 lean_ctor_set_uint8(x_11, sizeof(void*)*5 + 1, x_10);
-x_12 = l_IO_Process_output(x_11, x_2);
+x_12 = l_IO_Process_output(x_11, x_6, x_2);
 if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; 

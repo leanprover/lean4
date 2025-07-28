@@ -179,7 +179,7 @@ LEAN_EXPORT lean_object* l_panic___at___Lean_modToFilePath_go_spec__0(lean_objec
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_searchModuleNameOfFileName_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_get_libdir(lean_object*, lean_object*);
 static lean_object* l_Lean_findOLean___closed__0;
-lean_object* l_IO_Process_run(lean_object*, lean_object*);
+lean_object* l_IO_Process_run(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getSrcSearchPath___closed__0;
 LEAN_EXPORT lean_object* l_Lean_SearchPath_findAllWithExt(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_moduleNameOfFileName___closed__1;
@@ -3134,7 +3134,7 @@ lean_ctor_set(x_14, 3, x_9);
 lean_ctor_set(x_14, 4, x_11);
 lean_ctor_set_uint8(x_14, sizeof(void*)*5, x_12);
 lean_ctor_set_uint8(x_14, sizeof(void*)*5 + 1, x_13);
-x_15 = l_IO_Process_run(x_14, x_6);
+x_15 = l_IO_Process_run(x_14, x_5, x_6);
 if (lean_obj_tag(x_15) == 0)
 {
 uint8_t x_16; 

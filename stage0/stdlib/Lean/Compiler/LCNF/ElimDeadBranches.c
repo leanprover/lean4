@@ -50,7 +50,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Lean_
 size_t lean_usize_shift_right(size_t, size_t);
 static lean_object* l___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lean_Compiler_LCNF_initFn___closed__13____x40_Lean_Compiler_LCNF_ElimDeadBranches___hyg_6580_;
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at___Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_zipWithAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_Value_ofNat___boxed(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_initFn___closed__0____x40_Lean_Compiler_LCNF_ElimDeadBranches___hyg_2070_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_Value_truncate_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -155,6 +154,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at___Lean_Persiste
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_zipWithMAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Compiler_LCNF_UnreachableBranches_updateFunDeclParamsTop_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_Value_containsCtor___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at___Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -455,6 +455,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_Value_isLitera
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lean_Compiler_LCNF_UnreachableBranches_decLt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Compiler_LCNF_UnreachableBranches_interpCode_interpLetValue_spec__0___redArg(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_repr___at___Lean_Compiler_LCNF_UnreachableBranches_reprValue____x40_Lean_Compiler_LCNF_ElimDeadBranches___hyg_57__spec__4___redArg___closed__2;
+LEAN_EXPORT lean_object* l_Array_zipWithMAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_initFn___lam__3___closed__0____x40_Lean_Compiler_LCNF_ElimDeadBranches___hyg_2070_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_initFn___lam__4____x40_Lean_Compiler_LCNF_ElimDeadBranches___hyg_2070_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Compiler_LCNF_UnreachableBranches_elimDead_go_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -516,7 +517,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lean
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_interpCode_handleFunArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_findIdx_x3f_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Compiler_LCNF_UnreachableBranches_elimDead_go_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_zipWithAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_Compiler_LCNF_UnreachableBranches_initFn____x40_Lean_Compiler_LCNF_ElimDeadBranches___hyg_2070__spec__0_spec__0(lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_findFunVal_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
@@ -1782,7 +1782,7 @@ return x_4;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_zipWithAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Array_zipWithMAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
@@ -1810,12 +1810,12 @@ else
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_9 = lean_array_fget(x_1, x_3);
 x_10 = lean_array_fget(x_2, x_3);
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = lean_nat_add(x_3, x_11);
+x_11 = l_Lean_Compiler_LCNF_UnreachableBranches_Value_merge(x_9, x_10);
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_nat_add(x_3, x_12);
 lean_dec(x_3);
-x_13 = l_Lean_Compiler_LCNF_UnreachableBranches_Value_merge(x_9, x_10);
-x_14 = lean_array_push(x_4, x_13);
-x_3 = x_12;
+x_14 = lean_array_push(x_4, x_11);
+x_3 = x_13;
 x_4 = x_14;
 goto _start;
 }
@@ -1929,7 +1929,7 @@ x_14 = lean_ctor_get(x_2, 0);
 lean_dec(x_14);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = l_Lean_Compiler_LCNF_UnreachableBranches_Value_merge___closed__0;
-x_17 = l_Array_zipWithAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0(x_4, x_6, x_15, x_16);
+x_17 = l_Array_zipWithMAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0(x_4, x_6, x_15, x_16);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
 lean_ctor_set(x_2, 1, x_17);
@@ -1942,7 +1942,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21;
 lean_dec(x_2);
 x_18 = lean_unsigned_to_nat(0u);
 x_19 = l_Lean_Compiler_LCNF_UnreachableBranches_Value_merge___closed__0;
-x_20 = l_Array_zipWithAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0(x_4, x_6, x_18, x_19);
+x_20 = l_Array_zipWithMAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0(x_4, x_6, x_18, x_19);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);
 x_21 = lean_alloc_ctor(2, 2, 0);
@@ -2046,11 +2046,11 @@ return x_40;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_zipWithAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Array_zipWithMAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_zipWithAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0(x_1, x_2, x_3, x_4);
+x_5 = l_Array_zipWithMAux___at___Lean_Compiler_LCNF_UnreachableBranches_Value_merge_spec__0(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_5;

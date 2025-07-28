@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_4511_(lean_object*, lean_object*);
 static lean_object* l_Lean_Grind_Ring_OfSemiring_instHashableExpr___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Grind_CommRing_denoteSInt___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ring_OfSemiring_0__Lean_Grind_Ring_OfSemiring_hashExpr_match__1_splitter____x40_Init_Grind_Ring_OfSemiring___hyg_320_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -37,6 +36,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Var_denote___redArg___boxe
 lean_object* l_Lean_Grind_Ring_OfSemiring_npow___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ring_OfSemiring_0__Lean_Grind_Ring_OfSemiring_hashExpr_match__1_splitter___redArg____x40_Init_Grind_Ring_OfSemiring___hyg_320_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Expr_denoteAsRing___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_4867_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_Var_denote___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Grind_Ring_OfSemiring_toQ___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Ring_OfSemiring_beqExpr____x40_Init_Grind_Ring_OfSemiring___hyg_110____boxed(lean_object*, lean_object*);
@@ -1030,7 +1030,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = l_Lean_Grind_Ring_OfSemiring_Expr_toPoly(x_1);
 x_4 = l_Lean_Grind_Ring_OfSemiring_Expr_toPoly(x_2);
-x_5 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_4511_(x_3, x_4);
+x_5 = l_Lean_Grind_CommRing_beqPoly____x40_Init_Grind_Ring_Poly___hyg_4867_(x_3, x_4);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 return x_5;

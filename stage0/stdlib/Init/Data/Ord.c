@@ -94,6 +94,7 @@ LEAN_EXPORT uint8_t l_instOrdUInt8___lam__0(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_instDecidableRelLt___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Ordering_isLT(uint8_t);
 LEAN_EXPORT lean_object* l_beqOfOrd___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___redArg(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_compareLex___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Ordering_isNe(uint8_t);
 LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_swap_match__1_splitter(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -132,6 +133,7 @@ LEAN_EXPORT lean_object* l_Ord_opposite___redArg(lean_object*);
 uint8_t lean_int64_dec_eq(uint64_t, uint64_t);
 uint8_t lean_uint16_dec_eq(uint16_t, uint16_t);
 LEAN_EXPORT uint8_t l_Array_compareLex(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t lean_isize_dec_eq(size_t, size_t);
 LEAN_EXPORT uint8_t l_compareOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instOrd(lean_object*, lean_object*);
@@ -188,6 +190,7 @@ LEAN_EXPORT uint8_t l_instOrdBool___lam__0(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_instOrdBool;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instOrdInt16___lam__0(uint16_t, uint16_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Ord_toLE(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instOrd___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_instOrd___redArg(lean_object*);
@@ -201,6 +204,7 @@ LEAN_EXPORT uint8_t l_compareOfLessAndBEq(lean_object*, lean_object*, lean_objec
 uint8_t lean_isize_dec_lt(size_t, size_t);
 LEAN_EXPORT uint8_t l_Ordering_instDecidableForallOfDecidablePred(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_swap_match__1_splitter___redArg(uint8_t, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instOrdNat;
 LEAN_EXPORT lean_object* l_Ord_on(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
@@ -961,6 +965,55 @@ uint8_t x_3; lean_object* x_4;
 x_3 = l_Ordering_instDecidableExistsOfDecidablePred(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___redArg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_box(x_1);
+if (lean_obj_tag(x_4) == 1)
+{
+lean_dec_ref(x_3);
+lean_inc(x_2);
+return x_2;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; 
+lean_dec(x_4);
+x_5 = lean_box(x_1);
+x_6 = lean_apply_2(x_3, x_5, lean_box(0));
+return x_6;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___redArg(x_2, x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+x_5 = l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___redArg(x_4, x_2, x_3);
+lean_dec(x_2);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_2);
+x_6 = l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter(x_1, x_5, x_3, x_4);
+lean_dec(x_3);
+return x_6;
 }
 }
 LEAN_EXPORT uint8_t l_compareOfLessAndEq___redArg(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {

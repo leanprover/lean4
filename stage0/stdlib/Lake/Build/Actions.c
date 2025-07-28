@@ -80,7 +80,7 @@ static lean_object* l_Lake_download___closed__9;
 static lean_object* l_Lake_compileLeanModule___closed__0;
 lean_object* l_System_FilePath_addExtension(lean_object*, lean_object*);
 static lean_object* l_Lake_tar___closed__0;
-lean_object* l_IO_Process_output(lean_object*, lean_object*);
+lean_object* l_IO_Process_output(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_tar___closed__2;
 LEAN_EXPORT lean_object* l_Lake_untar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_compileSharedLib___closed__0;
@@ -871,7 +871,7 @@ x_52 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_52, 0, x_50);
 lean_ctor_set_uint8(x_52, sizeof(void*)*1, x_51);
 x_53 = lean_array_push(x_24, x_52);
-x_54 = l_IO_Process_output(x_48, x_32);
+x_54 = l_IO_Process_output(x_48, x_39, x_32);
 if (lean_obj_tag(x_54) == 0)
 {
 lean_object* x_55; lean_object* x_56; uint32_t x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; uint8_t x_62; 

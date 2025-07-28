@@ -1542,7 +1542,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_LocalDecl_value___closed__2;
 x_2 = lean_unsigned_to_nat(54u);
-x_3 = lean_unsigned_to_nat(170u);
+x_3 = lean_unsigned_to_nat(171u);
 x_4 = l_Lean_LocalDecl_value___closed__1;
 x_5 = l_Lean_LocalDecl_value___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1563,7 +1563,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_LocalDecl_value___closed__4;
 x_2 = lean_unsigned_to_nat(54u);
-x_3 = lean_unsigned_to_nat(173u);
+x_3 = lean_unsigned_to_nat(174u);
 x_4 = l_Lean_LocalDecl_value___closed__1;
 x_5 = l_Lean_LocalDecl_value___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1892,7 +1892,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_LocalDecl_setBinderInfo___closed__1;
 x_2 = lean_unsigned_to_nat(38u);
-x_3 = lean_unsigned_to_nat(235u);
+x_3 = lean_unsigned_to_nat(236u);
 x_4 = l_Lean_LocalDecl_setBinderInfo___closed__0;
 x_5 = l_Lean_LocalDecl_value___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3456,7 +3456,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_LocalContext_get_x21___closed__1;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(338u);
+x_3 = lean_unsigned_to_nat(339u);
 x_4 = l_Lean_LocalContext_get_x21___closed__0;
 x_5 = l_Lean_LocalDecl_value___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -9564,7 +9564,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_LocalContext_get_x21___closed__1;
 x_2 = lean_unsigned_to_nat(14u);
-x_3 = lean_unsigned_to_nat(551u);
+x_3 = lean_unsigned_to_nat(552u);
 x_4 = l_Lean_LocalContext_mkBinding___lam__0___closed__0;
 x_5 = l_Lean_LocalDecl_value___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

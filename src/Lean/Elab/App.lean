@@ -1331,11 +1331,11 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       let fullName := Name.str `Function fieldName
       if (← getEnv).contains fullName then
         return LValResolution.const `Function `Function fullName
-      else if suffix?.isNone then
-        /- If there's no suffix, this could only have been a field in the `Function` namespace, so
-           we needn't wait to check if this is actually a constant. If `suffix?` is non-`none`, we
-           prefer to throw the "unknown constant" error (because of monad namespaces like `IO` and
-           auxiliary declarations like `mutual_induct`) -/
+      else if suffix?.isNone || e.getAppFn.isFVar then
+        /- If there's no suffix, or the head is a function-typed free variable, this could only have
+           been a field in the `Function` namespace, so we needn't wait to check if this is actually
+           a constant. If `suffix?` is non-`none`, we prefer to throw the "unknown constant" error
+           (because of monad namespaces like `IO` and auxiliary declarations like `mutual_induct`) -/
         throwLValErrorAt fullRef e eType (← mkUnknownIdentifierMessage (declHint := fullName)
           m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`")
     | .fieldIdx .. =>

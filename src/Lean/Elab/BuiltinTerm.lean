@@ -43,7 +43,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   let e ← elabTerm stx[0] none
   unless e.isSorry do
     addDotCompletionInfo stx e expectedType?
-  throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
+  throwErrorAt stx[1] "Invalid field notation: Identifier or numeral expected"
 
 @[builtin_term_elab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
   /- `ident.` is ambiguous in Lean, we may try to be completing a declaration name or access a "field". -/
@@ -57,7 +57,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
       addDotCompletionInfo stx e expectedType?
     catch _ =>
       s.restore
-    throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
+    throwErrorAt stx[1] "Invalid field notation: Identifier or numeral expected"
   else
     elabPipeCompletion stx expectedType?
 

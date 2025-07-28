@@ -150,7 +150,7 @@ theorem Iter.isPlausibleIndirectOutput_of_mem_toArray
     b ∈ it.toArray → it.IsPlausibleIndirectOutput b := by
   intro h
   apply isPlausibleIndirectOutput_of_mem_toList
-  rw [←Array.mem_toList_iff] at h
+  rw [← Array.mem_toList_iff] at h
   simpa [toList_toArray] using h
 
 end Std.Iterators

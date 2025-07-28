@@ -20,7 +20,7 @@ class CharP [AddMonoidWithOne R] (p : Nat) : Prop where
 
 -- Both `R` and `p` are explicit now.
 /--
-info: Issue3574.CharP.cast_eq_zero_iff.{u_1} (R : Type u_1) {inst✝ : AddMonoidWithOne R} (p : Nat) [self : CharP p]
+info: Issue3574.CharP.cast_eq_zero_iff.{u_1} (R : Type u_1) [AddMonoidWithOne R] (p : Nat) [self : CharP p]
   (x : Nat) : ↑x = 0 ↔ p ∣ x
 -/
 #guard_msgs in #check CharP.cast_eq_zero_iff
@@ -30,7 +30,7 @@ class CharP' [AddMonoidWithOne R] (p : Nat) : Prop where
   cast_eq_zero_iff (R p) : ∀ x : Nat, (x : R) = 0 ↔ p ∣ x
 
 /--
-info: Issue3574.CharP'.cast_eq_zero_iff.{u_1} (R : Type u_1) {inst✝ : AddMonoidWithOne R} (p : Nat) [self : CharP' p]
+info: Issue3574.CharP'.cast_eq_zero_iff.{u_1} (R : Type u_1) [AddMonoidWithOne R] (p : Nat) [self : CharP' p]
   (x : Nat) : ↑x = 0 ↔ p ∣ x
 -/
 #guard_msgs in #check CharP'.cast_eq_zero_iff

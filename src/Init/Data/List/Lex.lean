@@ -323,7 +323,8 @@ instance [LT α]
     · exact Or.inl hab
   inferInstance
 
-instance [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α] : LinearOrder (List α) := by
+instance instStdLinearOrder [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α] :
+    LinearOrder (List α) := by
   apply LinearOrder.ofLE
   case le_refl => apply List.le_refl
   case le_antisymm => apply le_antisymm

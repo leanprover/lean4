@@ -6,7 +6,9 @@ Author: Robin Arnez
 module
 
 prelude
-import Init.Data.UInt.Basic
+public import Init.Data.UInt.Basic
+
+public section
 
 @[inline]
 private unsafe def Nat.Internal.isScalarImpl (x : Nat) : Bool :=
@@ -18,7 +20,7 @@ Low-level function that returns whether the provided number is a "small natural 
 Small natural numbers are not allocated on the heap but instead have
 their value encoded directly in their pointer address.
 -/
-@[implemented_by isScalarImpl]
+@[implemented_by isScalarImpl, expose]
 def Nat.Internal.isScalar (x : Nat) : Bool :=
   x < USize.size / 2
 
@@ -30,6 +32,6 @@ private unsafe def Nat.Internal.unboxImpl (x : Nat) (h : isScalar x) : USize :=
 /--
 Low-level function that returns the `USize` value of a small natural number (see `isScalar`).
 -/
-@[implemented_by unboxImpl]
+@[implemented_by unboxImpl, expose]
 def Nat.Internal.unbox (x : Nat) (h : isScalar x) : USize :=
   USize.ofNat x

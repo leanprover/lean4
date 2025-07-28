@@ -980,6 +980,121 @@ static inline lean_object * lean_byte_array_uset(lean_obj_arg a, size_t i, uint8
     return r;
 }
 
+// The compiler should be able to compile these into single instructions
+static inline uint16_t lean_byte_array_fget_uint16_be(b_lean_obj_arg a, b_lean_obj_arg i) {
+    uint8_t* ptr = lean_sarray_cptr(a) + lean_unbox(i);
+    return ((uint16_t) ptr[0] << 8) | (uint16_t) ptr[1];
+}
+
+static inline uint16_t lean_byte_array_fget_uint16_le(b_lean_obj_arg a, b_lean_obj_arg i) {
+    uint8_t* ptr = lean_sarray_cptr(a) + lean_unbox(i);
+    return (uint16_t) ptr[0] | ((uint16_t) ptr[1] << 8);
+}
+
+static inline uint32_t lean_byte_array_fget_uint32_be(b_lean_obj_arg a, b_lean_obj_arg i) {
+    uint8_t* ptr = lean_sarray_cptr(a) + lean_unbox(i);
+    return ((uint32_t) ptr[0] << 24) | ((uint32_t) ptr[1] << 16) |
+        ((uint32_t) ptr[2] << 8) | (uint32_t) ptr[3];
+}
+
+static inline uint32_t lean_byte_array_fget_uint32_le(b_lean_obj_arg a, b_lean_obj_arg i) {
+    uint8_t* ptr = lean_sarray_cptr(a) + lean_unbox(i);
+    return (uint32_t) ptr[0] | ((uint32_t) ptr[1] << 8) |
+        ((uint32_t) ptr[2] << 16) | ((uint32_t) ptr[3] << 24);
+}
+
+static inline uint64_t lean_byte_array_fget_uint64_be(b_lean_obj_arg a, b_lean_obj_arg i) {
+    uint8_t* ptr = lean_sarray_cptr(a) + lean_unbox(i);
+    return ((uint64_t) ptr[0] << 56) | ((uint64_t) ptr[1] << 48) |
+        ((uint64_t) ptr[2] << 40) | ((uint64_t) ptr[3] << 32) |
+        ((uint64_t) ptr[4] << 24) | ((uint64_t) ptr[5] << 16) |
+        ((uint64_t) ptr[6] << 8) | (uint64_t) ptr[7];
+}
+
+static inline uint64_t lean_byte_array_fget_uint64_le(b_lean_obj_arg a, b_lean_obj_arg i) {
+    uint8_t* ptr = lean_sarray_cptr(a) + lean_unbox(i);
+    return (uint64_t) ptr[0] | ((uint64_t) ptr[1] << 8) |
+        ((uint64_t) ptr[2] << 16) | ((uint64_t) ptr[3] << 24) |
+        ((uint64_t) ptr[4] << 32) | ((uint64_t) ptr[5] << 40) |
+        ((uint64_t) ptr[6] << 48) | ((uint64_t) ptr[7] << 56);
+}
+
+static inline lean_object * lean_byte_array_fset_uint16_be(lean_obj_arg a, b_lean_obj_arg i, uint16_t v) {
+    lean_obj_res r;
+    if (LEAN_LIKELY(lean_is_exclusive(a))) r = a;
+    else r = lean_copy_byte_array(a);
+    uint8_t * it = lean_sarray_cptr(r) + lean_unbox(i);
+    *it++ = (uint8_t) (v >> 8);
+    *it++ = (uint8_t) v;
+    return r;
+}
+
+static inline lean_object * lean_byte_array_fset_uint16_le(lean_obj_arg a, b_lean_obj_arg i, uint16_t v) {
+    lean_obj_res r;
+    if (LEAN_LIKELY(lean_is_exclusive(a))) r = a;
+    else r = lean_copy_byte_array(a);
+    uint8_t * it = lean_sarray_cptr(r) + lean_unbox(i);
+    *it++ = (uint8_t) v;
+    *it++ = (uint8_t) (v >> 8);
+    return r;
+}
+
+static inline lean_object * lean_byte_array_fset_uint32_be(lean_obj_arg a, b_lean_obj_arg i, uint32_t v) {
+    lean_obj_res r;
+    if (LEAN_LIKELY(lean_is_exclusive(a))) r = a;
+    else r = lean_copy_byte_array(a);
+    uint8_t * it = lean_sarray_cptr(r) + lean_unbox(i);
+    *it++ = (uint8_t) (v >> 24);
+    *it++ = (uint8_t) (v >> 16);
+    *it++ = (uint8_t) (v >> 8);
+    *it++ = (uint8_t) v;
+    return r;
+}
+
+static inline lean_object * lean_byte_array_fset_uint32_le(lean_obj_arg a, b_lean_obj_arg i, uint32_t v) {
+    lean_obj_res r;
+    if (LEAN_LIKELY(lean_is_exclusive(a))) r = a;
+    else r = lean_copy_byte_array(a);
+    uint8_t * it = lean_sarray_cptr(r) + lean_unbox(i);
+    *it++ = (uint8_t) v;
+    *it++ = (uint8_t) (v >> 8);
+    *it++ = (uint8_t) (v >> 16);
+    *it++ = (uint8_t) (v >> 24);
+    return r;
+}
+
+static inline lean_object * lean_byte_array_fset_uint64_be(lean_obj_arg a, b_lean_obj_arg i, uint64_t v) {
+    lean_obj_res r;
+    if (LEAN_LIKELY(lean_is_exclusive(a))) r = a;
+    else r = lean_copy_byte_array(a);
+    uint8_t * it = lean_sarray_cptr(r) + lean_unbox(i);
+    *it++ = (uint8_t) (v >> 56);
+    *it++ = (uint8_t) (v >> 48);
+    *it++ = (uint8_t) (v >> 40);
+    *it++ = (uint8_t) (v >> 32);
+    *it++ = (uint8_t) (v >> 24);
+    *it++ = (uint8_t) (v >> 16);
+    *it++ = (uint8_t) (v >> 8);
+    *it++ = (uint8_t) v;
+    return r;
+}
+
+static inline lean_object * lean_byte_array_fset_uint64_le(lean_obj_arg a, b_lean_obj_arg i, uint64_t v) {
+    lean_obj_res r;
+    if (LEAN_LIKELY(lean_is_exclusive(a))) r = a;
+    else r = lean_copy_byte_array(a);
+    uint8_t * it = lean_sarray_cptr(r) + lean_unbox(i);
+    *it++ = (uint8_t) v;
+    *it++ = (uint8_t) (v >> 8);
+    *it++ = (uint8_t) (v >> 16);
+    *it++ = (uint8_t) (v >> 24);
+    *it++ = (uint8_t) (v >> 32);
+    *it++ = (uint8_t) (v >> 40);
+    *it++ = (uint8_t) (v >> 48);
+    *it++ = (uint8_t) (v >> 56);
+    return r;
+}
+
 static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
     if (!lean_is_scalar(i)) {
         return a;

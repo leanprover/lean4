@@ -23,13 +23,6 @@ attribute [extern "lean_byte_array_data"] ByteArray.data
 
 namespace ByteArray
 
-deriving instance BEq for ByteArray
-
-attribute [ext] ByteArray
-
-instance : DecidableEq ByteArray :=
-  fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm
-
 @[extern "lean_mk_empty_byte_array"]
 def emptyWithCapacity (c : @& Nat) : ByteArray :=
   { data := #[] }

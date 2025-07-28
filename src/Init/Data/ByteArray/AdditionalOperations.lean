@@ -6,46 +6,25 @@ Author: Robin Arnez
 module
 
 prelude
-import Init.Data.ByteArray.Basic
-import Init.Data.Array.Lemmas
-import Init.Data.UInt.Lemmas
-import Init.Data.Nat.Internal
+public import Init.Data.ByteArray.Basic
+public import Init.Data.Array.Lemmas
+public import Init.Data.UInt.Lemmas
+public import Init.Data.Nat.Internal
+public import Init.Grind
 
 set_option linter.missingDocs true
 
+public section
+
 namespace ByteArray
 
-private theorem helperLemma {x : USize} {y z : Nat} {a b : Nat}
-    (h : x.toNat + y ≤ z := by assumption) (h' : a + b ≤ y := by decide) :
-    (x + USize.ofNat a).toNat + b ≤ z := by
-  simp only [USize.toNat_add, USize.toNat_ofNat', Nat.add_mod_mod]
-  refine Nat.le_trans ?_ h
-  refine Nat.le_trans (Nat.add_le_add_right (Nat.mod_le ..) _) ?_
-  rw [Nat.add_assoc]
-  exact Nat.add_le_add_left h' _
-
 /--
 Interprets the value in the byte array `bs` starting at index `i`
 as a 16 bit little-endian unsigned integer.
 -/
-def ugetUInt16LE (bs : ByteArray) (i : USize)
-    (h : i.toNat + 2 ≤ bs.size := by get_elem_tactic) : UInt16 :=
-  let lo := bs.uget i (Nat.lt_of_add_right_lt h)
-  let hi := bs.uget (i + 1) (helperLemma (b := 1))
-  lo.toUInt16 ||| (hi.toUInt16 <<< 8)
-
-set_option linter.unusedVariables.funArgs false in
-@[inline]
-private unsafe def getUInt16LEImpl (bs : ByteArray) (i : Nat)
-    (h : i + 2 ≤ bs.size) : UInt16 :=
-  ugetUInt16LE bs (Nat.Internal.unbox i lcProof) lcProof
-
-/--
-Interprets the value in the byte array `bs` starting at index `i`
-as a 16 bit little-endian unsigned integer.
--/
---@[implemented_by getUInt16LEImpl]
-def getUInt16LE (bs : ByteArray) (i : Nat) (h : i + 2 ≤ bs.size := by get_elem_tactic) : UInt16 :=
+@[extern "lean_byte_array_fget_uint16_le"]
+def getUInt16LE (bs : @& ByteArray) (i : @& Nat)
+    (h : i + 2 ≤ bs.size := by get_elem_tactic) : UInt16 :=
   let lo := bs[i]
   let hi := bs[i + 1]
   lo.toUInt16 ||| (hi.toUInt16 <<< 8)
@@ -54,185 +33,144 @@ def getUInt16LE (bs : ByteArray) (i : Nat) (h : i + 2 ≤ bs.size := by get_elem
 Interprets the value in the byte array `bs` starting at index `i`
 as a 16 bit big-endian unsigned integer.
 -/
-def ugetUInt16BE (bs : ByteArray) (i : USize)
-    (h : i.toNat + 2 ≤ bs.size := by get_elem_tactic) : UInt16 :=
-  let hi := bs.uget i (Nat.lt_of_add_right_lt h)
-  let lo := bs.uget (i + 1) (helperLemma (b := 1))
+@[extern "lean_byte_array_fget_uint16_be"]
+def getUInt16BE (bs : @& ByteArray) (i : @& Nat)
+    (h : i + 2 ≤ bs.size := by get_elem_tactic) : UInt16 :=
+  let hi := bs[i]
+  let lo := bs[i + 1]
   lo.toUInt16 ||| (hi.toUInt16 <<< 8)
 
 /--
 Interprets the value in the byte array `bs` starting at index `i`
 as a 32 bit little-endian unsigned integer.
 -/
-def ugetUInt32LE (bs : ByteArray) (i : USize)
-    (h : i.toNat + 4 ≤ bs.size := by get_elem_tactic) : UInt32 :=
-  --let b1 := bs.uget i (Nat.lt_of_add_right_lt h)
-  --let b2 := bs.uget (i + 1) helperLemma
-  --let b3 := bs.uget (i + 2) helperLemma
-  --let b4 := bs.uget (i + 3) helperLemma
-  --b1.toUInt32 ||| (b2.toUInt32 <<< 8) ||| (b3.toUInt32 <<< 16) ||| (b4.toUInt32 <<< 24)
-  let lo := bs.ugetUInt16LE i (Nat.le_of_add_right_le (k := 2) h)
-  let hi := bs.ugetUInt16LE (i + 2) helperLemma
+@[extern "lean_byte_array_fget_uint32_le"]
+def getUInt32LE (bs : @& ByteArray) (i : @& Nat)
+    (h : i + 4 ≤ bs.size := by get_elem_tactic) : UInt32 :=
+  let lo := bs.getUInt16LE i
+  let hi := bs.getUInt16LE (i + 2)
   lo.toUInt32 ||| (hi.toUInt32 <<< 16)
 
 /--
 Interprets the value in the byte array `bs` starting at index `i`
 as a 32 bit big-endian unsigned integer.
 -/
-def ugetUInt32BE (bs : ByteArray) (i : USize)
-    (h : i.toNat + 4 ≤ bs.size := by get_elem_tactic) : UInt32 :=
-  --let b4 := bs.uget i (Nat.lt_of_add_right_lt h)
-  --let b3 := bs.uget (i + 1) helperLemma
-  --let b2 := bs.uget (i + 2) helperLemma
-  --let b1 := bs.uget (i + 3) helperLemma
-  --b1.toUInt32 ||| (b2.toUInt32 <<< 8) ||| (b3.toUInt32 <<< 16) ||| (b4.toUInt32 <<< 24)
-  let hi := bs.ugetUInt16BE i (Nat.le_of_add_right_le (k := 2) h)
-  let lo := bs.ugetUInt16BE (i + 2) helperLemma
+@[extern "lean_byte_array_fget_uint32_be"]
+def getUInt32BE (bs : @& ByteArray) (i : @& Nat)
+    (h : i + 4 ≤ bs.size := by get_elem_tactic) : UInt32 :=
+  let hi := bs.getUInt16BE i
+  let lo := bs.getUInt16BE (i + 2)
   lo.toUInt32 ||| (hi.toUInt32 <<< 16)
 
 /--
 Interprets the value in the byte array `bs` starting at index `i`
 as a 64 bit little-endian unsigned integer.
 -/
-def ugetUInt64LE (bs : ByteArray) (i : USize)
-    (h : i.toNat + 8 ≤ bs.size := by get_elem_tactic) : UInt64 :=
-  --let b1 := bs.uget i (Nat.lt_of_add_right_lt h)
-  --let b2 := bs.uget (i + 1) helperLemma
-  --let b3 := bs.uget (i + 2) helperLemma
-  --let b4 := bs.uget (i + 3) helperLemma
-  --let b5 := bs.uget (i + 4) helperLemma
-  --let b6 := bs.uget (i + 5) helperLemma
-  --let b7 := bs.uget (i + 6) helperLemma
-  --let b8 := bs.uget (i + 7) helperLemma
-  --b1.toUInt64 ||| (b2.toUInt64 <<< 8) ||| (b3.toUInt64 <<< 16) ||| (b4.toUInt64 <<< 24) |||
-  --  (b5.toUInt64 <<< 32) ||| (b2.toUInt64 <<< 40) ||| (b3.toUInt64 <<< 48) ||| (b4.toUInt64 <<< 56)
-  let lo := bs.ugetUInt32LE i (Nat.le_of_add_right_le (k := 4) h)
-  let hi := bs.ugetUInt32LE (i + 4) helperLemma
+@[extern "lean_byte_array_fget_uint64_le"]
+def getUInt64LE (bs : @& ByteArray) (i : @& Nat)
+    (h : i + 8 ≤ bs.size := by get_elem_tactic) : UInt64 :=
+  let lo := bs.getUInt32LE i
+  let hi := bs.getUInt32LE (i + 4)
   lo.toUInt64 ||| (hi.toUInt64 <<< 32)
 
 /--
 Interprets the value in the byte array `bs` starting at index `i`
 as a 64 bit big-endian unsigned integer.
 -/
-def ugetUInt64BE (bs : ByteArray) (i : USize)
-    (h : i.toNat + 8 ≤ bs.size := by get_elem_tactic) : UInt64 :=
-  --let b8 := bs.uget i (Nat.lt_of_add_right_lt h)
-  --let b7 := bs.uget (i + 1) helperLemma
-  --let b6 := bs.uget (i + 2) helperLemma
-  --let b5 := bs.uget (i + 3) helperLemma
-  --let b4 := bs.uget (i + 4) helperLemma
-  --let b3 := bs.uget (i + 5) helperLemma
-  --let b2 := bs.uget (i + 6) helperLemma
-  --let b1 := bs.uget (i + 7) helperLemma
-  --b1.toUInt64 ||| (b2.toUInt64 <<< 8) ||| (b3.toUInt64 <<< 16) ||| (b4.toUInt64 <<< 24) |||
-  --  (b5.toUInt64 <<< 32) ||| (b2.toUInt64 <<< 40) ||| (b3.toUInt64 <<< 48) ||| (b4.toUInt64 <<< 56)
-  let hi := bs.ugetUInt32BE i (Nat.le_of_add_right_le (k := 4) h)
-  let lo := bs.ugetUInt32BE (i + 4) helperLemma
+@[extern "lean_byte_array_fget_uint64_be"]
+def getUInt64BE (bs : @& ByteArray) (i : @& Nat)
+    (h : i + 8 ≤ bs.size := by get_elem_tactic) : UInt64 :=
+  let hi := bs.getUInt32BE i
+  let lo := bs.getUInt32BE (i + 4)
   lo.toUInt64 ||| (hi.toUInt64 <<< 32)
 
-@[simp]
+@[simp, grind =]
 theorem size_uset {bs : ByteArray} {i : USize} {val : UInt8} (h : i.toNat < bs.size) :
     (bs.uset i val).size = bs.size := by
-  simp only [size, uset, Array.uset, Array.size_set]
+  simp [size, uset]
 
-local macro "set_tac" : tactic => `(tactic|
-  ((try simp +zetaDelta only [size_uset]); first | exact helperLemma | exact helperLemma (b := 1)))
-
-/-- Writes the value into the byte array starting at index `i` in little-endian byte order. -/
-def usetUInt16LE (bs : ByteArray) (i : USize) (val : UInt16)
-    (h : i.toNat + 2 ≤ bs.size := by get_elem_tactic) : ByteArray :=
-  let bs := uset bs i val.toUInt8 (Nat.lt_of_add_right_lt h)
-  let bs := uset bs (i + 1) (val >>> 8).toUInt8 (by simpa [bs] using helperLemma (b := 1))
-  bs
-
-@[simp]
-theorem size_usetUInt16LE {bs : ByteArray} {i : USize} {val : UInt16}
-    (h : i.toNat + 2 ≤ bs.size) : (bs.usetUInt16LE i val).size = bs.size := by
-  simp [usetUInt16LE]
-
-/-- Writes the value into the byte array starting at index `i` in big-endian byte order. -/
-def usetUInt16BE (bs : ByteArray) (i : USize) (val : UInt16)
-    (h : i.toNat + 2 ≤ bs.size := by get_elem_tactic) : ByteArray :=
-  let bs := uset bs i (val >>> 8).toUInt8 (Nat.lt_of_add_right_lt h)
-  let bs := uset bs (i + 1) val.toUInt8 (by simpa [bs] using helperLemma (b := 1))
-  bs
-
-@[simp]
-theorem size_usetUInt16BE {bs : ByteArray} {i : USize} {val : UInt16}
-    (h : i.toNat + 2 ≤ bs.size) : (bs.usetUInt16BE i val).size = bs.size := by
-  simp [usetUInt16BE]
+@[simp, grind =]
+theorem size_set {bs : ByteArray} {i : Nat} {val : UInt8} (h : i < bs.size) :
+    (bs.set i val).size = bs.size := by
+  simp [size, set]
 
 /-- Writes the value into the byte array starting at index `i` in little-endian byte order. -/
-def usetUInt32LE (bs : ByteArray) (i : USize) (val : UInt32)
-    (h : i.toNat + 4 ≤ bs.size := by get_elem_tactic) : ByteArray :=
-  /-let bs := uset bs i val.toUInt8 (Nat.lt_of_add_right_lt h)
-  let bs := uset bs (i + 1) (val >>> 8).toUInt8 (by set_tac)
-  let bs := uset bs (i + 2) (val >>> 16).toUInt8 (by set_tac)
-  let bs := uset bs (i + 3) (val >>> 24).toUInt8 (by set_tac)-/
-  let bs := usetUInt16LE bs i val.toUInt16 (Nat.le_of_add_right_le (k := 2) h)
-  let bs := usetUInt16LE bs (i + 2) (val >>> 16).toUInt16 (by simpa [bs] using helperLemma)
+@[extern "lean_byte_array_fset_uint16_le"]
+def setUInt16LE (bs : ByteArray) (i : @& Nat) (val : UInt16)
+    (h : i + 2 ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  let bs := bs.set i val.toUInt8
+  let bs := bs.set (i + 1) (val >>> 8).toUInt8 (by grind)
   bs
 
-@[simp]
-theorem size_usetUInt32LE {bs : ByteArray} {i : USize} {val : UInt32}
-    (h : i.toNat + 4 ≤ bs.size) : (bs.usetUInt32LE i val).size = bs.size := by
-  simp [usetUInt32LE]
+@[simp, grind =]
+theorem size_setUInt16LE {bs : ByteArray} {i : Nat} {val : UInt16}
+    (h : i + 2 ≤ bs.size) : (bs.setUInt16LE i val).size = bs.size := by
+  simp [setUInt16LE]
 
 /-- Writes the value into the byte array starting at index `i` in big-endian byte order. -/
-def usetUInt32BE (bs : ByteArray) (i : USize) (val : UInt32)
-    (h : i.toNat + 4 ≤ bs.size := by get_elem_tactic) : ByteArray :=
-  /-let bs := uset bs i (val >>> 24).toUInt8 (by set_tac)
-  let bs := uset bs (i + 1) (val >>> 16).toUInt8 (by set_tac)
-  let bs := uset bs (i + 2) (val >>> 8).toUInt8 (by set_tac)
-  let bs := uset bs (i + 3) val.toUInt8 (by set_tac)-/
-  let bs := usetUInt16BE bs i (val >>> 16).toUInt16 (Nat.le_of_add_right_le (k := 2) h)
-  let bs := usetUInt16BE bs (i + 2) val.toUInt16 (by simpa [bs] using helperLemma)
+@[extern "lean_byte_array_fset_uint16_be"]
+def setUInt16BE (bs : ByteArray) (i : @& Nat) (val : UInt16)
+    (h : i + 2 ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  let bs := bs.set i (val >>> 8).toUInt8
+  let bs := bs.set (i + 1) val.toUInt8 (by grind)
   bs
 
-@[simp]
-theorem size_usetUInt32BE {bs : ByteArray} {i : USize} {val : UInt32}
-    (h : i.toNat + 4 ≤ bs.size) : (bs.usetUInt32BE i val).size = bs.size := by
-  simp [usetUInt32BE]
+@[simp, grind =]
+theorem size_setUInt16BE {bs : ByteArray} {i : Nat} {val : UInt16}
+    (h : i + 2 ≤ bs.size) : (bs.setUInt16BE i val).size = bs.size := by
+  simp [setUInt16BE]
 
 /-- Writes the value into the byte array starting at index `i` in little-endian byte order. -/
-def usetUInt64LE (bs : ByteArray) (i : USize) (val : UInt64)
-    (h : i.toNat + 8 ≤ bs.size := by get_elem_tactic) : ByteArray :=
-  /-let bs := uset bs i val.toUInt8 (by set_tac)
-  let bs := uset bs (i + 1) (val >>> 8).toUInt8 (by set_tac)
-  let bs := uset bs (i + 2) (val >>> 16).toUInt8 (by set_tac)
-  let bs := uset bs (i + 3) (val >>> 24).toUInt8 (by set_tac)
-  let bs := uset bs (i + 4) (val >>> 32).toUInt8 (by set_tac)
-  let bs := uset bs (i + 5) (val >>> 40).toUInt8 (by set_tac)
-  let bs := uset bs (i + 6) (val >>> 48).toUInt8 (by set_tac)
-  let bs := uset bs (i + 7) (val >>> 56).toUInt8 (by set_tac)-/
-  let bs := usetUInt32LE bs i val.toUInt32 (Nat.le_of_add_right_le (k := 4) h)
-  let bs := usetUInt32LE bs (i + 4) (val >>> 32).toUInt32 (by simpa [bs] using helperLemma)
+@[extern "lean_byte_array_fset_uint32_le"]
+def setUInt32LE (bs : ByteArray) (i : @& Nat) (val : UInt32)
+    (h : i + 4 ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  let bs := bs.setUInt16LE i val.toUInt16
+  let bs := bs.setUInt16LE (i + 2) (val >>> 16).toUInt16 (by grind)
   bs
 
-@[simp]
-theorem size_usetUInt64LE {bs : ByteArray} {i : USize} {val : UInt64}
-    (h : i.toNat + 8 ≤ bs.size) : (bs.usetUInt64LE i val).size = bs.size := by
-  simp [usetUInt64LE]
+@[simp, grind =]
+theorem size_setUInt32LE {bs : ByteArray} {i : Nat} {val : UInt32}
+    (h : i + 4 ≤ bs.size) : (bs.setUInt32LE i val).size = bs.size := by
+  simp [setUInt32LE]
 
 /-- Writes the value into the byte array starting at index `i` in big-endian byte order. -/
-def usetUInt64BE (bs : ByteArray) (i : USize) (val : UInt64)
-    (h : i.toNat + 8 ≤ bs.size := by get_elem_tactic) : ByteArray :=
-  /-let bs := uset bs (i + 7) val.toUInt8 (by set_tac)
-  let bs := uset bs (i + 6) (val >>> 8).toUInt8 (by set_tac)
-  let bs := uset bs (i + 5) (val >>> 16).toUInt8 (by set_tac)
-  let bs := uset bs (i + 4) (val >>> 24).toUInt8 (by set_tac)
-  let bs := uset bs (i + 3) (val >>> 32).toUInt8 (by set_tac)
-  let bs := uset bs (i + 2) (val >>> 40).toUInt8 (by set_tac)
-  let bs := uset bs (i + 1) (val >>> 48).toUInt8 (by set_tac)
-  let bs := uset bs i (val >>> 56).toUInt8 (by set_tac)-/
-  let bs := usetUInt32BE bs i (val >>> 32).toUInt32 (Nat.le_of_add_right_le (k := 4) h)
-  let bs := usetUInt32BE bs (i + 4) val.toUInt32 (by simpa [bs] using helperLemma)
+@[extern "lean_byte_array_fset_uint32_be"]
+def setUInt32BE (bs : ByteArray) (i : @& Nat) (val : UInt32)
+    (h : i + 4 ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  let bs := bs.setUInt16BE i (val >>> 16).toUInt16
+  let bs := bs.setUInt16BE (i + 2) val.toUInt16 (by grind)
   bs
 
-@[simp]
-theorem size_usetUInt64BE {bs : ByteArray} {i : USize} {val : UInt64}
-    (h : i.toNat + 8 ≤ bs.size) : (bs.usetUInt64BE i val).size = bs.size := by
-  simp [usetUInt64BE]
+@[simp, grind =]
+theorem size_setUInt32BE {bs : ByteArray} {i : Nat} {val : UInt32}
+    (h : i + 4 ≤ bs.size) : (bs.setUInt32BE i val).size = bs.size := by
+  simp [setUInt32BE]
+
+/-- Writes the value into the byte array starting at index `i` in little-endian byte order. -/
+@[extern "lean_byte_array_fset_uint64_le"]
+def setUInt64LE (bs : ByteArray) (i : @& Nat) (val : UInt64)
+    (h : i + 8 ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  let bs := bs.setUInt32LE i val.toUInt32
+  let bs := bs.setUInt32LE (i + 4) (val >>> 32).toUInt32 (by grind)
+  bs
+
+@[simp, grind =]
+theorem size_setUInt64LE {bs : ByteArray} {i : Nat} {val : UInt64}
+    (h : i + 8 ≤ bs.size) : (bs.setUInt64LE i val).size = bs.size := by
+  simp [setUInt64LE]
+
+/-- Writes the value into the byte array starting at index `i` in big-endian byte order. -/
+@[extern "lean_byte_array_fset_uint64_be"]
+def setUInt64BE (bs : ByteArray) (i : @& Nat) (val : UInt64)
+    (h : i + 8 ≤ bs.size := by get_elem_tactic) : ByteArray :=
+  let bs := bs.setUInt32BE i (val >>> 32).toUInt32
+  let bs := bs.setUInt32BE (i + 4) val.toUInt32 (by grind)
+  bs
+
+@[simp, grind =]
+theorem size_setUInt64BE {bs : ByteArray} {i : Nat} {val : UInt64}
+    (h : i + 8 ≤ bs.size) : (bs.setUInt64BE i val).size = bs.size := by
+  simp [setUInt64BE]
 
 theorem size_def (bs : ByteArray) : bs.size = bs.data.size := rfl
 
@@ -333,8 +271,9 @@ theorem ext {as bs : ByteArray} (h : as.size = bs.size)
 Grows or shrinks a byte array. When growing, additional bytes are filled with zeroes.
 -/
 def setSize (bs : ByteArray) (size : Nat) (exact : Bool := false) : ByteArray :=
+  let prevSize := bs.size
   Quot.liftOn (setSize' bs size exact)
-    (fun bs' => if h : bs.size < size then bs'.1.fill' bs.size (size - bs.size) 0 else bs'.1)
+    (fun bs' => if h : prevSize < size then bs'.1.fill' prevSize (size - prevSize) 0 else bs'.1)
     (fun a b _ => by
       dsimp
       split
@@ -355,7 +294,7 @@ def setSize (bs : ByteArray) (size : Nat) (exact : Bool := false) : ByteArray :=
           rw [a.2.2 i _ (Nat.lt_of_lt_of_le h hbs),
             b.2.2 i _ (Nat.lt_of_lt_of_le h hbs)])
 
-@[simp]
+@[simp, grind =]
 theorem size_setSize (bs : ByteArray) (size : Nat) (exact : Bool) :
     (bs.setSize size exact).size = size := by
   rw [setSize]
@@ -418,15 +357,33 @@ theorem data_replicate (size : Nat) (value : UInt8) :
   cases (emptyWithCapacity size).setSize' size using Quot.ind with | mk a => ?_
   simp [Quot.liftOn, fill', copySlice, ← size_def, Array.extract_empty_of_size_le_start, a.2]
 
+@[simp]
+theorem size_replicate {n : Nat} {v : UInt8} : (replicate n v).size = n := by
+  simp [size_def]
+
+@[simp]
+theorem getElem_replicate {i : Nat} {n : Nat} {v : UInt8} (h : i < (replicate n v).size) :
+    (replicate n v)[i] = v := by
+  simp [getElem_def]
+
+-- TODO: `pushUIntN{LE/BE}`
+
 /--
-Return true iff the slices `[asOff, asOff + len)` in `as` and `[bsOff, bsOff + len)` in
+Returns true if and only if the slices `[asOff, asOff + len)` in `as` and `[bsOff, bsOff + len)` in
 `bs` contain the same data.
 -/
 @[extern "lean_byte_array_slice_eq"]
-def sliceEq' (as : @& ByteArray) (asOff : @& Nat) (bs : @& ByteArray) (bsOff : @& Nat) (len : @& Nat)
+def sliceEq' (as : @& ByteArray) (asOff : @& Nat) (bs : @& ByteArray) (bsOff len : @& Nat)
     (h : asOff + len ≤ as.size := by get_elem_tactic)
     (h' : bsOff + len ≤ bs.size := by get_elem_tactic) : Bool :=
   as.data.extract asOff (asOff + len) == bs.data.extract bsOff (bsOff + len)
+
+/--
+Returns true if and only if the slices `[asOff, asOff + len)` in `as` and `[bsOff, bsOff + len)` in
+`bs` exist and contain the same data.
+-/
+def sliceEq (as : ByteArray) (asOff : Nat) (bs : ByteArray) (bsOff : Nat) (len : Nat) : Bool :=
+  ∃ h h', sliceEq' as asOff bs bsOff len h h'
 
 /--
 Returns whether two byte arrays are equal.

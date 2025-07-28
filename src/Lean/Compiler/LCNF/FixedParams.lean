@@ -145,9 +145,12 @@ partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
         have : i < main.params.size := h.2
         let param := main.params[i]
         let val ← evalArg args[i]
-        unless val == .val i || val == .erased do
-          -- Found non fixed argument
-          -- Remark: if the argument is erased and the type of the parameter is erased we assume it is a fixed "propositonal" parameter.
+        let isFixed :=
+          match val with
+          | .val j => j == i
+          | .erased => true
+          | .top => false
+        if !isFixed then
           modify fun s => { s with fixed := s.fixed.set! i false }
       else
         -- Partial application mark argument as not fixed

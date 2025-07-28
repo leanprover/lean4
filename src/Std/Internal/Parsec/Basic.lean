@@ -16,8 +16,7 @@ namespace Internal
 namespace Parsec
 
 /--
-Error type for the `ParseResult`. It separates `eof` from the rest of the errors in order to
-improve the error handling for this case in parsers that can receive incomplete data and then reparse it.
+Represents an error that can occur during parsing.
 -/
 inductive Error where
   | eof

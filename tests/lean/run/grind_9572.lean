@@ -35,7 +35,4 @@ theorem test (f : Nat → List (List Nat)) {l : List Nat} :
       (fun x y ↦
         (if x ^ i ≤ n then List.map (fun m ↦ x :: m) (f x) else []).Disjoint
         (if y ^ i ≤ n then List.map (fun m ↦ y :: m) (f y) else [])) := by
-  -- TODO: fix patterns in standard library
-  -- We had to disable `List.pairwise_iff_forall_sublist` otherwise an unbounded
-  -- number of instances is produced.
-  grind [-List.pairwise_iff_forall_sublist]
+  grind

@@ -83,6 +83,20 @@ Field conflicts with projection
   toS : Nat
 
 /-!
+Field conflicts with indirect parent projection
+-/
+structure GP where
+structure P extends toGP : GP where
+/--
+error: Field `toGP` has already been declared as a projection for an indirect parent structure `GP`
+
+Note: This projection was transitively inherited from this structure's immediate parent `P`
+-/
+#guard_msgs in
+structure C extends P where
+  toGP : Unit
+
+/-!
 Checking that the projection name is honored.
 -/
 structure S2 extends toTheS : S where
@@ -122,17 +136,6 @@ field notation resolution order:
   S2', S, U
 -/
 #guard_msgs in #print S2'
-
-structure GP where
-structure P extends toGP : GP where
-/--
-error: Field `toGP` has already been declared as a projection for a parent structure `GP`
-
-Note: This projection was transitively inherited from this structure's immediate parent `P`
--/
-#guard_msgs in
-structure C extends P where
-  toGP : Unit
 
 /-!
 Structure instances, setting a parent

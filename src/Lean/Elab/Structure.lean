@@ -1111,8 +1111,8 @@ where
             m!"this structure's immediate parent {parent}"
           else
             m!"one of this structure's immediate parents {.orList parentMsgs}"
-          throwError m!"Field `{view.name}` has already been declared as a projection for a parent structure `{.ofConstName n}`"
-            ++ .note m!"This projection was transitively inherited from {inheritanceMsg}"
+          throwError m!"Field `{view.name}` has already been declared as a projection for an indirect parent structure `{.ofConstName n}`"
+            ++ .note m!"This projection was inherited from {inheritanceMsg}"
         | StructFieldKind.copiedField
         | StructFieldKind.fromSubobject => updateDefaultValue
     else

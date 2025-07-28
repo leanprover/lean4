@@ -145,6 +145,7 @@ variable (sep : String) (escape : Bool) in
 Uses the separator `sep` (usually `"."`) to combine the components of the `Name` into a string.
 See the documentation for `Name.toString` for an explanation of `escape` and `isToken`.
 -/
+@[specialize]
 def toStringWithSep (n : Name) (isToken : String → Bool := fun _ => false) : String :=
   match n with
   | anonymous       => "[anonymous]"
@@ -170,7 +171,8 @@ Converts a name to a string.
   escaping is necessary to avoid parser tokens.
   The insertion algorithm works so long as parser tokens do not themselves contain `«` or `»`.
 -/
-protected def toString (n : Name) (escape := true) (isToken : String → Bool := fun _ => false) : String :=
+@[specialize]
+def toStringWithToken (n : Name) (escape := true) (isToken : String → Bool := fun _ => false) : String :=
   -- never escape "prettified" inaccessible names or macro scopes or pseudo-syntax introduced by the delaborator
   toStringWithSep "." (escape && !n.isInaccessibleUserName && !n.hasMacroScopes && !maybePseudoSyntax) n isToken
 where
@@ -183,6 +185,17 @@ where
       "#".isPrefixOf s || "?".isPrefixOf s
     else
       false
+
+/--
+Converts a name to a string.
+
+- If `escape` is `true`, then escapes name components using `«` and `»` to ensure that
+  those names that can appear in source files round trip.
+  Names with number components, anonymous names, and names containing `»` might not round trip.
+  Furthermore, "pseudo-syntax" produced by the delaborator, such as `_`, `#0` or `?u`, is not escaped.
+-/
+protected def toString (n : Name) (escape := true) : String :=
+  Name.toStringWithToken n escape (fun _ => false)
 
 instance : ToString Name where
   toString n := n.toString

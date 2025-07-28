@@ -20,7 +20,7 @@ def loop : Async Nat := do
   while res < 10 do
     res := res + 1
 
-  discard <| t -- Freezing the LSP
+  discard t
 
   pure res
 
@@ -36,7 +36,7 @@ def loopExcept : Async Nat := do
   while res < 10 do
     throw (.userError "some error")
 
-  discard <| t -- Freezing the LSP
+  discard t
 
   pure res
 

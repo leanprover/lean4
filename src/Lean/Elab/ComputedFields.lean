@@ -131,7 +131,7 @@ def overrideCasesOn : M Unit := do
           withLetDecl `m (← inferType constMotive) constMotive fun m => do
           mkLambdaFVars (#[m] ++ indices ++ #[majorImpl]) m] ++
         indices ++ #[← mkUnsafeCastTo majorImplTy major] ++
-        (← (minors.zip ctors.toArray).mapM fun (minor, ctor) => do
+        (← minors.zipWithM (bs:=ctors.toArray) fun minor ctor => do
           forallTelescope (← inferType minor) fun args _ => do
             mkLambdaFVars ((if ← isScalarField ctor then #[] else compFieldVars) ++ args)
               (← mkUnsafeCastTo constMotive (mkAppN minor args)))

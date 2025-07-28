@@ -808,7 +808,7 @@ partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOpti
               usingNames st.varNames[idx]! <|
                 withAppFnArgs (pure #[]) fun pats => return pats.push (← delab)
       -- Finally, assemble
-      let discrs ← (st.hNames?.zip st.discrs).mapM fun (hName?, discr) =>
+      let discrs ← st.hNames?.zipWithM (bs := st.discrs) fun hName? discr =>
         match hName? with
         | none => `(matchDiscr| $discr:term)
         | some hName => `(matchDiscr| $(mkIdent hName) : $discr)

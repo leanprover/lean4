@@ -101,7 +101,7 @@ theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] {f : α → m β} 
   induction l with
   | nil => simp
   | cons a as ih =>
-    simp only [mapM'_cons, ih, bind_map_left, foldlM_cons, 
+    simp only [mapM'_cons, ih, bind_map_left, foldlM_cons,
       foldlM_cons_eq_append, _root_.map_bind, Functor.map_map, reverse_append,
       reverse_cons, reverse_nil, nil_append, singleton_append]
     simp [bind_pure_comp]
@@ -136,6 +136,43 @@ theorem filterMapM_loop_eq [Monad m] [LawfulMonad m] {f : α → m (Option β)} 
   · simp only [bind_pure_comp]
     rw [filterMapM_loop_eq, filterMapM]
     simp
+
+/-! ### zipWithM -/
+
+/--
+Applies the monadic action `f` to the corresponding elements of two lists, left-to-right, stopping
+at the end of the shorter list. `zipWithM' f as bs` is equivalent to `mapM id (zipWith f as bs)`
+for lawful `Monad` instances.
+-/
+@[expose]
+def zipWithM' {m : Type u → Type v} [Monad m] {α : Type w} {β : Type x} {γ : Type u} (f : α → β → m γ) : (xs : List α) → (ys : List β) → m (List γ)
+  | x::xs, y::ys => do
+    let z ← f x y
+    let zs ← zipWithM' f xs ys
+    pure (z :: zs)
+  | _,     _     => pure []
+
+@[simp, grind =] theorem zipWithM'_nil_left [Monad m] {f : α → β → m γ} : zipWithM' f [] l = pure (f := m) [] := by simp only [zipWithM']
+@[simp, grind =] theorem zipWithM'_nil_right [Monad m] {f : α → β → m γ} : zipWithM' f l [] = pure (f := m) [] := by simp only [zipWithM']
+@[simp, grind =] theorem zipWithM'_cons_cons [Monad m] {f : α → β → m γ} :
+    zipWithM' f (a :: as) (b :: bs) = do return (← f a b) :: (← zipWithM' f as bs) := by simp only [zipWithM']
+
+@[grind =]
+theorem zipWithM'_eq_zipWithM [Monad m] [LawfulMonad m] {f : α → β → m γ} {l : List α} {l' : List β} :
+    zipWithM' f l l' = zipWithM f l l' := by simp [zipWithM, go l l' #[]] where
+  go l l' acc : zipWithM.loop f l l' acc = return acc.toList ++ (← zipWithM' f l l') := by
+    fun_induction zipWithM.loop <;> simp [zipWithM', *]
+
+@[simp, grind =] theorem zipWithM_nil_left [Monad m] {f : α → β → m γ} : zipWithM f [] l = pure (f := m) [] := rfl
+@[simp, grind =] theorem zipWithM_nil_right [Monad m] {f : α → β → m γ} : zipWithM f l [] = pure (f := m) [] := by simp only [zipWithM, zipWithM.loop]
+@[simp, grind =] theorem zipWithM_cons_cons [Monad m] [LawfulMonad m] {f : α → β → m γ} :
+    zipWithM f (a :: as) (b :: bs) = do return (← f a b) :: (← zipWithM f as bs) := by
+  simp [← zipWithM'_eq_zipWithM]
+
+@[simp, grind =]
+theorem zipWithM'_eq_mapM_id_zipWith {m : Type v → Type w} [Monad m] [LawfulMonad m] {f : α → β → m γ} {as : List α} {bs : List β} :
+    zipWithM' f as bs = mapM id (zipWith f as bs) := by
+  fun_induction zipWithM' <;> simp [zipWith, *]
 
 /-! ### flatMapM -/
 

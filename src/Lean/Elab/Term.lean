@@ -340,6 +340,11 @@ structure Context where
   -/
   checkDeprecated : Bool := true
 
+  /--
+  If `prohibitUnsafe := true`, the unsafe elaborator will be disabled.
+  -/
+  prohibitUnsafe : Bool := false
+
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
@@ -732,6 +737,10 @@ def getInfoTreeWithContext? : TermElabM (Option InfoTree) := do
 def throwErrorIfErrors : TermElabM Unit := do
   if (← MonadLog.hasErrors) then
     throwError "Error(s)"
+
+def throwErrorIfUnsafe : TermElabM Unit := do
+  if (← readThe Context).prohibitUnsafe then
+    throwError "Cannot elaborate unsafe"
 
 def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
   withRef Syntax.missing <| trace cls msg

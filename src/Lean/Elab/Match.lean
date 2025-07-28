@@ -187,7 +187,7 @@ open Lean.Elab.Term.Quotation in
     for (pats, rhs) in patss.zip rhss do
       let vars ← try
         getPatternsVars pats
-      catch | _ => return  -- can happen in case of pattern antiquotations
+      catch _ => return  -- can happen in case of pattern antiquotations
       Quotation.withNewLocals (getPatternVarNames vars) <| precheck rhs
   | _ => throwUnsupportedSyntax
 
@@ -384,9 +384,9 @@ private def elabPatterns (patternStxs : Array Syntax) (numDiscrs : Nat) (matchTy
               | some path =>
                 restoreState s
                 -- Wrap the type mismatch exception for the "discriminant refinement" feature.
-                throwThe PatternElabException { ex := ex, patternIdx := idx, pathToIndex := path }
-              | none => restoreState s; throw ex
-            | none => throw ex
+                throw { ex := ex, patternIdx := idx, pathToIndex := path }
+              | none => restoreState s; throwThe Exception ex
+            | none => throwThe Exception ex
         matchType := b.instantiate1 pattern
         patterns  := patterns.push pattern
       | _ => throwError "Failed to elaborate match expression: Inferred {idx} discriminants, but more were found"

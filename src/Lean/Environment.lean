@@ -500,6 +500,19 @@ private partial def AsyncConsts.findRecTask (aconsts : AsyncConsts) (declName : 
     let some aconsts := aconsts.get? AsyncConsts | .pure none
     AsyncConsts.findRecTask aconsts declName
 
+/-- Like `findRec?` but returns the constant that has `declName` in its `consts`, if any. -/
+private partial def AsyncConsts.findRecParent? (aconsts : AsyncConsts) (declName : Name) : Option AsyncConst :=
+  go none aconsts
+where go parent? aconsts := do
+  let c ← aconsts.findPrefix? declName
+  if c.constInfo.name == declName then
+    return (← parent?)
+  -- If privacy is the only difference between `declName` and `findPrefix?` result, we can assume
+  -- `declName` does not exist according to the `add` invariant
+  guard <| privateToUserName c.constInfo.name != privateToUserName declName
+  let aconsts ← c.consts.get.get? AsyncConsts
+  go (some c) aconsts
+
 /-- Accessibility levels of declarations in `Lean.Environment`. -/
 private inductive Visibility where
   /-- Information private to the module. -/
@@ -1190,6 +1203,11 @@ def instantiateValueLevelParams! (c : ConstantInfo) (ls : List Level) : Expr :=
 
 end ConstantInfo
 
+inductive AsyncBranch where
+  | mainEnv
+  | asyncEnv
+deriving BEq
+
 /--
 Async access mode for environment extensions used in `EnvExtension.get/set/modifyState`.
 When modified in concurrent contexts, extensions may need to switch to a different mode than the
@@ -1236,11 +1254,10 @@ inductive EnvExtension.AsyncMode where
   | mainOnly
   /--
   Accumulates modifications in the `checked` environment like `sync`, but `getState` will panic
-  instead of blocking. Instead `findStateAsync` should be used, which will access the state of the
-  environment branch corresponding to the passed declaration name, if any, or otherwise the state
-  of the current branch. In other words, at most one environment branch will be blocked on instead
-  of all prior branches. The local state can still be accessed by calling `getState` with mode
-  `local` explicitly.
+  instead of blocking unless its `asyncDecl` parameter is specified, which will access the state of
+  the environment branch corresponding to the passed declaration name, if any. In other words, at
+  most one environment branch will be blocked on instead of all prior branches. The local state can
+  still be accessed by calling `getState` with mode `local` explicitly.
 
   This mode is suitable for extensions with map-like state where the key uniquely identifies the
   top-level declaration where it could have been set, e.g. because the key on modification is always
@@ -1250,7 +1267,7 @@ inductive EnvExtension.AsyncMode where
   own constant map works which asserts the same predicate on modification and provides `findAsync?`
   for block-avoiding access.
   -/
-  | async
+  | async (branch : AsyncBranch)
   deriving Inhabited
 
 abbrev ReplayFn (σ : Type) :=
@@ -1364,12 +1381,31 @@ def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : 
 
 -- `unsafe` fails to infer `Nonempty` here
 private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension σ)
-    (env : Environment) (asyncMode := ext.asyncMode) : σ :=
+    (env : Environment) (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ := Id.run do
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match asyncMode with
-  | .sync     => ext.getStateImpl env.checked.get.extensions
-  | .async    => panic! "called on `async` extension, use `findStateAsync` \
-    instead or pass `(asyncMode := .local)` to explicitly access local state"
+  | .sync => ext.getStateImpl env.checked.get.extensions
+  | .async branch =>
+    if asyncDecl.isAnonymous then
+      panic! "called on `async` extension, must set `asyncDecl` \
+        or pass `(asyncMode := .local)` to explicitly access local state"
+    -- analogous structure to `findAsync?`; see there
+    -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
+    if env.base.get env |>.constants.contains asyncDecl then
+      return ext.getStateImpl env.base.private.extensions
+    if let some c := match branch with
+        | .asyncEnv => env.asyncConsts.findRec? asyncDecl
+        | .mainEnv => env.asyncConsts.findRecParent? asyncDecl then
+      if let some exts := c.exts? then
+        return ext.getStateImpl exts.get
+      -- NOTE: if `exts?` is `none`, we should *not* try the following, more expensive branches that
+      -- will just come to the same conclusion
+    else if let some c := env.allRealizations.get.find? asyncDecl then
+      if let some exts := c.exts? then
+        return ext.getStateImpl exts.get
+    -- fallback; we could enforce that `findStateAsync` is only used on existing constants but the
+    -- upside of doing is unclear
+    ext.getStateImpl env.base.private.extensions
   | _         => ext.getStateImpl env.base.private.extensions
 
 /--
@@ -1377,54 +1413,18 @@ Returns the current extension state. See `AsyncMode` for details on how modifica
 different environment branches are reconciled. Panics if the extension is marked as `async`; see its
 documentation for more details. Overriding the extension's default `AsyncMode` is usually not
 recommended and should be considered only for important optimizations.
+
+Returns the extension state on the environment branch corresponding to the passed declaration name,
+if any, or otherwise the state on the current branch. In other words, at most one environment branch
+will be blocked on.
+
+More specifically, if `afterAsync` is set to `true`, the retrieved state will be the one at the time
+`AddConstAsyncResult.commitConst` was called; if it is `false`, it will instead be taken fro the
+branch that that called `addConstAsync` in the first place.
 -/
 @[implemented_by getStateUnsafe]
 opaque getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment)
-  (asyncMode := ext.asyncMode) : σ
-
--- `unsafe` fails to infer `Nonempty` here
-private unsafe def findStateAsyncUnsafe {σ : Type} [Inhabited σ]
-    (ext : EnvExtension σ) (env : Environment) (declName : Name) : σ := Id.run do
-  -- analogous structure to `findAsync?`; see there
-  -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
-  if env.base.get env |>.constants.contains declName then
-    return ext.getStateImpl env.base.private.extensions
-  if let some c := env.asyncConsts.find? declName then
-    if let some exts := c.exts? then
-      return ext.getStateImpl exts.get
-    -- NOTE: if `exts?` is `none`, we should *not* try the following, more expensive branches that
-    -- will just come to the same conclusion
-  else if let some exts := findRecExts? none env.asyncConsts declName then
-    return ext.getStateImpl exts.get
-  else if let some c := env.allRealizations.get.find? declName then
-    if let some exts := c.exts? then
-      return ext.getStateImpl exts.get
-  -- fallback; we could enforce that `findStateAsync` is only used on existing constants but the
-  -- upside of doing is unclear
-  ext.getStateImpl env.base.private.extensions
-where
-  /--
-  Like `AsyncConsts.findRec?`, but if `AsyncConst.exts?` is `none`, returns the extension state of
-  the surrounding `AsyncConst` instead, which is where state for synchronously added constants is
-  stored.
-  -/
-  findRecExts? (parent? : Option AsyncConst) (aconsts : AsyncConsts) (declName : Name) :
-      Option (Task (Array EnvExtensionState)) := do
-    let c ← aconsts.findPrefix? declName
-    if c.constInfo.name == declName then
-      return (← c.exts?.or (parent?.bind (·.exts?)))
-    let aconsts ← c.consts.get.get? AsyncConsts
-    findRecExts? c aconsts declName
-
-
-/--
-Returns the final extension state on the environment branch corresponding to the passed declaration
-name, if any, or otherwise the state on the current branch. In other words, at most one environment
-branch will be blocked on.
--/
-@[implemented_by findStateAsyncUnsafe]
-opaque findStateAsync {σ : Type} [Inhabited σ] (ext : EnvExtension σ)
-  (env : Environment) (declName : Name) : σ
+  (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : σ
 
 end EnvExtension
 
@@ -1593,8 +1593,8 @@ def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
 
 /-- Get the current state of the given extension in the given environment. -/
 def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment)
-    (asyncMode := ext.toEnvExtension.asyncMode) : σ :=
-  (ext.toEnvExtension.getState (asyncMode := asyncMode) env).state
+    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous) : σ :=
+  (ext.toEnvExtension.getState (asyncMode := asyncMode) (asyncDecl := asyncDecl) env).state
 
 /-- Set the current state of the given extension in the given environment. -/
 def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (s : σ) : Environment :=
@@ -1604,12 +1604,6 @@ def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ)
     (asyncMode := ext.toEnvExtension.asyncMode) : Environment :=
   ext.toEnvExtension.modifyState (asyncMode := asyncMode) env fun ps => { ps with state := f (ps.state) }
-
-@[inherit_doc EnvExtension.findStateAsync]
-def findStateAsync {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
-    (env : Environment) (declPrefix : Name) : σ :=
-  ext.toEnvExtension.findStateAsync env declPrefix |>.state
-
 
 end PersistentEnvExtension
 
@@ -1736,7 +1730,7 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
   let entries := pExts.map fun pExt => Id.run do
     -- get state from `checked` at the end if `async`; it would otherwise panic
     let mut asyncMode := pExt.toEnvExtension.asyncMode
-    if asyncMode matches .async then
+    if asyncMode matches .async _ then
       asyncMode := .sync
     let state := pExt.getState (asyncMode := asyncMode) env
     (pExt.name, pExt.exportEntriesFn env state level)
@@ -2266,7 +2260,7 @@ def displayStats (env : Environment) : IO Unit := do
     IO.println ("extension '" ++ toString extDescr.name ++ "'")
     -- get state from `checked` at the end if `async`; it would otherwise panic
     let mut asyncMode := extDescr.toEnvExtension.asyncMode
-    if asyncMode matches .async then
+    if asyncMode matches .async _ then
       asyncMode := .sync
     let s := extDescr.toEnvExtension.getState (asyncMode := asyncMode) env
     let fmt := extDescr.statsFn s.state

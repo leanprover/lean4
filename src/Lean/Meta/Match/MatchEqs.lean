@@ -746,7 +746,7 @@ def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   -- `realizeConst` as well as for looking up the resultant environment extension state via
   -- `findStateAsync`.
   realizeConst matchDeclName splitterName (go baseName splitterName)
-  return matchEqnsExt.findStateAsync (← getEnv) splitterName |>.map.find! matchDeclName
+  return matchEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := splitterName) (← getEnv) |>.map.find! matchDeclName
 where go baseName splitterName := withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
@@ -866,7 +866,7 @@ def genMatchCongrEqns (matchDeclName : Name) : MetaM (Array Name) := do
   let baseName := mkPrivateName (← getEnv) matchDeclName
   let firstEqnName := .str baseName congrEqn1ThmSuffix
   realizeConst matchDeclName firstEqnName (go baseName)
-  return matchCongrEqnsExt.findStateAsync (← getEnv) firstEqnName |>.find! matchDeclName
+  return matchCongrEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := firstEqnName) (← getEnv) |>.find! matchDeclName
 where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
   withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName

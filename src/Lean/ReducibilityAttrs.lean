@@ -35,7 +35,7 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
       let r : Array (Name × ReducibilityStatus) := m.foldl (fun a n p => a.push (n, p)) #[]
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "reducibility attribute core extension" ++ Format.line ++ "number of local entries: " ++ format s.size
-    asyncMode       := .async
+    asyncMode       := .async .mainEnv
   }
 
 builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × ReducibilityStatus) (SMap Name ReducibilityStatus) ←
@@ -56,7 +56,7 @@ def getReducibilityStatusCore (env : Environment) (declName : Name) : Reducibili
     match (reducibilityCoreExt.getModuleEntries env modIdx).binSearch (declName, .semireducible) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, status) => status
     | none => .semireducible
-  | none => (reducibilityCoreExt.findStateAsync env declName).find? declName |>.getD .semireducible
+  | none => (reducibilityCoreExt.getState (asyncDecl := declName) env).find? declName |>.getD .semireducible
 
 private def setReducibilityStatusCore (env : Environment) (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) (currNamespace : Name) : Environment :=
   if attrKind matches .global then

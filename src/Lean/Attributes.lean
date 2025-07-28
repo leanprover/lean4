@@ -206,15 +206,7 @@ def setTag  [Monad m] [MonadError m] [MonadEnv m] (attr : TagAttribute) (decl : 
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
-  | none        =>
-    if attr.ext.toEnvExtension.asyncMode matches .async then
-      -- It seems that the env extension API doesn't quite allow querying attributes in a way
-      -- that works for realizable constants, but without waiting on proofs to finish.
-      -- Until then, we use the following overapproximation, to be refined later:
-      (attr.ext.findStateAsync env decl).contains decl ||
-      (attr.ext.getState env (asyncMode := .local)).contains decl
-    else
-      (attr.ext.getState env).contains decl
+  | none        => (attr.ext.getState (asyncDecl := decl) env).contains decl
 
 end TagAttribute
 
@@ -303,7 +295,7 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     -- We assume (and check below) that, if used asynchronously, enum attributes are set only in the
     -- same context in which the tagged declaration was created
-    asyncMode       := .async
+    asyncMode       := .async .mainEnv
     replay?         := some fun _ newState consts st => consts.foldl (init := st) fun st c =>
       match newState.find? c with
       | some v => st.insert c v
@@ -335,7 +327,7 @@ def getValue [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl
     match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
-  | none        => (attr.ext.findStateAsync env decl).find? decl
+  | none        => (attr.ext.getState (asyncDecl := decl) env).find? decl
 
 def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment := do
   let pfx := s!"Internal error calling `{attrs.ext.name}.setValue` for `{decl}`"
@@ -343,7 +335,7 @@ def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val 
     throw s!"{pfx}: Declaration is in an imported module"
   if !env.asyncMayContain decl then
     throw s!"{pfx}: Declaration is not from this async context `{env.asyncPrefix?}`"
-  if ((attrs.ext.findStateAsync env decl).find? decl).isSome then
+  if ((attrs.ext.getState (asyncDecl := decl) env).find? decl).isSome then
     throw s!"{pfx}: Attribute has already been set"
   return attrs.ext.addEntry env (decl, val)
 

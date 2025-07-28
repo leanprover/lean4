@@ -54,6 +54,6 @@ def isMatchEqnTheorem (env : Environment) (declName : Name) : Bool := Id.run do
   let .str _ s := declName.eraseMacroScopes | return false
   if !isEqnLikeSuffix s then
     return false
-  (matchEqnsExt.findStateAsync env declName).eqns.contains declName
+  (matchEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := declName) env).eqns.contains declName
 
 end Lean.Meta.Match

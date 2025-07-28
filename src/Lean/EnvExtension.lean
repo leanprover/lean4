@@ -71,8 +71,8 @@ def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension
 
 /-- Get the current state of the given `SimplePersistentEnvExtension`. -/
 def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment)
-    (asyncMode := ext.toEnvExtension.asyncMode) : σ :=
-  (PersistentEnvExtension.getState (asyncMode := asyncMode) ext env).2
+    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous) : σ :=
+  (PersistentEnvExtension.getState (asyncMode := asyncMode) (asyncDecl := asyncDecl) ext env).2
 
 /-- Set the current state of the given `SimplePersistentEnvExtension`. This change is *not* persisted across files. -/
 def setState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (s : σ) : Environment :=
@@ -81,11 +81,6 @@ def setState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : En
 /-- Modify the state of the given extension in the given environment by applying the given function. This change is *not* persisted across files. -/
 def modifyState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (f : σ → σ) : Environment :=
   PersistentEnvExtension.modifyState ext env (fun ⟨entries, s⟩ => (entries, f s))
-
-@[inherit_doc PersistentEnvExtension.findStateAsync]
-def findStateAsync {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ)
-    (env : Environment) (declPrefix : Name) : σ :=
-  PersistentEnvExtension.findStateAsync ext env declPrefix |>.2
 
 end SimplePersistentEnvExtension
 
@@ -117,10 +112,7 @@ def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : 
 def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains declName Name.quickLt
-  | none        => if ext.toEnvExtension.asyncMode matches .async then
-      (ext.findStateAsync env declName).contains declName
-    else
-      (ext.getState env).contains declName
+  | none        => (ext.getState (asyncDecl := declName) env).contains declName
 
 end TagDeclarationExtension
 
@@ -140,7 +132,7 @@ def mkMapDeclarationExtension (name : Name := by exact decl_name%)
     addImportedFn   := fun _ => pure {}
     addEntryFn      := fun s (n, v) => s.insert n v
     exportEntriesFnEx env s level := exportEntriesFn env s level
-    asyncMode       := .async
+    asyncMode       := .async .mainEnv
     replay?         := some fun _ newState newConsts s =>
       newConsts.foldl (init := s) fun s c =>
         if let some a := newState.find? c then
@@ -165,11 +157,11 @@ def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) 
     match (ext.getModuleEntries (level := level) env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
     | some e => some e.2
     | none   => none
-  | none => (ext.findStateAsync env declName).find? declName
+  | none => (ext.getState (asyncDecl := declName) env).find? declName
 
 def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains (declName, default) (fun a b => Name.quickLt a.1 b.1)
-  | none        => (ext.findStateAsync env declName).contains declName
+  | none        => (ext.getState (asyncDecl := declName) env).contains declName
 
 end MapDeclarationExtension

@@ -6,12 +6,14 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Vector.Lemmas
-import Init.Grind
+public import Init.Data.Vector.Lemmas
+public import Init.Grind
 
 /-!
 # Componentwise algebraic structures on `Vector α n`.
 -/
+
+public section
 
 namespace Vector
 
@@ -168,3 +170,5 @@ instance [NatModule α] [NoNatZeroDivisors α] : NoNatZeroDivisors (Vector α n)
 end grind_instances
 
 end Vector
+
+end

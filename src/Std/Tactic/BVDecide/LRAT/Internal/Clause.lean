@@ -157,6 +157,9 @@ theorem negate_eq (c : DefaultClause n) : negate c = (toList c).map Literal.nega
 -- so we add the attribute after the fact.
 attribute [local grind] DefaultClause.ofArray.folder
 
+-- This isn't a good global `grind` lemma, because it can cause a loop with `Pairwise.sublist`.
+attribute [local grind] List.pairwise_iff_forall_sublist
+
 def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
   let mapOption := ls.foldl ofArray.folder (some (HashMap.emptyWithCapacity ls.size))
   match mapOption with

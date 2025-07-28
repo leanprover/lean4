@@ -259,8 +259,9 @@ def castResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (eType : IRType) (b 
     return FnBody.vdecl x ty e b
   else
     let y ← M.mkFresh
-    let v ← mkCast y eType ty
-    return FnBody.vdecl y eType e (FnBody.vdecl x ty v b)
+    let boxedTy := ty.boxed
+    let v ← mkCast y boxedTy ty
+    return FnBody.vdecl y boxedTy e (FnBody.vdecl x ty v b)
 
 def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody :=
   match e with

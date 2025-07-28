@@ -2770,6 +2770,28 @@ protected theorem UInt64.pow_succ (x : UInt64) (n : Nat) : x ^ (n + 1) = x ^ n *
 @[simp] protected theorem USize.pow_zero (x : USize) : x ^ 0 = 1 := (rfl)
 protected theorem USize.pow_succ (x : USize) (n : Nat) : x ^ (n + 1) = x ^ n * x := (rfl)
 
+@[simp, int_toBitVec] protected theorem UInt8.toBitVec_pow (a : UInt8) (n : Nat) : (a ^ n).toBitVec = a.toBitVec ^ n := by
+  induction n <;> simp [*, UInt8.pow_succ, BitVec.pow_succ]
+@[simp, int_toBitVec] protected theorem UInt16.toBitVec_pow (a : UInt16) (n : Nat) : (a ^ n).toBitVec = a.toBitVec ^ n := by
+  induction n <;> simp [*, UInt16.pow_succ, BitVec.pow_succ]
+@[simp, int_toBitVec] protected theorem UInt32.toBitVec_pow (a : UInt32) (n : Nat) : (a ^ n).toBitVec = a.toBitVec ^ n := by
+  induction n <;> simp [*, UInt32.pow_succ, BitVec.pow_succ]
+@[simp, int_toBitVec] protected theorem UInt64.toBitVec_pow (a : UInt64) (n : Nat) : (a ^ n).toBitVec = a.toBitVec ^ n := by
+  induction n <;> simp [*, UInt64.pow_succ, BitVec.pow_succ]
+@[simp, int_toBitVec] protected theorem USize.toBitVec_pow (a : USize) (n : Nat) : (a ^ n).toBitVec = a.toBitVec ^ n := by
+  induction n <;> simp [*, USize.pow_succ, BitVec.pow_succ]
+
+@[simp] protected theorem UInt8.ofBitVec_pow (a : BitVec 8) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
+  induction n <;> simp [*, UInt8.pow_succ, BitVec.pow_succ]
+@[simp] protected theorem UInt16.ofBitVec_pow (a : BitVec 16) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
+  induction n <;> simp [*, UInt16.pow_succ, BitVec.pow_succ]
+@[simp] protected theorem UInt32.ofBitVec_pow (a : BitVec 32) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
+  induction n <;> simp [*, UInt32.pow_succ, BitVec.pow_succ]
+@[simp] protected theorem UInt64.ofBitVec_pow (a : BitVec 64) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
+  induction n <;> simp [*, UInt64.pow_succ, BitVec.pow_succ]
+@[simp] protected theorem USize.ofBitVec_pow (a : BitVec System.Platform.numBits) (n : Nat) : ofBitVec (a ^ n) = ofBitVec a ^ n := by
+  induction n <;> simp [*, USize.pow_succ, BitVec.pow_succ]
+
 protected theorem UInt8.mul_add {a b c : UInt8} : a * (b + c) = a * b + a * c :=
     UInt8.toBitVec_inj.1 BitVec.mul_add
 protected theorem UInt16.mul_add {a b c : UInt16} : a * (b + c) = a * b + a * c :=

@@ -263,3 +263,8 @@ jobs:
             build/stage1/**/*.c
             build/stage1/**/*.c.o*' || '' }}
           key: ${{ steps.restore-cache.outputs.cache-primary-key }}
+      - name: Upload Build Artifact
+        if: always() && matrix.name == 'Linux Lake (cached)'
+        uses: actions/upload-artifact@v4
+        with:
+          path: build

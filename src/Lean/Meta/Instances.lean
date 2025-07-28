@@ -152,7 +152,9 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   let mut toSynth := List.range argMVars.size |>.filter (argBIs[·]! == .instImplicit) |>.toArray
   let mut instParams := #[]
   for i in toSynth do
-    for arg in (← inferType argMVars[i]!).getAppArgs do
+    let args ← forallTelescopeReducing (← inferType argMVars[i]!) fun _ argTy =>
+      return (← whnf argTy).getAppArgs
+    for arg in args do
       if arg.isMVar then
         if let some j := toSynth.find? (argMVars[·]! == arg) then
           toSynth := toSynth.filter (· != j)

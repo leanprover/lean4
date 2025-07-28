@@ -214,7 +214,7 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 
   open $typeName renaming
     le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
-  instance : LinearOrder $typeName := by
+  instance instStdLinearOrder : LinearOrder $typeName := by
     apply LinearOrder.ofLE
     case le_refl => apply le_refl'
     case le_antisymm => apply le_antisymm'

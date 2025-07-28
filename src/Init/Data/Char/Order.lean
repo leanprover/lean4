@@ -14,7 +14,7 @@ open Std
 
 public instance : OrderData Char := .ofLE Char
 
-public instance : LinearOrder Char := by
+public instance instStdLinearOrder : LinearOrder Char := by
   apply LinearOrder.ofLE
   case le_refl => apply Char.le_refl
   case le_antisymm => apply Char.le_antisymm

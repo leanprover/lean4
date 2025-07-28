@@ -12,9 +12,11 @@ public import Init.Data.Order.Factories
 
 open Std
 
+namespace Nat
+
 public instance : OrderData Nat := OrderData.ofLE Nat
 
-public instance : LinearOrder Nat := by
+public instance instStdLinearOrder : LinearOrder Nat := by
   apply LinearOrder.ofLE
   · apply Nat.le_refl
   · apply Nat.le_antisymm
@@ -34,3 +36,5 @@ public instance : LawfulOrderMax Nat := by
   · intro a b
     simp only [Nat.max_def]
     split <;> simp
+
+end Nat

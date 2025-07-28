@@ -41,7 +41,7 @@ marked as not fixed.
 /-- Abstract value for the "fixed parameter" analysis. -/
 inductive AbsValue where
   | top
-  | erased
+  | closed
   | val (i : Nat)
   deriving Inhabited, BEq, Hashable
 
@@ -68,6 +68,10 @@ structure State where
   -/
   visited : Std.HashSet (Name × Array AbsValue) := {}
   /--
+  FVarIds representing closed terms.
+  -/
+  closed : Std.HashSet FVarId := {}
+  /--
   Bitmask containing the result, i.e., which parameters of `main` are fixed.
   We initialize it with `true` everywhere.
   -/
@@ -82,12 +86,17 @@ abbrev abort : FixParamM α := do
   throw ()
 
 def evalFVar (fvarId : FVarId) : FixParamM AbsValue := do
-  let some val := (← read).assignment.get? fvarId | return .top
-  return val
+  match (← read).assignment.get? fvarId with
+  | some v => return v
+  | none =>
+    if (← get).closed.contains fvarId then
+      return .closed
+    else
+      return .top
 
 def evalArg (arg : Arg) : FixParamM AbsValue := do
   match arg with
-  | .erased => return .erased
+  | .erased => return .closed
   | .type (.fvar fvarId) => evalFVar fvarId
   | .type _ => return .top
   | .fvar fvarId => evalFVar fvarId
@@ -103,10 +112,15 @@ def mkAssignment (decl : Decl) (values : Array AbsValue) : FVarIdMap AbsValue :=
 
 mutual
 
-partial def evalLetValue (e : LetValue) : FixParamM Unit := do
+partial def evalLetValue (e : LetValue) : FixParamM AbsValue := do
   match e with
   | .const declName _ args => evalApp declName args
-  | _ => return ()
+  | .proj _ _ base =>
+    return match ← evalFVar base with
+    | .closed => .closed
+    | .top | .val _ => .top
+  | .lit _ | .erased => return .closed
+  | _ => return .top
 
 partial def isEquivalentFunDecl? (decl : FunDecl) : FixParamM (Option Nat) := do
   let .let { fvarId, value := (.fvar funFvarId args), .. } k := decl.value | return none
@@ -121,22 +135,38 @@ partial def isEquivalentFunDecl? (decl : FunDecl) : FixParamM (Option Nat) := do
     if arg != .fvar param.fvarId && arg != .erased then return none
   return some funIdx
 
-partial def evalCode (code : Code) : FixParamM Unit := do
+partial def evalCode (code : Code) : FixParamM AbsValue := do
   match code with
-  | .let decl k => evalLetValue decl.value; evalCode k
+  | .let decl k =>
+    if (← evalLetValue decl.value) == .closed then
+      modify fun s => { s with closed := s.closed.insert decl.fvarId }
+    evalCode k
   | .fun decl k =>
     if let some paramIdx ← isEquivalentFunDecl? decl then
       withReader (fun ctx =>
                     { ctx with assignment := ctx.assignment.insert decl.fvarId (.val paramIdx) })
         do evalCode k
     else
-      evalCode decl.value
+      for param in decl.params do
+        modify fun s => { s with closed := s.closed.insert param.fvarId }
+      if (← evalCode decl.value) == .closed then
+        modify fun s => { s with closed := s.closed.insert decl.fvarId }
       evalCode k
-  | .jp decl k => evalCode decl.value; evalCode k
-  | .cases c => c.alts.forM fun alt => evalCode alt.getCode
-  | .unreach .. | .jmp .. | .return .. => return ()
+  | .jp decl k =>
+      if (← evalCode decl.value) == .closed then
+        modify fun s => { s with closed := s.closed.insert decl.fvarId }
+      evalCode k
+  | .cases c =>
+    c.alts.forM fun alt => do
+      let _ ← evalCode alt.getCode
+      return ()
+    -- TODO: do better?
+    return .top
+  | .return fvarId => evalFVar fvarId
+  -- TODO: we could do something better here.
+  | .unreach .. | .jmp .. => return .top
 
-partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
+partial def evalApp (declName : Name) (args : Array Arg) : FixParamM AbsValue := do
   let main := (← read).main
   if declName == main.name then
     -- Recursive call to the function being analyzed
@@ -148,7 +178,7 @@ partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
         let isFixed :=
           match val with
           | .val j => j == i
-          | .erased => true
+          | .closed => true
           | .top => false
         if !isFixed then
           modify fun s => { s with fixed := s.fixed.set! i false }
@@ -171,7 +201,12 @@ partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
         modify fun s => { s with visited := s.visited.insert key }
         decl.value.forCodeM fun c =>
           let assignment := mkAssignment decl values
-          withReader (fun ctx => { ctx with assignment }) <| evalCode c
+          withReader (fun ctx => { ctx with assignment }) <| discard <| evalCode c
+  for arg in args do
+    match ← evalArg arg with
+    | .top | .val _ => return .top
+    | .closed => pure ()
+  return .closed
 
 end
 

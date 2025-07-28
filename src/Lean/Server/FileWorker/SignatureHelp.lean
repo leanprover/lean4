@@ -3,10 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.InfoUtils
-import Lean.Data.Lsp
-import Init.Data.List.Sort.Basic
+public import Lean.Server.InfoUtils
+public import Lean.Data.Lsp
+public import Init.Data.List.Sort.Basic
+meta import Lean.Parser.Term
+
+public section
 
 namespace Lean.Server.FileWorker.SignatureHelp
 

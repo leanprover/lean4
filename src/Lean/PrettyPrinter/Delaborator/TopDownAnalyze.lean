@@ -3,17 +3,21 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Selsam
 -/
+module
+
 prelude
-import Lean.Meta.SynthInstance
-import Lean.Meta.CtorRecognizer
-import Lean.Util.FindMVar
-import Lean.Util.FindLevelMVar
-import Lean.Util.CollectLevelParams
-import Lean.Util.ReplaceLevel
-import Lean.PrettyPrinter.Delaborator.FieldNotation
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.PrettyPrinter.Delaborator.SubExpr
-import Lean.Elab.Config
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.CtorRecognizer
+public import Lean.Util.FindMVar
+public import Lean.Util.FindLevelMVar
+public import Lean.Util.CollectLevelParams
+public import Lean.Util.ReplaceLevel
+public import Lean.PrettyPrinter.Delaborator.FieldNotation
+public import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.PrettyPrinter.Delaborator.SubExpr
+public import Lean.Elab.Config
+
+public section
 
 /-!
 The top-down analyzer is an optional preprocessor to the delaborator that aims

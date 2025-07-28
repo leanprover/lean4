@@ -15,6 +15,7 @@ extern "C" {
 #endif
 static lean_object* l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_fromJson_x3f___redArg___closed__0;
 lean_object* l_Lean_Json_getObj_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instFromJsonTreeMapString___private__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_fromJson_x3f___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_fromJson_x3f___redArg___closed__7;
 lean_object* l_Except_instMonad___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -28,7 +29,9 @@ lean_object* l_Except_instMonad___lam__0(lean_object*, lean_object*, lean_object
 lean_object* l_Except_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_fromJson_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToJsonTreeMapStringCompare(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instToJsonTreeMapStringCompare___private__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_map___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instToJsonTreeMapStringCompare___private__1___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToJsonTreeMapStringCompare___redArg(lean_object*);
 static lean_object* l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_fromJson_x3f___redArg___closed__3;
 static lean_object* l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_fromJson_x3f___redArg___closed__6;
@@ -43,6 +46,7 @@ static lean_object* l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_toJson___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonTreeMapString___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_toJson(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instFromJsonTreeMapString___private__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_toJson___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonTreeMapString(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_toJson___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -286,11 +290,27 @@ x_5 = l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_fromJson_x3f__
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_instToJsonTreeMapStringCompare___private__1___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_toJson___redArg(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instToJsonTreeMapStringCompare___private__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_toJson___redArg(x_2, x_3);
+return x_4;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_instToJsonTreeMapStringCompare___redArg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_toJson), 3, 2);
+x_2 = lean_alloc_closure((void*)(l_Lean_instToJsonTreeMapStringCompare___private__1), 3, 2);
 lean_closure_set(x_2, 0, lean_box(0));
 lean_closure_set(x_2, 1, x_1);
 return x_2;
@@ -300,17 +320,33 @@ LEAN_EXPORT lean_object* l_Lean_instToJsonTreeMapStringCompare(lean_object* x_1,
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_toJson), 3, 2);
+x_3 = lean_alloc_closure((void*)(l_Lean_instToJsonTreeMapStringCompare___private__1), 3, 2);
 lean_closure_set(x_3, 0, lean_box(0));
 lean_closure_set(x_3, 1, x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instFromJsonTreeMapString___private__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_fromJson_x3f___redArg(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instFromJsonTreeMapString___private__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_fromJson_x3f___redArg(x_2, x_3, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_instFromJsonTreeMapString___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_fromJson_x3f), 4, 3);
+x_3 = lean_alloc_closure((void*)(l_Lean_instFromJsonTreeMapString___private__1), 4, 3);
 lean_closure_set(x_3, 0, lean_box(0));
 lean_closure_set(x_3, 1, x_1);
 lean_closure_set(x_3, 2, x_2);
@@ -321,7 +357,7 @@ LEAN_EXPORT lean_object* l_Lean_instFromJsonTreeMapString(lean_object* x_1, lean
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l___private_Lean_Data_Json_FromToJson_Extra_0__Lean_TreeMap_fromJson_x3f), 4, 3);
+x_4 = lean_alloc_closure((void*)(l_Lean_instFromJsonTreeMapString___private__1), 4, 3);
 lean_closure_set(x_4, 0, lean_box(0));
 lean_closure_set(x_4, 1, x_2);
 lean_closure_set(x_4, 2, x_3);

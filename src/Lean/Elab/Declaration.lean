@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Util.CollectLevelParams
-import Lean.Elab.DeclUtil
-import Lean.Elab.DefView
-import Lean.Elab.MutualDef
-import Lean.Elab.MutualInductive
-import Lean.Elab.DeclarationRange
+public import Lean.Util.CollectLevelParams
+public import Lean.Elab.DeclUtil
+public import Lean.Elab.DefView
+public import Lean.Elab.MutualDef
+public import Lean.Elab.MutualInductive
+public import Lean.Elab.DeclarationRange
+
+public section
 namespace Lean.Elab.Command
 
 open Meta
@@ -339,7 +343,10 @@ def elabMutual : CommandElab := fun stx => do
         | throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
       let attrs := (attrs?.map (·.getElems)).getD #[]
       let attrs := attrs.push (← `(Lean.Parser.Term.attrInstance| $attrId:ident))
-      elabCommand (← `($[$doc?:docComment]? @[$[$attrs],*] $[unsafe%$unsafe?]? def initFn : IO Unit := do $doSeq))
+      -- `[builtin_init]` can be private as it is used for local codegen only but `[init]` must be
+      -- available for the interpreter.
+      let privTk? := guard (attrId.getId == `builtin_init) *> some .missing
+      elabCommand (← `($[$doc?:docComment]? @[$[$attrs],*] $[private%$privTk?]? $[unsafe%$unsafe?]? def initFn : IO Unit := do $doSeq))
   | _ => throwUnsupportedSyntax
 
 builtin_initialize

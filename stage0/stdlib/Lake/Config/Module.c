@@ -132,7 +132,6 @@ LEAN_EXPORT lean_object* l_Lake_Module_nativeFacets(lean_object*, uint8_t);
 lean_object* l_Lake_BuildType_leanArgs(uint8_t);
 static lean_object* l_Lake_Module_oleanPrivateFile___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Module_srcPath(lean_object*, lean_object*);
-uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_SearchPath_findAllWithExt_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_pkg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_coNoExportFile(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -147,6 +146,7 @@ static lean_object* l_Lake_Module_bcoFile___closed__0;
 lean_object* l_Lean_LeanOptions_appendArray(lean_object*, lean_object*);
 lean_object* l_Lake_modOfFilePath(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_instCheckExists;
+uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Parser_mkTokenAndFixPos_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_cFile(lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_bcFile(lean_object*);
@@ -804,7 +804,7 @@ lean_inc(x_24);
 lean_dec_ref(x_21);
 x_25 = l_System_FilePath_extension(x_20);
 x_26 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_forEachModuleInDir___at___Lake_LeanLib_getModuleArray_spec__0_spec__0_spec__0___closed__1;
-x_27 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_SearchPath_findAllWithExt_spec__0(x_25, x_26);
+x_27 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Parser_mkTokenAndFixPos_spec__0(x_25, x_26);
 lean_dec(x_25);
 if (x_27 == 0)
 {
@@ -938,7 +938,7 @@ lean_inc(x_24);
 lean_dec_ref(x_21);
 x_25 = l_System_FilePath_extension(x_20);
 x_26 = l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_forEachModuleInDir___at___Lake_LeanLib_getModuleArray_spec__0_spec__0_spec__0___closed__1;
-x_27 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_SearchPath_findAllWithExt_spec__0(x_25, x_26);
+x_27 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Parser_mkTokenAndFixPos_spec__0(x_25, x_26);
 lean_dec(x_25);
 if (x_27 == 0)
 {

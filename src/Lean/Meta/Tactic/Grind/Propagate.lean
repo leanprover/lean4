@@ -3,13 +3,17 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind
-import Lean.Meta.Tactic.Grind.Proof
-import Lean.Meta.Tactic.Grind.PropagatorAttr
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Ext
-import Lean.Meta.Tactic.Grind.Internalize
+public import Init.Grind
+public import Lean.Meta.Tactic.Grind.Proof
+public import Lean.Meta.Tactic.Grind.PropagatorAttr
+public import Lean.Meta.Tactic.Grind.Simp
+public import Lean.Meta.Tactic.Grind.Ext
+public import Lean.Meta.Tactic.Grind.Internalize
+
+public section
 
 namespace Lean.Meta.Grind
 

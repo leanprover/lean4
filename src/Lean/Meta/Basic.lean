@@ -3,15 +3,19 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.LOption
-import Lean.Environment
-import Lean.Class
-import Lean.ReducibilityAttrs
-import Lean.Util.ReplaceExpr
-import Lean.Util.MonadBacktrack
-import Lean.Compiler.InlineAttrs
-import Lean.Meta.TransparencyMode
+public import Lean.Data.LOption
+public import Lean.Environment
+public import Lean.Class
+public import Lean.ReducibilityAttrs
+public import Lean.Util.ReplaceExpr
+public import Lean.Util.MonadBacktrack
+public import Lean.Compiler.InlineAttrs
+public import Lean.Meta.TransparencyMode
+
+public section
 
 /-!
 This module provides four (mutually dependent) goodies that are needed for building the elaborator and tactic frameworks.
@@ -148,7 +152,7 @@ structure Config where
   we use approximations when solving postponed universe constraints.
   Examples:
   - `max u ?v =?= u` is solved with `?v := u` and ignoring the solution `?v := 0`.
-  - `max u w =?= mav u ?v` is solved with `?v := w` ignoring the solution `?v := max u w`
+  - `max u w =?= max u ?v` is solved with `?v := w` ignoring the solution `?v := max u w`
   -/
   univApprox : Bool := true
   /-- If `true`, reduce recursor/matcher applications, e.g., `Nat.rec true (fun _ _ => false) Nat.zero` reduces to `true` -/
@@ -213,7 +217,7 @@ private def Config.toKey (c : Config) : UInt64 :=
 structure ConfigWithKey where
   private mk ::
   config : Config := {}
-  key    : UInt64 := config.toKey
+  key    : UInt64 := private_decl% config.toKey
 
 instance : Inhabited ConfigWithKey where  -- #9463
   default := private {}
@@ -310,7 +314,7 @@ structure InfoCacheKey where
   deriving Inhabited, BEq
 
 instance : Hashable InfoCacheKey where
-  hash := fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
+  hash := private fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
 
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
@@ -348,7 +352,7 @@ instance : BEq ExprConfigCacheKey where
     a.configKey == b.configKey
 
 instance : Hashable ExprConfigCacheKey where
-  hash := fun { expr, configKey } => mixHash (hash expr) (hash configKey)
+  hash := private fun { expr, configKey } => mixHash (hash expr) (hash configKey)
 
 abbrev InferTypeCache := PersistentHashMap ExprConfigCacheKey Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
@@ -362,7 +366,7 @@ structure DefEqCacheKey where
   deriving Inhabited, BEq
 
 instance : Hashable DefEqCacheKey where
-  hash := fun { lhs, rhs, configKey } => mixHash (hash lhs) <| mixHash (hash rhs) (hash configKey)
+  hash := private fun { lhs, rhs, configKey } => mixHash (hash lhs) <| mixHash (hash rhs) (hash configKey)
 
 /--
 A mapping `(s, t) ↦ isDefEq s t`.
@@ -496,7 +500,7 @@ structure Context where
   /--
   `inTypeClassResolution := true` when `isDefEq` is invoked at `tryResolve` in the type class
    resolution module. We don't use `isDefEqProjDelta` when performing TC resolution due to performance issues.
-   This is not a great solution, but a proper solution would require a more sophisticased caching mechanism.
+   This is not a great solution, but a proper solution would require a more sophisticated caching mechanism.
   -/
   inTypeClassResolution : Bool := false
 deriving Inhabited
@@ -525,7 +529,7 @@ The key operations provided by `MetaM` are:
 The following is a small example that demonstrates how to obtain and manipulate the type of a
 `Fin` expression:
 ```
-import Lean
+public import Lean
 
 open Lean Meta
 
@@ -740,7 +744,7 @@ The result may contain subexpressions that have not been reduced.
 
 See `Lean.Meta.whnfImp` for the implementation.
 -/
-@[extern 6 "lean_whnf"] opaque whnf : Expr → MetaM Expr
+@[extern "lean_whnf"] opaque whnf : Expr → MetaM Expr
 /--
 Returns the inferred type of the given expression. Assumes the expression is type-correct.
 
@@ -756,7 +760,9 @@ the kernel typechecker. The kernel typechecker is invoked when a definition is a
 
 Here are examples of type-incorrect terms for which `inferType` succeeds:
 ```lean
-import Lean
+public import Lean
+
+public section
 
 open Lean Meta
 
@@ -792,10 +798,10 @@ def e3 : Expr := .app (.const ``Nat.zero []) (.const ``Nat.zero [])
 
 See `Lean.Meta.inferTypeImp` for the implementation of `inferType`.
 -/
-@[extern 6 "lean_infer_type"] opaque inferType : Expr → MetaM Expr
-@[extern 7 "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
-@[extern 7 "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
-@[extern 6 "lean_synth_pending"] protected opaque synthPending : MVarId → MetaM Bool
+@[extern "lean_infer_type"] opaque inferType : Expr → MetaM Expr
+@[extern "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
+@[extern "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
+@[extern "lean_synth_pending"] protected opaque synthPending : MVarId → MetaM Bool
 
 def whnfForall (e : Expr) : MetaM Expr := do
   let e' ← whnf e
@@ -1778,7 +1784,7 @@ where
       k acc
 
 /--
-Variant of `withLocalDecls` using `Binderinfo.default`
+Variant of `withLocalDecls` using `BinderInfo.default`
 -/
 def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n Expr))) (k : (xs : Array Expr) → n α) : n α :=
   withLocalDecls
@@ -1818,7 +1824,7 @@ def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
 /--
  Execute `k` using a local context where any `x` in `xs` that is tagged as
  instance implicit is treated as a regular implicit. -/
-def withInstImplicitAsImplict (xs : Array Expr) (k : MetaM α) : MetaM α := do
+def withInstImplicitAsImplicit (xs : Array Expr) (k : MetaM α) : MetaM α := do
   let newBinderInfos ← xs.filterMapM fun x => do
     let bi ← x.fvarId!.getBinderInfo
     if bi == .instImplicit then
@@ -1881,7 +1887,7 @@ private def withExistingLocalDeclsImp (decls : List LocalDecl) (k : MetaM α) : 
   After executing `k`, the local context is restored.
 
   Remark: this method is used, for example, to implement the `match`-compiler.
-  Each `match`-alternative commes with a local declarations (corresponding to pattern variables),
+  Each `match`-alternative comes with a local declarations (corresponding to pattern variables),
   and we use `withExistingLocalDecls` to add them to the local context before we process
   them.
 -/
@@ -1929,7 +1935,7 @@ def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α
   mapMetaM <| withLocalContextImp lctx localInsts
 
 /--
-Simpler version of `withLCtx` which just updates the local context. It is the resposability of the
+Simpler version of `withLCtx` which just updates the local context. It is the responsibility of the
 caller ensure the local instances are also properly updated.
 -/
 def withLCtx' (lctx : LocalContext) : n α → n α :=

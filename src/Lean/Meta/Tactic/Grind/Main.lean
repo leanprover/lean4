@@ -3,31 +3,35 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Lemmas
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.ExposeNames
-import Lean.Meta.Tactic.Simp.Diagnostics
-import Lean.Meta.Tactic.Grind.RevertAll
-import Lean.Meta.Tactic.Grind.PropagatorAttr
-import Lean.Meta.Tactic.Grind.Proj
-import Lean.Meta.Tactic.Grind.ForallProp
-import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.Inv
-import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.EMatch
-import Lean.Meta.Tactic.Grind.Split
-import Lean.Meta.Tactic.Grind.Solve
-import Lean.Meta.Tactic.Grind.SimpUtil
-import Lean.Meta.Tactic.Grind.Cases
-import Lean.Meta.Tactic.Grind.LawfulEqCmp
-import Lean.Meta.Tactic.Grind.ReflCmp
+public import Init.Grind.Lemmas
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.ExposeNames
+public import Lean.Meta.Tactic.Simp.Diagnostics
+public import Lean.Meta.Tactic.Grind.RevertAll
+public import Lean.Meta.Tactic.Grind.PropagatorAttr
+public import Lean.Meta.Tactic.Grind.Proj
+public import Lean.Meta.Tactic.Grind.ForallProp
+public import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Tactic.Grind.Inv
+public import Lean.Meta.Tactic.Grind.Intro
+public import Lean.Meta.Tactic.Grind.EMatch
+public import Lean.Meta.Tactic.Grind.Split
+public import Lean.Meta.Tactic.Grind.Solve
+public import Lean.Meta.Tactic.Grind.SimpUtil
+public import Lean.Meta.Tactic.Grind.Cases
+public import Lean.Meta.Tactic.Grind.LawfulEqCmp
+public import Lean.Meta.Tactic.Grind.ReflCmp
+
+public section
 
 namespace Lean.Meta.Grind
 
 structure Params where
   config     : Grind.Config
-  ematch     : EMatchTheorems := {}
+  ematch     : EMatchTheorems := default
   symPrios   : SymbolPriorities := {}
   casesTypes : CasesTypes := {}
   extra      : PArray EMatchTheorem := {}

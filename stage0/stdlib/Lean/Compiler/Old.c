@@ -29,6 +29,7 @@ static lean_object* l_Lean_Compiler_mkUnsafeRecName___closed__0;
 LEAN_EXPORT uint8_t l_Lean_Compiler_checkIsDefinition___lam__1(uint8_t, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_checkIsDefinition___lam__0(lean_object*);
+static lean_object* l_Lean_Compiler_checkIsDefinition___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Compiler_isUnsafeRecName_x3f(lean_object*);
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__1;
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__2;
@@ -288,7 +289,7 @@ static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unknown declaration '", 21, 21);
+x_1 = lean_mk_string_unchecked("Unknown declaration `", 21, 21);
 return x_1;
 }
 }
@@ -296,7 +297,7 @@ static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'", 1, 1);
+x_1 = lean_mk_string_unchecked("`", 1, 1);
 return x_1;
 }
 }
@@ -304,7 +305,15 @@ static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("declaration is not a definition '", 33, 33);
+x_1 = lean_mk_string_unchecked("Declaration `", 13, 13);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_checkIsDefinition___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("` is not a definition", 21, 21);
 return x_1;
 }
 }
@@ -366,7 +375,7 @@ x_22 = 1;
 x_23 = l_Lean_Name_toString(x_2, x_22, x_20);
 x_24 = lean_string_append(x_21, x_23);
 lean_dec_ref(x_23);
-x_25 = l_Lean_Compiler_checkIsDefinition___closed__2;
+x_25 = l_Lean_Compiler_checkIsDefinition___closed__4;
 x_26 = lean_string_append(x_24, x_25);
 lean_ctor_set_tag(x_6, 0);
 lean_ctor_set(x_6, 0, x_26);
@@ -406,7 +415,7 @@ x_33 = 1;
 x_34 = l_Lean_Name_toString(x_2, x_33, x_31);
 x_35 = lean_string_append(x_32, x_34);
 lean_dec_ref(x_34);
-x_36 = l_Lean_Compiler_checkIsDefinition___closed__2;
+x_36 = l_Lean_Compiler_checkIsDefinition___closed__4;
 x_37 = lean_string_append(x_35, x_36);
 x_38 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
@@ -528,6 +537,8 @@ l_Lean_Compiler_checkIsDefinition___closed__2 = _init_l_Lean_Compiler_checkIsDef
 lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__2);
 l_Lean_Compiler_checkIsDefinition___closed__3 = _init_l_Lean_Compiler_checkIsDefinition___closed__3();
 lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__3);
+l_Lean_Compiler_checkIsDefinition___closed__4 = _init_l_Lean_Compiler_checkIsDefinition___closed__4();
+lean_mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__4);
 l_Lean_Compiler_mkUnsafeRecName___closed__0 = _init_l_Lean_Compiler_mkUnsafeRecName___closed__0();
 lean_mark_persistent(l_Lean_Compiler_mkUnsafeRecName___closed__0);
 return lean_io_result_mk_ok(lean_box(0));

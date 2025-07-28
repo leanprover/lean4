@@ -22,7 +22,6 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_denote___redArg(lean_object*
 static lean_object* l_Lean_Grind_Linarith_reprPoly___closed__0____x40_Init_Grind_Ordered_Linarith___hyg_1070_;
 static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__10____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_combine_x27_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_cast___at___Int_bmod_spec__0(lean_object*);
 static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__14____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Expr_denote_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_denote_x27_go_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -41,6 +40,7 @@ static lean_object* l_Lean_Grind_Linarith_reprExpr___closed__9____x40_Init_Grind
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote_x27_go___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Poly_denote_x27_go_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Grind_Linarith_Expr_toPoly_x27_go_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Grind_Ordered_Linarith_0__Lean_Grind_Linarith_Expr_denote_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Grind_Linarith_le__le__combine__cert(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denote_x27___redArg(lean_object*, lean_object*, lean_object*);
@@ -2315,6 +2315,14 @@ x_4 = l_Lean_Grind_Linarith_Poly_combine_x27(x_3, x_1, x_2);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Grind_Linarith_Expr_toPoly_x27_go_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Expr_toPoly_x27_go(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2389,7 +2397,7 @@ x_21 = lean_nat_dec_eq(x_18, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; 
-x_22 = l_Nat_cast___at___Int_bmod_spec__0(x_18);
+x_22 = lean_nat_to_int(x_18);
 x_23 = lean_int_mul(x_1, x_22);
 lean_dec(x_22);
 lean_dec(x_1);
@@ -2815,10 +2823,10 @@ lean_dec(x_4);
 x_6 = l_Lean_Grind_Linarith_Poly_leadCoeff(x_2);
 x_7 = lean_nat_abs(x_6);
 lean_dec(x_6);
-x_8 = l_Nat_cast___at___Int_bmod_spec__0(x_7);
+x_8 = lean_nat_to_int(x_7);
 x_9 = l_Lean_Grind_Linarith_Poly_mul(x_1, x_8);
 lean_dec(x_8);
-x_10 = l_Nat_cast___at___Int_bmod_spec__0(x_5);
+x_10 = lean_nat_to_int(x_5);
 x_11 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_10);
 lean_dec(x_10);
 x_12 = l_Lean_Grind_Linarith_Poly_combine(x_9, x_11);
@@ -2845,7 +2853,7 @@ x_4 = l_Lean_Grind_Linarith_Poly_leadCoeff(x_1);
 x_5 = lean_nat_abs(x_4);
 lean_dec(x_4);
 x_6 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
-x_7 = l_Nat_cast___at___Int_bmod_spec__0(x_5);
+x_7 = lean_nat_to_int(x_5);
 x_8 = lean_int_dec_lt(x_6, x_7);
 if (x_8 == 0)
 {
@@ -2860,7 +2868,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = l_Lean_Grind_Linarith_Poly_leadCoeff(x_2);
 x_10 = lean_nat_abs(x_9);
 lean_dec(x_9);
-x_11 = l_Nat_cast___at___Int_bmod_spec__0(x_10);
+x_11 = lean_nat_to_int(x_10);
 x_12 = l_Lean_Grind_Linarith_Poly_mul(x_1, x_11);
 lean_dec(x_11);
 x_13 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_7);
@@ -2894,7 +2902,7 @@ x_7 = lean_nat_abs(x_6);
 lean_dec(x_6);
 x_16 = l_Lean_Grind_Linarith_reprExpr___closed__22____x40_Init_Grind_Ordered_Linarith___hyg_414_;
 lean_inc(x_7);
-x_17 = l_Nat_cast___at___Int_bmod_spec__0(x_7);
+x_17 = lean_nat_to_int(x_7);
 x_18 = lean_int_dec_lt(x_16, x_17);
 lean_dec(x_17);
 if (x_18 == 0)
@@ -2906,7 +2914,7 @@ else
 {
 lean_object* x_19; uint8_t x_20; 
 lean_inc(x_5);
-x_19 = l_Nat_cast___at___Int_bmod_spec__0(x_5);
+x_19 = lean_nat_to_int(x_5);
 x_20 = lean_int_dec_lt(x_16, x_19);
 lean_dec(x_19);
 x_8 = x_20;
@@ -2925,10 +2933,10 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_9 = l_Nat_cast___at___Int_bmod_spec__0(x_7);
+x_9 = lean_nat_to_int(x_7);
 x_10 = l_Lean_Grind_Linarith_Poly_mul(x_1, x_9);
 lean_dec(x_9);
-x_11 = l_Nat_cast___at___Int_bmod_spec__0(x_5);
+x_11 = lean_nat_to_int(x_5);
 x_12 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_11);
 lean_dec(x_11);
 x_13 = l_Lean_Grind_Linarith_Poly_combine(x_10, x_12);
@@ -3094,7 +3102,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = l_Lean_Grind_Linarith_reprExpr___closed__3____x40_Init_Grind_Ordered_Linarith___hyg_414_;
-x_4 = l_Nat_cast___at___Int_bmod_spec__0(x_1);
+x_4 = lean_nat_to_int(x_1);
 x_5 = lean_int_dec_lt(x_3, x_4);
 lean_dec(x_4);
 if (x_5 == 0)
@@ -3150,7 +3158,7 @@ x_5 = lean_nat_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_6 = l_Nat_cast___at___Int_bmod_spec__0(x_3);
+x_6 = lean_nat_to_int(x_3);
 x_7 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_6);
 lean_dec(x_6);
 x_8 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_1, x_7);
@@ -3192,7 +3200,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_6 = l_Nat_cast___at___Int_bmod_spec__0(x_3);
+x_6 = lean_nat_to_int(x_3);
 x_7 = l_Lean_Grind_Linarith_Poly_mul(x_2, x_6);
 lean_dec(x_6);
 x_8 = l_Lean_Grind_Linarith_beqPoly____x40_Init_Grind_Ordered_Linarith___hyg_968_(x_1, x_7);

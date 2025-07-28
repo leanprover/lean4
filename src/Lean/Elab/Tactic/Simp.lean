@@ -3,16 +3,20 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Simp
-import Lean.Meta.Tactic.Simp.LoopProtection
-import Lean.Meta.Tactic.Replace
-import Lean.Meta.Hint
-import Lean.Elab.BuiltinNotation
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.ElabTerm
-import Lean.Elab.Tactic.Location
-import Lean.Elab.Tactic.Config
+public import Lean.Meta.Tactic.Simp
+public import Lean.Meta.Tactic.Simp.LoopProtection
+public import Lean.Meta.Tactic.Replace
+public import Lean.Meta.Hint
+public import Lean.Elab.BuiltinNotation
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.ElabTerm
+public import Lean.Elab.Tactic.Location
+public import Lean.Elab.Tactic.Config
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -598,7 +602,7 @@ def warnUnusedSimpArgs (simpArgs : Array (Syntax × ElabSimpArgResult)) (usedSim
 where
   /--
   For equational theorems, usedTheorems record the declaration name. So if the user
-  specified `foo.eq_1`, we get `foo` in `usedTheores`, but we still want to mark
+  specified `foo.eq_1`, we get `foo` in `usedTheorems`, but we still want to mark
   `foo.eq_1` as used.
   (cf. `recordSimpTheorem`)
   This may lead to unused, explicitly given `foo.eq_1` to not be warned about. Ok for now,

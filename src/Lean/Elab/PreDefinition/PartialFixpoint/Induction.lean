@@ -4,18 +4,22 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.Match.MatcherApp.Transform
-import Lean.Meta.Check
-import Lean.Meta.Tactic.Subst
-import Lean.Meta.Injective -- for elimOptParam
-import Lean.Meta.ArgsPacker
-import Lean.Meta.PProdN
-import Lean.Meta.Tactic.Apply
-import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
-import Lean.Elab.Command
-import Lean.Meta.Tactic.ElimInfo
+public import Lean.Meta.Basic
+public import Lean.Meta.Match.MatcherApp.Transform
+public import Lean.Meta.Check
+public import Lean.Meta.Tactic.Subst
+public import Lean.Meta.Injective -- for elimOptParam
+public import Lean.Meta.ArgsPacker
+public import Lean.Meta.PProdN
+public import Lean.Meta.Tactic.Apply
+public import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
+public import Lean.Elab.Command
+public import Lean.Meta.Tactic.ElimInfo
+
+public section
 
 namespace Lean.Elab.PartialFixpoint
 
@@ -38,7 +42,7 @@ partial def mkAdmProj (packedInst : Expr) (i : Nat) (e : Expr) : MetaM Expr := d
     assert! i == 0
     return e
 
-def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
+@[expose] def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
   let mut insts := #[inst]
   while insts.size < n do
     let inst := insts.back!
@@ -158,12 +162,12 @@ def deriveInduction (name : Name) : MetaM Unit := do
           -- We do this by setting the optional parameter `reduceConclusion` to true.
           let premiseType ← unfoldPredRel predicateType premiseType eqnInfo.fixpointType[0]! (reduceConclusion := true)
           let newConclusion ← unfoldPredRel predicateType conclusion eqnInfo.fixpointType[0]!
-          let abstracedNewConclusion ← mkForallFVars args newConclusion
+          let abstractedNewConclusion ← mkForallFVars args newConclusion
           withLocalDecl `y BinderInfo.default premiseType fun newPremise => do
             let typeHint ← mkExpectedTypeHint newPremise premiseType
             let argsForInst := args.set! 1 typeHint
             let argsWithNewPremise := args.set! 1 newPremise
-            let instantiated ← instantiateForall abstracedNewConclusion argsForInst
+            let instantiated ← instantiateForall abstractedNewConclusion argsForInst
             mkForallFVars argsWithNewPremise instantiated
 
         let e' ← mkExpectedTypeHint e' newTyp

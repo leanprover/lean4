@@ -3,8 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Elab.Command
+public import Lean.Elab.Command
+meta import Lean.Parser.Term
+
+public section
 
 namespace Lean.Elab.Command
 open Lean.Parser.Command
@@ -28,7 +33,7 @@ def elabAuxDef : CommandElab
     -- create a private name that then breaks the macro below. We assume that `aux_def` is not used
     -- with the same arguments in parallel contexts.
     let env := (← getEnv).setExporting true
-    let (id, _) := { namePrefix := ns : DeclNameGenerator }.mkUniqueName env («infix» := Name.mkSimple id)
+    let (id, _) := DeclNameGenerator.ofPrefix ns |>.mkUniqueName env («infix» := Name.mkSimple id)
     let id := id.replacePrefix ns Name.anonymous -- TODO: replace with def _root_.id
     elabCommand <|
       ← `($[$doc?:docComment]? $[$attrs?:attributes]?

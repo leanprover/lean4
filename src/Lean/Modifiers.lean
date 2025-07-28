@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.EnvExtension
-import Lean.PrivateName
+public import Lean.EnvExtension
+public import Lean.PrivateName
+
+public section
 
 namespace Lean
 
@@ -22,12 +26,10 @@ def mkPrivateName (env : Environment) (n : Name) : Name :=
   -- is private to *this* module.
   mkPrivateNameCore env.mainModule <| privateToUserName n
 
-def isPrivateNameFromImportedModule (env : Environment) (n : Name) : Bool :=
+def isInaccessiblePrivateName (env : Environment) (n : Name) : Bool :=
   if env.header.isModule then
     -- Allow access through `import all`.
-    -- TODO: this should not be relevant as soon as we make sure we never export any kind of private
-    -- constant.
-    !env.contains n && (env.setExporting false).contains n
+    env.isExporting && isPrivateName n
   else match privateToUserName? n with
     | some userName => mkPrivateName env userName != n
     | _ => false

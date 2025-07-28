@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DeclModifiers
-// Imports: Lean.Structure Lean.Elab.Attributes Lean.DocString.Add
+// Imports: Lean.Structure Lean.Elab.Attributes Lean.DocString.Add Lean.Parser.Command Lean.Parser.Command
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5344,6 +5344,8 @@ return x_7;
 lean_object* initialize_Lean_Structure(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Attributes(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DocString_Add(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_Command(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_Command(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_DeclModifiers(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -5356,6 +5358,12 @@ res = initialize_Lean_Elab_Attributes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_DocString_Add(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Command(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Command(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_checkNotAlreadyDeclared___redArg___lam__0___closed__0 = _init_l_Lean_Elab_checkNotAlreadyDeclared___redArg___lam__0___closed__0();

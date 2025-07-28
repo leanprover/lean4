@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.AppBuilder
-import Lean.Meta.CongrTheorems
-import Lean.Meta.Eqns
-import Lean.Meta.Tactic.Replace
-import Lean.Meta.Tactic.Simp.SimpTheorems
-import Lean.Meta.Tactic.Simp.SimpCongrTheorems
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.CongrTheorems
+public import Lean.Meta.Eqns
+public import Lean.Meta.Tactic.Replace
+public import Lean.Meta.Tactic.Simp.SimpTheorems
+public import Lean.Meta.Tactic.Simp.SimpCongrTheorems
+
+public section
 
 namespace Lean.Meta
 namespace Simp
@@ -249,9 +253,10 @@ structure Stats where
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 
-private def MethodsRef : Type := MethodsRefPointed.type
+def MethodsRef : Type := MethodsRefPointed.type
 
-instance : Nonempty MethodsRef := MethodsRefPointed.property
+instance : Nonempty MethodsRef :=
+  by exact MethodsRefPointed.property
 
 abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 

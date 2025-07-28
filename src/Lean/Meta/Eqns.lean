@@ -3,14 +3,18 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ReservedNameAction
-import Lean.AddDecl
-import Lean.Meta.Basic
-import Lean.Meta.AppBuilder
-import Lean.Meta.Match.MatcherInfo
-import Lean.DefEqAttrib
-import Lean.Meta.LetToHave
+public import Lean.ReservedNameAction
+public import Lean.AddDecl
+public import Lean.Meta.Basic
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.Match.MatcherInfo
+public import Lean.DefEqAttrib
+public import Lean.Meta.LetToHave
+
+public section
 
 namespace Lean.Meta
 
@@ -115,7 +119,7 @@ builtin_initialize registerReservedNamePredicate fun env n => Id.run do
   else
     false
 
-def GetEqnsFn := Name → MetaM (Option (Array Name))
+@[expose] def GetEqnsFn := Name → MetaM (Option (Array Name))
 
 private builtin_initialize getEqnsFnsRef : IO.Ref (List GetEqnsFn) ← IO.mkRef []
 
@@ -256,7 +260,7 @@ def generateEagerEqns (declName : Name) : MetaM Unit := do
     trace[Elab.definition.eqns] "generating eager equations for {declName}"
     let _ ← getEqnsFor?Core declName
 
-def GetUnfoldEqnFn := Name → MetaM (Option Name)
+@[expose] def GetUnfoldEqnFn := Name → MetaM (Option Name)
 
 private builtin_initialize getUnfoldEqnFnsRef : IO.Ref (List GetUnfoldEqnFn) ← IO.mkRef []
 

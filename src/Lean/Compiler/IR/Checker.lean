@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.Format
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.Format
+
+public section
 
 namespace Lean.IR.Checker
 
@@ -42,7 +46,7 @@ def throwCheckerError {α : Type} (msg : String) : M α := do
 def markIndex (i : Index) : M Unit := do
   let s ← get
   if s.foundVars.contains i then
-    throwCheckerError s!"variable / joinpoint index {i} has already been used"
+    throwCheckerError s!"variable / join point index {i} has already been used"
   modify fun s => { s with foundVars := s.foundVars.insert i }
 
 def markVar (x : VarId) : M Unit :=
@@ -218,8 +222,6 @@ partial def checkFnBody (fnBody : FnBody) : M Unit := do
     checkFnBody b
   | .del x b =>
     checkVar x
-    checkFnBody b
-  | .mdata _ b =>
     checkFnBody b
   | .jmp j ys =>
     checkJP j

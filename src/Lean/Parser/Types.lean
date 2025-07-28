@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Data.Trie
-import Lean.Syntax
-import Lean.Message
-import Lean.DocString.Extension
+public import Lean.Data.Trie
+public import Lean.Syntax
+public import Lean.Message
+public import Lean.DocString.Extension
+
+public section
 
 namespace Lean.Parser
 
@@ -185,7 +189,7 @@ def extract (stack : SyntaxStack) (start stop : Nat) : Array Syntax :=
   stack.raw.extract (stack.drop + start) (stack.drop + stop)
 
 instance : HAppend SyntaxStack (Array Syntax) SyntaxStack where
-  hAppend stack stxs := { stack with raw := stack.raw ++ stxs }
+  hAppend stack stxs := private { stack with raw := stack.raw ++ stxs }
 
 end SyntaxStack
 
@@ -322,7 +326,7 @@ def toErrorMsg (ctx : InputContext) (s : ParserState) : String := Id.run do
 
 end ParserState
 
-def ParserFn := ParserContext → ParserState → ParserState
+@[expose] def ParserFn := ParserContext → ParserState → ParserState
 
 instance : Inhabited ParserFn where
   default := fun _ s => s

@@ -39,7 +39,7 @@ example (n : Nat) : True := by
 example (n : Nat) : True := by
   induction n with
   | zero => sorry
-    -- General goal
+    -- No goals
 --^ $/lean/plainGoal
 
 example : True := by

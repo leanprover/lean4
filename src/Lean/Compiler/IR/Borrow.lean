@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.ExportAttr
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.NormIds
+public import Lean.Compiler.ExportAttr
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.NormIds
+
+public section
 
 namespace Lean
 namespace IR
@@ -25,7 +29,7 @@ def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool   := Std.HashMap.
 /-! We perform borrow inference in a block of mutually recursive functions.
    Join points are viewed as local functions, and are identified using
    their local id + the name of the surrounding function.
-   We keep a mapping from function and joint points to parameters (`Array Param`).
+   We keep a mapping from function and join points to parameters (`Array Param`).
    Recall that `Param` contains the field `borrow`. -/
 namespace ParamMap
 
@@ -74,8 +78,7 @@ partial def visitFnBody (fnid : FunId) : FnBody → StateM ParamMap Unit
   | FnBody.case _ _ _ alts => alts.forM fun alt => visitFnBody fnid alt.body
   | e => do
     unless e.isTerminal do
-      let (_, b) := e.split
-      visitFnBody fnid b
+      visitFnBody fnid e.body
 
 def visitDecls (env : Environment) (decls : Array Decl) : StateM ParamMap Unit :=
   decls.forM fun decl => match decl with
@@ -152,8 +155,8 @@ def ownVar (x : VarId) : M Unit := do
 
 def ownArg (x : Arg) : M Unit :=
   match x with
-  | Arg.var x => ownVar x
-  | _         => pure ()
+  | .var x => ownVar x
+  | .erased => pure ()
 
 def ownArgs (xs : Array Arg) : M Unit :=
   xs.forM ownArg
@@ -208,8 +211,8 @@ def ownParamsUsingArgs (xs : Array Arg) (ps : Array Param) : M Unit :=
     let x := xs[i]
     let p := ps[i]!
     match x with
-    | Arg.var x => if (← isOwned x) then ownVar p.x
-    | _         => pure ()
+    | .var x => if (← isOwned x) then ownVar p.x
+    | .erased => pure ()
 
 /-- Mark `xs[i]` as owned if it is one of the parameters `ps`.
    We use this action to mark function parameters that are being "packed" inside constructors.
@@ -225,8 +228,8 @@ def ownArgsIfParam (xs : Array Arg) : M Unit := do
   let ctx ← read
   xs.forM fun x => do
     match x with
-    | Arg.var x => if ctx.paramSet.contains x.idx then ownVar x
-    | _ => pure ()
+    | .var x => if ctx.paramSet.contains x.idx then ownVar x
+    | .erased => pure ()
 
 def collectExpr (z : VarId) : Expr → M Unit
   | Expr.reset _ x      => ownVar z *> ownVar x
@@ -245,7 +248,7 @@ def collectExpr (z : VarId) : Expr → M Unit
 def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit := do
   let ctx ← read
   match v, b with
-  | (Expr.fap g ys), (FnBody.ret (Arg.var z)) =>
+  | (Expr.fap g ys), (FnBody.ret (.var z)) =>
     -- NOTE: we currently support TCO for self-calls only
     if ctx.currFn == g && x == z then
       let ps ← getParamInfo (ParamMap.Key.decl g)
@@ -278,17 +281,17 @@ partial def collectDecl : Decl → M Unit
   | _ => pure ()
 
 /-- Keep executing `x` until it reaches a fixpoint -/
-partial def whileModifing (x : M Unit) : M Unit := do
+partial def whileModifying (x : M Unit) : M Unit := do
   modify fun s => { s with modified := false }
   x
   let s ← get
   if s.modified then
-    whileModifing x
+    whileModifying x
   else
     pure ()
 
 def collectDecls : M ParamMap := do
-  whileModifing ((← read).decls.forM collectDecl)
+  whileModifying ((← read).decls.forM collectDecl)
   let s ← get
   pure s.paramMap
 

@@ -3,22 +3,26 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Init.Guard
-import Std.Do.WP
-import Std.Do.Triple
-import Lean.Meta.Tactic.Split
-import Lean.Elab.Tactic.Simp
-import Lean.Elab.Tactic.Meta
-import Lean.Elab.Tactic.Do.ProofMode.Basic
-import Lean.Elab.Tactic.Do.ProofMode.Intro
-import Lean.Elab.Tactic.Do.ProofMode.Cases
-import Lean.Elab.Tactic.Do.ProofMode.Specialize
-import Lean.Elab.Tactic.Do.ProofMode.Pure
-import Lean.Elab.Tactic.Do.LetElim
-import Lean.Elab.Tactic.Do.Spec
-import Lean.Elab.Tactic.Do.Attr
-import Lean.Elab.Tactic.Do.Syntax
+public import Init.Guard
+public import Std.Do.WP
+public import Std.Do.Triple
+public import Lean.Meta.Tactic.Split
+public import Lean.Elab.Tactic.Simp
+public import Lean.Elab.Tactic.Meta
+public import Lean.Elab.Tactic.Do.ProofMode.Basic
+public import Lean.Elab.Tactic.Do.ProofMode.Intro
+public import Lean.Elab.Tactic.Do.ProofMode.Cases
+public import Lean.Elab.Tactic.Do.ProofMode.Specialize
+public import Lean.Elab.Tactic.Do.ProofMode.Pure
+public import Lean.Elab.Tactic.Do.LetElim
+public import Lean.Elab.Tactic.Do.Spec
+public import Lean.Elab.Tactic.Do.Attr
+public import Lean.Elab.Tactic.Do.Syntax
+
+public section
 
 namespace Lean.Elab.Tactic.Do
 
@@ -95,15 +99,6 @@ def liftSimpM (x : SimpM α) : VCGenM α := do
 
 instance : MonadLift SimpM VCGenM where
   monadLift x := liftSimpM x
-
-syntax (name := mvcgen_step) "mvcgen_step" optConfig
- (num)? (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
-
-syntax (name := mvcgen_no_trivial) "mvcgen_no_trivial" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
-
-syntax (name := mvcgen) "mvcgen" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
 
 private def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false) : TacticM Context := do
   let config ← elabConfig optConfig
@@ -361,8 +356,9 @@ where
         try
           let specThm ← findSpec ctx.specThms wp
           trace[Elab.Tactic.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
-          let (prf, specHoles) ← withDefault <| mSpec goal (fun _wp  => return specThm) name
-          assignMVars specHoles
+          let (prf, specHoles) ← withDefault <| collectFreshMVars <|
+            mSpec goal (fun _wp  => return specThm) name
+          assignMVars specHoles.toList
           return prf
         catch ex =>
           trace[Elab.Tactic.Do.vcgen] "Failed to find spec. Trying simp. Reason: {ex.toMessageData}"

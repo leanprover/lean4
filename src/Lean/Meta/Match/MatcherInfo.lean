@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 namespace Match
@@ -33,7 +37,7 @@ structure MatcherInfo where
   -/
   discrInfos   : Array DiscrInfo
 
-def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
+@[expose] def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
   info.altNumParams.size
 
 def MatcherInfo.arity (info : MatcherInfo) : Nat :=
@@ -90,7 +94,10 @@ def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo)
   assert! env.asyncMayContain matcherName
   extension.addEntry env { name := matcherName, info := info }
 
-def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo :=
+def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo := do
+  -- avoid blocking on async decls whose names look nothing like matchers
+  let .str _ s := declName.eraseMacroScopes | none
+  guard <| s.startsWith "match_"
   (extension.findStateAsync env declName).map.find? declName
 
 end Extension

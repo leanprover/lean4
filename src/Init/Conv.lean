@@ -262,7 +262,7 @@ resulting in `t'`, which becomes the new target subgoal. -/
 syntax (name := convConvSeq) "conv" " => " convSeq : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s`. -/
-macro dot:patternIgnore("·" <|> ".") s:convSeq : conv => `(conv| {%$dot ($s) })
+macro dot:patternIgnore("· " <|> ". ") s:convSeq : conv => `(conv| {%$dot ($s) })
 
 
 /-- `fail_if_success t` fails if the tactic `t` succeeds. -/
@@ -342,7 +342,7 @@ This is the conv mode version of the `lift_lets` tactic.
 syntax (name := liftLets) "lift_lets " optConfig : conv
 
 /--
-Transforms `let` expressions into `have` expressions within th etarget expression when possible.
+Transforms `let` expressions into `have` expressions within the target expression when possible.
 This is the conv mode version of the `let_to_have` tactic.
 -/
 syntax (name := letToHave) "let_to_have" : conv

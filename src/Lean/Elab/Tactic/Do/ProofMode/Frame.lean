@@ -3,10 +3,14 @@ Copyright (c) 2025 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Std.Tactic.Do.Syntax
-import Lean.Elab.Tactic.Do.ProofMode.MGoal
-import Lean.Elab.Tactic.Do.ProofMode.Focus
+public import Std.Tactic.Do.Syntax
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+public import Lean.Elab.Tactic.Do.ProofMode.Focus
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic
@@ -39,8 +43,9 @@ partial def transferHypNames (P P' : Expr) : MetaM Expr := (·.snd) <$> label (c
         repeat
           -- If we cannot find the hyp, it might be in a nested conjunction.
           -- Just pick a default name for it.
+          let name ← mkFreshUserName `h
           let uniq ← mkFreshId
-          let P :: Ps'' := Ps' | return (Ps, { name := `h, uniq, p := P' : Hyp }.toExpr)
+          let P :: Ps'' := Ps' | return (Ps, { name, uniq, p := P' : Hyp }.toExpr)
           Ps' := Ps''
           if ← isDefEq P.p P' then
             return (Ps, { P with p := P' }.toExpr)
@@ -56,7 +61,7 @@ def mFrameCore [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
     -- copy the name of P to P' if it is a named hypothesis
     let P' ← transferHypNames P P'
     let goal := { goal with hyps := P' }
-    withLocalDeclD `h φ fun hφ => do
+    withLocalDeclD (← liftMetaM <| mkFreshUserName `h) φ fun hφ => do
       let (a, prf) ← kSuccess φ hφ goal
       let prf ← mkLambdaFVars #[hφ] prf
       let prf := mkApp7 (mkConst ``Frame.frame [goal.u]) goal.σs P P' goal.target φ inst prf

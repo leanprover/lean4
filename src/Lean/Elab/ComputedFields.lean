@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Meta.Constructions.CasesOn
-import Lean.Compiler.ImplementedByAttr
-import Lean.Elab.PreDefinition.WF.Eqns
+public import Lean.Meta.Constructions.CasesOn
+public import Lean.Compiler.ImplementedByAttr
+public import Lean.Elab.PreDefinition.WF.Eqns
+
+public section
 
 /-!
 # Computed fields
@@ -58,7 +62,7 @@ with
 builtin_initialize computedFieldAttr : TagAttribute ←
   registerTagAttribute `computed_field "Marks a function as a computed field of an inductive" fun _ => do
     unless (← getOptions).getBool `elaboratingComputedFields do
-      throwError "The @[computed_field] attribute can only be used in the with-block of an inductive"
+      throwError "The `[computed_field]` attribute can only be used in the with-block of an inductive"
 
 def mkUnsafeCastTo (expectedType : Expr) (e : Expr) : MetaM Expr :=
   mkAppOptM ``unsafeCast #[none, expectedType, e]

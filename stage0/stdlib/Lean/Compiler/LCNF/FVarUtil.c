@@ -150,6 +150,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instTraverseFVarArg;
 static lean_object* l_Lean_Compiler_LCNF_anyFVar___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LetDecl_forFVarM___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_forFVarM(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___lam__4(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___redArg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Param_forFVarM(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -247,7 +248,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instTraverseFVarParam___lam__0(lea
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instTraverseFVarExpr___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LetValue_mapFVarM___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_Arg_updateFVarImp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -369,7 +369,7 @@ return x_11;
 else
 {
 uint8_t x_12; 
-x_12 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_3, x_3);
+x_12 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_3, x_3);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -444,7 +444,7 @@ return x_11;
 else
 {
 uint8_t x_12; 
-x_12 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_3, x_3);
+x_12 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_3, x_3);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -515,7 +515,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(39u);
-x_3 = lean_unsigned_to_nat(27u);
+x_3 = lean_unsigned_to_nat(31u);
 x_4 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__1;
 x_5 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -792,7 +792,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(38u);
-x_3 = lean_unsigned_to_nat(43u);
+x_3 = lean_unsigned_to_nat(47u);
 x_4 = l_Lean_Compiler_LCNF_Expr_forFVarM___redArg___closed__0;
 x_5 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -1809,7 +1809,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Compiler_LCNF_Expr_mapFVarM___redArg___closed__2;
 x_2 = lean_unsigned_to_nat(9u);
-x_3 = lean_unsigned_to_nat(315u);
+x_3 = lean_unsigned_to_nat(319u);
 x_4 = l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__1;
 x_5 = l_Lean_Compiler_LCNF_Code_mapFVarM___redArg___lam__0___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

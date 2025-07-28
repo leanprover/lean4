@@ -3,10 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.ShareCommon
-import Lean.Util.MonadCache
-import Lean.LocalContext
+public import Init.ShareCommon
+public import Lean.Util.MonadCache
+public import Lean.LocalContext
+import Init.Data.Slice
+
+public section
 
 namespace Lean
 
@@ -640,7 +645,7 @@ structure State where
 
 private abbrev M := StateM State
 
-instance : MonadMCtx M where
+private instance : MonadMCtx M where
   getMCtx := return (← get).mctx
   modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
 
@@ -694,7 +699,7 @@ private def shouldVisit (e : Expr) : M Bool := do
       | _                    => pure false
   visit e
 
-@[inline] partial def main (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
+@[inline] private partial def main (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
   if !e.hasFVar && !e.hasMVar then pure false else dep pf pm e
 
 end DependsOn
@@ -1270,11 +1275,15 @@ This function trusts that `xs` has all forward dependencies that appear in `e` a
 - If `usedLetOnly := true` then `let` expressions are created only for used (let-) variables.
 - If `generalizeNondepLet := true` then nondependent let variables become `forall` or `lambda` expressions
   according to the value of `usedOnly`.
-  Generally, `generalizeNondepLet` should be `true` *unless* `mkBinding` is being used when leaving a telescope combinator (like `Meta.lambdaLetTelescope`).
-  This needs to be `true` when making terms that should remain type correct with respect to the same `lctx`;
-  for example, if `e' ← mkBinding true lctx xs e (generalizeNondepLet := true)` and `xs' ← xs.filterM (FVarId.isLetVar · false)`,
-  then one has that `mkAppN e' xs'` is definitionally equal to `e` with respect to `lctx`.
-  **Note:** `generalizeNondepLet := true` is the common case, so `mkBinding` API uses it as the default.
+  Generally, `generalizeNondepLet` should be `true`
+  *unless* all nondep entries in `xs` have known provenance,
+  e.g. when leaving a telescope combinator like `Meta.lambdaLetTelescope`.
+  See also `LocalDecl.ldecl`.
+  - This needs to be `true` when making terms that should remain type correct with respect to the same `lctx`;
+    for example, if `e' ← mkBinding true lctx xs e (generalizeNondepLet := true)`
+    and `xs' ← xs.filterM (FVarId.isLetVar · false)`,
+    then one has that `mkAppN e' xs'` is definitionally equal to `e` with respect to `lctx`.
+  - **Note:** `generalizeNondepLet := true` is the common case, so `mkBinding` API uses it as the default.
 -/
 def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) (etaReduce : Bool) (generalizeNondepLet : Bool) : M Expr := do
   let e ← abstractRange xs xs.size e

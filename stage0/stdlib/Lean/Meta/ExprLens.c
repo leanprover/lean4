@@ -77,6 +77,7 @@ LEAN_EXPORT lean_object* l_Lean_Core_viewBinders(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_Meta_foldAncestors___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_viewSubexpr___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_viewSubexpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_replaceSubexpr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLetDecl___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
@@ -123,7 +124,6 @@ static lean_object* l_Lean_Core_numBinders___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Core_numBinders(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_viewBinders___redArg___lam__2(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_foldAncestorsAux___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Core_viewCoordRaw___redArg___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -394,7 +394,7 @@ return x_10;
 else
 {
 uint8_t x_11; 
-x_11 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_3, x_3);
+x_11 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_3, x_3);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -449,7 +449,7 @@ return x_10;
 else
 {
 uint8_t x_11; 
-x_11 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_3, x_3);
+x_11 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_3, x_3);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 

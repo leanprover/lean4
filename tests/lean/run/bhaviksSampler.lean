@@ -156,6 +156,7 @@ theorem sampler_correct {m : Type → Type u} {k h} [Monad m] [WPMonad m ps] :
   -- case step => simp_all
   case post.success =>
     dsimp
+    mrename_i h
     mpure h
     mpure_intro
     have h := h.nodup_take
@@ -166,6 +167,7 @@ theorem sampler_correct {m : Type → Type u} {k h} [Monad m] [WPMonad m ps] :
   case step.success r =>
     dsimp
     mintro ∀s
+    mrename_i h
     mcases h with ⌜hinv⌝
     mpure_intro
     simp_all

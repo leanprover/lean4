@@ -3,14 +3,19 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Quotation.Precheck
-import Lean.Elab.Term
-import Lean.Elab.BindersUtil
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.PreDefinition.TerminationHint
-import Lean.Elab.Match
-import Lean.Compiler.MetaAttr
+public import Lean.Elab.Quotation.Precheck
+public import Lean.Elab.Term
+public import Lean.Elab.BindersUtil
+public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.PreDefinition.TerminationHint
+public import Lean.Elab.Match
+public import Lean.Compiler.MetaAttr
+meta import Lean.Parser.Term
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
@@ -55,7 +60,7 @@ structure BinderView where
 
   Potential better solution: add a binder syntax category, an extensible `elabBinder`
   (like we have `elabTerm`), and perform all macro expansion steps at `elabBinder` and
-  record them in the infro tree.
+  record them in the info tree.
   -/
   ref  : Syntax
   id   : Syntax
@@ -623,7 +628,7 @@ private def checkMatchAltPatternCounts (matchAlts : Syntax) (numDiscrs : Nat) (e
   ```
   expands into
   ```
-  fux x_1 x_2 =>
+  fun x_1 x_2 =>
     let rec
       f x := g x + 1,
       g : Nat → Nat

@@ -3,12 +3,16 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Environment
-import Lean.Compiler.IR.Format
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.MonoTypes
-import Lean.Compiler.LCNF.Types
+public import Lean.Environment
+public import Lean.Compiler.IR.Format
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.MonoTypes
+public import Lean.Compiler.LCNF.Types
+
+public section
 
 namespace Lean
 namespace IR

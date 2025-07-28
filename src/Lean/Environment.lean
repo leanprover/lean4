@@ -3,25 +3,30 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.StateRef
-import Init.Data.Array.BinSearch
-import Init.Data.Stream
-import Init.System.Promise
-import Lean.ImportingFlag
-import Lean.Data.NameTrie
-import Lean.Data.SMap
-import Lean.Setup
-import Lean.Declaration
-import Lean.LocalContext
-import Lean.Util.Path
-import Lean.Util.FindExpr
-import Lean.Util.Profile
-import Lean.Util.InstantiateLevelParams
-import Lean.Util.FoldConsts
-import Lean.PrivateName
-import Lean.LoadDynlib
-import Init.Dynamic
+public import Init.Control.StateRef
+public import Init.Data.Array.BinSearch
+public import Init.Data.Stream
+public import Init.System.Promise
+public import Lean.ImportingFlag
+public import Lean.Data.NameTrie
+public import Lean.Data.SMap
+public import Lean.Setup
+public import Lean.Declaration
+public import Lean.LocalContext
+public import Lean.Util.Path
+public import Lean.Util.FindExpr
+public import Lean.Util.Profile
+public import Lean.Util.InstantiateLevelParams
+public import Lean.Util.FoldConsts
+public import Lean.PrivateName
+public import Lean.LoadDynlib
+public import Init.Dynamic
+import Init.Data.Slice
+
+public section
 
 /-!
 # Note [Environment Branches]
@@ -75,10 +80,10 @@ register_builtin_option debug.skipKernelTC : Bool := {
 
 /-- Opaque environment extension state. -/
 opaque EnvExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
-def EnvExtensionState : Type := EnvExtensionStateSpec.fst
+@[expose] def EnvExtensionState : Type := EnvExtensionStateSpec.fst
 instance : Inhabited EnvExtensionState := EnvExtensionStateSpec.snd
 
-def ModuleIdx := Nat
+@[expose] def ModuleIdx := Nat
   deriving BEq, ToString
 
 abbrev ModuleIdx.toNat (midx : ModuleIdx) : Nat := midx
@@ -98,7 +103,7 @@ abbrev ConstMap := SMap Name ConstantInfo
   A compacted region holds multiple Lean objects in a contiguous memory region, which can be read/written to/from disk.
   Objects inside the region do not have reference counters and cannot be freed individually. The contents of .olean
   files are compacted regions. -/
-def CompactedRegion := USize
+@[expose] def CompactedRegion := USize
 
 @[extern "lean_compacted_region_is_memory_mapped"]
 opaque CompactedRegion.isMemoryMapped : CompactedRegion → Bool
@@ -113,7 +118,7 @@ unsafe opaque CompactedRegion.free : CompactedRegion → IO Unit
 
 /-- Opaque persistent environment extension entry. -/
 opaque EnvExtensionEntrySpec : NonemptyType.{0}
-def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
+@[expose] def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
 instance : Nonempty EnvExtensionEntry := EnvExtensionEntrySpec.property
 
 /-- Content of a .olean file.
@@ -556,13 +561,13 @@ structure Environment where
   identical to `base.extensions` in other contexts. Access via
   `getModuleEntries (level := .server)`.
   -/
-  private serverBaseExts : Array EnvExtensionState := base.private.extensions
+  private serverBaseExts : Array EnvExtensionState := private_decl% base.private.extensions
   /--
   Kernel environment task that is fulfilled when all asynchronously elaborated declarations are
   finished, containing the resulting environment. Also collects the environment extension state of
   all environment branches that contributed contained declarations.
   -/
-  checked             : Task Kernel.Environment := .pure base.private
+  checked             : Task Kernel.Environment := private_decl% (.pure base.private)
   /--
   Container of asynchronously elaborated declarations. For consistency, `Lean.addDecl` makes sure
   this contains constants added even synchronously, i.e. `base ⨃ asyncConsts` is the set of
@@ -1627,7 +1632,7 @@ attribute [inherit_doc PersistentEnvExtension.exportEntriesFn]
 /--
 Auxiliary function to signal to the structure instance elaborator that `default` should be used as
 the default value for a field but only if `_otherField` has been given, which is added as an
-artifical dependency.
+artificial dependency.
 -/
 def useDefaultIfOtherFieldGiven (default : α) (_otherField : β) : α :=
   default
@@ -1824,9 +1829,9 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
   When we a new user-defined attribute declaration is imported, `attributeMapRef` is updated.
   Later, we set this method with code that adds the user-defined attributes that were imported after we initialized `attributeExtension`.
 -/
-@[extern 2 "lean_update_env_attributes"] opaque updateEnvAttributes : Environment → IO Environment
+@[extern "lean_update_env_attributes"] opaque updateEnvAttributes : Environment → IO Environment
 /-- "Forward declaration" for retrieving the number of builtin attributes. -/
-@[extern 1 "lean_get_num_attributes"] opaque getNumBuiltinAttributes : IO Nat
+@[extern "lean_get_num_attributes"] opaque getNumBuiltinAttributes : IO Nat
 
 private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
   let exts ← EnvExtension.ensureExtensionsArraySize env.base.private.extensions
@@ -1903,6 +1908,7 @@ private def ImportedModule.loadIRData? (self : ImportedModule) (arts : NameMap I
 structure ImportState where
   private moduleNameMap : Std.HashMap Name ImportedModule := {}
   private moduleNames   : Array Name := #[]
+deriving Inhabited
 
 def throwAlreadyImported (s : ImportState) (const2ModIdx : Std.HashMap Name ModuleIdx) (modIdx : Nat) (cname : Name) : IO α := do
   let modName := s.moduleNames[modIdx]!
@@ -1911,7 +1917,7 @@ def throwAlreadyImported (s : ImportState) (const2ModIdx : Std.HashMap Name Modu
 
 abbrev ImportStateM := StateRefT ImportState IO
 
-@[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := {}) : IO (α × ImportState) :=
+@[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := default) : IO (α × ImportState) :=
   x.run s
 
 private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
@@ -1930,10 +1936,10 @@ private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
   return fnames
 
 partial def importModulesCore
-    (imports : Array Import) (isModule := false) (arts : NameMap ImportArtifacts := {}) :
+    (imports : Array Import) (globalLevel : OLeanLevel := .private) (arts : NameMap ImportArtifacts := {}) :
     ImportStateM Unit := do
-  go imports (importAll := true) (isExported := isModule) (isMeta := false)
-  if isModule then
+  go imports (importAll := true) (isExported := globalLevel < .private) (isMeta := false)
+  if globalLevel < .private then
     for i in imports do
       if let some mod := (← get).moduleNameMap[i.module]?.bind (·.mainModule?) then
         if !mod.isModule then
@@ -1983,7 +1989,7 @@ where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
     if !(i.isExported || importAll) then
       continue
     -- `B ≥ privateAll`?
-    let importAll := !isModule || (importAll && i.importAll)
+    let importAll := globalLevel == .private || (importAll && i.importAll)
     -- `B ≥ public`?
     let isExported := isExported && i.isExported
     let irPhases :=
@@ -2008,7 +2014,7 @@ where go (imports : Array Import) (importAll isExported isMeta : Bool) := do
       if let some arts := arts.find? i.module then
         -- Opportunistically load all available parts.
         -- Producer (e.g., Lake) should limit parts to the proper import level.
-        pure arts.oleanParts
+        pure <| arts.oleanParts (inServer := globalLevel ≥ .server)
       else
         findOLeanParts i.module
     let parts ← readModuleDataParts fnames
@@ -2196,7 +2202,7 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     plugins.forM Lean.loadPlugin
-    let (_, s) ← importModulesCore (isModule := level != .private) imports arts |>.run
+    let (_, s) ← importModulesCore (globalLevel := level) imports arts |>.run
     finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level) (arts := arts)
       s imports opts trustLevel
 
@@ -2540,7 +2546,7 @@ def withoutExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x
     x
 
 /-- Constructs a DefinitionVal, inferring the `unsafe` field -/
-def mkDefinitionValInferrringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelParams : List Name)
+def mkDefinitionValInferringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelParams : List Name)
     (type : Expr) (value : Expr) (hints : ReducibilityHints) : m DefinitionVal := do
   let env ← getEnv
   let safety := if env.hasUnsafe type || env.hasUnsafe value then DefinitionSafety.unsafe else DefinitionSafety.safe

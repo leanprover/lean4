@@ -3,21 +3,26 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.ReservedNameAction
-import Lean.Meta.AppBuilder
-import Lean.Meta.CollectMVars
-import Lean.Meta.Coe
-import Lean.Util.CollectLevelMVars
-import Lean.Linter.Deprecated
-import Lean.Elab.Config
-import Lean.Elab.Level
-import Lean.Elab.DeclModifiers
-import Lean.Elab.PreDefinition.TerminationHint
-import Lean.Elab.DeclarationRange
-import Lean.Elab.WhereFinally
-import Lean.Language.Basic
-import Lean.Elab.InfoTree.InlayHints
+public import Lean.ReservedNameAction
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.CollectMVars
+public import Lean.Meta.Coe
+public import Lean.Util.CollectLevelMVars
+public import Lean.Linter.Deprecated
+public import Lean.Elab.Config
+public import Lean.Elab.Level
+public import Lean.Elab.DeclModifiers
+public import Lean.Elab.PreDefinition.TerminationHint
+public import Lean.Elab.DeclarationRange
+public import Lean.Elab.WhereFinally
+public import Lean.Language.Basic
+public import Lean.Elab.InfoTree.InlayHints
+public meta import Lean.Parser.Term
+
+public section
 
 namespace Lean.Elab
 
@@ -283,9 +288,8 @@ structure Context where
   /--
      When `autoBoundImplicit` is set to true, instead of producing
      an "unknown identifier" error for unbound variables, we generate an
-     internal exception. This exception is caught at `elabBinders` and
-     `elabTypeWithUnboldImplicit`. Both methods add implicit declarations
-     for the unbound variable and try again. -/
+     internal exception. This exception is caught at `withAutoBoundImplicit`
+     which adds an implicit declaration for the unbound variable and tries again. -/
   autoBoundImplicit  : Bool            := false
   autoBoundImplicits : PArray Expr := {}
   /--
@@ -1520,9 +1524,7 @@ private def isNoImplicitLambda (stx : Syntax) : Bool :=
   | _ => false
 
 private def isTypeAscription (stx : Syntax) : Bool :=
-  match stx with
-  | `(($_ : $[$_]?)) => true
-  | _                => false
+  stx.isOfKind ``Parser.Term.typeAscription
 
 def hasNoImplicitLambdaAnnotation (type : Expr) : Bool :=
   annotation? `noImplicitLambda type |>.isSome
@@ -1998,7 +2000,7 @@ where
            isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
         throwAutoBoundImplicitLocal n
       else
-        throwUnknownIdentifierAt stx m!"Unknown identifier `{Lean.mkConst n}`"
+        throwUnknownIdentifierAt (declHint := n) stx m!"Unknown identifier `{.ofConstName n}`"
     mkConsts candidates explicitLevels
 
 /--
@@ -2110,8 +2112,7 @@ builtin_initialize
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do
-        throwError "invalid attribute 'builtin_incremental', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `builtin_incremental kind
       declareBuiltin decl <| mkApp (mkConst ``addBuiltinIncrementalElab) (toExpr decl)
   }
 

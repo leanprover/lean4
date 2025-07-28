@@ -3,19 +3,23 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Init.Grind.Lemmas
-import Lean.Meta.LitValues
-import Lean.Meta.Match.MatcherInfo
-import Lean.Meta.Match.MatchEqsExt
-import Lean.Meta.Match.MatchEqs
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.Canon
-import Lean.Meta.Tactic.Grind.Beta
-import Lean.Meta.Tactic.Grind.MatchCond
-import Lean.Meta.Tactic.Grind.Arith.Internalize
+public import Init.Grind.Util
+public import Init.Grind.Lemmas
+public import Lean.Meta.LitValues
+public import Lean.Meta.Match.MatcherInfo
+public import Lean.Meta.Match.MatchEqsExt
+public import Lean.Meta.Match.MatchEqs
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Tactic.Grind.Canon
+public import Lean.Meta.Tactic.Grind.Beta
+public import Lean.Meta.Tactic.Grind.MatchCond
+public import Lean.Meta.Tactic.Grind.Arith.Internalize
+
+public section
 
 namespace Lean.Meta.Grind
 /-- Adds `e` to congruence table. -/

@@ -3,15 +3,19 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.Class
-import Lean.ReservedNameAction
-import Lean.ResolveName
-import Lean.Meta.AppBuilder
-import Lean.Meta.Tactic.Subst
-import Lean.Meta.Tactic.Intro
-import Lean.Meta.Tactic.Assert
+public import Lean.AddDecl
+public import Lean.Class
+public import Lean.ReservedNameAction
+public import Lean.ResolveName
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.Tactic.Subst
+public import Lean.Meta.Tactic.Intro
+public import Lean.Meta.Tactic.Assert
+
+public section
 
 namespace Lean.Meta
 

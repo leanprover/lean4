@@ -3,20 +3,24 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Term
-import Lean.Meta.Closure
-import Lean.Meta.Check
-import Lean.Meta.Transform
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.Elab.Command
-import Lean.Elab.Match
-import Lean.Elab.DefView
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.PreDefinition.Main
-import Lean.Elab.PreDefinition.TerminationHint
-import Lean.Elab.DeclarationRange
-import Lean.Elab.WhereFinally
+public import Lean.Parser.Term
+public import Lean.Meta.Closure
+public import Lean.Meta.Check
+public import Lean.Meta.Transform
+public import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.Elab.Command
+public import Lean.Elab.Match
+public import Lean.Elab.DefView
+public import Lean.Elab.Deriving.Basic
+public import Lean.Elab.PreDefinition.Main
+public import Lean.Elab.PreDefinition.TerminationHint
+public import Lean.Elab.DeclarationRange
+public import Lean.Elab.WhereFinally
+
+public section
 
 namespace Lean.Elab
 open Lean.Parser.Term
@@ -40,7 +44,7 @@ builtin_initialize
     descr := "(module system) Make bodies of definitions available to importing modules."
     add := fun _ _ _ => do
       -- Attribute will be filtered out by `MutualDef`
-      throwError "Invalid attribute 'expose', must be used when declaring `def`"
+      throwError "Cannot add attribute `[expose]`: This attribute can only be added when declaring a `def`"
   }
 
 /--
@@ -57,7 +61,7 @@ builtin_initialize
     descr := "(module system) Negate previous `[expose]` attribute."
     add := fun _ _ _ => do
       -- Attribute will be filtered out by `MutualDef`
-      throwError "Invalid attribute 'no_expose', must be used when declaring `def`"
+      throwError "Cannot add attribute `[no_expose]`: This attribute can only be added when declaring a `def`"
   }
 
 def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
@@ -1146,7 +1150,10 @@ def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefVie
     withoutModifyingEnv do
       -- save correct environment in info tree
       withSaveInfoContext do
-        go
+        try
+          go
+        finally
+          reportDiag -- else wouldn't survive `withoutModifyingEnv`
   else
     go
 where

@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Format
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.Format
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.CompilerM
+
+public section
 
 namespace Lean.IR.UnreachableBranches
 
@@ -231,7 +235,7 @@ def updateJPParamsAssignment (j : JoinPointId) (ys : Array Param) (xs : Array Ar
 private partial def resetNestedJPParams : FnBody → M Unit
   | FnBody.jdecl _ ys _ k => do
     ys.forM resetParamAssignment
-    /- Remark we don't need to reset the parameters of joint-points
+    /- Remark we don't need to reset the parameters of join points
       nested in `b` since they will be reset if this JP is used. -/
     resetNestedJPParams k
   | FnBody.case _ _ _ alts =>

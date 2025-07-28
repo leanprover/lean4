@@ -3,18 +3,22 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Init.Grind.Tactics
-import Lean.HeadIndex
-import Lean.PrettyPrinter
-import Lean.Util.FoldConsts
-import Lean.Util.CollectFVars
-import Lean.Meta.Basic
-import Lean.Meta.InferType
-import Lean.Meta.Eqns
-import Lean.Meta.Match.MatchEqs
-import Lean.Meta.Tactic.Grind.Util
+public import Init.Grind.Util
+public import Init.Grind.Tactics
+public import Lean.HeadIndex
+public import Lean.PrettyPrinter
+public import Lean.Util.FoldConsts
+public import Lean.Util.CollectFVars
+public import Lean.Meta.Basic
+public import Lean.Meta.InferType
+public import Lean.Meta.Eqns
+public import Lean.Meta.Match.MatchEqs
+public import Lean.Meta.Tactic.Grind.Util
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -273,8 +277,8 @@ private def inferEMatchProofType (proof : Expr) (gen : Bool) : MetaM Expr := do
 
 -- Configuration for the `grind` normalizer. We want both `zetaDelta` and `zeta`
 private def normConfig : Grind.Config := {}
-theorem normConfig_zeta : normConfig.zeta = true := rfl
-theorem normConfig_zetaDelta : normConfig.zetaDelta = true := rfl
+private theorem normConfig_zeta : normConfig.zeta = true := rfl
+private theorem normConfig_zetaDelta : normConfig.zetaDelta = true := rfl
 
 def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
   let pat ← instantiateMVars pat
@@ -461,7 +465,7 @@ def EMatchTheorems.find (s : EMatchTheorems) (origin : Origin) : List EMatchTheo
 def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr := do
   if thm.proof.isConst && thm.levelParams.isEmpty then
     let declName := thm.proof.constName!
-    let info ← getConstInfo declName
+    let info ← getConstVal declName
     if info.levelParams.isEmpty then
       return thm.proof
     else
@@ -877,7 +881,7 @@ def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams 
   }
 
 private def getProofFor (declName : Name) : MetaM Expr := do
-  let info ← getConstInfo declName
+  let info ← getConstVal declName
   -- For theorems, `isProp` has already been checked at declaration time
   unless wasOriginallyTheorem (← getEnv) declName do
     unless (← isProp info.type) do

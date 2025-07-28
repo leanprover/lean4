@@ -3,17 +3,21 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Lean.Meta.LitValues
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Inv
-import Lean.Meta.Tactic.Grind.PP
-import Lean.Meta.Tactic.Grind.Ctor
-import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.Beta
-import Lean.Meta.Tactic.Grind.Internalize
-import Lean.Meta.Tactic.Grind.Simp
+public import Init.Grind.Util
+public import Lean.Meta.LitValues
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Inv
+public import Lean.Meta.Tactic.Grind.PP
+public import Lean.Meta.Tactic.Grind.Ctor
+public import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Tactic.Grind.Beta
+public import Lean.Meta.Tactic.Grind.Internalize
+public import Lean.Meta.Tactic.Grind.Simp
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -212,7 +216,7 @@ def propagateLinarith : PendingTheoryPropagation → GoalM Unit
   | _ => return ()
 
 /--
-Tries to apply beta-reductiong using the parent applications of the functions in `fns` with
+Tries to apply beta-reduction using the parent applications of the functions in `fns` with
 the lambda expressions in `lams`.
 -/
 def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do

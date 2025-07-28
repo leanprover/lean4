@@ -3,11 +3,16 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Dany Fabian
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.Deriving.Util
-import Lean.Data.Json.FromToJson.Basic
+public import Lean.Meta.Transform
+public import Lean.Elab.Deriving.Basic
+public import Lean.Elab.Deriving.Util
+public import Lean.Data.Json.FromToJson.Basic
+meta import Lean.Parser.Do
+
+public section
 
 namespace Lean.Elab.Deriving.FromToJson
 open Lean.Elab.Command

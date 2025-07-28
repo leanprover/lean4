@@ -3,14 +3,18 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Simproc
-import Init.Grind.Tactics
-import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.Transform
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.Simp.Simproc
+public import Init.Simproc
+public import Init.Grind.Tactics
+public import Lean.Meta.AbstractNestedProofs
+public import Lean.Meta.Transform
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Clear
+public import Lean.Meta.Tactic.Simp.Simproc
+
+public section
 
 namespace Lean.Meta.Grind
 /--
@@ -178,7 +182,7 @@ def normalizeLevels (e : Expr) : CoreM Expr := do
 
 /--
 Normalizes the given expression using the `grind` simplification theorems and simprocs.
-This function is used for normalzing E-matching patterns. Note that it does not return a proof.
+This function is used for normalizing E-matching patterns. Note that it does not return a proof.
 -/
 @[extern "lean_grind_normalize"] -- forward definition
 opaque normalize (e : Expr) (config : Grind.Config) : MetaM Expr

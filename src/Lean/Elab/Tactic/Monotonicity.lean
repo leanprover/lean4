@@ -3,11 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Split
-import Lean.Elab.RecAppSyntax
-import Lean.Elab.Tactic.Basic
-import Init.Internal.Order
+public import Lean.Meta.Tactic.Split
+public import Lean.Elab.RecAppSyntax
+public import Lean.Elab.Tactic.Basic
+public import Init.Internal.Order
+
+public section
 
 namespace Lean.Meta.Monotonicity
 
@@ -44,7 +48,7 @@ builtin_initialize registerBuiltinAttribute {
     let declTy := (← getConstInfo decl).type
     let (xs, _, targetTy) ← withReducible <| forallMetaTelescopeReducing declTy
     let_expr monotone α inst_α β inst_β f := targetTy |
-      throwError "@[partial_fixpoint_monotone] attribute only applies to lemmas proving {.ofConstName ``monotone}"
+      throwError "`[partial_fixpoint_monotone]` attribute only applies to lemmas proving {.ofConstName ``monotone}"
     let f := f.headBeta
     let f ← if f.isLambda then pure f else etaExpand f
     let f := headBetaUnderLambda f
@@ -59,7 +63,7 @@ Finds tagged monotonicity theorems of the form `monotone (fun x => e)`.
 def findMonoThms (e : Expr) : MetaM (Array Name) := do
   (monotoneExt.getState (← getEnv)).getMatch e
 
-private def defaultFailK (f : Expr) (monoThms : Array Name) : MetaM α :=
+def defaultFailK (f : Expr) (monoThms : Array Name) : MetaM α :=
   let extraMsg := if monoThms.isEmpty then m!"" else
     m!"Tried to apply {.andList (monoThms.toList.map (m!"'{·}'"))}, but failed."
   throwError "Failed to prove monotonicity of:{indentExpr f}\n{extraMsg}"

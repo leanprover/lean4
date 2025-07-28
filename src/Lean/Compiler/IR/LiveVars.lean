@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.FreeVars
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.FreeVars
+
+public section
 
 namespace Lean.IR
 
@@ -29,7 +33,7 @@ namespace Lean.IR
 namespace IsLive
 /--
   We use `State Context` instead of `ReaderT Context Id` because we remove
-  non local joint points from `Context` whenever we visit them instead of
+  non local join points from `Context` whenever we visit them instead of
   maintaining a set of visited non local join points.
 
   Remark: we don't need to track local join points because we assume there is
@@ -53,7 +57,6 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
   | FnBody.inc x _ _ _ b    => visitVar w x <||> visitFnBody w b
   | FnBody.dec x _ _ _ b    => visitVar w x <||> visitFnBody w b
   | FnBody.del x b          => visitVar w x <||> visitFnBody w b
-  | FnBody.mdata _ b        => visitFnBody w b
   | FnBody.jmp j ys         => visitArgs w ys <||> do
       let ctx ← get
       match ctx.getJPBody j with
@@ -144,7 +147,6 @@ partial def collectFnBody : FnBody → JPLiveVarMap → Collector
   | FnBody.inc x _ _ _ b,    m => collectVar x ∘ collectFnBody b m
   | FnBody.dec x _ _ _ b,    m => collectVar x ∘ collectFnBody b m
   | FnBody.del x b,          m => collectVar x ∘ collectFnBody b m
-  | FnBody.mdata _ b,        m => collectFnBody b m
   | FnBody.ret x,            _ => collectArg x
   | FnBody.case _ x _ alts,  m => collectVar x ∘ collectArray alts (fun alt => collectFnBody alt.body m)
   | FnBody.unreachable,      _ => skip

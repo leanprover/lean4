@@ -3,15 +3,19 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Std.Data.HashSet.Basic
-import Std.Data.TreeSet.Basic
-import Lean.Data.SSet
-import Lean.Data.Name
+public import Std.Data.HashSet.Basic
+public import Std.Data.TreeSet.Basic
+public import Lean.Data.SSet
+public import Lean.Data.Name
+
+public section
 
 namespace Lean
 
-def NameMap (α : Type) := Std.TreeMap Name α Name.quickCmp
+@[expose] def NameMap (α : Type) := Std.TreeMap Name α Name.quickCmp
 
 @[inline] def mkNameMap (α : Type) : NameMap α := Std.TreeMap.empty
 
@@ -40,7 +44,7 @@ def filter (f : Name → α → Bool) (m : NameMap α) : NameMap α := Std.TreeM
 
 end NameMap
 
-def NameSet := Std.TreeSet Name Name.quickCmp
+@[expose] def NameSet := Std.TreeSet Name Name.quickCmp
 
 namespace NameSet
 def empty : NameSet := Std.TreeSet.empty
@@ -58,6 +62,18 @@ def append (s t : NameSet) : NameSet :=
 instance : Append NameSet where
   append := NameSet.append
 
+instance : Singleton Name NameSet where
+  singleton := fun n => (∅ : NameSet).insert n
+
+instance : Union NameSet where
+  union := NameSet.append
+
+instance : Inter NameSet where
+  inter := fun s t => s.foldl (fun r n => if t.contains n then r.insert n else r) {}
+
+instance : SDiff NameSet where
+  sdiff := fun s t => t.foldl (fun s n => s.erase n) s
+
 /-- `filter f s` returns the `NameSet` consisting of all `x` in `s` where `f x` returns `true`. -/
 def filter (f : Name → Bool) (s : NameSet) : NameSet := Std.TreeSet.filter f s
 
@@ -67,7 +83,7 @@ def ofArray (l : Array Name) : NameSet := Std.TreeSet.ofArray l _
 
 end NameSet
 
-def NameSSet := SSet Name
+@[expose] def NameSSet := SSet Name
 
 namespace NameSSet
 abbrev empty : NameSSet := SSet.empty
@@ -77,7 +93,7 @@ abbrev insert (s : NameSSet) (n : Name) : NameSSet := SSet.insert s n
 abbrev contains (s : NameSSet) (n : Name) : Bool := SSet.contains s n
 end NameSSet
 
-def NameHashSet := Std.HashSet Name
+@[expose] def NameHashSet := Std.HashSet Name
 
 namespace NameHashSet
 @[inline] def empty : NameHashSet := (∅ : Std.HashSet Name)

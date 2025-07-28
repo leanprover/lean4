@@ -49,10 +49,10 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_materializeDeps___at___Lake_loadWorksp
 lean_object* l_Lake_Manifest_tryLoadEntries(lean_object*, lean_object*);
 extern lean_object* l_Lake_initFacetConfigs;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_IO_ofExcept___at___Lean_Meta_Simp_getSimprocFromDeclImpl_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_loadWorkspace___elam__0___at___Array_foldlMUnsafe_fold___at___Lake_loadWorkspace_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_searchPathRef;
 lean_object* l_Lake_loadPackageCore(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_ofExcept___at___Lean_mkAttributeImplOfEntry_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_loadWorkspace___elam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lake_Workspace_materializeDeps_spec__10(lean_object*, lean_object*);
 lean_object* l_Lake_mkRelPathString(lean_object*);
@@ -179,7 +179,7 @@ lean_inc(x_31);
 lean_dec_ref(x_18);
 x_32 = l_Lake_Workspace_addFacetsFromEnv(x_31, x_6, x_30);
 lean_dec(x_6);
-x_33 = l_IO_ofExcept___at___Lean_mkAttributeImplOfEntry_spec__0___redArg(x_32, x_22);
+x_33 = l_IO_ofExcept___at___Lean_Meta_Simp_getSimprocFromDeclImpl_spec__0___redArg(x_32, x_22);
 if (lean_obj_tag(x_33) == 0)
 {
 uint8_t x_34; 
@@ -292,7 +292,7 @@ lean_inc(x_61);
 lean_dec_ref(x_18);
 x_62 = l_Lake_Workspace_addFacetsFromEnv(x_61, x_6, x_59);
 lean_dec(x_6);
-x_63 = l_IO_ofExcept___at___Lean_mkAttributeImplOfEntry_spec__0___redArg(x_62, x_22);
+x_63 = l_IO_ofExcept___at___Lean_Meta_Simp_getSimprocFromDeclImpl_spec__0___redArg(x_62, x_22);
 if (lean_obj_tag(x_63) == 0)
 {
 lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; 
@@ -410,7 +410,7 @@ lean_inc(x_89);
 lean_dec_ref(x_18);
 x_90 = l_Lake_Workspace_addFacetsFromEnv(x_89, x_6, x_86);
 lean_dec(x_6);
-x_91 = l_IO_ofExcept___at___Lean_mkAttributeImplOfEntry_spec__0___redArg(x_90, x_79);
+x_91 = l_IO_ofExcept___at___Lean_Meta_Simp_getSimprocFromDeclImpl_spec__0___redArg(x_90, x_79);
 if (lean_obj_tag(x_91) == 0)
 {
 lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; 

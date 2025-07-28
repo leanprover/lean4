@@ -3,19 +3,23 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.FindMVar
-import Lean.Util.CollectFVars
-import Lean.Parser.Term
-import Lean.Meta.Hint
-import Lean.Meta.KAbstract
-import Lean.Meta.Tactic.ElimInfo
-import Lean.Elab.Term
-import Lean.Elab.Binders
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.Arg
-import Lean.Elab.RecAppSyntax
-import Lean.Meta.Hint
+public import Lean.Util.FindMVar
+public import Lean.Util.CollectFVars
+public import Lean.Parser.Term
+public import Lean.Meta.Hint
+public import Lean.Meta.KAbstract
+public import Lean.Meta.Tactic.ElimInfo
+public import Lean.Elab.Term
+public import Lean.Elab.Binders
+public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.Arg
+public import Lean.Elab.RecAppSyntax
+public import Lean.Meta.Hint
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
@@ -353,7 +357,7 @@ private def shouldPropagateExpectedTypeFor (nextArg : Arg) : Bool :=
 
   We have considered adding the following extra conditions
     a) The resultant type does not contain any type metavariable.
-    b) The resultant type contains a nontype metavariable.
+    b) The resultant type contains a non-type metavariable.
 
   These two conditions would restrict the method to simple functions that are "morally" in
   the Hindley&Milner fragment.
@@ -508,7 +512,7 @@ private partial def isNextOutParamOfLocalInstanceAndResult : M Bool := do
   let type := (← get).fType.bindingBody!
   unless isResultType type 0 do
     return false
-  if (← hasLocalInstaceWithOutParams type) then
+  if (← hasLocalInstanceWithOutParams type) then
     let x := mkFVar (← mkFreshFVarId)
     isOutParamOfLocalInstance x (type.instantiate1 x)
   else
@@ -521,13 +525,13 @@ where
     | _                => false
 
   /-- (quick filter) Return true if `type` contains a binder `[C ...]` where `C` is a class containing outparams. -/
-  hasLocalInstaceWithOutParams (type : Expr) : CoreM Bool := do
+  hasLocalInstanceWithOutParams (type : Expr) : CoreM Bool := do
     let .forallE _ d b bi := type | return false
     if bi.isInstImplicit then
       if let .const declName .. := d.getAppFn then
         if hasOutParams (← getEnv) declName then
           return true
-    hasLocalInstaceWithOutParams b
+    hasLocalInstanceWithOutParams b
 
   isOutParamOfLocalInstance (x : Expr) (type : Expr) : MetaM Bool := do
     let .forallE _ d b bi := type | return false
@@ -955,7 +959,7 @@ builtin_initialize elabAsElim : TagAttribute ←
       let go : MetaM Unit := do
         let info ← getConstInfo declName
         if (← hasOptAutoParams info.type) then
-          throwError "[elab_as_elim] attribute cannot be used in declarations containing optional and auto parameters"
+          throwError "`[elab_as_elim]` attribute cannot be used in declarations containing optional and auto parameters"
         discard <| getElabElimInfo declName
       go.run' {} {}
 
@@ -1332,8 +1336,8 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
            we needn't wait to check if this is actually a constant. If `suffix?` is non-`none`, we
            prefer to throw the "unknown constant" error (because of monad namespaces like `IO` and
            auxiliary declarations like `mutual_induct`) -/
-        throwLValErrorAt fullRef e eType <| mkUnknownIdentifierMessage m!"Invalid field `{fieldName}`: \
-          The environment does not contain `{Name.str `Function fieldName}`"
+        throwLValErrorAt fullRef e eType (← mkUnknownIdentifierMessage (declHint := fullName)
+          m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`")
     | .fieldIdx .. =>
       throwLValError e eType "Invalid projection: Projections cannot be used on functions"
   else if eType.getAppFn.isMVar then
@@ -1386,7 +1390,8 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     -- Then search the environment
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName
-    let msg := mkUnknownIdentifierMessage m!"Invalid field `{fieldName}`: The environment does not contain `{Name.mkStr structName fieldName}`"
+    let msg ← mkUnknownIdentifierMessage (declHint := fullName)
+      m!"Invalid field `{fieldName}`: The environment does not contain `{fullName}`"
     throwLValErrorAt fullRef e eType msg
   | none, LVal.fieldName _ _ (some suffix) fullRef =>
     -- This may be a function constant whose implicit arguments have already been filled in:
@@ -1581,7 +1586,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     | LValResolution.projFn baseStructName structName fieldName =>
       let f ← mkBaseProjections baseStructName structName f
       let some info := getFieldInfo? (← getEnv) baseStructName fieldName | unreachable!
-      if isPrivateNameFromImportedModule (← getEnv) info.projFn then
+      if isInaccessiblePrivateName (← getEnv) info.projFn then
         throwError "Field `{fieldName}` from structure `{structName}` is private"
       let projFn ← mkConst info.projFn
       let projFn ← addProjTermInfo lval.getRef projFn

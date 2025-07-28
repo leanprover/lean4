@@ -3,16 +3,20 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.ForEachExpr
-import Lean.Elab.InfoTree.Main
-import Lean.Meta.AppBuilder
-import Lean.Meta.MatchUtil
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Revert
-import Lean.Meta.Tactic.Intro
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.Assert
+public import Lean.Util.ForEachExpr
+public import Lean.Elab.InfoTree.Main
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.MatchUtil
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Revert
+public import Lean.Meta.Tactic.Intro
+public import Lean.Meta.Tactic.Clear
+public import Lean.Meta.Tactic.Assert
+
+public section
 
 namespace Lean.Meta
 
@@ -95,7 +99,7 @@ where
   `typeNew`, as these may later be synthesized to fvars which occur after `fvarId` (by e.g.
   `Term.withSynthesize` or `Term.synthesizeSyntheticMVars`) .
   -/
-abbrev _root_.Lean.MVarId.replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
+@[inline] def _root_.Lean.MVarId.replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
   replaceLocalDeclCore mvarId fvarId typeNew eqProof
 
 /--

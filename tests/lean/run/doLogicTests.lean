@@ -134,9 +134,11 @@ theorem mkFreshPair_spec :
   mintro -
   mspec mkFreshNat_spec
   mintro ∀s
+  mrename_i h
   mcases h with ⌜h₁⌝
   mspec mkFreshNat_spec
   mintro ∀s
+  mrename_i h
   mcases h with ⌜h₂⌝
   simp_all
 
@@ -172,7 +174,8 @@ theorem throwing_loop_spec :
     mspec
     mspec
     mspec
-    simp at h
+    simp_all only [List.sum_nil, Nat.add_zero, gt_iff_lt, SVal.curry_nil, SPred.entails_nil,
+      imp_false, not_true_eq_false]
     omega
   case post.except => simp
   case pre1 => simp_all +decide
@@ -371,8 +374,10 @@ theorem program_spec (n k) : ⦃⌜True⌝⦄ program n k ⦃⇓r => ⌜r % 2 = 
   unfold program
   mintro -
   mspec (addRandomEvens_spec n k)
+  mrename_i h
   mpure h
   mspec /- registered spec is taken -/
+  mrename_i h
   mpure h
   mspec
   mpure_intro
@@ -402,6 +407,7 @@ theorem prog.spec : ⦃isValid⦄ prog n ⦃⇓r => ⌜r > 100⌝ ∧ isValid⦄
   unfold prog
   mintro h
   mspec op.spec
+  mrename_i h
   mcases h with ⟨⌜hr₁⌝, □h⟩
   /-
   n r : Nat
@@ -416,8 +422,10 @@ theorem prog.spec : ⦃isValid⦄ prog n ⦃⇓r => ⌜r > 100⌝ ∧ isValid⦄
     (⇓r => ⌜r > 100⌝ ∧ isValid)
   -/
   mspec op.spec
+  mrename_i h
   mcases h with ⟨⌜hr₂⌝, □h⟩
   mspec op.spec
+  mrename_i h
   mcases h with ⟨⌜hr₃⌝, □h⟩
   mspec
   mrefine ⟨?_, h⟩
@@ -545,6 +553,7 @@ theorem test_loop_break :
   case isFalse => intro _; simp_all only [SVal.curry_nil, SPred.entails_nil]; grind
   case post.success =>
     simp_all
+    rename_i h
     conv at h in (List.sum _) => whnf
     simp at h
     grind
@@ -560,6 +569,7 @@ theorem test_loop_early_return :
   case pre1 => simp_all
   case h_1 =>
     simp_all
+    rename_i h
     conv at h in (List.sum _) => whnf
     simp at h
     grind
@@ -799,6 +809,7 @@ theorem max_and_sum_spec (xs : Array Nat) :
   all_goals simp_all
   · rw [Nat.left_distrib]
     simp
+    rename_i h
     apply Nat.le_trans h
     apply Nat.mul_le_mul_right
     omega

@@ -3,17 +3,21 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ProjFns
-import Lean.Meta.CtorRecognizer
-import Lean.Compiler.BorrowedAnnotation
-import Lean.Compiler.CSimpAttr
-import Lean.Compiler.ImplementedByAttr
-import Lean.Compiler.LCNF.Types
-import Lean.Compiler.LCNF.Bind
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.Util
-import Lean.Compiler.NeverExtractAttr
+public import Lean.ProjFns
+public import Lean.Meta.CtorRecognizer
+public import Lean.Compiler.BorrowedAnnotation
+public import Lean.Compiler.CSimpAttr
+public import Lean.Compiler.ImplementedByAttr
+public import Lean.Compiler.LCNF.Types
+public import Lean.Compiler.LCNF.Bind
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.Util
+public import Lean.Compiler.NeverExtractAttr
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace ToLCNF
@@ -182,7 +186,7 @@ where
         else if auxParam.type.headBeta.isForall then
           /-
           `cases` produces a function. Thus, we create a local function to store
-          result instead of a joinpoint that takes a closure.
+          result instead of a join point that takes a closure.
           -/
           eraseParam auxParam
           let auxFunDecl := { auxParam with params := #[], value := .cases cases : FunDecl }

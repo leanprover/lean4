@@ -3,12 +3,16 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Range.Polymorphic.Stream
-import Lean.ScopedEnvExtension
-import Lean.Meta.GlobalInstances
-import Lean.Meta.DiscrTree
-import Lean.Meta.CollectMVars
+public import Init.Data.Range.Polymorphic.Stream
+public import Lean.ScopedEnvExtension
+public import Lean.Meta.GlobalInstances
+public import Lean.Meta.DiscrTree
+public import Lean.Meta.CollectMVars
+
+public section
 
 namespace Lean.Meta
 
@@ -323,7 +327,7 @@ builtin_initialize
     descr := "type class default instance"
     add   := fun declName stx kind => do
       let prio ← getAttrParamOptPrio stx[1]
-      unless kind == AttributeKind.global do throwError "invalid attribute 'default_instance', must be global"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal `default_instance kind
       discard <| addDefaultInstance declName prio |>.run {} {}
   }
   registerTraceClass `Meta.synthOrder

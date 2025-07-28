@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Linter.Basic
-import Lean.Attributes
-import Lean.Elab.InfoTree.Main
+public import Lean.Linter.Basic
+public import Lean.Attributes
+public import Lean.Elab.InfoTree.Main
+
+public section
 
 namespace Lean.Linter
 
@@ -27,7 +31,7 @@ builtin_initialize deprecatedAttr : ParametricAttribute DeprecationEntry ←
     descr := "mark declaration as deprecated",
     getParam := fun _ stx => do
       let `(attr| deprecated $[$id?]? $[$text?]? $[(since := $since?)]?) := stx
-        | throwError "invalid `[deprecated]` attribute"
+        | throwError "Invalid `[deprecated]` attribute syntax"
       let newName? ← id?.mapM Elab.realizeGlobalConstNoOverloadWithInfo
       let text? := text?.map TSyntax.getString
       let since? := since?.map TSyntax.getString

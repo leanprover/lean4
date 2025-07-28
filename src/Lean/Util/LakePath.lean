@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Init.System.IO
+public import Init.System.IO
+
+public section
 
 def Lean.determineLakePath : IO System.FilePath := do
   if let some lakePath ← IO.getEnv "LAKE" then

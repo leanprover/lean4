@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l_Float32_ofBinaryScientific___boxed(lean_object*, lean
 LEAN_EXPORT float l_Nat_toFloat32(lean_object*);
 double lean_float_scaleb(double, lean_object*);
 float lean_float32_negate(float);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Float_ofBinaryScientific_spec__0(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 static lean_object* l_Float_ofScientific___closed__0;
 LEAN_EXPORT float l_Float32_ofBinaryScientific(lean_object*, lean_object*);
@@ -37,7 +38,6 @@ LEAN_EXPORT lean_object* l_Float32_ofNat___boxed(lean_object*);
 LEAN_EXPORT float lean_float32_of_nat(lean_object*);
 float lean_uint64_to_float32(uint64_t);
 LEAN_EXPORT lean_object* l_instOfNatFloat32___boxed(lean_object*);
-lean_object* l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Float_ofScientific___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float32_ofScientific___boxed(lean_object*, lean_object*, lean_object*);
@@ -67,6 +67,14 @@ LEAN_EXPORT lean_object* l_Float_ofInt___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_instOfScientificFloat32___closed__0;
 LEAN_EXPORT lean_object* l_Nat_toFloat___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Float_ofBinaryScientific_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT double l_Float_ofBinaryScientific(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -78,7 +86,7 @@ lean_dec(x_3);
 x_6 = lean_nat_shiftr(x_1, x_5);
 x_7 = lean_uint64_of_nat(x_6);
 lean_dec(x_6);
-x_8 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_5);
+x_8 = lean_nat_to_int(x_5);
 x_9 = lean_int_add(x_2, x_8);
 lean_dec(x_8);
 x_10 = lean_uint64_to_float(x_7);
@@ -126,7 +134,7 @@ x_4 = lean_unsigned_to_nat(5u);
 x_5 = lean_nat_pow(x_4, x_3);
 x_6 = lean_nat_mul(x_1, x_5);
 lean_dec(x_5);
-x_7 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_3);
+x_7 = lean_nat_to_int(x_3);
 x_8 = l_Float_ofBinaryScientific(x_6, x_7);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -151,10 +159,10 @@ x_18 = lean_nat_div(x_15, x_17);
 lean_dec(x_17);
 lean_dec(x_15);
 x_19 = l_Float_ofScientific___closed__1;
-x_20 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_3);
+x_20 = lean_nat_to_int(x_3);
 x_21 = lean_int_mul(x_19, x_20);
 lean_dec(x_20);
-x_22 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_11);
+x_22 = lean_nat_to_int(x_11);
 x_23 = lean_int_sub(x_21, x_22);
 lean_dec(x_22);
 lean_dec(x_21);
@@ -304,7 +312,7 @@ lean_dec(x_3);
 x_6 = lean_nat_shiftr(x_1, x_5);
 x_7 = lean_uint64_of_nat(x_6);
 lean_dec(x_6);
-x_8 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_5);
+x_8 = lean_nat_to_int(x_5);
 x_9 = lean_int_add(x_2, x_8);
 lean_dec(x_8);
 x_10 = lean_uint64_to_float32(x_7);
@@ -334,7 +342,7 @@ x_4 = lean_unsigned_to_nat(5u);
 x_5 = lean_nat_pow(x_4, x_3);
 x_6 = lean_nat_mul(x_1, x_5);
 lean_dec(x_5);
-x_7 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_3);
+x_7 = lean_nat_to_int(x_3);
 x_8 = l_Float32_ofBinaryScientific(x_6, x_7);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -359,10 +367,10 @@ x_18 = lean_nat_div(x_15, x_17);
 lean_dec(x_17);
 lean_dec(x_15);
 x_19 = l_Float_ofScientific___closed__1;
-x_20 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_3);
+x_20 = lean_nat_to_int(x_3);
 x_21 = lean_int_mul(x_19, x_20);
 lean_dec(x_20);
-x_22 = l_Nat_cast___at_____private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(x_11);
+x_22 = lean_nat_to_int(x_11);
 x_23 = lean_int_sub(x_21, x_22);
 lean_dec(x_22);
 lean_dec(x_21);

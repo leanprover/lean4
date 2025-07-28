@@ -99,7 +99,7 @@ abbrev ModuleData := FacetData Module.facetKind
 
 /--
 The open type family which maps a package facet's name to output type.
-For example, an `Arrry Package` of direct dependencies for the `deps` facet.
+For example, an `Array Package` of direct dependencies for the `deps` facet.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `package_data`).

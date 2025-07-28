@@ -405,8 +405,8 @@
   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
     "edits":
     [{"range":
-      {"start": {"line": 196, "character": 28},
-       "end": {"line": 196, "character": 28}},
+      {"start": {"line": 190, "character": 28},
+       "end": {"line": 190, "character": 28}},
       "newText": " fst := _\n                             snd := _ "}]}]}}
 {"title": "Add missing fields",
  "kind": "quickfix",
@@ -416,6 +416,6 @@
   [{"textDocument": {"version": 1, "uri": "file:///structInstFieldHints.lean"},
     "edits":
     [{"range":
-      {"start": {"line": 198, "character": 39},
-       "end": {"line": 198, "character": 39}},
+      {"start": {"line": 192, "character": 39},
+       "end": {"line": 192, "character": 39}},
       "newText": "\n                              snd := _"}]}]}}

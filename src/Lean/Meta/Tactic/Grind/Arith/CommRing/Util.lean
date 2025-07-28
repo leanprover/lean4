@@ -3,11 +3,15 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Canon
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.SynthInstance
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+public import Lean.Meta.Tactic.Grind.Canon
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.SynthInstance
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+
+public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
 
@@ -258,7 +262,7 @@ def getInvFn : m Expr := do
 
 private def mkPowFn (u : Level) (type : Expr) (semiringInst : Expr) : m Expr := do
   let inst ← MonadRing.synthInstance <| mkApp3 (mkConst ``HPow [u, 0, u]) type Nat.mkType type
-  let inst' := mkApp2 (mkConst ``Grind.Semiring.toHPow [u]) type semiringInst
+  let inst' := mkApp2 (mkConst ``Grind.Semiring.npow [u]) type semiringInst
   checkInst inst inst'
   canonExpr <| mkApp4 (mkConst ``HPow.hPow [u, 0, u]) type Nat.mkType type inst
 where

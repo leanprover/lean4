@@ -4,21 +4,25 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.Match.MatcherApp.Transform
-import Lean.Meta.Check
-import Lean.Meta.Tactic.Subst
-import Lean.Meta.Injective -- for elimOptParam
-import Lean.Meta.ArgsPacker
-import Lean.Meta.PProdN
-import Lean.Elab.PreDefinition.WF.Eqns
-import Lean.Elab.PreDefinition.Structural.Eqns
-import Lean.Elab.PreDefinition.Structural.IndGroupInfo
-import Lean.Elab.PreDefinition.Structural.FindRecArg
-import Lean.Elab.Command
-import Lean.Meta.Tactic.ElimInfo
-import Lean.Meta.Tactic.FunIndInfo
+public import Lean.Meta.Basic
+public import Lean.Meta.Match.MatcherApp.Transform
+public import Lean.Meta.Check
+public import Lean.Meta.Tactic.Subst
+public import Lean.Meta.Injective -- for elimOptParam
+public import Lean.Meta.ArgsPacker
+public import Lean.Meta.PProdN
+public import Lean.Elab.PreDefinition.WF.Eqns
+public import Lean.Elab.PreDefinition.Structural.Eqns
+public import Lean.Elab.PreDefinition.Structural.IndGroupInfo
+public import Lean.Elab.PreDefinition.Structural.FindRecArg
+public import Lean.Elab.Command
+public import Lean.Meta.Tactic.ElimInfo
+public import Lean.Meta.Tactic.FunIndInfo
+
+public section
 
 /-!
 This module contains code to derive, from the definition of a recursive function (structural or
@@ -109,7 +113,7 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
 4. When a tail position (no more branching) is found, function `buildInductionCase` assembles the
    type of the case: a fresh `MVar` asserts the current goal, unwanted values from the local context
    are cleared, and the current `body` is searched for recursive calls using `foldAndCollect`,
-   which are then asserted as inductive hyptheses in the `MVar`.
+   which are then asserted as inductive hypotheses in the `MVar`.
 
 5. The function `foldAndCollect` walks the term and performs two operations:
 
@@ -258,14 +262,14 @@ end M
 /--
 The `foldAndCollect` function performs two operations together:
 
- * it fold recursive calls: applications (and projectsions) of `oldIH` in `e` correspond to
+ * it folds recursive calls: applications (and projections) of `oldIH` in `e` correspond to
    recursive calls, so this function rewrites that back to recursive calls
  * it collects induction hypotheses: after replacing `oldIH` with `newIH`, applications thereof
    are valuable as induction hypotheses for the cases.
 
 For well-founded recursion (unary, non-mutual by construction) the terms are rather simple: they
 are `oldIH arg proof`, and can be rewritten to `f arg` resp. `newIH arg proof`. But for
-structural recursion this can be a more complicted mix of function applications (due to reflexive
+structural recursion this can be a more complicated mix of function applications (due to reflexive
 data types or extra function arguments) and `PProd` projections (due to the below construction and
 mutual function packing), and the main function argument isn't even present.
 
@@ -493,7 +497,7 @@ def M2.branch {α} (act : M2 α) : M2 α :=
   controlAt M fun runInBase => M.branch (runInBase act)
 
 
-/-- Base case of `buildInductionBody`: Construct a case for the final induction hypthesis.  -/
+/-- Base case of `buildInductionBody`: Construct a case for the final induction hypothesis.  -/
 def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (toErase toClear : Array FVarId)
     (goal : Expr)  (e : Expr) : M2 Expr := do
   withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} buildInductionCase:{indentExpr e}") do
@@ -1490,7 +1494,7 @@ where doRealize inductName := do
 
 
 /--
-Given an expression `fun x y z => body`, returns a bit mask of the functinon's arity length
+Given an expression `fun x y z => body`, returns a bit mask of the function's arity length
 that has `true` whenever that parameter of the function appears as a scrutinee of a `match` in
 tail position. These are the parameters that are likely useful as targets of the motive
 of the functional cases theorem. All others become parameters or may be dropped.
@@ -1537,7 +1541,7 @@ where
 
 /--
 For non-recursive (and recursive functions) functions we derive a “functional case splitting theorem”. This is very similar
-than the functional induction theorem. It splits the goal, but does not give you inductive hyptheses.
+than the functional induction theorem. It splits the goal, but does not give you inductive hypotheses.
 
 For these, it is not really clear which parameters should be “targets” of the motive, as there is
 no “fixed prefix” to guide this decision. All? None? Some?

@@ -38,6 +38,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsArray(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParams(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_InstantiateLevelParams_0__Lean_Expr_getParamSubst___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -59,7 +60,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore_replaceFn___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -550,7 +550,7 @@ return x_25;
 else
 {
 uint8_t x_26; 
-x_26 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_21, x_21);
+x_26 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_21, x_21);
 if (x_26 == 0)
 {
 lean_object* x_27; 
@@ -616,7 +616,7 @@ return x_42;
 else
 {
 uint8_t x_43; 
-x_43 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_38, x_38);
+x_43 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_38, x_38);
 if (x_43 == 0)
 {
 lean_object* x_44; 

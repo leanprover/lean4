@@ -168,7 +168,7 @@ theorem max?_le_iff [Max α] [LE α]
 
 -- This could be refactored by designing appropriate typeclasses to replace `le_refl`, `max_eq_or`,
 -- and `le_min_iff`.
-theorem max?_eq_some_iff [Max α] [LE α] [anti : Std.Antisymm ((· : α) ≤ ·)]
+theorem max?_eq_some_iff [Max α] [LE α] [anti : Std.Antisymm (· ≤ · : α → α → Prop)]
     (le_refl : ∀ a : α, a ≤ a)
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b)
     (max_le_iff : ∀ a b c : α, max b c ≤ a ↔ b ≤ a ∧ c ≤ a) {xs : List α} :

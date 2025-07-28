@@ -3,8 +3,10 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
+module
+
 prelude
-import Lean.ErrorExplanation
+public import Lean.ErrorExplanation
 
 /--
 This error means that Lean was unable to find a variable or constant matching the given name. More
@@ -42,7 +44,9 @@ def inventory :=
 Unknown constant `Std.HashSet.ofList`
 ```
 ```lean fixed
-import Std.Data.HashSet.Basic
+public import Std.Data.HashSet.Basic
+
+public section
 
 def inventory :=
   Std.HashSet.ofList [("apples", 3), ("bananas", 4)]

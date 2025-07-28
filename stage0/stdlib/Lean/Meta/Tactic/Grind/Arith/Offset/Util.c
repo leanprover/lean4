@@ -50,6 +50,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_Cnstr_neg___redArg(lean_
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_instInhabitedCnstr(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_toMessageData___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_Cnstr_neg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Meta_Grind_Arith_Offset_isNatOffsetCnstr_x3f_go_spec__0(lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_isNatNum_x3f(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -448,6 +449,14 @@ lean_object* x_1; lean_object* x_2;
 x_1 = l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrExpr___closed__0;
 x_2 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Offset_instToMessageDataCnstrExpr___lam__0), 2, 1);
 lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_Meta_Grind_Arith_Offset_isNatOffsetCnstr_x3f_go_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }

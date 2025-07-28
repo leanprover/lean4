@@ -3,10 +3,14 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.Namespace
-import Lean.Util.CollectAxioms
+public import Lean.CoreM
+public import Lean.Namespace
+public import Lean.Util.CollectAxioms
+
+public section
 
 namespace Lean
 
@@ -132,7 +136,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
 where
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do
-      withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
+      withTraceNode `Kernel (return m!"{exceptEmoji ·} typechecking declarations {decl.getTopLevelNames}") do
         if warn.sorry.get (← getOptions) then
           if !(← MonadLog.hasErrors) && decl.hasSorry then
             logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"

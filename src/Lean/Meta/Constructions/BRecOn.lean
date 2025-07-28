@@ -3,13 +3,17 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Init.Data.Range.Polymorphic.Stream
-import Lean.Meta.InferType
-import Lean.AuxRecursor
-import Lean.AddDecl
-import Lean.Meta.CompletionName
-import Lean.Meta.PProdN
+public import Init.Data.Range.Polymorphic.Stream
+public import Lean.Meta.InferType
+public import Lean.AuxRecursor
+public import Lean.AddDecl
+public import Lean.Meta.CompletionName
+public import Lean.Meta.PProdN
+
+public section
 
 namespace Lean
 open Meta
@@ -105,7 +109,7 @@ private def mkBelowFromRec (recName : Name) (nParams : Nat)
     let type ← mkForallFVars below_params (.sort rlvl)
     val ← mkLambdaFVars below_params val
 
-    mkDefinitionValInferrringUnsafe belowName recVal.levelParams type val .abbrev
+    mkDefinitionValInferringUnsafe belowName recVal.levelParams type val .abbrev
 
   addDecl (.defnDecl decl)
   setReducibleAttribute decl.name
@@ -262,7 +266,7 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
       let type ← mkForallFVars below_params (mkAppN motives[idx]! (indices ++ #[major]))
       val ← mkLambdaFVars below_params val
 
-      mkDefinitionValInferrringUnsafe brecOnName blps type val .abbrev
+      mkDefinitionValInferringUnsafe brecOnName blps type val .abbrev
 
   addDecl (.defnDecl decl)
   setReducibleAttribute decl.name

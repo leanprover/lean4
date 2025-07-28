@@ -3,20 +3,24 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Diagnostics
-import Lean.Meta.Hint
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Assumption
-import Lean.Meta.Tactic.Contradiction
-import Lean.Meta.Tactic.Refl
-import Lean.Elab.Binders
-import Lean.Elab.Open
-import Lean.Elab.Eval
-import Lean.Elab.SetOption
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.ElabTerm
-import Lean.Elab.Do
+public import Lean.Meta.Diagnostics
+public import Lean.Meta.Hint
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Assumption
+public import Lean.Meta.Tactic.Contradiction
+public import Lean.Meta.Tactic.Refl
+public import Lean.Elab.Binders
+public import Lean.Elab.Open
+public import Lean.Elab.Eval
+public import Lean.Elab.SetOption
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.ElabTerm
+public import Lean.Elab.Do
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta

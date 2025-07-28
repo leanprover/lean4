@@ -31,7 +31,7 @@ node which consists of a `Nat` describing the input node and a `Bool` saying whe
 on the input.
 -/
 structure Fanin where
-  private of ::
+  ofRaw ::
     val : Nat
   deriving Hashable, Repr, DecidableEq, Inhabited
 

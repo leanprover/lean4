@@ -45,7 +45,7 @@ structure ZonedDateTime where
   timezone : TimeZone
 
 instance : Inhabited ZonedDateTime where
-  default := ⟨Thunk.mk Inhabited.default, Inhabited.default, Inhabited.default, Inhabited.default⟩
+  default := private ⟨Thunk.mk Inhabited.default, Inhabited.default, Inhabited.default, Inhabited.default⟩
 
 namespace ZonedDateTime
 open DateTime
@@ -111,7 +111,7 @@ def toTimestamp (date : ZonedDateTime) : Timestamp :=
   date.timestamp
 
 /--
-Changes the `ZoleRules` to a new one.
+Changes the `ZoneRules` to a new one.
 -/
 @[inline]
 def convertZoneRules (date : ZonedDateTime) (tz₁ : TimeZone.ZoneRules) : ZonedDateTime :=

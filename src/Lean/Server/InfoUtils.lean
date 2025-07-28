@@ -4,10 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.DocString
-import Lean.PrettyPrinter
-import Lean.Parser.Tactic.Doc
+public import Lean.DocString
+public import Lean.PrettyPrinter
+public import Lean.Parser.Tactic.Doc
+meta import Lean.Parser.Term
+
+public section
 
 namespace Lean.Elab
 

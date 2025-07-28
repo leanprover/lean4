@@ -3,16 +3,20 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Term
-import Lean.Elab.Term
+public import Lean.Elab.Term
+meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab.Deriving
 open Meta
 
-def implicitBinderF := Parser.Term.implicitBinder
-def instBinderF     := Parser.Term.instBinder
-def explicitBinderF := Parser.Term.explicitBinder
+meta def implicitBinderF := Parser.Term.implicitBinder
+meta def instBinderF     := Parser.Term.instBinder
+meta def explicitBinderF := Parser.Term.explicitBinder
 
 /-- Make fresh, hygienic names for every parameter and index of an inductive declaration.
 

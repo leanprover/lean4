@@ -3,16 +3,20 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Conv
-import Lean.Meta.Tactic.Rewrite
-import Lean.Meta.Tactic.Split
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Eqns
-import Lean.Elab.PreDefinition.FixedParams
-import Lean.Meta.ArgsPacker.Basic
-import Init.Data.Array.Basic
-import Init.Internal.Order.Basic
+public import Lean.Elab.Tactic.Conv
+public import Lean.Meta.Tactic.Rewrite
+public import Lean.Meta.Tactic.Split
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Eqns
+public import Lean.Elab.PreDefinition.FixedParams
+public import Lean.Meta.ArgsPacker.Basic
+public import Init.Data.Array.Basic
+public import Init.Internal.Order.Basic
+
+public section
 
 namespace Lean.Elab.PartialFixpoint
 open Meta

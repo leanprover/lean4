@@ -17,10 +17,10 @@ lean_object* l_Lean_Core_getMaxHeartbeats(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_Toml_loadToml___closed__18;
 static lean_object* l_Lake_Toml_loadToml___closed__29;
-lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_loadToml___closed__12;
 static lean_object* l_Lake_Toml_loadToml___closed__17;
 lean_object* l_Lake_Toml_elabToml(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_get___at___Lean_PrettyPrinter_format_spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Data_Trie_empty(lean_object*);
 static lean_object* l_Lake_Toml_loadToml___closed__24;
 static lean_object* l_Lake_Toml_loadToml___closed__16;
@@ -55,9 +55,9 @@ static lean_object* l_Lake_Toml_loadToml___closed__2;
 lean_object* l_Lake_mkExceptionMessage(lean_object*, lean_object*);
 extern lean_object* l_Lean_MessageLog_empty;
 static lean_object* l_Lake_Toml_loadToml___closed__15;
-uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_diagnostics;
 static lean_object* l_Lake_Toml_loadToml___closed__23;
+uint8_t l_Lean_Option_get___at___Lean_logAt___at___Lean_logWarningAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__2_spec__2_spec__2(lean_object*, lean_object*);
 extern lean_object* l_Lean_inheritedTraceOptions;
 static lean_object* l_Lake_Toml_loadToml___closed__30;
 LEAN_EXPORT lean_object* l_Lake_Toml_loadToml(lean_object*, lean_object*);
@@ -376,7 +376,7 @@ _start:
 lean_object* x_1; lean_object* x_2; uint8_t x_3; 
 x_1 = l_Lake_Toml_loadToml___closed__26;
 x_2 = lean_box(0);
-x_3 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_2, x_1);
+x_3 = l_Lean_Option_get___at___Lean_logAt___at___Lean_logWarningAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__2_spec__2_spec__2(x_2, x_1);
 return x_3;
 }
 }
@@ -394,7 +394,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_Toml_loadToml___closed__28;
 x_2 = lean_box(0);
-x_3 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_2, x_1);
+x_3 = l_Lean_Option_get___at___Lean_PrettyPrinter_format_spec__1(x_2, x_1);
 return x_3;
 }
 }

@@ -24,21 +24,21 @@ example {α : Type} [Lean.Grind.IntModule α] [Lean.Grind.Preorder α] [Lean.Gri
     (wb : 0 ≤ b) (wc : 0 ≤ c)
     (h : a = b + d * c) (w : 1 ≤ d) : a ≥ c := by
   subst h
-  conv => rhs; rw [← IntModule.zero_add c]
+  conv => rhs; rw [← AddCommMonoid.zero_add c]
   apply OrderedAdd.add_le_add
   · exact wb
-  · have := OrderedAdd.hmul_int_le_hmul_int_of_le_of_le_of_nonneg_of_nonneg w (Preorder.le_refl c) (by decide) wc
-    rwa [IntModule.one_hmul] at this
+  · have := OrderedAdd.zsmul_le_zsmul_of_le_of_le_of_nonneg_of_nonneg w (Preorder.le_refl c) (by decide) wc
+    rwa [IntModule.one_zsmul] at this
 
 -- We can prove this directly in an ordered NatModule, from the axioms. (But shouldn't, see below.)
 example {α : Type} [Lean.Grind.NatModule α] [Lean.Grind.Preorder α] [Lean.Grind.OrderedAdd α] {a b c : α} {d : Nat}
     (wb : 0 ≤ b) (wc : 0 ≤ c)
     (h : a = b + d * c) (w : 1 ≤ d) : a ≥ c := by
   subst h
-  conv => rhs; rw [← NatModule.zero_add c]
+  conv => rhs; rw [← AddCommMonoid.zero_add c]
   apply OrderedAdd.add_le_add
   · exact wb
-  · have := OrderedAdd.hmul_le_hmul_of_le_of_le_of_nonneg w (Preorder.le_refl c) wc
-    rwa [NatModule.one_hmul] at this
+  · have := OrderedAdd.nsmul_le_nsmul_of_le_of_le_of_nonneg w (Preorder.le_refl c) wc
+    rwa [NatModule.one_nsmul] at this
 
 -- The correct proof is to embed a NatModule in its IntModule envelope.

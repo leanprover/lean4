@@ -17,8 +17,10 @@ static lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__4;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0___redArg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkGeneralizationForbiddenSet_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0_spec__0___lam__1(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -36,36 +38,37 @@ lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkGeneralizationForbiddenSet_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Meta_getFVarSetToGeneralize_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__6;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0___redArg___lam__2(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkGeneralizationForbiddenSet_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0_spec__3(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__3;
 lean_object* lean_nat_div(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__2;
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0_spec__0___lam__2(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0___redArg___lam__1(uint8_t, lean_object*);
 uint8_t l_Lean_LocalDecl_isLet(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0___redArg___lam__1___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 static lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__5;
 lean_object* l_Lean_CollectFVars_main(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getFVarSetToGeneralize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__0;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -75,8 +78,8 @@ lean_object* l_Lean_Meta_sortFVarIds___redArg(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Meta_getFVarSetToGeneralize_spec__5(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Meta_getFVarsToGeneralize_spec__0(lean_object*, lean_object*);
-uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0_spec__0_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getFVarSetToGeneralize(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkGeneralizationForbiddenSet_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -85,8 +88,12 @@ LEAN_EXPORT uint8_t l_Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGe
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0_spec__0___lam__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* l_Lean_FVarId_getDecl___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -94,6 +101,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getFVarsToGeneralize___boxed(lean_object*, 
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_value_x3f(lean_object*, uint8_t);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -106,7 +114,52 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGeneralize_spec__0_spec__0_spec__0(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = lean_ctor_get(x_2, 1);
+x_4 = lean_ctor_get(x_2, 3);
+x_5 = lean_ctor_get(x_2, 4);
+x_6 = l_Lean_Name_quickCmp(x_1, x_3);
+switch (x_6) {
+case 0:
+{
+x_2 = x_4;
+goto _start;
+}
+case 1:
+{
+uint8_t x_8; 
+x_8 = 1;
+return x_8;
+}
+default: 
+{
+x_2 = x_5;
+goto _start;
+}
+}
+}
+else
+{
+uint8_t x_10; 
+x_10 = 0;
+return x_10;
+}
+}
+}
+LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; 
+x_4 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -119,7 +172,7 @@ lean_inc(x_5);
 x_6 = lean_ctor_get(x_2, 4);
 lean_inc(x_6);
 lean_dec_ref(x_2);
-x_7 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0___redArg(x_1, x_5, x_3);
+x_7 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1___redArg(x_1, x_5, x_3);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_8, 0);
@@ -138,7 +191,7 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_14 = lean_ctor_get(x_9, 0);
 x_15 = lean_ctor_get(x_9, 1);
-x_16 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_4, x_14);
+x_16 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_4, x_14);
 if (x_16 == 0)
 {
 lean_object* x_17; 
@@ -172,7 +225,7 @@ x_21 = lean_ctor_get(x_9, 1);
 lean_inc(x_21);
 lean_inc(x_20);
 lean_dec(x_9);
-x_22 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_4, x_20);
+x_22 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_4, x_20);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; 
@@ -222,7 +275,7 @@ if (lean_is_exclusive(x_9)) {
  lean_dec_ref(x_9);
  x_31 = lean_box(0);
 }
-x_32 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_4, x_29);
+x_32 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_4, x_29);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 
@@ -273,15 +326,15 @@ return x_40;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0___redArg(x_1, x_2, x_7);
+x_8 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1___redArg(x_1, x_2, x_7);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -294,7 +347,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_2, 4);
 lean_inc(x_10);
 lean_dec_ref(x_2);
-x_11 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0___redArg(x_1, x_9, x_7);
+x_11 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1___redArg(x_1, x_9, x_7);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_12, 0);
@@ -313,7 +366,7 @@ if (x_17 == 0)
 lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_18 = lean_ctor_get(x_13, 0);
 x_19 = lean_ctor_get(x_13, 1);
-x_20 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_8, x_18);
+x_20 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_8, x_18);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -324,7 +377,7 @@ lean_ctor_set(x_11, 0, x_8);
 x_21 = l_Lean_FVarIdSet_insert(x_18, x_8);
 lean_ctor_set(x_13, 1, x_11);
 lean_ctor_set(x_13, 0, x_21);
-x_22 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0___redArg(x_13, x_10, x_15);
+x_22 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1___redArg(x_13, x_10, x_15);
 return x_22;
 }
 else
@@ -332,7 +385,7 @@ else
 lean_object* x_23; 
 lean_free_object(x_11);
 lean_dec(x_8);
-x_23 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0___redArg(x_13, x_10, x_15);
+x_23 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1___redArg(x_13, x_10, x_15);
 return x_23;
 }
 }
@@ -344,7 +397,7 @@ x_25 = lean_ctor_get(x_13, 1);
 lean_inc(x_25);
 lean_inc(x_24);
 lean_dec(x_13);
-x_26 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_8, x_24);
+x_26 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_8, x_24);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
@@ -356,7 +409,7 @@ x_27 = l_Lean_FVarIdSet_insert(x_24, x_8);
 x_28 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_11);
-x_29 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0___redArg(x_28, x_10, x_15);
+x_29 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1___redArg(x_28, x_10, x_15);
 return x_29;
 }
 else
@@ -367,7 +420,7 @@ lean_dec(x_8);
 x_30 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_30, 0, x_24);
 lean_ctor_set(x_30, 1, x_25);
-x_31 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0___redArg(x_30, x_10, x_15);
+x_31 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1___redArg(x_30, x_10, x_15);
 return x_31;
 }
 }
@@ -390,7 +443,7 @@ if (lean_is_exclusive(x_13)) {
  lean_dec_ref(x_13);
  x_35 = lean_box(0);
 }
-x_36 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_8, x_33);
+x_36 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_8, x_33);
 if (x_36 == 0)
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
@@ -406,7 +459,7 @@ if (lean_is_scalar(x_35)) {
 }
 lean_ctor_set(x_39, 0, x_38);
 lean_ctor_set(x_39, 1, x_37);
-x_40 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0___redArg(x_39, x_10, x_32);
+x_40 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1___redArg(x_39, x_10, x_32);
 return x_40;
 }
 else
@@ -420,7 +473,7 @@ if (lean_is_scalar(x_35)) {
 }
 lean_ctor_set(x_41, 0, x_33);
 lean_ctor_set(x_41, 1, x_34);
-x_42 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0___redArg(x_41, x_10, x_32);
+x_42 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1___redArg(x_41, x_10, x_32);
 return x_42;
 }
 }
@@ -437,12 +490,127 @@ return x_44;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1___redArg(x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; 
+x_4 = l_Lean_Expr_hasMVar(x_1);
+if (x_4 == 0)
+{
+lean_object* x_5; 
+x_5 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_3);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+x_6 = lean_st_ref_get(x_2, x_3);
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_6, 1);
+lean_inc(x_8);
+lean_dec_ref(x_6);
+x_9 = lean_ctor_get(x_7, 0);
+lean_inc_ref(x_9);
+lean_dec(x_7);
+x_10 = l_Lean_instantiateMVarsCore(x_9, x_1);
+x_11 = lean_ctor_get(x_10, 0);
+lean_inc(x_11);
+x_12 = lean_ctor_get(x_10, 1);
+lean_inc(x_12);
+lean_dec_ref(x_10);
+x_13 = lean_st_ref_take(x_2, x_8);
+x_14 = lean_ctor_get(x_13, 0);
+lean_inc(x_14);
+x_15 = lean_ctor_get(x_13, 1);
+lean_inc(x_15);
+lean_dec_ref(x_13);
+x_16 = !lean_is_exclusive(x_14);
+if (x_16 == 0)
+{
+lean_object* x_17; lean_object* x_18; uint8_t x_19; 
+x_17 = lean_ctor_get(x_14, 0);
+lean_dec(x_17);
+lean_ctor_set(x_14, 0, x_12);
+x_18 = lean_st_ref_set(x_2, x_14, x_15);
+x_19 = !lean_is_exclusive(x_18);
+if (x_19 == 0)
+{
+lean_object* x_20; 
+x_20 = lean_ctor_get(x_18, 0);
+lean_dec(x_20);
+lean_ctor_set(x_18, 0, x_11);
+return x_18;
+}
+else
+{
+lean_object* x_21; lean_object* x_22; 
+x_21 = lean_ctor_get(x_18, 1);
+lean_inc(x_21);
+lean_dec(x_18);
+x_22 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_22, 0, x_11);
+lean_ctor_set(x_22, 1, x_21);
+return x_22;
+}
+}
+else
+{
+lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
+x_23 = lean_ctor_get(x_14, 1);
+x_24 = lean_ctor_get(x_14, 2);
+x_25 = lean_ctor_get(x_14, 3);
+x_26 = lean_ctor_get(x_14, 4);
+lean_inc(x_26);
+lean_inc(x_25);
+lean_inc(x_24);
+lean_inc(x_23);
+lean_dec(x_14);
+x_27 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_27, 0, x_12);
+lean_ctor_set(x_27, 1, x_23);
+lean_ctor_set(x_27, 2, x_24);
+lean_ctor_set(x_27, 3, x_25);
+lean_ctor_set(x_27, 4, x_26);
+x_28 = lean_st_ref_set(x_2, x_27, x_15);
+x_29 = lean_ctor_get(x_28, 1);
+lean_inc(x_29);
+if (lean_is_exclusive(x_28)) {
+ lean_ctor_release(x_28, 0);
+ lean_ctor_release(x_28, 1);
+ x_30 = x_28;
+} else {
+ lean_dec_ref(x_28);
+ x_30 = lean_box(0);
+}
+if (lean_is_scalar(x_30)) {
+ x_31 = lean_alloc_ctor(0, 2, 0);
+} else {
+ x_31 = x_30;
+}
+lean_ctor_set(x_31, 0, x_11);
+lean_ctor_set(x_31, 1, x_29);
+return x_31;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___redArg(x_1, x_3, x_6);
+return x_7;
 }
 }
 static lean_object* _init_l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__0() {
@@ -540,7 +708,7 @@ goto block_49;
 block_49:
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; uint8_t x_42; lean_object* x_43; 
-x_37 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__0___redArg(x_36, x_5, x_35);
+x_37 = l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___redArg(x_36, x_5, x_35);
 x_38 = lean_ctor_get(x_37, 0);
 lean_inc(x_38);
 x_39 = lean_ctor_get(x_37, 1);
@@ -567,7 +735,7 @@ lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean
 x_44 = lean_ctor_get(x_43, 0);
 lean_inc(x_44);
 lean_dec_ref(x_43);
-x_45 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__0___redArg(x_44, x_5, x_39);
+x_45 = l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___redArg(x_44, x_5, x_39);
 x_46 = lean_ctor_get(x_45, 0);
 lean_inc(x_46);
 x_47 = lean_ctor_get(x_45, 1);
@@ -651,7 +819,7 @@ lean_dec_ref(x_20);
 x_27 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_27, 0, x_3);
 lean_ctor_set(x_27, 1, x_2);
-x_28 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_27, x_26, x_21, x_22, x_23, x_24, x_25);
+x_28 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1___redArg(x_27, x_26, x_21, x_22, x_23, x_24, x_25);
 lean_dec_ref(x_21);
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
@@ -667,11 +835,33 @@ goto block_19;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1_spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -679,11 +869,11 @@ lean_dec_ref(x_3);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
@@ -691,17 +881,38 @@ lean_dec_ref(x_3);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_1);
 return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___redArg(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec_ref(x_4);
+lean_dec(x_3);
+lean_dec_ref(x_2);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet_visit___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -735,7 +946,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_1, 1);
 lean_inc(x_10);
 lean_dec_ref(x_1);
-x_11 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_9, x_2);
+x_11 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_9, x_2);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -849,7 +1060,7 @@ lean_inc(x_24);
 x_25 = lean_ctor_get(x_23, 1);
 lean_inc(x_25);
 lean_dec_ref(x_23);
-x_26 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__0___redArg(x_24, x_6, x_25);
+x_26 = l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___redArg(x_24, x_6, x_25);
 x_27 = lean_ctor_get(x_26, 0);
 lean_inc(x_27);
 x_28 = lean_ctor_get(x_26, 1);
@@ -929,7 +1140,7 @@ lean_inc(x_41);
 x_42 = lean_ctor_get(x_40, 1);
 lean_inc(x_42);
 lean_dec_ref(x_40);
-x_43 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__0___redArg(x_41, x_6, x_42);
+x_43 = l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___redArg(x_41, x_6, x_42);
 x_44 = lean_ctor_get(x_43, 0);
 lean_inc(x_44);
 x_45 = lean_ctor_get(x_43, 1);
@@ -1045,7 +1256,7 @@ lean_inc(x_24);
 x_25 = lean_ctor_get(x_23, 1);
 lean_inc(x_25);
 lean_dec_ref(x_23);
-x_26 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__0___redArg(x_24, x_6, x_25);
+x_26 = l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___redArg(x_24, x_6, x_25);
 x_27 = lean_ctor_get(x_26, 0);
 lean_inc(x_27);
 x_28 = lean_ctor_get(x_26, 1);
@@ -1125,7 +1336,7 @@ lean_inc(x_41);
 x_42 = lean_ctor_get(x_40, 1);
 lean_inc(x_42);
 lean_dec_ref(x_40);
-x_43 = l_Lean_instantiateMVars___at_____private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessageCore_spec__0___redArg(x_41, x_6, x_42);
+x_43 = l_Lean_instantiateMVars___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__3___redArg(x_41, x_6, x_42);
 x_44 = lean_ctor_get(x_43, 0);
 lean_inc(x_44);
 x_45 = lean_ctor_get(x_43, 1);
@@ -1781,7 +1992,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentArray_forInAux___at___Lean_PersistentArray_
 _start:
 {
 uint8_t x_3; 
-x_3 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_2, x_1);
+x_3 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_2, x_1);
 return x_3;
 }
 }
@@ -1967,7 +2178,7 @@ lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; uint
 x_64 = lean_ctor_get(x_63, 1);
 lean_inc_ref(x_64);
 lean_dec_ref(x_63);
-x_65 = lean_st_ref_take(x_6, x_60);
+x_65 = lean_st_ref_take(x_6, x_61);
 x_66 = lean_ctor_get(x_65, 0);
 lean_inc(x_66);
 x_67 = lean_ctor_get(x_65, 1);
@@ -1984,7 +2195,7 @@ x_70 = lean_st_ref_set(x_6, x_66, x_67);
 x_71 = lean_ctor_get(x_70, 1);
 lean_inc(x_71);
 lean_dec_ref(x_70);
-x_21 = x_61;
+x_21 = x_60;
 x_22 = x_62;
 x_23 = x_71;
 goto block_32;
@@ -2011,7 +2222,7 @@ x_77 = lean_st_ref_set(x_6, x_76, x_67);
 x_78 = lean_ctor_get(x_77, 1);
 lean_inc(x_78);
 lean_dec_ref(x_77);
-x_21 = x_61;
+x_21 = x_60;
 x_22 = x_62;
 x_23 = x_78;
 goto block_32;
@@ -2331,8 +2542,8 @@ if (x_169 == 0)
 {
 lean_dec_ref(x_160);
 x_115 = x_161;
-x_116 = x_165;
-x_117 = x_135;
+x_116 = x_135;
+x_117 = x_165;
 x_118 = x_138;
 x_119 = x_169;
 x_120 = x_162;
@@ -2345,8 +2556,8 @@ lean_inc_ref(x_138);
 lean_inc_ref(x_114);
 x_170 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_114, x_138, x_160, x_162);
 x_126 = x_161;
-x_127 = x_165;
-x_128 = x_135;
+x_127 = x_135;
+x_128 = x_165;
 x_129 = x_138;
 x_130 = x_170;
 goto block_134;
@@ -2359,8 +2570,8 @@ lean_inc_ref(x_138);
 lean_inc_ref(x_114);
 x_171 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_114, x_138, x_160, x_162);
 x_126 = x_161;
-x_127 = x_165;
-x_128 = x_135;
+x_127 = x_135;
+x_128 = x_165;
 x_129 = x_138;
 x_130 = x_171;
 goto block_134;
@@ -2390,8 +2601,8 @@ if (x_178 == 0)
 {
 lean_dec_ref(x_160);
 x_115 = x_161;
-x_116 = x_173;
-x_117 = x_135;
+x_116 = x_135;
+x_117 = x_173;
 x_118 = x_138;
 x_119 = x_178;
 x_120 = x_176;
@@ -2404,8 +2615,8 @@ lean_inc_ref(x_138);
 lean_inc_ref(x_114);
 x_179 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_114, x_138, x_160, x_176);
 x_126 = x_161;
-x_127 = x_173;
-x_128 = x_135;
+x_127 = x_135;
+x_128 = x_173;
 x_129 = x_138;
 x_130 = x_179;
 goto block_134;
@@ -2418,8 +2629,8 @@ lean_inc_ref(x_138);
 lean_inc_ref(x_114);
 x_180 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_114, x_138, x_160, x_176);
 x_126 = x_161;
-x_127 = x_173;
-x_128 = x_135;
+x_127 = x_135;
+x_128 = x_173;
 x_129 = x_138;
 x_130 = x_180;
 goto block_134;
@@ -2587,7 +2798,7 @@ goto block_20;
 block_214:
 {
 uint8_t x_207; 
-x_207 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_206, x_2);
+x_207 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_206, x_2);
 if (x_207 == 0)
 {
 uint8_t x_208; 
@@ -3356,7 +3567,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentArray_forIn___at___Lean_Meta_getFVarSetToGe
 _start:
 {
 uint8_t x_3; 
-x_3 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_2, x_1);
+x_3 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_2, x_1);
 return x_3;
 }
 }
@@ -3611,7 +3822,7 @@ goto block_79;
 block_105:
 {
 lean_object* x_91; lean_object* x_92; lean_object* x_93; uint8_t x_94; 
-x_91 = lean_st_ref_take(x_6, x_88);
+x_91 = lean_st_ref_take(x_6, x_87);
 x_92 = lean_ctor_get(x_91, 0);
 lean_inc(x_92);
 x_93 = lean_ctor_get(x_91, 1);
@@ -3628,7 +3839,7 @@ x_96 = lean_st_ref_set(x_6, x_92, x_93);
 x_97 = lean_ctor_get(x_96, 1);
 lean_inc(x_97);
 lean_dec_ref(x_96);
-x_21 = x_87;
+x_21 = x_88;
 x_22 = x_89;
 x_23 = x_97;
 goto block_32;
@@ -3655,7 +3866,7 @@ x_103 = lean_st_ref_set(x_6, x_102, x_93);
 x_104 = lean_ctor_get(x_103, 1);
 lean_inc(x_104);
 lean_dec_ref(x_103);
-x_21 = x_87;
+x_21 = x_88;
 x_22 = x_89;
 x_23 = x_104;
 goto block_32;
@@ -3693,9 +3904,9 @@ x_122 = l_Lean_Expr_hasMVar(x_117);
 if (x_122 == 0)
 {
 lean_dec_ref(x_117);
-lean_dec_ref(x_115);
+lean_dec_ref(x_116);
 lean_dec_ref(x_114);
-x_60 = x_116;
+x_60 = x_115;
 x_61 = x_118;
 x_62 = x_122;
 x_63 = x_120;
@@ -3704,8 +3915,8 @@ goto block_79;
 else
 {
 lean_object* x_123; 
-x_123 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_114, x_115, x_117, x_120);
-x_80 = x_116;
+x_123 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_114, x_116, x_117, x_120);
+x_80 = x_115;
 x_81 = x_118;
 x_82 = x_123;
 goto block_86;
@@ -3714,8 +3925,8 @@ goto block_86;
 else
 {
 lean_object* x_124; 
-x_124 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_114, x_115, x_117, x_120);
-x_80 = x_116;
+x_124 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_114, x_116, x_117, x_120);
+x_80 = x_115;
 x_81 = x_118;
 x_82 = x_124;
 goto block_86;
@@ -3724,9 +3935,9 @@ goto block_86;
 else
 {
 lean_dec_ref(x_117);
-lean_dec_ref(x_115);
+lean_dec_ref(x_116);
 lean_dec_ref(x_114);
-x_60 = x_116;
+x_60 = x_115;
 x_61 = x_118;
 x_62 = x_119;
 x_63 = x_120;
@@ -3743,8 +3954,8 @@ lean_inc(x_132);
 lean_dec_ref(x_130);
 x_133 = lean_unbox(x_131);
 lean_dec(x_131);
-x_115 = x_127;
-x_116 = x_126;
+x_115 = x_126;
+x_116 = x_127;
 x_117 = x_128;
 x_118 = x_129;
 x_119 = x_133;
@@ -3905,8 +4116,8 @@ x_169 = l_Lean_Expr_hasMVar(x_160);
 if (x_169 == 0)
 {
 lean_dec_ref(x_160);
-x_115 = x_138;
-x_116 = x_165;
+x_115 = x_165;
+x_116 = x_138;
 x_117 = x_161;
 x_118 = x_135;
 x_119 = x_169;
@@ -3964,8 +4175,8 @@ x_178 = l_Lean_Expr_hasMVar(x_160);
 if (x_178 == 0)
 {
 lean_dec_ref(x_160);
-x_115 = x_138;
-x_116 = x_173;
+x_115 = x_173;
+x_116 = x_138;
 x_117 = x_161;
 x_118 = x_135;
 x_119 = x_178;
@@ -4032,8 +4243,8 @@ lean_dec_ref(x_182);
 lean_dec_ref(x_181);
 lean_dec_ref(x_138);
 lean_dec_ref(x_114);
-x_87 = x_135;
-x_88 = x_185;
+x_87 = x_185;
+x_88 = x_135;
 x_89 = x_189;
 x_90 = x_186;
 goto block_105;
@@ -4043,8 +4254,8 @@ else
 lean_object* x_190; 
 lean_dec_ref(x_186);
 x_190 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_114, x_138, x_181, x_182);
-x_106 = x_135;
-x_107 = x_185;
+x_106 = x_185;
+x_107 = x_135;
 x_108 = x_190;
 goto block_113;
 }
@@ -4054,8 +4265,8 @@ else
 lean_object* x_191; 
 lean_dec_ref(x_186);
 x_191 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_114, x_138, x_181, x_182);
-x_106 = x_135;
-x_107 = x_185;
+x_106 = x_185;
+x_107 = x_135;
 x_108 = x_191;
 goto block_113;
 }
@@ -4087,8 +4298,8 @@ lean_dec_ref(x_196);
 lean_dec_ref(x_181);
 lean_dec_ref(x_138);
 lean_dec_ref(x_114);
-x_87 = x_135;
-x_88 = x_193;
+x_87 = x_193;
+x_88 = x_135;
 x_89 = x_198;
 x_90 = x_194;
 goto block_105;
@@ -4098,8 +4309,8 @@ else
 lean_object* x_199; 
 lean_dec_ref(x_194);
 x_199 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_114, x_138, x_181, x_196);
-x_106 = x_135;
-x_107 = x_193;
+x_106 = x_193;
+x_107 = x_135;
 x_108 = x_199;
 goto block_113;
 }
@@ -4109,8 +4320,8 @@ else
 lean_object* x_200; 
 lean_dec_ref(x_194);
 x_200 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit(x_114, x_138, x_181, x_196);
-x_106 = x_135;
-x_107 = x_193;
+x_106 = x_193;
+x_107 = x_135;
 x_108 = x_200;
 goto block_113;
 }
@@ -4162,7 +4373,7 @@ goto block_20;
 block_214:
 {
 uint8_t x_207; 
-x_207 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_FVarIdSet_insert_spec__0___redArg(x_206, x_2);
+x_207 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_Meta_mkGeneralizationForbiddenSet_visit_spec__0___redArg(x_206, x_2);
 if (x_207 == 0)
 {
 uint8_t x_208; 

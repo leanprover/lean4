@@ -65,11 +65,11 @@ static lean_object* l_Lean_Meta_Grind_Arith_Linear_reify_x3f_go___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_reportInstIssue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_reify_x3f_go___closed__19;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_reify_x3f(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Meta_Grind_isSameExpr_unsafe__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_reify_x3f_toVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_reportInstIssue___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_isHomoMulInst___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_reify_x3f_go___closed__6;
+uint8_t l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_Linear_isAddInst(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Context_config(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Linear_reify_x3f_go___closed__0;
@@ -104,7 +104,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 20);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
-x_5 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
+x_5 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec_ref(x_4);
 return x_5;
 }
@@ -126,7 +126,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 15);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
-x_5 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
+x_5 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec_ref(x_4);
 return x_5;
 }
@@ -148,7 +148,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 21);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
-x_5 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
+x_5 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec_ref(x_4);
 return x_5;
 }
@@ -170,7 +170,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 22);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
-x_5 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
+x_5 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec_ref(x_4);
 return x_5;
 }
@@ -201,7 +201,7 @@ else
 {
 lean_object* x_5; uint8_t x_6; 
 x_5 = lean_ctor_get(x_3, 0);
-x_6 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_5, x_2);
+x_6 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_5, x_2);
 return x_6;
 }
 }
@@ -233,7 +233,7 @@ else
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = l_Lean_Expr_appArg_x21(x_5);
-x_7 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_6, x_2);
+x_7 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_6, x_2);
 lean_dec_ref(x_6);
 return x_7;
 }
@@ -266,7 +266,7 @@ else
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = l_Lean_Expr_appArg_x21(x_5);
-x_7 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_6, x_2);
+x_7 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_6, x_2);
 lean_dec_ref(x_6);
 return x_7;
 }
@@ -289,7 +289,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 26);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
-x_5 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
+x_5 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec_ref(x_4);
 return x_5;
 }
@@ -311,7 +311,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 27);
 x_4 = l_Lean_Expr_appArg_x21(x_3);
-x_5 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
+x_5 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_4, x_2);
 lean_dec_ref(x_4);
 return x_5;
 }

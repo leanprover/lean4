@@ -90,7 +90,7 @@ structure P extends toGP : GP where
 /--
 error: Field `toGP` has already been declared as a projection for an indirect parent structure `GP`
 
-Note: This projection was transitively inherited from this structure's immediate parent `P`
+Note: This projection was inherited from this structure's immediate parent `P`
 -/
 #guard_msgs in
 structure C extends P where

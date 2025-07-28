@@ -38,17 +38,23 @@ section Utils
       result := result.push <| f (string.get ⟨i - 2⟩) (string.get ⟨i - 1⟩) (string.get ⟨i⟩)
     result.push <| f (string.get ⟨string.length - 2⟩) (string.get ⟨string.length - 1⟩) none
 
-private def containsInOrderLower (a b : String) : Bool := Id.run do
-  if a.isEmpty then
-    return true
-  let mut aIt := a.mkIterator
-    -- TODO: the following code is assuming all characters are ASCII
-  for i in *...b.endPos.byteIdx do
-    if aIt.curr.toLower == (b.get ⟨i⟩).toLower then
-      aIt := aIt.next
-      if !aIt.hasNext then
-        return true
-  return false
+private partial def containsInOrderLower (a b : String) : Bool := Id.run do
+  go ⟨0⟩ ⟨0⟩
+where
+  go (aPos bPos : String.Pos) : Bool :=
+    if ha : a.atEnd aPos then
+      true
+    else if hb : b.atEnd bPos then
+      false
+    else
+      let ac := a.get' aPos ha
+      let bc := b.get' bPos hb
+      let bPos := b.next' bPos hb
+      if ac.toLower == bc.toLower then
+        let aPos := a.next' aPos ha
+        go aPos bPos
+      else
+        go aPos bPos
 
 end Utils
 
@@ -170,16 +176,21 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
   return selectBest (getMiss result (pattern.length - 1) (word.length - 1)) (getMatch result (pattern.length - 1) (word.length - 1))
 
   where
+    @[inline]
     getDoubleIdx (patternIdx wordIdx : Nat) := patternIdx * word.length * 2 + wordIdx * 2
 
+    @[inline]
     getIdx (patternIdx wordIdx : Nat) := patternIdx * word.length + wordIdx
 
+    @[inline]
     getMiss (result : Array (Option Int)) (patternIdx wordIdx : Nat) : Option Int :=
       result[getDoubleIdx patternIdx wordIdx]!
 
+    @[inline]
     getMatch (result : Array (Option Int)) (patternIdx wordIdx : Nat) : Option Int :=
       result[getDoubleIdx patternIdx wordIdx + 1]!
 
+    @[inline]
     set (result : Array (Option Int)) (patternIdx wordIdx : Nat) (missValue matchValue : Option Int) : Array (Option Int) :=
       let idx := getDoubleIdx patternIdx wordIdx
       result |>.set! idx missValue |>.set! (idx + 1) matchValue

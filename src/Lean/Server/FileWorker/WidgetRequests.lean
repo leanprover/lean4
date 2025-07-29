@@ -14,6 +14,7 @@ public import Lean.Widget.InteractiveDiagnostic
 
 public import Lean.Server.Rpc.RequestHandling
 public import Lean.Server.FileWorker.RequestHandling
+import Lean.PrettyPrinter.Delaborator.Builtins
 
 public section
 

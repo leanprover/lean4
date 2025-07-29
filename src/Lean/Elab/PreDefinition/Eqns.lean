@@ -15,6 +15,8 @@ public import Lean.Meta.Tactic.Apply
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Match.MatchEqs
 public import Lean.DefEqAttrib
+import Lean.Meta.Tactic.SplitIf
+import Lean.Meta.Tactic.Simp.Main
 
 public section
 

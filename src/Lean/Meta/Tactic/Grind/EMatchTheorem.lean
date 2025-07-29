@@ -15,8 +15,8 @@ public import Lean.Util.CollectFVars
 public import Lean.Meta.Basic
 public import Lean.Meta.InferType
 public import Lean.Meta.Eqns
-public import Lean.Meta.Match.MatchEqs
 public import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Match.MatchEqs
 
 public section
 

@@ -7,10 +7,11 @@ module
 
 prelude
 public import Lean.Meta.Match.MatcherApp.Basic
-public import Lean.Meta.Tactic.Simp.Main
-public import Lean.Meta.Tactic.SplitIf
 public import Lean.Meta.Tactic.Apply
 public import Lean.Meta.Tactic.Generalize
+public import Lean.Meta.Tactic.Simp.Types
+import Lean.Meta.Tactic.Simp.Main
+import Lean.Meta.Tactic.SplitIf
 
 public section
 

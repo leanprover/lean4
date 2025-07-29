@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Eqns
 public import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Simp.Main
 
 public section
 

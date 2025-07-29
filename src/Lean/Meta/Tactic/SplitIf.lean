@@ -7,7 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Cases
-public import Lean.Meta.Tactic.Simp.Main
+public import Lean.Meta.Tactic.Simp.Rewrite
+import Lean.Meta.Tactic.Simp.Main
 
 public section
 
@@ -142,7 +143,7 @@ The `Simp.Context` that used to be used with `simpIf` methods. It contains all c
 just the rewriting rules for reducing `if` expressions.
 This function is only used when the old `split` tactic behavior is enabled.
 -/
-def getSimpContext : MetaM Simp.Context := do
+private def getSimpContext : MetaM Simp.Context := do
   let mut s : SimpTheorems := {}
   s ← s.addConst ``if_pos
   s ← s.addConst ``if_neg

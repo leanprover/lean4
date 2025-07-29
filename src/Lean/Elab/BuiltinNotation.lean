@@ -47,13 +47,17 @@ open Meta
   match stx with
   | `(⟨$args,*⟩) => do
     tryPostponeIfNoneOrMVar expectedType?
-    let expTypeUnknownMsg := "Invalid `⟨...⟩` notation: The expected type of this term could not be determined"
+    let throwExpTypeUnknown {α} : TermElabM α :=
+      throwError "Invalid `⟨...⟩` notation: The expected type of this term could not be determined"
+    let usageNote := .note m!"\
+      This notation can only be used when the expected type is an inductive type with a single constructor"
     match expectedType? with
     | some expectedType =>
       let expectedType ← whnf expectedType
-      if expectedType.getAppFn.isMVar then throwError expTypeUnknownMsg
+      if expectedType.getAppFn.isMVar then throwExpTypeUnknown
       matchConstInduct expectedType.getAppFn
-        (fun _ => throwError "Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}is not an inductive type")
+        (fun _ => throwError m!"Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}is not an inductive type"
+                    ++ usageNote)
         (fun ival _ => do
           match ival.ctors with
           | [ctor] =>
@@ -68,13 +72,19 @@ open Meta
               return n
             let args := args.getElems
             if args.size < numExplicitFields then
-              throwError "Insufficient number of arguments to `⟨...⟩` constructor: Constructor \
-                `{ctor}` has {numExplicitFields} explicit fields, but only {args.size} were provided"
+              let fieldsStr := if numExplicitFields == 1 then "fields" else "field"
+              let providedStr :=
+                if args.size == 0 then "none were"
+                else if args.size == 1 then "only 1 was"
+                else s!"only {args.size} were"
+              throwError "Insufficient number of fields for `⟨...⟩` constructor: Constructor \
+                `{ctor}` has {numExplicitFields} explicit {fieldsStr}, but {providedStr} provided"
             let newStx ← if args.size == numExplicitFields then
               `($(mkCIdentFrom stx ctor (canonical := true)) $(args)*)
             else if numExplicitFields == 0 then
-              throwError "Insufficient number of arguments to `⟨...⟩` constructor: Constructor \
-                `{ctor}` does not have explicit fields, but {args.size} were provided"
+              throwError "Insufficient number of fields for `⟨...⟩` constructor: Constructor \
+                `{ctor}` does not have explicit fields, but {args.size}
+                {if args.size == 1 then "was" else "were"} provided"
             else
               let extra := args[(numExplicitFields-1)...args.size]
               let newLast ← `(⟨$[$extra],*⟩)
@@ -83,8 +93,8 @@ open Meta
             withMacroExpansion stx newStx $ elabTerm newStx expectedType?
           | [] => throwError "Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}has no constructors"
           | _ => throwError m!"Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}has more than one constructor"
-                  ++ .note m!"This notation can only be used when the expected type is an inductive type with a single constructor")
-    | none => throwError expTypeUnknownMsg
+                  ++ usageNote)
+    | none => throwExpTypeUnknown
   | _ => throwUnsupportedSyntax
 
 @[builtin_term_elab borrowed] def elabBorrowed : TermElab := fun stx expectedType? =>

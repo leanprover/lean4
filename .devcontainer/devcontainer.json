@@ -1,0 +1,59 @@
+{
+  "name": "Lean 4 Development",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "leanprover.lean4",
+        "ms-vscode.cmake-tools",
+        "llvm-vs-code-extensions.vscode-clangd",
+        "ms-vscode.cpptools",
+        "github.vscode-pull-request-github",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true,
+        "cmake.buildDirectory": "${workspaceFolder}/build/release",
+        "cmake.generator": "Unix Makefiles",
+        "[markdown]": {
+          "rewrap.wrappingColumn": 70
+        },
+        "[lean4]": {
+          "editor.rulers": [100]
+        },
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash",
+            "icon": "terminal-bash"
+          }
+        }
+      }
+    }
+  },
+  "onCreateCommand": ".devcontainer/setup.sh",
+  "postStartCommand": "mkdir -p .vscode && cp .devcontainer/tasks.json .vscode/tasks.json && cp .devcontainer/launch.json .vscode/launch.json",
+  "remoteUser": "vscode",
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/vscode/.elan/bin"
+  },
+  "mounts": [
+    "source=${localWorkspaceFolderBasename}-ccache,target=/home/vscode/.ccache,type=volume"
+  ],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/lean4,type=bind",
+  "workspaceFolder": "/workspace/lean4",
+  "runArgs": ["--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"],
+  "containerEnv": {
+    "CCACHE_DIR": "/home/vscode/.ccache",
+    "CCACHE_MAXSIZE": "5G",
+    "LEAN_BACKTRACE": "1"
+  }
+}

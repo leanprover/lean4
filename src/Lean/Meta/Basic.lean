@@ -2438,6 +2438,11 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
   else
     return e
 
+def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
+  profileitM Exception s!"instantiate metavars" (← getOptions) do
+  withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
+    instantiateMVars e
+
 private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos : Position) :
     BaseIO Language.SnapshotTree := do
   let msgLog := snap.element.diagnostics.msgLog

@@ -13,6 +13,11 @@ example (n m : Nat) : (n+m)^2 = n^2 + 2*n*m + m^2 := by grind
 example (a : R) (n m : Nat) : a^((n+m)^2) = a^(n^2 + 2*n*m + m^2) := by grind
 example (a : R) (n m : Nat) : a^((n+m)^2) = a^(n^2) * a^(2*n*m) * a^(m^2) := by grind
 
+-- from Mathlib.NumberTheory.Multiplicity
+theorem pow_two_pow_sub_pow_two_pow.extracted_1_1 {x y : R} (d : Nat) :
+    x ^ 2 ^ (d + 1) - y ^ 2 ^ (d + 1) = (x ^ 2 ^ d + y ^ 2 ^ d) * (x ^ 2 ^ d - y ^ 2 ^ d) := by
+  grind
+
 end CommRing
 
 

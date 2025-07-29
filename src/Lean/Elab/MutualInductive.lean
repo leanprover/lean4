@@ -16,11 +16,11 @@ public import Lean.Meta.SizeOf
 public import Lean.Meta.Injective
 public import Lean.Meta.IndPredBelow
 public import Lean.Elab.Command
-public import Lean.Elab.ComputedFields
 public import Lean.Elab.DefView
 public import Lean.Elab.DeclUtil
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.DeclarationRange
+import Lean.Elab.ComputedFields
 
 public section
 

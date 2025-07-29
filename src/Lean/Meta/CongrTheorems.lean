@@ -11,9 +11,9 @@ public import Lean.Class
 public import Lean.ReservedNameAction
 public import Lean.ResolveName
 public import Lean.Meta.AppBuilder
-public import Lean.Meta.Tactic.Subst
-public import Lean.Meta.Tactic.Intro
-public import Lean.Meta.Tactic.Assert
+import Lean.Meta.Tactic.Subst
+import Lean.Meta.Tactic.Intro
+import Lean.Meta.Tactic.Assert
 
 public section
 

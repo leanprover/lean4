@@ -3,8 +3,8 @@
 
 https://github.com/leanprover/lean4/issues/7993
 
-Deprecation lints should indicate if an updated constant is in a different namespace, or has a
-different visibility, from the deprecated one.
+Deprecation lints should indicate if an updated constant is in a different namespace, is protected,
+or has a different type from the deprecated one.
 -/
 
 set_option linter.deprecated true
@@ -62,7 +62,12 @@ set_option linter.deprecated false in
 theorem Bar.bar_rfl : Bar.bar = Bar.bar := rfl
 
 /--
-warning: `Bar.bar_rfl` has been deprecated: use `Foo.bar_rfl` instead
+warning: `Bar.bar_rfl` has been deprecated: Use `Foo.bar_rfl` instead
+
+Note: The updated constant has a different type:
+  Foo.bar = Foo.bar
+instead of
+  Bar.bar = Bar.bar
 
 Note: The updated constant is in a different namespace. Dot notation may need to be changed (e.g., from `x.bar_rfl` to `Foo.bar_rfl x`).
 -/

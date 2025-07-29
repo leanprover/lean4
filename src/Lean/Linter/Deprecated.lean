@@ -51,7 +51,8 @@ def _root_.Lean.MessageData.isDeprecationWarning (msg : MessageData) : Bool :=
 def getDeprecatedNewName (env : Environment) (declName : Name) : Option Name := do
   (← deprecatedAttr.getParam? env declName).newName?
 
-def checkDeprecated [Monad m] [MonadEnv m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (declName : Name) : m Unit := do
+open Meta in
+def checkDeprecated (declName : Name) : MetaM Unit := do
   if getLinterValue linter.deprecated (← getLinterOptions) then
     let some attr := deprecatedAttr.getParam? (← getEnv) declName | pure ()
     let extraMsg ← match attr.text?, attr.newName? with
@@ -62,6 +63,11 @@ def checkDeprecated [Monad m] [MonadEnv m] [MonadLog m] [AddMessageContext m] [M
         let env ← getEnv
         let oldPfx := declName.getPrefix
         let newPfx := newName.getPrefix
+        let some oldDecl := env.find? declName | pure msg
+        let some newDecl := env.find? newName | pure msg
+        if !(← withReducible <| isDefEq oldDecl.type newDecl.type) then
+          msg := msg ++ .note m!"The updated constant has a different type:{indentExpr newDecl.type}\
+            \ninstead of{indentExpr oldDecl.type}"
         unless oldPfx.isAnonymous do
           -- Check namespace, then visibility, exclusively and in this order, to avoid redundancy
           if oldPfx != newPfx then

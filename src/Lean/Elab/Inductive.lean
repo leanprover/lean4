@@ -35,15 +35,28 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
     def ctor := leading_parser optional docComment >> "\n| " >> declModifiers >> rawIdent >> optDeclSig
     ```
     -/
-    let mut ctorModifiers ← elabModifiers ⟨ctor[2]⟩
+    let modifiersStx := ctor[2]
+    let mut ctorModifiers ← elabModifiers ⟨modifiersStx⟩
     if let some leadingDocComment := ctor[0].getOptional? then
       if ctorModifiers.docString?.isSome then
-        logErrorAt leadingDocComment "duplicate doc string"
+        logErrorAt leadingDocComment "Duplicate doc string"
       ctorModifiers := { ctorModifiers with docString? := some ⟨leadingDocComment⟩ }
     if ctorModifiers.isPrivate && modifiers.isPrivate then
-      throwError "invalid 'private' constructor in a 'private' inductive datatype"
+      let hint ← do
+        let .original .. := modifiersStx.getHeadInfo | pure .nil
+        let some range := modifiersStx[2].getRangeWithTrailing? | pure .nil
+        -- Drop the doc comment from both the `declModifiers` and outer `ctor`, as well as
+        -- everything after the constructor name (yielding invalid syntax with the desired range)
+        let previewSpan? := ctor.modifyArgs (·[2...4].toArray.modify 0 (·.modifyArgs (·[1...*])))
+        MessageData.hint "Remove `private` modifier from constructor" #[{
+          suggestion := ""
+          span? := Syntax.ofRange range
+          previewSpan?
+          toCodeActionTitle? := some fun _ => "Delete `private` modifier"
+        }]
+      throwError m!"Constructor cannot be marked `private` because it is already in a `private` inductive datatype" ++ hint
     if ctorModifiers.isProtected && modifiers.isPrivate then
-      throwError "invalid 'protected' constructor in a 'private' inductive datatype"
+      throwError "Constructor cannot be `protected` because it is in a `private` inductive datatype"
     checkValidCtorModifier ctorModifiers
     let ctorName := ctor.getIdAt 3
     let ctorName := declName ++ ctorName
@@ -58,7 +71,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Term
   if decl[3][0].isToken ":=" then
     -- https://github.com/leanprover/lean4/issues/5236
     withRef decl[0] <| Linter.logLintIf Linter.linter.deprecated decl[3]
-      "'inductive ... :=' has been deprecated in favor of 'inductive ... where'."
+      "`inductive ... :=` has been deprecated in favor of `inductive ... where`"
   return {
     ref             := decl
     shortDeclName   := name

@@ -1,5 +1,5 @@
 { src, debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, pkg-config, gmp, libuv, cadical, git, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages, linkFarmFromDrvs,
+  stdenv, lib, cmake, pkg-config, gmp, libuv, cadical, git, gnumake, bash, libidn2, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages, linkFarmFromDrvs,
   ... } @ args:
 with builtins;
 lib.warn "The Nix-based build is deprecated" rec {
@@ -7,7 +7,7 @@ lib.warn "The Nix-based build is deprecated" rec {
   sourceByRegex = p: rs: lib.sourceByRegex p (map (r: "(/src/)?${r}") rs);
   buildCMake = args: stdenv.mkDerivation ({
     nativeBuildInputs = [ cmake pkg-config ];
-    buildInputs = [ gmp libuv llvmPackages.llvm ];
+    buildInputs = [ gmp libuv libidn2 llvmPackages.llvm ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
     dontStrip = (args.debug or debug);
@@ -159,7 +159,7 @@ lib.warn "The Nix-based build is deprecated" rec {
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex src [ "src.*" "tests.*" ];
-        buildInputs = [ gmp libuv perl git cadical ];
+        buildInputs = [ gmp libuv perl libidn2 git cadical ];
         preConfigure = ''
           cd src
         '';

@@ -9,7 +9,6 @@ prelude
 public import Init.Grind.Util
 public import Init.Grind.Tactics
 public import Lean.HeadIndex
-public import Lean.PrettyPrinter
 public import Lean.Util.FoldConsts
 public import Lean.Util.CollectFVars
 public import Lean.Meta.Basic

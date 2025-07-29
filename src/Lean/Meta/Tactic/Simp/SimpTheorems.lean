@@ -9,11 +9,11 @@ prelude
 public import Lean.ScopedEnvExtension
 public import Lean.Util.Recognizers
 public import Lean.Meta.DiscrTree
-public import Lean.Meta.AppBuilder
-public import Lean.Meta.Eqns
 public import Lean.Meta.Tactic.AuxLemma
 public import Lean.DefEqAttrib
 public import Lean.DocString
+import Lean.Meta.AppBuilder
+import Lean.Meta.Eqns
 
 public section
 

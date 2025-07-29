@@ -25,6 +25,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Types
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
 meta import Lean.Parser.Do
 import Lean.Meta.Match.MatchEqsExt
+import Lean.PrettyPrinter
 
 public section
 

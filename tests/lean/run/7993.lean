@@ -25,7 +25,7 @@ def foo : Foo → Foo := id
 end Foo
 
 /--
-warning: `Foo.foo` has been deprecated: use `Foo.bar` instead
+warning: `Foo.foo` has been deprecated: Use `Foo.bar` instead
 
 Note: `Foo.bar` is protected. References to this constant must include its prefix `Foo` even when inside its namespace.
 -/
@@ -41,7 +41,7 @@ def Bar.bar : Bar → Bar := id
 abbrev b : Bar := 31
 
 /--
-warning: `Bar.bar` has been deprecated: use `Foo.foo` instead
+warning: `Bar.bar` has been deprecated: Use `Foo.foo` instead
 
 Note: The updated constant is in a different namespace. Dot notation may need to be changed (e.g., from `x.bar` to `Foo.foo x`).
 -/
@@ -49,7 +49,7 @@ Note: The updated constant is in a different namespace. Dot notation may need to
 example := b.bar
 
 /--
-warning: `Bar.bar` has been deprecated: use `Foo.foo` instead
+warning: `Bar.bar` has been deprecated: Use `Foo.foo` instead
 
 Note: The updated constant is in a different namespace. Dot notation may need to be changed (e.g., from `x.bar` to `foo x`).
 -/
@@ -77,9 +77,9 @@ def D := ()
 end A.B
 
 /--
-warning: `A.B.D` has been deprecated: use `A.B.C` instead
+warning: `A.B.D` has been deprecated: Use `A.B.C` instead
 
-Note: `A.B.C` is protected. References to this constant must include at least the last component of its prefix `A.B` even when inside its namespace.
+Note: `A.B.C` is protected. References to this constant must include at least the last component `B` of its prefix `A.B` even when inside its namespace.
 -/
 #guard_msgs in
 open A B in

@@ -178,7 +178,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
           -- A joint approximation to the fixpoint
           let predVar ← PProdN.mk 0 predVars
           -- All motives get instantiated with the newly created variables
-          let newMotives ← motives.mapM ( instantiateForall · #[predVar])
+          let newMotives ← motives.mapM (instantiateForall · #[predVar])
           let newMotives ← newMotives.mapM (PProdN.reduceProjs ·)
           -- Then, we introduce hypotheses
           withLocalDeclsDND ((numberNames infos.size "hyp").zip newMotives) fun motiveVars => do

@@ -87,9 +87,9 @@ def mkExtIffType (extThmName : Name) : MetaM Expr := withLCtx {} {} do
     let fvars ← toRevert.foldlM (init := {}) (fun st e => return collectFVars st (← inferType e))
     for fvar in toRevert do
       unless ← Meta.isProof fvar do
-        throwError "Argument `{fvar}` is not a proof, which is not supported for arguments after `{x}` and `{y}`"
+        throwError "Argument `{fvar}` is not a proof, but all arguments after `{x}` and `{y}` must be proofs"
       if fvars.fvarSet.contains fvar.fvarId! then
-        throwError "Argument `{fvar}` is depended upon, which is not supported for arguments after `{x}` and `{y}`"
+        throwError "Argument `{fvar}` is depended upon by a subsequent argument, which is not supported for arguments after `{x}` and `{y}`"
     let conj := mkAndN (← toRevert.mapM (inferType ·)).toList
     -- Make everything implicit except for inst implicits
     let mut newBis := #[]
@@ -170,9 +170,8 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
         addDeclarationRangesFromSyntax extIffName (← getRef)
     catch e =>
       throwError m!"\
-        Failed to generate an `ext_iff` theorem from `{.ofConstName extName}`: {e.toMessageData}\n\
-        \n\
-        Try `@[ext (iff := false)]` to prevent generating an `ext_iff` theorem."
+        Failed to generate an `ext_iff` theorem from `{.ofConstName extName}`: {e.toMessageData}"
+        ++ .hint' m!"Try `@[ext (iff := false)]` to prevent generating an `ext_iff` theorem."
   return extIffName
 
 

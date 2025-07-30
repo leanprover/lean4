@@ -58,7 +58,6 @@ def mkSimpCongrTheorem (declName : Name) (prio : Nat) : MetaM SimpCongrTheorem :
   let c ← mkConstWithLevelParams declName
   let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType c)
   match type.eqOrIff? with
-    -- TODO: all of these
   | none => throwError "Invalid `congr` theorem: Theorem is not an equality or iff{indentExpr type}"
   | some (lhs, rhs) =>
     lhs.withApp fun lhsFn lhsArgs => rhs.withApp fun rhsFn rhsArgs => do

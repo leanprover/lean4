@@ -374,7 +374,7 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
     throwError "Expected type must not contain metavariables{indentExpr expectedType}"
   if expectedType.hasFVar then
     throwError m!"Expected type must not contain free variables{indentExpr expectedType}"
-      ++ .hint' m!"Use the `+revert` option to automatically cleanup and revert free variables."
+      ++ .hint' m!"Use the `+revert` option to automatically clean up and revert free variables"
   return expectedType
 
 /--
@@ -537,7 +537,7 @@ where
             is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
             The `{tacticName}` tactic works by evaluating a decision procedure via reduction, \
             and it cannot make progress with such instances. \
-            This can occur due to the `opened scoped Classical` command, which enables the instance \
+            This can occur due to the `open scoped Classical` command, which enables the instance \
             `{.ofConstName ``Classical.propDecidable}`."
         else
           MessageData.nil

@@ -37,3 +37,7 @@ inductive Zoo1 (F : {n : Nat} → Type) : Type where
 | bar : Boo1 _ → Zoo1 _
 
 end
+
+/-- info: @Boo1.bar : {F : {n : Nat} → Type} → Zoo1 F → Boo1 F → Boo1 F -/
+#guard_msgs in
+#check @Boo1.bar

@@ -149,11 +149,8 @@ def computeDotIdQuery?
   let some expectedType := expectedType?
     | return none
   let typeNames? : Option (Array Name) ← ctx.runMetaM lctx do
-    let resultTypeFn := (← instantiateMVars expectedType).cleanupAnnotations.getAppFn.cleanupAnnotations
-    let .const .. := resultTypeFn
-      | return none
     try
-      return some <| ← getDotCompletionTypeNames resultTypeFn
+      return some <| ← getDotIdCompletionTypeNames expectedType
     catch _ =>
       return none
   let some typeNames := typeNames?

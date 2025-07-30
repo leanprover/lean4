@@ -6,7 +6,7 @@ axiom P : Nat → Nat → Prop
 
 -- Warm-up: rewriting in the forward direction
 
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in example : P a b := by simp
 
 attribute [simp] a_eq_b
@@ -19,7 +19,7 @@ error: unsolved goals
 
 attribute [-simp] a_eq_b
 
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in example : P a b := by simp
 
 -- Re-adding an attribute after [-simp] does not work, see
@@ -27,7 +27,7 @@ attribute [-simp] a_eq_b
 
 attribute [simp] a_eq_b
 
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in example : P a b := by simp
 
 -- so this test use new copies of `a_eq_b` for now
@@ -46,7 +46,7 @@ error: unsolved goals
 
 attribute [-simp] a_eq_b_2
 
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in example : P a b := by simp
 
 -- Setting one should erase the other
@@ -65,7 +65,7 @@ error: unsolved goals
 
 -- The erasure is sticky:
 attribute [simp ←] a_eq_b_3
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in example : P a b := by simp
 
 axiom a_eq_b_4 : a = b

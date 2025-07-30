@@ -7,7 +7,7 @@ set_option pp.mvars false
 Basic example.
 -/
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_
@@ -36,7 +36,7 @@ theorem test {f g : Nat → Nat} (n : Nat) (hfg : ∀ a, f (g a) = a) :
     f (g n) = n := hfg n
 
 /--
-error: type mismatch
+error: Type mismatch
   test n2 ?_
 has type
   ?_ (?_ n2) = n2
@@ -53,7 +53,7 @@ Exposes an implicit argument because the explicit arguments can be unified.
 -/
 def f {a : Nat} (b : Nat) : Prop := a + b = 0
 /--
-error: type mismatch
+error: Type mismatch
   sorry
 has type
   @f 0 ?_
@@ -68,7 +68,7 @@ example : @f 1 2 := by
 Add type ascriptions for numerals if they have different types.
 -/
 /--
-error: type mismatch
+error: Type mismatch
   Eq.refl 0
 has type
   (0 : Int) = 0
@@ -80,7 +80,7 @@ but is expected to have type
 
 -- Even if the numerals are different.
 /--
-error: type mismatch
+error: Type mismatch
   Eq.refl 1
 has type
   (1 : Int) = 1
@@ -95,7 +95,7 @@ section
 local instance {α : Type _} [OfNat β n] : OfNat (α → β) n where
   ofNat := fun _ => OfNat.ofNat n
 /--
-error: type mismatch
+error: Type mismatch
   Eq.refl (0 1)
 has type
   (0 : Nat → Int) 1 = 0 1
@@ -110,7 +110,7 @@ end
 Exposes differences in pi type domains
 -/
 /--
-error: type mismatch
+error: Type mismatch
   fun h => trivial
 has type
   (1 : Int) = 1 → True
@@ -124,7 +124,7 @@ but is expected to have type
 Exposes differences in pi type codomains
 -/
 /--
-error: type mismatch
+error: Type mismatch
   fun h => rfl
 has type
   True → (1 : Int) = 1
@@ -138,7 +138,7 @@ but is expected to have type
 Exposes differences in fun domains
 -/
 /--
-error: type mismatch
+error: Type mismatch
   sorry
 has type
   { x : Int // x > 0 }
@@ -152,7 +152,7 @@ but is expected to have type
 Exposes differences in fun values
 -/
 /--
-error: type mismatch
+error: Type mismatch
   sorry
 has type
   { x // @decide (p x) (d2 x) = true }

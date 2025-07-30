@@ -29,7 +29,7 @@ example [Decidable p] [Decidable (id p)] (h : foo p) : foo (id p) := by
   exact h
 
 /--
-error: tactic 'fail' failed
+error: Tactic `fail` failed
 p : Prop
 inst✝ : Decidable p
 ⊢ Decidable (id p)

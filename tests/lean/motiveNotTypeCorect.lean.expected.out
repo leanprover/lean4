@@ -19,8 +19,13 @@ h : f t = t
 d : D (f t)
 P : (t : Nat) → D t → Prop
 ⊢ P (f t) d
-motiveNotTypeCorect.lean:18:8-18:9: error: Tactic `rewrite` failed: motive is dependent
+motiveNotTypeCorect.lean:18:8-18:9: error: Tactic `rewrite` failed: Motive is dependent:
   fun _a => A _a
+
+Note: The rewrite tactic cannot substitute terms on which the type of the target expression depends. The type of the expression
+  A true
+depends on the value
+  true
 
 h : true = false
 A : (b : Bool) → if b = true then Prop else Nat

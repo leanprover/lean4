@@ -306,7 +306,7 @@ namespace WithOptionOff
 set_option wf.preprocess false
 
 /--
-error: tactic 'fail' failed
+error: Tactic `fail` failed
 α : Type u_1
 t t' : Tree α
 ⊢ sizeOf t' < sizeOf t

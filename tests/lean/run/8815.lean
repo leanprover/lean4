@@ -7,7 +7,7 @@ set_option linter.unusedVariables false
 
 example (P Q : Prop) (hQ : Q) (hP : P) : P := by simp [*, -hQ]
 
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in example (P Q : Prop) (hQ : Q) (hP : P) : P := by simp [*, -hP]
 
 /-- error: Unknown constant `hQ` -/
@@ -18,7 +18,7 @@ example (P Q : Prop) (hQ : Q) (hP : P) : P := by simp [*, -hQ]
 /--
 error: Unknown constant `hQ`
 ---
-error: simp made no progress
+error: `simp` made no progress
 -/
 #guard_msgs in example (P Q : Prop) (hQ : Q) (hP : P) : P := by simp [-hQ]
 

@@ -25,7 +25,7 @@ def test (_ : Unit) : Bool :=
   m.card < 2
 
 /--
-error: tactic 'native_decide' evaluated that the proposition
+error: Tactic `native_decide` evaluated that the proposition
   (let p := fun i => i;
       (Multiset.map (fun i => i) (Multiset.ofList [0, 1])).dedup).card <
     2

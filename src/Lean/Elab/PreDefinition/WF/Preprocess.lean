@@ -75,7 +75,7 @@ private def getSimpContext : MetaM Simp.Context := do
     (congrTheorems := {})
     -- Remark: we use `congrConsts` because this module uses `withoutModifyingEnv`
     -- which would erase any congruence lemmas realized in the `withoutModifyingEnv` block.
-    (config        := { Simp.neutralConfig with dsimp := true, congrConsts := false })
+    (config        := { Simp.neutralConfig with dsimp := true, congrConsts := false, beta := true, proj := true })
 
 def isWfParam? (e : Expr) : Option Expr :=
   if e.isAppOfArity ``wfParam 2 then

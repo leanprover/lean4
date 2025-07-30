@@ -257,3 +257,24 @@ instance : LawfulMonad (EStateM ε σ) := .mk'
     | .ok _ _ => rfl
     | .error _ _ => rfl)
   (map_const := fun _ _ => rfl)
+
+/-! # List -/
+
+instance : LawfulFunctor List where
+  map_const := by intros; rfl
+  id_map    := by intros; simp [Functor.map]
+  comp_map  := by intros; simp [Functor.map]
+
+/-! # Array -/
+
+instance : LawfulFunctor Array where
+  map_const := by intros; rfl
+  id_map    := by intros; simp [Functor.map]
+  comp_map  := by intros; simp [Functor.map]
+
+/-! # Vector -/
+
+instance {n : Nat} : LawfulFunctor (Vector · n) where
+  map_const := by intros; rfl
+  id_map    := by intros; simp [Functor.map]
+  comp_map  := by intros; simp [Functor.map]

@@ -575,5 +575,6 @@ def lex [BEq α] (xs ys : Vector α n) (lt : α → α → Bool := by exact (· 
       return false
   return false
 
+/-- `Vector α n` is a functor in the `α` argument. -/
 instance : Functor (Vector · n) where
   map := Vector.map

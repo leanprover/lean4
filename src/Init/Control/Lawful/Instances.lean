@@ -260,6 +260,7 @@ instance : LawfulMonad (EStateM ε σ) := .mk'
 
 /-! # List -/
 
+/-- `List` is a lawful functor. -/
 instance : LawfulFunctor List where
   map_const := by intros; rfl
   id_map    := by intros; simp [Functor.map]
@@ -267,6 +268,7 @@ instance : LawfulFunctor List where
 
 /-! # Array -/
 
+/-- `Array` is a lawful functor. -/
 instance : LawfulFunctor Array where
   map_const := by intros; rfl
   id_map    := by intros; simp [Functor.map]
@@ -274,6 +276,7 @@ instance : LawfulFunctor Array where
 
 /-! # Vector -/
 
+/-- `Vector α n` is a lawful functor for any fixed size `n`. -/
 instance {n : Nat} : LawfulFunctor (Vector · n) where
   map_const := by intros; rfl
   id_map    := by intros; simp [Functor.map]

@@ -8,6 +8,7 @@ import Lake.Util.Proc
 import Lake.Util.Lift
 
 open System
+
 namespace Lake
 
 namespace Git
@@ -44,6 +45,7 @@ instance : ToString GitRepo := ⟨(·.dir.toString)⟩
 
 namespace GitRepo
 
+/--e-/
 def cwd : GitRepo := ⟨"."⟩
 
 @[inline] def dirExists (repo : GitRepo) : BaseIO Bool :=

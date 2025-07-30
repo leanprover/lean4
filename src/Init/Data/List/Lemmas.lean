@@ -1123,6 +1123,7 @@ theorem map_id (l : List α) : map (id : α → α) l = l := by
 -- The argument `l : List α` is explicit to allow rewriting from right to left.
 theorem map_id' (l : List α) : map (fun (a : α) => a) l = l := map_id l
 
+/-- The functor map operation `<$>` for lists is the same as `List.map`. -/
 theorem functor_map_eq_map {α β : Type u} (f : α → β) (as : List α) : f <$> as = as.map f := by
   rfl
 

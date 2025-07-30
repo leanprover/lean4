@@ -147,24 +147,11 @@ protected theorem lt_of_le_of_lt [OrderData α] [LT α] [LawfulOrderLT α] [Line
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
   Std.lt_of_le_of_lt (α := List α) h₁ h₂
 
-protected theorem lt_of_le_of_lt_legacy [LT α]
-    [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
-    [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
-    {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
-  Std.lt_of_le_of_lt (α := List α) h₁ h₂
-
-protected theorem le_trans [LT α]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+protected theorem le_trans [OrderData α] [LT α] [LawfulOrderLT α] [LinearOrder α]
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
-  fun h₃ => h₁ (Array.lt_of_le_of_lt_legacy h₂ h₃)
+  fun h₃ => h₁ (Array.lt_of_le_of_lt h₂ h₃)
 
-instance [LT α]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)] :
+instance [OrderData α] [LT α] [LawfulOrderLT α] [LinearOrder α] :
     Trans (· ≤ · : Array α → Array α → Prop) (· ≤ ·) (· ≤ ·) where
   trans h₁ h₂ := Array.le_trans h₁ h₂
 

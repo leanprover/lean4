@@ -42,7 +42,6 @@ instance : OrderData String := .ofLE String
 
 instance instStdLinearOrder : LinearOrder String := by
   apply LinearOrder.ofLE
-  case le_refl => apply String.le_refl
   case le_antisymm => apply String.le_antisymm
   case le_trans => apply String.le_trans
   case le_total => apply String.le_total

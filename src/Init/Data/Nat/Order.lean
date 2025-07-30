@@ -18,10 +18,13 @@ public instance : OrderData Nat := OrderData.ofLE Nat
 
 public instance instStdLinearOrder : LinearOrder Nat := by
   apply LinearOrder.ofLE
-  · apply Nat.le_refl
   · apply Nat.le_antisymm
   · apply Nat.le_trans
   · apply Nat.le_total
+
+public instance : LawfulOrderLT Nat := by
+  apply LawfulOrderLT.ofLE
+  simp [Nat.lt_iff_le_and_ne]
 
 public instance : LawfulOrderMin Nat := by
   apply LawfulOrderMin.ofLE

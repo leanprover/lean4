@@ -31,8 +31,8 @@ namespace Array
 @[simp] theorem lt_toList [LT α] {xs ys : Array α} : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
 @[simp] theorem le_toList [LT α] {xs ys : Array α} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
 
-grind_pattern _root_.List.lt_toArray =>  l₁.toArray < l₂.toArray
-grind_pattern _root_.List.le_toArray =>  l₁.toArray ≤ l₂.toArray
+grind_pattern _root_.List.lt_toArray => l₁.toArray < l₂.toArray
+grind_pattern _root_.List.le_toArray => l₁.toArray ≤ l₂.toArray
 grind_pattern lt_toList => xs.toList < ys.toList
 grind_pattern le_toList => xs.toList ≤ ys.toList
 
@@ -103,6 +103,15 @@ theorem singleton_lex_singleton [BEq α] {lt : α → α → Bool} : #[a].lex #[
     xs.toList.lex ys.toList lt = xs.lex ys lt := by
   cases xs <;> cases ys <;> simp
 
+instance [LT α] : OrderData (Array α) := .ofLE (Array α)
+
+instance [LT α] [OrderData α] [LawfulOrderLT α] [LinearOrder α] : LinearOrder (Array α) := by
+  apply LinearOrder.ofLE
+  · intro _ _ hab hba
+    simpa using Std.le_antisymm (α := List α) hab hba
+  · exact fun _ _ _ => Std.le_trans (α := List α)
+  · exact fun _ _ => Std.le_total (α := List α)
+
 protected theorem lt_irrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] (xs : Array α) : ¬ xs < xs :=
   List.lt_irrefl xs.toList
 
@@ -134,24 +143,25 @@ instance [LT α] [Trans (· < · : α → α → Prop) (· < ·) (· < ·)] :
     Trans (· < · : Array α → Array α → Prop) (· < ·) (· < ·) where
   trans h₁ h₂ := Array.lt_trans h₁ h₂
 
-protected theorem lt_of_le_of_lt [LT α]
-    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
+protected theorem lt_of_le_of_lt [OrderData α] [LT α] [LawfulOrderLT α] [LinearOrder α]
+    {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
+  Std.lt_of_le_of_lt (α := List α) h₁ h₂
+
+protected theorem lt_of_le_of_lt_legacy [LT α]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
     [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
     [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
-  List.lt_of_le_of_lt_legacy h₁ h₂
+  Std.lt_of_le_of_lt (α := List α) h₁ h₂
 
 protected theorem le_trans [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
-  fun h₃ => h₁ (Array.lt_of_le_of_lt h₂ h₃)
+  fun h₃ => h₁ (Array.lt_of_le_of_lt_legacy h₂ h₃)
 
 instance [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)] :
@@ -199,14 +209,6 @@ instance [LT α]
   total := Array.le_total
 
 instance [LT α] : OrderData (Array α) := .ofLE (Array α)
-
-instance [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α] :
-    LinearOrder (Array α) := by
-  apply LinearOrder.ofLE
-  case le_refl => apply Array.le_refl
-  case le_antisymm => apply Array.le_antisymm
-  case le_total => apply Array.le_total
-  case le_trans => apply Array.le_trans
 
 @[simp] theorem lex_eq_true_iff_lt [BEq α] [LawfulBEq α] [LT α] [DecidableLT α]
     {xs ys : Array α} : lex xs ys = true ↔ xs < ys := by
@@ -283,7 +285,6 @@ protected theorem lt_iff_exists [LT α] {xs ys : Array α} :
   simp [List.lt_iff_exists]
 
 protected theorem le_iff_exists [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)] {xs ys : Array α} :
     xs ≤ ys ↔
@@ -303,7 +304,6 @@ theorem append_left_lt [LT α] {xs ys zs : Array α} (h : ys < zs) :
   simpa using List.append_left_lt h
 
 theorem append_left_le [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     {xs ys zs : Array α} (h : ys ≤ zs) :
@@ -327,10 +327,8 @@ protected theorem map_lt [LT α] [LT β]
   simpa using List.map_lt w h
 
 protected theorem map_le [LT α] [LT β]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Std.Irrefl (· < · : β → β → Prop)]
     [Std.Asymm (· < · : β → β → Prop)]
     [Std.Antisymm (¬ · < · : β → β → Prop)]
     {xs ys : Array α} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : xs ≤ ys) :

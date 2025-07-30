@@ -310,7 +310,7 @@ def isInductName (env : Environment) (name : Name) : Bool := Id.run do
     return false
   | "mutual_induct" =>
     if let some eqnInfo := eqnInfoExt.find? env p then
-      return eqnInfo.fixpointType.all isLatticeTheoretic
+      return eqnInfo.fixpointType.all isLatticeTheoretic && eqnInfo.declNames.size > 1
     return false
   | _ => return false
 

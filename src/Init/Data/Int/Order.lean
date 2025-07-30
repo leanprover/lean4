@@ -1423,7 +1423,6 @@ instance : OrderData Int := .ofLE Int
 
 instance instStdLinearOrder : LinearOrder Int := by
   apply LinearOrder.ofLE
-  case le_refl => apply Int.le_refl
   case le_antisymm => apply Int.le_antisymm
   case le_total => apply Int.le_total
   case le_trans => apply Int.le_trans

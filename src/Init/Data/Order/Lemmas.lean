@@ -30,14 +30,12 @@ end Subtype
 section AxiomaticInstances
 
 public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [PartialOrder α] :
-    Std.Antisymm (fun a b : α => a ≤ b) where
-  antisymm a b := by
-    simp only [LawfulOrderLE.le_iff]
-    apply PartialOrder.le_antisymm
+    Std.Antisymm (α := α) (· ≤ ·) where
+  antisymm a b := by simpa only [LawfulOrderLE.le_iff] using PartialOrder.le_antisymm _ _
 
 public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Preorder α] :
     Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
-  trans := by simpa [LawfulOrderLE.le_iff] using fun {a b c} => Preorder.le_trans a b c
+      trans := by simpa [LawfulOrderLE.le_iff] using fun {a b c} => Preorder.le_trans a b c
 
 public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Preorder α] :
     Std.Refl (α := α) (· ≤ ·) where
@@ -89,6 +87,9 @@ public theorem not_lt {α : Type u} [LT α] [LE α] [OrderData α] [Std.Total (�
     [LawfulOrderLE α] [LawfulOrderLT α] {a b : α} :
     ¬ a < b ↔ b ≤ a := by
   simp [lt_iff_le_and_not_ge, Classical.not_not, Std.Total.total]
+
+public theorem not_gt_of_lt {α : Type u} [LT α] [i : Std.Asymm (α := α) (· < ·)] {a b : α} (h : a < b) :
+  ¬ b < a := i.asymm a b h
 
 public instance {α : Type u} [LT α] [OrderData α] [LawfulOrderLT α] :
     Std.Asymm (α := α) (· < ·) where

@@ -3034,7 +3034,6 @@ open Int8 renaming
   le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
 instance Int8.instStdLinearOrder : LinearOrder Int8 := by
   apply LinearOrder.ofLE
-  case le_refl => apply le_refl'
   case le_antisymm => apply le_antisymm'
   case le_total => apply le_total'
   case le_trans => apply le_trans'
@@ -3049,7 +3048,6 @@ open Int16 renaming
   le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
 instance Int16.instStdLinearOrder : LinearOrder Int16 := by
   apply LinearOrder.ofLE
-  case le_refl => apply le_refl'
   case le_antisymm => apply le_antisymm'
   case le_total => apply le_total'
   case le_trans => apply le_trans'
@@ -3064,7 +3062,6 @@ open Int32 renaming
   le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
 instance Int32.instStdLinearOrder : LinearOrder Int32 := by
   apply LinearOrder.ofLE
-  case le_refl => apply le_refl'
   case le_antisymm => apply le_antisymm'
   case le_total => apply le_total'
   case le_trans => apply le_trans'
@@ -3079,7 +3076,6 @@ open Int64 renaming
   le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
 instance Int64.instStdLinearOrder : LinearOrder Int64 := by
   apply LinearOrder.ofLE
-  case le_refl => apply le_refl'
   case le_antisymm => apply le_antisymm'
   case le_total => apply le_total'
   case le_trans => apply le_trans'
@@ -3094,7 +3090,6 @@ open ISize renaming
   le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
 instance ISize.instStdLinearOrder : LinearOrder ISize := by
   apply LinearOrder.ofLE
-  case le_refl => apply le_refl'
   case le_antisymm => apply le_antisymm'
   case le_total => apply le_total'
   case le_trans => apply le_trans'

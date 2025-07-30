@@ -163,8 +163,7 @@ theorem min?_eq_some_iff_legacy [Min α] [LE α]
   letI : OrderData α := .ofLE α
   haveI : MinEqOr α := ⟨min_eq_or⟩
   haveI : LinearOrder (Subtype (· ∈ xs)) := by
-    refine .ofLE ?_ ?_ ?_ ?_
-    · exact fun a => le_refl a.val
+    refine .ofLE ?_ ?_ ?_
     · exact fun a b hab hba => Subtype.ext <| anti a.val b.val a.property b.property hab hba
     · intro a b c hab hbc
       have : min b.val c.val = b.val := by
@@ -343,8 +342,7 @@ theorem max?_eq_some_iff_legacy [Max α] [LE α] [anti : Std.Antisymm (· ≤ ·
   letI : OrderData α := .ofLE α
   haveI : MaxEqOr α := ⟨max_eq_or⟩
   haveI : LinearOrder α := by
-    refine .ofLE ?_ ?_ ?_ ?_
-    · exact fun a => le_refl a
+    refine .ofLE ?_ ?_ ?_
     · exact anti.antisymm
     · intro a b c hab hbc
       have : max a b = b := by

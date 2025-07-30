@@ -259,7 +259,6 @@ instance : OrderData (Fin n) := .ofLE (Fin n)
 
 instance instStdLinearOrder : LinearOrder (Fin n) := by
   apply LinearOrder.ofLE
-  case le_refl => apply Fin.le_refl
   case le_antisymm => apply Fin.le_antisymm
   case le_total => apply Fin.le_total
   case le_trans => apply Fin.le_trans

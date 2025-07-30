@@ -22,7 +22,6 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace Vector
 
-
 /-! ### Lexicographic ordering -/
 
 @[simp] theorem lt_toArray [LT α] {xs ys : Vector α n} : xs.toArray < ys.toArray ↔ xs < ys := Iff.rfl
@@ -99,27 +98,15 @@ instance [LT α]
     Trans (· < · : Vector α n → Vector α n → Prop) (· < ·) (· < ·) where
   trans h₁ h₂ := Vector.lt_trans h₁ h₂
 
-protected theorem lt_of_le_of_lt [LT α]
-    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
-    [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
-    [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+protected theorem lt_of_le_of_lt [LT α] [OrderData α] [LawfulOrderLT α] [LinearOrder α]
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
   Array.lt_of_le_of_lt h₁ h₂
 
-protected theorem le_trans [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+protected theorem le_trans [LT α] [OrderData α] [LawfulOrderLT α] [LinearOrder α]
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
   fun h₃ => h₁ (Vector.lt_of_le_of_lt h₂ h₃)
 
-instance [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)] :
+instance [LT α] [OrderData α] [LawfulOrderLT α] [LinearOrder α] :
     Trans (· ≤ · : Vector α n → Vector α n → Prop) (· ≤ ·) (· ≤ ·) where
   trans h₁ h₂ := Vector.le_trans h₁ h₂
 
@@ -150,7 +137,6 @@ instance [LT α] : OrderData (Vector α n) := .ofLE (Vector α n)
 instance [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α] :
     LinearOrder (Vector α n) := by
   apply LinearOrder.ofLE
-  case le_refl => apply Vector.le_refl
   case le_antisymm => apply Vector.le_antisymm
   case le_total => apply Vector.le_total
   case le_trans => apply Vector.le_trans
@@ -244,7 +230,6 @@ protected theorem lt_iff_exists [LT α] {xs ys : Vector α n} :
   simp_all [Array.lt_iff_exists]
 
 protected theorem le_iff_exists [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)] {xs ys : Vector α n} :
     xs ≤ ys ↔
@@ -259,7 +244,6 @@ theorem append_left_lt [LT α] {xs : Vector α n} {ys ys' : Vector α m} (h : ys
   simpa using Array.append_left_lt h
 
 theorem append_left_le [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     {xs : Vector α n} {ys ys' : Vector α m} (h : ys ≤ ys') :
@@ -272,10 +256,8 @@ protected theorem map_lt [LT α] [LT β]
   simpa using Array.map_lt w h
 
 protected theorem map_le [LT α] [LT β]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Std.Irrefl (· < · : β → β → Prop)]
     [Std.Asymm (· < · : β → β → Prop)]
     [Std.Antisymm (¬ · < · : β → β → Prop)]
     {xs ys : Vector α n} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : xs ≤ ys) :

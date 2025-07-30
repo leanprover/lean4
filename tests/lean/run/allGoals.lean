@@ -216,7 +216,7 @@ Simple failure.
 -/
 
 /--
-error: Tactic `fail` failed
+error: Failed: `fail` tactic was invoked
 ⊢ True
 ---
 info: Try this: sorry
@@ -408,7 +408,7 @@ theorem foo : ∃ f : Unit → Unit, f () = () := by
 Another example from the comments of https://github.com/leanprover/lean4/issues/7883
 -/
 /--
-error: Tactic `fail` failed
+error: Failed: `fail` tactic was invoked
 ⊢ True
 -/
 #guard_msgs in

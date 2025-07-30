@@ -58,7 +58,7 @@ def ackermann : (Nat × Nat) → Nat
 termination_by p => p
 
 /--
-error: Tactic `fail` failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 m✝ : Nat
@@ -83,7 +83,7 @@ example : P (ackermann p) := by
   fail
 
 /--
-error: Tactic `fail` failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 m✝ : Nat
@@ -203,7 +203,7 @@ def fib : Nat → Nat
 termination_by structural x => x
 
 /--
-error: Tactic `fail` failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 ⊢ P 0
@@ -250,7 +250,7 @@ info: StructuralWithOmittedParam.fib.induct (motive : Nat → Prop) (case1 : mot
 #check fib.induct -- NB: No inc showing up
 
 /--
-error: Tactic `fail` failed
+error: Failed: `fail` tactic was invoked
 case case1
 P : Nat → Prop
 inc : Nat

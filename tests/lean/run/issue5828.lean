@@ -84,14 +84,26 @@ error: unsolved goals
 
 axiom P_a : P a a
 
-/-- error: invalid '←' modifier in rewrite rule to 'True' -/
+/--
+error: Invalid `←` modifier: Cannot be applied to a rule that rewrites to `True`
+
+Note: This simp theorem will rewrite `P a a` to `True`, which should not be applied in the reverse direction
+-/
 #guard_msgs in
 attribute [simp ←] P_a
 
-/-- error: invalid 'simp', it is not a proposition nor a definition (to unfold) -/
+/--
+error: Cannot add `simp` attribute to `P`: It is not a proposition nor a definition (to unfold)
+
+Note: The `[simp]` attribute can be added to lemmas that should be automatically used by the simplifier and to definitions that the simplifier should automatically unfold
+-/
 #guard_msgs in
 attribute [simp ←] P
 
-/-- error: invalid '←' modifier, 'id' is a declaration name to be unfolded -/
+/--
+error: Invalid `←` modifier: `id` is a declaration name to be unfolded
+
+Note: The simplifier will automatically unfold definitions marked with the `[simp]` attribute, but it will not "refold" them
+-/
 #guard_msgs in
 attribute [simp ←] id

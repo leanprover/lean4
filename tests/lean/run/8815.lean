@@ -43,9 +43,9 @@ error: unsolved goals
 #guard_msgs in example : f 0 > 0 := by simp! [-f, -a_thm]
 
 /--
-warning: 'f' does not have [simp] attribute
+warning: `f` does not have the `[simp]` attribute
 ---
-warning: 'a_thm' does not have [simp] attribute
+warning: `a_thm` does not have the `[simp]` attribute
 ---
 error: unsolved goals
 ⊢ 0 < f 0
@@ -55,7 +55,7 @@ error: unsolved goals
 
 
 /--
-error: invalid 'simp', proposition expected
+error: Invalid simp theorem: Expected a proposition, but found
   Type 32
 -/
 #guard_msgs in

@@ -65,7 +65,7 @@ Reverting free variables.
 error: Expected type must not contain free variables
   x + 1 ≤ 5
 
-Hint: Use the `+revert` option to automatically cleanup and revert free variables.
+Hint: Use the `+revert` option to automatically clean up and revert free variables
 -/
 #guard_msgs in
 example (x : Nat) (h : x < 5) : x + 1 ≤ 5 := by native_decide

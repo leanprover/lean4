@@ -37,7 +37,7 @@ did not reduce to `isTrue` or `isFalse`.
 After unfolding the instance `Classical.propDecidable`, reduction got stuck at the `Decidable` instance
   Classical.choice ⋯
 
-Hint: Reduction got stuck on `Classical.choice`, which indicates that a `Decidable` instance is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. The `decide` tactic works by evaluating a decision procedure via reduction, and it cannot make progress with such instances. This can occur due to the `opened scoped Classical` command, which enables the instance `Classical.propDecidable`.
+Hint: Reduction got stuck on `Classical.choice`, which indicates that a `Decidable` instance is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. The `decide` tactic works by evaluating a decision procedure via reduction, and it cannot make progress with such instances. This can occur due to the `open scoped Classical` command, which enables the instance `Classical.propDecidable`.
 -/
 #guard_msgs in
 open scoped Classical in
@@ -103,7 +103,7 @@ Reverting free variables.
 error: Expected type must not contain free variables
   x + 1 ≤ 5
 
-Hint: Use the `+revert` option to automatically cleanup and revert free variables.
+Hint: Use the `+revert` option to automatically clean up and revert free variables
 -/
 #guard_msgs in
 example (x : Nat) (h : x < 5) : x + 1 ≤ 5 := by decide

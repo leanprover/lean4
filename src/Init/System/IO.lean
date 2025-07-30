@@ -22,9 +22,10 @@ private opaque IO.RealWorld.nonemptyType : NonemptyType.{0}
 A representation of “the real world” that's used in `IO` monads to ensure that `IO` actions are not
 reordered.
 -/
-@[expose] def IO.RealWorld : Type := IO.RealWorld.nonemptyType.type
+def IO.RealWorld : Type := IO.RealWorld.nonemptyType.type
 
-instance IO.RealWorld.instNonempty : Nonempty IO.RealWorld := IO.RealWorld.nonemptyType.property
+instance IO.RealWorld.instNonempty : Nonempty IO.RealWorld :=
+  by exact IO.RealWorld.nonemptyType.property
 
 /--
 A monad that can have side effects on the external world or throw exceptions of type `ε`.

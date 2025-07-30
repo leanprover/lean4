@@ -261,7 +261,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   Term.withoutErrToSorry <| withoutRecover do
     let tactic := stx[1]
     if (← try evalTactic tactic; pure true catch _ => pure false) then
-      throwError "The tactic provided to `fail_if_success` succeeded but was expected to fail"
+      throwError "The tactic provided to `fail_if_success` succeeded but was expected to fail:{indentD stx[1]}"
 
 @[builtin_tactic traceState] def evalTraceState : Tactic := fun _ => do
   let gs ← getUnsolvedGoals

@@ -346,7 +346,7 @@ def _root_.Lean.MVarId.byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h)
   let mvarId ← mvarId.assert `hByCases (mkOr p (mkNot p)) (mkEM p)
   let (fvarId, mvarId) ← mvarId.intro1
   let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
-    throwError "Tactic `byCases` failed: Casing on{inlineExpr p}unexpectedly did not yield two goals"
+    throwError "Tactic `byCases` failed: Casing on{inlineExpr p}unexpectedly did not yield two subgoals"
   return ((← toByCasesSubgoal s₁), (← toByCasesSubgoal s₂))
 
 /--
@@ -356,7 +356,7 @@ def _root_.Lean.MVarId.byCasesDec (mvarId : MVarId) (p : Expr) (dec : Expr) (hNa
   let mvarId ← mvarId.assert `hByCases (mkApp (mkConst ``Decidable) p) dec
   let (fvarId, mvarId) ← mvarId.intro1
   let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
-    throwError "Tactic `byCasesDec` failed: Casing on{inlineExpr p}unexpectedly did not yield two goals"
+    throwError "Tactic `byCasesDec` failed: Casing on{inlineExpr p}unexpectedly did not yield two subgoals"
   -- We flip `s₁` and `s₂` because `isFalse` is the first constructor.
   return ((← toByCasesSubgoal s₂), (← toByCasesSubgoal s₁))
 

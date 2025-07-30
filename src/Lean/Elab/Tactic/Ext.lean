@@ -76,7 +76,7 @@ Derives the type of the `iff` form of an ext theorem.
 -/
 def mkExtIffType (extThmName : Name) : MetaM Expr := withLCtx {} {} do
   forallTelescopeReducing (← getConstInfo extThmName).type fun args ty => do
-    let failNotEq := throwError "Expected a theorem proving something of the form `x = y`, but instead it proves{indentD ty}"
+    let failNotEq := throwError "Expected a theorem proving a proposition of the form `x = y`, but `{.ofConstName extThmName}` proves{indentD ty}"
     let some (_, x, y) := ty.eq? | failNotEq
     let some xIdx := args.findIdx? (· == x) | failNotEq
     let some yIdx := args.findIdx? (· == y) | failNotEq
@@ -157,7 +157,7 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
             · intro h; cases h; and_intros <;> (intros; first | rfl | simp | fail "Failed to prove converse of ext theorem")
             · intro; (repeat cases ‹_ ∧ _›); apply $(mkCIdent extName) <;> assumption)
         let pf ← instantiateMVars pf
-        if pf.hasMVar then throwError "Internal error: Synthesized ext_iff proof contains metavariables{indentD pf}"
+        if pf.hasMVar then throwError "Internal error: Synthesized `ext_iff` proof contains metavariables{indentD pf}"
         addDecl <| Declaration.thmDecl {
           name := extIffName
           type

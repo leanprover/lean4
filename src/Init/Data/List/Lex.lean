@@ -24,6 +24,7 @@ namespace List
 
 instance [LT α] : OrderData (List α) := .ofLE (List α)
 
+-- require asymmetry of α?
 instance [LT α] [Std.Asymm (α := List α) (· < ·)]: LawfulOrderLT (List α) where
   lt_iff := by
     simp only [← LawfulOrderLE.le_iff, LE.le, List.le, Classical.not_not, iff_and_self]
@@ -90,7 +91,6 @@ theorem not_cons_lex_cons_iff [DecidableEq α] [DecidableRel r] {a b} {l₁ l₂
   rw [cons_lex_cons_iff, not_or, Decidable.not_and_iff_or_not, and_or_left]
 
 theorem cons_le_cons_iff [LT α]
-    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
     [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
     {a b} {l₁ l₂ : List α} :
@@ -112,19 +112,18 @@ theorem cons_le_cons_iff [LT α]
         exact ⟨i₂.antisymm _ _ h₃ h₁, h₂⟩
   · rintro (h | ⟨h₁, h₂⟩)
     · left
-      exact ⟨i₁.asymm _ _ h, fun w => i₀.irrefl _ (w ▸ h)⟩
+      exact ⟨i₁.asymm _ _ h, fun w => Irrefl.irrefl _ (w ▸ h)⟩
     · right
-      exact ⟨fun w => i₀.irrefl _ (h₁ ▸ w), h₂⟩
+      exact ⟨fun w => Irrefl.irrefl _ (h₁ ▸ w), h₂⟩
 
 theorem not_lt_of_cons_le_cons [LT α]
-    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
     [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
     {a b : α} {l₁ l₂ : List α} (h : a :: l₁ ≤ b :: l₂) : ¬ b < a := by
   rw [cons_le_cons_iff] at h
   rcases h with h | ⟨rfl, h⟩
   · exact i₁.asymm _ _ h
-  · exact i₀.irrefl _
+  · exact Irrefl.irrefl _
 
 theorem left_le_left_of_cons_le_cons [LT α] [LE α] [OrderData α] [LinearOrder α]
     [LawfulOrderLT α] [LawfulOrderLE α]
@@ -207,42 +206,23 @@ protected theorem lt_of_le_of_lt [LT α] [OrderData α] [LinearOrder α] [Lawful
         exact Lex.rel (lt_of_le_of_ne w₄ (w₅.imp Eq.symm))
 
 protected theorem lt_of_le_of_lt_legacy [LT α]
-    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
     [i₁ : Std.Asymm (· < · : α → α → Prop)]
     [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
     [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
-  -- TODO: implement using `lt_of_le_of_lt`
-  induction h₂ generalizing l₁ with
-  | nil => simp_all
-  | rel hab =>
-    rename_i a xs
-    cases l₁ with
-    | nil => simp_all
-    | cons c l₁ =>
-      apply Lex.rel
-      replace h₁ := not_lt_of_cons_le_cons h₁
-      apply Classical.byContradiction
-      intro h₂
-      have := i₃.trans h₁ h₂
-      contradiction
-  | cons w₃ ih =>
-    rename_i a as bs
-    cases l₁ with
-    | nil => simp_all
-    | cons c l₁ =>
-      have w₄ := not_lt_of_cons_le_cons h₁
-      by_cases w₅ : a = c
-      · subst w₅
-        exact Lex.cons (ih (le_of_cons_le_cons h₁))
-      · exact Lex.rel (Classical.byContradiction fun w₆ => w₅ (i₂.antisymm _ _ w₄ w₆))
+  letI : OrderData α := .ofLT α
+  haveI : LinearOrder α := by
+    apply LinearOrder.ofLT
+    · intros; apply i₁.asymm; assumption
+    · intros; apply i₃.trans <;> assumption
+    · intros; apply i₂.antisymm <;> assumption
+  apply List.lt_of_le_of_lt h₁ h₂
 
 protected theorem le_trans [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
   fun h₃ => h₁ (List.lt_of_le_of_lt h₂ h₃)
 
 protected theorem le_trans_legacy [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
@@ -253,7 +233,6 @@ protected theorem le_trans_legacy [LT α]
 This also triggers for `LinearOrder`
 -/
 instance [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)] :
@@ -326,7 +305,6 @@ instance [LT α]
 instance instStdLinearOrder [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α] :
     LinearOrder (List α) := by
   apply LinearOrder.ofLE
-  case le_refl => apply List.le_refl
   case le_antisymm => apply le_antisymm
   case le_trans => apply le_trans
   case le_total => apply le_total
@@ -533,7 +511,6 @@ protected theorem lt_iff_exists [LT α] {l₁ l₂ : List α} :
   simp
 
 protected theorem le_iff_exists [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)] {l₁ l₂ : List α} :
     l₁ ≤ l₂ ↔
@@ -557,7 +534,6 @@ theorem append_left_lt [LT α] {l₁ l₂ l₃ : List α} (h : l₂ < l₃) :
   | cons a l₁ ih => simp [cons_lt_cons_iff, ih]
 
 theorem append_left_le [LT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     {l₁ l₂ l₃ : List α} (h : l₂ ≤ l₃) :
@@ -591,10 +567,8 @@ protected theorem map_lt [LT α] [LT β]
     simp [cons_lt_cons_iff, w, h]
 
 protected theorem map_le [LT α] [LT β]
-    [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Std.Irrefl (· < · : β → β → Prop)]
     [Std.Asymm (· < · : β → β → Prop)]
     [Std.Antisymm (¬ · < · : β → β → Prop)]
     {l₁ l₂ : List α} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : l₁ ≤ l₂) :

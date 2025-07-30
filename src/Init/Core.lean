@@ -2517,6 +2517,9 @@ class Irrefl (r : α → α → Prop) : Prop where
   /-- An irreflexive relation satisfies `¬ r a a`. -/
   irrefl : ∀ a, ¬r a a
 
+instance (r : α → α → Prop) [Asymm r] : Irrefl r where
+  irrefl a h := Asymm.asymm a a h h
+
 end Std
 
 /-- Deprecated alias for `XorOp`. -/

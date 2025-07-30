@@ -16,7 +16,6 @@ public instance : OrderData Char := .ofLE Char
 
 public instance instStdLinearOrder : LinearOrder Char := by
   apply LinearOrder.ofLE
-  case le_refl => apply Char.le_refl
   case le_antisymm => apply Char.le_antisymm
   case le_trans => apply Char.le_trans
   case le_total => apply Char.le_total

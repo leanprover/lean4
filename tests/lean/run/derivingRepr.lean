@@ -152,7 +152,7 @@ public structure Public where
 deriving Repr
 
 /--
-info: def instReprPublic : Repr Public :=
+info: @[expose] def instReprPublic : Repr Public :=
 { reprPrec := reprPublic✝ }
 -/
 #guard_msgs in

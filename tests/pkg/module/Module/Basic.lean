@@ -6,8 +6,33 @@ public axiom testSorry : α
 
 /-- A definition (not exposed). -/
 public def f := 1
-/-- An definition (exposed) -/
+
+/--
+info: def f : Nat :=
+1
+-/
+#guard_msgs in
+#print f
+
+/-- A definition (exposed) -/
 @[expose] public def fexp := 1
+
+/--
+info: @[expose] def fexp : Nat :=
+1
+-/
+#guard_msgs in
+#print fexp
+
+/-- An abbrev (auto-exposed). -/
+public abbrev fabbrev := 1
+
+/--
+info: @[reducible, expose] def fabbrev : Nat :=
+1
+-/
+#guard_msgs in
+#print fabbrev
 
 #guard_msgs(drop warning) in
 /-- A theorem. -/

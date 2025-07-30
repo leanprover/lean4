@@ -10,11 +10,11 @@ public import Init.Grind.Tactics
 public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Elab.Command
-public import Lean.Elab.MutualDef
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.Config
-meta import Lean.Meta.Tactic.Grind.Parser
 import Lean.Meta.Tactic.Grind.SimpUtil
+import Lean.Elab.MutualDef
+meta import Lean.Meta.Tactic.Grind.Parser
 
 public section
 

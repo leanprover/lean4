@@ -93,15 +93,16 @@ def pack (lvl : Level) (xs : Array Expr) : MetaM Expr := do
   genMk mkPProd xs
 
 /-- Given a packed expression `t₁ ×' t₂ ×' t₃`, returns `#[t₁, t₂, t₃]` -/
-def unpack (e : Expr) : MetaM (Array Expr) := do
+def unpack (e : Expr) (n : Nat) : MetaM (Array Expr) := do
   match e with
   | .const ``True _ => return #[]
   | .const ``PUnit _ => return #[]
-  | _ => go e #[]
+  | _ => go e n #[]
 where
-  go (e : Expr) (acc : Array Expr) : MetaM (Array Expr) := do
-    let .app (.app (.const ``PProd _) a) b := e |   return acc.push e
-    go b (acc.push a)
+  go (e : Expr) (remaining : Nat) (acc : Array Expr) : MetaM (Array Expr) := do
+    if remaining = 0 then return acc
+    let .app (.app (.const ``PProd _) a) b := e | return acc.push e
+    go b (remaining - 1) (acc.push a)
 
 /-- Given values `xᵢ` of type `tᵢ`, produces value of type `t₁ ×' t₂ ×' t₃` -/
 def mk (lvl : Level) (xs : Array Expr) : MetaM Expr := do

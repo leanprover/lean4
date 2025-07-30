@@ -97,7 +97,7 @@ def unfoldPredRelMutual (eqnInfo : EqnInfo) (body : Expr) (reduceConclusion : Bo
     | throwError "{body} is not an application of partial order"
   let infos ← eqnInfo.declNames.mapM getConstInfoDefn
   -- We get types of each of the predicates in the tuple
-  let predTypes ← PProdN.unpack α
+  let predTypes ← PProdN.unpack α infos.size
   trace[Elab.definition.partialFixpoint.induction] "predTypes: {predTypes}"
   -- We unfold the order for each of the elements of the tuple independently
   infos.mapIdxM fun i _ => do
@@ -172,7 +172,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
           let motives ← unfoldPredRelMutual eqnInfo (←inferType args[1]!) (reduceConclusion := true)
           motives.mapM (fun x => mkForallFVars #[args[0]!] x)
         -- For each predicate in the mutual group we generate an approprate candidate predicate
-        let predicates := (numberNames infos.size "pred").zip <| ← PProdN.unpack α
+        let predicates := (numberNames infos.size "pred").zip <| ← PProdN.unpack α infos.size
         -- Then we make the induction principle more readable, by currying the hypotheses and projecting the conclusion
         withLocalDeclsDND predicates fun predVars => do
           -- A joint approximation to the fixpoint

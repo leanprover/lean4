@@ -4022,7 +4022,6 @@ instance {n : Nat} : OrderData (BitVec n) := .ofLE (BitVec n)
 
 instance instStdLinearOrder : LinearOrder (BitVec n) := by
   apply LinearOrder.ofLE
-  case le_refl => apply BitVec.le_refl
   case le_antisymm => apply BitVec.le_antisymm
   case le_trans => apply BitVec.le_trans
   case le_total => apply BitVec.le_total

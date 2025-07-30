@@ -794,9 +794,9 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
       throwMissingEliminator
     let indVal ← getInductiveValFromMajor induction targets[0]!
     if induction && indVal.all.length != 1 then
-      throwUnsupportedType indVal.name "mutually inductive"
+      throwUnsupportedInductionType indVal.name "mutually inductive"
     if induction && indVal.isNested then
-      throwUnsupportedType indVal.name "a nested inductive type"
+      throwUnsupportedInductionType indVal.name "a nested inductive type"
     let elimName := if induction then mkRecName indVal.name else mkCasesOnName indVal.name
     getElimInfo elimName indVal.name
   else
@@ -808,11 +808,12 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     withRef elimTerm <| getElimExprInfo elimExpr baseName?
 where
   throwMissingEliminator :=
+    let tacName := if induction then "induction" else "cases"
     throwError m!"Missing eliminator: An eliminator must be provided when multiple induction \
           targets are specified and no default eliminator has been registered"
           ++ .hint' m!"Write `using <eliminator-name>` to specify an eliminator, or register a default \
-                        eliminator with the attribute `[eliminator]`"
-  throwUnsupportedType (name : Name) (kind : String) :=
+                        eliminator with the attribute `[{tacName}_eliminator]`"
+  throwUnsupportedInductionType (name : Name) (kind : String) :=
     throwError m!"The `induction` tactic does not support the type `{name}` because it is {kind}"
         ++ .hint' "Consider using the `cases` tactic instead"
 
@@ -933,7 +934,7 @@ The code path shared between `induction` and `fun_induct`; when we already have 
 and the `targets` contains the implicit targets
 -/
 private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr)
-    (tacName : Name) (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
+    (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
   let mvarId ← getMainGoal
   -- save initial info before main goal is reassigned
   let mkInitInfo ← mkInitialTacticInfoForInduction stx

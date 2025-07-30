@@ -606,7 +606,7 @@ where
   let goals ← getGoals
   let goalsMsg := MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
   match stx with
-  | `(tactic| fail)          => throwError "Tactic `fail` failed\n{goalsMsg}"
+  | `(tactic| fail)          => throwError "Failed: `fail` tactic was invoked\n{goalsMsg}"
   | `(tactic| fail $msg:str) => throwError "{msg.getString}\n{goalsMsg}"
   | _ => throwUnsupportedSyntax
 

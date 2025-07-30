@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Rewrite
 public import Lean.Meta.Tactic.Replace
 public import Lean.Elab.Tactic.Location
 public import Lean.Elab.Tactic.Config
+import Lean.Meta.Eqns
 
 public section
 

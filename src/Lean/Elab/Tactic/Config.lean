@@ -9,7 +9,7 @@ prelude
 public import Lean.Meta.Eval
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.SyntheticMVars
-public import Lean.Linter.MissingDocs
+import Lean.Linter.MissingDocs
 meta import Lean.Parser.Tactic
 
 public section
@@ -177,7 +177,7 @@ macro (name := configElab) doc?:(docComment)? "declare_config_elab" elabName:ide
 
 open Linter.MissingDocs in
 @[builtin_missing_docs_handler Elab.Tactic.configElab]
-def checkConfigElab : SimpleHandler := mkSimpleHandler "config elab"
+private def checkConfigElab : SimpleHandler := mkSimpleHandler "config elab"
 
 /-!
 `declare_command_config_elab elabName TypeName` declares a function `elabName : Syntax → CommandElabM TypeName`
@@ -192,6 +192,6 @@ macro (name := commandConfigElab) doc?:(docComment)? "declare_command_config_ela
 
 open Linter.MissingDocs in
 @[builtin_missing_docs_handler Elab.Tactic.commandConfigElab]
-def checkCommandConfigElab : SimpleHandler := mkSimpleHandler "config elab"
+private def checkCommandConfigElab : SimpleHandler := mkSimpleHandler "config elab"
 
 end Lean.Elab.Tactic

@@ -10,7 +10,7 @@ public import Lean.Elab.Tactic.Omega.Core
 public import Lean.Elab.Tactic.FalseOrByContra
 public import Lean.Elab.Tactic.Config
 public import Lean.Meta.Closure
-import Lean.Meta.Tactic.Simp.Attr
+public import Lean.Meta.Tactic.Simp.Attr
 import Lean.Elab.Tactic.BuiltinTactic
 
 public section

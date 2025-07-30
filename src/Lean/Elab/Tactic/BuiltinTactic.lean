@@ -233,7 +233,7 @@ private def getOptRotation (stx : Syntax) : Nat :=
       catch _ =>
         mvarIdsNew := mvarIdsNew.push mvarId
   unless succeeded do
-    throwError "failed on all goals"
+    throwError "Tactic failed on all goals:{indentD stx[1]}"
   setGoals mvarIdsNew.toList
 
 @[builtin_tactic tacticSeq, builtin_incremental]
@@ -308,7 +308,7 @@ where
         unless (← isDefEqGuarded type fvarType) do
           withRef? ref? do
           throwError m!"Type mismatch: Hypothesis `{fvar}` " ++
-            (← mkHasTypeButIsExpectedMsg fvarType type (trailing? := "due to this type annotation"))
+            (← mkHasTypeButIsExpectedMsg fvarType type (trailing? := "due to the provided type annotation"))
         liftMetaTactic fun mvarId => return [← mvarId.replaceLocalDeclDefEq fvarId type]
     if let some ref := ref? then
       withMainContext do
@@ -606,7 +606,7 @@ where
   let goals ← getGoals
   let goalsMsg := MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
   match stx with
-  | `(tactic| fail)          => throwError "tactic 'fail' failed\n{goalsMsg}"
+  | `(tactic| fail)          => throwError "Tactic `fail` failed\n{goalsMsg}"
   | `(tactic| fail $msg:str) => throwError "{msg.getString}\n{goalsMsg}"
   | _ => throwUnsupportedSyntax
 

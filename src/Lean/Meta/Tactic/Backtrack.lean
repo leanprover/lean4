@@ -102,7 +102,7 @@ private def run (goals : List MVarId) (n : Nat) (curr acc : List MVarId) : MetaM
   match n with
   | 0 => do
     -- We're out of fuel.
-    throwError "backtrack exceeded the recursion limit"
+    throwError "Backtrack exceeded the recursion limit"
   | n + 1 => do
   -- First, run `cfg.proc`, to see if it wants to modify the goals.
   let procResult? ← try

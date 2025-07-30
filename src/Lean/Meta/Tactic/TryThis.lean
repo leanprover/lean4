@@ -223,7 +223,7 @@ def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
     (origSpan? : Option Syntax := none) (header : String := "Try these:")
     (style? : Option SuggestionStyle := none)
     (codeActionPrefix? : Option String := none) : MetaM Unit := do
-  if suggestions.isEmpty then throwErrorAt ref "no suggestions available"
+  if suggestions.isEmpty then throwErrorAt ref "No suggestions available"
   let msgs := suggestions.map toMessageData
   let msgs := msgs.foldl (init := MessageData.nil) (fun msg m => msg ++ m!"\n• " ++ .nest 2 m)
   logInfoAt ref m!"{header}{msgs}"
@@ -246,7 +246,7 @@ private def evalTacticWithState (initialState : Tactic.SavedState) (tac : TSynta
       let type ← instantiateMVars type
       let expectedType ← instantiateMVars expectedType
       if type != expectedType then
-        throwError "tactic did not produce expected goal"
+        throwError "Tactic did not produce expected goal"
   finally
     currState.restore
 

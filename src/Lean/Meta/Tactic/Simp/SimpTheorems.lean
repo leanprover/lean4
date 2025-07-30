@@ -277,7 +277,7 @@ private partial def isPerm : Expr → Expr → MetaM Bool
 private def checkBadRewrite (lhs rhs : Expr) : MetaM Unit := do
   let lhs ← withSimpGlobalConfig <| DiscrTree.reduceDT lhs (root := true)
   if lhs == rhs && lhs.isFVar then
-    throwError "invalid `simp` theorem, equation is equivalent to{indentExpr (← mkEq lhs rhs)}"
+    throwError "Invalid `simp` theorem: Equation is equivalent to{indentExpr (← mkEq lhs rhs)}"
 
 private partial def shouldPreprocess (type : Expr) : MetaM Bool :=
   forallTelescopeReducing type fun _ result => do
@@ -320,6 +320,7 @@ where
       return [(e, type)]
   else if let some (_, lhs, rhs) := type.ne? then
     if inv then
+      -- TODO: address these
       throwError "invalid '←' modifier in rewrite rule to 'False'"
     if rhs.isConstOf ``Bool.true then
       return [(← mkAppM ``Bool.of_not_eq_true #[e], ← mkEq lhs (mkConst ``Bool.false))]

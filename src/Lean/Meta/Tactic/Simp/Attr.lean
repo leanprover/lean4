@@ -36,6 +36,7 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
             addSimpTheorem ext declName post (inv := inv) attrKind prio
           else if info.kind matches .defn then
             if inv then
+            -- TODO: both of these
               throwError "invalid '←' modifier, '{declName}' is a declaration name to be unfolded"
             if (← Simp.ignoreEquations declName) then
               ext.add (SimpEntry.toUnfold declName) attrKind

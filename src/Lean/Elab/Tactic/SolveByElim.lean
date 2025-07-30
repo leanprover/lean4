@@ -109,7 +109,7 @@ def evalSolveByElim : Tactic
       pure [← getMainGoal]
     let cfg ← elabConfig cfg
     let [] ← processSyntax cfg o.isSome star add remove use goals |
-      throwError "solve_by_elim unexpectedly returned subgoals"
+      throwError "Internal error: `solve_by_elim` unexpectedly returned subgoals"
     pure ()
   | _ => throwUnsupportedSyntax
 

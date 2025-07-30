@@ -37,14 +37,13 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
     let cont (heq heqType : Expr) : MetaM RewriteResult := do
       match (← matchEq? heqType) with
       | none =>
-        let heqTypeType ← inferType heqType
-        let valueDescr := if heqTypeType.isProp then "a proof of" else "a value of type"
-        throwTacticEx `rewrite mvarId m!"Invalid rewrite argument: Expected an equality or iff proof \
-          or the name of a definition with equational theorems, but `{heq}` is {valueDescr}{indentExpr heqType}"
+        let valueDescr := if (← Meta.isProp heqType) then "a proof of" else "a value of type"
+        throwError m!"Invalid rewrite argument: Expected an equality or iff proof \
+          or definition name, but{inlineExpr heq}is {valueDescr}{indentExpr heqType}"
       | some (α, lhs, rhs) =>
         let cont (heq heqType lhs rhs : Expr) : MetaM RewriteResult := do
           if lhs.getAppFn.isMVar then
-            throwTacticEx `rewrite mvarId <| m!"Invalid rewrite argument: The pattern to be substituted is a metavariable (`{lhs}`) in this equality{indentExpr heqType}"
+            throwError "Invalid rewrite argument: The pattern to be substituted is a metavariable (`{lhs}`) in this equality{indentExpr heqType}"
           let e ← instantiateMVars e
           let eAbst ← withConfig (fun oldConfig => { config, oldConfig with }) <| kabstract e lhs config.occs
           unless eAbst.hasLooseBVars do

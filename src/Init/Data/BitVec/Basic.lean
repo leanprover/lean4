@@ -871,4 +871,22 @@ def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
 /-- Count the number of leading zeros. -/
 def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
 
+/-- Defining the values of `x` -/
+def popCountAuxAnd (x : BitVec w) (n : Nat) :=
+  match n with
+  | 0 => x
+  | n' + 1 => popCountAuxAnd (x &&& (x - 1)) n'
+
+/-- Tail-recursive definition of popcount.
+  The bitwidth of `x` explictly boundspop the number of recursions, thus bounding the depth of the circuit as well
+  correctness of def -/
+def popCountAuxRec {w : Nat} (x : BitVec w) (iter : Nat) : BitVec w :=
+    match h : w - iter with
+  | 0 => BitVec.ofNat w w
+  | n' + 1 => if x = 0#w then BitVec.ofNat w iter else popCountAuxRec (x &&& (x - 1)) (iter + 1)
+termination_by w - iter
+
+/-- Count the number of bits with value one in a bitvec -/
+def popCount{w : Nat} (x : BitVec w) : BitVec w := popCountAuxRec x 0
+
 end BitVec

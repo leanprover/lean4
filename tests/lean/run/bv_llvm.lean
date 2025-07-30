@@ -22,3 +22,11 @@ theorem short_circuit_mul_left (x x_1 : BitVec 32) (h : ¬x_1 &&& 4096#32 == 0#3
 theorem short_circuit_triple_mul (x x_1 x_2 : BitVec 32) (h : ¬x_2 &&& 4096#32 == 0#32) :
     (x_1 ||| 4096#32) * x * (x_1 ||| 4096#32) = (x_1 ||| x_2 &&& 4096#32) * x * (x_1 ||| 4096#32) := by
   bv_decide +acNf +shortCircuit
+
+def popCountAuxRec {w : Nat} (x : BitVec w) (iter : Nat) : BitVec w :=
+    match h : w - iter with
+  | 0 => BitVec.ofNat w w
+  | n' + 1 => if x = 0#w then BitVec.ofNat w iter else popCountAuxRec (x &&& (x - 1)) (iter + 1)
+termination_by w - iter
+
+#eval (0#8).popCount 0

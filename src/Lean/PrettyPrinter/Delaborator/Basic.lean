@@ -3,11 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.KeyedDeclsAttribute
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.PrettyPrinter.Delaborator.SubExpr
-import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+public import Lean.KeyedDeclsAttribute
+public import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.PrettyPrinter.Delaborator.SubExpr
+public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+
+public section
 
 /-!
 The delaborator is the first stage of the pretty printer, and the inverse of the
@@ -165,7 +169,7 @@ def getExprKind : DelabM Name := do
 def getOptionsAtCurrPos : DelabM Options := do
   let ctx ← read
   let mut opts ← getOptions
-  if let some opts' := ctx.optionsPerPos.find? (← getPos) then
+  if let some opts' := ctx.optionsPerPos.get? (← getPos) then
     for (k, v) in opts' do
       opts := opts.insert k v
   return opts
@@ -187,7 +191,7 @@ def withOptionAtCurrPos (k : Name) (v : DataValue) (x : DelabM α) : DelabM α :
   let pos ← getPos
   withReader
     (fun ctx =>
-      let opts' := ctx.optionsPerPos.find? pos |>.getD {} |>.insert k v
+      let opts' := ctx.optionsPerPos.get? pos |>.getD {} |>.insert k v
       { ctx with optionsPerPos := ctx.optionsPerPos.insert pos opts' })
     x
 

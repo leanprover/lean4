@@ -3,8 +3,12 @@ Copyright (c) 2017 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Jacob von Raumer
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Induction
+public import Lean.Elab.Tactic.Induction
+
+public section
 
 namespace Lean.Elab.Tactic.RCases
 open Meta Parser Tactic
@@ -448,7 +452,7 @@ def rcases (tgts : Array (Option Ident × Syntax))
   | 0 => return [g]
   | 1 => pure [pat]
   | _ => pure (processConstructor pat.ref (tgts.map fun _ => {}) false 0 pat.asTuple.2).2
-  let (pats, args) := Array.unzip <|← (tgts.zip pats.toArray).mapM fun ((hName?, tgt), pat) => do
+  let (pats, args) := Array.unzip <|← tgts.zipWithM (bs := pats.toArray) fun (hName?, tgt) pat => do
     let (pat, ty) ← match pat with
     | .typed ref pat ty => withRef ref do
       let ty ← Term.elabType ty

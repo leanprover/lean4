@@ -3,12 +3,16 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Std.Internal.Rat
-import Init.Grind.Ring.Poly
-import Init.Grind.Ordered.Linarith
-import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ExprPtr
+public import Std.Internal.Rat
+public import Init.Grind.Ring.Poly
+public import Init.Grind.Ordered.Linarith
+public import Lean.Data.PersistentArray
+public import Lean.Meta.Tactic.Grind.ExprPtr
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 export Lean.Grind.Linarith (Var Poly)
@@ -77,7 +81,7 @@ instance : Inhabited DiseqCnstr where
 instance : Inhabited EqCnstr where
   default := { p := .nil, h := .core default default .zero .zero }
 
-abbrev VarSet := RBTree Var compare
+abbrev VarSet := Std.TreeSet Var
 
 /--
 State for each algebraic structure by this module.
@@ -119,10 +123,11 @@ structure Struct where
   leFn?            : Option Expr
   ltFn?            : Option Expr
   addFn            : Expr
-  hmulFn           : Expr
-  hmulNatFn        : Expr
-  hsmulFn?         : Option Expr
-  hsmulNatFn?      : Option Expr
+  zsmulFn          : Expr
+  nsmulFn          : Expr
+  zsmulFn?         : Option Expr
+  nsmulFn?         : Option Expr
+  homomulFn?       : Option Expr -- homogeneous multiplication if structure is a ring
   subFn            : Expr
   negFn            : Expr
   /--

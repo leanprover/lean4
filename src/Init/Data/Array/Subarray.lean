@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Array.Basic
+public import Init.GetElem
+import Init.Data.Array.GetLit
 public import Init.Data.Slice.Basic
 
 public section
@@ -159,64 +160,10 @@ instance : EmptyCollection (Subarray α) :=
 instance : Inhabited (Subarray α) :=
   ⟨{}⟩
 
-/--
-The run-time implementation of `ForIn.forIn` for `Subarray`, which allows it to be used with `for`
-loops in `do`-notation.
-
-This definition replaces `Subarray.forIn`.
+/-!
+`ForIn`, `foldlM`, `foldl` and other operations are implemented in `Init.Data.Slice.Array.Iterator`
+using the slice iterator.
 -/
-@[inline] unsafe def forInUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
-  let sz := USize.ofNat s.stop
-  let rec @[specialize] loop (i : USize) (b : β) : m β := do
-    if i < sz then
-      let a := s.array.uget i lcProof
-      match (← f a b) with
-      | ForInStep.done  b => pure b
-      | ForInStep.yield b => loop (i+1) b
-    else
-      pure b
-  loop (USize.ofNat s.start) b
-
-/--
-The implementation of `ForIn.forIn` for `Subarray`, which allows it to be used with `for` loops in
-`do`-notation.
--/
--- TODO: provide reference implementation
-@[implemented_by Subarray.forInUnsafe]
-protected opaque forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
-  pure b
-
-instance : ForIn m (Subarray α) α where
-  forIn := Subarray.forIn
-
-/--
-Folds a monadic operation from left to right over the elements in a subarray.
-
-An accumulator of type `β` is constructed by starting with `init` and monadically combining each
-element of the subarray with the current accumulator value in turn. The monad in question may permit
-early termination or repetition.
-
-Examples:
-```lean example
-#eval #["red", "green", "blue"].toSubarray.foldlM (init := "") fun acc x => do
-  let l ← Option.guard (· ≠ 0) x.length
-  return s!"{acc}({l}){x} "
-```
-```output
-some "(3)red (5)green (4)blue "
-```
-```lean example
-#eval #["red", "green", "blue"].toSubarray.foldlM (init := 0) fun acc x => do
-  let l ← Option.guard (· ≠ 5) x.length
-  return s!"{acc}({l}){x} "
-```
-```output
-none
-```
--/
-@[inline]
-def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=
-  as.array.foldlM f (init := init) (start := as.start) (stop := as.stop)
 
 /--
 Folds a monadic operation from right to left over the elements in a subarray.
@@ -314,28 +261,14 @@ def forRevM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit)
   as.array.forRevM f (start := as.stop) (stop := as.start)
 
 /--
-Folds an operation from left to right over the elements in a subarray.
-
-An accumulator of type `β` is constructed by starting with `init` and combining each
-element of the subarray with the current accumulator value in turn.
-
-Examples:
- * `#["red", "green", "blue"].toSubarray.foldl (· + ·.length) 0 = 12`
- * `#["red", "green", "blue"].toSubarray.popFront.foldl (· + ·.length) 0 = 9`
--/
-@[inline]
-def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Subarray α) : β :=
-  Id.run <| as.foldlM (pure <| f · ·) (init := init)
-
-/--
 Folds an operation from right to left over the elements in a subarray.
 
 An accumulator of type `β` is constructed by starting with `init` and combining each element of the
 subarray with the current accumulator value in turn, moving from the end to the start.
 
 Examples:
- * `#eval #["red", "green", "blue"].toSubarray.foldr (·.length + ·) 0 = 12`
- * `#["red", "green", "blue"].toSubarray.popFront.foldlr (·.length + ·) 0 = 9`
+ * `#["red", "green", "blue"].toSubarray.foldr (·.length + ·) 0 = 12`
+ * `#["red", "green", "blue"].toSubarray.popFront.foldr (·.length + ·) 0 = 9`
 -/
 @[inline]
 def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Subarray α) : β :=
@@ -464,18 +397,6 @@ def toSubarray (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Suba
          start_le_stop := Nat.le_refl _,
          stop_le_array_size := Nat.le_refl _ }⟩
 
-/--
-Allocates a new array that contains the contents of the subarray.
--/
-@[coe]
-def ofSubarray (s : Subarray α) : Array α := Id.run do
-  let mut as := mkEmpty (s.stop - s.start)
-  for a in s do
-    as := as.push a
-  return as
-
-instance : Coe (Subarray α) (Array α) := ⟨ofSubarray⟩
-
 /-- A subarray with the provided bounds.-/
 syntax:max term noWs "[" withoutPosition(term ":" term) "]" : term
 /-- A subarray with the provided lower bound that extends to the rest of the array. -/
@@ -489,22 +410,3 @@ macro_rules
   | `($a[$start : ])      => `(let a := $a; Array.toSubarray a $start a.size)
 
 end Array
-
-@[inherit_doc Array.ofSubarray]
-def Subarray.toArray (s : Subarray α) : Array α :=
-  Array.ofSubarray s
-
-instance : Append (Subarray α) where
-  append x y :=
-   let a := x.toArray ++ y.toArray
-   a.toSubarray 0 a.size
-
-/-- `Subarray` representation. -/
-protected def Subarray.repr [Repr α] (s : Subarray α) : Std.Format :=
-  repr s.toArray ++ ".toSubarray"
-
-instance [Repr α] : Repr (Subarray α) where
-  reprPrec s  _ := Subarray.repr s
-
-instance [ToString α] : ToString (Subarray α) where
-  toString s := toString s.toArray

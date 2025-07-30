@@ -3,13 +3,17 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.ProveEq
-import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+public import Lean.Meta.Tactic.Grind.ProveEq
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Inv
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+
+public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
 /-- Returns `some ringId` if `a` and `b` are elements of the same ring. -/
@@ -283,7 +287,7 @@ private def checkNumEq0Updated : RingM Unit := do
     for c in basis do
       c.addToQueue
 
-abbrev withCheckingNumEq0 (k : RingM Unit) : RingM Unit := do
+@[inline] def withCheckingNumEq0 (k : RingM Unit) : RingM Unit := do
   try
     k
   finally
@@ -359,13 +363,13 @@ private def diseqToEq (a b : Expr) : RingM Unit := do
   let gen := max (← getGeneration a) (← getGeneration b)
   let ring ← getRing
   let some fieldInst := ring.fieldInst? | unreachable!
-  let e ← pre <| mkApp2 ring.subFn a b
+  let e ← pre <| mkApp2 (← getSubFn) a b
   modifyRing fun s => { s with invSet := s.invSet.insert e }
-  let eInv ← pre <| mkApp (← getRing).invFn?.get! e
-  let lhs ← pre <| mkApp2 ring.mulFn e eInv
+  let eInv ← pre <| mkApp (← getInvFn) e
+  let lhs ← pre <| mkApp2 (← getMulFn) e eInv
   internalize lhs gen none
   trace[grind.debug.ring.rabinowitsch] "{lhs}"
-  pushEq lhs ring.one <| mkApp5 (mkConst ``Grind.CommRing.diseq_to_eq [ring.u]) ring.type fieldInst a b (← mkDiseqProof a b)
+  pushEq lhs (← getOne) <| mkApp5 (mkConst ``Grind.CommRing.diseq_to_eq [ring.u]) ring.type fieldInst a b (← mkDiseqProof a b)
 
 private def diseqZeroToEq (a b : Expr) : RingM Unit := do
   -- Rabinowitsch transformation for `b = 0` case
@@ -373,11 +377,11 @@ private def diseqZeroToEq (a b : Expr) : RingM Unit := do
   let ring ← getRing
   let some fieldInst := ring.fieldInst? | unreachable!
   modifyRing fun s => { s with invSet := s.invSet.insert a }
-  let aInv ← pre <| mkApp (← getRing).invFn?.get! a
-  let lhs ← pre <| mkApp2 ring.mulFn a aInv
+  let aInv ← pre <| mkApp (← getInvFn) a
+  let lhs ← pre <| mkApp2 (← getMulFn) a aInv
   internalize lhs gen none
   trace[grind.debug.ring.rabinowitsch] "{lhs}"
-  pushEq lhs ring.one <| mkApp4 (mkConst ``Grind.CommRing.diseq0_to_eq [ring.u]) ring.type fieldInst a (← mkDiseqProof a b)
+  pushEq lhs (← getOne) <| mkApp4 (mkConst ``Grind.CommRing.diseq0_to_eq [ring.u]) ring.type fieldInst a (← mkDiseqProof a b)
 
 @[export lean_process_ring_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
@@ -400,7 +404,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
       ofSemiring? := none
     }
   else if let some semiringId ← inSameSemiring? a b then SemiringM.run semiringId do
-    if (← getSemiring).addRightCancelInst?.isSome then
+    if (← getAddRightCancelInst?).isSome then
       if (← getConfig).ringNull then return () -- TODO: remove after we add Nullstellensatz certificates for semiring adapter
       trace_goal[grind.ring.assert] "{mkNot (← mkEq a b)}"
       let some sa ← toSemiringExpr? a | return ()
@@ -500,12 +504,12 @@ def checkRing : RingM Bool := do
   modifyRing fun s => { s with recheck := false }
   return true
 
-def check : GoalM Bool := do
+def check : GoalM Bool := do profileitM Exception "grind ring" (← getOptions) do
   if (← checkMaxSteps) then return false
   let mut progress := false
   checkInvariants
   try
-    for ringId in [:(← get').rings.size] do
+    for ringId in *...(← get').rings.size do
       let r ← RingM.run ringId checkRing
       progress := progress || r
       if (← isInconsistent) then

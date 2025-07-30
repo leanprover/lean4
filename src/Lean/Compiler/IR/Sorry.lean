@@ -3,8 +3,12 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.CompilerM
+
+public section
 
 namespace Lean.IR
 namespace Sorry
@@ -23,26 +27,25 @@ where
   getSorryDepFor? (f : Name) : ExceptT Name M Unit := do
     let found (g : Name) :=
       if g == ``sorryAx then
-        throw f
+        throwThe Name f
       else
-        throw g
+        throwThe Name g
     if f == ``sorryAx then
-      throw f
+      throwThe Name f
     else if let some g := (← get).localSorryMap.find? f then
       found g
     else match (← findDecl f) with
       | some (.fdecl (info := { sorryDep? := some g, .. }) ..) => found g
       | _ => return ()
 
-partial def visitFndBody (b : FnBody) : ExceptT Name M Unit := do
+partial def visitFnBody (b : FnBody) : ExceptT Name M Unit := do
   match b with
-  | .vdecl _ _ v b   => visitExpr v; visitFndBody b
-  | .jdecl _ _ v b   => visitFndBody v; visitFndBody b
-  | .case _ _ _ alts => alts.forM fun alt => visitFndBody alt.body
+  | .vdecl _ _ v b   => visitExpr v; visitFnBody b
+  | .jdecl _ _ v b   => visitFnBody v; visitFnBody b
+  | .case _ _ _ alts => alts.forM fun alt => visitFnBody alt.body
   | _ =>
     unless b.isTerminal do
-      let (_, b) := b.split
-      visitFndBody b
+      visitFnBody b.body
 
 def visitDecl (d : Decl) : M Unit := do
   match d with
@@ -50,7 +53,7 @@ def visitDecl (d : Decl) : M Unit := do
     match (← get).localSorryMap.find? f with
     | some _ => return ()
     | none =>
-      match (← visitFndBody b |>.run) with
+      match (← visitFnBody b |>.run) with
       | .ok _    => return ()
       | .error g =>
         modify fun s => {

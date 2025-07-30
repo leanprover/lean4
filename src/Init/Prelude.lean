@@ -886,6 +886,9 @@ theorem ULift.up_down {α : Type u} (b : ULift.{v} α) : Eq (up (down b)) b := r
 /-- Bijection between `α` and `ULift.{v} α` -/
 theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a := rfl
 
+instance [Inhabited α] : Inhabited (ULift α) where
+  default := ULift.up default
+
 /--
 Either a proof that `p` is true or a proof that `p` is false. This is equivalent to a `Bool` paired
 with a proof that the `Bool` is `true` if and only if `p` is true.
@@ -1561,7 +1564,7 @@ class AndOp (α : Type u) where
   and : α → α → α
 
 /-- The homogeneous version of `HXor`: `a ^^^ b : α` where `a b : α`. -/
-class Xor (α : Type u) where
+class XorOp (α : Type u) where
   /-- The implementation of `a ^^^ b : α`. See `HXor`. -/
   xor : α → α → α
 
@@ -1644,8 +1647,8 @@ instance [AndOp α] : HAnd α α α where
   hAnd a b := AndOp.and a b
 
 @[default_instance]
-instance [Xor α] : HXor α α α where
-  hXor a b := Xor.xor a b
+instance [XorOp α] : HXor α α α where
+  hXor a b := XorOp.xor a b
 
 @[default_instance]
 instance [OrOp α] : HOr α α α where
@@ -2565,7 +2568,7 @@ This function is `@[macro_inline]`, so `dflt` will not be evaluated unless `opt`
 
 Examples:
  * `(some "hello").getD "goodbye" = "hello"`
- * `none.getD "goodbye" = "hello"`
+ * `none.getD "goodbye" = "goodbye"`
 -/
 @[macro_inline, expose] def Option.getD (opt : Option α) (dflt : α) : α :=
   match opt with
@@ -3724,7 +3727,7 @@ class MonadWithReader (ρ : outParam (Type u)) (m : Type u → Type v) where
   During the inner action `x`, reading the value returns `f` applied to the original value. After
   control returns from `x`, the reader monad's value is restored.
   -/
-  withReader {α : Type u} : (ρ → ρ) → m α → m α
+  withReader {α : Type u} : (f : ρ → ρ) → (x : m α) → m α
 
 export MonadWithReader (withReader)
 
@@ -4553,12 +4556,12 @@ in `s!"value = {x}"`.
 abbrev interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 
 /-- Creates an info-less node of the given kind and children. -/
-@[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax (.cons k .nil) :=
+@[inline, expose] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax (.cons k .nil) :=
   ⟨Syntax.node SourceInfo.none k args⟩
 
 /-- Creates an info-less `nullKind` node with the given children, if any. -/
 -- NOTE: used by the quotation elaborator output
-@[inline] def mkNullNode (args : Array Syntax := Array.empty) : Syntax :=
+@[inline, expose] def mkNullNode (args : Array Syntax := Array.empty) : Syntax :=
   mkNode nullKind args |>.raw
 
 namespace Syntax

@@ -49,6 +49,17 @@ configuration LeanLibConfig (name : Name) extends LeanConfig where
   -/
   libName : String := name.mangle ""
 
+  /--
+  Whether static and shared binaries of this library should be prefixed with `lib` on Windows.
+
+  Unlike Unix, Windows does not require native libraries to start with `lib` and,
+  by convention, they usually do not. However, for consistent naming across all platforms,
+  users may wish to enable this.
+
+  Defaults to `false`.
+  -/
+  libPrefixOnWindows : Bool := false
+
   /-- An `Array` of targets to build before the executable's modules. -/
   needs : Array PartialBuildKey := #[]
 

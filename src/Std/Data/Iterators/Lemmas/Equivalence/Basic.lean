@@ -3,14 +3,18 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Control.Lawful.Basic
-import Init.Ext
-import Init.Internal.Order
-import Init.Core
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.PostconditionMonad
-import Std.Data.Iterators.Lemmas.Equivalence.HetT
+public import Init.Control.Lawful.Basic
+public import Init.Ext
+public import Init.Internal.Order
+public import Init.Core
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.PostconditionMonad
+public import Std.Data.Iterators.Lemmas.Equivalence.HetT
+
+@[expose] public section
 
 namespace Std.Iterators
 
@@ -259,7 +263,7 @@ theorem IterM.Equiv.of_morphism {α₁ α₂} {m : Type w → Type w'} [Monad m]
         rintro ⟨step', hs', h⟩
         refine ⟨step', hs', ?_⟩
         rw [← h]
-        congr
+        congr 1
         ext it
       · apply Eq.symm
         apply Quot.sound
@@ -269,7 +273,7 @@ theorem IterM.Equiv.of_morphism {α₁ α₂} {m : Type w → Type w'} [Monad m]
     · intro β f
       apply bind_congr
       intro step
-      congr
+      congr 2
       ext it
       apply Quot.sound
       exact ⟨it, rfl, rfl⟩

@@ -284,7 +284,7 @@ set_option linter.indexVariables false in
     (xs.drop i).toArray = xs.toArray.extract i n := by
   simp [drop]
 
-@[simp, grind] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
+@[simp, grind =] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
 
 @[simp, grind] theorem toArray_emptyWithCapacity {cap} :
     (Vector.emptyWithCapacity (α := α) cap).toArray = Array.emptyWithCapacity cap := rfl
@@ -828,7 +828,7 @@ theorem getElem?_eq_none {xs : Vector α n} (h : n ≤ i) : xs[i]? = none := by
 
 -- This is a more aggressive pattern than for `List/Array.getElem?_eq_none`, because
 -- `length/size` won't appear.
-grind_pattern Vector.getElem?_eq_none => n ≤ i, xs[i]?
+grind_pattern Vector.getElem?_eq_none => xs[i]?
 
 @[simp] theorem getElem?_eq_getElem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i]? = some xs[i] :=
   getElem?_pos ..
@@ -1213,18 +1213,18 @@ theorem contains_iff [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
 instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff contains_iff
 
-@[grind] theorem contains_empty [BEq α] : (#v[] : Vector α 0).contains a = false := rfl
+@[grind] theorem contains_empty [BEq α] : (#v[] : Vector α 0).contains a = false := by simp
 
 @[simp, grind] theorem contains_eq_mem [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
     as.contains a = decide (a ∈ as) := by
   rw [Bool.eq_iff_iff, contains_iff, decide_eq_true_iff]
 
-@[simp] theorem any_push [BEq α] {as : Vector α n} {a : α} {p : α → Bool} :
+@[simp] theorem any_push {as : Vector α n} {a : α} {p : α → Bool} :
     (as.push a).any p = (as.any p || p a) := by
   rcases as with ⟨as, rfl⟩
   simp
 
-@[simp] theorem all_push [BEq α] {as : Vector α n} {a : α} {p : α → Bool} :
+@[simp] theorem all_push {as : Vector α n} {a : α} {p : α → Bool} :
     (as.push a).all p = (as.all p && p a) := by
   rcases as with ⟨as, rfl⟩
   simp
@@ -1287,10 +1287,11 @@ theorem mem_set {xs : Vector α n} {i : Nat} {a : α} (hi : i < n) : a ∈ xs.se
   simp [mem_iff_getElem]
   exact ⟨i, (by simpa using hi), by simp⟩
 
-@[grind →]
 theorem mem_or_eq_of_mem_set {xs : Vector α n} {i : Nat} {a b : α} {hi : i < n} (h : a ∈ xs.set i b) : a ∈ xs ∨ a = b := by
   cases xs
   simpa using Array.mem_or_eq_of_mem_set (by simpa using h)
+
+grind_pattern mem_or_eq_of_mem_set => a ∈ xs.set i b
 
 /-! ### setIfInBounds -/
 
@@ -2975,7 +2976,7 @@ variable [BEq α]
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp, grind] theorem replace_empty : (#v[] : Vector α 0).replace a b = #v[] := by rfl
+@[simp, grind] theorem replace_empty : (#v[] : Vector α 0).replace a b = #v[] := by simp
 
 @[grind] theorem replace_singleton {a b c : α} : #v[a].replace b c = #v[if a == b then c else a] := by
   simp
@@ -3179,3 +3180,12 @@ instance instDecidableExistsVectorZero (P : Vector α 0 → Prop) [Decidable (P 
 instance instDecidableExistsVectorSucc (P : Vector α (n+1) → Prop)
     [Decidable (∀ (x : α) (xs : Vector α n), ¬ P (xs.push x))] : Decidable (∃ xs, P xs) :=
   decidable_of_iff (¬ ∀ xs, ¬ P xs) Classical.not_forall_not
+
+/-! ### sum -/
+
+@[simp, grind =]
+theorem sum_append_nat {xs₁ : Vector Nat n} {xs₂ : Vector Nat m} :
+    (xs₁ ++ xs₂).sum = xs₁.sum + xs₂.sum := by
+  rcases xs₁ with ⟨xs₁, rfl⟩
+  rcases xs₂ with ⟨xs₂, rfl⟩
+  simp [Array.sum_append_nat]

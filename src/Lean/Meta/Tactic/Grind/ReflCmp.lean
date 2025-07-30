@@ -3,8 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.SynthInstance
+
+public section
 
 /-!
 Support for type class `ReflCmp`.
@@ -38,7 +43,7 @@ where
     let u ← getLevel α
     let some u ← decLevel? u | return none
     let reflCmp := mkApp2 (mkConst ``Std.ReflCmp [u]) α op
-    let .some reflCmpInst ← trySynthInstance reflCmp | return none
+    let some reflCmpInst ← synthInstanceMeta? reflCmp | return none
     return some <| mkApp3 (mkConst ``Std.ReflCmp.cmp_eq_of_eq [u]) α op reflCmpInst
 
 def propagateReflCmp (e : Expr) : GoalM Unit := do

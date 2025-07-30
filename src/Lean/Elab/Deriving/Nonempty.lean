@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Elab.Deriving.Basic
+public import Lean.Elab.Deriving.Basic
+
+public section
 
 namespace Lean.Elab
 open Command Meta Parser Term
@@ -23,9 +27,10 @@ private def mkNonemptyInstance (declName : Name) : TermElabM Syntax.Command := d
         binders := binders.push (← `(bracketedBinderF| [Nonempty $arg]))
   let ctorTacs ← indVal.ctors.toArray.mapM fun ctor =>
     `(tactic| apply @$(mkCIdent ctor) <;> exact Classical.ofNonempty)
+  let privTk? := guard (isPrivateName declName) *> some .missing
   `(command| variable $binders* in
-    instance : Nonempty (@$(mkCIdent declName) $indArgs*) :=
-      ⟨by first $[| $ctorTacs:tactic]*⟩)
+    $[private%$privTk?]? instance : Nonempty (@$(mkCIdent declName) $indArgs*) :=
+      by constructor; first $[| $ctorTacs:tactic]*)
 
 def mkNonemptyInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) then

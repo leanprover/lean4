@@ -3,17 +3,21 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.CollectLevelParams
-import Lean.Util.CollectAxioms
-import Lean.Meta.Reduce
-import Lean.Elab.DeclarationRange
-import Lean.Elab.Eval
-import Lean.Elab.Command
-import Lean.Elab.Open
-import Lean.Elab.SetOption
-import Init.System.Platform
-import Lean.Meta.Hint
+public import Lean.Util.CollectLevelParams
+public import Lean.Util.CollectAxioms
+public import Lean.Meta.Reduce
+public import Lean.Elab.DeclarationRange
+public import Lean.Elab.Eval
+public import Lean.Elab.Command
+public import Lean.Elab.Open
+public import Lean.Elab.SetOption
+public import Init.System.Platform
+public import Lean.Meta.Hint
+
+public section
 
 namespace Lean.Elab.Command
 
@@ -63,7 +67,7 @@ def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α 
   pure a
 
 private def popScopes (numScopes : Nat) : CommandElabM Unit :=
-  for _ in [0:numScopes] do
+  for _ in *...numScopes do
     popScope
 
 private def innermostScopeName? : List Scope → Option Name
@@ -87,7 +91,7 @@ private def checkEndHeader : Name → List Scope → Option Name
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
   match stx with
-  | `(Parser.Command.section| $[public%$publicTk]? $[@[expose%$expTk]]? $[noncomputable%$ncTk]? section $(header?)?) =>
+  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $(header?)?) =>
     -- TODO: allow more attributes?
     let attrs ← if expTk.isSome then
       pure [← `(Parser.Term.attrInstance| expose)]

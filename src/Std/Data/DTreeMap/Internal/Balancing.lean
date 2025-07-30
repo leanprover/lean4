@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Init.Data.AC
-import Std.Data.DTreeMap.Internal.Balanced
+public import Init.Data.AC
+public import Std.Data.DTreeMap.Internal.Balanced
+
+@[expose] public section
 
 /-!
 # Balancing operations

@@ -19,6 +19,7 @@ LEAN_EXPORT lean_object* l_Int_gcd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_lcm(lean_object*, lean_object*);
 lean_object* l_Nat_dvdProdDvdOfDvdProd___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_dvdProdDvdOfDvdProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Int_dvdProdDvdOfDvdProd_spec__0(lean_object*);
 static lean_object* l_Int_dvdProdDvdOfDvdProd___redArg___closed__0;
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_dvdProdDvdOfDvdProd(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -49,6 +50,14 @@ x_3 = l_Int_gcd(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___Int_dvdProdDvdOfDvdProd_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Int_dvdProdDvdOfDvdProd___redArg___closed__0() {

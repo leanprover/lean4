@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.BitVec.Bitblast
-import Init.Data.AC
-import Std.Tactic.BVDecide.Normalize.Bool
-import Std.Tactic.BVDecide.Normalize.Canonicalize
-import Init.Data.SInt.Basic
+public import Init.Data.BitVec.Bitblast
+public import Init.Data.AC
+public import Std.Tactic.BVDecide.Normalize.Bool
+public import Std.Tactic.BVDecide.Normalize.Canonicalize
+public import Init.Data.SInt.Basic
+
+@[expose] public section
 
 /-!
 This module contains the `BitVec` simplifying part of the `bv_normalize` simp set.
@@ -369,7 +373,7 @@ attribute [bv_normalize] BitVec.extractLsb'_and
 attribute [bv_normalize] BitVec.extractLsb'_xor
 
 @[bv_normalize]
-theorem BitVec.exctractLsb'_if {x y : BitVec w} (s l : Nat) :
+theorem BitVec.extractLsb'_if {x y : BitVec w} (s l : Nat) :
     BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
   cases c <;> simp
 

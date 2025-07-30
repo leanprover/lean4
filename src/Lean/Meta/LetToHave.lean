@@ -3,13 +3,17 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Meta.Check
-import Lean.ReservedNameAction
-import Lean.AddDecl
-import Lean.Meta.Transform
-import Lean.Util.CollectFVars
-import Lean.Util.CollectMVars
+public import Lean.Meta.Check
+public import Lean.ReservedNameAction
+public import Lean.AddDecl
+public import Lean.Meta.Transform
+public import Lean.Util.CollectFVars
+public import Lean.Util.CollectMVars
+
+public section
 
 /-!
 # Transforming nondependent `let`s into `have`s
@@ -376,7 +380,7 @@ private partial def visitProj (e : Expr) (structName : Name) (idx : Nat) (struct
     let mut args := #[]
     let mut j := 0
     let mut lastFieldTy : Expr := default
-    for i in [:idx+1] do
+    for i in *...=idx do
       unless ctorType.isForall do
         ctorType ← whnf <| ctorType.instantiateRevRange j i args
         j := i

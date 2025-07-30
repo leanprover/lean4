@@ -18,17 +18,13 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig;
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__0() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; uint8_t x_4; uint8_t x_5; uint8_t x_6; 
-x_1 = lean_box(0);
+uint8_t x_1; lean_object* x_2; 
+x_1 = 0;
 x_2 = lean_alloc_ctor(0, 0, 4);
-x_3 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_2, 0, x_3);
-x_4 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_2, 1, x_4);
-x_5 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_2, 2, x_5);
-x_6 = lean_unbox(x_1);
-lean_ctor_set_uint8(x_2, 3, x_6);
+lean_ctor_set_uint8(x_2, 0, x_1);
+lean_ctor_set_uint8(x_2, 1, x_1);
+lean_ctor_set_uint8(x_2, 2, x_1);
+lean_ctor_set_uint8(x_2, 3, x_1);
 return x_2;
 }
 }

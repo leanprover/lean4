@@ -4,21 +4,25 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.Match.MatcherApp.Transform
-import Lean.Meta.Check
-import Lean.Meta.Tactic.Subst
-import Lean.Meta.Injective -- for elimOptParam
-import Lean.Meta.ArgsPacker
-import Lean.Meta.PProdN
-import Lean.Elab.PreDefinition.WF.Eqns
-import Lean.Elab.PreDefinition.Structural.Eqns
-import Lean.Elab.PreDefinition.Structural.IndGroupInfo
-import Lean.Elab.PreDefinition.Structural.FindRecArg
-import Lean.Elab.Command
-import Lean.Meta.Tactic.ElimInfo
-import Lean.Meta.Tactic.FunIndInfo
+public import Lean.Meta.Basic
+public import Lean.Meta.Match.MatcherApp.Transform
+public import Lean.Meta.Check
+public import Lean.Meta.Tactic.Subst
+public import Lean.Meta.Injective -- for elimOptParam
+public import Lean.Meta.ArgsPacker
+public import Lean.Meta.PProdN
+public import Lean.Elab.PreDefinition.WF.Eqns
+public import Lean.Elab.PreDefinition.Structural.Eqns
+public import Lean.Elab.PreDefinition.Structural.IndGroupInfo
+public import Lean.Elab.PreDefinition.Structural.FindRecArg
+public import Lean.Elab.Command
+public import Lean.Meta.Tactic.ElimInfo
+public import Lean.Meta.Tactic.FunIndInfo
+
+public section
 
 /-!
 This module contains code to derive, from the definition of a recursive function (structural or
@@ -109,7 +113,7 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
 4. When a tail position (no more branching) is found, function `buildInductionCase` assembles the
    type of the case: a fresh `MVar` asserts the current goal, unwanted values from the local context
    are cleared, and the current `body` is searched for recursive calls using `foldAndCollect`,
-   which are then asserted as inductive hyptheses in the `MVar`.
+   which are then asserted as inductive hypotheses in the `MVar`.
 
 5. The function `foldAndCollect` walks the term and performs two operations:
 
@@ -258,14 +262,14 @@ end M
 /--
 The `foldAndCollect` function performs two operations together:
 
- * it fold recursive calls: applications (and projectsions) of `oldIH` in `e` correspond to
+ * it folds recursive calls: applications (and projections) of `oldIH` in `e` correspond to
    recursive calls, so this function rewrites that back to recursive calls
  * it collects induction hypotheses: after replacing `oldIH` with `newIH`, applications thereof
    are valuable as induction hypotheses for the cases.
 
 For well-founded recursion (unary, non-mutual by construction) the terms are rather simple: they
 are `oldIH arg proof`, and can be rewritten to `f arg` resp. `newIH arg proof`. But for
-structural recursion this can be a more complicted mix of function applications (due to reflexive
+structural recursion this can be a more complicated mix of function applications (due to reflexive
 data types or extra function arguments) and `PProd` projections (due to the below construction and
 mutual function packing), and the main function argument isn't even present.
 
@@ -426,7 +430,7 @@ def deduplicateIHs (vals : Array Expr) : MetaM (Array Expr) := do
 
 def assertIHs (vals : Array Expr) (mvarid : MVarId) : MetaM MVarId := do
   let mut mvarid := mvarid
-  for v in vals.reverse, i in [0:vals.size] do
+  for v in vals.reverse, i in *...vals.size do
     mvarid ← mvarid.assert (.mkSimple s!"ih{i+1}") (← inferType v) v
   return mvarid
 
@@ -493,7 +497,7 @@ def M2.branch {α} (act : M2 α) : M2 α :=
   controlAt M fun runInBase => M.branch (runInBase act)
 
 
-/-- Base case of `buildInductionBody`: Construct a case for the final induction hypthesis.  -/
+/-- Base case of `buildInductionBody`: Construct a case for the final induction hypothesis.  -/
 def buildInductionCase (oldIH newIH : FVarId) (isRecCall : Expr → Option Expr) (toErase toClear : Array FVarId)
     (goal : Expr)  (e : Expr) : M2 Expr := do
   withTraceNode `Meta.FunInd (pure m!"{exceptEmoji ·} buildInductionCase:{indentExpr e}") do
@@ -1058,7 +1062,7 @@ Given a realizer for `foo.mutual_induct`, defines `foo.induct`, `bar.induct` etc
 Used for well-founded and structural recursion.
 -/
 def projectMutualInduct (unfolding : Bool) (names : Array Name) (mutualInduct : MetaM Name) (finalizeFirstInd : MetaM Unit) : MetaM Unit := do
-  for name in names, idx in [:names.size] do
+  for name in names, idx in *...names.size do
     let inductName := getFunInductName (unfolding := unfolding) name
     realizeConst names[0]! inductName do
       let ci ← getConstInfo (← mutualInduct)
@@ -1087,7 +1091,7 @@ def setNaryFunIndInfo (unfolding : Bool) (fixedParamPerms : FixedParamPerms) (fu
     let fixedParamPerm := fixedParamPerms.perms[0]!
     let mut params := #[]
     let mut j := 0
-    for h : i in [:fixedParamPerm.size] do
+    for h : i in *...fixedParamPerm.size do
       if fixedParamPerm[i].isSome then
         assert! j + 1 < unaryFunIndInfo.params.size
         params := params.push unaryFunIndInfo.params[j]!
@@ -1370,7 +1374,7 @@ where doRealize inductName := do
           -- Motives with parameters reordered, to put indices and major first,
           -- and (when unfolding) the result field instantiated
           let mut brecMotives := #[]
-          for motive in motives, recArgInfo in recArgInfos, info in infos, funIdx in [:motives.size] do
+          for motive in motives, recArgInfo in recArgInfos, info in infos, funIdx in *...motives.size do
             let brecMotive ← forallTelescope (← inferType motive) fun ys _ => do
               let ys := if unfolding then ys.pop else ys
               let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
@@ -1422,7 +1426,7 @@ where doRealize inductName := do
           -- terms when we have mutual induction.
           let e' ← withLetDecls `minor minorTypes minors' fun minors' => do
             let mut brecOnApps := #[]
-            for info in infos, recArgInfo in recArgInfos, idx in [:infos.size] do
+            for info in infos, recArgInfo in recArgInfos, idx in *...infos.size do
               -- Take care to pick the `ys` from the type, to get the variable names expected
               -- by the user, but use the value arity
               let arity ← lambdaTelescope (← fixedParamPerms.perms[idx]!.instantiateLambda info.value xs) fun ys _ => pure ys.size
@@ -1474,7 +1478,7 @@ where doRealize inductName := do
 
   if names.size = 1 then
     let mut params := #[]
-    for h : i in [:fixedParamPerms.perms[0]!.size] do
+    for h : i in *...fixedParamPerms.perms[0]!.size do
       if let some idx := fixedParamPerms.perms[0]![i] then
         if paramMask[idx]! then
           params := params.push .param
@@ -1490,7 +1494,7 @@ where doRealize inductName := do
 
 
 /--
-Given an expression `fun x y z => body`, returns a bit mask of the functinon's arity length
+Given an expression `fun x y z => body`, returns a bit mask of the function's arity length
 that has `true` whenever that parameter of the function appears as a scrutinee of a `match` in
 tail position. These are the parameters that are likely useful as targets of the motive
 of the functional cases theorem. All others become parameters or may be dropped.
@@ -1503,7 +1507,7 @@ partial def refinedArguments (e : Expr) : MetaM (Array Bool) := do
   let mut mask := mask
   let revDeps ← getParamRevDeps e
   assert! revDeps.size = mask.size
-  for i in [:mask.size] do
+  for i in *...mask.size do
     if mask[i]! then
       for j in revDeps[i]! do
           mask := mask.set! j true
@@ -1537,7 +1541,7 @@ where
 
 /--
 For non-recursive (and recursive functions) functions we derive a “functional case splitting theorem”. This is very similar
-than the functional induction theorem. It splits the goal, but does not give you inductive hyptheses.
+than the functional induction theorem. It splits the goal, but does not give you inductive hypotheses.
 
 For these, it is not really clear which parameters should be “targets” of the motive, as there is
 no “fixed prefix” to guide this decision. All? None? Some?

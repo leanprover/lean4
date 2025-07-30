@@ -3,8 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.SynthInstance
+
+public section
 
 /-!
 Support for type class `LawfulEqCmp`.
@@ -38,7 +43,7 @@ where
     let u ← getLevel α
     let some u ← decLevel? u | return none
     let lawfulEqCmp := mkApp2 (mkConst ``Std.LawfulEqCmp [u]) α op
-    let .some lawfulEqCmpInst ← trySynthInstance lawfulEqCmp | return none
+    let some lawfulEqCmpInst ← synthInstanceMeta? lawfulEqCmp | return none
     return some <| mkApp3 (mkConst ``Std.LawfulEqCmp.eq_of_compare [u]) α op lawfulEqCmpInst
 
 def propagateLawfulEqCmp (e : Expr) : GoalM Unit := do

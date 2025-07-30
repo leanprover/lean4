@@ -13,6 +13,11 @@ public def f := 1
 /-- A theorem. -/
 public theorem t : f = 1 := testSorry
 
+public class X
+
+/-- A local instance of a public class. -/
+instance : X := ⟨⟩
+
 -- Check that the theorem types are checked in exported context, where `f` is not defeq to `1`
 -- (but `fexp` is)
 
@@ -100,7 +105,7 @@ def priv := 2
 
 /-! Private decls should not be accessible in exported contexts. -/
 
-/-- error: unknown identifier 'priv' -/
+/-- error: Unknown identifier `priv` -/
 #guard_msgs in
 public abbrev h := priv
 
@@ -206,3 +211,26 @@ info: theorem f_exp_wfrec.eq_unfold : f_exp_wfrec = fun x x_1 =>
   | n.succ, acc => f_exp_wfrec n (acc + 1)
 -/
 #guard_msgs in #print sig f_exp_wfrec.eq_unfold
+
+/-! Private fields should force private ctors. -/
+
+public structure StructWithPrivateField where
+  private x : Nat
+
+/--
+info: structure StructWithPrivateField : Type
+number of parameters: 0
+fields:
+  private StructWithPrivateField.x : Nat
+constructor:
+  private StructWithPrivateField.mk (x : Nat) : StructWithPrivateField
+-/
+#guard_msgs in
+#print StructWithPrivateField
+
+#check { x := 1 : StructWithPrivateField }
+
+/-- error: invalid {...} notation, constructor for 'StructWithPrivateField' is marked as private -/
+#guard_msgs in
+#with_exporting
+#check { x := 1 : StructWithPrivateField }

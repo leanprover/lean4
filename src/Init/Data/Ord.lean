@@ -95,6 +95,10 @@ Ordering.lt
   | .eq => b
   | a => a
 
+/-- Version of `Ordering.then'` for proof by reflection. -/
+noncomputable def then' (a b : Ordering) : Ordering :=
+  Ordering.rec a b a a
+
 /--
 Checks whether the ordering is `eq`.
 -/
@@ -247,12 +251,12 @@ theorem isEq_eq_beq_eq : ∀ {o : Ordering}, o.isEq = (o == .eq) := by decide
 theorem isNe_eq_not_beq_eq : ∀ {o : Ordering}, o.isNe = (!o == .eq) := by decide
 theorem isNe_eq_isLT_or_isGT : ∀ {o : Ordering}, o.isNe = (o.isLT || o.isGT) := by decide
 
-@[simp] theorem not_isLT_eq_isGE : ∀ {o : Ordering}, !o.isLT = o.isGE := by decide
-@[simp] theorem not_isLE_eq_isGT : ∀ {o : Ordering}, !o.isLE = o.isGT := by decide
-@[simp] theorem not_isGT_eq_isLE : ∀ {o : Ordering}, !o.isGT = o.isLE := by decide
-@[simp] theorem not_isGE_eq_isLT : ∀ {o : Ordering}, !o.isGE = o.isLT := by decide
-@[simp] theorem not_isNe_eq_isEq : ∀ {o : Ordering}, !o.isNe = o.isEq := by decide
-theorem not_isEq_eq_isNe : ∀ {o : Ordering}, !o.isEq = o.isNe := by decide
+@[simp] theorem not_isLT_eq_isGE : ∀ {o : Ordering}, (!o.isLT) = o.isGE := by decide
+@[simp] theorem not_isLE_eq_isGT : ∀ {o : Ordering}, (!o.isLE) = o.isGT := by decide
+@[simp] theorem not_isGT_eq_isLE : ∀ {o : Ordering}, (!o.isGT) = o.isLE := by decide
+@[simp] theorem not_isGE_eq_isLT : ∀ {o : Ordering}, (!o.isGE) = o.isLT := by decide
+@[simp] theorem not_isNe_eq_isEq : ∀ {o : Ordering}, (!o.isNe) = o.isEq := by decide
+theorem not_isEq_eq_isNe : ∀ {o : Ordering}, (!o.isEq) = o.isNe := by decide
 
 theorem ne_lt_iff_isGE : ∀ {o : Ordering}, ¬o = .lt ↔ o.isGE := by decide
 theorem ne_gt_iff_isLE : ∀ {o : Ordering}, ¬o = .gt ↔ o.isLE := by decide
@@ -290,6 +294,9 @@ instance : Std.IdempotentOp Ordering.then := ⟨fun _ => then_self⟩
 instance : Std.LawfulIdentity Ordering.then eq where
   left_id _ := eq_then
   right_id _ := then_eq
+
+theorem then'_eq_then (a b : Ordering) : a.then' b = a.then b := by
+  cases a <;> simp [Ordering.then', Ordering.then]
 
 end Lemmas
 

@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Attributes
-import Lean.ScopedEnvExtension
+public import Lean.Attributes
+public import Lean.ScopedEnvExtension
+
+public section
 
 namespace Lean
 
@@ -28,7 +32,7 @@ builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × Reducib
     addImportedFn   := fun _ _ => pure {}
     addEntryFn      := fun (s : NameMap ReducibilityStatus) (p : Name × ReducibilityStatus) => s.insert p.1 p.2
     exportEntriesFn := fun m =>
-      let r : Array (Name × ReducibilityStatus) := m.fold (fun a n p => a.push (n, p)) #[]
+      let r : Array (Name × ReducibilityStatus) := m.foldl (fun a n p => a.push (n, p)) #[]
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "reducibility attribute core extension" ++ Format.line ++ "number of local entries: " ++ format s.size
     asyncMode       := .async

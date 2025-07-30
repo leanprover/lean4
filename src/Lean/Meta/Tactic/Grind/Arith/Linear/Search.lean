@@ -3,10 +3,14 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.Linear.SearchM
-import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
+public import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Arith.Linear.SearchM
+public import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -264,9 +268,9 @@ There are two kinds of progress:
 
 The result is `false` if module for every structure already has an assignment.
 -/
-def check : GoalM Bool := do
+def check : GoalM Bool := do profileitM Exception "grind linarith" (← getOptions) do
   let mut progress := false
-  for structId in [:(← get').structs.size] do
+  for structId in *...(← get').structs.size do
     let r ← LinearM.run structId do
       if (← hasAssignment) then
         return false

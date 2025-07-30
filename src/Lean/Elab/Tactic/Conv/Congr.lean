@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Simp.Main
-import Lean.Meta.Tactic.Congr
-import Lean.Elab.Tactic.Conv.Basic
+public import Lean.Meta.Tactic.Simp.Main
+public import Lean.Meta.Tactic.Congr
+public import Lean.Elab.Tactic.Conv.Basic
+
+public section
 
 namespace Lean.Elab.Tactic.Conv
 open Meta
@@ -34,7 +38,7 @@ private partial def mkCongrThm (origTag : Name) (f : Expr) (args : Array Expr) (
   let mut proof := congrThm.proof
   let mut mvarIdsNew := #[]
   let mut mvarIdsNewInsts := #[]
-  for h : i in [:congrThm.argKinds.size] do
+  for h : i in *...congrThm.argKinds.size do
     let arg := args[i]!
     let argInfo := funInfo.paramInfo[i]!
     match congrThm.argKinds[i] with
@@ -124,7 +128,7 @@ private partial def mkCongrArgZeroThm (tacticName : String) (origTag : Name) (f 
   let mut proof := congrThm.proof
   let mut mvarIdNew? := none
   let mut mvarIdsNewInsts := #[]
-  for h : i in [:congrThm.argKinds.size] do
+  for h : i in *...congrThm.argKinds.size do
     let arg := args[i]!
     let argInfo := funInfo.paramInfo[i]!
     match congrThm.argKinds[i] with
@@ -207,7 +211,7 @@ where
       let mut fType ← inferType f
       let mut j := 0
       let mut explicitIdxs := #[]
-      for k in [0:xs.size] do
+      for k in *...xs.size do
         unless fType.isForall do
           fType ← withTransparency .all <| whnf (fType.instantiateRevRange j k xs)
           j := k
@@ -332,7 +336,7 @@ private def ext (userName? : Option Name) : TacticM Unit := do
   -- show initial state up to (incl.) `[`
   withTacticInfoContext (mkNullNode #[token, lbrak]) (pure ())
   let numEnterArgs := (enterArgsAndSeps.size + 1) / 2
-  for i in [:numEnterArgs] do
+  for i in *...numEnterArgs do
     let enterArg := enterArgsAndSeps[2 * i]!
     let sep := enterArgsAndSeps.getD (2 * i + 1) .missing
     -- show state up to (incl.) next `,` and show errors on `enterArg`

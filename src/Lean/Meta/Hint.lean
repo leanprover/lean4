@@ -4,15 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
 
+module
+
 prelude
 
-import Lean.CoreM
-import Lean.Data.Lsp.Utf16
-import Lean.Message
-import Lean.Meta.TryThis
-import Lean.Util.Diff
-import Lean.Widget.Types
-import Lean.PrettyPrinter
+public import Lean.CoreM
+public import Lean.Data.Lsp.Utf16
+public import Lean.Message
+public import Lean.Meta.TryThis
+public import Lean.Util.Diff
+public import Lean.Widget.Types
+public import Lean.PrettyPrinter
+
+public section
 
 namespace Lean.Meta.Hint
 
@@ -48,6 +52,7 @@ def tryThisDiffWidget : Widget.Module where
   javascript := "
 import * as React from 'react';
 import { EditorContext, EnvPosContext } from '@leanprover/infoview';
+
 const e = React.createElement;
 export default function ({ diff, range, suggestion }) {
   const pos = React.useContext(EnvPosContext)
@@ -119,15 +124,25 @@ inductive DiffGranularity where
 /--
 A code action suggestion associated with a hint in a message.
 
-Refer to `TryThis.Suggestion`. This extends that structure with the following fields:
-* `span?`: the span at which this suggestion should apply. This allows a single hint to suggest
-  modifications at different locations. If `span?` is not specified, then the syntax reference
-  provided to `MessageData.hint` will be used.
-* `diffGranularity`: the granularity at which the diff for this suggestion should be rendered in the
-  Infoview. See `DiffMode` for the possible granularities. This is `.auto` by default.
+Refer to `TryThis.Suggestion`. This extends that structure with several fields specific to inline
+hints.
 -/
 structure Suggestion extends toTryThisSuggestion : TryThis.Suggestion where
+  /--
+  The span at which this suggestion should apply. This allows a single hint to suggest modifications
+  at different locations. If `span?` is not specified, then the syntax reference provided to
+  `MessageData.hint` will be used.
+  -/
   span? : Option Syntax := none
+  /--
+  The syntax to render in the inline diff preview. This syntax must have valid position information
+  and must contain the span at which the edit occurs.
+  -/
+  previewSpan? : Option Syntax := none
+  /--
+  The granularity at which the diff for this suggestion should be rendered in the Infoview. See
+  `DiffMode` for the possible granularities. This is `.auto` by default.
+  -/
   diffGranularity : DiffGranularity := .auto
 
 instance : Coe TryThis.SuggestionText Suggestion where
@@ -190,7 +205,7 @@ where
     let mut withWs := #[]
     let mut (wssIdx, wss'Idx) := (0, 0)
     let mut inSubst := false
-    for h : diffIdx in [:diff.size] do
+    for h : diffIdx in *...diff.size do
       let (a₁, s₁) := diff[diffIdx]
       withWs := withWs.push (a₁, s₁)
       if let some (a₂, s₂) := diff[diffIdx + 1]? then
@@ -307,9 +322,8 @@ where
 Creates message data corresponding to a `HintSuggestions` collection and adds the corresponding info
 leaf.
 -/
-def mkSuggestionsMessage (suggestions : Array Suggestion)
-    (ref : Syntax)
-    (codeActionPrefix? : Option String) : CoreM MessageData := do
+def mkSuggestionsMessage (suggestions : Array Suggestion) (ref : Syntax)
+    (codeActionPrefix? : Option String) (forceList : Bool) : CoreM MessageData := do
   let mut msg := m!""
   for suggestion in suggestions do
     if let some range := (suggestion.span?.getD ref).getRange? then
@@ -320,8 +334,15 @@ def mkSuggestionsMessage (suggestions : Array Suggestion)
       -- `suggestionsArr = #[suggestion.toTryThisSuggestion].map ...` (see `processSuggestions`)
       let suggestionText := suggestionArr[0]!.2.1
       let map ← getFileMap
-      let rangeContents := Substring.mk map.source range.start range.stop |>.toString
-      let edits := readableDiff rangeContents suggestionText suggestion.diffGranularity
+      let rangeContents := map.source.extract range.start range.stop
+      let mut edits := readableDiff rangeContents suggestionText suggestion.diffGranularity
+      if let some previewRange := suggestion.previewSpan? >>= Syntax.getRange? then
+        if previewRange.includes range then
+          let map ← getFileMap
+          if previewRange.start < range.start then
+            edits := #[(.skip, (map.source.extract previewRange.start range.start))] ++ edits
+          if range.stop < previewRange.stop then
+            edits := edits.push (.skip, (map.source.extract range.stop previewRange.stop))
       let diffJson := mkDiffJson edits
       let json := json% {
         diff: $diffJson,
@@ -336,7 +357,7 @@ def mkSuggestionsMessage (suggestions : Array Suggestion)
           props := return json
         } (suggestion.messageData?.getD (mkDiffString edits))
       let widgetMsg := m!"{preInfo}{widget}{postInfo}"
-      let suggestionMsg := if suggestions.size == 1 then
+      let suggestionMsg := if suggestions.size == 1 && !forceList then
         m!"\n{widgetMsg}"
       else
         m!"\n" ++ MessageData.nest 2 m!"• {widgetMsg}"
@@ -356,11 +377,13 @@ The arguments are as follows:
   suggestions that specify it.
 * `codeActionPrefix?`: if specified, text to display in place of "Try this: " in the code action
   label
+* `forceList`: if `true`, suggestions will be displayed as a bulleted list even if there is only one.
 -/
 def _root_.Lean.MessageData.hint (hint : MessageData)
     (suggestions : Array Suggestion) (ref? : Option Syntax := none)
     (codeActionPrefix? : Option String := none)
+    (forceList : Bool := false)
     : CoreM MessageData := do
   let ref := ref?.getD (← getRef)
-  let suggs ← mkSuggestionsMessage suggestions ref codeActionPrefix?
+  let suggs ← mkSuggestionsMessage suggestions ref codeActionPrefix? forceList
   return .tagged `hint (m!"\n\nHint: " ++ hint ++ suggs)

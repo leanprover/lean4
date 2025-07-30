@@ -3,9 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Util
-import Lean.Elab.Term
+public import Lean.Meta.Tactic.Util
+public import Lean.Elab.Term
+
+public section
 
 namespace Lean.Elab
 open Meta
@@ -356,6 +360,21 @@ instance : MonadExcept Exception TacticM where
 /-- Execute `x` with error recovery disabled -/
 def withoutRecover (x : TacticM α) : TacticM α :=
   withReader (fun ctx => { ctx with recover := false }) x
+
+/--
+Like `throwErrorAt`, but, if recovery is enabled, logs the error instead.
+-/
+def throwOrLogErrorAt (ref : Syntax) (msg : MessageData) : TacticM Unit := do
+  if (← read).recover then
+    logErrorAt ref msg
+  else
+    throwErrorAt ref msg
+
+/--
+Like `throwError`, but, if recovery is enabled, logs the error instead.
+-/
+def throwOrLogError (msg : MessageData) : TacticM Unit := do
+  throwOrLogErrorAt (← getRef) msg
 
 @[inline] protected def orElse (x : TacticM α) (y : Unit → TacticM α) : TacticM α := do
   try withoutRecover x catch _ => y ()

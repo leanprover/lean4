@@ -3,11 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Environment
-import Lean.MetavarContext
-import Lean.Data.OpenDecl
-import Lean.Elab.InfoTree.Types
+public import Lean.Environment
+public import Lean.MetavarContext
+public import Lean.Data.OpenDecl
+public import Lean.Elab.InfoTree.Types
+
+public section
 
 namespace Lean
 register_builtin_option pp.raw : Bool := {
@@ -39,7 +43,7 @@ structure PPContext where
   currNamespace : Name := Name.anonymous
   openDecls     : List OpenDecl := []
 
-abbrev PrettyPrinter.InfoPerPos := RBMap Nat Elab.Info compare
+abbrev PrettyPrinter.InfoPerPos := Std.TreeMap Nat Elab.Info
 /-- A format tree with `Elab.Info` annotations.
 Each `.tag n _` node is annotated with `infos[n]`.
 This is used to attach semantic data such as expressions

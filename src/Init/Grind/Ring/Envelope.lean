@@ -141,7 +141,7 @@ def Q.ind {β : Q α → Prop} (mk : ∀ (a : α × α), β (Q.mk a)) (q : Q α)
         exact ⟨k, h.symm⟩)
 
 attribute [local simp]
-  Quot.liftOn Semiring.add_zero Semiring.zero_add Semiring.mul_one Semiring.one_mul
+  Quot.liftOn Semiring.add_zero AddCommMonoid.zero_add Semiring.mul_one Semiring.one_mul
   Semiring.natCast_zero Semiring.natCast_one Semiring.mul_zero Semiring.zero_mul
 
 theorem neg_add_cancel (a : Q α) : add (neg a) a = natCast 0 := by
@@ -227,25 +227,47 @@ theorem right_distrib (a b c : Q α) : mul (add a b) c = add (mul a c) (mul b c)
   cases a; cases b; cases c; simp; apply Quot.sound
   simp [Semiring.right_distrib]; refine ⟨0, ?_⟩; ac_rfl
 
-def hPow (a : Q α) (n : Nat)  : Q α :=
+def npow (a : Q α) (n : Nat)  : Q α :=
   match n with
   | 0 => natCast 1
-  | n+1 => mul (hPow a n) a
+  | n+1 => mul (npow a n) a
 
-private theorem pow_zero (a : Q α) : hPow a 0 = natCast 1 := rfl
+private theorem pow_zero (a : Q α) : npow a 0 = natCast 1 := rfl
 
-private theorem pow_succ (a : Q α) (n : Nat) : hPow a (n+1) = mul (hPow a n) a := rfl
+private theorem pow_succ (a : Q α) (n : Nat) : npow a (n+1) = mul (npow a n) a := rfl
+
+def nsmul (n : Nat) (a : Q α) : Q α :=
+  mul (natCast n) a
+
+def zsmul (i : Int) (a : Q α) : Q α :=
+  mul (intCast i) a
+
+theorem neg_zsmul (i : Int) (a : Q α) : zsmul (-i) a = neg (zsmul i a) := by
+  induction a using Quot.ind
+  next a =>
+  cases a; simp [zsmul]
+  split <;> rename_i h₁
+  · split <;> rename_i h₂
+    · omega
+    · simp
+  · split <;> rename_i h₂
+    · simp
+    · have : i = 0 := by omega
+      simp [this]
 
 def ofSemiring : Ring (Q α) := {
+  nsmul := ⟨nsmul⟩
+  zsmul := ⟨zsmul⟩
   ofNat   := fun n => ⟨natCast n⟩
   natCast := ⟨natCast⟩
   intCast := ⟨intCast⟩
-  add, sub, mul, neg, hPow
+  npow := ⟨npow⟩
+  add, sub, mul, neg,
   add_comm, add_assoc, add_zero
   neg_add_cancel, sub_eq_add_neg
   mul_one, one_mul, zero_mul, mul_zero, mul_assoc,
   left_distrib, right_distrib, pow_zero, pow_succ,
-  intCast_neg, ofNat_succ
+  intCast_neg, ofNat_succ, neg_zsmul
 }
 
 attribute [instance] ofSemiring
@@ -328,7 +350,8 @@ instance [Semiring α] [AddRightCancel α] [NoNatZeroDivisors α] : NoNatZeroDiv
     simp [r] at h₂
     rcases h₂ with ⟨k', h₂⟩
     replace h₂ := AddRightCancel.add_right_cancel _ _ _ h₂
-    simp [← Semiring.left_distrib] at h₂
+    simp only [← Semiring.left_distrib] at h₂
+    simp only [← Semiring.nsmul_eq_natCast_mul] at h₂
     replace h₂ := NoNatZeroDivisors.no_nat_zero_divisors k (a₁ + b₂) (a₂ + b₁) h₁ h₂
     apply Quot.sound; simp [r]; exists 0; simp [h₂]
 
@@ -400,7 +423,7 @@ instance [Preorder α] [OrderedAdd α] : Preorder (OfSemiring.Q α) where
 
 @[local simp] private theorem mk_pos [Preorder α] [OrderedAdd α] {a₁ a₂ : α} :
     0 < Q.mk (a₁, a₂) ↔ a₂ < a₁ := by
-  simp [← toQ_ofNat, toQ, mk_lt_mk, Semiring.zero_add]
+  simp [← toQ_ofNat, toQ, mk_lt_mk, AddCommMonoid.zero_add]
 
 @[local simp]
 theorem toQ_le [Preorder α] [OrderedAdd α] {a b : α} : toQ a ≤ toQ b ↔ a ≤ b := by

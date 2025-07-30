@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Util.Trace
+public import Lean.Util.Trace
+
+public section
 
 /-! `trace.profiler.output` Firefox Profiler integration -/
 
@@ -325,7 +329,7 @@ private partial def collideThreads (thread : ThreadWithCollideMaps) (add : Threa
   StateT.run collideSamples thread |>.2
 where
   collideSamples : StateM ThreadWithCollideMaps Unit := do
-    for oldSampleIdx in [0:add.samples.length] do
+    for oldSampleIdx in *...add.samples.length do
       let oldStackIdx := add.samples.stack[oldSampleIdx]!
       let stackIdx ← collideStacks oldStackIdx
       modify fun thread =>

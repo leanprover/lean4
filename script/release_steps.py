@@ -195,7 +195,7 @@ def execute_release_steps(repo, version, config):
     run_command(f"git checkout {default_branch} && git pull", cwd=repo_path)
     
     # Special rc1 safety check for batteries and mathlib4 (before creating any branches)
-    if re.search(r'rc\d+$', version) and repo_name in ["batteries", "mathlib4"] and version.endswith('-rc1'):
+    if repo_name in ["batteries", "mathlib4"] and version.endswith('-rc1'):
         print(blue("This repo has nightly-testing infrastructure"))
         print(blue(f"Checking if nightly-testing can be safely merged into bump/{version.split('-rc')[0]}..."))
         
@@ -403,7 +403,7 @@ def execute_release_steps(repo, version, config):
                 raise
 
     # Handle special merging cases
-    if re.search(r'rc\d+$', version) and repo_name in ["batteries", "mathlib4"]:
+    if version.endswith('-rc1') and repo_name in ["batteries", "mathlib4"]:
         print(blue("This repo uses `bump/v4.X.0` branches for reviewed content from nightly-testing."))
         
         # Determine which remote to use for bump branches
@@ -474,7 +474,7 @@ def execute_release_steps(repo, version, config):
                 
                 print(green("✅ Merge completed successfully with automatic conflict resolution"))
     
-    elif re.search(r'rc\d+$', version):
+    elif version.endswith('-rc1'):
         # For all other repos with rc versions, merge nightly-testing
         if repo_name in ["verso", "reference-manual"]:
             print(yellow("This repo does development on nightly-testing: remember to rebase merge the PR."))

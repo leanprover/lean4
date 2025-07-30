@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Parser.Attr
-import Lean.Parser.Level
-import Lean.Parser.Term.Doc
+public import Lean.Parser.Attr
+public import Lean.Parser.Level
+public import Lean.Parser.Term.Doc
+
+public section
 
 namespace Lean
 namespace Parser
@@ -15,9 +19,9 @@ namespace Command
 def commentBody : Parser :=
 { fn := rawFn (finishCommentBlock (pushMissingOnError := true) 1) (trailingWs := true) }
 
-@[combinator_parenthesizer commentBody]
+@[combinator_parenthesizer commentBody, expose]
 def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
-@[combinator_formatter commentBody]
+@[combinator_formatter commentBody, expose]
 def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
 
 /-- A `docComment` parses a "documentation comment" like `/-- foo -/`. This is not treated like
@@ -77,7 +81,7 @@ builtin_initialize
 /-- The syntax `{ tacs }` is an alternative syntax for `· tacs`.
 It runs the tactics in sequence, and fails if the goal is not solved. -/
 @[builtin_doc] def tacticSeqBracketed : Parser := leading_parser
-  "{" >> sepByIndentSemicolon tacticParser >> ppDedent (ppLine >> "}")
+  "{ " >> sepByIndentSemicolon tacticParser >> ppDedent ppLine >> "}"
 
 /-- A sequence of tactics in brackets, or a delimiter-free indented sequence of tactics.
 Delimiter-free indentation is determined by the *first* tactic of the sequence. -/
@@ -237,12 +241,16 @@ See also the `sorry` tactic, which is short for `exact sorry`.
 -/
 @[builtin_term_parser] def «sorry» := leading_parser
   "sorry"
+-- Left parenthesis with hygiene info, for cdot function expansion.
+def hygienicLParen : Parser := leading_parser (withAnonymousAntiquot := false)
+  "(" >> hygieneInfo
 /--
 A placeholder for an implicit lambda abstraction's variable. The lambda abstraction is scoped to the surrounding parentheses.
-For example, `(· + ·)` is equivalent to `fun x y => x + y`.
+For example, `(· + ·)` is equivalent to `fun x y => x + y`. Tuple notation and type ascription notation also serve as scopes.
+Note that `(· : ty)` expands to `((fun x => x) : ty)`, so `ty` should be a function type.
 -/
-@[builtin_term_parser] def cdot   := leading_parser
-  symbol "·" <|> "."
+@[builtin_term_parser] def cdot := leading_parser
+  unicodeSymbol "·" "." >> hygieneInfo
 /--
 Type ascription notation: `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.
 An empty type ascription `(e :)` elaborates `e` without the expected type.
@@ -250,11 +258,11 @@ This is occasionally useful when Lean's heuristics for filling arguments from th
 do not yield the right result.
 -/
 @[builtin_term_parser] def typeAscription := leading_parser
-  "(" >> (withoutPosition (withoutForbidden (termParser >> " :" >> optional (ppSpace >> termParser)))) >> ")"
+  hygienicLParen >> (withoutPosition (withoutForbidden (termParser >> " :" >> optional (ppSpace >> termParser)))) >> ")"
 
 /-- Tuple notation; `()` is short for `Unit.unit`, `(a, b, c)` for `Prod.mk a (Prod.mk b c)`, etc. -/
 @[builtin_term_parser] def tuple := leading_parser
-  "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
+  hygienicLParen >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
 
 recommended_spelling "mk" for "(a, b)" in [Prod.mk, tuple]
 
@@ -265,10 +273,10 @@ Can also be used for creating simple functions when combined with `·`. Here are
   - `(· + ·)` is shorthand for `fun x y => x + y`
   - `(f · a b)` is shorthand for `fun x => f x a b`
   - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`
-  - also applies to other parentheses-like notations such as `(·, 1)`
+  - also applies to other parentheses-like notations such as `(·, 1)` and `(· : Nat → Nat)`
 -/
 @[builtin_term_parser] def paren := leading_parser
-  "(" >> withoutPosition (withoutForbidden (ppDedentIfGrouped termParser)) >> ")"
+  hygienicLParen >> withoutPosition (withoutForbidden (ppDedentIfGrouped termParser)) >> ")"
 /--
 The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the
 expected type is an inductive type with a single constructor `c`.
@@ -312,7 +320,7 @@ def binderDefault := leading_parser
   " := " >> termParser
 
 open Lean.PrettyPrinter Parenthesizer Syntax.MonadTraverser in
-@[combinator_parenthesizer Lean.Parser.Term.binderDefault] def binderDefault.parenthesizer : Parenthesizer := do
+@[combinator_parenthesizer Lean.Parser.Term.binderDefault, expose] def binderDefault.parenthesizer : Parenthesizer := do
   let prec := match (← getCur) with
     -- must parenthesize to distinguish from `binderTactic`
     | `(binderDefault| := by $_) => maxPrec
@@ -498,7 +506,7 @@ def structInstFieldBinder :=
 def optTypeForStructInst : Parser := optional (atomic (typeSpec >> notFollowedBy "}" "}"))
 /- `x` is an abbreviation for `x := x` -/
 def structInstField := ppGroup <| leading_parser
-  structInstLVal >> optional (many (checkColGt >> structInstFieldBinder) >> optTypeForStructInst >> ppDedent structInstFieldDeclParser)
+  structInstLVal >> optional (many (checkColGt >> ppSpace >> structInstFieldBinder) >> optTypeForStructInst >> ppDedent structInstFieldDeclParser)
 /-
 Tags the structure instance field syntax with a `Lean.Parser.Term.structInstFields` syntax node.
 This node is used to enable structure instance field completion in the whitespace
@@ -590,7 +598,7 @@ def letIdDecl   := leading_parser (withAnonymousAntiquot := false)
 /- Remark: `requireParens` forces the pattern to have parentheses, for trying before `letIdDecl`.
    We need this because for `let (rfl) := h`, which would parse as `letIdDecl` due to `hygieneInfo`. -/
 def letPatDecl (requireParens := false) := leading_parser (withAnonymousAntiquot := false)
-  atomic ((if requireParens then lookahead "(" >> paren else termParser) >> pushNone >> optType >> " := ") >> termParser
+  atomic (ppSpace >> (if requireParens then lookahead "(" >> paren else termParser) >> pushNone >> optType >> " := ") >> termParser
 /-
   Remark: the following `(" := " <|> matchAlts)` is a hack we use
   to produce a better error message at `letDecl`.
@@ -751,7 +759,7 @@ indicates the function is expected to be structural recursive on the argument. I
 the body of the `termination_by` clause must be one of the function's parameters.
 
 If omitted, a termination measure will be inferred. If written as `termination_by?`,
-the inferrred termination measure will be suggested.
+the inferred termination measure will be suggested.
 
 -/
 @[builtin_doc] def terminationBy := leading_parser

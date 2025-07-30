@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Std.Tactic.Do.Syntax
-import Lean.Elab.Tactic.Do.ProofMode.Cases
-import Lean.Elab.Tactic.Do.ProofMode.Specialize
+public import Std.Tactic.Do.Syntax
+public import Lean.Elab.Tactic.Do.ProofMode.Cases
+public import Lean.Elab.Tactic.Do.ProofMode.Specialize
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic
@@ -26,9 +30,9 @@ def elabMDup : Tactic
     addHypInfo h goal.σs hyp (isBinder := true)
     let H' := hyp.toExpr
     let T := goal.target
-    let newGoal := { goal with hyps := mkAnd! goal.σs P H' }
+    let newGoal := { goal with hyps := mkAnd! goal.u goal.σs P H' }
     let m ← mkFreshExprSyntheticOpaqueMVar newGoal.toExpr
-    mvar.assign (mkApp7 (mkConst ``Have.dup) goal.σs P Q H T res.proof m)
+    mvar.assign (mkApp7 (mkConst ``Have.dup [goal.u]) goal.σs P Q H T res.proof m)
     replaceMainGoal [m.mvarId!]
   | _ => throwUnsupportedSyntax
 
@@ -39,7 +43,7 @@ def elabMHave : Tactic
     mvar.withContext do
     -- build goal `P ⊢ₛ T` from `P ⊢ₛ H` and residual goal `P ∧ H ⊢ₛ T`
     let P := goal.hyps
-    let spred := mkApp (mkConst ``SPred) goal.σs
+    let spred := mkApp (mkConst ``SPred [goal.u]) goal.σs
     let H ← match ty? with
       | some ty => elabTerm ty spred
       | _       => mkFreshExprMVar spred
@@ -48,12 +52,12 @@ def elabMHave : Tactic
     addHypInfo h goal.σs hyp (isBinder := true)
     let H := hyp.toExpr
     let T := goal.target
-    let (PH, hand) := mkAnd goal.σs P H
+    let (PH, hand) := mkAnd goal.u goal.σs P H
     let haveGoal := { goal with target := H }
     let hhave ← elabTermEnsuringType rhs haveGoal.toExpr
     let newGoal := { goal with hyps := PH }
     let m ← mkFreshExprSyntheticOpaqueMVar newGoal.toExpr
-    mvar.assign (mkApp8 (mkConst ``Have.have) goal.σs P H PH T hand hhave m)
+    mvar.assign (mkApp8 (mkConst ``Have.have [goal.u]) goal.σs P H PH T hand hhave m)
     replaceMainGoal [m.mvarId!]
   | _ => throwUnsupportedSyntax
 
@@ -67,7 +71,7 @@ def elabMReplace : Tactic
     let some res := goal.focusHyp h.raw.getId | throwError m!"Hypothesis {h} not found"
     let P := res.restHyps
     let H := res.focusHyp
-    let spred := mkApp (mkConst ``SPred) goal.σs
+    let spred := mkApp (mkConst ``SPred [goal.u]) goal.σs
     let H' ← match ty? with
       | some ty => elabTerm ty spred
       | _       => mkFreshExprMVar spred
@@ -78,10 +82,10 @@ def elabMReplace : Tactic
     let haveGoal := { goal with target := H' }
     let hhave ← elabTermEnsuringType rhs haveGoal.toExpr
     let T := goal.target
-    let (PH', hand) := mkAnd goal.σs P H'
+    let (PH', hand) := mkAnd goal.u goal.σs P H'
     let newGoal := { goal with hyps := PH' }
     let m ← mkFreshExprSyntheticOpaqueMVar newGoal.toExpr
-    let prf := mkApp (mkApp10 (mkConst ``Have.replace) goal.σs P H H' PH PH' T res.proof hand hhave) m
+    let prf := mkApp (mkApp10 (mkConst ``Have.replace [goal.u]) goal.σs P H H' PH PH' T res.proof hand hhave) m
     mvar.assign prf
     replaceMainGoal [m.mvarId!]
   | _ => throwUnsupportedSyntax

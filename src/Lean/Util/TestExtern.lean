@@ -3,18 +3,22 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.Command
-import Lean.Meta.Tactic.Unfold
-import Lean.Meta.Eval
-import Lean.Compiler.ImplementedByAttr
+public import Lean.Elab.Command
+meta import Lean.Meta.Tactic.Unfold
+meta import Lean.Meta.Eval
+meta import Lean.Compiler.ImplementedByAttr
+meta import Lean.Elab.Command
+
+public section
 
 open Lean Elab Meta Command Term Compiler
 
 syntax (name := testExternCmd) "test_extern " term : command
 
-@[command_elab testExternCmd] unsafe def elabTestExtern : CommandElab
+@[command_elab testExternCmd] meta unsafe def elabTestExtern : CommandElab
   | `(test_extern $t:term) => liftTermElabM do
     let t ← elabTermAndSynthesize t none
     match t.getAppFn with

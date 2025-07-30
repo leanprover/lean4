@@ -16,6 +16,7 @@ extern "C" {
 lean_object* l_Int_gcd(lean_object*, lean_object*);
 lean_object* l_Int_lcm(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left__inv(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Int_Cooper_resolve__left_spec__0(lean_object*);
 lean_object* lean_int_emod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left_x27___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_add__of__le___redArg___boxed(lean_object*, lean_object*);
@@ -71,6 +72,14 @@ x_4 = l_Int_add__of__le(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___Int_Cooper_resolve__left_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Int_Cooper_resolve__left(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

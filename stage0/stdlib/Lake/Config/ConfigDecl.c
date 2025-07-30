@@ -447,7 +447,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_ConfigDecl_partialKey(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -477,7 +477,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_instCoeOutKConfigDeclPartialBuildKey___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -513,7 +513,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_PConfigDecl_config_x27___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -522,7 +522,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_PConfigDecl_config_x27(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -550,7 +550,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_NConfigDecl_config_x27___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -559,7 +559,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_NConfigDecl_config_x27(x_1, x_2, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
@@ -593,7 +593,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_ConfigDecl_config_x3f(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -649,7 +649,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_PConfigDecl_config_x3f___redArg(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -659,7 +659,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_PConfigDecl_config_x3f(x_1, x_2, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
@@ -716,7 +716,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_NConfigDecl_config_x3f___redArg(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -726,7 +726,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lake_NConfigDecl_config_x3f(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
+lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -779,7 +779,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_ConfigDecl_leanLibConfig_x3f(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -836,7 +836,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_NConfigDecl_leanLibConfig_x3f___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -845,7 +845,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_NConfigDecl_leanLibConfig_x3f(x_1, x_2, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
@@ -880,7 +880,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_ConfigDecl_leanExeConfig_x3f(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -937,7 +937,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_NConfigDecl_leanExeConfig_x3f___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -946,7 +946,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_NConfigDecl_leanExeConfig_x3f(x_1, x_2, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
@@ -1005,7 +1005,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_PConfigDecl_externLibConfig_x3f___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -1014,7 +1014,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_PConfigDecl_externLibConfig_x3f(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -1072,7 +1072,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_NConfigDecl_externLibConfig_x3f___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -1081,7 +1081,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_NConfigDecl_externLibConfig_x3f(x_1, x_2, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
@@ -1133,7 +1133,7 @@ _start:
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
-lean_dec(x_8);
+lean_dec_ref(x_8);
 lean_inc(x_5);
 return x_5;
 }
@@ -1146,7 +1146,7 @@ if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
+lean_inc_ref(x_10);
 x_11 = l___private_Lake_Config_ConfigDecl_0__Lake_ConfigType_match__1_splitter___redArg___closed__0;
 x_12 = lean_string_dec_eq(x_10, x_11);
 if (x_12 == 0)
@@ -1169,7 +1169,7 @@ if (x_18 == 0)
 lean_object* x_19; uint8_t x_20; 
 x_19 = l___private_Lake_Config_ConfigDecl_0__Lake_ConfigType_match__1_splitter___redArg___closed__4;
 x_20 = lean_string_dec_eq(x_10, x_19);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 if (x_20 == 0)
 {
 lean_object* x_21; 
@@ -1178,44 +1178,44 @@ return x_21;
 }
 else
 {
-lean_dec(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_8);
+lean_dec_ref(x_1);
 lean_inc(x_7);
 return x_7;
 }
 }
 else
 {
-lean_dec(x_10);
-lean_dec(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_10);
+lean_dec_ref(x_8);
+lean_dec_ref(x_1);
 lean_inc(x_6);
 return x_6;
 }
 }
 else
 {
-lean_dec(x_10);
-lean_dec(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_10);
+lean_dec_ref(x_8);
+lean_dec_ref(x_1);
 lean_inc(x_4);
 return x_4;
 }
 }
 else
 {
-lean_dec(x_10);
-lean_dec(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_10);
+lean_dec_ref(x_8);
+lean_dec_ref(x_1);
 lean_inc(x_3);
 return x_3;
 }
 }
 else
 {
-lean_dec(x_10);
-lean_dec(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_10);
+lean_dec_ref(x_8);
+lean_dec_ref(x_1);
 lean_inc(x_2);
 return x_2;
 }
@@ -1296,7 +1296,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_PConfigDecl_opaqueTargetConfig___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -1305,7 +1305,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_PConfigDecl_opaqueTargetConfig(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -1333,7 +1333,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_NConfigDecl_opaqueTargetConfig___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -1342,7 +1342,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lake_NConfigDecl_opaqueTargetConfig(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
@@ -1399,7 +1399,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_PConfigDecl_opaqueTargetConfig_x3f___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -1408,7 +1408,7 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lake_PConfigDecl_opaqueTargetConfig_x3f(x_1, x_2);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -1464,7 +1464,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_NConfigDecl_opaqueTargetConfig_x3f___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -1473,7 +1473,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_NConfigDecl_opaqueTargetConfig_x3f(x_1, x_2, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;

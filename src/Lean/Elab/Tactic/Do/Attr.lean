@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Lean.Meta
-import Std.Do.Triple.Basic
-import Std.Tactic.Do.Syntax
+public import Lean.Meta.Tactic.Simp
+public import Std.Do.Triple.Basic
+public import Std.Tactic.Do.Syntax
+
+public section
 
 namespace Lean.Elab.Tactic.Do.SpecAttr
 
@@ -162,12 +166,12 @@ private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM
   withNewMCtxDepth do
   let (xs, _, type) ← withSimpGlobalConfig (forallMetaTelescopeReducing type)
   let type ← whnfR type
-  let_expr Triple _m ps _inst _α prog P _Q := type
+  let_expr c@Triple _m ps _inst _α prog P _Q := type
     | throwError "unexpected kind of spec theorem; not a triple{indentExpr type}"
   let keys ← DiscrTree.mkPath prog (noIndexAtArgs := false)
   -- beta potential of `P` describes how many times we want to `mintro ∀s`, that is,
   -- *eta*-expand the goal.
-  let σs := mkApp (mkConst ``PostShape.args) ps
+  let σs := mkApp (mkConst ``PostShape.args [c.constLevels![0]!]) ps
   let etaPotential ← computeMVarBetaPotentialForSPred xs σs P
   -- logInfo m!"Beta potential {etaPotential} for {P}"
   -- logInfo m!"mkSpecTheorem: {keys}, proof: {proof}"

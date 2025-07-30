@@ -3,24 +3,29 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Tactics
-import Init.Data.Queue
-import Std.Data.TreeSet
-import Lean.HeadIndex
-import Lean.Meta.Basic
-import Lean.Meta.CongrTheorems
-import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Ext
-import Lean.Meta.Tactic.Grind.ExprPtr
-import Lean.Meta.Tactic.Grind.AlphaShareCommon
-import Lean.Meta.Tactic.Grind.Attr
-import Lean.Meta.Tactic.Grind.ExtAttr
-import Lean.Meta.Tactic.Grind.Cases
-import Lean.Meta.Tactic.Grind.Arith.Types
-import Lean.Meta.Tactic.Grind.EMatchTheorem
+public import Init.Grind.Tactics
+public import Init.Data.Queue
+public import Std.Data.TreeSet.Basic
+public import Lean.HeadIndex
+public import Lean.Meta.Basic
+public import Lean.Meta.CongrTheorems
+public import Lean.Meta.AbstractNestedProofs
+public import Lean.Meta.Tactic.Simp.Types
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Ext
+public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Lean.Meta.Tactic.Grind.AlphaShareCommon
+public import Lean.Meta.Tactic.Grind.Attr
+public import Lean.Meta.Tactic.Grind.ExtAttr
+public import Lean.Meta.Tactic.Grind.Cases
+public import Lean.Meta.Tactic.Grind.Arith.Types
+public import Lean.Meta.Tactic.Grind.EMatchTheorem
+meta import Lean.Parser.Do
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -106,6 +111,8 @@ structure Context where
   reportMVarIssue : Bool := true
   /-- Current source of case-splits. -/
   splitSource  : SplitSource := .input
+  /-- Symbol priorities for inferring E-matching patterns -/
+  symPrios     : SymbolPriorities
   trueExpr     : Expr
   falseExpr    : Expr
   natZExpr     : Expr
@@ -202,8 +209,8 @@ structure State where
   reflCmpMap : PHashMap ExprPtr (Option Expr) := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
-private def MethodsRef : Type := MethodsRefPointed.type
-instance : Nonempty MethodsRef := MethodsRefPointed.property
+def MethodsRef : Type := MethodsRefPointed.type
+instance : Nonempty MethodsRef := by exact MethodsRefPointed.property
 
 abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 
@@ -261,6 +268,10 @@ def cheapCasesOnly : GrindM Bool :=
 
 def reportMVarInternalization : GrindM Bool :=
   return (← readThe Context).reportMVarIssue
+
+/-- Returns symbol priorities for inferring E-matching patterns. -/
+def getSymbolPriorities : GrindM SymbolPriorities := do
+  return (← readThe Context).symPrios
 
 /--
 Returns `true` if `declName` is the name of a `match` equation or a `match` congruence equation.
@@ -320,6 +331,16 @@ def shareCommon (e : Expr) : GrindM Expr := do
   let (e, scState) := shareCommonAlpha e scState
   modify fun s => { s with scState }
   return e
+
+/--
+Returns `true` if `e` has already been hash-consed.
+Recall that we use `shareCommon` as the last step of the preprocessing
+function `preprocess`.
+Later, we create terms using new terms that have already been preprocessed,
+and we skip preprocessing steps by checking whether `inShareCommon` returns `true`
+-/
+def inShareCommon (e : Expr) : GrindM Bool := do
+  return (← get).scState.map.contains { expr := e }
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=
@@ -443,7 +464,10 @@ inductive NewFact where
   | eq (lhs rhs proof : Expr) (isHEq : Bool)
   | fact (prop proof : Expr) (generation : Nat)
 
-abbrev ENodeMap := PHashMap ExprPtr ENode
+-- This type should be considered opaque outside this module.
+def ENodeMap := PHashMap ExprPtr ENode
+instance : Inhabited ENodeMap where
+  default := private (id {})  -- TODO(sullrich): `id` works around `private` not respecting the expected type
 
 /--
 Key for the congruence table.
@@ -471,6 +495,7 @@ private def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
     mixHash (hashRoot enodes d) (hashRoot enodes b)
   else match_expr e with
   | Grind.nestedProof p _ => hashRoot enodes p
+  | Grind.nestedDecidable p _ => mixHash 13 (hashRoot enodes p)
   | Eq _ lhs rhs => goEq lhs rhs
   | _ => go e 17
 where
@@ -494,12 +519,12 @@ private partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
   | Grind.nestedProof p₁ _ =>
     let_expr Grind.nestedProof p₂ _ := b | false
     hasSameRoot enodes p₁ p₂
-  | Eq α₁ lhs₁ rhs₁ =>
-    let_expr Eq α₂ lhs₂ rhs₂ := b | false
-    if isSameExpr α₁ α₂ then
-      goEq lhs₁ rhs₁ lhs₂ rhs₂
-    else
-      go a b
+  | Grind.nestedDecidable p₁ _ =>
+    let_expr Grind.nestedDecidable p₂ _ := b | false
+    hasSameRoot enodes p₁ p₂
+  | Eq _ lhs₁ rhs₁ =>
+    let_expr Eq _ lhs₂ rhs₂ := b | false
+    goEq lhs₁ rhs₁ lhs₂ rhs₂
   | _ =>
     if a.isApp && b.isApp then
       go a b
@@ -519,10 +544,10 @@ where
       hasSameRoot enodes a b
 
 instance : Hashable (CongrKey enodeMap) where
-  hash k := congrHash enodeMap k.e
+  hash k := private congrHash enodeMap k.e
 
 instance : BEq (CongrKey enodeMap) where
-  beq k1 k2 := isCongruent enodeMap k1.e k2.e
+  beq k1 k2 := private isCongruent enodeMap k1.e k2.e
 
 abbrev CongrTable (enodeMap : ENodeMap) := PHashSet (CongrKey enodeMap)
 
@@ -711,7 +736,7 @@ structure Clean.State where
 structure Goal where
   mvarId       : MVarId
   canon        : Canon.State := {}
-  private enodeMap : ENodeMap := {}
+  enodeMap     : ENodeMap := default
   exprs        : PArray Expr := {}
   parents      : ParentMap := {}
   congrTable   : CongrTable enodeMap := {}
@@ -1091,7 +1116,7 @@ Notifies the cutsat module that `a ≠ b` where
 @[extern "lean_process_cutsat_diseq"] -- forward definition
 opaque Arith.Cutsat.processNewDiseq (a b : Expr) : GoalM Unit
 
-/-- Returns `true` if `e` is a nonegative numeral and has type `Int`. -/
+/-- Returns `true` if `e` is a nonnegative numeral and has type `Int`. -/
 def isNonnegIntNum (e : Expr) : Bool := Id.run do
   let_expr OfNat.ofNat _ _ inst := e | false
   let_expr instOfNat _ := inst | false
@@ -1532,14 +1557,6 @@ def getExtTheorems (type : Expr) : GoalM (Array Ext.ExtTheorem) := do
       thms.filterM fun thm => isExtTheorem thm.declName
     modify fun s => { s with extThms := s.extThms.insert { expr := type } thms }
     return thms
-
-/--
-Helper function for instantiating a type class `type`, and
-then using the result to perform `isDefEq x val`.
--/
-def synthesizeInstanceAndAssign (x type : Expr) : MetaM Bool := do
-  let .some val ← trySynthInstance type | return false
-  isDefEq x val
 
 /-- Add a new lookahead candidate. -/
 def addLookaheadCandidate (sinfo : SplitInfo) : GoalM Unit := do

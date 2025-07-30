@@ -18,7 +18,7 @@ Example adapted from #2044
   : CommandElabM Unit
 )
 
-/-- error: unknown identifier 'instNonemptyFoo' -/
+/-- error: Unknown identifier `instNonemptyFoo` -/
 #guard_msgs in #check instNonemptyFoo
 
 -- Verify that `instNonemptyFoo` is the name it would generate if it weren't hygienic
@@ -43,7 +43,7 @@ open Lean Elab Command
   elabCommand stx
   : CommandElabM Unit
 )
-/-- error: unknown identifier 'instToJsonFoo' -/
+/-- error: Unknown identifier `instToJsonFoo` -/
 #guard_msgs in #check instToJsonFoo
 
 deriving instance ToJson for Foo

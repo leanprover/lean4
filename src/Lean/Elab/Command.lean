@@ -3,13 +3,19 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Meta.Diagnostics
-import Lean.Elab.Binders
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.SetOption
-import Lean.Language.Basic
-import Lean.Meta.ForEachExpr
+public import Init.Data.Range.Polymorphic.Stream
+public import Lean.Meta.Diagnostics
+public import Lean.Elab.Binders
+public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.SetOption
+public import Lean.Language.Basic
+public import Lean.Meta.ForEachExpr
+public meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab.Command
 
@@ -89,7 +95,7 @@ structure State where
   nextMacroScope : Nat := firstFrontendMacroScope + 1
   maxRecDepth    : Nat
   ngen           : NameGenerator := {}
-  auxDeclNGen    : DeclNameGenerator := {}
+  auxDeclNGen    : DeclNameGenerator := .ofPrefix .anonymous
   infoState      : InfoState := {}
   traceState     : TraceState := {}
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
@@ -161,7 +167,7 @@ def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options :=
   scopes      := [{ header := "", opts }]
   maxRecDepth := maxRecDepth.get opts
   -- Outside of declarations, fall back to a module-specific prefix
-  auxDeclNGen := { namePrefix := mkPrivateName env .anonymous }
+  auxDeclNGen := .ofPrefix <| mkPrivateName env .anonymous
 }
 
 /- Linters should be loadable as plugins, so store in a global IO ref instead of an attribute managed by the
@@ -564,7 +570,7 @@ where go := do
                 let opts ← getOptions
                 -- For each command, associate it with new promise and old snapshot, if any, and
                 -- elaborate recursively
-                for cmd in cmds, cmdPromise in cmdPromises, i in [0:cmds.size] do
+                for cmd in cmds, cmdPromise in cmdPromises, i in *...cmds.size do
                   let oldCmd? := oldCmds?.bind (·[i]?)
                   withReader ({ · with snap? := some {
                     new := cmdPromise
@@ -655,7 +661,7 @@ The environment linter framework needs to be able to run linters with the same c
 as `liftTermElabM`, so we expose that context as a public function here.
 -/
 def mkMetaContext : Meta.Context := {
-  config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
+  keyedConfig := Meta.Config.toConfigWithKey { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
 }
 
 open Lean.Parser.Term in
@@ -690,7 +696,7 @@ consider using `runTermElabM`.
 Recall that `TermElabM` actions can automatically lift `MetaM` and `CoreM` actions.
 Example:
 ```
-import Lean
+public import Lean
 
 open Lean Elab Command Meta
 
@@ -730,7 +736,9 @@ command.
 
 Example:
 ```
-import Lean
+public import Lean
+
+public section
 
 open Lean Elab Command Meta
 

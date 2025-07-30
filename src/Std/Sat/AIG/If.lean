@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.AIG.CachedGatesLemmas
-import Std.Sat.AIG.LawfulVecOperator
+public import Std.Sat.AIG.CachedGatesLemmas
+public import Std.Sat.AIG.LawfulVecOperator
+
+@[expose] public section
 
 /-!
 Besides introducing a way to construct an if statement in an `AIG`, this module also demonstrates

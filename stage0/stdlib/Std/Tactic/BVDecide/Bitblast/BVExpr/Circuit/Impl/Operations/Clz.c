@@ -40,8 +40,8 @@ if (x_8 == 0)
 {
 lean_object* x_9; 
 lean_dec(x_6);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_4);
 lean_ctor_set(x_9, 1, x_7);
@@ -80,12 +80,11 @@ goto block_24;
 }
 else
 {
-lean_object* x_31; lean_object* x_32; uint8_t x_33; 
-x_31 = lean_box(0);
+uint8_t x_31; lean_object* x_32; 
+x_31 = 0;
 x_32 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_32, 0, x_26);
-x_33 = lean_unbox(x_31);
-lean_ctor_set_uint8(x_32, sizeof(void*)*1, x_33);
+lean_ctor_set_uint8(x_32, sizeof(void*)*1, x_31);
 x_17 = x_32;
 goto block_24;
 }
@@ -96,14 +95,14 @@ x_18 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_16);
 lean_ctor_set(x_18, 2, x_7);
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_19 = l_Std_Sat_AIG_RefVec_ite___redArg(x_1, x_2, x_3, x_4, x_18);
 x_20 = lean_ctor_get(x_19, 0);
-lean_inc(x_20);
+lean_inc_ref(x_20);
 x_21 = lean_ctor_get(x_19, 1);
-lean_inc(x_21);
-lean_dec(x_19);
+lean_inc_ref(x_21);
+lean_dec_ref(x_19);
 x_22 = lean_nat_add(x_6, x_11);
 lean_dec(x_6);
 x_4 = x_20;
@@ -127,7 +126,7 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastClz_go___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_3);
 return x_8;
 }
@@ -137,7 +136,7 @@ _start:
 {
 lean_object* x_9; 
 x_9 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastClz_go(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_4);
 return x_9;
 }
@@ -167,7 +166,7 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastClz___redArg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_3);
 return x_6;
 }
@@ -177,7 +176,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastClz(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_4);
 return x_7;
 }

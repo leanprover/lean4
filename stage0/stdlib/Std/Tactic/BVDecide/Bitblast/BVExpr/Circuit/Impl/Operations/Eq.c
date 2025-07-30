@@ -25,24 +25,24 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_mkEq___redArg(lean_object*
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_inc(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
 x_6 = lean_alloc_closure((void*)(l_Std_Sat_AIG_mkBEqCached), 5, 3);
 lean_closure_set(x_6, 0, lean_box(0));
 lean_closure_set(x_6, 1, x_1);
 lean_closure_set(x_6, 2, x_2);
 x_7 = l_Std_Sat_AIG_RefVec_zip___redArg(x_3, x_4, x_5, x_6);
 x_8 = lean_ctor_get(x_7, 0);
-lean_inc(x_8);
+lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_7, 1);
-lean_inc(x_9);
-lean_dec(x_7);
+lean_inc_ref(x_9);
+lean_dec_ref(x_7);
 x_10 = lean_alloc_closure((void*)(l_Std_Sat_AIG_mkAndCached), 5, 3);
 lean_closure_set(x_10, 0, lean_box(0));
 lean_closure_set(x_10, 1, x_1);
 lean_closure_set(x_10, 2, x_2);
 x_11 = l_Std_Sat_AIG_RefVec_fold___redArg(x_3, x_8, x_9, x_10);
-lean_dec(x_9);
+lean_dec_ref(x_9);
 return x_11;
 }
 }
@@ -59,7 +59,7 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Tactic_BVDecide_BVPred_mkEq___redArg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
+lean_dec_ref(x_5);
 lean_dec(x_3);
 return x_6;
 }
@@ -69,7 +69,7 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Tactic_BVDecide_BVPred_mkEq(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_4);
 return x_7;
 }

@@ -5,11 +5,15 @@ Authors: Leonardo de Moura
 
 Helper functions for retrieving structure information.
 -/
+module
+
 prelude
-import Init.Control.Option
-import Lean.Environment
-import Lean.ProjFns
-import Lean.Exception
+public import Init.Control.Option
+public import Lean.Environment
+public import Lean.ProjFns
+public import Lean.Exception
+
+public section
 
 namespace Lean
 
@@ -491,9 +495,9 @@ where
   selectParent (resOrders : Array (Array Name)) : m (Bool × Name) := do
     -- Assumption: every resOrder is nonempty.
     -- `n'` is for relaxation, to stop paying attention to end of `resOrders` when finding a good parent.
-    for n' in [0 : resOrders.size] do
+    for n' in *...resOrders.size do
       let hi := resOrders.size - n'
-      for i in [0 : hi] do
+      for i in *...hi do
         let parent := resOrders[i]![0]!
         let consistent resOrder := resOrder[1...*].all (· != parent)
         if resOrders[*...<i].all consistent && resOrders[i<...hi].all consistent then

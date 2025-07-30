@@ -85,26 +85,26 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lake_Target_repr___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_14; uint8_t x_15; 
-x_14 = lean_unsigned_to_nat(1024u);
-x_15 = lean_nat_dec_le(x_14, x_2);
-if (x_15 == 0)
+lean_object* x_3; lean_object* x_13; uint8_t x_14; 
+x_13 = lean_unsigned_to_nat(1024u);
+x_14 = lean_nat_dec_le(x_13, x_2);
+if (x_14 == 0)
 {
-lean_object* x_16; 
-x_16 = l_Lake_Target_repr___redArg___closed__3;
-x_3 = x_16;
-goto block_13;
+lean_object* x_15; 
+x_15 = l_Lake_Target_repr___redArg___closed__3;
+x_3 = x_15;
+goto block_12;
 }
 else
 {
-lean_object* x_17; 
-x_17 = l_Lake_Target_repr___redArg___closed__4;
-x_3 = x_17;
-goto block_13;
+lean_object* x_16; 
+x_16 = l_Lake_Target_repr___redArg___closed__4;
+x_3 = x_16;
+goto block_12;
 }
-block_13:
+block_12:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; 
 x_4 = l_Lake_Target_repr___redArg___closed__2;
 x_5 = lean_unsigned_to_nat(1024u);
 x_6 = l_Lake_reprBuildKey____x40_Lake_Build_Key___hyg_84_(x_1, x_5);
@@ -114,13 +114,12 @@ lean_ctor_set(x_7, 1, x_6);
 x_8 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_8, 0, x_3);
 lean_ctor_set(x_8, 1, x_7);
-x_9 = lean_box(0);
+x_9 = 0;
 x_10 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_10, 0, x_8);
-x_11 = lean_unbox(x_9);
-lean_ctor_set_uint8(x_10, sizeof(void*)*1, x_11);
-x_12 = l_Repr_addAppParen(x_10, x_2);
-return x_12;
+lean_ctor_set_uint8(x_10, sizeof(void*)*1, x_9);
+x_11 = l_Repr_addAppParen(x_10, x_2);
+return x_11;
 }
 }
 }
@@ -186,7 +185,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lake_instCoePartialBuildKeyTarget___lam__0(lean_object* x_1) {
 _start:
 {
-lean_inc(x_1);
+lean_inc_ref(x_1);
 return x_1;
 }
 }
@@ -203,7 +202,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lake_instCoePartialBuildKeyTarget___lam__0(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }

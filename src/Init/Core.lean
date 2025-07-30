@@ -752,6 +752,8 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 
 @[inherit_doc] infix:50 " != " => bne
 
+macro_rules | `($x != $y) => `(binrel_no_prop% bne $x $y)
+
 recommended_spelling "bne" for "!=" in [bne, «term_!=_»]
 
 /-- `ReflBEq α` says that the `BEq` implementation is reflexive. -/
@@ -852,6 +854,8 @@ and asserts that `a` and `b` are not equal.
   ¬(a = b)
 
 @[inherit_doc] infix:50 " ≠ "  => Ne
+
+macro_rules | `($x ≠ $y) => `(binrel% Ne $x $y)
 
 recommended_spelling "ne" for "≠" in [Ne, «term_≠_»]
 
@@ -1532,38 +1536,13 @@ end Setoid
 /-! # Propositional extensionality -/
 
 /--
-The axiom of **propositional extensionality**. It asserts that if propositions
-`a` and `b` are logically equivalent (i.e. we can prove `a` from `b` and vice versa),
-then `a` and `b` are *equal*, meaning that we can replace `a` with `b` in all
-contexts.
+The [axiom](lean-manual://section/axioms) of **propositional extensionality**. It asserts that if
+propositions `a` and `b` are logically equivalent (that is, if `a` can be proved from `b` and vice
+versa), then `a` and `b` are *equal*, meaning `a` can be replaced with `b` in all contexts.
 
-For simple expressions like `a ∧ c ∨ d → e` we can prove that because all the logical
-connectives respect logical equivalence, we can replace `a` with `b` in this expression
-without using `propext`. However, for higher order expressions like `P a` where
-`P : Prop → Prop` is unknown, or indeed for `a = b` itself, we cannot replace `a` with `b`
-without an axiom which says exactly this.
-
-This is a relatively uncontroversial axiom, which is intuitionistically valid.
-It does however block computation when using `#reduce` to reduce proofs directly
-(which is not recommended), meaning that canonicity,
-the property that all closed terms of type `Nat` normalize to numerals,
-fails to hold when this (or any) axiom is used:
-```
-set_option pp.proofs true
-
-def foo : Nat := by
-  have : (True → True) ↔ True := ⟨λ _ => trivial, λ _ _ => trivial⟩
-  have := propext this ▸ (2 : Nat)
-  exact this
-
-#reduce foo
--- propext { mp := fun x x => True.intro, mpr := fun x => True.intro } ▸ 2
-
-#eval foo -- 2
-```
-`#eval` can evaluate it to a numeral because the compiler erases casts and
-does not evaluate proofs, so `propext`, whose return type is a proposition,
-can never block it.
+The standard logical connectives provably respect propositional extensionality. However, an axiom is
+needed for higher order expressions like `P a` where `P : Prop → Prop` is unknown, as well as for
+equality. Propositional extensionality is intuitionistically valid.
 -/
 axiom propext {a b : Prop} : (a ↔ b) → a = b
 
@@ -2538,3 +2517,7 @@ class Irrefl (r : α → α → Prop) : Prop where
   irrefl : ∀ a, ¬r a a
 
 end Std
+
+/-- Deprecated alias for `XorOp`. -/
+@[deprecated XorOp (since := "2025-07-30")]
+abbrev Xor := XorOp

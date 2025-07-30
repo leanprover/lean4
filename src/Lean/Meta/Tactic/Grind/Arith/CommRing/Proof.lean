@@ -3,13 +3,18 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Ring.OfSemiring
-import Lean.Meta.Tactic.Grind.Diseq
-import Lean.Meta.Tactic.Grind.Arith.ProofUtil
-import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+public import Init.Grind.Ring.OfSemiring
+public import Lean.Meta.Tactic.Grind.Diseq
+public import Lean.Meta.Tactic.Grind.Arith.ProofUtil
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+
+public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
 
@@ -22,14 +27,14 @@ def toContextExpr : RingM Expr := do
   if h : 0 < ring.vars.size then
     RArray.toExpr ring.type id (RArray.ofFn (ring.vars[·]) h)
   else
-    RArray.toExpr ring.type id (RArray.leaf (mkApp ring.natCastFn (toExpr 0)))
+    RArray.toExpr ring.type id (RArray.leaf (mkApp (← getNatCastFn) (toExpr 0)))
 
 private def toSContextExpr' : SemiringM Expr := do
   let semiring ← getSemiring
   if h : 0 < semiring.vars.size then
     RArray.toExpr semiring.type id (RArray.ofFn (semiring.vars[·]) h)
   else
-    RArray.toExpr semiring.type id (RArray.leaf (mkApp semiring.natCastFn (toExpr 0)))
+    RArray.toExpr semiring.type id (RArray.leaf (mkApp (← getNatCastFn') (toExpr 0)))
 
 /-- Similar to `toContextExpr`, but for semirings. -/
 private def toSContextExpr (semiringId : Nat) : RingM Expr := do
@@ -111,7 +116,7 @@ def PreNullCert.combine (k₁ : Int) (m₁ : Mon) (c₁ : PreNullCert) (k₂ : I
   let qs₂   := c₂.qs
   let n := Nat.max qs₁.size qs₂.size
   let mut qs : Vector Poly n := Vector.replicate n (.num 0)
-  for h : i in [:n] do
+  for h : i in *...n do
     if h₁ : i < qs₁.size then
       let q₁ ← qs₁[i].mulMonM k₁ m₁
       if h₂ : i < qs₂.size then
@@ -120,7 +125,7 @@ def PreNullCert.combine (k₁ : Int) (m₁ : Mon) (c₁ : PreNullCert) (k₂ : I
       else
         qs := qs.set i q₁
     else
-      have : i < n := h.upper
+      have : i < n := Std.PRange.lt_upper_of_mem h
       have : qs₁.size = n ∨ qs₂.size = n := by simp +zetaDelta only [Nat.max_def, right_eq_ite_iff]; split <;> simp [*]
       have : i < qs₂.size := by omega
       let q₂ ← qs₂[i].mulMonM k₂ m₂
@@ -390,9 +395,12 @@ private def mkStepPrefix (declName declNameC : Name) : ProofM Expr := do
   else
     mkStepBasicPrefix declName
 
-private def getSemiringOf : RingM Semiring := do
+private def getSemiringIdOf : RingM Nat := do
   let some semiringId := (← getRing).semiringId? | throwError "`grind` internal error, semiring is not available"
-  SemiringM.run semiringId do getSemiring
+  return semiringId
+
+private def getSemiringOf : RingM Semiring := do
+  SemiringM.run (← getSemiringIdOf) do getSemiring
 
 private def mkSemiringPrefix (declName : Name) : ProofM Expr := do
   let sctx ← getSContext
@@ -402,7 +410,7 @@ private def mkSemiringPrefix (declName : Name) : ProofM Expr := do
 private def mkSemiringAddRightCancelPrefix (declName : Name) : ProofM Expr := do
   let sctx ← getSContext
   let semiring ← getSemiringOf
-  let some addRightCancelInst := semiring.addRightCancelInst?
+  let some addRightCancelInst ← SemiringM.run (← getSemiringIdOf) do getAddRightCancelInst?
     | throwError "`grind` internal error, `AddRightCancel` instance is not available"
   return mkApp4 (mkConst declName [semiring.u]) semiring.type semiring.semiringInst addRightCancelInst sctx
 

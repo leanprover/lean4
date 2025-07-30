@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Eqns
-import Lean.Meta.Tactic.Apply
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Eqns
+public import Lean.Meta.Tactic.Apply
+
+public section
 
 namespace Lean.Elab.WF
 open Meta
@@ -49,7 +53,7 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
   else if let some mvarId ← simpMatch? mvarId then
     trace[Elab.definition.wf.eqns] "simpMatch!"
     mkUnfoldProof declName mvarId
-  else if let some mvarId ← simpIf? mvarId then
+  else if let some mvarId ← simpIf? mvarId (useNewSemantics := true) then
     trace[Elab.definition.wf.eqns] "simpIf!"
     mkUnfoldProof declName mvarId
   else
@@ -63,7 +67,7 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
       if let some mvarIds ← casesOnStuckLHS? mvarId then
         trace[Elab.definition.wf.eqns] "case split into {mvarIds.size} goals"
         mvarIds.forM (mkUnfoldProof declName)
-      else if let some mvarIds ← splitTarget? mvarId then
+      else if let some mvarIds ← splitTarget? mvarId (useNewSemantics := true) then
         trace[Elab.definition.wf.eqns] "splitTarget into {mvarIds.length} goals"
         mvarIds.forM (mkUnfoldProof declName)
       else

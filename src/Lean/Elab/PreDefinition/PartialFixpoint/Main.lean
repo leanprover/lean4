@@ -3,14 +3,18 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Elab.PreDefinition.MkInhabitant
-import Lean.Elab.PreDefinition.Mutual
-import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
-import Lean.Elab.Tactic.Monotonicity
-import Init.Internal.Order.Basic
-import Lean.Meta.PProdN
-import Lean.Meta.Order
+public import Lean.Elab.PreDefinition.MkInhabitant
+public import Lean.Elab.PreDefinition.Mutual
+public import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
+public import Lean.Elab.Tactic.Monotonicity
+public import Init.Internal.Order.Basic
+public import Lean.Meta.PProdN
+public import Lean.Meta.Order
+
+public section
 
 namespace Lean.Elab
 
@@ -151,7 +155,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
 
     -- Adjust the body of each function to take the other functions as a
     -- (packed) parameter
-    let Fs ← preDefs.mapIdxM fun funIdx preDef => do
+    let Fs ← withoutExporting do preDefs.mapIdxM fun funIdx preDef => do
       let body ← fixedParamPerms.perms[funIdx]!.instantiateLambda preDef.value fixedArgs
       withLocalDeclD (← mkFreshUserName `f) packedType fun f => do
         let body' ← withoutModifyingEnv do
@@ -163,7 +167,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     -- Construct and solve monotonicity goals for each function separately
     -- This way we preserve the user's parameter names as much as possible
     -- and can (later) use the user-specified per-function tactic
-    let hmonos ← preDefs.mapIdxM fun i preDef => do
+    let hmonos ← withoutExporting do preDefs.mapIdxM fun i preDef => do
       let type := types[i]!
       let F := Fs[i]!
       let inst ← toPartialOrder insts'[i]! type

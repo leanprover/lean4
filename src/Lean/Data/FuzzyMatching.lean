@@ -8,10 +8,16 @@ used in LLVM with some modifications. The LLVM algorithm itself is based on VS
 code's client side filtering algorithm. For the LLVM implementation see
 https://clang.llvm.org/extra//doxygen/FuzzyMatch_8cpp_source.html
 -/
+module
+
 prelude
-import Init.Data.Range
-import Init.Data.OfScientific
-import Init.Data.Option.Coe
+public import Init.Data.Range.Polymorphic.Iterators
+public import Init.Data.Range.Polymorphic.Nat
+public import Init.Data.OfScientific
+public import Init.Data.Option.Coe
+public import Init.Data.Range
+
+public section
 
 namespace Lean
 namespace FuzzyMatching
@@ -36,7 +42,7 @@ private def containsInOrderLower (a b : String) : Bool := Id.run do
     return true
   let mut aIt := a.mkIterator
     -- TODO: the following code is assuming all characters are ASCII
-  for i in [:b.endPos.byteIdx] do
+  for i in *...b.endPos.byteIdx do
     if aIt.curr.toLower == (b.get ⟨i⟩).toLower then
       aIt := aIt.next
       if !aIt.hasNext then
@@ -124,7 +130,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
     /- For this dynamic program to be correct, it's only necessary to populate a range of length
    `word.length - pattern.length` at each index (because at the very end, we can only consider fuzzy matches
     of `pattern` with a longer substring of `word`). -/
-    for wordIdx in [patternIdx:word.length-(pattern.length - patternIdx - 1)] do
+    for wordIdx in [patternIdx:(word.length-(pattern.length - patternIdx - 1))] do
       let missScore? :=
         if wordIdx >= 1 then
           selectBest

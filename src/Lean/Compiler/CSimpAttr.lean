@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.ScopedEnvExtension
-import Lean.Util.Recognizers
-import Lean.Util.ReplaceExpr
+public import Lean.ScopedEnvExtension
+public import Lean.Util.Recognizers
+public import Lean.Util.ReplaceExpr
+
+public section
 
 namespace Lean.Compiler
 namespace CSimp
@@ -72,7 +76,6 @@ private def initFn :=
       discard <| add declName attrKind
   }
 
-@[export lean_csimp_replace_constants]
 def replaceConstants (env : Environment) (e : Expr) : Expr :=
   let s := ext.getState env
   e.replace fun e =>

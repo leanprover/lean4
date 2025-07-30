@@ -3,10 +3,14 @@ Copyright (c) 2019 Paul-Nicolas Madelaine. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul-Nicolas Madelaine, Robert Y. Lewis, Mario Carneiro, Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Meta.CongrTheorems
-import Lean.Meta.Tactic.Simp.Attr
-import Lean.Meta.CoeAttr
+public import Lean.Meta.CongrTheorems
+public import Lean.Meta.Tactic.Simp.Attr
+public import Lean.Meta.CoeAttr
+
+public section
 
 namespace Lean.Meta.NormCast
 /--
@@ -51,7 +55,7 @@ partial def countCoes (e : Expr) : MetaM Nat :=
       if let some info ← getCoeFnInfo? fn then
         if e.getAppNumArgs >= info.numArgs then
           let mut coes := (← countHeadCoes (e.getArg! info.coercee)) + 1
-          for i in [info.numArgs:e.getAppNumArgs] do
+          for i in info.numArgs...e.getAppNumArgs do
             coes := coes + (← countCoes (e.getArg! i))
           return coes
     return (← (← getSimpArgs e).mapM countCoes).foldl (·+·) 0

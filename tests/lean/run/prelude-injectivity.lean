@@ -11,7 +11,6 @@ gen_injective_theorems% MacroScopesView
 gen_injective_theorems% ParserDescr
 gen_injective_theorems% SourceInfo
 gen_injective_theorems% TSyntax
-gen_injective_theorems% Grind.Config
 gen_injective_theorems% Macro.Context
 gen_injective_theorems% Macro.Exception
 gen_injective_theorems% Macro.Methods

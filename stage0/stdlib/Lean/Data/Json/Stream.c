@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Json.Stream
-// Imports: Init.System.IO Lean.Data.Json.Parser Lean.Data.Json.Printer Lean.Data.Json.FromToJson
+// Imports: Init.System.IO Lean.Data.Json.Parser Lean.Data.Json.Printer
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -60,7 +60,7 @@ else
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_2);
@@ -99,8 +99,8 @@ _start:
 {
 lean_object* x_4; size_t x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
+lean_inc_ref(x_4);
+lean_dec_ref(x_1);
 x_5 = lean_usize_of_nat(x_2);
 x_6 = lean_box_usize(x_5);
 x_7 = lean_apply_2(x_4, x_6, x_3);
@@ -202,10 +202,10 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 4);
-lean_inc(x_5);
-lean_dec(x_1);
+lean_inc_ref(x_5);
+lean_dec_ref(x_1);
 x_6 = l_Lean_Json_compress(x_2);
 x_7 = lean_apply_2(x_5, x_6, x_3);
 if (lean_obj_tag(x_7) == 0)
@@ -213,13 +213,13 @@ if (lean_obj_tag(x_7) == 0)
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
-lean_dec(x_7);
+lean_dec_ref(x_7);
 x_9 = lean_apply_1(x_4, x_8);
 return x_9;
 }
 else
 {
-lean_dec(x_4);
+lean_dec_ref(x_4);
 return x_7;
 }
 }
@@ -227,7 +227,6 @@ return x_7;
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_Parser(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_Printer(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Json_FromToJson(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Json_Stream(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -240,9 +239,6 @@ res = initialize_Lean_Data_Json_Parser(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Json_Printer(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Json_FromToJson(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_IO_FS_Stream_readJson___closed__0 = _init_l_IO_FS_Stream_readJson___closed__0();

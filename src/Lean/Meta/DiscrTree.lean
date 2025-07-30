@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jannis Limperg, Kim Morrison
 -/
+module
+
 prelude
-import Lean.Meta.WHNF
-import Lean.Meta.Transform
-import Lean.Meta.DiscrTreeTypes
+public import Lean.Meta.WHNF
+public import Lean.Meta.Transform
+public import Lean.Meta.DiscrTreeTypes
+
+public section
 
 namespace Lean.Meta.DiscrTree
 /-!
@@ -123,7 +127,7 @@ where
 
   goN (num : Nat) : StateRefT (List Key) CoreM (Array MessageData) := do
     let mut r := #[]
-    for _ in [: num] do
+    for _ in *...num do
       r := r.push (← go)
     return r
 

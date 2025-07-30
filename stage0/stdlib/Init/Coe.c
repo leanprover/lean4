@@ -709,7 +709,6 @@ _start:
 {
 uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_decPropToBool___redArg(x_2);
 x_4 = lean_box(x_3);
 return x_4;
@@ -720,7 +719,6 @@ _start:
 {
 uint8_t x_3; uint8_t x_4; lean_object* x_5; 
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 x_4 = l_decPropToBool(x_1, x_3);
 x_5 = lean_box(x_4);
 return x_5;
@@ -764,13 +762,13 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
+lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
-lean_dec(x_3);
+lean_inc_ref(x_6);
+lean_dec_ref(x_3);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc(x_7);
-lean_dec(x_5);
+lean_inc_ref(x_7);
+lean_dec_ref(x_5);
 x_8 = lean_apply_2(x_1, lean_box(0), x_4);
 x_9 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___redArg___lam__0), 3, 2);
 lean_closure_set(x_9, 0, x_2);
@@ -784,13 +782,13 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_9 = lean_ctor_get(x_7, 0);
-lean_inc(x_9);
+lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_7, 1);
-lean_inc(x_10);
-lean_dec(x_7);
+lean_inc_ref(x_10);
+lean_dec_ref(x_7);
 x_11 = lean_ctor_get(x_9, 1);
-lean_inc(x_11);
-lean_dec(x_9);
+lean_inc_ref(x_11);
+lean_dec_ref(x_9);
 x_12 = lean_apply_2(x_5, lean_box(0), x_8);
 x_13 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___redArg___lam__0), 3, 2);
 lean_closure_set(x_13, 0, x_6);
@@ -804,13 +802,13 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
+lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_2, 1);
-lean_inc(x_5);
-lean_dec(x_2);
+lean_inc_ref(x_5);
+lean_dec_ref(x_2);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc(x_6);
-lean_dec(x_4);
+lean_inc_ref(x_6);
+lean_dec_ref(x_4);
 x_7 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___redArg___lam__0), 3, 2);
 lean_closure_set(x_7, 0, x_1);
 lean_closure_set(x_7, 1, x_6);
@@ -823,13 +821,13 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = lean_ctor_get(x_5, 0);
-lean_inc(x_7);
+lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_5, 1);
-lean_inc(x_8);
-lean_dec(x_5);
+lean_inc_ref(x_8);
+lean_dec_ref(x_5);
 x_9 = lean_ctor_get(x_7, 1);
-lean_inc(x_9);
-lean_dec(x_7);
+lean_inc_ref(x_9);
+lean_dec_ref(x_7);
 x_10 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___redArg___lam__0), 3, 2);
 lean_closure_set(x_10, 0, x_4);
 lean_closure_set(x_10, 1, x_9);

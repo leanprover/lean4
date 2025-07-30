@@ -1369,7 +1369,7 @@ Each element of a list is related to all later elements of the list by `R`.
 `Pairwise R l` means that all the elements of `l` with earlier indexes are `R`-related to all the
 elements with later indexes.
 
-For example, `Pairwise (· ≠ ·) l` asserts that `l` has no duplicates, and if `Pairwise (· < ·) l`
+For example, `Pairwise (· ≠ ·) l` asserts that `l` has no duplicates, and `Pairwise (· < ·) l`
 asserts that `l` is (strictly) sorted.
 
 Examples:

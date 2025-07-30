@@ -3,17 +3,21 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Structure
-import Lean.Util.Recognizers
-import Lean.Util.SafeExponentiation
-import Lean.Meta.GetUnfoldableConst
-import Lean.Meta.FunInfo
-import Lean.Meta.Offset
-import Lean.Meta.CtorRecognizer
-import Lean.Meta.Match.MatcherInfo
-import Lean.Meta.Match.MatchPatternAttr
-import Lean.Meta.Transform
+public import Lean.Structure
+public import Lean.Util.Recognizers
+public import Lean.Util.SafeExponentiation
+public import Lean.Meta.GetUnfoldableConst
+public import Lean.Meta.FunInfo
+public import Lean.Meta.Offset
+public import Lean.Meta.CtorRecognizer
+public import Lean.Meta.Match.MatcherInfo
+public import Lean.Meta.Match.MatchPatternAttr
+public import Lean.Meta.Transform
+
+public section
 
 namespace Lean.Meta
 
@@ -182,7 +186,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
         let ctorInfo ← getConstInfoCtor ctorName
         let params := majorType.getAppArgs.shrink ctorInfo.numParams
         let mut result := mkAppN (mkConst ctorName us) params
-        for i in [:ctorInfo.numFields] do
+        for i in *...ctorInfo.numFields do
           result := mkApp result (← mkProjFn ctorInfo us params i major)
         return result
     | _ => return major
@@ -664,7 +668,7 @@ where
           | .partialApp   => pure e
           | .stuck _      => pure e
           | .notMatcher   =>
-            let .const cname lvls := f' | return e
+            let .const cname lvls := f'.getAppFn | return e
             let some cinfo := (← getEnv).find? cname | return e
             match cinfo with
             | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)

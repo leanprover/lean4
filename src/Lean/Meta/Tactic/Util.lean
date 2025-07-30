@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.ForEachExprWhere
-import Lean.Meta.Basic
-import Lean.Meta.AppBuilder
-import Lean.Meta.PPGoal
+public import Lean.Util.ForEachExprWhere
+public import Lean.Meta.Basic
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.PPGoal
+
+public section
 
 namespace Lean.Meta
 
@@ -36,8 +40,8 @@ def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) 
 
 def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg? : Option MessageData := none) : MetaM α :=
   match msg? with
-  | none => throwError "tactic '{tacticName}' failed\n{mvarId}"
-  | some msg => throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
+  | none => throwError "Tactic `{tacticName}` failed\n\n{mvarId}"
+  | some msg => throwError "Tactic `{tacticName}` failed: {msg}\n\n{mvarId}"
 
 /--
 Rethrows the error as a nested error with the given tactic name prepended.
@@ -45,7 +49,7 @@ If the error was tagged, prepends `nested` to the tag and preserves it.
 -/
 def throwNestedTacticEx {α} (tacticName : Name) (ex : Exception) : MetaM α := do
   let nestedMsg := ex.toMessageData
-  let msg := m!"tactic '{tacticName}' failed, nested error:\n{ex.toMessageData}"
+  let msg := m!"Tactic `{tacticName}` failed with a nested error:\n{ex.toMessageData}"
   let msg := if let .tagged tag _ := nestedMsg then
     .tagged (`nested ++ tag) msg
   else msg

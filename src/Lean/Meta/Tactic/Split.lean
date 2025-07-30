@@ -3,12 +3,16 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Match.MatcherApp.Basic
-import Lean.Meta.Tactic.Simp.Main
-import Lean.Meta.Tactic.SplitIf
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Generalize
+public import Lean.Meta.Match.MatcherApp.Basic
+public import Lean.Meta.Tactic.Simp.Main
+public import Lean.Meta.Tactic.SplitIf
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Generalize
+
+public section
 
 namespace Lean.Meta
 namespace Split
@@ -140,7 +144,7 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
           let matcherApp := { matcherApp with discrs := discrVars }
           foundRef.set true
           let mut altsNew := #[]
-          for h : i in [:matcherApp.alts.size] do
+          for h : i in *...matcherApp.alts.size do
             let alt := matcherApp.alts[i]
             let altNumParams := matcherApp.altNumParams[i]!
             let altNew ← lambdaTelescope alt fun xs body => do
@@ -280,12 +284,16 @@ end Split
 
 open Split
 
-partial def splitTarget? (mvarId : MVarId) (splitIte := true) : MetaM (Option (List MVarId)) := commitWhenSome? do mvarId.withContext do
+/--
+Splits an `if-then-else` of `match`-expression in the goal target.
+If `useNewSemantics` is `true`, the flag `backward.split` is ignored. Recall this flag only affects the split of `if-then-else` expressions.
+-/
+partial def splitTarget? (mvarId : MVarId) (splitIte := true) (useNewSemantics := false) : MetaM (Option (List MVarId)) := commitWhenSome? do mvarId.withContext do
   let target ← instantiateMVars (← mvarId.getType)
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
     if let some e ← findSplit? target (if splitIte then .both else .match) badCases then
       if e.isIte || e.isDIte then
-        return (← splitIfTarget? mvarId).map fun (s₁, s₂) => [s₁.mvarId, s₂.mvarId]
+        return (← splitIfTarget? mvarId (useNewSemantics := useNewSemantics)).map fun (s₁, s₂) => [s₁.mvarId, s₂.mvarId]
       else
         try
           splitMatch mvarId e

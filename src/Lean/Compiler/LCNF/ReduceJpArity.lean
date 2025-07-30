@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.PassManager
+
+public section
 
 namespace Lean.Compiler.LCNF
 /-!
@@ -51,7 +55,7 @@ partial def reduce (code : Code) : ReduceM Code := do
     return code.updateAlts! alts
   | .return .. | .unreach .. => return code
   | .jmp fvarId args =>
-    if let some mask := (← read).find? fvarId then
+    if let some mask := (← read).get? fvarId then
       let mut argsNew := #[]
       for keep in mask, arg in args do
         if keep then

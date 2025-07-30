@@ -37,8 +37,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

@@ -3,12 +3,16 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Omega.Core
-import Lean.Elab.Tactic.FalseOrByContra
-import Lean.Elab.Tactic.Config
-import Lean.Elab.MutualDef
-import Lean.Meta.Closure
+public import Lean.Elab.Tactic.Omega.Core
+public import Lean.Elab.Tactic.FalseOrByContra
+public import Lean.Elab.Tactic.Config
+public import Lean.Elab.MutualDef
+public import Lean.Meta.Closure
+
+public section
 
 /-!
 # Frontend to the `omega` tactic.
@@ -559,7 +563,7 @@ where
   varNames (mask : Array Bool) : MetaM (Array String) := do
     let mut names := #[]
     let mut next := 0
-    for h : i in [:mask.size] do
+    for h : i in *...mask.size do
       if mask[i] then
         while ← inScope (varNameOf next) do next := next + 1
         names := names.push (varNameOf next)

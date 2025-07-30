@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Meta.InferType
-import Lean.Meta.WHNF
-import Lean.PrettyPrinter.Delaborator.Attributes
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.Structure
+public import Lean.Meta.InferType
+public import Lean.Meta.WHNF
+public import Lean.PrettyPrinter.Delaborator.Attributes
+public import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.Structure
+
+public section
 
 /-!
 # Functions for analyzing projections for pretty printing
@@ -72,7 +76,7 @@ private def generalizedFieldInfo (c : Name) (args : Array Expr) : MetaM (Name ×
   -- Search for the first argument that could be used for field notation
   -- and make sure it is the first explicit argument.
   forallBoundedTelescope info.type args.size fun params _ => do
-    for h : i in [0:params.size] do
+    for h : i in *...params.size do
       let fvarId := params[i].fvarId!
       -- If there is a motive, we will treat this as a sort of control flow structure and so we won't use field notation.
       -- Plus, recursors tend to be riskier when using dot notation.

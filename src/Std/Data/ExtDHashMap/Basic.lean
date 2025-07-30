@@ -3,8 +3,13 @@ Copyright (c) 2025 Robin Arnez. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robin Arnez
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Lemmas
+public import Std.Data.DHashMap.Lemmas
+import all Std.Data.DHashMap.Lemmas
+
+public section
 
 /-!
 # Extensional dependent hash maps
@@ -34,7 +39,7 @@ namespace Std
 Extensional dependent hash maps.
 
 This is a simple separate-chaining hash table. The data of the hash map consists of a cached size
-and an array of buckets, where each bucket is a linked list of key-value pais. The number of buckets
+and an array of buckets, where each bucket is a linked list of key-value pairs. The number of buckets
 is always a power of two. The hash map doubles its size upon inserting an element such that the
 number of elements is more than 75% of the number of buckets.
 
@@ -69,11 +74,11 @@ abbrev mk (m : DHashMap α β) : ExtDHashMap α β :=
   mk' (.mk _ m)
 
 /-- Internal implementation detail of the hash map. -/
-abbrev lift {γ : Sort w} (f : DHashMap α β → γ) (h : ∀ a b, a ~m b → f a = f b) (m : ExtDHashMap α β) : γ :=
+def lift {γ : Sort w} (f : DHashMap α β → γ) (h : ∀ a b, a ~m b → f a = f b) (m : ExtDHashMap α β) : γ :=
   m.1.lift f h
 
 /-- Internal implementation detail of the hash map. -/
-abbrev pliftOn {γ : Sort w} (m : ExtDHashMap α β) (f : (a : DHashMap α β) → m = mk a → γ)
+def pliftOn {γ : Sort w} (m : ExtDHashMap α β) (f : (a : DHashMap α β) → m = mk a → γ)
     (h : ∀ a b h₁ h₂, a ~m b → f a h₁ = f b h₂) : γ :=
   m.1.pliftOn (fun a ha => f a (by cases m; cases ha; rfl)) (fun _ _ _ _ h' => h _ _ _ _ h')
 

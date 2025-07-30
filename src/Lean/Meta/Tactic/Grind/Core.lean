@@ -3,17 +3,21 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Lean.Meta.LitValues
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Inv
-import Lean.Meta.Tactic.Grind.PP
-import Lean.Meta.Tactic.Grind.Ctor
-import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.Beta
-import Lean.Meta.Tactic.Grind.Internalize
-import Lean.Meta.Tactic.Grind.Simp
+public import Init.Grind.Util
+public import Lean.Meta.LitValues
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Inv
+public import Lean.Meta.Tactic.Grind.PP
+public import Lean.Meta.Tactic.Grind.Ctor
+public import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Tactic.Grind.Beta
+public import Lean.Meta.Tactic.Grind.Internalize
+public import Lean.Meta.Tactic.Grind.Simp
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -212,7 +216,7 @@ def propagateLinarith : PendingTheoryPropagation → GoalM Unit
   | _ => return ()
 
 /--
-Tries to apply beta-reductiong using the parent applications of the functions in `fns` with
+Tries to apply beta-reduction using the parent applications of the functions in `fns` with
 the lambda expressions in `lams`.
 -/
 def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
@@ -331,8 +335,25 @@ where
       propagateCommRing ringTodo
       propagateLinarith linarithTodo
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
-    traverseEqc lhs fun n =>
-      setENode n.self { n with root := rootNew }
+    let isFalseRoot ← isFalseExpr rootNew
+    traverseEqc lhs fun n => do
+      let n := { n with root := rootNew }
+      setENode n.self n
+      /-
+      If `n` is an equality being inserted into the `False` equivalence class,
+      we must ensure it is root `m` of its congruence class if the root is not already
+      in the `False` equivalence class.
+      This can happen when the equality `n = m` is still has to be processed. That is,
+      it is in the `newFacts` todo array.
+      A similar swap is performed at `addCongrTable`.
+      -/
+      if isFalseRoot && n.self.isAppOfArity ``Eq 3 && !n.isCongrRoot then
+        if let some { e } := (← get).congrTable.find? { e := n.self } then
+        -- If the current congruence root is already `False`, we don't need to swap
+        unless (← isFalseExpr e) do
+          -- We must swap the congruence root to ensure `isDiseq` and `getDiseqFor?` work properly
+          modify fun s => { s with congrTable := s.congrTable.insert { e := n.self } }
+          setENode n.self { n with congr := n.self }
 
 /-- Ensures collection of equations to be processed is empty. -/
 private def resetNewFacts : GoalM Unit :=

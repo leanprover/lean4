@@ -3,12 +3,16 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Meta.ReduceEval
-import Lean.Meta.WHNF
-import Lean.KeyedDeclsAttribute
-import Lean.ParserCompiler.Attribute
-import Lean.Parser.Extension
+public import Lean.Meta.ReduceEval
+public import Lean.Meta.WHNF
+public import Lean.KeyedDeclsAttribute
+public import Lean.ParserCompiler.Attribute
+public import Lean.Parser.Extension
+
+public section
 
 /-!
 Gadgets for compiling parser declarations into other programs, such as pretty printers.
@@ -73,7 +77,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
       forallTelescope ty fun params _ => do
         let mut p := mkConst p
         let args  := e.getAppArgs
-        for i in [:Nat.min params.size args.size] do
+        for i in *...(Nat.min params.size args.size) do
           let param := params[i]!
           let arg   := args[i]!
           let paramTy ← inferType param

@@ -3,36 +3,31 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
-prelude
-import Init.NotationExtra
-import Lean.Elab.BuiltinNotation
-import Std.Do.PostCond
-import Std.Do.Triple.Basic
+module
 
-namespace Std.Do.Syntax
+prelude
+public import Init.NotationExtra
+public import Lean.Elab.BuiltinNotation
+public import Std.Do.PostCond
+public import Std.Do.Triple.Basic
+
+public section
+
+namespace Std.Do
 
 open Lean Parser Meta Elab Term PrettyPrinter Delaborator
 
-@[builtin_term_parser] meta def «totalPostCond» := leading_parser:maxPrec
-  ppAllowUngrouped >> "⇓" >> basicFun
-
-@[inherit_doc PostCond.total, builtin_doc, builtin_term_elab totalPostCond]
-private meta def elabTotalPostCond : TermElab
-  | `(totalPostCond| ⇓ $xs* => $e), ty? => do
-    elabTerm (← `(PostCond.total (by exact (fun $xs* => spred($e))))) ty?
-     -- NB: Postponement through by exact
-  | _, _ => throwUnsupportedSyntax
-
+open Std.Do in
 @[builtin_delab app.Std.Do.PostCond.total]
-private meta def unexpandPostCondTotal : Delab := do
+private def unexpandPostCondTotal : Delab := do
   match ← SubExpr.withAppArg <| delab with
-  | `(fun $xs* => $e) =>
-    let t ← `(totalPostCond| ⇓ $xs* => $(← SPred.Notation.unpack e))
+  | `(fun $xs:term* => $e) =>
+    let t ← `(⇓ $xs* => $(← SPred.Notation.unpack e))
     return ⟨t.raw⟩
   | t => `($(mkIdent ``PostCond.total):term $t)
 
 @[inherit_doc Triple, builtin_doc, builtin_term_elab triple]
-private meta def elabTriple : TermElab
+private def elabTriple : TermElab
   | `(⦃$P⦄ $x ⦃$Q⦄), _ => do
     -- In a simple world, this would just be a macro expanding to
     -- `Triple $x spred($P) spred($Q)`.
@@ -41,17 +36,18 @@ private meta def elabTriple : TermElab
     -- then `Triple x P _` will not elaborate because `σ → Assertion ps =?= Assertion ?ps` fails.
     -- We must first instantiate `?ps` to `.arg σ ps` through the `outParam` of `WP`, hence this elaborator.
     -- This is tracked in #8766, and #8074 might be a fix.
-    let (u, m, α, ps, inst, x) ← withRef x do
+    let (u, v, m, α, ps, inst, x) ← withRef x do
       let x ← elabTerm x none
       let ty ← inferType x
       tryPostponeIfMVar ty
       let ty ← instantiateMVars ty
       let .app m α := ty.consumeMData | throwError "Type of {x} is not a type application: {ty}"
-      let some u ← Level.dec <$> getLevel ty | throwError "Wrong level 0 {ty}"
-      let ps ← mkFreshExprMVar (mkConst ``PostShape)
-      let inst ← synthInstance (mkApp2 (mkConst ``WP [u]) m ps)
-      return (u, m, α, ps, inst, x)
-    let P ← elabTerm (← `(spred($P))) (mkApp (mkConst ``Assertion) ps)
-    let Q ← elabTerm (← `(spred($Q))) (mkApp2 (mkConst ``PostCond) α ps)
-    return mkApp7 (mkConst ``Triple [u]) m ps inst α x P Q
+      let some u ← Level.dec <$> getLevel α | throwError "Wrong level 0 {ty}"
+      let some v ← Level.dec <$> getLevel ty | throwError "Wrong level 0 {ty}"
+      let ps ← mkFreshExprMVar (mkConst ``PostShape [u])
+      let inst ← synthInstance (mkApp2 (mkConst ``WP [u, v]) m ps)
+      return (u, v, m, α, ps, inst, x)
+    let P ← elabTerm (← `(spred($P))) (mkApp (mkConst ``Assertion [u]) ps)
+    let Q ← elabTerm Q (mkApp2 (mkConst ``PostCond [u]) α ps)
+    return mkApp7 (mkConst ``Triple [u, v]) m ps inst α x P Q
   | _, _ => throwUnsupportedSyntax

@@ -51,7 +51,7 @@ _start:
 {
 if (lean_obj_tag(x_2) == 0)
 {
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 else
@@ -63,7 +63,7 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_6 = lean_apply_2(x_1, x_4, lean_box(0));
 x_7 = l_List_pmap___redArg(x_1, x_5);
 lean_ctor_set(x_2, 1, x_7);
@@ -78,7 +78,7 @@ x_9 = lean_ctor_get(x_2, 1);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_dec(x_2);
-lean_inc(x_1);
+lean_inc_ref(x_1);
 x_10 = lean_apply_2(x_1, x_8, lean_box(0));
 x_11 = l_List_pmap___redArg(x_1, x_9);
 x_12 = lean_alloc_ctor(1, 2, 0);
@@ -197,19 +197,19 @@ _start:
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_4 = lean_apply_1(x_2, lean_box(0));
 return x_4;
 }
 else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+lean_dec_ref(x_2);
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc(x_6);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_7 = lean_apply_3(x_3, x_5, x_6, lean_box(0));
 return x_7;
 }
@@ -228,7 +228,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_inc(x_2);
 return x_2;
 }
@@ -237,7 +237,7 @@ else
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_apply_1(x_3, x_4);
 return x_5;
 }
@@ -343,7 +343,7 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_inc(x_3);
 return x_3;
 }
@@ -352,7 +352,7 @@ else
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 x_5 = lean_apply_1(x_2, x_4);
 return x_5;
 }
@@ -419,7 +419,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter___redArg(x_4, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -431,7 +430,6 @@ _start:
 {
 uint8_t x_5; lean_object* x_6; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = l___private_Init_Data_List_Attach_0__List_filter_match__1_splitter(x_1, x_5, x_3, x_4);
 lean_dec(x_4);
 lean_dec(x_3);

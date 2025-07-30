@@ -3,10 +3,14 @@ Copyright (c) 2025 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Std.Tactic.Do.Syntax
-import Lean.Elab.Tactic.Do.ProofMode.MGoal
-import Lean.Elab.Tactic.Do.ProofMode.Focus
+public import Std.Tactic.Do.Syntax
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+public import Lean.Elab.Tactic.Do.ProofMode.Focus
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic
@@ -21,7 +25,7 @@ partial def transferHypNames (P P' : Expr) : MetaM Expr := (·.snd) <$> label (c
     collectHyps (P : Expr) (acc : List Hyp := []) : List Hyp :=
       if let some hyp := parseHyp? P then
         hyp :: acc
-      else if let some (_, L, R) := parseAnd? P then
+      else if let some (_, _, L, R) := parseAnd? P then
         collectHyps L (collectHyps R acc)
       else
         acc
@@ -30,17 +34,18 @@ partial def transferHypNames (P P' : Expr) : MetaM Expr := (·.snd) <$> label (c
       let P' ← instantiateMVarsIfMVarApp P'
       if let some _ := parseEmptyHyp? P' then
         return (Ps, P')
-      if let some (σs, L, R) := parseAnd? P' then
+      if let some (u, σs, L, R) := parseAnd? P' then
         let (Ps, L') ← label Ps L
         let (Ps, R') ← label Ps R
-        return (Ps, mkAnd! σs L' R')
+        return (Ps, mkAnd! u σs L' R')
       else
         let mut Ps' := Ps
         repeat
           -- If we cannot find the hyp, it might be in a nested conjunction.
           -- Just pick a default name for it.
+          let name ← mkFreshUserName `h
           let uniq ← mkFreshId
-          let P :: Ps'' := Ps' | return (Ps, { name := `h, uniq, p := P' : Hyp }.toExpr)
+          let P :: Ps'' := Ps' | return (Ps, { name, uniq, p := P' : Hyp }.toExpr)
           Ps' := Ps''
           if ← isDefEq P.p P' then
             return (Ps, { P with p := P' }.toExpr)
@@ -50,16 +55,16 @@ def mFrameCore [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
   (goal : MGoal) (kFail : m (α × Expr)) (kSuccess : Expr /-φ:Prop-/ → Expr /-h:φ-/ → MGoal → m (α × Expr)) : m (α × Expr) := do
   let P := goal.hyps
   let φ ← mkFreshExprMVar (mkSort .zero)
-  let P' ← mkFreshExprMVar (mkApp (mkConst ``SPred) goal.σs)
-  if let some inst ← synthInstance? (mkApp4 (mkConst ``HasFrame) goal.σs P P' φ) then
+  let P' ← mkFreshExprMVar (mkApp (mkConst ``SPred [goal.u]) goal.σs)
+  if let some inst ← synthInstance? (mkApp4 (mkConst ``HasFrame [goal.u]) goal.σs P P' φ) then
     if ← isDefEq (mkConst ``True) φ then return (← kFail)
     -- copy the name of P to P' if it is a named hypothesis
     let P' ← transferHypNames P P'
     let goal := { goal with hyps := P' }
-    withLocalDeclD `h φ fun hφ => do
+    withLocalDeclD (← liftMetaM <| mkFreshUserName `h) φ fun hφ => do
       let (a, prf) ← kSuccess φ hφ goal
       let prf ← mkLambdaFVars #[hφ] prf
-      let prf := mkApp7 (mkConst ``Frame.frame) goal.σs P P' goal.target φ inst prf
+      let prf := mkApp7 (mkConst ``Frame.frame [goal.u]) goal.σs P P' goal.target φ inst prf
       return (a, prf)
   else
     kFail

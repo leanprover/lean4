@@ -3,9 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -67,8 +71,13 @@ def getRing : LinearM Ring := do
     | throwNotCommRing
   return ring
 
-instance : MonadGetRing LinearM where
+instance : MonadRing LinearM where
   getRing := Linear.getRing
+  modifyRing f := do
+    let some ringId := (← getStruct).ringId? | throwNotCommRing
+    RingM.run ringId do modifyRing f
+  canonExpr e := do shareCommon (← canon e)
+  synthInstance? e := Grind.synthInstance? e
 
 def getZero : LinearM Expr :=
   return (← getStruct).zero

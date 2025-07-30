@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Types
+public import Lean.Parser.Types
+
+public section
 
 /-!
 # Basic Lean parser infrastructure
@@ -356,14 +360,14 @@ def optionalFn (p : ParserFn) : ParserFn := fun c s =>
   let s      := if s.hasError && s.pos == iniPos then s.restore iniSz iniPos else s
   s.mkNode nullKind iniSz
 
-@[noinline] def optionaInfo (p : ParserInfo) : ParserInfo := {
+@[noinline] def optionalInfo (p : ParserInfo) : ParserInfo := {
   collectTokens := p.collectTokens
   collectKinds  := p.collectKinds
   firstTokens   := p.firstTokens.toOptional
 }
 
 def optionalNoAntiquot (p : Parser) : Parser := {
-  info := optionaInfo p.info
+  info := optionalInfo p.info
   fn   := optionalFn p.fn
 }
 
@@ -1581,21 +1585,21 @@ def eoi : Parser := {
 }
 
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
-def TokenMap (α : Type) := RBMap Name (List α) Name.quickCmp
+@[expose] def TokenMap (α : Type) := Std.TreeMap Name (List α) Name.quickCmp
 
 namespace TokenMap
 
 def insert (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
-  match map.find? k with
-  | none    => RBMap.insert map k [v]
-  | some vs => RBMap.insert map k (v::vs)
+  match map.get? k with
+  | none    => Std.TreeMap.insert map k [v]
+  | some vs => Std.TreeMap.insert map k (v::vs)
 
 instance : Inhabited (TokenMap α) where
-  default := RBMap.empty
+  default := Std.TreeMap.empty
 
-instance : EmptyCollection (TokenMap α) := ⟨RBMap.empty⟩
+instance : EmptyCollection (TokenMap α) := ⟨Std.TreeMap.empty⟩
 
-instance : ForIn m (TokenMap α) (Name × List α) := inferInstanceAs (ForIn _ (RBMap ..) _)
+instance : ForIn m (TokenMap α) (Name × List α) := inferInstanceAs (ForIn _ (Std.TreeMap _ _ _) _)
 
 end TokenMap
 
@@ -1680,7 +1684,7 @@ abbrev ParserCategories := PersistentHashMap Name ParserCategory
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) (behavior : LeadingIdentBehavior) : ParserState × List α :=
   let (s, stx) := peekToken c s
   let find (n : Name) : ParserState × List α :=
-    match map.find? n with
+    match map.get? n with
     | some as => (s, as)
     | _       => (s, [])
   match stx with
@@ -1689,16 +1693,16 @@ def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState
     match behavior with
     | .default => find identKind
     | .symbol =>
-      match map.find? val with
+      match map.get? val with
       | some as => (s, as)
       | none    => find identKind
     | .both =>
-      match map.find? val with
+      match map.get? val with
       | some as =>
         if val == identKind then
           (s, as)  -- avoid running the same parsers twice
         else
-          match map.find? identKind with
+          match map.get? identKind with
           | some as' => (s, as ++ as')
           | _        => (s, as)
       | none    => find identKind
@@ -1924,7 +1928,7 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : 
   Implements a variant of Pratt's algorithm. In Pratt's algorithms tokens have a right and left binding power.
   In our implementation, parsers have precedence instead. This method selects a parser (or more, via
   `longestMatchFn`) from `leadingTable` based on the current token. Note that the unindexed `leadingParsers` parsers
-  are also tried. We have the unidexed `leadingParsers` because some parsers do not have a "first token". Example:
+  are also tried. We have the unindexed `leadingParsers` because some parsers do not have a "first token". Example:
   ```
   syntax term:51 "≤" ident "<" term "|" term : index
   ```

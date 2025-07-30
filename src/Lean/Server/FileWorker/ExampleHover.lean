@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Thrane Christiansen
 -/
+module
+
 prelude
-import Lean.Elab.Do
+public import Lean.Elab.Do
+
+public section
 
 /-!
 This module contains helpers used for formatting hovers according to docstring conventions. Links to
@@ -27,7 +31,7 @@ line comment marker.
 private def addCommentAt (indent : Nat) (line : String) : String := Id.run do
   let s := "".pushn ' ' indent ++ "-- "
   let mut iter := line.iter
-  for _i in [0:indent] do
+  for _i in *...indent do
     if h : iter.hasNext then
       if iter.curr' h == ' ' then
         iter := iter.next' h

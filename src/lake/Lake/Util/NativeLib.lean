@@ -16,14 +16,13 @@ def sharedLibExt : String :=
   else "so"
 
 /-- Convert a library name into its static library file name for the `Platform`. -/
-def nameToStaticLib (name : String) : String :=
-  if Platform.isWindows then s!"{name}.a" else s!"lib{name}.a"
+def nameToStaticLib (name : String) (libPrefixOnWindows := false) : String :=
+  if libPrefixOnWindows || !System.Platform.isWindows then s!"lib{name}.a" else s!"{name}.a"
 
 /-- Convert a library name into its shared library file name for the `Platform`. -/
-def nameToSharedLib (name : String) : String :=
-  if Platform.isWindows then s!"{name}.dll"
-  else if Platform.isOSX  then s!"lib{name}.dylib"
-  else s!"lib{name}.so"
+def nameToSharedLib (name : String) (libPrefixOnWindows := false) : String :=
+  let libPrefix := if libPrefixOnWindows || !System.Platform.isWindows then "lib" else ""
+  s!"{libPrefix}{name}.{sharedLibExt}"
 
 /--
 The environment variable that stores the search path

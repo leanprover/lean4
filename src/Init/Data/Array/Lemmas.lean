@@ -129,7 +129,7 @@ theorem none_eq_getElem?_iff {xs : Array α} {i : Nat} : none = xs[i]? ↔ xs.si
 theorem getElem?_eq_none {xs : Array α} (h : xs.size ≤ i) : xs[i]? = none := by
   simp [h]
 
-grind_pattern Array.getElem?_eq_none => xs.size ≤ i, xs[i]?
+grind_pattern Array.getElem?_eq_none => xs.size, xs[i]?
 
 @[simp] theorem getElem?_eq_getElem {xs : Array α} {i : Nat} (h : i < xs.size) : xs[i]? = some xs[i] :=
   getElem?_pos ..
@@ -872,24 +872,24 @@ theorem elem_eq_mem [BEq α] [LawfulBEq α] {a : α} {xs : Array α} :
 @[grind] theorem all_empty [BEq α] {p : α → Bool} : (#[] : Array α).all p = true := by simp
 
 /-- Variant of `any_push` with a side condition on `stop`. -/
-@[simp, grind] theorem any_push' [BEq α] {xs : Array α} {a : α} {p : α → Bool} (h : stop = xs.size + 1) :
+@[simp, grind] theorem any_push' {xs : Array α} {a : α} {p : α → Bool} (h : stop = xs.size + 1) :
     (xs.push a).any p 0 stop = (xs.any p || p a) := by
   cases xs
   rw [List.push_toArray]
   simp [h]
 
-theorem any_push [BEq α] {xs : Array α} {a : α} {p : α → Bool} :
+theorem any_push {xs : Array α} {a : α} {p : α → Bool} :
     (xs.push a).any p = (xs.any p || p a) :=
   any_push' (by simp)
 
 /-- Variant of `all_push` with a side condition on `stop`. -/
-@[simp, grind] theorem all_push' [BEq α] {xs : Array α} {a : α} {p : α → Bool} (h : stop = xs.size + 1) :
+@[simp, grind] theorem all_push' {xs : Array α} {a : α} {p : α → Bool} (h : stop = xs.size + 1) :
     (xs.push a).all p 0 stop = (xs.all p && p a) := by
   cases xs
   rw [List.push_toArray]
   simp [h]
 
-theorem all_push [BEq α] {xs : Array α} {a : α} {p : α → Bool} :
+theorem all_push {xs : Array α} {a : α} {p : α → Bool} :
     (xs.push a).all p = (xs.all p && p a) :=
   all_push' (by simp)
 
@@ -985,11 +985,12 @@ theorem mem_set {xs : Array α} {i : Nat} (h : i < xs.size) {a : α} :
   simp [mem_iff_getElem]
   exact ⟨i, (by simpa using h), by simp⟩
 
-@[grind →]
 theorem mem_or_eq_of_mem_set
     {xs : Array α} {i : Nat} {a b : α} {w : i < xs.size} (h : a ∈ xs.set i b) : a ∈ xs ∨ a = b := by
   cases xs
   simpa using List.mem_or_eq_of_mem_set (by simpa using h)
+
+grind_pattern mem_or_eq_of_mem_set => a ∈ xs.set i b
 
 /-! ### setIfInBounds -/
 
@@ -1675,12 +1676,12 @@ theorem filterMap_eq_map' {f : α → β} (w : stop = as.size) :
     filterMap (fun x => some (f x)) as 0 stop = map f as :=
   filterMap_eq_map w
 
-@[simp] theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
+theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
   funext xs
   cases xs
   simp
 
-@[grind] theorem filterMap_some {xs : Array α} : filterMap some xs = xs := by
+@[simp, grind] theorem filterMap_some {xs : Array α} : filterMap some xs = xs := by
   cases xs
   simp
 
@@ -4412,9 +4413,16 @@ theorem getElem?_range {n : Nat} {i : Nat} : (Array.range n)[i]? = if i < n then
 
 -- Without further algebraic hypotheses, there's no useful `sum_push` lemma.
 
+@[simp, grind =]
 theorem sum_eq_sum_toList [Add α] [Zero α] {as : Array α} : as.toList.sum = as.sum := by
   cases as
   simp [Array.sum, List.sum]
+
+@[simp, grind =]
+theorem sum_append_nat {as₁ as₂ : Array Nat} : (as₁ ++ as₂).sum = as₁.sum + as₂.sum := by
+  cases as₁
+  cases as₂
+  simp [List.sum_append_nat]
 
 theorem foldl_toList_eq_flatMap {l : List α} {acc : Array β}
     {F : Array β → α → Array β} {G : α → List β}

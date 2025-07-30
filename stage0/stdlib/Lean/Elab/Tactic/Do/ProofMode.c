@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Do.ProofMode
-// Imports: Lean.Elab.Tactic.Do.ProofMode.MGoal Lean.Elab.Tactic.Do.ProofMode.Delab Lean.Elab.Tactic.Do.ProofMode.Basic Lean.Elab.Tactic.Do.ProofMode.Clear Lean.Elab.Tactic.Do.ProofMode.Intro Lean.Elab.Tactic.Do.ProofMode.Revert Lean.Elab.Tactic.Do.ProofMode.Exact Lean.Elab.Tactic.Do.ProofMode.Assumption Lean.Elab.Tactic.Do.ProofMode.Pure Lean.Elab.Tactic.Do.ProofMode.Frame Lean.Elab.Tactic.Do.ProofMode.LeftRight Lean.Elab.Tactic.Do.ProofMode.Constructor Lean.Elab.Tactic.Do.ProofMode.Specialize Lean.Elab.Tactic.Do.ProofMode.Cases Lean.Elab.Tactic.Do.ProofMode.Exfalso Lean.Elab.Tactic.Do.ProofMode.Have Lean.Elab.Tactic.Do.ProofMode.Refine
+// Imports: Lean.Elab.Tactic.Do.ProofMode.MGoal Lean.Elab.Tactic.Do.ProofMode.Delab Lean.Elab.Tactic.Do.ProofMode.Basic Lean.Elab.Tactic.Do.ProofMode.Clear Lean.Elab.Tactic.Do.ProofMode.Intro Lean.Elab.Tactic.Do.ProofMode.Revert Lean.Elab.Tactic.Do.ProofMode.Exact Lean.Elab.Tactic.Do.ProofMode.Assumption Lean.Elab.Tactic.Do.ProofMode.Pure Lean.Elab.Tactic.Do.ProofMode.Frame Lean.Elab.Tactic.Do.ProofMode.LeftRight Lean.Elab.Tactic.Do.ProofMode.Constructor Lean.Elab.Tactic.Do.ProofMode.RenameI Lean.Elab.Tactic.Do.ProofMode.Specialize Lean.Elab.Tactic.Do.ProofMode.Cases Lean.Elab.Tactic.Do.ProofMode.Exfalso Lean.Elab.Tactic.Do.ProofMode.Have Lean.Elab.Tactic.Do.ProofMode.Refine
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,6 +25,7 @@ lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Pure(uint8_t builtin, lean
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Frame(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_LeftRight(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Constructor(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_RenameI(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Specialize(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Cases(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Do_ProofMode_Exfalso(uint8_t builtin, lean_object*);
@@ -69,6 +70,9 @@ res = initialize_Lean_Elab_Tactic_Do_ProofMode_LeftRight(builtin, lean_io_mk_wor
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Do_ProofMode_Constructor(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_Do_ProofMode_RenameI(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Do_ProofMode_Specialize(builtin, lean_io_mk_world());

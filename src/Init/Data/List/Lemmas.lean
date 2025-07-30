@@ -1429,12 +1429,12 @@ theorem filterMap_eq_map {f : α → β} : filterMap (some ∘ f) = map f := by
 theorem filterMap_eq_map' {f : α → β} : filterMap (fun x => some (f x)) = map f :=
   filterMap_eq_map
 
-@[simp] theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
+theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
   funext l
   erw [filterMap_eq_map]
   simp
 
-@[grind] theorem filterMap_some {l : List α} : filterMap some l = l := by
+@[simp, grind] theorem filterMap_some {l : List α} : filterMap some l = l := by
   rw [filterMap_some_fun, id]
 
 theorem map_filterMap_some_eq_filter_map_isSome {f : α → Option β} {l : List α} :
@@ -1848,6 +1848,10 @@ theorem map_eq_append_iff {f : α → β} :
 theorem append_eq_map_iff {f : α → β} :
     L₁ ++ L₂ = map f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
   rw [eq_comm, map_eq_append_iff]
+
+@[simp, grind =]
+theorem sum_append_nat {l₁ l₂ : List Nat} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
+  induction l₁ generalizing l₂ <;> simp_all [Nat.add_assoc]
 
 /-! ### concat
 
@@ -2331,7 +2335,7 @@ theorem filterMap_replicate_of_some {f : α → Option β} (h : f a = some b) :
   induction n with
   | zero => simp
   | succ n ih =>
-    simp only [replicate_succ, flatten_cons, ih, replicate_append_replicate, 
+    simp only [replicate_succ, flatten_cons, ih, replicate_append_replicate,
       add_one_mul, Nat.add_comm]
 
 theorem flatMap_replicate {β} {f : α → List β} : (replicate n a).flatMap f = (replicate n (f a)).flatten := by
@@ -3477,12 +3481,14 @@ theorem length_le_length_insert {l : List α} {a : α} : l.length ≤ (l.insert 
 
 grind_pattern List.length_le_length_insert => (l.insert a).length
 
-@[grind] theorem length_insert_pos {l : List α} {a : α} : 0 < (l.insert a).length := by
+theorem length_insert_pos {l : List α} {a : α} : 0 < (l.insert a).length := by
   by_cases h : a ∈ l
   · rw [length_insert_of_mem h]
     exact length_pos_of_mem h
   · rw [length_insert_of_not_mem h]
     exact Nat.zero_lt_succ _
+
+grind_pattern length_insert_pos => (l.insert a).length
 
 theorem insert_eq {l : List α} {a : α} : l.insert a = if a ∈ l then l else a :: l := by
   simp [List.insert]

@@ -387,7 +387,7 @@ theorem find?_eq_some_iff_getElem {xs : Array α} {p : α → Bool} {b : α} :
 /-! ### findIdx -/
 
 @[grind =]
-theorem findIdx_empty : findIdx p #[] = 0 := rfl
+theorem findIdx_empty : findIdx p #[] = 0 := by simp
 
 @[grind =]
 theorem findIdx_singleton {a : α} {p : α → Bool} :

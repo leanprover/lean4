@@ -3,10 +3,16 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.ToIntLemmas
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+public import Init.Grind.ToIntLemmas
+public import Lean.Meta.Tactic.Grind.SynthInstance
+public import Lean.Meta.Tactic.Grind.Simp
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+public import Lean.Meta.Tactic.Grind.Arith.EvalNum
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -20,78 +26,14 @@ private def checkDecl (declName : Name) : MetaM Unit := do
   unless (← getEnv).contains declName do
     throwMissingDecl declName
 
-private def mkOfNatThm? (type : Expr) (u : Level) (toIntInst : Expr) (rangeExpr : Expr) : MetaM (Option Expr) := do
-  -- ∀ n, OfNat α n
-  let ofNat := mkForall `n .default (mkConst ``Nat) (mkApp2 (mkConst ``OfNat [u]) type (mkBVar 0))
-  let .some ofNatInst ← trySynthInstance ofNat
-    | reportMissingToIntAdapter type ofNat; return none
-  let toIntOfNat := mkApp4 (mkConst ``Grind.ToInt.OfNat [u]) type ofNatInst rangeExpr toIntInst
-  let .some toIntOfNatInst ← trySynthInstance toIntOfNat
-    | reportMissingToIntAdapter type toIntOfNat; return none
-  return mkApp5 (mkConst ``Grind.ToInt.ofNat_eq [u]) type rangeExpr toIntInst ofNatInst toIntOfNatInst
-
-/-- Helper function for `mkSimpleOpThm?` and `mkPowThm?` -/
-private def mkSimpleOpThmCore? (type : Expr) (u : Level) (toIntInst : Expr) (rangeExpr : Expr) (op : Expr) (opSuffix : Name) (thmName : Name) : MetaM (Option Expr) := do
-  let .some opInst ← trySynthInstance op | return none
-  let toIntOpName := ``Grind.ToInt ++ opSuffix
-  checkDecl toIntOpName
-  let toIntOp := mkApp4 (mkConst toIntOpName [u]) type opInst rangeExpr toIntInst
-  let .some toIntOpInst ← trySynthInstance toIntOp
-    | reportMissingToIntAdapter type toIntOp; return none
-  checkDecl thmName
-  return mkApp5 (mkConst thmName [u]) type rangeExpr toIntInst opInst toIntOpInst
-
-/-- Simpler version of `mkBinOpThms` for operators that have only one congruence theorem. -/
-private def mkSimpleOpThm? (type : Expr) (u : Level) (toIntInst : Expr) (rangeExpr : Expr) (opBaseName : Name) (thmName : Name) : MetaM (Option Expr) := do
-  let op := mkApp (mkConst opBaseName [u]) type
-  mkSimpleOpThmCore? type u toIntInst rangeExpr op opBaseName thmName
-
-/-- Simpler version of `mkBinOpThms` for operators that have only one congruence theorem. -/
-private def mkPowThm? (type : Expr) (u : Level) (toIntInst : Expr) (rangeExpr : Expr) : MetaM (Option Expr) := do
-  let op := mkApp3 (mkConst ``HPow [u, 0, u]) type Nat.mkType type
-  mkSimpleOpThmCore? type u toIntInst rangeExpr op `Pow ``Grind.ToInt.pow_congr
-
-private def mkBinOpThms (type : Expr) (u : Level) (toIntInst : Expr) (rangeExpr : Expr) (range : Grind.IntInterval) (opBaseName : Name) (thmName : Name) : MetaM ToIntThms := do
-  let some c ← mkSimpleOpThm? type u toIntInst rangeExpr opBaseName thmName | return {}
-  let opInst := c.appFn!.appArg!
-  let toIntOpInst := c.appArg!
-  let env ← getEnv
-  let cwwName := thmName ++ `ww
-  let cwlName := thmName ++ `wl
-  let cwrName := thmName ++ `wr
-  let c_ww? := if range.isFinite && env.contains cwwName then
-    some <| mkApp6 (mkConst cwwName [u]) type rangeExpr toIntInst opInst toIntOpInst reflBoolTrue
-  else
-    none
-  let c_wl? := if range.isFinite && range.nonEmpty && env.contains cwwName then
-    some <| mkApp7 (mkConst cwlName [u]) type rangeExpr toIntInst opInst toIntOpInst reflBoolTrue reflBoolTrue
-  else
-    none
-  let c_wr? := if range.isFinite && range.nonEmpty && env.contains cwwName then
-    some <| mkApp7 (mkConst cwrName [u]) type rangeExpr toIntInst opInst toIntOpInst reflBoolTrue reflBoolTrue
-  else
-    none
-  return { c? := some c, c_ww?, c_wl?, c_wr? }
-
--- TODO: improve this function
-private def evalInt? (e : Expr) : MetaM (Option Int) := do
-  let e ← whnfD e
-  match_expr e with
-  | Int.ofNat a =>
-    let some a ← getNatValue? (← whnfD a) | return none
-    return some (a : Int)
-  | Int.negSucc a =>
-    let some a ← getNatValue? (← whnfD a) | return none
-    return some (- (a : Int) - 1)
-  | _ => return none
-
-def getToIntInfo? (type : Expr) : GoalM (Option ToIntInfo) := do
-  if let some id? := (← get').toIntInfos.find? { expr := type } then
+def getToIntId? (type : Expr) : GoalM (Option Nat) := do
+  if let some id? := (← get').toIntIds.find? { expr := type } then
     return id?
   else
-    let info? ← go?
-    modify' fun s => { s with toIntInfos := s.toIntInfos.insert { expr := type } info? }
-    return info?
+    let id? ← go?
+    modify' fun s => { s with
+      toIntIds := s.toIntIds.insert { expr := type } id? }
+    return id?
 where
   toIntInterval? (rangeExpr : Expr) : GoalM (Option Grind.IntInterval) := do
     let rangeExpr ← whnfD rangeExpr
@@ -108,12 +50,12 @@ where
       trace[grind.debug.cutsat.toInt] "unsupported `ToInt` interval{indentExpr rangeExpr}\nfor type{indentExpr type}"
       return none
 
-  go? : GoalM (Option ToIntInfo) := withNewMCtxDepth do
+  go? : GoalM (Option Nat) := withNewMCtxDepth do
     let u' ← getLevel type
     let some u ← decLevel? u' | return none
     let rangeExpr ← mkFreshExprMVar (mkConst ``Grind.IntInterval)
     let toIntType := mkApp2 (mkConst ``Grind.ToInt [u]) type rangeExpr
-    let .some toIntInst ← trySynthInstance toIntType |
+    let some toIntInst ← synthInstance? toIntType |
       trace[grind.debug.cutsat.toInt] "failed to synthesize {indentExpr toIntType}"
       return none
     let rangeExpr ← instantiateMVars rangeExpr
@@ -126,37 +68,6 @@ where
       none
     let ofEq := mkApp3 (mkConst ``Grind.ToInt.of_eq [u]) type rangeExpr toIntInst
     let ofDiseq := mkApp3 (mkConst ``Grind.ToInt.of_diseq [u]) type rangeExpr toIntInst
-    let (ofLE?, ofNotLE?) ← do
-      let toLE := mkApp (mkConst ``LE [u]) type
-      let .some leInst ← LOption.toOption <$> trySynthInstance toLE | pure (none, none)
-      let toIntLE := mkApp4 (mkConst ``Grind.ToInt.LE [u]) type leInst rangeExpr toIntInst
-      let .some toIntLEInst ← LOption.toOption <$> trySynthInstance toIntLE
-        | reportMissingToIntAdapter type toIntLE; pure (none, none)
-      let ofLE := mkApp5 (mkConst ``Grind.ToInt.of_le [u]) type rangeExpr toIntInst leInst toIntLEInst
-      let ofNotLE := mkApp5 (mkConst ``Grind.ToInt.of_not_le [u]) type rangeExpr toIntInst leInst toIntLEInst
-      pure (some ofLE, some ofNotLE)
-    let (ofLT?, ofNotLT?) ← do
-      let toLT := mkApp (mkConst ``LT [u]) type
-      let .some ltInst ← LOption.toOption <$> trySynthInstance toLT | pure (none, none)
-      let toIntLT := mkApp4 (mkConst ``Grind.ToInt.LT [u]) type ltInst rangeExpr toIntInst
-      let .some toIntLTInst ← LOption.toOption <$> trySynthInstance toIntLT
-        | reportMissingToIntAdapter type toIntLT; pure (none, none)
-      let ofLT := mkApp5 (mkConst ``Grind.ToInt.of_lt [u]) type rangeExpr toIntInst ltInst toIntLTInst
-      let ofNotLT := mkApp5 (mkConst ``Grind.ToInt.of_not_lt [u]) type rangeExpr toIntInst ltInst toIntLTInst
-      pure (some ofLT, some ofNotLT)
-    let mkBinOpThms (opBaseName : Name) (thmName : Name) :=
-      mkBinOpThms type u toIntInst rangeExpr range opBaseName thmName
-    let mkSimpleOpThm? (opBaseName : Name) (thmName : Name) :=
-      mkSimpleOpThm? type u toIntInst rangeExpr opBaseName thmName
-    let addThms ← mkBinOpThms ``Add ``Grind.ToInt.add_congr
-    let mulThms ← mkBinOpThms ``Mul ``Grind.ToInt.mul_congr
-    let subThm? ← mkSimpleOpThm? ``Sub ``Grind.ToInt.sub_congr
-    let negThm? ← mkSimpleOpThm? ``Neg ``Grind.ToInt.neg_congr
-    let divThm? ← mkSimpleOpThm? ``Div ``Grind.ToInt.div_congr
-    let modThm? ← mkSimpleOpThm? ``Mod ``Grind.ToInt.mod_congr
-    let powThm? ← mkPowThm? type u toIntInst rangeExpr
-    let zeroThm? ← mkSimpleOpThm? ``Zero ``Grind.ToInt.zero_eq
-    let ofNatThm? ← mkOfNatThm? type u toIntInst rangeExpr
     let lowerThm? := if let some lo := range.lo? then
       if lo == 0 then
         some <| mkApp4 (mkConst ``Grind.ToInt.ge_lower0 [u]) type rangeExpr toIntInst reflBoolTrue
@@ -167,28 +78,192 @@ where
       some <| mkApp5 (mkConst ``Grind.ToInt.le_upper [u]) type rangeExpr toIntInst (toExpr (-hi + 1)) reflBoolTrue
     else none
     trace[grind.debug.cutsat.toInt] "registered toInt: {type}"
-    return some {
-      type, u, toIntInst, rangeExpr, range, toInt, wrap, ofWrap0?, ofEq, ofDiseq, ofLE?, ofNotLE?, ofLT?, ofNotLT?, addThms, mulThms,
-      subThm?, negThm?, divThm?, modThm?, powThm?, zeroThm?, ofNatThm?, lowerThm?, upperThm?
-    }
+    let id := (← get').toIntInfos.size
+    modify' fun s => { s with toIntInfos := s.toIntInfos.push { id, type, u, toIntInst, rangeExpr, range, toInt, wrap, ofWrap0?, ofEq, ofDiseq, lowerThm?, upperThm? } }
+    return some id
 
 structure ToIntM.Context where
-  info : ToIntInfo
+  toIntId : Nat
 
 abbrev ToIntM := ReaderT ToIntM.Context GoalM
 
+def getToIntId : ToIntM Nat :=
+  return (← read).toIntId
+
 def getInfo : ToIntM ToIntInfo :=
-  return (← read).info
+  return (← get').toIntInfos[(← getToIntId)]!
+
+abbrev modifyInfo (f : ToIntInfo → ToIntInfo) : ToIntM Unit := do
+  let id ← getToIntId
+  modify' fun s => { s with toIntInfos := s.toIntInfos.modify id f }
 
 def ToIntM.run? (type : Expr) (x : ToIntM α) : GoalM (Option α) := do
-  let some info ← getToIntInfo? type | return none
-  return some (← x { info })
+  let some toIntId ← getToIntId? type | return none
+  return some (← x { toIntId })
 
 def ToIntM.run (type : Expr) (x : ToIntM Unit) : GoalM Unit := do
-  let some info ← getToIntInfo? type | return ()
-  x { info }
+  let some toIntId ← getToIntId? type | return ()
+  x { toIntId }
 
 private def intRfl := mkApp (mkConst ``Eq.refl [1]) Int.mkType
+
+private def mkOfLE : ToIntM (Option Expr × Option Expr) := do
+  let info ← getInfo
+  let toLE := mkApp (mkConst ``LE [info.u]) info.type
+  let some leInst ← synthInstance? toLE | return (none, none)
+  let toIntLE := mkApp4 (mkConst ``Grind.ToInt.LE [info.u]) info.type leInst info.rangeExpr info.toIntInst
+  let some toIntLEInst ← synthInstance? toIntLE
+    | reportMissingToIntAdapter info.type toIntLE; return (none, none)
+  let ofLE := mkApp5 (mkConst ``Grind.ToInt.of_le [info.u]) info.type info.rangeExpr info.toIntInst leInst toIntLEInst
+  let ofNotLE := mkApp5 (mkConst ``Grind.ToInt.of_not_le [info.u]) info.type info.rangeExpr info.toIntInst leInst toIntLEInst
+  return (some ofLE, some ofNotLE)
+
+def getOfLE? : ToIntM (Option Expr) := do
+  if let some r? := (← getInfo).ofLE? then return r?
+  let (ofLE?, ofNotLE?) ← mkOfLE
+  modifyInfo fun s => { s with ofLE? := some ofLE?, ofNotLE? := some ofNotLE? }
+  return ofLE?
+
+def getOfNotLE? : ToIntM (Option Expr) := do
+  if let some r? := (← getInfo).ofNotLE? then return r?
+  let (ofLE?, ofNotLE?) ← mkOfLE
+  modifyInfo fun s => { s with ofLE? := some ofLE?, ofNotLE? := some ofNotLE? }
+  return ofNotLE?
+
+private def mkOfLT : ToIntM (Option Expr × Option Expr) := do
+  let info ← getInfo
+  let toLT := mkApp (mkConst ``LT [info.u]) info.type
+  let some ltInst ← synthInstance? toLT | return (none, none)
+  let toIntLT := mkApp4 (mkConst ``Grind.ToInt.LT [info.u]) info.type ltInst info.rangeExpr info.toIntInst
+  let some toIntLTInst ← synthInstance? toIntLT
+    | reportMissingToIntAdapter info.type toIntLT; return (none, none)
+  let ofLT := mkApp5 (mkConst ``Grind.ToInt.of_lt [info.u]) info.type info.rangeExpr info.toIntInst ltInst toIntLTInst
+  let ofNotLT := mkApp5 (mkConst ``Grind.ToInt.of_not_lt [info.u]) info.type info.rangeExpr info.toIntInst ltInst toIntLTInst
+  return (some ofLT, some ofNotLT)
+
+def getOfLT? : ToIntM (Option Expr) := do
+  if let some r? := (← getInfo).ofLT? then return r?
+  let (ofLT?, ofNotLT?) ← mkOfLT
+  modifyInfo fun s => { s with ofLT? := some ofLT?, ofNotLT? := some ofNotLT? }
+  return ofLT?
+
+def getOfNotLT? : ToIntM (Option Expr) := do
+  if let some r? := (← getInfo).ofNotLT? then return r?
+  let (ofLT?, ofNotLT?) ← mkOfLT
+  modifyInfo fun s => { s with ofLT? := some ofLT?, ofNotLT? := some ofNotLT? }
+  return ofNotLT?
+
+/-- Helper function for `mkSimpleOpThm?` and `mkPowThm?` -/
+private def mkSimpleOpThmCore? (op : Expr) (opSuffix : Name) (thmName : Name) : ToIntM (Option Expr) := do
+  let some opInst ← synthInstance? op | return none
+  let toIntOpName := ``Grind.ToInt ++ opSuffix
+  checkDecl toIntOpName
+  let info ← getInfo
+  let toIntOp := mkApp4 (mkConst toIntOpName [info.u]) info.type opInst info.rangeExpr info.toIntInst
+  let some toIntOpInst ← synthInstance? toIntOp
+    | reportMissingToIntAdapter info.type toIntOp; return none
+  checkDecl thmName
+  return mkApp5 (mkConst thmName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst
+
+/-- Simpler version of `mkBinOpThms` for operators that have only one congruence theorem. -/
+private def mkSimpleOpThm? (opBaseName : Name) (thmName : Name) : ToIntM (Option Expr) := do
+  let info ← getInfo
+  let op := mkApp (mkConst opBaseName [info.u]) info.type
+  mkSimpleOpThmCore? op opBaseName thmName
+
+/-- Simpler version of `mkBinOpThms` for operators that have only one congruence theorem. -/
+private def mkPowThm? : ToIntM (Option Expr) := do
+  let info ← getInfo
+  let op := mkApp3 (mkConst ``HPow [info.u, 0, info.u]) info.type Nat.mkType info.type
+  mkSimpleOpThmCore? op `Pow ``Grind.ToInt.pow_congr
+
+private def mkBinOpThms (opBaseName : Name) (thmName : Name) : ToIntM ToIntThms := do
+  let some c ← mkSimpleOpThm? opBaseName thmName | return {}
+  let opInst := c.appFn!.appArg!
+  let toIntOpInst := c.appArg!
+  let env ← getEnv
+  let cwwName := thmName ++ `ww
+  let cwlName := thmName ++ `wl
+  let cwrName := thmName ++ `wr
+  let info ← getInfo
+  let c_ww? := if info.range.isFinite && env.contains cwwName then
+    some <| mkApp6 (mkConst cwwName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst reflBoolTrue
+  else
+    none
+  let c_wl? := if info.range.isFinite && info.range.nonEmpty && env.contains cwwName then
+    some <| mkApp7 (mkConst cwlName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst reflBoolTrue reflBoolTrue
+  else
+    none
+  let c_wr? := if info.range.isFinite && info.range.nonEmpty && env.contains cwwName then
+    some <| mkApp7 (mkConst cwrName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst reflBoolTrue reflBoolTrue
+  else
+    none
+  return { c? := some c, c_ww?, c_wl?, c_wr? }
+
+def getAddThms : ToIntM ToIntThms := do
+  if let some r := (← getInfo).addThms? then return r
+  let thms ← mkBinOpThms ``Add ``Grind.ToInt.add_congr
+  modifyInfo fun s => { s with addThms? := some thms }
+  return thms
+
+def getMulThms : ToIntM ToIntThms := do
+  if let some r := (← getInfo).mulThms? then return r
+  let thms ← mkBinOpThms ``Mul ``Grind.ToInt.mul_congr
+  modifyInfo fun s => { s with mulThms? := some thms }
+  return thms
+
+def getSubThm? : ToIntM (Option Expr) := do
+  if let some r? := (← getInfo).subThm? then return r?
+  let thm? ← mkSimpleOpThm? ``Sub ``Grind.ToInt.sub_congr
+  modifyInfo fun s => { s with subThm? := some thm? }
+  return thm?
+
+def getNegThm? : ToIntM (Option Expr) := do
+  if let some r? := (← getInfo).negThm? then return r?
+  let thm? ← mkSimpleOpThm? ``Neg ``Grind.ToInt.neg_congr
+  modifyInfo fun s => { s with negThm? := some thm? }
+  return thm?
+
+def getDivThm? : ToIntM (Option Expr) := do
+  if let some r? := (← getInfo).divThm? then return r?
+  let thm? ← mkSimpleOpThm? ``Div ``Grind.ToInt.div_congr
+  modifyInfo fun s => { s with divThm? := some thm? }
+  return thm?
+
+def getModThm? : ToIntM (Option Expr) := do
+  if let some r? := (← getInfo).modThm? then return r?
+  let thm? ← mkSimpleOpThm? ``Mod ``Grind.ToInt.mod_congr
+  modifyInfo fun s => { s with modThm? := some thm? }
+  return thm?
+
+def getPowThm? : ToIntM (Option Expr) := do
+  if let some r? := (← getInfo).powThm? then return r?
+  let thm? ← mkPowThm?
+  modifyInfo fun s => { s with powThm? := some thm? }
+  return thm?
+
+def getZeroThm? : ToIntM (Option Expr) := do
+  if let some r? := (← getInfo).zeroThm? then return r?
+  let thm? ← mkSimpleOpThm? ``Zero ``Grind.ToInt.zero_eq
+  modifyInfo fun s => { s with zeroThm? := some thm? }
+  return thm?
+
+private def mkOfNatThm? : ToIntM (Option Expr) := do
+  -- ∀ n, OfNat α n
+  let info ← getInfo
+  let ofNat := mkForall `n .default (mkConst ``Nat) (mkApp2 (mkConst ``OfNat [info.u]) info.type (mkBVar 0))
+  let some ofNatInst ← synthInstance? ofNat
+    | reportMissingToIntAdapter info.type ofNat; return none
+  let toIntOfNat := mkApp4 (mkConst ``Grind.ToInt.OfNat [info.u]) info.type ofNatInst info.rangeExpr info.toIntInst
+  let some toIntOfNatInst ← synthInstance? toIntOfNat
+    | reportMissingToIntAdapter info.type toIntOfNat; return none
+  return mkApp5 (mkConst ``Grind.ToInt.ofNat_eq [info.u]) info.type info.rangeExpr info.toIntInst ofNatInst toIntOfNatInst
+
+def getOfNatThm? : ToIntM (Option Expr) := do
+  if let some r? := (← getInfo).ofNatThm? then return r?
+  let thm? ← mkOfNatThm?
+  modifyInfo fun s => { s with ofNatThm? := some thm? }
+  return thm?
 
 def mkToIntVar (e : Expr) : ToIntM (Expr × Expr) := do
   if let some info := (← get').toIntTermMap.find? { expr := e } then
@@ -265,10 +340,10 @@ private partial def toInt' (e : Expr) : ToIntM (Expr × Expr) := do
   match_expr e with
   | HAdd.hAdd α β γ _ a b =>
     unless isHomo α β γ do return (← mkToIntVar e)
-    toIntBin (← getInfo).addThms mkIntAdd a b
+    toIntBin (← getAddThms) mkIntAdd a b
   | HMul.hMul α β γ _ a b =>
     unless isHomo α β γ do return (← mkToIntVar e)
-    toIntBin (← getInfo).mulThms mkIntMul a b
+    toIntBin (← getMulThms) mkIntMul a b
   | HDiv.hDiv α β γ _ a b =>
     unless isHomo α β γ do return (← mkToIntVar e)
     processDivMod (isDiv := true) a b
@@ -284,10 +359,10 @@ private partial def toInt' (e : Expr) : ToIntM (Expr × Expr) := do
     unless isSameExpr α γ && β.isConstOf ``Nat do return (← mkToIntVar e)
     processPow a b
   | Zero.zero _ _ =>
-    let some thm := (← getInfo).zeroThm? | mkToIntVar e
+    let some thm ← getZeroThm? | mkToIntVar e
     return (mkIntLit 0, thm)
   | OfNat.ofNat _ n _ =>
-    let some thm := (← getInfo).ofNatThm? | mkToIntVar e
+    let some thm ← getOfNatThm? | mkToIntVar e
     let some n ← getNatValue? n | mkToIntVar e
     let r := mkIntLit ((← getInfo).range.wrap n)
     let h := mkApp thm (toExpr n)
@@ -305,7 +380,7 @@ where
     expandIfWrap a a' h₁
 
   processDivMod (isDiv : Bool) (a b : Expr) : ToIntM (Expr × Expr) := do
-    let some thm ← if isDiv then pure (← getInfo).divThm? else pure (← getInfo).modThm?
+    let some thm ← if isDiv then getDivThm? else getModThm?
       | return (← mkToIntVar e)
     let (a', h₁) ← toIntAndExpandWrap a
     let (b', h₂) ← toIntAndExpandWrap b
@@ -314,7 +389,7 @@ where
     return (r, h)
 
   processSub (a b : Expr) : ToIntM (Expr × Expr) := do
-    let some thm := (← getInfo).subThm? | return (← mkToIntVar e)
+    let some thm ← getSubThm? | mkToIntVar e
     let (a', h₁) ← toIntAndExpandWrap a
     let (b', h₂) ← toIntAndExpandWrap b
     let r ← mkWrap (mkIntSub a' b')
@@ -322,14 +397,14 @@ where
     return (r, h)
 
   processNeg (a : Expr) : ToIntM (Expr × Expr) := do
-    let some thm := (← getInfo).negThm? | return (← mkToIntVar e)
+    let some thm ← getNegThm? | mkToIntVar e
     let (a', h₁) ← toIntAndExpandWrap a
     let r ← mkWrap (mkIntNeg a')
     let h := mkApp3 thm a a' h₁
     return (r, h)
 
   processPow (a b : Expr) : ToIntM (Expr × Expr) := do
-    let some thm := (← getInfo).powThm? | return (← mkToIntVar e)
+    let some thm ← getPowThm? | mkToIntVar e
     let (a', h₁) ← toIntAndExpandWrap a
     let r ← mkWrap (mkIntPowNat a' b)
     let h := mkApp4 thm a b a' h₁
@@ -353,7 +428,7 @@ def isSupportedType (type : Expr) : GoalM Bool := do
   if type == Nat.mkType || type == Int.mkType then
     return true
   else
-    return (← getToIntInfo? type).isSome
+    return (← getToIntId? type).isSome
 
 /--
 Given `x` whose denotation is `e`, if `e` is of the form `ToInt a`,

@@ -3,14 +3,18 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Simproc
-import Init.Grind.Tactics
-import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.Transform
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Clear
-import Lean.Meta.Tactic.Simp.Simproc
+public import Init.Simproc
+public import Init.Grind.Tactics
+public import Lean.Meta.AbstractNestedProofs
+public import Lean.Meta.Transform
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Clear
+public import Lean.Meta.Tactic.Simp.Simproc
+
+public section
 
 namespace Lean.Meta.Grind
 /--
@@ -50,10 +54,20 @@ should not be unfolded by `unfoldReducible`.
 def isGrindGadget (declName : Name) : Bool :=
   declName == ``Grind.EqMatch
 
+def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
+  let env ← getEnv
+  return Option.isSome <| e.find? fun e => Id.run do
+    let .const declName _ := e | return false
+    if getReducibilityStatusCore env declName matches .reducible then
+      return !isGrindGadget declName
+    else
+      return false
+
 /--
 Unfolds all `reducible` declarations occurring in `e`.
 -/
-def unfoldReducible (e : Expr) : MetaM Expr :=
+def unfoldReducible (e : Expr) : MetaM Expr := do
+  if !(← isUnfoldReducibleTarget e) then return e
   let pre (e : Expr) : MetaM TransformStep := do
     let .const declName _ := e.getAppFn | return .continue
     unless (← isReducible declName) do return .continue
@@ -116,6 +130,7 @@ Recall that we still have to process `Expr.forallE` because of `ForallProp.lean`
 Moreover, we may not want to reduce `p → q` to `¬p ∨ q` when `(p q : Prop)`.
 -/
 def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
+  if Option.isNone <| e.find? fun e => e.isMData then return e
   let pre (e : Expr) := do
     match e with
     | .letE .. | .lam .. => return .done e
@@ -127,6 +142,7 @@ def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
 Converts nested `Expr.proj`s into projection applications if possible.
 -/
 def foldProjs (e : Expr) : MetaM Expr := do
+  if Option.isNone <| e.find? fun e => e.isProj then return e
   let post (e : Expr) := do
     let .proj structName idx s := e | return .done e
     let some info := getStructureInfo? (← getEnv) structName |
@@ -144,8 +160,10 @@ def foldProjs (e : Expr) : MetaM Expr := do
         F ⟶ G
       ```
       We should make `mkProjection` more robust.
+
+      The `mkProjection` function may create new kernel projections. So, we must use `.visit`.
       -/
-      return .done (← withDefault <| mkProjection s fieldName)
+      return .visit (← withDefault <| mkProjection s fieldName)
     else
       trace[grind.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
       return .done e
@@ -164,7 +182,7 @@ def normalizeLevels (e : Expr) : CoreM Expr := do
 
 /--
 Normalizes the given expression using the `grind` simplification theorems and simprocs.
-This function is used for normalzing E-matching patterns. Note that it does not return a proof.
+This function is used for normalizing E-matching patterns. Note that it does not return a proof.
 -/
 @[extern "lean_grind_normalize"] -- forward definition
 opaque normalize (e : Expr) (config : Grind.Config) : MetaM Expr

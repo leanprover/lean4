@@ -20,14 +20,14 @@ holes.lean:10:9-10:12: error: don't know how to synthesize implicit argument 'β
 context:
 x : Nat
 ⊢ Type
-holes.lean:13:10-13:11: error: failed to infer binder type
-holes.lean:15:16-15:17: error: failed to infer binder type
+holes.lean:13:10-13:11: error(lean.inferBinderTypeFailed): Failed to infer type of binder `β`
+holes.lean:15:12-15:13: error(lean.inferBinderTypeFailed): Failed to infer type of binder `β`
 holes.lean:19:0-19:3: error: don't know how to synthesize implicit argument 'β'
   @f Nat (?m a) a
 context:
 a : Nat
 f : {α : Type} → {β : ?m a} → α → α := ⋯
 ⊢ ?m a
-holes.lean:18:9-18:10: error: failed to infer binder type
-holes.lean:21:25-22:4: error: failed to infer type of `f7`
+holes.lean:18:9-18:10: error(lean.inferBinderTypeFailed): Failed to infer type of binder `β`
+holes.lean:21:12-21:14: error(lean.inferDefTypeFailed): Failed to infer type of definition `f7`
 holes.lean:25:8-25:11: error: failed to infer 'let rec' declaration type

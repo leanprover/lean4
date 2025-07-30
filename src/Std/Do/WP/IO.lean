@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Init.System.IO
-import Std.Do.WP.Monad
+public import Init.System.IO
+public import Std.Do.WP.Monad
+
+@[expose] public section
 
 /-!
 # Barebones `WP` instance for `IO`
@@ -22,7 +26,7 @@ open Std.Do
 
 /--
 This is pretty much the instance for `EStateM` specialized to `σ = IO.RealWorld`.
-However, `IO.RealWorld` is ommitted in the `PredShape`.
+However, `IO.RealWorld` is omitted in the `PredShape`.
 -/
 scoped instance instWP : WP (EIO ε) (.except ε .pure) where
   wp x := -- Could define as PredTrans.mkExcept (PredTrans.modifyGetM (fun s => pure (EStateM.Result.toExceptState (x s))))

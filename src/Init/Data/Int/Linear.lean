@@ -1737,32 +1737,6 @@ theorem emod_le (x y : Int) (n : Int) : emod_le_cert y n → x % y + n ≤ 0 := 
     simp only [Int.add_comm, Int.sub_neg, Int.add_zero]
     exact Int.emod_lt_of_pos x h
 
-theorem natCast_nonneg (x : Nat) : (-1:Int) * NatCast.natCast x ≤ 0 := by
-  simp
-
-theorem natCast_sub (x y : Nat)
-    : (NatCast.natCast (x - y) : Int)
-      =
-      if (NatCast.natCast y : Int) + (-1)*NatCast.natCast x ≤ 0 then
-        (NatCast.natCast x : Int) + -1*NatCast.natCast y
-      else
-        (0 : Int) := by
-  change (↑(x - y) : Int) = if (↑y : Int) + (-1)*↑x ≤ 0 then (↑x : Int) + (-1)*↑y else 0
-  rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
-  rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
-  split
-  next h =>
-    replace h := Int.le_of_sub_nonpos h
-    rw [Int.ofNat_le] at h
-    rw [Int.ofNat_sub h]
-  next h =>
-    have : ¬ (↑y : Int) ≤ ↑x := by
-      intro h
-      replace h := Int.sub_nonpos_of_le h
-      contradiction
-    rw [Int.ofNat_le] at this
-    rw [Lean.Omega.Int.ofNat_sub_eq_zero this]
-
 private theorem dvd_le_tight' {d p b₁ b₂ : Int} (hd : d > 0) (h₁ : d ∣ p + b₁) (h₂ : p + b₂ ≤ 0)
     : p + (b₁ - d*((b₁-b₂) / d)) ≤ 0 := by
   have ⟨k, h⟩ := h₁
@@ -1882,31 +1856,6 @@ theorem of_not_dvd (a b : Int) : a != 0 → ¬ (a ∣ b) → b % a > 0 := by
   assumption
 
 @[expose]
-def le_of_le_cert (p q : Poly) (k : Nat) : Bool :=
-  q == p.addConst (- k)
-
-theorem le_of_le (ctx : Context) (p q : Poly) (k : Nat)
-    : le_of_le_cert p q k → p.denote' ctx ≤ 0 → q.denote' ctx ≤ 0 := by
-  simp [le_of_le_cert]; intro; subst q; simp
-  intro h
-  simp [Lean.Omega.Int.add_le_zero_iff_le_neg']
-  exact Int.le_trans h (Int.ofNat_zero_le _)
-
-@[expose]
-def not_le_of_le_cert (p q : Poly) (k : Nat) : Bool :=
-  q == (p.mul (-1)).addConst (1 + k)
-
-theorem not_le_of_le (ctx : Context) (p q : Poly) (k : Nat)
-    : not_le_of_le_cert p q k → p.denote' ctx ≤ 0 → ¬ q.denote' ctx ≤ 0 := by
-  simp [not_le_of_le_cert]; intro; subst q
-  intro h
-  apply Int.pos_of_neg_neg
-  apply Int.lt_of_add_one_le
-  simp [Int.neg_add]
-  rw [← Int.add_assoc, ← Int.add_assoc, Int.add_neg_cancel_right, Lean.Omega.Int.add_le_zero_iff_le_neg']
-  simp; exact Int.le_trans h (Int.ofNat_zero_le _)
-
-@[expose]
 def eq_def_cert (x : Var) (xPoly : Poly) (p : Poly) : Bool :=
   p == .add (-1) x xPoly
 
@@ -1949,6 +1898,62 @@ theorem diseq_norm_poly (ctx : Context) (p p' : Poly) : p.denote' ctx = p'.denot
 
 theorem dvd_norm_poly (ctx : Context) (d : Int) (p p' : Poly) : p.denote' ctx = p'.denote' ctx → d ∣ p.denote' ctx → d ∣ p'.denote' ctx := by
   intro h; rw [h]; simp
+
+/-!
+Constraint propagation helper theorems.
+-/
+
+@[expose]
+def le_of_le_cert (p₁ p₂ : Poly) : Bool :=
+  match p₁, p₂ with
+  | .add .., .num _ => false
+  | .num _, .add .. => false
+  | .num c₁, .num c₂ => c₁ ≥ c₂
+  | .add a₁ x₁ p₁, .add a₂ x₂ p₂ => a₁ == a₂ && x₁ == x₂ && le_of_le_cert p₁ p₂
+
+theorem le_of_le' (ctx : Context) (p₁ p₂ : Poly) : le_of_le_cert p₁ p₂ → ∀ k, p₁.denote' ctx ≤ k → p₂.denote' ctx ≤ k := by
+  simp [Poly.denote'_eq_denote]
+  fun_induction le_of_le_cert <;> simp [Poly.denote]
+  next c₁ c₂ =>
+    intro h k h₁
+    exact Int.le_trans h h₁
+  next a₁ x₁ p₁ a₂ x₂ p₂ ih =>
+    intro _ _ h; subst a₁ x₁
+    replace ih := ih h; clear h
+    intro k h
+    replace h : p₁.denote ctx ≤ k - a₂ * x₂.denote ctx := by omega
+    replace ih := ih _ h
+    omega
+
+theorem le_of_le (ctx : Context) (p₁ p₂ : Poly) : le_of_le_cert p₁ p₂ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 :=
+  fun h => le_of_le' ctx p₁ p₂ h 0
+
+@[expose]
+def not_le_of_le_cert (p₁ p₂ : Poly) : Bool :=
+  match p₁, p₂ with
+  | .add .., .num _ => false
+  | .num _, .add .. => false
+  | .num c₁, .num c₂ => c₁ ≥ 1 - c₂
+  | .add a₁ x₁ p₁, .add a₂ x₂ p₂ => a₁ == -a₂ && x₁ == x₂ && not_le_of_le_cert p₁ p₂
+
+theorem not_le_of_le' (ctx : Context) (p₁ p₂ : Poly) : not_le_of_le_cert p₁ p₂ → ∀ k, p₁.denote' ctx ≤ k → ¬ (p₂.denote' ctx ≤ -k) := by
+  simp [Poly.denote'_eq_denote]
+  fun_induction not_le_of_le_cert <;> simp [Poly.denote]
+  next c₁ c₂ =>
+    intro h k h₁
+    omega
+  next a₁ x₁ p₁ a₂ x₂ p₂ ih =>
+    intro _ _ h; subst a₁ x₁
+    replace ih := ih h; clear h
+    intro k h
+    replace h : p₁.denote ctx ≤ k + a₂ * x₂.denote ctx := by rw [Int.neg_mul] at h; omega
+    replace ih := ih _ h
+    omega
+
+theorem not_le_of_le (ctx : Context) (p₁ p₂ : Poly) : not_le_of_le_cert p₁ p₂ → p₁.denote' ctx ≤ 0 → ¬ (p₂.denote' ctx ≤ 0) := by
+  intro h h₁
+  have := not_le_of_le' ctx p₁ p₂ h 0 h₁; simp at this
+  simp [*]
 
 end Int.Linear
 

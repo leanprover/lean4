@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.Meta.AppBuilder
-import Lean.Meta.CompletionName
+public import Lean.AddDecl
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.CompletionName
+
+public section
 
 /-!
 This module produces a construction for the `noConfusionType` that is linear in size in the number of
@@ -90,7 +94,7 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
       mkLambdaFVars ((xs.push P).push ctorIdx) e
 
   let declName := mkWithCtorTypeName indName
-  addAndCompile (.defnDecl (← mkDefinitionValInferrringUnsafe
+  addAndCompile (.defnDecl (← mkDefinitionValInferringUnsafe
     (name        := declName)
     (levelParams := casesOnInfo.levelParams)
     (type        := (← inferType e))
@@ -149,7 +153,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
 
   let declName := mkWithCtorName indName
   -- not compiled to avoid old code generator bug #1774
-  addDecl (.defnDecl (← mkDefinitionValInferrringUnsafe
+  addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
     (name        := declName)
     (levelParams := casesOnInfo.levelParams)
     (type        := (← inferType e))
@@ -212,7 +216,7 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
             let e ← mkLambdaFVars xs e
             pure e
 
-  addDecl (.defnDecl (← mkDefinitionValInferrringUnsafe
+  addDecl (.defnDecl (← mkDefinitionValInferringUnsafe
     (name        := declName)
     (levelParams := casesOnInfo.levelParams)
     (type        := (← inferType e))

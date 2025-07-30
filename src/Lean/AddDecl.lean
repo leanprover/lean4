@@ -3,10 +3,14 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.Namespace
-import Lean.Util.CollectAxioms
+public import Lean.CoreM
+public import Lean.Namespace
+public import Lean.Util.CollectAxioms
+
+public section
 
 namespace Lean
 
@@ -64,12 +68,6 @@ Checks whether the declaration was originally declared as a theorem; see also
 def wasOriginallyTheorem (env : Environment) (declName : Name) : Bool :=
   getOriginalConstKind? env declName |>.map (· matches .thm) |>.getD false
 
-private def looksLikeRelevantTheoremProofType (type : Expr) : Bool :=
-  if let .forallE _ _ type _ := type then
-    looksLikeRelevantTheoremProofType type
-  else
-    type.isAppOfArity ``WellFounded 2
-
 /-- If `warn.sorry` is set to true, then, so long as the message log does not already have any errors,
 declarations with `sorryAx` generate the "declaration uses 'sorry'" warning. -/
 register_builtin_option warn.sorry : Bool := {
@@ -89,10 +87,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   let mut exportedInfo? := none
   let (name, info, kind) ← match decl with
     | .thmDecl thm =>
-      let exportProof := !(← getEnv).header.isModule ||
-        -- TODO: this is horrible...
-        looksLikeRelevantTheoremProofType thm.type
-      if !exportProof then
+      if (← getEnv).header.isModule then
         exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
       pure (thm.name, .thmInfo thm, .thm)
     | .defnDecl defn | .mutualDefnDecl [defn] =>
@@ -141,7 +136,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
 where
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do
-      withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
+      withTraceNode `Kernel (return m!"{exceptEmoji ·} typechecking declarations {decl.getTopLevelNames}") do
         if warn.sorry.get (← getOptions) then
           if !(← MonadLog.hasErrors) && decl.hasSorry then
             logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"

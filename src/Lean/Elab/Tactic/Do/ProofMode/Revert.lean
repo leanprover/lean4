@@ -3,10 +3,14 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Std.Tactic.Do.Syntax
-import Lean.Elab.Tactic.Do.ProofMode.Focus
-import Lean.Elab.Tactic.Do.ProofMode.Basic
+public import Std.Tactic.Do.Syntax
+public import Lean.Elab.Tactic.Do.ProofMode.Focus
+public import Lean.Elab.Tactic.Do.ProofMode.Basic
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic
@@ -18,8 +22,8 @@ partial def mRevertStep (goal : MGoal) (ref : TSyntax `ident) (k : MGoal → Met
   let Q := res.restHyps
   let H := res.focusHyp
   let T := goal.target
-  let prf ← k { goal with hyps := Q, target := mkApp3 (mkConst ``SPred.imp) goal.σs H T }
-  let prf := mkApp7 (mkConst ``Revert.revert) goal.σs P Q H T res.proof prf
+  let prf ← k { goal with hyps := Q, target := mkApp3 (mkConst ``SPred.imp [goal.u]) goal.σs H T }
+  let prf := mkApp7 (mkConst ``Revert.revert [goal.u]) goal.σs P Q H T res.proof prf
   return prf
 
 @[builtin_tactic Lean.Parser.Tactic.mrevert]

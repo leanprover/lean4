@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.HashMap.Lemmas
-import Std.Data.HashSet.Basic
+public import Std.Data.HashMap.Lemmas
+public import Std.Data.HashSet.Basic
+
+@[expose] public section
 
 /-!
 # Hash set lemmas

@@ -3,21 +3,26 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Init.Guard
-import Std.Do.WP
-import Std.Do.Triple
-import Lean.Elab.Tactic.Simp
-import Lean.Elab.Tactic.Meta
-import Lean.Elab.Tactic.Do.ProofMode.Basic
-import Lean.Elab.Tactic.Do.ProofMode.Intro
-import Lean.Elab.Tactic.Do.ProofMode.Cases
-import Lean.Elab.Tactic.Do.ProofMode.Specialize
-import Lean.Elab.Tactic.Do.ProofMode.Pure
-import Lean.Elab.Tactic.Do.LetElim
-import Lean.Elab.Tactic.Do.Spec
-import Lean.Elab.Tactic.Do.Attr
-import Lean.Elab.Tactic.Do.Syntax
+public import Init.Guard
+public import Std.Do.WP
+public import Std.Do.Triple
+public import Lean.Meta.Tactic.Split
+public import Lean.Elab.Tactic.Simp
+public import Lean.Elab.Tactic.Meta
+public import Lean.Elab.Tactic.Do.ProofMode.Basic
+public import Lean.Elab.Tactic.Do.ProofMode.Intro
+public import Lean.Elab.Tactic.Do.ProofMode.Cases
+public import Lean.Elab.Tactic.Do.ProofMode.Specialize
+public import Lean.Elab.Tactic.Do.ProofMode.Pure
+public import Lean.Elab.Tactic.Do.LetElim
+public import Lean.Elab.Tactic.Do.Spec
+public import Lean.Elab.Tactic.Do.Attr
+public import Lean.Elab.Tactic.Do.Syntax
+
+public section
 
 namespace Lean.Elab.Tactic.Do
 
@@ -94,15 +99,6 @@ def liftSimpM (x : SimpM α) : VCGenM α := do
 
 instance : MonadLift SimpM VCGenM where
   monadLift x := liftSimpM x
-
-syntax (name := mvcgen_step) "mvcgen_step" optConfig
- (num)? (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
-
-syntax (name := mvcgen_no_trivial) "mvcgen_no_trivial" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
-
-syntax (name := mvcgen) "mvcgen" optConfig
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? : tactic
 
 private def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false) : TacticM Context := do
   let config ← elabConfig optConfig
@@ -291,11 +287,12 @@ where
     | c@WP.wp m ps instWP α e =>
       let e ← instantiateMVarsIfMVarApp e
       let e := e.headBeta
+      let [u, _] := c.constLevels! | panic! "PredTrans.apply has wrong number of levels"
       trace[Elab.Tactic.Do.vcgen] "Target: {e}"
       let goalWithNewProg e' :=
         let wp' := mkApp5 c m ps instWP α e'
         let args' := args.set! 2 wp'
-        { goal with target := mkAppN (mkConst ``PredTrans.apply) args' }
+        { goal with target := mkAppN (mkConst ``PredTrans.apply [u]) args' }
 
       -- lambda-expressions
       if e.getAppFn'.isLambda && false then
@@ -347,14 +344,25 @@ where
       -- apply specifications
       if f.isConst then
         burnOne
+        -- First try to split Ifs. Just like for match splitting
+        if f.isConstOf ``ite || f.isConstOf ``dite then
+          -- Just like for match splitting above
+          let mvar ← mkFreshExprSyntheticOpaqueMVar goal.toExpr (tag := name)
+          let some (pos, neg) ← splitIfTarget? mvar.mvarId!
+            | liftMetaM <| throwError "Failed to split if {e}"
+          assignMVars [pos.mvarId, neg.mvarId]
+          return mvar
+        -- Now try looking up and applying a spec
         try
           let specThm ← findSpec ctx.specThms wp
           trace[Elab.Tactic.Do.vcgen] "Candidate spec for {f.constName!}: {specThm.proof}"
-          let (prf, specHoles) ← withDefault <| mSpec goal (fun _wp  => return specThm) name
-          assignMVars specHoles
+          let (prf, specHoles) ← withDefault <| collectFreshMVars <|
+            mSpec goal (fun _wp  => return specThm) name
+          assignMVars specHoles.toList
           return prf
         catch ex =>
           trace[Elab.Tactic.Do.vcgen] "Failed to find spec. Trying simp. Reason: {ex.toMessageData}"
+        -- Last resort: Simp and try again
         let res ← Simp.simp e
         unless res.expr != e do return ← onFail goal name
         burnOne
@@ -374,19 +382,20 @@ def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : TacticM (Array MVarId
   mvar.withContext do
   let (prf, vcs) ← step ctx (fuel := fuel) goal (← mvar.getTag)
   mvar.assign prf
-  replaceMainGoal vcs.toList
   return vcs
 
 @[builtin_tactic Lean.Parser.Tactic.mvcgenStep]
 def elabMVCGenStep : Tactic := fun stx => withMainContext do
   let ctx ← mkSpecContext stx[1] stx[3]
   let n := if stx[2].isNone then 1 else stx[2][0].toNat
-  discard <| genVCs (← getMainGoal) ctx (fuel := .limited n)
+  let vcs ← genVCs (← getMainGoal) ctx (fuel := .limited n)
+  replaceMainGoal vcs.toList
 
 @[builtin_tactic Lean.Parser.Tactic.mvcgenNoTrivial]
 def elabMVCGenNoTrivial : Tactic := fun stx => withMainContext do
   let ctx ← mkSpecContext stx[0] stx[1]
-  discard <| genVCs (← getMainGoal) ctx (fuel := .unlimited)
+  let vcs ← genVCs (← getMainGoal) ctx (fuel := .unlimited)
+  replaceMainGoal vcs.toList
 
 @[builtin_tactic Lean.Parser.Tactic.mvcgen]
 def elabMVCGen : Tactic := fun stx => withMainContext do
@@ -397,5 +406,11 @@ def elabMVCGen : Tactic := fun stx => withMainContext do
   -- but optConfig is not a leading_parser, and neither is the syntax for `lemmas`
   let ctx ← mkSpecContext stx[1] stx[2]
   let vcs ← genVCs (← getMainGoal) ctx (fuel := .unlimited)
-  let tac ← `(tactic| try (apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro); trivial))
-  for vc in vcs do discard <| runTactic vc tac
+  let tac ← `(tactic| (try (try apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro)); trivial))
+  let mut s := {}
+  let mut newVCs := #[]
+  for vc in vcs do
+    let (vcs, s') ← runTactic vc tac (s := s)
+    s := s'
+    newVCs := newVCs ++ vcs
+  replaceMainGoal newVCs.toList

@@ -165,7 +165,7 @@ jobs:
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
-                "os": large && level < 2 ? "nscloud-ubuntu-22.04-amd64-4x16" : "ubuntu-latest",
+                "os": "ubuntu-latest",
                 "release": true,
                 // Special handling for release jobs. We want:
                 // 1. To run it in PRs so developers get PR toolchains (so secondary is sufficient)
@@ -192,6 +192,13 @@ jobs:
                 "check-stage3": level >= 2,
                 // NOTE: `test-speedcenter` currently seems to be broken on `ubuntu-latest`
                 "test-speedcenter": large && level >= 2,
+                "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
+              },
+              {
+                "name": "Linux Lake (cached)",
+                "os": "ubuntu-latest",
+                "check-level": (isPr || isPushToMaster) ? 0 : 2,
+                "secondary": true,
                 "CMAKE_OPTIONS": "-DUSE_LAKE=ON",
               },
               {
@@ -225,8 +232,8 @@ jobs:
               },
               {
                 "name": "macOS aarch64",
-                // standard GH runner only comes with 7GB so use large runner if possible
-                "os": large ? "nscloud-macos-sonoma-arm64-6x14" : "macos-14",
+                // standard GH runner only comes with 7GB so use large runner if possible when running tests
+                "os": large && !isPr ? "nscloud-macos-sonoma-arm64-6x14" : "macos-14",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
@@ -234,13 +241,13 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
-                // See above for release job levels
+                // See "Linux release" for release job levels; Grove is not a concern here
                 "check-level": isPr ? 0 : 2,
                 "secondary": isPr,
               },
               {
                 "name": "Windows",
-                "os": "windows-2022",
+                "os": large && level == 2 ? "namespace-profile-windows-amd64-4x16" : "windows-2022",
                 "release": true,
                 "check-level": 2,
                 "shell": "msys2 {0}",
@@ -363,7 +370,7 @@ jobs:
         with:
           path: artifacts
       - name: Release
-        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631
+        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
@@ -407,7 +414,7 @@ jobs:
           echo -e "\n*Full commit log*\n" >> diff.md
           git log --oneline "$last_tag"..HEAD | sed 's/^/* /' >> diff.md
       - name: Release Nightly
-        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631
+        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8
         with:
           body_path: diff.md
           prerelease: true

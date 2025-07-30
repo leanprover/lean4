@@ -3,20 +3,24 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.ShareCommon
-import Lean.Compiler.MetaAttr
-import Lean.Compiler.NoncomputableAttr
-import Lean.Util.CollectLevelParams
-import Lean.Util.NumObjs
-import Lean.Util.NumApps
-import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.ForEachExpr
-import Lean.Meta.Eqns
-import Lean.Meta.LetToHave
-import Lean.Elab.RecAppSyntax
-import Lean.Elab.DefView
-import Lean.Elab.PreDefinition.TerminationHint
+public import Init.ShareCommon
+public import Lean.Compiler.MetaAttr
+public import Lean.Compiler.NoncomputableAttr
+public import Lean.Util.CollectLevelParams
+public import Lean.Util.NumObjs
+public import Lean.Util.NumApps
+public import Lean.Meta.AbstractNestedProofs
+public import Lean.Meta.ForEachExpr
+public import Lean.Meta.Eqns
+public import Lean.Meta.LetToHave
+public import Lean.Elab.RecAppSyntax
+public import Lean.Elab.DefView
+public import Lean.Elab.PreDefinition.TerminationHint
+
+public section
 
 namespace Lean.Elab
 open Meta
@@ -290,7 +294,7 @@ def checkCodomainsLevel (preDefs : Array PreDefinition) : MetaM Unit := do
     lambdaTelescope preDef.value fun xs _ => return xs.size
   forallBoundedTelescope preDefs[0]!.type arities[0]!  fun _ type₀ => do
     let u₀ ← getLevel type₀
-    for h : i in [1:preDefs.size] do
+    for h : i in 1...preDefs.size do
       forallBoundedTelescope preDefs[i].type arities[i]! fun _ typeᵢ =>
       unless ← isLevelDefEq u₀ (← getLevel typeᵢ) do
         withOptions (fun o => pp.sanitizeNames.set o false) do
@@ -307,7 +311,7 @@ def shareCommonPreDefs (preDefs : Array PreDefinition) : CoreM (Array PreDefinit
         es := es.push preDef.type |>.push preDef.value
       es := ShareCommon.shareCommon' es
       let mut result := #[]
-      for h : i in [:preDefs.size] do
+      for h : i in *...preDefs.size do
         let preDef := preDefs[i]
         result := result.push { preDef with type := es[2*i]!, value := es[2*i+1]! }
       return result

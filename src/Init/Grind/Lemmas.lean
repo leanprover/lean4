@@ -131,6 +131,11 @@ theorem Bool.eq_true_of_not_eq_false' {a : Bool} (h : ¬ a = false) : a = true :
 theorem Bool.false_of_not_eq_self {a : Bool} (h : (!a) = a) : False := by
   by_cases a <;> simp_all
 
+theorem Bool.ne_of_eq_true_of_eq_false {a b : Bool} (h₁ : a = true) (h₂ : b = false) : (a = b) = False := by
+  cases a <;> cases b <;> simp_all
+theorem Bool.ne_of_eq_false_of_eq_true {a b : Bool} (h₁ : a = false) (h₂ : b = true) : (a = b) = False := by
+  cases a <;> cases b <;> simp_all
+
 /- The following two helper theorems are used to case-split `a = b` representing `iff`. -/
 theorem of_eq_eq_true {a b : Prop} (h : (a = b) = True) : (a ∧ b) ∨ (¬ a ∧ ¬ b) := by
   by_cases a <;> by_cases b <;> simp_all

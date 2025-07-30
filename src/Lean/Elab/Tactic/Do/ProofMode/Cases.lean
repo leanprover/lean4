@@ -3,12 +3,16 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Std.Tactic.Do.Syntax
-import Lean.Elab.Tactic.Do.ProofMode.Focus
-import Lean.Elab.Tactic.Do.ProofMode.Basic
-import Lean.Elab.Tactic.Do.ProofMode.Pure
-import Lean.Elab.Tactic.Do.ProofMode.Intro
+public import Std.Tactic.Do.Syntax
+public import Lean.Elab.Tactic.Do.ProofMode.Focus
+public import Lean.Elab.Tactic.Do.ProofMode.Basic
+public import Lean.Elab.Tactic.Do.ProofMode.Pure
+public import Lean.Elab.Tactic.Do.ProofMode.Intro
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic Lean.Parser.Tactic
@@ -17,30 +21,30 @@ open Lean Elab Tactic Meta
 initialize registerTraceClass `Meta.Tactic.Do.cases
 
 -- Given σs and H, produces H₁, H₂ and a proof that H₁ ∧ H₂ ⊣⊢ₛ H.
-def synthIsAnd (σs H : Expr) : OptionT MetaM (Expr × Expr × Expr) := do
-  if let some (_σs, H₁, H₂) := parseAnd? H.consumeMData then
-    return (H₁, H₂, mkApp2 (mkConst ``SPred.bientails.refl) σs H)
+def synthIsAnd (u : Level) (σs H : Expr) : OptionT MetaM (Expr × Expr × Expr) := do
+  if let some (_u, _σs, H₁, H₂) := parseAnd? H.consumeMData then
+    return (H₁, H₂, mkApp2 (mkConst ``SPred.bientails.refl [u]) σs H)
   try
-    let H₁ ← mkFreshExprMVar (mkApp (mkConst ``SPred) σs)
-    let H₂ ← mkFreshExprMVar (mkApp (mkConst ``SPred) σs)
-    let inst ← synthInstance (mkApp4 (mkConst ``IsAnd) σs H H₁ H₂)
-    return (H₁, H₂, mkApp5 (mkConst ``IsAnd.to_and) σs H H₁ H₂ inst)
+    let H₁ ← mkFreshExprMVar (mkApp (mkConst ``SPred [u]) σs)
+    let H₂ ← mkFreshExprMVar (mkApp (mkConst ``SPred [u]) σs)
+    let inst ← synthInstance (mkApp4 (mkConst ``IsAnd [u]) σs H H₁ H₂)
+    return (H₁, H₂, mkApp5 (mkConst ``IsAnd.to_and [u]) σs H H₁ H₂ inst)
   catch _ => failure
 
 -- Produce a proof for Q ∧ H ⊢ₛ T by opening a new goal P ⊢ₛ T, where P ⊣⊢ₛ Q ∧ H.
-def mCasesAddGoal (goals : IO.Ref (Array MVarId)) (σs : Expr) (T : Expr) (Q : Expr) (H : Expr) : MetaM (Unit × MGoal × Expr) := do
-  let (P, hand) := mkAnd σs Q H
+def mCasesAddGoal (u : Level) (goals : IO.Ref (Array MVarId)) (σs : Expr) (T : Expr) (Q : Expr) (H : Expr) : MetaM (Unit × MGoal × Expr) := do
+  let (P, hand) := mkAnd u σs Q H
   -- hand : Q ∧ H ⊣⊢ₛ P
   -- Need to produce a proof that P ⊢ₛ T and return res
-  let goal : MGoal := { σs := σs, hyps := P, target := T }
+  let goal : MGoal := { u := u, σs := σs, hyps := P, target := T }
   let m ← mkFreshExprSyntheticOpaqueMVar goal.toExpr
   goals.modify (·.push m.mvarId!)
-  let prf := mkApp7 (mkConst ``SCases.add_goal) σs P Q H T hand m
-  let goal := { goal with hyps := mkAnd! σs Q H }
+  let prf := mkApp7 (mkConst ``Cases.add_goal [u]) σs P Q H T hand m
+  let goal := { goal with hyps := mkAnd! u σs Q H }
   return ((), goal, prf)
 
 private def getQH (goal : MGoal) : MetaM (Expr × Expr) := do
-  let some (_, Q, H) := parseAnd? goal.hyps | throwError m!"Internal error: Hypotheses not a conjunction {goal.hyps}"
+  let some (_, _, Q, H) := parseAnd? goal.hyps | throwError m!"Internal error: Hypotheses not a conjunction {goal.hyps}"
   return (Q, H)
 
 -- Pretty much like sPureCore, but for existential quantifiers.
@@ -57,8 +61,8 @@ def mCasesExists (H : Expr) (name : TSyntax ``binderIdent)
     let (r, goal, prf /- : goal.toExpr -/) ← k x
     let (Q, _) ← getQH goal
     let u ← getLevel α
-    let prf := mkApp6 (mkConst ``SCases.exists [u]) α σs Q ψ goal.target (← mkLambdaFVars #[x] prf)
-    let goal := { goal with hyps := mkAnd! σs Q H }
+    let prf := mkApp6 (mkConst ``Cases.exists [goal.u, u]) σs α Q ψ goal.target (← mkLambdaFVars #[x] prf)
+    let goal := { goal with hyps := mkAnd! goal.u σs Q H }
     return (r, goal, prf)
 
 -- goal is P ⊢ₛ T
@@ -71,16 +75,16 @@ def mCasesExists (H : Expr) (name : TSyntax ``binderIdent)
 -- and finally the caller builds the proof for
 --   P ⊢ₛ Q ∧ H ⊢ₛ T
 -- by unfocussing.
-partial def mCasesCore (σs : Expr) (H : Expr) (pat : MCasesPat) (k : Expr → MetaM (α × MGoal × Expr)): MetaM (α × MGoal × Expr) :=
+partial def mCasesCore (u : Level) (σs : Expr) (H : Expr) (pat : MCasesPat) (k : Expr → MetaM (α × MGoal × Expr)): MetaM (α × MGoal × Expr) :=
   match pat with
   | .clear => do
-    let H' := emptyHyp σs -- H' = ⌜True⌝
+    let H' := emptyHyp u σs -- H' = ⌜True⌝
     let (a, goal, prf) ← k H'
     let (Q, _H) ← getQH goal
     -- prf : Q ∧ ⌜True⌝ ⊢ₛ T
     -- Then Q ∧ H ⊢ₛ Q ∧ ⌜True⌝ ⊢ₛ T
-    let prf := mkApp5 (mkConst ``SCases.clear) σs Q H goal.target prf
-    let goal := { goal with hyps := mkAnd! σs Q H }
+    let prf := mkApp5 (mkConst ``Cases.clear [u]) σs Q H goal.target prf
+    let goal := { goal with hyps := mkAnd! u σs Q H }
     return (a, goal, prf)
   | .stateful name => do
     let (name, ref) ← getFreshHypName name
@@ -92,12 +96,12 @@ partial def mCasesCore (σs : Expr) (H : Expr) (pat : MCasesPat) (k : Expr → M
     mPureCore σs H name fun _ _hφ => do
       -- This case is very similar to the clear case, but we need to
       -- return Q ⊢ₛ T, not Q ∧ H ⊢ₛ T.
-      let H' := emptyHyp σs -- H' = ⌜True⌝
+      let H' := emptyHyp u σs -- H' = ⌜True⌝
       let (a, goal, prf) ← k H'
       let (Q, _H) ← getQH goal
       -- prf : Q ∧ ⌜True⌝ ⊢ₛ T
       -- Then Q ⊢ₛ Q ∧ ⌜True⌝ ⊢ₛ T
-      let prf := mkApp4 (mkConst ``SCases.pure) σs Q goal.target prf
+      let prf := mkApp4 (mkConst ``Cases.pure [u]) σs Q goal.target prf
       let goal := { goal with hyps := Q }
       return (a, goal, prf)
     -- Now prf : Q ∧ H ⊢ₛ T (where H is ⌜φ⌝). Exactly what is needed.
@@ -105,15 +109,15 @@ partial def mCasesCore (σs : Expr) (H : Expr) (pat : MCasesPat) (k : Expr → M
     try
       -- First try to see if H can be introduced as a pure hypothesis
       let φ ← mkFreshExprMVar (mkSort .zero)
-      let _ ← synthInstance (mkApp3 (mkConst ``IsPure) σs H φ)
-      mCasesCore σs H (.pure name) k
+      let _ ← synthInstance (mkApp3 (mkConst ``IsPure [u]) σs H φ)
+      mCasesCore u σs H (.pure name) k
     catch _ =>
       -- Otherwise introduce it as a stateful hypothesis.
-      mCasesCore σs H (.stateful name) k
-  | .tuple [] => mCasesCore σs H .clear k
-  | .tuple [p] => mCasesCore σs H p k
+      mCasesCore u σs H (.stateful name) k
+  | .tuple [] => mCasesCore u σs H .clear k
+  | .tuple [p] => mCasesCore u σs H p k
   | .tuple (p :: ps) => do
-    if let some (H₁, H₂, hand) ← synthIsAnd σs H then
+    if let some (H₁, H₂, hand) ← synthIsAnd u σs H then
       -- goal is Q ∧ H ⊢ₛ T, where `hand : H ⊣⊢ₛ H₁ ∧ H₂`. Plan:
       -- 1. Recurse on H₁ and H₂.
       -- 2. The inner callback sees H₁' and H₂' and calls k on H₁₂', where H₁₂' = mkAnd H₁' H₂'
@@ -123,29 +127,29 @@ partial def mCasesCore (σs : Expr) (H : Expr) (pat : MCasesPat) (k : Expr → M
       -- 6. The outer callback reassociates and returns (Q ∧ H₂) ∧ H₁' ⊢ₛ T
       -- 7. The top-level receives (Q ∧ H₂) ∧ H₁ ⊢ₛ T
       -- 8. Reassociate to Q ∧ (H₁ ∧ H₂) ⊢ₛ T, rebuild Q ∧ H ⊢ₛ T and return it.
-      let ((a, Q), goal, prf) ← mCasesCore σs H₁ p fun H₁' => do
-        let ((a, Q), goal, prf) ← mCasesCore σs H₂ (.tuple ps) fun H₂' => do
-          let (H₁₂', hand') := mkAnd σs H₁' H₂'
+      let ((a, Q), goal, prf) ← mCasesCore u σs H₁ p fun H₁' => do
+        let ((a, Q), goal, prf) ← mCasesCore u σs H₂ (.tuple ps) fun H₂' => do
+          let (H₁₂', hand') := mkAnd u σs H₁' H₂'
           let (a, goal, prf) ← k H₁₂' -- (2)
           -- (3) prf : Q ∧ H₁₂' ⊢ₛ T
           -- (4) refocus to (Q ∧ H₁') ∧ H₂'
           let (Q, _H) ← getQH goal
           let T := goal.target
-          let prf := mkApp8 (mkConst ``SCases.and_1) σs Q H₁' H₂' H₁₂' T hand' prf
+          let prf := mkApp8 (mkConst ``Cases.and_1 [u]) σs Q H₁' H₂' H₁₂' T hand' prf
           -- check prf
-          let QH₁' := mkAnd! σs Q H₁'
-          let goal := { goal with hyps := mkAnd! σs QH₁' H₂' }
+          let QH₁' := mkAnd! u σs Q H₁'
+          let goal := { goal with hyps := mkAnd! u σs QH₁' H₂' }
           return ((a, Q), goal, prf)
         -- (5) prf : (Q ∧ H₁') ∧ H₂ ⊢ₛ T
         -- (6) refocus to prf : (Q ∧ H₂) ∧ H₁' ⊢ₛ T
-        let prf := mkApp6 (mkConst ``SCases.and_2) σs Q H₁' H₂ goal.target prf
-        let QH₂ := mkAnd! σs Q H₂
-        let goal := { goal with hyps := mkAnd! σs QH₂ H₁' }
+        let prf := mkApp6 (mkConst ``Cases.and_2 [u]) σs Q H₁' H₂ goal.target prf
+        let QH₂ := mkAnd! u σs Q H₂
+        let goal := { goal with hyps := mkAnd! u σs QH₂ H₁' }
         return ((a, Q), goal, prf)
       -- (7) prf : (Q ∧ H₂) ∧ H₁ ⊢ₛ T
       -- (8) rearrange to Q ∧ H ⊢ₛ T
-      let prf := mkApp8 (mkConst ``SCases.and_3) σs Q H₁ H₂ H goal.target hand prf
-      let goal := { goal with hyps := mkAnd! σs Q H }
+      let prf := mkApp8 (mkConst ``Cases.and_3 [u]) σs Q H₁ H₂ H goal.target hand prf
+      let goal := { goal with hyps := mkAnd! u σs Q H }
       return (a, goal, prf)
     else if let some (_α, σs, ψ) := H.consumeMData.app3? ``SPred.exists then
       let .one n := p
@@ -154,21 +158,21 @@ partial def mCasesCore (σs : Expr) (H : Expr) (pat : MCasesPat) (k : Expr → M
       -- 1. Recurse on ψ n where (n : α) is named according to the head pattern p.
       -- 2. Receive a proof for Q ∧ ψ n ⊢ₛ T.
       -- 3. Build a proof for Q ∧ (∃ x, ψ x) ⊢ₛ T from it (in sCasesExists).
-      mCasesExists H n fun x => mCasesCore σs (ψ.betaRev #[x]) (.alts ps) k
+      mCasesExists H n fun x => mCasesCore u σs (ψ.betaRev #[x]) (.alts ps) k
     else throwError "Neither a conjunction nor an existential quantifier {H}"
   | .alts [] => throwUnsupportedSyntax
-  | .alts [p] => mCasesCore σs H p k
+  | .alts [p] => mCasesCore u σs H p k
   | .alts (p :: ps) => do
     let some (σs, H₁, H₂) := H.consumeMData.app3? ``SPred.or | throwError "Not a disjunction {H}"
     -- goal is Q ∧ (H₁ ∨ H₂) ⊢ₛ T. Plan:
     -- 1. Recurse on H₁ and H₂ with the same k.
     -- 2. Receive proofs for Q ∧ H₁ ⊢ₛ T and Q ∧ H₂ ⊢ₛ T.
     -- 3. Build a proof for Q ∧ (H₁ ∨ H₂) ⊢ₛ T from them.
-    let (_a, goal₁,  prf₁) ← mCasesCore σs H₁ p k
-    let (a,  _goal₂, prf₂) ← mCasesCore σs H₂ (.alts ps) k
+    let (_a, goal₁,  prf₁) ← mCasesCore u σs H₁ p k
+    let (a,  _goal₂, prf₂) ← mCasesCore u σs H₂ (.alts ps) k
     let (Q, _H₁) ← getQH goal₁
-    let goal := { goal₁ with hyps := mkAnd! σs Q (mkApp3 (mkConst ``SPred.or) σs H₁ H₂) }
-    let prf := mkApp7 (mkConst ``SPred.and_or_elim_r) σs Q H₁ H₂ goal.target prf₁ prf₂
+    let goal := { goal₁ with hyps := mkAnd! u σs Q (mkApp3 (mkConst ``SPred.or [u]) σs H₁ H₂) }
+    let prf := mkApp7 (mkConst ``SPred.and_or_elim_r [u]) σs Q H₁ H₂ goal.target prf₁ prf₂
     return (a, goal, prf)
 
 private theorem assembled_proof {σs} {P P' Q H H' T : SPred σs}
@@ -196,7 +200,7 @@ def elabMCases : Tactic
     let Q := focus.restHyps
     let H := focus.focusHyp
     let goals ← IO.mkRef #[]
-    let (_, _new_goal, prf) ← mCasesCore goal.σs H pat (mCasesAddGoal goals goal.σs goal.target Q)
+    let (_, _new_goal, prf) ← mCasesCore goal.u goal.σs H pat (mCasesAddGoal goal.u goals goal.σs goal.target Q)
 
     -- Now prf : Q ∧ H ⊢ₛ T. Prepend hfocus.mp, done.
     let prf := focus.rewriteHyps goal prf

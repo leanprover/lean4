@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Std.Do
-import Init.NotationExtra
-import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
+public import Std.Do
+public import Init.NotationExtra
+public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
+
+@[expose] public section
                                -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
 namespace Lean.Parser
@@ -74,6 +78,9 @@ macro (name := mpureIntro) "mpure_intro" : tactic =>
 @[inherit_doc Lean.Parser.Tactic.mrevertMacro]
 syntax (name := mrevert) "mrevert" colGt ident : tactic
 
+@[inherit_doc Lean.Parser.Tactic.mrenameIMacro]
+syntax (name := mrenameI) "mrename_i" (ppSpace colGt binderIdent)+ : tactic
+
 @[inherit_doc Lean.Parser.Tactic.mspecializeMacro]
 syntax (name := mspecialize) "mspecialize" ident (colGt term:max)* : tactic
 
@@ -85,6 +92,34 @@ syntax (name := mstart) "mstart" : tactic
 
 @[inherit_doc Lean.Parser.Tactic.mstopMacro]
 syntax (name := mstop) "mstop" : tactic
+
+@[inherit_doc Lean.Parser.Tactic.mleaveMacro]
+macro (name := mleave) "mleave" : tactic =>
+  `(tactic| (try simp only [
+              $(mkIdent ``Std.Do.SPred.entails_cons):term,
+              $(mkIdent ``Std.Do.SPred.entails_nil):term,
+              $(mkIdent ``Std.Do.SPred.and_cons):term,
+              $(mkIdent ``Std.Do.SPred.and_nil):term,
+              $(mkIdent ``Std.Do.SPred.or_cons):term,
+              $(mkIdent ``Std.Do.SPred.or_nil):term,
+              $(mkIdent ``Std.Do.SPred.not_cons):term,
+              $(mkIdent ``Std.Do.SPred.not_nil):term,
+              $(mkIdent ``Std.Do.SPred.imp_cons):term,
+              $(mkIdent ``Std.Do.SPred.imp_nil):term,
+              $(mkIdent ``Std.Do.SPred.iff_cons):term,
+              $(mkIdent ``Std.Do.SPred.iff_nil):term,
+              $(mkIdent ``Std.Do.SPred.exists_cons):term,
+              $(mkIdent ``Std.Do.SPred.exists_nil):term,
+              $(mkIdent ``Std.Do.SPred.forall_cons):term,
+              $(mkIdent ``Std.Do.SPred.forall_nil):term,
+              $(mkIdent ``Std.Do.SVal.curry_cons):term,
+              $(mkIdent ``Std.Do.SVal.curry_nil):term,
+              $(mkIdent ``Std.Do.SVal.uncurry_cons):term,
+              $(mkIdent ``Std.Do.SVal.uncurry_nil):term,
+              $(mkIdent ``Std.Do.SVal.getThe_here):term,
+              $(mkIdent ``Std.Do.SVal.getThe_there):term,
+              $(mkIdent ``and_imp):term,
+              $(mkIdent ``true_implies):term]))
 
 declare_syntax_cat mcasesPat
 syntax mcasesPatAlts := sepBy1(mcasesPat, " | ")
@@ -199,8 +234,7 @@ Like `mspec`, but does not attempt slight simplification and closing of trivial 
 ```
 mspec_no_simp $spec
 all_goals
-  ((try simp only [SPred.true_intro_simp, SPred.true_intro_simp_nil, SVal.curry_cons,
-                   SVal.uncurry_cons, SVal.getThe_here, SVal.getThe_there]);
+  ((try simp only [SPred.true_intro_simp, SVal.curry_cons, SVal.uncurry_cons, SVal.getThe_here, SVal.getThe_there]);
    (try mpure_intro; trivial))
 ```
 -/
@@ -212,8 +246,8 @@ macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>
   `(tactic| (mspec_no_simp $[$spec]?
              all_goals ((try simp only [
                           $(mkIdent ``Std.Do.SPred.true_intro_simp):term,
-                          $(mkIdent ``Std.Do.SPred.true_intro_simp_nil):term,
                           $(mkIdent ``Std.Do.SVal.curry_cons):term,
+                          $(mkIdent ``Std.Do.SVal.uncurry_nil):term,
                           $(mkIdent ``Std.Do.SVal.uncurry_cons):term,
                           $(mkIdent ``Std.Do.SVal.getThe_here):term,
                           $(mkIdent ``Std.Do.SVal.getThe_there):term])

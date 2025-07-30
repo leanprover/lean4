@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Range.Polymorphic.Iterators
+public import Init.Data.Range.Polymorphic.Stream
 public import Init.Data.Range.Polymorphic.Lemmas
 public import Init.Data.Range.Polymorphic.Nat
 public import Init.Data.Range.Polymorphic.NatLemmas

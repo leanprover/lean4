@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lean.Data.NameMap
+import Lean.Data.NameMap.Basic
 import Init.Data.Nat.Fold
 
 /-! # Red-Black Dictionary
 
 Defines an **insertion-ordered** key-value mapping backed by an red-black tree.
-Implemented via a key-index `RBMap` into an `Array` of key-value pairs.
+Implemented via a key-index `Std.TreeMap` into an `Array` of key-value pairs.
 -/
 
 open Lean
@@ -20,7 +20,7 @@ namespace Lake.Toml
 /- An insertion-ordered key-value mapping backed by a red-black tree. -/
 structure RBDict (α : Type u) (β : Type v) (cmp : α → α → Ordering)  where
   items : Array (α × β)
-  indices : RBMap α Nat cmp
+  indices : Std.TreeMap α Nat cmp
   deriving Inhabited
 
 abbrev NameDict (α : Type u) := RBDict Name α Name.quickCmp
@@ -36,7 +36,7 @@ def mkEmpty (capacity : Nat) : RBDict α β cmp :=
   {items := .mkEmpty capacity, indices := {}}
 
 def ofArray (items : Array (α × β)) : RBDict α β cmp :=
-  let indices := items.size.fold (init := mkRBMap α Nat cmp) fun i _ indices =>
+  let indices := items.size.fold (init := ∅) fun i _ indices =>
     indices.insert items[i].1 i
   {items, indices}
 
@@ -61,7 +61,7 @@ def contains (k : α) (t : RBDict α β cmp) : Bool :=
   t.indices.contains k
 
 def findIdx? (k : α) (t : RBDict α β cmp) : Option (Fin t.size) := do
-  let i ← t.indices.find? k; if h : i < t.items.size then some ⟨i, h⟩ else none
+  let i ← t.indices.get? k; if h : i < t.items.size then some ⟨i, h⟩ else none
 
 def findEntry? (k : α) (t : RBDict α β cmp) : Option (α × β) := do
   return t.items[← t.findIdx? k]

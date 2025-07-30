@@ -3,13 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Data.FuzzyMatching
-import Lean.Elab.Tactic.Doc
-import Lean.Server.Completion.CompletionResolution
-import Lean.Server.Completion.EligibleHeaderDecls
-import Lean.Server.RequestCancellation
-import Lean.Server.Completion.CompletionUtils
+public import Lean.Data.FuzzyMatching
+public import Lean.Elab.Tactic.Doc
+public import Lean.Server.Completion.CompletionResolution
+public import Lean.Server.Completion.EligibleHeaderDecls
+public import Lean.Server.RequestCancellation
+public import Lean.Server.Completion.CompletionUtils
+
+public section
 
 namespace Lean.Server.Completion
 open Elab
@@ -209,7 +213,7 @@ section IdCompletionUtils
             (Name.mkStr p (s.extract 0 ⟨newLen - optDot - len⟩), newLen)
     (go id).1
 
-  def bestLabelForDecl? (ctx : ContextInfo) (declName : Name) (id : Name) (danglingDot : Bool) :
+  private def bestLabelForDecl? (ctx : ContextInfo) (declName : Name) (id : Name) (danglingDot : Bool) :
       M (Option Name) := Prod.snd <$> StateT.run (s := none) do
     let matchUsingNamespace (ns : Name) : StateT (Option Name) M Unit := do
       let some label ← matchDecl? ns id danglingDot declName
@@ -239,7 +243,7 @@ section IdCompletionUtils
       matchUsingNamespace ns
     matchUsingNamespace Name.anonymous
 
-  def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M Unit := do
+  private def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M Unit := do
     let env ← getEnv
     env.getNamespaceSet |>.forM fun ns => do
       unless ns.isInternal || env.contains ns do -- Ignore internal and namespaces that are also declaration names
@@ -314,7 +318,7 @@ section DotCompletionUtils
   strip the private prefix from deep in the name, letting us reject most names without
   having to scan the full name first.
   -/
-  private def NameSetModPrivate := RBTree Name cmpModPrivate
+  private def NameSetModPrivate := Std.TreeSet Name cmpModPrivate
 
   /--
     Given a type, try to extract relevant type names for dot notation field completion.
@@ -427,7 +431,7 @@ def dotCompletion
     let nameSet ← try
       getDotCompletionTypeNameSet (← instantiateMVars (← inferType info.expr))
     catch _ =>
-      pure RBTree.empty
+      pure Std.TreeSet.empty
     if nameSet.isEmpty then
       return
 
@@ -462,7 +466,7 @@ def dotIdCompletion
     let nameSet ← try
       getDotCompletionTypeNameSet resultTypeFn
     catch _ =>
-      pure RBTree.empty
+      pure Std.TreeSet.empty
 
     forEligibleDeclsWithCancellationM fun declName c => do
       let unnormedTypeName := declName.getPrefix
@@ -545,7 +549,7 @@ def optionCompletion
     : IO (Array CompletionItem) :=
   ctx.runMetaM {} do
     -- HACK(WN): unfold the type so ForIn works
-    let (decls : RBMap _ _ _) ← getOptionDecls
+    let (decls : Std.TreeMap _ _ _) ← getOptionDecls
     let opts ← getOptions
     -- `stx` is from `"set_option " >> ident`
     return trailingDotCompletion decls stx[1] caps ctx fun name decl textEdit? => {

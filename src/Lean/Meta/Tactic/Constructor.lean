@@ -3,10 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Check
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Check
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Apply
+
+public section
 
 namespace Lean.Meta
 

@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Internal.WF.Defs
+public import Std.Data.DTreeMap.Internal.WF.Defs
+
+@[expose] public section
 
 /-!
 # Dependent tree maps
@@ -24,7 +28,6 @@ set_option linter.missingDocs true
 universe u v w w₂
 
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std
 
@@ -71,6 +74,8 @@ structure DTreeMap (α : Type u) (β : α → Type v) (cmp : α → α → Order
 
 namespace DTreeMap
 open Internal (Impl)
+
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 /--
 Creates a new empty tree map. It is also possible and recommended to
@@ -947,7 +952,7 @@ def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : D
 
 end Const
 
-/-- Check if any element satisfes the predicate, short-circuiting if a predicate fails. -/
+/-- Check if any element satisfies the predicate, short-circuiting if a predicate fails. -/
 @[inline]
 def any (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
   for ⟨a, b⟩ in t do

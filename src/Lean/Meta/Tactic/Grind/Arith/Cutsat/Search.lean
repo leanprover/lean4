@@ -3,15 +3,19 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.ReorderVars
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ReorderVars
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -488,7 +492,7 @@ def resolveConflict (h : UnsatProof) : SearchM Unit := do
     trace[grind.debug.cutsat.search.backtrack] "resolved diseq split: {← c'.pp}"
     c'.assert
   | .cooper pred hs decVars' =>
-    let decVars' := decVars.union decVars'
+    let decVars' := decVars.merge decVars'
     let n := pred.numCases
     let hs := hs.push (c.fvarId, h)
     trace[grind.debug.cutsat.search.backtrack] "cooper #{hs.size + 1}, {← pred.pp}, {hs.map fun p => p.1.name}"
@@ -578,7 +582,7 @@ There are two kinds of progress:
 
 The result is `false` if module already has a satisfying assignment.
 -/
-def check : GoalM Bool := do
+def check : GoalM Bool := do profileitM Exception "grind cutsat" (← getOptions) do
   if (← hasAssignment) then
     return false
   else

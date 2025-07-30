@@ -3,11 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.Types
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.OtherDecl
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.Types
+public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.OtherDecl
+
+public section
 
 namespace Lean.Compiler.LCNF
 /-! # Type inference for LCNF -/
@@ -139,7 +143,7 @@ mutual
   partial def inferAppTypeCore (fType : Expr) (args : Array Arg) : InferTypeM Expr := do
     let mut j := 0
     let mut fType := fType
-    for i in [:args.size] do
+    for i in *...args.size do
       fType := fType.headBeta
       match fType with
       | .forallE _ _ b _ => fType := b
@@ -154,7 +158,7 @@ mutual
     let mut j := 0
     let mut fType ← inferType e.getAppFn
     let args := e.getAppArgs
-    for i in [:args.size] do
+    for i in *...args.size do
       fType := fType.headBeta
       match fType with
       | .forallE _ _ b _ => fType := b
@@ -181,7 +185,7 @@ mutual
           failed ()
         else do
           let mut ctorType ← inferAppType (mkAppN (mkConst ctorVal.name structLvls) structTypeArgs[*...structVal.numParams])
-          for _ in [:idx] do
+          for _ in *...idx do
             match ctorType with
             | .forallE _ _ body _ =>
               if body.hasLooseBVars then

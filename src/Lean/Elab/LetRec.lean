@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Attributes
-import Lean.Elab.Binders
-import Lean.Elab.DeclModifiers
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.DeclarationRange
-import Lean.Elab.MutualDef
+public import Lean.Elab.Attributes
+public import Lean.Elab.Binders
+public import Lean.Elab.DeclModifiers
+public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.DeclarationRange
+public import Lean.Elab.MutualDef
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
@@ -89,7 +93,7 @@ private def elabLetRecDeclValues (view : LetRecView) : TermElabM (Array Expr) :=
   view.decls.mapM fun view => do
     forallBoundedTelescope view.type view.binderIds.size fun xs type => do
       -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
-      for h : i in [0:view.binderIds.size] do
+      for h : i in *...view.binderIds.size do
         addLocalVarInfo view.binderIds[i] xs[i]!
       withDeclName view.declName do
         withInfoContext' view.valStx

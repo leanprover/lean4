@@ -60,12 +60,11 @@ return x_14;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_15 = lean_box(0);
+uint8_t x_15; lean_object* x_16; 
+x_15 = 0;
 x_16 = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(x_16, 0, x_10);
-x_17 = lean_unbox(x_15);
-lean_ctor_set_uint8(x_16, sizeof(void*)*1, x_17);
+lean_ctor_set_uint8(x_16, sizeof(void*)*1, x_15);
 return x_16;
 }
 }
@@ -84,7 +83,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___redArg(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -93,10 +92,10 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Std_Tactic_BVDecide_BVPred_blastGetLsbD(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_5);
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_6;
 }
 }

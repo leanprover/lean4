@@ -1,6 +1,6 @@
 def mkByteArray (n : Nat) : ByteArray := Id.run <| do
   let mut r := {}
-  for i in [:n] do
+  for i in *...n do
     r := r.push (UInt8.ofNat i)
   return r
 
@@ -29,7 +29,7 @@ def tst2 (n : Nat) (expected : UInt32) : IO Unit := do
 def tst3 (n : Nat) (expected : UInt32) : IO Unit := do
   let bs := mkByteArray n
   let mut sum := 0
-  for i in [:bs.size] do
+  for i in *...bs.size do
     sum := sum + bs[i]!.toUInt32
   assert! sum == expected
   IO.println sum

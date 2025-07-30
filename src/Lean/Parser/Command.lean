@@ -64,7 +64,9 @@ def optNamedPrio := optional namedPrio
 def «private»        := leading_parser "private "
 def «protected»      := leading_parser "protected "
 def «public»         := leading_parser "public "
-def visibility       := «private» <|> «protected» <|> «public»
+def visibility       :=
+  withAntiquot (mkAntiquot "visibility" decl_name% (isPseudoKind := true)) <|
+    «private» <|> «protected» <|> «public»
 def «meta»           := leading_parser "meta "
 def «noncomputable»  := leading_parser "noncomputable "
 def «unsafe»         := leading_parser "unsafe "

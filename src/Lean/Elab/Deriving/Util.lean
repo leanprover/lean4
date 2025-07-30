@@ -70,12 +70,23 @@ structure Context where
   auxFunNames : Array Name
   usePartial  : Bool
 
+open Parser.Command in
 /--
-Returns a `tk?` such that `$[private%$tk?]` results in a `private` token iff any private
-types are referenced in the `deriving` clause.
+Returns `private` or `public` depending on whether any private types are referenced in the
+`deriving` clause.
 -/
-def Context.mkPrivateTokenFromTypes? (ctx : Context) : Option Syntax :=
-  guard (ctx.typeInfos.any (isPrivateName ·.name)) *> some .missing
+def Context.mkVisibilityFromTypes (ctx : Context) : TSyntax ``visibility :=
+  Unhygienic.run <|
+    if ctx.typeInfos.any (isPrivateName ·.name) then `(visibility| private) else `(visibility| public)
+
+open Parser.Term in
+/--
+Returns `no_expose` or `expose` depending on whether any types with private constructors are
+referenced in the `deriving` clause.
+-/
+def Context.mkExposeAttrFromCtors (ctx : Context) : TSyntax ``attrInstance :=
+  Unhygienic.run <|
+    if ctx.typeInfos.any (·.ctors.any isPrivateName) then `(attrInstance| no_expose) else `(attrInstance| expose)
 
 def mkContext (fnPrefix : String) (typeName : Name) : TermElabM Context := do
   let indVal ← getConstInfoInduct typeName
@@ -132,8 +143,9 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       let mut val      := mkIdent auxFunName
       if useAnonCtor then
         val ← `(⟨$val⟩)
-      let privTk? := ctx.mkPrivateTokenFromTypes?
-      let instCmd ← `($[private%$privTk?]? instance $binders:implicitBinder* : $type := $val)
+      let vis := ctx.mkVisibilityFromTypes
+      let expAttr := ctx.mkExposeAttrFromCtors
+      let instCmd ← `(@[$expAttr] $vis:visibility instance $binders:implicitBinder* : $type := $val)
       instances := instances.push instCmd
   return instances
 

@@ -205,11 +205,11 @@ def preprocess (e : Expr) : MetaM Simp.Result := do
         return .continue
 
     -- Transform `have`s to `let`s for non-propositions.
-    let e'' ← nonPropHaveToLet e''
+    let e''' ← nonPropHaveToLet e''
 
-    let result := { result with expr := e'' }
+    trace[Elab.definition.wf] "Attach-introduction:{indentExpr e'}\nto{indentExpr result.expr}\ncleand up to {indentExpr e'''}"
 
-    trace[Elab.definition.wf] "Attach-introduction:{indentExpr e'}\nto{indentExpr result.expr}"
+    let result := { result with expr := e''' }
     result.addLambdas xs
 
 end Lean.Elab.WF

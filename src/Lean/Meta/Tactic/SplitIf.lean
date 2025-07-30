@@ -143,7 +143,7 @@ The `Simp.Context` that used to be used with `simpIf` methods. It contains all c
 just the rewriting rules for reducing `if` expressions.
 This function is only used when the old `split` tactic behavior is enabled.
 -/
-private def getSimpContext : MetaM Simp.Context := do
+def getSimpContext : MetaM Simp.Context := do
   let mut s : SimpTheorems := {}
   s ← s.addConst ``if_pos
   s ← s.addConst ``if_neg

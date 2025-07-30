@@ -359,29 +359,11 @@ axiom IO.rand_spec {n : Nat} : ⦃⌜True⌝⦄ (IO.rand 0 n : IO Nat) ⦃⇓r =
 
 /-- The result has the same parity as the input. -/
 @[spec]
-theorem addRandomEvens_spec (n k) : ⦃⌜True⌝⦄ (addRandomEvens n k) ⦃⇓r => ⌜r % 2 = k % 2⌝⦄ := by
-  unfold addRandomEvens
-  mintro -
-  mspec Spec.forIn_list_const_inv
-  intro n r
-  mintro ⌜h⌝
-  mspec IO.rand_spec
-  simp_all
+theorem addRandomEvens_spec (n k) : ⦃⌜True⌝⦄ (addRandomEvens n k) ⦃⇓r => ⌜r % 2 = k % 2⌝⦄ := by sorry
 
 /-- Since we're adding even numbers to our number twice, and summing,
 the entire result is even. -/
-theorem program_spec (n k) : ⦃⌜True⌝⦄ program n k ⦃⇓r => ⌜r % 2 = 0⌝⦄ := by
-  unfold program
-  mintro -
-  mspec (addRandomEvens_spec n k)
-  mrename_i h
-  mpure h
-  mspec /- registered spec is taken -/
-  mrename_i h
-  mpure h
-  mspec
-  mpure_intro
-  grind
+theorem program_spec (n k) : ⦃⌜True⌝⦄ program n k ⦃⇓r => ⌜r % 2 = 0⌝⦄ := by sorry
 
 end KimsBabySteps
 

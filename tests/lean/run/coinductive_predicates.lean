@@ -16,6 +16,12 @@ info: infseq.coinduct.{u_1} {α : Sort u_1} (R : α → α → Prop) (pred : α 
 -/
 #guard_msgs in #check infseq.coinduct
 
+/--
+error: Unknown constant `infseq.mutual_induct`
+-/
+#guard_msgs in
+#check infseq.mutual_induct
+
 -- Simple proof by coinduction
 theorem cycle_infseq {R : α → α → Prop} (x : α) : R x x → infseq R x := by
   apply @infseq.coinduct α R (λ m => R m m)

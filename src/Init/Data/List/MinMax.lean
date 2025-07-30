@@ -79,11 +79,6 @@ theorem min?_mem [Min α] [MinEqOr α] :
         cases MinEqOr.min_eq_or x y with | _ q => simp [p, q]
       | inr p => simp [p, mem_cons]
 
-theorem min?_mem_legacy [Min α] (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) :
-    {xs : List α} → xs.min? = some a → a ∈ xs := by
-  haveI : MinEqOr α := ⟨min_eq_or⟩
-  apply min?_mem
-
 -- TODO: update this
 -- See also `Init.Data.List.Nat.Basic` for specialisations of the next two results to `Nat`.
 
@@ -101,13 +96,6 @@ theorem le_min?_iff [Min α] [LE α] [OrderData α] [LawfulOrderInf α] [LawfulO
     | cons z xs ih =>
       simp at eq
       simp [ih _ eq, le_min_iff, and_assoc]
-
-theorem le_min?_iff_legacy [Min α] [LE α]
-    (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) :
-    {xs : List α} → xs.min? = some a → ∀ {x}, x ≤ a ↔ ∀ b, b ∈ xs → x ≤ b := by
-  letI : OrderData α := .ofLE α
-  haveI : LawfulOrderInf α := .ofLE le_min_iff
-  apply le_min?_iff
 
 theorem min?_eq_some_iff [Min α] [LE α] {xs : List α} [OrderData α] [LinearOrder (α)]
     [LawfulOrderMin α] [LawfulOrderLE α] : xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
@@ -186,19 +174,11 @@ theorem min?_eq_some_iff_legacy [Min α] [LE α]
   haveI : LawfulOrderMin (Subtype (· ∈ xs)) := ⟨⟩
   exact min?_eq_some_iff_subtype (α := α) (xs := xs) (a := a)
 
-theorem min?_replicate_general [Min α] {n : Nat} {a : α} (w : min a a = a) :
+theorem min?_replicate [Min α] [Std.IdempotentOp (min : α → α → α)] {n : Nat} {a : α} :
     (replicate n a).min? = if n = 0 then none else some a := by
   induction n with
   | zero => rfl
-  | succ n ih => cases n <;> simp_all [replicate_succ, min?_cons']
-
-theorem min?_replicate [Min α] [Std.IdempotentOp (min : α → α → α)] {n : Nat} {a : α} :
-    (replicate n a).min? = if n = 0 then none else some a :=
-  min?_replicate_general (Std.IdempotentOp.idempotent _)
-
-@[simp] theorem min?_replicate_of_pos_general [Min α] {n : Nat} {a : α} (w : min a a = a) (h : 0 < n) :
-    (replicate n a).min? = some a := by
-  simp [min?_replicate_general, Nat.ne_of_gt h, w]
+  | succ n ih => cases n <;> simp_all [replicate_succ, min?_cons', Std.IdempotentOp.idempotent]
 
 @[simp] theorem min?_replicate_of_pos [Min α] [MinEqOr α] {n : Nat} {a : α} (h : 0 < n) :
     (replicate n a).min? = some a := by
@@ -262,11 +242,6 @@ theorem max?_mem [Max α] [MaxEqOr α] :
         cases MaxEqOr.max_eq_or x y with | _ q => simp [p, q]
       | inr p => simp [p, mem_cons]
 
-theorem max?_mem_legacy [Max α] (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) :
-    {xs : List α} → xs.max? = some a → a ∈ xs := by
-  haveI : MaxEqOr α := ⟨max_eq_or⟩
-  apply max?_mem
-
 -- TODO: update this
 -- See also `Init.Data.List.Nat.Basic` for specialisations of the next two results to `Nat`.
 
@@ -284,13 +259,6 @@ theorem max?_le_iff [Max α] [LE α] [OrderData α] [LawfulOrderSup α] [LawfulO
     | cons z xs ih =>
       simp at eq
       simp [ih _ eq, max_le_iff, and_assoc]
-
-theorem max?_le_iff_legacy [Max α] [LE α]
-    (max_le_iff : ∀ a b c : α, max a b ≤ c ↔ a ≤ c ∧ b ≤ c) :
-    {xs : List α} → xs.max? = some a → ∀ {x}, a ≤ x ↔ ∀ b, b ∈ xs → b ≤ x := by
-  letI : OrderData α := .ofLE α
-  haveI : LawfulOrderSup α := .ofLE max_le_iff
-  apply max?_le_iff
 
 theorem max?_eq_some_iff [Max α] [LE α] {xs : List α} [OrderData α] [LinearOrder (α)]
     [LawfulOrderMax α] [LawfulOrderLE α] : xs.max? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → b ≤ a := by
@@ -365,19 +333,11 @@ theorem max?_eq_some_iff_legacy [Max α] [LE α] [anti : Std.Antisymm (· ≤ ·
   haveI : LawfulOrderMax α := ⟨⟩
   apply max?_eq_some_iff
 
-theorem max?_replicate_general [Max α] {n : Nat} {a : α} (w : max a a = a) :
+theorem max?_replicate [Max α] [Std.IdempotentOp (max : α → α → α)] {n : Nat} {a : α} :
     (replicate n a).max? = if n = 0 then none else some a := by
   induction n with
   | zero => rfl
-  | succ n ih => cases n <;> simp_all [replicate_succ, max?_cons']
-
-theorem max?_replicate [Max α] [Std.IdempotentOp (max : α → α → α)] {n : Nat} {a : α} :
-    (replicate n a).max? = if n = 0 then none else some a :=
-  max?_replicate_general (Std.IdempotentOp.idempotent _)
-
-@[simp] theorem max?_replicate_of_pos_general [Max α] {n : Nat} {a : α} (w : max a a = a) (h : 0 < n) :
-    (replicate n a).max? = some a := by
-  simp [max?_replicate_general, Nat.ne_of_gt h, w]
+  | succ n ih => cases n <;> simp_all [replicate_succ, max?_cons', Std.IdempotentOp.idempotent]
 
 @[simp] theorem max?_replicate_of_pos [Max α] [MaxEqOr α] {n : Nat} {a : α} (h : 0 < n) :
     (replicate n a).max? = some a := by

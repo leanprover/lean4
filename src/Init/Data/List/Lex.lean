@@ -24,7 +24,6 @@ namespace List
 
 instance [LT α] : OrderData (List α) := .ofLE (List α)
 
--- require asymmetry of α?
 instance [LT α] [Std.Asymm (α := List α) (· < ·)]: LawfulOrderLT (List α) where
   lt_iff := by
     simp only [← LawfulOrderLE.le_iff, LE.le, List.le, Classical.not_not, iff_and_self]
@@ -205,39 +204,16 @@ protected theorem lt_of_le_of_lt [LT α] [OrderData α] [LinearOrder α] [Lawful
       · simp only [not_lt] at w₄
         exact Lex.rel (lt_of_le_of_ne w₄ (w₅.imp Eq.symm))
 
-protected theorem lt_of_le_of_lt_legacy [LT α]
-    [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
-    [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
-    {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
-  letI : OrderData α := .ofLT α
-  haveI : LinearOrder α := by
-    apply LinearOrder.ofLT
-    · intros; apply i₁.asymm; assumption
-    · intros; apply i₃.trans <;> assumption
-    · intros; apply i₂.antisymm <;> assumption
-  apply List.lt_of_le_of_lt h₁ h₂
-
 protected theorem le_trans [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
   fun h₃ => h₁ (List.lt_of_le_of_lt h₂ h₃)
 
-protected theorem le_trans_legacy [LT α]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
-    {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
-  fun h₃ => h₁ (List.lt_of_le_of_lt_legacy h₂ h₃)
-
 /--
 This also triggers for `LinearOrder`
 -/
-instance [LT α]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)] :
+instance [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α] :
     Trans (· ≤ · : List α → List α → Prop) (· ≤ ·) (· ≤ ·) where
-  trans h₁ h₂ := List.le_trans_legacy h₁ h₂
+  trans h₁ h₂ := List.le_trans h₁ h₂
 
 theorem lex_asymm {r : α → α → Prop}
     (h : ∀ {x y : α}, r x y → ¬ r y x) : ∀ {l₁ l₂ : List α}, Lex r l₁ l₂ → ¬ Lex r l₂ l₁
@@ -278,7 +254,8 @@ protected theorem le_total [LT α]
     [i : Std.Total (¬ · < · : α → α → Prop)] (l₁ l₂ : List α) : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
   not_lex_total i.total l₂ l₁
 
-protected theorem le_total' [LT α]
+-- TODO: sort out the Asymm/Total symmetry
+protected theorem le_total_of_asymm [LT α]
     [i : Std.Asymm (· < · : α → α → Prop)] (l₁ l₂ : List α) : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
   haveI : Std.Total (¬ · < · : α → α → Prop) := by
     refine ⟨fun a b => ?_⟩
@@ -316,7 +293,6 @@ instance instStdLinearOrder [LT α] [OrderData α] [LinearOrder α] [LawfulOrder
     {l₁ l₂ : List α} : ¬ l₂ ≤ l₁ ↔ l₁ < l₂ := Classical.not_not
 
 protected theorem le_of_lt [LT α]
-    -- TODO: Isn't this the same as Std.Asymm (· < ·)?
     [i : Std.Total (¬ · < · : α → α → Prop)]
     {l₁ l₂ : List α} (h : l₁ < l₂) : l₁ ≤ l₂ := by
   obtain (h' | h') := List.le_total l₁ l₂

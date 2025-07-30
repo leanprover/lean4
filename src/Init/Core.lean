@@ -2517,3 +2517,7 @@ class Irrefl (r : α → α → Prop) : Prop where
   irrefl : ∀ a, ¬r a a
 
 end Std
+
+/-- Deprecated alias for `XorOp`. -/
+@[deprecated XorOp (since := "2025-07-30")]
+abbrev Xor := XorOp

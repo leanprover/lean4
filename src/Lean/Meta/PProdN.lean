@@ -92,7 +92,10 @@ def pack (lvl : Level) (xs : Array Expr) : MetaM Expr := do
                          else return .const ``PUnit [lvl]
   genMk mkPProd xs
 
-/-- Given a packed expression `t₁ ×' t₂ ×' t₃`, returns `#[t₁, t₂, t₃]` -/
+/--
+Unpacks up to `n` elements from `PProd` tuple `e`.  Returns fewer if `e` has < `n` elements or
+isn't a `PProd`. Returns `#[]` for `True`/`PUnit` or when `n = 0`.
+-/
 def unpack (e : Expr) (n : Nat) : MetaM (Array Expr) := do
   match e with
   | .const ``True _ => return #[]

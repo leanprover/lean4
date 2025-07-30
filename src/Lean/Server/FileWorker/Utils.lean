@@ -15,9 +15,10 @@ public import Lean.Server.Rpc.Basic
 
 public section
 
+open IO
+
 namespace Lean.Server.FileWorker
 open Snapshots
-open IO
 
 -- TEMP: translate from new heterogeneous snapshot tree to old homogeneous async list
 private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :

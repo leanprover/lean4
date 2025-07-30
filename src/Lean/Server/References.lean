@@ -19,8 +19,10 @@ public section
 
 set_option linter.missingDocs true
 
+open IO
+
 namespace Lean.Server
-open Lsp Lean.Elab Std
+open Server Lsp Lean.Elab Std
 
 /-- Converts an `Import` to its LSP-internal representation. -/
 def ImportInfo.ofImport (i : Import) : ImportInfo where
@@ -197,7 +199,6 @@ def findRange? (self : ModuleRefs) (pos : Lsp.Position) (includeStop := false) :
 end Lean.Lsp.ModuleRefs
 
 namespace Lean.Server
-open IO
 open Lsp
 open Elab
 
@@ -220,7 +221,7 @@ def load (path : System.FilePath) : IO Ilean := do
   let content ← FS.readFile path
   match Json.parse content >>= fromJson? with
     | Except.ok ilean => pure ilean
-    | Except.error msg => throwServerError s!"Failed to load ilean at {path}: {msg}"
+    | Except.error msg => IO.throwServerError s!"Failed to load ilean at {path}: {msg}"
 
 end Ilean
 /-! # Collecting and deduplicating definitions and usages -/

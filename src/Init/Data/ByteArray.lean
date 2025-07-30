@@ -7,5 +7,4 @@ module
 
 prelude
 public import Init.Data.ByteArray.Basic
-
-public section
+public import Init.Data.ByteArray.AdditionalOperations

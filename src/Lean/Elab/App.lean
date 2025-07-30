@@ -1784,7 +1784,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(_)       => throwError "A placeholder `_` cannot be used where a function is expected"
     | `(.$id:ident) =>
         addCompletionInfo <| CompletionInfo.dotId id id.getId (← getLCtx) expectedType?
-        let res ← resolveDotName id.getId.eraseMacroScopes expectedType?
+        let res ← withRef f <| resolveDotName id.getId.eraseMacroScopes expectedType?
         -- Use (forceTermInfo := true) because we want to record the result of .ident resolution even in patterns
         elabAppFnResolutions f res lvals namedArgs args expectedType? explicit ellipsis overloaded acc (forceTermInfo := true)
     | _ => do

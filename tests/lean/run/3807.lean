@@ -2439,6 +2439,7 @@ theorem subset_adjoin : S ⊆ adjoin F S := sorry
 
 instance (F : Subfield E) : Algebra F E := inferInstanceAs (Algebra F.toSubsemiring E)
 
+set_option backward.isDefEq.transparencyEscalation true in
 theorem subset_adjoin_of_subset_left {F : Subfield E} {T : Set E} (HT : T ⊆ F) : T ⊆ adjoin F S :=
   sorry
 
@@ -2461,9 +2462,11 @@ variable {F E K : Type _} [Field F] [Field E] [Field K] [Algebra F E] [Algebra F
 
 instance (L : IntermediateField F E) : IsScalarTower F L E := sorry
 
+set_option backward.isDefEq.transparencyEscalation true in
 instance (L : IntermediateField F E) : Algebra F (adjoin L S) :=
   (IntermediateField.adjoin { x // x ∈ L } S).algebra'
 
+set_option backward.isDefEq.transparencyEscalation true in
 private theorem exists_algHom_adjoin_of_splits'' {L : IntermediateField F E}
     (f : L →ₐ[F] K) :
     ∃ φ : adjoin L S →ₐ[F] K, φ.comp (IsScalarTower.toAlgHom F L _) = f := by
@@ -2473,7 +2476,8 @@ variable {L : Type _} [Field L] [Algebra F L] [Algebra L E] [IsScalarTower F L E
   (f : L →ₐ[F] K)
 
 -- This only required 16,000 heartbeats prior to #3807, and now takes ~210,000.
-set_option maxHeartbeats 16000
+set_option backward.isDefEq.transparencyEscalation true in
+set_option maxHeartbeats 16000 in
 theorem exists_algHom_adjoin_of_splits''' :
     ∃ φ : adjoin L S →ₐ[F] K, φ.comp (IsScalarTower.toAlgHom F L _) = f := by
   let L' := (IsScalarTower.toAlgHom F L E).fieldRange

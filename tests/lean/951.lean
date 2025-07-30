@@ -8,6 +8,7 @@ deriving Ord
 instance : LE ThingA where
   le a b := (compare a b).isLE
 
+set_option backward.isDefEq.transparencyEscalation true in
 instance (t₁ t₂ : ThingA) : Decidable (t₁ <= t₂) := inferInstance
 #check instDecidableLeThingA
 
@@ -16,5 +17,6 @@ inductive ThingB where
 deriving Ord
 instance : LE ThingB where
   le a b := (compare a b).isLE
+set_option backward.isDefEq.transparencyEscalation true in
 instance (t₁ t₂ : ThingB) : Decidable (t₁ <= t₂) := inferInstance
 #check instDecidableLeThingB

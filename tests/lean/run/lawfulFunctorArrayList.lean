@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Microsoft Corporation
 
 This file demonstrates local Applicative and Monad instances for List and Array.
-These instances are kept local due to their O(n²) performance characteristics.
+These instances are kept local because they use a simple append-based implementation
+that may not be suitable for all use cases.
 -/
 prelude
 import Init.Control.Lawful.Instances
@@ -13,7 +14,11 @@ import Init.Control.Lawful.Instances
 # LawfulFunctor instances test
 
 This file tests the `LawfulFunctor` instances for `List`, `Array`, and `Vector`,
-and demonstrates local `Applicative` and `Monad` instances.
+and demonstrates local `Applicative` and `Monad` instances for `List` and `Array`.
+
+The local instances defined here use a straightforward implementation where:
+- `seq` applies each function to the input by folding with append
+- `bind` is implemented via `flatMap` (flatten after mapping)
 -/
 
 section LocalInstances
@@ -25,23 +30,45 @@ private theorem Array.seq_eq_flatMap {α β : Type u} (fns : Array (α → β)) 
   rw [Array.flatMap_eq_foldl]
   rfl
 
-/-- Local Applicative instance for List with O(n²) append-based implementation. -/
+/-- 
+Local Applicative instance for List.
+
+This implementation:
+- `pure` creates a singleton list
+- `seq` applies each function in the list to all values, collecting results with append
+- Performance: O(n²) due to repeated appends in the fold
+-/
 local instance : Applicative List where
   pure := List.pure
   seq {α β} (fns : List (α → β)) (fn : Unit → List α) : List β :=
     fns.foldl (fun acc f => acc ++ (fn ()).map f) []
 
-/-- Local Applicative instance for Array with O(n²) append-based implementation. -/
+/-- 
+Local Applicative instance for Array.
+
+This implementation:
+- `pure` creates a singleton array  
+- `seq` applies each function in the array to all values, collecting results with append
+- Performance: O(n²) due to repeated appends in the fold
+-/
 local instance : Applicative Array where
   pure := Array.pure
   seq {α β} (fns : Array (α → β)) (fn : Unit → Array α) : Array β :=
     fns.foldl (fun acc f => acc ++ (fn ()).map f) #[]
 
-/-- Local Monad instance for Array. -/
+/-- 
+Local Monad instance for Array.
+
+Uses `flatMap` which applies the function to each element and flattens the results.
+-/
 local instance : Monad Array where
   bind xs f := xs.flatMap f
 
-/-- Local Monad instance for List. -/
+/-- 
+Local Monad instance for List.
+
+Uses `flatMap` which applies the function to each element and flattens the results.
+-/
 local instance : Monad List where
   bind xs f := xs.flatMap f
 

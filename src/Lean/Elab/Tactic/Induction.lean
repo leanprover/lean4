@@ -943,7 +943,6 @@ private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Ar
     let targetFVarIds := targets.map (·.fvarId!)
     let (generalized, mvarId) ← generalizeVars mvarId stx targets
     mvarId.withContext do
-    prependError m!"Tactic `{tacName}` failed: " do
       let result ← withRef stx[1] do -- use target position as reference
         ElimApp.mkElimApp elimInfo targets tag
       trace[Elab.induction] "elimApp: {result.elimApp}"
@@ -967,7 +966,7 @@ def evalInduction : Tactic := fun stx =>
     let (targets, toTag) ← elabElimTargets stx[1].getSepArgs
     let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
     let targets ← withMainContext <| addImplicitTargets elimInfo targets
-    evalInductionCore stx elimInfo targets `induction toTag
+    evalInductionCore stx elimInfo targets toTag
 
 
 register_builtin_option tactic.fun_induction.unfolding : Bool := {
@@ -1049,7 +1048,7 @@ def evalFunInduction : Tactic := fun stx =>
   | _ => focus do
     let (elimInfo, targets) ← elabFunTarget (cases := false) stx[1]
     let targets ← generalizeTargets targets
-    evalInductionCore stx elimInfo targets `fun_induction
+    evalInductionCore stx elimInfo targets
 
 /--
 The code path shared between `cases` and `fun_cases`; when we already have an `elimInfo`

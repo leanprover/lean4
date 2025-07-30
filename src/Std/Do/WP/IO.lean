@@ -28,16 +28,16 @@ open Std.Do
 This is pretty much the instance for `EStateM` specialized to `σ = IO.RealWorld`.
 However, `IO.RealWorld` is omitted in the `PredShape`.
 -/
-scoped instance instWP : WP (EIO ε) (.except ε .pure) where
+noncomputable scoped instance instWP : WP (EIO ε) (.except ε .pure) where
   wp x := -- Could define as PredTrans.mkExcept (PredTrans.modifyGetM (fun s => pure (EStateM.Result.toExceptState (x s))))
-    { apply := fun Q => match x () with
+    { apply := fun Q => match x Classical.ofNonempty with
         | .ok a _rw => Q.1 a
         | .error e _rw => Q.2.1 e
       conjunctive := by
         intro _ _
         apply SPred.bientails.of_eq
         dsimp
-        cases (x ()) <;> rfl
+        cases (x Classical.ofNonempty) <;> rfl
     }
 
 instance instLawfulMonad : LawfulMonad (EIO ε) := inferInstanceAs (LawfulMonad (EStateM ε IO.RealWorld))

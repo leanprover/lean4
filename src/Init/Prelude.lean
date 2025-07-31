@@ -700,6 +700,9 @@ of other errors because the desired term was not constructed.
 @[extern "lean_sorry", never_extract]
 axiom sorryAx (α : Sort u) (synthetic : Bool) : α
 
+/-- Just for testing -/
+axiom justATest (p : Prop) : p
+
 theorem eq_false_of_ne_true : {b : Bool} → Not (Eq b true) → Eq b false
   | true, h => False.elim (h rfl)
   | false, _ => rfl

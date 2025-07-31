@@ -100,8 +100,9 @@ builtin_simproc_decl matcherPushArg (_) := fun e => do
     alts := alts'
     remaining := remaining' }
   let e' := matcherApp'.toExpr
-  let proof := .app (mkConst ``lcProof) (← mkEq e e')
+  let proof := .app (mkConst `justATest) (← mkEq e e')
   return .continue (some { expr := matcherApp'.toExpr, proof? := some proof })
+
 
 private def mkUnfoldProof' (declName : Name) (mvarId : MVarId) : MetaM Unit := withReducible do
   trace[Elab.definition.wf.eqns] "mkUnfoldProf': {MessageData.ofGoal mvarId}"

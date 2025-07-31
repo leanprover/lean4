@@ -206,7 +206,7 @@ public instance {α : Type u} [Min α] [MinEqOr α] :
   idempotent a := by cases MinEqOr.min_eq_or a a <;> assumption
 
 open Classical.Order in
-public instance {α : Type u} [OrderData α] [Min α] [LinearOrder α] [LawfulOrderMin α] :
+public instance {α : Type u} [OrderData α] [Min α] [IsLinearOrder α] [LawfulOrderMin α] :
     Std.Associative (min : α → α → α) where
   assoc a b c := by apply le_antisymm <;> simp [min_le, le_min_iff, le_refl]
 
@@ -264,7 +264,7 @@ public instance {α : Type u} [Max α] [MaxEqOr α] :
   idempotent a := by cases MaxEqOr.max_eq_or a a <;> assumption
 
 open Classical.Order in
-public instance {α : Type u} [OrderData α] [Max α] [LinearOrder α] [LawfulOrderMax α] :
+public instance {α : Type u} [OrderData α] [Max α] [IsLinearOrder α] [LawfulOrderMax α] :
     Std.Associative (max : α → α → α) where
   assoc a b c := by
     apply le_antisymm

@@ -257,8 +257,8 @@ protected theorem le_antisymm {x y : Fin n} (h1 : x ≤ y) (h2 : y ≤ x) : x = 
 
 instance : OrderData (Fin n) := .ofLE (Fin n)
 
-instance instStdLinearOrder : LinearOrder (Fin n) := by
-  apply LinearOrder.ofLE
+instance instIsLinearOrder : IsLinearOrder (Fin n) := by
+  apply IsLinearOrder.ofLE
   case le_antisymm => apply Fin.le_antisymm
   case le_total => apply Fin.le_total
   case le_trans => apply Fin.le_trans

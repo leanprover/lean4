@@ -109,7 +109,7 @@ This typeclass states that the order structure on `α`, represented by an `Order
 is a linear order.
 In other words, the less-or-equal relation is reflexive, transitive, antisymmetric and total.
 -/
-public class LinearOrder (α : Type u) [OrderData α] extends PartialOrder α, LinearPreorder α
+public class IsLinearOrder (α : Type u) [OrderData α] extends PartialOrder α, LinearPreorder α
 
 section LE
 

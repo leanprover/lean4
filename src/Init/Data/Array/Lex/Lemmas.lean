@@ -105,8 +105,8 @@ theorem singleton_lex_singleton [BEq α] {lt : α → α → Bool} : #[a].lex #[
 
 instance [LT α] : OrderData (Array α) := .ofLE (Array α)
 
-instance [LT α] [OrderData α] [LawfulOrderLT α] [LinearOrder α] : LinearOrder (Array α) := by
-  apply LinearOrder.ofLE
+instance [LT α] [OrderData α] [LawfulOrderLT α] [IsLinearOrder α] : IsLinearOrder (Array α) := by
+  apply IsLinearOrder.ofLE
   · intro _ _ hab hba
     simpa using Std.le_antisymm (α := List α) hab hba
   · exact fun _ _ _ => Std.le_trans (α := List α)
@@ -143,15 +143,15 @@ instance [LT α] [Trans (· < · : α → α → Prop) (· < ·) (· < ·)] :
     Trans (· < · : Array α → Array α → Prop) (· < ·) (· < ·) where
   trans h₁ h₂ := Array.lt_trans h₁ h₂
 
-protected theorem lt_of_le_of_lt [OrderData α] [LT α] [LawfulOrderLT α] [LinearOrder α]
+protected theorem lt_of_le_of_lt [OrderData α] [LT α] [LawfulOrderLT α] [IsLinearOrder α]
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
   Std.lt_of_le_of_lt (α := List α) h₁ h₂
 
-protected theorem le_trans [OrderData α] [LT α] [LawfulOrderLT α] [LinearOrder α]
+protected theorem le_trans [OrderData α] [LT α] [LawfulOrderLT α] [IsLinearOrder α]
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
   fun h₃ => h₁ (Array.lt_of_le_of_lt h₂ h₃)
 
-instance [OrderData α] [LT α] [LawfulOrderLT α] [LinearOrder α] :
+instance [OrderData α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] :
     Trans (· ≤ · : Array α → Array α → Prop) (· ≤ ·) (· ≤ ·) where
   trans h₁ h₂ := Array.le_trans h₁ h₂
 
@@ -186,7 +186,7 @@ protected theorem le_iff_lt_or_eq [LT α]
     {xs ys : Array α} : xs ≤ ys ↔ xs < ys ∨ xs = ys := by
   simpa using List.le_iff_lt_or_eq (l₁ := xs.toList) (l₂ := ys.toList)
 
-protected theorem le_antisymm [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α]
+protected theorem le_antisymm [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrderLT α]
     {xs ys : Array α} : xs ≤ ys → ys ≤ xs → xs = ys := by
   simpa using List.le_antisymm (as := xs.toList) (bs := ys.toList)
 

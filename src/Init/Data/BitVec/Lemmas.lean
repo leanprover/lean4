@@ -4020,8 +4020,8 @@ protected theorem ne_of_lt {x y : BitVec n} : x < y → x ≠ y := by
 
 instance {n : Nat} : OrderData (BitVec n) := .ofLE (BitVec n)
 
-instance instStdLinearOrder : LinearOrder (BitVec n) := by
-  apply LinearOrder.ofLE
+instance instIsLinearOrder : IsLinearOrder (BitVec n) := by
+  apply IsLinearOrder.ofLE
   case le_antisymm => apply BitVec.le_antisymm
   case le_trans => apply BitVec.le_trans
   case le_total => apply BitVec.le_total

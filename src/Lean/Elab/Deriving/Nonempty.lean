@@ -33,6 +33,7 @@ private def mkNonemptyInstance (declName : Name) : TermElabM Syntax.Command := d
       by constructor; first $[| $ctorTacs:tactic]*)
 
 def mkNonemptyInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
+  withoutExporting do  -- This deriving handler handles visibility of generated decls syntactically
   if (← declNames.allM isInductive) then
     for declName in declNames do
       elabCommand (← liftTermElabM do mkNonemptyInstance declName)

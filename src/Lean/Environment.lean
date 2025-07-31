@@ -722,8 +722,7 @@ def addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declarati
       exts? := none
       consts := .pure <| .mk (α := AsyncConsts) default
     } }
-    -- TODO
-    if true /- !isPrivateName n-/ then
+    if !isPrivateName n then
       env := { env with asyncConstsMap.public := env.asyncConstsMap.public.add {
         constInfo := .ofConstantInfo info
         exts? := none
@@ -2537,7 +2536,15 @@ def withExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : 
   finally
     modifyEnv (·.setExporting old)
 
-/-- If `when` is true, sets `Environment.isExporting` to false while executing `x`. -/
+/--
+If `when` is true, sets `Environment.isExporting` to false while executing `x`.
+
+In contexts where neither user input is elaborated nor new declarations are added via `addDecl` or
+derived meta functions, it may be easiest to do work below an unconditional `withoutExporting` block
+so as not to have to worry about the specific visibilities of accessed declarations. This is
+especially true for deriving handlers that eventually generate command syntax whose identifiers will
+be rechecked anyway.
+-/
 def withoutExporting [Monad m] [MonadEnv m] [MonadFinally m] [MonadOptions m] (x : m α)
     (when : Bool := true) : m α :=
   if when then

@@ -121,6 +121,7 @@ private def mkInhabitedInstance (declName : Name) : CommandElabM Unit := do
     throwError "failed to generate 'Inhabited' instance for '{declName}'"
 
 def mkInhabitedInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
+  withoutExporting do  -- This deriving handler handles visibility of generated decls syntactically
   if (← declNames.allM isInductive) then
     declNames.forM mkInhabitedInstance
     return true

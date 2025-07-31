@@ -1517,15 +1517,16 @@ def elabStructureCommand : InductiveElabDescr where
                 withOptions (warn.sorry.set · false) do
                   addProjections params r fieldInfos
                 registerStructure view.declName fieldInfos
-                runStructElabM (init := state) do
-                  withOptions (warn.sorry.set · false) do
-                    mkFlatCtor levelParams params view.declName replaceIndFVars
-                  addDefaults levelParams params replaceIndFVars
+                withoutExporting (when := isPrivateName view.ctor.declName) do
+                  runStructElabM (init := state) do
+                    withOptions (warn.sorry.set · false) do
+                      mkFlatCtor levelParams params view.declName replaceIndFVars
+                    addDefaults levelParams params replaceIndFVars
               let parentInfos ← withLCtx lctx localInsts <| runStructElabM (init := state) do
                 withOptions (warn.sorry.set · false) do
                   mkRemainingProjections levelParams params view
               setStructureParents view.declName parentInfos
-              withSaveInfoContext do  -- save new env
+              withoutExporting <| withSaveInfoContext do  -- save new env
                 for field in view.fields do
                   -- may not exist if overriding inherited field
                   if (← getEnv).contains field.declName then

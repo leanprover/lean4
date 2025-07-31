@@ -14,6 +14,7 @@ public import Lean.Meta.Tactic.Simp.Diagnostics
 public import Lean.Meta.Match.Value
 public import Lean.Meta.LetToHave
 public import Lean.Util.CollectLooseBVars
+import Lean.PrettyPrinter
 
 public section
 

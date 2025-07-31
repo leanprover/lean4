@@ -6,14 +6,14 @@ Authors: Gabriel Ebner, Mario Carneiro, Thomas Murrills
 module
 
 prelude
-public import Lean.Server.CodeActions
-public import Lean.Widget.UserWidget
-public import Lean.Data.Json.Elab
-public import Lean.Data.Lsp.Utf16
-public import Lean.Meta.CollectFVars
-public import Lean.Meta.Tactic.ExposeNames
 public import Lean.Meta.TryThis
-public import Lean.Meta.Hint
+public import Lean.Elab.Tactic.Basic
+import Lean.Server.CodeActions
+import Lean.Widget.UserWidget
+import Lean.Data.Json.Elab
+import Lean.Data.Lsp.Utf16
+import Lean.Meta.CollectFVars
+import Lean.Meta.Tactic.ExposeNames
 meta import Lean.Meta.Hint
 
 public section
@@ -48,7 +48,7 @@ Try these:
 
 where `<replacement*>` is a link which will perform the replacement.
 -/
-@[builtin_widget_module] def tryThisWidget : Widget.Module where
+@[builtin_widget_module] private def tryThisWidget : Widget.Module where
   javascript := "
 import * as React from 'react';
 import { EditorContext, EnvPosContext } from '@leanprover/infoview';
@@ -101,7 +101,7 @@ attribute [builtin_widget_module] Hint.tryThisDiffWidget
 This is a code action provider that looks for `TryThisInfo` nodes and supplies a code action to
 apply the replacement.
 -/
-@[builtin_code_action_provider] def tryThisProvider : CodeActionProvider := fun params snap => do
+@[builtin_code_action_provider] private def tryThisProvider : CodeActionProvider := fun params snap => do
   let doc ← readDoc
   pure <| snap.infoTree.foldInfo (init := #[]) fun _ctx info result => Id.run do
     let .ofCustomInfo { stx, value } := info | result

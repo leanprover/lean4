@@ -148,13 +148,9 @@ def computeDotIdQuery?
     | return none
   let some expectedType := expectedType?
     | return none
-  let typeNames? : Option (Array Name) ← ctx.runMetaM lctx do
-    try
-      return some <| ← getDotIdCompletionTypeNames expectedType
-    catch _ =>
-      return none
-  let some typeNames := typeNames?
-    | return none
+  let typeNames : Array Name ← ctx.runMetaM lctx <| getDotIdCompletionTypeNames expectedType
+  if typeNames.isEmpty then
+    return none
   return some {
     identifier := id.toString
     openNamespaces := typeNames.map (.allExcept · #[])

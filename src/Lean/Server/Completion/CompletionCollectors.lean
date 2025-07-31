@@ -294,6 +294,9 @@ section DotCompletionUtils
   -/
   private def NameSetModPrivate := Std.TreeSet Name cmpModPrivate
 
+  private def NameSetModPrivate.ofArray (names : Array Name) : NameSetModPrivate :=
+    Std.TreeSet.ofArray names cmpModPrivate
+
   /--
     Given a type, try to extract relevant type names for dot notation field completion (for `s.f x₁ ... xₙ`).
     We extract the type name, parent struct names, and unfold the type.
@@ -301,16 +304,6 @@ section DotCompletionUtils
   private def getDotCompletionTypeNameSet (type : Expr) : MetaM NameSetModPrivate := do
     let mut set := .empty
     for typeName in ← getDotCompletionTypeNames type do
-      set := set.insert typeName
-    return set
-
-  /--
-    Given a type, try to extract relevant type names for dot identifier notation completion (for `.f x₁ ... xₙ`).
-    We extract the type name, parent struct names, and unfold the type.
-    The process mimics the dot notation elaboration procedure at `App.lean` -/
-  private def getDotIdCompletionTypeNameSet (type : Expr) : MetaM NameSetModPrivate := do
-    let mut set := .empty
-    for typeName in ← getDotIdCompletionTypeNames type do
       set := set.insert typeName
     return set
 
@@ -335,6 +328,7 @@ section DotCompletionUtils
 
   /--
   Checks whether the type of `info.type` returns one of the type names in `typeNameSet`, for dot ident notation completion.
+  The process mimics the dotted identifier notation elaboration procedure at `Lean.Elab.App`.
   -/
   private partial def isDotIdCompletionMethod (typeNameSet : NameSetModPrivate) (info : ConstantInfo) : MetaM Bool := do
     let rec visit (type : Expr) : MetaM Bool := do
@@ -481,10 +475,11 @@ def dotIdCompletion
     let some expectedType := expectedType?
       | return ()
 
-    let nameSet ← try
-      getDotIdCompletionTypeNameSet expectedType
-    catch _ =>
-      pure Std.TreeSet.empty
+    let typeNames ← getDotIdCompletionTypeNames expectedType
+    if typeNames.isEmpty then
+      return ()
+
+    let nameSet := NameSetModPrivate.ofArray typeNames
 
     forEligibleDeclsWithCancellationM fun declName c => do
       let unnormedTypeName := declName.getPrefix

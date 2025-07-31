@@ -86,7 +86,11 @@ where
     let some type ← unfoldDefinitionGuarded? type | return ()
     visit type
 
-/-- Get type names for resolving `id` in `.id x₁ ... xₙ` notation. -/
+/--
+Gets type names for resolving `id` in `.id x₁ ... xₙ` notation.
+The process mimics the dotted indentifier notation elaboration procedure at `Lean.Elab.App`.
+Catches and ignores all errors, so no need to run this within `try`/`catch`.
+-/
 partial def getDotIdCompletionTypeNames (type : Expr) : MetaM (Array Name) :=
   return (← visit type |>.run #[]).2
 where

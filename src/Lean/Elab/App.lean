@@ -1692,12 +1692,13 @@ To infer a namespace from the expected type, we do the following operations:
 - if the type is of the form `c x₁ ... xₙ` with `c` a constant, then try using `c` as the namespace,
   and if that doesn't work, try unfolding the expression and continuing.
 -/
-private partial def resolveDottedIdentFn (id : Name) (expectedType? : Option Expr) : TermElabM (List (Expr × Syntax × List Syntax)) := do
+private partial def resolveDottedIdentFn (idRef : Syntax) (id : Name) (expectedType? : Option Expr) : TermElabM (List (Expr × Syntax × List Syntax)) := do
   unless id.isAtomic do
     throwError "Invalid dotted identifier notation: The name `{id}` must be atomic"
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType?
     | throwNoExpectedType
+  addCompletionInfo <| CompletionInfo.dotId idRef id (← getLCtx) expectedType?
   withForallBody expectedType fun resultType => do
     go resultType expectedType #[]
 where
@@ -1791,8 +1792,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(@$_)     => throwUnsupportedSyntax -- invalid occurrence of `@`
     | `(_)       => throwError "A placeholder `_` cannot be used where a function is expected"
     | `(.$id:ident) =>
-        addCompletionInfo <| CompletionInfo.dotId id id.getId (← getLCtx) expectedType?
-        let res ← withRef f <| resolveDottedIdentFn id.getId.eraseMacroScopes expectedType?
+        let res ← withRef f <| resolveDottedIdentFn id id.getId.eraseMacroScopes expectedType?
         -- Use (forceTermInfo := true) because we want to record the result of .ident resolution even in patterns
         elabAppFnResolutions f res lvals namedArgs args expectedType? explicit ellipsis overloaded acc (forceTermInfo := true)
     | _ => do

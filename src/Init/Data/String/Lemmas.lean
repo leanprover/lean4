@@ -40,8 +40,8 @@ protected theorem ne_of_lt {a b : String} (h : a < b) : a ≠ b := by
 
 instance : OrderData String := .ofLE String
 
-instance instStdLinearOrder : LinearOrder String := by
-  apply LinearOrder.ofLE
+instance instIsLinearOrder : IsLinearOrder String := by
+  apply IsLinearOrder.ofLE
   case le_antisymm => apply String.le_antisymm
   case le_trans => apply String.le_trans
   case le_total => apply String.le_total

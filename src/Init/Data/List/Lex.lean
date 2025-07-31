@@ -124,7 +124,7 @@ theorem not_lt_of_cons_le_cons [LT α]
   · exact i₁.asymm _ _ h
   · exact Irrefl.irrefl _
 
-theorem left_le_left_of_cons_le_cons [LT α] [LE α] [OrderData α] [LinearOrder α]
+theorem left_le_left_of_cons_le_cons [LT α] [LE α] [OrderData α] [IsLinearOrder α]
     [LawfulOrderLT α] [LawfulOrderLE α]
     {a b : α} {l₁ l₂ : List α} (h : a :: l₁ ≤ b :: l₂) : a ≤ b := by
   simpa [not_lt] using not_lt_of_cons_le_cons h
@@ -179,7 +179,7 @@ instance [LT α] [Trans (· < · : α → α → Prop) (· < ·) (· < ·)] :
 
 
 
-protected theorem lt_of_le_of_lt [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α]
+protected theorem lt_of_le_of_lt [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrderLT α]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
   open Classical.Order in
   induction h₂ generalizing l₁ with
@@ -204,14 +204,14 @@ protected theorem lt_of_le_of_lt [LT α] [OrderData α] [LinearOrder α] [Lawful
       · simp only [not_lt] at w₄
         exact Lex.rel (lt_of_le_of_ne w₄ (w₅.imp Eq.symm))
 
-protected theorem le_trans [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α]
+protected theorem le_trans [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrderLT α]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
   fun h₃ => h₁ (List.lt_of_le_of_lt h₂ h₃)
 
 /--
 This also triggers for `LinearOrder`
 -/
-instance [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α] :
+instance [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrderLT α] :
     Trans (· ≤ · : List α → List α → Prop) (· ≤ ·) (· ≤ ·) where
   trans h₁ h₂ := List.le_trans h₁ h₂
 
@@ -279,9 +279,9 @@ instance [LT α]
     · exact Or.inl hab
   inferInstance
 
-instance instStdLinearOrder [LT α] [OrderData α] [LinearOrder α] [LawfulOrderLT α] :
-    LinearOrder (List α) := by
-  apply LinearOrder.ofLE
+instance instIsLinearOrder [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrderLT α] :
+    IsLinearOrder (List α) := by
+  apply IsLinearOrder.ofLE
   case le_antisymm => apply le_antisymm
   case le_trans => apply le_trans
   case le_total => apply le_total

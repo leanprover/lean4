@@ -40,11 +40,11 @@ public instance LawfulOrderLE.ofLE {α : Type u} [LE α] :
 If an `OrderData α` instance is compatible with an `LE α` instance that is reflexive, antisymmetric,
 transitive and total, then the `OrderData α` instance is a linear order.
 -/
-public theorem LinearOrder.ofLE {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
+public theorem IsLinearOrder.ofLE {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
     (le_antisymm : ∀ a b : α, a ≤ b → b ≤ a → a = b)
     (le_trans : ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c)
     (le_total : ∀ a b : α, a ≤ b ∨ b ≤ a) :
-    LinearOrder α where
+    IsLinearOrder α where
   le_refl a := by simpa [LawfulOrderLE.le_iff] using le_total a a -- Can we omit this somehow because it follows from le_total?
   le_antisymm := by simpa [LawfulOrderLE.le_iff] using le_antisymm
   le_trans := by simpa [LawfulOrderLE.le_iff] using le_trans
@@ -150,7 +150,7 @@ public theorem LinearOrder.ofLT {α : Type u} [LT α]
     (not_lt_trans : ∀ a b c : α, ¬ a < b → ¬ b < c → ¬ a < c)
     (not_lt_antisymm : ∀ a b : α, ¬ a < b → ¬ b < a → a = b) :
     haveI : OrderData α := .ofLT α
-    LinearOrder α :=
+    IsLinearOrder α :=
   letI : OrderData α := .ofLT α
   haveI : LinearPreorder α := .ofLT lt_asymm not_lt_trans
   { le_antisymm := by simpa [OrderData.ofLT] using fun a b hab hba => not_lt_antisymm a b hba hab }

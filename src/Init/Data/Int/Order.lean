@@ -1421,8 +1421,8 @@ abbrev eq_natAbs_iff_mul_eq_zero := @natAbs_eq_iff_mul_eq_zero
 
 instance : OrderData Int := .ofLE Int
 
-instance instStdLinearOrder : LinearOrder Int := by
-  apply LinearOrder.ofLE
+instance instIsLinearOrder : IsLinearOrder Int := by
+  apply IsLinearOrder.ofLE
   case le_antisymm => apply Int.le_antisymm
   case le_total => apply Int.le_total
   case le_trans => apply Int.le_trans

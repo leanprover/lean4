@@ -298,8 +298,7 @@ instance [FromJson α] : FromJson (Notification α) where
 
 namespace IO.FS.Stream
 
-open JsonRpc
-open _root_.IO
+open _root_.IO Lean.JsonRpc
 
 section
   def readMessage (h : FS.Stream) (nBytes : Nat) : IO Message := do

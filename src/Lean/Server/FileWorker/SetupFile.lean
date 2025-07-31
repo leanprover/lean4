@@ -14,9 +14,9 @@ public import Lean.Server.ServerTask
 
 public section
 
-open IO
-
 namespace Lean.Server.FileWorker
+
+open _root_.IO
 
 structure LakeSetupFileOutput where
     spawnArgs : Process.SpawnArgs

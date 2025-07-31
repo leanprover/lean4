@@ -18,11 +18,9 @@ public section
 /-! Provides an IpcM monad for interacting with an external LSP process.
 Used for testing the Lean server. -/
 
-open IO
-
 namespace Lean.Lsp.Ipc
 
-open Lsp
+open _root_.IO Lean.Lsp
 open JsonRpc
 
 def ipcStdioConfig : Process.StdioConfig where

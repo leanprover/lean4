@@ -59,9 +59,8 @@ open IO
 
 namespace Lean.Server.FileWorker
 
-open Server
 open Lsp
-open IO
+open IO Lean.Server Lean.Lsp
 open Snapshots
 open JsonRpc
 

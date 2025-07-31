@@ -14,12 +14,10 @@ public section
 
 /-! Reading/writing LSP messages from/to IO handles. -/
 
-open IO
-
 namespace Lean.Lsp.IO.FS.Stream
 
-open Lean.Lsp
-open JsonRpc
+open _root_.IO IO
+open JsonRpc JsonRpc.IO
 
 section
   private def parseHeaderField (s : String) : Option (String × String) := do

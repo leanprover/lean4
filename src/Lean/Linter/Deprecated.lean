@@ -65,7 +65,7 @@ def checkDeprecated (declName : Name) : MetaM Unit := do
         let newPfx := newName.getPrefix
         let some oldDecl := env.find? declName | pure msg
         let some newDecl := env.find? newName | pure msg
-        if !(← withReducible <| isDefEq oldDecl.type newDecl.type) then
+        if !(← withReducible <| isDefEqGuarded oldDecl.type newDecl.type) then
           msg := msg ++ .note m!"The updated constant has a different type:{indentExpr newDecl.type}\
             \ninstead of{indentExpr oldDecl.type}"
         unless oldPfx.isAnonymous do

@@ -314,7 +314,7 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
   ```
   It generates the names `term_+_` and `term[_,]`
 -/
-partial def mkNameFromParserSyntax (catName : Name) (stx : Syntax) : MacroM Name := do
+private partial def mkNameFromParserSyntax (catName : Name) (stx : Syntax) : MacroM Name := do
   mkUnusedBaseName <| Name.mkSimple <| appendCatName <| visit stx ""
 where
   visit (stx : Syntax) (acc : String) : String :=
@@ -368,13 +368,13 @@ def isLocalAttrKind (attrKind : Syntax) : Bool :=
 /--
 Add macro scope to `name` if it does not already have them, and `attrKind` is `local`.
 -/
-def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (attrKind : Syntax) : m Name := do
+private def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (attrKind : Syntax) : m Name := do
   if isLocalAttrKind attrKind && !name.hasMacroScopes then
     MonadQuotation.addMacroScope name
   else
     return name
 
-@[builtin_command_elab «syntax»] def elabSyntax : CommandElab := fun stx => do
+def elabSyntax (stx : Syntax) : CommandElabM Name := do
   let `($[$doc?:docComment]? $[ @[ $attrInstances:attrInstance,* ] ]? $attrKind:attrKind
       syntax%$tk $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) := stx
     | throwUnsupportedSyntax
@@ -393,21 +393,28 @@ def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (attrKind : 
     | none => addMacroScopeIfLocal (← liftMacroM <| mkNameFromParserSyntax cat syntaxParser) attrKind
   let prio ← liftMacroM <| evalOptPrio prio?
   let idRef := (name?.map (·.raw)).getD tk
-  let stxNodeKind := (← getCurrNamespace) ++ name
+  let mut stxNodeKind := (← getCurrNamespace) ++ name
+  if attrKind matches `(attrKind| local) then
+    stxNodeKind := mkPrivateName (← getEnv) stxNodeKind
   let catParserId := mkIdentFrom idRef (cat.appendAfter "_parser")
   let (val, lhsPrec?) ← runTermElabM fun _ => Term.toParserDescr syntaxParser cat
   let declName := name?.getD (mkIdentFrom idRef name (canonical := true))
   let attrInstance ← `(attrInstance| $attrKind:attrKind $catParserId:ident $(quote prio):num)
   let attrInstances := attrInstances.getD { elemsAndSeps := #[] }
   let attrInstances := attrInstances.push attrInstance
+  let vis := Parser.Command.visibility.ofBool (!attrKind matches `(attrKind| local))
   let d ← if let some lhsPrec := lhsPrec? then
-    `($[$doc?:docComment]? @[$attrInstances,*] meta def $declName:ident : Lean.TrailingParserDescr :=
+    `($[$doc?:docComment]? @[$attrInstances,*] $vis:visibility meta def $declName:ident : Lean.TrailingParserDescr :=
         ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $(quote lhsPrec) $val)
   else
-    `($[$doc?:docComment]? @[$attrInstances,*] meta def $declName:ident : Lean.ParserDescr :=
+    `($[$doc?:docComment]? @[$attrInstances,*] $vis:visibility meta def $declName:ident : Lean.ParserDescr :=
         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
   trace `Elab fun _ => d
   withMacroExpansion stx d <| elabCommand d
+  return stxNodeKind
+
+@[builtin_command_elab «syntax»] private def elabSyntaxAux : CommandElab := fun stx =>
+  discard <| elabSyntax stx
 
 @[builtin_command_elab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
   let `($[$doc?:docComment]? syntax $declName:ident := $[$ps:stx]*) ← pure stx | throwUnsupportedSyntax

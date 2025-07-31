@@ -47,12 +47,14 @@ def elabMacroRulesAux (doc? : Option (TSyntax ``docComment))
   let attrs := match attrs? with
     | some attrs => attrs.getElems.push attr
     | none => #[attr]
-  `($[$doc?:docComment]? @[$attrs,*]
+  let vis := Parser.Command.visibility.ofBool ((← getEnv).isExporting)
+  `($[$doc?:docComment]? @[$attrs,*] $vis:visibility
     aux_def macroRules $(mkIdentFrom tk k (canonical := true)) : Macro :=
      fun $alts:matchAlt* | _ => no_error_if_unused% throw Lean.Macro.Exception.unsupportedSyntax)
 
 @[builtin_command_elab «macro_rules»] def elabMacroRules : CommandElab :=
-  adaptExpander fun stx => match stx with
+  adaptExpander fun stx =>
+  match stx with
   | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind macro_rules%$tk $alts:matchAlt*) =>
     -- exclude command prefix from synthetic position used for e.g. jumping to the macro definition
     withRef (mkNullNode #[tk, mkNullNode alts]) do
@@ -64,9 +66,11 @@ def elabMacroRulesAux (doc? : Option (TSyntax ``docComment))
       let attrs := match attrs? with
         | some attrs => attrs.getElems.push attr
         | none => #[attr]
-      `($[$doc?:docComment]? @[$attrs,*]
+      let vis := Parser.Command.visibility.ofBool (!attrKind matches `(attrKind| local))
+      `($[$doc?:docComment]? @[$attrs,*] $vis:visibility
         aux_def $(mkIdentFrom tk kind.getId (canonical := true)) $kind : Macro := fun $x:ident => $rhs)
   | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind macro_rules%$tk (kind := $kind) $alts:matchAlt*) =>
+    withoutExporting (when := attrKind matches `(attrKind| local)) do
     withRef (mkNullNode #[tk, mkNullNode alts]) do
       elabMacroRulesAux doc? attrs? attrKind tk (← resolveSyntaxKind kind.getId) alts
   | _  => throwUnsupportedSyntax

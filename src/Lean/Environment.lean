@@ -1393,10 +1393,13 @@ private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension
     -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
     if env.base.get env |>.constants.contains asyncDecl then
       return ext.getStateImpl env.base.private.extensions
-    if let some c := match branch with
-        | .asyncEnv => env.asyncConsts.findRec? asyncDecl
-        | .mainEnv => env.asyncConsts.findRecParent? asyncDecl then
-      if let some exts := c.exts? then
+    if let some exts? := match branch with
+        | .asyncEnv => env.asyncConsts.findRec? asyncDecl |>.map AsyncConst.exts?
+        | .mainEnv =>
+          match env.asyncConsts.find? asyncDecl with
+          | some _ => some <| some <| .pure env.base.private.extensions
+          | _ => env.asyncConsts.findRecParent? asyncDecl |>.map AsyncConst.exts? then
+      if let some exts := exts? then
         return ext.getStateImpl exts.get
       -- NOTE: if `exts?` is `none`, we should *not* try the following, more expensive branches that
       -- will just come to the same conclusion
@@ -1404,7 +1407,7 @@ private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension
       if let some exts := c.exts? then
         return ext.getStateImpl exts.get
     -- fallback; we could enforce that `findStateAsync` is only used on existing constants but the
-    -- upside of doing is unclear
+    -- upside of doing is unclear and it is not true in e.g. the compiler
     ext.getStateImpl env.base.private.extensions
   | _         => ext.getStateImpl env.base.private.extensions
 

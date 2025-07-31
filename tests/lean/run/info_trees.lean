@@ -67,7 +67,7 @@ info: • [Command] @ ⟨83, 0⟩-⟨83, 40⟩ @ Lean.Elab.Command.elabDeclarati
                       • [Completion-Id] n : some Nat @ ⟨1, 5⟩†-⟨1, 5⟩†
                       • [Term] n : Nat @ ⟨1, 5⟩†-⟨1, 5⟩†
                 • [CustomInfo(Lean.Meta.Tactic.TryThis.TryThisInfo)]
-                • [UserWidget] Lean.Meta.Tactic.TryThis.tryThisWidget
+                • [UserWidget] _private.Lean.Meta.Tactic.TryThis.0.Lean.Meta.Tactic.TryThis.tryThisWidget
                   {"suggestions": [{"suggestion": "exact Nat.zero_le n"}],
                    "style": null,
                    "range":

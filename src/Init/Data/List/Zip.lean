@@ -306,7 +306,7 @@ theorem of_mem_zip {a b} : ∀ {l₁ : List α} {l₂ : List β}, (a, b) ∈ zip
     cases h
     case head => simp
     case tail h =>
-    · have := of_mem_zip h
+      have := of_mem_zip h
       exact ⟨Mem.tail _ this.1, Mem.tail _ this.2⟩
 
 theorem map_fst_zip :

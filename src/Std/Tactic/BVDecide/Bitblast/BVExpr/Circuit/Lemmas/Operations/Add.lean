@@ -162,7 +162,7 @@ theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref
   unfold go at hgo
   dsimp only at hgo
   split at hgo
-  · next hlt =>
+  next hlt =>
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       rw [← hgo]

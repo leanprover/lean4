@@ -251,7 +251,7 @@ instance {α β γ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} 
     simp only [LawfulIteratorCollect.toArrayMapped_eq]
     simp only [IteratorCollect.toArrayMapped]
     rw [LawfulIteratorCollect.toArrayMapped_eq]
-    induction it using IterM.inductSteps with | step it ih_yield ih_skip =>
+    induction it using IterM.inductSteps with | step it ih_yield ih_skip
     rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
     rw [IterM.DefaultConsumers.toArrayMapped_eq_match_step]
     simp only [bind_assoc]

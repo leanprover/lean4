@@ -33,25 +33,25 @@ public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Partial
     Std.Antisymm (α := α) (· ≤ ·) where
   antisymm a b := by simpa only [LawfulOrderLE.le_iff] using PartialOrder.le_antisymm _ _
 
-public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Preorder α] :
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [IsPreorder α] :
     Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
-      trans := by simpa [LawfulOrderLE.le_iff] using fun {a b c} => Preorder.le_trans a b c
+      trans := by simpa [LawfulOrderLE.le_iff] using fun {a b c} => IsPreorder.le_trans a b c
 
-public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Preorder α] :
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [IsPreorder α] :
     Std.Refl (α := α) (· ≤ ·) where
-  refl a := by simpa [LawfulOrderLE.le_iff] using Preorder.le_refl a
+  refl a := by simpa [LawfulOrderLE.le_iff] using IsPreorder.le_refl a
 
-public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [LinearPreorder α] :
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [IsLinearPreorder α] :
     Std.Total (α := α) (· ≤ ·) where
-  total a b := by simpa [LawfulOrderLE.le_iff] using LinearPreorder.le_total a b
+  total a b := by simpa [LawfulOrderLE.le_iff] using IsLinearPreorder.le_total a b
 
 end AxiomaticInstances
 
 section LE
 
-public theorem le_refl {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Preorder α] (a : α) :
+public theorem le_refl {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [IsPreorder α] (a : α) :
     a ≤ a := by
-  simp [LawfulOrderLE.le_iff, Preorder.le_refl]
+  simp [LawfulOrderLE.le_iff, IsPreorder.le_refl]
 
 public theorem le_antisymm {α : Type u} [LE α] [Std.Antisymm (α := α) (· ≤ ·)] {a b : α}
     (hab : a ≤ b) (hba : b ≤ a) : a = b :=
@@ -99,7 +99,7 @@ public instance {α : Type u} [LT α] [OrderData α] [LawfulOrderLT α] :
     exact h.2.elim h'.1
 
 -- TODO: derive from reflexivity of LE?
-public instance {α : Type u} [LT α] [OrderData α] [Preorder α] [LawfulOrderLT α] :
+public instance {α : Type u} [LT α] [OrderData α] [IsPreorder α] [LawfulOrderLT α] :
     Std.Irrefl (α := α) (· < ·) where
   irrefl a b := by simp [LawfulOrderLT.lt_iff] at b
 
@@ -178,17 +178,17 @@ public theorem le_min_iff {α : Type u} [Min α] [LE α] [OrderData α]
     a ≤ min b c ↔ a ≤ b ∧ a ≤ c := by
   simpa [LawfulOrderLE.le_iff] using LawfulOrderInf.le_min_iff a b c
 
-public theorem min_le_left {α : Type u} [Min α] [LE α] [OrderData α] [Preorder α]
+public theorem min_le_left {α : Type u} [Min α] [LE α] [OrderData α] [IsPreorder α]
     [LawfulOrderLE α] [LawfulOrderInf α] {a b : α} :
     min a b ≤ a :=
   le_min_iff.mp (le_refl _) |>.1
 
-public theorem min_le_right {α : Type u} [Min α] [LE α] [OrderData α] [Preorder α]
+public theorem min_le_right {α : Type u} [Min α] [LE α] [OrderData α] [IsPreorder α]
     [LawfulOrderLE α] [LawfulOrderInf α] {a b : α} :
     min a b ≤ b :=
   le_min_iff.mp (le_refl _) |>.2
 
-public theorem min_le {α : Type u} [Min α] [LE α] [OrderData α] [Preorder α]
+public theorem min_le {α : Type u} [Min α] [LE α] [OrderData α] [IsPreorder α]
     [LawfulOrderLE α] [LawfulOrderMin α] {a b c : α} :
     min a b ≤ c ↔ a ≤ c ∨ b ≤ c := by
   cases MinEqOr.min_eq_or a b <;> rename_i h
@@ -239,17 +239,17 @@ public theorem max_le_iff {α : Type u} [Max α] [LE α] [OrderData α]
     max a b ≤ c ↔ a ≤ c ∧ b ≤ c := by
   simpa [LawfulOrderLE.le_iff] using LawfulOrderSup.max_le_iff a b c
 
-public theorem left_le_max {α : Type u} [Max α] [LE α] [OrderData α] [Preorder α]
+public theorem left_le_max {α : Type u} [Max α] [LE α] [OrderData α] [IsPreorder α]
     [LawfulOrderLE α] [LawfulOrderSup α] {a b : α} :
     a ≤ max a b :=
   max_le_iff.mp (le_refl _) |>.1
 
-public theorem right_le_max {α : Type u} [Max α] [LE α] [OrderData α] [Preorder α]
+public theorem right_le_max {α : Type u} [Max α] [LE α] [OrderData α] [IsPreorder α]
     [LawfulOrderLE α] [LawfulOrderSup α] {a b : α} :
     b ≤ max a b :=
   max_le_iff.mp (le_refl _) |>.2
 
-public theorem le_max {α : Type u} [Max α] [LE α] [OrderData α] [Preorder α]
+public theorem le_max {α : Type u} [Max α] [LE α] [OrderData α] [IsPreorder α]
     [LawfulOrderLE α] [LawfulOrderMax α] {a b c : α} :
     a ≤ max b c ↔ a ≤ b ∨ a ≤ c := by
   cases MaxEqOr.max_eq_or b c <;> rename_i h

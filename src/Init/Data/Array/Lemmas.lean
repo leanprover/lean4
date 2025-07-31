@@ -1356,23 +1356,6 @@ theorem mapM_eq_mapM_toList [Monad m] [LawfulMonad m] {f : α → m β} {xs : Ar
     toList <$> xs.mapM f = xs.toList.mapM f := by
   simp [mapM_eq_mapM_toList]
 
-@[deprecated "Use `mapM_eq_foldlM` instead" (since := "2025-01-08")]
-theorem mapM_map_eq_foldl {as : Array α} {f : α → β} {i : Nat} :
-    mapM.map (m := Id) (pure <| f ·) as i b = pure (as.foldl (start := i) (fun acc a => acc.push (f a)) b) := by
-  unfold mapM.map
-  split <;> rename_i h
-  · ext : 1
-    dsimp [foldl, foldlM]
-    rw [mapM_map_eq_foldl, dif_pos (by omega), foldlM.loop, dif_pos h]
-    -- Calling `split` here gives a bad goal.
-    have : size as - i = Nat.succ (size as - i - 1) := by omega
-    rw [this]
-    simp [foldl, foldlM, Nat.sub_add_eq]
-  · dsimp [foldl, foldlM]
-    rw [dif_pos (by omega), foldlM.loop, dif_neg h]
-    rfl
-termination_by as.size - i
-
 /--
 Use this as `induction ass using array₂_induction` on a hypothesis of the form `ass : Array (Array α)`.
 The hypothesis `ass` will be replaced with a hypothesis `ass : List (List α)`,
@@ -2977,9 +2960,6 @@ theorem getElem?_extract {xs : Array α} {start stop : Nat} :
   apply ext
   · rw [size_extract, Nat.min_self, Nat.sub_zero]
   · intros; rw [getElem_extract]; congr; rw [Nat.zero_add]
-
-@[deprecated extract_size (since := "2025-01-19")]
-abbrev extract_all := @extract_size
 
 theorem extract_empty_of_stop_le_start {xs : Array α} {start stop : Nat} (h : stop ≤ start) :
     xs.extract start stop = #[] := by

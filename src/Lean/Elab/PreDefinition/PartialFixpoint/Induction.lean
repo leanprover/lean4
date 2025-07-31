@@ -127,7 +127,6 @@ def getInductionPrinciplePostfix (name : Name) (isMutual : Bool) : MetaM Name :=
   let some res := eqnInfo.fixpointType[idx]? | throwError "Cannot get fixpoint type for {name}"
   match res, isMutual with
   | .partialFixpoint, false => return `fixpoint_induct
-  | .partialFixpoint, true => throwError "`mutual_induct` is only defined for (co)inductive predicates, not for `partial_fixpoint`"
   | .inductiveFixpoint, false => return `induct
   | .coinductiveFixpoint, false => return `coinduct
   | _, true => return `mutual_induct
@@ -271,7 +270,12 @@ def deriveInduction (name : Name) (isMutual : Bool) : MetaM Unit := do
                   let fInst ← eqnInfo.fixedParamPerms.perms[i]!.instantiateLambda fEtaExpanded xs
                   let fInst := fInst.eta
                   return mkApp motive fInst
+              trace[Elab.definition.partialFixpoint.induction] "packedConclusion: {packedConclusion}, index is: {(eqnInfo.declNames.idxOf name)}"
               let e' ← mkExpectedTypeHint e' packedConclusion
+              let e' ← if isMutual then
+                pure e'
+              else
+                PProdN.projM infos.size (eqnInfo.declNames.idxOf name) e'
               let e' ← mkLambdaFVars hs e'
               let e' ← mkLambdaFVars adms e'
               let e' ← mkLambdaFVars motives e'
@@ -279,7 +283,6 @@ def deriveInduction (name : Name) (isMutual : Bool) : MetaM Unit := do
               let e' ← instantiateMVars e'
               trace[Elab.definition.partialFixpoint.induction] "Complete body of fixpoint induction principle:{indentExpr e'}"
               pure e'
-
     let eTyp ← inferType e'
     trace[Elab.definition.partialFixpoint.induction] "eTyp last: {eTyp}"
     let eTyp ← elimOptParam eTyp
@@ -296,7 +299,7 @@ def isInductName (env : Environment) (name : Name) : Bool := Id.run do
   match s with
   | "fixpoint_induct" =>
     if let some eqnInfo := eqnInfoExt.find? env p then
-      return p == eqnInfo.declNames[0]! && isPartialFixpoint (eqnInfo.fixpointType[0]!)
+      return eqnInfo.fixpointType.all isPartialFixpoint
     return false
   | "coinduct" =>
     if let some eqnInfo := eqnInfoExt.find? env p then
@@ -310,7 +313,7 @@ def isInductName (env : Environment) (name : Name) : Bool := Id.run do
     return false
   | "mutual_induct" =>
     if let some eqnInfo := eqnInfoExt.find? env p then
-      return eqnInfo.fixpointType.all isLatticeTheoretic && eqnInfo.declNames.size > 1
+      return eqnInfo.declNames.size > 1
     return false
   | _ => return false
 

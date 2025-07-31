@@ -145,7 +145,7 @@ partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
         have : i < main.params.size := h.2
         let param := main.params[i]
         let val ← evalArg args[i]
-        unless val == .val i || (val == .erased && param.type.isErased) do
+        unless val == .val i || val == .erased do
           -- Found non fixed argument
           -- Remark: if the argument is erased and the type of the parameter is erased we assume it is a fixed "propositonal" parameter.
           modify fun s => { s with fixed := s.fixed.set! i false }

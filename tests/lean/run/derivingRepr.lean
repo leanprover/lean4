@@ -145,3 +145,16 @@ info: def instReprPrivField2 : Repr PrivField2 :=
 #guard_msgs in
 #with_exporting
 #print instReprPrivField2
+
+/-! Public structures should yield public instances independent of `public section`. -/
+
+public structure Public where
+deriving Repr
+
+/--
+info: def instReprPublic : Repr Public :=
+{ reprPrec := reprPublic✝ }
+-/
+#guard_msgs in
+#with_exporting
+#print instReprPublic

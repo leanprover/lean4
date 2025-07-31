@@ -29,9 +29,9 @@ end Subtype
 
 section AxiomaticInstances
 
-public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [PartialOrder α] :
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [IsPartialOrder α] :
     Std.Antisymm (α := α) (· ≤ ·) where
-  antisymm a b := by simpa only [LawfulOrderLE.le_iff] using PartialOrder.le_antisymm _ _
+  antisymm a b := by simpa only [LawfulOrderLE.le_iff] using IsPartialOrder.le_antisymm _ _
 
 public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [IsPreorder α] :
     Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where

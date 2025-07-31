@@ -102,9 +102,37 @@ protected theorem lt_of_le_of_lt [LT α] [OrderData α] [LawfulOrderLT α] [IsLi
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
   Array.lt_of_le_of_lt h₁ h₂
 
+@[deprecated Vector.lt_of_le_of_lt (since := "2025-07-31")]
+protected theorem lt_of_le_of_lt' [LT α]
+    [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+    {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
+  letI : OrderData α := .ofLT α
+  haveI : IsLinearOrder α := by
+    apply IsLinearOrder.ofLT
+    case lt_asymm => apply Asymm.asymm
+    case not_lt_antisymm => apply Antisymm.antisymm
+    case not_lt_trans => apply Trans.trans
+  Array.lt_of_le_of_lt h₁ h₂
+
 protected theorem le_trans [LT α] [OrderData α] [LawfulOrderLT α] [IsLinearOrder α]
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
   fun h₃ => h₁ (Vector.lt_of_le_of_lt h₂ h₃)
+
+@[deprecated Vector.le_trans (since := "2025-07-31")]
+protected theorem le_trans' [LT α]
+    [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+    {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
+  letI : OrderData α := .ofLT α
+  haveI : IsLinearOrder α := by
+    apply IsLinearOrder.ofLT
+    case lt_asymm => apply Asymm.asymm
+    case not_lt_antisymm => apply Antisymm.antisymm
+    case not_lt_trans => apply Trans.trans
+  Array.le_trans h₁ h₂
 
 instance [LT α] [OrderData α] [LawfulOrderLT α] [IsLinearOrder α] :
     Trans (· ≤ · : Vector α n → Vector α n → Prop) (· ≤ ·) (· ≤ ·) where

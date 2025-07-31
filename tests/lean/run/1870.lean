@@ -1,7 +1,7 @@
 set_option pp.mvars false
 
 /--
-error: type mismatch
+error: Type mismatch
   congrArg ?_ (congrArg ?_ ?_)
 has type
   ?_ (?_ ?_) = ?_ (?_ ?_)

@@ -1,7 +1,7 @@
 import Lean.PremiseSelection
 
 /--
-error: type mismatch
+error: Type mismatch
   Nat
 has type
   Type

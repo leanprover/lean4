@@ -22,7 +22,7 @@ instance : X := ⟨⟩
 -- (but `fexp` is)
 
 /--
-error: type mismatch
+error: Type mismatch
   y
 has type
   Vector Unit 1
@@ -70,15 +70,15 @@ public theorem fexp_trfl : fexp = 1 := rfl
 public opaque P : Nat → Prop
 public axiom hP1 : P 1
 
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [t]; exact hP1
 example : P f := by simp only [t]; exact hP1
 
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [trfl]; exact hP1
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [trfl']; exact hP1
 example : P f := by dsimp only [trflprivate]; exact hP1

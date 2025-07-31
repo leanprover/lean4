@@ -4,7 +4,7 @@ Ensure that we have not created lossy cast instances.
 -/
 
 /--
-error: type mismatch
+error: Type mismatch
   x
 has type
   Nat
@@ -15,7 +15,7 @@ but is expected to have type
 example (x : Nat) : Fin 8 := x
 
 /--
-error: type mismatch
+error: Type mismatch
   x
 has type
   Nat
@@ -26,7 +26,7 @@ but is expected to have type
 example (x : Nat) : UInt8 := x
 
 /--
-error: type mismatch
+error: Type mismatch
   x
 has type
   Nat
@@ -37,7 +37,7 @@ but is expected to have type
 example (x : Nat) : USize := x
 
 /--
-error: type mismatch
+error: Type mismatch
   x
 has type
   Nat
@@ -48,7 +48,7 @@ but is expected to have type
 example (x : Nat) : Int8 := x
 
 /--
-error: type mismatch
+error: Type mismatch
   x
 has type
   Nat

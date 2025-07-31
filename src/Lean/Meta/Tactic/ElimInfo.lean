@@ -57,23 +57,23 @@ def altArity (motive : Expr) (n : Nat) : Expr → Nat × Bool
 
 def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
   let elimType ← inferType elimExpr
-  trace[Elab.induction] "eliminator {indentExpr elimExpr}\nhas type{indentExpr elimType}"
+  trace[Elab.induction] "eliminator{indentExpr elimExpr}\nhas type{indentExpr elimType}"
   forallTelescopeReducing elimType fun xs type => type.withApp fun motive motiveArgs => do
     unless motive.isFVar do
-      throwError "expected resulting type of eliminator to be an application of one of its parameters (the motive):{indentExpr type}"
+      throwError "Expected resulting type of eliminator to be an application of one of its parameters (the motive), but found{indentExpr type}"
     let targets  := motiveArgs.takeWhile (·.isFVar)
     let complexMotiveArgs := motiveArgs[targets.size...*]
     let motiveType ← inferType motive
     forallTelescopeReducing motiveType fun motiveParams motiveResultType => do
       unless motiveParams.size == motiveArgs.size do
-        throwError "expected {motiveArgs.size} parameters at motive type, got {motiveParams.size}:{indentExpr motiveType}"
+        throwError "Expected {motiveArgs.size} parameters at motive type, got {motiveParams.size}:{indentExpr motiveType}"
       unless motiveResultType.isSort do
-        throwError "motive result type must be a sort{indentExpr motiveType}"
+        throwError m!"Motive result type must be a sort, not{indentExpr motiveType}"
     let some motivePos ← pure (xs.idxOf? motive) |
-      throwError "unexpected eliminator type{indentExpr elimType}"
+      throwError "Unexpected eliminator type{indentExpr elimType}"
     let targetsPos ← targets.mapM fun target => do
       match xs.idxOf? target with
-      | none => throwError "unexpected eliminator type{indentExpr elimType}"
+      | none => throwError "Unexpected eliminator type{indentExpr elimType}"
       | some targetPos => pure targetPos
     let mut altsInfo := #[]
     let env ← getEnv
@@ -105,9 +105,9 @@ partial def addImplicitTargets (elimInfo : ElimInfo) (targets : Array Expr) : Me
     unless ← mvar.isAssigned do
       let name := (←mvar.getDecl).userName
       if name.isAnonymous || name.hasMacroScopes then
-        throwError "failed to infer implicit target"
+        throwError "Failed to infer implicit target"
       else
-        throwError "failed to infer implicit target {(←mvar.getDecl).userName}"
+        throwError "Failed to infer implicit target `{(←mvar.getDecl).userName}`"
   targets.mapM instantiateMVars
 where
   collect (type : Expr) (argIdx targetIdx : Nat) (implicits : Array MVarId) (targets' : Array Expr) :
@@ -117,11 +117,11 @@ where
       if elimInfo.targetsPos.contains argIdx then
         if bi.isExplicit then
           unless targetIdx < targets.size do
-            throwError "insufficient number of targets for '{elimInfo.elimExpr}'"
+            throwError "Insufficient number of targets for `{elimInfo.elimExpr}`"
           let target := targets[targetIdx]!
           let targetType ← inferType target
           unless (← isDefEq d targetType) do
-            throwError "target{indentExpr target}\n{← mkHasTypeButIsExpectedMsg targetType d}"
+            throwError "Invalid target:{indentExpr target}\n{← mkHasTypeButIsExpectedMsg targetType d}"
           collect (b.instantiate1 target) (argIdx+1) (targetIdx+1) implicits (targets'.push target)
         else
           let implicitTarget ← mkFreshExprMVar (type? := d) (userName := n)
@@ -130,7 +130,7 @@ where
         collect (b.instantiate1 (← mkFreshExprMVar d)) (argIdx+1) targetIdx implicits targets'
     | _ =>
       unless targetIdx = targets.size do
-        throwError "extra targets for '{elimInfo.elimExpr}'"
+        throwError "Too many targets for `{elimInfo.elimExpr}`"
       return (implicits, targets')
 
 structure CustomEliminator where
@@ -174,7 +174,7 @@ def mkCustomEliminator (elimName : Name) (induction : Bool) : MetaM CustomElimin
          See test `tests/lean/run/eliminatorImplicitTargets.lean`. -/
       unless (← isImplicitTarget) do
         let xType ← inferType x
-        let .const typeName .. := xType.getAppFn | throwError "unexpected eliminator target type{indentExpr xType}"
+        let .const typeName .. := xType.getAppFn | throwError "Unexpected eliminator target type{indentExpr xType}"
         typeNames := typeNames.push typeName
     return { induction, typeNames, elimName }
 

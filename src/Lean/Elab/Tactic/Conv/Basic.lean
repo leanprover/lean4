@@ -56,7 +56,7 @@ def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
       liftM <| mvarId.refl <|> mvarId.inferInstance <|> pure ()
     pruneSolvedGoals
     unless (← getGoals).isEmpty do
-      throwError "convert tactic failed, there are unsolved goals\n{goalsToMessageData (← getGoals)}"
+      throwError "Tactic `conv` failed: There are unsolved goals\n{goalsToMessageData (← getGoals)}"
     pure ()
   finally
     setGoals savedGoals
@@ -64,7 +64,8 @@ def convert (lhs : Expr) (conv : TacticM Unit) : TacticM (Expr × Expr) := do
 
 def getLhsRhsCore (mvarId : MVarId) : MetaM (Expr × Expr) :=
   mvarId.withContext do
-    let some (_, lhs, rhs) ← matchEq? (← mvarId.getType) | throwError "invalid 'conv' goal"
+    let some (_, lhs, rhs) ← matchEq? (← mvarId.getType) |
+      throwError "Internal error: Conversion-mode tactic found an invalid `conv` goal"
     return (lhs, rhs)
 
 def getLhsRhs : TacticM (Expr × Expr) := do

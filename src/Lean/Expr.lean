@@ -1949,7 +1949,7 @@ def setPPFunBinderTypes (e : Expr) (flag : Bool) :=
   e.setOption `pp.funBinderTypes flag
 
 /--
-Annotate `e` with `pp.explicit := flag`
+Annotate `e` with `pp.numericTypes := flag`
 The delaborator uses `pp` options.
 -/
 def setPPNumericTypes (e : Expr) (flag : Bool) :=

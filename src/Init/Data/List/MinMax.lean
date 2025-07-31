@@ -97,7 +97,7 @@ theorem le_min?_iff [Min α] [LE α] [OrderData α] [LawfulOrderInf α] [LawfulO
       simp at eq
       simp [ih _ eq, le_min_iff, and_assoc]
 
-theorem min?_eq_some_iff [Min α] [LE α] {xs : List α} [OrderData α] [IsLinearOrder (α)]
+theorem min?_eq_some_iff [Min α] [LE α] {xs : List α} [OrderData α] [IsLinearOrder α]
     [LawfulOrderMin α] [LawfulOrderLE α] : xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
   refine ⟨fun h => ⟨min?_mem h, (le_min?_iff h).1 (le_refl _)⟩, ?_⟩
   intro ⟨h₁, h₂⟩

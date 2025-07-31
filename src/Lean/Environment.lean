@@ -434,17 +434,18 @@ private def AsyncContext.mayContain (ctx : AsyncContext) (n : Name) : Bool :=
 Constant info and environment extension states eventually resulting from async elaboration.
 -/
 private structure AsyncConst where
-  constInfo : AsyncConstantInfo
+  constInfo   : AsyncConstantInfo
   /--
   Reported extension state eventually fulfilled by promise; may be missing for tasks (e.g. kernel
   checking) that can eagerly guarantee they will not report any state.
   -/
-  exts?     : Option (Task (Array EnvExtensionState))
+  exts?       : Option (Task (Array EnvExtensionState))
   /--
   `Task AsyncConsts` except for problematic recursion. The set of nested constants created while
   elaborating this constant.
   -/
-  consts    : Task Dynamic
+  aconstsImpl : Task Dynamic
+  isRealized  : Bool := false
 
 /-- Data structure holding a sequence of `AsyncConst`s optimized for efficient access. -/
 private structure AsyncConsts where
@@ -455,6 +456,10 @@ private structure AsyncConsts where
   /-- Trie of declaration names without private name prefixes for fast longest-prefix access. -/
   normalizedTrie : NameTrie AsyncConst
 deriving Inhabited, TypeName
+
+private def AsyncConst.aconsts (c : AsyncConst) : Task AsyncConsts :=
+  c.aconstsImpl.map (sync := true) fun dyn =>
+    dyn.get? AsyncConsts |>.getD default
 
 private def AsyncConsts.add (aconsts : AsyncConsts) (aconst : AsyncConst) : AsyncConsts :=
   let normalizedName := privateToUserName aconst.constInfo.name
@@ -488,7 +493,7 @@ private partial def AsyncConsts.findRec? (aconsts : AsyncConsts) (declName : Nam
   -- If privacy is the only difference between `declName` and `findPrefix?` result, we can assume
   -- `declName` does not exist according to the `add` invariant
   guard <| privateToUserName c.constInfo.name != privateToUserName declName
-  let aconsts ← c.consts.get.get? AsyncConsts
+  let aconsts ← c.aconsts.get
   AsyncConsts.findRec? aconsts declName
 
 /-- Like `findRec?`; allocating tasks is (currently?) too costly to do always. -/
@@ -496,8 +501,7 @@ private partial def AsyncConsts.findRecTask (aconsts : AsyncConsts) (declName : 
   let some c := aconsts.findPrefix? declName | .pure none
   if c.constInfo.name == declName then
     return .pure c
-  c.consts.bind (sync := true) fun aconsts => Id.run do
-    let some aconsts := aconsts.get? AsyncConsts | .pure none
+  c.aconsts.bind (sync := true) fun aconsts => Id.run do
     AsyncConsts.findRecTask aconsts declName
 
 /-- Like `findRec?` but returns the constant that has `declName` in its `consts`, if any. -/
@@ -510,8 +514,7 @@ where go parent? aconsts := do
   -- If privacy is the only difference between `declName` and `findPrefix?` result, we can assume
   -- `declName` does not exist according to the `add` invariant
   guard <| privateToUserName c.constInfo.name != privateToUserName declName
-  let aconsts ← c.consts.get.get? AsyncConsts
-  go (some c) aconsts
+  go (some c) c.aconsts.get
 
 /-- Accessibility levels of declarations in `Lean.Environment`. -/
 private inductive Visibility where
@@ -733,14 +736,14 @@ def addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declarati
     env := { env with asyncConstsMap.private := env.asyncConstsMap.private.add {
       constInfo := .ofConstantInfo info
       exts? := none
-      consts := .pure <| .mk (α := AsyncConsts) default
+      aconstsImpl := .pure <| .mk (α := AsyncConsts) default
     } }
     -- TODO
     if true /- !isPrivateName n-/ then
       env := { env with asyncConstsMap.public := env.asyncConstsMap.public.add {
         constInfo := .ofConstantInfo info
         exts? := none
-        consts := .pure <| .mk (α := AsyncConsts) default
+        aconstsImpl := .pure <| .mk (α := AsyncConsts) default
       } }
 
   return env
@@ -762,7 +765,7 @@ private def lakeAdd (env : Environment) (cinfo : ConstantInfo) : Environment :=
     asyncConstsMap := env.asyncConstsMap.map (·.add {
       constInfo := .ofConstantInfo cinfo
       exts? := none
-      consts := .pure <| .mk (α := AsyncConsts) default
+      aconstsImpl := .pure <| .mk (α := AsyncConsts) default
     })
   }
 
@@ -1045,7 +1048,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
       | some v => v.exts
       -- any value should work here, `base` does not block
       | none   => env.base.private.extensions)
-    consts := constPromise.result?.map (sync := true) fun
+    aconstsImpl := constPromise.result?.map (sync := true) fun
       | some v => .mk v.nestedConsts.private
       | none   => .mk (α := AsyncConsts) default
   }
@@ -1056,7 +1059,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
         | some c => c.exportedConstInfo
         | none   => mkFallbackConstInfo constName exportedKind
     }
-    consts := constPromise.result?.map (sync := true) fun
+    aconstsImpl := constPromise.result?.map (sync := true) fun
       | some v => .mk v.nestedConsts.public
       | none   => .mk (α := AsyncConsts) default
   }
@@ -1393,12 +1396,13 @@ private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension
     -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
     if env.base.get env |>.constants.contains asyncDecl then
       return ext.getStateImpl env.base.private.extensions
-    if let some exts? := match branch with
+    if let some exts? := (match branch with
         | .asyncEnv => env.asyncConsts.findRec? asyncDecl |>.map AsyncConst.exts?
         | .mainEnv =>
           match env.asyncConsts.find? asyncDecl with
-          | some _ => some <| some <| .pure env.base.private.extensions
-          | _ => env.asyncConsts.findRecParent? asyncDecl |>.map AsyncConst.exts? then
+          | some c => if c.isRealized then c.exts? else some <| some <| .pure env.base.private.extensions
+          | _ => env.asyncConsts.findRecParent? asyncDecl |>.bind fun c =>
+            if c.isRealized then c.aconsts.get.find? asyncDecl |>.map AsyncConst.exts? else c.exts?) then
       if let some exts := exts? then
         return ext.getStateImpl exts.get
       -- NOTE: if `exts?` is `none`, we should *not* try the following, more expensive branches that
@@ -2244,7 +2248,7 @@ private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environm
           asyncConsts.add {
             constInfo := .ofConstantInfo (kenv.find? n |>.get!)
             exts? := none
-            consts := .pure <| .mk (α := AsyncConsts) default
+            aconstsImpl := .pure <| .mk (α := AsyncConsts) default
           }
         else asyncConsts
   }
@@ -2431,12 +2435,14 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
       let numNewPrivateConsts := realizeEnv'.asyncConstsMap.private.size - realizeEnv.asyncConstsMap.private.size
       let newPrivateConsts := realizeEnv'.asyncConstsMap.private.revList.take numNewPrivateConsts |>.reverse
       let newPrivateConsts := newPrivateConsts.map fun c =>
+        let c := { c with isRealized := true }
         if c.exts?.isNone then
           { c with exts? := some <| .pure realizeEnv'.base.private.extensions }
         else c
       let numNewPublicConsts := realizeEnv'.asyncConstsMap.public.size - realizeEnv.asyncConstsMap.public.size
       let newPublicConsts := realizeEnv'.asyncConstsMap.public.revList.take numNewPublicConsts |>.reverse
       let newPublicConsts := newPublicConsts.map fun c =>
+        let c := { c with isRealized := true }
         if c.exts?.isNone then
           { c with exts? := some <| .pure realizeEnv'.base.private.extensions }
         else c

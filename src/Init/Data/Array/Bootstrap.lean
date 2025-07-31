@@ -142,7 +142,6 @@ abbrev nil_append := @empty_append
   rw [← appendList_eq_append]; unfold Array.appendList
   induction l generalizing xs <;> simp [*]
 
-@[deprecated toList_appendList (since := "2024-12-11")]
-abbrev appendList_toList := @toList_appendList
+
 
 end Array

@@ -3735,12 +3735,6 @@ theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a :=
 
 /-! ### Deprecations -/
 
-@[deprecated _root_.isSome_getElem? (since := "2024-12-09")]
-theorem isSome_getElem? {l : List α} {i : Nat} : l[i]?.isSome ↔ i < l.length := by
-  simp
 
-@[deprecated _root_.isNone_getElem? (since := "2024-12-09")]
-theorem isNone_getElem? {l : List α} {i : Nat} : l[i]?.isNone ↔ l.length ≤ i := by
-  simp
 
 end List

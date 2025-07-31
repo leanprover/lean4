@@ -251,7 +251,7 @@ def save (self : Manifest) (manifestFile : FilePath) : IO PUnit := do
   let contents := Json.pretty self.toJson
   IO.FS.writeFile manifestFile <| contents.push '\n'
 
-@[deprecated save (since := "2024-12-17")] abbrev saveToFile := @save
+
 
 /-- Deserialize package entries from a (partial) JSON manifest. -/
 def decodeEntries (data : Json)  : Except String (Array PackageEntry) := do

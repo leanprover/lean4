@@ -1244,8 +1244,7 @@ instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ 
 @[simp] theorem getElem_set_self {xs : Vector α n} {i : Nat} {x : α} (hi : i < n) :
     (xs.set i x hi)[i] = x := by simp [getElem_set]
 
-@[deprecated getElem_set_self (since := "2024-12-12")]
-abbrev getElem_set_eq := @getElem_set_self
+
 
 @[simp] theorem getElem_set_ne {xs : Vector α n} {x : α} (hi : i < n) (hj : j < n) (h : i ≠ j) :
     (xs.set i x hi)[j] = xs[j] := by simp [getElem_set, h]
@@ -1306,8 +1305,7 @@ grind_pattern mem_or_eq_of_mem_set => a ∈ xs.set i b
 @[simp] theorem getElem_setIfInBounds_self {xs : Vector α n} {x : α} (hi : i < n) :
     (xs.setIfInBounds i x)[i] = x := by simp [getElem_setIfInBounds]
 
-@[deprecated getElem_setIfInBounds_self (since := "2024-12-12")]
-abbrev getElem_setIfInBounds_eq := @getElem_setIfInBounds_self
+
 
 @[simp] theorem getElem_setIfInBounds_ne {xs : Vector α n} {x : α} (hj : j < n) (h : i ≠ j) :
     (xs.setIfInBounds i x)[j] = xs[j] := by simp [getElem_setIfInBounds, h]

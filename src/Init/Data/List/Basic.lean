@@ -242,8 +242,7 @@ instance instLT [LT α] : LT (List α) := ⟨List.lt⟩
 instance decidableLT [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
     Decidable (l₁ < l₂) := decidableLex (· < ·) l₁ l₂
 
-@[deprecated decidableLT (since := "2024-12-13"), inherit_doc decidableLT]
-abbrev hasDecidableLt := @decidableLT
+
 
 /--
 Non-strict ordering of lists with respect to a strict ordering of their elements.

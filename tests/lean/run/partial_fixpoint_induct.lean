@@ -72,7 +72,7 @@ partial_fixpoint
 end
 
 /--
-info: dependent2''a.fixpoint_induct (m : Nat) (b : Bool) (motive_1 : (Nat → if b = true then Nat else Bool) → Prop)
+info: dependent2''a.mutual_induct (m : Nat) (b : Bool) (motive_1 : (Nat → if b = true then Nat else Bool) → Prop)
   (motive_2 : (Nat → Nat → if b = true then Nat else Bool) → Prop)
   (motive_3 : (Fin (m + 1) → Nat → if b = true then Nat else Bool) → Prop) (adm_1 : Lean.Order.admissible motive_1)
   (adm_2 : Lean.Order.admissible motive_2) (adm_3 : Lean.Order.admissible motive_3)
@@ -96,11 +96,7 @@ info: dependent2''a.fixpoint_induct (m : Nat) (b : Bool) (motive_1 : (Nat → if
   (motive_1 fun n => dependent2''a m n b) ∧
     (motive_2 fun k n => dependent2''b m k n b) ∧ motive_3 fun i n => dependent2''c m i n b
 -/
-#guard_msgs in #check dependent2''a.fixpoint_induct
-
-/-- error: Unknown constant `dependent2''b.fixpoint_induct` -/
-#guard_msgs in #check dependent2''b.fixpoint_induct
-
+#guard_msgs in #check dependent2''a.mutual_induct
 
 mutual
 def dependent3''a (m n : Nat) (b : Bool) : Option (if b then Nat else Bool) :=

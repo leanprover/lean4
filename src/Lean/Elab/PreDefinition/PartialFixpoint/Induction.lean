@@ -374,9 +374,12 @@ def mkOptionAdm (motive : Expr) : MetaM Expr := do
 def derivePartialCorrectness (name : Name) : MetaM Unit := do
   let inductName := name ++ `partial_correctness
   realizeConst name inductName do
-  let fixpointInductThm := name ++ `fixpoint_induct
+  let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
+      throwError "{name} is not defined by partial_fixpoint"
+  let isMutual := eqnInfo.declNames.size > 1
+  let fixpointInductThm := name ++ if isMutual then `mutual_induct else `fixpoint_induct
   unless (← getEnv).contains fixpointInductThm do
-    deriveInduction name false
+    deriveInduction name isMutual
 
   prependError m!"Cannot derive partial correctness theorem (please report this issue)" do
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |

@@ -499,7 +499,6 @@ if (lean_is_exclusive(x_39)) {
 }
 x_43 = lean_array_fget(x_27, x_28);
 x_44 = lean_unbox(x_43);
-lean_dec(x_43);
 x_45 = lean_unsigned_to_nat(1u);
 x_46 = lean_nat_add(x_28, x_45);
 lean_dec(x_28);
@@ -807,7 +806,6 @@ if (lean_is_exclusive(x_106)) {
 }
 x_110 = lean_array_fget(x_27, x_28);
 x_111 = lean_unbox(x_110);
-lean_dec(x_110);
 x_112 = lean_unsigned_to_nat(1u);
 x_113 = lean_nat_add(x_28, x_112);
 lean_dec(x_28);

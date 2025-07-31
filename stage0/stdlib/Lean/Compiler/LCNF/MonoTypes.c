@@ -3786,7 +3786,6 @@ if (lean_is_exclusive(x_8)) {
 }
 x_30 = lean_array_fget(x_5, x_9);
 x_31 = lean_unbox(x_30);
-lean_dec(x_30);
 if (x_31 == 0)
 {
 lean_object* x_32; 

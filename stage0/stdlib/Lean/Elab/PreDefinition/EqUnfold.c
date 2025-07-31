@@ -43,7 +43,7 @@ static lean_object* l_Lean_Meta_tryURefl___closed__3;
 static lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0___redArg___closed__6;
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0___redArg___closed__1;
-LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_instInhabitedConfigWithKey___private__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at___Lean_Meta_getConstUnfoldEqnFor_x3f_spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_findConstVal_x3f(lean_object*, lean_object*, uint8_t);
@@ -239,7 +239,7 @@ lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___Lean_Meta_getConstUnfoldEqnFor_x3f_spec__15(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_Meta_getConstUnfoldEqnFor_x3f_spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Meta_getConstUnfoldEqnFor_x3f_spec__13___closed__2;
 static lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__0___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4520,12 +4520,12 @@ return x_15;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
-lean_object* x_13; 
-x_13 = l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0___redArg(x_1, x_2, x_3, x_5, x_7, x_8, x_10, x_11, x_12);
-return x_13;
+lean_object* x_12; 
+x_12 = l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0___redArg(x_1, x_2, x_3, x_4, x_6, x_7, x_9, x_10, x_11);
+return x_12;
 }
 }
 static lean_object* _init_l___private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn___lam__0___closed__0____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872_() {
@@ -4799,15 +4799,14 @@ x_11 = l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
-uint8_t x_13; lean_object* x_14; 
-x_13 = lean_unbox(x_5);
-x_14 = l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0(x_1, x_2, x_3, x_4, x_13, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_6);
-lean_dec_ref(x_4);
-return x_14;
+uint8_t x_12; lean_object* x_13; 
+x_12 = lean_unbox(x_4);
+x_13 = l_List_forIn_x27_loop___at_____private_Lean_Elab_PreDefinition_EqUnfold_0__Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_872__spec__0(x_1, x_2, x_3, x_12, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_5);
+return x_13;
 }
 }
 lean_object* initialize_Lean_Meta_Eqns(uint8_t builtin, lean_object*);

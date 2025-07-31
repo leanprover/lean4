@@ -76,7 +76,6 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedMGoal___closed__2;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_addHypInfo___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_parseAnd_x3f___closed__1;
-static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedMGoal___closed__0;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_parseMGoal_x3f___closed__1;
@@ -85,6 +84,7 @@ lean_object* l_Array_back_x21___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Level_ofNat(lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_checkProof___closed__1;
+static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_parseMGoal_x3f___closed__0;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mkAnd_x21___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_renameInaccessibleHyps_go___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -102,6 +102,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_addLocalVarInfo___lam__
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_checkProof___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_findHyp_x3f_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___Lean_Elab_Tactic_Do_ProofMode_MGoal_findHyp_x3f_go_spec__0(lean_object*);
+static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation;
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Elab_Tactic_Do_ProofMode_ensureMGoal_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -116,6 +117,7 @@ LEAN_EXPORT lean_object* l_Lean_logWarning___at___Lean_Elab_Tactic_Do_ProofMode_
 lean_object* l_Lean_Meta_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_checkProof(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_pushRightConjunct___boxed(lean_object*);
+static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__1;
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_Elab_Tactic_Do_ProofMode_MGoal_checkProof_spec__0_spec__0_spec__0___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Elab_Tactic_Do_ProofMode_MGoal_checkProof_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -168,6 +170,7 @@ static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mkAnd___closed__6;
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mkAnd___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_renameInaccessibleHyps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_getFreshHypName(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_renameInaccessibleHyps___closed__0;
@@ -194,6 +197,7 @@ static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp___closed__1;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_addLocalVarInfo___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode__u03c3s_mkNil___closed__0;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_getFreshHypName___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp___closed__2;
@@ -216,6 +220,7 @@ static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_checkProof___closed__4
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp___closed__14;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp___closed__5;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Elab_Tactic_Do_ProofMode_MGoal_checkProof_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_pushRightConjunct(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -238,7 +243,6 @@ LEAN_EXPORT lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logWarning___a
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mkAnd___closed__2;
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_mkAnd(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Elab_Tactic_Do_ProofMode_MGoal_checkProof_spec__4___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_getResetInfoTrees___at___Lean_Elab_withInfoContext_x27___at___Lean_Elab_Tactic_Do_ProofMode_addLocalVarInfo_spec__0_spec__0___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_parseAnd_x3f___boxed(lean_object*);
@@ -246,16 +250,12 @@ static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logWarning___at___L
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_pushLeftConjunct___boxed(lean_object*);
-static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__1;
 lean_object* l_Lean_Meta_mkConstWithFreshMVarLevels(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_parseMGoal_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_checkProof___closed__6;
 lean_object* l_Lean_Expr_consumeMData(lean_object*);
 static lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Tactic_Do_ProofMode_dropStateList_spec__0___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode__u03c3s_mkNil(lean_object*);
-static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation;
 lean_object* l_List_get_x21Internal___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_MGoal_renameInaccessibleHyps___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp(lean_object*, lean_object*);
@@ -267,7 +267,7 @@ static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_instInhabitedMGoal___closed_
 LEAN_EXPORT lean_object* l_Lean_Elab_getResetInfoTrees___at___Lean_Elab_withInfoContext_x27___at___Lean_Elab_Tactic_Do_ProofMode_addLocalVarInfo_spec__0_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp___closed__9;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_getFreshHypName___closed__4;
-static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -275,24 +275,24 @@ x_1 = lean_mk_string_unchecked("name", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0;
+x_1 = l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__1;
+x_1 = l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -300,20 +300,20 @@ x_1 = lean_mk_string_unchecked("uniq", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__1() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0;
+x_1 = l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0;
 x_2 = l_Lean_Name_mkStr1(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation() {
+static lean_object* _init_l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__1;
+x_1 = l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__1;
 return x_1;
 }
 }
@@ -359,7 +359,7 @@ lean_dec(x_4);
 x_10 = lean_ctor_get(x_5, 1);
 lean_inc_ref(x_10);
 lean_dec_ref(x_5);
-x_11 = l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0;
+x_11 = l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0;
 x_12 = lean_string_dec_eq(x_10, x_11);
 lean_dec_ref(x_10);
 if (x_12 == 0)
@@ -410,7 +410,7 @@ lean_dec(x_15);
 x_21 = lean_ctor_get(x_16, 1);
 lean_inc_ref(x_21);
 lean_dec_ref(x_16);
-x_22 = l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0;
+x_22 = l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0;
 x_23 = lean_string_dec_eq(x_21, x_22);
 lean_dec_ref(x_21);
 if (x_23 == 0)
@@ -562,13 +562,13 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 2);
 lean_inc_ref(x_4);
 lean_dec_ref(x_1);
-x_5 = l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation;
+x_5 = l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation;
 x_6 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_6, 0, x_2);
 x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_5);
 lean_ctor_set(x_7, 1, x_6);
-x_8 = l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation;
+x_8 = l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation;
 x_9 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_9, 0, x_3);
 x_10 = lean_alloc_ctor(0, 2, 0);
@@ -7004,18 +7004,18 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0 = _init_l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0();
-lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0);
-l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__1 = _init_l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__1);
-l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation = _init_l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation();
-lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_nameAnnotation);
-l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0 = _init_l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0();
-lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0);
-l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__1 = _init_l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__1);
-l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation = _init_l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation();
-lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation);
+l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0 = _init_l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0();
+lean_mark_persistent(l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__0);
+l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__1 = _init_l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__1();
+lean_mark_persistent(l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation___closed__1);
+l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation = _init_l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation();
+lean_mark_persistent(l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_nameAnnotation);
+l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0 = _init_l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0();
+lean_mark_persistent(l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__0);
+l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__1 = _init_l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__1();
+lean_mark_persistent(l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation___closed__1);
+l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation = _init_l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation();
+lean_mark_persistent(l___private_Lean_Elab_Tactic_Do_ProofMode_MGoal_0__Lean_Elab_Tactic_Do_ProofMode_uniqAnnotation);
 l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp___closed__0 = _init_l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp___closed__0();
 lean_mark_persistent(l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp___closed__0);
 l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp___closed__1 = _init_l_Lean_Elab_Tactic_Do_ProofMode_emptyHyp___closed__1();

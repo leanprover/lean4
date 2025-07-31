@@ -3554,7 +3554,6 @@ x_19 = 0;
 x_20 = lean_box(x_19);
 x_21 = lean_array_get(x_20, x_4, x_5);
 x_22 = lean_unbox(x_21);
-lean_dec(x_21);
 x_23 = lean_box(x_22);
 switch (lean_obj_tag(x_23)) {
 case 0:
@@ -3634,7 +3633,6 @@ x_21 = 0;
 x_22 = lean_box(x_21);
 x_23 = lean_array_get(x_22, x_6, x_7);
 x_24 = lean_unbox(x_23);
-lean_dec(x_23);
 x_25 = lean_box(x_24);
 switch (lean_obj_tag(x_25)) {
 case 0:
@@ -3965,7 +3963,6 @@ uint8_t x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8;
 x_5 = 1;
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = lean_unbox(x_6);
-lean_dec(x_6);
 x_8 = lean_box(x_7);
 switch (lean_obj_tag(x_8)) {
 case 3:
@@ -4118,7 +4115,6 @@ x_12 = lean_box(x_11);
 x_13 = lean_array_get(x_12, x_1, x_10);
 lean_dec(x_10);
 x_14 = lean_unbox(x_13);
-lean_dec(x_13);
 x_15 = lean_box(x_14);
 if (lean_obj_tag(x_15) == 2)
 {
@@ -5643,7 +5639,6 @@ else
 lean_object* x_39; uint8_t x_40; 
 x_39 = lean_array_fget(x_35, x_7);
 x_40 = lean_unbox(x_39);
-lean_dec(x_39);
 if (x_40 == 0)
 {
 lean_object* x_41; 
@@ -5790,7 +5785,6 @@ else
 lean_object* x_41; uint8_t x_42; 
 x_41 = lean_array_fget(x_37, x_9);
 x_42 = lean_unbox(x_41);
-lean_dec(x_41);
 if (x_42 == 0)
 {
 lean_object* x_43; 
@@ -10102,7 +10096,6 @@ x_15 = 0;
 x_16 = lean_box(x_15);
 x_17 = lean_array_get(x_16, x_1, x_2);
 x_18 = lean_unbox(x_17);
-lean_dec(x_17);
 x_19 = lean_box(x_18);
 switch (lean_obj_tag(x_19)) {
 case 1:
@@ -10753,7 +10746,6 @@ x_20 = 0;
 x_21 = lean_box(x_20);
 x_22 = lean_array_get(x_21, x_4, x_6);
 x_23 = lean_unbox(x_22);
-lean_dec(x_22);
 x_24 = lean_box(x_23);
 switch (lean_obj_tag(x_24)) {
 case 0:

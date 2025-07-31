@@ -198,7 +198,6 @@ else
 lean_object* x_26; uint8_t x_27; 
 x_26 = lean_array_fget(x_7, x_1);
 x_27 = lean_unbox(x_26);
-lean_dec(x_26);
 x_14 = x_23;
 x_15 = x_21;
 x_16 = x_27;
@@ -222,7 +221,6 @@ else
 lean_object* x_32; uint8_t x_33; 
 x_32 = lean_array_fget(x_6, x_1);
 x_33 = lean_unbox(x_32);
-lean_dec(x_32);
 x_21 = x_29;
 x_22 = x_33;
 goto block_28;
@@ -254,7 +252,6 @@ x_9 = lean_array_get(x_6, x_4, x_2);
 x_10 = lean_box(x_7);
 x_11 = lean_array_get(x_10, x_5, x_2);
 x_12 = lean_unbox(x_11);
-lean_dec(x_11);
 x_13 = lean_uint8_to_nat(x_12);
 x_14 = lean_array_get(x_8, x_1, x_13);
 lean_dec(x_13);

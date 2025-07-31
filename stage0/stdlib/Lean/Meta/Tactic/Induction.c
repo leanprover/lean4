@@ -7469,6 +7469,7 @@ lean_inc(x_7);
 lean_inc_ref(x_6);
 lean_inc_ref(x_24);
 x_26 = l_Lean_Meta_whnfUntil(x_24, x_25, x_6, x_7, x_8, x_9, x_22);
+lean_dec(x_25);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; 
@@ -10088,6 +10089,7 @@ lean_inc(x_14);
 lean_inc_ref(x_17);
 lean_inc_ref(x_20);
 x_22 = l_Lean_Meta_whnfUntil(x_20, x_21, x_17, x_14, x_18, x_15, x_16);
+lean_dec(x_21);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; 

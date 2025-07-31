@@ -3208,7 +3208,6 @@ uint8_t x_10; lean_object* x_11; uint8_t x_12;
 x_10 = 1;
 x_11 = lean_array_uget(x_2, x_3);
 x_12 = lean_unbox(x_11);
-lean_dec(x_11);
 if (x_1 == 0)
 {
 if (x_12 == 0)

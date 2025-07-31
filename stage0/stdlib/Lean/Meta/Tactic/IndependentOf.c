@@ -205,10 +205,7 @@ _start:
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec(x_5);
-lean_dec_ref(x_4);
 x_9 = 1;
 x_10 = lean_box(x_9);
 x_11 = lean_alloc_ctor(0, 2, 0);
@@ -224,10 +221,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_3, 1);
 lean_inc(x_13);
 lean_dec_ref(x_3);
-lean_inc(x_7);
 lean_inc_ref(x_6);
-lean_inc(x_5);
-lean_inc_ref(x_4);
 x_14 = l_Lean_MVarId_getMVarDependencies(x_12, x_1, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -272,10 +266,7 @@ if (x_1 == 0)
 {
 lean_object* x_35; 
 lean_dec(x_13);
-lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec(x_5);
-lean_dec_ref(x_4);
 x_35 = lean_box(x_1);
 lean_ctor_set(x_14, 0, x_35);
 return x_14;
@@ -330,10 +321,7 @@ if (x_1 == 0)
 {
 lean_object* x_56; lean_object* x_57; 
 lean_dec(x_13);
-lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec(x_5);
-lean_dec_ref(x_4);
 x_56 = lean_box(x_1);
 x_57 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_57, 0, x_56);
@@ -353,10 +341,7 @@ else
 {
 uint8_t x_59; 
 lean_dec(x_13);
-lean_dec(x_7);
 lean_dec_ref(x_6);
-lean_dec(x_5);
-lean_dec_ref(x_4);
 x_59 = !lean_is_exclusive(x_14);
 if (x_59 == 0)
 {
@@ -505,6 +490,9 @@ lean_dec_ref(x_21);
 x_25 = lean_unbox(x_22);
 lean_dec(x_22);
 x_26 = l_List_allM___at___Lean_MVarId_isIndependentOf_spec__2(x_25, x_1, x_2, x_3, x_4, x_5, x_6, x_24);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec_ref(x_3);
 lean_dec(x_1);
 return x_26;
 }
@@ -579,6 +567,9 @@ lean_dec_ref(x_31);
 x_35 = lean_unbox(x_32);
 lean_dec(x_32);
 x_36 = l_List_allM___at___Lean_MVarId_isIndependentOf_spec__2(x_35, x_1, x_2, x_3, x_4, x_5, x_6, x_34);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec_ref(x_3);
 lean_dec(x_1);
 return x_36;
 }
@@ -726,6 +717,9 @@ lean_dec_ref(x_53);
 x_57 = lean_unbox(x_54);
 lean_dec(x_54);
 x_58 = l_List_allM___at___Lean_MVarId_isIndependentOf_spec__2(x_57, x_1, x_2, x_3, x_4, x_5, x_6, x_56);
+lean_dec(x_6);
+lean_dec(x_4);
+lean_dec_ref(x_3);
 lean_dec(x_1);
 return x_58;
 }
@@ -913,6 +907,9 @@ _start:
 uint8_t x_9; lean_object* x_10; 
 x_9 = lean_unbox(x_1);
 x_10 = l_List_allM___at___Lean_MVarId_isIndependentOf_spec__2(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_7);
+lean_dec(x_5);
+lean_dec_ref(x_4);
 lean_dec(x_2);
 return x_10;
 }

@@ -2139,7 +2139,6 @@ lean_inc_ref(x_6);
 x_51 = lean_array_get(x_6, x_49, x_11);
 x_52 = lean_array_fget(x_7, x_11);
 x_53 = lean_unbox(x_52);
-lean_dec(x_52);
 x_54 = lean_box(x_53);
 switch (lean_obj_tag(x_54)) {
 case 1:
@@ -7481,7 +7480,6 @@ lean_inc_ref(x_1);
 x_49 = lean_array_get(x_1, x_2, x_9);
 x_50 = lean_array_fget(x_3, x_9);
 x_51 = lean_unbox(x_50);
-lean_dec(x_50);
 x_52 = lean_box(x_51);
 switch (lean_obj_tag(x_52)) {
 case 1:
@@ -7863,7 +7861,6 @@ lean_inc_ref(x_1);
 x_124 = lean_array_get(x_1, x_2, x_9);
 x_125 = lean_array_fget(x_3, x_9);
 x_126 = lean_unbox(x_125);
-lean_dec(x_125);
 x_127 = lean_box(x_126);
 switch (lean_obj_tag(x_127)) {
 case 1:
@@ -8207,7 +8204,6 @@ lean_inc_ref(x_1);
 x_189 = lean_array_get(x_1, x_2, x_9);
 x_190 = lean_array_fget(x_3, x_9);
 x_191 = lean_unbox(x_190);
-lean_dec(x_190);
 x_192 = lean_box(x_191);
 switch (lean_obj_tag(x_192)) {
 case 1:
@@ -8575,7 +8571,6 @@ lean_inc_ref(x_1);
 x_258 = lean_array_get(x_1, x_2, x_9);
 x_259 = lean_array_fget(x_3, x_9);
 x_260 = lean_unbox(x_259);
-lean_dec(x_259);
 x_261 = lean_box(x_260);
 switch (lean_obj_tag(x_261)) {
 case 1:
@@ -9221,7 +9216,6 @@ x_93 = lean_unsigned_to_nat(0u);
 x_94 = lean_box(x_92);
 x_95 = lean_array_get(x_94, x_40, x_93);
 x_96 = lean_unbox(x_95);
-lean_dec(x_95);
 x_97 = lean_box(x_96);
 if (lean_obj_tag(x_97) == 2)
 {

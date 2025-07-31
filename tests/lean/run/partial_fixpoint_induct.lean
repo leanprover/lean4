@@ -111,7 +111,7 @@ partial_fixpoint
 end
 
 /--
-info: dependent3''a.partial_correctness (m : Nat) (b : Bool) (motive_1 : Nat → (if b = true then Nat else Bool) → Prop)
+info: dependent3''a.mutual_partial_correctness (m : Nat) (b : Bool) (motive_1 : Nat → (if b = true then Nat else Bool) → Prop)
   (motive_2 : Nat → Nat → (if b = true then Nat else Bool) → Prop)
   (motive_3 : Fin (m + 1) → Nat → (if b = true then Nat else Bool) → Prop)
   (h_1 :
@@ -142,7 +142,7 @@ info: dependent3''a.partial_correctness (m : Nat) (b : Bool) (motive_1 : Nat →
       ∀ (i : Fin (m + 1)) (n : Nat) (r : if b = true then Nat else Bool),
         dependent3''c m i n b = some r → motive_3 i n r
 -/
-#guard_msgs in #check dependent3''a.partial_correctness
+#guard_msgs in #check dependent3''a.mutual_partial_correctness
 
 -- The following example appears in the manual; having it here alerts us early of breakage
 
@@ -187,3 +187,68 @@ theorem List.findIndex_implies_pred (xs : List α) (p : α → Bool) :
       obtain ⟨r', hr, rfl⟩ := hsome
       specialize ih _ _ hr
       simpa
+
+mutual
+  def f (n : Nat) : Option Nat :=
+    g (n + 1)
+  partial_fixpoint
+
+  def g (n : Nat) : Option Nat :=
+    if n = 0 then .none else f (n + 1)
+  partial_fixpoint
+end
+/--
+info: f.mutual_partial_correctness (motive_1 motive_2 : Nat → Nat → Prop)
+  (h_1 :
+    ∀ (g : Nat → Option Nat),
+      (∀ (n r : Nat), g n = some r → motive_2 n r) → ∀ (n r : Nat), g (n + 1) = some r → motive_1 n r)
+  (h_2 :
+    ∀ (f : Nat → Option Nat),
+      (∀ (n r : Nat), f n = some r → motive_1 n r) →
+        ∀ (n r : Nat), (if n = 0 then none else f (n + 1)) = some r → motive_2 n r) :
+  (∀ (n r : Nat), f n = some r → motive_1 n r) ∧ ∀ (n r : Nat), g n = some r → motive_2 n r
+-/
+#guard_msgs in
+#check f.mutual_partial_correctness
+
+/--
+info: g.mutual_partial_correctness (motive_1 motive_2 : Nat → Nat → Prop)
+  (h_1 :
+    ∀ (g : Nat → Option Nat),
+      (∀ (n r : Nat), g n = some r → motive_2 n r) → ∀ (n r : Nat), g (n + 1) = some r → motive_1 n r)
+  (h_2 :
+    ∀ (f : Nat → Option Nat),
+      (∀ (n r : Nat), f n = some r → motive_1 n r) →
+        ∀ (n r : Nat), (if n = 0 then none else f (n + 1)) = some r → motive_2 n r) :
+  (∀ (n r : Nat), f n = some r → motive_1 n r) ∧ ∀ (n r : Nat), g n = some r → motive_2 n r
+-/
+#guard_msgs in
+#check g.mutual_partial_correctness
+
+/--
+info: f.partial_correctness (motive_1 motive_2 : Nat → Nat → Prop)
+  (h_1 :
+    ∀ (g : Nat → Option Nat),
+      (∀ (n r : Nat), g n = some r → motive_2 n r) → ∀ (n r : Nat), g (n + 1) = some r → motive_1 n r)
+  (h_2 :
+    ∀ (f : Nat → Option Nat),
+      (∀ (n r : Nat), f n = some r → motive_1 n r) →
+        ∀ (n r : Nat), (if n = 0 then none else f (n + 1)) = some r → motive_2 n r)
+  (n r✝ : Nat) : f n = some r✝ → motive_1 n r✝
+-/
+#guard_msgs in
+#check f.partial_correctness
+
+/--
+info: g.partial_correctness (motive_1 motive_2 : Nat → Nat → Prop)
+  (h_1 :
+    ∀ (g : Nat → Option Nat),
+      (∀ (n r : Nat), g n = some r → motive_2 n r) → ∀ (n r : Nat), g (n + 1) = some r → motive_1 n r)
+  (h_2 :
+    ∀ (f : Nat → Option Nat),
+      (∀ (n r : Nat), f n = some r → motive_1 n r) →
+        ∀ (n r : Nat), (if n = 0 then none else f (n + 1)) = some r → motive_2 n r)
+  (n r✝ : Nat) : g n = some r✝ → motive_2 n r✝
+-/
+#guard_msgs in
+#check g.partial_correctness

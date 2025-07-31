@@ -334,7 +334,7 @@ and all functions are defined using the `CCPO` instance for `Option`.
 -/
 def isOptionFixpoint (env : Environment) (name : Name) : Bool := Option.isSome do
   let eqnInfo ← eqnInfoExt.find? env name
-  guard <| name == eqnInfo.declNames[0]!
+  --guard <| name == eqnInfo.declNames[0]!
   let defnInfo ← env.find? eqnInfo.declNameNonRec
   assert! defnInfo.hasValue
   let mut value := defnInfo.value!
@@ -350,8 +350,13 @@ def isOptionFixpoint (env : Environment) (name : Name) : Bool := Option.isSome d
 
 def isPartialCorrectnessName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
-  unless s == "partial_correctness" do return false
-  return isOptionFixpoint env p
+  match s with
+  | "partial_correctness" => return isOptionFixpoint env p
+  | "mutual_partial_correctness" =>
+    if let some eqnInfo := eqnInfoExt.find? env p then
+      return isOptionFixpoint env p && eqnInfo.declNames.size > 1
+    return false
+  | _ => return false
 
 /--
 Given `motive : α → β → γ → Prop`, construct a proof of
@@ -371,15 +376,12 @@ def mkOptionAdm (motive : Expr) : MetaM Expr := do
       inst ← mkAppOptM ``admissible_pi_apply #[none, none, none, none, inst]
     pure inst
 
-def derivePartialCorrectness (name : Name) : MetaM Unit := do
-  let inductName := name ++ `partial_correctness
+def derivePartialCorrectness (name : Name) (isConclusionMutual : Bool) : MetaM Unit := do
+  let inductName := name ++ if isConclusionMutual then `mutual_partial_correctness else `partial_correctness
   realizeConst name inductName do
-  let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
-      throwError "{name} is not defined by partial_fixpoint"
-  let isMutual := eqnInfo.declNames.size > 1
-  let fixpointInductThm := name ++ if isMutual then `mutual_induct else `fixpoint_induct
+  let fixpointInductThm := name ++ if isConclusionMutual then `mutual_induct else `fixpoint_induct
   unless (← getEnv).contains fixpointInductThm do
-    deriveInduction name isMutual
+    deriveInduction name isConclusionMutual
 
   prependError m!"Cannot derive partial correctness theorem (please report this issue)" do
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
@@ -403,7 +405,7 @@ def derivePartialCorrectness (name : Name) : MetaM Unit := do
                                    else .mkSimple s!"motive_{i+1}"
         pure (n, fun _ => pure motiveType)
       withLocalDeclsD motiveDecls fun motives => do
-        -- the motives, as expected by `f.fixpoint_induct`:
+        -- the motives, as expected by `f.mutual_induct`:
         -- fun f => ∀ x y r, f x y = some r → motive x y r
         let motives' ← motives.mapIdxM fun i motive => do
           withLocalDeclD (← mkFreshUserName `f) types[i]! fun f => do
@@ -440,9 +442,9 @@ builtin_initialize
 
   registerReservedNameAction fun name => do
     let .str p s := name | return false
-    unless s == "partial_correctness" do return false
+    unless s == "partial_correctness" || s == "mutual_partial_correctness" do return false
     unless isOptionFixpoint (← getEnv) p do return false
-    MetaM.run' <| derivePartialCorrectness p
+    MetaM.run' <| derivePartialCorrectness p (s.startsWith "mutual")
     return false
 
 end Lean.Elab.PartialFixpoint

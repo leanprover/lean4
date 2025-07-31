@@ -287,9 +287,6 @@ partial def trySubstVarsAndContradiction (mvarId : MVarId) (forbidden : FVarIdSe
 private def processNextEq : M Bool := do
   let s ← get
   s.mvarId.withContext do
-    -- If the goal is contradictory, the hypothesis is redundant.
-    if (← contradiction s.mvarId) then
-      return false
     if let eq :: eqs := s.eqs then
       modify fun s => { s with eqs }
       let eqType ← inferType (mkFVar eq)

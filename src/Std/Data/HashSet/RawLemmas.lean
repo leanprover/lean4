@@ -498,7 +498,7 @@ theorem contains_toList [EquivBEq α] [LawfulHashable α] {k : α} (h : m.WF) :
   HashMap.Raw.contains_keys h.1
 
 @[simp, grind =]
-theorem mem_toList [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+theorem mem_toList [LawfulBEq α] (h : m.WF) {k : α} :
     k ∈ m.toList ↔ k ∈ m :=
   HashMap.Raw.mem_keys h.1
 

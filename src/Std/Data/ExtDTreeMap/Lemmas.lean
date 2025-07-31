@@ -234,6 +234,10 @@ theorem isSome_get?_iff_mem [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     (t.get? a).isSome ↔ a ∈ t :=
   t.inductionOn fun _ => DTreeMap.isSome_get?_iff_mem
 
+theorem mem_of_getKey?_eq_some [TransCmp cmp] {k k' : α} :
+    t.getKey? k = some k' → k' ∈ t :=
+  t.inductionOn fun _ => DTreeMap.mem_of_getKey?_eq_some
+
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     t.contains a = false → t.get? a = none :=
   t.inductionOn fun _ => DTreeMap.get?_eq_none_of_contains_eq_false
@@ -334,7 +338,15 @@ theorem get_erase [TransCmp cmp] [LawfulEqCmp cmp] {k a : α} {h'} :
 
 theorem get?_eq_some_get [TransCmp cmp] [LawfulEqCmp cmp] {a : α} (h') :
     t.get? a = some (t.get a h') :=
-  t.inductionOn (fun _ _ => DTreeMap.get?_eq_some_get) h'
+  t.inductionOn (fun _ => DTreeMap.get?_eq_some_get) h'
+
+theorem get_eq_get_get? [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {h} :
+    t.get a h = (t.get? a).get (mem_iff_isSome_get?.mp h) :=
+  t.inductionOn (fun _ _ => DTreeMap.get_eq_get_get?) h
+
+@[grind =] theorem get_get? [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {h} :
+    (t.get? a).get h = t.get a (mem_iff_isSome_get?.mpr h) :=
+  t.inductionOn (fun _ _ => DTreeMap.get_get?) h
 
 namespace Const
 
@@ -358,7 +370,15 @@ theorem get_erase [TransCmp cmp] {k a : α} {h'} :
 
 theorem get?_eq_some_get [TransCmp cmp] {a : α} (h) :
     get? t a = some (get t a h) :=
-  t.inductionOn (fun _ _ => DTreeMap.Const.get?_eq_some_get) h
+  t.inductionOn (fun _ => DTreeMap.Const.get?_eq_some_get) h
+
+theorem get_eq_get_get? [TransCmp cmp] {a : α} {h} :
+    get t a h = (get? t a).get (mem_iff_isSome_get?.mp h) :=
+  t.inductionOn (fun _ _ => DTreeMap.Const.get_eq_get_get?) h
+
+@[grind =] theorem get_get? [TransCmp cmp] {a : α} {h} :
+    (get? t a).get h = get t a (mem_iff_isSome_get?.mpr h) :=
+  t.inductionOn (fun _ _ => DTreeMap.Const.get_get?) h
 
 theorem get_eq_get [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {h} : get t a h = t.get a h :=
   t.inductionOn (fun _ _ => DTreeMap.Const.get_eq_get) h
@@ -683,7 +703,16 @@ theorem getKey_erase [TransCmp cmp] {k a : α} {h'} :
 
 theorem getKey?_eq_some_getKey [TransCmp cmp] {a : α} (h') :
     t.getKey? a = some (t.getKey a h') :=
-  t.inductionOn (fun _ _ => DTreeMap.getKey?_eq_some_getKey) h'
+  t.inductionOn (fun _ => DTreeMap.getKey?_eq_some_getKey) h'
+
+theorem getKey_eq_get_getKey? [TransCmp cmp] {a : α} {h} :
+    t.getKey a h = (t.getKey? a).get (mem_iff_isSome_getKey?.mp h) :=
+  t.inductionOn (fun _ _ => DTreeMap.getKey_eq_get_getKey?) h
+
+@[simp, grind =]
+theorem get_getKey? [TransCmp cmp] {a : α} {h} :
+    (t.getKey? a).get h = t.getKey a (mem_iff_isSome_getKey?.mpr h) :=
+  t.inductionOn (fun _ _ => DTreeMap.get_getKey?) h
 
 theorem compare_getKey_self [TransCmp cmp] {k : α} (h' : k ∈ t) :
     cmp (t.getKey k h') k = .eq :=

@@ -131,7 +131,7 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
      ⟨`filterMap, (``toListModel_filterMap, #[])⟩]
 
 /-- Internal implementation detail of the tree map -/
-syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic
+scoped syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic
 
 macro_rules
 | `(tactic| simp_to_model $[[$names,*]]? $[using $using?]?) => do
@@ -7278,11 +7278,10 @@ theorem getD_filter_of_getKey?_eq_some [TransOrd α]
     using List.Const.getValueD_filter_of_getKey?_eq_some
 
 theorem toList_filter {f : α → β → Bool} (h : t.WF) :
-    (Const.toList (t.filter f h.balanced).1).Perm
-      ((Const.toList t).filter (fun p => f p.1 p.2)) := by
+    Const.toList (t.filter f h.balanced).1 =
+      (Const.toList t).filter (fun p => f p.1 p.2) := by
   simp_to_model [filter, Const.toList]
   simp only [List.filter_map, Function.comp_def]
-  rfl
 
 theorem keys_filter [TransOrd α] {f : α → β → Bool} (h : t.WF):
     (t.filter f h.balanced).1.keys =

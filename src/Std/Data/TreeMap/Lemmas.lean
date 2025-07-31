@@ -255,6 +255,10 @@ theorem isSome_getElem?_iff_mem [TransCmp cmp] {a : α} :
     t[a]?.isSome ↔ a ∈ t :=
   mem_iff_isSome_getElem?.symm
 
+theorem mem_of_getKey?_eq_some [TransCmp cmp] {k k' : α}
+    (h : t.getKey? k = some k') : k' ∈ t :=
+  DTreeMap.mem_of_getKey?_eq_some h
+
 theorem getElem?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t[a]? = none :=
   DTreeMap.Const.get?_eq_none_of_contains_eq_false
@@ -292,9 +296,17 @@ theorem getElem_erase [TransCmp cmp] {k a : α} {h'} :
     (t.erase k)[a]'h' = t[a]'(mem_of_mem_erase h') :=
   DTreeMap.Const.get_erase
 
-theorem getElem?_eq_some_getElem [TransCmp cmp] {a : α} {h} :
+theorem getElem?_eq_some_getElem [TransCmp cmp] {a : α} (h) :
     t[a]? = some (t[a]'h) :=
-  DTreeMap.Const.get?_eq_some_get
+  DTreeMap.Const.get?_eq_some_get h
+
+theorem get_eq_get_get? [TransCmp cmp] {a : α} {h} :
+    t.get a h = (t.get? a).get (mem_iff_isSome_getElem?.mp h) :=
+  DTreeMap.Const.get_eq_get_get?
+
+@[grind =] theorem get_get? [TransCmp cmp] {a : α} {h} :
+    (t.get? a).get h = t.get a (mem_iff_isSome_getElem?.mpr h) :=
+  DTreeMap.Const.get_get?
 
 theorem getElem_congr [TransCmp cmp] {a b : α} (hab : cmp a b = .eq) {h'} :
     t[a]'h' = t[b]'((mem_congr hab).mp h') :=
@@ -506,9 +518,18 @@ theorem getKey_erase [TransCmp cmp] {k a : α} {h'} :
     (t.erase k).getKey a h' = t.getKey a (mem_of_mem_erase h') :=
   DTreeMap.getKey_erase
 
-theorem getKey?_eq_some_getKey [TransCmp cmp] {a : α} {h'} :
+theorem getKey?_eq_some_getKey [TransCmp cmp] {a : α} (h') :
     t.getKey? a = some (t.getKey a h') :=
-  DTreeMap.getKey?_eq_some_getKey
+  DTreeMap.getKey?_eq_some_getKey h'
+
+theorem getKey_eq_get_getKey? [TransCmp cmp] {a : α} {h} :
+    t.getKey a h = (t.getKey? a).get (mem_iff_isSome_getKey?.mp h) :=
+  DTreeMap.getKey_eq_get_getKey?
+
+@[simp, grind =]
+theorem get_getKey? [TransCmp cmp] {a : α} {h} :
+    (t.getKey? a).get h = t.getKey a (mem_iff_isSome_getKey?.mpr h) :=
+  DTreeMap.get_getKey?
 
 theorem compare_getKey_self [TransCmp cmp] {k : α} (h' : k ∈ t) :
     cmp (t.getKey k h') k = .eq :=
@@ -762,7 +783,7 @@ theorem getThenInsertIfNew?_snd [TransCmp cmp] {k : α} {v : β} :
 instance [TransCmp cmp] : LawfulGetElem (TreeMap α β cmp) α β (fun m a => a ∈ m) where
   getElem?_def m a _ := by
     split
-    · exact getElem?_eq_some_getElem
+    · exact getElem?_eq_some_getElem _
     · exact getElem?_eq_none ‹_›
   getElem!_def m a := by
     rw [getElem!_eq_get!_getElem?]
@@ -791,6 +812,9 @@ theorem contains_keys [BEq α] [LawfulBEqCmp cmp] [TransCmp cmp] {k : α} :
 theorem mem_keys [LawfulEqCmp cmp] [TransCmp cmp] {k : α} :
     k ∈ t.keys ↔ k ∈ t :=
   DTreeMap.mem_keys
+
+theorem mem_of_mem_keys [TransCmp cmp] {k : α} (h : k ∈ t.keys) : k ∈ t :=
+  DTreeMap.mem_of_mem_keys h
 
 theorem distinct_keys [TransCmp cmp] :
     t.keys.Pairwise (fun a b => ¬ cmp a b = .eq) :=

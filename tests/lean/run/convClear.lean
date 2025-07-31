@@ -100,7 +100,8 @@ example (α : Type) (x y z : α) (h₁ : x = y) (h₂ : y = z) : x = y ∧ y = z
 
 /- Ensure `clear` refuses to remove arguments on which the goal or existing hypotheses depend -/
 /--
-error: tactic 'clear' failed, variable 'h' depends on 'x'
+error: Tactic `clear` failed: variable 'h' depends on 'x'
+
 x : Nat
 h : x = 1
 ⊢ Prop
@@ -111,7 +112,8 @@ example (x : Nat) (h : x = 1) : True := by
     clear x
 
 /--
-error: tactic 'clear' failed, target depends on 'x'
+error: Tactic `clear` failed: target depends on 'x'
+
 x : Nat
 | x = 2
 -/
@@ -121,7 +123,8 @@ example (x : Nat) : x = 2 := by
     clear x
 
 /--
-error: tactic 'clear' failed, target depends on 'x'
+error: Tactic `clear` failed: target depends on 'x'
+
 y x : Nat
 | x = 2
 -/

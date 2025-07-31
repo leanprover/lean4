@@ -121,17 +121,19 @@ private def numberNames (n : Nat) (base : String) : Array Name :=
   .ofFn (n := n) fun ⟨i, _⟩ =>
     if n == 1 then .mkSimple base else .mkSimple s!"{base}_{i+1}"
 
-def getInductionPrinciplePostfix (name : Name) : MetaM Name := do
+def getInductionPrinciplePostfix (name : Name) (isMutual : Bool) : MetaM Name := do
   let some eqnInfo := eqnInfoExt.find? (← getEnv) name | throwError "{name} is not defined by partial_fixpoint, inductive_fixpoint, nor coinductive_fixpoint"
   let idx := eqnInfo.declNames.idxOf name
   let some res := eqnInfo.fixpointType[idx]? | throwError "Cannot get fixpoint type for {name}"
-  match res with
-  | .partialFixpoint => return `fixpoint_induct
-  | .inductiveFixpoint => return `induct
-  | .coinductiveFixpoint => return `coinduct
+  match res, isMutual with
+  | .partialFixpoint, false => return `fixpoint_induct
+  | .partialFixpoint, true => throwError "`mutual_induct` is only defined for (co)inductive predicates, not for `partial_fixpoint`"
+  | .inductiveFixpoint, false => return `induct
+  | .coinductiveFixpoint, false => return `coinduct
+  | _, true => return `mutual_induct
 
-def deriveInduction (name : Name) : MetaM Unit := do
-  let postFix ← getInductionPrinciplePostfix name
+def deriveInduction (name : Name) (isMutual : Bool) : MetaM Unit := do
+  let postFix ← getInductionPrinciplePostfix name isMutual
   let inductName := name ++ postFix
   realizeConst name inductName do
   trace[Elab.definition.partialFixpoint] "Called deriveInduction for {inductName}"
@@ -193,8 +195,12 @@ def deriveInduction (name : Name) : MetaM Unit := do
             -- We apply all the premises
             let packedPremise ← PProdN.mk 0 motiveVars
             let e' := mkApp e' packedPremise
-            -- For each element of the mutual block, we project out the appropriate element
-            let e' ← PProdN.projM infos.size (eqnInfo.declNames.idxOf name) e'
+            -- For the `mutual_induct` variant, we are done.
+            -- Else, project out the appropriate element
+            let e' ← if isMutual then
+                pure e'
+              else
+                PProdN.projM infos.size (eqnInfo.declNames.idxOf name) e'
             -- Finally, we bind all the free variables with lambdas
             let e' ← mkLambdaFVars motiveVars e'
             let e' ← mkLambdaFVars predVars e'
@@ -302,6 +308,10 @@ def isInductName (env : Environment) (name : Name) : Bool := Id.run do
       let idx := eqnInfo.declNames.idxOf p
       return isInductiveFixpoint eqnInfo.fixpointType[idx]!
     return false
+  | "mutual_induct" =>
+    if let some eqnInfo := eqnInfoExt.find? env p then
+      return eqnInfo.fixpointType.all isLatticeTheoretic && eqnInfo.declNames.size > 1
+    return false
   | _ => return false
 
 builtin_initialize
@@ -309,8 +319,9 @@ builtin_initialize
 
   registerReservedNameAction fun name => do
     if isInductName (← getEnv) name then
-      let .str p _ := name | return false
-      MetaM.run' <| deriveInduction p
+      let .str p s := name | return false
+      let isMutual := s.endsWith "mutual_induct"
+      MetaM.run' <| deriveInduction p isMutual
       return true
     return false
 
@@ -362,7 +373,7 @@ def derivePartialCorrectness (name : Name) : MetaM Unit := do
   realizeConst name inductName do
   let fixpointInductThm := name ++ `fixpoint_induct
   unless (← getEnv).contains fixpointInductThm do
-    deriveInduction name
+    deriveInduction name false
 
   prependError m!"Cannot derive partial correctness theorem (please report this issue)" do
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |

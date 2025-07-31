@@ -195,12 +195,12 @@ def deriveInduction (name : Name) (isMutual : Bool) : MetaM Unit := do
             -- We apply all the premises
             let packedPremise ← PProdN.mk 0 motiveVars
             let e' := mkApp e' packedPremise
-            -- Unless we are not deriving `mutual_induct` varaint, for each element
-            -- of the mutual block, we project out the appropriate element
-            let e' ← if !isMutual then
-                PProdN.projM infos.size (eqnInfo.declNames.idxOf name) e'
-              else
+            -- For the `mutual_induct` variant, we are done.
+            -- Else, project out the appropriate element
+            let e' ← if isMutual then
                 pure e'
+              else
+                PProdN.projM infos.size (eqnInfo.declNames.idxOf name) e'
             -- Finally, we bind all the free variables with lambdas
             let e' ← mkLambdaFVars motiveVars e'
             let e' ← mkLambdaFVars predVars e'

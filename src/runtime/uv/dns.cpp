@@ -38,11 +38,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
     char const * service_cstr = lean_string_cstr(service);
 
     if (!is_safe_ascii_str(name_cstr, lean_string_size(name) - 1)) {
-        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("name is not ASCII.")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("name is not ASCII")));
     }
 
     if (!is_safe_ascii_str(service_cstr, lean_string_size(service) - 1)) {
-        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("service is not ASCII.")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("service is not ASCII")));
     }
 
     lean_object* promise = lean_promise_new();

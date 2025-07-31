@@ -570,8 +570,7 @@ theorem eraseIdx_eq_take_drop_succ :
   | a::l, 0
   | a::l, i + 1 => simp
 
-@[deprecated eraseIdx_eq_nil_iff (since := "2025-01-30")]
-abbrev eraseIdx_eq_nil := @eraseIdx_eq_nil_iff
+
 
 theorem eraseIdx_ne_nil_iff {l : List α} {i : Nat} : eraseIdx l i ≠ [] ↔ 2 ≤ l.length ∨ (l.length = 1 ∧ i ≠ 0) := by
   match l with

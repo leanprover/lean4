@@ -149,12 +149,14 @@ where
         -- Erase candidate that are not fully applied or applied outside of tail position
         if valId != decl.fvarId || args.size != candidateInfo.arity then
           eraseCandidate fvarId
+          eraseCandidate valId
         -- Out of scope join point candidate handling
         else if let some upperCandidate ← read then
           if !(← isInScope fvarId) then
             addDependency fvarId upperCandidate
       else
         eraseCandidate fvarId
+        eraseCandidate valId
     | _, _ =>
       removeCandidatesInLetValue decl.value
       go k

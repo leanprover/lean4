@@ -923,3 +923,70 @@ theorem mem_mergeWithAll [LawfulEqCmp cmp] {m₁ m₂ : ExtTreeMap α β cmp} {f
   admit
 
 end KimsUnivPolyUseCase
+
+namespace PatricksFastExp
+
+def naive_expo (x n : Nat) : Nat := Id.run do
+  let mut y := 1
+  for _ in [:n] do
+    y := y*x
+  return y
+
+def fast_expo (x n : Nat) : Nat := Id.run do
+  let mut x := x
+  let mut y := 1
+  let mut e := n
+  for _ in [:n] do -- simulating a while loop running at most n times
+    if e = 0 then break
+    if e % 2 = 1 then
+      y := x * y
+      e := e - 1
+    else
+      x := x*x
+      e := e/2
+
+  return y
+
+open Std.Do
+
+theorem naive_expo_correct (x n : Nat) : naive_expo x n = x^n := by
+  generalize h : naive_expo x n = r
+  apply Id.by_wp h
+  mvcgen
+  case inv => exact ⇓⟨r, xs⟩ => ⌜r = x^xs.pref.length⌝
+  all_goals simp_all [Nat.pow_add_one]
+
+theorem fast_expo_correct (x n : Nat) : fast_expo x n = x^n := by
+  generalize h : fast_expo x n = r
+  apply Id.by_wp h
+  mvcgen
+  case inv => exact ⇓⟨⟨e, x', y⟩, xs⟩ => ⌜x' ^ e * y = x ^ n ∧ e ≤ n - xs.pref.length⌝
+  all_goals simp_all
+  case isFalse.isFalse b _ _ _ _ _ _ _ x _ _ ih _ =>
+    obtain ⟨e, y, x'⟩ := b
+    simp at *
+    constructor
+    · rw [← Nat.pow_two, ← Nat.pow_mul]
+      grind
+    · grind
+  case isFalse.isTrue b _ _ _ _ _ _ _ x _ _ ih _ =>
+    obtain ⟨e, y, x'⟩ := b
+    simp at *
+    constructor
+    · rw [← Nat.mul_assoc, ← Nat.pow_add_one, ← ih.1]
+      have : e - 1 + 1 = e := by grind
+      rw [this]
+    · grind
+  case isTrue b _ _ _ _ _ _ x _ _ _ ih =>
+    obtain ⟨e, y, x'⟩ := b
+    subst_vars
+    grind
+  case a.post b ih =>
+    obtain ⟨e, y, x'⟩ := b
+    simp at *
+    rw [← ih.1, ih.2, Nat.pow_zero, Nat.one_mul]
+
+theorem same_func (x n : Nat) : fast_expo x n = naive_expo x n := by
+  rw [naive_expo_correct, fast_expo_correct]
+
+end PatricksFastExp

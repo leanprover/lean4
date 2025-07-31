@@ -84,7 +84,7 @@ public class OrderData (α : Type u) where
 This typeclass states that the order structure on `α`, represented by an `OrderData α` instance,
 is a preorder. In other words, the less-or-equal relation is reflexive and transitive.
 -/
-public class Preorder (α : Type u) [OrderData α] where
+public class IsPreorder (α : Type u) [OrderData α] where
   le_refl : ∀ a : α, OrderData.IsLE a a
   le_trans : ∀ a b c : α, OrderData.IsLE a b → OrderData.IsLE b c → OrderData.IsLE a c
 
@@ -93,7 +93,7 @@ This typeclass states that the order structure on `α`, represented by an `Order
 is a partial order.
 In other words, the less-or-equal relation is reflexive, transitive and antisymmetric.
 -/
-public class PartialOrder (α : Type u) [OrderData α] extends Preorder α where
+public class PartialOrder (α : Type u) [OrderData α] extends IsPreorder α where
   le_antisymm : ∀ a b : α, OrderData.IsLE a b → OrderData.IsLE b a → a = b
 
 /--
@@ -101,7 +101,7 @@ This typeclass states that the order structure on `α`, represented by an `Order
 is a linear preorder.
 In other words, the less-or-equal relation is reflexive, transitive and total.
 -/
-public class LinearPreorder (α : Type u) [OrderData α] extends Preorder α where
+public class IsLinearPreorder (α : Type u) [OrderData α] extends IsPreorder α where
   le_total : ∀ a b : α, OrderData.IsLE a b ∨ OrderData.IsLE b a
 
 /--
@@ -109,7 +109,7 @@ This typeclass states that the order structure on `α`, represented by an `Order
 is a linear order.
 In other words, the less-or-equal relation is reflexive, transitive, antisymmetric and total.
 -/
-public class IsLinearOrder (α : Type u) [OrderData α] extends PartialOrder α, LinearPreorder α
+public class IsLinearOrder (α : Type u) [OrderData α] extends PartialOrder α, IsLinearPreorder α
 
 section LE
 
@@ -159,7 +159,7 @@ public class LawfulOrderInf (α : Type u) [Min α] [OrderData α] where
 This typeclass bundles `MinEqOr α` and `LawfulOrderInf α`. It characterizes when a `Min α`
 instance reasonably computes minima in some type `α` that has an `OrderData α` instance.
 
-As long as `α` is a preorder (see `Preorder α`), this typeclass implies that the order on
+As long as `α` is a preorder (see `IsPreorder α`), this typeclass implies that the order on
 `α` is total and that `Min.min a b` returns either `a` or `b`, whichever is less or equal to
 the other.
 -/
@@ -186,7 +186,7 @@ public class LawfulOrderSup (α : Type u) [Max α] [OrderData α] where
 This typeclass bundles `MaxEqOr α` and `LawfulOrderSup α`. It characterizes when a `Max α`
 instance reasonably computes maxima in some type `α` that has an `OrderData α` instance.
 
-As long as `α` is a preorder (see `Preorder α`), this typeclass implies that the order on
+As long as `α` is a preorder (see `IsPreorder α`), this typeclass implies that the order on
 `α` is total and that `Min.min a b` returns either `a` or `b`, whichever is greater or equal to
 the other.
 -/

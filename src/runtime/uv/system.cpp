@@ -194,7 +194,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd(obj_arg /* w */) {
 
 // Std.Internal.UV.System.osGetGroup : IO (Option GroupInfo)
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid, obj_arg /* w */) {
-#if UV_VERSION_HEX >= 0x014500
+#if UV_VERSION_HEX >= 0x012D00
     uv_group_t group;
     int result = uv_os_get_group(&group, gid);
 

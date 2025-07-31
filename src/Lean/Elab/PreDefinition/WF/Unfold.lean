@@ -50,10 +50,10 @@ def isForallMotive (matcherApp : MatcherApp) : MetaM (Option Expr) := do
     else
       return none
 
-builtin_dsimproc removeMData (_) := fun e => do
-  return if e.isMData then .continue e.consumeMData else .continue
+-- builtin_dsimproc removeMData (_) := fun e => do
+--   return if e.isMData then .continue e.consumeMData else .continue
 
-builtin_simproc matcherPushArg (_) := fun e => do
+builtin_simproc_decl matcherPushArg (_) := fun e => do
   let e := e.headBeta
   let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) | return .continue
   trace[Elab.definition.wf.eqns] "matcherUnAddArg: {e}"

@@ -222,7 +222,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses(obj_arg /* w */)
     int count;
 
     if (uv_interface_addresses(&info, &count) != 0) {
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get interface addresses")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to get interface addresses")));
     }
 
     lean_object *arr = lean_alloc_array(0, count);

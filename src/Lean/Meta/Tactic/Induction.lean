@@ -184,7 +184,8 @@ def mkRecursorAppPrefix (mvarId : MVarId) (tacticName : Name) (majorFVarId : FVa
               else
                 pure (recursorLevels.push majorTypeFnLevels[idx], foundTargetLevel)
       if !foundTargetLevel && !targetLevel.isZero then
-        throwTacticEx tacticName mvarId m!"recursor '{recursorInfo.recursorName}' can only eliminate into Prop"
+        throwNamedError lean.propRecLargeElim
+          (mkTacticExMsg tacticName mvarId m!"recursor `{recursorInfo.recursorName}` can only eliminate into `Prop`")
       let recursor := mkConst recursorInfo.recursorName recursorLevels.toList
       let recursor ← addRecParams mvarId majorTypeArgs recursorInfo.paramsPos recursor
       -- Compute motive

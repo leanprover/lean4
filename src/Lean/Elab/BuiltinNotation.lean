@@ -83,7 +83,7 @@ open Meta
               `($(mkCIdentFrom stx ctor (canonical := true)) $(args)*)
             else if numExplicitFields == 0 then
               throwError "Insufficient number of fields for `⟨...⟩` constructor: Constructor \
-                `{ctor}` does not have explicit fields, but {args.size}
+                `{ctor}` does not have explicit fields, but {args.size} \
                 {if args.size == 1 then "was" else "were"} provided"
             else
               let extra := args[(numExplicitFields-1)...args.size]

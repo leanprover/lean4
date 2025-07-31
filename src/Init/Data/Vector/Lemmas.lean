@@ -1951,8 +1951,8 @@ set_option linter.listVariables false in
 /-- Two vectors of constant length vectors are equal iff their flattens coincide. -/
 theorem eq_iff_flatten_eq {xss xss' : Vector (Vector α n) m} :
     xss = xss' ↔ xss.flatten = xss'.flatten := by
-  induction xss using vector₂_induction with | of xss h₁ h₂ =>
-  induction xss' using vector₂_induction with | of xss' h₁' h₂' =>
+  induction xss using vector₂_induction with | of xss h₁ h₂
+  induction xss' using vector₂_induction with | of xss' h₁' h₂'
   simp only [eq_mk, flatten_mk, Array.map_map, Function.comp_apply, Array.map_subtype,
     Array.unattach_attach, Array.map_id_fun', id_eq]
   constructor

@@ -202,7 +202,7 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     apply Cache.Inv_cast
     · apply IsPrefix.rfl
     · exact hinv
-  · next op lhsExpr rhsExpr =>
+  next op lhsExpr rhsExpr =>
     dsimp only at hres
     match op with
     | .and | .or | .xor =>
@@ -282,7 +282,7 @@ theorem goCache_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignme
   generalize hres : goCache aig expr cache = res
   unfold goCache at hres
   split at hres
-  · next heq =>
+  next heq =>
     rw [← hres]
     apply Cache.denote_eq_eval_of_get?_eq_some_of_Inv
     · exact heq
@@ -404,7 +404,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
         BitVec.getLsbD_eq_getElem, BitVec.getElem_rotateLeft]
       split
       all_goals
-      · rw [goCache_denote_eq]
+        rw [goCache_denote_eq]
         · apply BitVec.getLsbD_eq_getElem
         · exact hinv
     · rw [← hres]
@@ -412,7 +412,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
         BitVec.getLsbD_eq_getElem, BitVec.getElem_rotateRight]
       split
       all_goals
-      · rw [goCache_denote_eq]
+        rw [goCache_denote_eq]
         · apply BitVec.getLsbD_eq_getElem
         · exact hinv
     · rw [← hres]
@@ -436,7 +436,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       intro idx hidx
       rw [goCache_denote_eq]
       exact hinv
-  · next h =>
+  next h =>
     subst h
     rw [← hres]
     simp only [denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append, BitVec.getLsbD_append]
@@ -447,13 +447,13 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     · rw [goCache_denote_mem_prefix]
       rw [goCache_denote_eq]
       exact hinv
-  · next h =>
+  next h =>
     subst h
     rw [← hres]
     simp only [denote_blastReplicate, eval_replicate, hidx, BitVec.getLsbD_eq_getElem,
       BitVec.getElem_replicate]
     split
-    · next h =>
+    next h =>
       simp only [h, Nat.zero_mul, Nat.not_lt_zero] at hidx
     · rw [goCache_denote_eq]
       · apply BitVec.getLsbD_eq_getElem

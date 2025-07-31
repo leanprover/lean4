@@ -2,9 +2,9 @@ theorem n_minus_one_le_n {n : Nat} : n > 0 → n - 1 < n := by
   cases n with
   | zero => simp []
   | succ n =>
-  intros
-  rw [Nat.add_sub_cancel]
-  apply Nat.le.refl
+    intros
+    rw [Nat.add_sub_cancel]
+    apply Nat.le.refl
 
 partial def foo : Array Int → Int
   | arr => Id.run do

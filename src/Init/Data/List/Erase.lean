@@ -337,7 +337,7 @@ theorem erase_of_not_mem [LawfulBEq α] {a : α} : ∀ {l : List α}, a ∉ l �
 theorem erase_eq_eraseP' (a : α) (l : List α) : l.erase a = l.eraseP (· == a) := by
   induction l
   · simp
-  · next b t ih =>
+  next b t ih =>
     rw [erase_cons, eraseP_cons, ih]
     if h : b == a then simp [h] else simp [h]
 

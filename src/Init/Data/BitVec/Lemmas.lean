@@ -702,7 +702,7 @@ theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
   have acases : a = 0 ∨ a = 1 := by omega
   rcases acases with ⟨rfl | rfl⟩
   · simp
-  · case inr h =>
+  case inr h =>
     subst h
     simp
 
@@ -1393,7 +1393,7 @@ theorem or_eq_zero_iff {x y : BitVec w} : (x ||| y) = 0#w ↔ x = 0#w ∧ y = 0#
   · intro h
     constructor
     all_goals
-    · ext i ih
+      ext i ih
       have := BitVec.eq_of_getElem_eq_iff.mp h i ih
       simp only [getElem_or, getElem_zero, Bool.or_eq_false_iff] at this
       simp [this]
@@ -1493,7 +1493,7 @@ theorem and_eq_allOnes_iff {x y : BitVec w} :
   · intro h
     constructor
     all_goals
-    · ext i ih
+      ext i ih
       have := BitVec.eq_of_getElem_eq_iff.mp h i ih
       simp only [getElem_and, getElem_allOnes, Bool.and_eq_true] at this
       simp [this]
@@ -4419,8 +4419,8 @@ theorem neg_one_ediv_toInt_eq {w : Nat} {y : BitVec w} :
   rcases w with _|_|w
   · simp [of_length_zero]
   · cases eq_zero_or_eq_one y
-    · case _ h => simp [h]
-    · case _ h => simp [h]
+    case _ h => simp [h]
+    case _ h => simp [h]
   · by_cases 0 < y.toInt
     · simp [Int.sign_eq_one_of_pos (a := y.toInt) (by omega), Int.neg_one_ediv]
       omega
@@ -5766,16 +5766,16 @@ theorem clzAuxRec_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
   let k := n - (w - 1)
   rw [show n = (w - 1) + k by omega]
   induction k
-  · case zero => simp
-  · case succ k ihk =>
+  case zero => simp
+  case succ k ihk =>
     simp [show w - 1 + (k + 1) = (w - 1 + k) + 1 by omega, clzAuxRec_succ, ihk,
       show x.getLsbD (w - 1 + k + 1) = false by simp only [show w ≤ w - 1 + k + 1 by omega, getLsbD_of_ge]]
 
 theorem clzAuxRec_eq_clzAuxRec_of_getLsbD_false {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i = false) :
     x.clzAuxRec n = x.clzAuxRec (n + k) := by
   induction k
-  · case zero => simp
-  · case succ k ihk =>
+  case zero => simp
+  case succ k ihk =>
     simp only [show n + (k + 1) = (n + k) + 1 by omega, clzAuxRec_succ]
     by_cases hxn : x.getLsbD (n + k + 1)
     · have : ¬ ∀ (i : Nat), n < i → x.getLsbD i = false := by

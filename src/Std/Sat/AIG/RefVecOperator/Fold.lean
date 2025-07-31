@@ -48,7 +48,7 @@ theorem fold.go_le_size {aig : AIG α} (acc : Ref aig) (idx : Nat) (s : RefVec a
     aig.decls.size ≤ (go aig acc idx len s f).1.decls.size := by
   unfold go
   split
-  · next h =>
+  next h =>
     dsimp only
     refine Nat.le_trans ?_ (by apply fold.go_le_size)
     apply LawfulOperator.le_size

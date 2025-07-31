@@ -885,9 +885,9 @@ theorem USize.ofNatTruncate_eq_ofNat (n : Nat) (hn : n < USize.size) :
   apply USize.toNat.inj
   simp only [UInt32.toNat_toUSize, toNat_toUInt32, Nat.reducePow, USize.toNat_mod]
   cases USize.size_eq
-  · next h => rw [Nat.mod_eq_of_lt (h ▸ n.toNat_lt_size), USize.toNat_ofNat,
+  next h => rw [Nat.mod_eq_of_lt (h ▸ n.toNat_lt_size), USize.toNat_ofNat,
       ← USize.size_eq_two_pow, h, Nat.mod_self, Nat.mod_zero]
-  · next h => rw [USize.toNat_ofNat_of_lt]; simp_all
+  next h => rw [USize.toNat_ofNat_of_lt]; simp_all
 
 -- Note: we are currently missing the following four results for which there does not seem to
 -- be a good candidate for the RHS:

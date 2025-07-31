@@ -1069,7 +1069,7 @@ theorem Int8.toNatClampNeg_ofIntTruncate_of_lt {n : Int} (h₁ : n < 2 ^ 7) :
   rw [ofIntTruncate]
   split
   · rw [dif_pos (by rw [toInt_maxValue]; omega), toNatClampNeg_ofIntLE]
-  · next h =>
+  next h =>
     rw [toNatClampNeg_minValue, eq_comm, Int.toNat_eq_zero]
     rw [toInt_minValue] at h
     omega
@@ -1078,7 +1078,7 @@ theorem Int16.toNatClampNeg_ofIntTruncate_of_lt {n : Int} (h₁ : n < 2 ^ 15) :
   rw [ofIntTruncate]
   split
   · rw [dif_pos (by rw [toInt_maxValue]; omega), toNatClampNeg_ofIntLE]
-  · next h =>
+  next h =>
     rw [toNatClampNeg_minValue, eq_comm, Int.toNat_eq_zero]
     rw [toInt_minValue] at h
     omega
@@ -1087,7 +1087,7 @@ theorem Int32.toNatClampNeg_ofIntTruncate_of_lt {n : Int} (h₁ : n < 2 ^ 31) :
   rw [ofIntTruncate]
   split
   · rw [dif_pos (by rw [toInt_maxValue]; omega), toNatClampNeg_ofIntLE]
-  · next h =>
+  next h =>
     rw [toNatClampNeg_minValue, eq_comm, Int.toNat_eq_zero]
     rw [toInt_minValue] at h
     omega
@@ -1096,7 +1096,7 @@ theorem Int64.toNatClampNeg_ofIntTruncate_of_lt {n : Int} (h₁ : n < 2 ^ 63) :
   rw [ofIntTruncate]
   split
   · rw [dif_pos (by rw [toInt_maxValue]; omega), toNatClampNeg_ofIntLE]
-  · next h =>
+  next h =>
     rw [toNatClampNeg_minValue, eq_comm, Int.toNat_eq_zero]
     rw [toInt_minValue] at h
     omega
@@ -1105,7 +1105,7 @@ theorem ISize.toNatClampNeg_ofIntTruncate_of_lt_two_pow_numBits {n : Int} (h₁ 
   rw [ofIntTruncate]
   split
   · rw [dif_pos (by rw [toInt_maxValue]; omega), toNatClampNeg_ofIntLE]
-  · next h =>
+  next h =>
     rw [toNatClampNeg_minValue, eq_comm, Int.toNat_eq_zero]
     rw [toInt_minValue] at h
     omega

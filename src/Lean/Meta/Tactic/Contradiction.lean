@@ -178,6 +178,7 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
           isEq := true
           if let some lhsCtor ← matchConstructorApp? lhs then
           if let some rhsCtor ← matchConstructorApp? rhs then
+          if (← hasNoConfusionDecl lhsCtor.induct) then
           if lhsCtor.name != rhsCtor.name then
             mvarId.assign (← mkNoConfusion (← mvarId.getType) localDecl.toExpr)
             return true
@@ -187,6 +188,7 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
           isHEq := true
           if let some lhsCtor ← matchConstructorApp? lhs then
           if let some rhsCtor ← matchConstructorApp? rhs then
+          if (← hasNoConfusionDecl lhsCtor.induct) then
           if lhsCtor.name != rhsCtor.name then
             if (← isDefEq α β) then
               mvarId.assign (← mkNoConfusion (← mvarId.getType) (← mkEqOfHEq localDecl.toExpr))

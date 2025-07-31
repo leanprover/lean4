@@ -256,7 +256,12 @@ def expandMutualElement : Macro := fun stx => do
     if elem.isOfKind ``Parser.Command.declaration then
       continue
     match (← expandMacro? elem) with
-    | some elemNew => elemsNew := elemsNew.push elemNew; modified := true
+    | some elemNew =>
+      if elemNew.isOfKind nullKind then
+        elemsNew := elemsNew ++ elemNew.getArgs
+      else
+        elemsNew := elemsNew.push elemNew
+      modified := true
     | none         => elemsNew := elemsNew.push elem
   if modified then
     return stx.setArg 1 (mkNullNode elemsNew)

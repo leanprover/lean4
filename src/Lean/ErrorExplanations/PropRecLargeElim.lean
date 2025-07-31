@@ -40,7 +40,7 @@ example {α : Type} [inst : Nonempty α] (p : α → Prop) :
 ```
 ```output
 Tactic `cases` failed with a nested error:
-Tactic `induction` failed: recursor 'Nonempty.casesOn' can only eliminate into Prop
+Tactic `induction` failed: recursor `Nonempty.casesOn` can only eliminate into `Prop`
 
 α : Type
 motive : Nonempty α → Sort ?u.1416
@@ -76,7 +76,7 @@ def getWitness {α : Type u} {p : α → Prop} (h : ∃ x, p x) : α :=
 ```
 ```output
 Tactic `cases` failed with a nested error:
-Tactic `induction` failed: recursor 'Exists.casesOn' can only eliminate into Prop
+Tactic `induction` failed: recursor `Exists.casesOn` can only eliminate into `Prop`
 
 α : Type u
 p : α → Prop

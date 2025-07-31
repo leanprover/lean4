@@ -50,6 +50,9 @@ def isForallMotive (matcherApp : MatcherApp) : MetaM (Option Expr) := do
     else
       return none
 
+builtin_dsimproc removeMData (_) := fun e => do
+  return if e.isMData then .continue e.consumeMData else .continue
+
 builtin_simproc matcherPushArg (_) := fun e => do
   let e := e.headBeta
   let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) | return .continue
@@ -82,7 +85,20 @@ builtin_simproc matcherPushArg (_) := fun e => do
     alts' := alts'.push alt'
   trace[Elab.definition.wf.eqns] "pushing in {fExpr}"
   let remaining' := matcherApp.remaining[1...*]
-  let matcherApp' := { matcherApp with motive := motive', alts := alts', remaining := remaining' }
+
+  -- TODO: de-duplicate with addArg
+  let matcherLevels' ← match matcherApp.uElimPos? with
+    | none     => pure matcherApp.matcherLevels
+    | some pos =>
+      let uElim ← lambdaTelescope motive' fun _xs motiveBody =>
+        getLevel motiveBody
+      pure <| matcherApp.matcherLevels.set! pos uElim
+
+  let matcherApp' := { matcherApp with
+    matcherLevels := matcherLevels'
+    motive := motive'
+    alts := alts'
+    remaining := remaining' }
   let e' := matcherApp'.toExpr
   let proof ← mkSorry (← mkEq e e') true
   return .continue (some { expr := matcherApp'.toExpr, proof? := some proof })
@@ -90,13 +106,14 @@ builtin_simproc matcherPushArg (_) := fun e => do
 private def mkUnfoldProof' (declName : Name) (mvarId : MVarId) : MetaM Unit := withReducible do
   trace[Elab.definition.wf.eqns] "mkUnfoldProf': {MessageData.ofGoal mvarId}"
   let ctx ← Simp.mkContext (config := { dsimp := false, etaStruct := .none, letToHave := false, singlePass := true })
-  let simprocs ← ({} : Simp.SimprocsArray).add ``matcherPushArg (post := false)
+  let simprocs := ({} : Simp.SimprocsArray)
+  let simprocs ← simprocs.add ``matcherPushArg (post := false)
+  -- let simprocs ← simprocs.add ``removeMData (post := false)
   match (← simpTarget mvarId ctx (simprocs := simprocs)).1 with
   | none => return ()
   | some mvarId' =>
-    try mvarId'.refl
-    catch  _ =>
-      throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId'}"
+    prependError m!"failed to generate equational theorem for '{declName}'" do
+      mvarId'.refl
 
 
 private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do

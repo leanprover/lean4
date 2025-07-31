@@ -92,16 +92,15 @@ partial def getDotIdCompletionTypeNames (type : Expr) : MetaM (Array Name) :=
 where
   visit (type : Expr) : StateRefT (Array Name) MetaM Unit := do
     try
-      Meta.forallTelescope type fun _ type => do
-        let type ← try Meta.whnfCore type catch _ => pure type
-        if type.isForall then
-          visit type
-        else
-          let type ← instantiateMVars type
-          let .const typeName _ := type.cleanupAnnotations.getAppFn.cleanupAnnotations | return ()
-          modify fun s => s.push typeName
-          if let some type' ← unfoldDefinitionGuarded? type then
-            visit type'
+      let type ← try Meta.whnfCoreUnfoldingAnnotations type catch _ => pure type
+      if type.isForall then
+        Meta.forallTelescope type fun _ type => visit type
+      else
+        let type ← instantiateMVars type
+        let .const typeName _ := type.getAppFn | return ()
+        modify fun s => s.push typeName
+        if let some type' ← unfoldDefinitionGuarded? type then
+          visit type'
     catch _ =>
       pure ()
 

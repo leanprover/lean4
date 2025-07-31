@@ -338,19 +338,18 @@ section DotCompletionUtils
   -/
   private partial def isDotIdCompletionMethod (typeNameSet : NameSetModPrivate) (info : ConstantInfo) : MetaM Bool := do
     let rec visit (type : Expr) : MetaM Bool := do
-      forallTelescope type fun _ type => do
-        let type ← whnfCore type
-        if type.isForall then
-          visit type
+      let type ← try whnfCoreUnfoldingAnnotations type catch _ => pure type
+      if type.isForall then
+        forallTelescope type fun _ type => visit type
+      else
+        let type ← instantiateMVars type
+        let .const typeName _ := type.getAppFn | return false
+        if typeNameSet.contains typeName then
+          return true
+        else if let some type' ← unfoldDefinitionGuarded? type then
+          visit type'
         else
-          let type ← instantiateMVars type
-          let .const typeName _ := type.cleanupAnnotations.getAppFn.cleanupAnnotations | return false
-          if typeNameSet.contains typeName then
-            return true
-          else if let some type' ← unfoldDefinitionGuarded? type then
-            visit type'
-          else
-            return false
+          return false
     visit info.type
 
 end DotCompletionUtils

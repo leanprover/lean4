@@ -1,6 +1,6 @@
 import Lean
 /-!
-# Tests of dot function notation
+# Tests of dotted identifier notation
 -/
 
 /-!
@@ -206,5 +206,7 @@ We disallow this.
 elab "aPrivConst%" : term => do
   let c := Lean.mkPrivateNameCore `Lean.Structure `Lean.StructureState
   return Lean.Expr.const c []
-/-- error: Invalid dotted identifier notation: The declaration `Lean.StructureState✝` is private -/
+/--
+error: The private declaration `Lean.StructureState✝` is not accessible in the current context
+-/
 #guard_msgs in #check (.mk : aPrivConst%)

@@ -1683,8 +1683,16 @@ private def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals :
   let fRes ← withRef fIdent <| resolveName' fIdent fExplicitUnivs expectedType?
   elabAppFnResolutions fIdent fRes lvals namedArgs args expectedType? explicit ellipsis overloaded acc
 
-/-- Resolve `(.$id:ident)` using the expected type to infer namespace. -/
-private partial def resolveDotName (id : Name) (expectedType? : Option Expr) : TermElabM (List (Expr × Syntax × List Syntax)) := do
+/--
+Resolves `(.$id:ident)` using the expected type to infer the namespace for `id`.
+
+To infer a namespace from the expected type, we do the following operations:
+- put it into WHNF using `whnfCore`, while consuming annotations
+- enter the bodies of pi types
+- if the type is of the form `c x₁ ... xₙ` with `c` a constant, then try using `c` as the namespace,
+  and if that doesn't work, try unfolding the expression and continuing.
+-/
+private partial def resolveDottedIdentFn (id : Name) (expectedType? : Option Expr) : TermElabM (List (Expr × Syntax × List Syntax)) := do
   unless id.isAtomic do
     throwError "Invalid dotted identifier notation: The name `{id}` must be atomic"
   tryPostponeIfNoneOrMVar expectedType?
@@ -1696,23 +1704,23 @@ where
   throwNoExpectedType :=
     throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: The expected type of `.{id}` could not be determined"
   /-- A weak version of forallTelescopeReducing that only uses whnfCore, to avoid unfolding definitions except by `unfoldDefinition?` below. -/
-  withForallBody {α} (type : Expr) (k : Expr → TermElabM α) : TermElabM α :=
-    forallTelescope type fun _ body => do
-      let body ← whnfCore body
-      if body.isForall then
+  withForallBody {α} (type : Expr) (k : Expr → TermElabM α) : TermElabM α := do
+    let type ← whnfCoreUnfoldingAnnotations type
+    if type.isForall then
+      forallTelescope type fun _ body => do
         withForallBody body k
-      else
-        k body
+    else
+      k type
   go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM (List (Expr × Syntax × List Syntax)) := do
     let resultType ← instantiateMVars resultType
-    let resultTypeFn := resultType.cleanupAnnotations.getAppFn
+    let resultTypeFn := resultType.getAppFn
     try
       tryPostponeIfMVar resultTypeFn
-      match resultTypeFn.cleanupAnnotations with
+      match resultTypeFn with
       | .const declName .. =>
         let env ← getEnv
         if isInaccessiblePrivateName env declName then
-          throwError "Invalid dotted identifier notation: The declaration `{.ofConstName declName}` is private"
+          throwError "The private declaration `{.ofConstName declName}` is not accessible in the current context"
         -- Recall that the namespace for private declarations is non-private.
         let fullName := privateToUserName declName ++ id
         -- Resolve the name without making use of the current namespace, like in `findMethod?`.
@@ -1784,7 +1792,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(_)       => throwError "A placeholder `_` cannot be used where a function is expected"
     | `(.$id:ident) =>
         addCompletionInfo <| CompletionInfo.dotId id id.getId (← getLCtx) expectedType?
-        let res ← withRef f <| resolveDotName id.getId.eraseMacroScopes expectedType?
+        let res ← withRef f <| resolveDottedIdentFn id.getId.eraseMacroScopes expectedType?
         -- Use (forceTermInfo := true) because we want to record the result of .ident resolution even in patterns
         elabAppFnResolutions f res lvals namedArgs args expectedType? explicit ellipsis overloaded acc (forceTermInfo := true)
     | _ => do

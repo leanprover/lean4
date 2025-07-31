@@ -32,6 +32,7 @@ of matcher applications.
 -/
 def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCasesOn := false) :
     m (Option MatcherApp) := do
+  unless e.isApp do return none
   if let .const declName declLevels := e.getAppFn then
     if let some info ← getMatcherInfo? declName then
       let args := e.getAppArgs

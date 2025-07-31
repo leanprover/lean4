@@ -1,7 +1,7 @@
 -- This triggered a bug in the linear-size `noConfusionType` construction
 -- which confused the kernel when producing the `noConfusion` lemma.
 
-set_option debug.skipKernelTC true
+-- set_option debug.skipKernelTC true
 set_option pp.universes true
 
 -- Works

@@ -204,9 +204,37 @@ protected theorem lt_of_le_of_lt [LT α] [OrderData α] [IsLinearOrder α] [Lawf
       · simp only [not_lt] at w₄
         exact Lex.rel (lt_of_le_of_ne w₄ (w₅.imp Eq.symm))
 
+@[deprecated List.lt_of_le_of_lt (since := "2025-07-31")]
+protected theorem lt_of_le_of_lt' [LT α]
+    [i₁ : Std.Asymm (· < · : α → α → Prop)]
+    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
+    [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+    {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ < l₃) : l₁ < l₃ :=
+  letI : OrderData α := .ofLT α
+  haveI : IsLinearOrder α := by
+    apply IsLinearOrder.ofLT
+    case lt_asymm => apply i₁.asymm
+    case not_lt_antisymm => apply i₂.antisymm
+    case not_lt_trans => exact fun _ _ _ => i₃.trans
+  List.lt_of_le_of_lt h₁ h₂
+
 protected theorem le_trans [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrderLT α]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
   fun h₃ => h₁ (List.lt_of_le_of_lt h₂ h₃)
+
+@[deprecated List.le_trans (since := "2025-07-31")]
+protected theorem le_trans' [LT α]
+    [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+    {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
+  letI : OrderData α := .ofLT α
+  haveI : IsLinearOrder α := by
+    apply IsLinearOrder.ofLT
+    case lt_asymm => apply Asymm.asymm
+    case not_lt_antisymm => apply Antisymm.antisymm
+    case not_lt_trans => apply Trans.trans
+  List.le_trans h₁ h₂
 
 /--
 This also triggers for `LinearOrder`

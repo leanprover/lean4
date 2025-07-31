@@ -58,7 +58,7 @@ The solution is to state all of these properties in terms of `OrderData α`. For
 
 ```lean
 theorem le_antisymm {α : Type u} [OrderData α] [LE α]
-    [PartialOrder α] -- The order on `α` induced by `OrderData α` is, among other things, antisymmetric.
+    [IsPartialOrder α] -- The order on `α` induced by `OrderData α` is, among other things, antisymmetric.
     [LawfulOrderLE α] -- `≤` is the less-or-equal relation induced by `OrderData α`.
     {a b : α} : a ≤ b → b ≤ a → a = b := by
   sorry
@@ -93,7 +93,7 @@ This typeclass states that the order structure on `α`, represented by an `Order
 is a partial order.
 In other words, the less-or-equal relation is reflexive, transitive and antisymmetric.
 -/
-public class PartialOrder (α : Type u) [OrderData α] extends IsPreorder α where
+public class IsPartialOrder (α : Type u) [OrderData α] extends IsPreorder α where
   le_antisymm : ∀ a b : α, OrderData.IsLE a b → OrderData.IsLE b a → a = b
 
 /--
@@ -109,7 +109,7 @@ This typeclass states that the order structure on `α`, represented by an `Order
 is a linear order.
 In other words, the less-or-equal relation is reflexive, transitive, antisymmetric and total.
 -/
-public class IsLinearOrder (α : Type u) [OrderData α] extends PartialOrder α, IsLinearPreorder α
+public class IsLinearOrder (α : Type u) [OrderData α] extends IsPartialOrder α, IsLinearPreorder α
 
 section LE
 

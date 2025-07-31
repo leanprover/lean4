@@ -673,14 +673,14 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
     u_strFromUTF8(tzID, sizeof(tzID) / sizeof(tzID[0]), NULL, dst_name_id, lean_string_size(timezone_str) - 1, &status);
 
     if (U_FAILURE(status)) {
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to read identifier")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to read identifier")));
     }
 
     UCalendar *cal = ucal_open(tzID, -1, NULL, UCAL_GREGORIAN, &status);
 
     if (U_FAILURE(status)) {
         ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to open calendar")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to open calendar")));
     }
 
     int64_t tm = 0;
@@ -691,7 +691,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
         ucal_setMillis(cal, timestamp_secs * 1000, &status);
         if (U_FAILURE(status)) {
             ucal_close(cal);
-            return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to set calendar time")));
+            return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to set calendar time")));
         }
 
         UDate nextTransition;
@@ -702,7 +702,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
         if (U_FAILURE(status)) {
             ucal_close(cal);
-            return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get next transition")));
+            return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to get next transition")));
         }
 
         tm = (int64_t)(nextTransition / 1000.0);
@@ -712,7 +712,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
     if (U_FAILURE(status)) {
         ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get dst_offset")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to get dst_offset")));
     }
 
     int is_dst = dst_offset != 0;
@@ -721,7 +721,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
     if (U_FAILURE(status)) {
         ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to timezone identifier")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to timezone identifier")));
     }
 
     char dst_name[256];
@@ -729,7 +729,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
     u_strToUTF8(dst_name, sizeof(dst_name), &dst_name_len, tzID, tzIDLength, &status);
 
     if (U_FAILURE(status)) {
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to convert DST name to UTF-8")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to convert DST name to UTF-8")));
     }
 
     UChar display_name[32];
@@ -737,7 +737,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
     if (U_FAILURE(status)) {
         ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to read abbreaviation")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to read abbreaviation")));
     }
 
     char display_name_str[256];
@@ -746,7 +746,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
     if (U_FAILURE(status)) {
         ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get abbreviation to cstr")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to get abbreviation to cstr")));
     }
 
     int32_t zone_offset = ucal_get(cal, UCAL_ZONE_OFFSET, &status);
@@ -754,7 +754,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
     if (U_FAILURE(status)) {
         ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get zone_offset")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to get zone_offset")));
     }
 
     ucal_close(cal);
@@ -773,7 +773,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
     return lean_io_result_mk_ok(mk_option_some(lean_pair));
 #else
-    return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get timezone, its windows only.")));
+    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to get timezone, its windows only.")));
 #endif
 }
 
@@ -784,7 +784,7 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(uint64_t tm
     UCalendar* cal = ucal_open(NULL, -1, NULL, UCAL_GREGORIAN, &status);
 
     if (U_FAILURE(status)) {
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to open calendar")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to open calendar")));
     }
 
     int64_t timestamp_secs = (int64_t)tm_obj;
@@ -792,7 +792,7 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(uint64_t tm
 
     if (U_FAILURE(status)) {
         ucal_close(cal);
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to set calendar time")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to set calendar time")));
     }
 
     UChar tzId[256];
@@ -800,19 +800,19 @@ extern "C" LEAN_EXPORT obj_res lean_get_windows_local_timezone_id_at(uint64_t tm
     ucal_close(cal);
 
     if (U_FAILURE(status)) {
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get timezone ID")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to get timezone ID")));
     }
 
     char tzIdStr[256];
     u_strToUTF8(tzIdStr, sizeof(tzIdStr), NULL, tzId, tzIdLength, &status);
 
     if (U_FAILURE(status)) {
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to convert timezone ID to UTF-8")));
+        return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to convert timezone ID to UTF-8")));
     }
 
     return lean_io_result_mk_ok(lean_mk_ascii_string_unchecked(tzIdStr));
 #else
-    return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("timezone retrieval is Windows-only")));
+    return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("timezone retrieval is Windows-only")));
 #endif
 }
 

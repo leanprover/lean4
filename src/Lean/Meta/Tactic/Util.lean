@@ -38,10 +38,17 @@ def appendTagSuffix (mvarId : MVarId) (suffix : Name) : MetaM Unit := do
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) : MetaM Expr :=
   mkFreshExprMVar type MetavarKind.syntheticOpaque tag
 
+/--
+Produces an error message indicating that tactic `tacticName` has failed with the message `msg`,
+and displays the state of `mvarId` below the message.
+-/
+def mkTacticExMsg (tacticName : Name) (mvarId : MVarId) (msg : MessageData) : MessageData :=
+  m!"Tactic `{tacticName}` failed: {msg}\n\n{mvarId}"
+
 def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg? : Option MessageData := none) : MetaM α :=
   match msg? with
   | none => throwError "Tactic `{tacticName}` failed\n\n{mvarId}"
-  | some msg => throwError "Tactic `{tacticName}` failed: {msg}\n\n{mvarId}"
+  | some msg => throwError (mkTacticExMsg tacticName mvarId msg)
 
 /--
 Rethrows the error as a nested error with the given tactic name prepended.
@@ -50,8 +57,9 @@ If the error was tagged, prepends `nested` to the tag and preserves it.
 def throwNestedTacticEx {α} (tacticName : Name) (ex : Exception) : MetaM α := do
   let nestedMsg := ex.toMessageData
   let msg := m!"Tactic `{tacticName}` failed with a nested error:\n{ex.toMessageData}"
-  let msg := if let .tagged tag _ := nestedMsg then
-    .tagged (`nested ++ tag) msg
+  let kind := nestedMsg.kind
+  let msg := if !kind.isAnonymous then
+    .tagged (`nested ++ kind) msg
   else msg
   throwError msg
 

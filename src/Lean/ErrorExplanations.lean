@@ -13,6 +13,8 @@ public import Lean.ErrorExplanations.InductiveParamMissing
 public import Lean.ErrorExplanations.InferBinderTypeFailed
 public import Lean.ErrorExplanations.InferDefTypeFailed
 public import Lean.ErrorExplanations.InvalidDottedIdent
+public import Lean.ErrorExplanations.ProjNonPropFromProp
+public import Lean.ErrorExplanations.PropRecLargeElim
 public import Lean.ErrorExplanations.RedundantMatchAlt
 public import Lean.ErrorExplanations.UnknownIdentifier
 

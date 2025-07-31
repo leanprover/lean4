@@ -80,8 +80,8 @@ private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Ex
   if (← isProp eType) then
     let rType ← inferType r
     if !(← isProp rType) then
-      throwError "Invalid projection: Cannot project a value of non-propositional type{indentExpr rType}\
-        \nfrom the expression{indentExpr e}\nwhich has propositional type{indentExpr eType}"
+      throwNamedError lean.projNonPropFromProp "Invalid projection: Cannot project a value of non-propositional \
+        type{indentExpr rType}\nfrom the expression{indentExpr e}\nwhich has propositional type{indentExpr eType}"
   return r
 
 def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM Unit :=

@@ -5487,10 +5487,6 @@ abbrev toFin_uShiftRight := @toFin_ushiftRight
 
 
 
-@[deprecated replicate_zero (since := "2025-01-08")]
-abbrev replicate_zero_eq := @replicate_zero
 
-@[deprecated replicate_succ (since := "2025-01-08")]
-abbrev replicate_succ_eq := @replicate_succ
 
 end BitVec'

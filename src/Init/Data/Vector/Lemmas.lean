@@ -120,8 +120,7 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 @[simp] theorem findFinIdx?_mk {xs : Array α} (h : xs.size = n) (f : α → Bool) :
     (Vector.mk xs h).findFinIdx? f = (xs.findFinIdx? f).map (Fin.cast h) := rfl
 
-@[deprecated finIdxOf?_mk (since := "2025-01-29")]
-abbrev indexOf?_mk := @finIdxOf?_mk
+
 
 @[simp] theorem findM?_mk [Monad m] {xs : Array α} (h : xs.size = n) (f : α → m Bool) :
     (Vector.mk xs h).findM? f = xs.findM? f := rfl
@@ -217,8 +216,7 @@ abbrev indexOf?_mk := @finIdxOf?_mk
 @[simp] theorem zipIdx_mk {xs : Array α} (h : xs.size = n) (k : Nat := 0) :
     (Vector.mk xs h).zipIdx k = Vector.mk (xs.zipIdx k) (by simp [h]) := rfl
 
-@[deprecated zipIdx_mk (since := "2025-01-21")]
-abbrev zipWithIndex_mk := @zipIdx_mk
+
 
 @[simp] theorem mk_zipWith_mk {f : α → β → γ} {as : Array α} {bs : Array β}
     (h : as.size = n) (h' : bs.size = n) :

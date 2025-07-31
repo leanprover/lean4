@@ -1586,9 +1586,7 @@ theorem filterMap_eq_cons_iff {l} {b} {bs} :
 theorem not_mem_append {a : α} {s t : List α} (h₁ : a ∉ s) (h₂ : a ∉ t) : a ∉ s ++ t :=
   mt mem_append.1 $ not_or.mpr ⟨h₁, h₂⟩
 
-@[deprecated mem_append (since := "2025-01-13")]
-theorem mem_append_eq {a : α} {s t : List α} : (a ∈ s ++ t) = (a ∈ s ∨ a ∈ t) :=
-  propext mem_append
+
 
 /--
 See also `eq_append_cons_of_mem`, which proves a stronger version

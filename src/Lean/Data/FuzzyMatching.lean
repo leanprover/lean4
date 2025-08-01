@@ -25,7 +25,6 @@ namespace FuzzyMatching
 
 section Utils
 
--- TODO: consider using getByte
 @[specialize] private def iterateLookaround (f : Option Char → Char → Option Char → α) (string : String) : Array α :=
   if string.isEmpty then
     #[]
@@ -95,6 +94,7 @@ private def stringInfo (s : String) : Array CharRole :=
   iterateLookaround (string := s) fun prev? curr next? =>
     charRole (prev?.map charType) (charType curr) (next?.map charType)
 
+/-- Represents a fuzzy matching score where `Score.awful` is the worst score possible. -/
 private structure Score : Type where
   toInt16 : Int16
   deriving Inhabited
@@ -139,7 +139,7 @@ necessary to give consecutive character matches a bonus. -/
 private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Array CharRole) : Option Int := Id.run do
   /- Flattened array where the value at index (i, j, k) represents the best possible score of a fuzzy match
   between the substrings pattern[*...=i] and word[*...j] assuming that pattern[i] misses at word[j] (k = 0, i.e.
-  it was matched earlier), or matches at word[j] (k = 1). A value of `none` corresponds to a score of -∞, and is used
+  it was matched earlier), or matches at word[j] (k = 1). A value of `.awful` corresponds to a score of -∞, and is used
   where no such match/miss is possible or for unneeded parts of the table. -/
   let mut result : Array Score := Array.replicate (pattern.length * word.length * 2) .awful
   let mut runLengths : Array Int16 := Array.replicate (pattern.length * word.length) 0

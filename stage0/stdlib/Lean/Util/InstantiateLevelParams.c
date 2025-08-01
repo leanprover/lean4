@@ -27,18 +27,21 @@ lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceNoCache___at___Lean_Expr_instantiateLevelParamsNoCache_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParams___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___redArg(lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(uint8_t, uint8_t);
 size_t lean_ptr_addr(lean_object*);
 lean_object* lean_replace_expr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore_replaceFn(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0_spec__0___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_substParams_go(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParams_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0_spec__0___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsArray(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParams(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_InstantiateLevelParams_0__Lean_Expr_getParamSubst___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -550,7 +553,7 @@ return x_25;
 else
 {
 uint8_t x_26; 
-x_26 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_21, x_21);
+x_26 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_21, x_21);
 if (x_26 == 0)
 {
 lean_object* x_27; 
@@ -616,7 +619,7 @@ return x_42;
 else
 {
 uint8_t x_43; 
-x_43 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_38, x_38);
+x_43 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_38, x_38);
 if (x_43 == 0)
 {
 lean_object* x_44; 
@@ -889,6 +892,75 @@ lean_dec_ref(x_1);
 return x_5;
 }
 }
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0_spec__0___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = l___private_Lean_Util_InstantiateLevelParams_0__Lean_Expr_getParamSubstArray(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_5; 
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
+x_5 = l_List_reverse___redArg(x_4);
+return x_5;
+}
+else
+{
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_3);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_ctor_get(x_3, 0);
+x_8 = lean_ctor_get(x_3, 1);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
+x_9 = lean_alloc_closure((void*)(l_List_mapTR_loop___at___Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0_spec__0___lam__0___boxed), 3, 2);
+lean_closure_set(x_9, 0, x_1);
+lean_closure_set(x_9, 1, x_2);
+x_10 = l_Lean_Level_substParams_go(x_9, x_7);
+lean_ctor_set(x_3, 1, x_4);
+lean_ctor_set(x_3, 0, x_10);
+{
+lean_object* _tmp_2 = x_8;
+lean_object* _tmp_3 = x_3;
+x_3 = _tmp_2;
+x_4 = _tmp_3;
+}
+goto _start;
+}
+else
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_12 = lean_ctor_get(x_3, 0);
+x_13 = lean_ctor_get(x_3, 1);
+lean_inc(x_13);
+lean_inc(x_12);
+lean_dec(x_3);
+lean_inc_ref(x_2);
+lean_inc_ref(x_1);
+x_14 = lean_alloc_closure((void*)(l_List_mapTR_loop___at___Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0_spec__0___lam__0___boxed), 3, 2);
+lean_closure_set(x_14, 0, x_1);
+lean_closure_set(x_14, 1, x_2);
+x_15 = l_Lean_Level_substParams_go(x_14, x_12);
+x_16 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_4);
+x_3 = x_13;
+x_4 = x_16;
+goto _start;
+}
+}
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -914,20 +986,19 @@ return x_5;
 }
 else
 {
-lean_object* x_6; 
-x_6 = lean_alloc_closure((void*)(l_Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0___lam__0___boxed), 3, 2);
-lean_closure_set(x_6, 0, x_1);
-lean_closure_set(x_6, 1, x_2);
 switch (lean_obj_tag(x_3)) {
 case 3:
 {
-lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; uint8_t x_11; 
-x_7 = lean_ctor_get(x_3, 0);
-lean_inc(x_7);
-lean_inc(x_7);
-x_8 = l_Lean_Level_substParams_go(x_6, x_7);
-x_9 = lean_ptr_addr(x_7);
-lean_dec(x_7);
+lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; uint8_t x_11; 
+x_6 = lean_ctor_get(x_3, 0);
+lean_inc(x_6);
+x_7 = lean_alloc_closure((void*)(l_Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0___lam__0___boxed), 3, 2);
+lean_closure_set(x_7, 0, x_1);
+lean_closure_set(x_7, 1, x_2);
+lean_inc(x_6);
+x_8 = l_Lean_Level_substParams_go(x_7, x_6);
+x_9 = lean_ptr_addr(x_6);
+lean_dec(x_6);
 x_10 = lean_ptr_addr(x_8);
 x_11 = lean_usize_dec_eq(x_9, x_10);
 if (x_11 == 0)
@@ -957,7 +1028,7 @@ x_16 = lean_ctor_get(x_3, 1);
 lean_inc(x_16);
 x_17 = lean_box(0);
 lean_inc(x_16);
-x_18 = l_List_mapTR_loop___at___Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParams_spec__0_spec__0_spec__0(x_6, x_16, x_17);
+x_18 = l_List_mapTR_loop___at___Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0_spec__0(x_1, x_2, x_16, x_17);
 x_19 = l_ptrEqList___redArg(x_16, x_18);
 lean_dec(x_16);
 if (x_19 == 0)
@@ -982,8 +1053,9 @@ return x_22;
 default: 
 {
 lean_object* x_23; 
-lean_dec_ref(x_6);
 lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
 x_23 = lean_box(0);
 return x_23;
 }
@@ -1036,6 +1108,17 @@ lean_inc_ref(x_1);
 return x_1;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0_spec__0___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_List_mapTR_loop___at___Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0_spec__0___lam__0(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec_ref(x_2);
+lean_dec_ref(x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

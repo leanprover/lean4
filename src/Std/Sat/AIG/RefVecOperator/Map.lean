@@ -86,7 +86,7 @@ theorem map.go_le_size {aig : AIG α} (idx : Nat) (hidx) (s : RefVec aig idx)
     aig.decls.size ≤ (go aig idx hidx s input f).aig.decls.size := by
   unfold go
   split
-  · next h =>
+  next h =>
     dsimp only
     refine Nat.le_trans ?_ (by apply map.go_le_size)
     apply LawfulOperator.le_size

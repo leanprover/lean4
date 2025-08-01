@@ -3312,11 +3312,11 @@ theorem foldl_induction
   let rec go {i j b} (h₁ : j ≤ as.size) (h₂ : as.size ≤ i + j) (H : motive j b) :
     (motive as.size) (foldlM.loop (m := Id) f as as.size (Nat.le_refl _) i j b) := by
     unfold foldlM.loop; split
-    · next hj =>
+    next hj =>
       split
       · cases Nat.not_le_of_gt (by simp [hj]) h₂
       · exact go hj (by rwa [Nat.succ_add] at h₂) (hf ⟨j, hj⟩ b H)
-    · next hj => exact Nat.le_antisymm h₁ (Nat.ge_of_not_lt hj) ▸ H
+    next hj => exact Nat.le_antisymm h₁ (Nat.ge_of_not_lt hj) ▸ H
   simpa [foldl, foldlM] using go (Nat.zero_le _) (Nat.le_refl _) h0
 
 theorem foldr_induction
@@ -3326,13 +3326,13 @@ theorem foldr_induction
   let rec go {i b} (hi : i ≤ as.size) (H : motive i b) :
     (motive 0) (foldrM.fold (m := Id) f as 0 i hi b) := by
     unfold foldrM.fold; simp; split
-    · next hi => exact (hi ▸ H)
-    · next hi =>
+    next hi => exact (hi ▸ H)
+    next hi =>
       split; {simp at hi}
-      · next i hi' =>
+      next i hi' =>
         exact go _ (hf ⟨i, hi'⟩ b H)
   simp [foldr, foldrM]; split; {exact go _ h0}
-  · next h => exact (Nat.eq_zero_of_not_pos h ▸ h0)
+  next h => exact (Nat.eq_zero_of_not_pos h ▸ h0)
 
 @[congr]
 theorem foldl_congr {as bs : Array α} (h₀ : as = bs) {f g : β → α → β} (h₁ : f = g)

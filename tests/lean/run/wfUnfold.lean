@@ -5,7 +5,7 @@ def fib : Nat → Nat
 termination_by n => n
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 ⊢ fib 8 + fib (8 + 1) = 55
 -/
 #guard_msgs in
@@ -20,7 +20,7 @@ def ack : Nat → Nat → Nat
 termination_by n m => (n, m)
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 ⊢ ack 1 (ack (1 + 1) 1) = 7
 -/
 #guard_msgs in
@@ -30,7 +30,7 @@ example : ack 2 2 = 7 := by
 
 -- This checks that we can unfold definitions in the prelude
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 α : Type u_1
 as : Array α
 i : Nat

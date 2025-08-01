@@ -27,7 +27,6 @@ static lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___closed__8__
 static lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___closed__5____x40_Lake_DSL_Attributes___hyg_4_;
 static lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___closed__11____x40_Lake_DSL_Attributes___hyg_4_;
 LEAN_EXPORT lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___lam__0____x40_Lake_DSL_Attributes___hyg_4_(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_Core_wrapAsyncAsSnapshot_spec__23_spec__23_spec__23(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___closed__0____x40_Lake_DSL_Attributes___hyg_4_;
 static lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___closed__19____x40_Lake_DSL_Attributes___hyg_4_;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
@@ -49,6 +48,7 @@ static lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___closed__6__
 static lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___closed__21____x40_Lake_DSL_Attributes___hyg_4_;
 static lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___lam__0___closed__2____x40_Lake_DSL_Attributes___hyg_4_;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
+lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_Core_wrapAsyncAsSnapshot_spec__25_spec__25_spec__25(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___closed__7____x40_Lake_DSL_Attributes___hyg_4_;
 LEAN_EXPORT lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___lam__1____x40_Lake_DSL_Attributes___hyg_4_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___lam__0___closed__1____x40_Lake_DSL_Attributes___hyg_4_;
@@ -58,7 +58,7 @@ _start:
 uint8_t x_6; uint8_t x_7; lean_object* x_8; 
 x_6 = 1;
 x_7 = 0;
-x_8 = l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_Core_wrapAsyncAsSnapshot_spec__23_spec__23_spec__23(x_1, x_2, x_6, x_7, x_3, x_4, x_5);
+x_8 = l_Lean_logAt___at___Lean_log___at___Lean_logError___at___Lean_Core_wrapAsyncAsSnapshot_spec__25_spec__25_spec__25(x_1, x_2, x_6, x_7, x_3, x_4, x_5);
 return x_8;
 }
 }

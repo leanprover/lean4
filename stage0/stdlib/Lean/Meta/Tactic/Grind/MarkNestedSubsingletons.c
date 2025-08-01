@@ -47,6 +47,7 @@ uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_MarkNestedSubsingletons_0__Lean_Meta_Grind_isDecidable___closed__1;
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(uint8_t, uint8_t);
 lean_object* l_ReaderT_instMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_isMarkedSubsingletonConst___boxed(lean_object*);
 lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(lean_object*, lean_object*, lean_object*);
@@ -80,7 +81,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Me
 static lean_object* l_Lean_Meta_Grind_isMarkedSubsingletonConst___closed__0;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_markNestedSubsingletons___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_Grind_isMarkedSubsingletonConst___closed__3;
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isMarkedSubsingletonConst(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_markNestedSubsingletons_visit___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2230,7 +2230,7 @@ return x_65;
 else
 {
 uint8_t x_66; 
-x_66 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_54, x_54);
+x_66 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_54, x_54);
 if (x_66 == 0)
 {
 lean_object* x_67; lean_object* x_68; 
@@ -3431,7 +3431,7 @@ return x_353;
 else
 {
 uint8_t x_354; 
-x_354 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_342, x_342);
+x_354 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_342, x_342);
 if (x_354 == 0)
 {
 lean_object* x_355; lean_object* x_356; 
@@ -4513,7 +4513,7 @@ return x_582;
 else
 {
 uint8_t x_583; 
-x_583 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_571, x_571);
+x_583 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_571, x_571);
 if (x_583 == 0)
 {
 lean_object* x_584; lean_object* x_585; 

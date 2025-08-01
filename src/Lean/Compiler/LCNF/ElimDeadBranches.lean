@@ -257,9 +257,10 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
-    exportEntriesFnEx? := some fun env s _ _ =>
-      let entries := s.toArray.qsort decLt
-      entries.filter (isDeclPublic env ·.1)
+    exportEntriesFnEx? := some fun _ s _ => fun
+      -- preserved for non-modules, make non-persistent at some point?
+      | .private => s.toArray.qsort decLt
+      | _ => #[]
     asyncMode := .sync  -- compilation is non-parallel anyway
     replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s ⟨e, n⟩ => s.insert e n)
   }

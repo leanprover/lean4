@@ -110,7 +110,6 @@ lean_object* l_Nat_nextPowerOfTwo(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_load(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_bignumToJson(lean_object*);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
-lean_object* l_Lake_beqHash____x40_Lake_Build_Trace___hyg_486____boxed(lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at_____private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop_spec__2_spec__2_spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_____private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop_spec__5___redArg(uint64_t, lean_object*, lean_object*);
@@ -135,6 +134,7 @@ LEAN_EXPORT lean_object* l_Lake_Cache_isDisabled___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lake_CacheMap_save_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* l_Lake_beqHash____x40_Lake_Build_Trace___hyg_476____boxed(lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_rewind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Cache_inputsDir(lean_object*);
 size_t lean_usize_land(size_t, size_t);
@@ -2180,7 +2180,7 @@ static lean_object* _init_l_Lake_CacheMap_save___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_beqHash____x40_Lake_Build_Trace___hyg_486____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_beqHash____x40_Lake_Build_Trace___hyg_476____boxed), 2, 0);
 return x_1;
 }
 }

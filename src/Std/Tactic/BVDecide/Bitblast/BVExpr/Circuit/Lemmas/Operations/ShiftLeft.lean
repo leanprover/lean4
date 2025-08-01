@@ -127,19 +127,19 @@ theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
     | inr =>
       split at hgo
       · split
-        · next hidx =>
+        next hidx =>
           rw [← hgo]
           rw [go_denote_eq]
           · simp [hidx]
           · omega
-        · next hidx =>
+        next hidx =>
           rw [← hgo]
           rw [go_denote_eq]
           · simp [hidx]
           · omega
       · split
         · omega
-        · next hidx =>
+        next hidx =>
           rw [← hgo]
           rw [go_denote_eq]
           · simp [hidx]
@@ -191,7 +191,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
   dsimp only at hg
   split at hg
   · split
-    · next hif1 =>
+    next hif1 =>
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
         denote_blastShiftLeftConst]
@@ -213,7 +213,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
           decide_true, Bool.true_and, Bool.eq_and_self, Bool.not_eq_true', decide_eq_false_iff_not,
           Nat.not_lt]
         omega
-    · next hif1 =>
+    next hif1 =>
       simp only [Bool.not_eq_true] at hif1
       rw [← hg]
       simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
@@ -289,7 +289,7 @@ theorem denote_blastShiftLeft (aig : AIG α) (target : ArbitraryShiftTarget aig 
   unfold blastShiftLeft at hg
   dsimp only at hg
   split at hg
-  · next hzero =>
+  next hzero =>
     dsimp only
     subst hzero
     rw [← hg]

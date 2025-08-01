@@ -747,7 +747,7 @@ def dvd_elim_cert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (p₂ : Poly) : Bool :
 theorem dvd_elim (ctx : Context) (k₁ : Int) (p₁ : Poly) (k₂ : Int) (p₂ : Poly)
     : dvd_elim_cert k₁ p₁ k₂ p₂ → k₁ ∣ p₁.denote' ctx → k₂ ∣ p₂.denote' ctx := by
   rcases p₁ <;> simp [dvd_elim_cert]
-  next a _ p =>
+  rename_i a _ p
   intro _ _; subst k₂ p₂
   rw [Int.add_comm]
   apply dvd_gcd_of_dvd
@@ -815,7 +815,7 @@ theorem dvd_solve_combine (ctx : Context) (d₁ : Int) (p₁ : Poly) (d₂ : Int
     : dvd_solve_combine_cert d₁ p₁ d₂ p₂ d p g α β → d₁ ∣ p₁.denote' ctx → d₂ ∣ p₂.denote' ctx → d ∣ p.denote' ctx := by
   simp [dvd_solve_combine_cert]
   split <;> simp
-  next a₁ x₁ p₁ a₂ x₂ p₂ =>
+  rename_i a₁ x₁ p₁ a₂ x₂ p₂
   intro _ hg hd hp; subst x₁ p
   simp
   intro h₁ h₂
@@ -836,7 +836,7 @@ theorem dvd_solve_elim (ctx : Context) (d₁ : Int) (p₁ : Poly) (d₂ : Int) (
     : dvd_solve_elim_cert d₁ p₁ d₂ p₂ d p → d₁ ∣ p₁.denote' ctx → d₂ ∣ p₂.denote' ctx → d ∣ p.denote' ctx := by
   simp [dvd_solve_elim_cert]
   split <;> simp
-  next a₁ x₁ p₁ a₂ x₂ p₂ =>
+  rename_i a₁ x₁ p₁ a₂ x₂ p₂
   intro _ hd _; subst x₁ p; simp [Int.neg_mul]
   intro h₁ h₂
   rw [Int.add_comm] at h₁ h₂
@@ -1290,17 +1290,17 @@ theorem cooper_dvd_left (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (n : N
       → p₂.denote' ctx ≤ 0
       → d ∣ p₃.denote' ctx
       → OrOver n (cooper_dvd_left_split ctx p₁ p₂ p₃ d) := by
- unfold cooper_dvd_left_split
- cases p₁ <;> cases p₂ <;> cases p₃ <;> simp [cooper_dvd_left_cert, Poly.tail, -Poly.denote'_eq_denote]
- next a x p b y q c z s =>
- intro _ _; subst y z
- intro ha hb hd
- intro; subst n
- simp only [Poly.denote'_add, Poly.leadCoeff]
- intro h₁ h₂ h₃
- simp only [denote'_mul_combine_mul_addConst_eq]
- simp only [denote'_addConst_eq]
- exact cooper_dvd_left_core ha hb hd h₁ h₂ h₃
+  unfold cooper_dvd_left_split
+  cases p₁ <;> cases p₂ <;> cases p₃ <;> simp [cooper_dvd_left_cert, Poly.tail, -Poly.denote'_eq_denote]
+  rename_i a x p b y q c z s
+  intro _ _; subst y z
+  intro ha hb hd
+  intro; subst n
+  simp only [Poly.denote'_add, Poly.leadCoeff]
+  intro h₁ h₂ h₃
+  simp only [denote'_mul_combine_mul_addConst_eq]
+  simp only [denote'_addConst_eq]
+  exact cooper_dvd_left_core ha hb hd h₁ h₂ h₃
 
 @[expose]
 def cooper_dvd_left_split_ineq_cert (p₁ p₂ : Poly) (k : Int) (b : Int) (p' : Poly) : Bool :=
@@ -1376,18 +1376,18 @@ theorem cooper_left (ctx : Context) (p₁ p₂ : Poly) (n : Nat)
       → p₁.denote' ctx ≤ 0
       → p₂.denote' ctx ≤ 0
       → OrOver n (cooper_left_split ctx p₁ p₂) := by
- unfold cooper_left_split
- cases p₁ <;> cases p₂ <;> simp [cooper_left_cert, Poly.tail, -Poly.denote'_eq_denote]
- next a x p b y q =>
- intro; subst y
- intro ha hb
- intro; subst n
- simp only [Poly.denote'_add, Poly.leadCoeff]
- intro h₁ h₂
- have := cooper_left_core ha hb h₁ h₂
- simp only [denote'_mul_combine_mul_addConst_eq]
- simp only [denote'_addConst_eq]
- assumption
+  unfold cooper_left_split
+  cases p₁ <;> cases p₂ <;> simp [cooper_left_cert, Poly.tail, -Poly.denote'_eq_denote]
+  rename_i a x p b y q
+  intro; subst y
+  intro ha hb
+  intro; subst n
+  simp only [Poly.denote'_add, Poly.leadCoeff]
+  intro h₁ h₂
+  have := cooper_left_core ha hb h₁ h₂
+  simp only [denote'_mul_combine_mul_addConst_eq]
+  simp only [denote'_addConst_eq]
+  assumption
 
 @[expose]
 def cooper_left_split_ineq_cert (p₁ p₂ : Poly) (k : Int) (b : Int) (p' : Poly) : Bool :=
@@ -1465,18 +1465,18 @@ theorem cooper_dvd_right (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (n : 
       → p₂.denote' ctx ≤ 0
       → d ∣ p₃.denote' ctx
       → OrOver n (cooper_dvd_right_split ctx p₁ p₂ p₃ d) := by
- unfold cooper_dvd_right_split
- cases p₁ <;> cases p₂ <;> cases p₃ <;> simp [cooper_dvd_right_cert, Poly.tail, -Poly.denote'_eq_denote]
- next a x p b y q c z s =>
- intro _ _; subst y z
- intro ha hb hd
- intro; subst n
- simp only [Poly.denote'_add, Poly.leadCoeff]
- intro h₁ h₂ h₃
- have := cooper_dvd_right_core ha hb hd h₁ h₂ h₃
- simp only [denote'_mul_combine_mul_addConst_eq]
- simp only [denote'_addConst_eq]
- exact cooper_dvd_right_core ha hb hd h₁ h₂ h₃
+  unfold cooper_dvd_right_split
+  cases p₁ <;> cases p₂ <;> cases p₃ <;> simp [cooper_dvd_right_cert, Poly.tail, -Poly.denote'_eq_denote]
+  rename_i a x p b y q c z s
+  intro _ _; subst y z
+  intro ha hb hd
+  intro; subst n
+  simp only [Poly.denote'_add, Poly.leadCoeff]
+  intro h₁ h₂ h₃
+  have := cooper_dvd_right_core ha hb hd h₁ h₂ h₃
+  simp only [denote'_mul_combine_mul_addConst_eq]
+  simp only [denote'_addConst_eq]
+  exact cooper_dvd_right_core ha hb hd h₁ h₂ h₃
 
 @[expose]
 def cooper_dvd_right_split_ineq_cert (p₁ p₂ : Poly) (k : Int) (a : Int) (p' : Poly) : Bool :=
@@ -1551,18 +1551,18 @@ theorem cooper_right (ctx : Context) (p₁ p₂ : Poly) (n : Nat)
       → p₁.denote' ctx ≤ 0
       → p₂.denote' ctx ≤ 0
       → OrOver n (cooper_right_split ctx p₁ p₂) := by
- unfold cooper_right_split
- cases p₁ <;> cases p₂ <;> simp [cooper_right_cert, Poly.tail, -Poly.denote'_eq_denote]
- next a x p b y q =>
- intro; subst y
- intro ha hb
- intro; subst n
- simp only [Poly.denote'_add, Poly.leadCoeff]
- intro h₁ h₂
- have := cooper_right_core ha hb h₁ h₂
- simp only [denote'_mul_combine_mul_addConst_eq]
- simp only [denote'_addConst_eq]
- assumption
+  unfold cooper_right_split
+  cases p₁ <;> cases p₂ <;> simp [cooper_right_cert, Poly.tail, -Poly.denote'_eq_denote]
+  rename_i a x p b y q
+  intro; subst y
+  intro ha hb
+  intro; subst n
+  simp only [Poly.denote'_add, Poly.leadCoeff]
+  intro h₁ h₂
+  have := cooper_right_core ha hb h₁ h₂
+  simp only [denote'_mul_combine_mul_addConst_eq]
+  simp only [denote'_addConst_eq]
+  assumption
 
 @[expose]
 def cooper_right_split_ineq_cert (p₁ p₂ : Poly) (k : Int) (a : Int) (p' : Poly) : Bool :=
@@ -1685,11 +1685,11 @@ theorem cooper_unsat (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (α β : 
      p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → d ∣ p₃.denote' ctx → False := by
   unfold cooper_unsat_cert <;> cases p₁ <;> cases p₂ <;> cases p₃ <;> simp only [Poly.casesOnAdd,
     Bool.false_eq_true, Poly.denote'_add, false_implies]
-  next k₁ x p₁ k₂ y p₂ c z p₃ =>
+  rename_i k₁ x p₁ k₂ y p₂ c z p₃
   cases p₁ <;> cases p₂ <;> cases p₃ <;> simp only [Poly.casesOnNum, Int.reduceNeg,
     Bool.and_eq_true, beq_iff_eq, decide_eq_true_eq, and_imp, Bool.false_eq_true,
     mul_def, add_def, false_implies, Poly.denote]
-  next a b e =>
+  rename_i a b e
   intro _ _ _ _; subst k₁ k₂ y z
   intro h₁ h₃ h₆; generalize Var.denote ctx x = x'
   intro h₄ h₅ h₂

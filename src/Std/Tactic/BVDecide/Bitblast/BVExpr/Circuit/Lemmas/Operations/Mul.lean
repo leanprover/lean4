@@ -52,7 +52,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤
   unfold go at hgo
   split at hgo
   · split at hgo
-    · next hconstant =>
+    next hconstant =>
       rw [← hgo]
       rw [go_denote_eq]
       · omega
@@ -84,7 +84,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤
         rw [BitVec.mulRec_succ_eq]
         simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq, BitVec.ofNat_eq_ofNat]
         split
-        · next hdiscr =>
+        next hdiscr =>
           have : rexpr.getLsbD (curr + 1) = true := by
             rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastAdd)] at hdiscr
             rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)] at hdiscr
@@ -99,11 +99,11 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤
           · intros
             simp only [denote_blastShiftLeftConst, BitVec.getLsbD_shiftLeft]
             split
-            · next hdiscr => simp [hdiscr]
-            · next hidx hdiscr =>
+            next hdiscr => simp [hdiscr]
+            next hidx hdiscr =>
               rw [hleft]
               simp [hdiscr, hidx]
-        · next hdiscr =>
+        next hdiscr =>
           have : rexpr.getLsbD (curr + 1) = false := by
             rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastAdd)] at hdiscr
             rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftLeftConst)] at hdiscr
@@ -139,7 +139,7 @@ theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
   dsimp only at hb
   split at hb
   · omega
-  · next hne =>
+  next hne =>
     have := Nat.exists_eq_succ_of_ne_zero hne
     rcases this with ⟨w, hw⟩
     subst hw
@@ -161,11 +161,11 @@ theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
         BitVec.ofNat_eq_ofNat, BitVec.getLsbD_zero, Bool.if_false_right,
         Bool.decide_eq_true]
       split
-      · next heq =>
+      next heq =>
         rw [← hright] at heq
         · simp [heq, hleft]
         · omega
-      · next heq =>
+      next heq =>
         simp only [Bool.not_eq_true] at heq
         rw [← hright] at heq
         · simp [heq]

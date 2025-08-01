@@ -54,7 +54,7 @@ deriving instance Repr for UseImplicitLambdaResult
         let mvarCounterSaved := (← getMCtx).mvarCounter
         let e ← Tactic.elabTerm stx none (mayPostpone := true)
         unless ← occursCheck g e do
-          throwError "occurs check failed, expression{indentExpr e}\ncontains the goal {Expr.mvar g}"
+          throwError "Occurs check failed: Expression{indentExpr e}\ncontains the goal {Expr.mvar g}"
         -- Copy the goal. We want to defer assigning `g := g'` to prevent `MVarId.note` from
         -- partially assigning the goal in case we need to log unassigned metavariables.
         -- Without deferring, this can cause `logUnassignedAndAbort` to report that `g` could not
@@ -78,7 +78,7 @@ deriving instance Repr for UseImplicitLambdaResult
             unless (← withAssignableSyntheticOpaque <| isDefEq gType hType) do
               -- `e` still is valid in this new local context
               Term.throwTypeMismatchError gType hType h
-                (header? := some m!"type mismatch, term{indentExpr e}\nafter simplification")
+                (header? := some m!"Type mismatch: After simplification, term{indentExpr e}\n")
             logUnassignedAndAbort (← filterOldMVars (← getMVars e) mvarCounterSaved)
             closeMainGoal `simpa (checkUnassigned := false) h
         | none =>
@@ -86,7 +86,7 @@ deriving instance Repr for UseImplicitLambdaResult
             if let .fvar h := e then
               if (← getLCtx).getRoundtrippingUserName? h |>.isSome then
                 logLint linter.unnecessarySimpa (← getRef)
-                  m!"try 'simp at {Expr.fvar h}' instead of 'simpa using {Expr.fvar h}'"
+                  m!"Try `simp at {Expr.fvar h}` instead of `simpa using {Expr.fvar h}`"
         g.assign gCopy
         pure stats
       else if let some ldecl := (← getLCtx).findFromUserName? `this then

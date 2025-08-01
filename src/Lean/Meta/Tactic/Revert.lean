@@ -24,7 +24,8 @@ def _root_.Lean.MVarId.revert (mvarId : MVarId) (fvarIds : Array FVarId) (preser
     unless clearAuxDeclsInsteadOfRevert do
       for fvarId in fvarIds do
         if (← fvarId.getDecl) |>.isAuxDecl then
-          throwError "failed to revert {mkFVar fvarId}, it is an auxiliary declaration created to represent recursive definitions"
+          throwError "Failed to revert `{mkFVar fvarId}`: It is an auxiliary declaration created to \
+            represent a recursive reference to an in-progress definition"
     let fvars := fvarIds.map mkFVar
     let toRevert ← collectForwardDeps fvars preserveOrder
     /- We should clear any `auxDecl` in `toRevert` -/

@@ -21,7 +21,7 @@ scientific.lean:22:9: error: missing exponent digits in scientific literal
 scientific.lean:23:9: error: missing exponent digits in scientific literal
 scientific.lean:24:9: error: missing exponent digits in scientific literal
 scientific.lean:25:9: error: missing exponent digits in scientific literal
-scientific.lean:26:7-26:8: error(lean.unknownIdentifier): Unknown identifier `Nat.E`
+scientific.lean:26:6-26:8: error(lean.unknownIdentifier): Unknown constant `Nat.E`
 
 Note: Inferred this name from the expected resulting type of `.E`:
   Nat

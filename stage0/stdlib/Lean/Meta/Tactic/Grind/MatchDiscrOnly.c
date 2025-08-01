@@ -48,6 +48,7 @@ LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Core_withIncRecDe
 static lean_object* l___private_Lean_Meta_Tactic_Grind_MatchDiscrOnly_0____regBuiltin_Lean_Meta_Grind_reduceSimpMatchDiscrsOnly_declare__11___closed__5____x40_Lean_Meta_Tactic_Grind_MatchDiscrOnly___hyg_361_;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_Grind_eraseSimpMatchDiscrsOnly_spec__0_spec__0_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Core_transform___at___Lean_Meta_Grind_eraseSimpMatchDiscrsOnly_spec__0___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_Grind_eraseSimpMatchDiscrsOnly_spec__0_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_Grind_eraseSimpMatchDiscrsOnly_spec__0_spec__0_spec__8___redArg(lean_object*);
@@ -95,7 +96,6 @@ lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object
 uint8_t lean_expr_equal(lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Core_withIncRecDepth___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_Grind_eraseSimpMatchDiscrsOnly_spec__0_spec__0_spec__5_spec__5___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_reduceSimpMatchDiscrsOnly(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_getMatcherInfo_x3f___at___Lean_Meta_Grind_reduceSimpMatchDiscrsOnly_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_addSimpMatchDiscrsOnly___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_Grind_eraseSimpMatchDiscrsOnly_spec__0_spec__0_spec__11___redArg(lean_object*, lean_object*, lean_object*);
@@ -3487,7 +3487,7 @@ return x_36;
 else
 {
 uint8_t x_37; 
-x_37 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_31, x_31);
+x_37 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_31, x_31);
 if (x_37 == 0)
 {
 lean_object* x_38; lean_object* x_39; 
@@ -3520,7 +3520,7 @@ return x_50;
 else
 {
 uint8_t x_51; 
-x_51 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_47, x_47);
+x_51 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_47, x_47);
 if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; 

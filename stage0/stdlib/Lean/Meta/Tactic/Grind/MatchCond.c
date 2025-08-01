@@ -82,7 +82,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_MatchCond_0__Lean_Me
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Grind_tryToProveFalse_spec__0_spec__0___closed__3;
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_isLevelMVarAssignable___at___Lean_hasAssignableLevelMVar___at___Lean_hasAssignableMVar___at___Lean_Meta_Grind_tryToProveFalse_spec__3_spec__4_spec__4_spec__7___closed__0;
-uint64_t l_Lean_hashLevelMVarId____x40_Lean_Level___hyg_491_(lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(uint8_t, uint8_t);
 lean_object* l_Lean_Meta_Grind_getConfig___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_proveHEq_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_MatchCond_0__Lean_Meta_Grind_mkMatchCondProof_x3f_go_x3f___lam__0___closed__0;
@@ -176,7 +176,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_isLevelMVarAssignable___at___Lean_hasAssignableLevelMVar___at___Lean_hasAssignableMVar___at___Lean_Meta_Grind_tryToProveFalse_spec__3_spec__4_spec__4_spec__7___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_withNewMCtxDepth___at___Lean_Meta_Grind_tryToProveFalse_spec__12___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkNot(lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_addTrace___at_____private_Lean_Meta_Tactic_Grind_MatchCond_0__Lean_Meta_Grind_isSatisfied_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_collectMatchCondLhssAndAbstract_go___lam__2___closed__0;
 static lean_object* l_Lean_addTrace___at_____private_Lean_Meta_Tactic_Grind_MatchCond_0__Lean_Meta_Grind_isSatisfied_spec__1___redArg___closed__1;
@@ -206,6 +205,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateMatchCondDown(lean_object*, 
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_Grind_tryToProveFalse_go_spec__0___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_isLevelMVarAssignable___at___Lean_hasAssignableLevelMVar___at___Lean_hasAssignableMVar___at___Lean_Meta_Grind_tryToProveFalse_spec__3_spec__4_spec__4_spec__4_spec__4_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t l_Lean_hashLevelMVarId____x40_Lean_Level___hyg_489_(lean_object*);
 lean_object* l_Lean_Expr_appFnCleanup___redArg(lean_object*);
 lean_object* l_Lean_Meta_instMonadMetaM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
@@ -959,7 +959,7 @@ return x_17;
 else
 {
 uint8_t x_18; 
-x_18 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_8, x_8);
+x_18 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_8, x_8);
 if (x_18 == 0)
 {
 lean_object* x_19; 
@@ -1020,7 +1020,7 @@ return x_31;
 else
 {
 uint8_t x_32; 
-x_32 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_8, x_8);
+x_32 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_8, x_8);
 if (x_32 == 0)
 {
 lean_object* x_33; 
@@ -10412,7 +10412,6 @@ x_35 = lean_ctor_get(x_24, 0);
 lean_dec(x_35);
 x_36 = lean_array_fget(x_26, x_27);
 x_37 = lean_unbox(x_36);
-lean_dec(x_36);
 x_38 = lean_unsigned_to_nat(1u);
 x_39 = lean_nat_add(x_27, x_38);
 lean_dec(x_27);
@@ -12556,7 +12555,6 @@ lean_object* x_483; uint8_t x_484; lean_object* x_485; lean_object* x_486; lean_
 lean_dec(x_24);
 x_483 = lean_array_fget(x_26, x_27);
 x_484 = lean_unbox(x_483);
-lean_dec(x_483);
 x_485 = lean_unsigned_to_nat(1u);
 x_486 = lean_nat_add(x_27, x_485);
 lean_dec(x_27);
@@ -13486,7 +13484,6 @@ x_35 = lean_ctor_get(x_24, 0);
 lean_dec(x_35);
 x_36 = lean_array_fget(x_26, x_27);
 x_37 = lean_unbox(x_36);
-lean_dec(x_36);
 x_38 = lean_unsigned_to_nat(1u);
 x_39 = lean_nat_add(x_27, x_38);
 lean_dec(x_27);
@@ -15630,7 +15627,6 @@ lean_object* x_483; uint8_t x_484; lean_object* x_485; lean_object* x_486; lean_
 lean_dec(x_24);
 x_483 = lean_array_fget(x_26, x_27);
 x_484 = lean_unbox(x_483);
-lean_dec(x_483);
 x_485 = lean_unsigned_to_nat(1u);
 x_486 = lean_nat_add(x_27, x_485);
 lean_dec(x_27);
@@ -16885,7 +16881,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_isLevelMV
 _start:
 {
 uint64_t x_3; size_t x_4; lean_object* x_5; 
-x_3 = l_Lean_hashLevelMVarId____x40_Lean_Level___hyg_491_(x_2);
+x_3 = l_Lean_hashLevelMVarId____x40_Lean_Level___hyg_489_(x_2);
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_isLevelMVarAssignable___at___Lean_hasAssignableLevelMVar___at___Lean_hasAssignableMVar___at___Lean_Meta_Grind_tryToProveFalse_spec__3_spec__4_spec__4_spec__4_spec__4___redArg(x_1, x_4, x_2);
 return x_5;

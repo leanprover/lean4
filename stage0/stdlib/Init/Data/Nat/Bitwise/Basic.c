@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Nat_shiftRight___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_instXorOp;
 static lean_object* l_Nat_instShiftRight___closed__0;
 LEAN_EXPORT lean_object* l_Nat_instAndOp;
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
@@ -23,9 +24,7 @@ static lean_object* l_Nat_instShiftLeft___closed__0;
 lean_object* lean_nat_land(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_bitwise(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_instShiftRight;
-LEAN_EXPORT lean_object* l_Nat_instXor;
 LEAN_EXPORT lean_object* l_Nat_testBit___boxed(lean_object*, lean_object*);
-static lean_object* l_Nat_instXor___closed__0;
 static lean_object* l_Nat_instOrOp___closed__0;
 lean_object* lean_nat_lxor(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_testBit(lean_object*, lean_object*);
@@ -36,6 +35,7 @@ lean_object* lean_nat_shiftl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_xor___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_lor___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_land___boxed(lean_object*, lean_object*);
+static lean_object* l_Nat_instXorOp___closed__0;
 LEAN_EXPORT lean_object* l_Nat_instOrOp;
 LEAN_EXPORT lean_object* l_Nat_shiftLeft___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_instShiftLeft;
@@ -219,7 +219,7 @@ x_1 = l_Nat_instOrOp___closed__0;
 return x_1;
 }
 }
-static lean_object* _init_l_Nat_instXor___closed__0() {
+static lean_object* _init_l_Nat_instXorOp___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -227,11 +227,11 @@ x_1 = lean_alloc_closure((void*)(l_Nat_xor___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Nat_instXor() {
+static lean_object* _init_l_Nat_instXorOp() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Nat_instXor___closed__0;
+x_1 = l_Nat_instXorOp___closed__0;
 return x_1;
 }
 }
@@ -328,10 +328,10 @@ l_Nat_instOrOp___closed__0 = _init_l_Nat_instOrOp___closed__0();
 lean_mark_persistent(l_Nat_instOrOp___closed__0);
 l_Nat_instOrOp = _init_l_Nat_instOrOp();
 lean_mark_persistent(l_Nat_instOrOp);
-l_Nat_instXor___closed__0 = _init_l_Nat_instXor___closed__0();
-lean_mark_persistent(l_Nat_instXor___closed__0);
-l_Nat_instXor = _init_l_Nat_instXor();
-lean_mark_persistent(l_Nat_instXor);
+l_Nat_instXorOp___closed__0 = _init_l_Nat_instXorOp___closed__0();
+lean_mark_persistent(l_Nat_instXorOp___closed__0);
+l_Nat_instXorOp = _init_l_Nat_instXorOp();
+lean_mark_persistent(l_Nat_instXorOp);
 l_Nat_instShiftLeft___closed__0 = _init_l_Nat_instShiftLeft___closed__0();
 lean_mark_persistent(l_Nat_instShiftLeft___closed__0);
 l_Nat_instShiftLeft = _init_l_Nat_instShiftLeft();

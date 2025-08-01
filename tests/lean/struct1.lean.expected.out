@@ -15,14 +15,14 @@ but is expected to have type
   Nat
 struct1.lean:30:1-30:2: error: Field `x` has already been declared
 struct1.lean:33:1-33:2: error: Field `x` has already been declared in a parent structure
-struct1.lean:36:6-36:10: error: type mismatch
+struct1.lean:36:6-36:10: error: Type mismatch
   true
 has type
   Bool
 but is expected to have type
   Nat
 struct1.lean:39:5-39:9: error: Omit the type of field `x` to set its default value
-struct1.lean:42:12-42:16: error: type mismatch
+struct1.lean:42:12-42:16: error: Type mismatch
   true
 has type
   Bool

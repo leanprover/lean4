@@ -28,6 +28,7 @@ lean_object* l_Std_DTreeMap_Internal_Impl_minKeyD___redArg(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_values(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_getEntryGE_x3f_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_filter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3626_;
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_maxEntryD___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_getKey_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -161,7 +162,6 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeMap_maxEntryD(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_minEntryD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_forM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_isEmpty___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3749_;
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_alter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_maxEntry___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_minKeyD___redArg(lean_object*, lean_object*);
@@ -324,6 +324,7 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeMap_getKeyD___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_instGetElem_x3fMem___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_entryAtIdx_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_getKeyLE_x3f_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3747_;
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_mergeWith___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_getKeyLE_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_getKeyGED(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -349,7 +350,6 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeMap_instInsertProdOfTransCmp(lean_object*,
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_maxKeyD___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_getEntryGTD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_maxKey(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3589_;
 static lean_object* l___auto___closed__6____x40_Std_Data_ExtTreeMap_Basic___hyg_33_;
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_instDecidableMem___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_unitOfArray(lean_object*, lean_object*, lean_object*);
@@ -383,6 +383,7 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeMap_eraseMany(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_foldl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_getKeyGE___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_entryAtIdx_x21___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3587_;
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_getEntryLE_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -395,8 +396,8 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeMap_entryAtIdx_x3f___boxed(lean_object*, l
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_maxEntry___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_getKeyD___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_instReprOfTransCmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3628_;
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_contains___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3708_;
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_instEmptyCollection___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_instGetElem_x3fMem(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_foldr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -447,7 +448,6 @@ static lean_object* l_Std_ExtTreeMap_foldr___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_foldlM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_minEntry___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3710_;
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_instEmptyCollection(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__18____x40_Std_Data_ExtTreeMap_Basic___hyg_33_;
 LEAN_EXPORT lean_object* l_Std_ExtTreeMap_keyAtIdx_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4947,7 +4947,7 @@ lean_dec_ref(x_3);
 return x_6;
 }
 }
-static lean_object* _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3589_() {
+static lean_object* _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3587_() {
 _start:
 {
 lean_object* x_1; 
@@ -4994,7 +4994,7 @@ x_8 = l_List_forIn_x27_loop___redArg(x_7, x_5, x_3, x_6);
 return x_8;
 }
 }
-static lean_object* _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3628_() {
+static lean_object* _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3626_() {
 _start:
 {
 lean_object* x_1; 
@@ -5102,7 +5102,7 @@ lean_dec_ref(x_3);
 return x_6;
 }
 }
-static lean_object* _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3710_() {
+static lean_object* _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3708_() {
 _start:
 {
 lean_object* x_1; 
@@ -5138,7 +5138,7 @@ x_10 = l_Array_forIn_x27Unsafe_loop___redArg(x_7, x_3, x_5, x_8, x_9, x_6);
 return x_10;
 }
 }
-static lean_object* _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3749_() {
+static lean_object* _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3747_() {
 _start:
 {
 lean_object* x_1; 
@@ -5581,16 +5581,16 @@ l_Std_ExtTreeMap_partition___redArg___closed__0 = _init_l_Std_ExtTreeMap_partiti
 lean_mark_persistent(l_Std_ExtTreeMap_partition___redArg___closed__0);
 l_Std_ExtTreeMap_any___redArg___closed__0 = _init_l_Std_ExtTreeMap_any___redArg___closed__0();
 lean_mark_persistent(l_Std_ExtTreeMap_any___redArg___closed__0);
-l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3589_ = _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3589_();
-lean_mark_persistent(l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3589_);
-l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3628_ = _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3628_();
-lean_mark_persistent(l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3628_);
+l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3587_ = _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3587_();
+lean_mark_persistent(l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3587_);
+l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3626_ = _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3626_();
+lean_mark_persistent(l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3626_);
 l_Std_ExtTreeMap_toArray___redArg___closed__0 = _init_l_Std_ExtTreeMap_toArray___redArg___closed__0();
 lean_mark_persistent(l_Std_ExtTreeMap_toArray___redArg___closed__0);
-l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3710_ = _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3710_();
-lean_mark_persistent(l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3710_);
-l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3749_ = _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3749_();
-lean_mark_persistent(l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3749_);
+l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3708_ = _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3708_();
+lean_mark_persistent(l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3708_);
+l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3747_ = _init_l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3747_();
+lean_mark_persistent(l___auto____x40_Std_Data_ExtTreeMap_Basic___hyg_3747_);
 l_Std_ExtTreeMap_instReprOfTransCmp___redArg___lam__1___closed__0 = _init_l_Std_ExtTreeMap_instReprOfTransCmp___redArg___lam__1___closed__0();
 lean_mark_persistent(l_Std_ExtTreeMap_instReprOfTransCmp___redArg___lam__1___closed__0);
 l_Std_ExtTreeMap_instReprOfTransCmp___redArg___lam__1___closed__1 = _init_l_Std_ExtTreeMap_instReprOfTransCmp___redArg___lam__1___closed__1();

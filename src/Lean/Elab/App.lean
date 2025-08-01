@@ -80,8 +80,8 @@ private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Ex
   if (← isProp eType) then
     let rType ← inferType r
     if !(← isProp rType) then
-      throwError "Invalid projection: Cannot project a value of non-propositional type{indentExpr rType}\
-        \nfrom the expression{indentExpr e}\nwhich has propositional type{indentExpr eType}"
+      throwNamedError lean.projNonPropFromProp "Invalid projection: Cannot project a value of non-propositional \
+        type{indentExpr rType}\nfrom the expression{indentExpr e}\nwhich has propositional type{indentExpr eType}"
   return r
 
 def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM Unit :=
@@ -1646,18 +1646,21 @@ false, no elaboration function executed by `x` will reset it to
 `true`.
 -/
 
-private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals : List LVal)
-    (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array (TermElabResult Expr))
-    : TermElabM (Array (TermElabResult Expr)) := do
-  let funLVals ← withRef fIdent <| resolveName' fIdent fExplicitUnivs expectedType?
-  let overloaded := overloaded || funLVals.length > 1
-  -- Set `errToSorry` to `false` if `funLVals` > 1. See comment above about the interaction between `errToSorry` and `observing`.
-  withReader (fun ctx => { ctx with errToSorry := funLVals.length == 1 && ctx.errToSorry }) do
-    funLVals.foldlM (init := acc) fun acc (f, fIdent, fields) => do
+/--
+Elaborates the resolutions of a function. The `fns` array is the output of `resolveName'`.
+-/
+private def elabAppFnResolutions (fRef : Syntax) (fns : List (Expr × Syntax × List Syntax)) (lvals : List LVal)
+    (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool)
+    (acc : Array (TermElabResult Expr)) (forceTermInfo : Bool := false) :
+    TermElabM (Array (TermElabResult Expr)) := do
+  let overloaded := overloaded || fns.length > 1
+  -- Set `errToSorry` to `false` if `fns` > 1. See comment above about the interaction between `errToSorry` and `observing`.
+  withReader (fun ctx => { ctx with errToSorry := fns.length == 1 && ctx.errToSorry }) do
+    fns.foldlM (init := acc) fun acc (f, fIdent, fields) => do
       let lvals' := toLVals fields (first := true)
       let s ← observing do
         checkDeprecated fIdent f
-        let f ← addTermInfo fIdent f expectedType?
+        let f ← addTermInfo fIdent f expectedType? (force := forceTermInfo)
         let e ← elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit ellipsis
         if overloaded then ensureHasType expectedType? e else return e
       return acc.push s
@@ -1670,45 +1673,73 @@ where
 
   toLVals : List Syntax → (first : Bool) → List LVal
     | [],            _     => []
-    | field::fields, true  => .fieldName field field.getId.getString! (toName (field::fields)) fIdent :: toLVals fields false
-    | field::fields, false => .fieldName field field.getId.getString! none fIdent :: toLVals fields false
+    | field::fields, true  => .fieldName field field.getId.getString! (toName (field::fields)) fRef :: toLVals fields false
+    | field::fields, false => .fieldName field field.getId.getString! none fRef :: toLVals fields false
 
-/-- Resolve `(.$id:ident)` using the expected type to infer namespace. -/
-private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+private def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) (lvals : List LVal)
+    (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool)
+    (acc : Array (TermElabResult Expr)) :
+    TermElabM (Array (TermElabResult Expr)) := do
+  let fRes ← withRef fIdent <| resolveName' fIdent fExplicitUnivs expectedType?
+  elabAppFnResolutions fIdent fRes lvals namedArgs args expectedType? explicit ellipsis overloaded acc
+
+/--
+Resolves `(.$id:ident)` using the expected type to infer the namespace for `id`.
+
+To infer a namespace from the expected type, we do the following operations:
+- put it into WHNF using `whnfCore`, while consuming annotations
+- enter the bodies of pi types
+- if the type is of the form `c x₁ ... xₙ` with `c` a constant, then try using `c` as the namespace,
+  and if that doesn't work, try unfolding the expression and continuing.
+-/
+private partial def resolveDottedIdentFn (idRef : Syntax) (id : Name) (expectedType? : Option Expr) : TermElabM (List (Expr × Syntax × List Syntax)) := do
+  unless id.isAtomic do
+    throwError "Invalid dotted identifier notation: The name `{id}` must be atomic"
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType?
-    | throwError "Invalid dotted identifier notation: Could not determine the expected type of `.{id}`"
+    | throwNoExpectedType
+  addCompletionInfo <| CompletionInfo.dotId idRef id (← getLCtx) expectedType?
   withForallBody expectedType fun resultType => do
     go resultType expectedType #[]
 where
+  throwNoExpectedType :=
+    throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: The expected type of `.{id}` could not be determined"
   /-- A weak version of forallTelescopeReducing that only uses whnfCore, to avoid unfolding definitions except by `unfoldDefinition?` below. -/
-  withForallBody {α} (type : Expr) (k : Expr → TermElabM α) : TermElabM α :=
-    forallTelescope type fun _ body => do
-      let body ← whnfCore body
-      if body.isForall then
+  withForallBody {α} (type : Expr) (k : Expr → TermElabM α) : TermElabM α := do
+    let type ← whnfCoreUnfoldingAnnotations type
+    if type.isForall then
+      forallTelescope type fun _ body => do
         withForallBody body k
-      else
-        k body
-  go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM Expr := do
+    else
+      k type
+  go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM (List (Expr × Syntax × List Syntax)) := do
     let resultType ← instantiateMVars resultType
-    let resultTypeFn := resultType.cleanupAnnotations.getAppFn
+    let resultTypeFn := resultType.getAppFn
     try
       tryPostponeIfMVar resultTypeFn
-      match resultTypeFn.cleanupAnnotations with
+      match resultTypeFn with
       | .const declName .. =>
-        let idNew := declName ++ id.getId.eraseMacroScopes
-        if (← getEnv).contains idNew then
-          mkConst idNew
-        else if let some (fvar, []) ← resolveLocalName idNew then
-          return fvar
+        let env ← getEnv
+        if isInaccessiblePrivateName env declName then
+          throwError "The private declaration `{.ofConstName declName}` is not accessible in the current context"
+        -- Recall that the namespace for private declarations is non-private.
+        let fullName := privateToUserName declName ++ id
+        -- Resolve the name without making use of the current namespace, like in `findMethod?`.
+        let candidates := ResolveName.resolveGlobalName env Name.anonymous (← getOpenDecls) fullName
+          |>.filter (fun (_, fieldList) => fieldList.isEmpty)
+          |>.map Prod.fst
+        if !candidates.isEmpty then
+          candidates.mapM fun resolvedName => return (← mkConst resolvedName, ← getRef, [])
+        else if let some (fvar, []) ← resolveLocalName fullName then
+          return [(fvar, ← getRef, [])]
         else
-          throwUnknownIdentifierAt id <| m!"Unknown identifier `{idNew}`"
+          throwUnknownIdentifierAt (← getRef) (declHint := fullName) <| m!"Unknown constant `{.ofConstName fullName}`"
             ++ .note m!"Inferred this name from the expected resulting type of `.{id}`:{indentExpr expectedType}"
       | .sort .. =>
         throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: Not supported on type universe{indentExpr resultTypeFn}"
       | _ =>
         if expectedType.getAppFn.isMVar then
-          throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: The expected type of `.{id}` could not be determined"
+          throwNoExpectedType
         else
           throwNamedError lean.invalidDottedIdent "Invalid dotted identifier notation: The expected type of `.{id}`{indentExpr expectedType}\n\
             is not of the form `C ...` or `... → C ...` where C is a constant"
@@ -1761,14 +1792,9 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(@$_)     => throwUnsupportedSyntax -- invalid occurrence of `@`
     | `(_)       => throwError "A placeholder `_` cannot be used where a function is expected"
     | `(.$id:ident) =>
-        addCompletionInfo <| CompletionInfo.dotId id id.getId (← getLCtx) expectedType?
-        let fConst ← resolveDotName id expectedType?
-        let s ← observing do
-          -- Use (force := true) because we want to record the result of .ident resolution even in patterns
-          let fConst ← addTermInfo f fConst expectedType? (force := true)
-          let e ← elabAppLVals fConst lvals namedArgs args expectedType? explicit ellipsis
-          if overloaded then ensureHasType expectedType? e else return e
-        return acc.push s
+        let res ← withRef f <| resolveDottedIdentFn id id.getId.eraseMacroScopes expectedType?
+        -- Use (forceTermInfo := true) because we want to record the result of .ident resolution even in patterns
+        elabAppFnResolutions f res lvals namedArgs args expectedType? explicit ellipsis overloaded acc (forceTermInfo := true)
     | _ => do
       let catchPostpone := !overloaded
       /- If we are processing a choice node, then we should use `catchPostpone == false` when elaborating terms.

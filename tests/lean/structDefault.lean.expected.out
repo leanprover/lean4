@@ -1,4 +1,4 @@
-structDefault.lean:11:11-11:15: error: type mismatch
+structDefault.lean:11:11-11:15: error: Type mismatch
   true
 has type
   Bool

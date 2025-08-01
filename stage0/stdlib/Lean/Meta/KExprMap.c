@@ -70,8 +70,8 @@ size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_Meta_KExprMap_insert_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
 static lean_object* l_Lean_Meta_instInhabitedKExprMap___closed__1;
+uint8_t l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_84_(lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Meta_KExprMap_insert_spec__0_spec__0___redArg___closed__0;
-uint8_t l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_93_(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Meta_KExprMap_insert_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -122,7 +122,7 @@ else
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_array_fget(x_1, x_3);
-x_9 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_93_(x_4, x_8);
+x_9 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_84_(x_4, x_8);
 lean_dec(x_8);
 if (x_9 == 0)
 {
@@ -201,7 +201,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec_ref(x_11);
-x_14 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_93_(x_3, x_12);
+x_14 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_84_(x_3, x_12);
 lean_dec(x_12);
 if (x_14 == 0)
 {
@@ -262,7 +262,7 @@ lean_inc(x_27);
 x_28 = lean_ctor_get(x_26, 1);
 lean_inc(x_28);
 lean_dec_ref(x_26);
-x_29 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_93_(x_3, x_27);
+x_29 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_84_(x_3, x_27);
 lean_dec(x_27);
 if (x_29 == 0)
 {
@@ -1013,7 +1013,7 @@ else
 {
 lean_object* x_12; uint8_t x_13; 
 x_12 = lean_array_fget(x_6, x_2);
-x_13 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_93_(x_3, x_12);
+x_13 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_84_(x_3, x_12);
 lean_dec(x_12);
 if (x_13 == 0)
 {
@@ -1062,7 +1062,7 @@ else
 {
 lean_object* x_26; uint8_t x_27; 
 x_26 = lean_array_fget(x_19, x_2);
-x_27 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_93_(x_3, x_26);
+x_27 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_84_(x_3, x_26);
 lean_dec(x_26);
 if (x_27 == 0)
 {
@@ -1214,7 +1214,7 @@ if (x_22 == 0)
 lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_23 = lean_ctor_get(x_15, 0);
 x_24 = lean_ctor_get(x_15, 1);
-x_25 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_93_(x_4, x_23);
+x_25 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_84_(x_4, x_23);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; 
@@ -1243,7 +1243,7 @@ x_29 = lean_ctor_get(x_15, 1);
 lean_inc(x_29);
 lean_inc(x_28);
 lean_dec(x_15);
-x_30 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_93_(x_4, x_28);
+x_30 = l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_84_(x_4, x_28);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; 

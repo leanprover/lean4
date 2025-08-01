@@ -108,7 +108,7 @@ theorem Balanced.at_root {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Bal
 
 theorem BalancedAtRoot.symm {l r : Nat} (h : BalancedAtRoot l r) : BalancedAtRoot r l := by
   cases h
-  · next h => exact Or.inl <| Nat.add_comm _ _ ▸ h
-  · next h => exact Or.inr h.symm
+  next h => exact Or.inl <| Nat.add_comm _ _ ▸ h
+  next h => exact Or.inr h.symm
 
 end Std.DTreeMap.Internal.Impl

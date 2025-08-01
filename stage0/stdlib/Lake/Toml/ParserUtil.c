@@ -123,6 +123,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_sepByLinebreak___boxed(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lake_Toml_epsilon_parenthesizer___redArg(lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_skipFn___redArg___boxed(lean_object*);
+lean_object* l_Lean_Parser_beqError____x40_Lean_Parser_Types___hyg_467____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_extendTrailingFn___lam__0(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_andthen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_usePosFn(lean_object*, lean_object*, lean_object*);
@@ -162,7 +163,6 @@ lean_object* l_Lean_Parser_ParserState_mkEOIError(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_atom_formatter___redArg___closed__7;
 LEAN_EXPORT lean_object* l_Lake_Toml_getInfoExprPos_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_strAtom_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Parser_beqError____x40_Lean_Parser_Types___hyg_479____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_dynamicNode_parenthesizer___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_litWithAntiquot(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_Toml_skipInsideQuotFn(lean_object*, lean_object*, lean_object*);
@@ -395,7 +395,7 @@ static lean_object* _init_l_Lake_Toml_instAndThenParserFn__lake___lam__0___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parser_beqError____x40_Lean_Parser_Types___hyg_479____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parser_beqError____x40_Lean_Parser_Types___hyg_467____boxed), 2, 0);
 return x_1;
 }
 }

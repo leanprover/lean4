@@ -53,7 +53,7 @@ theorem denote_go_eq_divRec_r (aig : AIG α) (assign : α → Bool) (curr : Nat)
     intro idx hidx
     rw [go, BitVec.divRec_succ, BitVec.divSubtractShift]
     split
-    · next hdiscr =>
+    next hdiscr =>
       rw [ih]
       · rfl
       · intro idx hidx
@@ -79,7 +79,7 @@ theorem denote_go_eq_divRec_r (aig : AIG α) (assign : α → Bool) (curr : Nat)
         · exact hleft
         · exact hright
         · exact hr
-    · next hdiscr =>
+    next hdiscr =>
       rw [ih]
       · rfl
       · intro idx hidx
@@ -146,7 +146,7 @@ theorem denote_blastUmod (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
   simp only [Ref.cast_eq, RefVec.denote_ite,
     RefVec.get_cast]
   split
-  · next hdiscr =>
+  next hdiscr =>
     rw [blastUdiv.go_denote_mem_prefix] at hdiscr
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
     · simp only [beq_iff_eq] at hdiscr
@@ -161,7 +161,7 @@ theorem denote_blastUmod (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
       simp only [BitVec.getLsbD_zero]
       rw [denote_blastConst]
       simp
-  · next hdiscr =>
+  next hdiscr =>
     rw [blastUdiv.go_denote_mem_prefix] at hdiscr
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
     · have hzero : 0#w < rhs := by

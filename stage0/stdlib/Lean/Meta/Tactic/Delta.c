@@ -42,6 +42,7 @@ static lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Core_withIncRecDepth__
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0___closed__0;
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0_spec__7(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_deltaExpand___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -78,7 +79,6 @@ LEAN_EXPORT lean_object* l_Lean_Core_transform___at___Lean_Meta_deltaExpand_spec
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0_spec__7___redArg___boxed(lean_object*, lean_object*);
 uint8_t lean_expr_equal(lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(uint8_t, uint8_t);
 static lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Core_withIncRecDepth___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0_spec__5_spec__5___redArg___closed__0;
 static lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Core_withIncRecDepth___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0_spec__5_spec__5___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2630,7 +2630,7 @@ return x_34;
 else
 {
 uint8_t x_35; 
-x_35 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_29, x_29);
+x_35 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_29, x_29);
 if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; 
@@ -2663,7 +2663,7 @@ return x_48;
 else
 {
 uint8_t x_49; 
-x_49 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_44, x_44);
+x_49 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_44, x_44);
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; 

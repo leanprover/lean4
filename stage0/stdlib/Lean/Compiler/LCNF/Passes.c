@@ -41,7 +41,6 @@ static lean_object* l___private_Lean_Compiler_LCNF_Passes_0__Lean_Compiler_LCNF_
 lean_object* l_Lean_PersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__57;
-uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_170_(uint8_t, uint8_t);
 lean_object* l_Lean_Compiler_LCNF_PassInstaller_runFromDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__33;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Pass_saveMono;
@@ -92,6 +91,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getPassManager(lean_object*, lean_
 static lean_object* l___private_Lean_Compiler_LCNF_Passes_0__Lean_Compiler_LCNF_initFn___closed__2____x40_Lean_Compiler_LCNF_Passes___hyg_1058_;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_LCNF_addPass_spec__0_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__6;
+uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_168_(uint8_t, uint8_t);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_LCNF_addPass_spec__0_spec__0_spec__0_spec__0_spec__0___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_addPass___closed__6;
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_LCNF_addPass_spec__0_spec__0_spec__0_spec__0_spec__0___closed__13;
@@ -3858,7 +3858,7 @@ x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec_ref(x_8);
 x_10 = 0;
-x_11 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_170_(x_4, x_10);
+x_11 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_168_(x_4, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; 

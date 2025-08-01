@@ -86,6 +86,7 @@ static lean_object* l_Std_Time_DateTime_ofTimestamp___lam__0___closed__0;
 lean_object* l_compareOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Time_PlainDate_quarter(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_withDaysClip(lean_object*, lean_object*, lean_object*);
+uint8_t l_Std_Time_decEqDuration____x40_Std_Time_Duration___hyg_367_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_subSeconds(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_subMonthsClip___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_minute___redArg(lean_object*);
@@ -254,7 +255,6 @@ lean_object* l_Std_Time_PlainDate_addMonthsRollOver(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_addHours(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_instHSubOffset__5(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_addMonthsRollOver(lean_object*, lean_object*, lean_object*);
-uint8_t l_Std_Time_decEqDuration____x40_Std_Time_Duration___hyg_369_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_quarter___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_subHours___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_instHSubDuration___lam__0(lean_object*, lean_object*);
@@ -266,7 +266,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_2, 0);
-x_5 = l_Std_Time_decEqDuration____x40_Std_Time_Duration___hyg_369_(x_3, x_4);
+x_5 = l_Std_Time_decEqDuration____x40_Std_Time_Duration___hyg_367_(x_3, x_4);
 return x_5;
 }
 }

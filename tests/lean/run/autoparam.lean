@@ -38,7 +38,7 @@ structure Foo where
 /--
 error: could not synthesize default value for field 'inv' of 'Foo' using tactics
 ---
-error: tactic 'decide' proved that the proposition
+error: Tactic `decide` proved that the proposition
   "abc".length = 5
 is false
 -/

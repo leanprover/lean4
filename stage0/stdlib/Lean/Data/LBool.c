@@ -213,15 +213,12 @@ return x_4;
 LEAN_EXPORT uint8_t l_Lean_LBool_and(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_box(x_1);
-if (lean_obj_tag(x_3) == 1)
+if (x_1 == 1)
 {
 return x_2;
 }
 else
 {
-lean_dec(x_3);
 return x_1;
 }
 }

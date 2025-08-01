@@ -278,7 +278,7 @@ def getFVarId (id : Syntax) : TacticM FVarId := withRef id <| withMainContext do
   let e ← withoutRecover <| elabTermForApply id (mayPostpone := false)
   match e with
   | Expr.fvar fvarId => return fvarId
-  | _                => throwError "unexpected term '{e}'; expected single reference to variable"
+  | _                => throwError "Unexpected term `{e}`; expected single reference to variable"
 
 def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
   withMainContext do ids.mapM getFVarId
@@ -356,7 +356,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
         let fvarId? ← (← getLCtx).findDeclRevM? fun localDecl => do
           if !localDecl.isImplementationDetail && (← isDefEq type localDecl.type) then return localDecl.fvarId else return none
         match fvarId? with
-        | none => throwError "failed to find a hypothesis with type{indentExpr type}"
+        | none => throwError "Failed to find a hypothesis with type{indentExpr type}"
         | some fvarId => return fvarId
       replaceMainGoal [← (← getMainGoal).rename fvarId h.getId]
   | _ => throwUnsupportedSyntax
@@ -371,10 +371,10 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
   if expectedType.hasFVar then
     expectedType ← zetaReduce expectedType
   if expectedType.hasMVar then
-    throwError "expected type must not contain meta variables{indentExpr expectedType}"
+    throwError "Expected type must not contain metavariables{indentExpr expectedType}"
   if expectedType.hasFVar then
-    throwError "expected type must not contain free variables{indentExpr expectedType}\n\
-      Use the '+revert' option to automatically cleanup and revert free variables."
+    throwError m!"Expected type must not contain free variables{indentExpr expectedType}"
+      ++ .hint' m!"Use the `+revert` option to automatically clean up and revert free variables"
   return expectedType
 
 /--
@@ -431,15 +431,15 @@ private unsafe def elabNativeDecideCoreUnsafe (tacticName : Name) (expectedType 
           evalConst Bool auxDeclName
         catch ex =>
           return m!"\
-            tactic '{tacticName}' failed, could not evaluate decidable instance. \
+            Tactic `{tacticName}` failed: Could not evaluate decidable instance. \
             Error: {ex.toMessageData}"
       if !r then
         return m!"\
-          tactic '{tacticName}' evaluated that the proposition\
+          Tactic `{tacticName}` evaluated that the proposition\
           {indentExpr expectedType}\n\
           is false"
       else
-        return m!"tactic '{tacticName}' failed. Error: {ex.toMessageData}"
+        return m!"Tactic `{tacticName}` failed. Error: {ex.toMessageData}"
 
 @[implemented_by elabNativeDecideCoreUnsafe]
 private opaque elabNativeDecideCore (tacticName : Name) (expectedType : Expr) : TacticM Expr
@@ -453,7 +453,7 @@ def evalDecideCore (tacticName : Name) (cfg : Parser.Tactic.DecideConfig) : Tact
       return g
   closeMainGoalUsing tacticName fun expectedType _ => do
     if cfg.kernel && cfg.native then
-      throwError "tactic '{tacticName}' failed, cannot simultaneously set both '+kernel' and '+native'"
+      throwError "Tactic `{tacticName}` failed: Cannot simultaneously set both `+kernel` and `+native`"
     let expectedType ← preprocessPropToDecide expectedType
     if cfg.native then
       elabNativeDecideCore tacticName expectedType
@@ -498,11 +498,11 @@ where
       let r ← r?.getDM (withAtLeastTransparency .default <| whnf s)
       if r.isAppOf ``isTrue then
         return m!"\
-          tactic '{tacticName}' failed. internal error: the elaborator is able to reduce the \
-          '{.ofConstName ``Decidable}' instance, but the kernel is not able to"
+          Tactic `{tacticName}` failed. Internal error: The elaborator is able to reduce the \
+          `{.ofConstName ``Decidable}` instance, but the kernel is not able to"
       else if r.isAppOf ``isFalse then
         return m!"\
-          tactic '{tacticName}' proved that the proposition\
+          Tactic `{tacticName}` proved that the proposition\
           {indentExpr expectedType}\n\
           is false"
       -- Re-reduce the instance and collect diagnostics, to get all unfolded Decidable instances
@@ -513,40 +513,40 @@ where
         let unfoldedInsts ← unfolded |>.qsort Name.lt |>.filterMapM fun n => do
           let e ← mkConstWithLevelParams n
           if (← Meta.isClass? (← inferType e)) == ``Decidable then
-            return m!"'{.ofConst e}'"
+            return m!"`{.ofConst e}`"
           else
             return none
         return (reason, unfoldedInsts)
       let stuckMsg :=
         if unfoldedInsts.isEmpty then
-          m!"Reduction got stuck at the '{.ofConstName ``Decidable}' instance{indentExpr reason}"
+          m!"Reduction got stuck at the `{.ofConstName ``Decidable}` instance{indentExpr reason}"
         else
           let instances := if unfoldedInsts.size == 1 then "instance" else "instances"
           m!"After unfolding the {instances} {.andList unfoldedInsts.toList}, \
-          reduction got stuck at the '{.ofConstName ``Decidable}' instance{indentExpr reason}"
+          reduction got stuck at the `{.ofConstName ``Decidable}` instance{indentExpr reason}"
       let hint :=
         if reason.isAppOf ``Eq.rec then
-          .hint' m!"Reduction got stuck on '▸' ({.ofConstName ``Eq.rec}), \
-            which suggests that one of the '{.ofConstName ``Decidable}' instances is defined using tactics such as 'rw' or 'simp'. \
+          .hint' m!"Reduction got stuck on `▸` ({.ofConstName ``Eq.rec}), \
+            which suggests that one of the `{.ofConstName ``Decidable}` instances is defined using tactics such as `rw` or `simp`. \
             To avoid tactics, make use of functions such as \
-            '{.ofConstName ``inferInstanceAs}' or '{.ofConstName ``decidable_of_decidable_of_iff}' \
+            `{.ofConstName ``inferInstanceAs}` or `{.ofConstName ``decidable_of_decidable_of_iff}` \
             to alter a proposition."
         else if reason.isAppOf ``Classical.choice then
-          .hint' m!"Reduction got stuck on '{.ofConstName ``Classical.choice}', \
-            which indicates that a '{.ofConstName ``Decidable}' instance \
+          .hint' m!"Reduction got stuck on `{.ofConstName ``Classical.choice}`, \
+            which indicates that a `{.ofConstName ``Decidable}` instance \
             is defined using classical reasoning, proving an instance exists rather than giving a concrete construction. \
-            The '{tacticName}' tactic works by evaluating a decision procedure via reduction, \
+            The `{tacticName}` tactic works by evaluating a decision procedure via reduction, \
             and it cannot make progress with such instances. \
-            This can occur due to the 'opened scoped Classical' command, which enables the instance \
-            '{.ofConstName ``Classical.propDecidable}'."
+            This can occur due to the `open scoped Classical` command, which enables the instance \
+            `{.ofConstName ``Classical.propDecidable}`."
         else
           MessageData.nil
       return m!"\
-        tactic '{tacticName}' failed for proposition\
+        Tactic `{tacticName}` failed for proposition\
         {indentExpr expectedType}\n\
-        since its '{.ofConstName ``Decidable}' instance\
+        because its `{.ofConstName ``Decidable}` instance\
         {indentExpr s}\n\
-        did not reduce to '{.ofConstName ``isTrue}' or '{.ofConstName ``isFalse}'.\n\n\
+        did not reduce to `{.ofConstName ``isTrue}` or `{.ofConstName ``isFalse}`.\n\n\
         {stuckMsg}{hint}"
 
 declare_config_elab elabDecideConfig Parser.Tactic.DecideConfig

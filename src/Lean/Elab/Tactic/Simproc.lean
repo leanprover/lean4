@@ -36,7 +36,8 @@ def checkSimprocType (declName : Name) : CoreM Bool := do
   match decl.type with
   | .const ``Simproc _ => pure false
   | .const ``DSimproc _ => pure true
-  | _ => throwError "unexpected type at '{declName}', 'Simproc' expected"
+  | _ => throwError "Unexpected type for simproc pattern: Expected `{.ofConstName ``Simproc}` or \
+          `{.ofConstName ``DSimproc}`, but `{declName}` has type{indentExpr decl.type}"
 
 namespace Command
 

@@ -149,6 +149,7 @@ structure Thread where
   stackTable : StackTable
   frameTable : FrameTable
   resourceTable : ResourceTable := {}
+  nativeSymbols : ResourceTable := {}
   stringArray : Array String
   funcTable : FuncTable
 deriving FromJson, ToJson
@@ -335,14 +336,14 @@ where
       modify fun thread =>
         if let some idx := thread.sampleMap[stackIdx]? then
           -- imperative to preserve linear use of arrays here!
-          let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, o6⟩ := thread
+          let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10, t11⟩, o2, o3, o4, o5⟩, o6⟩ := thread
           let ⟨s1, s2, weight, s3, s4, s5⟩ := samples
           let weight := weight.set! idx <| weight[idx]! + add.samples.weight[oldSampleIdx]!
           let samples := ⟨s1, s2, weight, s3, s4, s5⟩
-          ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, o6⟩
+          ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10, t11⟩, o2, o3, o4, o5⟩, o6⟩
         else
           -- imperative to preserve linear use of arrays here!
-          let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, sampleMap⟩ :=
+          let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10, t11⟩, o2, o3, o4, o5⟩, sampleMap⟩ :=
             thread
           let ⟨stack, time, weight, _, threadCPUDelta, length⟩ := samples
           let samples := {
@@ -353,7 +354,7 @@ where
               length := length + 1
             }
           let sampleMap := sampleMap.insert stackIdx sampleMap.size
-          ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, sampleMap⟩
+          ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10, t11⟩, o2, o3, o4, o5⟩, sampleMap⟩
   collideStacks oldStackIdx : StateM ThreadWithCollideMaps Nat := do
     let oldParentStackIdx? := add.stackTable.prefix[oldStackIdx]!
     let parentStackIdx? ← oldParentStackIdx?.mapM (collideStacks ·)
@@ -384,7 +385,7 @@ where
         (idx, thread)
       else
         (thread.stackMap.size,
-          let ⟨⟨⟨t1,t2, t3, t4, t5, stackTable, t7, t8, t9, t10⟩, o2, o3, stackMap, o5⟩, o6⟩ :=
+          let ⟨⟨⟨t1,t2, t3, t4, t5, stackTable, t7, t8, t9, t10, t11⟩, o2, o3, stackMap, o5⟩, o6⟩ :=
             thread
           let { frame, «prefix», category, subcategory, length } := stackTable
           let stackTable := {
@@ -395,7 +396,7 @@ where
             length := length + 1
           }
           let stackMap := stackMap.insert (frameIdx, parentStackIdx?) stackMap.size
-          ⟨⟨⟨t1,t2, t3, t4, t5, stackTable, t7, t8, t9, t10⟩, o2, o3, stackMap, o5⟩, o6⟩)
+          ⟨⟨⟨t1,t2, t3, t4, t5, stackTable, t7, t8, t9, t10, t11⟩, o2, o3, stackMap, o5⟩, o6⟩)
   getStrIdx (s : String) :=
     modifyGet fun thread =>
       if let some idx := thread.stringMap[s]? then

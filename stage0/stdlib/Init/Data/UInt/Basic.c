@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_UInt64_modn___boxed(lean_object*, lean_object*);
-static lean_object* l_instXorUSize___closed__0;
 uint8_t lean_uint8_sub(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Nat_cast___at___UInt16_modn_spec__0(lean_object*);
 static lean_object* l_instShiftLeftUSize___closed__0;
@@ -61,6 +60,7 @@ LEAN_EXPORT lean_object* l_Nat_cast___at___USize_modn_spec__0___boxed(lean_objec
 LEAN_EXPORT lean_object* l_instAddUInt64;
 LEAN_EXPORT lean_object* l_instModUInt8;
 LEAN_EXPORT uint64_t l_UInt64_ofInt(lean_object*);
+static lean_object* l_instXorOpUInt64___closed__0;
 LEAN_EXPORT lean_object* l_UInt16_xor___boxed(lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_instMaxUSize;
@@ -129,8 +129,10 @@ LEAN_EXPORT size_t l_USize_ofNatCore(lean_object*, lean_object*);
 static lean_object* l_instMulUSize___closed__0;
 static lean_object* l_instPowUInt32Nat___closed__0;
 static lean_object* l_instComplementUInt64___closed__0;
+static lean_object* l_instXorOpUInt8___closed__0;
 static lean_object* l_instShiftRightUInt8___closed__0;
 static lean_object* l_instPowUInt64Nat___closed__0;
+static lean_object* l_instXorOpUInt16___closed__0;
 LEAN_EXPORT lean_object* l_instComplementUInt8;
 LEAN_EXPORT lean_object* l_instShiftLeftUInt16;
 LEAN_EXPORT uint8_t l_instMinUInt8___lam__0(uint8_t, uint8_t);
@@ -157,7 +159,6 @@ static lean_object* l_instAddUInt32___closed__0;
 LEAN_EXPORT lean_object* l_instOrOpUInt8;
 LEAN_EXPORT lean_object* l_instMinUSize;
 LEAN_EXPORT lean_object* l_instPowUInt8Nat;
-static lean_object* l_instXorUInt8___closed__0;
 LEAN_EXPORT lean_object* l_Nat_cast___at___UInt32_modn_spec__0(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 size_t lean_usize_neg(size_t);
@@ -190,7 +191,6 @@ LEAN_EXPORT lean_object* l_instDivUInt64;
 uint32_t lean_uint32_of_nat(lean_object*);
 uint16_t lean_uint16_xor(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_instLTUInt8;
-static lean_object* l_instXorUInt64___closed__0;
 LEAN_EXPORT lean_object* l_instMinUInt16___lam__0___boxed(lean_object*, lean_object*);
 uint32_t lean_uint32_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_UInt16_mul___boxed(lean_object*, lean_object*);
@@ -218,6 +218,7 @@ LEAN_EXPORT uint8_t l_UInt8_ofInt(lean_object*);
 LEAN_EXPORT lean_object* l_instMaxUInt16___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_instOrOpUInt64___closed__0;
 uint16_t lean_uint16_shift_right(uint16_t, uint16_t);
+static lean_object* l_instXorOpUInt32___closed__0;
 LEAN_EXPORT lean_object* l_UInt32_pow___boxed(lean_object*, lean_object*);
 lean_object* lean_uint8_to_nat(uint8_t);
 uint64_t lean_uint64_add(uint64_t, uint64_t);
@@ -230,6 +231,7 @@ LEAN_EXPORT lean_object* l_instNegUInt32;
 static lean_object* l_instHModUInt64Nat___closed__0;
 LEAN_EXPORT lean_object* l_UInt32_mk___boxed(lean_object*);
 LEAN_EXPORT uint32_t l_UInt32_mk(lean_object*);
+LEAN_EXPORT lean_object* l_instXorOpUInt64;
 LEAN_EXPORT lean_object* l_UInt8_land___boxed(lean_object*, lean_object*);
 uint64_t lean_uint64_div(uint64_t, uint64_t);
 static lean_object* l_instModUInt64___closed__0;
@@ -252,7 +254,6 @@ static lean_object* l_UInt16_ofInt___closed__0;
 LEAN_EXPORT lean_object* l_instShiftLeftUInt32;
 LEAN_EXPORT lean_object* l_instMaxUInt8___lam__0___boxed(lean_object*, lean_object*);
 uint64_t lean_uint64_mul(uint64_t, uint64_t);
-LEAN_EXPORT lean_object* l_instXorUInt32;
 static lean_object* l_instHModUSizeNat___closed__0;
 static lean_object* l_instAddUInt64___closed__0;
 LEAN_EXPORT lean_object* l_instNegUInt16;
@@ -270,7 +271,6 @@ uint32_t lean_usize_to_uint32(size_t);
 size_t lean_usize_mod(size_t, size_t);
 uint16_t lean_uint16_land(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_instMinUSize___lam__0___boxed(lean_object*, lean_object*);
-static lean_object* l_instXorUInt32___closed__0;
 LEAN_EXPORT uint64_t l_UInt64_pow(uint64_t, lean_object*);
 uint64_t lean_uint64_sub(uint64_t, uint64_t);
 static lean_object* l_instAndOpUSize___closed__0;
@@ -331,7 +331,6 @@ LEAN_EXPORT lean_object* l_instHModUInt64Nat;
 uint8_t lean_uint16_dec_le(uint16_t, uint16_t);
 static lean_object* l_instAddUInt8___closed__0;
 LEAN_EXPORT lean_object* l_UInt8_shiftLeft___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instXorUInt8;
 LEAN_EXPORT lean_object* l_instComplementUInt64;
 LEAN_EXPORT uint8_t l_UInt8_modn(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_UInt8_ofInt___boxed(lean_object*);
@@ -342,7 +341,6 @@ uint64_t lean_uint64_xor(uint64_t, uint64_t);
 lean_object* l_Int_toNat(lean_object*);
 uint32_t lean_uint32_lor(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_instAndOpUInt32;
-LEAN_EXPORT lean_object* l_instXorUInt64;
 uint64_t lean_uint64_neg(uint64_t);
 LEAN_EXPORT size_t l_instMinUSize___lam__0(size_t, size_t);
 uint32_t lean_uint32_shift_left(uint32_t, uint32_t);
@@ -358,16 +356,17 @@ LEAN_EXPORT lean_object* l_USize_ofNatCore___boxed(lean_object*, lean_object*);
 uint8_t lean_uint8_dec_le(uint8_t, uint8_t);
 uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
 static lean_object* l_instSubUInt32___closed__0;
+LEAN_EXPORT lean_object* l_instXorOpUInt16;
 uint8_t lean_uint8_shift_right(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_USize_toUInt8___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_USize_shiftLeft___boxed(lean_object*, lean_object*);
 static lean_object* l_instAndOpUInt32___closed__0;
 LEAN_EXPORT lean_object* l_UInt64_ofInt___boxed(lean_object*);
 uint8_t lean_uint8_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_instXorUSize;
 LEAN_EXPORT lean_object* l_instShiftRightUInt32;
 LEAN_EXPORT lean_object* l_UInt32_mul___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instMaxUInt8___lam__0(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_instXorOpUInt32;
 static lean_object* l_instComplementUSize___closed__0;
 LEAN_EXPORT lean_object* l_instSubUInt16;
 LEAN_EXPORT lean_object* l_instMinUInt16;
@@ -377,6 +376,7 @@ LEAN_EXPORT lean_object* l_UInt64_xor___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt16_toUSize___boxed(lean_object*);
 LEAN_EXPORT uint16_t l_UInt16_modn(uint16_t, lean_object*);
 LEAN_EXPORT lean_object* l_UInt16_ofInt___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_instXorOpUInt8;
 LEAN_EXPORT uint64_t l_instMinUInt64___lam__0(uint64_t, uint64_t);
 static lean_object* l_instHModUInt8Nat___closed__0;
 LEAN_EXPORT lean_object* l_UInt8_neg___boxed(lean_object*);
@@ -416,6 +416,7 @@ LEAN_EXPORT lean_object* l_instDivUInt8;
 LEAN_EXPORT uint64_t l_UInt64_ofNatCore___redArg(lean_object*);
 LEAN_EXPORT uint16_t l_instMaxUInt16___lam__0(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_UInt64_pow___boxed(lean_object*, lean_object*);
+static lean_object* l_instXorOpUSize___closed__0;
 LEAN_EXPORT lean_object* l_UInt16_decLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint16_t l_UInt16_ofFin(lean_object*);
 LEAN_EXPORT lean_object* l_USize_ofNat32___boxed(lean_object*, lean_object*);
@@ -432,10 +433,10 @@ lean_object* lean_uint64_to_nat(uint64_t);
 LEAN_EXPORT lean_object* l_UInt64_land___boxed(lean_object*, lean_object*);
 uint8_t lean_uint8_of_nat(lean_object*);
 static lean_object* l_UInt8_ofInt___closed__1;
+LEAN_EXPORT lean_object* l_instXorOpUSize;
 LEAN_EXPORT lean_object* l_USize_pow___boxed(lean_object*, lean_object*);
 static lean_object* l_instPowUInt8Nat___closed__0;
 LEAN_EXPORT lean_object* l_UInt32_ofFin___boxed(lean_object*);
-static lean_object* l_instXorUInt16___closed__0;
 LEAN_EXPORT lean_object* l_USize_ofNatCore___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_UInt16_ofNatCore___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_USize_ofFin___boxed(lean_object*);
@@ -446,7 +447,6 @@ size_t lean_usize_land(size_t, size_t);
 static lean_object* l_instModUInt32___closed__0;
 LEAN_EXPORT lean_object* l_UInt32_shiftLeft___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instComplementUInt16;
-LEAN_EXPORT lean_object* l_instXorUInt16;
 size_t lean_usize_div(size_t, size_t);
 LEAN_EXPORT lean_object* l_instShiftLeftUSize;
 LEAN_EXPORT size_t l_USize_pow(size_t, lean_object*);
@@ -962,7 +962,7 @@ x_1 = l_instOrOpUInt8___closed__0;
 return x_1;
 }
 }
-static lean_object* _init_l_instXorUInt8___closed__0() {
+static lean_object* _init_l_instXorOpUInt8___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -970,11 +970,11 @@ x_1 = lean_alloc_closure((void*)(l_UInt8_xor___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_instXorUInt8() {
+static lean_object* _init_l_instXorOpUInt8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instXorUInt8___closed__0;
+x_1 = l_instXorOpUInt8___closed__0;
 return x_1;
 }
 }
@@ -1612,7 +1612,7 @@ x_1 = l_instOrOpUInt16___closed__0;
 return x_1;
 }
 }
-static lean_object* _init_l_instXorUInt16___closed__0() {
+static lean_object* _init_l_instXorOpUInt16___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -1620,11 +1620,11 @@ x_1 = lean_alloc_closure((void*)(l_UInt16_xor___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_instXorUInt16() {
+static lean_object* _init_l_instXorOpUInt16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instXorUInt16___closed__0;
+x_1 = l_instXorOpUInt16___closed__0;
 return x_1;
 }
 }
@@ -2270,7 +2270,7 @@ x_1 = l_instOrOpUInt32___closed__0;
 return x_1;
 }
 }
-static lean_object* _init_l_instXorUInt32___closed__0() {
+static lean_object* _init_l_instXorOpUInt32___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -2278,11 +2278,11 @@ x_1 = lean_alloc_closure((void*)(l_UInt32_xor___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_instXorUInt32() {
+static lean_object* _init_l_instXorOpUInt32() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instXorUInt32___closed__0;
+x_1 = l_instXorOpUInt32___closed__0;
 return x_1;
 }
 }
@@ -2854,7 +2854,7 @@ x_1 = l_instOrOpUInt64___closed__0;
 return x_1;
 }
 }
-static lean_object* _init_l_instXorUInt64___closed__0() {
+static lean_object* _init_l_instXorOpUInt64___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -2862,11 +2862,11 @@ x_1 = lean_alloc_closure((void*)(l_UInt64_xor___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_instXorUInt64() {
+static lean_object* _init_l_instXorOpUInt64() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instXorUInt64___closed__0;
+x_1 = l_instXorOpUInt64___closed__0;
 return x_1;
 }
 }
@@ -3558,7 +3558,7 @@ x_1 = l_instOrOpUSize___closed__0;
 return x_1;
 }
 }
-static lean_object* _init_l_instXorUSize___closed__0() {
+static lean_object* _init_l_instXorOpUSize___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -3566,11 +3566,11 @@ x_1 = lean_alloc_closure((void*)(l_USize_xor___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_instXorUSize() {
+static lean_object* _init_l_instXorOpUSize() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instXorUSize___closed__0;
+x_1 = l_instXorOpUSize___closed__0;
 return x_1;
 }
 }
@@ -3753,10 +3753,10 @@ l_instOrOpUInt8___closed__0 = _init_l_instOrOpUInt8___closed__0();
 lean_mark_persistent(l_instOrOpUInt8___closed__0);
 l_instOrOpUInt8 = _init_l_instOrOpUInt8();
 lean_mark_persistent(l_instOrOpUInt8);
-l_instXorUInt8___closed__0 = _init_l_instXorUInt8___closed__0();
-lean_mark_persistent(l_instXorUInt8___closed__0);
-l_instXorUInt8 = _init_l_instXorUInt8();
-lean_mark_persistent(l_instXorUInt8);
+l_instXorOpUInt8___closed__0 = _init_l_instXorOpUInt8___closed__0();
+lean_mark_persistent(l_instXorOpUInt8___closed__0);
+l_instXorOpUInt8 = _init_l_instXorOpUInt8();
+lean_mark_persistent(l_instXorOpUInt8);
 l_instShiftLeftUInt8___closed__0 = _init_l_instShiftLeftUInt8___closed__0();
 lean_mark_persistent(l_instShiftLeftUInt8___closed__0);
 l_instShiftLeftUInt8 = _init_l_instShiftLeftUInt8();
@@ -3819,10 +3819,10 @@ l_instOrOpUInt16___closed__0 = _init_l_instOrOpUInt16___closed__0();
 lean_mark_persistent(l_instOrOpUInt16___closed__0);
 l_instOrOpUInt16 = _init_l_instOrOpUInt16();
 lean_mark_persistent(l_instOrOpUInt16);
-l_instXorUInt16___closed__0 = _init_l_instXorUInt16___closed__0();
-lean_mark_persistent(l_instXorUInt16___closed__0);
-l_instXorUInt16 = _init_l_instXorUInt16();
-lean_mark_persistent(l_instXorUInt16);
+l_instXorOpUInt16___closed__0 = _init_l_instXorOpUInt16___closed__0();
+lean_mark_persistent(l_instXorOpUInt16___closed__0);
+l_instXorOpUInt16 = _init_l_instXorOpUInt16();
+lean_mark_persistent(l_instXorOpUInt16);
 l_instShiftLeftUInt16___closed__0 = _init_l_instShiftLeftUInt16___closed__0();
 lean_mark_persistent(l_instShiftLeftUInt16___closed__0);
 l_instShiftLeftUInt16 = _init_l_instShiftLeftUInt16();
@@ -3881,10 +3881,10 @@ l_instOrOpUInt32___closed__0 = _init_l_instOrOpUInt32___closed__0();
 lean_mark_persistent(l_instOrOpUInt32___closed__0);
 l_instOrOpUInt32 = _init_l_instOrOpUInt32();
 lean_mark_persistent(l_instOrOpUInt32);
-l_instXorUInt32___closed__0 = _init_l_instXorUInt32___closed__0();
-lean_mark_persistent(l_instXorUInt32___closed__0);
-l_instXorUInt32 = _init_l_instXorUInt32();
-lean_mark_persistent(l_instXorUInt32);
+l_instXorOpUInt32___closed__0 = _init_l_instXorOpUInt32___closed__0();
+lean_mark_persistent(l_instXorOpUInt32___closed__0);
+l_instXorOpUInt32 = _init_l_instXorOpUInt32();
+lean_mark_persistent(l_instXorOpUInt32);
 l_instShiftLeftUInt32___closed__0 = _init_l_instShiftLeftUInt32___closed__0();
 lean_mark_persistent(l_instShiftLeftUInt32___closed__0);
 l_instShiftLeftUInt32 = _init_l_instShiftLeftUInt32();
@@ -3943,10 +3943,10 @@ l_instOrOpUInt64___closed__0 = _init_l_instOrOpUInt64___closed__0();
 lean_mark_persistent(l_instOrOpUInt64___closed__0);
 l_instOrOpUInt64 = _init_l_instOrOpUInt64();
 lean_mark_persistent(l_instOrOpUInt64);
-l_instXorUInt64___closed__0 = _init_l_instXorUInt64___closed__0();
-lean_mark_persistent(l_instXorUInt64___closed__0);
-l_instXorUInt64 = _init_l_instXorUInt64();
-lean_mark_persistent(l_instXorUInt64);
+l_instXorOpUInt64___closed__0 = _init_l_instXorOpUInt64___closed__0();
+lean_mark_persistent(l_instXorOpUInt64___closed__0);
+l_instXorOpUInt64 = _init_l_instXorOpUInt64();
+lean_mark_persistent(l_instXorOpUInt64);
 l_instShiftLeftUInt64___closed__0 = _init_l_instShiftLeftUInt64___closed__0();
 lean_mark_persistent(l_instShiftLeftUInt64___closed__0);
 l_instShiftLeftUInt64 = _init_l_instShiftLeftUInt64();
@@ -3997,10 +3997,10 @@ l_instOrOpUSize___closed__0 = _init_l_instOrOpUSize___closed__0();
 lean_mark_persistent(l_instOrOpUSize___closed__0);
 l_instOrOpUSize = _init_l_instOrOpUSize();
 lean_mark_persistent(l_instOrOpUSize);
-l_instXorUSize___closed__0 = _init_l_instXorUSize___closed__0();
-lean_mark_persistent(l_instXorUSize___closed__0);
-l_instXorUSize = _init_l_instXorUSize();
-lean_mark_persistent(l_instXorUSize);
+l_instXorOpUSize___closed__0 = _init_l_instXorOpUSize___closed__0();
+lean_mark_persistent(l_instXorOpUSize___closed__0);
+l_instXorOpUSize = _init_l_instXorOpUSize();
+lean_mark_persistent(l_instXorOpUSize);
 l_instShiftLeftUSize___closed__0 = _init_l_instShiftLeftUSize___closed__0();
 lean_mark_persistent(l_instShiftLeftUSize___closed__0);
 l_instShiftLeftUSize = _init_l_instShiftLeftUSize();

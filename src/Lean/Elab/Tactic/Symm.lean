@@ -20,7 +20,7 @@ def evalSymm : Tactic := fun stx =>
     let atHyp h := liftMetaTactic1 fun g => g.applySymmAt h
     let atTarget := liftMetaTactic1 fun g => g.applySymm
     let loc := if let some loc := loc? then expandLocation loc else Location.targets #[] true
-    withLocation loc atHyp atTarget fun _ => throwError "symm made no progress"
+    withLocation loc atHyp atTarget fun _ => throwError "`symm` made no progress"
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.symmSaturate]

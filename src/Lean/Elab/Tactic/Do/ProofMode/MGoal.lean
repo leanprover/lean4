@@ -19,8 +19,8 @@ namespace Lean.Elab.Tactic.Do.ProofMode
 open Lean Elab Meta
 open Std.Do Std.Tactic.Do
 
-@[match_pattern] def nameAnnotation := `name
-@[match_pattern] def uniqAnnotation := `uniq
+@[match_pattern] private def nameAnnotation := `name
+@[match_pattern] private def uniqAnnotation := `uniq
 
 structure Hyp where
   name : Name

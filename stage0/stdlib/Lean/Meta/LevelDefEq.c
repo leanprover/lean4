@@ -71,7 +71,6 @@ lean_object* lean_io_get_num_heartbeats(lean_object*);
 static lean_object* l_Lean_isLevelMVarAssignable___at___Lean_hasAssignableLevelMVar___at___Lean_Meta_isLevelDefEqAuxImpl_spec__1_spec__1___closed__1;
 extern lean_object* l_Lean_trace_profiler_useHeartbeats;
 lean_object* l_Lean_stringToMessageData(lean_object*);
-uint64_t l_Lean_hashLevelMVarId____x40_Lean_Level___hyg_491_(lean_object*);
 static lean_object* l_Lean_withTraceNode___at___Lean_Meta_isLevelDefEqAuxImpl_spec__7___redArg___closed__1;
 static lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_initFn___closed__1____x40_Lean_Meta_LevelDefEq___hyg_1928_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_tryApproxMaxMax(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -165,6 +164,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_____private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_____private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_withTraceNode___at___Lean_Meta_isLevelDefEqAuxImpl_spec__7_spec__12___boxed(lean_object*, lean_object*);
+uint64_t l_Lean_hashLevelMVarId____x40_Lean_Level___hyg_489_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at___Lean_Meta_isLevelDefEqAuxImpl_spec__7___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_initFn____x40_Lean_Meta_LevelDefEq___hyg_1928_(lean_object*);
 lean_object* l_Lean_Level_getOffset(lean_object*);
@@ -575,7 +575,7 @@ else
 lean_object* x_8; lean_object* x_9; uint64_t x_10; size_t x_11; size_t x_12; lean_object* x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
 x_8 = lean_array_fget(x_2, x_4);
 x_9 = lean_array_fget(x_3, x_4);
-x_10 = l_Lean_hashLevelMVarId____x40_Lean_Level___hyg_491_(x_8);
+x_10 = l_Lean_hashLevelMVarId____x40_Lean_Level___hyg_489_(x_8);
 x_11 = lean_uint64_to_usize(x_10);
 x_12 = 5;
 x_13 = lean_unsigned_to_nat(1u);
@@ -897,7 +897,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_assignLevel
 _start:
 {
 uint64_t x_4; size_t x_5; size_t x_6; lean_object* x_7; 
-x_4 = l_Lean_hashLevelMVarId____x40_Lean_Level___hyg_491_(x_2);
+x_4 = l_Lean_hashLevelMVarId____x40_Lean_Level___hyg_489_(x_2);
 x_5 = lean_uint64_to_usize(x_4);
 x_6 = 1;
 x_7 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_assignLevelMVar___at_____private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSelfMax_spec__1_spec__1_spec__1___redArg(x_1, x_5, x_6, x_2, x_3);
@@ -3977,7 +3977,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_isLevelMV
 _start:
 {
 uint64_t x_3; size_t x_4; lean_object* x_5; 
-x_3 = l_Lean_hashLevelMVarId____x40_Lean_Level___hyg_491_(x_2);
+x_3 = l_Lean_hashLevelMVarId____x40_Lean_Level___hyg_489_(x_2);
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_isLevelMVarAssignable___at___Lean_hasAssignableLevelMVar___at___Lean_Meta_isLevelDefEqAuxImpl_spec__1_spec__1_spec__1_spec__1___redArg(x_1, x_4, x_2);
 return x_5;

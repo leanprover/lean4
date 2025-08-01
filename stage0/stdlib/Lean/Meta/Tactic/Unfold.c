@@ -1723,7 +1723,7 @@ static lean_object* _init_l_Lean_Meta_unfoldTarget___lam__0___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("tactic 'unfold' failed to unfold '", 34, 34);
+x_1 = lean_mk_string_unchecked("Tactic `unfold` failed to unfold `", 34, 34);
 return x_1;
 }
 }
@@ -1740,7 +1740,7 @@ static lean_object* _init_l_Lean_Meta_unfoldTarget___lam__0___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' at", 4, 4);
+x_1 = lean_mk_string_unchecked("` in", 4, 4);
 return x_1;
 }
 }

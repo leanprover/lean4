@@ -194,6 +194,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd(obj_arg /* w */) {
 
 // Std.Internal.UV.System.osGetGroup : IO (Option GroupInfo)
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid, obj_arg /* w */) {
+#if UV_VERSION_HEX >= 0x012D00
     uv_group_t group;
     int result = uv_os_get_group(&group, gid);
 
@@ -228,6 +229,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid, obj_arg /
     uv_os_free_group(&group);
 
     return lean_io_result_mk_ok(mk_option_some(group_info));
+#else
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv version at least 1.45.0 to invoke this.")
+    );
+#endif
 }
 
 // Std.Internal.UV.System.osEnviron : IO (Array (String × String))
@@ -513,8 +519,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_constrained_memory(obj_arg /* w 
 
 // Std.Internal.UV.System.availableMemory : IO UInt64
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_available_memory(obj_arg /* w */) {
+#if UV_VERSION_HEX >= 0x012D00
     uint64_t mem = uv_get_available_memory();
     return lean_io_result_mk_ok(lean_box_uint64(mem));
+#else
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv version at least 1.45.0 to invoke this.")
+    );
+#endif
 }
 
 #else

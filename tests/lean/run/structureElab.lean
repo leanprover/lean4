@@ -454,36 +454,36 @@ Some failures from unsupported autoparams
 -/
 namespace TestFail1
 
-/-- error: invalid field declaration, type must be provided when auto-param tactic is used -/
+/-- error: Invalid field declaration: Type must be provided when auto-param tactic is used -/
 #guard_msgs in
 structure F1 where
   x := by exact 0
 
 structure F2 where
   x (n : Nat) : Nat
-/-- error: omit field 'x' type to set auto-param tactic -/
+/-- error: Omit the type of field `x` to set its auto-param tactic -/
 #guard_msgs in
 structure F3 extends F2 where
   x : Nat → Nat := by exact 0
 
-/-- error: invalid field, unexpected binders when setting auto-param tactic for inherited field -/
+/-- error: Invalid field: Unexpected binders when setting auto-param tactic for inherited field -/
 #guard_msgs in
 structure F4 extends F2 where
   x (n : Nat) := by exact 0
 
-/-- error: field 'x' new default value has already been set -/
+/-- error: A new default value for field `x` has already been set in this structure -/
 #guard_msgs in
 structure F5 extends F2 where
   x := by exact 0
   x := by exact 0
 
-/-- error: field 'x' new default value has already been set -/
+/-- error: A new default value for field `x` has already been set in this structure -/
 #guard_msgs in
 structure F6 extends F2 where
   x := id
   x := by exact 0
 
-/-- error: field 'x' new default value has already been set -/
+/-- error: A new default value for field `x` has already been set in this structure -/
 #guard_msgs in
 structure F7 extends F2 where
   x := by exact 0

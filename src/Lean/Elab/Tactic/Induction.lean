@@ -791,12 +791,12 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
       if let some elimName ← getCustomEliminator? targets induction then
         return ← getElimInfo elimName (← getBaseName? elimName)
     unless targets.size == 1 do
-      throwError "Eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
+      throwMissingEliminator
     let indVal ← getInductiveValFromMajor induction targets[0]!
     if induction && indVal.all.length != 1 then
-      throwError "'induction' tactic does not support mutually inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
+      throwUnsupportedInductionType indVal.name "mutually inductive"
     if induction && indVal.isNested then
-      throwError "'induction' tactic does not support nested inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
+      throwUnsupportedInductionType indVal.name "a nested inductive type"
     let elimName := if induction then mkRecName indVal.name else mkCasesOnName indVal.name
     getElimInfo elimName indVal.name
   else
@@ -806,6 +806,16 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
       let some elimName := elimExpr.getAppFn.constName? | pure none
       getBaseName? elimName
     withRef elimTerm <| getElimExprInfo elimExpr baseName?
+where
+  throwMissingEliminator :=
+    let tacName := if induction then "induction" else "cases"
+    throwError m!"Missing eliminator: An eliminator must be provided when multiple induction \
+          targets are specified and no default eliminator has been registered"
+          ++ .hint' m!"Write `using <eliminator-name>` to specify an eliminator, or register a default \
+                        eliminator with the attribute `[{tacName}_eliminator]`"
+  throwUnsupportedInductionType (name : Name) (kind : String) :=
+    throwError m!"The `induction` tactic does not support the type `{name}` because it is {kind}"
+        ++ .hint' "Consider using the `cases` tactic instead"
 
 private def shouldGeneralizeTarget (e : Expr) : MetaM Bool := do
   if let .fvar fvarId .. := e then

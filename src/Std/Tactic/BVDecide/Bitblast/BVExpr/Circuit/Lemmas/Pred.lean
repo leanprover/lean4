@@ -52,7 +52,7 @@ theorem bitblast_Inv_of_Inv (input : BVExpr.WithCache BVPred aig)
   unfold bitblast
   dsimp only
   split
-  · next op _ _ =>
+  next op _ _ =>
     cases op
     · dsimp only
       apply BVExpr.Cache.Inv_cast

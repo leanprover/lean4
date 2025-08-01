@@ -14,7 +14,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 
 public section
 

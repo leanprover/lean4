@@ -41,14 +41,24 @@ namespace Lean.NoConfusionLinear
 
 open Meta
 
+
+register_builtin_option backwards.linearNoConfusionType : Bool := {
+  defValue := true
+  descr    := "use the linear-size construction for the `noConfusionType` declaration of an inductive type. Set to false to use the previous, simpler but quadratic-size construction. "
+}
+
 /--
 List of constants that the linear `noConfusionType` construction depends on.
 -/
-def deps : Array Lean.Name :=
-  #[ ``Nat.lt, ``cond, ``Nat, ``PUnit, ``Eq, ``Not, ``dite, ``Nat.decEq, ``Nat.blt ]
+private def deps : Array Lean.Name :=
+  #[ ``cond, ``ULift, ``Eq.ndrec, ``Not, ``dite, ``Nat.decEq, ``Nat.blt ]
 
-def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
-  let type ← inferType default
+def canUse : MetaM Bool := do
+  unless backwards.linearNoConfusionType.get (← getOptions) do return false
+  unless (← NoConfusionLinear.deps.allM (hasConst · (skipRealize := true))) do return false
+  return true
+
+def mkNatLookupTable (n : Expr) (type : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
   let u ← getLevel type
   let rec go (start stop : Nat) (hstart : start < stop := by omega) (hstop : stop ≤ es.size := by omega) : MetaM Expr := do
     if h : start + 1 = stop then
@@ -62,6 +72,55 @@ def mkNatLookupTable (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr 
     pure default
   else
     go 0 es.size
+
+-- Right-associates the top-most `max`s to work around #5695 for prettier code
+private def reassocMax (l : Level) : Level :=
+  let lvls := maxArgs l #[]
+  let last := lvls.back!
+  lvls.pop.foldr mkLevelMax last
+where
+  maxArgs (l : Level) (lvls : Array Level) : Array Level :=
+  match l with
+  | .max l1 l2 => maxArgs l2 (maxArgs l1 lvls)
+  | _ => lvls.push l
+
+/--
+Takes the max of the levels of the given expressions.
+-/
+def maxLevels (es : Array Expr) (default : Expr) : MetaM Level := do
+  let mut maxLevel ← getLevel default
+  for e in es do
+    let l ← getLevel e
+    maxLevel := mkLevelMax' maxLevel l
+  return reassocMax maxLevel.normalize
+
+private def mkPULift (r : Level) (t : Expr) : MetaM Expr := do
+  let s ← getLevel t
+  return mkApp (mkConst `PULift [r,s]) t
+
+private def withMkPULiftUp (t : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
+  let t  ← whnf t
+  if t.isAppOfArity `PULift 1 then
+    let t' := t.appArg!
+    let e ← k t'
+    return mkApp2 (mkConst `PULift.up (t.appFn!.constLevels!)) t' e
+  else
+    throwError "withMkPULiftUp: expected PULift type, got {t}"
+
+private def mkPULiftDown (e : Expr) : MetaM Expr := do
+  let t ← whnf (← inferType e)
+  if t.isAppOfArity `PULift 1 then
+    let t' := t.appArg!
+    return mkApp2 (mkConst `PULift.down t.appFn!.constLevels!) t' e
+  else
+    throwError "mkULiftDown: expected ULift type, got {t}"
+
+def mkNatLookupTableLifting (n : Expr) (es : Array Expr) (default : Expr) : MetaM Expr := do
+  let u ← maxLevels es default
+  let default ← mkPULift u default
+  let u' := reassocMax (mkLevelMax' u 1).normalize
+  let es ← es.mapM (mkPULift u)
+  mkNatLookupTable n (.sort u') es default
 
 def mkWithCtorTypeName (indName : Name) : Name :=
   Name.str indName "noConfusionType" |>.str "withCtorType"
@@ -79,18 +138,15 @@ def mkWithCtorType (indName : Name) : MetaM Unit := do
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
-  let indLevel ← getLevel indTyKind
-  let e ← forallBoundedTelescope indTyKind info.numParams fun xs  _ => do
+  let e ← forallBoundedTelescope indTyKind info.numParams fun xs _ => do
     withLocalDeclD `P (mkSort v.succ) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
-      let default ← mkArrow (mkConst ``PUnit [indLevel]) P
       let es ← info.ctors.toArray.mapM fun ctorName => do
         let ctor := mkAppN (mkConst ctorName us) xs
         let ctorType ← inferType ctor
-        let argType ← forallTelescope ctorType fun ys _ =>
+        forallTelescope ctorType fun ys _ =>
           mkForallFVars ys P
-        mkArrow (mkConst ``PUnit [indLevel]) argType
-      let e ← mkNatLookupTable ctorIdx es default
+      let e ← mkNatLookupTableLifting ctorIdx es P
       mkLambdaFVars ((xs.push P).push ctorIdx) e
 
   let declName := mkWithCtorTypeName indName
@@ -113,7 +169,6 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
   let v::us := casesOnInfo.levelParams.map mkLevelParam | panic! "unexpected universe levels on `casesOn`"
   let indTyCon := mkConst indName us
   let indTyKind ← inferType indTyCon
-  let indLevel ← getLevel indTyKind
   let e ← forallBoundedTelescope indTyKind info.numParams fun xs t => do
     withLocalDeclD `P (mkSort v.succ) fun P => do
     withLocalDeclD `ctorIdx (mkConst ``Nat) fun ctorIdx => do
@@ -138,7 +193,7 @@ def mkWithCtor (indName : Name) : MetaM Unit := do
               let heq := mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) ctorIdx (mkRawNatLit i)
               let «then» ← withLocalDeclD `h heq fun h => do
                 let e ← mkEqNDRec (motive := withCtorTypeNameApp) k h
-                let e := mkApp e (mkConst ``PUnit.unit [indLevel])
+                let e ← mkPULiftDown e
                 let e := mkAppN e zs
                 -- ``Eq.ndrec
                 mkLambdaFVars #[h] e
@@ -195,15 +250,16 @@ def mkNoConfusionTypeLinear (indName : Name) : MetaM Unit := do
                 let alt := mkAppN alt xs
                 let alt := mkApp alt PType
                 let alt := mkApp alt (mkRawNatLit i)
-                let k ← forallTelescopeReducing (← inferType alt).bindingDomain! fun zs2 _ => do
-                  let eqs ← (Array.zip zs1 zs2[1...*]).filterMapM fun (z1,z2) => do
-                    if (← isProof z1) then
-                      return none
-                    else
-                      return some (← mkEqHEq z1 z2)
-                  let k ← mkArrowN eqs P
-                  let k ← mkArrow k P
-                  mkLambdaFVars zs2 k
+                let k ← withMkPULiftUp (← inferType alt).bindingDomain! fun t =>
+                  forallTelescopeReducing t fun zs2 _ => do
+                    let eqs ← (Array.zip zs1 zs2).filterMapM fun (z1,z2) => do
+                      if (← isProof z1) then
+                        return none
+                      else
+                        return some (← mkEqHEq z1 z2)
+                    let k ← mkArrowN eqs P
+                    let k ← mkArrow k P
+                    mkLambdaFVars zs2 k
                 let alt := mkApp alt k
                 let alt := mkApp alt P
                 let alt := mkAppN alt ys

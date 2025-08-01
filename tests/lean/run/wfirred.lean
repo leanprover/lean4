@@ -10,7 +10,7 @@ def foo : Nat → Nat
 termination_by n => n
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_
@@ -21,7 +21,7 @@ but is expected to have type
 example : foo 0 = 0 := rfl
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_
@@ -33,7 +33,7 @@ example : foo (n+1) = foo n := rfl
 
 -- also for closed terms
 /--
-error: Tactic `rfl` failed: the left-hand side
+error: Tactic `rfl` failed: The left-hand side
   foo 0
 is not definitionally equal to the right-hand side
   0
@@ -45,7 +45,7 @@ example : foo 0 = 0 := by rfl
 
 -- It only works on closed terms:
 /--
-error: Tactic `rfl` failed: the left-hand side
+error: Tactic `rfl` failed: The left-hand side
   foo (n + 1)
 is not definitionally equal to the right-hand side
   foo n
@@ -63,7 +63,7 @@ unseal foo
 -- unsealing works, but does not have the desired effect
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_
@@ -74,7 +74,7 @@ but is expected to have type
 example : foo 0 = 0 := rfl
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_
@@ -89,7 +89,7 @@ end Unsealed
 --should be sealed again here
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_
@@ -109,7 +109,7 @@ termination_by n => n
 -- an equality like the following
 
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_
@@ -133,7 +133,7 @@ example : baz 0 = 0 := rfl
 
 seal baz in
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_
@@ -155,7 +155,7 @@ example : quux 0 = 0 := rfl
 set_option allowUnsafeReducibility true in
 seal quux in
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_

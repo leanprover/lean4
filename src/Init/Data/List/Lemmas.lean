@@ -1849,6 +1849,10 @@ theorem append_eq_map_iff {f : α → β} :
     L₁ ++ L₂ = map f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
   rw [eq_comm, map_eq_append_iff]
 
+@[simp, grind =]
+theorem sum_append_nat {l₁ l₂ : List Nat} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
+  induction l₁ generalizing l₂ <;> simp_all [Nat.add_assoc]
+
 /-! ### concat
 
 Note that `concat_eq_append` is a `@[simp]` lemma, so `concat` should usually not appear in goals.
@@ -2148,7 +2152,7 @@ theorem flatMap_eq_foldl {f : α → List β} {l : List α} :
   intro l'
   induction l generalizing l'
   · simp
-  · next ih => rw [flatMap_cons, ← append_assoc, ih, foldl_cons]
+  next ih => rw [flatMap_cons, ← append_assoc, ih, foldl_cons]
 
 /-! ### replicate -/
 

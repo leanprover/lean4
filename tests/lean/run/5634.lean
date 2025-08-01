@@ -55,7 +55,7 @@ example (p : Prop) (h : p) : p := by
 Occurs check
 -/
 /--
-error: occurs check failed, expression
+error: Occurs check failed: Expression
   ?foo
 contains the goal ?foo
 -/
@@ -101,7 +101,7 @@ Regression test: unnecessary `simpa`
 def foo (n : α) := [n]
 
 /--
-warning: try 'simp at h' instead of 'simpa using h'
+warning: Try `simp at h` instead of `simpa using h`
 
 Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
 -/

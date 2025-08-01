@@ -11,6 +11,7 @@ public import Lean.Meta.SynthInstance
 public import Lean.Meta.CollectMVars
 public import Lean.Meta.Tactic.Util
 public import Lean.PrettyPrinter
+import Lean.Meta.AppBuilder
 
 public section
 

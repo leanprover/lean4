@@ -13,6 +13,7 @@ public import Lean.Util.FVarSubset
 public import Lean.Util.PtrSet
 public import Lean.Util.FVarSubset
 public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.IntInstTesters
 
 public section
 

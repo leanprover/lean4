@@ -75,6 +75,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentH
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Tactic_evalRepeat_x27_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalRepeat1_x27___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1865_(lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Functor_mapRev___at___Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__1_spec__10___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Tactic_evalRepeat_x27_spec__0___redArg(lean_object*);
@@ -84,7 +85,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at___Lean_Pers
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Repeat_0__Lean_Elab_Tactic_evalRepeat_x27___regBuiltin_Lean_Elab_Tactic_evalRepeat_x27_declRange__3___closed__6;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_repeat1_x27___at___Lean_Elab_Tactic_evalRepeat1_x27_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872_(lean_object*);
 lean_object* l_Lean_Elab_Tactic_SavedState_restore___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_MVarId_isAssigned___at___Lean_Meta_repeat_x27Core_go___at___Lean_Meta_repeat_x27Core___at___Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__1_spec__1_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -311,7 +311,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at___Lean_MVarId_isAssig
 _start:
 {
 uint64_t x_3; size_t x_4; uint8_t x_5; 
-x_3 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872_(x_2);
+x_3 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1865_(x_2);
 x_4 = lean_uint64_to_usize(x_3);
 x_5 = l_Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_MVarId_isAssigned___at___Lean_Meta_repeat_x27Core_go___at___Lean_Meta_repeat_x27Core___at___Lean_Meta_repeat_x27___at___Lean_Elab_Tactic_evalRepeat_x27_spec__1_spec__1_spec__1_spec__1_spec__1_spec__1___redArg(x_1, x_4, x_2);
 return x_5;
@@ -2220,7 +2220,7 @@ static lean_object* _init_l_Lean_Meta_repeat1_x27___at___Lean_Elab_Tactic_evalRe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("repeat1' made no progress", 25, 25);
+x_1 = lean_mk_string_unchecked("`repeat1'` made no progress", 27, 27);
 return x_1;
 }
 }

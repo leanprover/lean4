@@ -18,12 +18,12 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceNoCache(lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(uint8_t, uint8_t);
 size_t lean_ptr_addr(lean_object*);
 lean_object* lean_replace_expr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceImpl___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(uint8_t, uint8_t);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_replace___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -161,7 +161,7 @@ return x_24;
 else
 {
 uint8_t x_25; 
-x_25 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_20, x_20);
+x_25 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_20, x_20);
 if (x_25 == 0)
 {
 lean_object* x_26; 
@@ -226,7 +226,7 @@ return x_41;
 else
 {
 uint8_t x_42; 
-x_42 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_37, x_37);
+x_42 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_37, x_37);
 if (x_42 == 0)
 {
 lean_object* x_43; 

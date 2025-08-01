@@ -6,9 +6,10 @@ Authors: Sebastian Ullrich
 module
 
 prelude
-public import Lean.PrettyPrinter.Delaborator
-public import Lean.PrettyPrinter.Parenthesizer
-public import Lean.PrettyPrinter.Formatter
+public import Lean.PrettyPrinter.Delaborator.Basic
+import Lean.PrettyPrinter.Delaborator
+import Lean.PrettyPrinter.Parenthesizer
+import Lean.PrettyPrinter.Formatter
 public import Lean.Parser.Module
 public import Lean.ParserCompiler
 public import Lean.Util.NumObjs

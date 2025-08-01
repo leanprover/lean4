@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Induction
+import Lean.Meta.Tactic.Replace
 
 public section
 
@@ -297,7 +298,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
     TermElabM α := do
   let asFVar : Expr → MetaM _
     | .fvar e => pure e
-    | e => throwError "rcases tactic failed: {e} is not a fvar"
+    | e => throwError "Tactic `rcases` failed: `{e}` is not a free variable"
   withRef pat.ref <| g.withContext do match pat with
   | .one ref `rfl =>
     Term.synthesizeSyntheticMVarsNoPostponing
@@ -318,7 +319,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
     let e := fs.apply e
     let etype ← inferType e
     unless ← isDefEq etype expected do
-      Term.throwTypeMismatchError "rcases: scrutinee" expected etype e
+      Term.throwTypeMismatchError "Tactic `rcases` failed: scrutinee" expected etype e
     let g ← if let .fvar e := e then g.replaceLocalDeclDefEq e expected else pure g
     rcasesCore g fs clears e a pat cont
   | .paren ref p
@@ -332,7 +333,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
     Term.synthesizeSyntheticMVarsNoPostponing
     let type ← whnfD (← inferType e)
     let failK {α} _ : TermElabM α :=
-      throwError "rcases tactic failed: {e} : {type} is not an inductive datatype"
+      throwError "Tactic `rcases` failed: `{e} : {type}` is not an inductive datatype"
     let (r, subgoals) ← matchConst type.getAppFn failK fun
       | ConstantInfo.quotInfo info, _ => do
         unless info.kind matches QuotKind.type do failK ()

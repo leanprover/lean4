@@ -744,7 +744,7 @@ def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   let splitterName := baseName ++ `splitter
   -- NOTE: `go` will generate both splitter and equations but we use the splitter as the "key" for
   -- `realizeConst` as well as for looking up the resultant environment extension state via
-  -- `findStateAsync`.
+  -- `getState`.
   realizeConst matchDeclName splitterName (go baseName splitterName)
   return matchEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := splitterName) (← getEnv) |>.map.find! matchDeclName
 where go baseName splitterName := withConfig (fun c => { c with etaStruct := .none }) do
@@ -843,7 +843,7 @@ def isCongrEqnReservedNameSuffix (s : String) : Bool :=
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/
 builtin_initialize matchCongrEqnsExt : EnvExtension (PHashMap Name (Array Name)) ←
   -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
-  -- The resulting state can still be accessed on the generated declarations using `findStateAsync`;
+  -- The resulting state can still be accessed on the generated declarations using `.asyncEnv`;
   -- see below
   registerEnvExtension (pure {}) (asyncMode := .local)
 

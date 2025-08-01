@@ -30,7 +30,7 @@ structure MatchEqnsExtState where
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/
 builtin_initialize matchEqnsExt : EnvExtension MatchEqnsExtState ←
   -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
-  -- The resulting state can still be accessed on the generated declarations using `findStateAsync`;
+  -- The resulting state can still be accessed on the generated declarations using `.asyncEnv`;
   -- see below
   registerEnvExtension (pure {}) (asyncMode := .local)
 

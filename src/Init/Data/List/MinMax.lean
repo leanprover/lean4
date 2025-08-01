@@ -152,8 +152,10 @@ theorem min?_eq_some_iff_legacy [Min α] [LE α]
   haveI : MinEqOr α := ⟨min_eq_or⟩
   haveI : IsLinearOrder (Subtype (· ∈ xs)) := by
     refine .ofLE ?_ ?_ ?_
-    · exact fun a b hab hba => Subtype.ext <| anti a.val b.val a.property b.property hab hba
-    · intro a b c hab hbc
+    · constructor
+      exact fun a b hab hba => Subtype.ext <| anti a.val b.val a.property b.property hab hba
+    · constructor
+      intro a b c hab hbc
       have : min b.val c.val = b.val := by
         apply anti _ _ (MinEqOr.elim b.property c.property) b.property
         · exact ((le_min_iff (min b.val c.val) _ _).mp (le_refl _)).1
@@ -161,7 +163,8 @@ theorem min?_eq_some_iff_legacy [Min α] [LE α]
       specialize le_min_iff a b c
       rw [this] at le_min_iff
       exact (le_min_iff.mp hab).2
-    · exact fun a b => by
+    · constructor
+      exact fun a b => by
         cases min_eq_or a.val b.val
         case inl h => exact Or.inl ((h ▸ le_min_iff a.val a.val b.val).mp (le_refl _)).2
         case inr h => exact Or.inr ((h ▸ le_min_iff b.val a.val b.val).mp (le_refl _)).1
@@ -311,8 +314,9 @@ theorem max?_eq_some_iff_legacy [Max α] [LE α] [anti : Std.Antisymm (· ≤ ·
   haveI : MaxEqOr α := ⟨max_eq_or⟩
   haveI : IsLinearOrder α := by
     refine .ofLE ?_ ?_ ?_
-    · exact anti.antisymm
-    · intro a b c hab hbc
+    · exact anti
+    · constructor
+      intro a b c hab hbc
       have : max a b = b := by
         apply anti.antisymm _ _
         · refine MaxEqOr.elim (P := (· ≤ b)) hab (le_refl _)
@@ -320,7 +324,8 @@ theorem max?_eq_some_iff_legacy [Max α] [LE α] [anti : Std.Antisymm (· ≤ ·
       specialize max_le_iff c a b
       rw [this] at max_le_iff
       exact (max_le_iff.mp hbc).1
-    · exact fun a b => by
+    · constructor
+      exact fun a b => by
         cases max_eq_or a b
         case inl h => exact Or.inr ((h ▸ max_le_iff a a b).mp (le_refl _)).2
         case inr h => exact Or.inl ((h ▸ max_le_iff b a b).mp (le_refl _)).1

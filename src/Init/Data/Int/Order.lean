@@ -1423,9 +1423,9 @@ instance : OrderData Int := .ofLE Int
 
 instance instIsLinearOrder : IsLinearOrder Int := by
   apply IsLinearOrder.ofLE
-  case le_antisymm => apply Int.le_antisymm
-  case le_total => apply Int.le_total
-  case le_trans => apply Int.le_trans
+  case le_antisymm => constructor; apply Int.le_antisymm
+  case le_total => constructor; apply Int.le_total
+  case le_trans => constructor; apply Int.le_trans
 
 instance : LawfulOrderLT Int where
   lt_iff := by

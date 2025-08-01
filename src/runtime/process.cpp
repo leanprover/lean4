@@ -642,17 +642,19 @@ static obj_res setup_stdio(uv_stdio_container_t * out, stdio cfg, int fd) {
         out->data.fd = fd;
         return box(0);
     case stdio::PIPED: {
-        // TODO: how to get FILE*s from this?
-        // uv_pipe_t pipe;
-        // uv_pipe_init(global_ev.loop, &pipe);
-        // out->flags = UV_CREATE_PIPE;
-        // if (fd == STDIN_FILENO) {
-        //     out->flags |= UV_READABLE_PIPE;
-        // } else {
-        //     out->flags |= UV_WRITABLE_PIPE;
-        // }
-        out->flags = UV_IGNORE;
-        return box(0);
+        uv_file fds[2];
+        lean_always_assert(uv_pipe(fds, 0, 0) == 0);
+
+        out->flags = UV_INHERIT_FD;
+        if (fd == STDIN_FILENO) {
+            out->data.fd = fds[0];
+            FILE * file = fdopen(fds[1], "w");
+            return io_wrap_handle(file);
+        } else {
+            out->data.fd = fds[1];
+            FILE * file = fdopen(fds[0], "r");
+            return io_wrap_handle(file);
+        }
     }
     case stdio::NUL:
         out->flags = UV_IGNORE;

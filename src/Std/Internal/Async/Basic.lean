@@ -579,6 +579,13 @@ protected def asTask (x : EAsync ε α) (prio := Task.Priority.default) : EIO ε
   x |> BaseAsync.asTask (prio := prio)
 
 /--
+Runs an `EAsync` until it has some result.
+-/
+@[inline]
+protected def block (x : EAsync ε α) (prio := Task.Priority.default) : EIO ε α :=
+  x.asTask (prio := prio) >>= ETask.block
+
+/--
 Raises an error of type `ε` within the `EAsync` monad.
 -/
 @[inline]
@@ -714,6 +721,31 @@ Converts a `Async` to a `AsyncTask`.
 @[inline]
 protected def toIO (x : Async α) : IO (AsyncTask α) :=
   MaybeTask.toTask <$> x.toRawBaseIO
+
+/--
+Converts a `Promise` to a `Async`.
+-/
+@[inline]
+protected def ofPromise (task : IO (IO.Promise (Except IO.Error α))) : Async α := do
+  match ← task.toBaseIO with
+  | .ok data => pure (f := BaseIO) (MaybeTask.ofTask data.result!)
+  | .error err => pure (f := BaseIO) (MaybeTask.pure (.error err))
+
+/--
+Converts a `AsyncTask` to a `Async`.
+-/
+@[inline]
+protected def ofAsyncTask (task : AsyncTask α) : Async α := do
+  pure (f := BaseIO) (MaybeTask.ofTask task)
+
+/--
+Converts a pure `Promise` to a `Async`.
+-/
+@[inline]
+protected def ofPurePromise (task : IO (IO.Promise α)) : Async α := do
+  match ← task.toBaseIO with
+  | .ok data => pure (f := BaseIO) (MaybeTask.ofTask <| data.result!.map (.ok))
+  | .error err => pure (f := BaseIO) (MaybeTask.pure (.error err))
 
 @[default_instance]
 instance : MonadAsync AsyncTask Async :=

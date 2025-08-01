@@ -28,31 +28,28 @@ def baseSelector (asyncWaiter : AsyncTask α) : Selector α :=
     unregisterFn := pure ()
   }
 
-def race (a : AsyncTask α) (b : AsyncTask β) (map : Except α β → AsyncTask γ) : IO (AsyncTask γ) := do
-  Selectable.one #[
-    .case (baseSelector a) fun a => return map (.error a),
-    .case (baseSelector b) fun b => return map (.ok b),
-  ]
 
-def timeout (a : AsyncTask α) (time : Std.Time.Millisecond.Offset) : IO (AsyncTask α) := do
-  race (← sleep time) a fun
-    | .ok res => Task.pure (.ok res)
-    | .error _ => Task.pure (.error (IO.userError "Timeout."))
+def timeout [Inhabited α] (a : Async α) (time : Std.Time.Millisecond.Offset) : Async α := do
+  let result ← Async.race (a.map Except.ok) (sleep time |>.map Except.error)
+
+  match result with
+  | .ok res => pure res
+  | .error _ => throw (.userError "timeout")
 
 def runDNS : Async Unit := do
-  let infos ← await <| (← timeout (← DNS.getAddrInfo "google.com" "http") 10000)
+  let infos ← timeout (DNS.getAddrInfo "google.com" "http") 1000
 
   unless infos.size > 0 do
     (throw <| IO.userError <| "No DNS results for google.com" : IO _)
 
 def runDNSNoAscii : Async Unit := do
-  let infos ← await <| (← timeout (← DNS.getAddrInfo "google.com▸" "http") 10000)
+  let infos ← timeout (DNS.getAddrInfo "google.com▸" "http") 1000
 
   unless infos.size > 0 do
     (throw <| IO.userError <| "No DNS results for google.com" : IO _)
 
 def runReverseDNS : Async Unit := do
-  let result ← await (← DNS.getNameInfo (.v4 ⟨.ofParts 8 8 8 8, 53⟩))
+  let result ← DNS.getNameInfo (.v4 ⟨.ofParts 8 8 8 8, 53⟩)
   assertBEq result.service "domain"
   assertBEq result.host "dns.google"
 

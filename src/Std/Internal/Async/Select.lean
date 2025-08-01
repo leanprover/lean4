@@ -122,13 +122,15 @@ The protocol for this is as follows:
    Once one of them resolves the `Waiter`, all `Selector.unregisterFn` functions are called, and
    the `Selectable.cont` of the winning `Selector` is executed and returned.
 -/
-partial def Selectable.one (selectables : Array (Selectable α)) : IO (AsyncTask α) := do
+partial def Selectable.one (selectables : Array (Selectable α)) : Async α := do
   let seed := UInt64.toNat (ByteArray.toUInt64LE! (← IO.getRandomBytes 8))
   let gen := mkStdGen seed
   let selectables := shuffleIt selectables gen
+
   for selectable in selectables do
     if let some val ← selectable.selector.tryFn then
-      return ← selectable.cont val
+      let result ← Async.ofAsyncTask (← selectable.cont val)
+      return result
 
   let finished ← IO.mkRef false
   let promise ← IO.Promise.new
@@ -158,7 +160,7 @@ partial def Selectable.one (selectables : Array (Selectable α)) : IO (AsyncTask
         catch e =>
           promise.resolve (.error e)
 
-  return AsyncTask.ofPromise promise
+  Async.ofPromise (pure promise)
 
 end Async
 end IO

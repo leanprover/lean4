@@ -23,7 +23,9 @@ namespace CommRing
 abbrev Var := Nat
 
 inductive Expr where
-  | num  (v : Int)
+  | num  (k : Int)
+  | natCast (k : Nat)
+  | intCast (k : Int)
   | var  (i : Var)
   | neg (a : Expr)
   | add  (a b : Expr)
@@ -47,13 +49,15 @@ def denoteInt {α} [Ring α] (k : Int) : α :=
 
 @[expose]
 def Expr.denote {α} [Ring α] (ctx : Context α) : Expr → α
-  | .add a b  => denote ctx a + denote ctx b
-  | .sub a b  => denote ctx a - denote ctx b
-  | .mul a b  => denote ctx a * denote ctx b
-  | .neg a    => -denote ctx a
-  | .num k    => denoteInt k
-  | .var v    => v.denote ctx
-  | .pow a k  => denote ctx a ^ k
+  | .add a b   => denote ctx a + denote ctx b
+  | .sub a b   => denote ctx a - denote ctx b
+  | .mul a b   => denote ctx a * denote ctx b
+  | .neg a     => -denote ctx a
+  | .num k     => denoteInt k
+  | .natCast k => NatCast.natCast (R := α) k
+  | .intCast k => IntCast.intCast (R := α) k
+  | .var v     => v.denote ctx
+  | .pow a k   => denote ctx a ^ k
 
 structure Power where
   x : Var
@@ -616,13 +620,15 @@ def Poly.pow (p : Poly) (k : Nat) : Poly :=
 
 @[expose]
 def Expr.toPoly : Expr → Poly
-  | .num n   => .num n
-  | .var x   => Poly.ofVar x
-  | .add a b => a.toPoly.combine b.toPoly
-  | .mul a b => a.toPoly.mul b.toPoly
-  | .neg a   => a.toPoly.mulConst (-1)
-  | .sub a b => a.toPoly.combine (b.toPoly.mulConst (-1))
-  | .pow a k =>
+  | .num k     => .num k
+  | .intCast k => .num k
+  | .natCast k => .num k
+  | .var x     => Poly.ofVar x
+  | .add a b   => a.toPoly.combine b.toPoly
+  | .mul a b   => a.toPoly.mul b.toPoly
+  | .neg a     => a.toPoly.mulConst (-1)
+  | .sub a b   => a.toPoly.combine (b.toPoly.mulConst (-1))
+  | .pow a k   =>
     bif k == 0 then
       .num 1
     else  match a with
@@ -759,13 +765,15 @@ def Expr.toPolyC (e : Expr) (c : Nat) : Poly :=
   go e
 where
   go : Expr → Poly
-    | .num n   => .num (n % c)
-    | .var x   => Poly.ofVar x
-    | .add a b => (go a).combineC (go b) c
-    | .mul a b => (go a).mulC (go b) c
-    | .neg a   => (go a).mulConstC (-1) c
-    | .sub a b => (go a).combineC ((go b).mulConstC (-1) c) c
-    | .pow a k =>
+    | .num k     => .num (k % c)
+    | .natCast k => .num (k % c)
+    | .intCast k => .num (k % c)
+    | .var x     => Poly.ofVar x
+    | .add a b   => (go a).combineC (go b) c
+    | .mul a b   => (go a).mulC (go b) c
+    | .neg a     => (go a).mulConstC (-1) c
+    | .sub a b   => (go a).combineC ((go b).mulConstC (-1) c) c
+    | .pow a k   =>
       bif k == 0 then
         .num 1
       else match a with
@@ -1037,6 +1045,7 @@ theorem Expr.denote_toPoly {α} [CommRing α] (ctx : Context α) (e : Expr)
     <;> simp [denote, Poly.denote, Poly.denote_ofVar, Poly.denote_combine,
           Poly.denote_mul, Poly.denote_mulConst, Poly.denote_pow, intCast_pow, intCast_neg, intCast_one,
           neg_mul, one_mul, sub_eq_add_neg, denoteInt_eq, *]
+  next => rw [Ring.intCast_natCast]
   next a k h => simp at h; simp [h, Semiring.pow_zero]
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
 
@@ -1229,6 +1238,8 @@ theorem Expr.denote_toPolyC {α c} [CommRing α] [IsCharP α c] (ctx : Context �
   fun_induction toPolyC.go
     <;> simp [denote, Poly.denote, Poly.denote_ofVar, Poly.denote_combineC,
           Poly.denote_mulC, Poly.denote_mulConstC, Poly.denote_powC, denoteInt_eq, *]
+  next => rw [IsCharP.intCast_emod]
+  next => rw [IsCharP.intCast_emod, Ring.intCast_natCast]
   next => rw [IsCharP.intCast_emod]
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul]
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul, sub_eq_add_neg]

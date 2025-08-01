@@ -249,6 +249,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     options.exit_cb = &process_exit_callback;
 
     object * promise = lean_promise_new();
+    mark_mt(promise);
     uv_process_t * child = (uv_process_t *) malloc(sizeof(uv_process_t));
     child->data = promise; // We use `.data` to store an `IO.Promise UInt32` that resolves on exit
 

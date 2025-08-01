@@ -617,6 +617,15 @@ def sortFVarsByContextOrder (lctx : LocalContext) (hyps : Array FVarId) : Array 
     | some ldecl => (ldecl.index, fvarId)
   hyps.qsort (fun h i => h.fst < i.fst) |>.map (·.snd)
 
+/--
+Uses `f` to modify the type of each declaration.
+-/
+def modifyTypes (lctx : LocalContext) (f : Expr → Expr) : LocalContext :=
+  let auxDeclToFullName := lctx.auxDeclToFullName
+  let lctx' : LocalContext := lctx.foldl (init := {}) fun lctx' decl =>
+    lctx'.addDecl <| decl.setType (f decl.type)
+  { lctx' with auxDeclToFullName }
+
 end LocalContext
 
 /-- Class used to denote that `m` has a local context. -/

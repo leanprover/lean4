@@ -14,5 +14,6 @@ public import Std.Internal.Async.DNS
 public import Std.Internal.Async.Select
 public import Std.Internal.Async.Process
 public import Std.Internal.Async.System
+public import Std.Internal.Async.Signal
 
 public section

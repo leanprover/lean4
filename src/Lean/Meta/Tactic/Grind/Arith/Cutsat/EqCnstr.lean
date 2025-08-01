@@ -341,7 +341,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg | toInt
+  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg | toInt | finVal
   deriving BEq, Repr
 
 private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
@@ -359,6 +359,7 @@ private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   | Int.natAbs _ => some (.natAbs, Nat.mkType)
   | Int.toNat _ => some (.toNat, Nat.mkType)
   | NatCast.natCast α _ _ => some (.natCast, α)
+  | Fin.val _ _ => some (.finVal, Nat.mkType)
   | Grind.ToInt.toInt _ _ _ _ => some (.toInt, Int.mkType)
   | _ => none
 
@@ -368,7 +369,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   -- TODO: document `NatCast.natCast` case.
   -- Remark: we added it to prevent natCast_sub from being expanded twice.
   if declName == ``NatCast.natCast then return true
-  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast | .toInt then return false
+  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast | .toInt | .finVal then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false

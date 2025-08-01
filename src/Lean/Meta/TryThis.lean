@@ -43,6 +43,12 @@ structure TryThisInfo : Type where
   codeActionPrefix? : Option String
   deriving TypeName
 
+/-- A lazy version of `TryThisInfo` used by lazy hints. Used to generate lazy code action sets. -/
+structure LazyTryThisInfo : Type where
+  info : MetaM (Array TryThisInfo)
+  ppCtx : PPContext
+  deriving TypeName
+
 /-! # `Suggestion` data -/
 
 -- TODO: we could also support `Syntax` and `Format`
@@ -247,7 +253,8 @@ It contains the following data:
 -/
 structure ProcessedSuggestions where
   suggestions : Array (Json × String × Option String)
-  info : Elab.Info
+  info : TryThisInfo
+  infoRef : Syntax
   range : Lsp.Range
 
 /--
@@ -263,10 +270,7 @@ def processSuggestions (ref : Syntax) (range : String.Range) (suggestions : Arra
   let (indent, column) := getIndentAndColumn map range
   let suggestions ← suggestions.mapM (·.toJsonAndInfoM (indent := indent) (column := column))
   let suggestionTexts := suggestions.map (·.2)
-  let ref := Syntax.ofRange <| ref.getRange?.getD range
+  let infoRef := Syntax.ofRange <| ref.getRange?.getD range
   let range := map.utf8RangeToLspRange range
-  let info := .ofCustomInfo {
-    stx := ref
-    value := Dynamic.mk { range, suggestionTexts, codeActionPrefix? : TryThisInfo }
-  }
-  return { info, suggestions, range }
+  let info := { range, suggestionTexts, codeActionPrefix? }
+  return { info, infoRef, suggestions, range }

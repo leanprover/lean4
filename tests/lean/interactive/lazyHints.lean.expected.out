@@ -1,0 +1,88 @@
+{"title": "Try this: run_elab",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///lazyHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 11, "character": 0},
+       "end": {"line": 11, "character": 8}},
+      "newText": "run_elab"}]}]}}
+{"title": "Try this: 42",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///lazyHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 37, "character": 13},
+       "end": {"line": 37, "character": 15}},
+      "newText": "42"}]}]}}
+{"title": "Try this: 57",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///lazyHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 37, "character": 13},
+       "end": {"line": 37, "character": 15}},
+      "newText": "57"}]}]}}
+{"title": "Try this: hints",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///lazyHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 66, "character": 0},
+       "end": {"line": 66, "character": 4}},
+      "newText": "hints"}]}]}}
+{"title": "Try this: foo",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///lazyHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 66, "character": 5},
+       "end": {"line": 66, "character": 7}},
+      "newText": "foo"}]}]}}
+{"title": "Try this: multiples",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///lazyHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 66, "character": 8},
+       "end": {"line": 66, "character": 16}},
+      "newText": "multiples"}]}]}}
+{"title": "Try this: ref",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///lazyHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 66, "character": 17},
+       "end": {"line": 66, "character": 21}},
+      "newText": "ref"}]}]}}
+{"title": "Try this: in",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 1, "uri": "file:///lazyHints.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 66, "character": 5},
+       "end": {"line": 66, "character": 7}},
+      "newText": "in"}]}]}}

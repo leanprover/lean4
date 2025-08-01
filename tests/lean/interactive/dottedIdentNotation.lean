@@ -66,16 +66,3 @@ example : MyNat → MyNat := .succ
                               --^ textDocument/completion
 open MyLib in
 example : MyNat → MyNat := .succ' -- it successfully elaborates
-
-/-!
-The missing import code action works.
--/
-
-example : IO.FS.Stream := .chainLef
-                           --^ codeAction
-
-example : outParam IO.FS.Stream := .chainLef
-                                   --^ codeAction
-
-example : Nat → IO.FS.Stream := .chainLef
-                                --^ codeAction

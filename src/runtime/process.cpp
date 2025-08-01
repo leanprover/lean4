@@ -569,8 +569,8 @@ void initialize_process() {
 void finalize_process() {}
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir(obj_arg) {
-    char path[MAX_PATH];
-    size_t sz = MAX_PATH;
+    char path[4096];
+    size_t sz = sizeof(path);
     int err = uv_cwd(path, &sz);
     if (err == 0) {
         return io_result_mk_ok(lean_mk_string_from_bytes(path, sz));
@@ -588,7 +588,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, o
     if (err == 0) {
         return io_result_mk_ok(box(0));
     } else {
-        return io_result_mk_error(lean_decode_uv_error(error, nullptr));
+        return io_result_mk_error(lean_decode_uv_error(err, nullptr));
     }
 }
 

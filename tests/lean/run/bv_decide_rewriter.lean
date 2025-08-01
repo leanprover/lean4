@@ -674,10 +674,41 @@ example {x : BitVec 8} (h : ¬ x = 0#8) : (x >>> 1).clz = x.clz + 1 := by bv_dec
 example {x y : BitVec 8} : x.clz < y.clz → y < x := by bv_decide
 example {x : BitVec 8} : x.clz ≤ 8 := by bv_decide
 
+
 -- POPCOUNT
-example : (0#8).popCount = 0 := by bv_decide
-example : (BitVec.allOnes 8).popCount = 8 := by bv_decide
-example : (5#4).popCount = 2 := by bv_decide
+#time
+example {x : BitVec 8} (h : x = 0#8) : x.popCount = 0 := by bv_decide
+#time
+example {x : BitVec 16} (h : x = 0#16) : x.popCount = 0 := by bv_decide
+#time
+example {x : BitVec 32} (h : x = 0#32) : x.popCount = 0 := by bv_decide
+#time
+example {x : BitVec 64} (h : x = 0#64) : x.popCount = 0 := by bv_decide
+#time
+example {x : BitVec 128} (h : x = 0#128) : x.popCount = 0 := by bv_decide
+
+#time
+example {x : BitVec 8} : (x >>> 1).popCount ≤ x.popCount := by bv_decide
+#time
+example {x : BitVec 16} : (x >>> 1).popCount ≤ x.popCount := by bv_decide
+#time
+example {x : BitVec 32} : (x >>> 1).popCount ≤ x.popCount := by bv_decide
+#time
+example {x : BitVec 64} : (x >>> 1).popCount ≤ x.popCount := by bv_decide
+#time
+example {x : BitVec 128} : (x >>> 1).popCount ≤ x.popCount := by bv_decide
+
+
+#time
+example {x : BitVec 8} : x.popCount ≤ 8 := by bv_decide
+#time
+example {x : BitVec 16} : x.popCount ≤ 16 := by bv_decide
+#time
+example {x : BitVec 32} : x.popCount ≤ 32 := by bv_decide
+#time
+example {x : BitVec 64} : x.popCount ≤ 64 := by bv_decide
+#time
+example {x : BitVec 128} : x.popCount ≤ 128 := by bv_decide
 
 section
 

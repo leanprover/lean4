@@ -3,11 +3,16 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luisa Cicolini, Siddharth Bhat, Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sub
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
-import Std.Sat.AIG.If
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Sub
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Eq
+public import Std.Sat.AIG.If
+
+
+@[expose] public section
 
 /-!
 This module contains the implementation of a bitblaster for `BitVec.popCount`.
@@ -22,55 +27,67 @@ variable [Hashable α] [DecidableEq α]
 namespace BVExpr
 namespace bitblast
 
+def auxAnd (aig : AIG α) (x : AIG.RefVec aig w) (iter : Nat) : AIG.RefVecEntry α w :=
+    if 0 < iter then
+      -- x - 1
+      let one : AIG.RefVec aig w := blastConst aig (w := w) 1
+      let res : AIG.RefVecEntry α w := blastSub aig ⟨x, one⟩
+      let aig := res.aig
+      let sub := res.vec
+      have := AIG.LawfulVecOperator.le_size (f := blastSub) ..
+      let x := x.cast this
+      -- x && x - 1
+      let res : AIG.RefVecEntry α w := AIG.RefVec.zip aig ⟨x, sub⟩ AIG.mkAndCached
+      let aig := res.aig
+      let x := res.vec
+      auxAnd aig x (iter - 1)
+    else
+      ⟨aig, x⟩
+
+theorem auxAnd_le_size (aig : AIG α) (curr : Nat)
+    (xc : AIG.RefVec aig w) :
+    aig.decls.size ≤ (auxAnd aig xc curr).aig.decls.size := by sorry
+
 def blastPopCount (aig : AIG α) (x : AIG.RefVec aig w) :
     AIG.RefVecEntry α w :=
-  let zero : AIG.RefVec aig w := blastConst aig (w := w) 0
-  go aig x 0 zero
+  let wconst : AIG.RefVec aig w := blastConst aig (w := w) w
+  go aig x w wconst
 where
   go (aig : AIG α) (x : AIG.RefVec aig w) (iter : Nat) (acc : AIG.RefVec aig w) :=
-    if hc : iter < w then -- I have at most w `1`
-      -- create curr constant node
-      let currConst : AIG.RefVec aig w := blastConst aig (w := w) iter
+    if h : 0 < iter then -- I have at most w `1`
+      -- create and-ed circuit at the correct level of recursion xcurr
+      let res := auxAnd aig x (iter - 1)
+      let aig := res.aig
+      let xCurr := res.vec
+      let acc := acc.cast (by simp [res, aig]; apply auxAnd_le_size)
+      let x := x.cast (by simp [res, aig]; apply auxAnd_le_size)
+      -- create constant node
+      let currConst : AIG.RefVec aig w := blastConst aig (w := w) (iter - 1)
       let zero : AIG.RefVec aig w := blastConst aig (w := w) 0
-      -- create node x = 0
-      let res := BVPred.mkEq aig ⟨x, zero⟩
+      -- create node xcurr = 0
+      let res := BVPred.mkEq aig ⟨xCurr, zero⟩
       let aig := res.aig
       let cond := res.ref
       have := AIG.LawfulOperator.le_size (f := BVPred.mkEq) ..
-      let currConst := currConst.cast this
-      let x := x.cast this
       let acc := acc.cast this
-      -- ite (x = 0),  curr, acc
+      let currConst := currConst.cast this
+      let xCurr := xCurr.cast this
+      let x := x.cast this
+      -- ite xcurr = 0, currConst, acc
       let res := AIG.RefVec.ite aig ⟨cond, currConst, acc⟩
       let aig := res.aig
       let acc := res.vec
       have := AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite) ..
       let x := x.cast this
-      -- sub := x - 1
-      let one : AIG.RefVec aig w := blastConst aig (w := w) 1
-      let res : AIG.RefVecEntry α w := blastSub aig ⟨x, one⟩
-      let aig := res.aig
-      let sub : AIG.RefVec aig w := res.vec
-      have := AIG.LawfulVecOperator.le_size (f := blastSub) ..
-      let x := x.cast this
-      let acc := acc.cast this
-      -- x :=& sub
-      let res : AIG.RefVecEntry α w := AIG.RefVec.zip aig ⟨x, sub⟩ AIG.mkAndCached
-      let aig := res.aig
-      let x := res.vec
-      have := AIG.RefVec.zip_le_size ..
-      let acc := acc.cast this
-      go aig x (iter + 1) acc
+      go aig x (iter - 1) acc
     else
       ⟨aig, acc⟩
-    /-
-      (go aig x curr acc) = popCountAuxRec x w
-    -/
-  termination_by w - iter
+  termination_by iter
 
 namespace blastPopCount
 
 end blastPopCount
+
 
 theorem blastPopCount.go_le_size (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
     (xc : AIG.RefVec aig w) :

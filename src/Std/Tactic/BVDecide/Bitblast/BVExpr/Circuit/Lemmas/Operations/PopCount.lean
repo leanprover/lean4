@@ -3,12 +3,16 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luisa Cicolini, Siddharth Bhat, Henrik Böving
 -/
+module
+
 prelude
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.PopCount
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Sub
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Eq
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Basic
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.PopCount
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Const
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Sub
+public import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Eq
+
+@[expose] public section
 
 
 /-!
@@ -30,21 +34,22 @@ namespace BVExpr
 namespace bitblast
 namespace blastPopCount
 
-theorem go_denote_eq {w : Nat} (aig : AIG α) (h : curr ≤ w)
-    (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
-    (hx' : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = (x.popCountAuxAnd (w - cur - 1)).getLsbD idx)
-    (hacc : ∀ (idx : Nat) (hidx : idx < w),
-      ⟦aig, acc.get idx hidx, assign⟧ =
-        (x.popCountAuxAnd curr).getLsbD i)
-    :
-    ∀ (idx : Nat) (hidx : idx < w),
-        ⟦
-          (go aig xc curr acc).aig,
-          (go aig xc curr acc).vec.get idx hidx,
-          assign
-        ⟧
-          =
-        (BitVec.popCountAuxRec x w).getLsbD idx := by sorry
+-- theorem go_denote_eq {w : Nat} (aig : AIG α) (h : curr ≤ w)
+--     (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (xc' : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
+--     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
+--     (hx' : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc'.get idx hidx, assign⟧ = (x.popCountAuxAnd curr).getLsbD idx)
+--     (hacc : ∀ (idx : Nat) (hidx : idx < w),
+--       ⟦aig, acc.get idx hidx, assign⟧ =
+--         (x.popCountAuxRec 0 curr).getLsbD i)
+--     :
+--     ∀ (idx : Nat) (hidx : idx < w),
+--         ⟦
+--           (go aig xc' curr acc).aig,
+--           (go aig xc' curr acc).vec.get idx hidx,
+--           assign
+--         ⟧
+--           =
+--         (BitVec.popCountAuxRec (x.popCountAuxAnd curr) 0 curr).getLsbD idx := by sorry
     -- intro idx hidx
     -- generalize hgo: go aig xc curr acc = res
     -- unfold go at hgo
@@ -83,7 +88,7 @@ theorem denote_blastPopCount (aig : AIG α) (xc : RefVec aig w) (x : BitVec w) (
       ∀ (idx : Nat) (hidx : idx < w),
         ⟦(blastPopCount aig xc).aig, (blastPopCount aig xc).vec.get idx hidx, assign⟧
           =
-        (BitVec.popCountAuxRec x w).getLsbD idx := by
+        (BitVec.popCountAuxRec x 0).getLsbD idx := by
   sorry
 
 end bitblast

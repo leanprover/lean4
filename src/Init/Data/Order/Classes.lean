@@ -149,6 +149,16 @@ public class MinEqOr (α : Type u) [Min α] where
   min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b
 
 /--
+If both `a` and `b` satisfy some property `P`, then so does `min a b`, because it is equal to
+either `a` or `b`.
+-/
+public def MinEqOr.elim {α : Type u} [Min α] [MinEqOr α] {P : α → Prop} {a b : α} (ha : P a) (hb : P b) :
+    P (min a b) := by
+  cases MinEqOr.min_eq_or a b <;> rename_i h
+  case inl => exact h.symm ▸ ha
+  case inr => exact h.symm ▸ hb
+
+/--
 This typeclass states that being less or equal to `Min.min a b` is equivalent to being less or
 equal to both `a` and `b`, according to the synthesized `OrderData α` instance.
 -/
@@ -174,6 +184,16 @@ This typeclass states that `Max.max a b` returns one of its arguments, either `a
 -/
 public class MaxEqOr (α : Type u) [Max α] where
   max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b
+
+/--
+If both `a` and `b` satisfy some property `P`, then so does `max a b`, because it is equal to
+either `a` or `b`.
+-/
+public def MaxEqOr.elim {α : Type u} [Max α] [MaxEqOr α] {P : α → Prop} {a b : α} (ha : P a) (hb : P b) :
+    P (max a b) := by
+  cases MaxEqOr.max_eq_or a b <;> rename_i h
+  case inl => exact h.symm ▸ ha
+  case inr => exact h.symm ▸ hb
 
 /--
 This typeclass states that being less or equal to `Max.max a b` is equivalent to being less or

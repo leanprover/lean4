@@ -131,11 +131,7 @@ Expanding number of constants increases time quadraticly.
 -- process pre-definitions took 408ms
 --  elaboration took 268ms
 
--- set_option debug.skipKernelTC true
-#test_gen G 2 1 2
-#check PSum.casesOn._arg_pusher
-#print G.f0._mutual.eq_def
-
+#test_gen G 2 1 64
 
 
 -- .. many more simp calls appearing than 32

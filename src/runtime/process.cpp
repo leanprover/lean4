@@ -244,15 +244,18 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     options.stdio = stdio;
     options.exit_cb = &process_exit_callback;
 
+    object * promise = lean_promise_new();
     uv_process_t * child = (uv_process_t *) malloc(sizeof(uv_process_t));
-    child->data = lean_promise_new(); // We use `.data` to store an `IO.Promise UInt32` that resolves on exit
+    child->data = promise; // We use `.data` to store an `IO.Promise UInt32` that resolves on exit
 
     int error = uv_spawn(global_ev.loop, child, &options);
 
     free(arg_array);
 
     if (error != 0) {
-        return lean_io_result_mk_error(decode_uv_error(error, nullptr));
+        dec(promise);
+        free(child);
+        return lean_io_result_mk_error(decode_uv_error(error, proc_name.raw()));
     }
     object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, wrap_uv_handle(reinterpret_cast<uv_handle_t *>(child)));
     return lean_io_result_mk_ok(r.steal());

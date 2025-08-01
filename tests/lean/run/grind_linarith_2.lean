@@ -9,14 +9,14 @@ example [IntModule α] [Preorder α] [OrderedAdd α] (a b : α)
 trace: [grind.debug.proof] Classical.byContradiction fun h =>
       let ctx := RArray.branch 1 (RArray.leaf One.one) (RArray.branch 2 (RArray.leaf a) (RArray.leaf b));
       let rctx := RArray.branch 1 (RArray.leaf a) (RArray.leaf b);
-      let re_1 := (CommRing.Expr.var 1).add (CommRing.Expr.var 0);
-      let re_2 := (CommRing.Expr.var 0).add (CommRing.Expr.var 1);
+      let re_1 := (CommRing.Expr.var 0).add (CommRing.Expr.var 1);
+      let re_2 := (CommRing.Expr.var 1).add (CommRing.Expr.var 0);
       let rp_1 := CommRing.Poly.num 0;
       let e_1 := Expr.zero;
       let e_2 := Expr.intMul 0 (Expr.var 0);
       let p_1 := Poly.nil;
       diseq_unsat ctx
-        (diseq_norm ctx e_2 e_1 p_1 (Eq.refl true) (CommRing.diseq_norm rctx re_2 re_1 rp_1 (Eq.refl true) h))
+        (diseq_norm ctx e_2 e_1 p_1 (Eq.refl true) (CommRing.diseq_norm rctx re_1 re_2 rp_1 (Eq.refl true) h))
 -/
 #guard_msgs in
 open Linarith in

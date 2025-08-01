@@ -69,6 +69,8 @@ def _root_.Lean.Grind.CommRing.Expr.denoteExpr (e : RingExpr) : M Expr := do
 where
   go : RingExpr → M Expr
   | .num k => denoteNum k
+  | .natCast k => denoteNum k
+  | .intCast k => denoteNum k
   | .var x => return (← getRing).vars[x]!
   | .add a b => return mkApp2 (← getAddFn) (← go a) (← go b)
   | .sub a b => return mkApp2 (← getSubFn) (← go a) (← go b)

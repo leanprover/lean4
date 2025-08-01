@@ -1422,7 +1422,7 @@ abbrev eq_natAbs_iff_mul_eq_zero := @natAbs_eq_iff_mul_eq_zero
 instance : OrderData Int := .ofLE Int
 
 instance instIsLinearOrder : IsLinearOrder Int := by
-  apply IsLinearOrder.ofLE
+  apply IsLinearOrder.of_le
   case le_antisymm => constructor; apply Int.le_antisymm
   case le_total => constructor; apply Int.le_total
   case le_trans => constructor; apply Int.le_trans

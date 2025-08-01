@@ -69,21 +69,21 @@ public instance {α : Type u} [OrderData α] [Min α] [LawfulOrderMin α] {P : �
 @[no_expose]
 public instance {α : Type u} [OrderData α] [IsPreorder α] {P : α → Prop} :
     IsPreorder (Subtype P) :=
-  open scoped Classical.Order in IsPreorder.ofLE
+  open scoped Classical.Order in IsPreorder.of_le
 
 @[no_expose]
 public instance {α : Type u} [OrderData α] [IsLinearPreorder α] {P : α → Prop} :
     IsLinearPreorder (Subtype P) :=
-  open scoped Classical.Order in IsLinearPreorder.ofLE
+  open scoped Classical.Order in IsLinearPreorder.of_le
 
 @[no_expose]
 public instance {α : Type u} [OrderData α] [IsPartialOrder α] {P : α → Prop} :
     IsPartialOrder (Subtype P) :=
-  open scoped Classical.Order in IsPartialOrder.ofLE
+  open scoped Classical.Order in IsPartialOrder.of_le
 
 @[no_expose]
 public instance {α : Type u} [OrderData α] [IsLinearOrder α] {P : α → Prop} :
     IsLinearOrder (Subtype P) :=
-  open scoped Classical.Order in IsLinearOrder.ofLE
+  open scoped Classical.Order in IsLinearOrder.of_le
 
 end Std

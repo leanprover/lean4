@@ -17,7 +17,7 @@ namespace Nat
 public instance : OrderData Nat := OrderData.ofLE Nat
 
 public instance instIsLinearOrder : IsLinearOrder Nat := by
-  apply IsLinearOrder.ofLE
+  apply IsLinearOrder.of_le
   · constructor; apply Nat.le_antisymm
   · constructor; apply Nat.le_trans
   · constructor; apply Nat.le_total

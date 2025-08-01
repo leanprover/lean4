@@ -279,33 +279,16 @@ theorem not_lex_total {r : α → α → Prop}
     obtain (_ | _) := not_lex_total h l₁ l₂ <;> contradiction
 
 protected theorem le_total [LT α]
-    [i : Std.Total (¬ · < · : α → α → Prop)] (l₁ l₂ : List α) : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
-  not_lex_total i.total l₂ l₁
+    [i : Std.Asymm (· < · : α → α → Prop)] (l₁ l₂ : List α) : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
+  not_lex_total i.total_not.total l₂ l₁
 
--- TODO: sort out the Asymm/Total symmetry
 protected theorem le_total_of_asymm [LT α]
     [i : Std.Asymm (· < · : α → α → Prop)] (l₁ l₂ : List α) : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
-  haveI : Std.Total (¬ · < · : α → α → Prop) := by
-    refine ⟨fun a b => ?_⟩
-    by_cases hab : a < b
-    · exact Or.inr (i.asymm _ _ hab)
-    · exact Or.inl hab
   List.le_total l₁ l₂
 
-instance [LT α]
-    [Std.Total (¬ · < · : α → α → Prop)] :
+instance [LT α] [Std.Asymm (· < · : α → α → Prop)] :
     Std.Total (· ≤ · : List α → List α → Prop) where
   total := List.le_total
-
-instance [LT α]
-    [i : Std.Asymm (· < · : α → α → Prop)] :
-  Std.Total (· ≤ · : List α → List α → Prop) :=
-  haveI : Std.Total (¬ · < · : α → α → Prop) := by
-    refine ⟨fun a b => ?_⟩
-    by_cases hab : a < b
-    · exact Or.inr (i.asymm _ _ hab)
-    · exact Or.inl hab
-  inferInstance
 
 instance instIsLinearOrder [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrderLT α] :
     IsLinearOrder (List α) := by
@@ -321,7 +304,7 @@ instance instIsLinearOrder [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrde
     {l₁ l₂ : List α} : ¬ l₂ ≤ l₁ ↔ l₁ < l₂ := Classical.not_not
 
 protected theorem le_of_lt [LT α]
-    [i : Std.Total (¬ · < · : α → α → Prop)]
+    [i : Std.Asymm (· < · : α → α → Prop)]
     {l₁ l₂ : List α} (h : l₁ < l₂) : l₁ ≤ l₂ := by
   obtain (h' | h') := List.le_total l₁ l₂
   · exact h'
@@ -331,7 +314,7 @@ protected theorem le_of_lt [LT α]
 protected theorem le_iff_lt_or_eq [LT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Std.Total (¬ · < · : α → α → Prop)]
+    [Std.Asymm (· < · : α → α → Prop)]
     {l₁ l₂ : List α} : l₁ ≤ l₂ ↔ l₁ < l₂ ∨ l₁ = l₂ := by
   constructor
   · intro h

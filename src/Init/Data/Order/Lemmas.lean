@@ -29,6 +29,18 @@ end Subtype
 
 section AxiomaticInstances
 
+public instance (r : α → α → Prop) [Asymm r] : Irrefl r where
+  irrefl a h := Asymm.asymm a a h h
+
+public instance Total.asymm_of_total_not {r : α → α → Prop} [i : Total (¬ r · ·)] : Asymm r where
+  asymm a b h := by cases i.total a b <;> trivial
+
+public theorem Asymm.total_not {r : α → α → Prop} [i : Asymm r] : Total (¬ r · ·) where
+  total a b := by
+    apply Classical.byCases (p := r a b) <;> intro hab
+    · exact Or.inr <| i.asymm a b hab
+    · exact Or.inl hab
+
 public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [IsPartialOrder α] :
     Std.Antisymm (α := α) (· ≤ ·) where
   antisymm a b := by simpa only [LawfulOrderLE.le_iff] using IsPartialOrder.le_antisymm _ _

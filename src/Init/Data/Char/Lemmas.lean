@@ -61,6 +61,7 @@ instance leTotal : Std.Total (· ≤ · : Char → Char → Prop) where
   total := Char.le_total
 
 -- This instance is useful while setting up instances for `String`.
+@[deprecated ltAsymm (since := "2025-08-01")]
 def notLTTotal : Std.Total (¬ · < · : Char → Char → Prop) where
   total := fun x y => by simpa using Char.le_total y x
 

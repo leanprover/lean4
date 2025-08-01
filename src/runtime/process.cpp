@@ -716,6 +716,13 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     return lean_io_result_mk_ok(r.steal());
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild, obj_arg) {
+    object_ref child(lchild);
+    object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), cnstr_get_ref(child, 3));
+    object_ref r = mk_cnstr(0, cnstr_get_ref(child, 0), child2);
+    return lean_io_result_mk_ok(r.steal());
+}
+
 extern "C" lean_object* lean_mk_io_error_other_error(uint32_t, lean_object*);
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {

@@ -428,8 +428,8 @@ def setupImports
 
   return .ok {
     mainModuleName := doc.mod
-    isModule := header.isModule
-    imports := header.imports
+    isModule := strictOr setup.isModule header.isModule
+    imports := setup.imports?.getD header.imports
     opts
     importArts := setup.importArts
     plugins := setup.plugins

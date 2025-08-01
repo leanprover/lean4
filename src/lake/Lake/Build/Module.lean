@@ -10,13 +10,15 @@ import Lean.Elab.ParseImportsFast
 import Lake.Build.Common
 import Lake.Build.Target
 
-/-! # Module Facet Builds
-Build function definitions for a module's builtin facets.
--/
+/-! # Module Build Definitions -/
 
 open System Lean
 
 namespace Lake
+
+/-! ## Facet Builds
+Build function definitions for a module's builtin facets.
+-/
 
 /-- Compute library directories and build external library Jobs of the given packages. -/
 @[deprecated "Deprecated without replacement" (since := "2025-03-28")]
@@ -95,16 +97,21 @@ private structure ModuleImportData where
     | .ok impSet s => .ok impSet.toArray s
     | .error e s => .error e s
 
+private def computeTransImportsAux
+  (fileName : String) (imports : Array Module)
+: FetchM (Job (Array Module)) := do
+  collectImportsAux fileName imports fun imp =>
+    (true, ·) <$> imp.transImports.fetch
+
 /-- Recursively compute a module's transitive imports. -/
 def Module.recComputeTransImports (mod : Module) : FetchM (Job (Array Module)) := ensureJob do
-  collectImportsAux mod.leanFile.toString (← (← mod.imports.fetch).await) fun imp =>
-    (true, ·) <$> imp.transImports.fetch
+  inline <| computeTransImportsAux mod.relLeanFile.toString (← (← mod.imports.fetch).await)
 
 /-- The `ModuleFacetConfig` for the builtin `transImportsFacet`. -/
 def Module.transImportsFacetConfig : ModuleFacetConfig transImportsFacet :=
   mkFacetJobConfig recComputeTransImports (buildable := false)
 
-def computePrecompileImportsAux
+private def computePrecompileImportsAux
   (fileName : String) (imports : Array Module)
 : FetchM (Job (Array Module)) := do
   collectImportsAux fileName imports fun imp =>
@@ -115,7 +122,7 @@ def computePrecompileImportsAux
 
 /-- Recursively compute a module's precompiled imports. -/
 def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Module)) := ensureJob do
-  inline <| computePrecompileImportsAux mod.leanFile.toString (← (← mod.imports.fetch).await)
+  inline <| computePrecompileImportsAux mod.relLeanFile.toString (← (← mod.imports.fetch).await)
 
 /-- The `ModuleFacetConfig` for the builtin `precompileImportsFacet`. -/
 def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFacet :=
@@ -881,9 +888,53 @@ def Module.initFacetConfigs : DNameMap ModuleFacetConfig :=
 @[inherit_doc Module.initFacetConfigs]
 abbrev initModuleFacetConfigs := Module.initFacetConfigs
 
-/-!
-Definitions to support `lake setup-file` builds.
+/-! ## Top-Level Builds
+Definitions to support `lake setup-file` and `lake lean` builds.
 -/
+
+/--
+Computes the module setup of a workspace module being edited by the Lean language server,
+building its imports and other dependencies. Used by `lake setup-file`.
+
+Due to its exclusive use as a top-level build, it does not construct a proper trace state.
+-/
+private def setupEditedModule
+  (mod : Module) (header : ModuleHeader)
+: FetchM (Job ModuleSetup) := do
+  let extraDepJob ← mod.lib.extraDep.fetch
+  let directImports ← header.imports.mapM fun imp => do
+    return ⟨imp, ← findModule? imp.module⟩
+  let fileName := mod.relLeanFile.toString
+  let localImports := directImports.filterMap (·.module?)
+  let impInfoJob ← fetchImportInfo fileName mod.name header
+  let precompileImports ←
+    if mod.shouldPrecompile then
+      (← computeTransImportsAux fileName localImports).await
+    else
+      (← computePrecompileImportsAux fileName localImports).await
+  let impLibsJob ← Job.collectArray (traceCaption := "import dynlibs") <$>
+    mod.fetchImportLibs precompileImports mod.shouldPrecompile
+  let externLibsJob ← Job.collectArray (traceCaption := "package external libraries") <$>
+    if mod.shouldPrecompile then mod.pkg.externLibs.mapM (·.dynlib.fetch) else pure #[]
+  let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg "module dynlibs"
+  let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
+  extraDepJob.bindM (sync := true) fun _ => do
+  impInfoJob.bindM (sync := true) fun info => do
+  impLibsJob.bindM (sync := true) fun impLibs => do
+  externLibsJob.bindM (sync := true) fun externLibs => do
+  dynlibsJob.bindM (sync := true) fun dynlibs => do
+  pluginsJob.mapM fun plugins => do
+    let {dynlibs, plugins} ← computeModuleDeps impLibs externLibs dynlibs plugins
+    let transImpArts ← fetchTransImportArts directImports info.directArts !header.isModule
+    return {
+      name := mod.name
+      isModule := header.isModule
+      imports? := none
+      importArts := transImpArts
+      dynlibs := dynlibs.map (·.path)
+      plugins := plugins.map (·.path)
+      options := mod.leanOptions
+    }
 
 /--
 Computes the module setup of Lean code external to the workspace,
@@ -894,10 +945,9 @@ to build the dependencies of the file and generate the data for `lean --setup`.
 
 Due to its exclusive use as a top-level build, it does not construct a proper trace state.
 -/
-def setupExternalModule
+private def setupExternalModule
   (fileName : String) (header : ModuleHeader) (leanOpts : LeanOptions)
 : FetchM (Job ModuleSetup) := do
-  withRegisterJob s!"setup ({fileName})" do
   let root ← getRootPackage
   let extraDepJob ← root.extraDep.fetch
   let imports ← header.imports.mapM fun imp => do
@@ -927,3 +977,62 @@ def setupExternalModule
       plugins := plugins.map (·.path)
       options := leanOpts
     }
+
+/--
+Computes the module setup of edited Lean code for the Lean language server,
+building its imports and other dependencies. Used by `lake setup-file`.
+
+Due to its exclusive use as a top-level build, it does not construct a proper trace state.
+-/
+def setupServerModule
+  (fileName : String) (path : FilePath) (header? : Option ModuleHeader)
+: FetchM (Job ModuleSetup) :=
+  withRegisterJob s!"setup-file {fileName}" do
+  let header ← header?.getDM do
+    Lean.parseImports' (← IO.FS.readFile path) fileName
+  if let some mod ← findModuleBySrc? path then
+    logVerbose s!"file identified as module: {mod.name}"
+    setupEditedModule mod header
+  else
+    setupExternalModule fileName header (← getServerOptions)
+
+/--
+Computes the arguments required to evaluate the Lean file with `lean`,
+building its imports and other dependencies. Used by `lake lean`.
+
+Due to its exclusive use as a top-level build, it does not construct a proper trace state.
+-/
+def prepareLeanCommand
+  (leanFile : FilePath) (moreArgs : Array String := #[])
+: FetchM (Job IO.Process.SpawnArgs) :=
+  withRegisterJob s!"prepare lean {leanFile}" do
+  let some path ← resolvePath? leanFile
+    | error s!"file not found: {leanFile}"
+  if let some mod ← findModuleBySrc? path then
+    logVerbose s!"file identified as module: {mod.name}"
+    let setupJob ← mod.setup.fetch
+    setupJob.mapM (sync := true) fun setup => do
+      mkSpawnArgs path setup mod.leanArgs
+  else
+    let header ← Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
+    let setupJob ← setupExternalModule leanFile.toString header (← getLeanOptions)
+    setupJob.mapM (sync := true) fun setup => do
+      mkSpawnArgs path setup (← getLeanArgs)
+where
+  mkArgs leanFile setup cfgArgs := do
+    let args := cfgArgs.push leanFile.toString
+    let (h, setupFile) ← IO.FS.createTempFile
+    let contents := (toJson setup).compress
+    logVerbose s!"module setup: {contents}"
+    h.putStr contents
+    let args := args ++ #["--setup", setupFile.toString]
+    return args
+  mkSpawnArgs leanFile setup cfgArgs := do
+    let args ← mkArgs leanFile setup cfgArgs
+    let spawnArgs : IO.Process.SpawnArgs := {
+      args := args ++ moreArgs
+      cmd := (← getLean).toString
+      env := (← getAugmentedEnv)
+    }
+    logVerbose (mkCmdLog spawnArgs)
+    return spawnArgs

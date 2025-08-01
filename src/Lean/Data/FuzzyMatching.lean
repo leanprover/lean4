@@ -96,39 +96,36 @@ private def stringInfo (s : String) : Array CharRole :=
 
 /-- Represents a fuzzy matching score where `Score.awful` is the worst score possible. -/
 private structure Score : Type where
-  toInt16 : Int16
+  inner : Int16
   deriving Inhabited
 
 @[inline]
 private def Score.awful : Score :=  ⟨Int16.minValue⟩
 
 @[inline]
-private def Score.isAwful (x : Score) : Bool := x.toInt16 ≤ awful.toInt16
+private def Score.isAwful (x : Score) : Bool := x.inner ≤ awful.inner
 
 @[specialize] private def Score.map (x : Score) (f : Int16 → Int16) : Score :=
-  if x.isAwful then x else ⟨f x.toInt16⟩
+  if x.isAwful then x else ⟨f x.inner⟩
 
 @[inline]
 private def Score.toInt16? (x : Score) : Option Int16 :=
   if x.isAwful then
     none
   else
-    x.toInt16
+    x.inner
 
 @[inline]
 private def Score.toInt? (x : Score) : Option Int :=
-  if x.isAwful then
-    none
-  else
-    x.toInt16.toInt
+  x.toInt16?.map Int16.toInt
 
 @[inline]
-private def Score.ofInt16 (x : Int16) : Score :=
-  assert! x != Int16.minValue
+private def Score.ofInt16! (x : Int16) : Score :=
+  assert! x != awful.inner
   ⟨x⟩
 
 @[inline]
-private def selectBest (missScore matchScore : Score) : Score := ⟨max missScore.toInt16 matchScore.toInt16⟩
+private def selectBest (missScore matchScore : Score) : Score := ⟨max missScore.inner matchScore.inner⟩
 
 /-- Match the given pattern with the given word. The algorithm uses dynamic
 programming to find the best scores.
@@ -189,11 +186,11 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
             (getMatch result (patternIdx - 1) (wordIdx - 1) |>.map (· + matchResult
               patternIdx wordIdx
               patternRoles[patternIdx]! wordRoles[wordIdx]!
-              (.ofInt16 runLength)
+              (.ofInt16! runLength)
             )) |>.map fun score => if wordIdx >= lastSepIdx then score + 1 else score -- main identifier bonus
         else
           runLengths := runLengths.set! (getIdx patternIdx wordIdx) 1
-          matchScore := .ofInt16 <| matchResult
+          matchScore := .ofInt16! <| matchResult
               patternIdx wordIdx
               patternRoles[patternIdx]! wordRoles[wordIdx]!
               .awful

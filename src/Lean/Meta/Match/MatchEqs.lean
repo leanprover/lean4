@@ -292,6 +292,12 @@ private def processNextEq : M Bool := do
       let eqType ← inferType (mkFVar eq)
       -- See `substRHS`. Recall that if `rhs` is a variable then if must be in `s.xs`
       if let some (_, lhs, rhs) ← matchEq? eqType then
+        -- Common case: Different constructors
+        match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
+        | some lhsCtor, some rhsCtor =>
+          if lhsCtor.name != rhsCtor.name then
+            return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
+        | _,_ => pure ()
         if (← isDefEq lhs rhs) then
           return true
         if rhs.isFVar && s.xs.contains rhs.fvarId! then

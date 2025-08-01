@@ -166,7 +166,7 @@ extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg c
     return uv_process_get_pid(h);
 }
 
-static obj_res setup_stdio(uv_stdio_container_t * out, stdio cfg, int fd) {
+static obj_res setup_stdio(uv_stdio_container_t * out, stdio cfg, int fd, int * pipe_other) {
     switch (cfg) {
     case stdio::INHERIT:
         out->flags = UV_INHERIT_FD;
@@ -179,10 +179,12 @@ static obj_res setup_stdio(uv_stdio_container_t * out, stdio cfg, int fd) {
         out->flags = UV_INHERIT_FD;
         if (fd == STDIN_FILENO) {
             out->data.fd = fds[0];
+            *pipe_other = fds[0];
             FILE * file = fdopen(fds[1], "w");
             return io_wrap_handle(file);
         } else {
             out->data.fd = fds[1];
+            *pipe_other = fds[1];
             FILE * file = fdopen(fds[0], "r");
             return io_wrap_handle(file);
         }
@@ -220,10 +222,12 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     }
     arg_array[args.size() + 1] = nullptr;
 
+    // Opposite ends of the pipes; we need to close them
+    int stdin_pipe_other, stdout_pipe_other, stderr_pipe_other;
     uv_stdio_container_t stdio[3];
-    object * parent_stdin = setup_stdio(&stdio[0], stdin_mode, STDIN_FILENO);
-    object * parent_stdout = setup_stdio(&stdio[1], stdout_mode, STDOUT_FILENO);
-    object * parent_stderr = setup_stdio(&stdio[2], stderr_mode, STDERR_FILENO);
+    object * parent_stdin = setup_stdio(&stdio[0], stdin_mode, STDIN_FILENO, &stdin_pipe_other);
+    object * parent_stdout = setup_stdio(&stdio[1], stdout_mode, STDOUT_FILENO, &stdout_pipe_other);
+    object * parent_stderr = setup_stdio(&stdio[2], stderr_mode, STDERR_FILENO, &stderr_pipe_other);
 
     uv_process_options_t options = {0};
     options.file = proc_name_str;
@@ -251,6 +255,10 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     int error = uv_spawn(global_ev.loop, child, &options);
 
     free(arg_array);
+
+    if (stdin_mode == stdio::PIPED) close(stdin_pipe_other);
+    if (stdout_mode == stdio::PIPED) close(stdout_pipe_other);
+    if (stderr_mode == stdio::PIPED) close(stderr_pipe_other);
 
     if (error != 0) {
         dec(promise);

@@ -53,6 +53,67 @@ def isForallMotive (matcherApp : MatcherApp) : MetaM (Option Expr) := do
 -- builtin_dsimproc removeMData (_) := fun e => do
 --   return if e.isMData then .continue e.consumeMData else .continue
 
+/--
+Generates a theorem of the form
+```
+matcherArgPusher params motive {α} {β} (f : ∀ (x : α), β x) rel alt1 .. x1 x2
+  :
+  matcher params (motive := fun x1 x2 => ((y : α) → rel x1 x2 y → β y) → motive x1 x2)
+    (alt1 := fun z1 z2 z2 f => alt1 z1 z2 z2 f) …
+    x1 x2
+    (fun y _h => f y)
+  =
+  matcher params (motive := motive)
+    (alt1 := fun z1 z2 z2 => alt1 z1 z2 z2 (fun y _ => f y)) …
+    x1 x2
+```
+-/
+def mkMatchArgPusher (matcherName : Name) (matcherInfo : MatcherInfo) : MetaM Name := do
+  let matcherVal ← getConstVal matcherName
+  forallBoundedTelescope matcherVal.type (some (matcherInfo.numParams + 1)) fun xs _ => do
+    let params := xs[*...matcherInfo.numParams]
+    let motive := xs[matcherInfo.numParams]!
+    -- TODO: Levels
+    withLocalDeclD `α (.sort 1) fun alpha => do
+    withLocalDeclD `β (← mkArrow alpha (.sort 1)) fun beta => do
+    withLocalDeclD `f (.forallE `x alpha (mkApp beta (.bvar 0)) .default) fun f => do
+    let relType ← forallTelescope (← inferType motive) fun xs _ =>
+      mkForallFVars xs (.forallE `x alpha (.sort 0) .default)
+    withLocalDeclD `rel relType fun rel => do
+    let motive' ← forallTelescope (← inferType motive) fun xs _ => do
+      let motiveBody := mkAppN motive xs
+      let extraArgType := .forallE `y alpha (.forallE `h (mkAppN rel (xs.push (.bvar 0))) (mkApp beta (.bvar 1)) .default) .default
+      let motiveBody ← mkArrow extraArgType motiveBody
+      mkLambdaFVars xs motiveBody
+    let us := matcherVal.levelParams.map mkLevelParam -- TODO
+    let lhs := mkAppN (.const matcherName us) params
+    let rhs := mkAppN (.const matcherName us) params
+    let lhs := mkApp lhs motive'
+    let rhs := mkApp rhs motive
+    forallBoundedTelescope (← inferType lhs) matcherInfo.numDiscrs fun discrs _ => do
+    let lhs := mkAppN lhs discrs
+    let rhs := mkAppN rhs discrs
+    forallBoundedTelescope (← inferType lhs) matcherInfo.numAlts fun alts _ => do
+    let lhs := mkAppN lhs alts
+
+    let mut rhs := rhs
+    for alt in alts, altNumParams in matcherInfo.altNumParams do
+      let alt' ← lambdaBoundedTelescope alt altNumParams fun ys altBody =>
+        -- Fix type
+        let altArg := .lam `y alpha (.lam `h (mkAppN rel (discrs.push (.bvar 0))) (mkApp f (.bvar 1)) .default) .default
+        mkLambdaFVars ys (mkApp altBody altArg)
+      rhs := mkApp rhs alt'
+
+    let extraArg := .lam `y alpha (.lam `h (mkAppN rel (discrs.push (.bvar 0))) (mkApp f (.bvar 1)) .default) .default
+    let lhs := mkApp lhs extraArg
+    let goal ← mkEq lhs rhs
+    let name := .str matcherName "_arg_pusher"
+
+    let type := goal
+    let type ← mkForallFVars (params ++ #[motive, alpha, beta, f, rel] ++ discrs ++ alts) type
+    addDecl <| Declaration.axiomDecl { name := name, levelParams := matcherVal.levelParams, type := type, isUnsafe := false }
+    return name
+
 builtin_simproc_decl matcherPushArg (_) := fun e => do
   let e := e.headBeta
   let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) | return .continue
@@ -66,9 +127,16 @@ builtin_simproc_decl matcherPushArg (_) := fun e => do
   unless fArg.bindingBody!.bindingBody!.appArg! == .bvar 1 do return .continue
   if fArg.bindingBody!.bindingBody!.appFn!.hasLooseBVar 1 then return .continue
   let fExpr := fArg.bindingBody!.bindingBody!.appFn!
+  let beta ← forallBoundedTelescope (← inferType fExpr) (some 1) fun xs body =>
+    mkLambdaFVars xs body
+  let alpha := beta.bindingDomain!
 
   -- Check that the motive has an extra parameter (from MatcherApp.addArg)
   let some motive' ← isForallMotive matcherApp |  return .continue
+  let rel ← lambdaTelescope matcherApp.motive fun xs motiveBody =>
+    let motiveBodyArg := motiveBody.bindingDomain!
+    mkLambdaFVars xs (.lam motiveBodyArg.bindingName! motiveBodyArg.bindingDomain! motiveBodyArg.bindingBody!.bindingDomain! .default)
+
   -- Check that it is ignored by all alternatives
   let mut alts' := #[]
   for altNumParams in matcherApp.altNumParams, alt in matcherApp.alts do
@@ -99,8 +167,10 @@ builtin_simproc_decl matcherPushArg (_) := fun e => do
     motive := motive'
     alts := alts'
     remaining := remaining' }
-  let e' := matcherApp'.toExpr
-  let proof := .app (mkConst `justATest) (← mkEq e e')
+  -- let e' := matcherApp'.toExpr
+  let proof ← -- .app (mkConst `justATest) (← mkEq e e')
+    mkAppOptM (← mkMatchArgPusher matcherApp.matcherName matcherApp.toMatcherInfo)
+      ((matcherApp.params ++ #[motive', alpha, beta, fExpr, rel] ++ matcherApp.discrs ++ matcherApp.alts).map some)
   return .continue (some { expr := matcherApp'.toExpr, proof? := some proof })
 
 

@@ -75,6 +75,13 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
 
   return none
 
+def MatcherApp.toMatcherInfo (matcherApp : MatcherApp) : MatcherInfo where
+  uElimPos?     := matcherApp.uElimPos?
+  discrInfos    := matcherApp.discrInfos
+  numParams     := matcherApp.params.size
+  numDiscrs     := matcherApp.discrs.size
+  altNumParams  := matcherApp.altNumParams
+
 def MatcherApp.toExpr (matcherApp : MatcherApp) : Expr :=
   let result := mkAppN (mkConst matcherApp.matcherName matcherApp.matcherLevels.toList) matcherApp.params
   let result := mkApp result matcherApp.motive

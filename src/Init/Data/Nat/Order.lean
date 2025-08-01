@@ -18,9 +18,9 @@ public instance : OrderData Nat := OrderData.ofLE Nat
 
 public instance instIsLinearOrder : IsLinearOrder Nat := by
   apply IsLinearOrder.ofLE
-  · apply Nat.le_antisymm
-  · apply Nat.le_trans
-  · apply Nat.le_total
+  · constructor; apply Nat.le_antisymm
+  · constructor; apply Nat.le_trans
+  · constructor; apply Nat.le_total
 
 public instance : LawfulOrderLT Nat := by
   apply LawfulOrderLT.ofLE

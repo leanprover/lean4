@@ -4022,9 +4022,9 @@ instance {n : Nat} : OrderData (BitVec n) := .ofLE (BitVec n)
 
 instance instIsLinearOrder : IsLinearOrder (BitVec n) := by
   apply IsLinearOrder.ofLE
-  case le_antisymm => apply BitVec.le_antisymm
-  case le_trans => apply BitVec.le_trans
-  case le_total => apply BitVec.le_total
+  case le_antisymm => constructor; apply BitVec.le_antisymm
+  case le_trans => constructor; apply BitVec.le_trans
+  case le_total => constructor; apply BitVec.le_total
 
 protected theorem umod_lt (x : BitVec n) {y : BitVec n} : 0 < y → x % y < y := by
   simp only [ofNat_eq_ofNat, lt_def, toNat_ofNat, Nat.zero_mod]

@@ -3034,9 +3034,9 @@ open Int8 renaming
   le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
 instance Int8.instIsLinearOrder : IsLinearOrder Int8 := by
   apply IsLinearOrder.ofLE
-  case le_antisymm => apply le_antisymm'
-  case le_total => apply le_total'
-  case le_trans => apply le_trans'
+  case le_antisymm => constructor; apply le_antisymm'
+  case le_total => constructor; apply le_total'
+  case le_trans => constructor; apply le_trans'
 
 instance : LawfulOrderLT Int8 where
   lt_iff := by
@@ -3048,9 +3048,9 @@ open Int16 renaming
   le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
 instance Int16.instIsLinearOrder : IsLinearOrder Int16 := by
   apply IsLinearOrder.ofLE
-  case le_antisymm => apply le_antisymm'
-  case le_total => apply le_total'
-  case le_trans => apply le_trans'
+  case le_antisymm => constructor; apply le_antisymm'
+  case le_total => constructor; apply le_total'
+  case le_trans => constructor; apply le_trans'
 
 instance : LawfulOrderLT Int16 where
   lt_iff := by
@@ -3062,9 +3062,9 @@ open Int32 renaming
   le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
 instance Int32.instIsLinearOrder : IsLinearOrder Int32 := by
   apply IsLinearOrder.ofLE
-  case le_antisymm => apply le_antisymm'
-  case le_total => apply le_total'
-  case le_trans => apply le_trans'
+  case le_antisymm => constructor; apply le_antisymm'
+  case le_total => constructor; apply le_total'
+  case le_trans => constructor; apply le_trans'
 
 instance : LawfulOrderLT Int32 where
   lt_iff := by
@@ -3076,9 +3076,9 @@ open Int64 renaming
   le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
 instance Int64.instIsLinearOrder : IsLinearOrder Int64 := by
   apply IsLinearOrder.ofLE
-  case le_antisymm => apply le_antisymm'
-  case le_total => apply le_total'
-  case le_trans => apply le_trans'
+  case le_antisymm => constructor; apply le_antisymm'
+  case le_total => constructor; apply le_total'
+  case le_trans => constructor; apply le_trans'
 
 instance : LawfulOrderLT Int64 where
   lt_iff := by
@@ -3090,9 +3090,9 @@ open ISize renaming
   le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
 instance ISize.instIsLinearOrder : IsLinearOrder ISize := by
   apply IsLinearOrder.ofLE
-  case le_antisymm => apply le_antisymm'
-  case le_total => apply le_total'
-  case le_trans => apply le_trans'
+  case le_antisymm => constructor; apply le_antisymm'
+  case le_total => constructor; apply le_total'
+  case le_trans => constructor; apply le_trans'
 
 instance : LawfulOrderLT ISize where
   lt_iff := by

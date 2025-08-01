@@ -568,6 +568,73 @@ void initialize_process() {
 }
 void finalize_process() {}
 
+extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir(obj_arg) {
+    char path[MAX_PATH];
+    size_t sz = MAX_PATH;
+    int err = uv_cwd(path, &sz);
+    if (err == 0) {
+        return io_result_mk_ok(lean_mk_string_from_bytes(path, sz));
+    } else {
+        return io_result_mk_error(lean_decode_uv_error(err, nullptr));
+    }
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, obj_arg) {
+    const char * dir = string_cstr(path);
+    if (strlen(dir) != lean_string_size(path) - 1) {
+        return mk_embedded_nul_error(path);
+    }
+    int err = uv_chdir(dir);
+    if (err == 0) {
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error(lean_decode_uv_error(error, nullptr));
+    }
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
+    return lean_io_result_mk_ok(box_uint32(uv_os_getpid()));
+}
+
+// No libuv equivalent?
+extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
+    uint64_t tid;
+#ifdef LEAN_WINDOWS
+    tid = GetCurrentThreadId();
+#elif defined(__APPLE__)
+    lean_always_assert(pthread_threadid_np(NULL, &tid) == 0);
+#elif defined(LEAN_EMSCRIPTEN)
+    tid = 0;
+#else
+    // since Linux 2.4.11, our glibc 2.27 requires at least 3.2
+    // glibc 2.30 would provide a wrapper
+    tid = (pid_t)syscall(SYS_gettid);
+#endif
+    return lean_io_result_mk_ok(box_uint64(tid));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg _child, obj_arg) {
+    return io_result_mk_error("unimplemented"); // TODO
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg _child, obj_arg) {
+    return io_result_mk_error("unimplemented"); // TODO
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child, obj_arg) {
+    uv_process_t * h = static_cast<uv_process_t *>(lean_get_external_data(cnstr_get(child, 3)));
+    int error = uv_process_kill(h, SIGKILL);
+    if (error != 0) {
+        return lean_io_result_mk_error(lean_decode_uv_error(error, nullptr));
+    }
+    return lean_io_result_mk_ok(box(0));
+}
+
+extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg child) {
+    uv_process_t * h = static_cast<uv_process_t *>(lean_get_external_data(cnstr_get(child, 3)));
+    return uv_process_get_pid(h);
+}
+
 static obj_res setup_stdio(uv_stdio_container_t * out, stdio cfg, int fd) {
     switch (cfg) {
     case stdio::INHERIT:
@@ -584,6 +651,7 @@ static obj_res setup_stdio(uv_stdio_container_t * out, stdio cfg, int fd) {
         // } else {
         //     out->flags |= UV_WRITABLE_PIPE;
         // }
+        out->flags = UV_IGNORE;
         return box(0);
     }
     case stdio::NUL:

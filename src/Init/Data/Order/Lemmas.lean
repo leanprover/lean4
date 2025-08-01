@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Order.Classes
+public import Init.Data.Order.Factories
 import Init.SimpLemmas
 import Init.Classical
 
@@ -16,16 +17,6 @@ namespace Std
 This module provides typeclass instances and lemmas about order-related typeclasses such as
 `LE` and `OrderData`.
 -/
-
-section Subtype
-
-public instance {α : Type u} [LE α] {P : α → Prop} : LE (Subtype P) where
-  le a b := a.val ≤ b.val
-
-public instance {α : Type u} [OrderData α] {P : α → Prop} : OrderData (Subtype P) where
-  IsLE a b := OrderData.IsLE a.val b.val
-
-end Subtype
 
 section AxiomaticInstances
 
@@ -64,9 +55,8 @@ end AxiomaticInstances
 
 section LE
 
-public theorem le_refl {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [IsPreorder α] (a : α) :
-    a ≤ a := by
-  simp [LawfulOrderLE.le_iff, IsPreorder.le_refl]
+public theorem le_refl {α : Type u} [LE α] [Refl (α := α) (· ≤ ·)] (a : α) : a ≤ a := by
+  simp [Refl.refl]
 
 public theorem le_antisymm {α : Type u} [LE α] [Std.Antisymm (α := α) (· ≤ ·)] {a b : α}
     (hab : a ≤ b) (hba : b ≤ a) : a = b :=
@@ -79,6 +69,22 @@ public theorem le_trans {α : Type u} [LE α] [Trans (α := α) (· ≤ ·) (· 
 public theorem le_total {α : Type u} [LE α] [Std.Total (α := α) (· ≤ ·)] {a b : α} :
     a ≤ b ∨ b ≤ a :=
   Std.Total.total a b
+
+public instance {α : Type u} [OrderData α] [LE α] [IsPreorder α] [LawfulOrderLE α] :
+    Refl (α := α) (· ≤ ·) where
+  refl := by simpa [LawfulOrderLE.le_iff] using IsPreorder.le_refl
+
+public instance {α : Type u} [OrderData α] [LE α] [IsPreorder α] [LawfulOrderLE α] :
+    Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
+  trans := by simpa [LawfulOrderLE.le_iff] using fun {a b c} => IsPreorder.le_trans a b c
+
+public instance {α : Type u} [OrderData α] [LE α] [IsLinearPreorder α] [LawfulOrderLE α] :
+    Total (α := α) (· ≤ ·) where
+  total := by simpa [LawfulOrderLE.le_iff] using IsLinearPreorder.le_total
+
+public instance {α : Type u} [OrderData α] [LE α] [IsPartialOrder α] [LawfulOrderLE α] :
+    Antisymm (α := α) (· ≤ ·) where
+  antisymm := by simpa [LawfulOrderLE.le_iff] using IsPartialOrder.le_antisymm
 
 public scoped instance Classical.Order.instLE {α : Type u} [OrderData α] :
     LE α where
@@ -176,14 +182,6 @@ end LT
 
 section Min
 
-/--
-If both `a` and `b` satisfy some property `P`, then so does `min a b`, because it is equal to
-either `a` or `b`.
--/
-public def MinEqOr.elim {α : Type u} [Min α] [MinEqOr α] {P : α → Prop} {a b : α} (ha : P a) (hb : P b) :
-    P (min a b) := by
-  cases MinEqOr.min_eq_or a b <;> simp_all
-
 public theorem min_self {α : Type u} [Min α] [Std.IdempotentOp (min : α → α → α)] {a : α} :
     min a a = a :=
   Std.IdempotentOp.idempotent a
@@ -193,12 +191,12 @@ public theorem le_min_iff {α : Type u} [Min α] [LE α] [OrderData α]
     a ≤ min b c ↔ a ≤ b ∧ a ≤ c := by
   simpa [LawfulOrderLE.le_iff] using LawfulOrderInf.le_min_iff a b c
 
-public theorem min_le_left {α : Type u} [Min α] [LE α] [OrderData α] [IsPreorder α]
+public theorem min_le_left {α : Type u} [Min α] [LE α] [OrderData α] [Refl (α := α) (· ≤ ·)]
     [LawfulOrderLE α] [LawfulOrderInf α] {a b : α} :
     min a b ≤ a :=
   le_min_iff.mp (le_refl _) |>.1
 
-public theorem min_le_right {α : Type u} [Min α] [LE α] [OrderData α] [IsPreorder α]
+public theorem min_le_right {α : Type u} [Min α] [LE α] [OrderData α] [Refl (α := α) (· ≤ ·)]
     [LawfulOrderLE α] [LawfulOrderInf α] {a b : α} :
     min a b ≤ b :=
   le_min_iff.mp (le_refl _) |>.2
@@ -210,11 +208,46 @@ public theorem min_le {α : Type u} [Min α] [LE α] [OrderData α] [IsPreorder 
   · simpa [h] using le_trans (h ▸ min_le_right (a := a) (b := b))
   · simpa [h] using le_trans (h ▸ min_le_left (a := a) (b := b))
 
-public instance {α : Type u} [Min α] [MinEqOr α] {P : α → Prop} : Min (Subtype P) where
-  min a b := ⟨Min.min a.val b.val, MinEqOr.elim a.property b.property⟩
+public theorem min_eq_or {α : Type u} [Min α] [MinEqOr α] {a b : α} :
+    min a b = a ∨ min a b = b :=
+  MinEqOr.min_eq_or a b
 
-public instance {α : Type u} [LE α] {P : α → Prop} : LE (Subtype P) where
-  le a b := a.val ≤ b.val
+public instance {α : Type u} [OrderData α] [Min α] [IsLinearOrder α] [LawfulOrderInf α] :
+    MinEqOr α where
+  min_eq_or a b := by
+    open Classical.Order in
+    cases le_total (a := a) (b := b)
+    · apply Or.inl
+      apply le_antisymm
+      · apply min_le_left
+      · rw [le_min_iff]
+        exact ⟨le_refl a, ‹_›⟩
+    · apply Or.inr
+      apply le_antisymm
+      · apply min_le_right
+      · rw [le_min_iff]
+        exact ⟨‹_›, le_refl b⟩
+
+public theorem IsLinearOrder.of_refl_of_antisymm_of_lawfulOrderMin {α : Type u} [OrderData α]
+    [LE α] [Min α] [LawfulOrderLE α] [Refl (α := α) (· ≤ ·)] [Antisymm (α := α) (· ≤ ·)]
+    [LawfulOrderMin α] :
+    IsLinearOrder α := by
+  apply IsLinearOrder.ofLE
+  · infer_instance
+  · constructor
+    intro a b c hab hbc
+    have : b = min b c := by
+      apply le_antisymm
+      · rw [le_min_iff]
+        exact ⟨le_refl b, hbc⟩
+      · apply min_le_left
+    rw [this, le_min_iff] at hab
+    exact hab.2
+  · constructor
+    intro a b
+    cases min_eq_or (a := a) (b := b) <;> rename_i h
+    · exact Or.inl (h ▸ min_le_right)
+    · exact Or.inr (h ▸ min_le_left)
 
 public instance {α : Type u} [Min α] [MinEqOr α] :
     Std.IdempotentOp (min : α → α → α) where
@@ -225,25 +258,9 @@ public instance {α : Type u} [OrderData α] [Min α] [IsLinearOrder α] [Lawful
     Std.Associative (min : α → α → α) where
   assoc a b c := by apply le_antisymm <;> simp [min_le, le_min_iff, le_refl]
 
-public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α]
-    {P : α → Prop} : LawfulOrderLE (Subtype P) where
-  le_iff a b := by simp [LE.le, OrderData.IsLE, LawfulOrderLE.le_iff]
-
-public theorem min_eq_or {α : Type u} [Min α] [MinEqOr α] {a b : α} :
-    min a b = a ∨ min a b = b :=
-  MinEqOr.min_eq_or a b
-
 end Min
 
 section Max
-
-/--
-If both `a` and `b` satisfy some property `P`, then so does `max a b`, because it is equal to
-either `a` or `b`.
--/
-public def MaxEqOr.elim {α : Type u} [Max α] [MaxEqOr α] {P : α → Prop} {a b : α} (ha : P a) (hb : P b) :
-    P (max a b) := by
-  cases MaxEqOr.max_eq_or a b <;> simp_all
 
 public theorem max_self {α : Type u} [Max α] [Std.IdempotentOp (max : α → α → α)] {a : α} :
     max a a = a :=
@@ -254,12 +271,12 @@ public theorem max_le_iff {α : Type u} [Max α] [LE α] [OrderData α]
     max a b ≤ c ↔ a ≤ c ∧ b ≤ c := by
   simpa [LawfulOrderLE.le_iff] using LawfulOrderSup.max_le_iff a b c
 
-public theorem left_le_max {α : Type u} [Max α] [LE α] [OrderData α] [IsPreorder α]
+public theorem left_le_max {α : Type u} [Max α] [LE α] [OrderData α] [Refl (α := α) (· ≤ ·)]
     [LawfulOrderLE α] [LawfulOrderSup α] {a b : α} :
     a ≤ max a b :=
   max_le_iff.mp (le_refl _) |>.1
 
-public theorem right_le_max {α : Type u} [Max α] [LE α] [OrderData α] [IsPreorder α]
+public theorem right_le_max {α : Type u} [Max α] [LE α] [OrderData α] [Refl (α := α) (· ≤ ·)]
     [LawfulOrderLE α] [LawfulOrderSup α] {a b : α} :
     b ≤ max a b :=
   max_le_iff.mp (le_refl _) |>.2
@@ -270,6 +287,47 @@ public theorem le_max {α : Type u} [Max α] [LE α] [OrderData α] [IsPreorder 
   cases MaxEqOr.max_eq_or b c <;> rename_i h
   · simpa [h] using (le_trans · (h ▸ right_le_max))
   · simpa [h] using (le_trans · (h ▸ left_le_max))
+
+public theorem max_eq_or {α : Type u} [Max α] [MaxEqOr α] {a b : α} :
+    max a b = a ∨ max a b = b :=
+  MaxEqOr.max_eq_or a b
+
+public instance {α : Type u} [OrderData α] [Max α] [IsLinearOrder α] [LawfulOrderSup α] :
+    MaxEqOr α where
+  max_eq_or a b := by
+    open Classical.Order in
+    cases le_total (a := a) (b := b)
+    · apply Or.inr
+      apply le_antisymm
+      · rw [max_le_iff]
+        exact ⟨‹_›, le_refl b⟩
+      · apply right_le_max
+    · apply Or.inl
+      apply le_antisymm
+      · rw [max_le_iff]
+        exact ⟨le_refl a, ‹_›⟩
+      · apply left_le_max
+
+public theorem IsLinearOrder.of_refl_of_antisymm_of_lawfulOrderMax {α : Type u} [OrderData α]
+    [LE α] [Max α] [LawfulOrderLE α] [Refl (α := α) (· ≤ ·)] [Antisymm (α := α) (· ≤ ·)]
+    [LawfulOrderMax α] :
+    IsLinearOrder α := by
+  apply IsLinearOrder.ofLE
+  · infer_instance
+  · constructor
+    intro a b c hab hbc
+    have : b = max a b := by
+      apply le_antisymm
+      · exact right_le_max
+      · rw [max_le_iff]
+        exact ⟨hab, le_refl b⟩
+    rw [this, max_le_iff] at hbc
+    exact hbc.1
+  · constructor
+    intro a b
+    cases max_eq_or (a := a) (b := b) <;> rename_i h
+    · exact Or.inr (h ▸ right_le_max)
+    · exact Or.inl (h ▸ left_le_max)
 
 public instance {α : Type u} [Max α] [MaxEqOr α] {P : α → Prop} : Max (Subtype P) where
   max a b := ⟨Max.max a.val b.val, MaxEqOr.elim a.property b.property⟩
@@ -286,10 +344,6 @@ public instance {α : Type u} [OrderData α] [Max α] [IsLinearOrder α] [Lawful
     all_goals
       simp only [max_le_iff]
       simp [le_max, le_refl]
-
-public theorem max_eq_or {α : Type u} [Max α] [MaxEqOr α] {a b : α} :
-    max a b = a ∨ max a b = b :=
-  MaxEqOr.max_eq_or a b
 
 end Max
 

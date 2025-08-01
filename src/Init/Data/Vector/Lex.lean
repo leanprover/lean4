@@ -109,11 +109,7 @@ protected theorem lt_of_le_of_lt' [LT α]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
   letI : OrderData α := .ofLT α
-  haveI : IsLinearOrder α := by
-    apply IsLinearOrder.ofLT
-    case lt_asymm => apply Asymm.asymm
-    case not_lt_antisymm => apply Antisymm.antisymm
-    case not_lt_trans => apply Trans.trans
+  haveI : IsLinearOrder α := IsLinearOrder.ofLT
   Array.lt_of_le_of_lt h₁ h₂
 
 protected theorem le_trans [LT α] [OrderData α] [LawfulOrderLT α] [IsLinearOrder α]
@@ -127,11 +123,7 @@ protected theorem le_trans' [LT α]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
   letI : OrderData α := .ofLT α
-  haveI : IsLinearOrder α := by
-    apply IsLinearOrder.ofLT
-    case lt_asymm => apply Asymm.asymm
-    case not_lt_antisymm => apply Antisymm.antisymm
-    case not_lt_trans => apply Trans.trans
+  haveI : IsLinearOrder α := IsLinearOrder.ofLT
   Array.le_trans h₁ h₂
 
 instance [LT α] [OrderData α] [LawfulOrderLT α] [IsLinearOrder α] :
@@ -164,9 +156,9 @@ instance [LT α] : OrderData (Vector α n) := .ofLE (Vector α n)
 instance [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrderLT α] :
     IsLinearOrder (Vector α n) := by
   apply IsLinearOrder.ofLE
-  case le_antisymm => apply Vector.le_antisymm
-  case le_total => apply Vector.le_total
-  case le_trans => apply Vector.le_trans
+  case le_antisymm => constructor; apply Vector.le_antisymm
+  case le_total => constructor; apply Vector.le_total
+  case le_trans => constructor; apply Vector.le_trans
 
 @[simp] protected theorem not_lt [LT α]
     {xs ys : Vector α n} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl

@@ -259,9 +259,9 @@ instance : OrderData (Fin n) := .ofLE (Fin n)
 
 instance instIsLinearOrder : IsLinearOrder (Fin n) := by
   apply IsLinearOrder.ofLE
-  case le_antisymm => apply Fin.le_antisymm
-  case le_total => apply Fin.le_total
-  case le_trans => apply Fin.le_trans
+  case le_antisymm => constructor; apply Fin.le_antisymm
+  case le_total => constructor; apply Fin.le_total
+  case le_trans => constructor; apply Fin.le_trans
 
 instance : LawfulOrderLT (Fin n) where
   lt_iff := by

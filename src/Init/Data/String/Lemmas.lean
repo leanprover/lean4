@@ -42,9 +42,9 @@ instance : OrderData String := .ofLE String
 
 instance instIsLinearOrder : IsLinearOrder String := by
   apply IsLinearOrder.ofLE
-  case le_antisymm => apply String.le_antisymm
-  case le_trans => apply String.le_trans
-  case le_total => apply String.le_total
+  case le_antisymm => constructor; apply String.le_antisymm
+  case le_trans => constructor; apply String.le_trans
+  case le_total => constructor; apply String.le_total
 
 instance : LawfulOrderLT String where
   lt_iff a b := by

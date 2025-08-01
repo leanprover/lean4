@@ -206,16 +206,12 @@ protected theorem lt_of_le_of_lt [LT α] [OrderData α] [IsLinearOrder α] [Lawf
 
 @[deprecated List.lt_of_le_of_lt (since := "2025-07-31")]
 protected theorem lt_of_le_of_lt' [LT α]
-    [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
-    [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
+    [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ < l₃) : l₁ < l₃ :=
   letI : OrderData α := .ofLT α
-  haveI : IsLinearOrder α := by
-    apply IsLinearOrder.ofLT
-    case lt_asymm => apply i₁.asymm
-    case not_lt_antisymm => apply i₂.antisymm
-    case not_lt_trans => exact fun _ _ _ => i₃.trans
+  haveI : IsLinearOrder α := IsLinearOrder.ofLT
   List.lt_of_le_of_lt h₁ h₂
 
 protected theorem le_trans [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrderLT α]
@@ -229,11 +225,7 @@ protected theorem le_trans' [LT α]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
   letI : OrderData α := .ofLT α
-  haveI : IsLinearOrder α := by
-    apply IsLinearOrder.ofLT
-    case lt_asymm => apply Asymm.asymm
-    case not_lt_antisymm => apply Antisymm.antisymm
-    case not_lt_trans => apply Trans.trans
+  haveI : IsLinearOrder α := IsLinearOrder.ofLT
   List.le_trans h₁ h₂
 
 /--
@@ -290,12 +282,9 @@ instance [LT α] [Std.Asymm (· < · : α → α → Prop)] :
     Std.Total (· ≤ · : List α → List α → Prop) where
   total := List.le_total
 
+@[no_expose]
 instance instIsLinearOrder [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrderLT α] :
-    IsLinearOrder (List α) := by
-  apply IsLinearOrder.ofLE
-  case le_antisymm => apply le_antisymm
-  case le_trans => apply le_trans
-  case le_total => apply le_total
+    IsLinearOrder (List α) := IsLinearOrder.ofLE
 
 @[simp] protected theorem not_lt [LT α]
     {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl

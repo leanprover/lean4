@@ -18,6 +18,12 @@ This module provides utilities for the creation of order-related typeclass insta
 section OfLE
 
 /--
+This instance is only publicly defined in `Init.Data.Order.Lemmas`.
+-/
+instance {r : α → α → Prop} [Total r] : Refl r where
+  refl a := by simpa using Total.total a a
+
+/--
 Creates an `OrderData α` instance from an `LE α` instance.
 
 As `OrderData α` captures the same information as `LE α`, this is possible without restriction
@@ -40,46 +46,46 @@ If an `OrderData α` instance is compatible with an `LE α` instance that is ref
 then the `OrderData α` instance is a preorder.
 -/
 public theorem IsPreorder.ofLE {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
-    (le_refl : ∀ a : α, a ≤ a)
-    (le_trans : ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c) :
+    (le_refl : Std.Refl (α := α) (· ≤ ·) := by exact inferInstance)
+    (le_trans : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) := by exact inferInstance) :
     IsPreorder α where
-  le_refl := by simpa [LawfulOrderLE.le_iff] using le_refl
-  le_trans := by simpa [LawfulOrderLE.le_iff] using le_trans
+  le_refl := by simpa [LawfulOrderLE.le_iff] using le_refl.refl
+  le_trans := by simpa [LawfulOrderLE.le_iff] using fun _ _ _ => le_trans.trans
 
 /--
 If an `OrderData α` instance is compatible with an `LE α` instance that is transitive and total,
 then the `OrderData α` instance is a linear preorder.
 -/
 public theorem IsLinearPreorder.ofLE {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
-    (le_trans : ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c)
-    (le_total : ∀ a b : α, a ≤ b ∨ b ≤ a) :
+    (le_trans : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) := by exact inferInstance)
+    (le_total : Total (α := α) (· ≤ ·) := by exact inferInstance) :
     IsLinearPreorder α where
-  toIsPreorder := .ofLE (by simpa using fun a => le_total a a) le_trans
-  le_total := by simpa [LawfulOrderLE.le_iff] using le_total
+  toIsPreorder := .ofLE
+  le_total := by simpa [LawfulOrderLE.le_iff] using le_total.total
 
 /--
 If an `OrderData α` instance is compatible with an `LE α` instance that is reflexive, antisymmetric
 and transitive, then the `OrderData α` instance is a partial order.
 -/
 public theorem IsPartialOrder.ofLE {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
-    (le_refl : ∀ a : α, a ≤ a)
-    (le_antisymm : ∀ a b : α, a ≤ b → b ≤ a → a = b)
-    (le_trans : ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c) :
+    (le_refl : Std.Refl (α := α) (· ≤ ·) := by exact inferInstance)
+    (le_antisymm : Std.Antisymm (α := α) (· ≤ ·) := by exact inferInstance)
+    (le_trans : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) := by exact inferInstance) :
     IsPartialOrder α where
-  toIsPreorder := .ofLE le_refl le_trans
-  le_antisymm := by simpa [LawfulOrderLE.le_iff] using le_antisymm
+  toIsPreorder := .ofLE
+  le_antisymm := by simpa [LawfulOrderLE.le_iff] using le_antisymm.antisymm
 
 /--
 If an `OrderData α` instance is compatible with an `LE α` instance that is antisymmetric,
 transitive and total, then the `OrderData α` instance is a linear order.
 -/
 public theorem IsLinearOrder.ofLE {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
-    (le_antisymm : ∀ a b : α, a ≤ b → b ≤ a → a = b)
-    (le_trans : ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c)
-    (le_total : ∀ a b : α, a ≤ b ∨ b ≤ a) :
+    (le_antisymm : Std.Antisymm (α := α) (· ≤ ·) := by exact inferInstance)
+    (le_trans : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) := by exact inferInstance)
+    (le_total : Total (α := α) (· ≤ ·) := by exact inferInstance) :
     IsLinearOrder α where
-  toIsLinearPreorder := .ofLE le_trans le_total
-  le_antisymm := by simpa [LawfulOrderLE.le_iff] using le_antisymm
+  toIsLinearPreorder := .ofLE
+  le_antisymm := by simpa [LawfulOrderLE.le_iff] using le_antisymm.antisymm
 
 /--
 Returns a `LawfulOrderLT α` instance given certain properties.
@@ -164,31 +170,32 @@ If an `OrderData α` instance is compatible with an asymmetric `LT α` instance 
 is transitive, then the `OrderData α` instance is a linear order.
 -/
 public theorem IsLinearPreorder.ofLT {α : Type u} [LT α]
-    (lt_asymm : ∀ a b : α, a < b → ¬ b < a)
-    (not_lt_trans : ∀ a b c : α, ¬ a < b → ¬ b < c → ¬ a < c) :
+    (lt_asymm : Asymm (α := α) (· < ·) := by exact inferInstance)
+    (not_lt_trans : Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·) := by exact inferInstance) :
     haveI : OrderData α := .ofLT α
     IsLinearPreorder α :=
   letI : OrderData α := .ofLT α
-  { le_trans := by simpa [OrderData.ofLT] using fun a b c hab hbc => not_lt_trans c b a hbc hab
+  { le_trans := by simpa [OrderData.ofLT] using fun a b c hab hbc => not_lt_trans.trans hbc hab
     le_total a b := by
       apply Or.symm
-      open Classical in simpa [OrderData.ofLT, Decidable.imp_iff_not_or] using lt_asymm a b
+      open Classical in simpa [OrderData.ofLT, Decidable.imp_iff_not_or] using lt_asymm.asymm a b
     le_refl a := by
-      open Classical in simpa [OrderData.ofLT] using lt_asymm a a }
+      open Classical in simpa [OrderData.ofLT] using lt_asymm.asymm a a }
 
 /--
 If an `OrderData α` instance is compatible with an asymmetric `LT α` instance the negation of which
 is transitive and antisymmetric, then the `OrderData α` instance is a linear order.
 -/
 public theorem IsLinearOrder.ofLT {α : Type u} [LT α]
-    (lt_asymm : ∀ a b : α, a < b → ¬ b < a)
-    (not_lt_trans : ∀ a b c : α, ¬ a < b → ¬ b < c → ¬ a < c)
-    (not_lt_antisymm : ∀ a b : α, ¬ a < b → ¬ b < a → a = b) :
+    (lt_asymm : Asymm (α := α) (· < ·) := by exact inferInstance)
+    (not_lt_trans : Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·) := by exact inferInstance)
+    (not_lt_antisymm : Antisymm (α := α) (¬ · < ·) := by exact inferInstance) :
     haveI : OrderData α := .ofLT α
     IsLinearOrder α :=
   letI : OrderData α := .ofLT α
-  haveI : IsLinearPreorder α := .ofLT lt_asymm not_lt_trans
-  { le_antisymm := by simpa [OrderData.ofLT] using fun a b hab hba => not_lt_antisymm a b hba hab }
+  haveI : IsLinearPreorder α := .ofLT
+  { le_antisymm := by
+      simpa [OrderData.ofLT] using fun a b hab hba => not_lt_antisymm.antisymm a b hba hab }
 
 /--
 Returns a `LawfulOrderLT α` instance given certain properties.

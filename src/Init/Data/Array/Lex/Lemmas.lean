@@ -107,10 +107,11 @@ instance [LT α] : OrderData (Array α) := .ofLE (Array α)
 
 instance [LT α] [OrderData α] [LawfulOrderLT α] [IsLinearOrder α] : IsLinearOrder (Array α) := by
   apply IsLinearOrder.ofLE
-  · intro _ _ hab hba
+  · constructor
+    intro _ _ hab hba
     simpa using Std.le_antisymm (α := List α) hab hba
-  · exact fun _ _ _ => Std.le_trans (α := List α)
-  · exact fun _ _ => Std.le_total (α := List α)
+  · constructor; exact Std.le_trans (α := List α)
+  · constructor; exact fun _ _ => Std.le_total (α := List α)
 
 protected theorem lt_irrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] (xs : Array α) : ¬ xs < xs :=
   List.lt_irrefl xs.toList
@@ -154,11 +155,7 @@ protected theorem lt_of_le_of_lt' [LT α]
     [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
   letI : OrderData α := .ofLT α
-  haveI : IsLinearOrder α := by
-    apply IsLinearOrder.ofLT
-    case lt_asymm => apply i₁.asymm
-    case not_lt_antisymm => apply i₂.antisymm
-    case not_lt_trans => exact fun _ _ _ => i₃.trans
+  haveI : IsLinearOrder α := IsLinearOrder.ofLT
   Array.lt_of_le_of_lt h₁ h₂
 
 protected theorem le_trans [OrderData α] [LT α] [LawfulOrderLT α] [IsLinearOrder α]
@@ -172,11 +169,7 @@ protected theorem le_trans' [LT α]
     [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {xs ys zs : Array α} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
   letI : OrderData α := .ofLT α
-  haveI : IsLinearOrder α := by
-    apply IsLinearOrder.ofLT
-    case lt_asymm => apply i₁.asymm
-    case not_lt_antisymm => apply i₂.antisymm
-    case not_lt_trans => exact fun _ _ _ => i₃.trans
+  haveI : IsLinearOrder α := IsLinearOrder.ofLT
   Array.le_trans h₁ h₂
 
 instance [OrderData α] [LT α] [LawfulOrderLT α] [IsLinearOrder α] :

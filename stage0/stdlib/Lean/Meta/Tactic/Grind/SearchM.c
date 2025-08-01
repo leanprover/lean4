@@ -191,6 +191,7 @@ extern lean_object* l_Lean_Meta_Grind_instHashablePreInstance;
 static lean_object* l_Lean_Meta_Grind_instInhabitedChoice___closed__25;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_SearchM_0__Lean_Meta_Grind_getFalseProof_x3f___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_ForEachExpr_visit___at_____private_Lean_Meta_Tactic_Grind_SearchM_0__Lean_Meta_Grind_findMaxFVarIdx_x3f_spec__0_spec__2_spec__2_spec__2(lean_object*, lean_object*, lean_object*);
+uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1865_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkAuxMVarForCurrGoal___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkAuxMVarForCurrGoal___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___Lean_Meta_Grind_mkChoice_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -217,7 +218,6 @@ static lean_object* l_Lean_Meta_Grind_liftGoalM___redArg___closed__10;
 static lean_object* l_Lean_Meta_Grind_liftGoalM___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___Lean_Loop_forIn_loop___at___Lean_Meta_Grind_nextGoal_x3f_spec__1_spec__1___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_mkChoice___closed__0;
-uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872_(lean_object*);
 lean_object* l_Lean_Meta_Grind_isInconsistent___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_instInhabitedChoice___closed__4;
 static lean_object* l_Lean_Meta_Grind_instInhabitedChoice___closed__13;
@@ -8930,7 +8930,7 @@ else
 lean_object* x_8; lean_object* x_9; uint64_t x_10; size_t x_11; size_t x_12; lean_object* x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
 x_8 = lean_array_fget(x_2, x_4);
 x_9 = lean_array_fget(x_3, x_4);
-x_10 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872_(x_8);
+x_10 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1865_(x_8);
 x_11 = lean_uint64_to_usize(x_10);
 x_12 = 5;
 x_13 = lean_unsigned_to_nat(1u);
@@ -9252,7 +9252,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_MVarId_assi
 _start:
 {
 uint64_t x_4; size_t x_5; size_t x_6; lean_object* x_7; 
-x_4 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872_(x_2);
+x_4 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1865_(x_2);
 x_5 = lean_uint64_to_usize(x_4);
 x_6 = 1;
 x_7 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_Grind_mkChoice_spec__1_spec__1_spec__1___redArg(x_1, x_5, x_6, x_2, x_3);
@@ -10241,7 +10241,7 @@ static lean_object* _init_l_Lean_Meta_Grind_mkChoice___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: !( __do_lift._@.Lean.Meta.Tactic.Grind.SearchM._hyg.362.0 )\n  ", 83, 83);
+x_1 = lean_mk_string_unchecked("assertion violation: !( __do_lift._@.Lean.Meta.Tactic.Grind.SearchM._hyg.358.0 )\n  ", 83, 83);
 return x_1;
 }
 }

@@ -167,7 +167,7 @@ LEAN_EXPORT lean_object* l_Array_isEqvAux___at___Lean_Compiler_LCNF_Testing_asse
 static lean_object* l_Lean_throwError___at___Lean_Compiler_LCNF_Testing_assert_spec__0___redArg___closed__3;
 lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAfter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Testing_assertDoesNotContainConstAfter___lam__0(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_7791_(lean_object*, lean_object*);
+uint8_t l_Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_7745_(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___lam__0___closed__8;
@@ -3620,7 +3620,7 @@ x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
 x_8 = lean_array_fget(x_1, x_7);
 x_9 = lean_array_fget(x_2, x_7);
-x_10 = l_Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_7791_(x_8, x_9);
+x_10 = l_Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_7745_(x_8, x_9);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
 if (x_10 == 0)

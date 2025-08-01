@@ -45,7 +45,6 @@ lean_object* l_Lean_Json_mkObj(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_Meta_Tactic_TryThis_addSuggestions_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___lam__0(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_InfoTree_foldInfo___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_BasicAux___hyg_625_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addSuggestionCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_tryThisWidget___regBuiltin___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_tryThisWidget__1___closed__3;
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -166,6 +165,7 @@ static lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_Try
 static lean_object* l_Lean_Meta_Tactic_TryThis_addSuggestions___closed__0;
 static lean_object* l_Lean_Elab_pushInfoLeaf___at_____private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addSuggestionCore_spec__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_evalTacticWithState_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_48_;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_mkValidatedTactic___closed__13;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Meta_Tactic_TryThis_addExactSuggestions_spec__1_spec__1(uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -440,6 +440,7 @@ LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_____private_Lean_Meta_Tact
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
+lean_object* l_Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_BasicAux___hyg_621_(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Hint_tryThisDiffWidget___regBuiltin_Lean_Meta_Hint_tryThisDiffWidget__1___closed__2;
 static lean_object* l_Lean_Elab_pushInfoLeaf___at_____private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addSuggestionCore_spec__0___closed__0;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -477,7 +478,6 @@ static lean_object* l_Lean_Meta_Tactic_TryThis_addExactSuggestions___closed__1;
 static lean_object* l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__3;
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___lam__0___closed__13;
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
-extern lean_object* l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_50_;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addSuggestionCore_spec__2(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addSuggestionCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_toJson___at_____private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addSuggestionCore_spec__5___boxed(lean_object*);
@@ -1052,7 +1052,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_50_;
+x_1 = l_Lean_Meta_Tactic_TryThis_instImpl____x40_Lean_Meta_TryThis___hyg_48_;
 return x_1;
 }
 }
@@ -2226,7 +2226,7 @@ x_34 = l_Array_toJson___at_____private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tac
 lean_ctor_set(x_24, 1, x_34);
 lean_ctor_set(x_24, 0, x_33);
 x_35 = l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addSuggestionCore___closed__1;
-x_36 = l_Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_BasicAux___hyg_625_(x_23);
+x_36 = l_Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_BasicAux___hyg_621_(x_23);
 x_37 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_37, 0, x_35);
 lean_ctor_set(x_37, 1, x_36);
@@ -2288,7 +2288,7 @@ x_63 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_63, 0, x_61);
 lean_ctor_set(x_63, 1, x_62);
 x_64 = l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addSuggestionCore___closed__1;
-x_65 = l_Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_BasicAux___hyg_625_(x_23);
+x_65 = l_Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_BasicAux___hyg_621_(x_23);
 x_66 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_66, 0, x_64);
 lean_ctor_set(x_66, 1, x_65);
@@ -2412,7 +2412,7 @@ if (lean_is_scalar(x_97)) {
 lean_ctor_set(x_105, 0, x_103);
 lean_ctor_set(x_105, 1, x_104);
 x_106 = l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addSuggestionCore___closed__1;
-x_107 = l_Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_BasicAux___hyg_625_(x_94);
+x_107 = l_Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_BasicAux___hyg_621_(x_94);
 x_108 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_108, 0, x_106);
 lean_ctor_set(x_108, 1, x_107);
@@ -3802,7 +3802,7 @@ static lean_object* _init_l_Lean_Meta_Tactic_TryThis_addSuggestions___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("no suggestions available", 24, 24);
+x_1 = lean_mk_string_unchecked("No suggestions available", 24, 24);
 return x_1;
 }
 }
@@ -4183,7 +4183,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("tactic did not produce expected goal", 36, 36);
+x_1 = lean_mk_string_unchecked("Tactic did not produce expected goal", 36, 36);
 return x_1;
 }
 }

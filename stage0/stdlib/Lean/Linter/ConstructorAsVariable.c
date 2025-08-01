@@ -26,6 +26,7 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_constructorN
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Linter_constructorNameAsVariable_spec__16_spec__16___lam__2___closed__0;
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Linter_constructorNameAsVariable_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_visitM_x27___at___Lean_Linter_constructorNameAsVariable_spec__8_spec__8_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t l_String_hashRange____x40_Lean_Syntax___hyg_173_(lean_object*);
 lean_object* l_Lean_Elab_Command_getScope___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at___Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_constructorNameAsVariable_spec__12_spec__12_spec__12___closed__0;
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -42,7 +43,6 @@ lean_object* l_Lean_Syntax_getId(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_constructorNameAsVariable_spec__16___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Linter_constructorNameAsVariable_spec__16_spec__16___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_qpartition___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint64_t l_String_hashRange____x40_Lean_Syntax___hyg_175_(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_constructorNameAsVariable_spec__12_spec__12_spec__12_spec__12___redArg___closed__2;
 static lean_object* l_Lean_logAt___at___Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_constructorNameAsVariable_spec__12_spec__12_spec__12___lam__0___closed__0;
@@ -72,7 +72,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsa
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Linter_constructorNameAsVariable_spec__21___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_constructorNameAsVariable_spec__12_spec__12_spec__12_spec__12___redArg___closed__8;
-uint8_t l_String_beqRange____x40_Lean_Syntax___hyg_101_(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_MessageData_note(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_Linter_constructorNameAsVariable_spec__7___boxed(lean_object*, lean_object*);
@@ -138,6 +137,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_x27___at___Lean_Linter_cons
 lean_object* l_Lean_Elab_Command_addLinter(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__1____x40_Lean_Linter_ConstructorAsVariable___hyg_9_;
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
+lean_object* l_String_beqRange____x40_Lean_Syntax___hyg_99____boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_getRef___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_logWarningAt___at___Lean_Linter_logLint___at___Lean_Linter_constructorNameAsVariable_spec__12_spec__12_spec__12_spec__12___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lean_Linter_constructorNameAsVariable_spec__20(lean_object*, lean_object*);
@@ -148,7 +148,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_x27___at___Lean_Linter_cons
 lean_object* l_List_head_x21___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn___closed__5____x40_Lean_Linter_ConstructorAsVariable___hyg_9_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at___Lean_Linter_constructorNameAsVariable_spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_beqRange____x40_Lean_Syntax___hyg_101____boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t l_String_Range_contains(lean_object*, lean_object*, uint8_t);
@@ -182,6 +181,7 @@ uint64_t lean_uint64_xor(uint64_t, uint64_t);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+uint8_t l_String_beqRange____x40_Lean_Syntax___hyg_99_(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Linter_constructorNameAsVariable_spec__1_spec__1_spec__1___redArg(lean_object*, lean_object*);
@@ -210,7 +210,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Linter_constructorNameAsVariable_spec__6___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Linter_constructorNameAsVariable_spec__16_spec__16___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_String_hashRange____x40_Lean_Syntax___hyg_175____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Linter_constructorNameAsVariable_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_Linter_initFn____x40_Lean_Linter_ConstructorAsVariable___hyg_9__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_constructorNameAsVariable_spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -226,6 +225,7 @@ static lean_object* l_Lean_Elab_InfoTree_visitM_go___at___Lean_Elab_InfoTree_vis
 lean_object* l_Lean_Elab_Info_stx(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___Lean_Linter_constructorNameAsVariable_spec__6___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Linter_constructorNameAsVariable_spec__18(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_String_hashRange____x40_Lean_Syntax___hyg_173____boxed(lean_object*);
 static lean_object* l_Lean_Linter_constructorNameAsVariable___lam__0___closed__0;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
@@ -434,7 +434,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
-x_6 = l_String_beqRange____x40_Lean_Syntax___hyg_101_(x_4, x_1);
+x_6 = l_String_beqRange____x40_Lean_Syntax___hyg_99_(x_4, x_1);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -472,7 +472,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint64_t x_7; uint64_t x_8
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_array_get_size(x_1);
-x_7 = l_String_hashRange____x40_Lean_Syntax___hyg_175_(x_4);
+x_7 = l_String_hashRange____x40_Lean_Syntax___hyg_173_(x_4);
 x_8 = 32;
 x_9 = lean_uint64_shift_right(x_7, x_8);
 x_10 = lean_uint64_xor(x_7, x_9);
@@ -503,7 +503,7 @@ lean_inc(x_23);
 lean_inc(x_22);
 lean_dec(x_2);
 x_25 = lean_array_get_size(x_1);
-x_26 = l_String_hashRange____x40_Lean_Syntax___hyg_175_(x_22);
+x_26 = l_String_hashRange____x40_Lean_Syntax___hyg_173_(x_22);
 x_27 = 32;
 x_28 = lean_uint64_shift_right(x_26, x_27);
 x_29 = lean_uint64_xor(x_26, x_28);
@@ -617,7 +617,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = lean_ctor_get(x_3, 1);
 x_7 = lean_ctor_get(x_3, 2);
-x_8 = l_String_beqRange____x40_Lean_Syntax___hyg_101_(x_5, x_1);
+x_8 = l_String_beqRange____x40_Lean_Syntax___hyg_99_(x_5, x_1);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -644,7 +644,7 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_3);
-x_13 = l_String_beqRange____x40_Lean_Syntax___hyg_101_(x_10, x_1);
+x_13 = l_String_beqRange____x40_Lean_Syntax___hyg_99_(x_10, x_1);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -951,7 +951,7 @@ if (lean_is_scalar(x_15)) {
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_26);
 x_35 = lean_array_get_size(x_32);
-x_36 = l_String_hashRange____x40_Lean_Syntax___hyg_175_(x_6);
+x_36 = l_String_hashRange____x40_Lean_Syntax___hyg_173_(x_6);
 x_37 = 32;
 x_38 = lean_uint64_shift_right(x_36, x_37);
 x_39 = lean_uint64_xor(x_36, x_38);
@@ -1042,7 +1042,7 @@ if (lean_is_scalar(x_15)) {
 lean_ctor_set(x_69, 0, x_68);
 lean_ctor_set(x_69, 1, x_26);
 x_70 = lean_array_get_size(x_67);
-x_71 = l_String_hashRange____x40_Lean_Syntax___hyg_175_(x_6);
+x_71 = l_String_hashRange____x40_Lean_Syntax___hyg_173_(x_6);
 x_72 = 32;
 x_73 = lean_uint64_shift_right(x_71, x_72);
 x_74 = lean_uint64_xor(x_71, x_73);
@@ -1151,7 +1151,7 @@ if (lean_is_scalar(x_15)) {
 lean_ctor_set(x_110, 0, x_108);
 lean_ctor_set(x_110, 1, x_109);
 x_111 = lean_array_get_size(x_106);
-x_112 = l_String_hashRange____x40_Lean_Syntax___hyg_175_(x_6);
+x_112 = l_String_hashRange____x40_Lean_Syntax___hyg_173_(x_6);
 x_113 = 32;
 x_114 = lean_uint64_shift_right(x_112, x_113);
 x_115 = lean_uint64_xor(x_112, x_114);
@@ -3489,7 +3489,7 @@ x_156 = lean_ctor_get(x_98, 1);
 x_157 = lean_ctor_get(x_98, 0);
 lean_dec(x_157);
 x_158 = lean_array_get_size(x_156);
-x_159 = l_String_hashRange____x40_Lean_Syntax___hyg_175_(x_18);
+x_159 = l_String_hashRange____x40_Lean_Syntax___hyg_173_(x_18);
 x_160 = 32;
 x_161 = lean_uint64_shift_right(x_159, x_160);
 x_162 = lean_uint64_xor(x_159, x_161);
@@ -3687,7 +3687,7 @@ x_190 = lean_ctor_get(x_98, 1);
 lean_inc(x_190);
 lean_dec(x_98);
 x_191 = lean_array_get_size(x_190);
-x_192 = l_String_hashRange____x40_Lean_Syntax___hyg_175_(x_18);
+x_192 = l_String_hashRange____x40_Lean_Syntax___hyg_173_(x_18);
 x_193 = 32;
 x_194 = lean_uint64_shift_right(x_192, x_193);
 x_195 = lean_uint64_xor(x_192, x_194);
@@ -4698,7 +4698,7 @@ x_156 = lean_ctor_get(x_98, 1);
 x_157 = lean_ctor_get(x_98, 0);
 lean_dec(x_157);
 x_158 = lean_array_get_size(x_156);
-x_159 = l_String_hashRange____x40_Lean_Syntax___hyg_175_(x_18);
+x_159 = l_String_hashRange____x40_Lean_Syntax___hyg_173_(x_18);
 x_160 = 32;
 x_161 = lean_uint64_shift_right(x_159, x_160);
 x_162 = lean_uint64_xor(x_159, x_161);
@@ -4896,7 +4896,7 @@ x_190 = lean_ctor_get(x_98, 1);
 lean_inc(x_190);
 lean_dec(x_98);
 x_191 = lean_array_get_size(x_190);
-x_192 = l_String_hashRange____x40_Lean_Syntax___hyg_175_(x_18);
+x_192 = l_String_hashRange____x40_Lean_Syntax___hyg_173_(x_18);
 x_193 = 32;
 x_194 = lean_uint64_shift_right(x_192, x_193);
 x_195 = lean_uint64_xor(x_192, x_194);
@@ -6649,7 +6649,7 @@ static lean_object* _init_l_Lean_Linter_constructorNameAsVariable___closed__0() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_beqRange____x40_Lean_Syntax___hyg_101____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_String_beqRange____x40_Lean_Syntax___hyg_99____boxed), 2, 0);
 return x_1;
 }
 }
@@ -6657,7 +6657,7 @@ static lean_object* _init_l_Lean_Linter_constructorNameAsVariable___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_hashRange____x40_Lean_Syntax___hyg_175____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_String_hashRange____x40_Lean_Syntax___hyg_173____boxed), 1, 0);
 return x_1;
 }
 }

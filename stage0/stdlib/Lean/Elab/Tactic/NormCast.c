@@ -10872,7 +10872,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("error evaluating configuration\n", 31, 31);
+x_1 = lean_mk_string_unchecked("Error evaluating configuration\n", 31, 31);
 return x_1;
 }
 }
@@ -10906,7 +10906,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("error evaluating configuration, environment does not yet contain type ", 70, 70);
+x_1 = lean_mk_string_unchecked("Error evaluating configuration: Environment does not yet contain type ", 70, 70);
 return x_1;
 }
 }
@@ -10956,7 +10956,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabNormCastConfig___redAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("configuration contains 'sorry'", 30, 30);
+x_1 = lean_mk_string_unchecked("Configuration contains `sorry`", 30, 30);
 return x_1;
 }
 }

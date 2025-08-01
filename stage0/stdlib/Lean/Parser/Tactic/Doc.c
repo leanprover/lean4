@@ -48,7 +48,6 @@ static lean_object* l___private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc
 lean_object* l_Lean_PersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT uint8_t l_Lean_Parser_Tactic_Doc_tagInfo___redArg___lam__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn___lam__1___closed__0____x40_Lean_Parser_Tactic_Doc___hyg_249_;
-uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_170_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at___Lean_PersistentHashMap_foldlMAux___at___Lean_PersistentHashMap_foldlM___at___Lean_PersistentHashMap_forIn___at___Lean_Parser_Tactic_Doc_isTactic_spec__3_spec__3_spec__3_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_isTactic___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__0_spec__0___closed__2;
@@ -146,6 +145,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_aliases___redArg___lam__5(lean
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn___closed__2____x40_Lean_Parser_Tactic_Doc___hyg_2494_;
 static lean_object* l_Lean_throwAttrDeclInImportedModule___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__6___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2772__spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_168_(uint8_t, uint8_t);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2772__spec__10___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_aliases___redArg___lam__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -3893,7 +3893,7 @@ _start:
 {
 lean_object* x_11; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_203; uint8_t x_204; lean_object* x_205; lean_object* x_206; lean_object* x_207; uint8_t x_252; uint8_t x_253; 
 x_252 = 0;
-x_253 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_170_(x_7, x_252);
+x_253 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_168_(x_7, x_252);
 if (x_253 == 0)
 {
 lean_object* x_254; 
@@ -8366,7 +8366,7 @@ _start:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_62; uint8_t x_63; 
 x_62 = 0;
-x_63 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_170_(x_8, x_62);
+x_63 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_168_(x_8, x_62);
 if (x_63 == 0)
 {
 lean_object* x_64; 

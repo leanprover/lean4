@@ -2014,7 +2014,7 @@ return x_4;
 LEAN_EXPORT uint8_t l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_inst___redArg____x40_Std_Data_Internal_List_Associative___hyg_45333_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 lean_dec_ref(x_2);
@@ -2022,17 +2022,18 @@ x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
 lean_dec_ref(x_3);
 x_6 = lean_apply_2(x_1, x_4, x_5);
-if (lean_obj_tag(x_6) == 2)
+x_7 = lean_unbox(x_6);
+if (x_7 == 2)
 {
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
+uint8_t x_8; 
+x_8 = 0;
+return x_8;
 }
 else
 {
-uint8_t x_8; 
-x_8 = 1;
-return x_8;
+uint8_t x_9; 
+x_9 = 1;
+return x_9;
 }
 }
 }
@@ -2065,13 +2066,14 @@ return x_7;
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_minSigmaOfOrd___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
 x_6 = lean_apply_2(x_1, x_4, x_5);
-if (lean_obj_tag(x_6) == 2)
+x_7 = lean_unbox(x_6);
+if (x_7 == 2)
 {
 lean_dec_ref(x_2);
 return x_3;

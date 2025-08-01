@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_forInStep_go___at___L
 uint64_t lean_uint64_of_nat(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_Meta_Grind_Arith_assignUnassigned___closed__4;
 size_t lean_uint64_to_usize(uint64_t);
-uint8_t l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_43_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_____private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_Meta_Grind_Arith_sortModel_spec__0___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_____private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_Meta_Grind_Arith_satisfyDiseqs_spec__3___closed__2;
 uint8_t l_Lean_Expr_isApp(lean_object*);
@@ -76,6 +75,7 @@ LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_M
 LEAN_EXPORT uint8_t l_Array_qsort_sort___at_____private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_Meta_Grind_Arith_sortModel_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at_____private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_Meta_Grind_Arith_satisfyDiseqs_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_____private_Lean_Meta_Tactic_Grind_Arith_ModelUtil_0__Lean_Meta_Grind_Arith_assignUnassigned_spec__0(lean_object*, lean_object*);
+uint8_t l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_41_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_isInterpretedTerm___closed__27;
 static lean_object* l_Lean_Meta_Grind_Arith_isInterpretedTerm___closed__10;
 lean_object* l_Lean_Meta_Grind_Goal_getENode(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -340,7 +340,7 @@ lean_dec_ref(x_21);
 x_24 = lean_unsigned_to_nat(1u);
 lean_ctor_set(x_1, 1, x_24);
 lean_ctor_set(x_1, 0, x_2);
-x_25 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_43_(x_23, x_1);
+x_25 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_41_(x_23, x_1);
 lean_dec_ref(x_1);
 lean_dec(x_23);
 if (x_25 == 0)
@@ -398,7 +398,7 @@ x_46 = lean_unsigned_to_nat(1u);
 x_47 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_47, 0, x_2);
 lean_ctor_set(x_47, 1, x_46);
-x_48 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_43_(x_45, x_47);
+x_48 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_41_(x_45, x_47);
 lean_dec_ref(x_47);
 lean_dec(x_45);
 if (x_48 == 0)

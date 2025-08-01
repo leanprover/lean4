@@ -50,7 +50,6 @@ lean_object* l_Lean_mkIntLE(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_satisfiedLe___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_updateOccs_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
-uint8_t l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_43_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at___Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at___Lean_Meta_Grind_Arith_Cutsat_hasVar_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_addOcc___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_updateOccs_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -95,6 +94,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_DvdCnstr_denoteExpr___redArg_
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_modifyAux___at___Lean_PersistentArray_modify___at___Lean_Meta_Grind_Arith_Cutsat_addOcc_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_eval_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_getVars___redArg___boxed(lean_object*, lean_object*);
+uint8_t l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_41_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_DvdCnstr_denoteExpr___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_EqCnstr_throwUnexpected(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_DiseqCnstr_satisfied___redArg(lean_object*, lean_object*, lean_object*);
@@ -7622,7 +7622,7 @@ x_18 = lean_ctor_get(x_8, 0);
 lean_inc(x_18);
 lean_dec_ref(x_8);
 x_19 = l_Int_Linear_Poly_eval_x3f___redArg___closed__0;
-x_20 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_43_(x_18, x_19);
+x_20 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_41_(x_18, x_19);
 lean_dec(x_18);
 if (x_20 == 0)
 {
@@ -7691,7 +7691,7 @@ x_36 = lean_ctor_get(x_25, 0);
 lean_inc(x_36);
 lean_dec_ref(x_25);
 x_37 = l_Int_Linear_Poly_eval_x3f___redArg___closed__0;
-x_38 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_43_(x_36, x_37);
+x_38 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_41_(x_36, x_37);
 lean_dec(x_36);
 if (x_38 == 0)
 {

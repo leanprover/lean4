@@ -72,7 +72,6 @@ lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_Elab_InfoTree_foldInfo___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Linter_MissingDocs_0__Lean_Linter_MissingDocs_initFn___lam__2___closed__16____x40_Lean_Linter_MissingDocs___hyg_803_;
 LEAN_EXPORT lean_object* l_IO_ofExcept___at___Lean_Linter_MissingDocs_mkHandlerUnsafe_spec__0(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_170_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_Linter_MissingDocs_checkDecl_spec__4_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwAttrMustBeGlobal___at_____private_Lean_Linter_MissingDocs_0__Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_803__spec__10___redArg___closed__1;
 lean_object* l_Lean_ConstantInfo_levelParams(lean_object*);
@@ -181,6 +180,7 @@ LEAN_EXPORT lean_object* l_Lean_logAt___at___Lean_logWarningAt___at___Lean_Linte
 static lean_object* l___private_Lean_Linter_MissingDocs_0__Lean_Linter_MissingDocs_initFn___lam__1___closed__7____x40_Lean_Linter_MissingDocs___hyg_803_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Linter_MissingDocs_checkDecl_spec__1___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwAttrDeclInImportedModule___at_____private_Lean_Linter_MissingDocs_0__Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_803__spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_168_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Linter_MissingDocs_checkDecl_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_getLinterMissingDocs___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoLeaf___at___Lean_Elab_addCompletionInfo___at___Lean_Elab_elabSetOption___at___Lean_Linter_MissingDocs_handleIn_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3758,7 +3758,7 @@ _start:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; uint8_t x_100; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; uint8_t x_164; uint8_t x_165; 
 x_164 = 0;
-x_165 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_170_(x_8, x_164);
+x_165 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_168_(x_8, x_164);
 if (x_165 == 0)
 {
 lean_object* x_166; 

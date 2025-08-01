@@ -29,7 +29,6 @@ static lean_object* l___private_Lean_Elab_InheritDoc_0__Lean_initFn___regBuiltin
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at_____private_Lean_Elab_InheritDoc_0__Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4__spec__2_spec__2_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_InheritDoc_0__Lean_initFn___regBuiltin___private_Lean_Elab_InheritDoc_0__Lean_initFn_docString__1___closed__13____x40_Lean_Elab_InheritDoc___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at_____private_Lean_Elab_InheritDoc_0__Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4__spec__2_spec__2_spec__2_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_170_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at_____private_Lean_Elab_InheritDoc_0__Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4__spec__2_spec__2_spec__2___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_InheritDoc_0__Lean_initFn___lam__1____x40_Lean_Elab_InheritDoc___hyg_4____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addDocStringCore___at_____private_Lean_Elab_InheritDoc_0__Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4__spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -67,6 +66,7 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownC
 lean_object* l_Lean_MessageData_note(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logWarning___at_____private_Lean_Elab_InheritDoc_0__Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4__spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_168_(uint8_t, uint8_t);
 static lean_object* l___private_Lean_Elab_InheritDoc_0__Lean_initFn___regBuiltin___private_Lean_Elab_InheritDoc_0__Lean_initFn_docString__1___closed__12____x40_Lean_Elab_InheritDoc___hyg_4_;
 LEAN_EXPORT lean_object* l_Lean_addDocStringCore___at_____private_Lean_Elab_InheritDoc_0__Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4__spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_InheritDoc_0__Lean_initFn___regBuiltin___private_Lean_Elab_InheritDoc_0__Lean_initFn_docString__1___closed__14____x40_Lean_Elab_InheritDoc___hyg_4_;
@@ -2475,7 +2475,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_77; uint8_t x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; uint8_t x_215; uint8_t x_216; 
 x_215 = 0;
-x_216 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_170_(x_6, x_215);
+x_216 = l_Lean_beqAttributeKind____x40_Lean_Attributes___hyg_168_(x_6, x_215);
 if (x_216 == 0)
 {
 lean_object* x_217; 

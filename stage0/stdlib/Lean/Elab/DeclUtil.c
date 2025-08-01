@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DeclUtil
-// Imports: Lean.Meta.Basic Lean.Meta.Check
+// Imports: Lean.Meta.Basic Lean.Meta.Check Lean.Parser.Command Lean.Parser.Command
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,6 +31,7 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_Elab_sortDeclLevelParams_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_elem___at___Lean_Elab_sortDeclLevelParams_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___Lean_Elab_sortDeclLevelParams_spec__4___redArg(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(uint8_t, uint8_t);
 lean_object* l_Lean_Meta_mkHasTypeButIsExpectedMsg___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___redArg___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeCompatible___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -59,7 +60,6 @@ uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_forallTelescopeCompatibleAux_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(uint8_t, uint8_t);
 lean_object* lean_mk_syntax_ident(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
@@ -588,7 +588,7 @@ lean_closure_set(x_37, 1, x_33);
 lean_closure_set(x_37, 2, x_5);
 lean_closure_set(x_37, 3, x_1);
 lean_closure_set(x_37, 4, x_36);
-x_142 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_30, x_34);
+x_142 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_30, x_34);
 if (x_142 == 0)
 {
 lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; uint8_t x_150; 
@@ -1847,6 +1847,8 @@ return x_5;
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Check(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_Command(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_Command(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_DeclUtil(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1856,6 +1858,12 @@ res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Check(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Command(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Command(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_forallTelescopeCompatibleAux___redArg___closed__0 = _init_l_Lean_Meta_forallTelescopeCompatibleAux___redArg___closed__0();

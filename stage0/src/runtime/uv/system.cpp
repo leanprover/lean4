@@ -519,8 +519,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_constrained_memory(obj_arg /* w 
 
 // Std.Internal.UV.System.availableMemory : IO UInt64
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_available_memory(obj_arg /* w */) {
+#if UV_VERSION_HEX >= 0x012D00
     uint64_t mem = uv_get_available_memory();
     return lean_io_result_mk_ok(lean_box_uint64(mem));
+#else
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv version at least 1.45.0 to invoke this.")
+    );
+#endif
 }
 
 #else

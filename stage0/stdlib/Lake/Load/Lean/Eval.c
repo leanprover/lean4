@@ -24,6 +24,7 @@ lean_object* l_Lean_Environment_evalConst___redArg(lean_object*, lean_object*, l
 static lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lake_Package_loadFromEnv_spec__15_spec__15___closed__0;
 LEAN_EXPORT lean_object* l_Lake_mkTagMap___at___Lake_Package_loadFromEnv_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__13___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lake_instImpl____x40_Lake_Config_Package___hyg_7298_;
 static lean_object* l_Lake_unsafeEvalConstCheck___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__7_spec__7(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_loadFromEnv___closed__3;
@@ -36,6 +37,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_
 LEAN_EXPORT lean_object* l_Lake_unsafeEvalConstCheck(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lake_Package_loadFromEnv_spec__15_spec__15___closed__1;
 lean_object* l_Lean_findDocString_x3f(lean_object*, lean_object*, uint8_t, lean_object*);
+extern lean_object* l_Lake_instImpl____x40_Lake_Config_Package___hyg_6596_;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkOrdTagMap___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_packageDepAttr;
@@ -48,10 +50,11 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lake_Workspace_addFacetsFromEnv_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lake_Workspace_addFacetsFromEnv_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lake_instImpl____x40_Lake_Config_FacetConfig___hyg_476_;
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_Parser_TokenMap_insert_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_unsafeEvalConstCheck_throwUnexpectedType(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lake_instImpl____x40_Lake_Config_Dependency___hyg_253_;
+extern lean_object* l_Lake_instImpl____x40_Lake_Config_Dependency___hyg_248_;
 static lean_object* l_Lake_unsafeEvalConstCheck_throwUnexpectedType___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Workspace_addFacetsFromEnv___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_libraryFacetAttr;
@@ -69,7 +72,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_
 LEAN_EXPORT lean_object* l_Lake_mkOrdTagMap___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_addFacetConfig(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__11_spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lake_instImpl____x40_Lake_Config_FacetConfig___hyg_482_;
 static lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__9___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__11___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -90,8 +92,8 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fol
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__3_spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PackageDecl_loadFromEnv___closed__4;
 static lean_object* l_Lake_Package_loadFromEnv___closed__12;
+extern lean_object* l_Lake_instImpl____x40_Lake_Config_ConfigDecl___hyg_132_;
 LEAN_EXPORT lean_object* l_Lake_mkDTagMap___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lake_instImpl____x40_Lake_Config_FacetConfig___hyg_504_;
 lean_object* lean_array_to_list(lean_object*);
 extern lean_object* l_Lake_defaultTargetAttr;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__13_spec__13(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -109,7 +111,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lake_unsafeEvalConstCheck_throwUnexpectedType___redArg___closed__1;
 lean_object* l_Lake_RBArray_insert___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lake_Workspace_addFacetsFromEnv_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-extern lean_object* l_Lake_instImpl____x40_Lake_Config_Package___hyg_7310_;
 LEAN_EXPORT lean_object* l_Lake_mkOrdTagMap___at___Lake_Package_loadFromEnv_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_loadFromEnv___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PackageDecl_loadFromEnv___closed__2;
@@ -122,7 +123,6 @@ LEAN_EXPORT lean_object* l_Lake_mkOrdTagMap___at___Lake_Package_loadFromEnv_spec
 LEAN_EXPORT lean_object* l_Lake_mkTagMap___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_moduleFacetAttr;
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
-extern lean_object* l_Lake_instImpl____x40_Lake_Config_FacetConfig___hyg_460_;
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_Parser_TokenMap_insert_spec__0___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_loadFromEnv___closed__10;
 LEAN_EXPORT lean_object* l_Lake_mkDTagMap___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -131,7 +131,6 @@ static lean_object* l_Lake_Package_loadFromEnv___closed__6;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkTagMap___at___Lake_Package_loadFromEnv_spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_loadFromEnv___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lake_instImpl____x40_Lake_Config_ConfigDecl___hyg_134_;
 extern lean_object* l_Lake_postUpdateAttr;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lake_mkOrdTagMap___at___Lake_Package_loadFromEnv_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mkTagMap___at___Lake_Package_loadFromEnv_spec__5___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -150,6 +149,7 @@ LEAN_EXPORT lean_object* l_Lake_mkDTagMap___redArg___lam__0(lean_object*, lean_o
 static lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__11_spec__11___closed__0;
 static lean_object* l_Lake_Package_loadFromEnv___closed__2;
 uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__0___redArg(lean_object*, lean_object*);
+extern lean_object* l_Lake_instImpl____x40_Lake_Config_FacetConfig___hyg_454_;
 static lean_object* l_Lake_PackageDecl_loadFromEnv___closed__0;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__13___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lake_mkTagMap___at___Lake_Package_loadFromEnv_spec__5_spec__5(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -178,13 +178,13 @@ static lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___La
 LEAN_EXPORT lean_object* l_Lake_mkTagMap___at___Lake_Package_loadFromEnv_spec__5___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lake_mkTagMap___at___Lake_Package_loadFromEnv_spec__5_spec__5___redArg(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-extern lean_object* l_Lake_instImpl____x40_Lake_Config_Package___hyg_6600_;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_loadFromEnv(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__13_spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lake_instImpl____x40_Lake_Config_FacetConfig___hyg_498_;
 LEAN_EXPORT lean_object* l_Lake_Workspace_addFacetsFromEnv(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Package_loadFromEnv_spec__11___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_unsafeEvalConstCheck___redArg___closed__1;
@@ -762,7 +762,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_8 = lean_ctor_get(x_5, 0);
 lean_inc(x_8);
 lean_dec_ref(x_5);
-x_9 = l_Lake_instImpl____x40_Lake_Config_Package___hyg_6600_;
+x_9 = l_Lake_instImpl____x40_Lake_Config_Package___hyg_6596_;
 x_10 = l_Lake_unsafeEvalConstCheck___redArg(x_1, x_2, x_9, x_8);
 return x_10;
 }
@@ -2764,7 +2764,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_loadFromEnv(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_6 = l_Lake_instImpl____x40_Lake_Config_ConfigDecl___hyg_134_;
+x_6 = l_Lake_instImpl____x40_Lake_Config_ConfigDecl___hyg_132_;
 lean_inc(x_3);
 lean_inc_ref(x_2);
 x_7 = lean_alloc_closure((void*)(l_Lake_Package_loadFromEnv___lam__0___boxed), 4, 3);
@@ -2865,8 +2865,8 @@ if (lean_is_exclusive(x_29)) {
  x_34 = lean_box(0);
 }
 x_68 = l_Lake_instImpl____x40_Lake_Config_Script___hyg_17_;
-x_69 = l_Lake_instImpl____x40_Lake_Config_Package___hyg_7310_;
-x_70 = l_Lake_instImpl____x40_Lake_Config_Dependency___hyg_253_;
+x_69 = l_Lake_instImpl____x40_Lake_Config_Package___hyg_7298_;
+x_70 = l_Lake_instImpl____x40_Lake_Config_Dependency___hyg_248_;
 x_71 = lean_box(1);
 x_72 = lean_unsigned_to_nat(0u);
 x_470 = lean_array_get_size(x_32);
@@ -5746,7 +5746,7 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_addFacetsFromEnv(lean_object* x_1, lea
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; lean_object* x_9; 
-x_4 = l_Lake_instImpl____x40_Lake_Config_FacetConfig___hyg_460_;
+x_4 = l_Lake_instImpl____x40_Lake_Config_FacetConfig___hyg_454_;
 x_5 = l_Lake_Workspace_addFacetsFromEnv___closed__0;
 lean_inc_ref(x_1);
 x_6 = l_Lake_OrderedTagAttribute_getAllEntries(x_5, x_1);
@@ -5766,7 +5766,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; size
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec_ref(x_9);
-x_11 = l_Lake_instImpl____x40_Lake_Config_FacetConfig___hyg_482_;
+x_11 = l_Lake_instImpl____x40_Lake_Config_FacetConfig___hyg_476_;
 x_12 = l_Lake_Workspace_addFacetsFromEnv___closed__1;
 lean_inc_ref(x_1);
 x_13 = l_Lake_OrderedTagAttribute_getAllEntries(x_12, x_1);
@@ -5785,7 +5785,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; size
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 lean_dec_ref(x_15);
-x_17 = l_Lake_instImpl____x40_Lake_Config_FacetConfig___hyg_504_;
+x_17 = l_Lake_instImpl____x40_Lake_Config_FacetConfig___hyg_498_;
 x_18 = l_Lake_Workspace_addFacetsFromEnv___closed__2;
 lean_inc_ref(x_1);
 x_19 = l_Lake_OrderedTagAttribute_getAllEntries(x_18, x_1);

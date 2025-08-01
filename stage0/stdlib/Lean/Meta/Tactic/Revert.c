@@ -556,7 +556,7 @@ static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Uns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to revert ", 17, 17);
+x_1 = lean_mk_string_unchecked("Failed to revert `", 18, 18);
 return x_1;
 }
 }
@@ -573,7 +573,7 @@ static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Uns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked(", it is an auxiliary declaration created to represent recursive definitions", 75, 75);
+x_1 = lean_mk_string_unchecked("`: It is an auxiliary declaration created to represent a recursive reference to an in-progress definition", 105, 105);
 return x_1;
 }
 }

@@ -272,6 +272,7 @@ protected inductive Lex : α × β → α × β → Prop where
   -/
   | right (a) {b₁ b₂} (h : rb b₁ b₂)         : Prod.Lex (a, b₁)  (a, b₂)
 
+@[grind =]
 theorem lex_def {r : α → α → Prop} {s : β → β → Prop} {p q : α × β} :
     Prod.Lex r s p q ↔ r p.1 q.1 ∨ p.1 = q.1 ∧ s p.2 q.2 :=
   ⟨fun h => by cases h <;> simp [*], fun h =>

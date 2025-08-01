@@ -50,6 +50,7 @@ lean_object* l_Lean_Meta_substCore___boxed(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 lean_object* l_Lean_Meta_mkAdd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
+static lean_object* l_Lean_Meta_unifyEq_x3f_injection___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_UnifyEq_0__Lean_Meta_heqToEq_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_unifyEq_x3f_substEq_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_unifyEq_x3f___lam__0___closed__3;
@@ -69,12 +70,12 @@ lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_obj
 static lean_object* l_Lean_Meta_unifyEq_x3f___lam__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Meta_unifyEq_x3f_substEq_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__1_spec__3___redArg(size_t, lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1865_(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_clear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__1___redArg(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unifyEq_x3f_substEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
-uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872_(lean_object*);
 lean_object* l_Lean_MVarId_assert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_unifyEq_x3f_substEq___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__1_spec__3___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -135,6 +136,7 @@ lean_object* l_Lean_Meta_injectionCore(lean_object*, lean_object*, lean_object*,
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assign___at___Lean_Meta_unifyEq_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
+static lean_object* l_Lean_Meta_unifyEq_x3f_injection___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__1_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
@@ -732,7 +734,7 @@ static lean_object* _init_l_Lean_Meta_unifyEq_x3f_substEq___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("dependent elimination failed, failed to solve equation", 54, 54);
+x_1 = lean_mk_string_unchecked("Dependent elimination failed: Failed to solve equation", 54, 54);
 return x_1;
 }
 }
@@ -1209,7 +1211,7 @@ static lean_object* _init_l_Lean_Meta_unifyEq_x3f_injection___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\nat case ", 9, 9);
+x_1 = lean_mk_string_unchecked("\nat case `", 10, 10);
 return x_1;
 }
 }
@@ -1222,10 +1224,27 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Meta_unifyEq_x3f_injection___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("`", 1, 1);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_unifyEq_x3f_injection___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_unifyEq_x3f_injection___closed__2;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_unifyEq_x3f_injection(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
 _start:
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_64; lean_object* x_65; uint8_t x_66; lean_object* x_67; lean_object* x_68; lean_object* x_79; lean_object* x_135; 
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_64; uint8_t x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_79; lean_object* x_135; 
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
@@ -1406,7 +1425,7 @@ lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_10);
 lean_inc_ref(x_9);
-x_18 = l_Lean_MVarId_assert(x_1, x_17, x_15, x_14, x_9, x_10, x_11, x_12, x_16);
+x_18 = l_Lean_MVarId_assert(x_1, x_17, x_14, x_16, x_9, x_10, x_11, x_12, x_15);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; 
@@ -1529,9 +1548,9 @@ x_48 = l_Lean_Expr_fvar___override(x_2);
 x_49 = lean_ctor_get(x_5, 2);
 lean_inc(x_49);
 lean_dec_ref(x_5);
-x_14 = x_48;
-x_15 = x_46;
-x_16 = x_47;
+x_14 = x_46;
+x_15 = x_47;
+x_16 = x_48;
 x_17 = x_49;
 goto block_41;
 }
@@ -1595,15 +1614,15 @@ x_71 = l_Lean_Meta_unifyEq_x3f_injection___closed__1;
 x_72 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_72, 0, x_70);
 lean_ctor_set(x_72, 1, x_71);
-x_73 = l_Lean_MessageData_ofConstName(x_67, x_66);
+x_73 = l_Lean_MessageData_ofConstName(x_66, x_65);
 x_74 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_74, 0, x_72);
 lean_ctor_set(x_74, 1, x_73);
-x_75 = l_Lean_Meta_unifyEq_x3f_substEq___closed__3;
+x_75 = l_Lean_Meta_unifyEq_x3f_injection___closed__3;
 x_76 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_76, 0, x_74);
 lean_ctor_set(x_76, 1, x_75);
-x_77 = l_Lean_throwError___at___Lean_Meta_unifyEq_x3f_substEq_spec__1___redArg(x_76, x_9, x_10, x_11, x_12, x_65);
+x_77 = l_Lean_throwError___at___Lean_Meta_unifyEq_x3f_substEq_spec__1___redArg(x_76, x_9, x_10, x_11, x_12, x_67);
 lean_dec(x_12);
 lean_dec_ref(x_11);
 lean_dec(x_10);
@@ -1711,9 +1730,9 @@ lean_dec_ref(x_5);
 x_96 = lean_unbox(x_80);
 lean_dec(x_80);
 x_64 = x_94;
-x_65 = x_88;
-x_66 = x_96;
-x_67 = x_93;
+x_65 = x_96;
+x_66 = x_93;
+x_67 = x_88;
 x_68 = x_95;
 goto block_78;
 }
@@ -2206,7 +2225,7 @@ else
 lean_object* x_8; lean_object* x_9; uint64_t x_10; size_t x_11; size_t x_12; lean_object* x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
 x_8 = lean_array_fget(x_2, x_4);
 x_9 = lean_array_fget(x_3, x_4);
-x_10 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872_(x_8);
+x_10 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1865_(x_8);
 x_11 = lean_uint64_to_usize(x_10);
 x_12 = 5;
 x_13 = lean_unsigned_to_nat(1u);
@@ -2528,7 +2547,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_MVarId_assi
 _start:
 {
 uint64_t x_4; size_t x_5; size_t x_6; lean_object* x_7; 
-x_4 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872_(x_2);
+x_4 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1865_(x_2);
 x_5 = lean_uint64_to_usize(x_4);
 x_6 = 1;
 x_7 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__1___redArg(x_1, x_5, x_6, x_2, x_3);
@@ -3951,7 +3970,7 @@ return x_278;
 block_30:
 {
 lean_object* x_18; 
-x_18 = l_Lean_MVarId_tryClear(x_16, x_17, x_14, x_15, x_13, x_12, x_11);
+x_18 = l_Lean_MVarId_tryClear(x_15, x_17, x_14, x_16, x_12, x_11, x_13);
 if (lean_obj_tag(x_18) == 0)
 {
 uint8_t x_19; 
@@ -4099,12 +4118,12 @@ lean_dec(x_56);
 x_74 = lean_ctor_get(x_3, 1);
 lean_inc(x_74);
 lean_dec_ref(x_3);
-x_11 = x_72;
-x_12 = x_37;
-x_13 = x_36;
+x_11 = x_37;
+x_12 = x_36;
+x_13 = x_72;
 x_14 = x_34;
-x_15 = x_35;
-x_16 = x_73;
+x_15 = x_73;
+x_16 = x_35;
 x_17 = x_74;
 goto block_30;
 }
@@ -4144,12 +4163,12 @@ lean_dec(x_75);
 x_94 = lean_ctor_get(x_3, 1);
 lean_inc(x_94);
 lean_dec_ref(x_3);
-x_11 = x_92;
-x_12 = x_37;
-x_13 = x_36;
+x_11 = x_37;
+x_12 = x_36;
+x_13 = x_92;
 x_14 = x_34;
-x_15 = x_35;
-x_16 = x_93;
+x_15 = x_93;
+x_16 = x_35;
 x_17 = x_94;
 goto block_30;
 }
@@ -4311,7 +4330,7 @@ static lean_object* _init_l_Lean_Meta_unifyEq_x3f___lam__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("equality expected", 17, 17);
+x_1 = lean_mk_string_unchecked("Expected an equality, but found", 31, 31);
 return x_1;
 }
 }
@@ -4346,22 +4365,22 @@ goto block_116;
 block_21:
 {
 uint8_t x_19; lean_object* x_20; 
-x_19 = lean_nat_dec_lt(x_17, x_18);
+x_19 = lean_nat_dec_lt(x_16, x_18);
 lean_dec(x_18);
-lean_dec(x_17);
-x_20 = l_Lean_Meta_unifyEq_x3f_substEq(x_2, x_1, x_3, x_4, x_12, x_16, x_15, x_19, x_6, x_7, x_8, x_9, x_14);
+lean_dec(x_16);
+x_20 = l_Lean_Meta_unifyEq_x3f_substEq(x_2, x_1, x_3, x_4, x_12, x_15, x_17, x_19, x_6, x_7, x_8, x_9, x_14);
 return x_20;
 }
 block_28:
 {
 lean_object* x_27; 
-x_27 = lean_ctor_get(x_25, 0);
+x_27 = lean_ctor_get(x_24, 0);
 lean_inc(x_27);
-lean_dec_ref(x_25);
+lean_dec_ref(x_24);
 x_14 = x_22;
 x_15 = x_23;
-x_16 = x_24;
-x_17 = x_26;
+x_16 = x_26;
+x_17 = x_25;
 x_18 = x_27;
 goto block_21;
 }
@@ -4459,9 +4478,9 @@ x_57 = lean_ctor_get(x_52, 0);
 lean_inc(x_57);
 lean_dec(x_52);
 x_22 = x_56;
-x_23 = x_45;
-x_24 = x_41;
-x_25 = x_55;
+x_23 = x_41;
+x_24 = x_55;
+x_25 = x_45;
 x_26 = x_57;
 goto block_28;
 }
@@ -4958,6 +4977,10 @@ l_Lean_Meta_unifyEq_x3f_injection___closed__0 = _init_l_Lean_Meta_unifyEq_x3f_in
 lean_mark_persistent(l_Lean_Meta_unifyEq_x3f_injection___closed__0);
 l_Lean_Meta_unifyEq_x3f_injection___closed__1 = _init_l_Lean_Meta_unifyEq_x3f_injection___closed__1();
 lean_mark_persistent(l_Lean_Meta_unifyEq_x3f_injection___closed__1);
+l_Lean_Meta_unifyEq_x3f_injection___closed__2 = _init_l_Lean_Meta_unifyEq_x3f_injection___closed__2();
+lean_mark_persistent(l_Lean_Meta_unifyEq_x3f_injection___closed__2);
+l_Lean_Meta_unifyEq_x3f_injection___closed__3 = _init_l_Lean_Meta_unifyEq_x3f_injection___closed__3();
+lean_mark_persistent(l_Lean_Meta_unifyEq_x3f_injection___closed__3);
 l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__1___redArg___closed__0 = _init_l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__1___redArg___closed__0();
 l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__1___redArg___closed__1 = _init_l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__1___redArg___closed__1();
 l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__1___redArg___closed__2 = _init_l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__1___redArg___closed__2();

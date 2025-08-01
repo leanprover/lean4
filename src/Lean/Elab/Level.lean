@@ -56,7 +56,9 @@ register_builtin_option maxUniverseOffset : Nat := {
 private def checkUniverseOffset [Monad m] [MonadError m] [MonadOptions m] (n : Nat) : m Unit := do
   let max := maxUniverseOffset.get (← getOptions)
   unless n <= max do
-    throwError "maximum universe level offset threshold ({max}) has been reached, you can increase the limit using option `set_option maxUniverseOffset <limit>`, but you are probably misusing universe levels since offsets are usually small natural numbers"
+    throwError m!"Universe level offset `{n}` exceeds maximum offset `{max}`"
+      ++ .note m!"This code is probably misusing universe levels, since they are usually small natural numbers. \
+                  If you are confident this is not the case, you can increase the limit using `set_option maxUniverseOffset <limit>`"
 
 partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
   let kind := stx.getKind

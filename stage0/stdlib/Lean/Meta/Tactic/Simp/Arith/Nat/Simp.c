@@ -43,6 +43,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstrPos_x3f(lean_object
 lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkNatAdd(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_135_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___closed__5;
 lean_object* l_Nat_Linear_PolyCnstr_norm(lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstrPos_x3f___lam__0___closed__0;
@@ -112,7 +113,6 @@ lean_object* l_Lean_mkNatEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_Arith_Nat_LinearExpr_toExpr(lean_object*);
 lean_object* l_Lean_Meta_Simp_Arith_Nat_LinearExpr_toArith___redArg(lean_object*, lean_object*, lean_object*);
-uint8_t l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_141_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___closed__25;
 static lean_object* _init_l_Lean_Meta_Simp_Arith_Nat_simpCnstrPos_x3f___lam__0___closed__0() {
 _start:
@@ -1800,7 +1800,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12;
 x_9 = l_Nat_Linear_Expr_toPoly(x_1);
 x_10 = l_Nat_Linear_Poly_norm(x_9);
 x_11 = l_Nat_Linear_Poly_toExpr(x_10);
-x_12 = l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_141_(x_11, x_1);
+x_12 = l_Nat_Linear_beqExpr____x40_Init_Data_Nat_Linear___hyg_135_(x_11, x_1);
 if (x_12 == 0)
 {
 lean_object* x_13; 

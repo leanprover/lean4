@@ -307,7 +307,7 @@ extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname)
     /* LibUV does not map ECHILD as of version 1.48.0 */
     case UV_ENXIO: case UV_EHOSTUNREACH: case UV_ENETUNREACH:
     case UV_ECONNREFUSED:
-#if UV_VERSION_HEX >= 0x014500
+#if UV_VERSION_HEX >= 0x012D00
     case UV_ENODATA:
 #endif
     case UV_ESRCH:

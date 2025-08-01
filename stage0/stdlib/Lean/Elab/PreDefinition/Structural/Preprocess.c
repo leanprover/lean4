@@ -47,6 +47,7 @@ LEAN_EXPORT uint8_t l_Array_contains___at_____private_Lean_Elab_PreDefinition_St
 LEAN_EXPORT uint8_t l___private_Lean_Elab_PreDefinition_Structural_Preprocess_0__Lean_Elab_Structural_shouldBetaReduce___lam__0(uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Core_withIncRecDepth___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Elab_Structural_preprocess_spec__1_spec__1_spec__6_spec__6___redArg___closed__5;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Array_contains___at_____private_Lean_Elab_PreDefinition_Structural_Preprocess_0__Lean_Elab_Structural_shouldBetaReduce_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(uint8_t, uint8_t);
 static lean_object* l_Lean_Core_transform___at___Lean_Elab_Structural_preprocess_spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Elab_Structural_preprocess_spec__1_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at___Lean_Elab_Structural_preprocess_spec__0___closed__0;
@@ -83,7 +84,6 @@ lean_object* l_Lean_Core_instInhabitedCoreM___lam__0___boxed(lean_object*, lean_
 uint8_t lean_expr_equal(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Elab_Structural_preprocess_spec__1_spec__1_spec__9___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Elab_Structural_preprocess_spec__1_spec__1_spec__9_spec__9_spec__9___redArg(lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(uint8_t, uint8_t);
 static lean_object* l_Lean_Elab_Structural_preprocess___lam__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Elab_Structural_preprocess_spec__1_spec__1___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_preprocess___lam__1___closed__0;
@@ -2591,7 +2591,7 @@ return x_34;
 else
 {
 uint8_t x_35; 
-x_35 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_30, x_30);
+x_35 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_30, x_30);
 if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; 
@@ -2624,7 +2624,7 @@ return x_48;
 else
 {
 uint8_t x_49; 
-x_49 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_44, x_44);
+x_49 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_44, x_44);
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; 

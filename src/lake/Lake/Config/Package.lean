@@ -566,7 +566,7 @@ namespace Package
 @[inline] def leanOptions (self : Package) : LeanOptions :=
   .ofArray self.config.leanOptions
 
-/-- The package's `moreLeanArgs` configuration appended to its `leanOptions` configuration. -/
+/-- The package's `moreLeanArgs` configuration. -/
 @[inline] def moreLeanArgs (self : Package) : Array String :=
   self.config.moreLeanArgs
 

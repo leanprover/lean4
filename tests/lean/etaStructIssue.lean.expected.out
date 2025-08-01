@@ -1,4 +1,4 @@
-etaStructIssue.lean:20:2-20:7: error: type mismatch
+etaStructIssue.lean:20:2-20:7: error: Type mismatch
   rfl
 has type
   ?m = ?m

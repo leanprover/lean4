@@ -136,7 +136,7 @@ mutual
       if ctx.inScope fvarId then
         /- We only collect the variables in the scope of the function application being specialized. -/
         if let some funDecl ← findFunDecl? fvarId then
-          if ctx.isUnderBinder || ctx.abstract funDecl.fvarId then
+          if ctx.abstract funDecl.fvarId then
             modify fun s => { s with params := s.params.push <| { funDecl with borrow := false } }
           else
             collectFunDecl funDecl

@@ -287,7 +287,6 @@ theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n�
 theorem fib_triple_cases : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   apply fib_impl.fun_cases n _ ?case1 ?case2
   case case1 => rintro rfl; mintro -; simp only [fib_impl, ↓reduceIte]; mspec
-  case case2 =>
   intro h
   mintro -
   simp only [fib_impl, h, reduceIte]
@@ -308,7 +307,6 @@ theorem fib_impl_vcs
     : ⊢ₛ wp⟦fib_impl n⟧ (Q n) := by
   apply fib_impl.fun_cases n _ ?case1 ?case2
   case case1 => intro h; simp only [fib_impl, h, ↓reduceIte]; mstart; mspec
-  case case2 =>
   intro hn
   simp only [fib_impl, hn, ↓reduceIte]
   mstart

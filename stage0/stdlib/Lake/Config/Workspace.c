@@ -138,6 +138,7 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_config(lean_object*);
 lean_object* l_Lean_LeanOptions_appendArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_instCoeWorkspace;
 LEAN_EXPORT lean_object* l_Lake_Workspace_findFacetConfig_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Workspace_leanArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lake_Workspace_findTargetDecl_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lake_Workspace_isBuildableModule_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_unsafeGet___boxed(lean_object*);
@@ -176,6 +177,7 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_sharedLibPath(lean_object*);
 static lean_object* l_Lake_Workspace_findModule_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Workspace_clean___boxed(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Workspace_leanArgs___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lake_Workspace_findScript_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -407,6 +409,27 @@ x_6 = l_System_FilePath_normalize(x_5);
 x_7 = l_Lake_joinRelative(x_4, x_6);
 lean_dec_ref(x_6);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Workspace_leanArgs(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_ctor_get(x_2, 3);
+x_4 = lean_ctor_get(x_3, 1);
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc_ref(x_5);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Workspace_leanArgs___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_Workspace_leanArgs(x_1);
+lean_dec_ref(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Workspace_leanOptions(lean_object* x_1) {

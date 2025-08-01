@@ -6,9 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.PrettyPrinter
 public import Lean.Meta.Basic
-public import Lean.Meta.Instances
+import Lean.Meta.Instances
+import Lean.PrettyPrinter
 
 public section
 

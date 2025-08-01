@@ -135,6 +135,7 @@ Creates a round-trippable string name component if possible, otherwise returns `
 Names that are valid identifiers are not escaped, and otherwise, if they do not contain `»`, they are escaped.
 - If `force` is `true`, then even valid identifiers are escaped.
 -/
+@[inline]
 def escapePart (s : String) (force : Bool := false) : Option String :=
   if s.length > 0 && !force && isIdFirst (s.get 0) && (s.toSubstring.drop 1).all isIdRest then some s
   else if s.any isIdEndEscape then none
@@ -143,8 +144,9 @@ def escapePart (s : String) (force : Bool := false) : Option String :=
 variable (sep : String) (escape : Bool) in
 /--
 Uses the separator `sep` (usually `"."`) to combine the components of the `Name` into a string.
-See the documentation for `Name.toString` for an explanation of `escape` and `isToken`.
+See the documentation for `Name.toStringWithToken` for an explanation of `escape` and `isToken`.
 -/
+@[specialize isToken] -- explicit annotation because isToken is overriden in recursive call
 def toStringWithSep (n : Name) (isToken : String → Bool := fun _ => false) : String :=
   match n with
   | anonymous       => "[anonymous]"
@@ -170,7 +172,8 @@ Converts a name to a string.
   escaping is necessary to avoid parser tokens.
   The insertion algorithm works so long as parser tokens do not themselves contain `«` or `»`.
 -/
-protected def toString (n : Name) (escape := true) (isToken : String → Bool := fun _ => false) : String :=
+@[specialize]
+def toStringWithToken (n : Name) (escape := true) (isToken : String → Bool) : String :=
   -- never escape "prettified" inaccessible names or macro scopes or pseudo-syntax introduced by the delaborator
   toStringWithSep "." (escape && !n.isInaccessibleUserName && !n.hasMacroScopes && !maybePseudoSyntax) n isToken
 where
@@ -183,6 +186,17 @@ where
       "#".isPrefixOf s || "?".isPrefixOf s
     else
       false
+
+/--
+Converts a name to a string.
+
+- If `escape` is `true`, then escapes name components using `«` and `»` to ensure that
+  those names that can appear in source files round trip.
+  Names with number components, anonymous names, and names containing `»` might not round trip.
+  Furthermore, "pseudo-syntax" produced by the delaborator, such as `_`, `#0` or `?u`, is not escaped.
+-/
+protected def toString (n : Name) (escape := true) : String :=
+  Name.toStringWithToken n escape (fun _ => false)
 
 instance : ToString Name where
   toString n := n.toString

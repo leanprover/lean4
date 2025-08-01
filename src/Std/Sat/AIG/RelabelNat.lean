@@ -113,7 +113,7 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
   induction hinv with
   | empty => omega
   | newAtom ih1 ih2 ih3 ih4 ih5 =>
-    next idx' _ a' _ =>
+    rename_i idx' _ a' _
     replace hidx : idx ≤ idx' := by omega
     rw [HashMap.getElem?_insert]
     match heq2 : a' == a with
@@ -129,7 +129,7 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
       exact Option.isSome_iff_exists.mp rfl
   | oldAtom ih1 ih2 ih3 ih4 ih5 =>
     simp_all only [true_implies]
-    next idx' _ _ _ =>
+    rename_i idx' _ _ _
     replace hidx : idx ≤ idx' := by omega
     cases Nat.eq_or_lt_of_le hidx with
     | inl hidxeq =>
@@ -139,13 +139,13 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
       assumption
     | inr hlt => apply ih5 <;> assumption
   | false ih1 ih2 ih3 ih4 =>
-    next idx' _ =>
+    rename_i idx' _
     replace hidx : idx ≤ idx' := by omega
     cases Nat.eq_or_lt_of_le hidx with
     | inl hidxeq => simp [hidxeq, ih3] at heq
     | inr hlt => apply ih4 <;> assumption
   | gate ih1 ih2 ih3 ih4 =>
-    next idx' _ _ _ =>
+    rename_i idx' _ _ _
     replace hidx : idx ≤ idx' := by omega
     cases Nat.eq_or_lt_of_le hidx with
     | inl hidxeq => simp [hidxeq, ih3] at heq
@@ -335,18 +335,18 @@ theorem relabelNat_unsat_iff_of_NonEmpty [Nonempty α] {aig : AIG α} {hidx1} {h
   rw [relabel_unsat_iff]
   intro x y hx hy heq
   split at heq
-  · next hcase1 =>
+  next hcase1 =>
     split at heq
-    · next hcase2 =>
+    next hcase2 =>
       apply RelabelNat.State.ofAIG_find_unique
       · assumption
       · rw [heq]
         assumption
-    · next hcase2 =>
+    next hcase2 =>
       exfalso
       rcases RelabelNat.State.ofAIG_find_some y hy with ⟨n, hn⟩
       simp [hcase2] at hn
-  · next hcase =>
+  next hcase =>
     exfalso
     rcases RelabelNat.State.ofAIG_find_some x hx with ⟨n, hn⟩
     simp [hcase] at hn

@@ -25,14 +25,13 @@ def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
 /--
 Build the dependencies of a Lean file and print the computed module's setup as JSON.
 If `header?` is not not `none`, it will be used to determine imports instead of the
-file's own header (for modules external to the workspace).
+file's own header.
 
 Requires a configuration file to succeed. If no configuration file exists, it
 will exit silently with `noConfigFileCode` (i.e, 2).
 
-The `setup-file` command is used internally by the Lean 4 server.
+The `setup-file` command is used internally by the Lean server.
 -/
--- TODO: Use `header?` for modules within the workspace as well.
 def setupFile
   (loadConfig : LoadConfig) (leanFile : FilePath)
   (header? : Option ModuleHeader := none) (buildConfig : BuildConfig := {})
@@ -54,16 +53,9 @@ def setupFile
   else
     let some ws ← loadWorkspace loadConfig |>.toBaseIO buildConfig.outLv buildConfig.ansiMode
       | error "failed to load workspace"
-    if let some mod := ws.findModuleBySrc? path then
-      let setup ← ws.runBuild (cfg := buildConfig) do
-        withRegisterJob s!"{mod.name}:setup" do mod.setup.fetch
-      IO.println (toJson setup).compress
-    else
-      let header ← header?.getDM do
-        Lean.parseImports' (← IO.FS.readFile path) leanFile.toString
-      let setup ← ws.runBuild (cfg := buildConfig) do
-        setupExternalModule leanFile.toString header ws.serverOptions
-      IO.println (toJson setup).compress
+    let setup ← ws.runBuild (cfg := buildConfig) do
+      setupServerModule leanFile.toString path header?
+    IO.println (toJson setup).compress
 
 /--
 Start the Lean LSP for the `Workspace` loaded from `config`

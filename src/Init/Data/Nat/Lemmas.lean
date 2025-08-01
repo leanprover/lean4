@@ -1145,8 +1145,7 @@ protected theorem pow_lt_pow_succ (h : 1 < a) : a ^ n < a ^ (n + 1) := by
 
 protected theorem pow_lt_pow_of_lt {a n m : Nat} (h : 1 < a) (w : n < m) : a ^ n < a ^ m := by
   have := Nat.exists_eq_add_of_lt w
-  cases this
-  case intro k p =>
+  cases this with | intro k p
   rw [Nat.add_right_comm] at p
   subst p
   rw [Nat.pow_add, ← Nat.mul_one (a^n)]
@@ -1561,7 +1560,7 @@ theorem mul_add_mod_of_lt {a b c : Nat} (h : c < b) : (a * b + c) % b = c := by
 @[simp] theorem mod_div_self (m n : Nat) : m % n / n = 0 := by
   cases n
   · exact (m % 0).div_zero
-  · case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
+  case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
 
 theorem mod_eq_iff {a b c : Nat} :
     a % b = c ↔ (b = 0 ∧ a = c) ∨ (c < b ∧ Exists fun k => a = b * k + c) :=

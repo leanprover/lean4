@@ -72,9 +72,9 @@ end
 #guard_msgs in #check a.b
 
 /--
-error: cannot define an inductive type and a constructor with the same name 'Bar.foo'
+error: Cannot define an inductive type and a constructor with the same name `Bar.foo`
 ---
-error: cannot define an inductive type and a constructor with the same name 'Bar.foo'
+error: Cannot define an inductive type and a constructor with the same name `Bar.foo`
 -/
 #guard_msgs in
 mutual
@@ -92,9 +92,9 @@ end
 #guard_msgs in #check Bar.foo.mk
 
 /--
-error: cannot define multiple inductive types with the same name 'Private'
+error: Cannot define multiple inductive types with the same name `Private`
 ---
-error: cannot define multiple inductive types with the same name 'Private'
+error: Cannot define multiple inductive types with the same name `Private`
 -/
 #guard_msgs in
 mutual
@@ -110,9 +110,9 @@ end
 #guard_msgs in #check Private.mk
 
 /--
-error: cannot define an inductive type and a constructor with the same name 'PrivateConstructor.priv'
+error: Cannot define an inductive type and a constructor with the same name `PrivateConstructor.priv`
 ---
-error: cannot define an inductive type and a constructor with the same name 'PrivateConstructor.priv'
+error: Cannot define an inductive type and a constructor with the same name `PrivateConstructor.priv`
 -/
 #guard_msgs in
 mutual
@@ -128,9 +128,9 @@ end
 #guard_msgs in #check PrivateConstructor.priv
 
 /--
-error: cannot define multiple constructors with the same name 'Baz.foo.mk'
+error: Cannot define multiple constructors with the same name `Baz.foo.mk`
 ---
-error: cannot define multiple constructors with the same name 'Baz.foo.mk'
+error: Cannot define multiple constructors with the same name `Baz.foo.mk`
 -/
 #guard_msgs in
 mutual
@@ -148,9 +148,9 @@ end
 #guard_msgs in #check Baz.foo.mk
 
 /--
-error: cannot define multiple inductive types with the same name 'Foo'
+error: Cannot define multiple inductive types with the same name `Foo`
 ---
-error: cannot define multiple inductive types with the same name 'Foo'
+error: Cannot define multiple inductive types with the same name `Foo`
 -/
 #guard_msgs in
 mutual

@@ -1,10 +1,10 @@
-shadow.lean:6:0-6:1: error: type mismatch
+shadow.lean:6:0-6:1: error: Type mismatch
   h
 has type
   x✝ = x✝
 but is expected to have type
   x = x
-shadow.lean:10:0-10:1: error: type mismatch
+shadow.lean:10:0-10:1: error: Type mismatch
   h
 has type
   x = x

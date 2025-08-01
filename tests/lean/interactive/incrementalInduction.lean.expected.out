@@ -45,6 +45,6 @@ c 2.5
    "range":
    {"start": {"line": 5, "character": 2}, "end": {"line": 5, "character": 7}},
    "message":
-   "dependent elimination failed, failed to solve equation\n  n = f n",
+   "Dependent elimination failed: Failed to solve equation\n  n = f n",
    "fullRange":
    {"start": {"line": 5, "character": 2}, "end": {"line": 5, "character": 7}}}]}

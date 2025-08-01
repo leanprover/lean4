@@ -898,6 +898,10 @@ def whnfUntil (e : Expr) (declName : Name) : MetaM (Option Expr) := do
   else
     return none
 
+/-- Applies `whnfCore` while unfolding type annotations (`outParam`/`optParam`/etc.). -/
+partial def whnfCoreUnfoldingAnnotations (e : Expr) : MetaM Expr :=
+  whnfHeadPred e (fun e => return e.isTypeAnnotation)
+
 /-- Try to reduce matcher/recursor/quot applications. We say they are all "morally" recursor applications. -/
 def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
   if !e.isApp then

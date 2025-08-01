@@ -15,8 +15,7 @@ def makePair?: (n m: (sz: Nat) × FinInt sz) → Option Pair
   | ⟨sz, lhs⟩, ⟨sz', rhs⟩ =>
       if EQ: true /\ sz = sz' then
             have rhs' : FinInt sz := by {
-                cases EQ;
-                case intro left right =>
+                cases EQ with | intro left right
                 simp [right];
                 exact rhs;
             };

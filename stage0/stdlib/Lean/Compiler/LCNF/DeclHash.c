@@ -21,7 +21,6 @@ uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_instHashableCode___lam__0(lean_object*);
 LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_hashDeclValue____x40_Lean_Compiler_LCNF_DeclHash___hyg_274_(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-uint64_t l_Lean_hashExternAttrData____x40_Lean_Compiler_ExternAttr___hyg_413_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashDeclValue____x40_Lean_Compiler_LCNF_DeclHash___hyg_274____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashParams___boxed(lean_object*);
 LEAN_EXPORT uint64_t l_Array_foldlMUnsafe_fold___at___Lean_Compiler_LCNF_hashAlts_spec__0(lean_object*, size_t, size_t, uint64_t);
@@ -35,18 +34,19 @@ uint64_t l_Lean_Compiler_hashInlineAttributeKind____x40_Lean_Compiler_InlineAttr
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashDecl____x40_Lean_Compiler_LCNF_DeclHash___hyg_320____boxed(lean_object*);
 LEAN_EXPORT uint64_t l_Lean_Compiler_LCNF_hashCode(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___Lean_Compiler_LCNF_hashDecl____x40_Lean_Compiler_LCNF_DeclHash___hyg_320__spec__0___boxed(lean_object*, lean_object*);
-uint64_t l_Lean_Compiler_LCNF_hashArg____x40_Lean_Compiler_LCNF_Basic___hyg_893_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Compiler_LCNF_hashAlts_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instHashableDeclValue;
-uint64_t l_Lean_Compiler_LCNF_hashLetValue____x40_Lean_Compiler_LCNF_Basic___hyg_1449_(lean_object*);
 uint64_t l_Lean_Expr_hash(lean_object*);
+uint64_t l_Lean_Compiler_LCNF_hashLetValue____x40_Lean_Compiler_LCNF_Basic___hyg_1429_(lean_object*);
+uint64_t l_Lean_hashFVarId____x40_Lean_Expr___hyg_1557_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashCode___boxed(lean_object*);
 LEAN_EXPORT uint64_t l_List_foldl___at___Lean_Compiler_LCNF_hashDecl____x40_Lean_Compiler_LCNF_DeclHash___hyg_320__spec__0(uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instHashableCode;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+uint64_t l_Lean_Compiler_LCNF_hashArg____x40_Lean_Compiler_LCNF_Basic___hyg_879_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_hashAlt___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instHashableParam;
-uint64_t l_Lean_hashFVarId____x40_Lean_Expr___hyg_1562_(lean_object*);
+uint64_t l_Lean_hashExternAttrData____x40_Lean_Compiler_ExternAttr___hyg_406_(lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
 LEAN_EXPORT uint64_t l_Array_foldlMUnsafe_fold___at___Lean_Compiler_LCNF_hashCode_spec__0(lean_object*, size_t, size_t, uint64_t);
 LEAN_EXPORT uint64_t l_Array_foldlMUnsafe_fold___at___Lean_Compiler_LCNF_hashParams_spec__0(lean_object*, size_t, size_t, uint64_t);
@@ -64,7 +64,7 @@ _start:
 lean_object* x_2; lean_object* x_3; uint64_t x_4; uint64_t x_5; uint64_t x_6; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 2);
-x_4 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1562_(x_2);
+x_4 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1557_(x_2);
 x_5 = l_Lean_Expr_hash(x_3);
 x_6 = lean_uint64_mix_hash(x_4, x_5);
 return x_6;
@@ -102,7 +102,7 @@ lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 2);
 lean_inc_ref(x_8);
 lean_dec_ref(x_6);
-x_9 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1562_(x_7);
+x_9 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1557_(x_7);
 lean_dec(x_7);
 x_10 = l_Lean_Expr_hash(x_8);
 lean_dec_ref(x_8);
@@ -248,7 +248,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; uint64_t x_7; uint64_t x_8; size_t x_9; size_t x_10; 
 x_6 = lean_array_uget(x_1, x_2);
-x_7 = l_Lean_Compiler_LCNF_hashArg____x40_Lean_Compiler_LCNF_Basic___hyg_893_(x_6);
+x_7 = l_Lean_Compiler_LCNF_hashArg____x40_Lean_Compiler_LCNF_Basic___hyg_879_(x_6);
 lean_dec(x_6);
 x_8 = lean_uint64_mix_hash(x_4, x_7);
 x_9 = 1;
@@ -276,10 +276,10 @@ x_28 = lean_ctor_get(x_1, 1);
 x_29 = lean_ctor_get(x_27, 0);
 x_30 = lean_ctor_get(x_27, 2);
 x_31 = lean_ctor_get(x_27, 3);
-x_32 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1562_(x_29);
+x_32 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1557_(x_29);
 x_33 = l_Lean_Expr_hash(x_30);
 x_34 = lean_uint64_mix_hash(x_32, x_33);
-x_35 = l_Lean_Compiler_LCNF_hashLetValue____x40_Lean_Compiler_LCNF_Basic___hyg_1449_(x_31);
+x_35 = l_Lean_Compiler_LCNF_hashLetValue____x40_Lean_Compiler_LCNF_Basic___hyg_1429_(x_31);
 x_36 = l_Lean_Compiler_LCNF_hashCode(x_28);
 x_37 = lean_uint64_mix_hash(x_35, x_36);
 x_38 = lean_uint64_mix_hash(x_34, x_37);
@@ -290,7 +290,7 @@ case 3:
 lean_object* x_39; lean_object* x_40; uint64_t x_41; uint64_t x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; 
 x_39 = lean_ctor_get(x_1, 0);
 x_40 = lean_ctor_get(x_1, 1);
-x_41 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1562_(x_39);
+x_41 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1557_(x_39);
 x_42 = 7;
 x_43 = lean_unsigned_to_nat(0u);
 x_44 = lean_array_get_size(x_40);
@@ -332,7 +332,7 @@ x_53 = lean_ctor_get(x_1, 0);
 x_54 = lean_ctor_get(x_53, 1);
 x_55 = lean_ctor_get(x_53, 2);
 x_56 = lean_ctor_get(x_53, 3);
-x_57 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1562_(x_55);
+x_57 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1557_(x_55);
 x_58 = l_Lean_Expr_hash(x_54);
 x_59 = lean_uint64_mix_hash(x_57, x_58);
 x_60 = l_Lean_Compiler_LCNF_hashAlts(x_56);
@@ -343,7 +343,7 @@ case 5:
 {
 lean_object* x_62; uint64_t x_63; 
 x_62 = lean_ctor_get(x_1, 0);
-x_63 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1562_(x_62);
+x_63 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1557_(x_62);
 return x_63;
 }
 case 6:
@@ -370,7 +370,7 @@ x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
 x_6 = lean_ctor_get(x_2, 3);
 x_7 = lean_ctor_get(x_2, 4);
-x_8 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1562_(x_4);
+x_8 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1557_(x_4);
 x_9 = l_Lean_Expr_hash(x_6);
 x_10 = lean_uint64_mix_hash(x_8, x_9);
 x_11 = l_Lean_Compiler_LCNF_hashCode(x_7);
@@ -576,7 +576,7 @@ else
 lean_object* x_6; uint64_t x_7; uint64_t x_8; uint64_t x_9; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = 1;
-x_8 = l_Lean_hashExternAttrData____x40_Lean_Compiler_ExternAttr___hyg_413_(x_6);
+x_8 = l_Lean_hashExternAttrData____x40_Lean_Compiler_ExternAttr___hyg_406_(x_6);
 x_9 = lean_uint64_mix_hash(x_7, x_8);
 return x_9;
 }

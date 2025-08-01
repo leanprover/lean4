@@ -211,7 +211,6 @@ x_13 = lean_box(x_12);
 x_14 = l_instInhabitedOfMonad___redArg(x_11, x_13);
 x_15 = lean_panic_fn(x_14, x_1);
 x_16 = lean_unbox(x_15);
-lean_dec(x_15);
 return x_16;
 }
 }

@@ -216,7 +216,7 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
   rintro l l' l'' h
   induction l generalizing l' l''
   · simpa using h.symm
-  · next l t ih =>
+  next l t ih =>
     simp only [List.foldl_cons]
     apply ih
     exact hg.trans (Perm.append h hfg.symm)
@@ -241,7 +241,7 @@ theorem uset [BEq α] [Hashable α] {m : Array (AssocList α β)} {i : USize} {h
   refine ⟨fun j hj => ?_⟩
   simp only [Array.uset, Array.getElem_set, Array.size_set]
   split
-  · next hij => exact hij ▸ (hd (hm.hashes_to _ _))
+  next hij => exact hij ▸ (hd (hm.hashes_to _ _))
   · exact hm.hashes_to j (by simpa using hj)
 
 /-- This is the general theorem to show that modification operations preserve well-formedness of
@@ -493,7 +493,7 @@ theorem modify_eq_alter [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β)
   split
   · dsimp
     split
-    · next h =>
+    next h =>
       simp only [AssocList.contains_eq] at h
       simp only [AssocList.modify_eq_alter, AssocList.contains_eq,
         containsKey_of_perm AssocList.toList_alter, ← modifyKey_eq_alterKey,
@@ -523,7 +523,7 @@ theorem modify_eq_alter [BEq α] [Hashable α] [EquivBEq α] (m : Raw₀ α (fun
   split
   · dsimp
     split
-    · next h =>
+    next h =>
       simp only [AssocList.contains_eq] at h
       simp only [AssocList.Const.modify_eq_alter, AssocList.contains_eq,
         containsKey_of_perm AssocList.Const.toList_alter, ← Const.modifyKey_eq_alterKey,

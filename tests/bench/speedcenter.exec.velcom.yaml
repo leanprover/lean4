@@ -434,6 +434,18 @@
     <<: *time
     cmd: lean mut_rec_wf.lean
 - attributes:
+    description: mut_rec_wf
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean mut_rec_wf.lean
+- attributes:
+    description: big_match
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean big_match.lean
+- attributes:
     description: nat_repr
     tags: [fast, suite]
   run_config:

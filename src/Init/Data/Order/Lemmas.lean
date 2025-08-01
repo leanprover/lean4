@@ -86,17 +86,23 @@ public instance {α : Type u} [OrderData α] [LE α] [IsPartialOrder α] [Lawful
     Antisymm (α := α) (· ≤ ·) where
   antisymm := by simpa [LawfulOrderLE.le_iff] using IsPartialOrder.le_antisymm
 
-public scoped instance Classical.Order.instLE {α : Type u} [OrderData α] :
+end LE
+end Std
+
+namespace Classical.Order
+open Std
+
+public scoped instance instLE {α : Type u} [OrderData α] :
     LE α where
   le a b := OrderData.IsLE a b
 
-open Classical.Order in
-public instance Classical.Order.instLawfulOrderLE {α : Type u} [OrderData α] :
+public instance instLawfulOrderLE {α : Type u} [OrderData α] :
     LawfulOrderLE α where
   le_iff _ _ := Iff.rfl
 
-end LE
+end Classical.Order
 
+namespace Std
 section LT
 
 public theorem lt_iff_le_and_not_ge {α : Type u} [LT α] [LE α] [OrderData α] [LawfulOrderLE α]
@@ -179,7 +185,22 @@ public theorem lt_of_le_of_ne {α : Type u} [LE α] [LT α] [OrderData α]
   exact hne.elim <| Std.Antisymm.antisymm a b hle hge
 
 end LT
+end Std
 
+namespace Classical.Order
+open Std
+
+public scoped instance instLT {α : Type u} [OrderData α] :
+    LT α where
+  lt a b := OrderData.IsLE a b ∧ ¬ OrderData.IsLE b a
+
+public instance instLawfulOrderLT {α : Type u} [OrderData α] :
+    LawfulOrderLT α where
+  lt_iff _ _ := Iff.rfl
+
+end Classical.Order
+
+namespace Std
 section Min
 
 public theorem min_self {α : Type u} [Min α] [Std.IdempotentOp (min : α → α → α)] {a : α} :
@@ -228,11 +249,15 @@ public instance {α : Type u} [OrderData α] [Min α] [IsLinearOrder α] [Lawful
       · rw [le_min_iff]
         exact ⟨‹_›, le_refl b⟩
 
+/--
+If an `OrderData α` instance is compatible with a reflexive and antisymmetric `LE α` instance and
+a `Min α` instance satisfiying typical properties, then the `OrderData α` instance is a linear order.
+-/
 public theorem IsLinearOrder.of_refl_of_antisymm_of_lawfulOrderMin {α : Type u} [OrderData α]
     [LE α] [Min α] [LawfulOrderLE α] [Refl (α := α) (· ≤ ·)] [Antisymm (α := α) (· ≤ ·)]
     [LawfulOrderMin α] :
     IsLinearOrder α := by
-  apply IsLinearOrder.ofLE
+  apply IsLinearOrder.of_le
   · infer_instance
   · constructor
     intro a b c hab hbc
@@ -308,11 +333,15 @@ public instance {α : Type u} [OrderData α] [Max α] [IsLinearOrder α] [Lawful
         exact ⟨le_refl a, ‹_›⟩
       · apply left_le_max
 
+/--
+If an `OrderData α` instance is compatible with a reflexive and antisymmetric `LE α` instance and
+a `Max α` instance satisfiying typical properties, then the `OrderData α` instance is a linear order.
+-/
 public theorem IsLinearOrder.of_refl_of_antisymm_of_lawfulOrderMax {α : Type u} [OrderData α]
     [LE α] [Max α] [LawfulOrderLE α] [Refl (α := α) (· ≤ ·)] [Antisymm (α := α) (· ≤ ·)]
     [LawfulOrderMax α] :
     IsLinearOrder α := by
-  apply IsLinearOrder.ofLE
+  apply IsLinearOrder.of_le
   · infer_instance
   · constructor
     intro a b c hab hbc

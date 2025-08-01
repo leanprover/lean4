@@ -211,7 +211,7 @@ protected theorem lt_of_le_of_lt' [LT α]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ < l₃) : l₁ < l₃ :=
   letI : OrderData α := .ofLT α
-  haveI : IsLinearOrder α := IsLinearOrder.ofLT
+  haveI : IsLinearOrder α := IsLinearOrder.of_lt
   List.lt_of_le_of_lt h₁ h₂
 
 protected theorem le_trans [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrderLT α]
@@ -225,7 +225,7 @@ protected theorem le_trans' [LT α]
     [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
   letI : OrderData α := .ofLT α
-  haveI : IsLinearOrder α := IsLinearOrder.ofLT
+  haveI : IsLinearOrder α := IsLinearOrder.of_lt
   List.le_trans h₁ h₂
 
 /--
@@ -284,7 +284,7 @@ instance [LT α] [Std.Asymm (· < · : α → α → Prop)] :
 
 @[no_expose]
 instance instIsLinearOrder [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrderLT α] :
-    IsLinearOrder (List α) := IsLinearOrder.ofLE
+    IsLinearOrder (List α) := IsLinearOrder.of_le
 
 @[simp] protected theorem not_lt [LT α]
     {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl

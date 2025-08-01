@@ -10,7 +10,9 @@ public import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Split
-import Lean.Elab.Tactic.Simp
+public import Lean.Meta.Tactic.Simp.Types
+import Lean.Meta.Tactic.Simp.Main
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs
 
 /-!
 This module is responsible for proving the unfolding equation for functions defined

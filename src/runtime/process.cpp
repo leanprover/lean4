@@ -38,6 +38,7 @@ Author: Jared Roesch
 #include "runtime/option_ref.h"
 #include "runtime/pair_ref.h"
 #include "runtime/buffer.h"
+#include "runtime/uv/event_loop.h"
 
 namespace lean {
 
@@ -47,7 +48,7 @@ enum stdio {
     NUL,
 };
 
-#if defined(LEAN_WINDOWS)
+/*#if defined(LEAN_WINDOWS)
 
 static lean_external_class * g_win_handle_external_class = nullptr;
 
@@ -546,6 +547,111 @@ void initialize_process() {}
 void finalize_process() {}
 
 #endif
+*/
+
+static lean_external_class * g_uv_handle_external_class = nullptr;
+
+static void uv_handle_close_cb(uv_handle_t * h) {
+    free(h);
+}
+
+static void uv_handle_finalizer(void * h) {
+    uv_close(static_cast<uv_handle_t *>(h), &uv_handle_close_cb);
+}
+
+static void uv_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {
+}
+
+/* assumes that h has been allocated using malloc */
+lean_object * wrap_uv_handle(uv_handle_t * h) {
+    return lean_alloc_external(g_uv_handle_external_class, static_cast<void *>(h));
+}
+
+void initialize_process() {
+    g_uv_handle_external_class = lean_register_external_class(uv_handle_finalizer, uv_handle_foreach);
+    uv_disable_stdio_inheritance();
+}
+void finalize_process() {}
+
+static obj_res setup_stdio(uv_stdio_container_t * out, stdio cfg, int fd) {
+    switch (cfg) {
+    case stdio::INHERIT:
+        out->flags = UV_INHERIT_FD;
+        out->data.fd = fd;
+        return;
+    case stdio::PIPED: {
+        // TODO: how to get FILE*s from this?
+        // uv_pipe_t pipe;
+        // uv_pipe_init(global_ev.loop, &pipe);
+        // out->flags = UV_CREATE_PIPE;
+        // if (fd == STDIN_FILENO) {
+        //     out->flags |= UV_READABLE_PIPE;
+        // } else {
+        //     out->flags |= UV_WRITABLE_PIPE;
+        // }
+        return;
+    }
+    case stdio::NUL:
+        out->flags = UV_IGNORE;
+        return;
+    }
+    lean_unreachable();
+}
+
+static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
+                     stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
+                     bool inherit_env, bool do_setsid) {
+    const char * proc_name_str = proc_name.data();
+    if (strlen(proc_name_str) != proc_name.num_bytes()) {
+        return mk_embedded_nul_error(proc_name.raw());
+    }
+    char ** arg_array = (char **) malloc(sizeof(char *) * (args.size() + 2));
+    arg_array[0] = proc_name_str;
+    for (int i = 0; i < args.size(); i++) {
+        auto & arg = args[i];
+        const char * arg_str = arg.data();
+        if (strlen(arg_str) != arg.num_bytes()) {
+            free(arg_array);
+            return mk_embedded_nul_error(arg.raw());
+        }
+        arg_array[i + 1] = arg_str;
+    }
+    arg_array[args.size() + 1] = nullptr;
+
+    uv_stdio_container_t stdio[3];
+    setup_stdio(&stdio[0], stdin_mode, STDIN_FILENO);
+    setup_stdio(&stdio[1], stdout_mode, STDOUT_FILENO);
+    setup_stdio(&stdio[2], stderr_mode, STDERR_FILENO);
+
+    uv_process_options_t options = {0};
+    options.file = proc_name_str;
+    options.args = arg_array;
+    if (cwd) {
+        auto & cwd_val = cwd.get_val();
+        const char * cwd_str = cwd_val.data();
+        if (strlen(cwd_str) != cwd_val.num_bytes()) {
+            free(arg_array);
+            return mk_embedded_nul_error(cwd_val.raw());
+        }
+        options.cwd = cwd_str;
+    }
+    if (do_setsid) {
+        options.flags |= UV_PROCESS_DETACHED;
+    }
+    options.stdio_count = 3;
+    options.stdio = stdio;
+
+    uv_process_t * child = malloc(sizeof(uv_process_t));
+    int error = uv_spawn(global_ev.loop, child, &options);
+
+    free(arg_array);
+
+    if (error != 0) {
+        return lean_io_result_mk_error(decode_uv_error(error, nullptr));
+    }
+    object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, wrap_uv_handle(static_cast<uv_handle_t *>(child)));
+    return lean_io_result_mk_ok(r.steal());
+}
 
 extern "C" lean_object* lean_mk_io_error_other_error(uint32_t, lean_object*);
 

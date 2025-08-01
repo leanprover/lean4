@@ -32,6 +32,9 @@ section AxiomaticInstances
 public instance (r : α → α → Prop) [Asymm r] : Irrefl r where
   irrefl a h := Asymm.asymm a a h h
 
+public instance {r : α → α → Prop} [Total r] : Refl r where
+  refl a := by simpa using Total.total a a
+
 public instance Total.asymm_of_total_not {r : α → α → Prop} [i : Total (¬ r · ·)] : Asymm r where
   asymm a b h := by cases i.total a b <;> trivial
 

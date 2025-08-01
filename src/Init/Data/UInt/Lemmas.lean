@@ -216,9 +216,9 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
     le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
   instance instIsLinearOrder : IsLinearOrder $typeName := by
     apply IsLinearOrder.ofLE
-    case le_antisymm => apply le_antisymm'
-    case le_total => apply le_total'
-    case le_trans => apply le_trans'
+    case le_antisymm => constructor; apply le_antisymm'
+    case le_total => constructor; apply le_total'
+    case le_trans => constructor; apply le_trans'
 
 open $typeName renaming not_le → not_le'
 instance : LawfulOrderLT $typeName where

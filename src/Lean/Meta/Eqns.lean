@@ -9,10 +9,10 @@ prelude
 public import Lean.ReservedNameAction
 public import Lean.AddDecl
 public import Lean.Meta.Basic
-public import Lean.Meta.AppBuilder
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.DefEqAttrib
 public import Lean.Meta.LetToHave
+import Lean.Meta.AppBuilder
 
 public section
 

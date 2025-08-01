@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Meta.Reduce
 public import Lean.Meta.Tactic.Assert
+public import Lean.Meta.DiscrTree
+import Lean.Meta.AppBuilder
 
 public section
 

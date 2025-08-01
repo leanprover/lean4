@@ -45,7 +45,7 @@ public instance LawfulOrderLE.ofLE {α : Type u} [LE α] :
 If an `OrderData α` instance is compatible with an `LE α` instance that is reflexive and transitive,
 then the `OrderData α` instance is a preorder.
 -/
-public theorem IsPreorder.ofLE {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
+public theorem IsPreorder.of_le {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
     (le_refl : Std.Refl (α := α) (· ≤ ·) := by exact inferInstance)
     (le_trans : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) := by exact inferInstance) :
     IsPreorder α where
@@ -56,35 +56,35 @@ public theorem IsPreorder.ofLE {α : Type u} [OrderData α] [LE α] [LawfulOrder
 If an `OrderData α` instance is compatible with an `LE α` instance that is transitive and total,
 then the `OrderData α` instance is a linear preorder.
 -/
-public theorem IsLinearPreorder.ofLE {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
+public theorem IsLinearPreorder.of_le {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
     (le_trans : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) := by exact inferInstance)
     (le_total : Total (α := α) (· ≤ ·) := by exact inferInstance) :
     IsLinearPreorder α where
-  toIsPreorder := .ofLE
+  toIsPreorder := .of_le
   le_total := by simpa [LawfulOrderLE.le_iff] using le_total.total
 
 /--
 If an `OrderData α` instance is compatible with an `LE α` instance that is reflexive, antisymmetric
 and transitive, then the `OrderData α` instance is a partial order.
 -/
-public theorem IsPartialOrder.ofLE {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
+public theorem IsPartialOrder.of_le {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
     (le_refl : Std.Refl (α := α) (· ≤ ·) := by exact inferInstance)
     (le_antisymm : Std.Antisymm (α := α) (· ≤ ·) := by exact inferInstance)
     (le_trans : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) := by exact inferInstance) :
     IsPartialOrder α where
-  toIsPreorder := .ofLE
+  toIsPreorder := .of_le
   le_antisymm := by simpa [LawfulOrderLE.le_iff] using le_antisymm.antisymm
 
 /--
 If an `OrderData α` instance is compatible with an `LE α` instance that is antisymmetric,
 transitive and total, then the `OrderData α` instance is a linear order.
 -/
-public theorem IsLinearOrder.ofLE {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
+public theorem IsLinearOrder.of_le {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
     (le_antisymm : Std.Antisymm (α := α) (· ≤ ·) := by exact inferInstance)
     (le_trans : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) := by exact inferInstance)
     (le_total : Total (α := α) (· ≤ ·) := by exact inferInstance) :
     IsLinearOrder α where
-  toIsLinearPreorder := .ofLE
+  toIsLinearPreorder := .of_le
   le_antisymm := by simpa [LawfulOrderLE.le_iff] using le_antisymm.antisymm
 
 /--
@@ -169,7 +169,7 @@ public instance LawfulOrderLT.ofLT {α : Type u} [LT α] [i : Asymm (α := α) (
 If an `OrderData α` instance is compatible with an asymmetric `LT α` instance the negation of which
 is transitive, then the `OrderData α` instance is a linear order.
 -/
-public theorem IsLinearPreorder.ofLT {α : Type u} [LT α]
+public theorem IsLinearPreorder.of_lt {α : Type u} [LT α]
     (lt_asymm : Asymm (α := α) (· < ·) := by exact inferInstance)
     (not_lt_trans : Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·) := by exact inferInstance) :
     haveI : OrderData α := .ofLT α
@@ -186,14 +186,14 @@ public theorem IsLinearPreorder.ofLT {α : Type u} [LT α]
 If an `OrderData α` instance is compatible with an asymmetric `LT α` instance the negation of which
 is transitive and antisymmetric, then the `OrderData α` instance is a linear order.
 -/
-public theorem IsLinearOrder.ofLT {α : Type u} [LT α]
+public theorem IsLinearOrder.of_lt {α : Type u} [LT α]
     (lt_asymm : Asymm (α := α) (· < ·) := by exact inferInstance)
     (not_lt_trans : Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·) := by exact inferInstance)
     (not_lt_antisymm : Antisymm (α := α) (¬ · < ·) := by exact inferInstance) :
     haveI : OrderData α := .ofLT α
     IsLinearOrder α :=
   letI : OrderData α := .ofLT α
-  haveI : IsLinearPreorder α := .ofLT
+  haveI : IsLinearPreorder α := .of_lt
   { le_antisymm := by
       simpa [OrderData.ofLT] using fun a b hab hba => not_lt_antisymm.antisymm a b hba hab }
 

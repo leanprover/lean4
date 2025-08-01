@@ -7,7 +7,7 @@ Authors: E.W.Ayers
 module
 
 prelude
-public import Lean.Server.FileWorker.RequestHandling
+public import Lean.Server.Requests
 public import Lean.Server.InfoUtils
 
 public section

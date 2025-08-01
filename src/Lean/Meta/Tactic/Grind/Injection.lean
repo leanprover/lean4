@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.CtorRecognizer
 public import Lean.Meta.Tactic.Util
 public import Lean.Meta.Tactic.Clear
+import Lean.Meta.AppBuilder
 
 public section
 

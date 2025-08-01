@@ -10,6 +10,7 @@ public import Lean.KeyedDeclsAttribute
 public import Lean.PrettyPrinter.Delaborator.Options
 public import Lean.PrettyPrinter.Delaborator.SubExpr
 public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+import Lean.Elab.InfoTree.Main
 
 public section
 

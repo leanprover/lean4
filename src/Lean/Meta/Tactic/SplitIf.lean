@@ -7,7 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Cases
-public import Lean.Meta.Tactic.Simp.Main
+public import Lean.Meta.Tactic.Simp.Rewrite
+import Lean.Meta.Tactic.Simp.Main
 
 public section
 

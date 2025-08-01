@@ -9,9 +9,9 @@ prelude
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.CongrTheorems
 public import Lean.Meta.Eqns
-public import Lean.Meta.Tactic.Replace
 public import Lean.Meta.Tactic.Simp.SimpTheorems
 public import Lean.Meta.Tactic.Simp.SimpCongrTheorems
+import Lean.Meta.Tactic.Replace
 
 public section
 

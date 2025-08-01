@@ -64,11 +64,6 @@ builtin_initialize
       throwError "Cannot add attribute `[no_expose]`: This attribute can only be added when declaring a `def`"
   }
 
-def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
-  profileitM Exception s!"instantiate metavars" (← getOptions) do
-  withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
-    instantiateMVars e
-
 /-- `DefView` plus header elaboration data and snapshot. -/
 structure DefViewElabHeader extends DefView, DefViewElabHeaderData where
   /--

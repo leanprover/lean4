@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.FVarSubst
 public import Lean.Meta.Tactic.Intro
 public import Lean.Meta.Tactic.Revert
 public import Lean.Util.ForEachExpr
+import Lean.Meta.AppBuilder
 
 public section
 

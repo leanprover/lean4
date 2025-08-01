@@ -193,7 +193,7 @@ instance [LT α]
   asymm _ _ := Array.lt_asymm
 
 protected theorem le_total [LT α]
-    [i : Std.Total (¬ · < · : α → α → Prop)] (xs ys : Array α) : xs ≤ ys ∨ ys ≤ xs :=
+    [i : Std.Asymm (· < · : α → α → Prop)] (xs ys : Array α) : xs ≤ ys ∨ ys ≤ xs :=
   List.le_total xs.toList ys.toList
 
 @[simp] protected theorem not_lt [LT α]
@@ -203,14 +203,14 @@ protected theorem le_total [LT α]
     {xs ys : Array α} : ¬ ys ≤ xs ↔ xs < ys := Classical.not_not
 
 protected theorem le_of_lt [LT α]
-    [i : Std.Total (¬ · < · : α → α → Prop)]
+    [i : Std.Asymm (· < · : α → α → Prop)]
     {xs ys : Array α} (h : xs < ys) : xs ≤ ys :=
   List.le_of_lt h
 
 protected theorem le_iff_lt_or_eq [LT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Std.Total (¬ · < · : α → α → Prop)]
+    [Std.Asymm (· < · : α → α → Prop)]
     {xs ys : Array α} : xs ≤ ys ↔ xs < ys ∨ xs = ys := by
   simpa using List.le_iff_lt_or_eq (l₁ := xs.toList) (l₂ := ys.toList)
 
@@ -218,8 +218,7 @@ protected theorem le_antisymm [LT α] [OrderData α] [IsLinearOrder α] [LawfulO
     {xs ys : Array α} : xs ≤ ys → ys ≤ xs → xs = ys := by
   simpa using List.le_antisymm (as := xs.toList) (bs := ys.toList)
 
-instance [LT α]
-    [Std.Total (¬ · < · : α → α → Prop)] :
+instance [LT α] [Std.Asymm (· < · : α → α → Prop)] :
     Std.Total (· ≤ · : Array α → Array α → Prop) where
   total := Array.le_total
 

@@ -89,7 +89,7 @@ matcherArgPusher params motive {α} {β} (f : ∀ (x : α), β x) rel alt1 .. x1
 ```
 -/
 def mkMatchArgPusher (matcherName : Name) (matcherInfo : MatcherInfo) : MetaM Name := do
-  let name := .str matcherName "_arg_pusher"
+  let name := (mkPrivateName (← getEnv) matcherName) ++ `_arg_pusher
   realizeConst matcherName name do
     let matcherVal ← getConstVal matcherName
     forallBoundedTelescope matcherVal.type (some (matcherInfo.numParams + 1)) fun xs _ => do
@@ -207,6 +207,7 @@ public def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPrepr
   let name := mkEqLikeNameFor (← getEnv) preDef.declName unfoldThmSuffix
   prependError m!"Cannot derive unfold equation {name}" do
   withOptions (tactic.hygienic.set · false) do
+  withoutExporting do
     lambdaTelescope preDef.value fun xs body => do
       let us := preDef.levelParams.map mkLevelParam
       let lhs := mkAppN (Lean.mkConst preDef.declName us) xs

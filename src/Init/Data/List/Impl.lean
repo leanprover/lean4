@@ -564,24 +564,7 @@ def zipIdxTR (l : List α) (n : Nat := 0) : List (α × Nat) :=
 
 /-! ### enumFrom -/
 
-/-- Tail recursive version of `List.enumFrom`. -/
-@[deprecated zipIdxTR (since := "2025-01-21")]
-def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
-  let as := l.toArray
-  (as.foldr (fun a (n, acc) => (n-1, (n-1, a) :: acc)) (n + as.size, [])).2
 
-set_option linter.deprecated false in
-@[deprecated zipIdx_eq_zipIdxTR (since := "2025-01-21"), csimp]
-theorem enumFrom_eq_enumFromTR : @enumFrom = @enumFromTR := by
-  funext α n l; simp only [enumFromTR]
-  let f := fun (a : α) (n, acc) => (n-1, (n-1, a) :: acc)
-  let rec go : ∀ l n, l.foldr f (n + l.length, []) = (n, enumFrom n l)
-    | [], n => rfl
-    | a::as, n => by
-      rw [← show _ + as.length = n + (a::as).length from Nat.succ_add .., foldr, go as]
-      simp [enumFrom, f]
-  rw [← Array.foldr_toList]
-  simp +zetaDelta [go]
 
 /-! ## Other list operations -/
 

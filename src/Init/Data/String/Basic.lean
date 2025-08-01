@@ -36,7 +36,7 @@ instance : LT String :=
 instance decidableLT (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
   List.decidableLT s₁.data s₂.data
 
-@[deprecated decidableLT (since := "2024-12-13")] abbrev decLt := @decidableLT
+
 
 /--
 Non-strict inequality on strings, typically used via the `≤` operator.

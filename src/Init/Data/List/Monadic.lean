@@ -261,13 +261,7 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] {p : α → Bool} {g : α → β
 
 /-! ### forM -/
 
-@[deprecated forM_nil (since := "2025-01-31")]
-theorem forM_nil' [Monad m] : ([] : List α).forM f = (pure .unit : m PUnit) := rfl
 
-@[deprecated forM_cons (since := "2025-01-31")]
-theorem forM_cons' [Monad m] :
-    (a::as).forM f = (f a >>= fun _ => as.forM f : m PUnit) :=
-  List.forM_cons
 
 @[simp, grind =] theorem forM_append [Monad m] [LawfulMonad m] {l₁ l₂ : List α} {f : α → m PUnit} :
     forM (l₁ ++ l₂) f = (do forM l₁ f; forM l₂ f) := by

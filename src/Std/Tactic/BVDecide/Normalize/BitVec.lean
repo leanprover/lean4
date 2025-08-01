@@ -337,7 +337,7 @@ theorem BitVec.ult_max' (a : BitVec w) : (BitVec.ult a (-1#w)) = (!(a == -1#w)) 
   rw [lt_ult, ← BitVec.neg_one_eq_allOnes] at this
   by_cases (a.ult (-1#w)) <;> simp_all
 
-attribute [bv_normalize] BitVec.replicate_zero_eq
+attribute [bv_normalize] BitVec.replicate_zero
 attribute [bv_normalize] BitVec.add_eq_xor
 attribute [bv_normalize] BitVec.mul_eq_and
 

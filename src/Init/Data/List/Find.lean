@@ -1098,14 +1098,8 @@ theorem idxOf_cons [BEq α] :
   dsimp [idxOf]
   simp [findIdx_cons]
 
-@[deprecated idxOf_cons (since := "2025-01-29")]
-abbrev indexOf_cons := @idxOf_cons
-
 @[simp] theorem idxOf_cons_self [BEq α] [ReflBEq α] {l : List α} : (a :: l).idxOf a = 0 := by
   simp [idxOf_cons]
-
-@[deprecated idxOf_cons_self (since := "2025-01-29")]
-abbrev indexOf_cons_self := @idxOf_cons_self
 
 @[grind =]
 theorem idxOf_append [BEq α] [LawfulBEq α] {l₁ l₂ : List α} {a : α} :
@@ -1117,8 +1111,7 @@ theorem idxOf_append [BEq α] [LawfulBEq α] {l₁ l₂ : List α} {a : α} :
   · rw [if_neg]
     simpa using h
 
-@[deprecated idxOf_append (since := "2025-01-29")]
-abbrev indexOf_append := @idxOf_append
+
 
 theorem idxOf_eq_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∉ l) : l.idxOf a = l.length := by
   induction l with
@@ -1128,8 +1121,7 @@ theorem idxOf_eq_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∉ l) : l.
     simp only [idxOf_cons, cond_eq_if, beq_iff_eq]
     split <;> simp_all
 
-@[deprecated idxOf_eq_length (since := "2025-01-29")]
-abbrev indexOf_eq_length := @idxOf_eq_length
+
 
 theorem idxOf_lt_length_of_mem [BEq α] [EquivBEq α] {l : List α} (h : a ∈ l) : l.idxOf a < l.length := by
   induction l with
@@ -1159,8 +1151,7 @@ theorem idxOf_lt_length_iff [BEq α] [LawfulBEq α] {l : List α} {a : α} :
 
 grind_pattern idxOf_lt_length_iff => l.idxOf a, l.length
 
-@[deprecated idxOf_lt_length_of_mem (since := "2025-01-29")]
-abbrev indexOf_lt_length := @idxOf_lt_length_of_mem
+
 
 /-! ### finIdxOf?
 
@@ -1231,8 +1222,7 @@ The lemmas below should be made consistent with those for `findIdx?` (and proved
   · rintro w x h rfl
     contradiction
 
-@[deprecated idxOf?_eq_none_iff (since := "2025-01-29")]
-abbrev indexOf?_eq_none_iff := @idxOf?_eq_none_iff
+
 
 @[simp, grind =]
 theorem isSome_idxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :

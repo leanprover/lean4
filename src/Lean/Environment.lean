@@ -354,8 +354,7 @@ def setDiagnostics (env : Environment) (diag : Diagnostics) : Environment :=
 
 end Kernel.Environment
 
-@[deprecated Kernel.Exception (since := "2024-12-12")]
-abbrev KernelException := Kernel.Exception
+
 
 inductive ConstantKind where
   | defn | thm | «axiom» | «opaque» | quot | induct | ctor | recursor

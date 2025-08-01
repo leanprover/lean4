@@ -163,8 +163,7 @@ instance [LT α] [Trans (· < · : α → α → Prop) (· < ·) (· < ·)] :
     Trans (· < · : List α → List α → Prop) (· < ·) (· < ·) where
   trans h₁ h₂ := List.lt_trans h₁ h₂
 
-@[deprecated List.le_antisymm (since := "2024-12-13")]
-protected abbrev lt_antisymm := @List.le_antisymm
+
 
 protected theorem lt_of_le_of_lt [LT α]
     [i₀ : Std.Irrefl (· < · : α → α → Prop)]

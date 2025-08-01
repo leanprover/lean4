@@ -1165,7 +1165,7 @@ Examples:
 def zipIdx (xs : Array α) (start := 0) : Array (α × Nat) :=
   xs.mapIdx fun i a => (a, start + i)
 
-@[deprecated zipIdx (since := "2025-01-21")] abbrev zipWithIndex := @zipIdx
+
 
 /--
 Returns the first element of the array for which the predicate `p` returns `true`, or `none` if no
@@ -1322,8 +1322,7 @@ def idxOfAux [BEq α] (xs : Array α) (v : α) (i : Nat) : Option (Fin xs.size) 
   else none
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-@[deprecated idxOfAux (since := "2025-01-29")]
-abbrev indexOfAux := @idxOfAux
+
 
 /--
 Returns the index of the first element equal to `a`, or the size of the array if no element is equal
@@ -1338,8 +1337,7 @@ Examples:
 def finIdxOf? [BEq α] (xs : Array α) (v : α) : Option (Fin xs.size) :=
   idxOfAux xs v 0
 
-@[deprecated "`Array.indexOf?` has been deprecated, use `idxOf?` or `finIdxOf?` instead." (since := "2025-01-29")]
-abbrev indexOf? := @finIdxOf?
+
 
 /--
 Returns the index of the first element equal to `a`, or the size of the array if no element is equal

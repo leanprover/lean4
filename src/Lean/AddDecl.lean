@@ -26,10 +26,7 @@ private def Environment.addDeclAux (env : Environment) (opts : Options) (decl : 
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
   env.addDeclCore (Core.getMaxHeartbeats opts).toUSize decl cancelTk? (!debug.skipKernelTC.get opts)
 
-@[deprecated "use `Lean.addDecl` instead to ensure new namespaces are registered" (since := "2024-12-03")]
-def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
-  Environment.addDeclAux env opts decl cancelTk?
+
 
 private def isNamespaceName : Name → Bool
   | .str .anonymous _ => true

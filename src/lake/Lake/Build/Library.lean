@@ -72,11 +72,13 @@ def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
   let moreOJobs ← self.moreLinkObjs.mapM (·.fetchIn self.pkg)
   let libFile := if shouldExport then self.staticExportLibFile else self.staticLibFile
   /-
-  Static libraries with explicit exports are built as thin libraries.
-  The Lean build itself requires a thin static library with exported symbols
-  as part of its build process on Windows. It does not distribute this library.
+  The Lean core build requires a thin static library with exported symbols
+  as part of its build process on Windows. However, core is also built without the
+  bundled `llvm-ar`, which is usually a version of `ar` without support for thin archives
+  on macOS. Thus, we have to special case using thin archives on the Windows core build.
   -/
-  buildStaticLib libFile (oJobs ++ moreOJobs) (thin := shouldExport)
+  let thin := self.pkg.bootstrap && System.Platform.isWindows && shouldExport
+  buildStaticLib libFile (oJobs ++ moreOJobs) (thin := thin)
 
 /-- The `LibraryFacetConfig` for the builtin `staticFacet`. -/
 def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=

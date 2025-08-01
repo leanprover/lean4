@@ -551,10 +551,16 @@ static void uv_handle_close_cb(uv_handle_t * h) {
 }
 
 static void uv_handle_finalizer(void * h) {
-    uv_close(static_cast<uv_handle_t *>(h), &uv_handle_close_cb);
+    uv_handle_t * handle = static_cast<uv_handle_t *>(h);
+    object * promise = static_cast<object *>(handle->data);
+    dec(promise);
+    uv_close(handle, &uv_handle_close_cb);
 }
 
-static void uv_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {
+static void uv_handle_foreach(void * h, b_obj_arg fn) {
+    uv_handle_t * handle = static_cast<uv_handle_t *>(h);
+    object * promise = static_cast<object *>(handle->data);
+    lean_apply_1(fn, promise);
 }
 
 /* assumes that h has been allocated using malloc */
@@ -613,12 +619,33 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
     return lean_io_result_mk_ok(box_uint64(tid));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg _child, obj_arg) {
-    return io_result_mk_error("unimplemented"); // TODO
+// opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+    uv_process_t * h = static_cast<uv_process_t *>(lean_get_external_data(cnstr_get(child, 3)));
+    object * promise = static_cast<object *>(h->data); // IO.Promise UInt32
+    object * task = lean_io_promise_result_opt(promise); // Task (Option UInt32)
+    object * result = lean_task_get(task); // Option UInt32
+    dec(task);
+    lean_always_assert(!lean_is_scalar(result));
+    object * status = lean_ctor_get(result, 0); // UInt32
+    inc(status);
+    return lean_io_result_mk_ok(status);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg _child, obj_arg) {
-    return io_result_mk_error("unimplemented"); // TODO
+// opaque Child.tryWait {cfg : @& StdioConfig} : @& Child cfg → IO (Option UInt32)
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+    uv_process_t * h = static_cast<uv_process_t *>(lean_get_external_data(cnstr_get(child, 3)));
+    object * promise = static_cast<object *>(h->data); // IO.Promise UInt32
+    object * task = lean_io_promise_result_opt(promise); // Task (Option UInt32)
+    if (lean_io_get_task_state_core(task) == 2) {
+        object * result = lean_task_get(task); // Option UInt32
+        dec(task);
+        lean_always_assert(!lean_is_scalar(result));
+        inc(result);
+        return lean_io_result_mk_ok(result);
+    }
+    dec(task);
+    return io_result_mk_ok(box(0));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child, obj_arg) {
@@ -663,6 +690,12 @@ static obj_res setup_stdio(uv_stdio_container_t * out, stdio cfg, int fd) {
     lean_unreachable();
 }
 
+static void process_exit_callback(uv_process_t * handle, int64_t exit_status, int term_signal) {
+    object * promise = static_cast<object *>(handle->data);
+    uint32_t status = (uint32_t) ((uint64_t) exit_status);
+    lean_promise_resolve(box_uint32(status), promise);
+}
+
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
                      stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
                      bool inherit_env, bool do_setsid) {
@@ -705,8 +738,11 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     }
     options.stdio_count = 3;
     options.stdio = stdio;
+    options.exit_cb = &process_exit_callback;
 
     uv_process_t * child = (uv_process_t *) malloc(sizeof(uv_process_t));
+    child->data = lean_promise_new(); // We use `.data` to store an `IO.Promise UInt32` that resolves on exit
+
     int error = uv_spawn(global_ev.loop, child, &options);
 
     free(arg_array);

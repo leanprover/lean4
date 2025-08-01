@@ -98,10 +98,11 @@ def mkMatchArgPusher (matcherName : Name) (matcherInfo : MatcherInfo) : MetaM Na
 
     let mut rhs := rhs
     for alt in alts, altNumParams in matcherInfo.altNumParams do
-      let alt' ← lambdaBoundedTelescope alt altNumParams fun ys altBody =>
-        -- Fix type
-        let altArg := .lam `y alpha (.lam `h (mkAppN rel (discrs.push (.bvar 0))) (mkApp f (.bvar 1)) .default) .default
-        mkLambdaFVars ys (mkApp altBody altArg)
+      let alt' ← forallBoundedTelescope (← inferType alt) altNumParams fun ys altBodyType => do
+        assert! altBodyType.isForall
+        let altArg ← forallBoundedTelescope altBodyType.bindingDomain! (some 2) fun ys _ => do
+          mkLambdaFVars ys (.app f ys[0]!)
+        mkLambdaFVars ys (mkAppN alt (ys.push altArg))
       rhs := mkApp rhs alt'
 
     let extraArg := .lam `y alpha (.lam `h (mkAppN rel (discrs.push (.bvar 0))) (mkApp f (.bvar 1)) .default) .default

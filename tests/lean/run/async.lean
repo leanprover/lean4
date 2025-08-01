@@ -20,7 +20,7 @@ def loop : Async Nat := do
   while res < 10 do
     res := res + 1
 
-  discard <| t
+  discard t
 
   pure res
 
@@ -29,3 +29,19 @@ info: 10
 -/
 #guard_msgs in
 #eval IO.println =<< ETask.block =<< loop.asTask
+
+def loopExcept : Async Nat := do
+  let mut res := 0
+
+  while res < 10 do
+    throw (.userError "some error")
+
+  discard t
+
+  pure res
+
+/--
+error: some error
+-/
+#guard_msgs in
+#eval IO.println =<< ETask.block =<< loopExcept.asTask

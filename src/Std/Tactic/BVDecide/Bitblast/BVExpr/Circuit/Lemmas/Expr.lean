@@ -437,6 +437,12 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       intro idx hidx
       rw [goCache_denote_eq]
       exact hinv
+    · rw [← hres]
+      simp only [eval_un, BVUnOp.eval_popCount, BitVec.popCount]
+      rw [denote_blastPopCount]
+      intro idx hidx
+      rw [goCache_denote_eq]
+      exact hinv
   next h =>
     subst h
     rw [← hres]

@@ -204,7 +204,7 @@ protected theorem lt_of_le_of_lt [LT α] [OrderData α] [IsLinearOrder α] [Lawf
       · simp only [not_lt] at w₄
         exact Lex.rel (lt_of_le_of_ne w₄ (w₅.imp Eq.symm))
 
-@[deprecated List.lt_of_le_of_lt (since := "2025-07-31")]
+@[deprecated List.lt_of_le_of_lt (since := "2025-08-01")]
 protected theorem lt_of_le_of_lt' [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
@@ -218,7 +218,7 @@ protected theorem le_trans [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrde
     {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
   fun h₃ => h₁ (List.lt_of_le_of_lt h₂ h₃)
 
-@[deprecated List.le_trans (since := "2025-07-31")]
+@[deprecated List.le_trans (since := "2025-08-01")]
 protected theorem le_trans' [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]

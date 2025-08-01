@@ -102,7 +102,7 @@ protected theorem lt_of_le_of_lt [LT α] [OrderData α] [LawfulOrderLT α] [IsLi
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys < zs) : xs < zs :=
   Array.lt_of_le_of_lt h₁ h₂
 
-@[deprecated Vector.lt_of_le_of_lt (since := "2025-07-31")]
+@[deprecated Vector.lt_of_le_of_lt (since := "2025-08-01")]
 protected theorem lt_of_le_of_lt' [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
@@ -116,7 +116,7 @@ protected theorem le_trans [LT α] [OrderData α] [LawfulOrderLT α] [IsLinearOr
     {xs ys zs : Vector α n} (h₁ : xs ≤ ys) (h₂ : ys ≤ zs) : xs ≤ zs :=
   fun h₃ => h₁ (Vector.lt_of_le_of_lt h₂ h₃)
 
-@[deprecated Vector.le_trans (since := "2025-07-31")]
+@[deprecated Vector.le_trans (since := "2025-08-01")]
 protected theorem le_trans' [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]

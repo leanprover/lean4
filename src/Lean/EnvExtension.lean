@@ -106,13 +106,13 @@ instance : Inhabited TagDeclarationExtension :=
 def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Environment :=
   have : Inhabited Environment := ⟨env⟩
   assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`
-  assert! env.asyncMayContain declName
-  ext.addEntry env declName
+  ext.addEntry (asyncDecl := declName) env declName
 
-def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Bool :=
+def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name)
+    (asyncMode := ext.toEnvExtension.asyncMode) : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains declName Name.quickLt
-  | none        => (ext.getState (asyncDecl := declName) env).contains declName
+  | none        => (ext.getState (asyncMode := asyncMode) (asyncDecl := declName) env).contains declName
 
 end TagDeclarationExtension
 
@@ -123,6 +123,7 @@ structure MapDeclarationExtension (α : Type) extends PersistentEnvExtension (Na
 deriving Inhabited
 
 def mkMapDeclarationExtension (name : Name := by exact decl_name%)
+    (asyncMode : EnvExtension.AsyncMode := .async .mainEnv)
     (exportEntriesFn : Environment → NameMap α → OLeanLevel → Array (Name × α) :=
       fun _ s _ => s.toArray) :
     IO (MapDeclarationExtension α) :=
@@ -132,7 +133,7 @@ def mkMapDeclarationExtension (name : Name := by exact decl_name%)
     addImportedFn   := fun _ => pure {}
     addEntryFn      := fun s (n, v) => s.insert n v
     exportEntriesFnEx env s level := exportEntriesFn env s level
-    asyncMode       := .async .mainEnv
+    asyncMode
     replay?         := some fun _ newState newConsts s =>
       newConsts.foldl (init := s) fun s c =>
         if let some a := newState.find? c then
@@ -145,19 +146,16 @@ namespace MapDeclarationExtension
 def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α) : Environment :=
   have : Inhabited Environment := ⟨env⟩
   assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `MapDeclarationExtension`
-  if !env.asyncMayContain declName then
-    panic! s!"MapDeclarationExtension.insert: cannot insert {declName} into {ext.name}, it is not contained in {env.asyncPrefix?}"
-  else
-    ext.addEntry env (declName, val)
+  ext.addEntry (asyncDecl := declName) env (declName, val)
 
 def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name)
-    (level := OLeanLevel.exported) : Option α :=
+    (asyncMode := ext.toEnvExtension.asyncMode) (level := OLeanLevel.exported) : Option α :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
     match (ext.getModuleEntries (level := level) env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
     | some e => some e.2
     | none   => none
-  | none => (ext.getState (asyncDecl := declName) env).find? declName
+  | none => (ext.getState (asyncMode := asyncMode) (asyncDecl := declName) env).find? declName
 
 def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with

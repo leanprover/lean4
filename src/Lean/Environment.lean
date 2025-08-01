@@ -505,12 +505,12 @@ private partial def AsyncConsts.findRecTask (aconsts : AsyncConsts) (declName : 
     AsyncConsts.findRecTask aconsts declName
 
 /-- Like `findRec?` but returns the constant that has `declName` in its `consts`, if any. -/
-private partial def AsyncConsts.findRecParent? (aconsts : AsyncConsts) (declName : Name) : Option AsyncConst :=
+private partial def AsyncConsts.findRecAndParent? (aconsts : AsyncConsts) (declName : Name) : Option (AsyncConst × Option AsyncConst) :=
   go none aconsts
 where go parent? aconsts := do
   let c ← aconsts.findPrefix? declName
   if c.constInfo.name == declName then
-    return (← parent?)
+    return (c, parent?)
   -- If privacy is the only difference between `declName` and `findPrefix?` result, we can assume
   -- `declName` does not exist according to the `add` invariant
   guard <| privateToUserName c.constInfo.name != privateToUserName declName
@@ -690,18 +690,6 @@ def importEnv? (env : Environment) : Option Environment :=
 def unlockAsync (env : Environment) : Environment :=
   { env with asyncCtx? := none }
 
-/--
-Checks whether the given declaration name may potentially added, or have been added, to the current
-environment branch, which is the case either if this is the main branch or if the declaration name
-is a suffix (modulo privacy and hygiene information) of the top-level declaration name for which
-this branch was created.
-
-This function should always be checked before modifying an `AsyncMode.async` environment extension
-to ensure `findStateAsync` will be able to find the modification from other branches.
--/
-def asyncMayContain (env : Environment) (declName : Name) : Bool :=
-  env.asyncCtx?.all (·.mayContain declName)
-
 @[extern "lean_elab_add_decl"]
 private opaque addDeclCheck (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
   (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
@@ -773,22 +761,26 @@ private def lakeAdd (env : Environment) (cinfo : ConstantInfo) : Environment :=
 @[extern "lean_is_reserved_name"]
 private opaque isReservedName (env : Environment) (name : Name) : Bool
 
-/-- `findAsync?` after `base` access -/
-private def findAsyncCore? (env : Environment) (n : Name) (skipRealize := false) :
-    Option AsyncConstantInfo := do
+@[inline] private def findAsyncConst? (env : Environment) (n : Name) (skipRealize := false) :
+    Option AsyncConst := do
   if let some c := env.asyncConsts.find? n then
     -- Constant for which an asynchronous elaboration task was spawned
     -- (this is an optimized special case of the next branch)
-    return c.constInfo
+    return c
   if let some c := env.asyncConsts.findRec? n then
     -- Constant generated in a different environment branch
-    return c.constInfo
+    return c
   if !skipRealize && isReservedName env n then
     if let some c := env.allRealizations.get.find? n then
-      return c.constInfo
+      return c
   -- Not in the kernel environment nor in the name prefix of a known environment branch: undefined
   -- by `addDeclCore` invariant.
   none
+
+/-- `findAsync?` after `base` access -/
+private def findAsyncCore? (env : Environment) (n : Name) (skipRealize := false) :
+    Option AsyncConstantInfo := do
+  env.findAsyncConst? n (skipRealize := skipRealize) |>.map (·.constInfo)
 
 /-- Like `findAsyncCore?`; allocating tasks is (currently?) too costly to do always. -/
 private def findTaskCore (env : Environment) (n : Name) (skipRealize := false) :
@@ -1219,8 +1211,8 @@ registration time but can be overridden when calling the mentioned functions in 
 for specific accesses.
 
 In all modes, the state stored into the `.olean` file for persistent environment extensions is the
-result of `getState` called on the main environment branch at the end of the file, i.e. it
-encompasses all modifications for all modes but `local`.
+result of `getState (asyncMode := .sync)` called on the main environment branch at the end of the
+file, i.e. it encompasses all modifications for all modes but `local`.
 -/
 inductive EnvExtension.AsyncMode where
   /--
@@ -1258,9 +1250,10 @@ inductive EnvExtension.AsyncMode where
   /--
   Accumulates modifications in the `checked` environment like `sync`, but `getState` will panic
   instead of blocking unless its `asyncDecl` parameter is specified, which will access the state of
-  the environment branch corresponding to the passed declaration name, if any. In other words, at
-  most one environment branch will be blocked on instead of all prior branches. The local state can
-  still be accessed by calling `getState` with mode `local` explicitly.
+  the environment branch corresponding to the passed declaration name, if any; see `AsyncBranch` for
+  a description of the specific state accessed. In other words, at most one environment branch will
+  be blocked on instead of all prior branches. The local state can still be accessed by calling
+  `getState` with mode `local` explicitly.
 
   This mode is suitable for extensions with map-like state where the key uniquely identifies the
   top-level declaration where it could have been set, e.g. because the key on modification is always
@@ -1348,6 +1341,19 @@ def mkInitialExtStates : IO (Array EnvExtensionState) := do
   exts.mapM fun ext => ext.mkInitial
 
 /--
+Checks whether `modifyState (asyncDecl := declName)` may be called for an environment extension; see
+there for details.
+-/
+def asyncMayModify (ext : EnvExtension σ) (env : Environment) (asyncDecl : Name)
+    (asyncMode := ext.asyncMode) : Bool :=
+  env.asyncCtx?.all fun ctx =>
+    match asyncMode with
+    | .async .mainEnv => ctx.mayContain asyncDecl && ctx.declPrefix != asyncDecl
+    | .async .asyncEnv => ctx.declPrefix == asyncDecl ||
+      (ctx.mayContain asyncDecl && (env.findAsyncConst? asyncDecl).any (·.exts?.isNone))
+    | _ => true
+
+/--
 Applies the given function to the extension state. See `AsyncMode` for details on how modifications
 from different environment branches are reconciled.
 
@@ -1355,7 +1361,7 @@ Note that in modes `sync` and `async`, `f` will be called twice, on the local an
 state.
 -/
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ)
-    (asyncMode := ext.asyncMode) : Environment := Id.run do
+    (asyncMode := ext.asyncMode) (asyncDecl : Name := .anonymous) : Environment := Id.run do
   -- for panics
   let _ : Inhabited Environment := ⟨env⟩
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
@@ -1368,6 +1374,14 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
   | .local =>
     return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f }
   | _ =>
+    if asyncMode matches .async _ then
+      if asyncDecl.isAnonymous then
+        return panic! "called on `async` extension, must set `asyncDecl` in that case"
+
+      if let some ctx := env.asyncCtx? then
+        if !ext.asyncMayModify (asyncMode := asyncMode) env asyncDecl then
+          return panic! s!"`asyncDecl` `{asyncDecl}` is outside current context {ctx.declPrefix}"
+
     if ext.replay?.isNone then
       if let some (n :: _) := env.asyncCtx?.map (·.realizingStack) then
         return panic! s!"environment extension must set `replay?` field to be \
@@ -1379,8 +1393,8 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
 Sets the extension state to the given value. See `AsyncMode` for details on how modifications from
 different environment branches are reconciled.
 -/
-def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
-  inline <| modifyState ext env fun _ => s
+def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) (asyncMode := ext.asyncMode) : Environment :=
+  inline <| modifyState (asyncMode := asyncMode) ext env fun _ => s
 
 -- `unsafe` fails to infer `Nonempty` here
 private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension σ)
@@ -1396,14 +1410,13 @@ private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension
     -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
     if env.base.get env |>.constants.contains asyncDecl then
       return ext.getStateImpl env.base.private.extensions
-    if let some exts? := (match branch with
-        | .asyncEnv => env.asyncConsts.findRec? asyncDecl |>.map AsyncConst.exts?
-        | .mainEnv =>
-          match env.asyncConsts.find? asyncDecl with
-          | some c => if c.isRealized then c.exts? else some <| some <| .pure env.base.private.extensions
-          | _ => env.asyncConsts.findRecParent? asyncDecl |>.bind fun c =>
-            if c.isRealized then c.aconsts.get.find? asyncDecl |>.map AsyncConst.exts? else c.exts?) then
-      if let some exts := exts? then
+    if let some (c, parent?) := env.asyncConsts.findRecAndParent? asyncDecl then
+      let parentExts? := match parent? with
+        | some c => c.exts?
+        | none   => some <| .pure env.base.private.extensions
+      if let some exts := (match branch with
+        | .asyncEnv => c.exts? <|> parentExts?
+        | .mainEnv => if c.isRealized then c.exts? else parentExts?) then
         return ext.getStateImpl exts.get
       -- NOTE: if `exts?` is `none`, we should *not* try the following, more expensive branches that
       -- will just come to the same conclusion
@@ -1593,8 +1606,9 @@ def getModuleIREntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExte
   -- safety: as in `getStateUnsafe`
   unsafe (ext.toEnvExtension.getStateImpl env.base.private.irBaseExts).importedEntries[m]!
 
-def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
-  ext.toEnvExtension.modifyState env fun s =>
+def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β)
+    (asyncMode := ext.toEnvExtension.asyncMode) (asyncDecl : Name := .anonymous) : Environment :=
+  ext.toEnvExtension.modifyState (asyncMode := asyncMode) (asyncDecl := asyncDecl) env fun s =>
     let state   := ext.addEntryFn s.state b;
     { s with state := state }
 
@@ -1848,11 +1862,11 @@ where
       let extDescr := pExtDescrs[i]
       -- `local` as `async` does not allow for `getState` but it's all safe here as there is only
       -- one environment branch at this point.
-      let s := extDescr.toEnvExtension.getState (asyncMode := .local) env
+      let s := extDescr.toEnvExtension.getState (asyncMode := .sync) env
       let prevSize := (← persistentEnvExtensionsRef.get).size
       let prevAttrSize ← getNumBuiltinAttributes
       let newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts }
-      let mut env := extDescr.toEnvExtension.setState env { s with state := newState }
+      let mut env := extDescr.toEnvExtension.setState (asyncMode := .sync) env { s with state := newState }
       env ← ensureExtensionsArraySize env
       if (← persistentEnvExtensionsRef.get).size > prevSize || (← getNumBuiltinAttributes) > prevAttrSize then
         -- This branch is executed when `pExtDescrs[i]` is the extension associated with the `init` attribute, and

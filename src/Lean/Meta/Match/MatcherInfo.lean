@@ -91,8 +91,7 @@ builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
 
 def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo) : Environment :=
   let _ : Inhabited Environment := ⟨env⟩
-  assert! env.asyncMayContain matcherName
-  extension.addEntry env { name := matcherName, info := info }
+  extension.addEntry (asyncDecl := matcherName) env { name := matcherName, info := info }
 
 def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo := do
   -- avoid blocking on async decls whose names look nothing like matchers

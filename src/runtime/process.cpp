@@ -56,7 +56,7 @@ static void win_handle_finalizer(void * h) {
     lean_always_assert(CloseHandle(static_cast<HANDLE>(h)));
 }
 
-static void win_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {
+static void win_handle_foreach(void *, b_obj_arg) {
 }
 
 lean_object * wrap_win_handle(HANDLE h) {
@@ -136,7 +136,6 @@ static FILE * from_win_handle(HANDLE handle, char const * mode) {
 }
 
 static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, object ** ours, bool in, stdio cfg) {
-    /* Setup stdio based on process configuration. */
     switch (cfg) {
     case stdio::INHERIT:
         lean_always_assert(DuplicateHandle(GetCurrentProcess(), *theirs,
@@ -408,10 +407,8 @@ extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg c
 struct pipe { int m_read_fd; int m_write_fd; };
 
 static optional<pipe> setup_stdio(stdio cfg) {
-    /* Setup stdio based on process configuration. */
     switch (cfg) {
     case stdio::INHERIT:
-        /* We should need to do nothing in this case */
         return optional<pipe>();
     case stdio::PIPED:
         int fds[2];
@@ -425,7 +422,6 @@ static optional<pipe> setup_stdio(stdio cfg) {
 #endif
         return optional<pipe>(pipe { fds[0], fds[1] });
     case stdio::NUL:
-        /* We should map /dev/null. */
         return optional<pipe>();
     }
     lean_unreachable();
@@ -438,7 +434,6 @@ extern "C" char **environ;
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
   stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
   bool inherit_env, bool do_setsid) {
-    /* Setup stdio based on process configuration. */
     auto stdin_pipe  = setup_stdio(stdin_mode);
     auto stdout_pipe = setup_stdio(stdout_mode);
     auto stderr_pipe = setup_stdio(stderr_mode);
@@ -578,7 +573,7 @@ static obj_res setup_stdio(uv_stdio_container_t * out, stdio cfg, int fd) {
     case stdio::INHERIT:
         out->flags = UV_INHERIT_FD;
         out->data.fd = fd;
-        return;
+        return box(0);
     case stdio::PIPED: {
         // TODO: how to get FILE*s from this?
         // uv_pipe_t pipe;
@@ -589,11 +584,11 @@ static obj_res setup_stdio(uv_stdio_container_t * out, stdio cfg, int fd) {
         // } else {
         //     out->flags |= UV_WRITABLE_PIPE;
         // }
-        return;
+        return box(0);
     }
     case stdio::NUL:
         out->flags = UV_IGNORE;
-        return;
+        return box(0);
     }
     lean_unreachable();
 }
@@ -606,28 +601,28 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         return mk_embedded_nul_error(proc_name.raw());
     }
     char ** arg_array = (char **) malloc(sizeof(char *) * (args.size() + 2));
-    arg_array[0] = proc_name_str;
-    for (int i = 0; i < args.size(); i++) {
+    arg_array[0] = const_cast<char *>(proc_name_str); // Is this safe?
+    for (size_t i = 0; i < args.size(); i++) {
         auto & arg = args[i];
         const char * arg_str = arg.data();
         if (strlen(arg_str) != arg.num_bytes()) {
             free(arg_array);
             return mk_embedded_nul_error(arg.raw());
         }
-        arg_array[i + 1] = arg_str;
+        arg_array[i + 1] = const_cast<char *>(arg_str);
     }
     arg_array[args.size() + 1] = nullptr;
 
     uv_stdio_container_t stdio[3];
-    setup_stdio(&stdio[0], stdin_mode, STDIN_FILENO);
-    setup_stdio(&stdio[1], stdout_mode, STDOUT_FILENO);
-    setup_stdio(&stdio[2], stderr_mode, STDERR_FILENO);
+    object * parent_stdin = setup_stdio(&stdio[0], stdin_mode, STDIN_FILENO);
+    object * parent_stdout = setup_stdio(&stdio[1], stdout_mode, STDOUT_FILENO);
+    object * parent_stderr = setup_stdio(&stdio[2], stderr_mode, STDERR_FILENO);
 
     uv_process_options_t options = {0};
     options.file = proc_name_str;
     options.args = arg_array;
     if (cwd) {
-        auto & cwd_val = cwd.get_val();
+        string_ref cwd_val = cwd.get_val();
         const char * cwd_str = cwd_val.data();
         if (strlen(cwd_str) != cwd_val.num_bytes()) {
             free(arg_array);
@@ -641,7 +636,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     options.stdio_count = 3;
     options.stdio = stdio;
 
-    uv_process_t * child = malloc(sizeof(uv_process_t));
+    uv_process_t * child = (uv_process_t *) malloc(sizeof(uv_process_t));
     int error = uv_spawn(global_ev.loop, child, &options);
 
     free(arg_array);
@@ -649,7 +644,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     if (error != 0) {
         return lean_io_result_mk_error(decode_uv_error(error, nullptr));
     }
-    object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, wrap_uv_handle(static_cast<uv_handle_t *>(child)));
+    object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, wrap_uv_handle(reinterpret_cast<uv_handle_t *>(child)));
     return lean_io_result_mk_ok(r.steal());
 }
 

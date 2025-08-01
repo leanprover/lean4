@@ -128,7 +128,7 @@ theorem fold_congr {α : Type u} {n m : Nat} (w : n = m)
   subst m
   rfl
 
-theorem foldTR_loop_congr {α : Type u} {n m : Nat} (w : n = m)
+private theorem foldTR_loop_congr {α : Type u} {n m : Nat} (w : n = m)
      (f : (i : Nat) → i < n → α → α) (j : Nat) (h : j ≤ n) (init : α) :
      foldTR.loop n f j h init = foldTR.loop m (fun i h => f i (by omega)) j (by omega) init := by
   subst m
@@ -154,7 +154,7 @@ theorem any_congr {n m : Nat} (w : n = m) (f : (i : Nat) → i < n → Bool) : a
   subst m
   rfl
 
-theorem anyTR_loop_congr {n m : Nat} (w : n = m) (f : (i : Nat) → i < n → Bool) (j : Nat) (h : j ≤ n) :
+private theorem anyTR_loop_congr {n m : Nat} (w : n = m) (f : (i : Nat) → i < n → Bool) (j : Nat) (h : j ≤ n) :
     anyTR.loop n f j h = anyTR.loop m (fun i h => f i (by omega)) j (by omega) := by
   subst m
   rfl
@@ -179,7 +179,7 @@ theorem all_congr {n m : Nat} (w : n = m) (f : (i : Nat) → i < n → Bool) : a
   subst m
   rfl
 
-theorem allTR_loop_congr {n m : Nat} (w : n = m) (f : (i : Nat) → i < n → Bool) (j : Nat) (h : j ≤ n) : allTR.loop n f j h = allTR.loop m (fun i h => f i (by omega)) j (by omega) := by
+private theorem allTR_loop_congr {n m : Nat} (w : n = m) (f : (i : Nat) → i < n → Bool) (j : Nat) (h : j ≤ n) : allTR.loop n f j h = allTR.loop m (fun i h => f i (by omega)) j (by omega) := by
   subst m
   rfl
 

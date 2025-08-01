@@ -280,20 +280,20 @@ theorem toListModel_foldl_reinsertAux [BEq α] [Hashable α] [PartialEquivBEq α
     refine (ih _).trans ?_
     refine ((toListModel_reinsertAux _ _ _).append_left _).trans perm_middle
 
-theorem expand.go_pos [Hashable α] {i : Nat} {source : Array (AssocList α β)}
+private theorem expand.go_pos [Hashable α] {i : Nat} {source : Array (AssocList α β)}
     {target : { d : Array (AssocList α β) // 0 < d.size }} (h : i < source.size) :
     expand.go i source target = go (i + 1)
       (source.set i .nil) ((source[i]).foldl (reinsertAux hash) target) := by
   rw [expand.go]
   simp only [h, dite_true]
 
-theorem expand.go_neg [Hashable α] {i : Nat} {source : Array (AssocList α β)}
+private theorem expand.go_neg [Hashable α] {i : Nat} {source : Array (AssocList α β)}
     {target : { d : Array (AssocList α β) // 0 < d.size}} (h : ¬i < source.size) :
     expand.go i source target = target := by
   rw [expand.go]
   simp only [h, dite_false]
 
-theorem expand.go_eq [BEq α] [Hashable α] [PartialEquivBEq α] (source : Array (AssocList α β))
+private theorem expand.go_eq [BEq α] [Hashable α] [PartialEquivBEq α] (source : Array (AssocList α β))
     (target : {d : Array (AssocList α β) // 0 < d.size}) : expand.go 0 source target =
       (toListModel source).foldl (fun acc p => reinsertAux hash acc p.1 p.2) target := by
   suffices ∀ i, expand.go i source target =

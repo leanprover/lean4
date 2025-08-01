@@ -80,7 +80,7 @@ local instance {α} [IntModule α] : Std.Associative (· + · : α → α → α
 local instance {α} [IntModule α] : Std.Commutative (· + · : α → α → α) where
   comm := AddCommMonoid.add_comm
 
-theorem Poly.denote'_go_eq_denote {α} [IntModule α] (ctx : Context α) (p : Poly) (r : α) : denote'.go ctx r p = p.denote ctx + r := by
+private theorem Poly.denote'_go_eq_denote {α} [IntModule α] (ctx : Context α) (p : Poly) (r : α) : denote'.go ctx r p = p.denote ctx + r := by
   induction r, p using denote'.go.induct ctx <;> simp [denote'.go, denote]
   next ih => rw [ih]; ac_rfl
   next ih => rw [ih]; ac_rfl
@@ -214,7 +214,7 @@ theorem Poly.denote_combine {α} [IntModule α] (ctx : Context α) (p₁ p₂ : 
 
 attribute [local simp] Poly.denote_combine
 
-theorem Expr.denote_toPoly'_go {α} [IntModule α] {k p} (ctx : Context α) (e : Expr)
+private theorem Expr.denote_toPoly'_go {α} [IntModule α] {k p} (ctx : Context α) (e : Expr)
     : (toPoly'.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
   induction k, e using Expr.toPoly'.go.induct generalizing p <;> simp [toPoly'.go, denote, Poly.denote, *, zsmul_add]
   next => ac_rfl

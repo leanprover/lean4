@@ -323,7 +323,7 @@ abbrev toArray_mkEmpty := @toArray_emptyWithCapacity
       xs.toArray.mapFinIdx (fun i a h => f i a (by simpa [xs.size_toArray] using h)) :=
   rfl
 
-theorem toArray_mapM_go [Monad m] [LawfulMonad m] {f : α → m β} {xs : Vector α n} {i} (h) {acc} :
+private theorem toArray_mapM_go [Monad m] [LawfulMonad m] {f : α → m β} {xs : Vector α n} {i} (h) {acc} :
     toArray <$> mapM.go f xs i h acc = Array.mapM.map f xs.toArray i acc.toArray := by
   unfold mapM.go
   unfold Array.mapM.map

@@ -107,4 +107,7 @@ open Std.Internal.IO.Process
   constrainedMemory
 
 #eval do
+  if Lean.libUVVersion < 0x012D00 then
+    return
+
   assert! (← availableMemory) > 0

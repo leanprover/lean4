@@ -200,9 +200,9 @@ test_err() {
   expected=$1; shift
   if lake_out "$@"; then rc=$?; else rc=$?; fi
   if match_text "$expected" produced.out; then
-    if [ $rc != 1 ]; then
+    if [ $rc == 0 ]; then
       echo "FAILURE: Lake unexpectedly succeeded"
-      return 1
+      return $rc
     fi
   else
     return 1
@@ -256,14 +256,13 @@ test_err_diff() {
   echo '$' lake "$@"
   if "$LAKE" "$@" >produced.out 2>&1; then rc=$?; else rc=$?; fi
   if check_diff_core produced.expected.out produced.out; then
-    if [ $rc != 1 ]; then
+    if [ $rc == 0 ]; then
       echo "FAILURE: Lake unexpectedly succeeded"
       return 1
     fi
+    echo "Lake exited with code $rc"
   else
-    if [ $rc != 1 ]; then
-      echo "Lake exited with code $rc."
-    fi
+    echo "Lake exited with code $rc"
     return 1
   fi
 }

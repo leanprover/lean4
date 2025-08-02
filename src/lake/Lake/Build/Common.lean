@@ -25,9 +25,6 @@ instance : MonadWorkspace JobM := inferInstance
 
 scoped instance : ToJson PUnit := ⟨fun _ => Json.null⟩
 
-/-- Exit code to return if `--no-build` is set and a build is required. -/
-def noBuildCode : ExitCode := 3
-
 open System.Platform in
 /--
 Build trace for the host platform.
@@ -230,14 +227,22 @@ and log are saved to `traceFile`, if the build completes without a fatal error
   (action : JobAction := .build)
 : JobM α := do
   if (← getNoBuild) then
-    IO.Process.exit noBuildCode.toUInt8
+    updateAction .build
+    error "target is out-of-date and needs to be rebuilt"
   else
     updateAction action
-    let iniPos ← getLogPos
-    let outputs ← build -- fatal errors will abort here
-    let log := (← getLog).takeFrom iniPos
-    writeBuildTrace traceFile depTrace outputs log
-    return outputs
+    let startTime ← IO.monoMsNow
+    try
+      let iniPos ← getLogPos
+      let outputs ← build -- fatal errors will abort here
+      let log := (← getLog).takeFrom iniPos
+      writeBuildTrace traceFile depTrace outputs log
+      return outputs
+    finally
+      let endTime ← IO.monoMsNow
+      let elapsed := endTime - startTime
+      modify fun s => {s with buildTime := s.buildTime + elapsed}
+
 
 /--
 Checks whether `info` is up-to-date, and runs `build` to recreate it if not.

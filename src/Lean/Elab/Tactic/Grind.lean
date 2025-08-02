@@ -125,6 +125,8 @@ where
     let info ← getAsyncConstInfo declName
     match info.kind with
     | .thm | .axiom | .ctor =>
+      if params.ematch.containsWithSameKind (.decl declName) kind then
+        logWarning m!"this parameter is redundant, environment already contains `@{kind.toAttribute} {declName}`"
       match kind with
       | .eqBoth gen =>
         let params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen) params.symPrios) }

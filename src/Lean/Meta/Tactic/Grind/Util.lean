@@ -106,14 +106,16 @@ def _root_.Lean.MVarId.byContra? (mvarId : MVarId) : MetaM (Option MVarId) := mv
   return mvarNew.mvarId!
 
 /--
-Clears auxiliary decls used to encode recursive declarations.
-`grind` eliminates them to ensure they are not accidentally used by its proof automation.
+Clears auxiliary **and** implementation detail decls used to encode recursive declarations and
+implementation details.
+- `grind` eliminates auxiliary declarations to ensure they are not accidentally used by its proof automation.
+- `grind` eliminates implementation detail declarations because they have a support role.
 -/
-def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+def _root_.Lean.MVarId.clearImplDetails (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   mvarId.checkNotAssigned `grind.clear_aux_decls
   let mut toClear := []
   for localDecl in (← getLCtx) do
-    if localDecl.isAuxDecl then
+    if localDecl.isImplementationDetail then
       toClear := localDecl.fvarId :: toClear
   if toClear.isEmpty then
     return mvarId
@@ -122,8 +124,10 @@ def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.
     try
       mvarId ← mvarId.clear fvarId
     catch _ =>
-      let userName := (← fvarId.getDecl).userName
-      throwTacticEx `grind mvarId m!"the goal mentions the declaration `{userName}`, which is being defined. To avoid circular reasoning, try rewriting the goal to eliminate `{userName}` before using `grind`."
+      let decl ← fvarId.getDecl
+      if decl.isAuxDecl then
+        let userName := decl.userName
+        throwTacticEx `grind mvarId m!"the goal mentions the declaration `{userName}`, which is being defined. To avoid circular reasoning, try rewriting the goal to eliminate `{userName}` before using `grind`."
   return mvarId
 
 /--

@@ -145,6 +145,11 @@ theorem fold_push_mk {β : Type v} {l : Raw α (fun _ => β)} {acc : Array (α �
       acc ++ ((toListModel l.buckets).map (fun ⟨k, v⟩ => (k, v))).toArray := by
   simp [fold_push_apply]
 
+theorem fold_push_key {l : Raw α β} {acc : Array α} :
+    Raw.fold (fun acc k _ => acc.push k) acc l =
+      acc ++ (List.keys (toListModel l.buckets)).toArray := by
+  simp [fold_push_apply, keys_eq_map]
+
 theorem foldM_eq_foldlM_toListModel {δ : Type w} {m : Type w → Type w } [Monad m] [LawfulMonad m]
     {f : δ → (a : α) → β a → m δ} {init : δ} {b : Raw α β} :
     b.foldM f init = (toListModel b.buckets).foldlM (fun a b => f a b.1 b.2) init := by
@@ -199,13 +204,28 @@ theorem Const.toList_eq_toListModel_map {β : Type v} {m : Raw α (fun _ => β)}
 theorem toArray_eq_toArray_toListModel {m : Raw α β} : m.toArray = (toListModel m.buckets).toArray := by
   simp [Raw.toArray, fold_push]
 
-theorem Const.toArray_eq_toArray_toListModel {β : Type v} {m : Raw α (fun _ => β)} :
+theorem Const.toArray_eq_toArray_map_toListModel {β : Type v} {m : Raw α (fun _ => β)} :
     Raw.Const.toArray m = ((toListModel m.buckets).map (fun ⟨k, v⟩ => (k,v))).toArray := by
   simp [Raw.Const.toArray, fold_push_mk]
 
-theorem keys_eq_keys_toListModel {m : Raw α β }:
+theorem toArray_eq_toArray_toList {m : Raw α β} : m.toArray = m.toList.toArray := by
+  simp [toArray_eq_toArray_toListModel, toList_eq_toListModel]
+
+theorem Const.toArray_eq_toArray_map_toList {β : Type v} {m : Raw α (fun _ => β)} :
+    Raw.Const.toArray m = (Raw.Const.toList m).toArray := by
+  simp [Const.toArray_eq_toArray_map_toListModel, Const.toList_eq_toListModel_map]
+
+theorem keys_eq_keys_toListModel {m : Raw α β } :
     m.keys = List.keys (toListModel m.buckets) := by
   simp [Raw.keys, foldRev_cons_key, keys_eq_map]
+
+theorem keysArray_eq_toArray_keys_toListModel {m : Raw α β} :
+    m.keysArray = (List.keys (toListModel m.buckets)).toArray := by
+  simp [Raw.keysArray, fold_push_key]
+
+theorem keysArray_eq_toArray_keys {m : Raw α β} :
+    m.keysArray = m.keys.toArray := by
+  simp [keys_eq_keys_toListModel, keysArray_eq_toArray_keys_toListModel]
 
 theorem forM_eq_forM_toListModel {l: Raw α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
     {f : (a : α) → β a → m PUnit} :

@@ -11,6 +11,7 @@ import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.WF
 import all Std.Data.DHashMap.Raw
 meta import all Std.Data.DHashMap.Basic
+import Init.Data.Array.Perm
 
 public section
 
@@ -1108,6 +1109,122 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
 
 end Const
 
+omit [Hashable α] [BEq α] in
+theorem keysArray_eq_toArray_keys :
+    m.1.keysArray = m.1.keys.toArray := by
+  simp [Raw.keysArray_eq_toArray_keys]
+
+@[simp]
+theorem size_keysArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.keysArray.size = m.1.size := by
+  simp [keysArray_eq_toArray_keys, h]
+
+@[simp]
+theorem isEmpty_keysArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.keysArray.isEmpty = m.1.isEmpty := by
+  simp [keysArray_eq_toArray_keys, h]
+
+@[simp]
+theorem contains_keysArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
+    m.1.keysArray.contains k = m.contains k := by
+  simp [keysArray_eq_toArray_keys, h]
+
+@[simp]
+theorem mem_keysArray [LawfulBEq α] (h : m.1.WF) {k : α} :
+    k ∈ m.1.keysArray ↔ m.contains k := by
+  simp [keysArray_eq_toArray_keys, h]
+
+theorem forall_mem_keysArray_iff_forall_contains_getKey [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {p : α → Prop} :
+    (∀ k ∈ m.1.keysArray, p k) ↔ ∀ (k : α) (h : m.contains k), p (m.getKey k h) := by
+  simp [keysArray_eq_toArray_keys, h, forall_mem_keys_iff_forall_contains_getKey]
+
+theorem contains_of_mem_keysArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α}
+    (h' : k ∈ m.1.keysArray) : m.contains k :=
+  (contains_keysArray m h).symm.trans (Array.contains_eq_true_of_mem h')
+
+omit [Hashable α] [BEq α] in
+theorem toArray_eq_toArray_toList :
+    m.1.toArray = m.1.toList.toArray := by
+  simp [Raw.toArray_eq_toArray_toList]
+
+theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] :
+    m.1.toArray.map Sigma.fst = m.1.keysArray := by
+  simp [keysArray_eq_toArray_keys, toArray_eq_toArray_toList, map_fst_toList_eq_keys]
+
+theorem size_toArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.toArray.size = m.1.size := by
+  simp [toArray_eq_toArray_toList, length_toList, h]
+
+theorem isEmpty_toArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.toArray.isEmpty = m.1.isEmpty := by
+  simp [toArray_eq_toArray_toList, isEmpty_toList, h]
+
+theorem mem_toArray_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
+    {k : α} {v : β k} :
+    ⟨k, v⟩ ∈ m.1.toArray ↔ m.get? k = some v := by
+  simp [toArray_eq_toArray_toList, mem_toList_iff_get?_eq_some, h]
+
+theorem find?_toArray_eq_some_iff_get?_eq_some [LawfulBEq α]
+    (h : m.1.WF) {k : α} {v : β k} :
+    m.1.toArray.find? (·.1 == k) = some ⟨k, v⟩ ↔ m.get? k = some v := by
+  simp [toArray_eq_toArray_toList, find?_toList_eq_some_iff_get?_eq_some, h]
+
+theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {k : α} :
+    m.1.toArray.find? (·.1 == k) = none ↔ m.contains k = false := by
+  -- does not work if removing the only because it rewrites it away
+  simp only [toArray_eq_toArray_toList, List.find?_toArray, find?_toList_eq_none_iff_contains_eq_false, h]
+
+namespace Const
+
+variable {β : Type v} (m : Raw₀ α (fun _ => β))
+
+omit [Hashable α] [BEq α] in
+theorem toArray_eq_toArray_toList :
+    Raw.Const.toArray m.1 = (Raw.Const.toList m.1).toArray := by
+  simp [Raw.Const.toArray_eq_toArray_map_toList]
+
+theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] :
+    (Raw.Const.toArray m.1).map Prod.fst = m.1.keysArray := by
+  simp [toArray_eq_toArray_toList, List.map_toArray, keysArray_eq_toArray_keys, map_fst_toList_eq_keys]
+
+theorem size_toArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    (Raw.Const.toArray m.1).size = m.1.size := by
+  simp [toArray_eq_toArray_toList, length_toList, h]
+
+theorem isEmpty_toArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    (Raw.Const.toArray m.1).isEmpty = m.1.isEmpty := by
+  simp [toArray_eq_toArray_toList, isEmpty_toList, h]
+
+theorem mem_toArray_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
+    {k : α} {v : β} :
+    (k, v) ∈ Raw.Const.toArray m.1 ↔ get? m k = some v := by
+  simp [toArray_eq_toArray_toList, mem_toList_iff_get?_eq_some, h]
+
+theorem get?_eq_some_iff_exists_beq_and_mem_toArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {k : α} {v : β} :
+    get? m k = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ Raw.Const.toArray m.1 := by
+  simp [toArray_eq_toArray_toList, get?_eq_some_iff_exists_beq_and_mem_toList, h]
+
+theorem find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some
+    [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k k' : α} {v : β} :
+    (Raw.Const.toArray m.1).find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
+      m.getKey? k = some k' ∧ get? m k = some v := by
+  simp [toArray_eq_toArray_toList, List.find?_toArray, find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some, h]
+
+theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {k : α} :
+    (Raw.Const.toArray m.1).find? (·.1 == k) = none ↔ m.contains k = false := by
+  simp only [toArray_eq_toArray_toList, List.find?_toArray, h, find?_toList_eq_none_iff_contains_eq_false]
+
+theorem mem_toArray_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {k: α} {v : β} :
+    (k, v) ∈ (Raw.Const.toArray m.1) ↔ m.getKey? k = some k ∧ get? m k = some v := by
+  simp [toArray_eq_toArray_toList, h, mem_toList_iff_getKey?_eq_some_and_get?_eq_some]
+
+end Const
+
 section monadic
 
 -- The types are redefined because fold/for does not need BEq/Hashable
@@ -1200,6 +1317,100 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
     m.1.forIn f init = ForIn.forIn (Raw.Const.toList m.1) init (fun a b => f a.1 a.2 b) := by
   simp_to_model [forIn, Const.toList] using List.forIn_eq_forIn_toProd
+
+end Const
+
+theorem foldM_eq_foldlM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ} :
+    m.1.foldM f init = m.1.toArray.foldlM (fun a b => f a b.1 b.2) init := by
+  simp [toArray_eq_toArray_toList, foldM_eq_foldlM_toList]
+
+theorem fold_eq_foldl_toArray {f : δ → (a : α) → β a → δ} {init : δ} :
+    m.1.fold f init = m.1.toArray.foldl (fun a b => f a b.1 b.2) init := by
+  simp [toArray_eq_toArray_toList, fold_eq_foldl_toList]
+
+theorem foldRevM_eq_foldrM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ} :
+    Raw.Internal.foldRevM f init m.1 = m.1.toArray.foldrM (fun a b => f b a.1 a.2) init := by
+  simp [toArray_eq_toArray_toList, foldRevM_eq_foldrM_toList]
+
+theorem foldRev_eq_foldr_toArray {f : δ → (a : α) → β a → δ} {init : δ} :
+    Raw.Internal.foldRev f init m.1 = m.1.toArray.foldr (fun a b => f b a.1 a.2) init := by
+  simp [toArray_eq_toArray_toList, foldRev_eq_foldr_toList]
+
+private theorem Array.forM_toArray [Monad m'] {l : List α} {f: α → m' PUnit}:
+    Array.forM f l.toArray = List.forM l f := by
+  simp only [List.size_toArray, List.forM_toArray', List.forM_eq_forM]
+
+theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : (a : α) → β a → m' PUnit} :
+    m.1.forM f = m.1.toArray.forM (fun a => f a.1 a.2) := by
+  rw [toArray_eq_toArray_toList, Array.forM_toArray, forM_eq_forM_toList]
+
+theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β a → δ → m' (ForInStep δ)} {init : δ} :
+    m.1.forIn f init = ForIn.forIn m.1.toArray init (fun a b => f a.1 a.2 b) := by
+  simp [toArray_eq_toArray_toList, forIn_eq_forIn_toList]
+
+theorem foldM_eq_foldlM_keysArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → m' δ} {init : δ} :
+    m.1.foldM (fun d a _ => f d a) init = m.1.keysArray.foldlM f init := by
+  simp [keysArray_eq_toArray_keys, foldM_eq_foldlM_keys]
+
+theorem fold_eq_foldl_keysArray {f : δ → α → δ} {init : δ} :
+    m.1.fold (fun d a _ => f d a) init = m.1.keysArray.foldl f init := by
+  simp [keysArray_eq_toArray_keys, fold_eq_foldl_keys]
+
+theorem foldRevM_eq_foldrM_keysArray [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → m' δ} {init : δ} :
+    Raw.Internal.foldRevM (fun d a _ => f d a) init m.1 =
+      m.1.keysArray.foldrM (fun a b => f b a) init := by
+  simp [keysArray_eq_toArray_keys, foldRevM_eq_foldrM_keys]
+
+theorem foldRev_eq_foldr_keysArray {f : δ → (a : α) → δ} {init : δ} :
+    Raw.Internal.foldRev (fun d a _ => f d a) init m.1 =
+      m.1.keysArray.foldr (fun a b => f b a) init := by
+  simp [keysArray_eq_toArray_keys, foldRev_eq_foldr_keys]
+
+theorem forM_eq_forM_keysArray [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    m.1.forM (fun a _ => f a) = m.1.keysArray.forM f := by
+  rw [keysArray_eq_toArray_keys, Array.forM_toArray, forM_eq_forM_keys]
+
+theorem forIn_eq_forIn_keysArray [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    m.1.forIn (fun a _ d => f a d) init = ForIn.forIn m.1.keysArray init f := by
+  simp [keysArray_eq_toArray_keys, forIn_eq_forIn_keys]
+
+namespace Const
+
+variable {β : Type v} (m : Raw₀ α (fun _ => β))
+
+theorem foldM_eq_foldlM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → β → m' δ} {init : δ} :
+    m.1.foldM f init = (Raw.Const.toArray m.1).foldlM (fun a b => f a b.1 b.2) init := by
+  simp [toArray_eq_toArray_toList, foldM_eq_foldlM_toList]
+
+theorem fold_eq_foldl_toArray {f : δ → α → β → δ} {init : δ} :
+    m.1.fold f init = (Raw.Const.toArray m.1).foldl (fun a b => f a b.1 b.2) init := by
+  simp [toArray_eq_toArray_toList, fold_eq_foldl_toList]
+
+theorem foldRevM_eq_foldrM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → β → m' δ} {init : δ} :
+    Raw.Internal.foldRevM f init m.1 =
+      (Raw.Const.toArray m.1).foldrM (fun a b => f b a.1 a.2) init := by
+  simp [toArray_eq_toArray_toList, foldRevM_eq_foldrM_toList]
+
+theorem foldRev_eq_foldr_toArray {f : δ → α → β → δ} {init : δ} :
+    Raw.Internal.foldRev f init m.1 = (Raw.Const.toArray m.1).foldr (fun a b => f b a.1 a.2) init := by
+  simp [toArray_eq_toArray_toList, foldRev_eq_foldr_toList]
+
+theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : α → β → m' PUnit} :
+    m.1.forM f = (Raw.Const.toArray m.1).forM (fun a => f a.1 a.2) := by
+  rw [toArray_eq_toArray_toList, Array.forM_toArray, forM_eq_forM_toList]
+
+theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
+    {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
+    m.1.forIn f init = ForIn.forIn (Raw.Const.toArray m.1) init (fun a b => f a.1 a.2 b) := by
+  simp [toArray_eq_toArray_toList, forIn_eq_forIn_toList]
 
 end Const
 

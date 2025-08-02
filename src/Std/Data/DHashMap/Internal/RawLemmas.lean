@@ -1337,13 +1337,10 @@ theorem foldRev_eq_foldr_toArray {f : δ → (a : α) → β a → δ} {init : �
     Raw.Internal.foldRev f init m.1 = m.1.toArray.foldr (fun a b => f b a.1 a.2) init := by
   simp [toArray_eq_toArray_toList, foldRev_eq_foldr_toList]
 
-private theorem Array.forM_toArray [Monad m'] {l : List α} {f: α → m' PUnit}:
-    Array.forM f l.toArray = List.forM l f := by
-  simp only [List.size_toArray, List.forM_toArray', List.forM_eq_forM]
-
 theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : (a : α) → β a → m' PUnit} :
     m.1.forM f = m.1.toArray.forM (fun a => f a.1 a.2) := by
-  rw [toArray_eq_toArray_toList, Array.forM_toArray, forM_eq_forM_toList]
+  rw [toArray_eq_toArray_toList, List.forM_toArray', forM_eq_forM_toList]
+  rfl
 
 theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
     {f : (a : α) → β a → δ → m' (ForInStep δ)} {init : δ} :

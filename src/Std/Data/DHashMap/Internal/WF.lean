@@ -215,7 +215,7 @@ theorem Const.toArray_eq_toArray_map_toList {β : Type v} {m : Raw α (fun _ => 
     Raw.Const.toArray m = (Raw.Const.toList m).toArray := by
   simp [Const.toArray_eq_toArray_map_toListModel, Const.toList_eq_toListModel_map]
 
-theorem keys_eq_keys_toListModel {m : Raw α β } :
+theorem keys_eq_keys_toListModel {m : Raw α β} :
     m.keys = List.keys (toListModel m.buckets) := by
   simp [Raw.keys, foldRev_cons_key, keys_eq_map]
 

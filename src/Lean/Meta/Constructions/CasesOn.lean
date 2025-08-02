@@ -23,5 +23,6 @@ def mkCasesOn (declName : Name) : MetaM Unit := do
   addDecl decl
   setReducibleAttribute name
   modifyEnv fun env => markAuxRecursor env name
+  enableRealizationsForConst name
 
 end Lean

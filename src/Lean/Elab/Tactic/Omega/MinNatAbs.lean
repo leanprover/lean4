@@ -9,7 +9,7 @@ prelude
 public import Init.BinderPredicates
 public import Init.Data.Int.Order
 public import Init.Data.List.MinMax
-public import Init.Data.Nat.MinMax
+public import Init.Data.Nat.Order
 public import Init.Data.Option.Lemmas
 
 public section
@@ -41,9 +41,6 @@ def nonzeroMinimum (xs : List Nat) : Nat := xs.filter (· ≠ 0) |>.min? |>.getD
 theorem min?_eq_some_iff'' {xs : List Nat} :
     xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
   min?_eq_some_iff
-    (le_refl := Nat.le_refl)
-    (min_eq_or := fun _ _ => Nat.min_def .. ▸ by split <;> simp)
-    (le_min_iff := fun _ _ _ => Nat.le_min)
 
 open Classical in
 @[simp] theorem nonzeroMinimum_eq_zero_iff {xs : List Nat} :

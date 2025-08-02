@@ -287,14 +287,17 @@ partial def trySubstVarsAndContradiction (mvarId : MVarId) (forbidden : FVarIdSe
 private def processNextEq : M Bool := do
   let s ← get
   s.mvarId.withContext do
-    -- If the goal is contradictory, the hypothesis is redundant.
-    if (← contradiction s.mvarId) then
-      return false
     if let eq :: eqs := s.eqs then
       modify fun s => { s with eqs }
       let eqType ← inferType (mkFVar eq)
       -- See `substRHS`. Recall that if `rhs` is a variable then if must be in `s.xs`
       if let some (_, lhs, rhs) ← matchEq? eqType then
+        -- Common case: Different constructors
+        match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
+        | some lhsCtor, some rhsCtor =>
+          if lhsCtor.name != rhsCtor.name then
+            return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
+        | _,_ => pure ()
         if (← isDefEq lhs rhs) then
           return true
         if rhs.isFVar && s.xs.contains rhs.fvarId! then

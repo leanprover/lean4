@@ -1140,7 +1140,6 @@ theorem forall_mem_keysArray_iff_forall_contains_getKey [EquivBEq α] [LawfulHas
     (h : m.1.WF) {p : α → Prop} :
     (∀ k ∈ m.1.keysArray, p k) ↔ ∀ (k : α) (h : m.contains k), p (m.getKey k h) := by
   simp_to_model [keysArray, contains, getKey]
-  sorry
 
 theorem contains_of_mem_keysArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α}
     (h' : k ∈ m.1.keysArray) : m.contains k :=

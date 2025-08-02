@@ -842,16 +842,8 @@ abbrev mem_of_elem_eq_true := @mem_of_contains_eq_true
 
 theorem contains_eq_true_of_mem [BEq α] [ReflBEq α] {a : α} {as : Array α} (h : a ∈ as) :
     as.contains a = true := by
-  cases as with
-  | mk l =>
-    simp only [mem_toArray, List.contains_toArray] at h ⊢
-    induction l with
-    | nil => simp at h
-    | cons hd tl ih =>
-      simp only [List.mem_cons, List.contains_cons, Bool.or_eq_true] at h ⊢
-      cases h with
-      | inl h => simp [h]
-      | inr h => simp [ih h]
+  cases as
+  simpa using List.elem_eq_true_of_mem (Array.mem_toList_iff.mpr h)
 
 @[deprecated contains_eq_true_of_mem (since := "2024-12-12")]
 abbrev elem_eq_true_of_mem := @contains_eq_true_of_mem

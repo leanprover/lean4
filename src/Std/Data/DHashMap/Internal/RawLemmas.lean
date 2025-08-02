@@ -11,7 +11,6 @@ import all Std.Data.DHashMap.Internal.Defs
 public import Std.Data.DHashMap.Internal.WF
 import all Std.Data.DHashMap.Raw
 meta import all Std.Data.DHashMap.Basic
-import Init.Data.Array.Perm
 
 public section
 

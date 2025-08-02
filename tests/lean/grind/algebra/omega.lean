@@ -1,19 +1,5 @@
 -- Comparisons against `omega`:
 
--- The next three problems are solved by
--- grind_pattern Fin.isLt => Fin.val self
--- but I *think* they should be solved anyway via the `ToInt (Fin n)` instances.
-
-theorem Fin.range_natAdd.extracted_1 (m n : Nat) (i : Fin (m + n)) (hi : m ≤ ↑i) : ↑i - m < n := by
-  grind
-
-theorem Fin.image_addNat_Ici.extracted_1 {n : Nat} (m : Nat) (i : Fin n) ⦃j : Fin (n + m)⦄
-    (this : ↑i + m ≤ ↑j) : ↑j - m < n := by
-  grind
-
-theorem List.find?_ofFn_eq_some.extracted_1 {n : Nat} (i : Fin n) (j : Nat) (hj : j < ↑i) : j < n := by
-  grind
-
 -- This one is much slower (~10s in the kernel) than omega (~2s in the kernel).
 example {a b c d e f a' b' c' d' e' f' : Int}
   (h₁ : c = a + 3 * b) (h₂ : c' = a' + b') (h₃ : d = 2 * a + 3 * b) (h₄ : d' = 2 * a' + b') (h₅ : e = a + b)

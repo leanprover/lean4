@@ -1369,7 +1369,8 @@ theorem foldRev_eq_foldr_keysArray {f : δ → (a : α) → δ} {init : δ} :
 
 theorem forM_eq_forM_keysArray [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
     m.1.forM (fun a _ => f a) = m.1.keysArray.forM f := by
-  rw [keysArray_eq_toArray_keys, Array.forM_toArray, forM_eq_forM_keys]
+  rw [keysArray_eq_toArray_keys, List.forM_toArray', forM_eq_forM_keys]
+  rfl
 
 theorem forIn_eq_forIn_keysArray [Monad m'] [LawfulMonad m']
     {f : α → δ → m' (ForInStep δ)} {init : δ} :
@@ -1401,7 +1402,8 @@ theorem foldRev_eq_foldr_toArray {f : δ → α → β → δ} {init : δ} :
 
 theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : α → β → m' PUnit} :
     m.1.forM f = (Raw.Const.toArray m.1).forM (fun a => f a.1 a.2) := by
-  rw [toArray_eq_toArray_toList, Array.forM_toArray, forM_eq_forM_toList]
+  rw [toArray_eq_toArray_toList, List.forM_toArray', forM_eq_forM_toList]
+  rfl
 
 theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
     {f : α → β → δ → m' (ForInStep δ)} {init : δ} :

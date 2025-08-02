@@ -170,11 +170,10 @@ builtin_simproc_decl matcherPushArg (_) := fun e => do
 
   let fExpr := fArg.bindingBody!.bindingBody!.appFn!
   let fExprType ← inferType fExpr
+  let fExprType ← withTransparency .all (whnfForall fExprType)
   assert! fExprType.isForall
   let alpha := fExprType.bindingDomain!
-  let beta ← forallBoundedTelescope (← inferType fExpr) (some 1) fun xs fType =>
-    assert! xs.size = 1
-    mkLambdaFVars xs fType
+  let beta := .lam fExprType.bindingName! fExprType.bindingDomain! fExprType.bindingBody! .default
 
   -- Check that the motive has an extra parameter (from MatcherApp.addArg)
   let some motive' ← isForallMotive matcherApp |  return .continue

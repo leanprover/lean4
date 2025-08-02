@@ -117,34 +117,8 @@ For example:
     (because A B are out-params and are only filled in once we synthesize 2)
 
 (The type of `inst` must not contain mvars.)
-
-Remark: `projInfo?` is `some` if the instance is a projection.
-We need this information because of the heuristic we use to annotate binder
-information in projections. See PR #5376 and issue #5333. Before PR
-#5376, given a class `C` at
-```
-class A (n : Nat) where
-
-instance [A n] : A n.succ where
-
-class B [A 20050] where
-
-class C [A 20000] extends B where
-```
-we would get the following instance
-```
-C.toB [inst : A 20000] [self : @C inst] : @B ...
-```
-After the PR, we have
-```
-C.toB {inst : A 20000} [self : @C inst] : @B ...
-```
-Note the attribute `inst` is now just a regular implicit argument.
-To ensure `computeSynthOrder` works as expected, we should take
-this change into account while processing field `self`.
-This field is the one at position `projInfo?.numParams`.
 -/
-private partial def computeSynthOrder (inst : Expr) (projInfo? : Option ProjectionFunctionInfo) : MetaM (Array Nat) :=
+private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   withReducible do
   let instTy ← inferType inst
 
@@ -176,6 +150,21 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
         mvarId.assign argVars[i]!
       assignMVarsIn (← inferType (.mvar mvarId))
 
+  -- We start by determining which instance arguments appear in other instance
+  -- arguments as a parameter. These arguments can usually be inferred from the
+  -- other argument, so we put them at the end of the synth order.
+  let mut toSynth := List.range argMVars.size |>.filter (argBIs[·]! == .instImplicit) |>.toArray
+  let mut instParams := #[]
+  for i in toSynth do
+    let args ← forallTelescopeReducing (← inferType argMVars[i]!) fun _ argTy =>
+      return (← whnf argTy).getAppArgs
+    for arg in args do
+      if arg.isMVar then
+        if let some j := toSynth.find? (argMVars[·]! == arg) then
+          toSynth := toSynth.filter (· != j)
+          instParams := instParams.push j
+          arg.mvarId!.assign argVars[j]!
+
   -- We start by assigning all metavariables in non-out-params of the return value.
   -- These are assumed to not be mvars during TC search (or at least not assignable)
   let tyOutParams ← getSemiOutParamPositionsOf ty
@@ -187,16 +176,9 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
   -- Now we successively try to find the next ready subgoal, where all
   -- non-out-params are mvar-free.
   let mut synthed := #[]
-  let mut toSynth := List.range argMVars.size |>.filter (argBIs[·]! == .instImplicit) |>.toArray
   while !toSynth.isEmpty do
     let next? ← toSynth.findM? fun i => do
-      let argTy ← instantiateMVars (← inferType argMVars[i]!)
-      if let some projInfo := projInfo? then
-        if projInfo.numParams == i then
-          -- See comment regarding `projInfo?` at the beginning of this function
-          assignMVarsIn argTy
-          return true
-      forallTelescopeReducing argTy fun _ argTy => do
+      forallTelescopeReducing (← instantiateMVars (← inferType argMVars[i]!)) fun _ argTy => do
       let argTy ← whnf argTy
       let argOutParams ← getSemiOutParamPositionsOf argTy
       let argTyArgs := argTy.getAppArgs
@@ -220,6 +202,7 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
     toSynth := toSynth.filter (· != next)
     assignMVarsIn (← inferType argMVars[next]!)
     assignMVarsIn argMVars[next]!
+  synthed := synthed ++ instParams.qsort
 
   if synthInstance.checkSynthOrder.get (← getOptions) then
     let ty ← instantiateMVars ty
@@ -235,8 +218,7 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
   addGlobalInstance declName attrKind
-  let projInfo? ← getProjectionFnInfo? declName
-  let synthOrder ← computeSynthOrder c projInfo?
+  let synthOrder ← computeSynthOrder c
   instanceExtension.add { keys, val := c, priority := prio, globalName? := declName, attrKind, synthOrder } attrKind
 
 /--

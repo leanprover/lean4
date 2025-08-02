@@ -1423,10 +1423,27 @@ private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension
     if asyncDecl.isAnonymous then
       panic! "called on `async` extension, must set `asyncDecl` \
         or pass `(asyncMode := .local)` to explicitly access local state"
+
     -- analogous structure to `findAsync?`; see there
     -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
     if env.base.get env |>.constants.contains asyncDecl then
       return ext.getStateImpl env.base.private.extensions
+
+    -- specialization of the following branch, nested async decls are rare
+    if let some c := env.asyncConsts.find? asyncDecl then
+      match branch with
+      | .asyncEnv =>
+        if let some exts := c.exts? then
+          return ext.getStateImpl exts.get
+        else
+          return ext.getStateImpl env.base.private.extensions
+      | .mainEnv =>
+        if c.isRealized then
+          if let some exts := c.exts? then
+            return ext.getStateImpl exts.get
+        else
+          return ext.getStateImpl env.base.private.extensions
+
     if let some (c, parent?) := env.asyncConsts.findRecAndParent? asyncDecl then
       -- If `parent?` is `none`, the current branch is the parent
       let parentExts? := match parent? with

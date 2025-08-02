@@ -54,6 +54,7 @@ def unfoldReducible' (e : Expr) : GoalM Expr := do
     let .const declName _ := e.getAppFn | return .continue
     unless (← isReducible declName) do return .continue
     if isGrindGadget declName then return .continue
+    if (← getEnv).isProjectionFn declName then return .continue
     let some v ← unfoldDefinition? e | return .continue
     return .visit v
   Core.transform e (pre := pre)

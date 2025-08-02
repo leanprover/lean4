@@ -150,14 +150,13 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
         else
           addFVarSubst fvarId result
           simp k
+      markSimplified
       if oneExitPointQuick code then
         -- TODO: if `k` is small, we should also inline it here
-        markSimplified
         code.bind fun fvarId' => do
           markUsedFVar fvarId'
           simpK fvarId'
       else
-        markSimplified
         let expectedType ← inferAppType info.fType info.args[*...info.arity]
         if expectedType.headBeta.isForall then
           /-

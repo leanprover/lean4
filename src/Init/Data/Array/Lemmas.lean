@@ -840,9 +840,10 @@ theorem mem_of_contains_eq_true [BEq α] [LawfulBEq α] {a : α} {as : Array α}
 @[deprecated mem_of_contains_eq_true (since := "2024-12-12")]
 abbrev mem_of_elem_eq_true := @mem_of_contains_eq_true
 
-theorem contains_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : Array α} (h : a ∈ as) : as.contains a = true := by
+theorem contains_eq_true_of_mem [BEq α] [ReflBEq α] {a : α} {as : Array α} (h : a ∈ as) :
+    as.contains a = true := by
   cases as
-  simpa using h
+  simpa using List.elem_eq_true_of_mem (Array.mem_toList_iff.mpr h)
 
 @[deprecated contains_eq_true_of_mem (since := "2024-12-12")]
 abbrev elem_eq_true_of_mem := @contains_eq_true_of_mem

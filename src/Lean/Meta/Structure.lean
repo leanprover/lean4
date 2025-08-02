@@ -55,7 +55,8 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
     let indVal ← getConstInfoInduct n
     if indVal.numCtors != 1 then
       throwError "cannot generate projections for '{.ofConstName n}', does not have exactly one constructor"
-    let ctorVal ← getConstInfoCtor indVal.ctors.head!
+    -- We will apply per-projection visibilities below
+    let ctorVal ← withoutExporting do getConstInfoCtor indVal.ctors.head!
     let isPredicate ← isPropFormerType indVal.type
     let lvls := indVal.levelParams.map mkLevelParam
     forallBoundedTelescope ctorVal.type indVal.numParams fun params ctorType => do
@@ -80,43 +81,44 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
         let mut ctorType := ctorType
         for h : i in *...projDecls.size do
           let {ref, projName, paramInfoOverrides} := projDecls[i]
-          unless ctorType.isForall do
-            throwErrorAt ref "\
-              failed to generate projection '{projName}' for '{.ofConstName n}', \
-              not enough constructor fields"
-          unless paramInfoOverrides.length ≤ params.size do
-            throwErrorAt ref "\
-              failed to generate projection '{projName}' for '{.ofConstName n}', \
-              too many structure parameter overrides"
-          let resultType := ctorType.bindingDomain!.consumeTypeAnnotations
-          let isProp ← isProp resultType
-          if isPredicate && !isProp then
-            throwErrorAt ref "\
-              failed to generate projection '{projName}' for the 'Prop'-valued type '{.ofConstName n}', \
-              field must be a proof, but it has type\
-              {indentExpr resultType}"
-          let projType := lctx.mkForall projArgs resultType
-          let projType := projType.inferImplicit indVal.numParams (considerRange := true)
-          let projType := projType.updateForallBinderInfos paramInfoOverrides
-          let projVal := lctx.mkLambda projArgs <| Expr.proj n i self
-          let cval : ConstantVal := { name := projName, levelParams := indVal.levelParams, type := projType }
-          withRef ref do
-            if isProp then
-              let env ← getEnv
-              addDecl <|
-                if env.hasUnsafe projType || env.hasUnsafe projVal then
-                  -- Theorems cannot be unsafe, using opaque instead.
-                  Declaration.opaqueDecl { cval with value := projVal, isUnsafe := true }
-                else
-                  Declaration.thmDecl { cval with value := projVal }
-            else
-              let decl ← mkDefinitionValInferringUnsafe projName indVal.levelParams projType projVal ReducibilityHints.abbrev
-              -- Projections have special compiler support. No need to compile.
-              addDecl <| Declaration.defnDecl decl
-              -- Recall: we want instance projections to be in "reducible canonical form"
-              if !instImplicit then
-                setReducibleAttribute projName
-          modifyEnv fun env => addProjectionFnInfo env projName ctorVal.name indVal.numParams i instImplicit
+          withoutExporting (when := isPrivateName projName) do
+            unless ctorType.isForall do
+              throwErrorAt ref "\
+                failed to generate projection '{projName}' for '{.ofConstName n}', \
+                not enough constructor fields"
+            unless paramInfoOverrides.length ≤ params.size do
+              throwErrorAt ref "\
+                failed to generate projection '{projName}' for '{.ofConstName n}', \
+                too many structure parameter overrides"
+            let resultType := ctorType.bindingDomain!.consumeTypeAnnotations
+            let isProp ← isProp resultType
+            if isPredicate && !isProp then
+              throwErrorAt ref "\
+                failed to generate projection '{projName}' for the 'Prop'-valued type '{.ofConstName n}', \
+                field must be a proof, but it has type\
+                {indentExpr resultType}"
+            let projType := lctx.mkForall projArgs resultType
+            let projType := projType.inferImplicit indVal.numParams (considerRange := true)
+            let projType := projType.updateForallBinderInfos paramInfoOverrides
+            let projVal := lctx.mkLambda projArgs <| Expr.proj n i self
+            let cval : ConstantVal := { name := projName, levelParams := indVal.levelParams, type := projType }
+            withRef ref do
+              if isProp then
+                let env ← getEnv
+                addDecl <|
+                  if env.hasUnsafe projType || env.hasUnsafe projVal then
+                    -- Theorems cannot be unsafe, using opaque instead.
+                    Declaration.opaqueDecl { cval with value := projVal, isUnsafe := true }
+                  else
+                    Declaration.thmDecl { cval with value := projVal }
+              else
+                let decl ← mkDefinitionValInferringUnsafe projName indVal.levelParams projType projVal ReducibilityHints.abbrev
+                -- Projections have special compiler support. No need to compile.
+                addDecl <| Declaration.defnDecl decl
+                -- Recall: we want instance projections to be in "reducible canonical form"
+                if !instImplicit then
+                  setReducibleAttribute projName
+            modifyEnv fun env => addProjectionFnInfo env projName ctorVal.name indVal.numParams i instImplicit
           let proj := mkApp (mkAppN (.const projName lvls) params) self
           ctorType := ctorType.bindingBody!.instantiate1 proj
 

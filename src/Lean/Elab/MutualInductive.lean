@@ -958,8 +958,9 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
         Term.addTermInfo' view.declId (← mkConstWithLevelParams view.declName) (isBinder := true)
         for ctor in view.ctors do
           if (ctor.declId.getPos? (canonicalOnly := true)).isSome then
-            Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
-            enableRealizationsForConst ctor.declName
+            withoutExporting do
+              Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
+              enableRealizationsForConst ctor.declName
     return res
 
 private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
@@ -980,7 +981,7 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
   let view0 := elabs[0]!.view
   let ref := view0.ref
   Term.withDeclName view0.declName do withRef ref do
-  withExporting (isExporting := !isPrivateName view0.declName) do
+  withoutExporting (when := view0.ctors.any (isPrivateName ·.declName)) do
     let res ← mkInductiveDecl vars elabs
     mkAuxConstructions (elabs.map (·.view.declName))
     unless view0.isClass do

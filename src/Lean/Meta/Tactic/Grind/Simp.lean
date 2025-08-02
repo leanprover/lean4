@@ -43,10 +43,14 @@ def dsimpCore (e : Expr) : GrindM Expr := do profileitM Exception "grind dsimp" 
 Unfolds all `reducible` declarations occurring in `e`.
 Similar to `unfoldReducible`, but uses `inShareCommon` as an extra filter
 -/
-def unfoldReducible' (e : Expr) : GrindM Expr := do
+def unfoldReducible' (e : Expr) : GoalM Expr := do
   if !(← isUnfoldReducibleTarget e) then return e
-  let pre (e : Expr) : GrindM TransformStep := do
-    if (← inShareCommon e) then return .done e
+  let pre (e : Expr) : GoalM TransformStep := do
+    -- if (← alreadyInternalized e) then
+    --   if (← isUnfoldReducibleTarget e) then
+    --     trace[Meta.debug] ">>>> BAD: {e}"
+    --   else
+    --     return .done e
     let .const declName _ := e.getAppFn | return .continue
     unless (← isReducible declName) do return .continue
     if isGrindGadget declName then return .continue

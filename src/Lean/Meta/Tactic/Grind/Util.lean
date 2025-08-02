@@ -59,7 +59,7 @@ def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
   return Option.isSome <| e.find? fun e => Id.run do
     let .const declName _ := e | return false
     if getReducibilityStatusCore env declName matches .reducible then
-      return !isGrindGadget declName
+      return !isGrindGadget declName && !env.isProjectionFn declName
     else
       return false
 

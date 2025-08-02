@@ -156,9 +156,6 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
         code.bind fun fvarId' => do
           markUsedFVar fvarId'
           simpK fvarId'
-      -- else if info.ifReduce then
-      --  eraseCode code
-      --  return none
       else
         markSimplified
         let expectedType ← inferAppType info.fType info.args[*...info.arity]

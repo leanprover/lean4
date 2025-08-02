@@ -462,7 +462,7 @@ def mkHCongrWithArityForConst? (declName : Name) (levels : List Level) (numArgs 
   try
     let suffix := hcongrThmSuffixBasePrefix ++ toString numArgs
     let thmName := Name.str declName suffix
-    unless (← getEnv).contains thmName do
+    unless (← getEnv).containsOnBranch thmName do
       let _ ← executeReservedNameAction thmName
     let proof := mkConst thmName levels
     let type ← inferType proof
@@ -479,7 +479,7 @@ same congruence theorem over and over again.
 def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option CongrTheorem) := do
   let thmName := Name.str declName congrSimpSuffix
   try
-    unless (← getEnv).contains thmName do
+    unless (← getEnv).containsOnBranch thmName do
       let _ ← executeReservedNameAction thmName
     let proof := mkConst thmName levels
     let type ← inferType proof

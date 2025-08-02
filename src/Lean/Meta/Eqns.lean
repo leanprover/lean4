@@ -49,7 +49,7 @@ This information is populated by the `PreDefinition` module, but the simplifier
 uses when unfolding declarations.
 -/
 builtin_initialize recExt : TagDeclarationExtension ←
-  mkTagDeclarationExtension `recExt (asyncMode := .async)
+  mkTagDeclarationExtension `recExt (asyncMode := .async .asyncEnv)
 
 /--
 Marks the given declaration as recursive.

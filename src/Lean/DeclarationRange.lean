@@ -28,6 +28,9 @@ def addBuiltinDeclarationRanges (declName : Name) (declRanges : DeclarationRange
   builtinDeclRanges.modify (·.insert declName declRanges)
 
 def addDeclarationRanges [Monad m] [MonadEnv m] (declName : Name) (declRanges : DeclarationRanges) : m Unit := do
+  if declName.isAnonymous then
+    -- This can happen on elaboration of partial syntax and would panic in `modifyState` otherwise
+    return
   modifyEnv fun env => declRangeExt.insert env declName declRanges
 
 def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Option DeclarationRanges) :=

@@ -59,12 +59,15 @@ structure JobState where
   action : JobAction := .unknown
   /-- Current trace of a build job. -/
   trace : BuildTrace := .nil
+  /-- How long the job spent building (in milliseconds). -/
+  buildTime : Nat := 0
   deriving Inhabited
 
 def JobState.merge (a b : JobState) : JobState where
   log := a.log ++ b.log
   action := a.action.merge b.action
   trace := mixTrace a.trace b.trace
+  buildTime := a.buildTime + b.buildTime
 
 @[inline] def JobState.modifyLog (f : Log → Log) (s : JobState) : JobState :=
   {s with log := f s.log}

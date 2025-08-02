@@ -42,6 +42,7 @@ structure MonitorContext where
   showOptional : Bool
   useAnsi : Bool
   showProgress : Bool
+  showTime : Bool
   /-- How often to poll jobs (in milliseconds). -/
   updateFrequency : Nat
 
@@ -49,6 +50,7 @@ structure MonitorContext where
 structure MonitorState where
   jobNo : Nat := 0
   totalJobs : Nat := 0
+  didBuild : Bool := false
   failures : Array String
   resetCtrl : String
   lastUpdate : Nat
@@ -104,24 +106,29 @@ def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.si
     print s!"{resetCtrl}{spinnerIcon} [{jobNo}/{totalJobs}] {caption}"
     flush
 
+
+
 def reportJob (job : OpaqueJob) : MonitorM PUnit := do
-  let {jobNo, totalJobs, ..} ← get
-  let {failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, ..} ← read
+  let {jobNo, totalJobs, didBuild, ..} ← get
+  let {failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, showTime, ..} ← read
   let {task, caption, optional, ..} := job
-  let {log, action, ..} := task.get.state
+  let {log, action, buildTime, ..} := task.get.state
   let maxLv := log.maxLv
-  let failed := log.hasEntries ∧ maxLv ≥ failLv
-  if failed ∧ ¬optional then
+  let failed := strictAnd log.hasEntries (maxLv ≥ failLv)
+   if !didBuild && action = .build then
+    modify fun s => {s with didBuild := true}
+  if failed && !optional then
     modify fun s => {s with failures := s.failures.push caption}
-  let hasOutput := failed ∨ (log.hasEntries ∧ maxLv ≥ outLv)
+  let hasOutput := failed || (log.hasEntries && maxLv ≥ outLv)
   let showJob :=
-    (¬ optional ∨ showOptional) ∧
-    (hasOutput ∨ (showProgress ∧ ¬ useAnsi ∧ action ≥ minAction))
+    (!optional || showOptional) &&
+    (hasOutput || (showProgress && !useAnsi && action ≥ minAction))
   if showJob then
     let verb := action.verb failed
     let icon := if hasOutput then maxLv.icon else '✔'
     let opt := if optional then " (Optional)" else ""
-    let caption := s!"{icon} [{jobNo}/{totalJobs}]{opt} {verb} {caption}"
+    let time := if showTime && buildTime > 0 then s!" ({formatTime buildTime})" else ""
+    let caption := s!"{icon} [{jobNo}/{totalJobs}]{opt} {verb} {caption}{time}"
     let caption :=
       if useAnsi then
         let color := if hasOutput then maxLv.ansiColor else "32"
@@ -134,6 +141,11 @@ def reportJob (job : OpaqueJob) : MonitorM PUnit := do
       let outLv := if failed then .trace else outLv
       log.replay (logger := .stream out outLv useAnsi)
     flush
+where
+  formatTime ms :=
+    if ms > 10000 then s!"{ms / 1000}s"
+    else if ms > 1000 then s!"{(ms) / 1000}.{(ms+50) / 100 % 10}s"
+    else s!"{ms}ms"
 
 def poll (unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × Array OpaqueJob) := do
   let newJobs ← (← read).jobs.modifyGet ((·, #[]))
@@ -177,6 +189,7 @@ def main (init : Array OpaqueJob) : MonitorM PUnit := do
 end Monitor
 
 structure MonitorResult where
+  didBuild : Bool
   failures : Array String
   numJobs : Nat
 
@@ -187,14 +200,14 @@ def monitorJobs
   (out : IO.FS.Stream)
   (failLv outLv : LogLevel)
   (minAction : JobAction)
-  (showOptional useAnsi showProgress : Bool)
+  (showOptional useAnsi showProgress showTime : Bool)
   (resetCtrl : String := "")
   (initFailures : Array String := #[])
   (updateFrequency := 100)
 : BaseIO MonitorResult := do
   let ctx := {
     jobs, out, failLv, outLv, minAction, showOptional
-    useAnsi, showProgress, updateFrequency
+    useAnsi, showProgress, showTime, updateFrequency
   }
   let s := {
     resetCtrl
@@ -202,7 +215,11 @@ def monitorJobs
     failures := initFailures
   }
   let (_,s) ← Monitor.main initJobs |>.run ctx s
-  return {failures := s.failures, numJobs := s.totalJobs}
+  return {
+    failures := s.failures
+    numJobs := s.totalJobs
+    didBuild := s.didBuild
+  }
 
 /-- Save input mappings to the local Lake artifact cache (if enabled). -/
 def Workspace.saveInputs (ws : Workspace) : LogIO Unit := do
@@ -211,6 +228,9 @@ def Workspace.saveInputs (ws : Workspace) : LogIO Unit := do
       if let some ref := pkg.cacheRef? then
         let inputsFile := pkg.inputsFileIn ws.lakeCache
         (← ref.get).save inputsFile
+
+/-- Exit code to return if `--no-build` is set and a build is required. -/
+def noBuildCode : ExitCode := 3
 
 /--
 Run a build function in the Workspace's context using the provided configuration.
@@ -225,6 +245,7 @@ def Workspace.runFetchM
   let useAnsi ← cfg.ansiMode.isEnabled out
   let outLv := cfg.outLv
   let failLv := cfg.failLv
+  let isVerbose := cfg.verbosity = .verbose
   let showProgress := cfg.showProgress
   let showSuccess := cfg.showSuccess
   let ctx ← mkBuildContext ws cfg
@@ -233,33 +254,41 @@ def Workspace.runFetchM
   let compute := Job.async build (caption := caption)
   let job ← compute.run.run'.run ctx |>.run nilTrace
   -- Job Monitor
-  let minAction := if cfg.verbosity = .verbose then .unknown else .fetch
-  let showOptional := cfg.verbosity = .verbose
-  let {failures, numJobs} ← monitorJobs #[job] ctx.registeredJobs
-    out failLv outLv minAction showOptional useAnsi showProgress
+  let minAction := if isVerbose then .unknown else .fetch
+  let showOptional := isVerbose
+  let showTime := isVerbose || !useAnsi
+  let {failures, numJobs, didBuild} ← monitorJobs #[job] ctx.registeredJobs
+    out failLv outLv minAction showOptional useAnsi showProgress showTime
   -- Save input mappings to cache
   match (← ws.saveInputs {}) with
   | .ok _ log =>
-    if !log.isEmpty && cfg.verbosity = .verbose then
+    if !log.isEmpty && isVerbose then
       print! out "There were issues saving input mappings to the local artifact cache:\n"
       log.replay (logger := .stream out outLv useAnsi)
   | .error _ log =>
     print! out "Failed to save input mappings to the local artifact cache.\n"
-    if cfg.verbosity = .verbose then
+    if isVerbose then
       log.replay (logger := .stream out outLv useAnsi)
-  -- Failure Report
+  -- Report
+  let isNoBuild := cfg.noBuild
   if failures.isEmpty then
     let some a ← job.wait?
-      | error "top-level build failed"
+      | error "uncaught top-level build failure (this is likely a bug in Lake)"
     if showProgress && showSuccess then
       let jobs := if numJobs == 1 then "1 job" else s!"{numJobs} jobs"
-      print! out s!"Build completed successfully ({jobs}).\n"
+      if isNoBuild then
+        print! out s!"All targets up-to-date ({jobs}).\n"
+      else
+        print! out s!"Build completed successfully ({jobs}).\n"
     return a
   else
-    print! out "Some required builds logged failures:\n"
+    print! out "Some required targets logged failures:\n"
     failures.forM (print! out s!"- {·}\n")
     flush out
-    error "build failed"
+    if isNoBuild && didBuild then
+      IO.Process.exit noBuildCode.toUInt8
+    else
+      error "build failed"
 
 /-- Run a build function in the Workspace's context and await the result. -/
 @[inline] def Workspace.runBuild

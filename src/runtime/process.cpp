@@ -77,6 +77,7 @@ static void uv_handle_foreach(void * h, b_obj_arg fn) {
     object * promise = static_cast<object *>(handle->data);
     fprintf(stderr, "[foreach]: run foreach %d\n", handle->pid);
     fprintf(stderr, "[foreach]: promise rc %d\n", get_rc(promise));
+    inc(promise);
     lean_apply_1(fn, promise);
 }
 

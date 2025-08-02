@@ -196,7 +196,7 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
 
 private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let mvarId ← mvarId.abstractMVars
-  let mvarId ← mvarId.clearAuxDecls
+  let mvarId ← mvarId.clearImplDetails
   let mvarId ← mvarId.revertAll
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce

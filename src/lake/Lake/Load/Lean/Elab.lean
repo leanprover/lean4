@@ -118,7 +118,10 @@ def importConfigFileCore (olean : FilePath) (leanOpts : Options) : IO Environmen
   let env := mod.entries.foldl (init := env) fun env (extName, ents) =>
     if lakeExts.contains extName then
       match extNameIdx[extName]? with
-      | some entryIdx => ents.foldl extDescrs[entryIdx]!.addEntry env
+      | some entryIdx =>
+        -- Use `sync` to avoid `async` checks, which are not relevant here as there is only one
+        -- environment branch.
+        ents.foldl (extDescrs[entryIdx]!.addEntry (asyncMode := .sync)) env
       | none => env
     else
       env

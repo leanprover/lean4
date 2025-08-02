@@ -2483,9 +2483,9 @@ output are reported at all callers via `Core.logSnapshotTask` (so that the locat
 diagnostics is deterministic). Note that, as `realize` is run using the options at declaration time
 of `forConst`, trace options must be set prior to that (or, for imported constants, on the cmdline)
 in order to be active. The environment extension state at the end of `realize` is available to each
-caller via `EnvExtension.findStateAsync` for `constName`. If `realize` throws an exception or fails
-to add `constName` to the environment, an appropriate diagnostic is reported to all callers but no
-constants are added to the environment.
+caller via `EnvExtension.getState (asyncDecl := constName)`. If `realize` throws an exception or
+fails to add `constName` to the environment, an appropriate diagnostic is reported to all callers
+but no constants are added to the environment.
 -/
 def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     MetaM Unit := do

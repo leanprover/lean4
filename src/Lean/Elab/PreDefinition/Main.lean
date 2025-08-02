@@ -141,28 +141,29 @@ private def betaReduceLetRecApps (preDefs : Array PreDefinition) : MetaM (Array 
 
 private def addSorried (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
-    let value ← mkSorry (synthetic := true) preDef.type
-    let decl := if preDef.kind.isTheorem then
-      Declaration.thmDecl {
-        name        := preDef.declName,
-        levelParams := preDef.levelParams,
-        type        := preDef.type,
-        value
-      }
-    else
-      Declaration.defnDecl {
-        name        := preDef.declName,
-        levelParams := preDef.levelParams,
-        type        := preDef.type,
-        hints       := .abbrev
-        safety      := .safe
-        value
-      }
-    addDecl decl
-    withSaveInfoContext do  -- save new env
-      addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
-    applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
-    applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
+    unless (← hasConst preDef.declName) do
+      let value ← mkSorry (synthetic := true) preDef.type
+      let decl := if preDef.kind.isTheorem then
+        Declaration.thmDecl {
+          name        := preDef.declName,
+          levelParams := preDef.levelParams,
+          type        := preDef.type,
+          value
+        }
+      else
+        Declaration.defnDecl {
+          name        := preDef.declName,
+          levelParams := preDef.levelParams,
+          type        := preDef.type,
+          hints       := .abbrev
+          safety      := .safe
+          value
+        }
+      addDecl decl
+      withSaveInfoContext do  -- save new env
+        addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
+      applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
+      applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
 def ensureFunIndReservedNamesAvailable (preDefs : Array PreDefinition) : MetaM Unit := do
   preDefs.forM fun preDef =>

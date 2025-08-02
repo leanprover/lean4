@@ -1107,6 +1107,69 @@ abbrev indexOf_cons := @idxOf_cons
 @[deprecated idxOf_cons_self (since := "2025-01-29")]
 abbrev indexOf_cons_self := @idxOf_cons_self
 
+theorem idxOf_singleton : idxOf b [a] = if a == b then 0 else 1 := by simp [idxOf]
+
+theorem idxOf_getElem?_eq_some (w : xs[idxOf y xs]? ≠ none) : y ∈ xs := by simp_all [idxOf, w]
+
+theorem idxOf_getElem {w : idxOf y xs < xs.length} : xs[idxOf y xs] = y := by
+  let p := fun x => x == y
+  have h : p xs[findIdx p xs] = true := findIdx_getElem
+  simp only [idxOf, beq_iff_eq, p] at h
+  exact h
+
+theorem List.idxOf_lt_length_of_exists (h : x ∈ xs) : idxOf x xs < xs.length := by simp [idxOf, h]
+
+theorem idxOf_getElem?_eq_getElem_of_exists (h : x ∈ xs) :
+    xs[idxOf x xs]? = some (xs[xs.idxOf x]'(xs.idxOf_lt_length_of_exists h)) := by simp
+
+/- This version is consistent with findIdx_eq_length, in that it is an iff statement.
+For consistency, the old version of idxOf_eq_length should be
+renamed to List.idxOf_eq_length_of_not_mem -/
+theorem idxOf_eq_length1 : ¬a ∈ l ↔ idxOf a l = l.length := by
+  constructor
+  · intro h
+    induction l with
+    | nil => rfl
+    | cons x xs ih =>
+      simp only [mem_cons, not_or] at h
+      simp only [idxOf_cons, cond_eq_if, beq_iff_eq]
+      split <;> simp_all
+  · intro h
+    simp only [idxOf, findIdx_eq_length, beq_eq_false_iff_ne, ne_eq] at h
+    contrapose h
+    simp_all
+
+theorem idxOf_eq_length_of_not_mem (h : ¬a ∈ l) : idxOf a l = l.length := idxOf_eq_length1.mp h
+
+/-- Elements with indices less than xs.findIdx x are not equal to x.-/
+theorem List.not_of_lt_idxOf (h : i < idxOf x xs) :
+    xs[i]'(Nat.le_trans h findIdx_le_length) ≠ x := by
+  have h1 : (λ a => a == x) (xs[i]'(Nat.le_trans h findIdx_le_length)) = false :=
+    List.not_of_lt_findIdx h
+  simp_all
+
+/-- If xs[j] ≠ x for all j < i, then i ≤ xs.idxOf x. -/
+theorem List.le_idxOf_of_not (h : i < xs.length)
+    (h2 : ∀ (j : Nat) (hji : j < i), xs[j]'(Nat.lt_trans hji h) ≠ x) : i ≤ idxOf x xs := by
+  apply List.le_findIdx_of_not
+  simp_all only [ne_eq, beq_eq_false_iff_ne, not_false_eq_true, implies_true]
+  exact h
+
+/-- If xs[j] ≠ x for all j ≤ i, then i < xs.idxOf x. -/
+theorem List.lt_idxOf_of_not (h : i < xs.length)
+    (h2 : ∀ (j : Nat) (hji : j ≤ i), xs[j]'(Nat.lt_of_le_of_lt hji h) ≠ x) : i < idxOf x xs := by
+  apply List.lt_findIdx_of_not
+  simp_all only [ne_eq, beq_iff_eq, not_false_eq_true, implies_true]
+  exact h
+
+/-- xs.idxOf x = i iff xs[i] = x and xs[j] ≠ x for all j < i.-/
+theorem List.idxOf_eq (h : i < xs.length) :
+    idxOf x xs = i ↔ xs[i] = x ∧ ∀ (j : Nat) (hji : j < i), xs[j] ≠ x := by
+  let p := fun y ↦ y == x
+  have h1 : findIdx p xs = i ↔ p xs[i] = true ∧ ∀ (j : Nat) (hji : j < i), p xs[j] = false := by
+    exact findIdx_eq h
+  simp [idxOf, h1, p]
+
 @[grind =]
 theorem idxOf_append [BEq α] [LawfulBEq α] {l₁ l₂ : List α} {a : α} :
     (l₁ ++ l₂).idxOf a = if a ∈ l₁ then l₁.idxOf a else l₂.idxOf a + l₁.length := by
@@ -1156,6 +1219,19 @@ theorem idxOf_lt_length_iff [BEq α] [LawfulBEq α] {l : List α} {a : α} :
   · intro h
     simpa [idxOf] using h
   · exact idxOf_lt_length_of_mem
+
+theorem IsPrefix.idxOf_le
+    (h : l₁ <+: l₂) : idxOf x l₁ ≤ idxOf x l₂ := by
+  let p := fun y ↦ y == x
+  exact List.IsPrefix.findIdx_le h
+
+theorem IsPrefix.idxOf_eq_of_idxOf_lt_length (h : l₁ <+: l₂) (lt : idxOf x l₁ < l₁.length) :
+    idxOf x l₂ = idxOf x l₁ := by
+  let p := fun y ↦ y == x
+  exact List.IsPrefix.findIdx_eq_of_findIdx_lt_length h lt
+
+theorem List.idxOf_subtype {p : α → Prop} {l : List {x : α // p x}} (h : p x) :
+    l.idxOf ⟨x, h⟩ = l.unattach.idxOf x := by simp [idxOf]
 
 grind_pattern idxOf_lt_length_iff => l.idxOf a, l.length
 

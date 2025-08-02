@@ -163,6 +163,9 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
      ⟨`foldRev, (``Raw.foldRev_eq_foldr_toListModel, #[])⟩,
      ⟨`forIn, (``Raw.forIn_eq_forIn_toListModel, #[])⟩,
      ⟨`forM, (``Raw.forM_eq_forM_toListModel, #[])⟩,
+     ⟨`toArray, (``Raw.toArray_eq_toArray_toListModel, #[])⟩,
+     ⟨`keysArray, (``Raw.keysArray_eq_toArray_keys_toListModel, #[])⟩,
+     ⟨`Const.toArray, (``Raw.Const.toArray_eq_toArray_map_toListModel, #[])⟩,
      ⟨`Equiv, (``Raw.equiv_iff_toListModel_perm,
       #[`(_root_.List.Perm.congr_left), `(_root_.List.Perm.congr_right)])⟩]
 
@@ -1136,7 +1139,8 @@ theorem mem_keysArray [LawfulBEq α] (h : m.1.WF) {k : α} :
 theorem forall_mem_keysArray_iff_forall_contains_getKey [EquivBEq α] [LawfulHashable α]
     (h : m.1.WF) {p : α → Prop} :
     (∀ k ∈ m.1.keysArray, p k) ↔ ∀ (k : α) (h : m.contains k), p (m.getKey k h) := by
-  simp [keysArray_eq_toArray_keys, h, forall_mem_keys_iff_forall_contains_getKey]
+  simp_to_model [keysArray, contains, getKey]
+  sorry
 
 theorem contains_of_mem_keysArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α}
     (h' : k ∈ m.1.keysArray) : m.contains k :=

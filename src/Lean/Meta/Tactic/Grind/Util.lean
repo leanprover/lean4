@@ -59,7 +59,9 @@ def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
   return Option.isSome <| e.find? fun e => Id.run do
     let .const declName _ := e | return false
     if getReducibilityStatusCore env declName matches .reducible then
-      return !isGrindGadget declName
+      -- Remark: it is wasteful to unfold projection functions since
+      -- kernel projections are folded again in the `foldProjs` preprocessing step.
+      return !isGrindGadget declName && !env.isProjectionFn declName
     else
       return false
 
@@ -72,6 +74,8 @@ def unfoldReducible (e : Expr) : MetaM Expr := do
     let .const declName _ := e.getAppFn | return .continue
     unless (← isReducible declName) do return .continue
     if isGrindGadget declName then return .continue
+    -- See comment at isUnfoldReducibleTarget.
+    if (← getEnv).isProjectionFn declName then return .continue
     let some v ← unfoldDefinition? e | return .continue
     return .visit v
   Core.transform e (pre := pre)

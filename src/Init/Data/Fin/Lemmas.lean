@@ -938,7 +938,7 @@ For the induction:
     (reverseInduction zero succ (Fin.last n) : motive (Fin.last n)) = zero := by
   rw [reverseInduction, reverseInduction.go]; simp
 
-@[simp] theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) → Sort _} {succ}
+private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) → Sort _} {succ}
     (i : Fin n) (j : Nat) (h) (h2 : i.1 < j) (zero : motive ⟨j, h⟩) :
     reverseInduction.go (motive := motive) succ i.castSucc j h (Nat.le_of_lt h2) zero =
       succ i (reverseInduction.go succ i.succ j h h2 zero) := by

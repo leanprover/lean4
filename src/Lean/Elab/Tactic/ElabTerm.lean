@@ -449,7 +449,7 @@ def evalDecideCore (tacticName : Name) (cfg : Parser.Tactic.DecideConfig) : Tact
     -- In revert mode: clean up the local context and then revert everything that is left.
     liftMetaTactic1 fun g => do
       let g ← g.cleanup
-      let (_, g) ← g.revert (clearAuxDeclsInsteadOfRevert := true) (← g.getDecl).lctx.getFVarIds
+      let (_, g) ← g.revert (clearImplDetailInsteadOfRevert := true) (← g.getDecl).lctx.getFVarIds
       return g
   closeMainGoalUsing tacticName fun expectedType _ => do
     if cfg.kernel && cfg.native then

@@ -20,12 +20,12 @@ def _root_.Lean.MVarId.revertAll (mvarId : MVarId) : MetaM MVarId := mvarId.with
   mvarId.checkNotAssigned `revertAll
   let mut toRevert := #[]
   for fvarId in (← getLCtx).getFVarIds do
-    unless (← fvarId.getDecl).isAuxDecl do
+    unless (← fvarId.getDecl).isImplementationDetail do
       toRevert := toRevert.push fvarId
   mvarId.setKind .natural
   let (_, mvarId) ← mvarId.revert toRevert
     (preserveOrder := true)
-    (clearAuxDeclsInsteadOfRevert := true)
+    (clearImplDetailInsteadOfRevert := true)
   return mvarId
 
 end Lean.Meta.Grind

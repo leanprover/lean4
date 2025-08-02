@@ -46,11 +46,7 @@ Similar to `unfoldReducible`, but uses `inShareCommon` as an extra filter
 def unfoldReducible' (e : Expr) : GoalM Expr := do
   if !(← isUnfoldReducibleTarget e) then return e
   let pre (e : Expr) : GoalM TransformStep := do
-    -- if (← alreadyInternalized e) then
-    --   if (← isUnfoldReducibleTarget e) then
-    --     trace[Meta.debug] ">>>> BAD: {e}"
-    --   else
-    --     return .done e
+    if (← alreadyInternalized e) then return .done e
     let .const declName _ := e.getAppFn | return .continue
     unless (← isReducible declName) do return .continue
     if isGrindGadget declName then return .continue

@@ -18,7 +18,7 @@ namespace Lean.Parser.Tactic
 into an auxiliary lemma. In some cases, this significantly reduces the size of expressions
 because the proof term is not duplicated.
 -/
-syntax (name := as_aux_lemma) "as_aux_lemma" " => " tacticSeq : tactic
+syntax (name := as_aux_lemma) "as_aux_lemma" " => " tacticSeqIndentGt : tactic
 
 /--
 `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with
@@ -302,7 +302,7 @@ syntax (name := right) "right" : tactic
   with inaccessible names to the given names.
 * `case tag₁ | tag₂ => tac` is equivalent to `(case tag₁ => tac); (case tag₂ => tac)`.
 -/
-syntax (name := case) "case " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
+syntax (name := case) "case " sepBy1(caseArg, " | ") " => " tacticSeqIndentGt : tactic
 
 /--
 `case'` is similar to the `case tag => tac` tactic, but does not ensure the goal
@@ -310,16 +310,17 @@ has been solved after applying `tac`, nor admits the goal if `tac` failed.
 Recall that `case` closes the goal using `sorry` when `tac` fails, and
 the tactic execution is not interrupted.
 -/
-syntax (name := case') "case' " sepBy1(caseArg, " | ") " => " tacticSeq : tactic
+syntax (name := case') "case' " sepBy1(caseArg, " | ") " => " tacticSeqIndentGt : tactic
 
 /--
 `next => tac` focuses on the next goal and solves it using `tac`, or else fails.
 `next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with
 inaccessible names to the given names.
 -/
-macro nextTk:"next " args:binderIdent* arrowTk:" => " tac:tacticSeq : tactic =>
+macro nextTk:"next " args:binderIdent* arrowTk:" => " tac:tacticSeqIndentGt : tactic =>
   -- Limit ref variability for incrementality; see Note [Incremental Macros]
-  withRef arrowTk `(tactic| case%$nextTk _ $args* =>%$arrowTk $tac)
+  -- TODO(kmill) after stage0 update use `$tac`
+  withRef arrowTk `(tactic| case%$nextTk _ $args* =>%$arrowTk $(⟨tac⟩):tacticSeq)
 
 /--
 `all_goals tac` runs `tac` on each goal, concatenating the resulting goals.
@@ -357,7 +358,7 @@ syntax (name := traceState) "trace_state" : tactic
 syntax (name := traceMessage) "trace " str : tactic
 
 /-- `fail_if_success t` fails if the tactic `t` succeeds. -/
-syntax (name := failIfSuccess) "fail_if_success " tacticSeq : tactic
+syntax (name := failIfSuccess) "fail_if_success " tacticSeqIndentGt : tactic
 
 /--
 `(tacs)` executes a list of tactics in sequence, without requiring that
@@ -385,7 +386,7 @@ In this setting all definitions that are not opaque are unfolded.
 syntax (name := withUnfoldingAll) "with_unfolding_all " tacticSeq : tactic
 
 /-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
-syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
+syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " tacticSeqIndentGt)+) : tactic
 
 /--
 `rotate_left n` rotates goals to the left by `n`. That is, `rotate_left 1`
@@ -401,7 +402,7 @@ and push it to the front `n` times. If `n` is omitted, it defaults to `1`.
 syntax (name := rotateRight) "rotate_right" (ppSpace num)? : tactic
 
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
-macro "try " t:tacticSeq : tactic => `(tactic| first | $t | skip)
+macro "try " t:tacticSeqIndentGt : tactic => `(tactic| first | $(⟨t⟩):tacticSeq | skip)
 
 /--
 `tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal,
@@ -912,7 +913,7 @@ syntax inductionAltLHS := ppDedent(ppLine) withPosition("| " (("@"? ident) <|> h
 In induction alternative, which can have 1 or more cases on the left
 and `_`, `?_`, or a tactic sequence after the `=>`.
 -/
-syntax inductionAlt  := inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
+syntax inductionAlt  := inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeqIndentGt))?
 /--
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
@@ -1072,7 +1073,7 @@ See also:
 * `repeat' tac` recursively applies `tac` to each goal.
 * `first | tac1 | tac2` implements the backtracking used by `repeat`
 -/
-syntax "repeat " tacticSeq : tactic
+syntax "repeat " tacticSeqIndentGt : tactic
 macro_rules
   | `(tactic| repeat $seq) => `(tactic| first | ($seq); repeat $seq | skip)
 
@@ -1084,7 +1085,7 @@ See also:
 * `repeat tac` simply repeatedly applies `tac`.
 * `repeat1' tac` is `repeat' tac` but requires that `tac` succeed for some goal at least once.
 -/
-syntax (name := repeat') "repeat' " tacticSeq : tactic
+syntax (name := repeat') "repeat' " tacticSeqIndentGt : tactic
 
 /--
 `repeat1' tac` recursively applies to `tac` on all of the goals so long as it succeeds,
@@ -1094,7 +1095,7 @@ See also:
 * `repeat tac` simply applies `tac` repeatedly.
 * `repeat' tac` is like `repeat1' tac` but it does not require that `tac` succeed at least once.
 -/
-syntax (name := repeat1') "repeat1' " tacticSeq : tactic
+syntax (name := repeat1') "repeat1' " tacticSeqIndentGt : tactic
 
 /--
 `trivial` tries different simple tactics (e.g., `rfl`, `contradiction`, ...)
@@ -1734,7 +1735,7 @@ macro (name := showTermElab) tk:"show_term " t:term : term =>
 The command `by?` will print a suggestion for replacing the proof block with a proof term
 using `show_term`.
 -/
-macro (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
+macro (name := by?) tk:"by?" t:tacticSeqIndentGt : term => `(show_term%$tk by%$tk $(⟨t⟩))
 
 /--
 `expose_names` renames all inaccessible variables with accessible names, making them available

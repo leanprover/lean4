@@ -62,7 +62,7 @@ iterate n
   ⋯
 ```
 -/
-syntax "iterate" (ppSpace num)? ppSpace tacticSeq : tactic
+syntax "iterate" (ppSpace num)? ppSpace tacticSeqIndentGt : tactic
 macro_rules
   | `(tactic| iterate $seq:tacticSeq) =>
     `(tactic| try ($seq:tacticSeq); iterate $seq:tacticSeq)

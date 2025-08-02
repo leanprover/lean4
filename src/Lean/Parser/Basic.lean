@@ -223,6 +223,7 @@ inductive OrElseOnAntiquotBehavior where
 def orelseFnCore (p q : ParserFn) (antiquotBehavior := OrElseOnAntiquotBehavior.merge) : ParserFn := fun c s => Id.run do
   let iniSz  := s.stackSize
   let iniPos := s.pos
+  let iniRecErrSize := s.recoveredErrors.size
   let mut s  := p c s
   match s.errorMsg with
   | some errorMsg =>
@@ -235,10 +236,17 @@ def orelseFnCore (p q : ParserFn) (antiquotBehavior := OrElseOnAntiquotBehavior.
     if antiquotBehavior == .acceptLhs || s.stackSize != iniSz + 1 || !pBack.isAntiquots then
       return s
     let pPos := s.pos
+    let iniRecErrSize' := s.recoveredErrors.size
+    let pRecovered := iniRecErrSize' > iniRecErrSize
     s := s.restore iniSz iniPos
     s := q c s
-    if s.hasError then
-      return s.restore iniSz pPos |>.pushSyntax pBack
+    let qRecovered := s.recoveredErrors.size > iniRecErrSize'
+    -- If `q` failed or recovered, we prefer `p`.
+    if s.hasError || qRecovered then
+      return s |>.restore iniSz pPos |>.restoreRecoveredErrors iniRecErrSize' |>.pushSyntax pBack
+    -- If `p` recovered, then use `q`, which we know is error- and recovery-free
+    if pRecovered then
+      return s |>.restoreRecoveredErrors iniRecErrSize
     -- If `q` made more progress than `p`, we prefer its result.
     -- Thus `(structInstField| $id := $val) is interpreted as
     -- `(structInstField| $id:ident := $val:term), not

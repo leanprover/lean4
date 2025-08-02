@@ -1062,12 +1062,12 @@ theorem lt_div_iff_mul_lt_of_dvd (hc : c ≠ 0) (hcb : c ∣ b) : a < b / c ↔ 
 protected theorem div_mul_div_le (a b c d : Nat) :
     (a / b) * (c / d) ≤ (a * c) / (b * d) := by
   if hb : b = 0 then simp [hb] else
-  if hd : d = 0 then simp [hd] else
-  have hbd : b * d ≠ 0 := Nat.mul_ne_zero hb hd
-  rw [le_div_iff_mul_le (Nat.pos_of_ne_zero hbd)]
-  refine Nat.le_trans (m := ((a / b) * b) * ((c / d) * d)) ?_ ?_
-  · apply Nat.le_of_eq; simp only [Nat.mul_assoc, Nat.mul_left_comm]
-  · apply Nat.mul_le_mul <;> apply div_mul_le_self
+    if hd : d = 0 then simp [hd] else
+      have hbd : b * d ≠ 0 := Nat.mul_ne_zero hb hd
+      rw [le_div_iff_mul_le (Nat.pos_of_ne_zero hbd)]
+      refine Nat.le_trans (m := ((a / b) * b) * ((c / d) * d)) ?_ ?_
+      · apply Nat.le_of_eq; simp only [Nat.mul_assoc, Nat.mul_left_comm]
+      · apply Nat.mul_le_mul <;> apply div_mul_le_self
 
 /-! ### pow -/
 

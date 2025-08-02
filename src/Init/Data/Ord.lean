@@ -668,10 +668,11 @@ private theorem compareLex.go_succ {α} {cmp} {x₁ x₂} {a₁ a₂ : List α} 
     compareLex.go cmp (x₁ :: a₁).toArray (x₂ :: a₂).toArray (i + 1) =
       compareLex.go cmp a₁.toArray a₂.toArray i := by
   induction i using Array.compareLex.go.induct cmp a₁.toArray a₂.toArray
-  all_goals try
-    conv => congr <;> rw [compareLex.go]
-    simp
-    repeat' split <;> (try simp_all; done)
+  all_goals
+    try
+      conv => congr <;> rw [compareLex.go]
+      simp
+      repeat' split <;> (try simp_all; done)
 
 protected theorem _root_.List.compareLex_eq_compareLex_toArray {α} {cmp} {l₁ l₂ : List α} :
     List.compareLex cmp l₁ l₂ = Array.compareLex cmp l₁.toArray l₂.toArray := by

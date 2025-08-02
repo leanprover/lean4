@@ -204,6 +204,12 @@ structure ParserState where
   pos      : String.Pos := 0
   cache    : ParserCache
   errorMsg : Option Error := none
+  /--
+  Parsing errors that recovery/resynchronization mechanisms have worked past.
+  They should be reported like the error in `errorMsg`, but `errorMsg` indicates a failed parse that
+  could not make any more progress.
+  Parsers should only push new errors onto this array or shrink to a previous position.
+  -/
   recoveredErrors : Array (String.Pos × SyntaxStack × Error) := #[]
 
 namespace ParserState
@@ -217,6 +223,9 @@ def stackSize (s : ParserState) : Nat :=
 
 def restore (s : ParserState) (iniStackSz : Nat) (iniPos : String.Pos) : ParserState :=
   { s with stxStack := s.stxStack.shrink iniStackSz, errorMsg := none, pos := iniPos }
+
+def restoreRecoveredErrors (s : ParserState) (iniRecErrSize : Nat) : ParserState :=
+  { s with recoveredErrors := s.recoveredErrors.shrink iniRecErrSize }
 
 def setPos (s : ParserState) (pos : String.Pos) : ParserState :=
   { s with pos := pos }

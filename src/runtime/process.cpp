@@ -77,8 +77,9 @@ static void uv_handle_foreach(void * h, b_obj_arg fn) {
     object * promise = static_cast<object *>(handle->data);
     fprintf(stderr, "[foreach]: run foreach %d\n", handle->pid);
     fprintf(stderr, "[foreach]: promise rc %d\n", get_rc(promise));
+    inc(fn);
     inc(promise);
-    lean_apply_1(fn, promise);
+    dec(lean_apply_1(fn, promise));
 }
 
 /* assumes that h has been allocated using malloc */
@@ -235,6 +236,9 @@ static void process_exit_callback(uv_process_t * handle, int64_t exit_status, in
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
                      stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
                      bool inherit_env, bool do_setsid) {
+    if (!inherit_env || env.size() != 0) {
+        return io_result_mk_error("env not supported (yet)");
+    }
     const char * proc_name_str = proc_name.data();
     if (strlen(proc_name_str) != proc_name.num_bytes()) {
         return mk_embedded_nul_error(proc_name.raw());

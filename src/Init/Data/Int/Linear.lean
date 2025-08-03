@@ -635,14 +635,17 @@ def Poly.isValidEq (p : Poly) : Bool :=
   | .num k => k == 0
   | _ => false
 
-theorem eq_eq_false (ctx : Context) (lhs rhs : Expr) : (lhs.sub rhs).norm.isUnsatEq → (lhs.denote ctx = rhs.denote ctx) = False := by
-  simp [Poly.isUnsatEq] <;> split <;> simp
-  next p k h =>
-    intro h'
-    replace h := congrArg (Poly.denote ctx) h
-    simp at h
-    rw [← Int.sub_eq_zero, h]
-    assumption
+@[expose] noncomputable def Poly.isUnsatEq_k (p : Poly) : Bool :=
+  Poly.rec (fun k => Bool.not' (Int.beq' k 0)) (fun _ _ _ _ => false) p
+
+theorem eq_eq_false (ctx : Context) (lhs rhs : Expr) : (lhs.sub rhs).norm.isUnsatEq_k → (lhs.denote ctx = rhs.denote ctx) = False := by
+  simp [Poly.isUnsatEq_k]; generalize h : (lhs.sub rhs).norm = p
+  cases p <;> simp
+  intro h'
+  replace h := congrArg (Poly.denote ctx) h
+  simp at h
+  rw [← Int.sub_eq_zero, h]
+  assumption
 
 theorem eq_eq_true (ctx : Context) (lhs rhs : Expr) : (lhs.sub rhs).norm.isValidEq → (lhs.denote ctx = rhs.denote ctx) = True := by
   simp [Poly.isValidEq] <;> split <;> simp
@@ -789,12 +792,13 @@ theorem dvd_unsat (ctx : Context) (k : Int) (p : Poly) : p.isUnsatDvd k → k �
     exists k
     rw [h, Int.mul_assoc]
 
-theorem norm_dvd (ctx : Context) (k : Int) (e : Expr) (p : Poly) : e.norm == p → (k ∣ e.denote ctx) = (k ∣ p.denote' ctx) := by
+theorem norm_dvd (ctx : Context) (k : Int) (e : Expr) (p : Poly) : e.norm.beq' p → (k ∣ e.denote ctx) = (k ∣ p.denote' ctx) := by
   simp; intro h; simp [← h]
 
 theorem dvd_eq_false (ctx : Context) (k : Int) (e : Expr) (h : e.norm.isUnsatDvd k) : (k ∣ e.denote ctx) = False := by
-  rw [norm_dvd ctx k e e.norm BEq.rfl]
-  apply dvd_eq_false' ctx k e.norm h
+  rw [norm_dvd ctx k e e.norm]
+  · apply dvd_eq_false' ctx k e.norm h
+  · simp
 
 @[expose]
 noncomputable def dvd_coeff_cert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (p₂ : Poly) (k : Int) : Bool :=
@@ -940,13 +944,13 @@ theorem dvd_solve_elim (ctx : Context) (d₁ : Int) (p₁ : Poly) (d₂ : Int) (
   rw [Int.add_neg_eq_sub]
   exact dvd_solve_elim' hd h₁ h₂
 
-theorem dvd_norm (ctx : Context) (d : Int) (p₁ p₂ : Poly) : p₁.norm == p₂ → d ∣ p₁.denote' ctx → d ∣ p₂.denote' ctx := by
+theorem dvd_norm (ctx : Context) (d : Int) (p₁ p₂ : Poly) : p₁.norm.beq' p₂ → d ∣ p₁.denote' ctx → d ∣ p₂.denote' ctx := by
   simp
   intro; subst p₂
   intro h₁
   simp [Poly.denote_norm ctx p₁, h₁]
 
-theorem le_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm == p₂) : p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
+theorem le_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm.beq' p₂) : p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
   simp at h
   replace h := congrArg (Poly.denote ctx) h
   simp at h
@@ -1019,7 +1023,7 @@ theorem le_combine_coeff (ctx : Context) (p₁ p₂ p₃ : Poly) (k : Int)
 theorem le_unsat (ctx : Context) (p : Poly) : p.isUnsatLe → p.denote' ctx ≤ 0 → False := by
   simp [Poly.isUnsatLe]; split <;> simp
 
-theorem eq_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm == p₂) : p₁.denote' ctx = 0 → p₂.denote' ctx = 0 := by
+theorem eq_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm.beq' p₂) : p₁.denote' ctx = 0 → p₂.denote' ctx = 0 := by
   simp at h
   replace h := congrArg (Poly.denote ctx) h
   simp at h
@@ -1183,13 +1187,15 @@ theorem eq_of_core (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
   intro; subst p₃; simp
   intro h; rw [h, Int.add_neg_eq_sub, Int.sub_self]
 
-@[expose]
-def Poly.isUnsatDiseq (p : Poly) : Bool :=
+@[expose] def Poly.isUnsatDiseq (p : Poly) : Bool :=
   match p with
   | .num 0 => true
   | _ => false
 
-theorem diseq_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm == p₂) : p₁.denote' ctx ≠ 0 → p₂.denote' ctx ≠ 0 := by
+@[expose] noncomputable def Poly.isUnsatDiseq_k (p : Poly) : Bool :=
+  Poly.rec (fun k => Int.beq' k 0) (fun _ _ _ _ => false) p
+
+theorem diseq_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm.beq' p₂) : p₁.denote' ctx ≠ 0 → p₂.denote' ctx ≠ 0 := by
   simp at h
   replace h := congrArg (Poly.denote ctx) h
   simp at h
@@ -1199,11 +1205,11 @@ theorem diseq_coeff (ctx : Context) (p p' : Poly) (k : Int) : eq_coeff_cert p p'
   simp [eq_coeff_cert]
   intro _ _; simp [mul_eq_zero_iff, *]
 
-theorem diseq_neg (ctx : Context) (p p' : Poly) : p' == p.mul (-1) → p.denote' ctx ≠ 0 → p'.denote' ctx ≠ 0 := by
+theorem diseq_neg (ctx : Context) (p p' : Poly) : p'.beq' (p.mul (-1)) → p.denote' ctx ≠ 0 → p'.denote' ctx ≠ 0 := by
   simp; intro _ _; simp [*]
 
-theorem diseq_unsat (ctx : Context) (p : Poly) : p.isUnsatDiseq → p.denote' ctx ≠ 0 → False := by
-  simp [Poly.isUnsatDiseq] <;> split <;> simp
+theorem diseq_unsat (ctx : Context) (p : Poly) : p.isUnsatDiseq_k → p.denote' ctx ≠ 0 → False := by
+  simp [Poly.isUnsatDiseq_k] <;> cases p <;> simp
 
 @[expose]
 noncomputable def diseq_eq_subst_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=

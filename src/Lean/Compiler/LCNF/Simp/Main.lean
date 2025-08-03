@@ -151,8 +151,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
           addFVarSubst fvarId result
           simp k
       markSimplified
-      if oneExitPointQuick code then
-        -- TODO: if `k` is small, we should also inline it here
+      if oneExitPointQuick code || k.isTerminal then
         code.bind fun fvarId' => do
           markUsedFVar fvarId'
           simpK fvarId'

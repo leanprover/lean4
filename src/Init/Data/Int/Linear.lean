@@ -54,6 +54,7 @@ inductive Poly where
   | add (k : Int) (v : Var) (p : Poly)
   deriving BEq
 
+@[expose]
 protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
   Poly.rec
     (fun k₁ p₂ => Poly.rec (fun k₂ => Int.beq' k₁ k₂) (fun _ _ _ _ => false) p₂)
@@ -478,8 +479,9 @@ def norm_eq_coeff_cert (lhs rhs : Expr) (p : Poly) (k : Int) : Bool :=
 theorem norm_eq_coeff (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int)
     : norm_eq_coeff_cert lhs rhs p k → (lhs.denote ctx = rhs.denote ctx) = (p.denote' ctx = 0) := by
   simp [norm_eq_coeff_cert]
-  rw [norm_eq ctx lhs rhs (lhs.sub rhs).norm BEq.rfl, Poly.denote'_eq_denote]
-  apply norm_eq_coeff'
+  rw [norm_eq ctx lhs rhs (lhs.sub rhs).norm, Poly.denote'_eq_denote]
+  · apply norm_eq_coeff'
+  · unfold norm_eq_cert; simp
 
 private theorem mul_le_zero_iff (a k : Int) (h₁ : k > 0) : k * a ≤ 0 ↔ a ≤ 0 := by
   constructor
@@ -497,8 +499,9 @@ private theorem norm_le_coeff' (ctx : Context) (p p' : Poly) (k : Int) : p = p'.
 theorem norm_le_coeff (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int)
     : norm_eq_coeff_cert lhs rhs p k → (lhs.denote ctx ≤ rhs.denote ctx) = (p.denote' ctx ≤ 0) := by
   simp [norm_eq_coeff_cert]
-  rw [norm_le ctx lhs rhs (lhs.sub rhs).norm BEq.rfl, Poly.denote'_eq_denote]
-  apply norm_le_coeff'
+  rw [norm_le ctx lhs rhs (lhs.sub rhs).norm, Poly.denote'_eq_denote]
+  · apply norm_le_coeff'
+  · unfold norm_eq_cert; simp
 
 private theorem mul_add_cmod_le_iff {a k b : Int} (h : k > 0) : a*k + cmod b k ≤ 0 ↔ a ≤ 0 := by
   constructor
@@ -543,8 +546,9 @@ def norm_le_coeff_tight_cert (lhs rhs : Expr) (p : Poly) (k : Int) : Bool :=
 theorem norm_le_coeff_tight (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int)
     : norm_le_coeff_tight_cert lhs rhs p k → (lhs.denote ctx ≤ rhs.denote ctx) = (p.denote' ctx ≤ 0) := by
   simp [norm_le_coeff_tight_cert]
-  rw [norm_le ctx lhs rhs (lhs.sub rhs).norm BEq.rfl, Poly.denote'_eq_denote]
-  apply eq_of_norm_eq_of_divCoeffs
+  rw [norm_le ctx lhs rhs (lhs.sub rhs).norm, Poly.denote'_eq_denote]
+  · apply eq_of_norm_eq_of_divCoeffs
+  · unfold norm_eq_cert; simp
 
 @[expose]
 def Poly.isUnsatEq (p : Poly) : Bool :=

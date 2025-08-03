@@ -288,20 +288,22 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     }
     if (!inherit_env || env.size() != 0) {
         uv_env_item_t * items = nullptr;
-        int env_count = 0;
+        int env_base_count = 0;
         if (inherit_env) {
-            uv_os_environ(&items, &env_count);
+            uv_os_environ(&items, &env_base_count);
         }
-        size_t env_alloc_count = env_count + env.size(); // maximum env size
+        size_t env_alloc_count = env_base_count + env.size(); // maximum env size
         uv_env_item_t * env_vars = static_cast<uv_env_item_t *>(malloc(sizeof(uv_env_item_t) * env_alloc_count));
-        memcpy(env_vars, items, env_count * sizeof(uv_env_item_t));
+        memcpy(env_vars, items, env_base_count * sizeof(uv_env_item_t));
+
+        int env_count = env_base_count;
         for (auto & pair : env) {
-            object * error = add_env_override(pair, items, env_count);
+            object * error = add_env_override(pair, env_vars, env_count);
             if (error != nullptr) return error;
         }
         size_t env_size = sizeof(char *) * (env_count + 1); // + terminating NUL pointer
         for (int i = 0; i < env_count; i++) {
-            env_size += strlen(items[i].name) + strlen(items[i].value) + 2; // str1 + '=' + str2 + '\0'
+            env_size += strlen(env_vars[i].name) + strlen(env_vars[i].value) + 2; // str1 + '=' + str2 + '\0'
         }
         void * env_arena = malloc(env_size);
         char ** env_strs = (char **) env_arena;
@@ -309,17 +311,20 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         for (int i = 0; i < env_count; i++) {
             env_strs[i] = env_str_off;
 
-            size_t key_size = strlen(items[i].name);
-            size_t value_size = strlen(items[i].value);
-            memcpy(env_str_off, items[i].name, key_size);
+            size_t key_size = strlen(env_vars[i].name);
+            size_t value_size = strlen(env_vars[i].value);
+            memcpy(env_str_off, env_vars[i].name, key_size);
             env_str_off += key_size;
             *env_str_off++ = '=';
-            memcpy(env_str_off, items[i].value, value_size);
+            memcpy(env_str_off, env_vars[i].value, value_size);
             env_str_off += value_size;
             *env_str_off++ = 0;
         }
         env_strs[env_count] = NULL;
         options.env = (char **) env_arena;
+        if (inherit_env) {
+            uv_os_free_environ(items, env_base_count);
+        }
     }
     options.stdio_count = 3;
     options.stdio = stdio;

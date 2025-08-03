@@ -22,17 +22,6 @@ namespace Lean.Elab.Term
 open Meta
 open Lean.Parser.Term
 
-/--
-Determines the local declaration kind depending on the variable name.
-
-The `__x` in `let __x := 42; body` gets kind `.implDetail`.
--/
-def kindOfBinderName (binderName : Name) : LocalDeclKind :=
-  if binderName.isImplementationDetail then
-    .implDetail
-  else
-    .default
-
 private def expandSimpleMatch (stx : Syntax) (discr : Term) (lhsVar : Ident) (rhs : Term) (expectedType? : Option Expr) : TermElabM Expr := do
   let newStx ← `(let $lhsVar:ident := $discr; $rhs)
   withMacroExpansion stx newStx <| elabTerm newStx expectedType?

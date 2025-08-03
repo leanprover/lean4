@@ -503,15 +503,6 @@ private def useProofAsSorry (k : DefKind) : CoreM Bool := do
         return true
   return false
 
-/--
-Runs `k` with a local context where the type annotations have been consumed.
--/
-private def withoutTypeAnnotations (k : TermElabM α) : TermElabM α := do
-  let lctx := (← getLCtx).modifyTypes Expr.consumeTypeAnnotations
-  -- Note: we may want `withFreshCache` in case suprious type annotations appear in terms.
-  -- This has not appeared to have been a problem so far, from before `withoutTypeAnnotations`.
-  withLCtx' lctx k
-
 private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
   headers.mapM fun header => do
     let mut reusableResult? := none
@@ -532,7 +523,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← declValToTerm header.value header.type
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
-      withoutTypeAnnotations do
+      withoutLCtxTypeAnnotations do
       forallBoundedTelescope header.type header.numParams (cleanupAnnotations := true) fun xs type => do
         -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
         for h : i in *...header.binderIds.size do

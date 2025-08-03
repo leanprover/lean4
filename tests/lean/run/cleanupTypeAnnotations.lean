@@ -3,6 +3,7 @@
 -/
 
 set_option linter.unusedVariables false
+set_option pp.mvars false
 
 /-!
 Test definitions, theorems, and instances. (MutualDef elaborator)
@@ -69,3 +70,48 @@ end
 #guard_msgs in #check d2
 /-- info: d3 (b : Nat := 0) : Bool -/
 #guard_msgs in #check d3
+
+/-!
+Function elaboration cleans up annotations while propagating the expected type.
+-/
+structure S where
+  f : (x : Nat := 0) → Nat
+/--
+trace: a : Bool
+y : Nat
+⊢ Nat
+-/
+#guard_msgs in
+example : S where
+  f := fun y => by trace_state; exact y
+/--
+trace: a : Bool
+y : Nat
+⊢ Nat
+-/
+#guard_msgs in
+example : S where
+  f y := by trace_state; exact y
+
+/-!
+The function itself does not encode the annotations.
+-/
+/-- info: fun x => x : Nat → Nat -/
+#guard_msgs in #check ((fun x => x) : (x : Nat := 0) → Nat)
+
+/-!
+Let bindings clean up annotations while elaborating values, and they preserve the annotations in the resulting let binding.
+-/
+/--
+trace: a : Bool
+x : Nat
+⊢ ?_ x
+---
+trace: a : Bool
+f : optParam Nat 0 → Nat := fun x => x
+⊢ True
+-/
+#guard_msgs in
+example : True :=
+  let f (x : Nat := 0) := by trace_state; exact x
+  by trace_state; trivial

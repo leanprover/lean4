@@ -428,7 +428,7 @@ private def propagateExpectedType (fvar : Expr) (fvarType : Expr) (s : State) : 
     let expectedType ← whnfForall expectedType
     match expectedType with
     | .forallE _ d b _ =>
-      discard <| isDefEq fvarType d
+      discard <| isDefEq fvarType d.cleanupAnnotations
       let b := b.instantiate1 fvar
       return { s with expectedType? := some b }
     | _ =>
@@ -752,6 +752,15 @@ def mkLetConfig (letConfig : Syntax) (initConfig : LetConfig) : TermElabM LetCon
   return config
 
 /--
+Runs `k` with a local context where the type annotations have been consumed.
+-/
+def withoutLCtxTypeAnnotations (k : TermElabM α) : TermElabM α := do
+  let lctx := (← getLCtx).modifyTypes Expr.consumeTypeAnnotations
+  -- Note: we may want `withFreshCache` in case suprious type annotations appear in terms.
+  -- This has not appeared to have been a problem so far, from before `withoutTypeAnnotations`.
+  withLCtx' lctx k
+
+/--
 The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.
 If `config.postponeValue == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`.
 If `config.generalize == true`, then the value is abstracted from the expected type when elaborating the body.
@@ -795,18 +804,19 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       let val  ← mkFreshExprMVar type
       pure (type, val, binders)
     else
-      let val  ← elabTermEnsuringType valStx type
+      let val ← withoutLCtxTypeAnnotations do
+        let val ← elabTermEnsuringType valStx type
+        /- By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
+          in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
+          about holes such as
+          ```
+            def ex : Nat :=
+              let x := _
+              42
+          ```
+        -/
+        mkLambdaFVars fvars val (usedLetOnly := false)
       let type ← mkForallFVars fvars type
-      /- By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
-         in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
-         about holes such as
-         ```
-          def ex : Nat :=
-            let x := _
-            42
-         ```
-       -/
-      let val  ← mkLambdaFVars fvars val (usedLetOnly := false)
       pure (type, val, binders)
   let kind := kindOfBinderName id.getId
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
@@ -852,7 +862,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
           else
             mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
   if config.postponeValue then
-    forallBoundedTelescope type binders.size fun xs type => do
+    forallBoundedTelescope type binders.size (cleanupAnnotations := true) fun xs type => do
       -- the original `fvars` from above are gone, so add back info manually
       for b in binders, x in xs do
         addLocalVarInfo b x

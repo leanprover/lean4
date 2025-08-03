@@ -81,28 +81,52 @@ def Poly.denote (ctx : Context) (p : Poly) : Int :=
 Similar to `Poly.denote`, but produces a denotation better for `simp +arith`.
 Remark: we used to convert `Poly` back into `Expr` to achieve that.
 -/
-@[expose]
-def Poly.denote' (ctx : Context) (p : Poly) : Int :=
-  match p with
-  | .num k => k
-  | .add 1 v p => go (v.denote ctx) p
-  | .add k v p => go (k * v.denote ctx) p
+@[expose] noncomputable def Poly.denote' (ctx : Context) (p : Poly) : Int :=
+  Poly.rec (fun k => k)
+    (fun k v p _ => Bool.rec
+      (go p (k * v.denote ctx))
+      (go p (v.denote ctx))
+      (Int.beq' k 1))
+    p
 where
-  go (r : Int)  (p : Poly) : Int :=
-    match p with
-    | .num 0 => r
-    | .num k => r + k
-    | .add 1 v p => go (r + v.denote ctx) p
-    | .add k v p => go (r + k * v.denote ctx) p
+  go (p : Poly) : Int → Int :=
+    Poly.rec
+      (fun k r => Bool.rec
+        (r + k)
+        r
+        (Int.beq' k 0))
+      (fun k v _ ih r => Bool.rec
+        (ih (r + k * v.denote ctx))
+        (ih (r + v.denote ctx))
+        (Int.beq' k 1))
+      p
 
-theorem Poly.denote'_go_eq_denote (ctx : Context) (p : Poly) (r : Int) : denote'.go ctx r p = p.denote ctx + r := by
-  induction r, p using denote'.go.induct ctx <;> simp [denote'.go, denote]
-  next => rw [Int.add_comm]
-  next ih => simp at ih; rw [ih]; ac_rfl
-  next ih => simp at ih; rw [ih]; ac_rfl
+@[simp] theorem Poly.denote'_go_eq_denote (ctx : Context) (p : Poly) (r : Int) : denote'.go ctx p r = p.denote ctx + r := by
+  induction p generalizing r
+  next k =>
+    simp [denote'.go, denote]
+    cases h : k.beq' 0 <;> simp [*]
+    · rw [Int.add_comm]
+    · simp [Int.beq'_eq_beq] at h; simp [h]
+  next k v p ih =>
+    simp [denote, denote'.go]
+    cases h : k.beq' 1 <;> simp [*]
+    next =>
+      show denote'.go ctx p (r + k * v.denote ctx) = _
+      rw [ih]; ac_rfl
+    next =>
+      show denote'.go ctx p (r + v.denote ctx) = _
+      simp [Int.beq'_eq_beq] at h
+      simp [ih, h]; ac_rfl
 
 theorem Poly.denote'_eq_denote (ctx : Context) (p : Poly) : p.denote' ctx = p.denote ctx := by
-  unfold denote' <;> split <;> simp [denote, denote'_go_eq_denote] <;> ac_rfl
+  unfold Poly.denote' Poly.denote; cases p <;> simp
+  next k v p =>
+    cases h : k.beq' 1 <;> simp [*]
+    next => ac_rfl
+    next =>
+      simp [Int.beq'_eq_beq] at h
+      simp [h]; ac_rfl
 
 theorem Poly.denote'_add (ctx : Context) (a : Int) (x : Var) (p : Poly) : (Poly.add a x p).denote' ctx = a * x.denote ctx + p.denote ctx := by
   simp [Poly.denote'_eq_denote, denote]

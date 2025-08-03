@@ -22,6 +22,17 @@ namespace Lean.Elab.Term
 open Meta
 open Lean.Parser.Term
 
+/--
+Determines the local declaration kind depending on the variable name.
+
+The `__x` in `let __x := 42; body` gets kind `.implDetail`.
+-/
+def kindOfBinderName (binderName : Name) : LocalDeclKind :=
+  if binderName.isImplementationDetail then
+    .implDetail
+  else
+    .default
+
 private def expandSimpleMatch (stx : Syntax) (discr : Term) (lhsVar : Ident) (rhs : Term) (expectedType? : Option Expr) : TermElabM Expr := do
   let newStx ← `(let $lhsVar:ident := $discr; $rhs)
   withMacroExpansion stx newStx <| elabTerm newStx expectedType?
@@ -199,7 +210,8 @@ private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array P
   let rec loop (i : Nat) (decls : Array PatternVarDecl) (userNames : Array Name) := do
     if h : i < pVars.size then
       let type ← mkFreshTypeMVar
-      withLocalDecl pVars[i].getId BinderInfo.default type fun x =>
+      let n := pVars[i].getId
+      withLocalDecl n BinderInfo.default type (kind := kindOfBinderName n) fun x =>
         loop (i+1) (decls.push { fvarId := x.fvarId! }) (userNames.push Name.anonymous)
     else
       k decls
@@ -744,7 +756,7 @@ where
     let rec go (packed : Expr) (patternVars : Array Expr) : TermElabM α := do
       match packed with
       | .lam n d b _ =>
-        withLocalDeclD n (← erasePatternRefAnnotations (← eraseInaccessibleAnnotations d)) fun patternVar =>
+        withLocalDecl n .default (← erasePatternRefAnnotations (← eraseInaccessibleAnnotations d)) (kind := kindOfBinderName n) fun patternVar =>
           go (b.instantiate1 patternVar) (patternVars.push patternVar)
       | _ =>
         let (matchType, patterns) := unpackMatchTypePatterns packed

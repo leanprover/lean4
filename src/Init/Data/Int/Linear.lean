@@ -41,13 +41,13 @@ inductive Expr where
 
 @[expose]
 def Expr.denote (ctx : Context) : Expr → Int
-  | .add a b  => Int.add (denote ctx a) (denote ctx b)
-  | .sub a b  => Int.sub (denote ctx a) (denote ctx b)
-  | .neg a    => Int.neg (denote ctx a)
+  | .add a b  => denote ctx a + denote ctx b
+  | .sub a b  => denote ctx a - denote ctx b
+  | .neg a    => - denote ctx a
   | .num k    => k
   | .var v    => v.denote ctx
-  | .mulL k e => Int.mul k (denote ctx e)
-  | .mulR e k => Int.mul (denote ctx e) k
+  | .mulL k e => k * denote ctx e
+  | .mulR e k => denote ctx e * k
 
 inductive Poly where
   | num (k : Int)
@@ -75,7 +75,7 @@ protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
 def Poly.denote (ctx : Context) (p : Poly) : Int :=
   match p with
   | .num k => k
-  | .add k v p => Int.add (Int.mul k (v.denote ctx)) (denote ctx p)
+  | .add k v p => k * v.denote ctx + denote ctx p
 
 /--
 Similar to `Poly.denote`, but produces a denotation better for `simp +arith`.
@@ -86,14 +86,14 @@ def Poly.denote' (ctx : Context) (p : Poly) : Int :=
   match p with
   | .num k => k
   | .add 1 v p => go (v.denote ctx) p
-  | .add k v p => go (Int.mul k (v.denote ctx)) p
+  | .add k v p => go (k * v.denote ctx) p
 where
   go (r : Int)  (p : Poly) : Int :=
     match p with
     | .num 0 => r
-    | .num k => Int.add r k
-    | .add 1 v p => go (Int.add r (v.denote ctx)) p
-    | .add k v p => go (Int.add r (Int.mul k (v.denote ctx))) p
+    | .num k => r + k
+    | .add 1 v p => go (r + v.denote ctx) p
+    | .add k v p => go (r + k * v.denote ctx) p
 
 theorem Poly.denote'_go_eq_denote (ctx : Context) (p : Poly) (r : Int) : denote'.go ctx r p = p.denote ctx + r := by
   induction r, p using denote'.go.induct ctx <;> simp [denote'.go, denote]
@@ -1800,7 +1800,7 @@ theorem cooper_unsat (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (α β : 
   rename_i k₁ x p₁ k₂ y p₂ c z p₃
   cases p₁ <;> cases p₂ <;> cases p₃ <;> simp only [Poly.casesOnNum, Int.reduceNeg,
     Bool.and'_eq_and, Int.beq'_eq, Nat.beq_eq, Bool.and_eq_true, decide_eq_true_eq,
-    and_imp, Bool.false_eq_true, mul_def, add_def, false_implies, Poly.denote]
+    and_imp, Bool.false_eq_true, false_implies, Poly.denote]
   rename_i a b e
   intro _ _ _ _; subst k₁ k₂ y z
   intro h₁ h₃ h₆; generalize Var.denote ctx x = x'

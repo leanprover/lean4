@@ -2,7 +2,7 @@
 Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Jared Roesch
+Authors: Jared Roesch, Robin Arnez
 */
 #include <string>
 #include <fstream>
@@ -204,12 +204,49 @@ static void process_exit_callback(uv_process_t * handle, int64_t exit_status, in
     lean_promise_resolve(box_uint32(status), promise);
 }
 
+static obj_res add_env_override(pair_ref<string_ref, option_ref<string_ref>> const & pair, uv_env_item_t * items, int & env_count) {
+    auto & key = pair.fst();
+    const char * key_str = key.data();
+    if (strlen(key_str) != key.num_bytes()) {
+        return mk_embedded_nul_error(key.raw());
+    }
+    if (strchr(key_str, '=') != NULL) {
+        object * details = mk_string("environment variable name contains '='");
+        return io_result_mk_error(lean_mk_io_error_invalid_argument_file(key.to_obj_arg(), EINVAL, details));
+    }
+    const char * val_str = nullptr;
+    if (pair.snd()) {
+        string_ref val = pair.snd().get_val();
+        val_str = val.data();
+        if (strlen(val_str) != val.num_bytes()) {
+            return mk_embedded_nul_error(val.raw());
+        }
+    }
+    int i = 0;
+    while (i < env_count) {
+        if (strcmp(key_str, items[i].name) == 0) {
+            if (val_str != nullptr) {
+                items[i].value = const_cast<char *>(val_str);
+                return nullptr;
+            } else {
+                memmove(items + i, items + i + 1, sizeof(uv_env_item_t) * (env_count - i - 1));
+                env_count--;
+            }
+        } else {
+            i++;
+        }
+    }
+    if (val_str != nullptr) {
+        items[env_count].name = const_cast<char *>(key_str);
+        items[env_count].value = const_cast<char *>(val_str);
+        env_count++;
+    }
+    return nullptr;
+}
+
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
                      stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
                      bool inherit_env, bool do_setsid) {
-    /*if (!inherit_env || env.size() != 0) {
-        return io_result_mk_error("env not supported (yet)");
-    }*/
     const char * proc_name_str = proc_name.data();
     if (strlen(proc_name_str) != proc_name.num_bytes()) {
         return mk_embedded_nul_error(proc_name.raw());
@@ -249,6 +286,41 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     if (do_setsid) {
         options.flags |= UV_PROCESS_DETACHED;
     }
+    if (!inherit_env || env.size() != 0) {
+        uv_env_item_t * items = nullptr;
+        int env_count = 0;
+        if (inherit_env) {
+            uv_os_environ(&items, &env_count);
+        }
+        size_t env_alloc_count = env_count + env.size(); // maximum env size
+        uv_env_item_t * env_vars = static_cast<uv_env_item_t *>(malloc(sizeof(uv_env_item_t) * env_alloc_count));
+        memcpy(env_vars, items, env_count * sizeof(uv_env_item_t));
+        for (auto & pair : env) {
+            object * error = add_env_override(pair, items, env_count);
+            if (error != nullptr) return error;
+        }
+        size_t env_size = sizeof(char *) * (env_count + 1); // + terminating NUL pointer
+        for (int i = 0; i < env_count; i++) {
+            env_size += strlen(items[i].name) + strlen(items[i].value) + 2; // str1 + '=' + str2 + '\0'
+        }
+        void * env_arena = malloc(env_size);
+        char ** env_strs = (char **) env_arena;
+        char * env_str_off = (char *) env_arena + sizeof(char *) * (env_count + 1);
+        for (int i = 0; i < env_count; i++) {
+            env_strs[i] = env_str_off;
+
+            size_t key_size = strlen(items[i].name);
+            size_t value_size = strlen(items[i].value);
+            memcpy(env_str_off, items[i].name, key_size);
+            env_str_off += key_size;
+            *env_str_off++ = '=';
+            memcpy(env_str_off, items[i].value, value_size);
+            env_str_off += value_size;
+            *env_str_off++ = 0;
+        }
+        env_strs[env_count] = NULL;
+        options.env = (char **) env_arena;
+    }
     options.stdio_count = 3;
     options.stdio = stdio;
     options.exit_cb = &process_exit_callback;
@@ -261,6 +333,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     int error = uv_spawn(global_ev.loop, child, &options);
 
     free(arg_array);
+    free(options.env);
 
     if (stdin_mode == stdio::PIPED) close(stdin_pipe_other);
     if (stdout_mode == stdio::PIPED) close(stdout_pipe_other);

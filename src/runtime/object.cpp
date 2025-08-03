@@ -823,14 +823,14 @@ class task_manager {
         t->m_value = v;
         lean_task_imp * imp = t->m_imp;
         t->m_imp   = nullptr;
-        handle_finished(lock, t, imp);
+        handle_finished(lock, imp);
         /* After the task has been finished and we propagated
            dependencies, we can release `imp` and keep just the value */
         free_task_imp(imp);
         m_task_finished_cv.notify_all();
     }
 
-    void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
+    void handle_finished(unique_lock<mutex> & lock, lean_task_imp * imp) {
         lean_task_object * it = imp->m_head_dep;
         imp->m_head_dep = nullptr;
         while (it) {
@@ -952,10 +952,9 @@ public:
     }
 
     void deactivate_task(lean_task_object * t) {
-        if (object * v = t->m_value) {
-            lean_assert(t->m_imp == nullptr);
-            lean_dec(v);
-            free_task(t);
+        if (t->m_value && !t->m_imp) {
+            lean_dec(t->m_value);
+            lean_free_small_object((lean_object*)t);
             return;
         }
         unique_lock<mutex> lock(m_mutex);

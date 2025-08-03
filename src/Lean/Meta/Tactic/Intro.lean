@@ -40,7 +40,7 @@ namespace Lean.Meta
       It is counterintuitive if `have` expressions are introduced with opaque values,
       especially when we run transformations to aggressively turn `let`s into `have`s.
       -/
-      let lctx   := lctx.mkLetDecl fvarId n type val
+      let lctx   := lctx.mkLetDecl fvarId n type val (kind := .ofBinderName n)
       let fvar   := mkFVar fvarId
       let fvars  := fvars.push fvar
       loop i lctx fvars j s body
@@ -49,7 +49,7 @@ namespace Lean.Meta
       let type   := type.headBeta
       let fvarId ← mkFreshFVarId
       let (n, s) ← mkName lctx n c.isExplicit s
-      let lctx   := lctx.mkLocalDecl fvarId n type c
+      let lctx   := lctx.mkLocalDecl fvarId n type c (kind := .ofBinderName n)
       let fvar   := mkFVar fvarId
       let fvars  := fvars.push fvar
       loop i lctx fvars j s body

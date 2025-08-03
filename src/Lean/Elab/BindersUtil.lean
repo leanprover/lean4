@@ -75,15 +75,4 @@ def clearInMatch (stx : Syntax) (vars : Array Ident) : MacroM Syntax := do
     `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
   | _ => return stx
 
-/--
-Determines the local declaration kind depending on the variable name.
-
-The `__x` in `let __x := 42; body` gets kind `.implDetail`.
--/
-def kindOfBinderName (binderName : Name) : LocalDeclKind :=
-  if binderName.isImplementationDetail then
-    .implDetail
-  else
-    .default
-
 end Lean.Elab.Term

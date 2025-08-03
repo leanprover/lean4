@@ -1082,11 +1082,21 @@ theorem eq_unsat_coeff (ctx : Context) (p : Poly) (k : Int) : eq_unsat_coeff_cer
   have h := poly_eq_zero_eq_false ctx h₁ h₂ h₃; clear h₁ h₂ h₃
   simp [h]
 
-@[expose]
-def Poly.coeff (p : Poly) (x : Var) : Int :=
+@[expose] def Poly.coeff (p : Poly) (x : Var) : Int :=
   match p with
   | .add a y p => bif x == y then a else coeff p x
   | .num _ => 0
+
+@[expose] noncomputable def Poly.coeff_k (p : Poly) (x : Var) : Int :=
+  Poly.rec (fun _ => 0) (fun a y _ ih => Bool.rec ih a (Nat.beq x y)) p
+
+@[simp] theorem Poly.coeff_k_eq_coeff (p : Poly) (x : Var) : p.coeff_k x = p.coeff x := by
+  induction p
+  next => rfl
+  next a y p ih =>
+    simp [coeff_k, coeff, cond_eq_if]; split
+    next h => simp [h]
+    next h => rw [← Nat.beq_eq, Bool.not_eq_true] at h; simp [h, ← ih]; rfl
 
 private theorem eq_add_coeff_insert (ctx : Context) (p : Poly) (x : Var) : p.denote ctx = (p.coeff x) * (x.denote ctx) + (p.insert (-p.coeff x) x).denote ctx := by
   simp; rw [← Int.add_assoc, Int.neg_mul, Int.add_neg_cancel_right]
@@ -1108,7 +1118,7 @@ private theorem abs_dvd {a p : Int} (h : a ∣ p) : abs a ∣ p := by
 
 @[expose]
 noncomputable def dvd_of_eq_cert (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ : Poly) : Bool :=
-  let a := p₁.coeff x
+  let a := p₁.coeff_k x
   d₂.beq' (abs a) |>.and' (p₂.beq' (p₁.insert (-a) x))
 
 theorem dvd_of_eq (ctx : Context) (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ : Poly)
@@ -1135,8 +1145,8 @@ private theorem eq_dvd_subst' {a x p d b q : Int} : a*x + p = 0 → d ∣ b*x + 
 
 @[expose]
 noncomputable def eq_dvd_subst_cert (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ : Poly) (d₃ : Int) (p₃ : Poly) : Bool :=
-  let a := p₁.coeff x
-  let b := p₂.coeff x
+  let a := p₁.coeff_k x
+  let b := p₂.coeff_k x
   let p := p₁.insert (-a) x
   let q := p₂.insert (-b) x
   d₃.beq' (abs (a * d₂)) |>.and'
@@ -1165,8 +1175,8 @@ theorem eq_dvd_subst (ctx : Context) (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ 
 
 @[expose]
 noncomputable def eq_eq_subst_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
-  let a := p₁.coeff x
-  let b := p₂.coeff x
+  let a := p₁.coeff_k x
+  let b := p₂.coeff_k x
   p₃.beq' (p₁.mul_k b |>.combine_k (p₂.mul_k (-a)))
 
 theorem eq_eq_subst (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)

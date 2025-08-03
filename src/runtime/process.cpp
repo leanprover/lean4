@@ -50,24 +50,13 @@ enum stdio {
 
 static lean_external_class * g_uv_handle_external_class = nullptr;
 
-static int get_rc(object * o) {
-    if (lean_is_scalar(o)) {
-        return 0;
-    } else {
-        return *lean_get_rc_mt_addr(o);
-    }
-}
-
 static void uv_handle_close_cb(uv_handle_t * h) {
-    fprintf(stderr, "[finalizer]: freeing %d\n", reinterpret_cast<uv_process_t *>(h)->pid);
     free(h);
 }
 
 static void uv_handle_finalizer(void * h) {
     uv_handle_t * handle = static_cast<uv_handle_t *>(h);
-    fprintf(stderr, "[finalizer]: finalize %d\n", reinterpret_cast<uv_process_t *>(handle)->pid);
     object * promise = static_cast<object *>(handle->data);
-    fprintf(stderr, "[finalizer]: promise rc %d\n", get_rc(promise));
     dec(promise);
     uv_close(handle, &uv_handle_close_cb);
 }
@@ -75,8 +64,6 @@ static void uv_handle_finalizer(void * h) {
 static void uv_handle_foreach(void * h, b_obj_arg fn) {
     uv_process_t * handle = static_cast<uv_process_t *>(h);
     object * promise = static_cast<object *>(handle->data);
-    fprintf(stderr, "[foreach]: run foreach %d\n", handle->pid);
-    fprintf(stderr, "[foreach]: promise rc %d\n", get_rc(promise));
     inc(fn);
     inc(promise);
     dec(lean_apply_1(fn, promise));
@@ -141,18 +128,12 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
 // opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     uv_process_t * h = static_cast<uv_process_t *>(lean_get_external_data(cnstr_get(child, 3)));
-    fprintf(stderr, "[wait]: wait on %d\n", h->pid);
     object * promise = static_cast<object *>(h->data); // IO.Promise UInt32
-    fprintf(stderr, "[wait]: promise rc %d\n", get_rc(promise));
     object * task = lean_io_promise_result_opt(promise); // Task (Option UInt32)
-    fprintf(stderr, "[wait]: task rc %d\n", get_rc(task));
-    fprintf(stderr, "[wait]: blocking...\n");
     object * result = lean_task_get(task); // Option UInt32
-    fprintf(stderr, "[wait]: result rc %d, task rc %d, promise rc %d\n", get_rc(result), get_rc(task), get_rc(promise));
     dec(task);
     lean_always_assert(!lean_is_scalar(result));
     object * status = lean_ctor_get(result, 0); // UInt32
-    fprintf(stderr, "[wait]: exit status %d\n", unbox_uint32(status));
     inc(status);
     return lean_io_result_mk_ok(status);
 }
@@ -160,33 +141,25 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
 // opaque Child.tryWait {cfg : @& StdioConfig} : @& Child cfg → IO (Option UInt32)
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     uv_process_t * h = static_cast<uv_process_t *>(lean_get_external_data(cnstr_get(child, 3)));
-    fprintf(stderr, "[try_wait]: wait on %d\n", h->pid);
     object * promise = static_cast<object *>(h->data); // IO.Promise UInt32
-    fprintf(stderr, "[try_wait]: promise rc %d\n", get_rc(promise));
     object * task = lean_io_promise_result_opt(promise); // Task (Option UInt32)
-    fprintf(stderr, "[try_wait]: task rc %d\n", get_rc(task));
     if (lean_io_get_task_state_core(task) == 2) {
         object * result = lean_task_get(task); // Option UInt32
-        fprintf(stderr, "[try_wait]: result rc %d\n", get_rc(result));
         dec(task);
         lean_always_assert(!lean_is_scalar(result));
         inc(result);
         return lean_io_result_mk_ok(result);
     }
-    fprintf(stderr, "[try_wait]: no value available\n");
     dec(task);
     return io_result_mk_ok(box(0));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child, obj_arg) {
     uv_process_t * h = static_cast<uv_process_t *>(lean_get_external_data(cnstr_get(child, 3)));
-    fprintf(stderr, "[kill]: kill %d\n", h->pid);
     int error = uv_process_kill(h, SIGKILL);
     if (error != 0) {
-        fprintf(stderr, "[kill]: failed %d\n", error);
         return lean_io_result_mk_error(lean_decode_uv_error(error, nullptr));
     }
-    fprintf(stderr, "[kill]: success\n");
     return lean_io_result_mk_ok(box(0));
 }
 
@@ -228,22 +201,19 @@ static obj_res setup_stdio(uv_stdio_container_t * out, stdio cfg, int fd, int * 
 static void process_exit_callback(uv_process_t * handle, int64_t exit_status, int term_signal) {
     object * promise = static_cast<object *>(handle->data);
     uint32_t status = (uint32_t) ((uint64_t) exit_status);
-    fprintf(stderr, "[exit_cb]: promise rc %d\n", get_rc(promise));
-    fprintf(stderr, "[exit_cb]: status %d\n", status);
     lean_promise_resolve(box_uint32(status), promise);
 }
 
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
                      stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
                      bool inherit_env, bool do_setsid) {
-    if (!inherit_env || env.size() != 0) {
+    /*if (!inherit_env || env.size() != 0) {
         return io_result_mk_error("env not supported (yet)");
-    }
+    }*/
     const char * proc_name_str = proc_name.data();
     if (strlen(proc_name_str) != proc_name.num_bytes()) {
         return mk_embedded_nul_error(proc_name.raw());
     }
-    fprintf(stderr, "[spawn]: proc_name_str = %s\n", proc_name_str);
     char ** arg_array = (char **) malloc(sizeof(char *) * (args.size() + 2));
     arg_array[0] = const_cast<char *>(proc_name_str); // Is this safe?
     for (size_t i = 0; i < args.size(); i++) {
@@ -253,12 +223,10 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
             free(arg_array);
             return mk_embedded_nul_error(arg.raw());
         }
-        fprintf(stderr, "[spawn]: arg_array[%zu] = %s\n", i + 1, arg_str);
         arg_array[i + 1] = const_cast<char *>(arg_str);
     }
     arg_array[args.size() + 1] = nullptr;
 
-    fprintf(stderr, "[spawn]: stdio modes = %d, %d, %d\n", stdin_mode, stdout_mode, stderr_mode);
     // Opposite ends of the pipes; we need to close them
     int stdin_pipe_other, stdout_pipe_other, stderr_pipe_other;
     uv_stdio_container_t stdio[3];
@@ -277,7 +245,6 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
             return mk_embedded_nul_error(cwd_val.raw());
         }
         options.cwd = cwd_str;
-        fprintf(stderr, "[spawn]: cwd = %s\n", cwd_str);
     }
     if (do_setsid) {
         options.flags |= UV_PROCESS_DETACHED;
@@ -288,7 +255,6 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
 
     object * promise = lean_promise_new();
     mark_mt(promise);
-    fprintf(stderr, "[spawn]: new promise, rc %d\n", get_rc(promise));
     uv_process_t * child = (uv_process_t *) malloc(sizeof(uv_process_t));
     child->data = promise; // We use `.data` to store an `IO.Promise UInt32` that resolves on exit
 
@@ -301,12 +267,10 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     if (stderr_mode == stdio::PIPED) close(stderr_pipe_other);
 
     if (error != 0) {
-        fprintf(stderr, "[spawn]: failed, %d: %s\n", error, uv_strerror(error));
         dec(promise);
         free(child);
         return lean_io_result_mk_error(decode_uv_error(error, proc_name.raw()));
     }
-    fprintf(stderr, "[spawn]: success with %d\n", child->pid);
     object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, wrap_uv_handle(reinterpret_cast<uv_handle_t *>(child)));
     return lean_io_result_mk_ok(r.steal());
 }

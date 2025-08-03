@@ -54,6 +54,22 @@ inductive Poly where
   | add (k : Int) (v : Var) (p : Poly)
   deriving BEq
 
+protected noncomputable def Poly.beq' (p₁ : Poly) : Poly → Bool :=
+  Poly.rec
+    (fun k₁ p₂ => Poly.rec (fun k₂ => Int.beq' k₁ k₂) (fun _ _ _ _ => false) p₂)
+    (fun k₁ v₁ _ ih p₂ =>
+      Poly.rec
+        (fun _ => false)
+        (fun k₂ v₂ p₂ _ => (Int.beq' k₁ k₂).and' ((Nat.beq v₁ v₂).and' (ih p₂))) p₂)
+    p₁
+
+@[simp] theorem Poly.beq'_eq (p₁ p₂ : Poly) : p₁.beq' p₂ = (p₁ = p₂) := by
+  induction p₁ generalizing p₂ <;> cases p₂ <;> simp [Poly.beq']
+  rename_i k₁ v₁ p₁ ih v₂ m₂ p₂
+  rw [← eq_iff_iff]
+  intro _ _; subst k₁ v₁
+  simp [← ih p₂, ← Bool.and'_eq_and]; rfl
+
 @[expose]
 def Poly.denote (ctx : Context) (p : Poly) : Int :=
   match p with
@@ -403,14 +419,15 @@ instance : LawfulBEq Poly where
 
 attribute [local simp] Poly.denote'_eq_denote
 
-theorem Expr.eq_of_norm_eq (ctx : Context) (e : Expr) (p : Poly) (h : e.norm == p) : e.denote ctx = p.denote' ctx := by
-  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+theorem Expr.eq_of_norm_eq (ctx : Context) (e : Expr) (p : Poly) (h : e.norm.beq' p) : e.denote ctx = p.denote' ctx := by
+  simp at h
+  have h := congrArg (Poly.denote ctx) h
   simp at h
   simp [*]
 
 @[expose]
-def norm_eq_cert (lhs rhs : Expr) (p : Poly) : Bool :=
-  p == (lhs.sub rhs).norm
+noncomputable def norm_eq_cert (lhs rhs : Expr) (p : Poly) : Bool :=
+  p.beq' (lhs.sub rhs).norm
 
 theorem norm_eq (ctx : Context) (lhs rhs : Expr) (p : Poly) (h : norm_eq_cert lhs rhs p) : (lhs.denote ctx = rhs.denote ctx) = (p.denote' ctx = 0) := by
   simp [norm_eq_cert] at h; subst p
@@ -425,8 +442,8 @@ theorem norm_le (ctx : Context) (lhs rhs : Expr) (p : Poly) (h : norm_eq_cert lh
   · exact Int.le_of_sub_nonpos
 
 @[expose]
-def norm_eq_var_cert (lhs rhs : Expr) (x y : Var) : Bool :=
-  (lhs.sub rhs).norm == .add 1 x (.add (-1) y (.num 0))
+noncomputable def norm_eq_var_cert (lhs rhs : Expr) (x y : Var) : Bool :=
+  (lhs.sub rhs).norm.beq' (.add 1 x (.add (-1) y (.num 0)))
 
 theorem norm_eq_var (ctx : Context) (lhs rhs : Expr) (x y : Var) (h : norm_eq_var_cert lhs rhs x y)
     : (lhs.denote ctx = rhs.denote ctx) = (x.denote ctx = y.denote ctx) := by

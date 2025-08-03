@@ -425,8 +425,11 @@ return x_4;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_findCtor_x3f___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_10; lean_object* x_14; lean_object* x_15; 
+lean_object* x_6; lean_object* x_10; lean_object* x_14; 
 x_14 = l_Lean_Compiler_LCNF_findLetDecl_x3f___redArg(x_1, x_3, x_5);
+if (lean_obj_tag(x_14) == 0)
+{
+lean_object* x_15; 
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 if (lean_obj_tag(x_15) == 0)
@@ -875,6 +878,29 @@ goto block_9;
 }
 }
 }
+}
+else
+{
+uint8_t x_97; 
+x_97 = !lean_is_exclusive(x_14);
+if (x_97 == 0)
+{
+return x_14;
+}
+else
+{
+lean_object* x_98; lean_object* x_99; lean_object* x_100; 
+x_98 = lean_ctor_get(x_14, 0);
+x_99 = lean_ctor_get(x_14, 1);
+lean_inc(x_99);
+lean_inc(x_98);
+lean_dec(x_14);
+x_100 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_100, 0, x_98);
+lean_ctor_set(x_100, 1, x_99);
+return x_100;
+}
+}
 block_9:
 {
 lean_object* x_7; lean_object* x_8; 
@@ -952,8 +978,11 @@ return x_8;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_findCtorName_x3f___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; lean_object* x_7; 
+lean_object* x_6; 
 x_6 = l_Lean_Compiler_LCNF_Simp_findCtor_x3f___redArg(x_1, x_2, x_3, x_4, x_5);
+if (lean_obj_tag(x_6) == 0)
+{
+lean_object* x_7; 
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 if (lean_obj_tag(x_7) == 0)
@@ -1042,6 +1071,29 @@ x_27 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
 lean_ctor_set(x_27, 1, x_22);
 return x_27;
+}
+}
+}
+else
+{
+uint8_t x_28; 
+x_28 = !lean_is_exclusive(x_6);
+if (x_28 == 0)
+{
+return x_6;
+}
+else
+{
+lean_object* x_29; lean_object* x_30; lean_object* x_31; 
+x_29 = lean_ctor_get(x_6, 0);
+x_30 = lean_ctor_get(x_6, 1);
+lean_inc(x_30);
+lean_inc(x_29);
+lean_dec(x_6);
+x_31 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_31, 0, x_29);
+lean_ctor_set(x_31, 1, x_30);
+return x_31;
 }
 }
 }

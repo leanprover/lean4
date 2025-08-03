@@ -92,29 +92,16 @@ return x_2;
 LEAN_EXPORT lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___lam__0____x40_Lake_DSL_Attributes___hyg_4_(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = l___private_Lake_DSL_Attributes_0__Lake_initFn___lam__0___closed__2____x40_Lake_DSL_Attributes___hyg_4_;
 lean_inc_ref(x_5);
 x_9 = l_Lean_logWarningAt___at_____private_Lake_DSL_Attributes_0__Lake_initFn____x40_Lake_DSL_Attributes___hyg_4__spec__0(x_3, x_8, x_5, x_6, x_7);
-if (lean_obj_tag(x_9) == 0)
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 lean_dec_ref(x_9);
 x_11 = lean_box(x_4);
 x_12 = lean_apply_6(x_1, x_2, x_3, x_11, x_5, x_6, x_10);
 return x_12;
-}
-else
-{
-lean_dec(x_6);
-lean_dec_ref(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec_ref(x_1);
-return x_9;
-}
 }
 }
 LEAN_EXPORT lean_object* l___private_Lake_DSL_Attributes_0__Lake_initFn___lam__1____x40_Lake_DSL_Attributes___hyg_4_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

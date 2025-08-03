@@ -45,7 +45,7 @@ LEAN_EXPORT lean_object* l_Lean_hasPPUsingAnonymousConstructorAttribute___boxed(
 static lean_object* l_Lean_initFn___closed__2____x40_Lean_PrettyPrinter_Delaborator_Attributes___hyg_31_;
 static lean_object* l_Lean_initFn___closed__4____x40_Lean_PrettyPrinter_Delaborator_Attributes___hyg_5_;
 static lean_object* l___private_Lean_PrettyPrinter_Delaborator_Attributes_0__Lean_ppUsingAnonymousConstructorAttr___regBuiltin_Lean_ppUsingAnonymousConstructorAttr_declRange__3___closed__0;
-lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
+lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l___private_Lean_PrettyPrinter_Delaborator_Attributes_0__Lean_ppUsingAnonymousConstructorAttr___regBuiltin_Lean_ppUsingAnonymousConstructorAttr_docString__1___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_Attributes_0__Lean_ppNoDotAttr___regBuiltin_Lean_ppNoDotAttr_docString__1(lean_object*);
 static lean_object* l_Lean_hasPPUsingAnonymousConstructorAttribute___closed__0;
@@ -128,13 +128,13 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Attributes___hyg_5_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = lean_alloc_closure((void*)(l_Lean_initFn___lam__0____x40_Lean_PrettyPrinter_Delaborator_Attributes___hyg_5____boxed), 4, 0);
 x_3 = l_Lean_initFn___closed__1____x40_Lean_PrettyPrinter_Delaborator_Attributes___hyg_5_;
 x_4 = l_Lean_initFn___closed__2____x40_Lean_PrettyPrinter_Delaborator_Attributes___hyg_5_;
 x_5 = l_Lean_initFn___closed__5____x40_Lean_PrettyPrinter_Delaborator_Attributes___hyg_5_;
 x_6 = 0;
-x_7 = 2;
+x_7 = lean_box(2);
 x_8 = l_Lean_registerTagAttribute(x_3, x_4, x_2, x_5, x_6, x_7, x_1);
 return x_8;
 }
@@ -324,13 +324,13 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Attributes___hyg_31_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = l_Lean_initFn___closed__0____x40_Lean_PrettyPrinter_Delaborator_Attributes___hyg_31_;
 x_3 = l_Lean_initFn___closed__2____x40_Lean_PrettyPrinter_Delaborator_Attributes___hyg_31_;
 x_4 = l_Lean_initFn___closed__3____x40_Lean_PrettyPrinter_Delaborator_Attributes___hyg_31_;
 x_5 = l_Lean_initFn___closed__5____x40_Lean_PrettyPrinter_Delaborator_Attributes___hyg_31_;
 x_6 = 0;
-x_7 = 2;
+x_7 = lean_box(2);
 x_8 = l_Lean_registerTagAttribute(x_3, x_4, x_2, x_5, x_6, x_7, x_1);
 return x_8;
 }

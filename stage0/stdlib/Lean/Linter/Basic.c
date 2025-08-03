@@ -74,7 +74,7 @@ static lean_object* l_Lean_Linter_initFn___closed__5____x40_Lean_Linter_Basic___
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at___Lean_Linter_insertLinterSetEntry_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_logLintIf___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_mkStateFromImportedEntries___at___Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_40__spec__0_spec__0(lean_object*, size_t, size_t, lean_object*);
-lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_296__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lean_mkStateFromImportedEntries___at___Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_40__spec__0_spec__1_spec__1(lean_object*, size_t, size_t, lean_object*);
@@ -510,7 +510,7 @@ return x_4;
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_40_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Linter_initFn___lam__0____x40_Lean_Linter_Basic___hyg_40_), 2, 0);
 x_3 = lean_alloc_closure((void*)(l_Lean_Linter_initFn___lam__1____x40_Lean_Linter_Basic___hyg_40_), 1, 0);
 x_4 = l_Lean_Linter_initFn___closed__3____x40_Lean_Linter_Basic___hyg_40_;
@@ -518,16 +518,16 @@ x_5 = lean_box(1);
 x_6 = lean_alloc_closure((void*)(l_Lean_mkStateFromImportedEntries___at___Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_40__spec__0___boxed), 2, 1);
 lean_closure_set(x_6, 0, x_5);
 x_7 = lean_box(0);
-x_8 = 2;
+x_8 = lean_box(2);
 x_9 = lean_box(0);
-x_10 = lean_alloc_ctor(0, 6, 1);
+x_10 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_10, 0, x_4);
 lean_ctor_set(x_10, 1, x_2);
 lean_ctor_set(x_10, 2, x_6);
 lean_ctor_set(x_10, 3, x_3);
 lean_ctor_set(x_10, 4, x_7);
-lean_ctor_set(x_10, 5, x_9);
-lean_ctor_set_uint8(x_10, sizeof(void*)*6, x_8);
+lean_ctor_set(x_10, 5, x_8);
+lean_ctor_set(x_10, 6, x_9);
 x_11 = l_Lean_registerSimplePersistentEnvExtension___redArg(x_10, x_1);
 return x_11;
 }
@@ -714,18 +714,21 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Options_toLinterOptions___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_5 = l_Lean_Options_toLinterOptions___redArg___lam__0___closed__0;
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc_ref(x_6);
-x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*3);
+x_7 = lean_ctor_get(x_6, 2);
+lean_inc(x_7);
 lean_dec_ref(x_6);
-x_8 = l_Lean_SimplePersistentEnvExtension_getState___redArg(x_1, x_5, x_4, x_7);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_2);
-lean_ctor_set(x_9, 1, x_8);
-x_10 = lean_apply_2(x_3, lean_box(0), x_9);
-return x_10;
+x_8 = lean_box(0);
+x_9 = l_Lean_SimplePersistentEnvExtension_getState___redArg(x_1, x_5, x_4, x_7, x_8);
+lean_dec(x_7);
+x_10 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_10, 0, x_2);
+lean_ctor_set(x_10, 1, x_9);
+x_11 = lean_apply_2(x_3, lean_box(0), x_10);
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Options_toLinterOptions___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

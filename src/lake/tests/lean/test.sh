@@ -22,5 +22,8 @@ test_out '"importArts":{"Lib.Basic":["' -v lean Test.lean
 # Test running a file works outside the workspace and working directory
 test_out '"name":"_unknown"' -v lean ../../examples/hello/Hello.lean
 
+# Test running a library file with a `.` in its name works
+test_out '"name":"Lib.«Foo.Bar»"' -v lean Lib/Foo.Bar.lean
+
 # cleanup
 rm -f produced.out

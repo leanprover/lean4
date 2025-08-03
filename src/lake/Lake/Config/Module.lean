@@ -44,11 +44,18 @@ Locate the named, buildable module in the library
 def LeanLib.findModule? (mod : Name) (self : LeanLib) : Option Module :=
   if self.isBuildableModule mod then some {lib := self, name := mod} else none
 
-/-- Returns the buildable module in the library whose source file is `path`.  -/
+/--
+Returns the buildable module in the library whose source file or directory is `path`.
+
+For example, in a library with a source directory of `src`,
+`src/Foo/Bar.lean` and `src/Foo/Bar/` will both resolve to the module `Foo.Bar`.
+-/
 def LeanLib.findModuleBySrc? (path : FilePath) (self : LeanLib) : Option Module := do
   let modPath ← path.toString.dropPrefix? self.srcDir.toString
   let modPath := (modPath.drop 1).toString -- remove leading `/`
-  self.findModule? (modOfFilePath modPath)
+  let modPath ← modPath.dropSuffix? ".lean" <|> modPath.dropSuffix? FilePath.pathSeparator.toString
+  let modName := FilePath.components modPath.toString |>.foldl .str .anonymous
+  self.findModule? modName
 
 /-- Locate the named, buildable, importable, local module in the package.  -/
 def Package.findModule? (mod : Name) (self : Package) : Option Module :=

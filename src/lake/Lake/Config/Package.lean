@@ -395,8 +395,8 @@ abbrev PackageSet := Std.HashSet Package
 abbrev OrdPackageSet := OrdHashSet Package
 @[inline] def OrdPackageSet.empty : OrdPackageSet := OrdHashSet.empty
 
-instance : ToText Package := ⟨(·.name.toString)⟩
 instance : ToJson Package := ⟨(toJson ·.name)⟩
+instance : ToString Package := ⟨(·.name.toString)⟩
 
 /-- A package with a name known at type-level. -/
 structure NPackage (n : Name) extends Package where

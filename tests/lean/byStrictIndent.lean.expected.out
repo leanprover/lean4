@@ -5,11 +5,7 @@ byStrictIndent.lean:11:25-11:27: error: unsolved goals
 n : Nat
 h : n > 0
 ⊢ n > 1
-byStrictIndent.lean:10:62-11:27: error: unsolved goals
-n : Nat
-h : n > 0
-helper : n > 1
-⊢ n > 1
+byStrictIndent.lean:13:2-13:7: error: no goals to be solved
 byStrictIndent.lean:16:54-18:9: error: unsolved goals
 n : Nat
 h : n > 0

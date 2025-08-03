@@ -65,7 +65,7 @@ macro "decreasing_with " ts:tacticSeq : tactic =>
     repeat (first | apply PSigma.Lex.right | apply PSigma.Lex.left)
     first
     | done
-    | $ts
+    | $(⟨ts⟩):tacticSeq -- TODO(kmill) remove after stage0 update
     | fail "failed to prove termination, possible solutions:
   - Use `have`-expressions to prove the remaining goals
   - Use `termination_by` to specify a different well-founded relation

@@ -354,6 +354,7 @@ where
           -- We must swap the congruence root to ensure `isDiseq` and `getDiseqFor?` work properly
           modify fun s => { s with congrTable := s.congrTable.insert { e := n.self } }
           setENode n.self { n with congr := n.self }
+          setENode e { (← getENode e) with congr := n.self }
 
 /-- Ensures collection of equations to be processed is empty. -/
 private def resetNewFacts : GoalM Unit :=

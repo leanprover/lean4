@@ -3,7 +3,7 @@ set -euo pipefail
 
 cmake --preset release -DUSE_LAKE=ON 1>&2
 
-# We benchmark against stage 2 to test new optimizations.
+# We benchmark against stage2/bin to test new optimizations.
 timeout -s KILL 1h time make -C build/release -j$(nproc) stage3 1>&2
 export PATH=$PWD/build/release/stage2/bin:$PATH
 

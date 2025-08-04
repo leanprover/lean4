@@ -188,7 +188,7 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
     for arg in args do
       if arg.isMVar then
         if let some j := toSynth.find? (argMVars[·]! == arg) then
-          if let .const className _ := (← inferType argMVars[j]!).getForallBody.getAppFn then
+          if let some className ← isClass? (← inferType argMVars[j]!) then
             unless hasOutParams (← getEnv) className do
               toSynth := toSynth.filter (· != j)
               instParams := instParams.push j

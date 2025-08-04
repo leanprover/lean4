@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Nat.Lemmas
+public import Init.Data.Int.LemmasAux
 public import Init.Data.Hashable
 public import all Init.Data.Ord
 public import Init.Data.RArray
@@ -41,11 +42,11 @@ def Var.denote {α} (ctx : Context α) (v : Var) : α :=
   ctx.get v
 
 @[expose]
-def denoteInt {α} [Ring α] (k : Int) : α :=
-  bif k < 0 then
-    - OfNat.ofNat (α := α) k.natAbs
-  else
-    OfNat.ofNat (α := α) k.natAbs
+noncomputable def denoteInt {α} [Ring α] (k : Int) : α :=
+  Bool.rec
+    (OfNat.ofNat (α := α) k.natAbs)
+    (- OfNat.ofNat (α := α) k.natAbs)
+    (Int.blt' k 0)
 
 @[expose]
 noncomputable def Expr.denote {α} [Ring α] (ctx : Context α) (e : Expr) : α :=
@@ -842,9 +843,9 @@ open Ring hiding sub_eq_add_neg
 open CommSemiring
 
 theorem denoteInt_eq {α} [CommRing α] (k : Int) : denoteInt (α := α) k = k := by
-  simp [denoteInt, cond_eq_if] <;> split
-  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← intCast_neg, ← Int.eq_neg_natAbs_of_nonpos (Int.le_of_lt h)]
-  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← Int.eq_natAbs_of_nonneg (Int.le_of_not_gt h)]
+  simp [denoteInt] <;> cases h : k.blt' 0 <;> simp <;> simp at h
+  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← Int.eq_natAbs_of_nonneg h]
+  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← Ring.intCast_neg, ← Int.eq_neg_natAbs_of_nonpos (Int.le_of_lt h)]
 
 theorem Power.denote_eq {α} [Semiring α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by

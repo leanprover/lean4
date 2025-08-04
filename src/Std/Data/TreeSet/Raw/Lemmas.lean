@@ -231,7 +231,7 @@ theorem isSome_get?_iff_mem [TransCmp cmp] (h : t.WF) {a : α} :
     (t.get? a).isSome ↔ a ∈ t :=
   (mem_iff_isSome_get? h).symm
 
-theorem mem_of_get?_eq_some [TransCmp cmp] {a a' : α} (h : t.WF) :
+theorem mem_of_get?_eq_some [TransCmp cmp] (h : t.WF) {a a' : α} :
     t.get? a = some a' → a' ∈ t :=
   TreeMap.Raw.mem_of_getKey?_eq_some h
 

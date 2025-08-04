@@ -269,6 +269,10 @@ theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α
     (m.get? a).isSome ↔ a ∈ m :=
   (mem_iff_isSome_get? h).symm
 
+theorem mem_of_get?_eq_some [EquivBEq α] [LawfulHashable α] (h : m.WF) {a a' : α} :
+    m.get? a = some a' → a' ∈ m :=
+  HashMap.Raw.mem_of_getKey?_eq_some h.out
+
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     m.contains a = false → m.get? a = none :=
   HashMap.Raw.getKey?_eq_none_of_contains_eq_false h.out
@@ -501,6 +505,10 @@ theorem contains_toList [EquivBEq α] [LawfulHashable α] {k : α} (h : m.WF) :
 theorem mem_toList [LawfulBEq α] (h : m.WF) {k : α} :
     k ∈ m.toList ↔ k ∈ m :=
   HashMap.Raw.mem_keys h.1
+
+theorem mem_of_mem_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    k ∈ m.toList → k ∈ m :=
+  HashMap.Raw.mem_of_mem_keys h.1
 
 theorem distinct_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.Pairwise (fun a b => (a == b) = false) :=

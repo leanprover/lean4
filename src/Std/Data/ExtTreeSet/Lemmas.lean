@@ -221,6 +221,10 @@ theorem isSome_get?_iff_mem [TransCmp cmp] {a : α} :
     (t.get? a).isSome ↔ a ∈ t :=
   mem_iff_isSome_get?.symm
 
+theorem mem_of_get?_eq_some [TransCmp cmp] {k k' : α}
+    (h : t.get? k = some k') : k' ∈ t :=
+  ExtTreeMap.mem_of_getKey?_eq_some h
+
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t.get? a = none :=
   ExtTreeMap.getKey?_eq_none_of_contains_eq_false
@@ -267,6 +271,14 @@ theorem get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] {k : α} (h' : k ∈ t) :
 theorem get?_eq_some_get [TransCmp cmp] {a : α} (h') :
     t.get? a = some (t.get a h') :=
   ExtTreeMap.getKey?_eq_some_getKey h'
+
+theorem get_eq_get_get? [TransCmp cmp] {k : α} {h} :
+    t.get k h = (t.get? k).get (mem_iff_isSome_get?.mp h) :=
+  ExtTreeMap.getKey_eq_get_getKey?
+
+@[grind =] theorem get_get? [TransCmp cmp] {k : α} {h} :
+    (t.get? k).get h = t.get k (mem_iff_isSome_get?.mpr h) :=
+  ExtTreeMap.get_getKey?
 
 theorem compare_get_self [TransCmp cmp] {k : α} (h' : k ∈ t) :
     cmp (t.get k h') k = .eq :=

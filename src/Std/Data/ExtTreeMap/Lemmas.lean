@@ -284,6 +284,14 @@ theorem getElem?_eq_some_getElem [TransCmp cmp] {a : α} (h) :
     t[a]? = some (t[a]'h) :=
   ExtDTreeMap.Const.get?_eq_some_get h
 
+theorem getElem_eq_get_getElem? [TransCmp cmp] {a : α} {h} :
+    t[a] = t[a]?.get (mem_iff_isSome_getElem?.mp h) :=
+  ExtDTreeMap.Const.get_eq_get_get? (h := h)
+
+@[grind =] theorem get_getElem? [TransCmp cmp] {a : α} {h} :
+    t[a]?.get h = t[a]'(mem_iff_isSome_getElem?.mpr h) :=
+  ExtDTreeMap.Const.get_get?
+
 theorem getElem_congr [TransCmp cmp] {a b : α} (hab : cmp a b = .eq) {h'} :
     t[a]'h' = t[b]'((mem_congr hab).mp h') :=
   ExtDTreeMap.Const.get_congr hab (h' := h')
@@ -489,6 +497,15 @@ theorem getKey_erase [TransCmp cmp] {k a : α} {h'} :
 theorem getKey?_eq_some_getKey [TransCmp cmp] {a : α} (h') :
     t.getKey? a = some (t.getKey a h') :=
   ExtDTreeMap.getKey?_eq_some_getKey h'
+
+theorem getKey_eq_get_getKey? [TransCmp cmp] {a : α} {h} :
+    t.getKey a h = (t.getKey? a).get (mem_iff_isSome_getKey?.mp h) :=
+  ExtDTreeMap.getKey_eq_get_getKey?
+
+@[simp, grind =]
+theorem get_getKey? [TransCmp cmp] {a : α} {h} :
+    (t.getKey? a).get h = t.getKey a (mem_iff_isSome_getKey?.mpr h) :=
+  ExtDTreeMap.get_getKey?
 
 theorem compare_getKey_self [TransCmp cmp] {k : α} (h' : k ∈ t) :
     cmp (t.getKey k h') k = .eq :=

@@ -296,6 +296,14 @@ theorem getElem?_eq_some_getElem [TransCmp cmp] (h : t.WF) {a : α} (h') :
     t[a]? = some (t[a]'h') :=
   DTreeMap.Raw.Const.get?_eq_some_get h h'
 
+theorem getElem_eq_get_getElem? [TransCmp cmp] (h : t.WF) {a : α} {h'} :
+    t[a] = t[a]?.get ((mem_iff_isSome_getElem? h).mp h') :=
+  DTreeMap.Raw.Const.get_eq_get_get? h
+
+@[grind =] theorem get_getElem? [TransCmp cmp] (h : t.WF) {a : α} {h'} :
+    t[a]?.get h' = t[a]'((mem_iff_isSome_getElem? h).mpr h') :=
+  DTreeMap.Raw.Const.get_get? h
+
 theorem getElem_congr [TransCmp cmp] (h : t.WF) {a b : α} (hab : cmp a b = .eq) {h'} :
     t[a]'h' = t[b]'((mem_congr h hab).mp h') :=
   DTreeMap.Raw.Const.get_congr h hab

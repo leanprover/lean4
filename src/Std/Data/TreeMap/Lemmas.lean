@@ -300,12 +300,12 @@ theorem getElem?_eq_some_getElem [TransCmp cmp] {a : α} (h) :
     t[a]? = some (t[a]'h) :=
   DTreeMap.Const.get?_eq_some_get h
 
-theorem get_eq_get_get? [TransCmp cmp] {a : α} {h} :
-    t.get a h = (t.get? a).get (mem_iff_isSome_getElem?.mp h) :=
+theorem getElem_eq_get_getElem? [TransCmp cmp] {a : α} {h} :
+    t[a] = t[a]?.get (mem_iff_isSome_getElem?.mp h) :=
   DTreeMap.Const.get_eq_get_get?
 
-@[grind =] theorem get_get? [TransCmp cmp] {a : α} {h} :
-    (t.get? a).get h = t.get a (mem_iff_isSome_getElem?.mpr h) :=
+@[grind =] theorem get_getElem? [TransCmp cmp] {a : α} {h} :
+    t[a]?.get h = t[a]'(mem_iff_isSome_getElem?.mpr h) :=
   DTreeMap.Const.get_get?
 
 theorem getElem_congr [TransCmp cmp] {a b : α} (hab : cmp a b = .eq) {h'} :

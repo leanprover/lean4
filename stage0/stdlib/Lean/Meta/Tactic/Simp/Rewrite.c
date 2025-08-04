@@ -6658,7 +6658,6 @@ x_133 = lean_array_fget(x_26, x_27);
 lean_dec(x_27);
 lean_dec_ref(x_26);
 x_134 = lean_unbox(x_133);
-lean_dec(x_133);
 x_135 = l_Lean_BinderInfo_isInstImplicit(x_134);
 if (x_135 == 0)
 {
@@ -7575,7 +7574,6 @@ x_230 = lean_array_fget(x_26, x_27);
 lean_dec(x_27);
 lean_dec_ref(x_26);
 x_231 = lean_unbox(x_230);
-lean_dec(x_230);
 x_232 = l_Lean_BinderInfo_isInstImplicit(x_231);
 if (x_232 == 0)
 {

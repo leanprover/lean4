@@ -1051,7 +1051,6 @@ lean_inc_ref(x_4);
 x_5 = lean_array_fget(x_4, x_2);
 lean_dec_ref(x_4);
 x_6 = lean_unbox(x_5);
-lean_dec(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 

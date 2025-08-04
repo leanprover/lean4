@@ -1725,7 +1725,6 @@ x_7 = lean_box(x_4);
 x_8 = lean_array_get(x_7, x_1, x_5);
 lean_dec(x_5);
 x_9 = lean_unbox(x_8);
-lean_dec(x_8);
 switch (x_9) {
 case 0:
 {
@@ -1793,7 +1792,6 @@ x_18 = lean_box(x_4);
 x_19 = lean_array_get(x_18, x_1, x_16);
 lean_dec(x_16);
 x_20 = lean_unbox(x_19);
-lean_dec(x_19);
 switch (x_20) {
 case 0:
 {

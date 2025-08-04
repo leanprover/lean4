@@ -364,7 +364,6 @@ else
 lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_11 = lean_array_fget(x_1, x_8);
 x_12 = lean_unbox(x_11);
-lean_dec(x_11);
 x_13 = lean_box(0);
 x_14 = lean_array_fset(x_1, x_8, x_13);
 x_15 = lean_box(x_12);
@@ -412,7 +411,6 @@ else
 lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_27 = lean_array_fget(x_1, x_24);
 x_28 = lean_unbox(x_27);
-lean_dec(x_27);
 x_29 = lean_box(0);
 x_30 = lean_array_fset(x_1, x_24, x_29);
 x_31 = lean_box(x_28);
@@ -666,7 +664,6 @@ else
 lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_31; 
 x_22 = lean_array_fget(x_6, x_16);
 x_23 = lean_unbox(x_22);
-lean_dec(x_22);
 x_24 = lean_box(0);
 x_25 = lean_array_fset(x_6, x_16, x_24);
 x_31 = lean_box(x_23);
@@ -735,7 +732,6 @@ else
 lean_object* x_40; uint8_t x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; lean_object* x_49; 
 x_40 = lean_array_fget(x_6, x_34);
 x_41 = lean_unbox(x_40);
-lean_dec(x_40);
 x_42 = lean_box(0);
 x_43 = lean_array_fset(x_6, x_34, x_42);
 x_49 = lean_box(x_41);
@@ -903,7 +899,6 @@ else
 lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; uint8_t x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_25 = lean_array_fget(x_6, x_18);
 x_26 = lean_unbox(x_25);
-lean_dec(x_25);
 x_27 = lean_box(0);
 x_28 = lean_array_fset(x_6, x_18, x_27);
 x_29 = lean_unbox(x_19);
@@ -1119,7 +1114,6 @@ x_10 = 0;
 x_11 = lean_box(x_10);
 x_12 = lean_array_get(x_11, x_5, x_8);
 x_13 = lean_unbox(x_12);
-lean_dec(x_12);
 x_14 = lean_unbox(x_9);
 x_15 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_hasAssignment(x_14, x_13);
 if (x_15 == 0)
@@ -1152,7 +1146,6 @@ else
 lean_object* x_33; uint8_t x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; uint8_t x_38; lean_object* x_39; lean_object* x_40; 
 x_33 = lean_array_fget(x_5, x_8);
 x_34 = lean_unbox(x_33);
-lean_dec(x_33);
 x_35 = lean_box(0);
 x_36 = lean_array_fset(x_5, x_8, x_35);
 x_37 = lean_unbox(x_9);
@@ -1540,7 +1533,6 @@ else
 lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
 x_7 = lean_array_fget(x_1, x_3);
 x_8 = lean_unbox(x_7);
-lean_dec(x_7);
 x_9 = lean_box(0);
 x_10 = lean_array_fset(x_1, x_3, x_9);
 x_11 = lean_unbox(x_4);
@@ -1960,7 +1952,6 @@ x_30 = 0;
 x_31 = lean_box(x_30);
 x_32 = lean_array_get(x_31, x_12, x_28);
 x_33 = lean_unbox(x_32);
-lean_dec(x_32);
 x_34 = lean_unbox(x_29);
 x_35 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_hasAssignment(x_34, x_33);
 if (x_35 == 0)
@@ -1982,7 +1973,6 @@ else
 lean_object* x_46; uint8_t x_47; lean_object* x_48; lean_object* x_49; uint8_t x_50; uint8_t x_51; lean_object* x_52; lean_object* x_53; 
 x_46 = lean_array_fget(x_12, x_28);
 x_47 = lean_unbox(x_46);
-lean_dec(x_46);
 x_48 = lean_box(0);
 x_49 = lean_array_fset(x_12, x_28, x_48);
 x_50 = lean_unbox(x_29);

@@ -91,7 +91,7 @@ theorem mkAtomCached_eval_eq_mkAtom_eval {aig : AIG α} :
     ⟦aig.mkAtomCached var, assign⟧ = ⟦aig.mkAtom var, assign⟧ := by
   simp only [mkAtomCached]
   split
-  · next heq1 =>
+  next heq1 =>
     rw [denote_mkAtom_cached heq1]
   · simp [mkAtom, denote]
 
@@ -105,8 +105,8 @@ theorem denote_mkConstCached {aig : AIG α} :
   unfold denote denote.go
   split
   · simp
-  · next heq => simp [aig.hconst] at heq
-  · next heq => simp [aig.hconst] at heq
+  next heq => simp [aig.hconst] at heq
+  next heq => simp [aig.hconst] at heq
 
 /--
 If we find a cached gate declaration in the AIG, denoting it is equivalent to denoting `AIG.mkGate`.
@@ -204,7 +204,7 @@ theorem mkGateCached.go_eval_eq_mkGate_eval {aig : AIG α} {input : BinaryInput 
     ⟦go aig input, assign⟧ = ⟦aig.mkGate input, assign⟧ := by
   simp only [go]
   split
-  · next heq1 =>
+  next heq1 =>
     rw [denote_mkGate_cached heq1]
   · split
     · simp_all [denote_getConstant]
@@ -215,7 +215,7 @@ theorem mkGateCached.go_eval_eq_mkGate_eval {aig : AIG α} {input : BinaryInput 
       split
       · split
         · simp_all
-        · next hif =>
+        next hif =>
           simp_all
           have := Bool.eq_not_of_ne hif
           simp_all

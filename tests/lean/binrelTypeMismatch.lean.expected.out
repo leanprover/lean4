@@ -1,17 +1,17 @@
-binrelTypeMismatch.lean:10:14-10:16: error: type mismatch
+binrelTypeMismatch.lean:10:14-10:16: error: Type mismatch
   ()
 has type
   Unit
 but is expected to have type
   Bool
-binrelTypeMismatch.lean:15:21-15:22: error: type mismatch
+binrelTypeMismatch.lean:15:21-15:22: error: Type mismatch
   p
 has type
   Prop
 but is expected to have type
   Bool
 Prop → sorry : Sort u_1
-binrelTypeMismatch.lean:20:27-20:28: error: type mismatch
+binrelTypeMismatch.lean:20:27-20:28: error: Type mismatch
   p
 has type
   Prop

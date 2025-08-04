@@ -1260,7 +1260,6 @@ x_60 = lean_string_append(x_54, x_59);
 lean_dec_ref(x_59);
 x_61 = lean_dbg_trace(x_60, x_53);
 x_62 = lean_unbox(x_61);
-lean_dec(x_61);
 x_36 = x_62;
 goto block_38;
 }

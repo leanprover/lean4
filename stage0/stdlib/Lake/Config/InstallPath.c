@@ -24,6 +24,7 @@ static lean_object* l_Lake_reprElanInstall___redArg___closed__12____x40_Lake_Con
 static lean_object* l_Lake_reprElanInstall___redArg___closed__20____x40_Lake_Config_InstallPath___hyg_123_;
 static lean_object* l_Lake_reprLeanInstall___redArg___closed__27____x40_Lake_Config_InstallPath___hyg_670_;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
+lean_object* l_Std_Format_joinSep___at___List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1981__spec__0_spec__0(lean_object*, lean_object*);
 static lean_object* l_Array_Array_repr___at___Lake_reprLeanInstall____x40_Lake_Config_InstallPath___hyg_670__spec__0___closed__2;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedLeanInstall;
 static lean_object* l_Lake_toolchain2Dir_go___closed__1;
@@ -190,7 +191,6 @@ static lean_object* l_Lake_envToBool_x3f___closed__0;
 static lean_object* l_Array_Array_repr___at___Lake_reprLeanInstall____x40_Lake_Config_InstallPath___hyg_670__spec__0___closed__6;
 static lean_object* l_Lake_reprLeanInstall___redArg___closed__4____x40_Lake_Config_InstallPath___hyg_670_;
 lean_object* l_Lean_Compiler_FFI_getInternalLinkerFlags(lean_object*);
-lean_object* l_Std_Format_joinSep___at___List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lake_reprElanInstall___redArg___closed__5____x40_Lake_Config_InstallPath___hyg_123_;
 static lean_object* l_Lake_envToBool_x3f___closed__3;
 static lean_object* l_Lake_reprLeanInstall___redArg___closed__22____x40_Lake_Config_InstallPath___hyg_670_;
@@ -1481,7 +1481,7 @@ if (x_4 == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_5 = lean_array_to_list(x_1);
 x_6 = l_Array_Array_repr___at___Lake_reprLeanInstall____x40_Lake_Config_InstallPath___hyg_670__spec__0___closed__1;
-x_7 = l_Std_Format_joinSep___at___List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1970__spec__0_spec__0(x_5, x_6);
+x_7 = l_Std_Format_joinSep___at___List_repr_x27___at___Lean_Syntax_reprPreresolved____x40_Init_Meta___hyg_1981__spec__0_spec__0(x_5, x_6);
 x_8 = l_Lake_reprElanInstall___redArg___closed__21____x40_Lake_Config_InstallPath___hyg_123_;
 x_9 = l_Array_Array_repr___at___Lake_reprLeanInstall____x40_Lake_Config_InstallPath___hyg_670__spec__0___closed__3;
 x_10 = lean_alloc_ctor(5, 2, 0);

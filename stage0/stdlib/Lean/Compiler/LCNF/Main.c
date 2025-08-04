@@ -4914,6 +4914,10 @@ x_17 = lean_ctor_get(x_12, 1);
 lean_inc(x_17);
 lean_dec_ref(x_12);
 x_18 = l_Lean_Compiler_LCNF_checkDeadLocalDecls(x_2, x_4, x_5, x_6, x_7, x_17);
+lean_dec(x_7);
+lean_dec_ref(x_6);
+lean_dec(x_5);
+lean_dec_ref(x_4);
 return x_18;
 }
 }

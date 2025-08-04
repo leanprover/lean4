@@ -208,10 +208,10 @@ x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
 x_8 = lean_array_fget(x_1, x_7);
 x_9 = lean_unbox_float(x_8);
-lean_dec(x_8);
+lean_dec_ref(x_8);
 x_10 = lean_array_fget(x_2, x_7);
 x_11 = lean_unbox_float(x_10);
-lean_dec(x_10);
+lean_dec_ref(x_10);
 x_12 = lean_float_beq(x_9, x_11);
 if (x_12 == 0)
 {

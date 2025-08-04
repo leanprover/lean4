@@ -7,8 +7,8 @@ case upper.h
 q d : Nat
 ⊢ q + d.succ > q
 inductionErrors.lean:16:19-16:26: error(lean.unknownIdentifier): Unknown identifier `elimEx2`
-inductionErrors.lean:22:2-25:45: error: insufficient number of targets for 'elimEx'
-inductionErrors.lean:28:16-28:23: error: expected resulting type of eliminator to be an application of one of its parameters (the motive):
+inductionErrors.lean:22:2-25:45: error: Insufficient number of targets for `elimEx`
+inductionErrors.lean:28:16-28:23: error: Expected resulting type of eliminator to be an application of one of its parameters (the motive), but found
   Nat
 inductionErrors.lean:35:11-35:15: error: unsolved goals
 x : Nat

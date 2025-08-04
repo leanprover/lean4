@@ -6,7 +6,7 @@
 If the body of a `have` fails to elaborate, the tactic completes with a `sorry` for the proof.
 -/
 /--
-error: type mismatch
+error: Type mismatch
   False.elim
 has type
   False → ?m.6

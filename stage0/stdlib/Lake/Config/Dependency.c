@@ -18,14 +18,12 @@ LEAN_EXPORT lean_object* l_Option_repr___at___Lake_reprDependencySrc____x40_Lake
 static lean_object* l_Lake_reprDependencySrc___closed__7____x40_Lake_Config_Dependency___hyg_62_;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedDependencySrc;
 lean_object* l_String_quote(lean_object*);
-lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lake_reprDependencySrc___closed__0____x40_Lake_Config_Dependency___hyg_62_;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedDependency;
 LEAN_EXPORT lean_object* l_Lake_Dependency_fullName(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instImpl____x40_Lake_Config_Dependency___hyg_253_;
 static lean_object* l_Lake_Dependency_fullName___closed__0;
 static lean_object* l_Option_repr___at___Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_62__spec__0___closed__0;
-LEAN_EXPORT uint8_t l_Lake_Dependency_fullName___lam__0(lean_object*);
 static lean_object* l_Lake_reprDependencySrc___closed__2____x40_Lake_Config_Dependency___hyg_62_;
 static lean_object* l_Lake_instImpl___closed__2____x40_Lake_Config_Dependency___hyg_253_;
 lean_object* lean_nat_to_int(lean_object*);
@@ -36,10 +34,10 @@ static lean_object* l_Option_repr___at___Lake_reprDependencySrc____x40_Lake_Conf
 LEAN_EXPORT lean_object* l_Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_62____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at___Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_62__spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at___Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_62__spec__0(lean_object*, lean_object*);
+lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
 static lean_object* l_Lake_instInhabitedDependencySrc___closed__1;
 static lean_object* l_Option_repr___at___Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_62__spec__1___closed__0;
 static lean_object* l_Lake_reprDependencySrc___closed__1____x40_Lake_Config_Dependency___hyg_62_;
-LEAN_EXPORT lean_object* l_Lake_Dependency_fullName___lam__0___boxed(lean_object*);
 static lean_object* l_Option_repr___at___Lake_reprDependencySrc____x40_Lake_Config_Dependency___hyg_62__spec__0___closed__2;
 static lean_object* l_Lake_reprDependencySrc___closed__3____x40_Lake_Config_Dependency___hyg_62_;
 LEAN_EXPORT lean_object* l_Lake_instTypeNameDependency;
@@ -563,14 +561,6 @@ x_1 = l_Lake_instImpl____x40_Lake_Config_Dependency___hyg_253_;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lake_Dependency_fullName___lam__0(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; 
-x_2 = 0;
-return x_2;
-}
-}
 static lean_object* _init_l_Lake_Dependency_fullName___closed__0() {
 _start:
 {
@@ -582,30 +572,19 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lake_Dependency_fullName(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_3);
 lean_dec_ref(x_1);
-x_4 = lean_alloc_closure((void*)(l_Lake_Dependency_fullName___lam__0___boxed), 1, 0);
-x_5 = l_Lake_Dependency_fullName___closed__0;
-x_6 = lean_string_append(x_3, x_5);
-x_7 = 1;
-x_8 = l_Lean_Name_toString(x_2, x_7, x_4);
-x_9 = lean_string_append(x_6, x_8);
-lean_dec_ref(x_8);
-return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Dependency_fullName___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Lake_Dependency_fullName___lam__0(x_1);
-lean_dec_ref(x_1);
-x_3 = lean_box(x_2);
-return x_3;
+x_4 = l_Lake_Dependency_fullName___closed__0;
+x_5 = lean_string_append(x_3, x_4);
+x_6 = 1;
+x_7 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_2, x_6);
+x_8 = lean_string_append(x_5, x_7);
+lean_dec_ref(x_7);
+return x_8;
 }
 }
 lean_object* initialize_Init_Dynamic(uint8_t builtin, lean_object*);

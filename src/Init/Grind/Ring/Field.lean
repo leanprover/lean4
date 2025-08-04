@@ -95,9 +95,9 @@ theorem zero_eq_inv_iff {a : α} : 0 = a⁻¹ ↔ 0 = a := by
   rw [eq_comm, inv_eq_zero_iff, eq_comm]
 
 theorem of_mul_eq_zero {a b : α} : a*b = 0 → a = 0 ∨ b = 0 := by
-  cases (Classical.em (a = 0)); simp [*, Semiring.zero_mul]
-  cases (Classical.em (b = 0)); simp [*, Semiring.mul_zero]
-  next h₁ h₂ =>
+  cases (Classical.em (a = 0)); · simp [*, Semiring.zero_mul]
+  cases (Classical.em (b = 0)); · simp [*, Semiring.mul_zero]
+  rename_i h₁ h₂
   replace h₁ := Field.mul_inv_cancel h₁
   replace h₂ := Field.mul_inv_cancel h₂
   intro h

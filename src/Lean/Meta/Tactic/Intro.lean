@@ -71,7 +71,7 @@ namespace Lean.Meta
             if newType.isForall then
               loop (i+1) lctx fvars fvars.size s newType
             else
-              throwTacticEx `introN mvarId "insufficient number of binders"
+              throwTacticEx `introN mvarId <| m!"There are no additional binders or `let` bindings in the goal to introduce"
   let (fvars, mvarId) ← loop n lctx #[] 0 s mvarType
   return (fvars.map Expr.fvarId!, mvarId)
 

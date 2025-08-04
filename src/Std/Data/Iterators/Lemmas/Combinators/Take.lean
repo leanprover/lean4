@@ -61,7 +61,7 @@ theorem Iter.toList_take_of_finite {α β} [Iterator α Id β] {n : Nat}
     [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} :
     (it.take n).toList = it.toList.take n := by
-  induction it using Iter.inductSteps generalizing n with | step it ihy ihs =>
+  induction it using Iter.inductSteps generalizing n with | step it ihy ihs
   rw [Iter.toList_eq_match_step, Iter.toList_eq_match_step, Iter.step_take]
   cases n
   case zero => simp

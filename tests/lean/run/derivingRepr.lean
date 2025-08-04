@@ -1,3 +1,7 @@
+module
+
+public section
+
 structure Foo where
   name  : String
   val   : List Nat
@@ -110,3 +114,47 @@ inductive Promote2 : Type → Type where
 
 /-- info: Promote2.mk _ -/
 #guard_msgs in #eval Promote2.mk Nat
+
+
+/-! Private fields should yield public, no-expose instances. -/
+
+structure PrivField where
+  private a : Nat
+deriving Repr
+
+/--
+info: def instReprPrivField : Repr PrivField :=
+<not imported>
+-/
+#guard_msgs in
+#with_exporting
+#print instReprPrivField
+
+end
+
+-- Try again without `public section`
+
+public structure PrivField2 where
+  private a : Nat
+deriving Repr
+
+/--
+info: def instReprPrivField2 : Repr PrivField2 :=
+<not imported>
+-/
+#guard_msgs in
+#with_exporting
+#print instReprPrivField2
+
+/-! Public structures should yield public instances independent of `public section`. -/
+
+public structure Public where
+deriving Repr
+
+/--
+info: def instReprPublic : Repr Public :=
+{ reprPrec := reprPublic✝ }
+-/
+#guard_msgs in
+#with_exporting
+#print instReprPublic

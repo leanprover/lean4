@@ -115,7 +115,7 @@ theorem pairwise_toList_upwardEnumerableLt {sl su} [UpwardEnumerable α]
     r.toList.Pairwise (fun a b => UpwardEnumerable.LT a b) := by
   rw [Internal.toList_eq_toList_iter]
   generalize Internal.iter r = it
-  induction it using Iter.inductSteps with | step it ihy ihs =>
+  induction it using Iter.inductSteps with | step it ihy ihs
   rw [RangeIterator.toList_eq_match]
   repeat' split <;> (try exact .nil; done)
   rename_i a _ _

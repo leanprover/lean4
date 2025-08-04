@@ -1009,21 +1009,21 @@ namespace Raw
 
 theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashable α] {m : Raw α β}
     (h : m.WF) : Raw.WFImp m := by
-  induction h generalizing i₁ i₂
-  next h => apply h
-  · exact Raw₀.wfImp_emptyWithCapacity
-  next h => exact Raw₀.wfImp_insert (by apply h)
-  next h => exact Raw₀.wfImp_containsThenInsert (by apply h)
-  next h => exact Raw₀.wfImp_containsThenInsertIfNew (by apply h)
-  next h => exact Raw₀.wfImp_erase (by apply h)
-  next h => exact Raw₀.wfImp_insertIfNew (by apply h)
-  next h => exact Raw₀.wfImp_getThenInsertIfNew? (by apply h)
-  next h => exact Raw₀.wfImp_filter (by apply h)
-  next h => exact Raw₀.Const.wfImp_getThenInsertIfNew? (by apply h)
-  next h => exact Raw₀.wfImp_modify (by apply h)
-  next h => exact Raw₀.Const.wfImp_modify (by apply h)
-  next h => exact Raw₀.wfImp_alter (by apply h)
-  next h => exact Raw₀.Const.wfImp_alter (by apply h)
+  induction h generalizing i₁ i₂ with
+  | wf _ h => apply h
+  | emptyWithCapacity₀ => exact Raw₀.wfImp_emptyWithCapacity
+  | insert₀ _ h => exact Raw₀.wfImp_insert (by apply h)
+  | containsThenInsert₀ _ h => exact Raw₀.wfImp_containsThenInsert (by apply h)
+  | containsThenInsertIfNew₀ _ h => exact Raw₀.wfImp_containsThenInsertIfNew (by apply h)
+  | erase₀ _ h => exact Raw₀.wfImp_erase (by apply h)
+  | insertIfNew₀ _ h => exact Raw₀.wfImp_insertIfNew (by apply h)
+  | getThenInsertIfNew?₀ _ h => exact Raw₀.wfImp_getThenInsertIfNew? (by apply h)
+  | filter₀ _ h => exact Raw₀.wfImp_filter (by apply h)
+  | constGetThenInsertIfNew?₀ _ h => exact Raw₀.Const.wfImp_getThenInsertIfNew? (by apply h)
+  | modify₀ _ h => exact Raw₀.wfImp_modify (by apply h)
+  | constModify₀ _ h => exact Raw₀.Const.wfImp_modify (by apply h)
+  | alter₀ _ h => exact Raw₀.wfImp_alter (by apply h)
+  | constAlter₀ _ h => exact Raw₀.Const.wfImp_alter (by apply h)
 
 end Raw
 

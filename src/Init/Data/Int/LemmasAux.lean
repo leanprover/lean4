@@ -69,6 +69,18 @@ theorem natCast_succ_pos (n : Nat) : 0 < (n.succ : Int) := natCast_pos.2 n.succ_
 
 @[simp, norm_cast] theorem cast_id {n : Int} : Int.cast n = n := rfl
 
+@[simp] theorem ble'_eq_true (a b : Int) : (Int.ble' a b = true) = (a ≤ b) := by
+  cases a <;> cases b <;> simp [Int.ble'] <;> omega
+
+@[simp] theorem blt'_eq_true (a b : Int) : (Int.blt' a b = true) = (a < b) := by
+  cases a <;> cases b <;> simp [Int.blt'] <;> omega
+
+@[simp] theorem ble'_eq_false (a b : Int) : (Int.ble' a b = false) = ¬(a ≤ b) := by
+  simp [← Bool.not_eq_true]
+
+@[simp] theorem blt'_eq_false (a b : Int) : (Int.blt' a b = false) = ¬ (a < b) := by
+  simp [← Bool.not_eq_true]
+
 /-! ### toNat -/
 
 @[simp] theorem toNat_sub' (a : Int) (b : Nat) : (a - b).toNat = a.toNat - b := by

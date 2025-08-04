@@ -104,7 +104,7 @@ Handles failures by treating them as exceptions of type `Unit`.
   let some a ← x | handle ()
   pure <| some a
 
-instance : MonadExceptOf Unit (OptionT m) where
+instance (priority := low) : MonadExceptOf Unit (OptionT m) where
   throw    := fun _ => OptionT.fail
   tryCatch := OptionT.tryCatch
 

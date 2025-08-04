@@ -299,7 +299,11 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         int env_count = env_base_count;
         for (auto & pair : env) {
             object * error = add_env_override(pair, env_vars, env_count);
-            if (error != nullptr) return error;
+            if (error != nullptr) {
+                uv_os_free_environ(items, env_base_count);
+                free(arg_array);
+                return error;
+            }
         }
         size_t env_size = sizeof(char *) * (env_count + 1); // + terminating NUL pointer
         for (int i = 0; i < env_count; i++) {

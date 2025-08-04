@@ -207,7 +207,7 @@ should not be italicized:
 * vice versa
 
 Domain-specific terms such as *modus ponens*, *modus tollens*, and *ex
-falso quodlibet* are also acceptable, but prefer “excluded middle”
+falso quodlibet* are also acceptable, but prefer “Excluded Middle”
 over “tertium non datur.” The abbreviations “i.e.” and “e.g.” should
 be used only at the start of a parenthetical aside (i.e. like this),
 and “et al.” only in the author list in a citation of an academic
@@ -403,7 +403,7 @@ avoid discussion of foundational issues outside of specific materials
 dedicated to this topic. For most users, it’s irrelevant. When
 foundations are relevant to practice, it’s often for a reason that is
 easier to understand. For example, decision procedures that use
-excluded middle are less useful because excluded middle isn’t
+Excluded Middle are less useful because Excluded Middle isn’t
 computable, which is easier to understand than a discussion of
 classical vs constructive logic. Users who care about foundations can
 refer to specific sections. Don’t “apologize” for being insufficiently
@@ -682,9 +682,9 @@ this proof.
 
 In particular, this axiom is
 [global choice](https://en.wikipedia.org/wiki/Axiom_of_global_choice), which
-is slightly stronger than the axiom of choice in ZFC.
+is slightly stronger than the Axiom of Choice in ZFC.
 
-The axiom of choice is used to derive the law of the excluded middle
+The Axiom of Choice is used to derive the Law of the Excluded Middle
 (`Classical.em`), so it may show up in axiom listings for proofs that do
 not obviously use choice.
 

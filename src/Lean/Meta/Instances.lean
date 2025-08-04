@@ -107,33 +107,62 @@ private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
 /--
 Compute the order the arguments of `inst` should be synthesized.
 
-The synthesization order makes sure that all mvars in non-out-params of the
-subgoals are assigned before we try to synthesize it.  Otherwise it goes left
-to right.
+The synthesization order makes sure that all mvars in non-outParams and
+non-instanceImplicit arguments of a subgoal are assigned before we try to synthesize it.
+Otherwise it goes left to right.
+
+It also uses the following heuristic to skip some instances: if an instance (e.g. `[Mul A]`)
+appears as a direct argument to another instance (e.g. `[MulHomClass F A B]`) then we skip `[Mul A]`,
+because syntesizing `[MulHomClass F A B]`, gives us the `[Mul A]` instance for free.
+This heuristic doesn't apply if the inner instance has outParams that will be determined by
+synthesizing that instance. This means that even though `[FunLike F A B]` is a parameter to
+`[MulHomClass F A B]`, we first synthesize `[FunLike F A B]` to determine `A` and `B`.
+This is necessary in case that `MulHomClass` hasn't labelled `A` and `B` as `outParam`.
 
 For example:
   - `[Add α] [Zero α] : Foo α` returns `[0, 1]`
-  - `[Mul A] [Mul B] [MulHomClass F A B] : FunLike F A B` returns `[2, 0, 1]`
+  - `[Group G] [IsKleinFour G] : IsAddKleinFour (Additive G)` returns `[1]`
+  - `[Mul A] [Mul B] [FunLike F A B] [MulHomClass F A B] : CoeTC F (A →ₙ* B)` returns `[2, 3]`
     (because A B are out-params and are only filled in once we synthesize 2)
 
-(The type of `inst` must not contain mvars.)
+The heuristic for skipping instances is a solution to issue #5333. Consider the following example
+```
+class A (n : Nat) where
+
+instance [A n] : A n.succ where
+
+class B [A 20050] where
+
+class C [A 20000] extends B where
+```
+This gives the following instance
+```
+C.toB [inst : A 20000] [self : @C inst] : @B ...
+```
+Previously, `C.toB` had synthOrder `[0, 1]`, meaning that it would lead to an attempt at
+synthesizing `[A 20000]`, which is too expensive. We now avoid this problem by setting the
+synthOrder to `[1]`, and hence only synthesizing `[@C ?inst]`.
 -/
 private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   withReducible do
   let instTy ← inferType inst
 
-  -- Gets positions of all out- and semi-out-params of `classTy`
+  -- Gets positions of all instance implicit and out- and semi-out-params of `classTy`
   -- (where `classTy` is e.g. something like `Inhabited Nat`)
-  let rec getSemiOutParamPositionsOf (classTy : Expr) : MetaM (Array Nat) := do
+  let rec getSemiOutParamPositionsOf (classTy : Expr) : MetaM (Array Nat × Array Nat) := do
     if let .const className .. := classTy.getAppFn then
       forallTelescopeReducing (← inferType classTy.getAppFn) fun args _ => do
-      let mut pos := (getOutParamPositions? (← getEnv) className).getD #[]
+      let mut outParams := (getOutParamPositions? (← getEnv) className).getD #[]
+      let mut insts := #[]
       for arg in args, i in *...args.size do
-        if (← inferType arg).isAppOf ``semiOutParam then
-          pos := pos.push i
-      return pos
+        let decl ← arg.fvarId!.getDecl
+        if decl.type.isAppOf ``semiOutParam then
+          outParams := outParams.push i
+        else if decl.binderInfo.isInstImplicit then
+          insts := insts.push i
+      return (outParams, insts)
     else
-      return #[]
+      return (#[], #[])
 
   -- Create both metavariables and free variables for the instance args
   -- We will successively pick subgoals where all non-out-params have been
@@ -150,43 +179,48 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
         mvarId.assign argVars[i]!
       assignMVarsIn (← inferType (.mvar mvarId))
 
-  -- We start by determining which instance arguments appear in other instance
-  -- arguments as a parameter. These arguments can usually be inferred from the
-  -- other argument, so we put them at the end of the synth order.
   let mut toSynth := List.range argMVars.size |>.filter (argBIs[·]! == .instImplicit) |>.toArray
-  let mut instParams := #[]
+  -- We let `instParams` be the instance arguments that appear in the type of
+  -- another instance argument as a direct argument.
+  let mut instParams : Std.HashSet Nat := {}
   for i in toSynth do
     let args ← forallTelescopeReducing (← inferType argMVars[i]!) fun _ argTy =>
       return (← whnf argTy).getAppArgs
     for arg in args do
       if arg.isMVar then
         if let some j := toSynth.find? (argMVars[·]! == arg) then
-          toSynth := toSynth.filter (· != j)
-          instParams := instParams.push j
-          arg.mvarId!.assign argVars[j]!
+          instParams := instParams.insert j
 
   -- We start by assigning all metavariables in non-out-params of the return value.
   -- These are assumed to not be mvars during TC search (or at least not assignable)
-  let tyOutParams ← getSemiOutParamPositionsOf ty
+  let (tyOutParams, tyInsts) ← getSemiOutParamPositionsOf ty
   let tyArgs := ty.getAppArgs
   for tyArg in tyArgs, i in *...tyArgs.size do
-    unless tyOutParams.contains i do
+    unless tyOutParams.contains i || tyInsts.contains i do
       assignMVarsIn tyArg
 
   -- Now we successively try to find the next ready subgoal, where all
   -- non-out-params are mvar-free.
   let mut synthed := #[]
   while !toSynth.isEmpty do
-    let next? ← toSynth.findM? fun i => do
+    let next? ← toSynth.findSomeM? fun i => do
       forallTelescopeReducing (← instantiateMVars (← inferType argMVars[i]!)) fun _ argTy => do
       let argTy ← whnf argTy
-      let argOutParams ← getSemiOutParamPositionsOf argTy
+      let (argOutParams, argInsts) ← getSemiOutParamPositionsOf argTy
       let argTyArgs := argTy.getAppArgs
-      for i in *...argTyArgs.size, argTyArg in argTyArgs do
-        if !argOutParams.contains i && argTyArg.hasExprMVar then
-          return false
-      return true
-    let next ←
+      for j in *...argTyArgs.size, argTyArg in argTyArgs do
+        if !argOutParams.contains j && !argInsts.contains j && argTyArg.hasExprMVar then
+          return none
+      unless instParams.contains i do
+        return some (i, true)
+      for j in *...argTyArgs.size, argTyArg in argTyArgs do
+        if argOutParams.contains j && argTyArg.hasExprMVar then
+          return some (i, true)
+      -- If `i` is a subgoal that appears in another subgoal,
+      -- and if synthesizing `i` wouldn't fill in any outParams,
+      -- then we do not include `i` in the synthOrder.
+      return some (i, false)
+    let (next, use) ←
       match next? with
       | some next => pure next
       | none =>
@@ -197,12 +231,12 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
           throwError m!"\
             cannot find synthesization order for instance {inst} with type{indentExpr instTy}\n\
             all remaining arguments have metavariables:{typeLines}"
-        pure toSynth[0]!
-    synthed := synthed.push next
+        pure (toSynth[0]!, true)
+    if use then
+      synthed := synthed.push next
+      assignMVarsIn (← inferType argMVars[next]!)
+      assignMVarsIn argMVars[next]!
     toSynth := toSynth.filter (· != next)
-    assignMVarsIn (← inferType argMVars[next]!)
-    assignMVarsIn argMVars[next]!
-  synthed := synthed ++ instParams.qsort
 
   if synthInstance.checkSynthOrder.get (← getOptions) then
     let ty ← instantiateMVars ty

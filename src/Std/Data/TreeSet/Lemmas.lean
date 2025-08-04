@@ -1780,4 +1780,84 @@ theorem equiv_iff_toList_eq [TransCmp cmp] :
 
 end Equiv
 
+section filter
+
+variable {t : TreeSet α cmp}
+
+theorem toList_filter {f : α → Bool} :
+    (t.filter f).toList = t.toList.filter f :=
+  TreeMap.keys_filter_key
+
+@[grind =] theorem isEmpty_filter_iff [TransCmp cmp]
+    {f : α → Bool} :
+    (t.filter f).isEmpty ↔ ∀ k h, f (t.get k h) = false :=
+  TreeMap.isEmpty_filter_iff
+
+theorem isEmpty_filter_eq_false_iff [TransCmp cmp]
+    {f : α → Bool} :
+    (t.filter f).isEmpty = false ↔ ∃ k h, f (t.get k h) :=
+  TreeMap.isEmpty_filter_eq_false_iff
+
+-- TODO: `contains_filter` is missing.
+
+@[simp, grind =]
+theorem mem_filter [TransCmp cmp]
+    {f : α → Bool} {k : α} :
+    k ∈ t.filter f ↔ ∃ h, f (t.get k h) :=
+  TreeMap.mem_filter
+
+theorem contains_of_contains_filter [TransCmp cmp]
+    {f : α → Bool} {k : α} :
+    (t.filter f).contains k → t.contains k :=
+  TreeMap.contains_of_contains_filter
+
+theorem mem_of_mem_filter [TransCmp cmp]
+    {f : α → Bool} {k : α} :
+    k ∈ t.filter f → k ∈ t :=
+  TreeMap.mem_of_mem_filter
+
+theorem size_filter_le_size [TransCmp cmp]
+    {f : α → Bool} :
+    (t.filter f).size ≤ t.size :=
+  TreeMap.size_filter_le_size
+
+grind_pattern size_filter_le_size => (t.filter f).size
+
+theorem size_filter_eq_size_iff [TransCmp cmp]
+    {f : α → Bool} :
+    (t.filter f).size = t.size ↔ ∀ k h, f (t.get k h) :=
+  TreeMap.size_filter_eq_size_iff
+
+theorem filter_equiv_self_iff [TransCmp cmp]
+    {f : α → Bool} :
+    t.filter f ~m t ↔ ∀ k h, f (t.get k h) :=
+  ⟨fun h => TreeMap.filter_equiv_self_iff.mp h.1,
+    fun h => ⟨TreeMap.filter_equiv_self_iff.mpr h⟩⟩
+
+@[simp, grind =]
+theorem get?_filter [TransCmp cmp]
+    {f : α → Bool} {k : α} :
+    (t.filter f).get? k = (t.get? k).filter f :=
+  TreeMap.getKey?_filter_key
+
+@[simp, grind =]
+theorem get_filter [TransCmp cmp]
+    {f : α → Bool} {k : α} {h} :
+    (t.filter f).get k h = t.get k (mem_of_mem_filter h) :=
+  TreeMap.getKey_filter
+
+@[grind =]
+theorem get!_filter [TransCmp cmp] [Inhabited α]
+    {f : α → Bool} {k : α} :
+    (t.filter f).get! k = ((t.get? k).filter f).get! :=
+  TreeMap.getKey!_filter_key
+
+@[grind =]
+theorem getD_filter [TransCmp cmp]
+    {f : α → Bool} {k fallback : α} :
+    (t.filter f).getD k fallback = ((t.get? k).filter f).getD fallback :=
+  TreeMap.getKeyD_filter_key
+
+end filter
+
 end Std.TreeSet

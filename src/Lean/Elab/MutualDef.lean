@@ -1236,13 +1236,8 @@ where
         let ctx ← CommandContextInfo.save
         infoPromise.resolve <| .context (.commandCtx ctx) <| .node info (← getInfoTrees)
       async.commitConst (← getEnv)
-      let cancelTk ← IO.CancelToken.new
-      let checkAct ← wrapAsyncAsSnapshot (desc := s!"finishing proof of {declId.declName}")
-          (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
-        processDeriving #[header]
-        async.commitCheckEnv (← getEnv)
-      let checkTask ← BaseIO.mapTask (t := (← getEnv).checked) checkAct
-      Core.logSnapshotTask { stx? := none, task := checkTask, cancelTk? := cancelTk }
+      processDeriving #[header]
+      async.commitCheckEnv (← getEnv)
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation

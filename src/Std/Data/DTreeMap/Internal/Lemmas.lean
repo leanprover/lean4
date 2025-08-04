@@ -7400,7 +7400,7 @@ namespace Const
 
 variable {β : Type v} {γ : Type w} {t : Impl α (fun _ => β)}
 
-/-- Variant of `get?_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+/-- Variant of `get?_map` that holds without `LawfulEqOrd`. -/
 theorem get?_map' [TransOrd α]
     {f : α → β → γ} {k : α} (h : t.WF) :
     Const.get? (t.map f) k = (Const.get? t k).pmap (fun v h' => f (t.getKey k h') v)
@@ -7417,7 +7417,7 @@ theorem get?_map_of_getKey?_eq_some [TransOrd α]
     t.getKey? k = some k' → Const.get? (t.map f) k = (Const.get? t k).map (f k') := by
   simp_to_model [map, Const.get?, getKey?] using Const.getValue?_map_of_getKey?_eq_some
 
-/-- Variant of `get_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+/-- Variant of `get_map` that holds without `LawfulEqOrd`. -/
 theorem get_map' [TransOrd α]
     {f : α → β → γ} {k : α} (h : t.WF) {h'} :
     Const.get (t.map f) k h' =
@@ -7430,7 +7430,7 @@ theorem get_map [TransOrd α] [LawfulEqOrd α]
     Const.get (t.map f) k h' = f k (Const.get t k (contains_of_contains_map h h')) := by
   simp [get_map' h, getKey_eq h]
 
-/-- Variant of `get!_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+/-- Variant of `get!_map` that holds without `LawfulEqOrd`. -/
 theorem get!_map' [TransOrd α] [Inhabited γ]
     {f : α → β → γ} {k : α} (h : t.WF) :
     Const.get! (t.map f) k =
@@ -7448,7 +7448,7 @@ theorem get!_map_of_getKey?_eq_some [TransOrd α] [Inhabited γ]
     t.getKey? k = some k' → Const.get! (t.map f) k = ((Const.get? t k).map (f k')).get! := by
   simp_to_model [map, Const.get!, Const.get?, getKey?] using Const.getValue!_map_of_getKey?_eq_some
 
-/-- Variant of `getD_map` that holds with `EquivBEq` (i.e. without `LawfulBEq`). -/
+/-- Variant of `getD_map` that holds without `LawfulEqOrd`. -/
 theorem getD_map' [TransOrd α]
     {f : α → β → γ} {k : α} {fallback : γ} (h : t.WF) :
     Const.getD (t.map f) k fallback =

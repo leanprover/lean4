@@ -236,7 +236,6 @@ def collectExpr (z : VarId) : Expr → M Unit
   | Expr.reuse x _ _ ys => ownVar z *> ownVar x *> ownArgsIfParam ys
   | Expr.ctor _ xs      => ownVar z *> ownArgsIfParam xs
   | Expr.proj _ x       => do
-    if (← isOwned x) then ownVar z
     if (← isOwned z) then ownVar x
   | Expr.fap g xs       => do
     let ps ← getParamInfo (ParamMap.Key.decl g)

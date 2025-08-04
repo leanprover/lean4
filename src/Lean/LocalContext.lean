@@ -46,17 +46,6 @@ inductive LocalDeclKind
   | auxDecl
   deriving Inhabited, Repr, DecidableEq, Hashable
 
-/--
-Determines the local declaration kind depending on the variable name.
-
-For example, `__x` in `let __x := 42; body` gets kind `.implDetail`.
--/
-def LocalDeclKind.ofBinderName (binderName : Name) : LocalDeclKind :=
-  if binderName.isImplementationDetail then
-    .implDetail
-  else
-    .default
-
 /-- A declaration for a `LocalContext`. This is used to register which free variables are in scope.
 
 See `LocalDecl.index`, `LocalDecl.fvarId`, `LocalDecl.userName`, `LocalDecl.type` for accessors for

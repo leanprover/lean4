@@ -1,5 +1,9 @@
-/- Variable binding constructs and tactics
-should introduce hypotheses whose names start with `__` as `implDetail`s. -/
+/-!
+# Tests of names prefixed with `__` in binders
+
+Variable binding constructs and tactics
+should introduce hypotheses whose names start with `__` as `implDetail`s.
+-/
 
 -- `__`-prefixed binders on top-level definitions are _not_ `implDetail`s.
 -- (This may change in the future if a usecase appears.)

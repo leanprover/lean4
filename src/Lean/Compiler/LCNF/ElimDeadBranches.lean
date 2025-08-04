@@ -161,15 +161,10 @@ partial def getCtorArgs : Value → Name → Option (Array Value)
 
 partial def ofNat (n : Nat) : Value :=
   if n > maxValueDepth then
-    goBig n n
+    .top
   else
     goSmall n
 where
-  goBig (orig : Nat) (curr : Nat) : Value :=
-    if orig - curr == maxValueDepth then
-      .top
-    else
-      .ctor ``Nat.succ #[goBig orig (curr - 1)]
   goSmall : Nat → Value
   | 0 => .ctor ``Nat.zero #[]
   | n + 1 => .ctor ``Nat.succ #[goSmall n]

@@ -610,7 +610,7 @@ their definitions and call sites with `jp`/`jmp`.
 -/
 def Decl.findJoinPoints (decl : Decl) : CompilerM Decl := do
   let findResult ← JoinPointFinder.find decl
-  trace[Compiler.findJoinPoints] "Found: {findResult.candidates.size} jp candidates"
+  trace[Compiler.findJoinPoints] "Found {findResult.candidates.size} jp candidates for {decl.name}"
   JoinPointFinder.replace decl findResult
 
 def findJoinPoints : Pass :=

@@ -652,7 +652,7 @@ Use `String.intercalate` to place a separator string between the strings in a li
 
 Examples:
  * `String.join ["gr", "ee", "n"] = "green"`
- * `String.join ["b", "", "l", "", "ue"] = "red"`
+ * `String.join ["b", "", "l", "", "ue"] = "blue"`
  * `String.join [] = ""`
 -/
 @[inline] def join (l : List String) : String :=

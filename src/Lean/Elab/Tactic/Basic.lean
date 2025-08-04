@@ -194,11 +194,11 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then
-          throwErrorAt stx "tactic '{stx.getKind}' has not been implemented"
+          throwErrorAt stx "Tactic `{stx.getKind}` has not been implemented"
         let s ← Tactic.saveState
         expandEval s macros evalFns #[]
     | .missing => pure ()
-    | _ => throwError m!"unexpected tactic{indentD stx}"
+    | _ => throwError m!"Unexpected tactic{indentD stx}"
 where
     throwExs (failures : Array EvalTacticFailure) : TacticM Unit := do
      if h : 0 < failures.size  then
@@ -207,7 +207,7 @@ where
        fail.state.restore (restoreInfo := true)
        throw fail.exception -- (*)
      else
-       throwErrorAt stx "unexpected syntax {indentD stx}"
+       throwErrorAt stx "Unexpected syntax{indentD stx}"
 
     @[inline] handleEx (s : SavedState) (failures : Array EvalTacticFailure) (ex : Exception) (k : Array EvalTacticFailure → TacticM Unit) := do
       match ex with
@@ -291,7 +291,7 @@ where
         catch ex => handleEx s failures ex (eval s evalFns)
 
 def throwNoGoalsToBeSolved : TacticM α :=
-  throwError "no goals to be solved"
+  throwError "No goals to be solved"
 
 def done : TacticM Unit := do
   let gs ← getUnsolvedGoals
@@ -383,7 +383,7 @@ instance : OrElse (TacticM α) where
   orElse := Tactic.orElse
 
 instance : Alternative TacticM where
-  failure := fun {_} => throwError "failed"
+  failure := fun {_} => throwError "Failed"
   orElse  := Tactic.orElse
 
 /--
@@ -494,7 +494,7 @@ def ensureHasNoMVars (e : Expr) : TacticM Unit := do
   let pendingMVars ← getMVars e
   discard <| Term.logUnassignedUsingErrorInfos pendingMVars
   if e.hasExprMVar then
-    throwError "tactic failed, resulting expression contains metavariables{indentExpr e}"
+    throwError "Tactic failed: Resulting expression contains metavariables{indentExpr e}"
 
 /--
 Closes main goal using the given expression.

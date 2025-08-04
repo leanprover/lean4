@@ -1951,8 +1951,8 @@ set_option linter.listVariables false in
 /-- Two vectors of constant length vectors are equal iff their flattens coincide. -/
 theorem eq_iff_flatten_eq {xss xss' : Vector (Vector α n) m} :
     xss = xss' ↔ xss.flatten = xss'.flatten := by
-  induction xss using vector₂_induction with | of xss h₁ h₂ =>
-  induction xss' using vector₂_induction with | of xss' h₁' h₂' =>
+  induction xss using vector₂_induction with | of xss h₁ h₂
+  induction xss' using vector₂_induction with | of xss' h₁' h₂'
   simp only [eq_mk, flatten_mk, Array.map_map, Function.comp_apply, Array.map_subtype,
     Array.unattach_attach, Array.map_id_fun', id_eq]
   constructor
@@ -3180,3 +3180,12 @@ instance instDecidableExistsVectorZero (P : Vector α 0 → Prop) [Decidable (P 
 instance instDecidableExistsVectorSucc (P : Vector α (n+1) → Prop)
     [Decidable (∀ (x : α) (xs : Vector α n), ¬ P (xs.push x))] : Decidable (∃ xs, P xs) :=
   decidable_of_iff (¬ ∀ xs, ¬ P xs) Classical.not_forall_not
+
+/-! ### sum -/
+
+@[simp, grind =]
+theorem sum_append_nat {xs₁ : Vector Nat n} {xs₂ : Vector Nat m} :
+    (xs₁ ++ xs₂).sum = xs₁.sum + xs₂.sum := by
+  rcases xs₁ with ⟨xs₁, rfl⟩
+  rcases xs₂ with ⟨xs₂, rfl⟩
+  simp [Array.sum_append_nat]

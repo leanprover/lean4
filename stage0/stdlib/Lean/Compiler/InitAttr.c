@@ -4213,8 +4213,11 @@ return x_109;
 LEAN_EXPORT lean_object* l_Lean_registerInitAttrUnsafe___lam__2(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_5; 
 x_5 = l_Lean_isInitializerExecutionEnabled(x_4);
+if (lean_obj_tag(x_5) == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
@@ -4330,6 +4333,31 @@ if (lean_is_scalar(x_8)) {
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_7);
 return x_10;
+}
+}
+else
+{
+uint8_t x_36; 
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+x_36 = !lean_is_exclusive(x_5);
+if (x_36 == 0)
+{
+return x_5;
+}
+else
+{
+lean_object* x_37; lean_object* x_38; lean_object* x_39; 
+x_37 = lean_ctor_get(x_5, 0);
+x_38 = lean_ctor_get(x_5, 1);
+lean_inc(x_38);
+lean_inc(x_37);
+lean_dec(x_5);
+x_39 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_39, 0, x_37);
+lean_ctor_set(x_39, 1, x_38);
+return x_39;
+}
 }
 }
 }

@@ -6,15 +6,15 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Elab.Tactic.Conv
-public import Lean.Meta.Tactic.Rewrite
-public import Lean.Meta.Tactic.Split
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Eqns
 public import Lean.Elab.PreDefinition.FixedParams
 public import Lean.Meta.ArgsPacker.Basic
 public import Init.Data.Array.Basic
 public import Init.Internal.Order.Basic
+import Lean.Elab.Tactic.Conv
+import Lean.Meta.Tactic.Rewrite
+import Lean.Meta.Tactic.Split
 
 public section
 

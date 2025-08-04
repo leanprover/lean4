@@ -95,7 +95,7 @@ Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 
 #guard_msgs in example : 0 < some_rdef 10 := by simp [some_rdef]
 
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in example : 0 < some_def := by simp [some_rdef]
 
 /--

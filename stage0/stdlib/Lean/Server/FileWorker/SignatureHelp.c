@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker.SignatureHelp
-// Imports: Lean.Server.InfoUtils Lean.Data.Lsp Init.Data.List.Sort.Basic Lean.Parser.Term
+// Imports: Lean.Server.InfoUtils Lean.Data.Lsp Init.Data.List.Sort.Basic Lean.PrettyPrinter.Delaborator Lean.Parser.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -39,7 +39,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHel
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_SearchControl_toCtorIdx___boxed(lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_CandidateKind_prio(uint8_t);
-uint8_t l_String_beqRange____x40_Lean_Syntax___hyg_101_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__3___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__11;
@@ -66,6 +65,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHel
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_lineStart(lean_object*, lean_object*);
+uint8_t l_String_beqRange____x40_Lean_Syntax___hyg_100_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__10;
@@ -177,7 +177,7 @@ else
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_2, 0);
-x_8 = l_String_beqRange____x40_Lean_Syntax___hyg_101_(x_6, x_7);
+x_8 = l_String_beqRange____x40_Lean_Syntax___hyg_100_(x_6, x_7);
 return x_8;
 }
 }
@@ -1735,18 +1735,16 @@ goto block_113;
 }
 else
 {
-lean_object* x_114; uint8_t x_115; lean_object* x_116; 
+lean_object* x_114; uint8_t x_115; 
 x_114 = lean_ctor_get(x_2, 0);
 x_115 = lean_ctor_get_uint8(x_114, sizeof(void*)*2);
-x_116 = lean_box(x_115);
-if (lean_obj_tag(x_116) == 0)
+if (x_115 == 0)
 {
 x_110 = x_97;
 goto block_113;
 }
 else
 {
-lean_dec(x_116);
 x_110 = x_101;
 goto block_113;
 }
@@ -1754,13 +1752,13 @@ goto block_113;
 }
 else
 {
-lean_object* x_117; 
+lean_object* x_116; 
 lean_dec(x_100);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_1);
-x_117 = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__23;
-return x_117;
+x_116 = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__23;
+return x_116;
 }
 block_109:
 {
@@ -2263,18 +2261,16 @@ return x_12;
 }
 else
 {
-lean_object* x_13; uint8_t x_38; lean_object* x_39; 
+lean_object* x_13; uint8_t x_38; 
 lean_dec_ref(x_9);
 x_13 = lean_array_uget(x_6, x_8);
 x_38 = lean_ctor_get_uint8(x_13, sizeof(void*)*1);
-x_39 = lean_box(x_38);
-if (lean_obj_tag(x_39) == 1)
+if (x_38 == 1)
 {
 goto block_37;
 }
 else
 {
-lean_dec(x_39);
 if (x_5 == 0)
 {
 goto block_33;
@@ -2816,9 +2812,9 @@ block_49:
 {
 lean_object* x_28; size_t x_29; lean_object* x_30; 
 x_28 = l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__1;
-x_29 = lean_array_size(x_25);
-x_30 = l_Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(x_4, x_28, x_24, x_27, x_7, x_25, x_29, x_19, x_28, x_26);
-lean_dec_ref(x_25);
+x_29 = lean_array_size(x_26);
+x_30 = l_Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__1(x_4, x_28, x_24, x_27, x_7, x_26, x_29, x_19, x_28, x_25);
+lean_dec_ref(x_26);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; 
@@ -2918,8 +2914,8 @@ x_56 = lean_nat_dec_lt(x_22, x_55);
 if (x_56 == 0)
 {
 lean_dec(x_55);
-x_25 = x_54;
-x_26 = x_51;
+x_25 = x_51;
+x_26 = x_54;
 x_27 = x_7;
 goto block_49;
 }
@@ -2928,8 +2924,8 @@ else
 if (x_56 == 0)
 {
 lean_dec(x_55);
-x_25 = x_54;
-x_26 = x_51;
+x_25 = x_51;
+x_26 = x_54;
 x_27 = x_7;
 goto block_49;
 }
@@ -2939,8 +2935,8 @@ size_t x_57; uint8_t x_58;
 x_57 = lean_usize_of_nat(x_55);
 lean_dec(x_55);
 x_58 = l_Array_anyMUnsafe_any___at___Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_spec__2(x_54, x_19, x_57);
-x_25 = x_54;
-x_26 = x_51;
+x_25 = x_51;
+x_26 = x_54;
 x_27 = x_58;
 goto block_49;
 }
@@ -3105,6 +3101,7 @@ return x_7;
 lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_PrettyPrinter_Delaborator(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Term(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_FileWorker_SignatureHelp(uint8_t builtin, lean_object* w) {
@@ -3118,6 +3115,9 @@ res = initialize_Lean_Data_Lsp(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Sort_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_PrettyPrinter_Delaborator(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Term(builtin, lean_io_mk_world());

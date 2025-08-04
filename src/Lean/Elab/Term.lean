@@ -998,7 +998,7 @@ def applyAttributes (declName : Name) (attrs : Array Attribute) : TermElabM Unit
 def mkTypeMismatchError (header? : Option MessageData) (e : Expr) (eType : Expr) (expectedType : Expr) : MetaM MessageData := do
   let header : MessageData := match header? with
     | some header => m!"{header} "
-    | none        => m!"type mismatch{indentExpr e}\n"
+    | none        => m!"Type mismatch{indentExpr e}\n"
   return m!"{header}{← mkHasTypeButIsExpectedMsg eType expectedType}"
 
 def throwTypeMismatchError (header? : Option MessageData) (expectedType : Expr) (eType : Expr) (e : Expr)

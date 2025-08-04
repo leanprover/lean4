@@ -78,7 +78,6 @@ LEAN_EXPORT lean_object* l_Lean_Core_transform___at___Lean_Meta_deltaExpand_spec
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0_spec__7___redArg___boxed(lean_object*, lean_object*);
 uint8_t lean_expr_equal(lean_object*, lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(uint8_t, uint8_t);
 static lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Core_withIncRecDepth___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0_spec__5_spec__5___redArg___closed__0;
 static lean_object* l_Lean_throwMaxRecDepthAt___at___Lean_Core_withIncRecDepth___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0_spec__5_spec__5___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -136,6 +135,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_C
 LEAN_EXPORT lean_object* l_Lean_Meta_deltaExpand(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0___lam__2(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 static lean_object* l_Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0___boxed__const__1;
 static lean_object* l_Lean_Core_transform_visit___at___Lean_Core_transform___at___Lean_Meta_deltaExpand_spec__0_spec__0___lam__1___closed__0;
 size_t lean_usize_land(size_t, size_t);
@@ -2630,7 +2630,7 @@ return x_34;
 else
 {
 uint8_t x_35; 
-x_35 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_29, x_29);
+x_35 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_29, x_29);
 if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; 
@@ -2663,7 +2663,7 @@ return x_48;
 else
 {
 uint8_t x_49; 
-x_49 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_44, x_44);
+x_49 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_44, x_44);
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; 

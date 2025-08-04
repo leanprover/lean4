@@ -12,7 +12,6 @@ public import Lean.Meta.Tactic.Cleanup
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Meta.ArgsPacker
-public import Lean.Elab.Quotation
 public import Lean.Elab.RecAppSyntax
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Mutual

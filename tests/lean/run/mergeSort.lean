@@ -49,7 +49,7 @@ instance : LE UndecidableLE where
 /--
 error: could not synthesize default value for parameter 'le' using tactics
 ---
-error: type mismatch
+error: Type mismatch
   a ≤ b
 has type
   Prop

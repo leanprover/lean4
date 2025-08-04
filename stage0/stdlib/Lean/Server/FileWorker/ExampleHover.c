@@ -24,6 +24,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_Hover_rewriteExamples_spec__3_spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Lean_Server_FileWorker_Hover_rewriteExamples_spec__0(lean_object*, lean_object*, lean_object*);
+uint8_t l_String_decEqIterator____x40_Init_Data_String_Basic___hyg_3439_(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_Hover_rewriteExamples_spec__3_spec__3___closed__0;
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -37,7 +38,6 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Lean_Server_FileWorker_Hover_rewriteExamples_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_____private_Lean_Server_FileWorker_ExampleHover_0__Lean_Server_FileWorker_Hover_lines_spec__0(lean_object*);
-uint8_t l_String_decEqIterator____x40_Init_Data_String_Basic___hyg_3441_(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWorker_Hover_rewriteExamples_spec__3_spec__3___closed__5;
 static lean_object* l___private_Lean_Server_FileWorker_ExampleHover_0__Lean_Server_FileWorker_Hover_lines___closed__0;
 lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
@@ -786,7 +786,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_8, 1);
 lean_inc(x_11);
 lean_dec(x_8);
-x_12 = l_String_decEqIterator____x40_Init_Data_String_Basic___hyg_3441_(x_9, x_10);
+x_12 = l_String_decEqIterator____x40_Init_Data_String_Basic___hyg_3439_(x_9, x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; uint8_t x_23; uint8_t x_24; 

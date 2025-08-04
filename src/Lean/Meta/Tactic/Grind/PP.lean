@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.Model
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 public import Lean.Meta.Tactic.Grind.Arith.Linear.PP
+import Lean.PrettyPrinter
 
 public section
 

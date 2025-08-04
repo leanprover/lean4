@@ -67,7 +67,7 @@ error: unsolved goals
 set_option linter.loopingSimpArgs true in
 example : id b = 23 := by simp -failIfUnchanged only [aa, id]
 
-/-- error: simp made no progress -/
+/-- error: `simp` made no progress -/
 #guard_msgs in
 example : b = 23 := by simp only [aa, id]
 

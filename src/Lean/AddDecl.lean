@@ -50,7 +50,8 @@ where go env
   | _        => env
 
 private builtin_initialize privateConstKindsExt : MapDeclarationExtension ConstantKind ←
-  mkMapDeclarationExtension
+  -- Use `sync` so we can add entries from anywhere without restrictions
+  mkMapDeclarationExtension (asyncMode := .sync)
 
 /--
 Returns the kind of the declaration as originally declared instead of as exported. This information
@@ -58,7 +59,9 @@ is stored by `Lean.addDecl` and may be inaccurate if that function was circumven
 if the declaration was not found.
 -/
 def getOriginalConstKind? (env : Environment) (declName : Name) : Option ConstantKind := do
-  privateConstKindsExt.find? env declName <|>
+  -- Use `local` as for asynchronous decls from the current module, `findAsync?` below will yield
+  -- the same result but potentially earlier (after `addConstAsync` instead of `addDecl`)
+  privateConstKindsExt.find? (asyncMode := .local) env declName <|>
     (env.setExporting false |>.findAsync? declName).map (·.kind)
 
 /--

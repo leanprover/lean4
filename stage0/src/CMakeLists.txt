@@ -684,12 +684,17 @@ if (LLVM AND ${STAGE} GREATER 0)
   set(EXTRA_LEANMAKE_OPTS "LLVM=1")
 endif()
 
+set(STDLIBS Init Std Lean Leanc)
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  list(APPEND STDLIBS Lake)
+endif()
+
 add_custom_target(make_stdlib ALL
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
   # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
   # for a parallelized nested build, but CMake doesn't let us do that.
   # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init Std Lean Leanc
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make ${STDLIBS}
   VERBATIM)
 
 # if we have LLVM enabled, then build `lean.h.bc` which has the LLVM bitcode
@@ -733,14 +738,9 @@ else()
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  add_custom_target(lake_lib
-    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-    DEPENDS leanshared
-    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
-    VERBATIM)
   add_custom_target(lake_shared
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-    DEPENDS lake_lib
+    DEPENDS leanshared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make libLake_shared
     VERBATIM)
   add_custom_target(lake ALL

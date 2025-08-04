@@ -395,8 +395,8 @@ abbrev PackageSet := Std.HashSet Package
 abbrev OrdPackageSet := OrdHashSet Package
 @[inline] def OrdPackageSet.empty : OrdPackageSet := OrdHashSet.empty
 
-instance : ToText Package := ⟨(·.name.toString)⟩
 instance : ToJson Package := ⟨(toJson ·.name)⟩
+instance : ToString Package := ⟨(·.name.toString)⟩
 
 /-- A package with a name known at type-level. -/
 structure NPackage (n : Name) extends Package where
@@ -566,7 +566,7 @@ namespace Package
 @[inline] def leanOptions (self : Package) : LeanOptions :=
   .ofArray self.config.leanOptions
 
-/-- The package's `moreLeanArgs` configuration appended to its `leanOptions` configuration. -/
+/-- The package's `moreLeanArgs` configuration. -/
 @[inline] def moreLeanArgs (self : Package) : Array String :=
   self.config.moreLeanArgs
 

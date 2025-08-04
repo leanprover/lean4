@@ -4272,19 +4272,20 @@ return x_11;
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_getEntryGT_x3f_u2098___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; 
+lean_object* x_4; uint8_t x_5; 
 x_4 = lean_apply_2(x_1, x_2, x_3);
-if (lean_obj_tag(x_4) == 1)
+x_5 = lean_unbox(x_4);
+if (x_5 == 1)
 {
-uint8_t x_5; 
-x_5 = 2;
-return x_5;
+uint8_t x_6; 
+x_6 = 2;
+return x_6;
 }
 else
 {
-uint8_t x_6; 
-x_6 = lean_unbox(x_4);
-return x_6;
+uint8_t x_7; 
+x_7 = lean_unbox(x_4);
+return x_7;
 }
 }
 }

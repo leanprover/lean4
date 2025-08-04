@@ -7,12 +7,13 @@ module
 
 prelude
 public import Init.Grind.Tactics
-public import Lean.Meta.Tactic.Grind
+public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Meta.Tactic.TryThis
 public import Lean.Elab.Command
-public import Lean.Elab.MutualDef
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.Config
+import Lean.Meta.Tactic.Grind.SimpUtil
+import Lean.Elab.MutualDef
 meta import Lean.Meta.Tactic.Grind.Parser
 
 public section
@@ -124,6 +125,8 @@ where
     let info ← getAsyncConstInfo declName
     match info.kind with
     | .thm | .axiom | .ctor =>
+      if params.ematch.containsWithSameKind (.decl declName) kind then
+        logWarning m!"this parameter is redundant, environment already contains `@{kind.toAttribute} {declName}`"
       match kind with
       | .eqBoth gen =>
         let params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen) params.symPrios) }

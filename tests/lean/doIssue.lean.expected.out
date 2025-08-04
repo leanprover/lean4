@@ -1,10 +1,10 @@
-doIssue.lean:2:2-2:3: error: type mismatch
+doIssue.lean:2:2-2:3: error: Type mismatch
   x
 has type
   Nat
 but is expected to have type
   IO PUnit
-doIssue.lean:10:2-10:13: error: type mismatch
+doIssue.lean:10:2-10:13: error: Type mismatch
   xs.set! 0 1
 has type
   Array Nat

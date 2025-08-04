@@ -35,33 +35,33 @@ theorem contradiction_of_insertUnit_success {n : Nat} (assignments : Array Assig
   simp only [insertUnit] at insertUnit_success
   have l_in_bounds : l.1.1 < assignments.size := by rw [assignments_size]; exact l.1.2.2
   split at insertUnit_success
-  · next hl =>
+  next hl =>
     simp only [insertUnit, hl, ite_true]
     exact h insertUnit_success
-  · next hl =>
+  next hl =>
     simp only [Bool.or_eq_true] at insertUnit_success
     rcases insertUnit_success with foundContradiction_eq_true | assignments_l_ne_unassigned
     · simp only [insertUnit, hl]
       rcases h foundContradiction_eq_true with ⟨i, h⟩
       apply Exists.intro i
       by_cases l.1.1 = i.1
-      · next l_eq_i =>
+      next l_eq_i =>
         simp only [Bool.false_eq_true, ↓reduceIte, l_eq_i, Array.getElem_modify_self, h,
           ]
         exact add_both_eq_both l.2
-      · next l_ne_i =>
+      next l_ne_i =>
         simpa [Array.getElem_modify_of_ne l_ne_i] using h
     · apply Exists.intro l.1
       simp only [insertUnit, hl, ite_false, Array.getElem_modify_self, reduceCtorEq]
       simp only [getElem!_def, l_in_bounds, Array.getElem?_eq_getElem,
         ] at assignments_l_ne_unassigned
       by_cases l.2
-      · next l_eq_true =>
+      next l_eq_true =>
         simp only [l_eq_true]
         simp only [hasAssignment, l_eq_true, getElem!_def, l_in_bounds, Array.getElem?_eq_getElem,
           ite_true, hasPosAssignment, Bool.not_eq_true] at hl
         split at hl <;> simp_all +decide
-      · next l_eq_false =>
+      next l_eq_false =>
         simp only [Bool.not_eq_true] at l_eq_false
         simp only [l_eq_false]
         simp only [hasAssignment, l_eq_false, Bool.false_eq_true, ↓reduceIte, hasNegAssignment,
@@ -164,14 +164,14 @@ theorem sat_of_insertRup {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd : Re
       simp only [addAssignment, ← b_eq_true, addPosAssignment, ite_true] at h2
       split at h2
       · simp at h2
-      · next heq =>
+      next heq =>
         have hasNegAssignment_fi : hasAssignment false (f.assignments[i.1]'i_in_bounds) := by
           simp only [hasAssignment, hasPosAssignment, heq]
           decide
         have p_entails_i := (assignmentsInvariant_of_strongAssignmentsInvariant f f_readyForRupAdd.2).2 i false hasNegAssignment_fi p pf
         simp only [(· ⊨ ·)] at p_entails_i
         simp only [p_entails_i, decide_true]
-      · next heq =>
+      next heq =>
         exfalso
         rw [heq] at h3
         exact h3 (has_both b)
@@ -181,14 +181,14 @@ theorem sat_of_insertRup {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd : Re
       apply And.intro i_true_in_c
       simp only [addAssignment, ← b_eq_false, addNegAssignment, ite_false, reduceCtorEq] at h2
       split at h2
-      · next heq =>
+      next heq =>
         have hasPosAssignment_fi : hasAssignment true (f.assignments[i.1]'i_in_bounds) := by
           simp only [hasAssignment, hasPosAssignment, ite_true, heq]
         have p_entails_i := (assignmentsInvariant_of_strongAssignmentsInvariant f f_readyForRupAdd.2).2 i true hasPosAssignment_fi p pf
         simp only [(· ⊨ ·)] at p_entails_i
         exact p_entails_i
       · simp at h2
-      · next heq =>
+      next heq =>
         exfalso
         rw [heq] at h3
         exact h3 (has_both b)
@@ -254,7 +254,7 @@ theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f
     exact (assignmentsInvariant_of_strongAssignmentsInvariant f f_readyForRupAdd.2).2 i b hb p pf
   · rw [h2] at hb
     by_cases b = b'
-    · next b_eq_b' =>
+    next b_eq_b' =>
       let j_unit := unit (insertRupUnits f units).1.rupUnits[j]
       have j_unit_def : j_unit = unit (insertRupUnits f units).1.rupUnits[j] := rfl
       have j_unit_in_insertRupUnits_res :
@@ -300,7 +300,7 @@ theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f
       · simp only [b_eq_b', ← hp1.2, Entails.eval]
         rw [hp1.1] at hp2
         exact hp2
-    · next b_ne_b' =>
+    next b_ne_b' =>
       apply (assignmentsInvariant_of_strongAssignmentsInvariant f f_readyForRupAdd.2).2 i b _ p pf
       have b'_def : b' = (decide ¬b = true) := by
         cases b <;> cases b' <;> simp at *
@@ -371,7 +371,7 @@ theorem unsat_of_encounteredBoth {n : Nat} (c : DefaultClause n)
     · split at h
       · grind
       · grind
-      · next heq =>
+      next heq =>
         intro p hp
         simp only [(· ⊨ ·), Bool.not_eq_true] at hp
         specialize hp l.1
@@ -380,7 +380,7 @@ theorem unsat_of_encounteredBoth {n : Nat} (c : DefaultClause n)
     · split at h
       · grind
       · grind
-      · next heq =>
+      next heq =>
         intro p hp
         simp only [(· ⊨ ·), Bool.not_eq_true] at hp
         specialize hp l.1
@@ -408,14 +408,14 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
     split at h
     · grind
     · split at h
-      · next heq =>
+      next heq =>
         split at h
         · grind
-        · next c_arr_idx_eq_false =>
+        next c_arr_idx_eq_false =>
           simp only [Bool.not_eq_true] at c_arr_idx_eq_false
           rcases ih.1 rfl p with ih1 | ih1
           · by_cases p ⊨ assignment
-            · next p_entails_assignment =>
+            next p_entails_assignment =>
               apply Or.inl
               intro i i_lt_idx_add_one p_entails_c_arr_i
               rcases Nat.lt_or_eq_of_le <| Nat.le_of_lt_succ i_lt_idx_add_one with i_lt_idx | i_eq_idx
@@ -424,17 +424,17 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
                 simp only [(· ⊨ ·), Bool.not_eq_true] at p_entails_assignment
                 specialize p_entails_assignment c_arr[idx.1].1
                 simp +decide only [p_entails_c_arr_i, decide_true, heq] at p_entails_assignment
-            · next h =>
+            next h =>
               exact Or.inr h
           · exact Or.inr ih1
-      · next heq =>
+      next heq =>
         split at h
         · simp at h
-        · next c_arr_idx_eq_false =>
+        next c_arr_idx_eq_false =>
           simp only [Bool.not_eq_true', Bool.not_eq_false] at c_arr_idx_eq_false
           rcases ih.1 rfl p with ih1 | ih1
           · by_cases p ⊨ assignment
-            · next p_entails_assignment =>
+            next p_entails_assignment =>
               apply Or.inl
               intro i i_lt_idx_add_one p_entails_c_arr_i
               rcases Nat.lt_or_eq_of_le <| Nat.le_of_lt_succ i_lt_idx_add_one with i_lt_idx | i_eq_idx
@@ -443,7 +443,7 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
                 simp only [(· ⊨ ·), Bool.not_eq_true] at p_entails_assignment
                 specialize p_entails_assignment c_arr[idx.1].1
                 simp +decide only [p_entails_c_arr_i, heq] at p_entails_assignment
-            · next h =>
+            next h =>
               exact Or.inr h
           · exact Or.inr ih1
       · grind
@@ -455,35 +455,35 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
     split at h
     · grind
     · split at h
-      · next heq =>
+      next heq =>
         split at h
-        · next c_arr_idx_eq_true =>
+        next c_arr_idx_eq_true =>
           simp only [reducedToUnit.injEq] at h
           simp only [h] at c_arr_idx_eq_true
           simp only [(· ⊨ ·), Bool.not_eq_true] at hp
           specialize hp c_arr[idx.val].1
           rw [heq] at hp
           by_cases p c_arr[idx.val].1
-          · next p_c_arr_idx_eq_true =>
+          next p_c_arr_idx_eq_true =>
             simp only [h] at p_c_arr_idx_eq_true
             simp only [(· ⊨ ·), c_arr_idx_eq_true, p_c_arr_idx_eq_true]
-          · next p_c_arr_idx_eq_false =>
+          next p_c_arr_idx_eq_false =>
             simp only [h, Bool.not_eq_true] at p_c_arr_idx_eq_false
             simp +decide only [h, p_c_arr_idx_eq_false] at hp
         · grind
-      · next heq =>
+      next heq =>
         split at h
-        · next c_arr_idx_eq_true =>
+        next c_arr_idx_eq_true =>
           simp only [reducedToUnit.injEq] at h
           simp only [h, Bool.not_eq_true'] at c_arr_idx_eq_true
           simp only [(· ⊨ ·), Bool.not_eq_true] at hp
           specialize hp c_arr[idx.val].1
           rw [heq] at hp
           by_cases p c_arr[idx.val].1
-          · next p_c_arr_idx_eq_true =>
+          next p_c_arr_idx_eq_true =>
             simp only [h] at p_c_arr_idx_eq_true
             simp +decide only [h, p_c_arr_idx_eq_true] at hp
-          · next p_c_arr_idx_eq_false =>
+          next p_c_arr_idx_eq_false =>
             simp only [h] at p_c_arr_idx_eq_false
             simp only [(· ⊨ ·), c_arr_idx_eq_true, p_c_arr_idx_eq_false]
         · grind
@@ -496,12 +496,12 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
           · exact ih1 j j_lt_idx p_entails_c_arr_j
           · exact ih1 hp
         · grind
-    · next l =>
+    next l =>
       split at h
-      · next heq =>
+      next heq =>
         split at h
         · grind
-        · next c_arr_idx_eq_false =>
+        next c_arr_idx_eq_false =>
           simp only [Bool.not_eq_true] at c_arr_idx_eq_false
           simp only [reducedToUnit.injEq] at h
           rcases Nat.lt_or_eq_of_le <| Nat.le_of_lt_succ j_lt_idx_add_one with j_lt_idx | j_eq_idx
@@ -513,10 +513,10 @@ theorem reduce_fold_fn_preserves_induction_motive {c_arr : Array (Literal (PosFi
             simp only [(· ⊨ ·), Bool.not_eq_true] at hp
             specialize hp c_arr[idx.1].1
             simp +decide only [p_entails_c_arr_j, decide_true, heq] at hp
-      · next heq =>
+      next heq =>
         split at h
         · grind
-        · next c_arr_idx_eq_true =>
+        next c_arr_idx_eq_true =>
           simp only [Bool.not_eq_true', Bool.not_eq_false] at c_arr_idx_eq_true
           simp only [reducedToUnit.injEq] at h
           rcases Nat.lt_or_eq_of_le <| Nat.le_of_lt_succ j_lt_idx_add_one with j_lt_idx | j_eq_idx
@@ -618,25 +618,25 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
   simp only [confirmRupHint, Bool.or_eq_true, Fin.getElem_fin]
   split
   · exact ⟨hsize, h1, h2⟩
-  · next acc2_eq_false =>
+  next acc2_eq_false =>
     simp only [not_or, Bool.not_eq_true] at acc2_eq_false
     split
-    · next c hc =>
+    next c hc =>
       have c_in_f : c ∈ toList f := by
         simp only [toList, List.mem_append, List.mem_filterMap, id_eq, exists_eq_right]
         grind
       split
-      · next heq =>
+      next heq =>
         simp only [ConfirmRupHintFoldEntailsMotive, h1, imp_self, and_self, hsize,
           incompatible_of_unsat (PosFin n) acc.1 f (unsat_of_encounteredBoth c acc.1 heq)]
-      · next heq =>
+      next heq =>
         simp only [ConfirmRupHintFoldEntailsMotive, h1, hsize, forall_const, true_and]
         intro p
         rcases incompatible_of_reducedToEmpty c acc.1 heq p with pc | pacc
         · simp only [(· ⊨ ·)] at pc ⊢
           grind
         · exact Or.inl pacc
-      · next l b heq =>
+      next l b heq =>
         simp only [ConfirmRupHintFoldEntailsMotive]
         split
         · simp [h1, hsize]
@@ -653,7 +653,7 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
           simp only [Bool.not_eq_true] at pacc
           have i_in_bounds : i.1 < acc.1.size := by rw [hsize]; exact i.2.2
           by_cases l.1 = i.1
-          · next l_eq_i =>
+          next l_eq_i =>
             simp only [l_eq_i, getElem!_def, Array.size_modify, i_in_bounds,
               Array.getElem?_eq_getElem, Array.getElem_modify_self (addAssignment b)]
             simp only [getElem!_def, i_in_bounds, Array.getElem?_eq_getElem] at pacc
@@ -670,7 +670,7 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
               by_cases hb : b
               · simp [(· ⊨ ·), hb, Subtype.ext l_eq_i, pi] at plb
               · grind [hasAssignment, addAssignment, hasPos_addNeg]
-          · next l_ne_i => grind
+          next l_ne_i => grind
       · apply And.intro hsize ∘ And.intro h1
         simp
     · apply And.intro hsize ∘ And.intro h1
@@ -766,7 +766,7 @@ theorem rupAdd_sound {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (rup
   rw [performRupAdd] at rupAddSuccess
   simp only [Bool.not_eq_true'] at rupAddSuccess
   split at rupAddSuccess
-  · next insertRupContradiction =>
+  next insertRupContradiction =>
     intro p
     have f_limplies_fc := safe_insert_of_insertRup f f_readyForRupAdd c insertRupContradiction p
     rw [f'_def]
@@ -777,7 +777,7 @@ theorem rupAdd_sound {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (rup
     · grind
     · split at rupAddSuccess
       · grind
-      · next performRupCheck_success =>
+      next performRupCheck_success =>
         rw [Bool.not_eq_false] at performRupCheck_success
         have f_limplies_fc := safe_insert_of_performRupCheck_insertRup f f_readyForRupAdd c rupHints performRupCheck_success
         rw [liff_iff_limplies_and_limplies f f', f'_def]

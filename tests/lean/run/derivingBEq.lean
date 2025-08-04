@@ -1,3 +1,7 @@
+module
+
+public section
+
 inductive Foo
   | mk1 | mk2 | mk3
   deriving BEq
@@ -64,3 +68,33 @@ def ex1 [BEq α] : BEq (Tree α) :=
 
 def ex2 [BEq α] : BEq (TreeList α) :=
   inferInstance
+
+/-! Private fields should yield public, no-expose instances. -/
+
+structure PrivField where
+  private a : Nat
+deriving BEq
+
+/--
+info: def instBEqPrivField : BEq PrivField :=
+<not imported>
+-/
+#guard_msgs in
+#with_exporting
+#print instBEqPrivField
+
+end
+
+-- Try again without `public section`
+
+public structure PrivField2 where
+  private a : Nat
+deriving BEq
+
+/--
+info: def instBEqPrivField2 : BEq PrivField2 :=
+<not imported>
+-/
+#guard_msgs in
+#with_exporting
+#print instBEqPrivField2

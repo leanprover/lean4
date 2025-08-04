@@ -16,11 +16,11 @@ public import Lean.Meta.SizeOf
 public import Lean.Meta.Injective
 public import Lean.Meta.IndPredBelow
 public import Lean.Elab.Command
-public import Lean.Elab.ComputedFields
 public import Lean.Elab.DefView
 public import Lean.Elab.DeclUtil
 public import Lean.Elab.Deriving.Basic
 public import Lean.Elab.DeclarationRange
+import Lean.Elab.ComputedFields
 
 public section
 
@@ -207,42 +207,48 @@ Initializes the elaborator associated to the given syntax.
 def mkInductiveView (modifiers : Modifiers) (stx : Syntax) : TermElabM InductiveElabStep1 := do
   let handlers := inductiveElabAttr.getValues (← getEnv) stx.getKind
   if handlers.isEmpty then
-    throwErrorAt stx "no '@[inductive_elab]' for '{.ofConstName stx.getKind}'"
+    throwErrorAt stx "Failed to elaborate inductive type declaration: There is no `@[inductive_elab]` \
+      handler for `{.ofConstName stx.getKind}` syntax"
   handlers[0]!.mkInductiveView modifiers stx
 
 def checkValidInductiveModifier [Monad m] [MonadError m] (modifiers : Modifiers) : m Unit := do
   if modifiers.isNoncomputable then
-    throwError "invalid use of 'noncomputable' in inductive declaration"
+    throwError "Invalid modifier: Inductive declarations cannot be marked as `noncomputable`"
   if modifiers.isPartial then
-    throwError "invalid use of 'partial' in inductive declaration"
+    throwError "Invalid modifier: Inductive declarations cannot be marked as `partial`"
 
 def checkValidCtorModifier [Monad m] [MonadError m] (modifiers : Modifiers) : m Unit := do
   if modifiers.isNoncomputable then
-    throwError "invalid use of 'noncomputable' in constructor declaration"
+    throwError "Invalid modifier: Constructors cannot be marked as `noncomputable`"
   if modifiers.isPartial then
-    throwError "invalid use of 'partial' in constructor declaration"
+    throwError "Invalid modifier: Constructors cannot be marked as `partial`"
   if modifiers.isUnsafe then
-    throwError "invalid use of 'unsafe' in constructor declaration"
+    throwError "Invalid modifier: Constructors cannot be marked as `unsafe`"
   if modifiers.attrs.size != 0 then
-    throwError "invalid use of attributes in constructor declaration"
+    throwError "Invalid attribute: Attributes cannot be added to constructors"
 
 private def checkUnsafe (rs : Array PreElabHeaderResult) : TermElabM Unit := do
   let isUnsafe := rs[0]!.view.modifiers.isUnsafe
   for r in rs do
     unless r.view.modifiers.isUnsafe == isUnsafe do
-      throwErrorAt r.view.ref "invalid inductive type, cannot mix unsafe and safe declarations in mutually inductive datatypes"
+      let unsafeStr (b : Bool) := if b then "unsafe" else "safe"
+      throwErrorAt r.view.ref m!"Invalid mutually inductive types: `{r.view.declName}` is {unsafeStr (!isUnsafe)}, \
+        but `{rs[0]!.view.declName}` is {unsafeStr isUnsafe}"
+        ++ .note m!"Safe and unsafe inductive declarations cannot both occur in the same `mutual` block"
 
 private def checkClass (rs : Array PreElabHeaderResult) : TermElabM Unit := do
   if rs.size > 1 then
     for r in rs do
       if r.view.isClass then
-        throwErrorAt r.view.ref "invalid inductive type, mutual classes are not supported"
+        throwErrorAt r.view.ref "Invalid mutually inductive type: Mutually inductive classes are not supported"
 
 private def checkNumParams (rs : Array PreElabHeaderResult) : TermElabM Nat := do
   let numParams := rs[0]!.numParams
   for r in rs do
     unless r.numParams == numParams do
-      throwErrorAt r.view.ref "invalid inductive type, number of parameters mismatch in mutually inductive datatypes"
+      throwErrorAt r.view.ref m!"Invalid mutually inductive types: `{r.view.shortDeclName}` has {r.numParams} \
+        parameter(s), but the preceding type `{rs[0]!.view.shortDeclName}` has {numParams}"
+        ++ .note m!"All inductive types declared in the same `mutual` block must have the same parameters"
   return numParams
 
 /--
@@ -267,12 +273,14 @@ private def checkParamsAndResultType (type firstType : Expr) (numParams : Nat) :
       match type with
       | .sort .. =>
         unless (← isDefEq firstType type) do
-          throwError "resulting universe mismatch, given{indentExpr type}\nexpected type{indentExpr firstType}"
+          throwError m!"The resulting type of this declaration{indentExpr type}\ndiffers from a preceding one{indentExpr firstType}"
+            ++ .note "All inductive types declared in the same `mutual` block must belong to the same type universe"
       | _ =>
-        throwError "unexpected inductive resulting type"
+        throwError "The specified resulting type{inlineExpr type}is not a type"
   catch
-    | Exception.error ref msg => throw (Exception.error ref m!"invalid mutually inductive types, {msg}")
+    | Exception.error ref msg => throw (Exception.error ref m!"Invalid mutually inductive types: {msg}")
     | ex => throw ex
+
 
 /--
 Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
@@ -305,10 +313,12 @@ private def elabHeadersAux (views : Array InductiveView) (i : Nat) (acc : Array 
           let type ← mkForallFVars indices type
           if view.allowIndices then
             unless (← isTypeFormerType type) do
-              throwErrorAt typeStx "invalid resulting type, expecting 'Sort _' or an indexed family of sorts"
+              throwErrorAt typeStx m!"Invalid resulting type: Expected a sort or an indexed family of sorts"
+                ++ .hint' m!"Examples of valid sorts include `Type _`, `Sort _`, and `Prop`"
           else
             unless (← whnfD type).isSort do
-              throwErrorAt typeStx "invalid resulting type, expecting 'Type _' or 'Prop'"
+              throwErrorAt typeStx m!"Invalid resulting type: Expected a sort"
+                ++ .hint' m!"Examples of valid sorts include `Type _`, `Sort _`, and `Prop`"
           return (type, indices.size)
         let params ← Term.addAutoBoundImplicits params (view.declId.getTailPos? (canonicalOnly := true))
         trace[Elab.inductive] "header params: {params}, type: {type}"
@@ -353,19 +363,27 @@ private def withInductiveLocalDecls (rs : Array PreElabHeaderResult) (x : Array 
         x params indFVars
     loop 0 #[]
 
+private def throwLevelNameMismatch [Monad m] [MonadError m]
+    (curNames prevNames : List Name) (curDeclName prevDeclName : Name) : m α :=
+  let listNames (names : List Name) := MessageData.joinSep (names.map (m!"`{·}`")) ", "
+  throwError m!"Universe parameter mismatch in mutually inductive types: `{curDeclName}` \
+    has universe parameters{indentD (listNames curNames)}\nbut the preceding declaration \
+    `{prevDeclName}` has{indentD (listNames prevNames)}"
+    ++ .note m!"All inductive declarations in the same `mutual` block must have the same universe level parameters"
+
 private def InductiveElabStep1.checkLevelNames (views : Array InductiveView) : TermElabM Unit := do
   if h : views.size > 1 then
     let levelNames := views[0].levelNames
     for view in views do
       unless view.levelNames == levelNames do
-        throwErrorAt view.ref "invalid inductive type, universe parameters mismatch in mutually inductive datatypes"
+        withRef view.ref <| throwLevelNameMismatch view.levelNames levelNames view.shortDeclName views[0].shortDeclName
 
 private def ElabHeaderResult.checkLevelNames (rs : Array PreElabHeaderResult) : TermElabM Unit := do
   if h : rs.size > 1 then
     let levelNames := rs[0].levelNames
     for r in rs do
       unless r.levelNames == levelNames do
-        throwErrorAt r.view.ref "invalid inductive type, universe parameters mismatch in mutually inductive datatypes"
+        throwLevelNameMismatch r.levelNames levelNames r.view.declName rs[0].view.shortDeclName
 
 private def getArity (indType : InductiveType) : MetaM Nat :=
   forallTelescopeReducing indType.type fun xs _ => return xs.size
@@ -473,12 +491,12 @@ private def fixedIndicesToParams (numParams : Nat) (indTypes : Array InductiveTy
     go numParams type typesToCheck
 
 private def getResultingUniverse : List InductiveType → TermElabM Level
-  | []           => throwError "unexpected empty inductive declaration"
+  | []           => throwError "Unexpected empty inductive declaration"
   | indType :: _ => forallTelescopeReducing indType.type fun _ r => do
     let r ← whnfD r
     match r with
     | Expr.sort u => return u
-    | _           => throwError "unexpected inductive type resulting type{indentExpr r}"
+    | _           => throwError "Unexpected inductive type resulting type{indentExpr r}"
 
 /--
 Returns `some ?m` if `u` is of the form `?m + k`.
@@ -491,10 +509,10 @@ def shouldInferResultUniverse (u : Level) : TermElabM (Option LMVarId) := do
     match u.getLevelOffset with
     | Level.mvar mvarId => return some mvarId
     | _ =>
-      throwError "\
-        cannot infer resulting universe level of inductive datatype, \
-        given resulting type contains metavariables{indentExpr <| mkSort u}\n\
-        provide universe explicitly"
+      throwError m!"\
+        Cannot infer resulting universe level of inductive datatype: \
+        The given resulting type contains metavariables{indentExpr <| mkSort u}"
+        ++ .hint' "Provide the uninferred universe(s) explicitly"
   else
     return none
 
@@ -554,7 +572,7 @@ where
         pure ()
       else if r.occurs u then
         /- `f(?r) = ?r + k`. -/
-        throw m!"in the constraint {u} ≤ {Level.addOffset r rOffset}, the level metavariable {r} appears in both sides"
+        throw m!"In the constraint `{u} ≤ {Level.addOffset r rOffset}`, the level metavariable `{r}` appears in both sides"
       else
         modify fun acc => acc.push u rOffset
 
@@ -567,7 +585,7 @@ def accLevelAtCtor (ctorParam : Expr) (r : Level) (rOffset : Nat) : StateT AccLe
   match (← modifyGet fun s => accLevel u r rOffset |>.run |>.run s) with
   | .ok _ => pure ()
   | .error msg =>
-    throwError "failed to infer universe level for resulting type due to the constructor argument '{ctorParam}', {msg}"
+    throwError "Failed to infer universe level for resulting type due to the constructor argument `{ctorParam}`: {msg}"
 
 /--
 Executes `k` using the `Syntax` reference associated with constructor `ctorName`.
@@ -603,17 +621,17 @@ private def collectUniverses (views : Array InductiveView) (r : Level) (rOffset 
       let badPart := Level.mkNaryMax (acc.badLevels.toList.map fun (u, k) => Level.max (Level.ofNat rOffset) (Level.addOffset u (rOffset - k)))
       let inferred := (Level.max goodPart badPart).normalize
       let badConstraints := acc.badLevels.map fun (u, k) => indentD m!"{u} ≤ {Level.addOffset r k}"
-      throwError "resulting type is of the form{indentD <| mkSort (Level.addOffset r rOffset)}\n\
+      throwError "Resulting type is of the form{indentD <| mkSort (Level.addOffset r rOffset)}\n\
         but the universes of constructor arguments suggest that this could accidentally be a higher universe than necessary. \
         Explicitly providing a resulting type will silence this error. \
         Universe inference suggests using{indentD <| mkSort inferred}\n\
         if the resulting universe level should be at the above universe level or higher.\n\n\
         Explanation: At this point in elaboration, universe level unification has committed to using a \
-        resulting universe level of the form '{Level.addOffset r rOffset}'. \
+        resulting universe level of the form `{Level.addOffset r rOffset}`. \
         Constructor argument universe levels must be no greater than the resulting universe level, and this condition implies the following constraint(s):\
         {MessageData.joinSep badConstraints.toList ""}\n\
         However, such constraint(s) usually indicate that the resulting universe level should have been in a different form. \
-        For example, if the resulting type is of the form 'Sort (_ + 1)' and a constructor argument is in universe `Sort u`, \
+        For example, if the resulting type is of the form `Sort (_ + 1)` and a constructor argument is in universe `Sort u`, \
         then universe inference would yield `Sort (u + 1)`, \
         but the resulting type `Sort (max 1 u)` would avoid being in a higher universe than necessary."
   return acc.levels
@@ -675,7 +693,8 @@ private def updateResultingUniverse (views : Array InductiveView) (numParams : N
   let rOffset : Nat   := r₀.getOffset
   let r       : Level := r₀.getLevelOffset
   unless r.isMVar do
-    throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly: {r₀}"
+    throwError m!"Failed to compute resulting universe level of inductive datatype: {r₀}"
+      ++ .hint' "Provide this universe explicitly"
   let us ← collectUniverses views r rOffset numParams indTypes
   trace[Elab.inductive] "updateResultingUniverse us: {us}, r: {r}, rOffset: {rOffset}"
   let rNew := mkResultUniverse us rOffset (← isPropCandidate numParams indTypes)
@@ -693,9 +712,9 @@ unless one of the inductive commands requires it (for instance `structure` due t
 private def checkResultingUniversePolymorphism (views : Array InductiveView) (u : Level) (_numParams : Nat) (_indTypes : List InductiveType) : TermElabM Unit := do
   let doErrFor := fun view =>
     view.withTypeRef do
-      throwError "\
-        invalid universe polymorphic resulting type, the resulting universe is not 'Prop', but it may be 'Prop' for some parameter values:{indentD (mkSort u)}\n\
-        Possible solution: use levels of the form 'max 1 _' or '_ + 1' to ensure the universe is of the form 'Type _'."
+      throwError m!"\
+        Invalid universe polymorphic resulting type: The resulting universe is not `Prop`, but it may be `Prop` for some parameter values:{indentD (mkSort u)}"
+        ++ .hint' m!"A possible solution is to use levels of the form `max 1 _` or `_ + 1` to ensure the universe is of the form `Type _`"
   unless u.isZero || u.isNeverZero do
     for view in views do
       if !view.allowSortPolymorphism then
@@ -733,7 +752,7 @@ where
   propagateConstraint (v : Level) (r : Level) (k : Nat) : MetaM Unit := do
     match v, k with
     | .zero,     _   => pure ()
-    | .succ _,   0   => throwError "(for debug) {v} ≤ 0 is impossible"
+    | .succ _,   0   => throwError "Internal error: Generated an impossible universe constraint `{v} ≤ 0`"
     | .succ u,   k+1 => propagateConstraint u r k
     | .max u v,  k   => propagateConstraint u r k; propagateConstraint v r k
     /-
@@ -776,9 +795,9 @@ private def checkResultingUniverses (views : Array InductiveView) (elabs' : Arra
           let type ← inferType ctorArg
           let v := (← instantiateLevelMVars (← getLevel type)).normalize
           unless u.geq v do
-            let mut msg := m!"invalid universe level in constructor '{ctor.name}', parameter"
+            let mut msg := m!"Invalid universe level in constructor `{ctor.name}`: Parameter"
             unless (← ctorArg.fvarId!.getUserName).hasMacroScopes do
-              msg := msg ++ m!" '{ctorArg}'"
+              msg := msg ++ m!" `{ctorArg}`"
             msg := msg ++ m!" has type{indentExpr type}\n\
               at universe level{indentD v}\n\
               which is not less than or equal to the inductive type's resulting universe level{indentD u}"
@@ -984,13 +1003,13 @@ private def checkNoInductiveNameConflicts (elabs : Array InductiveElabStep1) : T
     let typeDeclName := privateToUserName view.declName
     if let some (prevNameIsType, prevRef) := uniqueNames[typeDeclName]? then
       let declKinds := if prevNameIsType then "multiple inductive types" else "an inductive type and a constructor"
-      throwErrorsAt prevRef view.declId m!"cannot define {declKinds} with the same name '{typeDeclName}'"
+      throwErrorsAt prevRef view.declId m!"Cannot define {declKinds} with the same name `{typeDeclName}`"
     uniqueNames := uniqueNames.insert typeDeclName (true, view.declId)
     for ctor in view.ctors do
       let ctorName := privateToUserName ctor.declName
       if let some (prevNameIsType, prevRef) := uniqueNames[ctorName]? then
         let declKinds := if prevNameIsType then "an inductive type and a constructor" else "multiple constructors"
-        throwErrorsAt prevRef ctor.declId m!"cannot define {declKinds} with the same name '{ctorName}'"
+        throwErrorsAt prevRef ctor.declId m!"Cannot define {declKinds} with the same name `{ctorName}`"
       uniqueNames := uniqueNames.insert ctorName (false, ctor.declId)
 
 private def applyComputedFields (indViews : Array InductiveView) : CommandElabM Unit := do
@@ -1005,7 +1024,7 @@ private def applyComputedFields (indViews : Array InductiveView) : CommandElabM 
           | `(Lean.Parser.Command.declModifiersT| $[$doc:docComment]? $[$attrs:attributes]? $[$vis]? $[noncomputable]?) =>
             `(Lean.Parser.Command.declModifiersT| $[$doc]? $[$attrs]? $[$vis]? noncomputable)
           | _ => do
-            withRef modifiers do logError "unsupported modifiers for computed field"
+            withRef modifiers do logError "Unsupported modifiers for computed field"
             `(Parser.Command.declModifiersT| noncomputable)
         `($(⟨modifiers⟩):declModifiers
           def%$ref $(mkIdent <| `_root_ ++ declName ++ fieldId):ident : $type $matchAlts:matchAlts)

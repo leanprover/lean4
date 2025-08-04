@@ -11,7 +11,6 @@ public import Lean.Meta.Tactic.Split
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Eqns
 public import Lean.Meta.ArgsPacker.Basic
-public import Lean.Elab.PreDefinition.WF.Unfold
 public import Lean.Elab.PreDefinition.FixedParams
 public import Init.Data.Array.Basic
 

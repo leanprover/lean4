@@ -2072,27 +2072,24 @@ return x_4;
 LEAN_EXPORT uint8_t l_Std_Time_Weekday_isWeekend(uint8_t x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_box(x_1);
-switch (lean_obj_tag(x_2)) {
+switch (x_1) {
 case 5:
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+case 6:
 {
 uint8_t x_3; 
 x_3 = 1;
 return x_3;
 }
-case 6:
-{
-uint8_t x_4; 
-x_4 = 1;
-return x_4;
-}
 default: 
 {
-uint8_t x_5; 
-lean_dec(x_2);
-x_5 = 0;
-return x_5;
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
 }
 }
 }

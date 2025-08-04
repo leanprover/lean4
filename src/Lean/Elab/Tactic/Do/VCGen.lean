@@ -21,6 +21,7 @@ public import Lean.Elab.Tactic.Do.LetElim
 public import Lean.Elab.Tactic.Do.Spec
 public import Lean.Elab.Tactic.Do.Attr
 public import Lean.Elab.Tactic.Do.Syntax
+import Lean.Meta.Tactic.SplitIf
 
 public section
 

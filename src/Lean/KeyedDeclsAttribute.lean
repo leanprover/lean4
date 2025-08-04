@@ -6,9 +6,9 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Compiler.InitAttr
 public import Lean.ScopedEnvExtension
-public import Lean.Compiler.IR.CompilerM
+import Lean.Compiler.InitAttr
+import Lean.Compiler.IR.CompilerM
 
 public section
 
@@ -40,12 +40,12 @@ structure Def (γ : Type) where
   descr         : String
   valueTypeName : Name
   /-- Convert `Syntax` into a `Key`, the default implementation expects an identifier. -/
-  evalKey (builtin : Bool) (stx : Syntax) : AttrM Key := do
+  evalKey (builtin : Bool) (stx : Syntax) : AttrM Key := private_decl% (do
     let stx ← Attribute.Builtin.getIdent stx
     let kind := stx.getId
     if (← getEnv).contains kind && (← Elab.getInfoState).enabled then
       Elab.addConstInfo stx kind none
-    pure kind
+    pure kind)
   onAdded (builtin : Bool) (declName : Name) : AttrM Unit := pure ()
   deriving Inhabited
 

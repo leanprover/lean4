@@ -184,10 +184,10 @@ def registerTagAttribute (name : Name) (descr : String)
       let env ← getEnv
       unless (env.getModuleIdxFor? decl).isNone do
         throwAttrDeclInImportedModule name decl
-      unless env.asyncMayContain decl do
+      unless ext.toEnvExtension.asyncMayModify env decl do
         throwAttrNotInAsyncCtx name decl env.asyncPrefix?
       validate decl
-      modifyEnv fun env => ext.addEntry env decl
+      modifyEnv fun env => ext.addEntry (asyncDecl := decl) env decl
   }
   registerBuiltinAttribute attrImpl
   return { attr := attrImpl, ext := ext }
@@ -199,22 +199,14 @@ def setTag  [Monad m] [MonadError m] [MonadEnv m] (attr : TagAttribute) (decl : 
   let env ← getEnv
   unless (env.getModuleIdxFor? decl).isNone do
     throwAttrDeclInImportedModule attr.attr.name decl
-  unless env.asyncMayContain decl do
+  unless attr.ext.toEnvExtension.asyncMayModify env decl do
     throwAttrNotInAsyncCtx attr.attr.name decl env.asyncPrefix?
-  modifyEnv fun env => attr.ext.addEntry env decl
+  modifyEnv fun env => attr.ext.addEntry (asyncDecl := decl) env decl
 
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
-  | none        =>
-    if attr.ext.toEnvExtension.asyncMode matches .async then
-      -- It seems that the env extension API doesn't quite allow querying attributes in a way
-      -- that works for realizable constants, but without waiting on proofs to finish.
-      -- Until then, we use the following overapproximation, to be refined later:
-      (attr.ext.findStateAsync env decl).contains decl ||
-      (attr.ext.getState env (asyncMode := .local)).contains decl
-    else
-      (attr.ext.getState env).contains decl
+  | none        => (attr.ext.getState (asyncDecl := decl) env).contains decl
 
 end TagAttribute
 
@@ -253,7 +245,7 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
       unless (env.getModuleIdxFor? decl).isNone do
         throwAttrDeclInImportedModule impl.name decl
       let val ← impl.getParam decl stx
-      modifyEnv fun env => ext.addEntry env (decl, val)
+      modifyEnv fun env => ext.addEntry (asyncDecl := decl) env (decl, val)
       try impl.afterSet decl val catch _ => setEnv env
   }
   registerBuiltinAttribute attrImpl
@@ -301,9 +293,9 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
       let r : Array (Name × α) := m.foldl (fun a n p => a.push (n, p)) #[]
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
-    -- We assume (and check below) that, if used asynchronously, enum attributes are set only in the
-    -- same context in which the tagged declaration was created
-    asyncMode       := .async
+    -- We assume (and check in `modifyState`) that, if used asynchronously, enum attributes are set
+    -- only in the same context in which the tagged declaration was created
+    asyncMode       := .async .mainEnv
     replay?         := some fun _ newState consts st => consts.foldl (init := st) fun st c =>
       match newState.find? c with
       | some v => st.insert c v
@@ -320,7 +312,7 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
       unless (env.getModuleIdxFor? decl).isNone do
         throwAttrDeclInImportedModule name decl
       validate decl val
-      modifyEnv fun env => ext.addEntry env (decl, val)
+      modifyEnv fun env => ext.addEntry (asyncDecl := decl) env (decl, val)
     applicationTime := applicationTime
     : AttributeImpl
   }
@@ -335,17 +327,17 @@ def getValue [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl
     match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
-  | none        => (attr.ext.findStateAsync env decl).find? decl
+  | none        => (attr.ext.getState (asyncDecl := decl) env).find? decl
 
 def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment := do
   let pfx := s!"Internal error calling `{attrs.ext.name}.setValue` for `{decl}`"
   if (env.getModuleIdxFor? decl).isSome then
     throw s!"{pfx}: Declaration is in an imported module"
-  if !env.asyncMayContain decl then
+  unless attrs.ext.toEnvExtension.asyncMayModify env decl do
     throw s!"{pfx}: Declaration is not from this async context `{env.asyncPrefix?}`"
-  if ((attrs.ext.findStateAsync env decl).find? decl).isSome then
+  if ((attrs.ext.getState (asyncDecl := decl) env).find? decl).isSome then
     throw s!"{pfx}: Attribute has already been set"
-  return attrs.ext.addEntry env (decl, val)
+  return attrs.ext.addEntry (asyncDecl := decl) env (decl, val)
 
 end EnumAttributes
 

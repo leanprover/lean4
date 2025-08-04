@@ -4420,18 +4420,10 @@ theorem toList_filterMap [TransCmp cmp] {f : (a : α) → β a → Option (γ a)
       t.toList.filterMap (fun p => (f p.1 p.2).map (fun x => ⟨p.1, x⟩)) :=
   t.inductionOn fun _ => DTreeMap.toList_filterMap
 
-@[grind =]
-theorem isEmpty_filterMap_iff [TransCmp cmp] [LawfulEqCmp cmp]
+theorem filterMap_eq_empty_iff [TransCmp cmp] [LawfulEqCmp cmp]
     {f : (a : α) → β a → Option (γ a)} :
-    (t.filterMap f).isEmpty = true ↔
-      ∀ (k : α) (h : k ∈ t), f k (t.get k h) = none :=
-  t.inductionOn fun _ => DTreeMap.isEmpty_filterMap_iff
-
-theorem isEmpty_filterMap_eq_false_iff [TransCmp cmp] [LawfulEqCmp cmp]
-    {f : (a : α) → β a → Option (γ a)} :
-    (t.filterMap f).isEmpty = false ↔
-      ∃ (k : α) (h : k ∈ t), (f k (t.get k h)).isSome :=
-  t.inductionOn fun _ => DTreeMap.isEmpty_filterMap_eq_false_iff
+    t.filterMap f = ∅ ↔ ∀ k h, f k (t.get k h) = none :=
+  isEmpty_iff.symm.trans <| t.inductionOn fun _ => DTreeMap.isEmpty_filterMap_iff
 
 @[grind =]
 theorem contains_filterMap [TransCmp cmp] [LawfulEqCmp cmp]
@@ -4534,16 +4526,9 @@ namespace Const
 
 variable {β : Type v} {γ : Type w} {t : ExtDTreeMap α (fun _ => β) cmp}
 
-@[grind =]
-theorem isEmpty_filterMap_iff [TransCmp cmp]
-    {f : α → β → Option γ} :
-    (t.filterMap f).isEmpty ↔ ∀ k h, f (t.getKey k h) (get t k h) = none :=
-  t.inductionOn fun _ => DTreeMap.Const.isEmpty_filterMap_iff
-
-theorem isEmpty_filterMap_eq_false_iff [TransCmp cmp]
-    {f : α → β → Option γ} :
-    (t.filterMap f).isEmpty = false ↔ ∃ k h, (f (t.getKey k h) (get t k h)).isSome :=
-  t.inductionOn fun _ => DTreeMap.Const.isEmpty_filterMap_eq_false_iff
+theorem filterMap_eq_empty_iff [TransCmp cmp] {f : α → β → Option γ} :
+    t.filterMap f = ∅ ↔ ∀ k h, f (t.getKey k h) (get t k h) = none :=
+  isEmpty_iff.symm.trans <| t.inductionOn fun _ => DTreeMap.Const.isEmpty_filterMap_iff
 
 -- TODO: `contains_filterMap` is missing
 
@@ -4689,30 +4674,14 @@ theorem keys_filter_key [TransCmp cmp] {f : α → Bool} :
     (t.filter fun k _ => f k).keys = t.keys.filter f :=
   t.inductionOn fun _ => DTreeMap.keys_filter_key
 
-@[grind =]
-theorem isEmpty_filter_iff [TransCmp cmp] [LawfulEqCmp cmp]
+theorem filter_eq_empty_iff [TransCmp cmp] [LawfulEqCmp cmp]
     {f : (a : α) → β a → Bool} :
-    (t.filter f).isEmpty = true ↔
-      ∀ (k : α) (h : k ∈ t), f k (t.get k h) = false :=
-  t.inductionOn fun _ => DTreeMap.isEmpty_filter_iff
+    t.filter f = ∅ ↔ ∀ k h, f k (t.get k h) = false :=
+  isEmpty_iff.symm.trans <| t.inductionOn fun _ => DTreeMap.isEmpty_filter_iff
 
-theorem isEmpty_filter_eq_false_iff [TransCmp cmp] [LawfulEqCmp cmp]
-    {f : (a : α) → β a → Bool} :
-    (t.filter f).isEmpty = false ↔
-      ∃ (k : α) (h : k ∈ t), f k (t.get k h) = true :=
-  t.inductionOn fun _ => DTreeMap.isEmpty_filter_eq_false_iff
-
-theorem isEmpty_filter_key_iff [TransCmp cmp]
-    {f : α → Bool} :
-    (t.filter (fun a _ => f a)).isEmpty ↔
-      ∀ (k : α) (h : k ∈ t), f (t.getKey k h) = false :=
-  t.inductionOn fun _ => DTreeMap.isEmpty_filter_key_iff
-
-theorem isEmpty_filter_key_eq_false_iff [TransCmp cmp]
-    {f : α → Bool} :
-    (t.filter (fun a _ => f a)).isEmpty = false ↔
-      ∃ (k : α) (h : k ∈ t), f (t.getKey k h) :=
-  t.inductionOn fun _ => DTreeMap.isEmpty_filter_key_eq_false_iff
+theorem filter_key_eq_empty_iff [TransCmp cmp] {f : α → Bool} :
+    t.filter (fun a _ => f a) = ∅ ↔ ∀ k h, f (t.getKey k h) = false :=
+  isEmpty_iff.symm.trans <| t.inductionOn fun _ => DTreeMap.isEmpty_filter_key_iff
 
 @[grind =]
 theorem contains_filter [TransCmp cmp] [LawfulEqCmp cmp]
@@ -4847,18 +4816,9 @@ namespace Const
 
 variable {β : Type v} {γ : Type w} {t : ExtDTreeMap α (fun _ => β) cmp}
 
-@[grind =]
-theorem isEmpty_filter_iff [TransCmp cmp]
-    {f : α → β → Bool} :
-    (t.filter f).isEmpty = true ↔
-      ∀ (k : α) (h : k ∈ t), f (t.getKey k h) (Const.get t k h) = false :=
-  t.inductionOn fun _ => DTreeMap.Const.isEmpty_filter_iff
-
-theorem isEmpty_filter_eq_false_iff [TransCmp cmp]
-    {f : α → β → Bool} :
-    (t.filter f).isEmpty = false ↔
-      ∃ (k : α) (h : k ∈ t), (f (t.getKey k h) (Const.get t k h)) = true :=
-  t.inductionOn fun _ => DTreeMap.Const.isEmpty_filter_eq_false_iff
+theorem filter_eq_empty_iff [TransCmp cmp] {f : α → β → Bool} :
+    t.filter f = ∅ ↔ ∀ k h, f (t.getKey k h) (Const.get t k h) = false :=
+  isEmpty_iff.symm.trans <| t.inductionOn fun _ => DTreeMap.Const.isEmpty_filter_iff
 
 -- TODO: `contains_filter` is missing
 
@@ -5018,11 +4978,11 @@ theorem filterMap_eq_map [TransCmp cmp]
     (t.filterMap (fun k v => some (f k v))) = t.map f :=
   t.inductionOn fun _ => sound DTreeMap.filterMap_equiv_map
 
-@[simp, grind =]
-theorem isEmpty_map [TransCmp cmp]
-    {f : (a : α) → β a → γ a} :
-    (t.map f).isEmpty = t.isEmpty :=
-  t.inductionOn fun _ => DTreeMap.isEmpty_map
+@[simp]
+theorem map_eq_empty_iff [TransCmp cmp] {f : (a : α) → β a → γ a} :
+    t.map f = ∅ ↔ t = ∅ := by
+  simp only [← isEmpty_iff, Bool.coe_iff_coe]
+  exact t.inductionOn fun _ => DTreeMap.isEmpty_map
 
 @[grind =]
 theorem contains_map [TransCmp cmp]

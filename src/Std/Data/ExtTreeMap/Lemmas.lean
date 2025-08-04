@@ -3055,16 +3055,9 @@ theorem toList_filterMap [TransCmp cmp] {f : (a : α) → β → Option γ} :
       t.toList.filterMap (fun p => (f p.1 p.2).map (fun x => (p.1, x))) :=
   ExtDTreeMap.Const.toList_filterMap
 
-@[grind =]
-theorem isEmpty_filterMap_iff [TransCmp cmp]
-    {f : α → β → Option γ} :
-    (t.filterMap f).isEmpty ↔ ∀ k h, f (t.getKey k h) t[k] = none :=
-  ExtDTreeMap.Const.isEmpty_filterMap_iff
-
-theorem isEmpty_filterMap_eq_false_iff [TransCmp cmp]
-    {f : α → β → Option γ} :
-    (t.filterMap f).isEmpty = false ↔ ∃ k h, (f (t.getKey k h) t[k]).isSome :=
-  ExtDTreeMap.Const.isEmpty_filterMap_eq_false_iff
+theorem filterMap_eq_empty_iff [TransCmp cmp] {f : α → β → Option γ} :
+    t.filterMap f = ∅ ↔ ∀ k h, f (t.getKey k h) (t[k]'h) = none :=
+  ext_iff.trans ExtDTreeMap.Const.filterMap_eq_empty_iff
 
 -- TODO: `contains_filterMap` is missing
 
@@ -3226,18 +3219,9 @@ theorem keys_filter_key [TransCmp cmp] {f : α → Bool} :
     (t.filter fun k _ => f k).keys = t.keys.filter f :=
   ExtDTreeMap.keys_filter_key
 
-@[grind =]
-theorem isEmpty_filter_iff [TransCmp cmp]
-    {f : α → β → Bool} :
-    (t.filter f).isEmpty = true ↔
-      ∀ (k : α) (h : k ∈ t), f (t.getKey k h) t[k] = false :=
-  ExtDTreeMap.Const.isEmpty_filter_iff
-
-theorem isEmpty_filter_eq_false_iff [TransCmp cmp]
-    {f : α → β → Bool} :
-    (t.filter f).isEmpty = false ↔
-      ∃ (k : α) (h : k ∈ t), f (t.getKey k h) t[k] = true :=
-  ExtDTreeMap.Const.isEmpty_filter_eq_false_iff
+theorem filter_eq_empty_iff [TransCmp cmp] {f : α → β → Bool} :
+    t.filter f = ∅ ↔ ∀ k h, f (t.getKey k h) (t[k]'h) = false :=
+  ext_iff.trans ExtDTreeMap.Const.filter_eq_empty_iff
 
 -- TODO: `contains_filter` is missing
 
@@ -3419,11 +3403,10 @@ theorem filterMap_eq_map [TransCmp cmp]
     t.filterMap (fun k v => some (f k v)) = t.map f :=
   ext ExtDTreeMap.filterMap_eq_map
 
-@[simp, grind =]
-theorem isEmpty_map [TransCmp cmp]
-    {f : α → β → γ} :
-    (t.map f).isEmpty = t.isEmpty :=
-  ExtDTreeMap.isEmpty_map
+@[simp]
+theorem map_eq_empty_iff [TransCmp cmp] {f : α → β → γ} :
+    t.map f = ∅ ↔ t = ∅ := by
+  simpa only [ext_iff] using ExtDTreeMap.map_eq_empty_iff
 
 @[simp, grind =]
 theorem contains_map [TransCmp cmp]

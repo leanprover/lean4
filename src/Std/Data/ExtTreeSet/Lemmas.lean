@@ -1560,15 +1560,9 @@ theorem toList_filter [TransCmp cmp] {f : α → Bool} :
     (t.filter f).toList = t.toList.filter f :=
   ExtTreeMap.keys_filter_key
 
-@[grind =] theorem isEmpty_filter_iff [TransCmp cmp]
-    {f : α → Bool} :
-    (t.filter f).isEmpty ↔ ∀ k h, f (t.get k h) = false :=
-  ExtTreeMap.isEmpty_filter_iff
-
-theorem isEmpty_filter_eq_false_iff [TransCmp cmp]
-    {f : α → Bool} :
-    (t.filter f).isEmpty = false ↔ ∃ k h, f (t.get k h) :=
-  ExtTreeMap.isEmpty_filter_eq_false_iff
+theorem filter_eq_empty_iff [TransCmp cmp] {f : α → Bool} :
+    t.filter f = ∅ ↔ ∀ k h, f (t.get k h) = false :=
+  ext_iff.trans ExtTreeMap.filter_eq_empty_iff
 
 -- TODO: `contains_filter` is missing.
 

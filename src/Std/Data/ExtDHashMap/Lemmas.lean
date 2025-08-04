@@ -3079,7 +3079,6 @@ theorem filterMap_eq_filter [EquivBEq α] [LawfulHashable α] {f : (a : α) → 
     m.filterMap (fun k => Option.guard (fun v => f k v)) = m.filter f :=
   m.inductionOn fun _ => sound DHashMap.filterMap_equiv_filter
 
-@[simp]
 theorem filter_eq_empty_iff [LawfulBEq α]
     {f : (a : α) → β a → Bool} :
     m.filter f = ∅ ↔ ∀ k h, f k (m.get k h) = false :=

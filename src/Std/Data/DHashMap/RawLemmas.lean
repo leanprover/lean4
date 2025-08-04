@@ -1241,6 +1241,49 @@ theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF
     m.toList.map Sigma.fst = m.keys := by
   apply Raw₀.map_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
 
+@[simp]
+theorem toArray_keys_eq_keysArray (h : m.WF) :
+    m.keys.toArray = m.keysArray :=
+  Raw₀.toArray_keys_eq_keysArray ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem toList_keysArray_eq_keys (h : m.WF) :
+    m.keysArray.toList = m.keys :=
+  Raw₀.toList_keysArray_eq_keys ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem size_keysArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.keysArray.size = m.size :=
+  Raw₀.size_keysArray ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem isEmpty_keysArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.keysArray.isEmpty = m.isEmpty :=
+  Raw₀.isEmpty_keysArray ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem contains_keysArray [EquivBEq α] [LawfulHashable α]
+    {k : α} (h : m.WF) :
+    m.keysArray.contains k = m.contains k := by
+  simp_to_raw using Raw₀.contains_keysArray ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem mem_keysArray [LawfulBEq α] {k : α} (h : m.WF) :
+    k ∈ m.keysArray ↔ k ∈ m := by
+  rw [mem_iff_contains]
+  simp_to_raw using Raw₀.mem_keysArray ⟨m, h.size_buckets_pos⟩ h
+
+theorem forall_mem_keysArray_iff_forall_mem_getKey [EquivBEq α] [LawfulHashable α]
+     {p : α → Prop} (h : m.WF) :
+    (∀ k ∈ m.keysArray, p k) ↔ ∀ (k : α) (h : k ∈ m), p (m.getKey k h) := by
+  simp only [mem_iff_contains]
+  simp_to_raw using
+    Raw₀.forall_mem_keysArray_iff_forall_contains_getKey ⟨m, h.size_buckets_pos⟩ h
+
+theorem contains_of_mem_keysArray [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α}
+    (h' : k ∈ m.keysArray) : m.contains k := by
+  simp_to_raw using Raw₀.contains_of_mem_keysArray ⟨m, h.size_buckets_pos⟩ h h'
+
 @[simp, grind =]
 theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.length = m.size := by
@@ -1344,6 +1387,105 @@ theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
 theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     (Raw.Const.toList m).Pairwise (fun a b => (a.1 == b.1) = false) := by
   apply Raw₀.Const.distinct_keys_toList ⟨m, h.size_buckets_pos⟩ h
+
+end Const
+
+@[simp]
+theorem toArray_toList_eq_toArray (h : m.WF) :
+    m.toList.toArray = m.toArray :=
+  Raw₀.toArray_toList_eq_toArray ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem toList_toArray_eq_toList (h : m.WF) :
+    m.toArray.toList = m.toList :=
+  Raw₀.toList_toArray_eq_toList ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toArray.map Sigma.fst = m.keysArray :=
+  Raw₀.map_fst_toArray_eq_keysArray ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem size_toArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toArray.size = m.size :=
+  Raw₀.size_toArray ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem isEmpty_toArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toArray.isEmpty = m.isEmpty :=
+  Raw₀.isEmpty_toArray ⟨m, h.size_buckets_pos⟩ h
+
+theorem mem_toArray_iff_get?_eq_some [LawfulBEq α]
+    {k : α} {v : β k} (h : m.WF) :
+    ⟨k, v⟩ ∈ m.toArray ↔ m.get? k = some v := by
+  simp_to_raw using Raw₀.mem_toArray_iff_get?_eq_some ⟨m, h.size_buckets_pos⟩ h
+
+theorem find?_toArray_eq_some_iff_get?_eq_some [LawfulBEq α]
+    {k : α} {v : β k} (h : m.WF) :
+    m.toArray.find? (·.1 == k) = some ⟨k, v⟩ ↔ m.get? k = some v := by
+  simp_to_raw using
+    Raw₀.find?_toArray_eq_some_iff_get?_eq_some ⟨m, h.size_buckets_pos⟩ h
+
+theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+     {k : α} (h : m.WF) :
+    m.toArray.find? (·.1 == k) = none ↔ m.contains k = false := by
+  simp_to_raw using Raw₀.find?_toArray_eq_none_iff_contains_eq_false ⟨m, h.size_buckets_pos⟩ h
+
+namespace Const
+
+variable {β : Type v} {m : Raw α (fun _ => β)}
+
+@[simp]
+theorem toArray_toList_eq_toArray (h : m.WF) :
+    (Raw.Const.toList m).toArray = Raw.Const.toArray m :=
+  Raw₀.Const.toArray_toList_eq_toArray ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem toList_toArray_eq_toList (h : m.WF) :
+    (Raw.Const.toArray m).toList = Raw.Const.toList m :=
+  Raw₀.Const.toList_toArray_eq_toList ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    (Raw.Const.toArray m).map Prod.fst = m.keysArray :=
+  Raw₀.Const.map_fst_toArray_eq_keysArray ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem size_toArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    (Raw.Const.toArray m).size = m.size :=
+  Raw₀.Const.size_toArray ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem isEmpty_toArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    (Raw.Const.toArray m).isEmpty = m.isEmpty :=
+  Raw₀.Const.isEmpty_toArray ⟨m, h.size_buckets_pos⟩ h
+
+theorem mem_toArray_iff_get?_eq_some [LawfulBEq α]
+    {k : α} {v : β} (h : m.WF) :
+    (k, v) ∈ Raw.Const.toArray m ↔ get? m k = some v := by
+  simp_to_raw using Raw₀.Const.mem_toArray_iff_get?_eq_some ⟨m, h.size_buckets_pos⟩ h
+
+theorem get?_eq_some_iff_exists_beq_and_mem_toArray [EquivBEq α] [LawfulHashable α]
+    {k : α} {v : β} (h : m.WF) :
+    get? m k = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ Raw.Const.toArray m := by
+  simp_to_raw using Raw₀.Const.get?_eq_some_iff_exists_beq_and_mem_toArray ⟨m, h.size_buckets_pos⟩ h
+
+theorem find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some
+    [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' : α} {v : β} :
+    (Raw.Const.toArray m).find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
+      m.getKey? k = some k' ∧ get? m k = some v := by
+  simp_to_raw using
+    Raw₀.Const.find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some ⟨m, h.size_buckets_pos⟩ h
+
+theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+     {k : α} (h : m.WF) :
+    (Raw.Const.toArray m).find? (·.1 == k) = none ↔ m.contains k = false := by
+  simp_to_raw using Raw₀.Const.find?_toArray_eq_none_iff_contains_eq_false ⟨m, h.size_buckets_pos⟩ h
+
+theorem mem_toArray_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {k: α} {v : β} :
+    (k, v) ∈ Raw.Const.toArray m ↔ m.getKey? k = some k ∧ get? m k = some v := by
+  simp [← toArray_toList_eq_toArray, h, mem_toList_iff_getKey?_eq_some_and_get?_eq_some]
 
 end Const
 
@@ -1473,6 +1615,66 @@ theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : α → δ → m' (ForInStep δ)} {init : δ} :
     m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keys init f :=
   Raw₀.forIn_eq_forIn_keys ⟨m, h.size_buckets_pos⟩
+
+end Const
+
+theorem foldM_eq_foldlM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ} (h : m.WF) :
+    m.foldM f init = m.toArray.foldlM (fun a b => f a b.1 b.2) init :=
+  Raw₀.foldM_eq_foldlM_toArray ⟨m, h.size_buckets_pos⟩
+
+theorem fold_eq_foldl_toArray {f : δ → (a : α) → β a → δ} {init : δ} (h : m.WF) :
+    m.fold f init = m.toArray.foldl (fun a b => f a b.1 b.2) init :=
+  Raw₀.fold_eq_foldl_toArray ⟨m, h.size_buckets_pos⟩
+
+theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : (a : α) → β a → m' PUnit} (h : m.WF) :
+    m.forM f = m.toArray.forM (fun a => f a.1 a.2) :=
+  Raw₀.forM_eq_forM_toArray ⟨m, h.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β a → δ → m' (ForInStep δ)} {init : δ} (h : m.WF) :
+    m.forIn f init = ForIn.forIn m.toArray init (fun a b => f a.1 a.2 b) :=
+  Raw₀.forIn_eq_forIn_toArray ⟨m, h.size_buckets_pos⟩
+
+theorem foldM_eq_foldlM_keysArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → m' δ} {init : δ} (h : m.WF) :
+    m.foldM (fun d a _ => f d a) init = m.keysArray.foldlM f init :=
+  Raw₀.foldM_eq_foldlM_keysArray ⟨m, h.size_buckets_pos⟩
+
+theorem fold_eq_foldl_keysArray {f : δ → α → δ} {init : δ} (h : m.WF) :
+    m.fold (fun d a _ => f d a) init = m.keysArray.foldl f init :=
+  Raw₀.fold_eq_foldl_keysArray ⟨m, h.size_buckets_pos⟩
+
+theorem forM_eq_forM_keysArray [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} (h : m.WF) :
+    m.forM (fun a _ => f a) = m.keysArray.forM f :=
+  Raw₀.forM_eq_forM_keysArray ⟨m, h.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_keysArray [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} (h : m.WF) :
+    m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keysArray init f :=
+  Raw₀.forIn_eq_forIn_keysArray ⟨m, h.size_buckets_pos⟩
+
+namespace Const
+
+variable {β : Type v} {m : Raw α (fun _ => β)}
+
+theorem foldM_eq_foldlM_toArray [Monad m'] [LawfulMonad m']
+    {f : δ → α → β → m' δ} {init : δ} (h : m.WF) :
+    m.foldM f init = (Raw.Const.toArray m).foldlM (fun a b => f a b.1 b.2) init :=
+  Raw₀.Const.foldM_eq_foldlM_toArray ⟨m, h.size_buckets_pos⟩
+
+theorem fold_eq_foldl_toArray {f : δ → α → β → δ} {init : δ} (h : m.WF) :
+    m.fold f init = (Raw.Const.toArray m).foldl (fun a b => f a b.1 b.2) init :=
+  Raw₀.Const.fold_eq_foldl_toArray ⟨m, h.size_buckets_pos⟩
+
+theorem forM_eq_forM_toArray [Monad m'] [LawfulMonad m'] {f : α → β → m' PUnit} (h : m.WF) :
+    m.forM f = (Raw.Const.toArray m).forM (fun a => f a.1 a.2) :=
+  Raw₀.Const.forM_eq_forM_toArray ⟨m, h.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_toArray [Monad m'] [LawfulMonad m']
+    {f : α → β → δ → m' (ForInStep δ)} {init : δ} (h : m.WF) :
+    m.forIn f init = ForIn.forIn (Raw.Const.toArray m) init (fun a b => f a.1 a.2 b) :=
+  Raw₀.Const.forIn_eq_forIn_toArray ⟨m, h.size_buckets_pos⟩
 
 end Const
 

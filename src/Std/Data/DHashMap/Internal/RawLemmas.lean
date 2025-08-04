@@ -1116,6 +1116,11 @@ theorem toArray_keys_eq_keysArray :
     m.1.keys.toArray = m.1.keysArray := by
   simp_to_model
 
+omit [Hashable α] [BEq α] in
+theorem toList_keysArray_eq_keys :
+    m.1.keysArray.toList = m.1.keys := by
+  simp_to_model
+
 @[simp]
 theorem size_keysArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keysArray.size = m.1.size := by
@@ -1148,6 +1153,11 @@ theorem contains_of_mem_keysArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
 omit [Hashable α] [BEq α] in
 theorem toArray_toList_eq_toArray :
     m.1.toList.toArray = m.1.toArray := by
+  simp_to_model
+
+omit [Hashable α] [BEq α] in
+theorem toList_toArray_eq_toList :
+    m.1.toArray.toList = m.1.toList := by
   simp_to_model
 
 theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] :
@@ -1185,6 +1195,11 @@ variable {β : Type v} (m : Raw₀ α (fun _ => β))
 omit [Hashable α] [BEq α] in
 theorem toArray_toList_eq_toArray :
     (Raw.Const.toList m.1).toArray = Raw.Const.toArray m.1 := by
+  simp_to_model
+
+omit [Hashable α] [BEq α] in
+theorem toList_toArray_eq_toList :
+    (Raw.Const.toArray m.1).toList = Raw.Const.toList m.1 := by
   simp_to_model
 
 theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] :

@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Sebastian Ullrich, Mac Malone
 -/
 module
 
@@ -16,6 +16,9 @@ namespace ParseImports
 structure State where
   imports       : Array Import := #[]
   pos           : String.Pos := 0
+  lastTkPos     : String.Pos := 0
+  lastTkEndPos  : String.Pos := 0
+  errorTk?      : Option String.Range := none
   error?        : Option String := none
   isModule      : Bool := false
   -- per-import fields to be consumed by `moduleIdent`
@@ -35,6 +38,9 @@ instance : Inhabited Parser := ⟨skip⟩
 
 @[inline] def State.mkError (s : State) (msg : String) : State :=
   { s with error? := some msg }
+
+@[inline] def State.mkErrorAtLastTk (s : State) (msg : String) : State :=
+  { s with error? := some msg, errorTk? := some ⟨s.lastTkPos, s.lastTkEndPos⟩ }
 
 def State.mkEOIError (s : State) : State :=
   s.mkError "unexpected end of input"
@@ -114,7 +120,8 @@ partial def whitespace : Parser := fun input s =>
 @[inline] partial def keywordCore (k : String) (failure : Parser) (success : Parser) : Parser := fun input s =>
   let rec @[specialize] go (i j : String.Pos) : State :=
     if h₁ : k.atEnd i then
-      success input <| whitespace input (s.setPos j)
+      let s := { s with pos := j, lastTkPos := s.pos, lastTkEndPos := j }
+      success input <| whitespace input s
     else if h₂ : input.atEnd j then
       failure input s
     else
@@ -192,11 +199,10 @@ partial def moduleIdent : Parser := fun input s =>
 
 @[specialize] partial def many (p : Parser) : Parser := fun input s =>
   let pos := s.pos
-  let size := s.imports.size
   let s := p input s
   if let some _ := s.error? then
     if s.pos == pos then
-      { s with pos, error? := none, imports := s.imports.shrink size }
+      { s with error? := none, errorTk? := none }
     else s
   else
     many p input s
@@ -208,19 +214,19 @@ def setMeta : Parser := fun _ s =>
   if s.isModule then
     { s with isMeta := true }
   else
-    s.mkError "cannot use 'meta import' without module"
+    s.mkErrorAtLastTk "cannot use 'meta import' without module"
 
 def setExported : Parser := fun _ s =>
   if s.isModule then
     { s with isExported := true }
   else
-    s.mkError "cannot use 'public import' without module"
+    s.mkErrorAtLastTk "cannot use 'public import' without module"
 
 def setImportAll : Parser := fun _ s =>
   if s.isModule then
     { s with importAll := true }
   else
-    s.mkError "cannot use 'import all' without module"
+    s.mkErrorAtLastTk "cannot use 'import all' without module"
 
 def main : Parser :=
   keywordCore "module" (setIsModule false) (setIsModule true) >>
@@ -238,9 +244,18 @@ Simpler and faster version of `parseImports`. We use it to implement Lake.
 -/
 def parseImports' (input : String) (fileName : String) : IO ModuleHeader := do
   let s := ParseImports.main input (ParseImports.whitespace input {})
-  match s.error? with
-  | none => return { s with }
-  | some err => throw <| .userError s!"{fileName}: {err}"
+  let some err := s.error?
+    | return { s with }
+  let fileMap := input.toFileMap
+  let pos :=
+    if let some ⟨pos, endPos⟩ := s.errorTk? then
+      let pos := fileMap.toPosition pos
+      let endPos := fileMap.toPosition endPos
+      s!"{pos.line}:{pos.column}-{endPos.line}:{endPos.column}"
+    else
+      let pos := fileMap.toPosition s.pos
+      s!"{pos.line}:{pos.column}"
+  throw <| .userError s!"{fileName}:{pos}: {err}"
 
 structure PrintImportResult where
   result?  : Option ModuleHeader := none

@@ -26,8 +26,9 @@ structure State where
 
 @[expose] def Parser := String → State → State
 
-instance : Inhabited Parser where
-  default := fun _ s => s
+@[inline] def skip : Parser := fun _ s => s
+
+instance : Inhabited Parser := ⟨skip⟩
 
 @[inline] def State.setPos (s : State) (pos : String.Pos) : State :=
   { s with pos := pos }
@@ -125,8 +126,8 @@ partial def whitespace : Parser := fun input s =>
         go (k.next' i h₁) (input.next' j h₂)
   go 0 s.pos
 
-@[inline] partial def keyword (k : String) : Parser :=
-  keywordCore k (fun _ s => s.mkError s!"`{k}` expected") (fun _ s => s)
+@[inline] def keyword (k : String) : Parser :=
+  keywordCore k (fun _ s => s.mkError s!"`{k}` expected") skip
 
 @[inline] def isIdCont : String → State → Bool := fun input s =>
   let i := s.pos
@@ -152,7 +153,9 @@ def State.pushImport (i : Import) (s : State) : State :=
 
 partial def moduleIdent : Parser := fun input s =>
   let finalize (module : Name) : Parser := fun input s =>
-    whitespace input (s.pushImport { module, isMeta := s.isMeta, importAll := s.importAll, isExported := s.isExported })
+    let imp := { module, isMeta := s.isMeta, importAll := s.importAll, isExported := s.isExported }
+    let s := whitespace input (s.pushImport imp)
+    {s with isMeta := false, importAll := false, isExported := !s.isModule}
   let rec parse (module : Name) (s : State) :=
     let i := s.pos
     if h : input.atEnd i then
@@ -191,26 +194,41 @@ partial def moduleIdent : Parser := fun input s =>
   let pos := s.pos
   let size := s.imports.size
   let s := p input s
-  match s.error? with
-  | none => many p input s
-  | some _ => { s with pos, error? := none, imports := s.imports.shrink size }
+  if let some _ := s.error? then
+    if s.pos == pos then
+      { s with pos, error? := none, imports := s.imports.shrink size }
+    else s
+  else
+    many p input s
 
-def setIsMeta (isMeta : Bool) : Parser := fun _ s =>
-  { s with isMeta }
+def setIsModule (isModule : Bool) : Parser := fun _ s =>
+  { s with isModule, isExported := !isModule }
 
-def setIsExported (isExported : Bool) : Parser := fun _ s =>
-  { s with isExported := isExported || !s.isModule }
+def setMeta : Parser := fun _ s =>
+  if s.isModule then
+    { s with isMeta := true }
+  else
+    s.mkError "cannot use 'meta import' without module"
 
-def setImportAll (importAll : Bool) : Parser := fun _ s =>
-  { s with importAll }
+def setExported : Parser := fun _ s =>
+  if s.isModule then
+    { s with isExported := true }
+  else
+    s.mkError "cannot use 'public import' without module"
+
+def setImportAll : Parser := fun _ s =>
+  if s.isModule then
+    { s with importAll := true }
+  else
+    s.mkError "cannot use 'import all' without module"
 
 def main : Parser :=
-  keywordCore "module" (fun _ s => s) (fun _ s => { s with isModule := true }) >>
-  keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
-  many (keywordCore "public" (setIsExported false) (setIsExported true) >>
-    keywordCore "meta" (setIsMeta false) (setIsMeta true) >>
+  keywordCore "module" (setIsModule false) (setIsModule true) >>
+  keywordCore "prelude" (fun _ s => s.pushImport `Init) skip >>
+  many (keywordCore "public" skip setExported >>
+    keywordCore "meta" skip setMeta >>
     keyword "import" >>
-    keywordCore "all" (setImportAll false) (setImportAll true) >>
+    keywordCore "all" skip setImportAll >>
     moduleIdent)
 
 end ParseImports
@@ -222,7 +240,7 @@ def parseImports' (input : String) (fileName : String) : IO ModuleHeader := do
   let s := ParseImports.main input (ParseImports.whitespace input {})
   match s.error? with
   | none => return { s with }
-  | some err => throw <| IO.userError s!"{fileName}: {err}"
+  | some err => throw <| .userError s!"{fileName}: {err}"
 
 structure PrintImportResult where
   result?  : Option ModuleHeader := none

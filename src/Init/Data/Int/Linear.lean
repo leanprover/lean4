@@ -1173,15 +1173,26 @@ theorem eq_dvd_subst (ctx : Context) (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ 
   apply abs_dvd
   simp [this, Int.neg_mul]
 
-@[expose]
-noncomputable def eq_eq_subst_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
+-- TODO: delete after update stage0
+@[expose] noncomputable def eq_eq_subst_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
   let a := p₁.coeff_k x
   let b := p₂.coeff_k x
   p₃.beq' (p₁.mul_k b |>.combine_k (p₂.mul_k (-a)))
 
+-- TODO: delete after update stage0
 theorem eq_eq_subst (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
     : eq_eq_subst_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx = 0 → p₃.denote' ctx = 0 := by
   simp [eq_eq_subst_cert]
+  intro; subst p₃
+  intro h₁ h₂
+  simp [*]
+
+@[expose] noncomputable def eq_eq_subst'_cert (a b : Int) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
+  p₃.beq' (p₁.mul_k b |>.combine_k (p₂.mul_k (-a)))
+
+theorem eq_eq_subst' (ctx : Context) (a b : Int) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
+    : eq_eq_subst'_cert a b p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx = 0 → p₃.denote' ctx = 0 := by
+  simp [eq_eq_subst'_cert]
   intro; subst p₃
   intro h₁ h₂
   simp [*]

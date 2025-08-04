@@ -4278,7 +4278,7 @@ theorem map (h : t₁ ~m t₂) (f : (a : α) → β a → γ a) :
     t₁.map f ~m t₂.map f :=
   ⟨h.1.map⟩
 
-theorem filterMap  (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (f : (a : α) → β a → Option (γ a)) :
+theorem filterMap (h₁ : t₁.WF) (h₂ : t₂.WF) (h : t₁ ~m t₂) (f : (a : α) → β a → Option (γ a)) :
     t₁.filterMap f ~m t₂.filterMap f :=
   ⟨h.1.filterMap! h₁.1 h₂.1⟩
 
@@ -5135,7 +5135,7 @@ theorem keys_map {f : (a : α) → β a → γ a} : (t.map f).keys = t.keys :=
 theorem filterMap_equiv_map [TransCmp cmp]
     {f : (a : α) → β a → γ a} (h : t.WF) :
     (t.filterMap (fun k v => some (f k v))) ~m t.map f :=
-  Impl.filterMap!_equiv_map h
+  ⟨Impl.filterMap!_equiv_map h⟩
 
 @[simp, grind =]
 theorem isEmpty_map [TransCmp cmp] {f : (a : α) → β a → γ a} :

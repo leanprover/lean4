@@ -158,6 +158,15 @@ structure ConfigTrace where
   deriving ToJson, FromJson
 
 /--
+Define the content of the CACHEDIR.TAG file according to the specification
+http://www.brynosaurus.com/cachedir/
+-/
+def cachedirTagContent : String := "Signature: 8a477f597d28d172789f06886806bc55
+# This file is a cache directory tag created by lake.
+# For information about cache directory tags, see:
+#\thttp://www.brynosaurus.com/cachedir/"
+
+/--
 Import the `.olean` for the configuration file if `reconfigure` is not set and
 an up-to-date one exists (i.e., one with matching configuration and on the same
 toolchain). Otherwise, elaborate the configuration and save it to the `.olean`.
@@ -259,6 +268,8 @@ def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
     validateTrace <| ← IO.FS.Handle.mk traceFile .read
   else
     IO.FS.createDirAll cfg.lakeDir
+    -- Create CACHEDIR.TAG file only when .lake directory is first created
+    IO.FS.writeFile (cfg.lakeDir / "CACHEDIR.TAG") cachedirTagContent
     match (← IO.FS.Handle.mk traceFile .writeNew |>.toBaseIO) with
     | .ok h =>
       h.lock; elabConfig h cfg.lakeOpts

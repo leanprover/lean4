@@ -16,9 +16,7 @@ namespace ParseImports
 structure State where
   imports       : Array Import := #[]
   pos           : String.Pos := 0
-  lastTkPos     : String.Pos := 0
-  lastTkEndPos  : String.Pos := 0
-  errorTk?      : Option String.Range := none
+  badModifier   : Bool := false
   error?        : Option String := none
   isModule      : Bool := false
   -- per-import fields to be consumed by `moduleIdent`
@@ -39,11 +37,11 @@ instance : Inhabited Parser := ⟨skip⟩
 @[inline] def State.mkError (s : State) (msg : String) : State :=
   { s with error? := some msg }
 
-@[inline] def State.mkErrorAtLastTk (s : State) (msg : String) : State :=
-  { s with error? := some msg, errorTk? := some ⟨s.lastTkPos, s.lastTkEndPos⟩ }
-
 def State.mkEOIError (s : State) : State :=
   s.mkError "unexpected end of input"
+
+@[inline] def State.clearError (s : State) : State :=
+  { s with error? := none, badModifier := false  }
 
 @[inline] def State.next (s : State) (input : String) (pos : String.Pos) : State :=
   { s with pos := input.next pos }
@@ -120,8 +118,7 @@ partial def whitespace : Parser := fun input s =>
 @[inline] partial def keywordCore (k : String) (failure : Parser) (success : Parser) : Parser := fun input s =>
   let rec @[specialize] go (i j : String.Pos) : State :=
     if h₁ : k.atEnd i then
-      let s := { s with pos := j, lastTkPos := s.pos, lastTkEndPos := j }
-      success input <| whitespace input s
+      success input <| whitespace input (s.setPos j)
     else if h₂ : input.atEnd j then
       failure input s
     else
@@ -197,15 +194,21 @@ partial def moduleIdent : Parser := fun input s =>
         s.mkError "expected identifier"
   parse .anonymous s
 
-@[specialize] partial def many (p : Parser) : Parser := fun input s =>
+@[inline] def atomic (p : Parser) : Parser := fun input s =>
   let pos := s.pos
   let s := p input s
-  if let some _ := s.error? then
-    if s.pos == pos then
-      { s with error? := none, errorTk? := none }
-    else s
+  if s.error? matches some .. then {s with pos} else s
+
+@[specialize] partial def manyImports (p : Parser) : Parser := fun input s =>
+  let pos := s.pos
+  let s := p input s
+  if s.error? matches some .. then
+    if s.pos == pos then s.clearError else s
+  else if s.badModifier then
+    let err := "cannot use 'public', 'meta', or 'all' without 'module'"
+    {s with pos, badModifier := false, error? := some err}
   else
-    many p input s
+    manyImports p input s
 
 def setIsModule (isModule : Bool) : Parser := fun _ s =>
   { s with isModule, isExported := !isModule }
@@ -214,26 +217,26 @@ def setMeta : Parser := fun _ s =>
   if s.isModule then
     { s with isMeta := true }
   else
-    s.mkErrorAtLastTk "cannot use 'meta import' without module"
+    { s with badModifier := true }
 
 def setExported : Parser := fun _ s =>
   if s.isModule then
     { s with isExported := true }
   else
-    s.mkErrorAtLastTk "cannot use 'public import' without module"
+    { s with badModifier := true }
 
 def setImportAll : Parser := fun _ s =>
   if s.isModule then
     { s with importAll := true }
   else
-    s.mkErrorAtLastTk "cannot use 'import all' without module"
+    { s with badModifier := true }
 
 def main : Parser :=
   keywordCore "module" (setIsModule false) (setIsModule true) >>
   keywordCore "prelude" (fun _ s => s.pushImport `Init) skip >>
-  many (keywordCore "public" skip setExported >>
+  manyImports (atomic (keywordCore "public" skip setExported >>
     keywordCore "meta" skip setMeta >>
-    keyword "import" >>
+    keyword "import") >>
     keywordCore "all" skip setImportAll >>
     moduleIdent)
 
@@ -247,15 +250,8 @@ def parseImports' (input : String) (fileName : String) : IO ModuleHeader := do
   let some err := s.error?
     | return { s with }
   let fileMap := input.toFileMap
-  let pos :=
-    if let some ⟨pos, endPos⟩ := s.errorTk? then
-      let pos := fileMap.toPosition pos
-      let endPos := fileMap.toPosition endPos
-      s!"{pos.line}:{pos.column}-{endPos.line}:{endPos.column}"
-    else
-      let pos := fileMap.toPosition s.pos
-      s!"{pos.line}:{pos.column}"
-  throw <| .userError s!"{fileName}:{pos}: {err}"
+  let pos := fileMap.toPosition s.pos
+  throw <| .userError s!"{fileName}:{pos.line}:{pos.column}: {err}"
 
 structure PrintImportResult where
   result?  : Option ModuleHeader := none

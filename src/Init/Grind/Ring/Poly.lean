@@ -48,16 +48,18 @@ def denoteInt {α} [Ring α] (k : Int) : α :=
     OfNat.ofNat (α := α) k.natAbs
 
 @[expose]
-def Expr.denote {α} [Ring α] (ctx : Context α) : Expr → α
-  | .add a b   => denote ctx a + denote ctx b
-  | .sub a b   => denote ctx a - denote ctx b
-  | .mul a b   => denote ctx a * denote ctx b
-  | .neg a     => -denote ctx a
-  | .num k     => denoteInt k
-  | .natCast k => NatCast.natCast (R := α) k
-  | .intCast k => IntCast.intCast (R := α) k
-  | .var v     => v.denote ctx
-  | .pow a k   => denote ctx a ^ k
+noncomputable def Expr.denote {α} [Ring α] (ctx : Context α) (e : Expr) : α :=
+  Expr.rec
+    (fun k => denoteInt k)
+    (fun k => NatCast.natCast (R := α) k)
+    (fun k => IntCast.intCast (R := α) k)
+    (fun x => x.denote ctx)
+    (fun _ ih => - ih)
+    (fun _ _ ih₁ ih₂ => ih₁ + ih₂)
+    (fun _ _ ih₁ ih₂ => ih₁ - ih₂)
+    (fun _ _ ih₁ ih₂ => ih₁ * ih₂)
+    (fun _ k ih => ih ^ k)
+    e
 
 structure Power where
   x : Var
@@ -797,7 +799,7 @@ q₁*(lhs₁ - rhs₁) + ... + qₙ*(lhsₙ - rhsₙ)
 ```
 -/
 @[expose]
-def NullCert.denote {α} [CommRing α] (ctx : Context α) : NullCert → α
+noncomputable def NullCert.denote {α} [CommRing α] (ctx : Context α) : NullCert → α
   | .empty => 0
   | .add q lhs rhs nc => (q.denote ctx)*(lhs.denote ctx - rhs.denote ctx) + nc.denote ctx
 
@@ -1596,14 +1598,14 @@ theorem not_lt_norm {α} [CommRing α] [LinearOrder α] [OrderedRing α] (ctx : 
 theorem not_le_norm' {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → ¬ p.denoteAsIntModule ctx ≤ 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
-  replace h := add_le_right (rhs.denote ctx) h
+  replace h : rhs.denote ctx + (lhs.denote ctx - rhs.denote ctx) ≤ _ := add_le_right (rhs.denote ctx) h
   rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp [add_zero] at h
   contradiction
 
 theorem not_lt_norm' {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → ¬ lhs.denote ctx < rhs.denote ctx → ¬ p.denoteAsIntModule ctx < 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
-  replace h := add_lt_right (rhs.denote ctx) h
+  replace h : rhs.denote ctx + (lhs.denote ctx - rhs.denote ctx) < _ := add_lt_right (rhs.denote ctx) h
   rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp [add_zero] at h
   contradiction
 

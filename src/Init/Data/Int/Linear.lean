@@ -586,7 +586,7 @@ theorem norm_eq_coeff' (ctx : Context) (p p' : Poly) (k : Int) : p = p'.mul k �
 
 @[expose]
 noncomputable def norm_eq_coeff_cert (lhs rhs : Expr) (p : Poly) (k : Int) : Bool :=
-  (lhs.sub rhs).norm.beq' (p.mul_k k) |>.and' (k > 0)
+  (lhs.sub rhs).norm.beq' (p.mul_k k) |>.and' (Int.blt' 0 k)
 
 theorem norm_eq_coeff (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int)
     : norm_eq_coeff_cert lhs rhs p k → (lhs.denote ctx = rhs.denote ctx) = (p.denote' ctx = 0) := by
@@ -653,7 +653,7 @@ private theorem eq_of_norm_eq_of_divCoeffs {ctx : Context} {p₁ p₂ : Poly} {k
 @[expose]
 noncomputable def norm_le_coeff_tight_cert (lhs rhs : Expr) (p : Poly) (k : Int) : Bool :=
   let p' := lhs.sub rhs |>.norm
-  (k > 0 : Bool) |>.and' (p'.divCoeffs k |>.and' (p.beq' (p'.div k)))
+  (Int.blt' 0 k) |>.and' (p'.divCoeffs k |>.and' (p.beq' (p'.div k)))
 
 theorem norm_le_coeff_tight (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int)
     : norm_le_coeff_tight_cert lhs rhs p k → (lhs.denote ctx ≤ rhs.denote ctx) = (p.denote' ctx ≤ 0) := by
@@ -765,7 +765,7 @@ private theorem poly_eq_zero_eq_false (ctx : Context) {p : Poly} {k : Int} : p.d
 @[expose]
 noncomputable def unsatEqDivCoeffCert (lhs rhs : Expr) (k : Int) : Bool :=
   let p := (lhs.sub rhs).norm
-  p.divCoeffs k |>.and' ((k > 0 : Bool) |>.and' (cmod p.getConst k < 0))
+  p.divCoeffs k |>.and' (Int.blt' 0 k |>.and' (cmod p.getConst k < 0))
 
 theorem eq_eq_false_of_divCoeff (ctx : Context) (lhs rhs : Expr) (k : Int) : unsatEqDivCoeffCert lhs rhs k → (lhs.denote ctx = rhs.denote ctx) = False := by
   simp [unsatEqDivCoeffCert]
@@ -997,7 +997,7 @@ theorem le_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm.beq' p₂) : p
 
 @[expose]
 noncomputable def le_coeff_cert (p₁ p₂ : Poly) (k : Int) : Bool :=
-  (k > 0 : Bool).and' (p₁.divCoeffs k |>.and' (p₂.beq' (p₁.div k)))
+  Int.blt' 0 k |>.and' (p₁.divCoeffs k |>.and' (p₂.beq' (p₁.div k)))
 
 theorem le_coeff (ctx : Context) (p₁ p₂ : Poly) (k : Int) : le_coeff_cert p₁ p₂ k → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
   simp [le_coeff_cert]
@@ -1042,12 +1042,12 @@ noncomputable def le_combine_coeff_cert (p₁ p₂ p₃ : Poly) (k : Int) : Bool
   let a₁ := p₁.leadCoeff.natAbs
   let a₂ := p₂.leadCoeff.natAbs
   let p  := p₁.combine_mul_k a₂ a₁ p₂
-  (k > 0 : Bool).and' (p.divCoeffs k |>.and' (p₃.beq' (p.div k)))
+  Int.blt' 0 k |>.and' (p.divCoeffs k |>.and' (p₃.beq' (p.div k)))
 
 theorem le_combine_coeff (ctx : Context) (p₁ p₂ p₃ : Poly) (k : Int)
     : le_combine_coeff_cert p₁ p₂ p₃ k → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
   simp only [le_combine_coeff_cert, Bool.and'_eq_and,
-             Poly.beq'_eq, gt_iff_lt, Bool.and_eq_true, decide_eq_true_eq, and_imp]
+             Poly.beq'_eq, Bool.and_eq_true, and_imp]
   let a₁ := p₁.leadCoeff.natAbs
   let a₂ := p₂.leadCoeff.natAbs
   generalize h : (p₁.combine_mul_k a₂ a₁ p₂) = p
@@ -1056,7 +1056,7 @@ theorem le_combine_coeff (ctx : Context) (p₁ p₂ p₃ : Poly) (k : Int)
   simp only [le_combine_cert, Poly.beq'_eq] at this
   have aux₁ := this h.symm h₄ h₅
   have := le_coeff ctx p p₃ k
-  simp only [le_coeff_cert, Bool.and'_eq_and, Poly.beq'_eq, gt_iff_lt, Bool.and_eq_true, decide_eq_true_eq, and_imp] at this
+  simp only [le_coeff_cert, Bool.and'_eq_and, Poly.beq'_eq, Bool.and_eq_true, and_imp] at this
   exact this h₁ h₂ h₃ aux₁
 
 theorem le_unsat (ctx : Context) (p : Poly) : p.isUnsatLe → p.denote' ctx ≤ 0 → False := by
@@ -1081,7 +1081,7 @@ theorem eq_unsat (ctx : Context) (p : Poly) : p.isUnsatEq → p.denote' ctx = 0 
 
 @[expose]
 noncomputable def eq_unsat_coeff_cert (p : Poly) (k : Int) : Bool :=
-  p.divCoeffs k |>.and' ((k > 0 : Bool).and' (cmod p.getConst k < 0))
+  p.divCoeffs k |>.and' (Int.blt' 0 k |>.and' (cmod p.getConst k < 0))
 
 theorem eq_unsat_coeff (ctx : Context) (p : Poly) (k : Int) : eq_unsat_coeff_cert p k → p.denote' ctx = 0 → False := by
   simp [eq_unsat_coeff_cert]
@@ -1208,7 +1208,7 @@ theorem eq_eq_subst' (ctx : Context) (a b : Int) (p₁ : Poly) (p₂ : Poly) (p�
 noncomputable def eq_le_subst_nonneg_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
   let a := p₁.coeff x
   let b := p₂.coeff x
-  (a ≥ 0 : Bool).and' (p₃.beq' (p₂.combine_mul_k a (-b) p₁))
+  Int.ble' 0 a |>.and' (p₃.beq' (p₂.combine_mul_k a (-b) p₁))
 
 theorem eq_le_subst_nonneg (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
     : eq_le_subst_nonneg_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
@@ -1224,7 +1224,7 @@ theorem eq_le_subst_nonneg (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly)
 noncomputable def eq_le_subst_nonpos_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
   let a := p₁.coeff x
   let b := p₂.coeff x
-  (a ≤ 0 : Bool).and' (p₃.beq' (p₁.combine_mul_k b (-a) p₂))
+  Int.ble' a 0 |>.and' (p₃.beq' (p₁.combine_mul_k b (-a) p₂))
 
 theorem eq_le_subst_nonpos (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
     : eq_le_subst_nonpos_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
@@ -1933,12 +1933,12 @@ noncomputable def dvd_le_tight_cert (d : Int) (p₁ p₂ p₃ : Poly) : Bool :=
   let b₁ := p₁.getConst
   let b₂ := p₂.getConst
   let p  := p₁.addConst_k (-b₁)
-  (d > 0 : Bool) |>.and' (p₂.beq' (p.addConst_k b₂) |>.and' (p₃.beq' (p.addConst_k (b₁ - d*((b₁ - b₂)/d)))))
+  Int.blt' 0 d |>.and' (p₂.beq' (p.addConst_k b₂) |>.and' (p₃.beq' (p.addConst_k (b₁ - d*((b₁ - b₂)/d)))))
 
 theorem dvd_le_tight (ctx : Context) (d : Int) (p₁ p₂ p₃ : Poly)
     : dvd_le_tight_cert d p₁ p₂ p₃ → d ∣ p₁.denote' ctx → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
-  simp only [dvd_le_tight_cert, gt_iff_lt, Bool.and'_eq_and, Poly.beq'_eq, Bool.and_eq_true,
-             Poly.addConst_k_eq_addConst, decide_eq_true_eq, and_imp]
+  simp only [dvd_le_tight_cert, Bool.and'_eq_and, Poly.beq'_eq, Bool.and_eq_true,
+             Poly.addConst_k_eq_addConst, Int.blt'_eq_true, and_imp]
   generalize p₂.getConst = b₂
   intro hd _ _; subst p₂ p₃
   have := eq_neg_addConst_add ctx p₁
@@ -1957,7 +1957,7 @@ noncomputable def dvd_neg_le_tight_cert (d : Int) (p₁ p₂ p₃ : Poly) : Bool
   let p  := p₁.addConst_k (-b₁)
   let b₁ := -b₁
   let p  := p.mul_k (-1)
-  (d > 0 : Bool) |>.and' (p₂.beq' (p.addConst_k b₂) |>.and' (p₃.beq' (p.addConst_k (b₁ - d*((b₁ - b₂)/d)))))
+  Int.blt' 0 d |>.and' (p₂.beq' (p.addConst_k b₂) |>.and' (p₃.beq' (p.addConst_k (b₁ - d*((b₁ - b₂)/d)))))
 
 theorem Poly.mul_minus_one_getConst_eq (p : Poly) : (p.mul (-1)).getConst = -p.getConst := by
   simp [Poly.mul]
@@ -1965,8 +1965,8 @@ theorem Poly.mul_minus_one_getConst_eq (p : Poly) : (p.mul (-1)).getConst = -p.g
 
 theorem dvd_neg_le_tight (ctx : Context) (d : Int) (p₁ p₂ p₃ : Poly)
     : dvd_neg_le_tight_cert d p₁ p₂ p₃ → d ∣ p₁.denote' ctx → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
-  simp only [dvd_neg_le_tight_cert, gt_iff_lt, Poly.beq'_eq, Bool.and'_eq_and, Bool.and_eq_true,
-             decide_eq_true_eq, and_imp]
+  simp only [dvd_neg_le_tight_cert, Poly.beq'_eq, Bool.and'_eq_and, Bool.and_eq_true,
+             Int.blt'_eq_true, and_imp]
   generalize p₂.getConst = b₂
   intro hd _ _; subst p₂ p₃
   simp only [Poly.denote'_eq_denote, Int.reduceNeg, Poly.addConst_k_eq_addConst, Poly.denote_addConst, Poly.denote_mul, Poly.mul_k_eq_mul,

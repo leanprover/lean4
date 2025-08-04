@@ -963,6 +963,7 @@ theorem getMsbD_extractLsb' {start len : Nat} {x : BitVec w} {i : Nat} :
       x.getMsbD (w - (start + len - i)))) := by
   grind (splits := 13)
 
+set_option backward.isDefEq.transparencyEscalation true in
 theorem msb_extractLsb' {start len : Nat} {x : BitVec w} :
     (extractLsb' start len x).msb =
       (decide (0 < len) &&
@@ -987,6 +988,7 @@ theorem getMsbD_extractLsb {hi lo : Nat} {x : BitVec w} {i : Nat} :
       x.getMsbD (w - 1 - (max hi lo - i)))) := by
   grind (splits := 14)
 
+set_option backward.isDefEq.transparencyEscalation true in
 theorem msb_extractLsb {hi lo : Nat} {x : BitVec w} :
     (extractLsb hi lo x).msb = (decide (max hi lo < w) && x.getMsbD (w - 1 - max hi lo)) := by
   simp [BitVec.msb]
@@ -2041,6 +2043,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 
 theorem append_zero_width (x : BitVec w) (y : BitVec 0) : x ++ y = x := by grind
 
+set_option backward.isDefEq.transparencyEscalation true in
 theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (x ++ y).toInt = if n = 0 then y.toInt else (2 ^ m) * x.toInt + y.toNat := by
   by_cases n0 : n = 0
@@ -4031,6 +4034,7 @@ theorem and_one_eq_setWidth_ofBool_getLsbD {x : BitVec w} :
 
 theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by grind
 
+set_option backward.isDefEq.transparencyEscalation true in
 theorem replicate_one {w : Nat} {x : BitVec w} :
     (x.replicate 1) = x.cast (by rw [Nat.mul_one]) := by
   simp [replicate]
@@ -4432,6 +4436,9 @@ theorem toNat_abs {x : BitVec w} : x.abs.toNat = if x.msb then 2^w - x.toNat els
     rw [Nat.mod_eq_of_lt (by omega)]
   · simp [h]
 
+-- set_option pp.raw true in
+set_option pp.oneline true in
+set_option trace.Meta.debug true in
 theorem getLsbD_abs {i : Nat} {x : BitVec w} :
     getLsbD x.abs i = if x.msb then getLsbD (-x) i else getLsbD x i := by
   grind [BitVec.abs]

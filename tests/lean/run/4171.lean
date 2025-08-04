@@ -685,6 +685,7 @@ def toComon_ : Comon_ (Mon_ C) ⥤ Comon_ C := (Mon_.forget C).mapComon
 theorem foo {V} [Quiver V] {X Y x} :
     @Quiver.Hom.unop V _ X Y (Opposite.op (unop := x)) = x := rfl
 
+set_option backward.isDefEq.transparencyEscalation true in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   X := (toComon_ C).obj M
   one := { hom := M.X.one }
@@ -693,6 +694,7 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
     ext
     simp [(foo)] -- parentheses around `foo` works
 
+set_option backward.isDefEq.transparencyEscalation true in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   X := (toComon_ C).obj M
   one := { hom := M.X.one }
@@ -704,6 +706,7 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
 theorem foo' {V} [Quiver V] {X Y x} :
     @Quiver.Hom.unop V _ X Y no_index (Opposite.op (unop := x)) = x := rfl
 
+set_option backward.isDefEq.transparencyEscalation true in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   X := (toComon_ C).obj M
   one := { hom := M.X.one }
@@ -720,6 +723,7 @@ trace: [simp] Diagnostics
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
+set_option backward.isDefEq.transparencyEscalation true in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   X := (toComon_ C).obj M
   one := { hom := M.X.one }
@@ -741,6 +745,7 @@ trace: [simp] Diagnostics
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
+set_option backward.isDefEq.transparencyEscalation true in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   X := (toComon_ C).obj M
   one := { hom := M.X.one }

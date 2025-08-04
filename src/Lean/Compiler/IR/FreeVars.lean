@@ -21,69 +21,88 @@ namespace MaxIndex
    our implementation.
 -/
 
-abbrev Collector := Index → Index
+structure State where
+  currentMax : Nat := 0
 
-@[inline] private def skip : Collector := id
-@[inline] private def collect (x : Index) : Collector := fun y => if x > y then x else y
-@[inline] private def collectVar (x : VarId) : Collector := collect x.idx
-@[inline] private def collectJP (j : JoinPointId) : Collector := collect j.idx
-@[inline] private def seq (k₁ k₂ : Collector) : Collector := k₂ ∘ k₁
-instance : AndThen Collector where
-  andThen a b := private seq a (b ())
+abbrev M := StateM State
 
-private def collectArg : Arg → Collector
-  | .var x  => collectVar x
-  | .erased => skip
+private def visitIndex (x : Index) : M Unit := do
+  modify fun s => { s with currentMax := s.currentMax.max x }
 
-private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
-  fun m => as.foldl (fun m a => f a m) m
+private def visitVar (x : VarId) : M Unit :=
+  visitIndex x.idx
 
-private def collectArgs (as : Array Arg) : Collector := collectArray as collectArg
-private def collectParam (p : Param) : Collector := collectVar p.x
-private def collectParams (ps : Array Param) : Collector := collectArray ps collectParam
+private def visitJP (j : JoinPointId) : M Unit :=
+  visitIndex j.idx
 
-private def collectExpr : Expr → Collector
+private def visitArg (arg : Arg) : M Unit :=
+  match arg with
+  | .var x => visitVar x
+  | .erased => pure ()
+
+private def visitParam (p : Param) : M Unit :=
+  visitVar p.x
+
+private def visitExpr (e : Expr) : M Unit := do
+  match e with
   | .proj _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
-    collectVar x
+    visitVar x
   | .ctor _ ys | .fap _ ys | .pap _ ys =>
-    collectArgs ys
+    ys.forM visitArg
   | .ap x ys | .reuse x _ _ ys =>
-    collectVar x >> collectArgs ys
-  | .lit _ => skip
+    visitVar x
+    ys.forM visitArg
+  | .lit _ => pure ()
 
-private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
-  collectArray alts fun alt => f alt.body
-
-partial def collectFnBody : FnBody → Collector
+partial def visitFnBody (fnBody : FnBody) : M Unit := do
+  match fnBody with
   | .vdecl x _ v b =>
-    collectVar x >> collectExpr v >> collectFnBody b
+    visitVar x
+    visitExpr v
+    visitFnBody b
   | .jdecl j ys v b =>
-    collectJP j >> collectFnBody v >> collectParams ys >> collectFnBody b
+    visitJP j
+    visitFnBody v
+    ys.forM visitParam
+    visitFnBody b
   | .set x _ y b =>
-    collectVar x >> collectArg y >> collectFnBody b
+    visitVar x
+    visitArg y
+    visitFnBody b
   | .uset x _ y b | .sset x _ _ y _ b =>
-    collectVar x >> collectVar y >> collectFnBody b
+    visitVar x
+    visitVar y
+    visitFnBody b
   | .setTag x _ b | .inc x _ _ _ b | .dec x _ _ _ b | .del x b =>
-    collectVar x >> collectFnBody b
+    visitVar x
+    visitFnBody b
   | .case _ x _ alts =>
-    collectVar x >> collectAlts collectFnBody alts
+    visitVar x
+    alts.forM (visitFnBody ·.body)
   | .jmp j ys =>
-    collectJP j >> collectArgs ys
+    visitJP j
+    ys.forM visitArg
   | .ret x =>
-    collectArg x
-  | .unreachable => skip
+    visitArg x
+  | .unreachable => pure ()
 
-partial def collectDecl : Decl → Collector
-  | .fdecl (xs := xs) (body := b) .. => collectParams xs >> collectFnBody b
-  | .extern (xs := xs) ..            => collectParams xs
+private def visitDecl (decl : Decl) : M Unit := do
+  match decl with
+  | .fdecl (xs := xs) (body := b) .. =>
+    xs.forM visitParam
+    visitFnBody b
+  | .extern (xs := xs) .. =>
+    xs.forM visitParam
 
 end MaxIndex
 
-def FnBody.maxIndex (b : FnBody) : Index :=
-  MaxIndex.collectFnBody b 0
+def FnBody.maxIndex (b : FnBody) : Index := Id.run do
+  let ⟨_, { currentMax }⟩ := MaxIndex.visitFnBody b |>.run {}
+  return currentMax
 
-def Decl.maxIndex (d : Decl) : Index :=
-  MaxIndex.collectDecl d 0
+def Decl.maxIndex (d : Decl) : Index := Id.run do
+  let ⟨_, { currentMax }⟩ := MaxIndex.visitDecl d |>.run {}
+  return currentMax
 
 namespace FreeIndices
 /-! We say a variable (join point) index (aka name) is free in a function body

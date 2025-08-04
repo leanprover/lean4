@@ -857,7 +857,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalUnfold_go___lam__2___closed__0(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("tactic 'unfold' failed, local variable '", 40, 40);
+x_1 = lean_mk_string_unchecked("Tactic `unfold` failed: Local variable `", 40, 40);
 return x_1;
 }
 }
@@ -874,7 +874,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalUnfold_go___lam__2___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' has no definition", 19, 19);
+x_1 = lean_mk_string_unchecked("` has no definition", 19, 19);
 return x_1;
 }
 }

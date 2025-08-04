@@ -69,6 +69,10 @@ namespace Workspace
 @[inline] def pkgsDir (self : Workspace) : FilePath :=
   self.root.pkgsDir
 
+/-- Arguments to pass to `lean` for files outside a library (e.g., via `lake lean`). -/
+@[inline] def leanArgs (self : Workspace) : Array String :=
+  self.root.moreLeanArgs
+
 /-- Options to pass to `lean` for files outside a library (e.g., via `lake lean`). -/
 @[inline] def leanOptions (self : Workspace) : LeanOptions :=
   self.root.leanOptions

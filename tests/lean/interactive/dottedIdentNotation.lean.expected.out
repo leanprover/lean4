@@ -1,0 +1,87 @@
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 11, "character": 22}}
+{"items":
+ [{"label": "zero",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+     "position": {"line": 11, "character": 22}},
+    "id": {"const": {"declName": "MyNat.zero"}},
+    "cPos": 0}}],
+ "isIncomplete": false}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 14, "character": 30}}
+{"items":
+ [{"label": "succ",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+     "position": {"line": 14, "character": 30}},
+    "id": {"const": {"declName": "MyNat.succ"}},
+    "cPos": 0}}],
+ "isIncomplete": false}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 23, "character": 23}}
+{"items":
+ [{"label": "zero",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+     "position": {"line": 23, "character": 23}},
+    "id": {"const": {"declName": "MyNat.zero"}},
+    "cPos": 0}}],
+ "isIncomplete": false}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 26, "character": 32}}
+{"items":
+ [{"label": "succ",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+     "position": {"line": 26, "character": 32}},
+    "id": {"const": {"declName": "MyNat.succ"}},
+    "cPos": 0}}],
+ "isIncomplete": false}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 33, "character": 31}}
+{"items":
+ [{"label": "zero",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+     "position": {"line": 33, "character": 31}},
+    "id": {"const": {"declName": "MyNat.zero"}},
+    "cPos": 0}}],
+ "isIncomplete": false}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 38, "character": 31}}
+{"items": [], "isIncomplete": false}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 51, "character": 24}}
+{"items":
+ [{"label": "zero",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+     "position": {"line": 51, "character": 24}},
+    "id": {"const": {"declName": "MyNat.zero"}},
+    "cPos": 0}}],
+ "isIncomplete": false}
+{"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+ "position": {"line": 64, "character": 32}}
+{"items":
+ [{"label": "succ",
+   "kind": 4,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///dottedIdentNotation.lean"},
+     "position": {"line": 64, "character": 32}},
+    "id": {"const": {"declName": "MyNat.succ"}},
+    "cPos": 0}}],
+ "isIncomplete": false}

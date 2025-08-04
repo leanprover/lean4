@@ -7555,11 +7555,11 @@ goto block_33;
 block_48:
 {
 uint8_t x_44; 
-x_44 = lean_nat_dec_lt(x_8, x_43);
+x_44 = lean_nat_dec_lt(x_8, x_41);
 if (x_44 == 0)
 {
-lean_dec(x_43);
-lean_dec_ref(x_41);
+lean_dec_ref(x_43);
+lean_dec(x_41);
 x_37 = x_42;
 goto block_40;
 }
@@ -7567,8 +7567,8 @@ else
 {
 if (x_44 == 0)
 {
-lean_dec(x_43);
-lean_dec_ref(x_41);
+lean_dec_ref(x_43);
+lean_dec(x_41);
 x_37 = x_42;
 goto block_40;
 }
@@ -7576,11 +7576,11 @@ else
 {
 size_t x_45; size_t x_46; uint8_t x_47; 
 x_45 = 0;
-x_46 = lean_usize_of_nat(x_43);
-lean_dec(x_43);
+x_46 = lean_usize_of_nat(x_41);
+lean_dec(x_41);
 lean_inc(x_36);
-x_47 = l_Array_anyMUnsafe_any___at___Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__9(x_36, x_41, x_45, x_46);
-lean_dec_ref(x_41);
+x_47 = l_Array_anyMUnsafe_any___at___Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__9(x_36, x_43, x_45, x_46);
+lean_dec_ref(x_43);
 if (x_47 == 0)
 {
 x_37 = x_42;
@@ -7617,18 +7617,18 @@ x_54 = lean_array_get_size(x_52);
 x_55 = lean_nat_dec_lt(x_8, x_54);
 if (x_55 == 0)
 {
-x_41 = x_52;
+x_41 = x_54;
 x_42 = x_53;
-x_43 = x_54;
+x_43 = x_52;
 goto block_48;
 }
 else
 {
 if (x_55 == 0)
 {
-x_41 = x_52;
+x_41 = x_54;
 x_42 = x_53;
-x_43 = x_54;
+x_43 = x_52;
 goto block_48;
 }
 else
@@ -7639,9 +7639,9 @@ x_57 = lean_usize_of_nat(x_54);
 x_58 = l_Array_anyMUnsafe_any___at___Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__10(x_52, x_56, x_57);
 if (x_58 == 0)
 {
-x_41 = x_52;
+x_41 = x_54;
 x_42 = x_53;
-x_43 = x_54;
+x_43 = x_52;
 goto block_48;
 }
 else
@@ -9033,8 +9033,11 @@ return x_9;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27_spec__0___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; 
+lean_object* x_5; 
 x_5 = l_Lean_Elab_expandMacroImpl_x3f(x_1, x_2, x_3, x_4);
+if (lean_obj_tag(x_5) == 0)
+{
+lean_object* x_6; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 if (lean_obj_tag(x_6) == 0)
@@ -9195,6 +9198,29 @@ x_41 = l_liftExcept___at___Lean_Elab_liftMacroM___at___Lean_Elab_Command_NameGen
 lean_dec_ref(x_40);
 return x_41;
 }
+}
+}
+}
+else
+{
+uint8_t x_42; 
+x_42 = !lean_is_exclusive(x_5);
+if (x_42 == 0)
+{
+return x_5;
+}
+else
+{
+lean_object* x_43; lean_object* x_44; lean_object* x_45; 
+x_43 = lean_ctor_get(x_5, 0);
+x_44 = lean_ctor_get(x_5, 1);
+lean_inc(x_44);
+lean_inc(x_43);
+lean_dec(x_5);
+x_45 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_45, 0, x_43);
+lean_ctor_set(x_45, 1, x_44);
+return x_45;
 }
 }
 }

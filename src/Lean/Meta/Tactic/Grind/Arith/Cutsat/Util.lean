@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Arith.Util
+import Lean.Meta.Tactic.Simp.Arith.Int.Simp
 
 public section
 

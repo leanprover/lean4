@@ -88,63 +88,54 @@ return x_3;
 }
 case 1:
 {
-lean_object* x_4; 
-x_4 = lean_box(x_2);
-if (lean_obj_tag(x_4) == 0)
+if (x_2 == 0)
 {
-uint8_t x_5; 
-x_5 = 1;
-return x_5;
+uint8_t x_4; 
+x_4 = 1;
+return x_4;
 }
 else
 {
-uint8_t x_6; 
-lean_dec(x_4);
-x_6 = 0;
-return x_6;
+uint8_t x_5; 
+x_5 = 0;
+return x_5;
 }
 }
 case 2:
 {
-lean_object* x_7; 
-x_7 = lean_box(x_2);
-if (lean_obj_tag(x_7) == 2)
+if (x_2 == 2)
+{
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
+}
+else
+{
+uint8_t x_7; 
+x_7 = 1;
+return x_7;
+}
+}
+default: 
+{
+switch (x_2) {
+case 2:
 {
 uint8_t x_8; 
 x_8 = 0;
 return x_8;
 }
-else
-{
-uint8_t x_9; 
-lean_dec(x_7);
-x_9 = 1;
-return x_9;
-}
-}
-default: 
-{
-lean_object* x_10; 
-x_10 = lean_box(x_2);
-switch (lean_obj_tag(x_10)) {
-case 2:
-{
-uint8_t x_11; 
-x_11 = 0;
-return x_11;
-}
 case 3:
 {
-uint8_t x_12; 
-x_12 = 0;
-return x_12;
+uint8_t x_9; 
+x_9 = 0;
+return x_9;
 }
 default: 
 {
-uint8_t x_13; 
-lean_dec(x_10);
-x_13 = 1;
-return x_13;
+uint8_t x_10; 
+x_10 = 1;
+return x_10;
 }
 }
 }

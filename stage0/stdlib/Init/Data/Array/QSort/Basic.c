@@ -1442,13 +1442,14 @@ return x_10;
 LEAN_EXPORT uint8_t l_Array_qsortOrd___redArg___lam__0(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; 
+lean_object* x_5; uint8_t x_6; 
 x_5 = lean_apply_2(x_1, x_3, x_4);
-if (lean_obj_tag(x_5) == 0)
+x_6 = lean_unbox(x_5);
+if (x_6 == 0)
 {
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
+uint8_t x_7; 
+x_7 = 1;
+return x_7;
 }
 else
 {

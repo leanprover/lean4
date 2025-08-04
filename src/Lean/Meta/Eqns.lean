@@ -9,10 +9,10 @@ prelude
 public import Lean.ReservedNameAction
 public import Lean.AddDecl
 public import Lean.Meta.Basic
-public import Lean.Meta.AppBuilder
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.DefEqAttrib
 public import Lean.Meta.LetToHave
+import Lean.Meta.AppBuilder
 
 public section
 
@@ -49,7 +49,7 @@ This information is populated by the `PreDefinition` module, but the simplifier
 uses when unfolding declarations.
 -/
 builtin_initialize recExt : TagDeclarationExtension ←
-  mkTagDeclarationExtension `recExt (asyncMode := .async)
+  mkTagDeclarationExtension `recExt (asyncMode := .async .asyncEnv)
 
 /--
 Marks the given declaration as recursive.

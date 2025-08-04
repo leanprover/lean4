@@ -9,14 +9,13 @@ prelude
 public import Init.Grind.Util
 public import Init.Grind.Tactics
 public import Lean.HeadIndex
-public import Lean.PrettyPrinter
 public import Lean.Util.FoldConsts
 public import Lean.Util.CollectFVars
 public import Lean.Meta.Basic
 public import Lean.Meta.InferType
 public import Lean.Meta.Eqns
-public import Lean.Meta.Match.MatchEqs
 public import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Match.MatchEqs
 
 public section
 
@@ -343,7 +342,7 @@ def EMatchTheoremKind.isDefault : EMatchTheoremKind → Bool
   | .default _ => true
   | _ => false
 
-private def EMatchTheoremKind.toAttribute : EMatchTheoremKind → String
+def EMatchTheoremKind.toAttribute : EMatchTheoremKind → String
   | .eqLhs true     => "[grind = gen]"
   | .eqLhs false    => "[grind =]"
   | .eqRhs true     => "[grind =_ gen]"
@@ -434,13 +433,25 @@ def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchThe
 def EMatchTheorems.contains (s : EMatchTheorems) (origin : Origin) : Bool :=
   s.origins.contains origin
 
-/-- Mark the theorem with the given origin as `erased` -/
+/-- Marks the theorem with the given origin as `erased` -/
 def EMatchTheorems.erase (s : EMatchTheorems) (origin : Origin) : EMatchTheorems :=
   { s with erased := s.erased.insert origin, origins := s.origins.erase origin }
 
-/-- Returns true if the theorem has been marked as erased. -/
+/-- Returns `true` if the theorem has been marked as erased. -/
 def EMatchTheorems.isErased (s : EMatchTheorems) (origin : Origin) : Bool :=
   s.erased.contains origin
+
+/-- Returns `true` if there is a theorem with exactly the same kind is already in `s` -/
+def EMatchTheorems.containsWithSameKind (s : EMatchTheorems) (origin : Origin) (kind : EMatchTheoremKind) : Bool :=
+  match kind with
+  | .eqBoth gen => go (.eqLhs gen) && go (.eqRhs gen)
+  | _ => go kind
+where
+  go (kind : EMatchTheoremKind) : Bool :=
+    if let some thms := s.omap.find? origin then
+      thms.any fun thm => thm.kind == kind
+    else
+      false
 
 /--
 Retrieves theorems from `s` associated with the given symbol. See `EMatchTheorem.insert`.

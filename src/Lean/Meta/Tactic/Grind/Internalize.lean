@@ -47,8 +47,8 @@ def addCongrTable (e : Expr) : GoalM Unit := do
       we must ensure that `e` is still the congruence root.
       -/
       modify fun s => { s with congrTable := s.congrTable.insert { e } }
-      let node ← getENode e'
-      setENode e' { node with congr := e }
+      setENode e' { (← getENode e') with congr := e }
+      setENode e { (← getENode e) with congr := e }
     else
       let node ← getENode e
       setENode e { node with congr := e' }

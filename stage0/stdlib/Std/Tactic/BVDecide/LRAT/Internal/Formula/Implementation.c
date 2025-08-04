@@ -124,6 +124,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Std_Tactic_BVDecide
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRupAdd(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instEntailsPosFin(lean_object*);
 lean_object* l_instDecidableEqNat___boxed(lean_object*, lean_object*);
+lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_beqDefaultClause____x40_Std_Tactic_BVDecide_LRAT_Internal_Clause___hyg_674____boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_insertRatUnits(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_confirmRupHint(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_insertRupUnits(lean_object*, lean_object*, lean_object*);
@@ -136,11 +137,11 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_delete_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instEntailsPosFin___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment___hyg_118_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_deleteOne___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instInhabited___closed__0;
 LEAN_EXPORT lean_object* l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_toList_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_delete(lean_object*, lean_object*, lean_object*);
+uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment___hyg_119_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_insert___redArg(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_confirmRupHint___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -150,7 +151,6 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_inse
 lean_object* l_List_eraseTR_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRatAdd_spec__0(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRatAdd_spec__1(lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*);
-lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_beqDefaultClause____x40_Std_Tactic_BVDecide_LRAT_Internal_Clause___hyg_683____boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_instInhabited___closed__0() {
 _start:
 {
@@ -361,83 +361,79 @@ return x_1;
 }
 else
 {
-lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
 x_11 = lean_array_fget(x_1, x_8);
 x_12 = lean_unbox(x_11);
 x_13 = lean_box(0);
 x_14 = lean_array_fset(x_1, x_8, x_13);
-x_15 = lean_box(x_12);
-switch (lean_obj_tag(x_15)) {
+switch (x_12) {
 case 0:
 {
-uint8_t x_16; lean_object* x_17; lean_object* x_18; 
-x_16 = 2;
-x_17 = lean_box(x_16);
-x_18 = lean_array_fset(x_14, x_8, x_17);
-return x_18;
+uint8_t x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = 2;
+x_16 = lean_box(x_15);
+x_17 = lean_array_fset(x_14, x_8, x_16);
+return x_17;
 }
 case 3:
 {
-uint8_t x_19; lean_object* x_20; lean_object* x_21; 
-x_19 = 1;
-x_20 = lean_box(x_19);
-x_21 = lean_array_fset(x_14, x_8, x_20);
-return x_21;
+uint8_t x_18; lean_object* x_19; lean_object* x_20; 
+x_18 = 1;
+x_19 = lean_box(x_18);
+x_20 = lean_array_fset(x_14, x_8, x_19);
+return x_20;
 }
 default: 
 {
-lean_object* x_22; lean_object* x_23; 
-lean_dec(x_15);
-x_22 = lean_box(x_12);
-x_23 = lean_array_fset(x_14, x_8, x_22);
-return x_23;
+lean_object* x_21; lean_object* x_22; 
+x_21 = lean_box(x_12);
+x_22 = lean_array_fset(x_14, x_8, x_21);
+return x_22;
 }
 }
 }
 }
 else
 {
-lean_object* x_24; lean_object* x_25; uint8_t x_26; 
-x_24 = lean_ctor_get(x_5, 0);
-x_25 = lean_array_get_size(x_1);
-x_26 = lean_nat_dec_lt(x_24, x_25);
-lean_dec(x_25);
-if (x_26 == 0)
+lean_object* x_23; lean_object* x_24; uint8_t x_25; 
+x_23 = lean_ctor_get(x_5, 0);
+x_24 = lean_array_get_size(x_1);
+x_25 = lean_nat_dec_lt(x_23, x_24);
+lean_dec(x_24);
+if (x_25 == 0)
 {
 return x_1;
 }
 else
 {
-lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_27 = lean_array_fget(x_1, x_24);
-x_28 = lean_unbox(x_27);
-x_29 = lean_box(0);
-x_30 = lean_array_fset(x_1, x_24, x_29);
-x_31 = lean_box(x_28);
-switch (lean_obj_tag(x_31)) {
+lean_object* x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; 
+x_26 = lean_array_fget(x_1, x_23);
+x_27 = lean_unbox(x_26);
+x_28 = lean_box(0);
+x_29 = lean_array_fset(x_1, x_23, x_28);
+switch (x_27) {
 case 1:
 {
-uint8_t x_32; lean_object* x_33; lean_object* x_34; 
-x_32 = 2;
-x_33 = lean_box(x_32);
-x_34 = lean_array_fset(x_30, x_24, x_33);
-return x_34;
+uint8_t x_30; lean_object* x_31; lean_object* x_32; 
+x_30 = 2;
+x_31 = lean_box(x_30);
+x_32 = lean_array_fset(x_29, x_23, x_31);
+return x_32;
 }
 case 3:
 {
-uint8_t x_35; lean_object* x_36; lean_object* x_37; 
-x_35 = 0;
-x_36 = lean_box(x_35);
-x_37 = lean_array_fset(x_30, x_24, x_36);
-return x_37;
+uint8_t x_33; lean_object* x_34; lean_object* x_35; 
+x_33 = 0;
+x_34 = lean_box(x_33);
+x_35 = lean_array_fset(x_29, x_23, x_34);
+return x_35;
 }
 default: 
 {
-lean_object* x_38; lean_object* x_39; 
-lean_dec(x_31);
-x_38 = lean_box(x_28);
-x_39 = lean_array_fset(x_30, x_24, x_38);
-return x_39;
+lean_object* x_36; lean_object* x_37; 
+x_36 = lean_box(x_27);
+x_37 = lean_array_fset(x_29, x_23, x_36);
+return x_37;
 }
 }
 }
@@ -661,30 +657,28 @@ return x_21;
 }
 else
 {
-lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_31; 
+lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
 x_22 = lean_array_fget(x_6, x_16);
 x_23 = lean_unbox(x_22);
 x_24 = lean_box(0);
 x_25 = lean_array_fset(x_6, x_16, x_24);
-x_31 = lean_box(x_23);
-switch (lean_obj_tag(x_31)) {
+switch (x_23) {
 case 0:
 {
-uint8_t x_32; 
-x_32 = 2;
-x_26 = x_32;
+uint8_t x_31; 
+x_31 = 2;
+x_26 = x_31;
 goto block_30;
 }
 case 3:
 {
-uint8_t x_33; 
-x_33 = 1;
-x_26 = x_33;
+uint8_t x_32; 
+x_32 = 1;
+x_26 = x_32;
 goto block_30;
 }
 default: 
 {
-lean_dec(x_31);
 x_26 = x_23;
 goto block_30;
 }
@@ -706,69 +700,67 @@ return x_29;
 }
 else
 {
-lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; 
-x_34 = lean_ctor_get(x_13, 0);
-lean_inc(x_34);
+lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
+x_33 = lean_ctor_get(x_13, 0);
+lean_inc(x_33);
 lean_dec(x_13);
-x_35 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_35, 0, x_2);
-x_36 = lean_array_push(x_3, x_35);
-x_37 = lean_array_get_size(x_6);
-x_38 = lean_nat_dec_lt(x_34, x_37);
-lean_dec(x_37);
-if (x_38 == 0)
+x_34 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_34, 0, x_2);
+x_35 = lean_array_push(x_3, x_34);
+x_36 = lean_array_get_size(x_6);
+x_37 = lean_nat_dec_lt(x_33, x_36);
+lean_dec(x_36);
+if (x_37 == 0)
 {
-lean_object* x_39; 
-lean_dec(x_34);
-x_39 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_39, 0, x_36);
-lean_ctor_set(x_39, 1, x_4);
-lean_ctor_set(x_39, 2, x_5);
-lean_ctor_set(x_39, 3, x_6);
-return x_39;
+lean_object* x_38; 
+lean_dec(x_33);
+x_38 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_38, 0, x_35);
+lean_ctor_set(x_38, 1, x_4);
+lean_ctor_set(x_38, 2, x_5);
+lean_ctor_set(x_38, 3, x_6);
+return x_38;
 }
 else
 {
-lean_object* x_40; uint8_t x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; lean_object* x_49; 
-x_40 = lean_array_fget(x_6, x_34);
-x_41 = lean_unbox(x_40);
-x_42 = lean_box(0);
-x_43 = lean_array_fset(x_6, x_34, x_42);
-x_49 = lean_box(x_41);
-switch (lean_obj_tag(x_49)) {
+lean_object* x_39; uint8_t x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; 
+x_39 = lean_array_fget(x_6, x_33);
+x_40 = lean_unbox(x_39);
+x_41 = lean_box(0);
+x_42 = lean_array_fset(x_6, x_33, x_41);
+switch (x_40) {
 case 1:
 {
-uint8_t x_50; 
-x_50 = 2;
-x_44 = x_50;
-goto block_48;
+uint8_t x_48; 
+x_48 = 2;
+x_43 = x_48;
+goto block_47;
 }
 case 3:
 {
-uint8_t x_51; 
-x_51 = 0;
-x_44 = x_51;
-goto block_48;
+uint8_t x_49; 
+x_49 = 0;
+x_43 = x_49;
+goto block_47;
 }
 default: 
 {
-lean_dec(x_49);
-x_44 = x_41;
-goto block_48;
+x_43 = x_40;
+goto block_47;
 }
 }
-block_48:
+block_47:
 {
-lean_object* x_45; lean_object* x_46; lean_object* x_47; 
-x_45 = lean_box(x_44);
-x_46 = lean_array_fset(x_43, x_34, x_45);
-lean_dec(x_34);
-x_47 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_47, 0, x_36);
-lean_ctor_set(x_47, 1, x_4);
-lean_ctor_set(x_47, 2, x_5);
-lean_ctor_set(x_47, 3, x_46);
-return x_47;
+lean_object* x_44; lean_object* x_45; lean_object* x_46; 
+x_44 = lean_box(x_43);
+x_45 = lean_array_fset(x_42, x_33, x_44);
+lean_dec(x_33);
+x_46 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_46, 0, x_35);
+lean_ctor_set(x_46, 1, x_4);
+lean_ctor_set(x_46, 2, x_5);
+lean_ctor_set(x_46, 3, x_45);
+return x_46;
 }
 }
 }
@@ -1185,7 +1177,7 @@ if (x_26 == 0)
 {
 uint8_t x_27; uint8_t x_28; 
 x_27 = 3;
-x_28 = l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment___hyg_118_(x_13, x_27);
+x_28 = l_Std_Tactic_BVDecide_LRAT_Internal_beqAssignment____x40_Std_Tactic_BVDecide_LRAT_Internal_Assignment___hyg_119_(x_13, x_27);
 if (x_28 == 0)
 {
 lean_dec(x_6);
@@ -4852,7 +4844,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_beqDefaultClause____x40_Std_Tactic_BVDecide_LRAT_Internal_Clause___hyg_683____boxed), 3, 1);
+x_5 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_beqDefaultClause____x40_Std_Tactic_BVDecide_LRAT_Internal_Clause___hyg_674____boxed), 3, 1);
 lean_closure_set(x_5, 0, x_1);
 x_6 = lean_array_size(x_3);
 x_7 = 0;

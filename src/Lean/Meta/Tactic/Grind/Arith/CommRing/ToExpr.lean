@@ -48,6 +48,8 @@ open Lean.Grind
 def ofRingExpr (e : CommRing.Expr) : Expr :=
   match e with
   | .num k => mkApp (mkConst ``CommRing.Expr.num) (toExpr k)
+  | .intCast k => mkApp (mkConst ``CommRing.Expr.intCast) (toExpr k)
+  | .natCast k => mkApp (mkConst ``CommRing.Expr.natCast) (toExpr k)
   | .var x => mkApp (mkConst ``CommRing.Expr.var) (toExpr x)
   | .add a b => mkApp2 (mkConst ``CommRing.Expr.add) (ofRingExpr a) (ofRingExpr b)
   | .mul a b => mkApp2 (mkConst ``CommRing.Expr.mul) (ofRingExpr a) (ofRingExpr b)

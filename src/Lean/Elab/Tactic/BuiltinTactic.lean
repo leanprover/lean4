@@ -19,6 +19,8 @@ public import Lean.Elab.SetOption
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.ElabTerm
 public import Lean.Elab.Do
+import Lean.Meta.Tactic.Replace
+meta import Lean.Parser.Command
 
 public section
 

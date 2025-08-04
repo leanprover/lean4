@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.Nat.Lemmas
+public import Init.Data.Int.LemmasAux
 public import Init.Data.Hashable
 public import all Init.Data.Ord
 public import Init.Data.RArray
@@ -23,7 +24,9 @@ namespace CommRing
 abbrev Var := Nat
 
 inductive Expr where
-  | num  (v : Int)
+  | num  (k : Int)
+  | natCast (k : Nat)
+  | intCast (k : Int)
   | var  (i : Var)
   | neg (a : Expr)
   | add  (a b : Expr)
@@ -39,21 +42,25 @@ def Var.denote {α} (ctx : Context α) (v : Var) : α :=
   ctx.get v
 
 @[expose]
-def denoteInt {α} [Ring α] (k : Int) : α :=
-  bif k < 0 then
-    - OfNat.ofNat (α := α) k.natAbs
-  else
-    OfNat.ofNat (α := α) k.natAbs
+noncomputable def denoteInt {α} [Ring α] (k : Int) : α :=
+  Bool.rec
+    (OfNat.ofNat (α := α) k.natAbs)
+    (- OfNat.ofNat (α := α) k.natAbs)
+    (Int.blt' k 0)
 
 @[expose]
-def Expr.denote {α} [Ring α] (ctx : Context α) : Expr → α
-  | .add a b  => denote ctx a + denote ctx b
-  | .sub a b  => denote ctx a - denote ctx b
-  | .mul a b  => denote ctx a * denote ctx b
-  | .neg a    => -denote ctx a
-  | .num k    => denoteInt k
-  | .var v    => v.denote ctx
-  | .pow a k  => denote ctx a ^ k
+noncomputable def Expr.denote {α} [Ring α] (ctx : Context α) (e : Expr) : α :=
+  Expr.rec
+    (fun k => denoteInt k)
+    (fun k => NatCast.natCast (R := α) k)
+    (fun k => IntCast.intCast (R := α) k)
+    (fun x => x.denote ctx)
+    (fun _ ih => - ih)
+    (fun _ _ ih₁ ih₂ => ih₁ + ih₂)
+    (fun _ _ ih₁ ih₂ => ih₁ - ih₂)
+    (fun _ _ ih₁ ih₂ => ih₁ * ih₂)
+    (fun _ k ih => ih ^ k)
+    e
 
 structure Power where
   x : Var
@@ -616,19 +623,69 @@ def Poly.pow (p : Poly) (k : Nat) : Poly :=
 
 @[expose]
 def Expr.toPoly : Expr → Poly
-  | .num n   => .num n
-  | .var x   => Poly.ofVar x
-  | .add a b => a.toPoly.combine b.toPoly
-  | .mul a b => a.toPoly.mul b.toPoly
-  | .neg a   => a.toPoly.mulConst (-1)
-  | .sub a b => a.toPoly.combine (b.toPoly.mulConst (-1))
-  | .pow a k =>
+  | .num k     => .num k
+  | .intCast k => .num k
+  | .natCast k => .num k
+  | .var x     => Poly.ofVar x
+  | .add a b   => a.toPoly.combine b.toPoly
+  | .mul a b   => a.toPoly.mul b.toPoly
+  | .neg a     => a.toPoly.mulConst (-1)
+  | .sub a b   => a.toPoly.combine (b.toPoly.mulConst (-1))
+  | .pow a k   =>
     bif k == 0 then
       .num 1
     else  match a with
     | .num n => .num (n^k)
+    | .intCast n => .num (n^k)
+    | .natCast n => .num (n^k)
     | .var x => Poly.ofMon (.mult {x, k} .unit)
     | _ => a.toPoly.pow k
+
+@[expose] noncomputable def Expr.toPoly_k (e : Expr) : Poly :=
+  Expr.rec
+    (fun k => .num k) (fun k => .num k) (fun k => .num k)
+    (fun x => .ofVar x)
+    (fun _ ih => ih.mulConst_k (-1))
+    (fun _ _ ih₁ ih₂ => ih₁.combine_k ih₂)
+    (fun _ _ ih₁ ih₂ => ih₁.combine_k (ih₂.mulConst_k (-1)))
+    (fun _ _ ih₁ ih₂ => ih₁.mul ih₂)
+    (fun a k ih => Bool.rec
+      (Expr.rec (fun n => .num (n^k)) (fun n => .num (n^k)) (fun n => (.num (n^k)))
+        (fun x => .ofMon (.mult {x, k} .unit)) (fun _ _ => ih.pow k)
+        (fun _ _ _ _ => ih.pow k)
+        (fun _ _ _ _ => ih.pow k)
+        (fun _ _ _ _ => ih.pow k)
+        (fun _ _ _ => ih.pow k)
+        a)
+      (.num 1)
+      (k.beq 0))
+    e
+
+@[simp] theorem Expr.toPoly_k_eq_toPoly (e : Expr) : e.toPoly_k = e.toPoly := by
+  induction e <;> simp only [toPoly, toPoly_k]
+  next a ih => rw [Poly.mulConst_k_eq_mulConst]; congr
+  case add => rw [← Poly.combine_k_eq_combine]; congr
+  case sub => rw [← Poly.combine_k_eq_combine, ← Poly.mulConst_k_eq_mulConst]; congr
+  case mul => congr
+  case pow a k ih =>
+    rw [cond_eq_if]; split
+    next h => rw [Nat.beq_eq_true_eq, ← Nat.beq_eq] at h; rw [h]
+    next h =>
+      rw [Nat.beq_eq_true_eq, ← Nat.beq_eq, Bool.not_eq_true] at h; rw [h]; dsimp only
+      show
+        (Expr.rec (fun n => .num (n^k)) (fun n => .num (n^k)) (fun n => (.num (n^k)))
+          (fun x => .ofMon (.mult {x, k} .unit)) (fun _ _ => a.toPoly_k.pow k)
+          (fun _ _ _ _ => a.toPoly_k.pow k)
+          (fun _ _ _ _ => a.toPoly_k.pow k)
+          (fun _ _ _ _ => a.toPoly_k.pow k)
+          (fun _ _ _ => a.toPoly_k.pow k)
+          a) = match a with
+            | num n => Poly.num (n ^ k)
+            | .intCast n => .num (n^k)
+            | .natCast n => .num (n^k)
+            | var x => Poly.ofMon (Mon.mult { x := x, k := k } Mon.unit)
+            | x => a.toPoly.pow k
+      cases a <;> try simp [*]
 
 def Poly.normEq0 (p : Poly) (c : Nat) : Poly :=
   match p with
@@ -759,13 +816,15 @@ def Expr.toPolyC (e : Expr) (c : Nat) : Poly :=
   go e
 where
   go : Expr → Poly
-    | .num n   => .num (n % c)
-    | .var x   => Poly.ofVar x
-    | .add a b => (go a).combineC (go b) c
-    | .mul a b => (go a).mulC (go b) c
-    | .neg a   => (go a).mulConstC (-1) c
-    | .sub a b => (go a).combineC ((go b).mulConstC (-1) c) c
-    | .pow a k =>
+    | .num k     => .num (k % c)
+    | .natCast k => .num (k % c)
+    | .intCast k => .num (k % c)
+    | .var x     => Poly.ofVar x
+    | .add a b   => (go a).combineC (go b) c
+    | .mul a b   => (go a).mulC (go b) c
+    | .neg a     => (go a).mulConstC (-1) c
+    | .sub a b   => (go a).combineC ((go b).mulConstC (-1) c) c
+    | .pow a k   =>
       bif k == 0 then
         .num 1
       else match a with
@@ -789,7 +848,7 @@ q₁*(lhs₁ - rhs₁) + ... + qₙ*(lhsₙ - rhsₙ)
 ```
 -/
 @[expose]
-def NullCert.denote {α} [CommRing α] (ctx : Context α) : NullCert → α
+noncomputable def NullCert.denote {α} [CommRing α] (ctx : Context α) : NullCert → α
   | .empty => 0
   | .add q lhs rhs nc => (q.denote ctx)*(lhs.denote ctx - rhs.denote ctx) + nc.denote ctx
 
@@ -832,9 +891,9 @@ open Ring hiding sub_eq_add_neg
 open CommSemiring
 
 theorem denoteInt_eq {α} [CommRing α] (k : Int) : denoteInt (α := α) k = k := by
-  simp [denoteInt, cond_eq_if] <;> split
-  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← intCast_neg, ← Int.eq_neg_natAbs_of_nonpos (Int.le_of_lt h)]
-  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← Int.eq_natAbs_of_nonneg (Int.le_of_not_gt h)]
+  simp [denoteInt] <;> cases h : k.blt' 0 <;> simp <;> simp at h
+  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← Int.eq_natAbs_of_nonneg h]
+  next h => rw [ofNat_eq_natCast, ← intCast_natCast, ← Ring.intCast_neg, ← Int.eq_neg_natAbs_of_nonpos (Int.le_of_lt h)]
 
 theorem Power.denote_eq {α} [Semiring α] (ctx : Context α) (p : Power)
     : p.denote ctx = p.x.denote ctx ^ p.k := by
@@ -1037,7 +1096,9 @@ theorem Expr.denote_toPoly {α} [CommRing α] (ctx : Context α) (e : Expr)
     <;> simp [denote, Poly.denote, Poly.denote_ofVar, Poly.denote_combine,
           Poly.denote_mul, Poly.denote_mulConst, Poly.denote_pow, intCast_pow, intCast_neg, intCast_one,
           neg_mul, one_mul, sub_eq_add_neg, denoteInt_eq, *]
+  next => rw [Ring.intCast_natCast]
   next a k h => simp at h; simp [h, Semiring.pow_zero]
+  next => rw [Ring.intCast_natCast]
   next => simp [Poly.denote_ofMon, Mon.denote, Power.denote_eq, mul_one]
 
 theorem Expr.eq_of_toPoly_eq {α} [CommRing α] (ctx : Context α) (a b : Expr) (h : a.toPoly == b.toPoly) : a.denote ctx = b.denote ctx := by
@@ -1230,6 +1291,8 @@ theorem Expr.denote_toPolyC {α c} [CommRing α] [IsCharP α c] (ctx : Context �
     <;> simp [denote, Poly.denote, Poly.denote_ofVar, Poly.denote_combineC,
           Poly.denote_mulC, Poly.denote_mulConstC, Poly.denote_powC, denoteInt_eq, *]
   next => rw [IsCharP.intCast_emod]
+  next => rw [IsCharP.intCast_emod, Ring.intCast_natCast]
+  next => rw [IsCharP.intCast_emod]
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul]
   next => rw [intCast_neg, neg_mul, intCast_one, one_mul, sub_eq_add_neg]
   next a k h => simp at h; simp [h, Semiring.pow_zero, Ring.intCast_one]
@@ -1306,7 +1369,7 @@ Theorems for stepwise proof-term construction
 -/
 @[expose]
 noncomputable def core_cert (lhs rhs : Expr) (p : Poly) : Bool :=
-  (lhs.sub rhs).toPoly.beq' p
+  (lhs.sub rhs).toPoly_k.beq' p
 
 theorem core {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → lhs.denote ctx = rhs.denote ctx → p.denote ctx = 0 := by
@@ -1389,7 +1452,7 @@ theorem d_stepk {α} [CommRing α] (ctx : Context α) (k₁ : Int) (k : Int) (in
 
 @[expose]
 noncomputable def imp_1eq_cert (lhs rhs : Expr) (p₁ p₂ : Poly) : Bool :=
-  (lhs.sub rhs).toPoly.beq' p₁ |>.and' (p₂.beq' (.num 0))
+  (lhs.sub rhs).toPoly_k.beq' p₁ |>.and' (p₂.beq' (.num 0))
 
 theorem imp_1eq {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p₁ p₂ : Poly)
     : imp_1eq_cert lhs rhs p₁ p₂ → (1:Int) * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
@@ -1398,7 +1461,7 @@ theorem imp_1eq {α} [CommRing α] (ctx : Context α) (lhs rhs : Expr) (p₁ p�
 
 @[expose]
 noncomputable def imp_keq_cert (lhs rhs : Expr) (k : Int) (p₁ p₂ : Poly) : Bool :=
-  !Int.beq' k 0 |>.and' ((lhs.sub rhs).toPoly.beq' p₁ |>.and' (p₂.beq' (.num 0)))
+  !Int.beq' k 0 |>.and' ((lhs.sub rhs).toPoly_k.beq' p₁ |>.and' (p₂.beq' (.num 0)))
 
 theorem imp_keq  {α} [CommRing α] (ctx : Context α) [NoNatZeroDivisors α] (k : Int) (lhs rhs : Expr) (p₁ p₂ : Poly)
     : imp_keq_cert lhs rhs k p₁ p₂ → k * p₁.denote ctx = p₂.denote ctx → lhs.denote ctx = rhs.denote ctx := by
@@ -1585,14 +1648,14 @@ theorem not_lt_norm {α} [CommRing α] [LinearOrder α] [OrderedRing α] (ctx : 
 theorem not_le_norm' {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → ¬ p.denoteAsIntModule ctx ≤ 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
-  replace h := add_le_right (rhs.denote ctx) h
+  replace h : rhs.denote ctx + (lhs.denote ctx - rhs.denote ctx) ≤ _ := add_le_right (rhs.denote ctx) h
   rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp [add_zero] at h
   contradiction
 
 theorem not_lt_norm' {α} [CommRing α] [Preorder α] [OrderedRing α] (ctx : Context α) (lhs rhs : Expr) (p : Poly)
     : core_cert lhs rhs p → ¬ lhs.denote ctx < rhs.denote ctx → ¬ p.denoteAsIntModule ctx < 0 := by
   simp [core_cert, Poly.denoteAsIntModule_eq_denote]; intro _ h₁; subst p; simp [Expr.denote_toPoly, Expr.denote]; intro h
-  replace h := add_lt_right (rhs.denote ctx) h
+  replace h : rhs.denote ctx + (lhs.denote ctx - rhs.denote ctx) < _ := add_lt_right (rhs.denote ctx) h
   rw [sub_eq_add_neg, add_left_comm, ← sub_eq_add_neg, sub_self] at h; simp [add_zero] at h
   contradiction
 
@@ -1711,7 +1774,7 @@ theorem d_normEq0 {α} [CommRing α] (ctx : Context α) (k : Int) (c : Nat) (ini
   intro h; rw [p₁.normEq0_eq] <;> assumption
 
 @[expose] noncomputable def norm_int_cert (e : Expr) (p : Poly) : Bool :=
-  e.toPoly.beq' p
+  e.toPoly_k.beq' p
 
 theorem norm_int (ctx : Context Int) (e : Expr) (p : Poly) : norm_int_cert e p → e.denote ctx = p.denote' ctx := by
   simp [norm_int_cert, Poly.denote'_eq_denote]; intro; subst p; simp [Expr.denote_toPoly]

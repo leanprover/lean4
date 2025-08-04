@@ -4836,8 +4836,11 @@ return x_14;
 }
 else
 {
-lean_object* x_15; uint8_t x_16; 
+lean_object* x_15; 
 x_15 = l_Lean_Meta_Grind_Arith_CommRing_get_x27___redArg(x_1, x_9);
+if (lean_obj_tag(x_15) == 0)
+{
+uint8_t x_16; 
 x_16 = !lean_is_exclusive(x_15);
 if (x_16 == 0)
 {
@@ -4968,6 +4971,37 @@ else
 {
 return x_39;
 }
+}
+}
+}
+else
+{
+uint8_t x_43; 
+lean_dec(x_8);
+lean_dec_ref(x_7);
+lean_dec(x_6);
+lean_dec_ref(x_5);
+lean_dec(x_4);
+lean_dec_ref(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_43 = !lean_is_exclusive(x_15);
+if (x_43 == 0)
+{
+return x_15;
+}
+else
+{
+lean_object* x_44; lean_object* x_45; lean_object* x_46; 
+x_44 = lean_ctor_get(x_15, 0);
+x_45 = lean_ctor_get(x_15, 1);
+lean_inc(x_45);
+lean_inc(x_44);
+lean_dec(x_15);
+x_46 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_46, 0, x_44);
+lean_ctor_set(x_46, 1, x_45);
+return x_46;
 }
 }
 }

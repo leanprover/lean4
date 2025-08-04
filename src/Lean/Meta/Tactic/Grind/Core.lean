@@ -240,6 +240,35 @@ def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
         args := args.push arg
         curr := f
 
+private def getUnitLikeValue? (type : Expr) : GoalM (Option Expr) := do
+  if let some u? := (← get).unitLike.map.find? { expr := type } then
+    return u?
+  else
+    let u? ← go?
+    modify fun s => { s with unitLike.map := s.unitLike.map.insert { expr := type } u? }
+    return u?
+where
+  go? := do
+    let u ← getLevel type
+    let sub := mkApp (mkConst ``Subsingleton [u]) type
+    let some _ ← synthInstance? sub | return none
+    let inh := mkApp (mkConst ``Inhabited [u]) type
+    let some d ← synthInstance? inh | return none
+    let val ← preprocessLight <| mkApp2 (mkConst ``default [u]) type d
+    return some val
+
+private def propagateUnitFuns (lams₁ lams₂ : Array Expr) : GoalM Unit := do
+  if h : lams₁.size = 0 then return () else
+  if h : lams₂.size = 0 then return () else
+  let .lam _ d₁ b₁ _ := lams₁[0] | return ()
+  let .lam _ d₂ b₂ _ := lams₂[0] | return ()
+  unless isSameExpr d₁ d₂ do return ()
+  let some u ← getUnitLikeValue? d₁ | return ()
+  let lhs := b₁.instantiate1 u
+  let rhs := b₂.instantiate1 u
+  let h ← mkEqProof lams₁[0] lams₂[0]
+  pushNewFact <| mkExpectedPropHint (← mkCongrFun h u) (← mkEq lhs rhs)
+
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   let lhsNode ← getENode lhs
   let rhsNode ← getENode rhs
@@ -330,6 +359,7 @@ where
         propagateUp parent
       for e in toPropagateDown do
         propagateDown e
+      propagateUnitFuns lams₁ lams₂
       propagateOffset offsetTodo
       propagateCutsat cutsatTodo
       propagateCommRing ringTodo
@@ -354,6 +384,7 @@ where
           -- We must swap the congruence root to ensure `isDiseq` and `getDiseqFor?` work properly
           modify fun s => { s with congrTable := s.congrTable.insert { e := n.self } }
           setENode n.self { n with congr := n.self }
+          setENode e { (← getENode e) with congr := n.self }
 
 /-- Ensures collection of equations to be processed is empty. -/
 private def resetNewFacts : GoalM Unit :=

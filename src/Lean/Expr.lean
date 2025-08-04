@@ -1664,6 +1664,13 @@ def isOptParam (e : Expr) : Bool :=
 def isAutoParam (e : Expr) : Bool :=
   e.isAppOfArity ``autoParam 2
 
+/-- Returns `true` if `e` is an application of one of the type annotation gadgets. This does not check that the application has the correct arity. -/
+def isTypeAnnotation (e : Expr) : Bool :=
+  if let .const c _ := e.getAppFn then
+    c == ``outParam || c == ``semiOutParam || c == ``optParam || c == ``autoParam
+  else
+    false
+
 /--
 Remove `outParam`, `optParam`, and `autoParam` applications/annotations from `e`.
 Note that it does not remove nested annotations.

@@ -94,7 +94,7 @@ register_builtin_option pp.letVarTypes : Bool := {
   descr    := "(pretty printer) display types of let-bound variables"
 }
 register_builtin_option pp.natLit : Bool := {
-  defValue := false
+  defValue := true
   group    := "pp"
   descr    := "(pretty printer) display raw natural number literals with `nat_lit` prefix"
 }
@@ -273,7 +273,7 @@ def getPPFunBinderTypes (o : Options) : Bool := o.get pp.funBinderTypes.name (ge
 def getPPPiBinderTypes (o : Options) : Bool := o.get pp.piBinderTypes.name pp.piBinderTypes.defValue
 def getPPLetVarTypes (o : Options) : Bool := o.get pp.letVarTypes.name (getPPAll o)
 def getPPNumericTypes (o : Options) : Bool := o.get pp.numericTypes.name pp.numericTypes.defValue
-def getPPNatLit (o : Options) : Bool := o.get pp.natLit.name (getPPNumericTypes o && !getPPAll o)
+def getPPNatLit (o : Options) : Bool := o.get pp.natLit.name pp.natLit.defValue
 def getPPCoercions (o : Options) : Bool := o.get pp.coercions.name (!getPPAll o)
 def getPPCoercionsTypes (o : Options) : Bool := o.get pp.coercions.types.name pp.coercions.types.defValue
 def getPPExplicit (o : Options) : Bool := o.get pp.explicit.name (getPPAll o)

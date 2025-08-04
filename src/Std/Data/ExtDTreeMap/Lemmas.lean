@@ -234,10 +234,6 @@ theorem isSome_get?_iff_mem [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     (t.get? a).isSome ↔ a ∈ t :=
   t.inductionOn fun _ => DTreeMap.isSome_get?_iff_mem
 
-theorem mem_of_getKey?_eq_some [TransCmp cmp] {k k' : α} :
-    t.getKey? k = some k' → k' ∈ t :=
-  t.inductionOn fun _ => DTreeMap.mem_of_getKey?_eq_some
-
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     t.contains a = false → t.get? a = none :=
   t.inductionOn fun _ => DTreeMap.get?_eq_none_of_contains_eq_false
@@ -649,6 +645,10 @@ theorem mem_iff_isSome_getKey? [TransCmp cmp] {a : α} :
 theorem isSome_getKey?_iff_mem [TransCmp cmp] {a : α} :
     (t.getKey? a).isSome ↔ a ∈ t :=
   t.inductionOn fun _ => DTreeMap.isSome_getKey?_iff_mem
+
+theorem mem_of_getKey?_eq_some [TransCmp cmp] {k k' : α} :
+    t.getKey? k = some k' → k' ∈ t :=
+  t.inductionOn fun _ => DTreeMap.mem_of_getKey?_eq_some
 
 theorem getKey?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t.getKey? a = none :=
@@ -4995,9 +4995,11 @@ section map
 
 variable {γ : α → Type w} {δ : α → Type w'}
 
+@[simp]
 theorem map_id : t.map (fun _ v => v) = t :=
   t.inductionOn fun _ => sound DTreeMap.map_id_equiv
 
+@[simp, grind =]
 theorem map_map {f : (a : α) → β a → γ a} {g : (a : α) → γ a → δ a} :
     (t.map f).map g = t.map fun k v => g k (f k v) :=
   t.inductionOn fun _ => sound DTreeMap.map_map_equiv

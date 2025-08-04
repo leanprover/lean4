@@ -5135,6 +5135,7 @@ theorem filterMap_equiv_filter {f : (a : α) → β a → Bool} :
     t.filterMap (fun k => Option.guard (fun v => f k v)) ~m t.filter f :=
   ⟨Impl.filterMap_equiv_filter t.wf⟩
 
+@[simp, grind =]
 theorem toList_filter {f : (a : α) → β a → Bool} :
     (t.filter f).toList = t.toList.filter (fun p => f p.1 p.2) :=
   Impl.toList_filter t.wf

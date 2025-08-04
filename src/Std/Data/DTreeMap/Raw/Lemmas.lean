@@ -389,9 +389,17 @@ theorem get_erase [TransCmp cmp] (h : t.WF) {k a : α} {h'} :
     get (t.erase k) a h' = get t a (mem_of_mem_erase h h') :=
   Impl.Const.get_erase! h
 
-theorem get?_eq_some_get [TransCmp cmp] (h : t.WF) {a : α} {h'} :
+theorem get?_eq_some_get [TransCmp cmp] (h : t.WF) {a : α} (h') :
     get? t a = some (get t a h') :=
   Impl.Const.get?_eq_some_get h
+
+theorem get_eq_get_get? [TransCmp cmp] (h : t.WF) {a : α} {h'} :
+    get t a h' = (get? t a).get ((mem_iff_isSome_get? h).mp h') := by
+  simp only [get?_eq_some_get h h', Option.get_some]
+
+@[grind =] theorem get_get? [TransCmp cmp] (h : t.WF) {a : α} {h'} :
+    (get? t a).get h' = get t a ((mem_iff_isSome_get? h).mpr h') :=
+  (get_eq_get_get? h).symm
 
 theorem get_eq_get [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} {h'} :
     get t a h' = t.get a h' :=
@@ -741,9 +749,18 @@ theorem getKey_erase [TransCmp cmp] (h : t.WF) {k a : α} {h'} :
     (t.erase k).getKey a h' = t.getKey a (mem_of_mem_erase h h') :=
   Impl.getKey_erase! h
 
-theorem getKey?_eq_some_getKey [TransCmp cmp] (h : t.WF) {a : α} {h'} :
+theorem getKey?_eq_some_getKey [TransCmp cmp] (h : t.WF) {a : α} (h') :
     t.getKey? a = some (t.getKey a h') :=
   Impl.getKey?_eq_some_getKey h
+
+theorem getKey_eq_get_getKey? [TransCmp cmp] (h : t.WF) {a : α} {h'} :
+    t.getKey a h' = (t.getKey? a).get ((mem_iff_isSome_getKey? h).mp h') := by
+  simp only [getKey?_eq_some_getKey h h', Option.get_some]
+
+@[simp, grind =]
+theorem get_getKey? [TransCmp cmp] (h : t.WF) {a : α} {h'} :
+    (t.getKey? a).get h' = t.getKey a ((mem_iff_isSome_getKey? h).mpr h') :=
+  (getKey_eq_get_getKey? h).symm
 
 theorem compare_getKey_self [TransCmp cmp] (h : t.WF) {k : α} (h' : k ∈ t) :
     cmp (t.getKey k h') k = .eq :=

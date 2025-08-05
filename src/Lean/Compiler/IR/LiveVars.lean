@@ -94,77 +94,90 @@ def mkLiveVarSet (x : VarId) : LiveVarSet :=
 
 namespace LiveVars
 
-abbrev Collector := LiveVarSet → LiveVarSet
+structure State where
+  liveVars : LiveVarSet := {}
 
-@[inline] private def skip : Collector := fun s => s
-@[inline] private def collectVar (x : VarId) : Collector := fun s => s.insert x
+abbrev M := StateM State
 
-private def collectArg : Arg → Collector
-  | .var x  => collectVar x
-  | .erased => skip
+private def useVar (x : VarId) : M Unit := do
+  modify fun s => { s with liveVars := s.liveVars.insert x }
 
-private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector := fun s =>
-  as.foldl (fun s a => f a s) s
+private def bindVar (x : VarId) : M Unit := do
+  modify fun s => { s with liveVars := s.liveVars.erase x }
 
-private def collectArgs (as : Array Arg) : Collector :=
-  collectArray as collectArg
+private def useArg (arg : Arg) : M Unit :=
+  match arg with
+  | .var x => useVar x
+  | .erased => pure ()
 
-private def accumulate (s' : LiveVarSet) : Collector :=
-  fun s => s'.foldl (fun s x => s.insert x) s
+private def bindParams (ps : Array Param) : M Unit := do
+  ps.forM (bindVar ·.x)
 
-private def collectJP (m : JPLiveVarMap) (j : JoinPointId) : Collector :=
-  match m.get? j with
-  | some xs => accumulate xs
-  | none    => skip -- unreachable for well-formed code
+private def visitJP (m : JPLiveVarMap) (j : JoinPointId) : M Unit :=
+  m.get? j |>.forM fun xs =>
+    modify fun s => { s with liveVars := s.liveVars.merge xs }
 
-private def bindVar (x : VarId) : Collector := fun s =>
-  s.erase x
-
-private def bindParams (ps : Array Param) : Collector := fun s =>
-  ps.foldl (fun s p => s.erase p.x) s
-
-def collectExpr : Expr → Collector
+private def useExpr (e : Expr) : M Unit := do
+  match e with
   | .proj _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
-    collectVar x
+    useVar x
   | .ctor _ ys | .fap _ ys | .pap _ ys =>
-    collectArgs ys
+    ys.forM useArg
   | .ap x ys | .reuse x _ _ ys =>
-    collectVar x ∘ collectArgs ys
-  | .lit _ => skip
+    useVar x
+    ys.forM useArg
+  | .lit _ => pure ()
 
-partial def collectFnBody (fnBody : FnBody) (m : JPLiveVarMap) : Collector :=
+mutual
+
+private partial def visitFnBody (fnBody : FnBody) (m : JPLiveVarMap) : M Unit := do
   match fnBody with
   | .vdecl x _ v b =>
-    collectExpr v ∘ bindVar x ∘ collectFnBody b m
+    visitFnBody b m
+    bindVar x
+    useExpr v
   | .jdecl j ys v b =>
-    let jLiveVars := (bindParams ys ∘ collectFnBody v m) {};
-    let m         := m.insert j jLiveVars;
-    collectFnBody b m
+    visitFnBody b <| updateJPLiveVarMap j ys v m
   | .set x _ y b =>
-    collectVar x ∘ collectArg y ∘ collectFnBody b m
-  | .uset x _ y b | .sset x _ _ y _ b  =>
-    collectVar x ∘ collectVar y ∘ collectFnBody b m
+    visitFnBody b m
+    useVar x
+    useArg y
+  | .uset x _ y b | .sset x _ _ y _ b =>
+    visitFnBody b m
+    useVar x
+    useVar y
   | .setTag x _ b | .inc x _ _ _ b | .dec x _ _ _ b | .del x b =>
-    collectVar x ∘ collectFnBody b m
+    visitFnBody b m
+    useVar x
   | .case _ x _ alts =>
-    collectVar x ∘ collectArray alts (fun alt => collectFnBody alt.body m)
-  | .jmp j xs =>
-    collectJP m j ∘ collectArgs xs
+    alts.forM (visitFnBody ·.body m)
+    useVar x
+  | .jmp j ys =>
+    visitJP m j
+    ys.forM useArg
   | .ret x =>
-    collectArg x
-  | .unreachable => skip
+    useArg x
+  | .unreachable => pure ()
 
-def updateJPLiveVarMap (j : JoinPointId) (ys : Array Param) (v : FnBody) (m : JPLiveVarMap) : JPLiveVarMap :=
-  let jLiveVars := (bindParams ys ∘ collectFnBody v m) {};
-  m.insert j jLiveVars
+partial def updateJPLiveVarMap (j : JoinPointId) (ys : Array Param) (v : FnBody) (m : JPLiveVarMap)
+    : JPLiveVarMap :=
+  let action : M Unit := do
+    visitFnBody v m
+    bindParams ys
+  let ⟨_, { liveVars }⟩ := action.run {} |>.run
+  m.insert j liveVars
+
+end
 
 end LiveVars
 
 def updateLiveVars (e : Expr) (v : LiveVarSet) : LiveVarSet :=
-  LiveVars.collectExpr e v
+  let ⟨_, { liveVars }⟩ := LiveVars.useExpr e |>.run { liveVars := v }
+  liveVars
 
 def collectLiveVars (b : FnBody) (m : JPLiveVarMap) (v : LiveVarSet := {}) : LiveVarSet :=
-  LiveVars.collectFnBody b m v
+  let ⟨_, { liveVars }⟩ := LiveVars.visitFnBody b m |>.run { liveVars := v }
+  liveVars
 
 export LiveVars (updateJPLiveVarMap)
 

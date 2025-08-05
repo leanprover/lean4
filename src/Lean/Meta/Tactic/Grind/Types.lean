@@ -776,8 +776,6 @@ structure Goal where
   arith        : Arith.State := {}
   /-- State of the clean name generator. -/
   clean        : Clean.State := {}
-  /-- `UnitLike` cache -/
-  unitLike     : UnitLike.State := {}
   deriving Inhabited
 
 def Goal.hasSameRoot (g : Goal) (a b : Expr) : Bool :=

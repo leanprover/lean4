@@ -425,11 +425,7 @@ partial def addFact (p : MetaProblem) (h : Expr) : OmegaM (MetaProblem × Nat) :
     return (p, 0)
   else
     let t ← instantiateMVars (← whnfR (← inferType h))
-    trace[omega] "adding fact: {h}({Hashable.hash h}) : {t}({Hashable.hash t}); {reprStr h}"
-    if let .const n lvls := h then
-      trace[omega] "h = .const {n} {lvls}"
-    if let .const n lvls := t then
-      trace[omega] "t = .const {n} {lvls}"
+    trace[omega] "adding fact: {t}"
     match t with
     | .forallE _ x y _ =>
       if ← pure t.isArrow <&&> isProp x <&&> isProp y then
@@ -509,15 +505,13 @@ partial def addFact (p : MetaProblem) (h : Expr) : OmegaM (MetaProblem × Nat) :
       | _ => pure (p, 0)
     | _ => pure (p, 0)
 
-initialize Lean.registerTraceClass `processFacts
-
 /--
 Process all the facts in a `MetaProblem`, returning the new problem, and the number of new facts.
 
 This is partial because new facts may be generated along the way.
 -/
 partial def processFacts (p : MetaProblem) : OmegaM (MetaProblem × Nat) := do
-  let ret ← do match p.facts with
+  match p.facts with
   | [] => pure (p, 0)
   | h :: t =>
     if p.processedFacts.contains h then
@@ -528,7 +522,6 @@ partial def processFacts (p : MetaProblem) : OmegaM (MetaProblem × Nat) := do
         processedFacts := p.processedFacts.insert h } h
       let (p₂, n₂) ← p₁.processFacts
       return (p₂, n₁ + n₂)
-  return ret
 
 end MetaProblem
 
@@ -616,13 +609,6 @@ where
       |>.map (fun ((n, a),_) => m!" {n} := {a}")
       |> m!"\n".joinSep
 
-initialize Lean.registerTraceClass `omegaImpl
-
-initialize Lean.registerTraceClass `contradictionHandling
-initialize Lean.registerTraceClass `splitting
-initialize Lean.registerTraceClass `preparation
-initialize Lean.registerTraceClass `proof
-
 mutual
 
 /--
@@ -637,6 +623,7 @@ partial def splitDisjunction (m : MetaProblem) : OmegaM Expr := do
       trace[omega] "Case splitting on {hType}"
       let_expr Or hType₁ hType₂ := hType | throwError "Unexpected disjunction {hType}"
       let p?₁ ← withoutModifyingState do withLocalDeclD `h₁ hType₁ fun h₁ => do
+        withTraceNode `omega (msg := fun _ => do pure m!"Assuming fact:{indentExpr hType₁}") do
         let m₁ := { m with facts := [h₁], disjunctions := t }
         let (m₁, n) ← m₁.processFacts
         if 0 < n then
@@ -647,6 +634,7 @@ partial def splitDisjunction (m : MetaProblem) : OmegaM Expr := do
           return none
       if let some p₁ := p?₁ then
          withLocalDeclD `h₂ hType₂ fun h₂ => do
+          withTraceNode `omega (msg := fun _ => do pure m!"Assuming fact:{indentExpr hType₂}") do
           let m₂ := { m with facts := [h₂], disjunctions := t }
           let p₂ ← omegaImpl m₂
           let p₂ ← mkLambdaFVars #[h₂] p₂

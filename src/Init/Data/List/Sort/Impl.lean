@@ -57,7 +57,7 @@ where go : List α → List α → List α → List α
     else
       go (x :: xs) ys (y :: acc)
 
-private theorem mergeTR_go_eq : mergeTR.go le l₁ l₂ acc = acc.reverse ++ merge l₁ l₂ le := by
+theorem mergeTR_go_eq : mergeTR.go le l₁ l₂ acc = acc.reverse ++ merge l₁ l₂ le := by
   induction l₁ generalizing l₂ acc with
   | nil => simp [mergeTR.go, reverseAux_eq]
   | cons x l₁ ih₁ =>
@@ -84,7 +84,7 @@ def splitRevAt (n : Nat) (l : List α) : List α × List α := go l n [] where
   | x :: xs, n+1, acc => go xs n (x :: acc)
   | xs, _, acc => (acc, xs)
 
-private theorem splitRevAt_go (xs : List α) (i : Nat) (acc : List α) :
+theorem splitRevAt_go (xs : List α) (i : Nat) (acc : List α) :
     splitRevAt.go xs i acc = ((take i xs).reverse ++ acc, drop i xs) := by
   induction xs generalizing i acc with
   | nil => simp [splitRevAt.go]
@@ -172,7 +172,7 @@ theorem splitRevInTwo_snd (l : { l : List α // l.length = n }) :
     (splitRevInTwo l).2 = ⟨(splitInTwo l).2.1, by simp; omega⟩ := by
   simp only [splitRevInTwo, splitRevAt_eq, reverse_take, splitInTwo_snd]
 
-private theorem mergeSortTR_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → mergeSortTR.run le l = mergeSort l.1 le
+theorem mergeSortTR_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → mergeSortTR.run le l = mergeSort l.1 le
   | 0, ⟨[], _⟩
   | 1, ⟨[a], _⟩ => by simp [mergeSortTR.run]
   | n+2, ⟨a :: b :: l, h⟩ => by
@@ -189,7 +189,7 @@ theorem mergeSort_eq_mergeSortTR : @mergeSort = @mergeSortTR := by
 -- This mutual block is unfortunately quite slow to elaborate.
 set_option maxHeartbeats 400000 in
 mutual
-private theorem mergeSortTR₂_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → mergeSortTR₂.run le l = mergeSort l.1 le
+theorem mergeSortTR₂_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → mergeSortTR₂.run le l = mergeSort l.1 le
   | 0, ⟨[], _⟩
   | 1, ⟨[a], _⟩ => by simp [mergeSortTR₂.run]
   | n+2, ⟨a :: b :: l, h⟩ => by
@@ -201,7 +201,7 @@ private theorem mergeSortTR₂_run_eq_mergeSort : {n : Nat} → (l : { l : List 
     rw [reverse_reverse]
 termination_by n => n
 
-private theorem mergeSortTR₂_run'_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → (w : l' = l.1.reverse) → mergeSortTR₂.run' le l = mergeSort l' le
+theorem mergeSortTR₂_run'_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → (w : l' = l.1.reverse) → mergeSortTR₂.run' le l = mergeSort l' le
   | 0, ⟨[], _⟩, w
   | 1, ⟨[a], _⟩, w => by simp_all [mergeSortTR₂.run']
   | n+2, ⟨a :: b :: l, h⟩, w => by

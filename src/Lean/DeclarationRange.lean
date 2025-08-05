@@ -34,11 +34,7 @@ def addDeclarationRanges [Monad m] [MonadEnv m] (declName : Name) (declRanges : 
   modifyEnv fun env => declRangeExt.insert env declName declRanges
 
 def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Option DeclarationRanges) :=
-  -- In the case of private definitions imported via `import all`, looking in `.olean.server` is not
-  -- sufficient, so we look in the actual environment as well via `exported` (TODO: rethink
-  -- parameter naming).
-  return declRangeExt.find? (level := .exported) (← getEnv) declName <|>
-    declRangeExt.find? (level := .server) (← getEnv) declName
+  return declRangeExt.find? (level := .server) (← getEnv) declName
 
 def findDeclarationRanges? [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) : m (Option DeclarationRanges) := do
   let env ← getEnv

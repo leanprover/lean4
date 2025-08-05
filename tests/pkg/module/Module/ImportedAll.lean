@@ -1,7 +1,7 @@
 module
 
+prelude
 public import all Module.Basic
-import Lean.CoreM
 
 /-! `import all` should import private information, privately. -/
 
@@ -11,10 +11,6 @@ testSorry
 -/
 #guard_msgs in
 #print t
-
-/-- info: true -/
-#guard_msgs in
-#eval (return (← Lean.findDeclarationRanges? ``t).isSome : Lean.CoreM _)
 
 /--
 error: Type mismatch

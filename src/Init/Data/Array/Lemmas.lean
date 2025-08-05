@@ -8,20 +8,19 @@ module
 prelude
 public import Init.Data.Nat.Lemmas
 public import Init.Data.List.Range
+public import all Init.Data.List.Control
 public import Init.Data.List.Nat.TakeDrop
 public import Init.Data.List.Nat.Modify
 public import Init.Data.List.Nat.Basic
 public import Init.Data.List.Monadic
 public import Init.Data.List.OfFn
+public import all Init.Data.Array.Bootstrap
 public import Init.Data.Array.Mem
 public import Init.Data.Array.DecidableEq
 public import Init.Data.Array.Lex.Basic
 public import Init.Data.Range.Lemmas
 public import Init.TacticsExtra
 public import Init.Data.List.ToArray
-import all Init.Data.List.Control
-import all Init.Data.Array.Basic
-import all Init.Data.Array.Bootstrap
 
 public section
 
@@ -2996,14 +2995,14 @@ theorem take_size {xs : Array α} : xs.take xs.size = xs := by
 
 /-! ### shrink -/
 
-@[simp] private theorem size_shrink_loop {xs : Array α} {n : Nat} : (shrink.loop n xs).size = xs.size - n := by
+@[simp] theorem size_shrink_loop {xs : Array α} {n : Nat} : (shrink.loop n xs).size = xs.size - n := by
   induction n generalizing xs with
   | zero => simp [shrink.loop]
   | succ n ih =>
     simp [shrink.loop, ih]
     omega
 
-@[simp] private theorem getElem_shrink_loop {xs : Array α} {n i : Nat} (h : i < (shrink.loop n xs).size) :
+@[simp] theorem getElem_shrink_loop {xs : Array α} {n i : Nat} (h : i < (shrink.loop n xs).size) :
     (shrink.loop n xs)[i] = xs[i]'(by simp at h; omega) := by
   induction n generalizing xs i with
   | zero => simp [shrink.loop]
@@ -4279,7 +4278,7 @@ Examples:
 
 /-! ### Preliminaries about `ofFn` -/
 
-@[simp] private theorem size_ofFn_go {n} {f : Fin n → α} {i acc h} :
+@[simp] theorem size_ofFn_go {n} {f : Fin n → α} {i acc h} :
     (ofFn.go f acc i h).size = acc.size + i := by
   induction i generalizing acc with
   | zero => simp [ofFn.go]
@@ -4289,7 +4288,7 @@ Examples:
 @[simp] theorem size_ofFn {n : Nat} {f : Fin n → α} : (ofFn f).size = n := by simp [ofFn]
 
 -- Recall `ofFn.go f acc i h = acc ++ #[f (n - i), ..., f(n - 1)]`
-private theorem getElem_ofFn_go {f : Fin n → α} {acc i k} (h : i ≤ n) (w₁ : k < acc.size + i) :
+theorem getElem_ofFn_go {f : Fin n → α} {acc i k} (h : i ≤ n) (w₁ : k < acc.size + i) :
     (ofFn.go f acc i h)[k]'(by simpa using w₁) =
       if w₂ : k < acc.size then acc[k] else f ⟨n - i + k - acc.size, by omega⟩ := by
   induction i generalizing acc k with

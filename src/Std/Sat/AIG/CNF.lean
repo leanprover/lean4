@@ -595,7 +595,7 @@ where
 The function we use to convert from CNF with explicit auxiliary variables to just `Nat` variables
 in `toCNF` is an injection.
 -/
-private theorem toCNF.inj_is_injection {aig : AIG Nat} (a b : CNFVar aig) :
+theorem toCNF.inj_is_injection {aig : AIG Nat} (a b : CNFVar aig) :
     toCNF.inj a = toCNF.inj b → a = b := by
   intro h
   cases a with
@@ -623,21 +623,21 @@ private theorem toCNF.inj_is_injection {aig : AIG Nat} (a b : CNFVar aig) :
 /--
 The node that we started CNF conversion at will always be marked as visited in the CNF cache.
 -/
-private theorem toCNF.go_marks :
+theorem toCNF.go_marks :
     (go aig start h state).val.cache.marks[start]'(by have := (go aig start h state).val.cache.hmarks; omega) = true :=
   (go aig start h state).property.trueAt
 
 /--
 The CNF returned by `go` will always be SAT at `cnfSatAssignment`.
 -/
-private theorem toCNF.go_sat (aig : AIG Nat) (start : Nat) (h1 : start < aig.decls.size) (assign1 : Nat → Bool)
+theorem toCNF.go_sat (aig : AIG Nat) (start : Nat) (h1 : start < aig.decls.size) (assign1 : Nat → Bool)
     (state : toCNF.State aig) :
     (go aig start h1 state).val.Sat (cnfSatAssignment aig assign1)  := by
   have := (go aig start h1 state).val.inv assign1
   rw [State.sat_iff]
   simp [this]
 
-private theorem toCNF.go_as_denote' (aig : AIG Nat) (start) (inv) (h1) (assign1) :
+theorem toCNF.go_as_denote' (aig : AIG Nat) (start) (inv) (h1) (assign1) :
     ⟦aig, ⟨start, inv, h1⟩, assign1⟧ → (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1) := by
   have := go_sat aig start h1 assign1 (.empty aig)
   simp only [State.Sat, CNF.sat_def] at this
@@ -646,7 +646,7 @@ private theorem toCNF.go_as_denote' (aig : AIG Nat) (start) (inv) (h1) (assign1)
 /--
 Connect SAT results about the CNF to SAT results about the AIG.
 -/
-private theorem toCNF.go_as_denote (aig : AIG Nat) (start) (h1) (assign1) :
+theorem toCNF.go_as_denote (aig : AIG Nat) (start) (h1) (assign1) :
     ((⟦aig, ⟨start, inv, h1⟩, assign1⟧ && (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1)) = sat?)
       →
     (⟦aig, ⟨start, inv, h1⟩, assign1⟧ = sat?) := by
@@ -656,7 +656,7 @@ private theorem toCNF.go_as_denote (aig : AIG Nat) (start) (h1) (assign1) :
 /--
 Connect SAT results about the AIG to SAT results about the CNF.
 -/
-private theorem toCNF.denote_as_go {assign : AIG.CNFVar aig → Bool} :
+theorem toCNF.denote_as_go {assign : AIG.CNFVar aig → Bool} :
     (⟦aig, ⟨start, inv, h1⟩, projectLeftAssign assign⟧ = false)
       →
     CNF.eval assign (([(.inr ⟨start, h1⟩, !inv)] :: (go aig start h1 (.empty aig)).val.cnf)) = false := by

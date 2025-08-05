@@ -115,15 +115,12 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
   let toLift ← views.mapIdxM fun i view => do
     let value := values[i]!
     let termination := view.termination.rememberExtraParams view.binderIds.size value
-    let env ← getEnv
     pure {
       ref            := view.ref
       fvarId         := fvars[i]!.fvarId!
       attrs          := view.attrs
       shortDeclName  := view.shortDeclName
-      declName       :=
-        if env.isExporting || !env.header.isModule then view.declName
-        else mkPrivateName env view.declName
+      declName       := view.declName
       parentName?    := view.parentName?
       lctx
       localInstances

@@ -114,21 +114,15 @@ def bmodProof (m : Nat) (r : Int) (i : Nat) (x : Coeffs) (v : Expr) (w : Expr) :
 
 -- TODO could we increase sharing in the proof term here?
 
-initialize registerTraceClass `proveAssumption
-
 /-- Constructs a proof that `s.sat' c v = true` -/
 def proof (v : Expr) (assumptions : Array Proof) : Justification s c → Proof
-  | assumption s c i => withTraceNode `proveAssumption (fun _ => return "assumption") do assumptions[i]!
-  | @tidy s c j => withTraceNode `proof (fun _ => return "tidy") do return tidyProof s c v (← proof v assumptions j)
+  | assumption s c i => assumptions[i]!
+  | @tidy s c j => return tidyProof s c v (← proof v assumptions j)
   | @combine s t c j k =>
-    withTraceNode `combine (fun _ => return "combine") do
-      return combineProof s t c v (← proof v assumptions j) (← proof v assumptions k)
+    return combineProof s t c v (← proof v assumptions j) (← proof v assumptions k)
   | @combo s t x y a j b k =>
-    withTraceNode `combine (fun _ => return "combo") do
-      return comboProof s t a x b y v (← proof v assumptions j) (← proof v assumptions k)
-  | @bmod m r i x j => do
-      withTraceNode `combine (fun _ => return "bmod") do
-        bmodProof m r i x v (← proof v assumptions j)
+    return comboProof s t a x b y v (← proof v assumptions j) (← proof v assumptions k)
+  | @bmod m r i x j => do bmodProof m r i x v (← proof v assumptions j)
 
 end Justification
 
@@ -217,22 +211,19 @@ instance : ToString Problem where
     else
       "impossible"
 
-initialize Lean.registerTraceClass `proveFalse
-
 open Lean in
 /--
 Takes a proof that `s.sat' x v` for some `s` such that `s.isImpossible`,
 and constructs a proof of `False`.
 -/
 def proveFalse {s x} (j : Justification s x) (assumptions : Array Proof) : Proof := do
-  withTraceNode `proveFalse (fun _ => return "") do
-    let v := ← atomsCoeffs
-    let prf ← withTraceNode `proveFalse (fun _ => return "proof") do j.proof v assumptions
-    let x := toExpr x
-    let s := toExpr s
-    let impossible ←
-      mkDecideProof (← mkEq (mkApp (.const ``Constraint.isImpossible []) s) (.const ``true []))
-    return mkApp5 (.const ``Constraint.not_sat'_of_isImpossible []) s impossible x v prf
+  let v := ← atomsCoeffs
+  let prf ← j.proof v assumptions
+  let x := toExpr x
+  let s := toExpr s
+  let impossible ←
+    mkDecideProof (← mkEq (mkApp (.const ``Constraint.isImpossible []) s) (.const ``true []))
+  return mkApp5 (.const ``Constraint.not_sat'_of_isImpossible []) s impossible x v prf
 
 /--
 Insert a constraint into the problem,
@@ -375,11 +366,8 @@ def solveEquality (p : Problem) (c : Coeffs) (m : Nat) : OmegaM Problem :=
   else
     p.dealWithHardEquality c
 
-initialize Lean.registerTraceClass `solveEqualities
-
 /-- Recursively solve all equalities. -/
 partial def solveEqualities (p : Problem) : OmegaM Problem :=
-  withTraceNode `solveEqualities (fun _ => return m!"") do
   if p.possible then
     match p.selectEquality with
     | some (c, m) => do (← p.solveEquality c m).solveEqualities
@@ -544,26 +532,21 @@ def fourierMotzkinSelect (data : Array FourierMotzkinData) : MetaM FourierMotzki
   trace[omega] "Selected variable {data[bestIdx]!.var}."
   return data[bestIdx]!
 
-initialize Lean.registerTraceClass `fourierMotzkin
-
 /--
 Run Fourier-Motzkin elimination on one variable.
 -/
 -- This is only in MetaM to enable tracing.
 def fourierMotzkin (p : Problem) : MetaM Problem := do
-  withTraceNode `fourierMotzkin (fun _ => return m!"") do
-    let data := p.fourierMotzkinData
-    -- Now perform the elimination.
-    let ⟨_, irrelevant, lower, upper, _, _⟩ ← fourierMotzkinSelect data
-    let mut r : Problem := { assumptions := p.assumptions, eliminations := p.eliminations }
-    for f in irrelevant do
-      r := r.insertConstraint f
-    for ⟨f, b⟩ in lower do
-      for ⟨g, a⟩ in upper do
-        r := r.addConstraint (Fact.combo a f (-b) g).tidy
-    return r
-
-initialize Lean.registerTraceClass `runOmega
+  let data := p.fourierMotzkinData
+  -- Now perform the elimination.
+  let ⟨_, irrelevant, lower, upper, _, _⟩ ← fourierMotzkinSelect data
+  let mut r : Problem := { assumptions := p.assumptions, eliminations := p.eliminations }
+  for f in irrelevant do
+    r := r.insertConstraint f
+  for ⟨f, b⟩ in lower do
+    for ⟨g, a⟩ in upper do
+      r := r.addConstraint (Fact.combo a f (-b) g).tidy
+  return r
 
 mutual
 
@@ -572,7 +555,6 @@ Run the `omega` algorithm (for now without dark and grey shadows!) on a problem.
 -/
 partial def runOmega (p : Problem) : OmegaM Problem := do
   trace[omega] "Running omega on:\n{p}"
-  withTraceNode `runOmega (fun _ => return "") do
   if p.possible then
     let p' ← p.solveEqualities
     elimination p'

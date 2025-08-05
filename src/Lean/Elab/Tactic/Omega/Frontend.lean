@@ -349,12 +349,11 @@ We solve equalities as they are discovered, as this often results in an earlier 
 -/
 def addIntEquality (p : MetaProblem) (h x : Expr) : OmegaM MetaProblem := do
   let (lc, prf, facts) ← asLinearCombo x
-  let newFacts : Std.HashSet Expr := facts.foldl (init := ∅) fun s e =>
-    if p.processedFacts.contains e then s else s.insert e
+  let newFacts : List Expr := facts.filter (p.processedFacts.contains · = false)
   trace[omega] "Adding proof of {lc} = 0"
   pure <|
   { p with
-    facts := newFacts.toList ++ p.facts
+    facts := newFacts ++ p.facts
     problem := ← (p.problem.addEquality lc.const lc.coeffs
       (some do mkEqTrans (← mkEqSymm (← prf)) h)) |>.solveEqualities }
 
@@ -365,12 +364,11 @@ We solve equalities as they are discovered, as this often results in an earlier 
 -/
 def addIntInequality (p : MetaProblem) (h y : Expr) : OmegaM MetaProblem := do
   let (lc, prf, facts) ← asLinearCombo y
-  let newFacts : Std.HashSet Expr := facts.foldl (init := ∅) fun s e =>
-    if p.processedFacts.contains e then s else s.insert e
+  let newFacts : List Expr := facts.filter (p.processedFacts.contains · = false)
   trace[omega] "Adding proof of {lc} ≥ 0"
   pure <|
   { p with
-    facts := newFacts.toList ++ p.facts
+    facts := newFacts ++ p.facts
     problem := ← (p.problem.addInequality lc.const lc.coeffs
       (some do mkAppM ``le_of_le_of_eq #[h, (← prf)])) |>.solveEqualities }
 

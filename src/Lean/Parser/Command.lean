@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Term
-import Lean.Parser.Do
+public import Lean.Parser.Term
+public import Lean.Parser.Do
+
+public section
 
 namespace Lean
 namespace Parser
@@ -59,7 +63,10 @@ def optNamedPrio := optional namedPrio
 
 def «private»        := leading_parser "private "
 def «protected»      := leading_parser "protected "
-def visibility       := «private» <|> «protected»
+def «public»         := leading_parser "public "
+def visibility       :=
+  withAntiquot (mkAntiquot "visibility" decl_name% (isPseudoKind := true)) <|
+    «private» <|> «protected» <|> «public»
 def «meta»           := leading_parser "meta "
 def «noncomputable»  := leading_parser "noncomputable "
 def «unsafe»         := leading_parser "unsafe "
@@ -69,7 +76,7 @@ def «nonrec»         := leading_parser "nonrec "
 /-- `declModifiers` is the collection of modifiers on a declaration:
 * a doc comment `/-- ... -/`
 * a list of attributes `@[attr1, attr2]`
-* a visibility specifier, `private` or `protected`
+* a visibility specifier, `private`, `protected`, or `public`
 * `noncomputable`
 * `unsafe`
 * `partial` or `nonrec`
@@ -128,7 +135,7 @@ def declBody : Parser :=
 -- As the pretty printer ignores `lookahead`, we need a custom parenthesizer to choose the correct
 -- precedence
 open PrettyPrinter in
-@[combinator_parenthesizer declBody] def declBody.parenthesizer : Parenthesizer :=
+@[combinator_parenthesizer declBody, expose] def declBody.parenthesizer : Parenthesizer :=
   Parenthesizer.categoryParser.parenthesizer `term 0
 
 def declValSimple    := leading_parser
@@ -222,7 +229,7 @@ def structFields         := leading_parser
       structExplicitBinder <|> structImplicitBinder <|>
       structInstBinder <|> structSimpleBinder)
 def structCtor           := leading_parser
-  atomic (ppIndent (declModifiers true >> ident >> " :: "))
+  atomic (ppIndent (declModifiers true >> ident >> many (ppSpace >> Term.bracketedBinder) >> " :: "))
 def structureTk          := leading_parser
   "structure "
 def classTk              := leading_parser
@@ -246,8 +253,9 @@ def «structure»          := leading_parser
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
 def sectionHeader := leading_parser
-  optional ("@[" >> nonReservedSymbol "expose" >> "]") >>
-  optional ("noncomputable")
+  optional ("@[" >> nonReservedSymbol "expose" >> "] ") >>
+  optional ("public ") >>
+  optional ("noncomputable ")
 /--
 A `section`/`end` pair delimits the scope of `variable`, `include, `open`, `set_option`, and `local`
 commands. Sections can be nested. `section <id>` provides a label to the section that has to appear
@@ -865,6 +873,14 @@ Note that the error name is not relativized to the current namespace.
 -/
 @[builtin_command_parser] def registerErrorExplanationStx := leading_parser
   docComment >> "register_error_explanation " >> ident >> termParser
+
+/--
+Returns syntax for `private` or `public` visibility depending on `isPublic`. This function should be
+used to generate visibility syntax for declarations that is independent of the presence of
+`public section`s.
+-/
+def visibility.ofBool (isPublic : Bool) : TSyntax ``visibility :=
+  Unhygienic.run <| if isPublic then `(visibility| public) else `(visibility| private)
 
 end Command
 

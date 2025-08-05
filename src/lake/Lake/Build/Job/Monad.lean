@@ -50,27 +50,42 @@ instance : MonadLift LogIO JobM := ⟨ELogT.takeAndRun⟩
 @[inline] def setTrace (trace : BuildTrace) : JobM PUnit :=
   modify fun s => {s with trace := trace}
 
-/-- Set the caption of the job's build trace. -/
-@[inline] def setTraceCaption (caption : String) : JobM PUnit :=
-  modify fun s => {s with trace.caption := caption}
-
 /-- Replace the job's build trace with a new empty trace. -/
 @[inline] def newTrace (caption := "<nil>") : JobM PUnit :=
-  modify fun s => {s with trace := .nil caption}
+  setTrace (.nil caption)
 
-/-- Mix a trace into the current job's build trace. -/
-@[inline] def addTrace (trace : BuildTrace) : JobM PUnit :=
-  modify fun s => {s with trace := s.trace.mix trace}
+/-- Mutates the job's trace, applying `f` to it.-/
+@[inline] def modifyTrace (f : BuildTrace → BuildTrace) : JobM PUnit :=
+  modify fun s => {s with trace := f s.trace}
+
+/-- Set the caption of the job's build trace. -/
+@[inline] def setTraceCaption (caption : String) : JobM PUnit :=
+  modifyTrace ({· with caption := caption})
 
 /-- Returns the current job's build trace and removes it from the state. -/
 @[inline] def takeTrace : JobM BuildTrace :=
   modifyGet fun s => (s.trace, {s with trace := nilTrace})
 
+/-- Sets the current job's trace and returns the previous one. -/
+@[inline] def swapTrace (trace : BuildTrace) : JobM BuildTrace :=
+  modifyGet fun s => (s.trace, {s with trace := trace})
+
+/-- Mix a trace into the current job's build trace. -/
+@[inline] def addTrace (trace : BuildTrace) : JobM PUnit :=
+  modifyTrace (·.mix trace)
+
+  /-- Runs `x` with a new trace and then mixes it into the original trace. -/
+@[inline] def addSubTrace (caption : String) (x : JobM α) : JobM α := do
+  let oldTrace ← swapTrace (.nil caption)
+  let a ← x
+  modifyTrace (oldTrace.mix ·)
+  return a
+
 /-- The monad used to spawn asynchronous Lake build jobs. Lifts into `FetchM`. -/
 abbrev SpawnM := FetchT <| ReaderT BuildTrace <| BaseIO
 
-@[inline] def JobM.runSpawnM (x : SpawnM α) : JobM α := fun fn stack store ctx s =>
-  return .ok (← x fn stack store ctx s.trace) s
+@[inline] def JobM.runSpawnM (x : SpawnM α) : JobM α := fun fn pkg? stack store ctx s =>
+  return .ok (← x fn pkg? stack store ctx s.trace) s
 
 instance : MonadLift SpawnM JobM := ⟨JobM.runSpawnM⟩
 
@@ -83,8 +98,8 @@ Run a `JobM` action in `FetchM`.
 Generally, this should not be done, and instead a job action
 should be run asynchronously in a Job (e.g., via `Job.async`).
 -/
-@[inline] def FetchM.runJobM (x : JobM α) : FetchM α := fun fetch stack store ctx log => do
-  match (← x fetch stack store ctx {log}) with
+@[inline] def FetchM.runJobM (x : JobM α) : FetchM α := fun fetch pkg? stack store ctx log => do
+  match (← x fetch pkg? stack store ctx {log}) with
   | .ok a s => return .ok a s.log
   | .error e s => return .error e s.log
 
@@ -97,8 +112,8 @@ example : MonadLiftT JobM FetchM := inferInstance
 example : MonadLiftT SpawnM FetchM := inferInstance
 
 /-- Run a `FetchM` action in `JobM`. -/
-@[inline] def JobM.runFetchM (x : FetchM α) : JobM α := fun fetch stack store ctx s => do
-  match (← x fetch stack store ctx s.log) with
+@[inline] def JobM.runFetchM (x : FetchM α) : JobM α := fun fetch pkg? stack store ctx s => do
+  match (← x fetch pkg? stack store ctx s.log) with
   | .ok a log => return .ok a {s with log}
   | .error e log => return .error e {s with log}
 
@@ -117,8 +132,8 @@ namespace Job
 /-- Spawn a job that asynchronously performs `act`. -/
 @[inline] protected def async
   [OptDataKind α] (act : JobM α) (prio := Task.Priority.default) (caption := "")
-: SpawnM (Job α) := fun fetch stack store ctx => .ofTask (caption := caption) <$> do
-  BaseIO.asTask (prio := prio) do (withLoggedIO act) fetch stack store ctx {}
+: SpawnM (Job α) := fun fetch pkg? stack store ctx => .ofTask (caption := caption) <$> do
+  BaseIO.asTask (prio := prio) do (withLoggedIO act) fetch pkg? stack store ctx {}
 
 /-- Wait a the job to complete and return the result. -/
 @[inline] protected def wait (self : Job α) : BaseIO (JobResult α) := do
@@ -145,19 +160,15 @@ protected def mapM
   [kind : OptDataKind β] (self : Job α) (f : α → JobM β)
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) :=
-  fun fetch stack store ctx trace => do
+  fun fetch pkg? stack store ctx trace => do
   self.bindTask fun task => do
   BaseIO.mapTask (t := task) (prio := prio) (sync := sync) fun
     | .ok a s =>
       let trace := mixTrace trace s.trace
-      withLoggedIO (f a) fetch stack store ctx {s with trace}
+      withLoggedIO (f a) fetch pkg? stack store ctx {s with trace}
     | .error n s => return .error n s
 
-@[deprecated Job.mapM (since := "2024-12-06")]
-protected abbrev bindSync
-  [OptDataKind β] (self : Job α) (f : α → JobM β)
-  (prio := Task.Priority.default) (sync := false)
-: SpawnM (Job β) := self.mapM f prio sync
+
 
 /--
 Apply `f` asynchronously to the job's output
@@ -167,12 +178,12 @@ def bindM
   [kind : OptDataKind β] (self : Job α) (f : α → JobM (Job β))
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) :=
-  fun fetch stack store ctx trace => do
+  fun fetch pkg? stack store ctx trace => do
   self.bindTask fun task => do
   BaseIO.bindTask task (prio := prio) (sync := sync) fun
     | .ok a sa => do
       let trace := mixTrace trace sa.trace
-      match (← withLoggedIO (f a) fetch stack store ctx {sa with trace}) with
+      match (← withLoggedIO (f a) fetch pkg? stack store ctx {sa with trace}) with
       | .ok job sa =>
         return job.task.map (prio := prio) (sync := true) fun
         | .ok b sb => .ok b {sa.merge sb with trace := sb.trace}
@@ -180,11 +191,7 @@ def bindM
       | .error e sa => return Task.pure (.error e sa)
     | .error e sa => return Task.pure (.error e sa)
 
-@[deprecated bindM (since := "2024-12-06")]
-protected abbrev bindAsync
-  [OptDataKind β] (self : Job α) (f : α → SpawnM (Job β))
-  (prio := Task.Priority.default) (sync := false)
-: SpawnM (Job β) := self.bindM (fun a => f a) prio sync
+
 
 /--
 `a.zipWith f b` produces a new job `c` that applies `f` to the
@@ -238,98 +245,3 @@ def collectArray (jobs : Array (Job α)) (traceCaption := "<collection>") : Job 
   jobs.foldl (zipWith Array.push) (traceRoot (Array.mkEmpty jobs.size) traceCaption)
 
 end Job
-
-/-! ## BuildJob (deprecated) -/
-
-/-- A Lake build job. -/
-abbrev BuildJob α := Job α
-
-namespace BuildJob
-
-@[inline, deprecated "Obsolete." (since := "2024-12-06")]
-def mk (job : Job (α × BuildTrace)) : BuildJob α :=
-  job.mapOk fun (a, trace) s => .ok a {s with trace}
-
-@[inline, deprecated "Obsolete." (since := "2024-12-06")]
-def ofJob (job : Job BuildTrace) : BuildJob Unit :=
-  job.mapOk fun trace s => .ok () {s with trace}
-
-abbrev toJob (self : BuildJob α) : Job α :=
-  self
-
-@[deprecated Job.nil (since := "2024-12-06")]
-abbrev nil : BuildJob Unit :=
-  Job.pure ()
-
-@[deprecated Job.map (since := "2024-12-06")]
-protected abbrev pure [OptDataKind α] (a : α) : BuildJob α :=
-  Job.pure a
-
-instance : Pure BuildJob := ⟨Job.pure⟩
-
-@[deprecated Job.map (since := "2024-12-06")]
-protected abbrev map [OptDataKind β] (f : α → β) (self : BuildJob α) : BuildJob β :=
-  self.toJob.map f
-
-instance : Functor BuildJob where
-  map := Job.map
-
-@[inline, deprecated "Removed without replacement." (since := "2024-12-06")]
-def mapWithTrace [OptDataKind β] (f : α → BuildTrace → β × BuildTrace) (self : BuildJob α) : BuildJob β :=
-  self.toJob.mapOk fun a s =>
-    let (b, trace) := f a s.trace
-    .ok b {s with trace}
-
-@[inline, deprecated Job.mapM (since := "2024-12-06")]
-protected def bindSync
-  [OptDataKind β] (self : BuildJob α) (f : α → BuildTrace → JobM (β × BuildTrace))
-  (prio : Task.Priority := .default) (sync := false)
-: SpawnM (Job β) :=
-  self.toJob.mapM (prio := prio) (sync := sync) fun a => do
-    let (b, trace) ← f a (← getTrace)
-    setTrace trace
-    return b
-
-@[inline, deprecated Job.bindM (since := "2024-12-06")]
-protected def bindAsync
-  [OptDataKind β] (self : BuildJob α) (f : α → BuildTrace → SpawnM (Job β))
-  (prio : Task.Priority := .default) (sync := false)
- : SpawnM (Job β)  :=
-  self.toJob.bindM (prio := prio) (sync := sync) fun a => do
-    f a (← getTrace)
-
-@[deprecated Job.wait? (since := "2024-12-06")]
-protected abbrev wait? (self : BuildJob α) : BaseIO (Option α) :=
-  self.toJob.wait?
-
-@[deprecated Job.add (since := "2024-12-06")]
-abbrev add (self : BuildJob α) (other : BuildJob β) : BuildJob α :=
-  self.toJob.add other.toJob
-
-@[deprecated Job.mix (since := "2024-12-06")]
-abbrev mix (self : BuildJob α) (other : BuildJob β) : BuildJob Unit :=
-  self.toJob.mix other.toJob
-
-@[deprecated Job.mixList (since := "2024-12-06")]
-abbrev mixList (jobs : List (BuildJob α)) : Id (BuildJob Unit) :=
-  return Job.mixList jobs
-
-@[deprecated Job.mixArray (since := "2024-12-06")]
-abbrev mixArray (jobs : Array (BuildJob α)) : Id (BuildJob Unit) :=
-  return Job.mixArray jobs
-
-@[deprecated Job.zipWith (since := "2024-12-06")]
-abbrev zipWith
-  [OptDataKind γ] (f : α → β → γ) (self : BuildJob α) (other : BuildJob β)
-: BuildJob γ :=
-  self.toJob.zipWith f other.toJob
-
-@[deprecated Job.collectList (since := "2024-12-06")]
-abbrev collectList (jobs : List (BuildJob α)) : Id (BuildJob (List α)) :=
-  return Job.collectList jobs
-
-@[deprecated Job.collectArray (since := "2024-12-06")]
-abbrev collectArray (jobs : Array (BuildJob α)) : Id (BuildJob (Array α)) :=
-  return Job.collectArray jobs
-
-attribute [deprecated Job (since := "2024-12-06")] BuildJob

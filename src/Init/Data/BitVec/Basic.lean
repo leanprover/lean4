@@ -6,11 +6,13 @@ Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex
 module
 
 prelude
-import Init.Data.Fin.Basic
-import Init.Data.Nat.Bitwise.Lemmas
-import Init.Data.Nat.Power2
-import Init.Data.Int.Bitwise
-import Init.Data.BitVec.BasicAux
+public import Init.Data.Fin.Basic
+public import Init.Data.Nat.Bitwise.Lemmas
+public import Init.Data.Nat.Power2
+public import Init.Data.Int.Bitwise
+public import Init.Data.BitVec.BasicAux
+
+@[expose] public section
 
 /-!
 We define the basic algebraic structure of bitvectors. We choose the `Fin` representation over
@@ -33,7 +35,12 @@ protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2 ^ n) : BitVec n :=
 
 section Nat
 
-instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩
+/--
+`NatCast` instance for `BitVec`.
+-/
+-- As this is a lossy conversion, it should be removed as a global instance.
+instance instNatCast : NatCast (BitVec w) where
+  natCast x := BitVec.ofNat w x
 
 /-- Theorem for normalizing the bitvector literal representation. -/
 -- TODO: This needs more usage data to assess which direction the simp should go.
@@ -545,7 +552,7 @@ Example:
 @[expose]
 protected def xor (x y : BitVec n) : BitVec n :=
   (x.toNat ^^^ y.toNat)#'(Nat.xor_lt_two_pow x.isLt y.isLt)
-instance : Xor (BitVec w) := ⟨.xor⟩
+instance : XorOp (BitVec w) := ⟨.xor⟩
 
 /--
 Bitwise complement for bitvectors. Usually accessed via the `~~~` prefix operator.
@@ -729,10 +736,10 @@ def twoPow (w : Nat) (i : Nat) : BitVec w := 1#w <<< i
 end bitwise
 
 /-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/
-def intMin (w : Nat) := twoPow w (w - 1)
+@[expose] def intMin (w : Nat) := twoPow w (w - 1)
 
 /-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
-def intMax (w : Nat) := (twoPow w (w - 1)) - 1
+@[expose] def intMax (w : Nat) := (twoPow w (w - 1)) - 1
 
 /--
 Computes a hash of a bitvector, combining 64-bit words using `mixHash`.

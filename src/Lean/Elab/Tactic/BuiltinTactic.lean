@@ -3,19 +3,26 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Diagnostics
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Assumption
-import Lean.Meta.Tactic.Contradiction
-import Lean.Meta.Tactic.Refl
-import Lean.Elab.Binders
-import Lean.Elab.Open
-import Lean.Elab.Eval
-import Lean.Elab.SetOption
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.ElabTerm
-import Lean.Elab.Do
+public import Lean.Meta.Diagnostics
+public import Lean.Meta.Hint
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Assumption
+public import Lean.Meta.Tactic.Contradiction
+public import Lean.Meta.Tactic.Refl
+public import Lean.Elab.Binders
+public import Lean.Elab.Open
+public import Lean.Elab.Eval
+public import Lean.Elab.SetOption
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.ElabTerm
+public import Lean.Elab.Do
+import Lean.Meta.Tactic.Replace
+meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -62,7 +69,7 @@ where
         let oldParsed := old.val.get
         oldInner? := oldParsed.inner? |>.map (⟨oldParsed.stx, ·⟩)
     -- compare `stx[0]` for `finished`/`next` reuse, focus on remainder of script
-    Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) fun stxs => do
+    Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1...*])) fun stxs => do
       let some snap := (← readThe Term.Context).tacSnap?
         | do evalTactic tac; goOdd stxs
       let mut reusableResult? := none
@@ -118,7 +125,7 @@ where
       return
     saveTacticInfoForToken stx[0] -- add `TacticInfo` node for `;`
     -- disable further reuse on separator change as to not reuse wrong `TacticInfo`
-    Term.withNarrowedTacticReuse (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) goEven stx
+    Term.withNarrowedTacticReuse (fun stx => (stx[0], mkNullNode stx.getArgs[1...*])) goEven stx
 
 @[builtin_tactic seq1] def evalSeq1 : Tactic := fun stx =>
   evalSepTactics stx[0]
@@ -228,7 +235,7 @@ private def getOptRotation (stx : Syntax) : Nat :=
       catch _ =>
         mvarIdsNew := mvarIdsNew.push mvarId
   unless succeeded do
-    throwError "failed on all goals"
+    throwError "Tactic failed on all goals:{indentD stx[1]}"
   setGoals mvarIdsNew.toList
 
 @[builtin_tactic tacticSeq, builtin_incremental]
@@ -256,7 +263,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   Term.withoutErrToSorry <| withoutRecover do
     let tactic := stx[1]
     if (← try evalTactic tactic; pure true catch _ => pure false) then
-      throwError "tactic succeeded"
+      throwError "The tactic provided to `fail_if_success` succeeded but was expected to fail:{indentD stx[1]}"
 
 @[builtin_tactic traceState] def evalTraceState : Tactic := fun _ => do
   let gs ← getUnsolvedGoals
@@ -301,7 +308,9 @@ where
         let fvar := mkFVar fvarId
         let fvarType ← inferType fvar
         unless (← isDefEqGuarded type fvarType) do
-          throwError "type mismatch at `intro {fvar}`{← mkHasTypeButIsExpectedMsg fvarType type}"
+          withRef? ref? do
+          throwError m!"Type mismatch: Hypothesis `{fvar}` " ++
+            (← mkHasTypeButIsExpectedMsg fvarType type (trailing? := "due to the provided type annotation"))
         liftMetaTactic fun mvarId => return [← mvarId.replaceLocalDeclDefEq fvarId type]
     if let some ref := ref? then
       withMainContext do
@@ -469,7 +478,7 @@ def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : Ta
         | `(binderIdent| $h:ident) => some <| extractMacroScopes h.getId
         | _ => none)
       | return mvarId
-    for i in [:n] do
+    for i in *...n do
       let j := n - i - 1
       match lctx.getAt? j with
       | none => pure ()
@@ -498,9 +507,9 @@ def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : Ta
 
 private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List MVarId) := do
   let gs ← getUnsolvedGoals
-  let g ← if let `(binderIdent| $tag:ident) := tag then
-    let tag := tag.getId.eraseMacroScopes
-    let some g ← findTag? gs tag | notFound gs tag
+  let g ← if let `(binderIdent| $tagId:ident) := tag then
+    let tagId := tagId.getId.eraseMacroScopes
+    let some g ← findTag? gs tagId | notFound gs tagId tag
     pure g
   else
     getMainGoal
@@ -509,22 +518,31 @@ private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List
 where
   -- When the case tag is not found, construct a message that tells
   -- the user what they could have written
-  notFound (available : List MVarId) (tag : Name) := do
+  notFound (available : List MVarId) (tag : Name) (tagStx : TSyntax ``binderIdent) := do
     let firstLine := m!"Case tag {showTagName tag} not found."
+    let isOriginalStx := tagStx.raw.getHeadInfo matches .original ..
     -- We must filter out the anonymous name because there may be an
     -- anonymous goal, but users shouldn't be mistakenly encouraged
     -- to write `case anonymous`
-    match (← available.mapM getUserName).filter (· ≠ Name.anonymous) with
-    | [] =>
-      throwError "{firstLine}\n\nThere are no cases to select."
-    | [availableName] =>
-      throwError "{firstLine}\n\nThe only available case tag is {showTagName availableName}."
-    | availableNames =>
-      throwError "Case tag {showTagName tag} not found.\n\nAvailable tags:{commaList <| availableNames.map showTagName}"
+    let hint ← match (← available.mapM getUserName).filter (· ≠ Name.anonymous) with
+      | [] => pure <| MessageData.note m!"There are no cases to select."
+      | [availableName] =>
+        let msg := m!"The only available case tag is {showTagName availableName}."
+        if isOriginalStx then
+          MessageData.hint msg (mkSuggestions #[availableName]) (ref? := tagStx)
+        else
+          pure <| MessageData.hint' msg
+      | availableNames =>
+        let msg := "Available tags:"
+        if isOriginalStx then
+          MessageData.hint msg (mkSuggestions availableNames.toArray) (ref? := tagStx)
+        else
+          pure <| MessageData.hint' m!"{msg}{commaList <| availableNames.map showTagName}"
+    throwError firstLine ++ hint
 
   getUserName (mv : MVarId) := do return (← mv.getDecl).userName
 
-  showTagName (tagName : Name) : MessageData := m!"'{tagName}'"
+  showTagName (tagName : Name) : MessageData := m!"`{tagName}`"
 
   -- Construct a comma-separated list that renders one per line,
   -- indented, if it's too long
@@ -532,6 +550,12 @@ where
     let sep := MessageData.ofFormat "," ++ Format.line
     .group <| .nest 2 <|
     .ofFormat .line ++ .joinSep items sep
+
+  mkSuggestions (names : Array Name) :=
+    names.map fun name =>
+      { suggestion := name.toString
+        toCodeActionTitle? := some fun s => s!"Change case name: {s}"
+        preInfo? := if names.size == 1 then none else s!"`{name}`: " : Hint.Suggestion }
 
 @[builtin_tactic «case», builtin_incremental]
 def evalCase : Tactic
@@ -584,7 +608,7 @@ where
   let goals ← getGoals
   let goalsMsg := MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
   match stx with
-  | `(tactic| fail)          => throwError "tactic 'fail' failed\n{goalsMsg}"
+  | `(tactic| fail)          => throwError "Failed: `fail` tactic was invoked\n{goalsMsg}"
   | `(tactic| fail $msg:str) => throwError "{msg.getString}\n{goalsMsg}"
   | _ => throwUnsupportedSyntax
 

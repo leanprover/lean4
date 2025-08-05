@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.FindExpr
-import Lean.Declaration
+public import Lean.Util.FindExpr
+public import Lean.Declaration
+
+public section
 
 namespace Lean
 
@@ -32,6 +36,9 @@ def Expr.hasNonSyntheticSorry (e : Expr) : Bool :=
 
 def Declaration.hasSorry (d : Declaration) : Bool := Id.run do
   d.foldExprM (fun r e => r || e.hasSorry) false
+
+def Declaration.hasSyntheticSorry (d : Declaration) : Bool := Id.run do
+  d.foldExprM (fun r e => r || e.hasSyntheticSorry) false
 
 def Declaration.hasNonSyntheticSorry (d : Declaration) : Bool := Id.run do
   d.foldExprM (fun r e => r || e.hasNonSyntheticSorry) false

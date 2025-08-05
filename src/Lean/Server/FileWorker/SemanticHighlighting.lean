@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.Requests
+public import Lean.Server.Requests
+
+public section
 
 namespace Lean.Server.FileWorker
 open Lsp
@@ -25,8 +29,8 @@ def noHighlightKinds : Array SyntaxNodeKind := #[
 
 -- TODO: make extensible, or don't
 /-- Keywords for which a specific semantic token is provided. -/
-def keywordSemanticTokenMap : RBMap String SemanticTokenType compare :=
-  RBMap.empty
+def keywordSemanticTokenMap : Std.TreeMap String SemanticTokenType :=
+  Std.TreeMap.empty
     |>.insert "sorry" .leanSorryLike
     |>.insert "admit" .leanSorryLike
     |>.insert "stop" .leanSorryLike
@@ -110,11 +114,11 @@ partial def collectSyntaxBasedSemanticTokens : (stx : Syntax) → Array LeanSema
         stx.getArgs.map collectSyntaxBasedSemanticTokens |>.flatten
     let Syntax.atom _ val := stx
       | return tokens
-    let isRegularKeyword := val.length > 0 && val.front.isAlpha
-    let isHashKeyword := val.length > 1 && val.front == '#' && (val.get ⟨1⟩).isAlpha
+    let isRegularKeyword := val.length > 0 && isIdFirst val.front
+    let isHashKeyword := val.length > 1 && val.front == '#' && isIdFirst (val.get ⟨1⟩)
     if ! isRegularKeyword && ! isHashKeyword then
       return tokens
-    return tokens.push ⟨stx, keywordSemanticTokenMap.findD val .keyword⟩
+    return tokens.push ⟨stx, keywordSemanticTokenMap.getD val .keyword⟩
 
 /-- Collects all semantic tokens from the given `Elab.InfoTree`. -/
 def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken :=

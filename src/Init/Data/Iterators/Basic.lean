@@ -6,11 +6,13 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Core
-import Init.Classical
-import Init.Ext
-import Init.NotationExtra
-import Init.TacticsExtra
+public import Init.Core
+public import Init.Classical
+public import Init.Ext
+public import Init.NotationExtra
+public import Init.TacticsExtra
+
+public section
 
 /-!
 ### Definition of iterators
@@ -354,7 +356,7 @@ Makes a single step with the given iterator `it`, potentially emitting a value a
 succeeding iterator. If this function is used recursively, termination can sometimes be proved with
 the termination measures `it.finitelyManySteps` and `it.finitelyManySkips`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def IterM.step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     (it : IterM (α := α) m β) : m it.Step :=
   Iterator.step it
@@ -384,6 +386,38 @@ inductive IterM.IsPlausibleIndirectOutput {α β : Type w} {m : Type w → Type 
       it'.IsPlausibleIndirectOutput out → it.IsPlausibleIndirectOutput out
 
 /--
+Asserts that an iterator `it'` could plausibly produce `it'` as a successor iterator after
+finitely many steps. This relation is reflexive.
+-/
+inductive IterM.IsPlausibleIndirectSuccessorOf {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] : IterM (α := α) m β → IterM (α := α) m β → Prop where
+  | refl (it : IterM (α := α) m β) : it.IsPlausibleIndirectSuccessorOf it
+  | cons_right {it'' it' it : IterM (α := α) m β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
+      (h : it'.IsPlausibleSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it
+
+theorem IterM.IsPlausibleIndirectSuccessorOf.trans {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] {it'' it' it : IterM (α := α) m β}
+    (h' : it''.IsPlausibleIndirectSuccessorOf it') (h : it'.IsPlausibleIndirectSuccessorOf it) :
+    it''.IsPlausibleIndirectSuccessorOf it := by
+  induction h
+  case refl => exact h'
+  case cons_right ih => exact IsPlausibleIndirectSuccessorOf.cons_right ih ‹_›
+
+theorem IterM.IsPlausibleIndirectSuccessorOf.single {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β] {it' it : IterM (α := α) m β}
+    (h : it'.IsPlausibleSuccessorOf it) :
+    it'.IsPlausibleIndirectSuccessorOf it :=
+  .cons_right (.refl _) h
+
+theorem IterM.IsPlausibleIndirectOutput.trans {α β : Type w} {m : Type w → Type w'}
+    [Iterator α m β]
+    {it' it : IterM (α := α) m β} {out : β} (h : it'.IsPlausibleIndirectSuccessorOf it)
+    (h' : it'.IsPlausibleIndirectOutput out) : it.IsPlausibleIndirectOutput out := by
+  induction h
+  case refl => exact h'
+  case cons_right ih => exact IsPlausibleIndirectOutput.indirect ‹_› ih
+
+/--
 The type of the step object returned by `Iter.step`, containing an `IterStep`
 and a proof that this is a plausible step for the given iterator.
 -/
@@ -394,7 +428,7 @@ def Iter.Step {α : Type w} {β : Type w} [Iterator α Id β] (it : Iter (α := 
 /--
 Converts an `Iter.Step` into an `IterM.Step`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def Iter.Step.toMonadic {α : Type w} {β : Type w} [Iterator α Id β] {it : Iter (α := α) β}
     (step : it.Step) : it.toIterM.Step :=
   ⟨step.val.mapIterator Iter.toIterM, step.property⟩
@@ -431,6 +465,16 @@ def Iter.IsPlausibleOutput {α : Type w} {β : Type w} [Iterator α Id β]
     (it : Iter (α := α) β) (out : β) : Prop :=
   it.toIterM.IsPlausibleOutput out
 
+theorem Iter.isPlausibleOutput_iff_exists {α : Type w} {β : Type w} [Iterator α Id β]
+    {it : Iter (α := α) β} {out : β} :
+    it.IsPlausibleOutput out ↔ ∃ it', it.IsPlausibleStep (.yield it' out) := by
+  simp only [IsPlausibleOutput, IterM.IsPlausibleOutput]
+  constructor
+  · rintro ⟨it', h⟩
+    exact ⟨it'.toIter, h⟩
+  · rintro ⟨it', h⟩
+    exact ⟨it'.toIterM, h⟩
+
 /--
 Asserts that a certain iterator `it'` could plausibly be the directly succeeding iterator of another
 given iterator `it`.
@@ -439,6 +483,18 @@ given iterator `it`.
 def Iter.IsPlausibleSuccessorOf {α : Type w} {β : Type w} [Iterator α Id β]
     (it' it : Iter (α := α) β) : Prop :=
   it'.toIterM.IsPlausibleSuccessorOf it.toIterM
+
+theorem Iter.isPlausibleSuccessorOf_iff_exists {α : Type w} {β : Type w} [Iterator α Id β]
+    {it' it : Iter (α := α) β} :
+    it'.IsPlausibleSuccessorOf it ↔ ∃ step, step.successor = some it' ∧ it.IsPlausibleStep step := by
+  simp only [IsPlausibleSuccessorOf, IterM.IsPlausibleSuccessorOf]
+  constructor
+  · rintro ⟨step, h₁, h₂⟩
+    exact ⟨step.mapIterator IterM.toIter,
+      by cases step <;> simp_all [IterStep.successor, Iter.IsPlausibleStep]⟩
+  · rintro ⟨step, h₁, h₂⟩
+    exact ⟨step.mapIterator Iter.toIterM,
+      by cases step <;> simp_all [IterStep.successor, Iter.IsPlausibleStep]⟩
 
 /--
 Asserts that a certain iterator `it` could plausibly yield the value `out` after an arbitrary
@@ -471,6 +527,45 @@ theorem Iter.isPlausibleIndirectOutput_iff_isPlausibleIndirectOutput_toIterM {α
       rename_i it it' out
       replace h : it'.toIter.IsPlausibleSuccessorOf it.toIter := h
       exact .indirect (α := α) h ih
+
+/--
+Asserts that an iterator `it'` could plausibly produce `it'` as a successor iterator after
+finitely many steps. This relation is reflexive.
+-/
+inductive Iter.IsPlausibleIndirectSuccessorOf {α : Type w} {β : Type w} [Iterator α Id β] :
+    Iter (α := α) β → Iter (α := α) β → Prop where
+  | refl (it : Iter (α := α) β) : IsPlausibleIndirectSuccessorOf it it
+  | cons_right {it'' it' it : Iter (α := α) β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
+      (h : it'.IsPlausibleSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it
+
+theorem Iter.isPlausibleIndirectSuccessor_iff_isPlausibleIndirectSuccessor_toIterM {α β : Type w}
+    [Iterator α Id β] {it' it : Iter (α := α) β} :
+    it'.IsPlausibleIndirectSuccessorOf it ↔ it'.toIterM.IsPlausibleIndirectSuccessorOf it.toIterM := by
+  constructor
+  · intro h
+    induction h with
+    | refl => exact .refl _
+    | cons_right _ h ih => exact .cons_right ih h
+  · intro h
+    rw [← Iter.toIter_toIterM (it := it), ← Iter.toIter_toIterM (it := it')]
+    generalize it.toIterM = it at ⊢ h
+    induction h with
+    | refl => exact .refl _
+    | cons_right _ h ih => exact .cons_right ih h
+
+theorem Iter.IsPlausibleIndirectSuccessorOf.trans {α : Type w} {β : Type w} [Iterator α Id β]
+    {it'' it' it : Iter (α := α) β} (h' : it''.IsPlausibleIndirectSuccessorOf it')
+    (h : it'.IsPlausibleIndirectSuccessorOf it) : it''.IsPlausibleIndirectSuccessorOf it := by
+  induction h
+  case refl => exact h'
+  case cons_right ih => exact IsPlausibleIndirectSuccessorOf.cons_right ih ‹_›
+
+theorem Iter.IsPlausibleIndirectOutput.trans {α : Type w} {β : Type w} [Iterator α Id β]
+    {it' it : Iter (α := α) β} {out : β} (h : it'.IsPlausibleIndirectSuccessorOf it)
+    (h' : it'.IsPlausibleIndirectOutput out) : it.IsPlausibleIndirectOutput out := by
+  induction h
+  case refl => exact h'
+  case cons_right ih => exact IsPlausibleIndirectOutput.indirect ‹_› ih
 
 /--
 Asserts that a certain iterator `it'` could plausibly be the directly succeeding iterator of another
@@ -686,6 +781,21 @@ instance [Iterator α m β] [Finite α m] : Productive α m where
     · exact Finite.wf
 
 end Productive
+
+/--
+This typeclass characterizes iterators that have deterministic return values. This typeclass does
+*not* guarantee that there are no monadic side effects such as exceptions.
+
+General monadic iterators can be nondeterministic, so that `it.IsPlausibleStep step` will be true
+for no or more than one choice of `step`. This typeclass ensures that there is exactly one such
+choice.
+
+This is an experimental instance and it should not be explicitly used downstream of the standard
+library.
+-/
+class LawfulDeterministicIterator (α : Type w) (m : Type w → Type w') [Iterator α m β]
+    where
+  isPlausibleStep_eq_eq : ∀ it : IterM (α := α) m β, ∃ step, it.IsPlausibleStep = (· = step)
 
 end Iterators
 

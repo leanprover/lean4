@@ -1,8 +1,8 @@
-autoPPExplicit.lean:2:26-2:31: error: Application type mismatch: In the application
-  @Eq.trans α a (b = c)
-the argument
+autoPPExplicit.lean:2:26-2:31: error: Application type mismatch: The argument
   b = c
 has type
-  Prop : Type
-but is expected to have type
-  α : Sort u_1
+  Prop
+of sort `Type` but is expected to have type
+  α
+of sort `Sort u_1` in the application
+  @Eq.trans α a (b = c)

@@ -3,12 +3,17 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Omega.Core
-import Lean.Elab.Tactic.FalseOrByContra
-import Lean.Elab.Tactic.Config
-import Lean.Elab.MutualDef
-import Lean.Meta.Closure
+public import Lean.Elab.Tactic.Omega.Core
+public import Lean.Elab.Tactic.FalseOrByContra
+public import Lean.Elab.Tactic.Config
+public import Lean.Meta.Closure
+public import Lean.Meta.Tactic.Simp.Attr
+import Lean.Elab.Tactic.BuiltinTactic
+
+public section
 
 /-!
 # Frontend to the `omega` tactic.
@@ -70,9 +75,9 @@ def mkEvalRflProof (e : Expr) (lc : LinearCombo) : OmegaM Expr := do
 def mkCoordinateEvalAtomsEq (e : Expr) (n : Nat) : OmegaM Expr := do
   if n < 10 then
     let atoms ← atoms
-    let tail ← mkListLit (.const ``Int []) atoms[n+1:].toArray.toList
+    let tail ← mkListLit (.const ``Int []) atoms[n<...*].toArray.toList
     let lem := .str ``LinearCombo s!"coordinate_eval_{n}"
-    mkEqSymm (mkAppN (.const lem []) (atoms[:n+1].toArray.push tail))
+    mkEqSymm (mkAppN (.const lem []) (atoms[*...=n].toArray.push tail))
   else
     let atoms ← atomsCoeffs
     let n := toExpr n
@@ -559,7 +564,7 @@ where
   varNames (mask : Array Bool) : MetaM (Array String) := do
     let mut names := #[]
     let mut next := 0
-    for h : i in [:mask.size] do
+    for h : i in *...mask.size do
       if mask[i] then
         while ← inScope (varNameOf next) do next := next + 1
         names := names.push (varNameOf next)
@@ -687,7 +692,6 @@ def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
         let e ← mkAuxTheorem type (← instantiateMVarsProfiling g') (zetaDelta := true)
         g.assign e
 
-
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. This
 `TacticM Unit` frontend with default configuration can be used as an Aesop rule, for example via
 the tactic call `aesop (add 50% tactic Lean.Elab.Tactic.Omega.omegaDefault)`. -/
@@ -697,7 +701,7 @@ def omegaDefault : TacticM Unit := omegaTactic {}
 def evalOmega : Tactic
   | `(tactic| omega%$tk $cfg:optConfig) => do
     -- Call `assumption` first, to avoid constructing unnecessary proofs.
-    withReducibleAndInstances (evalAssumption tk) <|> do
+    Meta.withReducibleAndInstances (evalAssumption tk) <|> do
     let cfg ← elabOmegaConfig cfg
     omegaTactic cfg
   | _ => throwUnsupportedSyntax

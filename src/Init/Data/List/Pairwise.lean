@@ -6,8 +6,10 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Sublist
-import Init.Data.List.Attach
+public import Init.Data.List.Sublist
+public import Init.Data.List.Attach
+
+public section
 
 /-!
 # Lemmas about `List.Pairwise` and `List.Nodup`.
@@ -211,7 +213,7 @@ theorem pairwise_append_comm {R : α → α → Prop} (s : ∀ {x y}, R x y → 
 @[grind] theorem Pairwise.take {l : List α} {i : Nat} (h : List.Pairwise R l) : List.Pairwise R (l.take i) :=
   h.sublist (take_sublist _ _)
 
-@[grind =]
+-- This theorem is not annotated with `grind` because it leads to a loop of instantiations with `Pairwise.sublist`.
 theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l → R a b) := by
   induction l with
   | nil => simp
@@ -229,6 +231,10 @@ theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l �
       · apply IH.mpr
         intro a b hab
         apply h; exact hab.cons _
+
+theorem pairwise_of_forall_sublist (g : ∀ {a b}, [a,b] <+ l → R a b) : l.Pairwise R := pairwise_iff_forall_sublist.mpr g
+
+theorem Pairwise.forall_sublist (h : l.Pairwise R) : ∀ {a b}, [a,b] <+ l → R a b := pairwise_iff_forall_sublist.mp h
 
 theorem Pairwise.rel_of_mem_take_of_mem_drop
     {l : List α} (h : l.Pairwise R) (hx : x ∈ l.take i) (hy : y ∈ l.drop i) : R x y := by

@@ -4,13 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Joscha Mennicken
 -/
+module
+
 prelude
-import Lean.Data.Lsp.Internal
-import Lean.Data.Lsp.Extra
-import Lean.Server.Utils
-import Std.Data.TreeMap
-import Lean.Elab.Import
-import Std.Data.TreeSet.Basic
+public import Lean.Data.Lsp.Internal
+public import Lean.Data.Lsp.Extra
+public import Lean.Server.Utils
+public import Lean.Elab.Import
+public import Std.Data.TreeSet.Basic
+
+public section
 
 /-! # Representing collected and deduplicated definitions and usages -/
 
@@ -413,7 +416,7 @@ has a name or uri that is not identical to the others.
 -/
 def ModuleImport.collapseIdenticalImports? (identicalImports : Array ModuleImport) : Option ModuleImport := do
   let mut acc ← identicalImports[0]?
-  for h:i in [1:identicalImports.size] do
+  for h:i in 1...identicalImports.size do
     let «import» := identicalImports[i]
     guard <| acc.module == «import».module
     guard <| acc.uri == «import».uri

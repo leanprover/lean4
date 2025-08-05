@@ -3,9 +3,13 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.HashMap.RawLemmas
-import Std.Data.HashSet.Raw
+public import Std.Data.HashMap.RawLemmas
+public import Std.Data.HashSet.Raw
+
+@[expose] public section
 
 /-!
 # Hash set lemmas
@@ -251,7 +255,7 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] (h : m.WF) {a 
     m.contains a = (m.get? a).isSome :=
   HashMap.Raw.contains_eq_isSome_getKey? h.out
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     (m.get? a).isSome = m.contains a :=
   (contains_eq_isSome_get? h).symm

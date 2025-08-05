@@ -3,13 +3,17 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Option.List
-import Init.Data.Array.Bootstrap
-import Std.Classes.Ord.Basic
-import Std.Data.DTreeMap.Internal.Model
-import Std.Data.Internal.Cut
-import Std.Data.Internal.List.Associative
+public import Init.Data.Option.List
+public import Init.Data.Array.Bootstrap
+public import Std.Classes.Ord.Basic
+public import Std.Data.DTreeMap.Internal.Model
+public import Std.Data.Internal.Cut
+import all Std.Data.Internal.List.Associative
+
+@[expose] public section
 
 /-!
 # Lemmas relating operations on well-formed size-bounded trees to operations on lists
@@ -29,9 +33,9 @@ set_option linter.all true
 universe u v w w'
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std.DTreeMap.Internal.Impl
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 open Std.Internal
 
 /-!
@@ -1471,7 +1475,7 @@ end Const
 
 theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordered := by
   induction h
-  · next h => exact h
+  next h => exact h
   · exact ordered_empty
   · exact ordered_insert ‹_› ‹_›
   · exact ordered_insertIfNew ‹_› ‹_›
@@ -1806,7 +1810,7 @@ theorem WF.filter! {_ : Ord α} {t : Impl α β} {f : (a : α) → β a → Bool
 theorem toListModel_map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} :
     (t.map f).toListModel = t.toListModel.map fun x => ⟨x.1, f x.1 x.2⟩ := by
   induction t
-  · next ihl ihr =>
+  next ihl ihr =>
     simp [map, ihl, ihr]
   · rfl
 

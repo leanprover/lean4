@@ -31,7 +31,7 @@
     {"start": {"line": 14, "character": 31},
      "end": {"line": 14, "character": 40}},
     "message":
-    "type mismatch\n  \"NotANat\"\nhas type\n  String : Type\nbut is expected to have type\n  Nat : Type",
+    "Type mismatch\n  \"NotANat\"\nhas type\n  String\nbut is expected to have type\n  Nat",
     "fullRange":
     {"start": {"line": 14, "character": 31},
      "end": {"line": 14, "character": 40}}},

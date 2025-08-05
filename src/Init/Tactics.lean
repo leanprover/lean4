@@ -6,7 +6,9 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Notation
+public import Init.Notation
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 namespace Lean.Parser.Tactic
@@ -542,7 +544,7 @@ performs the unification, and replaces the target with the unified version of `t
 syntax (name := «show») "show " term : tactic
 
 /--
-Extracts `let` and `let_fun` expressions from within the target or a local hypothesis,
+Extracts `let` and `have` expressions from within the target or a local hypothesis,
 introducing new local definitions.
 
 - `extract_lets` extracts all the lets from the target.
@@ -556,7 +558,7 @@ introduces a new local definition `z := v` and changes `h` to be `h : b z`.
 syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* (location)? : tactic
 
 /--
-Lifts `let` and `let_fun` expressions within a term as far out as possible.
+Lifts `let` and `have` expressions within a term as far out as possible.
 It is like `extract_lets +lift`, but the top-level lets at the end of the procedure
 are not extracted as local hypotheses.
 
@@ -661,7 +663,7 @@ A simp lemma specification is:
 * optional `←` to use the lemma backward
 * `thm` for the theorem to rewrite with
 -/
-syntax simpLemma := (simpPre <|> simpPost)? patternIgnore("← " <|> "<- ")? term
+syntax simpLemma := ppGroup((simpPre <|> simpPost)? patternIgnore("← " <|> "<- ")? term)
 /-- An erasure specification `-thm` says to remove `thm` from the simp set -/
 syntax simpErase := "-" term:max
 /-- The simp lemma specification `*` means to rewrite with all hypotheses -/
@@ -824,8 +826,12 @@ The `have` tactic is for adding hypotheses to the local context of the main goal
   It is convenient for types that have only one applicable constructor.
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
+* The syntax `have (eq := h) pat := e` is equivalent to `match h : e with | pat => _`,
+  which adds the equation `h : e = pat` to the local context.
+
+The tactic supports all the same syntax variants and options as the `have` term.
 -/
-syntax "have " letConfig letDecl : tactic
+syntax "have" letConfig letDecl : tactic
 macro_rules
   -- special case: when given a nested `by` block, move it outside of the `refine` to enable
   -- incrementality
@@ -876,8 +882,12 @@ The `let` tactic is for adding definitions to the local context of the main goal
   It is convenient for types that let only one applicable constructor.
   For example, given `p : α × β × γ`, `let ⟨x, y, z⟩ := p` produces the
   local variables `x : α`, `y : β`, and `z : γ`.
+* The syntax `let (eq := h) pat := e` is equivalent to `match h : e with | pat => _`,
+  which adds the equation `h : e = pat` to the local context.
+
+The tactic supports all the same syntax variants and options as the `let` term.
 -/
-macro "let " c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
+macro "let" c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
 
 /-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
 The syntax is the same as term-mode `let rec`. -/
@@ -888,24 +898,21 @@ macro_rules
 /-- Similar to `refine_lift`, but using `refine'` -/
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
-macro (name := tacticHave') "have' " c:letConfig d:letDecl : tactic => `(tactic| refine_lift' have $c:letConfig $d:letDecl; ?_)
-set_option linter.missingDocs false in -- OK, because `tactic_alt` causes inheritance of docs
-macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
-attribute [tactic_alt tacticHave'] «tacticHave'_:=_»
+macro (name := tacticHave') "have'" c:letConfig d:letDecl : tactic => `(tactic| refine_lift' have $c:letConfig $d:letDecl; ?_)
 /-- Similar to `let`, but using `refine'` -/
-macro "let' " c:letConfig d:letDecl : tactic => `(tactic| refine_lift' let $c:letConfig $d:letDecl; ?_)
+macro "let'" c:letConfig d:letDecl : tactic => `(tactic| refine_lift' let $c:letConfig $d:letDecl; ?_)
 
 /--
 The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
 where `foo` is a constructor of the inductive type and `a b c` are the arguments
 to the constructor.
 -/
-syntax inductionAltLHS := withPosition("| " (("@"? ident) <|> hole) (colGt (ident <|> hole))*)
+syntax inductionAltLHS := ppDedent(ppLine) withPosition("| " (("@"? ident) <|> hole) (colGt (ident <|> hole))*)
 /--
 In induction alternative, which can have 1 or more cases on the left
 and `_`, `?_`, or a tactic sequence after the `=>`.
 -/
-syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
+syntax inductionAlt  := inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
 /--
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
@@ -1115,7 +1122,7 @@ For a `match` expression with `n` cases, the `split` tactic generates at most `n
 For example, given `n : Nat`, and a target `if n = 0 then Q else R`, `split` will generate
 one goal with hypothesis `n = 0` and target `Q`, and a second goal with hypothesis
 `¬n = 0` and target `R`.  Note that the introduced hypothesis is unnamed, and is commonly
-renamed used the `case` or `next` tactics.
+renamed using the `case` or `next` tactics.
 
 - `split` will split the goal (target).
 - `split at h` will split the hypothesis `h`.
@@ -1279,10 +1286,10 @@ syntax (name := substEqs) "subst_eqs" : tactic
 /-- The `run_tac doSeq` tactic executes code in `TacticM Unit`. -/
 syntax (name := runTac) "run_tac " doSeq : tactic
 
-/-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
+/-- `haveI` behaves like `have`, but inlines the value instead of producing a `have` term. -/
 macro "haveI" c:letConfig d:letDecl : tactic => `(tactic| refine_lift haveI $c:letConfig $d:letDecl; ?_)
 
-/-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
+/-- `letI` behaves like `let`, but inlines the value instead of producing a `let` term. -/
 macro "letI" c:letConfig d:letDecl : tactic => `(tactic| refine_lift letI $c:letConfig $d:letDecl; ?_)
 
 /--
@@ -1798,6 +1805,386 @@ Note: include `import Std.Tactic.BVDecide`
 macro (name := bvNormalizeMacro) (priority:=low) "bv_normalize" optConfig : tactic =>
   Macro.throwError "to use `bv_normalize`, please include `import Std.Tactic.BVDecide`"
 
+
+/--
+`massumption` is like `assumption`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q : SPred σs) : Q ⊢ₛ P → Q := by
+  mintro _ _
+  massumption
+```
+-/
+macro (name := massumptionMacro) (priority:=low) "massumption" : tactic =>
+  Macro.throwError "to use `massumption`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mclear` is like `clear`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q : SPred σs) : P ⊢ₛ Q → Q := by
+  mintro HP
+  mintro HQ
+  mclear HP
+  mexact HQ
+```
+-/
+macro (name := mclearMacro) (priority:=low) "mclear" : tactic =>
+  Macro.throwError "to use `mclear`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mconstructor` is like `constructor`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (Q : SPred σs) : Q ⊢ₛ Q ∧ Q := by
+  mintro HQ
+  mconstructor <;> mexact HQ
+```
+-/
+macro (name := mconstructorMacro) (priority:=low) "mconstructor" : tactic =>
+  Macro.throwError "to use `mconstructor`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mexact` is like `exact`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (Q : SPred σs) : Q ⊢ₛ Q := by
+  mstart
+  mintro HQ
+  mexact HQ
+```
+-/
+macro (name := mexactMacro) (priority:=low) "mexact" : tactic =>
+  Macro.throwError "to use `mexact`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mexfalso` is like `exfalso`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P : SPred σs) : ⌜False⌝ ⊢ₛ P := by
+  mintro HP
+  mexfalso
+  mexact HP
+```
+-/
+macro (name := mexfalsoMacro) (priority:=low) "mexfalso" : tactic =>
+  Macro.throwError "to use `mexfalso`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mexists` is like `exists`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (ψ : Nat → SPred σs) : ψ 42 ⊢ₛ ∃ x, ψ x := by
+  mintro H
+  mexists 42
+```
+-/
+macro (name := mexistsMacro) (priority:=low) "mexists" : tactic =>
+  Macro.throwError "to use `mexists`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mframe` infers which hypotheses from the stateful context can be moved into the pure context.
+This is useful because pure hypotheses "survive" the next application of modus ponens
+(`Std.Do.SPred.mp`) and transitivity (`Std.Do.SPred.entails.trans`).
+
+It is used as part of the `mspec` tactic.
+
+```lean
+example (P Q : SPred σs) : ⊢ₛ ⌜p⌝ ∧ Q ∧ ⌜q⌝ ∧ ⌜r⌝ ∧ P ∧ ⌜s⌝ ∧ ⌜t⌝ → Q := by
+  mintro _
+  mframe
+  /- `h : p ∧ q ∧ r ∧ s ∧ t` in the pure context -/
+  mcases h with hP
+  mexact h
+```
+-/
+macro (name := mframeMacro) (priority:=low) "mframe" : tactic =>
+  Macro.throwError "to use `mframe`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mhave` is like `have`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q : SPred σs) : P ⊢ₛ (P → Q) → Q := by
+  mintro HP HPQ
+  mhave HQ : Q := by mspecialize HPQ HP; mexact HPQ
+  mexact HQ
+```
+-/
+macro (name := mhaveMacro) (priority:=low) "mhave" : tactic =>
+  Macro.throwError "to use `mhave`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mreplace` is like `replace`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q : SPred σs) : P ⊢ₛ (P → Q) → Q := by
+  mintro HP HPQ
+  mreplace HPQ : Q := by mspecialize HPQ HP; mexact HPQ
+  mexact HPQ
+```
+-/
+macro (name := mreplaceMacro) (priority:=low) "mreplace" : tactic =>
+  Macro.throwError "to use `mreplace`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mleft` is like `left`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q : SPred σs) : P ⊢ₛ P ∨ Q := by
+  mintro HP
+  mleft
+  mexact HP
+```
+-/
+macro (name := mleftMacro) (priority:=low) "mleft" : tactic =>
+  Macro.throwError "to use `mleft`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mright` is like `right`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q : SPred σs) : P ⊢ₛ Q ∨ P := by
+  mintro HP
+  mright
+  mexact HP
+```
+-/
+macro (name := mrightMacro) (priority:=low) "mright" : tactic =>
+  Macro.throwError "to use `mright`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mpure` moves a pure hypothesis from the stateful context into the pure context.
+```lean
+example (Q : SPred σs) (ψ : φ → ⊢ₛ Q): ⌜φ⌝ ⊢ₛ Q := by
+  mintro Hφ
+  mpure Hφ
+  mexact (ψ Hφ)
+```
+-/
+macro (name := mpureMacro) (priority:=low) "mpure" : tactic =>
+  Macro.throwError "to use `mpure`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mpure_intro` operates on a stateful `Std.Do.SPred` goal of the form `P ⊢ₛ ⌜φ⌝`.
+It leaves the stateful proof mode (thereby discarding `P`), leaving the regular goal `φ`.
+```lean
+theorem simple : ⊢ₛ (⌜True⌝ : SPred σs) := by
+  mpure_intro
+  exact True.intro
+```
+-/
+macro (name := mpureIntroMacro) (priority:=low) "mpure_intro" : tactic =>
+  Macro.throwError "to use `mpure_intro`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mrevert` is like `revert`, but operating on a stateful `Std.Do.SPred` goal.
+```lean
+example (P Q R : SPred σs) : P ∧ Q ∧ R ⊢ₛ P → R := by
+  mintro ⟨HP, HQ, HR⟩
+  mrevert HR
+  mrevert HP
+  mintro HP'
+  mintro HR'
+  mexact HR'
+```
+-/
+macro (name := mrevertMacro) (priority:=low) "mrevert" : tactic =>
+  Macro.throwError "to use `mrevert`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mrename_i` is like `rename_i`, but names inaccessible stateful hypotheses in a `Std.Do.SPred` goal.
+-/
+macro (name := mrenameIMacro) (priority:=low) "mrename_i" : tactic =>
+  Macro.throwError "to use `mrename_i`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mspecialize` is like `specialize`, but operating on a stateful `Std.Do.SPred` goal.
+It specializes a hypothesis from the stateful context with hypotheses from either the pure
+or stateful context or pure terms.
+```lean
+example (P Q : SPred σs) : P ⊢ₛ (P → Q) → Q := by
+  mintro HP HPQ
+  mspecialize HPQ HP
+  mexact HPQ
+
+example (y : Nat) (P Q : SPred σs) (Ψ : Nat → SPred σs) (hP : ⊢ₛ P) : ⊢ₛ Q → (∀ x, P → Q → Ψ x) → Ψ (y + 1) := by
+  mintro HQ HΨ
+  mspecialize HΨ (y + 1) hP HQ
+  mexact HΨ
+```
+-/
+macro (name := mspecializeMacro) (priority:=low) "mspecialize" : tactic =>
+  Macro.throwError "to use `mspecialize`, please include `import Std.Tactic.Do`"
+
+
+/--
+`mspecialize_pure` is like `mspecialize`, but it specializes a hypothesis from the
+*pure* context with hypotheses from either the pure or stateful context or pure terms.
+```lean
+example (y : Nat) (P Q : SPred σs) (Ψ : Nat → SPred σs) (hP : ⊢ₛ P) (hΨ : ∀ x, ⊢ₛ P → Q → Ψ x) : ⊢ₛ Q → Ψ (y + 1) := by
+  mintro HQ
+  mspecialize_pure (hΨ (y + 1)) hP HQ => HΨ
+  mexact HΨ
+```
+-/
+macro (name := mspecializePureMacro) (priority:=low) "mspecialize_pure" : tactic =>
+  Macro.throwError "to use `mspecialize_pure`, please include `import Std.Tactic.Do`"
+
+
+/--
+Start the stateful proof mode of `Std.Do.SPred`.
+This will transform a stateful goal of the form `H ⊢ₛ T` into `⊢ₛ H → T`
+upon which `mintro` can be used to re-introduce `H` and give it a name.
+It is often more convenient to use `mintro` directly, which will
+try `mstart` automatically if necessary.
+-/
+macro (name := mstartMacro) (priority:=low) "mstart" : tactic =>
+  Macro.throwError "to use `mstart`, please include `import Std.Tactic.Do`"
+
+
+/--
+Stops the stateful proof mode of `Std.Do.SPred`.
+This will simply forget all the names given to stateful hypotheses and pretty-print
+a bit differently.
+-/
+macro (name := mstopMacro) (priority:=low) "mstop" : tactic =>
+  Macro.throwError "to use `mstop`, please include `import Std.Tactic.Do`"
+
+
+/--
+Leaves the stateful proof mode of `Std.Do.SPred`, tries to eta-expand through all definitions
+related to the logic of the `Std.Do.SPred` and gently simplifies the resulting pure Lean
+proposition. This is often the right thing to do after `mvcgen` in order for automation to prove
+the goal.
+-/
+macro (name := mleaveMacro) (priority:=low) "mleave" : tactic =>
+  Macro.throwError "to use `mleave`, please include `import Std.Tactic.Do`"
+
+
+/--
+Like `rcases`, but operating on stateful `Std.Do.SPred` goals.
+Example: Given a goal `h : (P ∧ (Q ∨ R) ∧ (Q → R)) ⊢ₛ R`,
+`mcases h with ⟨-, ⟨hq | hr⟩, hqr⟩` will yield two goals:
+`(hq : Q, hqr : Q → R) ⊢ₛ R` and `(hr : R) ⊢ₛ R`.
+
+That is, `mcases h with pat` has the following semantics, based on `pat`:
+* `pat=□h'` renames `h` to `h'` in the stateful context, regardless of whether `h` is pure
+* `pat=⌜h'⌝` introduces `h' : φ`  to the pure local context if `h : ⌜φ⌝`
+  (c.f. `Lean.Elab.Tactic.Do.ProofMode.IsPure`)
+* `pat=h'` is like `pat=⌜h'⌝` if `h` is pure
+  (c.f. `Lean.Elab.Tactic.Do.ProofMode.IsPure`), otherwise it is like `pat=□h'`.
+* `pat=_` renames `h` to an inaccessible name
+* `pat=-` discards `h`
+* `⟨pat₁, pat₂⟩` matches on conjunctions and existential quantifiers and recurses via
+  `pat₁` and `pat₂`.
+* `⟨pat₁ | pat₂⟩` matches on disjunctions, matching the left alternative via `pat₁` and the right
+  alternative via `pat₂`.
+-/
+macro (name := mcasesMacro) (priority:=low) "mcases" : tactic =>
+  Macro.throwError "to use `mcases`, please include `import Std.Tactic.Do`"
+
+
+/--
+Like `refine`, but operating on stateful `Std.Do.SPred` goals.
+```lean
+example (P Q R : SPred σs) : (P ∧ Q ∧ R) ⊢ₛ P ∧ R := by
+  mintro ⟨HP, HQ, HR⟩
+  mrefine ⟨HP, HR⟩
+
+example (ψ : Nat → SPred σs) : ψ 42 ⊢ₛ ∃ x, ψ x := by
+  mintro H
+  mrefine ⟨⌜42⌝, H⟩
+```
+-/
+macro (name := mrefineMacro) (priority:=low) "mrefine" : tactic =>
+  Macro.throwError "to use `mrefine`, please include `import Std.Tactic.Do`"
+
+
+/--
+Like `intro`, but introducing stateful hypotheses into the stateful context of the `Std.Do.SPred`
+proof mode.
+That is, given a stateful goal `(hᵢ : Hᵢ)* ⊢ₛ P → T`, `mintro h` transforms
+into `(hᵢ : Hᵢ)*, (h : P) ⊢ₛ T`.
+
+Furthermore, `mintro ∀s` is like `intro s`, but preserves the stateful goal.
+That is, `mintro ∀s` brings the topmost state variable `s:σ` in scope and transforms
+`(hᵢ : Hᵢ)* ⊢ₛ T` (where the entailment is in `Std.Do.SPred (σ::σs)`) into
+`(hᵢ : Hᵢ s)* ⊢ₛ T s` (where the entailment is in `Std.Do.SPred σs`).
+
+Beyond that, `mintro` supports the full syntax of `mcases` patterns
+(`mintro pat = (mintro h; mcases h with pat`), and can perform multiple
+introductions in sequence.
+-/
+macro (name := mintroMacro) (priority:=low) "mintro" : tactic =>
+  Macro.throwError "to use `mintro`, please include `import Std.Tactic.Do`"
+
+/--
+`mspec` is an `apply`-like tactic that applies a Hoare triple specification to the target of the
+stateful goal.
+
+Given a stateful goal `H ⊢ₛ wp⟦prog⟧.apply Q'`, `mspec foo_spec` will instantiate
+`foo_spec : ... → ⦃P⦄ foo ⦃Q⦄`, match `foo` against `prog` and produce subgoals for
+the verification conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
+
+* If `prog = x >>= f`, then `mspec Specs.bind` is tried first so that `foo` is matched against `x`
+  instead. Tactic `mspec_no_bind` does not attempt to do this decomposition.
+* If `?pre` or `?post` follow by `.rfl`, then they are discharged automatically.
+* `?post` is automatically simplified into constituent `⊢ₛ` entailments on
+  success and failure continuations.
+* `?pre` and `?post.*` goals introduce their stateful hypothesis as `h`.
+* Any uninstantiated MVar arising from instantiation of `foo_spec` becomes a new subgoal.
+* If the target of the stateful goal looks like `fun s => _` then `mspec` will first `mintro ∀s`.
+* If `P` has schematic variables that can be instantiated by doing `mintro ∀s`, for example
+  `foo_spec : ∀(n:Nat), ⦃⌜n = ‹Nat›ₛ⌝⦄ foo ⦃Q⦄`, then `mspec` will do `mintro ∀s` first to
+  instantiate `n = s`.
+* Right before applying the spec, the `mframe` tactic is used, which has the following effect:
+  Any hypothesis `Hᵢ` in the goal `h₁:H₁, h₂:H₂, ..., hₙ:Hₙ ⊢ₛ T` that is
+  pure (i.e., equivalent to some `⌜φᵢ⌝`) will be moved into the pure context as `hᵢ:φᵢ`.
+
+Additionally, `mspec` can be used without arguments or with a term argument:
+
+* `mspec` without argument will try and look up a spec for `x` registered with `@[spec]`.
+* `mspec (foo_spec blah ?bleh)` will elaborate its argument as a term with expected type
+  `⦃?P⦄ x ⦃?Q⦄` and introduce `?bleh` as a subgoal.
+  This is useful to pass an invariant to e.g., `Specs.forIn_list` and leave the inductive step
+  as a hole.
+-/
+macro (name := mspecMacro) (priority:=low) "mspec" : tactic =>
+  Macro.throwError "to use `mspec`, please include `import Std.Tactic.Do`"
+
+/--
+`mvcgen` will break down a Hoare triple proof goal like `⦃P⦄ prog ⦃Q⦄` into verification conditions,
+provided that all functions used in `prog` have specifications registered with `@[spec]`.
+
+A verification condition is an entailment in the stateful logic of `Std.Do.SPred`
+in which the original program `prog` no longer occurs.
+Verification conditions are introduced by the `mspec` tactic; see the `mspec` tactic for what they
+look like.
+When there's no applicable `mspec` spec, `mvcgen` will try and rewrite an application
+`prog = f a b c` with the simp set registered via `@[spec]`.
+
+When used like `mvcgen +noLetElim [foo_spec, bar_def, instBEqFloat]`, `mvcgen` will additionally
+
+* add a Hoare triple specification `foo_spec : ... → ⦃P⦄ foo ... ⦃Q⦄` to `spec` set for a
+  function `foo` occurring in `prog`,
+* unfold a definition `def bar_def ... := ...` in `prog`,
+* unfold any method of the `instBEqFloat : BEq Float` instance in `prog`.
+* it will no longer substitute away `let`-expressions that occur at most once in `P`, `Q` or `prog`.
+
+Furthermore, `mvcgen` tries to close trivial verification conditions by `SPred.entails.rfl` or
+the tactic sequence `try (mpure_intro; trivial)`. The variant `mvcgen_no_trivial` does not do this.
+
+For debugging purposes there is also `mvcgen_step 42` which will do at most 42 VC generation
+steps. This is useful for bisecting issues with the generated VCs.
+-/
+macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
+  Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
 end Tactic
 

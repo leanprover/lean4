@@ -3,10 +3,14 @@ Copyright (c) 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.PrettyPrinter
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
 import Lean.Meta.Instances
+import Lean.PrettyPrinter
+
+public section
 
 namespace Lean.Meta
 
@@ -79,6 +83,7 @@ def appendSection (m : Array MessageData) (cls : Name) (header : String) (s : Di
     let header := if resultSummary then s!"{header} (max: {s.max}, num: {s.data.size}):" else header
     m.push <| .trace { cls } header s.data
 
+/-- Logs diagnostics and resets the counters -/
 def reportDiag : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
     let unfoldCounter := (← get).diag.unfoldCounter
@@ -102,5 +107,8 @@ def reportDiag : MetaM Unit := do
     unless m.isEmpty do
       let m := m.push "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"
       logInfo <| .trace { cls := `diag, collapsed := false } "Diagnostics" m
+    -- Reset any reported diagnostics, so that `reportDiag` can be called again
+    modify (fun s => { s with diag := {} })
+    modifyEnv (Kernel.setDiagnostics · {})
 
 end Lean.Meta

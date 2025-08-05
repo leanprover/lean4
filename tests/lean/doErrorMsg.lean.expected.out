@@ -1,38 +1,38 @@
-doErrorMsg.lean:3:2-3:13: error: type mismatch
+doErrorMsg.lean:3:2-3:13: error: Type mismatch
   IO.getStdin
 has type
-  BaseIO IO.FS.Stream : Type
+  BaseIO IO.FS.Stream
 but is expected to have type
-  IO PUnit : Type
-doErrorMsg.lean:15:19-15:21: error: type mismatch
+  IO PUnit
+doErrorMsg.lean:15:19-15:21: error: Type mismatch
   f1
 has type
-  ExceptT String (StateT Nat Id) Nat : Type
+  ExceptT String (StateT Nat Id) Nat
 but is expected to have type
-  ExceptT String (StateT Nat Id) String : Type
-doErrorMsg.lean:19:19-19:24: error: type mismatch
+  ExceptT String (StateT Nat Id) String
+doErrorMsg.lean:19:19-19:24: error: Type mismatch
   f2 10
 has type
-  ExceptT String (StateT Nat Id) Nat : Type
+  ExceptT String (StateT Nat Id) Nat
 but is expected to have type
-  ExceptT String (StateT Nat Id) String : Type
-doErrorMsg.lean:23:10-23:12: error: type mismatch
+  ExceptT String (StateT Nat Id) String
+doErrorMsg.lean:23:10-23:12: error: Type mismatch
   f2
 has type
-  Nat → ExceptT String (StateT Nat Id) Nat : Type
+  Nat → ExceptT String (StateT Nat Id) Nat
 but is expected to have type
-  ExceptT String (StateT Nat Id) ?m : Type
-doErrorMsg.lean:24:2-24:4: error: type mismatch
+  ExceptT String (StateT Nat Id) ?m
+doErrorMsg.lean:24:2-24:4: error: Type mismatch
   f1
 has type
-  ExceptT String (StateT Nat Id) Nat : Type
+  ExceptT String (StateT Nat Id) Nat
 but is expected to have type
-  ExceptT String (StateT Nat Id) String : Type
-doErrorMsg.lean:28:13-28:18: error: Application type mismatch: In the application
-  Prod.mk false
-the argument
+  ExceptT String (StateT Nat Id) String
+doErrorMsg.lean:28:13-28:18: error: Application type mismatch: The argument
   false
 has type
-  Bool : Type
+  Bool
 but is expected to have type
-  Nat : Type
+  Nat
+in the application
+  Prod.mk false

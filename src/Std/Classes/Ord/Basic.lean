@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert, Robin Arnez
 -/
+module
+
 prelude
-import Init.Data.Ord
+public import Init.Data.Ord
+
+public section
 
 /-!
 # Type classes related to `Ord`
@@ -27,6 +31,13 @@ section Refl
 class ReflCmp {α : Type u} (cmp : α → α → Ordering) : Prop where
   /-- Comparison is reflexive. -/
   compare_self {a : α} : cmp a a = .eq
+
+namespace ReflCmp
+
+theorem cmp_eq_of_eq {α : Type u} {cmp : α → α → Ordering} [Std.ReflCmp cmp] {a b : α} : a = b → cmp a b = .eq := by
+  intro h; subst a; apply compare_self
+
+end ReflCmp
 
 /-- A typeclasses for ordered types for which `compare a a = .eq` for all `a`. -/
 abbrev ReflOrd (α : Type u) [Ord α] := ReflCmp (compare : α → α → Ordering)
@@ -75,7 +86,7 @@ instance [OrientedCmp cmp] : ReflCmp cmp where
 instance OrientedCmp.opposite [OrientedCmp cmp] : OrientedCmp fun a b => cmp b a where
   eq_swap := OrientedCmp.eq_swap (cmp := cmp)
 
-instance OrientedOrd.opposite [Ord α] [OrientedOrd α] : letI := Ord.opposite ‹_›; OrientedOrd α :=
+instance OrientedOrd.opposite [Ord α] [OrientedOrd α] : letI := Ord.opposite (α := α) ‹_›; OrientedOrd α :=
   OrientedCmp.opposite (cmp := compare)
 
 theorem OrientedCmp.gt_iff_lt [OrientedCmp cmp] {a b : α} : cmp a b = .gt ↔ cmp b a = .lt := by
@@ -190,7 +201,7 @@ theorem TransOrd.isGE_trans [Ord α] [TransOrd α] {a b c : α} :
 instance TransCmp.opposite [TransCmp cmp] : TransCmp fun a b => cmp b a where
   isLE_trans := flip TransCmp.isLE_trans
 
-instance TransOrd.opposite [Ord α] [TransOrd α] : letI := Ord.opposite ‹_›; TransOrd α :=
+instance TransOrd.opposite [Ord α] [TransOrd α] : letI := Ord.opposite (α := α) ‹_›; TransOrd α :=
   TransCmp.opposite (cmp := compare)
 
 theorem TransCmp.lt_of_lt_of_eq [TransCmp cmp] {a b c : α} (hab : cmp a b = .lt)
@@ -323,9 +334,10 @@ instance LawfulEqCmp.opposite [OrientedCmp cmp] [LawfulEqCmp cmp] :
     exact LawfulEqCmp.eq_of_compare
 
 instance LawfulEqOrd.opposite [Ord α] [OrientedOrd α] [LawfulEqOrd α] :
-    letI := Ord.opposite ‹_›; LawfulEqOrd α :=
+    letI := Ord.opposite (α := α) ‹_›; LawfulEqOrd α :=
   LawfulEqCmp.opposite (cmp := compare)
 
+@[simp]
 theorem LawfulEqCmp.compare_eq_iff_eq {a b : α} : cmp a b = .eq ↔ a = b :=
   ⟨LawfulEqCmp.eq_of_compare, fun h => h ▸ ReflCmp.compare_self⟩
 
@@ -339,7 +351,7 @@ theorem LawfulEqOrd.compare_eq_iff_eq [Ord α] [LawfulEqOrd α] {a b : α} :
   LawfulEqCmp.compare_eq_iff_eq
 
 /-- The corresponding lemma for `LawfulEqCmp` is `LawfulEqCmp.compare_beq_iff_eq` -/
-@[simp, grind]
+@[grind]
 theorem LawfulEqOrd.compare_beq_iff_eq [Ord α] [LawfulEqOrd α] {a b : α} :
     compare a b == .eq ↔ a = b :=
   LawfulEqCmp.compare_beq_iff_eq
@@ -424,17 +436,17 @@ instance LawfulBEqOrd.equivBEq [Ord α] [LawfulBEqOrd α] [TransOrd α] : EquivB
 
 theorem LawfulBEqCmp.lawfulBEq [inst : LawfulBEqCmp cmp] [LawfulEqCmp cmp] : LawfulBEq α where
   toReflBEq := reflBEq (cmp := cmp)
-  eq_of_beq := by simp [← inst.compare_eq_iff_beq, LawfulEqCmp.compare_eq_iff_eq]
+  eq_of_beq := by simp [← inst.compare_eq_iff_beq]
 
 instance LawfulBEqOrd.lawfulBEq [Ord α] [LawfulBEqOrd α] [LawfulEqOrd α] : LawfulBEq α :=
   LawfulBEqCmp.lawfulBEq (cmp := compare)
 
-instance LawfulBEqCmp.lawfulBEqCmp [inst : LawfulBEqCmp cmp] [LawfulBEq α] : LawfulEqCmp cmp where
+instance LawfulBEqCmp.lawfulEqCmp [inst : LawfulBEqCmp cmp] [LawfulBEq α] : LawfulEqCmp cmp where
   compare_self := by simp only [compare_eq_iff_beq, beq_self_eq_true, implies_true]
   eq_of_compare := by simp only [compare_eq_iff_beq, beq_iff_eq, imp_self, implies_true]
 
-theorem LawfulBEqOrd.lawfulBEqOrd [Ord α] [LawfulBEqOrd α] [LawfulBEq α] : LawfulEqOrd α :=
-  LawfulBEqCmp.lawfulBEqCmp
+theorem LawfulBEqOrd.lawfulEqOrd [Ord α] [LawfulBEqOrd α] [LawfulBEq α] : LawfulEqOrd α :=
+  LawfulBEqCmp.lawfulEqCmp
 
 instance LawfulBEqCmp.opposite [OrientedCmp cmp] [LawfulBEqCmp cmp] :
     LawfulBEqCmp (fun a b => cmp b a) where
@@ -442,7 +454,7 @@ instance LawfulBEqCmp.opposite [OrientedCmp cmp] [LawfulBEqCmp cmp] :
     simp [OrientedCmp.eq_comm (cmp := cmp), LawfulBEqCmp.compare_eq_iff_beq]
 
 instance LawfulBEqOrd.opposite [Ord α] [OrientedOrd α] [LawfulBEqOrd α] :
-    letI := Ord.opposite ‹_›; LawfulBEqOrd α :=
+    letI := Ord.opposite (α := α) ‹_›; LawfulBEqOrd α :=
   LawfulBEqCmp.opposite (cmp := compare)
 
 end LawfulBEq
@@ -551,7 +563,7 @@ instance {α} [Ord α] [ReflOrd α] : ReflOrd (Option α) where
 
 instance {α} [Ord α] [LawfulEqOrd α] : LawfulEqOrd (Option α) where
   eq_of_compare {a b} := by
-    cases a <;> cases b <;> simp [Ord.compare, compare_eq_iff_eq]
+    cases a <;> cases b <;> simp [Ord.compare]
 
 instance {α} [Ord α] [BEq α] [LawfulBEqOrd α] : LawfulBEqOrd (Option α) where
   compare_eq_iff_beq {a b} := by

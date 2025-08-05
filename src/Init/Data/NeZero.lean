@@ -6,7 +6,9 @@ Authors: Eric Rodriguez
 module
 
 prelude
-import Init.Data.Zero
+public import Init.Data.Zero
+
+public section
 
 
 /-!

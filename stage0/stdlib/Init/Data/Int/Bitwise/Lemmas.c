@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Init_Data_Int_Bitwise_Lemmas_0__Int_shiftRight_match__1_splitter___redArg___closed__0;
+static lean_object* l___private_Init_Data_Int_Bitwise_Lemmas_0__Int_shiftRight_match__1_splitter___redArg___closed__0;
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Bitwise_Lemmas_0__Int_shiftRight_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Bitwise_Lemmas_0__Int_shiftRight_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -40,7 +40,7 @@ x_6 = lean_int_dec_lt(x_1, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
-lean_dec(x_4);
+lean_dec_ref(x_4);
 x_7 = lean_nat_abs(x_1);
 x_8 = lean_apply_2(x_3, x_7, x_2);
 return x_8;
@@ -48,7 +48,7 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_9 = lean_nat_abs(x_1);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_sub(x_9, x_10);

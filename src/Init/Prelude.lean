@@ -6,6 +6,8 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude -- Don't import Init, because we're in Init itself
+
+public section
 set_option linter.missingDocs true -- keep it documented
 @[expose] section  -- Expose all defs
 
@@ -61,20 +63,14 @@ Examples:
   fun _ => a
 
 /--
-The encoding of `let_fun x := v; b` is `letFun v (fun x => b)`.
+`letFun v (fun x => b)` is a function version of `have x := v; b`.
 This is equal to `(fun x => b) v`, so the value of `x` is not accessible to `b`.
 This is in contrast to `let x := v; b`, where the value of `x` is accessible to `b`.
 
-There is special support for `letFun`.
-Both WHNF and `simp` are aware of `letFun` and can reduce it when zeta reduction is enabled,
-despite the fact it is marked `irreducible`.
-For metaprogramming, the function `Lean.Expr.letFun?` can be used to recognize a `let_fun` expression
-to extract its parts as if it were a `let` expression.
+This used to be the way `have`/`let_fun` syntax was encoded,
+and there used to be special support for `letFun` in WHNF and `simp`.
 -/
 def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
--- We need to export the body of `letFun`, which is suppressed if `[irreducible]` is set directly.
--- We can work around this rare case by applying the attribute after the fact.
-attribute [irreducible] letFun
 
 set_option checkBinderAnnotations false in
 /--
@@ -476,7 +472,7 @@ type, and casting `a` across the equality yields `b`, and vice versa.
 You should avoid using this type if you can. Heterogeneous equality does not
 have all the same properties as `Eq`, because the assumption that the types of
 `a` and `b` are equal is often too weak to prove theorems of interest. One
-important non-theorem is the analogue of `congr`: If `f ≍ g` and `x ≍ y`
+public important non-theorem is the analogue of `congr`: If `f ≍ g` and `x ≍ y`
 and `f x` and `g y` are well typed it does not follow that `f x ≍ g y`.
 (This does follow if you have `f = g` instead.) However if `a` and `b` have
 the same type then `a = b` and `a ≍ b` are equivalent.
@@ -592,7 +588,7 @@ theorem Or.neg_resolve_right (h : Or a (Not b)) (nb : b) : a := h.elim id (absur
 The Boolean values, `true` and `false`.
 
 Logically speaking, this is equivalent to `Prop` (the type of propositions). The distinction is
-important for programming: both propositions and their proofs are erased in the code generator,
+public important for programming: both propositions and their proofs are erased in the code generator,
 while `Bool` corresponds to the Boolean type in most programming languages and carries precisely one
 bit of run-time information.
 -/
@@ -889,6 +885,30 @@ theorem ULift.up_down {α : Type u} (b : ULift.{v} α) : Eq (up (down b)) b := r
 
 /-- Bijection between `α` and `ULift.{v} α` -/
 theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a := rfl
+
+instance [Inhabited α] : Inhabited (ULift α) where
+  default := ULift.up default
+
+/--
+Lifts a type or proposition to a higher universe level.
+
+`PULift α` wraps a value of type `α`. It is a generalization of
+`PLift` that allows lifting values who's type may live in `Sort s`.
+It also subsumes `PLift`.
+-/
+-- The universe variable `r` is written first so that `ULift.{r} α` can be used
+-- when `s` can be inferred from the type of `α`.
+structure PULift.{r, s} (α : Sort s) : Sort (max s r 1) where
+  /-- Wraps a value to increase its type's universe level. -/
+  up ::
+  /-- Extracts a wrapped value from a universe-lifted type. -/
+  down : α
+
+/-- Bijection between `α` and `PULift.{v} α` -/
+theorem PULift.up_down {α : Sort u} (b : PULift.{v} α) : Eq (up (down b)) b := rfl
+
+/-- Bijection between `α` and `PULift.{v} α` -/
+theorem PULift.down_up {α : Sort u} (a : α) : Eq (down (up.{v} a)) a := rfl
 
 /--
 Either a proof that `p` is true or a proof that `p` is false. This is equivalent to a `Bool` paired
@@ -1565,7 +1585,7 @@ class AndOp (α : Type u) where
   and : α → α → α
 
 /-- The homogeneous version of `HXor`: `a ^^^ b : α` where `a b : α`. -/
-class Xor (α : Type u) where
+class XorOp (α : Type u) where
   /-- The implementation of `a ^^^ b : α`. See `HXor`. -/
   xor : α → α → α
 
@@ -1648,8 +1668,8 @@ instance [AndOp α] : HAnd α α α where
   hAnd a b := AndOp.and a b
 
 @[default_instance]
-instance [Xor α] : HXor α α α where
-  hXor a b := Xor.xor a b
+instance [XorOp α] : HXor α α α where
+  hXor a b := XorOp.xor a b
 
 @[default_instance]
 instance [OrOp α] : HOr α α α where
@@ -2569,7 +2589,7 @@ This function is `@[macro_inline]`, so `dflt` will not be evaluated unless `opt`
 
 Examples:
  * `(some "hello").getD "goodbye" = "hello"`
- * `none.getD "goodbye" = "hello"`
+ * `none.getD "goodbye" = "goodbye"`
 -/
 @[macro_inline, expose] def Option.getD (opt : Option α) (dflt : α) : α :=
   match opt with
@@ -3728,7 +3748,7 @@ class MonadWithReader (ρ : outParam (Type u)) (m : Type u → Type v) where
   During the inner action `x`, reading the value returns `f` applied to the original value. After
   control returns from `x`, the reader monad's value is restored.
   -/
-  withReader {α : Type u} : (ρ → ρ) → m α → m α
+  withReader {α : Type u} : (f : ρ → ρ) → (x : m α) → m α
 
 export MonadWithReader (withReader)
 
@@ -4557,12 +4577,12 @@ in `s!"value = {x}"`.
 abbrev interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 
 /-- Creates an info-less node of the given kind and children. -/
-@[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax (.cons k .nil) :=
+@[inline, expose] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax (.cons k .nil) :=
   ⟨Syntax.node SourceInfo.none k args⟩
 
 /-- Creates an info-less `nullKind` node with the given children, if any. -/
 -- NOTE: used by the quotation elaborator output
-@[inline] def mkNullNode (args : Array Syntax := Array.empty) : Syntax :=
+@[inline, expose] def mkNullNode (args : Array Syntax := Array.empty) : Syntax :=
   mkNode nullKind args |>.raw
 
 namespace Syntax

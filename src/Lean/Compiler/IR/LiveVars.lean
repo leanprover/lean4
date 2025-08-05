@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.FreeVars
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.FreeVars
+
+public section
 
 namespace Lean.IR
 
@@ -29,7 +33,7 @@ namespace Lean.IR
 namespace IsLive
 /--
   We use `State Context` instead of `ReaderT Context Id` because we remove
-  non local joint points from `Context` whenever we visit them instead of
+  non local join points from `Context` whenever we visit them instead of
   maintaining a set of visited non local join points.
 
   Remark: we don't need to track local join points because we assume there is
@@ -44,17 +48,20 @@ abbrev visitArgs (w : Index) (as : Array Arg) : M Bool := pure (HasIndex.visitAr
 abbrev visitExpr (w : Index) (e : Expr) : M Bool := pure (HasIndex.visitExpr w e)
 
 partial def visitFnBody (w : Index) : FnBody → M Bool
-  | FnBody.vdecl _ _ v b    => visitExpr w v <||> visitFnBody w b
-  | FnBody.jdecl _ _  v b   => visitFnBody w v <||> visitFnBody w b
-  | FnBody.set x _ y b      => visitVar w x <||> visitArg w y <||> visitFnBody w b
-  | FnBody.uset x _ y b     => visitVar w x <||> visitVar w y <||> visitFnBody w b
-  | FnBody.sset x _ _ y _ b => visitVar w x <||> visitVar w y <||> visitFnBody w b
-  | FnBody.setTag x _ b     => visitVar w x <||> visitFnBody w b
-  | FnBody.inc x _ _ _ b    => visitVar w x <||> visitFnBody w b
-  | FnBody.dec x _ _ _ b    => visitVar w x <||> visitFnBody w b
-  | FnBody.del x b          => visitVar w x <||> visitFnBody w b
-  | FnBody.mdata _ b        => visitFnBody w b
-  | FnBody.jmp j ys         => visitArgs w ys <||> do
+  | .vdecl _ _ v b =>
+    visitExpr w v <||> visitFnBody w b
+  | .jdecl _ _  v b =>
+    visitFnBody w v <||> visitFnBody w b
+  | .set x _ y b =>
+    visitVar w x <||> visitArg w y <||> visitFnBody w b
+  | .uset x _ y b | .sset x _ _ y _ b =>
+    visitVar w x <||> visitVar w y <||> visitFnBody w b
+  | .setTag x _ b | .inc x _ _ _ b | .dec x _ _ _ b | .del x b =>
+    visitVar w x <||> visitFnBody w b
+  | .case _ x _ alts =>
+    visitVar w x <||> alts.anyM (fun alt => visitFnBody w alt.body)
+  | .jmp j ys =>
+    visitArgs w ys <||> do
       let ctx ← get
       match ctx.getJPBody j with
       | some b =>
@@ -64,9 +71,9 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
       | none   =>
         -- `j` must be a local join point. So do nothing since we have already visite its body.
         pure false
-  | FnBody.ret x            => visitArg w x
-  | FnBody.case _ x _ alts  => visitVar w x <||> alts.anyM (fun alt => visitFnBody w alt.body)
-  | FnBody.unreachable      => pure false
+  | .ret x =>
+    visitArg w x
+  | .unreachable => pure false
 
 end IsLive
 
@@ -80,13 +87,10 @@ def FnBody.hasLiveVar (b : FnBody) (ctx : LocalContext) (x : VarId) : Bool :=
   (IsLive.visitFnBody x.idx b).run' ctx
 
 abbrev LiveVarSet   := VarIdSet
-abbrev JPLiveVarMap := RBMap JoinPointId LiveVarSet (fun j₁ j₂ => compare j₁.idx j₂.idx)
-
-instance : Inhabited LiveVarSet where
-  default := {}
+abbrev JPLiveVarMap := Std.TreeMap JoinPointId LiveVarSet (fun j₁ j₂ => compare j₁.idx j₂.idx)
 
 def mkLiveVarSet (x : VarId) : LiveVarSet :=
-  RBTree.empty.insert x
+  Std.TreeSet.empty.insert x
 
 namespace LiveVars
 
@@ -96,8 +100,8 @@ abbrev Collector := LiveVarSet → LiveVarSet
 @[inline] private def collectVar (x : VarId) : Collector := fun s => s.insert x
 
 private def collectArg : Arg → Collector
-  | Arg.var x  => collectVar x
-  | _          => skip
+  | .var x  => collectVar x
+  | .erased => skip
 
 private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector := fun s =>
   as.foldl (fun s a => f a s) s
@@ -106,10 +110,10 @@ private def collectArgs (as : Array Arg) : Collector :=
   collectArray as collectArg
 
 private def accumulate (s' : LiveVarSet) : Collector :=
-  fun s => s'.fold (fun s x => s.insert x) s
+  fun s => s'.foldl (fun s x => s.insert x) s
 
 private def collectJP (m : JPLiveVarMap) (j : JoinPointId) : Collector :=
-  match m.find? j with
+  match m.get? j with
   | some xs => accumulate xs
   | none    => skip -- unreachable for well-formed code
 
@@ -120,38 +124,35 @@ private def bindParams (ps : Array Param) : Collector := fun s =>
   ps.foldl (fun s p => s.erase p.x) s
 
 def collectExpr : Expr → Collector
-  | Expr.ctor _ ys      => collectArgs ys
-  | Expr.reset _ x      => collectVar x
-  | Expr.reuse x _ _ ys => collectVar x ∘ collectArgs ys
-  | Expr.proj _ x       => collectVar x
-  | Expr.uproj _ x      => collectVar x
-  | Expr.sproj _ _ x    => collectVar x
-  | Expr.fap _ ys       => collectArgs ys
-  | Expr.pap _ ys       => collectArgs ys
-  | Expr.ap x ys        => collectVar x ∘ collectArgs ys
-  | Expr.box _ x        => collectVar x
-  | Expr.unbox x        => collectVar x
-  | Expr.lit _          => skip
-  | Expr.isShared x     => collectVar x
+  | .proj _ x | .uproj _ x | .sproj _ _ x | .box _ x | .unbox x | .reset _ x | .isShared x =>
+    collectVar x
+  | .ctor _ ys | .fap _ ys | .pap _ ys =>
+    collectArgs ys
+  | .ap x ys | .reuse x _ _ ys =>
+    collectVar x ∘ collectArgs ys
+  | .lit _ => skip
 
-partial def collectFnBody : FnBody → JPLiveVarMap → Collector
-  | FnBody.vdecl x _ v b,    m => collectExpr v ∘ bindVar x ∘ collectFnBody b m
-  | FnBody.jdecl j ys v b,   m =>
+partial def collectFnBody (fnBody : FnBody) (m : JPLiveVarMap) : Collector :=
+  match fnBody with
+  | .vdecl x _ v b =>
+    collectExpr v ∘ bindVar x ∘ collectFnBody b m
+  | .jdecl j ys v b =>
     let jLiveVars := (bindParams ys ∘ collectFnBody v m) {};
     let m         := m.insert j jLiveVars;
     collectFnBody b m
-  | FnBody.set x _ y b,      m => collectVar x ∘ collectArg y ∘ collectFnBody b m
-  | FnBody.setTag x _ b,     m => collectVar x ∘ collectFnBody b m
-  | FnBody.uset x _ y b,     m => collectVar x ∘ collectVar y ∘ collectFnBody b m
-  | FnBody.sset x _ _ y _ b, m => collectVar x ∘ collectVar y ∘ collectFnBody b m
-  | FnBody.inc x _ _ _ b,    m => collectVar x ∘ collectFnBody b m
-  | FnBody.dec x _ _ _ b,    m => collectVar x ∘ collectFnBody b m
-  | FnBody.del x b,          m => collectVar x ∘ collectFnBody b m
-  | FnBody.mdata _ b,        m => collectFnBody b m
-  | FnBody.ret x,            _ => collectArg x
-  | FnBody.case _ x _ alts,  m => collectVar x ∘ collectArray alts (fun alt => collectFnBody alt.body m)
-  | FnBody.unreachable,      _ => skip
-  | FnBody.jmp j xs,         m => collectJP m j ∘ collectArgs xs
+  | .set x _ y b =>
+    collectVar x ∘ collectArg y ∘ collectFnBody b m
+  | .uset x _ y b | .sset x _ _ y _ b  =>
+    collectVar x ∘ collectVar y ∘ collectFnBody b m
+  | .setTag x _ b | .inc x _ _ _ b | .dec x _ _ _ b | .del x b =>
+    collectVar x ∘ collectFnBody b m
+  | .case _ x _ alts =>
+    collectVar x ∘ collectArray alts (fun alt => collectFnBody alt.body m)
+  | .jmp j xs =>
+    collectJP m j ∘ collectArgs xs
+  | .ret x =>
+    collectArg x
+  | .unreachable => skip
 
 def updateJPLiveVarMap (j : JoinPointId) (ys : Array Param) (v : FnBody) (m : JPLiveVarMap) : JPLiveVarMap :=
   let jLiveVars := (bindParams ys ∘ collectFnBody v m) {};

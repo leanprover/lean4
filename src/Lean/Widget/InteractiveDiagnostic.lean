@@ -4,10 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
+public import Lean.Server.Utils
+public import Lean.Widget.InteractiveGoal
+public import Init.Data.Slice.Array.Basic
+public import Init.Data.Array.Subarray.Split
 import Lean.Linter.UnusedVariables
-import Lean.Server.Utils
-import Lean.Widget.InteractiveGoal
+
+public section
 
 namespace Lean.Widget
 open Lsp Server
@@ -91,7 +97,7 @@ that would effectively require reimplementing the (stateful, to keep track of in
 
 private inductive EmbedFmt
   /-- Nested tags denote `Info` objects in `infos`. -/
-  | code (ctx : Elab.ContextInfo) (infos : RBMap Nat Elab.Info compare)
+  | code (ctx : Elab.ContextInfo) (infos : Std.TreeMap Nat Elab.Info)
   /-- Nested text is ignored. -/
   | goal (ctx : Elab.ContextInfo) (lctx : LocalContext) (g : MVarId)
   /-- Nested text is ignored. -/
@@ -163,7 +169,7 @@ where
             | none     => child
         let blockSize := ctx.bind (maxTraceChildren.get? ·.opts)
           |>.getD maxTraceChildren.defValue
-        let children := chopUpChildren data.cls blockSize children.toSubarray
+        let children := chopUpChildren data.cls blockSize children[*...*]
         pure (.lazy children)
       else
         pure (.strict (← children.mapM (go nCtx ctx)))
@@ -179,8 +185,8 @@ where
   chopUpChildren (cls : Name) (blockSize : Nat) (children : Subarray MessageData) :
       Array MessageData :=
     if blockSize > 0 && children.size > blockSize + 1 then  -- + 1 to make idempotent
-      let more := chopUpChildren cls blockSize children[blockSize:]
-      children[:blockSize].toArray.push <|
+      let more := chopUpChildren cls blockSize (children.drop blockSize)
+      (children.take blockSize).toArray.push <|
         .trace { collapsed := true, cls }
           f!"{children.size - blockSize} more entries..." more
     else children

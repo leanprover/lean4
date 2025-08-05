@@ -6,7 +6,9 @@ Authors: Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-import Init.Util
+public import Init.Util
+
+public section
 
 @[expose] section
 
@@ -251,8 +253,7 @@ theorem getElem_of_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx
 @[deprecated getElem?_eq_none_iff (since := "2025-02-17")]
 abbrev getElem?_eq_none := @getElem?_eq_none_iff
 
-@[deprecated getElem?_eq_none (since := "2024-12-11")]
-abbrev isNone_getElem? := @getElem?_eq_none_iff
+
 
 @[simp, grind =] theorem isSome_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) [Decidable (dom c i)] : c[i]?.isSome = dom c i := by
@@ -360,9 +361,8 @@ instance : GetElem? (List α) Nat α fun as i => i < as.length where
 theorem none_eq_getElem?_iff {l : List α} {i : Nat} : none = l[i]? ↔ length l ≤ i := by
   simp [eq_comm (a := none)]
 
+@[grind =]
 theorem getElem?_eq_none (h : length l ≤ i) : l[i]? = none := getElem?_eq_none_iff.mpr h
-
-grind_pattern List.getElem?_eq_none => l.length ≤ i, l[i]?
 
 instance : LawfulGetElem (List α) Nat α fun as i => i < as.length where
   getElem?_def as i h := by

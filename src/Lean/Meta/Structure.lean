@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.Structure
-import Lean.Meta.AppBuilder
+public import Lean.AddDecl
+public import Lean.Structure
+public import Lean.Meta.AppBuilder
+
+public section
 
 /-!
 # Structure methods that require `MetaM` infrastructure
@@ -74,7 +78,7 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
             lctx := lctx.setBinderInfo fvarId .implicit
         -- Construct the projection functions:
         let mut ctorType := ctorType
-        for h : i in [0:projDecls.size] do
+        for h : i in *...projDecls.size do
           let {ref, projName, paramInfoOverrides} := projDecls[i]
           unless ctorType.isForall do
             throwErrorAt ref "\
@@ -106,7 +110,7 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
                 else
                   Declaration.thmDecl { cval with value := projVal }
             else
-              let decl ← mkDefinitionValInferrringUnsafe projName indVal.levelParams projType projVal ReducibilityHints.abbrev
+              let decl ← mkDefinitionValInferringUnsafe projName indVal.levelParams projType projVal ReducibilityHints.abbrev
               -- Projections have special compiler support. No need to compile.
               addDecl <| Declaration.defnDecl decl
               -- Recall: we want instance projections to be in "reducible canonical form"
@@ -130,7 +134,7 @@ def etaStruct? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do
   let args := e.getAppArgs
   let params := args.extract 0 fVal.numParams
   let some x ← getProjectedExpr ctor fVal.induct params 0 args[fVal.numParams]! none | return none
-  for i in [1 : fVal.numFields] do
+  for i in 1...fVal.numFields do
     let arg := args[fVal.numParams + i]!
     let some x' ← getProjectedExpr ctor fVal.induct params i arg x | return none
     unless x' == x do return none

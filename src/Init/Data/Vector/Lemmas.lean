@@ -6,10 +6,12 @@ Authors: Shreyas Srinivas, Francois Dorais, Kim Morrison
 module
 
 prelude
-import all Init.Data.Array.Basic
-import all Init.Data.Vector.Basic
-import Init.Data.Array.Attach
-import Init.Data.Array.Find
+public import all Init.Data.Array.Basic
+public import all Init.Data.Vector.Basic
+public import Init.Data.Array.Attach
+public import Init.Data.Array.Find
+
+public section
 
 /-!
 ## Vectors
@@ -118,8 +120,7 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 @[simp] theorem findFinIdx?_mk {xs : Array α} (h : xs.size = n) (f : α → Bool) :
     (Vector.mk xs h).findFinIdx? f = (xs.findFinIdx? f).map (Fin.cast h) := rfl
 
-@[deprecated finIdxOf?_mk (since := "2025-01-29")]
-abbrev indexOf?_mk := @finIdxOf?_mk
+
 
 @[simp] theorem findM?_mk [Monad m] {xs : Array α} (h : xs.size = n) (f : α → m Bool) :
     (Vector.mk xs h).findM? f = xs.findM? f := rfl
@@ -215,8 +216,7 @@ abbrev indexOf?_mk := @finIdxOf?_mk
 @[simp] theorem zipIdx_mk {xs : Array α} (h : xs.size = n) (k : Nat := 0) :
     (Vector.mk xs h).zipIdx k = Vector.mk (xs.zipIdx k) (by simp [h]) := rfl
 
-@[deprecated zipIdx_mk (since := "2025-01-21")]
-abbrev zipWithIndex_mk := @zipIdx_mk
+
 
 @[simp] theorem mk_zipWith_mk {f : α → β → γ} {as : Array α} {bs : Array β}
     (h : as.size = n) (h' : bs.size = n) :
@@ -282,7 +282,7 @@ set_option linter.indexVariables false in
     (xs.drop i).toArray = xs.toArray.extract i n := by
   simp [drop]
 
-@[simp, grind] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
+@[simp, grind =] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
 
 @[simp, grind] theorem toArray_emptyWithCapacity {cap} :
     (Vector.emptyWithCapacity (α := α) cap).toArray = Array.emptyWithCapacity cap := rfl
@@ -826,7 +826,7 @@ theorem getElem?_eq_none {xs : Vector α n} (h : n ≤ i) : xs[i]? = none := by
 
 -- This is a more aggressive pattern than for `List/Array.getElem?_eq_none`, because
 -- `length/size` won't appear.
-grind_pattern Vector.getElem?_eq_none => n ≤ i, xs[i]?
+grind_pattern Vector.getElem?_eq_none => xs[i]?
 
 @[simp] theorem getElem?_eq_getElem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i]? = some xs[i] :=
   getElem?_pos ..
@@ -1211,18 +1211,18 @@ theorem contains_iff [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
 instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff contains_iff
 
-@[grind] theorem contains_empty [BEq α] : (#v[] : Vector α 0).contains a = false := rfl
+@[grind] theorem contains_empty [BEq α] : (#v[] : Vector α 0).contains a = false := by simp
 
 @[simp, grind] theorem contains_eq_mem [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
     as.contains a = decide (a ∈ as) := by
   rw [Bool.eq_iff_iff, contains_iff, decide_eq_true_iff]
 
-@[simp] theorem any_push [BEq α] {as : Vector α n} {a : α} {p : α → Bool} :
+@[simp] theorem any_push {as : Vector α n} {a : α} {p : α → Bool} :
     (as.push a).any p = (as.any p || p a) := by
   rcases as with ⟨as, rfl⟩
   simp
 
-@[simp] theorem all_push [BEq α] {as : Vector α n} {a : α} {p : α → Bool} :
+@[simp] theorem all_push {as : Vector α n} {a : α} {p : α → Bool} :
     (as.push a).all p = (as.all p && p a) := by
   rcases as with ⟨as, rfl⟩
   simp
@@ -1242,8 +1242,7 @@ instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ 
 @[simp] theorem getElem_set_self {xs : Vector α n} {i : Nat} {x : α} (hi : i < n) :
     (xs.set i x hi)[i] = x := by simp [getElem_set]
 
-@[deprecated getElem_set_self (since := "2024-12-12")]
-abbrev getElem_set_eq := @getElem_set_self
+
 
 @[simp] theorem getElem_set_ne {xs : Vector α n} {x : α} (hi : i < n) (hj : j < n) (h : i ≠ j) :
     (xs.set i x hi)[j] = xs[j] := by simp [getElem_set, h]
@@ -1285,10 +1284,11 @@ theorem mem_set {xs : Vector α n} {i : Nat} {a : α} (hi : i < n) : a ∈ xs.se
   simp [mem_iff_getElem]
   exact ⟨i, (by simpa using hi), by simp⟩
 
-@[grind →]
 theorem mem_or_eq_of_mem_set {xs : Vector α n} {i : Nat} {a b : α} {hi : i < n} (h : a ∈ xs.set i b) : a ∈ xs ∨ a = b := by
   cases xs
   simpa using Array.mem_or_eq_of_mem_set (by simpa using h)
+
+grind_pattern mem_or_eq_of_mem_set => a ∈ xs.set i b
 
 /-! ### setIfInBounds -/
 
@@ -1303,8 +1303,7 @@ theorem mem_or_eq_of_mem_set {xs : Vector α n} {i : Nat} {a b : α} {hi : i < n
 @[simp] theorem getElem_setIfInBounds_self {xs : Vector α n} {x : α} (hi : i < n) :
     (xs.setIfInBounds i x)[i] = x := by simp [getElem_setIfInBounds]
 
-@[deprecated getElem_setIfInBounds_self (since := "2024-12-12")]
-abbrev getElem_setIfInBounds_eq := @getElem_setIfInBounds_self
+
 
 @[simp] theorem getElem_setIfInBounds_ne {xs : Vector α n} {x : α} (hj : j < n) (h : i ≠ j) :
     (xs.setIfInBounds i x)[j] = xs[j] := by simp [getElem_setIfInBounds, h]
@@ -1948,8 +1947,8 @@ set_option linter.listVariables false in
 /-- Two vectors of constant length vectors are equal iff their flattens coincide. -/
 theorem eq_iff_flatten_eq {xss xss' : Vector (Vector α n) m} :
     xss = xss' ↔ xss.flatten = xss'.flatten := by
-  induction xss using vector₂_induction with | of xss h₁ h₂ =>
-  induction xss' using vector₂_induction with | of xss' h₁' h₂' =>
+  induction xss using vector₂_induction with | of xss h₁ h₂
+  induction xss' using vector₂_induction with | of xss' h₁' h₂'
   simp only [eq_mk, flatten_mk, Array.map_map, Function.comp_apply, Array.map_subtype,
     Array.unattach_attach, Array.map_id_fun', id_eq]
   constructor
@@ -2973,7 +2972,7 @@ variable [BEq α]
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp, grind] theorem replace_empty : (#v[] : Vector α 0).replace a b = #v[] := by rfl
+@[simp, grind] theorem replace_empty : (#v[] : Vector α 0).replace a b = #v[] := by simp
 
 @[grind] theorem replace_singleton {a b c : α} : #v[a].replace b c = #v[if a == b then c else a] := by
   simp
@@ -3177,3 +3176,12 @@ instance instDecidableExistsVectorZero (P : Vector α 0 → Prop) [Decidable (P 
 instance instDecidableExistsVectorSucc (P : Vector α (n+1) → Prop)
     [Decidable (∀ (x : α) (xs : Vector α n), ¬ P (xs.push x))] : Decidable (∃ xs, P xs) :=
   decidable_of_iff (¬ ∀ xs, ¬ P xs) Classical.not_forall_not
+
+/-! ### sum -/
+
+@[simp, grind =]
+theorem sum_append_nat {xs₁ : Vector Nat n} {xs₂ : Vector Nat m} :
+    (xs₁ ++ xs₂).sum = xs₁.sum + xs₂.sum := by
+  rcases xs₁ with ⟨xs₁, rfl⟩
+  rcases xs₂ with ⟨xs₂, rfl⟩
+  simp [Array.sum_append_nat]

@@ -3,15 +3,19 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.RecDepth
-import Lean.Util.Trace
-import Lean.Log
-import Lean.ResolveName
-import Lean.Elab.InfoTree.Types
-import Lean.MonadEnv
-import Lean.Elab.Exception
-import Lean.Language.Basic
+public import Lean.Util.RecDepth
+public import Lean.Util.Trace
+public import Lean.Log
+public import Lean.ResolveName
+public import Lean.Elab.InfoTree.Types
+public import Lean.MonadEnv
+public import Lean.Elab.Exception
+public import Lean.Language.Basic
+
+public section
 
 namespace Lean
 register_builtin_option diagnostics : Bool := {
@@ -68,18 +72,21 @@ def useDiagnosticMsg : MessageData :=
     if diagnostics.get ctx.opts then
       pure ""
     else
-      pure s!"\n\nAdditional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
+      pure <| .hint' s!"Additional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
 
 /-- Name generator that creates user-accessible names. -/
 structure DeclNameGenerator where
   namePrefix : Name := .anonymous
   -- We use a non-nil list instead of changing `namePrefix` as we want to distinguish between
   -- numeric components in the original name (e.g. from macro scopes) and ones added by `mkChild`.
-  private idx        : Nat := 1
-  private parentIdxs : List Nat := .nil
+  idx        : Nat := 1
+  parentIdxs : List Nat := .nil
   deriving Inhabited
 
 namespace DeclNameGenerator
+
+def ofPrefix (namePrefix : Name) : DeclNameGenerator :=
+  { namePrefix }
 
 private def idxs (g : DeclNameGenerator) : List Nat :=
   g.idx :: g.parentIdxs
@@ -457,8 +464,8 @@ def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : Core
   let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
   let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
   throw <| Exception.error (← getRef) <| .tagged `runtime.maxHeartbeats m!"\
-    (deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\n\
-    Use `set_option {optionName} <num>` to set the limit.\
+    (deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\
+    {.note m!"Use `set_option {optionName} <num>` to set the limit."}\
     {useDiagnosticMsg}"
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do
@@ -666,12 +673,6 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
     | some (Expr.const declName ..) => throwError "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
     | _ => pure ()
 
-register_builtin_option compiler.enableNew : Bool := {
-  defValue := true
-  group    := "compiler"
-  descr    := "(compiler) enable the new code generator, unset to use the old code generator instead"
-}
-
 /--
 If `t` has not finished yet, waits for it under an `Elab.block` trace node. Returns `t`'s result.
 -/
@@ -684,14 +685,10 @@ def traceBlock (tag : String) (t : Task α) : CoreM α := do
 
 -- Forward declaration
 @[extern "lean_lcnf_compile_decls"]
-opaque compileDeclsNew (declNames : List Name) : CoreM Unit
-
-@[extern "lean_compile_decls"]
-opaque compileDeclsOld (env : Environment) (opt : @& Options) (decls : @& List Name) : Except Kernel.Exception Environment
+opaque compileDeclsImpl (declNames : Array Name) : CoreM Unit
 
 -- `ref?` is used for error reporting if available
-partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
-    (logErrors := true) : CoreM Unit := do
+partial def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do
   -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
   -- by the replay code
   if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
@@ -716,27 +713,17 @@ where doCompile := do
   -- is made async as well
   if !decls.all (← getEnv).constants.contains then
     return
-  let opts ← getOptions
-  if compiler.enableNew.get opts then
-    withoutExporting
-      try compileDeclsNew decls catch e =>
-        if logErrors then throw e else return ()
-  else
-    let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
-      return compileDeclsOld (← getEnv) opts decls
-    match res with
-    | Except.ok env   => setEnv env
-    | Except.error (.other msg) =>
+  withoutExporting do
+    let state ← Core.saveState
+    try
+      compileDeclsImpl decls
+    catch e =>
+      state.restore
       if logErrors then
-        if let some decl := ref? then
-          checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
-        throwError msg
-    | Except.error ex =>
-      if logErrors then
-        throwKernelException ex
+        throw e
 
 def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
-  compileDecls (Compiler.getDeclNamesForCodeGen decl) decl logErrors
+  compileDecls (Compiler.getDeclNamesForCodeGen decl) logErrors
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

@@ -6,9 +6,11 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.SizeOf
-import Init.MetaTypes
-import Init.WF
+public import Init.SizeOf
+public import Init.MetaTypes
+public import Init.WF
+
+public section
 
 /--
 Unfold definitions commonly used in well founded relation definitions.

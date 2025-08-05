@@ -6,9 +6,11 @@ Authors: Gabriel Ebner, Mario Carneiro
 module
 
 prelude
-import Init.Data.ToString.Macro
-import Init.TacticsExtra
-import Init.RCases
+public import Init.Data.ToString.Macro
+public import Init.TacticsExtra
+public import Init.RCases
+
+public section
 
 namespace Lean
 namespace Parser.Attr

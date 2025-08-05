@@ -61,7 +61,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_uv_tcp_connect(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -109,7 +109,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_uv_tcp_bind(x_1, x_2, x_3);
-lean_dec(x_2);
+lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -175,7 +175,6 @@ _start:
 {
 uint8_t x_5; uint32_t x_6; lean_object* x_7; 
 x_5 = lean_unbox(x_2);
-lean_dec(x_2);
 x_6 = lean_unbox_uint32(x_3);
 lean_dec(x_3);
 x_7 = lean_uv_tcp_keepalive(x_1, x_5, x_6, x_4);

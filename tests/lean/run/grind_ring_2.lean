@@ -115,7 +115,7 @@ example (a b c : BitVec 8) (f : BitVec 8 → Nat) : c = 255 → - a + b - 1 = c 
 #guard_msgs (trace) in
 example (a b c : BitVec 8) (f : BitVec 8 → Nat) : 2*a = 1 → 2*b = 1 → f (a) = f (b) := by
   set_option trace.grind.ring.impEq true in
-  fail_if_success grind
+  fail_if_success grind -cutsat
   sorry
 
 example (a b c : Int) (f : Int → Nat)

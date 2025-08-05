@@ -6,8 +6,10 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Data.Repr
-import Init.Data.Option.Basic
+public import Init.Data.Repr
+public import Init.Data.Option.Basic
+
+public section
 
 open Sum Subtype Nat
 

@@ -105,6 +105,8 @@ def compileStaticLib
   (ar : FilePath := "ar") (thin := false)
 : LogIO Unit := do
   createParentDirs libFile
+  -- `ar rcs` does not remove old files from the archive, so it must be deleted first
+  removeFileIfExists libFile
   let args := #["rcs"]
   let args := if thin then args.push "--thin" else args
   let args := args.push libFile.toString ++ (← mkArgs libFile <| oFiles.map toString)

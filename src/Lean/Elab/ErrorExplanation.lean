@@ -3,12 +3,16 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
+module
+
 prelude
-import Lean.ErrorExplanation
-import Lean.Meta.Eval
-import Lean.Elab.Term
-import Lean.Elab.Command
-import Lean.Widget.UserWidget
+public import Lean.ErrorExplanation
+public import Lean.Meta.Eval
+public import Lean.Elab.Term
+public import Lean.Elab.Command
+public import Lean.Widget.UserWidget
+
+public section
 
 namespace Lean.Elab.ErrorExplanation
 
@@ -76,7 +80,7 @@ def elabCheckedNamedError : TermElab := fun stx expType? => do
   -- term and so leave `stx` unchanged. The in-progress identifier will always be the penultimate
   -- argument of `span`.
   let span := if stx.getNumArgs == numArgsExpected then
-    stx.setArgs (stx.getArgs[0:stx.getNumArgs - 1])
+    stx.setArgs (stx.getArgs[*...(stx.getNumArgs - 1)])
   else
     stx
   let partialId := span[span.getNumArgs - 2]

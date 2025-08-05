@@ -95,11 +95,10 @@ goto block_17;
 }
 else
 {
-lean_object* x_34; uint8_t x_35; 
-x_34 = lean_box(0);
-x_35 = lean_unbox(x_34);
+uint8_t x_34; 
+x_34 = 0;
 x_7 = x_30;
-x_8 = x_35;
+x_8 = x_34;
 goto block_17;
 }
 }
@@ -138,7 +137,7 @@ _start:
 lean_object* x_7; 
 x_7 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastZeroExtend_go___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_4);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_2);
 return x_7;
 }
@@ -149,10 +148,10 @@ _start:
 lean_object* x_11; 
 x_11 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastZeroExtend_go(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_11;
 }
 }
@@ -181,7 +180,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastZeroExtend___redArg(x_1, x_2, x_3);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 lean_dec(x_1);
 return x_4;
 }
@@ -191,10 +190,10 @@ _start:
 {
 lean_object* x_7; 
 x_7 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastZeroExtend(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
 return x_7;
 }
 }

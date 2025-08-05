@@ -1,16 +1,24 @@
 module
 
-private import Module.Basic
+import Module.Basic
 
 /-! `private import` should allow only private access to imported decls. -/
 
-def g := f
+public def g := f
 
-/-- error: unknown identifier 'f' -/
+/--
+error: Unknown identifier `f`
+
+Note: A private declaration `f` exists but is not accessible in the current context.
+-/
 #guard_msgs in
 set_option autoImplicit false in
-theorem t2 : f = 1 := sorry
+public theorem t2 : f = 1 := sorry
 
-/-- error: unknown identifier 'f' -/
+/--
+error: Unknown identifier `f`
+
+Note: A private declaration `f` exists but is not accessible in the current context.
+-/
 #guard_msgs in
-@[expose] def h : True := f
+@[expose] public def h : True := f

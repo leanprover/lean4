@@ -3,17 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.Meta.AppBuilder
-import Lean.Meta.CompletionName
-import Lean.Meta.Constructions.NoConfusionLinear
+public import Lean.AddDecl
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.CompletionName
+public import Lean.Meta.Constructions.NoConfusionLinear
+
+public section
 
 
-register_builtin_option backwards.linearNoConfusionType : Bool := {
-  defValue := true
-  descr    := "use the linear-size construction for the `noConfusionType` declaration of an inductive type. Set to false to use the previous, simpler but quadratic-size construction. "
-}
 
 namespace Lean
 
@@ -28,11 +28,7 @@ def mkNoConfusionCore (declName : Name) : MetaM Unit := do
   let recInfo ← getConstInfo (mkRecName declName)
   unless recInfo.levelParams.length > indVal.levelParams.length do return
 
-  let useLinear ←
-    if backwards.linearNoConfusionType.get (← getOptions) then
-      NoConfusionLinear.deps.allM (hasConst · (skipRealize := true))
-    else
-      pure false
+  let useLinear ← NoConfusionLinear.canUse
 
   if useLinear then
     NoConfusionLinear.mkWithCtorType declName
@@ -71,7 +67,7 @@ where
     let natType  := mkConst ``Nat
     let declType ← mkArrow enumType natType
     let mut minors := #[]
-    for i in [:numCtors] do
+    for i in *...numCtors do
       minors := minors.push <| mkNatLit i
     withLocalDeclD `x enumType fun x => do
       let motive ← mkLambdaFVars #[x] natType

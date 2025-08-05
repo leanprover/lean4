@@ -3,9 +3,16 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Module
-import Lean.CoreM
+public import Lean.Parser.Module
+public import Lean.CoreM
+meta import Lean.Parser.Module
+
+public section
+
+public section
 
 namespace Lean.Elab
 
@@ -22,8 +29,9 @@ def HeaderSyntax.imports (stx : HeaderSyntax) (includeInit : Bool := true) : Arr
   | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
     let imports := if preludeTk.isNone && includeInit then #[{ module := `Init : Import }] else #[]
     imports ++ importsStx.map fun
-      | `(Parser.Module.import| $[private%$privateTk]? $[meta%$metaTk]? import $[all%$allTk]? $n) =>
-        { module := n.getId, importAll := allTk.isSome, isExported := privateTk.isNone
+      | `(Parser.Module.import| $[public%$publicTk]? $[meta%$metaTk]? import $[all%$allTk]? $n) =>
+        { module := n.getId, importAll := allTk.isSome
+          isExported := publicTk.isSome || moduleTk.isNone
           isMeta := metaTk.isSome }
       | _ => unreachable!
   | _ => unreachable!
@@ -53,8 +61,6 @@ def processHeaderCore
         throw <| .userError "cannot use `import all` without `module`"
       if i.importAll && mainModule.getRoot != i.module.getRoot then
         throw <| .userError "cannot use `import all` across module path roots"
-      if !isModule && !i.isExported then
-        throw <| .userError "cannot use `private import` without `module`"
     let env ←
       importModules (leakEnv := leakEnv) (loadExts := true) (level := level)
         imports opts trustLevel plugins arts

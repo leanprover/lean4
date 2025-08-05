@@ -24,9 +24,9 @@ abbrev MonadBuildStore (m) := MonadDStore BuildKey (Job <| BuildData ·) m
 
 /-- The type of the Lake build store. -/
 abbrev BuildStore :=
-  DRBMap BuildKey (Job <| BuildData ·) BuildKey.quickCmp
+  Std.DTreeMap BuildKey (Job <| BuildData ·) BuildKey.quickCmp
 
-@[inline] def BuildStore.empty : BuildStore := DRBMap.empty
+@[inline] def BuildStore.empty : BuildStore := Std.DTreeMap.empty
 
 namespace BuildStore
 

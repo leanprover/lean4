@@ -6,11 +6,13 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro, Floris van Doorn
 module
 
 prelude
-import all Init.Data.Nat.Bitwise.Basic
-import Init.Data.Nat.MinMax
-import all Init.Data.Nat.Log2
-import Init.Data.Nat.Power2
-import Init.Data.Nat.Mod
+public import all Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.MinMax
+public import all Init.Data.Nat.Log2
+public import Init.Data.Nat.Power2
+public import Init.Data.Nat.Mod
+
+public section
 
 /-! # Basic theorems about natural numbers
 
@@ -1143,8 +1145,7 @@ protected theorem pow_lt_pow_succ (h : 1 < a) : a ^ n < a ^ (n + 1) := by
 
 protected theorem pow_lt_pow_of_lt {a n m : Nat} (h : 1 < a) (w : n < m) : a ^ n < a ^ m := by
   have := Nat.exists_eq_add_of_lt w
-  cases this
-  case intro k p =>
+  cases this with | intro k p
   rw [Nat.add_right_comm] at p
   subst p
   rw [Nat.pow_add, ← Nat.mul_one (a^n)]
@@ -1559,7 +1560,7 @@ theorem mul_add_mod_of_lt {a b c : Nat} (h : c < b) : (a * b + c) % b = c := by
 @[simp] theorem mod_div_self (m n : Nat) : m % n / n = 0 := by
   cases n
   · exact (m % 0).div_zero
-  · case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
+  case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
 
 theorem mod_eq_iff {a b c : Nat} :
     a % b = c ↔ (b = 0 ∧ a = c) ∨ (c < b ∧ Exists fun k => a = b * k + c) :=
@@ -1688,17 +1689,17 @@ theorem div_lt_div_of_lt_of_dvd {a b d : Nat} (hdb : d ∣ b) (h : a < b) : a / 
 
 @[simp, grind =] theorem shiftLeft_zero : n <<< 0 = n := rfl
 
-/-- Shiftleft on successor with multiple moved inside. -/
+/-- Shift left on successor with multiple moved inside. -/
 theorem shiftLeft_succ_inside (m n : Nat) : m <<< (n+1) = (2*m) <<< n := rfl
 
-/-- Shiftleft on successor with multiple moved to outside. -/
+/-- Shift left on successor with multiple moved to outside. -/
 theorem shiftLeft_succ : ∀(m n), m <<< (n + 1) = 2 * (m <<< n)
 | _, 0 => rfl
 | _, k + 1 => by
   rw [shiftLeft_succ_inside _ (k+1)]
   rw [shiftLeft_succ _ k, shiftLeft_succ_inside]
 
-/-- Shiftright on successor with division moved inside. -/
+/-- Shift right on successor with division moved inside. -/
 theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
 | _, 0 => rfl
 | _, k + 1 => by

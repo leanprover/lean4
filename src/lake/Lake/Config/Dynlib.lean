@@ -30,6 +30,6 @@ structure Dynlib where
 def Dynlib.dir? (self : Dynlib) : Option FilePath :=
   self.path.parent
 
-instance : ToText Dynlib := ⟨(·.path.toString)⟩
 instance : ToJson Dynlib := ⟨(·.path.toString)⟩
+instance : ToString Dynlib := ⟨(·.path.toString)⟩
 instance : Coe Dynlib FilePath := ⟨(·.path)⟩

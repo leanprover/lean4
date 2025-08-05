@@ -8,12 +8,13 @@ Extra notation that depends on Init/Meta
 module
 
 prelude
-import Init.Data.ToString.Basic
-import Init.Conv
-import Init.Meta
-import Init.While
-meta import Init.Data.Option.Basic
-meta import Init.Data.Array.Subarray
+public import Init.Data.ToString.Basic
+public import Init.Conv
+public import Init.Meta
+public import Init.While
+public meta import Init.Data.Option.Basic
+
+public section
 
 namespace Lean
 
@@ -38,7 +39,7 @@ def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type
       loop i (Nat.le_of_succ_le h) acc
   loop idents.size (by simp) body
 
-def expandBrackedBindersAux (combinator : Syntax) (binders : Array Syntax) (body : Syntax) : MacroM Syntax :=
+def expandBracketedBindersAux (combinator : Syntax) (binders : Array Syntax) (body : Syntax) : MacroM Syntax :=
   let rec loop (i : Nat) (h : i ≤ binders.size) (acc : Syntax) := do
     match i with
     | 0   => pure acc
@@ -56,13 +57,13 @@ def expandExplicitBinders (combinatorDeclName : Name) (explicitBinders : Syntax)
     let type? := if explicitBinders[1].isNone then none else some explicitBinders[1][1]
     expandExplicitBindersAux combinator idents type? body
   else if explicitBinders.getArgs.all (·.getKind == ``Lean.bracketedExplicitBinders) then
-    expandBrackedBindersAux combinator explicitBinders.getArgs body
+    expandBracketedBindersAux combinator explicitBinders.getArgs body
   else
     Macro.throwError "unexpected explicit binder"
 
-def expandBrackedBinders (combinatorDeclName : Name) (bracketedExplicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
+def expandBracketedBinders (combinatorDeclName : Name) (bracketedExplicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
   let combinator := mkCIdentFrom (← getRef) combinatorDeclName
-  expandBrackedBindersAux combinator #[bracketedExplicitBinders] body
+  expandBracketedBindersAux combinator #[bracketedExplicitBinders] body
 
 syntax unifConstraint := term patternIgnore(" =?= " <|> " ≟ ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
@@ -76,7 +77,7 @@ macro_rules
     for (c₁, c₂) in cs₁.zip cs₂ |>.reverse do
       body ← `($c₁ = $c₂ → $body)
     let hint : Ident ← `(hint)
-    `($[$doc?:docComment]? @[$kind unification_hint] def $(n.getD hint) $bs* : Sort _ := $body)
+    `($[$doc?:docComment]? @[$kind unification_hint, expose] def $(n.getD hint) $bs* : Sort _ := $body)
 end Lean
 
 open Lean
@@ -87,8 +88,8 @@ macro "∃" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``Exi
 macro "exists" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``Exists xs b
 macro "Σ" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``Sigma xs b
 macro "Σ'" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``PSigma xs b
-macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBinders ``Sigma xs b
-macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders ``PSigma xs b
+macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBracketedBinders ``Sigma xs b
+macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBracketedBinders ``PSigma xs b
 end
 
 namespace Lean
@@ -287,8 +288,8 @@ macro_rules
         `(List.cons $x $k)
     else
       let m := x.size / 2
-      let y := x[m:]
-      let z := x[:m]
+      let y := x.drop m
+      let z := x.take m
       `(let y := %[ $[$y],* | $k ]
         %[ $[$z],* | y ])
 

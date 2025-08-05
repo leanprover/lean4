@@ -11,7 +11,7 @@ info: 12776324570088369205
 #eval (123456789012345678901).toUInt64.toNat
 
 /--
-error: tactic 'native_decide' evaluated that the proposition
+error: Tactic `native_decide` evaluated that the proposition
   (Nat.toUInt64 123456789012345678901).toNat = 123456789012345678901
 is false
 -/

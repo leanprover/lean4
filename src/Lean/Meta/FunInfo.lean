@@ -3,9 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.InferType
+public import Lean.Meta.Basic
+public import Lean.Meta.InferType
+
+public section
 
 namespace Lean.Meta
 
@@ -59,7 +63,7 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
       forallBoundedTelescope fnType maxArgs? fun fvars type => do
         let mut paramInfo := #[]
         let mut higherOrderOutParams : FVarIdSet := {}
-        for h : i in [:fvars.size] do
+        for h : i in *...fvars.size do
           let fvar := fvars[i]
           let decl ← getFVarLocalDecl fvar
           let backDeps := collectDeps fvars decl.type
@@ -79,7 +83,7 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
               if let some outParamPositions := getOutParamPositions? (← getEnv) className then
                 unless outParamPositions.isEmpty do
                   let args := decl.type.getAppArgs
-                  for h2 : i in [:args.size] do
+                  for h2 : i in *...args.size do
                     if outParamPositions.contains i then
                       let arg := args[i]
                       if let some idx := fvars.idxOf? arg then
@@ -90,8 +94,8 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
         paramInfo := updateHasFwdDeps paramInfo resultDeps
         return { resultDeps, paramInfo }
 
-def getFunInfo (fn : Expr) : MetaM FunInfo :=
-  getFunInfoAux fn none
+def getFunInfo (fn : Expr) (maxArgs? : Option Nat := none) : MetaM FunInfo :=
+  getFunInfoAux fn maxArgs?
 
 def getFunInfoNArgs (fn : Expr) (nargs : Nat) : MetaM FunInfo :=
   getFunInfoAux fn (some nargs)

@@ -6,8 +6,10 @@ Authors: Johannes Hölzl
 module
 
 prelude
-import Init.Ext
-import Init.Core
+public import Init.Ext
+public import Init.Core
+
+public section
 
 namespace Subtype
 

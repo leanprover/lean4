@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Module
+public import Lean.Parser.Module
+
+public section
 
 namespace Lean
 namespace ParseImports
@@ -20,7 +24,7 @@ structure State where
   importAll     : Bool := false
   deriving Inhabited
 
-def Parser := String → State → State
+@[expose] def Parser := String → State → State
 
 instance : Inhabited Parser where
   default := fun _ s => s
@@ -195,7 +199,7 @@ def setIsMeta (isMeta : Bool) : Parser := fun _ s =>
   { s with isMeta }
 
 def setIsExported (isExported : Bool) : Parser := fun _ s =>
-  { s with isExported }
+  { s with isExported := isExported || !s.isModule }
 
 def setImportAll (importAll : Bool) : Parser := fun _ s =>
   { s with importAll }
@@ -203,7 +207,7 @@ def setImportAll (importAll : Bool) : Parser := fun _ s =>
 def main : Parser :=
   keywordCore "module" (fun _ s => s) (fun _ s => { s with isModule := true }) >>
   keywordCore "prelude" (fun _ s => s.pushImport `Init) (fun _ s => s) >>
-  many (keywordCore "private" (setIsExported true) (setIsExported false) >>
+  many (keywordCore "public" (setIsExported false) (setIsExported true) >>
     keywordCore "meta" (setIsMeta false) (setIsMeta true) >>
     keyword "import" >>
     keywordCore "all" (setImportAll false) (setImportAll true) >>

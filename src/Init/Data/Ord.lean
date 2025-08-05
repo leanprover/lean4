@@ -6,10 +6,12 @@ Authors: Dany Fabian, Sebastian Ullrich
 module
 
 prelude
-import Init.Data.String.Basic
-import Init.Data.Array.Basic
-import Init.Data.SInt.Basic
-import all Init.Data.Vector.Basic
+public import Init.Data.String.Basic
+public import Init.Data.Array.Basic
+public import Init.Data.SInt.Basic
+public import all Init.Data.Vector.Basic
+
+public section
 
 /--
 The result of a comparison according to a total order.
@@ -92,6 +94,10 @@ Ordering.lt
   match a with
   | .eq => b
   | a => a
+
+/-- Version of `Ordering.then'` for proof by reflection. -/
+noncomputable def then' (a b : Ordering) : Ordering :=
+  Ordering.rec a b a a
 
 /--
 Checks whether the ordering is `eq`.
@@ -245,12 +251,12 @@ theorem isEq_eq_beq_eq : ∀ {o : Ordering}, o.isEq = (o == .eq) := by decide
 theorem isNe_eq_not_beq_eq : ∀ {o : Ordering}, o.isNe = (!o == .eq) := by decide
 theorem isNe_eq_isLT_or_isGT : ∀ {o : Ordering}, o.isNe = (o.isLT || o.isGT) := by decide
 
-@[simp] theorem not_isLT_eq_isGE : ∀ {o : Ordering}, !o.isLT = o.isGE := by decide
-@[simp] theorem not_isLE_eq_isGT : ∀ {o : Ordering}, !o.isLE = o.isGT := by decide
-@[simp] theorem not_isGT_eq_isLE : ∀ {o : Ordering}, !o.isGT = o.isLE := by decide
-@[simp] theorem not_isGE_eq_isLT : ∀ {o : Ordering}, !o.isGE = o.isLT := by decide
-@[simp] theorem not_isNe_eq_isEq : ∀ {o : Ordering}, !o.isNe = o.isEq := by decide
-theorem not_isEq_eq_isNe : ∀ {o : Ordering}, !o.isEq = o.isNe := by decide
+@[simp] theorem not_isLT_eq_isGE : ∀ {o : Ordering}, (!o.isLT) = o.isGE := by decide
+@[simp] theorem not_isLE_eq_isGT : ∀ {o : Ordering}, (!o.isLE) = o.isGT := by decide
+@[simp] theorem not_isGT_eq_isLE : ∀ {o : Ordering}, (!o.isGT) = o.isLE := by decide
+@[simp] theorem not_isGE_eq_isLT : ∀ {o : Ordering}, (!o.isGE) = o.isLT := by decide
+@[simp] theorem not_isNe_eq_isEq : ∀ {o : Ordering}, (!o.isNe) = o.isEq := by decide
+theorem not_isEq_eq_isNe : ∀ {o : Ordering}, (!o.isEq) = o.isNe := by decide
 
 theorem ne_lt_iff_isGE : ∀ {o : Ordering}, ¬o = .lt ↔ o.isGE := by decide
 theorem ne_gt_iff_isLE : ∀ {o : Ordering}, ¬o = .gt ↔ o.isLE := by decide
@@ -289,6 +295,9 @@ instance : Std.LawfulIdentity Ordering.then eq where
   left_id _ := eq_then
   right_id _ := then_eq
 
+theorem then'_eq_then (a b : Ordering) : a.then' b = a.then b := by
+  cases a <;> simp [Ordering.then', Ordering.then]
+
 end Lemmas
 
 end Ordering
@@ -301,7 +310,7 @@ In particular, if `x < y` then the result is `Ordering.lt`. If `x = y` then the 
 
 `compareOfLessAndBEq` uses `BEq` instead of `DecidableEq`.
 -/
-@[inline] def compareOfLessAndEq {α} (x y : α) [LT α] [Decidable (x < y)] [DecidableEq α] : Ordering :=
+@[inline, expose] def compareOfLessAndEq {α} (x y : α) [LT α] [Decidable (x < y)] [DecidableEq α] : Ordering :=
   if x < y then Ordering.lt
   else if x = y then Ordering.eq
   else Ordering.gt
@@ -327,7 +336,7 @@ by `cmp₂` to break the tie.
 
 To lexicographically combine two `Ordering`s, use `Ordering.then`.
 -/
-@[inline] def compareLex (cmp₁ cmp₂ : α → β → Ordering) (a : α) (b : β) : Ordering :=
+@[inline, expose] def compareLex (cmp₁ cmp₂ : α → β → Ordering) (a : α) (b : β) : Ordering :=
   (cmp₁ a b).then (cmp₂ a b)
 
 section Lemmas
@@ -455,7 +464,7 @@ Examples:
  * `compareOn (· % 3) 5 6 = .gt`
  * `compareOn (·.foldl max 0) [1, 2, 3] [3, 2, 1] = .eq`
 -/
-@[inline] def compareOn [ord : Ord β] (f : α → β) (x y : α) : Ordering :=
+@[inline, expose] def compareOn [ord : Ord β] (f : α → β) (x y : α) : Ordering :=
   compare (f x) (f y)
 
 instance : Ord Nat where
@@ -722,7 +731,7 @@ protected theorem compare_eq_compare_toList {α n} [Ord α] {a b : Vector α n} 
 end Vector
 
 /-- The lexicographic order on pairs. -/
-def lexOrd [Ord α] [Ord β] : Ord (α × β) where
+@[expose] def lexOrd [Ord α] [Ord β] : Ord (α × β) where
   compare := compareLex (compareOn (·.1)) (compareOn (·.2))
 
 /--
@@ -779,7 +788,7 @@ Inverts the order of an `Ord` instance.
 The result is an `Ord α` instance that returns `Ordering.lt` when `ord` would return `Ordering.gt`
 and that returns `Ordering.gt` when `ord` would return `Ordering.lt`.
 -/
-protected def opposite (ord : Ord α) : Ord α where
+@[expose] protected def opposite (ord : Ord α) : Ord α where
   compare x y := ord.compare y x
 
 /--
@@ -790,13 +799,13 @@ In particular, `ord.on f` compares `x` and `y` by comparing `f x` and `f y` acco
 The function `compareOn` can be used to perform this comparison without constructing an intermediate
 `Ord` instance.
 -/
-protected def on (_ : Ord β) (f : α → β) : Ord α where
+@[expose] protected def on (_ : Ord β) (f : α → β) : Ord α where
   compare := compareOn f
 
 /--
 Constructs the lexicographic order on products `α × β` from orders for `α` and `β`.
 -/
-protected abbrev lex (_ : Ord α) (_ : Ord β) : Ord (α × β) :=
+@[expose] protected abbrev lex (_ : Ord α) (_ : Ord β) : Ord (α × β) :=
   lexOrd
 
 /--
@@ -809,7 +818,7 @@ The function `compareLex` can be used to perform this comparison without constru
 intermediate `Ord` instance. `Ordering.then` can be used to lexicographically combine the results of
 comparisons.
 -/
-protected def lex' (ord₁ ord₂ : Ord α) : Ord α where
+@[expose] protected def lex' (ord₁ ord₂ : Ord α) : Ord α where
   compare := compareLex ord₁.compare ord₂.compare
 
 end Ord

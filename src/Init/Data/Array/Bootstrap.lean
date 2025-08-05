@@ -7,8 +7,10 @@ Authors: Mario Carneiro
 module
 
 prelude
-import Init.Data.List.TakeDrop
-import all Init.Data.Array.Basic
+public import Init.Data.List.TakeDrop
+public import all Init.Data.Array.Basic
+
+public section
 
 /-!
 ## Bootstrapping theorems about arrays
@@ -121,14 +123,8 @@ abbrev pop_toList := @Array.toList_pop
 @[simp, grind =] theorem append_empty {xs : Array α} : xs ++ #[] = xs := by
   apply ext'; simp only [toList_append, List.append_nil]
 
-@[deprecated append_empty (since := "2025-01-13")]
-abbrev append_nil := @append_empty
-
 @[simp, grind =] theorem empty_append {xs : Array α} : #[] ++ xs = xs := by
   apply ext'; simp only [toList_append, List.nil_append]
-
-@[deprecated empty_append (since := "2025-01-13")]
-abbrev nil_append := @empty_append
 
 @[simp, grind _=_] theorem append_assoc {xs ys zs : Array α} : xs ++ ys ++ zs = xs ++ (ys ++ zs) := by
   apply ext'; simp only [toList_append, List.append_assoc]
@@ -140,7 +136,6 @@ abbrev nil_append := @empty_append
   rw [← appendList_eq_append]; unfold Array.appendList
   induction l generalizing xs <;> simp [*]
 
-@[deprecated toList_appendList (since := "2024-12-11")]
-abbrev appendList_toList := @toList_appendList
+
 
 end Array

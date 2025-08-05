@@ -3,10 +3,14 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Std.Sat.CNF
-import Std.Sat.AIG.Basic
-import Std.Sat.AIG.Lemmas
+public import Std.Sat.CNF
+public import Std.Sat.AIG.Basic
+public import Std.Sat.AIG.Lemmas
+
+public section
 
 
 /-!
@@ -264,11 +268,11 @@ def Cache.addFalse (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
         intro assign heval idx hbound hmarked
         rw [Array.getElem_set] at hmarked
         split at hmarked
-        · next heq =>
+        next heq =>
           simp only [heq, CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq]
             at htip heval
           simp [denote_idx_false htip, projectRightAssign_property, heval]
-        · next heq =>
+        next heq =>
           simp only [CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
           have := cache.inv assign heval.right idx hbound hmarked
           rw [this]
@@ -294,10 +298,10 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
         intro assign heval idx hbound hmarked
         rw [Array.getElem_set] at hmarked
         split at hmarked
-        · next heq =>
+        next heq =>
           simp only [heq, CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at htip heval
           simp [heval, denote_idx_atom htip]
-        · next heq =>
+        next heq =>
           simp only [CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
           have := cache.inv assign heval.right idx hbound hmarked
           rw [this]
@@ -333,7 +337,7 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
         intro assign heval idx hbound hmarked
         rw [Array.getElem_set] at hmarked
         split at hmarked
-        · next heq =>
+        next heq =>
           simp only [heq, CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq]
             at htip heval
           have hleval := cache.inv assign heval.right lhs.gate (by omega) hl
@@ -342,7 +346,7 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
           generalize lhs.invert = linv
           generalize rhs.invert = rinv
           cases linv <;> cases rinv <;> simp [hleval, hreval]
-        · next heq =>
+        next heq =>
           simp only [CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
           have := cache.inv assign heval.right idx hbound hmarked
           rw [this]

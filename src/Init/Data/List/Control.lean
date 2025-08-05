@@ -6,9 +6,11 @@ Author: Leonardo de Moura
 module
 
 prelude
-import Init.Control.Basic
-import Init.Control.Id
-import Init.Control.Lawful
+public import Init.Control.Basic
+public import Init.Control.Id
+public import Init.Control.Lawful
+
+public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
@@ -102,6 +104,20 @@ def forA {m : Type u → Type v} [Applicative m] {α : Type w} (as : List α) (f
   | []      => pure ⟨⟩
   | a :: as => f a *> forA as f
 
+/--
+Applies the monadic action `f` to the corresponding elements of two lists, left-to-right, stopping
+at the end of the shorter list. `zipWithM f as bs` is equivalent to `mapM id (zipWith f as bs)`
+for lawful `Monad` instances.
+
+This implementation is tail recursive. `List.zipWithM'` is a a non-tail-recursive variant that may
+be more convenient to reason about.
+-/
+@[inline, expose]
+def zipWithM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type x} {γ : Type u} (f : α → β → m γ) (as : List α) (bs : List β) : m (List γ) :=
+  let rec @[specialize] loop
+    | a::as, b::bs, acc => do loop as bs (acc.push (← f a b))
+    | _, _, acc => pure acc.toList
+  loop as bs #[]
 
 @[specialize]
 def filterAuxM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → List α → m (List α)

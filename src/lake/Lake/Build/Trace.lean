@@ -94,6 +94,8 @@ structure Hash where
   val : UInt64
   deriving BEq, DecidableEq, Repr
 
+instance : Hashable Hash := ⟨Hash.val⟩
+
 namespace Hash
 
 @[inline] def ofNat (n : Nat) :=

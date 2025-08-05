@@ -6,11 +6,13 @@ Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Ma
 module
 
 prelude
-import Init.System.IOError
-import Init.System.FilePath
-import Init.System.ST
-import Init.Data.Ord
-import Init.Data.String.Extra
+public import Init.System.IOError
+public import Init.System.FilePath
+public import Init.System.ST
+public import Init.Data.Ord
+public import Init.Data.String.Extra
+
+public section
 
 open System
 
@@ -22,7 +24,7 @@ reordered.
    Makes sure we never reorder `IO` operations.
 
    TODO: mark opaque -/
-def IO.RealWorld : Type := Unit
+@[expose] def IO.RealWorld : Type := Unit
 
 /--
 A monad that can have side effects on the external world or throw exceptions of type `ε`.
@@ -1348,7 +1350,7 @@ output, or error streams.
 For `IO.Process.Stdio.piped`, this type is `IO.FS.Handle`. Otherwise, it is `Unit`, because no
 communication is possible.
 -/
-def Stdio.toHandleType : Stdio → Type
+@[expose] def Stdio.toHandleType : Stdio → Type
   | Stdio.piped   => FS.Handle
   | Stdio.inherit => Unit
   | Stdio.null    => Unit
@@ -1474,13 +1476,21 @@ structure Output where
   stderr   : String
 
 /--
-Runs a process to completion and captures its output and exit code. The child process is run with a
-null standard input, and the current process blocks until it has run to completion.
+Runs a process to completion and captures its output and exit code.
+The child process is run with a null standard input or the specified input if provided,
+and the current process blocks until it has run to completion.
 
 The specifications of standard input, output, and error handles in `args` are ignored.
 -/
-def output (args : SpawnArgs) : IO Output := do
-  let child ← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
+def output (args : SpawnArgs) (input? : Option String := none) : IO Output := do
+  let child ←
+    if let some input := input? then
+      let (stdin, child) ← (← spawn { args with stdout := .piped, stderr := .piped, stdin := .piped }).takeStdin
+      stdin.putStr input
+      stdin.flush
+      pure child
+    else
+      spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
   let stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated
   let stderr ← child.stderr.readToEnd
   let exitCode ← child.wait
@@ -1488,12 +1498,15 @@ def output (args : SpawnArgs) : IO Output := do
   pure { exitCode := exitCode, stdout := stdout, stderr := stderr }
 
 /--
-Runs a process to completion, blocking until it terminates. If the child process terminates
-successfully with exit code 0, its standard output is returned. An exception is thrown if it
-terminates with any other exit code.
+Runs a process to completion, blocking until it terminates.
+The child process is run with a null standard input or the specified input if provided,
+If the child process terminates successfully with exit code 0, its standard output is returned.
+An exception is thrown if it terminates with any other exit code.
+
+The specifications of standard input, output, and error handles in `args` are ignored.
 -/
-def run (args : SpawnArgs) : IO String := do
-  let out ← output args
+def run (args : SpawnArgs) (input? : Option String := none) : IO String := do
+  let out ← output args input?
   if out.exitCode != 0 then
     throw <| IO.userError s!"process '{args.cmd}' exited with code {out.exitCode}\
       \nstderr:\
@@ -1715,7 +1728,7 @@ def readToEnd (s : Stream) : IO String := do
   match String.fromUTF8? data with
   | some s => return s
   | none => throw <| .userError s!"Tried to read from stream containing non UTF-8 data."
-  
+
 /--
 Reads the entire remaining contents of the stream as a UTF-8-encoded array of lines.
 

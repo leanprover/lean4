@@ -52,7 +52,7 @@ error: Failed to realize constant optimize.eq_def:
         False
   ⊢ Expr.const 0 = Expr.op bop✝ (Expr.const 0)
 ---
-error: unknown identifier 'optimize.eq_def'
+error: Unknown identifier `optimize.eq_def`
 -/
 #guard_msgs in
 #check optimize.eq_def

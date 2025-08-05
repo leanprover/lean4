@@ -3,11 +3,15 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Proof
-import Lean.Meta.Tactic.Grind.MatchCond
-import Lean.Meta.Tactic.Grind.Arith.Inv
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Proof
+public import Lean.Meta.Tactic.Grind.MatchCond
+public import Lean.Meta.Tactic.Grind.Arith.Inv
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -95,9 +99,9 @@ private def checkParents (e : Expr) : GoalM Unit := do
 
 private def checkPtrEqImpliesStructEq : GoalM Unit := do
   let exprs ← getExprs
-  for h₁ : i in [: exprs.size] do
+  for h₁ : i in *...exprs.size do
     let e₁ := exprs[i]
-    for h₂ : j in [i+1 : exprs.size] do
+    for h₂ : j in (i+1)...exprs.size do
       let e₂ := exprs[j]
       -- We don't have multiple nodes for the same expression
       assert! !isSameExpr e₁ e₂

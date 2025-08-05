@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Match
-import Lean.Meta.InferType
-import Lean.Meta.Check
-import Lean.Meta.Tactic.Split
+public import Lean.Meta.Match
+public import Lean.Meta.InferType
+public import Lean.Meta.Check
+public import Lean.Meta.Tactic.Split
+
+public section
 
 namespace Lean.Meta.MatcherApp
 
@@ -149,8 +153,8 @@ def refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
     let auxType ← inferType aux
     forallTelescope auxType fun altAuxs _ => do
       let altAuxTys ← altAuxs.mapM (inferType ·)
-      (Array.zip matcherApp.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
-        forallBoundedTelescope altAuxTy altNumParams fun fvs body => do
+      matcherApp.altNumParams.zipWithM (bs := altAuxTys) fun altNumParams altAuxTy => do
+        forallBoundedTelescope altAuxTy (some altNumParams) fun fvs body => do
           unless fvs.size = altNumParams do
             throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
           -- extract type from our synthetic equality
@@ -299,7 +303,7 @@ def transform
     let altTypes ← inferArgumentTypesN matcherApp.alts.size aux2
 
     let mut alts' := #[]
-    for altIdx in [:matcherApp.alts.size],
+    for altIdx in *...matcherApp.alts.size,
         alt in matcherApp.alts,
         numParams in matcherApp.altNumParams,
         splitterNumParams in matchEqns.splitterAltNumParams,
@@ -340,7 +344,7 @@ def transform
     let altTypes ← inferArgumentTypesN matcherApp.alts.size aux
 
     let mut alts' := #[]
-    for altIdx in [:matcherApp.alts.size],
+    for altIdx in *...matcherApp.alts.size,
         alt in matcherApp.alts,
         numParams in matcherApp.altNumParams,
         altType in altTypes do
@@ -403,8 +407,8 @@ def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
       let propAlts ← matcherApp.alts.mapM fun termAlt =>
         lambdaTelescope termAlt fun xs termAltBody => do
           -- We have alt parameters and parameters corresponding to the extra args
-          let xs1 := xs[0 : xs.size - nExtra]
-          let xs2 := xs[xs.size - nExtra : xs.size]
+          let xs1 := xs[*...(xs.size - nExtra)]
+          let xs2 := xs[(xs.size - nExtra)...xs.size]
           -- logInfo m!"altIH: {xs} => {altIH}"
           let altType ← inferType termAltBody
           for x in xs2 do

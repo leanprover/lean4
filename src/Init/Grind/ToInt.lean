@@ -6,7 +6,9 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.DivMod.Lemmas
+
+public section
 
 /-!
 # Typeclasses for types that can be embedded into an interval of `Int`.
@@ -35,6 +37,11 @@ inductive IntInterval : Type where
     io (hi : Int)
   | /-- The infinite interval `(-∞, ∞)`. -/
     ii
+  deriving BEq, DecidableEq, Inhabited
+
+instance : LawfulBEq IntInterval where
+   rfl := by intro a; cases a <;> simp_all! [BEq.beq]
+   eq_of_beq := by intro a b; cases a <;> cases b <;> simp_all! [BEq.beq]
 
 namespace IntInterval
 
@@ -352,5 +359,16 @@ def Sub.of_sub_eq_add_neg {α : Type u} [_root_.Add α] [_root_.Neg α] [_root_.
     conv => rhs; rw [wrap_add h, ToInt.wrap_toInt]
 
 end ToInt
+
+/-
+Remark: `↑a` is notation for `ToInt.toInt a`.
+We want to hide `Lean.Grind.ToInt.toInt` applications in the counterexamples produced by
+the `cutsat` procedure in `grind`.
+-/
+@[app_unexpander ToInt.toInt]
+meta def toIntUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $a:term) => `(↑$a)
+  | _ => throw ()
 
 end Lean.Grind

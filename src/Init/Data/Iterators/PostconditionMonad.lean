@@ -6,9 +6,11 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Control.Lawful.Basic
-import Init.Data.Subtype
-import Init.PropLemmas
+public import Init.Control.Lawful.Basic
+public import Init.Data.Subtype
+public import Init.PropLemmas
+
+public section
 
 namespace Std.Iterators
 
@@ -45,12 +47,12 @@ Caution: `lift` is not a lawful lift function.
 For example, `pure a : PostconditionT m α` is not the same as
 `PostconditionT.lift (pure a : m α)`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def PostconditionT.lift {α : Type w} {m : Type w → Type w'} [Functor m] (x : m α) :
     PostconditionT m α :=
   ⟨fun _ => True, (⟨·, .intro⟩) <$> x⟩
 
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def PostconditionT.pure {m : Type w → Type w'} [Pure m] {α : Type w}
     (a : α) : PostconditionT m α :=
   ⟨fun y => a = y, pure <| ⟨a, rfl⟩⟩
@@ -70,7 +72,7 @@ turning `PostconditionT m` into a functor.
 The postcondition of the `x.map f` states that the return value is the image under `f` of some
 `a : α` satisfying the `x.Property`.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 protected def PostconditionT.map {m : Type w → Type w'} [Functor m] {α : Type w} {β : Type w}
     (f : α → β) (x : PostconditionT m α) : PostconditionT m β :=
   ⟨fun b => ∃ a : Subtype x.Property, f a.1 = b,

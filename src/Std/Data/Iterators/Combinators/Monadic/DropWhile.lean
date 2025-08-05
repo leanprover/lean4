@@ -3,14 +3,18 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Nat.Lemmas
-import Init.RCases
-import Init.Data.Iterators.Basic
-import Init.Data.Iterators.Consumers.Monadic.Collect
-import Init.Data.Iterators.Consumers.Monadic.Loop
-import Init.Data.Iterators.Internal.Termination
-import Init.Data.Iterators.PostconditionMonad
+public import Init.Data.Nat.Lemmas
+public import Init.RCases
+public import Init.Data.Iterators.Basic
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Consumers.Monadic.Loop
+public import Init.Data.Iterators.Internal.Termination
+public import Init.Data.Iterators.PostconditionMonad
+
+@[expose] public section
 
 /-!
 # Monadic `dropWhile` iterator combinator
@@ -119,7 +123,7 @@ Depending on `P`, it is possible that `it.dropWhileWithPostcondition P` is finit
 **Performance:**
 
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. After
-that, the combinator incurs an addictional O(1) cost for each value emitted by `it`.
+that, the combinator incurs an additional O(1) cost for each value emitted by `it`.
 -/
 @[always_inline, inline]
 def IterM.dropWhileWithPostcondition (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=
@@ -267,7 +271,7 @@ private def DropWhile.instFinitenessRelation [Monad m] [Iterator α m β]
 
 instance DropWhile.instFinite [Monad m] [Iterator α m β] [Finite α m] {P} :
     Finite (DropWhile α m β P) m :=
-  Finite.of_finitenessRelation instFinitenessRelation
+  by exact Finite.of_finitenessRelation instFinitenessRelation
 
 instance DropWhile.instIteratorCollect [Monad m] [Monad n] [Iterator α m β] [Productive α m] {P} :
     IteratorCollect (DropWhile α m β P) m n :=

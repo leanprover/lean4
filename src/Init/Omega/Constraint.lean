@@ -6,8 +6,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Omega.LinearCombo
-import Init.Omega.Int
+public import Init.Omega.LinearCombo
+public import Init.Omega.Int
+
+public section
 
 /-!
 A `Constraint` consists of an optional lower and upper bound (inclusive),
@@ -243,7 +245,7 @@ theorem addEquality_sat (w : c + Coeffs.dot x y = 0) :
     Constraint.sat' { lowerBound := some (-c), upperBound := some (-c) } x y := by
   simp [Constraint.sat', Constraint.sat]
   rw [Int.eq_iff_le_and_ge] at w
-  rwa [Int.add_le_zero_iff_le_neg', Int.add_nonnneg_iff_neg_le', and_comm] at w
+  rwa [Int.add_le_zero_iff_le_neg', Int.add_nonneg_iff_neg_le', and_comm] at w
 
 end Constraint
 

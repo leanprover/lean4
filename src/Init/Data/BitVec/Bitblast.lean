@@ -6,14 +6,16 @@ Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix, Siddharth Bhat
 module
 
 prelude
-import all Init.Data.Nat.Bitwise.Basic
-import Init.Data.Nat.Mod
-import all Init.Data.Int.DivMod
-import Init.Data.Int.LemmasAux
-import all Init.Data.BitVec.Basic
-import Init.Data.BitVec.Decidable
-import Init.Data.BitVec.Lemmas
-import Init.Data.BitVec.Folds
+public import all Init.Data.Nat.Bitwise.Basic
+public import Init.Data.Nat.Mod
+public import all Init.Data.Int.DivMod
+public import Init.Data.Int.LemmasAux
+public import all Init.Data.BitVec.Basic
+public import Init.Data.BitVec.Decidable
+public import Init.Data.BitVec.Lemmas
+public import Init.Data.BitVec.Folds
+
+@[expose] public section
 
 /-!
 # Bit blasting of bitvectors
@@ -334,7 +336,7 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
     (h : x &&& y = 0#w) : x + y = x ||| y := by
   rw [add_eq_adc, adc, iunfoldr_replace (fun _ => false) (x ||| y)]
   · rfl
-  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false, 
+  · simp only [adcb, atLeastTwo, Bool.and_false, Bool.or_false, bne_false,
     Prod.mk.injEq, and_eq_false_imp]
     intros i
     replace h : (x &&& y).getLsbD i = (0#w).getLsbD i := by rw [h]
@@ -584,7 +586,6 @@ A recurrence that describes multiplication as repeated addition.
 
 This function is useful for bit blasting multiplication.
 -/
-@[expose]
 def mulRec (x y : BitVec w) (s : Nat) : BitVec w :=
   let cur := if y.getLsbD s then (x <<< s) else 0
   match s with
@@ -620,7 +621,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
         simp [hik', hik'']
         omega
   · ext k
-    simp only [and_twoPow, 
+    simp only [and_twoPow,
       ]
     by_cases hi : x.getLsbD i <;> simp [hi] <;> omega
 
@@ -1045,7 +1046,6 @@ theorem lawful_divSubtractShift (qr : DivModState w) (h : qr.Poised args) :
 /-! ### Core division algorithm circuit -/
 
 /-- A recursive definition of division for bit blasting, in terms of a shift-subtraction circuit. -/
-@[expose]
 def divRec {w : Nat} (m : Nat) (args : DivModArgs w) (qr : DivModState w) :
     DivModState w :=
   match m with
@@ -1942,7 +1942,7 @@ The remainder for `srem`, i.e. division with rounding to zero is negative
 iff `x` is negative and `y` does not divide `x`.
 
 We can eventually build fast circuits for the divisibility test `x.srem y = 0`.
--/ 
+-/
 theorem msb_srem {x y : BitVec w} : (x.srem y).msb =
     (x.msb && decide (x.srem y ≠ 0)) := by
   rw [msb_eq_toInt]

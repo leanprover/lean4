@@ -3,10 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
+module
+
 prelude
-import Lean.Meta.Constructions.CasesOn
-import Lean.Meta.Match.Match
-import Lean.Meta.Tactic.SolveByElim
+public import Lean.Meta.Constructions.CasesOn
+public import Lean.Meta.Match.Match
+public import Lean.Meta.Tactic.SolveByElim
+
+public section
 
 namespace Lean.Meta.IndPredBelow
 open Match
@@ -81,7 +85,7 @@ where
   addMotives (motives : Array (Name × Expr)) (numParams : Nat) : Expr → MetaM Expr :=
     motives.foldrM (fun (motiveName, motive) t =>
       forallTelescopeReducing t fun xs s => do
-        let motiveType ← instantiateForall motive xs[:numParams]
+        let motiveType ← instantiateForall motive xs[*...numParams]
         withLocalDecl motiveName BinderInfo.implicit motiveType fun motive => do
           mkForallFVars (xs.insertIdxIfInBounds numParams motive) s)
 
@@ -100,9 +104,9 @@ partial def mkCtorType
     { innerType := t
       indVal := #[]
       motives := #[]
-      params := xs[:ctx.numParams]
-      args := xs[ctx.numParams:]
-      target := xs[:ctx.numParams] }
+      params := xs[*...ctx.numParams]
+      args := xs[ctx.numParams...*]
+      target := xs[*...ctx.numParams] }
 where
   addHeaderVars (vars : Variables) := do
     let headersWithNames ← ctx.headers.mapIdxM fun idx header =>
@@ -137,7 +141,7 @@ where
           (mkConst originalCtor.name $ ctx.typeInfos[0]!.levelParams.map mkLevelParam)
           (vars.params ++ vars.args)
       let innerType := mkAppN vars.indVal[belowIdx]! $
-        vars.params ++ vars.motives ++ args[ctx.numParams:] ++ #[hApp]
+        vars.params ++ vars.motives ++ args[ctx.numParams...*] ++ #[hApp]
       let x ← mkForallFVars vars.target innerType
       return replaceTempVars vars x
 
@@ -178,7 +182,7 @@ where
             let hApp := mkAppN binder xs
             let t :=
               mkAppN vars.indVal[idx]! $
-                vars.params ++ vars.motives ++ args[ctx.numParams:] ++ #[hApp]
+                vars.params ++ vars.motives ++ args[ctx.numParams...*] ++ #[hApp]
             let newDomain ← mkForallFVars xs t
 
             withLocalDecl (←copyVarName binder.fvarId!) binder.binderInfo newDomain (k idx)
@@ -195,7 +199,7 @@ where
       let t ← whnf t
       t.withApp fun _ args => do
         let hApp := mkAppN binder xs
-        let t := mkAppN vars.motives[indValIdx]! $ args[ctx.numParams:] ++ #[hApp]
+        let t := mkAppN vars.motives[indValIdx]! $ args[ctx.numParams...*] ++ #[hApp]
         let newDomain ← mkForallFVars xs t
 
         withLocalDecl (←copyVarName binder.fvarId!) binder.binderInfo newDomain k
@@ -331,9 +335,9 @@ def mkBrecOnDecl (ctx : Context) (idx : Nat) : MetaM Declaration := do
 where
   mkType : MetaM Expr :=
     forallTelescopeReducing ctx.headers[idx]! fun xs _ => do
-    let params := xs[:ctx.numParams]
-    let motives := xs[ctx.numParams:ctx.numParams + ctx.motives.size].toArray
-    let indices := xs[ctx.numParams + ctx.motives.size:]
+    let params := xs[*...ctx.numParams]
+    let motives := xs[ctx.numParams...(ctx.numParams + ctx.motives.size)].toArray
+    let indices := xs[(ctx.numParams + ctx.motives.size)...*]
     let motiveBinders ← ctx.motives.mapIdxM $ mkIH params motives
     withLocalDeclsD motiveBinders fun ys => do
     mkForallFVars (xs ++ ys) (mkAppN motives[idx]! indices)
@@ -387,7 +391,7 @@ private def belowType (motive : Expr) (xs : Array Expr) (idx : Nat) : MetaM $ Na
   (← whnf (← inferType xs[idx]!)).withApp fun type args => do
     let indName := type.constName!
     let indInfo ← getConstInfoInduct indName
-    let belowArgs := args[:indInfo.numParams] ++ #[motive] ++ args[indInfo.numParams:] ++ #[xs[idx]!]
+    let belowArgs := args[*...indInfo.numParams] ++ #[motive] ++ args[indInfo.numParams...*] ++ #[xs[idx]!]
     let belowType := mkAppN (mkConst (indName ++ `below) type.constLevels!) belowArgs
     return (indName, belowType)
 
@@ -426,14 +430,14 @@ partial def mkBelowMatcher
     lambdaTelescope alt fun xs t => do
     let oldFVars := oldLhs.fvarDecls.toArray
     let fvars := lhs.fvarDecls.toArray.map (·.toExpr)
-    let xs :=
+    let xs : Array Expr :=
       -- special case: if we had no free vars, i.e. there was a unit added and no we do have free vars, we get rid of the unit.
       match oldFVars.size, fvars.size with
-      | 0, _+1 => xs[1:]
+      | 0, _+1 => xs[1...*].toArray
       | _, _ => xs
-    let t := t.replaceFVars xs[:oldFVars.size] fvars[:oldFVars.size]
-    trace[Meta.IndPredBelow.match] "xs = {xs}; oldFVars = {oldFVars.map (·.toExpr)}; fvars = {fvars}; new = {fvars[:oldFVars.size] ++ xs[oldFVars.size:] ++ fvars[oldFVars.size:]}"
-    let newAlt ← mkLambdaFVars (fvars[:oldFVars.size] ++ xs[oldFVars.size:] ++ fvars[oldFVars.size:]) t
+    let t := t.replaceFVars xs[*...oldFVars.size] fvars[*...oldFVars.size]
+    trace[Meta.IndPredBelow.match] "xs = {xs}; oldFVars = {oldFVars.map (·.toExpr)}; fvars = {fvars}; new = {fvars[*...oldFVars.size] ++ xs[oldFVars.size...*] ++ fvars[oldFVars.size...*]}"
+    let newAlt ← mkLambdaFVars (fvars[*...oldFVars.size] ++ xs[oldFVars.size...*] ++ fvars[oldFVars.size...*]) t
     trace[Meta.IndPredBelow.match] "alt {idx}:\n{alt} ↦ {newAlt}"
     pure newAlt
 
@@ -483,7 +487,7 @@ where
 
       let belowCtor ← getConstInfoCtor $ ctorName.updatePrefix $ ctorInfo.induct ++ `below
       let belowIndices ← IndPredBelow.getBelowIndices ctorName
-      let belowIndices := belowIndices[ctorInfo.numParams:].toArray.map (· - belowCtor.numParams)
+      let belowIndices := belowIndices[ctorInfo.numParams...*].toArray.map (· - belowCtor.numParams)
 
       -- belowFieldOpts starts off with an array of empty fields.
       -- We then go over pattern's fields and set the appropriate fields to values.
@@ -493,7 +497,7 @@ where
       -- `belowIndices` is a mapping from non-`below` to the `below` version of each field.
       let mut belowFieldOpts := .replicate belowCtor.numFields none
       let fields := fields.toArray
-      for fieldIdx in [:fields.size] do
+      for fieldIdx in *...fields.size do
         belowFieldOpts := belowFieldOpts.set! belowIndices[fieldIdx]! (some fields[fieldIdx]!)
 
       let belowParams := params.toArray.push belowMotive
@@ -555,7 +559,7 @@ where
     lambdaTelescope matcherApp.motive fun xs t => do
     let numDiscrs := matcherApp.discrs.size
     withLocalDeclD (←mkFreshUserName `h_below) (belowType.replaceFVars ys xs) fun h_below => do
-    let motive ← mkLambdaFVars (xs[:numDiscrs] ++ #[h_below] ++ xs[numDiscrs:]) t
+    let motive ← mkLambdaFVars (xs[*...numDiscrs] ++ #[h_below] ++ xs[numDiscrs...*]) t
     trace[Meta.IndPredBelow.match] "motive := {motive}"
     return motive
 
@@ -591,6 +595,7 @@ def mkBelow (declName : Name) : MetaM Unit := do
       addDecl decl
       trace[Meta.IndPredBelow] "added {ctx.belowNames}"
       ctx.belowNames.forM Lean.mkCasesOn
+      -- TODO: use new ranges as soon as it does not break compilerTest1.lean anymore
       for i in [:ctx.typeInfos.size] do
         try
           let decl ← IndPredBelow.mkBrecOnDecl ctx i

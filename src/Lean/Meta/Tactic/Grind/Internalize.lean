@@ -3,19 +3,23 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Init.Grind.Lemmas
-import Lean.Meta.LitValues
-import Lean.Meta.Match.MatcherInfo
-import Lean.Meta.Match.MatchEqsExt
-import Lean.Meta.Match.MatchEqs
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.Canon
-import Lean.Meta.Tactic.Grind.Beta
-import Lean.Meta.Tactic.Grind.MatchCond
-import Lean.Meta.Tactic.Grind.Arith.Internalize
+public import Init.Grind.Util
+public import Init.Grind.Lemmas
+public import Lean.Meta.LitValues
+public import Lean.Meta.Match.MatcherInfo
+public import Lean.Meta.Match.MatchEqsExt
+public import Lean.Meta.Match.MatchEqs
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Tactic.Grind.Canon
+public import Lean.Meta.Tactic.Grind.Beta
+public import Lean.Meta.Tactic.Grind.MatchCond
+public import Lean.Meta.Tactic.Grind.Arith.Internalize
+
+public section
 
 namespace Lean.Meta.Grind
 /-- Adds `e` to congruence table. -/
@@ -32,10 +36,29 @@ def addCongrTable (e : Expr) : GoalM Unit := do
           return ()
     trace_goal[grind.debug.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
-    let node ← getENode e
-    setENode e { node with congr := e' }
+    if (← swapCgrRepr e e') then
+      /-
+      Recall that `isDiseq` and `mkDiseqProof?` are implemented using the the congruence table.
+      So, if `e` is an equality `a = b`, and is the equivalence class of `False`, but `e'` is not,
+      we **must** make `e` the representative of the congruence class.
+      The equivalence classes of `e` and `e'` will be merged eventually since we used `pushEqHEq` above,
+      but assume that a conflict is detected before we merge the equivalence classes of `e` and `e'`,
+      and we try to construct a proof that uses the fact that `a ≠ b`. To retrieve this disequality
+      we must ensure that `e` is still the congruence root.
+      -/
+      modify fun s => { s with congrTable := s.congrTable.insert { e } }
+      setENode e' { (← getENode e') with congr := e }
+      setENode e { (← getENode e) with congr := e }
+    else
+      let node ← getENode e
+      setENode e { node with congr := e' }
   else
     modify fun s => { s with congrTable := s.congrTable.insert { e } }
+where
+  swapCgrRepr (e e' : Expr) : GoalM Bool := do
+    let_expr Eq _ _ _ := e | return false
+    unless (← isEqFalse e) do return false
+    return !(← isEqFalse e')
 
 /--
 Given an application `e` of the form `f a_1 ... a_n`,
@@ -236,9 +259,9 @@ private def propagateEtaStruct (a : Expr) (generation : Nat) : GoalM Unit := do
     unless a.isAppOf ctorVal.name do
       -- TODO: remove ctorVal.numFields after update stage0
       if (← isExtTheorem inductVal.name) || ctorVal.numFields == 0 then
-        let params := aType.getAppArgs[:inductVal.numParams]
+        let params := aType.getAppArgs[*...inductVal.numParams]
         let mut ctorApp := mkAppN (mkConst ctorVal.name us) params
-        for j in [: ctorVal.numFields] do
+        for j in *...ctorVal.numFields do
           let mut proj ← mkProjFn ctorVal us params j a
           if (← isProof proj) then
             proj ← markProof proj
@@ -378,7 +401,7 @@ where
       reportIssue! "unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"
       mkENode' e generation
     | .proj .. =>
-      reportIssue! "unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term"
+      reportIssue! "unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor failed to fold this term"
       mkENode' e generation
     | .app .. =>
       if (← isLitValue e) then
@@ -393,13 +416,19 @@ where
         checkAndAddSplitCandidate e
         pushCastHEqs e
         addMatchEqns f generation
-        if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
+        if args.size == 2 && f.isConstOf ``Grind.nestedProof then
           -- We only internalize the proposition. We can skip the proof because of
           -- proof irrelevance
           let c := args[0]!
           internalizeImpl c generation e
           registerParent e c
           pushEqTrue c <| mkApp2 (mkConst ``eq_true) c args[1]!
+        else if args.size == 2 && f.isConstOf ``Grind.nestedDecidable then
+          -- We only internalize the proposition. We can skip the instance because it is
+          -- a subsingleton
+          let c := args[0]!
+          internalizeImpl c generation e
+          registerParent e c
         else if f.isConstOf ``ite && args.size == 5 then
           let c := args[1]!
           internalizeImpl c generation e
@@ -410,7 +439,7 @@ where
           else
             internalizeImpl f generation e
           registerParent e f
-          for h : i in [: args.size] do
+          for h : i in *...args.size do
             let arg := args[i]
             internalize arg generation e
             registerParent e arg

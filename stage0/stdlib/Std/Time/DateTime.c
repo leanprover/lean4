@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.DateTime
-// Imports: Std.Time.DateTime.Timestamp Std.Time.DateTime.PlainDateTime
+// Imports: Std.Time.DateTime.Timestamp Std.Time.DateTime.PlainDateTime Std.Time.Date.Unit.Month
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -55,6 +55,7 @@ static lean_object* l_Std_Time_PlainDateTime_ofPlainTime___closed__6;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_ofPlainDate(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Timestamp_toPlainDateAssumingUTC___boxed(lean_object*);
 static lean_object* l_Std_Time_Timestamp_getTimeAssumingUTC___closed__0;
+static lean_object* l_Std_Time_PlainDateTime_ofPlainDate___closed__0;
 static lean_object* l_Std_Time_PlainDateTime_ofPlainTime___closed__8;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_toPlainTime___boxed(lean_object*);
 static lean_object* l_Std_Time_PlainDateTime_ofPlainTime___closed__17;
@@ -134,7 +135,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Time_Timestamp_toPlainDateAssumingUTC(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -167,7 +168,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Time_Timestamp_getTimeAssumingUTC(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -235,11 +236,19 @@ x_1 = lean_alloc_closure((void*)(l_Std_Time_PlainDate_instHSubDuration___lam__0)
 return x_1;
 }
 }
+static lean_object* _init_l_Std_Time_PlainDateTime_ofPlainDate___closed__0() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Std_Time_PlainTime_midnight;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_ofPlainDate(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Std_Time_PlainTime_midnight;
+x_2 = l_Std_Time_PlainDateTime_ofPlainDate___closed__0;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -251,7 +260,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 return x_2;
 }
 }
@@ -260,7 +269,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Time_PlainDateTime_toPlainDate(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -470,7 +479,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_ctor_get(x_1, 1);
-lean_inc(x_2);
+lean_inc_ref(x_2);
 return x_2;
 }
 }
@@ -479,7 +488,7 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Std_Time_PlainDateTime_toPlainTime(x_1);
-lean_dec(x_1);
+lean_dec_ref(x_1);
 return x_2;
 }
 }
@@ -492,13 +501,13 @@ x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
-lean_dec(x_3);
+lean_dec_ref(x_3);
 x_6 = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(x_1);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
-lean_dec(x_6);
+lean_dec_ref(x_6);
 x_9 = lean_int_neg(x_4);
 lean_dec(x_4);
 x_10 = lean_int_neg(x_5);
@@ -532,6 +541,7 @@ return x_1;
 }
 lean_object* initialize_Std_Time_DateTime_Timestamp(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time_DateTime_PlainDateTime(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Time_Date_Unit_Month(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_DateTime(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -541,6 +551,9 @@ res = initialize_Std_Time_DateTime_Timestamp(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Time_DateTime_PlainDateTime(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Time_Date_Unit_Month(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_Timestamp_ofPlainDateAssumingUTC___closed__0 = _init_l_Std_Time_Timestamp_ofPlainDateAssumingUTC___closed__0();
@@ -553,6 +566,8 @@ l_Std_Time_PlainDate_instHSubDuration___lam__0___closed__0 = _init_l_Std_Time_Pl
 lean_mark_persistent(l_Std_Time_PlainDate_instHSubDuration___lam__0___closed__0);
 l_Std_Time_PlainDate_instHSubDuration = _init_l_Std_Time_PlainDate_instHSubDuration();
 lean_mark_persistent(l_Std_Time_PlainDate_instHSubDuration);
+l_Std_Time_PlainDateTime_ofPlainDate___closed__0 = _init_l_Std_Time_PlainDateTime_ofPlainDate___closed__0();
+lean_mark_persistent(l_Std_Time_PlainDateTime_ofPlainDate___closed__0);
 l_Std_Time_PlainDateTime_ofPlainTime___closed__0 = _init_l_Std_Time_PlainDateTime_ofPlainTime___closed__0();
 lean_mark_persistent(l_Std_Time_PlainDateTime_ofPlainTime___closed__0);
 l_Std_Time_PlainDateTime_ofPlainTime___closed__1 = _init_l_Std_Time_PlainDateTime_ofPlainTime___closed__1();

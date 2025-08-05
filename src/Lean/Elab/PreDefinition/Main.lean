@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.SCC
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Structural
-import Lean.Elab.PreDefinition.WF.Main
-import Lean.Elab.PreDefinition.MkInhabitant
-import Lean.Elab.PreDefinition.PartialFixpoint
+public import Lean.Util.SCC
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Structural
+public import Lean.Elab.PreDefinition.WF.Main
+public import Lean.Elab.PreDefinition.MkInhabitant
+public import Lean.Elab.PreDefinition.PartialFixpoint
+
+public section
 
 namespace Lean.Elab
 open Meta
@@ -98,11 +102,7 @@ private partial def ensureNoUnassignedLevelMVarsAtPreDef (preDef : PreDefinition
             | .proj _ _ b    => withExpr e do visit b
             | .sort u        => visitLevel u (← read)
             | .const _ us    => (if head then id else withExpr e) <| us.forM (visitLevel · (← read))
-            | .app ..        => withExpr e do
-                                  if let some (args, n, t, v, b) := e.letFunAppArgs? then
-                                    visit t; visit v; withLocalDeclD n t fun x => visit (b.instantiate1 x); args.forM visit
-                                  else
-                                    e.withApp fun f args => do visit f true; args.forM visit
+            | .app ..        => withExpr e do e.withApp fun f args => do visit f true; args.forM visit
             | _              => pure ()
       try
         visit preDef.value |>.run preDef.value |>.run {}
@@ -141,28 +141,29 @@ private def betaReduceLetRecApps (preDefs : Array PreDefinition) : MetaM (Array 
 
 private def addSorried (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
-    let value ← mkSorry (synthetic := true) preDef.type
-    let decl := if preDef.kind.isTheorem then
-      Declaration.thmDecl {
-        name        := preDef.declName,
-        levelParams := preDef.levelParams,
-        type        := preDef.type,
-        value
-      }
-    else
-      Declaration.defnDecl {
-        name        := preDef.declName,
-        levelParams := preDef.levelParams,
-        type        := preDef.type,
-        hints       := .abbrev
-        safety      := .safe
-        value
-      }
-    addDecl decl
-    withSaveInfoContext do  -- save new env
-      addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
-    applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
-    applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
+    unless (← hasConst preDef.declName) do
+      let value ← mkSorry (synthetic := true) preDef.type
+      let decl := if preDef.kind.isTheorem then
+        Declaration.thmDecl {
+          name        := preDef.declName,
+          levelParams := preDef.levelParams,
+          type        := preDef.type,
+          value
+        }
+      else
+        Declaration.defnDecl {
+          name        := preDef.declName,
+          levelParams := preDef.levelParams,
+          type        := preDef.type,
+          hints       := .abbrev
+          safety      := .safe
+          value
+        }
+      addDecl decl
+      withSaveInfoContext do  -- save new env
+        addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
+      applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
+      applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
 def ensureFunIndReservedNamesAvailable (preDefs : Array PreDefinition) : MetaM Unit := do
   preDefs.forM fun preDef =>
@@ -290,7 +291,7 @@ def shouldUseStructural (preDefs : Array PreDefinition) : Bool :=
   preDefs.any fun preDef =>
     preDef.termination.terminationBy? matches some {structural := true, ..}
 
-def shouldUsepartialFixpoint (preDefs : Array PreDefinition) : Bool :=
+def shouldUsePartialFixpoint (preDefs : Array PreDefinition) : Bool :=
   preDefs.any fun preDef =>
     preDef.termination.partialFixpoint?.isSome
 
@@ -319,9 +320,9 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
           let preDef ← eraseRecAppSyntax preDefs[0]!
           ensureEqnReservedNamesAvailable preDef.declName
           if preDef.modifiers.isNoncomputable then
-            addNonRec preDef
+            addNonRec preDef (cleanupValue := true)
           else
-            addAndCompileNonRec preDef
+            addAndCompileNonRec preDef (cleanupValue := true)
           preDef.termination.ensureNone "not recursive"
         else if preDefs.any (·.modifiers.isUnsafe) then
           addAndCompileUnsafe preDefs
@@ -349,7 +350,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
             let termMeasures?s ← elabTerminationByHints preDefs
             if shouldUseStructural preDefs then
               structuralRecursion preDefs termMeasures?s
-            else if shouldUsepartialFixpoint preDefs then
+            else if shouldUsePartialFixpoint preDefs then
               partialFixpoint preDefs
             else if shouldUseWF preDefs then
               wfRecursion preDefs termMeasures?s

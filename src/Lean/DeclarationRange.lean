@@ -3,9 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.DeclarationRange
-import Lean.MonadEnv
+public import Lean.Data.DeclarationRange
+public import Lean.MonadEnv
+
+public section
 
 /-!
 # Environment extension for declaration ranges
@@ -24,6 +28,9 @@ def addBuiltinDeclarationRanges (declName : Name) (declRanges : DeclarationRange
   builtinDeclRanges.modify (·.insert declName declRanges)
 
 def addDeclarationRanges [Monad m] [MonadEnv m] (declName : Name) (declRanges : DeclarationRanges) : m Unit := do
+  if declName.isAnonymous then
+    -- This can happen on elaboration of partial syntax and would panic in `modifyState` otherwise
+    return
   modifyEnv fun env => declRangeExt.insert env declName declRanges
 
 def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Option DeclarationRanges) :=

@@ -6,8 +6,10 @@ Authors: Mario Carneiro, Jacob von Raumer
 module
 
 prelude
-import Init.Tactics
-import Init.Meta
+public import Init.Tactics
+public import Init.Meta
+
+public section
 
 
 /-!
@@ -149,7 +151,7 @@ matching on the constructor `quot.mk`.
 `rcases h : e with PAT` will do the same as `rcases e with PAT` with the exception that an
 assumption `h : e = PAT` will be added to the context.
 -/
-syntax (name := rcases) "rcases" elimTarget,* (" with " rcasesPatLo)? : tactic
+syntax (name := rcases) "rcases " elimTarget,* (" with " rcasesPatLo)? : tactic
 
 /--
 The `obtain` tactic is a combination of `have` and `rcases`. See `rcases` for

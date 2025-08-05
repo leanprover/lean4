@@ -3,15 +3,19 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.TreeMap.Lemmas
-import Std.Data.TreeSet.Basic
-import Std.Data.TreeSet.AdditionalOperations
+public import Std.Data.TreeMap.Lemmas
+public import Std.Data.TreeSet.Basic
+public import Std.Data.TreeSet.AdditionalOperations
+
+@[expose] public section
 
 /-!
 # Tree set lemmas
 
-This file contains lemmas about `Std.Data.TreeSet`. Most of the lemmas require
+This file contains lemmas about `Std.TreeSet`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.
 -/
 
@@ -215,7 +219,7 @@ theorem contains_eq_isSome_get? [TransCmp cmp] {a : α} :
     t.contains a = (t.get? a).isSome :=
   TreeMap.contains_eq_isSome_getKey?
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [TransCmp cmp] {a : α} :
     (t.get? a).isSome = t.contains a :=
   contains_eq_isSome_get?.symm

@@ -6,7 +6,9 @@ Author: Leonardo de Moura
 module
 
 prelude
-meta import Init.Data.Nat.Div.Basic
+public meta import Init.Data.Nat.Div.Basic
+
+public section
 
 /-!
 # Notation for `List` literals.

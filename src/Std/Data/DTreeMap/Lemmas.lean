@@ -3,15 +3,19 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Internal.Lemmas
-import Std.Data.DTreeMap.Basic
-import Std.Data.DTreeMap.AdditionalOperations
+public import Std.Data.DTreeMap.Internal.Lemmas
+public import Std.Data.DTreeMap.Basic
+public import Std.Data.DTreeMap.AdditionalOperations
+
+@[expose] public section
 
 /-!
 # Dependent tree map lemmas
 
-This file contains lemmas about `Std.Data.DTreeMap`. Most of the lemmas require
+This file contains lemmas about `Std.DTreeMap`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.
 -/
 
@@ -25,7 +29,7 @@ universe u v w w'
 namespace Std.DTreeMap
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering} {t : DTreeMap α β cmp}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 private theorem ext {t t' : DTreeMap α β cmp} : t.inner = t'.inner → t = t' := by
   cases t; cases t'; rintro rfl; rfl
@@ -236,7 +240,7 @@ theorem contains_eq_isSome_get? [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     t.contains a = (t.get? a).isSome :=
   Impl.contains_eq_isSome_get? t.wf
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
     (t.get? a).isSome = t.contains a :=
   contains_eq_isSome_get?.symm
@@ -2372,17 +2376,6 @@ theorem getKey!_alter_self [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] {k : 
     {f : Option (β k) → Option (β k)} :
     (t.alter k f).getKey! k = if (f (t.get? k)).isSome then k else default :=
   Impl.getKey!_alter_self t.wf
-
-@[deprecated getKey_eq (since := "2025-01-05")]
-theorem getKey_alter [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] {k k' : α}
-    {f : Option (β k) → Option (β k)} {hc : k' ∈ t.alter k f} :
-    (t.alter k f).getKey k' hc =
-      if heq : cmp k k' = .eq then
-        k
-      else
-        haveI h' : k' ∈ t := mem_alter_of_not_compare_eq heq |>.mp hc
-        t.getKey k' h' :=
-  Impl.getKey_alter t.wf
 
 @[simp]
 theorem getKey_alter_self [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] {k : α}
@@ -4769,6 +4762,16 @@ end Const
 end Equiv
 
 section Equiv
+
+/-- Implementation detail of the tree map -/
+def isSetoid (α : Type u) (β : α → Type v) (cmp : α → α → Ordering := by exact compare) :
+    Setoid (Std.DTreeMap α β cmp) where
+  r := Equiv
+  iseqv := {
+    refl _ := .rfl
+    symm := .symm
+    trans := .trans
+  }
 
 variable {t₁ t₂ : DTreeMap α β cmp}
 

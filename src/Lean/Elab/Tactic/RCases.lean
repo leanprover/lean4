@@ -3,8 +3,13 @@ Copyright (c) 2017 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Jacob von Raumer
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Induction
+public import Lean.Elab.Tactic.Induction
+import Lean.Meta.Tactic.Replace
+
+public section
 
 namespace Lean.Elab.Tactic.RCases
 open Meta Parser Tactic
@@ -293,7 +298,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
     TermElabM α := do
   let asFVar : Expr → MetaM _
     | .fvar e => pure e
-    | e => throwError "rcases tactic failed: {e} is not a fvar"
+    | e => throwError "Tactic `rcases` failed: `{e}` is not a free variable"
   withRef pat.ref <| g.withContext do match pat with
   | .one ref `rfl =>
     Term.synthesizeSyntheticMVarsNoPostponing
@@ -314,7 +319,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
     let e := fs.apply e
     let etype ← inferType e
     unless ← isDefEq etype expected do
-      Term.throwTypeMismatchError "rcases: scrutinee" expected etype e
+      Term.throwTypeMismatchError "Tactic `rcases` failed: scrutinee" expected etype e
     let g ← if let .fvar e := e then g.replaceLocalDeclDefEq e expected else pure g
     rcasesCore g fs clears e a pat cont
   | .paren ref p
@@ -328,7 +333,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
     Term.synthesizeSyntheticMVarsNoPostponing
     let type ← whnfD (← inferType e)
     let failK {α} _ : TermElabM α :=
-      throwError "rcases tactic failed: {e} : {type} is not an inductive datatype"
+      throwError "Tactic `rcases` failed: `{e} : {type}` is not an inductive datatype"
     let (r, subgoals) ← matchConst type.getAppFn failK fun
       | ConstantInfo.quotInfo info, _ => do
         unless info.kind matches QuotKind.type do failK ()
@@ -436,7 +441,7 @@ def generalizeExceptFVar (goal : MVarId) (args : Array GeneralizeArg) :
     else
       result := result.push (mkFVar fvarIdsNew[j]!)
       j := j+1
-  pure (result, fvarIdsNew[j:], goal)
+  pure (result, fvarIdsNew[j...*], goal)
 
 /--
 Given a list of targets of the form `e` or `h : e`, and a pattern, match all the targets
@@ -448,7 +453,7 @@ def rcases (tgts : Array (Option Ident × Syntax))
   | 0 => return [g]
   | 1 => pure [pat]
   | _ => pure (processConstructor pat.ref (tgts.map fun _ => {}) false 0 pat.asTuple.2).2
-  let (pats, args) := Array.unzip <|← (tgts.zip pats.toArray).mapM fun ((hName?, tgt), pat) => do
+  let (pats, args) := Array.unzip <|← tgts.zipWithM (bs := pats.toArray) fun (hName?, tgt) pat => do
     let (pat, ty) ← match pat with
     | .typed ref pat ty => withRef ref do
       let ty ← Term.elabType ty
@@ -524,7 +529,7 @@ partial def rintroContinue (g : MVarId) (fs : FVarSubst) (clears : Array FVarId)
     (cont : MVarId → FVarSubst → Array FVarId → α → TermElabM α) : TermElabM α := do
   g.withContext (loop 0 g fs clears a)
 where
-  /-- Runs `rintroContinue` on `pats[i:]` -/
+  /-- Runs `rintroContinue` on `pats[i...*]` -/
   loop i g fs clears a := do
     if h : i < pats.size then
       rintroCore g fs clears a ref pats[i] ty? (loop (i+1))

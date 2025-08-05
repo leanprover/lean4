@@ -3,10 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Basic
-import Lean.ScopedEnvExtension
+public import Lean.Parser.Basic
+public import Lean.ScopedEnvExtension
 import Lean.BuiltinDocAttr
+
+public section
 
 /-! Extensible parsing via attributes -/
 
@@ -218,7 +222,7 @@ builtin_initialize parserAlias2kindRef : IO.Ref (NameMap SyntaxNodeKind) ← IO.
 builtin_initialize parserAliases2infoRef : IO.Ref (NameMap ParserAliasInfo) ← IO.mkRef {}
 
 def getParserAliasInfo (aliasName : Name) : IO ParserAliasInfo := do
-  return (← parserAliases2infoRef.get).findD aliasName {}
+  return (← parserAliases2infoRef.get).getD aliasName {}
 
 -- Later, we define macro `register_parser_alias` which registers a parser, formatter and parenthesizer
 def registerAlias (aliasName declName : Name) (p : ParserAliasValue) (kind? : Option SyntaxNodeKind := none) (info : ParserAliasInfo := {}) : IO Unit := do
@@ -252,7 +256,7 @@ unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : Par
   let env  := (← read).env
   let opts := (← read).opts
   match env.find? constName with
-  | none      => throw ↑s!"unknown constant '{constName}'"
+  | none      => throw ↑s!"Unknown constant `{constName}`"
   | some info =>
     match info.type with
     | Expr.const `Lean.Parser.TrailingParser _ =>
@@ -474,20 +478,21 @@ def getParserPriority (args : Syntax) : Except String Nat :=
   | 0 => pure 0
   | 1 => match (args.getArg 0).isNatLit? with
     | some prio => pure prio
-    | none => throw "invalid parser attribute, numeral expected"
-  | _ => throw "invalid parser attribute, no argument or numeral expected"
+    | none => throw s!"Invalid parser attribute: Numeral expected, but found `{args.getArg 0}`"
+  | _ => throw "Invalid parser attribute: No argument or numeral expected"
 
 private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
     (declName : Name) (stx : Syntax) (kind : AttributeKind) : AttrM Unit := do
   let prio ← Attribute.Builtin.getPrio stx
-  unless kind == AttributeKind.global do throwError "invalid attribute '{attrName}', must be global"
+  unless kind == AttributeKind.global do throwAttrMustBeGlobal attrName kind
   let decl ← getConstInfo declName
   match decl.type with
   | Expr.const `Lean.Parser.TrailingParser _ =>
     declareTrailingBuiltinParser catName declName prio
   | Expr.const `Lean.Parser.Parser _ =>
     declareLeadingBuiltinParser catName declName prio
-  | _ => throwError "unexpected parser type at '{declName}' (`Parser` or `TrailingParser` expected)"
+  | _ => throwError "Unexpected type for parser declaration: Parsers must have type `Parser` or \
+    `TrailingParser`, but `{declName}` has type{indentExpr decl.type}"
   declareBuiltinDocStringAndRanges declName
   runParserAttributeHooks catName declName (builtin := true)
 

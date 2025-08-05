@@ -6,9 +6,11 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-import Init.Data.Option.Basic
-import Init.Control.Basic
-import Init.Control.Except
+public import Init.Data.Option.Basic
+public import Init.Control.Basic
+public import Init.Control.Except
+
+public section
 
 set_option linter.missingDocs true
 

@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Internal.Lemmas
-import Std.Data.DTreeMap.Raw.Basic
-import Std.Data.DTreeMap.Raw.AdditionalOperations
+public import Std.Data.DTreeMap.Internal.Lemmas
+public import Std.Data.DTreeMap.Raw.Basic
+public import Std.Data.DTreeMap.Raw.AdditionalOperations
+
+@[expose] public section
 
 /-!
 # Dependent tree map lemmas
@@ -26,7 +30,7 @@ universe u v w w'
 namespace Std.DTreeMap.Raw
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering} {t : DTreeMap.Raw α β cmp}
-private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 private theorem ext {t t' : Raw α β cmp} : t.inner = t'.inner → t = t' := by
   cases t; cases t'; rintro rfl; rfl
@@ -237,7 +241,7 @@ theorem contains_eq_isSome_get? [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a :
     t.contains a = (t.get? a).isSome :=
   Impl.contains_eq_isSome_get? h
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
     (t.get? a).isSome = t.contains a :=
   (contains_eq_isSome_get? h).symm
@@ -295,7 +299,7 @@ theorem contains_eq_isSome_get? [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = (get? t a).isSome :=
   Impl.Const.contains_eq_isSome_get? h
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [TransCmp cmp] (h : t.WF) {a : α} :
     (get? t a).isSome = t.contains a :=
   (contains_eq_isSome_get? h).symm
@@ -2407,17 +2411,6 @@ theorem getKey!_alter_self [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : 
     {f : Option (β k) → Option (β k)} :
     (t.alter k f).getKey! k = if (f (t.get? k)).isSome then k else default :=
   Impl.getKey!_alter!_self h
-
-@[deprecated getKey_eq (since := "2025-01-05")]
-theorem getKey_alter [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) {k k' : α}
-    {f : Option (β k) → Option (β k)} {hc : k' ∈ t.alter k f} :
-    (t.alter k f).getKey k' hc =
-      if heq : cmp k k' = .eq then
-        k
-      else
-        haveI h' : k' ∈ t := mem_alter_of_not_compare_eq h heq |>.mp hc
-        t.getKey k' h' :=
-  Impl.getKey_alter! h
 
 @[simp]
 theorem getKey_alter_self [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) {k : α}

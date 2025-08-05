@@ -1,6 +1,6 @@
-etaStructIssue.lean:20:2-20:7: error: type mismatch
+etaStructIssue.lean:20:2-20:7: error: Type mismatch
   rfl
 has type
-  ?m = ?m : Prop
+  ?m = ?m
 but is expected to have type
-  mkNat e x₁ = mkNat e.mk x₂ : Prop
+  mkNat e x₁ = mkNat e.mk x₂

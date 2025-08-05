@@ -7,7 +7,9 @@ Authors: Gabriel Ebner
 module
 
 prelude
-import Init.Core
+public import Init.Core
+
+public section
 
 open Lean
 
@@ -35,7 +37,7 @@ class TypeName (α : Type) where unsafe mk ::
 class TypeName (α : Type u) where private mk' ::
   private data : (TypeNameData α).type
 
-instance : Nonempty (TypeName α) := (TypeNameData α).property.elim (⟨⟨·⟩⟩)
+instance : Nonempty (TypeName α) := by exact (TypeNameData α).property.elim (⟨⟨·⟩⟩)
 
 /--
 Creates a `TypeName` instance.

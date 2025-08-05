@@ -7,12 +7,14 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Lemmas
-import Init.Data.List.Sublist
-import Init.Data.List.Range
-import Init.Data.List.Impl
-import all Init.Data.List.Attach
-import Init.Data.Fin.Lemmas
+public import Init.Data.List.Lemmas
+public import Init.Data.List.Sublist
+public import Init.Data.List.Range
+public import Init.Data.List.Impl
+public import all Init.Data.List.Attach
+public import Init.Data.Fin.Lemmas
+
+public section
 
 /-!
 Lemmas about `List.findSome?`, `List.find?`, `List.findIdx`, `List.findIdx?`, `List.idxOf`,
@@ -521,7 +523,7 @@ private theorem findIdx?_go_eq {p : α → Bool} {xs : List α} {i : Nat} :
     split
     · simp_all
     · simp_all only [findIdx?_go_succ, Bool.not_eq_true, Option.map_map, Nat.zero_add]
-      congr
+      congr 1
       ext
       simp only [Nat.add_comm i, Function.comp_apply, Nat.add_assoc]
 
@@ -1096,14 +1098,8 @@ theorem idxOf_cons [BEq α] :
   dsimp [idxOf]
   simp [findIdx_cons]
 
-@[deprecated idxOf_cons (since := "2025-01-29")]
-abbrev indexOf_cons := @idxOf_cons
-
 @[simp] theorem idxOf_cons_self [BEq α] [ReflBEq α] {l : List α} : (a :: l).idxOf a = 0 := by
   simp [idxOf_cons]
-
-@[deprecated idxOf_cons_self (since := "2025-01-29")]
-abbrev indexOf_cons_self := @idxOf_cons_self
 
 @[grind =]
 theorem idxOf_append [BEq α] [LawfulBEq α] {l₁ l₂ : List α} {a : α} :
@@ -1115,8 +1111,7 @@ theorem idxOf_append [BEq α] [LawfulBEq α] {l₁ l₂ : List α} {a : α} :
   · rw [if_neg]
     simpa using h
 
-@[deprecated idxOf_append (since := "2025-01-29")]
-abbrev indexOf_append := @idxOf_append
+
 
 theorem idxOf_eq_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∉ l) : l.idxOf a = l.length := by
   induction l with
@@ -1126,8 +1121,7 @@ theorem idxOf_eq_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∉ l) : l.
     simp only [idxOf_cons, cond_eq_if, beq_iff_eq]
     split <;> simp_all
 
-@[deprecated idxOf_eq_length (since := "2025-01-29")]
-abbrev indexOf_eq_length := @idxOf_eq_length
+
 
 theorem idxOf_lt_length_of_mem [BEq α] [EquivBEq α] {l : List α} (h : a ∈ l) : l.idxOf a < l.length := by
   induction l with
@@ -1157,8 +1151,7 @@ theorem idxOf_lt_length_iff [BEq α] [LawfulBEq α] {l : List α} {a : α} :
 
 grind_pattern idxOf_lt_length_iff => l.idxOf a, l.length
 
-@[deprecated idxOf_lt_length_of_mem (since := "2025-01-29")]
-abbrev indexOf_lt_length := @idxOf_lt_length_of_mem
+
 
 /-! ### finIdxOf?
 
@@ -1229,8 +1222,7 @@ The lemmas below should be made consistent with those for `findIdx?` (and proved
   · rintro w x h rfl
     contradiction
 
-@[deprecated idxOf?_eq_none_iff (since := "2025-01-29")]
-abbrev indexOf?_eq_none_iff := @idxOf?_eq_none_iff
+
 
 @[simp, grind =]
 theorem isSome_idxOf? [BEq α] [LawfulBEq α] {l : List α} {a : α} :

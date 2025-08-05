@@ -21,7 +21,7 @@ def main : IO Unit := do
     Ipc.writeRequest <| mkCompletionRequest 1
     let _ ← Ipc.readResponseAs 1 CompletionList
     let startTime ← IO.monoMsNow
-    for i in [2:5] do
+    for i in 2...(5 : Nat) do
       Ipc.writeRequest <| mkCompletionRequest i
       let _ ← Ipc.readResponseAs i CompletionList
     let endTime ← IO.monoMsNow

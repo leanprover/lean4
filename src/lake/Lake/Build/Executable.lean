@@ -14,7 +14,7 @@ The build function definition for a Lean executable.
 -/
 
 def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
-  withRegisterJob s!"{self.name}:exe" do
+  withRegisterJob s!"{self.name}:exe" <| withCurrPackage self.pkg do
   /-
   Remark: We must build the root before we fetch the transitive imports
   so that errors in the import block of transitive imports will not kill this

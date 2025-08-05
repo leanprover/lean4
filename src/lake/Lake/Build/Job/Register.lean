@@ -44,9 +44,9 @@ Registers the job for the top-level build monitor,
 /-- Wraps stray I/O, logs, and errors in `x` into the produced job.  -/
 def ensureJob
   [OptDataKind α] (x : FetchM (Job α))
-: FetchM (Job α) := fun fetch stack store ctx log => do
+: FetchM (Job α) := fun fetch pkg? stack store ctx log => do
   let iniPos := log.endPos
-  match (← (withLoggedIO x) fetch stack store ctx log) with
+  match (← (withLoggedIO x) fetch pkg? stack store ctx log) with
   | .ok job log =>
     if iniPos < log.endPos then
       let (log, jobLog) := log.split iniPos

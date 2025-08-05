@@ -3,23 +3,31 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Lemmas
-import Lean.Meta.Tactic.Assert
-import Lean.Meta.Tactic.Simp.Main
-import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.MatchDiscrOnly
-import Lean.Meta.Tactic.Grind.MarkNestedProofs
-import Lean.Meta.Tactic.Grind.Canon
+public import Init.Grind.Lemmas
+public import Lean.Meta.Tactic.Assert
+public import Lean.Meta.Tactic.Simp.Main
+public import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.MatchDiscrOnly
+public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
+public import Lean.Meta.Tactic.Grind.Canon
+
+public section
 
 namespace Lean.Meta.Grind
 
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/
-private def simpCore (e : Expr) : GrindM Simp.Result := do profileitM Exception "grind simp" (← getOptions) do
+def simpCore (e : Expr) : GrindM Simp.Result := do profileitM Exception "grind simp" (← getOptions) do
   let simp ← modifyGet fun s => (s.simp, { s with simp := {} })
   let ctx := (← readThe Context).simp
-  let (r, simp) ← Simp.mainCore e ctx simp (methods := (← readThe Context).simpMethods)
+  let m := (← get).scState.map
+  let skipIfInShareCommon : Simp.Simproc := fun e => if m.contains { expr := e } then return .done { expr := e } else return .continue
+  let methods := (← readThe Context).simpMethods
+  let methods := { methods with pre := skipIfInShareCommon >> methods.pre }
+  let (r, simp) ← Simp.mainCore e ctx simp (methods := methods)
   modify fun s => { s with simp }
   return r
 
@@ -32,6 +40,25 @@ def dsimpCore (e : Expr) : GrindM Expr := do profileitM Exception "grind dsimp" 
   return r
 
 /--
+Unfolds all `reducible` declarations occurring in `e`.
+Similar to `unfoldReducible`, but uses `alreadyInternalized` as an extra filter
+-/
+def unfoldReducible' (e : Expr) : GoalM Expr := do
+  if !(← isUnfoldReducibleTarget e) then return e
+  let pre (e : Expr) : GoalM TransformStep := do
+    -- We used to use `inShareCommon` here, but it was to correct.
+    -- `inShareCommon` is used in terms that have not been preprocessed (e.g., proofs).
+    if (← alreadyInternalized e) then return .done e
+    let .const declName _ := e.getAppFn | return .continue
+    unless (← isReducible declName) do return .continue
+    if isGrindGadget declName then return .continue
+    -- See comment at isUnfoldReducibleTarget.
+    if (← getEnv).isProjectionFn declName then return .continue
+    let some v ← unfoldDefinition? e | return .continue
+    return .visit v
+  Core.transform e (pre := pre)
+
+/--
 Preprocesses `e` using `grind` normalization theorems and simprocs,
 and then applies several other preprocessing steps.
 -/
@@ -39,9 +66,9 @@ def preprocess (e : Expr) : GoalM Simp.Result := do
   let e ← instantiateMVars e
   let r ← simpCore e
   let e' := r.expr
-  let e' ← unfoldReducible e'
+  let e' ← unfoldReducible' e'
   let e' ← abstractNestedProofs e'
-  let e' ← markNestedProofs e'
+  let e' ← markNestedSubsingletons e'
   let e' ← eraseIrrelevantMData e'
   let e' ← foldProjs e'
   let e' ← normalizeLevels e'

@@ -6,9 +6,11 @@ Authors: François G. Dorais
 module
 
 prelude
-import Init.Data.Nat.Linear
-import Init.Control.Lawful.Basic
-import Init.Data.Fin.Lemmas
+public import Init.Data.Nat.Linear
+public import Init.Control.Lawful.Basic
+public import Init.Data.Fin.Lemmas
+
+public section
 
 namespace Fin
 
@@ -183,7 +185,9 @@ theorem foldrM_loop [Monad m] [LawfulMonad m] (f : Fin (n+1) → α → m α) (x
   | zero =>
     rw [foldrM_loop_zero, foldrM_loop_succ, pure_bind]
     conv => rhs; rw [←bind_pure (f 0 x)]
-    rfl
+    congr
+    funext
+    rw [foldrM_loop_zero]
   | succ i ih =>
     rw [foldrM_loop_succ, foldrM_loop_succ, bind_assoc]
     congr; funext; exact ih ..

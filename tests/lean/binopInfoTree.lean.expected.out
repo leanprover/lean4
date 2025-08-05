@@ -10,10 +10,12 @@
         1 + 2 +
           3
             -- should propagate through multiple macro expansions
+            
         ===>
         binop% HAdd.hAdd✝ (1 + 2)
           3
             -- should propagate through multiple macro expansions
+            
         • [Term] 1 + 2 + 3 : Nat @ ⟨5, 7⟩†-⟨5, 16⟩† @ Lean.Elab.Term.Op.elabBinOp
           • [Term] 1 + 2 + 3 : Nat @ ⟨5, 7⟩†-⟨5, 16⟩†
             • [Term] 1 + 2 : Nat @ ⟨5, 7⟩-⟨5, 12⟩ @ «_aux_Init_Notation___macroRules_term_+__2»

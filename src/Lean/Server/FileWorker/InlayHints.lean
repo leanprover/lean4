@@ -3,9 +3,13 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Server.GoTo
-import Lean.Server.Requests
+public import Lean.Server.GoTo
+public import Lean.Server.Requests
+
+public section
 
 namespace Lean.Elab
 
@@ -168,7 +172,7 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
     s.oldInlayHints.filter fun (ihi : Elab.InlayHintInfo) =>
       ! invalidOldInlayHintsRange.contains ihi.position
   let newInlayHints : Array Elab.InlayHintInfo ← (·.2) <$> StateT.run (s := #[]) do
-    for s in snaps[oldFinishedSnaps:] do
+    for s in snaps[oldFinishedSnaps...*] do
       s.infoTree.visitM' (postNode := fun ci i _ => do
         let .ofCustomInfo i := i
           | return

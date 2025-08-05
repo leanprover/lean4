@@ -7,7 +7,10 @@ Authors: Kim Morrison
 module
 
 prelude
-import Init.Core
+public import Init.Core
+public import Init.Grind.Tactics
+
+public section
 
 namespace Function
 

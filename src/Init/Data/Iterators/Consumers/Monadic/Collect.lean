@@ -6,8 +6,10 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Iterators.Consumers.Monadic.Partial
-import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
+public import Init.Data.Iterators.Consumers.Monadic.Partial
+public import Init.Data.Iterators.Internal.LawfulMonadLiftFunction
+
+@[expose] public section
 
 /-!
 # Collectors

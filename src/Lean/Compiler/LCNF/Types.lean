@@ -3,9 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.BorrowedAnnotation
-import Lean.Meta.InferType
+public import Lean.Compiler.BorrowedAnnotation
+public import Lean.Meta.InferType
+
+public section
 
 namespace Lean.Compiler
 
@@ -169,9 +173,7 @@ where
       | _ => return anyExpr
     let mut result := fNew
     for arg in args do
-      if (← isProp arg) then
-        result := mkApp result erasedExpr
-      else if (← isPropFormer arg) then
+      if ← isProp arg <||> isPropFormer arg then
         result := mkApp result erasedExpr
       else if (← isTypeFormer arg) then
         result := mkApp result (← toLCNFType arg)

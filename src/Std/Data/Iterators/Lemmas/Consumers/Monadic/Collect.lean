@@ -3,12 +3,16 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
+module
+
 prelude
-import Init.Data.Array.Lemmas
-import Init.Data.Iterators.Consumers.Monadic.Collect
-import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
-import Init.Data.Iterators.Lemmas.Monadic.Basic
-import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
+public import Init.Data.Array.Lemmas
+public import Init.Data.Iterators.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Lemmas.Consumers.Monadic.Collect
+public import Init.Data.Iterators.Lemmas.Monadic.Basic
+public import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
+
+@[expose] public section
 
 namespace Std.Iterators
 
@@ -16,7 +20,7 @@ theorem IterM.Equiv.toListRev_eq [Monad m] [LawfulMonad m]
     [Iterator α₁ m β] [Iterator α₂ m β] [Finite α₁ m] [Finite α₂ m]
     {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β} (h : IterM.Equiv ita itb) :
     ita.toListRev = itb.toListRev := by
-  induction ita using IterM.inductSteps generalizing itb with | step ita ihy ihs =>
+  induction ita using IterM.inductSteps generalizing itb with | step ita ihy ihs
   rw [IterM.toListRev_eq_match_step, IterM.toListRev_eq_match_step]
   apply h.lift_step_bind_congr
   intro s₁ s₂ h

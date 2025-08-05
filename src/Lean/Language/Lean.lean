@@ -8,12 +8,16 @@ recompilation
 Authors: Sebastian Ullrich
 -/
 
+module
+
 prelude
-import Lean.Language.Basic
-import Lean.Language.Util
-import Lean.Language.Lean.Types
-import Lean.Parser.Module
-import Lean.Elab.Import
+public import Lean.Language.Basic
+public import Lean.Language.Util
+public import Lean.Language.Lean.Types
+public import Lean.Parser.Module
+public import Lean.Elab.Import
+
+public section
 
 /-!
 # Note [Incremental Parsing]
@@ -484,7 +488,7 @@ where
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
       let mut opts := setup.opts
       -- HACK: no better way to enable in core with `USE_LAKE` off
-      if (`Init).isPrefixOf setup.mainModuleName then
+      if setup.mainModuleName.getRoot ∈ [`Init, `Std, `Lean, `Lake] then
         opts := experimental.module.setIfNotSet opts true
       if !stx.raw[0].isNone && !experimental.module.get opts then
         throw <| IO.Error.userError "`module` keyword is experimental and not enabled here"

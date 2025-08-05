@@ -3,12 +3,17 @@ Copyright (c) 2024 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Meta.InferType
-import Lean.AuxRecursor
-import Lean.AddDecl
-import Lean.Meta.CompletionName
-import Lean.Meta.PProdN
+public import Init.Data.Range.Polymorphic.Stream
+public import Lean.Meta.InferType
+public import Lean.AuxRecursor
+public import Lean.AddDecl
+public import Lean.Meta.CompletionName
+public import Lean.Meta.PProdN
+
+public section
 
 namespace Lean
 open Meta
@@ -67,10 +72,10 @@ private def mkBelowFromRec (recName : Name) (nParams : Nat)
 
   let decl ← forallTelescope recVal.type fun refArgs _ => do
     assert! refArgs.size > nParams + recVal.numMotives + recVal.numMinors
-    let params  : Array Expr := refArgs[:nParams]
-    let motives : Array Expr := refArgs[nParams:nParams + recVal.numMotives]
-    let minors  : Array Expr := refArgs[nParams + recVal.numMotives:nParams + recVal.numMotives + recVal.numMinors]
-    let indices : Array Expr := refArgs[nParams + recVal.numMotives + recVal.numMinors:refArgs.size - 1]
+    let params  : Array Expr := refArgs[*...nParams]
+    let motives : Array Expr := refArgs[nParams...(nParams + recVal.numMotives)]
+    let minors  : Array Expr := refArgs[(nParams + recVal.numMotives)...(nParams + recVal.numMotives + recVal.numMinors)]
+    let indices : Array Expr := refArgs[(nParams + recVal.numMotives + recVal.numMinors)...(refArgs.size - 1)]
     let major   : Expr       := refArgs[refArgs.size - 1]!
 
     -- universe parameter of the type fomer.
@@ -104,7 +109,7 @@ private def mkBelowFromRec (recName : Name) (nParams : Nat)
     let type ← mkForallFVars below_params (.sort rlvl)
     val ← mkLambdaFVars below_params val
 
-    mkDefinitionValInferrringUnsafe belowName recVal.levelParams type val .abbrev
+    mkDefinitionValInferringUnsafe belowName recVal.levelParams type val .abbrev
 
   addDecl (.defnDecl decl)
   setReducibleAttribute decl.name
@@ -123,7 +128,7 @@ def mkBelow (indName : Name) : MetaM Unit := do
   -- If this is the first inductive in a mutual group with nested inductives,
   -- generate the constructions for the nested inductives now
   if indVal.all[0]! = indName then
-    for i in [:indVal.numNested] do
+    for i in *...indVal.numNested do
       let recName := recName.appendIndexAfter (i + 1)
       let belowName := belowName.appendIndexAfter (i + 1)
       mkBelowFromRec recName indVal.numParams belowName
@@ -194,10 +199,10 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
 
   let decl ← forallTelescope recVal.type fun refArgs refBody => do
     assert! refArgs.size > nParams + recVal.numMotives + recVal.numMinors
-    let params  : Array Expr := refArgs[:nParams]
-    let motives : Array Expr := refArgs[nParams:nParams + recVal.numMotives]
-    let minors  : Array Expr := refArgs[nParams + recVal.numMotives:nParams + recVal.numMotives + recVal.numMinors]
-    let indices : Array Expr := refArgs[nParams + recVal.numMotives + recVal.numMinors:refArgs.size - 1]
+    let params  : Array Expr := refArgs[*...nParams]
+    let motives : Array Expr := refArgs[nParams...(nParams + recVal.numMotives)]
+    let minors  : Array Expr := refArgs[(nParams + recVal.numMotives)...(nParams + recVal.numMotives + recVal.numMinors)]
+    let indices : Array Expr := refArgs[(nParams + recVal.numMotives + recVal.numMinors)...(refArgs.size - 1)]
     let major   : Expr       := refArgs[refArgs.size - 1]!
 
     let some idx := motives.idxOf? refBody.getAppFn
@@ -227,7 +232,7 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
     --   (F_1 : (t : List α) → (f : List.below t) → motive t)
     -- and bring parameters of that type into scope
     let mut fDecls : Array (Name × (Array Expr -> MetaM Expr)) := #[]
-    for motive in motives, below in belows, i in [:motives.size] do
+    for motive in motives, below in belows, i in *...motives.size do
       let fType ← forallTelescope (← inferType motive) fun targs _ => do
         withLocalDeclD `f (mkAppN below targs) fun f =>
           mkForallFVars (targs.push f) (mkAppN motive targs)
@@ -261,7 +266,7 @@ private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
       let type ← mkForallFVars below_params (mkAppN motives[idx]! (indices ++ #[major]))
       val ← mkLambdaFVars below_params val
 
-      mkDefinitionValInferrringUnsafe brecOnName blps type val .abbrev
+      mkDefinitionValInferringUnsafe brecOnName blps type val .abbrev
 
   addDecl (.defnDecl decl)
   setReducibleAttribute decl.name
@@ -280,7 +285,7 @@ def mkBRecOn (indName : Name) : MetaM Unit := do
   -- If this is the first inductive in a mutual group with nested inductives,
   -- generate the constructions for the nested inductives now.
   if indVal.all[0]! = indName then
-    for i in [:indVal.numNested] do
+    for i in *...indVal.numNested do
       let recName := recName.appendIndexAfter (i + 1)
       let brecOnName := brecOnName.appendIndexAfter (i + 1)
       mkBRecOnFromRec recName indVal.numParams indVal.all.toArray brecOnName

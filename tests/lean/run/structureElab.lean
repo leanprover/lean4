@@ -75,7 +75,7 @@ info: def TestD1.D1.x._default : Nat :=
 id 1
 -/
 #guard_msgs in #print D1.x._default
-/-- error: unknown constant 'D2.x._default' -/
+/-- error: Unknown constant `D2.x._default` -/
 #guard_msgs in #print D2.x._default
 /--
 info: def TestD1.D2.x._inherited_default : Nat :=
@@ -87,7 +87,7 @@ info: def TestD1.D3.x._default : Nat :=
 id 3
 -/
 #guard_msgs in #print D3.x._default
-/-- error: unknown constant 'D4.x._default' -/
+/-- error: Unknown constant `D4.x._default` -/
 #guard_msgs in #print D4.x._default
 /--
 info: def TestD1.D4.x._inherited_default : Nat :=
@@ -112,14 +112,14 @@ info: def TestD2.D1.x._default : {α : Type} → {inst : Inhabited α} → α :=
 fun {α} {inst} => id default
 -/
 #guard_msgs in #print D1.x._default
-/-- error: unknown constant 'D2.x._default' -/
+/-- error: Unknown constant `D2.x._default` -/
 #guard_msgs in #print D2.x._default
 /--
 info: def TestD2.D2.x._inherited_default : {α : Type} → {inst : Inhabited α} → α :=
 fun {α} {inst} => id default
 -/
 #guard_msgs in #print D2.x._inherited_default
-/-- error: unknown constant 'D3.x._default' -/
+/-- error: Unknown constant `D3.x._default` -/
 #guard_msgs in #print D3.x._default
 /--
 info: def TestD2.D3.x._inherited_default : Nat :=
@@ -454,36 +454,36 @@ Some failures from unsupported autoparams
 -/
 namespace TestFail1
 
-/-- error: invalid field declaration, type must be provided when auto-param tactic is used -/
+/-- error: Invalid field declaration: Type must be provided when auto-param tactic is used -/
 #guard_msgs in
 structure F1 where
   x := by exact 0
 
 structure F2 where
   x (n : Nat) : Nat
-/-- error: omit field 'x' type to set auto-param tactic -/
+/-- error: Omit the type of field `x` to set its auto-param tactic -/
 #guard_msgs in
 structure F3 extends F2 where
   x : Nat → Nat := by exact 0
 
-/-- error: invalid field, unexpected binders when setting auto-param tactic for inherited field -/
+/-- error: Invalid field: Unexpected binders when setting auto-param tactic for inherited field -/
 #guard_msgs in
 structure F4 extends F2 where
   x (n : Nat) := by exact 0
 
-/-- error: field 'x' new default value has already been set -/
+/-- error: A new default value for field `x` has already been set in this structure -/
 #guard_msgs in
 structure F5 extends F2 where
   x := by exact 0
   x := by exact 0
 
-/-- error: field 'x' new default value has already been set -/
+/-- error: A new default value for field `x` has already been set in this structure -/
 #guard_msgs in
 structure F6 extends F2 where
   x := id
   x := by exact 0
 
-/-- error: field 'x' new default value has already been set -/
+/-- error: A new default value for field `x` has already been set in this structure -/
 #guard_msgs in
 structure F7 extends F2 where
   x := by exact 0

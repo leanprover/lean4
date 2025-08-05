@@ -3,10 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Syntax
-import Lean.Elab.AuxDef
-import Lean.Elab.BuiltinNotation
+public import Lean.Elab.Syntax
+public import Lean.Elab.AuxDef
+public import Lean.Elab.BuiltinNotation
+public import Lean.Parser.Syntax
+
+public section
 
 namespace Lean.Elab.Command
 open Lean.Syntax
@@ -62,7 +67,7 @@ def removeParenthesesAux (parens body : Syntax) : Syntax :=
 
 partial def removeParentheses (stx : Syntax) : MacroM Syntax := do
   match stx with
-  | `(($e)) => pure $ removeParenthesesAux stx (←removeParentheses $ (←Term.expandCDot? e).getD e)
+  | `(($h:hygieneInfo $e)) => pure $ removeParenthesesAux stx (← removeParentheses $ (← Term.expandCDot? e h.getHygieneInfo).getD e)
   | _ =>
     match stx with
     | .node info kind args => pure $ .node info kind (←args.mapM removeParentheses)

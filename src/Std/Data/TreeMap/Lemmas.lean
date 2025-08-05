@@ -3,15 +3,19 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
+module
+
 prelude
-import Std.Data.DTreeMap.Lemmas
-import Std.Data.TreeMap.Basic
-import Std.Data.TreeMap.AdditionalOperations
+public import Std.Data.DTreeMap.Lemmas
+public import Std.Data.TreeMap.Basic
+public import Std.Data.TreeMap.AdditionalOperations
+
+@[expose] public section
 
 /-!
 # Tree map lemmas
 
-This file contains lemmas about `Std.Data.TreeMap`. Most of the lemmas require
+This file contains lemmas about `Std.TreeMap`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.
 -/
 

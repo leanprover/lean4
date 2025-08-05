@@ -3,8 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Internal.WF
+import all Std.Data.Internal.List.Associative
+import all Std.Data.DHashMap.Internal.Defs
+public import Std.Data.DHashMap.Internal.WF
+import all Std.Data.DHashMap.Raw
+meta import all Std.Data.DHashMap.Basic
+
+public section
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -73,7 +81,7 @@ namespace Raw₀
 variable (m : Raw₀ α β)
 
 @[simp]
-theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.size = 0 := rfl
+theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : Raw₀ α β).1.size = 0 := (rfl)
 
 set_option linter.missingDocs false in
 @[deprecated size_emptyWithCapacity (since := "2025-03-12")]

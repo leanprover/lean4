@@ -3,9 +3,13 @@ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune, Henrik Böving
 -/
+module
+
 prelude
-import Init.NotationExtra
-import Init.PropLemmas
+public import Init.NotationExtra
+public import Init.PropLemmas
+
+@[expose] public section
 
 namespace Std.Tactic.BVDecide
 namespace LRAT
@@ -108,9 +112,9 @@ theorem unsat_of_limplies_and_incompatible (α : Type u) {σ1 : Type v} {σ2 : T
     Limplies α f1 f2 → Incompatible α f1 f2 → Unsatisfiable α f1 := by
   intro h1 h2 a af1
   cases h2 a
-  · next h2 =>
+  next h2 =>
     exact h2 af1
-  · next h2 =>
+  next h2 =>
     exact h2 <| h1 a af1
 
 protected theorem Incompatible.symm {α : Type u} {σ1 : Type v} {σ2 : Type w} [Entails α σ1]

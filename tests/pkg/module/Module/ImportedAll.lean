@@ -1,7 +1,7 @@
 module
 
 prelude
-import all Module.Basic
+public import all Module.Basic
 
 /-! `import all` should import private information, privately. -/
 
@@ -13,41 +13,29 @@ testSorry
 #print t
 
 /--
-error: type mismatch
+error: Type mismatch
   y
 has type
-  Vector Unit 1 : Type
+  Vector Unit 1
 but is expected to have type
-  Vector Unit f : Type
+  Vector Unit f
 -/
 #guard_msgs in
-theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := sorry
+public theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := sorry
 
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [t]; exact hP1
 example : P f := by simp only [t]; exact hP1
 
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [trfl]; exact hP1
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [trfl']; exact hP1
 
-/--
-error: unknown identifier 'trflprivate'
----
-error: dsimp made no progress
--/
-#guard_msgs in
 example : P f := by dsimp only [trflprivate]; exact hP1
-/--
-error: unknown identifier 'trflprivate''
----
-error: dsimp made no progress
--/
-#guard_msgs in
 example : P f := by dsimp only [trflprivate']; exact hP1
 
 
@@ -136,3 +124,11 @@ info: theorem f_exp_wfrec.induct_unfolding : ∀ (motive : Nat → Nat → Nat �
       ∀ (a a_1 : Nat), motive a a_1 (f_exp_wfrec a a_1)
 -/
 #guard_msgs(pass trace, all) in #print sig f_exp_wfrec.induct_unfolding
+
+/-! `import all` should allow access to private defs, privately. -/
+
+public def pub := priv
+
+/-- error: Unknown identifier `priv` -/
+#guard_msgs in
+@[expose] public def pub' := priv

@@ -6,10 +6,12 @@ Authors: Kim Morrison, Eric Wieser, François G. Dorais
 module
 
 prelude
-import Init.Data.List.Perm
-import all Init.Data.List.Sort.Basic
-import Init.Data.List.Nat.Range
-import Init.Data.Bool
+public import Init.Data.List.Perm
+public import all Init.Data.List.Sort.Basic
+public import Init.Data.List.Nat.Range
+public import Init.Data.Bool
+
+public section
 
 /-!
 # Basic properties of `mergeSort`.
@@ -357,7 +359,7 @@ where go : ∀ (i : Nat) (l : List α),
       omega
 termination_by _ l => l.length
 
-@[deprecated mergeSort_zipIdx (since := "2025-01-21")] abbrev mergeSort_enum := @mergeSort_zipIdx
+
 
 theorem mergeSort_cons {le : α → α → Bool}
     (trans : ∀ (a b c : α), le a b → le b c → le a c)

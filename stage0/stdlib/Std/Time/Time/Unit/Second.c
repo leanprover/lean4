@@ -49,6 +49,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofInt___redArg___boxed(lean_o
 LEAN_EXPORT lean_object* l_Std_Time_Second_instDecidableEqOrdinal___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instReprOrdinal___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instLEOrdinal(uint8_t);
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Second_instOffsetRepr_spec__0(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_Second_instOffsetDecidableEq(lean_object*, lean_object*);
 lean_object* l_Std_Time_Internal_Bounded_LE_instOfNatHAddIntCast(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_Second_instOffsetSub___closed__0;
@@ -130,7 +131,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_Second_instLEOrdinal(x_2);
 return x_3;
 }
@@ -148,7 +148,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_Second_instLTOrdinal(x_2);
 return x_3;
 }
@@ -210,7 +209,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_Second_instReprOrdinal(x_2);
 return x_3;
 }
@@ -238,19 +236,18 @@ return x_5;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_6 = lean_nat_abs(x_1);
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_6, x_7);
 lean_dec(x_6);
 x_9 = l_Std_Time_Second_instToStringOrdinal___lam__0___closed__0;
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_add(x_8, x_10);
+x_10 = lean_nat_add(x_8, x_7);
 lean_dec(x_8);
-x_12 = l_Nat_reprFast(x_11);
-x_13 = lean_string_append(x_9, x_12);
-lean_dec(x_12);
-return x_13;
+x_11 = l_Nat_reprFast(x_10);
+x_12 = lean_string_append(x_9, x_11);
+lean_dec_ref(x_11);
+return x_12;
 }
 }
 }
@@ -276,7 +273,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_Second_instToStringOrdinal(x_2);
 return x_3;
 }
@@ -365,7 +361,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_Second_instOfNatOrdinal(x_3, x_2);
 return x_4;
 }
@@ -402,7 +397,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Std_Time_Second_instDecidableLeOrdinal(x_4, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -442,7 +436,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Std_Time_Second_instDecidableLtOrdinal(x_4, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -482,7 +475,6 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Std_Time_Second_instDecidableEqOrdinal(x_4, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
@@ -533,9 +525,16 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
-lean_dec(x_1);
 x_3 = l_Std_Time_Second_instOrdOrdinal(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Second_instOffsetRepr_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_Second_instOffsetRepr___closed__0() {
@@ -800,7 +799,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Std_Time_Second_Ordinal_ofInt(x_4, x_2, x_3);
 lean_dec(x_2);
 return x_5;
@@ -827,7 +825,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = lean_unbox(x_1);
-lean_dec(x_1);
 x_5 = l_Std_Time_Second_Ordinal_ofNat(x_4, x_2, x_3);
 return x_5;
 }
@@ -853,7 +850,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_Second_Ordinal_ofFin(x_3, x_2);
 return x_4;
 }
@@ -886,7 +882,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-lean_dec(x_1);
 x_4 = l_Std_Time_Second_Ordinal_toOffset(x_3, x_2);
 lean_dec(x_2);
 return x_4;

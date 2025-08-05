@@ -3,10 +3,15 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
+module
+
 prelude
-import Std.Data.DHashMap.Internal.Raw
-import Std.Data.DHashMap.Internal.RawLemmas
-import Std.Data.DHashMap.AdditionalOperations
+public import Std.Data.DHashMap.Internal.Raw
+public import Std.Data.DHashMap.Internal.RawLemmas
+import all Std.Data.DHashMap.Basic
+public import all Std.Data.DHashMap.AdditionalOperations
+
+public section
 
 /-!
 # Dependent hash map lemmas
@@ -152,7 +157,7 @@ set_option linter.missingDocs false in
 @[deprecated size_empty (since := "2025-03-12")]
 abbrev size_emptyc := @size_empty
 
-theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) := rfl
+theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) := (rfl)
 
 @[grind =] theorem size_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     (m.insert k v).size = if k ∈ m then m.size else m.size + 1 :=
@@ -255,7 +260,7 @@ theorem get?_insert_self [LawfulBEq α] {k : α} {v : β k} : (m.insert k v).get
 theorem contains_eq_isSome_get? [LawfulBEq α] {a : α} : m.contains a = (m.get? a).isSome :=
   Raw₀.contains_eq_isSome_get? ⟨m.1, _⟩ m.2
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [LawfulBEq α] {a : α} : (m.get? a).isSome = m.contains a :=
   contains_eq_isSome_get?.symm
 
@@ -314,7 +319,7 @@ theorem contains_eq_isSome_get? [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = (get? m a).isSome :=
   Raw₀.Const.contains_eq_isSome_get? ⟨m.1, _⟩ m.2
 
-@[simp]
+@[simp, grind =]
 theorem isSome_get?_eq_contains [EquivBEq α] [LawfulHashable α] {a : α} :
     (get? m a).isSome = m.contains a :=
   contains_eq_isSome_get?.symm
@@ -1336,7 +1341,7 @@ theorem fold_eq_foldl_toList {f : δ → (a : α) → β → δ} {init : δ} :
   Raw₀.Const.fold_eq_foldl_toList ⟨m.1, m.2.size_buckets_pos⟩
 
 theorem forM_eq_forMUncurried [Monad m'] [LawfulMonad m'] {f : α → β → m' PUnit} :
-    DHashMap.forM f m = forMUncurried (fun a => f a.1 a.2) m := rfl
+    DHashMap.forM f m = forMUncurried (fun a => f a.1 a.2) m := (rfl)
 
 theorem forMUncurried_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α × β → m' PUnit} :
     Const.forMUncurried f m = (Const.toList m).forM f :=
@@ -1352,7 +1357,7 @@ theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α → β → m' PU
 
 theorem forIn_eq_forInUncurried [Monad m'] [LawfulMonad m']
     {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
-    DHashMap.forIn f init m = forInUncurried (fun a b => f a.1 a.2 b) init m := rfl
+    DHashMap.forIn f init m = forInUncurried (fun a b => f a.1 a.2 b) init m := (rfl)
 
 theorem forInUncurried_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : α × β → δ → m' (ForInStep δ)} {init : δ} :
@@ -2016,7 +2021,7 @@ theorem ofList_singleton {k : α} {v : β k} :
   ext <| congrArg Subtype.val (Raw₀.insertMany_emptyWithCapacity_list_cons (α := α))
 
 theorem ofList_eq_insertMany_empty {l : List ((a : α) × β a)} :
-    ofList l = insertMany (∅ : DHashMap α β) l := rfl
+    ofList l = insertMany (∅ : DHashMap α β) l := (rfl)
 
 @[simp, grind =]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
@@ -2165,7 +2170,7 @@ theorem ofList_singleton {k : α} {v : β} :
   ext <| congrArg Subtype.val (Raw₀.Const.insertMany_emptyWithCapacity_list_cons (α:= α))
 
 theorem ofList_eq_insertMany_empty {l : List (α × β)} :
-    ofList l = insertMany (∅ : DHashMap α (fun _ => β)) l := rfl
+    ofList l = insertMany (∅ : DHashMap α (fun _ => β)) l := (rfl)
 
 @[simp, grind =]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
@@ -2582,25 +2587,14 @@ theorem getKey!_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β 
         m.getKey! k' := by
   simp only [getKey!_eq_get!_getKey?, getKey?_alter, beq_iff_eq]
   split
-  · next heq =>
+  next heq =>
     split <;> rfl
-  · next heq =>
+  next heq =>
     rfl
 
 theorem getKey!_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else default := by
   simp only [getKey!_alter, beq_self_eq_true, reduceIte]
-
-@[deprecated getKey_eq (since := "2025-01-05")]
-theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
-    {h : k' ∈ m.alter k f} :
-    (m.alter k f).getKey k' h =
-      if heq : k == k' then
-        k
-      else
-        haveI h' : k' ∈ m := mem_alter_of_beq_eq_false (Bool.not_eq_true _ ▸ heq) |>.mp h
-        m.getKey k' h' :=
-  Raw₀.getKey_alter ⟨m.1, _⟩ m.2 h
 
 theorem getKey_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)}
     {h : k ∈ m.alter k f} : (m.alter k f).getKey k h = k := by
@@ -2939,17 +2933,6 @@ theorem getKey!_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → �
 theorem getKey!_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k} :
     (m.modify k f).getKey! k = if k ∈ m then k else default :=
   Raw₀.getKey!_modify_self ⟨m.1, _⟩ m.2
-
-@[deprecated getKey_eq (since := "2025-01-05")]
-theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
-    {h : k' ∈ m.modify k f} :
-    (m.modify k f).getKey k' h =
-      if k == k' then
-        k
-      else
-        haveI h' : k' ∈ m := mem_modify.mp h
-        m.getKey k' h' :=
-  Raw₀.getKey_modify ⟨m.1, _⟩ m.2 h
 
 @[simp]
 theorem getKey_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k}

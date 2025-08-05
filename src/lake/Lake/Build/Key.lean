@@ -177,7 +177,7 @@ theorem eq_of_quickCmp :
     intro k'; cases k'
     case packageTarget p' t' =>
       dsimp only; split
-      next p_eq => intro t_eq; rw [eq_of_cmp p_eq, eq_of_cmp t_eq]
+      next p_eq => intro t_eq; rw [Std.LawfulEqCmp.eq_of_compare p_eq, Std.LawfulEqCmp.eq_of_compare t_eq]
       next => intro; contradiction
     all_goals (intro; contradiction)
   | facet t f ih =>
@@ -185,10 +185,16 @@ theorem eq_of_quickCmp :
     intro k'; cases k'
     case facet t' f'' =>
       dsimp only; split
-      next t_eq => intro f_eq; rw [ih t_eq, eq_of_cmp f_eq]
+      next t_eq => intro f_eq; rw [ih t_eq, Std.LawfulEqCmp.eq_of_compare f_eq]
       next => intro; contradiction
     all_goals (intro; contradiction)
 
-instance : LawfulCmpEq BuildKey quickCmp where
-  eq_of_cmp := eq_of_quickCmp
-  cmp_rfl {k} := by induction k <;> simp_all [quickCmp]
+instance : Std.LawfulEqCmp quickCmp where
+  eq_of_compare := eq_of_quickCmp
+  compare_self {k} := by
+    induction k
+    · simp [quickCmp]
+    · simp [quickCmp]
+    · simp only [quickCmp]
+      split <;> simp_all
+    · simp_all [quickCmp]

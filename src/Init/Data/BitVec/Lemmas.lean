@@ -1,24 +1,26 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth Bhat
+Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed, Siddharth Bhat, Luisa Cicolini
 -/
 module
 
 prelude
-import Init.Data.Bool
-import all Init.Data.BitVec.Basic
-import all Init.Data.BitVec.BasicAux
-import Init.Data.Fin.Lemmas
-import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Div.Lemmas
-import Init.Data.Nat.Mod
-import Init.Data.Nat.Div.Lemmas
-import Init.Data.Int.Bitwise.Lemmas
-import Init.Data.Int.LemmasAux
-import Init.Data.Int.Pow
-import Init.Data.Int.LemmasAux
-import Init.Data.BitVec.Bootstrap
+public import Init.Data.Bool
+public import all Init.Data.BitVec.Basic
+public import all Init.Data.BitVec.BasicAux
+public import Init.Data.Fin.Lemmas
+public import Init.Data.Nat.Lemmas
+public import Init.Data.Nat.Div.Lemmas
+public import Init.Data.Nat.Mod
+public import Init.Data.Nat.Div.Lemmas
+public import Init.Data.Int.Bitwise.Lemmas
+public import Init.Data.Int.LemmasAux
+public import Init.Data.Int.Pow
+public import Init.Data.Int.LemmasAux
+public import Init.Data.BitVec.Bootstrap
+
+public section
 
 set_option linter.missingDocs true
 
@@ -700,7 +702,7 @@ theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
   have acases : a = 0 ∨ a = 1 := by omega
   rcases acases with ⟨rfl | rfl⟩
   · simp
-  · case inr h =>
+  case inr h =>
     subst h
     simp
 
@@ -743,7 +745,6 @@ theorem le_toNat_of_msb_true {w : Nat} {x : BitVec w} (h : x.msb = true) : 2 ^ (
 `x.toInt` is less than `2^(w-1)`.
 We phrase the fact in terms of `2^w` to prevent a case split on `w=0` when the lemma is used.
 -/
-@[grind]
 theorem two_mul_toInt_lt {w : Nat} {x : BitVec w} : 2 * x.toInt < 2 ^ w := by
   simp only [BitVec.toInt]
   rcases w with _|w'
@@ -751,6 +752,8 @@ theorem two_mul_toInt_lt {w : Nat} {x : BitVec w} : 2 * x.toInt < 2 ^ w := by
   · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.cast_ofNat_Int]
     norm_cast; omega
+
+grind_pattern two_mul_toInt_lt => x.toInt
 
 theorem two_mul_toInt_le {w : Nat} {x : BitVec w} : 2 * x.toInt ≤ 2 ^ w - 1 :=
   Int.le_sub_one_of_lt two_mul_toInt_lt
@@ -770,7 +773,6 @@ theorem toInt_le {w : Nat} {x : BitVec w} : x.toInt ≤ 2 ^ (w - 1) - 1 :=
 `x.toInt` is greater than or equal to `-2^(w-1)`.
 We phrase the fact in terms of `2^w` to prevent a case split on `w=0` when the lemma is used.
 -/
-@[grind]
 theorem le_two_mul_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
   simp only [BitVec.toInt]
   rcases w with _|w'
@@ -778,6 +780,8 @@ theorem le_two_mul_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
   · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.cast_ofNat_Int]
     norm_cast; omega
+
+grind_pattern le_two_mul_toInt => x.toInt
 
 theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   by_cases h : w = 0
@@ -1389,7 +1393,7 @@ theorem or_eq_zero_iff {x y : BitVec w} : (x ||| y) = 0#w ↔ x = 0#w ∧ y = 0#
   · intro h
     constructor
     all_goals
-    · ext i ih
+      ext i ih
       have := BitVec.eq_of_getElem_eq_iff.mp h i ih
       simp only [getElem_or, getElem_zero, Bool.or_eq_false_iff] at this
       simp [this]
@@ -1489,7 +1493,7 @@ theorem and_eq_allOnes_iff {x y : BitVec w} :
   · intro h
     constructor
     all_goals
-    · ext i ih
+      ext i ih
       have := BitVec.eq_of_getElem_eq_iff.mp h i ih
       simp only [getElem_and, getElem_allOnes, Bool.and_eq_true] at this
       simp [this]
@@ -3002,7 +3006,7 @@ which performs a case analysis on the start index, length, and the lengths of `x
 · If the start index is entirely contained in the `xlo` bitvector, then grab the bits from `xlo`.
 · If the start index is split between the two bitvectors,
   then append `(w - start)` bits from `xlo` with `(len - (w - start))` bits from xhi.
-  Diagramatically:
+  Diagrammatically:
   ```
                  xhi                      xlo
           (<---------------------](<-------w--------]
@@ -4312,6 +4316,15 @@ theorem toNat_sdiv {x y : BitVec w} : (x.sdiv y).toNat =
   simp only [sdiv_eq]
   by_cases h : x.msb <;> by_cases h' : y.msb <;> simp [h, h']
 
+theorem toFin_sdiv {x y : BitVec w} : (x.sdiv y).toFin =
+    match x.msb, y.msb with
+    | false, false => x.toFin / y.toFin
+    | false, true => (-(x / -y)).toFin
+    | true, false => (-(-x / y)).toFin
+    | true, true => (-x).toFin / (-y).toFin := by
+  simp only [sdiv_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
+
 @[simp]
 theorem zero_sdiv {x : BitVec w} : (0#w).sdiv x = 0#w := by
   simp only [sdiv_eq]
@@ -4406,8 +4419,8 @@ theorem neg_one_ediv_toInt_eq {w : Nat} {y : BitVec w} :
   rcases w with _|_|w
   · simp [of_length_zero]
   · cases eq_zero_or_eq_one y
-    · case _ h => simp [h]
-    · case _ h => simp [h]
+    case _ h => simp [h]
+    case _ h => simp [h]
   · by_cases 0 < y.toInt
     · simp [Int.sign_eq_one_of_pos (a := y.toInt) (by omega), Int.neg_one_ediv]
       omega
@@ -4488,6 +4501,24 @@ theorem srem_eq (x y : BitVec w) : srem x y =
 @[simp] theorem srem_self {x : BitVec w} : x.srem x = 0#w := by
   cases h : x.msb <;> simp [h, srem_eq]
 
+theorem toNat_srem {x y : BitVec w} : (x.srem y).toNat =
+    match x.msb, y.msb with
+    | false, false => x.toNat % y.toNat
+    | false, true => x.toNat % (-y).toNat
+    | true, false => (-(-x % y)).toNat
+    | true, true => (-(-x % -y)).toNat := by
+  simp only [srem_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
+
+theorem toFin_srem {x y : BitVec w} : (x.srem y).toFin =
+    match x.msb, y.msb with
+    | false, false => x.toFin % y.toFin
+    | false, true => x.toFin % (-y).toFin
+    | true, false => (-(-x % y)).toFin
+    | true, true => (-(-x % -y)).toFin := by
+  simp only [srem_eq, toFin_neg, toNat_umod, toNat_neg]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
+
 /-! ### smod -/
 
 /-- Equation theorem for `smod` in terms of `umod`. -/
@@ -4521,6 +4552,19 @@ theorem toNat_smod {x y : BitVec w} : (x.smod y).toNat =
   <;> simp only [h, h', h'', h''']
   <;> simp only [umod, toNat_eq, toNat_ofNatLT, toNat_ofNat, Nat.zero_mod] at h'' h'''
   <;> simp
+
+theorem toFin_smod {x y : BitVec w} : (x.smod y).toFin =
+    match x.msb, y.msb with
+    | false, false => x.toFin % y.toFin
+    | false, true => if x % -y = 0#w then 0 else (x % -y + y).toFin
+    | true, false => if -x % y = 0#w then 0 else (y - (-x % y)).toFin
+    | true, true => (-(-x % -y)).toFin := by
+  simp only [smod_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  · simp [hx, hy]
+  · by_cases hzero : -x % y = 0#w <;> simp [hx, hy, hzero]
+  · by_cases hzero : x % -y = 0#w <;> simp [hx, hy, hzero]
+  · simp [hx, hy]
 
 @[simp]
 theorem smod_zero {x : BitVec w} : x.smod 0#w = x := by
@@ -5094,7 +5138,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false
 
 /--
 When the `(i+1)`th bit of `x` is true,
-keeping the lower `(i + 1)` bits of `x` equalsk eeping the lower `i` bits
+keeping the lower `(i + 1)` bits of `x` equals keeping the lower `i` bits
 and then performing bitwise-or with `twoPow i = (1 << i)`,
 -/
 theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
@@ -5722,10 +5766,26 @@ theorem clzAuxRec_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
   let k := n - (w - 1)
   rw [show n = (w - 1) + k by omega]
   induction k
-  · case zero => simp
-  · case succ k ihk =>
+  case zero => simp
+  case succ k ihk =>
     simp [show w - 1 + (k + 1) = (w - 1 + k) + 1 by omega, clzAuxRec_succ, ihk,
       show x.getLsbD (w - 1 + k + 1) = false by simp only [show w ≤ w - 1 + k + 1 by omega, getLsbD_of_ge]]
+
+theorem clzAuxRec_eq_clzAuxRec_of_getLsbD_false {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i = false) :
+    x.clzAuxRec n = x.clzAuxRec (n + k) := by
+  induction k
+  case zero => simp
+  case succ k ihk =>
+    simp only [show n + (k + 1) = (n + k) + 1 by omega, clzAuxRec_succ]
+    by_cases hxn : x.getLsbD (n + k + 1)
+    · have : ¬ ∀ (i : Nat), n < i → x.getLsbD i = false := by
+        simp only [Classical.not_forall, Bool.not_eq_false]
+        exists n + k + 1
+        simp [show n < n + k + 1 by omega, hxn]
+      contradiction
+    · simp only [hxn, Bool.false_eq_true, ↓reduceIte]
+      exact ihk
+
 
 /-! ### Inequalities (le / lt) -/
 
@@ -5782,13 +5842,8 @@ set_option linter.missingDocs false
 @[deprecated toFin_uShiftRight (since := "2025-02-18")]
 abbrev toFin_uShiftRight := @toFin_ushiftRight
 
-@[deprecated signExtend_eq_setWidth_of_msb_false (since := "2024-12-08")]
-abbrev signExtend_eq_not_setWidth_not_of_msb_false := @signExtend_eq_setWidth_of_msb_false
 
-@[deprecated replicate_zero (since := "2025-01-08")]
-abbrev replicate_zero_eq := @replicate_zero
 
-@[deprecated replicate_succ (since := "2025-01-08")]
-abbrev replicate_succ_eq := @replicate_succ
+
 
 end BitVec

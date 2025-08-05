@@ -122,6 +122,22 @@ example (l : List Nat) :
     return s) = l.iter.fold (init := 0) (· + ·) := by
   simp
 
+def forInIO (l : List Nat) : IO Nat := do
+  let mut s := 0
+  for x in l.iter do
+    IO.println s!"adding {x}"
+    s := s + x
+  return s
+
+/--
+info: adding 1
+adding 2
+---
+info: 3
+-/
+#guard_msgs in
+#eval forInIO [1, 2]
+
 end Loop
 
 section Take

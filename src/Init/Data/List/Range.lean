@@ -6,8 +6,10 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 module
 
 prelude
-import Init.Data.List.Pairwise
-import Init.Data.List.Zip
+public import Init.Data.List.Pairwise
+public import Init.Data.List.Zip
+
+public section
 
 /-!
 # Lemmas about `List.range` and `List.zipIdx`
@@ -37,12 +39,8 @@ theorem range'_succ {s n step} : range' s (n + 1) step = s :: range' (s + step) 
 @[simp] theorem range'_eq_nil_iff : range' s n step = [] ↔ n = 0 := by
   rw [← length_eq_zero_iff, length_range']
 
-@[deprecated range'_eq_nil_iff (since := "2025-01-29")] abbrev range'_eq_nil := @range'_eq_nil_iff
-
 theorem range'_ne_nil_iff (s : Nat) {n step : Nat} : range' s n step ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp
-
-@[deprecated range'_ne_nil_iff (since := "2025-01-29")] abbrev range'_ne_nil := @range'_ne_nil_iff
 
 @[simp] theorem range'_zero : range' s 0 step = [] := by
   simp
@@ -292,108 +290,5 @@ theorem zipIdx_eq_map_add {l : List α} {i : Nat} :
   induction l generalizing i with
   | nil => rfl
   | cons _ _ ih => simp [ih (i := i + 1), zipIdx_succ, Nat.add_assoc, Nat.add_comm 1]
-
-/-! ### enumFrom -/
-
-section
-set_option linter.deprecated false
-
-@[deprecated zipIdx_eq_nil_iff (since := "2025-01-21"), simp]
-theorem enumFrom_eq_nil {n : Nat} {l : List α} : List.enumFrom n l = [] ↔ l = [] := by
-  cases l <;> simp
-
-@[deprecated length_zipIdx (since := "2025-01-21"), simp]
-theorem enumFrom_length : ∀ {n} {l : List α}, (enumFrom n l).length = l.length
-  | _, [] => rfl
-  | _, _ :: _ => congrArg Nat.succ enumFrom_length
-
-@[deprecated getElem?_zipIdx (since := "2025-01-21"), simp]
-theorem getElem?_enumFrom :
-    ∀ i (l : List α) j, (enumFrom i l)[j]? = l[j]?.map fun a => (i + j, a)
-  | _, [], _ => rfl
-  | _, _ :: _, 0 => by simp
-  | n, _ :: l, m + 1 => by
-    simp only [enumFrom_cons, getElem?_cons_succ]
-    exact (getElem?_enumFrom (n + 1) l m).trans <| by rw [Nat.add_right_comm]; rfl
-
-@[deprecated getElem_zipIdx (since := "2025-01-21"), simp]
-theorem getElem_enumFrom (l : List α) (n) (i : Nat) (h : i < (l.enumFrom n).length) :
-    (l.enumFrom n)[i] = (n + i, l[i]'(by simpa [enumFrom_length] using h)) := by
-  simp only [enumFrom_length] at h
-  rw [getElem_eq_getElem?_get]
-  simp only [getElem?_enumFrom, getElem?_eq_getElem h]
-  simp
-
-@[deprecated tail_zipIdx (since := "2025-01-21"), simp]
-theorem tail_enumFrom (l : List α) (n : Nat) : (enumFrom n l).tail = enumFrom (n + 1) l.tail := by
-  induction l generalizing n with
-  | nil => simp
-  | cons _ l ih => simp [enumFrom_cons]
-
-@[deprecated map_snd_add_zipIdx_eq_zipIdx (since := "2025-01-21"), simp]
-theorem map_fst_add_enumFrom_eq_enumFrom (l : List α) (n k : Nat) :
-    map (Prod.map (· + n) id) (enumFrom k l) = enumFrom (n + k) l :=
-  ext_getElem? fun i ↦ by simp [Nat.add_comm, Nat.add_left_comm]; rfl
-
-@[deprecated map_snd_add_zipIdx_eq_zipIdx (since := "2025-01-21"), simp]
-theorem map_fst_add_enum_eq_enumFrom (l : List α) (n : Nat) :
-    map (Prod.map (· + n) id) (enum l) = enumFrom n l :=
-  map_fst_add_enumFrom_eq_enumFrom l _ _
-
-@[deprecated zipIdx_cons' (since := "2025-01-21"), simp]
-theorem enumFrom_cons' (n : Nat) (x : α) (xs : List α) :
-    enumFrom n (x :: xs) = (n, x) :: (enumFrom n xs).map (Prod.map (· + 1) id) := by
-  rw [enumFrom_cons, Nat.add_comm, ← map_fst_add_enumFrom_eq_enumFrom]
-
-@[deprecated zipIdx_map_snd (since := "2025-01-21"), simp]
-theorem enumFrom_map_fst (n) :
-    ∀ (l : List α), map Prod.fst (enumFrom n l) = range' n l.length
-  | [] => rfl
-  | _ :: _ => congrArg (cons _) (enumFrom_map_fst _ _)
-
-@[deprecated zipIdx_map_fst (since := "2025-01-21"), simp]
-theorem enumFrom_map_snd : ∀ (n) (l : List α), map Prod.snd (enumFrom n l) = l
-  | _, [] => rfl
-  | _, _ :: _ => congrArg (cons _) (enumFrom_map_snd _ _)
-
-@[deprecated zipIdx_eq_zip_range' (since := "2025-01-21")]
-theorem enumFrom_eq_zip_range' (l : List α) {n : Nat} : l.enumFrom n = (range' n l.length).zip l :=
-  zip_of_prod (enumFrom_map_fst _ _) (enumFrom_map_snd _ _)
-
-@[deprecated unzip_zipIdx_eq_prod (since := "2025-01-21"), simp]
-theorem unzip_enumFrom_eq_prod (l : List α) {n : Nat} :
-    (l.enumFrom n).unzip = (range' n l.length, l) := by
-  simp only [enumFrom_eq_zip_range', unzip_zip, length_range']
-
-end
-
-/-! ### enum -/
-
-section
-set_option linter.deprecated false
-
-@[deprecated zipIdx_cons (since := "2025-01-21")]
-theorem enum_cons : (a::as).enum = (0, a) :: as.enumFrom 1 := rfl
-
-@[deprecated zipIdx_cons (since := "2025-01-21")]
-theorem enum_cons' (x : α) (xs : List α) :
-    enum (x :: xs) = (0, x) :: (enum xs).map (Prod.map (· + 1) id) :=
-  enumFrom_cons' _ _ _
-
-@[deprecated "These are now both `l.zipIdx 0`" (since := "2025-01-21")]
-theorem enum_eq_enumFrom {l : List α} : l.enum = l.enumFrom 0 := rfl
-
-@[deprecated "Use the reverse direction of `map_snd_add_zipIdx_eq_zipIdx` instead" (since := "2025-01-21")]
-theorem enumFrom_eq_map_enum (l : List α) (n : Nat) :
-    enumFrom n l = (enum l).map (Prod.map (· + n) id) := by
-  induction l generalizing n with
-  | nil => simp
-  | cons x xs ih =>
-    simp only [enumFrom_cons, ih, enum_cons, map_cons, Prod.map_apply, Nat.zero_add, id_eq, map_map,
-      cons.injEq, map_inj_left, Function.comp_apply, Prod.forall, Prod.mk.injEq, and_true, true_and]
-    intro a b _
-    exact (succ_add a n).symm
-
-end
 
 end List

@@ -520,7 +520,7 @@ info: GramSchmidt.foo.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), (�
 
 end GramSchmidt
 
-namespace LetFun
+namespace Have
 
 def foo {α} (x : α) : List α → Nat
   | .nil => 0
@@ -529,7 +529,7 @@ def foo {α} (x : α) : List α → Nat
       this
 termination_by xs => xs
 /--
-info: LetFun.foo.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
+info: Have.foo.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
   (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) (a✝ : List α) : motive a✝
 -/
 #guard_msgs in
@@ -544,13 +544,13 @@ def bar {α} (x : α) : List α → Nat
 termination_by xs => xs
 
 /--
-info: LetFun.bar.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
+info: Have.bar.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
   (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) (a✝ : List α) : motive a✝
 -/
 #guard_msgs in
 #check bar.induct
 
-end LetFun
+end Have
 
 
 namespace RecCallInDisrs
@@ -733,11 +733,11 @@ def foo (n : Nat) : Nat :=
 info: Dite.foo.induct (motive : Nat → Prop)
   (case1 :
     ∀ (x : Nat),
-      let j := x - 1;
+      have j := x - 1;
       j < x → motive j → motive x)
   (case2 :
     ∀ (x : Nat),
-      let j := x - 1;
+      have j := x - 1;
       ¬j < x → motive x)
   (n : Nat) : motive n
 -/
@@ -801,7 +801,7 @@ info: Mutual_Induct.even.mutual_induct (motive1 motive2 : Nat → Prop) (case1 :
 
 -- The .mutual_induct only exists on the first declaration:
 
-/-- error: unknown constant 'Mutual_Induct.odd.mutual_induct' -/
+/-- error: Unknown constant `Mutual_Induct.odd.mutual_induct` -/
 #guard_msgs in
 #check odd.mutual_induct
 
@@ -815,16 +815,11 @@ def nonmutual : Nat → Bool
   | 0 => true
   | n+1 => nonmutual n
 
-/-- error: unknown constant 'Mutual_Induct.nonmutual.mutual_induct' -/
+/-- error: Unknown constant `Mutual_Induct.nonmutual.mutual_induct` -/
 #guard_msgs in
 #check nonmutual.mutual_induct
 
-/--
-error: invalid field notation, type is not of the form (C ...) where C is a constant
-  id
-has type
-  ?_ → ?_
--/
+/-- error: Unknown constant `id.mutual_induct` -/
 #guard_msgs in
 set_option pp.mvars false in
 #check id.mutual_induct

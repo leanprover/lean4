@@ -6,10 +6,12 @@ Authors: Kim Morrison
 module
 
 prelude
-import all Init.Data.Array.Basic
-import Init.Data.Array.Lemmas
-import Init.Data.List.Nat.Erase
-import Init.Data.List.Nat.Basic
+public import all Init.Data.Array.Basic
+public import Init.Data.Array.Lemmas
+public import Init.Data.List.Nat.Erase
+public import Init.Data.List.Nat.Basic
+
+public section
 
 /-!
 # Lemmas about `Array.eraseP`, `Array.erase`, and `Array.eraseIdx`.
@@ -380,10 +382,11 @@ theorem eraseIdx_ne_empty_iff {xs : Array α} {i : Nat} {h} : xs.eraseIdx i ≠ 
     simp [h]
   · simp
 
-@[grind →]
 theorem mem_of_mem_eraseIdx {xs : Array α} {i : Nat} {h} {a : α} (h : a ∈ xs.eraseIdx i) : a ∈ xs := by
   rcases xs with ⟨xs⟩
   simpa using List.mem_of_mem_eraseIdx (by simpa using h)
+
+grind_pattern mem_of_mem_eraseIdx => a ∈ xs.eraseIdx i
 
 theorem eraseIdx_append_of_lt_size {xs : Array α} {k : Nat} (hk : k < xs.size) (ys : Array α) (h) :
     eraseIdx (xs ++ ys) k = eraseIdx xs k ++ ys := by

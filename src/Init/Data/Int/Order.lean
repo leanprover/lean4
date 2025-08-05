@@ -6,8 +6,10 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-import Init.Data.Int.Lemmas
-import Init.ByCases
+public import Init.Data.Int.Lemmas
+public import Init.ByCases
+
+public section
 
 /-!
 # Results about the order properties of the integers, and the integers as an ordered ring.
@@ -1115,11 +1117,11 @@ protected theorem add_le_zero_iff_le_neg {a b : Int} : a + b ≤ 0 ↔ a ≤ -b 
 protected theorem add_le_zero_iff_le_neg' {a b : Int} : a + b ≤ 0 ↔ b ≤ -a := by
   rw [Int.add_comm, Int.add_le_zero_iff_le_neg]
 
-protected theorem add_nonnneg_iff_neg_le {a b : Int} : 0 ≤ a + b ↔ -b ≤ a := by
+protected theorem add_nonneg_iff_neg_le {a b : Int} : 0 ≤ a + b ↔ -b ≤ a := by
   rw [Int.le_add_iff_sub_le, Int.zero_sub]
 
-protected theorem add_nonnneg_iff_neg_le' {a b : Int} : 0 ≤ a + b ↔ -a ≤ b := by
-  rw [Int.add_comm, Int.add_nonnneg_iff_neg_le]
+protected theorem add_nonneg_iff_neg_le' {a b : Int} : 0 ≤ a + b ↔ -a ≤ b := by
+  rw [Int.add_comm, Int.add_nonneg_iff_neg_le]
 
 /- ### Order properties and multiplication -/
 

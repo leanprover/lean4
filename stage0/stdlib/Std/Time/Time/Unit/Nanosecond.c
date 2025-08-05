@@ -30,6 +30,7 @@ LEAN_EXPORT uint8_t l_Std_Time_Nanosecond_instSpanDecidableEq(lean_object*, lean
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_instDecidableLtOffset___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_Ordinal_ofInt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_instOrdOrdinal;
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Nanosecond_instOffsetRepr_spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_Ordinal_instDecidableLtOfDay___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_instOffsetRepr;
 LEAN_EXPORT lean_object* l_Std_Time_Nanosecond_instOfNatOrdinal___boxed(lean_object*);
@@ -287,6 +288,14 @@ _start:
 lean_object* x_1; 
 x_1 = l_Std_Time_Nanosecond_instOrdOrdinal___closed__2;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_Nanosecond_instOffsetRepr_spec__0(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_Nanosecond_instOffsetRepr___closed__0() {

@@ -1,12 +1,13 @@
 import Lean.PremiseSelection
 
 /--
-error: type mismatch
+error: Type mismatch
   Nat
 has type
-  Type : Type 1
-but is expected to have type
-  Lean.PremiseSelection.Selector : Type
+  Type
+of sort `Type 1` but is expected to have type
+  Lean.PremiseSelection.Selector
+of sort `Type`
 ---
 error: Failed to elaborate Nat as a `MVarId → Config → MetaM (Array Suggestion)`.
 -/

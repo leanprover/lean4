@@ -6,8 +6,10 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-import Init.Data.Int.Lemmas
-import Init.Data.Nat.Lemmas
+public import Init.Data.Int.Lemmas
+public import Init.Data.Nat.Lemmas
+
+public section
 
 namespace Int
 

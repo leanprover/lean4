@@ -22,8 +22,8 @@ structure Module where
   -/
   keyName : Name := name
 
-instance : ToText Module := ⟨(·.name.toString)⟩
 instance : ToJson Module := ⟨(toJson ·.name)⟩
+instance : ToString Module := ⟨(·.name.toString)⟩
 
 instance : Hashable Module where hash m := hash m.keyName
 instance : BEq Module where beq m n := m.keyName == n.keyName
@@ -34,8 +34,8 @@ abbrev ModuleSet := Std.HashSet Module
 abbrev OrdModuleSet := OrdHashSet Module
 @[inline] def OrdModuleSet.empty : OrdModuleSet := OrdHashSet.empty
 
-abbrev ModuleMap (α) := RBMap Module α (·.name.quickCmp ·.name)
-@[inline] def ModuleMap.empty : ModuleMap α := RBMap.empty
+abbrev ModuleMap (α) := Std.TreeMap Module α (·.name.quickCmp ·.name)
+@[inline] def ModuleMap.empty : ModuleMap α := Std.TreeMap.empty
 
 /--
 Locate the named, buildable module in the library
@@ -44,11 +44,18 @@ Locate the named, buildable module in the library
 def LeanLib.findModule? (mod : Name) (self : LeanLib) : Option Module :=
   if self.isBuildableModule mod then some {lib := self, name := mod} else none
 
-/-- Returns the buildable module in the library whose source file is `path`.  -/
+/--
+Returns the buildable module in the library whose source file or directory is `path`.
+
+For example, in a library with a source directory of `src`,
+`src/Foo/Bar.lean` and `src/Foo/Bar/` will both resolve to the module `Foo.Bar`.
+-/
 def LeanLib.findModuleBySrc? (path : FilePath) (self : LeanLib) : Option Module := do
   let modPath ← path.toString.dropPrefix? self.srcDir.toString
   let modPath := (modPath.drop 1).toString -- remove leading `/`
-  self.findModule? (modOfFilePath modPath)
+  let modPath ← modPath.dropSuffix? ".lean" <|> modPath.dropSuffix? FilePath.pathSeparator.toString
+  let modName := FilePath.components modPath.toString |>.foldl .str .anonymous
+  self.findModule? modName
 
 /-- Locate the named, buildable, importable, local module in the package.  -/
 def Package.findModule? (mod : Name) (self : Package) : Option Module :=
@@ -108,6 +115,9 @@ abbrev pkg (self : Module) : Package :=
 
 @[inline] def setupFile (self : Module) : FilePath :=
   self.irPath "setup.json"
+
+@[inline] def irFile (self : Module) : FilePath :=
+  self.leanLibPath "ir"
 
 @[inline] def cFile (self : Module) : FilePath :=
   self.irPath "c"

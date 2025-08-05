@@ -3,9 +3,14 @@ Copyright (c) 2025 Robin Arnez, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robin Arnez
 -/
+module
+
 prelude
-import Std.Data.ExtHashMap.Basic
-import Std.Data.ExtDHashMap.Lemmas
+public import Std.Data.ExtHashMap.Basic
+import all Std.Data.ExtDHashMap.Basic
+public import Std.Data.ExtDHashMap.Lemmas
+
+@[expose] public section
 
 /-!
 # Extensional hash map lemmas

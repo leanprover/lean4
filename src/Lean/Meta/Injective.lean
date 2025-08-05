@@ -3,15 +3,19 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Meta.Tactic.Injection
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Refl
-import Lean.Meta.Tactic.Cases
-import Lean.Meta.Tactic.Subst
-import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Tactic.Assumption
+public import Lean.Meta.Transform
+public import Lean.Meta.Tactic.Injection
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Refl
+public import Lean.Meta.Tactic.Cases
+public import Lean.Meta.Tactic.Subst
+public import Lean.Meta.Tactic.Assumption
+import Lean.Meta.Tactic.Simp.Main
+
+public section
 
 namespace Lean.Meta
 
@@ -20,7 +24,7 @@ private def mkAnd? (args : Array Expr) : Option Expr := Id.run do
     return none
   else
     let mut result := args.back!
-    for arg in args.reverse[1:] do
+    for arg in args.reverse[1...*] do
       result := mkApp2 (mkConst ``And) arg result
     return result
 

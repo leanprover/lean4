@@ -3,13 +3,18 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Ring.OfSemiring
-import Lean.Meta.Tactic.Grind.Diseq
-import Lean.Meta.Tactic.Grind.Arith.ProofUtil
-import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+public import Init.Grind.Ring.OfSemiring
+public import Lean.Meta.Tactic.Grind.Diseq
+public import Lean.Meta.Tactic.Grind.Arith.ProofUtil
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+
+public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
 
@@ -22,14 +27,14 @@ def toContextExpr : RingM Expr := do
   if h : 0 < ring.vars.size then
     RArray.toExpr ring.type id (RArray.ofFn (ring.vars[·]) h)
   else
-    RArray.toExpr ring.type id (RArray.leaf (mkApp ring.natCastFn (toExpr 0)))
+    RArray.toExpr ring.type id (RArray.leaf (mkApp (← getNatCastFn) (toExpr 0)))
 
 private def toSContextExpr' : SemiringM Expr := do
   let semiring ← getSemiring
   if h : 0 < semiring.vars.size then
     RArray.toExpr semiring.type id (RArray.ofFn (semiring.vars[·]) h)
   else
-    RArray.toExpr semiring.type id (RArray.leaf (mkApp semiring.natCastFn (toExpr 0)))
+    RArray.toExpr semiring.type id (RArray.leaf (mkApp (← getNatCastFn') (toExpr 0)))
 
 /-- Similar to `toContextExpr`, but for semirings. -/
 private def toSContextExpr (semiringId : Nat) : RingM Expr := do
@@ -111,7 +116,7 @@ def PreNullCert.combine (k₁ : Int) (m₁ : Mon) (c₁ : PreNullCert) (k₂ : I
   let qs₂   := c₂.qs
   let n := Nat.max qs₁.size qs₂.size
   let mut qs : Vector Poly n := Vector.replicate n (.num 0)
-  for h : i in [:n] do
+  for h : i in *...n do
     if h₁ : i < qs₁.size then
       let q₁ ← qs₁[i].mulMonM k₁ m₁
       if h₂ : i < qs₂.size then
@@ -120,7 +125,7 @@ def PreNullCert.combine (k₁ : Int) (m₁ : Mon) (c₁ : PreNullCert) (k₂ : I
       else
         qs := qs.set i q₁
     else
-      have : i < n := h.upper
+      have : i < n := Std.PRange.lt_upper_of_mem h
       have : qs₁.size = n ∨ qs₂.size = n := by simp +zetaDelta only [Nat.max_def, right_eq_ite_iff]; split <;> simp [*]
       have : i < qs₂.size := by omega
       let q₂ ← qs₂[i].mulMonM k₂ m₂
@@ -164,11 +169,13 @@ partial def EqCnstr.toPreNullCert (c : EqCnstr) : ProofM PreNullCert := caching 
     modify fun s => { s with hyps := s.hyps.push { h, lhs, rhs } }
     return PreNullCert.unit i (i+1)
   | .coreS _a _b _sa _sb _ra _rb =>
-    throwError "NIY"
+    throwError "`grind +ringNull` is not supported yet for this goal"
   | .superpose k₁ m₁ c₁ k₂ m₂ c₂ => (← c₁.toPreNullCert).combine k₁ m₁ k₂ m₂ (← c₂.toPreNullCert)
   | .simp k₁ c₁ k₂ m₂ c₂ => (← c₁.toPreNullCert).combine k₁ .unit k₂ m₂ (← c₂.toPreNullCert)
   | .mul k c => (← c.toPreNullCert).mul k
   | .div k c => (← c.toPreNullCert).div k
+  | .gcd .. | .numEq0 .. =>
+    throwError "`grind +ringNull` is not supported yet for this goal"
 
 def PolyDerivation.toPreNullCert (d : PolyDerivation) : ProofM PreNullCert := do
   match d with
@@ -177,6 +184,8 @@ def PolyDerivation.toPreNullCert (d : PolyDerivation) : ProofM PreNullCert := do
     -- Recall that _p = k₁*d.getPoly + k₂*m₂*c.p
     trace[grind.debug.ring.proof] ">> k₁: {k₁}, {(← d.toPreNullCert).d}, {(← c₂.toPreNullCert).d}"
     (← d.toPreNullCert).combine k₁ .unit (-k₂) m₂ (← c₂.toPreNullCert)
+  | .normEq0 .. =>
+    throwError "`grind +ringNull` is not supported yet for this goal"
 
 /-- Returns the multiplier `k` for the input polynomial. See comment at `PolyDerivation.step`. -/
 def PolyDerivation.getMultiplier (d : PolyDerivation) : Int :=
@@ -186,6 +195,7 @@ where
     match d with
     | .input _ => acc
     | .step _ k₁ d .. => go d (k₁ * acc)
+    | .normEq0 _ d .. => go d acc
 
 def EqCnstr.mkNullCertExt (c : EqCnstr) : RingM NullCertExt := do
   let (nc, s) ← c.toPreNullCert.run {}
@@ -385,9 +395,12 @@ private def mkStepPrefix (declName declNameC : Name) : ProofM Expr := do
   else
     mkStepBasicPrefix declName
 
-private def getSemiringOf : RingM Semiring := do
+private def getSemiringIdOf : RingM Nat := do
   let some semiringId := (← getRing).semiringId? | throwError "`grind` internal error, semiring is not available"
-  SemiringM.run semiringId do getSemiring
+  return semiringId
+
+private def getSemiringOf : RingM Semiring := do
+  SemiringM.run (← getSemiringIdOf) do getSemiring
 
 private def mkSemiringPrefix (declName : Name) : ProofM Expr := do
   let sctx ← getSContext
@@ -397,7 +410,7 @@ private def mkSemiringPrefix (declName : Name) : ProofM Expr := do
 private def mkSemiringAddRightCancelPrefix (declName : Name) : ProofM Expr := do
   let sctx ← getSContext
   let semiring ← getSemiringOf
-  let some addRightCancelInst := semiring.addRightCancelInst?
+  let some addRightCancelInst ← SemiringM.run (← getSemiringIdOf) do getAddRightCancelInst?
     | throwError "`grind` internal error, `AddRightCancel` instance is not available"
   return mkApp4 (mkConst declName [semiring.u]) semiring.type semiring.semiringInst addRightCancelInst sctx
 
@@ -432,6 +445,14 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
     let some nzInst ← noZeroDivisorsInst?
       | throwNoNatZeroDivisors
     return mkApp6 h nzInst (← mkPolyDecl c₁.p) (toExpr k) (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁)
+  | .gcd a b c₁ c₂ =>
+    let h ← mkStepBasicPrefix ``Grind.CommRing.eq_gcd
+    return mkApp8 h (toExpr a) (toExpr b) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c.p)
+      reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
+  | .numEq0 k c₁ c₂ =>
+    let h ← mkStepBasicPrefix ``Grind.CommRing.eq_normEq0
+    return mkApp7 h (toExpr k) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c.p)
+      reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
 
 open Lean.Grind.CommRing in
 /--
@@ -455,6 +476,15 @@ private def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly × Expr)
       (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p) (← mkPolyDecl p)
       reflBoolTrue h₁ h₂
     return (k₁*k, p₀, h)
+  | .normEq0 p d c =>
+    let (k, p₀, h₁) ← derivToExprProof d
+    let h₂ ← c.toExprProof
+    let .num a := c.p | unreachable!
+    let h ← mkStepBasicPrefix ``Grind.CommRing.d_normEq0
+    let h := mkApp9 h
+      (toExpr k) (toExpr a.natAbs) (← mkPolyDecl p₀) (← mkPolyDecl d.p)
+      (← mkPolyDecl c.p) (← mkPolyDecl p) reflBoolTrue h₁ h₂
+    return (k, p₀, h)
 
 open Lean.Grind.CommRing in
 /--

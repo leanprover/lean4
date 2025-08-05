@@ -1,4 +1,9 @@
-import GroveStdlib.Root
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Markus Himmel
+-/
+import GroveStdlib.Std
 import GroveStdlib.Generated
 
 def config : Grove.Framework.Project.Configuration where
@@ -6,7 +11,7 @@ def config : Grove.Framework.Project.Configuration where
 
 def project : Grove.Framework.Project where
   config := config
-  rootNode := GroveStdlib.root
+  rootNode := GroveStdlib.std
   restoreState := GroveStdlib.Generated.restoreState
 
 def main (args : List String) : IO UInt32 :=

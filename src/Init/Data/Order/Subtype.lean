@@ -23,9 +23,6 @@ public instance {α : Type u} [OrderData α] {P : α → Prop} : OrderData (Subt
 public instance {α : Type u} [Min α] [MinEqOr α] {P : α → Prop} : Min (Subtype P) where
   min a b := ⟨Min.min a.val b.val, MinEqOr.elim a.property b.property⟩
 
-public instance {α : Type u} [LE α] {P : α → Prop} : LE (Subtype P) where
-  le a b := a.val ≤ b.val
-
 public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α]
     {P : α → Prop} : LawfulOrderLE (Subtype P) where
   le_iff a b := by simp only [LE.le, OrderData.IsLE, LawfulOrderLE.le_iff]

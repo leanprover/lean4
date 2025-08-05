@@ -16,6 +16,10 @@ public import Lean.Server.InfoUtils
 
 public section
 
+open IO
+
+namespace Lean.Server
+
 namespace IO
 
 /-- Throws an `IO.userError`. -/
@@ -32,7 +36,7 @@ NB: if `a` is written to but this stream is never read from,
 the output will *not* be duplicated. Use this if you only care
 about the data that was actually read.
 -/
-def chainRight (a : Stream) (b : Stream) (flushEagerly : Bool := false) : Stream :=
+def chainRight (a : FS.Stream) (b : FS.Stream) (flushEagerly : Bool := false) : FS.Stream :=
   { a with
     flush := a.flush *> b.flush
     read := fun sz => do
@@ -47,7 +51,7 @@ def chainRight (a : Stream) (b : Stream) (flushEagerly : Bool := false) : Stream
       pure ln }
 
 /-- Like `tee a | b` on Unix. See `chainOut`. -/
-def chainLeft (a : Stream) (b : Stream) (flushEagerly : Bool := false) : Stream :=
+def chainLeft (a : FS.Stream) (b : FS.Stream) (flushEagerly : Bool := false) : FS.Stream :=
   { b with
     flush := a.flush *> b.flush
     write := fun bs => do
@@ -60,7 +64,7 @@ def chainLeft (a : Stream) (b : Stream) (flushEagerly : Bool := false) : Stream 
       b.putStr s }
 
 /-- Prefixes all written outputs with `pre`. -/
-def withPrefix (a : Stream) (pre : String) : Stream :=
+def withPrefix (a : FS.Stream) (pre : String) : FS.Stream :=
   { a with
     write := fun bs => do
       a.putStr pre
@@ -71,7 +75,7 @@ def withPrefix (a : Stream) (pre : String) : Stream :=
 end FS.Stream
 end IO
 
-namespace Lean.Server
+open Server
 
 /-- Meta-Data of a document. -/
 structure DocumentMeta where

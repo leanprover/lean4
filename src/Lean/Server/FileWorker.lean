@@ -55,10 +55,12 @@ If a task that the request task waits for is terminated, a change occurred somew
 command that the request is looking for and the request sends a "content changed" error.
 -/
 
+open IO
+
 namespace Lean.Server.FileWorker
 
 open Lsp
-open IO
+open IO Lean.Server Lean.Lsp
 open Snapshots
 open JsonRpc
 

@@ -1133,8 +1133,9 @@ def AddConstAsyncResult.commitCheckEnv (res : AddConstAsyncResult) (env : Enviro
   -- `info?`
   if !(← res.constPromise.isResolved) then
     res.commitConst env
-  BaseIO.chainTask (sync := true) env.checked res.checkedEnvPromise.resolve
-  BaseIO.chainTask (sync := true) env.allRealizations res.allRealizationsPromise.resolve
+  BaseIO.chainTask (sync := true) env.checked fun checked => do
+    res.checkedEnvPromise.resolve checked
+    BaseIO.chainTask (sync := true) env.allRealizations res.allRealizationsPromise.resolve
 
 /--
 Checks whether `findAsync?` would return a result.

@@ -123,6 +123,7 @@ private def mkReprInstanceCmd (declName : Name) : TermElabM (Array Syntax) := do
 open Command
 
 def mkReprInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
+  withoutExporting do  -- This deriving handler handles visibility of generated decls syntactically
   if (← declNames.allM isInductive) then
     for declName in declNames do
       let cmds ← liftTermElabM <| mkReprInstanceCmd declName

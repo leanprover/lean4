@@ -234,3 +234,27 @@ constructor:
 #guard_msgs in
 #with_exporting
 #check { x := 1 : StructWithPrivateField }
+
+/-! Private constructors should be compatible with public fields. -/
+
+public structure StructWithPrivateCtor where private mk ::
+  x : Nat
+
+/--
+info: structure StructWithPrivateCtor : Type
+number of parameters: 0
+fields:
+  StructWithPrivateCtor.x : Nat
+constructor:
+  private StructWithPrivateCtor.mk (x : Nat) : StructWithPrivateCtor
+-/
+#guard_msgs in
+#print StructWithPrivateCtor
+
+/-- error: invalid {...} notation, constructor for 'StructWithPrivateCtor' is marked as private -/
+#guard_msgs in
+#with_exporting
+#check { x := 1 : StructWithPrivateCtor }
+
+#with_exporting
+#check StructWithPrivateCtor.x

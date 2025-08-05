@@ -1193,7 +1193,8 @@ Main elaborator for structure instances.
 private def elabStructInstView (s : StructInstView) (structName : Name) (structType? : Option Expr) :
     TermElabM Expr := withRef s.ref do
   let env ← getEnv
-  let ctorVal := getStructureCtor env structName
+  -- Allow access to private ctor to prefer error message below over panic
+  let ctorVal := getStructureCtor (env.setExporting false) structName
   if isInaccessiblePrivateName env ctorVal.name then
     throwError "invalid \{...} notation, constructor for '{.ofConstName structName}' is marked as private"
   let { ctorFn, ctorFnType, structType, levels, params } ← mkCtorHeader ctorVal structType?

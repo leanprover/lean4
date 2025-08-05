@@ -7,7 +7,10 @@ namespace Something
 
 namespace MyNamespace
 
-local elab "end" id:ident : command => do
+set_option pp.rawOnError true
+set_option trace.Elab.command true in
+set_option trace.Elab.step true in
+elab "end" id:ident : command => do
   println!"foo"
   let node := mkNode ``Lean.Parser.Command.end
     #[Lean.mkAtom "end", mkOptionalNode id]

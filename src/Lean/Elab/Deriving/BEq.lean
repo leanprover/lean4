@@ -149,6 +149,7 @@ def mkBEqInstance (declName : Name) : CommandElabM Unit := do
     cmds.forM elabCommand
 
 def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
+  withoutExporting do  -- This deriving handler handles visibility of generated decls syntactically
   if (← declNames.allM isInductive) then
     for declName in declNames do
       mkBEqInstance declName

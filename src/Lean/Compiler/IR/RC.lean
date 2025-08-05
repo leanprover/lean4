@@ -35,24 +35,16 @@ structure Context where
   localCtx       : LocalContext := {} -- we use it to store the join point declarations
 
 def getDecl (ctx : Context) (fid : FunId) : Decl :=
-  match findEnvDecl' ctx.env fid ctx.decls with
-  | some decl => decl
-  | none      => unreachable!
+  findEnvDecl' ctx.env fid ctx.decls |>.get!
 
 def getVarInfo (ctx : Context) (x : VarId) : VarInfo :=
-  match ctx.varMap.get? x with
-  | some info => info
-  | none      => unreachable!
+  ctx.varMap.get! x
 
 def getJPParams (ctx : Context) (j : JoinPointId) : Array Param :=
-  match ctx.localCtx.getJPParams j with
-  | some ps => ps
-  | none    => unreachable!
+  ctx.localCtx.getJPParams j |>.get!
 
 def getJPLiveVars (ctx : Context) (j : JoinPointId) : LiveVarSet :=
-  match ctx.jpLiveVarMap.get? j with
-  | some s => s
-  | none   => {}
+  ctx.jpLiveVarMap.get? j |>.getD {}
 
 def mustConsume (ctx : Context) (x : VarId) : Bool :=
   let info := getVarInfo ctx x

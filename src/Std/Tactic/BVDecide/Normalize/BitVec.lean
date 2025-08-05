@@ -592,5 +592,36 @@ theorem ISize.toBitVec_ite [Decidable c] :
     ISize.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
   rw [apply_ite ISize.toBitVec]
 
+@[int_toBitVec]
+theorem UInt8.beq_eq_decide_eq {a b : UInt8} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem UInt16.beq_eq_decide_eq {a b : UInt16} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem UInt32.beq_eq_decide_eq {a b : UInt32} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem UInt64.beq_eq_decide_eq {a b : UInt64} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem USize.beq_eq_decide_eq {a b : USize} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem Int8.beq_eq_decide_eq {a b : Int8} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem Int16.beq_eq_decide_eq {a b : Int16} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem Int32.beq_eq_decide_eq {a b : Int32} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem Int64.beq_eq_decide_eq {a b : Int64} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+@[int_toBitVec]
+theorem ISize.beq_eq_decide_eq {a b : ISize} : (a == b) = decide (a = b) := Bool.beq_eq_decide_eq ..
+
+
 end Normalize
 end Std.Tactic.BVDecide

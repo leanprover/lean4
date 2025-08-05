@@ -17,6 +17,9 @@ module
 public def foo := "bar"
 EOF
 
+# Test cross-package `import all``
+test_err "cannot 'import all' across packages" build ErrorTest.CrossPackageImportAll
+
 # Tests importing of a module's private segment
 # should not not be imported by a plain `import` in a module
 test_run build Test.ModuleImport

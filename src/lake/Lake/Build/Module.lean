@@ -344,7 +344,7 @@ private def ModuleImportInfo.addImport
     info
 
 private def fetchImportInfo
-  (fileName : String) (modName : Name) (header : ModuleHeader)
+  (fileName : String) (pkgName modName : Name) (header : ModuleHeader)
 : FetchM (Job ModuleImportInfo) := do
   let nonModule := !header.isModule
   let info := ModuleImportInfo.nil modName
@@ -355,6 +355,9 @@ private def fetchImportInfo
       return .error
     let some mod ← findModule? imp.module
       | return s
+    if imp.importAll && pkgName != mod.pkg.name then
+      logError s!"{fileName}: cannot 'import all' across packages"
+      return .error
     let importJob ← mod.exportInfo.fetch
     return s.zipWith (·.addImport nonModule mod imp ·) importJob
 
@@ -362,7 +365,7 @@ private def fetchImportInfo
 def Module.importInfoFacetConfig : ModuleFacetConfig importInfoFacet :=
   mkFacetJobConfig fun mod => do
     let header ← (← mod.header.fetch).await
-    fetchImportInfo mod.relLeanFile.toString mod.name header
+    fetchImportInfo mod.relLeanFile.toString mod.pkg.name mod.name header
 
 private def noServerOLeanError :=
   "No server olean generated. Ensure the module system is enabled."
@@ -906,7 +909,7 @@ private def setupEditedModule
     return ⟨imp, ← findModule? imp.module⟩
   let fileName := mod.relLeanFile.toString
   let localImports := directImports.filterMap (·.module?)
-  let impInfoJob ← fetchImportInfo fileName mod.name header
+  let impInfoJob ← fetchImportInfo fileName mod.pkg.name mod.name header
   let precompileImports ←
     if mod.shouldPrecompile then
       (← computeTransImportsAux fileName localImports).await
@@ -953,7 +956,7 @@ private def setupExternalModule
   let imports ← header.imports.mapM fun imp => do
     return ⟨imp, ← findModule? imp.module⟩
   let localImports := imports.filterMap (·.module?)
-  let impInfoJob ← fetchImportInfo fileName .anonymous header
+  let impInfoJob ← fetchImportInfo fileName .anonymous .anonymous header
   let precompileImports ← (← computePrecompileImportsAux fileName localImports).await
   let impLibsJob ← fetchImportLibs precompileImports
   let externLibsJob ← Job.collectArray <$>

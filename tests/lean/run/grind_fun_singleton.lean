@@ -32,3 +32,9 @@ example
     (h₄ : f = fun (_ : Unit × Unit) => y + z)
     : x = z ∧ x + y = w := by
   grind
+
+example [Inhabited α] : ((fun (_ : α) => x = a + 1) = fun (_ : α) => True) → x = a + 1 := by
+  grind
+
+example : c = 5 → ((fun (_ : Nat × Nat) => { down := a + c = b + 5 : ULift Prop }) = fun (_ : Nat × Nat) => { down := c < 10 : ULift Prop }) → a = b := by
+  grind

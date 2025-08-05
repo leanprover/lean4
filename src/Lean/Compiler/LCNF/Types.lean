@@ -173,9 +173,7 @@ where
       | _ => return anyExpr
     let mut result := fNew
     for arg in args do
-      if (← isProp arg) then
-        result := mkApp result erasedExpr
-      else if (← isPropFormer arg) then
+      if ← isProp arg <||> isPropFormer arg then
         result := mkApp result erasedExpr
       else if (← isTypeFormer arg) then
         result := mkApp result (← toLCNFType arg)

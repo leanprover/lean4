@@ -270,6 +270,3 @@ instance : LawfulMonad Option := LawfulMonad.mk'
   (pure_bind := fun _ _ => rfl)
   (bind_assoc := fun x _ _ => by cases x <;> rfl)
   (bind_pure_comp := fun _ x => by cases x <;> rfl)
-
-instance : LawfulApplicative Option := inferInstance
-instance : LawfulFunctor Option := inferInstance

@@ -104,9 +104,6 @@ instance : LawfulMonad (Except ε) := LawfulMonad.mk'
   (pure_bind := fun _ _ => by rfl)
   (bind_assoc := fun a _ _ => by cases a <;> rfl)
 
-instance : LawfulApplicative (Except ε) := inferInstance
-instance : LawfulFunctor (Except ε) := inferInstance
-
 /-! # ReaderT -/
 
 namespace ReaderT

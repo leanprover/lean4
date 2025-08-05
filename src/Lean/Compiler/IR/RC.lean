@@ -143,12 +143,12 @@ private def addDecForDeadParams (ctx : Context) (ps : Array Param) (b : FnBody) 
     if !p.borrow && p.ty.isObj && !bLiveVars.contains p.x then addDec ctx p.x b else b
 
 private def isPersistent : Expr → Bool
-  | Expr.fap _ xs => xs.isEmpty -- all global constants are persistent objects
-  | _             => false
+  | .fap _ xs => xs.isEmpty -- all global constants are persistent objects
+  | _         => false
 
 /-- We do not need to consume the projection of a variable that is not consumed -/
 private def consumeExpr (m : VarMap) : Expr → Bool
-  | Expr.proj _ x   => match m.get? x with
+  | .proj _ x   => match m.get? x with
     | some info => info.consume
     | none      => true
   | _     => true
@@ -180,25 +180,25 @@ private def addDecIfNeeded (ctx : Context) (x : VarId) (b : FnBody) (bLiveVars :
 
 private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody × LiveVarSet :=
   let b := match v with
-    | (Expr.ctor _ ys)       => addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
-    | (Expr.reuse _ _ _ ys)  => addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
-    | (Expr.proj _ x)        =>
+    | (.ctor _ ys)       => addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars
+    | (.reuse _ _ _ ys)  => addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars
+    | (.proj _ x)        =>
       let b := addDecIfNeeded ctx x b bLiveVars
       let b := if (getVarInfo ctx x).consume then addInc ctx z b else b
-      (FnBody.vdecl z t v b)
-    | (Expr.uproj _ x)       => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
-    | (Expr.sproj _ _ x)     => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
-    | (Expr.fap f ys)        =>
+      .vdecl z t v b
+    | (.uproj _ x)       => .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
+    | (.sproj _ _ x)     => .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
+    | (.fap f ys)        =>
       let ps := (getDecl ctx f).params
       let b  := addDecAfterFullApp ctx ys ps b bLiveVars
-      let b  := FnBody.vdecl z t v b
+      let b  := .vdecl z t v b
       addIncBefore ctx ys ps b bLiveVars
-    | (Expr.pap _ ys)        => addIncBeforeConsumeAll ctx ys (FnBody.vdecl z t v b) bLiveVars
-    | (Expr.ap x ys)         =>
+    | (.pap _ ys)        => addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars
+    | (.ap x ys)         =>
       let ysx := ys.push (.var x) -- TODO: avoid temporary array allocation
-      addIncBeforeConsumeAll ctx ysx (FnBody.vdecl z t v b) bLiveVars
-    | (Expr.unbox x)         => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
-    | _                      => FnBody.vdecl z t v b  -- Expr.reset, Expr.box, Expr.lit are handled here
+      addIncBeforeConsumeAll ctx ysx (.vdecl z t v b) bLiveVars
+    | (.unbox x)         => .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
+    | _                  => .vdecl z t v b  -- Expr.reset, Expr.box, Expr.lit are handled here
   let liveVars := updateLiveVars v bLiveVars
   let liveVars := liveVars.erase z
   (b, liveVars)
@@ -209,11 +209,11 @@ def updateVarInfoWithParams (ctx : Context) (ps : Array Param) : Context :=
   { ctx with varMap := m }
 
 partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
-  | FnBody.vdecl x t v b,      ctx =>
+  | .vdecl x t v b,      ctx =>
     let ctx := updateVarInfo ctx x t v
     let (b, bLiveVars) := visitFnBody b ctx
     processVDecl ctx x t v b bLiveVars
-  | FnBody.jdecl j xs v b,     ctx =>
+  | .jdecl j xs v b,     ctx =>
     let ctxAtV := updateVarInfoWithParams ctx xs
     let (v, vLiveVars) := visitFnBody v ctxAtV
     let v   := addDecForDeadParams ctxAtV xs v vLiveVars
@@ -222,43 +222,43 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
       jpLiveVarMap := updateJPLiveVarMap j xs v ctx.jpLiveVarMap
     }
     let (b, bLiveVars) := visitFnBody b ctx
-    (FnBody.jdecl j xs v b, bLiveVars)
-  | FnBody.uset x i y b,       ctx =>
+    (.jdecl j xs v b, bLiveVars)
+  | .uset x i y b,       ctx =>
     let (b, s) := visitFnBody b ctx
     -- We don't need to insert `y` since we only need to track live variables that are references at runtime
     let s      := s.insert x
-    (FnBody.uset x i y b, s)
-  | FnBody.sset x i o y t b,   ctx =>
+    (.uset x i y b, s)
+  | .sset x i o y t b,   ctx =>
     let (b, s) := visitFnBody b ctx
     -- We don't need to insert `y` since we only need to track live variables that are references at runtime
     let s      := s.insert x
-    (FnBody.sset x i o y t b, s)
-  | b@(FnBody.case tid x xType alts), ctx =>
+    (.sset x i o y t b, s)
+  | b@(.case tid x xType alts), ctx =>
     let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap
     let alts         := alts.map fun alt => match alt with
-      | Alt.ctor c b  =>
+      | .ctor c b  =>
         let ctx              := updateRefUsingCtorInfo ctx x c
         let (b, altLiveVars) := visitFnBody b ctx
         let b                := addDecForAlt ctx caseLiveVars altLiveVars b
-        Alt.ctor c b
-      | Alt.default b =>
+        .ctor c b
+      | .default b =>
         let (b, altLiveVars) := visitFnBody b ctx
         let b                := addDecForAlt ctx caseLiveVars altLiveVars b
-        Alt.default b
-    (FnBody.case tid x xType alts, caseLiveVars)
-  | b@(FnBody.ret x), ctx =>
+        .default b
+    (.case tid x xType alts, caseLiveVars)
+  | b@(.ret x), ctx =>
     match x with
     | .var x =>
       let info := getVarInfo ctx x
       if info.type.isPossibleRef && !info.consume then (addInc ctx x b, mkLiveVarSet x) else (b, mkLiveVarSet x)
     | .erased => (b, {})
-  | b@(FnBody.jmp j xs), ctx =>
+  | b@(.jmp j xs), ctx =>
     let jLiveVars := getJPLiveVars ctx j
     let ps        := getJPParams ctx j
     let b         := addIncBefore ctx xs ps b jLiveVars
     let bLiveVars := collectLiveVars b ctx.jpLiveVarMap
     (b, bLiveVars)
-  | FnBody.unreachable, _ => (FnBody.unreachable, {})
+  | .unreachable, _ => (.unreachable, {})
   | other, _ => (other, {}) -- unreachable if well-formed
 
 partial def visitDecl (env : Environment) (decls : Array Decl) (d : Decl) : Decl :=

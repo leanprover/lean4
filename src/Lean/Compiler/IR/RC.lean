@@ -180,25 +180,24 @@ private def addDecIfNeeded (ctx : Context) (x : VarId) (b : FnBody) (bLiveVars :
 
 private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody × LiveVarSet :=
   let b := match v with
-    | .ctor _ ys       => addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars
-    | .reuse _ _ _ ys  => addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars
-    | .proj _ x        =>
+    | .ctor _ ys | .reuse _ _ _ ys | .pap _ ys =>
+      addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars
+    | .proj _ x =>
       let b := addDecIfNeeded ctx x b bLiveVars
       let b := if (getVarInfo ctx x).consume then addInc ctx z b else b
       .vdecl z t v b
-    | .uproj _ x       => .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
-    | .sproj _ _ x     => .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
-    | .fap f ys        =>
+    | .uproj _ x | .sproj _ _ x | .unbox x =>
+      .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
+    | .fap f ys =>
       let ps := (getDecl ctx f).params
       let b  := addDecAfterFullApp ctx ys ps b bLiveVars
       let b  := .vdecl z t v b
       addIncBefore ctx ys ps b bLiveVars
-    | .pap _ ys        => addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars
-    | .ap x ys         =>
+    | .ap x ys =>
       let ysx := ys.push (.var x) -- TODO: avoid temporary array allocation
       addIncBeforeConsumeAll ctx ysx (.vdecl z t v b) bLiveVars
-    | .unbox x         => .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
-    | _                => .vdecl z t v b  -- Expr.reset, Expr.box, Expr.lit are handled here
+    | .lit _ | .box .. | .reset .. | .isShared _ =>
+      .vdecl z t v b
   let liveVars := updateLiveVars v bLiveVars
   let liveVars := liveVars.erase z
   ⟨b, liveVars⟩

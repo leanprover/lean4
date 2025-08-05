@@ -19,6 +19,22 @@ run_meta do logInfo m!"indicator fvar ID: {(← Lean.mkFreshFVarId).name}" -- sl
 --   -- We can log it to the infoview.
 --   logInfo m!"The identifier '{id}' corresponds to the FVarId: {fvarId.name}"
 
+-- set_option trace.profiler true
+-- set_option trace.omegaImpl true
+-- set_option trace.contradictionHandling true
+-- set_option trace.splitting true
+-- set_option trace.preparation true
+-- set_option trace.proof true
+-- set_option trace.proveFalse true
+-- set_option trace.proveAssumption true
+-- set_option trace.linearComboPrf true
+
+-- set_option trace.Meta.instantiateMVars true
+--set_option trace.Meta.isDefEq true
+-- set_option trace.Meta.synthInstance true
+
+--set_option trace.omega true
+
 set_option maxHeartbeats 0
 theorem memcpy_extracted_2 (six0 s0x0 : BitVec 64)
 (h_six0_nonzero : six0 ≠ 0)

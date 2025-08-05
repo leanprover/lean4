@@ -259,8 +259,6 @@ def lookup (e : Expr) : OmegaM (Nat × Option (List Expr)) := do
   | some i => return (i, none)
   | none =>
   trace[omega] "New atom: {e} with hash {Hashable.hash e}"
-  if let .const n lvls := e then
-    trace[omega] "It's a constant and the name is "
   let facts ← analyzeAtom e
   if ← isTracingEnabledFor `omega then
     unless facts.isEmpty do

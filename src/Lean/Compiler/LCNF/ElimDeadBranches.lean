@@ -172,12 +172,10 @@ where
 
 def ofLCNFLit : LCNF.LitValue → Value
 | .nat n => ofNat n
+-- TODO: Make this work for other numeric literal types.
+| .uint8 _ | .uint16 _ | .uint32 _ | .uint64 _ | .usize _ => .top
 -- TODO: We could make this much more precise but the payoff is questionable
 | .str .. => .top
-| .uint8 v => ofNat (UInt8.toNat v)
-| .uint16 v => ofNat (UInt16.toNat v)
-| .uint32 v => ofNat (UInt32.toNat v)
-| .uint64 v | .usize v => ofNat (UInt64.toNat v)
 
 partial def proj : Value → Nat → Value
 | .ctor _ vs , i => vs.getD i bot

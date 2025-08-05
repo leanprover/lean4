@@ -207,12 +207,13 @@ def updateVarInfoWithParams (ctx : Context) (ps : Array Param) : Context :=
     m.insert p.x { type := p.ty, persistent := false, consume := !p.borrow }
   { ctx with varMap := m }
 
-partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
-  | .vdecl x t v b,      ctx =>
+partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVarSet :=
+  match b with
+  | .vdecl x t v b =>
     let ctx := updateVarInfo ctx x t v
     let ⟨b, bLiveVars⟩ := visitFnBody b ctx
     processVDecl ctx x t v b bLiveVars
-  | .jdecl j xs v b,     ctx =>
+  | .jdecl j xs v b =>
     let ctxAtV := updateVarInfoWithParams ctx xs
     let ⟨v, vLiveVars⟩ := visitFnBody v ctxAtV
     let v   := addDecForDeadParams ctxAtV xs v vLiveVars
@@ -222,17 +223,17 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
     }
     let ⟨b, bLiveVars⟩ := visitFnBody b ctx
     ⟨.jdecl j xs v b, bLiveVars⟩
-  | .uset x i y b,       ctx =>
+  | .uset x i y b =>
     let ⟨b, s⟩ := visitFnBody b ctx
     -- We don't need to insert `y` since we only need to track live variables that are references at runtime
     let s      := s.insert x
     ⟨.uset x i y b, s⟩
-  | .sset x i o y t b,   ctx =>
+  | .sset x i o y t b =>
     let ⟨b, s⟩ := visitFnBody b ctx
     -- We don't need to insert `y` since we only need to track live variables that are references at runtime
     let s      := s.insert x
     ⟨.sset x i o y t b, s⟩
-  | b@(.case tid x xType alts), ctx =>
+  | .case tid x xType alts =>
     let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap
     let alts         := alts.map fun alt => match alt with
       | .ctor c b  =>
@@ -245,20 +246,20 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
         let b                := addDecForAlt ctx caseLiveVars altLiveVars b
         .default b
     ⟨.case tid x xType alts, caseLiveVars⟩
-  | b@(.ret x), ctx =>
+  | .ret x =>
     match x with
     | .var x =>
       let info := getVarInfo ctx x
       if info.type.isPossibleRef && !info.consume then ⟨addInc ctx x b, mkLiveVarSet x⟩ else ⟨b, mkLiveVarSet x⟩
     | .erased => ⟨b, {}⟩
-  | b@(.jmp j xs), ctx =>
+  | .jmp j xs =>
     let jLiveVars := getJPLiveVars ctx j
     let ps        := getJPParams ctx j
     let b         := addIncBefore ctx xs ps b jLiveVars
     let bLiveVars := collectLiveVars b ctx.jpLiveVarMap
     ⟨b, bLiveVars⟩
-  | .unreachable, _ => ⟨.unreachable, {}⟩
-  | other, _ => ⟨other, {}⟩ -- unreachable if well-formed
+  | .unreachable => ⟨.unreachable, {}⟩
+  | _ => ⟨b, {}⟩ -- unreachable if well-formed
 
 partial def visitDecl (env : Environment) (decls : Array Decl) (d : Decl) : Decl :=
   match d with

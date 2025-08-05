@@ -1285,7 +1285,7 @@ def findFinIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option (Fin as
     decreasing_by simp_wf; decreasing_trivial_pre_omega
   loop 0
 
-private theorem findIdx?_loop_eq_map_findFinIdx?_loop_val {xs : Array α} {p : α → Bool} {j} :
+theorem findIdx?_loop_eq_map_findFinIdx?_loop_val {xs : Array α} {p : α → Bool} {j} :
     findIdx?.loop p xs j = (findFinIdx?.loop p xs j).map (·.val) := by
   unfold findIdx?.loop
   unfold findFinIdx?.loop

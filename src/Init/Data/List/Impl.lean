@@ -367,7 +367,7 @@ def modifyTR (l : List α) (i : Nat) (f : α → α) : List α := go l i #[] whe
   | a :: l, 0, acc => acc.toListAppend (f a :: l)
   | a :: l, i+1, acc => go l i (acc.push a)
 
-private theorem modifyTR_go_eq : ∀ l i, modifyTR.go f l i acc = acc.toList ++ modify l i f
+theorem modifyTR_go_eq : ∀ l i, modifyTR.go f l i acc = acc.toList ++ modify l i f
   | [], i => by cases i <;> simp [modifyTR.go, modify]
   | a :: l, 0 => by simp [modifyTR.go, modify]
   | a :: l, i+1 => by simp [modifyTR.go, modify, modifyTR_go_eq l]
@@ -399,7 +399,7 @@ Examples:
   | _, [], acc => acc.toList
   | n+1, a :: l, acc => go n l (acc.push a)
 
-private theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ insertIdx l i a
+theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ insertIdx l i a
   | 0, l | _+1, [] => by simp [insertIdxTR.go, insertIdx]
   | n+1, a :: l => by simp [insertIdxTR.go, insertIdx, insertIdxTR_go_eq n l]
 

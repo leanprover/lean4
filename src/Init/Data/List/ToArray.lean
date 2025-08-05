@@ -222,11 +222,11 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
     congr
     ext1 (_|_) <;> simp [ih]
 
-private theorem findSomeRevM?_find_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α)
+theorem findSomeRevM?_find_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α)
     (i : Nat) (h) :
     findSomeRevM?.find f l.toArray i h = (l.take i).reverse.findSomeM? f := by
   induction i generalizing l with
-  | zero => simp [Array.findSomeRevM?.find]
+  | zero => simp [Array.findSomeRevM?.find.eq_def]
   | succ i ih =>
     rw [size_toArray] at h
     rw [Array.findSomeRevM?.find, take_succ, getElem?_eq_getElem (by omega)]
@@ -437,7 +437,7 @@ theorem zipWithMAux_toArray_zero {m : Type u → Type v} [Monad m] [LawfulMonad 
     Array.zip as.toArray bs.toArray = (List.zip as bs).toArray := by
   simp [Array.zip, zipWith_toArray, zip]
 
-private theorem zipWithAll_go_toArray (as : List α) (bs : List β) (f : Option α → Option β → γ) (i : Nat) (xs : Array γ) :
+theorem zipWithAll_go_toArray (as : List α) (bs : List β) (f : Option α → Option β → γ) (i : Nat) (xs : Array γ) :
     zipWithAll.go f as.toArray bs.toArray i xs = xs ++ (List.zipWithAll f (as.drop i) (bs.drop i)).toArray := by
   unfold zipWithAll.go
   split <;> rename_i h
@@ -489,7 +489,7 @@ private theorem zipWithAll_go_toArray (as : List α) (bs : List β) (f : Option 
   apply ext'
   simp
 
-private theorem takeWhile_go_succ (p : α → Bool) (a : α) (l : List α) (i : Nat) :
+theorem takeWhile_go_succ (p : α → Bool) (a : α) (l : List α) (i : Nat) :
     takeWhile.go p (a :: l).toArray (i+1) r = takeWhile.go p l.toArray i r := by
   rw [takeWhile.go, takeWhile.go]
   simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right,
@@ -498,7 +498,7 @@ private theorem takeWhile_go_succ (p : α → Bool) (a : α) (l : List α) (i : 
   rw [takeWhile_go_succ]
   rfl
 
-private theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
+theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
     Array.takeWhile.go p l.toArray i r = r ++ (takeWhile p (l.drop i)).toArray := by
   induction l generalizing i r with
   | nil => simp [takeWhile.go]

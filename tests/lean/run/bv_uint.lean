@@ -76,3 +76,13 @@ example (a b : USize) : a + b > a := by
 
 example (h : 32 = System.Platform.numBits) (a b c : USize) (h1 : a < b) (h2 : b < c) : a < c := by
   bv_decide
+
+example (n : UInt8) : n.toInt8.toUInt8 = n := by bv_decide
+example (n : UInt16) : n.toInt16.toUInt16 = n := by bv_decide
+example (n : UInt32) : n.toInt32.toUInt32 = n := by bv_decide
+example (n : UInt64) : n.toInt64.toUInt64 = n := by bv_decide
+
+example (n : Int8) : n.toUInt8.toInt8 = n := by bv_decide
+example (n : Int16) : n.toUInt16.toInt16 = n := by bv_decide
+example (n : Int32) : n.toUInt32.toInt32 = n := by bv_decide
+example (n : Int64) : n.toUInt64.toInt64 = n := by bv_decide

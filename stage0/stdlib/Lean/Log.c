@@ -28,7 +28,6 @@ static lean_object* l_Lean_initFn___closed__5____x40_Lean_Log___hyg_203_;
 LEAN_EXPORT lean_object* l_Lean_instMonadLogOfMonadLift___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logInfoAt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_186_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_logError(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -60,6 +59,7 @@ LEAN_EXPORT lean_object* l_Lean_logAt___redArg___lam__0(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_logErrorAt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logNamedWarning___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed_stripNestedTags(lean_object*);
+uint8_t l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_187_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_getRefPos___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_log___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
@@ -915,7 +915,7 @@ _start:
 {
 uint8_t x_11; uint8_t x_22; uint8_t x_24; uint8_t x_25; 
 x_24 = 1;
-x_25 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_186_(x_8, x_24);
+x_25 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_187_(x_8, x_24);
 if (x_25 == 0)
 {
 x_22 = x_25;
@@ -982,7 +982,7 @@ _start:
 {
 uint8_t x_9; uint8_t x_10; uint8_t x_23; 
 x_9 = 2;
-x_23 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_186_(x_7, x_9);
+x_23 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_187_(x_7, x_9);
 if (x_23 == 0)
 {
 x_10 = x_23;

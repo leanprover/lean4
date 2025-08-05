@@ -36,7 +36,7 @@ instance : LT String :=
 instance decidableLT (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
   List.decidableLT s₁.data s₂.data
 
-@[deprecated decidableLT (since := "2024-12-13")] abbrev decLt := @decidableLT
+
 
 /--
 Non-strict inequality on strings, typically used via the `≤` operator.
@@ -652,7 +652,7 @@ Use `String.intercalate` to place a separator string between the strings in a li
 
 Examples:
  * `String.join ["gr", "ee", "n"] = "green"`
- * `String.join ["b", "", "l", "", "ue"] = "red"`
+ * `String.join ["b", "", "l", "", "ue"] = "blue"`
  * `String.join [] = ""`
 -/
 @[inline] def join (l : List String) : String :=

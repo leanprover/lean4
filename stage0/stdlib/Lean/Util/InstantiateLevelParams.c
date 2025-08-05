@@ -27,7 +27,6 @@ lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceNoCache___at___Lean_Expr_instantiateLevelParamsNoCache_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParams___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___redArg(lean_object*);
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(uint8_t, uint8_t);
 size_t lean_ptr_addr(lean_object*);
 lean_object* lean_replace_expr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore(lean_object*, lean_object*);
@@ -63,6 +62,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore_replaceFn___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -553,7 +553,7 @@ return x_25;
 else
 {
 uint8_t x_26; 
-x_26 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_21, x_21);
+x_26 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_21, x_21);
 if (x_26 == 0)
 {
 lean_object* x_27; 
@@ -619,7 +619,7 @@ return x_42;
 else
 {
 uint8_t x_43; 
-x_43 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_411_(x_38, x_38);
+x_43 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_38, x_38);
 if (x_43 == 0)
 {
 lean_object* x_44; 

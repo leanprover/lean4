@@ -359,7 +359,7 @@ where go : ∀ (i : Nat) (l : List α),
       omega
 termination_by _ l => l.length
 
-@[deprecated mergeSort_zipIdx (since := "2025-01-21")] abbrev mergeSort_enum := @mergeSort_zipIdx
+
 
 theorem mergeSort_cons {le : α → α → Bool}
     (trans : ∀ (a b c : α), le a b → le b c → le a c)

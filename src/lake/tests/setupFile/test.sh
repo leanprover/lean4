@@ -10,6 +10,10 @@ source ../common.sh
 # Test that setup-file works on a file outside the workspace and working directory
 test_out '"name":"_unknown"' setup-file ../../examples/hello/Hello.lean
 
+# Test that setup-file works on library files with a `.` in their name
+# https://leanprover.zulipchat.com/#narrow/channel/270676-lean4/topic/Foo.2E.2Elean.20works.20when.20.60import.60ed.20but.20not.20in.20vscode/near/529702293
+test_out '"name":"Test.«Foo.Bar»"' setup-file Test/Foo.Bar.lean
+
 # Test that, by default, no plugins are used.
 test_out '"plugins":[]' setup-file ImportFoo.lean
 

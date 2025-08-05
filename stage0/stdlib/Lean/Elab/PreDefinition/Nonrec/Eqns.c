@@ -1816,9 +1816,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Nonrec_getEqnsFor_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_object* x_7; 
 lean_inc(x_1);
 x_7 = l_Lean_Meta_isRecursiveDefinition___redArg(x_1, x_5, x_6);
+if (lean_obj_tag(x_7) == 0)
+{
+lean_object* x_8; uint8_t x_9; 
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = lean_unbox(x_8);
@@ -2264,6 +2267,34 @@ x_108 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_108, 0, x_107);
 lean_ctor_set(x_108, 1, x_106);
 return x_108;
+}
+}
+}
+else
+{
+uint8_t x_109; 
+lean_dec(x_5);
+lean_dec_ref(x_4);
+lean_dec(x_3);
+lean_dec_ref(x_2);
+lean_dec(x_1);
+x_109 = !lean_is_exclusive(x_7);
+if (x_109 == 0)
+{
+return x_7;
+}
+else
+{
+lean_object* x_110; lean_object* x_111; lean_object* x_112; 
+x_110 = lean_ctor_get(x_7, 0);
+x_111 = lean_ctor_get(x_7, 1);
+lean_inc(x_111);
+lean_inc(x_110);
+lean_dec(x_7);
+x_112 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_112, 0, x_110);
+lean_ctor_set(x_112, 1, x_111);
+return x_112;
 }
 }
 }

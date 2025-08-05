@@ -3303,18 +3303,6 @@ theorem getKey!_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k →
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.getKey!_modify_self
 
-@[deprecated getKey_eq (since := "2025-01-05")]
-theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
-    (h : m.WF) : {hc : k' ∈ m.modify k f} →
-    (m.modify k f).getKey k' hc =
-      if k == k' then
-        k
-      else
-        haveI h' : k' ∈ m := mem_modify h |>.mp hc
-        m.getKey k' h' := by
-  simp only [mem_iff_contains]
-  simp_to_raw using Raw₀.getKey_modify
-
 @[simp]
 theorem getKey_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k}
     (h : m.WF) {hc : k ∈ m.modify k f} : (m.modify k f).getKey k hc = k := by

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker.SignatureHelp
-// Imports: Lean.Server.InfoUtils Lean.Data.Lsp Init.Data.List.Sort.Basic Lean.Parser.Term
+// Imports: Lean.Server.InfoUtils Lean.Data.Lsp Init.Data.List.Sort.Basic Lean.PrettyPrinter.Delaborator Lean.Parser.Term
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -65,6 +65,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHel
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_lineStart(lean_object*, lean_object*);
+uint8_t l_String_beqRange____x40_Lean_Syntax___hyg_100_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_determineSignatureHelp(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__10;
@@ -110,7 +111,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_FileWor
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__18;
-uint8_t l_String_beqRange____x40_Lean_Syntax___hyg_99_(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f___closed__1;
 static lean_object* l_Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__4;
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
@@ -177,7 +177,7 @@ else
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_ctor_get(x_2, 0);
-x_8 = l_String_beqRange____x40_Lean_Syntax___hyg_99_(x_6, x_7);
+x_8 = l_String_beqRange____x40_Lean_Syntax___hyg_100_(x_6, x_7);
 return x_8;
 }
 }
@@ -1778,15 +1778,15 @@ lean_dec(x_107);
 lean_dec(x_105);
 if (x_108 == 0)
 {
-x_92 = x_103;
-x_93 = x_102;
+x_92 = x_102;
+x_93 = x_103;
 x_94 = x_97;
 goto block_96;
 }
 else
 {
-x_92 = x_103;
-x_93 = x_102;
+x_92 = x_102;
+x_93 = x_103;
 x_94 = x_101;
 goto block_96;
 }
@@ -2168,9 +2168,9 @@ goto block_10;
 }
 block_96:
 {
-if (x_93 == 0)
-{
 if (x_92 == 0)
+{
+if (x_93 == 0)
 {
 if (x_94 == 0)
 {
@@ -3101,6 +3101,7 @@ return x_7;
 lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Sort_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_PrettyPrinter_Delaborator(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Term(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_FileWorker_SignatureHelp(uint8_t builtin, lean_object* w) {
@@ -3114,6 +3115,9 @@ res = initialize_Lean_Data_Lsp(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Sort_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_PrettyPrinter_Delaborator(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Term(builtin, lean_io_mk_world());

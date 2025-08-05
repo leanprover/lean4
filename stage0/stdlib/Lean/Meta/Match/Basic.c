@@ -1816,19 +1816,28 @@ return x_9;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_dec_ref(x_1);
 x_12 = l_Lean_Expr_collectFVars(x_10, x_2, x_3, x_4, x_5, x_6, x_7);
+if (lean_obj_tag(x_12) == 0)
+{
+lean_object* x_13; 
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
 lean_dec_ref(x_12);
 x_1 = x_11;
 x_7 = x_13;
 goto _start;
+}
+else
+{
+lean_dec(x_11);
+return x_12;
+}
 }
 }
 }
@@ -1846,19 +1855,28 @@ return x_9;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_dec_ref(x_1);
 x_12 = l_Lean_Meta_Match_Pattern_collectFVars(x_10, x_2, x_3, x_4, x_5, x_6, x_7);
+if (lean_obj_tag(x_12) == 0)
+{
+lean_object* x_13; 
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
 lean_dec_ref(x_12);
 x_1 = x_11;
 x_7 = x_13;
 goto _start;
+}
+else
+{
+lean_dec(x_11);
+return x_12;
+}
 }
 }
 }
@@ -1905,33 +1923,51 @@ return x_19;
 }
 case 2:
 {
-lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_20 = lean_ctor_get(x_1, 2);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_1, 3);
 lean_inc(x_21);
 lean_dec_ref(x_1);
 x_22 = l_List_forM___at___Lean_Meta_Match_Pattern_collectFVars_spec__0(x_20, x_2, x_3, x_4, x_5, x_6, x_7);
+if (lean_obj_tag(x_22) == 0)
+{
+lean_object* x_23; lean_object* x_24; 
 x_23 = lean_ctor_get(x_22, 1);
 lean_inc(x_23);
 lean_dec_ref(x_22);
 x_24 = l_List_forM___at___Lean_Meta_Match_Pattern_collectFVars_spec__1(x_21, x_2, x_3, x_4, x_5, x_6, x_23);
 return x_24;
 }
+else
+{
+lean_dec(x_21);
+return x_22;
+}
+}
 case 4:
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_25 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_25);
 x_26 = lean_ctor_get(x_1, 1);
 lean_inc(x_26);
 lean_dec_ref(x_1);
 x_27 = l_Lean_Expr_collectFVars(x_25, x_2, x_3, x_4, x_5, x_6, x_7);
+if (lean_obj_tag(x_27) == 0)
+{
+lean_object* x_28; lean_object* x_29; 
 x_28 = lean_ctor_get(x_27, 1);
 lean_inc(x_28);
 lean_dec_ref(x_27);
 x_29 = l_List_forM___at___Lean_Meta_Match_Pattern_collectFVars_spec__1(x_26, x_2, x_3, x_4, x_5, x_6, x_28);
 return x_29;
+}
+else
+{
+lean_dec(x_26);
+return x_27;
+}
 }
 case 5:
 {
@@ -2713,19 +2749,28 @@ return x_9;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_dec_ref(x_1);
 x_12 = l_Lean_LocalDecl_collectFVars(x_10, x_2, x_3, x_4, x_5, x_6, x_7);
+if (lean_obj_tag(x_12) == 0)
+{
+lean_object* x_13; 
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
 lean_dec_ref(x_12);
 x_1 = x_11;
 x_7 = x_13;
 goto _start;
+}
+else
+{
+lean_dec(x_11);
+return x_12;
+}
 }
 }
 }
@@ -2743,13 +2788,16 @@ return x_9;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_ctor_get(x_1, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_dec_ref(x_1);
 x_12 = l_Lean_Meta_Match_Pattern_collectFVars(x_10, x_2, x_3, x_4, x_5, x_6, x_7);
+if (lean_obj_tag(x_12) == 0)
+{
+lean_object* x_13; 
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
 lean_dec_ref(x_12);
@@ -2757,23 +2805,38 @@ x_1 = x_11;
 x_7 = x_13;
 goto _start;
 }
+else
+{
+lean_dec(x_11);
+return x_12;
+}
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_AltLHS_collectFVars(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_1, 2);
 lean_inc(x_9);
 lean_dec_ref(x_1);
 x_10 = l_List_forM___at___Lean_Meta_Match_AltLHS_collectFVars_spec__0(x_8, x_2, x_3, x_4, x_5, x_6, x_7);
+if (lean_obj_tag(x_10) == 0)
+{
+lean_object* x_11; lean_object* x_12; 
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
 lean_dec_ref(x_10);
 x_12 = l_List_forM___at___Lean_Meta_Match_AltLHS_collectFVars_spec__1(x_9, x_2, x_3, x_4, x_5, x_6, x_11);
 return x_12;
+}
+else
+{
+lean_dec(x_9);
+return x_10;
+}
 }
 }
 LEAN_EXPORT lean_object* l_List_forM___at___Lean_Meta_Match_AltLHS_collectFVars_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

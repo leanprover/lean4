@@ -1259,13 +1259,24 @@ return x_5;
 LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_containsThenInsert___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_12; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = l_Std_DTreeMap_Internal_Impl_containsThenInsert_size___redArg(x_2);
 x_6 = l_Std_DTreeMap_Internal_Impl_insert___redArg(x_1, x_3, x_4, x_2);
+if (lean_obj_tag(x_6) == 0)
+{
+lean_object* x_12; 
 x_12 = lean_ctor_get(x_6, 0);
 lean_inc(x_12);
 x_7 = x_12;
 goto block_11;
+}
+else
+{
+lean_object* x_13; 
+x_13 = lean_unsigned_to_nat(0u);
+x_7 = x_13;
+goto block_11;
+}
 block_11:
 {
 uint8_t x_8; lean_object* x_9; lean_object* x_10; 
@@ -1283,13 +1294,24 @@ return x_10;
 LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_containsThenInsert(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_15; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = l_Std_DTreeMap_Internal_Impl_containsThenInsert_size___redArg(x_5);
 x_9 = l_Std_DTreeMap_Internal_Impl_insert___redArg(x_3, x_6, x_7, x_5);
+if (lean_obj_tag(x_9) == 0)
+{
+lean_object* x_15; 
 x_15 = lean_ctor_get(x_9, 0);
 lean_inc(x_15);
 x_10 = x_15;
 goto block_14;
+}
+else
+{
+lean_object* x_16; 
+x_16 = lean_unsigned_to_nat(0u);
+x_10 = x_16;
+goto block_14;
+}
 block_14:
 {
 uint8_t x_11; lean_object* x_12; lean_object* x_13; 

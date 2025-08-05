@@ -24,6 +24,7 @@ LEAN_EXPORT lean_object* l_System_FilePath_join___boxed(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_normalize(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_instHDivString___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_System_decEqFilePath____x40_Init_System_FilePath___hyg_30_(lean_object*, lean_object*);
 static lean_object* l_System_FilePath_exeExtension___closed__0;
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 static uint8_t l_System_FilePath_pathSeparator___closed__0;
@@ -42,6 +43,7 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_withExtension___boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_String_mapAux___at___String_mapAux___at___System_FilePath_normalize_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_System_hashFilePath____x40_Init_System_FilePath___hyg_120____boxed(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_String_splitAux___at___String_split___at___System_SearchPath_parse_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_System_FilePath_join___closed__0;
@@ -53,12 +55,12 @@ static lean_object* l_System_instReprFilePath___lam__0___closed__0;
 lean_object* l_String_splitOnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_instCoeStringFilePath;
 uint32_t l_Char_toUpper(uint32_t);
+LEAN_EXPORT lean_object* l_System_decEqFilePath____x40_Init_System_FilePath___hyg_30____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_mapAux___at___System_FilePath_normalize_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_List_elem___at___System_FilePath_normalize_spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_System_instReprFilePath___lam__0___closed__1;
 LEAN_EXPORT uint8_t l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___lam__0(lean_object*, uint32_t);
-LEAN_EXPORT uint8_t l_System_decEqFilePath____x40_Init_System_FilePath___hyg_29_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_addExtension___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep(lean_object*);
 LEAN_EXPORT lean_object* l_String_split___at___System_SearchPath_parse_spec__0___boxed(lean_object*);
@@ -70,6 +72,7 @@ LEAN_EXPORT uint32_t l_System_FilePath_extSeparator;
 LEAN_EXPORT lean_object* l_System_FilePath_fileName(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_components(lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
+LEAN_EXPORT uint64_t l_System_hashFilePath____x40_Init_System_FilePath___hyg_120_(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_parent___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_parent(lean_object*);
 static uint8_t l_System_FilePath_components___closed__0;
@@ -111,11 +114,9 @@ static lean_object* l_System_FilePath_normalize___closed__0;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_instDiv;
 LEAN_EXPORT uint32_t l_System_SearchPath_separator;
-LEAN_EXPORT lean_object* l_System_decEqFilePath____x40_Init_System_FilePath___hyg_29____boxed(lean_object*, lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 static lean_object* l_System_FilePath_extension___closed__0;
 LEAN_EXPORT uint8_t l_List_elem___at___System_FilePath_normalize_spec__0(uint32_t, lean_object*);
-LEAN_EXPORT uint64_t l_System_hashFilePath____x40_Init_System_FilePath___hyg_119_(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Char_utf8Size(uint32_t);
@@ -124,7 +125,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_instReprFilePath___lam__0(lean_object*, lean_object*);
 static lean_object* l_System_instHashableFilePath___closed__0;
 LEAN_EXPORT lean_object* l_System_FilePath_instHDivString;
-LEAN_EXPORT lean_object* l_System_hashFilePath____x40_Init_System_FilePath___hyg_119____boxed(lean_object*);
 extern uint8_t l_System_Platform_isWindows;
 LEAN_EXPORT uint8_t l_System_FilePath_isRelative(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_isRelative___boxed(lean_object*);
@@ -146,7 +146,7 @@ x_1 = l_System_instInhabitedFilePath___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_System_decEqFilePath____x40_Init_System_FilePath___hyg_29_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_System_decEqFilePath____x40_Init_System_FilePath___hyg_30_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -154,11 +154,11 @@ x_3 = lean_string_dec_eq(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_System_decEqFilePath____x40_Init_System_FilePath___hyg_29____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_System_decEqFilePath____x40_Init_System_FilePath___hyg_30____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_System_decEqFilePath____x40_Init_System_FilePath___hyg_29_(x_1, x_2);
+x_3 = l_System_decEqFilePath____x40_Init_System_FilePath___hyg_30_(x_1, x_2);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_4 = lean_box(x_3);
@@ -184,7 +184,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint64_t l_System_hashFilePath____x40_Init_System_FilePath___hyg_119_(lean_object* x_1) {
+LEAN_EXPORT uint64_t l_System_hashFilePath____x40_Init_System_FilePath___hyg_120_(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; uint64_t x_3; uint64_t x_4; 
@@ -194,11 +194,11 @@ x_4 = lean_uint64_mix_hash(x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_System_hashFilePath____x40_Init_System_FilePath___hyg_119____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_System_hashFilePath____x40_Init_System_FilePath___hyg_120____boxed(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; lean_object* x_3; 
-x_2 = l_System_hashFilePath____x40_Init_System_FilePath___hyg_119_(x_1);
+x_2 = l_System_hashFilePath____x40_Init_System_FilePath___hyg_120_(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
@@ -208,7 +208,7 @@ static lean_object* _init_l_System_instHashableFilePath___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_System_hashFilePath____x40_Init_System_FilePath___hyg_119____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_System_hashFilePath____x40_Init_System_FilePath___hyg_120____boxed), 1, 0);
 return x_1;
 }
 }

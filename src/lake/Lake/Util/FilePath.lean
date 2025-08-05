@@ -86,3 +86,5 @@ example :
   ∧ modOfFilePath "Foo/Bar.tar.gz" = `Foo.Bar
   ∧ modOfFilePath "Foo/Bar.lean/" = `Foo.«Bar.lean»
 := by native_decide
+
+attribute [deprecated "Deprecated without replacement." (since := "2025-08-01")] modOfFilePath

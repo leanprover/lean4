@@ -837,16 +837,10 @@ theorem mem_of_contains_eq_true [BEq α] [LawfulBEq α] {a : α} {as : Array α}
   cases as
   simp
 
-@[deprecated mem_of_contains_eq_true (since := "2024-12-12")]
-abbrev mem_of_elem_eq_true := @mem_of_contains_eq_true
-
 theorem contains_eq_true_of_mem [BEq α] [ReflBEq α] {a : α} {as : Array α} (h : a ∈ as) :
     as.contains a = true := by
   cases as
   simpa using List.elem_eq_true_of_mem (Array.mem_toList_iff.mpr h)
-
-@[deprecated contains_eq_true_of_mem (since := "2024-12-12")]
-abbrev elem_eq_true_of_mem := @contains_eq_true_of_mem
 
 @[simp] theorem elem_eq_contains [BEq α] {a : α} {xs : Array α} :
     elem a xs = xs.contains a := by
@@ -905,14 +899,8 @@ theorem all_push {xs : Array α} {a : α} {p : α → Bool} :
   cases xs
   simp
 
-@[deprecated getElem_set_self (since := "2024-12-11")]
-abbrev getElem_set_eq := @getElem_set_self
-
 @[simp] theorem getElem?_set_self {xs : Array α} {i : Nat} (h : i < xs.size) {v : α} :
     (xs.set i v)[i]? = some v := by simp [h]
-
-@[deprecated getElem?_set_self (since := "2024-12-11")]
-abbrev getElem?_set_eq := @getElem?_set_self
 
 @[simp] theorem getElem_set_ne {xs : Array α} {i : Nat} (h' : i < xs.size) {v : α} {j : Nat}
     (pj : j < xs.size) (h : i ≠ j) :
@@ -1004,9 +992,6 @@ grind_pattern mem_or_eq_of_mem_set => a ∈ xs.set i b
 theorem setIfInBounds_def (xs : Array α) (i : Nat) (a : α) :
     xs.setIfInBounds i a = if h : i < xs.size then xs.set i a else xs := rfl
 
-@[deprecated set!_eq_setIfInBounds (since := "2024-12-12")]
-abbrev set!_is_setIfInBounds := @set!_eq_setIfInBounds
-
 @[simp, grind] theorem size_setIfInBounds {xs : Array α} {i : Nat} {a : α} :
     (xs.setIfInBounds i a).size = xs.size := by
   if h : i < xs.size  then
@@ -1028,9 +1013,6 @@ abbrev set!_is_setIfInBounds := @set!_eq_setIfInBounds
   simp at h
   simp only [setIfInBounds, h, ↓reduceDIte, getElem_set_self]
 
-@[deprecated getElem_setIfInBounds_self (since := "2024-12-11")]
-abbrev getElem_setIfInBounds_eq := @getElem_setIfInBounds_self
-
 @[simp] theorem getElem_setIfInBounds_ne {xs : Array α} {i : Nat} {a : α} {j : Nat}
     (hj : j < xs.size) (h : i ≠ j) :
     (xs.setIfInBounds i a)[j]'(by simpa using hj) = xs[j] := by
@@ -1049,9 +1031,6 @@ theorem getElem?_setIfInBounds_self {xs : Array α} {i : Nat} {a : α} :
 theorem getElem?_setIfInBounds_self_of_lt {xs : Array α} {i : Nat} {a : α} (h : i < xs.size) :
     (xs.setIfInBounds i a)[i]? = some a := by
   simp [h]
-
-@[deprecated getElem?_setIfInBounds_self (since := "2024-12-11")]
-abbrev getElem?_setIfInBounds_eq := @getElem?_setIfInBounds_self
 
 @[simp] theorem getElem?_setIfInBounds_ne {xs : Array α} {i j : Nat} (h : i ≠ j) {a : α}  :
     (xs.setIfInBounds i a)[j]? = xs[j]? := by
@@ -1377,23 +1356,6 @@ theorem mapM_eq_mapM_toList [Monad m] [LawfulMonad m] {f : α → m β} {xs : Ar
 @[simp] theorem toList_mapM [Monad m] [LawfulMonad m] {f : α → m β} {xs : Array α} :
     toList <$> xs.mapM f = xs.toList.mapM f := by
   simp [mapM_eq_mapM_toList]
-
-@[deprecated "Use `mapM_eq_foldlM` instead" (since := "2025-01-08")]
-theorem mapM_map_eq_foldl {as : Array α} {f : α → β} {i : Nat} :
-    mapM.map (m := Id) (pure <| f ·) as i b = pure (as.foldl (start := i) (fun acc a => acc.push (f a)) b) := by
-  unfold mapM.map
-  split <;> rename_i h
-  · ext : 1
-    dsimp [foldl, foldlM]
-    rw [mapM_map_eq_foldl, dif_pos (by omega), foldlM.loop, dif_pos h]
-    -- Calling `split` here gives a bad goal.
-    have : size as - i = Nat.succ (size as - i - 1) := by omega
-    rw [this]
-    simp [foldl, foldlM, Nat.sub_add_eq]
-  · dsimp [foldl, foldlM]
-    rw [dif_pos (by omega), foldlM.loop, dif_neg h]
-    rfl
-termination_by as.size - i
 
 /--
 Use this as `induction ass using array₂_induction` on a hypothesis of the form `ass : Array (Array α)`.
@@ -2999,9 +2961,6 @@ theorem getElem?_extract {xs : Array α} {start stop : Nat} :
   apply ext
   · rw [size_extract, Nat.min_self, Nat.sub_zero]
   · intros; rw [getElem_extract]; congr; rw [Nat.zero_add]
-
-@[deprecated extract_size (since := "2025-01-19")]
-abbrev extract_all := @extract_size
 
 theorem extract_empty_of_stop_le_start {xs : Array α} {start stop : Nat} (h : stop ≤ start) :
     xs.extract start stop = #[] := by
@@ -4735,26 +4694,9 @@ end List
 /-! ### Deprecations -/
 namespace Array
 
-@[deprecated size_toArray (since := "2024-12-11")]
-theorem size_mk (as : List α) : (Array.mk as).size = as.length := by simp
-
-@[deprecated getElem?_eq_getElem (since := "2024-12-11")]
-theorem getElem?_lt
-    (xs : Array α) {i : Nat} (h : i < xs.size) : xs[i]? = some xs[i] := dif_pos h
-
-@[deprecated getElem?_eq_none (since := "2024-12-11")]
-theorem getElem?_ge
-    (xs : Array α) {i : Nat} (h : i ≥ xs.size) : xs[i]? = none := dif_neg (Nat.not_lt_of_le h)
-
 set_option linter.deprecated false in
 @[deprecated "`get?` is deprecated" (since := "2025-02-12"), simp]
 theorem get?_eq_getElem? (xs : Array α) (i : Nat) : xs.get? i = xs[i]? := rfl
-
-@[deprecated getElem?_eq_none (since := "2024-12-11")]
-theorem getElem?_len_le (xs : Array α) {i : Nat} (h : xs.size ≤ i) : xs[i]? = none := by
-  simp [h]
-
-@[deprecated getD_getElem? (since := "2024-12-11")] abbrev getD_get? := @getD_getElem?
 
 @[deprecated getD_eq_getD_getElem? (since := "2025-02-12")] abbrev getD_eq_get? := @getD_eq_getD_getElem?
 
@@ -4780,64 +4722,9 @@ theorem get?_eq_get?_toList (xs : Array α) (i : Nat) : xs.get? i = xs.toList.ge
 set_option linter.deprecated false in
 @[deprecated get!_eq_getD_getElem? (since := "2025-02-12")] abbrev get!_eq_get? := @get!_eq_getD_getElem?
 
-@[deprecated getElem_set_self (since := "2025-01-17")]
-theorem get_set_eq (xs : Array α) (i : Nat) (v : α) (h : i < xs.size) :
-    (xs.set i v h)[i]'(by simp [h]) = v := by
-  simp only [set, ← getElem_toList, List.getElem_set_self]
-
-@[deprecated Array.getElem_toList (since := "2024-12-08")]
-theorem getElem_eq_getElem_toList {xs : Array α} (h : i < xs.size) : xs[i] = xs.toList[i] := rfl
-
-@[deprecated Array.getElem?_toList (since := "2024-12-08")]
-theorem getElem?_eq_getElem?_toList (xs : Array α) (i : Nat) : xs[i]? = xs.toList[i]? := by
-  rw [getElem?_def]
-  split <;> simp_all
-
-@[deprecated LawfulGetElem.getElem?_def (since := "2024-12-08")]
-theorem getElem?_eq {xs : Array α} {i : Nat} :
-    xs[i]? = if h : i < xs.size then some xs[i] else none := by
-  rw [getElem?_def]
-
-/-! ### map -/
-
-@[deprecated "Use `toList_map` or `List.map_toArray` to characterize `Array.map`." (since := "2025-01-06")]
-theorem map_induction (xs : Array α) (f : α → β) (motive : Nat → Prop) (h0 : motive 0)
-    (p : Fin xs.size → β → Prop) (hs : ∀ i, motive i.1 → p i (f xs[i]) ∧ motive (i+1)) :
-    motive xs.size ∧
-      ∃ eq : (xs.map f).size = xs.size, ∀ i h, p ⟨i, h⟩ ((xs.map f)[i]) := by
-  have t := foldl_induction (as := xs) (β := Array β)
-    (motive := fun i xs => motive i ∧ xs.size = i ∧ ∀ i h2, p i xs[i.1])
-    (init := #[]) (f := fun acc a => acc.push (f a)) ?_ ?_
-  obtain ⟨m, eq, w⟩ := t
-  · refine ⟨m, by simp, ?_⟩
-    intro i h
-    simp only [eq] at w
-    specialize w ⟨i, h⟩ h
-    simpa using w
-  · exact ⟨h0, rfl, nofun⟩
-  · intro i bs ⟨m, ⟨eq, w⟩⟩
-    refine ⟨?_, ?_, ?_⟩
-    · exact (hs _ m).2
-    · simp_all
-    · intro j h
-      simp at h ⊢
-      by_cases h' : j < size bs
-      · rw [getElem_push]
-        simp_all
-      · rw [getElem_push, dif_neg h']
-        simp only [show j = i by omega]
-        exact (hs _ m).1
-
-set_option linter.deprecated false in
-@[deprecated "Use `toList_map` or `List.map_toArray` to characterize `Array.map`." (since := "2025-01-06")]
-theorem map_spec (xs : Array α) (f : α → β) (p : Fin xs.size → β → Prop)
-    (hs : ∀ i, p i (f xs[i])) :
-    ∃ eq : (xs.map f).size = xs.size, ∀ i h, p ⟨i, h⟩ ((xs.map f)[i]) := by
-  simpa using map_induction xs f (fun _ => True) trivial p (by simp_all)
-
 /-! ### set -/
 
-@[deprecated getElem?_set_eq (since := "2025-02-27")] abbrev get?_set_eq := @getElem?_set_self
+@[deprecated getElem?_set_self (since := "2025-02-27")] abbrev get?_set_eq := @getElem?_set_self
 @[deprecated getElem?_set_ne (since := "2025-02-27")] abbrev get?_set_ne := @getElem?_set_ne
 @[deprecated getElem?_set (since := "2025-02-27")] abbrev get?_set := @getElem?_set
 @[deprecated get_set (since := "2025-02-27")] abbrev get_set := @getElem_set

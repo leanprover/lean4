@@ -9,7 +9,6 @@ prelude
 public import Init.System.IO
 public import Init.System.Platform
 public import Init.System.Uri
-public import Init.System.Mutex
 public import Init.System.Promise
 
 public section

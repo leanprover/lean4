@@ -70,7 +70,7 @@ static lean_object* l_Lean_IR_UnboxResult_initFn___lam__0___closed__0____x40_Lea
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4__spec__0_spec__0_spec__0_spec__0_spec__0___closed__7;
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4__spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnboxResult_initFn___lam__0___closed__5____x40_Lean_Compiler_IR_UnboxResult___hyg_4_;
-lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*);
+lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 static lean_object* l___private_Lean_Compiler_IR_UnboxResult_0__Lean_IR_UnboxResult_unboxAttr___regBuiltin_Lean_IR_UnboxResult_unboxAttr_declRange__3___closed__3;
@@ -1090,13 +1090,13 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = lean_alloc_closure((void*)(l_Lean_IR_UnboxResult_initFn___lam__0____x40_Lean_Compiler_IR_UnboxResult___hyg_4____boxed), 4, 0);
 x_3 = l_Lean_IR_UnboxResult_initFn___closed__1____x40_Lean_Compiler_IR_UnboxResult___hyg_4_;
 x_4 = l_Lean_IR_UnboxResult_initFn___closed__2____x40_Lean_Compiler_IR_UnboxResult___hyg_4_;
 x_5 = l_Lean_IR_UnboxResult_initFn___closed__7____x40_Lean_Compiler_IR_UnboxResult___hyg_4_;
 x_6 = 0;
-x_7 = 2;
+x_7 = lean_box(2);
 x_8 = l_Lean_registerTagAttribute(x_3, x_4, x_2, x_5, x_6, x_7, x_1);
 return x_8;
 }

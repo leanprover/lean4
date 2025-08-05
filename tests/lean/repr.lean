@@ -1,6 +1,6 @@
 --
 
-def iota (n : Nat) := List.range' 1 (n+1) |>.reverse
+def iota (n : Nat) := List.range' 1 n |>.reverse
 
 #eval repr (1, 2, 3)
 #eval repr (some 1, some (some true))

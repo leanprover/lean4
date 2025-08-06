@@ -101,7 +101,6 @@ static uint8_t l_Lake_Module_bcFile_x3f___closed__0;
 static lean_object* l_Lake_LeanLib_findModuleBySrc_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Package_findModule_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_nativeFacets___boxed(lean_object*, lean_object*);
-uint8_t l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3234_(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_System_FilePath_components(lean_object*);
 static lean_object* l_Lake_LeanLib_findModuleBySrc_x3f___closed__2;
@@ -116,6 +115,7 @@ LEAN_EXPORT lean_object* l_Array_filterMapM___at___Lake_LeanLib_rootModules_spec
 LEAN_EXPORT lean_object* l_Lake_instBEqModule___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_ModuleSet_empty___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Module_srcPath___boxed(lean_object*, lean_object*);
+uint8_t l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3180_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_platformIndependent___boxed(lean_object*);
 lean_object* l_List_foldl___at___Lake_modOfFilePath_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModule_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
@@ -3236,7 +3236,7 @@ lean_dec(x_32);
 lean_inc(x_33);
 lean_inc_ref(x_36);
 lean_ctor_set(x_30, 0, x_36);
-x_41 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3234_(x_34, x_35);
+x_41 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3180_(x_34, x_35);
 if (x_41 == 2)
 {
 lean_dec_ref(x_35);
@@ -3252,7 +3252,7 @@ goto block_40;
 block_40:
 {
 uint8_t x_38; 
-x_38 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3234_(x_37, x_36);
+x_38 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3180_(x_37, x_36);
 lean_dec_ref(x_36);
 if (x_38 == 2)
 {
@@ -3298,7 +3298,7 @@ lean_inc_ref(x_46);
 x_47 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_47, 0, x_46);
 lean_ctor_set(x_47, 1, x_43);
-x_52 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3234_(x_44, x_45);
+x_52 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3180_(x_44, x_45);
 if (x_52 == 2)
 {
 lean_dec_ref(x_45);
@@ -3314,7 +3314,7 @@ goto block_51;
 block_51:
 {
 uint8_t x_49; 
-x_49 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3234_(x_48, x_46);
+x_49 = l_IO_FS_ordSystemTime____x40_Init_System_IO___hyg_3180_(x_48, x_46);
 lean_dec_ref(x_46);
 if (x_49 == 2)
 {

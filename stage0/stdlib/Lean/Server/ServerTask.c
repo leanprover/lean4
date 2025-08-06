@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.ServerTask
-// Imports: Init.System.IO
+// Imports: Init.Task
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -61,8 +61,8 @@ lean_object* l_Array_empty(lean_object*);
 static lean_object* l___auto___closed__13____x40_Lean_Server_ServerTask___hyg_842_;
 static lean_object* l___auto___closed__32____x40_Lean_Server_ServerTask___hyg_842_;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_join___redArg___boxed(lean_object*);
-lean_object* lean_io_wait_any(lean_object*, lean_object*);
 static lean_object* l___auto___closed__36____x40_Lean_Server_ServerTask___hyg_842_;
+lean_object* l_IO_waitAny___redArg(lean_object*, lean_object*);
 static lean_object* l___auto___closed__41____x40_Lean_Server_ServerTask___hyg_842_;
 static lean_object* l___auto___closed__18____x40_Lean_Server_ServerTask___hyg_842_;
 static lean_object* l___auto___closed__33____x40_Lean_Server_ServerTask___hyg_842_;
@@ -2010,8 +2010,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_box(0);
 x_4 = l_List_mapTR_loop___at___Lean_Server_ServerTask_waitAny_spec__0___redArg(x_1, x_3);
-x_5 = lean_io_wait_any(x_4, x_2);
-lean_dec(x_4);
+x_5 = l_IO_waitAny___redArg(x_4, x_2);
 return x_5;
 }
 }
@@ -2089,13 +2088,13 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Task(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_ServerTask(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(builtin, lean_io_mk_world());
+res = initialize_Init_Task(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Server_ServerTask_join___redArg___closed__0 = _init_l_Lean_Server_ServerTask_join___redArg___closed__0();

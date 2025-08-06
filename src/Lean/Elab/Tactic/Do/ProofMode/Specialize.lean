@@ -73,13 +73,13 @@ def mSpecializeImpPure (P : Expr) (QR : Expr) (arg : TSyntax `term) : OptionT Ta
 
 def mSpecializeForall (P : Expr) (Ψ : Expr) (arg : TSyntax `term) : OptionT TacticM (Expr × Expr) := do
   let some specHyp := parseHyp? Ψ | panic! "Precondition of specializeForall violated"
-  let mkApp3 (.const ``SPred.forall [u, v]) α σs αR := specHyp.p | failure
+  let mkApp3 (.const ``SPred.forall [uα, u]) α σs αR := specHyp.p | failure
   let (a, mvarIds) ← try
     elabTermWithHoles arg.raw α `specialize (allowNaturalHoles := true)
     catch _ => failure
   OptionT.mk do -- no OptionT failure after this point
   pushGoals mvarIds
-  let proof := mkApp5 (mkConst ``Specialize.forall [u, v]) σs α P αR a
+  let proof := mkApp5 (mkConst ``Specialize.forall [uα, u]) α σs αR P a
   let R := αR.beta #[a]
   -- check proof
   trace[Meta.Tactic.Do.specialize] "Instantiate {specHyp.p} with {a}. New Goal: {mkAnd! u σs P R}"

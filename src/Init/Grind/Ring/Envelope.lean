@@ -10,7 +10,7 @@ public import Init.Grind.Ring.Basic
 public import Init.Grind.Ordered.Ring
 public import all Init.Data.AC
 
-public section
+@[expose] public section
 
 namespace Lean.Grind.Ring
 
@@ -220,9 +220,9 @@ def npow (a : Q α) (n : Nat)  : Q α :=
   | 0 => natCast 1
   | n+1 => mul (npow a n) a
 
-private theorem pow_zero (a : Q α) : npow a 0 = natCast 1 := rfl
+theorem pow_zero (a : Q α) : npow a 0 = natCast 1 := rfl
 
-private theorem pow_succ (a : Q α) (n : Nat) : npow a (n+1) = mul (npow a n) a := rfl
+theorem pow_succ (a : Q α) (n : Nat) : npow a (n+1) = mul (npow a n) a := rfl
 
 def nsmul (n : Nat) (a : Q α) : Q α :=
   mul (natCast n) a

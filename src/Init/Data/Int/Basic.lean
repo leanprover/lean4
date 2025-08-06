@@ -314,7 +314,7 @@ Examples:
  * `(0 : Int).natAbs = 0`
  * `((-11 : Int).natAbs = 11`
 -/
-@[extern "lean_nat_abs"]
+@[extern "lean_nat_abs", expose]
 def natAbs (m : @& Int) : Nat :=
   match m with
   | ofNat m => m

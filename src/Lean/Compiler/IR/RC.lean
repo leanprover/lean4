@@ -47,8 +47,7 @@ def getJPLiveVars (ctx : Context) (j : JoinPointId) : LiveVarSet :=
   ctx.jpLiveVarMap.get? j |>.getD {}
 
 def mustConsume (ctx : Context) (x : VarId) : Bool :=
-  let info := getVarInfo ctx x
-  info.type.isPossibleRef && info.mustBeConsumed
+  (getVarInfo ctx x).mustBeConsumed
 
 @[inline] def addInc (ctx : Context) (x : VarId) (b : FnBody) (n := 1) : FnBody :=
   let info := getVarInfo ctx x
@@ -146,13 +145,6 @@ private def isPersistent : Expr → Bool
   | .fap _ xs => xs.isEmpty -- all global constants are persistent objects
   | _         => false
 
-/-- We do not need to consume the projection of a variable that is not consumed -/
-private def consumeExpr (m : VarMap) : Expr → Bool
-  | .proj _ x   => match m.get? x with
-    | some info => info.mustBeConsumed
-    | none      => true
-  | _     => true
-
 /-- Return true iff `v` at runtime is a scalar value stored in a tagged pointer.
    We do not need RC operations for this kind of value. -/
 private def typeForScalarBoxedInTaggedPtr? (v : Expr) : Option IRType :=
@@ -167,11 +159,18 @@ private def typeForScalarBoxedInTaggedPtr? (v : Expr) : Option IRType :=
   | _ => none
 
 private def updateVarInfo (ctx : Context) (x : VarId) (t : IRType) (v : Expr) : Context :=
+  let type := typeForScalarBoxedInTaggedPtr? v |>.getD t
+  let hasInheritedBorrow :=
+    match v with
+    | .proj _ x => match ctx.varMap.get? x with
+      | some info => !info.mustBeConsumed
+      | none => false
+    | _ => false
   { ctx with
     varMap := ctx.varMap.insert x {
-        type := typeForScalarBoxedInTaggedPtr? v |>.getD t
+        type
         persistent := isPersistent v,
-        mustBeConsumed := consumeExpr ctx.varMap v
+        mustBeConsumed := type.isPossibleRef && !hasInheritedBorrow
     }
   }
 
@@ -184,7 +183,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
       addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars
     | .proj _ x =>
       let b := addDecIfNeeded ctx x b bLiveVars
-      let b := if (getVarInfo ctx x).mustBeConsumed then addInc ctx z b else b
+      let b := if mustConsume ctx x then addInc ctx z b else b
       .vdecl z t v b
     | .uproj _ x | .sproj _ _ x | .unbox x =>
       .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
@@ -204,7 +203,11 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
 
 def updateVarInfoWithParams (ctx : Context) (ps : Array Param) : Context :=
   let m := ps.foldl (init := ctx.varMap) fun m p =>
-    m.insert p.x { type := p.ty, persistent := false, mustBeConsumed := !p.borrow }
+    m.insert p.x {
+      type := p.ty
+      persistent := false
+      mustBeConsumed := !p.borrow && p.ty.isPossibleRef
+    }
   { ctx with varMap := m }
 
 partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVarSet :=

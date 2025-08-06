@@ -10,8 +10,6 @@ public import Init.Data.Order.Classes
 public import Init.Data.Order.Factories
 import Init.SimpLemmas
 import Init.Classical
-public import Init.Data.BEq
-public import Init.Data.Order.Ord
 
 namespace Std
 
@@ -339,42 +337,5 @@ public instance {α : Type u} [LE α] [Max α] [IsLinearOrder α] [LawfulOrderMa
       simp [le_max, le_refl]
 
 end Max
-
-section BEq
-
-theorem beq_iff_le_and_ge {α : Type u} [BEq α] [LE α] [OrderData α] [LawfulOrderBEq α]
-    [LawfulOrderLE α] {a b : α} : a == b ↔ a ≤ b ∧ b ≤ a := by
-  simp [LawfulOrderBEq.beq_iff_isLE_and_isLE, LawfulOrderLE.le_iff]
-
-instance {α : Type u} [BEq α] [OrderData α] [LawfulOrderBEq α] [Preorder α] : EquivBEq α where
-  rfl := by open scoped Classical.Order in simp [beq_iff_le_and_ge, le_refl]
-  symm := by open scoped Classical.Order in simp_all [beq_iff_le_and_ge]
-  trans hab hbc := by
-    open scoped Classical.Order in
-    simp only [beq_iff_le_and_ge] at hab hbc ⊢
-    exact ⟨le_trans hab.1 hbc.1, le_trans hbc.2 hab.2⟩
-
-instance {α : Type u} [BEq α] [OrderData α] [LawfulOrderBEq α] [PartialOrder α] : LawfulBEq α where
-  eq_of_beq := by
-    open scoped Classical.Order in
-    simp only [beq_iff_le_and_ge, and_imp]
-    apply le_antisymm
-
-end BEq
-
-section Ord
-
-theorem compare_isLE {α : Type u} [Ord α] [LE α] [OrderData α] [LawfulOrderOrd α] [LawfulOrderLE α]
-    {a b : α} : (compare a b).isLE ↔ a ≤ b := by
-  simp [LawfulOrderLE.le_iff, ← LawfulOrderOrd.compare_isLE_iff]
-
-theorem compare_eq_lt {α : Type u} [Ord α] [LT α] [OrderData α] [LawfulOrderOrd α] [LawfulOrderLT α]
-    {a b : α} : compare a b = .lt ↔ a < b := by
-  rw [LawfulOrderLT.lt_iff, ← LawfulOrderOrd.compare_isLE_iff, ← LawfulOrderOrd.compare_isGE_iff]
-  cases compare a b <;> simp
-
-instance {α : Type u} [Ord α] [OrderData α] [LawfulOrderOrd α] : OrientedOrd α where
-
-end Ord
 
 end Std

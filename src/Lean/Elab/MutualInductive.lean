@@ -1021,8 +1021,8 @@ private def applyComputedFields (indViews : Array InductiveView) : CommandElabM 
     for {ref, fieldId, type, matchAlts, modifiers, ..} in indView.computedFields do
       computedFieldDefs := computedFieldDefs.push <| ← do
         let modifiers ← match modifiers with
-          | `(Lean.Parser.Command.declModifiersT| $[$doc:docComment]? $[$attrs:attributes]? $[$vis]? $[noncomputable]?) =>
-            `(Lean.Parser.Command.declModifiersT| $[$doc]? $[$attrs]? $[$vis]? noncomputable)
+          | `(Lean.Parser.Command.declModifiersT| $[$doc:docComment]? $[$attrs:attributes]? $[$vis]? $[protected%$protectedTk]? $[noncomputable]?) =>
+            `(Lean.Parser.Command.declModifiersT| $[$doc]? $[$attrs]? $[$vis]? $[protected%$protectedTk]? noncomputable)
           | _ => do
             withRef modifiers do logError "Unsupported modifiers for computed field"
             `(Parser.Command.declModifiersT| noncomputable)

@@ -62,11 +62,11 @@ def namedPrio := leading_parser
 def optNamedPrio := optional namedPrio
 
 def «private»        := leading_parser "private "
-def «protected»      := leading_parser "protected "
 def «public»         := leading_parser "public "
 def visibility       :=
   withAntiquot (mkAntiquot "visibility" decl_name% (isPseudoKind := true)) <|
-    «private» <|> «protected» <|> «public»
+    «private» <|> «public»
+def «protected»      := leading_parser "protected "
 def «meta»           := leading_parser "meta "
 def «noncomputable»  := leading_parser "noncomputable "
 def «unsafe»         := leading_parser "unsafe "
@@ -76,7 +76,8 @@ def «nonrec»         := leading_parser "nonrec "
 /-- `declModifiers` is the collection of modifiers on a declaration:
 * a doc comment `/-- ... -/`
 * a list of attributes `@[attr1, attr2]`
-* a visibility specifier, `private`, `protected`, or `public`
+* a visibility specifier, `private` or `public`
+* `protected`
 * `noncomputable`
 * `unsafe`
 * `partial` or `nonrec`
@@ -90,6 +91,7 @@ such as inductive constructors, structure projections, and `let rec` / `where` d
   optional docComment >>
   optional (Term.«attributes» >> if inline then skip else ppDedent ppLine) >>
   optional visibility >>
+  optional «protected» >>
   optional («meta» <|> «noncomputable») >>
   optional «unsafe» >>
   optional («partial» <|> «nonrec»)

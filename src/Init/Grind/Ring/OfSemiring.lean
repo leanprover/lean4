@@ -9,9 +9,9 @@ prelude
 public import Init.Grind.Ring.Envelope
 public import Init.Data.Hashable
 public import Init.Data.RArray
-public import all Init.Grind.Ring.Poly
+public import Init.Grind.Ring.Poly
 
-public section
+@[expose] public section
 
 namespace Lean.Grind.Ring.OfSemiring
 /-!

@@ -15,7 +15,8 @@ public import Init.Grind.Ring.Basic
 public import Init.Grind.Ring.Field
 public import Init.Grind.Ordered.Ring
 public import Init.GrindInstances.Ring.Int
-public section
+
+@[expose] public section
 
 namespace Lean.Grind
 -- These are no longer global instances, so we need to turn them on here.

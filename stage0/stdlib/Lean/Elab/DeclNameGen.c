@@ -7555,12 +7555,12 @@ goto block_33;
 block_48:
 {
 uint8_t x_44; 
-x_44 = lean_nat_dec_lt(x_8, x_41);
+x_44 = lean_nat_dec_lt(x_8, x_42);
 if (x_44 == 0)
 {
 lean_dec_ref(x_43);
-lean_dec(x_41);
-x_37 = x_42;
+lean_dec(x_42);
+x_37 = x_41;
 goto block_40;
 }
 else
@@ -7568,28 +7568,28 @@ else
 if (x_44 == 0)
 {
 lean_dec_ref(x_43);
-lean_dec(x_41);
-x_37 = x_42;
+lean_dec(x_42);
+x_37 = x_41;
 goto block_40;
 }
 else
 {
 size_t x_45; size_t x_46; uint8_t x_47; 
 x_45 = 0;
-x_46 = lean_usize_of_nat(x_41);
-lean_dec(x_41);
+x_46 = lean_usize_of_nat(x_42);
+lean_dec(x_42);
 lean_inc(x_36);
 x_47 = l_Array_anyMUnsafe_any___at___Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__9(x_36, x_43, x_45, x_46);
 lean_dec_ref(x_43);
 if (x_47 == 0)
 {
-x_37 = x_42;
+x_37 = x_41;
 goto block_40;
 }
 else
 {
 lean_dec(x_36);
-x_26 = x_42;
+x_26 = x_41;
 x_27 = x_34;
 goto block_33;
 }
@@ -7617,8 +7617,8 @@ x_54 = lean_array_get_size(x_52);
 x_55 = lean_nat_dec_lt(x_8, x_54);
 if (x_55 == 0)
 {
-x_41 = x_54;
-x_42 = x_53;
+x_41 = x_53;
+x_42 = x_54;
 x_43 = x_52;
 goto block_48;
 }
@@ -7626,8 +7626,8 @@ else
 {
 if (x_55 == 0)
 {
-x_41 = x_54;
-x_42 = x_53;
+x_41 = x_53;
+x_42 = x_54;
 x_43 = x_52;
 goto block_48;
 }
@@ -7639,8 +7639,8 @@ x_57 = lean_usize_of_nat(x_54);
 x_58 = l_Array_anyMUnsafe_any___at___Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__10(x_52, x_56, x_57);
 if (x_58 == 0)
 {
-x_41 = x_54;
-x_42 = x_53;
+x_41 = x_53;
+x_42 = x_54;
 x_43 = x_52;
 goto block_48;
 }

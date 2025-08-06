@@ -63,6 +63,7 @@ static lean_object* l_Lake_Target_fetchIn___at___Lake_LeanExe_recBuildExe_spec__
 LEAN_EXPORT lean_object* l_Lake_LeanExe_defaultFacetConfig;
 lean_object* l_Lake_ModuleFacet_fetch___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_strict_and(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_LeanExe_exeFacetConfig_spec__0___boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lake_LeanExe_linkArgs(lean_object*);
 uint8_t lean_string_validate_utf8(lean_object*);
@@ -89,11 +90,9 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lake_LeanExe_recBuildE
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lake_LeanExe_recBuildExe_spec__8(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanExe_defaultFacetConfig___closed__2;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_LeanExe_exeFacetConfig_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_fetchIn___at___Lake_LeanExe_recBuildExe_spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lake_LeanExe_recBuildExe_spec__15_spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_Package_transDepsFacet;
-LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_LeanExe_exeFacetConfig_spec__0(uint8_t, lean_object*);
 extern lean_object* l_Lake_instDataKindFilePath;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lake_LeanExe_recBuildExe_spec__17(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_insert___at___Lake_LeanExe_recBuildExe_spec__0(lean_object*, lean_object*);
@@ -103,6 +102,7 @@ static lean_object* l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lak
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdin___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_LeanExe_recBuildExe_spec__21_spec__21_spec__22(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_ensureJob___at___Lake_LeanExe_recBuildExe_spec__21___closed__2;
+LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_LeanExe_exeFacetConfig_spec__0(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Array_forIn_x27Unsafe_loop___at___Lake_LeanExe_recBuildExe_spec__11_spec__11(uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_addExtension(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -5959,7 +5959,7 @@ lean_dec_ref(x_2);
 return x_29;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_LeanExe_exeFacetConfig_spec__0(uint8_t x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_LeanExe_exeFacetConfig_spec__0(uint8_t x_1, lean_object* x_2) {
 _start:
 {
 if (x_1 == 0)
@@ -5981,7 +5981,7 @@ LEAN_EXPORT lean_object* l_Lake_LeanExe_exeFacetConfig___lam__0(uint8_t x_1, lea
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lake_stdFormat___at___Lake_LeanExe_exeFacetConfig_spec__0(x_1, x_2);
+x_3 = l_Lake_formatQuery___at___Lake_LeanExe_exeFacetConfig_spec__0(x_1, x_2);
 return x_3;
 }
 }
@@ -6012,12 +6012,12 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_LeanExe_exeFacetConfig_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_LeanExe_exeFacetConfig_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-x_4 = l_Lake_stdFormat___at___Lake_LeanExe_exeFacetConfig_spec__0(x_3, x_2);
+x_4 = l_Lake_formatQuery___at___Lake_LeanExe_exeFacetConfig_spec__0(x_3, x_2);
 return x_4;
 }
 }

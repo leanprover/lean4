@@ -77,6 +77,7 @@ static lean_object* l___aux__Init__Data__Range__Basic______macroRules__tacticGet
 static lean_object* l_Std_Range___aux__Init__Data__Range__Basic______macroRules__Std__Range__term_x5b___x3a___x3a___x5d__1___closed__1;
 static lean_object* l_Std_Range___aux__Init__Data__Range__Basic______macroRules__Std__Range__term_x5b_x3a___x5d__1___closed__30;
 static lean_object* l_Std_Range___aux__Init__Data__Range__Basic______macroRules__Std__Range__term_x5b___x3a___x5d__1___closed__4;
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Range_forIn_x27_loop_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__18____x40_Init_Data_Range_Basic___hyg_143_;
 static lean_object* l_Std_Range_term_x5b___x3a___x3a___x5d___closed__0;
 static lean_object* l_Std_Range___aux__Init__Data__Range__Basic______macroRules__Std__Range__term_x5b_x3a___x5d__1___closed__31;
@@ -126,6 +127,7 @@ static lean_object* l_Std_Range_term_x5b___x3a___x3a___x5d___closed__4;
 LEAN_EXPORT lean_object* l_Std_Range_forM_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_term_x5b___x3a___x5d___closed__4;
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Range_forIn_x27_loop_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_term_x5b_x3a___x3a___x5d___closed__3;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__Range__Basic______macroRules__tacticGet__elem__tactic__extensible__1___closed__2;
@@ -638,6 +640,39 @@ x_8 = l_Std_Range_forIn_x27_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6,
 lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Range_forIn_x27_loop_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec_ref(x_3);
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec_ref(x_1);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec_ref(x_2);
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec_ref(x_1);
+x_7 = lean_apply_1(x_3, x_6);
+return x_7;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Range_forIn_x27_loop_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l___private_Init_Data_Range_Basic_0__Std_Range_forIn_x27_loop_match__1_splitter___redArg(x_3, x_4, x_5);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

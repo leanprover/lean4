@@ -398,7 +398,6 @@ LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at___Lean_Persisten
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_modifyAux___at___Lean_PersistentArray_modify___at___Lean_Meta_Grind_Arith_Cutsat_DiseqCnstr_assert_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_EqCnstr_0__Lean_Meta_Grind_Arith_Cutsat_getKindAndType_x3f___closed__17;
 lean_object* l_Int_Linear_Poly_norm(lean_object*);
-uint8_t l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_622_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_split___at_____private_Lean_Meta_Tactic_Grind_Arith_Cutsat_EqCnstr_0__Lean_Meta_Grind_Arith_Cutsat_splitLeCnstrs_spec__0___closed__3;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Cutsat_resetAssignmentFrom___redArg(lean_object*, lean_object*, lean_object*);
@@ -510,6 +509,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_EqCnstr_0__I
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 lean_object* lean_grind_cutsat_assert_le(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_EqCnstr_0__Lean_Meta_Grind_Arith_Cutsat_processNewNatDiseq___closed__2;
+uint8_t l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_618_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_EqCnstr_0__Lean_Meta_Grind_Arith_Cutsat_internalizeIntTerm(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Cutsat_EqCnstr_0__Lean_Meta_Grind_Arith_Cutsat_SupportedTermKind_noConfusion___redArg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Cutsat_EqCnstr_pp___redArg(lean_object*, lean_object*, lean_object*);
@@ -3649,7 +3649,7 @@ if (lean_is_exclusive(x_10)) {
 x_24 = lean_array_uget(x_7, x_9);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc_ref(x_25);
-x_58 = l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_622_(x_4, x_25);
+x_58 = l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_618_(x_4, x_25);
 if (x_58 == 0)
 {
 uint8_t x_59; 
@@ -3889,7 +3889,7 @@ if (lean_is_exclusive(x_10)) {
 x_24 = lean_array_uget(x_7, x_9);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc_ref(x_25);
-x_58 = l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_622_(x_4, x_25);
+x_58 = l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_618_(x_4, x_25);
 if (x_58 == 0)
 {
 uint8_t x_59; 
@@ -4560,7 +4560,7 @@ if (lean_is_exclusive(x_10)) {
 x_24 = lean_array_uget(x_7, x_9);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc_ref(x_25);
-x_56 = l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_622_(x_4, x_25);
+x_56 = l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_618_(x_4, x_25);
 if (x_56 == 0)
 {
 uint8_t x_57; 
@@ -4796,7 +4796,7 @@ if (lean_is_exclusive(x_10)) {
 x_24 = lean_array_uget(x_7, x_9);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc_ref(x_25);
-x_56 = l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_622_(x_4, x_25);
+x_56 = l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_618_(x_4, x_25);
 if (x_56 == 0)
 {
 uint8_t x_57; 
@@ -28499,7 +28499,7 @@ x_33 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_29);
 lean_ctor_set(x_33, 2, x_32);
-x_34 = l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_622_(x_16, x_33);
+x_34 = l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_618_(x_16, x_33);
 lean_dec_ref(x_33);
 if (x_34 == 0)
 {
@@ -28674,7 +28674,7 @@ x_70 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_70, 0, x_68);
 lean_ctor_set(x_70, 1, x_66);
 lean_ctor_set(x_70, 2, x_69);
-x_71 = l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_622_(x_16, x_70);
+x_71 = l_Int_Linear_beqPoly____x40_Init_Data_Int_Linear___hyg_618_(x_16, x_70);
 lean_dec_ref(x_70);
 if (x_71 == 0)
 {

@@ -82,7 +82,6 @@ lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*,
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn____x40_Lean_DocString_Extension___hyg_4_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getMainModuleDoc(lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
-uint8_t l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9649_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_getModuleDoc_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addDocStringCore___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___lam__0____x40_Lean_DocString_Extension___hyg_381____boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -103,6 +102,7 @@ lean_object* l_Lean_MapDeclarationExtension_find_x3f___redArg(lean_object*, lean
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___lam__3___closed__0____x40_Lean_DocString_Extension___hyg_381_;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___lam__0___closed__0____x40_Lean_DocString_Extension___hyg_381_;
+uint8_t l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9660_(uint8_t, uint8_t);
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___closed__7____x40_Lean_DocString_Extension___hyg_381_;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___lam__2____x40_Lean_DocString_Extension___hyg_381_(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -622,7 +622,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; 
 x_5 = 1;
-x_6 = l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9649_(x_4, x_5);
+x_6 = l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9660_(x_4, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 

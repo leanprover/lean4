@@ -50,7 +50,6 @@ lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_DeclarationRange___hyg_46_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9649_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_initFn____x40_Lean_DeclarationRange___hyg_46__spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_DeclarationRange___hyg_46____boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__1____x40_Lean_DeclarationRange___hyg_46_;
@@ -63,6 +62,7 @@ lean_object* l_Lean_MapDeclarationExtension_insert___redArg(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___redArg___lam__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_addDeclarationRanges___redArg___lam__0___closed__0;
 lean_object* l_Lean_MapDeclarationExtension_find_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+uint8_t l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9660_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedDeclarationRanges;
@@ -153,7 +153,7 @@ _start:
 {
 uint8_t x_4; uint8_t x_5; 
 x_4 = 1;
-x_5 = l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9649_(x_3, x_4);
+x_5 = l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9660_(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; 

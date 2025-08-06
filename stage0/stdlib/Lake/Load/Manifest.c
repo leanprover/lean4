@@ -61,14 +61,12 @@ static lean_object* l_Lake_fromJsonPackageEntryV6___lam__1___closed__0____x40_La
 LEAN_EXPORT lean_object* l_Lake_PackageEntry_inDirectory(lean_object*, lean_object*);
 static lean_object* l_Lake_fromJsonPackageEntryV6___closed__14____x40_Lake_Load_Manifest___hyg_128_;
 static lean_object* l_Lake_fromJsonPackageEntryV6___closed__7____x40_Lake_Load_Manifest___hyg_128_;
-LEAN_EXPORT lean_object* l_Lake_Manifest_saveToFile(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_toJson___at___Lake_toJsonPackageEntryV6____x40_Lake_Load_Manifest___hyg_469__spec__3(lean_object*);
 static lean_object* l_Lake_fromJsonPackageEntryV6___closed__12____x40_Lake_Load_Manifest___hyg_128_;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedPackageEntrySrc;
 static lean_object* l_Lake_fromJsonPackageEntryV6___closed__8____x40_Lake_Load_Manifest___hyg_128_;
 static lean_object* l_Lake_PackageEntry_toJson___closed__6;
 static lean_object* l_Lake_Manifest_getPackages___closed__2;
-LEAN_EXPORT lean_object* l_Lake_Manifest_saveToFile___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_fromJsonPackageEntryV6___lam__0___closed__0____x40_Lake_Load_Manifest___hyg_128_;
 static lean_object* l_Lake_Manifest_toJson___closed__3;
 static lean_object* l_Option_fromJson_x3f___at___Lake_Manifest_fromJson_x3f_spec__0___closed__0;
@@ -5890,23 +5888,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lake_Manifest_save(x_1, x_2, x_3);
-lean_dec_ref(x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Manifest_saveToFile(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_Manifest_save(x_1, x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_Manifest_saveToFile___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_Manifest_saveToFile(x_1, x_2, x_3);
 lean_dec_ref(x_2);
 return x_4;
 }

@@ -36,10 +36,11 @@ LEAN_EXPORT lean_object* l_Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_s
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStderr___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0___closed__2;
+LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_ExternLib_staticFacetConfig_spec__0(uint8_t, lean_object*);
 extern lean_object* l_Lake_ExternLib_sharedFacet;
 static lean_object* l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0___redArg___closed__1;
 static lean_object* l_Lake_ExternLib_recBuildShared___closed__0;
-LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_ExternLib_dynlibFacetConfig_spec__0(uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_ExternLib_dynlibFacetConfig_spec__0(uint8_t, lean_object*);
 static lean_object* l_Lake_ExternLib_initFacetConfigs___closed__1;
 LEAN_EXPORT lean_object* l_Lake_ExternLib_recBuildStatic___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStderr___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0_spec__2___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,6 +53,7 @@ LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at_
 LEAN_EXPORT lean_object* l_Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0___redArg___closed__2;
 static lean_object* l_Lake_ExternLib_recBuildStatic___closed__0;
+LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_ExternLib_dynlibFacetConfig_spec__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_ExternLib_dynlibFacetConfig___closed__0;
 LEAN_EXPORT lean_object* l_Lake_ExternLib_dynlibFacetConfig___lam__0(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildLeanSharedLibOfStatic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -78,7 +80,6 @@ LEAN_EXPORT lean_object* l_Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_s
 lean_object* lean_nat_to_int(lean_object*);
 extern lean_object* l_ByteArray_empty;
 lean_object* l_Lake_Job_mapM___at___Lake_buildSharedLib_spec__0___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_ExternLib_staticFacetConfig_spec__0(uint8_t, lean_object*);
 lean_object* l_Array_shrink___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_buildLeanSharedLibOfStatic___lam__0___closed__8;
 static lean_object* l_Lake_ExternLib_defaultFacetConfig___closed__0;
@@ -97,7 +98,6 @@ lean_object* l_System_FilePath_fileStem(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ExternLib_recComputeDynlib(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_ofBuffer(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_ExternLib_dynlibFacetConfig_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ExternLib_recBuildStatic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Job_renew___redArg(lean_object*);
 static lean_object* l_Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0___closed__3;
@@ -138,6 +138,7 @@ lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* lean_get_set_stdin(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdout___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_computeDynlibOfShared___lam__0___closed__6;
+LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_ExternLib_staticFacetConfig_spec__0___boxed(lean_object*, lean_object*);
 lean_object* l_Lake_Job_toOpaque___redArg(lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Lake_ExternLib_dynlibFacetConfig___lam__0___boxed(lean_object*, lean_object*);
@@ -146,7 +147,6 @@ uint8_t l_Substring_beq(lean_object*, lean_object*);
 static lean_object* l_Lake_ExternLib_defaultFacetConfig___closed__1;
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdout___at___IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_ExternLib_staticFacetConfig_spec__0___boxed(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_computeDynlibOfShared___lam__0___closed__5;
 extern lean_object* l_Lake_ExternLib_defaultFacet;
@@ -758,13 +758,13 @@ block_17:
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_12);
+lean_ctor_set(x_14, 1, x_11);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
-lean_ctor_set(x_15, 1, x_10);
+lean_ctor_set(x_15, 1, x_12);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_11);
+lean_ctor_set(x_16, 1, x_10);
 return x_16;
 }
 block_54:
@@ -805,9 +805,9 @@ lean_object* x_39; lean_object* x_40;
 lean_dec_ref(x_37);
 x_39 = l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_ExternLib_recBuildStatic_spec__0_spec__0___redArg___closed__4;
 x_40 = l_panic___at___IO_FS_withIsolatedStreams___at___Lean_Meta_realizeConst_realizeAndReport_spec__1_spec__3(x_39);
-x_10 = x_33;
-x_11 = x_36;
-x_12 = x_32;
+x_10 = x_36;
+x_11 = x_32;
+x_12 = x_33;
 x_13 = x_40;
 goto block_17;
 }
@@ -816,9 +816,9 @@ else
 lean_object* x_41; 
 x_41 = lean_string_from_utf8_unchecked(x_37);
 lean_dec_ref(x_37);
-x_10 = x_33;
-x_11 = x_36;
-x_12 = x_32;
+x_10 = x_36;
+x_11 = x_32;
+x_12 = x_33;
 x_13 = x_41;
 goto block_17;
 }
@@ -1717,7 +1717,7 @@ lean_dec_ref(x_3);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_ExternLib_staticFacetConfig_spec__0(uint8_t x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_ExternLib_staticFacetConfig_spec__0(uint8_t x_1, lean_object* x_2) {
 _start:
 {
 if (x_1 == 0)
@@ -1739,7 +1739,7 @@ LEAN_EXPORT lean_object* l_Lake_ExternLib_staticFacetConfig___lam__0(uint8_t x_1
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lake_stdFormat___at___Lake_ExternLib_staticFacetConfig_spec__0(x_1, x_2);
+x_3 = l_Lake_formatQuery___at___Lake_ExternLib_staticFacetConfig_spec__0(x_1, x_2);
 return x_3;
 }
 }
@@ -1770,12 +1770,12 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_ExternLib_staticFacetConfig_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_ExternLib_staticFacetConfig_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-x_4 = l_Lake_stdFormat___at___Lake_ExternLib_staticFacetConfig_spec__0(x_3, x_2);
+x_4 = l_Lake_formatQuery___at___Lake_ExternLib_staticFacetConfig_spec__0(x_3, x_2);
 return x_4;
 }
 }
@@ -3889,7 +3889,7 @@ lean_dec_ref(x_3);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_ExternLib_dynlibFacetConfig_spec__0(uint8_t x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_ExternLib_dynlibFacetConfig_spec__0(uint8_t x_1, lean_object* x_2) {
 _start:
 {
 if (x_1 == 0)
@@ -3915,7 +3915,7 @@ LEAN_EXPORT lean_object* l_Lake_ExternLib_dynlibFacetConfig___lam__0(uint8_t x_1
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lake_stdFormat___at___Lake_ExternLib_dynlibFacetConfig_spec__0(x_1, x_2);
+x_3 = l_Lake_formatQuery___at___Lake_ExternLib_dynlibFacetConfig_spec__0(x_1, x_2);
 return x_3;
 }
 }
@@ -3946,12 +3946,12 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*4 + 1, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_stdFormat___at___Lake_ExternLib_dynlibFacetConfig_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lake_formatQuery___at___Lake_ExternLib_dynlibFacetConfig_spec__0___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = lean_unbox(x_1);
-x_4 = l_Lake_stdFormat___at___Lake_ExternLib_dynlibFacetConfig_spec__0(x_3, x_2);
+x_4 = l_Lake_formatQuery___at___Lake_ExternLib_dynlibFacetConfig_spec__0(x_3, x_2);
 lean_dec_ref(x_2);
 return x_4;
 }

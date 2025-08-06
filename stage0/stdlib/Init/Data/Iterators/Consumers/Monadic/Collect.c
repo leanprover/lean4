@@ -43,20 +43,26 @@ LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_toListRev_go___redArg___l
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toList___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toListRev_go___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_toList___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toArray___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toListRev_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IteratorCollectPartial_defaultImplementation___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toArray___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toListRev(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toListRev_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped___redArg___closed__0;
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toList___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_toArray___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toArray___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_Partial_toList(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toList___redArg___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMappedPartial_go___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -154,6 +160,63 @@ _start:
 lean_object* x_13; 
 x_13 = l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___redArg(x_5, x_6, x_8, x_9, x_11, x_12);
 return x_13;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_1, 1);
+lean_inc(x_6);
+lean_dec_ref(x_1);
+x_7 = lean_apply_3(x_2, x_5, x_6, lean_box(0));
+return x_7;
+}
+case 1:
+{
+lean_object* x_8; lean_object* x_9; 
+lean_dec_ref(x_4);
+lean_dec_ref(x_2);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec_ref(x_1);
+x_9 = lean_apply_2(x_3, x_8, lean_box(0));
+return x_9;
+}
+default: 
+{
+lean_object* x_10; 
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+x_10 = lean_apply_1(x_4, lean_box(0));
+return x_10;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; 
+x_11 = l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter___redArg(x_7, x_8, x_9, x_10);
+return x_11;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; 
+x_11 = l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_DefaultConsumers_toArrayMapped_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_5);
+lean_dec_ref(x_4);
+return x_11;
 }
 }
 static lean_object* _init_l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped___redArg___closed__0() {
@@ -543,6 +606,63 @@ _start:
 lean_object* x_9; 
 x_9 = l_Std_Iterators_IterM_toListRev_go___redArg(x_3, x_5, x_7, x_8);
 return x_9;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_dec_ref(x_4);
+lean_dec_ref(x_3);
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_1, 1);
+lean_inc(x_6);
+lean_dec_ref(x_1);
+x_7 = lean_apply_3(x_2, x_5, x_6, lean_box(0));
+return x_7;
+}
+case 1:
+{
+lean_object* x_8; lean_object* x_9; 
+lean_dec_ref(x_4);
+lean_dec_ref(x_2);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec_ref(x_1);
+x_9 = lean_apply_2(x_3, x_8, lean_box(0));
+return x_9;
+}
+default: 
+{
+lean_object* x_10; 
+lean_dec_ref(x_3);
+lean_dec_ref(x_2);
+x_10 = lean_apply_1(x_4, lean_box(0));
+return x_10;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; 
+x_11 = l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter___redArg(x_7, x_8, x_9, x_10);
+return x_11;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+_start:
+{
+lean_object* x_11; 
+x_11 = l___private_Init_Data_Iterators_Consumers_Monadic_Collect_0__Std_Iterators_IterM_toListRev_match__1_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_5);
+lean_dec_ref(x_4);
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_toListRev___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

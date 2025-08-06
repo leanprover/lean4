@@ -1414,9 +1414,9 @@ goto block_152;
 block_144:
 {
 lean_object* x_141; lean_object* x_142; lean_object* x_143; 
-x_141 = lean_nat_add(x_139, x_140);
+x_141 = lean_nat_add(x_138, x_140);
 lean_dec(x_140);
-lean_dec(x_139);
+lean_dec(x_138);
 if (lean_is_scalar(x_135)) {
  x_142 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -1435,7 +1435,7 @@ if (lean_is_scalar(x_125)) {
 lean_ctor_set(x_143, 0, x_137);
 lean_ctor_set(x_143, 1, x_128);
 lean_ctor_set(x_143, 2, x_129);
-lean_ctor_set(x_143, 3, x_138);
+lean_ctor_set(x_143, 3, x_139);
 lean_ctor_set(x_143, 4, x_142);
 return x_143;
 }
@@ -1462,8 +1462,8 @@ if (lean_obj_tag(x_131) == 0)
 lean_object* x_150; 
 x_150 = lean_ctor_get(x_131, 0);
 lean_inc(x_150);
-x_138 = x_148;
-x_139 = x_149;
+x_138 = x_149;
+x_139 = x_148;
 x_140 = x_150;
 goto block_144;
 }
@@ -1471,8 +1471,8 @@ else
 {
 lean_object* x_151; 
 x_151 = lean_unsigned_to_nat(0u);
-x_138 = x_148;
-x_139 = x_149;
+x_138 = x_149;
+x_139 = x_148;
 x_140 = x_151;
 goto block_144;
 }
@@ -8994,7 +8994,7 @@ goto block_36;
 }
 else
 {
-lean_object* x_60; uint8_t x_61; lean_object* x_62; uint8_t x_63; lean_object* x_82; uint8_t x_83; uint8_t x_84; uint8_t x_109; uint8_t x_119; 
+lean_object* x_60; uint8_t x_61; lean_object* x_62; uint8_t x_63; uint8_t x_82; lean_object* x_83; uint8_t x_84; uint8_t x_109; uint8_t x_119; 
 x_60 = l_Lean_Expr_constLevels_x21(x_46);
 lean_dec_ref(x_46);
 x_119 = l___private_Lean_Meta_Tactic_Grind_ExprPtr_0__Lean_Meta_Grind_isSameExpr_unsafe__1(x_45, x_57);
@@ -9138,7 +9138,7 @@ block_108:
 if (x_84 == 0)
 {
 lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; uint8_t x_91; 
-x_85 = lean_st_ref_get(x_4, x_82);
+x_85 = lean_st_ref_get(x_4, x_83);
 x_86 = lean_ctor_get(x_85, 0);
 lean_inc(x_86);
 x_87 = lean_ctor_get(x_85, 1);
@@ -9182,7 +9182,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc_ref(x_54);
 lean_inc_ref(x_42);
-x_93 = l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkEqProofCore(x_42, x_54, x_83, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_82);
+x_93 = l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkEqProofCore(x_42, x_54, x_82, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_83);
 if (lean_obj_tag(x_93) == 0)
 {
 lean_object* x_94; lean_object* x_95; lean_object* x_96; 
@@ -9193,7 +9193,7 @@ lean_inc(x_95);
 lean_dec_ref(x_93);
 lean_inc_ref(x_51);
 lean_inc_ref(x_39);
-x_96 = l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkEqProofCore(x_39, x_51, x_83, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_95);
+x_96 = l___private_Lean_Meta_Tactic_Grind_Proof_0__Lean_Meta_Grind_mkEqProofCore(x_39, x_51, x_82, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_95);
 if (lean_obj_tag(x_96) == 0)
 {
 uint8_t x_97; 
@@ -9276,8 +9276,8 @@ x_116 = l_Lean_Meta_Grind_Goal_hasSameRoot(x_111, x_42, x_54);
 if (x_116 == 0)
 {
 lean_dec(x_114);
-x_82 = x_115;
-x_83 = x_109;
+x_82 = x_109;
+x_83 = x_115;
 x_84 = x_116;
 goto block_108;
 }
@@ -9285,8 +9285,8 @@ else
 {
 uint8_t x_117; 
 x_117 = l_Lean_Meta_Grind_Goal_hasSameRoot(x_114, x_39, x_51);
-x_82 = x_115;
-x_83 = x_109;
+x_82 = x_109;
+x_83 = x_115;
 x_84 = x_117;
 goto block_108;
 }

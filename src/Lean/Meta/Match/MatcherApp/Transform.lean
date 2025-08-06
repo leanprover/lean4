@@ -226,7 +226,7 @@ def transform
     (addEqualities : Bool := false)
     (onParams : Expr → n Expr := pure)
     (onMotive : Array Expr → Expr → n Expr := fun _ e => pure e)
-    (onAlt : Nat → Expr → Expr → n Expr := fun _ _ e => pure e)
+    (onAlt : Nat → Expr → Array Expr → Expr → n Expr := fun _ _ _ e => pure e)
     (onRemaining : Array Expr → n (Array Expr) := pure) :
     n MatcherApp := do
 
@@ -316,9 +316,10 @@ def transform
         forallBoundedTelescope altType (splitterNumParams - ys.size) fun ys2 altType => do
           forallBoundedTelescope altType numDiscrEqs fun ys3 altType => do
             forallBoundedTelescope altType extraEqualities fun ys4 altType => do
-              let alt ← try instantiateLambda alt (args ++ ys3)
+              let altParams := args ++ ys3
+              let alt ← try instantiateLambda alt altParams
                         catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
-              let alt' ← onAlt altIdx altType alt
+              let alt' ← onAlt altIdx altType altParams alt
               mkLambdaFVars (ys ++ ys2 ++ ys3 ++ ys4) alt'
       alts' := alts'.push alt'
 
@@ -354,7 +355,7 @@ def transform
           let names ← lambdaTelescope alt fun xs _ => xs.mapM (·.fvarId!.getUserName)
           withUserNames xs names do
             let alt ← instantiateLambda alt xs
-            let alt' ← onAlt altIdx altType alt
+            let alt' ← onAlt altIdx altType xs alt
             mkLambdaFVars (xs ++ ys4) alt'
       alts' := alts'.push alt'
 
@@ -428,7 +429,7 @@ def inferMatchType (matcherApp : MatcherApp) : MetaM MatcherApp := do
       }
       mkArrowN extraParams typeMatcherApp.toExpr
     )
-    (onAlt := fun _altIdx expAltType alt => do
+    (onAlt := fun _altIdx expAltType _altParams alt => do
       let altType ← inferType alt
       let eq ← mkEq expAltType altType
       let proof ← mkFreshExprSyntheticOpaqueMVar eq

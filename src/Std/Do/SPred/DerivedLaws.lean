@@ -49,7 +49,7 @@ theorem imp_elim_l : (P → Q) ∧ P ⊢ₛ Q := imp_elim .rfl
 theorem imp_elim_r : P ∧ (P → Q) ⊢ₛ Q := imp_elim' .rfl
 theorem false_elim : ⌜False⌝ ⊢ₛ P := pure_elim' False.elim
 theorem true_intro : P ⊢ₛ ⌜True⌝ := pure_intro trivial
-theorem exists_intro' {σs} {P} {Ψ : α → SPred σs} (a : α) (h : P ⊢ₛ Ψ a) : P ⊢ₛ ∃ a, Ψ a := h.trans (exists_intro a)
+theorem exists_intro' {α} {σs} {P} {Ψ : α → SPred σs} (a : α) (h : P ⊢ₛ Ψ a) : P ⊢ₛ ∃ a, Ψ a := h.trans (exists_intro a)
 theorem and_or_elim_l (hleft : P ∧ R ⊢ₛ T) (hright : Q ∧ R ⊢ₛ T) : (P ∨ Q) ∧ R ⊢ₛ T := imp_elim (or_elim (imp_intro hleft) (imp_intro hright))
 theorem and_or_elim_r (hleft : P ∧ Q ⊢ₛ T) (hright : P ∧ R ⊢ₛ T) : P ∧ (Q ∨ R) ⊢ₛ T := imp_elim' (or_elim (imp_intro (and_symm.trans hleft)) (imp_intro (and_symm.trans hright)))
 theorem exfalso (h : P ⊢ₛ ⌜False⌝) : P ⊢ₛ Q := h.trans false_elim
@@ -153,6 +153,9 @@ theorem pure_exists {φ : α → Prop} : (∃ x, ⌜φ x⌝ : SPred σs) ⊣⊢�
 
 @[simp, grind =] theorem true_intro_simp : (Q ⊢ₛ ⌜True⌝) ↔ True := iff_true_intro true_intro
 
+@[simp] theorem _root_.ULift.down_dite {φ : Prop} [Decidable φ] (t : φ → α) (e : ¬φ → α) : (ULift.down (if h : φ then ⟨t h⟩ else ⟨e h⟩)) = if h : φ then t h else e h := apply_dite _ _ _ _
+@[simp] theorem _root_.ULift.down_ite {φ : Prop} [Decidable φ] (t e : α) : (ULift.down (if φ then ⟨t⟩ else ⟨e⟩)) = if φ then t else e := apply_ite _ _ _ _
+
 /-! # Miscellaneous -/
 
 theorem and_left_comm : P ∧ Q ∧ R ⊣⊢ₛ Q ∧ P ∧ R := and_assoc.symm.trans <| (and_congr_l and_comm).trans and_assoc
@@ -176,7 +179,7 @@ abbrev tautological (Q : SPred σs) : Prop := ⊢ₛ Q
 
 class PropAsSPredTautology (φ : Prop) {σs : outParam (List (Type u))} (P : outParam (SPred σs)) : Prop where
   iff : φ ↔ ⊢ₛ P
-instance {φ : ULift Prop} : PropAsSPredTautology.{0} (σs := []) φ.down φ where iff := true_imp_iff.symm
+instance {φ : SPred []} : PropAsSPredTautology φ.down φ where iff := true_imp_iff.symm
 instance : PropAsSPredTautology (P ⊢ₛ Q) spred(P → Q) where iff := iff_of_eq (entails_true_intro P Q).symm
 instance : PropAsSPredTautology (⊢ₛ P) P where iff := Iff.rfl
 

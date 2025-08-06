@@ -32,7 +32,7 @@ def mPureCore (σs : Expr) (hyp : Expr) (name : TSyntax ``binderIdent)
     let (a, goal, prf /- : goal.toExpr -/) ← k φ h
     let prf ← mkLambdaFVars #[h] prf
     let prf := mkApp7 (mkConst ``Pure.thm [u]) σs goal.hyps hyp goal.target φ inst prf
-    let goal := { goal with hyps := mkAnd! u σs goal.hyps hyp }
+    let goal := { goal with hyps := SPred.mkAnd! u σs goal.hyps hyp }
     return (a, goal, prf)
 
 @[builtin_tactic Lean.Parser.Tactic.mpure]

@@ -13,6 +13,39 @@ public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherw
 @[expose] public section
                                -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
+namespace Lean.Elab.Tactic.Do.VCGen
+
+structure Config where
+  /--
+  If `true` (the default), we will try to prove VCs via `mvcgen_trivial`, which is extensible
+  via `macro_rules`.
+  -/
+  trivial : Bool := true
+  /--
+  If `true` (the default), we will simplify every generated VC after trying
+  `mvcgen_trivial` by running `mleave`. (Note that this can be expensive.)
+  -/
+  leave : Bool := true
+  /--
+  If `true` (the default), we substitute away let-declarations that are used at most once before
+  starting VC generation and will do the same for every VC generated.
+  -/
+  elimLets : Bool := true
+  /--
+  If `false` (the default), then we aggresively split `if` and `match` statements and inline join
+  points unconditionally. For some programs this causes exponential blowup of VCs.
+  Set this flag to choose a more conservative (but slightly lossy) encoding that traverses
+  every join point only once and yields a formula the size of which is linear in the number of
+  control flow splits.
+  -/
+  jp : Bool := false
+  /--
+  If set to `some n`, `mvcgen` will only do 42 steps of the VC generation procedure.
+  This is helpful for bisecting bugs in `mvcgen` and tracing its execution.
+  -/
+  stepLimit : Option Nat := none
+end Lean.Elab.Tactic.Do.VCGen
+
 namespace Lean.Parser
 
 namespace Attr
@@ -118,6 +151,8 @@ macro (name := mleave) "mleave" : tactic =>
               $(mkIdent ``Std.Do.FailConds.entails.refl):term,
               $(mkIdent ``Std.Do.FailConds.entails_true):term,
               $(mkIdent ``Std.Do.FailConds.entails_false):term,
+              $(mkIdent ``ULift.down_ite):term,
+              $(mkIdent ``ULift.down_dite):term,
               $(mkIdent ``and_imp):term,
               $(mkIdent ``and_true):term,
               $(mkIdent ``dite_eq_ite):term,
@@ -254,6 +289,21 @@ all_goals
 -/
 macro (name := mspecNoSimp) "mspec_no_simp" spec:(ppSpace colGt term)? : tactic =>
   `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)); mspec_no_bind $[$spec]?))
+
+syntax "mvcgen_trivial_extensible" : tactic
+
+/--
+`mvcgen_trivial` is the tactic automatically called by `mvcgen` to discharge VCs.
+It tries to discharge the VC by applying `(try mpure_intro); trivial` and otherwise delegates to
+`mvcgen_trivial_extensible`.
+Users are encouraged to extend `mvcgen_trivial_extensible` instead of this tactic in order not to
+override the default `(try mpure_intro); trivial` behavior.
+-/
+macro "mvcgen_trivial" : tactic =>
+  `(tactic| first
+    | (try mpure_intro); trivial
+    | try mvcgen_trivial_extensible
+  )
 
 @[inherit_doc Lean.Parser.Tactic.mspecMacro]
 macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>

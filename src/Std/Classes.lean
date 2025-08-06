@@ -6,6 +6,11 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Std.Classes.Ord
+-- TODO
+public import Std.Classes.Ord.BitVec
+public import Std.Classes.Ord.SInt
+public import Std.Classes.Ord.String
+public import Std.Classes.Ord.UInt
+public import Std.Classes.Ord.Vector
 
 public section

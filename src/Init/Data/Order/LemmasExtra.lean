@@ -3,7 +3,7 @@ module
 prelude
 import Init.Data.Order.Lemmas
 public import Init.Data.Order.ClassesExtra
-public import Std.Classes.Ord -- TODO: move to Init?
+public import Init.Data.Order.Ord
 
 namespace Std
 

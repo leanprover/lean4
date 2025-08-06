@@ -6,7 +6,7 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Std.Classes.Ord.Basic
+public import Init.Data.Order.Ord
 public import Std.Classes.Ord.SInt
 public import Std.Classes.Ord.UInt
 public import Std.Classes.Ord.String

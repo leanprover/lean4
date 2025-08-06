@@ -6,7 +6,7 @@ Authors: Markus Himmel, Paul Reichert
 module
 
 prelude
-public import Std.Data.DTreeMap.Internal.Lemmas
+import Std.Data.DTreeMap.Internal.Lemmas
 public import Std.Data.DTreeMap.Raw.Basic
 public import Std.Data.DTreeMap.Raw.AdditionalOperations
 
@@ -1630,12 +1630,22 @@ theorem get_insertMany_list_of_mem [TransCmp cmp] (h : t.WF)
     get (insertMany t l) k' h' = v :=
   Impl.Const.get_insertMany!_list_of_mem h k_eq distinct mem
 
+/-- A variant of `contains_of_contains_insertMany_list` used in `get_insertMany_list`. -/
+theorem contains_of_contains_insertMany_list' [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
+    {l : List (α × β)} {k : α}
+    (h' : contains (insertMany t l) k = true)
+    (w : l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none) = none) :
+    contains t k = true :=
+  Impl.Const.contains_of_contains_insertMany_list' h
+    (by simpa [Impl.Const.insertMany_eq_insertMany!] using h')
+    (by simpa [compare_eq_iff_beq, BEq.comm] using w)
+
 @[grind =] theorem get_insertMany_list [TransCmp cmp] [BEq α] [PartialEquivBEq α] [LawfulBEqCmp cmp] (h : t.WF)
     {l : List (α × β)} {k : α} {h'} :
     get (insertMany t l) k h' =
       match w : l.findSomeRev? (fun ⟨a, b⟩ => if cmp a k = .eq then some b else none) with
       | some v => v
-      | none => get t k (Impl.Const.contains_of_contains_insertMany_list' h (by simpa [Impl.Const.insertMany_eq_insertMany!] using h') w) :=
+      | none => get t k (contains_of_contains_insertMany_list' h h' w) :=
   Impl.Const.get_insertMany!_list h (k := k)
 
 theorem get!_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]

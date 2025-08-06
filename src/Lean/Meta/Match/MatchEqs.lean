@@ -117,7 +117,7 @@ def unfoldNamedPattern (e : Expr) : MetaM Expr := do
   This can be used to use the alternative of a match expression in its splitter.
 -/
 partial def forallAltVarsTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
-  (k : (patVars : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α) : MetaM α := do
+  (k : (patVars : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α) (freshenNames := false) : MetaM α := do
   go #[] #[] #[] 0 altType
 where
   go (ys : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
@@ -131,6 +131,7 @@ where
         return ← k #[] #[mkConst ``Unit.unit] #[false] b
 
       let d ← Match.unfoldNamedPattern d
+      let n ← if freshenNames then mkFreshUserName n else pure n
       withLocalDeclD n d fun y => do
         let typeNew := b.instantiate1 y
         if let some (_, lhs, rhs) ← matchEq? d then

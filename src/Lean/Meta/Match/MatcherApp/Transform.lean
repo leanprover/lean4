@@ -192,9 +192,9 @@ def withUserNames {n} [MonadControlT MetaM n] [Monad n]
 private def forallAltTelescope'
     {n} [Monad n] [MonadControlT MetaM n]
     {α} (origAltType : Expr) (numParams numDiscrEqs : Nat)
-    (k : Array Expr → Array Expr → n α) : n α := do
+    (k : Array Expr → Array Expr → n α) (freshenNames := false) : n α := do
   map2MetaM (fun k =>
-    Match.forallAltVarsTelescope origAltType numParams numDiscrEqs
+    Match.forallAltVarsTelescope origAltType numParams numDiscrEqs (freshenNames := freshenNames)
       fun ys args _mask _bodyType => k ys args
   ) k
 
@@ -224,6 +224,7 @@ def transform
     (matcherApp : MatcherApp)
     (useSplitter := false)
     (addEqualities : Bool := false)
+    (freshenNames := false)
     (onParams : Expr → n Expr := pure)
     (onMotive : Array Expr → Expr → n Expr := fun _ e => pure e)
     (onAlt : Nat → Expr → Expr → n Expr := fun _ _ e => pure e)
@@ -245,7 +246,7 @@ def transform
   let params' ← matcherApp.params.mapM onParams
   let discrs' ← matcherApp.discrs.mapM onParams
 
-  let (motive', uElim, addHEqualities) ← lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
+  let (motive', uElim, addHEqualities) ← lambdaTelescope matcherApp.motive (freshenNames := freshenNames) fun motiveArgs motiveBody => do
     unless motiveArgs.size == matcherApp.discrs.size do
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let mut motiveBody' ← onMotive motiveArgs motiveBody
@@ -309,14 +310,15 @@ def transform
         splitterNumParams in matchEqns.splitterAltNumParams,
         origAltType in origAltTypes,
         altType in altTypes do
-      let alt' ← forallAltTelescope' origAltType (numParams - numDiscrEqs) 0 fun ys args => do
+      let alt' ← forallAltTelescope' origAltType (numParams - numDiscrEqs) 0 (freshenNames := freshenNames) fun ys args => do
         let altType ← instantiateForall altType ys
         -- The splitter inserts its extra parameters after the first ys.size parameters, before
         -- the parameters for the numDiscrEqs
-        forallBoundedTelescope altType (splitterNumParams - ys.size) fun ys2 altType => do
-          forallBoundedTelescope altType numDiscrEqs fun ys3 altType => do
-            forallBoundedTelescope altType extraEqualities fun ys4 altType => do
-              let alt ← try instantiateLambda alt (args ++ ys3)
+        forallBoundedTelescope altType (splitterNumParams - ys.size) (freshenNames := freshenNames) fun ys2 altType => do
+          forallBoundedTelescope altType numDiscrEqs (freshenNames := freshenNames) fun ys3 altType => do
+            forallBoundedTelescope altType extraEqualities (freshenNames := freshenNames) fun ys4 altType => do
+              let altParams := args ++ ys3
+              let alt ← try instantiateLambda alt altParams
                         catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
               let alt' ← onAlt altIdx altType alt
               mkLambdaFVars (ys ++ ys2 ++ ys3 ++ ys4) alt'

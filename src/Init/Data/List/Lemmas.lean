@@ -70,7 +70,7 @@ See also
 
 Further results, which first require developing further automation around `Nat`, appear in
 * `Init.Data.List.Nat.Basic`: miscellaneous lemmas
-* `Init.Data.List.Nat.Range`: `List.range` and `List.enum`
+* `Init.Data.List.Nat.Range`: `List.range`, `List.range'` and `List.enum`
 * `Init.Data.List.Nat.TakeDrop`: `List.take` and `List.drop`
 
 Also

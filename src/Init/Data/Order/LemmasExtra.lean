@@ -7,15 +7,13 @@ module
 
 prelude
 import Init.Data.Order.Lemmas
-public import Init.Data.Order.ClassesExtra
+public import Init.Data.Order.FactoriesExtra
 public import Init.Data.Order.Ord
 
 namespace Std
 
 /-
-* LawfulOrderOrd implies OrientedOrd, Total (· ≤ ·)
 * Factories
-* other LawfulOrder* instances
 -/
 
 theorem LawfulOrderOrd.compare_eq_lt {α : Type u} [OrderData α] [Ord α] [LawfulOrderOrd α]
@@ -91,17 +89,50 @@ public instance {α : Type u} [Ord α] [OrderData α] [LawfulOrderOrd α] [IsPar
     · simp [← compare_isLE, h]
     · simp [← compare_isGE, h]
 
+public instance [OrderData α] [Ord α] [LE α] [LawfulOrderOrd α] [LawfulOrderLE α] :
+    Total (α := α) (· ≤ ·) where
+  total a b := by
+    rw [← compare_isLE, ← compare_isGE]
+    cases compare a b <;> simp
+
+public theorem IsLinearPreorder.of_ord {α : Type u} [OrderData α] [Ord α] [LawfulOrderOrd α]
+    [TransOrd α] : IsLinearPreorder α where
+  le_refl a := by
+    open scoped Classical.Order in
+    simp [← LawfulOrderLE.le_iff, ← compare_isLE]
+  le_trans a b c := by
+    open scoped Classical.Order in
+    simpa [← LawfulOrderLE.le_iff, ← compare_isLE] using TransOrd.isLE_trans
+  le_total a b := by
+    open scoped Classical.Order in
+    simpa [← LawfulOrderLE.le_iff] using Total.total a b
+
+public theorem IsLinearOrder.of_ord {α : Type u} [OrderData α] [Ord α] [LawfulOrderOrd α]
+    [TransOrd α] [LawfulEqOrd α] : IsLinearOrder α where
+  toIsLinearPreorder := .of_ord
+  le_antisymm a b hab hba := by
+    open scoped Classical.Order in
+    rw [← LawfulOrderLE.le_iff, ← compare_isLE] at hab
+    rw [← LawfulOrderLE.le_iff, ← compare_isGE] at hba
+    rw [← LawfulEqOrd.compare_eq_iff_eq (a := a), Ordering.eq_eq_iff_isLE_and_isGE]
+    exact ⟨hab, hba⟩
+
 end Std
 
 namespace Classical.Order
 open Std
 
 open scoped Classical in
+/--
+Derives an `Ord α` instance from an `OrderData α`. Because in `Ord α`, all elements are comparable,
+the resulting `Ord α` instance only makes sens if the `OrderData α`-defined order structure is total
+-/
 public noncomputable scoped instance instOrd {α : Type u} [OrderData α] :
     Ord α where
   compare a b := if OrderData.IsLE a b then if OrderData.IsLE b a then .eq else .lt else .gt
 
 public instance instLawfulOrderOrd {α : Type u} [OrderData α]
+    -- TODO: better support for elementary typeclasses on `OrderData.IsLE`
     [Total (α := α) OrderData.IsLE] :
     LawfulOrderOrd α where
   compare_isLE a b := by

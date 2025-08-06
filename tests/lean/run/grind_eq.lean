@@ -92,3 +92,15 @@ example (p : Prop) (h₁ h₂ : Decidable p) : h₁ = h₂ := by
 
 example (p q : Prop) (h₁ : Decidable p) (h₂ : Decidable (p ∧ q)) : (p ↔ q) → h₁ ≍ h₂ := by
   grind
+
+example (a₁ a₂ : α) (b₁ b₂ : β) : a₁ ≍ b₁ → a₂ ≍ b₂ → (a₁ = a₂) = (b₁ = b₂) := by
+  grind
+
+example (a₁ a₂ : α) (b₁ b₂ : β) : a₁ ≍ b₁ → a₂ ≍ b₂ → (a₁ = a₂) = (b₂ = b₁) := by
+  grind
+
+example (a₁ a₂ : α) (b₁ b₂ : β) : a₁ ≍ b₁ → a₂ ≍ b₂ → (a₁ = a₂) ≍ (b₁ = b₂) := by
+  grind
+
+example (a₁ a₂ : α) (b₁ b₂ : β) : a₁ ≍ b₁ → a₂ ≍ b₂ → (a₁ = a₂) ≍ (b₂ = b₁) := by
+  grind

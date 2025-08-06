@@ -118,8 +118,14 @@ macro (name := mleave) "mleave" : tactic =>
               $(mkIdent ``Std.Do.SVal.uncurry_nil):term,
               $(mkIdent ``Std.Do.SVal.getThe_here):term,
               $(mkIdent ``Std.Do.SVal.getThe_there):term,
+              $(mkIdent ``Std.Do.FailConds.entails.refl):term,
+              $(mkIdent ``Std.Do.FailConds.entails_true):term,
+              $(mkIdent ``Std.Do.FailConds.entails_false):term,
               $(mkIdent ``and_imp):term,
-              $(mkIdent ``true_implies):term]))
+              $(mkIdent ``and_true):term,
+              $(mkIdent ``dite_eq_ite):term,
+              $(mkIdent ``exists_prop):term,
+              $(mkIdent ``true_implies):term] at *))
 
 declare_syntax_cat mcasesPat
 syntax mcasesPatAlts := sepBy1(mcasesPat, " | ")
@@ -234,7 +240,7 @@ Like `mspec`, but does not attempt slight simplification and closing of trivial 
 ```
 mspec_no_simp $spec
 all_goals
-  ((try simp only [SPred.true_intro_simp, SVal.curry_cons, SVal.uncurry_cons, SVal.getThe_here, SVal.getThe_there]);
+  ((try simp only [SPred.true_intro_simp, SVal.curry_cons, SVal.uncurry_nil, SVal.uncurry_cons, SVal.getThe_here, SVal.getThe_there]);
    (try mpure_intro; trivial))
 ```
 -/

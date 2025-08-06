@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.AC
-public import Init.Data.Ord
+public import Init.Data.Ord.Basic
 public import Std.Data.DTreeMap.Internal.Balanced
 
 @[expose] public section

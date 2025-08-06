@@ -8,7 +8,7 @@ prelude
 public import Init.Grind.Ordered.Module
 public import Init.Grind.Ordered.Ring
 public import Init.Grind.Ring.Field
-public import all Init.Data.Ord
+public import all Init.Data.Ord.Basic
 public import all Init.Data.AC
 public import Init.Data.RArray
 

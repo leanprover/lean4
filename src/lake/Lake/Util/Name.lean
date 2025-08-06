@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Std.Classes.Ord.String
-import Std.Classes.Ord.UInt
+import Init.Data.Ord.String
+import Init.Data.Ord.UInt
 import Lean.Data.Json
 import Lean.Data.NameMap.Basic
 import Lake.Util.RBArray

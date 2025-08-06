@@ -138,9 +138,14 @@ private def addIncBeforeConsumeAll (ctx : Context) (xs : Array Arg) (b : FnBody)
 
 /-- Add `dec` instructions for parameters that are references, are not alive in `b`, and are not borrow.
    That is, we must make sure these parameters are consumed. -/
-private def addDecForDeadParams (ctx : Context) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
-  ps.foldl (init := b) fun b p =>
-    if !p.borrow && p.ty.isObj && !bLiveVars.contains p.x then addDec ctx p.x b else b
+private def addDecForDeadParams (ctx : Context) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody × LiveVarSet :=
+  ps.foldl (init := ⟨b, bLiveVars⟩) fun ⟨b, bLiveVars⟩ p =>
+    let b :=
+      if !p.borrow && p.ty.isObj && !bLiveVars.contains p.x then
+        addDec ctx p.x b
+      else b
+    let bLiveVars := bLiveVars.erase p.x
+    ⟨b, bLiveVars⟩
 
 private def isPersistent : Expr → Bool
   | .fap _ xs => xs.isEmpty -- all global constants are persistent objects
@@ -215,10 +220,10 @@ partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVarSet :=
   | .jdecl j xs v b =>
     let ctxAtV := updateVarInfoWithParams ctx xs
     let ⟨v, vLiveVars⟩ := visitFnBody v ctxAtV
-    let v   := addDecForDeadParams ctxAtV xs v vLiveVars
+    let ⟨v, vLiveVars⟩ := addDecForDeadParams ctxAtV xs v vLiveVars
     let ctx := { ctx with
       localCtx     := ctx.localCtx.addJP j xs v
-      jpLiveVarMap := updateJPLiveVarMap j xs v ctx.jpLiveVarMap
+      jpLiveVarMap := ctx.jpLiveVarMap.insert j vLiveVars
     }
     let ⟨b, bLiveVars⟩ := visitFnBody b ctx
     ⟨.jdecl j xs v b, bLiveVars⟩
@@ -266,7 +271,7 @@ partial def visitDecl (env : Environment) (decls : Array Decl) (d : Decl) : Decl
   | .fdecl (xs := xs) (body := b) .. =>
     let ctx := updateVarInfoWithParams { env, decls } xs
     let ⟨b, bLiveVars⟩ := visitFnBody b ctx
-    let b := addDecForDeadParams ctx xs b bLiveVars
+    let ⟨b, _⟩ := addDecForDeadParams ctx xs b bLiveVars
     d.updateBody! b
   | other => other
 

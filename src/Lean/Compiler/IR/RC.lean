@@ -146,13 +146,6 @@ private def isPersistent : Expr → Bool
   | .fap _ xs => xs.isEmpty -- all global constants are persistent objects
   | _         => false
 
-/-- We do not need to consume the projection of a variable that is not consumed -/
-private def consumeExpr (m : VarMap) : Expr → Bool
-  | .proj _ x   => match m.get? x with
-    | some info => info.mustBeConsumed
-    | none      => true
-  | _     => true
-
 /-- Return true iff `v` at runtime is a scalar value stored in a tagged pointer.
    We do not need RC operations for this kind of value. -/
 private def typeForScalarBoxedInTaggedPtr? (v : Expr) : Option IRType :=
@@ -167,11 +160,17 @@ private def typeForScalarBoxedInTaggedPtr? (v : Expr) : Option IRType :=
   | _ => none
 
 private def updateVarInfo (ctx : Context) (x : VarId) (t : IRType) (v : Expr) : Context :=
+  let mustBeConsumed :=
+    match v with
+    | .proj _ x => match ctx.varMap.get? x with
+      | some info => info.mustBeConsumed
+      | none => true
+    | _ => true
   { ctx with
     varMap := ctx.varMap.insert x {
         type := typeForScalarBoxedInTaggedPtr? v |>.getD t
         persistent := isPersistent v,
-        mustBeConsumed := consumeExpr ctx.varMap v
+        mustBeConsumed
     }
   }
 

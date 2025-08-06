@@ -1123,9 +1123,9 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
 
 /--
 Assuming `Lean.addDecl` has been run for the constant to be added on the async environment branch,
-commits the full constant info from that call to the main environment, waits for the final kernel
-environment resulting from the `addDecl` call, and commits it to the main branch as well, unblocking
-kernel additions there. All `commitConst` preconditions apply.
+commits the full constant info from that call to the main environment, (asynchronously) waits for
+the final kernel environment resulting from the `addDecl` call, and commits it to the main branch as
+well, unblocking kernel additions there. All `commitConst` preconditions apply.
 -/
 def AddConstAsyncResult.commitCheckEnv (res : AddConstAsyncResult) (env : Environment) :
     IO Unit := do
@@ -1133,8 +1133,9 @@ def AddConstAsyncResult.commitCheckEnv (res : AddConstAsyncResult) (env : Enviro
   -- `info?`
   if !(← res.constPromise.isResolved) then
     res.commitConst env
-  res.checkedEnvPromise.resolve env.checked.get
-  res.allRealizationsPromise.resolve env.allRealizations.get
+  BaseIO.chainTask (sync := true) env.checked fun checked => do
+    res.checkedEnvPromise.resolve checked
+    BaseIO.chainTask (sync := true) env.allRealizations res.allRealizationsPromise.resolve
 
 /--
 Checks whether `findAsync?` would return a result.

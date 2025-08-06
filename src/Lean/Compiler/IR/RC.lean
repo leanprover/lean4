@@ -249,7 +249,8 @@ partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVarSet :=
     match x with
     | .var x =>
       let info := getVarInfo ctx x
-      if info.type.isPossibleRef && !info.mustBeConsumed then ⟨addInc ctx x b, mkLiveVarSet x⟩ else ⟨b, mkLiveVarSet x⟩
+      let b := if info.type.isPossibleRef && !info.mustBeConsumed then addInc ctx x b else b
+      ⟨b, mkLiveVarSet x⟩
     | .erased => ⟨b, {}⟩
   | .jmp j xs =>
     let jLiveVars := getJPLiveVars ctx j

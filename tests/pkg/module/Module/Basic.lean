@@ -5,7 +5,7 @@ public axiom testSorry : α
 /-! Module docstring -/
 
 /-- A definition (not exposed). -/
-public def f := 1
+public def f : Nat := 1
 
 /--
 info: def f : Nat :=
@@ -15,7 +15,7 @@ info: def f : Nat :=
 #print f
 
 /-- A definition (exposed) -/
-@[expose] public def fexp := 1
+@[expose] public def fexp : Nat := 1
 
 /--
 info: @[expose] def fexp : Nat :=
@@ -25,7 +25,7 @@ info: @[expose] def fexp : Nat :=
 #print fexp
 
 /-- An abbrev (auto-exposed). -/
-public abbrev fabbrev := 1
+public abbrev fabbrev : Nat := 1
 
 /--
 info: @[reducible, expose] def fabbrev : Nat :=
@@ -132,7 +132,7 @@ def priv := 2
 
 /-- error: Unknown identifier `priv` -/
 #guard_msgs in
-public abbrev h := priv
+public abbrev h : Nat := priv
 
 
 /-! Equational theorems tests. -/

@@ -199,7 +199,7 @@ support mutually recursive declarations in Lean 4.
 -/
 private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandDeclIdResult)
     (bodyPromises : Array (IO.Promise (Option BodyProcessedSnapshot)))
-    (tacPromises : Array (IO.Promise Tactic.TacticParsedSnapshot)) :
+    (tacPromises : Array (IO.Promise Tactic.TacticParsedSnapshot)) (exportingBody : Bool) :
     TermElabM (Array DefViewElabHeader) := do
   withAutoBoundImplicitForbiddenPred (fun n => expandedDeclIds.any (·.shortName == n)) do
     let mut headers := #[]
@@ -253,6 +253,8 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
                 registerFailedToInferDefTypeInfo type view
                 pure type
               | none =>
+                if (← getEnv).isExporting && !exportingBody then
+                  throwErrorAt view.declId "Type must be specified explicitly for public definition `{view.declId}`"
                 let hole := mkHole refForElabFunType
                 let type ← elabType hole
                 trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
@@ -1152,30 +1154,41 @@ def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefVie
   else
     go
 where
-  go := do
+  go : TermElabM Unit := do
     let bodyPromises ← views.mapM fun _ => IO.Promise.new
     let tacPromises ← views.mapM fun _ => IO.Promise.new
     let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
       Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+
     withExporting (isExporting := !expandedDeclIds.all (isPrivateName ·.declName)) do
-    let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
+    let env ← getEnv
+    let exportingBody :=
+      views.any (fun header =>
+        header.modifiers.isInferredPublic env &&
+        !header.modifiers.isMeta &&
+        !header.modifiers.attrs.any (·.name == `no_expose)) &&
+      (views.all (fun header => (header.kind matches .abbrev | .instance)) ||
+       (views.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
+       views.any (·.modifiers.attrs.any (·.name == `expose)))
+    let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises exportingBody
     let headers ← levelMVarToParamHeaders views headers
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
       if Elab.async.get (← getOptions) && view.kind.isTheorem &&
           !deprecated.oldSectionVars.get (← getOptions) &&
           -- holes in theorem types is not a fatal error, but it does make parallelism impossible
           !headers[0]!.type.hasMVar then
-        elabAsync headers[0]! view declId
-      else elabSync headers
-    else elabSync headers
+        elabAsync headers[0]! view declId exportingBody
+      else elabSync headers exportingBody
+    else elabSync headers exportingBody
     for view in views, declId in expandedDeclIds do
       -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
       -- that depends only on a part of the ref
       addDeclarationRangesForBuiltin declId.declName view.modifiers.stx view.ref
-  elabSync headers := do
-    finishElab headers
+  elabSync (headers : Array DefViewElabHeader) (exportingBody : Bool) : TermElabM Unit := do
+    finishElab headers exportingBody
     processDeriving headers
-  elabAsync header view declId := do
+  elabAsync (header : DefViewElabHeader) (view : DefView) (declId : ExpandDeclIdResult)
+      (exportingBody : Bool): TermElabM Unit := do
     assert! view.kind.isTheorem
     let env ← getEnv
     let async ← env.addConstAsync declId.declName .thm
@@ -1228,7 +1241,7 @@ where
         (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
       setEnv async.asyncEnv
       try
-        finishElab #[header]
+        finishElab #[header] exportingBody
       finally
         reportDiag
         -- must introduce node to fill `infoHole` with multiple info trees
@@ -1246,17 +1259,9 @@ where
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
-    let env ← getEnv
-    withExporting (isExporting :=
-      headers.any (fun header =>
-        header.modifiers.isInferredPublic env &&
-        !header.modifiers.isMeta &&
-        !header.modifiers.attrs.any (·.name == `no_expose)) &&
-      (isExporting ||
-       headers.all (fun header => (header.kind matches .abbrev | .instance)) ||
-       (headers.all (·.kind == .def) && sc.attrs.any (· matches `(attrInstance| expose))) ||
-       headers.any (·.modifiers.attrs.any (·.name == `expose)))) do
+  finishElab (headers : Array DefViewElabHeader) (exportingBody : Bool) : TermElabM Unit :=
+    withExporting (isExporting := exportingBody) do
+    withFunLocalDecls headers fun funFVars => do
     let headers := headers.map fun header =>
       { header with modifiers.attrs := header.modifiers.attrs.filter (!·.name ∈ [`expose, `no_expose]) }
     for view in views, funFVar in funFVars do

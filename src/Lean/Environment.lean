@@ -615,7 +615,7 @@ structure Environment where
   /--
   Indicates whether the environment is being used in an exported context, i.e. whether it should
   provide access to only the data to be imported by other modules participating in the module
-  system.
+  system. Always `false` outside of `module`s.
   -/
   isExporting : Bool := false
 deriving Nonempty

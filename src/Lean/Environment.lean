@@ -804,7 +804,7 @@ declarations from `realizeConst`, which are not restricted to the current prefix
 which may escape the branch(es) they have been realized on such as when looking into the type `Expr`
 of a declaration found on another branch. Thus when we cannot find the declaration using the fast
 prefix-based lookup, we fall back to waiting for and looking at the realizations from all branches.
-To avoid this expensive search for realizations from other branches, `skipRealize` can set to ensure
+To avoid this expensive search for realizations from other branches, `skipRealize` can be set to ensure
 negative lookups are as fast as positive ones.
 
 Use `findTask` instead if any blocking should be avoided.

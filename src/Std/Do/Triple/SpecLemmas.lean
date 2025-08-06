@@ -29,6 +29,48 @@ theorem toList_range' (r : Std.Range) (h : r.step = 1) :
 
 end Std.Range
 
+namespace List
+
+@[grind →]
+theorem eq_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
+    cur = s + step * xs.length := by
+  rw [range'_eq_append_iff] at h
+  obtain ⟨k, hk, hxs, hcur⟩ := h
+  have h := (range'_eq_cons_iff.mp hcur.symm).1.symm
+  have hk : k = xs.length := by simp_all [length_range']
+  simp only [h, hk, Nat.add_left_cancel_iff]
+  apply Nat.mul_comm
+
+@[grind →]
+theorem length_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
+    n = xs.length + ys.length + 1 := by
+  have : n = (range' s n step).length := by simp
+  simpa [h] using this
+
+@[grind →]
+theorem mem_of_range'_eq_append_cons (h : range' s n step = xs ++ i :: ys) :
+    i ∈ range' s n step := by simp [h]
+
+@[grind →]
+theorem gt_of_range'_eq_append_cons (h : range' s n step = xs ++ i :: ys) (hstep : 0 < step) (hj : j ∈ xs) :
+    j < i := by
+  obtain ⟨nxs, _, rfl, htail⟩ := range'_eq_append_iff.mp h
+  obtain ⟨rfl, _⟩ := range'_eq_cons_iff.mp htail.symm
+  simp only [mem_range'] at hj
+  obtain ⟨i, _, rfl⟩ := hj
+  apply Nat.add_lt_add_left
+  simp [Nat.mul_comm, *]
+
+@[grind →]
+theorem lt_of_range'_eq_append_cons (h : range' s n step = xs ++ i :: ys) (hstep : 0 < step) (hj : j ∈ ys) :
+    i < j := by
+  obtain ⟨k, hk, rfl, htail⟩ := range'_eq_append_iff.mp h
+  obtain ⟨rfl, _, _, _⟩ := range'_eq_cons_iff.mp htail.symm
+  simp only [mem_range'] at hj
+  omega
+
+end List
+
 namespace Std.List
 
 @[ext]
@@ -44,17 +86,6 @@ abbrev Zipper.begin (l : List α) : Zipper l := ⟨[],l,rfl⟩
 abbrev Zipper.end (l : List α) : Zipper l := ⟨l.reverse,[],by simp⟩
 abbrev Zipper.tail (s : Zipper l) (h : s.suff = hd::tl) : Zipper l :=
   { rpref := hd::s.rpref, suff := tl, property := by simp [s.property, ←h] }
-
-@[grind →]
-theorem range_elim : List.range' s n = xs ++ i :: ys → i = s + xs.length := by
-  intro h
-  induction xs generalizing s n
-  case nil => cases n <;> simp_all[List.range']
-  case cons head tail ih =>
-    cases n <;> simp[List.range'] at h
-    have := ih h.2
-    simp[ih h.2]
-    omega
 
 end Std.List
 

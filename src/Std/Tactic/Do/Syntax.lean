@@ -75,9 +75,6 @@ syntax (name := mpure) "mpure" colGt ident : tactic
 macro (name := mpureIntro) "mpure_intro" : tactic =>
   `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro))
 
-@[inherit_doc Lean.Parser.Tactic.mrevertMacro]
-syntax (name := mrevert) "mrevert" colGt ident : tactic
-
 @[inherit_doc Lean.Parser.Tactic.mrenameIMacro]
 syntax (name := mrenameI) "mrename_i" (ppSpace colGt binderIdent)+ : tactic
 
@@ -223,6 +220,17 @@ macro_rules
     | `(mintroPat| ∀$_:binderIdent) => Macro.throwUnsupported -- handled by a builtin elaborator
     | `(mintroPat| $pat:mcasesPat) => `(tactic| mintro h; mcases h with $pat)
     | _ => Macro.throwUnsupported -- presently unreachable
+
+declare_syntax_cat mrevertPat
+
+syntax ident : mrevertPat
+syntax "∀" optional(num) : mrevertPat
+
+@[inherit_doc Lean.Parser.Tactic.mrevertMacro]
+syntax (name := mrevert) "mrevert" (ppSpace colGt mrevertPat)+ : tactic
+
+macro_rules
+  | `(tactic| mrevert $pat₁ $pat₂ $pats:mrevertPat*) => `(tactic| mrevert $pat₁; mrevert $pat₂ $pats*)
 
 /--
 `mspec_no_simp $spec` first tries to decompose `Bind.bind`s before applying `$spec`.

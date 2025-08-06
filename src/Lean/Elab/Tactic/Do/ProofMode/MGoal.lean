@@ -35,12 +35,26 @@ def parseHyp? : Expr → Option Hyp
 def Hyp.toExpr (hyp : Hyp) : Expr :=
   .mdata ⟨[(nameAnnotation, .ofName hyp.name), (uniqAnnotation, .ofName hyp.uniq)]⟩ hyp.p
 
+def SPred.mkType (u : Level) (σs : Expr) : Expr :=
+  mkApp (mkConst ``SPred [u]) σs
+
 -- set_option pp.all true in
 -- #check ⌜True⌝
+def SPred.mkPure (u : Level) (σs : Expr) (p : Expr) : Expr :=
+  mkApp3 (mkConst ``SVal.curry [u]) (mkApp (mkConst ``ULift [u, 0]) (.sort .zero)) σs <|
+    mkLambda `tuple .default (mkApp (mkConst ``SVal.StateTuple [u]) σs) <|
+      mkApp2 (mkConst ``ULift.up [u, 0]) (.sort .zero) (Expr.liftLooseBVars p 0 1)
+
+def SPred.isPure? : Expr → Option (Level × Expr × Expr)
+  | mkApp3 (.const ``SVal.curry [u]) (mkApp (.const ``ULift _) (.sort .zero)) σs <|
+      .lam _ _ (mkApp2 (.const ``ULift.up _) _ p) _ => some (u, σs, (Expr.lowerLooseBVars p 0 1))
+  | _ => none
+
 def emptyHyp (u : Level) (σs : Expr) : Expr := -- ⌜True⌝ standing in for an empty conjunction of hypotheses
-  mkApp3 (mkConst ``SVal.curry [u]) (mkApp (mkConst ``ULift [u, 0]) (.sort .zero)) σs <| mkLambda `tuple .default (mkApp (mkConst ``SVal.StateTuple [u]) σs) (mkApp2 (mkConst ``ULift.up [u, 0]) (.sort .zero) (mkConst ``True))
-def parseEmptyHyp? : Expr → Option (Level × Expr)
-  | mkApp3 (.const ``SVal.curry [u]) (mkApp (.const ``ULift _) (.sort .zero)) σs (.lam _ _ (mkApp2 (.const ``ULift.up _) _ (.const ``True _)) _) => some (u, σs)
+  SPred.mkPure u σs (mkConst ``True)
+
+def parseEmptyHyp? (e : Expr) : Option (Level × Expr) := match SPred.isPure? e with
+  | some (u, σs, .const ``True _) => some (u, σs)
   | _ => none
 
 def pushLeftConjunct (pos : SubExpr.Pos) : SubExpr.Pos :=
@@ -65,12 +79,13 @@ def mkAnd (u : Level) (σs lhs rhs : Expr) : Expr × Expr :=
     let result := mkAnd! u σs lhs rhs
     (result, mkApp2 (mkConst ``SPred.bientails.refl [u]) σs result)
 
-def σs.mkType (u : Level) : Expr := mkApp (mkConst ``List [.succ u]) (mkSort (.succ u))
-def σs.mkNil (u : Level) : Expr := mkApp (mkConst ``List.nil [.succ u]) (mkSort (.succ u))
+def TypeList.mkType (u : Level) : Expr := mkApp (mkConst ``List [.succ u]) (mkSort (.succ u))
+def TypeList.mkNil (u : Level) : Expr := mkApp (mkConst ``List.nil [.succ u]) (mkSort (.succ u))
+def TypeList.mkCons (u : Level) (hd tl : Expr) : Expr := mkApp3 (mkConst ``List.cons [.succ u]) (mkSort (.succ u)) hd tl
 
 def parseAnd? (e : Expr) : Option (Level × Expr × Expr × Expr) :=
       (e.getAppFn.constLevels![0]!, ·) <$> e.app3? ``SPred.and
-  <|> (0, σs.mkNil 0, ·) <$> e.app2? ``And
+  <|> (0, TypeList.mkNil 0, ·) <$> e.app2? ``And
 
 structure MGoal where
   u : Level
@@ -127,19 +142,30 @@ def getFreshHypName : TSyntax ``binderIdent → CoreM (Name × Syntax)
   | `(binderIdent| $name:ident) => pure (name.getId, name)
   | stx => return (← mkFreshUserName `h, stx)
 
-partial def betaRevPreservingHypNames (σs' e : Expr) (args : Array Expr) : Expr :=
-  if let some (u, _) := parseEmptyHyp? e then
-    emptyHyp u σs'
-  else if let some hyp := parseHyp? e then
-    { hyp with p := hyp.p.betaRev args }.toExpr
-  else if let some (u, _σs, lhs, rhs) := parseAnd? e then
-    -- _σs = σ :: σs'
-    mkAnd! u σs' (betaRevPreservingHypNames σs' lhs args) (betaRevPreservingHypNames σs' rhs args)
-  else
-    e.betaRev args
+partial def pushForallContextIntoHyps (σs hyps : Expr) : Expr := go #[] #[] hyps
+  where
+    wrap (revLams : Array (Name × Expr × BinderInfo)) (revAppArgs : Array Expr) (body : Expr) : Expr :=
+      revLams.foldr (fun (x, ty, info) e => .lam x ty e info) (body.betaRev revAppArgs)
+
+    go (revLams : Array (Name × Expr × BinderInfo)) (revAppArgs : Array Expr) (e : Expr) : Expr :=
+      if let some (u, _σs) := parseEmptyHyp? e then
+        emptyHyp u σs
+      else if let some hyp := parseHyp? e then
+        { hyp with p := wrap revLams revAppArgs hyp.p }.toExpr
+      else if let some (u, _σs, lhs, rhs) := parseAnd? e then
+        mkAnd! u σs (go revLams revAppArgs lhs) (go revLams revAppArgs rhs)
+      else if let .lam x ty body info := e then
+        if let some a := revAppArgs.back? then
+          go revLams revAppArgs.pop (body.instantiate1 a)
+        else
+          go (revLams.push (x, ty, info)) revAppArgs body
+      else if let .app f a := e then
+        go revLams (revAppArgs.push a) f
+      else
+        wrap revLams revAppArgs e
 
 def betaPreservingHypNames (σs' e : Expr) (args : Array Expr) : Expr :=
-  betaRevPreservingHypNames σs' e args.reverse
+  pushForallContextIntoHyps σs' (mkAppN e args)
 
 def dropStateList (σs : Expr) (n : Nat) : MetaM Expr := do
   let mut σs := σs

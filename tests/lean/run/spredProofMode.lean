@@ -145,6 +145,13 @@ theorem revert (P Q R : SPred σs) : P ∧ Q ∧ R ⊢ₛ R := by
   mintro HR'
   mexact HR'
 
+theorem revert_forall (H : SPred σs) (T : SPred (α::β::σs))
+    (h : (fun _ _ => H) ∧ (fun s₁ s₂ => ⌜s₁ = e₁ ∧ s₂ = e₂⌝) ⊢ₛ T) :
+    H ⊢ₛ T e₁ e₂ := by
+  mintro h
+  mrevert ∀2
+  exact h
+
 namespace constructor
 
 theorem and (Q : SPred σs) : Q ⊢ₛ Q ∧ Q := by

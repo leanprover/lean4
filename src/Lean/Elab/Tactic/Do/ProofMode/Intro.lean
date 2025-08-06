@@ -48,7 +48,7 @@ partial def mIntroForall [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m] 
   | `(binderIdent| $_) => liftMetaM <| mkFreshUserName `s
   withLocalDeclD name σ fun s => do
     addLocalVarInfo ident (← getLCtx) s σ (isBinder := true)
-    let H := betaRevPreservingHypNames σs' goal.hyps #[s]
+    let H := pushForallContextIntoHyps σs' (mkApp goal.hyps s)
     let T := goal.target.betaRev #[s]
     map do
       let (a, prf) ← k { u := goal.u, σs:=σs', hyps:=H, target:=T }
@@ -58,7 +58,7 @@ partial def mIntroForall [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m] 
 def mIntroForallN [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m] (goal : MGoal) (n : Nat) (k : MGoal → m (α × Expr)) : m (α × Expr) :=
   match n with
   | 0 => k goal
-  | n+1 => do mIntroForall goal (← liftM (m := MetaM) `(binderIdent| _)) fun g =>
+  | n+1 => do mIntroForall goal (← liftMetaM `(binderIdent| _)) fun g =>
               mIntroForallN g n k
 
 macro_rules

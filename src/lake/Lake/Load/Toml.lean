@@ -347,6 +347,12 @@ instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.
 
 /-! ## Package & Target Configuration Decoders -/
 
+section
+-- We automatically disable the following option for `macro`s but the subsequent `def` both contains
+-- a quotation and is called only by `macro`s, so we disable the option for it manually. Note that
+-- we can't use `in` as it is parsed as a single command and so the option would not influence the
+-- parser.
+set_option internal.parseQuotWithCurrentStage false
 private def genDecodeToml
   (cmds : Array Command)
   (tyName : Name) [info : ConfigInfo tyName]  (takesName : Bool)
@@ -366,6 +372,7 @@ private def genDecodeToml
   let instId ← mkIdentFromRef <| `_root_ ++ tyName.str "instDecodeToml"
   let cmds ← cmds.push <$> `(instance $instId:ident : DecodeToml $ty := ⟨decodeTableValue $decId⟩)
   return cmds
+end
 
 local macro "gen_toml_decoders%" : command => do
   let cmds := #[]

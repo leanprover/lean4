@@ -233,11 +233,12 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
     (forcePrivate : Bool) : TermElabM CtorView := do
   let useDefault := do
     let visibility := if forcePrivate then .private else .regular
+    let modifiers := { (default : Modifiers) with visibility }
     let declName := structDeclName ++ defaultCtorName
-    let declName ← applyVisibility visibility declName
+    let declName ← applyVisibility modifiers declName
     let ref := structStx[1].mkSynthetic
     addDeclarationRangesFromSyntax declName ref
-    pure { ref, declId := ref, modifiers := { (default : Modifiers) with visibility }, declName }
+    pure { ref, declId := ref, modifiers, declName }
   if structStx[4].isNone then
     useDefault
   else
@@ -273,7 +274,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
         throwError m!"Constructor must be `private` because one or more of this structure's fields are `private`" ++ hint
       let name := ctor[1].getId
       let declName := structDeclName ++ name
-      let declName ← applyVisibility ctorModifiers.visibility declName
+      let declName ← applyVisibility ctorModifiers declName
       -- `binders` is type parameter binder overrides; this will be validated when the constructor is created in `Structure.mkCtor`.
       let binders := ctor[2]
       addDocString' declName ctorModifiers.docString?
@@ -379,7 +380,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
       unless name.isAtomic do
         throwErrorAt ident "Invalid field name `{name.eraseMacroScopes}`: Field names must be atomic"
       let declName := structDeclName ++ name
-      let declName ← applyVisibility fieldModifiers.visibility declName
+      let declName ← applyVisibility fieldModifiers declName
       addDocString' declName fieldModifiers.docString?
       return views.push {
         ref        := ident
@@ -611,13 +612,11 @@ private def getFieldDefault? (structName : Name) (params : Array Expr) (fieldNam
   else
     return none
 
-private def toVisibility (fieldInfo : StructureFieldInfo) : CoreM Visibility := do
-  if isProtected (← getEnv) fieldInfo.projFn then
-    return Visibility.protected
-  else if isPrivateName fieldInfo.projFn then
-    return Visibility.private
-  else
-    return Visibility.regular
+private def toModifiers (fieldInfo : StructureFieldInfo) : CoreM Modifiers := do
+  return {
+    isProtected := isProtected (← getEnv) fieldInfo.projFn
+    visibility := if isPrivateName fieldInfo.projFn then .private else .regular
+  }
 
 mutual
 
@@ -654,7 +653,7 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
        its default value is overridden, otherwise the `declName` is irrelevant, except to ensure a declaration is not already declared. -/
     let mut declName := view.declName ++ fieldName
     if inSubobject?.isNone then
-      declName ← applyVisibility (← toVisibility fieldInfo) declName
+      declName ← applyVisibility (← toModifiers fieldInfo) declName
       -- No need to validate links because this docstring was already added to the environment previously
       addDocStringCore' declName (← findDocString? (← getEnv) fieldInfo.projFn)
       addDeclarationRangesFromSyntax declName (← getRef)

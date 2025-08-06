@@ -107,11 +107,21 @@ where
         let ctorInfo := .ctor ctorVal (.replicate ctorVal.numParams Arg.erased ++ fieldArgs)
         return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctorInfo }
     | .mono =>
-      let ctorArgs := .replicate ctorVal.numParams Arg.erased ++ fieldArgs
-      let ctorInfo := .ctor ctorVal ctorArgs
-      let ctor := LetValue.const ctorVal.name [] ctorArgs
-      return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctorInfo, ctorDiscrMap := ctx.ctorDiscrMap.insert ctor.toExpr discr }
-
+      if ctorName == ``EStateM.Result.error then
+        let ctorArgs := .replicate ctorVal.numParams Arg.erased ++ fieldArgs
+        let ctorInfo := .ctor ctorVal ctorArgs
+        let ctor := LetValue.const ctorVal.name [] ctorArgs
+        return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctorInfo, ctorDiscrMap := ctx.ctorDiscrMap.insert ctor.toExpr discr }
+      else
+        if let some (us, params) ← getIndInfo? (← getType discr) then
+          let ctorArgs := params ++ fieldArgs
+          let ctorInfo := .ctor ctorVal ctorArgs
+          let ctor := LetValue.const ctorVal.name us ctorArgs
+          return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctorInfo, ctorDiscrMap := ctx.ctorDiscrMap.insert ctor.toExpr discr }
+        else
+          -- For the discrCtor map, the constructor parameters are irrelevant for optimizations that use this information
+          let ctorInfo := .ctor ctorVal (.replicate ctorVal.numParams Arg.erased ++ fieldArgs)
+          return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctorInfo }
 
 @[inline, inherit_doc withDiscrCtorImp] def withDiscrCtor [MonadFunctorT DiscrM m] (discr : FVarId) (ctorName : Name) (ctorFields : Array Param) : m α → m α :=
   monadMap (m := DiscrM) <| withDiscrCtorImp discr ctorName ctorFields

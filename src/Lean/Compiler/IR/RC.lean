@@ -238,16 +238,24 @@ partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVarSet :=
     let s      := s.insert x
     ⟨.sset x i o y t b, s⟩
   | .case tid x xType alts =>
-    let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap
-    let alts         := alts.map fun alt => match alt with
-      | .ctor c b  =>
-        let ctx              := updateRefUsingCtorInfo ctx x c
-        let (b, altLiveVars) := visitFnBody b ctx
-        let b                := addDecForAlt ctx caseLiveVars altLiveVars b
+    let alts : Array (Alt × LiveVarSet) := alts.map fun alt => match alt with
+      | .ctor c b =>
+        let ctx := updateRefUsingCtorInfo ctx x c
+        let ⟨b, altLiveVars⟩ := visitFnBody b ctx
+        ⟨.ctor c b, altLiveVars⟩
+      | .default b =>
+        let ⟨b, altLiveVars⟩ := visitFnBody b ctx
+        ⟨.default b, altLiveVars⟩
+    let caseLiveVars : LiveVarSet := alts.foldl (init := {}) fun liveVars ⟨_, altLiveVars⟩ =>
+      liveVars.merge altLiveVars
+    let caseLiveVars := caseLiveVars.insert x
+    let alts := alts.map fun ⟨alt, altLiveVars⟩ => match alt with
+      | .ctor c b =>
+        let ctx := updateRefUsingCtorInfo ctx x c
+        let b := addDecForAlt ctx caseLiveVars altLiveVars b
         .ctor c b
       | .default b =>
-        let (b, altLiveVars) := visitFnBody b ctx
-        let b                := addDecForAlt ctx caseLiveVars altLiveVars b
+        let b := addDecForAlt ctx caseLiveVars altLiveVars b
         .default b
     ⟨.case tid x xType alts, caseLiveVars⟩
   | .ret x =>

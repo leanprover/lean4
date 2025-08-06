@@ -6,7 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Init.Data.Order.Ord
+public import Std.Classes.Ord.Basic
 public import Std.Internal.Rat
 
 @[expose] public section

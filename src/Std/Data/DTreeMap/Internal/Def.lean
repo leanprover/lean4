@@ -6,7 +6,7 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.Order.Ord
+public import Std.Classes.Ord.Basic
 
 @[expose] public section
 

@@ -207,9 +207,6 @@ theorem max?_mem [Max α] [MaxEqOr α] :
         cases MaxEqOr.max_eq_or x y with | _ q => simp [p, q]
       | inr p => simp [p, mem_cons]
 
--- TODO: update this
--- See also `Init.Data.List.Nat.Basic` for specialisations of the next two results to `Nat`.
-
 /-- See also `Init.Data.List.Nat.Basic` for the specialization to `Nat`, called `max?_le_iff'`. -/
 theorem max?_le_iff [Max α] [LE α] [OrderData α] [LawfulOrderSup α] [LawfulOrderLE α] :
     {xs : List α} → xs.max? = some a → ∀ {x}, a ≤ x ↔ ∀ b, b ∈ xs → b ≤ x

@@ -125,10 +125,8 @@ public instance {α : Type u} [LT α] [OrderData α] [LawfulOrderLT α] :
     intro h h'
     exact h.2.elim h'.1
 
--- TODO: derive from reflexivity of LE?
 public instance {α : Type u} [LT α] [OrderData α] [IsPreorder α] [LawfulOrderLT α] :
-    Std.Irrefl (α := α) (· < ·) where
-  irrefl a b := by simp [LawfulOrderLT.lt_iff] at b
+    Std.Irrefl (α := α) (· < ·) := inferInstance
 
 public instance {α : Type u} [LT α] [OrderData α]
     [open Classical.Order in Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) ] [LawfulOrderLT α] :

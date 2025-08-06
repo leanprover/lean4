@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Util.Name
 import Lake.Util.Binder
+import Lean.Elab.Term
 
 open Lean Syntax Parser Command
 

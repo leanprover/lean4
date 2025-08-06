@@ -9,21 +9,16 @@
         case x_6 : obj of
         Prod.mk →
           let x_7 : tobj := proj[0] x_6;
-          let x_19 : tobj := reset[2] x_6;
-          case x_7 : obj of
-          Prod.mk →
-            let x_8 : tobj := proj[0] x_7;
-            let x_9 : tobj := proj[1] x_7;
-            let x_18 : tobj := reset[2] x_7;
-            let x_10 : tagged := 0;
-            let x_11 : obj := Array.uset ◾ x_4 x_3 x_10 ◾;
-            let x_12 : obj := reuse x_18 in ctor_0[Prod.mk] x_8 x_9;
-            let x_13 : obj := reuse x_19 in ctor_0[Prod.mk] x_12 x_1;
-            let x_14 : usize := 1;
-            let x_15 : usize := USize.add x_3 x_14;
-            let x_16 : obj := Array.uset ◾ x_11 x_3 x_13 ◾;
-            let x_17 : obj := Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg x_1 x_2 x_15 x_16;
-            ret x_17
+          let x_8 : tobj := proj[1] x_6;
+          let x_16 : tobj := reset[2] x_6;
+          let x_9 : tagged := 0;
+          let x_10 : obj := Array.uset ◾ x_4 x_3 x_9 ◾;
+          let x_11 : obj := reuse x_16 in ctor_0[Prod.mk] x_7 x_1;
+          let x_12 : usize := 1;
+          let x_13 : usize := USize.add x_3 x_12;
+          let x_14 : obj := Array.uset ◾ x_10 x_3 x_11 ◾;
+          let x_15 : obj := Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg x_1 x_2 x_13 x_14;
+          ret x_15
     def Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0 (x_1 : ◾) (x_2 : ◾) (x_3 : ◾) (x_4 : tobj) (x_5 : usize) (x_6 : usize) (x_7 : obj) : obj :=
       let x_8 : obj := Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg x_4 x_5 x_6 x_7;
       ret x_8

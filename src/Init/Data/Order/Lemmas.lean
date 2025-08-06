@@ -10,6 +10,7 @@ public import Init.Data.Order.Classes
 public import Init.Data.Order.Factories
 import Init.SimpLemmas
 import Init.Classical
+public import Init.Data.BEq
 
 namespace Std
 
@@ -168,6 +169,50 @@ public scoped instance instLT {α : Type u} [LE α] :
 public instance instLawfulOrderLT {α : Type u} [LE α] :
     LawfulOrderLT α where
   lt_iff _ _ := Iff.rfl
+
+end Classical.Order
+
+namespace Std
+section BEq
+
+public theorem beq_iff_le_and_ge {α : Type u} [BEq α] [LE α] [OrderData α] [LawfulOrderBEq α]
+    [LawfulOrderLE α] {a b : α} : a == b ↔ a ≤ b ∧ b ≤ a := by
+  simp [LawfulOrderBEq.beq_iff_isLE_and_isLE, LawfulOrderLE.le_iff]
+
+public instance {α : Type u} [BEq α] [OrderData α] [LawfulOrderBEq α] [IsPreorder α] : EquivBEq α where
+  rfl := by open scoped Classical.Order in simp [beq_iff_le_and_ge, le_refl]
+  symm := by open scoped Classical.Order in simp_all [beq_iff_le_and_ge]
+  trans hab hbc := by
+    open scoped Classical.Order in
+    simp only [beq_iff_le_and_ge] at hab hbc ⊢
+    exact ⟨le_trans hab.1 hbc.1, le_trans hbc.2 hab.2⟩
+
+public instance {α : Type u} [BEq α] [OrderData α] [LawfulOrderBEq α] [IsPartialOrder α] : LawfulBEq α where
+  eq_of_beq := by
+    open scoped Classical.Order in
+    simp only [beq_iff_le_and_ge, and_imp]
+    apply le_antisymm
+
+end BEq
+end Std
+
+namespace Classical.Order
+open Std
+
+@[no_expose]
+public noncomputable scoped instance instBEq {α : Type u} [OrderData α] :
+    BEq α where
+  beq a b := OrderData.IsLE a b ∧ OrderData.IsLE b a
+
+public instance instLawfulOrderBEq {α : Type u} [OrderData α] :
+    LawfulOrderBEq α where
+  beq_iff_isLE_and_isLE a b := by simp [BEq.beq]
+
+public instance instSymmBEq {α : Type u} [OrderData α] :
+    Symm (α := α) (· == ·) where
+  symm a b h := by
+    simp only [BEq.beq, Bool.decide_and, Bool.and_eq_true, decide_eq_true_eq] at h ⊢
+    exact h.symm
 
 end Classical.Order
 

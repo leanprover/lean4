@@ -151,7 +151,7 @@ theorem pure_forall {φ : α → Prop} : (∀ x, (⌜φ x⌝ : SPred σs)) ⊣�
 
 theorem pure_exists {φ : α → Prop} : (∃ x, ⌜φ x⌝ : SPred σs) ⊣⊢ₛ ⌜∃ x, φ x⌝ := bientails.iff.mpr ⟨exists_elim fun a => pure_mono (⟨a, ·⟩), pure_elim' fun ⟨x, h⟩ => (pure_intro h).trans (exists_intro' x .rfl)⟩
 
-@[simp] theorem true_intro_simp : (Q ⊢ₛ ⌜True⌝) ↔ True := iff_true_intro true_intro
+@[simp, grind =] theorem true_intro_simp : (Q ⊢ₛ ⌜True⌝) ↔ True := iff_true_intro true_intro
 
 /-! # Miscellaneous -/
 
@@ -162,8 +162,10 @@ theorem and_right_comm : (P ∧ Q) ∧ R ⊣⊢ₛ (P ∧ R) ∧ Q := and_assoc.
 
 theorem entails_pure_intro (P Q : Prop) (h : P → Q) : entails ⌜P⌝ (σs := σs) ⌜Q⌝ := pure_elim' fun hp => pure_intro (h hp)
 
-@[simp] theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝:= by simp [entails]
-@[simp] theorem entails_true_intro (P Q : SPred σs) : ⊢ₛ P → Q ↔ P ⊢ₛ Q := Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
+-- NB: We cannot currently make the following lemma @[grind =]; we are blocked on #9623.
+-- However, the stronger SPred.entails_cons is already @[grind =].
+@[simp] theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝ := by simp [entails]
+@[simp, grind =] theorem entails_true_intro (P Q : SPred σs) : (⊢ₛ P → Q) = (P ⊢ₛ Q) := propext <| Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
 
 /-! # Tactic support -/
 
@@ -175,7 +177,7 @@ abbrev tautological (Q : SPred σs) : Prop := ⊢ₛ Q
 class PropAsSPredTautology (φ : Prop) {σs : outParam (List (Type u))} (P : outParam (SPred σs)) : Prop where
   iff : φ ↔ ⊢ₛ P
 instance {φ : ULift Prop} : PropAsSPredTautology.{0} (σs := []) φ.down φ where iff := true_imp_iff.symm
-instance : PropAsSPredTautology (P ⊢ₛ Q) spred(P → Q) where iff := (entails_true_intro P Q).symm
+instance : PropAsSPredTautology (P ⊢ₛ Q) spred(P → Q) where iff := iff_of_eq (entails_true_intro P Q).symm
 instance : PropAsSPredTautology (⊢ₛ P) P where iff := Iff.rfl
 
 class IsPure (P : SPred σs) (φ : outParam Prop) where to_pure : P ⊣⊢ₛ ⌜φ⌝
@@ -242,7 +244,7 @@ theorem Specialize.imp_pure {P Q R : SPred σs} [PropAsSPredTautology φ Q]
     _ ⊢ₛ P ∧ (Q ∧ (Q → R)) := and_mono_r (and_intro (true_intro.trans (PropAsSPredTautology.iff.mp h)) .rfl)
     _ ⊢ₛ P ∧ R := and_mono_r (mp and_elim_r and_elim_l)
 
-theorem Specialize.forall {P : SPred σs} {ψ : α → SPred σs} (a : α) : P ∧ (∀ x, ψ x) ⊢ₛ P ∧ ψ a := and_mono_r (forall_elim a)
+theorem Specialize.forall {α} {σs} {ψ : α → SPred σs} {P : SPred σs} (a : α) : P ∧ (∀ x, ψ x) ⊢ₛ P ∧ ψ a := and_mono_r (forall_elim a)
 theorem Specialize.pure_start {φ : Prop} {H P T : SPred σs} [PropAsSPredTautology φ H] (hpure : φ) (hgoal : P ∧ H ⊢ₛ T) : P ⊢ₛ T := (and_intro .rfl (true_intro.trans (PropAsSPredTautology.iff.mp hpure))).trans hgoal
 theorem Specialize.pure_taut {σs} {φ} {P : SPred σs} [IsPure P φ] (h : φ) : ⊢ₛ P := (pure_intro h).trans IsPure.to_pure.mpr
 theorem Specialize.focus {P P' Q R : SPred σs} (hfocus : P ⊣⊢ₛ P' ∧ Q) (hnew : P' ∧ Q ⊢ₛ R) : P ⊢ₛ R := hfocus.mp.trans hnew

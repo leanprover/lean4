@@ -48,7 +48,7 @@ meta def unexpandTriple : Lean.PrettyPrinter.Unexpander
 namespace Triple
 
 instance [WP m ps] (x : m α) : SPred.Tactic.PropAsSPredTautology (Triple x P Q) spred(P → wp⟦x⟧ Q) where
-  iff := (SPred.entails_true_intro P (wp⟦x⟧ Q)).symm
+  iff := iff_of_eq (SPred.entails_true_intro P (wp⟦x⟧ Q)).symm
 
 theorem pure [Monad m] [WPMonad m ps] {α : Type u} {Q : PostCond α ps} (a : α) (himp : P ⊢ₛ Q.1 a) :
   Triple (pure (f:=m) a) P Q := himp.trans (by simp)

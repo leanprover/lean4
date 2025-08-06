@@ -38,10 +38,10 @@ def cancelByEdit (tk : RequestCancellationToken) : BaseIO Unit := do
   tk.editCancellationPromise.resolve ()
 
 def requestCancellationTask (tk : RequestCancellationToken): ServerTask Unit :=
-  tk.requestCancellationPromise.result!
+  tk.requestCancellationPromise.resultD ()
 
 def editCancellationTask (tk : RequestCancellationToken) : ServerTask Unit :=
-  tk.editCancellationPromise.result!
+  tk.editCancellationPromise.resultD ()
 
 def cancellationTasks (tk : RequestCancellationToken) : List (ServerTask Unit) :=
   [tk.requestCancellationTask, tk.editCancellationTask]

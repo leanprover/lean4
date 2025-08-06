@@ -107,13 +107,13 @@ private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred :
       let info := getVarInfo ctx x
       if !info.type.isPossibleRef || !isFirstOcc xs i then b
       else
-        let numConsuptions := getNumConsumptions x xs consumeParamPred -- number of times the argument is
+        let numConsumptions := getNumConsumptions x xs consumeParamPred
         let numIncs :=
           if !info.mustBeConsumed ||
              liveVarsAfter.contains x ||          -- `x` is live after executing instruction
              isBorrowParamAux x xs consumeParamPred  -- `x` is used in a position that is passed as a borrow reference
-          then numConsuptions
-          else numConsuptions - 1
+          then numConsumptions
+          else numConsumptions - 1
         addInc ctx x b numIncs
 
 private def addIncBefore (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=

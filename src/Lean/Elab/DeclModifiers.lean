@@ -21,8 +21,11 @@ Ensure the environment does not contain a declaration with name `declName`.
 Recall that a private declaration cannot shadow a non-private one and vice-versa, although
 they internally have different names.
 -/
-def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (declName : Name) : m Unit := do
+def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadFinally m] [MonadInfoTree m] (declName : Name) : m Unit := do
   let env ← getEnv
+  -- Even if `declName` is public, in this function we want to consider private declarations as well
+  let env := env.setExporting false
+  withEnv env do  -- also set as context for any exceptions
   let addInfo declName := do
     pushInfoLeaf <| .ofTermInfo {
       elaborator := .anonymous, lctx := {}, expectedType? := none
@@ -166,7 +169,7 @@ def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (
 
 section Methods
 
-variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
+variable [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadFinally m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m]
 
 /-- Elaborate declaration modifiers (i.e., attributes, `partial`, `private`, `protected`, `unsafe`, `meta`, `noncomputable`, doc string)-/
 def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers := do

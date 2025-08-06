@@ -259,3 +259,15 @@ constructor:
 #guard_msgs in
 #with_exporting
 #check { x := 1 : StructWithPrivateField }
+
+
+/-! Private duplicate in public section should not panic. -/
+
+public section
+
+private def foo : Nat := 0
+/-- error: private declaration 'foo' has already been declared -/
+#guard_msgs in
+private def foo : Nat := 0
+
+end

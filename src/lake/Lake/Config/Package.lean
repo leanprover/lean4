@@ -312,9 +312,6 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   libPrefixOnWindows : Bool := false
 deriving Inhabited
 
-
-instance : EmptyCollection (PackageConfig n) := ⟨{}⟩
-
 /-- The package's name. -/
 abbrev PackageConfig.name (_ : PackageConfig n) := n
 
@@ -328,7 +325,7 @@ structure PackageDecl where
 /-! # Package -/
 --------------------------------------------------------------------------------
 
-declare_opaque_type OpaquePostUpdateHook (pkg : Name)
+nonempty_type OpaquePostUpdateHook (pkg : Name)
 
 /-- A Lake package -- its location plus its configuration. -/
 structure Package where

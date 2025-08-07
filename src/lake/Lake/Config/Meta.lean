@@ -3,51 +3,20 @@ Copyright (c) 2025 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+module
+
 prelude
+public import Lake.Util.Binder
+public import Lake.Config.MetaClasses
+meta import Lake.Util.Binder
+meta import Lean.Parser.Command
 import Lake.Util.Name
-import Lake.Util.Binder
-import Lean.Elab.Term
 
 open Lean Syntax Parser Command
 
 namespace Lake
 
-structure ConfigProj (σ : Type u) (α : Type v) where
-  get (cfg : σ) : α
-  set (val : α) (cfg : σ) : σ
-  modify (f : α → α) (cfg : σ) : σ
-  mkDefault : σ → α
-
-class ConfigField (σ : Type u) (name : Name) (α : outParam $ Type v) extends ConfigProj σ α
-
-abbrev mkFieldDefault (name : Name) [field : ConfigField σ name α] (cfg : σ) : α :=
-  field.mkDefault cfg
-
-class ConfigParent (σ : Type u) (ρ : semiOutParam $ Type v) extends ConfigProj σ ρ
-
-structure ConfigFieldInfo where
-  /-- The name of the field (possibly an alias). -/
-  name : Name
-  /-- The real name of the field in the configuration structure. -/
-  realName : Name
-  /-- Whether `name == realName` and the field is not a parent projection. -/
-  canonical : Bool := false
-  /-- Whether the field is a parent projection. -/
-  parent : Bool := false
-
-class ConfigFields (σ : Type u) where
-  fields : Array ConfigFieldInfo
-
-class ConfigInfo (name : Name) where
-  fields : Array ConfigFieldInfo
-  fieldMap : NameMap ConfigFieldInfo :=
-    fields.foldl (init := ∅) fun m i => m.insert i.name i
-
-instance [parent : ConfigParent σ ρ] [field : ConfigField ρ name α] : ConfigField σ name α where
-  mkDefault s := field.mkDefault (parent.get s)
-  get s := field.get (parent.get s)
-  set a := parent.modify (field.set a)
-  modify f := parent.modify (field.modify f)
+public section
 
 syntax configField :=
   atomic(nestedDeclModifiers ident,+) declSig (" := " term)?
@@ -66,6 +35,8 @@ scoped syntax (name := configDecl)
   ((" := " <|> " where ") (structCtor)? manyIndent(ppLine colGe ppGroup(configField)))?
   optDeriving
 : command
+
+end
 
 instance : Coe Ident (TSyntax ``Term.structInstLVal) where
   coe stx := Unhygienic.run `(Term.structInstLVal| $stx:ident)
@@ -89,6 +60,7 @@ private structure FieldMetadata where
 set_option internal.parseQuotWithCurrentStage false
 
 private def mkConfigAuxDecls
+  (vis? : Option (TSyntax ``visibility))
   (structId : Ident) (structTy : Term) (views : Array FieldView)
 : MacroM (Array Command) := do
   let data : FieldMetadata := {}
@@ -99,7 +71,7 @@ private def mkConfigAuxDecls
     let {id, ids, type, defVal, parent, ..} := view
     let projId := mkIdentFrom id <| id.getId.modifyBase (structId.getId ++ · |>.str "_proj")
     let cmds ← cmds.push <$> `(
-      def $projId:ident : ConfigProj $structTy $type where
+       $[$vis?:visibility]? def $projId:ident : ConfigProj $structTy $type where
         get cfg := cfg.$id
         set val cfg := {cfg with $id := val}
         modify f cfg := {cfg with $id := f cfg.$id}
@@ -109,7 +81,7 @@ private def mkConfigAuxDecls
     if parent then
       let instId := mkIdentFrom id <| id.getId.modifyBase (structId.getId ++ · |>.str "instConfigParent")
       let cmds ← cmds.push <$> `(
-        instance $instId:ident : ConfigParent $structTy $type := ⟨$projId⟩
+        $[$vis?:visibility]? instance $instId:ident : ConfigParent $structTy $type := ⟨$projId⟩
       )
       let fields ← withRef fields `($(fields) |>.append (ConfigFields.fields $type))
       let fields ← withRef fields `($(fields) |>.push {
@@ -127,7 +99,7 @@ private def mkConfigAuxDecls
         let instId := mkIdentFrom id <|
           id.getId.modifyBase (structId.getId ++ · |>.str "instConfigField")
         let cmds ← cmds.push <$> `(
-          instance $instId:ident : ConfigField $structTy $nameLit $type := ⟨$projId⟩
+           $[$vis?:visibility]? instance $instId:ident : ConfigField $structTy $nameLit $type := ⟨$projId⟩
         )
         let fields ← withRef fields `($(fields) |>.push {
           name := $nameLit
@@ -140,13 +112,15 @@ private def mkConfigAuxDecls
       let data ← ids.foldlM (start := 1) (addName false) data
       return data
   let fieldsId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "_fields")
-  let fieldsDef ← `(def $fieldsId:ident := $(data.fields))
+  let fieldsDef ← `( $[$vis?:visibility]? def $fieldsId:ident := $(data.fields))
   let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instConfigFields")
-  let fieldsInst ← `(instance $instId:ident : ConfigFields $structTy := ⟨$fieldsId⟩)
+  let fieldsInst ← `( $[$vis?:visibility]? instance $instId:ident : ConfigFields $structTy := ⟨$fieldsId⟩)
   let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instConfigMeta")
   let structNameLit : Term := ⟨mkNode ``Term.doubleQuotedName #[mkAtom "`", mkAtom "`", structId]⟩
-  let infoInst ← `(instance $instId:ident : ConfigInfo $structNameLit := {fields := $fieldsId})
-  return data.cmds.push fieldsDef |>.push fieldsInst |>.push infoInst
+  let infoInst ← `( $[$vis?:visibility]? instance $instId:ident : ConfigInfo $structNameLit := {fields := $fieldsId})
+  let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instEmptyCollection")
+  let emptyInst ← `( $[$vis?:visibility]? instance $instId:ident : EmptyCollection $structTy := ⟨{}⟩)
+  return data.cmds.push fieldsDef |>.push fieldsInst |>.push infoInst |>.push emptyInst
 
 private def mkFieldView (stx : TSyntax ``configField) : MacroM FieldView := withRef stx do
   let `(configField|$mods:declModifiers $ids,* $bs* : $rty $[:= $val?]?) := stx
@@ -179,7 +153,7 @@ private def mkParentFieldView (stx : TSyntax ``structParent) : MacroM FieldView 
   return {ref := stx, id, type, defVal := ← `(∅), parent := true}
 
 @[macro configDecl]
-def expandConfigDecl : Macro := fun stx => do
+public def expandConfigDecl : Macro := fun stx => do
   let `($mods:declModifiers configuration%$tk $declId $bs* $[$ty?]?
       $[extends $ps?,* $[$xty?]?]? $[where $[$ctor?]? $fs?*]? $drv) := stx
     | Macro.throwError "ill-formed configuration declaration"
@@ -195,6 +169,7 @@ def expandConfigDecl : Macro := fun stx => do
     $mods:declModifiers structure $declId $bs* $[$ty?]?
     extends $ps,* $(xty?.join)? where $(ctor?.join)? $fields* $drv:optDeriving
   )
-  let auxDecls ← mkConfigAuxDecls structId structTy views
+  let vis? := mods.raw[2].getOptional?.map (⟨·⟩)
+  let auxDecls ← mkConfigAuxDecls vis? structId structTy views
   let cmds := #[struct] ++ auxDecls
   return mkNullNode cmds

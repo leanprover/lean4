@@ -2,6 +2,8 @@ universe v v₁ v₂ v₃ u u₁ u₂ u₃
 
 namespace CategoryTheory
 
+section Mathlib.CategoryTheory.Category.Basic
+
 class Category (obj : Type u) : Type max u (v + 1) where
   Hom : obj → obj → Type v
   /-- The identity morphism on an object. -/
@@ -23,6 +25,10 @@ attribute [simp] Category.id_comp Category.comp_id Category.assoc
 
 attribute [grind =] Category.id_comp Category.comp_id
 attribute [grind _=_] Category.assoc
+
+end Mathlib.CategoryTheory.Category.Basic
+
+section Mathlib.CategoryTheory.Functor.Basic
 
 structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D] : Type max v₁ v₂ u₁ u₂ where
   /-- The action of a functor on objects. -/
@@ -59,6 +65,13 @@ variable {X Y : C} {G : Functor D E}
 @[simp, grind =] theorem comp_map (f : X ⟶ Y) : (F.comp G).map f = G.map (F.map f) := rfl
 
 end Functor
+
+end Mathlib.CategoryTheory.Functor.Basic
+
+variable {C : Type u₁} [Category.{v₁} C] {D : Type u₂} [Category.{v₂} D] {E : Type u₃} [Category.{v₃} E] {E' : Type u₄} [Category.{v₄} E']
+variable {F G H : Functor C D}
+
+section Mathlib.CategoryTheory.NatTrans
 
 @[ext]
 structure NatTrans [Category.{v₁, u₁} C] [Category.{v₂, u₂} D] (F G : Functor C D) : Type max u₁ v₂ where
@@ -97,68 +110,9 @@ protected def vcomp (α : NatTrans F G) (β : NatTrans G H) : NatTrans F H where
 
 end NatTrans
 
-instance Functor.category : Category.{max u₁ v₂} (Functor C D) where
-  Hom F G := NatTrans F G
-  id F := NatTrans.id F
-  comp α β := NatTrans.vcomp α β
-  -- Here we're okay: all the proofs are handled by `grind`.
+end Mathlib.CategoryTheory.NatTrans
 
-namespace NatTrans
-
-@[ext]
-theorem ext' {α β : F ⟶ G} (w : α.app = β.app) : α = β := NatTrans.ext w
-
-attribute [grind ext] ext'
-
-@[simp, grind =]
-theorem id_app (F : Functor C D) (X : C) : (𝟙 F : F ⟶ F).app X = 𝟙 (F.obj X) := rfl
-
-@[simp, grind _=_]
-theorem comp_app {F G H : Functor C D} (α : F ⟶ G) (β : G ⟶ H) (X : C) :
-    (α ≫ β).app X = α.app X ≫ β.app X := rfl
-
-theorem app_naturality {F G : Functor C (Functor D E)} (T : F ⟶ G) (X : C) {Y Z : D} (f : Y ⟶ Z) :
-    (F.obj X).map f ≫ (T.app X).app Z = (T.app X).app Y ≫ (G.obj X).map f := by
-  grind
-
-theorem naturality_app {F G : Functor C (Functor D E)} (T : F ⟶ G) (Z : D) {X Y : C} (f : X ⟶ Y) :
-    (F.map f).app Z ≫ (T.app Y).app Z = (T.app X).app Z ≫ (G.map f).app Z := by
-  grind -- this is done manually in Mathlib!
-  -- rw [← comp_app]
-  -- rw [T.naturality f]
-  -- rw [comp_app]
-
-open Category Functor NatTrans
-
-def hcomp {H I : Functor D E} (α : F ⟶ G) (β : H ⟶ I) : F.comp H ⟶ G.comp I where
-  app := fun X : C => β.app (F.obj X) ≫ I.map (α.app X)
-  -- `grind` can now handle `naturality`, while Mathlib does this manually:
-  -- rw [Functor.comp_map, Functor.comp_map, ← assoc, naturality, assoc, ← I.map_comp, naturality,
-  --   map_comp, assoc]
-
-/-- Notation for horizontal composition of natural transformations. -/
-infixl:80 " ◫ " => hcomp
-
-@[simp] theorem hcomp_app {H I : Functor D E} (α : F ⟶ G) (β : H ⟶ I) (X : C) :
-    (α ◫ β).app X = β.app (F.obj X) ≫ I.map (α.app X) := rfl
-
-attribute [grind =] hcomp_app
-
-theorem hcomp_id_app {H : D ⥤ E} (α : F ⟶ G) (X : C) : (α ◫ 𝟙 H).app X = H.map (α.app X) := by
-  grind
-
-theorem id_hcomp_app {H : E ⥤ C} (α : F ⟶ G) (X : E) : (𝟙 H ◫ α).app X = α.app _ := by
-  grind
-
--- Note that we don't yet prove a `hcomp_assoc` lemma here: even stating it is painful, because we
--- need to use associativity of functor composition. (It's true without the explicit associator,
--- because functor composition is definitionally associative,
--- but relying on the definitional equality causes bad problems with elaboration later.)
-theorem exchange {I J K : D ⥤ E} (α : F ⟶ G) (β : G ⟶ H) (γ : I ⟶ J) (δ : J ⟶ K) :
-    (α ≫ β) ◫ (γ ≫ δ) = (α ◫ γ) ≫ β ◫ δ := by
-  ext X; grind
-
-end NatTrans
+section Mathlib.CategoryTheory.Iso
 
 structure Iso {C : Type u} [Category.{v} C] (X Y : C) where
   hom : X ⟶ Y
@@ -197,37 +151,52 @@ open Function
 structure Equiv (α : Sort _) (β : Sort _) where
   protected toFun : α → β
   protected invFun : β → α
-  protected left_inv : LeftInverse invFun toFun
-  protected right_inv : RightInverse invFun toFun
+  protected left_inv : LeftInverse invFun toFun := by grind
+  protected right_inv : RightInverse invFun toFun := by grind
 
 @[inherit_doc]
 infixl:25 " ≃ " => Equiv
 
-attribute [local grind] Function.LeftInverse in
+attribute [local grind] Function.LeftInverse Function.RightInverse in
 /-- The bijection `(Z ⟶ X) ≃ (Z ⟶ Y)` induced by `α : X ≅ Y`. -/
 def homToEquiv (α : X ≅ Y) {Z : C} : (Z ⟶ X) ≃ (Z ⟶ Y) where
   toFun f := f ≫ α.hom
   invFun g := g ≫ α.inv
-  left_inv := by grind
-  right_inv := sorry
 
 end Iso
 
+end Mathlib.CategoryTheory.Iso
+
 section Mathlib.CategoryTheory.Functor.Category
 
-
-open NatTrans Category CategoryTheory.Functor
-
-variable (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D]
-
-attribute [local simp] vcomp_app
-
-variable {C D} {E : Type u₃} [Category.{v₃} E]
-variable {E' : Type u₄} [Category.{v₄} E']
-variable {F G H I : C ⥤ D}
-
+instance Functor.category : Category.{max u₁ v₂} (Functor C D) where
+  Hom F G := NatTrans F G
+  id F := NatTrans.id F
+  comp α β := NatTrans.vcomp α β
+  -- Here we're okay: all the proofs are handled by `grind`.
 
 namespace NatTrans
+
+@[ext, grind ext]
+theorem ext' {α β : F ⟶ G} (w : α.app = β.app) : α = β := NatTrans.ext w
+
+@[simp, grind =]
+theorem id_app (F : Functor C D) (X : C) : (𝟙 F : F ⟶ F).app X = 𝟙 (F.obj X) := rfl
+
+@[simp, grind _=_]
+theorem comp_app {F G H : Functor C D} (α : F ⟶ G) (β : G ⟶ H) (X : C) :
+    (α ≫ β).app X = α.app X ≫ β.app X := rfl
+
+theorem app_naturality {F G : Functor C (Functor D E)} (T : F ⟶ G) (X : C) {Y Z : D} (f : Y ⟶ Z) :
+    (F.obj X).map f ≫ (T.app X).app Z = (T.app X).app Y ≫ (G.obj X).map f := by
+  grind
+
+theorem naturality_app {F G : Functor C (Functor D E)} (T : F ⟶ G) (Z : D) {X Y : C} (f : X ⟶ Y) :
+    (F.map f).app Z ≫ (T.app Y).app Z = (T.app X).app Z ≫ (G.map f).app Z := by
+  grind -- this is done manually in Mathlib!
+  -- rw [← comp_app]
+  -- rw [T.naturality f]
+  -- rw [comp_app]
 
 @[simp]
 theorem vcomp_eq_comp (α : F ⟶ G) (β : G ⟶ H) : NatTrans.vcomp α β = α ≫ β := rfl
@@ -235,6 +204,36 @@ theorem vcomp_eq_comp (α : F ⟶ G) (β : G ⟶ H) : NatTrans.vcomp α β = α 
 theorem vcomp_app' (α : F ⟶ G) (β : G ⟶ H) (X : C) : (α ≫ β).app X = α.app X ≫ β.app X := rfl
 
 theorem congr_app {α β : F ⟶ G} (h : α = β) (X : C) : α.app X = β.app X := by grind
+
+open Category Functor NatTrans
+
+def hcomp {H I : Functor D E} (α : F ⟶ G) (β : H ⟶ I) : F.comp H ⟶ G.comp I where
+  app := fun X : C => β.app (F.obj X) ≫ I.map (α.app X)
+  -- `grind` can now handle `naturality`, while Mathlib does this manually:
+  -- rw [Functor.comp_map, Functor.comp_map, ← assoc, naturality, assoc, ← I.map_comp, naturality,
+  --   map_comp, assoc]
+
+/-- Notation for horizontal composition of natural transformations. -/
+infixl:80 " ◫ " => hcomp
+
+@[simp] theorem hcomp_app {H I : Functor D E} (α : F ⟶ G) (β : H ⟶ I) (X : C) :
+    (α ◫ β).app X = β.app (F.obj X) ≫ I.map (α.app X) := rfl
+
+attribute [grind =] hcomp_app
+
+theorem hcomp_id_app {H : D ⥤ E} (α : F ⟶ G) (X : C) : (α ◫ 𝟙 H).app X = H.map (α.app X) := by
+  grind
+
+theorem id_hcomp_app {H : E ⥤ C} (α : F ⟶ G) (X : E) : (𝟙 H ◫ α).app X = α.app _ := by
+  grind
+
+-- Note that we don't yet prove a `hcomp_assoc` lemma here: even stating it is painful, because we
+-- need to use associativity of functor composition. (It's true without the explicit associator,
+-- because functor composition is definitionally associative,
+-- but relying on the definitional equality causes bad problems with elaboration later.)
+theorem exchange {I J K : D ⥤ E} (α : F ⟶ G) (β : G ⟶ H) (γ : I ⟶ J) (δ : J ⟶ K) :
+    (α ≫ β) ◫ (γ ≫ δ) = (α ◫ γ) ≫ β ◫ δ := by
+  grind
 
 theorem naturality_app_app {F G : C ⥤ D ⥤ E ⥤ E'}
     (α : F ⟶ G) {X₁ Y₁ : C} (f : X₁ ⟶ Y₁) (X₂ : D) (X₃ : E) :
@@ -244,8 +243,6 @@ theorem naturality_app_app {F G : C ⥤ D ⥤ E ⥤ E'}
 
 end NatTrans
 
-open NatTrans
-
 namespace Functor
 
 /-- Flip the arguments of a bifunctor. See also `Currying.lean`. -/
@@ -254,8 +251,6 @@ protected def flip (F : C ⥤ D ⥤ E) : D ⥤ C ⥤ E where
     { obj := fun j => (F.obj j).obj k,
       map := fun f => (F.map f).app k, }
   map f := { app := fun j => (F.obj j).map f }
-  map_id k := by grind
-  map_comp f g := sorry
 
 @[simp] theorem flip_obj_obj (F : C ⥤ D ⥤ E) (k : D) : (F.flip.obj k).obj = fun j => (F.obj j).obj k := rfl
 @[simp] theorem flip_obj_map (F : C ⥤ D ⥤ E) (k : D) {X Y : C}(f : X ⟶ Y) : (F.flip.obj k).map f = (F.map f).app k := rfl
@@ -269,14 +264,7 @@ variable (C D E) in
 /-- The functor `(C ⥤ D ⥤ E) ⥤ D ⥤ C ⥤ E` which flips the variables. -/
 def flipFunctor : (C ⥤ D ⥤ E) ⥤ D ⥤ C ⥤ E where
   obj F := F.flip
-  map {F₁ F₂} φ :=
-    { app := fun Y =>
-      { app := fun X => (φ.app X).app Y
-        naturality := fun X₁ X₂ f => by grind
-      }
-      naturality := sorry }
-  map_id := sorry
-  map_comp := sorry
+  map {F₁ F₂} φ := { app := fun Y => { app := fun X => (φ.app X).app Y } }
 
 namespace Iso
 
@@ -291,7 +279,6 @@ theorem map_inv_hom_id_app {X Y : C} (e : X ≅ Y) (F : C ⥤ D ⥤ E) (Z : D) :
   grind
 
 end Iso
-
 
 end Mathlib.CategoryTheory.Functor.Category
 

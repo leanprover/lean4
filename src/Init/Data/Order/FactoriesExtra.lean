@@ -17,18 +17,18 @@ Creates an `OrderData α` instance from an `Ord α` instance.
 As `OrderData α` is encoded as a mere less-than-or-equal relation, `OrientedOrd α` must be satisfied
 so that the resulting `OrderData α` instance faithfully represents the `Ord α` instance.
 -/
-public def OrderData.ofOrd (α : Type u) [Ord α] : OrderData α where
-  IsLE a b := (compare a b).isLE
+public def LE.ofOrd (α : Type u) [Ord α] : LE α where
+  le a b := (compare a b).isLE
 
 /--
 The `OrderData α` instance obtained from an `Ord α` instance is compatible with said `Ord α`
 instance if `compare` is oriented, i.e., `compare a b = .lt ↔ compare b a = .gt`.
 -/
 public instance LawfulOrderOrd.ofOrd (α : Type u) [Ord α] [OrientedOrd α] :
-    haveI : OrderData α := .ofOrd α
+    haveI := LE.ofOrd α
     LawfulOrderOrd α :=
-  letI : OrderData α := .ofOrd α
-  { compare_isLE := by simp [OrderData.ofOrd]
-    compare_isGE := by simp [OrientedCmp.isGE_iff_isLE, OrderData.ofOrd] }
+  letI := LE.ofOrd α
+  { compare_isLE := by simp [LE.ofOrd]
+    compare_isGE := by simp [LE.ofOrd, OrientedCmp.isGE_eq_isLE] }
 
 end Std

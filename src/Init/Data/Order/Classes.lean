@@ -98,8 +98,8 @@ end LT
 
 section BEq
 
-public class LawfulOrderBEq (α : Type u) [BEq α] [OrderData α] where
-  beq_iff_isLE_and_isLE : ∀ a b : α, a == b ↔ OrderData.IsLE a b ∧ OrderData.IsLE b a
+public class LawfulOrderBEq (α : Type u) [BEq α] [LE α] where
+  beq_iff_isLE_and_isLE : ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a
 
 end BEq
 

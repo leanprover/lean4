@@ -24,8 +24,8 @@ This property uniquely determines `Ord α` in terms of `OrderData α`.
 `LawfulOrderOrd α` automatically entails that `Ord α` is oriented (see `OrientedOrd α`)
 and that `OrderData.IsLE` is total.
 -/
-public class LawfulOrderOrd (α : Type u) [Ord α] [OrderData α] where
-  compare_isLE : ∀ a b : α, (compare a b).isLE ↔ OrderData.IsLE a b
-  compare_isGE : ∀ a b : α, (compare a b).isGE ↔ OrderData.IsLE b a
+public class LawfulOrderOrd (α : Type u) [Ord α] [LE α] where
+  compare_isLE : ∀ a b : α, (compare a b).isLE ↔ a ≤ b
+  compare_isGE : ∀ a b : α, (compare a b).isGE ↔ b ≤ a
 
 end Std

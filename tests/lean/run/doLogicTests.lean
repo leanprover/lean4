@@ -238,27 +238,6 @@ def fib_impl (n : Nat) : Id Nat := do
     b := a' + b
   return b
 
-abbrev fib_spec : Nat → Nat
-| 0 => 0
-| 1 => 1
-| n+2 => fib_spec n + fib_spec (n+1)
-
--- Finally investigate why we do not see the error here.
--- Seems to be related to not being able to display metavariables.
---theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => r = fib_spec n⦄ := by
---  unfold fib_impl
---  dsimp
---  mintro _
---  if h : n = 0 then simp [h] else
---  simp only [h, reduceIte]
---  mspec
---  mspec_no_bind Spec.bind
---  set_option trace.Elab.Tactic.Do.spec true in
---  mspec_no_bind Spec.forIn_list ?inv ?step
---
---  case step => dsimp; intros; mintro _; simp_all
---  simp_all [Nat.sub_one_add_one]
-
 theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   unfold fib_impl
   dsimp
@@ -687,6 +666,12 @@ instance Result.instWPMonad : WPMonad Result (.except Error .pure) where
     simp only [instWP, bind]
     ext Q
     cases x <;> simp [PredTrans.bind, PredTrans.const]
+
+theorem Result.by_wp {α} {x : Result α} (P : Result α → Prop) :
+  (⊢ₛ wp⟦x⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.fail e)⌝⟩) → P x := by
+    intro hspec
+    simp only [instWP] at hspec
+    split at hspec <;> simp_all
 
 /-- Kinds of unsigned integers -/
 inductive UScalarTy where

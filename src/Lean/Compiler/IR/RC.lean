@@ -121,17 +121,17 @@ private def addIncBefore (ctx : Context) (xs : Array Arg) (ps : Array Param) (b 
 
 /-- See `addIncBeforeAux`/`addIncBefore` for the procedure that inserts `inc` operations before an application.  -/
 private def addDecAfterFullApp (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
-xs.size.fold (init := b) fun i _ b =>
-  match xs[i] with
-  | .erased => b
-  | .var x  =>
-    /- We must add a `dec` if `x` must be consumed, it is alive after the application,
-       and it has been borrowed by the application.
-       Remark: `x` may occur multiple times in the application (e.g., `f x y x`).
-       This is why we check whether it is the first occurrence. -/
-    if mustConsume ctx x && isFirstOcc xs i && isBorrowParam x xs ps && !bLiveVars.contains x then
-      addDec ctx x b
-    else b
+  xs.size.fold (init := b) fun i _ b =>
+    match xs[i] with
+    | .erased => b
+    | .var x  =>
+      /- We must add a `dec` if `x` must be consumed, it is alive after the application,
+        and it has been borrowed by the application.
+        Remark: `x` may occur multiple times in the application (e.g., `f x y x`).
+        This is why we check whether it is the first occurrence. -/
+      if mustConsume ctx x && isFirstOcc xs i && isBorrowParam x xs ps && !bLiveVars.contains x then
+        addDec ctx x b
+      else b
 
 private def addIncBeforeConsumeAll (ctx : Context) (xs : Array Arg) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
   addIncBeforeAux ctx xs (fun _ => true) b liveVarsAfter

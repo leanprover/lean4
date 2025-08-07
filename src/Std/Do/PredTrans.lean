@@ -116,6 +116,10 @@ theorem bind_apply (x : PredTrans ps α) (f : α → PredTrans ps β) (Q : PostC
 theorem seq_apply (f : PredTrans ps (α → β)) (x : PredTrans ps α) (Q : PostCond β ps) :
   (f <*> x).apply Q = f.apply (fun g => x.apply (fun a => Q.1 (g a), Q.2), Q.2) := by rfl
 
+@[simp]
+theorem const_apply (p : Assertion ps) (Q : PostCond α ps) :
+  (PredTrans.const p : PredTrans ps α).apply Q = p := by rfl
+
 theorem bind_mono {x y : PredTrans ps α} {f : α → PredTrans ps β}
   (h : x ≤ y) : x >>= f ≤ y >>= f := by intro Q; exact (h (_, Q.2))
 

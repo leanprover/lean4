@@ -66,19 +66,24 @@ def isUnfoldReducibleTarget (e : Expr) : CoreM Bool := do
       return false
 
 /--
+Auxiliary function for implementing `unfoldReducible` and `unfoldReducibleSimproc`.
+Performs a single step.
+-/
+def unfoldReducibleStep (e : Expr) : MetaM TransformStep := do
+  let .const declName _ := e.getAppFn | return .continue
+  unless (← isReducible declName) do return .continue
+  if isGrindGadget declName then return .continue
+  -- See comment at isUnfoldReducibleTarget.
+  if (← getEnv).isProjectionFn declName then return .continue
+  let some v ← unfoldDefinition? e | return .continue
+  return .visit v
+
+/--
 Unfolds all `reducible` declarations occurring in `e`.
 -/
 def unfoldReducible (e : Expr) : MetaM Expr := do
   if !(← isUnfoldReducibleTarget e) then return e
-  let pre (e : Expr) : MetaM TransformStep := do
-    let .const declName _ := e.getAppFn | return .continue
-    unless (← isReducible declName) do return .continue
-    if isGrindGadget declName then return .continue
-    -- See comment at isUnfoldReducibleTarget.
-    if (← getEnv).isProjectionFn declName then return .continue
-    let some v ← unfoldDefinition? e | return .continue
-    return .visit v
-  Core.transform e (pre := pre)
+  Core.transform e (pre := unfoldReducibleStep)
 
 /--
 Unfolds all `reducible` declarations occurring in the goal's target.

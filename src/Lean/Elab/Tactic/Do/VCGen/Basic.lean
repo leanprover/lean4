@@ -62,6 +62,7 @@ structure Context where
   simpCtx : Simp.Context
   simprocs : Simp.SimprocsArray
   jps : FVarIdMap JumpSiteInfo := {}
+  initialCtxSize : Nat
 
 structure State where
   fuel : Fuel := .unlimited
@@ -87,7 +88,16 @@ def ifOutOfFuel (x : VCGenM α) (k : VCGenM α) : VCGenM α := do
   | Fuel.limited 0 => x
   | _ => k
 
-def emitVC (subGoal : Expr) (name : Name) : VCGenM Expr := do
+def withFreshUserNames (k : VCGenM α) : VCGenM α := do
+  let mut lctx ← getLCtx
+  for i in [(← read).initialCtxSize:lctx.numIndices] do
+    let some decl := lctx.decls[i]! | continue
+    let n := decl.userName
+    if !n.hasMacroScopes then
+      lctx := lctx.setUserName decl.fvarId (← mkFreshUserName n)
+  withLCtx' lctx k
+
+def emitVC (subGoal : Expr) (name : Name) : VCGenM Expr := withFreshUserNames do
   let m ← liftM <| mkFreshExprSyntheticOpaqueMVar subGoal (tag := name)
   modify fun s => { s with vcs := s.vcs.push m.mvarId! }
   return m
@@ -239,4 +249,10 @@ def mkSpecContext (optConfig : Syntax) (lemmas : Syntax) (ignoreStarArg := false
           let thm ← mkSpecTheoremFromLocal fvar
           specThms := addSpecTheoremEntry specThms thm
         catch _ => continue
-  return { config, specThms, simpCtx := res.ctx, simprocs := res.simprocs }
+  return {
+    config,
+    specThms,
+    simpCtx := res.ctx,
+    simprocs := res.simprocs
+    initialCtxSize := (← getLCtx).numIndices
+  }

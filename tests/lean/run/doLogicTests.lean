@@ -940,14 +940,14 @@ theorem fast_expo_correct (x n : Nat) : fast_expo x n = x^n := by
   mvcgen
   case inv => exact ⇓⟨⟨e, x', y⟩, xs⟩ => ⌜x' ^ e * y = x ^ n ∧ e ≤ n - xs.pref.length⌝
   all_goals simp_all
-  case isFalse.isFalse b _ _ _ _ _ _ _ ih _ =>
+  case isFalse.isFalse b _ _ _ _ _ _ _ _ _ _ ih _ =>
     obtain ⟨e, y, x'⟩ := b
     simp at *
     constructor
     · rw [← Nat.pow_two, ← Nat.pow_mul]
       grind
     · grind
-  case isFalse.isTrue b _ _ _ _ _ _ _ ih _ =>
+  case isFalse.isTrue b _ _ _ _ _ _ _ _ _ _ ih _ =>
     obtain ⟨e, y, x'⟩ := b
     simp at *
     constructor
@@ -955,7 +955,7 @@ theorem fast_expo_correct (x n : Nat) : fast_expo x n = x^n := by
       have : e - 1 + 1 = e := by grind
       rw [this]
     · grind
-  case isTrue b _ _ _ _ _ _ _ ih =>
+  case isTrue b _ _ _ _ _ _ _ _ _ _ ih =>
     obtain ⟨e, y, x'⟩ := b
     subst_vars
     grind

@@ -23,10 +23,17 @@ namespace Lean.Meta.Grind
 def simpCore (e : Expr) : GrindM Simp.Result := do profileitM Exception "grind simp" (← getOptions) do
   let simp ← modifyGet fun s => (s.simp, { s with simp := {} })
   let ctx := (← readThe Context).simp
-  let m := (← get).scState.map
-  let skipIfInShareCommon : Simp.Simproc := fun e => if m.contains { expr := e } then return .done { expr := e } else return .continue
+  /-
+  Remark: we used to use `skipIfInShareCommon` as an additional filter to avoid re-visiting expressions
+  that have already been fully processed by `grind`. The idea was to use the `inShareCommon` test since
+  the last step of the `grind` normalizer is `shareCommon`.
+  However, this optimization was incorrect because there are other places in the `grind` code base that
+  use `shareCommon`.
+  -/
+  -- let m := (← get).scState.map
+  -- let skipIfInShareCommon : Simp.Simproc := fun e => if m.contains { expr := e } then return .done { expr := e } else return .continue
   let methods := (← readThe Context).simpMethods
-  let methods := { methods with pre := skipIfInShareCommon >> methods.pre }
+  -- let methods := { methods with pre := skipIfInShareCommon >> methods.pre }
   let (r, simp) ← Simp.mainCore e ctx simp (methods := methods)
   modify fun s => { s with simp }
   return r

@@ -36,7 +36,7 @@ structure StdGen where
   s1 : Nat
   s2 : Nat
 
-instance : Inhabited StdGen := ⟨{ s1 := 0, s2 := 0 }⟩
+instance : Inhabited StdGen := ⟨{ s1 := 1, s2 := 1 }⟩
 
 /-- The range of values returned by `StdGen` -/
 def stdRange := (1, 2147483562)

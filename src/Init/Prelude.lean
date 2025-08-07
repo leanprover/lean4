@@ -4270,7 +4270,7 @@ instance : BEq Name where
 This function does not have special support for macro scopes.
 See `Name.append`.
 -/
-def appendCore : Name → Name → Name
+@[expose] def appendCore : Name → Name → Name
   | n, .anonymous => n
   | n, .str p s => .str (appendCore n p) s
   | n, .num p d => .num (appendCore n p) d
@@ -5013,7 +5013,7 @@ The delimiter `_hyg` is used just to improve the `hasMacroScopes` performance.
 -/
 
 /-- Does this name have hygienic macro scopes? -/
-def Name.hasMacroScopes : Name → Bool
+@[expose] def Name.hasMacroScopes : Name → Bool
   | str _ s => beq s "_hyg"
   | num p _ => hasMacroScopes p
   | _       => false
@@ -5134,7 +5134,7 @@ This function is used for the `Append Name` instance.
 See also `Lean.Name.appendCore`, which appends names without any consideration for macro scopes.
 Also consider `Lean.Name.eraseMacroScopes` to erase macro scopes before appending, if appropriate.
 -/
-def Name.append (a b : Name) : Name :=
+@[expose] def Name.append (a b : Name) : Name :=
   match a.hasMacroScopes, b.hasMacroScopes with
   | true, true  =>
     panic "Error: invalid `Name.append`, both arguments have macro scopes, consider using `eraseMacroScopes`"

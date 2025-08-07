@@ -226,12 +226,11 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     split at hres
     all_goals
       rw [← hres]
-      sorry
-      -- dsimp only
-      -- apply Cache.Inv_cast
-      -- · apply LawfulVecOperator.isPrefix_aig
-      -- · apply goCache_Inv_of_Inv
-      --   exact hinv
+      dsimp only
+      apply Cache.Inv_cast
+      · apply LawfulVecOperator.isPrefix_aig
+      · apply goCache_Inv_of_Inv
+        exact hinv
   · rw [← hres]
     dsimp only
     apply Cache.Inv_cast
@@ -439,12 +438,11 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       rw [goCache_denote_eq]
       exact hinv
     · rw [← hres]
-      -- simp only [eval_un, BVUnOp.eval_popCount, BitVec.popCount]
-      sorry
-      -- rw [denote_blastPopCount]
-      -- intro idx hidx
-      -- rw [goCache_denote_eq]
-      -- exact hinv
+      simp only [eval_un, BVUnOp.eval_popCount, BitVec.popCount]
+      rw [denote_blastPopCount]
+      intro idx hidx
+      rw [goCache_denote_eq]
+      exact hinv
   next h =>
     subst h
     rw [← hres]

@@ -885,15 +885,16 @@ def auxAdd (vecIn : List (BitVec w)) (currSum : List (BitVec w)) (addedNodes inp
   termination_by (w - addedNodes)
 
 /-- Tail-recursive definition of parrallel sum prefix. -/
-def parPrefixSum(inputNodes : Nat) (parSum : List (BitVec w)) (hlen : parSum.length = inputNodes) : BitVec w :=
+def parPrefixSum(inputNodes : Nat) (parSum : List (BitVec w)) (hlen : parSum.length = inputNodes) (hw : 1 < inputNodes) : BitVec w :=
   match (inputNodes - 1) with
   | 0 => parSum.get ⟨0, by sorry⟩
   | n' + 1 =>
     if 1 < inputNodes then
       let addedVec := auxAdd parSum [] 0 inputNodes
-      parPrefixSum (inputNodes := inputNodes/2) (parSum := addedVec) (by sorry)
+      parPrefixSum (inputNodes := inputNodes/2) (parSum := addedVec) (by sorry) (by sorry)
     else
       parSum.get ⟨0, by sorry⟩
+
 
 def extractAndExtendAuxRec (x : BitVec w) (toExtend : Nat) (currList : List (BitVec w)) (h : toExtend ≤ w) : List (BitVec w) :=
   match toExtend with
@@ -904,10 +905,20 @@ def extractAndExtendAuxRec (x : BitVec w) (toExtend : Nat) (currList : List (Bit
     let currList := currList.insert extend
     extractAndExtendAuxRec x n currList (by omega)
 
+theorem extractAndExtendAuxRec_len_eq {x : BitVec w} :
+    let ee := extractAndExtendAuxRec x w [] (by omega)
+    ee.length = w := by
+  sorry
+
+
 def popCountParSum {x : BitVec w} : BitVec w :=
-  let initNodes := extractAndExtendAuxRec x w [] (by omega)
-  let pps := parPrefixSum (inputNodes := w) initNodes (by sorry)
-  pps
+  if hw : w = 0 then 0
+  else
+    if hw' : w = 1 then x
+    else
+      let initNodes := extractAndExtendAuxRec x w [] (by omega)
+      let pps := parPrefixSum (inputNodes := w) initNodes (by exact extractAndExtendAuxRec_len_eq) (by omega)
+      pps
 
 /-- Tail-recursive definition of popcount.
   The bitwidth of `x` explictly boundspop the number of recursions, thus bounding the depth of the circuit as well

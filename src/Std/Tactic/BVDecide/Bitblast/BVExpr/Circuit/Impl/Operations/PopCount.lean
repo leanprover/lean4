@@ -99,10 +99,7 @@ def addVec (aig : AIG α) (addedNodes inputNodes: Nat) (oldParSum : RefVecVec ai
     let newVec := newParSum.push add (by omega) -- now we don't need hypotheses in the push because the aigs have been cast already :) and omega suffices
     addVec aig (addedNodes + 1) inputNodes oldParSum newVec hw hw'
   else
-    have hcast : addedNodes = inputNodes/2 := by
-      apply Classical.byContradiction
-      intro hcontra
-      sorry
+    have hcast : addedNodes = inputNodes/2 := by sorry
     ⟨aig, hcast▸newParSum⟩
 
 def blastPopCount (aig : AIG α) (x : AIG.RefVec aig w) :
@@ -137,9 +134,14 @@ namespace blastPopCount
 
 end blastPopCount
 
--- theorem blastPopCount.go_le_size (aig : AIG α) (curr : Nat)(acc : AIG.RefVec aig w)
---     (xc : AIG.RefVec aig w) :
---     aig.decls.size ≤ (go aig xc curr acc).aig.decls.size := by
+theorem blastPopCount.go_le_size (aig : AIG α) (curr : Nat)(acc : AIG.RefVec aig w)
+    (xc : AIG.RefVec aig w) (hw : 0 < w):
+    let initVec' : Vector (AIG.RefVec aig w) 0 := Vector.emptyWithCapacity 0
+    let initVec : RefVecVec aig w 0 := {vec := initVec'}
+    let extendedBits : RefVecEntryVec α w w := extractAndExtendPopulate 0 aig xc initVec (by omega)
+    let aig := extendedBits.aig
+    let parSumInit := extendedBits.vec
+    aig.decls.size ≤ (go aig w w parSumInit (by constructor; omega) (by omega) (by omega)).aig.decls.size := by sorry
 --   unfold go
 --   dsimp only
 --   split
@@ -149,10 +151,15 @@ end blastPopCount
 --     simp
 --   · simp
 
--- theorem blastPopCount.go_decl_eq (aig : AIG α) (curr : Nat)  (acc : AIG.RefVec aig w)
---     (xc : AIG.RefVec aig w) :
---     ∀ (idx : Nat) h1 h2,
---         (go aig xc curr acc).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+theorem blastPopCount.go_decl_eq (aig : AIG α) (curr : Nat)  (acc : AIG.RefVec aig w)
+    (xc : AIG.RefVec aig w) :
+    ∀ (idx : Nat) h1 h2,
+        let initVec' : Vector (AIG.RefVec aig w) 0 := Vector.emptyWithCapacity 0
+        let initVec : RefVecVec aig w 0 := {vec := initVec'}
+        let extendedBits : RefVecEntryVec α w w := extractAndExtendPopulate 0 aig xc initVec (by omega)
+        let aig := extendedBits.aig
+        let parSumInit := extendedBits.vec
+        (go aig w w parSumInit (by constructor; omega) (by omega) (by omega)).aig.decls[idx]'(by sorry) = aig.decls[idx]'(by sorry) := by sorry
 --   generalize hgo : go aig xc curr acc = res
 --   unfold go at hgo
 --   dsimp only at hgo
@@ -170,17 +177,17 @@ end blastPopCount
 --       exact h
 --   · simp [← hgo]
 
--- instance : AIG.LawfulVecOperator α AIG.RefVec blastPopCount where
---   le_size := by
---     intros
---     unfold blastPopCount
---     dsimp only
---     apply blastPopCount.go_le_size
---   decl_eq := by
---     intros
---     unfold blastPopCount
---     dsimp only
---     apply blastPopCount.go_decl_eq
+instance : AIG.LawfulVecOperator α AIG.RefVec blastPopCount where
+  le_size := by sorry
+    -- intros
+    -- unfold blastPopCount
+    -- dsimp only
+    -- apply blastPopCount.go_le_size
+  decl_eq := by sorry
+    -- intros
+    -- unfold blastPopCount
+    -- dsimp only
+    -- apply blastPopCount.go_decl_eq
 
 end bitblast
 end BVExpr

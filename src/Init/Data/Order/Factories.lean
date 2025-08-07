@@ -11,6 +11,8 @@ import Init.Classical
 
 namespace Std
 
+section OrderData
+
 /-!
 This module provides utilities for the creation of order-related typeclass instances.
 -/
@@ -236,5 +238,52 @@ public def LawfulOrderMax.of_lt {α : Type u} [Max α] [LT α]
     toMaxEqOr := ⟨max_eq_or⟩ }
 
 end OfLT
+
+end OrderData
+
+section Packages
+
+section Preorder
+
+public class PreorderPackage (α : Type u) extends
+    OrderData α, LE α, LT α, LawfulOrderLE α, LawfulOrderLT α
+
+public structure PreorderPackage.OfLEArgs (α : Type u) where
+  le : LE α := by infer_instance
+  orderData [i : LE α] (hi : i = le := by rfl) : OrderData α := by
+    first
+      | infer_instance
+      | exact fun _ => OrderData.ofLE _
+  lt [i : OrderData α] (hi : i = orderData := by rfl) : LT α := by
+    first
+      | infer_instance
+      | exact fun _ => Classical.Order.instLT
+  lawful_le : letI := orderData; LawfulOrderLE α := by infer_instance
+  lawful_lt : letI := orderData; letI := lt; LawfulOrderLT α := by infer_instance
+
+@[expose]
+public def PreorderPackage.ofLE (α : Type u) (args : OfLEArgs α := by exact {}) : PreorderPackage α where
+  toLE := args.le
+  toOrderData := letI := args.le; args.orderData
+  toLT := letI := args.le; letI := args.orderData; args.lt
+  toLawfulOrderLE := args.lawful_le
+  toLawfulOrderLT := args.lawful_lt
+
+public structure PreorderPackage.OfLTArgs (α : Type u) where
+  lt : LT α := by infer_instance
+  orderData [i : LT α] (hi : i = lt := by rfl) : OrderData α := by
+    first
+      | infer_instance
+      | exact fun _ => OrderData.ofLT _
+  le [i : OrderData α] (hi : i = orderData := by rfl) : LE α := by
+    first
+      | infer_instance
+      | exact fun _ => Classical.Order.instLE
+  lawful_lt : letI := orderData; LawfulOrderLT α := by infer_instance
+  lawful_le : letI := orderData; letI := le; LawfulOrderLE α := by infer_instance
+
+end Preorder
+
+end Packages
 
 end Std

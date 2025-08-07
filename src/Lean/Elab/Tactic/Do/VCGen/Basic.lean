@@ -88,19 +88,11 @@ def ifOutOfFuel (x : VCGenM α) (k : VCGenM α) : VCGenM α := do
   | Fuel.limited 0 => x
   | _ => k
 
-def withFreshUserNames (k : VCGenM α) : VCGenM α := do
-  let mut lctx ← getLCtx
-  for i in [(← read).initialCtxSize:lctx.numIndices] do
-    let some decl := lctx.decls[i]! | continue
-    let n := decl.userName
-    if !n.hasMacroScopes then
-      lctx := lctx.setUserName decl.fvarId (← mkFreshUserName n)
-  withLCtx' lctx k
-
-def emitVC (subGoal : Expr) (name : Name) : VCGenM Expr := withFreshUserNames do
-  let m ← liftM <| mkFreshExprSyntheticOpaqueMVar subGoal (tag := name)
-  modify fun s => { s with vcs := s.vcs.push m.mvarId! }
-  return m
+def emitVC (subGoal : Expr) (name : Name) : VCGenM Expr := do
+  withFreshUserNamesSinceIdx (← read).initialCtxSize do
+    let m ← liftM <| mkFreshExprSyntheticOpaqueMVar subGoal (tag := name)
+    modify fun s => { s with vcs := s.vcs.push m.mvarId! }
+    return m
 
 def addSubGoalAsVC (goal : MVarId) : VCGenM PUnit := do
   modify fun s => { s with vcs := s.vcs.push goal }

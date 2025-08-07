@@ -87,7 +87,7 @@ def extractAndExtendPopulate (start : Nat) (aig : AIG α) (x : AIG.RefVec aig w)
     {aig := aig, vec := hs▸acc}
 
 /-- Given a vector of references belonging to the same AIG `oldParSum`, we create a note to add the `curr`-th couple of elements and use that to populate a new vector `newParSum` -/
-def addVec (aig : AIG α) (addedNodes inputNodes: Nat) (oldParSum : RefVecVec aig w inputNodes) (newParSum : RefVecVec aig w addedNodes) (hw : inputNodes ≤ w): RefVecEntryVec α w (inputNodes/2) :=
+def addVec (aig : AIG α) (addedNodes inputNodes: Nat) (oldParSum : RefVecVec aig w inputNodes) (newParSum : RefVecVec aig w addedNodes) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes): RefVecEntryVec α w (inputNodes/2) :=
   if hc : addedNodes < inputNodes/2 then
     -- create add node from the nodes in oldParSum
     let res := blastAdd aig ⟨oldParSum.vec.get ⟨addedNodes*2, by omega⟩, oldParSum.vec.get ⟨addedNodes*2 + 1, by omega⟩⟩
@@ -97,7 +97,7 @@ def addVec (aig : AIG α) (addedNodes inputNodes: Nat) (oldParSum : RefVecVec ai
     let oldParSum := oldParSum.cast (aig2 := res.aig) this
     let newParSum := newParSum.cast (aig2 := res.aig) this -- this should be redundant because when the new element is pushed casting occurs, but we'll leave it there for now
     let newVec := newParSum.push add (by omega) -- now we don't need hypotheses in the push because the aigs have been cast already :) and omega suffices
-    addVec aig (addedNodes + 1) inputNodes oldParSum newVec hw
+    addVec aig (addedNodes + 1) inputNodes oldParSum newVec hw hw'
   else
     have hcast : addedNodes = inputNodes/2 := by sorry
     ⟨aig, hcast▸newParSum⟩
@@ -120,7 +120,7 @@ where
     let outpuVec : Vector (AIG.RefVec aig w) 0 := Vector.emptyWithCapacity 0
     let outpuRefVec : RefVecVec aig w 0 := {vec := outpuVec}
     -- inputNodes = 2^n, 2^n-1, ...
-    let res := addVec aig (addedNodes := 0) (inputNodes := inputNodes) (oldParSum := parSum) (newParSum := outpuRefVec) hw'
+    let res := addVec aig (addedNodes := 0) (inputNodes := inputNodes) (oldParSum := parSum) (newParSum := outpuRefVec) hw' (by omega)
     let aig := res.aig
     let addNodesVec := res.vec
     go aig w (inputNodes/2) addNodesVec hw (by omega) (by omega)

@@ -132,7 +132,6 @@ public noncomputable scoped instance instOrd {α : Type u} [OrderData α] :
   compare a b := if OrderData.IsLE a b then if OrderData.IsLE b a then .eq else .lt else .gt
 
 public instance instLawfulOrderOrd {α : Type u} [OrderData α]
-    -- TODO: better support for elementary typeclasses on `OrderData.IsLE`
     [Total (α := α) OrderData.IsLE] :
     LawfulOrderOrd α where
   compare_isLE a b := by

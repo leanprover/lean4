@@ -33,34 +33,34 @@ namespace BVExpr
 namespace bitblast
 namespace blastPopCount
 
-theorem go_denote_eq {w : Nat} (aig : AIG α) (h : curr ≤ w)
-    (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
-    (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
-    (hacc : ∀ (idx : Nat) (hidx : idx < w),
-      if curr = 0 then ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ofNat w 0).getLsbD idx
-      else ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.popCountAuxRec x 0#w curr).getLsbD idx)
-    :
-    ∀ (idx : Nat) (hidx : idx < w),
-        ⟦
-          (go aig xc 0 acc).aig,
-          (go aig xc 0 acc).vec.get idx hidx,
-          assign
-        ⟧
-          =
-        (BitVec.popCountAuxRec x 0 w).getLsbD idx := by
-    intro idx hidx
-    generalize hgo: go aig xc curr acc = res
-    unfold go at hgo
-    split at hgo
-    · case isTrue h =>
-      simp at hgo
-      split at hacc
-      · simp [show curr = 0 by omega] at *
-        intros
-        sorry
-      · sorry
-    · case isFalse h =>
-      sorry
+-- theorem go_denote_eq {w : Nat} (aig : AIG α) (h : curr ≤ w)
+--     (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
+--     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
+--     (hacc : ∀ (idx : Nat) (hidx : idx < w),
+--       if curr = 0 then ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ofNat w 0).getLsbD idx
+--       else ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.popCountAuxRec x 0#w curr).getLsbD idx)
+--     :
+--     ∀ (idx : Nat) (hidx : idx < w),
+--         ⟦
+--           (go aig xc 0 acc).aig,
+--           (go aig xc 0 acc).vec.get idx hidx,
+--           assign
+--         ⟧
+--           =
+--         (BitVec.popCountAuxRec x 0 w).getLsbD idx := by
+--     intro idx hidx
+--     generalize hgo: go aig xc curr acc = res
+--     unfold go at hgo
+--     split at hgo
+--     · case isTrue h =>
+--       simp at hgo
+--       split at hacc
+--       · simp [show curr = 0 by omega] at *
+--         intros
+--         sorry
+--       · sorry
+--     · case isFalse h =>
+--       sorry
       -- rw [← hgo]
       -- simp [show ¬ curr = 0 by omega] at hacc
       -- simp [hacc]

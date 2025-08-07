@@ -22,7 +22,7 @@ that introduce the instructions `release` and `set`
 structure VarInfo where
   type : IRType
   persistent : Bool
-  mustBeConsumed : Bool
+  inheritsBorrowFromParam : Bool
   deriving Inhabited
 
 abbrev VarMap := Std.TreeMap VarId VarInfo (fun x y => compare x.idx y.idx)
@@ -48,7 +48,7 @@ def getJPLiveVars (ctx : Context) (j : JoinPointId) : LiveVarSet :=
 
 def mustConsume (ctx : Context) (x : VarId) : Bool :=
   let info := getVarInfo ctx x
-  info.type.isPossibleRef && info.mustBeConsumed
+  info.type.isPossibleRef && !info.inheritsBorrowFromParam
 
 @[inline] def addInc (ctx : Context) (x : VarId) (b : FnBody) (n := 1) : FnBody :=
   let info := getVarInfo ctx x
@@ -109,7 +109,7 @@ private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred :
       else
         let numConsumptions := getNumConsumptions x xs consumeParamPred
         let numIncs :=
-          if !info.mustBeConsumed ||
+          if info.inheritsBorrowFromParam ||
              liveVarsAfter.contains x ||          -- `x` is live after executing instruction
              isBorrowParamAux x xs consumeParamPred  -- `x` is used in a position that is passed as a borrow reference
           then numConsumptions
@@ -165,17 +165,17 @@ private def typeForScalarBoxedInTaggedPtr? (v : Expr) : Option IRType :=
   | _ => none
 
 private def updateVarInfo (ctx : Context) (x : VarId) (t : IRType) (v : Expr) : Context :=
-  let mustBeConsumed :=
+  let inheritsBorrowFromParam :=
     match v with
     | .proj _ x => match ctx.varMap.get? x with
-      | some info => info.mustBeConsumed
-      | none => true
-    | _ => true
+      | some info => info.inheritsBorrowFromParam
+      | none => false
+    | _ => false
   { ctx with
     varMap := ctx.varMap.insert x {
         type := typeForScalarBoxedInTaggedPtr? v |>.getD t
         persistent := isPersistent v,
-        mustBeConsumed
+        inheritsBorrowFromParam
     }
   }
 
@@ -188,7 +188,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
       addIncBeforeConsumeAll ctx ys (.vdecl z t v b) bLiveVars
     | .proj _ x =>
       let b := addDecIfNeeded ctx x b bLiveVars
-      let b := if (getVarInfo ctx x).mustBeConsumed then addInc ctx z b else b
+      let b := if !(getVarInfo ctx x).inheritsBorrowFromParam then addInc ctx z b else b
       .vdecl z t v b
     | .uproj _ x | .sproj _ _ x | .unbox x =>
       .vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
@@ -208,7 +208,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
 
 def updateVarInfoWithParams (ctx : Context) (ps : Array Param) : Context :=
   let m := ps.foldl (init := ctx.varMap) fun m p =>
-    m.insert p.x { type := p.ty, persistent := false, mustBeConsumed := !p.borrow }
+    m.insert p.x { type := p.ty, persistent := false, inheritsBorrowFromParam := p.borrow }
   { ctx with varMap := m }
 
 partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVarSet :=
@@ -262,7 +262,10 @@ partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVarSet :=
     match x with
     | .var x =>
       let info := getVarInfo ctx x
-      let b := if info.type.isPossibleRef && !info.mustBeConsumed then addInc ctx x b else b
+      let b :=
+        if info.type.isPossibleRef && info.inheritsBorrowFromParam then
+          addInc ctx x b
+        else b
       ⟨b, mkLiveVarSet x⟩
     | .erased => ⟨b, {}⟩
   | .jmp j xs =>

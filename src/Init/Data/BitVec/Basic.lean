@@ -916,9 +916,15 @@ def popCountParSum {x : BitVec w} : BitVec w :=
   else
     if hw' : w = 1 then x
     else
-      let initNodes := extractAndExtendAuxRec x w [] (by omega)
-      let pps := parPrefixSum (inputNodes := w) initNodes (by exact extractAndExtendAuxRec_len_eq) (by omega)
-      pps
+      let toBitVec := BitVec.ofNat w w
+      let bvClz := (toBitVec.clz).toNat
+      let trunc := toBitVec.setWidth (w - bvClz)
+      if trunc >>> (w - bvClz - 1) = 1#(w - bvClz) then
+        let initNodes := extractAndExtendAuxRec x w [] (by omega)
+        let pps := parPrefixSum (inputNodes := w) initNodes (by exact extractAndExtendAuxRec_len_eq) (by omega)
+        pps
+      else
+        0#w
 
 /-- Tail-recursive definition of popcount.
   The bitwidth of `x` explictly boundspop the number of recursions, thus bounding the depth of the circuit as well

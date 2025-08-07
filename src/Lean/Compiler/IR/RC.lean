@@ -20,7 +20,8 @@ that introduce the instructions `release` and `set`
 -/
 
 structure VarInfo where
-  type : IRType
+  isPossibleRef : Bool
+  isDefiniteRef: Bool
   persistent : Bool
   inheritsBorrowFromParam : Bool
   deriving Inhabited
@@ -48,22 +49,26 @@ def getJPLiveVars (ctx : Context) (j : JoinPointId) : LiveVarSet :=
 
 def mustConsume (ctx : Context) (x : VarId) : Bool :=
   let info := getVarInfo ctx x
-  info.type.isPossibleRef && !info.inheritsBorrowFromParam
+  info.isPossibleRef && !info.inheritsBorrowFromParam
 
 @[inline] def addInc (ctx : Context) (x : VarId) (b : FnBody) (n := 1) : FnBody :=
   let info := getVarInfo ctx x
-  if n == 0 then b else .inc x n (!info.type.isDefiniteRef) info.persistent b
+  if n == 0 then b else .inc x n (!info.isDefiniteRef) info.persistent b
 
 @[inline] def addDec (ctx : Context) (x : VarId) (b : FnBody) : FnBody :=
   let info := getVarInfo ctx x
-  .dec x 1 (!info.type.isDefiniteRef) info.persistent b
+  .dec x 1 (!info.isDefiniteRef) info.persistent b
 
 private def updateRefUsingCtorInfo (ctx : Context) (x : VarId) (c : CtorInfo) : Context :=
   let m := ctx.varMap
   { ctx with
     varMap := match m.get? x with
-    | some info => m.insert x { info with type := c.type }
-    | none      => m }
+    | some info =>
+      let isPossibleRef := c.type.isPossibleRef
+      let isDefiniteRef := c.type.isDefiniteRef
+      m.insert x { info with isPossibleRef, isDefiniteRef }
+    | none => m
+  }
 
 private def addDecForAlt (ctx : Context) (caseLiveVars altLiveVars : LiveVarSet) (b : FnBody) : FnBody :=
   caseLiveVars.foldl (init := b) fun b x =>
@@ -105,7 +110,7 @@ private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred :
     | .erased => b
     | .var x =>
       let info := getVarInfo ctx x
-      if !info.type.isPossibleRef || !isFirstOcc xs i then b
+      if !info.isPossibleRef || !isFirstOcc xs i then b
       else
         let numConsumptions := getNumConsumptions x xs consumeParamPred
         let numIncs :=
@@ -171,9 +176,13 @@ private def updateVarInfo (ctx : Context) (x : VarId) (t : IRType) (v : Expr) : 
       | some info => info.inheritsBorrowFromParam
       | none => false
     | _ => false
+  let type := typeForScalarBoxedInTaggedPtr? v |>.getD t
+  let isPossibleRef := type.isPossibleRef
+  let isDefiniteRef := type.isDefiniteRef
   { ctx with
     varMap := ctx.varMap.insert x {
-        type := typeForScalarBoxedInTaggedPtr? v |>.getD t
+        isPossibleRef
+        isDefiniteRef
         persistent := isPersistent v,
         inheritsBorrowFromParam
     }
@@ -208,7 +217,11 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
 
 def updateVarInfoWithParams (ctx : Context) (ps : Array Param) : Context :=
   let m := ps.foldl (init := ctx.varMap) fun m p =>
-    m.insert p.x { type := p.ty, persistent := false, inheritsBorrowFromParam := p.borrow }
+    m.insert p.x {
+      isPossibleRef := p.ty.isPossibleRef
+      isDefiniteRef := p.ty.isDefiniteRef
+      persistent := false
+      inheritsBorrowFromParam := p.borrow }
   { ctx with varMap := m }
 
 partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVarSet :=
@@ -263,7 +276,7 @@ partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVarSet :=
     | .var x =>
       let info := getVarInfo ctx x
       let b :=
-        if info.type.isPossibleRef && info.inheritsBorrowFromParam then
+        if info.isPossibleRef && info.inheritsBorrowFromParam then
           addInc ctx x b
         else b
       ⟨b, mkLiveVarSet x⟩

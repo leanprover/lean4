@@ -141,7 +141,7 @@ private def addIncBeforeConsumeAll (ctx : Context) (xs : Array Arg) (b : FnBody)
 private def addDecForDeadParams (ctx : Context) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody × LiveVarSet :=
   ps.foldl (init := ⟨b, bLiveVars⟩) fun ⟨b, bLiveVars⟩ p =>
     let b :=
-      if !p.borrow && p.ty.isObj && !bLiveVars.contains p.x then
+      if !p.borrow && p.ty.isPossibleRef && !bLiveVars.contains p.x then
         addDec ctx p.x b
       else b
     let bLiveVars := bLiveVars.erase p.x

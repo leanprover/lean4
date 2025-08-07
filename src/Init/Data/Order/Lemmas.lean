@@ -10,6 +10,7 @@ public import Init.Data.Order.Classes
 public import Init.Data.Order.Factories
 import Init.SimpLemmas
 import Init.Classical
+public import Init.Data.BEq
 
 namespace Std
 
@@ -35,21 +36,21 @@ public theorem Asymm.total_not {r : α → α → Prop} [i : Asymm r] : Total (�
     · exact Or.inr <| i.asymm a b hab
     · exact Or.inl hab
 
-public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [IsPartialOrder α] :
-    Std.Antisymm (α := α) (· ≤ ·) where
-  antisymm a b := by simpa only [LawfulOrderLE.le_iff] using IsPartialOrder.le_antisymm _ _
+public instance {α : Type u} [OrderData α] [IsPartialOrder α] :
+    Antisymm (α := α) OrderData.IsLE where
+  antisymm _ _ := IsPartialOrder.le_antisymm _ _
 
-public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [IsPreorder α] :
-    Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
-      trans := by simpa [LawfulOrderLE.le_iff] using fun {a b c} => IsPreorder.le_trans a b c
+public instance {α : Type u} [OrderData α] [IsPreorder α] :
+    Trans (α := α) OrderData.IsLE OrderData.IsLE OrderData.IsLE where
+  trans {a b c} := IsPreorder.le_trans a b c
 
-public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [IsPreorder α] :
-    Std.Refl (α := α) (· ≤ ·) where
-  refl a := by simpa [LawfulOrderLE.le_iff] using IsPreorder.le_refl a
+public instance {α : Type u} [OrderData α] [IsPreorder α] :
+    Refl (α := α) OrderData.IsLE where
+  refl a := IsPreorder.le_refl a
 
-public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [IsLinearPreorder α] :
-    Std.Total (α := α) (· ≤ ·) where
-  total a b := by simpa [LawfulOrderLE.le_iff] using IsLinearPreorder.le_total a b
+public instance {α : Type u} [OrderData α] [IsLinearPreorder α] :
+   Total (α := α) OrderData.IsLE where
+  total a b := IsLinearPreorder.le_total a b
 
 end AxiomaticInstances
 
@@ -70,21 +71,41 @@ public theorem le_total {α : Type u} [LE α] [Std.Total (α := α) (· ≤ ·)]
     a ≤ b ∨ b ≤ a :=
   Std.Total.total a b
 
-public instance {α : Type u} [OrderData α] [LE α] [IsPreorder α] [LawfulOrderLE α] :
-    Refl (α := α) (· ≤ ·) where
-  refl := by simpa [LawfulOrderLE.le_iff] using IsPreorder.le_refl
-
-public instance {α : Type u} [OrderData α] [LE α] [IsPreorder α] [LawfulOrderLE α] :
-    Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
-  trans := by simpa [LawfulOrderLE.le_iff] using fun {a b c} => IsPreorder.le_trans a b c
-
-public instance {α : Type u} [OrderData α] [LE α] [IsLinearPreorder α] [LawfulOrderLE α] :
-    Total (α := α) (· ≤ ·) where
-  total := by simpa [LawfulOrderLE.le_iff] using IsLinearPreorder.le_total
-
-public instance {α : Type u} [OrderData α] [LE α] [IsPartialOrder α] [LawfulOrderLE α] :
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α]
+    [Antisymm (α := α) OrderData.IsLE] :
     Antisymm (α := α) (· ≤ ·) where
-  antisymm := by simpa [LawfulOrderLE.le_iff] using IsPartialOrder.le_antisymm
+  antisymm a b := by simpa [LawfulOrderLE.le_iff] using Antisymm.antisymm a b
+
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α]
+    [Antisymm (α := α) (· ≤ ·)] :
+    Antisymm (α := α) OrderData.IsLE where
+  antisymm a b := by simpa [← LawfulOrderLE.le_iff] using Antisymm.antisymm a b
+
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α]
+    [Trans (α := α) OrderData.IsLE OrderData.IsLE OrderData.IsLE] :
+    Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) where
+  trans {_ _ _} := by simpa [LawfulOrderLE.le_iff] using Trans.trans
+
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α]
+    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] :
+    Trans (α := α) OrderData.IsLE OrderData.IsLE OrderData.IsLE where
+  trans {_ _ _} := by simpa [← LawfulOrderLE.le_iff] using Trans.trans
+
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Refl (α := α) (· ≤ ·)] :
+    Refl (α := α) OrderData.IsLE where
+  refl a := by simpa [← LawfulOrderLE.le_iff] using Refl.refl a
+
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Refl (α := α) OrderData.IsLE] :
+    Refl (α := α) (· ≤ ·) where
+  refl a := by simpa [LawfulOrderLE.le_iff] using Refl.refl a
+
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Total (α := α) (· ≤ ·)] :
+    Total (α := α) OrderData.IsLE where
+  total a b := by simpa [← LawfulOrderLE.le_iff] using Total.total a b
+
+public instance {α : Type u} [LE α] [OrderData α] [LawfulOrderLE α] [Total (α := α) OrderData.IsLE] :
+    Total (α := α) (· ≤ ·) where
+  total a b := by simpa [LawfulOrderLE.le_iff] using Total.total a b
 
 end LE
 end Std
@@ -119,7 +140,7 @@ public theorem not_gt_of_lt {α : Type u} [LT α] [i : Std.Asymm (α := α) (· 
   ¬ b < a := i.asymm a b h
 
 public instance {α : Type u} [LT α] [OrderData α] [LawfulOrderLT α] :
-    Std.Asymm (α := α) (· < ·) where
+    Asymm (α := α) (· < ·) where
   asymm a b := by
     simp only [LawfulOrderLT.lt_iff]
     intro h h'
@@ -129,7 +150,7 @@ public instance {α : Type u} [LT α] [OrderData α] [IsPreorder α] [LawfulOrde
     Std.Irrefl (α := α) (· < ·) := inferInstance
 
 public instance {α : Type u} [LT α] [OrderData α]
-    [open Classical.Order in Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) ] [LawfulOrderLT α] :
+    [Trans (α := α) OrderData.IsLE OrderData.IsLE OrderData.IsLE] [LawfulOrderLT α] :
     Trans (α := α) (· < ·) (· < ·) (· < ·) where
   trans {a b c} hab hbc := by
     open Classical.Order in
@@ -140,17 +161,17 @@ public instance {α : Type u} [LT α] [OrderData α]
       exact hab.2.elim (le_trans hbc.1 hca)
 
 public instance {α : Type u} {_ : LT α} [OrderData α] [LawfulOrderLT α]
-    [open Classical.Order in Std.Total (α := α) (· ≤ ·)]
-    [open Classical.Order in Std.Antisymm (α := α) (· ≤ ·)] :
-    Std.Antisymm (α := α) (¬ · < ·) where
+    [Total (α := α) OrderData.IsLE]
+    [Antisymm (α := α) OrderData.IsLE] :
+    Antisymm (α := α) (¬ · < ·) where
   antisymm a b hab hba := by
     open Classical.Order in
     simp only [not_lt] at hab hba
     exact Std.Antisymm.antisymm (r := (· ≤ ·)) a b hba hab
 
 public instance {α : Type u} {_ : LT α} [OrderData α] [LawfulOrderLT α]
-    [open Classical.Order in Std.Total (α := α) (· ≤ ·)]
-    [open Classical.Order in Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] :
+    [Total (α := α) OrderData.IsLE]
+    [Trans (α := α) OrderData.IsLE OrderData.IsLE OrderData.IsLE] :
     Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·) where
   trans {a b c} hab hbc := by
     open Classical.Order in
@@ -158,8 +179,7 @@ public instance {α : Type u} {_ : LT α} [OrderData α] [LawfulOrderLT α]
     exact le_trans hbc hab
 
 public instance {α : Type u} {_ : LT α} [OrderData α] [LawfulOrderLT α]
-    [open Classical.Order in Std.Total (α := α) (· ≤ ·)] :
-    Std.Total (α := α) (¬ · < ·) where
+    [Total (α := α) OrderData.IsLE] : Total (α := α) (¬ · < ·) where
   total a b := by
     open Classical.Order in
     simp [not_lt, Std.Total.total]
@@ -195,6 +215,50 @@ public scoped instance instLT {α : Type u} [OrderData α] :
 public instance instLawfulOrderLT {α : Type u} [OrderData α] :
     LawfulOrderLT α where
   lt_iff _ _ := Iff.rfl
+
+end Classical.Order
+
+namespace Std
+section BEq
+
+public theorem beq_iff_le_and_ge {α : Type u} [BEq α] [LE α] [OrderData α] [LawfulOrderBEq α]
+    [LawfulOrderLE α] {a b : α} : a == b ↔ a ≤ b ∧ b ≤ a := by
+  simp [LawfulOrderBEq.beq_iff_isLE_and_isLE, LawfulOrderLE.le_iff]
+
+public instance {α : Type u} [BEq α] [OrderData α] [LawfulOrderBEq α] [IsPreorder α] : EquivBEq α where
+  rfl := by open scoped Classical.Order in simp [beq_iff_le_and_ge, le_refl]
+  symm := by open scoped Classical.Order in simp_all [beq_iff_le_and_ge]
+  trans hab hbc := by
+    open scoped Classical.Order in
+    simp only [beq_iff_le_and_ge] at hab hbc ⊢
+    exact ⟨le_trans hab.1 hbc.1, le_trans hbc.2 hab.2⟩
+
+public instance {α : Type u} [BEq α] [OrderData α] [LawfulOrderBEq α] [IsPartialOrder α] : LawfulBEq α where
+  eq_of_beq := by
+    open scoped Classical.Order in
+    simp only [beq_iff_le_and_ge, and_imp]
+    apply le_antisymm
+
+end BEq
+end Std
+
+namespace Classical.Order
+open Std
+
+@[no_expose]
+public noncomputable scoped instance instBEq {α : Type u} [OrderData α] :
+    BEq α where
+  beq a b := OrderData.IsLE a b ∧ OrderData.IsLE b a
+
+public instance instLawfulOrderBEq {α : Type u} [OrderData α] :
+    LawfulOrderBEq α where
+  beq_iff_isLE_and_isLE a b := by simp [BEq.beq]
+
+public instance instSymmBEq {α : Type u} [OrderData α] :
+    Symm (α := α) (· == ·) where
+  symm a b h := by
+    simp only [BEq.beq, Bool.decide_and, Bool.and_eq_true, decide_eq_true_eq] at h ⊢
+    exact h.symm
 
 end Classical.Order
 

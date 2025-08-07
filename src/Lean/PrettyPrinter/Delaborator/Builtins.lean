@@ -62,13 +62,17 @@ def delabMVarAux (m : MVarId) : DelabM Term := do
   let mkMVar (n : Name) : DelabM Term := `(?$(mkIdent n))
   withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
     if ← getPPOption getPPMVars then
-      match (← m.getDecl).userName with
-      | .anonymous =>
-        if ← getPPOption getPPMVarsAnonymous then
-          mkMVar <| m.name.replacePrefix `_uniq `m
-        else
-          mkMVarPlaceholder
-      | n => mkMVar n
+      if let some decl ← m.findDecl? then
+        match decl.userName with
+        | .anonymous =>
+          if ← getPPOption getPPMVarsAnonymous then
+            mkMVar <| Name.num `m (decl.index + 1)
+          else
+            mkMVarPlaceholder
+        | n => mkMVar n
+      else
+        -- Undefined mvar, use internal name
+        mkMVar <| m.name.replacePrefix `_uniq `_mvar
     else
       mkMVarPlaceholder
 

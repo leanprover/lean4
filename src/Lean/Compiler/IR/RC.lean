@@ -45,7 +45,7 @@ def getJPParams (ctx : Context) (j : JoinPointId) : Array Param :=
   ctx.localCtx.getJPParams j |>.get!
 
 def getJPLiveVars (ctx : Context) (j : JoinPointId) : LiveVarSet :=
-  ctx.jpLiveVarMap.get? j |>.getD {}
+  ctx.jpLiveVarMap.get! j
 
 def mustConsume (ctx : Context) (x : VarId) : Bool :=
   let info := getVarInfo ctx x

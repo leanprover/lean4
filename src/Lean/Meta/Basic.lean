@@ -1951,6 +1951,18 @@ def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) 
   let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
   withLCtx lctx' localInsts' k
 
+/--
+Ensures that the user names of all local declarations after index `idx` have a macro scope.
+-/
+def withFreshUserNamesSinceIdx [MonadLCtx n] [MonadLiftT MetaM n] (idx : Nat) (k : n α) : n α := do
+  let mut lctx ← getLCtx
+  for i in [idx:lctx.numIndices] do
+    let some decl := lctx.decls[i]! | continue
+    let n := decl.userName
+    if !n.hasMacroScopes then
+      lctx := lctx.setUserName decl.fvarId (← liftMetaM <| mkFreshUserName n)
+  withLCtx' lctx k
+
 private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   let mvarDecl ← mvarId.getDecl
   withLocalContextImp mvarDecl.lctx mvarDecl.localInstances x

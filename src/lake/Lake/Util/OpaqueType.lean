@@ -12,7 +12,7 @@ meta import Lean.Parser.Command
 
 /-!
 This module provides utilities for defining simple opaque types
-for forward declarations. Types are first declared with `declare_opaque_type`
+for forward declarations. Types are first declared with `nonempty_type`
 and then later filled in with `hydrate_opaque_type` once the corresponding
 non-opaque type has been defined.
 -/
@@ -22,23 +22,24 @@ open Lean Parser Command
 
 public section
 
-macro (name := declareOpaqueType)
-  doc?:optional(docComment) vis?:optional(visibility) "declare_opaque_type " id:ident bs:binder*
+macro (name := nonemptyTypeCmd)
+  doc?:optional(docComment) vis?:optional(visibility)
+  "nonempty_type " id:ident bs:binder*
 : command => do
   let bvs ← expandBinders bs
   let (bs, args) := Array.unzip <| bvs.map fun view =>
     (view.mkBinder, ⟨view.mkArgument.raw⟩)
-  let nonemptyTypeId := id.getId.modifyBase (· ++ `nonemptyType)
-  let nonemptyType := mkIdentFrom id nonemptyTypeId
+  let nonemptyType := mkIdentFrom id <| id.getId.modifyBase (·.str "nonemptyType")
+  let nonemptyInst := mkIdentFrom id <| id.getId.modifyBase (·.str "instNonempty")
   let nonemptyTypeApp := Syntax.mkApp nonemptyType args
   `(
-  opaque $nonemptyType $[$bs]* : NonemptyType.{0}
+  private opaque $nonemptyType $[$bs]* : NonemptyType.{0}
   $[$doc?:docComment]? $[$vis?:visibility]? def $id $[$bs]* : Type := $nonemptyTypeApp |>.type
-  $[$vis?:visibility]? instance : Nonempty $(Syntax.mkApp id args) :=  by
+  $[$vis?:visibility]? instance $nonemptyInst:ident : Nonempty $(Syntax.mkApp id args) := by
     exact $nonemptyTypeApp |>.property
   )
 
-macro (name := hydrateOpaqueType)
+macro (name := hydrateOpaqueTypeCmd)
   vis?:optional(visibility) "hydrate_opaque_type " oty:ident ty:ident args:ident*
 : command =>
   let mk := mkIdent `mk

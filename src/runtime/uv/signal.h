@@ -8,17 +8,15 @@ Author: Sofia Rodrigues
 #include <lean/lean.h>
 #include "runtime/uv/event_loop.h"
 
-namespace lean {
-
 #ifndef LEAN_EMSCRIPTEN
-using namespace std;
 #include <uv.h>
-
 #endif
+
+namespace lean {
 
 // =======================================
 // Signal functions
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_wait(lean_obj_arg signum_obj, obj_arg /* w */);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_wait(uint32_t signum_obj, obj_arg /* w */);
 
 }

@@ -11,6 +11,8 @@ import Init.Classical
 
 namespace Std
 
+section OrderData
+
 /-!
 This module provides utilities for the creation of order-related typeclass instances.
 -/
@@ -275,5 +277,142 @@ public def LawfulOrderMax.ofLT {α : Type u} [Max α] [LT α]
     toMaxEqOr := ⟨max_eq_or⟩ }
 
 end OfLT
+
+end OrderData
+
+section Packages
+
+section Preorder
+
+public class PreorderPackage (α : Type u) extends
+    OrderData α, LE α, LT α, BEq α, LawfulOrderLE α, LawfulOrderLT α, LawfulOrderBEq α, IsPreorder α
+
+namespace Instances
+
+public scoped instance instBEqOfDecidableLE {α : Type u} [LE α] [DecidableLE α] :
+    BEq α where
+  beq a b := a ≤ b ∧ b ≤ a
+
+public theorem beq_iff {α : Type u} [LE α] [DecidableLE α] {a b : α} :
+    a == b ↔ a ≤ b ∧ b ≤ a := by
+  simp [BEq.beq]
+
+end Instances
+
+public structure Packages.PreorderOfLEArgs (α : Type u) where
+  le : LE α := by infer_instance
+  decidableLE : DecidableLE α := by infer_instance
+  orderData [i : LE α] (hi : i = le := by rfl) : OrderData α := by
+    first
+      | infer_instance
+      | exact fun _ => OrderData.ofLE _
+  lt [i : OrderData α] (hi : i = orderData := by rfl) : LT α := by
+    first
+      | infer_instance
+      | exact fun _ => Classical.Order.instLT
+  beq [i : OrderData α] (hi : i = orderData := by rfl) : BEq α := by
+    first
+      | infer_instance
+      | exact fun _ => Instances.instBEqOfDecidableLE
+  lawful_orderData : haveI := orderData; ∀ a b : α, a ≤ b ↔ OrderData.IsLE a b := by
+    first
+      | exact LawfulOrderLE.le_iff
+      | fail "Failed to automatically prove that the `OrderData` and `LE` instances are compatible."
+  lawful_lt : letI := orderData; letI := lt; ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
+    first
+      | simp only [Classical.Order.instLT, ← LawfulOrderLE.le_iff, implies_true]; done -- TODO: use term?
+      | fail "Failed to automatically prove that the `OrderData` and `LT` instances are compatible."
+  lawful_beq : letI := orderData; letI := beq; ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a := by
+    first
+      | simpa only [Instances.instBEqOfDecidableLE, BEq.beq] using fun a b => Std.Instances.beq_iff; done -- TODO: use simp only
+      | fail "Failed to automatically prove that the `OrderData` and `BEq` instances are compatible."
+  le_refl : ∀ a : α, a ≤ a := by
+    first
+      | exact Std.Refl.refl (r := (· ≤ ·))
+      | fail "Failed to automatically prove that the `LE` instance is reflexive."
+  le_trans : ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c := by
+    first
+      | exact fun _ _ _ hab hbc => Trans.trans (r := (· ≤ ·)) (s := (· ≤ ·)) (t := (· ≤ ·)) hab hbc
+      | fail "Failed to automatically prove that the `LE` instance is transitive."
+
+@[expose]
+public def PreorderPackage.ofLE (α : Type u)
+    (args : Packages.PreorderOfLEArgs α := by exact {}) : PreorderPackage α where
+  toLE := args.le
+  toOrderData := letI := args.le; args.orderData
+  toLT := letI := args.le; letI := args.orderData; args.lt
+  toBEq := letI := args.le; letI := args.orderData; args.beq
+  toLawfulOrderLE := letI := args.le; letI := args.orderData; ⟨args.lawful_orderData⟩
+  toLawfulOrderLT := by
+    letI := args.le; letI := args.orderData; letI := args.lt
+    constructor
+    simpa [args.lawful_orderData] using args.lawful_lt
+  toLawfulOrderBEq := by
+    letI := args.le; letI := args.orderData; letI := args.beq
+    constructor
+    simpa [args.lawful_orderData] using args.lawful_beq
+  le_refl := (by simpa [args.lawful_orderData] using args.le_refl)
+  le_trans := (by simpa [args.lawful_orderData] using args.le_trans)
+
+-- public structure PreorderPackage.OfLTArgs (α : Type u) where
+--   lt : LT α := by infer_instance
+--   orderData [i : LT α] (hi : i = lt := by rfl) : OrderData α := by
+--     first
+--       | infer_instance
+--       | exact fun _ => OrderData.ofLT _
+--   le [i : OrderData α] (hi : i = orderData := by rfl) : LE α := by
+--     first
+--       | infer_instance
+--       | exact fun _ => Classical.Order.instLE
+--   lt_asymm : ∀ a b : α, a < b → ¬ b < a := by
+--     first
+--       | apply Asymm.asymm
+--       | fail "Failed to automatically prove that the `LT` instance is asymmetric."
+--   lawful_orderData : haveI := orderData; ∀ a b : α, a < b ↔ OrderData.IsLE a b ∧ ¬ OrderData.IsLE b a := by
+--     first
+--       | exact LawfulOrderLT.lt_iff
+--       | fail "Failed to automatically prove that the `OrderData` and `LT` instances are compatible."
+--   lawful_le : letI := orderData; letI := le; ∀ a b : α, a ≤ b ↔ ¬ b < a := by
+--     first
+--       | simp [Classical.Order.instLE, OrderData.ofLT]; done
+--       | fail "Failed to automatically prove that the `OrderData` and `LE` instances are compatible."
+
+-- @[expose]
+-- public def PreorderPackage.ofLT (α : Type u) (args : OfLTArgs α := by exact {}) : PreorderPackage α where
+--   toLT := args.lt
+--   toOrderData := letI := args.lt; args.orderData
+--   toLE := letI := args.lt; letI := args.orderData; args.le
+--   toLawfulOrderLT := letI := args.lt; letI := args.orderData; ⟨args.lawful_orderData⟩
+--   toLawfulOrderLE := by
+--     letI := args.lt; letI := args.orderData; letI := args.le
+--     haveI : LawfulOrderLT α := ⟨args.lawful_orderData⟩
+--     constructor
+--     simp [args.lawful_le, args.lawful_orderData]
+--     have := args.lt_asymm
+--     simp [args.lawful_orderData] at this
+--     -- simpa [args.lawful_orderData] using args.lawful_le
+
+end Preorder
+
+section PartialOrder
+
+public class PartialOrderPackage (α : Type u) extends
+    PreorderPackage α, IsPartialOrder α
+
+public structure Packages.PartialOrderOfLEArgs (α : Type u) extends Packages.PreorderOfLEArgs α where
+  le_antisymm : ∀ a b : α, a ≤ b → b ≤ a → a = b := by
+    first
+      | exact Antisymm.antisymm
+      | fail "Failed to automatically prove that the `LE` instance is antisymmetric. You can either ensure that an `Asymm` instance is available or manually provide the `le_antisymm` field."
+
+@[expose]
+public def PartialOrderPackage.ofLE (α : Type u)
+    (args : Packages.PartialOrderOfLEArgs α := by exact {}) : PartialOrderPackage α where
+  toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
+  le_antisymm := by simpa [args.lawful_orderData] using args.le_antisymm
+
+end PartialOrder
+
+end Packages
 
 end Std

@@ -4026,6 +4026,10 @@ instance instIsLinearOrder : IsLinearOrder (BitVec n) := by
   case le_trans => constructor; apply BitVec.le_trans
   case le_total => constructor; apply BitVec.le_total
 
+instance instLawfulOrderLT : LawfulOrderLT (BitVec n) := by
+  apply LawfulOrderLT.of_le
+  simpa using fun _ _ => BitVec.lt_asymm
+
 protected theorem umod_lt (x : BitVec n) {y : BitVec n} : 0 < y → x % y < y := by
   simp only [ofNat_eq_ofNat, lt_def, toNat_ofNat, Nat.zero_mod]
   apply Nat.mod_lt

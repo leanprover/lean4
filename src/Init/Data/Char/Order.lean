@@ -12,6 +12,8 @@ public import Init.Data.Order.Factories
 
 open Std
 
+namespace Char
+
 public instance : OrderData Char := .ofLE Char
 
 public instance instIsLinearOrder : IsLinearOrder Char := by
@@ -23,3 +25,5 @@ public instance instIsLinearOrder : IsLinearOrder Char := by
 public instance : LawfulOrderLT Char where
   lt_iff a b := by
     simp [← Char.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
+
+end Char

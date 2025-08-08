@@ -80,7 +80,6 @@ theorem min?_mem [Min α] [MinEqOr α] :
         cases MinEqOr.min_eq_or x y with | _ q => simp [p, q]
       | inr p => simp [p, mem_cons]
 
-/-- See also `Init.Data.List.Nat.Basic` for the specialization to `Nat`, called `le_min?_iff'`. -/
 theorem le_min?_iff [Min α] [LE α] [OrderData α] [LawfulOrderInf α] [LawfulOrderLE α] :
     {xs : List α} → xs.min? = some a → ∀ {x}, x ≤ a ↔ ∀ b, b ∈ xs → x ≤ b
   | nil => by simp
@@ -96,7 +95,6 @@ theorem le_min?_iff [Min α] [LE α] [OrderData α] [LawfulOrderInf α] [LawfulO
       simp at eq
       simp [ih _ eq, le_min_iff, and_assoc]
 
-/-- See also `Init.Data.List.Nat.Basic` for the specialization to `Nat`, called `min?_eq_some_iff`. -/
 theorem min?_eq_some_iff [Min α] [LE α] {xs : List α} [OrderData α] [IsLinearOrder α]
     [LawfulOrderMin α] [LawfulOrderLE α] : xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
   refine ⟨fun h => ⟨min?_mem h, (le_min?_iff h).1 (le_refl _)⟩, ?_⟩
@@ -150,7 +148,7 @@ theorem min?_replicate [Min α] [Std.IdempotentOp (min : α → α → α)] {n :
   simp [min?_replicate, Nat.ne_of_gt h]
 
 /--
-Requirements are satisfied for `[OrderData α] [Min α] [LinearOrder α] [LawfulOrderMin α]`
+Requirements are satisfied for `[OrderData α] [Min α] [IsLinearOrder α] [LawfulOrderMin α]`
 -/
 theorem foldl_min [Min α] [Std.IdempotentOp (min : α → α → α)] [Std.Associative (min : α → α → α)]
     {l : List α} {a : α} : l.foldl (init := a) min = min a (l.min?.getD a) := by
@@ -207,7 +205,6 @@ theorem max?_mem [Max α] [MaxEqOr α] :
         cases MaxEqOr.max_eq_or x y with | _ q => simp [p, q]
       | inr p => simp [p, mem_cons]
 
-/-- See also `Init.Data.List.Nat.Basic` for the specialization to `Nat`, called `max?_le_iff'`. -/
 theorem max?_le_iff [Max α] [LE α] [OrderData α] [LawfulOrderSup α] [LawfulOrderLE α] :
     {xs : List α} → xs.max? = some a → ∀ {x}, a ≤ x ↔ ∀ b, b ∈ xs → b ≤ x
   | nil => by simp
@@ -223,7 +220,6 @@ theorem max?_le_iff [Max α] [LE α] [OrderData α] [LawfulOrderSup α] [LawfulO
       simp at eq
       simp [ih _ eq, max_le_iff, and_assoc]
 
-/-- See also `Init.Data.List.Nat.Basic` for the specialization to `Nat`, called `max?_eq_some_iff`. -/
 theorem max?_eq_some_iff [Max α] [LE α] {xs : List α} [OrderData α] [IsLinearOrder (α)]
     [LawfulOrderMax α] [LawfulOrderLE α] : xs.max? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → b ≤ a := by
   refine ⟨fun h => ⟨max?_mem h, (max?_le_iff h).1 (le_refl _)⟩, ?_⟩

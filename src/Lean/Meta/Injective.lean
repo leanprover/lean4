@@ -12,8 +12,8 @@ public import Lean.Meta.Tactic.Apply
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.Cases
 public import Lean.Meta.Tactic.Subst
-public import Lean.Meta.Tactic.Simp.Types
 public import Lean.Meta.Tactic.Assumption
+import Lean.Meta.Tactic.Simp.Main
 
 public section
 

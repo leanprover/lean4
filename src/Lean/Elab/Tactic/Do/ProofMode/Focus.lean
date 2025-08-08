@@ -34,11 +34,11 @@ partial def focusHyp (u : Level) (σs : Expr) (e : Expr) (name : Name) : Option 
     try
       -- NB: Need to prefer rhs over lhs, like the goal view (Lean.Elab.Tactic.Do.ProofMode.Delab).
       let ⟨focus, rhs', h₁⟩ ← focusHyp u σs rhs name
-      let ⟨C, h₂⟩ := mkAnd u σs lhs rhs'
+      let ⟨C, h₂⟩ := SPred.mkAnd u σs lhs rhs'
       return ⟨focus, C, mkApp8 (mkConst ``Focus.right [u]) σs lhs rhs rhs' C focus h₁ h₂⟩
     catch _ =>
       let ⟨focus, lhs', h₁⟩ ← focusHyp u σs lhs name
-      let ⟨C, h₂⟩ := mkAnd u σs lhs' rhs
+      let ⟨C, h₂⟩ := SPred.mkAnd u σs lhs' rhs
       return ⟨focus, C, mkApp8 (mkConst ``Focus.left [u]) σs lhs lhs' rhs C focus h₁ h₂⟩
   else if let some _ := parseEmptyHyp? e then
     none
@@ -49,18 +49,18 @@ def MGoal.focusHyp (goal : MGoal) (name : Name) : Option FocusResult :=
   Lean.Elab.Tactic.Do.ProofMode.focusHyp goal.u goal.σs goal.hyps name
 
 def FocusResult.refl (u : Level) (σs : Expr) (restHyps : Expr) (focusHyp : Expr) : FocusResult :=
-  let proof := mkApp2 (mkConst ``SPred.bientails.refl [u]) σs (mkAnd! u σs restHyps focusHyp)
+  let proof := mkApp2 (mkConst ``SPred.bientails.refl [u]) σs (SPred.mkAnd! u σs restHyps focusHyp)
   { restHyps, focusHyp, proof }
 
 def FocusResult.restGoal (res : FocusResult) (goal : MGoal) : MGoal :=
   { goal with hyps := res.restHyps }
 
 def FocusResult.recombineGoal (res : FocusResult) (goal : MGoal) : MGoal :=
-  { goal with hyps := mkAnd! goal.u goal.σs res.restHyps res.focusHyp }
+  { goal with hyps := SPred.mkAnd! goal.u goal.σs res.restHyps res.focusHyp }
 
 /-- Turn a proof for `(res.recombineGoal goal).toExpr` into one for `goal.toExpr`. -/
 def FocusResult.rewriteHyps (res : FocusResult) (goal : MGoal) : Expr → Expr :=
-  mkApp6 (mkConst ``Focus.rewrite_hyps [goal.u]) goal.σs goal.hyps (mkAnd! goal.u goal.σs res.restHyps res.focusHyp) goal.target res.proof
+  mkApp6 (mkConst ``Focus.rewrite_hyps [goal.u]) goal.σs goal.hyps (SPred.mkAnd! goal.u goal.σs res.restHyps res.focusHyp) goal.target res.proof
 
 def MGoal.focusHypWithInfo (goal : MGoal) (name : Ident) : MetaM FocusResult := do
   let some res := goal.focusHyp name.getId | throwError "unknown hypothesis '{name}'"

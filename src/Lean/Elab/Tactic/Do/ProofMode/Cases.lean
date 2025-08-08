@@ -33,14 +33,14 @@ def synthIsAnd (u : Level) (σs H : Expr) : OptionT MetaM (Expr × Expr × Expr)
 
 -- Produce a proof for Q ∧ H ⊢ₛ T by opening a new goal P ⊢ₛ T, where P ⊣⊢ₛ Q ∧ H.
 def mCasesAddGoal (u : Level) (goals : IO.Ref (Array MVarId)) (σs : Expr) (T : Expr) (Q : Expr) (H : Expr) : MetaM (Unit × MGoal × Expr) := do
-  let (P, hand) := mkAnd u σs Q H
+  let (P, hand) := SPred.mkAnd u σs Q H
   -- hand : Q ∧ H ⊣⊢ₛ P
   -- Need to produce a proof that P ⊢ₛ T and return res
   let goal : MGoal := { u := u, σs := σs, hyps := P, target := T }
   let m ← mkFreshExprSyntheticOpaqueMVar goal.toExpr
   goals.modify (·.push m.mvarId!)
   let prf := mkApp7 (mkConst ``Cases.add_goal [u]) σs P Q H T hand m
-  let goal := { goal with hyps := mkAnd! u σs Q H }
+  let goal := { goal with hyps := SPred.mkAnd! u σs Q H }
   return ((), goal, prf)
 
 private def getQH (goal : MGoal) : MetaM (Expr × Expr) := do
@@ -62,7 +62,7 @@ def mCasesExists (H : Expr) (name : TSyntax ``binderIdent)
     let (Q, _) ← getQH goal
     let u ← getLevel α
     let prf := mkApp6 (mkConst ``Cases.exists [goal.u, u]) σs α Q ψ goal.target (← mkLambdaFVars #[x] prf)
-    let goal := { goal with hyps := mkAnd! goal.u σs Q H }
+    let goal := { goal with hyps := SPred.mkAnd! goal.u σs Q H }
     return (r, goal, prf)
 
 -- goal is P ⊢ₛ T
@@ -84,7 +84,7 @@ partial def mCasesCore (u : Level) (σs : Expr) (H : Expr) (pat : MCasesPat) (k 
     -- prf : Q ∧ ⌜True⌝ ⊢ₛ T
     -- Then Q ∧ H ⊢ₛ Q ∧ ⌜True⌝ ⊢ₛ T
     let prf := mkApp5 (mkConst ``Cases.clear [u]) σs Q H goal.target prf
-    let goal := { goal with hyps := mkAnd! u σs Q H }
+    let goal := { goal with hyps := SPred.mkAnd! u σs Q H }
     return (a, goal, prf)
   | .stateful name => do
     let (name, ref) ← getFreshHypName name
@@ -129,7 +129,7 @@ partial def mCasesCore (u : Level) (σs : Expr) (H : Expr) (pat : MCasesPat) (k 
       -- 8. Reassociate to Q ∧ (H₁ ∧ H₂) ⊢ₛ T, rebuild Q ∧ H ⊢ₛ T and return it.
       let ((a, Q), goal, prf) ← mCasesCore u σs H₁ p fun H₁' => do
         let ((a, Q), goal, prf) ← mCasesCore u σs H₂ (.tuple ps) fun H₂' => do
-          let (H₁₂', hand') := mkAnd u σs H₁' H₂'
+          let (H₁₂', hand') := SPred.mkAnd u σs H₁' H₂'
           let (a, goal, prf) ← k H₁₂' -- (2)
           -- (3) prf : Q ∧ H₁₂' ⊢ₛ T
           -- (4) refocus to (Q ∧ H₁') ∧ H₂'
@@ -137,19 +137,19 @@ partial def mCasesCore (u : Level) (σs : Expr) (H : Expr) (pat : MCasesPat) (k 
           let T := goal.target
           let prf := mkApp8 (mkConst ``Cases.and_1 [u]) σs Q H₁' H₂' H₁₂' T hand' prf
           -- check prf
-          let QH₁' := mkAnd! u σs Q H₁'
-          let goal := { goal with hyps := mkAnd! u σs QH₁' H₂' }
+          let QH₁' := SPred.mkAnd! u σs Q H₁'
+          let goal := { goal with hyps := SPred.mkAnd! u σs QH₁' H₂' }
           return ((a, Q), goal, prf)
         -- (5) prf : (Q ∧ H₁') ∧ H₂ ⊢ₛ T
         -- (6) refocus to prf : (Q ∧ H₂) ∧ H₁' ⊢ₛ T
         let prf := mkApp6 (mkConst ``Cases.and_2 [u]) σs Q H₁' H₂ goal.target prf
-        let QH₂ := mkAnd! u σs Q H₂
-        let goal := { goal with hyps := mkAnd! u σs QH₂ H₁' }
+        let QH₂ := SPred.mkAnd! u σs Q H₂
+        let goal := { goal with hyps := SPred.mkAnd! u σs QH₂ H₁' }
         return ((a, Q), goal, prf)
       -- (7) prf : (Q ∧ H₂) ∧ H₁ ⊢ₛ T
       -- (8) rearrange to Q ∧ H ⊢ₛ T
       let prf := mkApp8 (mkConst ``Cases.and_3 [u]) σs Q H₁ H₂ H goal.target hand prf
-      let goal := { goal with hyps := mkAnd! u σs Q H }
+      let goal := { goal with hyps := SPred.mkAnd! u σs Q H }
       return (a, goal, prf)
     else if let some (_α, σs, ψ) := H.consumeMData.app3? ``SPred.exists then
       let .one n := p
@@ -171,7 +171,7 @@ partial def mCasesCore (u : Level) (σs : Expr) (H : Expr) (pat : MCasesPat) (k 
     let (_a, goal₁,  prf₁) ← mCasesCore u σs H₁ p k
     let (a,  _goal₂, prf₂) ← mCasesCore u σs H₂ (.alts ps) k
     let (Q, _H₁) ← getQH goal₁
-    let goal := { goal₁ with hyps := mkAnd! u σs Q (mkApp3 (mkConst ``SPred.or [u]) σs H₁ H₂) }
+    let goal := { goal₁ with hyps := SPred.mkAnd! u σs Q (mkApp3 (mkConst ``SPred.or [u]) σs H₁ H₂) }
     let prf := mkApp7 (mkConst ``SPred.and_or_elim_r [u]) σs Q H₁ H₂ goal.target prf₁ prf₂
     return (a, goal, prf)
 

@@ -178,7 +178,9 @@ private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin
       return .addEntries <| thms.map (SimpEntry.thm ·)
     else
       if inv then
-        throwError "invalid '←' modifier, '{declName}' is a declaration name to be unfolded"
+        throwError m!"Invalid `←` modifier: `{declName}` is a declaration name to be unfolded"
+          ++ .hint' m!"The simplifier cannot \"refold\" definitions by name. Use `rw` for this intead,
+                      or use the `←` simp modifier with an equational lemma for `{declName}`."
       if kind == .dsimp then
         return .addEntries #[.toUnfold declName]
       else
@@ -190,9 +192,10 @@ private def elabDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (id : Origin
       let thms ← mkSimpTheoremFromExpr id #[] e (post := post) (inv := inv) (config := config)
       return .addEntries <| thms.map (SimpEntry.thm ·)
     else if !decl.isLet then
-      throwError "invalid argument, variable is not a proposition or let-declaration"
+      throwError "Invalid argument: Variable `{e}` is not a proposition or let-declaration"
     else if inv then
-      throwError "invalid '←' modifier, '{e}' is a let-declaration name to be unfolded"
+      throwError m!"Invalid `←` modifier: `{e}` is a let-declaration name to be unfolded"
+        ++ .note "The simplifier cannot \"refold\" local declarations by name"
     else
       return .addLetToUnfold fvarId
   else
@@ -434,9 +437,9 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     TacticM MkSimpContextResult := do
   if !stx[2].isNone then
     if kind == SimpKind.simpAll then
-      throwError "'simp_all' tactic does not support 'discharger' option"
+      throwError "Tactic `simp_all` does not support the `discharger` option"
     if kind == SimpKind.dsimp then
-      throwError "'dsimp' tactic does not support 'discharger' option"
+      throwError "Tactic `dsimp` does not support the `discharger' option"
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[simpOnlyPos].isNone
   let simpTheorems ← if simpOnly then

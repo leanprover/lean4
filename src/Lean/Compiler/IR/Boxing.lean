@@ -74,17 +74,6 @@ def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
     if requiresBoxedVersion env decl then newDecls.push (mkBoxedVersion decl) else newDecls
   decls ++ boxedDecls
 
-/-- Infer scrutinee type using `case` alternatives.
-   This can be done whenever `alts` does not contain an `Alt.default _` value. -/
-def getScrutineeType (alts : Array Alt) : IRType :=
-  let isScalar :=
-     alts.all fun
-      | Alt.ctor c _  => c.isScalar
-      | Alt.default _ => false
-  match isScalar with
-  | false => .tobject
-  | true  => irTypeForEnum alts.size
-
 def eqvTypes (t₁ t₂ : IRType) : Bool :=
   (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
@@ -259,8 +248,9 @@ def castResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (eType : IRType) (b 
     return FnBody.vdecl x ty e b
   else
     let y ← M.mkFresh
-    let v ← mkCast y eType ty
-    return FnBody.vdecl y eType e (FnBody.vdecl x ty v b)
+    let boxedTy := ty.boxed
+    let v ← mkCast y boxedTy ty
+    return FnBody.vdecl y boxedTy e (FnBody.vdecl x ty v b)
 
 def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody :=
   match e with
@@ -302,11 +292,10 @@ partial def visitFnBody : FnBody → M FnBody
     let b ← visitFnBody b
     castVarIfNeeded y ty fun y =>
       return FnBody.sset x i o y ty b
-  | FnBody.case tid x _ alts   => do
-    let expected := getScrutineeType alts
+  | FnBody.case tid x xType alts   => do
     let alts ← alts.mapM fun alt => alt.modifyBodyM visitFnBody
-    castVarIfNeeded x expected fun x => do
-      return FnBody.case tid x expected alts
+    castVarIfNeeded x xType fun x => do
+      return FnBody.case tid x xType alts
   | FnBody.ret x             => do
     let expected ← getResultType
     castArgIfNeeded x expected (fun x => return FnBody.ret x)

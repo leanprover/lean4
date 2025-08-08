@@ -1,4 +1,4 @@
-failTac.lean:2:2-2:6: error: tactic 'fail' failed
+failTac.lean:2:2-2:6: error: Failed: `fail` tactic was invoked
 a b : Nat
 ⊢ False
 failTac.lean:5:2-5:18: error: giving up

@@ -11,6 +11,7 @@ public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Internalize
 public import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Grind.EqResolution
+import Lean.Meta.Tactic.Grind.SynthInstance
 
 public section
 

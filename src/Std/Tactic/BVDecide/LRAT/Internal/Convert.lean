@@ -137,7 +137,7 @@ theorem CNF.unsat_of_convertLRAT_unsat (cnf : CNF Nat) :
   rcases hlclause with ⟨reflectClause, ⟨hrclause1, hrclause2⟩⟩
   simp only [CNF.eval, List.all_eq_true] at h2
   split at hrclause2
-  · next heq =>
+  next heq =>
     rw [← heq] at hrclause2
     simp only [Option.some.injEq] at hrclause2
     simp [CNF.Clause.convertLRAT_sat_of_sat reflectClause hrclause2, h2 reflectClause hrclause1]

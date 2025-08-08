@@ -58,7 +58,7 @@ instance : ToString ParamMap := ⟨fun m => Format.pretty (format m)⟩
 namespace InitParamMap
 /-- Mark parameters that take a reference as borrow -/
 def initBorrow (ps : Array Param) : Array Param :=
-  ps.map fun p => { p with borrow := p.ty.isObj }
+  ps.map fun p => { p with borrow := p.ty.isPossibleRef }
 
 /-- We do not perform borrow inference for constants marked as `export`.
    Reason: we current write wrappers in C++ for using exported functions.

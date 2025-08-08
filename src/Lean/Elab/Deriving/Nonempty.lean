@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Deriving.Basic
+import Lean.Elab.Deriving.Util
 
 public section
 
@@ -14,6 +15,7 @@ namespace Lean.Elab
 open Command Meta Parser Term
 
 private def mkNonemptyInstance (declName : Name) : TermElabM Syntax.Command := do
+  let ctx ← Deriving.mkContext "nonempty" declName
   let indVal ← getConstInfoInduct declName
   forallTelescopeReducing indVal.type fun paramsIndices _ => do
   let mut indArgs := #[]
@@ -27,9 +29,10 @@ private def mkNonemptyInstance (declName : Name) : TermElabM Syntax.Command := d
         binders := binders.push (← `(bracketedBinderF| [Nonempty $arg]))
   let ctorTacs ← indVal.ctors.toArray.mapM fun ctor =>
     `(tactic| apply @$(mkCIdent ctor) <;> exact Classical.ofNonempty)
-  let privTk? := guard (isPrivateName declName) *> some .missing
+  let vis := ctx.mkVisibilityFromTypes
+  let expAttr := ctx.mkExposeAttrFromCtors
   `(command| variable $binders* in
-    $[private%$privTk?]? instance : Nonempty (@$(mkCIdent declName) $indArgs*) :=
+    @[$expAttr] $vis:visibility instance : Nonempty (@$(mkCIdent declName) $indArgs*) :=
       by constructor; first $[| $ctorTacs:tactic]*)
 
 def mkNonemptyInstanceHandler (declNames : Array Name) : CommandElabM Bool := do

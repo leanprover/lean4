@@ -10,6 +10,10 @@ source ../common.sh
 # Test that setup-file works on a file outside the workspace and working directory
 test_out '"name":"_unknown"' setup-file ../../examples/hello/Hello.lean
 
+# Test that setup-file works on library files with a `.` in their name
+# https://leanprover.zulipchat.com/#narrow/channel/270676-lean4/topic/Foo.2E.2Elean.20works.20when.20.60import.60ed.20but.20not.20in.20vscode/near/529702293
+test_out '"name":"Test.«Foo.Bar»"' setup-file Test/Foo.Bar.lean
+
 # Test that, by default, no plugins are used.
 test_out '"plugins":[]' setup-file ImportFoo.lean
 
@@ -46,13 +50,11 @@ BOGUS_JSON='{"isModule":false,"imports":[{"module":"Test.Bogus","isMeta":false,"
 test_err 'no such file or directory' setup-file ImportFoo.lean "$BOGUS_JSON"
 
 # Test that when a header is provided (via CLI or stdin),
-# the header is *NOT* used for an internal module and its imports are not built.
-# TODO: Use the provided header.
+# the header is used for an internal module and its imports are built.
 test_out '"isModule":false' setup-file Test.lean
-test_out '"isModule":false' setup-file Test.lean "$HEADER_JSON"
-echo "$HEADER_JSON" | test_out '"isModule":false' setup-file Test.lean -
-# If the provided import (Test.Bogus) was built, this would fail.
-test_run setup-file Test.lean "$BOGUS_JSON"
+test_out '"isModule":true' setup-file Test.lean "$HEADER_JSON"
+echo "$HEADER_JSON" | test_out '"isModule":true' setup-file Test.lean -
+test_err 'no such file or directory' setup-file Test.lean "$BOGUS_JSON"
 
 # Cleanup
 rm -f produced.out

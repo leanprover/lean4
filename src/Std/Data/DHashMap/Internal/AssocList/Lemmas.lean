@@ -48,7 +48,7 @@ theorem length_eq {l : AssocList α β} : l.length = l.toList.length := by
   suffices ∀ n, l.toList.foldl (fun d _ => d + 1) n = l.toList.length + n by simp
   induction l
   · simp
-  · next _ _ t ih =>
+  next _ _ t ih =>
     intro n
     simp [ih, Nat.add_assoc, Nat.add_comm n 1]
 
@@ -72,14 +72,14 @@ theorem getCast_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} {h} :
     l.getCast a h = getValueCast a l.toList (contains_eq.symm.trans h) := by
   induction l
   · simp [contains] at h
-  · next k v t ih => simp only [getCast, toList_cons, List.getValueCast_cons, ih]
+  next k v t ih => simp only [getCast, toList_cons, List.getValueCast_cons, ih]
 
 @[simp]
 theorem get_eq {β : Type v} [BEq α] {l : AssocList α (fun _ => β)} {a : α} {h} :
     l.get a h = getValue a l.toList (contains_eq.symm.trans h) := by
   induction l
   · simp [contains] at h
-  · next k v t ih => simp only [get, toList_cons, List.getValue_cons, ih]
+  next k v t ih => simp only [get, toList_cons, List.getValue_cons, ih]
 
 @[simp]
 theorem getCastD_eq [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α} {fallback : β a} :
@@ -127,7 +127,7 @@ theorem getKey_eq [BEq α] {l : AssocList α β} {a : α} {h} :
     l.getKey a h = List.getKey a l.toList (contains_eq.symm.trans h) := by
   induction l
   · simp [contains] at h
-  · next k v t ih => simp only [getKey, toList_cons, List.getKey_cons, ih]
+  next k v t ih => simp only [getKey, toList_cons, List.getKey_cons, ih]
 
 @[simp]
 theorem getKeyD_eq [BEq α] {l : AssocList α β} {a fallback : α} :
@@ -148,14 +148,14 @@ theorem toList_replace [BEq α] {l : AssocList α β} {a : α} {b : β a} :
     (l.replace a b).toList = replaceEntry a b l.toList := by
   induction l
   · simp [replace]
-  · next k v t ih => cases h : k == a <;> simp_all [replace, List.replaceEntry_cons]
+  next k v t ih => cases h : k == a <;> simp_all [replace, List.replaceEntry_cons]
 
 @[simp]
 theorem toList_erase [BEq α] {l : AssocList α β} {a : α} :
     (l.erase a).toList = eraseKey a l.toList := by
   induction l
   · simp [erase]
-  · next k v t ih => cases h : k == a <;> simp_all [erase, List.eraseKey_cons]
+  next k v t ih => cases h : k == a <;> simp_all [erase, List.eraseKey_cons]
 
 theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} {l : AssocList α β} :
     Perm (l.filterMap f).toList (l.toList.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) := by
@@ -166,11 +166,11 @@ theorem toList_filterMap {f : (a : α) → β a → Option (γ a)} {l : AssocLis
   intros l l'
   induction l' generalizing l
   · simp [filterMap.go]
-  · next k v t ih =>
+  next k v t ih =>
     simp only [filterMap.go, toList_cons, List.filterMap_cons]
     split
-    · next h => exact (ih _).trans (by simp [h])
-    · next h =>
+    next h => exact (ih _).trans (by simp [h])
+    next h =>
       refine (ih _).trans ?_
       simp only [toList_cons, List.cons_append]
       exact perm_middle.symm.trans (by simp [h])
@@ -184,7 +184,7 @@ theorem toList_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
   intros l l'
   induction l' generalizing l
   · simp [map.go]
-  · next k v t ih =>
+  next k v t ih =>
     simp only [map.go, toList_cons, List.map_cons]
     refine (ih _).trans ?_
     simpa using perm_middle.symm
@@ -198,7 +198,7 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
   intros l l'
   induction l' generalizing l
   · simp [filter.go]
-  · next k v t ih =>
+  next k v t ih =>
     simp only [filter.go, toList_cons, List.filter_cons, cond_eq_if]
     split
     · exact (ih _).trans (by simpa using perm_middle.symm)
@@ -237,7 +237,7 @@ theorem modify_eq_alter [BEq α] [LawfulBEq α] {a : α} {f : β a → β a} {l 
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl
-  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
+  next ih => simp only [modify, beq_iff_eq, alter, Option.map_some, ih]
 
 namespace Const
 
@@ -257,7 +257,7 @@ theorem modify_eq_alter [BEq α] [EquivBEq α] {a : α} {f : β → β} {l : Ass
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl
-  · next ih => simp only [modify, alter, Option.map_some, ih]
+  next ih => simp only [modify, alter, Option.map_some, ih]
 
 end Const
 

@@ -161,27 +161,20 @@ partial def getCtorArgs : Value → Name → Option (Array Value)
 
 partial def ofNat (n : Nat) : Value :=
   if n > maxValueDepth then
-    goBig n n
+    .top
   else
     goSmall n
 where
-  goBig (orig : Nat) (curr : Nat) : Value :=
-    if orig - curr == maxValueDepth then
-      .top
-    else
-      .ctor ``Nat.succ #[goBig orig (curr - 1)]
   goSmall : Nat → Value
   | 0 => .ctor ``Nat.zero #[]
   | n + 1 => .ctor ``Nat.succ #[goSmall n]
 
 def ofLCNFLit : LCNF.LitValue → Value
 | .nat n => ofNat n
+-- TODO: Make this work for other numeric literal types.
+| .uint8 _ | .uint16 _ | .uint32 _ | .uint64 _ | .usize _ => .top
 -- TODO: We could make this much more precise but the payoff is questionable
 | .str .. => .top
-| .uint8 v => ofNat (UInt8.toNat v)
-| .uint16 v => ofNat (UInt16.toNat v)
-| .uint32 v => ofNat (UInt32.toNat v)
-| .uint64 v | .usize v => ofNat (UInt64.toNat v)
 
 partial def proj : Value → Nat → Value
 | .ctor _ vs , i => vs.getD i bot
@@ -257,9 +250,10 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
   registerSimplePersistentEnvExtension {
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
-    exportEntriesFnEx? := some fun env s _ _ =>
-      let entries := s.toArray.qsort decLt
-      entries.filter (isDeclPublic env ·.1)
+    exportEntriesFnEx? := some fun _ s _ => fun
+      -- preserved for non-modules, make non-persistent at some point?
+      | .private => s.toArray.qsort decLt
+      | _ => #[]
     asyncMode := .sync  -- compilation is non-parallel anyway
     replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s ⟨e, n⟩ => s.insert e n)
   }

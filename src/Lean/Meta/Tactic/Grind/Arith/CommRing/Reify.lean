@@ -66,13 +66,13 @@ partial def reify? (e : Expr) (skipVar := true) (gen : Nat := 0) : RingM (Option
     | IntCast.intCast _ i a =>
       if (← isIntCastInst i) then
         let some k ← getIntValue? a | toVar e
-        return .num k
+        return .intCast k
       else
         asVar e
     | NatCast.natCast _ i a =>
       if (← isNatCastInst i) then
         let some k ← getNatValue? a | toVar e
-        return .num k
+        return .natCast k
       else
         asVar e
     | OfNat.ofNat _ n _ =>
@@ -102,13 +102,13 @@ partial def reify? (e : Expr) (skipVar := true) (gen : Nat := 0) : RingM (Option
   | IntCast.intCast _ i a =>
     if (← isIntCastInst i) then
       let some k ← getIntValue? a | toTopVar e
-      return some (.num k)
+      return some (.intCast k)
     else
       asTopVar e
   | NatCast.natCast _ i a =>
     if (← isNatCastInst i) then
       let some k ← getNatValue? a | toTopVar e
-      return some (.num k)
+      return some (.natCast k)
     else
       asTopVar e
   | OfNat.ofNat _ n _ =>

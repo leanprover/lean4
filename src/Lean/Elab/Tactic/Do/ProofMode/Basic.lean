@@ -26,7 +26,7 @@ def mStart (goal : Expr) : MetaM MStartResult := do
     return { goal := mgoal }
 
   let u ← mkFreshLevelMVar
-  let σs ← mkFreshExprMVar (σs.mkType u)
+  let σs ← mkFreshExprMVar (TypeList.mkType u)
   let P ← mkFreshExprMVar (mkApp (mkConst ``SPred [u]) σs)
   let inst ← synthInstance (mkApp3 (mkConst ``PropAsSPredTautology [u]) goal σs P)
   let u ← instantiateLevelMVars u

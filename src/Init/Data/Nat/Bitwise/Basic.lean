@@ -97,7 +97,7 @@ def shiftRight : @& Nat → @& Nat → Nat
 
 instance : AndOp Nat := ⟨Nat.land⟩
 instance : OrOp Nat := ⟨Nat.lor⟩
-instance : Xor Nat := ⟨Nat.xor⟩
+instance : XorOp Nat := ⟨Nat.xor⟩
 instance : ShiftLeft Nat := ⟨Nat.shiftLeft⟩
 instance : ShiftRight Nat := ⟨Nat.shiftRight⟩
 

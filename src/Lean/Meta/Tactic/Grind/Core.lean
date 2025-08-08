@@ -240,6 +240,34 @@ def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
         args := args.push arg
         curr := f
 
+private def getFunWithGivenDomain? (lams : Array Expr) (d : Expr) : Option Expr :=
+  lams.find? fun
+    | .lam _ d' _ _ => isSameExpr d d'
+    | _ => false
+
+private def propagateUnitConstFuns (lams₁ lams₂ : Array Expr) : GoalM Unit := do
+  if h : lams₁.size = 0 then return () else
+  if h : lams₂.size = 0 then return () else
+  for lam₁ in lams₁ do
+    -- Remark: we have heterogeneous equivalence classes. So, we may have functions
+    -- with different domains in the same equivalence class.
+    let .lam _ d₁ b₁ _ := lam₁ | pure ()
+    let u ← getLevel d₁
+    let inh := mkApp (mkConst ``Inhabited [u]) d₁
+    let some inhInst ← synthInstance? inh | pure ()
+    let isTarget ← if !b₁.hasLooseBVars then
+      pure true
+    else
+      let sub := mkApp (mkConst ``Subsingleton [u]) d₁
+      pure (← synthInstance? sub).isSome
+    if isTarget then
+      let some (.lam _ d₁ b₂ _) := getFunWithGivenDomain? lams₂ d₁ | pure ()
+      let val ← preprocessLight <| mkApp2 (mkConst ``default [u]) d₁ inhInst
+      let lhs := b₁.instantiate1 val
+      let rhs := b₂.instantiate1 val
+      let h ← mkEqProof lams₁[0] lams₂[0]
+      pushNewFact <| mkExpectedPropHint (← mkCongrFun h val) (← mkEq lhs rhs)
+
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   let lhsNode ← getENode lhs
   let rhsNode ← getENode rhs
@@ -330,6 +358,7 @@ where
         propagateUp parent
       for e in toPropagateDown do
         propagateDown e
+      propagateUnitConstFuns lams₁ lams₂
       propagateOffset offsetTodo
       propagateCutsat cutsatTodo
       propagateCommRing ringTodo
@@ -354,6 +383,7 @@ where
           -- We must swap the congruence root to ensure `isDiseq` and `getDiseqFor?` work properly
           modify fun s => { s with congrTable := s.congrTable.insert { e := n.self } }
           setENode n.self { n with congr := n.self }
+          setENode e { (← getENode e) with congr := n.self }
 
 /-- Ensures collection of equations to be processed is empty. -/
 private def resetNewFacts : GoalM Unit :=

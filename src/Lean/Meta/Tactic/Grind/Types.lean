@@ -24,6 +24,8 @@ public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.Arith.Types
 public import Lean.Meta.Tactic.Grind.EMatchTheorem
 meta import Lean.Parser.Do
+import Lean.Meta.Match.MatchEqsExt
+import Lean.PrettyPrinter
 
 public section
 
@@ -730,6 +732,14 @@ structure Split.State where
 structure Clean.State where
   used : PHashSet Name := {}
   next : PHashMap Name Nat := {}
+  deriving Inhabited
+
+/--
+Cache for `Unit`-like types. It maps the type to its element.
+We say a type is `Unit`-like if it is a subsingleton and is inhabited.
+-/
+structure UnitLike.State where
+  map : PHashMap ExprPtr (Option Expr) := {}
   deriving Inhabited
 
 /-- The `grind` goal. -/

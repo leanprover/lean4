@@ -12,9 +12,9 @@ public import Lean.Meta.Match.MatchEqsExt
 public import Lean.Meta.Tactic.Apply
 public import Lean.Meta.Tactic.Refl
 public import Lean.Meta.Tactic.Delta
-public import Lean.Meta.Tactic.SplitIf
 public import Lean.Meta.Tactic.Injection
 public import Lean.Meta.Tactic.Contradiction
+import Lean.Meta.Tactic.SplitIf
 
 public section
 
@@ -287,14 +287,17 @@ partial def trySubstVarsAndContradiction (mvarId : MVarId) (forbidden : FVarIdSe
 private def processNextEq : M Bool := do
   let s ← get
   s.mvarId.withContext do
-    -- If the goal is contradictory, the hypothesis is redundant.
-    if (← contradiction s.mvarId) then
-      return false
     if let eq :: eqs := s.eqs then
       modify fun s => { s with eqs }
       let eqType ← inferType (mkFVar eq)
       -- See `substRHS`. Recall that if `rhs` is a variable then if must be in `s.xs`
       if let some (_, lhs, rhs) ← matchEq? eqType then
+        -- Common case: Different constructors
+        match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
+        | some lhsCtor, some rhsCtor =>
+          if lhsCtor.name != rhsCtor.name then
+            return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
+        | _,_ => pure ()
         if (← isDefEq lhs rhs) then
           return true
         if rhs.isFVar && s.xs.contains rhs.fvarId! then
@@ -744,9 +747,9 @@ def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   let splitterName := baseName ++ `splitter
   -- NOTE: `go` will generate both splitter and equations but we use the splitter as the "key" for
   -- `realizeConst` as well as for looking up the resultant environment extension state via
-  -- `findStateAsync`.
+  -- `getState`.
   realizeConst matchDeclName splitterName (go baseName splitterName)
-  return matchEqnsExt.findStateAsync (← getEnv) splitterName |>.map.find! matchDeclName
+  return matchEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := splitterName) (← getEnv) |>.map.find! matchDeclName
 where go baseName splitterName := withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
@@ -843,7 +846,7 @@ def isCongrEqnReservedNameSuffix (s : String) : Bool :=
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/
 builtin_initialize matchCongrEqnsExt : EnvExtension (PHashMap Name (Array Name)) ←
   -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
-  -- The resulting state can still be accessed on the generated declarations using `findStateAsync`;
+  -- The resulting state can still be accessed on the generated declarations using `.asyncEnv`;
   -- see below
   registerEnvExtension (pure {}) (asyncMode := .local)
 
@@ -866,7 +869,7 @@ def genMatchCongrEqns (matchDeclName : Name) : MetaM (Array Name) := do
   let baseName := mkPrivateName (← getEnv) matchDeclName
   let firstEqnName := .str baseName congrEqn1ThmSuffix
   realizeConst matchDeclName firstEqnName (go baseName)
-  return matchCongrEqnsExt.findStateAsync (← getEnv) firstEqnName |>.find! matchDeclName
+  return matchCongrEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := firstEqnName) (← getEnv) |>.find! matchDeclName
 where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
   withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName

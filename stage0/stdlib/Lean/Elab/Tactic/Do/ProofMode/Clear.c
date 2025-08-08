@@ -71,7 +71,6 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__4_spec__4_spec__4___redArg___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__4_spec__4_spec__4_spec__6___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__4_spec__4_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -106,6 +105,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1869_(lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__4___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -586,7 +586,7 @@ else
 lean_object* x_8; lean_object* x_9; uint64_t x_10; size_t x_11; size_t x_12; lean_object* x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
 x_8 = lean_array_fget(x_2, x_4);
 x_9 = lean_array_fget(x_3, x_4);
-x_10 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872_(x_8);
+x_10 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1869_(x_8);
 x_11 = lean_uint64_to_usize(x_10);
 x_12 = 5;
 x_13 = lean_unsigned_to_nat(1u);
@@ -908,7 +908,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_MVarId_assi
 _start:
 {
 uint64_t x_4; size_t x_5; size_t x_6; lean_object* x_7; 
-x_4 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1872_(x_2);
+x_4 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1869_(x_2);
 x_5 = lean_uint64_to_usize(x_4);
 x_6 = 1;
 x_7 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__4_spec__4_spec__4___redArg(x_1, x_5, x_6, x_2, x_3);
@@ -1245,82 +1245,86 @@ lean_inc(x_1);
 x_13 = l_Lean_MVarId_getType(x_1, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_13) == 0)
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec_ref(x_13);
 x_16 = l_Lean_instantiateMVars___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__1___redArg(x_14, x_9, x_15);
-x_17 = lean_ctor_get(x_16, 0);
-lean_inc(x_17);
-x_18 = lean_ctor_get(x_16, 1);
-lean_inc(x_18);
-lean_dec_ref(x_16);
-x_19 = l_Lean_Elab_Tactic_Do_ProofMode_parseMGoal_x3f(x_17);
-lean_dec(x_17);
-if (lean_obj_tag(x_19) == 0)
+x_17 = !lean_is_exclusive(x_16);
+if (x_17 == 0)
 {
-lean_object* x_20; lean_object* x_21; 
+lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_18 = lean_ctor_get(x_16, 0);
+x_19 = lean_ctor_get(x_16, 1);
+x_20 = l_Lean_Elab_Tactic_Do_ProofMode_parseMGoal_x3f(x_18);
+lean_dec(x_18);
+if (lean_obj_tag(x_20) == 0)
+{
+lean_object* x_21; lean_object* x_22; 
+lean_free_object(x_16);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_20 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__1;
-x_21 = l_Lean_throwError___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__2___redArg(x_20, x_8, x_9, x_10, x_11, x_18);
+x_21 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__1;
+x_22 = l_Lean_throwError___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__2___redArg(x_21, x_8, x_9, x_10, x_11, x_19);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
 lean_dec_ref(x_8);
-return x_21;
+return x_22;
 }
 else
 {
-lean_object* x_22; lean_object* x_23; 
-x_22 = lean_ctor_get(x_19, 0);
-lean_inc(x_22);
-lean_dec_ref(x_19);
+lean_object* x_23; lean_object* x_24; 
+x_23 = lean_ctor_get(x_20, 0);
+lean_inc(x_23);
+lean_dec_ref(x_20);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
-lean_inc(x_22);
-x_23 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo(x_22, x_2, x_8, x_9, x_10, x_11, x_18);
-if (lean_obj_tag(x_23) == 0)
+lean_inc(x_23);
+x_24 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo(x_23, x_2, x_8, x_9, x_10, x_11, x_19);
+if (lean_obj_tag(x_24) == 0)
 {
-lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; 
-x_24 = lean_ctor_get(x_23, 0);
-lean_inc(x_24);
-x_25 = lean_ctor_get(x_23, 1);
+lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
-lean_dec_ref(x_23);
-lean_inc(x_22);
-x_26 = l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_restGoal(x_24, x_22);
-x_27 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_toExpr(x_26);
-x_28 = lean_box(0);
+x_26 = lean_ctor_get(x_24, 1);
+lean_inc(x_26);
+lean_dec_ref(x_24);
+lean_inc(x_23);
+x_27 = l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_restGoal(x_25, x_23);
+x_28 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_toExpr(x_27);
+x_29 = lean_box(0);
 lean_inc_ref(x_8);
-x_29 = l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(x_27, x_28, x_8, x_9, x_10, x_11, x_25);
-x_30 = !lean_is_exclusive(x_29);
-if (x_30 == 0)
+x_30 = l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(x_28, x_29, x_8, x_9, x_10, x_11, x_26);
+if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; uint8_t x_50; 
-x_31 = lean_ctor_get(x_29, 0);
-x_32 = lean_ctor_get(x_29, 1);
-x_33 = lean_ctor_get(x_22, 0);
+x_31 = lean_ctor_get(x_30, 0);
+lean_inc(x_31);
+x_32 = lean_ctor_get(x_30, 1);
+lean_inc(x_32);
+lean_dec_ref(x_30);
+x_33 = lean_ctor_get(x_23, 0);
 lean_inc(x_33);
-x_34 = lean_ctor_get(x_22, 1);
+x_34 = lean_ctor_get(x_23, 1);
 lean_inc_ref(x_34);
-x_35 = lean_ctor_get(x_22, 2);
+x_35 = lean_ctor_get(x_23, 2);
 lean_inc_ref(x_35);
-x_36 = lean_ctor_get(x_22, 3);
+x_36 = lean_ctor_get(x_23, 3);
 lean_inc_ref(x_36);
-lean_dec(x_22);
-x_37 = lean_ctor_get(x_24, 0);
+lean_dec(x_23);
+x_37 = lean_ctor_get(x_25, 0);
 lean_inc_ref(x_37);
-x_38 = lean_ctor_get(x_24, 1);
+x_38 = lean_ctor_get(x_25, 1);
 lean_inc_ref(x_38);
-x_39 = lean_ctor_get(x_24, 2);
+x_39 = lean_ctor_get(x_25, 2);
 lean_inc_ref(x_39);
-lean_dec(x_24);
+lean_dec(x_25);
 x_40 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__2;
 x_41 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__3;
 x_42 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__4;
@@ -1328,10 +1332,10 @@ x_43 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__5;
 x_44 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__6;
 x_45 = l_Lean_Name_mkStr6(x_40, x_41, x_42, x_3, x_43, x_44);
 x_46 = lean_box(0);
-lean_ctor_set_tag(x_29, 1);
-lean_ctor_set(x_29, 1, x_46);
-lean_ctor_set(x_29, 0, x_33);
-x_47 = l_Lean_Expr_const___override(x_45, x_29);
+lean_ctor_set_tag(x_16, 1);
+lean_ctor_set(x_16, 1, x_46);
+lean_ctor_set(x_16, 0, x_33);
+x_47 = l_Lean_Expr_const___override(x_45, x_16);
 lean_inc(x_31);
 x_48 = l_Lean_mkApp7(x_47, x_34, x_35, x_38, x_37, x_36, x_39, x_31);
 x_49 = l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__4___redArg(x_1, x_48, x_9, x_32);
@@ -1377,105 +1381,254 @@ return x_60;
 }
 else
 {
-lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 
-x_61 = lean_ctor_get(x_29, 0);
-x_62 = lean_ctor_get(x_29, 1);
-lean_inc(x_62);
-lean_inc(x_61);
-lean_dec(x_29);
-x_63 = lean_ctor_get(x_22, 0);
-lean_inc(x_63);
-x_64 = lean_ctor_get(x_22, 1);
-lean_inc_ref(x_64);
-x_65 = lean_ctor_get(x_22, 2);
-lean_inc_ref(x_65);
-x_66 = lean_ctor_get(x_22, 3);
-lean_inc_ref(x_66);
-lean_dec(x_22);
-x_67 = lean_ctor_get(x_24, 0);
-lean_inc_ref(x_67);
-x_68 = lean_ctor_get(x_24, 1);
-lean_inc_ref(x_68);
-x_69 = lean_ctor_get(x_24, 2);
-lean_inc_ref(x_69);
-lean_dec(x_24);
-x_70 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__2;
-x_71 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__3;
-x_72 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__4;
-x_73 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__5;
-x_74 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__6;
-x_75 = l_Lean_Name_mkStr6(x_70, x_71, x_72, x_3, x_73, x_74);
-x_76 = lean_box(0);
-x_77 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_77, 0, x_63);
-lean_ctor_set(x_77, 1, x_76);
-x_78 = l_Lean_Expr_const___override(x_75, x_77);
-lean_inc(x_61);
-x_79 = l_Lean_mkApp7(x_78, x_64, x_65, x_68, x_67, x_66, x_69, x_61);
-x_80 = l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__4___redArg(x_1, x_79, x_9, x_62);
-x_81 = lean_ctor_get(x_80, 1);
-lean_inc(x_81);
-if (lean_is_exclusive(x_80)) {
- lean_ctor_release(x_80, 0);
- lean_ctor_release(x_80, 1);
- x_82 = x_80;
-} else {
- lean_dec_ref(x_80);
- x_82 = lean_box(0);
-}
-x_83 = l_Lean_Expr_mvarId_x21(x_61);
-lean_dec(x_61);
-x_84 = lean_box(0);
-if (lean_is_scalar(x_82)) {
- x_85 = lean_alloc_ctor(1, 2, 0);
-} else {
- x_85 = x_82;
- lean_ctor_set_tag(x_85, 1);
-}
-lean_ctor_set(x_85, 0, x_83);
-lean_ctor_set(x_85, 1, x_84);
-x_86 = l_Lean_Elab_Tactic_replaceMainGoal___redArg(x_85, x_5, x_8, x_9, x_10, x_11, x_81);
-lean_dec(x_11);
-lean_dec_ref(x_10);
-lean_dec(x_9);
-lean_dec_ref(x_8);
-return x_86;
-}
-}
-else
-{
-uint8_t x_87; 
-lean_dec(x_22);
+uint8_t x_61; 
+lean_dec(x_25);
+lean_dec(x_23);
+lean_free_object(x_16);
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec_ref(x_3);
 lean_dec(x_1);
-x_87 = !lean_is_exclusive(x_23);
-if (x_87 == 0)
+x_61 = !lean_is_exclusive(x_30);
+if (x_61 == 0)
 {
-return x_23;
+return x_30;
 }
 else
 {
-lean_object* x_88; lean_object* x_89; lean_object* x_90; 
-x_88 = lean_ctor_get(x_23, 0);
-x_89 = lean_ctor_get(x_23, 1);
-lean_inc(x_89);
-lean_inc(x_88);
+lean_object* x_62; lean_object* x_63; lean_object* x_64; 
+x_62 = lean_ctor_get(x_30, 0);
+x_63 = lean_ctor_get(x_30, 1);
+lean_inc(x_63);
+lean_inc(x_62);
+lean_dec(x_30);
+x_64 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_64, 0, x_62);
+lean_ctor_set(x_64, 1, x_63);
+return x_64;
+}
+}
+}
+else
+{
+uint8_t x_65; 
 lean_dec(x_23);
-x_90 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_90, 0, x_88);
-lean_ctor_set(x_90, 1, x_89);
-return x_90;
+lean_free_object(x_16);
+lean_dec(x_11);
+lean_dec_ref(x_10);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec_ref(x_3);
+lean_dec(x_1);
+x_65 = !lean_is_exclusive(x_24);
+if (x_65 == 0)
+{
+return x_24;
+}
+else
+{
+lean_object* x_66; lean_object* x_67; lean_object* x_68; 
+x_66 = lean_ctor_get(x_24, 0);
+x_67 = lean_ctor_get(x_24, 1);
+lean_inc(x_67);
+lean_inc(x_66);
+lean_dec(x_24);
+x_68 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_68, 0, x_66);
+lean_ctor_set(x_68, 1, x_67);
+return x_68;
 }
 }
 }
 }
 else
 {
-uint8_t x_91; 
+lean_object* x_69; lean_object* x_70; lean_object* x_71; 
+x_69 = lean_ctor_get(x_16, 0);
+x_70 = lean_ctor_get(x_16, 1);
+lean_inc(x_70);
+lean_inc(x_69);
+lean_dec(x_16);
+x_71 = l_Lean_Elab_Tactic_Do_ProofMode_parseMGoal_x3f(x_69);
+lean_dec(x_69);
+if (lean_obj_tag(x_71) == 0)
+{
+lean_object* x_72; lean_object* x_73; 
+lean_dec_ref(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_72 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__1;
+x_73 = l_Lean_throwError___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__2___redArg(x_72, x_8, x_9, x_10, x_11, x_70);
+lean_dec(x_11);
+lean_dec_ref(x_10);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+return x_73;
+}
+else
+{
+lean_object* x_74; lean_object* x_75; 
+x_74 = lean_ctor_get(x_71, 0);
+lean_inc(x_74);
+lean_dec_ref(x_71);
+lean_inc(x_11);
+lean_inc_ref(x_10);
+lean_inc(x_9);
+lean_inc_ref(x_8);
+lean_inc(x_74);
+x_75 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo(x_74, x_2, x_8, x_9, x_10, x_11, x_70);
+if (lean_obj_tag(x_75) == 0)
+{
+lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; 
+x_76 = lean_ctor_get(x_75, 0);
+lean_inc(x_76);
+x_77 = lean_ctor_get(x_75, 1);
+lean_inc(x_77);
+lean_dec_ref(x_75);
+lean_inc(x_74);
+x_78 = l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_restGoal(x_76, x_74);
+x_79 = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_toExpr(x_78);
+x_80 = lean_box(0);
+lean_inc_ref(x_8);
+x_81 = l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(x_79, x_80, x_8, x_9, x_10, x_11, x_77);
+if (lean_obj_tag(x_81) == 0)
+{
+lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; 
+x_82 = lean_ctor_get(x_81, 0);
+lean_inc(x_82);
+x_83 = lean_ctor_get(x_81, 1);
+lean_inc(x_83);
+lean_dec_ref(x_81);
+x_84 = lean_ctor_get(x_74, 0);
+lean_inc(x_84);
+x_85 = lean_ctor_get(x_74, 1);
+lean_inc_ref(x_85);
+x_86 = lean_ctor_get(x_74, 2);
+lean_inc_ref(x_86);
+x_87 = lean_ctor_get(x_74, 3);
+lean_inc_ref(x_87);
+lean_dec(x_74);
+x_88 = lean_ctor_get(x_76, 0);
+lean_inc_ref(x_88);
+x_89 = lean_ctor_get(x_76, 1);
+lean_inc_ref(x_89);
+x_90 = lean_ctor_get(x_76, 2);
+lean_inc_ref(x_90);
+lean_dec(x_76);
+x_91 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__2;
+x_92 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__3;
+x_93 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__4;
+x_94 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__5;
+x_95 = l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___closed__6;
+x_96 = l_Lean_Name_mkStr6(x_91, x_92, x_93, x_3, x_94, x_95);
+x_97 = lean_box(0);
+x_98 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_98, 0, x_84);
+lean_ctor_set(x_98, 1, x_97);
+x_99 = l_Lean_Expr_const___override(x_96, x_98);
+lean_inc(x_82);
+x_100 = l_Lean_mkApp7(x_99, x_85, x_86, x_89, x_88, x_87, x_90, x_82);
+x_101 = l_Lean_MVarId_assign___at___Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__4___redArg(x_1, x_100, x_9, x_83);
+x_102 = lean_ctor_get(x_101, 1);
+lean_inc(x_102);
+if (lean_is_exclusive(x_101)) {
+ lean_ctor_release(x_101, 0);
+ lean_ctor_release(x_101, 1);
+ x_103 = x_101;
+} else {
+ lean_dec_ref(x_101);
+ x_103 = lean_box(0);
+}
+x_104 = l_Lean_Expr_mvarId_x21(x_82);
+lean_dec(x_82);
+x_105 = lean_box(0);
+if (lean_is_scalar(x_103)) {
+ x_106 = lean_alloc_ctor(1, 2, 0);
+} else {
+ x_106 = x_103;
+ lean_ctor_set_tag(x_106, 1);
+}
+lean_ctor_set(x_106, 0, x_104);
+lean_ctor_set(x_106, 1, x_105);
+x_107 = l_Lean_Elab_Tactic_replaceMainGoal___redArg(x_106, x_5, x_8, x_9, x_10, x_11, x_102);
+lean_dec(x_11);
+lean_dec_ref(x_10);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+return x_107;
+}
+else
+{
+lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; 
+lean_dec(x_76);
+lean_dec(x_74);
+lean_dec(x_11);
+lean_dec_ref(x_10);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec_ref(x_3);
+lean_dec(x_1);
+x_108 = lean_ctor_get(x_81, 0);
+lean_inc(x_108);
+x_109 = lean_ctor_get(x_81, 1);
+lean_inc(x_109);
+if (lean_is_exclusive(x_81)) {
+ lean_ctor_release(x_81, 0);
+ lean_ctor_release(x_81, 1);
+ x_110 = x_81;
+} else {
+ lean_dec_ref(x_81);
+ x_110 = lean_box(0);
+}
+if (lean_is_scalar(x_110)) {
+ x_111 = lean_alloc_ctor(1, 2, 0);
+} else {
+ x_111 = x_110;
+}
+lean_ctor_set(x_111, 0, x_108);
+lean_ctor_set(x_111, 1, x_109);
+return x_111;
+}
+}
+else
+{
+lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; 
+lean_dec(x_74);
+lean_dec(x_11);
+lean_dec_ref(x_10);
+lean_dec(x_9);
+lean_dec_ref(x_8);
+lean_dec_ref(x_3);
+lean_dec(x_1);
+x_112 = lean_ctor_get(x_75, 0);
+lean_inc(x_112);
+x_113 = lean_ctor_get(x_75, 1);
+lean_inc(x_113);
+if (lean_is_exclusive(x_75)) {
+ lean_ctor_release(x_75, 0);
+ lean_ctor_release(x_75, 1);
+ x_114 = x_75;
+} else {
+ lean_dec_ref(x_75);
+ x_114 = lean_box(0);
+}
+if (lean_is_scalar(x_114)) {
+ x_115 = lean_alloc_ctor(1, 2, 0);
+} else {
+ x_115 = x_114;
+}
+lean_ctor_set(x_115, 0, x_112);
+lean_ctor_set(x_115, 1, x_113);
+return x_115;
+}
+}
+}
+}
+else
+{
+uint8_t x_116; 
 lean_dec(x_11);
 lean_dec_ref(x_10);
 lean_dec(x_9);
@@ -1483,23 +1636,23 @@ lean_dec_ref(x_8);
 lean_dec_ref(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_91 = !lean_is_exclusive(x_13);
-if (x_91 == 0)
+x_116 = !lean_is_exclusive(x_13);
+if (x_116 == 0)
 {
 return x_13;
 }
 else
 {
-lean_object* x_92; lean_object* x_93; lean_object* x_94; 
-x_92 = lean_ctor_get(x_13, 0);
-x_93 = lean_ctor_get(x_13, 1);
-lean_inc(x_93);
-lean_inc(x_92);
+lean_object* x_117; lean_object* x_118; lean_object* x_119; 
+x_117 = lean_ctor_get(x_13, 0);
+x_118 = lean_ctor_get(x_13, 1);
+lean_inc(x_118);
+lean_inc(x_117);
 lean_dec(x_13);
-x_94 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_94, 0, x_92);
-lean_ctor_set(x_94, 1, x_93);
-return x_94;
+x_119 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_119, 0, x_117);
+lean_ctor_set(x_119, 1, x_118);
+return x_119;
 }
 }
 }

@@ -97,7 +97,7 @@ LEAN_EXPORT lean_object* l_Fin_xor(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_rev___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_succ___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Fin_instXor(lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instXorOp(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_modn___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_cast___redArg___boxed(lean_object*);
 lean_object* lean_nat_shiftl(lean_object*, lean_object*);
@@ -670,7 +670,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_instXor(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Fin_instXorOp(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

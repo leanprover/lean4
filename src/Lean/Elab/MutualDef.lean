@@ -64,11 +64,6 @@ builtin_initialize
       throwError "Cannot add attribute `[no_expose]`: This attribute can only be added when declaring a `def`"
   }
 
-def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
-  profileitM Exception s!"instantiate metavars" (← getOptions) do
-  withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
-    instantiateMVars e
-
 /-- `DefView` plus header elaboration data and snapshot. -/
 structure DefViewElabHeader extends DefView, DefViewElabHeaderData where
   /--
@@ -1241,13 +1236,8 @@ where
         let ctx ← CommandContextInfo.save
         infoPromise.resolve <| .context (.commandCtx ctx) <| .node info (← getInfoTrees)
       async.commitConst (← getEnv)
-      let cancelTk ← IO.CancelToken.new
-      let checkAct ← wrapAsyncAsSnapshot (desc := s!"finishing proof of {declId.declName}")
-          (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
-        processDeriving #[header]
-        async.commitCheckEnv (← getEnv)
-      let checkTask ← BaseIO.mapTask (t := (← getEnv).checked) checkAct
-      Core.logSnapshotTask { stx? := none, task := checkTask, cancelTk? := cancelTk }
+      processDeriving #[header]
+      async.commitCheckEnv (← getEnv)
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation

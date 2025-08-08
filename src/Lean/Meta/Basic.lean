@@ -1951,6 +1951,18 @@ def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) 
   let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
   withLCtx lctx' localInsts' k
 
+/--
+Ensures that the user names of all local declarations after index `idx` have a macro scope.
+-/
+def withFreshUserNamesSinceIdx [MonadLCtx n] [MonadLiftT MetaM n] (idx : Nat) (k : n α) : n α := do
+  let mut lctx ← getLCtx
+  for i in [idx:lctx.numIndices] do
+    let some decl := lctx.decls[i]! | continue
+    let n := decl.userName
+    if !n.hasMacroScopes then
+      lctx := lctx.setUserName decl.fvarId (← liftMetaM <| mkFreshUserName n)
+  withLCtx' lctx k
+
 private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   let mvarDecl ← mvarId.getDecl
   withLocalContextImp mvarDecl.lctx mvarDecl.localInstances x
@@ -2438,6 +2450,11 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
   else
     return e
 
+def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
+  profileitM Exception s!"instantiate metavars" (← getOptions) do
+  withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
+    instantiateMVars e
+
 private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos : Position) :
     BaseIO Language.SnapshotTree := do
   let msgLog := snap.element.diagnostics.msgLog
@@ -2478,9 +2495,9 @@ output are reported at all callers via `Core.logSnapshotTask` (so that the locat
 diagnostics is deterministic). Note that, as `realize` is run using the options at declaration time
 of `forConst`, trace options must be set prior to that (or, for imported constants, on the cmdline)
 in order to be active. The environment extension state at the end of `realize` is available to each
-caller via `EnvExtension.findStateAsync` for `constName`. If `realize` throws an exception or fails
-to add `constName` to the environment, an appropriate diagnostic is reported to all callers but no
-constants are added to the environment.
+caller via `EnvExtension.getState (asyncDecl := constName)`. If `realize` throws an exception or
+fails to add `constName` to the environment, an appropriate diagnostic is reported to all callers
+but no constants are added to the environment.
 -/
 def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     MetaM Unit := do

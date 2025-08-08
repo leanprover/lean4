@@ -11,7 +11,6 @@ public import Lean.Meta.Tactic.Split
 public import Lean.Elab.PreDefinition.Basic
 public import Lean.Elab.PreDefinition.Eqns
 public import Lean.Meta.ArgsPacker.Basic
-public import Lean.Elab.PreDefinition.WF.Unfold
 public import Lean.Elab.PreDefinition.FixedParams
 public import Init.Data.Array.Basic
 
@@ -68,7 +67,7 @@ def copyPrivateUnfoldTheorem : GetUnfoldEqnFn := fun declName => do
   withTraceNode `ReservedNameAction (pure m!"{exceptOptionEmoji ·} copyPrivateUnfoldTheorem running for {declName}") do
   let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
   if let some mod ← findModuleOf? declName then
-    let unfoldName' := mkPrivateNameCore mod (.str declName unfoldThmSuffix)
+    let unfoldName' := mkPrivateNameCore mod (.str (privateToUserName declName) unfoldThmSuffix)
     if let some (.thmInfo info) := (← getEnv).find? unfoldName' then
       realizeConst declName name do
         addDecl <| Declaration.thmDecl {

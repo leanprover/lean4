@@ -36,7 +36,7 @@ instance : LT String :=
 instance decidableLT (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
   List.decidableLT s₁.data s₂.data
 
-@[deprecated decidableLT (since := "2024-12-13")] abbrev decLt := @decidableLT
+
 
 /--
 Non-strict inequality on strings, typically used via the `≤` operator.
@@ -485,6 +485,7 @@ Examples:
 * `"tea".firstDiffPos "teas" = ⟨3⟩`
 * `"teas".firstDiffPos "tea" = ⟨3⟩`
 -/
+@[expose]
 def firstDiffPos (a b : String) : Pos :=
   let stopPos := a.endPos.min b.endPos
   let rec loop (i : Pos) : Pos :=
@@ -511,7 +512,7 @@ Examples:
 * `"red green blue".extract ⟨4⟩ ⟨100⟩ = "green blue"`
 * `"L∃∀N".extract ⟨2⟩ ⟨100⟩ = "green blue"`
 -/
-@[extern "lean_string_utf8_extract"]
+@[extern "lean_string_utf8_extract", expose]
 def extract : (@& String) → (@& Pos) → (@& Pos) → String
   | ⟨s⟩, b, e => if b.byteIdx ≥ e.byteIdx then "" else ⟨go₁ s 0 b e⟩
 where
@@ -652,7 +653,7 @@ Use `String.intercalate` to place a separator string between the strings in a li
 
 Examples:
  * `String.join ["gr", "ee", "n"] = "green"`
- * `String.join ["b", "", "l", "", "ue"] = "red"`
+ * `String.join ["b", "", "l", "", "ue"] = "blue"`
  * `String.join [] = ""`
 -/
 @[inline] def join (l : List String) : String :=

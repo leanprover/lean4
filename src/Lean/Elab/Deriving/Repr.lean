@@ -100,10 +100,11 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     let letDecls ← mkLocalInstanceLetDecls ctx `Repr header.argNames
     body ← mkLet letDecls body
   let binders    := header.binders
+  let vis := ctx.mkVisibilityFromTypes
   if ctx.usePartial then
-    `(@[no_expose] partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
+    `(@[no_expose] $vis:visibility partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
   else
-    `(@[no_expose] def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
+    `(@[no_expose] $vis:visibility def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]

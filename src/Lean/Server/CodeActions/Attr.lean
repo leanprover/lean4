@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Server.CodeActions.Basic
+import Lean.Compiler.IR.CompilerM
 
 public section
 

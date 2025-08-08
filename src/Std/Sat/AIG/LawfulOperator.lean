@@ -58,13 +58,13 @@ theorem denote.go_eq_of_isPrefix (decls1 decls2 : Array (Decl α)) (start : Nat)
   unfold denote.go
   have hidx1 := hprefix.idx_eq start hbounds1
   split
-  · next heq =>
+  next heq =>
     rw [hidx1] at heq
     split <;> simp_all
-  · next heq =>
+  next heq =>
     rw [hidx1] at heq
     split <;> simp_all
-  · next lhs rhs heq =>
+  next lhs rhs heq =>
     rw [hidx1] at heq
     have := hdag1 hbounds1 heq
     have hidx2 := hprefix.idx_eq lhs.gate (by omega)

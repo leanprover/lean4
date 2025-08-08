@@ -36,15 +36,19 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
     let heq := mkAppN heq newMVars
     let cont (heq heqType : Expr) : MetaM RewriteResult := do
       match (← matchEq? heqType) with
-      | none => throwTacticEx `rewrite mvarId m!"equality or iff proof expected{indentExpr heqType}"
+      | none =>
+        let valueDescr := if (← Meta.isProp heqType) then "a proof of" else "a value of type"
+        throwError m!"Invalid rewrite argument: Expected an equality or iff proof \
+          or definition name, but{inlineExpr heq}is {valueDescr}{indentExpr heqType}"
       | some (α, lhs, rhs) =>
         let cont (heq heqType lhs rhs : Expr) : MetaM RewriteResult := do
           if lhs.getAppFn.isMVar then
-            throwTacticEx `rewrite mvarId m!"pattern is a metavariable{indentExpr lhs}\nfrom equation{indentExpr heqType}"
+            throwError "Invalid rewrite argument: The pattern to be substituted is a metavariable (`{lhs}`) in this equality{indentExpr heqType}"
           let e ← instantiateMVars e
           let eAbst ← withConfig (fun oldConfig => { config, oldConfig with }) <| kabstract e lhs config.occs
           unless eAbst.hasLooseBVars do
-            throwTacticEx `rewrite mvarId m!"did not find instance of the pattern in the target expression{indentExpr lhs}"
+            let (tgt, pat) ← addPPExplicitToExposeDiff e lhs
+            throwTacticEx `rewrite mvarId m!"Did not find an occurrence of the pattern{indentExpr pat}\nin the target expression{indentExpr tgt}"
           -- construct rewrite proof
           let eNew := eAbst.instantiate1 rhs
           let eNew ← instantiateMVars eNew
@@ -70,7 +74,9 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           unless (← withLocalDeclD `_a α fun a => do isDefEq (← inferType (eAbst.instantiate1 a)) eType) do
             -- NB: using motive.arrow? would disallow motives where the dependency
             -- can be reduced away
-            throwTacticEx `rewrite mvarId m!"motive is dependent{indentD motive}"
+            throwTacticEx `rewrite mvarId <| m!"Motive is dependent:{indentD motive}"
+              ++ MessageData.note m!"The rewrite tactic cannot substitute terms on which the type of the target expression depends. \
+                  The type of the expression{indentExpr e}\ndepends on the value{indentExpr lhs}"
           let u1 ← getLevel α
           let u2 ← getLevel eType
           let eqPrf := mkApp6 (.const ``congrArg [u1, u2]) α eType lhs rhs motive heq

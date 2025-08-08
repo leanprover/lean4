@@ -16,7 +16,7 @@ in the application
 def foo := fun n => (not_and_self_iff _).mp ⟨Nat.lt_irrefl _, Fin.is_lt _⟩
 
 /--
-error: type mismatch
+error: Type mismatch
   Fin.is_lt ?_
 has type
   ↑?_ < ?_

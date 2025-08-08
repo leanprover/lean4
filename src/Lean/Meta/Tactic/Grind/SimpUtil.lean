@@ -138,6 +138,9 @@ builtin_simproc_decl reduceCtorEqCheap (_ = _) := fun e => do
   withLocalDeclD `h e fun h =>
     return .done { expr := mkConst ``False, proof? := (← withDefault <| mkEqFalse' (← mkLambdaFVars #[h] (← mkNoConfusion (mkConst ``False) h))) }
 
+builtin_dsimproc_decl unfoldReducibleSimproc (_) := fun e => do
+  unfoldReducibleStep e
+
 /-- Returns the array of simprocs used by `grind`. -/
 protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← Simp.getSEvalSimprocs
@@ -165,6 +168,7 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← s.add ``simpOr (post := true)
   let s ← s.add ``simpDIte (post := true)
   let s ← s.add ``pushNot (post := false)
+  let s ← s.add ``unfoldReducibleSimproc (post := false)
   return #[s]
 
 private def addDeclToUnfold (s : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do

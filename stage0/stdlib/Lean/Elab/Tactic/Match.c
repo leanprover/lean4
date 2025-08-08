@@ -2509,8 +2509,11 @@ return x_11;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___Lean_Elab_Tactic_evalMatch_spec__0___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; 
+lean_object* x_5; 
 x_5 = l_Lean_Elab_expandMacroImpl_x3f(x_1, x_2, x_3, x_4);
+if (lean_obj_tag(x_5) == 0)
+{
+lean_object* x_6; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 if (lean_obj_tag(x_6) == 0)
@@ -2671,6 +2674,29 @@ x_41 = l_liftExcept___at___Lean_Elab_liftMacroM___at___Lean_Elab_Tactic_evalMatc
 lean_dec_ref(x_40);
 return x_41;
 }
+}
+}
+}
+else
+{
+uint8_t x_42; 
+x_42 = !lean_is_exclusive(x_5);
+if (x_42 == 0)
+{
+return x_5;
+}
+else
+{
+lean_object* x_43; lean_object* x_44; lean_object* x_45; 
+x_43 = lean_ctor_get(x_5, 0);
+x_44 = lean_ctor_get(x_5, 1);
+lean_inc(x_44);
+lean_inc(x_43);
+lean_dec(x_5);
+x_45 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_45, 0, x_43);
+lean_ctor_set(x_45, 1, x_44);
+return x_45;
 }
 }
 }

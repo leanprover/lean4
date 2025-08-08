@@ -14,7 +14,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
+import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 
 public section
 
@@ -164,8 +164,10 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
     let k := c.p.gcdCoeffs c.p.getConst
     return mkApp6 (mkConst ``Int.Linear.eq_coeff) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr k) reflBoolTrue (← c.toExprProof)
   | .subst x c₁ c₂  =>
-    return mkApp8 (mkConst ``Int.Linear.eq_eq_subst)
-      (← getContext) (toExpr x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
+    let a := c₁.p.coeff x
+    let b := c₂.p.coeff x
+    return mkApp9 (mkConst ``Int.Linear.eq_eq_subst')
+      (← getContext) (toExpr a) (toExpr b) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .ofLeGe c₁ c₂ =>
     return mkApp6 (mkConst ``Int.Linear.eq_of_le_ge)

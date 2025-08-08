@@ -78,6 +78,9 @@ theorem eq_eq_of_eq_true_right {a b : Prop} (h : b = True) : (a = b) = a := by s
 theorem eq_congr  {α : Sort u} {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = a₂) (h₂ : b₁ = b₂) : (a₁ = b₁) = (a₂ = b₂) := by simp [*]
 theorem eq_congr' {α : Sort u} {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = b₂) (h₂ : b₁ = a₂) : (a₁ = b₁) = (a₂ = b₂) := by rw [h₁, h₂, Eq.comm (a := a₂)]
 
+theorem heq_congr  {α : Sort u} {β : Sort u} {a₁ b₁ : α} {a₂ b₂ : β} (h₁ : a₁ ≍ a₂) (h₂ : b₁ ≍ b₂) : (a₁ = b₁) = (a₂ = b₂) := by cases h₁; cases h₂; rfl
+theorem heq_congr' {α : Sort u} {β : Sort u} {a₁ b₁ : α} {a₂ b₂ : β} (h₁ : a₁ ≍ b₂) (h₂ : b₁ ≍ a₂) : (a₁ = b₁) = (a₂ = b₂) := by cases h₁; cases h₂; rw [@Eq.comm _ a₁]
+
 /-! Ne -/
 
 theorem ne_of_ne_of_eq_left {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b ≠ c) : a ≠ c := by simp [*]

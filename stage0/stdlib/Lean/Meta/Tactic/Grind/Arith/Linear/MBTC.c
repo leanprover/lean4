@@ -22,7 +22,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_hasTheoryVar___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_isInterpreted___redArg___closed__8;
 size_t lean_uint64_to_usize(uint64_t);
-uint8_t l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_43_(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at_____private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_eqAssignment_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_toRatValue_x3f(lean_object*);
@@ -110,6 +109,7 @@ static size_t l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_fin
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_hasTheoryVar___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Meta_Grind_hashPtrExpr_unsafe__1(lean_object*);
 size_t lean_usize_land(size_t, size_t);
+uint8_t l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_42_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at_____private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_toRatValue_x3f_spec__0(lean_object* x_1) {
 _start:
 {
@@ -1254,7 +1254,7 @@ lean_object* x_39; uint8_t x_40; lean_object* x_41;
 x_39 = lean_ctor_get(x_36, 0);
 lean_inc(x_39);
 lean_dec_ref(x_36);
-x_40 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_43_(x_35, x_39);
+x_40 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_42_(x_35, x_39);
 lean_dec(x_39);
 lean_dec(x_35);
 x_41 = lean_box(x_40);
@@ -1333,7 +1333,7 @@ lean_object* x_58; uint8_t x_59; lean_object* x_60; lean_object* x_61;
 x_58 = lean_ctor_get(x_54, 0);
 lean_inc(x_58);
 lean_dec_ref(x_54);
-x_59 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_43_(x_53, x_58);
+x_59 = l_Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_42_(x_53, x_58);
 lean_dec(x_58);
 lean_dec(x_53);
 x_60 = lean_box(x_59);

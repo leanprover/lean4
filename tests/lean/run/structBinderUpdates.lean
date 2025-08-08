@@ -104,9 +104,9 @@ namespace Ex4
 variable (α : Type)
 
 /--
-error: only parameters appearing in the declaration header may have their binders kinds be overridden
+error: Only parameters appearing in the declaration header may have their binders kinds be overridden
 
-If this is not intended to be an override, use a binder with a type, for example '(x : _)'.
+Hint: If this is not intended to be an override, use a binder with a type: for example, `(x : _)`
 -/
 #guard_msgs in
 class Inhabited where
@@ -170,9 +170,9 @@ structure WithLp (p : Nat) (V : Type) where toLp (p : _) ::
 variable (n : Nat)
 
 /--
-error: only parameters appearing in the declaration header may have their binders kinds be overridden
+error: Only parameters appearing in the declaration header may have their binders kinds be overridden
 
-If this is not intended to be an override, use a binder with a type, for example '(x : _)'.
+Hint: If this is not intended to be an override, use a binder with a type: for example, `(x : _)`
 -/
 #guard_msgs in
 structure WithLp (p : Nat) (V : Type) where toLp (n) ::
@@ -185,9 +185,9 @@ Motivation 2: we should be able to tell whether the param binder update is legit
 Motivation 3: the constructor type is constructed before we know which `variable`s will be included. That would take participation of MutualInductive.
 -/
 /--
-error: only parameters appearing in the declaration header may have their binders kinds be overridden
+error: Only parameters appearing in the declaration header may have their binders kinds be overridden
 
-If this is not intended to be an override, use a binder with a type, for example '(x : _)'.
+Hint: If this is not intended to be an override, use a binder with a type: for example, `(x : _)`
 -/
 #guard_msgs in
 structure WithLp (p : Nat) (V : Type) where toLp (n) ::

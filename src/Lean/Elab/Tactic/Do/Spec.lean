@@ -143,7 +143,7 @@ def mkPreTag (goalTag : Name) : Name := Id.run do
 -/
 def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name) (mkPreTag := mkPreTag) : n Expr := do
   -- First instantiate `fun s => ...` in the target via repeated `mintro ∀s`.
-  Prod.snd <$> mIntroForallN goal goal.target.consumeMData.getNumHeadLambdas fun goal => do
+  mIntroForallN goal goal.target.consumeMData.getNumHeadLambdas fun goal => do
   -- Elaborate the spec for the wp⟦e⟧ app in the target
   let T := goal.target.consumeMData
   unless T.getAppFn.constName! == ``PredTrans.apply do
@@ -188,7 +188,7 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
   -- Often P or Q are schematic (i.e. an MVar app). Try to solve by rfl.
   -- We do `fullApproxDefEq` here so that `constApprox` is active; this is useful in
   -- `need_const_approx` of `doLogicTests.lean`.
-  let (HPRfl, QQ'Rfl) ← withAssignableSyntheticOpaque <| fullApproxDefEq <| do
+  let (HPRfl, QQ'Rfl) ← fullApproxDefEq <| do
     return (← isDefEqGuarded P goal.hyps, ← isDefEqGuarded Q Q')
 
   -- Discharge the validity proof for the spec if not rfl
@@ -214,8 +214,7 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
         h (QQ'mono.betaRev excessArgs)
 
   -- finally build the proof; HPPrf.trans (spec.trans QQ'mono)
-  let prf := prePrf (postPrf spec)
-  return ((), prf)
+  return prePrf (postPrf spec)
 
 @[builtin_tactic Lean.Parser.Tactic.mspecNoBind]
 def elabMSpecNoBind : Tactic

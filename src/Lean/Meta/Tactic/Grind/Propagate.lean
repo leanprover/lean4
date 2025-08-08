@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Grind.PropagatorAttr
 public import Lean.Meta.Tactic.Grind.Simp
 public import Lean.Meta.Tactic.Grind.Ext
 public import Lean.Meta.Tactic.Grind.Internalize
+import Lean.Meta.Tactic.Grind.Diseq
 
 public section
 

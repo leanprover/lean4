@@ -32,6 +32,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l___auto___closed__39____x40_Init_Data_Array_QSort_Basic___hyg_6903_;
 static lean_object* l___auto___closed__17____x40_Init_Data_Array_QSort_Basic___hyg_21_;
 static lean_object* l___auto___closed__21____x40_Init_Data_Array_QSort_Basic___hyg_6903_;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_match__7_splitter___redArg(lean_object*, lean_object*);
 static lean_object* l___auto___closed__6____x40_Init_Data_Array_QSort_Basic___hyg_21_;
 static lean_object* l___auto___closed__24____x40_Init_Data_Array_QSort_Basic___hyg_21_;
 static lean_object* l___auto___closed__47____x40_Init_Data_Array_QSort_Basic___hyg_6903_;
@@ -68,6 +69,7 @@ static lean_object* l___auto___closed__21____x40_Init_Data_Array_QSort_Basic___h
 static lean_object* l___auto___closed__23____x40_Init_Data_Array_QSort_Basic___hyg_21_;
 LEAN_EXPORT lean_object* l_Array_qsortOrd(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__0____x40_Init_Data_Array_QSort_Basic___hyg_6903_;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_match__7_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__25____x40_Init_Data_Array_QSort_Basic___hyg_6903_;
 LEAN_EXPORT lean_object* l_Array_qpartition___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__16____x40_Init_Data_Array_QSort_Basic___hyg_6903_;
@@ -128,6 +130,7 @@ static lean_object* l___auto___closed__30____x40_Init_Data_Array_QSort_Basic___h
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l___auto___closed__5____x40_Init_Data_Array_QSort_Basic___hyg_6903_;
 static lean_object* l___auto___closed__13____x40_Init_Data_Array_QSort_Basic___hyg_21_;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_match__7_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l___auto___closed__20____x40_Init_Data_Array_QSort_Basic___hyg_6903_;
 LEAN_EXPORT lean_object* l_Array_qsort_sort(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1285,6 +1288,38 @@ lean_dec(x_3);
 return x_10;
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_match__7_splitter___redArg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec_ref(x_1);
+x_5 = lean_apply_3(x_2, x_3, lean_box(0), x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_match__7_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_match__7_splitter___redArg(x_6, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_match__7_splitter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_match__7_splitter(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_8;
+}
+}
 LEAN_EXPORT lean_object* l_Array_qsort___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1442,13 +1477,14 @@ return x_10;
 LEAN_EXPORT uint8_t l_Array_qsortOrd___redArg___lam__0(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; 
+lean_object* x_5; uint8_t x_6; 
 x_5 = lean_apply_2(x_1, x_3, x_4);
-if (lean_obj_tag(x_5) == 0)
+x_6 = lean_unbox(x_5);
+if (x_6 == 0)
 {
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
+uint8_t x_7; 
+x_7 = 1;
+return x_7;
 }
 else
 {

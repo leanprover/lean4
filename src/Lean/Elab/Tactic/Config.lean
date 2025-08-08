@@ -9,7 +9,7 @@ prelude
 public import Lean.Meta.Eval
 public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.SyntheticMVars
-public import Lean.Linter.MissingDocs
+import Lean.Linter.MissingDocs
 meta import Lean.Parser.Tactic
 
 public section
@@ -40,11 +40,11 @@ Returns that and the last projection function for `x` itself.
 -/
 private def expandFieldName (structName : Name) (fieldName : Name) : MetaM (Name × Name) := do
   let env ← getEnv
-  unless isStructure env structName do throwError "'{.ofConstName structName}' is not a structure"
+  unless isStructure env structName do throwError "`{.ofConstName structName}` is not a structure"
   let some baseStructName := findField? env structName fieldName
-    | throwError "structure '{.ofConstName structName}' does not have a field named '{fieldName}'"
+    | throwError "Structure `{.ofConstName structName}` does not have a field named `{fieldName}`"
   let some path := getPathToBaseStructure? env baseStructName structName
-    | throwError "(internal error) failed to access field '{fieldName}' in parent structure"
+    | throwError "Internal error: Failed to access field `{fieldName}` in parent structure"
   let field := path.foldl (init := .anonymous) (fun acc s => Name.appendCore acc <| Name.mkSimple s.getString!) ++ fieldName
   let fieldInfo := (getFieldInfo? env baseStructName fieldName).get!
   return (field, fieldInfo.projFn)
@@ -55,11 +55,11 @@ Given a hierarchical name `field`, returns the fully resolved field access, the 
 -/
 private partial def expandField (structName : Name) (field : Name) : MetaM (Name × Name) := do
   match field with
-  | .num .. | .anonymous => throwError m!"invalid configuration field"
+  | .num .. | .anonymous => throwError m!"Invalid configuration field"
   | .str .anonymous fieldName => expandFieldName structName (Name.mkSimple fieldName)
   | .str field' fieldName =>
     let (field', projFn) ← expandField structName field'
-    let notStructure {α} : MetaM α := throwError "field '{field'}' of structure '{.ofConstName structName}' is not a structure"
+    let notStructure {α} : MetaM α := throwError "Field `{field'}` of structure '{.ofConstName structName}' is not a structure"
     let .const structName' _ := (← getConstInfo projFn).type.getForallBody | notStructure
     unless isStructure (← getEnv) structName' do notStructure
     let (field'', projFn) ← expandFieldName structName' (Name.mkSimple fieldName)
@@ -95,7 +95,7 @@ def elabConfig (recover : Bool) (structName : Name) (items : Array ConfigItemVie
           if item.bool then
             -- Verify that the type is `Bool`
             unless (← getConstInfo projFn).type.bindingBody! == .const ``Bool [] do
-              throwErrorAt item.ref m!"option is not boolean-valued, so '({option} := ...)' syntax must be used"
+              throwErrorAt item.ref m!"Option is not boolean-valued, so `({option} := ...)` syntax must be used"
           let value ←
             match item.value with
             | `(by $seq:tacticSeq) =>
@@ -141,18 +141,18 @@ private def mkConfigElaborator
         if items.isEmpty then
           return $empty
         unless (← getEnv).contains ``$type do
-          throwError m!"error evaluating configuration, environment does not yet contain type {``$type}"
+          throwError m!"Error evaluating configuration: Environment does not yet contain type {``$type}"
         let c ← elabConfig recover ``$type items
         if c.hasSyntheticSorry then
           -- An error is already logged, return the default.
           return $empty
         if c.hasSorry then
-          throwError m!"configuration contains 'sorry'"
+          throwError m!"Configuration contains `sorry`"
         try
           let res ← eval c
           return res
         catch ex =>
-          let msg := m!"error evaluating configuration\n{indentD c}\n\nException: {ex.toMessageData}"
+          let msg := m!"Error evaluating configuration\n{indentD c}\n\nException: {ex.toMessageData}"
           if false then
             logError msg
             return $empty
@@ -177,7 +177,7 @@ macro (name := configElab) doc?:(docComment)? "declare_config_elab" elabName:ide
 
 open Linter.MissingDocs in
 @[builtin_missing_docs_handler Elab.Tactic.configElab]
-def checkConfigElab : SimpleHandler := mkSimpleHandler "config elab"
+private def checkConfigElab : SimpleHandler := mkSimpleHandler "config elab"
 
 /-!
 `declare_command_config_elab elabName TypeName` declares a function `elabName : Syntax → CommandElabM TypeName`
@@ -192,6 +192,6 @@ macro (name := commandConfigElab) doc?:(docComment)? "declare_command_config_ela
 
 open Linter.MissingDocs in
 @[builtin_missing_docs_handler Elab.Tactic.commandConfigElab]
-def checkCommandConfigElab : SimpleHandler := mkSimpleHandler "config elab"
+private def checkCommandConfigElab : SimpleHandler := mkSimpleHandler "config elab"
 
 end Lean.Elab.Tactic

@@ -89,7 +89,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitDeclValue(
 lean_object* l_Lean_simpLevelIMax_x27(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__2;
-uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_Compiler_LCNF_NormLevelParam_normLevel_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_Decl_setLevelParams___closed__1;
@@ -144,6 +143,7 @@ lean_object* l_StateT_map(lean_object*, lean_object*, lean_object*, lean_object*
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(uint8_t, uint8_t);
 lean_object* l_StateT_instMonad___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 lean_object* l_StateT_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1664,7 +1664,7 @@ return x_70;
 else
 {
 uint8_t x_71; 
-x_71 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_60, x_60);
+x_71 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_60, x_60);
 if (x_71 == 0)
 {
 lean_object* x_72; lean_object* x_73; 
@@ -1767,7 +1767,7 @@ return x_95;
 else
 {
 uint8_t x_96; 
-x_96 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_414_(x_85, x_85);
+x_96 = l_Lean_beqBinderInfo____x40_Lean_Expr___hyg_413_(x_85, x_85);
 if (x_96 == 0)
 {
 lean_object* x_97; lean_object* x_98; 

@@ -30,7 +30,7 @@ def elabMDup : Tactic
     addHypInfo h goal.σs hyp (isBinder := true)
     let H' := hyp.toExpr
     let T := goal.target
-    let newGoal := { goal with hyps := mkAnd! goal.u goal.σs P H' }
+    let newGoal := { goal with hyps := SPred.mkAnd! goal.u goal.σs P H' }
     let m ← mkFreshExprSyntheticOpaqueMVar newGoal.toExpr
     mvar.assign (mkApp7 (mkConst ``Have.dup [goal.u]) goal.σs P Q H T res.proof m)
     replaceMainGoal [m.mvarId!]
@@ -52,7 +52,7 @@ def elabMHave : Tactic
     addHypInfo h goal.σs hyp (isBinder := true)
     let H := hyp.toExpr
     let T := goal.target
-    let (PH, hand) := mkAnd goal.u goal.σs P H
+    let (PH, hand) := SPred.mkAnd goal.u goal.σs P H
     let haveGoal := { goal with target := H }
     let hhave ← elabTermEnsuringType rhs haveGoal.toExpr
     let newGoal := { goal with hyps := PH }
@@ -82,7 +82,7 @@ def elabMReplace : Tactic
     let haveGoal := { goal with target := H' }
     let hhave ← elabTermEnsuringType rhs haveGoal.toExpr
     let T := goal.target
-    let (PH', hand) := mkAnd goal.u goal.σs P H'
+    let (PH', hand) := SPred.mkAnd goal.u goal.σs P H'
     let newGoal := { goal with hyps := PH' }
     let m ← mkFreshExprSyntheticOpaqueMVar newGoal.toExpr
     let prf := mkApp (mkApp10 (mkConst ``Have.replace [goal.u]) goal.σs P H H' PH PH' T res.proof hand hhave) m

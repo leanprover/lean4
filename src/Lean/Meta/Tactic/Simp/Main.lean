@@ -14,6 +14,7 @@ public import Lean.Meta.Tactic.Simp.Diagnostics
 public import Lean.Meta.Match.Value
 public import Lean.Meta.LetToHave
 public import Lean.Util.CollectLooseBVars
+import Lean.PrettyPrinter
 
 public section
 
@@ -1014,7 +1015,7 @@ partial def simpLoop (e : Expr) : SimpM Result := withIncRecDepth do
     if let some result := cache.find? e then
       return result
   if (← get).numSteps > cfg.maxSteps then
-    throwError "simp failed, maximum number of steps exceeded"
+    throwError "`simp` failed: maximum number of steps exceeded"
   else
     checkSystem "simp"
     modify fun s => { s with numSteps := s.numSteps + 1 }
@@ -1230,7 +1231,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray :=
     let toClear := fvarIdsToSimp.filter fun fvarId => !replaced.contains fvarId
     mvarIdNew ← mvarIdNew.tryClearMany toClear
     if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
-      throwError "simp made no progress"
+      throwError "`simp` made no progress"
     return (some (fvarIdsNew, mvarIdNew), stats)
 
 def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
@@ -1279,7 +1280,7 @@ def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray :
         mvarIdNew ← mvarIdNew.replaceTargetDefEq targetNew
       pure () -- FIXME: bug in do notation if this is removed?
     if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
-      throwError "dsimp made no progress"
+      throwError "`dsimp` made no progress"
     return (some mvarIdNew, stats)
 
 end Lean.Meta

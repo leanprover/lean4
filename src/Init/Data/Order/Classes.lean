@@ -16,9 +16,10 @@ namespace Std
 This module provides the typeclasses used to state that basic operations on some type `α`
 reflect a certain well-behaved order structure on `α`.
 
-The basic operations are provided by typeclasses such as `LE α`, `LT α`, `Ord α` or `Min α`.
+The basic operations are provided by the typeclasses `LE α`, `LT α`, `BEq α`, `Ord α`, `Min α` and
+`Max α`.
 All of them describe at least some way to compare elements in `α`. Usually, any subset of them
-is available and can show (or needs) that these comparisons are well-behaved in some sense.
+is available and one can/must show that these comparisons are well-behaved in some sense.
 
 For example, one could merely require that the available operations reflect a preorder
 (where the less-or-equal relation only needs to be reflexive and transitive). Alternatively,
@@ -35,12 +36,12 @@ This data-carrying typeclass defines which elements of `α` are less, and less o
 which other elements.
 
 The operations of this class are not meant to be used directly.
-Instead users should rely on typeclasses such as `LE α`, `LT α` or `Ord α` that provide basic
-operations, here `<`, `>` and `compare`.
+Instead, users should rely on the basic operations provided by the typeclasses mentioned above,
+such as `≤`, `<` and `compare` (provided by `LE α`, `LT α` and `Ord α`).
 
 **Role of `OrderData α`:**
 
-This typeclass allows to describe order-related properties of `α` is an abstract, canonical way,
+This typeclass allows to describe order-related properties of `α` in an abstract, canonical way,
 no matter which basic operations are available on `α`.
 
 For example, there are different ways to say that the order on `α` is a linear order, depending

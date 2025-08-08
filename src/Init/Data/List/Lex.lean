@@ -24,7 +24,7 @@ namespace List
 
 instance [LT α] : OrderData (List α) := .ofLE (List α)
 
-instance [LT α] [Std.Asymm (α := List α) (· < ·)]: LawfulOrderLT (List α) where
+instance [LT α] [Std.Asymm (α := List α) (· < ·)] : LawfulOrderLT (List α) where
   lt_iff := by
     simp only [← LawfulOrderLE.le_iff, LE.le, List.le, Classical.not_not, iff_and_self]
     apply Std.Asymm.asymm

@@ -2488,6 +2488,8 @@ callers.
 def realizeValue [BEq α] [Hashable α] [TypeName α] [TypeName β] (forConst : Name) (key : α) (realize : MetaM β) :
     MetaM β := do
   let env ← getEnv
+  if !env.areRealizationsEnabledForConst forConst then
+    return (← realize)
   let coreCtx ← readThe Core.Context
   let coreCtx := {
     -- these fields should be invariant throughout the file

@@ -869,6 +869,9 @@ def enableRealizationsForConst (env : Environment) (opts : Options) (c : Name) :
     opts
     realizeMapRef := (← IO.mkRef {}) } }
 
+def areRealizationsEnabledForConst (env : Environment) (c : Name) : Bool :=
+  (env.base.get env |>.const2ModIdx.contains c) || env.localRealizationCtxMap.contains c
+
 /-- Returns debug output about the asynchronous state of the environment. -/
 def dbgFormatAsyncState (env : Environment) : BaseIO String :=
   return s!"\

@@ -27,7 +27,7 @@ namespace Lean.Elab.Command
   | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
-    (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) :
+    (isNoncomputable isPublic isImplicit: Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) :
     CommandElabM Unit := do
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,
@@ -36,13 +36,14 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
       isNoncomputable := s.scopes.head!.isNoncomputable || isNoncomputable
       isPublic := s.scopes.head!.isPublic || isPublic
       attrs := s.scopes.head!.attrs ++ attrs
+      isImplicit := isImplicit
     } :: s.scopes
   }
   pushScope
   if isNewNamespace then
     activateScoped newNamespace
 
-private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic : Bool := false)
+private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic isImplicit : Bool := false)
     (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) : CommandElabM Unit :=
   go header
 where go
@@ -50,11 +51,16 @@ where go
   | .str p header => do
     go p
     let currNamespace ← getCurrNamespace
-    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs
+    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic isImplicit attrs
   | _ => throwError "invalid scope"
 
-private def addNamespace (header : Name) : CommandElabM Unit :=
-  addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header
+register_option Lean.Elab.implicit : Bool := {
+  defValue := false
+}
+
+private def addNamespace (header : Name): CommandElabM Unit := do
+  let isImplicit := Lean.Elab.implicit.get (←getOptions)
+  addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) (isImplicit := isImplicit) header
 
 def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
   addNamespace ns

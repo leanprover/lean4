@@ -80,6 +80,7 @@ structure Scope where
   parent scopes.
   -/
   attrs : List (TSyntax ``Parser.Term.attrInstance) := []
+  isImplicit := false
   deriving Inhabited
 
 structure State where

@@ -11,6 +11,7 @@ public import Init.Data.Nat.Div
 public import Init.Data.Nat.Dvd
 public import Init.Data.Nat.Gcd
 public import Init.Data.Nat.MinMax
+public import Init.Data.Nat.Order
 public import Init.Data.Nat.Bitwise
 public import Init.Data.Nat.Control
 public import Init.Data.Nat.Log2
@@ -23,5 +24,6 @@ public import Init.Data.Nat.Lcm
 public import Init.Data.Nat.Compare
 public import Init.Data.Nat.Simproc
 public import Init.Data.Nat.Fold
+public import Init.Data.Nat.Order
 
 public section

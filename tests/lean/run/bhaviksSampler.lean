@@ -152,7 +152,7 @@ theorem sampler_correct {m : Type → Type u} {k h} [Monad m] [WPMonad m ps] :
   sampler (m:=m) n k h
   ⦃⇓ xs => ⌜xs.toList.Nodup⌝⦄ := by
   mvcgen -leave [sampler]
-  case inv => exact (⇓ (midway, xs) => ⌜Midway.valid midway xs.rpref.length⌝)
+  case inv => exact (⇓ (midway, ⟨xs, i⟩) => ⌜Midway.valid midway i.val⌝)
   -- case step => simp_all
   case post.success =>
     dsimp
@@ -164,15 +164,14 @@ theorem sampler_correct {m : Type → Type u} {k h} [Monad m] [WPMonad m ps] :
     -- prove List.take k r.snd.toList = r.snd.toList for r.snd : Vector (Fin n) k
     sorry
   case post.except => simp
-  case step.success rpref x _ _ _ _ _ _ r _ _ =>
+  case step.success i _ _ _ _ r _ _ =>
     dsimp
     mintro ∀s
     mframe
     rename_i hinv
     mpure_intro
-    change Midway.valid (next _ x _ r.val) (rpref.length + 1)
-    have : x = rpref.length := sorry -- by grind -- wishful thinking :(
-    subst this
-    apply Midway.valid_next _ rpref.length _ r.val r.property.1 r.property.2 hinv
+    change Midway.valid (next _ _ _ r.val) (i + 1)
+    simp only [List.getElem_range', Nat.one_mul, Nat.zero_add]
+    apply Midway.valid_next _ i _ r.val (by grind) (by grind) hinv
   mpure_intro
   exact valid_init

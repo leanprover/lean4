@@ -32,11 +32,12 @@ example : IsLinearOrder X := inferInstance
 example : LawfulOrderLE X := inferInstance
 example : LawfulOrderLT X := inferInstance
 example : LawfulOrderOrd X := inferInstance
+example : LawfulOrderMin X := inferInstance
 
 end
 
 /--
-error: could not synthesize default value for field 'lawful_lt' of 'Std.PreorderPackage.OfLEArgs' using tactics
+error: could not synthesize default value for field 'lawful_lt' of 'Std.Packages.PreorderOfLEArgs' using tactics
 ---
 error: Failed to automatically prove that the `OrderData` and `LT` instances are compatible.
 α : Type u

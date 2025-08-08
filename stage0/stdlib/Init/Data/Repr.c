@@ -19,7 +19,6 @@ static lean_object* l_Sum_repr___redArg___closed__2;
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_reprStr___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Char_quoteCore_smallCharToHex___boxed(lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Bool_repr___redArg___closed__2;
 static lean_object* l_List_repr___redArg___closed__5;
@@ -37,6 +36,7 @@ static lean_object* l_Char_quoteCore___closed__1;
 static lean_object* l_reprSourceInfo___closed__6____x40_Init_Data_Repr___hyg_2617_;
 LEAN_EXPORT lean_object* l_instReprPUnit;
 static lean_object* l_Option_repr___redArg___closed__3;
+LEAN_EXPORT lean_object* l___private_Init_Data_Repr_0__Char_quoteCore_smallCharToHex___boxed(lean_object*);
 static lean_object* l_instReprDecidable___closed__0;
 lean_object* l_Std_Format_fill(lean_object*);
 static lean_object* l_Prod_repr___redArg___closed__1;
@@ -78,6 +78,7 @@ LEAN_EXPORT lean_object* l_Bool_repr___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instReprId___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instReprList(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Repr_0__Char_quoteCore_smallCharToHex(uint32_t);
 LEAN_EXPORT lean_object* l_instReprTupleOfRepr___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
@@ -138,7 +139,6 @@ LEAN_EXPORT lean_object* l_Nat_digitChar___boxed(lean_object*);
 static lean_object* l_Repr_addAppParen___closed__4;
 LEAN_EXPORT uint32_t l_Nat_superDigitChar(lean_object*);
 static lean_object* l_reprSourceInfo___closed__4____x40_Init_Data_Repr___hyg_2617_;
-LEAN_EXPORT lean_object* l_Char_quoteCore_smallCharToHex(uint32_t);
 static lean_object* l_Sigma_repr___redArg___closed__2;
 LEAN_EXPORT lean_object* l_instReprProdOfReprTuple(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Char_quote(uint32_t);
@@ -2529,7 +2529,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Char_quoteCore_smallCharToHex(uint32_t x_1) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Repr_0__Char_quoteCore_smallCharToHex(uint32_t x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
@@ -2548,13 +2548,13 @@ lean_dec_ref(x_8);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Char_quoteCore_smallCharToHex___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Repr_0__Char_quoteCore_smallCharToHex___boxed(lean_object* x_1) {
 _start:
 {
 uint32_t x_2; lean_object* x_3; 
 x_2 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
-x_3 = l_Char_quoteCore_smallCharToHex(x_2);
+x_3 = l___private_Init_Data_Repr_0__Char_quoteCore_smallCharToHex(x_2);
 return x_3;
 }
 }
@@ -2681,7 +2681,7 @@ block_6:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_Char_quoteCore___closed__0;
-x_4 = l_Char_quoteCore_smallCharToHex(x_1);
+x_4 = l___private_Init_Data_Repr_0__Char_quoteCore_smallCharToHex(x_1);
 x_5 = lean_string_append(x_3, x_4);
 lean_dec_ref(x_4);
 return x_5;

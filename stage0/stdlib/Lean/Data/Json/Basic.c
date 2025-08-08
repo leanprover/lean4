@@ -51,7 +51,6 @@ static lean_object* l_Lean_JsonNumber_normalize___closed__0;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_JsonNumber_fromFloat_x3f(double);
 LEAN_EXPORT lean_object* l_Lean_Json_instCoeRawStringStructured;
-LEAN_EXPORT uint64_t l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__0(lean_object*, size_t, size_t, uint64_t);
 static lean_object* l_Lean_Json_getArr_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_JsonNumber_shiftr(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_setObjVal_x21___closed__2;
@@ -116,6 +115,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at_____private_Lea
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_getInt_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Json_instCoeInt___lam__0(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_Json_mergeObj_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_setObjVal_x21___closed__1;
 double lean_float_of_nat(lean_object*);
@@ -137,9 +137,9 @@ static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_set
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_____private_Lean_Data_Json_Basic_0__Lean_Json_beq_x27_spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_____private_Lean_Data_Json_Basic_0__Lean_Json_beq_x27_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint64_t l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__0(lean_object*, size_t, size_t, uint64_t);
 uint8_t lean_float_isnan(double);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_____private_Lean_Data_Json_Basic_0__Lean_Json_beq_x27_spec__3___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_JsonNumber_instInhabited___closed__0;
 LEAN_EXPORT uint64_t l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at_____private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__1_spec__1(uint64_t, lean_object*);
 static lean_object* l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_fromPositiveFloat_x21___closed__1;
@@ -2637,7 +2637,7 @@ x_1 = l_Lean_Json_instBEq___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT uint64_t l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__0(lean_object* x_1, size_t x_2, size_t x_3, uint64_t x_4) {
+LEAN_EXPORT uint64_t l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__0(lean_object* x_1, size_t x_2, size_t x_3, uint64_t x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -2801,7 +2801,7 @@ size_t x_23; size_t x_24; uint64_t x_25; uint64_t x_26;
 x_23 = 0;
 x_24 = lean_usize_of_nat(x_18);
 lean_dec(x_18);
-x_25 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__0(x_14, x_23, x_24, x_16);
+x_25 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__0(x_14, x_23, x_24, x_16);
 x_26 = lean_uint64_mix_hash(x_15, x_25);
 return x_26;
 }
@@ -2820,7 +2820,7 @@ return x_31;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; uint64_t x_7; uint64_t x_8; lean_object* x_9; 
@@ -2830,7 +2830,7 @@ x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = lean_unbox_uint64(x_4);
 lean_dec(x_4);
-x_8 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__0(x_1, x_5, x_6, x_7);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27_spec__0(x_1, x_5, x_6, x_7);
 lean_dec_ref(x_1);
 x_9 = lean_box_uint64(x_8);
 return x_9;

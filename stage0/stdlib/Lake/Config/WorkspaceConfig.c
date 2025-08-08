@@ -35,6 +35,7 @@ LEAN_EXPORT lean_object* l_Lake_WorkspaceConfig_packagesDir___proj;
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Lake_WorkspaceConfig_instConfigMeta___closed__5;
 lean_object* l_Array_empty(lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_WorkspaceConfig_instConfigMeta___closed__1;
 static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__5____x40_Lake_Config_WorkspaceConfig___hyg_35_;
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
@@ -86,7 +87,6 @@ lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, l
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lake_reprWorkspaceConfig___redArg___closed__2____x40_Lake_Config_WorkspaceConfig___hyg_35_;
 static lean_object* l_Lake_WorkspaceConfig_instConfigMeta___closed__0;
-lean_object* l_Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lake_instInhabitedWorkspaceConfig___closed__0() {
 _start:
@@ -649,7 +649,7 @@ lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12;
 x_8 = lean_alloc_closure((void*)(l_Lake_WorkspaceConfig_instConfigMeta___lam__0), 2, 0);
 x_9 = 0;
 x_10 = l_Lake_WorkspaceConfig_instConfigMeta___closed__14;
-x_11 = l_Array_foldlMUnsafe_fold___redArg(x_3, x_8, x_1, x_9, x_10, x_2);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_3, x_8, x_1, x_9, x_10, x_2);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_1);
 lean_ctor_set(x_12, 1, x_11);

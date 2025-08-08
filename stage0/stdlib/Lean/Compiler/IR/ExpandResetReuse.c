@@ -14,9 +14,8 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_eraseProjIncFor(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__20____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1_spec__1___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_eraseProjIncForAux(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -31,15 +30,12 @@ lean_object* l_Lean_IR_Decl_maxIndex(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_isSelfSSet___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_releaseUnreadFields(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__25____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
-LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Lean_IR_ExpandResetReuse_consumed_spec__0(lean_object*, lean_object*, size_t, size_t);
-LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__16____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 lean_object* l_Lean_IR_push(lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__5(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_IR_ExpandResetReuse_isSelfSet_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_removeSelfSet___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_eraseProjIncForAux___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_expand___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,98 +48,99 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_eraseProjIncForAux___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__8____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
-LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_reuseToCtor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_reuseToSet___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_instInhabitedFnBody;
 lean_object* l_Lean_IR_FnBody_replaceVar(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Decl_expandResetReuse(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back_x21___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_setFields(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0(size_t, size_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_mkSlowPath(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_mkProjMap(lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_replace___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___closed__1;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0(lean_object*, size_t, size_t, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__3____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_searchAndExpand(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__17____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_mkFresh(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0(size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_reuseToSet(lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_mkSlowPath_spec__0(lean_object*, uint8_t, uint8_t, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___closed__0;
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__11____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 lean_object* lean_nat_div(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__5(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__27____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_mkFresh___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__10____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_eraseProjIncFor___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_mkSlowPath_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_mkFastPath(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_ExpandResetReuse_consumed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_main(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__1____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 LEAN_EXPORT uint8_t l_Lean_IR_ExpandResetReuse_isSelfSet(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ExpandResetReuse_mkProjMap___closed__3;
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__0____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_IR_ExpandResetReuse_isSelfSet_spec__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_hashVarId____x40_Lean_Compiler_IR_Basic___hyg_96____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__4____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__18____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_mkFresh___redArg(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__6____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
-LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__7____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_beqVarId____x40_Lean_Compiler_IR_Basic___hyg_38____boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__9____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 lean_object* l_Lean_IR_mkIf(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_consumed___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ExpandResetReuse_mkProjMap___closed__2;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_IR_FnBody_setBody(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lean_IR_ExpandResetReuse_consumed_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_updateBody_x21(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ExpandResetReuse_mkProjMap___closed__4;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__26____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
+LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_ExpandResetReuse_consumed_spec__0(lean_object*, lean_object*, size_t, size_t);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint64_t l_Lean_IR_hashVarId____x40_Lean_Compiler_IR_Basic___hyg_96_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_mkFastPath___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__15____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_releaseUnreadFields___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_ExpandResetReuse_isSelfSSet(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ExpandResetReuse_eraseProjIncFor___closed__0;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1_spec__1___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__21____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__22____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_IR_ExpandResetReuse_isSelfSet_spec__0___redArg___boxed(lean_object*, lean_object*);
@@ -151,23 +148,26 @@ static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_ini
 LEAN_EXPORT uint8_t l_Lean_IR_ExpandResetReuse_isSelfUSet(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1;
 size_t lean_usize_sub(size_t, size_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_ExpandResetReuse_consumed_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_reuseToCtor___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_eraseProjIncForAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_mkSlowPath_spec__0(lean_object*, uint8_t, uint8_t, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__5____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 static lean_object* l_Lean_IR_ExpandResetReuse_mkProjMap___closed__0;
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_setFields___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_isSelfUSet___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_mkSlowPath_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__0___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn___closed__23____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_;
 lean_object* l_Lean_IR_reshape(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_normalizeIds(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_expand(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -176,9 +176,9 @@ static lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_ini
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_IR_ExpandResetReuse_isSelfSet_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_isSelfSet___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ExpandResetReuse_0__Lean_IR_initFn____x40_Lean_Compiler_IR_ExpandResetReuse___hyg_2821_(lean_object*);
 size_t lean_usize_land(size_t, size_t);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___closed__0() {
 _start:
 {
@@ -556,7 +556,7 @@ x_4 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_IR_ExpandResetReuse
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1_spec__1___redArg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1_spec__1___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -630,15 +630,15 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_DHashMap_Internal_AssocList_foldlM___at___Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1_spec__1___redArg(x_2, x_3);
+x_4 = l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1_spec__1___redArg(x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -657,7 +657,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_array_fget(x_2, x_1);
 x_7 = lean_box(0);
 x_8 = lean_array_fset(x_2, x_1, x_7);
-x_9 = l_Std_DHashMap_Internal_AssocList_foldlM___at___Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1_spec__1___redArg(x_3, x_6);
+x_9 = l_Std_DHashMap_Internal_AssocList_foldlM___at_____private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1_spec__1___redArg(x_3, x_6);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_add(x_1, x_10);
 lean_dec(x_1);
@@ -668,11 +668,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1___redArg(x_2, x_3, x_4);
+x_5 = l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }
@@ -687,7 +687,7 @@ lean_dec(x_2);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_box(0);
 x_7 = lean_mk_array(x_4, x_6);
-x_8 = l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1___redArg(x_5, x_1, x_7);
+x_8 = l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__1_spec__1___redArg(x_5, x_1, x_7);
 return x_8;
 }
 }
@@ -779,7 +779,7 @@ x_5 = l_Std_DHashMap_Internal_AssocList_replace___at___Lean_IR_ExpandResetReuse_
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__5(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__5(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_10; 
@@ -1194,7 +1194,7 @@ size_t x_153; size_t x_154; lean_object* x_155;
 x_153 = 0;
 x_154 = lean_usize_of_nat(x_150);
 lean_dec(x_150);
-x_155 = l_Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__5(x_148, x_153, x_154, x_2);
+x_155 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__5(x_148, x_153, x_154, x_2);
 lean_dec_ref(x_148);
 return x_155;
 }
@@ -1325,7 +1325,7 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; 
@@ -1333,7 +1333,7 @@ x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_7 = l_Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__5(x_1, x_5, x_6, x_4);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody_spec__5(x_1, x_5, x_6, x_4);
 lean_dec_ref(x_1);
 return x_7;
 }
@@ -1411,7 +1411,7 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Lean_IR_ExpandResetReuse_consumed_spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4) {
+LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_ExpandResetReuse_consumed_spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -1549,7 +1549,7 @@ size_t x_19; size_t x_20; uint8_t x_21;
 x_19 = 0;
 x_20 = lean_usize_of_nat(x_16);
 lean_dec(x_16);
-x_21 = l_Array_anyMUnsafe_any___at___Lean_IR_ExpandResetReuse_consumed_spec__0(x_1, x_14, x_19, x_20);
+x_21 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_ExpandResetReuse_consumed_spec__0(x_1, x_14, x_19, x_20);
 if (x_21 == 0)
 {
 return x_17;
@@ -1649,7 +1649,7 @@ return x_43;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lean_IR_ExpandResetReuse_consumed_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_ExpandResetReuse_consumed_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; uint8_t x_7; lean_object* x_8; 
@@ -1657,7 +1657,7 @@ x_5 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_6 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_7 = l_Array_anyMUnsafe_any___at___Lean_IR_ExpandResetReuse_consumed_spec__0(x_1, x_2, x_5, x_6);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_ExpandResetReuse_consumed_spec__0(x_1, x_2, x_5, x_6);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 x_8 = lean_box(x_7);
@@ -1966,7 +1966,7 @@ lean_dec(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -2247,7 +2247,7 @@ lean_object* x_54; size_t x_55; size_t x_56; lean_object* x_57;
 x_54 = lean_ctor_get(x_2, 3);
 x_55 = lean_array_size(x_54);
 x_56 = 0;
-x_57 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0(x_1, x_55, x_56, x_54);
+x_57 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0(x_1, x_55, x_56, x_54);
 lean_ctor_set(x_2, 3, x_57);
 return x_2;
 }
@@ -2265,7 +2265,7 @@ lean_inc(x_58);
 lean_dec(x_2);
 x_62 = lean_array_size(x_61);
 x_63 = 0;
-x_64 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0(x_1, x_62, x_63, x_61);
+x_64 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0(x_1, x_62, x_63, x_61);
 x_65 = lean_alloc_ctor(9, 4, 0);
 lean_ctor_set(x_65, 0, x_58);
 lean_ctor_set(x_65, 1, x_59);
@@ -2378,7 +2378,7 @@ return x_7;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; 
@@ -2386,7 +2386,7 @@ x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_7 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0(x_1, x_5, x_6, x_4);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToCtor_spec__0(x_1, x_5, x_6, x_4);
 lean_dec(x_1);
 return x_7;
 }
@@ -2400,7 +2400,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_mkSlowPath_spec__0(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4, size_t x_5, size_t x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_mkSlowPath_spec__0(lean_object* x_1, uint8_t x_2, uint8_t x_3, lean_object* x_4, size_t x_5, size_t x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; uint8_t x_13; 
@@ -2484,13 +2484,13 @@ size_t x_14; size_t x_15; lean_object* x_16;
 x_14 = 0;
 x_15 = lean_usize_of_nat(x_11);
 lean_dec(x_11);
-x_16 = l_Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_mkSlowPath_spec__0(x_6, x_7, x_8, x_3, x_14, x_15, x_9);
+x_16 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_mkSlowPath_spec__0(x_6, x_7, x_8, x_3, x_14, x_15, x_9);
 return x_16;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_mkSlowPath_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_mkSlowPath_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 uint8_t x_8; uint8_t x_9; size_t x_10; size_t x_11; lean_object* x_12; 
@@ -2500,7 +2500,7 @@ x_10 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_11 = lean_unbox_usize(x_6);
 lean_dec(x_6);
-x_12 = l_Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_mkSlowPath_spec__0(x_1, x_8, x_9, x_4, x_10, x_11, x_7);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_IR_ExpandResetReuse_mkSlowPath_spec__0(x_1, x_8, x_9, x_4, x_10, x_11, x_7);
 lean_dec_ref(x_4);
 return x_12;
 }
@@ -2544,7 +2544,7 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; uint8_t x_8; 
@@ -2645,11 +2645,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg(x_1, x_2, x_3, x_4, x_6, x_8);
+x_9 = l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg(x_1, x_2, x_3, x_4, x_6, x_8);
 return x_9;
 }
 }
@@ -2659,26 +2659,26 @@ _start:
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_array_get_size(x_2);
 lean_inc(x_6);
-x_7 = l_Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg(x_2, x_1, x_6, x_6, x_3, x_5);
+x_7 = l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg(x_2, x_1, x_6, x_6, x_3, x_5);
 lean_dec(x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_3);
 lean_dec_ref(x_1);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l___private_Init_Data_Nat_Control_0__Nat_foldM_loop___at___Lean_IR_ExpandResetReuse_releaseUnreadFields_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec_ref(x_7);
 lean_dec(x_3);
 lean_dec_ref(x_1);
@@ -2695,7 +2695,7 @@ lean_dec_ref(x_2);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
@@ -2727,11 +2727,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg(x_1, x_2, x_3, x_4, x_6);
+x_7 = l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
 }
@@ -2741,26 +2741,26 @@ _start:
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_array_get_size(x_2);
 lean_inc(x_4);
-x_5 = l_Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg(x_2, x_1, x_4, x_4, x_3);
+x_5 = l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg(x_2, x_1, x_4, x_4, x_3);
 lean_dec(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___redArg(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_3);
 lean_dec_ref(x_1);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l___private_Init_Data_Nat_Fold_0__Nat_foldTR_loop___at___Lean_IR_ExpandResetReuse_setFields_spec__0(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_3);
 lean_dec_ref(x_1);
 return x_7;
@@ -3105,7 +3105,7 @@ x_7 = lean_box(x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -3404,7 +3404,7 @@ lean_object* x_62; size_t x_63; size_t x_64; lean_object* x_65;
 x_62 = lean_ctor_get(x_2, 3);
 x_63 = lean_array_size(x_62);
 x_64 = 0;
-x_65 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0(x_1, x_63, x_64, x_62);
+x_65 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0(x_1, x_63, x_64, x_62);
 lean_ctor_set(x_2, 3, x_65);
 return x_2;
 }
@@ -3422,7 +3422,7 @@ lean_inc(x_66);
 lean_dec(x_2);
 x_70 = lean_array_size(x_69);
 x_71 = 0;
-x_72 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0(x_1, x_70, x_71, x_69);
+x_72 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0(x_1, x_70, x_71, x_69);
 x_73 = lean_alloc_ctor(9, 4, 0);
 lean_ctor_set(x_73, 0, x_66);
 lean_ctor_set(x_73, 1, x_67);
@@ -3535,7 +3535,7 @@ return x_7;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; 
@@ -3543,7 +3543,7 @@ x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_7 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0(x_1, x_5, x_6, x_4);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_removeSelfSet_spec__0(x_1, x_5, x_6, x_4);
 lean_dec_ref(x_1);
 return x_7;
 }
@@ -3557,7 +3557,7 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
 _start:
 {
 uint8_t x_7; 
@@ -3896,7 +3896,7 @@ lean_object* x_71; size_t x_72; size_t x_73; lean_object* x_74;
 x_71 = lean_ctor_get(x_4, 3);
 x_72 = lean_array_size(x_71);
 x_73 = 0;
-x_74 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0(x_1, x_2, x_3, x_72, x_73, x_71);
+x_74 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0(x_1, x_2, x_3, x_72, x_73, x_71);
 lean_ctor_set(x_4, 3, x_74);
 return x_4;
 }
@@ -3914,7 +3914,7 @@ lean_inc(x_75);
 lean_dec(x_4);
 x_79 = lean_array_size(x_78);
 x_80 = 0;
-x_81 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0(x_1, x_2, x_3, x_79, x_80, x_78);
+x_81 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0(x_1, x_2, x_3, x_79, x_80, x_78);
 x_82 = lean_alloc_ctor(9, 4, 0);
 lean_ctor_set(x_82, 0, x_75);
 lean_ctor_set(x_82, 1, x_76);
@@ -4028,7 +4028,7 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
@@ -4036,7 +4036,7 @@ x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_8 = lean_unbox_usize(x_5);
 lean_dec(x_5);
-x_9 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0(x_1, x_2, x_3, x_7, x_8, x_6);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_reuseToSet_spec__0(x_1, x_2, x_3, x_7, x_8, x_6);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 return x_9;
@@ -4159,7 +4159,7 @@ lean_dec(x_3);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
@@ -4168,7 +4168,7 @@ x_5 = l_Lean_IR_ExpandResetReuse_searchAndExpand(x_1, x_4, x_2, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0(size_t x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0(size_t x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -4197,7 +4197,7 @@ if (x_18 == 0)
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_19 = lean_ctor_get(x_8, 1);
 lean_inc_ref(x_4);
-x_20 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___lam__0(x_19, x_4, x_5);
+x_20 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___lam__0(x_19, x_4, x_5);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
 x_22 = lean_ctor_get(x_20, 1);
@@ -4217,7 +4217,7 @@ lean_inc(x_24);
 lean_inc(x_23);
 lean_dec(x_8);
 lean_inc_ref(x_4);
-x_25 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___lam__0(x_24, x_4, x_5);
+x_25 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___lam__0(x_24, x_4, x_5);
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc(x_26);
 x_27 = lean_ctor_get(x_25, 1);
@@ -4240,7 +4240,7 @@ if (x_29 == 0)
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_30 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_4);
-x_31 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___lam__0(x_30, x_4, x_5);
+x_31 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___lam__0(x_30, x_4, x_5);
 x_32 = lean_ctor_get(x_31, 0);
 lean_inc(x_32);
 x_33 = lean_ctor_get(x_31, 1);
@@ -4258,7 +4258,7 @@ x_34 = lean_ctor_get(x_8, 0);
 lean_inc(x_34);
 lean_dec(x_8);
 lean_inc_ref(x_4);
-x_35 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___lam__0(x_34, x_4, x_5);
+x_35 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___lam__0(x_34, x_4, x_5);
 x_36 = lean_ctor_get(x_35, 0);
 lean_inc(x_36);
 x_37 = lean_ctor_get(x_35, 1);
@@ -4408,7 +4408,7 @@ lean_object* x_63; size_t x_64; size_t x_65; lean_object* x_66; uint8_t x_67;
 x_63 = lean_ctor_get(x_1, 3);
 x_64 = lean_array_size(x_63);
 x_65 = 0;
-x_66 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0(x_64, x_65, x_63, x_3, x_4);
+x_66 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0(x_64, x_65, x_63, x_3, x_4);
 x_67 = !lean_is_exclusive(x_66);
 if (x_67 == 0)
 {
@@ -4449,7 +4449,7 @@ lean_inc(x_74);
 lean_dec(x_1);
 x_78 = lean_array_size(x_77);
 x_79 = 0;
-x_80 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0(x_78, x_79, x_77, x_3, x_4);
+x_80 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0(x_78, x_79, x_77, x_3, x_4);
 x_81 = lean_ctor_get(x_80, 0);
 lean_inc(x_81);
 x_82 = lean_ctor_get(x_80, 1);
@@ -4637,7 +4637,7 @@ return x_28;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; 
@@ -4645,7 +4645,7 @@ x_6 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_7 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_8 = l_Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0(x_6, x_7, x_3, x_4, x_5);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_ExpandResetReuse_searchAndExpand_spec__0(x_6, x_7, x_3, x_4, x_5);
 return x_8;
 }
 }

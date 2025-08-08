@@ -65,6 +65,7 @@ static lean_object* l_Array_toListRev___redArg___closed__3;
 lean_object* l_Array_empty(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Option_getD_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filterMap__replicate_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___auto___closed__26____x40_Init_Data_Array_Lemmas___hyg_18471_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_ofFn_go_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_toListRev___redArg___closed__5;
@@ -157,7 +158,6 @@ LEAN_EXPORT lean_object* l_Array_instDecidableExistsAndMemOfDecidablePred___redA
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__GetElem_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_foldl__filterMap_x27_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_contains___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_shrink_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Option_getD_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1468,7 +1468,7 @@ x_8 = lean_alloc_closure((void*)(l_Array_toListRev___redArg___lam__0), 2, 0);
 x_9 = 0;
 x_10 = lean_usize_of_nat(x_4);
 lean_dec(x_4);
-x_11 = l_Array_foldlMUnsafe_fold___redArg(x_5, x_8, x_1, x_9, x_10, x_2);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_5, x_8, x_1, x_9, x_10, x_2);
 return x_11;
 }
 }
@@ -1506,7 +1506,7 @@ x_9 = lean_alloc_closure((void*)(l_Array_toListRev___redArg___lam__0), 2, 0);
 x_10 = 0;
 x_11 = lean_usize_of_nat(x_5);
 lean_dec(x_5);
-x_12 = l_Array_foldlMUnsafe_fold___redArg(x_6, x_9, x_2, x_10, x_11, x_3);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_6, x_9, x_2, x_10, x_11, x_3);
 return x_12;
 }
 }

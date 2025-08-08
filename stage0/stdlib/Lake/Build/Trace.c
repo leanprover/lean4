@@ -126,6 +126,7 @@ static lean_object* l_Array_Array_repr___at___Lake_reprBuildTrace____x40_Lake_Bu
 LEAN_EXPORT lean_object* l_Lake_MTime_instNilTrace;
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash___redArg___boxed__const__1;
 static lean_object* l_Lake_Hash_instToJson___closed__0;
+lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_ofString_x3f___boxed(lean_object*);
 static lean_object* l_Lake_reprBuildTrace___redArg___closed__13____x40_Lake_Build_Trace___hyg_1370_;
 LEAN_EXPORT lean_object* l_Lake_instComputeHashBoolId;
@@ -281,7 +282,6 @@ LEAN_EXPORT lean_object* l_Lake_Hash_ofString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instComputeHashTextFilePathIO___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_Lake_Hash_ofByteArray(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeTextFilePathFilePath;
-lean_object* l_Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mixTraceArray___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_fromJson_x3f(lean_object*);
@@ -512,7 +512,7 @@ lean_closure_set(x_9, 0, x_1);
 x_10 = 0;
 x_11 = lean_usize_of_nat(x_5);
 lean_dec(x_5);
-x_12 = l_Array_foldlMUnsafe_fold___redArg(x_6, x_9, x_3, x_10, x_11, x_2);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_6, x_9, x_3, x_10, x_11, x_2);
 return x_12;
 }
 }
@@ -681,7 +681,7 @@ lean_closure_set(x_16, 4, x_8);
 x_17 = 0;
 x_18 = lean_usize_of_nat(x_11);
 lean_dec(x_11);
-x_19 = l_Array_foldlMUnsafe_fold___redArg(x_5, x_16, x_6, x_17, x_18, x_2);
+x_19 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_5, x_16, x_6, x_17, x_18, x_2);
 return x_19;
 }
 }
@@ -743,7 +743,7 @@ lean_closure_set(x_20, 4, x_12);
 x_21 = 0;
 x_22 = lean_usize_of_nat(x_15);
 lean_dec(x_15);
-x_23 = l_Array_foldlMUnsafe_fold___redArg(x_9, x_20, x_10, x_21, x_22, x_5);
+x_23 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_9, x_20, x_10, x_21, x_22, x_5);
 return x_23;
 }
 }
@@ -1958,7 +1958,7 @@ x_16 = 0;
 x_17 = lean_usize_of_nat(x_8);
 lean_dec(x_8);
 x_18 = l_Lake_computeArrayHash___redArg___boxed__const__1;
-x_19 = l_Array_foldlMUnsafe_fold___redArg(x_2, x_15, x_3, x_16, x_17, x_18);
+x_19 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_2, x_15, x_3, x_16, x_17, x_18);
 return x_19;
 }
 }
@@ -2026,7 +2026,7 @@ x_18 = 0;
 x_19 = lean_usize_of_nat(x_10);
 lean_dec(x_10);
 x_20 = l_Lake_computeArrayHash___boxed__const__1;
-x_21 = l_Array_foldlMUnsafe_fold___redArg(x_4, x_17, x_5, x_18, x_19, x_20);
+x_21 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_4, x_17, x_5, x_18, x_19, x_20);
 return x_21;
 }
 }

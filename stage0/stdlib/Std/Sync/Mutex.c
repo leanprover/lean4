@@ -49,6 +49,7 @@ LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__3(lean_object
 LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_basemutex_lock(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Mutex_new___redArg(lean_object*, lean_object*);
+lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BaseMutex_lock___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BaseMutex_tryLock___boxed(lean_object*, lean_object*);
@@ -60,7 +61,6 @@ LEAN_EXPORT lean_object* l___private_Std_Sync_Mutex_0__Std_CondvarImpl;
 LEAN_EXPORT lean_object* l_Std_instCoeOutMutexBaseMutex___lam__0(lean_object*);
 lean_object* lean_io_basemutex_new(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Mutex_atomically(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Loop_forIn_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Condvar_notifyAll___boxed(lean_object*, lean_object*);
 lean_object* lean_io_basemutex_try_lock(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__3(lean_object*, lean_object*, lean_object*);
@@ -249,7 +249,7 @@ lean_closure_set(x_12, 2, x_11);
 x_13 = lean_alloc_closure((void*)(l_Std_Condvar_waitUntil___redArg___lam__3___boxed), 3, 2);
 lean_closure_set(x_13, 0, x_8);
 lean_closure_set(x_13, 1, x_9);
-x_14 = l_Lean_Loop_forIn_loop___redArg(x_1, x_12, x_9);
+x_14 = l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(x_1, x_12, x_9);
 x_15 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_14, x_13);
 return x_15;
 }

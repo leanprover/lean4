@@ -24,22 +24,22 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Std_Barrier_new___closed__0;
 LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at___Std_Barrier_wait_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Barrier_wait___lam__0(lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_basemutex_lock(lean_object*, lean_object*);
 lean_object* l_Std_Mutex_new___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_io_basemutex_unlock(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_condvar_notify_all(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_condvar_wait(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Barrier_wait___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Std_Barrier_new___closed__0() {
 _start:
 {
@@ -94,7 +94,7 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
@@ -146,11 +146,11 @@ return x_17;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg(x_1, x_2, x_3, x_4, x_6, x_7);
+x_8 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg(x_1, x_2, x_3, x_4, x_6, x_7);
 return x_8;
 }
 }
@@ -159,7 +159,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_box(0);
-x_7 = l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg(x_3, x_1, x_2, x_6, x_4, x_5);
+x_7 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg(x_3, x_1, x_2, x_6, x_4, x_5);
 x_8 = !lean_is_exclusive(x_7);
 if (x_8 == 0)
 {
@@ -612,21 +612,21 @@ x_7 = l_Std_Mutex_atomically___at___Std_Barrier_wait_spec__2___redArg(x_3, x_6, 
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___redArg(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Condvar_waitUntil___at___Std_Barrier_wait_spec__0_spec__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_8;

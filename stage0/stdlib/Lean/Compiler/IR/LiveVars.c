@@ -16,19 +16,21 @@ extern "C" {
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindVar___boxed(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_erase___at___Lean_IR_LocalContext_eraseJoinPointDecl_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useVar(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindVar(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_balance___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lean_IR_IsLive_visitFnBody_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitFnBody(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_FnBody_hasLiveVar(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__0___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_IsLive_visitFnBody_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__1___redArg___lam__0(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitArg(lean_object*, lean_object*, lean_object*);
@@ -38,7 +40,6 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at_____priva
 LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitArgs___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_erase___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindVar_spec__0___redArg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitVar___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_mkLiveVarSet_spec__0(lean_object*, lean_object*, lean_object*);
@@ -46,13 +47,13 @@ LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_mkLiveV
 lean_object* l_Std_DTreeMap_Internal_Impl_minView___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_erase___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindVar_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_updateLiveVars(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_mkLiveVarSet_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_LiveVars_updateJPLiveVarMap___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_erase___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindVar_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_LiveVars_updateJPLiveVarMap(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_IR_mkLiveVarSet_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitFnBody___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams___boxed(lean_object*, lean_object*);
@@ -66,11 +67,10 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_erase___at_____private_Lea
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__2_spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitJP(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_IsLive_visitFnBody_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_maxView___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lean_IR_IsLive_visitFnBody_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_mkLiveVarSet_spec__0___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitJP_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_IR_mkLiveVarSet_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitExpr___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_HasIndex_visitArg(lean_object*, lean_object*);
@@ -201,7 +201,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lean_IR_IsLive_visitFnBody_spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_IsLive_visitFnBody_spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -612,7 +612,7 @@ size_t x_83; size_t x_84; lean_object* x_85;
 x_83 = 0;
 x_84 = lean_usize_of_nat(x_77);
 lean_dec(x_77);
-x_85 = l_Array_anyMUnsafe_any___at___Lean_IR_IsLive_visitFnBody_spec__0(x_1, x_74, x_83, x_84, x_3);
+x_85 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_IsLive_visitFnBody_spec__0(x_1, x_74, x_83, x_84, x_3);
 lean_dec_ref(x_74);
 return x_85;
 }
@@ -785,7 +785,7 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lean_IR_IsLive_visitFnBody_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_IsLive_visitFnBody_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; 
@@ -793,7 +793,7 @@ x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_8 = l_Array_anyMUnsafe_any___at___Lean_IR_IsLive_visitFnBody_spec__0(x_1, x_2, x_6, x_7, x_5);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_IR_IsLive_visitFnBody_spec__0(x_1, x_2, x_6, x_7, x_5);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_8;
@@ -4595,7 +4595,7 @@ return x_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -4667,13 +4667,13 @@ size_t x_10; size_t x_11; lean_object* x_12;
 x_10 = 0;
 x_11 = lean_usize_of_nat(x_4);
 lean_dec(x_4);
-x_12 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams_spec__0(x_1, x_10, x_11, x_5, x_2);
+x_12 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams_spec__0(x_1, x_10, x_11, x_5, x_2);
 return x_12;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; 
@@ -4681,7 +4681,7 @@ x_6 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_7 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_8 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams_spec__0(x_1, x_6, x_7, x_4, x_5);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams_spec__0(x_1, x_6, x_7, x_4, x_5);
 lean_dec_ref(x_1);
 return x_8;
 }
@@ -5016,7 +5016,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 uint8_t x_6; 
@@ -5094,7 +5094,7 @@ lean_free_object(x_1);
 x_24 = 0;
 x_25 = lean_usize_of_nat(x_20);
 lean_dec(x_20);
-x_26 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_17, x_24, x_25, x_21, x_2);
+x_26 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_17, x_24, x_25, x_21, x_2);
 lean_dec_ref(x_17);
 return x_26;
 }
@@ -5140,7 +5140,7 @@ size_t x_35; size_t x_36; lean_object* x_37;
 x_35 = 0;
 x_36 = lean_usize_of_nat(x_29);
 lean_dec(x_29);
-x_37 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_27, x_35, x_36, x_30, x_2);
+x_37 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_27, x_35, x_36, x_30, x_2);
 lean_dec_ref(x_27);
 return x_37;
 }
@@ -5192,7 +5192,7 @@ lean_free_object(x_40);
 x_49 = 0;
 x_50 = lean_usize_of_nat(x_45);
 lean_dec(x_45);
-x_51 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_39, x_49, x_50, x_46, x_42);
+x_51 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_39, x_49, x_50, x_46, x_42);
 lean_dec_ref(x_39);
 return x_51;
 }
@@ -5238,7 +5238,7 @@ size_t x_60; size_t x_61; lean_object* x_62;
 x_60 = 0;
 x_61 = lean_usize_of_nat(x_54);
 lean_dec(x_54);
-x_62 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_39, x_60, x_61, x_55, x_52);
+x_62 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_39, x_60, x_61, x_55, x_52);
 lean_dec_ref(x_39);
 return x_62;
 }
@@ -5319,7 +5319,7 @@ lean_free_object(x_69);
 x_78 = 0;
 x_79 = lean_usize_of_nat(x_74);
 lean_dec(x_74);
-x_80 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_68, x_78, x_79, x_75, x_71);
+x_80 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_68, x_78, x_79, x_75, x_71);
 lean_dec_ref(x_68);
 return x_80;
 }
@@ -5365,7 +5365,7 @@ size_t x_89; size_t x_90; lean_object* x_91;
 x_89 = 0;
 x_90 = lean_usize_of_nat(x_83);
 lean_dec(x_83);
-x_91 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_68, x_89, x_90, x_84, x_81);
+x_91 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_68, x_89, x_90, x_84, x_81);
 lean_dec_ref(x_68);
 return x_91;
 }
@@ -5447,7 +5447,7 @@ size_t x_12; size_t x_13; lean_object* x_14;
 x_12 = 0;
 x_13 = lean_usize_of_nat(x_6);
 lean_dec(x_6);
-x_14 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_3, x_12, x_13, x_7, x_4);
+x_14 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_3, x_12, x_13, x_7, x_4);
 lean_dec_ref(x_3);
 return x_14;
 }
@@ -5455,7 +5455,7 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; 
@@ -5463,12 +5463,12 @@ x_6 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_7 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_8 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_1, x_6, x_7, x_4, x_5);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_1, x_6, x_7, x_4, x_5);
 lean_dec_ref(x_1);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody_spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody_spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; uint8_t x_14; 
@@ -5704,7 +5704,7 @@ x_67 = lean_box(0);
 x_68 = 0;
 x_69 = lean_usize_of_nat(x_62);
 lean_dec(x_62);
-x_70 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody_spec__0(x_2, x_60, x_68, x_69, x_67, x_3);
+x_70 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody_spec__0(x_2, x_60, x_68, x_69, x_67, x_3);
 lean_dec_ref(x_60);
 x_71 = lean_ctor_get(x_70, 1);
 lean_inc(x_71);
@@ -5771,7 +5771,7 @@ lean_free_object(x_77);
 x_86 = 0;
 x_87 = lean_usize_of_nat(x_82);
 lean_dec(x_82);
-x_88 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_76, x_86, x_87, x_83, x_79);
+x_88 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_76, x_86, x_87, x_83, x_79);
 lean_dec_ref(x_76);
 return x_88;
 }
@@ -5817,7 +5817,7 @@ size_t x_97; size_t x_98; lean_object* x_99;
 x_97 = 0;
 x_98 = lean_usize_of_nat(x_91);
 lean_dec(x_91);
-x_99 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_76, x_97, x_98, x_92, x_89);
+x_99 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_useExpr_spec__0(x_76, x_97, x_98, x_92, x_89);
 lean_dec_ref(x_76);
 return x_99;
 }
@@ -6891,7 +6891,7 @@ x_10 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_IR_LiveVars_updateJPLiveV
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
@@ -6899,7 +6899,7 @@ x_7 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_8 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_9 = l_Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody_spec__0(x_1, x_2, x_7, x_8, x_5, x_6);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_visitFnBody_spec__0(x_1, x_2, x_7, x_8, x_5, x_6);
 lean_dec_ref(x_2);
 return x_9;
 }

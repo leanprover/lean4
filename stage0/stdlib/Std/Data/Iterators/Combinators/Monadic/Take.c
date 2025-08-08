@@ -145,10 +145,11 @@ return x_24;
 }
 default: 
 {
-lean_object* x_25; 
+lean_object* x_25; lean_object* x_26; 
 lean_dec(x_1);
-x_25 = lean_apply_2(x_2, lean_box(0), x_3);
-return x_25;
+x_25 = lean_box(2);
+x_26 = lean_apply_2(x_2, lean_box(0), x_25);
+return x_26;
 }
 }
 }

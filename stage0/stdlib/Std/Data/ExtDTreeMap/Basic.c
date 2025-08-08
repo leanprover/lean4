@@ -461,7 +461,6 @@ LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_Const_insertMany___redArg___lam__0(le
 LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_Const_getEntryLTD___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_getKeyLT_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__25____x40_Std_Data_ExtDTreeMap_Basic___hyg_45_;
-lean_object* l_Array_forIn_x27Unsafe_loop___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_entryAtIdx_x21___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_entryAtIdx_x3f___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_getEntryLT_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -659,6 +658,7 @@ LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_Const_getEntryLT___redArg(lean_object
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_getD___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_ExtDTreeMap_any(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_keyAtIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_foldrM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_ExtDTreeMap_pliftOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6543,7 +6543,7 @@ x_4 = lean_box(1);
 x_5 = l_Std_ExtDTreeMap_foldr___redArg___closed__9;
 x_6 = lean_array_size(x_1);
 x_7 = 0;
-x_8 = l_Array_forIn_x27Unsafe_loop___redArg(x_5, x_1, x_3, x_6, x_7, x_4);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_5, x_1, x_3, x_6, x_7, x_4);
 return x_8;
 }
 }
@@ -6557,7 +6557,7 @@ x_6 = lean_box(1);
 x_7 = l_Std_ExtDTreeMap_foldr___redArg___closed__9;
 x_8 = lean_array_size(x_3);
 x_9 = 0;
-x_10 = l_Array_forIn_x27Unsafe_loop___redArg(x_7, x_3, x_5, x_8, x_9, x_6);
+x_10 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_7, x_3, x_5, x_8, x_9, x_6);
 return x_10;
 }
 }
@@ -6823,7 +6823,7 @@ x_4 = lean_box(1);
 x_5 = l_Std_ExtDTreeMap_foldr___redArg___closed__9;
 x_6 = lean_array_size(x_1);
 x_7 = 0;
-x_8 = l_Array_forIn_x27Unsafe_loop___redArg(x_5, x_1, x_3, x_6, x_7, x_4);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_5, x_1, x_3, x_6, x_7, x_4);
 return x_8;
 }
 }
@@ -6837,7 +6837,7 @@ x_6 = lean_box(1);
 x_7 = l_Std_ExtDTreeMap_foldr___redArg___closed__9;
 x_8 = lean_array_size(x_3);
 x_9 = 0;
-x_10 = l_Array_forIn_x27Unsafe_loop___redArg(x_7, x_3, x_5, x_8, x_9, x_6);
+x_10 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_7, x_3, x_5, x_8, x_9, x_6);
 return x_10;
 }
 }
@@ -6919,7 +6919,7 @@ x_4 = lean_box(1);
 x_5 = l_Std_ExtDTreeMap_foldr___redArg___closed__9;
 x_6 = lean_array_size(x_1);
 x_7 = 0;
-x_8 = l_Array_forIn_x27Unsafe_loop___redArg(x_5, x_1, x_3, x_6, x_7, x_4);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_5, x_1, x_3, x_6, x_7, x_4);
 return x_8;
 }
 }
@@ -6933,7 +6933,7 @@ x_5 = lean_box(1);
 x_6 = l_Std_ExtDTreeMap_foldr___redArg___closed__9;
 x_7 = lean_array_size(x_2);
 x_8 = 0;
-x_9 = l_Array_forIn_x27Unsafe_loop___redArg(x_6, x_2, x_4, x_7, x_8, x_5);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_6, x_2, x_4, x_7, x_8, x_5);
 return x_9;
 }
 }

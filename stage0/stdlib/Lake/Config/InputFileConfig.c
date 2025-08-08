@@ -51,6 +51,7 @@ LEAN_EXPORT lean_object* l_Lake_InputFileConfig_instConfigMeta;
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_path___proj___lam__0(lean_object*);
 lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lake_InputDirConfig_instConfigMeta___closed__7;
+lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_InputFileConfig___fields___closed__2;
 static lean_object* l_Lake_InputFileConfig___fields___closed__3;
@@ -123,7 +124,6 @@ LEAN_EXPORT lean_object* l_Lake_InputDirConfig_instConfigFields___boxed(lean_obj
 static lean_object* l_Lake_InputDirConfig_instConfigMeta___closed__0;
 LEAN_EXPORT lean_object* l_Lake_InputDirConfig_text_instConfigField(lean_object*);
 static lean_object* l_Lake_InputDirConfig_instConfigMeta___closed__4;
-lean_object* l_Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instEmptyCollectionInputDirConfig(lean_object*);
 static lean_object* l_Lake_InputFileConfig___fields___closed__7;
@@ -687,7 +687,7 @@ lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12;
 x_8 = lean_alloc_closure((void*)(l_Lake_InputFileConfig_instConfigMeta___lam__0), 2, 0);
 x_9 = 0;
 x_10 = l_Lake_InputFileConfig_instConfigMeta___closed__14;
-x_11 = l_Array_foldlMUnsafe_fold___redArg(x_3, x_8, x_1, x_9, x_10, x_2);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_3, x_8, x_1, x_9, x_10, x_2);
 x_12 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_12, 0, x_1);
 lean_ctor_set(x_12, 1, x_11);
@@ -1254,7 +1254,7 @@ x_3 = 0;
 x_4 = l_Lake_InputDirConfig___fields;
 x_5 = l_Lake_InputDirConfig_instConfigMeta___closed__4;
 x_6 = l_Lake_InputFileConfig_instConfigMeta___closed__10;
-x_7 = l_Array_foldlMUnsafe_fold___redArg(x_6, x_5, x_4, x_3, x_2, x_1);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_6, x_5, x_4, x_3, x_2, x_1);
 return x_7;
 }
 }

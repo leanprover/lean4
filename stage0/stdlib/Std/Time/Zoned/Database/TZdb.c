@@ -61,7 +61,6 @@ static lean_object* l_Std_Time_Database_TZdb_localRules___closed__1;
 LEAN_EXPORT lean_object* l_IO_ofExcept___at___Std_Time_Database_TZdb_parseTZIfFromDisk_spec__0___redArg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* l_Array_forIn_x27Unsafe_loop___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_inst___closed__0;
 static lean_object* l_Std_Time_Database_TZdb_localRules___closed__0;
 lean_object* lean_io_realpath(lean_object*, lean_object*);
@@ -81,6 +80,7 @@ lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_default___closed__6;
 lean_object* l_IO_FS_readBinFile(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Std_Time_Database_TZdb_idFromPath_spec__0___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_idFromPath___closed__1;
 static lean_object* _init_l_Std_Time_Database_TZdb_default___closed__0() {
 _start:
@@ -993,7 +993,7 @@ lean_closure_set(x_12, 1, x_3);
 lean_closure_set(x_12, 2, x_10);
 x_13 = lean_array_size(x_9);
 x_14 = 0;
-x_15 = l_Array_forIn_x27Unsafe_loop___redArg(x_1, x_9, x_12, x_13, x_14, x_11);
+x_15 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_1, x_9, x_12, x_13, x_14, x_11);
 x_16 = lean_apply_1(x_15, x_8);
 if (lean_obj_tag(x_16) == 0)
 {

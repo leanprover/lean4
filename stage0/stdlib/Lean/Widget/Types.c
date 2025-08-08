@@ -40,7 +40,7 @@ lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lea
 LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_71_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableWidgetInstance_dec___redArg____x40_Lean_Widget_Types___hyg_4_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_270_(lean_object*);
-LEAN_EXPORT lean_object* l_List_flatMapTR_go___at___Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_270__spec__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_270__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at___Lean_Widget_instRpcEncodableWidgetInstance_dec____x40_Lean_Widget_Types___hyg_4__spec__0___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableWidgetInstance_dec____x40_Lean_Widget_Types___hyg_4____boxed(lean_object*, lean_object*);
 lean_object* l_Lean_bignumToJson(lean_object*);
@@ -155,7 +155,7 @@ x_1 = l_Lean_Widget_instFromJsonRpcEncodablePacket___closed__0____x40_Lean_Widge
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_List_flatMapTR_go___at___Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_270__spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_270__spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -191,7 +191,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_270_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_ctor_get(x_1, 2);
@@ -220,20 +220,19 @@ lean_ctor_set(x_13, 1, x_4);
 x_14 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_7);
-x_15 = lean_box(0);
+x_15 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_7);
 x_16 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_16, 0, x_14);
+lean_ctor_set(x_16, 0, x_11);
 lean_ctor_set(x_16, 1, x_15);
 x_17 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_17, 0, x_11);
+lean_ctor_set(x_17, 0, x_8);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_18, 0, x_8);
-lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_Widget_toJsonRpcEncodablePacket___closed__0____x40_Lean_Widget_Types___hyg_270_;
-x_20 = l_List_flatMapTR_go___at___Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_270__spec__0(x_18, x_19);
-x_21 = l_Lean_Json_mkObj(x_20);
-return x_21;
+x_18 = l_Lean_Widget_toJsonRpcEncodablePacket___closed__0____x40_Lean_Widget_Types___hyg_270_;
+x_19 = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_270__spec__0(x_17, x_18);
+x_20 = l_Lean_Json_mkObj(x_19);
+return x_20;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_Types___hyg_270____boxed(lean_object* x_1) {

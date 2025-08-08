@@ -41,7 +41,6 @@ static lean_object* l_Std_Time_DateTime_ofPlainDate___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofPlainDate___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_PlainDateTime_now___closed__0;
 lean_object* lean_nat_to_int(lean_object*);
-lean_object* l_Array_findFinIdx_x3f_loop___redArg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Time_PlainTime_midnight;
 static lean_object* l_Std_Time_ZonedDateTime_ofPlainDate___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_PlainDateTime_now(lean_object*);
@@ -67,6 +66,7 @@ lean_object* lean_nat_abs(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_toPlainDate___redArg___boxed(lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_ofPlainDate___lam__0(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_DateTime_now___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_PlainTime_now(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
@@ -1249,7 +1249,7 @@ lean_inc(x_27);
 x_30 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDate___lam__1___boxed), 2, 1);
 lean_closure_set(x_30, 0, x_27);
 x_31 = lean_unsigned_to_nat(0u);
-x_32 = l_Array_findFinIdx_x3f_loop___redArg(x_30, x_29, x_31);
+x_32 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_30, x_29, x_31);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; 
@@ -1443,7 +1443,7 @@ lean_ctor_set(x_16, 1, x_15);
 lean_inc(x_10);
 x_38 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDate___lam__1___boxed), 2, 1);
 lean_closure_set(x_38, 0, x_10);
-x_39 = l_Array_findFinIdx_x3f_loop___redArg(x_38, x_15, x_14);
+x_39 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_38, x_15, x_14);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; 
@@ -1641,7 +1641,7 @@ lean_inc(x_31);
 x_34 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDate___lam__1___boxed), 2, 1);
 lean_closure_set(x_34, 0, x_31);
 x_35 = lean_unsigned_to_nat(0u);
-x_36 = l_Array_findFinIdx_x3f_loop___redArg(x_34, x_33, x_35);
+x_36 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_34, x_33, x_35);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; 
@@ -1807,7 +1807,7 @@ lean_inc(x_22);
 x_25 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDate___lam__1___boxed), 2, 1);
 lean_closure_set(x_25, 0, x_22);
 x_26 = lean_unsigned_to_nat(0u);
-x_27 = l_Array_findFinIdx_x3f_loop___redArg(x_25, x_24, x_26);
+x_27 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_25, x_24, x_26);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; 
@@ -1929,7 +1929,7 @@ x_24 = l_Std_Time_ZonedDateTime_ofPlainDateWithZone___closed__0;
 lean_inc(x_4);
 x_25 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDate___lam__1___boxed), 2, 1);
 lean_closure_set(x_25, 0, x_4);
-x_26 = l_Array_findFinIdx_x3f_loop___redArg(x_25, x_24, x_5);
+x_26 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_25, x_24, x_5);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; 
@@ -2080,7 +2080,7 @@ lean_inc(x_24);
 x_27 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDate___lam__1___boxed), 2, 1);
 lean_closure_set(x_27, 0, x_24);
 x_28 = lean_unsigned_to_nat(0u);
-x_29 = l_Array_findFinIdx_x3f_loop___redArg(x_27, x_26, x_28);
+x_29 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_27, x_26, x_28);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; 
@@ -2206,7 +2206,7 @@ x_26 = l_Std_Time_ZonedDateTime_ofPlainDateWithZone___closed__0;
 lean_inc(x_6);
 x_27 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDate___lam__1___boxed), 2, 1);
 lean_closure_set(x_27, 0, x_6);
-x_28 = l_Array_findFinIdx_x3f_loop___redArg(x_27, x_26, x_7);
+x_28 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_27, x_26, x_7);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; 

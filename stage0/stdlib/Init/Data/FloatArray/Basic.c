@@ -13,49 +13,55 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__List_toFloatArray_loop(lean_object*, lean_object*);
 static lean_object* l___auto___closed__18____x40_Init_Data_FloatArray_Basic___hyg_456_;
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_get_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instInhabited;
 lean_object* lean_float_array_data(lean_object*);
 static lean_object* l_FloatArray_foldl___redArg___closed__5;
 lean_object* lean_float_array_push(lean_object*, double);
 LEAN_EXPORT uint8_t l_FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic___hyg_23_(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_forIn_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Float_toString___boxed(lean_object*);
 static lean_object* l___auto___closed__16____x40_Init_Data_FloatArray_Basic___hyg_456_;
 static lean_object* l___auto___closed__5____x40_Init_Data_FloatArray_Basic___hyg_456_;
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_float_array_size(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_FloatArray_foldl___redArg___closed__4;
 LEAN_EXPORT lean_object* l_FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic___hyg_23____boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_FloatArray_Basic___hyg_681_;
 static lean_object* l___auto___closed__3____x40_Init_Data_FloatArray_Basic___hyg_456_;
 lean_object* lean_float_array_mk(lean_object*);
 static lean_object* l___auto___closed__21____x40_Init_Data_FloatArray_Basic___hyg_456_;
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 static lean_object* l___auto___closed__19____x40_Init_Data_FloatArray_Basic___hyg_456_;
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__11____x40_Init_Data_FloatArray_Basic___hyg_456_;
 static lean_object* l___auto___closed__2____x40_Init_Data_FloatArray_Basic___hyg_456_;
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_float_array_fset(lean_object*, lean_object*, double);
 LEAN_EXPORT lean_object* l_FloatArray_empty;
-LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_FloatArray_foldl___redArg___closed__7;
-LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_FloatArray_instBEq___closed__0;
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_toList_loop___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_FloatArray_foldl___redArg___closed__0;
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__7____x40_Init_Data_FloatArray_Basic___hyg_456_;
 LEAN_EXPORT lean_object* l_FloatArray_isEmpty___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_FloatArray_Basic___hyg_767_;
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_toList_loop(lean_object*, lean_object*, lean_object*);
 size_t lean_sarray_size(lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l___auto___closed__4____x40_Init_Data_FloatArray_Basic___hyg_456_;
 LEAN_EXPORT lean_object* l_FloatArray_usize___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_List_toFloatArray_loop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg___lam__0(lean_object*, lean_object*, double);
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_empty(lean_object*);
@@ -65,32 +71,30 @@ static lean_object* l_FloatArray_foldl___redArg___closed__8;
 LEAN_EXPORT lean_object* l_FloatArray_instForInFloat(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemNatFloatLtSize;
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_toFloatArray_loop___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 double lean_float_array_fget(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT double l_FloatArray_instGetElemNatFloatLtSize___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_size___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0(lean_object*, size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_data___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___redArg___lam__0(lean_object*, size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_float_array_uset(lean_object*, size_t, double);
-LEAN_EXPORT lean_object* l_FloatArray_toList_loop___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_mkEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemNatFloatLtSize___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__10____x40_Init_Data_FloatArray_Basic___hyg_456_;
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_mk___boxed(lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_get_x21___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_emptyWithCapacity___boxed(lean_object*);
 static lean_object* l_FloatArray_foldl___redArg___closed__3;
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_get___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_push___boxed(lean_object*, lean_object*);
 static lean_object* l_FloatArray_empty___closed__0;
 static lean_object* l_FloatArray_foldl___redArg___closed__1;
@@ -100,6 +104,7 @@ LEAN_EXPORT lean_object* l_FloatArray_toList___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic___hyg_23__spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic___hyg_23__spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__20____x40_Init_Data_FloatArray_Basic___hyg_456_;
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -110,13 +115,12 @@ static lean_object* l___auto___closed__1____x40_Init_Data_FloatArray_Basic___hyg
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringFloatArray___lam__0___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__List_toFloatArray_loop___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_float_array(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instGetElemUSizeFloatLtNatToNatSize;
-LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_toList_loop(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__8____x40_Init_Data_FloatArray_Basic___hyg_456_;
-LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_float_beq(double, double);
 LEAN_EXPORT lean_object* l_instToStringFloatArray___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toFloatArray___boxed(lean_object*);
@@ -126,12 +130,9 @@ lean_object* l_List_toString___redArg(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l___auto___closed__9____x40_Init_Data_FloatArray_Basic___hyg_456_;
 static lean_object* l_FloatArray_foldl___redArg___closed__6;
-LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toFloatArray(lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic___hyg_23__spec__0___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l___auto___closed__17____x40_Init_Data_FloatArray_Basic___hyg_456_;
@@ -140,6 +141,7 @@ LEAN_EXPORT lean_object* l_FloatArray_uset___boxed(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_FloatArray_Basic___hyg_456_;
 static lean_object* l___auto___closed__14____x40_Init_Data_FloatArray_Basic___hyg_456_;
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_FloatArray_isEmpty(lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -148,6 +150,7 @@ LEAN_EXPORT lean_object* l_FloatArray_set_x21___boxed(lean_object*, lean_object*
 static lean_object* l___auto___closed__15____x40_Init_Data_FloatArray_Basic___hyg_456_;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instForInFloat___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__13____x40_Init_Data_FloatArray_Basic___hyg_456_;
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAtom(lean_object*);
@@ -157,14 +160,12 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_FloatArray_foldl___redArg___closed__2;
 static lean_object* l___auto___closed__12____x40_Init_Data_FloatArray_Basic___hyg_456_;
-LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l___auto___closed__6____x40_Init_Data_FloatArray_Basic___hyg_456_;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___FloatArray_beqFloatArray____x40_Init_Data_FloatArray_Basic___hyg_23__spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldl___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_instToStringFloatArray___closed__0;
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -172,7 +173,6 @@ LEAN_EXPORT lean_object* l_FloatArray_instEmptyCollection;
 static lean_object* l___auto___closed__0____x40_Init_Data_FloatArray_Basic___hyg_456_;
 LEAN_EXPORT lean_object* l_FloatArray_uget___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___redArg___lam__0(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_mk___boxed(lean_object* x_1) {
 _start:
 {
@@ -817,7 +817,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_toList_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_toList_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -848,11 +848,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_toList_loop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_toList_loop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_FloatArray_toList_loop(x_1, x_2, x_3);
+x_4 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_toList_loop(x_1, x_2, x_3);
 lean_dec_ref(x_1);
 return x_4;
 }
@@ -863,7 +863,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_box(0);
-x_4 = l_FloatArray_toList_loop(x_1, x_2, x_3);
+x_4 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_toList_loop(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -876,7 +876,7 @@ lean_dec_ref(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___redArg___lam__0(lean_object* x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0(lean_object* x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, lean_object* x_7) {
 _start:
 {
 if (lean_obj_tag(x_7) == 0)
@@ -903,12 +903,12 @@ lean_inc(x_11);
 lean_dec_ref(x_7);
 x_12 = 1;
 x_13 = lean_usize_add(x_2, x_12);
-x_14 = l_FloatArray_forInUnsafe_loop___redArg(x_3, x_4, x_5, x_6, x_13, x_11);
+x_14 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg(x_3, x_4, x_5, x_6, x_13, x_11);
 return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
 _start:
 {
 uint8_t x_7; 
@@ -938,7 +938,7 @@ x_13 = lean_box_usize(x_5);
 x_14 = lean_box_usize(x_4);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
-x_15 = lean_alloc_closure((void*)(l_FloatArray_forInUnsafe_loop___redArg___lam__0___boxed), 7, 6);
+x_15 = lean_alloc_closure((void*)(l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0___boxed), 7, 6);
 lean_closure_set(x_15, 0, x_11);
 lean_closure_set(x_15, 1, x_13);
 lean_closure_set(x_15, 2, x_1);
@@ -954,15 +954,15 @@ return x_19;
 }
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, size_t x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, size_t x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_FloatArray_forInUnsafe_loop___redArg(x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg(x_3, x_4, x_5, x_6, x_7, x_8);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 size_t x_8; size_t x_9; lean_object* x_10; 
@@ -970,11 +970,11 @@ x_8 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_9 = lean_unbox_usize(x_6);
 lean_dec(x_6);
-x_10 = l_FloatArray_forInUnsafe_loop___redArg___lam__0(x_1, x_8, x_3, x_4, x_5, x_9, x_7);
+x_10 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___lam__0(x_1, x_8, x_3, x_4, x_5, x_9, x_7);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
@@ -982,11 +982,11 @@ x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_8 = lean_unbox_usize(x_5);
 lean_dec(x_5);
-x_9 = l_FloatArray_forInUnsafe_loop___redArg(x_1, x_2, x_3, x_7, x_8, x_6);
+x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg(x_1, x_2, x_3, x_7, x_8, x_6);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 size_t x_9; size_t x_10; lean_object* x_11; 
@@ -994,7 +994,7 @@ x_9 = lean_unbox_usize(x_6);
 lean_dec(x_6);
 x_10 = lean_unbox_usize(x_7);
 lean_dec(x_7);
-x_11 = l_FloatArray_forInUnsafe_loop(x_1, x_2, x_3, x_4, x_5, x_9, x_10, x_8);
+x_11 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop(x_1, x_2, x_3, x_4, x_5, x_9, x_10, x_8);
 return x_11;
 }
 }
@@ -1004,7 +1004,7 @@ _start:
 size_t x_5; size_t x_6; lean_object* x_7; 
 x_5 = lean_sarray_size(x_2);
 x_6 = 0;
-x_7 = l_FloatArray_forInUnsafe_loop___redArg(x_1, x_2, x_4, x_5, x_6, x_3);
+x_7 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg(x_1, x_2, x_4, x_5, x_6, x_3);
 return x_7;
 }
 }
@@ -1014,11 +1014,11 @@ _start:
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = lean_sarray_size(x_4);
 x_8 = 0;
-x_9 = l_FloatArray_forInUnsafe_loop___redArg(x_3, x_4, x_6, x_7, x_8, x_5);
+x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg(x_3, x_4, x_6, x_7, x_8, x_5);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 if (lean_obj_tag(x_6) == 0)
@@ -1040,12 +1040,12 @@ lean_dec_ref(x_1);
 x_9 = lean_ctor_get(x_6, 0);
 lean_inc(x_9);
 lean_dec_ref(x_6);
-x_10 = l_FloatArray_forIn_loop___redArg(x_2, x_3, x_4, x_5, x_9);
+x_10 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg(x_2, x_3, x_4, x_5, x_9);
 return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
@@ -1076,7 +1076,7 @@ x_13 = lean_nat_sub(x_4, x_12);
 lean_inc(x_13);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
-x_14 = lean_alloc_closure((void*)(l_FloatArray_forIn_loop___redArg___lam__0___boxed), 6, 5);
+x_14 = lean_alloc_closure((void*)(l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___lam__0___boxed), 6, 5);
 lean_closure_set(x_14, 0, x_8);
 lean_closure_set(x_14, 1, x_1);
 lean_closure_set(x_14, 2, x_2);
@@ -1098,37 +1098,37 @@ return x_21;
 }
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_forIn_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_FloatArray_forIn_loop___redArg(x_3, x_4, x_5, x_6, x_8);
+x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg(x_3, x_4, x_5, x_6, x_8);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l_FloatArray_forIn_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_FloatArray_forIn_loop___redArg(x_1, x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___redArg(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_FloatArray_forIn_loop(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forIn_loop(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_6);
 return x_9;
 }
@@ -1139,7 +1139,7 @@ _start:
 size_t x_6; size_t x_7; lean_object* x_8; 
 x_6 = lean_sarray_size(x_3);
 x_7 = 0;
-x_8 = l_FloatArray_forInUnsafe_loop___redArg(x_2, x_3, x_5, x_6, x_7, x_4);
+x_8 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_forInUnsafe_loop___redArg(x_2, x_3, x_5, x_6, x_7, x_4);
 return x_8;
 }
 }
@@ -1151,17 +1151,17 @@ x_2 = lean_alloc_closure((void*)(l_FloatArray_instForInFloat___lam__0), 5, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___redArg___lam__0(size_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0(size_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, size_t x_5, lean_object* x_6) {
 _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = 1;
 x_8 = lean_usize_add(x_1, x_7);
-x_9 = l_FloatArray_foldlMUnsafe_fold___redArg(x_2, x_3, x_4, x_8, x_5, x_6);
+x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg(x_2, x_3, x_4, x_8, x_5, x_6);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
 _start:
 {
 uint8_t x_7; 
@@ -1175,7 +1175,7 @@ x_9 = lean_box_usize(x_4);
 x_10 = lean_box_usize(x_5);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
-x_11 = lean_alloc_closure((void*)(l_FloatArray_foldlMUnsafe_fold___redArg___lam__0___boxed), 6, 5);
+x_11 = lean_alloc_closure((void*)(l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0___boxed), 6, 5);
 lean_closure_set(x_11, 0, x_9);
 lean_closure_set(x_11, 1, x_1);
 lean_closure_set(x_11, 2, x_2);
@@ -1204,15 +1204,15 @@ return x_18;
 }
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, size_t x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, size_t x_6, size_t x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
-x_9 = l_FloatArray_foldlMUnsafe_fold___redArg(x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg(x_3, x_4, x_5, x_6, x_7, x_8);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
@@ -1220,11 +1220,11 @@ x_7 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_8 = lean_unbox_usize(x_5);
 lean_dec(x_5);
-x_9 = l_FloatArray_foldlMUnsafe_fold___redArg___lam__0(x_7, x_2, x_3, x_4, x_8, x_6);
+x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___lam__0(x_7, x_2, x_3, x_4, x_8, x_6);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
@@ -1232,11 +1232,11 @@ x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_8 = lean_unbox_usize(x_5);
 lean_dec(x_5);
-x_9 = l_FloatArray_foldlMUnsafe_fold___redArg(x_1, x_2, x_3, x_7, x_8, x_6);
+x_9 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg(x_1, x_2, x_3, x_7, x_8, x_6);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 size_t x_9; size_t x_10; lean_object* x_11; 
@@ -1244,7 +1244,7 @@ x_9 = lean_unbox_usize(x_6);
 lean_dec(x_6);
 x_10 = lean_unbox_usize(x_7);
 lean_dec(x_7);
-x_11 = l_FloatArray_foldlMUnsafe_fold(x_1, x_2, x_3, x_4, x_5, x_9, x_10, x_8);
+x_11 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold(x_1, x_2, x_3, x_4, x_5, x_9, x_10, x_8);
 return x_11;
 }
 }
@@ -1292,7 +1292,7 @@ else
 size_t x_16; size_t x_17; lean_object* x_18; 
 x_16 = lean_usize_of_nat(x_5);
 x_17 = lean_usize_of_nat(x_6);
-x_18 = l_FloatArray_foldlMUnsafe_fold___redArg(x_1, x_2, x_4, x_16, x_17, x_3);
+x_18 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg(x_1, x_2, x_4, x_16, x_17, x_3);
 return x_18;
 }
 }
@@ -1342,7 +1342,7 @@ else
 size_t x_18; size_t x_19; lean_object* x_20; 
 x_18 = lean_usize_of_nat(x_7);
 x_19 = lean_usize_of_nat(x_8);
-x_20 = l_FloatArray_foldlMUnsafe_fold___redArg(x_3, x_4, x_6, x_18, x_19, x_5);
+x_20 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg(x_3, x_4, x_6, x_18, x_19, x_5);
 return x_20;
 }
 }
@@ -1368,17 +1368,17 @@ lean_dec(x_7);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_add(x_1, x_8);
-x_10 = l_FloatArray_foldlM_loop___redArg(x_2, x_3, x_4, x_5, x_6, x_9, x_7);
+x_10 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg(x_2, x_3, x_4, x_5, x_6, x_9, x_7);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 uint8_t x_8; 
@@ -1430,7 +1430,7 @@ x_19 = lean_nat_sub(x_5, x_18);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
 lean_inc(x_6);
-x_20 = lean_alloc_closure((void*)(l_FloatArray_foldlM_loop___redArg___lam__0___boxed), 7, 6);
+x_20 = lean_alloc_closure((void*)(l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___lam__0___boxed), 7, 6);
 lean_closure_set(x_20, 0, x_6);
 lean_closure_set(x_20, 1, x_1);
 lean_closure_set(x_20, 2, x_2);
@@ -1448,38 +1448,38 @@ return x_24;
 }
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
 lean_object* x_11; 
-x_11 = l_FloatArray_foldlM_loop___redArg(x_3, x_4, x_5, x_6, x_8, x_9, x_10);
+x_11 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg(x_3, x_4, x_5, x_6, x_8, x_9, x_10);
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_FloatArray_foldlM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___lam__0(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_1);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
-x_8 = l_FloatArray_foldlM_loop___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___redArg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_5);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
 lean_object* x_11; 
-x_11 = l_FloatArray_foldlM_loop(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+x_11 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlM_loop(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_8);
 return x_11;
 }
@@ -1622,7 +1622,7 @@ x_10 = lean_alloc_closure((void*)(l_FloatArray_foldl___redArg___lam__0___boxed),
 lean_closure_set(x_10, 0, x_1);
 x_11 = lean_usize_of_nat(x_4);
 x_12 = lean_usize_of_nat(x_5);
-x_13 = l_FloatArray_foldlMUnsafe_fold___redArg(x_6, x_10, x_3, x_11, x_12, x_2);
+x_13 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg(x_6, x_10, x_3, x_11, x_12, x_2);
 return x_13;
 }
 }
@@ -1659,7 +1659,7 @@ x_11 = lean_alloc_closure((void*)(l_FloatArray_foldl___redArg___lam__0___boxed),
 lean_closure_set(x_11, 0, x_2);
 x_12 = lean_usize_of_nat(x_5);
 x_13 = lean_usize_of_nat(x_6);
-x_14 = l_FloatArray_foldlMUnsafe_fold___redArg(x_7, x_11, x_4, x_12, x_13, x_3);
+x_14 = l___private_Init_Data_FloatArray_Basic_0__FloatArray_foldlMUnsafe_fold___redArg(x_7, x_11, x_4, x_12, x_13, x_3);
 return x_14;
 }
 }
@@ -1695,7 +1695,7 @@ lean_dec(x_5);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_List_toFloatArray_loop(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__List_toFloatArray_loop(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1715,11 +1715,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_toFloatArray_loop___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_FloatArray_Basic_0__List_toFloatArray_loop___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_List_toFloatArray_loop(x_1, x_2);
+x_3 = l___private_Init_Data_FloatArray_Basic_0__List_toFloatArray_loop(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -1729,7 +1729,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_FloatArray_empty;
-x_3 = l_List_toFloatArray_loop(x_1, x_2);
+x_3 = l___private_Init_Data_FloatArray_Basic_0__List_toFloatArray_loop(x_1, x_2);
 return x_3;
 }
 }

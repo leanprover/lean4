@@ -6,6 +6,6 @@ Authors: Paul Reichert
 module
 
 prelude
-import Init.Data.Subtype.Basic
-import Init.Data.Subtype.Order
-import Init.Data.Subtype.OrderExtra
+public import Init.Data.Subtype.Basic
+public import Init.Data.Subtype.Order
+public import Init.Data.Subtype.OrderExtra

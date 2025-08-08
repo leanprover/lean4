@@ -6,7 +6,4 @@ Authors: Circular Buffer
 module
 
 prelude
-public import Std.Data.CircularBuffer.Basic
-public import Std.Data.CircularBuffer.Lemmas
-
-public section
+public import Std.Data.CircularBuffer.Mutable

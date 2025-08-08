@@ -121,6 +121,18 @@ def front? (mutable : Mutable α) : IO (Option α) := do
     valueRef.get
 
 /--
+Peeks at the element at the front of the buffer without removing it.
+Returns none if the buffer is empty.
+-/
+def get? (mutable : Mutable α) (place : Nat) : IO (Option (IO.Ref (Option α))) := do
+  if mutable.size ≥ place then
+    return none
+  else
+    let idx := (@Fin.ofNat mutable.capacity ⟨Nat.ne_zero_of_lt mutable.capacityH⟩ (mutable.read.val + place))
+    let valueRef := mutable.data.get idx
+    return some valueRef
+
+/--
 Convert the mutable circular buffer to an array containing all elements in order.
 The elements are returned in the order they would be popped (FIFO order).
 -/
@@ -143,20 +155,20 @@ def toArray (mutable : Mutable α) : IO (Array α) := do
 Convert the mutable circular buffer to a list containing all elements in order.
 The elements are returned in the order they would be popped (FIFO order).
 -/
-def toList (mutable : Mutable α) : IO (List α) := do
+@[inline] def toList (mutable : Mutable α) : IO (List α) := do
   let arr ← mutable.toArray
   return arr.toList
 
 /--
 Get the current size of the buffer.
 -/
-def getSize (mutable : Mutable α) : Nat :=
+@[inline] def getSize (mutable : Mutable α) : Nat :=
   mutable.size
 
 /--
 Get the capacity of the buffer.
 -/
-def getCapacity (mutable : Mutable α) : Nat :=
+@[inline] def getCapacity (mutable : Mutable α) : Nat :=
   mutable.capacity
 
 end Mutable

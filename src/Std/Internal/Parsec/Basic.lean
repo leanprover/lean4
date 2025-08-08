@@ -19,9 +19,16 @@ namespace Parsec
 Represents an error that can occur during parsing.
 -/
 inductive Error where
+  /--
+  Indicates that the parser reached the end of the input unexpectedly.
+  -/
   | eof
+
+  /--
+  Represents any other kind of parsing error with an associated message.
+  -/
   | other (s : String)
-  deriving Repr
+deriving Repr
 
 instance : ToString Error where
   toString
@@ -32,9 +39,16 @@ instance : ToString Error where
 The result of parsing some string.
 -/
 inductive ParseResult (α : Type) (ι : Type) where
+  /--
+  Parsing succeeded, returning the new position `pos` and the parsed result `res`.
+  -/
   | success (pos : ι) (res : α)
+
+  /--
+  Parsing failed, returning the position `pos` where the error occurred and the error `err`.
+  -/
   | error (pos : ι) (err : Error)
-  deriving Repr
+deriving Repr
 
 end Parsec
 

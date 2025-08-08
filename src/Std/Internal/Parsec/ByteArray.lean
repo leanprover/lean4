@@ -9,6 +9,7 @@ prelude
 public import Std.Internal.Parsec.Basic
 public import Init.Data.ByteArray.Basic
 public import Init.Data.String.Extra
+public import Std.Data.ByteSlice
 
 public section
 
@@ -197,21 +198,21 @@ def take (n : Nat) : Parser ByteArray := fun it =>
 Parses while a predicate is satisfied.
 -/
 @[inline]
-partial def takeWhile (pred : UInt8 → Bool) : Parser ByteArray :=
+partial def takeWhile (pred : UInt8 → Bool) : Parser ByteSlice :=
   fun it =>
-    let rec findEnd (count : Nat) (iter : ByteArray.Iterator) : (Nat × ByteArray.Iterator) :=
+    let rec findEnd (count : Nat) (iter : ByteArray.Iterator) : Nat × ByteArray.Iterator :=
       if ¬iter.hasNext then (count, iter)
       else if pred iter.curr then findEnd (count + 1) iter.next
       else (count, iter)
 
     let (length, newIt) := findEnd 0 it
-    .success newIt (it.array.extract it.idx (it.idx + length))
+    .success newIt (it.array[it.idx...(it.idx + length)])
 
 /--
 Parses until a predicate is satisfied (exclusive).
 -/
 @[inline]
-def takeUntil (pred : UInt8 → Bool) : Parser ByteArray :=
+def takeUntil (pred : UInt8 → Bool) : Parser ByteSlice :=
   takeWhile (fun b => ¬pred b)
 
 /--

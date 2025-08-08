@@ -210,8 +210,6 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   protected theorem le_antisymm {a b : $typeName} (h₁ : a ≤ b) (h₂ : b ≤ a) : a = b :=
     le_antisymm_iff.2 ⟨h₁, h₂⟩
 
-  instance : OrderData $typeName := .ofLE $typeName
-
   open $typeName renaming
     le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
   instance instIsLinearOrder : IsLinearOrder $typeName := by

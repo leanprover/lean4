@@ -600,6 +600,9 @@ instance : HMod UInt32 Nat UInt32 := ⟨UInt32.modn⟩
 instance : Div UInt32       := ⟨UInt32.div⟩
 -- `LT` and `LE` are already defined in `Init.Prelude`
 
+@[no_expose]
+instance : OrderData UInt32 := .ofLE UInt32
+
 /--
 Bitwise complement, also known as bitwise negation, for 32-bit unsigned integers. Usually accessed
 via the `~~~` prefix operator.
@@ -1046,6 +1049,9 @@ set_option linter.deprecated false in
 instance : HMod USize Nat USize := ⟨USize.modn⟩
 
 instance : Div USize       := ⟨USize.div⟩
+
+@[no_expose]
+instance : OrderData USize := .ofLE USize
 
 /--
 Bitwise complement, also known as bitwise negation, for word-sized unsigned integers. Usually

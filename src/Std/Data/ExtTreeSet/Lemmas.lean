@@ -221,6 +221,10 @@ theorem isSome_get?_iff_mem [TransCmp cmp] {a : α} :
     (t.get? a).isSome ↔ a ∈ t :=
   mem_iff_isSome_get?.symm
 
+theorem mem_of_get?_eq_some [TransCmp cmp] {k k' : α}
+    (h : t.get? k = some k') : k' ∈ t :=
+  ExtTreeMap.mem_of_getKey?_eq_some h
+
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t.get? a = none :=
   ExtTreeMap.getKey?_eq_none_of_contains_eq_false
@@ -267,6 +271,14 @@ theorem get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] {k : α} (h' : k ∈ t) :
 theorem get?_eq_some_get [TransCmp cmp] {a : α} (h') :
     t.get? a = some (t.get a h') :=
   ExtTreeMap.getKey?_eq_some_getKey h'
+
+theorem get_eq_get_get? [TransCmp cmp] {k : α} {h} :
+    t.get k h = (t.get? k).get (mem_iff_isSome_get?.mp h) :=
+  ExtTreeMap.getKey_eq_get_getKey?
+
+@[grind =] theorem get_get? [TransCmp cmp] {k : α} {h} :
+    (t.get? k).get h = t.get k (mem_iff_isSome_get?.mpr h) :=
+  ExtTreeMap.get_getKey?
 
 theorem compare_get_self [TransCmp cmp] {k : α} (h' : k ∈ t) :
     cmp (t.get k h') k = .eq :=
@@ -1539,5 +1551,78 @@ theorem toList_inj [TransCmp cmp] : t₁.toList = t₂.toList ↔ t₁ = t₂ :=
   ⟨ext_toList ∘ .of_eq, fun h => h ▸ rfl⟩
 
 end Ext
+
+section filter
+
+variable {t : ExtTreeSet α cmp}
+
+theorem toList_filter [TransCmp cmp] {f : α → Bool} :
+    (t.filter f).toList = t.toList.filter f :=
+  ExtTreeMap.keys_filter_key
+
+theorem filter_eq_empty_iff [TransCmp cmp] {f : α → Bool} :
+    t.filter f = ∅ ↔ ∀ k h, f (t.get k h) = false :=
+  ext_iff.trans ExtTreeMap.filter_eq_empty_iff
+
+-- TODO: `contains_filter` is missing.
+
+@[simp, grind =]
+theorem mem_filter [TransCmp cmp]
+    {f : α → Bool} {k : α} :
+    k ∈ t.filter f ↔ ∃ h, f (t.get k h) :=
+  ExtTreeMap.mem_filter
+
+theorem contains_of_contains_filter [TransCmp cmp]
+    {f : α → Bool} {k : α} :
+    (t.filter f).contains k → t.contains k :=
+  ExtTreeMap.contains_of_contains_filter
+
+theorem mem_of_mem_filter [TransCmp cmp]
+    {f : α → Bool} {k : α} :
+    k ∈ t.filter f → k ∈ t :=
+  ExtTreeMap.mem_of_mem_filter
+
+theorem size_filter_le_size [TransCmp cmp]
+    {f : α → Bool} :
+    (t.filter f).size ≤ t.size :=
+  ExtTreeMap.size_filter_le_size
+
+grind_pattern size_filter_le_size => (t.filter f).size
+
+theorem size_filter_eq_size_iff [TransCmp cmp]
+    {f : α → Bool} :
+    (t.filter f).size = t.size ↔ ∀ k h, f (t.get k h) :=
+  ExtTreeMap.size_filter_eq_size_iff
+
+theorem filter_eq_self_iff [TransCmp cmp]
+    {f : α → Bool} :
+    t.filter f = t ↔ ∀ k h, f (t.get k h) :=
+  ext_iff.trans ExtTreeMap.filter_eq_self_iff
+
+@[simp, grind =]
+theorem get?_filter [TransCmp cmp]
+    {f : α → Bool} {k : α} :
+    (t.filter f).get? k = (t.get? k).filter f :=
+  ExtTreeMap.getKey?_filter_key
+
+@[simp, grind =]
+theorem get_filter [TransCmp cmp]
+    {f : α → Bool} {k : α} {h} :
+    (t.filter f).get k h = t.get k (mem_of_mem_filter h) :=
+  ExtTreeMap.getKey_filter
+
+@[grind =]
+theorem get!_filter [TransCmp cmp] [Inhabited α]
+    {f : α → Bool} {k : α} :
+    (t.filter f).get! k = ((t.get? k).filter f).get! :=
+  ExtTreeMap.getKey!_filter_key
+
+@[grind =]
+theorem getD_filter [TransCmp cmp]
+    {f : α → Bool} {k fallback : α} :
+    (t.filter f).getD k fallback = ((t.get? k).filter f).getD fallback :=
+  ExtTreeMap.getKeyD_filter_key
+
+end filter
 
 end Std.ExtTreeSet

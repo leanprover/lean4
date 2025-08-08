@@ -209,6 +209,10 @@ theorem isSome_get?_iff_mem [EquivBEq α] [LawfulHashable α] {a : α} :
     (m.get? a).isSome ↔ a ∈ m :=
   mem_iff_isSome_get?.symm
 
+theorem mem_of_get?_eq_some [EquivBEq α] [LawfulHashable α] {k k' : α}
+    (h : m.get? k = some k') : k' ∈ m :=
+  ExtHashMap.mem_of_getKey?_eq_some h
+
 theorem get?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] {a : α} :
     m.contains a = false → m.get? a = none :=
   ExtHashMap.getKey?_eq_none_of_contains_eq_false

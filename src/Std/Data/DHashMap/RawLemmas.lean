@@ -1217,7 +1217,7 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
   simp_to_raw using Raw₀.contains_keys ⟨m, _⟩ h
 
 @[simp, grind =]
-theorem mem_keys [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+theorem mem_keys [LawfulBEq α] (h : m.WF) {k : α} :
     k ∈ m.keys ↔ k ∈ m := by
   rw [mem_iff_contains]
   simp_to_raw using Raw₀.mem_keys ⟨m, _⟩ h
@@ -3703,7 +3703,7 @@ theorem get?_filterMap [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `get?_filterMap` when `LawfulBEq` is available. -/
 @[simp, grind =]
-theorem get?_filterMap' [LawfulBEq α] [LawfulHashable α]
+theorem get?_filterMap' [LawfulBEq α]
     {f : α → β → Option γ} {k : α} (h : m.WF) :
     Const.get? (m.filterMap f) k = (Const.get? m k).bind (f k) := by
   simp [get?_filterMap, h]
@@ -3740,7 +3740,7 @@ theorem get!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited γ]
 
 /-- Simpler variant of `get!_filterMap` when `LawfulBEq` is available. -/
 @[grind =]
-theorem get!_filterMap' [LawfulBEq α] [LawfulHashable α] [Inhabited γ]
+theorem get!_filterMap' [LawfulBEq α] [Inhabited γ]
     {f : α → β → Option γ} {k : α} (h : m.WF) :
     Const.get! (m.filterMap f) k = ((Const.get? m k).bind (f k)).get! := by
   simp [get!_filterMap, h]
@@ -3760,7 +3760,7 @@ theorem getD_filterMap [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `getD_filterMap` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getD_filterMap' [LawfulBEq α] [LawfulHashable α]
+theorem getD_filterMap' [LawfulBEq α]
     {f : α → β → Option γ} {k : α} {fallback : γ} (h : m.WF) :
     Const.getD (m.filterMap f) k fallback = ((Const.get? m k).bind (f k)).getD fallback := by
   simp [getD_filterMap, h]
@@ -4048,7 +4048,7 @@ theorem get?_filter [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `get?_filter` when `LawfulBEq` is available. -/
 @[grind =]
-theorem get?_filter' [LawfulBEq α] [LawfulHashable α]
+theorem get?_filter' [LawfulBEq α]
     {f : α → β → Bool} {k : α} (h : m.WF) :
     Const.get? (m.filter f) k = (Const.get? m k).filter (f k) := by
   simp [get?_filter, h]
@@ -4074,7 +4074,7 @@ theorem get!_filter [EquivBEq α] [LawfulHashable α] [Inhabited β]
 
 /-- Simpler variant of `get!_filter` when `LawfulBEq` is available. -/
 @[grind =]
-theorem get!_filter' [LawfulBEq α] [LawfulHashable α] [Inhabited β]
+theorem get!_filter' [LawfulBEq α] [Inhabited β]
     {f : α → β → Bool} {k : α} (h : m.WF) :
     Const.get! (m.filter f) k = ((Const.get? m k).filter (f k)).get! := by
   simp [get!_filter, h]
@@ -4093,7 +4093,7 @@ theorem getD_filter [EquivBEq α] [LawfulHashable α]
 
 /-- Simpler variant of `getD_filter` when `LawfulBEq` is available. -/
 @[grind =]
-theorem getD_filter' [LawfulBEq α] [LawfulHashable α]
+theorem getD_filter' [LawfulBEq α]
     {f : α → β → Bool} {k : α} {fallback : β} (h : m.WF) :
     Const.getD (m.filter f) k fallback = ((Const.get? m k).filter (f k)).getD fallback := by
   simp [getD_filter, h]
@@ -4264,7 +4264,7 @@ theorem get?_map' [EquivBEq α] [LawfulHashable α]
   simp_to_raw using Raw₀.Const.get?_map'
 
 @[simp, grind =]
-theorem get?_map [LawfulBEq α] [LawfulHashable α]
+theorem get?_map [LawfulBEq α]
     {f : α → β → γ} {k : α} (h : m.WF) :
     Const.get? (m.map f) k = (Const.get? m k).map (f k) := by
   simp [get?_map' h, getKey_eq h]
@@ -4284,7 +4284,7 @@ theorem get_map' [EquivBEq α] [LawfulHashable α]
   simp_to_raw using Raw₀.Const.get_map'
 
 @[simp, grind =]
-theorem get_map [LawfulBEq α] [LawfulHashable α]
+theorem get_map [LawfulBEq α]
     {f : α → β → γ} {k : α} (h : m.WF) {h'} :
     Const.get (m.map f) k h' = f k (Const.get m k (mem_of_mem_map h h')) := by
   simp [get_map' h, getKey_eq h]
@@ -4299,7 +4299,7 @@ theorem get!_map' [EquivBEq α] [LawfulHashable α] [Inhabited γ]
   simp_to_raw using Raw₀.Const.get!_map'
 
 @[grind =]
-theorem get!_map [LawfulBEq α] [LawfulHashable α] [Inhabited γ]
+theorem get!_map [LawfulBEq α] [Inhabited γ]
     {f : α → β → γ} {k : α} (h : m.WF) :
     Const.get! (m.map f) k = ((Const.get? m k).map (f k)).get! := by
   simp [get!_map' h, getKey_eq h]
@@ -4319,7 +4319,7 @@ theorem getD_map' [EquivBEq α] [LawfulHashable α]
   simp_to_raw using Raw₀.Const.getD_map'
 
 @[grind =]
-theorem getD_map [LawfulBEq α] [LawfulHashable α]
+theorem getD_map [LawfulBEq α]
     {f : α → β → γ} {k : α} {fallback : γ} (h : m.WF) :
     Const.getD (m.map f) k fallback = ((Const.get? m k).map (f k)).getD fallback := by
   simp [getD_map' h, getKey_eq h]

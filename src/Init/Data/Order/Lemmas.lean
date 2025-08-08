@@ -115,8 +115,9 @@ public theorem not_lt {α : Type u} [LT α] [LE α] [OrderData α] [Std.Total (�
     ¬ a < b ↔ b ≤ a := by
   simp [lt_iff_le_and_not_ge, Classical.not_not, Std.Total.total]
 
-public theorem not_gt_of_lt {α : Type u} [LT α] [i : Std.Asymm (α := α) (· < ·)] {a b : α} (h : a < b) :
-  ¬ b < a := i.asymm a b h
+public theorem not_gt_of_lt {α : Type u} [LT α] [i : Std.Asymm (α := α) (· < ·)] {a b : α}
+    (h : a < b) : ¬ b < a :=
+  i.asymm a b h
 
 public instance {α : Type u} [LT α] [OrderData α] [LawfulOrderLT α] :
     Std.Asymm (α := α) (· < ·) where

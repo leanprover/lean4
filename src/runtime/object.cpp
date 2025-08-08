@@ -653,7 +653,8 @@ LEAN_THREAD_PTR(lean_task_object, g_current_task_object);
 
 // TODO: use mimalloc
 static struct lean_task_imp * alloc_task_imp(obj_arg c, unsigned prio, bool keep_alive) {
-    struct lean_task_imp * imp = new struct lean_task_imp;
+    void * alloc = (void*)lean_alloc_small_object(sizeof(lean_task_imp));
+    lean_task_imp * imp = new(alloc) lean_task_imp;
     imp->m_closure     = c;
     imp->m_head_dep    = nullptr;
     imp->m_next_dep    = nullptr;
@@ -666,7 +667,8 @@ static struct lean_task_imp * alloc_task_imp(obj_arg c, unsigned prio, bool keep
 
 // TOOD: use mimalloc
 static void free_task_imp(struct lean_task_imp * imp) {
-    delete imp;
+    imp->~lean_task_imp();
+    lean_free_small_object((lean_object*)imp);
 }
 
 static void free_task(lean_task_object * t) {

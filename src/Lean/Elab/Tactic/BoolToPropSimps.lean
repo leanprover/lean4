@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Tobias Grosser
 -/
 
+module
+
 prelude
-import Lean.Meta.Tactic.Simp.Attr
+public import Lean.Meta.Tactic.Simp.Attr
+
+public section
 
 builtin_initialize bool_to_prop : Lean.Meta.SimpExtension ←
   Lean.Meta.registerSimpAttr `bool_to_prop

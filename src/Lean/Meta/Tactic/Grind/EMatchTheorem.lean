@@ -3,18 +3,21 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Init.Grind.Tactics
-import Lean.HeadIndex
-import Lean.PrettyPrinter
-import Lean.Util.FoldConsts
-import Lean.Util.CollectFVars
-import Lean.Meta.Basic
-import Lean.Meta.InferType
-import Lean.Meta.Eqns
+public import Init.Grind.Util
+public import Init.Grind.Tactics
+public import Lean.HeadIndex
+public import Lean.Util.FoldConsts
+public import Lean.Util.CollectFVars
+public import Lean.Meta.Basic
+public import Lean.Meta.InferType
+public import Lean.Meta.Eqns
+public import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Match.MatchEqs
-import Lean.Meta.Tactic.Grind.Util
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -273,8 +276,8 @@ private def inferEMatchProofType (proof : Expr) (gen : Bool) : MetaM Expr := do
 
 -- Configuration for the `grind` normalizer. We want both `zetaDelta` and `zeta`
 private def normConfig : Grind.Config := {}
-theorem normConfig_zeta : normConfig.zeta = true := rfl
-theorem normConfig_zetaDelta : normConfig.zetaDelta = true := rfl
+private theorem normConfig_zeta : normConfig.zeta = true := rfl
+private theorem normConfig_zetaDelta : normConfig.zetaDelta = true := rfl
 
 def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
   let pat ← instantiateMVars pat
@@ -339,7 +342,7 @@ def EMatchTheoremKind.isDefault : EMatchTheoremKind → Bool
   | .default _ => true
   | _ => false
 
-private def EMatchTheoremKind.toAttribute : EMatchTheoremKind → String
+def EMatchTheoremKind.toAttribute : EMatchTheoremKind → String
   | .eqLhs true     => "[grind = gen]"
   | .eqLhs false    => "[grind =]"
   | .eqRhs true     => "[grind =_ gen]"
@@ -430,13 +433,25 @@ def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchThe
 def EMatchTheorems.contains (s : EMatchTheorems) (origin : Origin) : Bool :=
   s.origins.contains origin
 
-/-- Mark the theorem with the given origin as `erased` -/
+/-- Marks the theorem with the given origin as `erased` -/
 def EMatchTheorems.erase (s : EMatchTheorems) (origin : Origin) : EMatchTheorems :=
   { s with erased := s.erased.insert origin, origins := s.origins.erase origin }
 
-/-- Returns true if the theorem has been marked as erased. -/
+/-- Returns `true` if the theorem has been marked as erased. -/
 def EMatchTheorems.isErased (s : EMatchTheorems) (origin : Origin) : Bool :=
   s.erased.contains origin
+
+/-- Returns `true` if there is a theorem with exactly the same kind is already in `s` -/
+def EMatchTheorems.containsWithSameKind (s : EMatchTheorems) (origin : Origin) (kind : EMatchTheoremKind) : Bool :=
+  match kind with
+  | .eqBoth gen => go (.eqLhs gen) && go (.eqRhs gen)
+  | _ => go kind
+where
+  go (kind : EMatchTheoremKind) : Bool :=
+    if let some thms := s.omap.find? origin then
+      thms.any fun thm => thm.kind == kind
+    else
+      false
 
 /--
 Retrieves theorems from `s` associated with the given symbol. See `EMatchTheorem.insert`.
@@ -461,7 +476,7 @@ def EMatchTheorems.find (s : EMatchTheorems) (origin : Origin) : List EMatchTheo
 def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr := do
   if thm.proof.isConst && thm.levelParams.isEmpty then
     let declName := thm.proof.constName!
-    let info ← getConstInfo declName
+    let info ← getConstVal declName
     if info.levelParams.isEmpty then
       return thm.proof
     else
@@ -877,7 +892,7 @@ def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams 
   }
 
 private def getProofFor (declName : Name) : MetaM Expr := do
-  let info ← getConstInfo declName
+  let info ← getConstVal declName
   -- For theorems, `isProp` has already been checked at declaration time
   unless wasOriginallyTheorem (← getEnv) declName do
     unless (← isProp info.type) do

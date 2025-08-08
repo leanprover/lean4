@@ -16,14 +16,14 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Dynlib_get_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_String_stripSuffix(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Dynlib_Symbol_runAsInit___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_loadPlugin_unsafe__1(lean_object*, lean_object*);
 lean_object* l_String_stripPrefix(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_LoadDynlib_0__Lean_loadPlugin_unsafe__1(lean_object*, lean_object*);
 lean_object* lean_dynlib_get(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_loadDynlib_unsafe__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_LoadDynlib_0__Lean_loadPlugin_unsafe__4___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_LoadDynlib_0__Lean_DynlibImpl;
 LEAN_EXPORT lean_object* l___private_Lean_LoadDynlib_0__Lean_Dynlib_SymbolImpl___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_loadPlugin_unsafe__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_fileStem(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_LoadDynlib_0__Lean_loadDynlib_unsafe__1(lean_object*, lean_object*);
 lean_object* lean_dynlib_symbol_run_as_init(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Dynlib_load___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_loadPlugin___closed__5;
@@ -36,7 +36,7 @@ static lean_object* l_Lean_loadPlugin___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_loadPlugin___closed__0;
 LEAN_EXPORT lean_object* lean_load_dynlib(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_loadPlugin_unsafe__4(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_LoadDynlib_0__Lean_loadPlugin_unsafe__4(lean_object*, lean_object*, lean_object*);
 lean_object* lean_runtime_mark_persistent(lean_object*, lean_object*);
 lean_object* lean_dynlib_load(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_LoadDynlib_0__Lean_Dynlib_SymbolImpl(lean_object*);
@@ -91,7 +91,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_loadDynlib_unsafe__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_LoadDynlib_0__Lean_loadDynlib_unsafe__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -169,7 +169,7 @@ lean_dec_ref(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_loadPlugin_unsafe__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_LoadDynlib_0__Lean_loadPlugin_unsafe__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -177,7 +177,7 @@ x_3 = lean_runtime_mark_persistent(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_loadPlugin_unsafe__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Lean_LoadDynlib_0__Lean_loadPlugin_unsafe__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -185,11 +185,11 @@ x_4 = lean_dynlib_symbol_run_as_init(x_1, x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_loadPlugin_unsafe__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Lean_LoadDynlib_0__Lean_loadPlugin_unsafe__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_loadPlugin_unsafe__4(x_1, x_2, x_3);
+x_4 = l___private_Lean_LoadDynlib_0__Lean_loadPlugin_unsafe__4(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;

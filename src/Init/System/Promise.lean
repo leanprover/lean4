@@ -64,8 +64,10 @@ private opaque Option.getOrBlock! [Nonempty α] : Option α → α
 The result task of a `Promise`.
 
 The task blocks until `Promise.resolve` is called. If the promise is dropped without ever being
-resolved, evaluating the task will panic and, when not using fatal panics, block forever. Use
-`Promise.result?` to handle this case explicitly.
+resolved, evaluating the task will panic and, when not using fatal panics, block forever. As
+`Promise.result!` is a pure value and thus the point of evaluation may not be known precisely, this
+means that any promise on which `Promise.result!` *may* be evaluated *must* be resolved eventually.
+When in doubt, always prefer `Promise.result?` to handle dropped promises explicitly.
 -/
 def Promise.result! (promise : @& Promise α) : Task α :=
   let _ : Nonempty α := promise.h

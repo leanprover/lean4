@@ -4,22 +4,26 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
+module
+
 prelude
-import Lean.DeclarationRange
+public import Lean.DeclarationRange
 
-import Lean.Data.Json.Basic
-import Lean.Data.Lsp
-import Lean.Elab.Command
+public import Lean.Data.Json.Basic
+public import Lean.Data.Lsp
+public import Lean.Elab.Command
 
-import Lean.Server.RequestCancellation
-import Lean.Server.ServerTask
+public import Lean.Server.RequestCancellation
+public import Lean.Server.ServerTask
 
-import Lean.Server.FileSource
-import Lean.Server.FileWorker.Utils
+public import Lean.Server.FileSource
+public import Lean.Server.FileWorker.Utils
 
-import Lean.Server.Rpc.Basic
+public import Lean.Server.Rpc.Basic
 
-import Std.Sync.Mutex
+public import Std.Sync.Mutex
+
+public section
 
 /-- Checks whether `r` contains `hoverPos`, taking into account EOF according to `text`. -/
 def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : String.Range)

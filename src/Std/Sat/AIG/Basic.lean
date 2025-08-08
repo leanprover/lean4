@@ -31,7 +31,7 @@ node which consists of a `Nat` describing the input node and a `Bool` saying whe
 on the input.
 -/
 structure Fanin where
-  private of ::
+  ofRaw ::
     val : Nat
   deriving Hashable, Repr, DecidableEq, Inhabited
 
@@ -198,7 +198,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
     split
     · apply ih
       simp [hfound]
-    · next hbounds =>
+    next hbounds =>
       exfalso
       apply hbounds
       specialize ih _ hfound
@@ -217,7 +217,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
       | false =>
         apply ih
         simpa [BEq.symm_false heq] using hfound
-    · next hbounds =>
+    next hbounds =>
       simp only [HashMap.getElem?_insert] at hfound
       match heq : decl == decl' with
       | true =>

@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Parser.Attr
-import Lean.Parser.Level
-import Lean.Parser.Term.Doc
+public import Lean.Parser.Attr
+public import Lean.Parser.Level
+public import Lean.Parser.Term.Doc
+
+public section
 
 namespace Lean
 namespace Parser
@@ -15,9 +19,9 @@ namespace Command
 def commentBody : Parser :=
 { fn := rawFn (finishCommentBlock (pushMissingOnError := true) 1) (trailingWs := true) }
 
-@[combinator_parenthesizer commentBody]
+@[combinator_parenthesizer commentBody, expose]
 def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
-@[combinator_formatter commentBody]
+@[combinator_formatter commentBody, expose]
 def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
 
 /-- A `docComment` parses a "documentation comment" like `/-- foo -/`. This is not treated like
@@ -316,7 +320,7 @@ def binderDefault := leading_parser
   " := " >> termParser
 
 open Lean.PrettyPrinter Parenthesizer Syntax.MonadTraverser in
-@[combinator_parenthesizer Lean.Parser.Term.binderDefault] def binderDefault.parenthesizer : Parenthesizer := do
+@[combinator_parenthesizer Lean.Parser.Term.binderDefault, expose] def binderDefault.parenthesizer : Parenthesizer := do
   let prec := match (← getCur) with
     -- must parenthesize to distinguish from `binderTactic`
     | `(binderDefault| := by $_) => maxPrec
@@ -755,7 +759,7 @@ indicates the function is expected to be structural recursive on the argument. I
 the body of the `termination_by` clause must be one of the function's parameters.
 
 If omitted, a termination measure will be inferred. If written as `termination_by?`,
-the inferrred termination measure will be suggested.
+the inferred termination measure will be suggested.
 
 -/
 @[builtin_doc] def terminationBy := leading_parser

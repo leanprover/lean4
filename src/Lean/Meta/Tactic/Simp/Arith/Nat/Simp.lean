@@ -3,9 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Simp.Arith.Util
-import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
+public import Lean.Meta.Tactic.Simp.Arith.Util
+public import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
+
+public section
 
 namespace Lean.Meta.Simp.Arith.Nat
 
@@ -64,13 +68,15 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
 
 def simpExpr? (input : Expr) : MetaM (Option (Expr × Expr)) := do
   let (e, ctx) ← toLinearExpr input
-  let p  := e.toPoly
-  let p' := p.norm
-  let e' : LinearExpr := p'.toExpr
-  if e' == e then
-    return none
-  let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr e) (toExpr e') reflBoolTrue
-  let r ← e'.toArith ctx
-  return some (r, mkExpectedPropHint p (mkNatEq input r))
+  withAbstractAtoms ctx ``Nat fun ctx => do
+    let p  := e.toPoly
+    let p' := p.norm
+    let e' : LinearExpr := p'.toExpr
+    if e' == e then
+      return none
+    let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr e) (toExpr e') reflBoolTrue
+    let l ← e.toArith ctx
+    let r ← e'.toArith ctx
+    return some (r, mkExpectedPropHint p (mkNatEq l r))
 
 end Lean.Meta.Simp.Arith.Nat

@@ -3,10 +3,14 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.FunInfo
-import Lean.Meta.DiscrTree
+public import Lean.Meta.Basic
+public import Lean.Meta.FunInfo
+public import Lean.Meta.DiscrTree
+
+public section
 
 namespace Lean
 
@@ -51,7 +55,7 @@ mutual
   Remark: the order is not really total on terms since
    - We instance implicit arguments.
    - We ignore metadata.
-   - We ignore universe parameterst at constants.
+   - We ignore universe parameters at constants.
 -/
 partial def main (a b : Expr) (mode : ReduceMode := .none) : MetaM Bool := do
   lt a b

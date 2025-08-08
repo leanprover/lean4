@@ -86,6 +86,17 @@ theorem negSucc_coe (n : Nat) : -[n+1] = -↑(n + 1) := rfl
 @[simp, norm_cast] theorem cast_ofNat_Int :
   (Nat.cast (no_index (OfNat.ofNat n)) : Int) = OfNat.ofNat n := rfl
 
+@[simp] theorem beq'_eq (a b : Int) : Int.beq' a b = (a = b) := by
+  cases a <;> cases b <;> simp [Int.beq', ofNat_inj]
+
+@[simp] theorem beq'_ne (a b : Int) : (Int.beq' a b = false) = (a ≠ b) := by
+  rw [Ne, ← beq'_eq, Bool.not_eq_true]
+
+theorem beq'_eq_beq (a b : Int) : (Int.beq' a b) = (a == b) := by
+  have h : (Int.beq' a b = true) = (a == b) := by simp
+  have : ∀ {a b : Bool}, (a = true) = (b = true) → a = b := by intro a b; cases a <;> cases b <;> simp
+  exact this h
+
 /- ## neg -/
 
 @[simp] protected theorem neg_neg : ∀ a : Int, -(-a) = a

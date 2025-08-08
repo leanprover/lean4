@@ -3,15 +3,19 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Lean.Util.PtrSet
-import Lean.Meta.Transform
-import Lean.Meta.Basic
-import Lean.Meta.InferType
-import Lean.Meta.Tactic.Grind.ExprPtr
-import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.Types
+public import Init.Grind.Util
+public import Lean.Util.PtrSet
+public import Lean.Meta.Transform
+public import Lean.Meta.Basic
+public import Lean.Meta.InferType
+public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Tactic.Grind.Types
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -104,7 +108,7 @@ where
     let e ← foldProjs e
     normalizeLevels e
 
-def markNestedProof (e : Expr) : M Expr := do
+private def markNestedProof (e : Expr) : M Expr := do
   let prop ← inferType e
   let prop ← markNestedSubsingletons.preprocess prop
   return mkApp2 (mkConst ``Grind.nestedProof) prop e

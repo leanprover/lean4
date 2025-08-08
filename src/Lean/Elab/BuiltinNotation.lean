@@ -3,15 +3,20 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Gabriel Ebner
 -/
+module
+
 prelude
-import Lean.Compiler.BorrowedAnnotation
-import Lean.Meta.KAbstract
-import Lean.Meta.Closure
-import Lean.Meta.MatchUtil
-import Lean.Compiler.ImplementedByAttr
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.Eval
-import Lean.Elab.Binders
+public import Lean.Compiler.BorrowedAnnotation
+public import Lean.Meta.KAbstract
+public import Lean.Meta.Closure
+public import Lean.Meta.MatchUtil
+public import Lean.Compiler.ImplementedByAttr
+public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.Eval
+public import Lean.Elab.Binders
+meta import Lean.Parser.Do
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
@@ -42,16 +47,22 @@ open Meta
   match stx with
   | `(⟨$args,*⟩) => do
     tryPostponeIfNoneOrMVar expectedType?
+    let throwExpTypeUnknown {α} : TermElabM α :=
+      throwError "Invalid `⟨...⟩` notation: The expected type of this term could not be determined"
+    let usageNote := .note m!"\
+      This notation can only be used when the expected type is an inductive type with a single constructor"
     match expectedType? with
     | some expectedType =>
       let expectedType ← whnf expectedType
+      if expectedType.getAppFn.isMVar then throwExpTypeUnknown
       matchConstInduct expectedType.getAppFn
-        (fun _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type {indentExpr expectedType}")
+        (fun _ => throwError m!"Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}is not an inductive type"
+                    ++ usageNote)
         (fun ival _ => do
           match ival.ctors with
           | [ctor] =>
-            if isPrivateNameFromImportedModule (← getEnv) ctor then
-              throwError "invalid ⟨...⟩ notation, constructor for `{ival.name}` is marked as private"
+            if isInaccessiblePrivateName (← getEnv) ctor then
+              throwError "Invalid `⟨...⟩` notation: Constructor for `{ival.name}` is marked as private"
             let cinfo ← getConstInfoCtor ctor
             let numExplicitFields ← forallTelescopeReducing cinfo.type fun xs _ => do
               let mut n := 0
@@ -61,19 +72,29 @@ open Meta
               return n
             let args := args.getElems
             if args.size < numExplicitFields then
-              throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' has #{numExplicitFields} explicit fields, but only #{args.size} provided"
+              let fieldsStr := if numExplicitFields == 1 then "fields" else "field"
+              let providedStr :=
+                if args.size == 0 then "none were"
+                else if args.size == 1 then "only 1 was"
+                else s!"only {args.size} were"
+              throwError "Insufficient number of fields for `⟨...⟩` constructor: Constructor \
+                `{ctor}` has {numExplicitFields} explicit {fieldsStr}, but {providedStr} provided"
             let newStx ← if args.size == numExplicitFields then
               `($(mkCIdentFrom stx ctor (canonical := true)) $(args)*)
             else if numExplicitFields == 0 then
-              throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' does not have explicit fields, but #{args.size} provided"
+              throwError "Insufficient number of fields for `⟨...⟩` constructor: Constructor \
+                `{ctor}` does not have explicit fields, but {args.size} \
+                {if args.size == 1 then "was" else "were"} provided"
             else
               let extra := args[(numExplicitFields-1)...args.size]
               let newLast ← `(⟨$[$extra],*⟩)
               let newArgs := args[*...(numExplicitFields-1)].toArray.push newLast
               `($(mkCIdentFrom stx ctor (canonical := true)) $(newArgs)*)
             withMacroExpansion stx newStx $ elabTerm newStx expectedType?
-          | _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor {indentExpr expectedType}")
-    | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
+          | [] => throwError "Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}has no constructors"
+          | _ => throwError m!"Invalid `⟨...⟩` notation: The expected type{inlineExpr expectedType}has more than one constructor"
+                  ++ usageNote)
+    | none => throwExpTypeUnknown
   | _ => throwUnsupportedSyntax
 
 @[builtin_term_elab borrowed] def elabBorrowed : TermElab := fun stx expectedType? =>

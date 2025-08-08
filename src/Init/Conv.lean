@@ -187,6 +187,9 @@ match [a, b] with
 simplifies to `a`. -/
 syntax (name := simpMatch) "simp_match" : conv
 
+/-- Removes one or more hypotheses from the local context. -/
+syntax (name := clear) "clear" (ppSpace colGt term:max)+ : conv
+
 /-- Executes the given tactic block without converting `conv` goal into a regular goal. -/
 syntax (name := nestedTacticCore) "tactic'" " => " tacticSeq : conv
 
@@ -342,7 +345,7 @@ This is the conv mode version of the `lift_lets` tactic.
 syntax (name := liftLets) "lift_lets " optConfig : conv
 
 /--
-Transforms `let` expressions into `have` expressions within th etarget expression when possible.
+Transforms `let` expressions into `have` expressions within the target expression when possible.
 This is the conv mode version of the `let_to_have` tactic.
 -/
 syntax (name := letToHave) "let_to_have" : conv

@@ -59,8 +59,7 @@ def runReverseDNS : Async Unit := do
 #eval runDNS.toIO >>= AsyncTask.block
 
 /--
-error: invalid argument (error code: 22, invalid argument)
-  file: name is not ASCII.
+error: invalid argument (error code: 22, name is not ASCII)
 -/
 #guard_msgs in #eval runDNSNoAscii.toIO >>= AsyncTask.block
 

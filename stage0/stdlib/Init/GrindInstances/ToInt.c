@@ -36,6 +36,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_instToIntFinCoOfNatIntCast___boxed(lean_ob
 lean_object* l_instNatCastInt___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_GrindInstances_ToInt_0__Lean_Grind_IntInterval_lo_x3f_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_int8_to_int(uint8_t);
+lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntUInt64UintOfNatNat___lam__0(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Grind_instToIntIntIi;
 lean_object* lean_int32_to_int(uint32_t);
@@ -119,7 +120,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_instToIntFinCoOfNatIntCast___lam__0(lean_o
 _start:
 {
 lean_object* x_2; 
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -145,7 +146,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_uint8_to_nat(x_1);
-x_3 = l_instNatCastInt___lam__0(x_2);
+x_3 = lean_nat_to_int(x_2);
 return x_3;
 }
 }
@@ -171,7 +172,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_uint16_to_nat(x_1);
-x_3 = l_instNatCastInt___lam__0(x_2);
+x_3 = lean_nat_to_int(x_2);
 return x_3;
 }
 }
@@ -197,7 +198,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_uint32_to_nat(x_1);
-x_3 = l_instNatCastInt___lam__0(x_2);
+x_3 = lean_nat_to_int(x_2);
 return x_3;
 }
 }
@@ -224,7 +225,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_uint64_to_nat(x_1);
-x_3 = l_instNatCastInt___lam__0(x_2);
+x_3 = lean_nat_to_int(x_2);
 return x_3;
 }
 }
@@ -251,7 +252,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_usize_to_nat(x_1);
-x_3 = l_instNatCastInt___lam__0(x_2);
+x_3 = lean_nat_to_int(x_2);
 return x_3;
 }
 }

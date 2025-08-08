@@ -62,7 +62,7 @@ lean_object* l_Lean_Expr_projIdx_x21(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_ctorWeight(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ACLt_ReduceMode_noConfusion___redArg(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_ACLt_main_getParamsInfo___closed__0;
-LEAN_EXPORT lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_config;
+static lean_object* l___private_Lean_Meta_ACLt_0__Lean_Meta_ACLt_config;
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Meta_ACLt_main_allChildrenLt_spec__1___boxed(lean_object**);
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
@@ -995,7 +995,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_ACLt_main_lexSameCtor___closed__2;
 x_2 = lean_unsigned_to_nat(27u);
-x_3 = lean_unsigned_to_nat(148u);
+x_3 = lean_unsigned_to_nat(152u);
 x_4 = l_Lean_Meta_ACLt_main_lexSameCtor___closed__1;
 x_5 = l_Lean_Meta_ACLt_main_lexSameCtor___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

@@ -3,12 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.ShareCommon
-import Std.Data.HashSet.Basic
-import Std.Data.HashMap.Basic
-import Lean.Data.PersistentHashMap
-import Lean.Data.PersistentHashSet
+public import Init.ShareCommon
+public import Std.Data.HashSet.Basic
+public import Std.Data.HashMap.Basic
+public import Lean.Data.PersistentHashMap
+public import Lean.Data.PersistentHashSet
+
+public section
 
 open ShareCommon
 namespace Lean.ShareCommon

@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+module
+
 prelude
-import Init.Data.SInt.Basic
-import Std.Tactic.BVDecide.Normalize.BitVec
-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+public import Init.Data.SInt.Basic
+public import Std.Tactic.BVDecide.Normalize.BitVec
+public import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+
+public section
 
 /-!
 This file implements the type analysis pass for the structures and enum inductives pass. It figures

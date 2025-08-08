@@ -3,9 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Elab.Command
-import Lean.Elab.DeclarationRange
+public import Lean.Elab.Command
+public import Lean.Elab.DeclarationRange
+public meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab
 open Command
@@ -63,7 +68,7 @@ def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := 
 
 end Term
 
-def DerivingHandler := (typeNames : Array Name) → CommandElabM Bool
+@[expose] def DerivingHandler := (typeNames : Array Name) → CommandElabM Bool
 
 builtin_initialize derivingHandlersRef : IO.Ref (NameMap (List DerivingHandler)) ← IO.mkRef {}
 

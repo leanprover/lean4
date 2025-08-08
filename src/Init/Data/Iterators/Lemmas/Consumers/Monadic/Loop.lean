@@ -208,7 +208,7 @@ theorem IterM.toList_eq_fold {α β : Type w} {m : Type w → Type w'} [Iterator
       it.fold (init := l') (fun l out => l ++ [out]) by
     specialize h []
     simpa using h
-  induction it using IterM.inductSteps with | step it ihy ihs =>
+  induction it using IterM.inductSteps with | step it ihy ihs
   intro l'
   rw [IterM.toList_eq_match_step, IterM.fold_eq_match_step]
   simp only [map_eq_pure_bind, bind_assoc]
@@ -253,7 +253,7 @@ theorem IterM.drain_eq_map_toList {α β : Type w} {m : Type w → Type w'} [Ite
     [IteratorCollect α m m] [LawfulIteratorCollect α m m]
     {it : IterM (α := α) m β} :
     it.drain = (fun _ => .unit) <$> it.toList := by
-  induction it using IterM.inductSteps with | step it ihy ihs =>
+  induction it using IterM.inductSteps with | step it ihy ihs
   rw [IterM.drain_eq_match_step, IterM.toList_eq_match_step]
   simp only [map_eq_pure_bind, bind_assoc]
   apply bind_congr

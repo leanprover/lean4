@@ -3,10 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Eqns
-import Lean.Util.CollectAxioms
-import Lean.Elab.Command
+public import Lean.Meta.Eqns
+public import Lean.Util.CollectAxioms
+public import Lean.Elab.Command
+import Lean.PrettyPrinter.Delaborator.Builtins
+
+public section
 
 namespace Lean.Elab.Command
 
@@ -28,6 +33,10 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
   | ReducibilityStatus.irreducible =>   attrs := attrs.push m!"irreducible"
   | ReducibilityStatus.reducible =>     attrs := attrs.push m!"reducible"
   | ReducibilityStatus.semireducible => pure ()
+
+  let env ← getEnv
+  if env.header.isModule && (env.setExporting true |>.find? id |>.any (·.isDefinition)) then
+    attrs := attrs.push m!"expose"
 
   if defeqAttr.hasTag (← getEnv) id then
     attrs := attrs.push m!"defeq"

@@ -123,7 +123,7 @@ Depending on `P`, it is possible that `it.dropWhileWithPostcondition P` is finit
 **Performance:**
 
 This combinator calls `P` on each output of `it` until the predicate evaluates to false. After
-that, the combinator incurs an addictional O(1) cost for each value emitted by `it`.
+that, the combinator incurs an additional O(1) cost for each value emitted by `it`.
 -/
 @[always_inline, inline]
 def IterM.dropWhileWithPostcondition (P : β → PostconditionT m (ULift Bool)) (it : IterM (α := α) m β) :=

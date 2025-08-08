@@ -84,7 +84,7 @@ Note: Use `set_option allowUnsafeReducibility true` to override reducibility sta
 #guard_msgs in
 attribute [irreducible] Nat.add
 
-/-- error: scoped attributes must be used inside namespaces -/
+/-- error: Scoped attributes must be used inside namespaces -/
 #guard_msgs in
 attribute [scoped reducible] Nat.add
 

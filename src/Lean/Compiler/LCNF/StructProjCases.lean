@@ -3,12 +3,16 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Cameron Zwarich
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.Basic
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.MonoTypes
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.PrettyPrinter
+public import Lean.Compiler.LCNF.Basic
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.MonoTypes
+public import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.PrettyPrinter
+
+public section
 
 namespace Lean.Compiler.LCNF
 namespace StructProjCases

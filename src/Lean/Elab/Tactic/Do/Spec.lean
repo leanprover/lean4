@@ -3,14 +3,18 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Do.ProofMode.Basic
-import Lean.Elab.Tactic.Do.ProofMode.Intro
-import Lean.Elab.Tactic.Do.ProofMode.Pure
-import Lean.Elab.Tactic.Do.ProofMode.Frame
-import Lean.Elab.Tactic.Do.ProofMode.Assumption
-import Lean.Elab.Tactic.Do.Attr
-import Std.Do.Triple
+public import Lean.Elab.Tactic.Do.ProofMode.Basic
+public import Lean.Elab.Tactic.Do.ProofMode.Intro
+public import Lean.Elab.Tactic.Do.ProofMode.Pure
+public import Lean.Elab.Tactic.Do.ProofMode.Frame
+public import Lean.Elab.Tactic.Do.ProofMode.Assumption
+public import Lean.Elab.Tactic.Do.Attr
+public import Std.Do.Triple
+
+public section
 
 namespace Lean.Elab.Tactic.Do
 open Lean Elab Tactic Meta
@@ -139,7 +143,7 @@ def mkPreTag (goalTag : Name) : Name := Id.run do
 -/
 def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name) (mkPreTag := mkPreTag) : n Expr := do
   -- First instantiate `fun s => ...` in the target via repeated `mintro ∀s`.
-  Prod.snd <$> mIntroForallN goal goal.target.consumeMData.getNumHeadLambdas fun goal => do
+  mIntroForallN goal goal.target.consumeMData.getNumHeadLambdas fun goal => do
   -- Elaborate the spec for the wp⟦e⟧ app in the target
   let T := goal.target.consumeMData
   unless T.getAppFn.constName! == ``PredTrans.apply do
@@ -184,7 +188,7 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
   -- Often P or Q are schematic (i.e. an MVar app). Try to solve by rfl.
   -- We do `fullApproxDefEq` here so that `constApprox` is active; this is useful in
   -- `need_const_approx` of `doLogicTests.lean`.
-  let (HPRfl, QQ'Rfl) ← withAssignableSyntheticOpaque <| fullApproxDefEq <| do
+  let (HPRfl, QQ'Rfl) ← fullApproxDefEq <| do
     return (← isDefEqGuarded P goal.hyps, ← isDefEqGuarded Q Q')
 
   -- Discharge the validity proof for the spec if not rfl
@@ -210,8 +214,7 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
         h (QQ'mono.betaRev excessArgs)
 
   -- finally build the proof; HPPrf.trans (spec.trans QQ'mono)
-  let prf := prePrf (postPrf spec)
-  return ((), prf)
+  return prePrf (postPrf spec)
 
 @[builtin_tactic Lean.Parser.Tactic.mspecNoBind]
 def elabMSpecNoBind : Tactic

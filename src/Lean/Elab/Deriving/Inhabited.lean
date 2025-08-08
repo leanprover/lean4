@@ -3,9 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.ForEachExprWhere
-import Lean.Elab.Deriving.Basic
+public import Lean.Util.ForEachExprWhere
+public import Lean.Elab.Deriving.Basic
+import Lean.Elab.Deriving.Util
+
+public section
 
 namespace Lean.Elab
 open Command Meta Parser Term
@@ -59,6 +64,7 @@ where
   /-- Create an `instance` command using the constructor `ctorName` with a hypothesis `Inhabited α` when `α` is one of the inductive type parameters
      at position `i` and `i ∈ assumingParamIdxs`. -/
   mkInstanceCmdWith (assumingParamIdxs : IndexSet) : TermElabM Syntax := do
+    let ctx ← Deriving.mkContext "inhabited" inductiveTypeName
     let indVal ← getConstInfoInduct inductiveTypeName
     let ctorVal ← getConstInfoCtor ctorName
     let mut indArgs := #[]
@@ -78,8 +84,9 @@ where
     for _ in *...ctorVal.numFields do
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
     let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
-    let privTk? := guard (isPrivateName inductiveTypeName) *> some .missing
-    `($[private%$privTk?]? instance $binders:bracketedBinder* : $type := $val)
+    let vis := ctx.mkVisibilityFromTypes
+    let expAttr := ctx.mkExposeAttrFromCtors
+    `(@[$expAttr] $vis:visibility instance $binders:bracketedBinder* : $type := $val)
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName

@@ -36,14 +36,14 @@ Each failing tactic gets its own error message when in recovery mode.
 There is no "unsolved goals" error.
 -/
 /--
-error: type mismatch
+error: Type mismatch
   Eq.refl 3
 has type
   3 = 3
 but is expected to have type
   false = false
 ---
-error: type mismatch
+error: Type mismatch
   Eq.refl 3
 has type
   3 = 3
@@ -61,7 +61,7 @@ example (b : Bool) : b = b := by
 Even if at least one succeeds, the entire tactic fails if any fails, stopping the tactic script.
 -/
 /--
-error: type mismatch
+error: Type mismatch
   Eq.refl true
 has type
   true = true
@@ -117,7 +117,7 @@ On error, failing goals are admitted. There is one `sorry` in the proof term cor
 -/
 
 /--
-error: type mismatch
+error: Type mismatch
   Eq.refl true
 has type
   true = true
@@ -183,7 +183,7 @@ elab "without_recover " tac:tactic : tactic => do
   withoutRecover <| evalTactic tac
 
 /--
-error: type mismatch
+error: Type mismatch
   Eq.refl 3
 has type
   3 = 3
@@ -216,7 +216,7 @@ Simple failure.
 -/
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 ⊢ True
 ---
 info: Try this: sorry
@@ -399,7 +399,7 @@ def bug {a b c : Nat} (h₁ : a = b) (h₂ : b = c) : a = c := by
 https://github.com/leanprover/lean4/issues/7883
 There was an error because the metavariable state was being restored but not the goal list.
 -/
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 theorem foo : ∃ f : Unit → Unit, f () = () := by
   refine ⟨fun x => ?f_old, ?hf⟩
@@ -408,7 +408,7 @@ theorem foo : ∃ f : Unit → Unit, f () = () := by
 Another example from the comments of https://github.com/leanprover/lean4/issues/7883
 -/
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 ⊢ True
 -/
 #guard_msgs in

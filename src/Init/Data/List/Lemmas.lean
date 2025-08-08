@@ -1429,12 +1429,12 @@ theorem filterMap_eq_map {f : α → β} : filterMap (some ∘ f) = map f := by
 theorem filterMap_eq_map' {f : α → β} : filterMap (fun x => some (f x)) = map f :=
   filterMap_eq_map
 
-@[simp] theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
+theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
   funext l
   erw [filterMap_eq_map]
   simp
 
-@[grind] theorem filterMap_some {l : List α} : filterMap some l = l := by
+@[simp, grind] theorem filterMap_some {l : List α} : filterMap some l = l := by
   rw [filterMap_some_fun, id]
 
 theorem map_filterMap_some_eq_filter_map_isSome {f : α → Option β} {l : List α} :
@@ -1586,9 +1586,7 @@ theorem filterMap_eq_cons_iff {l} {b} {bs} :
 theorem not_mem_append {a : α} {s t : List α} (h₁ : a ∉ s) (h₂ : a ∉ t) : a ∉ s ++ t :=
   mt mem_append.1 $ not_or.mpr ⟨h₁, h₂⟩
 
-@[deprecated mem_append (since := "2025-01-13")]
-theorem mem_append_eq {a : α} {s t : List α} : (a ∈ s ++ t) = (a ∈ s ∨ a ∈ t) :=
-  propext mem_append
+
 
 /--
 See also `eq_append_cons_of_mem`, which proves a stronger version
@@ -1698,7 +1696,7 @@ theorem getLast_concat {a : α} : ∀ {l : List α}, getLast (l ++ [a]) (by simp
 @[simp] theorem append_eq_nil_iff : p ++ q = [] ↔ p = [] ∧ q = [] := by
   cases p <;> simp
 
-@[deprecated append_eq_nil_iff (since := "2025-01-13")] abbrev append_eq_nil := @append_eq_nil_iff
+
 
 theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by
   simp
@@ -1848,6 +1846,10 @@ theorem map_eq_append_iff {f : α → β} :
 theorem append_eq_map_iff {f : α → β} :
     L₁ ++ L₂ = map f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
   rw [eq_comm, map_eq_append_iff]
+
+@[simp, grind =]
+theorem sum_append_nat {l₁ l₂ : List Nat} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
+  induction l₁ generalizing l₂ <;> simp_all [Nat.add_assoc]
 
 /-! ### concat
 
@@ -2148,7 +2150,7 @@ theorem flatMap_eq_foldl {f : α → List β} {l : List α} :
   intro l'
   induction l generalizing l'
   · simp
-  · next ih => rw [flatMap_cons, ← append_assoc, ih, foldl_cons]
+  next ih => rw [flatMap_cons, ← append_assoc, ih, foldl_cons]
 
 /-! ### replicate -/
 
@@ -2264,8 +2266,7 @@ theorem map_const' {l : List α} {b : β} : map (fun _ => b) l = replicate l.len
     simp only [mem_append, mem_replicate, ne_eq]
     rintro (⟨-, rfl⟩ | ⟨_, rfl⟩) <;> rfl
 
-@[deprecated replicate_append_replicate (since := "2025-01-16")]
-abbrev append_replicate_replicate := @replicate_append_replicate
+
 
 theorem append_eq_replicate_iff {l₁ l₂ : List α} {a : α} :
     l₁ ++ l₂ = replicate n a ↔
@@ -2653,16 +2654,12 @@ theorem foldl_map_hom {g : α → β} {f : α → α → α} {f' : β → β →
   · simp
   · simp [*]
 
-@[deprecated foldl_map_hom (since := "2025-01-20")] abbrev foldl_map' := @foldl_map_hom
-
 theorem foldr_map_hom {g : α → β} {f : α → α → α} {f' : β → β → β} {a : α} {l : List α}
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldr f' (g a) = g (l.foldr f a) := by
   induction l generalizing a
   · simp
   · simp [*]
-
-@[deprecated foldr_map_hom (since := "2025-01-20")] abbrev foldr_map' := @foldr_map_hom
 
 @[simp] theorem foldrM_append [Monad m] [LawfulMonad m] {f : α → β → m β} {b : β} {l l' : List α} :
     (l ++ l').foldrM f b = l'.foldrM f b >>= l.foldrM f := by
@@ -3731,12 +3728,6 @@ theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a :=
 
 /-! ### Deprecations -/
 
-@[deprecated _root_.isSome_getElem? (since := "2024-12-09")]
-theorem isSome_getElem? {l : List α} {i : Nat} : l[i]?.isSome ↔ i < l.length := by
-  simp
 
-@[deprecated _root_.isNone_getElem? (since := "2024-12-09")]
-theorem isNone_getElem? {l : List α} {i : Nat} : l[i]?.isNone ↔ l.length ≤ i := by
-  simp
 
 end List

@@ -3,13 +3,17 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
+public import Lean.Meta.Tactic.Grind.Simp
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -337,7 +341,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg
+  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg | toInt | finVal
   deriving BEq, Repr
 
 private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
@@ -355,6 +359,8 @@ private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   | Int.natAbs _ => some (.natAbs, Nat.mkType)
   | Int.toNat _ => some (.toNat, Nat.mkType)
   | NatCast.natCast α _ _ => some (.natCast, α)
+  | Fin.val _ _ => some (.finVal, Nat.mkType)
+  | Grind.ToInt.toInt _ _ _ _ => some (.toInt, Int.mkType)
   | _ => none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
@@ -363,7 +369,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   -- TODO: document `NatCast.natCast` case.
   -- Remark: we added it to prevent natCast_sub from being expanded twice.
   if declName == ``NatCast.natCast then return true
-  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast then return false
+  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast | .toInt | .finVal then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false
@@ -413,6 +419,18 @@ private def propagateMod (e : Expr) : GoalM Unit := do
     let some b ← getIntValue? b | return ()
     expandDivMod a b
 
+private def propagateToInt (e : Expr) : GoalM Unit := do
+  let_expr Grind.ToInt.toInt α _ _ a := e | return ()
+  if (← isToIntTerm a) then return ()
+  let some (eToInt, he) ← toInt? a α | return ()
+  discard <| mkVar e
+  if isSameExpr e eToInt then return ()
+  modify' fun s => { s with
+    toIntTermMap := s.toIntTermMap.insert { expr := a } { eToInt, he, α }
+  }
+  let prop := mkIntEq e eToInt
+  pushNewFact <| mkExpectedPropHint he prop
+
 private def propagateNatAbs (e : Expr) : GoalM Unit := do
   let_expr Int.natAbs a := e | return ()
   pushNewFact <| mkApp (mkConst ``Lean.Omega.Int.ofNat_natAbs) a
@@ -433,6 +451,7 @@ private def internalizeIntTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   match k with
   | .div => propagateDiv e
   | .mod => propagateMod e
+  | .toInt => propagateToInt e
   | _ => internalizeInt e
 
 private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do

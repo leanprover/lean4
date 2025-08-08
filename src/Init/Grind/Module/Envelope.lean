@@ -39,8 +39,7 @@ theorem r_sym {a b : α × α} : r α a b → r α b a := by
   cases a; cases b; simp [r]; intro h w; refine ⟨h, ?_⟩; simp [w, AddCommMonoid.add_comm]
 
 theorem r_trans {a b c : α × α} : r α a b → r α b c → r α a c := by
-  cases a; cases b; cases c;
-  next a₁ a₂ b₁ b₂ c₁ c₂ =>
+  obtain ⟨a₁, a₂⟩ := a; obtain ⟨b₁, b₂⟩ := b; obtain ⟨c₁, c₂⟩ := c
   simp [r]
   intro k₁ h₁ k₂ h₂
   refine ⟨(k₁ + k₂ + b₁ + b₂), ?_⟩
@@ -122,33 +121,29 @@ attribute [local simp]
   Q.mk (0, 0)
 
 theorem neg_add_cancel (a : Q α) : add (neg a) a = zero := by
-  induction a using Quot.ind
-  next a =>
-  cases a; simp
+  obtain ⟨⟨_, _⟩⟩ := a
+  simp
   apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
 
 theorem add_comm (a b : Q α) : add a b = add b a := by
-  induction a using Quot.ind
-  induction b using Quot.ind
-  next a b =>
-  cases a; cases b; simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
+  obtain ⟨⟨_, _⟩⟩ := a
+  obtain ⟨⟨_, _⟩⟩ := b
+  simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
 
 theorem add_zero (a : Q α) : add a zero = a := by
   induction a using Quot.ind
   next a => cases a; simp
 
 theorem add_assoc (a b c : Q α) : add (add a b) c = add a (add b c) := by
-  induction a using Quot.ind
-  induction b using Quot.ind
-  induction c using Quot.ind
-  next a b c =>
-  cases a; cases b; cases c; simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
+  obtain ⟨⟨_, _⟩⟩ := a
+  obtain ⟨⟨_, _⟩⟩ := b
+  obtain ⟨⟨_, _⟩⟩ := c
+  simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
 
 theorem sub_eq_add_neg (a b : Q α) : sub a b = add a (neg b) := by
-  induction a using Quot.ind
-  induction b using Quot.ind
-  next a b =>
-  cases a; cases b; simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
+  obtain ⟨⟨_, _⟩⟩ := a
+  obtain ⟨⟨_, _⟩⟩ := b
+  simp; apply Quot.sound; simp; refine ⟨0, ?_⟩; ac_rfl
 
 theorem one_zsmul (a : Q α) : zsmul 1 a = a := by
   induction a using Quot.ind
@@ -159,8 +154,7 @@ theorem zero_zsmul (a : Q α) : zsmul 0 a = zero := by
   next a => cases a; simp
 
 theorem add_zsmul (a b : Int) (c : Q α) : zsmul (a + b) c = add (zsmul a c) (zsmul b c) := by
-  induction c using Q.ind
-  next c =>
+  induction c using Q.ind with | _ c
   rcases c with ⟨c₁, c₂⟩; simp
   by_cases hb : b < 0
   · simp only [if_pos hb]
@@ -203,8 +197,7 @@ theorem add_zsmul (a b : Int) (c : Q α) : zsmul (a + b) c = add (zsmul a c) (zs
       ac_rfl
 
 theorem zsmul_natCast_eq_nsmul (n : Nat) (a : Q α) : zsmul (n : Int) a = nsmul n a := by
-  induction a using Q.ind
-  next a =>
+  induction a using Q.ind with | _ a
   rcases a with ⟨a₁, a₂⟩; simp; omega
 
 def ofNatModule : IntModule (Q α) := {
@@ -264,11 +257,8 @@ instance [NatModule α] [AddRightCancel α] [NoNatZeroDivisors α] : NoNatZeroDi
   no_nat_zero_divisors := by
     intro k a b h₁ h₂
     replace h₂ : k * a = k * b := h₂
-    induction a using Quot.ind
-    induction b using Quot.ind
-    next a b =>
-    rcases a with ⟨a₁, a₂⟩
-    rcases b with ⟨b₁, b₂⟩
+    obtain ⟨⟨a₁, a₂⟩⟩ := a
+    obtain ⟨⟨b₁, b₂⟩⟩ := b
     replace h₂ := Q.exact h₂
     simp [r] at h₂
     rcases h₂ with ⟨k', h₂⟩
@@ -299,17 +289,14 @@ instance [Preorder α] [OrderedAdd α] : LE (OfNatModule.Q α) where
 
 instance [Preorder α] [OrderedAdd α] : Preorder (OfNatModule.Q α) where
   le_refl a := by
-    induction a using Quot.ind
-    next a =>
-    rcases a with ⟨a₁, a₂⟩
+    obtain ⟨⟨a₁, a₂⟩⟩ := a
     change Q.mk _ ≤ Q.mk _
     simp only [mk_le_mk]
     simp [AddCommMonoid.add_comm]; exact Preorder.le_refl (a₁ + a₂)
   le_trans {a b c} h₁ h₂ := by
-    induction a using Q.ind
-    induction b using Q.ind
-    induction c using Q.ind
-    next a b c =>
+    induction a using Q.ind with | _ a
+    induction b using Q.ind with | _ b
+    induction c using Q.ind with | _ c
     rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩; rcases c with ⟨c₁, c₂⟩
     simp only [mk_le_mk] at h₁ h₂ ⊢
     rw [OrderedAdd.add_le_left_iff (b₁ + b₂)]
@@ -341,11 +328,9 @@ theorem toQ_lt [Preorder α] [OrderedAdd α] {a b : α} : toQ a < toQ b ↔ a < 
 instance [Preorder α] [OrderedAdd α] : OrderedAdd (OfNatModule.Q α) where
   add_le_left_iff := by
     intro a b c
-    induction a using Quot.ind
-    induction b using Quot.ind
-    induction c using Quot.ind
-    next a b c =>
-    rcases a with ⟨a₁, a₂⟩; rcases b with ⟨b₁, b₂⟩; rcases c with ⟨c₁, c₂⟩
+    obtain ⟨⟨a₁, a₂⟩⟩ := a
+    obtain ⟨⟨b₁, b₂⟩⟩ := b
+    obtain ⟨⟨c₁, c₂⟩⟩ := c
     change a₁ + b₂ ≤ a₂ + b₁ ↔ (a₁ + c₁) + _ ≤ _
     have : a₁ + c₁ + (b₂ + c₂) = a₁ + b₂ + (c₁ + c₂) := by ac_rfl
     rw [this]; clear this

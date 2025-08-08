@@ -3,13 +3,18 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Util.CollectLevelParams
-import Lean.Elab.DeclUtil
-import Lean.Elab.DefView
-import Lean.Elab.MutualDef
-import Lean.Elab.MutualInductive
-import Lean.Elab.DeclarationRange
+public import Lean.Util.CollectLevelParams
+public import Lean.Elab.DeclUtil
+public import Lean.Elab.DefView
+public import Lean.Elab.MutualDef
+public import Lean.Elab.MutualInductive
+public import Lean.Elab.DeclarationRange
+import Lean.Parser.Command
+
+public section
 namespace Lean.Elab.Command
 
 open Meta
@@ -252,7 +257,12 @@ def expandMutualElement : Macro := fun stx => do
     if elem.isOfKind ``Parser.Command.declaration then
       continue
     match (← expandMacro? elem) with
-    | some elemNew => elemsNew := elemsNew.push elemNew; modified := true
+    | some elemNew =>
+      if elemNew.isOfKind nullKind then
+        elemsNew := elemsNew ++ elemNew.getArgs
+      else
+        elemsNew := elemsNew.push elemNew
+      modified := true
     | none         => elemsNew := elemsNew.push elem
   if modified then
     return stx.setArg 1 (mkNullNode elemsNew)
@@ -330,16 +340,19 @@ def elabMutual : CommandElab := fun stx => do
       -- otherwise the info context created by `with_decl_name` will be incomplete and break the
       -- call hierarchy
       addDeclarationRangesForBuiltin fullId ⟨defStx.raw[0]⟩ defStx.raw[1]
-      let privTk? := guard (isPrivateName fullId) *> some .missing
+      let vis := Parser.Command.visibility.ofBool (!isPrivateName fullId)
       elabCommand (← `(
-        $[private%$privTk?]? $[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% $(mkIdent fullId) do $doSeq
+        $vis:visibility $[unsafe%$unsafe?]? def initFn : IO $type := with_decl_name% $(mkIdent fullId) do $doSeq
         $defStx:command))
     else
       let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(_)? $[unsafe%$unsafe?]?) := declModifiers
         | throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"
       let attrs := (attrs?.map (·.getElems)).getD #[]
       let attrs := attrs.push (← `(Lean.Parser.Term.attrInstance| $attrId:ident))
-      elabCommand (← `($[$doc?:docComment]? @[$[$attrs],*] $[unsafe%$unsafe?]? def initFn : IO Unit := do $doSeq))
+      -- `[builtin_init]` can be private as it is used for local codegen only but `[init]` must be
+      -- available for the interpreter.
+      let vis := Parser.Command.visibility.ofBool (attrId.getId == `init)
+      elabCommand (← `($[$doc?:docComment]? @[$[$attrs],*] $vis:visibility $[unsafe%$unsafe?]? def initFn : IO Unit := do $doSeq))
   | _ => throwUnsupportedSyntax
 
 builtin_initialize

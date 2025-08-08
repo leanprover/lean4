@@ -4,12 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Joscha Mennicken
 -/
+module
+
 prelude
-import Lean.Data.Lsp.Internal
-import Lean.Data.Lsp.Extra
-import Lean.Server.Utils
-import Lean.Elab.Import
-import Std.Data.TreeSet.Basic
+public import Lean.Data.Lsp.Internal
+public import Lean.Data.Lsp.Extra
+public import Lean.Server.Utils
+public import Lean.Elab.Import
+public import Std.Data.TreeSet.Basic
+
+public section
 
 /-! # Representing collected and deduplicated definitions and usages -/
 

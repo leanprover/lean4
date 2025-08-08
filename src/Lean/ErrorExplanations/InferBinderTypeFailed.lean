@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
+module
+
 prelude
-import Lean.ErrorExplanation
+public import Lean.ErrorExplanation
+
+public section
 
 /--
 This error occurs when the type of a binder in a declaration header or local binding is not fully

@@ -3,9 +3,13 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+module
+
 prelude
-import Lean.Data.KVMap
-import Lean.Data.Json.FromToJson.Basic
+public import Lean.Data.KVMap
+public import Lean.Data.Json.FromToJson.Basic
+
+public section
 
 namespace Lean
 

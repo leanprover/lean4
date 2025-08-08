@@ -3,11 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.Internalize
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.Internalize
+
+public section
 
 namespace Lean.Compiler.LCNF
 /-!

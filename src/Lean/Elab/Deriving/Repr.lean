@@ -3,11 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Meta.Inductive
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.Deriving.Util
+public import Lean.Meta.Transform
+public import Lean.Meta.Inductive
+public import Lean.Elab.Deriving.Basic
+public import Lean.Elab.Deriving.Util
+
+public section
 
 namespace Lean.Elab.Deriving.Repr
 open Lean.Parser.Term
@@ -96,10 +100,11 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
     let letDecls ← mkLocalInstanceLetDecls ctx `Repr header.argNames
     body ← mkLet letDecls body
   let binders    := header.binders
+  let vis := ctx.mkVisibilityFromTypes
   if ctx.usePartial then
-    `(@[no_expose] partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
+    `(@[no_expose] $vis:visibility partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
   else
-    `(@[no_expose] def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
+    `(@[no_expose] $vis:visibility def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]

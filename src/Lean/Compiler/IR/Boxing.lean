@@ -3,16 +3,20 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Runtime
-import Lean.Compiler.ClosedTermCache
-import Lean.Compiler.ExternAttr
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.FreeVars
-import Lean.Compiler.IR.ElimDeadVars
-import Lean.Compiler.IR.ToIRType
-import Lean.Data.AssocList
+public import Lean.Runtime
+public import Lean.Compiler.ClosedTermCache
+public import Lean.Compiler.ExternAttr
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.FreeVars
+public import Lean.Compiler.IR.ElimDeadVars
+public import Lean.Compiler.IR.ToIRType
+public import Lean.Data.AssocList
+
+public section
 
 namespace Lean.IR.ExplicitBoxing
 /-!
@@ -48,18 +52,18 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
     let p := ps[i]!
     let q := qs[i]
     if !p.ty.isScalar then
-      pure (newVDecls, xs.push (Arg.var q.x))
+      pure (newVDecls, xs.push (.var q.x))
     else
       let x ← N.mkFresh
-      pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) default), xs.push (Arg.var x))
+      pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) default), xs.push (.var x))
   let r ← N.mkFresh
   let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) default)
   let body ← if !decl.resultType.isScalar then
-    pure <| reshape newVDecls (FnBody.ret (Arg.var r))
+    pure <| reshape newVDecls (FnBody.ret (.var r))
   else
     let newR ← N.mkFresh
     let newVDecls := newVDecls.push (FnBody.vdecl newR .tobject (Expr.box decl.resultType r) default)
-    pure <| reshape newVDecls (FnBody.ret (Arg.var newR))
+    pure <| reshape newVDecls (FnBody.ret (.var newR))
   return Decl.fdecl (mkBoxedName decl.name) qs decl.resultType.boxed body decl.getInfo
 
 def mkBoxedVersion (decl : Decl) : Decl :=
@@ -69,17 +73,6 @@ def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
   let boxedDecls := decls.foldl (init := #[]) fun newDecls decl =>
     if requiresBoxedVersion env decl then newDecls.push (mkBoxedVersion decl) else newDecls
   decls ++ boxedDecls
-
-/-- Infer scrutinee type using `case` alternatives.
-   This can be done whenever `alts` does not contain an `Alt.default _` value. -/
-def getScrutineeType (alts : Array Alt) : IRType :=
-  let isScalar :=
-     alts.all fun
-      | Alt.ctor c _  => c.isScalar
-      | Alt.default _ => false
-  match isScalar with
-  | false => .tobject
-  | true  => irTypeForEnum alts.size
 
 def eqvTypes (t₁ t₂ : IRType) : Bool :=
   (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
@@ -218,17 +211,17 @@ def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Arr
   for x in xs do
     let expected := typeFromIdx i
     match x with
-    | Arg.erased =>
+    | .erased =>
       xs' := xs'.push x
-    | Arg.var x =>
+    | .var x =>
       let xType ← getVarType x
       if eqvTypes xType expected then
-        xs' := xs'.push (Arg.var x)
+        xs' := xs'.push (.var x)
       else
         let y ← M.mkFresh
         let v ← mkCast x xType expected
         let b := FnBody.vdecl y expected v FnBody.nil
-        xs' := xs'.push (Arg.var y)
+        xs' := xs'.push (.var y)
         bs := bs.push b
     i := i + 1
   return (xs', bs)
@@ -255,8 +248,9 @@ def castResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (eType : IRType) (b 
     return FnBody.vdecl x ty e b
   else
     let y ← M.mkFresh
-    let v ← mkCast y eType ty
-    return FnBody.vdecl y eType e (FnBody.vdecl x ty v b)
+    let boxedTy := ty.boxed
+    let v ← mkCast y boxedTy ty
+    return FnBody.vdecl y boxedTy e (FnBody.vdecl x ty v b)
 
 def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody :=
   match e with
@@ -298,13 +292,10 @@ partial def visitFnBody : FnBody → M FnBody
     let b ← visitFnBody b
     castVarIfNeeded y ty fun y =>
       return FnBody.sset x i o y ty b
-  | FnBody.mdata d b         =>
-    FnBody.mdata d <$> visitFnBody b
-  | FnBody.case tid x _ alts   => do
-    let expected := getScrutineeType alts
+  | FnBody.case tid x xType alts   => do
     let alts ← alts.mapM fun alt => alt.modifyBodyM visitFnBody
-    castVarIfNeeded x expected fun x => do
-      return FnBody.case tid x expected alts
+    castVarIfNeeded x xType fun x => do
+      return FnBody.case tid x xType alts
   | FnBody.ret x             => do
     let expected ← getResultType
     castArgIfNeeded x expected (fun x => return FnBody.ret x)

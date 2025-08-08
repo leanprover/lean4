@@ -242,8 +242,7 @@ instance instLT [LT α] : LT (List α) := ⟨List.lt⟩
 instance decidableLT [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
     Decidable (l₁ < l₂) := decidableLex (· < ·) l₁ l₂
 
-@[deprecated decidableLT (since := "2024-12-13"), inherit_doc decidableLT]
-abbrev hasDecidableLt := @decidableLT
+
 
 /--
 Non-strict ordering of lists with respect to a strict ordering of their elements.
@@ -1722,13 +1721,7 @@ Examples:
 -/
 def idxOf [BEq α] (a : α) : List α → Nat := findIdx (· == a)
 
-/-- Returns the index of the first element equal to `a`, or the length of the list otherwise. -/
-@[deprecated idxOf (since := "2025-01-29")] abbrev indexOf := @idxOf
-
 @[simp] theorem idxOf_nil [BEq α] : ([] : List α).idxOf x = 0 := rfl
-
-@[deprecated idxOf_nil (since := "2025-01-29")]
-theorem indexOf_nil [BEq α] : ([] : List α).idxOf x = 0 := rfl
 
 /-! ### findIdx? -/
 
@@ -1759,10 +1752,6 @@ Examples:
  * `["carrot", "potato", "broccoli"].idxOf? "anything else" = none`
 -/
 @[inline] def idxOf? [BEq α] (a : α) : List α → Option Nat := findIdx? (· == a)
-
-/-- Return the index of the first occurrence of `a` in the list. -/
-@[deprecated idxOf? (since := "2025-01-29")]
-abbrev indexOf? := @idxOf?
 
 /-! ### findFinIdx? -/
 
@@ -2119,22 +2108,6 @@ def range' : (start len : Nat) → (step : Nat := 1) → List Nat
   | _, 0, _ => []
   | s, n+1, step => s :: range' (s+step) n step
 
-/-! ### iota -/
-
-/--
-`O(n)`. `iota n` is the numbers from `1` to `n` inclusive, in decreasing order.
-* `iota 5 = [5, 4, 3, 2, 1]`
--/
-@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20")]
-def iota : Nat → List Nat
-  | 0       => []
-  | m@(n+1) => m :: iota n
-
-set_option linter.deprecated false in
-@[simp] theorem iota_zero : iota 0 = [] := rfl
-set_option linter.deprecated false in
-@[simp] theorem iota_succ : iota (i+1) = (i+1) :: iota i := rfl
-
 /-! ### zipIdx -/
 
 /--
@@ -2152,38 +2125,6 @@ def zipIdx : (l : List α) → (n : Nat := 0) → List (α × Nat)
 
 @[simp] theorem zipIdx_nil : ([] : List α).zipIdx i = [] := rfl
 @[simp] theorem zipIdx_cons : (a::as).zipIdx i = (a, i) :: as.zipIdx (i+1) := rfl
-
-/-! ### enumFrom -/
-
-/--
-`O(|l|)`. `enumFrom n l` is like `enum` but it allows you to specify the initial index.
-* `enumFrom 5 [a, b, c] = [(5, a), (6, b), (7, c)]`
--/
-@[deprecated "Use `zipIdx` instead; note the signature change." (since := "2025-01-21")]
-def enumFrom : Nat → List α → List (Nat × α)
-  | _, [] => nil
-  | n, x :: xs   => (n, x) :: enumFrom (n + 1) xs
-
-set_option linter.deprecated false in
-@[deprecated zipIdx_nil (since := "2025-01-21"), simp]
-theorem enumFrom_nil : ([] : List α).enumFrom i = [] := rfl
-set_option linter.deprecated false in
-@[deprecated zipIdx_cons (since := "2025-01-21"), simp]
-theorem enumFrom_cons : (a::as).enumFrom i = (i, a) :: as.enumFrom (i+1) := rfl
-
-/-! ### enum -/
-
-set_option linter.deprecated false in
-/--
-`O(|l|)`. `enum l` pairs up each element with its index in the list.
-* `enum [a, b, c] = [(0, a), (1, b), (2, c)]`
--/
-@[deprecated "Use `zipIdx` instead; note the signature change." (since := "2025-01-21")]
-def enum : List α → List (Nat × α) := enumFrom 0
-
-set_option linter.deprecated false in
-@[deprecated zipIdx_nil (since := "2025-01-21"), simp]
-theorem enum_nil : ([] : List α).enum = [] := rfl
 
 /-! ## Minima and maxima -/
 
@@ -2603,25 +2544,6 @@ Examples:
     rw [Nat.mul_succ, ← Nat.add_assoc, Nat.add_sub_cancel, Nat.add_right_comm n]
     exact go s n (m + 1)
   exact (go s n 0).symm
-
-/-! ### iota -/
-
-/-- Tail-recursive version of `List.iota`. -/
-@[deprecated "Use `List.range' 1 n` instead of `iota n`." (since := "2025-01-20")]
-def iotaTR (n : Nat) : List Nat :=
-  let rec go : Nat → List Nat → List Nat
-    | 0, r => r.reverse
-    | m@(n+1), r => go n (m::r)
-  go n []
-
-set_option linter.deprecated false in
-@[csimp]
-theorem iota_eq_iotaTR : @iota = @iotaTR :=
-  have aux (n : Nat) (r : List Nat) : iotaTR.go n r = r.reverse ++ iota n := by
-    induction n generalizing r with
-    | zero => simp [iota, iotaTR.go]
-    | succ n ih => simp [iota, iotaTR.go, ih, append_assoc]
-  funext fun n => by simp [iotaTR, aux]
 
 /-! ## Other list operations -/
 

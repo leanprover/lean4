@@ -3,12 +3,16 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.Deriving.Util
-import Lean.ToLevel
-import Lean.ToExpr
+public import Lean.Meta.Transform
+public import Lean.Elab.Deriving.Basic
+public import Lean.Elab.Deriving.Util
+public import Lean.ToLevel
+public import Lean.ToExpr
+
+public section
 
 /-!
 # `ToExpr` deriving handler

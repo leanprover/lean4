@@ -42,7 +42,7 @@ The `native_decide` tactic can fail at elaboration time, rather than waiting unt
 
 -- Check the error message
 /--
-error: tactic 'native_decide' evaluated that the proposition
+error: Tactic `native_decide` evaluated that the proposition
   False
 is false
 -/
@@ -62,9 +62,10 @@ Reverting free variables.
 -/
 
 /--
-error: expected type must not contain free variables
+error: Expected type must not contain free variables
   x + 1 ≤ 5
-Use the '+revert' option to automatically cleanup and revert free variables.
+
+Hint: Use the `+revert` option to automatically clean up and revert free variables
 -/
 #guard_msgs in
 example (x : Nat) (h : x < 5) : x + 1 ≤ 5 := by native_decide
@@ -78,7 +79,7 @@ https://github.com/leanprover/lean4/issues/2072
 -/
 
 /--
-error: tactic 'native_decide' evaluated that the proposition
+error: Tactic `native_decide` evaluated that the proposition
   False
 is false
 ---
@@ -108,8 +109,7 @@ inductive ItsTrue : Prop
 instance : Decidable ItsTrue := sorry
 
 /--
-error: tactic 'native_decide' failed, could not evaluate decidable instance.
-Error: cannot evaluate code because 'instDecidableItsTrue' uses 'sorry' and/or contains errors
+error: Tactic `native_decide` failed: Could not evaluate decidable instance. Error: cannot evaluate code because 'instDecidableItsTrue' uses 'sorry' and/or contains errors
 -/
 #guard_msgs in example : ItsTrue := by native_decide
 

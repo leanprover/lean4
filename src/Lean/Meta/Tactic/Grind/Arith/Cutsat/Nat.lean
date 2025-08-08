@@ -3,11 +3,16 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Int.OfNat
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+public import Init.Data.Int.OfNat
+public import Lean.Meta.Tactic.Grind.Simp
+public import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -90,6 +95,17 @@ private partial def natToInt' (e : Expr) : GoalM (Expr × Expr) := do
       return (r, h)
     else
       mkNatVar e
+  | Fin.val n a =>
+    let type ← shareCommon (mkApp (mkConst ``Fin) n)
+    if let some (a', h) ← toInt? a type then
+      let h := mkApp4 (mkConst ``Nat.ToInt.finVal) n a a' h
+      return (a' , h)
+    else
+      -- `n` is not a numeral, but we can still assert `e < n`
+      let alreadyProcessed := (← get').natToIntMap.contains { expr := e }
+      let r ← mkNatVar e
+      unless alreadyProcessed do pushNewFact <| mkApp2 (mkConst ``Fin.isLt) n a
+      return r
   | _ => mkNatVar e
 
 /--

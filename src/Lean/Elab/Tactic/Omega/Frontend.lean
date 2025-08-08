@@ -3,12 +3,17 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Omega.Core
-import Lean.Elab.Tactic.FalseOrByContra
-import Lean.Elab.Tactic.Config
-import Lean.Elab.MutualDef
-import Lean.Meta.Closure
+public import Lean.Elab.Tactic.Omega.Core
+public import Lean.Elab.Tactic.FalseOrByContra
+public import Lean.Elab.Tactic.Config
+public import Lean.Meta.Closure
+public import Lean.Meta.Tactic.Simp.Attr
+import Lean.Elab.Tactic.BuiltinTactic
+
+public section
 
 /-!
 # Frontend to the `omega` tactic.
@@ -687,7 +692,6 @@ def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
         let e ← mkAuxTheorem type (← instantiateMVarsProfiling g') (zetaDelta := true)
         g.assign e
 
-
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. This
 `TacticM Unit` frontend with default configuration can be used as an Aesop rule, for example via
 the tactic call `aesop (add 50% tactic Lean.Elab.Tactic.Omega.omegaDefault)`. -/
@@ -697,7 +701,7 @@ def omegaDefault : TacticM Unit := omegaTactic {}
 def evalOmega : Tactic
   | `(tactic| omega%$tk $cfg:optConfig) => do
     -- Call `assumption` first, to avoid constructing unnecessary proofs.
-    withReducibleAndInstances (evalAssumption tk) <|> do
+    Meta.withReducibleAndInstances (evalAssumption tk) <|> do
     let cfg ← elabOmegaConfig cfg
     omegaTactic cfg
   | _ => throwUnsupportedSyntax

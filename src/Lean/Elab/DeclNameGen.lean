@@ -3,8 +3,12 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Elab.Command
+public import Lean.Elab.Command
+
+public section
 
 /-!
 # Name generator for declarations
@@ -187,7 +191,7 @@ This can be used to decide whether to further transform the generated name;
 in particular, this enables checking whether the generated name mentions declarations
 from the current module or project.
 -/
-def mkBaseName (e : Expr) : MkNameM String := do
+private def mkBaseName (e : Expr) : MkNameM String := do
   let e ← instantiateMVars e
   visitNamespace (← getCurrNamespace)
   mkBaseNameAux (← winnowExpr e)

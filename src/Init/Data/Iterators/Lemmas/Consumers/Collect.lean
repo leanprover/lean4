@@ -97,7 +97,7 @@ theorem Iter.getElem?_toList_eq_atIdxSlow? {α β}
     [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} {k : Nat} :
     it.toList[k]? = it.atIdxSlow? k := by
-  induction it using Iter.inductSteps generalizing k with | step it ihy ihs =>
+  induction it using Iter.inductSteps generalizing k with | step it ihy ihs
   rw [toList_eq_match_step, atIdxSlow?]
   obtain ⟨step, h⟩ := it.step
   cases step
@@ -117,7 +117,7 @@ theorem Iter.isPlausibleIndirectOutput_of_mem_toList
     [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
     {it : Iter (α := α) β} {b : β} :
     b ∈ it.toList → it.IsPlausibleIndirectOutput b := by
-  induction it using Iter.inductSteps with | step it ihy ihs =>
+  induction it using Iter.inductSteps with | step it ihy ihs
   rw [toList_eq_match_step]
   cases it.step using PlausibleIterStep.casesOn
   case yield it' out h =>
@@ -143,5 +143,14 @@ theorem Iter.isPlausibleIndirectOutput_of_mem_toListRev
   intro h
   apply isPlausibleIndirectOutput_of_mem_toList
   simpa [toListRev_eq] using h
+
+theorem Iter.isPlausibleIndirectOutput_of_mem_toArray
+    [Iterator α Id β] [Finite α Id] [IteratorCollect α Id Id] [LawfulIteratorCollect α Id Id]
+    {it : Iter (α := α) β} {b : β} :
+    b ∈ it.toArray → it.IsPlausibleIndirectOutput b := by
+  intro h
+  apply isPlausibleIndirectOutput_of_mem_toList
+  rw [← Array.mem_toList_iff] at h
+  simpa [toList_toArray] using h
 
 end Std.Iterators

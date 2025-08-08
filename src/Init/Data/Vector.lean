@@ -22,5 +22,6 @@ public import Init.Data.Vector.FinRange
 public import Init.Data.Vector.Extract
 public import Init.Data.Vector.Perm
 public import Init.Data.Vector.Find
+public import Init.Data.Vector.Algebra
 
 public section

@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Structure
-import Lean.Meta.SynthInstance
-import Lean.Meta.Check
-import Lean.Meta.DecLevel
+public import Lean.Structure
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.Check
+public import Lean.Meta.DecLevel
+
+public section
 
 namespace Lean.Meta
 
@@ -711,6 +715,20 @@ def mkIffOfEq (h : Expr) : MetaM Expr := do
     return h.appArg!
   else
     mkAppM ``Iff.of_eq #[h]
+
+/--
+Given proofs `hᵢ : pᵢ`, returns a proof for `p₁ ∧ ... ∧ pₙ`.
+Roughly, `mkAndIntroN hs : mkAndN (← hs.mapM inferType)`.
+-/
+def mkAndIntroN (hs : List Expr) : MetaM Expr := (·.1) <$> go hs
+  where
+    go : List Expr → MetaM (Expr × Expr)
+      | [] => return (mkConst ``True.intro, mkConst ``True)
+      | [h] => return (h, ← inferType h)
+      | h :: hs => do
+        let (h', p') ← go hs
+        let p ← inferType h
+        return (mkApp4 (mkConst ``And.intro) p p' h h', mkApp2 (mkConst ``And) p p')
 
 builtin_initialize do
   registerTraceClass `Meta.appBuilder

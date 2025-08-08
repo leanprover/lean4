@@ -3,16 +3,20 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.Array
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.WF.Basic
-import Lean.Elab.Tactic.Basic
-import Lean.Meta.ArgsPacker
-import Lean.Meta.ForEachExpr
-import Lean.Meta.Match.MatcherApp.Transform
-import Lean.Meta.Tactic.Cleanup
-import Lean.Util.HasConstCache
+public import Lean.Data.Array
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.WF.Basic
+public import Lean.Elab.Tactic.Basic
+public import Lean.Meta.ArgsPacker
+public import Lean.Meta.ForEachExpr
+public import Lean.Meta.Match.MatcherApp.Transform
+public import Lean.Meta.Tactic.Cleanup
+public import Lean.Util.HasConstCache
+
+public section
 
 namespace Lean.Elab.WF
 open Meta
@@ -98,7 +102,7 @@ where
       match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
         if let some matcherApp ← matcherApp.addArg? F then
-          let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
+          let altsNew ← matcherApp.alts.zipWithM (bs := matcherApp.altNumParams) fun alt numParams =>
             lambdaBoundedTelescope alt numParams fun xs altBody => do
               unless xs.size = numParams do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"

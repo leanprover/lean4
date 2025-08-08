@@ -3,20 +3,26 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Diagnostics
-import Lean.Meta.Hint
-import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Assumption
-import Lean.Meta.Tactic.Contradiction
-import Lean.Meta.Tactic.Refl
-import Lean.Elab.Binders
-import Lean.Elab.Open
-import Lean.Elab.Eval
-import Lean.Elab.SetOption
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.ElabTerm
-import Lean.Elab.Do
+public import Lean.Meta.Diagnostics
+public import Lean.Meta.Hint
+public import Lean.Meta.Tactic.Apply
+public import Lean.Meta.Tactic.Assumption
+public import Lean.Meta.Tactic.Contradiction
+public import Lean.Meta.Tactic.Refl
+public import Lean.Elab.Binders
+public import Lean.Elab.Open
+public import Lean.Elab.Eval
+public import Lean.Elab.SetOption
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.ElabTerm
+public import Lean.Elab.Do
+import Lean.Meta.Tactic.Replace
+meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -229,7 +235,7 @@ private def getOptRotation (stx : Syntax) : Nat :=
       catch _ =>
         mvarIdsNew := mvarIdsNew.push mvarId
   unless succeeded do
-    throwError "failed on all goals"
+    throwError "Tactic failed on all goals:{indentD stx[1]}"
   setGoals mvarIdsNew.toList
 
 @[builtin_tactic tacticSeq, builtin_incremental]
@@ -257,7 +263,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   Term.withoutErrToSorry <| withoutRecover do
     let tactic := stx[1]
     if (← try evalTactic tactic; pure true catch _ => pure false) then
-      throwError "tactic succeeded"
+      throwError "The tactic provided to `fail_if_success` succeeded but was expected to fail:{indentD stx[1]}"
 
 @[builtin_tactic traceState] def evalTraceState : Tactic := fun _ => do
   let gs ← getUnsolvedGoals
@@ -302,7 +308,9 @@ where
         let fvar := mkFVar fvarId
         let fvarType ← inferType fvar
         unless (← isDefEqGuarded type fvarType) do
-          throwError "type mismatch at `intro {fvar}`{← mkHasTypeButIsExpectedMsg fvarType type}"
+          withRef? ref? do
+          throwError m!"Type mismatch: Hypothesis `{fvar}` " ++
+            (← mkHasTypeButIsExpectedMsg fvarType type (trailing? := "due to the provided type annotation"))
         liftMetaTactic fun mvarId => return [← mvarId.replaceLocalDeclDefEq fvarId type]
     if let some ref := ref? then
       withMainContext do
@@ -600,7 +608,7 @@ where
   let goals ← getGoals
   let goalsMsg := MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
   match stx with
-  | `(tactic| fail)          => throwError "tactic 'fail' failed\n{goalsMsg}"
+  | `(tactic| fail)          => throwError "Failed: `fail` tactic was invoked\n{goalsMsg}"
   | `(tactic| fail $msg:str) => throwError "{msg.getString}\n{goalsMsg}"
   | _ => throwUnsupportedSyntax
 

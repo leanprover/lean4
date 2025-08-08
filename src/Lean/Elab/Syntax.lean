@@ -3,10 +3,15 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Command
-import Lean.Parser.Syntax
-import Lean.Elab.Util
+public import Lean.Elab.Command
+public import Lean.Parser.Syntax
+public import Lean.Elab.Util
+public meta import Lean.Parser.Syntax
+
+public section
 
 namespace Lean.Elab.Term
 /--
@@ -168,7 +173,7 @@ where
     let args' ← args.mapM (withNestedParser ∘ process)
     -- wrap lone string literals in `<|>` in dedicated node (#1275)
     let args' ← if aliasName == `orelse then  -- TODO: generalize if necessary
-      args.zip args' |>.mapM fun (arg, arg') => do
+      args.zipWithM (bs := args') fun arg arg' => do
         let mut #[arg] := arg.getArgs | return arg'
         let sym ← match arg with
           | `(stx| &$sym) => pure sym

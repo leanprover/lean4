@@ -438,7 +438,7 @@ def eval (assign : Assignment) : BVExpr w → BitVec w
 theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.get idx).bv.truncate w := by
   rw [eval]
   split
-  · next h =>
+  next h =>
     subst h
     simp
   · rfl

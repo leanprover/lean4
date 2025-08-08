@@ -120,6 +120,10 @@ structure Config where
   the characteristic of a ring.
   -/
   exp : Nat := 2^20
+  /--
+  When `true` (default: `true`), automatically creates an auxiliary theorem to store the proof.
+  -/
+  abstractProof := true
   deriving Inhabited, BEq
 
 end Lean.Grind
@@ -421,7 +425,13 @@ Sets symbol priorities for the E-matching pattern inference procedure used in `g
 -/
 
 -- The following symbols are never used in E-matching patterns
-attribute [grind symbol 0] Eq HEq Iff And Or Not
+attribute [grind symbol 0] Eq HEq Iff And Or Not ite dite
+/-
+Remark for `ite` and `dite`: recall the then/else branches
+are only internalized after `grind` decided whether the condition is
+`True`/`False`. Thus, they **must** not be used a `grind` patterns.
+-/
+
 -- The following symbols are only used as the root pattern symbol if there isn't another option
 attribute [grind symbol low] HAdd.hAdd HSub.hSub HMul.hMul Dvd.dvd HDiv.hDiv HMod.hMod
 

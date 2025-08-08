@@ -45,10 +45,13 @@ goto block_32;
 }
 block_32:
 {
-lean_object* x_6; lean_object* x_7; 
+lean_object* x_6; 
 lean_inc(x_5);
 lean_inc_ref(x_1);
 x_6 = l_Lean_findSimpleDocString_x3f(x_1, x_5, x_3, x_4);
+if (lean_obj_tag(x_6) == 0)
+{
+lean_object* x_7; 
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 if (lean_obj_tag(x_7) == 0)
@@ -139,6 +142,13 @@ lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_28);
 return x_31;
 }
+}
+}
+else
+{
+lean_dec(x_5);
+lean_dec_ref(x_1);
+return x_6;
 }
 }
 }

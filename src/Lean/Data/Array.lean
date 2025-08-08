@@ -3,9 +3,13 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Init.Data.Range.Polymorphic.Nat
-import Init.Data.Range.Polymorphic.Iterators
+public import Init.Data.Range.Polymorphic.Nat
+public import Init.Data.Range.Polymorphic.Iterators
+
+public section
 
 namespace Array
 

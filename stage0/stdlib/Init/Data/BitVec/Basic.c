@@ -26,7 +26,6 @@ LEAN_EXPORT lean_object* l_BitVec_rotateLeftAux(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_BitVec_rotateRight___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_setWidth_x27___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_getLsb_x3f(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_asString(lean_object*);
 static lean_object* l_BitVec_term_____x23_______closed__20;
 lean_object* l_List_lengthTR___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_setWidth(lean_object*, lean_object*, lean_object*);
@@ -45,6 +44,7 @@ LEAN_EXPORT lean_object* l_BitVec_extractLsb_x27___redArg(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_BitVec_truncate(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instNatCast___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_srem___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_instXorOp(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_extractLsb_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
@@ -153,6 +153,7 @@ LEAN_EXPORT lean_object* l_BitVec_ult___redArg___boxed(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_BitVec_getMsbD___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_smtSDiv(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_and___redArg___boxed(lean_object*, lean_object*);
+lean_object* lean_string_mk(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instHShiftRight___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_sshiftRight_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_getLsb_x27___boxed(lean_object*, lean_object*, lean_object*);
@@ -163,7 +164,6 @@ LEAN_EXPORT lean_object* l_BitVec_instToString(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_concat___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instNeg(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_smtUDiv___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_BitVec_instToString___lam__0___closed__0;
 lean_object* l_List_replicateTR___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_slt___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_BitVec_getLsb(lean_object*, lean_object*, lean_object*);
@@ -205,7 +205,6 @@ LEAN_EXPORT uint8_t l_BitVec_getMsb(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_udiv___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instRepr(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_intMax(lean_object*);
-extern lean_object* l_Std_Format_defWidth;
 static lean_object* l_BitVec_term_____x23_______closed__4;
 LEAN_EXPORT lean_object* l_BitVec_sshiftRight(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_unexpandBitVecOfNatLt___boxed(lean_object*, lean_object*, lean_object*);
@@ -224,7 +223,6 @@ LEAN_EXPORT lean_object* l_BitVec_umod(lean_object*, lean_object*, lean_object*)
 lean_object* lean_int_sub(lean_object*, lean_object*);
 static lean_object* l_BitVec_term_____x23_______closed__14;
 LEAN_EXPORT lean_object* l_BitVec_rotateRight(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_BitVec_instXor(lean_object*);
 lean_object* l_Int_shiftRight(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_cast(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_toDigits(lean_object*, lean_object*);
@@ -1723,7 +1721,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_3 = lean_unsigned_to_nat(16u);
 x_4 = l_Nat_toDigits(x_3, x_2);
-x_5 = l_List_asString(x_4);
+x_5 = lean_string_mk(x_4);
 x_6 = lean_unsigned_to_nat(3u);
 x_7 = lean_nat_add(x_1, x_6);
 x_8 = lean_unsigned_to_nat(2u);
@@ -1735,7 +1733,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 x_12 = l_BitVec_toHex___boxed__const__1;
 x_13 = l_List_replicateTR___redArg(x_11, x_12);
-x_14 = l_List_asString(x_13);
+x_14 = lean_string_mk(x_13);
 x_15 = lean_string_append(x_14, x_5);
 lean_dec_ref(x_5);
 return x_15;
@@ -1828,20 +1826,12 @@ lean_dec(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_BitVec_instToString___lam__0___closed__0() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Std_Format_defWidth;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_BitVec_instToString___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = l_BitVec_BitVec_repr(x_1, x_2);
-x_4 = l_BitVec_instToString___lam__0___closed__0;
+x_4 = lean_unsigned_to_nat(120u);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_format_pretty(x_3, x_4, x_5, x_5);
 return x_6;
@@ -3265,7 +3255,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_BitVec_instXor(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_BitVec_instXorOp(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -4536,8 +4526,6 @@ l_BitVec_BitVec_repr___closed__1 = _init_l_BitVec_BitVec_repr___closed__1();
 lean_mark_persistent(l_BitVec_BitVec_repr___closed__1);
 l_BitVec_BitVec_repr___closed__2 = _init_l_BitVec_BitVec_repr___closed__2();
 lean_mark_persistent(l_BitVec_BitVec_repr___closed__2);
-l_BitVec_instToString___lam__0___closed__0 = _init_l_BitVec_instToString___lam__0___closed__0();
-lean_mark_persistent(l_BitVec_instToString___lam__0___closed__0);
 l_BitVec_ofBool___closed__0 = _init_l_BitVec_ofBool___closed__0();
 lean_mark_persistent(l_BitVec_ofBool___closed__0);
 l_BitVec_ofBool___closed__1 = _init_l_BitVec_ofBool___closed__1();

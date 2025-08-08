@@ -3,12 +3,16 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.ExternAttr
-import Lean.Compiler.ImplementedByAttr
-import Lean.Compiler.LCNF.MonoTypes
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.NoncomputableAttr
+public import Lean.Compiler.ExternAttr
+public import Lean.Compiler.ImplementedByAttr
+public import Lean.Compiler.LCNF.MonoTypes
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.NoncomputableAttr
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -69,11 +73,7 @@ def argsToMonoWithFnType (resultFVar : FVarId) (args : Array Arg) (type : Expr)
 
 def ctorAppToMono (resultFVar : FVarId) (ctorInfo : ConstructorVal) (args : Array Arg)
     : ToMonoM LetValue := do
-  let argsNewParams : Array Arg ← args[*...ctorInfo.numParams].toArray.mapM fun arg => do
-    -- We only preserve constructor parameters that are types
-    match arg with
-    | .type type => return .type (← toMonoType type)
-    | .fvar .. | .erased => return .erased
+  let argsNewParams : Array Arg := .replicate ctorInfo.numParams .erased
   let argsNewFields ← args[ctorInfo.numParams...*].toArray.mapM (argToMonoDeferredCheck resultFVar)
   let argsNew := argsNewParams ++ argsNewFields
   return .const ctorInfo.name [] argsNew

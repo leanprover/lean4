@@ -37,3 +37,14 @@ c 2
 c 1.5
 c 2
 c 2.5
+{"version": 1,
+ "uri": "file:///incrementalInduction.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 5, "character": 2}, "end": {"line": 5, "character": 7}},
+   "message":
+   "Dependent elimination failed: Failed to solve equation\n  n = f n",
+   "fullRange":
+   {"start": {"line": 5, "character": 2}, "end": {"line": 5, "character": 7}}}]}

@@ -542,7 +542,7 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     · rw [dif_pos (by omega)]
       simp only [rotateL, Std.Internal.tree_tac, ite_self]
       omega
-  · next l r =>
+  next l r =>
     simp only  [Std.Internal.tree_tac, rotateL] at *
     suffices h : l.size = 0 ∧ r.size = 0 by
       simp only [h.1, h.2, reduceDIte, Nat.not_lt_zero]
@@ -556,9 +556,9 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
       simp only [Std.Internal.tree_tac] at *
       omega
   · simp_all [Std.Internal.tree_tac]
-  · simp_all only [Std.Internal.tree_tac]
+  next l r =>
+    simp_all only [Std.Internal.tree_tac]
     rw [if_neg (by omega)]
-    next l r _ =>
     rw [dif_neg (by omega), dif_pos (by omega), rotateR]
     suffices h : l.size = 0 ∧ r.size = 0 by
       simp only [h.1, h.2]

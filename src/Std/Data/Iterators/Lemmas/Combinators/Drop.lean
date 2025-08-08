@@ -41,7 +41,7 @@ theorem Iter.atIdxSlow?_drop {α β}
     (it.drop k).atIdxSlow? l = it.atIdxSlow? (l + k) := by
   induction k generalizing it <;> induction l generalizing it
   all_goals
-    induction it using Iter.inductSkips with | step it ih =>
+    induction it using Iter.inductSkips with | step it ih
     rw [atIdxSlow?.eq_def, atIdxSlow?.eq_def, step_drop]
     cases it.step using PlausibleIterStep.casesOn <;> simp [*]
 

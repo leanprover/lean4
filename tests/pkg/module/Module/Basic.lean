@@ -6,8 +6,33 @@ public axiom testSorry : α
 
 /-- A definition (not exposed). -/
 public def f := 1
-/-- An definition (exposed) -/
+
+/--
+info: def f : Nat :=
+1
+-/
+#guard_msgs in
+#print f
+
+/-- A definition (exposed) -/
 @[expose] public def fexp := 1
+
+/--
+info: @[expose] def fexp : Nat :=
+1
+-/
+#guard_msgs in
+#print fexp
+
+/-- An abbrev (auto-exposed). -/
+public abbrev fabbrev := 1
+
+/--
+info: @[reducible, expose] def fabbrev : Nat :=
+1
+-/
+#guard_msgs in
+#print fabbrev
 
 #guard_msgs(drop warning) in
 /-- A theorem. -/
@@ -22,7 +47,7 @@ instance : X := ⟨⟩
 -- (but `fexp` is)
 
 /--
-error: type mismatch
+error: Type mismatch
   y
 has type
   Vector Unit 1
@@ -70,15 +95,15 @@ public theorem fexp_trfl : fexp = 1 := rfl
 public opaque P : Nat → Prop
 public axiom hP1 : P 1
 
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [t]; exact hP1
 example : P f := by simp only [t]; exact hP1
 
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [trfl]; exact hP1
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [trfl']; exact hP1
 example : P f := by dsimp only [trflprivate]; exact hP1
@@ -211,3 +236,38 @@ info: theorem f_exp_wfrec.eq_unfold : f_exp_wfrec = fun x x_1 =>
   | n.succ, acc => f_exp_wfrec n (acc + 1)
 -/
 #guard_msgs in #print sig f_exp_wfrec.eq_unfold
+
+/-! Private fields should force private ctors. -/
+
+public structure StructWithPrivateField where
+  private x : Nat
+
+/--
+info: structure StructWithPrivateField : Type
+number of parameters: 0
+fields:
+  private StructWithPrivateField.x : Nat
+constructor:
+  private StructWithPrivateField.mk (x : Nat) : StructWithPrivateField
+-/
+#guard_msgs in
+#print StructWithPrivateField
+
+#check { x := 1 : StructWithPrivateField }
+
+/-- error: invalid {...} notation, constructor for 'StructWithPrivateField' is marked as private -/
+#guard_msgs in
+#with_exporting
+#check { x := 1 : StructWithPrivateField }
+
+
+/-! Private duplicate in public section should not panic. -/
+
+public section
+
+private def foo : Nat := 0
+/-- error: private declaration 'foo' has already been declared -/
+#guard_msgs in
+private def foo : Nat := 0
+
+end

@@ -4,10 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.System.IO
-import Lean.Data.Json.Stream
-import Lean.Data.Json.FromToJson.Basic
+public import Init.System.IO
+public import Lean.Data.Json.Stream
+public import Lean.Data.Json.FromToJson.Basic
+
+public section
 
 /-! Implementation of JSON-RPC 2.0 (https://www.jsonrpc.org/specification)
 for use in the LSP server. -/
@@ -113,7 +117,7 @@ inductive Message where
   | responseError (id : RequestID) (code : ErrorCode) (message : String) (data? : Option Json)
   deriving Inhabited
 
-def Batch := Array Message
+@[expose] def Batch := Array Message
 
 /-- Generic version of `Message.request`.
 
@@ -213,7 +217,7 @@ def ResponseError.ofMessage? : Message → Option (ResponseError Json)
 instance : Coe String RequestID := ⟨RequestID.str⟩
 instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩
 
-private def RequestID.lt : RequestID → RequestID → Bool
+@[expose] def RequestID.lt : RequestID → RequestID → Bool
   | RequestID.str a, RequestID.str b            => a < b
   | RequestID.num a, RequestID.num b            => a < b
   | RequestID.null,  RequestID.num _            => true
@@ -221,7 +225,7 @@ private def RequestID.lt : RequestID → RequestID → Bool
   | RequestID.num _, RequestID.str _            => true
   | _, _ /- str < *, num < null, null < null -/ => false
 
-private def RequestID.ltProp : LT RequestID :=
+@[expose] def RequestID.ltProp : LT RequestID :=
   ⟨fun a b => RequestID.lt a b = true⟩
 
 instance : LT RequestID :=

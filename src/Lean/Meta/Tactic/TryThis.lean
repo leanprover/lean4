@@ -3,15 +3,20 @@ Copyright (c) 2021 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro, Thomas Murrills
 -/
+module
+
 prelude
+public import Lean.Meta.TryThis
+public import Lean.Elab.Tactic.Basic
 import Lean.Server.CodeActions
 import Lean.Widget.UserWidget
 import Lean.Data.Json.Elab
 import Lean.Data.Lsp.Utf16
 import Lean.Meta.CollectFVars
 import Lean.Meta.Tactic.ExposeNames
-import Lean.Meta.TryThis
-import Lean.Meta.Hint
+meta import Lean.Meta.Hint
+
+public section
 
 /-!
 # "Try this" code action and tactic suggestions
@@ -43,10 +48,11 @@ Try these:
 
 where `<replacement*>` is a link which will perform the replacement.
 -/
-@[builtin_widget_module] def tryThisWidget : Widget.Module where
+@[builtin_widget_module] private def tryThisWidget : Widget.Module where
   javascript := "
 import * as React from 'react';
 import { EditorContext, EnvPosContext } from '@leanprover/infoview';
+
 const e = React.createElement;
 export default function ({ suggestions, range, header, isInline, style }) {
   const pos = React.useContext(EnvPosContext)
@@ -95,7 +101,7 @@ attribute [builtin_widget_module] Hint.tryThisDiffWidget
 This is a code action provider that looks for `TryThisInfo` nodes and supplies a code action to
 apply the replacement.
 -/
-@[builtin_code_action_provider] def tryThisProvider : CodeActionProvider := fun params snap => do
+@[builtin_code_action_provider] private def tryThisProvider : CodeActionProvider := fun params snap => do
   let doc ← readDoc
   pure <| snap.infoTree.foldInfo (init := #[]) fun _ctx info result => Id.run do
     let .ofCustomInfo { stx, value } := info | result
@@ -217,7 +223,7 @@ def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
     (origSpan? : Option Syntax := none) (header : String := "Try these:")
     (style? : Option SuggestionStyle := none)
     (codeActionPrefix? : Option String := none) : MetaM Unit := do
-  if suggestions.isEmpty then throwErrorAt ref "no suggestions available"
+  if suggestions.isEmpty then throwErrorAt ref "No suggestions available"
   let msgs := suggestions.map toMessageData
   let msgs := msgs.foldl (init := MessageData.nil) (fun msg m => msg ++ m!"\n• " ++ .nest 2 m)
   logInfoAt ref m!"{header}{msgs}"
@@ -240,7 +246,7 @@ private def evalTacticWithState (initialState : Tactic.SavedState) (tac : TSynta
       let type ← instantiateMVars type
       let expectedType ← instantiateMVars expectedType
       if type != expectedType then
-        throwError "tactic did not produce expected goal"
+        throwError "Tactic did not produce expected goal"
   finally
     currState.restore
 

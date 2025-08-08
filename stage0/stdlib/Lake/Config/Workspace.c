@@ -50,6 +50,7 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_augmentedPath(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_leanSrcPath(lean_object*);
 extern lean_object* l_Lake_Package_keyword;
 lean_object* l_Std_DTreeMap_Internal_Impl_get_x3f___redArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_Parser_TokenMap_insert_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Workspace_isLocalModule(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_instCoeWorkspace__1;
 LEAN_EXPORT lean_object* l_Lake_Workspace_findTargetDecl_x3f(lean_object*, lean_object*);
@@ -97,7 +98,6 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_leanOptions(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_augmentedLeanPath(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_unsafeGet(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_leanPath(lean_object*);
-lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Package_findTargetConfig_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_findPackageFacetConfig_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___Lake_Workspace_leanSrcPath_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -138,6 +138,7 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_config(lean_object*);
 lean_object* l_Lean_LeanOptions_appendArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_instCoeWorkspace;
 LEAN_EXPORT lean_object* l_Lake_Workspace_findFacetConfig_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Workspace_leanArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lake_Workspace_findTargetDecl_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Lake_Workspace_isBuildableModule_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueWorkspace_unsafeGet___boxed(lean_object*);
@@ -176,6 +177,7 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_sharedLibPath(lean_object*);
 static lean_object* l_Lake_Workspace_findModule_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Workspace_clean___boxed(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Workspace_leanArgs___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lake_Workspace_findScript_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -409,6 +411,27 @@ lean_dec_ref(x_6);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_Workspace_leanArgs(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_ctor_get(x_2, 3);
+x_4 = lean_ctor_get(x_3, 1);
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc_ref(x_5);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Workspace_leanArgs___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_Workspace_leanArgs(x_1);
+lean_dec_ref(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_Workspace_leanOptions(lean_object* x_1) {
 _start:
 {
@@ -509,7 +532,7 @@ x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_inc_ref(x_1);
 x_7 = lean_array_push(x_4, x_1);
-x_8 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_6, x_1, x_5);
+x_8 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_Parser_TokenMap_insert_spec__1___redArg(x_6, x_1, x_5);
 lean_ctor_set(x_2, 4, x_8);
 lean_ctor_set(x_2, 3, x_7);
 return x_2;
@@ -534,7 +557,7 @@ x_15 = lean_ctor_get(x_1, 0);
 lean_inc(x_15);
 lean_inc_ref(x_1);
 x_16 = lean_array_push(x_12, x_1);
-x_17 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_15, x_1, x_13);
+x_17 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_Parser_TokenMap_insert_spec__1___redArg(x_15, x_1, x_13);
 x_18 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_18, 0, x_9);
 lean_ctor_set(x_18, 1, x_10);
@@ -1994,7 +2017,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_ctor_get(x_3, 5);
-x_6 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_1, x_2, x_5);
+x_6 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_Parser_TokenMap_insert_spec__1___redArg(x_1, x_2, x_5);
 lean_ctor_set(x_3, 5, x_6);
 return x_3;
 }
@@ -2014,7 +2037,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_dec(x_3);
-x_13 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(x_1, x_2, x_12);
+x_13 = l_Std_DTreeMap_Internal_Impl_insert___at___Lean_Parser_TokenMap_insert_spec__1___redArg(x_1, x_2, x_12);
 x_14 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_14, 0, x_7);
 lean_ctor_set(x_14, 1, x_8);

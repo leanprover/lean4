@@ -447,7 +447,7 @@ lean_inc(x_4);
 x_19 = l_Lean_IR_toIRType(x_18, x_3, x_4, x_16);
 if (lean_obj_tag(x_19) == 0)
 {
-lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_43; lean_object* x_44; uint8_t x_45; 
+lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_43; 
 x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_19, 1);
@@ -461,6 +461,9 @@ lean_ctor_set(x_22, 2, x_20);
 lean_ctor_set(x_22, 3, x_2);
 lean_inc_ref(x_22);
 x_43 = l_Lean_IR_addDecl___redArg(x_22, x_4, x_21);
+if (lean_obj_tag(x_43) == 0)
+{
+lean_object* x_44; uint8_t x_45; 
 x_44 = lean_ctor_get(x_43, 1);
 lean_inc(x_44);
 lean_dec_ref(x_43);
@@ -541,6 +544,14 @@ x_23 = x_4;
 x_24 = x_44;
 goto block_42;
 }
+}
+else
+{
+lean_dec_ref(x_22);
+lean_dec(x_4);
+lean_dec(x_1);
+return x_43;
+}
 block_42:
 {
 lean_object* x_25; uint8_t x_26; 
@@ -615,7 +626,7 @@ else
 uint8_t x_69; 
 lean_dec(x_17);
 lean_dec(x_4);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec(x_1);
 x_69 = !lean_is_exclusive(x_19);
 if (x_69 == 0)
@@ -642,7 +653,7 @@ else
 uint8_t x_73; 
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec(x_1);
 x_73 = !lean_is_exclusive(x_13);
 if (x_73 == 0)
@@ -669,7 +680,7 @@ else
 uint8_t x_77; 
 lean_dec(x_4);
 lean_dec_ref(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_2);
 lean_dec(x_1);
 x_77 = !lean_is_exclusive(x_6);
 if (x_77 == 0)

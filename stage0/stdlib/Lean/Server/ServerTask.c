@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.ServerTask
-// Imports: Init.System.IO
+// Imports: Init.Task
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -61,8 +61,8 @@ lean_object* l_Array_empty(lean_object*);
 static lean_object* l___auto___closed__13____x40_Lean_Server_ServerTask___hyg_842_;
 static lean_object* l___auto___closed__32____x40_Lean_Server_ServerTask___hyg_842_;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_join___redArg___boxed(lean_object*);
-lean_object* lean_io_wait_any(lean_object*, lean_object*);
 static lean_object* l___auto___closed__36____x40_Lean_Server_ServerTask___hyg_842_;
+lean_object* l_IO_waitAny___redArg(lean_object*, lean_object*);
 static lean_object* l___auto___closed__41____x40_Lean_Server_ServerTask___hyg_842_;
 static lean_object* l___auto___closed__18____x40_Lean_Server_ServerTask___hyg_842_;
 static lean_object* l___auto___closed__33____x40_Lean_Server_ServerTask___hyg_842_;
@@ -1410,65 +1410,66 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_hasFinished___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_io_get_task_state(x_1, x_2);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
-if (lean_obj_tag(x_4) == 2)
-{
-uint8_t x_5; 
-x_5 = !lean_is_exclusive(x_3);
-if (x_5 == 0)
-{
-lean_object* x_6; uint8_t x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_3, 0);
-lean_dec(x_6);
-x_7 = 1;
-x_8 = lean_box(x_7);
-lean_ctor_set(x_3, 0, x_8);
-return x_3;
-}
-else
-{
-lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
-x_9 = lean_ctor_get(x_3, 1);
-lean_inc(x_9);
-lean_dec(x_3);
-x_10 = 1;
-x_11 = lean_box(x_10);
-x_12 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_9);
-return x_12;
-}
-}
-else
-{
-uint8_t x_13; 
+x_5 = lean_unbox(x_4);
 lean_dec(x_4);
-x_13 = !lean_is_exclusive(x_3);
-if (x_13 == 0)
+if (x_5 == 2)
 {
-lean_object* x_14; uint8_t x_15; lean_object* x_16; 
-x_14 = lean_ctor_get(x_3, 0);
-lean_dec(x_14);
-x_15 = 0;
-x_16 = lean_box(x_15);
-lean_ctor_set(x_3, 0, x_16);
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_3);
+if (x_6 == 0)
+{
+lean_object* x_7; uint8_t x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_3, 0);
+lean_dec(x_7);
+x_8 = 1;
+x_9 = lean_box(x_8);
+lean_ctor_set(x_3, 0, x_9);
 return x_3;
 }
 else
 {
-lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; 
-x_17 = lean_ctor_get(x_3, 1);
-lean_inc(x_17);
+lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_3, 1);
+lean_inc(x_10);
 lean_dec(x_3);
-x_18 = 0;
-x_19 = lean_box(x_18);
-x_20 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_20, 0, x_19);
-lean_ctor_set(x_20, 1, x_17);
-return x_20;
+x_11 = 1;
+x_12 = lean_box(x_11);
+x_13 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_10);
+return x_13;
+}
+}
+else
+{
+uint8_t x_14; 
+x_14 = !lean_is_exclusive(x_3);
+if (x_14 == 0)
+{
+lean_object* x_15; uint8_t x_16; lean_object* x_17; 
+x_15 = lean_ctor_get(x_3, 0);
+lean_dec(x_15);
+x_16 = 0;
+x_17 = lean_box(x_16);
+lean_ctor_set(x_3, 0, x_17);
+return x_3;
+}
+else
+{
+lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; 
+x_18 = lean_ctor_get(x_3, 1);
+lean_inc(x_18);
+lean_dec(x_3);
+x_19 = 0;
+x_20 = lean_box(x_19);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_18);
+return x_21;
 }
 }
 }
@@ -2009,8 +2010,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_box(0);
 x_4 = l_List_mapTR_loop___at___Lean_Server_ServerTask_waitAny_spec__0___redArg(x_1, x_3);
-x_5 = lean_io_wait_any(x_4, x_2);
-lean_dec(x_4);
+x_5 = l_IO_waitAny___redArg(x_4, x_2);
 return x_5;
 }
 }
@@ -2088,13 +2088,13 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Task(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_ServerTask(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(builtin, lean_io_mk_world());
+res = initialize_Init_Task(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Server_ServerTask_join___redArg___closed__0 = _init_l_Lean_Server_ServerTask_join___redArg___closed__0();

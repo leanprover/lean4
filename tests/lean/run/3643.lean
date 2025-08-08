@@ -47,8 +47,10 @@ example (x y : S1 Unit Unit) : x = y := by ext
 end
 
 /--
-error: no applicable extensionality theorem found for
+error: No applicable extensionality theorem found for type
   S1 Unit Unit
+
+Note: Extensionality theorems can be registered by marking them with the `[ext]` attribute
 -/
 #guard_msgs in example (x y : S1 Unit Unit) : x = y := by ext
 
@@ -74,8 +76,10 @@ example (x y : S2 Unit Unit) : x = y := by ext
 end
 
 /--
-error: no applicable extensionality theorem found for
+error: No applicable extensionality theorem found for type
   S2 Unit Unit
+
+Note: Extensionality theorems can be registered by marking them with the `[ext]` attribute
 -/
 #guard_msgs in example (x y : S2 Unit Unit) : x = y := by ext
 
@@ -90,7 +94,7 @@ end Ex2
 section Ex3
 
 -- TODO: allow 'scoped' here? The limitation is in attribute processing itself, not the 'ext' attribute.
-/-- error: scoped attributes must be used inside namespaces -/
+/-- error: Scoped attributes must be used inside namespaces -/
 #guard_msgs in
 @[scoped ext] structure S3' (α β : Type _) where
   a : α
@@ -114,8 +118,10 @@ example (x y : S3 Unit Unit) : x = y := by
 end S3
 
 /--
-error: no applicable extensionality theorem found for
+error: No applicable extensionality theorem found for type
   S3 Unit Unit
+
+Note: Extensionality theorems can be registered by marking them with the `[ext]` attribute
 -/
 #guard_msgs in
 example (x y : S3 Unit Unit) : x = y := by

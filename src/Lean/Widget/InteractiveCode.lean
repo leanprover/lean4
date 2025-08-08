@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Server.Rpc.Basic
-import Lean.Server.InfoUtils
-import Lean.Widget.TaggedText
-import Lean.Widget.Basic
+public import Lean.Server.Rpc.Basic
+public import Lean.Server.InfoUtils
+public import Lean.Widget.TaggedText
+public import Lean.Widget.Basic
+
+public section
 
 /-! RPC infrastructure for storing and formatting code fragments, in particular `Expr`s,
 with environment and subexpression information. -/

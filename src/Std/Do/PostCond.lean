@@ -89,10 +89,8 @@ def FailConds.const {ps : PostShape.{u}} (p : Prop) : FailConds ps := match ps w
   | .arg _ ps => @FailConds.const ps p
   | .except _ ps => (fun _ε => spred(⌜p⌝), @FailConds.const ps p)
 
-@[simp]
 def FailConds.true : FailConds ps := FailConds.const True
 
-@[simp]
 def FailConds.false : FailConds ps := FailConds.const False
 
 instance : Inhabited (FailConds ps) where
@@ -106,7 +104,7 @@ def FailConds.entails {ps : PostShape.{u}} (x y : FailConds ps) : Prop :=
 
 scoped infix:25 " ⊢ₑ " => FailConds.entails
 
-@[simp, refl]
+@[refl, simp]
 theorem FailConds.entails.refl {ps : PostShape} (x : FailConds ps) : x ⊢ₑ x := by
   induction ps <;> simp [entails, *]
 
@@ -135,6 +133,7 @@ def FailConds.and {ps : PostShape.{u}} (x : FailConds ps) (y : FailConds ps) : F
 
 infixr:35 " ∧ₑ " => FailConds.and
 
+@[simp]
 theorem FailConds.and_true {x : FailConds ps} : x ∧ₑ FailConds.true ⊢ₑ x := by
   induction ps
   case pure => trivial
@@ -143,6 +142,7 @@ theorem FailConds.and_true {x : FailConds ps} : x ∧ₑ FailConds.true ⊢ₑ x
     simp_all only [true, and, const]
     constructor <;> simp only [SPred.and_true.mp, implies_true, ih]
 
+@[simp]
 theorem FailConds.true_and {x : FailConds ps} : FailConds.true ∧ₑ x ⊢ₑ x := by
   induction ps
   case pure => trivial
@@ -151,6 +151,7 @@ theorem FailConds.true_and {x : FailConds ps} : FailConds.true ∧ₑ x ⊢ₑ x
     simp_all only [true, and, const]
     constructor <;> simp only [SPred.true_and.mp, implies_true, ih]
 
+@[simp]
 theorem FailConds.and_false {x : FailConds ps} : x ∧ₑ FailConds.false ⊢ₑ FailConds.false := by
   induction ps
   case pure => trivial
@@ -159,6 +160,7 @@ theorem FailConds.and_false {x : FailConds ps} : x ∧ₑ FailConds.false ⊢ₑ
     simp_all only [false, and, const]
     constructor <;> simp only [SPred.and_false.mp, implies_true, ih]
 
+@[simp]
 theorem FailConds.false_and {x : FailConds ps} : FailConds.false ∧ₑ x ⊢ₑ FailConds.false := by
   induction ps
   case pure => trivial
@@ -179,12 +181,13 @@ theorem FailConds.and_eq_left {ps : PostShape} {p q : FailConds ps} (h : p ⊢�
     · exact ih h.2
 
 /--
-  A multi-barreled postcondition for the given predicate shape.
-  ```
-  example : PostCond α (.arg ρ .pure) = ((α → ρ → Prop) × Unit) := rfl
-  example : PostCond α (.except ε .pure) = ((α → Prop) × (ε → Prop) × Unit) := rfl
-  example : PostCond α (.arg σ (.except ε .pure)) = ((α → σ → Prop) × (ε → Prop) × Unit) := rfl
-  example : PostCond α (.except ε (.arg σ .pure)) = ((α → σ → Prop) × (ε → σ → Prop) × Unit) := rfl
+A postcondition for the given predicate shape, with one `Assertion` for the terminating case and
+one `Assertion` for each `.except` layer in the predicate shape.
+```
+example : PostCond α (.arg ρ .pure) = ((α → ρ → Prop) × Unit) := rfl
+example : PostCond α (.except ε .pure) = ((α → Prop) × (ε → Prop) × Unit) := rfl
+example : PostCond α (.arg σ (.except ε .pure)) = ((α → σ → Prop) × (ε → Prop) × Unit) := rfl
+example : PostCond α (.except ε (.arg σ .pure)) = ((α → σ → Prop) × (ε → σ → Prop) × Unit) := rfl
   ```
 -/
 abbrev PostCond (α : Type u) (ps : PostShape.{u}) : Type u :=
@@ -196,7 +199,11 @@ scoped macro:max "post⟨" handlers:term,+,? "⟩" : term =>
   -- NB: Postponement through by exact is the entire point of this macro
   -- until https://github.com/leanprover/lean4/pull/8074 lands
 
-/-- A postcondition expressing total correctness. -/
+/--
+A postcondition expressing total correctness.
+That is, it expresses that the asserted computation finishes without throwing an exception
+*and* the result satisfies the given predicate `p`.
+-/
 abbrev PostCond.total (p : α → Assertion ps) : PostCond α ps :=
   (p, FailConds.false)
 
@@ -204,7 +211,12 @@ abbrev PostCond.total (p : α → Assertion ps) : PostCond α ps :=
 scoped macro:max ppAllowUngrouped "⇓" xs:term:max+ " => " e:term : term =>
   `(PostCond.total (by exact fun $xs* => spred($e)))
 
-/-- A postcondition expressing partial correctness. -/
+/--
+A postcondition expressing partial correctness.
+That is, it expresses that *if* the asserted computation finishes without throwing an exception
+*then* the result satisfies the given predicate `p`.
+Nothing is asserted when the computation throws an exception.
+-/
 abbrev PostCond.partial (p : α → Assertion ps) : PostCond α ps :=
   (p, FailConds.true)
 
@@ -217,7 +229,7 @@ def PostCond.entails (p q : PostCond α ps) : Prop :=
 
 scoped infix:25 " ⊢ₚ " => PostCond.entails
 
-@[refl,simp]
+@[refl, simp]
 theorem PostCond.entails.refl (Q : PostCond α ps) : Q ⊢ₚ Q := ⟨fun a => SPred.entails.refl (Q.1 a), FailConds.entails.refl Q.2⟩
 theorem PostCond.entails.rfl {Q : PostCond α ps} : Q ⊢ₚ Q := refl Q
 

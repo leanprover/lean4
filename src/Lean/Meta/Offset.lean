@@ -3,12 +3,16 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Control.Option
-import Lean.Data.LBool
-import Lean.Meta.InferType
-import Lean.Meta.NatInstTesters
-import Lean.Util.SafeExponentiation
+public import Init.Control.Option
+public import Lean.Data.LBool
+public import Lean.Meta.InferType
+public import Lean.Meta.NatInstTesters
+public import Lean.Util.SafeExponentiation
+
+public section
 
 namespace Lean.Meta
 

@@ -3,15 +3,19 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.Array.QSort
-import Lean.Data.PersistentHashMap
-import Lean.Data.PersistentHashSet
-import Lean.Hygiene
-import Lean.Data.Name
-import Lean.Data.Format
-import Init.Data.Option.Coe
-import Std.Data.TreeSet.Basic
+public import Init.Data.Array.QSort
+public import Lean.Data.PersistentHashMap
+public import Lean.Data.PersistentHashSet
+public import Lean.Hygiene
+public import Lean.Data.Name
+public import Lean.Data.Format
+public import Init.Data.Option.Coe
+public import Std.Data.TreeSet.Basic
+
+public section
 
 def Nat.imax (n m : Nat) : Nat :=
   if m = 0 then 0 else Nat.max n m
@@ -24,7 +28,7 @@ namespace Lean
    hasMVar   : 1-bit
    hasParam  : 1-bit
    depth     : 24-bits -/
-def Level.Data := UInt64
+@[expose] def Level.Data := UInt64
 
 instance : Inhabited Level.Data :=
   inferInstanceAs (Inhabited UInt64)
@@ -71,12 +75,12 @@ abbrev LMVarId := LevelMVarId
 instance : Repr LMVarId where
   reprPrec n p := reprPrec n.name p
 
-def LMVarIdSet := Std.TreeSet LMVarId (Name.quickCmp ·.name ·.name)
+@[expose] def LMVarIdSet := Std.TreeSet LMVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
 instance : ForIn m LMVarIdSet LMVarId := inferInstanceAs (ForIn _ (Std.TreeSet _ _) ..)
 
-def LMVarIdMap (α : Type) := Std.TreeMap LMVarId α (Name.quickCmp ·.name ·.name)
+@[expose] def LMVarIdMap (α : Type) := Std.TreeMap LMVarId α (Name.quickCmp ·.name ·.name)
 
 instance : EmptyCollection (LMVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap _ _ _))
 
@@ -128,7 +132,7 @@ def hasParam (u : Level) : Bool :=
 
 end Level
 
-def levelZero :=
+@[expose] def levelZero :=
   Level.zero
 
 def mkLevelMVar (mvarId : LMVarId) :=
@@ -137,7 +141,7 @@ def mkLevelMVar (mvarId : LMVarId) :=
 def mkLevelParam (name : Name) :=
   Level.param name
 
-def mkLevelSucc (u : Level) :=
+@[expose] def mkLevelSucc (u : Level) :=
   Level.succ u
 
 def mkLevelMax (u v : Level) :=
@@ -200,7 +204,7 @@ def isNeverZero : Level → Bool
   | max l₁ l₂    => isNeverZero l₁ || isNeverZero l₂
   | imax _  l₂   => isNeverZero l₂
 
-def ofNat : Nat → Level
+@[expose] def ofNat : Nat → Level
   | 0   => levelZero
   | n+1 => mkLevelSucc (ofNat n)
 

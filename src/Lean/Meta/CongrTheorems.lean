@@ -3,15 +3,20 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.AddDecl
-import Lean.Class
-import Lean.ReservedNameAction
-import Lean.ResolveName
+public import Lean.AddDecl
+public import Lean.Class
+public import Lean.ReservedNameAction
+public import Lean.ResolveName
+public import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Subst
 import Lean.Meta.Tactic.Intro
 import Lean.Meta.Tactic.Assert
+
+public section
 
 namespace Lean.Meta
 
@@ -457,7 +462,7 @@ def mkHCongrWithArityForConst? (declName : Name) (levels : List Level) (numArgs 
   try
     let suffix := hcongrThmSuffixBasePrefix ++ toString numArgs
     let thmName := Name.str declName suffix
-    unless (← getEnv).contains thmName do
+    unless (← getEnv).containsOnBranch thmName do
       let _ ← executeReservedNameAction thmName
     let proof := mkConst thmName levels
     let type ← inferType proof
@@ -474,7 +479,7 @@ same congruence theorem over and over again.
 def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option CongrTheorem) := do
   let thmName := Name.str declName congrSimpSuffix
   try
-    unless (← getEnv).contains thmName do
+    unless (← getEnv).containsOnBranch thmName do
       let _ ← executeReservedNameAction thmName
     let proof := mkConst thmName levels
     let type ← inferType proof

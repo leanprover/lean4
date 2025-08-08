@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Environment
+public import Lean.Environment
+
+public section
 
 namespace Lean
 namespace Compiler
@@ -31,9 +35,9 @@ def getDeclNamesForCodeGen : Declaration → Array Name
 
 def checkIsDefinition (env : Environment) (n : Name) : Except String Unit := do
   let some info := env.findAsync? n
-    | throw s!"unknown declaration '{n}'"
+    | throw s!"Unknown declaration `{n}`"
   unless info.kind matches .defn | .opaque do
-    throw s!"declaration is not a definition '{n}'"
+    throw s!"Declaration `{n}` is not a definition"
 
 /--
   We generate auxiliary unsafe definitions for regular recursive definitions.

@@ -7,6 +7,7 @@ Authors: Sebastian Graf
 import Std.Tactic.Do
 import Std.Tactic.Do.Syntax
 import Std
+import Lean.Elab.Tactic.Do.VCGen
 
 open Std.Do
 
@@ -29,12 +30,6 @@ abbrev fib_spec : Nat → Nat
 | 0 => 0
 | 1 => 1
 | n+2 => fib_spec n + fib_spec (n+1)
-
-def ifs (n : Nat) : Id Nat := do
-  let mut x := 0
-  if n > 0 then x := x + 1 else x := x + 2
-  if n > 1 then x := x + 1 else x := x + 2
-  return x
 
 abbrev AppState := Nat × Nat
 
@@ -103,12 +98,6 @@ theorem sum_loop_spec :
 private abbrev fst : SVal ((Nat × Nat)::σs) Nat := fun s => SVal.pure s.1
 private abbrev snd : SVal ((Nat × Nat)::σs) Nat := fun s => SVal.pure s.2
 
-def mkFreshNat [Monad m] [MonadStateOf AppState m] : m Nat := do
-  let n ← Prod.fst <$> get
-  modify (fun s => (s.1 + 1, s.2))
-  pure n
-
-@[spec]
 theorem mkFreshNat_spec [Monad m] [WPMonad m sh] :
   ⦃⌜#fst = n ∧ #snd = o⌝⦄
   (mkFreshNat : StateT (Nat × Nat) m Nat)
@@ -121,10 +110,7 @@ theorem mkFreshNat_spec [Monad m] [WPMonad m sh] :
   mspec
   simp
 
-def mkFreshPair : StateM (Nat × Nat) (Nat × Nat) := do
-  let a ← mkFreshNat
-  let b ← mkFreshNat
-  pure (a, b)
+attribute [local spec] mkFreshNat_spec
 
 theorem mkFreshPair_spec :
   ⦃⌜True⌝⦄
@@ -134,9 +120,11 @@ theorem mkFreshPair_spec :
   mintro -
   mspec mkFreshNat_spec
   mintro ∀s
+  mrename_i h
   mcases h with ⌜h₁⌝
   mspec mkFreshNat_spec
   mintro ∀s
+  mrename_i h
   mcases h with ⌜h₂⌝
   simp_all
 
@@ -172,7 +160,8 @@ theorem throwing_loop_spec :
     mspec
     mspec
     mspec
-    simp at h
+    simp_all only [List.sum_nil, Nat.add_zero, gt_iff_lt, SVal.curry_nil, SPred.entails_nil,
+      imp_false, not_true_eq_false]
     omega
   case post.except => simp
   case pre1 => simp_all +decide
@@ -249,27 +238,6 @@ def fib_impl (n : Nat) : Id Nat := do
     b := a' + b
   return b
 
-abbrev fib_spec : Nat → Nat
-| 0 => 0
-| 1 => 1
-| n+2 => fib_spec n + fib_spec (n+1)
-
--- Finally investigate why we do not see the error here.
--- Seems to be related to not being able to display metavariables.
---theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => r = fib_spec n⦄ := by
---  unfold fib_impl
---  dsimp
---  mintro _
---  if h : n = 0 then simp [h] else
---  simp only [h, reduceIte]
---  mspec
---  mspec_no_bind Spec.bind
---  set_option trace.Elab.Tactic.Do.spec true in
---  mspec_no_bind Spec.forIn_list ?inv ?step
---
---  case step => dsimp; intros; mintro _; simp_all
---  simp_all [Nat.sub_one_add_one]
-
 theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   unfold fib_impl
   dsimp
@@ -284,7 +252,6 @@ theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n�
 theorem fib_triple_cases : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   apply fib_impl.fun_cases n _ ?case1 ?case2
   case case1 => rintro rfl; mintro -; simp only [fib_impl, ↓reduceIte]; mspec
-  case case2 =>
   intro h
   mintro -
   simp only [fib_impl, h, reduceIte]
@@ -305,7 +272,6 @@ theorem fib_impl_vcs
     : ⊢ₛ wp⟦fib_impl n⟧ (Q n) := by
   apply fib_impl.fun_cases n _ ?case1 ?case2
   case case1 => intro h; simp only [fib_impl, h, ↓reduceIte]; mstart; mspec
-  case case2 =>
   intro hn
   simp only [fib_impl, hn, ↓reduceIte]
   mstart
@@ -355,7 +321,6 @@ open scoped Std.Do.IO.Bare
 axiom IO.rand_spec {n : Nat} : ⦃⌜True⌝⦄ (IO.rand 0 n : IO Nat) ⦃⇓r => ⌜r < n⌝⦄
 
 /-- The result has the same parity as the input. -/
-@[spec]
 theorem addRandomEvens_spec (n k) : ⦃⌜True⌝⦄ (addRandomEvens n k) ⦃⇓r => ⌜r % 2 = k % 2⌝⦄ := by
   unfold addRandomEvens
   mintro -
@@ -365,14 +330,18 @@ theorem addRandomEvens_spec (n k) : ⦃⌜True⌝⦄ (addRandomEvens n k) ⦃⇓
   mspec IO.rand_spec
   simp_all
 
+attribute [local spec] addRandomEvens_spec
+
 /-- Since we're adding even numbers to our number twice, and summing,
 the entire result is even. -/
 theorem program_spec (n k) : ⦃⌜True⌝⦄ program n k ⦃⇓r => ⌜r % 2 = 0⌝⦄ := by
   unfold program
   mintro -
   mspec (addRandomEvens_spec n k)
+  mrename_i h
   mpure h
   mspec /- registered spec is taken -/
+  mrename_i h
   mpure h
   mspec
   mpure_intro
@@ -402,6 +371,7 @@ theorem prog.spec : ⦃isValid⦄ prog n ⦃⇓r => ⌜r > 100⌝ ∧ isValid⦄
   unfold prog
   mintro h
   mspec op.spec
+  mrename_i h
   mcases h with ⟨⌜hr₁⌝, □h⟩
   /-
   n r : Nat
@@ -416,8 +386,10 @@ theorem prog.spec : ⦃isValid⦄ prog n ⦃⇓r => ⌜r > 100⌝ ∧ isValid⦄
     (⇓r => ⌜r > 100⌝ ∧ isValid)
   -/
   mspec op.spec
+  mrename_i h
   mcases h with ⟨⌜hr₂⌝, □h⟩
   mspec op.spec
+  mrename_i h
   mcases h with ⟨⌜hr₃⌝, □h⟩
   mspec
   mrefine ⟨?_, h⟩
@@ -441,7 +413,7 @@ theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n�
 
 theorem fib_triple_step : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   unfold fib_impl
-  mvcgen_step 14 -- 13 still has a wp⟦·⟧
+  mvcgen (stepLimit := some 14) -- 13 still has a wp⟦·⟧
   case inv => exact ⇓ (⟨a, b⟩, xs) =>
     ⌜a = fib_spec xs.rpref.length ∧ b = fib_spec (xs.rpref.length + 1)⌝
   all_goals simp_all +zetaDelta [Nat.sub_one_add_one]
@@ -469,15 +441,10 @@ theorem fib_impl_vcs
   unfold fib_impl
   mvcgen
   case inv h => exact I n h
-  case isTrue h => subst h; exact ret
-  case isFalse h => mpure_intro; apply_rules [loop_pre]
-  case step => mpure_intro; apply_rules [loop_step]
-  case post.success => mpure_intro; apply_rules [loop_post]
-
--- TODO: Use strongest post
-theorem ifs_triple : ⦃⌜True⌝⦄ ifs n ⦃⇓ r => ⌜r > 0⌝⦄ := by
-  unfold ifs
-  mvcgen_no_trivial <;> try (mpure_intro; trivial) -- this is the default for mvcgen
+  case isTrue h => subst h; apply_rules [ret]
+  case isFalse h => apply_rules [loop_pre]
+  case step => apply_rules [loop_step]
+  case post.success => apply_rules [loop_post]
 
 private abbrev fst : SVal (AppState::σs) Nat := fun s => SVal.pure s.1
 private abbrev snd : SVal (AppState::σs) Nat := fun s => SVal.pure s.2
@@ -488,7 +455,7 @@ theorem mkFreshNat_spec [Monad m] [WPMonad m sh] :
   (mkFreshNat : StateT AppState m Nat)
   ⦃⇓ r => ⌜r = n ∧ #fst = n + 1 ∧ #snd = o⌝⦄ := by
   mvcgen [mkFreshNat]
-  simp_all
+  simp_all +zetaDelta
 
 theorem erase_unfold [Monad m] [WPMonad m sh] :
   ⦃⌜#fst = n ∧ #snd = o⌝⦄
@@ -507,8 +474,8 @@ theorem add_unfold [Monad m] [WPMonad m sh] :
   mvcgen [mkFreshNat]
 
 theorem mkFreshPair_triple : ⦃⌜True⌝⦄ mkFreshPair ⦃⇓ (a, b) => ⌜a ≠ b⌝⦄ := by
-  mvcgen [mkFreshPair]
-  simp_all [SPred.entails_cons]
+  mvcgen -elimLets +trivial [mkFreshPair]
+  simp_all
 
 theorem sum_loop_spec :
   ⦃⌜True⌝⦄
@@ -528,11 +495,11 @@ theorem throwing_loop_spec :
   mvcgen [throwing_loop]
   case inv => exact post⟨fun (r, xs) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suff.sum > 4⌝,
                          fun e s => ⌜e = 42 ∧ s = 4⌝⟩
-  case pre1 => simp_all only [SVal.curry_nil, SPred.entails_nil]; decide
-  case post.success => simp_all only [SVal.curry_nil, SPred.entails_nil]; grind
+  case pre1 => simp_all only [SVal.curry_nil]; decide
+  case post.success => simp_all only [SVal.curry_nil]; grind
   case post.except => simp_all
   case isTrue => intro _; simp_all
-  case isFalse => intro _; simp_all only [SVal.curry_nil, SPred.entails_nil]; grind
+  case isFalse => intro _; simp_all only [SVal.curry_nil]; grind
 
 theorem test_loop_break :
   ⦃⌜‹Nat›ₛ = 42⌝⦄
@@ -541,10 +508,11 @@ theorem test_loop_break :
   mvcgen [breaking_loop]
   case inv => exact (⇓ (r, xs) s => ⌜(r ≤ 4 ∧ r = xs.rpref.sum ∨ r > 4) ∧ s = 42⌝)
   case pre1 => simp_all
-  case isTrue => intro _; simp_all
-  case isFalse => intro _; simp_all only [SVal.curry_nil, SPred.entails_nil]; grind
+  case isTrue => intro _; mleave; grind
+  case isFalse => intro _; simp_all only [SVal.curry_nil]; grind
   case post.success =>
     simp_all
+    rename_i h
     conv at h in (List.sum _) => whnf
     simp at h
     grind
@@ -555,11 +523,12 @@ theorem test_loop_early_return :
   ⦃⇓ r s => ⌜r = 42 ∧ s = 4⌝⦄ := by
   mvcgen [returning_loop]
   case inv => exact (⇓ (r, xs) s => ⌜(r.1 = none ∧ r.2 = xs.rpref.sum ∧ r.2 ≤ 4 ∨ r.1 = some 42 ∧ r.2 > 4) ∧ s = 4⌝)
-  case isTrue => intro _; simp_all
-  case isFalse => intro _; simp_all only [SVal.curry_nil, SPred.entails_nil]; grind
+  case isTrue => intro _; mleave; grind
+  case isFalse => intro _; mleave; grind
   case pre1 => simp_all
   case h_1 =>
     simp_all
+    rename_i h
     conv at h in (List.sum _) => whnf
     simp at h
     grind
@@ -579,8 +548,7 @@ theorem test_match_splitting {m : Option Nat} (h : m = some 4) :
   | some n => (set n : StateM Nat PUnit)
   | none => set 0)
   ⦃⇓ r s => ⌜s = 4⌝⦄ := by
-  mvcgen
-  simp_all
+  mvcgen <;> simp_all
 
 theorem test_sum :
   ⦃⌜True⌝⦄
@@ -699,6 +667,12 @@ instance Result.instWPMonad : WPMonad Result (.except Error .pure) where
     ext Q
     cases x <;> simp [PredTrans.bind, PredTrans.const]
 
+theorem Result.by_wp {α} {x : Result α} (P : Result α → Prop) :
+  (⊢ₛ wp⟦x⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.fail e)⌝⟩) → P x := by
+    intro hspec
+    simp only [instWP] at hspec
+    split at hspec <;> simp_all
+
 /-- Kinds of unsigned integers -/
 inductive UScalarTy where
 | Usize
@@ -798,12 +772,13 @@ theorem max_and_sum_spec (xs : Array Nat) :
   case inv => exact (⇓ (⟨m, s⟩, xs) => ⌜s ≤ m * xs.rpref.length⌝)
   all_goals simp_all
   · rw [Nat.left_distrib]
-    simp
+    simp +zetaDelta only [Nat.mul_one, Nat.add_le_add_iff_right]
+    rename_i h
     apply Nat.le_trans h
     apply Nat.mul_le_mul_right
-    omega
+    grind
   · rw [Nat.left_distrib]
-    omega
+    grind
 
 end MaxAndSum
 
@@ -839,22 +814,19 @@ end RishsConstApproxBug
 
 namespace RishsTailContextBug
 
-@[spec]
-theorem Specs.get_StateT' [Monad m] [WPMonad m psm] :
-  ⦃fun s => Q.1 s s⦄ (MonadState.get : StateT σ m σ) ⦃Q⦄ := by sorry
+axiom Specs.get_StateT' [Monad m] [WPMonad m psm] :
+  ⦃fun s => Q.1 s s⦄ (MonadState.get : StateT σ m σ) ⦃Q⦄
+attribute [local spec] Specs.get_StateT'
 
 axiom I : StateM Nat Unit
 axiom F : StateM Nat Unit
 axiom G : StateM Nat Unit
 axiom P : Assertion (PostShape.arg Nat PostShape.pure)
 axiom Q: PostCond Unit (PostShape.arg Nat PostShape.pure)
-@[spec]
 axiom hI : ⦃⌜True⌝⦄ I ⦃⇓ _ => P⦄
-@[spec]
 axiom hF : ⦃P⦄ F ⦃Q⦄
-@[spec]
 axiom hG : ⦃P⦄ G ⦃Q⦄
-
+attribute [local spec] hI hF hG
 
 @[inline] noncomputable def test_ite : StateM Nat Unit := do
   I
@@ -914,3 +886,70 @@ theorem mem_mergeWithAll [LawfulEqCmp cmp] {m₁ m₂ : ExtTreeMap α β cmp} {f
   admit
 
 end KimsUnivPolyUseCase
+
+namespace PatricksFastExp
+
+def naive_expo (x n : Nat) : Nat := Id.run do
+  let mut y := 1
+  for _ in [:n] do
+    y := y*x
+  return y
+
+def fast_expo (x n : Nat) : Nat := Id.run do
+  let mut x := x
+  let mut y := 1
+  let mut e := n
+  for _ in [:n] do -- simulating a while loop running at most n times
+    if e = 0 then break
+    if e % 2 = 1 then
+      y := x * y
+      e := e - 1
+    else
+      x := x*x
+      e := e/2
+
+  return y
+
+open Std.Do
+
+theorem naive_expo_correct (x n : Nat) : naive_expo x n = x^n := by
+  generalize h : naive_expo x n = r
+  apply Id.by_wp h
+  mvcgen
+  case inv => exact ⇓⟨r, xs⟩ => ⌜r = x^xs.pref.length⌝
+  all_goals simp_all [Nat.pow_add_one]
+
+theorem fast_expo_correct (x n : Nat) : fast_expo x n = x^n := by
+  generalize h : fast_expo x n = r
+  apply Id.by_wp h
+  mvcgen
+  case inv => exact ⇓⟨⟨e, x', y⟩, xs⟩ => ⌜x' ^ e * y = x ^ n ∧ e ≤ n - xs.pref.length⌝
+  all_goals simp_all
+  case isFalse.isFalse b _ _ _ _ _ _ _ _ _ _ ih _ =>
+    obtain ⟨e, y, x'⟩ := b
+    simp at *
+    constructor
+    · rw [← Nat.pow_two, ← Nat.pow_mul]
+      grind
+    · grind
+  case isFalse.isTrue b _ _ _ _ _ _ _ _ _ _ ih _ =>
+    obtain ⟨e, y, x'⟩ := b
+    simp at *
+    constructor
+    · rw [← Nat.mul_assoc, ← Nat.pow_add_one, ← ih.1]
+      have : e - 1 + 1 = e := by grind
+      rw [this]
+    · grind
+  case isTrue b _ _ _ _ _ _ _ _ _ _ ih =>
+    obtain ⟨e, y, x'⟩ := b
+    subst_vars
+    grind
+  case a.post b ih =>
+    obtain ⟨e, y, x'⟩ := b
+    simp at *
+    rw [← ih.1, ih.2, Nat.pow_zero, Nat.one_mul]
+
+theorem same_func (x n : Nat) : fast_expo x n = naive_expo x n := by
+  rw [naive_expo_correct, fast_expo_correct]
+
+end PatricksFastExp

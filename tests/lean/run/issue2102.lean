@@ -1,4 +1,7 @@
+set_option linter.unusedVariables false
+
 -- works
+
 def g' (T : Type) (ls : List T) : (Option (List T)) :=
   match ls with
   | _::tl =>
@@ -43,3 +46,24 @@ def g'' (T : Type) (ls : List T) : (Option (List T)) :=
       let res := Option.attach (g'' T tl)
       res.bind fun ⟨x,h⟩ => x
   | [] => .none
+
+/--
+error: failed to prove termination, possible solutions:
+  - Use `have`-expressions to prove the remaining goals
+  - Use `termination_by` to specify a different well-founded relation
+  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
+T✝ : Type
+head✝ : T✝
+tl : List T✝
+T : Type
+ls : List T
+⊢ sizeOf ls < 1 + sizeOf tl
+-/
+#guard_msgs in
+def g''' (T : Type) (ls : List T) : (Option (List T)) :=
+  match ls with
+  | _::tl =>
+      let res := Option.attach (g''' T tl)
+      res.bind fun ⟨x,h⟩ => x
+  | [] => .none
+termination_by sizeOf ls

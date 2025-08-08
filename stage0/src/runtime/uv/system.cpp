@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues
 */
+#include <cstring>
 #include "runtime/uv/system.h"
 
 namespace lean {
@@ -33,6 +34,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_process_title(obj_arg /* w */) {
 // Std.Internal.UV.System.setProcessTitle : String → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_set_process_title(b_obj_arg title, obj_arg /* w */) {
     const char* title_str = lean_string_cstr(title);
+    if (strlen(title_str) != lean_string_size(title) - 1) {
+        return mk_embedded_nul_error(title);
+    }
     int result = uv_set_process_title(title_str);
 
     if (result < 0) {
@@ -123,6 +127,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_cwd(obj_arg /* w */) {
 // Std.Internal.UV.System.chdir : String → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_chdir(b_obj_arg path, obj_arg /* w */) {
     const char* path_str = lean_string_cstr(path);
+    if (strlen(path_str) != lean_string_size(path) - 1) {
+        return mk_embedded_nul_error(path);
+    }
 
     int result = uv_chdir(path_str);
 
@@ -194,6 +201,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_passwd(obj_arg /* w */) {
 
 // Std.Internal.UV.System.osGetGroup : IO (Option GroupInfo)
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid, obj_arg /* w */) {
+#if UV_VERSION_HEX >= 0x012D00
     uv_group_t group;
     int result = uv_os_get_group(&group, gid);
 
@@ -228,6 +236,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_get_group(uint64_t gid, obj_arg /
     uv_os_free_group(&group);
 
     return lean_io_result_mk_ok(mk_option_some(group_info));
+#else
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv version at least 1.45.0 to invoke this.")
+    );
+#endif
 }
 
 // Std.Internal.UV.System.osEnviron : IO (Array (String × String))
@@ -261,6 +274,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_environ(obj_arg /* w */) {
 // Std.Internal.UV.System.osGetenv : String → IO (Option String)
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name, obj_arg /* w */) {
     const char* name_str = lean_string_cstr(name);
+    if (strlen(name_str) != lean_string_size(name) - 1) {
+        return lean_io_result_mk_ok(lean_box(0));
+    }
     char stack_buffer[1024];
     size_t size = sizeof(stack_buffer);
 
@@ -301,6 +317,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name, obj_arg /*
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setenv(b_obj_arg name, b_obj_arg value, obj_arg /* w */) {
     const char* name_str = lean_string_cstr(name);
     const char* value_str = lean_string_cstr(value);
+    if (strlen(name_str) != lean_string_size(name) - 1) {
+        return mk_embedded_nul_error(name);
+    }
+    if (strlen(value_str) != lean_string_size(value) - 1) {
+        return mk_embedded_nul_error(value);
+    }
 
     int result = uv_os_setenv(name_str, value_str);
 
@@ -314,6 +336,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setenv(b_obj_arg name, b_obj_arg 
 // Std.Internal.UV.System.osUnsetenv : String → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_unsetenv(b_obj_arg name, obj_arg /* w */) {
     const char* name_str = lean_string_cstr(name);
+    if (strlen(name_str) != lean_string_size(name) - 1) {
+        return mk_embedded_nul_error(name);
+    }
 
     int result = uv_os_unsetenv(name_str);
 
@@ -513,8 +538,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_constrained_memory(obj_arg /* w 
 
 // Std.Internal.UV.System.availableMemory : IO UInt64
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_available_memory(obj_arg /* w */) {
+#if UV_VERSION_HEX >= 0x012D00
     uint64_t mem = uv_get_available_memory();
     return lean_io_result_mk_ok(lean_box_uint64(mem));
+#else
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv version at least 1.45.0 to invoke this.")
+    );
+#endif
 }
 
 #else

@@ -3,10 +3,14 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.LiveVars
-import Lean.Compiler.IR.Format
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.LiveVars
+public import Lean.Compiler.IR.Format
+
+public section
 
 namespace Lean.IR.ResetReuse
 /-!
@@ -212,8 +216,7 @@ partial def collectResets (e : FnBody) : N Unit := do
   | .jdecl _ _ v b => collectResets v; collectResets b
   | .vdecl _ _ (.reset _ x) b => modify fun s => s.insert x; collectResets b
   | e => unless e.isTerminal do
-    let (_, b) := e.split
-    collectResets b
+    collectResets e.body
 
 end ResetReuse
 open ResetReuse

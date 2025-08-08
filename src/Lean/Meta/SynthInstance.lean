@@ -5,13 +5,17 @@ Authors: Daniel Selsam, Leonardo de Moura
 
 Type class instance synthesizer using tabled resolution.
 -/
+module
+
 prelude
-import Init.Data.Array.InsertionSort
-import Lean.Meta.Basic
-import Lean.Meta.Instances
-import Lean.Meta.AbstractMVars
-import Lean.Meta.Check
-import Lean.Util.Profile
+public import Init.Data.Array.InsertionSort
+public import Lean.Meta.Basic
+public import Lean.Meta.Instances
+public import Lean.Meta.AbstractMVars
+public import Lean.Meta.Check
+public import Lean.Util.Profile
+
+public section
 
 namespace Lean.Meta
 
@@ -709,7 +713,7 @@ private def assignOutParams (type : Expr) (result : Expr) : MetaM Bool := do
   return defEq
 
 /--
-Auxiliary function for converting the `AbstractMVarsResult` returned by `SynthIntance.main` into an `Expr`.
+Auxiliary function for converting the `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 -/
 private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do
   let some abstResult := abstResult? | return none
@@ -745,7 +749,7 @@ private def applyAbstractResult? (type : Expr) (abstResult? : Option AbstractMVa
   return some result
 
 /--
-Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthIntance.main` into an `Expr`.
+Auxiliary function for converting a cached `AbstractMVarsResult` returned by `SynthInstance.main` into an `Expr`.
 This function tries to avoid the potentially expensive `check` at `applyCachedAbstractResult?`.
 -/
 private def applyCachedAbstractResult? (type : Expr) (abstResult? : Option AbstractMVarsResult) : MetaM (Option Expr) := do

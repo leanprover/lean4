@@ -3,8 +3,24 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Term
+public import Lean.Parser.Term
+meta import Lean.Parser.Term
+
+public section
+
+/--
+Determines the local declaration kind of a binder using its name.
+
+Names that begin with `__` are implementation details (`.implDetail`).
+-/
+def Lean.LocalDeclKind.ofBinderName (binderName : Name) : LocalDeclKind :=
+  if binderName.isImplementationDetail then
+    .implDetail
+  else
+    .default
 
 namespace Lean.Elab.Term
 /--

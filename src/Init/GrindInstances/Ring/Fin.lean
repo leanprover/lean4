@@ -68,8 +68,8 @@ theorem sub_eq_add_neg [NeZero n] (a b : Fin n) : a - b = a + -b := by
   cases a; cases b; simp [Fin.neg_def, Fin.sub_def, Fin.add_def, Nat.add_comm]
 
 private theorem neg_neg [NeZero n] (a : Fin n) : - - a = a := by
-  cases a; simp [Fin.neg_def]
-  next a h => cases a; simp; next a =>
+  obtain ⟨a, h⟩ := a; simp [Fin.neg_def]
+  cases a; simp; next a =>
    rw [Nat.self_sub_mod n (a+1)]
    have : NeZero (n - (a + 1)) := ⟨by omega⟩
    rw [Nat.self_sub_mod, Nat.sub_sub_eq_min, Nat.min_eq_right (Nat.le_of_lt h)]

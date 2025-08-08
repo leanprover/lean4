@@ -39,7 +39,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lake_Toml_elabArray_spec_
 static lean_object* l_Lake_Toml_elabOctNum___closed__2;
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Lake_Toml_RBDict_findEntry_x3f___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabString___closed__1;
 static lean_object* l_Lake_Toml_elabInlineTable___closed__0;
 LEAN_EXPORT lean_object* l_Lake_Toml_elabSimpleKey___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -53,6 +52,7 @@ static lean_object* l_Lake_Toml_elabBoolean___closed__5;
 static lean_object* l_Lake_Toml_elabMlLiteralString___closed__1;
 static lean_object* l_Lake_Toml_elabMlLiteralString___closed__0;
 static lean_object* l_Lake_Toml_elabSimpleKey___closed__0;
+lean_object* l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_elabMlLiteralString(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_elabDateTime(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Core_instMonadRefCoreM;
@@ -106,6 +106,7 @@ static lean_object* l_Lake_Toml_elabBinNum___closed__2;
 static lean_object* l_Lake_Toml_elabBinNum___closed__1;
 lean_object* l_Lake_Toml_RBDict_push___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabOctNum___closed__4;
+lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabBoolean___closed__6;
 LEAN_EXPORT lean_object* l_String_foldlAux___at___Lake_Toml_elabOctNum_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabMlBasicString___closed__3;
@@ -115,11 +116,11 @@ static lean_object* l_Lake_Toml_elabBasicStringCore___closed__1;
 uint8_t l_Lake_Toml_RBDict_contains___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_elabBasicStringCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabString___closed__2;
+lean_object* l_Lean_throwError___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lake_Toml_elabInlineTable_spec__3_spec__3___closed__0;
 lean_object* l_Array_empty(lean_object*);
-lean_object* l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_Core_instantiateValueLevelParams_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabLiteralString___closed__2;
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabFloat___closed__4;
@@ -166,7 +167,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_elabLit___boxed(lean_object*, lean_object*,
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabMlLiteralString___closed__4;
 static lean_object* l_Lake_Toml_elabLit___closed__2;
-lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_elabFloat___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_decodeHexDigit___boxed(lean_object*);
@@ -179,6 +179,7 @@ static lean_object* l_Lake_Toml_elabFloat___closed__2;
 double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
 lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabMlBasicString___closed__0;
+lean_object* l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__3(uint8_t, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_Toml_decodeFrExp___closed__1;
 static lean_object* l_Lake_Toml_elabSimpleKey___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lake_Toml_elabInlineTable_spec__1_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -189,12 +190,12 @@ uint32_t lean_uint32_sub(uint32_t, uint32_t);
 static lean_object* l_Lake_Toml_elabLit___closed__0;
 static lean_object* l_Lake_Toml_elabDateTime___closed__5;
 LEAN_EXPORT lean_object* l_Lake_Toml_decodeMantissa___boxed(lean_object*);
-lean_object* l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__2(uint8_t, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_Toml_elabHexNum___closed__1;
 static lean_object* l_Lake_Toml_elabInlineTable___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Toml_elabLiteralString___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_decodeSign(lean_object*);
+lean_object* l_Substring_takeWhileAux___at___Lean_PrettyPrinter_Formatter_pushToken_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabArray___redArg___closed__1;
 static lean_object* l_Lake_Toml_elabUnquotedKey___closed__3;
 lean_object* l_Lake_Toml_DateTime_ofString_x3f(lean_object*);
@@ -257,7 +258,6 @@ static lean_object* l_Lake_Toml_elabInlineTable___closed__5;
 static lean_object* l_Lake_Toml_elabBasicString___closed__4;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_foldlAux___at___Lake_Toml_elabBinNum_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2_spec__2___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabUnquotedKey___closed__2;
 static lean_object* l_Lake_Toml_elabLiteralString___closed__1;
 lean_object* lean_array_get_size(lean_object*);
@@ -717,7 +717,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_Lake_Toml_elabBoolean___closed__5;
-x_8 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_7, x_2, x_3, x_4);
 lean_dec(x_1);
 return x_8;
 }
@@ -738,7 +738,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
 x_15 = l_Lake_Toml_elabBoolean___closed__5;
-x_16 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_15, x_2, x_3, x_4);
+x_16 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_15, x_2, x_3, x_4);
 lean_dec(x_1);
 return x_16;
 }
@@ -1011,7 +1011,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = l_Lake_Toml_elabDecInt___closed__4;
-x_8 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_7, x_2, x_3, x_4);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {
@@ -1677,7 +1677,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = l_Lake_Toml_elabFloat___closed__4;
-x_8 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_7, x_2, x_3, x_4);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {
@@ -1821,7 +1821,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = l_Lake_Toml_elabBinNum___closed__4;
-x_8 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_7, x_2, x_3, x_4);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {
@@ -1992,7 +1992,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = l_Lake_Toml_elabOctNum___closed__4;
-x_8 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_7, x_2, x_3, x_4);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {
@@ -2215,7 +2215,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = l_Lake_Toml_elabHexNum___closed__4;
-x_8 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_7, x_2, x_3, x_4);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {
@@ -2361,7 +2361,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = l_Lake_Toml_elabDateTime___closed__4;
-x_8 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_7, x_2, x_3, x_4);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {
@@ -2393,7 +2393,7 @@ if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; 
 x_15 = l_Lake_Toml_elabDateTime___closed__6;
-x_16 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_15, x_2, x_3, x_4);
+x_16 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_15, x_2, x_3, x_4);
 return x_16;
 }
 else
@@ -2477,7 +2477,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_Lake_Toml_elabLiteralString___closed__4;
-x_8 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_7, x_2, x_3, x_4);
 return x_8;
 }
 else
@@ -2696,7 +2696,7 @@ if (x_70 == 0)
 {
 lean_object* x_71; lean_object* x_72; 
 x_71 = lean_string_utf8_byte_size(x_1);
-x_72 = l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0(x_1, x_71, x_47);
+x_72 = l_Substring_takeWhileAux___at___Lean_PrettyPrinter_Formatter_pushToken_spec__0(x_1, x_71, x_47);
 lean_dec(x_71);
 x_2 = x_72;
 goto _start;
@@ -2868,13 +2868,13 @@ return x_117;
 block_22:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_11 = lean_ctor_get(x_8, 0);
+x_11 = lean_ctor_get(x_9, 0);
 lean_inc_ref(x_11);
-x_12 = lean_ctor_get(x_8, 1);
+x_12 = lean_ctor_get(x_9, 1);
 lean_inc(x_12);
-x_13 = lean_ctor_get(x_8, 2);
+x_13 = lean_ctor_get(x_9, 2);
 lean_inc(x_13);
-lean_dec_ref(x_8);
+lean_dec_ref(x_9);
 x_14 = l_Lake_Toml_elabBasicStringCore___closed__1;
 x_15 = lean_string_utf8_extract(x_11, x_12, x_13);
 lean_dec(x_13);
@@ -2890,22 +2890,22 @@ x_19 = l_Lake_Toml_elabBasicStringCore___closed__3;
 x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2_spec__2___redArg(x_20, x_7, x_9, x_10);
+x_21 = l_Lean_throwError___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__0___redArg(x_20, x_8, x_7, x_10);
 return x_21;
 }
 block_32:
 {
 lean_object* x_28; uint32_t x_29; lean_object* x_30; 
-x_28 = lean_ctor_get(x_25, 2);
+x_28 = lean_ctor_get(x_26, 2);
 lean_inc(x_28);
-lean_dec_ref(x_25);
-x_29 = lean_uint32_of_nat(x_24);
-lean_dec(x_24);
+lean_dec_ref(x_26);
+x_29 = lean_uint32_of_nat(x_25);
+lean_dec(x_25);
 x_30 = lean_string_push(x_3, x_29);
 x_2 = x_28;
 x_3 = x_30;
-x_4 = x_23;
-x_5 = x_26;
+x_4 = x_24;
+x_5 = x_23;
 x_6 = x_27;
 goto _start;
 }
@@ -2926,9 +2926,9 @@ if (x_41 == 0)
 lean_dec(x_37);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
-x_7 = x_34;
-x_8 = x_33;
-x_9 = x_35;
+x_7 = x_35;
+x_8 = x_34;
+x_9 = x_33;
 x_10 = x_36;
 goto block_22;
 }
@@ -2942,18 +2942,18 @@ if (x_43 == 0)
 lean_dec(x_37);
 lean_dec_ref(x_3);
 lean_dec_ref(x_1);
-x_7 = x_34;
-x_8 = x_33;
-x_9 = x_35;
+x_7 = x_35;
+x_8 = x_34;
+x_9 = x_33;
 x_10 = x_36;
 goto block_22;
 }
 else
 {
-x_23 = x_34;
-x_24 = x_37;
-x_25 = x_33;
-x_26 = x_35;
+x_23 = x_35;
+x_24 = x_34;
+x_25 = x_37;
+x_26 = x_33;
 x_27 = x_36;
 goto block_32;
 }
@@ -2961,10 +2961,10 @@ goto block_32;
 }
 else
 {
-x_23 = x_34;
-x_24 = x_37;
-x_25 = x_33;
-x_26 = x_35;
+x_23 = x_35;
+x_24 = x_34;
+x_25 = x_37;
+x_26 = x_33;
 x_27 = x_36;
 goto block_32;
 }
@@ -3045,7 +3045,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_Lake_Toml_elabBasicString___closed__4;
-x_8 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_7, x_2, x_3, x_4);
 return x_8;
 }
 else
@@ -3303,7 +3303,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_Lake_Toml_elabMlLiteralString___closed__4;
-x_8 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_7, x_2, x_3, x_4);
 return x_8;
 }
 else
@@ -3414,7 +3414,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_Lake_Toml_elabMlBasicString___closed__4;
-x_8 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_7, x_2, x_3, x_4);
 return x_8;
 }
 else
@@ -3607,7 +3607,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_Lake_Toml_elabString___closed__3;
-x_8 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_7, x_2, x_3, x_4);
 lean_dec(x_1);
 return x_8;
 }
@@ -3642,7 +3642,7 @@ if (x_18 == 0)
 lean_object* x_19; lean_object* x_20; 
 lean_dec(x_10);
 x_19 = l_Lake_Toml_elabString___closed__3;
-x_20 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_19, x_2, x_3, x_4);
+x_20 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_19, x_2, x_3, x_4);
 lean_dec(x_1);
 return x_20;
 }
@@ -4031,7 +4031,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_Lake_Toml_elabSimpleKey___closed__3;
-x_8 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_7, x_2, x_3, x_4);
+x_8 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_7, x_2, x_3, x_4);
 lean_dec(x_1);
 return x_8;
 }
@@ -4060,7 +4060,7 @@ if (x_16 == 0)
 lean_object* x_17; lean_object* x_18; 
 lean_dec(x_10);
 x_17 = l_Lake_Toml_elabSimpleKey___closed__3;
-x_18 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_17, x_2, x_3, x_4);
+x_18 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_17, x_2, x_3, x_4);
 lean_dec(x_1);
 return x_18;
 }
@@ -4091,7 +4091,7 @@ if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; lean_object* x_23; 
 x_22 = l_Lake_Toml_elabUnquotedKey___closed__4;
-x_23 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_10, x_22, x_2, x_3, x_4);
+x_23 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_10, x_22, x_2, x_3, x_4);
 lean_dec(x_10);
 return x_23;
 }
@@ -4248,7 +4248,7 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; 
 lean_dec_ref(x_2);
 x_8 = l_Lake_Toml_elabArray___redArg___closed__3;
-x_9 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_8, x_3, x_4, x_5);
+x_9 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_8, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_1);
 return x_9;
@@ -4342,7 +4342,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_2, 5);
-x_6 = l_Lean_addMessageContextPartial___at___Lean_throwError___at___Lean_Core_instantiateValueLevelParams_spec__0_spec__0(x_1, x_2, x_3, x_4);
+x_6 = l_Lean_addMessageContextPartial___at___Lean_throwError___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__0_spec__0(x_1, x_2, x_3, x_4);
 x_7 = !lean_is_exclusive(x_6);
 if (x_7 == 0)
 {
@@ -4921,7 +4921,7 @@ lean_dec_ref(x_7);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 x_27 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lake_Toml_elabInlineTable_spec__6_spec__6___closed__1;
-x_28 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_25, x_27, x_13, x_14, x_15);
+x_28 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_25, x_27, x_13, x_14, x_15);
 lean_dec(x_14);
 lean_dec(x_25);
 x_22 = x_28;
@@ -4948,7 +4948,7 @@ lean_dec_ref(x_7);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 x_33 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lake_Toml_elabInlineTable_spec__6_spec__6___closed__4;
-x_34 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_29, x_33, x_13, x_14, x_15);
+x_34 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_29, x_33, x_13, x_14, x_15);
 lean_dec(x_14);
 lean_dec(x_29);
 x_22 = x_34;
@@ -4995,7 +4995,7 @@ lean_ctor_set(x_97, 1, x_91);
 x_98 = 0;
 x_99 = lean_usize_of_nat(x_93);
 lean_dec(x_93);
-x_100 = l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__2(x_32, x_90, x_98, x_99, x_97);
+x_100 = l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__3(x_32, x_90, x_98, x_99, x_97);
 lean_dec_ref(x_90);
 x_101 = lean_ctor_get(x_100, 1);
 lean_inc(x_101);
@@ -5007,8 +5007,8 @@ goto block_88;
 block_66:
 {
 lean_object* x_41; lean_object* x_42; 
-x_41 = l_Array_back_x21___redArg(x_36, x_37);
-lean_dec_ref(x_37);
+x_41 = l_Array_back_x21___redArg(x_37, x_36);
+lean_dec_ref(x_36);
 lean_inc_ref(x_13);
 lean_inc(x_41);
 x_42 = l_Lake_Toml_elabSimpleKey(x_41, x_13, x_14, x_40);
@@ -5098,7 +5098,7 @@ x_59 = l_Lake_Toml_elabBasicStringCore___closed__3;
 x_60 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_60, 0, x_58);
 lean_ctor_set(x_60, 1, x_59);
-x_61 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_41, x_60, x_13, x_14, x_44);
+x_61 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_41, x_60, x_13, x_14, x_44);
 lean_dec(x_14);
 lean_dec(x_41);
 x_22 = x_61;
@@ -5157,8 +5157,8 @@ if (x_76 == 0)
 {
 lean_dec(x_75);
 lean_dec_ref(x_74);
-x_36 = x_72;
-x_37 = x_71;
+x_36 = x_71;
+x_37 = x_72;
 x_38 = x_73;
 x_39 = x_12;
 x_40 = x_15;
@@ -5172,8 +5172,8 @@ if (x_77 == 0)
 {
 lean_dec(x_75);
 lean_dec_ref(x_74);
-x_36 = x_72;
-x_37 = x_71;
+x_36 = x_71;
+x_37 = x_72;
 x_38 = x_73;
 x_39 = x_12;
 x_40 = x_15;
@@ -5202,8 +5202,8 @@ lean_inc(x_82);
 x_83 = lean_ctor_get(x_80, 1);
 lean_inc(x_83);
 lean_dec(x_80);
-x_36 = x_72;
-x_37 = x_71;
+x_36 = x_71;
+x_37 = x_72;
 x_38 = x_82;
 x_39 = x_83;
 x_40 = x_81;
@@ -5295,7 +5295,7 @@ lean_dec_ref(x_7);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 x_27 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lake_Toml_elabInlineTable_spec__6_spec__6___closed__1;
-x_28 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_25, x_27, x_13, x_14, x_15);
+x_28 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_25, x_27, x_13, x_14, x_15);
 lean_dec(x_14);
 lean_dec(x_25);
 x_22 = x_28;
@@ -5322,7 +5322,7 @@ lean_dec_ref(x_7);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 x_33 = l_Array_foldlMUnsafe_fold___at___Array_foldlMUnsafe_fold___at___Lake_Toml_elabInlineTable_spec__6_spec__6___closed__4;
-x_34 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_29, x_33, x_13, x_14, x_15);
+x_34 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_29, x_33, x_13, x_14, x_15);
 lean_dec(x_14);
 lean_dec(x_29);
 x_22 = x_34;
@@ -5369,7 +5369,7 @@ lean_ctor_set(x_97, 1, x_91);
 x_98 = 0;
 x_99 = lean_usize_of_nat(x_93);
 lean_dec(x_93);
-x_100 = l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__2(x_32, x_90, x_98, x_99, x_97);
+x_100 = l_Array_foldlMUnsafe_fold___at_____aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1_spec__3(x_32, x_90, x_98, x_99, x_97);
 lean_dec_ref(x_90);
 x_101 = lean_ctor_get(x_100, 1);
 lean_inc(x_101);
@@ -5472,7 +5472,7 @@ x_59 = l_Lake_Toml_elabBasicStringCore___closed__3;
 x_60 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_60, 0, x_58);
 lean_ctor_set(x_60, 1, x_59);
-x_61 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_41, x_60, x_13, x_14, x_44);
+x_61 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_41, x_60, x_13, x_14, x_44);
 lean_dec(x_14);
 lean_dec(x_41);
 x_22 = x_61;
@@ -5742,7 +5742,7 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; 
 lean_dec_ref(x_2);
 x_10 = l_Lake_Toml_elabInlineTable___closed__3;
-x_11 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_10, x_3, x_4, x_5);
+x_11 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_10, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_1);
 return x_11;
@@ -6163,7 +6163,7 @@ if (x_24 == 0)
 {
 lean_object* x_25; lean_object* x_26; 
 x_25 = l_Lake_Toml_elabVal___closed__1;
-x_26 = l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_filterFieldList___at___Lean_realizeGlobalConstCore_spec__0_spec__2_spec__2_spec__2___redArg(x_1, x_25, x_2, x_3, x_4);
+x_26 = l_Lean_throwErrorAt___at_____private_Lean_Parser_Tactic_Doc_0__Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_811__spec__5___redArg(x_1, x_25, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_1);
 return x_26;

@@ -4,10 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Elab.Eval
-import Lean.Server.Rpc.RequestHandling
-import Lean.Widget.Types
+public import Lean.Elab.Eval
+public import Lean.Server.Rpc.RequestHandling
+public import Lean.Widget.Types
+meta import Lean.Parser.Term
+meta import Lean.Elab.Command
+
+public section
 
 namespace Lean.Widget
 open Meta Elab
@@ -45,7 +51,7 @@ private abbrev ModuleRegistry := SimplePersistentEnvExtension
   (UInt64 × Name × Expr)
   (Std.TreeMap UInt64 (Name × Expr))
 
-builtin_initialize moduleRegistry : ModuleRegistry ←
+private builtin_initialize moduleRegistry : ModuleRegistry ←
   registerSimplePersistentEnvExtension {
     addImportedFn := fun xss => xss.foldl (Array.foldl (fun s n => s.insert n.1 n.2)) ∅
     addEntryFn    := fun s n => s.insert n.1 n.2
@@ -62,7 +68,7 @@ builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
       applicationTime := .afterCompilation
       add             := fun decl stx kind => Prod.fst <$> MetaM.run do
         Attribute.Builtin.ensureNoArgs stx
-        unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
+        unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
         let e ← mkAppM ``ToModule.toModule #[.const decl []]
         let mod ← evalModule e
         let env ← getEnv
@@ -158,7 +164,7 @@ private abbrev PanelWidgetsExt := SimpleScopedEnvExtension
   (UInt64 × Name)
   (Std.TreeMap UInt64 (List PanelWidgetsExtEntry))
 
-builtin_initialize panelWidgetsExt : PanelWidgetsExt ←
+private builtin_initialize panelWidgetsExt : PanelWidgetsExt ←
   registerSimpleScopedEnvExtension {
     addEntry := fun s (h, n) => s.insert h (.global n :: s.getD h [])
     initial  := .empty
@@ -258,7 +264,7 @@ Note that persistent erasure is not possible, i.e.,
 syntax (name := showPanelWidgetsCmd) "show_panel_widgets " "[" sepBy1(showWidgetSpec, ", ") "]" : command
 
 open Command in
-@[command_elab showPanelWidgetsCmd] def elabShowPanelWidgetsCmd : CommandElab
+@[command_elab showPanelWidgetsCmd] meta def elabShowPanelWidgetsCmd : CommandElab
   | `(show_panel_widgets [ $ws ,*]) => liftTermElabM do
     for w in ws.getElems do
       match w with
@@ -305,7 +311,7 @@ In particular, `<props> : Json` works. -/
 syntax (name := widgetCmd) "#widget " widgetInstanceSpec : command
 
 open Command in
-@[command_elab widgetCmd] def elabWidgetCmd : CommandElab
+@[command_elab widgetCmd] meta def elabWidgetCmd : CommandElab
   | stx@`(#widget $s) => liftTermElabM do
     let wi : Expr ← elabWidgetInstanceSpec s
     let wi : WidgetInstance ← evalWidgetInstance wi

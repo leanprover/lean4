@@ -108,8 +108,16 @@ Examples:
  * `#["red", "green", "blue"].toSubarray.popFront.foldl (· + ·.length) 0 = 9`
 -/
 @[inline]
-def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Subarray α) : β :=
+def Subarray.foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Subarray α) : β :=
   Slice.foldl f (init := init) as
+
+/--
+The implementation of `ForIn.forIn` for `Subarray`, which allows it to be used with `for` loops in
+`do`-notation.
+-/
+@[inline]
+def Subarray.forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
+  ForIn.forIn s b f
 
 namespace Array
 

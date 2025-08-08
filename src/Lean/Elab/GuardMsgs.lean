@@ -3,10 +3,14 @@ Copyright (c) 2023 Kyle Miller. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+module
+
 prelude
-import Lean.Elab.Notation
-import Lean.Util.Diff
-import Lean.Server.CodeActions.Attr
+public import Lean.Elab.Notation
+public import Lean.Util.Diff
+public import Lean.Server.CodeActions.Attr
+
+public section
 
 /-! `#guard_msgs` command for testing commands
 
@@ -127,7 +131,7 @@ structure GuardMsgFailure where
 deriving TypeName
 
 /--
-Makes trailing whitespace visible and protectes them against trimming by the editor, by appending
+Makes trailing whitespace visible and protects them against trimming by the editor, by appending
 the symbol ⏎ to such a line (and also to any line that ends with such a symbol, to avoid
 ambiguities in the case the message already had that symbol).
 -/

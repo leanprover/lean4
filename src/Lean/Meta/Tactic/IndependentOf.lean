@@ -3,9 +3,13 @@ Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Jannis Limperg
 -/
+module
+
 prelude
-import Lean.Meta.CollectMVars
-import Lean.Meta.Tactic.Util
+public import Lean.Meta.CollectMVars
+public import Lean.Meta.Tactic.Util
+
+public section
 
 namespace Lean.MVarId
 

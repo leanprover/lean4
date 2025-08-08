@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Json.FromToJson.Basic
-import Lean.Server.Rpc.Basic
+public import Lean.Data.Json.FromToJson.Basic
+public import Lean.Server.Rpc.Basic
+
+public section
 
 namespace Lean.Widget
 open Server
@@ -75,11 +79,11 @@ private structure TaggedState where
   deriving Inhabited
 
 instance : Std.Format.MonadPrettyFormat (StateM TaggedState) where
-  pushOutput s       := modify fun ⟨out, ts, col⟩ => ⟨out.appendText s, ts, col + s.length⟩
-  pushNewline indent := modify fun ⟨out, ts, _⟩ => ⟨out.appendText ("\n".pushn ' ' indent), ts, indent⟩
-  currColumn         := return (←get).column
-  startTag n         := modify fun ⟨out, ts, col⟩ => ⟨TaggedText.text "", (n, col, out) :: ts, col⟩
-  endTags n          := modify fun ⟨out, ts, col⟩ =>
+  pushOutput s       := private modify fun ⟨out, ts, col⟩ => ⟨out.appendText s, ts, col + s.length⟩
+  pushNewline indent := private modify fun ⟨out, ts, _⟩ => ⟨out.appendText ("\n".pushn ' ' indent), ts, indent⟩
+  currColumn         := private return (←get).column
+  startTag n         := private modify fun ⟨out, ts, col⟩ => ⟨TaggedText.text "", (n, col, out) :: ts, col⟩
+  endTags n          := private modify fun ⟨out, ts, col⟩ =>
     let (ended, left) := (ts.take n, ts.drop n)
     let out' := ended.foldl (init := out) fun acc (n, col', top) => top.appendTag (n, col') acc
     ⟨out', left, col⟩

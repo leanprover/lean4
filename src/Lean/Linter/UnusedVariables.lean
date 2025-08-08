@@ -3,9 +3,13 @@ Copyright (c) 2022 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Elab.Command
-import Lean.Linter.Util
+public import Lean.Elab.Command
+public import Lean.Linter.Util
+
+public section
 set_option linter.missingDocs true -- keep it documented
 
 /-! # Unused variable Linter
@@ -172,9 +176,10 @@ builtin_initialize
     applicationTime := .afterCompilation
     add             := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
-      unless (← getConstInfo decl).type.isConstOf ``IgnoreFunction do
-        throwError "invalid attribute '{name}', must be of type `Lean.Linter.IgnoreFunction`"
+      unless kind == AttributeKind.global do throwAttrMustBeGlobal name kind
+      let declType := (← getConstInfo decl).type
+      unless declType.isConstOf ``IgnoreFunction do
+        throwAttrDeclNotOfExpectedType name decl declType (mkConst ``Lean.Linter.IgnoreFunction)
       let env ← getEnv
       if builtin then
         let h := mkConst decl

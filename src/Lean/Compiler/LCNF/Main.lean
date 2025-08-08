@@ -3,21 +3,26 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.Options
-import Lean.Compiler.ExternAttr
-import Lean.Compiler.IR
-import Lean.Compiler.IR.Basic
-import Lean.Compiler.IR.Checker
-import Lean.Compiler.IR.ToIR
-import Lean.Compiler.LCNF.PassManager
-import Lean.Compiler.LCNF.Passes
-import Lean.Compiler.LCNF.PrettyPrinter
-import Lean.Compiler.LCNF.ToDecl
-import Lean.Compiler.LCNF.Check
-import Lean.Compiler.LCNF.PullLetDecls
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.CSE
+public import Lean.Compiler.Options
+public import Lean.Compiler.ExternAttr
+public import Lean.Compiler.IR
+public import Lean.Compiler.IR.Basic
+public import Lean.Compiler.IR.Checker
+public import Lean.Compiler.IR.ToIR
+public import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.Passes
+public import Lean.Compiler.LCNF.PrettyPrinter
+public import Lean.Compiler.LCNF.ToDecl
+public import Lean.Compiler.LCNF.Check
+public import Lean.Compiler.LCNF.PullLetDecls
+public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.CSE
+public import Lean.Compiler.LCNF.Visibility
+
+public section
 
 namespace Lean.Compiler.LCNF
 /--
@@ -88,6 +93,14 @@ def run (declNames : Array Name) : CompilerM (Array IR.Decl) := withAtLeastMaxRe
   and it often creates a very deep recursion.
   Moreover, some declarations get very big during simplification.
   -/
+  for declName in declNames do
+    if let some fnName := Compiler.getImplementedBy? (← getEnv) declName then
+      if !isDeclPublic (← getEnv) fnName then
+        if let some decl ← getLocalDeclAt? fnName .base then
+          trace[Compiler.inferVisibility] m!"Marking {fnName} as opaque because it implements {declName}"
+          LCNF.markDeclPublicRec .base decl
+          if let some decl ← getLocalDeclAt? fnName .mono then
+            LCNF.markDeclPublicRec .mono decl
   let declNames ← declNames.filterM (shouldGenerateCode ·)
   if declNames.isEmpty then return #[]
   for declName in declNames do

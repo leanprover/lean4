@@ -3,10 +3,14 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Std.Tactic.Do.Syntax
-import Lean.Meta.Basic
-import Lean.Elab.Tactic.Do.ProofMode.MGoal
+public import Std.Tactic.Do.Syntax
+public import Lean.Meta.Basic
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic
@@ -22,7 +26,7 @@ def mStart (goal : Expr) : MetaM MStartResult := do
     return { goal := mgoal }
 
   let u ← mkFreshLevelMVar
-  let σs ← mkFreshExprMVar (σs.mkType u)
+  let σs ← mkFreshExprMVar (TypeList.mkType u)
   let P ← mkFreshExprMVar (mkApp (mkConst ``SPred [u]) σs)
   let inst ← synthInstance (mkApp3 (mkConst ``PropAsSPredTautology [u]) goal σs P)
   let u ← instantiateLevelMVars u

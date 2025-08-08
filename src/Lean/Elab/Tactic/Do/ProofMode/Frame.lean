@@ -3,10 +3,14 @@ Copyright (c) 2025 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Std.Tactic.Do.Syntax
-import Lean.Elab.Tactic.Do.ProofMode.MGoal
-import Lean.Elab.Tactic.Do.ProofMode.Focus
+public import Std.Tactic.Do.Syntax
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+public import Lean.Elab.Tactic.Do.ProofMode.Focus
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic
@@ -33,39 +37,40 @@ partial def transferHypNames (P P' : Expr) : MetaM Expr := (·.snd) <$> label (c
       if let some (u, σs, L, R) := parseAnd? P' then
         let (Ps, L') ← label Ps L
         let (Ps, R') ← label Ps R
-        return (Ps, mkAnd! u σs L' R')
+        return (Ps, SPred.mkAnd! u σs L' R')
       else
         let mut Ps' := Ps
         repeat
           -- If we cannot find the hyp, it might be in a nested conjunction.
           -- Just pick a default name for it.
+          let name ← mkFreshUserName `h
           let uniq ← mkFreshId
-          let P :: Ps'' := Ps' | return (Ps, { name := `h, uniq, p := P' : Hyp }.toExpr)
+          let P :: Ps'' := Ps' | return (Ps, { name, uniq, p := P' : Hyp }.toExpr)
           Ps' := Ps''
           if ← isDefEq P.p P' then
             return (Ps, { P with p := P' }.toExpr)
         unreachable!
 
 def mFrameCore [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
-  (goal : MGoal) (kFail : m (α × Expr)) (kSuccess : Expr /-φ:Prop-/ → Expr /-h:φ-/ → MGoal → m (α × Expr)) : m (α × Expr) := do
+  (goal : MGoal) (kFail : m Expr) (kSuccess : Expr /-φ:Prop-/ → Expr /-h:φ-/ → MGoal → m Expr) : m Expr := do
   let P := goal.hyps
   let φ ← mkFreshExprMVar (mkSort .zero)
   let P' ← mkFreshExprMVar (mkApp (mkConst ``SPred [goal.u]) goal.σs)
-  if let some inst ← synthInstance? (mkApp4 (mkConst ``HasFrame [goal.u]) goal.σs P P' φ) then
+  if let .some inst ← trySynthInstance (mkApp4 (mkConst ``HasFrame [goal.u]) goal.σs P P' φ) then
     if ← isDefEq (mkConst ``True) φ then return (← kFail)
     -- copy the name of P to P' if it is a named hypothesis
     let P' ← transferHypNames P P'
     let goal := { goal with hyps := P' }
-    withLocalDeclD `h φ fun hφ => do
-      let (a, prf) ← kSuccess φ hφ goal
+    withLocalDeclD (← liftMetaM <| mkFreshUserName `h) φ fun hφ => do
+      let prf ← kSuccess φ hφ goal
       let prf ← mkLambdaFVars #[hφ] prf
       let prf := mkApp7 (mkConst ``Frame.frame [goal.u]) goal.σs P P' goal.target φ inst prf
-      return (a, prf)
+      return prf
   else
     kFail
 
 def mTryFrame [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
-  (goal : MGoal) (k : MGoal → m (α × Expr)) : m (α × Expr) :=
+  (goal : MGoal) (k : MGoal → m Expr) : m Expr :=
   mFrameCore goal (k goal) (fun _ _ goal => k goal)
 
 @[builtin_tactic Lean.Parser.Tactic.mframe]
@@ -74,8 +79,8 @@ def elabMFrame : Tactic | _ => do
   mvar.withContext do
   let g ← instantiateMVars <| ← mvar.getType
   let some goal := parseMGoal? g | throwError "not in proof mode"
-  let (m, prf) ← mFrameCore goal (fun _ => throwError "Could not infer frame") fun _ _ goal => do
+  let prf ← mFrameCore goal (fun _ => throwError "Could not infer frame") fun _ _ goal => do
     let m ← mkFreshExprSyntheticOpaqueMVar goal.toExpr
-    return (m, m)
+    replaceMainGoal [m.mvarId!]
+    return m
   mvar.assign prf
-  replaceMainGoal [m.mvarId!]

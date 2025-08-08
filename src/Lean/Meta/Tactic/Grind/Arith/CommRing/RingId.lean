@@ -3,13 +3,17 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Ring.Field
-import Init.Grind.Ring.Envelope
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.SynthInstance
-import Lean.Meta.Tactic.Grind.Arith.Insts
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
+public import Init.Grind.Ring.Field
+public import Init.Grind.Ring.Envelope
+public import Lean.Meta.Tactic.Grind.Simp
+public import Lean.Meta.Tactic.Grind.SynthInstance
+public import Lean.Meta.Tactic.Grind.Arith.Insts
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
+
+public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
 

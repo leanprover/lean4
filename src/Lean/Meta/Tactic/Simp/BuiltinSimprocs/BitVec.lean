@@ -3,11 +3,15 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.LitValues
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
-import Init.Data.BitVec.Basic
+public import Lean.Meta.LitValues
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
+public import Init.Data.BitVec.Basic
+
+public section
 
 namespace BitVec
 open Lean Meta Simp
@@ -288,7 +292,7 @@ builtin_dsimproc [simp, seval] reduceShiftLeftZeroExtend (shiftLeftZeroExtend _ 
   return .done <| toExpr (v.value.shiftLeftZeroExtend m)
 
 /-- Simplification procedure for `extractLsb'` on `BitVec`s. -/
-builtin_dsimproc [simp, seval] reduceExtracLsb' (extractLsb' _ _ _) := fun e => do
+builtin_dsimproc [simp, seval] reduceExtractLsb' (extractLsb' _ _ _) := fun e => do
   let_expr extractLsb' _ start len v ← e | return .continue
   let some v ← fromExpr? v | return .continue
   let some start ← Nat.fromExpr? start | return .continue

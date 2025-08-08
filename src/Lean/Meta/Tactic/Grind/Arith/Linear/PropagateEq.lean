@@ -3,23 +3,27 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Ring.Poly
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.Linear.Var
-import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
-import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
-import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
-import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
+public import Init.Grind.Ring.Poly
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Var
+public import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
+public import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
+public import Lean.Meta.Tactic.Grind.Arith.Linear.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 
 private def _root_.Lean.Grind.Linarith.Poly.substVar (p : Poly) : LinearM (Option (Var × EqCnstr × Poly)) := do
   let some (a, x, c) ← p.findVarToSubst | return none
   let b := c.p.coeff x
-  let p' := p.mul (-b) |>.combine (c.p.mul a)
+  let p' := p.mul b |>.combine (c.p.mul (-a))
   trace[grind.debug.linarith.subst] "{← p.denoteExpr}, {a}, {← getVar x}, {← c.denoteExpr}, {b}, {← p'.denoteExpr}"
   return some (x, c, p')
 

@@ -107,7 +107,6 @@ lean_dec_ref(x_1);
 x_14 = lean_box(x_2);
 x_15 = lean_array_get(x_14, x_3, x_9);
 x_16 = lean_unbox(x_15);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -374,14 +373,12 @@ lean_closure_set(x_18, 2, x_1);
 x_31 = lean_box(x_11);
 x_32 = lean_array_get(x_31, x_17, x_6);
 x_33 = lean_unbox(x_32);
-lean_dec(x_32);
 if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; uint8_t x_36; 
 x_34 = lean_box(x_11);
 x_35 = lean_array_get(x_34, x_17, x_12);
 x_36 = lean_unbox(x_35);
-lean_dec(x_35);
 x_19 = x_36;
 goto block_30;
 }

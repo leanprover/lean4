@@ -3,8 +3,12 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+
+public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
 
@@ -63,6 +67,7 @@ private def pow (p : Poly) (k : Nat) : RingM Poly := withIncRecDepth do
 
 private def toPoly (e : RingExpr) : RingM Poly := do
   match e with
+  | .intCast n | .natCast n
   | .num n   => return .num (← applyChar n)
   | .var x   => return .ofVar x
   | .add a b => combine (← toPoly a) (← toPoly b)
@@ -81,19 +86,19 @@ private def toPoly (e : RingExpr) : RingM Poly := do
 Converts the given ring expression into a multivariate polynomial.
 If the ring has a nonzero characteristic, it is used during normalization.
 -/
-abbrev _root_.Lean.Grind.CommRing.Expr.toPolyM (e : RingExpr) : RingM Poly := do
+@[inline] def _root_.Lean.Grind.CommRing.Expr.toPolyM (e : RingExpr) : RingM Poly := do
   toPoly e
 
-abbrev _root_.Lean.Grind.CommRing.Poly.mulConstM (p : Poly) (k : Int) : RingM Poly :=
+@[inline] def _root_.Lean.Grind.CommRing.Poly.mulConstM (p : Poly) (k : Int) : RingM Poly :=
   mulConst k p
 
-abbrev _root_.Lean.Grind.CommRing.Poly.mulMonM (p : Poly) (k : Int) (m : Mon) : RingM Poly :=
+@[inline] def _root_.Lean.Grind.CommRing.Poly.mulMonM (p : Poly) (k : Int) (m : Mon) : RingM Poly :=
   mulMon k m p
 
-abbrev _root_.Lean.Grind.CommRing.Poly.mulM (p₁ p₂ : Poly) : RingM Poly := do
+@[inline] def _root_.Lean.Grind.CommRing.Poly.mulM (p₁ p₂ : Poly) : RingM Poly := do
   mul p₁ p₂
 
-abbrev _root_.Lean.Grind.CommRing.Poly.combineM (p₁ p₂ : Poly) : RingM Poly :=
+@[inline] def _root_.Lean.Grind.CommRing.Poly.combineM (p₁ p₂ : Poly) : RingM Poly :=
   combine p₁ p₂
 
 def _root_.Lean.Grind.CommRing.Poly.spolM (p₁ p₂ : Poly) : RingM Grind.CommRing.SPolResult := do

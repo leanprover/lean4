@@ -3,16 +3,20 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.Util.ForEachExprWhere
-import Lean.Meta.CtorRecognizer
-import Lean.Meta.Match.Match
-import Lean.Meta.GeneralizeVars
-import Lean.Meta.ForEachExpr
-import Lean.Elab.BindersUtil
-import Lean.Elab.PatternVar
-import Lean.Elab.Quotation.Precheck
-import Lean.Elab.SyntheticMVars
+public import Lean.Util.ForEachExprWhere
+public import Lean.Meta.CtorRecognizer
+public import Lean.Meta.Match.Match
+public import Lean.Meta.GeneralizeVars
+public import Lean.Meta.ForEachExpr
+public import Lean.Elab.BindersUtil
+public import Lean.Elab.PatternVar
+public import Lean.Elab.Quotation.Precheck
+public import Lean.Elab.SyntheticMVars
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
@@ -195,7 +199,8 @@ private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array P
   let rec loop (i : Nat) (decls : Array PatternVarDecl) (userNames : Array Name) := do
     if h : i < pVars.size then
       let type ← mkFreshTypeMVar
-      withLocalDecl pVars[i].getId BinderInfo.default type fun x =>
+      let n := pVars[i].getId
+      withLocalDecl n BinderInfo.default type (kind := .ofBinderName n) fun x =>
         loop (i+1) (decls.push { fvarId := x.fvarId! }) (userNames.push Name.anonymous)
     else
       k decls
@@ -740,7 +745,7 @@ where
     let rec go (packed : Expr) (patternVars : Array Expr) : TermElabM α := do
       match packed with
       | .lam n d b _ =>
-        withLocalDeclD n (← erasePatternRefAnnotations (← eraseInaccessibleAnnotations d)) fun patternVar =>
+        withLocalDecl n .default (← erasePatternRefAnnotations (← eraseInaccessibleAnnotations d)) (kind := .ofBinderName n) fun patternVar =>
           go (b.instantiate1 patternVar) (patternVars.push patternVar)
       | _ =>
         let (matchType, patterns) := unpackMatchTypePatterns packed

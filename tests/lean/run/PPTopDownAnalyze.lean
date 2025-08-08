@@ -342,7 +342,7 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN List.partition.loop
 #testDelabN StateT.modifyGet
 #testDelabN Nat.gcd_one_left
-#testDelabN List.hasDecidableLt
+#testDelabN List.decidableLT
 #testDelabN Lean.Xml.parse
 #testDelabN Add.noConfusionType
 #testDelabN List.filterMapM.loop
@@ -354,10 +354,8 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN MonadLift.noConfusionType
 #testDelabN MonadExcept.noConfusion
 #testDelabN MonadFinally.noConfusion
-#testDelabN Lean.Elab.InfoTree.goalsAt?.match_1
 #testDelabN Array.mk.injEq
 #testDelabN Lean.PrefixTree.empty
-#testDelabN Lean.PersistentHashMap.getCollisionNodeSize.match_1
 #testDelabN and_false
 #testDelabN Lean.Server.FileWorker.handlePlainTermGoal
 #testDelabN Lean.Server.FileWorker.handlePlainGoal

@@ -3,16 +3,20 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Runtime
-import Lean.Compiler.NameMangling
-import Lean.Compiler.ExportAttr
-import Lean.Compiler.InitAttr
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.EmitUtil
-import Lean.Compiler.IR.NormIds
-import Lean.Compiler.IR.SimpCase
-import Lean.Compiler.IR.Boxing
+public import Lean.Runtime
+public import Lean.Compiler.NameMangling
+public import Lean.Compiler.ExportAttr
+public import Lean.Compiler.InitAttr
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.EmitUtil
+public import Lean.Compiler.IR.NormIds
+public import Lean.Compiler.IR.SimpCase
+public import Lean.Compiler.IR.Boxing
+
+public section
 
 namespace Lean.IR.EmitC
 open ExplicitBoxing (requiresBoxedVersion mkBoxedName isBoxedName)
@@ -97,8 +101,10 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
   let ps := decl.params
   let env ← getEnv
   if ps.isEmpty then
-    if isClosedTermName env decl.name then emit "static "
-    else if isExternal then emit "extern "
+    if isExternal then emit "extern "
+    -- The first half is a pre-module system approximation, we keep it around for the benefit of
+    -- unported code.
+    else if isClosedTermName env decl.name || !Compiler.LCNF.isDeclPublic env decl.name then emit "static "
     else emit "LEAN_EXPORT "
   else
     if !isExternal then emit "LEAN_EXPORT "
@@ -536,7 +542,7 @@ def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
 def isTailCall (x : VarId) (v : Expr) (b : FnBody) : M Bool := do
   let ctx ← read;
   match v, b with
-  | Expr.fap f _, FnBody.ret (Arg.var y) => return f == ctx.mainFn && x == y
+  | Expr.fap f _, FnBody.ret (.var y) => return f == ctx.mainFn && x == y
   | _, _ => pure false
 
 def paramEqArg (p : Param) (x : Arg) : Bool :=
@@ -634,7 +640,6 @@ partial def emitBlock (b : FnBody) : M Unit := do
   | FnBody.set x i y b         => emitSet x i y; emitBlock b
   | FnBody.uset x i y b        => emitUSet x i y; emitBlock b
   | FnBody.sset x i o y t b    => emitSSet x i o y t; emitBlock b
-  | FnBody.mdata _ b           => emitBlock b
   | FnBody.ret x               => emit "return "; emitArg x; emitLn ";"
   | FnBody.case _ x xType alts => emitCase x xType alts
   | FnBody.jmp j xs            => emitJmp j xs

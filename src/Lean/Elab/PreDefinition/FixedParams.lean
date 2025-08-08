@@ -4,8 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Basic
+
+public section
 
 /-!
 This module contains the logic for figuring out, given mutually recursive predefinitions,
@@ -52,7 +56,7 @@ We find the largest set and graph that satisfies these rules:
 * For structural recursion: The target and all its indices are `varying`.
   (This is taking into account post-hoc, using `FixedParamPerms.erase`)
 
-Under the assumption that the predefintions indeed are mutually recursive, then the resulting graph,
+Under the assumption that the predefinitions indeed are mutually recursive, then the resulting graph,
 restricted to the non-`varying` nodes, should partition into cliques that have one member from each
 function. Every such clique becomes a fixed parameter.
 
@@ -74,7 +78,7 @@ structure Info where
   graph : Array (Array (Option (Array (Option Nat))))
   /--
   The dependency structure of the function parameter.
-  If `paramIdx₂ ∈ revDeps[funIdx][paraIdx₁]`, then the type of `paramIdx₂` depends on `parmaIdx₁`
+  If `paramIdx₂ ∈ revDeps[funIdx][paraIdx₁]`, then the type of `paramIdx₂` depends on `paramIdx₁`
   -/
   revDeps : Array (Array (Array Nat))
 
@@ -403,7 +407,7 @@ def FixedParamPerm.pickVarying (perm : FixedParamPerm) (xs : Array α) : Array �
 
 /--
 Intersperses the fixed and varying parameters to be in the original parameter order.
-Can handle over- or und-application (extra or missing varying args), as long
+Can handle over- or under-application (extra or missing varying args), as long
 as there are all varying parameters that go before fixed parameters.
 (We expect to always find all fixed parameters, else they wouldn't be fixed parameters.)
 -/

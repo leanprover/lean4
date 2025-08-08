@@ -3,8 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.PassManager
+public import Lean.Compiler.LCNF.PassManager
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -91,7 +95,7 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
   let tmpDecl := { tmpDecl with name := declName }
   decls.binSearch tmpDecl declLt
 
-def DeclExt := PersistentEnvExtension Decl Decl DeclExtState
+@[expose] def DeclExt := PersistentEnvExtension Decl Decl DeclExtState
 
 instance : Inhabited DeclExt :=
   inferInstanceAs (Inhabited (PersistentEnvExtension Decl Decl DeclExtState))
@@ -110,7 +114,7 @@ def mkDeclExt (phase : Phase) (name : Name := by exact decl_name%) : IO DeclExt 
           if isDeclTransparent env phase decl.name then
             some decl
           else
-            some { decl with value := .extern { arity? := decl.getArity, entries := [.opaque decl.name] } }
+            some { decl with value := .extern { entries := [.opaque decl.name] } }
       return entries
     statsFn := fun s =>
       let numEntries := s.foldl (init := 0) (fun count _ _ => count + 1)
@@ -139,10 +143,10 @@ def getMonoDecl? (declName : Name) : CoreM (Option Decl) := do
   return getDeclCore? (← getEnv) monoExt declName
 
 def saveBaseDeclCore (env : Environment) (decl : Decl) : Environment :=
-  baseExt.addEntry (env.addExtraName decl.name) decl
+  baseExt.addEntry env decl
 
 def saveMonoDeclCore (env : Environment) (decl : Decl) : Environment :=
-  monoExt.addEntry (env.addExtraName decl.name) decl
+  monoExt.addEntry env decl
 
 def Decl.saveBase (decl : Decl) : CoreM Unit :=
   modifyEnv (saveBaseDeclCore · decl)
@@ -163,10 +167,13 @@ def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option Decl) :=
 def getDecl? (declName : Name) : CompilerM (Option Decl) := do
   getDeclAt? declName (← getPhase)
 
-def getLocalDecl? (declName : Name) : CompilerM (Option Decl) := do
-  match (← getPhase) with
+def getLocalDeclAt? (declName : Name) (phase : Phase) : CompilerM (Option Decl) := do
+  match phase with
   | .base => return baseExt.getState (← getEnv) |>.find? declName
   | .mono => return monoExt.getState (← getEnv) |>.find? declName
+
+def getLocalDecl? (declName : Name) : CompilerM (Option Decl) := do
+  getLocalDeclAt? declName (← getPhase)
 
 def getExt (phase : Phase) : DeclExt :=
   match phase with

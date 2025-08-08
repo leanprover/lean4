@@ -549,7 +549,7 @@ macro_rules
       `($f $a)
 
 /--
-Haskell-like pipe operator `|>`. `x |> f` means the same as the same as `f x`,
+Haskell-like pipe operator `|>`. `x |> f` means the same as `f x`,
 and it chains such that `x |> f |> g` is interpreted as `g (f x)`.
 -/
 syntax:min term " |> " term:min1 : term

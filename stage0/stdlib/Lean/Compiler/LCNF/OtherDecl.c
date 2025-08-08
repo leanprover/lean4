@@ -23,8 +23,11 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclType___redArg___boxed(
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclType___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_object* x_7; 
 x_7 = l_Lean_Compiler_LCNF_getPhase___redArg(x_3, x_6);
+if (lean_obj_tag(x_7) == 0)
+{
+lean_object* x_8; uint8_t x_9; 
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = lean_unbox(x_8);
@@ -47,6 +50,33 @@ lean_inc(x_12);
 lean_dec_ref(x_7);
 x_13 = l_Lean_Compiler_LCNF_getOtherDeclMonoType(x_1, x_4, x_5, x_12);
 return x_13;
+}
+}
+else
+{
+uint8_t x_14; 
+lean_dec(x_5);
+lean_dec_ref(x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+x_14 = !lean_is_exclusive(x_7);
+if (x_14 == 0)
+{
+return x_7;
+}
+else
+{
+lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_15 = lean_ctor_get(x_7, 0);
+x_16 = lean_ctor_get(x_7, 1);
+lean_inc(x_16);
+lean_inc(x_15);
+lean_dec(x_7);
+x_17 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_17, 0, x_15);
+lean_ctor_set(x_17, 1, x_16);
+return x_17;
+}
 }
 }
 }

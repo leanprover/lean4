@@ -3,12 +3,17 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Closure
-import Lean.Meta.Diagnostics
-import Lean.Elab.Open
-import Lean.Elab.SetOption
-import Lean.Elab.Eval
+public import Lean.Meta.Closure
+public import Lean.Meta.Diagnostics
+public import Lean.Elab.Open
+public import Lean.Elab.SetOption
+public import Lean.Elab.Eval
+meta import Lean.Parser.Command
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
@@ -38,7 +43,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   let e ← elabTerm stx[0] none
   unless e.isSorry do
     addDotCompletionInfo stx e expectedType?
-  throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
+  throwErrorAt stx[1] "Invalid field notation: Identifier or numeral expected"
 
 @[builtin_term_elab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
   /- `ident.` is ambiguous in Lean, we may try to be completing a declaration name or access a "field". -/
@@ -52,7 +57,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
       addDotCompletionInfo stx e expectedType?
     catch _ =>
       s.restore
-    throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
+    throwErrorAt stx[1] "Invalid field notation: Identifier or numeral expected"
   else
     elabPipeCompletion stx expectedType?
 

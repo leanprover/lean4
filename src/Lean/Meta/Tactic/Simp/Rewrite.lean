@@ -3,18 +3,22 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.ACLt
-import Lean.Meta.Match.MatchEqsExt
-import Lean.Meta.AppBuilder
-import Lean.Meta.SynthInstance
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.UnifyEq
-import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Tactic.Simp.Arith
-import Lean.Meta.Tactic.Simp.Simproc
-import Lean.Meta.Tactic.Simp.Attr
-import Lean.Meta.BinderNameHint
+public import Lean.Meta.ACLt
+public import Lean.Meta.Match.MatchEqsExt
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.SynthInstance
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.UnifyEq
+public import Lean.Meta.Tactic.Simp.Types
+public import Lean.Meta.Tactic.Simp.Arith
+public import Lean.Meta.Tactic.Simp.Simproc
+public import Lean.Meta.Tactic.Simp.Attr
+public import Lean.Meta.BinderNameHint
+
+public section
 
 namespace Lean.Meta.Simp
 
@@ -607,7 +611,7 @@ where
 
 /--
 Discharges assumptions of the form `∀ …, a = b` using `rfl`. This is particularly useful for higher
-order assumptions of the form `∀ …, e = ?g x y` to instaniate  a parameter `g` even if that does not
+order assumptions of the form `∀ …, e = ?g x y` to instantiate a parameter `g` even if that does not
 appear on the lhs of the rule.
 -/
 def dischargeRfl (e : Expr) : SimpM (Option Expr) := do

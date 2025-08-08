@@ -3,11 +3,15 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.CompilerM
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.InferType
-import Lean.Compiler.LCNF.Internalize
+public import Lean.Compiler.LCNF.CompilerM
+public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.LCNF.InferType
+public import Lean.Compiler.LCNF.Internalize
+
+public section
 
 namespace Lean.Compiler.LCNF
 /-!
@@ -55,7 +59,7 @@ structure Context where
   params : FVarIdSet
 
 structure State where
-  used : FVarIdSet := {}
+  used : FVarIdHashSet := {}
 
 abbrev FindUsedM := ReaderT Context <| StateRefT State CompilerM
 
@@ -106,7 +110,7 @@ partial def visit (code : Code) : FindUsedM Unit := do
   | .return fvarId => visitFVar fvarId
   | .unreach _ => return ()
 
-def collectUsedParams (decl : Decl) : CompilerM FVarIdSet := do
+def collectUsedParams (decl : Decl) : CompilerM FVarIdHashSet := do
   let params := decl.params.foldl (init := {}) fun s p => s.insert p.fvarId
   let (_, { used, .. }) ← decl.value.forCodeM visit |>.run { decl, params } |>.run {}
   return used

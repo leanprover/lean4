@@ -3,9 +3,13 @@ Copyright (c) 2022 Newell Jensen. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Newell Jensen, Thomas Murrills
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Rfl
-import Lean.Elab.Tactic.Basic
+public import Lean.Meta.Tactic.Rfl
+public import Lean.Elab.Tactic.Basic
+
+public section
 
 /-!
 # `rfl` tactic extension for reflexive relations

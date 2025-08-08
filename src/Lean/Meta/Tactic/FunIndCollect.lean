@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.FunIndInfo
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.FunIndInfo
+
+public section
 
 /-!
 Support for collecting function calls that could be used for `fun_induction` or `fun_cases`.

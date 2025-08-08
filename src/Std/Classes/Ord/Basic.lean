@@ -610,22 +610,20 @@ instance {α β} {f : α → β} [Ord β] [TransOrd β] :
     TransCmp (compareOn f) where
   isLE_trans := TransOrd.isLE_trans (α := β)
 
-attribute [instance] lexOrd in
+attribute [local instance] lexOrd
+
 instance {α β} [Ord α] [Ord β] [ReflOrd α] [ReflOrd β] :
     ReflOrd (α × β) :=
   inferInstanceAs <| ReflCmp (compareLex _ _)
 
-attribute [instance] lexOrd in
 instance {α β} [Ord α] [Ord β] [OrientedOrd α] [OrientedOrd β] :
     OrientedOrd (α × β) :=
   inferInstanceAs <| OrientedCmp (compareLex _ _)
 
-attribute [instance] lexOrd in
 instance {α β} [Ord α] [Ord β] [TransOrd α] [TransOrd β] :
     TransOrd (α × β) :=
   inferInstanceAs <| TransCmp (compareLex _ _)
 
-attribute [instance] lexOrd in
 instance {α β} [Ord α] [Ord β] [LawfulEqOrd α] [LawfulEqOrd β] : LawfulEqOrd (α × β) where
   eq_of_compare {a b} h := by
     simp only [lexOrd, compareLex_eq_eq, compareOn] at h

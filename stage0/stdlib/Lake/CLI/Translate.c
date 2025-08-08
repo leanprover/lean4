@@ -21,13 +21,12 @@ static lean_object* l_Lake_Package_mkConfigString___closed__1;
 lean_object* l_Lean_Core_getMaxHeartbeats(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_mkConfigString___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeTSyntax(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__26;
 static lean_object* l_Lake_Package_mkConfigString___closed__3;
+lean_object* l_Substring_takeWhileAux___at___Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__24;
 static lean_object* l_Lake_Package_mkConfigString___closed__29;
 lean_object* lean_io_get_num_heartbeats(lean_object*);
@@ -57,9 +56,9 @@ static lean_object* l_Lake_Package_mkConfigString___closed__6;
 static lean_object* l_Lake_Package_mkConfigString___closed__7;
 static lean_object* l_Lake_Package_mkConfigString___closed__28;
 static lean_object* l_Lake_Package_mkConfigString___closed__37;
+lean_object* l_Lean_Option_get___at___Lean_Language_Lean_process_parseCmd_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__9;
 static lean_object* l_Lake_Package_mkConfigString___closed__0;
-uint8_t l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_diagnostics;
 static lean_object* l_Lake_Package_mkConfigString___closed__8;
 extern lean_object* l_Lean_inheritedTraceOptions;
@@ -80,7 +79,6 @@ static lean_object* l_Lake_Package_mkConfigString___closed__20;
 static lean_object* l_Lake_Package_mkConfigString___closed__22;
 static lean_object* l_Lake_Package_mkConfigString___closed__11;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-lean_object* l_Substring_takeRightWhileAux___at___Lean_Syntax_isToken_spec__0(lean_object*, lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__34;
 lean_object* l_Lake_Toml_ppTable(lean_object*);
@@ -98,8 +96,10 @@ lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lake_Package_mkConfigString___closed__19;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeSyntax(lean_object*);
+uint8_t l_Lean_Option_get___at___Lean_Firefox_Profile_export_spec__9(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkConfigString___closed__18;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* l_Substring_takeRightWhileAux___at___Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_0__Lake_descopeTSyntax___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_____private_Lake_CLI_Translate_0__Lake_descopeSyntax_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
@@ -591,7 +591,7 @@ _start:
 lean_object* x_1; lean_object* x_2; uint8_t x_3; 
 x_1 = l_Lake_Package_mkConfigString___closed__31;
 x_2 = lean_box(0);
-x_3 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__1(x_2, x_1);
+x_3 = l_Lean_Option_get___at___Lean_Firefox_Profile_export_spec__9(x_2, x_1);
 return x_3;
 }
 }
@@ -609,7 +609,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_Package_mkConfigString___closed__33;
 x_2 = lean_box(0);
-x_3 = l_Lean_Option_get___at___Lean_Compiler_LCNF_toConfigOptions_spec__0(x_2, x_1);
+x_3 = l_Lean_Option_get___at___Lean_Language_Lean_process_parseCmd_spec__0(x_2, x_1);
 return x_3;
 }
 }
@@ -787,8 +787,8 @@ lean_dec(x_69);
 x_70 = lean_unsigned_to_nat(120u);
 x_71 = lean_format_pretty(x_65, x_70, x_28, x_28);
 x_72 = lean_string_utf8_byte_size(x_71);
-x_73 = l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0(x_71, x_72, x_28);
-x_74 = l_Substring_takeRightWhileAux___at___Lean_Syntax_isToken_spec__0(x_71, x_73, x_72);
+x_73 = l_Substring_takeWhileAux___at___Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(x_71, x_72, x_28);
+x_74 = l_Substring_takeRightWhileAux___at___Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(x_71, x_73, x_72);
 x_75 = lean_string_utf8_extract(x_71, x_73, x_74);
 lean_dec(x_74);
 lean_dec(x_73);
@@ -809,8 +809,8 @@ lean_dec(x_67);
 x_79 = lean_unsigned_to_nat(120u);
 x_80 = lean_format_pretty(x_65, x_79, x_28, x_28);
 x_81 = lean_string_utf8_byte_size(x_80);
-x_82 = l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0(x_80, x_81, x_28);
-x_83 = l_Substring_takeRightWhileAux___at___Lean_Syntax_isToken_spec__0(x_80, x_82, x_81);
+x_82 = l_Substring_takeWhileAux___at___Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(x_80, x_81, x_28);
+x_83 = l_Substring_takeRightWhileAux___at___Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(x_80, x_82, x_81);
 x_84 = lean_string_utf8_extract(x_80, x_82, x_83);
 lean_dec(x_83);
 lean_dec(x_82);
@@ -848,8 +848,8 @@ if (lean_is_exclusive(x_90)) {
 x_93 = lean_unsigned_to_nat(120u);
 x_94 = lean_format_pretty(x_88, x_93, x_28, x_28);
 x_95 = lean_string_utf8_byte_size(x_94);
-x_96 = l_Substring_takeWhileAux___at___Lean_Syntax_decodeStringGap_spec__0(x_94, x_95, x_28);
-x_97 = l_Substring_takeRightWhileAux___at___Lean_Syntax_isToken_spec__0(x_94, x_96, x_95);
+x_96 = l_Substring_takeWhileAux___at___Lean_Elab_Term_toParserDescr_isValidAtom_spec__0(x_94, x_95, x_28);
+x_97 = l_Substring_takeRightWhileAux___at___Lean_Elab_Term_toParserDescr_isValidAtom_spec__1(x_94, x_96, x_95);
 x_98 = lean_string_utf8_extract(x_94, x_96, x_97);
 lean_dec(x_97);
 lean_dec(x_96);

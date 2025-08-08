@@ -253,8 +253,7 @@ theorem getElem_of_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx
 @[deprecated getElem?_eq_none_iff (since := "2025-02-17")]
 abbrev getElem?_eq_none := @getElem?_eq_none_iff
 
-@[deprecated getElem?_eq_none (since := "2024-12-11")]
-abbrev isNone_getElem? := @getElem?_eq_none_iff
+
 
 @[simp, grind =] theorem isSome_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
     (c : cont) (i : idx) [Decidable (dom c i)] : c[i]?.isSome = dom c i := by

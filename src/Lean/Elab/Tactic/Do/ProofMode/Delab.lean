@@ -3,9 +3,13 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Do.ProofMode.MGoal
-import Lean.PrettyPrinter.Delaborator.Basic
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+public import Lean.PrettyPrinter.Delaborator.Basic
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do
@@ -15,28 +19,43 @@ open Lean Expr Meta PrettyPrinter Delaborator SubExpr
 @[builtin_delab app.Std.Tactic.Do.MGoalEntails]
 private partial def delabMGoal : Delab := do
   -- delaborate
-  let (_, hyps) ← withAppFn ∘ withAppArg <| delabHypotheses ({}, #[])
+  let (_, _, hyps) ← withAppFn ∘ withAppArg <| delabHypotheses ({}, {}, #[])
   let target ← SPred.Notation.unpack (← withAppArg <| delab)
 
   -- build syntax
   return ⟨← `(Std.Tactic.Do.mgoalStx| $hyps.reverse* ⊢ₛ $target:term)⟩
 where
   delabHypotheses
-      (acc : NameMap Nat × Array (TSyntax ``mgoalHyp)) :
-      DelabM (NameMap Nat × Array (TSyntax ``mgoalHyp)) := do
+      (acc : NameMap Nat × NameMap Nat × Array (TSyntax ``mgoalHyp)) :
+      DelabM (NameMap Nat × NameMap Nat × Array (TSyntax ``mgoalHyp)) := do
     let hyps ← getExpr
     if let some _ := parseEmptyHyp? hyps then
       return acc
     if let some hyp := parseHyp? hyps then
-      let mut (map, lines) := acc
-      let (idx, name') :=
-        if let some idx := map.find? hyp.name then
-          (idx + 1, hyp.name.appendAfter <| if idx == 0 then "✝" else "✝" ++ idx.toSuperscriptString)
+      let mut (accessibles, inaccessibles, lines) := acc
+      let name := hyp.name.eraseMacroScopes
+      -- `mintro _ _` will give fresh inaccessible names `h✝` and `h✝₁` to the hypotheses.
+      -- Note that we want to mirror `intro _ _` where it's actually displayed as `h✝₁` and `h✝`.
+      -- Since neither name equates to the other, we erase the macro scopes here and look up `h` in
+      -- a separate map, adding back the default `✝` suffix by unconditionally starting from idx 0.
+      let mIdx :=
+        if hyp.name.hasMacroScopes then
+          -- NB: inaccessibles always start with 0 for the initial ✝
+          .some (inaccessibles.getD name 0)
         else
-          (0, hyp.name)
+          accessibles.find? name
+      let (idx, name') :=
+        if let some idx := mIdx then
+          (idx + 1, name.appendAfter <| if idx == 0 then "✝" else "✝" ++ idx.toSuperscriptString)
+        else
+          (0, name)
       let name' := mkIdent name'
       let stx ← `(Std.Tactic.Do.mgoalHyp| $name' : $(← SPred.Notation.unpack (← withMDataExpr <| delab)))
-      return (map.insert hyp.name idx, lines.push stx)
+      if hyp.name.hasMacroScopes then
+        inaccessibles := inaccessibles.insert name idx
+      else
+        accessibles := accessibles.insert name idx
+      return (accessibles, inaccessibles, lines.push stx)
     if (parseAnd? hyps).isSome then
       let acc_rhs ← withAppArg <| delabHypotheses acc
       let acc_lhs ← withAppFn ∘ withAppArg <| delabHypotheses acc_rhs

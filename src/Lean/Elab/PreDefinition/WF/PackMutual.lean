@@ -3,11 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Meta.ArgsPacker
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.FixedParams
-import Lean.Elab.PreDefinition.WF.Eqns
+public import Lean.Meta.ArgsPacker
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.FixedParams
+public import Lean.Elab.PreDefinition.WF.Eqns
+
+public section
 
 /-!
 This module contains roughly everything needed to turn mutual n-ary functions into a single unary

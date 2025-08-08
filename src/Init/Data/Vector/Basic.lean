@@ -55,6 +55,11 @@ open Lean in
 macro_rules
   | `(#v[ $elems,* ]) => `(Vector.mk (n := $(quote elems.getElems.size)) #[$elems,*] rfl)
 
+@[app_unexpander Vector.mk]
+meta def unexpandMk : Lean.PrettyPrinter.Unexpander
+  | `($_ #[ $elems,* ] $_) => `(#v[ $elems,* ])
+  | _ => throw ()
+
 recommended_spelling "empty" for "#v[]" in [Vector.mk, «term#v[_,]»]
 recommended_spelling "singleton" for "#v[x]" in [Vector.mk, «term#v[_,]»]
 
@@ -305,8 +310,7 @@ def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : N
 @[inline, expose] def zipIdx (xs : Vector α n) (k : Nat := 0) : Vector (α × Nat) n :=
   ⟨xs.toArray.zipIdx k, by simp⟩
 
-@[deprecated zipIdx (since := "2025-01-21")]
-abbrev zipWithIndex := @zipIdx
+
 
 @[inline, expose] def zip (as : Vector α n) (bs : Vector β n) : Vector (α × β) n :=
   ⟨as.toArray.zip bs.toArray, by simp⟩
@@ -428,8 +432,7 @@ no element of the index matches the given value.
 @[inline, expose] def finIdxOf? [BEq α] (xs : Vector α n) (x : α) : Option (Fin n) :=
   (xs.toArray.finIdxOf? x).map (Fin.cast xs.size_toArray)
 
-@[deprecated finIdxOf? (since := "2025-01-29")]
-abbrev indexOf? := @finIdxOf?
+
 
 /-- Finds the first index of a given value in a vector using a predicate. Returns `none` if the
 no element of the index matches the given value. -/

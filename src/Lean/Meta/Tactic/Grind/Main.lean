@@ -3,11 +3,14 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Lemmas
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.ExposeNames
-import Lean.Meta.Tactic.Simp.Diagnostics
+public import Init.Grind.Lemmas
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.ExposeNames
+public import Lean.Meta.Tactic.Simp.Diagnostics
+public import Lean.Meta.Tactic.Grind.Split  -- TODO: not minimal yet
 import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Proj
@@ -16,18 +19,19 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
-import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.LawfulEqCmp
 import Lean.Meta.Tactic.Grind.ReflCmp
 
+public section
+
 namespace Lean.Meta.Grind
 
 structure Params where
   config     : Grind.Config
-  ematch     : EMatchTheorems := {}
+  ematch     : EMatchTheorems := default
   symPrios   : SymbolPriorities := {}
   casesTypes : CasesTypes := {}
   extra      : PArray EMatchTheorem := {}
@@ -192,7 +196,7 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
 
 private def initCore (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let mvarId ← mvarId.abstractMVars
-  let mvarId ← mvarId.clearAuxDecls
+  let mvarId ← mvarId.clearImplDetails
   let mvarId ← mvarId.revertAll
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce

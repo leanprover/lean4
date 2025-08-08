@@ -681,11 +681,12 @@ instance : MonadLift BaseAsync (EAsync ε) where
 
 @[inline]
 protected partial def forIn
-    {β : Type} [i : Inhabited ε] (init : β)
+    {β : Type} (init : β)
     (f : Unit → β → EAsync ε (ForInStep β))
     (prio := Task.Priority.default) :
     EAsync ε β := do
 
+  have : Nonempty β := ⟨init⟩
   let promise ← IO.Promise.new
 
   let rec @[specialize] loop (b : β) : BaseIO Unit := do

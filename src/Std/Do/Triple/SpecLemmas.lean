@@ -279,7 +279,7 @@ theorem Spec.forIn'_list {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : PostCond (β × Σ (xs : List α), Fin (xs.length + 1)) ps)
-    (step : ∀ b (i len : Nat) (h : i < len) (hxs : len = xs.length),
+    (step : ∀ b (i : Nat) (h : i < xs.length),
         ⦃inv.1 (b, ⟨xs, i, by omega⟩)}
         f xs[i] (by simp) b
         ⦃(fun r => match r with
@@ -303,7 +303,7 @@ theorem Spec.forIn'_list {α β : Type u}
     subst hxs
     simp only [List.forIn'_cons]
     apply Triple.bind
-    case hx => apply step _ _ _ i.isLt rfl
+    case hx => apply step
     case hf =>
       intro r
       split
@@ -315,7 +315,7 @@ theorem Spec.forIn'_list_const_inv {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     {inv : PostCond β ps}
-    (step : ∀ b (i len : Nat) (h : i < len) (hxs : len = xs.length),
+    (step : ∀ b (i : Nat) (h : i < xs.length),
         ⦃inv.1 b}
         f xs[i] (by simp) b
         ⦃(fun r => match r with | .yield b' => inv.1 b' | .done b' => inv.1 b', inv.2)}) :
@@ -327,7 +327,7 @@ theorem Spec.forIn_list {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : α → β → m (ForInStep β)}
     (inv : PostCond (β × Σ (xs : List α), Fin (xs.length + 1)) ps)
-    (step : ∀ b (i len : Nat) (h : i < len) (hxs : len = xs.length),
+    (step : ∀ b (i : Nat) (h : i < xs.length),
         ⦃inv.1 (b, ⟨xs, i, by omega⟩)}
         f xs[i] b
         ⦃(fun r => match r with
@@ -342,7 +342,7 @@ theorem Spec.forIn_list_const_inv {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : α → β → m (ForInStep β)}
     {inv : PostCond β ps}
-    (step : ∀ b (i len : Nat) (h : i < len) (hxs : len = xs.length),
+    (step : ∀ b (i : Nat) (h : i < xs.length),
         ⦃inv.1 b}
         f xs[i] b
         ⦃(fun r => match r with | .yield b' => inv.1 b' | .done b' => inv.1 b', inv.2)}) :
@@ -354,7 +354,7 @@ theorem Spec.foldlM_list {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : β → α → m β}
     (inv : PostCond (β × Σ (xs : List α), Fin (xs.length + 1)) ps)
-    (step : ∀ b (i len : Nat) (h : i < len) (hxs : len = xs.length),
+    (step : ∀ b (i : Nat) (h : i < xs.length),
         ⦃inv.1 (b, ⟨xs, i, by omega⟩)}
         f b xs[i]
         ⦃(fun b' => inv.1 (b', ⟨xs, i + 1, by omega⟩), inv.2)}) :
@@ -371,7 +371,7 @@ theorem Spec.foldlM_list_const_inv {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : List α} {init : β} {f : β → α → m β}
     {inv : PostCond β ps}
-    (step : ∀ b (i len : Nat) (h : i < len) (hxs : len = xs.length),
+    (step : ∀ b (i : Nat) (h : i < xs.length),
         ⦃inv.1 b}
         f b xs[i]
         ⦃(fun b' => inv.1 b', inv.2)}) :
@@ -383,8 +383,8 @@ private theorem Spec.forIn'_range_aux {β : Type} {m : Type → Type v} {ps : Po
     {xs : Std.Range} {init : β} {f : (a : Nat) → a ∈ xs → β → m (ForInStep β)}
     (n : Nat) (h : n = xs.size)
     (inv : PostCond (β × Σ (xs : List Nat), Fin (xs.length + 1)) ps)
-    (step : ∀ b (i len : Nat) (hi : i < len) (hxs : len = n),
-        let h : i < xs.toList.length := by simpa [h, hxs] using hi
+    (step : ∀ b (i : Nat) (hi : i < n),
+        let h : i < xs.toList.length := by simpa [h] using hi
         ⦃inv.1 (b, ⟨xs.toList, i, by omega⟩)}
         f xs.toList[i] (by apply_rules [Std.Range.mem_of_mem_toList, List.getElem_mem]) b
         ⦃(fun r => match r with
@@ -401,8 +401,8 @@ theorem Spec.forIn'_range {β : Type} {m : Type → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     {xs : Std.Range} {init : β} {f : (a : Nat) → a ∈ xs → β → m (ForInStep β)}
     (inv : PostCond (β × Σ (xs : List Nat), Fin (xs.length + 1)) ps)
-    (step : ∀ b (i len : Nat) (h : i < len) (hxs : len = xs.size),
-        let h : i < xs.toList.length := by simpa [hxs] using h
+    (step : ∀ b (i : Nat) (h : i < xs.size),
+        let h : i < xs.toList.length := by simpa using h
         ⦃inv.1 (b, ⟨xs.toList, i, by omega⟩)}
         f xs.toList[i] (by apply_rules [Std.Range.mem_of_mem_toList, List.getElem_mem]) b
         ⦃(fun r => match r with
@@ -416,8 +416,8 @@ theorem Spec.forIn_range {β : Type} {m : Type → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
     {xs : Std.Range} {init : β} {f : Nat → β → m (ForInStep β)}
     (inv : PostCond (β × Σ (xs : List Nat), Fin (xs.length + 1)) ps)
-    (step : ∀ b (i len : Nat) (h : i < len) (hxs : len = xs.size),
-        let h : i < xs.toList.length := by simpa [hxs] using h
+    (step : ∀ b (i : Nat) (h : i < xs.size),
+        let h : i < xs.toList.length := by simpa using h
         ⦃inv.1 (b, ⟨xs.toList, i, by omega⟩)}
         f xs.toList[i] b
         ⦃(fun r => match r with
@@ -432,8 +432,8 @@ theorem Spec.forIn'_array {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : Array α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
     (inv : PostCond (β × Σ (xs : List α), Fin (xs.length + 1)) ps)
-    (step : ∀ b (i len : Nat) (h : i < len) (hxs : len = xs.size),
-        let h : i < xs.toList.length := by simpa [hxs] using h
+    (step : ∀ b (i : Nat) (h : i < xs.size),
+        let h : i < xs.toList.length := by simpa using h
         ⦃inv.1 (b, ⟨xs.toList, i, by omega⟩)}
         f xs[i] (by simp) b
         ⦃(fun r => match r with
@@ -442,15 +442,15 @@ theorem Spec.forIn'_array {α β : Type u}
     ⦃inv.1 (init, ⟨xs.toList, 0, by omega⟩)} forIn' xs init f ⦃(fun b => inv.1 (b, ⟨xs.toList, Fin.last xs.toList.length, by omega⟩), inv.2)} := by
   cases xs
   simp
-  apply Spec.forIn'_list inv fun b i h => by simp only [Fin.val_last]; exact step b i h
+  apply Spec.forIn'_list inv fun b i h => step b i h
 
 @[spec]
 theorem Spec.forIn_array {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : Array α} {init : β} {f : α → β → m (ForInStep β)}
     (inv : PostCond (β × Σ (xs : List α), Fin (xs.length + 1)) ps)
-    (step : ∀ b (i len : Nat) (h : i < len) (hxs : len = xs.size),
-        let h : i < xs.toList.length := by simpa [hxs] using h
+    (step : ∀ b (i : Nat) (h : i < xs.size),
+        let h : i < xs.toList.length := by simpa using h
         ⦃inv.1 (b, ⟨xs.toList, i, by omega⟩)}
         f xs[i] b
         ⦃(fun r => match r with
@@ -466,8 +466,8 @@ theorem Spec.foldlM_array {α β : Type u}
     [Monad m] [WPMonad m ps]
     {xs : Array α} {init : β} {f : β → α → m β}
     (inv : PostCond (β × Σ (xs : List α), Fin (xs.length + 1)) ps)
-    (step : ∀ b (i len : Nat) (h : i < len) (hxs : len = xs.size),
-        let h : i < xs.toList.length := by simpa [hxs] using h
+    (step : ∀ b (i : Nat) (h : i < xs.size),
+        let h : i < xs.toList.length := by simpa using h
         ⦃inv.1 (b, ⟨xs.toList, i, by omega⟩)}
         f b xs[i]
         ⦃(fun b' => inv.1 (b', ⟨xs.toList, i + 1, by omega⟩), inv.2)}) :

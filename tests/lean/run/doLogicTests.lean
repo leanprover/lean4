@@ -214,7 +214,7 @@ theorem throwing_loop_spec :
   case pre1 => simp_all +decide
   case step =>
     simp_all
-    intros _ i _ _ _
+    intros _ i _
     mintro _
     split
     case isTrue => intro _; mintro _; mspec; mspec; intro _; simp_all
@@ -232,7 +232,7 @@ theorem beaking_loop_spec :
   all_goals simp_all
   case post => intro _ _; grind
   case step =>
-    intro _ i _ _ _
+    intro _ i _
     have hmin₁ := Nat.min_eq_right (a:=41) (b:=i) (by omega)
     have hmin₂ := Nat.min_eq_right (a:=41) (b:=i+1) (by omega)
     mintro _
@@ -260,7 +260,7 @@ theorem returning_loop_spec :
       intro _ _
       grind
   case step =>
-    intros _ i _ _ _
+    intros _ i _
     mintro _
     split
     case isTrue => intro _; mintro _; mspec; simp_all
@@ -342,7 +342,7 @@ theorem fib_impl_vcs
   case pre1 => exact loop_pre n hn
   case post.success => mspec; mpure_intro; apply_rules [loop_post]
   case step =>
-    intro _ _ h _ _;
+    intro _ _ h;
     mintro _;
     mspec
     mspec
@@ -387,7 +387,7 @@ theorem addRandomEvens_spec (n k) : ⦃⌜True⌝⦄ (addRandomEvens n k) ⦃⇓
   unfold addRandomEvens
   mintro -
   mspec Spec.forIn_list_const_inv
-  intro n _ _ _ _
+  intro n _ _
   mintro ⌜h⌝
   mspec IO.rand_spec
   simp_all
@@ -549,9 +549,8 @@ theorem sum_loop_spec :
   mvcgen [sum_loop]
   case inv => exact (⇓ (r, ⟨_xs, i⟩) => ⌜r + (5 - i.val) * 5 ≤ 25⌝)
   case step h _ _ =>
-    simp at h
-    subst h
-    simp_all +zetaDelta only [Std.Range.size, SVal.curry_nil, List.getElem_range']
+    revert h
+    simp_all only [Std.Range.size, SVal.curry_nil, List.getElem_range']
     omega
   all_goals simp_all; try omega
 
@@ -575,7 +574,7 @@ theorem throwing_loop_spec :
   case post.success => simp_all; grind
   case post.except => simp_all
   case isTrue => intro _; simp_all
-  case isFalse i _ _ _ _ _ => intro _; simp_all [Nat.sub_mul]; cases i <;> grind
+  case isFalse i _ _ _ => intro _; simp_all [Nat.sub_mul]; cases i <;> grind
 
 theorem test_loop_break :
   ⦃⌜‹Nat›ₛ = 42⌝⦄
@@ -585,9 +584,10 @@ theorem test_loop_break :
   case inv => exact (⇓ (r, ⟨xs, i⟩) s => ⌜(r ≤ 4 ∧ r = (xs.take i).sum ∨ r > 4) ∧ s = 42⌝)
   case pre1 => simp_all
   case isTrue => intro _; simp_all
-  case isFalse i _ _ h _ _ =>
-    simp at h
-    subst h
+  case isFalse i h _ _ =>
+    revert h
+    simp_all
+    intro h
     cases i <;> grind
   case post.success => simp_all; grind
 

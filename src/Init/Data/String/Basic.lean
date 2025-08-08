@@ -485,6 +485,7 @@ Examples:
 * `"tea".firstDiffPos "teas" = ⟨3⟩`
 * `"teas".firstDiffPos "tea" = ⟨3⟩`
 -/
+@[expose]
 def firstDiffPos (a b : String) : Pos :=
   let stopPos := a.endPos.min b.endPos
   let rec loop (i : Pos) : Pos :=
@@ -511,7 +512,7 @@ Examples:
 * `"red green blue".extract ⟨4⟩ ⟨100⟩ = "green blue"`
 * `"L∃∀N".extract ⟨2⟩ ⟨100⟩ = "green blue"`
 -/
-@[extern "lean_string_utf8_extract"]
+@[extern "lean_string_utf8_extract", expose]
 def extract : (@& String) → (@& Pos) → (@& Pos) → String
   | ⟨s⟩, b, e => if b.byteIdx ≥ e.byteIdx then "" else ⟨go₁ s 0 b e⟩
 where

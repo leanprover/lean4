@@ -1,11 +1,7 @@
 import Std.Time
 open Std.Time
 
--- Dates
--- Time zones
 def brTZ : TimeZone := timezone("America/Sao_Paulo -03:00")
-def jpTZ : TimeZone := timezone("Asia/Tokyo +09:00")
-
 def date₁ := zoned("2014-06-16T03:03:03-03:00")
 
 /--

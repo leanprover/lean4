@@ -35,7 +35,7 @@ public def OrderData.ofLE (α : Type u) [LE α] : OrderData α where
 /--
 The `OrderData α` instance obtained from an `LE α` instance is compatible with said `LE α` instance.
 -/
-public instance LawfulOrderLE.ofLE {α : Type u} [LE α] :
+public instance LawfulOrderLE.of_le {α : Type u} [LE α] :
     haveI := OrderData.ofLE α
     LawfulOrderLE α :=
   letI := OrderData.ofLE α
@@ -93,7 +93,7 @@ Returns a `LawfulOrderLT α` instance given certain properties.
 If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma derives
 a `LawfulOrderLT α` instance from a property relating the `LE α` and `LT α` instances.
 -/
-public theorem LawfulOrderLT.ofLE {α : Type u} [OrderData α] [LT α] [LE α] [LawfulOrderLE α]
+public theorem LawfulOrderLT.of_le {α : Type u} [OrderData α] [LT α] [LE α] [LawfulOrderLE α]
     (lt_iff : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a) : LawfulOrderLT α where
   lt_iff := by simpa [LawfulOrderLE.le_iff] using lt_iff
 
@@ -101,7 +101,7 @@ public theorem LawfulOrderLT.ofLE {α : Type u} [OrderData α] [LT α] [LE α] [
 If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma characterizes
 in terms of `LE α` when a `Min α` instance "behaves like an infimum operator".
 -/
-public theorem LawfulOrderInf.ofLE {α : Type u} [OrderData α] [Min α] [LE α] [LawfulOrderLE α]
+public theorem LawfulOrderInf.of_le {α : Type u} [OrderData α] [Min α] [LE α] [LawfulOrderLE α]
     (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) : LawfulOrderInf α where
   le_min_iff := by simpa [LawfulOrderLE.le_iff] using le_min_iff
 
@@ -113,17 +113,17 @@ a `LawfulOrderMin α` instance from two properties involving `LE α` and `Min α
 
 The produced instance entails `LawfulOrderInf α` and `MinEqOr α`.
 -/
-public theorem LawfulOrderMin.ofLE {α : Type u} [OrderData α] [Min α] [LE α] [LawfulOrderLE α]
+public theorem LawfulOrderMin.of_le {α : Type u} [OrderData α] [Min α] [LE α] [LawfulOrderLE α]
     (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c)
     (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) : LawfulOrderMin α where
-  toLawfulOrderInf := .ofLE le_min_iff
+  toLawfulOrderInf := .of_le le_min_iff
   toMinEqOr := ⟨min_eq_or⟩
 
 /--
 If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma characterizes
 in terms of `LE α` when a `Max α` instance "behaves like a supremum operator".
 -/
-public def LawfulOrderSup.ofLE {α : Type u} [OrderData α] [Max α] [LE α] [LawfulOrderLE α]
+public def LawfulOrderSup.of_le {α : Type u} [OrderData α] [Max α] [LE α] [LawfulOrderLE α]
     (max_le_iff : ∀ a b c : α, max a b ≤ c ↔ a ≤ c ∧ b ≤ c) : LawfulOrderSup α where
   max_le_iff := by simpa [LawfulOrderLE.le_iff] using max_le_iff
 
@@ -133,12 +133,12 @@ Returns a `LawfulOrderMax α` instance given certain properties.
 If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma derives
 a `LawfulOrderMax α` instance from two properties involving `LE α` and `Max α` instances.
 
-This convenience lemma combines `LawfulOrderSup.ofLE` and `LawfulOrderMax.ofLE`.
+This convenience lemma combines `LawfulOrderSup.of_le` and `LawfulOrderMax.of_le`.
 -/
-public def LawfulOrderMax.ofLE {α : Type u} [OrderData α] [Max α] [LE α] [LawfulOrderLE α]
+public def LawfulOrderMax.of_le {α : Type u} [OrderData α] [Max α] [LE α] [LawfulOrderLE α]
     (max_le_iff : ∀ a b c : α, max a b ≤ c ↔ a ≤ c ∧ b ≤ c)
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) : LawfulOrderMax α where
-  toLawfulOrderSup := .ofLE max_le_iff
+  toLawfulOrderSup := .of_le max_le_iff
   toMaxEqOr := ⟨max_eq_or⟩
 
 end OfLE
@@ -157,7 +157,7 @@ public def OrderData.ofLT (α : Type u) [LT α] : OrderData α where
 The `OrderData α` instance obtained from an asymmetric `LT α` instance is compatible with said
 `LT α` instance.
 -/
-public instance LawfulOrderLT.ofLT {α : Type u} [LT α] [i : Asymm (α := α) (· < ·)] :
+public instance LawfulOrderLT.of_lt {α : Type u} [LT α] [i : Asymm (α := α) (· < ·)] :
     haveI := OrderData.ofLT α
     LawfulOrderLT α :=
   letI := OrderData.ofLT α
@@ -201,9 +201,9 @@ Returns a `LawfulOrderLT α` instance given certain properties.
 If an `OrderData α` instance is compatible with an `LT α` instance, then this lemma derives
 a `LawfulOrderMin α` instance from two properties involving `LE α` and `Min α` instances.
 
-This convenience lemma combines `LawfulOrderInf.ofLE` and `LawfulOrderMin.ofLE`.
+This convenience lemma combines `LawfulOrderInf.of_le` and `LawfulOrderMin.of_le`.
 -/
-public theorem LawfulOrderLE.ofLT {α : Type u} [LT α] [LE α]
+public theorem LawfulOrderLE.of_lt {α : Type u} [LT α] [LE α]
     (le_iff : ∀ a b : α, a ≤ b ↔ ¬ b < a) :
     haveI : OrderData α := .ofLT α
     LawfulOrderLE α :=
@@ -214,7 +214,7 @@ public theorem LawfulOrderLE.ofLT {α : Type u} [LT α] [LE α]
 If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma characterizes
 in terms of `LE α` when a `Min α` instance "behaves like an infimum operator".
 -/
-public theorem LawfulOrderInf.ofLT {α : Type u} [Min α] [LT α]
+public theorem LawfulOrderInf.of_lt {α : Type u} [Min α] [LT α]
     (min_lt_iff : ∀ a b c : α, min b c < a ↔ b < a ∨ c < a) :
     haveI : OrderData α := .ofLT α
     LawfulOrderInf α :=
@@ -230,22 +230,22 @@ Returns a `LawfulOrderMin α` instance given certain properties.
 If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma derives
 a `LawfulOrderMin α` instance from two properties involving `LE α` and `Min α` instances.
 
-This convenience lemma combines `LawfulOrderInf.ofLE` and `LawfulOrderMin.ofLE`.
+This convenience lemma combines `LawfulOrderInf.of_le` and `LawfulOrderMin.of_le`.
 -/
-public theorem LawfulOrderMin.ofLT {α : Type u} [Min α] [LT α]
+public theorem LawfulOrderMin.of_lt {α : Type u} [Min α] [LT α]
     (min_lt_iff : ∀ a b c : α, min b c < a ↔ b < a ∨ c < a)
     (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) :
     haveI : OrderData α := .ofLT α
     LawfulOrderMin α :=
   letI : OrderData α := .ofLT α
-  { toLawfulOrderInf := .ofLT min_lt_iff
+  { toLawfulOrderInf := .of_lt min_lt_iff
     toMinEqOr := ⟨min_eq_or⟩ }
 
 /--
 If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma characterizes
 in terms of `LE α` when a `Max α` instance "behaves like an supremum operator".
 -/
-public def LawfulOrderSup.ofLT {α : Type u} [Max α] [LT α]
+public def LawfulOrderSup.of_lt {α : Type u} [Max α] [LT α]
     (lt_max_iff : ∀ a b c : α, c < max a b ↔ c < a ∨ c < b) :
     haveI : OrderData α := .ofLT α
     LawfulOrderSup α :=
@@ -261,15 +261,15 @@ Returns a `LawfulOrderMax α` instance given certain properties.
 If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma derives
 a `LawfulOrderMax α` instance from two properties involving `LE α` and `Max α` instances.
 
-This convenience lemma combines `LawfulOrderSup.ofLE` and `LawfulOrderMax.ofLE`.
+This convenience lemma combines `LawfulOrderSup.of_le` and `LawfulOrderMax.of_le`.
 -/
-public def LawfulOrderMax.ofLT {α : Type u} [Max α] [LT α]
+public def LawfulOrderMax.of_lt {α : Type u} [Max α] [LT α]
     (lt_max_iff : ∀ a b c : α, c < max a b ↔ c < a ∨ c < b)
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) :
     haveI : OrderData α := .ofLT α
     LawfulOrderMax α :=
   letI : OrderData α := .ofLT α
-  { toLawfulOrderSup := .ofLT lt_max_iff
+  { toLawfulOrderSup := .of_lt lt_max_iff
     toMaxEqOr := ⟨max_eq_or⟩ }
 
 end OfLT

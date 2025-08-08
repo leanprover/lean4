@@ -1310,10 +1310,8 @@ where
     for header in headers, view in views do
       if let some classNamesStx := view.deriving? then
         for classNameStx in classNamesStx do
-          let className ← realizeGlobalConstNoOverload classNameStx
-          withRef classNameStx do
-            unless (← processDefDeriving className header.declName) do
-              throwError "failed to synthesize instance '{className}' for '{header.declName}'"
+          let className ← realizeGlobalConstNoOverloadWithInfo classNameStx
+          withRef classNameStx do processDefDeriving className header.declName
 
 /--
 Logs a snapshot task that waits for the entire snapshot tree in `defsParsedSnap` and then logs a

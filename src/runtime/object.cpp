@@ -63,6 +63,18 @@ __attribute__((weak)) void free_sized(void *ptr, size_t) {
 #define LEAN_MAX_PRIO 8
 #define LEAN_SYNC_PRIO std::numeric_limits<unsigned>::max()
 
+struct lean_task_imp {
+    lean_object *        m_closure;
+    struct lean_task *   m_head_dep;
+    struct lean_task *   m_next_dep;
+    lean::condition_variable   m_task_finished_cv;
+    unsigned             m_prio;
+    uint8_t              m_canceled;
+    // If true, task will not be freed until finished
+    uint8_t              m_keep_alive;
+    uint8_t              m_deleted;
+};
+
 namespace lean {
 
 static bool should_abort_on_panic() {
@@ -639,8 +651,9 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
 
 LEAN_THREAD_PTR(lean_task_object, g_current_task_object);
 
-static lean_task_imp * alloc_task_imp(obj_arg c, unsigned prio, bool keep_alive) {
-    lean_task_imp * imp = (lean_task_imp*)lean_alloc_small_object(sizeof(lean_task_imp));
+// TODO: use mimalloc
+static struct lean_task_imp * alloc_task_imp(obj_arg c, unsigned prio, bool keep_alive) {
+    struct lean_task_imp * imp = new struct lean_task_imp;
     imp->m_closure     = c;
     imp->m_head_dep    = nullptr;
     imp->m_next_dep    = nullptr;
@@ -651,8 +664,9 @@ static lean_task_imp * alloc_task_imp(obj_arg c, unsigned prio, bool keep_alive)
     return imp;
 }
 
-static void free_task_imp(lean_task_imp * imp) {
-    lean_free_small_object((lean_object*)imp);
+// TOOD: use mimalloc
+static void free_task_imp(struct lean_task_imp * imp) {
+    delete imp;
 }
 
 static void free_task(lean_task_object * t) {
@@ -674,7 +688,6 @@ class task_manager {
     unsigned                                      m_queues_size{0};
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
-    condition_variable                            m_task_finished_cv;
     condition_variable                            m_dedicated_finished_cv;
     bool                                          m_shutting_down{false};
 
@@ -821,16 +834,16 @@ class task_manager {
     void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
         mark_mt(v);
         t->m_value = v;
-        lean_task_imp * imp = t->m_imp;
+        struct lean_task_imp * imp = t->m_imp;
         t->m_imp   = nullptr;
         handle_finished(lock, t, imp);
         /* After the task has been finished and we propagated
            dependencies, we can release `imp` and keep just the value */
+        imp->m_task_finished_cv.notify_all();
         free_task_imp(imp);
-        m_task_finished_cv.notify_all();
     }
 
-    void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
+    void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, struct lean_task_imp * imp) {
         lean_task_object * it = imp->m_head_dep;
         imp->m_head_dep = nullptr;
         while (it) {
@@ -923,7 +936,7 @@ public:
             else
                 m_queue_cv.notify_one();
         }
-        m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
+        t->m_imp->m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
         if (in_pool) {
             m_max_std_workers--;
         }

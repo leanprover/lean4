@@ -218,17 +218,10 @@ typedef struct {
 struct lean_task;
 
 /* Data required for executing a Lean task. It is released as soon as
-   the task terminates even if the task object itself is still referenced. */
-typedef struct {
-    lean_object *        m_closure;
-    struct lean_task *   m_head_dep;
-    struct lean_task *   m_next_dep;
-    unsigned             m_prio;
-    uint8_t              m_canceled;
-    // If true, task will not be freed until finished
-    uint8_t              m_keep_alive;
-    uint8_t              m_deleted;
-} lean_task_imp;
+   the task terminates even if the task object itself is still referenced.
+   This type is forward declare here and properly defined in the task manager implementation in C++.
+*/
+struct lean_task_imp;
 
 /* Object of type `Task _`. The lifetime of a `lean_task` object can be represented as a state machine with atomic
    state transitions.
@@ -284,7 +277,7 @@ typedef struct {
 typedef struct lean_task {
     lean_object            m_header;
     _Atomic(lean_object *) m_value;
-    lean_task_imp *        m_imp;
+    struct lean_task_imp *        m_imp;
 } lean_task_object;
 
 typedef struct lean_promise {

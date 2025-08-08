@@ -228,9 +228,6 @@ protected theorem le_trans' [LT α]
   haveI : IsLinearOrder α := IsLinearOrder.of_lt
   List.le_trans h₁ h₂
 
-/--
-This also triggers for `LinearOrder`
--/
 instance [LT α] [OrderData α] [IsLinearOrder α] [LawfulOrderLT α] :
     Trans (· ≤ · : List α → List α → Prop) (· ≤ ·) (· ≤ ·) where
   trans h₁ h₂ := List.le_trans h₁ h₂

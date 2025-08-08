@@ -211,6 +211,7 @@ theorem mem_eraseIdx_iff_getElem? {x : α} {l} {k} : x ∈ eraseIdx l k ↔ ∃ 
 /-! ### min? -/
 
 -- A specialization of `min?_eq_some_iff` to Nat.
+@[deprecated min?_eq_some_iff (since := "2025-08-08")]
 theorem min?_eq_some_iff' {xs : List Nat} :
     xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) := by
   exact min?_eq_some_iff
@@ -235,6 +236,7 @@ theorem min?_getD_le_of_mem {l : List Nat} {a k : Nat} (h : a ∈ l) : l.min?.ge
 /-! ### max? -/
 
 -- A specialization of `max?_eq_some_iff` to Nat.
+@[deprecated max?_eq_some_iff (since := "2025-08-08")]
 theorem max?_eq_some_iff' {xs : List Nat} :
     xs.max? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, b ≤ a) :=
   max?_eq_some_iff

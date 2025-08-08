@@ -260,7 +260,7 @@ public theorem beq_iff {α : Type u} [LE α] [DecidableLE α] {a b : α} :
 
 end Instances
 
-public structure PreorderPackage.OfLEArgs (α : Type u) where
+public structure Packages.PreorderOfLEArgs (α : Type u) where
   le : LE α := by infer_instance
   decidableLE : DecidableLE α := by infer_instance
   orderData [i : LE α] (hi : i = le := by rfl) : OrderData α := by
@@ -297,7 +297,8 @@ public structure PreorderPackage.OfLEArgs (α : Type u) where
       | fail "Failed to automatically prove that the `LE` instance is transitive."
 
 @[expose]
-public def PreorderPackage.ofLE (α : Type u) (args : OfLEArgs α := by exact {}) : PreorderPackage α where
+public def PreorderPackage.ofLE (α : Type u)
+    (args : Packages.PreorderOfLEArgs α := by exact {}) : PreorderPackage α where
   toLE := args.le
   toOrderData := letI := args.le; args.orderData
   toLT := letI := args.le; letI := args.orderData; args.lt
@@ -359,13 +360,16 @@ section PartialOrder
 public class PartialOrderPackage (α : Type u) extends
     PreorderPackage α, IsPartialOrder α
 
-public structure PartialOrderPackage.OfLEArgs (α : Type u) extends PreorderPackage.OfLEArgs α where
-  le_antisymm : ∀ a b : α, a ≤ b → b ≤ a → a = b
+public structure Packages.PartialOrderOfLEArgs (α : Type u) extends Packages.PreorderOfLEArgs α where
+  le_antisymm : ∀ a b : α, a ≤ b → b ≤ a → a = b := by
+    first
+      | exact Antisymm.antisymm
+      | fail "Failed to automatically prove that the `LE` instance is antisymmetric. You can either ensure that an `Asymm` instance is available or manually provide the `le_antisymm` field."
 
 @[expose]
-public def PartialOrderPackage.ofLE (α : Type u) (args : OfLEArgs α := by exact {}) :
-    PartialOrderPackage α where
-  toPreorderPackage := .ofLE α args.toOfLEArgs
+public def PartialOrderPackage.ofLE (α : Type u)
+    (args : Packages.PartialOrderOfLEArgs α := by exact {}) : PartialOrderPackage α where
+  toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
   le_antisymm := by simpa [args.lawful_orderData] using args.le_antisymm
 
 end PartialOrder

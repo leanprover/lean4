@@ -13,23 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanExe_linkArgs___closed__2;
 lean_object* l_System_FilePath_normalize(lean_object*);
 static lean_object* l_Lake_Package_leanExes___closed__5;
+lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Package_findModule_x3f_spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_root(lean_object*);
-lean_object* l_Array_foldlMUnsafe_fold___at___Lake_Package_findModule_x3f_spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__2;
 static lean_object* l_Lake_Package_leanExes___closed__2;
 lean_object* lean_array_push(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_System_FilePath_exeExtension;
 LEAN_EXPORT lean_object* l_Lake_Package_findLeanExe_x3f(lean_object*, lean_object*);
 lean_object* l_System_FilePath_withExtension(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__3;
 static lean_object* l_Lake_Package_leanExes___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_strict_and(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_linkArgs(lean_object*);
@@ -39,12 +41,14 @@ lean_object* l_Lake_Package_findTargetDecl_x3f(lean_object*, lean_object*);
 static size_t l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__1;
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lake_Package_leanExes___closed__4;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_findTargetModule_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_config___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_leanExes(lean_object*);
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lake_LeanLib_leanArtsFacet;
 LEAN_EXPORT lean_object* l_Lake_Package_findModuleBySrc_x3f(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_toLeanLibConfig___redArg(lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanExe_linkArgs___closed__0;
@@ -52,6 +56,7 @@ static lean_object* l_Lake_LeanExe_isRootSrc_x3f___closed__0;
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_toLeanLibConfig___redArg___boxed(lean_object*);
 lean_object* l_Lake_Package_findModule_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_fileName(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_supportInterpreter___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_sharedLean___boxed(lean_object*);
@@ -63,52 +68,47 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_config(lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_leanExes___closed__0;
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_isRootSrc_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_leanExes___closed__8;
 static lean_object* l_Lake_Package_leanExes___closed__7;
 lean_object* l_Lake_LeanLib_findModuleBySrc_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_leanExes___closed__6;
-lean_object* l_Array_mapMUnsafe_map___at___Lake_LeanLibConfig_globs___proj_spec__0(size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_isRoot_x3f(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_leanExes___closed__9;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_findLeanExe_x3f___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_LeanExe_supportInterpreter(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_toLeanLibConfig___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_weakLinkArgs(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__0;
 static lean_object* l_Lake_Package_leanExes___closed__10;
 LEAN_EXPORT uint8_t l_Lake_LeanExe_sharedLean(lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_findModuleBySrc_x3f___closed__1;
 size_t lean_array_size(lean_object*);
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_leanExes___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_modToFilePath(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_isRoot_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_toLeanLibConfig(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_toLeanLib(lean_object*);
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
 extern lean_object* l_Lake_LeanExe_keyword;
+lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_LeanLibConfig_globs___proj_spec__0(size_t, size_t, lean_object*);
 extern uint8_t l_System_Platform_isWindows;
-lean_object* l_Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_file(lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_leanExes___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -284,7 +284,7 @@ lean_closure_set(x_10, 1, x_1);
 x_11 = 0;
 x_12 = lean_usize_of_nat(x_5);
 lean_dec(x_5);
-x_13 = l_Array_foldlMUnsafe_fold___redArg(x_6, x_10, x_2, x_11, x_12, x_4);
+x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_6, x_10, x_2, x_11, x_12, x_4);
 return x_13;
 }
 }
@@ -425,7 +425,7 @@ lean_object* x_1; size_t x_2; size_t x_3; lean_object* x_4;
 x_1 = l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__0;
 x_2 = 0;
 x_3 = l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__1;
-x_4 = l_Array_mapMUnsafe_map___at___Lake_LeanLibConfig_globs___proj_spec__0(x_3, x_2, x_1);
+x_4 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_LeanLibConfig_globs___proj_spec__0(x_3, x_2, x_1);
 return x_4;
 }
 }
@@ -1086,7 +1086,7 @@ lean_dec_ref(x_8);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1120,11 +1120,11 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg(x_1, x_2, x_3);
+x_5 = l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg(x_1, x_2, x_3);
 return x_5;
 }
 }
@@ -1164,7 +1164,7 @@ x_15 = 0;
 x_16 = lean_usize_of_nat(x_11);
 lean_dec(x_11);
 lean_inc_ref(x_2);
-x_17 = l_Array_foldlMUnsafe_fold___at___Lake_Package_findModule_x3f_spec__1(x_14, x_2, x_8, x_15, x_16, x_10);
+x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Package_findModule_x3f_spec__1(x_14, x_2, x_8, x_15, x_16, x_10);
 lean_dec_ref(x_8);
 x_3 = x_17;
 goto block_7;
@@ -1174,7 +1174,7 @@ block_7:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_array_get_size(x_3);
-x_5 = l_Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg(x_1, x_3, x_4);
+x_5 = l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg(x_1, x_3, x_4);
 lean_dec_ref(x_3);
 if (lean_obj_tag(x_5) == 0)
 {
@@ -1191,27 +1191,27 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg(x_1, x_2, x_3);
+x_4 = l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___redArg(x_1, x_2, x_3);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0(x_1, x_2, x_3, x_4);
+x_5 = l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findTargetModule_x3f_spec__0(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_2);
 lean_dec(x_1);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1248,15 +1248,15 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg(x_1, x_2, x_3);
+x_5 = l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg(x_1, x_2, x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1293,11 +1293,11 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg(x_1, x_2, x_3);
+x_5 = l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg(x_1, x_2, x_3);
 return x_5;
 }
 }
@@ -1352,7 +1352,7 @@ x_27 = 0;
 x_28 = lean_usize_of_nat(x_23);
 lean_dec(x_23);
 lean_inc_ref(x_2);
-x_29 = l_Array_foldlMUnsafe_fold___at___Lake_Package_findModule_x3f_spec__1(x_26, x_2, x_7, x_27, x_28, x_22);
+x_29 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Package_findModule_x3f_spec__1(x_26, x_2, x_7, x_27, x_28, x_22);
 x_8 = x_29;
 goto block_20;
 }
@@ -1361,7 +1361,7 @@ block_6:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_array_get_size(x_3);
-x_5 = l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg(x_1, x_3, x_4);
+x_5 = l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg(x_1, x_3, x_4);
 lean_dec_ref(x_3);
 return x_5;
 }
@@ -1370,7 +1370,7 @@ block_20:
 lean_object* x_9; lean_object* x_10; 
 x_9 = lean_array_get_size(x_8);
 lean_inc_ref(x_1);
-x_10 = l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg(x_1, x_8, x_9);
+x_10 = l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg(x_1, x_8, x_9);
 lean_dec_ref(x_8);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -1406,7 +1406,7 @@ x_16 = l_Lake_LeanExe_keyword;
 x_17 = 0;
 x_18 = lean_usize_of_nat(x_13);
 lean_dec(x_13);
-x_19 = l_Array_foldlMUnsafe_fold___at___Lake_Package_findModule_x3f_spec__1(x_16, x_2, x_7, x_17, x_18, x_12);
+x_19 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Package_findModule_x3f_spec__1(x_16, x_2, x_7, x_17, x_18, x_12);
 lean_dec_ref(x_7);
 x_3 = x_19;
 goto block_6;
@@ -1423,38 +1423,38 @@ return x_10;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg(x_1, x_2, x_3);
+x_4 = l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___redArg(x_1, x_2, x_3);
 lean_dec_ref(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0(x_1, x_2, x_3, x_4);
+x_5 = l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__0(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_2);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg(x_1, x_2, x_3);
+x_4 = l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg(x_1, x_2, x_3);
 lean_dec_ref(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1(x_1, x_2, x_3, x_4);
+x_5 = l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1(x_1, x_2, x_3, x_4);
 lean_dec_ref(x_2);
 return x_5;
 }

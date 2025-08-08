@@ -110,7 +110,6 @@ static lean_object* l_Std_Time_ZonedDateTime_addHours___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addSeconds(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_instHAddOffset__6;
 lean_object* l_Std_Time_ValidDate_dayOfYear(uint8_t, lean_object*);
-lean_object* l_Array_findFinIdx_x3f_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_year(lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_instHAddOffset__6___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_subHours(lean_object*, lean_object*);
@@ -193,6 +192,7 @@ LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_ofTimestamp(lean_object*, lean
 lean_object* lean_int_mul(lean_object*, lean_object*);
 static lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0___closed__5;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_second___boxed(lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_day___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_dayOfYear___boxed(lean_object*);
 static lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0___closed__33;
@@ -977,7 +977,7 @@ lean_inc(x_25);
 x_28 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_28, 0, x_25);
 x_29 = lean_unsigned_to_nat(0u);
-x_30 = l_Array_findFinIdx_x3f_loop___redArg(x_28, x_27, x_29);
+x_30 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_28, x_27, x_29);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; 
@@ -1240,7 +1240,7 @@ lean_ctor_set(x_14, 1, x_13);
 lean_inc(x_8);
 x_36 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_36, 0, x_8);
-x_37 = l_Array_findFinIdx_x3f_loop___redArg(x_36, x_13, x_12);
+x_37 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_36, x_13, x_12);
 if (lean_obj_tag(x_37) == 0)
 {
 lean_object* x_38; 
@@ -5107,7 +5107,7 @@ lean_inc(x_30);
 x_33 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_33, 0, x_30);
 x_34 = lean_unsigned_to_nat(0u);
-x_35 = l_Array_findFinIdx_x3f_loop___redArg(x_33, x_32, x_34);
+x_35 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_33, x_32, x_34);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; 
@@ -5385,7 +5385,7 @@ lean_inc(x_34);
 x_37 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_37, 0, x_34);
 x_38 = lean_unsigned_to_nat(0u);
-x_39 = l_Array_findFinIdx_x3f_loop___redArg(x_37, x_36, x_38);
+x_39 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_37, x_36, x_38);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; 
@@ -5476,7 +5476,7 @@ lean_inc(x_57);
 x_60 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_60, 0, x_57);
 x_61 = lean_unsigned_to_nat(0u);
-x_62 = l_Array_findFinIdx_x3f_loop___redArg(x_60, x_59, x_61);
+x_62 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_60, x_59, x_61);
 if (lean_obj_tag(x_62) == 0)
 {
 lean_object* x_63; 
@@ -5629,7 +5629,7 @@ lean_inc(x_34);
 x_37 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_37, 0, x_34);
 x_38 = lean_unsigned_to_nat(0u);
-x_39 = l_Array_findFinIdx_x3f_loop___redArg(x_37, x_36, x_38);
+x_39 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_37, x_36, x_38);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; 
@@ -5779,7 +5779,7 @@ lean_inc(x_82);
 x_85 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_85, 0, x_82);
 x_86 = lean_unsigned_to_nat(0u);
-x_87 = l_Array_findFinIdx_x3f_loop___redArg(x_85, x_84, x_86);
+x_87 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_85, x_84, x_86);
 if (lean_obj_tag(x_87) == 0)
 {
 lean_object* x_88; 
@@ -6058,7 +6058,7 @@ lean_inc(x_34);
 x_37 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_37, 0, x_34);
 x_38 = lean_unsigned_to_nat(0u);
-x_39 = l_Array_findFinIdx_x3f_loop___redArg(x_37, x_36, x_38);
+x_39 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_37, x_36, x_38);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; 
@@ -6149,7 +6149,7 @@ lean_inc(x_57);
 x_60 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_60, 0, x_57);
 x_61 = lean_unsigned_to_nat(0u);
-x_62 = l_Array_findFinIdx_x3f_loop___redArg(x_60, x_59, x_61);
+x_62 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_60, x_59, x_61);
 if (lean_obj_tag(x_62) == 0)
 {
 lean_object* x_63; 
@@ -6303,7 +6303,7 @@ lean_inc(x_34);
 x_37 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_37, 0, x_34);
 x_38 = lean_unsigned_to_nat(0u);
-x_39 = l_Array_findFinIdx_x3f_loop___redArg(x_37, x_36, x_38);
+x_39 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_37, x_36, x_38);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; 
@@ -6454,7 +6454,7 @@ lean_inc(x_82);
 x_85 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_85, 0, x_82);
 x_86 = lean_unsigned_to_nat(0u);
-x_87 = l_Array_findFinIdx_x3f_loop___redArg(x_85, x_84, x_86);
+x_87 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_85, x_84, x_86);
 if (lean_obj_tag(x_87) == 0)
 {
 lean_object* x_88; 
@@ -6724,7 +6724,7 @@ lean_inc(x_34);
 x_37 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_37, 0, x_34);
 x_38 = lean_unsigned_to_nat(0u);
-x_39 = l_Array_findFinIdx_x3f_loop___redArg(x_37, x_36, x_38);
+x_39 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_37, x_36, x_38);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; 
@@ -6815,7 +6815,7 @@ lean_inc(x_57);
 x_60 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_60, 0, x_57);
 x_61 = lean_unsigned_to_nat(0u);
-x_62 = l_Array_findFinIdx_x3f_loop___redArg(x_60, x_59, x_61);
+x_62 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_60, x_59, x_61);
 if (lean_obj_tag(x_62) == 0)
 {
 lean_object* x_63; 
@@ -6969,7 +6969,7 @@ lean_inc(x_34);
 x_37 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_37, 0, x_34);
 x_38 = lean_unsigned_to_nat(0u);
-x_39 = l_Array_findFinIdx_x3f_loop___redArg(x_37, x_36, x_38);
+x_39 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_37, x_36, x_38);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; 
@@ -7120,7 +7120,7 @@ lean_inc(x_82);
 x_85 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_85, 0, x_82);
 x_86 = lean_unsigned_to_nat(0u);
-x_87 = l_Array_findFinIdx_x3f_loop___redArg(x_85, x_84, x_86);
+x_87 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_85, x_84, x_86);
 if (lean_obj_tag(x_87) == 0)
 {
 lean_object* x_88; 
@@ -7287,7 +7287,7 @@ lean_inc(x_33);
 x_36 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_36, 0, x_33);
 x_37 = lean_unsigned_to_nat(0u);
-x_38 = l_Array_findFinIdx_x3f_loop___redArg(x_36, x_35, x_37);
+x_38 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_36, x_35, x_37);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; 
@@ -7436,7 +7436,7 @@ lean_inc(x_79);
 x_82 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_82, 0, x_79);
 x_83 = lean_unsigned_to_nat(0u);
-x_84 = l_Array_findFinIdx_x3f_loop___redArg(x_82, x_81, x_83);
+x_84 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_82, x_81, x_83);
 if (lean_obj_tag(x_84) == 0)
 {
 lean_object* x_85; 
@@ -7606,7 +7606,7 @@ lean_inc(x_129);
 x_132 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_132, 0, x_129);
 x_133 = lean_unsigned_to_nat(0u);
-x_134 = l_Array_findFinIdx_x3f_loop___redArg(x_132, x_131, x_133);
+x_134 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_132, x_131, x_133);
 if (lean_obj_tag(x_134) == 0)
 {
 lean_object* x_135; 
@@ -7773,7 +7773,7 @@ lean_inc(x_33);
 x_36 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_36, 0, x_33);
 x_37 = lean_unsigned_to_nat(0u);
-x_38 = l_Array_findFinIdx_x3f_loop___redArg(x_36, x_35, x_37);
+x_38 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_36, x_35, x_37);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; 
@@ -7922,7 +7922,7 @@ lean_inc(x_79);
 x_82 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_82, 0, x_79);
 x_83 = lean_unsigned_to_nat(0u);
-x_84 = l_Array_findFinIdx_x3f_loop___redArg(x_82, x_81, x_83);
+x_84 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_82, x_81, x_83);
 if (lean_obj_tag(x_84) == 0)
 {
 lean_object* x_85; 
@@ -8092,7 +8092,7 @@ lean_inc(x_129);
 x_132 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_132, 0, x_129);
 x_133 = lean_unsigned_to_nat(0u);
-x_134 = l_Array_findFinIdx_x3f_loop___redArg(x_132, x_131, x_133);
+x_134 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_132, x_131, x_133);
 if (lean_obj_tag(x_134) == 0)
 {
 lean_object* x_135; 
@@ -8259,7 +8259,7 @@ lean_inc(x_33);
 x_36 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_36, 0, x_33);
 x_37 = lean_unsigned_to_nat(0u);
-x_38 = l_Array_findFinIdx_x3f_loop___redArg(x_36, x_35, x_37);
+x_38 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_36, x_35, x_37);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; 
@@ -8408,7 +8408,7 @@ lean_inc(x_79);
 x_82 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_82, 0, x_79);
 x_83 = lean_unsigned_to_nat(0u);
-x_84 = l_Array_findFinIdx_x3f_loop___redArg(x_82, x_81, x_83);
+x_84 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_82, x_81, x_83);
 if (lean_obj_tag(x_84) == 0)
 {
 lean_object* x_85; 
@@ -8578,7 +8578,7 @@ lean_inc(x_129);
 x_132 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_132, 0, x_129);
 x_133 = lean_unsigned_to_nat(0u);
-x_134 = l_Array_findFinIdx_x3f_loop___redArg(x_132, x_131, x_133);
+x_134 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_132, x_131, x_133);
 if (lean_obj_tag(x_134) == 0)
 {
 lean_object* x_135; 
@@ -8761,7 +8761,7 @@ lean_inc(x_38);
 x_41 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_41, 0, x_38);
 x_42 = lean_unsigned_to_nat(0u);
-x_43 = l_Array_findFinIdx_x3f_loop___redArg(x_41, x_40, x_42);
+x_43 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_41, x_40, x_42);
 if (lean_obj_tag(x_43) == 0)
 {
 lean_object* x_44; 
@@ -8920,7 +8920,7 @@ lean_inc(x_90);
 x_93 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_93, 0, x_90);
 x_94 = lean_unsigned_to_nat(0u);
-x_95 = l_Array_findFinIdx_x3f_loop___redArg(x_93, x_92, x_94);
+x_95 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_93, x_92, x_94);
 if (lean_obj_tag(x_95) == 0)
 {
 lean_object* x_96; 
@@ -9100,7 +9100,7 @@ lean_inc(x_146);
 x_149 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_149, 0, x_146);
 x_150 = lean_unsigned_to_nat(0u);
-x_151 = l_Array_findFinIdx_x3f_loop___redArg(x_149, x_148, x_150);
+x_151 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_149, x_148, x_150);
 if (lean_obj_tag(x_151) == 0)
 {
 lean_object* x_152; 
@@ -9276,7 +9276,7 @@ lean_inc(x_33);
 x_36 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_36, 0, x_33);
 x_37 = lean_unsigned_to_nat(0u);
-x_38 = l_Array_findFinIdx_x3f_loop___redArg(x_36, x_35, x_37);
+x_38 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_36, x_35, x_37);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; 
@@ -9425,7 +9425,7 @@ lean_inc(x_79);
 x_82 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_82, 0, x_79);
 x_83 = lean_unsigned_to_nat(0u);
-x_84 = l_Array_findFinIdx_x3f_loop___redArg(x_82, x_81, x_83);
+x_84 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_82, x_81, x_83);
 if (lean_obj_tag(x_84) == 0)
 {
 lean_object* x_85; 
@@ -9595,7 +9595,7 @@ lean_inc(x_129);
 x_132 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_132, 0, x_129);
 x_133 = lean_unsigned_to_nat(0u);
-x_134 = l_Array_findFinIdx_x3f_loop___redArg(x_132, x_131, x_133);
+x_134 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_132, x_131, x_133);
 if (lean_obj_tag(x_134) == 0)
 {
 lean_object* x_135; 
@@ -9818,7 +9818,7 @@ lean_inc(x_28);
 x_31 = lean_alloc_closure((void*)(l_Std_Time_ZonedDateTime_ofPlainDateTime___lam__1___boxed), 2, 1);
 lean_closure_set(x_31, 0, x_28);
 x_32 = lean_unsigned_to_nat(0u);
-x_33 = l_Array_findFinIdx_x3f_loop___redArg(x_31, x_30, x_32);
+x_33 = l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_box(0), x_31, x_30, x_32);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; 

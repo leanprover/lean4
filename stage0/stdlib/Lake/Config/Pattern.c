@@ -34,12 +34,14 @@ LEAN_EXPORT lean_object* l_Lake_Pattern_star___lam__0___boxed(lean_object*);
 static lean_object* l_Lake_Pattern_empty___closed__3;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_ofFn___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Array_contains___at___Lake_StrPatDescr_matches_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_not___redArg(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_instCoePatternDescrPatternOfIsPattern(lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_extension(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__14;
+LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Array_contains___at___Lake_StrPatDescr_matches_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_Pattern_ofDescr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_isVerLike___boxed(lean_object*);
 static lean_object* l_Lake_versionTagPresets___closed__0;
@@ -75,6 +77,7 @@ size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lake_PatternDescr_matches___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Pattern_empty(lean_object*, lean_object*);
 lean_object* l_flip(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t);
 static lean_object* l_Lake_term___x3d_x7e_____closed__4;
 LEAN_EXPORT lean_object* l_Lake_instCoePatternDescr(lean_object*, lean_object*);
 static lean_object* l_Lake_PatternDescr_matches___redArg___closed__7;
@@ -130,7 +133,6 @@ LEAN_EXPORT uint8_t l_Lake_Pattern_star___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Pattern_all(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instEmptyCollectionPatternDescr(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Array_contains___at___Lake_StrPatDescr_matches_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_StrPat_none;
 static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__term___x3d_x7e____1___closed__0;
 static lean_object* l_Lake_StrPat_verLike___closed__2;
@@ -138,7 +140,6 @@ static lean_object* l_Lake___aux__Lake__Config__Pattern______macroRules__Lake__t
 static lean_object* l_Lake_term___x3d_x7e_____closed__11;
 static lean_object* l_Lake_PatternDescr_empty___closed__0;
 LEAN_EXPORT lean_object* l_Lake_PathPatDescr_eq(lean_object*);
-LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Array_contains___at___Lake_StrPatDescr_matches_spec__0_spec__0(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_StrPat_satisfies(lean_object*, lean_object*);
 static lean_object* l_Lake_PatternDescr_matches___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Pattern_any___redArg(lean_object*, lean_object*);
@@ -150,7 +151,6 @@ lean_object* l_Substring_nextn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PathPat_path___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedPathPatDescr;
 LEAN_EXPORT lean_object* l_Lake_StrPatDescr_matches___boxed(lean_object*, lean_object*);
-lean_object* l_Array_anyMUnsafe_any___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t);
 static lean_object* l_Lake_instIsPatternStrPatDescrString___closed__1;
 static lean_object* l_Lake_term___x3d_x7e_____closed__2;
 LEAN_EXPORT lean_object* l_Lake_PatternDescr_matches___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1025,7 +1025,7 @@ lean_closure_set(x_17, 1, x_16);
 x_18 = 0;
 x_19 = lean_usize_of_nat(x_12);
 lean_dec(x_12);
-x_20 = l_Array_anyMUnsafe_any___redArg(x_13, x_17, x_10, x_18, x_19);
+x_20 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___redArg(x_13, x_17, x_10, x_18, x_19);
 x_21 = lean_unbox(x_20);
 lean_dec(x_20);
 if (x_21 == 0)
@@ -1076,7 +1076,7 @@ lean_closure_set(x_28, 0, x_2);
 x_29 = 0;
 x_30 = lean_usize_of_nat(x_25);
 lean_dec(x_25);
-x_31 = l_Array_anyMUnsafe_any___redArg(x_26, x_28, x_23, x_29, x_30);
+x_31 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___redArg(x_26, x_28, x_23, x_29, x_30);
 x_32 = lean_unbox(x_31);
 lean_dec(x_31);
 return x_32;
@@ -1669,7 +1669,7 @@ x_1 = l_Lake_instInhabitedStrPatDescr___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___Array_contains___at___Lake_StrPatDescr_matches_spec__0_spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4) {
+LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Array_contains___at___Lake_StrPatDescr_matches_spec__0_spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -1726,7 +1726,7 @@ size_t x_6; size_t x_7; uint8_t x_8;
 x_6 = 0;
 x_7 = lean_usize_of_nat(x_4);
 lean_dec(x_4);
-x_8 = l_Array_anyMUnsafe_any___at___Array_contains___at___Lake_StrPatDescr_matches_spec__0_spec__0(x_2, x_1, x_6, x_7);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Array_contains___at___Lake_StrPatDescr_matches_spec__0_spec__0(x_2, x_1, x_6, x_7);
 return x_8;
 }
 }
@@ -1803,7 +1803,7 @@ return x_24;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___Array_contains___at___Lake_StrPatDescr_matches_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Array_contains___at___Lake_StrPatDescr_matches_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; uint8_t x_7; lean_object* x_8; 
@@ -1811,7 +1811,7 @@ x_5 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_6 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_7 = l_Array_anyMUnsafe_any___at___Array_contains___at___Lake_StrPatDescr_matches_spec__0_spec__0(x_1, x_2, x_5, x_6);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Array_contains___at___Lake_StrPatDescr_matches_spec__0_spec__0(x_1, x_2, x_5, x_6);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_8 = lean_box(x_7);

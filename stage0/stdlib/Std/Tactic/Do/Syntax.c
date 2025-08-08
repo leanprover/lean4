@@ -39,7 +39,6 @@ static lean_object* l_Lean_Parser_Tactic_reprMCasesPat___closed__0____x40_Std_Ta
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__0;
 static lean_object* l_Lean_Parser_Tactic_mvcgen___closed__14;
 static lean_object* l_Lean_Parser_Attr_spec___closed__36;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__0(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__14;
 static lean_object* l_Lean_Parser_Attr_spec___closed__24;
 static lean_object* l_Lean_Parser_Tactic_mvcgen___closed__16;
@@ -61,7 +60,6 @@ static lean_object* l_Lean_Parser_Tactic_mdup___closed__3;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__10;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_x25_____closed__0;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_x2d___closed__1;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_u25a1_____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_mrevertPat_u2200__;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__75;
@@ -72,6 +70,7 @@ static lean_object* l_Lean_Parser_Tactic_mhave___closed__1;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__104;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_x2d___closed__2;
 static lean_object* l_Lean_Parser_Tactic_mvcgenStep___closed__7;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_x28___x29___closed__0;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mspec__1___closed__0;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_x2d___closed__0;
@@ -139,7 +138,6 @@ static lean_object* l_Lean_Parser_Tactic_mframe___closed__0;
 static lean_object* l_Lean_Parser_Tactic_mintroPat_u2200_____closed__1;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mspec__1___closed__1;
 extern lean_object* l_Lean_Parser_Tactic_simpStar;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__26;
 static lean_object* l_Lean_Parser_Tactic_mspec___closed__0;
@@ -158,6 +156,8 @@ static lean_object* l_Lean_Parser_Attr_spec___closed__40;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mspecializePure___closed__5;
 static lean_object* l_Lean_Parser_Tactic_mexists___closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg(size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Attr_spec___closed__12;
 static lean_object* l_Lean_Parser_Tactic_mright___closed__2;
 static lean_object* l_Lean_Parser_Tactic_mrevertPat_quot___closed__2;
@@ -168,6 +168,7 @@ static lean_object* l_Lean_Parser_Tactic_mcasesPat_u27e8___u27e9___closed__8;
 LEAN_EXPORT lean_object* l_List_repr___at___Lean_Parser_Tactic_reprMCasesPat____x40_Std_Tactic_Do_Syntax___hyg_1895__spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mrevertPat_____closed__1;
 static lean_object* l_Lean_Parser_Tactic_mintro___closed__4;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_goAlts_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mrevertPat_u2200_____closed__1;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_x25_____closed__5;
 static lean_object* l_Lean_Parser_Tactic_mrevertPat_____closed__2;
@@ -187,6 +188,7 @@ static lean_object* l_Lean_Parser_Tactic_mclear___closed__5;
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_quot___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_instInhabitedMCasesPat;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__52;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mintroPat_quot___closed__0;
 static lean_object* l_Lean_Parser_Attr_spec___closed__41;
 static lean_object* l_Lean_Parser_Tactic_mcasesPatAlts___closed__5;
@@ -223,7 +225,6 @@ static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______mac
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mintro__1___closed__3;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__99;
 static lean_object* l_Lean_Parser_Tactic_mpure___closed__1;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Attr_spec___closed__4;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__84;
 lean_object* l_Array_mkArray0(lean_object*);
@@ -272,7 +273,6 @@ static lean_object* l_Lean_Parser_Tactic_mclear___closed__8;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_u25a1_____closed__1;
 static lean_object* l_Lean_Parser_Tactic_mstop___closed__1;
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_quot___closed__7;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_goAlts_spec__0(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_mrefinePat_x23__;
 static lean_object* l_Lean_Parser_Tactic_mclear___closed__11;
 static lean_object* l_Lean_Parser_Tactic_mspecNoBind___closed__0;
@@ -301,7 +301,6 @@ static lean_object* l_Lean_Parser_Tactic_mrefinePat_x28___x29___closed__0;
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_u231c___u231d___closed__0;
 static lean_object* l_Lean_Parser_Tactic_mhave___closed__7;
 static lean_object* l_Lean_Parser_Tactic_mvcgenNoTrivial___closed__1;
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mclear___closed__6;
 static lean_object* l_Lean_Parser_Tactic_reprMCasesPat___closed__9____x40_Std_Tactic_Do_Syntax___hyg_1895_;
 static lean_object* l_Lean_Parser_Tactic_mvcgen___closed__9;
@@ -324,10 +323,8 @@ lean_object* l_Array_empty(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mvcgen___closed__8;
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_x3f_____closed__4;
 static lean_object* l_Lean_Parser_Attr_spec___closed__14;
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2(uint8_t, uint8_t, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mcasesPat_x23____1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mintroPat_u2200_____closed__4;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Attr_spec___closed__7;
 static lean_object* l_Lean_Parser_Attr_spec___closed__9;
 static lean_object* l_Lean_Parser_Tactic_mvcgen___closed__6;
@@ -449,6 +446,7 @@ LEAN_EXPORT lean_object* l_List_foldl___at___List_foldl___at___Std_Format_joinSe
 static lean_object* l_Lean_Parser_Tactic_mspecializePure___closed__7;
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_x3f_____closed__1;
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_x25_____closed__2;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__0(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Attr_spec___closed__11;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mintro__1___closed__4;
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_quot___closed__0;
@@ -492,6 +490,7 @@ static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______mac
 static lean_object* l_Lean_Parser_Tactic_reprMCasesPat___closed__15____x40_Std_Tactic_Do_Syntax___hyg_1895_;
 static lean_object* l_Lean_Parser_Tactic_reprMCasesPat___closed__3____x40_Std_Tactic_Do_Syntax___hyg_1895_;
 static lean_object* l_Lean_Parser_Tactic_mvcgen___closed__3;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_goAlts_spec__0(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_reprMCasesPat___closed__16____x40_Std_Tactic_Do_Syntax___hyg_1895_;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__117;
 static lean_object* l_Lean_Parser_Tactic_reprMRefinePat___closed__7____x40_Std_Tactic_Do_Syntax___hyg_3142_;
@@ -509,7 +508,6 @@ static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______mac
 static lean_object* l_Lean_Parser_Tactic_reprMCasesPat___closed__2____x40_Std_Tactic_Do_Syntax___hyg_1895_;
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___List_repr___at___Lean_Parser_Tactic_reprMCasesPat____x40_Std_Tactic_Do_Syntax___hyg_1895__spec__0_spec__0___lam__0(lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__tacticMvcgen__trivial__1___closed__6;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__78;
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_quot___closed__2;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mspec__1___closed__5;
@@ -527,11 +525,9 @@ static lean_object* l_Lean_Parser_Tactic_mrefinePat_u27e8___u27e9___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_mintroPat_quot;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mspec__1___closed__4;
 static lean_object* l_Lean_Parser_Tactic_mhave___closed__11;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__60;
 static lean_object* l_Lean_Parser_Tactic_mrenameI___closed__7;
 static lean_object* l_Lean_Parser_Tactic_reprMRefinePat___closed__9____x40_Std_Tactic_Do_Syntax___hyg_3142_;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_goAlts_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_instReprMRefinePat___closed__0;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__27;
 extern lean_object* l_Lean_Parser_Tactic_simpErase;
@@ -547,7 +543,6 @@ static lean_object* l_Lean_Parser_Tactic_mrefinePats___closed__0;
 lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__17;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_mcasesPat_x23__;
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_u231c___u231d___closed__3;
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_x28___x29___closed__3;
@@ -613,6 +608,7 @@ static lean_object* l_Lean_Parser_Tactic_reprMCasesPat___closed__1____x40_Std_Ta
 LEAN_EXPORT lean_object* l_Nat_cast___at___List_repr___at___Lean_Parser_Tactic_reprMCasesPat____x40_Std_Tactic_Do_Syntax___hyg_1895__spec__0_spec__3(lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mintro__1___closed__6;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_List_repr___at___Lean_Parser_Tactic_reprMCasesPat____x40_Std_Tactic_Do_Syntax___hyg_1895__spec__0___redArg___closed__0;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_____closed__0;
 static lean_object* l_Lean_Parser_Tactic_mclear___closed__3;
@@ -651,6 +647,7 @@ static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______mac
 static lean_object* l_Lean_Parser_Tactic_mdup___closed__6;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_quot___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_mspecNoBind;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2(uint8_t, uint8_t, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__46;
 static lean_object* l_Lean_Parser_Attr_spec___closed__1;
 static lean_object* l_Lean_Parser_Tactic_mhave___closed__3;
@@ -661,6 +658,7 @@ static lean_object* l_Lean_Parser_Tactic_mleave___closed__3;
 static lean_object* l_Lean_Parser_Tactic_mexact___closed__4;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mdup___closed__5;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_reprMRefinePat___closed__10____x40_Std_Tactic_Do_Syntax___hyg_3142_;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__76;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__tacticMvcgen__trivial__1___closed__1;
@@ -670,7 +668,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_mrefinePat_u27e8___u27e9;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__77;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_reprMRefinePat____x40_Std_Tactic_Do_Syntax___hyg_3142____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_x28___x29___closed__2;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mintroPat_quot___closed__6;
 static lean_object* l_Lean_Parser_Tactic_mrevertPat_u2200_____closed__4;
@@ -691,6 +688,7 @@ static lean_object* l_Lean_Parser_Tactic_mspecialize___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_mintro;
 static lean_object* l_Lean_Parser_Tactic_mpureIntro___closed__3;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__45;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__72;
 static lean_object* l_Lean_Parser_Tactic_reprMRefinePat___closed__12____x40_Std_Tactic_Do_Syntax___hyg_3142_;
 static lean_object* l_Lean_Parser_Tactic_mintroPat_u2200_____closed__3;
@@ -776,6 +774,7 @@ lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_List_repr___at___Lean_Parser_Tactic_reprMRefinePat____x40_Std_Tactic_Do_Syntax___hyg_3142__spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__68;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_quot___closed__4;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mrevert___closed__3;
 static lean_object* l_Lean_Parser_Tactic_mvcgen___closed__10;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_x28___x29___closed__5;
@@ -800,6 +799,7 @@ static lean_object* l_Lean_Parser_Tactic_mrenameI___closed__8;
 static lean_object* l_Lean_Parser_Tactic_massumption___closed__4;
 static lean_object* l_Lean_Parser_Tactic_reprMRefinePat___closed__13____x40_Std_Tactic_Do_Syntax___hyg_3142_;
 static lean_object* l_Lean_Parser_Tactic_mrefinePat_u25a1_____closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mvcgenNoTrivial___closed__5;
 LEAN_EXPORT lean_object* l_List_foldl___at___List_foldl___at___Std_Format_joinSep___at___List_repr___at___Lean_Parser_Tactic_reprMRefinePat____x40_Std_Tactic_Do_Syntax___hyg_3142__spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mspecNoSimp__1(lean_object*, lean_object*, lean_object*);
@@ -824,6 +824,7 @@ LEAN_EXPORT lean_object* l_List_foldl___at___Std_Format_joinSep___at___List_repr
 static lean_object* l_Lean_Parser_Tactic_mcases___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Parser_Tactic_MCasesPat_parse___lam__0(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_x23_____closed__5;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__37;
 static lean_object* l_Lean_Parser_Tactic_mcasesPat_quot___closed__11;
 static lean_object* l_Lean_Parser_Tactic_mintro___closed__6;
@@ -843,7 +844,6 @@ static lean_object* l_Lean_Parser_Tactic_tacticMvcgen__trivial__extensible___clo
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__53;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__41;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__129;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Attr_spec___closed__34;
 static lean_object* l_Lean_Parser_Tactic_mrevertPat_u2200_____closed__2;
 static lean_object* l_Lean_Parser_Tactic___aux__Std__Tactic__Do__Syntax______macroRules__Lean__Parser__Tactic__mleave__1___closed__128;
@@ -6545,7 +6545,7 @@ x_1 = l_Lean_Parser_Tactic_instInhabitedMCasesPat___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -6572,15 +6572,15 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg(x_4, x_5, x_6);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg(x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -6622,7 +6622,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2(uint8_t x_1, uint8_t x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2(uint8_t x_1, uint8_t x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; uint8_t x_12; 
@@ -6868,7 +6868,7 @@ lean_ctor_set(x_60, 1, x_54);
 x_61 = 0;
 x_62 = lean_usize_of_nat(x_56);
 lean_dec(x_56);
-x_63 = l_Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2(x_32, x_30, x_53, x_61, x_62, x_60);
+x_63 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2(x_32, x_30, x_53, x_61, x_62, x_60);
 lean_dec_ref(x_53);
 x_64 = lean_ctor_get(x_63, 1);
 lean_inc(x_64);
@@ -6918,14 +6918,14 @@ block_26:
 size_t x_3; size_t x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_array_size(x_2);
 x_4 = 0;
-x_5 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg(x_3, x_4, x_2);
+x_5 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg(x_3, x_4, x_2);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; size_t x_8; lean_object* x_9; 
 x_7 = lean_ctor_get(x_5, 0);
 x_8 = lean_array_size(x_7);
-x_9 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1(x_8, x_4, x_7);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1(x_8, x_4, x_7);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 
@@ -6969,7 +6969,7 @@ x_17 = lean_ctor_get(x_5, 0);
 lean_inc(x_17);
 lean_dec(x_5);
 x_18 = lean_array_size(x_17);
-x_19 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1(x_18, x_4, x_17);
+x_19 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1(x_18, x_4, x_17);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; 
@@ -7003,7 +7003,7 @@ return x_25;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_goAlts_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_goAlts_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -7078,7 +7078,7 @@ if (x_11 == 0)
 size_t x_12; size_t x_13; lean_object* x_14; 
 x_12 = lean_array_size(x_8);
 x_13 = 0;
-x_14 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_goAlts_spec__0(x_12, x_13, x_8);
+x_14 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_goAlts_spec__0(x_12, x_13, x_8);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; 
@@ -7125,7 +7125,7 @@ return x_25;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -7133,11 +7133,11 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___redArg(x_4, x_5, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
@@ -7145,14 +7145,14 @@ x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_8 = lean_unbox_usize(x_5);
 lean_dec(x_5);
-x_9 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0(x_1, x_2, x_3, x_7, x_8, x_6);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__0(x_1, x_2, x_3, x_7, x_8, x_6);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -7160,11 +7160,11 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__1(x_4, x_5, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 uint8_t x_7; uint8_t x_8; size_t x_9; size_t x_10; lean_object* x_11; 
@@ -7174,12 +7174,12 @@ x_9 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_10 = lean_unbox_usize(x_5);
 lean_dec(x_5);
-x_11 = l_Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2(x_7, x_8, x_3, x_9, x_10, x_6);
+x_11 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2(x_7, x_8, x_3, x_9, x_10, x_6);
 lean_dec_ref(x_3);
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_goAlts_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_goAlts_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -7187,7 +7187,7 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_goAlts_spec__0(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MCasesPat_parse_goAlts_spec__0(x_4, x_5, x_3);
 return x_6;
 }
 }
@@ -8837,7 +8837,7 @@ x_1 = l_Lean_Parser_Tactic_instInhabitedMRefinePat___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -8864,7 +8864,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -9041,7 +9041,7 @@ lean_ctor_set(x_64, 1, x_59);
 x_65 = 0;
 x_66 = lean_usize_of_nat(x_60);
 lean_dec(x_60);
-x_67 = l_Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2(x_54, x_30, x_58, x_65, x_66, x_64);
+x_67 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Parser_Tactic_MCasesPat_parse_go_spec__2(x_54, x_30, x_58, x_65, x_66, x_64);
 lean_dec_ref(x_58);
 x_68 = lean_ctor_get(x_67, 1);
 lean_inc(x_68);
@@ -9097,14 +9097,14 @@ block_26:
 size_t x_3; size_t x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_array_size(x_2);
 x_4 = 0;
-x_5 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__0(x_3, x_4, x_2);
+x_5 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__0(x_3, x_4, x_2);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; size_t x_8; lean_object* x_9; 
 x_7 = lean_ctor_get(x_5, 0);
 x_8 = lean_array_size(x_7);
-x_9 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1(x_8, x_4, x_7);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1(x_8, x_4, x_7);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 
@@ -9146,7 +9146,7 @@ x_17 = lean_ctor_get(x_5, 0);
 lean_inc(x_17);
 lean_dec(x_5);
 x_18 = lean_array_size(x_17);
-x_19 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1(x_18, x_4, x_17);
+x_19 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1(x_18, x_4, x_17);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; 
@@ -9180,7 +9180,7 @@ return x_25;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -9188,11 +9188,11 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__0(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__0(x_4, x_5, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -9200,7 +9200,7 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Parser_Tactic_MRefinePat_parse_go_spec__1(x_4, x_5, x_3);
 return x_6;
 }
 }

@@ -2297,17 +2297,16 @@ return x_1;
 static lean_object* _init_l_Std_Internal_UV_System_instInhabitedPasswdInfo___closed__0() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = lean_box(0);
-x_3 = l_Std_Internal_UV_System_instInhabitedCPUInfo___closed__0;
-x_4 = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(x_4, 0, x_3);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_2);
-lean_ctor_set(x_4, 3, x_1);
-lean_ctor_set(x_4, 4, x_1);
-return x_4;
+x_2 = l_Std_Internal_UV_System_instInhabitedCPUInfo___closed__0;
+x_3 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 2, x_1);
+lean_ctor_set(x_3, 3, x_1);
+lean_ctor_set(x_3, 4, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Std_Internal_UV_System_instInhabitedPasswdInfo() {

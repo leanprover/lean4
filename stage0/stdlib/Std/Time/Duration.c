@@ -95,13 +95,11 @@ LEAN_EXPORT lean_object* l_Std_Time_Duration_instHAddOffset__5;
 static lean_object* l_Std_Time_reprDuration___redArg___closed__17____x40_Std_Time_Duration___hyg_299_;
 static lean_object* l_Std_Time_Duration_instCoeOffset__4___closed__2;
 LEAN_EXPORT lean_object* l_Std_Time_Duration_instHMulInt__1___lam__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_repeatTR_loop___at___Std_Time_instToStringDuration_leftPad_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 static lean_object* l_Std_Time_reprDuration___redArg___closed__19____x40_Std_Time_Duration___hyg_299_;
 LEAN_EXPORT lean_object* l_Std_Time_Duration_toSeconds___boxed(lean_object*);
 static lean_object* l_Std_Time_Duration_ofMillisecond___closed__0;
 static lean_object* l_Std_Time_instToStringDuration___lam__0___closed__0;
-LEAN_EXPORT lean_object* l_Nat_repeatTR_loop___at___Std_Time_instToStringDuration_leftPad_spec__0(uint32_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instToStringDuration_leftPad___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Duration_ofNanoseconds___closed__0;
 static lean_object* l_Std_Time_instToStringDuration___lam__0___closed__3;
@@ -213,6 +211,7 @@ static lean_object* l_Std_Time_Duration_instHAdd___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_Duration_subNanoseconds___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Duration_ofMillisecond___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___Std_Time_instToStringDuration_leftPad_spec__0(uint32_t, lean_object*, lean_object*);
 static lean_object* l_Std_Time_reprDuration___redArg___closed__1____x40_Std_Time_Duration___hyg_299_;
 LEAN_EXPORT lean_object* l_Std_Time_Duration_instHSub;
 LEAN_EXPORT lean_object* l_Std_Time_Duration_instHAddOffset__2;
@@ -224,6 +223,7 @@ LEAN_EXPORT lean_object* l_Std_Time_Duration_addMinutes(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Std_Time_instInhabitedDuration;
 LEAN_EXPORT lean_object* l_Nat_cast___at___Std_Time_reprDuration____x40_Std_Time_Duration___hyg_299__spec__0(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Duration_instCoeOffset;
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___Std_Time_instToStringDuration_leftPad_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_instToStringDuration___lam__0___closed__1;
 static lean_object* l_Std_Time_reprDuration___redArg___closed__8____x40_Std_Time_Duration___hyg_299_;
 LEAN_EXPORT lean_object* l_Std_Time_Duration_instHSubOffset;
@@ -689,7 +689,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_repeatTR_loop___at___Std_Time_instToStringDuration_leftPad_spec__0(uint32_t x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___Std_Time_instToStringDuration_leftPad_spec__0(uint32_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -730,18 +730,18 @@ x_4 = 48;
 x_5 = lean_string_length(x_2);
 x_6 = lean_nat_sub(x_1, x_5);
 lean_dec(x_5);
-x_7 = l_Nat_repeatTR_loop___at___Std_Time_instToStringDuration_leftPad_spec__0(x_4, x_6, x_3);
+x_7 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___Std_Time_instToStringDuration_leftPad_spec__0(x_4, x_6, x_3);
 x_8 = lean_string_append(x_7, x_2);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_repeatTR_loop___at___Std_Time_instToStringDuration_leftPad_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___Std_Time_instToStringDuration_leftPad_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint32_t x_4; lean_object* x_5; 
 x_4 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
-x_5 = l_Nat_repeatTR_loop___at___Std_Time_instToStringDuration_leftPad_spec__0(x_4, x_2, x_3);
+x_5 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___Std_Time_instToStringDuration_leftPad_spec__0(x_4, x_2, x_3);
 return x_5;
 }
 }

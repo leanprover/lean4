@@ -84,6 +84,7 @@ LEAN_EXPORT lean_object* l_Lean_reprLeanOptionValue____x40_Lean_Util_LeanOptions
 LEAN_EXPORT lean_object* l_Prod_repr___at___List_repr___at___Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_675__spec__1_spec__1___redArg(lean_object*);
 static lean_object* l_List_repr___at___Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_675__spec__1___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_reprLeanOptionValue____x40_Lean_Util_LeanOptions___hyg_51_(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LeanOptionValue_toDataValue(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_675____boxed(lean_object*, lean_object*);
@@ -95,7 +96,6 @@ LEAN_EXPORT lean_object* l_Nat_cast___at___Lean_reprLeanOption____x40_Lean_Util_
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldrM___at___Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_675__spec__0(lean_object*, lean_object*);
 static lean_object* l_List_repr___at___Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_675__spec__1___redArg___closed__2;
 static lean_object* l_Lean_instFromJsonLeanOptionValue___lam__0___closed__2;
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_reprLeanOption___redArg___closed__8____x40_Lean_Util_LeanOptions___hyg_561_;
 static lean_object* l_List_repr___at___Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_675__spec__1___redArg___closed__5;
 static lean_object* l_Lean_LeanOption_asCliArg___closed__0;
@@ -130,7 +130,6 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter___at___Lean_Le
 static lean_object* l_Lean_reprLeanOptions___redArg___closed__2____x40_Lean_Util_LeanOptions___hyg_675_;
 static lean_object* l_Lean_reprLeanOptions___redArg___closed__6____x40_Lean_Util_LeanOptions___hyg_675_;
 LEAN_EXPORT lean_object* l_Lean_instAppendLeanOptions;
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_reprLeanOptionValue___closed__8____x40_Lean_Util_LeanOptions___hyg_51_;
 static lean_object* l_List_repr___at___Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_675__spec__1___redArg___closed__3;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
@@ -182,6 +181,7 @@ LEAN_EXPORT lean_object* l_Lean_instToJsonLeanOptions;
 static lean_object* l_Lean_reprLeanOptions___redArg___closed__5____x40_Lean_Util_LeanOptions___hyg_675_;
 static lean_object* l_Lean_reprLeanOption___redArg___closed__2____x40_Lean_Util_LeanOptions___hyg_561_;
 static lean_object* l_Lean_reprLeanOptionValue___closed__3____x40_Lean_Util_LeanOptions___hyg_51_;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_reprLeanOptions___redArg____x40_Lean_Util_LeanOptions___hyg_675_(lean_object*);
 LEAN_EXPORT lean_object* l_Prod_repr___at___List_repr___at___Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_675__spec__1_spec__1(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_instInhabitedLeanOptionValue___closed__0() {
@@ -2187,7 +2187,7 @@ x_1 = lean_box(1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -2242,13 +2242,13 @@ size_t x_7; size_t x_8; lean_object* x_9;
 x_7 = 0;
 x_8 = lean_usize_of_nat(x_4);
 lean_dec(x_4);
-x_9 = l_Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0(x_1, x_7, x_8, x_2);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0(x_1, x_7, x_8, x_2);
 return x_9;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; 
@@ -2256,7 +2256,7 @@ x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_7 = l_Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0(x_1, x_5, x_6, x_4);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0(x_1, x_5, x_6, x_4);
 lean_dec_ref(x_1);
 return x_7;
 }
@@ -2471,7 +2471,7 @@ size_t x_7; size_t x_8; lean_object* x_9;
 x_7 = 0;
 x_8 = lean_usize_of_nat(x_4);
 lean_dec(x_4);
-x_9 = l_Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0(x_2, x_7, x_8, x_1);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_LeanOptions_ofArray_spec__0(x_2, x_7, x_8, x_1);
 return x_9;
 }
 }

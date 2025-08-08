@@ -257,7 +257,6 @@ static lean_object* l_Std_TreeSet_Raw_term___x7em_____closed__11;
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_filter___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_toList___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_TreeSet_Raw_getGE_x21___redArg___closed__0;
-lean_object* l_Array_forIn_x27Unsafe_loop___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Std_TreeSet_Raw_foldr___redArg___closed__5;
 static lean_object* l_Std_TreeSet_Raw_term___x7em_____closed__0;
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -362,6 +361,7 @@ static lean_object* l___auto___closed__1____x40_Std_Data_TreeSet_Raw_Basic___hyg
 static lean_object* l_Std_TreeSet_Raw_term___x7em_____closed__10;
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_fromArray___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instInsert___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_merge___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeSet_Raw_instMembership___boxed(lean_object*, lean_object*);
 static lean_object* l___auto___closed__11____x40_Std_Data_TreeSet_Raw_Basic___hyg_26_;
@@ -3724,7 +3724,7 @@ x_4 = lean_box(1);
 x_5 = l_Std_TreeSet_Raw_foldr___redArg___closed__9;
 x_6 = lean_array_size(x_1);
 x_7 = 0;
-x_8 = l_Array_forIn_x27Unsafe_loop___redArg(x_5, x_1, x_3, x_6, x_7, x_4);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_5, x_1, x_3, x_6, x_7, x_4);
 return x_8;
 }
 }
@@ -3738,7 +3738,7 @@ x_5 = lean_box(1);
 x_6 = l_Std_TreeSet_Raw_foldr___redArg___closed__9;
 x_7 = lean_array_size(x_2);
 x_8 = 0;
-x_9 = l_Array_forIn_x27Unsafe_loop___redArg(x_6, x_2, x_4, x_7, x_8, x_5);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_6, x_2, x_4, x_7, x_8, x_5);
 return x_9;
 }
 }
@@ -3752,7 +3752,7 @@ x_4 = lean_box(1);
 x_5 = l_Std_TreeSet_Raw_foldr___redArg___closed__9;
 x_6 = lean_array_size(x_1);
 x_7 = 0;
-x_8 = l_Array_forIn_x27Unsafe_loop___redArg(x_5, x_1, x_3, x_6, x_7, x_4);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_5, x_1, x_3, x_6, x_7, x_4);
 return x_8;
 }
 }
@@ -3766,7 +3766,7 @@ x_5 = lean_box(1);
 x_6 = l_Std_TreeSet_Raw_foldr___redArg___closed__9;
 x_7 = lean_array_size(x_2);
 x_8 = 0;
-x_9 = l_Array_forIn_x27Unsafe_loop___redArg(x_6, x_2, x_4, x_7, x_8, x_5);
+x_9 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_6, x_2, x_4, x_7, x_8, x_5);
 return x_9;
 }
 }

@@ -129,6 +129,7 @@ LEAN_EXPORT lean_object* l_Lean_SMap_foldM(lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_List_toSMap___redArg(lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_forM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_ExceptT_instMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -163,7 +164,6 @@ LEAN_EXPORT lean_object* l_Lean_SMap_fold___boxed(lean_object*, lean_object*, le
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_switch___redArg(lean_object*);
 lean_object* l_Lean_PersistentHashMap_foldl___redArg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SMap_fold___redArg___closed__9;
 LEAN_EXPORT lean_object* l_Lean_SMap_switch___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1567,7 +1567,7 @@ lean_closure_set(x_22, 1, x_21);
 x_23 = 0;
 x_24 = lean_usize_of_nat(x_11);
 lean_dec(x_11);
-x_25 = l_Array_foldlMUnsafe_fold___redArg(x_1, x_22, x_8, x_23, x_24, x_12);
+x_25 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_1, x_22, x_8, x_23, x_24, x_12);
 x_26 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_25, x_9);
 return x_26;
 }
@@ -2223,7 +2223,7 @@ lean_closure_set(x_21, 1, x_2);
 x_22 = 0;
 x_23 = lean_usize_of_nat(x_12);
 lean_dec(x_12);
-x_24 = l_Array_foldlMUnsafe_fold___redArg(x_1, x_21, x_9, x_22, x_23, x_3);
+x_24 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_1, x_21, x_9, x_22, x_23, x_3);
 x_25 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_24, x_10);
 return x_25;
 }
@@ -2410,7 +2410,7 @@ lean_closure_set(x_15, 1, x_14);
 x_16 = 0;
 x_17 = lean_usize_of_nat(x_9);
 lean_dec(x_9);
-x_18 = l_Array_foldlMUnsafe_fold___redArg(x_6, x_15, x_7, x_16, x_17, x_2);
+x_18 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_6, x_15, x_7, x_16, x_17, x_2);
 x_19 = l_Lean_PersistentHashMap_foldl___redArg(x_5, x_1, x_18);
 return x_19;
 }

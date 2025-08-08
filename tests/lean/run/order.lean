@@ -1,6 +1,6 @@
 module
 
-import Init.Data.Order.Factories
+import Init.Data.Order.FactoriesExtra
 
 open Std
 
@@ -8,20 +8,30 @@ variable {α : Type u}
 
 section
 
-instance packageOfLE [LE α] [DecidableLE α] [Refl (α := α) (· ≤ ·)]
-    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] : PreorderPackage α := .ofLE α
+structure X
 
-example [i : LE α] [DecidableLE α] [Refl (α := α) (· ≤ ·)]
-    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] :
-    i = (inferInstanceAs (PreorderPackage α)).toLE := rfl
+#guard_msgs(drop warning) in
+@[instance] opaque instLE : LE X := sorry
 
-example [LE α] [DecidableLE α] [Refl (α := α) (· ≤ ·)]
-    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] :
-    LawfulOrderLE α := inferInstance
+#guard_msgs(drop warning) in
+@[instance] opaque instDecidableLE : DecidableLE X := sorry
 
-example [LE α] [DecidableLE α] [Refl (α := α) (· ≤ ·)]
-    [Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·)] :
-    LawfulOrderLT α := inferInstance
+#guard_msgs(drop warning) in
+@[instance] opaque instTotal : Total (α := X) (· ≤ ·) := sorry
+
+#guard_msgs(drop warning) in
+@[instance] opaque instAntisymm : Antisymm (α := X) (· ≤ ·) := sorry
+
+#guard_msgs(drop warning) in
+@[instance] opaque instTrans : Trans (α := X) (· ≤ ·) (· ≤ ·) (· ≤ ·) := sorry
+
+instance packageOfLE : LinearOrderPackage X := .ofLE X
+
+example : instLE = (inferInstanceAs (PreorderPackage X)).toLE := rfl
+example : IsLinearOrder X := inferInstance
+example : LawfulOrderLE X := inferInstance
+example : LawfulOrderLT X := inferInstance
+example : LawfulOrderOrd X := inferInstance
 
 end
 

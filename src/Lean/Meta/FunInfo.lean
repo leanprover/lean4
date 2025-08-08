@@ -13,12 +13,21 @@ public section
 
 namespace Lean.Meta
 
+private structure FunInfoEnvCacheKey where
+  fn : Expr
+  maxArgs? : Option Nat
+deriving BEq, Hashable, TypeName
+
 @[inline] private def checkFunInfoCache (fn : Expr) (maxArgs? : Option Nat) (k : MetaM FunInfo) : MetaM FunInfo := do
   let key ← mkInfoCacheKey fn maxArgs?
   match (← get).cache.funInfo.find? key with
   | some finfo => return finfo
   | none       => do
-    let finfo ← k
+    -- If `fn` is only a single constant, we can share the result with any thread that can see `c`
+    -- as well.
+    let finfo ← match fn with
+      | .const c _ => realizeValue c { fn, maxArgs? : FunInfoEnvCacheKey } k
+      | _          => k
     modify fun s => { s with cache := { s.cache with funInfo := s.cache.funInfo.insert key finfo } }
     return finfo
 

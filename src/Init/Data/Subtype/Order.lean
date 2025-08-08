@@ -31,6 +31,9 @@ public instance {α : Type u} [LT α] [OrderData α] [LawfulOrderLT α]
     {P : α → Prop} : LawfulOrderLT (Subtype P) where
   lt_iff a b := by simp [LT.lt, OrderData.IsLE, LawfulOrderLT.lt_iff]
 
+public instance {α : Type u} [BEq α] {P : α → Prop} : BEq (Subtype P) where
+  beq a b := a.val == b.val
+
 public instance {α : Type u} [Min α] [MinEqOr α] {P : α → Prop} : Min (Subtype P) where
   min a b := ⟨Min.min a.val b.val, MinEqOr.elim a.property b.property⟩
 

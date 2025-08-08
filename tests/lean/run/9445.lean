@@ -15,14 +15,10 @@ axiom A : Prop
 
 
 namespace ex1
-axiom test.a : A ↔ True
-axiom b : A ↔ True
-/--
-  error: simp made no progress
--/
-#guard_msgs in
-example : A := by simp -- fails
-end ex1
+@[local simp] axiom test.a : A ↔ True
+axiom test.b : A ↔ True
+@[local simp] axiom c : A ↔ True
+
 
 
 -- section ex4

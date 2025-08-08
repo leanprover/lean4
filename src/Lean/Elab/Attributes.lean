@@ -39,9 +39,12 @@ def toAttributeKind (attrKindStx : Syntax) : MacroM AttributeKind := do
 def mkAttrKindGlobal : Syntax :=
   mkNode ``Lean.Parser.Term.attrKind #[mkNullNode]
 
-def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (attrInstance : Syntax) : m Attribute := do
+def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] [MonadLog m] (attrInstance : Syntax) (isImplicit : Bool := false) : m Attribute := do
   /- attrInstance     := ppGroup $ leading_parser attrKind >> attrParser -/
   let attrKind ← liftMacroM <| toAttributeKind attrInstance[0]
+  if attrKind  == .local && isImplicit then
+    logWarning "Local attributes in implicit sections are discouraged. \
+                 Consider using `attribute [local] ...` after the current command."
   let attr := attrInstance[1]
   let attr ← liftMacroM <| expandMacros attr
   let attrName ← if attr.getKind == ``Parser.Attr.simple then
@@ -55,17 +58,17 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
      So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/
   return { kind := attrKind, name := attrName, stx := attr }
 
-def elabAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadLiftT IO m] (attrInstances : Array Syntax) : m (Array Attribute) := do
+def elabAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadLiftT IO m] (attrInstances : Array Syntax) (isImplicit : Bool := false) : m (Array Attribute) := do
   let mut attrs := #[]
   for attr in attrInstances do
     try
-      attrs := attrs.push (← withRef attr do elabAttr attr)
+      attrs := attrs.push (← withRef attr do elabAttr attr (isImplicit := isImplicit))
     catch ex =>
       logException ex
   return attrs
 
 -- leading_parser "@[" >> sepBy1 attrInstance ", " >> "]"
-def elabDeclAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadLiftT IO m] (stx : Syntax) : m (Array Attribute) :=
-  elabAttrs stx[1].getSepArgs
+def elabDeclAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadLiftT IO m] (stx : Syntax) (isImplicit : Bool := false) : m (Array Attribute) :=
+  elabAttrs stx[1].getSepArgs (isImplicit := isImplicit)
 
 end Lean.Elab

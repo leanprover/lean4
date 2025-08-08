@@ -163,7 +163,7 @@ def elabDeclaration : CommandElab := fun stx => do
   else withoutCommandIncrementality true do
     let scope ← getScope
     trace[Elab] "isImplicit: {scope.isImplicit}"
-    let modifiers ← elabModifiers modifiers
+    let modifiers ← elabModifiers modifiers (isImplicit := scope.isImplicit)
     withExporting (isExporting := modifiers.isInferredPublic (← getEnv)) do
       if declKind == ``Lean.Parser.Command.«axiom» then
         elabAxiom modifiers decl

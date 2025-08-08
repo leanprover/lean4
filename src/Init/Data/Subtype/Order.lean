@@ -37,9 +37,6 @@ public instance {α : Type u} [Min α] [MinEqOr α] {P : α → Prop} : Min (Sub
 public instance {α : Type u} [Max α] [MaxEqOr α] {P : α → Prop} : Max (Subtype P) where
   max a b := ⟨max a.val b.val, MaxEqOr.elim a.property b.property⟩
 
--- public instance {α : Type u} [Ord α] {P : α → Prop} : Ord (Subtype P) where
---   compare a b := compare a.val b.val
-
 public instance {α : Type u} [LE α] [i : Refl (α := α) (· ≤ ·)] {P : α → Prop} :
     Refl (α := Subtype P) (· ≤ ·) where
   refl a := i.refl a.val

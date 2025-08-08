@@ -38,7 +38,7 @@ public import Init.Data.AC
 public import Init.Data.Queue
 public import Init.Data.Sum
 public import Init.Data.BEq
-public import Init.Data.Subtype
+public import Init.Data.Subtype.Basic
 public import Init.Data.ULift
 public import Init.Data.PLift
 public import Init.Data.Zero

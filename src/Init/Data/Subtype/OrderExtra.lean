@@ -6,7 +6,8 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Order.Classes
-public import Init.Data.Order.Lemmas
-public import Init.Data.Order.Factories
 public import Init.Data.Subtype.Order
+public import Init.Data.Ord
+
+public instance {α : Type u} [Ord α] {P : α → Prop} : Ord (Subtype P) where
+  compare a b := compare a.val b.val

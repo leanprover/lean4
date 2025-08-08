@@ -90,7 +90,7 @@ private def addAndCompileExprForEval (declName : Name) (value : Expr) (allowSorr
   -- such as "failed to infer definition type" can surface.
   let defView := mkDefViewOfDef { isUnsafe := true, visibility := .public }
     (← `(Parser.Command.definition|
-          def $(mkIdent <| `_root_ ++ declName) := $(← Term.exprToSyntax value)))
+          def $(mkIdent <| `_root_ ++ declName) : $(← Term.exprToSyntax (← inferType value)) := $(← Term.exprToSyntax value)))
   Term.elabMutualDef #[] { header := "" } #[defView]
   unless allowSorry do
     let axioms ← collectAxioms declName

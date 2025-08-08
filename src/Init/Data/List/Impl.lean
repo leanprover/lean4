@@ -98,7 +98,7 @@ Example:
 [10, 14, 14]
 ```
 -/
-@[inline] def filterMapTR (f : α → Option β) (l : List α) : List β := go l #[] where
+@[inline, expose] def filterMapTR (f : α → Option β) (l : List α) : List β := go l #[] where
   /-- Auxiliary for `filterMap`: `filterMap.go f l = acc.toList ++ filterMap f l` -/
   @[specialize] go : List α → Array β → List β
   | [], acc => acc.toList

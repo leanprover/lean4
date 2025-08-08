@@ -23,18 +23,18 @@ public instance instIsLinearOrder : IsLinearOrder Nat := by
   · constructor; apply Nat.le_total
 
 public instance : LawfulOrderLT Nat := by
-  apply LawfulOrderLT.ofLE
+  apply LawfulOrderLT.of_le
   simp [Nat.lt_iff_le_and_ne]
 
 public instance : LawfulOrderMin Nat := by
-  apply LawfulOrderMin.ofLE
+  apply LawfulOrderMin.of_le
   · apply Nat.le_min
   · intro a b
     simp only [Nat.min_def]
     split <;> simp
 
 public instance : LawfulOrderMax Nat := by
-  apply LawfulOrderMax.ofLE
+  apply LawfulOrderMax.of_le
   · apply Nat.max_le
   · intro a b
     simp only [Nat.max_def]

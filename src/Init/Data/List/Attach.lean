@@ -8,7 +8,7 @@ module
 prelude
 public import all Init.Data.List.Lemmas  -- for dsimping with `getElem?_cons_succ`
 public import Init.Data.List.Count
-public import Init.Data.Subtype
+public import Init.Data.Subtype.Basic
 public import Init.BinderNameHint
 
 public section

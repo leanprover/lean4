@@ -15,7 +15,7 @@ public import Init.Data.List.MinMax
 public import Init.Data.List.Monadic
 public import all Std.Data.Internal.List.Defs
 public import Std.Classes.Ord.Basic
-import Init.Data.Order.Subtype
+import Init.Data.Subtype.Order
 import Init.Data.Order.Lemmas
 
 public section

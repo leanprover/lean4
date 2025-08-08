@@ -9,7 +9,7 @@ prelude
 public import Init.Data.List.Lemmas
 public import Init.Data.List.Pairwise
 public import Init.Data.Order.Factories
-public import Init.Data.Order.Subtype
+public import Init.Data.Subtype.Order
 import Init.Data.Order.Lemmas
 
 public section

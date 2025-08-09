@@ -113,7 +113,7 @@ Hint: Additional diagnostic information may be available using the `set_option d
 /-!
 "Mixin" instances
 -/
-class C1 {α : Sort _} [DecidableEq α] (β : α → Type)
+class C1 {α : Sort _} [DecidableEq α] (β : α → Type _)
 instance : C1 Fin := {}
 
 def MyFin'' := Fin
@@ -124,6 +124,25 @@ info: def instC1NatMyFin'' : @C1 Nat instDecidableEqNat MyFin'' :=
 instC1NatFin
 -/
 #guard_msgs in set_option pp.explicit true in #print instC1NatMyFin''
+
+/-!
+Can catch mixin failure
+-/
+instance (inst : DecidableEq (Type _)) : C1 List := {}
+
+/--
+error: failed to synthesize
+  DecidableEq (Type u_1)
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+---
+error: Failed to delta derive `C1` instance for `MyList'`.
+
+Note: Delta deriving tries the following strategies: (1) inserting the definition into each explicit non-out-param parameter of a class and (2) unfolding definitions further.
+-/
+#guard_msgs in
+def MyList' := List
+deriving C1
 
 /-!
 Can use explicit argument that's not the first.
@@ -250,17 +269,31 @@ No such definition
 Delta deriving fails due to synthesis failure.
 -/
 /--
-error: Failed to delta derive `Inhabited` instance for `D2`.
-
-Error: failed to synthesize
+error: failed to synthesize
   Inhabited (Fin n)
 
 Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+---
+error: Failed to delta derive `Inhabited` instance for `D2`.
 
-Note: Delta deriving tries the following strategies: (1) inserting the definition into each explicit non-out-param parameter of a class and (2) further unfolding of definitions.
+Note: Delta deriving tries the following strategies: (1) inserting the definition into each explicit non-out-param parameter of a class and (2) unfolding definitions further.
 -/
 #guard_msgs in
 def D2 (n : Nat) := Fin n
+deriving Inhabited
+
+/--
+error: failed to synthesize
+  Inhabited (D2 n)
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+---
+error: Failed to delta derive `Inhabited` instance for `D2'`.
+
+Note: Delta deriving tries the following strategies: (1) inserting the definition into each explicit non-out-param parameter of a class and (2) unfolding definitions further.
+-/
+#guard_msgs in
+def D2' (n : Nat) := D2 n
 deriving Inhabited
 
 /-!

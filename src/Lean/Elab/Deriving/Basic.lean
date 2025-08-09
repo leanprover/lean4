@@ -49,6 +49,8 @@ we will skip `ρ` and try using `m`.
 Note that we try synthesizing instances even if there are still metavariables in the type.
 If that succeeds, then one can abstract those metavariables and create a parameterized instance.
 The abstraction is not done by this function.
+
+Expects to be run with an empty message log.
 -/
 private partial def mkInst (classExpr : Expr) (declName : Name) (declVal val : Expr) : TermElabM MkInstResult := do
   let classExpr ← whnfCore classExpr
@@ -74,7 +76,8 @@ private partial def mkInst (classExpr : Expr) (declName : Name) (declVal val : E
     -- Save the metacontext so that we can try each option in turn
     let state ← saveState
     let valTy ← inferType val
-    let mut failures : Array MessageData := #[]
+    let mut anyDefEqSuccess := false
+    let mut messages : MessageLog := {}
     for x in xs, bi in bis, i in 0...xs.size do
       unless bi.isExplicit do
         continue
@@ -84,6 +87,7 @@ private partial def mkInst (classExpr : Expr) (declName : Name) (declVal val : E
       unless ← isDefEqGuarded decl.type valTy <&&> isDefEqGuarded x val do
         restoreState state
         continue
+      anyDefEqSuccess := true
       trace[Elab.Deriving] "Argument {i} gives option{indentExpr classExpr}"
       try
         -- Finish elaboration
@@ -91,7 +95,14 @@ private partial def mkInst (classExpr : Expr) (declName : Name) (declVal val : E
         Term.synthesizeSyntheticMVarsNoPostponing
       catch ex =>
         trace[Elab.Deriving] "Option for argument {i} failed"
-        failures := failures.push <| ← addMessageContext m!"Error: {ex.toMessageData}"
+        logException ex
+        messages := messages ++ (← Core.getMessageLog)
+        restoreState state
+        continue
+      if (← MonadLog.hasErrors) then
+        -- Sometimes elaboration only logs errors
+        trace[Elab.Deriving] "Option for argument {i} failed, logged errors"
+        messages := messages ++ (← Core.getMessageLog)
         restoreState state
         continue
       -- Success
@@ -104,19 +115,19 @@ private partial def mkInst (classExpr : Expr) (declName : Name) (declVal val : E
       if let some val' ← unfoldDefinition? val then
         return ← withTraceNode `Elab.Deriving (fun _ => return m!"Unfolded value to {val'}") <| go val'
     catch ex =>
-      if failures.isEmpty then
+      if !messages.hasErrors then
         throw ex
-    if failures.isEmpty then
+      Core.resetMessageLog
+    if !anyDefEqSuccess then
       throwDeltaDeriveFailure className declName (m!"the class has no explicit non-out-param parameters where\
         {indentExpr declVal}\n\
         can be inserted.")
     else
+      Core.setMessageLog (messages ++ (← Core.getMessageLog))
       throwDeltaDeriveFailure className declName none
-        (m!"\n\n"
-          ++ MessageData.joinSep (failures.toList) m!"\n"
-          ++ .note m!"Delta deriving tries the following strategies: \
-              (1) inserting the definition into each explicit non-out-param parameter of a class and \
-              (2) further unfolding of definitions.")
+        (.note m!"Delta deriving tries the following strategies: \
+            (1) inserting the definition into each explicit non-out-param parameter of a class and \
+            (2) unfolding definitions further.")
   go val
 
 /--
@@ -149,13 +160,22 @@ def processDefDeriving (classStx : Syntax) (decl : Expr) : TermElabM Unit := do
       let lctx ← xs.foldlM (init := ← getLCtx) fun lctx x => do
         pure <| lctx.setUserName x.fvarId! (← mkFreshUserName <| (lctx.find? x.fvarId!).get!.userName)
       withLCtx' lctx do
-        -- We need to elaborate the class within this context to ensure metavariables can unify with `xs`.
-        let classExpr ← withoutPostponing <| elabTerm classStx none
-        -- We allow `classExpr` to be a pi type, to support giving more hypotheses to the derived instance.
-        -- (Possibly `classExpr` is not a type due to being underapplied, but `forallTelescopeReducing` tolerates this.)
-        forallTelescopeReducing classExpr fun _ classExpr => do
-          let result ← mkInst classExpr declName decl value
-          Closure.mkValueTypeClosure result.instType result.instVal (zetaDelta := true)
+        let msgLog ← Core.getMessageLog
+        Core.resetMessageLog
+        try
+          -- We need to elaborate the class within this context to ensure metavariables can unify with `xs`.
+          let classExpr ← elabTerm classStx none
+          synthesizeSyntheticMVars (postpone := .partial)
+          if (← MonadLog.hasErrors) then
+            throwAbortTerm
+          -- We allow `classExpr` to be a pi type, to support giving more hypotheses to the derived instance.
+          -- (Possibly `classExpr` is not a type due to being underapplied, but `forallTelescopeReducing` tolerates this.)
+          -- We don't reduce because of abbreviations such as `DecidableEq`
+          forallTelescope classExpr fun _ classExpr => do
+            let result ← mkInst classExpr declName decl value
+            Closure.mkValueTypeClosure result.instType result.instVal (zetaDelta := true)
+        finally
+          Core.setMessageLog (msgLog ++ (← Core.getMessageLog))
   let env ← getEnv
   let mut instName := (← getCurrNamespace) ++ (← NameGen.mkBaseNameWithSuffix "inst" result.type)
   -- We don't have a facility to let users override derived names, so make an unused name if needed.

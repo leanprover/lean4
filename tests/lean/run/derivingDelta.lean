@@ -14,6 +14,18 @@ def P1' : Prop := 1 = 1
 deriving instance Decidable for P1'
 
 /-!
+Derived instances go into the current namespace at the point of derivation.
+-/
+def MyLib.MyUnit := Unit
+deriving Inhabited
+deriving instance Nonempty for MyLib.MyUnit
+
+/-- info: MyLib.instInhabitedMyUnit -/
+#guard_msgs in #synth Inhabited MyLib.MyUnit
+/-- info: instNonemptyMyUnit -/
+#guard_msgs in #synth Nonempty MyLib.MyUnit
+
+/-!
 Parameterized instance, deriving goes underneath `fun x y => ...`
 -/
 def Rel (x y : Nat) : Prop := x = y
@@ -50,20 +62,33 @@ def MyNat := Nat
 deriving OfNat
 
 /--
-info: def instMyNatOfNat : (x : Nat) → OfNat MyNat x :=
-fun {x} => instOfNatNat x
+info: def instOfNatMyNat : (_x_1 : Nat) → OfNat MyNat _x_1 :=
+fun _x_1 => instOfNatNat _x_1
 -/
-#guard_msgs in #print instMyNatOfNat
+#guard_msgs in #print instOfNatMyNat
 
 /-!
 Explicit parameterization
 -/
 deriving instance (n : Nat) → OfNat _ n for MyNat
 /--
-info: def instMyNatOfNat_1 : (n : Nat) → OfNat MyNat n :=
+info: def instOfNatMyNat_1 : (n : Nat) → OfNat MyNat n :=
 fun n => instOfNatNat n
 -/
-#guard_msgs in #print instMyNatOfNat_1
+#guard_msgs in #print instOfNatMyNat_1
+
+/-!
+Explicit parameterization using section variables
+-/
+section
+variable (m : Nat)
+deriving instance OfNat _ m for MyNat
+end
+/--
+info: def instOfNatMyNat_2 : (m : Nat) → OfNat MyNat m :=
+fun m => instOfNatNat m
+-/
+#guard_msgs in #print instOfNatMyNat_2
 
 /-!
 Can synthesize specific OfNat instances.
@@ -73,9 +98,9 @@ deriving OfNat _ 1
 
 deriving instance OfNat _ 2 for MyNat'
 
-/-- info: instMyNat'OfNat -/
+/-- info: instOfNatMyNat'OfNatNat -/
 #guard_msgs in #synth OfNat MyNat' 1
-/-- info: instMyNat'OfNat_1 -/
+/-- info: instOfNatMyNat'OfNatNat_1 -/
 #guard_msgs in #synth OfNat MyNat' 2
 /--
 error: failed to synthesize
@@ -95,10 +120,10 @@ def MyFin'' := Fin
 deriving C1
 
 /--
-info: def instMyFin''C1 : @C1 Nat instDecidableEqNat MyFin'' :=
+info: def instC1NatMyFin'' : @C1 Nat instDecidableEqNat MyFin'' :=
 instC1NatFin
 -/
-#guard_msgs in set_option pp.explicit true in #print instMyFin''C1
+#guard_msgs in set_option pp.explicit true in #print instC1NatMyFin''
 
 /-!
 Can use explicit argument that's not the first.
@@ -108,15 +133,15 @@ instance (n : Nat) : OfNat' n Int := {}
 def MyInt := Int
 deriving OfNat', OfNat
 /--
-info: def instMyIntOfNat' : (n : Nat) → OfNat' n MyInt :=
-fun {n} => instOfNat'Int n
+info: def instOfNat'MyInt : (_x_1 : Nat) → OfNat' _x_1 MyInt :=
+fun _x_1 => instOfNat'Int _x_1
 -/
-#guard_msgs in #print instMyIntOfNat'
+#guard_msgs in #print instOfNat'MyInt
 /--
-info: def instMyIntOfNat : (x : Nat) → OfNat MyInt x :=
-fun {x} => instOfNat
+info: def instOfNatMyInt : (_x_1 : Nat) → OfNat MyInt _x_1 :=
+fun _x_1 => instOfNat
 -/
-#guard_msgs in #print instMyIntOfNat
+#guard_msgs in #print instOfNatMyInt
 
 /-!
 Deriving `Module` over different base rings.
@@ -132,10 +157,44 @@ instance : Module Int V := {}
 def W := V
 deriving Module Nat, Module Int
 
-/-- info: instWModule -/
+/-- info: instModuleNatW -/
 #guard_msgs in #synth Module Nat W
-/-- info: instWModule_1 -/
+/-- info: instModuleIntW -/
 #guard_msgs in #synth Module Int W
+
+/-!
+Deriving and making use of binders.
+-/
+instance (R : Type _) [Semiring R] : Module R R := {}
+def NewRing (R : Type _) [Semiring R] := R
+deriving Module R
+
+/--
+info: def instModuleNewRing.{u_1} : (R : Type u_1) → [inst : Semiring R] → Module R (NewRing R) :=
+fun R [Semiring R] => instModule R
+-/
+#guard_msgs in #print instModuleNewRing
+
+/-!
+`deriving instance` cannot make use of the definition's parameter names (they're introduced hygienically)
+-/
+/-- error: Unknown identifier `R` -/
+#guard_msgs in deriving instance Module R for NewRing
+
+/-!
+Can make use of section variables when using the `deriving instance` command.
+-/
+section
+variable (R : Type _) [Semiring R]
+def NewRing' (R : Type _) := R
+deriving instance Module R for NewRing' R
+
+/--
+info: def instModuleNewRing'.{u_1} : (R : Type u_1) → [inst : Semiring R] → Module R (NewRing' R) :=
+fun R [Semiring R] => instModule R
+-/
+#guard_msgs in #print instModuleNewRing'
+end
 
 /-!
 Multiple options, one works due to dependent types.
@@ -146,10 +205,10 @@ instance : C2 Type Prop := {}
 def Prop' := Prop
 deriving C2
 /--
-info: def instProp'C2 : C2 Type Prop' :=
+info: def instC2TypeProp' : C2 Type Prop' :=
 instC2TypeProp
 -/
-#guard_msgs in #print instProp'C2
+#guard_msgs in #print instC2TypeProp'
 
 /-!
 Error to mix both inductives and defs in the same `deriving instance` command.

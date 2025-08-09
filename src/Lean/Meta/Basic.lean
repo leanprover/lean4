@@ -2460,7 +2460,7 @@ open Language
 
 private structure RealizeValueResult where
   res?   : Except Exception Dynamic
-  snap   : SnapshotTree
+  snap?  : Option SnapshotTree
 deriving TypeName
 
 /--
@@ -2499,12 +2499,13 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] [TypeName β] (forConst : 
   }
   let res ← env.realizeValue forConst key (realizeAndReport coreCtx)
   let some res := res.get? RealizeValueResult | unreachable!
-  let mut snap := res.snap
-  -- localize diagnostics
-  if let some range := (← getRef).getRange? then
-    let fileMap ← getFileMap
-    snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
-  Core.logSnapshotTask <| .finished (stx? := none) snap
+  if let some snap := res.snap? then
+    let mut snap := snap
+    -- localize diagnostics
+    if let some range := (← getRef).getRange? then
+      let fileMap ← getFileMap
+      snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
+    Core.logSnapshotTask <| .finished (stx? := none) snap
   match res.res? with
   | .ok dyn => dyn.get? β |>.getDM (unreachable!)
   | .error e => throw e
@@ -2522,21 +2523,21 @@ where
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
     let res ← match res? with
       | .ok ((output, err?), st) => pure {
-        snap := (← Core.mkSnapshot output coreCtx st)
-        res? := err?.map (.mk)
+        snap? := (← Core.mkSnapshot? output coreCtx st)
+        res?  := err?.map (.mk)
         : RealizeValueResult
       }
       | _ =>
         let _ : Inhabited RealizeValueResult := ⟨{
-          snap := (← Core.mkSnapshot "" coreCtx { env })
-          res? := default
+          snap? := (← Core.mkSnapshot? "" coreCtx { env })
+          res?  := default
           : RealizeValueResult
         }⟩
         unreachable!
     return .mk (α := RealizeValueResult) res
 
 private structure RealizeConstantResult where
-  snap   : SnapshotTree
+  snap?  : Option SnapshotTree
   error? : Option Exception
 deriving TypeName
 
@@ -2593,12 +2594,13 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
       cancelTk? := none
     }
     if let some res := dyn.get? RealizeConstantResult then
-      let mut snap := res.snap
-      -- localize diagnostics
-      if let some range := (← getRef).getRange? then
-        let fileMap ← getFileMap
-        snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
-      Core.logSnapshotTask <| .finished (stx? := none) snap
+      if let some snap := res.snap? then
+        let mut snap := snap
+        -- localize diagnostics
+        if let some range := (← getRef).getRange? then
+          let fileMap ← getFileMap
+          snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
+        Core.logSnapshotTask <| .finished (stx? := none) snap
       if let some e := res.error? then
         throw e
     setEnv env
@@ -2621,7 +2623,7 @@ where
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
     match res? with
     | .ok ((output, err?), st) => pure (st.env, .mk {
-      snap := (← Core.mkSnapshot output coreCtx st)
+      snap?  := (← Core.mkSnapshot? output coreCtx st)
       error? := match err? with
         | .ok ()   => none
         | .error e => some e
@@ -2629,7 +2631,7 @@ where
     })
     | _ =>
       let _ : Inhabited (Environment × Dynamic) := ⟨env, .mk {
-        snap := (← Core.mkSnapshot "" coreCtx { env })
+        snap?  := (← Core.mkSnapshot? "" coreCtx { env })
         error? := none
         : RealizeConstantResult
       }⟩

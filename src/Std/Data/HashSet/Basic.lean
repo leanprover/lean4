@@ -231,6 +231,10 @@ appearance.
     HashSet α :=
   ⟨m.inner.insertManyIfNewUnit l⟩
 
+/-- Transforms the hash set into an array of elements in some order. -/
+@[inline] def toArray (m : HashSet α) : Array α :=
+  m.inner.keysArray
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -251,11 +255,6 @@ section Unverified
   for a in m do
     if p a then return true
   return false
-
-
-/-- Transforms the hash set into an array of elements in some order. -/
-@[inline] def toArray (m : HashSet α) : Array α :=
-  m.inner.keysArray
 
 /--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the

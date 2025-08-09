@@ -90,28 +90,27 @@ theorem map_sub_range' {a s : Nat} (h : a ≤ s) (n : Nat) :
   rintro rfl
   omega
 
-theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs = range' s k ∧ ys = range' (s + k) (n - k) := by
+theorem range'_eq_append_iff : range' s n step = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs = range' s k step ∧ ys = range' (s + k * step) (n - k) step := by
   induction n generalizing s xs ys with
   | zero => simp
   | succ n ih =>
     simp only [range'_succ]
     rw [cons_eq_append_iff]
+    have add_mul' (k n m : Nat) : (n + m) * k = m * k + n * k := by rw [Nat.add_mul]; omega
     constructor
     · rintro (⟨rfl, rfl⟩ | ⟨_, rfl, h⟩)
       · exact ⟨0, by simp [range'_succ]⟩
       · simp only [ih] at h
         obtain ⟨k, h, rfl, rfl⟩ := h
         refine ⟨k + 1, ?_⟩
-        simp_all [range'_succ]
-        omega
+        simp_all [range'_succ, Nat.add_assoc]
     · rintro ⟨k, h, rfl, rfl⟩
       cases k with
       | zero => simp [range'_succ]
       | succ k =>
-        simp only [range'_succ, reduceCtorEq, false_and, cons.injEq, true_and, ih, range'_inj, exists_eq_left', or_true, and_true, false_or]
+        simp only [range'_succ, reduceCtorEq, false_and, cons.injEq, true_and, ih, exists_eq_left', false_or]
         refine ⟨k, ?_⟩
-        simp_all
-        omega
+        simp_all [Nat.add_assoc]
 
 @[simp] theorem find?_range'_eq_some {s n : Nat} {i : Nat} {p : Nat → Bool} :
     (range' s n).find? p = some i ↔ p i ∧ i ∈ range' s n ∧ ∀ j, s ≤ j → j < i → !p j := by
@@ -177,6 +176,36 @@ theorem count_range_1' {a s n} :
     intro w
     specialize h (a - s)
     omega
+
+@[grind →]
+theorem range'_eq_append_cons_elim_cur (h : range' s n step = xs ++ cur :: ys) :
+    cur = s + step * xs.length := by
+  rw [range'_eq_append_iff] at h
+  obtain ⟨k, hk, hxs, hcur⟩ := h
+  have h := (range'_eq_cons_iff.mp hcur.symm).1.symm
+  have hk : k = xs.length := by simp_all [length_range']
+  simp only [h, hk, Nat.add_left_cancel_iff]
+  apply Nat.mul_comm
+
+@[grind →]
+theorem range'_eq_append_cons_elim_mem (h : range' s n = xs ++ i :: ys) :
+    i ∈ range' s n := by simp [h]
+
+@[grind →]
+theorem range'_eq_append_cons_elim_ge (h : List.range' s n = xs ++ i :: ys) (hj : j ∈ xs) :
+    j ≤ i := by
+  obtain ⟨_, _, rfl, htail⟩ := range'_eq_append_iff.mp h
+  obtain ⟨rfl, _⟩ := range'_eq_cons_iff.mp htail.symm
+  simp only [mem_range'_1] at hj
+  omega
+
+@[grind →]
+theorem range'_eq_append_cons_elim_le (h : List.range' s n = xs ++ i :: ys) (hj : j ∈ ys) :
+    i ≤ j := by
+  obtain ⟨k, hk, rfl, htail⟩ := range'_eq_append_iff.mp h
+  obtain ⟨rfl, _, _, _⟩ := range'_eq_cons_iff.mp htail.symm
+  simp only [mem_range'_1] at hj
+  omega
 
 /-! ### range -/
 
@@ -355,9 +384,7 @@ theorem zipIdx_eq_append_iff {l : List α} {k : Nat} :
     simp only [length_range'] at h
     obtain rfl := h
     refine ⟨ws, xs, rfl, ?_⟩
-    simp only [zipIdx_eq_zip_range', length_append, true_and]
-    congr
-    omega
+    simp [zipIdx_eq_zip_range', length_append]
   · rintro ⟨l₁', l₂', rfl, rfl, rfl⟩
     simp only [zipIdx_eq_zip_range']
     refine ⟨l₁', l₂', range' k l₁'.length, range' (k + l₁'.length) l₂'.length, ?_⟩

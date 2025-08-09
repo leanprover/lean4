@@ -43,4 +43,4 @@ theorem fib_correct {n} : fib_impl n = fib_spec n := by
         ⟨fib_spec n, fib_spec (n + 1)⟩ by simp_all
     induction n with
     | zero => rfl
-    | succ n ih => simp [fib_spec, List.range'_1_concat, ih]
+    | succ n ih => simp [-List.range'_succ, fib_spec, List.range'_1_concat, ih]

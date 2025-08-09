@@ -2509,7 +2509,7 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] [TypeName β] (forConst : 
     -- heartbeat limits inside `realizeAndReport` should be measured from this point on
     initHeartbeats := (← IO.getNumHeartbeats)
   }
-  let res ← env.realizeValue forConst key (realizeAndReport coreCtx)
+  let res ← env.realizeValue forConst key (realizeAndReport (.mk <$> realize) coreCtx)
   let some res := res.get? RealizeValueResult | unreachable!
   if let some snap := res.snap? then
     let mut snap := snap
@@ -2523,7 +2523,7 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] [TypeName β] (forConst : 
   | .error e => throw e
 where
   -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
-  realizeAndReport (coreCtx : Core.Context) env opts := do
+  realizeAndReport (realize : MetaM Dynamic) (coreCtx : Core.Context) env opts := do
     let coreCtx := { coreCtx with options := opts }
     let act :=
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) (do
@@ -2534,9 +2534,9 @@ where
         <* addTraceAsMessages
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
     let res ← match res? with
-      | .ok ((output, err?), st) => pure {
+      | .ok ((output, res?), st) => pure {
         snap? := (← Core.mkSnapshot? output coreCtx st)
-        res?  := err?.map (.mk)
+        res?
         : RealizeValueResult
       }
       | _ =>

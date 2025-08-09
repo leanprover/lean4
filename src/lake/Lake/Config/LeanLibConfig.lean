@@ -99,8 +99,6 @@ configuration LeanLibConfig (name : Name) extends LeanConfig where
 
 deriving Inhabited
 
-instance : EmptyCollection (LeanLibConfig n) := ⟨{}⟩
-
 namespace LeanLibConfig
 
 /-- The library's name. -/

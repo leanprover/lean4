@@ -5,7 +5,6 @@ Authors: Sebastian Ullrich, Mac Malone, Siddharth Bhat
 -/
 prelude
 import Lake.Util.OrdHashSet
-import Lake.Util.List
 import Lean.Elab.ParseImportsFast
 import Lake.Build.Common
 import Lake.Build.Target

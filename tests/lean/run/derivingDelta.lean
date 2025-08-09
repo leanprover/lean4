@@ -56,6 +56,36 @@ fun {x} => instOfNatNat x
 #guard_msgs in #print instMyNatOfNat
 
 /-!
+Explicit parameterization
+-/
+deriving instance (n : Nat) → OfNat _ n for MyNat
+/--
+info: def instMyNatOfNat_1 : (n : Nat) → OfNat MyNat n :=
+fun n => instOfNatNat n
+-/
+#guard_msgs in #print instMyNatOfNat_1
+
+/-!
+Can synthesize specific OfNat instances.
+-/
+def MyNat' := Nat
+deriving OfNat _ 1
+
+deriving instance OfNat _ 2 for MyNat'
+
+/-- info: instMyNat'OfNat -/
+#guard_msgs in #synth OfNat MyNat' 1
+/-- info: instMyNat'OfNat_1 -/
+#guard_msgs in #synth OfNat MyNat' 2
+/--
+error: failed to synthesize
+  OfNat MyNat' 3
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
+-/
+#guard_msgs in #synth OfNat MyNat' 3
+
+/-!
 "Mixin" instances
 -/
 class C1 {α : Sort _} [DecidableEq α] (β : α → Type)
@@ -89,6 +119,25 @@ fun {x} => instOfNat
 #guard_msgs in #print instMyIntOfNat
 
 /-!
+Deriving `Module` over different base rings.
+-/
+class Semiring (R : Type _) where
+class Module (R : Type _) [Semiring R] (α : Type _) where
+instance : Semiring Nat := {}
+instance : Semiring Int := {}
+opaque V : Type
+instance : Module Nat V := {}
+instance : Module Int V := {}
+
+def W := V
+deriving Module Nat, Module Int
+
+/-- info: instWModule -/
+#guard_msgs in #synth Module Nat W
+/-- info: instWModule_1 -/
+#guard_msgs in #synth Module Int W
+
+/-!
 Multiple options, one works due to dependent types.
 -/
 class C2 (α : Sort _) (β : α) where
@@ -120,13 +169,16 @@ deriving instance Inhabited for D1
 /-!
 No such class
 -/
-/-- error: Unknown constant `NotAClass` -/
+/-- error: Unknown identifier `NotAClass` -/
 #guard_msgs in deriving instance NotAClass for D1
 
 /-!
 Not a class
 -/
-/-- error: Failed to delta derive `Nat` instance for `D1`, `Nat` is not a class. -/
+/--
+error: Failed to delta derive instance for `D1`, not a class:
+  Nat
+-/
 #guard_msgs in deriving instance Nat for D1
 
 /-!
@@ -141,9 +193,10 @@ Delta deriving fails due to synthesis failure.
 /--
 error: Failed to delta derive `Inhabited` instance for `D2`.
 
-Failed to synthesize instance
-n : Nat
-⊢ Inhabited (Fin n)
+Error: failed to synthesize
+  Inhabited (Fin n)
+
+Hint: Additional diagnostic information may be available using the `set_option diagnostics true` command.
 
 Note: Delta deriving tries the following strategies: (1) inserting the definition into each explicit non-out-param parameter of a class and (2) further unfolding of definitions.
 -/

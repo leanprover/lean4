@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Wojciech Nawrocki
 module
 
 prelude
+public import Lean.Elab.App
 public import Lean.Elab.Command
 public import Lean.Elab.DeclarationRange
 public meta import Lean.Parser.Command
@@ -20,6 +21,7 @@ open Meta
 
 /-- Result for `mkInst` -/
 private structure MkInstResult where
+  className  : Name
   instType   : Expr
   instVal    : Expr
 
@@ -28,7 +30,7 @@ private def throwDeltaDeriveFailure (className declName : Name) (msg? : Option M
   throwError "Failed to delta derive `{.ofConstName className}` instance for `{.ofConstName declName}`{suffix}"
 
 /--
-Constructs an instance of the class `className` by figuring out the correct position to insert `val`
+Constructs an instance of the class `classExpr` by figuring out the correct position to insert `val`
 to create a type `className ... val ...` such that there is already an instance for it.
 The `declVal` argument is the value to use in place of `val` when creating the new instance.
 
@@ -45,41 +47,52 @@ Note that we try synthesizing instances even if there are still metavariables in
 If that succeeds, then we can abstract the metavariables and create a parameterized instance.
 The result might still have universe level metavariables, though it is unlikely.
 -/
-private partial def mkInst (className declName : Name) (declVal val : Expr) : MetaM MkInstResult := do
-  let cls ← mkConstWithFreshMVarLevels className
+private partial def mkInst (classExpr : Expr) (declName : Name) (declVal val : Expr) : TermElabM MkInstResult := do
+  let classExpr ← whnfCore classExpr
+  let cls := classExpr.getAppFn
   let (xs, bis, _) ← forallMetaTelescopeReducing (← inferType cls)
-  let instType := mkAppN cls xs
-  unless (← isClass? instType).isSome do
-    throwDeltaDeriveFailure className declName m!"`{.ofConstName className}` is not a class."
-  let inst ← mkFreshExprMVar instType
-  let rec go (val : Expr) : MetaM MkInstResult := do
+  for x in xs, y in classExpr.getAppArgs do
+    x.mvarId!.assign y
+  let classExpr := mkAppN cls xs
+  let some className ← isClass? classExpr
+    | throwError "Failed to delta derive instance for `{.ofConstName declName}`, not a class:{indentExpr classExpr}"
+  let mut instMVars := #[]
+  for x in xs, bi in bis do
+    if !(← x.mvarId!.isAssigned) then
+      -- Assumption: assigned inst implicits are already either solved or registered as synthetic
+      if bi.isInstImplicit then
+        x.mvarId!.setKind .synthetic
+        instMVars := instMVars.push x.mvarId!
+  let inst ← mkFreshExprMVar classExpr (kind := .synthetic)
+  instMVars := instMVars.push inst.mvarId!
+  let rec go (val : Expr) : TermElabM MkInstResult := do
     let val ← whnfCore val
-    trace[Elab.Deriving] "Looking for arguments to `{instType}` that can be used for the value{indentExpr val}"
+    trace[Elab.Deriving] "Looking for arguments to `{classExpr}` that can be used for the value{indentExpr val}"
     -- Save the metacontext so that we can try each option in turn
-    let mctx ← getMCtx
+    let state ← saveState
     let valTy ← inferType val
     let mut failures : Array MessageData := #[]
     for x in xs, bi in bis, i in 0...xs.size do
-      setMCtx mctx
       unless bi.isExplicit do
         continue
       let decl ← x.mvarId!.getDecl
       if decl.type.isOutParam then
         continue
       unless ← isDefEqGuarded decl.type valTy <&&> isDefEqGuarded x val do
+        restoreState state
         continue
-      trace[Elab.Deriving] "Argument {i} gives option{indentExpr instType}"
+      trace[Elab.Deriving] "Argument {i} gives option{indentExpr classExpr}"
       try
-        synthAppInstances `deriving inst.mvarId! (xs.push inst) (bis.push .instImplicit) (synthAssignedInstances := true) (allowSynthFailures := false)
+        -- Finish elaboration
+        synthesizeAppInstMVars instMVars classExpr
+        Term.synthesizeSyntheticMVarsNoPostponing
       catch ex =>
         trace[Elab.Deriving] "Option for argument {i} failed"
-        if !(← inst.mvarId!.isAssigned) then
-          failures := failures.push <| ← addMessageContext m!"Failed to synthesize instance\n{inst.mvarId!}"
-        else
-          failures := failures.push <| ← addMessageContext m!"Failed to synthesize{indentExpr instType}\nError:{ex.toMessageData}"
+        failures := failures.push <| ← addMessageContext m!"Error: {ex.toMessageData}"
+        restoreState state
         continue
       -- Success
-      trace[Elab.Deriving] "Argument {i} option succeeded{indentExpr instType}"
+      trace[Elab.Deriving] "Argument {i} option succeeded{indentExpr classExpr}"
       -- Create the type for the declaration itself.
       let xs' := xs.set! i declVal
       let declInstType := mkAppN cls xs'
@@ -88,8 +101,7 @@ private partial def mkInst (className declName : Name) (declVal val : Expr) : Me
       let instType ← mkForallFVars xs declInstType
       let instType := instType.updateForallBinderInfos (bis.toList.map some)
       let instVal ← mkLambdaFVars xs inst
-      return { instType, instVal }
-    setMCtx mctx
+      return { className, instType, instVal }
     try
       if let some val' ← unfoldDefinition? val then
         return ← withTraceNode `Elab.Deriving (fun _ => return m!"Unfolded value to {val'}") <| go val'
@@ -109,23 +121,32 @@ private partial def mkInst (className declName : Name) (declVal val : Expr) : Me
               (2) further unfolding of definitions.")
   go val
 
-def processDefDeriving (className declName : Name) : TermElabM Unit := do
+/--
+Delta deriving handler. Creates an instance of class `classStx` for `declName`.
+The elaborated class expression may be underapplied (e.g. `Decidable` instead of `Decidable _`).
+-/
+def processDefDeriving (classStx : Syntax) (declName : Name) : TermElabM Unit := do
   let ConstantInfo.defnInfo info ← getConstInfo declName
-    | throwDeltaDeriveFailure className declName m!"declaration is not a definition."
+    | throwError "Failed to delta derive instance, `{declName}` is not a definition."
   -- Assumption: users intend delta deriving to apply to the body of a definition, even if in the source code
   -- the function is written as a lambda expression.
-  let result : MkInstResult ← lambdaTelescope info.value fun xs value => do
+  let result : MkInstResult ← lambdaTelescope info.value fun xs value => withoutErrToSorry do
     let declVal := mkAppN (.const declName (info.levelParams.map .param)) xs
-    let result ← mkInst className declName declVal value
-    pure { instType := ← mkForallFVars xs result.instType
-           instVal := ← mkLambdaFVars xs result.instVal }
+    let classExpr ← withoutPostponing <| elabTerm classStx none
+    -- We allow `classExpr` to be a pi type, to support giving more hypotheses to the derived instance.
+    -- (Possibly `classExpr` is not a type due to being underapplied, but `forallTelescopeReducing` tolerates this.)
+    forallTelescopeReducing classExpr fun ys classExpr => do
+      let result ← mkInst classExpr declName declVal value
+      pure { className := result.className
+             instType := ← mkForallFVars (xs ++ ys) result.instType
+             instVal := ← mkLambdaFVars (xs ++ ys) result.instVal }
   let r := (← getMCtx).levelMVarToParam info.levelParams.contains (fun _ => false) (← instantiateMVars result.instType)
   setMCtx r.mctx
   let instType ← instantiateMVars r.expr
   let instValue ← instantiateMVars result.instVal
   Meta.check instType
   -- Note: if declName is private then this name is private as well.
-  let instName ← liftMacroM <| mkUnusedBaseName (declName.appendBefore "inst" |>.appendAfter className.getString!)
+  let instName ← liftMacroM <| mkUnusedBaseName (declName.appendBefore "inst" |>.appendAfter result.className.toString)
   addAndCompile (logCompileErrors := !(← read).isNoncomputableSection) <| Declaration.defnDecl {
     name        := instName
     levelParams := info.levelParams ++ r.newParamNames.toList
@@ -168,13 +189,12 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandE
         {.andList <| typeNames.toList.map (m!"`{.ofConstName ·}`")}"
     | none => throwError "No deriving handlers have been implemented for class `{.ofConstName className}`"
 
-private def applyDefHandler (className : Name) (declName : Name) : CommandElabM Unit :=
-  withTraceNode `Elab.Deriving (fun _ => return m!"running delta deriving handler for `{.ofConstName className}` and definition `{.ofConstName declName}`") do
-    liftTermElabM do Term.processDefDeriving className declName
+private def applyDefHandler (classStx : Syntax) (declName : Name) : CommandElabM Unit :=
+  withTraceNode `Elab.Deriving (fun _ => return m!"running delta deriving handler for `{classStx}` and definition `{.ofConstName declName}`") do
+    liftTermElabM do Term.processDefDeriving classStx declName
 
 @[builtin_command_elab «deriving»] def elabDeriving : CommandElab
-  | `(deriving instance $[$classIdents],* for $[$declIdents],*) => do
-    let classNames ← liftCoreM <| classIdents.mapM realizeGlobalConstNoOverloadWithInfo
+  | `(deriving instance $[$classes],* for $[$declIdents],*) => do
     let declNames ← liftCoreM <| declIdents.mapM realizeGlobalConstNoOverloadWithInfo
     -- When any of the types are private, the deriving handler will need access to the private scope
     -- (and should also make sure to put its outputs in the private scope).
@@ -189,11 +209,12 @@ private def applyDefHandler (className : Name) (declName : Name) : CommandElabM 
               ++ .note m!"When any declaration is a definition, this command goes into delta deriving mode, \
                     which applies only to definitions. \
                     Delta deriving unfolds definitions and infers pre-existing instances.")
-          for className in classNames do
+          for classStx in classes do
             for declName in declNames, declIdent in declIdents do
-              withRef declIdent <| withLogging <| applyDefHandler className declName
+              withRef declIdent <| withLogging <| applyDefHandler classStx declName
       else
-        for className in classNames, classIdent in classIdents do
+        let classNames ← liftCoreM <| classes.mapM realizeGlobalConstNoOverloadWithInfo
+        for className in classNames, classIdent in classes do
           withRef classIdent <| withLogging <| applyDerivingHandlers className declNames
   | _ => throwUnsupportedSyntax
 

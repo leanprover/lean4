@@ -1308,10 +1308,10 @@ where
       addPreDefinitions preDefs
   processDeriving (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do
-      if let some classNamesStx := view.deriving? then
-        for classNameStx in classNamesStx do
-          let className ← realizeGlobalConstNoOverloadWithInfo classNameStx
-          withRef classNameStx do processDefDeriving className header.declName
+      if let some classStxs := view.deriving? then
+        for classStx in classStxs do
+          withLogging do
+            withRef classStx do processDefDeriving classStx header.declName
 
 /--
 Logs a snapshot task that waits for the entire snapshot tree in `defsParsedSnap` and then logs a

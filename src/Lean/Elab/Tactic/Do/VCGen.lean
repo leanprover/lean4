@@ -70,15 +70,20 @@ where
       mvar.withContext <| do
       -- trace[Elab.Tactic.Do.vcgen] "assignMVars {← mvar.getTag}, isDelayedAssigned: {← mvar.isDelayedAssigned},\n{mvar}"
       let ty ← mvar.getType
-      if (← isProp ty) || ty.isAppOf ``PostCond || ty.isAppOf ``SPred then
-        -- This code path will re-introduce `mvar` as a synthetic opaque goal upon discharge failure.
-        -- This is the right call for (previously natural) holes such as loop invariants, which
-        -- would otherwise lead to spurious instantiations.
-        -- But it's wrong for, e.g., schematic variables. The latter should never be PostConds or
-        -- SPreds, hence the condition.
+      if ← isProp ty then
+        -- Might contain more `P ⊢ₛ wp⟦prog⟧ Q` apps. Try and prove it!
         mvar.assign (← tryGoal ty (← mvar.getTag))
-      else
-        addSubGoalAsVC mvar
+        return
+
+      if ty.isAppOf ``PostCond || ty.isAppOf ``Invariant || ty.isAppOf ``SPred then
+        -- Here we make `mvar` a synthetic opaque goal upon discharge failure.
+        -- This is the right call for (previously natural) holes such as loop invariants, which
+        -- would otherwise lead to spurious instantiations and unwanted renamings (when leaving the
+        -- scope of a local).
+        -- But it's wrong for, e.g., schematic variables. The latter should never be PostConds,
+        -- Invariants or SPreds, hence the condition.
+        mvar.setKind .syntheticOpaque
+      addSubGoalAsVC mvar
 
   onGoal goal name : VCGenM Expr := do
     let T := goal.target

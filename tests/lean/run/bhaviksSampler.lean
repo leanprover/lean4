@@ -152,7 +152,7 @@ theorem sampler_correct {m : Type → Type u} {k h} [Monad m] [WPMonad m ps] :
   sampler (m:=m) n k h
   ⦃⇓ xs => ⌜xs.toList.Nodup⌝⦄ := by
   mvcgen -leave [sampler]
-  case inv => exact (⇓ (midway, xs) => ⌜Midway.valid midway xs.rpref.length⌝)
+  case inv => exact (⇓ (xs, midway) => ⌜Midway.valid midway xs.rpref.length⌝)
   -- case step => simp_all
   case post.success =>
     dsimp

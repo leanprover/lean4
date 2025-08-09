@@ -96,11 +96,11 @@ partial def dischargeFailEntails (u : Level) (ps : Expr) (Q : Expr) (Q' : Expr) 
   if ps.isAppOf ``PostShape.pure then
     return mkConst ``True.intro
   if ← isDefEq Q Q' then
-    return mkApp2 (mkConst ``FailConds.entails.refl [u]) ps Q
-  if ← isDefEq Q (mkApp (mkConst ``FailConds.false [u]) ps) then
-    return mkApp2 (mkConst ``FailConds.entails_false [u]) ps Q'
-  if ← isDefEq Q' (mkApp (mkConst ``FailConds.true [u]) ps) then
-    return mkApp2 (mkConst ``FailConds.entails_true [u]) ps Q
+    return mkApp2 (mkConst ``ExceptConds.entails.refl [u]) ps Q
+  if ← isDefEq Q (mkApp (mkConst ``ExceptConds.false [u]) ps) then
+    return mkApp2 (mkConst ``ExceptConds.entails_false [u]) ps Q'
+  if ← isDefEq Q' (mkApp (mkConst ``ExceptConds.true [u]) ps) then
+    return mkApp2 (mkConst ``ExceptConds.entails_true [u]) ps Q
   -- the remaining cases are recursive.
   if let some (_σ, ps) := ps.app2? ``PostShape.arg then
     return ← dischargeFailEntails u ps Q Q' goalTag
@@ -117,7 +117,7 @@ partial def dischargeFailEntails (u : Level) (ps : Expr) (Q : Expr) (Q' : Expr) 
     let prf₂ ← dischargeFailEntails u ps (← mkProj' ``Prod 1 Q) (← mkProj' ``Prod 1 Q') (goalTag ++ `except)
     return ← mkAppM ``And.intro #[prf₁, prf₂] -- This is just a bit too painful to construct by hand
   -- This case happens when decomposing with unknown `ps : PostShape`
-  mkFreshExprSyntheticOpaqueMVar (mkApp3 (mkConst ``FailConds.entails [u]) ps Q Q') goalTag
+  mkFreshExprSyntheticOpaqueMVar (mkApp3 (mkConst ``ExceptConds.entails [u]) ps Q Q') goalTag
 end
 
 def dischargeMGoal (goal : MGoal) (goalTag : Name) : n Expr := do

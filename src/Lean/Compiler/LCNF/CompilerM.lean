@@ -23,7 +23,7 @@ inductive Phase where
   | base
   /-- In this phase polymorphism has been eliminated. -/
   | mono
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 /--
 The state managed by the `CompilerM` `Monad`.

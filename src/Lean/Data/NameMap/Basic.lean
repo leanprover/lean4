@@ -29,7 +29,7 @@ instance (α : Type) : EmptyCollection (NameMap α) := ⟨mkNameMap α⟩
 instance (α : Type) : Inhabited (NameMap α) where
   default := {}
 
-def insert (m : NameMap α) (n : Name) (a : α) := Std.TreeMap.insert m n a
+def insert (m : NameMap α) (n : Name) (a : α) : NameMap α := Std.TreeMap.insert m n a
 
 def contains (m : NameMap α) (n : Name) : Bool := Std.TreeMap.contains m n
 

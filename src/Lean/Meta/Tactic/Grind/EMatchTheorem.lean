@@ -964,6 +964,9 @@ def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
 
+def EMatchTheorems.getOrigins (s : EMatchTheorems) : List Origin :=
+  s.origins.toList
+
 /-- Returns the types of `xs` that are propositions. -/
 private def getPropTypes (xs : Array Expr) : MetaM (Array Expr) :=
   xs.filterMapM fun x => do

@@ -53,7 +53,10 @@ def Result.mkEqSymm (e : Expr) (r : Simp.Result) : MetaM Simp.Result :=
 -- We use `SExprMap` because we want to discard cached results after a `discharge?`
 abbrev Cache := SExprMap Result
 
-abbrev CongrCache := ExprMap (Option CongrTheorem)
+/--
+A cache of automatically generated congruence theorems, keyed by the head function and the arity.
+-/
+abbrev CongrCache := Std.HashMap (Expr × Nat) (Option CongrTheorem)
 
 structure Context where
   private mk ::
@@ -648,19 +651,19 @@ Retrieve auto-generated congruence lemma for `f`.
 Remark: If all argument kinds are `fixed` or `eq`, it returns `none` because
 using simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof.
 -/
-def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do profileitM Exception "congr simp thm" (← getOptions) do
+def mkCongrSimp? (f : Expr) (maxArgs : Nat) : SimpM (Option CongrTheorem) := do profileitM Exception "congr simp thm" (← getOptions) do
   if f.isConst then if (← isMatcher f.constName!) then
     -- We always use simple congruence theorems for auxiliary match applications
     return none
-  match (← get).congrCache[f]? with
+  let info ← getFunInfo f maxArgs
+  match (← get).congrCache[(f, info.getArity)]? with
   | some thm? => return thm?
   | none =>
-    let thm? ← go?
-    modify fun s => { s with congrCache := s.congrCache.insert f thm? }
+    let thm? ← go? info
+    modify fun s => { s with congrCache := s.congrCache.insert (f, info.getArity) thm? }
     return thm?
 where
-  go? : SimpM (Option CongrTheorem) := do
-    let info ← getFunInfo f
+  go? (info : FunInfo) : SimpM (Option CongrTheorem) := do
     let argKinds ← getCongrSimpKinds f info
     if argKinds.all fun k => match k with | .fixed | .eq => true | _ => false then
       /- See remark above. -/
@@ -685,7 +688,8 @@ Try to use automatically generated congruence theorems. See `mkCongrSimp?`.
 def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   let f := e.getAppFn
   -- TODO: cache
-  let some cgrThm ← mkCongrSimp? f | return none
+  let some cgrThm ← mkCongrSimp? f e.getAppNumArgs | return none
+  -- TODO: handle over-applied congruence theorems
   if cgrThm.argKinds.size != e.getAppNumArgs then return none
   let args := e.getAppArgs
   let infos := (← getFunInfoNArgs f args.size).paramInfo

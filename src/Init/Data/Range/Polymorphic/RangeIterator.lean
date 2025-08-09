@@ -441,7 +441,7 @@ instance RangeIterator.instIteratorLoop {su} [UpwardEnumerable α] [SupportsUppe
         (f : (out : α) → UpwardEnumerable.LE least out → SupportsUpperBound.IsSatisfied upperBound out → (c : γ) → n (Subtype (fun s : ForInStep γ => Pl out c s)))
         (next : α) (hl : UpwardEnumerable.LE least next) (hu : SupportsUpperBound.IsSatisfied upperBound next) : n γ := do
       match ← f next hl hu acc with
-      | ⟨.yield acc', h⟩ =>
+      | ⟨.yield acc', _⟩ =>
         match hs : UpwardEnumerable.succ? next with
         | some next' =>
           if hu : SupportsUpperBound.IsSatisfied upperBound next' then

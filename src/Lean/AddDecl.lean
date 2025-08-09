@@ -177,8 +177,8 @@ where
       catch _ => pure ()
 
 
-def addAndCompile (decl : Declaration) : CoreM Unit := do
+def addAndCompile (decl : Declaration) (logCompileErrors : Bool := true) : CoreM Unit := do
   addDecl decl
-  compileDecl decl
+  compileDecl decl (logErrors := logCompileErrors)
 
 end Lean

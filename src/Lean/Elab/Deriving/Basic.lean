@@ -103,7 +103,7 @@ private partial def mkInst (className declName : Name) (declVal val : Expr) : Me
     else
       throwDeltaDeriveFailure className declName none
         (m!"\n\n"
-          ++ MessageData.joinSep (failures.toList) m!"\n\n"
+          ++ MessageData.joinSep (failures.toList) m!"\n"
           ++ .note m!"Delta deriving tries the following strategies: \
               (1) inserting the definition into each explicit non-out-param parameter of a class and \
               (2) further unfolding of definitions.")
@@ -126,7 +126,7 @@ def processDefDeriving (className declName : Name) : TermElabM Unit := do
   Meta.check instType
   -- Note: if declName is private then this name is private as well.
   let instName ← liftMacroM <| mkUnusedBaseName (declName.appendBefore "inst" |>.appendAfter className.getString!)
-  addAndCompile <| Declaration.defnDecl {
+  addAndCompile (logCompileErrors := !(← read).isNoncomputableSection) <| Declaration.defnDecl {
     name        := instName
     levelParams := info.levelParams ++ r.newParamNames.toList
     type        := instType
@@ -164,7 +164,7 @@ def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandE
       for handler in handlers do
         if (← handler typeNames) then
           return ()
-      throwError "None of the deriving handlers for class `{.ofConstName className}` applied to the types \
+      throwError "None of the deriving handlers for class `{.ofConstName className}` applied to \
         {.andList <| typeNames.toList.map (m!"`{.ofConstName ·}`")}"
     | none => throwError "No deriving handlers have been implemented for class `{.ofConstName className}`"
 

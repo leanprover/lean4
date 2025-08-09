@@ -49,8 +49,11 @@ Allows metavariables in the class. These get abstracted.
 def MyNat := Nat
 deriving OfNat
 
-/-- info: instMyNatOfNat (x✝ : Nat) : OfNat MyNat x✝ -/
-#guard_msgs in #check instMyNatOfNat
+/--
+info: def instMyNatOfNat : (x : Nat) → OfNat MyNat x :=
+fun {x} => instOfNatNat x
+-/
+#guard_msgs in #print instMyNatOfNat
 
 /-!
 "Mixin" instances
@@ -61,8 +64,43 @@ instance : C1 Fin := {}
 def MyFin'' := Fin
 deriving C1
 
-/-- info: instMyFin''C1 : @C1 Nat instDecidableEqNat MyFin'' -/
-#guard_msgs in set_option pp.explicit true in #check instMyFin''C1
+/--
+info: def instMyFin''C1 : @C1 Nat instDecidableEqNat MyFin'' :=
+instC1NatFin
+-/
+#guard_msgs in set_option pp.explicit true in #print instMyFin''C1
+
+/-!
+Can use explicit argument that's not the first.
+-/
+class OfNat' (n : Nat) (α : Type) where
+instance (n : Nat) : OfNat' n Int := {}
+def MyInt := Int
+deriving OfNat', OfNat
+/--
+info: def instMyIntOfNat' : (n : Nat) → OfNat' n MyInt :=
+fun {n} => instOfNat'Int n
+-/
+#guard_msgs in #print instMyIntOfNat'
+/--
+info: def instMyIntOfNat : (x : Nat) → OfNat MyInt x :=
+fun {x} => instOfNat
+-/
+#guard_msgs in #print instMyIntOfNat
+
+/-!
+Multiple options, one works due to dependent types.
+-/
+class C2 (α : Sort _) (β : α) where
+instance : C2 Type Prop := {}
+-- set_option trace.Elab.Deriving true
+def Prop' := Prop
+deriving C2
+/--
+info: def instProp'C2 : C2 Type Prop' :=
+instC2TypeProp
+-/
+#guard_msgs in #print instProp'C2
 
 /-!
 Error to mix both inductives and defs in the same `deriving instance` command.

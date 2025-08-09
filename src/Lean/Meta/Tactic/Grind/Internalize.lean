@@ -364,7 +364,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     propagateEtaStruct e generation
 where
   go : GoalM Unit := do
-    trace_goal[grind.internalize] "{e}"
+    trace_goal[grind.internalize] "[{generation}] {e}"
     match e with
     | .bvar .. => unreachable!
     | .sort .. => return ()

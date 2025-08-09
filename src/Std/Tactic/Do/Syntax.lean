@@ -153,6 +153,7 @@ macro (name := mleave) "mleave" : tactic =>
               $(mkIdent ``Std.Do.FailConds.entails_false):term,
               $(mkIdent ``ULift.down_ite):term,
               $(mkIdent ``ULift.down_dite):term,
+              $(mkIdent ``Std.List.Zipper.pref):term,
               $(mkIdent ``and_imp):term,
               $(mkIdent ``and_true):term,
               $(mkIdent ``dite_eq_ite):term,

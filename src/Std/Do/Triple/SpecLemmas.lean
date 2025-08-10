@@ -342,12 +342,12 @@ another iteration of the loop body.
 abbrev Invariant.withEarlyReturn
   (onContinue : List.Zipper xs → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
-  (onFail : ExceptConds ps := ExceptConds.false) :
+  (onExcept : ExceptConds ps := ExceptConds.false) :
     Invariant xs (MProd (Option γ) β) ps :=
   ⟨fun ⟨xs, x, b⟩ => spred(
         (⌜x = none⌝ ∧ onContinue xs b)
       ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜xs.suff = []⌝ ∧ onReturn r b)),
-   onFail⟩
+   onExcept⟩
 
 @[spec]
 theorem Spec.forIn'_list {α β : Type u}

@@ -27,8 +27,7 @@ deriving BEq, Hashable, TypeName
     -- If `fn` is only a single constant, we can share the result with any thread that can see `c`
     -- as well.
     let finfo ← match fn with
-      | .const c [.mvar _] => realizeValue c { c, ls := [.mvar default], maxArgs? : FunInfoEnvCacheKey } k
-      | .const c ls => realizeValue c { c, ls, maxArgs? : FunInfoEnvCacheKey } k
+      | .const c ls => if ls.any (·.hasMVar) then k else realizeValue c { c, ls, maxArgs? : FunInfoEnvCacheKey } k
       | _          => k
     modify fun s => { s with cache := { s.cache with funInfo := s.cache.funInfo.insert key finfo } }
     return finfo

@@ -124,7 +124,7 @@ def dischargeMGoal (goal : MGoal) (goalTag : Name) : n Expr := do
   liftMetaM <| do trace[Elab.Tactic.Do.spec] "dischargeMGoal: {goal.target}"
   -- simply try one of the assumptions for now. Later on we might want to decompose conjunctions etc; full xsimpl
   -- The `withDefault` ensures that a hyp `⌜s = 4⌝` can be used to discharge `⌜s = 4⌝ s`.
-  -- (Recall that `⌜s = 4⌝ s` is `SVal.curry (σs:=[Nat]) (fun _ => s = 4) s` and `SVal.curry` is
+  -- (Recall that `⌜s = 4⌝ s` is `SPred.pure (σs:=[Nat]) (s = 4) s` and `SPred.pure` is
   -- semi-reducible.)
   -- We also try `mpure_intro; trivial` through `goal.triviallyPure` here because later on an
   -- assignment like `⌜s = ?c⌝` becomes impossible to discharge because `?c` will get abstracted
@@ -156,11 +156,8 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
   let wp := T.getArg! 2
   let specThm ← elabSpecAtWP wp
 
-  -- The precondition of `specThm` might look like `⌜?n = ‹Nat›ₛ ∧ ?m = ‹Bool›ₛ⌝`, which expands to
-  -- `SVal.curry (fun tuple => ?n = SVal.uncurry (getThe Nat tuple) ∧ ?m = SVal.uncurry (getThe Bool tuple))`.
-  -- Note that the assignments for `?n` and `?m` depend on the bound variable `tuple`.
-  -- Here, we further eta expand and simplify according to `etaPotential` so that the solutions for
-  -- `?n` and `?m` do not depend on `tuple`.
+  -- The precondition of `specThm` might look like `⌜?n = nₛ ∧ ?m = b⌝`, which expands to
+  -- `SPred.pure (?n = n ∧ ?m = b)`.
   let residualEta := specThm.etaPotential - (T.getAppNumArgs - 4) -- 4 arguments expected for PredTrans.apply
   mIntroForallN goal residualEta fun goal => do
 

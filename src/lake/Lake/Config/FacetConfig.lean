@@ -87,8 +87,9 @@ abbrev LibraryFacetConfig := KFacetConfig LeanLib.facetKind
 /-- A library facet declaration from a configuration file. -/
 abbrev LibraryFacetDecl := NamedConfigDecl LibraryFacetConfig
 
-deriving instance TypeName for
-  ModuleFacetDecl, PackageFacetDecl, LibraryFacetDecl
+instance : TypeName ModuleFacetDecl := unsafe (.mk _ ``ModuleFacetDecl)
+instance : TypeName PackageFacetDecl := unsafe (.mk _ ``PackageFacetDecl)
+instance : TypeName LibraryFacetDecl := unsafe (.mk _ ``LibraryFacetDecl)
 
 /-- A library facet's declarative configuration. -/
 abbrev LeanLibFacetConfig := LibraryFacetConfig

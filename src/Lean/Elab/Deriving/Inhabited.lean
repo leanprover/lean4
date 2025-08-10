@@ -79,7 +79,11 @@ where
       ctorArgs := ctorArgs.push (← `(_))
     for _ in *...ctorVal.numFields do
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
-    let val ← `(@$(mkIdent ctorName):ident $ctorArgs*)
+    let val ← if isStructure (← getEnv) inductiveTypeName then
+      -- If it is a structure, we prefer using the default values, if present.
+      `(⟨by refine' {.. : $type} <;> exact default⟩)
+    else
+      `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
     let ctx ← mkContext ``Inhabited "default" inductiveTypeName
     let auxFunName := ctx.auxFunNames[0]!
     `(def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type := $val

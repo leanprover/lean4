@@ -126,7 +126,12 @@ def dischargeMGoal (goal : MGoal) (goalTag : Name) : n Expr := do
   -- The `withDefault` ensures that a hyp `⌜s = 4⌝` can be used to discharge `⌜s = 4⌝ s`.
   -- (Recall that `⌜s = 4⌝ s` is `SVal.curry (σs:=[Nat]) (fun _ => s = 4) s` and `SVal.curry` is
   -- semi-reducible.)
-  let some prf ← liftMetaM (withDefault <| goal.assumption <|> goal.assumptionPure)
+  -- We also try `mpure_intro; trivial` through `goal.triviallyPure` here because later on an
+  -- assignment like `⌜s = ?c⌝` becomes impossible to discharge because `?c` will get abstracted
+  -- over local bindings that depend on synthetic opaque MVars (such as loop invariants), and then
+  -- the type of the new `?c` will not be defeq to itself. A bug, but we need to work around it for
+  -- now.
+  let some prf ← liftMetaM (withDefault <| goal.assumption <|> goal.assumptionPure <|> goal.triviallyPure)
     | mkFreshExprSyntheticOpaqueMVar goal.toExpr goalTag
   liftMetaM <| do trace[Elab.Tactic.Do.spec] "proof: {prf}"
   return prf

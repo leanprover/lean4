@@ -2438,17 +2438,18 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forCo
       throw <| .userError s!"trying to realize `{TypeName.typeName α}` value but \
         `enableRealizationsForConst` must be called for '{forConst}' first"
   let res ← (do
+    -- First try checking for the key non-atomically as (de)allocating the promise is expensive.
     let m ← ctx.realizeMapRef.get
     if let some m' := m.find? (TypeName.typeName α) then
+      -- Safety: `typeName α` should uniquely identify `PHashMap α (Task Dynamic)`; there are no other
+      -- accesses to `private realizeMapRef` outside this function.
       let m' := unsafe unsafeCast (β := PHashMap α (Task Dynamic)) m'
       if let some t := m'[key] then
         return t.get
 
+    -- Now check atomically.
     let prom ← IO.Promise.new
-    -- atomically check whether we are the first branch to realize `key`
     let existingConsts? ← ctx.realizeMapRef.modifyGet fun m =>
-      -- Safety: `typeName α` should uniquely identify `PHashMap α (Task Dynamic)`; there are no other
-      -- accesses to `private realizeMapRef` outside this function.
       let m' := match m.find? (TypeName.typeName α) with
         | some m' => unsafe unsafeCast (β := PHashMap α (Task Dynamic)) m'
         | none    => {}

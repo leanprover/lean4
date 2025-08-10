@@ -1076,7 +1076,7 @@ private def processNoField (loop : StructInstM α) (fieldName : Name) (binfo : B
         let info := (← getRef).getHeadInfo.nonCanonicalSynthetic
         let stx := stx.raw.rewriteBottomUp (·.setInfo info)
         let fieldType ← normalizeExpr fieldType
-        let mvar ← mkTacticMVar fieldType stx (.fieldAutoParam fieldName (← read).structName)
+        let mvar ← mkTacticMVar fieldType stx (.fieldAutoParam fieldName (← read).structName) (mvarKind := .synthetic)
         -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticSyntax`.
         -- This is necessary for the unused variable linter.
         -- (See `processExplicitArg` for a comment about this.)

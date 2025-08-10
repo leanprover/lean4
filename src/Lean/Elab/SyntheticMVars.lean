@@ -351,19 +351,27 @@ mutual
   If `report := false`, then `runTactic` will not capture exceptions nor will report unsolved goals. Unsolved goals become exceptions.
   -/
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) (kind : TacticMVarKind) (report := true) : TermElabM Unit := withoutAutoBoundImplicit do
+    instantiateMVarDeclMVars mvarId
+    unless (← mvarId.getKind).isSyntheticOpaque do
+      -- Tactic metavariables are supposed to be synthetic opaque.
+      -- We use *synthetic* metavariables for autoParams, to prevent unification from
+      mvarId.setKind .syntheticOpaque
+    -- The metavariable might already be assigned. In that case, we want to create a separate metavariable (`mvarId'`)
+    -- that we run the tactic code on and then check that the synthesized term is definitionally equal to the provided one.
+    let mut useFreshMVar ← mvarId.isAssigned
     let wasExporting := (← getEnv).isExporting
     -- exit exporting context if entering proof
     let isNoLongerExporting ← pure wasExporting <&&> do
       mvarId.withContext do
         isProp (← mvarId.getType)
-    instantiateMVarDeclMVars mvarId
     -- When exiting exporting context, use fresh mvar for running tactics and abstract it into an
     -- aux theorem in the end so that we cannot leak references to private decls into the exporting
     -- context.
+    useFreshMVar := useFreshMVar || isNoLongerExporting
     let mut mvarId' := mvarId
-    if isNoLongerExporting then
+    if useFreshMVar then
       let mvarDecl ← getMVarDecl mvarId
-      mvarId' := (← mkFreshExprMVarAt mvarDecl.lctx mvarDecl.localInstances mvarDecl.type mvarDecl.kind).mvarId!
+      mvarId' := (← mkFreshExprMVarAt mvarDecl.lctx mvarDecl.localInstances mvarDecl.type .syntheticOpaque).mvarId!
     withExporting (isExporting := wasExporting && !isNoLongerExporting) do
     /-
     TODO: consider using `runPendingTacticsAt` at `mvarId` local context and target type.
@@ -396,19 +404,27 @@ mutual
               reportUnsolvedGoals remainingGoals
             else
               throwError "unsolved goals\n{goalsToMessageData remainingGoals}"
-          if isNoLongerExporting then
-            let mut e ← instantiateExprMVars (.mvar mvarId')
-            if !e.isFVar then
-              e ← mvarId'.withContext do
-                withExporting (isExporting := wasExporting) do
-                  abstractProof e
-            mvarId.assign e)
+          if useFreshMVar then
+            mvarId'.withContext do
+              let mut e ← instantiateExprMVars (.mvar mvarId')
+              if isNoLongerExporting then
+                if !e.isFVar then
+                  e ← withExporting (isExporting := wasExporting) do abstractProof e
+              if ← mvarId.isAssigned then
+                unless ← isDefEq (.mvar mvarId) e do
+                  let (oldVal, val) ← addPPExplicitToExposeDiff (.mvar mvarId) e
+                  throwError "term synthesized by tactic sequence is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}"
+              else
+                mvarId.assign e)
       fun ex => do
         if report then
           kind.logError tacticCode
         if report && (← read).errToSorry then
-          for mvarId in (← getMVars (mkMVar mvarId')) do
+          for mvarId in (← getMVars (mkMVar mvarId)) do
             mvarId.admit
+          if useFreshMVar then
+            for mvarId in (← getMVars (mkMVar mvarId')) do
+              mvarId.admit
           logException ex
         else
           throw ex
@@ -435,7 +451,10 @@ mutual
     | .postponed savedContext => resumePostponed savedContext mvarSyntheticDecl.stx mvarId postponeOnError
     | .tactic tacticCode savedContext kind delayOnMVars =>
       withSavedContext savedContext do
-        if runTactics && !(delayOnMVars && (← mvarId.getType >>= instantiateExprMVars).hasExprMVar) then
+        if runTactics then
+          if delayOnMVars then
+            if (← mvarId.getType >>= instantiateExprMVars).hasExprMVar then
+              return false
           runTactic mvarId tacticCode kind
           return true
         else

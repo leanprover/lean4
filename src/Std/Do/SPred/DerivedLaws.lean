@@ -166,9 +166,14 @@ theorem and_right_comm : (P ∧ Q) ∧ R ⊣⊢ₛ (P ∧ R) ∧ Q := and_assoc.
 theorem entails_pure_intro (P Q : Prop) (h : P → Q) : entails ⌜P⌝ (σs := σs) ⌜Q⌝ := pure_elim' fun hp => pure_intro (h hp)
 
 -- NB: We cannot currently make the following lemma @[grind =]; we are blocked on #9623.
--- However, the stronger SPred.entails_cons is already @[grind =].
-@[simp] theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝ := by simp [entails]
-@[simp, grind =] theorem entails_true_intro (P Q : SPred σs) : (⊢ₛ P → Q) = (P ⊢ₛ Q) := propext <| Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
+theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝ := by simp [entails]
+@[simp] theorem entails_true_intro (P Q : SPred σs) : (⊢ₛ P → Q) = (P ⊢ₛ Q) := propext <| Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
+-- The following lemmas work around a DefEq incompleteness that would be fixed by #9015.
+@[simp] theorem entails_1 {P Q : SPred [σ]} : SPred.entails P Q = (∀ s, (P s).down → (Q s).down) := rfl
+@[simp] theorem entails_2 {P Q : SPred [σ₁, σ₂]} : SPred.entails P Q = (∀ s₁ s₂, (P s₁ s₂).down → (Q s₁ s₂).down) := rfl
+@[simp] theorem entails_3 {P Q : SPred [σ₁, σ₂, σ₃]} : SPred.entails P Q = (∀ s₁ s₂ s₃, (P s₁ s₂ s₃).down → (Q s₁ s₂ s₃).down) := rfl
+@[simp] theorem entails_4 {P Q : SPred [σ₁, σ₂, σ₃, σ₄]} : SPred.entails P Q = (∀ s₁ s₂ s₃ s₄, (P s₁ s₂ s₃ s₄).down → (Q s₁ s₂ s₃ s₄).down) := rfl
+@[simp] theorem entails_5 {P Q : SPred [σ₁, σ₂, σ₃, σ₄, σ₅]} : SPred.entails P Q = (∀ s₁ s₂ s₃ s₄ s₅, (P s₁ s₂ s₃ s₄ s₅).down → (Q s₁ s₂ s₃ s₄ s₅).down) := rfl
 
 /-! # Tactic support -/
 

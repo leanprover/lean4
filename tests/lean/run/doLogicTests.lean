@@ -184,10 +184,7 @@ theorem beaking_loop_spec :
   case inv => exact (⇓ (xs, r) s => ⌜(r ≤ 4 ∧ r = xs.rpref.sum ∨ r > 4) ∧ s = 42⌝)
   all_goals simp_all
   case post =>
-    intro _ h
-    conv at h in (List.sum _) => whnf
-    simp at h
-    simp
+    conv in (List.sum _) => whnf
     grind
   case step =>
     intros
@@ -205,7 +202,7 @@ theorem returning_loop_spec :
   mspec
   mspec
   case inv => exact (⇓ (xs, r) s => ⌜(r.1 = none ∧ r.2 = xs.rpref.sum ∧ r.2 ≤ 4 ∨ r.1 = some 42 ∧ r.2 > 4) ∧ s = 4⌝)
-  all_goals simp_all
+  all_goals simp_all [-SPred.entails_1]
   case post =>
     split
     · mspec

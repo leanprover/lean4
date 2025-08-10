@@ -13,8 +13,9 @@ public section
 namespace Lean
 
 builtin_initialize metaExt : TagDeclarationExtension ←
-  -- set by `addPreDefinitions`
-  mkTagDeclarationExtension (asyncMode := .async .asyncEnv)
+  -- set by `addPreDefinitions`; if we ever make `def` elaboration async, it should be moved to
+  -- remain on the main environment branch
+  mkTagDeclarationExtension (asyncMode := .async .mainEnv)
 
 /-- Marks in the environment extension that the given declaration has been declared by the user as `meta`. -/
 def addMeta (env : Environment) (declName : Name) : Environment :=

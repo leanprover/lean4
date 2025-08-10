@@ -44,17 +44,19 @@ macro (name := hydrateOpaqueTypeCmd)
 : command =>
   let mk := mkIdent `mk
   let unsafeMk := mkIdent `unsafeMk
+  let instCoeMk := mkIdent `instCoeMk
   let get := mkIdent `get
   let unsafeGet := mkIdent `unsafeGet
+  let instCoeGet := mkIdent `instCoeGet
   `(
   namespace $oty
   @[inline] private unsafe def $unsafeMk : $ty $args* → $oty $args* := unsafeCast
   @[implemented_by $unsafeMk] $[$vis?:visibility]? opaque $mk : $ty $args* → $oty $args*
-  $[$vis?:visibility]? instance : Coe ($ty $args*) ($oty $args*) := ⟨$mk⟩
+  $[$vis?:visibility]? instance $instCoeMk:ident : Coe ($ty $args*) ($oty $args*) := ⟨$mk⟩
 
   @[inline] private unsafe def $unsafeGet : $oty $args* → $ty $args* := unsafeCast
   @[implemented_by $unsafeGet] $[$vis?:visibility]? opaque $get $[{$args}]* : $oty $args* → $ty $args*
-  $[$vis?:visibility]? instance : Coe ($oty $args*) ($ty $args*) := ⟨$get⟩
+  $[$vis?:visibility]? instance $instCoeGet:ident : Coe ($oty $args*) ($ty $args*) := ⟨$get⟩
 
   $[$vis?:visibility]? instance [Inhabited ($ty $args*)] : Inhabited ($oty $args*) := ⟨$mk default⟩
   end $oty

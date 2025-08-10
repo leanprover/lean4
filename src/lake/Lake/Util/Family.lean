@@ -166,11 +166,11 @@ public instance : FamilyDef (fun _ => b) a b where
   fam_eq := rfl
 
 /-- Cast a datum from its specific type to a general type family. -/
-@[macro_inline] public def toFamily [FamilyOut F a β] (b : β) : F a :=
+@[macro_inline, expose] public def toFamily [FamilyOut F a β] (b : β) : F a :=
   cast FamilyOut.fam_eq.symm b
 
 /-- Cast a datum from a general type family to its specific type. -/
-@[macro_inline] public def ofFamily [FamilyOut F a β] (b : F a) : β :=
+@[macro_inline, expose] public def ofFamily [FamilyOut F a β] (b : F a) : β :=
   cast FamilyOut.fam_eq b
 
 public section

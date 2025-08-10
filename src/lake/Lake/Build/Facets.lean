@@ -3,13 +3,6 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-prelude
-import Lake.Build.Data
-import Lake.Build.Job.Basic
-import Lake.Build.ModuleArtifacts
-import Lake.Config.Dynlib
-
-/-
 module
 
 prelude
@@ -18,7 +11,6 @@ public import Lake.Build.Job.Basic
 public import Lake.Build.ModuleArtifacts
 public import Lake.Config.Dynlib
 meta import all Lake.Build.Data
--/
 
 /-!
 # Simple Builtin Facet Declarations

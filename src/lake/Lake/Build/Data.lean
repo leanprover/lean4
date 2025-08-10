@@ -10,7 +10,7 @@ public import Lake.Build.Key
 public import Lake.Util.Family
 public import Lake.Config.Dynlib
 public import Lake.Config.Kinds
-meta import Lake.Config.Kinds
+meta import all Lake.Config.Kinds
 meta import Lake.Util.Name
 
 open Lean
@@ -184,9 +184,8 @@ public instance [FamilyOut DataType Package.facetKind α]
 /-! ## Macros for Declaring Build Data                                        -/
 --------------------------------------------------------------------------------
 
-open Parser Command
-
 public section
+open Parser Command
 
 /-- Macro for declaring new `DatayType`. -/
 scoped macro (name := dataTypeDecl)
@@ -228,9 +227,9 @@ scoped macro (name := builtinFacetCommand)
       | .str .anonymous n => pure <| mkIdentFrom name (ns.getId.str s!"{n}Facet") (canonical := true)
       | _ =>  Macro.throwErrorAt name "cannot generate facet declaration name from facet name"
   `(
-    $[$doc?]? @[reducible] def $id := $facetLit
+    $[$doc?]? @[reducible, expose] public def $id := $facetLit
     family_def $facetId : $fam $facetLit := $ty
-    instance : FamilyDef FacetOut ($kindLit ++ $nameLit) $ty :=
+    public instance : FamilyDef FacetOut ($kindLit ++ $nameLit) $ty :=
       inferInstanceAs (FamilyDef FacetOut $facetLit $ty)
   )
 
@@ -245,7 +244,7 @@ scoped macro (name := facetDataDecl)
   let facetLit := Name.quoteFrom tk facet
   let id := mkIdentFrom tk facet (canonical := true)
   `($[$doc?]? family_def $id : $fam $facetLit := $ty
-    instance : FamilyDef FacetOut ($kindLit ++ $nameLit) $ty :=
+    public instance : FamilyDef FacetOut ($kindLit ++ $nameLit) $ty :=
       inferInstanceAs (FamilyDef FacetOut $facetLit $ty))
 
 /-- Macro for declaring new `PackageData`. -/
@@ -280,5 +279,3 @@ scoped macro (name := customDataDecl)
   let pkg := Name.quoteFrom pkg pkg.getId
   let tgt := Name.quoteFrom pkg tgt.getId
   `($[$doc?]? family_def $id : $fam ($pkg, $tgt) := $ty)
-
-end

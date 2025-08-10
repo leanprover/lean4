@@ -646,7 +646,7 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
     return r
 
 /--
-Retrieve auto-generated congruence lemma for `f`.
+Retrieve auto-generated congruence lemma for `f`, with the maximum possible arity up to `maxArgs`.
 
 Remark: If all argument kinds are `fixed` or `eq`, it returns `none` because
 using simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof.
@@ -655,13 +655,21 @@ def mkCongrSimp? (f : Expr) (maxArgs : Nat) : SimpM (Option CongrTheorem) := do 
   if f.isConst then if (← isMatcher f.constName!) then
     -- We always use simple congruence theorems for auxiliary match applications
     return none
-  let info ← getFunInfo f maxArgs
-  match (← get).congrCache[(f, info.getArity)]? with
-  | some thm? => return thm?
-  | none =>
-    let thm? ← go? info
-    modify fun s => { s with congrCache := s.congrCache.insert (f, info.getArity) thm? }
+  /-
+  Small optimization: Usually functions are not overapplied, so `maxArgs = (← getFunInfo f maxArgs).getArity` is likely.
+  This saves an unnecessary `FunInfo` cache access if the congruence lemma has already been generated,
+  at the cost of an extra `congrCache` access if it hasn't yet, and every time for overapplied functions.
+  -/
+  if let some thm? := (← get).congrCache[(f, maxArgs)]? then
     return thm?
+  else
+    let info ← getFunInfo f maxArgs
+    if let some thm? := (← get).congrCache[(f, info.getArity)]? then
+      return thm?
+    else
+      let thm? ← go? info
+      modify fun s => { s with congrCache := s.congrCache.insert (f, info.getArity) thm? }
+      return thm?
 where
   go? (info : FunInfo) : SimpM (Option CongrTheorem) := do
     let argKinds ← getCongrSimpKinds f info

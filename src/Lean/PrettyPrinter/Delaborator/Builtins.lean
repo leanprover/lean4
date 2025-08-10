@@ -1274,6 +1274,24 @@ def delabPProdMk : Delab := delabPProdMkCore ``PProd.mk
 @[builtin_delab app.MProd.mk]
 def delabMProdMk : Delab := delabPProdMkCore ``MProd.mk
 
+@[builtin_delab app.Std.Range.mk]
+def delabRange : Delab := do
+  -- Std.Range.mk : Nat → Nat → (step : Nat) → 0 < step → Std.Range
+  let_expr Std.Range.mk start _stop step _prf := (← getExpr) | failure
+  let start_zero := Lean.Expr.nat? start == some 0
+  let step_one := Lean.Expr.nat? step == some 1
+  withAppFn do -- skip the proof
+  let step ← withAppArg delab
+  withAppFn do
+  let stop ← withAppArg delab
+  withAppFn do
+  let start ← withAppArg delab
+  match start_zero, step_one with
+  | false, false => `([$start : $stop : $step])
+  | false, true => `([$start : $stop])
+  | true, false => `([: $stop : $step])
+  | true, true => `([: $stop])
+
 partial def delabDoElems : DelabM (List Syntax) := do
   let e ← getExpr
   if e.isAppOfArity ``Bind.bind 6 then

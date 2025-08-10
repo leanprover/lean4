@@ -83,7 +83,7 @@ Unfolds all `reducible` declarations occurring in `e`.
 -/
 def unfoldReducible (e : Expr) : MetaM Expr := do
   if !(← isUnfoldReducibleTarget e) then return e
-  Core.transform e (pre := unfoldReducibleStep)
+  Meta.transform e (pre := unfoldReducibleStep)
 
 /--
 Unfolds all `reducible` declarations occurring in the goal's target.

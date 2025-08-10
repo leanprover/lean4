@@ -182,10 +182,18 @@ def foldProjs (e : Expr) : MetaM Expr := do
       return .done e
   Meta.transform e (post := post)
 
+/-- Quick filter for checking whether we can skip `normalizeLevels`. -/
+private def levelsAlreadyNormalized (e : Expr) : Bool :=
+  Option.isNone <| e.find? fun
+    | .const _ us => us.any (! ·.isAlreadyNormalizedCheap)
+    | .sort u => !u.isAlreadyNormalizedCheap
+    | _ => false
+
 /--
 Normalizes universe levels in constants and sorts.
 -/
 def normalizeLevels (e : Expr) : CoreM Expr := do
+  if levelsAlreadyNormalized e then return e
   let pre (e : Expr) := do
     match e with
     | .sort u => return .done <| e.updateSort! u.normalize

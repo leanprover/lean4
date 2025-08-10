@@ -2437,34 +2437,41 @@ def realizeValue [BEq α] [Hashable α] [TypeName α] (env : Environment) (forCo
     | none =>
       throw <| .userError s!"trying to realize `{TypeName.typeName α}` value but \
         `enableRealizationsForConst` must be called for '{forConst}' first"
-  let prom ← IO.Promise.new
-  -- atomically check whether we are the first branch to realize `key`
-  let existingConsts? ← ctx.realizeMapRef.modifyGet fun m =>
-    -- Safety: `typeName α` should uniquely identify `PHashMap α (Task Dynamic)`; there are no other
-    -- accesses to `private realizeMapRef` outside this function.
-    let m' := match m.find? (TypeName.typeName α) with
-      | some m' => unsafe unsafeCast (β := PHashMap α (Task Dynamic)) m'
-      | none    => {}
-    match m'[key] with
-    | some prom' => (some prom', m)
-    | none =>
-      let m' := m'.insert key prom.result!
-      let m := m.insert (TypeName.typeName α) (unsafe unsafeCast (β := NonScalar) m')
-      (none, m)
-  let res ← if let some t := existingConsts? then
-    pure t.get
-  else
-    -- safety: `RealizationContext` is private
-    let realizeEnv : Environment := unsafe unsafeCast ctx.env
-    let realizeEnv := { realizeEnv with
-      -- allow realizations to recursively realize other constants for `forConst`. Do note that
-      -- this allows for recursive realization of `α` itself, which will deadlock.
-      localRealizationCtxMap := realizeEnv.localRealizationCtxMap.insert forConst ctx
-      importRealizationCtx? := env.importRealizationCtx?
-    }
-    let res ← realize realizeEnv ctx.opts
-    prom.resolve res
-    pure res
+  let res ← (do
+    let m ← ctx.realizeMapRef.get
+    if let some m' := m.find? (TypeName.typeName α) then
+      let m' := unsafe unsafeCast (β := PHashMap α (Task Dynamic)) m'
+      if let some t := m'[key] then
+        return t.get
+
+    let prom ← IO.Promise.new
+    -- atomically check whether we are the first branch to realize `key`
+    let existingConsts? ← ctx.realizeMapRef.modifyGet fun m =>
+      -- Safety: `typeName α` should uniquely identify `PHashMap α (Task Dynamic)`; there are no other
+      -- accesses to `private realizeMapRef` outside this function.
+      let m' := match m.find? (TypeName.typeName α) with
+        | some m' => unsafe unsafeCast (β := PHashMap α (Task Dynamic)) m'
+        | none    => {}
+      match m'[key] with
+      | some prom' => (some prom', m)
+      | none =>
+        let m' := m'.insert key prom.result!
+        let m := m.insert (TypeName.typeName α) (unsafe unsafeCast (β := NonScalar) m')
+        (none, m)
+    if let some t := existingConsts? then
+      pure t.get
+    else
+      -- safety: `RealizationContext` is private
+      let realizeEnv : Environment := unsafe unsafeCast ctx.env
+      let realizeEnv := { realizeEnv with
+        -- allow realizations to recursively realize other constants for `forConst`. Do note that
+        -- this allows for recursive realization of `α` itself, which will deadlock.
+        localRealizationCtxMap := realizeEnv.localRealizationCtxMap.insert forConst ctx
+        importRealizationCtx? := env.importRealizationCtx?
+      }
+      let res ← realize realizeEnv ctx.opts
+      prom.resolve res
+      pure res)
   IO.setNumHeartbeats heartbeats
   return res
 

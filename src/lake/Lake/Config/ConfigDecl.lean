@@ -126,6 +126,7 @@ abbrev InputFileDecl := KConfigDecl InputFile.configKind
 /-- A inpurt directory declaration from a configuration written in Lean. -/
 abbrev InputDirDecl := KConfigDecl InputDir.configKind
 
-deriving instance TypeName for
-  LeanLibDecl, LeanExeDecl,
-  InputFileDecl, InputDirDecl
+instance : TypeName LeanLibDecl := unsafe (.mk _ ``LeanLibDecl)
+instance : TypeName LeanExeDecl := unsafe (.mk _ ``LeanExeDecl)
+instance : TypeName InputFileDecl := unsafe (.mk _ ``InputFileDecl)
+instance : TypeName InputDirDecl := unsafe (.mk _ ``InputDirDecl)

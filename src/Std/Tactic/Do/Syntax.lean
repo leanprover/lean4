@@ -126,6 +126,8 @@ syntax (name := mstop) "mstop" : tactic
 @[inherit_doc Lean.Parser.Tactic.mleaveMacro]
 macro (name := mleave) "mleave" : tactic =>
   `(tactic| (try simp only [
+              $(mkIdent ``Std.Do.SPred.down_pure):term,
+              $(mkIdent ``Std.Do.SPred.apply_pure):term,
               -- $(mkIdent ``Std.Do.SPred.entails_cons):term, -- Ineffective until #9015 lands
               $(mkIdent ``Std.Do.SPred.entails_1):term,
               $(mkIdent ``Std.Do.SPred.entails_2):term,
@@ -289,7 +291,7 @@ Like `mspec`, but does not attempt slight simplification and closing of trivial 
 ```
 mspec_no_simp $spec
 all_goals
-  ((try simp only [SPred.true_intro_simp, SVal.curry_cons, SVal.uncurry_nil, SVal.uncurry_cons, SVal.getThe_here, SVal.getThe_there]);
+  ((try simp only [SPred.true_intro_simp, SPred.apply_pure]);
    (try mpure_intro; trivial))
 ```
 -/
@@ -316,11 +318,7 @@ macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>
   `(tactic| (mspec_no_simp $[$spec]?
              all_goals ((try simp only [
                           $(mkIdent ``Std.Do.SPred.true_intro_simp):term,
-                          $(mkIdent ``Std.Do.SVal.curry_cons):term,
-                          $(mkIdent ``Std.Do.SVal.uncurry_nil):term,
-                          $(mkIdent ``Std.Do.SVal.uncurry_cons):term,
-                          $(mkIdent ``Std.Do.SVal.getThe_here):term,
-                          $(mkIdent ``Std.Do.SVal.getThe_there):term])
+                          $(mkIdent ``Std.Do.SPred.apply_pure):term])
                         (try mpure_intro; trivial))))
 
 @[inherit_doc Lean.Parser.Tactic.mvcgenMacro]

@@ -76,15 +76,33 @@ theorem bientails.to_eq {P Q : SPred σs} (h : P ⊣⊢ₛ Q) : P = Q := by
 
 /-! # Pure -/
 
+@[simp, grind =] theorem down_pure {φ : Prop} : (⌜φ⌝ : SPred []).down = φ := rfl
+@[simp, grind =] theorem apply_pure {φ : Prop} : (⌜φ⌝ : SPred (σ::σs)) s = ⌜φ⌝ := rfl
+
 theorem pure_intro {φ : Prop} {P : SPred σs} : φ → P ⊢ₛ ⌜φ⌝ := by
-  induction σs <;> simp_all [entails, SVal.curry]
+  induction σs <;> simp_all [entails]
 
 theorem pure_elim' {φ : Prop} {P : SPred σs} : (φ → ⌜True⌝ ⊢ₛ P) → ⌜φ⌝ ⊢ₛ P := by
-  induction σs <;> simp_all [entails, SVal.curry]
+  induction σs <;> simp_all [entails]
 
 -- Ideally, we'd like to prove the following theorem:
 -- theorem pure_elim' {φ : Prop} : SPred.entails (σs:=σs) ⌜True⌝ ⌜φ⌝ → φ
 -- Unfortunately, this is only true if all `σs` are Inhabited.
+
+theorem and_pure {P Q : Prop} : ⌜P⌝ ∧ ⌜Q⌝ ⊣⊢ₛ (⌜P ∧ Q⌝ : SPred σs) := by
+  induction σs
+  case nil => rfl
+  case cons σ σs ih => intro s; simp only [and_cons]; exact ih
+
+theorem or_pure {P Q : Prop} : ⌜P⌝ ∨ ⌜Q⌝ ⊣⊢ₛ (⌜P ∨ Q⌝ : SPred σs) := by
+  induction σs
+  case nil => rfl
+  case cons σ σs ih => intro s; simp only [or_cons]; exact ih
+
+theorem imp_pure {P Q : Prop} : (⌜P⌝ → ⌜Q⌝) ⊣⊢ₛ (⌜P → Q⌝ : SPred σs) := by
+  induction σs
+  case nil => rfl
+  case cons σ σs ih => intro s; simp only [imp_cons]; exact ih
 
 /-! # Conjunction -/
 

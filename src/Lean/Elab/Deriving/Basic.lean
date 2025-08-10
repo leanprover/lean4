@@ -35,8 +35,8 @@ to create a type `className ... val ...` such that there is already an instance 
 The `declVal` argument is the value to use in place of `val` when creating the new instance.
 
 Heuristics:
-- `val` must not be an outParam.
-- `val` should be an explicit parameter.
+- `val` must not use an outParam.
+- `val` should use an explicit parameter, or a parameter that has already been given a value.
 - If there are multiple explicit parameters, we try each possibility.
 - If the class has instance arguments, we require that they be synthesizable while synthesizing this instance.
   While we could allow synthesis failure and abstract such instances,
@@ -83,6 +83,20 @@ private partial def mkInst (classExpr : Expr) (declName : Name) (declVal val : E
         continue
       let decl ← x.mvarId!.getDecl
       if decl.type.isOutParam then
+        continue
+      unless ← isMVarApp x do
+        /-
+        This is an argument supplied by the user, and it's not a `_`.
+        This is to avoid counterintuitive behavior, like in the following example.
+        Because `MyNat` unifies with `Nat`, it would otherwise generate an `HAdd MyNat Nat Nat` instance.
+        Instead it generates an `HAdd Nat MyNat Nat` instance.
+        ```
+        def MyNat := Nat
+        deriving instance HAdd Nat for MyNat
+        ```
+        Likely neither of these is the intended result, but the second is more justifiable.
+        It's possible to have it return `MyNat` using `deriving instance HAdd Nat _ MyNat for MyNat`.
+        -/
         continue
       unless ← isDefEqGuarded decl.type valTy <&&> isDefEqGuarded x val do
         restoreState state

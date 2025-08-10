@@ -111,6 +111,18 @@ Hint: Additional diagnostic information may be available using the `set_option d
 #guard_msgs in #synth OfNat MyNat' 3
 
 /-!
+Don't unify with nontrivial arguments supplied by the user.
+Without the nontriviality check, would get `instHAddMyNatNat : HAdd MyNat Nat Nat`.
+-/
+deriving instance HAdd Nat for MyNat
+/-- info: instHAddNatMyNat : HAdd Nat MyNat Nat -/
+#guard_msgs in #check instHAddNatMyNat
+
+deriving instance HAdd _ Nat for MyNat
+/-- info: instHAddMyNatNat : HAdd MyNat Nat Nat -/
+#guard_msgs in #check instHAddMyNatNat
+
+/-!
 "Mixin" instances
 -/
 class C1 {α : Sort _} [DecidableEq α] (β : α → Type _)

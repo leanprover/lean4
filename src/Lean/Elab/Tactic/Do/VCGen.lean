@@ -105,9 +105,8 @@ where
     let args := goal.target.getAppArgs
     let trans := args[2]!
     -- logInfo m!"trans: {trans}"
-    let Q := args[3]!
     let wp ← instantiateMVarsIfMVarApp trans
-    let_expr c@WP.wp m ps instWP α e := wp | onFail goal name
+    let_expr WP.wp m _ps _instWP α e := wp | onFail goal name
     -- NB: e here is a monadic expression, in the "object language"
     let e ← instantiateMVarsIfMVarApp e
     let e := e.headBeta
@@ -155,13 +154,13 @@ where
         let res ← Simp.simp e
         unless res.expr != e do return ← onFail goal name
         burnOne
-        if let .some heq := res.proof? then
-          trace[Elab.Tactic.Do.vcgen] "Simplified"
-          let prf ← onWPApp (goal.withNewProg res.expr) name
-          let prf := mkApp10 (mkConst ``Triple.rewrite_program c.constLevels!) m ps α goal.hyps Q instWP e res.expr heq prf
-          return prf
-        else
-          return ← onWPApp (goal.withNewProg res.expr) name
+        trace[Elab.Tactic.Do.vcgen] "Simplified program to {res.expr}"
+        let prf ← onWPApp (goal.withNewProg res.expr) name
+        -- context = fun e => H ⊢ₛ wp⟦e⟧ Q
+        let context ← withLocalDecl `e .default (mkApp m α) fun e => do
+          mkLambdaFVars #[e] (goal.withNewProg e).toExpr
+        let res ← Simp.mkCongrArg context res
+        return ← res.mkEqMPR prf
       assignMVars specHoles.toList
       return prf
     return ← onFail goal name
@@ -171,18 +170,17 @@ where
   onSplit (goal : MGoal) (info : SplitInfo) (name : Name)
       (withAltCtx : Nat → Array Expr → VCGenM Expr → VCGenM Expr := fun _ _ k => k) : VCGenM Expr := do
     let args := goal.target.getAppArgs
-    let Q := args[3]!
-    let_expr c@WP.wp m ps instWP α e := args[2]! | throwError "Expected wp⟦e⟧ Q in goal.target, got {goal.target}"
+    let_expr WP.wp m _ps _instWP α e := args[2]! | throwError "Expected wp⟦e⟧ Q in goal.target, got {goal.target}"
     -- Bring into simp NF
     let e ← -- returns/continues only if old e is defeq to new e
       if let .some res ← info.simpDiscrs? e then
         burnOne
-        if let .some heq := res.proof? then
-          let prf ← onWPApp (goal.withNewProg res.expr) name
-          let prf := mkApp10 (mkConst ``Triple.rewrite_program c.constLevels!) m ps α goal.hyps Q instWP e res.expr heq prf
-          return prf
-        else
-          pure res.expr
+        let prf ← onWPApp (goal.withNewProg res.expr) name
+        -- context = fun e => H ⊢ₛ wp⟦e⟧ Q
+        let context ← withLocalDecl `e .default (mkApp m α) fun e => do
+          mkLambdaFVars #[e] (goal.withNewProg e).toExpr
+        let res ← Simp.mkCongrArg context res
+        res.mkEqMPR prf
       else
         pure e
     -- Try reduce the matcher

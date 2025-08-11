@@ -365,7 +365,7 @@ private def fetchImportInfo
       return .error
     let some mod ← findModule? imp.module
       | return s
-    if imp.importAll && pkgName != mod.pkg.name then
+    if imp.importAll && !mod.allowImportAll && pkgName != mod.pkg.name then
       logError s!"{fileName}: cannot 'import all' across packages"
       return .error
     let importJob ← mod.exportInfo.fetch

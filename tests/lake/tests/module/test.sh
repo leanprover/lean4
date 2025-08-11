@@ -19,8 +19,10 @@ module
 public def foo : String := "bar"
 EOF
 
-# Test cross-package `import all``
+# Test cross-package `import all` is prevented by default
 test_err "cannot 'import all' across packages" build ErrorTest.CrossPackageImportAll
+# Test cross-package `import all` is allowed when `allowImportAll = true` is set
+test_run build Test.CrossPackageImportAll
 
 # Tests importing of a module's private segment
 # should not not be imported by a plain `import` in a module

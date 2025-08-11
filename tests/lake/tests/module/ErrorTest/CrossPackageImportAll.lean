@@ -1,2 +1,3 @@
 module
-import all Dep.Module
+
+import all Dep.NoImportAll

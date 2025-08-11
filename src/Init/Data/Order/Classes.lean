@@ -26,60 +26,26 @@ For example, one could merely require that the available operations reflect a pr
 one could require a full linear order (additionally requiring antisymmetry and totality of the
 less-or-equal relation).
 
-In order to be independent from the actually available set of basic operations, these lawfulness
-properties are stated for a separate typeclass `OrderData α`. See the docstring of
-`OrderData` for a more detailed explanation for its necessity.
+There are many ways to characterize, say, linear orders:
+
+* `(· ≤ ·)` is reflexive, transitive, antisymmetric and total.
+* `(· ≤ ·)` is antisymmetric, `a < b ↔ ¬ b ≤ a` and `(· < ·)` is irreflexive, transitive and asymmetric.
+* `min a b` is either `a` or `b`, is symmetric and satisfies the
+  following property: `min c (min a b) = c` if and only if `min c a = c` and `min c b = c`.
+
+It is desirable that lemmas about linear orders state this hypothesis in a canonical way.
+Therefore, the classes defining preorders, partial orders, linear preorders and linear orders
+are all formulated purely in terms of `LE`. For other operations, there are
+classes for compatibility of `LE` with other operations. Hence, a lemma may look like:
+
+```lean
+theorem lt_trans {α : Type u} [LE α] [LT α]
+    [IsPreorder α] -- The order on `α` induced by `LE α` is, among other things, transitive.
+    [LawfulOrderLT α] -- `<` is the less-than relation induced by `LE α`.
+    {a b : α} : a < b → b < c → a < c := by
+  sorry
+```
 -/
-
--- /--
--- This data-carrying typeclass defines which elements of `α` are less, and less or equal, to
--- which other elements.
-
--- The operations of this class are not meant to be used directly.
--- Instead, users should rely on the basic operations provided by the typeclasses mentioned above,
--- such as `≤`, `<` and `compare` (provided by `LE α`, `LT α` and `Ord α`).
-
--- **Role of `OrderData α`:**
-
--- This typeclass allows to describe order-related properties of `α` in an abstract, canonical way,
--- no matter which basic operations are available on `α`.
-
--- For example, there are different ways to say that the order on `α` is a linear order, depending
--- on the available operations:
-
--- * `(· ≤ ·)` is a reflexive, transitive, antisymmetric and total order.
--- * `(· ≤ ·)` is antisymmetric, `a < b ↔ ¬ b ≤ a` and `(· < ·)` is irreflexive, transitive and asymmetric.
--- * `min a b` is either `a` or `b`, is symmetric and satisfies the
---   following property: `min c (min a b) = c` if and only if `min c a = c` and `min c b = c`.
-
--- These diverse formulations are confusing and make it harder to compose theorems that rely on
--- different sets of requirements, even if they all assume a linear order after  all.
-
--- The solution is to state all of these properties in terms of `OrderData α`. For example:
-
--- ```lean
--- theorem le_antisymm {α : Type u} [OrderData α] [LE α]
---     [IsPartialOrder α] -- The order on `α` induced by `OrderData α` is, among other things, antisymmetric.
---     [LawfulOrderLE α] -- `≤` is the less-or-equal relation induced by `OrderData α`.
---     {a b : α} : a ≤ b → b ≤ a → a = b := by
---   sorry
--- ```
-
--- **Limitations:**
-
--- Some rare situations are not representable by an `OrderData α` instance. For example, every
--- `Ord α` instance that is compatible with `OrderData α` must satisfy the equation
--- `compare a b = (compare b a).swap`, and every `LT α` instance that is compatible with
--- `OrderData α` must be asymmetric (`a < b` and `b < a` are mutually exclusive).
-
--- In such situations, there are two alternatives:
-
--- * Resort to elementary axiomatic typeclasses such as `Std.Irrefl` or `Std.Antisymm`.
--- * Alternatively, do not use `LE α`, `LT α` or other order-related classes at all. Instead,
---   introduce a new typeclass that better conveys the unusual semantics that are desired.
--- -/
--- public class OrderData (α : Type u) where
---   IsLE : α → α → Prop
 
 /--
 This typeclass states that the order structure on `α`, represented by an `LE α` instance,

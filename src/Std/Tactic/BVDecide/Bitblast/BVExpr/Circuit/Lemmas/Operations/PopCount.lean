@@ -58,6 +58,47 @@ theorem blastExtractAndExtend_denote_eq (aig : AIG α) (xc : AIG.RefVec aig w) (
   · intros
     simp [show w ≤ start + idx by omega]
 
+theorem blastExtractAndExtendPopulate_denote_eq'
+  -- blastExtractAndExtendPopulate inputs
+  (aigInit aigAcc : AIG α) (start w : Nat) (xc : AIG.RefVec aigInit w) (x : BitVec w) (acc : RefVecVec aigAcc w start) (hw : start < w)
+  -- casting
+  (hcast : aigInit.decls.size ≤ aigAcc.decls.size)
+  -- the `curr`-th node in the accumulator corresponds to the `curr`-th element in the list
+  (hacc : ∀ (idx1 : Nat) (hidx1 : idx1 < start),
+            ∀ (idx2 : Nat) (hidx2 : idx2 < w),
+              let ⟨val, proof⟩ := BitVec.extractAndExtendPopulateAux 0 x [] (by omega) (by simp)
+              ⟦aigAcc, (acc.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
+              (val.get ⟨idx1, by simp [proof]; exact Nat.lt_trans hidx1 hw⟩).getLsbD idx2)
+  -- the initial circuit denotes to the input
+  (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aigInit, xc.get idx hidx, assign⟧ = x.getLsbD idx)
+  (assign : α → Bool) :
+    ∀ (idx1 : Nat) (hidx1 : idx1 < w),
+      ∀ (idx2 : Nat) (hidx2 : idx2 < w),
+      let eBitsVec := blastExtractAndExtendPopulate aigAcc start (xc.cast (aig1 := aigInit) (aig2 := aigAcc) hcast) acc (by omega)
+      ⟦
+        eBitsVec.aig,
+        (eBitsVec.vec.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2,
+        assign
+      ⟧ =
+      ((BitVec.extractAndExtendPopulateAux 0 x [] (by omega) (by simp)).val.get ⟨start, by
+      have := (BitVec.extractAndExtendPopulateAux 0 x [] (by omega) (by simp)).property
+      omega⟩).getLsbD idx2 := by
+  intros idx1 hidx1 idx2 hidx2
+  generalize hext: blastExtractAndExtendPopulate aigAcc start (xc.cast (aig1 := aigInit) (aig2 := aigAcc) hcast) acc (by omega) = res
+  unfold blastExtractAndExtendPopulate at hext
+  split at hext
+  · case isTrue h =>
+    rw [← hext]
+    dsimp only
+    rw [blastExtractAndExtendPopulate_denote_eq']
+    · sorry
+    · sorry
+    · sorry
+    · sorry
+    · sorry
+    · sorry
+  · case isFalse h => simp [h] at hw
+
 
 theorem blastExtractAndExtendPopulate_denote_eq
   -- blastExtractAndExtendPopulate inputs
@@ -86,6 +127,8 @@ theorem blastExtractAndExtendPopulate_denote_eq
   · case isTrue h =>
     rw [← hext]
     dsimp
+
+
     sorry
   · case isFalse h => omega
 

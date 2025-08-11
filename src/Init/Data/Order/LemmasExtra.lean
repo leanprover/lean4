@@ -16,21 +16,6 @@ namespace Std
 * Factories
 -/
 
--- theorem LawfulOrderOrd.compare_eq_lt_iff_lt_and_not_gt {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α]
---     {a b : α} : compare a b = .lt ↔ a ≤ b ∧ ¬ b ≤ a := by
---   rw [← LawfulOrderOrd.compare_isLE, ← LawfulOrderOrd.compare_isGE]
---   cases compare a b <;> simp
-
--- theorem LawfulOrderOrd.compare_eq_gt {α : Type u} [OrderData α] [Ord α] [LawfulOrderOrd α]
---     {a b : α} : compare a b = .gt ↔ ¬ OrderData.IsLE a b ∧ OrderData.IsLE b a := by
---   rw [← LawfulOrderOrd.compare_isLE, ← LawfulOrderOrd.compare_isGE]
---   cases compare a b <;> simp
-
--- theorem LawfulOrderOrd.compare_eq_eq {α : Type u} [OrderData α] [Ord α] [LawfulOrderOrd α]
---     {a b : α} : compare a b = .eq ↔ OrderData.IsLE a b ∧ OrderData.IsLE b a := by
---   rw [← LawfulOrderOrd.compare_isLE, ← LawfulOrderOrd.compare_isGE]
---   cases compare a b <;> simp
-
 theorem compare_isLE {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
     {a b : α} : (compare a b).isLE ↔ a ≤ b := by
   simp [← LawfulOrderOrd.compare_isLE]

@@ -90,8 +90,7 @@ def TypeList.mkNil (u : Level) : Expr := mkApp (mkConst ``List.nil [.succ u]) (m
 def TypeList.mkCons (u : Level) (hd tl : Expr) : Expr := mkApp3 (mkConst ``List.cons [.succ u]) (mkSort (.succ u)) hd tl
 
 def parseAnd? (e : Expr) : Option (Level × Expr × Expr × Expr) :=
-      (e.getAppFn.constLevels![0]!, ·) <$> e.app3? ``SPred.and
-  <|> (0, TypeList.mkNil 0, ·) <$> e.app2? ``And
+  (e.getAppFn.constLevels![0]!, ·) <$> e.app3? ``SPred.and
 
 structure MGoal where
   u : Level

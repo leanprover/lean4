@@ -161,6 +161,9 @@ def dynlibSuffix := "-1"
 @[inline] def backend (self : Module) : Backend :=
   self.lib.backend
 
+@[inline] def allowImportAll (self : Module) : Bool :=
+  self.lib.allowImportAll
+
 @[inline] def dynlibs (self : Module) : TargetArray Dynlib :=
   self.lib.dynlibs
 

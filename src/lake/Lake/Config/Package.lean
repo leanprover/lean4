@@ -300,6 +300,7 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   the `LAKE_ARTIFACT_CACHE` environment variable is set to true.
   -/
   enableArtifactCache?, enableArtifactCache : Option Bool := none
+
   /--
   Whether native libraries (of this package) should be prefixed with `lib` on Windows.
 
@@ -310,6 +311,18 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   Defaults to `false`.
   -/
   libPrefixOnWindows : Bool := false
+
+  /-
+  Whether downstream packages can `import all` modules of this package.
+
+  If enabled, downstream users will be able to access the `private` internals of modules.
+  This may also, in the future, prevent compiler optimization which rely on `private`
+  definitions being inaccessible outside their own package.
+
+  Defaults to `false`.
+  -/
+  allowImportAll : Bool := false
+
 deriving Inhabited
 
 
@@ -553,6 +566,10 @@ namespace Package
 /-- The package's `backend` configuration. -/
 @[inline] def backend (self : Package) : Backend :=
   self.config.backend
+
+/-- The package's `allowImportAll` configuration. -/
+@[inline] def allowImportAll (self : Package) : Bool :=
+  self.config.allowImportAll
 
 /-- The package's `dynlibs` configuration. -/
 @[inline] def dynlibs (self : Package) : TargetArray Dynlib :=

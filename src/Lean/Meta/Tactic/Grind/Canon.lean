@@ -202,7 +202,6 @@ partial def canon (e : Expr) : GoalM Expr := do profileitM Exception "grind cano
 where
   visit (e : Expr) : StateRefT (Std.HashMap ExprPtr Expr) GoalM Expr := do
     unless e.isApp || e.isForall do return e
-    if (← inShareCommon e) then return e
     -- Check whether it is cached
     if let some r := (← get).get? { expr := e } then
       return r

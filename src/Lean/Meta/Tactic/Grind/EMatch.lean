@@ -131,6 +131,33 @@ protected def _root_.Lean.Meta.Grind.GenPatternInfo.assign? (genInfo : GenPatter
   let c ← assignDelayedEqProof? c genInfo.hIdx
   return c
 
+private def matchGroundPattern (pArg eArg : Expr) : GoalM Bool := do
+  /-
+  1) Remark:
+  We need to use `withReducibleAndInstances` because ground patterns are often instances.
+  Here is an example
+  ```
+  instance : Max Nat where
+    max := Nat.max -- Redefined the instance
+
+  example (a : Nat) : max a a = a := by
+    grind
+  ```
+  Possible future improvements:
+  - When `diagnostics` is true, try with `withDefault` and report issue if it succeeds.
+  - (minor) Only use `withReducibleAndInstances` if the argument is an implicit instance.
+    Potential issue: some user write `{_ : Class α}` when the instance can be inferred from
+    explicit arguments.
+  2) Remark:
+  If `pArg` contains universe metavariables, we use `withoutModifyingMCtx` to ensure the metavariables
+  are not assigned. These universe metavariables are created at `internalizePattern` for universe polymorphic
+  ground patterns. They are not common, but they occur in practice.
+  -/
+  if pArg.hasLevelMVar then
+    withoutModifyingMCtx <| withReducibleAndInstances <| isDefEq pArg eArg
+  else
+    isEqv pArg eArg <||> withReducibleAndInstances (isDefEq pArg eArg)
+
 /-- Matches a pattern argument. See `matchArgs?`. -/
 private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM Choice := do
   if isPatternDontCare pArg then
@@ -138,23 +165,7 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
   else if pArg.isBVar then
     assign? c pArg.bvarIdx! eArg
   else if let some pArg := groundPattern? pArg then
-    /-
-    We need to use `withReducibleAndInstances` because ground patterns are often instances.
-    Here is an example
-    ```
-    instance : Max Nat where
-      max := Nat.max -- Redefined the instance
-
-    example (a : Nat) : max a a = a := by
-      grind
-    ```
-    Possible future improvements:
-    - When `diagnostics` is true, try with `withDefault` and report issue if it succeeds.
-    - (minor) Only use `withReducibleAndInstances` if the argument is an implicit instance.
-      Potential issue: some user write `{_ : Class α}` when the instance can be inferred from
-      explicit arguments.
-    -/
-    guard (← isEqv pArg eArg <||> withReducibleAndInstances (isDefEq pArg eArg))
+    guard (← matchGroundPattern pArg eArg)
     return c
   else if let some (pArg, k) := isOffsetPattern? pArg then
     assert! Option.isNone <| isOffsetPattern? pArg
@@ -165,7 +176,7 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
       let c ← assign? c pArg.bvarIdx! eArg
       genInfo.assign? c eArg
     else if let some pArg := groundPattern? pArg then
-      guard (← isEqv pArg eArg <||> withReducibleAndInstances (isDefEq pArg eArg))
+      guard (← matchGroundPattern pArg eArg)
       genInfo.assign? c eArg
     else if let some (pArg, k) := isOffsetPattern? pArg then
       return { c with cnstrs := .offset (some genInfo) pArg k eArg :: c.cnstrs }

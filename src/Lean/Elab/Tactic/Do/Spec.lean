@@ -151,12 +151,20 @@ def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag : Name
 
   -- The precondition of `specThm` might look like `⌜?n = nₛ ∧ ?m = b⌝`, which expands to
   -- `SPred.pure (?n = n ∧ ?m = b)`.
-  let residualEta := specThm.etaPotential - (T.getAppNumArgs - 4) -- 4 arguments expected for PredTrans.apply
+  -- let residualEta := specThm.etaPotential - (T.getAppNumArgs - 4) -- 4 arguments expected for PredTrans.apply
+  -- FIXME: The residual eta idea does not work well when the hypothesis contains MVars, such as
+  -- an uninstantiated loop invariant. We really want to frame the loop invariant hypothesis in the
+  -- inductive step. In order to do that, we (very sadly) need to completely eta expand. Yikes!!
+  -- Maybe we can have something more targeted in the future, but any expansion below maximum is
+  -- bound to lose information (any non-framed assumption).
+  let residualEta ← TypeList.length goal.σs
+  -- liftMetaM <| do trace[Elab.Tactic.Do.spec] "residualEta for {specThm.proof}: {residualEta}"
   mIntroForallN goal residualEta fun goal => do
 
   -- Compute a frame of `P` that we duplicate into the pure context using `Spec.frame`
   -- For now, frame = `P` or nothing at all
   mTryFrame goal fun goal => do
+  liftMetaM <| do trace[Elab.Tactic.Do.spec] "hyps after framing: {goal.hyps}"
 
   -- Fully instantiate the specThm without instantiating its MVars to `wp` yet
   let (_, _, spec, specTy) ← specThm.proof.instantiate

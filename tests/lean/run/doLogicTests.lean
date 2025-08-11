@@ -204,12 +204,12 @@ theorem returning_loop_spec :
     split
     · mspec
       mspec
-      intro _ h
+      rename_i h
       conv at h in (List.sum _) => whnf
       simp at h
       grind
     · mspec
-      intro _ h
+      rename_i h
       conv at h in (List.sum _) => whnf
       simp at h ⊢
       grind
@@ -343,7 +343,7 @@ theorem program_spec (n k) : ⦃⌜True⌝⦄ program n k ⦃⇓r => ⌜r % 2 = 
 
 end KimsBabySteps
 
-section WeNeedAProofMode
+section WeHaveAProofMode
 
 abbrev M := StateT Nat (StateT Char (StateT Bool (StateT String Id)))
 axiom op : Nat → M Nat
@@ -363,18 +363,6 @@ theorem prog.spec : ⦃isValid⦄ prog n ⦃⇓r => ⌜r > 100⌝ ∧ isValid⦄
   mspec op.spec
   mrename_i h
   mcases h with ⟨⌜hr₁⌝, □h⟩
-  /-
-  n r : Nat
-  hr₁ : r > 42
-  ⊢
-  h : isValid
-  ⊢ₛ
-  wp⟦do
-      let b ← op r
-      let c ← op b
-      pure (r + b + c)⟧
-    (⇓r => ⌜r > 100⌝ ∧ isValid)
-  -/
   mspec op.spec
   mrename_i h
   mcases h with ⟨⌜hr₂⌝, □h⟩
@@ -382,11 +370,13 @@ theorem prog.spec : ⦃isValid⦄ prog n ⦃⇓r => ⌜r > 100⌝ ∧ isValid⦄
   mrename_i h
   mcases h with ⟨⌜hr₃⌝, □h⟩
   mspec
-  mrefine ⟨?_, h⟩
+  rename_i h
+  mrefine ⟨?_, ⌜h⌝⟩
   mpure_intro
+  dsimp only [SPred.apply_pure, SPred.down_pure]
   omega
 
-end WeNeedAProofMode
+end WeHaveAProofMode
 
 end ByHand
 
@@ -482,8 +472,8 @@ theorem throwing_loop_spec :
   mvcgen [throwing_loop]
   case inv1 => exact post⟨fun (xs, r) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suff.sum > 4⌝,
                          fun e s => ⌜e = 42 ∧ s = 4⌝⟩
-  case vc1 => intro _; simp_all
-  case vc2 => intro _; simp_all only [SPred.down_pure]; grind
+  case vc1 => simp_all
+  case vc2 => simp_all only [SPred.down_pure]; grind
   case vc3 => simp_all only [SPred.down_pure]; decide
   case vc4 => simp_all only [SPred.down_pure]; grind
   case vc5 => simp_all
@@ -494,8 +484,8 @@ theorem test_loop_break :
   ⦃⇓ r s => ⌜r > 4 ∧ s = 1⌝⦄ := by
   mvcgen [breaking_loop]
   case inv1 => exact (⇓ (xs, r) s => ⌜(r ≤ 4 ∧ r = xs.rpref.sum ∨ r > 4) ∧ s = 42⌝)
-  case vc1 => intro _; mleave; grind
-  case vc2 => intro _; simp_all only [SPred.down_pure]; grind
+  case vc1 => mleave; grind
+  case vc2 => simp_all only [SPred.down_pure]; grind
   case vc3 => simp_all
   case vc4 =>
     simp_all
@@ -510,8 +500,8 @@ theorem test_loop_early_return :
   ⦃⇓ r s => ⌜r = 42 ∧ s = 4⌝⦄ := by
   mvcgen [returning_loop]
   case inv1 => exact (⇓ (xs, r) s => ⌜(r.1 = none ∧ r.2 = xs.rpref.sum ∧ r.2 ≤ 4 ∨ r.1 = some 42 ∧ r.2 > 4) ∧ s = 4⌝)
-  case vc1 => intro _; mleave; grind
-  case vc2 => intro _; mleave; grind
+  case vc1 => mleave; grind
+  case vc2 => mleave; grind
   case vc3 => simp_all
   case vc4 =>
     simp_all
@@ -787,7 +777,6 @@ theorem need_const_approx :
   unfold test
   mintro _
   mspec
-  split <;> mspec
 
 theorem need_const_approx' :
    ⦃fun x => ⌜x = ()⌝⦄
@@ -839,7 +828,6 @@ theorem ex': ⦃⌜True⌝⦄ test_ite ⦃Q⦄ := by
   mintro _
   mspec
   mspec
-  mintro ∀ s
   split <;> mspec
 
 end RishsTailContextBug
@@ -1034,3 +1022,75 @@ theorem mkFreshN_correct (n : Nat) : ((mkFreshN n).run' s).Nodup :=
   mkFreshN_spec n s True.intro
 
 end Fresh
+
+namespace Fresh2
+
+structure Counter where
+  counter : Nat
+
+def mkFresh [Monad m] : StateT Counter m Nat := do
+  let n ← (·.counter) <$> get
+  modify (fun s => {s with counter := s.counter + 1})
+  pure n
+
+abbrev AppM := StateT Bool (StateT Counter (StateM String))
+abbrev liftCounterM : StateT Counter (StateM String) α → AppM α := liftM
+
+def mkFreshN (n : Nat) : AppM (List Nat) := do
+  let mut acc := #[]
+  for _ in [:n] do
+    acc := acc.push (← liftCounterM mkFresh)
+  pure acc.toList
+
+@[spec]
+theorem mkFresh_spec [Monad m] [WPMonad m ps] (c : Nat) :
+    ⦃fun state => ⌜state.counter = c⌝⦄ mkFresh (m := m) ⦃⇓ r state => ⌜r = c ∧ c < state.counter⌝⦄ := by
+  mvcgen [mkFresh]
+  grind
+
+@[spec]
+theorem mkFreshN_spec (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
+  set_option trace.Elab.Tactic.Do.spec true in
+  set_option trace.Elab.Tactic.Do.vcgen true in
+  mvcgen [mkFreshN, liftCounterM]
+  case inv1 => exact ⇓⟨xs, acc⟩ _ state => ⌜(∀ x ∈ acc, x < state.counter) ∧ acc.toList.Nodup⌝
+  all_goals mleave; grind
+
+theorem mkFreshN_correct (n : Nat) : ((mkFreshN n).run' s).Nodup :=
+  mkFreshN_spec n s True.intro
+
+end Fresh2
+
+-- WIP example to reproduce a bug with delayed assignments
+
+syntax (name := specialTactic) "specialTactic" : tactic
+
+open Lean Meta Elab Tactic in
+@[tactic specialTactic]
+meta def evalSpecialTactic : Tactic := fun _ => do
+  let mv ← getMainGoal
+  let .forallE _ hpTy (.forallE _ hinvTy _ _) _ := (← mv.getType) | failure
+  let prf ←
+    withLocalDecl `hp .default hpTy fun hp => do
+    withLocalDecl `hinv .default hinvTy fun hinv => do
+    let n ← mkFreshExprMVar (mkConst ``Nat) .natural `n
+    let inv ← mkFreshExprSyntheticOpaqueMVar (← mkArrow (mkConst ``Nat) (mkSort 0)) `inv
+    let prf₁ ← mkFreshExprSyntheticOpaqueMVar (mkApp inv (mkNatLit 13)) `prf1
+    let hq := mkApp2 hinv inv prf₁
+    let prf₂ ← mkFreshExprSyntheticOpaqueMVar (← mkEq n (mkNatLit 42)) `prf2
+    replaceMainGoal <| [n, inv, prf₁, prf₂].map (·.mvarId!)
+    mkLambdaFVars #[hp, hinv] (mkApp3 hp n prf₂ hq)
+  mv.assign prf
+
+example  : (hp : ∀m, m = 42 → q → p) → (hinv : ∀ (inv : Nat → Prop), inv 13 → q) → p := by
+  specialTactic
+  -- intro hp
+  -- let ?n : Nat
+  -- let ?inv : Nat → Prop
+  -- let ?prf1 : inv 13
+  -- let hinv : inv 13 := ?prf1
+  -- let ?prf2 : n = 42
+  -- exact hp ?n ?prf2
+  case prf2 => rfl
+  case inv => exact fun _ => True
+  case prf1 => trivial

@@ -88,6 +88,13 @@ def SPred.mkAnd (u : Level) (σs lhs rhs : Expr) : Expr × Expr :=
 def TypeList.mkType (u : Level) : Expr := mkApp (mkConst ``List [.succ u]) (mkSort (.succ u))
 def TypeList.mkNil (u : Level) : Expr := mkApp (mkConst ``List.nil [.succ u]) (mkSort (.succ u))
 def TypeList.mkCons (u : Level) (hd tl : Expr) : Expr := mkApp3 (mkConst ``List.cons [.succ u]) (mkSort (.succ u)) hd tl
+def TypeList.length (σs : Expr) : MetaM Nat := do
+  let mut σs ← whnfR σs
+  let mut n := 0
+  while σs.isAppOfArity ``List.cons 3 do
+    n := n+1
+    σs ← whnfR (σs.getArg! 2)
+  return n
 
 def parseAnd? (e : Expr) : Option (Level × Expr × Expr × Expr) :=
       (e.getAppFn.constLevels![0]!, ·) <$> e.app3? ``SPred.and

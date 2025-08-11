@@ -860,14 +860,14 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
   DHashMap.distinct_keys
 
 @[simp]
-theorem toArray_keys_eq_keysArray :
+theorem toArray_keys :
     m.keys.toArray = m.keysArray :=
-  DHashMap.toArray_keys_eq_keysArray
+  DHashMap.toArray_keys
 
 @[simp]
-theorem toList_keysArray_eq_keys :
+theorem toList_keysArray :
     m.keysArray.toList = m.keys :=
-  DHashMap.toList_keysArray_eq_keys
+  DHashMap.toList_keysArray
 
 @[simp]
 theorem size_keysArray [EquivBEq α] [LawfulHashable α] :
@@ -891,7 +891,7 @@ theorem mem_keysArray [LawfulBEq α] {k : α} :
   DHashMap.mem_keysArray
 
 theorem forall_mem_keysArray_iff_forall_mem_getKey [EquivBEq α] [LawfulHashable α]
-     {p : α → Prop} :
+    {p : α → Prop} :
     (∀ k ∈ m.keysArray, p k) ↔ ∀ (k : α) (h : k ∈ m), p (m.getKey k h) :=
   DHashMap.forall_mem_keysArray_iff_forall_mem_getKey
 
@@ -962,14 +962,14 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] :
   DHashMap.Const.distinct_keys_toList
 
 @[simp]
-theorem toArray_toList_eq_toArray :
+theorem toArray_toList :
     m.toList.toArray = m.toArray :=
-  DHashMap.Const.toArray_toList_eq_toArray
+  DHashMap.Const.toArray_toList
 
 @[simp]
-theorem toList_toArray_eq_toList :
+theorem toList_toArray :
     m.toArray.toList = m.toList :=
-  DHashMap.Const.toList_toArray_eq_toList
+  DHashMap.Const.toList_toArray
 
 @[simp]
 theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] :
@@ -1003,14 +1003,14 @@ theorem find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some
   DHashMap.Const.find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some
 
 theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
-     {k : α} :
+    {k : α} :
     m.toArray.find? (·.1 == k) = none ↔ m.contains k = false :=
   DHashMap.Const.find?_toArray_eq_none_iff_contains_eq_false
 
 theorem mem_toArray_iff_getKey?_eq_some_and_getElem?_eq_some [EquivBEq α] [LawfulHashable α]
     {k: α} {v : β} :
     (k, v) ∈ m.toArray ↔ m.getKey? k = some k ∧ m[k]? = some v := by
-  simp [← toArray_toList_eq_toArray, mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some]
+  simp [← toArray_toList, mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some]
 
 section monadic
 

@@ -1167,12 +1167,12 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
   Raw₀.distinct_keys ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 @[simp]
-theorem toArray_keys_eq_keysArray :
+theorem toArray_keys :
     m.keys.toArray = m.keysArray :=
   Raw₀.toArray_keys_eq_keysArray ⟨m.1, m.2.size_buckets_pos⟩
 
 @[simp]
-theorem toList_keysArray_eq_keys :
+theorem toList_keysArray :
     m.keysArray.toList = m.keys :=
   Raw₀.toList_keysArray_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
 
@@ -1198,7 +1198,7 @@ theorem mem_keysArray [LawfulBEq α] {k : α} :
   Raw₀.mem_keysArray ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 theorem forall_mem_keysArray_iff_forall_mem_getKey [EquivBEq α] [LawfulHashable α]
-     {p : α → Prop} :
+    {p : α → Prop} :
     (∀ k ∈ m.keysArray, p k) ↔ ∀ (k : α) (h : k ∈ m), p (m.getKey k h) :=
   Raw₀.forall_mem_keysArray_iff_forall_contains_getKey ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
@@ -1320,12 +1320,12 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] :
 end Const
 
 @[simp]
-theorem toArray_toList_eq_toArray :
+theorem toArray_toList :
     m.toList.toArray = m.toArray :=
   Raw₀.toArray_toList_eq_toArray ⟨m.1, m.2.size_buckets_pos⟩
 
 @[simp]
-theorem toList_toArray_eq_toList :
+theorem toList_toArray :
     m.toArray.toList = m.toList :=
   Raw₀.toList_toArray_eq_toList ⟨m.1, m.2.size_buckets_pos⟩
 
@@ -1355,7 +1355,7 @@ theorem find?_toArray_eq_some_iff_get?_eq_some [LawfulBEq α]
   Raw₀.find?_toArray_eq_some_iff_get?_eq_some ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
-     {k : α} :
+    {k : α} :
     m.toArray.find? (·.1 == k) = none ↔ m.contains k = false :=
   Raw₀.find?_toArray_eq_none_iff_contains_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
@@ -1364,12 +1364,12 @@ namespace Const
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
 @[simp]
-theorem toArray_toList_eq_toArray :
+theorem toArray_toList :
     (DHashMap.Const.toList m).toArray = DHashMap.Const.toArray m :=
   Raw₀.Const.toArray_toList_eq_toArray ⟨m.1, m.2.size_buckets_pos⟩
 
 @[simp]
-theorem toList_toArray_eq_toList :
+theorem toList_toArray :
     (DHashMap.Const.toArray m).toList = DHashMap.Const.toList m :=
   Raw₀.Const.toList_toArray_eq_toList ⟨m.1, m.2.size_buckets_pos⟩
 
@@ -1405,14 +1405,14 @@ theorem find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some
   Raw₀.Const.find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
-     {k : α} :
+    {k : α} :
     (DHashMap.Const.toArray m).find? (·.1 == k) = none ↔ m.contains k = false :=
   Raw₀.Const.find?_toArray_eq_none_iff_contains_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 theorem mem_toArray_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHashable α]
     {k: α} {v : β} :
     (k, v) ∈ DHashMap.Const.toArray m ↔ m.getKey? k = some k ∧ get? m k = some v := by
-  simp [← toArray_toList_eq_toArray, mem_toList_iff_getKey?_eq_some_and_get?_eq_some]
+  simp [← toArray_toList, mem_toList_iff_getKey?_eq_some_and_get?_eq_some]
 
 end Const
 

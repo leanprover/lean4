@@ -1242,12 +1242,12 @@ theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF
   apply Raw₀.map_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
 
 @[simp]
-theorem toArray_keys_eq_keysArray (h : m.WF) :
+theorem toArray_keys (h : m.WF) :
     m.keys.toArray = m.keysArray :=
   Raw₀.toArray_keys_eq_keysArray ⟨m, h.size_buckets_pos⟩
 
 @[simp]
-theorem toList_keysArray_eq_keys (h : m.WF) :
+theorem toList_keysArray (h : m.WF) :
     m.keysArray.toList = m.keys :=
   Raw₀.toList_keysArray_eq_keys ⟨m, h.size_buckets_pos⟩
 
@@ -1274,7 +1274,7 @@ theorem mem_keysArray [LawfulBEq α] {k : α} (h : m.WF) :
   simp_to_raw using Raw₀.mem_keysArray ⟨m, h.size_buckets_pos⟩ h
 
 theorem forall_mem_keysArray_iff_forall_mem_getKey [EquivBEq α] [LawfulHashable α]
-     {p : α → Prop} (h : m.WF) :
+    {p : α → Prop} (h : m.WF) :
     (∀ k ∈ m.keysArray, p k) ↔ ∀ (k : α) (h : k ∈ m), p (m.getKey k h) := by
   simp only [mem_iff_contains]
   simp_to_raw using
@@ -1391,12 +1391,12 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
 end Const
 
 @[simp]
-theorem toArray_toList_eq_toArray (h : m.WF) :
+theorem toArray_toList (h : m.WF) :
     m.toList.toArray = m.toArray :=
   Raw₀.toArray_toList_eq_toArray ⟨m, h.size_buckets_pos⟩
 
 @[simp]
-theorem toList_toArray_eq_toList (h : m.WF) :
+theorem toList_toArray (h : m.WF) :
     m.toArray.toList = m.toList :=
   Raw₀.toList_toArray_eq_toList ⟨m, h.size_buckets_pos⟩
 
@@ -1427,7 +1427,7 @@ theorem find?_toArray_eq_some_iff_get?_eq_some [LawfulBEq α]
     Raw₀.find?_toArray_eq_some_iff_get?_eq_some ⟨m, h.size_buckets_pos⟩ h
 
 theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
-     {k : α} (h : m.WF) :
+    {k : α} (h : m.WF) :
     m.toArray.find? (·.1 == k) = none ↔ m.contains k = false := by
   simp_to_raw using Raw₀.find?_toArray_eq_none_iff_contains_eq_false ⟨m, h.size_buckets_pos⟩ h
 
@@ -1436,12 +1436,12 @@ namespace Const
 variable {β : Type v} {m : Raw α (fun _ => β)}
 
 @[simp]
-theorem toArray_toList_eq_toArray (h : m.WF) :
+theorem toArray_toList (h : m.WF) :
     (Raw.Const.toList m).toArray = Raw.Const.toArray m :=
   Raw₀.Const.toArray_toList_eq_toArray ⟨m, h.size_buckets_pos⟩
 
 @[simp]
-theorem toList_toArray_eq_toList (h : m.WF) :
+theorem toList_toArray (h : m.WF) :
     (Raw.Const.toArray m).toList = Raw.Const.toList m :=
   Raw₀.Const.toList_toArray_eq_toList ⟨m, h.size_buckets_pos⟩
 
@@ -1478,14 +1478,14 @@ theorem find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some
     Raw₀.Const.find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some ⟨m, h.size_buckets_pos⟩ h
 
 theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
-     {k : α} (h : m.WF) :
+    {k : α} (h : m.WF) :
     (Raw.Const.toArray m).find? (·.1 == k) = none ↔ m.contains k = false := by
   simp_to_raw using Raw₀.Const.find?_toArray_eq_none_iff_contains_eq_false ⟨m, h.size_buckets_pos⟩ h
 
 theorem mem_toArray_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {k: α} {v : β} :
     (k, v) ∈ Raw.Const.toArray m ↔ m.getKey? k = some k ∧ get? m k = some v := by
-  simp [← toArray_toList_eq_toArray, h, mem_toList_iff_getKey?_eq_some_and_get?_eq_some]
+  simp [← toArray_toList, h, mem_toList_iff_getKey?_eq_some_and_get?_eq_some]
 
 end Const
 

@@ -507,14 +507,14 @@ theorem distinct_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   HashMap.Raw.distinct_keys h.1
 
 @[simp]
-theorem toArray_toList_eq_toArray (h : m.WF) :
+theorem toArray_toList (h : m.WF) :
     m.toList.toArray = m.toArray :=
-  HashMap.Raw.toArray_keys_eq_keysArray h.out
+  HashMap.Raw.toArray_keys h.out
 
 @[simp]
-theorem toList_toArray_eq_toList (h : m.WF) :
+theorem toList_toArray (h : m.WF) :
     m.toArray.toList = m.toList :=
-  HashMap.Raw.toList_keysArray_eq_keys h.out
+  HashMap.Raw.toList_keysArray h.out
 
 @[simp]
 theorem size_toArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
@@ -538,7 +538,7 @@ theorem mem_toArray [LawfulBEq α] {k : α} (h : m.WF) :
   HashMap.Raw.mem_keysArray h.out
 
 theorem forall_mem_toArray_iff_forall_mem_get [EquivBEq α] [LawfulHashable α]
-     {p : α → Prop} (h : m.WF) :
+    {p : α → Prop} (h : m.WF) :
     (∀ k ∈ m.toArray, p k) ↔ ∀ (k : α) (h : k ∈ m), p (m.get k h) :=
   HashMap.Raw.forall_mem_keysArray_iff_forall_mem_getKey h.out
 

@@ -875,14 +875,14 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   DHashMap.Raw.distinct_keys h.out
 
 @[simp]
-theorem toArray_keys_eq_keysArray (h : m.WF) :
+theorem toArray_keys (h : m.WF) :
     m.keys.toArray = m.keysArray :=
-  DHashMap.Raw.toArray_keys_eq_keysArray h.out
+  DHashMap.Raw.toArray_keys h.out
 
 @[simp]
-theorem toList_keysArray_eq_keys (h : m.WF) :
+theorem toList_keysArray (h : m.WF) :
     m.keysArray.toList = m.keys :=
-  DHashMap.Raw.toList_keysArray_eq_keys h.out
+  DHashMap.Raw.toList_keysArray h.out
 
 @[simp]
 theorem size_keysArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
@@ -906,7 +906,7 @@ theorem mem_keysArray [LawfulBEq α] {k : α} (h : m.WF) :
   DHashMap.Raw.mem_keysArray h.out
 
 theorem forall_mem_keysArray_iff_forall_mem_getKey [EquivBEq α] [LawfulHashable α]
-     {p : α → Prop} (h : m.WF) :
+    {p : α → Prop} (h : m.WF) :
     (∀ k ∈ m.keysArray, p k) ↔ ∀ (k : α) (h : k ∈ m), p (m.getKey k h) :=
   DHashMap.Raw.forall_mem_keysArray_iff_forall_mem_getKey h.out
 
@@ -978,14 +978,14 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   DHashMap.Raw.Const.distinct_keys_toList h.out
 
 @[simp]
-theorem toArray_toList_eq_toArray (h : m.WF) :
+theorem toArray_toList (h : m.WF) :
     m.toList.toArray = m.toArray :=
-  DHashMap.Raw.Const.toArray_toList_eq_toArray h.out
+  DHashMap.Raw.Const.toArray_toList h.out
 
 @[simp]
-theorem toList_toArray_eq_toList (h : m.WF) :
+theorem toList_toArray (h : m.WF) :
     m.toArray.toList = m.toList :=
-  DHashMap.Raw.Const.toList_toArray_eq_toList h.out
+  DHashMap.Raw.Const.toList_toArray h.out
 
 @[simp]
 theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
@@ -1019,14 +1019,14 @@ theorem find?_toArray_eq_some_iff_getKey?_eq_some_and_getElem?_eq_some
   DHashMap.Raw.Const.find?_toArray_eq_some_iff_getKey?_eq_some_and_get?_eq_some h.out
 
 theorem find?_toArray_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
-     {k : α} (h : m.WF) :
+    {k : α} (h : m.WF) :
     m.toArray.find? (·.1 == k) = none ↔ m.contains k = false :=
   DHashMap.Raw.Const.find?_toArray_eq_none_iff_contains_eq_false h.out
 
 theorem mem_toArray_iff_getKey?_eq_some_and_getElem?_eq_some [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {k: α} {v : β} :
     (k, v) ∈ m.toArray ↔ m.getKey? k = some k ∧ m[k]? = some v := by
-  simp [← toArray_toList_eq_toArray, h, mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some]
+  simp [← toArray_toList, h, mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some]
 
 section monadic
 

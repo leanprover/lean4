@@ -924,17 +924,15 @@ end Nodup
 
 namespace Fresh
 
-structure AppState where
+structure Supply where
   counter : Nat
-  other : Nat
-  stuff : Nat
 
-def mkFresh : StateM AppState Nat := do
+def mkFresh : StateM Supply Nat := do
   let n ← (·.counter) <$> get
   modify (fun s => {s with counter := s.counter + 1})
   pure n
 
-def mkFreshN (n : Nat) : StateM AppState (List Nat) := do
+def mkFreshN (n : Nat) : StateM Supply (List Nat) := do
   let mut acc := #[]
   for _ in [:n] do
     acc := acc.push (← mkFresh)
@@ -955,3 +953,73 @@ theorem mkFreshN_correct (n : Nat) : ((mkFreshN n).run' s).Nodup :=
   mkFreshN_spec n s True.intro
 
 end Fresh
+
+namespace FreshStack
+
+structure Supply where
+  counter : Nat
+
+def mkFresh [Monad m] : StateT Supply m Nat := do
+  let n ← (·.counter) <$> get
+  modify (fun s => {s with counter := s.counter + 1})
+  pure n
+
+abbrev AppM := StateT Bool (StateT Supply (StateM String))
+abbrev liftCounterM : StateT Supply (StateM String) α → AppM α := liftM
+
+def mkFreshN (n : Nat) : AppM (List Nat) := do
+  let mut acc := #[]
+  for _ in [:n] do
+    acc := acc.push (← liftCounterM mkFresh)
+  pure acc.toList
+
+@[spec]
+theorem mkFresh_spec [Monad m] [WPMonad m ps] (c : Nat) :
+    ⦃fun state => ⌜state.counter = c⌝⦄ mkFresh (m := m) ⦃⇓ r state => ⌜r = c ∧ c < state.counter⌝⦄ := by
+  mvcgen [mkFresh]
+  grind
+
+@[spec]
+theorem mkFreshN_spec (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
+  mvcgen [mkFreshN, liftCounterM]
+  case inv1 => exact ⇓⟨xs, acc⟩ _ state => ⌜(∀ x ∈ acc, x < state.counter) ∧ acc.toList.Nodup⌝
+  all_goals mleave; grind
+
+theorem mkFreshN_correct (n : Nat) : (((StateT.run' (mkFreshN n) b).run' c).run' s).Nodup :=
+  mkFreshN_spec n _ _ _ True.intro
+
+end FreshStack
+
+-- WIP example to reproduce a bug with delayed assignments
+
+syntax (name := specialTactic) "specialTactic" : tactic
+
+open Lean Meta Elab Tactic in
+@[tactic specialTactic]
+meta def evalSpecialTactic : Tactic := fun _ => do
+  let mv ← getMainGoal
+  let .forallE _ hpTy (.forallE _ hinvTy _ _) _ := (← mv.getType) | failure
+  let prf ←
+    withLocalDecl `hp .default hpTy fun hp => do
+    withLocalDecl `hinv .default hinvTy fun hinv => do
+    let n ← mkFreshExprMVar (mkConst ``Nat) .natural `n
+    let inv ← mkFreshExprSyntheticOpaqueMVar (← mkArrow (mkConst ``Nat) (mkSort 0)) `inv
+    let prf₁ ← mkFreshExprSyntheticOpaqueMVar (mkApp inv (mkNatLit 13)) `prf1
+    let hq := mkApp2 hinv inv prf₁
+    let prf₂ ← mkFreshExprSyntheticOpaqueMVar (← mkEq n (mkNatLit 42)) `prf2
+    replaceMainGoal <| [n, inv, prf₁, prf₂].map (·.mvarId!)
+    mkLambdaFVars #[hp, hinv] (mkApp3 hp n prf₂ hq)
+  mv.assign prf
+
+example  : (hp : ∀m, m = 42 → q → p) → (hinv : ∀ (inv : Nat → Prop), inv 13 → q) → p := by
+  specialTactic
+  -- intro hp
+  -- let ?n : Nat
+  -- let ?inv : Nat → Prop
+  -- let ?prf1 : inv 13
+  -- let hinv : inv 13 := ?prf1
+  -- let ?prf2 : n = 42
+  -- exact hp ?n ?prf2
+  case prf2 => rfl
+  case inv => exact fun _ => True
+  case prf1 => trivial

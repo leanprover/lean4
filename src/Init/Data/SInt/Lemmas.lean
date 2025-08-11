@@ -3028,8 +3028,6 @@ protected theorem Int64.lt_asymm {a b : Int64} : a < b → ¬b < a :=
 protected theorem ISize.lt_asymm {a b : ISize} : a < b → ¬b < a :=
   fun hab hba => ISize.lt_irrefl (ISize.lt_trans hab hba)
 
-instance : OrderData Int8 := .ofLE Int8
-
 instance Int8.instIsLinearOrder : IsLinearOrder Int8 := by
   apply IsLinearOrder.of_le
   case le_antisymm => constructor; apply Int8.le_antisymm
@@ -3038,9 +3036,7 @@ instance Int8.instIsLinearOrder : IsLinearOrder Int8 := by
 
 instance : LawfulOrderLT Int8 where
   lt_iff := by
-    simp [← Int8.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
-
-instance : OrderData Int16 := .ofLE Int16
+    simp [← Int8.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 instance Int16.instIsLinearOrder : IsLinearOrder Int16 := by
   apply IsLinearOrder.of_le
@@ -3050,9 +3046,7 @@ instance Int16.instIsLinearOrder : IsLinearOrder Int16 := by
 
 instance : LawfulOrderLT Int16 where
   lt_iff := by
-    simp [← Int16.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
-
-instance : OrderData Int32 := .ofLE Int32
+    simp [← Int16.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 instance Int32.instIsLinearOrder : IsLinearOrder Int32 := by
   apply IsLinearOrder.of_le
@@ -3062,9 +3056,7 @@ instance Int32.instIsLinearOrder : IsLinearOrder Int32 := by
 
 instance : LawfulOrderLT Int32 where
   lt_iff := by
-    simp [← Int32.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
-
-instance : OrderData Int64 := .ofLE Int64
+    simp [← Int32.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 instance Int64.instIsLinearOrder : IsLinearOrder Int64 := by
   apply IsLinearOrder.of_le
@@ -3074,9 +3066,7 @@ instance Int64.instIsLinearOrder : IsLinearOrder Int64 := by
 
 instance : LawfulOrderLT Int64 where
   lt_iff := by
-    simp [← Int64.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
-
-instance : OrderData ISize := .ofLE ISize
+    simp [← Int64.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 instance ISize.instIsLinearOrder : IsLinearOrder ISize := by
   apply IsLinearOrder.of_le
@@ -3086,7 +3076,7 @@ instance ISize.instIsLinearOrder : IsLinearOrder ISize := by
 
 instance : LawfulOrderLT ISize where
   lt_iff := by
-    simp [← ISize.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
+    simp [← ISize.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 protected theorem Int8.add_neg_eq_sub {a b : Int8} : a + -b = a - b := Int8.toBitVec_inj.1 BitVec.add_neg_eq_sub
 protected theorem Int16.add_neg_eq_sub {a b : Int16} : a + -b = a - b := Int16.toBitVec_inj.1 BitVec.add_neg_eq_sub

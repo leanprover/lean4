@@ -163,9 +163,6 @@ instance : Div UInt8       := ⟨UInt8.div⟩
 instance : LT UInt8        := ⟨UInt8.lt⟩
 instance : LE UInt8        := ⟨UInt8.le⟩
 
-@[no_expose]
-instance : OrderData UInt8 := .ofLE UInt8
-
 /--
 Bitwise complement, also known as bitwise negation, for 8-bit unsigned integers. Usually accessed
 via the `~~~` prefix operator.
@@ -379,9 +376,6 @@ instance : HMod UInt16 Nat UInt16 := ⟨UInt16.modn⟩
 instance : Div UInt16       := ⟨UInt16.div⟩
 instance : LT UInt16        := ⟨UInt16.lt⟩
 instance : LE UInt16        := ⟨UInt16.le⟩
-
-@[no_expose]
-instance : OrderData UInt16 := .ofLE UInt16
 
 /--
 Bitwise complement, also known as bitwise negation, for 16-bit unsigned integers. Usually accessed
@@ -600,9 +594,6 @@ instance : HMod UInt32 Nat UInt32 := ⟨UInt32.modn⟩
 instance : Div UInt32       := ⟨UInt32.div⟩
 -- `LT` and `LE` are already defined in `Init.Prelude`
 
-@[no_expose]
-instance : OrderData UInt32 := .ofLE UInt32
-
 /--
 Bitwise complement, also known as bitwise negation, for 32-bit unsigned integers. Usually accessed
 via the `~~~` prefix operator.
@@ -780,9 +771,6 @@ instance : HMod UInt64 Nat UInt64 := ⟨UInt64.modn⟩
 instance : Div UInt64       := ⟨UInt64.div⟩
 instance : LT UInt64        := ⟨UInt64.lt⟩
 instance : LE UInt64        := ⟨UInt64.le⟩
-
-@[no_expose]
-instance : OrderData UInt64 := .ofLE UInt64
 
 /--
 Bitwise complement, also known as bitwise negation, for 64-bit unsigned integers. Usually accessed
@@ -1049,9 +1037,6 @@ set_option linter.deprecated false in
 instance : HMod USize Nat USize := ⟨USize.modn⟩
 
 instance : Div USize       := ⟨USize.div⟩
-
-@[no_expose]
-instance : OrderData USize := .ofLE USize
 
 /--
 Bitwise complement, also known as bitwise negation, for word-sized unsigned integers. Usually

@@ -38,8 +38,6 @@ protected theorem ne_of_lt {a b : String} (h : a < b) : a ≠ b := by
   have := String.lt_irrefl a
   intro h; subst h; contradiction
 
-instance : OrderData String := .ofLE String
-
 instance instIsLinearOrder : IsLinearOrder String := by
   apply IsLinearOrder.of_le
   case le_antisymm => constructor; apply String.le_antisymm
@@ -48,6 +46,6 @@ instance instIsLinearOrder : IsLinearOrder String := by
 
 instance : LawfulOrderLT String where
   lt_iff a b := by
-    simp [← String.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
+    simp [← String.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 end String

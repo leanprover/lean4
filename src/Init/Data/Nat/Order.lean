@@ -14,8 +14,6 @@ open Std
 
 namespace Nat
 
-public instance : OrderData Nat := OrderData.ofLE Nat
-
 public instance instIsLinearOrder : IsLinearOrder Nat := by
   apply IsLinearOrder.of_le
   · constructor; apply Nat.le_antisymm

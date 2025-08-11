@@ -80,7 +80,7 @@ theorem min?_mem [Min α] [MinEqOr α] :
         cases MinEqOr.min_eq_or x y with | _ q => simp [p, q]
       | inr p => simp [p, mem_cons]
 
-theorem le_min?_iff [Min α] [LE α] [OrderData α] [LawfulOrderInf α] [LawfulOrderLE α] :
+theorem le_min?_iff [Min α] [LE α] [LawfulOrderInf α] :
     {xs : List α} → xs.min? = some a → ∀ {x}, x ≤ a ↔ ∀ b, b ∈ xs → x ≤ b
   | nil => by simp
   | cons x xs => by
@@ -95,8 +95,8 @@ theorem le_min?_iff [Min α] [LE α] [OrderData α] [LawfulOrderInf α] [LawfulO
       simp at eq
       simp [ih _ eq, le_min_iff, and_assoc]
 
-theorem min?_eq_some_iff [Min α] [LE α] {xs : List α} [OrderData α] [IsLinearOrder α]
-    [LawfulOrderMin α] [LawfulOrderLE α] : xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
+theorem min?_eq_some_iff [Min α] [LE α] {xs : List α} [IsLinearOrder α] [LawfulOrderMin α] :
+    xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
   refine ⟨fun h => ⟨min?_mem h, (le_min?_iff h).1 (le_refl _)⟩, ?_⟩
   intro ⟨h₁, h₂⟩
   cases xs with
@@ -124,9 +124,8 @@ theorem min?_eq_min?_attach [Min α] [MinEqOr α] {xs : List α} :
     xs.min? = (xs.attach.min?.map Subtype.val) := by
   simp [min?_attach, Option.map_pmap]
 
-theorem min?_eq_some_iff_subtype [Min α] [LE α] {xs : List α} [OrderData α]
-    [MinEqOr α] [IsLinearOrder (Subtype (· ∈ xs))]
-    [LawfulOrderMin (Subtype (· ∈ xs))] [LawfulOrderLE (Subtype (· ∈ xs))] :
+theorem min?_eq_some_iff_subtype [Min α] [LE α] {xs : List α}
+    [MinEqOr α] [IsLinearOrder (Subtype (· ∈ xs))] [LawfulOrderMin (Subtype (· ∈ xs))] :
     xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
   have := fun a => min?_eq_some_iff (xs := xs.attach) (a := a)
   rw [min?_eq_min?_attach]
@@ -205,7 +204,7 @@ theorem max?_mem [Max α] [MaxEqOr α] :
         cases MaxEqOr.max_eq_or x y with | _ q => simp [p, q]
       | inr p => simp [p, mem_cons]
 
-theorem max?_le_iff [Max α] [LE α] [OrderData α] [LawfulOrderSup α] [LawfulOrderLE α] :
+theorem max?_le_iff [Max α] [LE α] [LawfulOrderSup α] :
     {xs : List α} → xs.max? = some a → ∀ {x}, a ≤ x ↔ ∀ b, b ∈ xs → b ≤ x
   | nil => by simp
   | cons x xs => by
@@ -220,8 +219,8 @@ theorem max?_le_iff [Max α] [LE α] [OrderData α] [LawfulOrderSup α] [LawfulO
       simp at eq
       simp [ih _ eq, max_le_iff, and_assoc]
 
-theorem max?_eq_some_iff [Max α] [LE α] {xs : List α} [OrderData α] [IsLinearOrder (α)]
-    [LawfulOrderMax α] [LawfulOrderLE α] : xs.max? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → b ≤ a := by
+theorem max?_eq_some_iff [Max α] [LE α] {xs : List α} [IsLinearOrder (α)]
+    [LawfulOrderMax α] : xs.max? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → b ≤ a := by
   refine ⟨fun h => ⟨max?_mem h, (max?_le_iff h).1 (le_refl _)⟩, ?_⟩
   intro ⟨h₁, h₂⟩
   cases xs with
@@ -249,9 +248,9 @@ theorem max?_eq_max?_attach [Max α] [MaxEqOr α] {xs : List α} :
     xs.max? = (xs.attach.max?.map Subtype.val) := by
   simp [max?_attach, Option.map_pmap]
 
-theorem max?_eq_some_iff_subtype [Max α] [LE α] {xs : List α} [OrderData α]
+theorem max?_eq_some_iff_subtype [Max α] [LE α] {xs : List α}
     [MaxEqOr α] [IsLinearOrder (Subtype (· ∈ xs))]
-    [LawfulOrderMax (Subtype (· ∈ xs))] [LawfulOrderLE (Subtype (· ∈ xs))] :
+    [LawfulOrderMax (Subtype (· ∈ xs))] :
     xs.max? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → b ≤ a := by
   have := fun a => max?_eq_some_iff (xs := xs.attach) (a := a)
   rw [max?_eq_max?_attach]
@@ -268,7 +267,6 @@ theorem max?_eq_some_iff_legacy [Max α] [LE α] [anti : Std.Antisymm (· ≤ ·
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b)
     (max_le_iff : ∀ a b c : α, max b c ≤ a ↔ b ≤ a ∧ c ≤ a) {xs : List α} :
     xs.max? = some a ↔ a ∈ xs ∧ ∀ b ∈ xs, b ≤ a := by
-  letI : OrderData α := .ofLE α
   haveI : MaxEqOr α := ⟨max_eq_or⟩
   haveI : LawfulOrderMax α := .of_le (fun _ _ _ => max_le_iff _ _ _) max_eq_or
   haveI : Refl (α := α) (· ≤ ·) := ⟨le_refl⟩

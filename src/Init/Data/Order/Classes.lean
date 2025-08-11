@@ -31,113 +31,102 @@ properties are stated for a separate typeclass `OrderData α`. See the docstring
 `OrderData` for a more detailed explanation for its necessity.
 -/
 
+-- /--
+-- This data-carrying typeclass defines which elements of `α` are less, and less or equal, to
+-- which other elements.
+
+-- The operations of this class are not meant to be used directly.
+-- Instead, users should rely on the basic operations provided by the typeclasses mentioned above,
+-- such as `≤`, `<` and `compare` (provided by `LE α`, `LT α` and `Ord α`).
+
+-- **Role of `OrderData α`:**
+
+-- This typeclass allows to describe order-related properties of `α` in an abstract, canonical way,
+-- no matter which basic operations are available on `α`.
+
+-- For example, there are different ways to say that the order on `α` is a linear order, depending
+-- on the available operations:
+
+-- * `(· ≤ ·)` is a reflexive, transitive, antisymmetric and total order.
+-- * `(· ≤ ·)` is antisymmetric, `a < b ↔ ¬ b ≤ a` and `(· < ·)` is irreflexive, transitive and asymmetric.
+-- * `min a b` is either `a` or `b`, is symmetric and satisfies the
+--   following property: `min c (min a b) = c` if and only if `min c a = c` and `min c b = c`.
+
+-- These diverse formulations are confusing and make it harder to compose theorems that rely on
+-- different sets of requirements, even if they all assume a linear order after  all.
+
+-- The solution is to state all of these properties in terms of `OrderData α`. For example:
+
+-- ```lean
+-- theorem le_antisymm {α : Type u} [OrderData α] [LE α]
+--     [IsPartialOrder α] -- The order on `α` induced by `OrderData α` is, among other things, antisymmetric.
+--     [LawfulOrderLE α] -- `≤` is the less-or-equal relation induced by `OrderData α`.
+--     {a b : α} : a ≤ b → b ≤ a → a = b := by
+--   sorry
+-- ```
+
+-- **Limitations:**
+
+-- Some rare situations are not representable by an `OrderData α` instance. For example, every
+-- `Ord α` instance that is compatible with `OrderData α` must satisfy the equation
+-- `compare a b = (compare b a).swap`, and every `LT α` instance that is compatible with
+-- `OrderData α` must be asymmetric (`a < b` and `b < a` are mutually exclusive).
+
+-- In such situations, there are two alternatives:
+
+-- * Resort to elementary axiomatic typeclasses such as `Std.Irrefl` or `Std.Antisymm`.
+-- * Alternatively, do not use `LE α`, `LT α` or other order-related classes at all. Instead,
+--   introduce a new typeclass that better conveys the unusual semantics that are desired.
+-- -/
+-- public class OrderData (α : Type u) where
+--   IsLE : α → α → Prop
+
 /--
-This data-carrying typeclass defines which elements of `α` are less, and less or equal, to
-which other elements.
-
-The operations of this class are not meant to be used directly.
-Instead, users should rely on the basic operations provided by the typeclasses mentioned above,
-such as `≤`, `<` and `compare` (provided by `LE α`, `LT α` and `Ord α`).
-
-**Role of `OrderData α`:**
-
-This typeclass allows to describe order-related properties of `α` in an abstract, canonical way,
-no matter which basic operations are available on `α`.
-
-For example, there are different ways to say that the order on `α` is a linear order, depending
-on the available operations:
-
-* `(· ≤ ·)` is a reflexive, transitive, antisymmetric and total order.
-* `(· ≤ ·)` is antisymmetric, `a < b ↔ ¬ b ≤ a` and `(· < ·)` is irreflexive, transitive and asymmetric.
-* `min a b` is either `a` or `b`, is symmetric and satisfies the
-  following property: `min c (min a b) = c` if and only if `min c a = c` and `min c b = c`.
-
-These diverse formulations are confusing and make it harder to compose theorems that rely on
-different sets of requirements, even if they all assume a linear order after  all.
-
-The solution is to state all of these properties in terms of `OrderData α`. For example:
-
-```lean
-theorem le_antisymm {α : Type u} [OrderData α] [LE α]
-    [IsPartialOrder α] -- The order on `α` induced by `OrderData α` is, among other things, antisymmetric.
-    [LawfulOrderLE α] -- `≤` is the less-or-equal relation induced by `OrderData α`.
-    {a b : α} : a ≤ b → b ≤ a → a = b := by
-  sorry
-```
-
-**Limitations:**
-
-Some rare situations are not representable by an `OrderData α` instance. For example, every
-`Ord α` instance that is compatible with `OrderData α` must satisfy the equation
-`compare a b = (compare b a).swap`, and every `LT α` instance that is compatible with
-`OrderData α` must be asymmetric (`a < b` and `b < a` are mutually exclusive).
-
-In such situations, there are two alternatives:
-
-* Resort to elementary axiomatic typeclasses such as `Std.Irrefl` or `Std.Antisymm`.
-* Alternatively, do not use `LE α`, `LT α` or other order-related classes at all. Instead,
-  introduce a new typeclass that better conveys the unusual semantics that are desired.
--/
-public class OrderData (α : Type u) where
-  IsLE : α → α → Prop
-
-/--
-This typeclass states that the order structure on `α`, represented by an `OrderData α` instance,
+This typeclass states that the order structure on `α`, represented by an `LE α` instance,
 is a preorder. In other words, the less-or-equal relation is reflexive and transitive.
 -/
-public class IsPreorder (α : Type u) [OrderData α] where
-  le_refl : ∀ a : α, OrderData.IsLE a a
-  le_trans : ∀ a b c : α, OrderData.IsLE a b → OrderData.IsLE b c → OrderData.IsLE a c
+public class IsPreorder (α : Type u) [LE α] where
+  le_refl : ∀ a : α, a ≤ a
+  le_trans : ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c
 
 /--
-This typeclass states that the order structure on `α`, represented by an `OrderData α` instance,
+This typeclass states that the order structure on `α`, represented by an `LE α` instance,
 is a partial order.
 In other words, the less-or-equal relation is reflexive, transitive and antisymmetric.
 -/
-public class IsPartialOrder (α : Type u) [OrderData α] extends IsPreorder α where
-  le_antisymm : ∀ a b : α, OrderData.IsLE a b → OrderData.IsLE b a → a = b
+public class IsPartialOrder (α : Type u) [LE α] extends IsPreorder α where
+  le_antisymm : ∀ a b : α, a ≤ b → b ≤ a → a = b
 
 /--
-This typeclass states that the order structure on `α`, represented by an `OrderData α` instance,
+This typeclass states that the order structure on `α`, represented by an `LE α` instance,
 is a linear preorder.
 In other words, the less-or-equal relation is reflexive, transitive and total.
 -/
-public class IsLinearPreorder (α : Type u) [OrderData α] extends IsPreorder α where
-  le_total : ∀ a b : α, OrderData.IsLE a b ∨ OrderData.IsLE b a
+public class IsLinearPreorder (α : Type u) [LE α] extends IsPreorder α where
+  le_total : ∀ a b : α, a ≤ b ∨ b ≤ a
 
 /--
-This typeclass states that the order structure on `α`, represented by an `OrderData α` instance,
+This typeclass states that the order structure on `α`, represented by an `LE α` instance,
 is a linear order.
 In other words, the less-or-equal relation is reflexive, transitive, antisymmetric and total.
 -/
-public class IsLinearOrder (α : Type u) [OrderData α] extends IsPartialOrder α, IsLinearPreorder α
-
-section LE
-
-/--
-This typeclass states that the synthesized `LE α` instance is compatible with the `OrderData α`
-instance. This means that `LE.le` equals `OrderData.IsLE`.
--/
-public class LawfulOrderLE (α : Type u) [LE α] [OrderData α] where
-  le_iff : ∀ a b : α, a ≤ b ↔ OrderData.IsLE a b
-
-end LE
+public class IsLinearOrder (α : Type u) [LE α] extends IsPartialOrder α, IsLinearPreorder α
 
 section LT
 
 /--
-This typeclass states that the synthesized `LT α` instance is compatible with the `OrderData α`
+This typeclass states that the synthesized `LT α` instance is compatible with the `LE α`
 instance. This means that `LT.lt a b` holds if and only if `a` is less or equal to `b` according
-to the `OrderData α` instance, but `b` is not less or equal to `a`.
+to the `LE α` instance, but `b` is not less or equal to `a`.
 
 `LawfulOrderLT α` automatically entails that `LT α` is asymmetric: `a < b` and `b < a` can never
 be true simultaneously.
 
-`LT α` does not uniquely determine the `OrderData α`: There can be only one compatible order data
+`LT α` does not uniquely determine the `LE α`: There can be only one compatible order data
 instance that is total, but there can be others that are not total.
 -/
-public class LawfulOrderLT (α : Type u) [LT α] [OrderData α] where
-  lt_iff : ∀ a b : α, a < b ↔ OrderData.IsLE a b ∧ ¬ OrderData.IsLE b a
+public class LawfulOrderLT (α : Type u) [LT α] [LE α] where
+  lt_iff : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a
 
 end LT
 
@@ -160,21 +149,21 @@ public def MinEqOr.elim {α : Type u} [Min α] [MinEqOr α] {P : α → Prop} {a
   case inr => exact h.symm ▸ hb
 
 /--
-This typeclass states that being less or equal to `Min.min a b` is equivalent to being less or
-equal to both `a` and `b`, according to the synthesized `OrderData α` instance.
+This typeclass states that being less or equal to `min a b` is equivalent to being less or
+equal to both `a` and `b`..
 -/
-public class LawfulOrderInf (α : Type u) [Min α] [OrderData α] where
-  le_min_iff : ∀ a b c : α, OrderData.IsLE a (min b c) ↔ OrderData.IsLE a b ∧ OrderData.IsLE a c
+public class LawfulOrderInf (α : Type u) [Min α] [LE α] where
+  le_min_iff : ∀ a b c : α, a ≤ (min b c) ↔ a ≤ b ∧ a ≤ c
 
 /--
 This typeclass bundles `MinEqOr α` and `LawfulOrderInf α`. It characterizes when a `Min α`
-instance reasonably computes minima in some type `α` that has an `OrderData α` instance.
+instance reasonably computes minima in some type `α` that has an `LE α` instance.
 
 As long as `α` is a preorder (see `IsPreorder α`), this typeclass implies that the order on
 `α` is total and that `Min.min a b` returns either `a` or `b`, whichever is less or equal to
 the other.
 -/
-public class LawfulOrderMin (α : Type u) [Min α] [OrderData α] extends MinEqOr α, LawfulOrderInf α
+public class LawfulOrderMin (α : Type u) [Min α] [LE α] extends MinEqOr α, LawfulOrderInf α
 
 end Min
 
@@ -198,20 +187,20 @@ public def MaxEqOr.elim {α : Type u} [Max α] [MaxEqOr α] {P : α → Prop} {a
 
 /--
 This typeclass states that being less or equal to `Max.max a b` is equivalent to being less or
-equal to both `a` and `b`, according to the synthesized `OrderData α` instance.
+equal to both `a` and `b`.
 -/
-public class LawfulOrderSup (α : Type u) [Max α] [OrderData α] where
-  max_le_iff : ∀ a b c : α, OrderData.IsLE (max a b) c ↔ OrderData.IsLE a c ∧ OrderData.IsLE b c
+public class LawfulOrderSup (α : Type u) [Max α] [LE α] where
+  max_le_iff : ∀ a b c : α, (max a b) ≤ c ↔ a ≤ c ∧ b ≤ c
 
 /--
 This typeclass bundles `MaxEqOr α` and `LawfulOrderSup α`. It characterizes when a `Max α`
-instance reasonably computes maxima in some type `α` that has an `OrderData α` instance.
+instance reasonably computes maxima in some type `α` that has an `LE α` instance.
 
 As long as `α` is a preorder (see `IsPreorder α`), this typeclass implies that the order on
 `α` is total and that `Min.min a b` returns either `a` or `b`, whichever is greater or equal to
 the other.
 -/
-public class LawfulOrderMax (α : Type u) [Max α] [OrderData α] extends MaxEqOr α, LawfulOrderSup α
+public class LawfulOrderMax (α : Type u) [Max α] [LE α] extends MaxEqOr α, LawfulOrderSup α
 
 end Max
 

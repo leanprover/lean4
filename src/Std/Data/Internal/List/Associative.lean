@@ -5549,7 +5549,6 @@ private theorem le_min_iff [Ord α] [TransOrd α] {a b c : (a : α) × β a} :
 
 theorem minEntry?_eq_some_iff [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (a : (a : α) × β a) {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
     minEntry? l = some a ↔ a ∈ l ∧ ∀ b : α, containsKey b l → (compare a.fst b).isLE := by
-  letI : OrderData ((a : α) × β a) := .ofLE _
   haveI : LawfulOrderMin ((a : α) × β a) := .of_le (fun _ _ _ => le_min_iff) (fun _ _ => min_eq_or)
   haveI : Refl (α := (a : α) × β a) (· ≤ ·) := ⟨fun _ => ReflCmp.isLE_rfl⟩
   haveI : Antisymm (α := Subtype (· ∈ l)) (· ≤ ·) := by

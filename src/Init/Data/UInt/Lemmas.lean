@@ -221,7 +221,7 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 open $typeName renaming not_le → not_le'
 instance : LawfulOrderLT $typeName where
   lt_iff _ _ := by
-    simp [← not_le', ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
+    simp [← not_le', Decidable.imp_iff_not_or, Std.Total.total]
 
   @[simp] protected theorem ofNat_one : ofNat 1 = 1 := (rfl)
 

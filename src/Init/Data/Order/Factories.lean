@@ -24,68 +24,46 @@ instance {r : α → α → Prop} [Total r] : Refl r where
   refl a := by simpa using Total.total a a
 
 /--
-Creates an `OrderData α` instance from an `LE α` instance.
-
-As `OrderData α` captures the same information as `LE α`, this is possible without restriction
-or loss of information.
+If an `LE α` instance is reflexive and transitive, then it represents a preorder.
 -/
-public def OrderData.ofLE (α : Type u) [LE α] : OrderData α where
-  IsLE := LE.le
-
-/--
-The `OrderData α` instance obtained from an `LE α` instance is compatible with said `LE α` instance.
--/
-public instance LawfulOrderLE.of_le {α : Type u} [LE α] :
-    haveI := OrderData.ofLE α
-    LawfulOrderLE α :=
-  letI := OrderData.ofLE α
-  { le_iff _ _ := by exact Iff.rfl }
-
-/--
-If an `OrderData α` instance is compatible with an `LE α` instance that is reflexive and transitive,
-then the `OrderData α` instance is a preorder.
--/
-public theorem IsPreorder.of_le {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
+public theorem IsPreorder.of_le {α : Type u} [LE α]
     (le_refl : Std.Refl (α := α) (· ≤ ·) := by exact inferInstance)
     (le_trans : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) := by exact inferInstance) :
     IsPreorder α where
-  le_refl := by simpa [LawfulOrderLE.le_iff] using le_refl.refl
-  le_trans := by simpa [LawfulOrderLE.le_iff] using fun _ _ _ => le_trans.trans
+  le_refl := le_refl.refl
+  le_trans _ _ _ := le_trans.trans
 
 /--
-If an `OrderData α` instance is compatible with an `LE α` instance that is transitive and total,
-then the `OrderData α` instance is a linear preorder.
+If an `LE α` instance is transitive and total, then it represents a linear preorder.
 -/
-public theorem IsLinearPreorder.of_le {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
+public theorem IsLinearPreorder.of_le {α : Type u} [LE α]
     (le_trans : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) := by exact inferInstance)
     (le_total : Total (α := α) (· ≤ ·) := by exact inferInstance) :
     IsLinearPreorder α where
   toIsPreorder := .of_le
-  le_total := by simpa [LawfulOrderLE.le_iff] using le_total.total
+  le_total := le_total.total
 
 /--
-If an `OrderData α` instance is compatible with an `LE α` instance that is reflexive, antisymmetric
-and transitive, then the `OrderData α` instance is a partial order.
+If an `LE α` is reflexive, antisymmetric and transitive, then it represents a partial order.
 -/
-public theorem IsPartialOrder.of_le {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
+public theorem IsPartialOrder.of_le {α : Type u} [LE α]
     (le_refl : Std.Refl (α := α) (· ≤ ·) := by exact inferInstance)
     (le_antisymm : Std.Antisymm (α := α) (· ≤ ·) := by exact inferInstance)
     (le_trans : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) := by exact inferInstance) :
     IsPartialOrder α where
   toIsPreorder := .of_le
-  le_antisymm := by simpa [LawfulOrderLE.le_iff] using le_antisymm.antisymm
+  le_antisymm := le_antisymm.antisymm
 
 /--
-If an `OrderData α` instance is compatible with an `LE α` instance that is antisymmetric,
-transitive and total, then the `OrderData α` instance is a linear order.
+If an `LE α` instance is antisymmetric, transitive and total, then it represents a linear order.
 -/
-public theorem IsLinearOrder.of_le {α : Type u} [OrderData α] [LE α] [LawfulOrderLE α]
+public theorem IsLinearOrder.of_le {α : Type u} [LE α]
     (le_antisymm : Std.Antisymm (α := α) (· ≤ ·) := by exact inferInstance)
     (le_trans : Trans (α := α) (· ≤ ·) (· ≤ ·) (· ≤ ·) := by exact inferInstance)
     (le_total : Total (α := α) (· ≤ ·) := by exact inferInstance) :
     IsLinearOrder α where
   toIsLinearPreorder := .of_le
-  le_antisymm := by simpa [LawfulOrderLE.le_iff] using le_antisymm.antisymm
+  le_antisymm := le_antisymm.antisymm
 
 /--
 Returns a `LawfulOrderLT α` instance given certain properties.
@@ -93,49 +71,49 @@ Returns a `LawfulOrderLT α` instance given certain properties.
 If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma derives
 a `LawfulOrderLT α` instance from a property relating the `LE α` and `LT α` instances.
 -/
-public theorem LawfulOrderLT.of_le {α : Type u} [OrderData α] [LT α] [LE α] [LawfulOrderLE α]
+public theorem LawfulOrderLT.of_le {α : Type u} [LT α] [LE α]
     (lt_iff : ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a) : LawfulOrderLT α where
-  lt_iff := by simpa [LawfulOrderLE.le_iff] using lt_iff
+  lt_iff := lt_iff
 
 /--
-If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma characterizes
-in terms of `LE α` when a `Min α` instance "behaves like an infimum operator".
+This lemma characterizes in terms of `LE α` when a `Min α` instance "behaves like an infimum
+operator".
 -/
-public theorem LawfulOrderInf.of_le {α : Type u} [OrderData α] [Min α] [LE α] [LawfulOrderLE α]
+public theorem LawfulOrderInf.of_le {α : Type u} [Min α] [LE α]
     (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) : LawfulOrderInf α where
-  le_min_iff := by simpa [LawfulOrderLE.le_iff] using le_min_iff
+  le_min_iff := le_min_iff
 
 /--
 Returns a `LawfulOrderMin α` instance given certain properties.
 
-If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma derives
-a `LawfulOrderMin α` instance from two properties involving `LE α` and `Min α` instances.
+This lemma derives a `LawfulOrderMin α` instance from two properties involving `LE α` and `Min α`
+instances.
 
 The produced instance entails `LawfulOrderInf α` and `MinEqOr α`.
 -/
-public theorem LawfulOrderMin.of_le {α : Type u} [OrderData α] [Min α] [LE α] [LawfulOrderLE α]
+public theorem LawfulOrderMin.of_le {α : Type u} [Min α] [LE α]
     (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c)
     (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) : LawfulOrderMin α where
   toLawfulOrderInf := .of_le le_min_iff
   toMinEqOr := ⟨min_eq_or⟩
 
 /--
-If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma characterizes
-in terms of `LE α` when a `Max α` instance "behaves like a supremum operator".
+This lemma characterizes in terms of `LE α` when a `Max α` instance "behaves like a supremum
+operator".
 -/
-public def LawfulOrderSup.of_le {α : Type u} [OrderData α] [Max α] [LE α] [LawfulOrderLE α]
+public def LawfulOrderSup.of_le {α : Type u} [Max α] [LE α]
     (max_le_iff : ∀ a b c : α, max a b ≤ c ↔ a ≤ c ∧ b ≤ c) : LawfulOrderSup α where
-  max_le_iff := by simpa [LawfulOrderLE.le_iff] using max_le_iff
+  max_le_iff := max_le_iff
 
 /--
 Returns a `LawfulOrderMax α` instance given certain properties.
 
-If an `OrderData α` instance is compatible with an `LE α` instance, then this lemma derives
-a `LawfulOrderMax α` instance from two properties involving `LE α` and `Max α` instances.
+This lemma derives a `LawfulOrderMax α` instance from two properties involving `LE α` and `Max α`
+instances.
 
 This convenience lemma combines `LawfulOrderSup.of_le` and `LawfulOrderMax.of_le`.
 -/
-public def LawfulOrderMax.of_le {α : Type u} [OrderData α] [Max α] [LE α] [LawfulOrderLE α]
+public def LawfulOrderMax.of_le {α : Type u} [Max α] [LE α]
     (max_le_iff : ∀ a b c : α, max a b ≤ c ↔ a ≤ c ∧ b ≤ c)
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) : LawfulOrderMax α where
   toLawfulOrderSup := .of_le max_le_iff
@@ -146,78 +124,67 @@ end OfLE
 section OfLT
 
 /--
-Creates an `OrderData α` instance from an `LT α` instance.
+Creates a *total* `LE α` instance from an `LT α` instance.
 
 This only makes sense for asymmetric `LT α` instances (see `Std.Asymm`).
 -/
-public def OrderData.ofLT (α : Type u) [LT α] : OrderData α where
-  IsLE a b := ¬ b < a
+public def LE.ofLT (α : Type u) [LT α] : LE α where
+  le a b := ¬ b < a
 
 /--
-The `OrderData α` instance obtained from an asymmetric `LT α` instance is compatible with said
+The `LE α` instance obtained from an asymmetric `LT α` instance is compatible with said
 `LT α` instance.
 -/
 public instance LawfulOrderLT.of_lt {α : Type u} [LT α] [i : Asymm (α := α) (· < ·)] :
-    haveI := OrderData.ofLT α
+    haveI := LE.ofLT α
     LawfulOrderLT α :=
-  letI := OrderData.ofLT α
-  { lt_iff a b := by simpa [OrderData.ofLT, Classical.not_not] using i.asymm a b }
+  letI := LE.ofLT α
+  { lt_iff a b := by simpa [LE.ofLT, Classical.not_not] using i.asymm a b }
 
 /--
-If an `OrderData α` instance is compatible with an asymmetric `LT α` instance the negation of which
-is transitive, then the `OrderData α` instance is a linear order.
+If an `LT α` instance is asymmetric and its negation is transitive, then `LE.ofLT α` represents a
+linear preorder.
 -/
 public theorem IsLinearPreorder.of_lt {α : Type u} [LT α]
     (lt_asymm : Asymm (α := α) (· < ·) := by exact inferInstance)
     (not_lt_trans : Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·) := by exact inferInstance) :
-    haveI : OrderData α := .ofLT α
+    haveI := LE.ofLT α
     IsLinearPreorder α :=
-  letI : OrderData α := .ofLT α
-  { le_trans := by simpa [OrderData.ofLT] using fun a b c hab hbc => not_lt_trans.trans hbc hab
+  letI := LE.ofLT α
+  { le_trans := by simpa [LE.ofLT] using fun a b c hab hbc => not_lt_trans.trans hbc hab
     le_total a b := by
       apply Or.symm
-      open Classical in simpa [OrderData.ofLT, Decidable.imp_iff_not_or] using lt_asymm.asymm a b
+      open Classical in simpa [LE.ofLT, Decidable.imp_iff_not_or] using lt_asymm.asymm a b
     le_refl a := by
-      open Classical in simpa [OrderData.ofLT] using lt_asymm.asymm a a }
+      open Classical in simpa [LE.ofLT] using lt_asymm.asymm a a }
 
 /--
-If an `OrderData α` instance is compatible with an asymmetric `LT α` instance the negation of which
-is transitive and antisymmetric, then the `OrderData α` instance is a linear order.
+If an `LT α` instance is asymmetric and its negation is transitive and antisymmetric, then
+`LE.ofLT α` represents a linear order.
 -/
 public theorem IsLinearOrder.of_lt {α : Type u} [LT α]
     (lt_asymm : Asymm (α := α) (· < ·) := by exact inferInstance)
     (not_lt_trans : Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·) := by exact inferInstance)
     (not_lt_antisymm : Antisymm (α := α) (¬ · < ·) := by exact inferInstance) :
-    haveI : OrderData α := .ofLT α
+    haveI := LE.ofLT α
     IsLinearOrder α :=
-  letI : OrderData α := .ofLT α
+  letI := LE.ofLT α
   haveI : IsLinearPreorder α := .of_lt
   { le_antisymm := by
-      simpa [OrderData.ofLT] using fun a b hab hba => not_lt_antisymm.antisymm a b hba hab }
-
-/--
-Derives a `LawfulOrderLE α` instance for `OrderData.ofLT α` from a property relating the `LE α`
-and `LT α` instances.
--/
-public theorem LawfulOrderLE.of_lt {α : Type u} [LT α] [LE α]
-    (le_iff : ∀ a b : α, a ≤ b ↔ ¬ b < a) :
-    haveI : OrderData α := .ofLT α
-    LawfulOrderLE α :=
-  letI : OrderData α := .ofLT α
-  { le_iff := by simp [le_iff, OrderData.ofLT] }
+      simpa [LE.ofLT] using fun a b hab hba => not_lt_antisymm.antisymm a b hba hab }
 
 /--
 This lemma characterizes in terms of `LT α` when a `Min α` instance
-"behaves like an infimum operator" with respect to `OrderData.ofLT α`.
+"behaves like an infimum operator" with respect to `LE.ofLT α`.
 -/
 public theorem LawfulOrderInf.of_lt {α : Type u} [Min α] [LT α]
     (min_lt_iff : ∀ a b c : α, min b c < a ↔ b < a ∨ c < a) :
-    haveI : OrderData α := .ofLT α
+    haveI := LE.ofLT α
     LawfulOrderInf α :=
-  letI : OrderData α := .ofLT α
+  letI := LE.ofLT α
   { le_min_iff a b c := by
       open Classical in
-      simp only [OrderData.ofLT, ← Decidable.not_iff_not (a := ¬ min b c < a)]
+      simp only [LE.ofLT, ← Decidable.not_iff_not (a := ¬ min b c < a)]
       simpa [Decidable.imp_iff_not_or] using min_lt_iff a b c }
 
 /--
@@ -229,9 +196,9 @@ The produced instance entails `LawfulOrderInf α` and `MinEqOr α`.
 public theorem LawfulOrderMin.of_lt {α : Type u} [Min α] [LT α]
     (min_lt_iff : ∀ a b c : α, min b c < a ↔ b < a ∨ c < a)
     (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) :
-    haveI : OrderData α := .ofLT α
+    haveI := LE.ofLT α
     LawfulOrderMin α :=
-  letI : OrderData α := .ofLT α
+  letI := LE.ofLT α
   { toLawfulOrderInf := .of_lt min_lt_iff
     toMinEqOr := ⟨min_eq_or⟩ }
 
@@ -241,12 +208,12 @@ This lemma characterizes in terms of `LT α` when a `Max α` instance
 -/
 public def LawfulOrderSup.of_lt {α : Type u} [Max α] [LT α]
     (lt_max_iff : ∀ a b c : α, c < max a b ↔ c < a ∨ c < b) :
-    haveI : OrderData α := .ofLT α
+    haveI := LE.ofLT α
     LawfulOrderSup α :=
-  letI : OrderData α := .ofLT α
+  letI := LE.ofLT α
   { max_le_iff a b c := by
       open Classical in
-      simp only [OrderData.ofLT, ← Decidable.not_iff_not ( a := ¬ c < max a b)]
+      simp only [LE.ofLT, ← Decidable.not_iff_not ( a := ¬ c < max a b)]
       simpa [Decidable.imp_iff_not_or] using lt_max_iff a b c }
 
 /--
@@ -258,9 +225,9 @@ The produced instance entails `LawfulOrderSup α` and `MaxEqOr α`.
 public def LawfulOrderMax.of_lt {α : Type u} [Max α] [LT α]
     (lt_max_iff : ∀ a b c : α, c < max a b ↔ c < a ∨ c < b)
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) :
-    haveI : OrderData α := .ofLT α
+    haveI := LE.ofLT α
     LawfulOrderMax α :=
-  letI : OrderData α := .ofLT α
+  letI := LE.ofLT α
   { toLawfulOrderSup := .of_lt lt_max_iff
     toMaxEqOr := ⟨max_eq_or⟩ }
 

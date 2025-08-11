@@ -255,8 +255,6 @@ protected theorem le_antisymm_iff {x y : Fin n} : x = y ↔ x ≤ y ∧ y ≤ x 
 protected theorem le_antisymm {x y : Fin n} (h1 : x ≤ y) (h2 : y ≤ x) : x = y :=
   Fin.le_antisymm_iff.2 ⟨h1, h2⟩
 
-instance : OrderData (Fin n) := .ofLE (Fin n)
-
 instance instIsLinearOrder : IsLinearOrder (Fin n) := by
   apply IsLinearOrder.of_le
   case le_antisymm => constructor; apply Fin.le_antisymm
@@ -265,7 +263,7 @@ instance instIsLinearOrder : IsLinearOrder (Fin n) := by
 
 instance : LawfulOrderLT (Fin n) where
   lt_iff := by
-    simp [← Fin.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
+    simp [← Fin.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 @[simp, grind =] theorem val_rev (i : Fin n) : rev i = n - (i + 1) := rfl
 

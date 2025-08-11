@@ -1419,8 +1419,6 @@ theorem natAbs_eq_iff_mul_eq_zero : natAbs a = n ↔ (a - n) * (a + n) = 0 := by
 @[deprecated natAbs_eq_iff_mul_eq_zero (since := "2025-03-11")]
 abbrev eq_natAbs_iff_mul_eq_zero := @natAbs_eq_iff_mul_eq_zero
 
-instance : OrderData Int := .ofLE Int
-
 instance instIsLinearOrder : IsLinearOrder Int := by
   apply IsLinearOrder.of_le
   case le_antisymm => constructor; apply Int.le_antisymm
@@ -1429,6 +1427,6 @@ instance instIsLinearOrder : IsLinearOrder Int := by
 
 instance : LawfulOrderLT Int where
   lt_iff := by
-    simp [← Int.not_le, ← LawfulOrderLE.le_iff, Decidable.imp_iff_not_or, Std.Total.total]
+    simp [← Int.not_le, Decidable.imp_iff_not_or, Std.Total.total]
 
 end Int

@@ -29,7 +29,6 @@ instance packageOfLE : LinearOrderPackage X := .ofLE X
 
 example : instLE = (inferInstanceAs (PreorderPackage X)).toLE := rfl
 example : IsLinearOrder X := inferInstance
-example : LawfulOrderLE X := inferInstance
 example : LawfulOrderLT X := inferInstance
 example : LawfulOrderOrd X := inferInstance
 example : LawfulOrderMin X := inferInstance

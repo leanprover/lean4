@@ -653,8 +653,8 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
 expr type_checker::whnf(expr const & e) {
     // Do not cache easy cases
     switch (e.kind()) {
-    case expr_kind::BVar:  case expr_kind::Sort: case expr_kind::MVar: case expr_kind::Pi:
-    case expr_kind::Lit:
+    case expr_kind::BVar: case expr_kind::Sort:   case expr_kind::MVar:
+    case expr_kind::Pi:   case expr_kind::Lambda: case expr_kind::Lit:
         return e;
     case expr_kind::MData:
         return whnf(mdata_expr(e));
@@ -663,8 +663,8 @@ expr type_checker::whnf(expr const & e) {
             break;
         else
             return e;
-    case expr_kind::Lambda: case expr_kind::App:
-    case expr_kind::Const:  case expr_kind::Let: case expr_kind::Proj:
+    case expr_kind::App: case expr_kind::Const:
+    case expr_kind::Let: case expr_kind::Proj:
         break;
     }
 

@@ -12,6 +12,7 @@ public import Lean.Meta.LitValues
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.Meta.Match.MatchEqsExt
 public import Lean.Meta.Match.MatchEqs
+public import Lean.Util.CollectLevelParams
 public import Lean.Meta.Tactic.Grind.Types
 public import Lean.Meta.Tactic.Grind.Util
 public import Lean.Meta.Tactic.Grind.Canon
@@ -151,7 +152,7 @@ private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
   mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
 
 /-- Internalizes the nested ground terms in the given pattern. -/
-private partial def internalizePattern (pattern : Expr) (generation : Nat) : GoalM Expr := do
+private partial def internalizePattern (pattern : Expr) (generation : Nat) (origin : Origin) : GoalM Expr := do
   -- Recall that it is important to ensure patterns are maximally shared since
   -- we assume that in functions such as `getAppsOf` in `EMatch.lean`
   go (← shareCommon pattern)
@@ -161,7 +162,21 @@ where
       return pattern
     else if let some e := groundPattern? pattern then
       let e ← preprocessLight e
-      internalize e generation none
+      let e ← if e.hasLevelParam && origin matches .decl _ then
+        /-
+        If `e` has universe parameters and it is **not** local. That is,
+        it contains the universe parameters of some global theorem.
+        Then, we convert `e`'s universe parameters into universe meta-variables.
+        Remark: it is pointless to internalize the result because it contains these helper meta-variables.
+        Remark: universe polymorphic ground patterns are not common, but they do occur in the
+        core library.
+        -/
+        let ps := collectLevelParams {} e |>.params
+        let us ← ps.mapM fun _ => mkFreshLevelMVar
+        pure <| e.instantiateLevelParamsArray ps us
+      else
+        internalize e generation none
+        pure e
       return mkGroundPattern e
     else pattern.withApp fun f args => do
       return mkAppN f (← args.mapM go)
@@ -203,7 +218,7 @@ def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
   -- Recall that we use the proof as part of the key for a set of instances found so far.
   -- We don't want to use structural equality when comparing keys.
   let proof ← shareCommon thm.proof
-  let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation)) }
+  let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation thm.origin)) }
   trace_goal[grind.ematch] "activated `{thm.origin.key}`, {thm.patterns.map ppPattern}"
   modify fun s => { s with ematch.newThms := s.ematch.newThms.push thm }
 

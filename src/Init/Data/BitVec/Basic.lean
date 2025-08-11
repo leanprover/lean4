@@ -910,21 +910,14 @@ theorem extractAndExtendAuxRec_len_eq {x : BitVec w} :
     ee.length = w := by
   sorry
 
-
 def popCountParSum {x : BitVec w} : BitVec w :=
   if hw : w = 0 then 0
   else
     if hw' : w = 1 then x
     else
-      let toBitVec := BitVec.ofNat w w
-      let bvClz := (toBitVec.clz).toNat
-      let trunc := toBitVec.setWidth (w - bvClz)
-      if trunc >>> (w - bvClz - 1) = 1#(w - bvClz) then
-        let initNodes := extractAndExtendAuxRec x w [] (by omega)
-        let pps := parPrefixSum (inputNodes := w) initNodes (by exact extractAndExtendAuxRec_len_eq) (by omega)
-        pps
-      else
-        0#w
+      let initNodes := extractAndExtendAuxRec x w [] (by omega)
+      let pps := parPrefixSum (inputNodes := w) initNodes (by exact extractAndExtendAuxRec_len_eq) (by omega)
+      pps
 
 /-- Tail-recursive definition of popcount.
   The bitwidth of `x` explictly boundspop the number of recursions, thus bounding the depth of the circuit as well

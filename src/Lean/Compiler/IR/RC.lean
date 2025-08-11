@@ -18,17 +18,17 @@ This transformation is applied before lower level optimizations
 that introduce the instructions `release` and `set`
 -/
 
-structure VarProjInfo where
+structure DerivedValInfo where
   parent? : Option VarId
   children : VarIdSet
   deriving Inhabited
 
-abbrev VarProjMap := Std.HashMap VarId VarProjInfo
+abbrev DerivedValMap := Std.HashMap VarId DerivedValInfo
 
-namespace CollectProjInfo
+namespace CollectDerivedValInfo
 
 structure State where
-  varMap : VarProjMap := {}
+  varMap : DerivedValMap := {}
   borrowedParams : VarIdSet := {}
 
 abbrev M := StateM State
@@ -75,15 +75,15 @@ private partial def visitFnBody (b : FnBody) : M Unit := do
   | .case _ _ _ alts => alts.forM (visitFnBody ·.body)
   | _ => if !b.isTerminal then visitFnBody b.body
 
-private partial def collectProjInfo (ps : Array Param) (b : FnBody)
-    : VarProjMap × VarIdSet := Id.run do
+private partial def collectDerivedValInfo (ps : Array Param) (b : FnBody)
+    : DerivedValMap × VarIdSet := Id.run do
   let ⟨_, { varMap, borrowedParams }⟩ := go |>.run { }
   return ⟨varMap, borrowedParams⟩
 where go : M Unit := do
   ps.forM visitParam
   visitFnBody b
 
-end CollectProjInfo
+end CollectDerivedValInfo
 
 structure VarInfo where
   isPossibleRef : Bool
@@ -110,7 +110,7 @@ structure Context where
   env            : Environment
   decls          : Array Decl
   borrowedParams : VarIdSet
-  varProjMap     : VarProjMap
+  derivedValMap  : DerivedValMap
   varMap         : VarMap := {}
   jpLiveVarMap   : JPLiveVarMap := {} -- map: join point => live variables
   localCtx       : LocalContext := {} -- we use it to store the join point declarations
@@ -127,7 +127,7 @@ def getJPParams (ctx : Context) (j : JoinPointId) : Array Param :=
 @[specialize]
 private partial def addDescendants (ctx : Context) (x : VarId) (s : VarIdSet)
     (shouldAdd : VarId → Bool := fun _ => true) : VarIdSet :=
-  if let some info := ctx.varProjMap.get? x then
+  if let some info := ctx.derivedValMap.get? x then
     info.children.foldl (init := s) fun s child =>
       let s := if shouldAdd child then s.insert child else s
       addDescendants ctx child s shouldAdd
@@ -436,8 +436,8 @@ partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVars :=
 partial def visitDecl (env : Environment) (decls : Array Decl) (d : Decl) : Decl :=
   match d with
   | .fdecl (xs := xs) (body := b) .. =>
-    let ⟨varProjMap, borrowedParams⟩ := CollectProjInfo.collectProjInfo xs b
-    let ctx := updateVarInfoWithParams { env, decls, borrowedParams, varProjMap } xs
+    let ⟨derivedValMap, borrowedParams⟩ := CollectDerivedValInfo.collectDerivedValInfo xs b
+    let ctx := updateVarInfoWithParams { env, decls, borrowedParams, derivedValMap } xs
     let ⟨b, bLiveVars⟩ := visitFnBody b ctx
     let ⟨b, _⟩ := addDecForDeadParams ctx xs b bLiveVars
     d.updateBody! b

@@ -179,6 +179,15 @@ private def denoteLinExpr (e : Int.Linear.Expr) : ProofM Expr := do
 private def denotePolyLE (p : Poly) : ProofM Expr :=
   return mkIntLE (← denotePoly p) (mkIntLit 0)
 
+private def denoteLinExprLE (lhs rhs : Int.Linear.Expr) : ProofM Expr :=
+  return mkIntLE (← denoteLinExpr lhs) (← denoteLinExpr rhs)
+
+private def denoteVarPolyEq (x : Var) (p : Poly) : ProofM Expr :=
+  return mkIntEq (← read).vars[x]! (← denotePoly p)
+
+private def denotePolyEq (lhs rhs : Poly) : ProofM Expr :=
+  return mkIntEq (← denotePoly lhs) (← denotePoly rhs)
+
 private def denoteLinExprEq (lhs rhs : Int.Linear.Expr) : ProofM Expr :=
   return mkIntEq (← denoteLinExpr lhs) (← denoteLinExpr rhs)
 
@@ -206,17 +215,23 @@ variables in `ProofM`, and records `h` as the argument to instantiate it.
 private def mkHypPolyLE (h : Expr) (p : Poly) : ProofM Expr := do
   mkHyp h (← denotePolyLE p)
 
-/--
-Given an "external" equality proof `h : lhs = rhs`, create an abstract hypothesis for it using the abstract
-variables in `ProofM`, and records `h` as the argument to instantiate it.
--/
+/-- Similar to `mkHypPolyLE` -/
+private def mkHypLinExprLE (h : Expr) (lhs rhs : Int.Linear.Expr) : ProofM Expr := do
+  mkHyp h (← denoteLinExprLE lhs rhs)
+
+/-- Similar to `mkHypPolyLE` -/
+private def mkHypPolyEq (h : Expr) (lhs rhs : Poly) : ProofM Expr := do
+  mkHyp h (← denotePolyEq lhs rhs)
+
+/-- Similar to `mkHypPolyLE` -/
+private def mkHypVarPolyEq (h : Expr) (x : Var) (p : Poly) : ProofM Expr := do
+  mkHyp h (← denoteVarPolyEq x p)
+
+/-- Similar to `mkHypPolyLE` -/
 private def mkHypLinExprEq (h : Expr) (lhs rhs : Int.Linear.Expr) : ProofM Expr := do
   mkHyp h (← denoteLinExprEq lhs rhs)
 
-/--
-Given an "external" disequality proof `h : ¬ lhs = rhs`, create an abstract hypothesis for it using the abstract
-variables in `ProofM`, and records `h` as the argument to instantiate it.
--/
+/-- Similar to `mkHypPolyLE` -/
 private def mkHypLinExprNE (h : Expr) (lhs rhs : Int.Linear.Expr) : ProofM Expr := do
   mkHyp h (← denoteLinExprNE lhs rhs)
 
@@ -240,14 +255,15 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   | .core0 a zero =>
     mkEqProof a zero
   | .core a b p₁ p₂ =>
-    let h ← mkEqProof a b
+    let h ← mkHypPolyEq (← mkEqProof a b) p₁ p₂
     return mkApp6 (mkConst ``Int.Linear.eq_of_core) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) reflBoolTrue h
   | .coreToInt a b toIntThm lhs rhs =>
     let h ← mkHypLinExprEq (mkApp toIntThm (← mkEqProof a b)) lhs rhs
     return mkApp6 (mkConst ``Int.Linear.eq_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue h
   | .defn e p =>
     let some x := (← getVarMap).find? { expr := e } | throwError "`grind` internal error, missing cutsat variable{indentExpr e}"
-    return mkApp6 (mkConst ``Int.Linear.eq_def) (← getContext) (toExpr x) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqRefl e)
+    let h ← mkHypVarPolyEq (← mkEqRefl e) x p
+    return mkApp6 (mkConst ``Int.Linear.eq_def) (← getContext) (toExpr x) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue h
   | .defnNat h x e =>
     return mkApp6 (mkConst ``Int.Linear.eq_def') (← getContext) (toExpr x) (← mkExprDecl e) (← mkPolyDecl c'.p) reflBoolTrue h
   | .norm c =>
@@ -356,9 +372,11 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
   | .coreToInt e pos toIntThm lhs rhs =>
     let h ← if pos then pure <| mkOfEqTrueCore e (← mkEqTrueProof e) else pure <| mkOfEqFalseCore e (← mkEqFalseProof e)
     let h := mkApp toIntThm h
+    let h ← mkHypLinExprLE h lhs rhs
     return mkApp6 (mkConst ``Int.Linear.le_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue h
   | .ofNatNonneg a =>
-    return mkApp (mkConst ``Nat.ToInt.toNat_nonneg) a
+    let h ← mkHypPolyLE (mkApp (mkConst ``Nat.ToInt.toNat_nonneg) a) c'.p
+    return h
   | .bound h => return h
   | .dec h =>
     return mkFVar h

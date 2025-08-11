@@ -18,7 +18,7 @@ typedef struct {
 
 /* Std.Internal.UV.Signal.wait (signum : Int32) : IO (IO.Promise (Except IO.Error Unit)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_wait(uint32_t signum_obj, obj_arg /* w */) {
-    int signum = (int)(int64_t)signum_obj;
+    int signum = (int)(int32_t)signum_obj;
 
     lean_object* promise = lean_promise_new();
     mark_mt(promise);

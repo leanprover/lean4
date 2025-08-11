@@ -70,14 +70,20 @@ public structure Packages.LinearPreorderOfLEArgs (α : Type u) extends
     first
       | exact Total.total
       | fail "Failed to automatically prove that the `LE` instance is total. You can either ensure that a `Total` instance is available or manually provide the `le_total` field."
-  le_refl := (by intro a; simpa using le_total a a)
-  compare_isLE : letI := ord; ∀ a b : α, (compare a b).isLE ↔ a ≤ b := by
+  le_refl := (by intro i hi a; cases hi; simpa using le_total a a)
+  compare_isLE [i : LE α] [DecidableLE α] (hi : i = le := by rfl) :
+      letI := ord hi; ∀ a b : α, (compare a b).isLE ↔ a ≤ b := by
+    intro i di hi
     first
       | open scoped Classical in
         simpa only [Instances.instOrdOfDecidableLE, Ord.compare] using fun a b => Instances.compare_isLE
         done
       | fail "Failed to automatically prove that `(compare a b).isLE` is equivalent to `a ≤ b`."
-  compare_isGE (le_total := le_total) : letI := ord; ∀ a b : α, (compare a b).isGE ↔ b ≤ a := by
+  compare_isGE [i : LE α] [DecidableLE α] (hi : i = le := by rfl) (le_total := le_total) :
+      letI := ord hi; ∀ a b : α, (compare a b).isGE ↔ b ≤ a := by
+    intro i di hi
+    letI := i
+    cases hi
     first
       | open scoped Classical in
         simpa only [Instances.instOrdOfDecidableLE, Ord.compare] using
@@ -91,8 +97,8 @@ public def LinearPreorderPackage.ofLE (α : Type u)
   toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
   toOrd := letI := args.le; letI := args.decidableLE; args.ord
   le_total := args.le_total
-  compare_isLE := args.compare_isLE
-  compare_isGE := args.compare_isGE
+  compare_isLE := letI := args.le; letI := args.decidableLE; args.compare_isLE
+  compare_isGE := letI := args.le; letI := args.decidableLE; args.compare_isGE
 
 namespace Instances
 

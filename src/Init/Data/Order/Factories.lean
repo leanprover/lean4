@@ -271,19 +271,28 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
     first
       | infer_instance
       | exact fun _ => Instances.instBEqOfDecidableLE
-  lawful_lt : letI := lt; ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
+  lawful_lt [i : LE α] (hi : i = le := by rfl) :
+    letI := lt hi; ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
+    intro i hi
     first
       | simp only [Classical.Order.instLT, implies_true]; done -- TODO: use term?
       | fail "Failed to automatically prove that the `OrderData` and `LT` instances are compatible."
-  lawful_beq : letI := beq; ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a := by
+  lawful_beq [i : LE α] [DecidableLE α] (hi : i = le := by rfl) :
+    letI := beq hi; ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a := by
+    intro i di hi
     first
       | simpa only [Instances.instBEqOfDecidableLE, BEq.beq] using fun a b => Std.Instances.beq_iff; done -- TODO: use simp only
       | fail "Failed to automatically prove that the `OrderData` and `BEq` instances are compatible."
-  le_refl : ∀ a : α, a ≤ a := by
+  le_refl [i : LE α] (hi : i = le := by rfl) : ∀ a : α, a ≤ a := by
+    intro i hi
+    cases hi
     first
       | exact Std.Refl.refl (r := (· ≤ ·))
       | fail "Failed to automatically prove that the `LE` instance is reflexive."
-  le_trans : ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c := by
+  le_trans [i : LE α] (hi : i = le := by rfl) :
+      ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c := by
+    intro i hi
+    cases hi
     first
       | exact fun _ _ _ hab hbc => Trans.trans (r := (· ≤ ·)) (s := (· ≤ ·)) (t := (· ≤ ·)) hab hbc
       | fail "Failed to automatically prove that the `LE` instance is transitive."
@@ -296,8 +305,8 @@ public def PreorderPackage.ofLE (α : Type u)
   toBEq := letI := args.le; letI := args.decidableLE; args.beq
   toLawfulOrderLT := letI := args.le; letI := args.lt; ⟨args.lawful_lt⟩
   toLawfulOrderBEq := letI := args.le; letI := args.decidableLE; letI := args.beq; ⟨args.lawful_beq⟩
-  le_refl := args.le_refl
-  le_trans := args.le_trans
+  le_refl := letI := args.le; args.le_refl
+  le_trans := letI := args.le; args.le_trans
 
 -- public structure PreorderPackage.OfLTArgs (α : Type u) where
 --   lt : LT α := by infer_instance

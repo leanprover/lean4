@@ -71,7 +71,7 @@ theorem pairsSumToZero_correct (l : List Int) : pairsSumToZero l ↔ l.ExistsPai
 
   mvcgen
 
-  case inv =>
+  case inv1 =>
     exact Invariant.withEarlyReturn
       (onReturn := fun r b => ⌜r = true ∧ l.ExistsPair (fun a b => a + b = 0)⌝)
       (onContinue := fun traversalState seen =>

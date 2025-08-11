@@ -15,7 +15,7 @@ theorem F_spec :
    ⦃⇓ _ => ⌜1 < 2⌝⦄ := by
   mvcgen [F]
 
-  case inv => exact ⇓ _ => ⌜1 < 2⌝
+  case inv1 => exact ⇓ _ => ⌜1 < 2⌝
   -- it would be nice if we had a tactic wrapper around `case inv => exact ...` that does `mleave`
   -- on all subgoals afterwards.
 

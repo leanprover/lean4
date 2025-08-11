@@ -161,7 +161,7 @@ theorem throwing_loop_spec :
       imp_false, not_true_eq_false]
     omega
   case post.except => simp
-  case pre1 => simp_all +decide
+  case pre => simp_all +decide
   case step =>
     simp_all
     intros
@@ -271,7 +271,7 @@ theorem fib_impl_vcs
   mstart
   mspec
   mspec
-  case pre1 => exact loop_pre n hn
+  case pre => exact loop_pre n hn
   case post.success => mspec; mpure_intro; apply_rules [loop_post]
   case step =>
     intro _ _ _ _ h;
@@ -397,14 +397,14 @@ open Code
 theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   unfold fib_impl
   mvcgen
-  case inv => exact ⇓ (xs, ⟨a, b⟩) =>
+  case inv1 => exact ⇓ (xs, ⟨a, b⟩) =>
     ⌜a = fib_spec xs.rpref.length ∧ b = fib_spec (xs.rpref.length + 1)⌝
   all_goals simp_all +zetaDelta [Nat.sub_one_add_one]
 
 theorem fib_triple_step : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   unfold fib_impl
   mvcgen (stepLimit := some 14) -- 13 still has a wp⟦·⟧
-  case inv => exact ⇓ ⟨xs, a, b⟩ =>
+  case inv1 => exact ⇓ ⟨xs, a, b⟩ =>
     ⌜a = fib_spec xs.rpref.length ∧ b = fib_spec (xs.rpref.length + 1)⌝
   all_goals simp_all +zetaDelta [Nat.sub_one_add_one]
 
@@ -430,11 +430,11 @@ theorem fib_impl_vcs
     : ⊢ₛ wp⟦fib_impl n⟧ (Q n) := by
   unfold fib_impl
   mvcgen
-  case inv h => exact I n h
-  case isTrue h => subst h; apply_rules [ret]
-  case isFalse h => apply_rules [loop_pre]
-  case step => apply_rules [loop_step]
-  case post.success => apply_rules [loop_post]
+  case inv1 h => exact I n h
+  case vc1 h => subst h; apply_rules [ret]
+  case vc2 h => apply_rules [loop_pre]
+  case vc3 => apply_rules [loop_step]
+  case vc4 => apply_rules [loop_post]
 
 @[spec]
 theorem mkFreshNat_spec [Monad m] [WPMonad m sh] :
@@ -471,7 +471,7 @@ theorem sum_loop_spec :
   -- cf. `ByHand.sum_loop_spec`
   mintro -
   mvcgen [sum_loop]
-  case inv => exact (⇓ (xs, r) => ⌜(∀ x, x ∈ xs.suff → x ≤ 5) ∧ r + xs.suff.length * 5 ≤ 25⌝)
+  case inv1 => exact (⇓ (xs, r) => ⌜(∀ x, x ∈ xs.suff → x ≤ 5) ∧ r + xs.suff.length * 5 ≤ 25⌝)
   all_goals simp_all +decide; try grind
 
 theorem throwing_loop_spec :
@@ -480,24 +480,24 @@ theorem throwing_loop_spec :
   ⦃post⟨fun _ _ => ⌜False⌝,
         fun e s => ⌜e = 42 ∧ s = 4⌝⟩⦄ := by
   mvcgen [throwing_loop]
-  case inv => exact post⟨fun (xs, r) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suff.sum > 4⌝,
+  case inv1 => exact post⟨fun (xs, r) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suff.sum > 4⌝,
                          fun e s => ⌜e = 42 ∧ s = 4⌝⟩
-  case pre1 => simp_all only [SPred.down_pure]; decide
-  case post.success => simp_all only [SPred.down_pure]; grind
-  case post.except => simp_all
-  case isTrue => intro _; simp_all
-  case isFalse => intro _; simp_all only [SPred.down_pure]; grind
+  case vc1 => intro _; simp_all
+  case vc2 => intro _; simp_all only [SPred.down_pure]; grind
+  case vc3 => simp_all only [SPred.down_pure]; decide
+  case vc4 => simp_all only [SPred.down_pure]; grind
+  case vc5 => simp_all
 
 theorem test_loop_break :
   ⦃fun s => ⌜s = 42⌝⦄
   breaking_loop
   ⦃⇓ r s => ⌜r > 4 ∧ s = 1⌝⦄ := by
   mvcgen [breaking_loop]
-  case inv => exact (⇓ (xs, r) s => ⌜(r ≤ 4 ∧ r = xs.rpref.sum ∨ r > 4) ∧ s = 42⌝)
-  case pre1 => simp_all
-  case isTrue => intro _; mleave; grind
-  case isFalse => intro _; simp_all only [SPred.down_pure]; grind
-  case post.success =>
+  case inv1 => exact (⇓ (xs, r) s => ⌜(r ≤ 4 ∧ r = xs.rpref.sum ∨ r > 4) ∧ s = 42⌝)
+  case vc1 => intro _; mleave; grind
+  case vc2 => intro _; simp_all only [SPred.down_pure]; grind
+  case vc3 => simp_all
+  case vc4 =>
     simp_all
     rename_i h
     conv at h in (List.sum _) => whnf
@@ -509,17 +509,17 @@ theorem test_loop_early_return :
   returning_loop
   ⦃⇓ r s => ⌜r = 42 ∧ s = 4⌝⦄ := by
   mvcgen [returning_loop]
-  case inv => exact (⇓ (xs, r) s => ⌜(r.1 = none ∧ r.2 = xs.rpref.sum ∧ r.2 ≤ 4 ∨ r.1 = some 42 ∧ r.2 > 4) ∧ s = 4⌝)
-  case isTrue => intro _; mleave; grind
-  case isFalse => intro _; mleave; grind
-  case pre1 => simp_all
-  case h_1 =>
+  case inv1 => exact (⇓ (xs, r) s => ⌜(r.1 = none ∧ r.2 = xs.rpref.sum ∧ r.2 ≤ 4 ∨ r.1 = some 42 ∧ r.2 > 4) ∧ s = 4⌝)
+  case vc1 => intro _; mleave; grind
+  case vc2 => intro _; mleave; grind
+  case vc3 => simp_all
+  case vc4 =>
     simp_all
     rename_i h
     conv at h in (List.sum _) => whnf
     simp at h
     grind
-  case h_2 => simp_all
+  case vc5 => simp_all
 
 theorem unfold_to_expose_match_spec :
   ⦃fun s => ⌜s = 4⌝⦄
@@ -546,11 +546,9 @@ theorem test_sum :
     pure (f := Id) x
   ⦃⇓r => ⌜r < 30⌝⦄ := by
   mvcgen
-  case inv => exact (⇓ (xs, r) => ⌜(∀ x, x ∈ xs.suff → x ≤ 5) ∧ r + xs.suff.length * 5 ≤ 25⌝)
-  case step =>
-    simp_all
-    omega
-  case post.success => simp_all; omega
+  case inv1 => exact (⇓ (xs, r) => ⌜(∀ x, x ∈ xs.suff → x ≤ 5) ∧ r + xs.suff.length * 5 ≤ 25⌝)
+  case vc1 => simp_all; omega
+  case vc3 => simp_all; omega
   simp_all +decide
 
 /--
@@ -593,8 +591,8 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
   · intro h
     apply Id.by_wp (P := (· = true)) rfl
     mvcgen
-    case inv => exact (⇓ (xs, r) => ⌜r.1 = none ∧ ∀ x, x ∈ xs.suff → p x⌝)
-    case pre1 => simp; intro a ha; apply h a ha.upper
+    case inv1 => exact (⇓ (xs, r) => ⌜r.1 = none ∧ ∀ x, x ∈ xs.suff → p x⌝)
+    case vc3 => simp; intro a ha; apply h a ha.upper
     all_goals simp_all
   · intro ht i hin
     apply Classical.byContradiction
@@ -603,7 +601,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
       have hin : i ∈ [0:n] := by simp [Std.instMembershipNatRange, hin]
       apply Id.by_wp (P := (· = false)) rfl
       mvcgen
-      case inv => exact (⇓ (xs, r) =>
+      case inv1 => exact (⇓ (xs, r) =>
         match r.1 with
         | none => ⌜i ∈ xs.suff⌝
         | some b => ⌜b = false ∧ xs.suff = []⌝)
@@ -756,7 +754,7 @@ def max_and_sum (xs : Array Nat) : Id (Nat × Nat) := do
 theorem max_and_sum_spec (xs : Array Nat) :
     ⦃⌜∀ i, (h : i < xs.size) → xs[i] ≥ 0⌝⦄ max_and_sum xs ⦃⇓ (m, s) => ⌜s ≤ m * xs.size⌝⦄ := by
   mvcgen [max_and_sum]
-  case inv => exact (⇓ ⟨xs, m, s⟩ => ⌜s ≤ m * xs.rpref.length⌝)
+  case inv1 => exact (⇓ ⟨xs, m, s⟩ => ⌜s ≤ m * xs.rpref.length⌝)
   all_goals simp_all
   · rw [Nat.left_distrib]
     simp +zetaDelta only [Nat.mul_one, Nat.add_le_add_iff_right]
@@ -903,23 +901,20 @@ theorem naive_expo_correct (x n : Nat) : naive_expo x n = x^n := by
   generalize h : naive_expo x n = r
   apply Id.by_wp h
   mvcgen
-  case inv => exact ⇓⟨xs, r⟩ => ⌜r = x^xs.rpref.length⌝
+  case inv1 => exact ⇓⟨xs, r⟩ => ⌜r = x^xs.rpref.length⌝
   all_goals simp_all [Nat.pow_add_one]
 
 theorem fast_expo_correct (x n : Nat) : fast_expo x n = x^n := by
   generalize h : fast_expo x n = r
   apply Id.by_wp h
   mvcgen
-  case inv => exact ⇓⟨xs, e, x', y⟩ => ⌜x' ^ e * y = x ^ n ∧ e ≤ n - xs.rpref.length⌝
+  case inv1 => exact ⇓⟨xs, e, x', y⟩ => ⌜x' ^ e * y = x ^ n ∧ e ≤ n - xs.rpref.length⌝
   all_goals simp_all
-  case isFalse.isFalse b _ _ _ _ _ _ _ _ _ _ ih _ =>
+  case vc1 b _ _ _ _ _ _ _ _ _ _ ih =>
     obtain ⟨e, y, x'⟩ := b
-    simp at *
-    constructor
-    · rw [← Nat.pow_two, ← Nat.pow_mul]
-      grind
-    · grind
-  case isFalse.isTrue b _ _ _ _ _ _ _ _ _ _ ih _ =>
+    subst_vars
+    grind
+  case vc2 b _ _ _ _ _ _ _ _ _ _ ih _ =>
     obtain ⟨e, y, x'⟩ := b
     simp at *
     constructor
@@ -927,11 +922,14 @@ theorem fast_expo_correct (x n : Nat) : fast_expo x n = x^n := by
       have : e - 1 + 1 = e := by grind
       rw [this]
     · grind
-  case isTrue b _ _ _ _ _ _ _ _ _ _ ih =>
+  case vc3 b _ _ _ _ _ _ _ _ _ _ ih _ =>
     obtain ⟨e, y, x'⟩ := b
-    subst_vars
-    grind
-  case a.post b ih =>
+    simp at *
+    constructor
+    · rw [← Nat.pow_two, ← Nat.pow_mul]
+      grind
+    · grind
+  case vc5 b ih =>
     obtain ⟨e, y, x'⟩ := b
     simp at *
     rw [← ih.1, ih.2, Nat.pow_zero, Nat.one_mul]
@@ -957,7 +955,7 @@ theorem nodup_correct (l : List Int) : nodup l ↔ l.Nodup := by
   generalize h : nodup l = r
   apply Id.by_wp h
   mvcgen
-  case inv =>
+  case inv1 =>
     exact Invariant.withEarlyReturn
       (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
       (onContinue := fun traversalState seen =>
@@ -1029,7 +1027,7 @@ theorem mkFresh_spec (c : Nat) : ⦃fun state => ⌜state.counter = c⌝⦄ mkFr
 @[spec]
 theorem mkFreshN_spec (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
   mvcgen [mkFreshN]
-  case inv => exact ⇓⟨xs, acc⟩ state => ⌜(∀ x ∈ acc, x < state.counter) ∧ acc.toList.Nodup⌝
+  case inv1 => exact ⇓⟨xs, acc⟩ state => ⌜(∀ x ∈ acc, x < state.counter) ∧ acc.toList.Nodup⌝
   all_goals mleave; grind
 
 theorem mkFreshN_correct (n : Nat) : ((mkFreshN n).run' s).Nodup :=

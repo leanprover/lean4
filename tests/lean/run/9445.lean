@@ -1,5 +1,4 @@
 axiom A : Prop
-namespace ex1
 /--
 warning: Local attributes in implicit sections are discouraged. Consider using `attribute [local] ...` after the current command.
 -/

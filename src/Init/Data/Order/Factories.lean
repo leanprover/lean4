@@ -111,7 +111,7 @@ Returns a `LawfulOrderMax α` instance given certain properties.
 This lemma derives a `LawfulOrderMax α` instance from two properties involving `LE α` and `Max α`
 instances.
 
-This convenience lemma combines `LawfulOrderSup.of_le` and `LawfulOrderMax.of_le`.
+The produced instance entails `LawfulOrderSup α` and `MaxEqOr α`.
 -/
 public def LawfulOrderMax.of_le {α : Type u} [Max α] [LE α]
     (max_le_iff : ∀ a b c : α, max a b ≤ c ↔ a ≤ c ∧ b ≤ c)

@@ -30,8 +30,11 @@ namespace Lean.Elab.Command
     modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
   | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
+private def getParent (scopes : List Scope) : Name :=
+  scopes.head!.currNamespace
+
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
-    (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) :
+    (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (soft : Bool := false) :
     CommandElabM Unit := do
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,
@@ -44,24 +47,27 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
   }
   pushScope
   if isNewNamespace then
-    activateScoped newNamespace
+    if soft then
+      activateScoped newNamespace (getParent (←get).scopes)
+    else
+      activateScoped newNamespace none
 
 private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic : Bool := false)
-    (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) : CommandElabM Unit :=
+    (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (soft : Bool := false) : CommandElabM Unit :=
   go header
 where go
   | .anonymous => pure ()
   | .str p header => do
     go p
     let currNamespace ← getCurrNamespace
-    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs
+    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs soft
   | _ => throwError "invalid scope"
 
-private def addNamespace (header : Name) : CommandElabM Unit :=
+private def addNamespace (header : Name) (soft : Bool := false) : CommandElabM Unit :=
   addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header
 
-def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
-  addNamespace ns
+def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) (soft : Bool := false) : CommandElabM α := do
+  addNamespace ns soft
   let a ← elabFn
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
   pure a

@@ -23,6 +23,7 @@ inductive Entry (α : Type) where
 structure State (σ : Type) where
   state        : σ
   activeScopes : NameSet := {}
+  parent : Option Name := none
 
 structure ScopedEntries (β : Type) where
   map : SMap Name (PArray β) := {}
@@ -150,13 +151,21 @@ def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Envir
 def ScopedEnvExtension.addScopedEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) (b : β) : Environment :=
   ext.ext.addEntry env (Entry.«scoped» namespaceName b)
 
+def ScopedEnvExtension.getParentName (ext : ScopedEnvExtension α β σ) (env : Environment) : Option Name :=
+  match (ext.ext.getState env).stateStack.head? with
+  | none => none
+  | some state => state.parent
+
 def ScopedEnvExtension.addLocalEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
+  match getParentName ext env with
+  | none =>
   ext.ext.modifyState (asyncMode := .local) env fun s =>
     match s.stateStack with
     | [] => s
     | top :: states =>
       let top := { top with state := ext.descr.addEntry top.state b }
       { s with stateStack := top :: states }
+  | some parent => ext.addScopedEntry env parent b
 
 def ScopedEnvExtension.addCore (env : Environment) (ext : ScopedEnvExtension α β σ) (b : β) (kind : AttributeKind) (namespaceName : Name) : Environment :=
   match kind with
@@ -174,23 +183,23 @@ def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β �
   | top :: _ => top.state
   | _        => unreachable!
 
-def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) : Environment :=
+def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) (parent : Option Name := none): Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
     match s.stateStack with
     | top :: stack =>
       if top.activeScopes.contains namespaceName then
-        s
+        {s with stateStack := {top with parent := parent} :: stack }
       else
         let activeScopes := top.activeScopes.insert namespaceName
         let top :=
           match s.scopedEntries.map.find? namespaceName with
           | none =>
-            { top with activeScopes := activeScopes }
+            { top with activeScopes := activeScopes, parent := parent}
           | some bs => Id.run do
             let mut state := top.state
             for b in bs do
               state := ext.descr.addEntry state b
-            { state := state, activeScopes := activeScopes }
+            { state := state, activeScopes := activeScopes, parent := parent }
         { s with stateStack := top :: stack }
     | _ => s
 
@@ -208,9 +217,9 @@ def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit :=
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv ext.popScope
 
-def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (namespaceName : Name) : m Unit := do
+def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (namespaceName : Name) (parent : Option Name := none ) : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
-    modifyEnv (ext.activateScoped · namespaceName)
+    modifyEnv (ext.activateScoped · namespaceName parent)
 
 abbrev SimpleScopedEnvExtension (α : Type) (σ : Type) := ScopedEnvExtension α α σ
 

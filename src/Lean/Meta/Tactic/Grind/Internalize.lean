@@ -240,10 +240,10 @@ private def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
 private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
   if let some (thms, thmMap) := (← get).ematch.thmMap.retrieve? fName then
     modify fun s => { s with ematch.thmMap := thmMap }
-    let appMap := (← get).appMap
     for thm in thms do
       trace_goal[grind.debug.ematch.activate] "`{fName}` => `{thm.origin.key}`"
       unless (← get).ematch.thmMap.isErased thm.origin do
+        let appMap := (← get).appMap
         let symbols := thm.symbols.filter fun sym => !appMap.contains sym
         let thm := { thm with symbols }
         match symbols with

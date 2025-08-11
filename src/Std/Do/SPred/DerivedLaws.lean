@@ -196,6 +196,7 @@ instance (σs) : IsPure (σs:=σs) spred(⌜φ⌝ ∨ ⌜ψ⌝) (φ ∨ ψ) wher
 instance (σs) (P : α → Prop) : IsPure (σs:=σs) spred(∃ x, ⌜P x⌝) (∃ x, P x) where to_pure := pure_exists
 instance (σs) (P : α → Prop) : IsPure (σs:=σs) spred(∀ x, ⌜P x⌝) (∀ x, P x) where to_pure := pure_forall
 instance (σs) (P : SPred (σ::σs)) [inst : IsPure P φ] : IsPure (σs:=σs) spred(P s) φ where to_pure := (iff_of_eq bientails_cons).mp inst.to_pure s
+instance (σs) (P : SPred σs) [inst : IsPure P φ] : IsPure (σs:=σ::σs) (fun _ => P) φ where to_pure := (iff_of_eq bientails_cons).mpr (fun _ => inst.to_pure)
 instance (φ : Prop) : IsPure (σs:=[]) ⌜φ⌝ φ where to_pure := Iff.rfl
 instance (P : SPred []) : IsPure (σs:=[]) P P.down where to_pure := Iff.rfl
 
@@ -267,6 +268,7 @@ class HasFrame (P : SPred σs) (P' : outParam (SPred σs)) (φ : outParam Prop) 
   reassoc : P ⊣⊢ₛ P' ∧ ⌜φ⌝
 instance (σs) (P P' Q QP : SPred σs) [HasFrame P Q φ] [SimpAnd Q P' QP]: HasFrame (σs:=σs) spred(P ∧ P') QP φ where reassoc := ((and_congr_l HasFrame.reassoc).trans and_right_comm).trans (and_congr_l SimpAnd.simp_and)
 instance (σs) (P P' Q' PQ : SPred σs) [HasFrame P' Q' φ] [SimpAnd P Q' PQ]: HasFrame (σs:=σs) spred(P ∧ P') PQ φ where reassoc := ((and_congr_r HasFrame.reassoc).trans and_assoc.symm).trans (and_congr_l SimpAnd.simp_and)
+instance (σs) (P P' : Prop) (Q : SPred σs) [HasFrame spred(⌜P⌝ ∧ ⌜P'⌝) Q φ] : HasFrame (σs:=σs) ⌜P ∧ P'⌝ Q φ where reassoc := and_pure.symm.trans HasFrame.reassoc
 instance (σs) (P P' : SVal.StateTuple σs → Prop) (Q : SPred σs) [HasFrame spred(SVal.curry (fun t => ⟨P t⟩) ∧ SVal.curry (fun t => ⟨P' t⟩)) Q φ] : HasFrame (σs:=σs) (SVal.curry fun t => ⟨P t ∧ P' t⟩) Q φ where reassoc := and_curry.symm.trans HasFrame.reassoc
 instance (σs) (P : SPred σs) : HasFrame (σs:=σs) spred(⌜φ⌝ ∧ P) P φ where reassoc := and_comm
 instance (σs) (P : SPred σs) : HasFrame (σs:=σs) spred(P ∧ ⌜φ⌝) P φ where reassoc := .rfl

@@ -95,20 +95,17 @@ theorem sum_loop_spec :
   simp_all +decide
   omega
 
-private abbrev fst : SVal ((Nat × Nat)::σs) Nat := fun s => SVal.pure s.1
-private abbrev snd : SVal ((Nat × Nat)::σs) Nat := fun s => SVal.pure s.2
-
 theorem mkFreshNat_spec [Monad m] [WPMonad m sh] :
-  ⦃⌜#fst = n ∧ #snd = o⌝⦄
+  ⦃fun p => ⌜p.1 = n ∧ p.2 = o⌝⦄
   (mkFreshNat : StateT (Nat × Nat) m Nat)
-  ⦃⇓ r => ⌜r = n ∧ #fst = n + 1 ∧ #snd = o⌝⦄ := by
+  ⦃⇓ r p => ⌜r = n ∧ p.1 = n + 1 ∧ p.2 = o⌝⦄ := by
   mintro _
   dsimp only [mkFreshNat, get, getThe, instMonadStateOfOfMonadLift, liftM, monadLift, modify, modifyGet]
   mspec
   mspec
   mspec
   mspec
-  simp
+  simp [*]
 
 attribute [local spec] mkFreshNat_spec
 
@@ -160,7 +157,7 @@ theorem throwing_loop_spec :
     mspec
     mspec
     mspec
-    simp_all only [List.sum_nil, Nat.add_zero, gt_iff_lt, SVal.curry_nil, SPred.entails_nil,
+    simp_all only [List.sum_nil, Nat.add_zero, gt_iff_lt, SPred.down_pure, SPred.entails_nil,
       imp_false, not_true_eq_false]
     omega
   case post.except => simp
@@ -174,9 +171,9 @@ theorem throwing_loop_spec :
     case isFalse => intro _; mintro _; mspec; intro _; simp_all +arith
 
 theorem beaking_loop_spec :
-  ⦃⌜‹Nat›ₛ = 42⌝⦄
+  ⦃fun s => ⌜s = 42⌝⦄
   breaking_loop
-  ⦃⇓ r => ⌜r > 4 ∧ ‹Nat›ₛ = 1⌝⦄ := by
+  ⦃⇓ r s => ⌜r > 4 ∧ s = 1⌝⦄ := by
   mintro hs
   dsimp only [breaking_loop, get, getThe, instMonadStateOfOfMonadLift, liftM, monadLift]
   mspec
@@ -214,7 +211,7 @@ theorem returning_loop_spec :
     · mspec
       intro _ h
       conv at h in (List.sum _) => whnf
-      simp at h
+      simp at h ⊢
       grind
   case step =>
     intros
@@ -348,10 +345,6 @@ end KimsBabySteps
 
 section WeNeedAProofMode
 
-private abbrev theNat : SVal [Nat, Bool] Nat := fun n _ => n
-private def test (P Q : Assertion (.arg Nat (.arg Bool .pure))) : Assertion (.arg Char (.arg Nat (.arg Bool .pure))) :=
-  spred(fun n => ((∀ y, if y = n then ⌜‹Nat›ₛ + #theNat = 4⌝ else Q) ∧ Q) → P → (∃ x, P → if (x : Bool) then Q else P))
-
 abbrev M := StateT Nat (StateT Char (StateT Bool (StateT String Id)))
 axiom op : Nat → M Nat
 noncomputable def prog (n : Nat) : M Nat := do
@@ -443,21 +436,18 @@ theorem fib_impl_vcs
   case step => apply_rules [loop_step]
   case post.success => apply_rules [loop_post]
 
-private abbrev fst : SVal (AppState::σs) Nat := fun s => SVal.pure s.1
-private abbrev snd : SVal (AppState::σs) Nat := fun s => SVal.pure s.2
-
 @[spec]
 theorem mkFreshNat_spec [Monad m] [WPMonad m sh] :
-  ⦃⌜#fst = n ∧ #snd = o⌝⦄
+  ⦃fun s => ⌜s.1 = n ∧ s.2 = o⌝⦄
   (mkFreshNat : StateT AppState m Nat)
-  ⦃⇓ r => ⌜r = n ∧ #fst = n + 1 ∧ #snd = o⌝⦄ := by
+  ⦃⇓ r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝⦄ := by
   mvcgen [mkFreshNat]
   simp_all +zetaDelta
 
 theorem erase_unfold [Monad m] [WPMonad m sh] :
-  ⦃⌜#fst = n ∧ #snd = o⌝⦄
+  ⦃fun s => ⌜s.1 = n ∧ s.2 = o⌝⦄
   (mkFreshNat : StateT AppState m Nat)
-  ⦃⇓ r => ⌜r = n ∧ #fst = n + 1 ∧ #snd = o⌝⦄ := by
+  ⦃⇓ r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝⦄ := by
   unfold mkFreshNat
   mvcgen [-modify]
   simp_all [-WP.modify_MonadStateOf]
@@ -465,9 +455,9 @@ theorem erase_unfold [Monad m] [WPMonad m sh] :
   admit
 
 theorem add_unfold [Monad m] [WPMonad m sh] :
-  ⦃⌜#fst = n ∧ #snd = o⌝⦄
+  ⦃fun s => ⌜s.1 = n ∧ s.2 = o⌝⦄
   (mkFreshNat : StateT AppState m Nat)
-  ⦃⇓ r => ⌜r = n ∧ #fst = n + 1 ∧ #snd = o⌝⦄ := by
+  ⦃⇓ r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝⦄ := by
   mvcgen [mkFreshNat]
 
 theorem mkFreshPair_triple : ⦃⌜True⌝⦄ mkFreshPair ⦃⇓ (a, b) => ⌜a ≠ b⌝⦄ := by
@@ -492,21 +482,21 @@ theorem throwing_loop_spec :
   mvcgen [throwing_loop]
   case inv => exact post⟨fun (xs, r) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suff.sum > 4⌝,
                          fun e s => ⌜e = 42 ∧ s = 4⌝⟩
-  case pre1 => simp_all only [SVal.curry_nil]; decide
-  case post.success => simp_all only [SVal.curry_nil]; grind
+  case pre1 => simp_all only [SPred.down_pure]; decide
+  case post.success => simp_all only [SPred.down_pure]; grind
   case post.except => simp_all
   case isTrue => intro _; simp_all
-  case isFalse => intro _; simp_all only [SVal.curry_nil]; grind
+  case isFalse => intro _; simp_all only [SPred.down_pure]; grind
 
 theorem test_loop_break :
-  ⦃⌜‹Nat›ₛ = 42⌝⦄
+  ⦃fun s => ⌜s = 42⌝⦄
   breaking_loop
-  ⦃⇓ r => ⌜r > 4 ∧ ‹Nat›ₛ = 1⌝⦄ := by
+  ⦃⇓ r s => ⌜r > 4 ∧ s = 1⌝⦄ := by
   mvcgen [breaking_loop]
   case inv => exact (⇓ (xs, r) s => ⌜(r ≤ 4 ∧ r = xs.rpref.sum ∨ r > 4) ∧ s = 42⌝)
   case pre1 => simp_all
   case isTrue => intro _; mleave; grind
-  case isFalse => intro _; simp_all only [SVal.curry_nil]; grind
+  case isFalse => intro _; simp_all only [SPred.down_pure]; grind
   case post.success =>
     simp_all
     rename_i h
@@ -617,7 +607,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
         match r.1 with
         | none => ⌜i ∈ xs.suff⌝
         | some b => ⌜b = false ∧ xs.suff = []⌝)
-      all_goals simp_all; try grind
+      all_goals simp_all [SPred.pure_nil]; try grind
     simp [ht] at hf
 
 end Automated

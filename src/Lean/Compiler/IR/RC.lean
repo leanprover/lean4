@@ -45,27 +45,33 @@ private def visitParam (p : Param) : M Unit :=
       else s.borrowedParams
   }
 
+private partial def addDerivedValue (parent : VarId) (child : VarId) : M Unit := do
+  modify fun s => { s with
+    varMap := s.varMap.modify parent fun info =>
+      { info with children := info.children.insert child }
+  }
+  modify fun s => { s with
+    varMap := s.varMap.insert child {
+      parent? := some parent
+      children := {}
+    }
+  }
+
+private partial def removeFromParent (child : VarId) : M Unit := do
+  if let some (some parent) := (← get).varMap.get? child |>.map (·.parent?) then
+    modify fun s => { s with
+      varMap := s.varMap.modify parent fun info =>
+        { info with children := info.children.erase child }
+    }
+
 private partial def visitFnBody (b : FnBody) : M Unit := do
   match b with
   | .vdecl x _ e b =>
     match e with
     | .proj _ parent =>
-      modify fun s => { s with
-        varMap := s.varMap.modify parent fun info =>
-          { info with children := info.children.insert x }
-      }
-      modify fun s => { s with
-        varMap := s.varMap.insert x {
-          parent? := some parent
-          children := {}
-        }
-      }
+      addDerivedValue parent x
     | .reset _ x =>
-      if let some (some parent) := (← get).varMap.get? x |>.map (·.parent?) then
-        modify fun s => { s with
-          varMap := s.varMap.modify parent fun info =>
-            { info with children := info.children.erase x }
-        }
+      removeFromParent x
     | _ => pure ()
     visitFnBody b
   | .jdecl _ ps v b =>

@@ -60,7 +60,7 @@ theorem finRange_reverse {n} : (finRange n).reverse = (finRange n).map Fin.rev :
     congr 2; funext
     simp [Fin.rev_succ]
 
-theorem mem_finRange {n} (x : Fin n) : x ∈ finRange n := by
+@[simp] theorem mem_finRange {n} (x : Fin n) : x ∈ finRange n := by
   simp [finRange]
 
 end List

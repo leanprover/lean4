@@ -19,7 +19,6 @@ class quot_consts {
     friend bool quot_is_decl(name const & n);
     friend bool quot_is_rec(name const & n);
     template<typename WHNF> friend optional<expr> quot_reduce_rec(expr const & e, WHNF const & whnf);
-    template<typename WHNF, typename IS_STUCK> friend optional<expr> quot_is_stuck(expr const & e, WHNF const & whnf, IS_STUCK const & is_stuck);
     friend class environment;
     friend void initialize_quot();
     friend void finalize_quot();
@@ -67,31 +66,6 @@ template<typename WHNF> optional<expr> quot_reduce_rec(expr const & e, WHNF cons
     if (args.size() > elim_arity)
         r = mk_app(r, args.size() - elim_arity, args.begin() + elim_arity);
     return some_expr(r);
-}
-
-/** \brief Return a non-none expression that is preventing the `quot` recursor application from being reduced.
-
-    `whnf : expr -> expr`
-    `is_stuck : expr -> optional<expr> */
-template<typename WHNF, typename IS_STUCK> optional<expr> quot_is_stuck(expr const & e, WHNF const & whnf, IS_STUCK const & is_stuck) {
-    expr const & fn = get_app_fn(e);
-    if (!is_constant(fn))
-        return none_expr();
-    unsigned mk_pos;
-    if (const_name(fn) == *quot_consts::g_quot_lift) {
-        mk_pos = 5;
-    } else if (const_name(fn) == *quot_consts::g_quot_ind) {
-        mk_pos = 4;
-    } else {
-        return none_expr();
-    }
-
-    buffer<expr> args;
-    get_app_args(e, args);
-    if (args.size() <= mk_pos)
-        return none_expr();
-
-    return is_stuck(whnf(args[mk_pos]));
 }
 
 void initialize_quot();

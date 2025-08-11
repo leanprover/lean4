@@ -126,7 +126,12 @@ syntax (name := mstop) "mstop" : tactic
 @[inherit_doc Lean.Parser.Tactic.mleaveMacro]
 macro (name := mleave) "mleave" : tactic =>
   `(tactic| (try simp only [
-              $(mkIdent ``Std.Do.SPred.entails_cons):term,
+              -- $(mkIdent ``Std.Do.SPred.entails_cons):term, -- Ineffective until #9015 lands
+              $(mkIdent ``Std.Do.SPred.entails_1):term,
+              $(mkIdent ``Std.Do.SPred.entails_2):term,
+              $(mkIdent ``Std.Do.SPred.entails_3):term,
+              $(mkIdent ``Std.Do.SPred.entails_4):term,
+              $(mkIdent ``Std.Do.SPred.entails_5):term,
               $(mkIdent ``Std.Do.SPred.entails_nil):term,
               $(mkIdent ``Std.Do.SPred.and_cons):term,
               $(mkIdent ``Std.Do.SPred.and_nil):term,

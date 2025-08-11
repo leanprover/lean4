@@ -48,7 +48,9 @@ def entails {σs : List (Type u)} (P Q : SPred σs) : Prop := match σs with
   | [] => P.down → Q.down
   | σ :: _ => ∀ (s : σ), entails (P s) (Q s)
 @[simp, grind =] theorem entails_nil {P Q : SPred []} : entails P Q = (P.down → Q.down) := rfl
-@[grind =] theorem entails_cons {P Q : SPred (σ::σs)} : entails P Q = (∀ s, entails (P s) (Q s)) := rfl
+-- We would like to make `entails_cons` @[simp], but that has no effect until we merge #9015.
+-- Until then, we have `entails_<n>` for n ∈ [1:5] in DerivedLaws.lean.
+theorem entails_cons {P Q : SPred (σ::σs)} : entails P Q = (∀ s, entails (P s) (Q s)) := rfl
 theorem entails_cons_intro {P Q : SPred (σ::σs)} : (∀ s, entails (P s) (Q s)) → entails P Q := by simp only [entails_cons, imp_self]
 
 -- Reducibility of entails must be semi-reducible so that entails_refl is useful for rfl
@@ -58,7 +60,7 @@ def bientails {σs : List (Type u)} (P Q : SPred σs) : Prop := match σs with
   | [] => P.down ↔ Q.down
   | σ :: _ => ∀ (s : σ), bientails (P s) (Q s)
 @[simp, grind =] theorem bientails_nil {P Q : SPred []} : bientails P Q = (P.down ↔ Q.down) := rfl
-@[grind =] theorem bientails_cons {P Q : SPred (σ::σs)} : bientails P Q = (∀ s, bientails (P s) (Q s)) := rfl
+theorem bientails_cons {P Q : SPred (σ::σs)} : bientails P Q = (∀ s, bientails (P s) (Q s)) := rfl
 theorem bientails_cons_intro {P Q : SPred (σ::σs)} : (∀ s, bientails (P s) (Q s)) → bientails P Q := by simp only [bientails_cons, imp_self]
 
 /-- Conjunction in `SPred`. -/

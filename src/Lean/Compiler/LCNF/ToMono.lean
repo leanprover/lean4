@@ -90,8 +90,18 @@ partial def LetValue.toMono (e : LetValue) (resultFVar : FVarId) : ToMonoM LetVa
       -- Decidable.decide is the identity function since Decidable
       -- and Bool have the same runtime representation.
       return args[1]!.toLetValue
-    else if declName == ``Quot.mk || declName == ``Quot.lcInv then
+    else if declName == ``Quot.mk then
       return args[2]!.toLetValue
+    else if declName == ``Quot.lcInv then
+      match args[2]! with
+      | .fvar fvarId =>
+        let mut extraArgs : Array Arg := .emptyWithCapacity (args.size - 3)
+        for i in 3...args.size do
+          let arg ← argToMono args[i]!
+          extraArgs := extraArgs.push arg
+        return .fvar fvarId extraArgs
+      | .erased | .type _ =>
+        return .erased
     else if declName == ``Nat.zero then
       return .lit (.nat 0)
     else if declName == ``Nat.succ then

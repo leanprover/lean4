@@ -13,7 +13,7 @@ module
 
 set_option compiler.small 0
 
-public def hello := "world"
+public def hello : String := "world"
 
 public def testSpec (xs : List Nat) : List Nat := xs.map (fun x => x + 1)
 EOF

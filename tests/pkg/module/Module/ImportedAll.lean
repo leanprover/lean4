@@ -131,8 +131,8 @@ info: theorem f_exp_wfrec.induct_unfolding : ∀ (motive : Nat → Nat → Nat �
 
 /-! `import all` should allow access to private defs, privately. -/
 
-public def pub := priv
+public def pub : Nat := priv
 
 /-- error: Unknown identifier `priv` -/
 #guard_msgs in
-@[expose] public def pub' := priv
+@[expose] public def pub' : Nat := priv

@@ -940,3 +940,99 @@ theorem same_func (x n : Nat) : fast_expo x n = naive_expo x n := by
   rw [naive_expo_correct, fast_expo_correct]
 
 end PatricksFastExp
+
+namespace Nodup
+
+-- Inspired by Markus' `pairsSumToZero`.
+
+def nodup (l : List Int) : Bool := Id.run do
+  let mut seen : Std.HashSet Int := ∅
+  for x in l do
+    if x ∈ seen then
+      return false
+    seen := seen.insert x
+  return true
+
+theorem nodup_correct (l : List Int) : nodup l ↔ l.Nodup := by
+  generalize h : nodup l = r
+  apply Id.by_wp h
+  mvcgen
+  case inv =>
+    exact Invariant.withEarlyReturn
+      (onReturn := fun ret seen => ⌜ret = false ∧ ¬l.Nodup⌝)
+      (onContinue := fun traversalState seen =>
+        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.pref) ∧ traversalState.pref.Nodup⌝)
+  all_goals mleave; grind
+
+@[simp, grind]
+theorem Std.HashSet.Nodup_toList [Hashable α] [BEq α] [LawfulHashable α] [EquivBEq α] [LawfulBEq α] (m : Std.HashSet α) :
+    m.toList.Nodup := by
+  simp only [Std.HashSet.toList]
+  simpa using Std.HashMap.distinct_keys (m := m.inner)
+
+@[simp, grind]
+theorem Std.HashSet.Nodup_append_toList_insert [Hashable α] [BEq α] [LawfulHashable α] [EquivBEq α] [LawfulBEq α] (m : Std.HashSet α) (x : α) (h : x ∉ m) :
+    ((m.insert x).toList ++ tl).Nodup ↔ (m.toList ++ x :: tl).Nodup := by
+  grind
+
+theorem nodup_correct_directly (l : List Int) : nodup l ↔ l.Nodup := by
+  simp [nodup]
+  suffices h :
+      ∀ seen,
+        match MProd.fst (Id.run (forIn (β := MProd (Option Bool) (Std.HashSet Int)) l ⟨none, seen⟩ (fun x ⟨_, seen⟩ =>
+          if x ∈ seen then pure (ForInStep.done (α := MProd (Option Bool) (Std.HashSet Int)) ⟨some false, seen⟩)
+          else pure (ForInStep.yield (α := MProd (Option Bool) (Std.HashSet Int)) ⟨none, seen.insert x⟩)))) with
+        | some true => False
+        | some false => ¬(seen.toList ++ l).Nodup
+        | none => (seen.toList ++ l).Nodup by
+    replace h := h ∅
+    split
+    · simp_all only [Id.run_pure]; grind
+    · cases ‹Bool› <;> simp_all only [Id.run_pure]; grind
+  induction l with
+  | nil => simp_all
+  | cons hd tl ih =>
+    intro seen
+    simp_all
+    if hif : hd ∈ seen
+    then simp_all only [↓reduceIte, Id.run_pure]; grind
+    else
+      replace ih := ih (seen.insert hd)
+      simp only [hif, ↓reduceIte, Id.run_pure]
+      split <;> simp_all
+
+end Nodup
+
+namespace Fresh
+
+structure AppState where
+  counter : Nat
+  other : Nat
+  stuff : Nat
+
+def mkFresh : StateM AppState Nat := do
+  let n ← (·.counter) <$> get
+  modify (fun s => {s with counter := s.counter + 1})
+  pure n
+
+def mkFreshN (n : Nat) : StateM AppState (List Nat) := do
+  let mut acc := #[]
+  for _ in [:n] do
+    acc := acc.push (← mkFresh)
+  pure acc.toList
+
+@[spec]
+theorem mkFresh_spec (c : Nat) : ⦃fun state => ⌜state.counter = c⌝⦄ mkFresh ⦃⇓ r state => ⌜r = c ∧ c < state.counter⌝⦄ := by
+  mvcgen [mkFresh]
+  grind
+
+@[spec]
+theorem mkFreshN_spec (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
+  mvcgen [mkFreshN]
+  case inv => exact ⇓⟨xs, acc⟩ state => ⌜(∀ x ∈ acc, x < state.counter) ∧ acc.toList.Nodup⌝
+  all_goals mleave; grind
+
+theorem mkFreshN_correct (n : Nat) : ((mkFreshN n).run' s).Nodup :=
+  mkFreshN_spec n s True.intro
+
+end Fresh

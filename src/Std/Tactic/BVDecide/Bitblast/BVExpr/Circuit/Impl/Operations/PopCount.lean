@@ -274,32 +274,6 @@ theorem go_decl_eq (w inputNodes: Nat) (aig : AIG α) (parSum : RefVecVec aig w 
               (_proof_4 w inputNodes h) hw' h))
   · simp [← hgo]
 
-theorem go_decl_eq' (w : Nat) (aig : AIG α) (input : aig.RefVec w) (hw : 0 < w)
-  : ∀ (idx : Nat) h1 h2,
-    (go (blastExtractAndExtendPopulate aig 0 input { vec := Vector.emptyWithCapacity 0 } (by omega)).aig w w
-          (blastExtractAndExtendPopulate aig 0 input { vec := Vector.emptyWithCapacity 0 } (by omega)).vec (by constructor; omega) (by omega)
-          hw).aig.decls[idx]'(by
-            sorry) =
-    aig.decls[idx]'h2 := by sorry
-
-theorem go_decl_eq'' (w : Nat) (aig : AIG α) (input : aig.RefVec w) (hw : 0 < w)
-  : ∀ (idx : Nat) h1 h2,
-    (go (blastExtractAndExtendPopulate aig 0 input { vec := Vector.emptyWithCapacity 0 } (by omega)).aig w w
-          (blastExtractAndExtendPopulate aig 0 input { vec := Vector.emptyWithCapacity 0 } (by omega)).vec (by constructor; omega) (by omega)
-          hw).aig.decls[idx]'(by
-            have := go_decl_eq w 0 aig
-            have := extractAndExtendPopulate_decl_eq aig input (start := 0)
-
-            sorry) =
-    aig.decls[idx]'h2 := by sorry
-  -- generalize hgo : go aig w inputNodes parSum hw hw' hw'' = res
-  -- unfold go at hgo
-  -- dsimp only at hgo
-  -- split at hgo
-  -- · sorry
-  -- · sorry
-
-
 instance : AIG.LawfulVecOperator α AIG.RefVec blastPopCount where
   le_size := by
     intros
@@ -313,7 +287,11 @@ instance : AIG.LawfulVecOperator α AIG.RefVec blastPopCount where
     dsimp only
     expose_names
     split
-    · apply go_decl_eq'
+    · have := extractAndExtendPopulate_decl_eq aig (start := 0) input
+      have := extractAndExtendPopulate_le_size aig (start := 0) input
+      rw [go_decl_eq]
+      (expose_names; refine this_1 { vec := Vector.emptyWithCapacity 0 } (_proof_12 h) idx h1 ?_)
+      exact Nat.lt_of_lt_of_le h1 (this { vec := Vector.emptyWithCapacity 0 } (_proof_12 h))
     · simp
 
 end blastPopCount

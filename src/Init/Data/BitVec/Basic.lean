@@ -890,7 +890,7 @@ def auxAdd (vecIn : List (BitVec w)) (currSum : List (BitVec w)) (addedNodes inp
   termination_by (w - addedNodes)
 /-- Recursively extract one bit at a time and extend it to width `w`. `hlen` emulates the behaviour of Vector to simplify proving the correctness of the circuit. -/
 def extractAndExtendPopulateAux (start : Nat) (x : BitVec w) (acc : List (BitVec w)) (h : start ≤ w) (hlen : acc.length = start) : {l : List (BitVec w) // l.length = w} :=
-    match h :  w - start with
+    match h : w - start with
     | 0 => ⟨acc, by omega⟩
     | n + 1 =>
       let newVec := (x.extractLsb start start).zeroExtend w

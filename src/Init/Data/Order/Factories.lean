@@ -246,7 +246,7 @@ section Packages
 section Preorder
 
 public class PreorderPackage (α : Type u) extends
-    OrderData α, LE α, LT α, BEq α, LawfulOrderLE α, LawfulOrderLT α, LawfulOrderBEq α, IsPreorder α
+    LE α, LT α, BEq α, LawfulOrderLT α, LawfulOrderBEq α, IsPreorder α
 
 namespace Instances
 
@@ -263,27 +263,19 @@ end Instances
 public structure Packages.PreorderOfLEArgs (α : Type u) where
   le : LE α := by infer_instance
   decidableLE : DecidableLE α := by infer_instance
-  orderData [i : LE α] (hi : i = le := by rfl) : OrderData α := by
-    first
-      | infer_instance
-      | exact fun _ => OrderData.ofLE _
-  lt [i : OrderData α] (hi : i = orderData := by rfl) : LT α := by
+  lt [i : LE α] (hi : i = le := by rfl) : LT α := by
     first
       | infer_instance
       | exact fun _ => Classical.Order.instLT
-  beq [i : OrderData α] (hi : i = orderData := by rfl) : BEq α := by
+  beq [i : LE α] [di : DecidableLE α] (hi : i = le := by rfl) : BEq α := by
     first
       | infer_instance
       | exact fun _ => Instances.instBEqOfDecidableLE
-  lawful_orderData : haveI := orderData; ∀ a b : α, a ≤ b ↔ OrderData.IsLE a b := by
+  lawful_lt : letI := lt; ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
     first
-      | exact LawfulOrderLE.le_iff
-      | fail "Failed to automatically prove that the `OrderData` and `LE` instances are compatible."
-  lawful_lt : letI := orderData; letI := lt; ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
-    first
-      | simp only [Classical.Order.instLT, ← LawfulOrderLE.le_iff, implies_true]; done -- TODO: use term?
+      | simp only [Classical.Order.instLT, implies_true]; done -- TODO: use term?
       | fail "Failed to automatically prove that the `OrderData` and `LT` instances are compatible."
-  lawful_beq : letI := orderData; letI := beq; ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a := by
+  lawful_beq : letI := beq; ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a := by
     first
       | simpa only [Instances.instBEqOfDecidableLE, BEq.beq] using fun a b => Std.Instances.beq_iff; done -- TODO: use simp only
       | fail "Failed to automatically prove that the `OrderData` and `BEq` instances are compatible."
@@ -300,20 +292,12 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
 public def PreorderPackage.ofLE (α : Type u)
     (args : Packages.PreorderOfLEArgs α := by exact {}) : PreorderPackage α where
   toLE := args.le
-  toOrderData := letI := args.le; args.orderData
-  toLT := letI := args.le; letI := args.orderData; args.lt
-  toBEq := letI := args.le; letI := args.orderData; args.beq
-  toLawfulOrderLE := letI := args.le; letI := args.orderData; ⟨args.lawful_orderData⟩
-  toLawfulOrderLT := by
-    letI := args.le; letI := args.orderData; letI := args.lt
-    constructor
-    simpa [args.lawful_orderData] using args.lawful_lt
-  toLawfulOrderBEq := by
-    letI := args.le; letI := args.orderData; letI := args.beq
-    constructor
-    simpa [args.lawful_orderData] using args.lawful_beq
-  le_refl := (by simpa [args.lawful_orderData] using args.le_refl)
-  le_trans := (by simpa [args.lawful_orderData] using args.le_trans)
+  toLT := letI := args.le; args.lt
+  toBEq := letI := args.le; letI := args.decidableLE; args.beq
+  toLawfulOrderLT := letI := args.le; letI := args.lt; ⟨args.lawful_lt⟩
+  toLawfulOrderBEq := letI := args.le; letI := args.decidableLE; letI := args.beq; ⟨args.lawful_beq⟩
+  le_refl := args.le_refl
+  le_trans := args.le_trans
 
 -- public structure PreorderPackage.OfLTArgs (α : Type u) where
 --   lt : LT α := by infer_instance
@@ -370,7 +354,7 @@ public structure Packages.PartialOrderOfLEArgs (α : Type u) extends Packages.Pr
 public def PartialOrderPackage.ofLE (α : Type u)
     (args : Packages.PartialOrderOfLEArgs α := by exact {}) : PartialOrderPackage α where
   toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
-  le_antisymm := by simpa [args.lawful_orderData] using args.le_antisymm
+  le_antisymm := args.le_antisymm
 
 end PartialOrder
 

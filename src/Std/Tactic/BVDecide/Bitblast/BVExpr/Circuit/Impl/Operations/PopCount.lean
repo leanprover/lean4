@@ -50,25 +50,7 @@ def RefVecVec.push {aigOld aigNew: AIG α} {n w : Nat} (vec : RefVecVec aigOld w
   let vec' : Vector (AIG.RefVec aigNew w) n := vec.vec.map fun refVec => refVec.cast haig
   {vec := vec'.push elem}
 
--- structure ExtractAndExtendInput (aig : AIG α) (len : Nat) where
---   lhs : AIG.RefVec aig len
---   start : Nat
-
-/-- We extract one bit from `x` and extend it to width `w` -/
--- def blastExtractAndExtend (aig : AIG α) (input : ExtractAndExtendInput aig w) : AIG.RefVecEntry α w :=
---   let ⟨x, start⟩ := input
---   -- extract 1 bit starting from start
---   let targetExtract : ExtractTarget aig 1 := {vec := x, start := start}
---   let res := blastExtract aig targetExtract
---   let aig := res.aig
---   let extract := res.vec
---   -- zero-extend the extracted portion to have
---   let targetExtend : AIG.ExtendTarget aig w := {vec := extract, w := 1}
---   let res := blastZeroExtend aig targetExtend
---   let aig := res.aig
---   let extend := res.vec
---   ⟨aig, extend⟩
-
+/-- We extract a single bit in position `start` and extend it to haev width `w`-/
 def blastExtractAndExtend (aig : AIG α) (x : AIG.RefVec aig w) (start : Nat) : AIG.RefVecEntry α w :=
   -- extract 1 bit starting from start
   let targetExtract : ExtractTarget aig 1 := {vec := x, start := start}
@@ -102,9 +84,7 @@ theorem extractAndExtend_decl_eq (aig : AIG α) (x : AIG.RefVec aig w) (start : 
   rw [AIG.LawfulVecOperator.decl_eq (f := blastExtract)]
   (expose_names; exact h1)
 
--- Note: can't wrap start into a struct because then lean won't be able to show termination
-
--- /-- We recursively extract and extend all bits from `x` and use them to populate `acc`, casting the AIG accordingly -/
+/-- We recursively extract and extend all bits from `x` and use them to populate `acc`, casting the AIG accordingly -/
 def blastExtractAndExtendPopulate (aig : AIG α) (start : Nat) (x : AIG.RefVec aig w) (acc : RefVecVec aig w start) (hw : start ≤ w) : RefVecEntryVec α w w :=
   if hw : start < w then
     let res := blastExtractAndExtend aig x start
@@ -141,7 +121,7 @@ theorem extractAndExtendPopulate_decl_eq (aig : AIG α) (x : AIG.RefVec aig w) (
     (expose_names; exact Nat.lt_of_lt_of_le h1 this)
   · simp [← hres]
 
-/-- Given a vector of references belonging to the same AIG `oldParSum`, we create a note to add the `curr`-th couple of elements and use that to populate a new vector `newParSum` -/
+/-- Given a vector of references belonging to the same AIG `oldParSum`, we create a node to add the `curr`-th couple of elements and push the add node to `newParSum` -/
 def blastAddVec (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec aig w inputNodes) (newParSum : RefVecVec aig w (currNode/2)) (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes) : RefVecEntryVec α w ((inputNodes + 1)/2) :=
     if hc1 : currNode < inputNodes then
       let nextCurr := currNode + 2
@@ -202,6 +182,8 @@ theorem blastAddVec_decl_eq (aig : AIG α) (currNode inputNodes: Nat) (oldParSum
         assumption
   · simp [← hres]
 
+/-- We first extend all the single bits in the input BitVec w to have width `w`, then compute
+the parallel prefix sum given these bits.-/
 def blastPopCount (aig : AIG α) (x : AIG.RefVec aig w):
     AIG.RefVecEntry α w :=
   if hw : 0 < w then

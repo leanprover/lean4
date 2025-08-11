@@ -33,21 +33,22 @@ namespace BVExpr
 namespace bitblast
 namespace blastPopCount
 
--- theorem go_denote_eq {w : Nat} (aig : AIG α) (h : curr ≤ w)
---     (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
---     (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
---     (hacc : ∀ (idx : Nat) (hidx : idx < w),
---       if curr = 0 then ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ofNat w 0).getLsbD idx
---       else ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.popCountAuxRec x 0#w curr).getLsbD idx)
---     :
---     ∀ (idx : Nat) (hidx : idx < w),
---         ⟦
---           (go aig xc 0 acc).aig,
---           (go aig xc 0 acc).vec.get idx hidx,
---           assign
---         ⟧
---           =
---         (BitVec.popCountAuxRec x 0 w).getLsbD idx := by
+theorem go_denote_eq {w : Nat} (aig : AIG α) (h : curr ≤ w)
+    (acc : AIG.RefVec aig w) (xc : AIG.RefVec aig w) (x : BitVec w) (assign : α → Bool)
+    (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, xc.get idx hidx, assign⟧ = x.getLsbD idx)
+    (parSum : RefVecVec aig w inputNodes) (hw : NeZero w) (hw' : inputNodes ≤ w) (hw'' : 0 < inputNodes)
+    (hacc : ∀ (idx : Nat) (hidx : idx < w),
+      if curr = 0 then ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ofNat w 0).getLsbD idx
+      else ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.popCountAuxRec x 0#w curr).getLsbD idx)
+    :
+    ∀ (idx : Nat) (hidx : idx < w),
+        ⟦
+          (go aig w inputNodes parSum hw hw' hw'').aig,
+          (go aig w inputNodes parSum hw hw' hw'').vec.get idx hidx,
+          assign
+        ⟧
+          =
+        (BitVec.popCountAuxRec x 0 w).getLsbD idx := by sorry
 --     intro idx hidx
 --     generalize hgo: go aig xc curr acc = res
 --     unfold go at hgo

@@ -18,13 +18,13 @@ attribute [scoped instance] instLE
 @[scoped instance] opaque instDecidableLE : DecidableLE X := sorry
 
 #guard_msgs(drop warning) in
-@[scoped instance] opaque instTotal : Total (α := X) (· ≤ ·) := sorry
+@[instance] opaque instTotal : Total (α := X) (· ≤ ·) := sorry
 
 #guard_msgs(drop warning) in
-@[scoped instance] opaque instAntisymm : Antisymm (α := X) (· ≤ ·) := sorry
+@[instance] opaque instAntisymm : Antisymm (α := X) (· ≤ ·) := sorry
 
 #guard_msgs(drop warning) in
-@[scoped instance] opaque instTrans : Trans (α := X) (· ≤ ·) (· ≤ ·) (· ≤ ·) := sorry
+@[instance] opaque instTrans : Trans (α := X) (· ≤ ·) (· ≤ ·) (· ≤ ·) := sorry
 
 scoped instance packageOfLE : LinearOrderPackage X := .ofLE X {
 }
@@ -37,11 +37,9 @@ example : LawfulOrderMin X := inferInstance
 
 end X
 
-def packageWithoutSynthesizableInstances : LinearPreorderPackage X := .ofLE X {
+def packageWithoutSynthesizableInstances : LinearOrderPackage X := .ofLE X {
   le := X.instLE
   decidableLE := X.instDecidableLE
-  le_total := sorry
-  le_trans hi a b c := sorry
 }
 
 /--
@@ -70,12 +68,5 @@ def packageOfLEOfLT2 [LE α] [DecidableLE α] [LT α] (h : ∀ a b : α, a < b �
 }
 
 section
-
--- instance packageOfLT [LT α] : PreorderPackage α := .ofLT α
-
--- example [i : LE α] : i = (inferInstanceAs (PreorderPackage α)).toLE := rfl
-
--- example [LE α] : LawfulOrderLE α := inferInstance
--- example [LE α] : LawfulOrderLT α := inferInstance
 
 end

@@ -148,15 +148,21 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
     first
       | infer_instance
       | exact fun _ => Instances.instMaxOfDecidableLE
-  min_eq :
-      letI := le; letI := min
+  min_eq [i : LE α] [DecidableLE α] (hi : i = le := by rfl) :
+      letI := min hi
       ∀ a b : α, Min.min a b = if a ≤ b then a else b := by
+    intro i d hi
+    letI := i
+    cases hi
     first
       | infer_instance
       | exact fun _ _ => Instances.min_eq
-  max_eq :
-      letI := le; letI := max
+  max_eq [i : LE α] [DecidableLE α] (hi : i = le := by rfl) :
+      letI := max hi
       ∀ a b : α, Max.max a b = if a ≤ b then b else a := by
+    intro i d hi
+    letI := i
+    cases hi
     first
       | infer_instance
       | exact fun _ _ => Instances.max_eq

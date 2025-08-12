@@ -24,7 +24,7 @@ public def LE.ofOrd (α : Type u) [Ord α] : LE α where
 The `LE α` instance obtained from an `Ord α` instance is compatible with said `Ord α`
 instance if `compare` is oriented, i.e., `compare a b = .lt ↔ compare b a = .gt`.
 -/
-public instance LawfulOrderOrd.ofOrd (α : Type u) [Ord α] [OrientedOrd α] :
+public instance LawfulOrderOrd.of_ord (α : Type u) [Ord α] [OrientedOrd α] :
     haveI := LE.ofOrd α
     LawfulOrderOrd α :=
   letI := LE.ofOrd α

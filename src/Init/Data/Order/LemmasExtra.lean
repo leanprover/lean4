@@ -37,7 +37,7 @@ theorem compare_eq_gt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrderOrd α]
 theorem compare_eq_eq {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrderOrd α] [LawfulOrderBEq α]
     {a b : α} : compare a b = .eq ↔ a == b := by
   open Classical.Order in
-  rw [LawfulOrderBEq.beq_iff_isLE_and_isLE, ← compare_isLE, ← compare_isGE]
+  rw [LawfulOrderBEq.beq_iff_le_and_ge, ← compare_isLE, ← compare_isGE]
   cases compare a b <;> simp
 
 public instance {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α] : OrientedOrd α where
@@ -90,6 +90,64 @@ public theorem IsLinearOrder.of_ord {α : Type u} [LE α] [Ord α] [LawfulOrderO
     rw [← compare_isLE] at hab
     rw [← compare_isGE] at hba
     rw [Ordering.eq_eq_iff_isLE_and_isGE, hab, hba, and_self]
+
+/--
+This lemma derives a `LawfulOrderLT α` instance from a property involving an `Ord α` instance.
+-/
+public instance LawfulOrderLT.of_ord (α : Type u) [Ord α] [LT α] [LE α] [LawfulOrderOrd α]
+    (lt_iff_compare_eq_lt : ∀ a b : α, a < b ↔ compare a b = .lt) :
+    LawfulOrderLT α where
+  lt_iff a b := by
+    simp +contextual [lt_iff_compare_eq_lt, ← compare_isLE (a := a), ← compare_isGE (a := a)]
+
+/--
+This lemma derives a `LawfulOrderBEq α` instance from a property involving an `Ord α` instance.
+-/
+public instance LawfulOrderBEq.of_ord (α : Type u) [Ord α] [BEq α] [LE α] [LawfulOrderOrd α]
+    (beq_iff_compare_eq_eq : ∀ a b : α, a == b ↔ compare a b = .eq) :
+    LawfulOrderBEq α where
+  beq_iff_le_and_ge := by
+    simp [beq_iff_compare_eq_eq, Ordering.eq_eq_iff_isLE_and_isGE, compare_isLE, compare_isGE]
+
+/--
+This lemma derives a `LawfulOrderInf α` instance from a property involving an `Ord α` instance.
+-/
+public instance LawfulOrderInf.of_ord (α : Type u) [Ord α] [Min α] [LE α] [LawfulOrderOrd α]
+    (compare_min_isLE_iff : ∀ a b c : α,
+        (compare a (min b c)).isLE ↔ (compare a b).isLE ∧ (compare a c).isLE) :
+    LawfulOrderInf α where
+  le_min_iff := by simpa [compare_isLE] using compare_min_isLE_iff
+
+/--
+This lemma derives a `LawfulOrderMin α` instance from a property involving an `Ord α` instance.
+-/
+public instance LawfulOrderMin.of_ord (α : Type u) [Ord α] [Min α] [LE α] [LawfulOrderOrd α]
+    (compare_min_isLE_iff : ∀ a b c : α,
+        (compare a (min b c)).isLE ↔ (compare a b).isLE ∧ (compare a c).isLE)
+    (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) :
+    LawfulOrderMin α where
+  toLawfulOrderInf := .of_ord α compare_min_isLE_iff
+  min_eq_or := min_eq_or
+
+/--
+This lemma derives a `LawfulOrderSup α` instance from a property involving an `Ord α` instance.
+-/
+public instance LawfulOrderSup.of_ord (α : Type u) [Ord α] [Max α] [LE α] [LawfulOrderOrd α]
+    (compare_max_isLE_iff : ∀ a b c : α,
+        (compare (max a b) c).isLE ↔ (compare a c).isLE ∧ (compare b c).isLE) :
+    LawfulOrderSup α where
+  max_le_iff := by simpa [compare_isLE] using compare_max_isLE_iff
+
+/--
+This lemma derives a `LawfulOrderMax α` instance from a property involving an `Ord α` instance.
+-/
+public instance LawfulOrderMax.of_ord (α : Type u) [Ord α] [Max α] [LE α] [LawfulOrderOrd α]
+    (compare_max_isLE_iff : ∀ a b c : α,
+        (compare (max a b) c).isLE ↔ (compare a c).isLE ∧ (compare b c).isLE)
+    (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) :
+    LawfulOrderMax α where
+  toLawfulOrderSup := .of_ord α compare_max_isLE_iff
+  max_eq_or := max_eq_or
 
 end Std
 

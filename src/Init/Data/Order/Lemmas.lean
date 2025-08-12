@@ -161,7 +161,7 @@ section BEq
 
 public theorem beq_iff_le_and_ge {α : Type u} [BEq α] [LE α] [LawfulOrderBEq α]
     {a b : α} : a == b ↔ a ≤ b ∧ b ≤ a := by
-  simp [LawfulOrderBEq.beq_iff_isLE_and_isLE]
+  simp [LawfulOrderBEq.beq_iff_le_and_ge]
 
 public instance {α : Type u} [BEq α] [LE α] [LawfulOrderBEq α] :
     Symm (α := α) (· == ·) where
@@ -191,7 +191,7 @@ public noncomputable scoped instance instBEq {α : Type u} [LE α] : BEq α wher
 
 public instance instLawfulOrderBEq {α : Type u} [LE α] :
     LawfulOrderBEq α where
-  beq_iff_isLE_and_isLE a b := by simp [BEq.beq]
+  beq_iff_le_and_ge a b := by simp [BEq.beq]
 
 end Classical.Order
 

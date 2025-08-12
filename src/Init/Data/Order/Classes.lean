@@ -99,7 +99,7 @@ end LT
 section BEq
 
 public class LawfulOrderBEq (α : Type u) [BEq α] [LE α] where
-  beq_iff_isLE_and_isLE : ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a
+  beq_iff_le_and_ge : ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a
 
 end BEq
 

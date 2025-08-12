@@ -73,6 +73,13 @@ public theorem LawfulOrderLT.of_le {α : Type u} [LT α] [LE α]
   lt_iff := lt_iff
 
 /--
+This lemma derives a `LawfulOrderBEq α` instance from a property involving an `LE α` instance.
+-/
+public theorem LawfulOrderBEq.of_le {α : Type u} [BEq α] [LE α]
+    (beq_iff : ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a) : LawfulOrderBEq α where
+  beq_iff_le_and_ge := by simp [beq_iff]
+
+/--
 This lemma characterizes in terms of `LE α` when a `Min α` instance "behaves like an infimum
 operator".
 -/

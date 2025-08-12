@@ -10,24 +10,23 @@ structure X
 
 namespace X
 
-#guard_msgs(drop warning) in
+#guard_msgs(error, drop warning) in
 opaque instLE : LE X := sorry
 attribute [scoped instance] instLE
 
-#guard_msgs(drop warning) in
+#guard_msgs(error, drop warning) in
 @[scoped instance] opaque instDecidableLE : DecidableLE X := sorry
 
-#guard_msgs(drop warning) in
+#guard_msgs(error, drop warning) in
 @[instance] opaque instTotal : Total (α := X) (· ≤ ·) := sorry
 
-#guard_msgs(drop warning) in
+#guard_msgs(error, drop warning) in
 @[instance] opaque instAntisymm : Antisymm (α := X) (· ≤ ·) := sorry
 
-#guard_msgs(drop warning) in
+#guard_msgs(error, drop warning) in
 @[instance] opaque instTrans : Trans (α := X) (· ≤ ·) (· ≤ ·) (· ≤ ·) := sorry
 
-scoped instance packageOfLE : LinearOrderPackage X := .ofLE X {
-}
+scoped instance packageOfLE : LinearOrderPackage X := .ofLE X
 
 example : instLE = (inferInstanceAs (PreorderPackage X)).toLE := rfl
 example : IsLinearOrder X := inferInstance

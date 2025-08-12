@@ -82,8 +82,9 @@ public theorem not_lt {α : Type u} [LT α] [LE α] [Std.Total (α := α) (· �
     {a b : α} : ¬ a < b ↔ b ≤ a := by
   simp [lt_iff_le_and_not_ge, Classical.not_not, Std.Total.total]
 
-public theorem not_gt_of_lt {α : Type u} [LT α] [i : Std.Asymm (α := α) (· < ·)] {a b : α} (h : a < b) :
-  ¬ b < a := i.asymm a b h
+public theorem not_gt_of_lt {α : Type u} [LT α] [i : Std.Asymm (α := α) (· < ·)] {a b : α}
+    (h : a < b) : ¬ b < a :=
+  i.asymm a b h
 
 public instance {α : Type u} [LT α] [LE α] [LawfulOrderLT α] :
     Std.Asymm (α := α) (· < ·) where
@@ -163,17 +164,15 @@ public theorem beq_iff_le_and_ge {α : Type u} [BEq α] [LE α] [LawfulOrderBEq 
   simp [LawfulOrderBEq.beq_iff_isLE_and_isLE]
 
 public instance {α : Type u} [BEq α] [LE α] [LawfulOrderBEq α] [IsPreorder α] : EquivBEq α where
-  rfl := by open scoped Classical.Order in simp [beq_iff_le_and_ge, le_refl]
-  symm := by open scoped Classical.Order in simp_all [beq_iff_le_and_ge]
+  rfl := by simp [beq_iff_le_and_ge, le_refl]
+  symm := by simp_all [beq_iff_le_and_ge]
   trans hab hbc := by
-    open scoped Classical.Order in
     simp only [beq_iff_le_and_ge] at hab hbc ⊢
     exact ⟨le_trans hab.1 hbc.1, le_trans hbc.2 hab.2⟩
 
 public instance {α : Type u} [BEq α] [LE α] [LawfulOrderBEq α] [IsPartialOrder α] :
     LawfulBEq α where
   eq_of_beq := by
-    open scoped Classical.Order in
     simp only [beq_iff_le_and_ge, and_imp]
     apply le_antisymm
 
@@ -233,7 +232,6 @@ public theorem min_eq_or {α : Type u} [Min α] [MinEqOr α] {a b : α} :
 public instance {α : Type u} [LE α] [Min α] [IsLinearOrder α] [LawfulOrderInf α] :
     MinEqOr α where
   min_eq_or a b := by
-    open Classical.Order in
     cases le_total (a := a) (b := b)
     · apply Or.inl
       apply le_antisymm
@@ -274,7 +272,6 @@ public instance {α : Type u} [Min α] [MinEqOr α] :
     Std.IdempotentOp (min : α → α → α) where
   idempotent a := by cases MinEqOr.min_eq_or a a <;> assumption
 
-open Classical.Order in
 public instance {α : Type u} [LE α] [Min α] [IsLinearOrder α] [LawfulOrderMin α] :
     Std.Associative (min : α → α → α) where
   assoc a b c := by apply le_antisymm <;> simp [min_le, le_min_iff, le_refl]
@@ -312,7 +309,6 @@ public theorem max_eq_or {α : Type u} [Max α] [MaxEqOr α] {a b : α} :
 public instance {α : Type u} [LE α] [Max α] [IsLinearOrder α] [LawfulOrderSup α] :
     MaxEqOr α where
   max_eq_or a b := by
-    open Classical.Order in
     cases le_total (a := a) (b := b)
     · apply Or.inr
       apply le_antisymm
@@ -356,7 +352,6 @@ public instance {α : Type u} [Max α] [MaxEqOr α] :
     Std.IdempotentOp (max : α → α → α) where
   idempotent a := by cases MaxEqOr.max_eq_or a a <;> assumption
 
-open Classical.Order in
 public instance {α : Type u} [LE α] [Max α] [IsLinearOrder α] [LawfulOrderMax α] :
     Std.Associative (max : α → α → α) where
   assoc a b c := by

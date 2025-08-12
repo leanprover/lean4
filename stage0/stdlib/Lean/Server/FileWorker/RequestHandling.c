@@ -334,7 +334,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_RequestM_parseRequestParams___at___Lean_S
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___List_mapM_loop___at___Lean_Server_FileWorker_getInteractiveGoals_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_FileWorker_RequestHandling_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_10396__spec__0_spec__5_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_getInteractiveTermGoal___lam__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleFoldingRange(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___Lean_Server_FileWorker_handleHover_spec__1_spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_hoverableInfoAtM_x3f___at___Lean_Server_FileWorker_handleHover_spec__1(lean_object*, lean_object*, uint8_t, lean_object*);
@@ -16226,7 +16225,7 @@ lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc(x_7);
 lean_dec_ref(x_5);
-x_8 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleWaitForDiagnostics___lam__0___boxed), 1, 0);
+x_8 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleWaitForDiagnostics___lam__0), 1, 0);
 x_9 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_handleWaitForDiagnostics___lam__1___boxed), 4, 1);
 lean_closure_set(x_9, 0, x_8);
 x_10 = l_Lean_Server_RequestM_bindTaskCheap___redArg(x_6, x_9, x_2, x_7);
@@ -16274,14 +16273,6 @@ x_5 = l_liftExcept___at___Lean_Server_FileWorker_handleWaitForDiagnostics_spec__
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_FileWorker_handleWaitForDiagnostics___lam__0(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleWaitForDiagnostics___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

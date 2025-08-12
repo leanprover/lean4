@@ -34,7 +34,6 @@ LEAN_EXPORT lean_object* l_instReprExcept___redArg(lean_object*, lean_object*);
 static lean_object* l_instToStringSum___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_instToStringExcept___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringChar;
-LEAN_EXPORT lean_object* l_instToStringPUnit___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringPos;
 LEAN_EXPORT lean_object* l_instToStringList(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringList___redArg(lean_object*);
@@ -541,16 +540,8 @@ static lean_object* _init_l_instToStringPUnit() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instToStringPUnit___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_instToStringPUnit___lam__0), 1, 0);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instToStringPUnit___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_instToStringPUnit___lam__0(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_instToStringULift___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
@@ -582,7 +573,7 @@ static lean_object* _init_l_instToStringUnit___closed__0() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instToStringPUnit___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_instToStringPUnit___lam__0), 1, 0);
 return x_1;
 }
 }

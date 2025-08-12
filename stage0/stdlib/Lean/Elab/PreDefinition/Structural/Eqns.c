@@ -6539,7 +6539,6 @@ lean_inc(x_4);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
 x_65 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Structural_mkEqns_spec__2_spec__2___redArg___lam__0(x_2, x_3, x_8, x_4, x_47, x_7, x_63, x_9, x_10, x_11, x_12, x_64);
-lean_dec(x_63);
 x_14 = x_65;
 goto block_41;
 }
@@ -6609,7 +6608,6 @@ lean_inc(x_4);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
 x_87 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Structural_mkEqns_spec__2_spec__2___redArg___lam__0(x_2, x_3, x_8, x_4, x_68, x_7, x_85, x_9, x_10, x_11, x_12, x_86);
-lean_dec(x_85);
 x_14 = x_87;
 goto block_41;
 }
@@ -6848,7 +6846,6 @@ lean_inc(x_4);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
 x_67 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Structural_mkEqns_spec__2_spec__2___redArg___lam__0(x_2, x_3, x_10, x_4, x_49, x_9, x_65, x_11, x_12, x_13, x_14, x_66);
-lean_dec(x_65);
 x_16 = x_67;
 goto block_43;
 }
@@ -6918,7 +6915,6 @@ lean_inc(x_4);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
 x_89 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Elab_Structural_mkEqns_spec__2_spec__2___redArg___lam__0(x_2, x_3, x_10, x_4, x_70, x_9, x_87, x_11, x_12, x_13, x_14, x_88);
-lean_dec(x_87);
 x_16 = x_89;
 goto block_43;
 }

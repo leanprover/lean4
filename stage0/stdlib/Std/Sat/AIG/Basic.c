@@ -3394,7 +3394,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toGraphviz_go___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; uint64_t x_39; uint64_t x_40; uint64_t x_41; uint64_t x_42; uint64_t x_43; uint64_t x_44; uint64_t x_45; size_t x_46; size_t x_47; size_t x_48; size_t x_49; size_t x_50; lean_object* x_51; uint8_t x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; lean_object* x_64; 
+lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; uint64_t x_39; uint64_t x_40; uint64_t x_41; uint64_t x_42; uint64_t x_43; uint64_t x_44; uint64_t x_45; size_t x_46; size_t x_47; size_t x_48; size_t x_49; size_t x_50; lean_object* x_51; uint8_t x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; lean_object* x_64; 
 x_33 = lean_ctor_get(x_4, 0);
 lean_inc(x_33);
 x_34 = lean_ctor_get(x_4, 1);
@@ -3549,7 +3549,7 @@ lean_inc(x_5);
 x_13 = l_Nat_reprFast(x_5);
 x_14 = lean_string_append(x_12, x_13);
 lean_dec_ref(x_13);
-x_15 = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(x_8);
+x_15 = l_Std_Sat_AIG_toGraphviz_invEdgeStyle(x_6);
 x_16 = lean_string_append(x_14, x_15);
 lean_dec_ref(x_15);
 x_17 = l_Std_Sat_AIG_toGraphviz_go___redArg___closed__1;
@@ -3568,7 +3568,7 @@ x_25 = l_Std_Sat_AIG_toGraphviz_go___redArg___closed__2;
 x_26 = lean_string_append(x_24, x_25);
 x_27 = lean_string_append(x_1, x_26);
 lean_dec_ref(x_26);
-x_28 = l_Std_Sat_AIG_toGraphviz_go___redArg(x_27, x_2, x_5, x_6);
+x_28 = l_Std_Sat_AIG_toGraphviz_go___redArg(x_27, x_2, x_5, x_8);
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
 x_30 = lean_ctor_get(x_28, 1);
@@ -3582,9 +3582,9 @@ goto _start;
 block_63:
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; uint8_t x_61; 
-x_58 = lean_nat_shiftr(x_53, x_56);
-x_59 = lean_nat_land(x_56, x_53);
-lean_dec(x_53);
+x_58 = lean_nat_shiftr(x_54, x_56);
+x_59 = lean_nat_land(x_56, x_54);
+lean_dec(x_54);
 x_60 = lean_unsigned_to_nat(0u);
 x_61 = lean_nat_dec_eq(x_59, x_60);
 lean_dec(x_59);
@@ -3592,19 +3592,19 @@ if (x_61 == 0)
 {
 uint8_t x_62; 
 x_62 = 1;
-x_5 = x_54;
-x_6 = x_55;
+x_5 = x_53;
+x_6 = x_57;
 x_7 = x_58;
-x_8 = x_57;
+x_8 = x_55;
 x_9 = x_62;
 goto block_32;
 }
 else
 {
-x_5 = x_54;
-x_6 = x_55;
+x_5 = x_53;
+x_6 = x_57;
 x_7 = x_58;
-x_8 = x_57;
+x_8 = x_55;
 x_9 = x_52;
 goto block_32;
 }
@@ -3632,8 +3632,8 @@ if (x_72 == 0)
 {
 uint8_t x_73; 
 x_73 = 1;
-x_53 = x_67;
-x_54 = x_69;
+x_53 = x_69;
+x_54 = x_67;
 x_55 = x_64;
 x_56 = x_68;
 x_57 = x_73;
@@ -3641,8 +3641,8 @@ goto block_63;
 }
 else
 {
-x_53 = x_67;
-x_54 = x_69;
+x_53 = x_69;
+x_54 = x_67;
 x_55 = x_64;
 x_56 = x_68;
 x_57 = x_52;

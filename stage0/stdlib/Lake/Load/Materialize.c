@@ -69,7 +69,6 @@ static lean_object* l_Lake_updateGitRepo___closed__3;
 LEAN_EXPORT lean_object* l_Lake_MaterializedDep_configFile___boxed(lean_object*);
 static lean_object* l_Lake_PackageEntry_materialize___closed__4;
 LEAN_EXPORT lean_object* l_Lake_cloneGitPkg___at___Lake_updateGitRepo_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_updateGitPkg___elam__0___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_updateGitPkg_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_updateGitRepo___closed__7;
 static lean_object* l_Lake_updateGitRepo___closed__4;
 LEAN_EXPORT lean_object* l_Lake_MaterializedDep_name___boxed(lean_object*);
@@ -78,7 +77,6 @@ static lean_object* l_Lake_pkgNotIndexed___closed__5;
 static lean_object* l_Lake_updateGitPkg___closed__10;
 lean_object* l_IO_FS_removeDirAll(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MaterializedDep_manifestFile_x3f___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_updateGitPkg___elam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Git_filterUrl_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_pkgNotIndexed___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_updateGitPkg___closed__3;
@@ -1244,22 +1242,6 @@ lean_ctor_set(x_142, 0, x_141);
 lean_ctor_set(x_142, 1, x_140);
 return x_142;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lake_updateGitPkg___elam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_updateGitPkg___elam__0(x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_updateGitPkg___elam__0___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_updateGitPkg_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_updateGitPkg___elam__0___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_updateGitPkg_spec__0_spec__0(x_1, x_2, x_3, x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_updateGitPkg_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

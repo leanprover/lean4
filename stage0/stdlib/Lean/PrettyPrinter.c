@@ -245,7 +245,6 @@ static lean_object* l_Lean_MessageData_ofConst___closed__9;
 static lean_object* l_Lean_PrettyPrinter_ppCommand___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_withoutContext___at_____private_Lean_PrettyPrinter_0__Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_1023__spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_formatCategory(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_MessageData_ofFormatWithInfosM___lam__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_parenthesize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_ppTactic(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_ppCommand(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5048,7 +5047,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = lean_alloc_closure((void*)(l_Lean_MessageData_ofFormatWithInfosM___lam__0___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 x_3 = lean_alloc_closure((void*)(l_Lean_MessageData_ofFormatWithInfosM___lam__1___boxed), 1, 0);
-x_4 = lean_alloc_closure((void*)(l_Lean_MessageData_ofFormatWithInfosM___lam__2___boxed), 2, 0);
+x_4 = lean_alloc_closure((void*)(l_Lean_MessageData_ofFormatWithInfosM___lam__2), 2, 0);
 x_5 = l_Lean_MessageData_lazy(x_2, x_3, x_4);
 return x_5;
 }
@@ -5069,14 +5068,6 @@ uint8_t x_2; lean_object* x_3;
 x_2 = l_Lean_MessageData_ofFormatWithInfosM___lam__1(x_1);
 lean_dec_ref(x_1);
 x_3 = lean_box(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_MessageData_ofFormatWithInfosM___lam__2___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_MessageData_ofFormatWithInfosM___lam__2(x_1, x_2);
 return x_3;
 }
 }
@@ -5368,7 +5359,7 @@ static lean_object* _init_l_Lean_MessageData_signature___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_MessageData_ofFormatWithInfosM___lam__2___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_MessageData_ofFormatWithInfosM___lam__2), 2, 0);
 return x_1;
 }
 }

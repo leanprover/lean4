@@ -245,7 +245,6 @@ uint64_t lean_uint64_xor(uint64_t, uint64_t);
 static lean_object* l_Lean_Server_GoToKind_determineTargetExprs___closed__2;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Server_locationLinksFromFieldInfo_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_fromJsonGoToKind___lam__0____x40_Lean_Server_GoTo___hyg_69____boxed(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_fromJsonGoToKind___lam__2____x40_Lean_Server_GoTo___hyg_69_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
@@ -722,7 +721,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_fromJsonGoToKind____x40_Lean_Server_GoTo_
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Server_fromJsonGoToKind___lam__0____x40_Lean_Server_GoTo___hyg_69____boxed), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Server_fromJsonGoToKind___lam__0____x40_Lean_Server_GoTo___hyg_69_), 1, 0);
 x_3 = l_Lean_Server_toJsonGoToKind___closed__4____x40_Lean_Server_GoTo___hyg_30_;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = l_Lean_Server_fromJsonGoToKind___closed__1____x40_Lean_Server_GoTo___hyg_69_;
@@ -771,14 +770,6 @@ x_14 = l_Lean_Server_fromJsonGoToKind___closed__2____x40_Lean_Server_GoTo___hyg_
 x_15 = l_Except_orElseLazy___redArg(x_14, x_7);
 return x_15;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_fromJsonGoToKind___lam__0____x40_Lean_Server_GoTo___hyg_69____boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_fromJsonGoToKind___lam__0____x40_Lean_Server_GoTo___hyg_69_(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_fromJsonGoToKind___lam__1____x40_Lean_Server_GoTo___hyg_69____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

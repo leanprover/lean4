@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.Triple.SpecLemmas
-// Imports: Std.Do.Triple.Basic Std.Do.WP
+// Imports: Std.Do.Triple.Basic Std.Do.WP Init.Data.Range.Polymorphic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,19 +20,24 @@ LEAN_EXPORT lean_object* l_Std_Do___aux__Std__Do__Triple__SpecLemmas______unexpa
 static lean_object* l_Std_Do___aux__Std__Do__Triple__SpecLemmas______macroRules__Std__Do__term_u2983___x7d___u2983___x7d__1___closed__7;
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_monadMap__ExceptT_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__30____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
+LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__Triple__SpecLemmas______macroRules__Std__Do__term_u2983___x7d___u2983___x7d__1___closed__21;
 static lean_object* l_Std_Do___aux__Std__Do__Triple__SpecLemmas______macroRules__Std__Do__term_u2983___x7d___u2983___x7d__1___closed__1;
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__25____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
+lean_object* l_Std_Do_SPred_pure___redArg(lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__Triple__SpecLemmas______macroRules__Std__Do__term_u2983___x7d___u2983___x7d__1___closed__27;
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_throw__ExceptT__lift_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__13____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
 static lean_object* l_Std_Do___aux__Std__Do__Triple__SpecLemmas______macroRules__Std__Do__term_u2983___x7d___u2983___x7d__1___closed__9;
+LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__24____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
 static lean_object* l_Std_Do___aux__Std__Do__Triple__SpecLemmas______macroRules__Std__Do__term_u2983___x7d___u2983___x7d__1___closed__11;
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__12____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
 lean_object* l_List_range_x27TR_go(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__List_forIn_x27__cons_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
+LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__5____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__15____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
@@ -45,6 +50,8 @@ static lean_object* l_Std_Do___aux__Std__Do__Triple__SpecLemmas______macroRules_
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__2____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__17____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
+LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Do_SPred_or(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__Triple__SpecLemmas______macroRules__Std__Do__term_u2983___x7d___u2983___x7d__1___closed__19;
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__3____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__7____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
@@ -84,6 +91,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__19____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+lean_object* l_Std_Do_SPred_exists___redArg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__Triple__SpecLemmas______macroRules__Std__Do__term_u2983___x7d___u2983___x7d__1___closed__18;
 static lean_object* l_Std_Do___aux__Std__Do__Triple__SpecLemmas______unexpand__Std__Do__Triple__1___closed__0;
@@ -111,6 +119,8 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__37____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__Triple__SpecLemmas______macroRules__Std__Do__term_u2983___x7d___u2983___x7d__1___closed__24;
+lean_object* l_Std_Do_SPred_and(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_forIn_x27__list_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__8____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
 LEAN_EXPORT lean_object* l_Std_Range_toList(lean_object*);
@@ -119,6 +129,7 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_monadMap__ExceptT_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Do___aux__Std__Do__Triple__SpecLemmas______macroRules__Std__Do__term_u2983___x7d___u2983___x7d__1___closed__6;
+lean_object* l_Std_Do_PostShape_args(lean_object*);
 LEAN_EXPORT lean_object* l_Std_List_Zipper_end___redArg(lean_object*);
 static lean_object* l_Std_Do_term_u2983___x7d___u2983___x7d___closed__23____x40_Std_Do_Triple_SpecLemmas___hyg_540_;
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__List_forIn_x27__cons_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
@@ -1366,6 +1377,96 @@ x_7 = l___private_Std_Do_Triple_SpecLemmas_0__Std_Do_Spec_throw__ExceptT__lift_m
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_apply_2(x_1, x_5, x_2);
+lean_inc(x_4);
+lean_inc(x_3);
+x_7 = l_Std_Do_SPred_and(x_3, x_4, x_6);
+x_8 = l_Std_Do_SPred_and(x_3, x_4, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___redArg___lam__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_4, 0);
+lean_inc(x_6);
+lean_dec_ref(x_4);
+x_7 = lean_ctor_get(x_5, 1);
+lean_inc(x_7);
+lean_dec(x_5);
+x_8 = l_Std_Do_PostShape_args(x_1);
+lean_inc(x_8);
+x_9 = l_Std_Do_SPred_pure___redArg(x_8);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_inc(x_7);
+x_10 = lean_alloc_closure((void*)(l_Std_Do_Invariant_withEarlyReturn___redArg___lam__0), 5, 4);
+lean_closure_set(x_10, 0, x_2);
+lean_closure_set(x_10, 1, x_7);
+lean_closure_set(x_10, 2, x_8);
+lean_closure_set(x_10, 3, x_9);
+x_11 = lean_apply_2(x_3, x_6, x_7);
+lean_inc(x_8);
+x_12 = l_Std_Do_SPred_and(x_8, x_9, x_11);
+lean_inc(x_8);
+x_13 = l_Std_Do_SPred_exists___redArg(x_8, x_10);
+x_14 = l_Std_Do_SPred_or(x_8, x_12, x_13);
+return x_14;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_alloc_closure((void*)(l_Std_Do_Invariant_withEarlyReturn___redArg___lam__1___boxed), 4, 3);
+lean_closure_set(x_5, 0, x_1);
+lean_closure_set(x_5, 1, x_3);
+lean_closure_set(x_5, 2, x_2);
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_alloc_closure((void*)(l_Std_Do_Invariant_withEarlyReturn___redArg___lam__1___boxed), 4, 3);
+lean_closure_set(x_9, 0, x_1);
+lean_closure_set(x_9, 1, x_7);
+lean_closure_set(x_9, 2, x_6);
+x_10 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_10, 0, x_9);
+lean_ctor_set(x_10, 1, x_8);
+return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_Do_Invariant_withEarlyReturn___redArg___lam__1(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Do_Invariant_withEarlyReturn___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l_Std_Do_Invariant_withEarlyReturn(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_3);
+return x_9;
+}
+}
 LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__List_forIn_x27__cons_match__1_splitter___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1434,6 +1535,7 @@ return x_6;
 }
 lean_object* initialize_Std_Do_Triple_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Do_WP(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Polymorphic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Do_Triple_SpecLemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1443,6 +1545,9 @@ res = initialize_Std_Do_Triple_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Do_WP(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Polymorphic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Do_term_u2983___x7d___u2983___x7d___closed__0____x40_Std_Do_Triple_SpecLemmas___hyg_540_ = _init_l_Std_Do_term_u2983___x7d___u2983___x7d___closed__0____x40_Std_Do_Triple_SpecLemmas___hyg_540_();

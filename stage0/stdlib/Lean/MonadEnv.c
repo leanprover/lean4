@@ -91,7 +91,6 @@ LEAN_EXPORT lean_object* l_Lean_withEnv___redArg___lam__2___boxed(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingEnv_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_matchConst___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isRec___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoDefn___redArg___lam__0___closed__2;
 lean_object* l_Lean_AsyncConstantInfo_toConstantInfo(lean_object*);
@@ -2855,7 +2854,7 @@ x_10 = lean_box(0);
 lean_inc_ref(x_7);
 lean_inc(x_4);
 lean_inc_ref(x_2);
-x_11 = lean_alloc_closure((void*)(l_Lean_findModuleOf_x3f___redArg___lam__2___boxed), 6, 5);
+x_11 = lean_alloc_closure((void*)(l_Lean_findModuleOf_x3f___redArg___lam__2), 6, 5);
 lean_closure_set(x_11, 0, x_2);
 lean_closure_set(x_11, 1, x_4);
 lean_closure_set(x_11, 2, x_8);
@@ -2893,14 +2892,6 @@ lean_object* x_7;
 x_7 = l_Lean_findModuleOf_x3f___redArg___lam__1(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec_ref(x_6);
 lean_dec(x_1);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l_Lean_findModuleOf_x3f___redArg___lam__2(x_1, x_2, x_3, x_4, x_5, x_6);
 return x_7;
 }
 }

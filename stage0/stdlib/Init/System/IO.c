@@ -291,7 +291,6 @@ LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___redArg(lean_object*, lean
 LEAN_EXPORT lean_object* l_IO_CancelToken_set___boxed(lean_object*, lean_object*);
 static lean_object* l_IO_Process_output___closed__0;
 LEAN_EXPORT lean_object* l_IO_instLTTaskState;
-LEAN_EXPORT lean_object* l_IO_sleep___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__BaseIO_mapTasks_go___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_Process_run___closed__1;
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_noConfusion___redArg___boxed(lean_object*, lean_object*);
@@ -2651,18 +2650,10 @@ LEAN_EXPORT lean_object* l_IO_sleep(uint32_t x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_alloc_closure((void*)(l_IO_sleep___lam__0___boxed), 2, 1);
+x_3 = lean_alloc_closure((void*)(l_IO_sleep___lam__0), 2, 1);
 lean_closure_set(x_3, 0, x_2);
 x_4 = lean_dbg_sleep(x_1, x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_IO_sleep___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_IO_sleep___lam__0(x_1, x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_IO_sleep___boxed(lean_object* x_1, lean_object* x_2) {

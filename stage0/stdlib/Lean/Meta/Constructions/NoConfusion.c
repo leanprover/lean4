@@ -208,7 +208,7 @@ static lean_object* l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNo
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_mkNoConfusionCore_spec__7_spec__7_spec__7_spec__7_spec__7___closed__2;
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_no_confusion(lean_object*, lean_object*);
-lean_object* l_Lean_addAndCompile(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionEnum_mkToCtorIdx(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_interruptExceptionId;
@@ -3850,7 +3850,7 @@ x_37 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_37, 0, x_36);
 lean_inc(x_12);
 lean_inc_ref(x_11);
-x_38 = l_Lean_addAndCompile(x_37, x_11, x_12, x_30);
+x_38 = l_Lean_addAndCompile(x_37, x_17, x_11, x_12, x_30);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; lean_object* x_40; 
@@ -4363,7 +4363,7 @@ x_45 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_45, 0, x_44);
 lean_inc(x_12);
 lean_inc_ref(x_11);
-x_46 = l_Lean_addAndCompile(x_45, x_11, x_12, x_35);
+x_46 = l_Lean_addAndCompile(x_45, x_19, x_11, x_12, x_35);
 if (lean_obj_tag(x_46) == 0)
 {
 lean_object* x_47; lean_object* x_48; 
@@ -4877,7 +4877,7 @@ x_54 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_54, 0, x_53);
 lean_inc(x_14);
 lean_inc_ref(x_13);
-x_55 = l_Lean_addAndCompile(x_54, x_13, x_14, x_44);
+x_55 = l_Lean_addAndCompile(x_54, x_23, x_13, x_14, x_44);
 if (lean_obj_tag(x_55) == 0)
 {
 lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; uint8_t x_62; 

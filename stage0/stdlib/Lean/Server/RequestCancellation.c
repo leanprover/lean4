@@ -38,7 +38,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_requestCancellat
 LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_requestCancellationTask___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_requestCancelled;
 LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_noConfusion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_check(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_toCtorIdx(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -381,14 +380,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellation_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_RequestCancellation_toCtorIdx(x_1);
 return x_2;
 }
 }

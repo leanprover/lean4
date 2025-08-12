@@ -5024,7 +5024,6 @@ lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 x_67 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__1(x_13, x_14, x_4, x_45, x_46, x_65, x_6, x_7, x_8, x_9, x_10, x_11, x_66);
-lean_dec(x_65);
 x_40 = x_67;
 goto block_44;
 }
@@ -5060,7 +5059,6 @@ lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 x_77 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__1(x_13, x_14, x_4, x_45, x_46, x_75, x_6, x_7, x_8, x_9, x_10, x_11, x_76);
-lean_dec(x_75);
 x_40 = x_77;
 goto block_44;
 }
@@ -5571,7 +5569,6 @@ lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 x_67 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__1(x_13, x_14, x_4, x_45, x_46, x_65, x_6, x_7, x_8, x_9, x_10, x_11, x_66);
-lean_dec(x_65);
 x_40 = x_67;
 goto block_44;
 }
@@ -5607,7 +5604,6 @@ lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 x_77 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__1(x_13, x_14, x_4, x_45, x_46, x_75, x_6, x_7, x_8, x_9, x_10, x_11, x_76);
-lean_dec(x_75);
 x_40 = x_77;
 goto block_44;
 }

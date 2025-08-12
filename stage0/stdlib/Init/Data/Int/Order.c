@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Order
-// Imports: Init.Data.Int.Lemmas Init.ByCases
+// Imports: Init.Data.Int.Lemmas Init.ByCases Init.Data.Order.Factories Init.Data.Order.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -373,6 +373,8 @@ return x_6;
 }
 lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_ByCases(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -382,6 +384,12 @@ res = initialize_Init_Data_Int_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_ByCases(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_Factories(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_instTransLe = _init_l_Int_instTransLe();

@@ -134,7 +134,6 @@ static lean_object* l_Lake_fromJsonPackageEntryV6___closed__11____x40_Lake_Load_
 static lean_object* l_Lake_fromJsonPackageEntryV6___closed__2____x40_Lake_Load_Manifest___hyg_128_;
 lean_object* l_Except_orElseLazy___redArg(lean_object*, lean_object*);
 static lean_object* l_Lake_Manifest_getPackages___closed__1;
-LEAN_EXPORT lean_object* l_Lake_fromJsonPackageEntryV6___lam__0____x40_Lake_Load_Manifest___hyg_128____boxed(lean_object*);
 lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Option_fromJson_x3f___at___Lake_Manifest_getPackages_spec__1_spec__1_spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lake_instInhabitedPackageEntry___closed__0;
@@ -1288,7 +1287,7 @@ LEAN_EXPORT lean_object* l_Lake_fromJsonPackageEntryV6____x40_Lake_Load_Manifest
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_2 = lean_alloc_closure((void*)(l_Lake_fromJsonPackageEntryV6___lam__0____x40_Lake_Load_Manifest___hyg_128____boxed), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_Lake_fromJsonPackageEntryV6___lam__0____x40_Lake_Load_Manifest___hyg_128_), 1, 0);
 x_3 = lean_box(0);
 x_4 = l_Lake_fromJsonPackageEntryV6___closed__0____x40_Lake_Load_Manifest___hyg_128_;
 x_5 = lean_unsigned_to_nat(4u);
@@ -1517,14 +1516,6 @@ return x_62;
 }
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lake_fromJsonPackageEntryV6___lam__0____x40_Lake_Load_Manifest___hyg_128____boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_fromJsonPackageEntryV6___lam__0____x40_Lake_Load_Manifest___hyg_128_(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_fromJsonPackageEntryV6___lam__1____x40_Lake_Load_Manifest___hyg_128____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {

@@ -114,7 +114,6 @@ static lean_object* l_Lean_Order_term_u22a5___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term_u22a5__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Order_instCCPOExceptTOfMonadOfPartialOrder___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Order_term___u2291_____closed__9;
-LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderPProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Order___aux__Init__Internal__Order__Basic______macroRules__Lean__Order__term___u2291____1___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Order_instCCPOPProd(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -995,14 +994,6 @@ _start:
 {
 lean_object* x_5; 
 x_5 = lean_box(0);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Order_instPartialOrderPProd___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Order_instPartialOrderPProd(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }

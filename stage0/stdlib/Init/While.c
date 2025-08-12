@@ -16,7 +16,6 @@ extern "C" {
 static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__3;
 static lean_object* l_Lean_doElemRepeat____Until_____closed__10;
 static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__10;
-LEAN_EXPORT lean_object* l_Lean_Loop_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_doElemRepeat_____closed__11;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__8;
 static lean_object* l_Lean_doElemRepeat____Until_____closed__11;
@@ -62,7 +61,6 @@ static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__13;
 static lean_object* l_Lean_doElemRepeat____Until_____closed__15;
 static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__8;
 static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__17;
-LEAN_EXPORT lean_object* l_Lean_instForInLoopUnit___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__22;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__7;
 static lean_object* l_Lean_doElemRepeat____Until_____closed__4;
@@ -70,7 +68,6 @@ static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile
 static lean_object* l_Lean_doElemWhile__Do_____closed__2;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__17;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemWhile___x3a__Do____1___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Loop_forIn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__2;
 static lean_object* l_Lean___aux__Init__While______macroRules__Lean__doElemRepeat____1___closed__6;
 static lean_object* l_Lean_doElemRepeat____Until_____closed__6;
@@ -157,14 +154,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Loop_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Loop_toCtorIdx(x_1);
 return x_2;
 }
 }
@@ -272,14 +261,6 @@ x_7 = l___private_Init_While_0__Lean_Loop_forIn_loop___redArg(x_3, x_6, x_5);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Loop_forIn___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l_Lean_Loop_forIn(x_1, x_2, x_3, x_4, x_5, x_6);
-return x_7;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_instForInLoopUnit___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -292,16 +273,8 @@ LEAN_EXPORT lean_object* l_Lean_instForInLoopUnit(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_instForInLoopUnit___lam__0___boxed), 5, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_instForInLoopUnit___lam__0), 5, 0);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_instForInLoopUnit___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Lean_instForInLoopUnit___lam__0(x_1, x_2, x_3, x_4, x_5);
-return x_6;
 }
 }
 static lean_object* _init_l_Lean_doElemRepeat_____closed__0() {

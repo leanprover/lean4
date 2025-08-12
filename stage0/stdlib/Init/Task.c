@@ -69,7 +69,6 @@ static lean_object* l___auto___closed__19____x40_Init_Task___hyg_21_;
 static lean_object* l___auto___closed__41____x40_Init_Task___hyg_21_;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Task_0__Task_mapList_go___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Task_0__Task_mapList_go___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_List_forM___at___IO_waitAny_spec__0___redArg(lean_object*, lean_object*, lean_object*);
@@ -694,7 +693,7 @@ if (lean_obj_tag(x_4) == 0)
 if (x_3 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_alloc_closure((void*)(l___private_Init_Task_0__Task_mapList_go___redArg___lam__0___boxed), 3, 2);
+x_6 = lean_alloc_closure((void*)(l___private_Init_Task_0__Task_mapList_go___redArg___lam__0), 3, 2);
 lean_closure_set(x_6, 0, x_5);
 lean_closure_set(x_6, 1, x_1);
 x_7 = lean_task_spawn(x_6, x_2);
@@ -753,14 +752,6 @@ _start:
 lean_object* x_8; 
 x_8 = l___private_Init_Task_0__Task_mapList_go___redArg(x_3, x_4, x_5, x_6, x_7);
 return x_8;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Task_0__Task_mapList_go___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Init_Task_0__Task_mapList_go___redArg___lam__0(x_1, x_2, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Task_0__Task_mapList_go___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

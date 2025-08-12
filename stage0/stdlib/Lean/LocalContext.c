@@ -160,7 +160,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 LEAN_EXPORT lean_object* l_Lean_LocalContext_instForInLocalDecl___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_mkForall(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_____private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_LocalContext_foldlM___at___Lean_LocalContext_size_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_getLocalHyps___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_allM___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_setBinderInfo(lean_object*, uint8_t);
@@ -258,7 +257,6 @@ lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_LocalContext_find_x3f_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_BasicAux_0__Array_mapM_x27_go___at___Array_mapM_x27___at___Lean_PersistentHashMap_mapMAux___at___Lean_PersistentHashMap_mapM___at___Lean_PersistentHashMap_map___at___Lean_LocalContext_replaceFVarId_spec__0_spec__0_spec__0_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_getSanitizeNames(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_getLocalHyps___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_beqFVarId____x40_Lean_Expr___hyg_1502____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_LocalContext_0__Lean_LocalContext_popTailNoneAux(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_forM___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -2221,7 +2219,6 @@ LEAN_EXPORT lean_object* lean_mk_empty_local_ctx(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-lean_dec(x_1);
 x_2 = l_Lean_LocalContext_mkEmpty___closed__3;
 return x_2;
 }
@@ -4798,9 +4795,9 @@ goto block_49;
 block_42:
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-x_39 = lean_nat_add(x_36, x_38);
+x_39 = lean_nat_add(x_37, x_38);
 lean_dec(x_38);
-lean_dec(x_36);
+lean_dec(x_37);
 if (lean_is_scalar(x_33)) {
  x_40 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -4819,7 +4816,7 @@ if (lean_is_scalar(x_23)) {
 lean_ctor_set(x_41, 0, x_35);
 lean_ctor_set(x_41, 1, x_25);
 lean_ctor_set(x_41, 2, x_26);
-lean_ctor_set(x_41, 3, x_37);
+lean_ctor_set(x_41, 3, x_36);
 lean_ctor_set(x_41, 4, x_40);
 return x_41;
 }
@@ -4846,8 +4843,8 @@ if (lean_obj_tag(x_28) == 0)
 lean_object* x_47; 
 x_47 = lean_ctor_get(x_28, 0);
 lean_inc(x_47);
-x_36 = x_46;
-x_37 = x_45;
+x_36 = x_45;
+x_37 = x_46;
 x_38 = x_47;
 goto block_42;
 }
@@ -4855,8 +4852,8 @@ else
 {
 lean_object* x_48; 
 x_48 = lean_unsigned_to_nat(0u);
-x_36 = x_46;
-x_37 = x_45;
+x_36 = x_45;
+x_37 = x_46;
 x_38 = x_48;
 goto block_42;
 }
@@ -5452,9 +5449,9 @@ goto block_188;
 block_181:
 {
 lean_object* x_178; lean_object* x_179; lean_object* x_180; 
-x_178 = lean_nat_add(x_176, x_177);
+x_178 = lean_nat_add(x_175, x_177);
 lean_dec(x_177);
-lean_dec(x_176);
+lean_dec(x_175);
 if (lean_is_scalar(x_172)) {
  x_179 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -5473,7 +5470,7 @@ if (lean_is_scalar(x_162)) {
 lean_ctor_set(x_180, 0, x_174);
 lean_ctor_set(x_180, 1, x_164);
 lean_ctor_set(x_180, 2, x_165);
-lean_ctor_set(x_180, 3, x_175);
+lean_ctor_set(x_180, 3, x_176);
 lean_ctor_set(x_180, 4, x_179);
 return x_180;
 }
@@ -5500,8 +5497,8 @@ if (lean_obj_tag(x_167) == 0)
 lean_object* x_186; 
 x_186 = lean_ctor_get(x_167, 0);
 lean_inc(x_186);
-x_175 = x_184;
-x_176 = x_185;
+x_175 = x_185;
+x_176 = x_184;
 x_177 = x_186;
 goto block_181;
 }
@@ -5509,8 +5506,8 @@ else
 {
 lean_object* x_187; 
 x_187 = lean_unsigned_to_nat(0u);
-x_175 = x_184;
-x_176 = x_185;
+x_175 = x_185;
+x_176 = x_184;
 x_177 = x_187;
 goto block_181;
 }
@@ -10784,8 +10781,8 @@ lean_object* x_17;
 x_17 = l_Lean_LocalContext_setUserName(x_2, x_16, x_15);
 x_1 = x_12;
 x_2 = x_17;
-x_3 = x_14;
-x_4 = x_13;
+x_3 = x_13;
+x_4 = x_14;
 goto _start;
 }
 block_27:
@@ -10802,8 +10799,8 @@ x_25 = l_Lean_NameSet_insert(x_3, x_21);
 x_26 = lean_ctor_get(x_20, 1);
 lean_inc(x_26);
 lean_dec_ref(x_20);
-x_13 = x_24;
-x_14 = x_25;
+x_13 = x_25;
+x_14 = x_24;
 x_15 = x_23;
 x_16 = x_26;
 goto block_19;
@@ -10988,8 +10985,8 @@ lean_dec_ref(x_19);
 x_22 = lean_ctor_get(x_17, 1);
 lean_inc(x_22);
 lean_dec(x_17);
-x_10 = x_18;
-x_11 = x_21;
+x_10 = x_21;
+x_11 = x_18;
 x_12 = x_22;
 goto block_14;
 }
@@ -11019,10 +11016,10 @@ return x_8;
 block_14:
 {
 lean_object* x_13; 
-x_13 = lean_ctor_get(x_11, 1);
+x_13 = lean_ctor_get(x_10, 1);
 lean_inc(x_13);
-lean_dec_ref(x_11);
-x_3 = x_10;
+lean_dec_ref(x_10);
+x_3 = x_11;
 x_4 = x_12;
 x_5 = x_13;
 goto block_9;
@@ -11359,7 +11356,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = l_Lean_LocalDecl_toExpr(x_7);
 x_10 = lean_array_push(x_4, x_9);
 lean_inc_ref(x_1);
-x_11 = lean_alloc_closure((void*)(l_Lean_getLocalHyps___redArg___lam__0___boxed), 3, 2);
+x_11 = lean_alloc_closure((void*)(l_Lean_getLocalHyps___redArg___lam__0), 3, 2);
 lean_closure_set(x_11, 0, x_10);
 lean_closure_set(x_11, 1, x_1);
 x_12 = lean_box(0);
@@ -11372,7 +11369,7 @@ else
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 lean_dec(x_7);
 lean_inc_ref(x_1);
-x_15 = lean_alloc_closure((void*)(l_Lean_getLocalHyps___redArg___lam__1___boxed), 3, 2);
+x_15 = lean_alloc_closure((void*)(l_Lean_getLocalHyps___redArg___lam__1), 3, 2);
 lean_closure_set(x_15, 0, x_4);
 lean_closure_set(x_15, 1, x_1);
 x_16 = lean_box(0);
@@ -11447,22 +11444,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_getLocalHyps___redArg(x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_getLocalHyps___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_getLocalHyps___redArg___lam__0(x_1, x_2, x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_getLocalHyps___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_getLocalHyps___redArg___lam__1(x_1, x_2, x_3);
 return x_4;
 }
 }

@@ -32,7 +32,6 @@ uint64_t lean_int64_neg(uint64_t);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Init_While_0__Lean_Loop_forIn_loop___at___Std_Time_Database_Windows_getZoneRules_spec__1_spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t lean_int64_dec_le(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__1___boxed(lean_object*, lean_object*);
 static uint64_t l_Std_Time_Database_Windows_getZoneRules___closed__1;
 lean_object* lean_windows_get_next_transition(lean_object*, uint64_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_toCtorIdx(lean_object*);
@@ -45,7 +44,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getLocalTimeZoneIdentifierA
 static lean_object* l_Std_Time_Database_Windows_getZoneRules___closed__5;
 uint64_t lean_int64_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_toCtorIdx___boxed(lean_object*);
 lean_object* lean_get_windows_local_timezone_id_at(uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_Windows_getZoneRules___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_Windows_getZoneRules___closed__2;
@@ -882,14 +880,6 @@ x_2 = lean_unsigned_to_nat(0u);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_Database_WindowsDb_toCtorIdx(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_noConfusion___redArg(lean_object* x_1) {
 _start:
 {
@@ -985,7 +975,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_alloc_closure((void*)(l_Std_Time_Database_WindowsDb_inst___lam__0___boxed), 3, 0);
-x_2 = lean_alloc_closure((void*)(l_Std_Time_Database_WindowsDb_inst___lam__1___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Std_Time_Database_WindowsDb_inst___lam__1), 2, 0);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -999,14 +989,6 @@ lean_object* x_4;
 x_4 = l_Std_Time_Database_WindowsDb_inst___lam__0(x_1, x_2, x_3);
 lean_dec_ref(x_2);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_Database_WindowsDb_inst___lam__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Time_Database_WindowsDb_inst___lam__1(x_1, x_2);
-return x_3;
 }
 }
 lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin, lean_object*);

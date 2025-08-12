@@ -385,7 +385,6 @@ static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___clos
 LEAN_EXPORT lean_object* l_Lake_LeanConfig_instToToml___lam__0(lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__116;
 extern lean_object* l_Lake_LeanConfig_moreLeanArgs___proj;
-uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1780__spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_PackageConfig_toWorkspaceConfig___proj(lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__83;
 static lean_object* l_Lake_LeanConfig_toToml___closed__2;
@@ -454,6 +453,7 @@ LEAN_EXPORT lean_object* l_Lake_instEncodeFieldLeanLibConfigMkStr1ArrayName(lean
 LEAN_EXPORT lean_object* l_Lake_Toml_encodeArray_x3f___at___Lake_PattternDescr_toToml_x3f___at___Lake_Pattern_toToml_x3f___at___Lake_PathPatDescr_toToml_x3f_spec__0_spec__0_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanConfig_toToml___closed__7;
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__79;
+uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1802__spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_commandGen__toml__encoders_x25___closed__7____x40_Lake_CLI_Translate_Toml___hyg_1846_;
 static lean_object* l___private_Lake_CLI_Translate_Toml_0__Lake_genToToml___closed__35;
 lean_object* l_EStateM_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -16114,7 +16114,7 @@ goto block_316;
 else
 {
 uint8_t x_326; 
-x_326 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1780__spec__0___redArg(x_321, x_322, x_323);
+x_326 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1802__spec__0___redArg(x_321, x_322, x_323);
 lean_dec_ref(x_322);
 if (x_326 == 0)
 {
@@ -16238,7 +16238,7 @@ goto block_360;
 else
 {
 uint8_t x_370; 
-x_370 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1780__spec__0___redArg(x_365, x_366, x_367);
+x_370 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1802__spec__0___redArg(x_365, x_366, x_367);
 lean_dec_ref(x_366);
 if (x_370 == 0)
 {
@@ -16489,7 +16489,7 @@ goto block_453;
 else
 {
 uint8_t x_463; 
-x_463 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1780__spec__0___redArg(x_458, x_459, x_460);
+x_463 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1802__spec__0___redArg(x_458, x_459, x_460);
 lean_dec_ref(x_459);
 if (x_463 == 0)
 {
@@ -17520,7 +17520,7 @@ goto block_342;
 else
 {
 uint8_t x_352; 
-x_352 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1780__spec__0___redArg(x_347, x_348, x_349);
+x_352 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1802__spec__0___redArg(x_347, x_348, x_349);
 lean_dec_ref(x_348);
 if (x_352 == 0)
 {
@@ -21062,7 +21062,7 @@ goto block_772;
 else
 {
 uint8_t x_782; 
-x_782 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1780__spec__0___redArg(x_777, x_778, x_779);
+x_782 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1802__spec__0___redArg(x_777, x_778, x_779);
 lean_dec_ref(x_778);
 if (x_782 == 0)
 {

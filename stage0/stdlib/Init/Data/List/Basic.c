@@ -330,7 +330,6 @@ static lean_object* l___auto___closed__55____x40_Init_Data_List_Basic___hyg_1891
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_zip___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_zipWith___at___List_zip_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_instLE___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_isSublist___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__Basic______macroRules__List__term___x7e____1___closed__2;
 LEAN_EXPORT lean_object* l_List_erase(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -417,7 +416,6 @@ LEAN_EXPORT lean_object* l_List_modifyTailIdx_go(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Basic_0__List_reverseAux_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_finIdxOf_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_findIdx(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_instLT___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_nodupDecidable___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_intercalate(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_term___x7e_____closed__4;
@@ -1129,14 +1127,6 @@ x_3 = lean_box(0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_instLT___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_instLT(x_1, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT uint8_t l_List_decidableLT___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1176,14 +1166,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_box(0);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_List_instLE___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_instLE(x_1, x_2);
 return x_3;
 }
 }

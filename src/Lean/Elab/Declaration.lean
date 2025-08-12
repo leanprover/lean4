@@ -193,23 +193,20 @@ def elabDeclaration : CommandElab := fun stx => do
   let modifiers : TSyntax ``Parser.Command.declModifiers := ⟨stx[0]⟩
   let decl     := stx[1]
   let declKind := decl.getKind
-  if isDefLike decl then
-    -- only case implementing incrementality currently
-    if !ns.isAnonymous then
-      withNamespace ns (soft := true) do elabMutualDef #[stx]
-    else
-      elabMutualDef #[stx]
-  else withoutCommandIncrementality true do
-    let modifiers ← elabModifiers modifiers
-    withExporting (isExporting := modifiers.isInferredPublic (← getEnv)) do
-      if declKind == ``Lean.Parser.Command.«axiom» then
-        elabAxiom modifiers decl
-      else if declKind == ``Lean.Parser.Command.«inductive»
-          || declKind == ``Lean.Parser.Command.classInductive
-          || declKind == ``Lean.Parser.Command.«structure» then
-        elabInductive modifiers decl
-      else
-        throwError "unexpected declaration"
+  withSoftNamespace ns do
+    if isDefLike decl then
+        elabMutualDef #[stx]
+    else withoutCommandIncrementality true do
+      let modifiers ← elabModifiers modifiers
+      withExporting (isExporting := modifiers.isInferredPublic (← getEnv)) do
+        if declKind == ``Lean.Parser.Command.«axiom» then
+          elabAxiom modifiers decl
+        else if declKind == ``Lean.Parser.Command.«inductive»
+            || declKind == ``Lean.Parser.Command.classInductive
+            || declKind == ``Lean.Parser.Command.«structure» then
+          elabInductive modifiers decl
+        else
+          throwError "unexpected declaration"
 
 /-- Return true if all elements of the mutual-block are definitions/theorems/abbrevs. -/
 private def isMutualDef (stx : Syntax) : Bool :=

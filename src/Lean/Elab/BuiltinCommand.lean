@@ -73,6 +73,9 @@ def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) (soft : Bool := fa
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
   pure a
 
+def withSoftNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
+  if ns.isAnonymous then elabFn else withNamespace ns elabFn (soft := true)
+
 private def popScopes (numScopes : Nat) : CommandElabM Unit :=
   for _ in *...numScopes do
     popScope

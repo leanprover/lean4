@@ -70,6 +70,12 @@ private partial def visitFnBody (b : FnBody) : M Unit := do
     match e with
     | .proj _ parent =>
       addDerivedValue parent x
+    | .fap ``Array.getInternal args =>
+      if let .var parent := args[1]! then
+        addDerivedValue parent x
+    | .fap ``Array.get!Internal args =>
+      if let .var parent := args[2]! then
+        addDerivedValue parent x
     | .reset _ x =>
       removeFromParent x
     | _ => pure ()
@@ -351,7 +357,13 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
     | .fap f ys =>
       let ps := (getDecl ctx f).params
       let b  := addDecAfterFullApp ctx ys ps b bLiveVars
-      let b  := .vdecl z t v b
+      let v  :=
+        if f == ``Array.getInternal && bLiveVars.borrows.contains z then
+          .fap ``Array.getInternalBorrowed ys
+        else if f == ``Array.get!Internal && bLiveVars.borrows.contains z then
+          .fap ``Array.get!InternalBorrowed ys
+        else v
+      let b := .vdecl z t v b
       addIncBefore ctx ys ps b bLiveVars
     | .ap x ys =>
       let ysx := ys.push (.var x) -- TODO: avoid temporary array allocation

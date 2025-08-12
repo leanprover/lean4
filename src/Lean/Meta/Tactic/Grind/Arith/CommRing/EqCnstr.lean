@@ -462,9 +462,9 @@ private def propagateEqs : RingM Unit := do
     if (← checkMaxSteps) then return ()
     let some ra ← toRingExpr? a | unreachable!
     map ← process map a ra
-  for (a, ra) in (← getRing).denote do
+  for (a, ra) in (← getRing).denoteEntries do
     if (← checkMaxSteps) then return ()
-    map ← process map a.expr ra
+    map ← process map a ra
 where
   process (map : PropagateEqMap) (a : Expr) (ra : RingExpr) : RingM PropagateEqMap := do
     let d : PolyDerivation := .input (← ra.toPolyM)

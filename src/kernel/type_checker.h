@@ -47,10 +47,10 @@ private:
     local_ctx                 m_lctx;
     definition_safety         m_definition_safety;
     /*
-    `m_reflection` is set to true whenever we are type checking an application argument of the form `Eq.refl true`.
-    When this flag is set to `true`, the kernel is more eager to reduce terms.
+    `m_eager_reduce` is set to true whenever we are type checking an application argument that has been
+    wrapped with `eagerReduce`.
     */
-    bool                      m_reflection = false;
+    bool                      m_eager_reduce = false;
     /* When `m_lparams != nullptr, the `check` method makes sure all level parameters
        are in `m_lparams`. */
     names const *             m_lparams;

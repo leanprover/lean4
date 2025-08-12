@@ -12,16 +12,16 @@ public import Init.Data.Order.Ord
 namespace Std
 
 /--
-Creates an `OrderData α` instance from an `Ord α` instance.
+Creates an `LE α` instance from an `Ord α` instance.
 
-As `OrderData α` is encoded as a mere less-than-or-equal relation, `OrientedOrd α` must be satisfied
-so that the resulting `OrderData α` instance faithfully represents the `Ord α` instance.
+`OrientedOrd α` must be satisfied so that the resulting `LE α` instance faithfully represents
+the `Ord α` instance.
 -/
 public def LE.ofOrd (α : Type u) [Ord α] : LE α where
   le a b := (compare a b).isLE
 
 /--
-The `OrderData α` instance obtained from an `Ord α` instance is compatible with said `Ord α`
+The `LE α` instance obtained from an `Ord α` instance is compatible with said `Ord α`
 instance if `compare` is oriented, i.e., `compare a b = .lt ↔ compare b a = .gt`.
 -/
 public instance LawfulOrderOrd.ofOrd (α : Type u) [Ord α] [OrientedOrd α] :

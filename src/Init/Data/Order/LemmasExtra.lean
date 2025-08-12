@@ -97,8 +97,8 @@ namespace Classical.Order
 open Std
 
 /--
-Derives an `Ord α` instance from an `OrderData α`. Because in `Ord α`, all elements are comparable,
-the resulting `Ord α` instance only makes sens if the `OrderData α`-defined order structure is total
+Derives an `Ord α` instance from an `LE α` instance. Because all elements are comparable with
+`compare`, the resulting `Ord α` instance only makes sense if `LE α` is total.
 -/
 public noncomputable scoped instance instOrd {α : Type u} [LE α] :
     Ord α where

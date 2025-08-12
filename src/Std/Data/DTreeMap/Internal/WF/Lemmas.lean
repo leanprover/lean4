@@ -1820,7 +1820,7 @@ theorem sameKeys_map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} 
   | inner => apply SameKeys.inner <;> assumption
 
 @[simp]
-theorem size_map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} : (t.map f).size = t.size :=
+theorem size_map {instOrd : Ord α} {t : Impl α β} {f : (a : α) → β a → γ a} : (t.map f).size = t.size :=
   sameKeys_map.size_eq
 
 theorem WF.map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} (h : t.WF) : (t.map f).WF :=

@@ -2384,4 +2384,10 @@ def reflBoolTrue : Expr :=
 def reflBoolFalse : Expr :=
   mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.false)
 
+def eagerReflBoolTrue : Expr :=
+  mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.true) (mkConst ``Bool.true)) reflBoolTrue
+
+def eagerReflBoolFalse : Expr :=
+  mkApp2 (mkConst ``eagerReduce [0]) (mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) (mkConst ``Bool.true) (mkConst ``Bool.true)) reflBoolFalse
+
 end Lean

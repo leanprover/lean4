@@ -2381,4 +2381,7 @@ def mkIntLit (n : Int) : Expr :=
 def reflBoolTrue : Expr :=
   mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
 
+def reflBoolFalse : Expr :=
+  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.false)
+
 end Lean

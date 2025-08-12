@@ -1,27 +1,14 @@
--- From Mathlib.Algebra.Order.Group.Unbundled.Int
+class SubNegMonoid (G : Type u) extends Neg G where
 
--- From Mathlib.Order.RelSeries
-theorem RelSeries.inductionOn.extracted_3 (p : Nat) (heq : p = 0) (n : Fin (p + 1)) : n = 0 := by
+instance Int.instSubNegMonoid : SubNegMonoid Int where
+
+theorem Int.abs_sub_lt_of_lt_lt.extracted_1_1 {m a b : Nat} (ha : a < m) (hb : b < m) :
+    (@Neg.neg Int
+      (Int.instSubNegMonoid.toNeg)
+      (m : Int)) < (↑b - ↑a) ∧
+    (↑b - ↑a < ↑m) := by
   grind
 
-theorem LTSeries.length_lt_card.extracted_1 (s : Nat)
-  (i j : Fin (s + 1)) (hn : i ≠ j) (hl : ¬i < j) : j < i := by
-  grind
-
--- From Mathlib.AlgebraicTopology.SimplexCategory.Basic
-theorem SimplexCategory.mkOfLe_refl.extracted_1 {n : Nat} (j : Fin (n + 1)) : j ≤ j := by
-  grind
-
-theorem SimplexCategory.eq_σ_comp_of_not_injective.extracted_1 {n : Nat}
-  (x y : Fin ((n + 1) + 1)) (h₂ : ¬x = y) (h : ¬x < y) :
-  y < x := by
-  fail_if_success grind
-  omega
-
-
--- Comparisons against `omega`:
--- set_option diagnostics true
--- This one is much slower (~10s in the kernel) than omega (~2s in the kernel).
 example {a b c d e f a' b' c' d' e' f' : Int}
   (h₁ : c = a + 3 * b) (h₂ : c' = a' + b') (h₃ : d = 2 * a + 3 * b) (h₄ : d' = 2 * a' + b') (h₅ : e = a + b)
   (h₆ : e' = 3 * a' + b') (h₇ : f = a + 2 * b) (h₈ : f' = 3 * a' + 2 * b')

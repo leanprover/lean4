@@ -1274,9 +1274,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint64_t x_6; uint64_t x_7; uint64_t x_8; uint64_t x_9; uint64_t x_10; uint64_t x_11; uint64_t x_12; size_t x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_4);
 x_5 = lean_array_get_size(x_4);
 x_6 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1560_(x_2);
 x_7 = 32;
@@ -1296,6 +1294,8 @@ x_19 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_Compiler_LCNF_Simp_
 if (lean_obj_tag(x_19) == 0)
 {
 uint8_t x_20; 
+lean_inc_ref(x_4);
+lean_inc(x_3);
 x_20 = !lean_is_exclusive(x_1);
 if (x_20 == 0)
 {
@@ -1425,6 +1425,8 @@ lean_dec(x_64);
 if (x_65 == 0)
 {
 uint8_t x_66; 
+lean_inc_ref(x_4);
+lean_inc(x_3);
 x_66 = !lean_is_exclusive(x_1);
 if (x_66 == 0)
 {
@@ -1546,8 +1548,6 @@ return x_109;
 else
 {
 lean_dec(x_18);
-lean_dec_ref(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 return x_1;
 }
@@ -1601,9 +1601,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_42; uint64_t x_43; uint64_t x_44; uint64_t x_45; uint64_t x_46; uint64_t x_47; uint64_t x_48; uint64_t x_49; size_t x_50; size_t x_51; size_t x_52; size_t x_53; size_t x_54; lean_object* x_55; lean_object* x_56; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_4);
 x_42 = lean_array_get_size(x_4);
 x_43 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1560_(x_2);
 x_44 = 32;
@@ -1623,6 +1621,8 @@ x_56 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___Lean_Compiler_LCNF_Simp_
 lean_dec(x_55);
 if (lean_obj_tag(x_56) == 0)
 {
+lean_inc_ref(x_4);
+lean_inc(x_3);
 lean_dec_ref(x_1);
 goto block_41;
 }
@@ -1636,13 +1636,13 @@ x_58 = lean_unbox(x_57);
 lean_dec(x_57);
 if (x_58 == 0)
 {
+lean_inc_ref(x_4);
+lean_inc(x_3);
 lean_dec_ref(x_1);
 goto block_41;
 }
 else
 {
-lean_dec_ref(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 return x_1;
 }
@@ -1956,9 +1956,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint64_t x_7; uint64_t x_8; uint64_t x_9; uint64_t x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; size_t x_18; lean_object* x_19; uint8_t x_20; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_5);
 x_6 = lean_array_get_size(x_5);
 x_7 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1560_(x_2);
 x_8 = 32;
@@ -1978,14 +1976,14 @@ x_20 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Compiler_LCNF_Simp
 if (x_20 == 0)
 {
 lean_dec(x_19);
-lean_dec_ref(x_5);
-lean_dec(x_4);
 lean_dec(x_2);
 return x_1;
 }
 else
 {
 uint8_t x_21; 
+lean_inc_ref(x_5);
+lean_inc(x_4);
 x_21 = !lean_is_exclusive(x_1);
 if (x_21 == 0)
 {

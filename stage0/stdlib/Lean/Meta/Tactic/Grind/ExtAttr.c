@@ -364,7 +364,6 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_6; size_t x_7; size_t x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_6);
 x_7 = 5;
 x_8 = 1;
 x_9 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_ExtAttr___hyg_10__spec__0_spec__0___redArg___closed__1;
@@ -376,7 +375,6 @@ lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
-lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_1;
@@ -384,6 +382,7 @@ return x_1;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_inc_ref(x_6);
 if (lean_is_exclusive(x_1)) {
  lean_ctor_release(x_1, 0);
  x_14 = x_1;
@@ -1621,7 +1620,6 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_box(2);
 x_6 = 5;
 x_7 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_ExtAttr___hyg_10__spec__0_spec__0___redArg___closed__1;
@@ -1640,12 +1638,12 @@ lean_dec(x_11);
 if (x_12 == 0)
 {
 lean_dec(x_9);
-lean_dec_ref(x_4);
 return x_1;
 }
 else
 {
 uint8_t x_13; 
+lean_inc_ref(x_4);
 x_13 = !lean_is_exclusive(x_1);
 if (x_13 == 0)
 {
@@ -1672,6 +1670,7 @@ return x_17;
 case 1:
 {
 uint8_t x_18; 
+lean_inc_ref(x_4);
 x_18 = !lean_is_exclusive(x_1);
 if (x_18 == 0)
 {
@@ -1857,7 +1856,6 @@ return x_62;
 default: 
 {
 lean_dec(x_9);
-lean_dec_ref(x_4);
 return x_1;
 }
 }

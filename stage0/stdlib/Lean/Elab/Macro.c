@@ -2103,7 +2103,6 @@ x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec_ref(x_20);
 x_23 = lean_ctor_get(x_2, 2);
-lean_inc(x_23);
 x_24 = lean_st_ref_get(x_3, x_22);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
@@ -2152,6 +2151,7 @@ lean_ctor_set(x_38, 3, x_37);
 lean_ctor_set(x_38, 4, x_36);
 x_39 = l_Lean_Environment_mainModule(x_8);
 lean_dec_ref(x_8);
+lean_inc(x_23);
 x_40 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_40, 0, x_38);
 lean_ctor_set(x_40, 1, x_39);
@@ -2417,6 +2417,7 @@ lean_ctor_set(x_103, 3, x_102);
 lean_ctor_set(x_103, 4, x_101);
 x_104 = l_Lean_Environment_mainModule(x_8);
 lean_dec_ref(x_8);
+lean_inc(x_23);
 x_105 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_105, 0, x_103);
 lean_ctor_set(x_105, 1, x_104);
@@ -5043,9 +5044,7 @@ else
 {
 lean_object* x_520; lean_object* x_521; 
 x_520 = lean_ctor_get(x_461, 0);
-lean_inc(x_520);
 x_521 = l_Lean_Syntax_getId(x_520);
-lean_dec(x_520);
 x_394 = x_456;
 x_395 = x_455;
 x_396 = x_457;
@@ -5371,9 +5370,7 @@ else
 {
 lean_object* x_581; lean_object* x_582; 
 x_581 = lean_ctor_get(x_461, 0);
-lean_inc(x_581);
 x_582 = l_Lean_Syntax_getId(x_581);
-lean_dec(x_581);
 x_394 = x_456;
 x_395 = x_455;
 x_396 = x_457;

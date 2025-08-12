@@ -773,14 +773,12 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_9);
+lean_inc_ref(x_8);
 x_10 = l_System_FilePath_fileName(x_8);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; 
-lean_dec_ref(x_9);
 x_11 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_getLratFileName___closed__1;
 x_12 = l_Lean_throwError___at___Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_getLratFileName_spec__0___redArg(x_11, x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec_ref(x_5);
@@ -802,7 +800,6 @@ if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 lean_dec(x_13);
-lean_dec_ref(x_9);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec_ref(x_14);
@@ -814,6 +811,7 @@ return x_18;
 else
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
+lean_inc_ref(x_9);
 lean_dec_ref(x_1);
 x_19 = lean_ctor_get(x_14, 1);
 lean_inc(x_19);
@@ -896,7 +894,6 @@ else
 {
 uint8_t x_59; 
 lean_dec(x_13);
-lean_dec_ref(x_9);
 lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 x_59 = !lean_is_exclusive(x_14);
@@ -1493,7 +1490,6 @@ x_82 = lean_ctor_get(x_80, 1);
 x_83 = lean_ctor_get(x_80, 0);
 lean_dec(x_83);
 x_84 = lean_ctor_get(x_8, 5);
-lean_inc(x_84);
 x_85 = l_Lean_SourceInfo_fromRef(x_84, x_27);
 x_86 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__8;
 x_87 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__14;
@@ -1523,6 +1519,7 @@ lean_ctor_set(x_96, 2, x_36);
 lean_ctor_set(x_96, 3, x_95);
 lean_ctor_set(x_96, 4, x_95);
 lean_ctor_set(x_96, 5, x_95);
+lean_inc(x_84);
 x_97 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_97, 0, x_84);
 x_98 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__12;
@@ -1538,7 +1535,6 @@ x_100 = lean_ctor_get(x_80, 1);
 lean_inc(x_100);
 lean_dec(x_80);
 x_101 = lean_ctor_get(x_8, 5);
-lean_inc(x_101);
 x_102 = l_Lean_SourceInfo_fromRef(x_101, x_27);
 x_103 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__8;
 x_104 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__14;
@@ -1568,6 +1564,7 @@ lean_ctor_set(x_114, 2, x_36);
 lean_ctor_set(x_114, 3, x_113);
 lean_ctor_set(x_114, 4, x_113);
 lean_ctor_set(x_114, 5, x_113);
+lean_inc(x_101);
 x_115 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_115, 0, x_101);
 x_116 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__12;
@@ -2085,7 +2082,6 @@ x_47 = lean_ctor_get(x_45, 1);
 x_48 = lean_ctor_get(x_45, 0);
 lean_dec(x_48);
 x_49 = lean_ctor_get(x_42, 5);
-lean_inc(x_49);
 x_50 = l_Lean_SourceInfo_fromRef(x_49, x_27);
 x_51 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__8;
 x_52 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__10;
@@ -2109,6 +2105,7 @@ lean_ctor_set(x_59, 2, x_58);
 lean_ctor_set(x_59, 3, x_58);
 lean_ctor_set(x_59, 4, x_58);
 lean_ctor_set(x_59, 5, x_58);
+lean_inc(x_49);
 x_60 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_60, 0, x_49);
 x_61 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__12;
@@ -2124,7 +2121,6 @@ x_63 = lean_ctor_get(x_45, 1);
 lean_inc(x_63);
 lean_dec(x_45);
 x_64 = lean_ctor_get(x_42, 5);
-lean_inc(x_64);
 x_65 = l_Lean_SourceInfo_fromRef(x_64, x_27);
 x_66 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__8;
 x_67 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__10;
@@ -2148,6 +2144,7 @@ lean_ctor_set(x_75, 2, x_74);
 lean_ctor_set(x_75, 3, x_74);
 lean_ctor_set(x_75, 4, x_74);
 lean_ctor_set(x_75, 5, x_74);
+lean_inc(x_64);
 x_76 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_76, 0, x_64);
 x_77 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__12;
@@ -2353,7 +2350,6 @@ if (lean_is_exclusive(x_285)) {
  x_287 = lean_box(0);
 }
 x_288 = lean_ctor_get(x_8, 5);
-lean_inc(x_288);
 x_289 = l_Lean_SourceInfo_fromRef(x_288, x_247);
 x_290 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__8;
 x_291 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__14;
@@ -2388,6 +2384,7 @@ lean_ctor_set(x_301, 2, x_257);
 lean_ctor_set(x_301, 3, x_300);
 lean_ctor_set(x_301, 4, x_300);
 lean_ctor_set(x_301, 5, x_300);
+lean_inc(x_288);
 x_302 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_302, 0, x_288);
 x_303 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__12;
@@ -2663,7 +2660,6 @@ if (lean_is_exclusive(x_266)) {
  x_268 = lean_box(0);
 }
 x_269 = lean_ctor_get(x_263, 5);
-lean_inc(x_269);
 x_270 = l_Lean_SourceInfo_fromRef(x_269, x_247);
 x_271 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__8;
 x_272 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__10;
@@ -2692,6 +2688,7 @@ lean_ctor_set(x_280, 2, x_279);
 lean_ctor_set(x_280, 3, x_279);
 lean_ctor_set(x_280, 4, x_279);
 lean_ctor_set(x_280, 5, x_279);
+lean_inc(x_269);
 x_281 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_281, 0, x_269);
 x_282 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__12;

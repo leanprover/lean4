@@ -908,9 +908,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; size_t x_6; lean_object* x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_4 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get_usize(x_3, 2);
 x_7 = lean_ctor_get(x_2, 0);
 x_8 = lean_ctor_get_usize(x_2, 1);
@@ -924,6 +922,8 @@ x_14 = l_Lean_PersistentHashMap_find_x3f___redArg(x_12, x_9, x_5, x_13);
 if (lean_obj_tag(x_14) == 0)
 {
 uint8_t x_15; 
+lean_inc_ref(x_5);
+lean_inc_ref(x_4);
 x_15 = !lean_is_exclusive(x_3);
 if (x_15 == 0)
 {
@@ -1002,8 +1002,6 @@ if (lean_obj_tag(x_44) == 0)
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 lean_dec(x_43);
-lean_dec_ref(x_5);
-lean_dec_ref(x_4);
 x_45 = l_Lean_Server_rpcStoreRef___redArg___closed__5;
 x_46 = l_Lean_Server_rpcStoreRef___redArg___boxed__const__1;
 x_47 = l_panic___redArg(x_46, x_45);
@@ -1015,6 +1013,8 @@ return x_48;
 else
 {
 uint8_t x_49; 
+lean_inc_ref(x_5);
+lean_inc_ref(x_4);
 x_49 = !lean_is_exclusive(x_3);
 if (x_49 == 0)
 {
@@ -1833,7 +1833,6 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_6; size_t x_7; size_t x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_6);
 x_7 = 5;
 x_8 = 1;
 x_9 = l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Server_rpcReleaseRef_spec__0_spec__0___redArg___closed__1;
@@ -1845,13 +1844,13 @@ lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
-lean_dec_ref(x_6);
 lean_dec(x_5);
 return x_1;
 }
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_inc_ref(x_6);
 if (lean_is_exclusive(x_1)) {
  lean_ctor_release(x_1, 0);
  x_14 = x_1;
@@ -2173,7 +2172,6 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_box(2);
 x_6 = 5;
 x_7 = l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Server_rpcReleaseRef_spec__0_spec__0___redArg___closed__1;
@@ -2193,12 +2191,12 @@ x_13 = lean_usize_dec_eq(x_3, x_12);
 if (x_13 == 0)
 {
 lean_dec(x_9);
-lean_dec_ref(x_4);
 return x_1;
 }
 else
 {
 uint8_t x_14; 
+lean_inc_ref(x_4);
 x_14 = !lean_is_exclusive(x_1);
 if (x_14 == 0)
 {
@@ -2225,6 +2223,7 @@ return x_18;
 case 1:
 {
 uint8_t x_19; 
+lean_inc_ref(x_4);
 x_19 = !lean_is_exclusive(x_1);
 if (x_19 == 0)
 {
@@ -2410,7 +2409,6 @@ return x_63;
 default: 
 {
 lean_dec(x_9);
-lean_dec_ref(x_4);
 return x_1;
 }
 }
@@ -2560,7 +2558,6 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_box(2);
 x_6 = 5;
 x_7 = l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Server_rpcReleaseRef_spec__0_spec__0___redArg___closed__1;
@@ -2580,12 +2577,12 @@ x_13 = lean_usize_dec_eq(x_3, x_12);
 if (x_13 == 0)
 {
 lean_dec(x_9);
-lean_dec_ref(x_4);
 return x_1;
 }
 else
 {
 uint8_t x_14; 
+lean_inc_ref(x_4);
 x_14 = !lean_is_exclusive(x_1);
 if (x_14 == 0)
 {
@@ -2612,6 +2609,7 @@ return x_18;
 case 1:
 {
 uint8_t x_19; 
+lean_inc_ref(x_4);
 x_19 = !lean_is_exclusive(x_1);
 if (x_19 == 0)
 {
@@ -2797,7 +2795,6 @@ return x_63;
 default: 
 {
 lean_dec(x_9);
-lean_dec_ref(x_4);
 return x_1;
 }
 }
@@ -2896,17 +2893,13 @@ _start:
 {
 lean_object* x_3; lean_object* x_8; lean_object* x_9; size_t x_10; lean_object* x_11; 
 x_8 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get_usize(x_2, 2);
 lean_inc_ref(x_8);
 x_11 = l_Lean_PersistentHashMap_find_x3f___at___Lean_Server_rpcReleaseRef_spec__0___redArg(x_8, x_1);
 if (lean_obj_tag(x_11) == 0)
 {
 uint8_t x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec_ref(x_9);
-lean_dec_ref(x_8);
 x_12 = 0;
 x_13 = lean_box(x_12);
 x_14 = lean_alloc_ctor(0, 2, 0);
@@ -2917,6 +2910,8 @@ return x_14;
 else
 {
 uint8_t x_15; 
+lean_inc_ref(x_9);
+lean_inc_ref(x_8);
 x_15 = !lean_is_exclusive(x_2);
 if (x_15 == 0)
 {

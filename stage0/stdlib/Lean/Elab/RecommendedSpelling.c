@@ -1026,9 +1026,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
 x_12 = lean_ctor_get(x_5, 0);
-lean_inc(x_12);
 x_13 = lean_unbox(x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 uint8_t x_14; 

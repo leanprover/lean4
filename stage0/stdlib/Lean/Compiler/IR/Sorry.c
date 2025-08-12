@@ -92,9 +92,7 @@ if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; 
 x_19 = lean_ctor_get(x_2, 0);
-lean_inc(x_19);
 x_20 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_19, x_1);
-lean_dec(x_19);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; 
@@ -404,18 +402,16 @@ if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
 x_11 = lean_ctor_get(x_10, 0);
-lean_inc(x_11);
 if (lean_obj_tag(x_11) == 0)
 {
-lean_dec_ref(x_11);
-lean_dec(x_10);
 return x_9;
 }
 else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; size_t x_15; size_t x_16; 
+lean_inc_ref(x_11);
+lean_inc(x_10);
 x_12 = lean_ctor_get(x_9, 1);
 lean_inc(x_12);
 lean_dec_ref(x_9);
@@ -460,10 +456,8 @@ lean_object* x_9; lean_object* x_10;
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
 if (lean_obj_tag(x_10) == 0)
 {
-lean_dec_ref(x_10);
 lean_dec(x_9);
 lean_dec(x_7);
 return x_8;
@@ -471,7 +465,6 @@ return x_8;
 else
 {
 lean_object* x_11; lean_object* x_12; 
-lean_dec_ref(x_10);
 x_11 = lean_ctor_get(x_8, 1);
 lean_inc(x_11);
 lean_dec_ref(x_8);
@@ -505,10 +498,8 @@ lean_object* x_17; lean_object* x_18;
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
 x_18 = lean_ctor_get(x_17, 0);
-lean_inc(x_18);
 if (lean_obj_tag(x_18) == 0)
 {
-lean_dec_ref(x_18);
 lean_dec(x_17);
 lean_dec(x_15);
 return x_16;
@@ -516,7 +507,6 @@ return x_16;
 else
 {
 lean_object* x_19; lean_object* x_20; 
-lean_dec_ref(x_18);
 x_19 = lean_ctor_get(x_16, 1);
 lean_inc(x_19);
 lean_dec_ref(x_16);
@@ -737,9 +727,7 @@ x_7 = lean_ctor_get(x_1, 3);
 lean_inc(x_7);
 lean_dec_ref(x_1);
 x_8 = lean_ctor_get(x_2, 0);
-lean_inc(x_8);
 x_9 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_8, x_6);
-lean_dec(x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 
@@ -750,10 +738,10 @@ lean_object* x_11; lean_object* x_12;
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_11, 0);
-lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
 uint8_t x_13; 
+lean_inc_ref(x_12);
 x_13 = !lean_is_exclusive(x_11);
 if (x_13 == 0)
 {
@@ -890,7 +878,6 @@ return x_49;
 else
 {
 uint8_t x_50; 
-lean_dec_ref(x_12);
 lean_dec(x_6);
 x_50 = !lean_is_exclusive(x_10);
 if (x_50 == 0)

@@ -137,17 +137,13 @@ x_8 = lean_ctor_get(x_5, 1);
 x_9 = lean_ctor_get(x_5, 0);
 lean_dec(x_9);
 x_10 = lean_ctor_get(x_8, 0);
-lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_8, 1);
-lean_inc(x_11);
 x_12 = lean_string_utf8_byte_size(x_10);
 x_13 = lean_nat_dec_lt(x_11, x_12);
 lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; 
-lean_dec(x_11);
-lean_dec_ref(x_10);
 lean_dec(x_6);
 lean_dec(x_3);
 x_14 = lean_alloc_ctor(1, 1, 0);
@@ -162,8 +158,6 @@ x_15 = lean_string_utf8_get_fast(x_10, x_11);
 x_16 = lean_uint32_dec_eq(x_15, x_2);
 if (x_16 == 0)
 {
-lean_dec(x_11);
-lean_dec_ref(x_10);
 lean_dec(x_6);
 lean_dec_ref(x_1);
 lean_ctor_set(x_5, 0, x_3);
@@ -172,6 +166,8 @@ return x_5;
 else
 {
 uint8_t x_17; 
+lean_inc(x_11);
+lean_inc_ref(x_10);
 x_17 = !lean_is_exclusive(x_8);
 if (x_17 == 0)
 {
@@ -241,17 +237,13 @@ x_31 = lean_ctor_get(x_5, 1);
 lean_inc(x_31);
 lean_dec(x_5);
 x_32 = lean_ctor_get(x_31, 0);
-lean_inc_ref(x_32);
 x_33 = lean_ctor_get(x_31, 1);
-lean_inc(x_33);
 x_34 = lean_string_utf8_byte_size(x_32);
 x_35 = lean_nat_dec_lt(x_33, x_34);
 lean_dec(x_34);
 if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; 
-lean_dec(x_33);
-lean_dec_ref(x_32);
 lean_dec(x_6);
 lean_dec(x_3);
 x_36 = lean_alloc_ctor(1, 1, 0);
@@ -269,8 +261,6 @@ x_39 = lean_uint32_dec_eq(x_38, x_2);
 if (x_39 == 0)
 {
 lean_object* x_40; 
-lean_dec(x_33);
-lean_dec_ref(x_32);
 lean_dec(x_6);
 lean_dec_ref(x_1);
 x_40 = lean_alloc_ctor(0, 2, 0);
@@ -281,6 +271,8 @@ return x_40;
 else
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; uint8_t x_47; 
+lean_inc(x_33);
+lean_inc_ref(x_32);
 if (lean_is_exclusive(x_31)) {
  lean_ctor_release(x_31, 0);
  lean_ctor_release(x_31, 1);
@@ -503,9 +495,7 @@ if (lean_is_exclusive(x_1)) {
  x_4 = lean_box(0);
 }
 x_5 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_2, 1);
-lean_inc(x_6);
 x_7 = lean_ctor_get(x_3, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_3, 1);
@@ -524,8 +514,6 @@ lean_dec(x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
-lean_dec(x_6);
-lean_dec_ref(x_5);
 if (lean_is_scalar(x_9)) {
  x_12 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -545,6 +533,8 @@ return x_13;
 else
 {
 uint8_t x_14; 
+lean_inc(x_6);
+lean_inc_ref(x_5);
 x_14 = !lean_is_exclusive(x_2);
 if (x_14 == 0)
 {
@@ -1197,10 +1187,8 @@ lean_dec(x_30);
 lean_dec_ref(x_29);
 lean_dec(x_27);
 x_62 = lean_ctor_get(x_12, 0);
-lean_inc(x_62);
 x_63 = lean_nat_dec_eq(x_62, x_45);
 lean_dec(x_45);
-lean_dec(x_62);
 if (x_63 == 0)
 {
 x_16 = x_12;
@@ -1225,15 +1213,13 @@ lean_dec_ref(x_29);
 lean_dec(x_27);
 lean_dec(x_14);
 x_64 = lean_ctor_get(x_12, 0);
-lean_inc(x_64);
 x_65 = lean_ctor_get(x_12, 1);
-lean_inc(x_65);
 x_66 = lean_nat_dec_eq(x_65, x_45);
 lean_dec(x_45);
-lean_dec(x_65);
 if (x_66 == 0)
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; 
+lean_inc(x_64);
 x_67 = l___private_Lean_Server_FileWorker_ExampleHover_0__Lean_Server_FileWorker_Hover_addCommentAt(x_64, x_15);
 x_68 = lean_string_append(x_13, x_67);
 lean_dec_ref(x_67);
@@ -1246,7 +1232,6 @@ goto block_10;
 else
 {
 uint8_t x_70; 
-lean_dec(x_64);
 x_70 = !lean_is_exclusive(x_12);
 if (x_70 == 0)
 {
@@ -1471,10 +1456,8 @@ lean_dec(x_30);
 lean_dec_ref(x_29);
 lean_dec(x_27);
 x_62 = lean_ctor_get(x_12, 0);
-lean_inc(x_62);
 x_63 = lean_nat_dec_eq(x_62, x_45);
 lean_dec(x_45);
-lean_dec(x_62);
 if (x_63 == 0)
 {
 x_16 = x_12;
@@ -1499,15 +1482,13 @@ lean_dec_ref(x_29);
 lean_dec(x_27);
 lean_dec(x_14);
 x_64 = lean_ctor_get(x_12, 0);
-lean_inc(x_64);
 x_65 = lean_ctor_get(x_12, 1);
-lean_inc(x_65);
 x_66 = lean_nat_dec_eq(x_65, x_45);
 lean_dec(x_45);
-lean_dec(x_65);
 if (x_66 == 0)
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; 
+lean_inc(x_64);
 x_67 = l___private_Lean_Server_FileWorker_ExampleHover_0__Lean_Server_FileWorker_Hover_addCommentAt(x_64, x_15);
 x_68 = lean_string_append(x_13, x_67);
 lean_dec_ref(x_67);
@@ -1520,7 +1501,6 @@ goto block_10;
 else
 {
 uint8_t x_70; 
-lean_dec(x_64);
 x_70 = !lean_is_exclusive(x_12);
 if (x_70 == 0)
 {

@@ -442,9 +442,7 @@ if (lean_is_exclusive(x_1)) {
  x_5 = lean_box(0);
 }
 x_6 = lean_ctor_get(x_3, 0);
-lean_inc(x_6);
 x_7 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_7);
 x_8 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_instDecidableEqBVBit___boxed), 2, 0);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_2);
@@ -470,6 +468,8 @@ x_24 = l_Std_DHashMap_Internal_AssocList_get_x3f___at___Std_Sat_AIG_mkAtomCached
 if (lean_obj_tag(x_24) == 0)
 {
 uint8_t x_25; 
+lean_inc_ref(x_7);
+lean_inc(x_6);
 x_25 = !lean_is_exclusive(x_3);
 if (x_25 == 0)
 {
@@ -652,8 +652,6 @@ lean_object* x_79; lean_object* x_80; uint8_t x_81; lean_object* x_82; lean_obje
 lean_dec(x_23);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
-lean_dec_ref(x_7);
-lean_dec(x_6);
 x_79 = lean_ctor_get(x_24, 0);
 lean_inc(x_79);
 lean_dec_ref(x_24);

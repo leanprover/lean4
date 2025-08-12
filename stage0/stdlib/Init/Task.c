@@ -713,7 +713,6 @@ else
 {
 lean_object* x_11; 
 x_11 = lean_ctor_get(x_4, 1);
-lean_inc(x_11);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -729,6 +728,7 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_inc_ref(x_11);
 x_15 = lean_ctor_get(x_4, 0);
 lean_inc(x_15);
 lean_dec_ref(x_4);

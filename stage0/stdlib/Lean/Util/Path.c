@@ -396,12 +396,10 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc_ref(x_7);
-lean_dec_ref(x_5);
 x_8 = lean_alloc_closure((void*)(l_System_FilePath_readDir___boxed), 2, 1);
 lean_closure_set(x_8, 0, x_3);
 lean_inc_ref(x_2);
@@ -806,9 +804,7 @@ x_12 = lean_ctor_get(x_9, 1);
 lean_inc(x_12);
 lean_dec_ref(x_9);
 x_13 = lean_ctor_get(x_10, 0);
-lean_inc(x_13);
 x_14 = l_System_FilePath_pathExists(x_13, x_12);
-lean_dec(x_13);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 x_16 = lean_unbox(x_15);

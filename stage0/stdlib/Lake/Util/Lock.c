@@ -181,10 +181,8 @@ else
 {
 lean_object* x_12; 
 x_12 = lean_ctor_get(x_11, 0);
-lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
-lean_dec_ref(x_12);
 if (x_2 == 0)
 {
 lean_object* x_13; 
@@ -245,7 +243,6 @@ return x_22;
 }
 else
 {
-lean_dec(x_12);
 return x_11;
 }
 }

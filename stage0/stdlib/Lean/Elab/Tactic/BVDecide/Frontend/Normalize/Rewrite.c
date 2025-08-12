@@ -752,9 +752,7 @@ if (lean_is_exclusive(x_9)) {
  x_14 = lean_box(0);
 }
 x_15 = lean_ctor_get(x_10, 0);
-lean_inc(x_15);
 x_16 = lean_ctor_get(x_10, 1);
-lean_inc_ref(x_16);
 x_17 = lean_array_uget(x_1, x_2);
 x_18 = lean_box(0);
 x_27 = lean_array_get_size(x_16);
@@ -776,6 +774,8 @@ x_41 = l_Std_DHashMap_Internal_AssocList_contains___at_____private_Lean_Elab_Tac
 if (x_41 == 0)
 {
 uint8_t x_42; 
+lean_inc_ref(x_16);
+lean_inc(x_15);
 x_42 = !lean_is_exclusive(x_10);
 if (x_42 == 0)
 {
@@ -864,8 +864,6 @@ else
 {
 lean_dec(x_40);
 lean_dec(x_17);
-lean_dec_ref(x_16);
-lean_dec(x_15);
 x_19 = x_10;
 goto block_26;
 }
@@ -1199,11 +1197,11 @@ x_25 = lean_ctor_get(x_23, 1);
 lean_inc(x_25);
 lean_dec_ref(x_23);
 x_26 = lean_ctor_get(x_2, 1);
-lean_inc(x_26);
 x_27 = lean_unsigned_to_nat(2u);
 x_28 = 0;
 x_29 = 1;
 x_30 = 0;
+lean_inc(x_26);
 x_31 = lean_alloc_ctor(0, 2, 24);
 lean_ctor_set(x_31, 0, x_26);
 lean_ctor_set(x_31, 1, x_27);

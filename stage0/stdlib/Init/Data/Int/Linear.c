@@ -716,15 +716,15 @@ else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
 x_7 = lean_ctor_get(x_3, 2);
-lean_inc_ref(x_7);
 x_8 = l_Nat_blt(x_6, x_2);
 if (x_8 == 0)
 {
 uint8_t x_9; 
+lean_inc_ref(x_7);
+lean_inc(x_6);
+lean_inc(x_5);
 x_9 = !lean_is_exclusive(x_3);
 if (x_9 == 0)
 {
@@ -811,9 +811,6 @@ return x_7;
 else
 {
 lean_object* x_25; 
-lean_dec_ref(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
 x_25 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_25, 0, x_1);
 lean_ctor_set(x_25, 1, x_2);
@@ -1011,17 +1008,11 @@ else
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; 
 x_32 = lean_ctor_get(x_2, 0);
-lean_inc(x_32);
 x_33 = lean_ctor_get(x_2, 1);
-lean_inc(x_33);
 x_34 = lean_ctor_get(x_2, 2);
-lean_inc_ref(x_34);
 x_35 = lean_ctor_get(x_3, 0);
-lean_inc(x_35);
 x_36 = lean_ctor_get(x_3, 1);
-lean_inc(x_36);
 x_37 = lean_ctor_get(x_3, 2);
-lean_inc_ref(x_37);
 x_38 = lean_nat_dec_eq(x_33, x_36);
 if (x_38 == 0)
 {
@@ -1030,9 +1021,9 @@ x_39 = l_Nat_blt(x_36, x_33);
 if (x_39 == 0)
 {
 uint8_t x_40; 
-lean_dec_ref(x_34);
-lean_dec(x_33);
-lean_dec(x_32);
+lean_inc_ref(x_37);
+lean_inc(x_36);
+lean_inc(x_35);
 x_40 = !lean_is_exclusive(x_3);
 if (x_40 == 0)
 {
@@ -1062,9 +1053,9 @@ return x_46;
 else
 {
 lean_object* x_47; uint8_t x_48; 
-lean_dec_ref(x_37);
-lean_dec(x_36);
-lean_dec(x_35);
+lean_inc_ref(x_34);
+lean_inc(x_33);
+lean_inc(x_32);
 lean_dec_ref(x_2);
 lean_inc_ref(x_3);
 x_47 = l_Int_Linear_Poly_combine_x27(x_8, x_34, x_3);
@@ -1098,7 +1089,11 @@ return x_52;
 else
 {
 uint8_t x_53; 
-lean_dec(x_36);
+lean_inc_ref(x_37);
+lean_inc(x_35);
+lean_inc_ref(x_34);
+lean_inc(x_33);
+lean_inc(x_32);
 lean_dec_ref(x_2);
 x_53 = !lean_is_exclusive(x_3);
 if (x_53 == 0)

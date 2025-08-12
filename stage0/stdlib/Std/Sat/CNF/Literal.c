@@ -20,9 +20,7 @@ _start:
 {
 lean_object* x_2; uint8_t x_3; 
 x_2 = lean_ctor_get(x_1, 1);
-lean_inc(x_2);
 x_3 = lean_unbox(x_2);
-lean_dec(x_2);
 if (x_3 == 0)
 {
 uint8_t x_4; 
@@ -86,9 +84,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_2, 1);
-lean_inc(x_3);
 x_4 = lean_unbox(x_3);
-lean_dec(x_3);
 if (x_4 == 0)
 {
 uint8_t x_5; 

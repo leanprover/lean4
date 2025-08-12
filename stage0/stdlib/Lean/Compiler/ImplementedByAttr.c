@@ -1497,11 +1497,9 @@ lean_dec_ref(x_12);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_13, 1);
-lean_inc(x_16);
 x_17 = l_Lean_ConstantInfo_levelParams(x_3);
 x_18 = l_List_lengthTR___redArg(x_17);
 x_19 = l_List_lengthTR___redArg(x_16);
-lean_dec(x_16);
 x_20 = lean_nat_dec_eq(x_18, x_19);
 if (x_20 == 0)
 {
@@ -1936,11 +1934,9 @@ lean_dec_ref(x_139);
 x_142 = lean_ctor_get(x_140, 0);
 lean_inc(x_142);
 x_143 = lean_ctor_get(x_140, 1);
-lean_inc(x_143);
 x_144 = l_Lean_ConstantInfo_levelParams(x_3);
 x_145 = l_List_lengthTR___redArg(x_144);
 x_146 = l_List_lengthTR___redArg(x_143);
-lean_dec(x_143);
 x_147 = lean_nat_dec_eq(x_145, x_146);
 if (x_147 == 0)
 {

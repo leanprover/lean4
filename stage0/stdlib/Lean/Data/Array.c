@@ -568,14 +568,10 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_4 = l_Std_PRange_instUpwardEnumerableNat;
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_8);
-lean_dec_ref(x_5);
 x_9 = lean_alloc_closure((void*)(l_Array_filterPairsM___redArg___lam__0___boxed), 1, 0);
 x_10 = 0;
 x_11 = lean_array_get_size(x_2);
@@ -617,7 +613,7 @@ if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; 
 lean_dec(x_11);
-lean_dec_ref(x_7);
+lean_inc_ref(x_8);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -637,9 +633,11 @@ lean_closure_set(x_25, 1, x_17);
 lean_closure_set(x_25, 2, x_6);
 x_26 = lean_box(x_10);
 lean_inc_ref(x_1);
+lean_inc_ref(x_8);
 lean_inc(x_11);
 lean_inc_ref(x_24);
 lean_inc_ref(x_6);
+lean_inc_ref(x_7);
 x_27 = lean_alloc_closure((void*)(l_Array_filterPairsM___redArg___lam__17___boxed), 18, 14);
 lean_closure_set(x_27, 0, x_7);
 lean_closure_set(x_27, 1, x_6);

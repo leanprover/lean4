@@ -339,14 +339,12 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_10);
-lean_dec_ref(x_7);
 lean_inc(x_3);
 lean_inc_ref(x_1);
 x_11 = l_Lean_Elab_getDeclarationRange_x3f___redArg(x_1, x_3, x_5);
@@ -488,12 +486,10 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_10 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc_ref(x_12);
-lean_dec_ref(x_10);
 x_13 = lean_alloc_closure((void*)(l_Lean_Elab_addDeclarationRangesForBuiltin___redArg___lam__0), 7, 6);
 lean_closure_set(x_13, 0, x_5);
 lean_closure_set(x_13, 1, x_6);

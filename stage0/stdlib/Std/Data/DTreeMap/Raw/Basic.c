@@ -6060,12 +6060,10 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc_ref(x_7);
-lean_dec_ref(x_5);
 x_8 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_1, x_2, x_3, x_4);
 x_9 = lean_alloc_closure((void*)(l_Std_DTreeMap_Raw_forIn___redArg___lam__0), 2, 1);
 lean_closure_set(x_9, 0, x_7);
@@ -6078,12 +6076,10 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_10 = lean_ctor_get(x_6, 0);
-lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_6, 1);
 lean_inc_ref(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc_ref(x_12);
-lean_dec_ref(x_10);
 x_13 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_6, x_7, x_8, x_9);
 x_14 = lean_alloc_closure((void*)(l_Std_DTreeMap_Raw_forIn___redArg___lam__0), 2, 1);
 lean_closure_set(x_14, 0, x_12);
@@ -6155,12 +6151,10 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_6 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc_ref(x_8);
-lean_dec_ref(x_6);
 x_9 = lean_alloc_closure((void*)(l_Std_DTreeMap_Raw_instForInSigma___lam__0), 4, 1);
 lean_closure_set(x_9, 0, x_5);
 x_10 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_2, x_9, x_4, x_3);
@@ -6245,12 +6239,10 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_5, 1);
 lean_inc_ref(x_7);
-lean_dec_ref(x_5);
 x_8 = lean_alloc_closure((void*)(l_Std_DTreeMap_Raw_Const_forInUncurried___redArg___lam__0), 4, 1);
 lean_closure_set(x_8, 0, x_2);
 x_9 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_1, x_8, x_3, x_4);
@@ -6265,12 +6257,10 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_10 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_5, 1);
 lean_inc_ref(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc_ref(x_12);
-lean_dec_ref(x_10);
 x_13 = lean_alloc_closure((void*)(l_Std_DTreeMap_Raw_Const_forInUncurried___redArg___lam__0), 4, 1);
 lean_closure_set(x_13, 0, x_7);
 x_14 = l_Std_DTreeMap_Internal_Impl_forInStep___redArg(x_5, x_13, x_8, x_9);

@@ -654,9 +654,7 @@ x_32 = lean_ctor_get(x_30, 1);
 lean_inc(x_32);
 lean_dec_ref(x_30);
 x_33 = lean_ctor_get(x_23, 1);
-lean_inc(x_33);
 x_34 = l_IO_FS_Handle_readToEnd(x_33, x_32);
-lean_dec(x_33);
 if (lean_obj_tag(x_34) == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
@@ -1329,7 +1327,6 @@ x_62 = lean_ctor_get(x_61, 0);
 lean_inc(x_62);
 lean_dec_ref(x_61);
 x_63 = lean_ctor_get(x_62, 3);
-lean_inc_ref(x_63);
 x_64 = lean_unsigned_to_nat(0u);
 x_65 = lean_array_get_size(x_63);
 x_66 = lean_nat_dec_lt(x_64, x_65);
@@ -1337,7 +1334,6 @@ if (x_66 == 0)
 {
 lean_object* x_67; 
 lean_dec(x_65);
-lean_dec_ref(x_63);
 x_67 = l_Lean_Server_FileWorker_FileSetupResult_ofSuccess(x_62, x_23);
 return x_67;
 }
@@ -1349,7 +1345,6 @@ if (x_68 == 0)
 {
 lean_object* x_69; 
 lean_dec(x_65);
-lean_dec_ref(x_63);
 x_69 = l_Lean_Server_FileWorker_FileSetupResult_ofSuccess(x_62, x_23);
 return x_69;
 }
@@ -1361,7 +1356,6 @@ x_71 = 0;
 x_72 = lean_usize_of_nat(x_65);
 lean_dec(x_65);
 x_73 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Server_FileWorker_setupFile_spec__0(x_63, x_71, x_72, x_70, x_23);
-lean_dec_ref(x_63);
 if (lean_obj_tag(x_73) == 0)
 {
 lean_object* x_74; lean_object* x_75; 
@@ -1569,7 +1563,6 @@ x_128 = lean_ctor_get(x_127, 0);
 lean_inc(x_128);
 lean_dec_ref(x_127);
 x_129 = lean_ctor_get(x_128, 3);
-lean_inc_ref(x_129);
 x_130 = lean_unsigned_to_nat(0u);
 x_131 = lean_array_get_size(x_129);
 x_132 = lean_nat_dec_lt(x_130, x_131);
@@ -1577,7 +1570,6 @@ if (x_132 == 0)
 {
 lean_object* x_133; 
 lean_dec(x_131);
-lean_dec_ref(x_129);
 x_133 = l_Lean_Server_FileWorker_FileSetupResult_ofSuccess(x_128, x_88);
 return x_133;
 }
@@ -1589,7 +1581,6 @@ if (x_134 == 0)
 {
 lean_object* x_135; 
 lean_dec(x_131);
-lean_dec_ref(x_129);
 x_135 = l_Lean_Server_FileWorker_FileSetupResult_ofSuccess(x_128, x_88);
 return x_135;
 }
@@ -1601,7 +1592,6 @@ x_137 = 0;
 x_138 = lean_usize_of_nat(x_131);
 lean_dec(x_131);
 x_139 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Server_FileWorker_setupFile_spec__0(x_129, x_137, x_138, x_136, x_88);
-lean_dec_ref(x_129);
 if (lean_obj_tag(x_139) == 0)
 {
 lean_object* x_140; lean_object* x_141; 

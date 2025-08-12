@@ -10914,7 +10914,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_ctor_get(x_1, 3);
-lean_inc(x_2);
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
@@ -10926,6 +10925,7 @@ return x_3;
 else
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_inc_ref(x_2);
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
@@ -11054,10 +11054,8 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_7 = lean_ctor_get(x_3, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_8);
 x_9 = l___private_Init_Prelude_0__Lean_eraseMacroScopesAux___closed__0;
 x_10 = lean_string_dec_eq(x_8, x_9);
-lean_dec_ref(x_8);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -11124,10 +11122,8 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_7);
 x_8 = l___private_Init_Prelude_0__Lean_eraseMacroScopesAux___closed__0;
 x_9 = lean_string_dec_eq(x_7, x_8);
-lean_dec_ref(x_7);
 if (x_9 == 0)
 {
 lean_object* x_10; 

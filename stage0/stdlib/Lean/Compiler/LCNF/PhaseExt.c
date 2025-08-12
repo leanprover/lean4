@@ -415,13 +415,13 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t 
 x_5 = lean_ctor_get(x_3, 0);
 x_6 = lean_ctor_get(x_3, 1);
 x_7 = lean_ctor_get(x_2, 0);
-lean_inc(x_7);
 x_8 = lean_ctor_get(x_2, 1);
-lean_inc(x_8);
 x_9 = l_List_elem___at_____private_Lean_Compiler_LCNF_PhaseExt_0__Lean_Compiler_LCNF_mkDeclSetExt_spec__0(x_5, x_7);
 if (x_9 == 0)
 {
 uint8_t x_10; 
+lean_inc(x_8);
+lean_inc(x_7);
 x_10 = !lean_is_exclusive(x_2);
 if (x_10 == 0)
 {
@@ -485,8 +485,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_8);
-lean_dec(x_7);
 lean_free_object(x_3);
 lean_dec(x_5);
 x_3 = x_6;
@@ -502,13 +500,13 @@ lean_inc(x_27);
 lean_inc(x_26);
 lean_dec(x_3);
 x_28 = lean_ctor_get(x_2, 0);
-lean_inc(x_28);
 x_29 = lean_ctor_get(x_2, 1);
-lean_inc(x_29);
 x_30 = l_List_elem___at_____private_Lean_Compiler_LCNF_PhaseExt_0__Lean_Compiler_LCNF_mkDeclSetExt_spec__0(x_26, x_28);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; 
+lean_inc(x_29);
+lean_inc(x_28);
 if (lean_is_exclusive(x_2)) {
  lean_ctor_release(x_2, 0);
  lean_ctor_release(x_2, 1);
@@ -556,8 +554,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_29);
-lean_dec(x_28);
 lean_dec(x_26);
 x_3 = x_27;
 goto _start;
@@ -580,7 +576,6 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_5 = lean_ctor_get(x_2, 0);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = l_List_lengthTR___redArg(x_5);
 x_8 = l_List_lengthTR___redArg(x_6);
@@ -590,7 +585,6 @@ lean_dec(x_7);
 x_10 = l___private_Lean_Compiler_LCNF_PhaseExt_0__Lean_Compiler_LCNF_mkDeclSetExt___lam__0___closed__0;
 lean_inc(x_5);
 x_11 = l___private_Init_Data_List_Impl_0__List_takeTR_go(lean_box(0), x_5, x_5, x_9, x_10);
-lean_dec(x_5);
 x_12 = l_List_foldl___at_____private_Lean_Compiler_LCNF_PhaseExt_0__Lean_Compiler_LCNF_mkDeclSetExt_spec__1(x_2, x_4, x_11);
 lean_dec_ref(x_2);
 return x_12;
@@ -2329,7 +2323,6 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_6; size_t x_7; size_t x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_6);
 x_7 = 5;
 x_8 = 1;
 x_9 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_mkDeclExt_spec__2_spec__2___redArg___closed__1;
@@ -2341,7 +2334,6 @@ lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
-lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_1;
@@ -2349,6 +2341,7 @@ return x_1;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_inc_ref(x_6);
 if (lean_is_exclusive(x_1)) {
  lean_ctor_release(x_1, 0);
  x_14 = x_1;

@@ -173,13 +173,11 @@ x_6 = lean_ctor_get(x_5, 2);
 lean_inc_ref(x_6);
 lean_dec_ref(x_5);
 x_7 = lean_ctor_get(x_6, 2);
-lean_inc(x_7);
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = lean_nat_dec_eq(x_7, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec(x_7);
 lean_dec_ref(x_6);
 x_10 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3;
 x_11 = l_panic___at___Lean_Server_Snapshots_Snapshot_infoTree_spec__0(x_10);
@@ -191,7 +189,6 @@ lean_object* x_12; lean_object* x_13; uint8_t x_14;
 x_12 = l_Lean_Elab_instInhabitedInfoTree;
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_nat_dec_lt(x_13, x_7);
-lean_dec(x_7);
 if (x_14 == 0)
 {
 lean_object* x_15; 

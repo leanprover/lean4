@@ -277,12 +277,10 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_7 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_9);
-lean_dec_ref(x_7);
 x_10 = l_Lean_TSyntax_getDocString(x_6);
 lean_inc_ref(x_10);
 x_11 = lean_alloc_closure((void*)(l_Lean_validateDocComment___redArg___lam__0), 2, 1);
@@ -584,12 +582,11 @@ return x_9;
 LEAN_EXPORT lean_object* l_Lean_addDocString_x27___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-lean_object* x_10; 
-x_10 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_10);
 if (lean_obj_tag(x_9) == 0)
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_10);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -608,7 +605,6 @@ return x_13;
 else
 {
 lean_object* x_14; lean_object* x_15; 
-lean_dec_ref(x_10);
 x_14 = lean_ctor_get(x_9, 0);
 lean_inc(x_14);
 lean_dec_ref(x_9);

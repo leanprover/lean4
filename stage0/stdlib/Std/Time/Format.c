@@ -3683,7 +3683,6 @@ case 3:
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 lean_dec_ref(x_2);
 x_23 = lean_ctor_get(x_1, 0);
-lean_inc(x_23);
 x_24 = l_Std_Time_PlainDate_format___lam__0___closed__0;
 x_25 = lean_int_mod(x_23, x_24);
 x_26 = l_Std_Time_PlainDate_format___lam__0___closed__1;
@@ -3691,7 +3690,6 @@ x_27 = lean_int_dec_eq(x_25, x_26);
 lean_dec(x_25);
 if (x_27 == 0)
 {
-lean_dec(x_23);
 x_3 = x_27;
 goto block_8;
 }
@@ -3708,7 +3706,6 @@ if (x_31 == 0)
 lean_object* x_32; lean_object* x_33; uint8_t x_34; 
 x_32 = l_Std_Time_PlainDate_format___lam__0___closed__3;
 x_33 = lean_int_mod(x_23, x_32);
-lean_dec(x_23);
 x_34 = lean_int_dec_eq(x_33, x_26);
 lean_dec(x_33);
 x_3 = x_34;
@@ -3716,7 +3713,6 @@ goto block_8;
 }
 else
 {
-lean_dec(x_23);
 x_3 = x_31;
 goto block_8;
 }

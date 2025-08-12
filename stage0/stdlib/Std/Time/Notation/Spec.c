@@ -9957,9 +9957,7 @@ if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_45 = lean_ctor_get(x_3, 5);
-lean_inc(x_45);
 x_46 = l_Lean_SourceInfo_fromRef(x_45, x_6);
-lean_dec(x_45);
 x_47 = l_Std_Time_formatStringToFormat___closed__12;
 x_48 = l_Std_Time_formatStringToFormat___closed__14;
 x_49 = l_Std_Time_formatStringToFormat___closed__15;

@@ -914,8 +914,8 @@ if (lean_is_scalar(x_74)) {
  lean_ctor_set_tag(x_80, 3);
 }
 lean_ctor_set(x_80, 0, x_79);
-x_3 = x_76;
-x_4 = x_75;
+x_3 = x_75;
+x_4 = x_76;
 x_5 = x_80;
 goto block_11;
 }
@@ -933,8 +933,8 @@ if (lean_is_scalar(x_74)) {
 }
 lean_ctor_set(x_83, 0, x_82);
 x_84 = l_Repr_addAppParen(x_83, x_81);
-x_3 = x_76;
-x_4 = x_75;
+x_3 = x_75;
+x_4 = x_76;
 x_5 = x_84;
 goto block_11;
 }
@@ -987,10 +987,10 @@ block_11:
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; 
 x_6 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_6, 0, x_3);
+lean_ctor_set(x_6, 0, x_4);
 lean_ctor_set(x_6, 1, x_5);
 x_7 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_7, 0, x_4);
+lean_ctor_set(x_7, 0, x_3);
 lean_ctor_set(x_7, 1, x_6);
 x_8 = 0;
 x_9 = lean_alloc_ctor(6, 1, 1);
@@ -1519,7 +1519,6 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; 
@@ -1532,6 +1531,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
+lean_inc_ref(x_4);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_dec_ref(x_1);
@@ -1821,7 +1821,6 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -1835,6 +1834,7 @@ return x_6;
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_inc_ref(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);
@@ -2361,12 +2361,10 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_7 = lean_ctor_get(x_1, 0);
 x_8 = lean_ctor_get(x_1, 1);
 x_9 = lean_ctor_get(x_7, 0);
-lean_inc(x_9);
 x_10 = lean_name_eq(x_9, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; 
-lean_dec(x_9);
 x_11 = l_Lean_KVMap_insertCore(x_8, x_2, x_3);
 lean_ctor_set(x_1, 1, x_11);
 return x_1;
@@ -2374,6 +2372,7 @@ return x_1;
 else
 {
 uint8_t x_12; 
+lean_inc(x_9);
 lean_dec(x_2);
 x_12 = !lean_is_exclusive(x_7);
 if (x_12 == 0)
@@ -2407,12 +2406,10 @@ lean_inc(x_17);
 lean_inc(x_16);
 lean_dec(x_1);
 x_18 = lean_ctor_get(x_16, 0);
-lean_inc(x_18);
 x_19 = lean_name_eq(x_18, x_2);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; 
-lean_dec(x_18);
 x_20 = l_Lean_KVMap_insertCore(x_17, x_2, x_3);
 x_21 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_21, 0, x_16);
@@ -2422,6 +2419,7 @@ return x_21;
 else
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+lean_inc(x_18);
 lean_dec(x_2);
 if (lean_is_exclusive(x_16)) {
  lean_ctor_release(x_16, 0);
@@ -2505,9 +2503,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10;
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
 x_8 = lean_ctor_get(x_6, 0);
-lean_inc(x_8);
 x_9 = lean_name_eq(x_8, x_1);
-lean_dec(x_8);
 x_10 = l_instDecidableNot___redArg(x_9);
 if (x_10 == 0)
 {
@@ -2537,9 +2533,7 @@ lean_inc(x_14);
 lean_inc(x_13);
 lean_dec(x_2);
 x_15 = lean_ctor_get(x_13, 0);
-lean_inc(x_15);
 x_16 = lean_name_eq(x_15, x_1);
-lean_dec(x_15);
 x_17 = l_instDecidableNot___redArg(x_16);
 if (x_17 == 0)
 {

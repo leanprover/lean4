@@ -1587,7 +1587,6 @@ x_52 = lean_ctor_get(x_45, 0);
 lean_inc(x_52);
 lean_dec_ref(x_45);
 x_53 = lean_ctor_get(x_52, 4);
-lean_inc_ref(x_53);
 if (lean_obj_tag(x_53) == 0)
 {
 uint8_t x_54; 
@@ -1602,7 +1601,6 @@ x_56 = lean_ctor_get(x_52, 1);
 lean_inc(x_56);
 x_57 = lean_ctor_get(x_53, 0);
 lean_inc_ref(x_57);
-lean_dec_ref(x_53);
 x_58 = l_Lean_Compiler_LCNF_Decl_getArity(x_52);
 x_59 = lean_array_get_size(x_34);
 x_60 = lean_nat_dec_eq(x_58, x_59);
@@ -1682,7 +1680,6 @@ return x_70;
 else
 {
 lean_object* x_71; 
-lean_dec_ref(x_53);
 lean_dec(x_52);
 lean_dec(x_42);
 lean_dec_ref(x_41);
@@ -1705,7 +1702,6 @@ goto block_15;
 else
 {
 uint8_t x_72; 
-lean_dec_ref(x_53);
 lean_dec(x_52);
 lean_dec(x_42);
 lean_dec_ref(x_41);

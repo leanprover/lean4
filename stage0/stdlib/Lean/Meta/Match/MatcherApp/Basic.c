@@ -702,9 +702,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_54; lean_object* x_55; uint8_t x_58; 
 x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
 x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
 x_11 = lean_ctor_get(x_1, 2);
 lean_inc_ref(x_11);
 x_12 = lean_ctor_get(x_1, 3);
@@ -717,9 +715,7 @@ lean_inc(x_9);
 x_16 = l_Array_extract___redArg(x_3, x_15, x_9);
 x_17 = lean_array_get(x_4, x_3, x_9);
 x_43 = lean_nat_add(x_9, x_7);
-lean_dec(x_9);
 x_44 = lean_nat_add(x_43, x_10);
-lean_dec(x_10);
 x_54 = lean_array_get_size(x_3);
 x_58 = lean_nat_dec_le(x_43, x_15);
 if (x_58 == 0)
@@ -1016,12 +1012,10 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc_ref(x_8);
-lean_dec_ref(x_6);
 x_9 = l_Lean_Expr_isApp(x_4);
 if (x_9 == 0)
 {

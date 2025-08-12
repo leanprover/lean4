@@ -502,7 +502,6 @@ static lean_object* l_Int_reduceGE___redArg___closed__2;
 uint8_t l_instDecidableNot___redArg(uint8_t);
 LEAN_EXPORT lean_object* l_Int_reduceOfNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_reduceDvd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_reflBoolTrue;
 LEAN_EXPORT lean_object* l_Int_reduceEq___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_reduceLT_declare__94___closed__5____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int___hyg_1874_;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_reduceEq_declare__114___closed__0____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int___hyg_2030_;
@@ -627,6 +626,7 @@ lean_object* l_Int_bdiv___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_reduceBdiv_declare__79___closed__4____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int___hyg_1384_;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_reduceMod_declare__54___closed__8____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int___hyg_1275_;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_reduceLE_declare__99___closed__2____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int___hyg_1913_;
+extern lean_object* l_Lean_eagerReflBoolTrue;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_reduceBmod_declare__84____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int___hyg_1405_(lean_object*);
 static lean_object* l_Int_reduceFMod___redArg___closed__0;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int_0____regBuiltin_Int_reduceNegSucc_declare__147___closed__0____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Int___hyg_2452_;
@@ -14747,7 +14747,7 @@ static lean_object* _init_l_Int_reduceDvd___redArg___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_reflBoolTrue;
+x_1 = l_Lean_eagerReflBoolTrue;
 return x_1;
 }
 }

@@ -645,7 +645,6 @@ x_46 = lean_ctor_get(x_44, 1);
 lean_inc(x_46);
 lean_dec_ref(x_44);
 x_47 = lean_ctor_get(x_45, 0);
-lean_inc(x_47);
 lean_inc_ref(x_10);
 lean_inc(x_47);
 x_48 = l_Lean_FVarId_isLetVar___redArg(x_47, x_39, x_10, x_43, x_13, x_46);
@@ -659,7 +658,6 @@ lean_dec(x_49);
 if (x_50 == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; 
-lean_dec(x_47);
 x_51 = lean_ctor_get(x_48, 1);
 lean_inc(x_51);
 lean_dec_ref(x_48);
@@ -680,6 +678,7 @@ goto block_20;
 else
 {
 lean_object* x_58; lean_object* x_59; 
+lean_inc(x_47);
 lean_dec_ref(x_45);
 x_58 = lean_ctor_get(x_48, 1);
 lean_inc(x_58);
@@ -699,7 +698,6 @@ goto block_20;
 else
 {
 uint8_t x_60; 
-lean_dec(x_47);
 lean_dec_ref(x_45);
 lean_dec_ref(x_43);
 lean_dec(x_13);

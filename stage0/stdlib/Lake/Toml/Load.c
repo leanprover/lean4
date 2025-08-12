@@ -363,11 +363,8 @@ x_8 = l_Lake_Toml_toml;
 x_9 = lean_ctor_get(x_8, 1);
 lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_11);
 x_12 = lean_ctor_get(x_1, 2);
-lean_inc_ref(x_12);
 x_13 = lean_box(0);
 x_14 = lean_box(0);
 lean_inc(x_6);
@@ -391,13 +388,10 @@ x_21 = lean_ctor_get(x_18, 2);
 lean_inc(x_21);
 x_22 = lean_string_utf8_at_end(x_10, x_21);
 lean_dec(x_21);
-lean_dec_ref(x_10);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_dec_ref(x_20);
-lean_dec_ref(x_12);
-lean_dec_ref(x_11);
 lean_dec(x_6);
 x_23 = l_Lake_Toml_loadToml___closed__4;
 x_24 = l_Lake_mkParserErrorMessage(x_1, x_18, x_23);
@@ -492,6 +486,8 @@ block_86:
 {
 lean_object* x_59; lean_object* x_60; lean_object* x_61; 
 x_59 = l_Lake_Toml_loadToml___closed__23;
+lean_inc_ref(x_12);
+lean_inc_ref(x_11);
 x_60 = lean_alloc_ctor(0, 13, 2);
 lean_ctor_set(x_60, 0, x_11);
 lean_ctor_set(x_60, 1, x_12);
@@ -692,9 +688,6 @@ goto block_86;
 else
 {
 lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; 
-lean_dec_ref(x_12);
-lean_dec_ref(x_11);
-lean_dec_ref(x_10);
 lean_dec(x_6);
 x_111 = lean_ctor_get(x_19, 0);
 lean_inc(x_111);
@@ -720,11 +713,8 @@ x_117 = l_Lake_Toml_toml;
 x_118 = lean_ctor_get(x_117, 1);
 lean_inc_ref(x_118);
 x_119 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_119);
 x_120 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_120);
 x_121 = lean_ctor_get(x_1, 2);
-lean_inc_ref(x_121);
 x_122 = lean_box(0);
 x_123 = lean_box(0);
 lean_inc(x_115);
@@ -748,13 +738,10 @@ x_130 = lean_ctor_get(x_127, 2);
 lean_inc(x_130);
 x_131 = lean_string_utf8_at_end(x_119, x_130);
 lean_dec(x_130);
-lean_dec_ref(x_119);
 if (x_131 == 0)
 {
 lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; 
 lean_dec_ref(x_129);
-lean_dec_ref(x_121);
-lean_dec_ref(x_120);
 lean_dec(x_115);
 x_132 = l_Lake_Toml_loadToml___closed__4;
 x_133 = l_Lake_mkParserErrorMessage(x_1, x_127, x_132);
@@ -849,6 +836,8 @@ block_189:
 {
 lean_object* x_169; lean_object* x_170; lean_object* x_171; 
 x_169 = l_Lake_Toml_loadToml___closed__23;
+lean_inc_ref(x_121);
+lean_inc_ref(x_120);
 x_170 = lean_alloc_ctor(0, 13, 2);
 lean_ctor_set(x_170, 0, x_120);
 lean_ctor_set(x_170, 1, x_121);
@@ -1029,9 +1018,6 @@ goto block_189;
 else
 {
 lean_object* x_209; lean_object* x_210; lean_object* x_211; lean_object* x_212; lean_object* x_213; 
-lean_dec_ref(x_121);
-lean_dec_ref(x_120);
-lean_dec_ref(x_119);
 lean_dec(x_115);
 x_209 = lean_ctor_get(x_128, 0);
 lean_inc(x_209);

@@ -888,12 +888,9 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_7 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_7, 1);
-lean_inc_ref(x_9);
-lean_dec_ref(x_7);
 x_10 = lean_ctor_get(x_5, 1);
 lean_inc_ref(x_9);
 lean_inc_ref(x_6);
@@ -906,7 +903,6 @@ x_12 = l_Lean_DataValue_sameCtor(x_10, x_6);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec_ref(x_9);
 lean_inc_ref(x_8);
 x_13 = lean_alloc_closure((void*)(l___private_Lean_Elab_SetOption_0__Lean_Elab_elabSetOption_setOption___redArg___lam__1), 4, 3);
 lean_closure_set(x_13, 0, x_8);
@@ -919,6 +915,7 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_inc_ref(x_9);
 lean_dec_ref(x_6);
 lean_dec(x_4);
 lean_dec_ref(x_3);
@@ -1033,7 +1030,6 @@ if (lean_obj_tag(x_1) == 2)
 {
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 x_25 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_25);
 x_26 = l___private_Lean_Elab_SetOption_0__Lean_Elab_elabSetOption_throwMistypedOptionValue___redArg___closed__12;
 x_27 = lean_string_dec_eq(x_25, x_26);
 if (x_27 == 0)
@@ -1041,7 +1037,6 @@ if (x_27 == 0)
 lean_object* x_28; uint8_t x_29; 
 x_28 = l___private_Lean_Elab_SetOption_0__Lean_Elab_elabSetOption_throwMistypedOptionValue___redArg___closed__10;
 x_29 = lean_string_dec_eq(x_25, x_28);
-lean_dec_ref(x_25);
 if (x_29 == 0)
 {
 lean_dec(x_6);
@@ -1060,7 +1055,6 @@ return x_31;
 else
 {
 lean_object* x_32; lean_object* x_33; 
-lean_dec_ref(x_25);
 lean_dec_ref(x_1);
 x_32 = lean_alloc_ctor(1, 0, 1);
 lean_ctor_set_uint8(x_32, 0, x_27);
@@ -1280,12 +1274,10 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
-lean_dec_ref(x_8);
 lean_inc_ref(x_9);
 x_11 = lean_alloc_closure((void*)(l_Lean_Elab_elabSetOption___redArg___lam__4), 9, 8);
 lean_closure_set(x_11, 0, x_6);

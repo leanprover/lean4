@@ -64,6 +64,7 @@ static lean_object* l_Prod_repr___at___List_repr___at___Std_Internal_IO_Async_Sy
 static lean_object* l_Std_Internal_IO_Async_System_instReprEnvironment___closed__0;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Option_repr___at___Std_Internal_IO_Async_System_reprSystemUser____x40_Std_Internal_Async_System___hyg_776__spec__3___closed__1;
+extern lean_object* l_Std_Time_Millisecond_instInhabitedOffset;
 static lean_object* l_Std_Internal_IO_Async_System_reprOSInfo___redArg___closed__4____x40_Std_Internal_Async_System___hyg_1889_;
 static lean_object* l_Std_Internal_IO_Async_System_reprSystemUser___redArg___closed__0____x40_Std_Internal_Async_System___hyg_776_;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_ordUserId____x40_Std_Internal_Async_System___hyg_313____boxed(lean_object*, lean_object*);
@@ -158,7 +159,6 @@ lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_getGroup(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_reprOSInfo____x40_Std_Internal_Async_System___hyg_1889____boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_reprCPUInfo___redArg___closed__2____x40_Std_Internal_Async_System___hyg_1770_;
-extern lean_object* l_Std_Time_Millisecond_instOffsetInhabited;
 static lean_object* l_Std_Internal_IO_Async_System_reprSystemUser___redArg___closed__14____x40_Std_Internal_Async_System___hyg_776_;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_System_instReprGroupId___lam__0___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_IO_Async_System_instInhabitedEnvironment___closed__3;
@@ -1656,7 +1656,6 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -1671,6 +1670,7 @@ return x_6;
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_inc_ref(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);
@@ -2034,7 +2034,7 @@ static lean_object* _init_l_Std_Internal_IO_Async_System_instInhabitedCPUTimes__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Std_Time_Millisecond_instOffsetInhabited;
+x_1 = l_Std_Time_Millisecond_instInhabitedOffset;
 x_2 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
@@ -3153,7 +3153,6 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; 
@@ -3166,6 +3165,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
+lean_inc_ref(x_4);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_dec_ref(x_1);
@@ -3436,7 +3436,6 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -3450,6 +3449,7 @@ return x_6;
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_inc_ref(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);

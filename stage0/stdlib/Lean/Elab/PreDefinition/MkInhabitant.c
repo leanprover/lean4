@@ -1979,7 +1979,6 @@ if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; 
 x_12 = lean_ctor_get(x_11, 0);
-lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; uint8_t x_14; uint8_t x_15; lean_object* x_16; 
@@ -2113,6 +2112,7 @@ return x_16;
 else
 {
 uint8_t x_61; 
+lean_inc_ref(x_12);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);

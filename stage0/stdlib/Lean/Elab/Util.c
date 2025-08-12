@@ -1367,12 +1367,10 @@ case 1:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_5, 0);
-lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_9);
-lean_dec_ref(x_7);
+lean_inc(x_8);
 lean_inc(x_4);
 lean_inc_ref(x_3);
 lean_inc_ref(x_2);
@@ -5205,7 +5203,6 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_11 = l_Lean_Elab_liftMacroM___redArg___closed__9;
 x_12 = l_Lean_Elab_liftMacroM___redArg___closed__14;
 x_13 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_13);
 x_14 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_14);
 x_15 = lean_ctor_get(x_3, 0);
@@ -5217,7 +5214,6 @@ x_17 = lean_ctor_get(x_5, 1);
 lean_inc_ref(x_17);
 x_18 = lean_ctor_get(x_13, 1);
 lean_inc_ref(x_18);
-lean_dec_ref(x_13);
 x_19 = l_Lean_Elab_liftMacroM___redArg___closed__15;
 lean_inc_ref(x_14);
 lean_inc_ref(x_17);
@@ -5871,12 +5867,10 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc_ref(x_6);
-lean_dec_ref(x_4);
 lean_inc_ref(x_2);
 x_7 = l_Lean_getRefPos___redArg(x_1, x_2);
 lean_inc_ref(x_5);

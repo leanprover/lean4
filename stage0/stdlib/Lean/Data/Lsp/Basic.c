@@ -8419,7 +8419,6 @@ if (lean_obj_tag(x_18) == 3)
 {
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_19 = lean_ctor_get(x_18, 0);
-lean_inc_ref(x_19);
 x_20 = l_Lean_Lsp_instToJsonDocumentChange___lam__0___closed__1;
 x_21 = lean_string_dec_eq(x_19, x_20);
 if (x_21 == 0)
@@ -8432,7 +8431,6 @@ if (x_23 == 0)
 lean_object* x_24; uint8_t x_25; 
 x_24 = l_Lean_Lsp_instToJsonDocumentChange___lam__0___closed__5;
 x_25 = lean_string_dec_eq(x_19, x_24);
-lean_dec_ref(x_19);
 if (x_25 == 0)
 {
 lean_object* x_26; 
@@ -8526,7 +8524,6 @@ return x_38;
 else
 {
 uint8_t x_39; 
-lean_dec_ref(x_19);
 lean_dec_ref(x_1);
 x_39 = !lean_is_exclusive(x_18);
 if (x_39 == 0)
@@ -8610,7 +8607,6 @@ return x_50;
 else
 {
 uint8_t x_51; 
-lean_dec_ref(x_19);
 lean_dec_ref(x_1);
 x_51 = !lean_is_exclusive(x_18);
 if (x_51 == 0)
@@ -9269,7 +9265,6 @@ if (lean_obj_tag(x_26) == 3)
 {
 lean_object* x_27; lean_object* x_28; uint8_t x_29; 
 x_27 = lean_ctor_get(x_26, 0);
-lean_inc_ref(x_27);
 x_28 = l_Lean_Lsp_instToJsonDocumentChange___lam__0___closed__1;
 x_29 = lean_string_dec_eq(x_27, x_28);
 if (x_29 == 0)
@@ -9282,7 +9277,6 @@ if (x_31 == 0)
 lean_object* x_32; uint8_t x_33; 
 x_32 = l_Lean_Lsp_instToJsonDocumentChange___lam__0___closed__5;
 x_33 = lean_string_dec_eq(x_27, x_32);
-lean_dec_ref(x_27);
 if (x_33 == 0)
 {
 lean_object* x_34; 
@@ -9329,7 +9323,6 @@ goto block_14;
 else
 {
 lean_object* x_39; 
-lean_dec_ref(x_27);
 lean_dec_ref(x_26);
 lean_inc(x_6);
 x_39 = l_Lean_Lsp_fromJsonRenameFile____x40_Lean_Data_Lsp_Basic___hyg_2769_(x_6);
@@ -9365,7 +9358,6 @@ goto block_14;
 else
 {
 lean_object* x_43; 
-lean_dec_ref(x_27);
 lean_dec_ref(x_26);
 lean_inc(x_6);
 x_43 = l_Lean_Lsp_fromJsonCreateFile____x40_Lean_Data_Lsp_Basic___hyg_2519_(x_6);

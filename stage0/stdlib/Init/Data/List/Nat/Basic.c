@@ -81,7 +81,6 @@ else
 {
 lean_object* x_5; 
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; 
@@ -95,6 +94,7 @@ return x_7;
 else
 {
 lean_object* x_8; lean_object* x_9; 
+lean_inc_ref(x_5);
 lean_dec_ref(x_3);
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);

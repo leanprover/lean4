@@ -656,13 +656,11 @@ x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec_ref(x_9);
 x_11 = lean_ctor_get(x_10, 1);
-lean_inc(x_11);
 if (lean_obj_tag(x_11) == 1)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc_ref(x_12);
-lean_dec_ref(x_11);
 x_13 = lean_ctor_get(x_10, 0);
 lean_inc(x_13);
 lean_dec(x_10);
@@ -835,7 +833,6 @@ return x_66;
 }
 else
 {
-lean_dec(x_11);
 lean_dec(x_10);
 x_4 = x_3;
 goto block_7;
@@ -1097,22 +1094,20 @@ x_4 = lean_ctor_get(x_2, 1);
 x_5 = lean_ctor_get(x_2, 0);
 lean_dec(x_5);
 x_6 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_4, 1);
-lean_inc(x_7);
 x_8 = lean_string_utf8_byte_size(x_6);
 x_9 = lean_nat_dec_lt(x_7, x_8);
 if (x_9 == 0)
 {
 lean_dec(x_8);
-lean_dec(x_7);
-lean_dec_ref(x_6);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 else
 {
 uint8_t x_10; 
+lean_inc(x_7);
+lean_inc_ref(x_6);
 x_10 = !lean_is_exclusive(x_4);
 if (x_10 == 0)
 {
@@ -1268,17 +1263,13 @@ x_42 = lean_ctor_get(x_2, 1);
 lean_inc(x_42);
 lean_dec(x_2);
 x_43 = lean_ctor_get(x_42, 0);
-lean_inc_ref(x_43);
 x_44 = lean_ctor_get(x_42, 1);
-lean_inc(x_44);
 x_45 = lean_string_utf8_byte_size(x_43);
 x_46 = lean_nat_dec_lt(x_44, x_45);
 if (x_46 == 0)
 {
 lean_object* x_47; 
 lean_dec(x_45);
-lean_dec(x_44);
-lean_dec_ref(x_43);
 x_47 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_47, 0, x_1);
 lean_ctor_set(x_47, 1, x_42);
@@ -1287,6 +1278,8 @@ return x_47;
 else
 {
 lean_object* x_48; uint32_t x_49; lean_object* x_50; lean_object* x_51; uint32_t x_52; uint8_t x_53; 
+lean_inc(x_44);
+lean_inc_ref(x_43);
 if (lean_is_exclusive(x_42)) {
  lean_ctor_release(x_42, 0);
  lean_ctor_release(x_42, 1);
@@ -1770,15 +1763,15 @@ lean_dec(x_107);
 lean_dec(x_105);
 if (x_108 == 0)
 {
-x_92 = x_103;
-x_93 = x_102;
+x_92 = x_102;
+x_93 = x_103;
 x_94 = x_97;
 goto block_96;
 }
 else
 {
-x_92 = x_103;
-x_93 = x_102;
+x_92 = x_102;
+x_93 = x_103;
 x_94 = x_101;
 goto block_96;
 }
@@ -1920,7 +1913,6 @@ if (lean_obj_tag(x_4) == 1)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; uint8_t x_39; 
 x_36 = lean_ctor_get(x_4, 1);
-lean_inc(x_36);
 x_37 = lean_ctor_get(x_4, 2);
 lean_inc_ref(x_37);
 x_38 = l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__13;
@@ -1930,7 +1922,6 @@ if (x_39 == 0)
 lean_object* x_40; uint8_t x_41; 
 x_40 = l___private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_findSignatureHelp_x3f_determineCandidateKind___closed__15;
 x_41 = lean_name_eq(x_36, x_40);
-lean_dec(x_36);
 if (x_41 == 0)
 {
 lean_object* x_42; uint8_t x_43; 
@@ -2141,7 +2132,6 @@ else
 {
 lean_object* x_89; 
 lean_dec_ref(x_37);
-lean_dec(x_36);
 lean_dec_ref(x_4);
 x_89 = lean_box(0);
 x_6 = x_89;
@@ -2160,9 +2150,9 @@ goto block_10;
 }
 block_96:
 {
-if (x_93 == 0)
-{
 if (x_92 == 0)
+{
+if (x_93 == 0)
 {
 if (x_94 == 0)
 {

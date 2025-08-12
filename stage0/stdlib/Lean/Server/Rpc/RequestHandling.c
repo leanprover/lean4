@@ -1254,23 +1254,17 @@ x_13 = l_Lean_Server_RequestM_readDoc___at___Lean_Server_handleRpcCall_spec__3(x
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_14, 0);
-lean_inc_ref(x_15);
 x_16 = lean_ctor_get(x_15, 0);
-lean_inc_ref(x_16);
-lean_dec_ref(x_15);
 x_17 = lean_ctor_get(x_13, 1);
 lean_inc(x_17);
 lean_dec_ref(x_13);
 x_18 = lean_ctor_get(x_16, 3);
-lean_inc_ref(x_18);
-lean_dec_ref(x_16);
 x_19 = lean_ctor_get(x_8, 1);
 lean_inc_ref(x_19);
 lean_dec_ref(x_8);
 x_20 = lean_box(0);
 x_21 = l_Lean_Elab_Command_instInhabitedScope;
 x_22 = l_Lean_FileMap_lspPosToUtf8Pos(x_18, x_19);
-lean_dec_ref(x_18);
 lean_inc(x_10);
 x_23 = lean_alloc_closure((void*)(l_Lean_Server_handleRpcCall___lam__0___boxed), 4, 3);
 lean_closure_set(x_23, 0, x_22);
@@ -1860,7 +1854,6 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_6; size_t x_7; size_t x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_6);
 x_7 = 5;
 x_8 = 1;
 x_9 = l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Server_handleRpcCall_spec__0_spec__0___redArg___closed__1;
@@ -1872,7 +1865,6 @@ lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
-lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 return x_1;
@@ -1880,6 +1872,7 @@ return x_1;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_inc_ref(x_6);
 if (lean_is_exclusive(x_1)) {
  lean_ctor_release(x_1, 0);
  x_14 = x_1;
@@ -2903,8 +2896,8 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_10 = lean_ctor_get(x_8, 0);
-lean_inc(x_10);
 x_11 = lean_box_uint64(x_6);
+lean_inc(x_10);
 x_12 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___redArg(x_1, x_10, x_11);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -4236,15 +4229,12 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean
 x_14 = lean_ctor_get(x_12, 0);
 x_15 = lean_ctor_get(x_12, 1);
 x_16 = lean_ctor_get(x_9, 5);
-lean_inc(x_16);
 x_17 = lean_ctor_get(x_9, 10);
-lean_inc(x_17);
 x_18 = lean_ctor_get(x_14, 0);
 lean_inc_ref(x_18);
 lean_dec(x_14);
 x_19 = 0;
 x_20 = l_Lean_SourceInfo_fromRef(x_16, x_19);
-lean_dec(x_16);
 x_21 = l_Lean_Environment_mainModule(x_18);
 lean_dec_ref(x_18);
 x_22 = l_Lean_Server_registerRpcProcedure___lam__0___closed__0;
@@ -4255,6 +4245,7 @@ x_25 = l_Lean_Name_mkStr4(x_1, x_22, x_23, x_24);
 x_26 = l_Lean_Server_registerRpcProcedure___lam__0___closed__3;
 x_27 = l_Lean_Server_registerRpcProcedure___lam__0___closed__4;
 x_28 = l_Lean_Server_registerRpcProcedure___lam__0___closed__5;
+lean_inc(x_17);
 x_29 = l_Lean_addMacroScope(x_21, x_28, x_17);
 lean_inc_ref(x_1);
 x_30 = l_Lean_Name_mkStr3(x_1, x_2, x_26);
@@ -4320,15 +4311,12 @@ lean_inc(x_51);
 lean_inc(x_50);
 lean_dec(x_12);
 x_52 = lean_ctor_get(x_9, 5);
-lean_inc(x_52);
 x_53 = lean_ctor_get(x_9, 10);
-lean_inc(x_53);
 x_54 = lean_ctor_get(x_50, 0);
 lean_inc_ref(x_54);
 lean_dec(x_50);
 x_55 = 0;
 x_56 = l_Lean_SourceInfo_fromRef(x_52, x_55);
-lean_dec(x_52);
 x_57 = l_Lean_Environment_mainModule(x_54);
 lean_dec_ref(x_54);
 x_58 = l_Lean_Server_registerRpcProcedure___lam__0___closed__0;
@@ -4339,6 +4327,7 @@ x_61 = l_Lean_Name_mkStr4(x_1, x_58, x_59, x_60);
 x_62 = l_Lean_Server_registerRpcProcedure___lam__0___closed__3;
 x_63 = l_Lean_Server_registerRpcProcedure___lam__0___closed__4;
 x_64 = l_Lean_Server_registerRpcProcedure___lam__0___closed__5;
+lean_inc(x_53);
 x_65 = l_Lean_addMacroScope(x_57, x_64, x_53);
 lean_inc_ref(x_1);
 x_66 = l_Lean_Name_mkStr3(x_1, x_2, x_62);

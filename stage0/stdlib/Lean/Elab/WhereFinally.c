@@ -175,12 +175,9 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc_ref(x_6);
-lean_dec_ref(x_4);
 x_7 = lean_unsigned_to_nat(2u);
 x_8 = l_Lean_Syntax_getArg(x_3, x_7);
 x_9 = lean_unsigned_to_nat(0u);
@@ -190,6 +187,7 @@ x_11 = l_Lean_Syntax_isMissing(x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_inc_ref(x_5);
 lean_inc_ref(x_6);
 lean_inc(x_10);
 x_12 = lean_alloc_closure((void*)(l_Lean_Elab_mkWhereFinallyView___redArg___lam__0), 3, 2);
@@ -222,7 +220,6 @@ else
 {
 uint8_t x_19; 
 lean_dec(x_10);
-lean_dec_ref(x_5);
 lean_dec_ref(x_2);
 x_19 = !lean_is_exclusive(x_1);
 if (x_19 == 0)

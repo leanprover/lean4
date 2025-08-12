@@ -1145,12 +1145,10 @@ case 1:
 {
 lean_object* x_9; 
 x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_10);
 x_11 = l___private_Lake_Config_ConfigDecl_0__Lake_ConfigType_match__1_splitter___redArg___closed__0;
 x_12 = lean_string_dec_eq(x_10, x_11);
 if (x_12 == 0)
@@ -1176,7 +1174,6 @@ lean_object* x_19; uint8_t x_20;
 lean_dec_ref(x_6);
 x_19 = l___private_Lake_Config_ConfigDecl_0__Lake_ConfigType_match__1_splitter___redArg___closed__4;
 x_20 = lean_string_dec_eq(x_10, x_19);
-lean_dec_ref(x_10);
 if (x_20 == 0)
 {
 lean_object* x_21; 
@@ -1196,7 +1193,6 @@ return x_22;
 else
 {
 lean_object* x_23; 
-lean_dec_ref(x_10);
 lean_dec_ref(x_8);
 lean_dec_ref(x_7);
 lean_dec_ref(x_1);
@@ -1207,7 +1203,6 @@ return x_23;
 else
 {
 lean_object* x_24; 
-lean_dec_ref(x_10);
 lean_dec_ref(x_8);
 lean_dec_ref(x_7);
 lean_dec_ref(x_6);
@@ -1219,7 +1214,6 @@ return x_24;
 else
 {
 lean_object* x_25; 
-lean_dec_ref(x_10);
 lean_dec_ref(x_8);
 lean_dec_ref(x_7);
 lean_dec_ref(x_6);
@@ -1231,7 +1225,6 @@ return x_25;
 }
 else
 {
-lean_dec_ref(x_10);
 lean_dec_ref(x_8);
 lean_dec_ref(x_7);
 lean_dec_ref(x_6);
@@ -1245,7 +1238,6 @@ return x_2;
 else
 {
 lean_object* x_26; 
-lean_dec(x_9);
 lean_dec_ref(x_7);
 lean_dec_ref(x_6);
 lean_dec_ref(x_4);

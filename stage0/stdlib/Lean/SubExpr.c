@@ -3944,24 +3944,19 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_Expr_traverseAppWithPos___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
 if (lean_obj_tag(x_4) == 5)
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_5, 2);
 lean_inc_ref(x_7);
-lean_dec_ref(x_5);
 x_8 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_6, 0);
 lean_inc_ref(x_10);
-lean_dec_ref(x_6);
+lean_inc_ref(x_9);
 lean_inc_ref(x_2);
 lean_inc(x_3);
 x_11 = lean_alloc_closure((void*)(l_Lean_Expr_traverseAppWithPos___redArg___lam__0___boxed), 4, 3);
@@ -3980,7 +3975,6 @@ return x_16;
 else
 {
 lean_object* x_17; 
-lean_dec_ref(x_5);
 lean_dec_ref(x_1);
 x_17 = lean_apply_2(x_2, x_3, x_4);
 return x_17;

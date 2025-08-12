@@ -404,7 +404,6 @@ _start:
 {
 lean_object* x_2; lean_object* x_10; 
 x_10 = lean_ctor_get(x_1, 6);
-lean_inc(x_10);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
@@ -420,6 +419,7 @@ goto block_9;
 else
 {
 lean_object* x_14; lean_object* x_15; 
+lean_inc_ref(x_10);
 lean_dec_ref(x_1);
 x_14 = lean_ctor_get(x_10, 0);
 lean_inc(x_14);

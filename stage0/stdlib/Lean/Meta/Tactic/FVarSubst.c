@@ -442,9 +442,7 @@ if (lean_obj_tag(x_2) == 1)
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
 x_4 = l_Lean_AssocList_find_x3f___at___Lean_Meta_FVarSubst_find_x3f_spec__0___redArg(x_3, x_1);
-lean_dec(x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; 

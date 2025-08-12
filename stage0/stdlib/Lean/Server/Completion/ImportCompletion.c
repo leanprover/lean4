@@ -3233,9 +3233,7 @@ x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec_ref(x_13);
 x_16 = lean_ctor_get(x_14, 1);
-lean_inc(x_16);
 x_17 = l_IO_FS_Handle_readToEnd(x_16, x_15);
-lean_dec(x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 uint8_t x_18; 
@@ -4681,8 +4679,8 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_5 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_5);
 x_6 = l_ImportCompletion_AvailableImports_toImportTrie(x_4);
+lean_inc_ref(x_5);
 x_7 = l_Lean_FileMap_lspPosToUtf8Pos(x_1, x_5);
 lean_inc(x_2);
 x_8 = l_ImportCompletion_isImportNameCompletionRequest(x_2, x_7);

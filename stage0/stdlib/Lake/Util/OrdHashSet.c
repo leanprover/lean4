@@ -335,11 +335,8 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_11; lean_ob
 x_5 = lean_ctor_get(x_3, 0);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_6);
 x_11 = lean_ctor_get(x_5, 0);
-lean_inc(x_11);
 x_12 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_12);
 x_13 = lean_array_get_size(x_12);
 lean_inc_ref(x_1);
 lean_inc(x_4);
@@ -365,10 +362,13 @@ lean_inc(x_4);
 x_29 = l_Std_DHashMap_Internal_AssocList_contains___redArg(x_2, x_4, x_28);
 if (x_29 == 0)
 {
+lean_inc_ref(x_6);
 lean_dec_ref(x_3);
 if (x_29 == 0)
 {
 uint8_t x_30; 
+lean_inc_ref(x_12);
+lean_inc(x_11);
 x_30 = !lean_is_exclusive(x_5);
 if (x_30 == 0)
 {
@@ -462,8 +462,6 @@ goto block_10;
 else
 {
 lean_dec(x_28);
-lean_dec_ref(x_12);
-lean_dec(x_11);
 lean_dec_ref(x_1);
 x_7 = x_5;
 goto block_10;
@@ -472,9 +470,6 @@ goto block_10;
 else
 {
 lean_dec(x_28);
-lean_dec_ref(x_12);
-lean_dec(x_11);
-lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_1);

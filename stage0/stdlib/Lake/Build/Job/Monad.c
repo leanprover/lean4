@@ -1088,9 +1088,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_ctor_get(x_7, 0);
-lean_inc_ref(x_9);
 x_10 = lean_array_get_size(x_9);
-lean_dec_ref(x_9);
 x_11 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_7);

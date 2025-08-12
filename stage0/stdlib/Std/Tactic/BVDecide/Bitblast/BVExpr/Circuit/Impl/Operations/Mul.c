@@ -374,9 +374,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_6 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_7);
 x_8 = l_Std_Sat_AIG_RefVec_countKnown___redArg(x_3, x_4, x_6);
 x_9 = l_Std_Sat_AIG_RefVec_countKnown___redArg(x_3, x_4, x_7);
 x_10 = lean_nat_dec_lt(x_8, x_9);
@@ -385,6 +383,8 @@ lean_dec(x_8);
 if (x_10 == 0)
 {
 uint8_t x_11; 
+lean_inc_ref(x_7);
+lean_inc_ref(x_6);
 x_11 = !lean_is_exclusive(x_5);
 if (x_11 == 0)
 {
@@ -412,8 +412,6 @@ return x_16;
 else
 {
 lean_object* x_17; 
-lean_dec_ref(x_7);
-lean_dec_ref(x_6);
 x_17 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastMul_blast___redArg(x_1, x_2, x_3, x_4, x_5);
 return x_17;
 }

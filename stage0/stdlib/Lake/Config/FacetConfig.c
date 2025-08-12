@@ -553,9 +553,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
 x_4 = lean_name_eq(x_3, x_1);
-lean_dec(x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; 

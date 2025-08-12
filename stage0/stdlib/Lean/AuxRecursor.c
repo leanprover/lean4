@@ -334,7 +334,6 @@ if (lean_obj_tag(x_2) == 1)
 {
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_7);
 x_8 = lean_string_dec_eq(x_7, x_3);
 if (x_8 == 0)
 {
@@ -351,6 +350,7 @@ lean_ctor_set(x_13, 2, x_12);
 x_14 = lean_string_length(x_10);
 x_15 = l_Substring_nextn(x_13, x_14, x_11);
 lean_dec_ref(x_13);
+lean_inc_ref(x_7);
 x_16 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_16, 0, x_7);
 lean_ctor_set(x_16, 1, x_11);
@@ -366,7 +366,6 @@ goto block_6;
 }
 else
 {
-lean_dec_ref(x_7);
 lean_dec_ref(x_3);
 x_4 = x_8;
 goto block_6;

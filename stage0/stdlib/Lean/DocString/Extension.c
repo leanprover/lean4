@@ -79,13 +79,13 @@ static lean_object* l_Lean_initFn___lam__0___closed__0____x40_Lean_DocString_Ext
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___closed__10____x40_Lean_DocString_Extension___hyg_381_;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldl___at___Lean_initFn____x40_Lean_DocString_Extension___hyg_45__spec__0(lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9400_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn____x40_Lean_DocString_Extension___hyg_4_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getMainModuleDoc(lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_getModuleDoc_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___lam__0____x40_Lean_DocString_Extension___hyg_381____boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getMainModuleDoc___closed__0;
-uint8_t l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9398_(uint8_t, uint8_t);
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___closed__5____x40_Lean_DocString_Extension___hyg_381_;
 static lean_object* l_Lean_initFn___closed__3____x40_Lean_DocString_Extension___hyg_45_;
 LEAN_EXPORT lean_object* l_Lean_addDocStringCore___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -474,12 +474,11 @@ return x_9;
 LEAN_EXPORT lean_object* l_Lean_addDocStringCore_x27___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; 
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_6);
 if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc_ref(x_6);
 lean_dec(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
@@ -494,7 +493,6 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; 
-lean_dec_ref(x_6);
 x_10 = lean_ctor_get(x_5, 0);
 lean_inc(x_10);
 lean_dec_ref(x_5);
@@ -613,7 +611,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; 
 x_5 = 1;
-x_6 = l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9398_(x_4, x_5);
+x_6 = l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9400_(x_4, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -976,15 +974,13 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_5);
-lean_dec_ref(x_4);
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = l_Lean_Syntax_getArg(x_3, x_6);
 if (lean_obj_tag(x_7) == 2)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_inc_ref(x_5);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -1005,7 +1001,6 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-lean_dec_ref(x_5);
 x_15 = l_Lean_getDocStringText___redArg___closed__1;
 x_16 = l_Lean_MessageData_ofSyntax(x_7);
 x_17 = l_Lean_indentD(x_16);

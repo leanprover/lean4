@@ -553,15 +553,14 @@ return x_9;
 LEAN_EXPORT lean_object* l_Std_Iterators_instMonadPostconditionT___redArg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+lean_object* x_2; uint8_t x_3; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_2);
-x_3 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_3);
-x_4 = !lean_is_exclusive(x_2);
-if (x_4 == 0)
+x_3 = !lean_is_exclusive(x_2);
+if (x_3 == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
+x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_ctor_get(x_2, 0);
 x_6 = lean_ctor_get(x_2, 1);
 x_7 = lean_ctor_get(x_2, 4);
@@ -571,26 +570,27 @@ lean_dec(x_8);
 x_9 = lean_ctor_get(x_2, 2);
 lean_dec(x_9);
 x_10 = l_Std_Iterators_PostconditionT_pbind___redArg___closed__0;
-lean_inc_ref(x_3);
+lean_inc_ref(x_4);
 lean_inc_ref(x_5);
 x_11 = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__0), 7, 3);
 lean_closure_set(x_11, 0, x_5);
 lean_closure_set(x_11, 1, x_10);
-lean_closure_set(x_11, 2, x_3);
-lean_inc_ref(x_3);
+lean_closure_set(x_11, 2, x_4);
+lean_inc_ref(x_4);
 lean_inc_ref(x_6);
 lean_inc_ref(x_5);
 x_12 = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__3), 9, 5);
 lean_closure_set(x_12, 0, x_5);
 lean_closure_set(x_12, 1, x_6);
 lean_closure_set(x_12, 2, x_10);
-lean_closure_set(x_12, 3, x_3);
+lean_closure_set(x_12, 3, x_4);
 lean_closure_set(x_12, 4, x_10);
+lean_inc_ref(x_4);
 lean_inc_ref(x_5);
 x_13 = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__7), 7, 3);
 lean_closure_set(x_13, 0, x_5);
 lean_closure_set(x_13, 1, x_10);
-lean_closure_set(x_13, 2, x_3);
+lean_closure_set(x_13, 2, x_4);
 x_14 = l_Std_Iterators_instFunctorPostconditionT___redArg(x_5);
 x_15 = lean_alloc_closure((void*)(l_Std_Iterators_PostconditionT_pure), 4, 2);
 lean_closure_set(x_15, 0, lean_box(0));
@@ -627,63 +627,65 @@ return x_20;
 }
 else
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
-x_21 = lean_ctor_get(x_2, 0);
-x_22 = lean_ctor_get(x_2, 1);
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+x_21 = lean_ctor_get(x_1, 1);
+x_22 = lean_ctor_get(x_2, 0);
+x_23 = lean_ctor_get(x_2, 1);
+lean_inc(x_23);
 lean_inc(x_22);
-lean_inc(x_21);
 lean_dec(x_2);
-x_23 = l_Std_Iterators_PostconditionT_pbind___redArg___closed__0;
-lean_inc_ref(x_3);
+x_24 = l_Std_Iterators_PostconditionT_pbind___redArg___closed__0;
 lean_inc_ref(x_21);
-x_24 = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__0), 7, 3);
-lean_closure_set(x_24, 0, x_21);
-lean_closure_set(x_24, 1, x_23);
-lean_closure_set(x_24, 2, x_3);
-lean_inc_ref(x_3);
 lean_inc_ref(x_22);
+x_25 = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__0), 7, 3);
+lean_closure_set(x_25, 0, x_22);
+lean_closure_set(x_25, 1, x_24);
+lean_closure_set(x_25, 2, x_21);
 lean_inc_ref(x_21);
-x_25 = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__3), 9, 5);
-lean_closure_set(x_25, 0, x_21);
-lean_closure_set(x_25, 1, x_22);
-lean_closure_set(x_25, 2, x_23);
-lean_closure_set(x_25, 3, x_3);
-lean_closure_set(x_25, 4, x_23);
-lean_inc_ref(x_21);
-x_26 = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__7), 7, 3);
-lean_closure_set(x_26, 0, x_21);
+lean_inc_ref(x_23);
+lean_inc_ref(x_22);
+x_26 = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__3), 9, 5);
+lean_closure_set(x_26, 0, x_22);
 lean_closure_set(x_26, 1, x_23);
-lean_closure_set(x_26, 2, x_3);
-x_27 = l_Std_Iterators_instFunctorPostconditionT___redArg(x_21);
-x_28 = lean_alloc_closure((void*)(l_Std_Iterators_PostconditionT_pure), 4, 2);
-lean_closure_set(x_28, 0, lean_box(0));
-lean_closure_set(x_28, 1, x_22);
-x_29 = lean_alloc_ctor(0, 5, 0);
-lean_ctor_set(x_29, 0, x_27);
-lean_ctor_set(x_29, 1, x_28);
-lean_ctor_set(x_29, 2, x_26);
-lean_ctor_set(x_29, 3, x_25);
-lean_ctor_set(x_29, 4, x_24);
+lean_closure_set(x_26, 2, x_24);
+lean_closure_set(x_26, 3, x_21);
+lean_closure_set(x_26, 4, x_24);
+lean_inc_ref(x_21);
+lean_inc_ref(x_22);
+x_27 = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__7), 7, 3);
+lean_closure_set(x_27, 0, x_22);
+lean_closure_set(x_27, 1, x_24);
+lean_closure_set(x_27, 2, x_21);
+x_28 = l_Std_Iterators_instFunctorPostconditionT___redArg(x_22);
+x_29 = lean_alloc_closure((void*)(l_Std_Iterators_PostconditionT_pure), 4, 2);
+lean_closure_set(x_29, 0, lean_box(0));
+lean_closure_set(x_29, 1, x_23);
+x_30 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_30, 0, x_28);
+lean_ctor_set(x_30, 1, x_29);
+lean_ctor_set(x_30, 2, x_27);
+lean_ctor_set(x_30, 3, x_26);
+lean_ctor_set(x_30, 4, x_25);
 lean_inc_ref(x_1);
-x_30 = lean_alloc_closure((void*)(l_Std_Iterators_PostconditionT_bind), 6, 2);
-lean_closure_set(x_30, 0, lean_box(0));
-lean_closure_set(x_30, 1, x_1);
+x_31 = lean_alloc_closure((void*)(l_Std_Iterators_PostconditionT_bind), 6, 2);
+lean_closure_set(x_31, 0, lean_box(0));
+lean_closure_set(x_31, 1, x_1);
 if (lean_is_exclusive(x_1)) {
  lean_ctor_release(x_1, 0);
  lean_ctor_release(x_1, 1);
- x_31 = x_1;
+ x_32 = x_1;
 } else {
  lean_dec_ref(x_1);
- x_31 = lean_box(0);
+ x_32 = lean_box(0);
 }
-if (lean_is_scalar(x_31)) {
- x_32 = lean_alloc_ctor(0, 2, 0);
+if (lean_is_scalar(x_32)) {
+ x_33 = lean_alloc_ctor(0, 2, 0);
 } else {
- x_32 = x_31;
+ x_33 = x_32;
 }
-lean_ctor_set(x_32, 0, x_29);
-lean_ctor_set(x_32, 1, x_30);
-return x_32;
+lean_ctor_set(x_33, 0, x_30);
+lean_ctor_set(x_33, 1, x_31);
+return x_33;
 }
 }
 }

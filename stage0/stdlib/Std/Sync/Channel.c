@@ -3449,12 +3449,8 @@ else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_12 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_12);
 x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
-lean_dec_ref(x_12);
 x_14 = lean_st_ref_get(x_13, x_3);
-lean_dec(x_13);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 x_16 = lean_unbox(x_15);
@@ -6597,12 +6593,8 @@ else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_12 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_12);
 x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
-lean_dec_ref(x_12);
 x_14 = lean_st_ref_get(x_13, x_3);
-lean_dec(x_13);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 x_16 = lean_unbox(x_15);
@@ -10686,7 +10678,6 @@ if (lean_is_exclusive(x_1)) {
  x_7 = lean_box(0);
 }
 x_12 = lean_ctor_get(x_5, 1);
-lean_inc(x_12);
 if (lean_obj_tag(x_12) == 0)
 {
 x_8 = x_3;
@@ -10696,13 +10687,8 @@ else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_13 = lean_ctor_get(x_12, 0);
-lean_inc(x_13);
-lean_dec_ref(x_12);
 x_14 = lean_ctor_get(x_13, 0);
-lean_inc(x_14);
-lean_dec(x_13);
 x_15 = lean_st_ref_get(x_14, x_3);
-lean_dec(x_14);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 x_17 = lean_unbox(x_16);
@@ -11878,12 +11864,10 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc_ref(x_8);
-lean_dec_ref(x_6);
 lean_inc_ref(x_3);
 x_9 = lean_alloc_closure((void*)(l_Std_CloseableChannel_Sync_recv), 3, 2);
 lean_closure_set(x_9, 0, lean_box(0));
@@ -12773,12 +12757,10 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_7 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_9);
-lean_dec_ref(x_7);
 lean_inc_ref(x_4);
 lean_inc(x_1);
 x_10 = lean_alloc_closure((void*)(l_Std_Channel_Sync_recv), 4, 3);

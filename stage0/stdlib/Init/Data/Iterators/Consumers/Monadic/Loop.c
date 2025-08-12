@@ -230,12 +230,10 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_7 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_9);
-lean_dec_ref(x_7);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
 x_10 = lean_alloc_closure((void*)(l_Std_Iterators_IterM_DefaultConsumers_forIn_x27___redArg___lam__1), 8, 7);
@@ -482,12 +480,10 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc_ref(x_9);
-lean_dec_ref(x_7);
 lean_inc_ref(x_6);
 x_10 = lean_alloc_closure((void*)(l_Std_Iterators_IterM_DefaultConsumers_forInPartial___redArg___lam__0), 4, 1);
 lean_closure_set(x_10, 0, x_6);

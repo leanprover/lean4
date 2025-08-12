@@ -282,9 +282,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_2, 0);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_6);
 lean_inc(x_5);
 lean_inc(x_3);
 lean_inc_ref(x_1);
@@ -292,6 +290,8 @@ x_7 = l_Std_DTreeMap_Internal_Impl_contains___redArg(x_1, x_3, x_5);
 if (x_7 == 0)
 {
 uint8_t x_8; 
+lean_inc_ref(x_6);
+lean_inc(x_5);
 x_8 = !lean_is_exclusive(x_2);
 if (x_8 == 0)
 {
@@ -322,8 +322,6 @@ return x_15;
 }
 else
 {
-lean_dec_ref(x_6);
-lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_1);

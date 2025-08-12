@@ -4435,9 +4435,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_2, 1);
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_6);
 x_7 = lean_array_get_size(x_6);
 x_8 = l_Lean_Name_hash___override(x_3);
 x_9 = 32;
@@ -4457,6 +4455,8 @@ x_21 = l_Std_DHashMap_Internal_AssocList_contains___at_____private_Lean_Meta_Tac
 if (x_21 == 0)
 {
 uint8_t x_22; 
+lean_inc_ref(x_6);
+lean_inc(x_5);
 x_22 = !lean_is_exclusive(x_1);
 if (x_22 == 0)
 {
@@ -4550,8 +4550,6 @@ goto _start;
 else
 {
 lean_dec(x_20);
-lean_dec_ref(x_6);
-lean_dec(x_5);
 x_2 = x_4;
 goto _start;
 }
@@ -5362,12 +5360,10 @@ if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; uint8_t x_38; 
 x_37 = lean_ctor_get(x_36, 0);
-lean_inc(x_37);
 x_38 = lean_unbox(x_37);
 if (x_38 == 0)
 {
 uint8_t x_39; 
-lean_dec(x_37);
 lean_dec_ref(x_35);
 lean_dec_ref(x_34);
 lean_dec_ref(x_23);
@@ -5402,6 +5398,7 @@ return x_44;
 else
 {
 lean_object* x_45; lean_object* x_46; 
+lean_inc(x_37);
 x_45 = lean_ctor_get(x_36, 1);
 lean_inc(x_45);
 lean_dec_ref(x_36);

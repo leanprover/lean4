@@ -92,7 +92,6 @@ static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___closed__23;
 lean_object* l_Lean_Meta_Simp_Arith_withAbstractAtoms(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Nat_simpExpr_x3f___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_levelOne;
-extern lean_object* l_Lean_reflBoolTrue;
 lean_object* l_Nat_Linear_Expr_toPoly(lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___closed__28;
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___lam__0___closed__4;
@@ -112,6 +111,7 @@ static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___lam__0___closed__
 lean_object* l_Lean_mkNatEq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_Arith_Nat_LinearExpr_toExpr(lean_object*);
 lean_object* l_Lean_Meta_Simp_Arith_Nat_LinearExpr_toArith___redArg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_eagerReflBoolTrue;
 static lean_object* l_Lean_Meta_Simp_Arith_Nat_simpCnstr_x3f___closed__25;
 static lean_object* _init_l_Lean_Meta_Simp_Arith_Nat_simpCnstrPos_x3f___lam__0___closed__0() {
 _start:
@@ -141,7 +141,7 @@ static lean_object* _init_l_Lean_Meta_Simp_Arith_Nat_simpCnstrPos_x3f___lam__0__
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_reflBoolTrue;
+x_1 = l_Lean_eagerReflBoolTrue;
 return x_1;
 }
 }

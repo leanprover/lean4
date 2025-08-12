@@ -1791,9 +1791,7 @@ else
 {
 lean_object* x_254; lean_object* x_255; 
 x_254 = lean_ctor_get(x_245, 0);
-lean_inc(x_254);
 x_255 = l_Lean_TSyntax_getDocString(x_254);
-lean_dec(x_254);
 x_213 = x_248;
 x_214 = x_246;
 x_215 = x_251;

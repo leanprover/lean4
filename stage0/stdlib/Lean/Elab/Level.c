@@ -1834,11 +1834,8 @@ else
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_67; 
 lean_dec(x_8);
 x_47 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_47);
 x_48 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_48);
 x_49 = lean_ctor_get(x_3, 2);
-lean_inc(x_49);
 x_50 = l_Lean_Syntax_getId(x_1);
 lean_dec(x_1);
 x_67 = l_List_elem___at___Lean_Elab_Level_elabLevel_spec__4(x_50, x_49);
@@ -1846,9 +1843,6 @@ if (x_67 == 0)
 {
 if (x_7 == 0)
 {
-lean_dec(x_49);
-lean_dec_ref(x_48);
-lean_dec_ref(x_47);
 lean_dec(x_5);
 goto block_66;
 }
@@ -1862,14 +1856,14 @@ lean_inc(x_50);
 x_70 = l_Lean_Elab_isValidAutoBoundLevelName(x_50, x_69);
 if (x_70 == 0)
 {
-lean_dec(x_49);
-lean_dec_ref(x_48);
-lean_dec_ref(x_47);
 goto block_66;
 }
 else
 {
 uint8_t x_71; 
+lean_inc(x_49);
+lean_inc_ref(x_48);
+lean_inc_ref(x_47);
 lean_dec_ref(x_2);
 x_71 = !lean_is_exclusive(x_3);
 if (x_71 == 0)
@@ -1909,9 +1903,6 @@ goto block_54;
 }
 else
 {
-lean_dec(x_49);
-lean_dec_ref(x_48);
-lean_dec_ref(x_47);
 lean_dec_ref(x_2);
 lean_dec(x_5);
 x_51 = x_3;
@@ -2460,11 +2451,8 @@ else
 lean_object* x_195; lean_object* x_196; lean_object* x_197; lean_object* x_198; lean_object* x_199; uint8_t x_215; 
 lean_dec(x_157);
 x_195 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_195);
 x_196 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_196);
 x_197 = lean_ctor_get(x_3, 2);
-lean_inc(x_197);
 x_198 = l_Lean_Syntax_getId(x_1);
 lean_dec(x_1);
 x_215 = l_List_elem___at___Lean_Elab_Level_elabLevel_spec__4(x_198, x_197);
@@ -2472,9 +2460,6 @@ if (x_215 == 0)
 {
 if (x_156 == 0)
 {
-lean_dec(x_197);
-lean_dec_ref(x_196);
-lean_dec_ref(x_195);
 lean_dec(x_154);
 goto block_214;
 }
@@ -2488,14 +2473,14 @@ lean_inc(x_198);
 x_218 = l_Lean_Elab_isValidAutoBoundLevelName(x_198, x_217);
 if (x_218 == 0)
 {
-lean_dec(x_197);
-lean_dec_ref(x_196);
-lean_dec_ref(x_195);
 goto block_214;
 }
 else
 {
 lean_object* x_219; lean_object* x_220; lean_object* x_221; 
+lean_inc(x_197);
+lean_inc_ref(x_196);
+lean_inc_ref(x_195);
 lean_dec_ref(x_161);
 if (lean_is_exclusive(x_3)) {
  lean_ctor_release(x_3, 0);
@@ -2525,9 +2510,6 @@ goto block_202;
 }
 else
 {
-lean_dec(x_197);
-lean_dec_ref(x_196);
-lean_dec_ref(x_195);
 lean_dec_ref(x_161);
 lean_dec(x_154);
 x_199 = x_3;

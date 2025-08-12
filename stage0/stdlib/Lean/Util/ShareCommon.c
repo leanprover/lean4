@@ -878,9 +878,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint64_t x_9; uint64_t x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13; uint64_t x_14; uint64_t x_15; uint64_t x_16; size_t x_17; size_t x_18; size_t x_19; size_t x_20; size_t x_21; lean_object* x_22; uint8_t x_23; 
 x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_6);
 x_7 = lean_array_get_size(x_6);
 lean_inc_ref(x_2);
 lean_inc(x_4);
@@ -907,6 +905,8 @@ x_23 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_ShareCommon_object
 if (x_23 == 0)
 {
 uint8_t x_24; 
+lean_inc_ref(x_6);
+lean_inc(x_5);
 x_24 = !lean_is_exclusive(x_3);
 if (x_24 == 0)
 {
@@ -994,8 +994,6 @@ return x_52;
 else
 {
 lean_dec(x_22);
-lean_dec_ref(x_6);
-lean_dec(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_2);
 return x_3;
@@ -1637,7 +1635,6 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_8; size_t x_9; size_t x_10; size_t x_11; size_t x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_8 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_8);
 x_9 = 5;
 x_10 = 1;
 x_11 = l_Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_ShareCommon_persistentObjectFactory___elam__1_spec__0_spec__0___redArg___closed__1;
@@ -1649,7 +1646,6 @@ lean_dec(x_14);
 if (x_15 == 0)
 {
 lean_dec(x_13);
-lean_dec_ref(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec_ref(x_2);
@@ -1659,6 +1655,7 @@ return x_3;
 else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_inc_ref(x_8);
 if (lean_is_exclusive(x_3)) {
  lean_ctor_release(x_3, 0);
  x_16 = x_3;

@@ -2422,7 +2422,6 @@ else
 {
 lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; 
 x_89 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_89);
 x_90 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_90);
 x_91 = l_Lean_Syntax_getArg(x_4, x_46);
@@ -2432,6 +2431,7 @@ lean_dec(x_76);
 x_93 = lean_box(x_17);
 lean_inc_ref(x_90);
 lean_inc_ref(x_3);
+lean_inc_ref(x_89);
 lean_inc_ref(x_2);
 x_94 = lean_alloc_closure((void*)(l_Std_Do_SPred_Notation_unpack___redArg___lam__7___boxed), 15, 14);
 lean_closure_set(x_94, 0, x_2);
@@ -2554,7 +2554,6 @@ else
 lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; 
 lean_dec(x_4);
 x_126 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_126);
 x_127 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_127);
 x_128 = l_Lean_Syntax_getArg(x_98, x_112);
@@ -2566,6 +2565,7 @@ lean_dec(x_128);
 x_132 = lean_box(x_14);
 lean_inc_ref(x_127);
 lean_inc_ref(x_3);
+lean_inc_ref(x_126);
 lean_inc_ref(x_2);
 x_133 = lean_alloc_closure((void*)(l_Std_Do_SPred_Notation_unpack___redArg___lam__10___boxed), 10, 9);
 lean_closure_set(x_133, 0, x_2);
@@ -2588,7 +2588,6 @@ else
 {
 lean_object* x_136; lean_object* x_137; lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; 
 x_136 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_136);
 x_137 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_137);
 x_138 = lean_unsigned_to_nat(1u);
@@ -2602,6 +2601,7 @@ x_144 = lean_box(x_12);
 lean_inc_ref(x_1);
 lean_inc_ref(x_137);
 lean_inc_ref(x_3);
+lean_inc_ref(x_136);
 lean_inc_ref(x_2);
 x_145 = lean_alloc_closure((void*)(l_Std_Do_SPred_Notation_unpack___redArg___lam__11___boxed), 10, 9);
 lean_closure_set(x_145, 0, x_2);
@@ -2763,7 +2763,6 @@ else
 {
 lean_object* x_192; lean_object* x_193; lean_object* x_194; lean_object* x_195; lean_object* x_196; lean_object* x_197; lean_object* x_198; 
 x_192 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_192);
 x_193 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_193);
 x_194 = l_Lean_Syntax_getArg(x_4, x_163);
@@ -2771,6 +2770,7 @@ lean_dec(x_4);
 x_195 = lean_box(x_8);
 lean_inc_ref(x_193);
 lean_inc_ref(x_3);
+lean_inc_ref(x_192);
 lean_inc_ref(x_2);
 x_196 = lean_alloc_closure((void*)(l_Std_Do_SPred_Notation_unpack___redArg___lam__18___boxed), 14, 13);
 lean_closure_set(x_196, 0, x_2);
@@ -13444,12 +13444,10 @@ else
 {
 lean_object* x_1521; lean_object* x_1522; lean_object* x_1523; lean_object* x_1524; lean_object* x_1525; lean_object* x_1526; lean_object* x_1527; lean_object* x_1528; lean_object* x_1529; lean_object* x_1530; lean_object* x_1531; 
 x_1521 = lean_ctor_get(x_2, 5);
-lean_inc(x_1521);
 x_1522 = lean_unsigned_to_nat(3u);
 x_1523 = l_Lean_Syntax_getArg(x_12, x_1522);
 lean_dec(x_12);
 x_1524 = l_Lean_SourceInfo_fromRef(x_1521, x_25);
-lean_dec(x_1521);
 x_1525 = l_Std_Do_termSpred_x28___x29___closed__6;
 lean_inc(x_1524);
 x_1526 = lean_alloc_ctor(2, 2, 0);

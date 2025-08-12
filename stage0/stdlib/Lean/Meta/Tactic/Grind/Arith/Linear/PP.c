@@ -1002,10 +1002,8 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = lean_ctor_get(x_1, 14);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_7, 3);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {

@@ -574,39 +574,16 @@ def check_all (p : Nat → Prop) [DecidablePred p] (n : Nat) : Bool := Id.run do
       return false
   return true
 
-@[simp]
-theorem Std.Range.mem_toList {x} {r : Std.Range} :
-    x ∈ r.toList ↔ x ∈ r := sorry
-
-@[simp]
-theorem Nat.mod_one {n : Nat} : n % 1 = 0 := by omega
-
-/--
-VC generation is normally not useful to massage hypotheses such as `ht`, but in this example
-we manage to prove a contradiction `hf` using the VC generator.
--/
 example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     (∀ i, i < n → p i) ↔ check_all p n := by
-  constructor
-  · intro h
-    apply Id.by_wp (P := (· = true)) rfl
-    mvcgen
-    case inv1 => exact (⇓ (xs, r) => ⌜r.1 = none ∧ ∀ x, x ∈ xs.suff → p x⌝)
-    case vc3 => simp; intro a ha; apply h a ha.upper
-    all_goals simp_all
-  · intro ht i hin
-    apply Classical.byContradiction
-    intro h'
-    have hf : check_all p n = false := by
-      have hin : i ∈ [0:n] := by simp [Std.instMembershipNatRange, hin]
-      apply Id.by_wp (P := (· = false)) rfl
-      mvcgen
-      case inv1 => exact (⇓ (xs, r) =>
-        match r.1 with
-        | none => ⌜i ∈ xs.suff⌝
-        | some b => ⌜b = false ∧ xs.suff = []⌝)
-      all_goals simp_all [SPred.pure_nil]; try grind
-    simp [ht] at hf
+  generalize h : check_all p n = x
+  apply Id.by_wp h
+  mvcgen
+  case inv1 =>
+    exact Invariant.withEarlyReturn
+      (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
+      (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.pref → p i⌝)
+  all_goals simp_all [-Classical.not_forall]; try grind
 
 end Automated
 
@@ -962,42 +939,13 @@ theorem nodup_correct (l : List Int) : nodup l ↔ l.Nodup := by
         ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.pref) ∧ traversalState.pref.Nodup⌝)
   all_goals mleave; grind
 
-@[simp, grind]
-theorem Std.HashSet.Nodup_toList [Hashable α] [BEq α] [LawfulHashable α] [EquivBEq α] [LawfulBEq α] (m : Std.HashSet α) :
-    m.toList.Nodup := by
-  simp only [Std.HashSet.toList]
-  simpa using Std.HashMap.distinct_keys (m := m.inner)
-
-@[simp, grind]
-theorem Std.HashSet.Nodup_append_toList_insert [Hashable α] [BEq α] [LawfulHashable α] [EquivBEq α] [LawfulBEq α] (m : Std.HashSet α) (x : α) (h : x ∉ m) :
-    ((m.insert x).toList ++ tl).Nodup ↔ (m.toList ++ x :: tl).Nodup := by
-  grind
-
 theorem nodup_correct_directly (l : List Int) : nodup l ↔ l.Nodup := by
-  simp [nodup]
-  suffices h :
-      ∀ seen,
-        match MProd.fst (Id.run (forIn (β := MProd (Option Bool) (Std.HashSet Int)) l ⟨none, seen⟩ (fun x ⟨_, seen⟩ =>
-          if x ∈ seen then pure (ForInStep.done (α := MProd (Option Bool) (Std.HashSet Int)) ⟨some false, seen⟩)
-          else pure (ForInStep.yield (α := MProd (Option Bool) (Std.HashSet Int)) ⟨none, seen.insert x⟩)))) with
-        | some true => False
-        | some false => ¬(seen.toList ++ l).Nodup
-        | none => (seen.toList ++ l).Nodup by
-    replace h := h ∅
-    split
-    · simp_all only [Id.run_pure]; grind
-    · cases ‹Bool› <;> simp_all only [Id.run_pure]; grind
-  induction l with
-  | nil => simp_all
-  | cons hd tl ih =>
-    intro seen
-    simp_all
-    if hif : hd ∈ seen
-    then simp_all only [↓reduceIte, Id.run_pure]; grind
-    else
-      replace ih := ih (seen.insert hd)
-      simp only [hif, ↓reduceIte, Id.run_pure]
-      split <;> simp_all
+  rw [nodup]
+  generalize hseen : (∅ : Std.HashSet Int) = seen
+  change ?lhs ↔ l.Nodup
+  suffices h : ?lhs ↔ l.Nodup ∧ ∀ x ∈ l, x ∉ seen by grind
+  clear hseen
+  induction l generalizing seen with grind [Id.run_pure, Id.run_bind]
 
 end Nodup
 

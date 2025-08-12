@@ -116,6 +116,7 @@ static lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at___Le
 LEAN_EXPORT lean_object* l_Lean_throwInterruptException___at___Lean_throwKernelException___at___Lean_ofExceptKernelException___at_____private_Lean_AddDecl_0__Lean_addDecl_addAsAxiom_spec__0_spec__0_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at___Lean_withTraceNode___at_____private_Lean_AddDecl_0__Lean_addDecl_doAdd_spec__4_spec__8___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn___closed__2____x40_Lean_AddDecl___hyg_336_;
+LEAN_EXPORT lean_object* l_Lean_addAndCompile___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_____private_Lean_AddDecl_0__Lean_addDecl_doAdd_spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_AddDecl_0__Lean_addDecl_addAsAxiom_spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
@@ -256,7 +257,7 @@ lean_object* l_Lean_profileitIOUnsafe___redArg(lean_object*, lean_object*, lean_
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_addDecl___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_AddDecl_0__Lean_privateConstKindsExt;
-LEAN_EXPORT lean_object* l_Lean_addAndCompile(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logWarning___at_____private_Lean_AddDecl_0__Lean_addDecl_doAdd_spec__1_spec__1_spec__1___lam__0___closed__3;
 lean_object* l_Lean_exceptEmoji___redArg(lean_object*);
 static double l_Lean_withTraceNode___at_____private_Lean_AddDecl_0__Lean_addDecl_doAdd_spec__4___redArg___closed__0;
@@ -7024,31 +7025,39 @@ lean_dec_ref(x_4);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_addAndCompile(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_addAndCompile(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_5; 
-lean_inc(x_3);
-lean_inc_ref(x_2);
+lean_object* x_6; 
+lean_inc(x_4);
+lean_inc_ref(x_3);
 lean_inc(x_1);
-x_5 = l_Lean_addDecl(x_1, x_2, x_3, x_4);
-if (lean_obj_tag(x_5) == 0)
+x_6 = l_Lean_addDecl(x_1, x_3, x_4, x_5);
+if (lean_obj_tag(x_6) == 0)
 {
-lean_object* x_6; uint8_t x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_5, 1);
-lean_inc(x_6);
-lean_dec_ref(x_5);
-x_7 = 1;
-x_8 = l_Lean_compileDecl(x_1, x_7, x_2, x_3, x_6);
+lean_object* x_7; lean_object* x_8; 
+x_7 = lean_ctor_get(x_6, 1);
+lean_inc(x_7);
+lean_dec_ref(x_6);
+x_8 = l_Lean_compileDecl(x_1, x_2, x_3, x_4, x_7);
 return x_8;
 }
 else
 {
-lean_dec(x_3);
-lean_dec_ref(x_2);
+lean_dec(x_4);
+lean_dec_ref(x_3);
 lean_dec(x_1);
-return x_5;
+return x_6;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_addAndCompile___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; lean_object* x_7; 
+x_6 = lean_unbox(x_2);
+x_7 = l_Lean_addAndCompile(x_1, x_6, x_3, x_4, x_5);
+return x_7;
 }
 }
 lean_object* initialize_Lean_CoreM(uint8_t builtin, lean_object*);

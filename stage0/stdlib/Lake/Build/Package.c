@@ -42,7 +42,6 @@ static lean_object* l___private_Lake_Build_Package_0__Lake_Package_mkOptBuildArc
 lean_object* l_Substring_takeRightWhileAux___at_____private_Lean_Parser_Term_Doc_0__Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_getBarrelUrl___redArg___closed__19;
 LEAN_EXPORT lean_object* l_Lake_Job_mapM___at___Lake_Package_afterBuildCacheSync_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lake_instQueryTextUnit___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildAction___at___Lake_Package_fetchBuildArchive_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_normalize(lean_object*);
 static lean_object* l_Lake_Package_fetchBuildArchive___closed__2;
@@ -225,6 +224,7 @@ lean_object* l_System_FilePath_addExtension(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_transDepsFacetConfig___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Package_getReleaseUrl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at___Lake_ensureJob___at___Lake_Package_recFetchDeps_spec__2_spec__2___redArg___closed__4;
+lean_object* l_Lake_instQueryJsonUnit___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_afterBuildCacheSync(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_formatQuery___at___Lake_Package_depsFacetConfig_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_Package_getBarrelUrl___redArg___closed__7;
@@ -277,7 +277,6 @@ static lean_object* l_Lake_Package_getReleaseUrl___redArg___closed__14;
 LEAN_EXPORT lean_object* l_Lake_Package_getBarrelUrl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lake_Package_recFetchDeps_spec__0_spec__0___redArg___closed__0;
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
-lean_object* l_Lake_instQueryJsonUnit___lam__0___boxed(lean_object*);
 static lean_object* l_Lake_OrdHashSet_empty___at___Lake_Package_recComputeTransDeps_spec__7___closed__0;
 LEAN_EXPORT lean_object* l_Lake_buildAction___at___Lake_Package_fetchBuildArchive_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_optBuildCacheFacetConfig;
@@ -385,6 +384,7 @@ static lean_object* l___private_Lake_Build_Package_0__Lake_Package_mkOptBuildArc
 static lean_object* l___private_Lake_Build_Package_0__Lake_Package_mkOptBuildArchiveFacetConfig___redArg___closed__11;
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_Defs_0__Std_DHashMap_Internal_Raw_u2080_expand_go___at___Std_DHashMap_Internal_Raw_u2080_expand___at___Lake_OrdHashSet_insert___at___Lake_Package_recComputeTransDeps_spec__0_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_optBarrelFacetConfig___lam__1___closed__1;
+lean_object* l_Lake_instQueryTextUnit___lam__0(lean_object*);
 static lean_object* l_Lake_Package_optBarrelFacetConfig___lam__1___closed__0;
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
@@ -11210,7 +11210,7 @@ static lean_object* _init_l___private_Lake_Build_Package_0__Lake_Package_mkBuild
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instQueryTextUnit___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_instQueryTextUnit___lam__0), 1, 0);
 return x_1;
 }
 }
@@ -11218,7 +11218,7 @@ static lean_object* _init_l___private_Lake_Build_Package_0__Lake_Package_mkBuild
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instQueryJsonUnit___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_instQueryJsonUnit___lam__0), 1, 0);
 return x_1;
 }
 }

@@ -417,7 +417,6 @@ static lean_object* l_Lean_Elab_Tactic_Ext_extCore___closed__0;
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Ext_instInhabitedExtTheorems;
 static lean_object* l_Lean_Elab_Tactic_Ext_mkExtIffType___lam__1___closed__12;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_tryIntros___redArg___lam__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PRange_instSupportsUpperBoundOpenOfDecidableLT___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_evalApplyExtTheorem___regBuiltin_Lean_Elab_Tactic_Ext_evalApplyExtTheorem_docString__3___closed__0;
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -839,7 +838,6 @@ lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___lam__0___closed__3;
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___lam__0___closed__28;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExt1___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at___Lean_Elab_Tactic_Ext_realizeExtTheorem_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_evalApplyExtTheorem___regBuiltin_Lean_Elab_Tactic_Ext_evalApplyExtTheorem_declRange__5___closed__1;
@@ -20716,7 +20714,7 @@ x_6 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_6);
 lean_dec_ref(x_1);
 lean_inc_ref(x_6);
-x_7 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Ext_tryIntros___redArg___lam__4___boxed), 3, 2);
+x_7 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Ext_tryIntros___redArg___lam__4), 3, 2);
 lean_closure_set(x_7, 0, x_5);
 lean_closure_set(x_7, 1, x_6);
 x_8 = lean_box(0);
@@ -22551,14 +22549,6 @@ lean_dec_ref(x_2);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_tryIntros___redArg___lam__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Elab_Tactic_Ext_tryIntros___redArg___lam__4(x_1, x_2, x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_tryIntros___redArg___lam__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -22607,7 +22597,7 @@ block_10:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 lean_inc_ref(x_1);
-x_6 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Ext_withExt1___redArg___lam__1___boxed), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Ext_withExt1___redArg___lam__1), 3, 2);
 lean_closure_set(x_6, 0, x_5);
 lean_closure_set(x_6, 1, x_1);
 x_7 = lean_box(0);
@@ -22703,14 +22693,6 @@ x_9 = l_Lean_Elab_Tactic_Ext_withExt1___redArg___lam__0(x_1, x_2, x_3, x_4, x_5,
 lean_dec(x_3);
 lean_dec_ref(x_2);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExt1___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Elab_Tactic_Ext_withExt1___redArg___lam__1(x_1, x_2, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExtN___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

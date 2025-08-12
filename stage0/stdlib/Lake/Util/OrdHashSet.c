@@ -75,7 +75,6 @@ LEAN_EXPORT lean_object* l_Lake_OrdHashSet_instForIn___lam__0(lean_object*, lean
 LEAN_EXPORT uint8_t l_Lake_OrdHashSet_all___redArg___lam__0(lean_object*, uint8_t, lean_object*);
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_instCoeHashSet___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_OrdHashSet_forM___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_foldl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_insert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_OrdHashSet_empty___closed__5;
@@ -1459,7 +1458,7 @@ return x_15;
 else
 {
 lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; 
-x_16 = lean_alloc_closure((void*)(l_Lake_OrdHashSet_forM___redArg___lam__0___boxed), 3, 1);
+x_16 = lean_alloc_closure((void*)(l_Lake_OrdHashSet_forM___redArg___lam__0), 3, 1);
 lean_closure_set(x_16, 0, x_2);
 x_17 = 0;
 x_18 = lean_usize_of_nat(x_6);
@@ -1518,7 +1517,7 @@ return x_19;
 else
 {
 lean_object* x_20; size_t x_21; size_t x_22; lean_object* x_23; 
-x_20 = lean_alloc_closure((void*)(l_Lake_OrdHashSet_forM___redArg___lam__0___boxed), 3, 1);
+x_20 = lean_alloc_closure((void*)(l_Lake_OrdHashSet_forM___redArg___lam__0), 3, 1);
 lean_closure_set(x_20, 0, x_6);
 x_21 = 0;
 x_22 = lean_usize_of_nat(x_10);
@@ -1527,14 +1526,6 @@ x_23 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___redArg(x_5
 return x_23;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lake_OrdHashSet_forM___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_OrdHashSet_forM___redArg___lam__0(x_1, x_2, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_forM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

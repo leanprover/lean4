@@ -25,7 +25,6 @@ lean_object* l_ExceptT_instMonad___redArg___lam__7(lean_object*, lean_object*, l
 lean_object* l_StateT_instMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instReprSMap___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SMap_forM___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_instForInProd___lam__0(lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_SMap_find_x3f_x27___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -45,7 +44,6 @@ static lean_object* l_Lean_instReprSMap___redArg___lam__0___closed__0;
 static lean_object* l_Lean_SMap_find_x21___redArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_SMap_foldStage2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SMap_forM___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SMap_instInhabited___closed__2;
 static lean_object* l_Lean_SMap_instInhabited___closed__4;
 LEAN_EXPORT lean_object* l_Lean_SMap_findD___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -96,7 +94,6 @@ LEAN_EXPORT lean_object* l_Lean_SMap_findD(lean_object*, lean_object*, lean_obje
 lean_object* l_StateT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_toList___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_pure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SMap_forM___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_PersistentHashMap_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_fold___redArg(lean_object*, lean_object*, lean_object*);
@@ -1514,7 +1511,7 @@ lean_inc_ref(x_8);
 lean_dec_ref(x_4);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
-x_9 = lean_alloc_closure((void*)(l_Lean_SMap_forM___redArg___lam__0___boxed), 4, 3);
+x_9 = lean_alloc_closure((void*)(l_Lean_SMap_forM___redArg___lam__0), 4, 3);
 lean_closure_set(x_9, 0, x_1);
 lean_closure_set(x_9, 1, x_7);
 lean_closure_set(x_9, 2, x_3);
@@ -1558,10 +1555,10 @@ else
 {
 lean_object* x_21; lean_object* x_22; size_t x_23; size_t x_24; lean_object* x_25; lean_object* x_26; 
 lean_dec_ref(x_5);
-x_21 = lean_alloc_closure((void*)(l_Lean_SMap_forM___redArg___lam__1___boxed), 4, 1);
+x_21 = lean_alloc_closure((void*)(l_Lean_SMap_forM___redArg___lam__1), 4, 1);
 lean_closure_set(x_21, 0, x_3);
 lean_inc_ref(x_1);
-x_22 = lean_alloc_closure((void*)(l_Lean_SMap_forM___redArg___lam__2___boxed), 4, 2);
+x_22 = lean_alloc_closure((void*)(l_Lean_SMap_forM___redArg___lam__2), 4, 2);
 lean_closure_set(x_22, 0, x_1);
 lean_closure_set(x_22, 1, x_21);
 x_23 = 0;
@@ -1580,30 +1577,6 @@ _start:
 lean_object* x_9; 
 x_9 = l_Lean_SMap_forM___redArg(x_6, x_7, x_8);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_SMap_forM___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_SMap_forM___redArg___lam__0(x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_SMap_forM___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_SMap_forM___redArg___lam__1(x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_SMap_forM___redArg___lam__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_SMap_forM___redArg___lam__2(x_1, x_2, x_3, x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_SMap_forM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {

@@ -178,7 +178,6 @@ LEAN_EXPORT lean_object* lean_mk_io_error_eof(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-lean_dec(x_1);
 x_2 = lean_box(17);
 return x_2;
 }

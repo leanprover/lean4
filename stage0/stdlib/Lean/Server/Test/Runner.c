@@ -120,7 +120,6 @@ static lean_object* l_Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at_
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___Array_Array_repr___at___Lean_Server_Test_Runner_Client_reprInteractiveGoal____x40_Lean_Server_Test_Runner___hyg_755__spec__0_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_Client_reprHyp___redArg___closed__4____x40_Lean_Server_Test_Runner___hyg_426_;
 static lean_object* l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___closed__27;
-LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_416____at___Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonHyp____x40_Lean_Server_Test_Runner___hyg_242__spec__0_spec__0___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_fromJsonGetWidgetsResponse____x40_Lean_Server_Test_Runner___hyg_1071__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Test_Runner_Client_reprHyp____x40_Lean_Server_Test_Runner___hyg_426____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_Client_fromJsonInteractiveGoal___closed__4____x40_Lean_Server_Test_Runner___hyg_571_;
@@ -473,7 +472,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_Tag
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_Client_fromJsonSubexprInfo___closed__15____x40_Lean_Server_Test_Runner___hyg_33_;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Array_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_fromJsonGetWidgetsResponse____x40_Lean_Server_Test_Runner___hyg_1071__spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at___IO_FS_Stream_writeLspNotification___at___Lean_Lsp_Ipc_writeNotification___at___Lean_Server_Test_Runner_main_spec__4_spec__4_spec__4___boxed(lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_main___closed__1;
 static lean_object* l_Lean_Server_Test_Runner_Client_fromJsonSubexprInfo___closed__2____x40_Lean_Server_Test_Runner___hyg_33_;
 static lean_object* l_Lean_Server_Test_Runner_main___lam__0___closed__0;
@@ -1905,7 +1903,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_Tag
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_416____at___Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonHyp____x40_Lean_Server_Test_Runner___hyg_242__spec__0_spec__0___lam__0___boxed), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_416____at___Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonHyp____x40_Lean_Server_Test_Runner___hyg_242__spec__0_spec__0___lam__0), 1, 0);
 x_3 = lean_box(0);
 x_4 = l_Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_416____at___Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonHyp____x40_Lean_Server_Test_Runner___hyg_242__spec__0_spec__0___closed__0;
 x_5 = lean_unsigned_to_nat(1u);
@@ -2748,14 +2746,6 @@ x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Array_fromJson_x3f___at___Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_416____at___Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonHyp____x40_Lean_Server_Test_Runner___hyg_242__spec__0_spec__0_spec__0_spec__0(x_4, x_5, x_3);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_416____at___Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonHyp____x40_Lean_Server_Test_Runner___hyg_242__spec__0_spec__0___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_416____at___Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonHyp____x40_Lean_Server_Test_Runner___hyg_242__spec__0_spec__0___lam__0(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_416____at___Lean_Json_getObjValAs_x3f___at___Lean_Server_Test_Runner_Client_fromJsonHyp____x40_Lean_Server_Test_Runner___hyg_242__spec__0_spec__0___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -9977,7 +9967,6 @@ if (lean_is_exclusive(x_2)) {
  x_6 = lean_box(0);
 }
 x_11 = l_Lean_Json_toStructured_x3f___at___IO_FS_Stream_writeLspNotification___at___Lean_Lsp_Ipc_writeNotification___at___Lean_Server_Test_Runner_main_spec__4_spec__4_spec__4(x_5);
-lean_dec(x_5);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; 
@@ -17314,7 +17303,6 @@ x_96 = lean_nat_add(x_71, x_1);
 lean_dec(x_71);
 x_97 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___lam__0(x_1, x_69, x_66, x_96, x_72, x_70, x_67, x_94, x_74, x_95);
 lean_dec_ref(x_74);
-lean_dec(x_94);
 lean_dec(x_66);
 x_30 = x_97;
 goto block_35;
@@ -20074,7 +20062,6 @@ x_684 = lean_nat_add(x_659, x_1);
 lean_dec(x_659);
 x_685 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___lam__0(x_1, x_657, x_654, x_684, x_660, x_658, x_655, x_682, x_662, x_683);
 lean_dec_ref(x_662);
-lean_dec(x_682);
 lean_dec(x_654);
 x_30 = x_685;
 goto block_35;
@@ -22660,7 +22647,6 @@ x_1181 = lean_nat_add(x_1156, x_1);
 lean_dec(x_1156);
 x_1182 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___lam__0(x_1, x_1154, x_1151, x_1181, x_1157, x_1155, x_1152, x_1179, x_1159, x_1180);
 lean_dec_ref(x_1159);
-lean_dec(x_1179);
 lean_dec(x_1151);
 x_30 = x_1182;
 goto block_35;
@@ -25263,7 +25249,6 @@ x_1681 = lean_nat_add(x_1656, x_1);
 lean_dec(x_1656);
 x_1682 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___lam__0(x_1, x_1654, x_1651, x_1681, x_1657, x_1655, x_1652, x_1679, x_1659, x_1680);
 lean_dec_ref(x_1659);
-lean_dec(x_1679);
 lean_dec(x_1651);
 x_30 = x_1682;
 goto block_35;
@@ -27882,7 +27867,6 @@ x_2184 = lean_nat_add(x_2159, x_1);
 lean_dec(x_2159);
 x_2185 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___lam__0(x_1, x_2157, x_2154, x_2184, x_2160, x_2158, x_2155, x_2182, x_2162, x_2183);
 lean_dec_ref(x_2162);
-lean_dec(x_2182);
 lean_dec(x_2154);
 x_30 = x_2185;
 goto block_35;
@@ -30517,7 +30501,6 @@ x_2690 = lean_nat_add(x_2665, x_1);
 lean_dec(x_2665);
 x_2691 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___lam__0(x_1, x_2663, x_2660, x_2690, x_2666, x_2664, x_2661, x_2688, x_2668, x_2689);
 lean_dec_ref(x_2668);
-lean_dec(x_2688);
 lean_dec(x_2660);
 x_30 = x_2691;
 goto block_35;
@@ -33401,7 +33384,6 @@ x_97 = lean_nat_add(x_72, x_1);
 lean_dec(x_72);
 x_98 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___lam__0(x_1, x_69, x_70, x_97, x_73, x_67, x_68, x_95, x_75, x_96);
 lean_dec_ref(x_75);
-lean_dec(x_95);
 lean_dec(x_70);
 x_31 = x_98;
 goto block_36;
@@ -36161,7 +36143,6 @@ x_685 = lean_nat_add(x_660, x_1);
 lean_dec(x_660);
 x_686 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___lam__0(x_1, x_657, x_658, x_685, x_661, x_655, x_656, x_683, x_663, x_684);
 lean_dec_ref(x_663);
-lean_dec(x_683);
 lean_dec(x_658);
 x_31 = x_686;
 goto block_36;
@@ -38747,7 +38728,6 @@ x_1182 = lean_nat_add(x_1157, x_1);
 lean_dec(x_1157);
 x_1183 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___lam__0(x_1, x_1154, x_1155, x_1182, x_1158, x_1152, x_1153, x_1180, x_1160, x_1181);
 lean_dec_ref(x_1160);
-lean_dec(x_1180);
 lean_dec(x_1155);
 x_31 = x_1183;
 goto block_36;
@@ -41350,7 +41330,6 @@ x_1682 = lean_nat_add(x_1657, x_1);
 lean_dec(x_1657);
 x_1683 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___lam__0(x_1, x_1654, x_1655, x_1682, x_1658, x_1652, x_1653, x_1680, x_1660, x_1681);
 lean_dec_ref(x_1660);
-lean_dec(x_1680);
 lean_dec(x_1655);
 x_31 = x_1683;
 goto block_36;
@@ -43969,7 +43948,6 @@ x_2185 = lean_nat_add(x_2160, x_1);
 lean_dec(x_2160);
 x_2186 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___lam__0(x_1, x_2157, x_2158, x_2185, x_2161, x_2155, x_2156, x_2183, x_2163, x_2184);
 lean_dec_ref(x_2163);
-lean_dec(x_2183);
 lean_dec(x_2158);
 x_31 = x_2186;
 goto block_36;
@@ -46603,7 +46581,6 @@ x_2691 = lean_nat_add(x_2666, x_1);
 lean_dec(x_2666);
 x_2692 = l_List_forIn_x27_loop___at___List_forIn_x27_loop___at___Lean_Server_Test_Runner_main_spec__41_spec__41___redArg___lam__0(x_1, x_2663, x_2664, x_2691, x_2667, x_2661, x_2662, x_2689, x_2669, x_2690);
 lean_dec_ref(x_2669);
-lean_dec(x_2689);
 lean_dec(x_2664);
 x_31 = x_2692;
 goto block_36;
@@ -49039,14 +49016,6 @@ lean_ctor_set(x_22, 1, x_21);
 return x_22;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at___IO_FS_Stream_writeLspNotification___at___Lean_Lsp_Ipc_writeNotification___at___Lean_Server_Test_Runner_main_spec__4_spec__4_spec__4___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Json_toStructured_x3f___at___IO_FS_Stream_writeLspNotification___at___Lean_Lsp_Ipc_writeNotification___at___Lean_Server_Test_Runner_main_spec__4_spec__4_spec__4(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at___Lean_Server_Test_Runner_main_spec__7___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

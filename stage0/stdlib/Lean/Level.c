@@ -178,12 +178,10 @@ LEAN_EXPORT lean_object* l_Lean_Level_normLt___boxed(lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse(lean_object*, uint8_t);
 static lean_object* l_Lean_Level_PP_Result_quote___closed__14;
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap___boxed(lean_object*);
 static lean_object* l_Lean_Level_PP_Result_quote___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Level_ofNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_PP_toResult(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_instReprLevelMVarId;
-LEAN_EXPORT uint8_t l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Level_PP_Result_quote_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Level_0__Lean_Level_geq_go___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Level_0__Lean_Level_isExplicitSubsumed(lean_object*, lean_object*);
@@ -210,6 +208,7 @@ uint32_t lean_uint64_to_uint32(uint64_t);
 static lean_object* l_Lean_instReprData___lam__0___closed__6;
 static lean_object* l_Lean_reprLevelMVarId___redArg___closed__11____x40_Lean_Level___hyg_522_;
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Level_isAlreadyNormalizedCheap(lean_object*);
 static lean_object* l_Lean_reprLevel___closed__2____x40_Lean_Level___hyg_1007_;
 LEAN_EXPORT lean_object* l_Lean_reprLevelMVarId____x40_Lean_Level___hyg_522_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_beqLevelMVarId____x40_Lean_Level___hyg_432____boxed(lean_object*, lean_object*);
@@ -333,6 +332,7 @@ LEAN_EXPORT uint8_t l_Lean_Level_isMVar(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_updateIMax_x21Impl(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_reprLevelMVarId___redArg___closed__2____x40_Lean_Level___hyg_522_;
 lean_object* lean_array_uget(lean_object*, size_t);
+LEAN_EXPORT lean_object* l_Lean_Level_isAlreadyNormalizedCheap___boxed(lean_object*);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_instHashable;
 static lean_object* l_Lean_Level_normalize___closed__1;
@@ -2320,7 +2320,6 @@ LEAN_EXPORT lean_object* lean_level_mk_zero(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-lean_dec(x_1);
 x_2 = lean_box(0);
 return x_2;
 }
@@ -3721,7 +3720,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap(lean_object* x_1) {
+LEAN_EXPORT uint8_t l_Lean_Level_isAlreadyNormalizedCheap(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -3759,11 +3758,11 @@ return x_7;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Level_isAlreadyNormalizedCheap___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
-x_2 = l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap(x_1);
+x_2 = l_Lean_Level_isAlreadyNormalizedCheap(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
@@ -4248,7 +4247,7 @@ LEAN_EXPORT lean_object* l_Lean_Level_normalize(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap(x_1);
+x_2 = l_Lean_Level_isAlreadyNormalizedCheap(x_1);
 if (x_2 == 0)
 {
 lean_object* x_3; lean_object* x_4; 

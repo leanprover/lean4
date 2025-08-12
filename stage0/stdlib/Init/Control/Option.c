@@ -64,7 +64,6 @@ LEAN_EXPORT lean_object* l_OptionT_mk___boxed(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_OptionT_instAlternative___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_OptionT_instMonadExceptOfUnit___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_OptionT_run___redArg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_OptionT_instMonadExceptOfUnit___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_OptionT_instMonad___redArg___lam__5(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_OptionT_instMonadExceptOf___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadControlOptionTOfMonad___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -977,7 +976,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 lean_inc_ref(x_1);
-x_2 = lean_alloc_closure((void*)(l_OptionT_instMonadExceptOfUnit___redArg___lam__0___boxed), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_OptionT_instMonadExceptOfUnit___redArg___lam__0), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 x_3 = lean_alloc_closure((void*)(l_OptionT_tryCatch), 5, 2);
 lean_closure_set(x_3, 0, lean_box(0));
@@ -994,14 +993,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_OptionT_instMonadExceptOfUnit___redArg(x_2);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_OptionT_instMonadExceptOfUnit___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_OptionT_instMonadExceptOfUnit___redArg___lam__0(x_1, x_2, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_OptionT_instMonadExceptOf___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

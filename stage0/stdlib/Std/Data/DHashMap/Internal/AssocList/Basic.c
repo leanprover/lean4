@@ -111,7 +111,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_filter___redArg(lean_
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldrM___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_forM___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_getD___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_AssocList_foldl___redArg___closed__2;
@@ -420,7 +419,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_forM___redArg(lean_ob
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_AssocList_forM___redArg___lam__0___boxed), 4, 1);
+x_4 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_AssocList_forM___redArg___lam__0), 4, 1);
 lean_closure_set(x_4, 0, x_2);
 x_5 = lean_box(0);
 x_6 = l_Std_DHashMap_Internal_AssocList_foldlM___redArg(x_1, x_4, x_5, x_3);
@@ -431,19 +430,11 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_forM(lean_object* x_1
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_AssocList_forM___redArg___lam__0___boxed), 4, 1);
+x_7 = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_AssocList_forM___redArg___lam__0), 4, 1);
 lean_closure_set(x_7, 0, x_5);
 x_8 = lean_box(0);
 x_9 = l_Std_DHashMap_Internal_AssocList_foldlM___redArg(x_4, x_7, x_8, x_6);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_forM___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Std_DHashMap_Internal_AssocList_forM___redArg___lam__0(x_1, x_2, x_3, x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_forInStep_go___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

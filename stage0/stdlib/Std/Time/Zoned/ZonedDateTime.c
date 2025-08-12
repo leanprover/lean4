@@ -142,7 +142,6 @@ static lean_object* l_Std_Time_ZonedDateTime_ofTimestamp___lam__0___closed__0;
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_convertZoneRules___lam__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Time_ZonedDateTime_instHAddOffset__3___closed__0;
 lean_object* lean_thunk_get_own(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_addMinutes(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_era___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_ZonedDateTime_toPlainDateTime___boxed(lean_object*);
@@ -771,7 +770,7 @@ static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime___private__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = lean_alloc_closure((void*)(l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0), 1, 0);
 x_2 = lean_mk_thunk(x_1);
 x_3 = l_Std_Time_instInhabitedZonedDateTime___private__1___closed__0;
 x_4 = l_Std_Time_instInhabitedZonedDateTime___private__1___closed__4;
@@ -782,14 +781,6 @@ lean_ctor_set(x_6, 1, x_3);
 lean_ctor_set(x_6, 2, x_4);
 lean_ctor_set(x_6, 3, x_5);
 return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Std_Time_instInhabitedZonedDateTime___private__1___lam__0(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Std_Time_instInhabitedZonedDateTime() {

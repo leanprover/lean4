@@ -149,7 +149,6 @@ x_34 = lean_ctor_get(x_32, 1);
 lean_inc(x_34);
 lean_dec_ref(x_32);
 x_35 = l_Lake_busyAcquireLockFile_busyLoop___lam__0(x_1, x_33, x_34);
-lean_dec(x_33);
 x_11 = x_35;
 goto block_27;
 }

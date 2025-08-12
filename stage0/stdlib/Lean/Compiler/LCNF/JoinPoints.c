@@ -16677,7 +16677,6 @@ x_48 = lean_ctor_get(x_46, 1);
 lean_inc(x_48);
 lean_dec_ref(x_46);
 x_49 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lean_Compiler_LCNF_JoinPoints_0__Lean_Compiler_LCNF_JoinPointCommonArgs_reduce_goReduce_spec__1___lam__0(x_43, x_18, x_47, x_6, x_7, x_8, x_9, x_10, x_48);
-lean_dec(x_47);
 x_21 = x_49;
 goto block_27;
 }

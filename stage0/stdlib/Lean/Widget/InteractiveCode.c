@@ -31,7 +31,6 @@ static lean_object* l_Lean_Widget_toJsonDiffTag___closed__6____x40_Lean_Widget_I
 static lean_object* l_Lean_Widget_instFromJsonDiffTag___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_rewriteM___at_____private_Lean_Widget_InteractiveCode_0__Lean_Widget_tagCodeInfos_go_spec__1___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_DiffTag_noConfusion___redArg(uint8_t, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonDiffTag___lam__0____x40_Lean_Widget_InteractiveCode___hyg_69____boxed(lean_object*);
 static lean_object* l_Lean_Widget_fromJsonRpcEncodablePacket___closed__1____x40_Lean_Widget_InteractiveCode___hyg_362_;
 lean_object* l_Lean_Widget_TaggedText_prettyTagged(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableSubexprInfo___closed__2;
@@ -759,7 +758,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonDiffTag____x40_Lean_Widget_Intera
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Widget_fromJsonDiffTag___lam__0____x40_Lean_Widget_InteractiveCode___hyg_69____boxed), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Widget_fromJsonDiffTag___lam__0____x40_Lean_Widget_InteractiveCode___hyg_69_), 1, 0);
 x_3 = l_Lean_Widget_toJsonDiffTag___closed__10____x40_Lean_Widget_InteractiveCode___hyg_12_;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = l_Lean_Widget_fromJsonDiffTag___closed__1____x40_Lean_Widget_InteractiveCode___hyg_69_;
@@ -826,14 +825,6 @@ x_17 = l_Lean_Widget_fromJsonDiffTag___closed__2____x40_Lean_Widget_InteractiveC
 x_18 = l_Except_orElseLazy___redArg(x_17, x_10);
 return x_18;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonDiffTag___lam__0____x40_Lean_Widget_InteractiveCode___hyg_69____boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Widget_fromJsonDiffTag___lam__0____x40_Lean_Widget_InteractiveCode___hyg_69_(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Widget_fromJsonDiffTag___lam__1____x40_Lean_Widget_InteractiveCode___hyg_69____boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

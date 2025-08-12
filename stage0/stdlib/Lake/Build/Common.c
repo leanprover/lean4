@@ -153,7 +153,6 @@ LEAN_EXPORT lean_object* l_Lake_readTraceFile_x3f(lean_object*, lean_object*, le
 static lean_object* l_Lake_toJsonBuildMetadata___closed__1____x40_Lake_Build_Common___hyg_180_;
 lean_object* l_Lake_Dynlib_dir_x3f(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instToJsonPUnit__lake___lam__0___boxed(lean_object*);
 lean_object* l_Lake_BuildTrace_mix(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getBool_x3f(lean_object*);
 uint8_t lean_string_validate_utf8(lean_object*);
@@ -1511,16 +1510,8 @@ static lean_object* _init_l_Lake_instToJsonPUnit__lake() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instToJsonPUnit__lake___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_instToJsonPUnit__lake___lam__0), 1, 0);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_instToJsonPUnit__lake___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_instToJsonPUnit__lake___lam__0(x_1);
-return x_2;
 }
 }
 static uint64_t _init_l_Lake_platformTrace___closed__0() {
@@ -7506,7 +7497,7 @@ static lean_object* _init_l_Lake_buildUnlessUpToDate_x3f___redArg___closed__0() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instToJsonPUnit__lake___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_instToJsonPUnit__lake___lam__0), 1, 0);
 return x_1;
 }
 }
@@ -16609,7 +16600,6 @@ lean_dec(x_359);
 lean_dec(x_358);
 lean_dec(x_357);
 lean_dec_ref(x_356);
-lean_dec(x_368);
 return x_370;
 }
 else
@@ -16969,7 +16959,6 @@ lean_dec(x_455);
 lean_dec(x_454);
 lean_dec(x_453);
 lean_dec_ref(x_452);
-lean_dec(x_464);
 return x_466;
 }
 else
@@ -18543,7 +18532,6 @@ lean_dec(x_716);
 lean_dec(x_715);
 lean_dec(x_714);
 lean_dec_ref(x_713);
-lean_dec(x_725);
 return x_727;
 }
 else
@@ -19716,7 +19704,6 @@ lean_dec(x_980);
 lean_dec(x_979);
 lean_dec(x_978);
 lean_dec_ref(x_977);
-lean_dec(x_989);
 return x_991;
 }
 else
@@ -20943,7 +20930,6 @@ lean_dec(x_1259);
 lean_dec(x_1258);
 lean_dec(x_1257);
 lean_dec_ref(x_1256);
-lean_dec(x_1268);
 return x_1270;
 }
 else
@@ -22189,7 +22175,6 @@ lean_dec(x_1541);
 lean_dec(x_1540);
 lean_dec(x_1539);
 lean_dec_ref(x_1538);
-lean_dec(x_1550);
 return x_1552;
 }
 else

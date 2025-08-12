@@ -75,7 +75,6 @@ static lean_object* l_Lake_Package_leanLibs___closed__4;
 LEAN_EXPORT lean_object* l_Lake_LeanLib_weakLeancArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_platformIndependent(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_roots___boxed(lean_object*);
-uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1780__spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_LeanLib_isPlugin(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_staticExportLibFile(lean_object*);
 static lean_object* l_Lake_LeanLib_isPlugin___closed__1;
@@ -83,6 +82,7 @@ LEAN_EXPORT lean_object* l_Lake_LeanLib_isPlugin___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_extraDepTargets(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_libName(lean_object*);
 lean_object* l_Lake_BuildType_leanArgs(uint8_t);
+uint8_t l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1802__spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_leanLibs___closed__10;
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_backend___boxed(lean_object*);
@@ -893,7 +893,7 @@ return x_10;
 else
 {
 uint8_t x_11; 
-x_11 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1780__spec__0___redArg(x_4, x_7, x_8);
+x_11 = l_Array_isEqvAux___at___Lean_Meta_beqAbstractMVarsResult____x40_Lean_Meta_Basic___hyg_1802__spec__0___redArg(x_4, x_7, x_8);
 lean_dec_ref(x_7);
 lean_dec_ref(x_4);
 if (x_11 == 0)

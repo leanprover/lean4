@@ -186,7 +186,6 @@ static lean_object* l_Lean_ErrorExplanation_instReprCodeInfo___closed__0;
 LEAN_EXPORT lean_object* l_Lean_hasErrorExplanation___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_instReprValidationState;
 static lean_object* l_Lean_ErrorExplanation_fromJsonMetadata___closed__10____x40_Lean_ErrorExplanation___hyg_52_;
-LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_CodeInfo_parse_namedAttr___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at___Std_DTreeMap_Internal_Impl_foldl___at___Lean_getErrorExplanationsRaw_spec__0_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_repr___at___Array_Array_repr___at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_reprValidationState____x40_Lean_ErrorExplanation___hyg_1511__spec__0_spec__0___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasErrorExplanation___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4294,14 +4293,6 @@ return x_287;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_CodeInfo_parse_namedAttr___lam__0___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_CodeInfo_parse_namedAttr___lam__0(x_1, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_CodeInfo_parse_attr(lean_object* x_1) {
 _start:
 {
@@ -8235,9 +8226,9 @@ block_26:
 lean_object* x_25; 
 x_25 = lean_string_append(x_23, x_24);
 lean_dec_ref(x_24);
-x_4 = x_22;
+x_4 = x_21;
 x_5 = x_25;
-x_6 = x_21;
+x_6 = x_22;
 goto block_20;
 }
 block_33:
@@ -8248,8 +8239,8 @@ if (x_28 == 0)
 {
 lean_object* x_31; 
 x_31 = l_Lean_ErrorExplanation_instToStringKind___lam__0___closed__0;
-x_21 = x_29;
-x_22 = x_27;
+x_21 = x_27;
+x_22 = x_29;
 x_23 = x_30;
 x_24 = x_31;
 goto block_26;
@@ -8258,8 +8249,8 @@ else
 {
 lean_object* x_32; 
 x_32 = l_Lean_ErrorExplanation_instToStringKind___lam__0___closed__1;
-x_21 = x_29;
-x_22 = x_27;
+x_21 = x_27;
+x_22 = x_29;
 x_23 = x_30;
 x_24 = x_32;
 goto block_26;
@@ -8327,8 +8318,8 @@ block_56:
 {
 if (x_51 == 0)
 {
-lean_dec_ref(x_49);
-x_34 = x_50;
+lean_dec_ref(x_50);
+x_34 = x_49;
 x_35 = x_52;
 goto block_48;
 }
@@ -8336,8 +8327,8 @@ else
 {
 if (x_53 == 0)
 {
-lean_dec_ref(x_49);
-x_34 = x_50;
+lean_dec_ref(x_50);
+x_34 = x_49;
 x_35 = x_52;
 goto block_48;
 }
@@ -8345,11 +8336,11 @@ else
 {
 lean_object* x_54; lean_object* x_55; 
 lean_dec(x_52);
-lean_dec_ref(x_50);
+lean_dec_ref(x_49);
 lean_dec_ref(x_3);
 x_54 = lean_box(0);
 x_55 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_55, 0, x_49);
+lean_ctor_set(x_55, 0, x_50);
 lean_ctor_set(x_55, 1, x_54);
 return x_55;
 }
@@ -8427,8 +8418,8 @@ lean_dec(x_76);
 x_79 = lean_string_dec_eq(x_77, x_1);
 if (lean_obj_tag(x_2) == 0)
 {
-x_49 = x_61;
-x_50 = x_77;
+x_49 = x_77;
+x_50 = x_61;
 x_51 = x_79;
 x_52 = x_78;
 x_53 = x_69;
@@ -8438,8 +8429,8 @@ else
 {
 uint8_t x_80; 
 x_80 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(x_2, x_78);
-x_49 = x_61;
-x_50 = x_77;
+x_49 = x_77;
+x_50 = x_61;
 x_51 = x_79;
 x_52 = x_78;
 x_53 = x_80;
@@ -8516,8 +8507,8 @@ lean_dec(x_99);
 x_102 = lean_string_dec_eq(x_100, x_1);
 if (lean_obj_tag(x_2) == 0)
 {
-x_49 = x_82;
-x_50 = x_100;
+x_49 = x_100;
+x_50 = x_82;
 x_51 = x_102;
 x_52 = x_101;
 x_53 = x_90;
@@ -8527,8 +8518,8 @@ else
 {
 uint8_t x_103; 
 x_103 = l_Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at_____private_Lean_ErrorExplanation_0__Lean_ErrorExplanation_parseExplanation_codeBlock_spec__0(x_2, x_101);
-x_49 = x_82;
-x_50 = x_100;
+x_49 = x_100;
+x_50 = x_82;
 x_51 = x_102;
 x_52 = x_101;
 x_53 = x_103;

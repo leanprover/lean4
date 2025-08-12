@@ -22,7 +22,6 @@ static lean_object* l_Lake_initPkg___elam__16___redArg___closed__29;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Lake_stdLeanConfigFileContents___closed__3;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_initPkg___elam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_escapeName_x21___closed__1;
 lean_object* lean_io_prim_handle_put_str(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_leanActionWorkflowContents;
@@ -134,7 +133,6 @@ static lean_object* l_Lake_initPkg___closed__2;
 static lean_object* l_Lake_initPkg___elam__16___redArg___closed__26;
 static lean_object* l_Lake_reprInitTemplate___closed__11____x40_Lake_CLI_Init___hyg_524_;
 static lean_object* l_Lake_libLeanConfigFileContents___closed__0;
-LEAN_EXPORT lean_object* l_Lake_initPkg___elam__0___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_initPkg_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_validatePkgName___closed__5;
 LEAN_EXPORT lean_object* l_Lake_InitTemplate_ofNat___boxed(lean_object*);
 static size_t l_Lake_initPkg___elam__16___redArg___closed__11;
@@ -5204,7 +5202,7 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
 lean_dec_ref(x_17);
-x_20 = lean_alloc_closure((void*)(l_Lake_initPkg___elam__0___boxed), 4, 0);
+x_20 = lean_alloc_closure((void*)(l_Lake_initPkg___elam__0), 4, 0);
 x_244 = l_Lake_initPkg___elam__16___redArg___closed__7;
 x_245 = l_Lake_initPkg___elam__16___redArg___closed__9;
 if (x_245 == 0)
@@ -6037,14 +6035,6 @@ return x_242;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_initPkg___elam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_initPkg___elam__0(x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_initPkg___elam__16___redArg___boxed(lean_object** _args) {
 lean_object* x_1 = _args[0];
 lean_object* x_2 = _args[1];
@@ -6106,14 +6096,6 @@ x_23 = lean_unbox(x_8);
 x_24 = lean_unbox(x_9);
 x_25 = l_Lake_initPkg___elam__16(x_1, x_2, x_3, x_22, x_5, x_6, x_7, x_23, x_24, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_21);
 return x_25;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_initPkg___elam__0___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_initPkg_spec__0_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_initPkg___elam__0___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_initPkg_spec__0_spec__0(x_1, x_2, x_3, x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_initPkg_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -8111,7 +8093,7 @@ static lean_object* _init_l_Lake_initPkg___at___Lake_init_spec__0___closed__0() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_initPkg___elam__0___boxed), 4, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_initPkg___elam__0), 4, 0);
 return x_1;
 }
 }

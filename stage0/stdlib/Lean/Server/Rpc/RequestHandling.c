@@ -310,7 +310,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_contains___at___Lean_Server_registerLspRequestHandler___at_____private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_413__spec__0_spec__2___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerRpcProcedure___closed__15;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_initFn___lam__0____x40_Lean_Server_Rpc_RequestHandling___hyg_1451_(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_addAndCompile(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerRpcProcedure___closed__14;
 static lean_object* l_Lean_Server_registerRpcProcedure___lam__0___closed__0;
@@ -4774,7 +4774,7 @@ lean_ctor_set_uint8(x_58, sizeof(void*)*4, x_57);
 x_59 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_59, 0, x_58);
 lean_inc(x_3);
-x_60 = l_Lean_addAndCompile(x_59, x_2, x_3, x_49);
+x_60 = l_Lean_addAndCompile(x_59, x_36, x_2, x_3, x_49);
 if (lean_obj_tag(x_60) == 0)
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; 
@@ -4832,7 +4832,7 @@ lean_ctor_set_uint8(x_75, sizeof(void*)*4, x_73);
 x_76 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_76, 0, x_75);
 lean_inc(x_3);
-x_77 = l_Lean_addAndCompile(x_76, x_2, x_3, x_49);
+x_77 = l_Lean_addAndCompile(x_76, x_36, x_2, x_3, x_49);
 if (lean_obj_tag(x_77) == 0)
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; 
@@ -5076,7 +5076,7 @@ lean_ctor_set_uint8(x_146, sizeof(void*)*4, x_144);
 x_147 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_147, 0, x_146);
 lean_inc(x_3);
-x_148 = l_Lean_addAndCompile(x_147, x_2, x_3, x_137);
+x_148 = l_Lean_addAndCompile(x_147, x_124, x_2, x_3, x_137);
 if (lean_obj_tag(x_148) == 0)
 {
 lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; lean_object* x_155; 
@@ -5341,7 +5341,7 @@ lean_ctor_set_uint8(x_223, sizeof(void*)*4, x_221);
 x_224 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_224, 0, x_223);
 lean_inc(x_3);
-x_225 = l_Lean_addAndCompile(x_224, x_2, x_3, x_214);
+x_225 = l_Lean_addAndCompile(x_224, x_201, x_2, x_3, x_214);
 if (lean_obj_tag(x_225) == 0)
 {
 lean_object* x_226; lean_object* x_227; lean_object* x_228; lean_object* x_229; lean_object* x_230; lean_object* x_231; lean_object* x_232; 

@@ -83,9 +83,9 @@ LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn____
 LEAN_EXPORT lean_object* l_Lean_getMainModuleDoc(lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_getModuleDoc_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_addDocStringCore___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___lam__0____x40_Lean_DocString_Extension___hyg_381____boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getMainModuleDoc___closed__0;
+uint8_t l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9398_(uint8_t, uint8_t);
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___closed__5____x40_Lean_DocString_Extension___hyg_381_;
 static lean_object* l_Lean_initFn___closed__3____x40_Lean_DocString_Extension___hyg_45_;
 LEAN_EXPORT lean_object* l_Lean_addDocStringCore___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -102,7 +102,6 @@ lean_object* l_Lean_MapDeclarationExtension_find_x3f___redArg(lean_object*, lean
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___lam__3___closed__0____x40_Lean_DocString_Extension___hyg_381_;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___lam__0___closed__0____x40_Lean_DocString_Extension___hyg_381_;
-uint8_t l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9660_(uint8_t, uint8_t);
 static lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___closed__7____x40_Lean_DocString_Extension___hyg_381_;
 LEAN_EXPORT lean_object* l___private_Lean_DocString_Extension_0__Lean_initFn___lam__2____x40_Lean_DocString_Extension___hyg_381_(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -438,7 +437,7 @@ lean_inc(x_4);
 x_10 = lean_alloc_closure((void*)(l_Lean_addDocStringCore___redArg___lam__0), 3, 2);
 lean_closure_set(x_10, 0, x_5);
 lean_closure_set(x_10, 1, x_4);
-x_11 = lean_alloc_closure((void*)(l_Lean_addDocStringCore___redArg___lam__1___boxed), 3, 2);
+x_11 = lean_alloc_closure((void*)(l_Lean_addDocStringCore___redArg___lam__1), 3, 2);
 lean_closure_set(x_11, 0, x_9);
 lean_closure_set(x_11, 1, x_10);
 lean_inc_ref(x_11);
@@ -461,14 +460,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_addDocStringCore___redArg(x_2, x_3, x_4, x_5, x_6);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_addDocStringCore___redArg___lam__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_addDocStringCore___redArg___lam__1(x_1, x_2, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_addDocStringCore___redArg___lam__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
@@ -622,7 +613,7 @@ _start:
 {
 uint8_t x_5; uint8_t x_6; 
 x_5 = 1;
-x_6 = l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9660_(x_4, x_5);
+x_6 = l_Lean_ordOLeanLevel____x40_Lean_Environment___hyg_9398_(x_4, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; 

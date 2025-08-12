@@ -871,7 +871,6 @@ LEAN_EXPORT lean_object* l_Std_Time_instInhabitedYear;
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_parser_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_formatMarkerShort___boxed(lean_object*);
 static lean_object* l_Std_Time_instReprNumber___closed__0;
-LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_DateBuilder_build___lam__3___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_reprOffsetX____x40_Std_Time_Format_Basic___hyg_1059_(uint8_t, lean_object*);
 static lean_object* l_Std_Time_reprModifier___closed__6____x40_Std_Time_Format_Basic___hyg_1963_;
 static lean_object* l_Std_Time_reprGenericFormat___redArg___closed__6____x40_Std_Time_Format_Basic___hyg_4174_;
@@ -56473,7 +56472,7 @@ block_324:
 {
 lean_object* x_319; 
 lean_inc(x_318);
-x_319 = lean_alloc_closure((void*)(l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_DateBuilder_build___lam__3___boxed), 2, 1);
+x_319 = lean_alloc_closure((void*)(l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_DateBuilder_build___lam__3), 2, 1);
 lean_closure_set(x_319, 0, x_318);
 if (lean_obj_tag(x_179) == 0)
 {
@@ -56543,14 +56542,6 @@ lean_dec_ref(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_DateBuilder_build___lam__3___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_DateBuilder_build___lam__3(x_1, x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l___private_Std_Time_Format_Basic_0__Std_Time_GenericFormat_DateBuilder_build___boxed(lean_object* x_1, lean_object* x_2) {

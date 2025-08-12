@@ -808,7 +808,7 @@ static lean_object* l_Lean_Widget_elabWidgetInstanceSpecAux___closed__28;
 static lean_object* l_Lean_Widget_eraseWidgetSpec___closed__1;
 static lean_object* l_Lean_Widget_fromJsonUserWidgetDefinition___closed__11____x40_Lean_Widget_UserWidget___hyg_3675_;
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn___lam__3____x40_Lean_Widget_UserWidget___hyg_228_(lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* l_Lean_addAndCompile(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerBuiltinRpcProcedure___at_____private_Lean_Widget_UserWidget_0__Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_1344__spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_initFn___closed__1____x40_Lean_Widget_UserWidget___hyg_5407_;
@@ -16769,7 +16769,7 @@ x_93 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_93, 0, x_92);
 lean_inc(x_82);
 lean_inc_ref(x_81);
-x_94 = l_Lean_addAndCompile(x_93, x_81, x_82, x_83);
+x_94 = l_Lean_addAndCompile(x_93, x_8, x_81, x_82, x_83);
 if (lean_obj_tag(x_94) == 0)
 {
 uint8_t x_95; 
@@ -17655,7 +17655,7 @@ x_93 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_93, 0, x_92);
 lean_inc(x_82);
 lean_inc_ref(x_81);
-x_94 = l_Lean_addAndCompile(x_93, x_81, x_82, x_83);
+x_94 = l_Lean_addAndCompile(x_93, x_8, x_81, x_82, x_83);
 if (lean_obj_tag(x_94) == 0)
 {
 uint8_t x_95; 

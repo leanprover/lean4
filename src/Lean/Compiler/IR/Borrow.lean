@@ -115,10 +115,10 @@ partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
 
 def visitDecls (decls : Array Decl) (paramMap : ParamMap) : Array Decl :=
   decls.map fun decl => match decl with
-    | .fdecl f _  ty b info =>
+    | .fdecl f _  ty retBorrowInfo b info =>
       let b := visitFnBody f paramMap b
       match paramMap[Key.decl f]? with
-      | some xs => .fdecl f xs ty b info
+      | some xs => .fdecl f xs ty retBorrowInfo b info
       | none    => unreachable!
     | other => other
 

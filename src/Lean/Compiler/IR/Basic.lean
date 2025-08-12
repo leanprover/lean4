@@ -337,14 +337,18 @@ def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
     | FnBody.jdecl j xs v k => return FnBody.jdecl j xs (← f v) k
     | other                 => return other
 
+structure ReturnBorrowInfo where
+  baseParamIndex? : Option Nat := none
+  deriving Inhabited
+
 /-- Extra information associated with a declaration. -/
 structure DeclInfo where
   /-- If `some <blame>`, then declaration depends on `<blame>` which uses a `sorry` axiom. -/
   sorryDep? : Option Name := none
 
 inductive Decl where
-  | fdecl  (f : FunId) (xs : Array Param) (type : IRType) (body : FnBody) (info : DeclInfo)
-  | extern (f : FunId) (xs : Array Param) (type : IRType) (ext : ExternAttrData)
+  | fdecl  (f : FunId) (xs : Array Param) (type : IRType) (returnBorrowInfo : ReturnBorrowInfo) (body : FnBody) (info : DeclInfo)
+  | extern (f : FunId) (xs : Array Param) (type : IRType) (returnBorrowInfo : ReturnBorrowInfo) (ext : ExternAttrData)
   deriving Inhabited
 
 namespace Decl
@@ -361,6 +365,10 @@ def resultType : Decl → IRType
   | .fdecl (type := t) ..  => t
   | .extern (type := t) .. => t
 
+def returnBorrowInfo : Decl → ReturnBorrowInfo
+  | .fdecl (returnBorrowInfo := info) .. => info
+  | .extern (returnBorrowInfo := info) .. => info
+
 def isExtern : Decl → Bool
   | .extern .. => true
   | _ => false
@@ -371,14 +379,14 @@ def getInfo : Decl → DeclInfo
 
 def updateBody! (d : Decl) (bNew : FnBody) : Decl :=
   match d with
-  | Decl.fdecl f xs t _ info => Decl.fdecl f xs t bNew info
+  | Decl.fdecl f xs t retBorrowInfo _ info => Decl.fdecl f xs t retBorrowInfo bNew info
   | _ => panic! "expected definition"
 
 end Decl
 
 -- Hack: we use this declaration as a stub for declarations annotated with `implemented_by` or `init`
 def mkDummyExternDecl (f : FunId) (xs : Array Param) (ty : IRType) : Decl :=
-  Decl.fdecl f xs ty FnBody.unreachable {}
+  Decl.fdecl f xs ty {} .unreachable {}
 
 /-- Set of variable and join point names -/
 abbrev IndexSet := Std.TreeSet Index

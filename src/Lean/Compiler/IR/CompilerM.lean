@@ -77,7 +77,7 @@ private abbrev sortDecls (decls : Array Decl) : Array Decl :=
   decls.qsort declLt
 
 private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Decl :=
-  let tmpDecl := Decl.extern declName #[] default default
+  let tmpDecl := Decl.extern declName #[] default default default
   decls.binSearch tmpDecl declLt
 
 /-- Meta status of local declarations, not persisted. -/
@@ -131,11 +131,11 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
           guard <| Compiler.LCNF.isDeclPublic env d.name
           -- Bodies of imported IR decls are not relevant for codegen, only interpretation
           match d with
-          | .fdecl f xs ty b info =>
+          | .fdecl f xs ty retBorrowInfo b info =>
             if let some (.str _ s) := getExportNameFor? env f then
-              return .extern f xs ty { entries := [.standard `all s] }
+              return .extern f xs ty retBorrowInfo { entries := [.standard `all s] }
             else
-              return .extern f xs ty { entries := [.opaque f] }
+              return .extern f xs ty retBorrowInfo { entries := [.opaque f] }
           | d => some d
       else entries
     -- Written to on codegen environment branch but accessed from other elaboration branches when

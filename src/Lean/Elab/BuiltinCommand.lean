@@ -48,6 +48,7 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
   pushScope
   if isNewNamespace then
     if soft then
+      trace[Elab] "activate scoped with {getParent (←get).scopes}"
       activateScoped newNamespace (getParent (←get).scopes)
     else
       activateScoped newNamespace none
@@ -64,7 +65,7 @@ where go
   | _ => throwError "invalid scope"
 
 private def addNamespace (header : Name) (soft : Bool := false) : CommandElabM Unit :=
-  addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header
+  addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header soft
 
 def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) (soft : Bool := false) : CommandElabM α := do
   addNamespace ns soft

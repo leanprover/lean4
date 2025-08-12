@@ -6,6 +6,8 @@ axiom A : Prop
 @[simp] def Foo.T := True
 @[simp] def Bar.T := True
 
+axiom ax : A ↔ True
+
 namespace ex0
 @[local simp] axiom a : A ↔ True
 example : A := by simp
@@ -24,6 +26,6 @@ example : A := by simp -- fails
 end ex2
 
 namespace ex3
-@[local simp] axiom Foo.a : A ↔ True
+@[local simp] def test.a : A ↔ True := ax
 example : A := by simp -- fails
 end ex3

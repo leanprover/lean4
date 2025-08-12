@@ -31,6 +31,9 @@ attribute [grind] id
 
 /--
 A helper gadget for instructing the kernel to eagerly reduce terms.
+
+When the gadget wraps the argument of an application, then when checking that
+the expected and inferred type of the argument match, the kernel will evaluate terms more eagerly.
 It is often used to wrap `Eq.refl true` proof terms as `eagerReduce (Eq.refl true)`
 when using proof by reflection.
 As an example, consider the theorem:

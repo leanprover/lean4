@@ -180,9 +180,7 @@ theorem beaking_loop_spec :
   mspec
   case inv => exact (⇓ (xs, r) s => ⌜(r ≤ 4 ∧ r = xs.rpref.sum ∨ r > 4) ∧ s = 42⌝)
   all_goals simp_all
-  case post =>
-    conv in (List.sum _) => whnf
-    grind
+  case post => grind
   case step =>
     intros
     mintro _
@@ -205,12 +203,10 @@ theorem returning_loop_spec :
     · mspec
       mspec
       intro _ h
-      conv at h in (List.sum _) => whnf
       simp at h
       grind
     · mspec
       intro _ h
-      conv at h in (List.sum _) => whnf
       simp at h ⊢
       grind
   case step =>
@@ -472,7 +468,7 @@ theorem sum_loop_spec :
   mintro -
   mvcgen [sum_loop]
   case inv1 => exact (⇓ (xs, r) => ⌜(∀ x, x ∈ xs.suff → x ≤ 5) ∧ r + xs.suff.length * 5 ≤ 25⌝)
-  all_goals simp_all +decide; try grind
+  all_goals simp_all; try grind
 
 theorem throwing_loop_spec :
   ⦃fun s => ⌜s = 4⌝⦄
@@ -482,11 +478,7 @@ theorem throwing_loop_spec :
   mvcgen [throwing_loop]
   case inv1 => exact post⟨fun (xs, r) s => ⌜r ≤ 4 ∧ s = 4 ∧ r + xs.suff.sum > 4⌝,
                          fun e s => ⌜e = 42 ∧ s = 4⌝⟩
-  case vc1 => intro _; simp_all
-  case vc2 => intro _; simp_all only [SPred.down_pure]; grind
-  case vc3 => simp_all only [SPred.down_pure]; decide
-  case vc4 => simp_all only [SPred.down_pure]; grind
-  case vc5 => simp_all
+  all_goals mleave; try (subst_vars; grind)
 
 theorem test_loop_break :
   ⦃fun s => ⌜s = 42⌝⦄
@@ -494,15 +486,7 @@ theorem test_loop_break :
   ⦃⇓ r s => ⌜r > 4 ∧ s = 1⌝⦄ := by
   mvcgen [breaking_loop]
   case inv1 => exact (⇓ (xs, r) s => ⌜(r ≤ 4 ∧ r = xs.rpref.sum ∨ r > 4) ∧ s = 42⌝)
-  case vc1 => intro _; mleave; grind
-  case vc2 => intro _; simp_all only [SPred.down_pure]; grind
-  case vc3 => simp_all
-  case vc4 =>
-    simp_all
-    rename_i h
-    conv at h in (List.sum _) => whnf
-    simp at h
-    grind
+  all_goals mleave; try grind
 
 theorem test_loop_early_return :
   ⦃fun s => ⌜s = 4⌝⦄
@@ -510,16 +494,7 @@ theorem test_loop_early_return :
   ⦃⇓ r s => ⌜r = 42 ∧ s = 4⌝⦄ := by
   mvcgen [returning_loop]
   case inv1 => exact (⇓ (xs, r) s => ⌜(r.1 = none ∧ r.2 = xs.rpref.sum ∧ r.2 ≤ 4 ∨ r.1 = some 42 ∧ r.2 > 4) ∧ s = 4⌝)
-  case vc1 => intro _; mleave; grind
-  case vc2 => intro _; mleave; grind
-  case vc3 => simp_all
-  case vc4 =>
-    simp_all
-    rename_i h
-    conv at h in (List.sum _) => whnf
-    simp at h
-    grind
-  case vc5 => simp_all
+  all_goals simp_all; try grind
 
 theorem unfold_to_expose_match_spec :
   ⦃fun s => ⌜s = 4⌝⦄
@@ -547,9 +522,7 @@ theorem test_sum :
   ⦃⇓r => ⌜r < 30⌝⦄ := by
   mvcgen
   case inv1 => exact (⇓ (xs, r) => ⌜(∀ x, x ∈ xs.suff → x ≤ 5) ∧ r + xs.suff.length * 5 ≤ 25⌝)
-  case vc1 => simp_all; omega
-  case vc3 => simp_all; omega
-  simp_all +decide
+  all_goals simp_all; try grind
 
 /--
   The main point about this test is that `mSpec` should return all unassigned MVars it creates.
@@ -574,39 +547,16 @@ def check_all (p : Nat → Prop) [DecidablePred p] (n : Nat) : Bool := Id.run do
       return false
   return true
 
-@[simp]
-theorem Std.Range.mem_toList {x} {r : Std.Range} :
-    x ∈ r.toList ↔ x ∈ r := sorry
-
-@[simp]
-theorem Nat.mod_one {n : Nat} : n % 1 = 0 := by omega
-
-/--
-VC generation is normally not useful to massage hypotheses such as `ht`, but in this example
-we manage to prove a contradiction `hf` using the VC generator.
--/
 example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     (∀ i, i < n → p i) ↔ check_all p n := by
-  constructor
-  · intro h
-    apply Id.by_wp (P := (· = true)) rfl
-    mvcgen
-    case inv1 => exact (⇓ (xs, r) => ⌜r.1 = none ∧ ∀ x, x ∈ xs.suff → p x⌝)
-    case vc3 => simp; intro a ha; apply h a ha.upper
-    all_goals simp_all
-  · intro ht i hin
-    apply Classical.byContradiction
-    intro h'
-    have hf : check_all p n = false := by
-      have hin : i ∈ [0:n] := by simp [Std.instMembershipNatRange, hin]
-      apply Id.by_wp (P := (· = false)) rfl
-      mvcgen
-      case inv1 => exact (⇓ (xs, r) =>
-        match r.1 with
-        | none => ⌜i ∈ xs.suff⌝
-        | some b => ⌜b = false ∧ xs.suff = []⌝)
-      all_goals simp_all [SPred.pure_nil]; try grind
-    simp [ht] at hf
+  generalize h : check_all p n = x
+  apply Id.by_wp h
+  mvcgen
+  case inv1 =>
+    exact Invariant.withEarlyReturn
+      (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
+      (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.pref → p i⌝)
+  all_goals simp_all [-Classical.not_forall]; try grind
 
 end Automated
 
@@ -962,42 +912,13 @@ theorem nodup_correct (l : List Int) : nodup l ↔ l.Nodup := by
         ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.pref) ∧ traversalState.pref.Nodup⌝)
   all_goals mleave; grind
 
-@[simp, grind]
-theorem Std.HashSet.Nodup_toList [Hashable α] [BEq α] [LawfulHashable α] [EquivBEq α] [LawfulBEq α] (m : Std.HashSet α) :
-    m.toList.Nodup := by
-  simp only [Std.HashSet.toList]
-  simpa using Std.HashMap.distinct_keys (m := m.inner)
-
-@[simp, grind]
-theorem Std.HashSet.Nodup_append_toList_insert [Hashable α] [BEq α] [LawfulHashable α] [EquivBEq α] [LawfulBEq α] (m : Std.HashSet α) (x : α) (h : x ∉ m) :
-    ((m.insert x).toList ++ tl).Nodup ↔ (m.toList ++ x :: tl).Nodup := by
-  grind
-
 theorem nodup_correct_directly (l : List Int) : nodup l ↔ l.Nodup := by
-  simp [nodup]
-  suffices h :
-      ∀ seen,
-        match MProd.fst (Id.run (forIn (β := MProd (Option Bool) (Std.HashSet Int)) l ⟨none, seen⟩ (fun x ⟨_, seen⟩ =>
-          if x ∈ seen then pure (ForInStep.done (α := MProd (Option Bool) (Std.HashSet Int)) ⟨some false, seen⟩)
-          else pure (ForInStep.yield (α := MProd (Option Bool) (Std.HashSet Int)) ⟨none, seen.insert x⟩)))) with
-        | some true => False
-        | some false => ¬(seen.toList ++ l).Nodup
-        | none => (seen.toList ++ l).Nodup by
-    replace h := h ∅
-    split
-    · simp_all only [Id.run_pure]; grind
-    · cases ‹Bool› <;> simp_all only [Id.run_pure]; grind
-  induction l with
-  | nil => simp_all
-  | cons hd tl ih =>
-    intro seen
-    simp_all
-    if hif : hd ∈ seen
-    then simp_all only [↓reduceIte, Id.run_pure]; grind
-    else
-      replace ih := ih (seen.insert hd)
-      simp only [hif, ↓reduceIte, Id.run_pure]
-      split <;> simp_all
+  rw [nodup]
+  generalize hseen : (∅ : Std.HashSet Int) = seen
+  change ?lhs ↔ l.Nodup
+  suffices h : ?lhs ↔ l.Nodup ∧ ∀ x ∈ l, x ∉ seen by grind
+  clear hseen
+  induction l generalizing seen with grind [Id.run_pure, Id.run_bind]
 
 end Nodup
 

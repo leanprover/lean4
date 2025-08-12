@@ -192,20 +192,20 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
   match c'.h with
   | .core e lhs rhs =>
     let h ← mkIntModPreOrdThmPrefix (if c'.strict then ``Grind.Linarith.lt_norm else ``Grind.Linarith.le_norm)
-    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (mkOfEqTrueCore e (← mkEqTrueProof e))
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue (mkOfEqTrueCore e (← mkEqTrueProof e))
   | .notCore e lhs rhs =>
     let h ← mkIntModLinOrdThmPrefix (if c'.strict then ``Grind.Linarith.not_le_norm else ``Grind.Linarith.not_lt_norm)
-    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
   | .coreCommRing e lhs rhs p' lhs' =>
     let h' ← mkCommRingPreOrdThmPrefix (if c'.strict then ``Grind.CommRing.lt_norm else ``Grind.CommRing.le_norm)
-    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') reflBoolTrue (mkOfEqTrueCore e (← mkEqTrueProof e))
+    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') eagerReflBoolTrue (mkOfEqTrueCore e (← mkEqTrueProof e))
     let h ← mkIntModPreOrdThmPrefix (if c'.strict then ``Grind.Linarith.lt_norm else ``Grind.Linarith.le_norm)
-    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
+    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
   | .notCoreCommRing e lhs rhs p' lhs' =>
     let h' ← mkCommRingLinOrdThmPrefix (if c'.strict then ``Grind.CommRing.not_le_norm else ``Grind.CommRing.not_lt_norm)
-    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
+    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') eagerReflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
     let h ← mkIntModPreOrdThmPrefix (if c'.strict then ``Grind.Linarith.lt_norm else ``Grind.Linarith.le_norm)
-    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
+    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
   | .combine c₁ c₂ =>
     let (declName, c₁, c₂) :=
       match c₁.strict, c₂.strict with
@@ -213,49 +213,49 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
       | true, false => (``Grind.Linarith.le_lt_combine, c₂, c₁)
       | false, true => (``Grind.Linarith.le_lt_combine, c₁, c₂)
       | false, false => (``Grind.Linarith.le_le_combine, c₁, c₂)
-    return mkApp6 (← mkIntModPreOrdThmPrefix declName) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) reflBoolTrue
+    return mkApp6 (← mkIntModPreOrdThmPrefix declName) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) eagerReflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
   | .oneGtZero =>
     let s ← getStruct
     let h := mkApp5 (mkConst ``Grind.Linarith.zero_lt_one [s.u]) s.type (← getRingInst) (← getPreorderInst) (← getOrderedRingInst) (← getContext)
-    return mkApp3 h (← mkPolyDecl c'.p) reflBoolTrue (← mkEqRefl (← getOne))
+    return mkApp3 h (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqRefl (← getOne))
   | .ofEq a b la lb =>
     let h ← mkIntModPreOrdThmPrefix ``Grind.Linarith.le_of_eq
-    return mkApp5 h (← mkExprDecl la) (← mkExprDecl lb) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqProof a b)
+    return mkApp5 h (← mkExprDecl la) (← mkExprDecl lb) (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqProof a b)
   | .ofCommRingEq a b la lb p' lhs' =>
     let h' ← mkCommRingThmPrefix ``Grind.CommRing.eq_norm
-    let h' := mkApp5 h' (← mkRingExprDecl la) (← mkRingExprDecl lb) (← mkRingPolyDecl p') reflBoolTrue (← mkEqProof a b)
+    let h' := mkApp5 h' (← mkRingExprDecl la) (← mkRingExprDecl lb) (← mkRingPolyDecl p') eagerReflBoolTrue (← mkEqProof a b)
     let h ← mkIntModPreOrdThmPrefix ``Grind.Linarith.le_of_eq
-    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
+    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
   | .dec h => return mkFVar h
   | .ofDiseqSplit c₁ fvarId h _ =>
     let hFalse ← h.toExprProofCore
     let lt ← getLtFn
     let hNot := mkLambda `h .default (mkApp2 lt (← c₁.p.denoteExpr) (← getZero)) (hFalse.abstract #[mkFVar fvarId])
     let h ← mkIntModLinOrdThmPrefix ``Grind.Linarith.diseq_split_resolve
-    return mkApp5 h (← mkPolyDecl c₁.p) (← mkPolyDecl c'.p) reflBoolTrue (← c₁.toExprProof) hNot
+    return mkApp5 h (← mkPolyDecl c₁.p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c₁.toExprProof) hNot
   | _ => throwError "not implemented yet"
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .core a b lhs rhs =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_norm
-    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (← mkDiseqProof a b)
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkDiseqProof a b)
   | .coreCommRing a b lhs rhs p' lhs' =>
     let h' ← mkCommRingThmPrefix ``Grind.CommRing.diseq_norm
-    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') reflBoolTrue (← mkDiseqProof a b)
+    let h' := mkApp5 h' (← mkRingExprDecl lhs) (← mkRingExprDecl rhs) (← mkRingPolyDecl p') eagerReflBoolTrue (← mkDiseqProof a b)
     let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_norm
-    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) reflBoolTrue h'
+    return mkApp5 h (← mkExprDecl lhs') (← mkExprDecl .zero) (← mkPolyDecl c'.p) eagerReflBoolTrue h'
   | .neg c =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.diseq_neg
-    return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
+    return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c.toExprProof)
   | .subst k₁ k₂ c₁ c₂ =>
     let h ← mkIntModNoNatDivThmPrefix ``Grind.Linarith.eq_diseq_subst
     return mkApp8 h (toExpr k₁) (toExpr k₂) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
-      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .subst1 k c₁ c₂ =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_diseq_subst1
-    return mkApp7 h (toExpr k) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) reflBoolTrue
+    return mkApp7 h (toExpr k) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) eagerReflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
   | .oneNeZero => throwError "not implemented yet"
 
@@ -263,17 +263,17 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .core a b lhs rhs =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_norm
-    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqProof a b)
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqProof a b)
   | .coreCommRing .. => throwError "not implemented yet"
   | .neg c =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_neg
-    return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
+    return mkApp4 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c.toExprProof)
   | .coeff k c =>
     let h ← mkIntModNoNatDivThmPrefix ``Grind.Linarith.eq_coeff
-    return mkApp5 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr k) reflBoolTrue (← c.toExprProof)
+    return mkApp5 h (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr k) eagerReflBoolTrue (← c.toExprProof)
   | .subst x c₁ c₂ =>
     let h ← mkIntModThmPrefix ``Grind.Linarith.eq_eq_subst
-    return mkApp7 h (toExpr x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) reflBoolTrue
+    return mkApp7 h (toExpr x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) eagerReflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do

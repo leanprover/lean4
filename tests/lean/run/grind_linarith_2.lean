@@ -16,7 +16,8 @@ trace: [grind.debug.proof] Classical.byContradiction fun h =>
       let e_2 := Expr.intMul 0 (Expr.var 0);
       let p_1 := Poly.nil;
       diseq_unsat ctx
-        (diseq_norm ctx e_2 e_1 p_1 (Eq.refl true) (CommRing.diseq_norm rctx re_1 re_2 rp_1 (Eq.refl true) h))
+        (diseq_norm ctx e_2 e_1 p_1 (eagerReduce (Eq.refl true))
+          (CommRing.diseq_norm rctx re_1 re_2 rp_1 (eagerReduce (Eq.refl true)) h))
 -/
 #guard_msgs in
 open Linarith in

@@ -292,6 +292,7 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
   le_trans [i : LE α] (hi : i = le := by rfl) :
       ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c := by
     intro i hi
+    letI := i
     cases hi
     first
       | exact fun _ _ _ hab hbc => Trans.trans (r := (· ≤ ·)) (s := (· ≤ ·)) (t := (· ≤ ·)) hab hbc
@@ -308,44 +309,6 @@ public def PreorderPackage.ofLE (α : Type u)
   le_refl := letI := args.le; args.le_refl
   le_trans := letI := args.le; args.le_trans
 
--- public structure PreorderPackage.OfLTArgs (α : Type u) where
---   lt : LT α := by infer_instance
---   orderData [i : LT α] (hi : i = lt := by rfl) : OrderData α := by
---     first
---       | infer_instance
---       | exact fun _ => OrderData.ofLT _
---   le [i : OrderData α] (hi : i = orderData := by rfl) : LE α := by
---     first
---       | infer_instance
---       | exact fun _ => Classical.Order.instLE
---   lt_asymm : ∀ a b : α, a < b → ¬ b < a := by
---     first
---       | apply Asymm.asymm
---       | fail "Failed to automatically prove that the `LT` instance is asymmetric."
---   lawful_orderData : haveI := orderData; ∀ a b : α, a < b ↔ OrderData.IsLE a b ∧ ¬ OrderData.IsLE b a := by
---     first
---       | exact LawfulOrderLT.lt_iff
---       | fail "Failed to automatically prove that the `OrderData` and `LT` instances are compatible."
---   lawful_le : letI := orderData; letI := le; ∀ a b : α, a ≤ b ↔ ¬ b < a := by
---     first
---       | simp [Classical.Order.instLE, OrderData.ofLT]; done
---       | fail "Failed to automatically prove that the `OrderData` and `LE` instances are compatible."
-
--- @[expose]
--- public def PreorderPackage.ofLT (α : Type u) (args : OfLTArgs α := by exact {}) : PreorderPackage α where
---   toLT := args.lt
---   toOrderData := letI := args.lt; args.orderData
---   toLE := letI := args.lt; letI := args.orderData; args.le
---   toLawfulOrderLT := letI := args.lt; letI := args.orderData; ⟨args.lawful_orderData⟩
---   toLawfulOrderLE := by
---     letI := args.lt; letI := args.orderData; letI := args.le
---     haveI : LawfulOrderLT α := ⟨args.lawful_orderData⟩
---     constructor
---     simp [args.lawful_le, args.lawful_orderData]
---     have := args.lt_asymm
---     simp [args.lawful_orderData] at this
---     -- simpa [args.lawful_orderData] using args.lawful_le
-
 end Preorder
 
 section PartialOrder
@@ -354,7 +317,10 @@ public class PartialOrderPackage (α : Type u) extends
     PreorderPackage α, IsPartialOrder α
 
 public structure Packages.PartialOrderOfLEArgs (α : Type u) extends Packages.PreorderOfLEArgs α where
-  le_antisymm : ∀ a b : α, a ≤ b → b ≤ a → a = b := by
+  le_antisymm [i : LE α] (hi : i = le := by rfl) : ∀ a b : α, a ≤ b → b ≤ a → a = b := by
+    intro i hi
+    letI := i
+    cases hi
     first
       | exact Antisymm.antisymm
       | fail "Failed to automatically prove that the `LE` instance is antisymmetric. You can either ensure that an `Asymm` instance is available or manually provide the `le_antisymm` field."
@@ -363,7 +329,7 @@ public structure Packages.PartialOrderOfLEArgs (α : Type u) extends Packages.Pr
 public def PartialOrderPackage.ofLE (α : Type u)
     (args : Packages.PartialOrderOfLEArgs α := by exact {}) : PartialOrderPackage α where
   toPreorderPackage := .ofLE α args.toPreorderOfLEArgs
-  le_antisymm := args.le_antisymm
+  le_antisymm := letI := args.le; args.le_antisymm
 
 end PartialOrder
 

@@ -12,10 +12,6 @@ public import Init.Data.Order.Ord
 
 namespace Std
 
-/-
-* Factories
--/
-
 theorem compare_isLE {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
     {a b : α} : (compare a b).isLE ↔ a ≤ b := by
   simp [← LawfulOrderOrd.compare_isLE]

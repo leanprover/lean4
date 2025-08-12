@@ -317,7 +317,7 @@ Use this factory to conveniently define a preorder on a type `α` and all the as
 and instances given an `LE α` instance.
 
 Creates a `PreorderPackage α` instance. Such an instance entails `LE α`, `LT α` and
-`BEq α` instances as well as an `IsPreorder α` instance an `LawfulOrder*` instances proving the
+`BEq α` instances as well as an `IsPreorder α` instance and `LawfulOrder*` instances proving the
 compatibility of the operations with the preorder.
 
 In the presence of `LE α`, `DecidableLE α`, `Refl (· ≤ ·)` and `Trans (· ≤ ·) (· ≤ ·) (· ≤ ·)`
@@ -396,7 +396,7 @@ Use this factory to conveniently define a partial order on a type `α` and all t
 operations and instances given an `LE α` instance.
 
 Creates a `PartialOrderPackage α` instance. Such an instance entails `LE α`, `LT α` and
-`BEq α` instances as well as an `IsPartialOrder α` instance an `LawfulOrder*` instances proving the
+`BEq α` instances as well as an `IsPartialOrder α` instance and `LawfulOrder*` instances proving the
 compatibility of the operations with the preorder.
 
 In the presence of `LE α`, `DecidableLE α`, `Refl (· ≤ ·)`, `Trans (· ≤ ·) (· ≤ ·) (· ≤ ·)`

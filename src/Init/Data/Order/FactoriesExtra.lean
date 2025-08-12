@@ -33,6 +33,14 @@ public instance LawfulOrderOrd.of_ord (α : Type u) [Ord α] [OrientedOrd α] :
 
 section Packages
 
+/-!
+## Instance packages and factories for them
+
+Instance packages are classes with the sole purpose to bundle together multiple smaller classes.
+They should not be used as hypotheses, but they make it more convenient to define multiple instances
+at once.
+-/
+
 namespace FactoryInstances
 
 public scoped instance instOrdOfDecidableLE {α : Type u} [LE α] [DecidableLE α] :
@@ -57,9 +65,18 @@ public theorem compare_isGE {α : Type u} [LE α] [DecidableLE α]
 
 end FactoryInstances
 
+/--
+This class entails `LE α`, `LT α`, `BEq α` and `Ord α` instances as well as proofs that these
+operations represent the same linear preorder structure on `α`.
+-/
 public class LinearPreorderPackage (α : Type u) extends
     PreorderPackage α, Ord α, LawfulOrderOrd α, IsLinearPreorder α
 
+/--
+This structure contains all the data needed to create a `LinearPreorderPackage α` instance. Its fields
+are automatically provided if possible. For the detailed rules how the fields are inferred, see
+`LinearPreorderPackage.ofLE`.
+-/
 public structure Packages.LinearPreorderOfLEArgs (α : Type u) extends
     PreorderOfLEArgs α where
   ord [i : LE α] [DecidableLE α] (hi : i = le := by rfl) : Ord α := by
@@ -93,6 +110,49 @@ public structure Packages.LinearPreorderOfLEArgs (α : Type u) extends
         done
       | fail "Failed to automatically prove that `(compare a b).isGE` is equivalent to `b ≤ a`."
 
+/--
+Use this factory to conveniently define a linear preorder on a type `α` and all the associated
+operations and instances given an `LE α` instance.
+
+Creates a `LinearPreorderPackage α` instance. Such an instance entails `LE α`, `LT α`, `BEq α` and
+`Ord α` instances as well as an `IsLinearPreorder α` instance and `LawfulOrder*` instances proving
+the compatibility of the operations with the linear preorder.
+
+In the presence of `LE α`, `DecidableLE α`, `Total (· ≤ ·)` and `Trans (· ≤ ·) (· ≤ ·) (· ≤ ·)`
+instances, no arguments are required and the factory can be used as in this example:
+
+```lean
+public instance : LinearPreorderPackage X := .ofLE X
+```
+
+If not all of these instances are available via typeclass synthesis, it is necessary to explicitly
+provide some arguments:
+
+```lean
+public instance : LinearPreorderPackage X := .ofLE X {
+  le_total := sorry
+  le_trans := sorry }
+```
+
+It is also possible to do all of this by hand, without resorting to `LinearPreorderPackage`. This
+can be useful if, say, one wants to avoid specifying an `LT α` instance, which is not possible with
+`LinearPreorderPackage`.
+
+**How the arguments are filled**
+
+Lean tries to fill all of the fields of the `args : Packages.LinearPreorderOfLEArgs α` parameter
+automatically. If it fails, it is necessary to provide some of the fields manually.
+
+* For the data-carrying typeclasses `LE`, `LT`, `BEq` and `Ord`, existing instances are always
+  preferred. If no existing instances can be synthesized, it is attempted to derive an instance from
+  the `LE` instance.
+* Some proof obligations can be filled automatically if the data-carrying typeclasses have been
+  derived from the `LE` instance. For example: If the `beq` field is omitted and no `BEq α` instance
+  can be synthesized, it is derived from the `LE α` instance. In this case, `lawful_beq` can be
+  omitted because Lean can infer that `BEq α` and `LE α` are compatible.
+* Other proof obligations, namely `le_total` and `le_trans`, can be omitted if `Total` and `Trans`
+  instances can be synthesized.
+-/
 @[expose]
 public def LinearPreorderPackage.ofLE (α : Type u)
     (args : Packages.LinearPreorderOfLEArgs α := by exact {}) : LinearPreorderPackage α where
@@ -183,6 +243,51 @@ public theorem IsLinearPreorder.lawfulOrderMax_of_max_eq {α : Type u} [LE α]
     · simp only [iff_self_and]
       exact fun hac => le_trans (by simpa [hab] using Std.le_total (a := a) (b := b)) hac
 
+/--
+Use this factory to conveniently define a linear order on a type `α` and all the associated
+operations and instances given an `LE α` instance.
+
+Creates a `LinearPreorderPackage α` instance. Such an instance entails `LE α`, `LT α`, `BEq α` and
+`Ord α` instances as well as an `IsLinearPreorder α` instance and `LawfulOrder*` instances proving
+the compatibility of the operations with the linear order.
+
+In the presence of `LE α`, `DecidableLE α`, `Total (· ≤ ·)`, `Trans (· ≤ ·) (· ≤ ·) (· ≤ ·)` and
+`Antisymm (· ≤ ·)` instances, no arguments are required and the factory can be used as in this
+example:
+
+```lean
+public instance : LinearPreorderPackage X := .ofLE X
+```
+
+If not all of these instances are available via typeclass synthesis, it is necessary to explicitly
+provide some arguments:
+
+```lean
+public instance : LinearPreorderPackage X := .ofLE X {
+  le_total := sorry
+  le_trans := sorry
+  le_antisymm := sorry }
+```
+
+It is also possible to do all of this by hand, without resorting to `LinearOrderPackage`. This
+can be useful if, say, one wants to avoid specifying an `LT α` instance, which is not possible with
+`LinearOrderPackage`.
+
+**How the arguments are filled**
+
+Lean tries to fill all of the fields of the `args : Packages.LinearOrderOfLEArgs α` parameter
+automatically. If it fails, it is necessary to provide some of the fields manually.
+
+* For the data-carrying typeclasses `LE`, `LT`, `BEq` and `Ord`, existing instances are always
+  preferred. If no existing instances can be synthesized, it is attempted to derive an instance from
+  the `LE` instance.
+* Some proof obligations can be filled automatically if the data-carrying typeclasses have been
+  derived from the `LE` instance. For example: If the `beq` field is omitted and no `BEq α` instance
+  can be synthesized, it is derived from the `LE α` instance. In this case, `lawful_beq` can be
+  omitted because Lean can infer that `BEq α` and `LE α` are compatible.
+* Other proof obligations, namely `le_total`, `le_trans` and `le_antisymm`, can be omitted if
+  `Total`, `Trans` and `Antisymm` instances can be synthesized.
+-/
 @[expose]
 public def LinearOrderPackage.ofLE (α : Type u)
     (args : Packages.LinearOrderOfLEArgs α := by exact {}) : LinearOrderPackage α where

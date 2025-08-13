@@ -1,0 +1,113 @@
+/-!
+This test exercises the elaborator's positivity check for inductive data types, and related
+checks around nested induction.
+-/
+
+/--
+error: In argument #1 of constructor Bad.mk:
+  Non-positive occurrence of inductive type `Bad`
+-/
+#guard_msgs in
+inductive Bad where
+  | mk : (Bad → Bad) → Bad
+
+/--
+error: In argument #1 of constructor Bad1.mk:
+  Non-positive occurrence of inductive type `Bad2`
+-/
+#guard_msgs in
+mutual
+inductive Bad1 where
+  | mk : (Bad2 → Bad2) → Bad1
+inductive Bad2 where
+  | mk : (Bad1 → Bad1) → Bad2
+end
+
+inductive Ok1 where
+  | mk : id Ok1 → Ok1
+
+
+axiom T : Type → Type
+
+/--
+error: In argument #1 of constructor Bad3.mk:
+  Non-positive occurrence of inductive type `Bad3`: Nested occurrenes can only occur in inductive types, not in `T`.
+-/
+#guard_msgs in
+inductive Bad3 where
+  | mk : T Bad3 → Bad3
+
+inductive Ok2 where
+  | mk : List Ok2 → Ok2
+
+/--
+error: Mismatched inductive type parameter in
+  Bad4 (α × α)
+The provided argument
+  α × α
+is not definitionally equal to the expected parameter
+  α
+
+Note: The value of parameter 'α' must be fixed throughout the inductive declaration. Consider making this parameter an index if it must vary.
+-/
+#guard_msgs in
+inductive Bad4 (α : Type) : Type where
+  | mk : Bad4 (α × α) → Bad4 α
+
+inductive Nest5 (f : Nat → Type) where
+  | mk : f 5 → Nest5 f
+
+inductive Ok5 : Nat → Type where
+  | mk : Nest5 Ok5 → Ok5 n
+
+inductive Nest6 (f : Nat → Type) where
+  | mk : f n → Nest6 f
+
+inductive Ok6 : Nat → Type where
+  | mk : Nest6 Ok6 → Ok6 n
+
+inductive Nest7 (n : Nat) (f : Nat → Type) where
+  | mk : f n → Nest7 n f
+
+/--
+error: In argument #2 of constructor Bad7.mk:
+  Nested inductive datatype parameters cannot contain local variable `n`.
+-/
+#guard_msgs in
+inductive Bad7 : Nat → Type where
+  | mk : Nest7 n Bad7 → Bad7 n
+
+inductive Good7 (n : Nat) : Nat → Type where
+  | mk : Nest7 n (Good7 n) → Good7 n n
+
+inductive Nest8 (α : Type) : (β : Type) → Type  where
+  | mk : α → Nest8 α Bool
+
+inductive Ok8 : Type where
+  | mk : Nest8 Ok8 Unit → Ok8
+
+/--
+error: In argument #1 of constructor Bad8.mk:
+  Invalid occurrence of inductive type `Bad8`, must not occur in index of `Nest8`
+-/
+#guard_msgs in
+inductive Bad8 : Type where
+  | mk : Nest8 Unit Bad8 → Bad8
+
+inductive Nest9 (α : Type) : Type  where
+  | mk : (α → α) → Nest9 α
+
+inductive Bad9 where
+  | mk : Nest9 Bad9 → Bad9
+
+inductive Nest10 (α : Type) : Type  where
+  | mk : α  → Nest10 α
+
+inductive Ok10 where
+  | mk : Nest10 (Bool -> Ok10) → Ok10
+
+inductive Nest11 (α : Bool → Type) : Type  where
+  | mk : α true → Nest11 α
+
+inductive Ok11  : Bool → Type where
+  | mk : Nest11 Ok11 → Ok11 true

@@ -287,7 +287,7 @@ theorem fib_triple_vcs : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec
 
 theorem fib_correct {n} : (fib_impl n).run = fib_spec n := by
   generalize h : (fib_impl n).run = x
-  apply Id.by_wp h
+  apply Id.of_wp_run_eq h
   apply fib_triple
 
 end fib
@@ -550,7 +550,7 @@ def check_all (p : Nat → Prop) [DecidablePred p] (n : Nat) : Bool := Id.run do
 example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     (∀ i, i < n → p i) ↔ check_all p n := by
   generalize h : check_all p n = x
-  apply Id.by_wp h
+  apply Id.of_wp_run_eq h
   mvcgen
   case inv1 =>
     exact Invariant.withEarlyReturn
@@ -602,7 +602,7 @@ instance Result.instWPMonad : WPMonad Result (.except Error .pure) where
     ext Q
     cases x <;> simp [PredTrans.bind, PredTrans.const]
 
-theorem Result.by_wp {α} {x : Result α} (P : Result α → Prop) :
+theorem Result.of_wp {α} {x : Result α} (P : Result α → Prop) :
   (⊢ₛ wp⟦x⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.fail e)⌝⟩) → P x := by
     intro hspec
     simp only [instWP] at hspec
@@ -815,9 +815,9 @@ def mergeWithAll (m₁ m₂ : ExtTreeMap α β cmp) (f : α → Option β → Op
 theorem mem_mergeWithAll [LawfulEqCmp cmp] {m₁ m₂ : ExtTreeMap α β cmp} {f : α → Option β → Option β → Option β} {a : α} :
     a ∈ mergeWithAll m₁ m₂ f ↔ (a ∈ m₁ ∨ a ∈ m₂) ∧ (f a m₁[a]? m₂[a]?).isSome := by
   generalize h : mergeWithAll m₁ m₂ f = x
-  apply Id.by_wp h
+  apply Id.of_wp_run_eq h
   mvcgen
-  -- this was only to demonstrate that `Id.by_wp` and `mvcgen` applies here despite the universe polymorphism
+  -- this was only to demonstrate that `Id.of_wp_run_eq` and `mvcgen` applies here despite the universe polymorphism
   admit
 
 end KimsUnivPolyUseCase
@@ -849,14 +849,14 @@ open Std.Do
 
 theorem naive_expo_correct (x n : Nat) : naive_expo x n = x^n := by
   generalize h : naive_expo x n = r
-  apply Id.by_wp h
+  apply Id.of_wp_run_eq h
   mvcgen
   case inv1 => exact ⇓⟨xs, r⟩ => ⌜r = x^xs.rpref.length⌝
   all_goals simp_all [Nat.pow_add_one]
 
 theorem fast_expo_correct (x n : Nat) : fast_expo x n = x^n := by
   generalize h : fast_expo x n = r
-  apply Id.by_wp h
+  apply Id.of_wp_run_eq h
   mvcgen
   case inv1 => exact ⇓⟨xs, e, x', y⟩ => ⌜x' ^ e * y = x ^ n ∧ e ≤ n - xs.rpref.length⌝
   all_goals simp_all
@@ -903,7 +903,7 @@ def nodup (l : List Int) : Bool := Id.run do
 
 theorem nodup_correct (l : List Int) : nodup l ↔ l.Nodup := by
   generalize h : nodup l = r
-  apply Id.by_wp h
+  apply Id.of_wp_run_eq h
   mvcgen
   case inv1 =>
     exact Invariant.withEarlyReturn
@@ -938,6 +938,27 @@ def mkFreshN (n : Nat) : StateM Supply (List Nat) := do
     acc := acc.push (← mkFresh)
   pure acc.toList
 
+namespace Noncompositional
+
+theorem mkFreshN_correct (n : Nat) : ((mkFreshN n).run' s).Nodup := by
+  generalize h : (mkFreshN n).run' s = x
+  apply StateM.of_wp_run'_eq h
+  mvcgen [mkFreshN, mkFresh]
+  case inv1 => exact ⇓⟨xs, acc⟩ state => ⌜(∀ x ∈ acc, x < state.counter) ∧ acc.toList.Nodup⌝
+  all_goals mleave; grind
+
+theorem mkFreshN_correct_directly (n : Nat) : ((mkFreshN n).run' s).run.Nodup := by
+  simp [mkFreshN, mkFresh]
+  generalize hacc : #[] = acc
+  change ?prog.Nodup
+  suffices h : acc.toList.Nodup → (∀ x ∈ acc, x < s.counter) → ?prog.Nodup by grind
+  clear hacc
+  induction List.range' 0 n generalizing acc s with (simp_all; try grind)
+
+end Noncompositional
+
+namespace Compositional
+
 @[spec]
 theorem mkFresh_spec (c : Nat) : ⦃fun state => ⌜state.counter = c⌝⦄ mkFresh ⦃⇓ r state => ⌜r = c ∧ c < state.counter⌝⦄ := by
   mvcgen [mkFresh]
@@ -951,6 +972,8 @@ theorem mkFreshN_spec (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.N
 
 theorem mkFreshN_correct (n : Nat) : ((mkFreshN n).run' s).Nodup :=
   mkFreshN_spec n s True.intro
+
+end Compositional
 
 end Fresh
 
@@ -970,8 +993,9 @@ abbrev liftCounterM : StateT Supply (StateM String) α → AppM α := liftM
 def mkFreshN (n : Nat) : AppM (List Nat) := do
   let mut acc := #[]
   for _ in [:n] do
-    acc := acc.push (← liftCounterM mkFresh)
-  pure acc.toList
+    let n ← liftCounterM mkFresh
+    acc := acc.push n
+  return acc.toList
 
 @[spec]
 theorem mkFresh_spec [Monad m] [WPMonad m ps] (c : Nat) :
@@ -982,7 +1006,7 @@ theorem mkFresh_spec [Monad m] [WPMonad m ps] (c : Nat) :
 @[spec]
 theorem mkFreshN_spec (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
   mvcgen [mkFreshN, liftCounterM]
-  case inv1 => exact ⇓⟨xs, acc⟩ _ state => ⌜(∀ x ∈ acc, x < state.counter) ∧ acc.toList.Nodup⌝
+  case inv1 => exact ⇓⟨xs, acc⟩ _ state => ⌜(∀ n ∈ acc, n < state.counter) ∧ acc.toList.Nodup⌝
   all_goals mleave; grind
 
 theorem mkFreshN_correct (n : Nat) : (((StateT.run' (mkFreshN n) b).run' c).run' s).Nodup :=

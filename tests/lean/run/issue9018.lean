@@ -69,24 +69,22 @@ inductive BaseFoo (t : Type u -> Type v) (α : Type u)
 | some (v : t α)
 
 /--
-error: (kernel) application type mismatch
-  Eq.trans (congrArg (Nat.add 1) (Foo3._sizeOf_3_eq v))
-    (Eq.symm
-      (@BaseFoo.some.sizeOf_spec Box Foo3 (fun a => @Box._sizeOf_inst a (instSizeOfDefault a)) Foo3._sizeOf_inst v))
-argument has type
-  1 + sizeOf v = sizeOf (@BaseFoo.some Box Foo3 v)
-but function has type
-  Nat.add 1 (sizeOf v) = sizeOf (@BaseFoo.some Box Foo3 v) →
-    Nat.add 1 (Foo3._sizeOf_3 v) = sizeOf (@BaseFoo.some Box Foo3 v)
+error: In argument #1 of constructor Foo3.mk:
+  Invalid occurrence of inductive type `Foo3`, parameter #2 of `BaseFoo` is not positive.
+  ⏎
+  Note: That parameter is not positive:
+    Non-positive occurrence of parameter `α` in type of BaseFoo.some, cannot nest through t
 -/
 #guard_msgs(pass trace, all) in
 structure Foo3 where
   raw : BaseFoo Box Foo3
 
 /--
-error: maximum recursion depth has been reached
-use `set_option maxRecDepth <num>` to increase limit
-use `set_option diagnostics true` to get diagnostic information
+error: In argument #1 of constructor Foo4.mk:
+  Invalid occurrence of inductive type `Foo4`, parameter #2 of `BaseFoo` is not positive.
+  ⏎
+  Note: That parameter is not positive:
+    Non-positive occurrence of parameter `α` in type of BaseFoo.some, cannot nest through t
 -/
 #guard_msgs(pass trace, all) in
 structure Foo4 where

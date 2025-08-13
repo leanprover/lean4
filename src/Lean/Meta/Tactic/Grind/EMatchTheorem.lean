@@ -1151,6 +1151,69 @@ private def collectUsedPriorities (prios : SymbolPriorities) (searchPlaces : Arr
   else
     return r.qsort fun p₁ p₂ => p₁ > p₂
 
+/-- Helper function for collecting all singleton patterns. -/
+private partial def collectSingletons (e : Expr) : StateT (Array (Expr × List HeadIndex)) CollectorM Unit := do
+  match e with
+  | .app .. =>
+    trace[grind.debug.ematch.pattern] "collect: {e}"
+    let f := e.getAppFn
+    let argKinds ← NormalizePattern.getPatternArgKinds f e.getAppNumArgs
+    if (← isPatternFnCandidate f) then
+      -- Reset collector and normalizer states. Recall that we are collecting singleton patterns only.
+      set { : NormalizePattern.State }
+      set { : Collector.State }
+      try
+        trace[grind.debug.ematch.pattern] "candidate: {e}"
+        let p := e.abstract (← read).xs
+        unless p.hasLooseBVars do
+          trace[grind.debug.ematch.pattern] "skip, does not contain pattern variables"
+          return ()
+        let p ← NormalizePattern.normalizePattern p
+        addNewPattern p
+        if (← getThe Collector.State).done then
+          let p := (← getThe Collector.State).patterns.back!
+          let idxs := (← getThe NormalizePattern.State).symbols
+          if (← get).all fun (p', _) => p != p' then
+            modify fun s => s.push (p, idxs.toList)
+      catch ex =>
+        trace[grind.debug.ematch.pattern] "skip, exception during normalization{indentD ex.toMessageData}"
+    let args := e.getAppArgs
+    for arg in args, argKind in argKinds do
+      trace[grind.debug.ematch.pattern] "arg: {arg}, support: {argKind.isSupport}"
+      unless argKind.isSupport do
+        collectSingletons arg
+  | .forallE _ d b _ =>
+    if (← pure e.isArrow <&&> isProp d <&&> isProp b) then
+      collectSingletons d
+      collectSingletons b
+  | _ => return ()
+
+/--
+Collects all singleton patterns in the type of the given proof.
+We use this function to implement local forall expressions in a `grind` goal.
+-/
+def mkEMatchTheoremUsingSingletonPatterns (origin : Origin) (levelParams : Array Name) (proof : Expr) (minPrio : Nat) (symPrios : SymbolPriorities)
+    (showInfo := false) : MetaM (Array EMatchTheorem) := do
+  let type ← inferEMatchProofType proof (gen := false)
+  withReducible <| forallTelescopeReducing type fun xs type => withDefault do
+    let (_, s) ← go xs type |>.run {} |>.run { proof, xs } |>.run' {} { symPrios, minPrio } |>.run' {}
+    let numParams := xs.size
+    let mut thms := #[]
+    for (p, symbols) in s do
+      let patterns := [p]
+      logPatternWhen showInfo origin patterns
+      let thm : EMatchTheorem := {
+        proof, patterns, numParams, symbols,
+        levelParams, origin, kind := .default false
+      }
+      thms := thms.push thm
+    return thms
+where
+  go (xs : Array Expr) (type : Expr) : StateT (Array (Expr × List HeadIndex)) CollectorM Unit := do
+    for x in xs do
+      collectSingletons (← inferType x)
+    collectSingletons type
+
 /--
 Creates an E-match theorem using the given proof and kind.
 If `groundPatterns` is `true`, it accepts patterns without pattern variables. This is useful for

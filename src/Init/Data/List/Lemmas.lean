@@ -1084,6 +1084,12 @@ theorem getLast?_tail {l : List α} : (tail l).getLast? = if l.length = 1 then n
     rw [if_neg]
     rintro ⟨⟩
 
+@[simp, grind =]
+theorem cons_head_tail (h : l ≠ []) : l.head h :: l.tail = l := by
+  induction l with
+  | nil => contradiction
+  | cons ih => simp_all
+
 /-! ## Basic operations -/
 
 /-! ### map -/

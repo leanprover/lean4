@@ -139,29 +139,29 @@ private def mkIntModNoNatDivThmPrefix (declName : Name) : ProofM Expr := do
 
 /--
 Returns the prefix of a theorem with name `declName` where the first four arguments are
-`{α} [IntModule α] [Preorder α] (ctx : Context α)`
+`{α} [IntModule α] [LE α] [LT α] [Preorder α] (ctx : Context α)`
 -/
 private def mkIntModPreThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp4 (mkConst declName [s.u]) s.type s.intModuleInst (← getPreorderInst) (← getContext)
+  return mkApp6 (mkConst declName [s.u]) s.type s.intModuleInst (← getLEInst) (← getLTInst) (← getPreorderInst) (← getContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
-`{α} [IntModule α] [Preorder α] [OrderedAdd α] (ctx : Context α)`
+`{α} [IntModule α] [LE α] [LT α] [Preorder α] [OrderedAdd α] (ctx : Context α)`
 This is the most common theorem prefix at `Linarith.lean`
 -/
 private def mkIntModPreOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst (← getPreorderInst) (← getOrderedAddInst) (← getContext)
+  return mkApp7 (mkConst declName [s.u]) s.type s.intModuleInst (← getLEInst) (← getLTInst) (← getPreorderInst) (← getOrderedAddInst) (← getContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
-`{α} [IntModule α] [LinearOrder α] [OrderedAdd α] (ctx : Context α)`
+`{α} [IntModule α] [LE α] [LT α] [LinearOrder α] [OrderedAdd α] (ctx : Context α)`
 This is the most common theorem prefix at `Linarith.lean`
 -/
 private def mkIntModLinOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type s.intModuleInst (← getLinearOrderInst) (← getOrderedAddInst) (← getContext)
+  return mkApp7 (mkConst declName [s.u]) s.type s.intModuleInst (← getLEInst) (← getLTInst) (← getLinearOrderInst) (← getOrderedAddInst) (← getContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first three arguments are
@@ -173,19 +173,19 @@ private def mkCommRingThmPrefix (declName : Name) : ProofM Expr := do
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
-`{α} [CommRing α] [Preorder α] [OrderedRing α] (rctx : Context α)`
+`{α} [CommRing α] [LE α] [LT α] [Preorder α] [OrderedRing α] (rctx : Context α)`
 -/
 private def mkCommRingPreOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getPreorderInst) (← getOrderedRingInst) (← getRingContext)
+  return mkApp7 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLEInst) (← getLTInst) (← getPreorderInst) (← getOrderedRingInst) (← getRingContext)
 
 /--
 Returns the prefix of a theorem with name `declName` where the first five arguments are
-`{α} [CommRing α] [LinearOrder α] [OrderedRing α] (rctx : Context α)`
+`{α} [CommRing α] [LE α] [LT α] [LinearOrder α] [OrderedRing α] (rctx : Context α)`
 -/
 private def mkCommRingLinOrdThmPrefix (declName : Name) : ProofM Expr := do
   let s ← getStruct
-  return mkApp5 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLinearOrderInst) (← getOrderedRingInst) (← getRingContext)
+  return mkApp7 (mkConst declName [s.u]) s.type (← getCommRingInst) (← getLEInst) (← getLTInst) (← getLinearOrderInst) (← getOrderedRingInst) (← getRingContext)
 
 mutual
 partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' do
@@ -217,7 +217,7 @@ partial def IneqCnstr.toExprProof (c' : IneqCnstr) : ProofM Expr := caching c' d
       (← c₁.toExprProof) (← c₂.toExprProof)
   | .oneGtZero =>
     let s ← getStruct
-    let h := mkApp5 (mkConst ``Grind.Linarith.zero_lt_one [s.u]) s.type (← getRingInst) (← getPreorderInst) (← getOrderedRingInst) (← getContext)
+    let h := mkApp7 (mkConst ``Grind.Linarith.zero_lt_one [s.u]) s.type (← getRingInst) (← getLEInst) (← getLTInst) (← getPreorderInst) (← getOrderedRingInst) (← getContext)
     return mkApp3 h (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqRefl (← getOne))
   | .ofEq a b la lb =>
     let h ← mkIntModPreOrdThmPrefix ``Grind.Linarith.le_of_eq

@@ -97,6 +97,10 @@ structure Struct where
   u                : Level
   /-- `IntModule` instance -/
   intModuleInst    : Expr
+  /-- `LE` instance if available -/
+  leInst?          : Option Expr
+  /-- `LT` instance if available -/
+  ltInst?          : Option Expr
   /-- `Preorder` instance if available -/
   preorderInst?    : Option Expr
   /-- `OrderedAdd` instance with `Preorder` if available -/

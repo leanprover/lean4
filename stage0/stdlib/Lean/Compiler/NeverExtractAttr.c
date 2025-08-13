@@ -17,14 +17,12 @@ lean_object* l_Lean_addBuiltinDocString(lean_object*, lean_object*, lean_object*
 static lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_hasNeverExtractAttribute___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___closed__5;
-static lean_object* l_Lean_hasNeverExtractAttribute_visit___closed__0;
 static lean_object* l_Lean_initFn___closed__2____x40_Lean_Compiler_NeverExtractAttr___hyg_4_;
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_neverExtractAttr;
 static lean_object* l_Lean_initFn___closed__5____x40_Lean_Compiler_NeverExtractAttr___hyg_4_;
 static lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___closed__0;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___hyg_4_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_hasNeverExtractAttribute_visit___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___closed__4;
 static lean_object* l_Lean_initFn___closed__4____x40_Lean_Compiler_NeverExtractAttr___hyg_4_;
 uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
@@ -38,12 +36,14 @@ lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object
 static lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3(lean_object*);
 static lean_object* l_Lean_initFn___closed__0____x40_Lean_Compiler_NeverExtractAttr___hyg_4_;
+LEAN_EXPORT uint8_t l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_docString__1___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_docString__1(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_neverExtractAttr___regBuiltin_Lean_neverExtractAttr_declRange__3___closed__6;
+static lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___closed__0;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_hasNeverExtractAttribute_visit(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isInternal(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn___lam__0____x40_Lean_Compiler_NeverExtractAttr___hyg_4_(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
@@ -252,7 +252,7 @@ x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_hasNeverExtractAttribute_visit___closed__0() {
+static lean_object* _init_l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___closed__0() {
 _start:
 {
 lean_object* x_1; 
@@ -260,11 +260,11 @@ x_1 = l_Lean_neverExtractAttr;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_hasNeverExtractAttribute_visit(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lean_hasNeverExtractAttribute_visit___closed__0;
+x_3 = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___closed__0;
 lean_inc(x_2);
 lean_inc_ref(x_1);
 x_4 = l_Lean_TagAttribute_hasTag(x_3, x_1, x_2);
@@ -303,11 +303,11 @@ return x_4;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_hasNeverExtractAttribute_visit___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_hasNeverExtractAttribute_visit(x_1, x_2);
+x_3 = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -316,7 +316,7 @@ LEAN_EXPORT uint8_t l_Lean_hasNeverExtractAttribute(lean_object* x_1, lean_objec
 _start:
 {
 uint8_t x_3; 
-x_3 = l_Lean_hasNeverExtractAttribute_visit(x_1, x_2);
+x_3 = l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit(x_1, x_2);
 return x_3;
 }
 }
@@ -381,8 +381,8 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_neverExtractAttr = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_neverExtractAttr);
 lean_dec_ref(res);
-}l_Lean_hasNeverExtractAttribute_visit___closed__0 = _init_l_Lean_hasNeverExtractAttribute_visit___closed__0();
-lean_mark_persistent(l_Lean_hasNeverExtractAttribute_visit___closed__0);
+}l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___closed__0 = _init_l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___closed__0();
+lean_mark_persistent(l___private_Lean_Compiler_NeverExtractAttr_0__Lean_hasNeverExtractAttribute_visit___closed__0);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

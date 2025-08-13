@@ -441,17 +441,18 @@ def EMatchTheorems.erase (s : EMatchTheorems) (origin : Origin) : EMatchTheorems
 def EMatchTheorems.isErased (s : EMatchTheorems) (origin : Origin) : Bool :=
   s.erased.contains origin
 
-/-- Returns `true` if there is a theorem with exactly the same kind is already in `s` -/
-def EMatchTheorems.containsWithSameKind (s : EMatchTheorems) (origin : Origin) (kind : EMatchTheoremKind) : Bool :=
-  match kind with
-  | .eqBoth gen => go (.eqLhs gen) && go (.eqRhs gen)
-  | _ => go kind
-where
-  go (kind : EMatchTheoremKind) : Bool :=
-    if let some thms := s.omap.find? origin then
-      thms.any fun thm => thm.kind == kind
-    else
-      false
+/-- Returns `true` if there is a theorem with exactly the same pattern is already in `s` -/
+def EMatchTheorems.containsWithSamePatterns (s : EMatchTheorems) (origin : Origin) (patterns : List Expr) : Bool :=
+  if let some thms := s.omap.find? origin then
+    thms.any fun thm => thm.patterns == patterns
+  else
+    false
+
+def EMatchTheorems.getKindsFor (s : EMatchTheorems) (origin : Origin) : List EMatchTheoremKind :=
+  if let some thms := s.omap.find? origin then
+    thms.map (·.kind)
+  else
+    []
 
 /--
 Retrieves theorems from `s` associated with the given symbol. See `EMatchTheorem.insert`.
@@ -963,6 +964,9 @@ def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
 /-- Returns the E-matching theorems registered in the environment. -/
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
+
+def EMatchTheorems.getOrigins (s : EMatchTheorems) : List Origin :=
+  s.origins.toList
 
 /-- Returns the types of `xs` that are propositions. -/
 private def getPropTypes (xs : Array Expr) : MetaM (Array Expr) :=

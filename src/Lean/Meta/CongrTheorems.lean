@@ -295,9 +295,7 @@ private partial def mkCast (fvarId : FVarId) (type : Expr) (deps : Array Nat) (e
       mvarId := mvarId'
   let fvarId := getFVarId s fvarId
   mvarId.assign (mkFVar fvarId)
-  let r ← instantiateMVars mvar
-  trace[Meta.debug] "{r} : {← inferType r}"
-  return r
+  instantiateMVars mvar
 
 /--
 Creates a congruence theorem that is useful for the simplifier and `congr` tactic.

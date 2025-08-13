@@ -978,13 +978,9 @@ if (x_142 == 0)
 {
 lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; uint8_t x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; uint8_t x_151; uint8_t x_152; 
 x_143 = lean_ctor_get(x_7, 0);
-lean_inc_ref(x_143);
 x_144 = lean_ctor_get(x_7, 1);
-lean_inc_ref(x_144);
 x_145 = lean_ctor_get(x_7, 2);
-lean_inc(x_145);
 x_146 = lean_ctor_get(x_7, 5);
-lean_inc(x_146);
 x_147 = lean_ctor_get_uint8(x_7, sizeof(void*)*13 + 1);
 x_148 = lean_box(x_142);
 x_149 = lean_box(x_147);
@@ -995,7 +991,9 @@ x_151 = 1;
 x_152 = l_Lean_beqMessageSeverity____x40_Lean_Message___hyg_187_(x_3, x_151);
 if (x_152 == 0)
 {
-lean_dec(x_145);
+lean_inc_ref(x_143);
+lean_inc(x_146);
+lean_inc_ref(x_144);
 x_134 = x_144;
 x_135 = x_147;
 x_136 = x_150;
@@ -1010,7 +1008,9 @@ else
 lean_object* x_153; uint8_t x_154; 
 x_153 = l_Lean_logAt___at___Lean_log___at___Lean_logWarning___at_____aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1_spec__1_spec__1_spec__1___redArg___closed__1;
 x_154 = l_Lean_Option_get___at___Lean_logAt___at___Lean_log___at___Lean_logWarning___at_____aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1_spec__1_spec__1_spec__1_spec__2(x_145, x_153);
-lean_dec(x_145);
+lean_inc_ref(x_143);
+lean_inc(x_146);
+lean_inc_ref(x_144);
 x_134 = x_144;
 x_135 = x_147;
 x_136 = x_150;

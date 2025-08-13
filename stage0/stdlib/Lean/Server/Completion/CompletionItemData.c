@@ -17,7 +17,6 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Lsp_toJsonCompletionItemData___closed__0____x40_Lean_Server_Completion_CompletionItemData___hyg_85_;
 lean_object* l_Lean_Json_mkObj(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceCompletionItem;
-LEAN_EXPORT lean_object* l_List_flatMapTR_go___at___Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData___hyg_85__spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData___hyg_18__spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData___hyg_85_(lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__3____x40_Lean_Server_Completion_CompletionItemData___hyg_18_;
@@ -41,6 +40,7 @@ static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__1____x40_Lea
 static lean_object* l_Lean_Lsp_instFromJsonCompletionItemData___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData___hyg_18_(lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__8____x40_Lean_Server_Completion_CompletionItemData___hyg_18_;
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData___hyg_85__spec__0(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonCompletionItemData___closed__11____x40_Lean_Server_Completion_CompletionItemData___hyg_18_;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonCompletionItemData;
@@ -287,7 +287,7 @@ x_1 = l_Lean_Lsp_instFromJsonCompletionItemData___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_List_flatMapTR_go___at___Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData___hyg_85__spec__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData___hyg_85__spec__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -323,7 +323,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData___hyg_85_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_2 = l_Lean_Lsp_fromJsonCompletionItemData___closed__0____x40_Lean_Server_Completion_CompletionItemData___hyg_18_;
 x_3 = l_Lean_Lsp_toJsonCompletionParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_3081_(x_1);
 x_4 = lean_alloc_ctor(0, 2, 0);
@@ -333,14 +333,13 @@ x_5 = lean_box(0);
 x_6 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_6, 0, x_4);
 lean_ctor_set(x_6, 1, x_5);
-x_7 = lean_box(0);
-x_8 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_8, 0, x_6);
-lean_ctor_set(x_8, 1, x_7);
-x_9 = l_Lean_Lsp_toJsonCompletionItemData___closed__0____x40_Lean_Server_Completion_CompletionItemData___hyg_85_;
-x_10 = l_List_flatMapTR_go___at___Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData___hyg_85__spec__0(x_8, x_9);
-x_11 = l_Lean_Json_mkObj(x_10);
-return x_11;
+x_7 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_5);
+x_8 = l_Lean_Lsp_toJsonCompletionItemData___closed__0____x40_Lean_Server_Completion_CompletionItemData___hyg_85_;
+x_9 = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_Completion_CompletionItemData___hyg_85__spec__0(x_7, x_8);
+x_10 = l_Lean_Json_mkObj(x_9);
+return x_10;
 }
 }
 static lean_object* _init_l_Lean_Lsp_instToJsonCompletionItemData___closed__0() {
@@ -405,7 +404,6 @@ _start:
 {
 lean_object* x_2; lean_object* x_10; 
 x_10 = lean_ctor_get(x_1, 6);
-lean_inc(x_10);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
@@ -421,6 +419,7 @@ goto block_9;
 else
 {
 lean_object* x_14; lean_object* x_15; 
+lean_inc_ref(x_10);
 lean_dec_ref(x_1);
 x_14 = lean_ctor_get(x_10, 0);
 lean_inc(x_14);

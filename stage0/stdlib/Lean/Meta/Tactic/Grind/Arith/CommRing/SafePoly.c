@@ -1052,25 +1052,19 @@ else
 {
 lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; uint8_t x_66; 
 x_60 = lean_ctor_get(x_1, 0);
-lean_inc(x_60);
 x_61 = lean_ctor_get(x_1, 1);
-lean_inc(x_61);
 x_62 = lean_ctor_get(x_1, 2);
-lean_inc_ref(x_62);
 x_63 = lean_ctor_get(x_2, 0);
-lean_inc(x_63);
 x_64 = lean_ctor_get(x_2, 1);
-lean_inc(x_64);
 x_65 = lean_ctor_get(x_2, 2);
-lean_inc_ref(x_65);
 x_66 = l_Lean_Grind_CommRing_Mon_grevlex(x_61, x_64);
 switch (x_66) {
 case 0:
 {
 uint8_t x_67; 
-lean_dec_ref(x_62);
-lean_dec(x_61);
-lean_dec(x_60);
+lean_inc_ref(x_65);
+lean_inc(x_64);
+lean_inc(x_63);
 x_67 = !lean_is_exclusive(x_2);
 if (x_67 == 0)
 {
@@ -1161,7 +1155,11 @@ return x_77;
 case 1:
 {
 uint8_t x_83; 
-lean_dec(x_64);
+lean_inc_ref(x_65);
+lean_inc(x_63);
+lean_inc_ref(x_62);
+lean_inc(x_61);
+lean_inc(x_60);
 lean_dec_ref(x_1);
 x_83 = !lean_is_exclusive(x_2);
 if (x_83 == 0)
@@ -1369,9 +1367,9 @@ return x_120;
 default: 
 {
 lean_object* x_121; uint8_t x_122; 
-lean_dec_ref(x_65);
-lean_dec(x_64);
-lean_dec(x_63);
+lean_inc_ref(x_62);
+lean_inc(x_61);
+lean_inc(x_60);
 lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_121 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_SafePoly_0__Lean_Meta_Grind_Arith_CommRing_combine(x_62, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
@@ -1651,25 +1649,19 @@ else
 {
 lean_object* x_174; lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; uint8_t x_180; 
 x_174 = lean_ctor_get(x_1, 0);
-lean_inc(x_174);
 x_175 = lean_ctor_get(x_1, 1);
-lean_inc(x_175);
 x_176 = lean_ctor_get(x_1, 2);
-lean_inc_ref(x_176);
 x_177 = lean_ctor_get(x_2, 0);
-lean_inc(x_177);
 x_178 = lean_ctor_get(x_2, 1);
-lean_inc(x_178);
 x_179 = lean_ctor_get(x_2, 2);
-lean_inc_ref(x_179);
 x_180 = l_Lean_Grind_CommRing_Mon_grevlex(x_175, x_178);
 switch (x_180) {
 case 0:
 {
 lean_object* x_181; lean_object* x_182; 
-lean_dec_ref(x_176);
-lean_dec(x_175);
-lean_dec(x_174);
+lean_inc_ref(x_179);
+lean_inc(x_178);
+lean_inc(x_177);
 if (lean_is_exclusive(x_2)) {
  lean_ctor_release(x_2, 0);
  lean_ctor_release(x_2, 1);
@@ -1723,7 +1715,11 @@ return x_182;
 case 1:
 {
 lean_object* x_188; lean_object* x_189; lean_object* x_190; 
-lean_dec(x_178);
+lean_inc_ref(x_179);
+lean_inc(x_177);
+lean_inc_ref(x_176);
+lean_inc(x_175);
+lean_inc(x_174);
 lean_dec_ref(x_1);
 if (lean_is_exclusive(x_2)) {
  lean_ctor_release(x_2, 0);
@@ -1837,9 +1833,9 @@ return x_205;
 default: 
 {
 lean_object* x_206; lean_object* x_207; 
-lean_dec_ref(x_179);
-lean_dec(x_178);
-lean_dec(x_177);
+lean_inc_ref(x_176);
+lean_inc(x_175);
+lean_inc(x_174);
 lean_dec_ref(x_1);
 lean_inc_ref(x_2);
 x_206 = l___private_Lean_Meta_Tactic_Grind_Arith_CommRing_SafePoly_0__Lean_Meta_Grind_Arith_CommRing_combine(x_176, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_155, x_11, x_12);

@@ -45,7 +45,13 @@ partial def genVCs (goal : MVarId) (ctx : Context) (fuel : Fuel) : MetaM (Array 
   mvar.withContext <| withReducible do
     let (prf, state) ← StateRefT'.run (ReaderT.run (onGoal goal (← mvar.getTag)) ctx) { fuel }
     mvar.assign prf
-    return state.vcs
+    for h : idx in [:state.invariants.size] do
+      let mv := state.invariants[idx]
+      mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
+    for h : idx in [:state.vcs.size] do
+      let mv := state.vcs[idx]
+      mv.setTag (Name.mkSimple ("vc" ++ toString (idx + 1)) ++ (← mv.getTag))
+    return state.invariants ++ state.vcs
 where
   onFail (goal : MGoal) (name : Name) : VCGenM Expr := do
     -- trace[Elab.Tactic.Do.vcgen] "fail {goal.toExpr}"
@@ -70,15 +76,20 @@ where
       mvar.withContext <| do
       -- trace[Elab.Tactic.Do.vcgen] "assignMVars {← mvar.getTag}, isDelayedAssigned: {← mvar.isDelayedAssigned},\n{mvar}"
       let ty ← mvar.getType
-      if (← isProp ty) || ty.isAppOf ``PostCond || ty.isAppOf ``SPred then
-        -- This code path will re-introduce `mvar` as a synthetic opaque goal upon discharge failure.
-        -- This is the right call for (previously natural) holes such as loop invariants, which
-        -- would otherwise lead to spurious instantiations.
-        -- But it's wrong for, e.g., schematic variables. The latter should never be PostConds or
-        -- SPreds, hence the condition.
+      if ← isProp ty then
+        -- Might contain more `P ⊢ₛ wp⟦prog⟧ Q` apps. Try and prove it!
         mvar.assign (← tryGoal ty (← mvar.getTag))
-      else
-        addSubGoalAsVC mvar
+        return
+
+      if ty.isAppOf ``PostCond || ty.isAppOf ``Invariant || ty.isAppOf ``SPred then
+        -- Here we make `mvar` a synthetic opaque goal upon discharge failure.
+        -- This is the right call for (previously natural) holes such as loop invariants, which
+        -- would otherwise lead to spurious instantiations and unwanted renamings (when leaving the
+        -- scope of a local).
+        -- But it's wrong for, e.g., schematic variables. The latter should never be PostConds,
+        -- Invariants or SPreds, hence the condition.
+        mvar.setKind .syntheticOpaque
+      addSubGoalAsVC mvar
 
   onGoal goal name : VCGenM Expr := do
     let T := goal.target
@@ -100,9 +111,8 @@ where
     let args := goal.target.getAppArgs
     let trans := args[2]!
     -- logInfo m!"trans: {trans}"
-    let Q := args[3]!
     let wp ← instantiateMVarsIfMVarApp trans
-    let_expr c@WP.wp m ps instWP α e := wp | onFail goal name
+    let_expr WP.wp m _ps _instWP α e := wp | onFail goal name
     -- NB: e here is a monadic expression, in the "object language"
     let e ← instantiateMVarsIfMVarApp e
     let e := e.headBeta
@@ -150,13 +160,13 @@ where
         let res ← Simp.simp e
         unless res.expr != e do return ← onFail goal name
         burnOne
-        if let .some heq := res.proof? then
-          trace[Elab.Tactic.Do.vcgen] "Simplified"
-          let prf ← onWPApp (goal.withNewProg res.expr) name
-          let prf := mkApp10 (mkConst ``Triple.rewrite_program c.constLevels!) m ps α goal.hyps Q instWP e res.expr heq prf
-          return prf
-        else
-          return ← onWPApp (goal.withNewProg res.expr) name
+        trace[Elab.Tactic.Do.vcgen] "Simplified program to {res.expr}"
+        let prf ← onWPApp (goal.withNewProg res.expr) name
+        -- context = fun e => H ⊢ₛ wp⟦e⟧ Q
+        let context ← withLocalDecl `e .default (mkApp m α) fun e => do
+          mkLambdaFVars #[e] (goal.withNewProg e).toExpr
+        let res ← Simp.mkCongrArg context res
+        return ← res.mkEqMPR prf
       assignMVars specHoles.toList
       return prf
     return ← onFail goal name
@@ -166,18 +176,17 @@ where
   onSplit (goal : MGoal) (info : SplitInfo) (name : Name)
       (withAltCtx : Nat → Array Expr → VCGenM Expr → VCGenM Expr := fun _ _ k => k) : VCGenM Expr := do
     let args := goal.target.getAppArgs
-    let Q := args[3]!
-    let_expr c@WP.wp m ps instWP α e := args[2]! | throwError "Expected wp⟦e⟧ Q in goal.target, got {goal.target}"
+    let_expr WP.wp m _ps _instWP α e := args[2]! | throwError "Expected wp⟦e⟧ Q in goal.target, got {goal.target}"
     -- Bring into simp NF
     let e ← -- returns/continues only if old e is defeq to new e
       if let .some res ← info.simpDiscrs? e then
         burnOne
-        if let .some heq := res.proof? then
-          let prf ← onWPApp (goal.withNewProg res.expr) name
-          let prf := mkApp10 (mkConst ``Triple.rewrite_program c.constLevels!) m ps α goal.hyps Q instWP e res.expr heq prf
-          return prf
-        else
-          pure res.expr
+        let prf ← onWPApp (goal.withNewProg res.expr) name
+        -- context = fun e => H ⊢ₛ wp⟦e⟧ Q
+        let context ← withLocalDecl `e .default (mkApp m α) fun e => do
+          mkLambdaFVars #[e] (goal.withNewProg e).toExpr
+        let res ← Simp.mkCongrArg context res
+        res.mkEqMPR prf
       else
         pure e
     -- Try reduce the matcher

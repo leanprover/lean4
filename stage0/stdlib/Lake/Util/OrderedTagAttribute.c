@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lake_OrderedTagAttribute_getAllEntries_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_instInhabitedOrderedTagAttribute___closed__1;
 uint8_t l_Array_binSearchAux___at___Lean_TagAttribute_hasTag_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46,6 +45,7 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l___auto___closed__14____x40_Lake_Util_OrderedTagAttribute___hyg_62_;
 static lean_object* l_Lake_registerOrderedTagAttribute___lam__1___closed__5;
 lean_object* l_Lean_instInhabitedPersistentEnvExtensionState___redArg(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_OrderedTagAttribute_getAllEntries_spec__0(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerOrderedTagAttribute___lam__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerOrderedTagAttribute___lam__2(lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_empty(lean_object*);
@@ -87,13 +87,13 @@ LEAN_EXPORT lean_object* l_Lake_OrderedTagAttribute_getAllEntries___boxed(lean_o
 static lean_object* l___auto___closed__26____x40_Lake_Util_OrderedTagAttribute___hyg_62_;
 static lean_object* l_Lake_registerOrderedTagAttribute___lam__7___closed__0;
 static lean_object* l___auto___closed__4____x40_Lake_Util_OrderedTagAttribute___hyg_62_;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_OrderedTagAttribute_getAllEntries_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerOrderedTagAttribute___lam__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedOrderedTagAttribute___lam__5(lean_object*, lean_object*, uint8_t);
 static lean_object* l___auto___closed__2____x40_Lake_Util_OrderedTagAttribute___hyg_62_;
 static lean_object* l_Lake_instInhabitedOrderedTagAttribute___lam__0___closed__1;
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lake_OrderedTagAttribute_getAllEntries_spec__0(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___auto___closed__28____x40_Lake_Util_OrderedTagAttribute___hyg_62_;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedOrderedTagAttribute___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_registerOrderedTagAttribute___lam__1___closed__0;
@@ -933,7 +933,6 @@ x_22 = lean_st_ref_take(x_8, x_21);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
 x_24 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_24);
 x_25 = lean_ctor_get(x_22, 1);
 lean_inc(x_25);
 lean_dec_ref(x_22);
@@ -946,7 +945,6 @@ x_28 = lean_ctor_get(x_23, 5);
 lean_dec(x_28);
 x_29 = lean_ctor_get(x_24, 2);
 lean_inc(x_29);
-lean_dec_ref(x_24);
 x_30 = lean_box(0);
 x_31 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_2, x_27, x_4, x_29, x_30);
 lean_dec(x_29);
@@ -1000,7 +998,6 @@ lean_inc(x_40);
 lean_dec(x_23);
 x_48 = lean_ctor_get(x_24, 2);
 lean_inc(x_48);
-lean_dec_ref(x_24);
 x_49 = lean_box(0);
 x_50 = l_Lean_PersistentEnvExtension_addEntry___redArg(x_2, x_40, x_4, x_48, x_49);
 lean_dec(x_48);
@@ -1360,7 +1357,7 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lake_OrderedTagAttribute_getAllEntries_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_OrderedTagAttribute_getAllEntries_spec__0(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -1432,7 +1429,7 @@ size_t x_19; size_t x_20; lean_object* x_21;
 x_19 = 0;
 x_20 = lean_usize_of_nat(x_16);
 lean_dec(x_16);
-x_21 = l_Array_foldlMUnsafe_fold___at___Lake_OrderedTagAttribute_getAllEntries_spec__0(x_14, x_19, x_20, x_6);
+x_21 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_OrderedTagAttribute_getAllEntries_spec__0(x_14, x_19, x_20, x_6);
 lean_dec_ref(x_14);
 x_10 = x_21;
 goto block_13;
@@ -1450,7 +1447,7 @@ return x_12;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___Lake_OrderedTagAttribute_getAllEntries_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_OrderedTagAttribute_getAllEntries_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; 
@@ -1458,7 +1455,7 @@ x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_7 = l_Array_foldlMUnsafe_fold___at___Lake_OrderedTagAttribute_getAllEntries_spec__0(x_1, x_5, x_6, x_4);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_OrderedTagAttribute_getAllEntries_spec__0(x_1, x_5, x_6, x_4);
 lean_dec_ref(x_1);
 return x_7;
 }

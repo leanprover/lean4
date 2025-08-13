@@ -381,22 +381,18 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_10 = lean_ctor_get(x_6, 0);
-lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_7, 1);
 lean_inc(x_12);
 lean_dec_ref(x_7);
 x_13 = lean_ctor_get(x_10, 0);
-lean_inc_ref(x_13);
 x_14 = lean_ctor_get(x_10, 1);
-lean_inc_ref(x_14);
-lean_dec_ref(x_10);
 x_15 = lean_apply_1(x_1, x_11);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; 
-lean_dec_ref(x_13);
+lean_inc_ref(x_14);
 lean_dec(x_12);
 lean_dec_ref(x_9);
 lean_dec_ref(x_6);
@@ -421,7 +417,7 @@ if (x_19 == 0)
 {
 lean_object* x_20; 
 lean_dec(x_17);
-lean_dec_ref(x_13);
+lean_inc_ref(x_14);
 lean_dec(x_12);
 lean_dec_ref(x_9);
 lean_dec_ref(x_6);
@@ -434,7 +430,7 @@ return x_20;
 else
 {
 lean_object* x_21; lean_object* x_22; 
-lean_dec_ref(x_14);
+lean_inc_ref(x_13);
 x_21 = lean_alloc_closure((void*)(l_Std_PRange_instForIn_x27MkInferInstanceMembershipOfLawfulUpwardEnumerableOfLawfulUpwardEnumerableLowerBoundOfLawfulUpwardEnumerableUpperBoundOfMonadOfFiniteRangeIteratorId___redArg___lam__1), 7, 3);
 lean_closure_set(x_21, 0, x_13);
 lean_closure_set(x_21, 1, x_9);

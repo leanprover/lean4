@@ -29,6 +29,7 @@ lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_ob
 lean_object* l_ReaderT_instMonad___redArg(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* lean_expr_abstract(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadEIO(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__6;
@@ -42,7 +43,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___lam__0(le
 static lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___lam__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__10;
-lean_object* l_Array_mapMUnsafe_map___redArg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__4;
@@ -54,11 +54,11 @@ lean_object* l_Lean_Meta_instMonadMetaM___lam__0___boxed(lean_object*, lean_obje
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__12;
-lean_object* l_Array_forIn_x27Unsafe_loop___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_ReaderT_instFunctorOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__13;
 static lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__11;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
@@ -69,9 +69,9 @@ lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, l
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__7;
 lean_object* l_Lean_Meta_instMonadMetaM___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_foldlMUnsafe_fold___redArg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___lam__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___lam__0(lean_object* x_1) {
 _start:
@@ -407,7 +407,7 @@ lean_closure_set(x_279, 1, x_278);
 x_280 = 0;
 x_281 = lean_usize_of_nat(x_275);
 lean_dec(x_275);
-x_282 = l_Array_foldlMUnsafe_fold___redArg(x_274, x_279, x_16, x_280, x_281, x_273);
+x_282 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_box(0), lean_box(0), lean_box(0), x_274, x_279, x_16, x_280, x_281, x_273);
 x_23 = x_282;
 goto block_272;
 }
@@ -481,9 +481,9 @@ lean_dec(x_52);
 x_53 = lean_array_size(x_23);
 x_54 = 0;
 lean_inc_ref(x_23);
-x_55 = l_Array_mapMUnsafe_map___redArg(x_24, x_20, x_53, x_54, x_23);
+x_55 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_box(0), lean_box(0), lean_box(0), x_24, x_20, x_53, x_54, x_23);
 x_56 = lean_expr_abstract(x_2, x_55);
-lean_dec(x_55);
+lean_dec_ref(x_55);
 lean_dec_ref(x_2);
 x_57 = lean_array_get_size(x_23);
 x_58 = l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__14;
@@ -517,7 +517,7 @@ x_71 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_71, 0, x_56);
 lean_ctor_set(x_71, 1, x_57);
 x_72 = lean_array_size(x_70);
-x_73 = l_Array_forIn_x27Unsafe_loop___redArg(x_69, x_70, x_22, x_72, x_54, x_71);
+x_73 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_69, x_70, x_22, x_72, x_54, x_71);
 x_74 = lean_apply_9(x_73, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_74) == 0)
 {
@@ -588,9 +588,9 @@ lean_dec(x_45);
 x_90 = lean_array_size(x_23);
 x_91 = 0;
 lean_inc_ref(x_23);
-x_92 = l_Array_mapMUnsafe_map___redArg(x_24, x_20, x_90, x_91, x_23);
+x_92 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_box(0), lean_box(0), lean_box(0), x_24, x_20, x_90, x_91, x_23);
 x_93 = lean_expr_abstract(x_2, x_92);
-lean_dec(x_92);
+lean_dec_ref(x_92);
 lean_dec_ref(x_2);
 x_94 = lean_array_get_size(x_23);
 x_95 = l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__14;
@@ -626,7 +626,7 @@ x_109 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_109, 0, x_93);
 lean_ctor_set(x_109, 1, x_94);
 x_110 = lean_array_size(x_108);
-x_111 = l_Array_forIn_x27Unsafe_loop___redArg(x_107, x_108, x_22, x_110, x_91, x_109);
+x_111 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_107, x_108, x_22, x_110, x_91, x_109);
 x_112 = lean_apply_9(x_111, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_112) == 0)
 {
@@ -709,9 +709,9 @@ if (lean_is_exclusive(x_122)) {
 x_128 = lean_array_size(x_23);
 x_129 = 0;
 lean_inc_ref(x_23);
-x_130 = l_Array_mapMUnsafe_map___redArg(x_24, x_20, x_128, x_129, x_23);
+x_130 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_box(0), lean_box(0), lean_box(0), x_24, x_20, x_128, x_129, x_23);
 x_131 = lean_expr_abstract(x_2, x_130);
-lean_dec(x_130);
+lean_dec_ref(x_130);
 lean_dec_ref(x_2);
 x_132 = lean_array_get_size(x_23);
 x_133 = l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__14;
@@ -752,7 +752,7 @@ x_148 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_148, 0, x_131);
 lean_ctor_set(x_148, 1, x_132);
 x_149 = lean_array_size(x_147);
-x_150 = l_Array_forIn_x27Unsafe_loop___redArg(x_146, x_147, x_22, x_149, x_129, x_148);
+x_150 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_146, x_147, x_22, x_149, x_129, x_148);
 x_151 = lean_apply_9(x_150, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_151) == 0)
 {
@@ -880,9 +880,9 @@ if (lean_is_exclusive(x_175)) {
 x_182 = lean_array_size(x_23);
 x_183 = 0;
 lean_inc_ref(x_23);
-x_184 = l_Array_mapMUnsafe_map___redArg(x_24, x_20, x_182, x_183, x_23);
+x_184 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_box(0), lean_box(0), lean_box(0), x_24, x_20, x_182, x_183, x_23);
 x_185 = lean_expr_abstract(x_2, x_184);
-lean_dec(x_184);
+lean_dec_ref(x_184);
 lean_dec_ref(x_2);
 x_186 = lean_array_get_size(x_23);
 x_187 = l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__14;
@@ -927,7 +927,7 @@ x_202 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_202, 0, x_185);
 lean_ctor_set(x_202, 1, x_186);
 x_203 = lean_array_size(x_201);
-x_204 = l_Array_forIn_x27Unsafe_loop___redArg(x_200, x_201, x_22, x_203, x_183, x_202);
+x_204 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_200, x_201, x_22, x_203, x_183, x_202);
 x_205 = lean_apply_9(x_204, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_205) == 0)
 {
@@ -1073,9 +1073,9 @@ if (lean_is_exclusive(x_232)) {
 x_239 = lean_array_size(x_23);
 x_240 = 0;
 lean_inc_ref(x_23);
-x_241 = l_Array_mapMUnsafe_map___redArg(x_24, x_20, x_239, x_240, x_23);
+x_241 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_box(0), lean_box(0), lean_box(0), x_24, x_20, x_239, x_240, x_23);
 x_242 = lean_expr_abstract(x_2, x_241);
-lean_dec(x_241);
+lean_dec_ref(x_241);
 lean_dec_ref(x_2);
 x_243 = lean_array_get_size(x_23);
 x_244 = l_Lean_Meta_Grind_Arith_mkLetOfMap___redArg___closed__14;
@@ -1120,7 +1120,7 @@ x_259 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_259, 0, x_242);
 lean_ctor_set(x_259, 1, x_243);
 x_260 = lean_array_size(x_258);
-x_261 = l_Array_forIn_x27Unsafe_loop___redArg(x_257, x_258, x_22, x_260, x_240, x_259);
+x_261 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_box(0), lean_box(0), lean_box(0), x_257, x_258, x_22, x_260, x_240, x_259);
 x_262 = lean_apply_9(x_261, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_262) == 0)
 {

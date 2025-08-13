@@ -31,13 +31,10 @@ LEAN_EXPORT lean_object* l_Lean_setReducibilityStatus___at___Lean_setReducibleAt
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwKernelException___at___Lean_ofExceptKernelException___at___Lean_mkCasesOn_spec__0_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_mkCasesOn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwKernelException___at___Lean_ofExceptKernelException___at___Lean_mkCasesOn_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__5;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExceptKernelException___at___Lean_mkCasesOn_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___Lean_throwKernelException___at___Lean_ofExceptKernelException___at___Lean_mkCasesOn_spec__0_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwInterruptException___at___Lean_throwKernelException___at___Lean_ofExceptKernelException___at___Lean_mkCasesOn_spec__0_spec__0_spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -49,7 +46,6 @@ LEAN_EXPORT lean_object* l_Lean_throwKernelException___at___Lean_ofExceptKernelE
 LEAN_EXPORT lean_object* l_Lean_throwKernelException___at___Lean_ofExceptKernelException___at___Lean_mkCasesOn_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwInterruptException___at___Lean_throwKernelException___at___Lean_ofExceptKernelException___at___Lean_mkCasesOn_spec__0_spec__0_spec__2___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__7;
 lean_object* l_Lean_Kernel_Exception_toMessageData(lean_object*, lean_object*);
 static lean_object* l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_mkCasesOn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -398,58 +394,15 @@ static lean_object* _init_l_Lean_setReducibilityStatus___at___Lean_setReducibleA
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__0;
-x_2 = lean_alloc_ctor(0, 1, 0);
+x_1 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__1;
+x_2 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_2, 0, x_1);
+lean_ctor_set(x_2, 1, x_1);
+lean_ctor_set(x_2, 2, x_1);
+lean_ctor_set(x_2, 3, x_1);
+lean_ctor_set(x_2, 4, x_1);
+lean_ctor_set(x_2, 5, x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__0;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__0;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__0;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__6;
-x_2 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__5;
-x_3 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__4;
-x_4 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__3;
-x_5 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_5, 0, x_4);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set(x_5, 2, x_2);
-lean_ctor_set(x_5, 3, x_4);
-lean_ctor_set(x_5, 4, x_1);
-lean_ctor_set(x_5, 5, x_1);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -491,7 +444,7 @@ if (x_21 == 0)
 lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_22 = lean_ctor_get(x_19, 1);
 lean_dec(x_22);
-x_23 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__7;
+x_23 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__3;
 lean_ctor_set(x_19, 1, x_23);
 x_24 = lean_st_ref_set(x_3, x_19, x_20);
 x_25 = !lean_is_exclusive(x_24);
@@ -529,7 +482,7 @@ lean_inc(x_33);
 lean_inc(x_32);
 lean_inc(x_31);
 lean_dec(x_19);
-x_35 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__7;
+x_35 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__3;
 x_36 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_36, 0, x_31);
 lean_ctor_set(x_36, 1, x_35);
@@ -621,7 +574,7 @@ if (lean_is_exclusive(x_58)) {
  lean_dec_ref(x_58);
  x_64 = lean_box(0);
 }
-x_65 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__7;
+x_65 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__3;
 if (lean_is_scalar(x_64)) {
  x_66 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -746,7 +699,7 @@ if (x_34 == 0)
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_35 = lean_ctor_get(x_32, 1);
 lean_dec(x_35);
-x_36 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__7;
+x_36 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__3;
 lean_ctor_set(x_32, 1, x_36);
 x_37 = lean_st_ref_set(x_3, x_32, x_33);
 x_38 = lean_ctor_get(x_37, 1);
@@ -768,7 +721,7 @@ lean_inc(x_42);
 lean_inc(x_41);
 lean_inc(x_40);
 lean_dec(x_32);
-x_44 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__7;
+x_44 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__3;
 x_45 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_45, 0, x_40);
 lean_ctor_set(x_45, 1, x_44);
@@ -846,7 +799,7 @@ if (lean_is_exclusive(x_63)) {
  lean_dec_ref(x_63);
  x_69 = lean_box(0);
 }
-x_70 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__7;
+x_70 = l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__3;
 if (lean_is_scalar(x_69)) {
  x_71 = lean_alloc_ctor(0, 5, 0);
 } else {
@@ -1075,14 +1028,6 @@ l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCas
 lean_mark_persistent(l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__2);
 l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__3 = _init_l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__3();
 lean_mark_persistent(l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__3);
-l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__4 = _init_l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__4();
-lean_mark_persistent(l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__4);
-l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__5 = _init_l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__5();
-lean_mark_persistent(l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__5);
-l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__6 = _init_l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__6();
-lean_mark_persistent(l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__6);
-l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__7 = _init_l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__7();
-lean_mark_persistent(l_Lean_setReducibilityStatus___at___Lean_setReducibleAttribute___at___Lean_mkCasesOn_spec__5_spec__5___redArg___closed__7);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

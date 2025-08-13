@@ -14,9 +14,10 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgs_go(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_85_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_headNumArgs_go(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgs_go___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_reprHeadIndex___closed__19____x40_Lean_HeadIndex___hyg_304_;
 static lean_object* l_Lean_reprHeadIndex___closed__1____x40_Lean_HeadIndex___hyg_304_;
 uint64_t lean_uint64_of_nat(lean_object*);
@@ -29,7 +30,6 @@ LEAN_EXPORT lean_object* l_Lean_instReprHeadIndex;
 static lean_object* l_Lean_reprHeadIndex___closed__2____x40_Lean_HeadIndex___hyg_304_;
 LEAN_EXPORT lean_object* l_Lean_instBEqHeadIndex;
 static lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexQuick_x3f___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Expr_headNumArgs_go___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_reprHeadIndex___closed__13____x40_Lean_HeadIndex___hyg_304_;
 static lean_object* l_Lean_reprHeadIndex___closed__17____x40_Lean_HeadIndex___hyg_304_;
 lean_object* l_Nat_reprFast(lean_object*);
@@ -50,6 +50,7 @@ static lean_object* l_Lean_reprHeadIndex___closed__14____x40_Lean_HeadIndex___hy
 LEAN_EXPORT lean_object* l_Lean_Expr_toHeadIndex(lean_object*);
 uint64_t l_Lean_Literal_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instHashableHeadIndex;
+uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1873_(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprHeadIndex___closed__0;
 static lean_object* l_Lean_instInhabitedHeadIndex___closed__0;
@@ -75,7 +76,6 @@ static lean_object* l_Lean_reprHeadIndex___closed__4____x40_Lean_HeadIndex___hyg
 LEAN_EXPORT lean_object* l_Lean_reprHeadIndex____x40_Lean_HeadIndex___hyg_304_(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_hash___boxed(lean_object*);
-uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1869_(lean_object*);
 static lean_object* l_Lean_reprHeadIndex___closed__15____x40_Lean_HeadIndex___hyg_304_;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -887,7 +887,7 @@ case 1:
 lean_object* x_6; uint64_t x_7; uint64_t x_8; uint64_t x_9; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = 13;
-x_8 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1869_(x_6);
+x_8 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1873_(x_6);
 x_9 = lean_uint64_mix_hash(x_7, x_8);
 return x_9;
 }
@@ -968,7 +968,7 @@ x_1 = l_Lean_instHashableHeadIndex___closed__0;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Expr_headNumArgs_go(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgs_go(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -1004,11 +1004,11 @@ return x_2;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Expr_headNumArgs_go___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgs_go___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_Expr_headNumArgs_go(x_1, x_2);
+x_3 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgs_go(x_1, x_2);
 lean_dec_ref(x_1);
 return x_3;
 }
@@ -1018,7 +1018,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_Expr_headNumArgs_go(x_1, x_2);
+x_3 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgs_go(x_1, x_2);
 return x_3;
 }
 }

@@ -10,7 +10,7 @@ necessary correction is reasonably unambiguous.
 error: Constructor must be `private` because one or more of this structure's fields are `private`
 
 Hint: Mark constructor as `private`
-  p̵r̵o̵t̵e̵c̵t̵e̵d̵p̲r̲i̲v̲a̲t̲e̲ mk ::
+  p̲r̲i̲v̲a̲t̲e̲ ̲protected mk ::
 -/
 #guard_msgs in
 structure Foo where

@@ -40,18 +40,18 @@ def mkMapWithCap (seed : UInt64) (size : Nat) : Std.HashMap UInt64 String := Id.
     map := map.insert val s!"{val}"
   return map
 
-def timeNanos (reps : Nat) (x : IO Unit) : IO Nat := do
+def timeNanos (reps : Nat) (x : IO Unit) : IO Float := do
   let startTime ← IO.monoNanosNow
   x
   let endTime ← IO.monoNanosNow
-  return (endTime - startTime) / reps
+  return (endTime - startTime).toFloat / reps.toFloat
 
 def REP : Nat := 100
 
 /-
 Return the average time it takes to check that a hashmap `contains` an element that is contained.
 -/
-def benchContainsHit (seed : UInt64) (size : Nat) : IO Nat := do
+def benchContainsHit (seed : UInt64) (size : Nat) : IO Float := do
   let map := mkMapWithCap seed size
   let checks := size * REP
   timeNanos checks do
@@ -65,7 +65,7 @@ def benchContainsHit (seed : UInt64) (size : Nat) : IO Nat := do
 /-
 Return the average time it takes to check that a hashmap `contains` an element that is not contained.
 -/
-def benchContainsMiss (seed : UInt64) (size : Nat) : IO Nat := do
+def benchContainsMiss (seed : UInt64) (size : Nat) : IO Float := do
   let map := mkMapWithCap seed size
   let checks := size * REP
   let iter := iterRand seed |>.drop size
@@ -80,7 +80,7 @@ def benchContainsMiss (seed : UInt64) (size : Nat) : IO Nat := do
 /-
 Return the average time it takes to read an element from a hashmap during iteration.
 -/
-def benchIterate (seed : UInt64) (size : Nat) : IO Nat := do
+def benchIterate (seed : UInt64) (size : Nat) : IO Float := do
   let map := mkMapWithCap seed size
   let checks := size * REP
   timeNanos checks do
@@ -97,7 +97,7 @@ def benchIterate (seed : UInt64) (size : Nat) : IO Nat := do
 Return the average time it takes to `insertIfNew` an element that is contained in the hashmap.
 This value should be close to `benchContainsHit`
 -/
-def benchInsertIfNewHit (seed : UInt64) (size : Nat) : IO Nat := do
+def benchInsertIfNewHit (seed : UInt64) (size : Nat) : IO Float := do
   let map := mkMapWithCap seed size
   let checks := size * REP
   timeNanos checks do
@@ -114,7 +114,7 @@ def benchInsertIfNewHit (seed : UInt64) (size : Nat) : IO Nat := do
 Return the average time it takes to unconditionally `insert` (or rather, update) an element that is
 contained in the hashmap.
 -/
-def benchInsertHit (seed : UInt64) (size : Nat) : IO Nat := do
+def benchInsertHit (seed : UInt64) (size : Nat) : IO Float := do
   let map := mkMapWithCap seed size
   let checks := size * REP
   timeNanos checks do
@@ -130,7 +130,7 @@ def benchInsertHit (seed : UInt64) (size : Nat) : IO Nat := do
 /--
 Return the average time it takes to `insert` a new element into a hashmap that might resize.
 -/
-def benchInsertMissEmpty (seed : UInt64) (size : Nat) : IO Nat := do
+def benchInsertMissEmpty (seed : UInt64) (size : Nat) : IO Float := do
   let checks := size * REP
   timeNanos checks do
     let mut todo := checks
@@ -145,7 +145,7 @@ def benchInsertMissEmpty (seed : UInt64) (size : Nat) : IO Nat := do
 /--
 Return the average time it takes to `insert` a new element into a hashmap that will not resize.
 -/
-def benchInsertMissEmptyWithCapacity (seed : UInt64) (size : Nat) : IO Nat := do
+def benchInsertMissEmptyWithCapacity (seed : UInt64) (size : Nat) : IO Float := do
   let checks := size * REP
   timeNanos checks do
     let mut todo := checks
@@ -160,7 +160,7 @@ def benchInsertMissEmptyWithCapacity (seed : UInt64) (size : Nat) : IO Nat := do
 /--
 Return the average time it takes to `erase` an existing and `insert` a new element into a hashmap.
 -/
-def benchEraseInsert (seed : UInt64) (size : Nat) : IO Nat := do
+def benchEraseInsert (seed : UInt64) (size : Nat) : IO Float := do
   let map := mkMapWithCap seed size
   let checks := size * REP
   let eraseIter := iterRand seed

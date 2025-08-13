@@ -135,15 +135,17 @@ def mkDecEq (declName : Name) : CommandElabM Bool := do
 
 partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
   let indVal ← getConstInfoInduct declName
-  let enumType := mkConst declName
-  let ctors := indVal.ctors.toArray
+  let levels := indVal.levelParams.map Level.param
+  let enumType := mkConst declName levels
+  let u ← getLevel enumType
+  let ctors := indVal.ctors.toArray.map (mkConst · levels)
   withLocalDeclD `n (mkConst ``Nat) fun n => do
-    let cond := mkConst ``cond [1]
+    let cond := mkConst ``cond [u]
     let rec mkDecTree (low high : Nat) : Expr :=
       if low + 1 == high then
-        mkConst ctors[low]!
+        ctors[low]!
       else if low + 2 == high then
-        mkApp4 cond enumType (mkApp2 (mkConst ``Nat.beq) n (mkRawNatLit low)) (mkConst ctors[low]!) (mkConst ctors[low+1]!)
+        mkApp4 cond enumType (mkApp2 (mkConst ``Nat.beq) n (mkRawNatLit low)) ctors[low]! ctors[low+1]!
       else
         let mid := (low + high)/2
         let lowBranch := mkDecTree low mid
@@ -153,7 +155,7 @@ partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
     let type ← mkArrow (mkConst ``Nat) enumType
     addAndCompile <| Declaration.defnDecl {
       name := Name.mkStr declName "ofNat"
-      levelParams := []
+      levelParams := indVal.levelParams
       safety := DefinitionSafety.safe
       hints  := ReducibilityHints.abbrev
       value, type
@@ -161,24 +163,26 @@ partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
 
 def mkEnumOfNatThm (declName : Name) : MetaM Unit := do
   let indVal ← getConstInfoInduct declName
-  let toCtorIdx := mkConst (Name.mkStr declName "toCtorIdx")
-  let ofNat     := mkConst (Name.mkStr declName "ofNat")
-  let enumType  := mkConst declName
-  let eqEnum    := mkApp (mkConst ``Eq [levelOne]) enumType
-  let rflEnum   := mkApp (mkConst ``Eq.refl [levelOne]) enumType
+  let levels := indVal.levelParams.map Level.param
+  let toCtorIdx := mkConst (Name.mkStr declName "toCtorIdx") levels
+  let ofNat     := mkConst (Name.mkStr declName "ofNat") levels
+  let enumType  := mkConst declName levels
+  let u ← getLevel enumType
+  let eqEnum    := mkApp (mkConst ``Eq [u]) enumType
+  let rflEnum   := mkApp (mkConst ``Eq.refl [u]) enumType
   let ctors := indVal.ctors
   withLocalDeclD `x enumType fun x => do
     let resultType := mkApp2 eqEnum (mkApp ofNat (mkApp toCtorIdx x)) x
     let motive     ← mkLambdaFVars #[x] resultType
-    let casesOn    := mkConst (mkCasesOnName declName) [levelZero]
+    let casesOn    := mkConst (mkCasesOnName declName) (levelZero :: levels)
     let mut value  := mkApp2 casesOn motive x
     for ctor in ctors do
-      value := mkApp value (mkApp rflEnum (mkConst ctor))
+      value := mkApp value (mkApp rflEnum (mkConst ctor levels))
     value ← mkLambdaFVars #[x] value
     let type ← mkForallFVars #[x] resultType
     addAndCompile <| Declaration.thmDecl {
       name := Name.mkStr declName "ofNat_toCtorIdx"
-      levelParams := []
+      levelParams := indVal.levelParams
       value, type
     }
 

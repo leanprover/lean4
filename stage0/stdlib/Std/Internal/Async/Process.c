@@ -36,6 +36,7 @@ uint8_t lean_uint64_dec_lt(uint64_t, uint64_t);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__9____x40_Std_Internal_Async_Process___hyg_158_;
 static lean_object* l_Std_Internal_IO_Process_instOrdPId___closed__0;
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__43____x40_Std_Internal_Async_Process___hyg_158_;
+extern lean_object* l_Std_Time_Millisecond_instInhabitedOffset;
 lean_object* lean_uv_os_getpid(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_constrainedMemory(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__33____x40_Std_Internal_Async_Process___hyg_158_;
@@ -67,7 +68,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_instReprPId___lam__0___boxed(
 uint64_t lean_uint64_of_nat(lean_object*);
 static lean_object* l_Std_Internal_IO_Process_instReprPId___lam__0___closed__1;
 static lean_object* l_Std_Internal_IO_Process_instReprResourceUsageStats___closed__0;
-extern lean_object* l_Std_Time_Millisecond_instOffsetInhabited;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Process_instReprPId___lam__0(uint64_t, lean_object*);
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__40____x40_Std_Internal_Async_Process___hyg_158_;
 static lean_object* l_Std_Internal_IO_Process_reprResourceUsageStats___redArg___closed__7____x40_Std_Internal_Async_Process___hyg_158_;
@@ -1146,7 +1146,7 @@ _start:
 {
 uint64_t x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Std_Internal_IO_Process_instInhabitedResourceUsageStats___closed__0;
-x_2 = l_Std_Time_Millisecond_instOffsetInhabited;
+x_2 = l_Std_Time_Millisecond_instInhabitedOffset;
 x_3 = lean_alloc_ctor(0, 2, 112);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_2);

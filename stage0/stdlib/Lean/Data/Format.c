@@ -2295,7 +2295,6 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 uint8_t x_5; 
@@ -2952,6 +2951,7 @@ return x_166;
 else
 {
 uint8_t x_167; 
+lean_inc_ref(x_4);
 x_167 = !lean_is_exclusive(x_1);
 if (x_167 == 0)
 {

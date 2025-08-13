@@ -1274,6 +1274,55 @@ def delabPProdMk : Delab := delabPProdMkCore ``PProd.mk
 @[builtin_delab app.MProd.mk]
 def delabMProdMk : Delab := delabPProdMkCore ``MProd.mk
 
+@[builtin_delab app.Std.Range.mk]
+def delabRange : Delab := do
+  -- Std.Range.mk : Nat → Nat → (step : Nat) → 0 < step → Std.Range
+  let_expr Std.Range.mk start _stop step _prf := (← getExpr) | failure
+  let start_zero := Lean.Expr.nat? start == some 0
+  let step_one := Lean.Expr.nat? step == some 1
+  withAppFn do -- skip the proof
+  let step ← withAppArg delab
+  withAppFn do
+  let stop ← withAppArg delab
+  withAppFn do
+  let start ← withAppArg delab
+  match start_zero, step_one with
+  | false, false => `([$start : $stop : $step])
+  | false, true => `([$start : $stop])
+  | true, false => `([: $stop : $step])
+  | true, true => `([: $stop])
+
+@[builtin_delab app.Std.PRange.mk]
+def delabPRange : Delab := do
+  -- Std.PRange.mk : {shape : Std.PRange.RangeShape} → {α : Type u} → Std.PRange.Bound shape.lower α → Std.PRange.Bound shape.upper α → Std.PRange shape α
+  let_expr Std.PRange.mk shape _α lower upper := (← getExpr) | failure
+  let reflectBoundShape (e : Expr) : Option Std.PRange.BoundShape := match e.constName? with
+    | some `Std.PRange.BoundShape.closed => Std.PRange.BoundShape.closed
+    | some `Std.PRange.BoundShape.open => Std.PRange.BoundShape.open
+    | some `Std.PRange.BoundShape.unbounded => Std.PRange.BoundShape.unbounded
+    | _ => failure
+  let reflectRangeShape (e : Expr) : Option Std.PRange.RangeShape := do
+    let_expr Std.PRange.RangeShape.mk lower upper := e | failure
+    return ⟨← reflectBoundShape lower, ← reflectBoundShape upper⟩
+  let some shape := reflectRangeShape shape | failure
+  let a ← withAppArg <| withAppArg <| delab
+  let b ← withAppArg <| delab
+  match (shape, lower.constName?, upper.constName?) with
+  | (⟨.closed, .closed⟩, _, _) => `($a...=$b)
+  | (⟨.unbounded, .closed⟩, some `PUnit.unit, _) => `(*...=$b)
+  | (⟨.closed, .unbounded⟩, _, some `PUnit.unit) => `($a...*)
+  | (⟨.unbounded, .unbounded⟩, some `PUnit.unit, some `PUnit.unit) => `(*...*)
+  | (⟨.open, .closed⟩, _, _) => `($a<...=$b)
+  | (⟨.open, .unbounded⟩, _, some `PUnit.unit) => `($a<...*)
+  | (⟨.closed, .open⟩, _, _) => `($a...$b)
+  | (⟨.unbounded, .open⟩, some `PUnit.unit, _) => `(*...$b)
+  | (⟨.open, .open⟩, _, _) => `($a<...$b)
+  -- The remaining cases are aliases for explicit `<` upper bound notation:
+  -- | (⟨.closed, .open⟩, _, _) => `($a...<$b)
+  -- | (⟨.unbounded, .open⟩, some `PUnit.unit, _) => `(*...<$b)
+  -- | (⟨.open, .open⟩, _, _) => `($a<...<$b)
+  | _ => failure
+
 partial def delabDoElems : DelabM (List Syntax) := do
   let e ← getExpr
   if e.isAppOfArity ``Bind.bind 6 then

@@ -13,7 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__6____x40_Lean_Compiler_IR___hyg_611_;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__5___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__2____x40_Lean_Compiler_IR___hyg_611_;
 lean_object* l_Lean_IR_Decl_elimDead(lean_object*);
 lean_object* l_Lean_IR_Decl_simpCase(lean_object*);
@@ -25,7 +27,6 @@ static lean_object* l_Lean_IR_compile___closed__13;
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__22____x40_Lean_Compiler_IR___hyg_611_;
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__9____x40_Lean_Compiler_IR___hyg_611_;
 static lean_object* l_Lean_IR_compile___closed__28;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_IR_compile___closed__24;
 static lean_object* l_Lean_IR_compile___closed__17;
 static lean_object* l_Lean_IR_initFn___closed__0____x40_Lean_Compiler_IR___hyg_6_;
@@ -38,18 +39,16 @@ LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_IR_initFn____x40_Lea
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__19____x40_Lean_Compiler_IR___hyg_611_;
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__18____x40_Lean_Compiler_IR___hyg_611_;
 lean_object* l_Lean_IR_Decl_expandResetReuse(lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__5(size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__3(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_compiler_reuse;
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__4____x40_Lean_Compiler_IR___hyg_611_;
 static lean_object* l_Lean_IR_compile___closed__27;
 static lean_object* l_Lean_IR_compile___closed__31;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__5(size_t, size_t, lean_object*);
 static lean_object* l_Lean_IR_initFn___closed__1____x40_Lean_Compiler_IR___hyg_6_;
 static lean_object* l_Lean_IR_compile___closed__3;
 lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_compile___closed__11;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_initFn___closed__2____x40_Lean_Compiler_IR___hyg_6_;
 static lean_object* l_Lean_IR_compile___closed__26;
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -57,9 +56,11 @@ static lean_object* l_Lean_IR_compile___closed__34;
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__1____x40_Lean_Compiler_IR___hyg_611_;
 static lean_object* l_Lean_IR_compile___closed__10;
 static lean_object* l_Lean_IR_compile___closed__14;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_pushProj(lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0(size_t, size_t, lean_object*);
 lean_object* l_Lean_IR_explicitBoxing___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__3(size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__6(size_t, size_t, lean_object*);
 static lean_object* l_Lean_IR_compile___closed__0;
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -76,19 +77,18 @@ static lean_object* l_Lean_IR_compile___closed__16;
 static lean_object* l_Lean_IR_initFn___closed__5____x40_Lean_Compiler_IR___hyg_6_;
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__17____x40_Lean_Compiler_IR___hyg_611_;
 static lean_object* l_Lean_IR_compile___closed__23;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_checkDecls(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__1(size_t, size_t, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_initFn___closed__4____x40_Lean_Compiler_IR___hyg_6_;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__6(size_t, size_t, lean_object*);
 lean_object* l_Lean_IR_Decl_insertResetReuse(lean_object*);
 static lean_object* l_Lean_IR_compile___closed__25;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__5___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at___Lean_IR_compile_spec__4___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__10____x40_Lean_Compiler_IR___hyg_611_;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__2(size_t, size_t, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__15____x40_Lean_Compiler_IR___hyg_611_;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_initFn___closed__6____x40_Lean_Compiler_IR___hyg_6_;
 LEAN_EXPORT lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6_(lean_object*);
 extern lean_object* l_Lean_IR_tracePrefixOptionName;
@@ -97,6 +97,7 @@ static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__12_
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__11____x40_Lean_Compiler_IR___hyg_611_;
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__5____x40_Lean_Compiler_IR___hyg_611_;
 LEAN_EXPORT lean_object* l_Lean_IR_compile(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__3____x40_Lean_Compiler_IR___hyg_611_;
 LEAN_EXPORT lean_object* l_Lean_Option_register___at___Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6__spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_compile___closed__7;
@@ -109,14 +110,14 @@ lean_object* l_Lean_IR_inferMeta(lean_object*, lean_object*, lean_object*, lean_
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_IR_compile___closed__9;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0(size_t, size_t, lean_object*);
 static lean_object* l_Lean_IR_compile___closed__15;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__2(size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_updateSorryDep(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Option_get___at___Lean_IR_compile_spec__4(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__14____x40_Lean_Compiler_IR___hyg_611_;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__6___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn___closed__20____x40_Lean_Compiler_IR___hyg_611_;
 static lean_object* l_Lean_IR_compile___closed__4;
@@ -127,7 +128,6 @@ static lean_object* l_Lean_IR_compile___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_611_(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_IR_compile___closed__12;
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_compile___closed__32;
 static lean_object* l_Lean_IR_initFn___closed__8____x40_Lean_Compiler_IR___hyg_6_;
 static lean_object* l_Lean_IR_initFn___closed__3____x40_Lean_Compiler_IR___hyg_6_;
@@ -313,7 +313,7 @@ lean_dec_ref(x_2);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -338,7 +338,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__1(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__1(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -363,7 +363,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__2(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__2(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -388,7 +388,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__3(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__3(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -449,7 +449,7 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__5(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__5(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -474,7 +474,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__6(size_t x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__6(size_t x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -855,7 +855,7 @@ lean_inc(x_17);
 lean_dec_ref(x_16);
 x_18 = lean_array_size(x_12);
 x_19 = 0;
-x_20 = l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0(x_18, x_19, x_12);
+x_20 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0(x_18, x_19, x_12);
 x_21 = l_Lean_IR_compile___closed__8;
 x_141 = l_Lean_IR_compile___closed__9;
 lean_inc_ref(x_20);
@@ -881,7 +881,7 @@ else
 {
 size_t x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; 
 x_147 = lean_array_size(x_20);
-x_148 = l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__6(x_147, x_19, x_20);
+x_148 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__6(x_147, x_19, x_20);
 x_149 = l_Lean_IR_compile___closed__33;
 x_150 = l_Lean_IR_compile___closed__34;
 lean_inc_ref(x_148);
@@ -950,7 +950,7 @@ block_67:
 {
 size_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_26 = lean_array_size(x_22);
-x_27 = l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0(x_26, x_19, x_22);
+x_27 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0(x_26, x_19, x_22);
 x_28 = l_Lean_IR_compile___closed__9;
 lean_inc_ref(x_27);
 x_29 = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(x_28, x_21, x_27, x_23, x_24, x_25);
@@ -1148,7 +1148,7 @@ block_140:
 {
 size_t x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 
 x_72 = lean_array_size(x_68);
-x_73 = l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__1(x_72, x_19, x_68);
+x_73 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__1(x_72, x_19, x_68);
 x_74 = l_Lean_IR_compile___closed__14;
 x_75 = l_Lean_IR_compile___closed__15;
 lean_inc_ref(x_73);
@@ -1160,7 +1160,7 @@ x_77 = lean_ctor_get(x_76, 1);
 lean_inc(x_77);
 lean_dec_ref(x_76);
 x_78 = lean_array_size(x_73);
-x_79 = l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__2(x_78, x_19, x_73);
+x_79 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__2(x_78, x_19, x_73);
 x_80 = l_Lean_IR_compile___closed__17;
 x_81 = l_Lean_IR_compile___closed__18;
 lean_inc_ref(x_79);
@@ -1172,7 +1172,7 @@ x_83 = lean_ctor_get(x_82, 1);
 lean_inc(x_83);
 lean_dec_ref(x_82);
 x_84 = lean_array_size(x_79);
-x_85 = l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__3(x_84, x_19, x_79);
+x_85 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__3(x_84, x_19, x_79);
 x_86 = l_Lean_IR_inferBorrow___redArg(x_85, x_70, x_83);
 if (lean_obj_tag(x_86) == 0)
 {
@@ -1245,7 +1245,7 @@ else
 {
 size_t x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; 
 x_110 = lean_array_size(x_101);
-x_111 = l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__5(x_110, x_19, x_101);
+x_111 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__5(x_110, x_19, x_101);
 x_112 = l_Lean_IR_compile___closed__30;
 x_113 = l_Lean_IR_compile___closed__31;
 lean_inc_ref(x_111);
@@ -1501,7 +1501,7 @@ return x_172;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -1509,11 +1509,11 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__0(x_4, x_5, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -1521,11 +1521,11 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__1(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__1(x_4, x_5, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -1533,11 +1533,11 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__2(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__2(x_4, x_5, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -1545,7 +1545,7 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__3(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__3(x_4, x_5, x_3);
 return x_6;
 }
 }
@@ -1560,7 +1560,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -1568,11 +1568,11 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__5(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__5(x_4, x_5, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; 
@@ -1580,7 +1580,7 @@ x_4 = lean_unbox_usize(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_6 = l_Array_mapMUnsafe_map___at___Lean_IR_compile_spec__6(x_4, x_5, x_3);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_compile_spec__6(x_4, x_5, x_3);
 return x_6;
 }
 }

@@ -68,11 +68,8 @@ private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : E
     return none
 
 /-- Returns `true` if `thm?` is none or its patterns are different from the ones in `thm'` -/
-private def isNewPat (thm? : Option EMatchTheorem) (thm' : EMatchTheorem) : Bool :=
-  if let some thm := thm? then
-    thm'.patterns != thm.patterns
-  else
-    true
+private def isNewPat (patternsFoundSoFar : Array (List Expr)) (thm' : EMatchTheorem) : Bool :=
+  patternsFoundSoFar.all fun ps => thm'.patterns != ps
 
 private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let proof ← mkEqTrueProof e
@@ -84,16 +81,24 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let proof := mkOfEqTrueCore e proof
   let size := (← get).ematch.newThms.size
   let gen ← getGeneration e
-  -- TODO: we should have a flag for collecting all unary patterns in a local theorem
-  let thm? ← mkEMatchTheoremWithKind'? origin proof .leftRight (← getSymbolPriorities)
-  if let some thm := thm? then
-    activateTheorem thm gen
-  if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft (← getSymbolPriorities) then
-    -- Only add `thm` if its patterns are different from `thm?`.
-    if isNewPat thm? thm then
+  let mut patternsFoundSoFar := #[]
+  let symPrios ← getSymbolPriorities
+  let minPrio := eval_prio default -- We only consider symbols with default priority and above when collecting singleton patterns.
+  let thms ← mkEMatchTheoremUsingSingletonPatterns origin #[] proof minPrio symPrios
+  for thm in thms do
+    if isNewPat patternsFoundSoFar thm then
       activateTheorem thm gen
+      patternsFoundSoFar := patternsFoundSoFar.push thm.patterns
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .leftRight symPrios then
+    if isNewPat patternsFoundSoFar thm then
+      activateTheorem thm gen
+      patternsFoundSoFar := patternsFoundSoFar.push thm.patterns
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft symPrios then
+    if isNewPat patternsFoundSoFar thm then
+      activateTheorem thm gen
+      patternsFoundSoFar := patternsFoundSoFar.push thm.patterns
   if (← get).ematch.newThms.size == size then
-    if let some thm ← mkEMatchTheoremWithKind'? origin proof (.default false) (← getSymbolPriorities) then
+    if let some thm ← mkEMatchTheoremWithKind'? origin proof (.default false) symPrios then
       activateTheorem thm gen
   if (← get).ematch.newThms.size == size then
     reportIssue! "failed to create E-match local theorem for{indentExpr e}"

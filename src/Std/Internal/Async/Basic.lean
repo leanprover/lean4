@@ -646,9 +646,6 @@ instance : MonadExceptOf ε (EAsync ε) where
 instance : MonadFinally (EAsync ε) where
   tryFinally' := EAsync.tryFinally'
 
-instance : OrElse (EAsync ε α) where
-  orElse := MonadExcept.orElse
-
 instance [Inhabited ε] : Inhabited (EAsync ε α) where
   default := .mk <| BaseAsync.pure default
 

@@ -1,5 +1,9 @@
 name = "dep"
+leanOptions.experimental.module = true
 
 [[lean_lib]]
-name = "Dep"
-leanOptions.experimental.module = true
+name = "Dep.NoImportAll"
+
+[[lean_lib]]
+name = "Dep.AllowImportAll"
+allowImportAll = true

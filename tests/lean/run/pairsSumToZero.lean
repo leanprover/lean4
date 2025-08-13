@@ -67,7 +67,7 @@ def pairsSumToZero (l : List Int) : Bool := Id.run do
 
 theorem pairsSumToZero_correct (l : List Int) : pairsSumToZero l ↔ l.ExistsPair (fun a b => a + b = 0) := by
   generalize h : pairsSumToZero l = r
-  apply Id.by_wp h
+  apply Id.of_wp_run_eq h
 
   mvcgen
 

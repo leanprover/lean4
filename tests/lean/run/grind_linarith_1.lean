@@ -65,9 +65,9 @@ example [CommRing α] [LE α] [LT α] [Preorder α] [OrderedRing α] (a b c : α
 
 -- Test misconfigured instances
 /--
-trace: [grind.issues] type has `LE` and `LT`, but is not partial order, failed to synthesize
+trace: [grind.issues] type has `LE` and `LT`, but is not a partial order, failed to synthesize
       PartialOrder α
-[grind.issues] type has `LE` and `LT`, but is not linear order, failed to synthesize
+[grind.issues] type has `LE` and `LT`, but is not a linear order, failed to synthesize
       LinearOrder α
 [grind.issues] type has a `Preorder` and is a `Semiring`, but is not an ordered ring, failed to synthesize
       OrderedRing α

@@ -1214,9 +1214,7 @@ if (lean_obj_tag(x_63) == 0)
 {
 lean_object* x_64; uint8_t x_65; 
 x_64 = lean_ctor_get(x_63, 0);
-lean_inc(x_64);
 x_65 = lean_unbox(x_64);
-lean_dec(x_64);
 if (x_65 == 0)
 {
 lean_object* x_66; 

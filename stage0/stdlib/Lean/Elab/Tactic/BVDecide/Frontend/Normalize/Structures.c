@@ -5223,7 +5223,6 @@ else
 {
 lean_object* x_32; 
 x_32 = lean_ctor_get(x_23, 1);
-lean_inc(x_32);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; lean_object* x_34; 
@@ -5235,7 +5234,6 @@ return x_34;
 }
 else
 {
-lean_dec_ref(x_32);
 lean_dec_ref(x_23);
 lean_dec(x_3);
 lean_dec_ref(x_2);
@@ -5351,7 +5349,6 @@ else
 {
 lean_object* x_57; 
 x_57 = lean_ctor_get(x_48, 1);
-lean_inc(x_57);
 if (lean_obj_tag(x_57) == 0)
 {
 lean_object* x_58; lean_object* x_59; 
@@ -5363,7 +5360,6 @@ return x_59;
 }
 else
 {
-lean_dec_ref(x_57);
 lean_dec_ref(x_48);
 lean_dec(x_3);
 lean_dec_ref(x_2);

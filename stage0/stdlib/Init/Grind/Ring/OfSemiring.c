@@ -905,7 +905,6 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_3, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_3, 1);
@@ -918,6 +917,7 @@ x_11 = l_Lean_Grind_CommRing_denoteSInt___redArg(x_1, x_8);
 lean_dec(x_8);
 lean_inc_ref(x_1);
 x_12 = l_Lean_Grind_CommRing_Mon_denote___redArg(x_1, x_2, x_9);
+lean_inc_ref(x_7);
 x_13 = lean_apply_2(x_7, x_11, x_12);
 x_14 = l_Lean_Grind_CommRing_Poly_denoteS___redArg(x_1, x_2, x_10);
 x_15 = lean_apply_2(x_6, x_13, x_14);

@@ -1382,11 +1382,9 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_obj
 x_4 = lean_ctor_get(x_1, 3);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_5);
 lean_inc_ref(x_4);
 x_6 = l_Lean_FileMap_utf8PosToLspPos(x_4, x_2);
 x_7 = lean_string_utf8_byte_size(x_5);
-lean_dec_ref(x_5);
 lean_inc_ref(x_4);
 x_8 = l_Lean_FileMap_utf8PosToLspPos(x_4, x_7);
 lean_dec(x_7);
@@ -1530,7 +1528,6 @@ if (lean_obj_tag(x_1) == 1)
 {
 lean_object* x_2; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -1593,7 +1590,6 @@ return x_18;
 else
 {
 lean_object* x_19; 
-lean_dec(x_2);
 lean_dec_ref(x_1);
 x_19 = lean_box(0);
 return x_19;

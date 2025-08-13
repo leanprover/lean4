@@ -50,6 +50,7 @@ static lean_object* l_Lean_reprHeadIndex___closed__14____x40_Lean_HeadIndex___hy
 LEAN_EXPORT lean_object* l_Lean_Expr_toHeadIndex(lean_object*);
 uint64_t l_Lean_Literal_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instHashableHeadIndex;
+uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1873_(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprHeadIndex___closed__0;
 static lean_object* l_Lean_instInhabitedHeadIndex___closed__0;
@@ -75,7 +76,6 @@ static lean_object* l_Lean_reprHeadIndex___closed__4____x40_Lean_HeadIndex___hyg
 LEAN_EXPORT lean_object* l_Lean_reprHeadIndex____x40_Lean_HeadIndex___hyg_304_(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_hash___boxed(lean_object*);
-uint64_t l_Lean_hashMVarId____x40_Lean_Expr___hyg_1869_(lean_object*);
 static lean_object* l_Lean_reprHeadIndex___closed__15____x40_Lean_HeadIndex___hyg_304_;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -887,7 +887,7 @@ case 1:
 lean_object* x_6; uint64_t x_7; uint64_t x_8; uint64_t x_9; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = 13;
-x_8 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1869_(x_6);
+x_8 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1873_(x_6);
 x_9 = lean_uint64_mix_hash(x_7, x_8);
 return x_9;
 }

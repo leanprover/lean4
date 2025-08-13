@@ -2407,16 +2407,14 @@ else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_15 = lean_ctor_get(x_1, 3);
-lean_inc_ref(x_15);
 x_16 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_16);
 x_17 = lean_ctor_get(x_15, 5);
-lean_inc_ref(x_17);
-lean_dec_ref(x_15);
 x_18 = lean_ctor_get(x_11, 1);
 lean_inc_ref(x_18);
 lean_dec(x_11);
+lean_inc_ref(x_17);
 x_19 = l_System_FilePath_normalize(x_17);
+lean_inc_ref(x_16);
 x_20 = l_Lake_joinRelative(x_16, x_19);
 lean_dec_ref(x_19);
 x_21 = l_Lake_joinRelative(x_20, x_18);
@@ -2784,14 +2782,10 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_2);
 x_3 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_2, 10);
 lean_inc(x_4);
-lean_dec_ref(x_2);
 x_5 = l_Lake_LeanInstall_sharedLibPath(x_3);
-lean_dec_ref(x_3);
 x_6 = l_Lake_Workspace_sharedLibPath(x_1);
 lean_dec_ref(x_1);
 x_7 = l_List_appendTR___redArg(x_5, x_6);

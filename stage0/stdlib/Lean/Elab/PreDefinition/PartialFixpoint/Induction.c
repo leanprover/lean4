@@ -5652,10 +5652,10 @@ else
 lean_object* x_35; size_t x_36; size_t x_37; lean_object* x_38; 
 lean_dec_ref(x_2);
 x_35 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_35);
 x_36 = lean_array_size(x_35);
 x_37 = 0;
 lean_inc_ref(x_6);
+lean_inc_ref(x_35);
 x_38 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_PartialFixpoint_unfoldPredRelMutual_spec__7(x_36, x_37, x_35, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_38) == 0)
 {
@@ -6216,22 +6216,19 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean
 x_12 = lean_ctor_get(x_4, 0);
 x_13 = lean_ctor_get(x_4, 1);
 x_14 = lean_ctor_get(x_12, 0);
-lean_inc_ref(x_14);
 x_15 = lean_ctor_get(x_12, 1);
-lean_inc(x_15);
 x_16 = lean_ctor_get(x_12, 2);
-lean_inc(x_16);
 x_17 = lean_nat_dec_lt(x_15, x_16);
 if (x_17 == 0)
 {
-lean_dec(x_16);
-lean_dec(x_15);
-lean_dec_ref(x_14);
 return x_4;
 }
 else
 {
 uint8_t x_18; 
+lean_inc(x_16);
+lean_inc(x_15);
+lean_inc_ref(x_14);
 x_18 = !lean_is_exclusive(x_12);
 if (x_18 == 0)
 {
@@ -6312,18 +6309,12 @@ lean_inc(x_36);
 lean_inc(x_35);
 lean_dec(x_4);
 x_37 = lean_ctor_get(x_35, 0);
-lean_inc_ref(x_37);
 x_38 = lean_ctor_get(x_35, 1);
-lean_inc(x_38);
 x_39 = lean_ctor_get(x_35, 2);
-lean_inc(x_39);
 x_40 = lean_nat_dec_lt(x_38, x_39);
 if (x_40 == 0)
 {
 lean_object* x_41; 
-lean_dec(x_39);
-lean_dec(x_38);
-lean_dec_ref(x_37);
 x_41 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_41, 0, x_35);
 lean_ctor_set(x_41, 1, x_36);
@@ -6332,6 +6323,9 @@ return x_41;
 else
 {
 lean_object* x_42; lean_object* x_43; uint8_t x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
+lean_inc(x_39);
+lean_inc(x_38);
+lean_inc_ref(x_37);
 if (lean_is_exclusive(x_35)) {
  lean_ctor_release(x_35, 0);
  lean_ctor_release(x_35, 1);
@@ -13798,7 +13792,6 @@ if (lean_is_exclusive(x_24)) {
 x_33 = lean_ctor_get(x_31, 1);
 lean_inc_ref(x_33);
 x_34 = lean_ctor_get(x_31, 3);
-lean_inc_ref(x_34);
 x_35 = lean_ctor_get(x_31, 4);
 lean_inc_ref(x_35);
 x_36 = lean_array_size(x_33);
@@ -13816,7 +13809,6 @@ lean_inc(x_40);
 lean_dec_ref(x_38);
 x_41 = lean_ctor_get(x_34, 1);
 lean_inc_ref(x_41);
-lean_dec_ref(x_34);
 x_42 = lean_unsigned_to_nat(0u);
 lean_inc_ref(x_3);
 x_43 = lean_array_get(x_3, x_39, x_42);
@@ -14175,7 +14167,6 @@ else
 {
 uint8_t x_120; 
 lean_dec_ref(x_35);
-lean_dec_ref(x_34);
 lean_dec_ref(x_33);
 lean_dec(x_32);
 lean_dec(x_31);

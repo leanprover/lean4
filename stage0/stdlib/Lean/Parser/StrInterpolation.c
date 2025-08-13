@@ -194,14 +194,12 @@ _start:
 {
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_ctor_get(x_6, 2);
-lean_inc(x_7);
 x_8 = lean_string_utf8_at_end(x_2, x_7);
 if (x_8 == 0)
 {
 uint32_t x_9; lean_object* x_10; lean_object* x_11; uint32_t x_12; uint8_t x_13; 
 x_9 = lean_string_utf8_get(x_2, x_7);
 x_10 = lean_string_utf8_next(x_2, x_7);
-lean_dec(x_7);
 x_11 = l_Lean_Parser_ParserState_setPos(x_6, x_10);
 x_12 = 34;
 x_13 = lean_uint32_dec_eq(x_9, x_12);
@@ -321,7 +319,6 @@ return x_46;
 else
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
-lean_dec(x_7);
 lean_dec_ref(x_5);
 lean_dec(x_4);
 lean_dec_ref(x_2);
@@ -357,12 +354,9 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_7 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc_ref(x_8);
-lean_dec_ref(x_7);
 x_9 = lean_ctor_get(x_3, 2);
-lean_inc(x_9);
 x_10 = lean_string_utf8_at_end(x_8, x_9);
 if (x_10 == 0)
 {
@@ -372,7 +366,6 @@ x_12 = 34;
 x_13 = lean_uint32_dec_eq(x_11, x_12);
 if (x_13 == 0)
 {
-lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -383,6 +376,7 @@ else
 if (x_10 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_inc(x_9);
 x_14 = l_Lean_Parser_ParserState_stackSize(x_3);
 x_15 = l_Lean_Parser_ParserState_next(x_3, x_8, x_9);
 x_16 = l___private_Lean_Parser_StrInterpolation_0__Lean_Parser_interpolatedStrFn_parse(x_1, x_8, x_14, x_9, x_2, x_15);
@@ -390,7 +384,6 @@ return x_16;
 }
 else
 {
-lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -401,7 +394,6 @@ goto block_6;
 else
 {
 lean_object* x_17; lean_object* x_18; 
-lean_dec(x_9);
 lean_dec_ref(x_8);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);

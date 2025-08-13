@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.UInt.Basic
-// Imports: Init.Data.UInt.BasicAux Init.Data.BitVec.Basic
+// Imports: Init.Data.UInt.BasicAux Init.Data.BitVec.Basic Init.Data.Order.Classes Init.Data.Order.Factories
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3690,6 +3690,8 @@ return x_6;
 }
 lean_object* initialize_Init_Data_UInt_BasicAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Order_Classes(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -3699,6 +3701,12 @@ res = initialize_Init_Data_UInt_BasicAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_Classes(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_Factories(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_UInt8_ofInt___closed__0 = _init_l_UInt8_ofInt___closed__0();

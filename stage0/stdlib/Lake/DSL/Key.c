@@ -323,17 +323,15 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; size_t x_22; size_t x_23; 
 x_8 = lean_ctor_get(x_5, 1);
-lean_inc(x_8);
 x_9 = lean_ctor_get(x_5, 2);
-lean_inc(x_9);
 x_10 = lean_ctor_get(x_5, 5);
-lean_inc(x_10);
 x_11 = lean_array_uget(x_1, x_2);
 x_12 = l_Lean_SourceInfo_fromRef(x_10, x_7);
-lean_dec(x_10);
 x_13 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_DSL_Key_0__Lake_DSL_expandFacets_spec__1___redArg___closed__4;
 x_14 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_DSL_Key_0__Lake_DSL_expandFacets_spec__1___redArg___closed__6;
 x_15 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_DSL_Key_0__Lake_DSL_expandFacets_spec__1___redArg___closed__9;
+lean_inc(x_9);
+lean_inc(x_8);
 x_16 = l_Lean_addMacroScope(x_8, x_15, x_9);
 x_17 = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Lake_DSL_Key_0__Lake_DSL_expandFacets_spec__1___redArg___closed__15;
 lean_inc(x_12);
@@ -660,13 +658,13 @@ goto block_37;
 block_27:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_11 = lean_ctor_get(x_9, 1);
+x_11 = lean_ctor_get(x_7, 1);
 lean_inc(x_11);
-x_12 = lean_ctor_get(x_9, 2);
+x_12 = lean_ctor_get(x_7, 2);
 lean_inc(x_12);
-x_13 = lean_ctor_get(x_9, 5);
+x_13 = lean_ctor_get(x_7, 5);
 lean_inc(x_13);
-lean_dec_ref(x_9);
+lean_dec_ref(x_7);
 x_14 = 0;
 x_15 = l_Lake_Name_quoteFrom(x_8, x_10, x_14);
 x_16 = l_Lean_SourceInfo_fromRef(x_13, x_14);
@@ -688,7 +686,7 @@ x_24 = l_Lean_Syntax_node2(x_16, x_23, x_1, x_15);
 x_25 = l_Lean_Syntax_node2(x_16, x_17, x_22, x_24);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
-lean_ctor_set(x_26, 1, x_7);
+lean_ctor_set(x_26, 1, x_9);
 return x_26;
 }
 block_37:
@@ -701,9 +699,9 @@ if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_33; 
 x_33 = l_Lean_Syntax_getId(x_32);
-x_7 = x_30;
+x_7 = x_29;
 x_8 = x_32;
-x_9 = x_29;
+x_9 = x_30;
 x_10 = x_33;
 goto block_27;
 }
@@ -714,9 +712,9 @@ lean_dec_ref(x_28);
 x_34 = l_Lean_Syntax_getId(x_32);
 x_35 = l_Lake_PartialBuildKey_moduleTargetIndicator;
 x_36 = l_Lean_Name_append(x_34, x_35);
-x_7 = x_30;
+x_7 = x_29;
 x_8 = x_32;
-x_9 = x_29;
+x_9 = x_30;
 x_10 = x_36;
 goto block_27;
 }
@@ -810,13 +808,13 @@ goto block_89;
 block_79:
 {
 lean_object* x_63; lean_object* x_64; lean_object* x_65; uint8_t x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; 
-x_63 = lean_ctor_get(x_61, 1);
+x_63 = lean_ctor_get(x_59, 1);
 lean_inc(x_63);
-x_64 = lean_ctor_get(x_61, 2);
+x_64 = lean_ctor_get(x_59, 2);
 lean_inc(x_64);
-x_65 = lean_ctor_get(x_61, 5);
+x_65 = lean_ctor_get(x_59, 5);
 lean_inc(x_65);
-lean_dec_ref(x_61);
+lean_dec_ref(x_59);
 x_66 = 0;
 x_67 = l_Lake_Name_quoteFrom(x_60, x_62, x_66);
 x_68 = l_Lean_SourceInfo_fromRef(x_65, x_66);
@@ -838,7 +836,7 @@ x_76 = l_Lean_Syntax_node2(x_68, x_75, x_1, x_67);
 x_77 = l_Lean_Syntax_node2(x_68, x_69, x_74, x_76);
 x_78 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_78, 0, x_77);
-lean_ctor_set(x_78, 1, x_59);
+lean_ctor_set(x_78, 1, x_61);
 return x_78;
 }
 block_89:
@@ -851,9 +849,9 @@ if (lean_obj_tag(x_80) == 0)
 {
 lean_object* x_85; 
 x_85 = l_Lean_Syntax_getId(x_84);
-x_59 = x_82;
+x_59 = x_81;
 x_60 = x_84;
-x_61 = x_81;
+x_61 = x_82;
 x_62 = x_85;
 goto block_79;
 }
@@ -864,9 +862,9 @@ lean_dec_ref(x_80);
 x_86 = l_Lean_Syntax_getId(x_84);
 x_87 = l_Lake_PartialBuildKey_moduleTargetIndicator;
 x_88 = l_Lean_Name_append(x_86, x_87);
-x_59 = x_82;
+x_59 = x_81;
 x_60 = x_84;
-x_61 = x_81;
+x_61 = x_82;
 x_62 = x_88;
 goto block_79;
 }

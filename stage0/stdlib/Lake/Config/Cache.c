@@ -477,20 +477,19 @@ if (lean_obj_tag(x_1) == 4)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_11 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_11);
 x_12 = lean_array_get_size(x_11);
 x_13 = lean_unsigned_to_nat(2u);
 x_14 = lean_nat_dec_eq(x_12, x_13);
 lean_dec(x_12);
 if (x_14 == 0)
 {
-lean_dec_ref(x_11);
 x_2 = x_1;
 goto block_10;
 }
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_inc_ref(x_11);
 lean_dec_ref(x_1);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = lean_array_fget(x_11, x_15);

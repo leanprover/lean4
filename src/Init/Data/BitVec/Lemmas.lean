@@ -19,8 +19,11 @@ public import Init.Data.Int.LemmasAux
 public import Init.Data.Int.Pow
 public import Init.Data.Int.LemmasAux
 public import Init.Data.BitVec.Bootstrap
+public import Init.Data.Order.Factories
 
 public section
+
+open Std
 
 set_option linter.missingDocs true
 
@@ -4014,6 +4017,16 @@ protected theorem lt_of_le_ne {x y : BitVec n} : x ≤ y → ¬ x = y → x < y 
 protected theorem ne_of_lt {x y : BitVec n} : x < y → x ≠ y := by
   simp only [lt_def, ne_eq, toNat_eq]
   apply Nat.ne_of_lt
+
+instance instIsLinearOrder : IsLinearOrder (BitVec n) := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply BitVec.le_antisymm
+  case le_trans => constructor; apply BitVec.le_trans
+  case le_total => constructor; apply BitVec.le_total
+
+instance instLawfulOrderLT : LawfulOrderLT (BitVec n) := by
+  apply LawfulOrderLT.of_le
+  simpa using fun _ _ => BitVec.lt_asymm
 
 protected theorem umod_lt (x : BitVec n) {y : BitVec n} : 0 < y → x % y < y := by
   simp only [ofNat_eq_ofNat, lt_def, toNat_ofNat, Nat.zero_mod]

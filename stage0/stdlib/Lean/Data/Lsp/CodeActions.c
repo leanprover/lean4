@@ -1175,24 +1175,19 @@ case 2:
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_16 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_16);
 x_17 = lean_ctor_get(x_16, 0);
-lean_inc(x_17);
 x_18 = lean_ctor_get(x_16, 1);
-lean_inc(x_18);
-lean_dec_ref(x_16);
 x_19 = lean_unsigned_to_nat(0u);
 x_20 = lean_nat_dec_eq(x_18, x_19);
-lean_dec(x_18);
 if (x_20 == 0)
 {
-lean_dec(x_17);
 x_6 = x_1;
 goto block_14;
 }
 else
 {
 lean_object* x_21; 
+lean_inc(x_17);
 lean_dec_ref(x_1);
 x_21 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_21, 0, x_17);

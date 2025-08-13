@@ -300,12 +300,12 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_5 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_5);
 x_6 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ScopeM_withNewScope___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_6, 0, x_4);
 x_7 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ScopeM_clearScope___boxed), 6, 0);
 lean_inc_ref(x_1);
 x_8 = lean_apply_2(x_1, lean_box(0), x_7);
+lean_inc_ref(x_5);
 x_9 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_8, x_6);
 x_10 = l_Lean_Compiler_LCNF_ScopeM_withBackTrackingScope___redArg(x_1, x_2, x_3, x_9);
 return x_10;

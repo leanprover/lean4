@@ -18,17 +18,17 @@ This transformation is applied before lower level optimizations
 that introduce the instructions `release` and `set`
 -/
 
-structure VarProjInfo where
+structure DerivedValInfo where
   parent? : Option VarId
   children : VarIdSet
   deriving Inhabited
 
-abbrev VarProjMap := Std.HashMap VarId VarProjInfo
+abbrev DerivedValMap := Std.HashMap VarId DerivedValInfo
 
-namespace CollectProjInfo
+namespace CollectDerivedValInfo
 
 structure State where
-  varMap : VarProjMap := {}
+  varMap : DerivedValMap := {}
   borrowedParams : VarIdSet := {}
 
 abbrev M := StateM State
@@ -45,27 +45,39 @@ private def visitParam (p : Param) : M Unit :=
       else s.borrowedParams
   }
 
+private partial def addDerivedValue (parent : VarId) (child : VarId) : M Unit := do
+  modify fun s => { s with
+    varMap := s.varMap.modify parent fun info =>
+      { info with children := info.children.insert child }
+  }
+  modify fun s => { s with
+    varMap := s.varMap.insert child {
+      parent? := some parent
+      children := {}
+    }
+  }
+
+private partial def removeFromParent (child : VarId) : M Unit := do
+  if let some (some parent) := (← get).varMap.get? child |>.map (·.parent?) then
+    modify fun s => { s with
+      varMap := s.varMap.modify parent fun info =>
+        { info with children := info.children.erase child }
+    }
+
 private partial def visitFnBody (b : FnBody) : M Unit := do
   match b with
   | .vdecl x _ e b =>
     match e with
     | .proj _ parent =>
-      modify fun s => { s with
-        varMap := s.varMap.modify parent fun info =>
-          { info with children := info.children.insert x }
-      }
-      modify fun s => { s with
-        varMap := s.varMap.insert x {
-          parent? := some parent
-          children := {}
-        }
-      }
+      addDerivedValue parent x
+    | .fap ``Array.getInternal args =>
+      if let .var parent := args[1]! then
+        addDerivedValue parent x
+    | .fap ``Array.get!Internal args =>
+      if let .var parent := args[2]! then
+        addDerivedValue parent x
     | .reset _ x =>
-      if let some (some parent) := (← get).varMap.get? x |>.map (·.parent?) then
-        modify fun s => { s with
-          varMap := s.varMap.modify parent fun info =>
-            { info with children := info.children.erase x }
-        }
+      removeFromParent x
     | _ => pure ()
     visitFnBody b
   | .jdecl _ ps v b =>
@@ -75,15 +87,15 @@ private partial def visitFnBody (b : FnBody) : M Unit := do
   | .case _ _ _ alts => alts.forM (visitFnBody ·.body)
   | _ => if !b.isTerminal then visitFnBody b.body
 
-private partial def collectProjInfo (ps : Array Param) (b : FnBody)
-    : VarProjMap × VarIdSet := Id.run do
+private partial def collectDerivedValInfo (ps : Array Param) (b : FnBody)
+    : DerivedValMap × VarIdSet := Id.run do
   let ⟨_, { varMap, borrowedParams }⟩ := go |>.run { }
   return ⟨varMap, borrowedParams⟩
 where go : M Unit := do
   ps.forM visitParam
   visitFnBody b
 
-end CollectProjInfo
+end CollectDerivedValInfo
 
 structure VarInfo where
   isPossibleRef : Bool
@@ -110,7 +122,7 @@ structure Context where
   env            : Environment
   decls          : Array Decl
   borrowedParams : VarIdSet
-  varProjMap     : VarProjMap
+  derivedValMap  : DerivedValMap
   varMap         : VarMap := {}
   jpLiveVarMap   : JPLiveVarMap := {} -- map: join point => live variables
   localCtx       : LocalContext := {} -- we use it to store the join point declarations
@@ -127,7 +139,7 @@ def getJPParams (ctx : Context) (j : JoinPointId) : Array Param :=
 @[specialize]
 private partial def addDescendants (ctx : Context) (x : VarId) (s : VarIdSet)
     (shouldAdd : VarId → Bool := fun _ => true) : VarIdSet :=
-  if let some info := ctx.varProjMap.get? x then
+  if let some info := ctx.derivedValMap.get? x then
     info.children.foldl (init := s) fun s child =>
       let s := if shouldAdd child then s.insert child else s
       addDescendants ctx child s shouldAdd
@@ -345,7 +357,13 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
     | .fap f ys =>
       let ps := (getDecl ctx f).params
       let b  := addDecAfterFullApp ctx ys ps b bLiveVars
-      let b  := .vdecl z t v b
+      let v  :=
+        if f == ``Array.getInternal && bLiveVars.borrows.contains z then
+          .fap ``Array.getInternalBorrowed ys
+        else if f == ``Array.get!Internal && bLiveVars.borrows.contains z then
+          .fap ``Array.get!InternalBorrowed ys
+        else v
+      let b := .vdecl z t v b
       addIncBefore ctx ys ps b bLiveVars
     | .ap x ys =>
       let ysx := ys.push (.var x) -- TODO: avoid temporary array allocation
@@ -436,8 +454,8 @@ partial def visitFnBody (b : FnBody) (ctx : Context) : FnBody × LiveVars :=
 partial def visitDecl (env : Environment) (decls : Array Decl) (d : Decl) : Decl :=
   match d with
   | .fdecl (xs := xs) (body := b) .. =>
-    let ⟨varProjMap, borrowedParams⟩ := CollectProjInfo.collectProjInfo xs b
-    let ctx := updateVarInfoWithParams { env, decls, borrowedParams, varProjMap } xs
+    let ⟨derivedValMap, borrowedParams⟩ := CollectDerivedValInfo.collectDerivedValInfo xs b
+    let ctx := updateVarInfoWithParams { env, decls, borrowedParams, derivedValMap } xs
     let ⟨b, bLiveVars⟩ := visitFnBody b ctx
     let ⟨b, _⟩ := addDecForDeadParams ctx xs b bLiveVars
     d.updateBody! b

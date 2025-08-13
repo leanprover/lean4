@@ -156,7 +156,7 @@ partial def mkNonnegThm? (e : Expr) : GoalM (Option Expr) := do
 where
   go (e : Expr) : MetaM Expr := do
     match_expr e with
-    | OfNat.ofNat _ _ _ => return mkApp2 (mkConst ``Int.Nonneg.num) e reflBoolTrue
+    | OfNat.ofNat _ _ _ => return mkApp2 (mkConst ``Int.Nonneg.num) e eagerReflBoolTrue
     | HAdd.hAdd _ _ _ _ a b => return mkApp4 (mkConst ``Int.Nonneg.add) a b (← go a) (← go b)
     | HMul.hMul _ _ _ _ a b => return mkApp4 (mkConst ``Int.Nonneg.mul) a b (← go a) (← go b)
     | HDiv.hDiv _ _ _ _ a b => return mkApp4 (mkConst ``Int.Nonneg.div) a b (← go a) (← go b)

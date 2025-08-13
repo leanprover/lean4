@@ -174,9 +174,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = lean_ctor_get(x_3, 1);
 x_7 = lean_ctor_get(x_3, 0);
 x_8 = lean_ctor_get(x_6, 0);
-lean_inc(x_8);
 x_9 = lean_ctor_get(x_6, 1);
-lean_inc_ref(x_9);
 x_10 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
 lean_closure_set(x_10, 0, x_1);
 x_11 = lean_array_get_size(x_9);
@@ -206,6 +204,8 @@ x_27 = l_Std_DHashMap_Internal_AssocList_get_x3f___redArg(x_10, x_4, x_26);
 if (lean_obj_tag(x_27) == 0)
 {
 uint8_t x_28; 
+lean_inc_ref(x_9);
+lean_inc(x_8);
 x_28 = !lean_is_exclusive(x_6);
 if (x_28 == 0)
 {
@@ -346,8 +346,6 @@ else
 lean_dec_ref(x_27);
 lean_dec(x_26);
 lean_dec_ref(x_10);
-lean_dec_ref(x_9);
-lean_dec(x_8);
 lean_dec(x_4);
 lean_dec_ref(x_2);
 return x_3;
@@ -362,9 +360,7 @@ lean_inc(x_68);
 lean_inc(x_69);
 lean_dec(x_3);
 x_70 = lean_ctor_get(x_68, 0);
-lean_inc(x_70);
 x_71 = lean_ctor_get(x_68, 1);
-lean_inc_ref(x_71);
 x_72 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
 lean_closure_set(x_72, 0, x_1);
 x_73 = lean_array_get_size(x_71);
@@ -394,6 +390,8 @@ x_89 = l_Std_DHashMap_Internal_AssocList_get_x3f___redArg(x_72, x_4, x_88);
 if (lean_obj_tag(x_89) == 0)
 {
 lean_object* x_90; lean_object* x_91; lean_object* x_92; uint8_t x_93; 
+lean_inc_ref(x_71);
+lean_inc(x_70);
 if (lean_is_exclusive(x_68)) {
  lean_ctor_release(x_68, 0);
  lean_ctor_release(x_68, 1);
@@ -488,8 +486,6 @@ lean_object* x_114;
 lean_dec_ref(x_89);
 lean_dec(x_88);
 lean_dec_ref(x_72);
-lean_dec_ref(x_71);
-lean_dec(x_70);
 lean_dec(x_4);
 lean_dec_ref(x_2);
 x_114 = lean_alloc_ctor(0, 2, 0);

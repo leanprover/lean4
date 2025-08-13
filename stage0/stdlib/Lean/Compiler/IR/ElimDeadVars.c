@@ -67,7 +67,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 lean_object* l_Lean_IR_FnBody_collectFreeIndices(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_FnBody_elimDead_spec__0(size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ElimDeadVars_0__Lean_IR_reshapeWithoutDead_reshape___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ElimDeadVars_0__Lean_IR_initFn___closed__24____x40_Lean_Compiler_IR_ElimDeadVars___hyg_307_;
 static lean_object* l___private_Lean_Compiler_IR_ElimDeadVars_0__Lean_IR_initFn___closed__23____x40_Lean_Compiler_IR_ElimDeadVars___hyg_307_;
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -217,14 +216,6 @@ lean_dec(x_3);
 lean_dec(x_2);
 x_5 = lean_box(x_4);
 return x_5;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ElimDeadVars_0__Lean_IR_reshapeWithoutDead_reshape___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Lean_Compiler_IR_ElimDeadVars_0__Lean_IR_reshapeWithoutDead_reshape___lam__0(x_1, x_2, x_3, x_4, x_5);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_IR_reshapeWithoutDead(lean_object* x_1, lean_object* x_2) {

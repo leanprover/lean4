@@ -1327,7 +1327,7 @@ return x_18;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; lean_object* x_24; lean_object* x_31; uint8_t x_32; lean_object* x_33; lean_object* x_39; uint8_t x_40; lean_object* x_41; uint8_t x_42; 
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_31; uint8_t x_32; lean_object* x_33; lean_object* x_39; uint8_t x_40; lean_object* x_41; uint8_t x_42; 
 x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
 if (lean_is_exclusive(x_17)) {
@@ -1426,10 +1426,10 @@ lean_dec(x_7);
 x_26 = lean_box(0);
 x_27 = lean_alloc_ctor(1, 4, 1);
 lean_ctor_set(x_27, 0, x_21);
-lean_ctor_set(x_27, 1, x_23);
+lean_ctor_set(x_27, 1, x_22);
 lean_ctor_set(x_27, 2, x_25);
 lean_ctor_set(x_27, 3, x_26);
-lean_ctor_set_uint8(x_27, sizeof(void*)*4, x_22);
+lean_ctor_set_uint8(x_27, sizeof(void*)*4, x_23);
 x_28 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_28, 0, x_24);
 lean_ctor_set(x_28, 1, x_6);
@@ -1453,8 +1453,8 @@ lean_dec(x_33);
 lean_dec(x_14);
 lean_dec(x_1);
 x_35 = lean_box(0);
-x_22 = x_32;
-x_23 = x_31;
+x_22 = x_31;
+x_23 = x_32;
 x_24 = x_35;
 goto block_30;
 }
@@ -1470,8 +1470,8 @@ if (lean_is_scalar(x_14)) {
  x_37 = x_14;
 }
 lean_ctor_set(x_37, 0, x_36);
-x_22 = x_32;
-x_23 = x_31;
+x_22 = x_31;
+x_23 = x_32;
 x_24 = x_37;
 goto block_30;
 }
@@ -3978,14 +3978,12 @@ if (lean_obj_tag(x_13) == 4)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_14 = lean_ctor_get(x_11, 0);
-lean_inc_ref(x_14);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec_ref(x_13);
 x_16 = lean_ctor_get(x_14, 0);
-lean_inc_ref(x_16);
-lean_dec_ref(x_14);
 lean_inc(x_15);
+lean_inc_ref(x_16);
 x_17 = l_Lean_isStructure(x_16, x_15);
 if (x_17 == 0)
 {
@@ -4043,14 +4041,12 @@ if (lean_obj_tag(x_29) == 4)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
 x_30 = lean_ctor_get(x_27, 0);
-lean_inc_ref(x_30);
 x_31 = lean_ctor_get(x_29, 0);
 lean_inc(x_31);
 lean_dec_ref(x_29);
 x_32 = lean_ctor_get(x_30, 0);
-lean_inc_ref(x_32);
-lean_dec_ref(x_30);
 lean_inc(x_31);
+lean_inc_ref(x_32);
 x_33 = l_Lean_isStructure(x_32, x_31);
 if (x_33 == 0)
 {

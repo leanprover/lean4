@@ -1860,10 +1860,8 @@ else
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 lean_free_object(x_11);
 x_19 = lean_ctor_get(x_4, 2);
-lean_inc(x_19);
 x_20 = l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0;
 x_21 = l_Lean_Option_get___at___Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0(x_19, x_20);
-lean_dec(x_19);
 if (x_21 == 0)
 {
 lean_object* x_22; 
@@ -2076,10 +2074,8 @@ else
 {
 lean_object* x_71; lean_object* x_72; uint8_t x_73; 
 x_71 = lean_ctor_get(x_4, 2);
-lean_inc(x_71);
 x_72 = l_Lean_Elab_Nonrec_getEqnsFor_x3f___closed__0;
 x_73 = l_Lean_Option_get___at___Lean_Elab_Nonrec_getEqnsFor_x3f_spec__0(x_71, x_72);
-lean_dec(x_71);
 if (x_73 == 0)
 {
 lean_object* x_74; 

@@ -1697,11 +1697,11 @@ x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec_ref(x_14);
 x_17 = lean_ctor_get(x_15, 0);
-lean_inc_ref(x_17);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
+lean_inc_ref(x_17);
 x_18 = l_Lean_Meta_Grind_abstractNestedProofs___redArg(x_17, x_6, x_7, x_8, x_9, x_16);
 if (lean_obj_tag(x_18) == 0)
 {

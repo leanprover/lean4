@@ -38,16 +38,6 @@ def mkParams : MetaM Params := do
   let casesTypes ← Grind.getCasesTypes
   return { params with ematch, casesTypes }
 
--- Remark: The following theorems are triggering a `Panic` at `unfoldDefinition?`
--- TODO: fix it
-private def toSkip : Std.HashSet Name :=
-  Std.HashSet.ofList [``Std.Do.SPred.entails_true_intro, ``Std.Do.SPred.true_intro_simp, ``Std.Do.SPred.conjunction_nil,
-   ``Std.Do.SVal.getThe_here, ``Std.Do.SVal.curry_cons, ``Std.Do.SPred.or_cons, ``Std.Do.SVal.uncurry_cons,
-   ``Std.Do.SPred.entails_cons, ``Std.Do.SPred.conjunction_cons, ``Std.Do.SPred.imp_cons, ``Std.Do.SVal.curry_uncurry,
-   ``Std.Do.SPred.bientails_cons, ``Std.Do.SPred.conjunction_apply, ``Std.Do.SPred.forall_cons,
-   ``Std.Do.SPred.iff_cons, ``Std.Do.SVal.getThe_there, ``Std.Do.SPred.not_cons, ``Std.Do.SPred.and_cons
-]
-
 /-- Returns the total number of generated instances.  -/
 private def sum (cs : PHashMap Origin Nat) : Nat := Id.run do
   let mut r := 0
@@ -87,8 +77,7 @@ def analyzeEMatchTheorems (c : Config := {}) : MetaM Unit := do
   let origins := (← getEMatchTheorems).getOrigins
   for o in origins do
     let .decl declName := o | pure ()
-    unless toSkip.contains declName do
-      analyzeEMatchTheorem declName c
+    analyzeEMatchTheorem declName c
 
 set_option maxHeartbeats 5000000
 run_meta analyzeEMatchTheorems

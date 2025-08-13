@@ -1056,9 +1056,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_4);
 x_5 = lean_array_fget(x_4, x_2);
-lean_dec_ref(x_4);
 x_6 = lean_unbox(x_5);
 if (x_6 == 0)
 {

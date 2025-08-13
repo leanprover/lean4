@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Grind.Ring.Basic
+public import Init.Grind.Ordered.Order
 public import Init.GrindInstances.ToInt
 public import all Init.Data.BitVec.Basic
 public import all Init.Grind.ToInt
@@ -52,5 +53,16 @@ example : ToInt.Sub (BitVec w) (.uint w) := inferInstance
 
 instance : ToInt.Pow (BitVec w) (.uint w) :=
   ToInt.pow_of_semiring (by simp)
+
+instance : Preorder (BitVec w) where
+  le_refl := BitVec.le_refl
+  le_trans := BitVec.le_trans
+  lt_iff_le_not_le {a b} := Std.LawfulOrderLT.lt_iff a b
+
+instance : PartialOrder (BitVec w) where
+  le_antisymm := BitVec.le_antisymm
+
+instance : LinearOrder (BitVec w) where
+  le_total := BitVec.le_total
 
 end Lean.Grind

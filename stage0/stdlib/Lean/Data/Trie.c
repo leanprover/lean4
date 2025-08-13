@@ -482,17 +482,17 @@ default:
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; uint8_t x_82; 
 x_78 = lean_ctor_get(x_4, 0);
-lean_inc(x_78);
 x_79 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_79);
 x_80 = lean_ctor_get(x_4, 2);
-lean_inc_ref(x_80);
 x_81 = lean_string_utf8_byte_size(x_1);
 x_82 = lean_nat_dec_lt(x_3, x_81);
 lean_dec(x_81);
 if (x_82 == 0)
 {
 uint8_t x_83; 
+lean_inc_ref(x_80);
+lean_inc_ref(x_79);
+lean_inc(x_78);
 lean_dec(x_3);
 x_83 = !lean_is_exclusive(x_4);
 if (x_83 == 0)
@@ -534,6 +534,9 @@ x_94 = l_ByteArray_findIdx_x3f_loop___at_____private_Lean_Data_Trie_0__Lean_Data
 if (lean_obj_tag(x_94) == 0)
 {
 uint8_t x_95; 
+lean_inc_ref(x_80);
+lean_inc_ref(x_79);
+lean_inc(x_78);
 x_95 = !lean_is_exclusive(x_4);
 if (x_95 == 0)
 {
@@ -583,9 +586,6 @@ lean_dec(x_111);
 if (x_112 == 0)
 {
 lean_dec(x_110);
-lean_dec_ref(x_80);
-lean_dec_ref(x_79);
-lean_dec(x_78);
 lean_dec(x_3);
 lean_dec_ref(x_2);
 return x_4;
@@ -593,6 +593,9 @@ return x_4;
 else
 {
 uint8_t x_113; 
+lean_inc_ref(x_80);
+lean_inc_ref(x_79);
+lean_inc(x_78);
 x_113 = !lean_is_exclusive(x_4);
 if (x_113 == 0)
 {
@@ -1033,7 +1036,6 @@ case 1:
 {
 lean_object* x_10; 
 x_10 = lean_ctor_get(x_1, 0);
-lean_inc(x_10);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; 
@@ -1046,6 +1048,7 @@ goto _start;
 else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_inc_ref(x_10);
 x_13 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_13);
 lean_dec_ref(x_1);
@@ -1632,7 +1635,6 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; 
@@ -1645,6 +1647,7 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
+lean_inc_ref(x_4);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_dec_ref(x_1);

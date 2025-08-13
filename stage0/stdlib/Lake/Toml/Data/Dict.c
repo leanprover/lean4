@@ -1273,17 +1273,13 @@ x_7 = lean_ctor_get(x_5, 0);
 lean_inc(x_7);
 lean_dec_ref(x_5);
 x_8 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_4, 1);
-lean_inc(x_9);
 x_10 = lean_array_get_size(x_8);
 x_11 = lean_nat_dec_lt(x_7, x_10);
 lean_dec(x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; 
-lean_dec(x_9);
-lean_dec_ref(x_8);
 lean_dec(x_7);
 x_12 = l_Lake_Toml_RBDict_push___redArg(x_1, x_2, x_3, x_4);
 return x_12;
@@ -1291,6 +1287,8 @@ return x_12;
 else
 {
 uint8_t x_13; 
+lean_inc(x_9);
+lean_inc_ref(x_8);
 lean_dec_ref(x_1);
 x_13 = !lean_is_exclusive(x_4);
 if (x_13 == 0)

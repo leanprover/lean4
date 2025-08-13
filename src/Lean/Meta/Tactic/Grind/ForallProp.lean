@@ -67,6 +67,13 @@ private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : E
   catch _ =>
     return none
 
+/-- Returns `true` if `thm?` is none or its patterns are different from the ones in `thm'` -/
+private def isNewPat (thm? : Option EMatchTheorem) (thm' : EMatchTheorem) : Bool :=
+  if let some thm := thm? then
+    thm'.patterns != thm.patterns
+  else
+    true
+
 private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let proof ← mkEqTrueProof e
   let origin ← if let some fvarId := isEqTrueHyp? proof then
@@ -78,10 +85,13 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let size := (← get).ematch.newThms.size
   let gen ← getGeneration e
   -- TODO: we should have a flag for collecting all unary patterns in a local theorem
-  if let some thm ← mkEMatchTheoremWithKind'? origin proof .leftRight (← getSymbolPriorities) then
+  let thm? ← mkEMatchTheoremWithKind'? origin proof .leftRight (← getSymbolPriorities)
+  if let some thm := thm? then
     activateTheorem thm gen
   if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft (← getSymbolPriorities) then
-    activateTheorem thm gen
+    -- Only add `thm` if its patterns are different from `thm?`.
+    if isNewPat thm? thm then
+      activateTheorem thm gen
   if (← get).ematch.newThms.size == size then
     if let some thm ← mkEMatchTheoremWithKind'? origin proof (.default false) (← getSymbolPriorities) then
       activateTheorem thm gen

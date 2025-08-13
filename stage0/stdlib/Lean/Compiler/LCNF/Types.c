@@ -687,7 +687,6 @@ case 3:
 {
 lean_object* x_35; 
 x_35 = lean_ctor_get(x_1, 0);
-lean_inc(x_35);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; lean_object* x_37; 
@@ -703,7 +702,6 @@ return x_37;
 }
 else
 {
-lean_dec(x_35);
 x_13 = x_3;
 x_14 = x_4;
 x_15 = x_5;
@@ -1619,9 +1617,7 @@ if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; uint8_t x_21; 
 x_20 = lean_ctor_get(x_19, 0);
-lean_inc(x_20);
 x_21 = lean_unbox(x_20);
-lean_dec(x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; 
@@ -2525,8 +2521,8 @@ case 4:
 {
 lean_object* x_18; lean_object* x_19; 
 x_18 = lean_ctor_get(x_1, 0);
-lean_inc(x_18);
 lean_inc_ref(x_5);
+lean_inc(x_18);
 x_19 = l_Lean_getConstInfo___at_____private_Lean_Compiler_LCNF_Types_0__Lean_Compiler_LCNF_toLCNFType_visitApp_spec__1(x_18, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_19) == 0)
 {

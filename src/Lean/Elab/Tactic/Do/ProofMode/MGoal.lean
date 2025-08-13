@@ -41,13 +41,10 @@ def SPred.mkType (u : Level) (σs : Expr) : Expr :=
 -- set_option pp.all true in
 -- #check ⌜True⌝
 def SPred.mkPure (u : Level) (σs : Expr) (p : Expr) : Expr :=
-  mkApp3 (mkConst ``SVal.curry [u]) (mkApp (mkConst ``ULift [u, 0]) (.sort .zero)) σs <|
-    mkLambda `tuple .default (mkApp (mkConst ``SVal.StateTuple [u]) σs) <|
-      mkApp2 (mkConst ``ULift.up [u, 0]) (.sort .zero) (Expr.liftLooseBVars p 0 1)
+  mkApp2 (mkConst ``SPred.pure [u]) σs p
 
 def SPred.isPure? : Expr → Option (Level × Expr × Expr)
-  | mkApp3 (.const ``SVal.curry [u]) (mkApp (.const ``ULift _) (.sort .zero)) σs <|
-      .lam _ _ (mkApp2 (.const ``ULift.up _) _ p) _ => some (u, σs, (Expr.lowerLooseBVars p 0 1))
+  | mkApp2 (.const ``SPred.pure [u]) σs p => some (u, σs, p)
   | _ => none
 
 def emptyHypName := `emptyHyp
@@ -93,8 +90,7 @@ def TypeList.mkNil (u : Level) : Expr := mkApp (mkConst ``List.nil [.succ u]) (m
 def TypeList.mkCons (u : Level) (hd tl : Expr) : Expr := mkApp3 (mkConst ``List.cons [.succ u]) (mkSort (.succ u)) hd tl
 
 def parseAnd? (e : Expr) : Option (Level × Expr × Expr × Expr) :=
-      (e.getAppFn.constLevels![0]!, ·) <$> e.app3? ``SPred.and
-  <|> (0, TypeList.mkNil 0, ·) <$> e.app2? ``And
+  (e.getAppFn.constLevels![0]!, ·) <$> e.app3? ``SPred.and
 
 structure MGoal where
   u : Level

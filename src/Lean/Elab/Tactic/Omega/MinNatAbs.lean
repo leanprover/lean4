@@ -9,7 +9,7 @@ prelude
 public import Init.BinderPredicates
 public import Init.Data.Int.Order
 public import Init.Data.List.MinMax
-public import Init.Data.Nat.MinMax
+public import Init.Data.Nat.Order
 public import Init.Data.Option.Lemmas
 
 public section
@@ -35,20 +35,10 @@ We completely characterize the function via
 -/
 def nonzeroMinimum (xs : List Nat) : Nat := xs.filter (· ≠ 0) |>.min? |>.getD 0
 
--- A specialization of `minimum?_eq_some_iff` to Nat.
--- This is a duplicate `min?_eq_some_iff'` proved in `Init.Data.List.Nat.Basic`,
--- and could be deduplicated but the import hierarchy is awkward.
-theorem min?_eq_some_iff'' {xs : List Nat} :
-    xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
-  min?_eq_some_iff
-    (le_refl := Nat.le_refl)
-    (min_eq_or := fun _ _ => Nat.min_def .. ▸ by split <;> simp)
-    (le_min_iff := fun _ _ _ => Nat.le_min)
-
 open Classical in
 @[simp] theorem nonzeroMinimum_eq_zero_iff {xs : List Nat} :
     xs.nonzeroMinimum = 0 ↔ ∀ x ∈ xs, x = 0 := by
-  simp [nonzeroMinimum, Option.getD_eq_iff, min?_eq_none_iff, min?_eq_some_iff'',
+  simp [nonzeroMinimum, Option.getD_eq_iff, min?_eq_none_iff, min?_eq_some_iff,
     filter_eq_nil_iff, mem_filter]
 
 theorem nonzeroMinimum_mem {xs : List Nat} (w : xs.nonzeroMinimum ≠ 0) :
@@ -56,7 +46,7 @@ theorem nonzeroMinimum_mem {xs : List Nat} (w : xs.nonzeroMinimum ≠ 0) :
   dsimp [nonzeroMinimum] at *
   generalize h : (xs.filter (· ≠ 0) |>.min?) = m at *
   match m, w with
-  | some (m+1), _ => simp_all [min?_eq_some_iff'', mem_filter]
+  | some (m+1), _ => simp_all [min?_eq_some_iff, mem_filter]
 
 theorem nonzeroMinimum_pos {xs : List Nat} (m : a ∈ xs) (h : a ≠ 0) : 0 < xs.nonzeroMinimum :=
   Nat.pos_iff_ne_zero.mpr fun w => h (nonzeroMinimum_eq_zero_iff.mp w _ m)
@@ -68,7 +58,7 @@ theorem nonzeroMinimum_le {xs : List Nat} (m : a ∈ xs) (h : a ≠ 0) : xs.nonz
     generalize h : (xs.filter (· ≠ 0) |>.min?) = m? at *
     match m?, w with
     | some m?, _ => rfl
-  rw [min?_eq_some_iff''] at this
+  rw [min?_eq_some_iff] at this
   apply this.2
   simp [List.mem_filter]
   exact ⟨m, h⟩

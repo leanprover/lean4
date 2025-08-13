@@ -63,19 +63,19 @@ where
     let toInt := mkApp3 (mkConst ``Grind.ToInt.toInt [u]) type rangeExpr toIntInst
     let wrap := mkApp (mkConst ``Grind.IntInterval.wrap) rangeExpr
     let ofWrap0? := if let .co 0 hi := range then
-      some <| mkApp3 (mkConst ``Grind.ToInt.of_eq_wrap_co_0) rangeExpr (toExpr hi) reflBoolTrue
+      some <| mkApp3 (mkConst ``Grind.ToInt.of_eq_wrap_co_0) rangeExpr (toExpr hi) eagerReflBoolTrue
     else
       none
     let ofEq := mkApp3 (mkConst ``Grind.ToInt.of_eq [u]) type rangeExpr toIntInst
     let ofDiseq := mkApp3 (mkConst ``Grind.ToInt.of_diseq [u]) type rangeExpr toIntInst
     let lowerThm? := if let some lo := range.lo? then
       if lo == 0 then
-        some <| mkApp4 (mkConst ``Grind.ToInt.ge_lower0 [u]) type rangeExpr toIntInst reflBoolTrue
+        some <| mkApp4 (mkConst ``Grind.ToInt.ge_lower0 [u]) type rangeExpr toIntInst eagerReflBoolTrue
       else
-        some <| mkApp5 (mkConst ``Grind.ToInt.ge_lower [u]) type rangeExpr toIntInst (toExpr lo) reflBoolTrue
+        some <| mkApp5 (mkConst ``Grind.ToInt.ge_lower [u]) type rangeExpr toIntInst (toExpr lo) eagerReflBoolTrue
     else none
     let upperThm? := if let some hi := range.hi? then
-      some <| mkApp5 (mkConst ``Grind.ToInt.le_upper [u]) type rangeExpr toIntInst (toExpr (-hi + 1)) reflBoolTrue
+      some <| mkApp5 (mkConst ``Grind.ToInt.le_upper [u]) type rangeExpr toIntInst (toExpr (-hi + 1)) eagerReflBoolTrue
     else none
     trace[grind.debug.cutsat.toInt] "registered toInt: {type}"
     let id := (← get').toIntInfos.size
@@ -187,15 +187,15 @@ private def mkBinOpThms (opBaseName : Name) (thmName : Name) : ToIntM ToIntThms 
   let cwrName := thmName ++ `wr
   let info ← getInfo
   let c_ww? := if info.range.isFinite && env.contains cwwName then
-    some <| mkApp6 (mkConst cwwName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst reflBoolTrue
+    some <| mkApp6 (mkConst cwwName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst eagerReflBoolTrue
   else
     none
-  let c_wl? := if info.range.isFinite && info.range.nonEmpty && env.contains cwwName then
-    some <| mkApp7 (mkConst cwlName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst reflBoolTrue reflBoolTrue
+  let c_wl? := if info.range.isFinite && info.range.nonEmpty && env.contains cwwName then -- TODO: nonEmpty may be unknown if symbolic bounds
+    some <| mkApp7 (mkConst cwlName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst eagerReflBoolTrue eagerReflBoolTrue
   else
     none
-  let c_wr? := if info.range.isFinite && info.range.nonEmpty && env.contains cwwName then
-    some <| mkApp7 (mkConst cwrName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst reflBoolTrue reflBoolTrue
+  let c_wr? := if info.range.isFinite && info.range.nonEmpty && env.contains cwwName then -- TODO: nonEmpty may be unknown if symbolic bounds
+    some <| mkApp7 (mkConst cwrName [info.u]) info.type info.rangeExpr info.toIntInst opInst toIntOpInst eagerReflBoolTrue eagerReflBoolTrue
   else
     none
   return { c? := some c, c_ww?, c_wl?, c_wr? }

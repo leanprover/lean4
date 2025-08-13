@@ -295,14 +295,12 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_2, 0);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 1);
 lean_inc_ref(x_6);
-lean_dec_ref(x_3);
 lean_inc_ref(x_4);
 x_7 = lean_alloc_closure((void*)(l_Lean_getRefPosition___redArg___lam__1), 5, 4);
 lean_closure_set(x_7, 0, x_6);

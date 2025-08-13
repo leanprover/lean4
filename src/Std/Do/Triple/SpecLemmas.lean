@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Do.Triple.Basic
 public import Std.Do.WP
+import Init.Data.Range.Polymorphic
 
 @[expose] public section
 
@@ -342,12 +343,12 @@ another iteration of the loop body.
 abbrev Invariant.withEarlyReturn
   (onContinue : List.Zipper xs → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
-  (onFail : ExceptConds ps := ExceptConds.false) :
+  (onExcept : ExceptConds ps := ExceptConds.false) :
     Invariant xs (MProd (Option γ) β) ps :=
   ⟨fun ⟨xs, x, b⟩ => spred(
         (⌜x = none⌝ ∧ onContinue xs b)
       ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜xs.suff = []⌝ ∧ onReturn r b)),
-   onFail⟩
+   onExcept⟩
 
 @[spec]
 theorem Spec.forIn'_list {α β : Type u}
@@ -480,6 +481,46 @@ theorem Spec.forIn_range {β : Type} {m : Type → Type v} {ps : PostShape}
     ⦃inv.1 (⟨[], xs.toList, by simp⟩, init)} forIn xs init f ⦃(fun b => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b), inv.2)} := by
   simp only [Std.Range.forIn_eq_forIn_range', Std.Range.size]
   apply Spec.forIn_list inv step
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn'_prange {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [UpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
+    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
+    {xs : PRange ⟨sl, su⟩ α} {init : β} {f : (a : α) → a ∈ xs → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ b rpref x (hx : x ∈ xs) suff (h : xs.toList = rpref.reverse ++ x :: suff),
+        ⦃inv.1 (⟨rpref, x::suff, by simp [h]⟩, b)}
+        f x hx b
+        ⦃(fun r => match r with
+                   | .yield b' => inv.1 (⟨x::rpref, suff, by simp [h]⟩, b')
+                   | .done b' => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b'), inv.2)}) :
+    ⦃inv.1 (⟨[], xs.toList, by simp⟩, init)} forIn' xs init f ⦃(fun b => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b), inv.2)} := by
+  simp only [forIn'_eq_forIn'_toList]
+  apply Spec.forIn'_list inv (fun b rpref x hx suff h => step b rpref x (mem_toList_iff_mem.mp hx) suff h)
+
+open Std.PRange in
+@[spec]
+theorem Spec.forIn_prange {α β : Type u}
+    [Monad m] [WPMonad m ps]
+    [UpwardEnumerable α]
+    [SupportsUpperBound su α] [SupportsLowerBound sl α] [HasFiniteRanges su α]
+    [BoundedUpwardEnumerable sl α] [LawfulUpwardEnumerable α]
+    [LawfulUpwardEnumerableLowerBound sl α] [LawfulUpwardEnumerableUpperBound su α]
+    {xs : PRange ⟨sl, su⟩ α} {init : β} {f : α → β → m (ForInStep β)}
+    (inv : Invariant xs.toList β ps)
+    (step : ∀ b rpref x suff (h : xs.toList = rpref.reverse ++ x :: suff),
+        ⦃inv.1 (⟨rpref, x::suff, by simp [h]⟩, b)}
+        f x b
+        ⦃(fun r => match r with
+                   | .yield b' => inv.1 (⟨x::rpref, suff, by simp [h]⟩, b')
+                   | .done b' => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b'), inv.2)}) :
+    ⦃inv.1 (⟨[], xs.toList, by simp⟩, init)} forIn xs init f ⦃(fun b => inv.1 (⟨xs.toList.reverse, [], by simp⟩, b), inv.2)} := by
+  simp only [forIn]
+  apply Spec.forIn'_prange inv (fun b rpref x _hx suff h => step b rpref x suff h)
 
 @[spec]
 theorem Spec.forIn'_array {α β : Type u}

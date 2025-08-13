@@ -736,9 +736,9 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_2, 2);
 lean_inc_ref(x_4);
+lean_inc_ref(x_3);
 lean_inc(x_1);
 x_5 = l_Vector_instAddCommGroup___redArg(x_1, x_3);
 x_6 = l_Lean_Grind_IntModule_toNatModule___redArg(x_2);

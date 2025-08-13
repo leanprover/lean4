@@ -652,9 +652,7 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; size_t x_16; size_t x_17; lean_object* x_18; 
 x_13 = lean_ctor_get(x_8, 2);
-lean_inc_ref(x_13);
 x_14 = l_Lean_LocalContext_getFVarIds(x_13);
-lean_dec_ref(x_13);
 x_15 = l_Array_reverse___redArg(x_14);
 x_16 = lean_array_size(x_15);
 x_17 = 0;

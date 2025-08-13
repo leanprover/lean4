@@ -427,10 +427,10 @@ x_10 = lean_ctor_get(x_7, 1);
 lean_inc(x_10);
 lean_dec_ref(x_7);
 x_11 = lean_ctor_get(x_4, 2);
-lean_inc(x_11);
 x_12 = lean_ctor_get(x_1, 4);
 lean_inc_ref(x_12);
 lean_dec_ref(x_1);
+lean_inc(x_11);
 x_13 = lean_alloc_closure((void*)(l___private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_isBodyRelevant___lam__0___boxed), 7, 1);
 lean_closure_set(x_13, 0, x_11);
 x_14 = l_Lean_Compiler_LCNF_DeclValue_isCodeAndM___at_____private_Lean_Compiler_LCNF_Visibility_0__Lean_Compiler_LCNF_isBodyRelevant_spec__1(x_12, x_13, x_2, x_3, x_4, x_5, x_10);
@@ -1280,7 +1280,6 @@ x_50 = lean_ctor_get(x_45, 1);
 x_51 = lean_ctor_get(x_45, 0);
 lean_dec(x_51);
 x_52 = lean_ctor_get(x_4, 0);
-lean_inc(x_52);
 x_53 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__1;
 x_54 = l_Lean_MessageData_ofName(x_12);
 lean_ctor_set_tag(x_45, 7);
@@ -1290,6 +1289,7 @@ x_55 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_
 lean_ctor_set_tag(x_39, 7);
 lean_ctor_set(x_39, 1, x_55);
 lean_ctor_set(x_39, 0, x_45);
+lean_inc(x_52);
 x_56 = l_Lean_MessageData_ofName(x_52);
 lean_ctor_set_tag(x_15, 7);
 lean_ctor_set(x_15, 1, x_56);
@@ -1321,7 +1321,6 @@ x_61 = lean_ctor_get(x_45, 1);
 lean_inc(x_61);
 lean_dec(x_45);
 x_62 = lean_ctor_get(x_4, 0);
-lean_inc(x_62);
 x_63 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__1;
 x_64 = l_Lean_MessageData_ofName(x_12);
 x_65 = lean_alloc_ctor(7, 2, 0);
@@ -1331,6 +1330,7 @@ x_66 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_
 lean_ctor_set_tag(x_39, 7);
 lean_ctor_set(x_39, 1, x_66);
 lean_ctor_set(x_39, 0, x_65);
+lean_inc(x_62);
 x_67 = l_Lean_MessageData_ofName(x_62);
 lean_ctor_set_tag(x_15, 7);
 lean_ctor_set(x_15, 1, x_67);
@@ -1428,7 +1428,6 @@ if (lean_is_exclusive(x_77)) {
  x_82 = lean_box(0);
 }
 x_83 = lean_ctor_get(x_4, 0);
-lean_inc(x_83);
 x_84 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__1;
 x_85 = l_Lean_MessageData_ofName(x_12);
 if (lean_is_scalar(x_82)) {
@@ -1443,6 +1442,7 @@ x_87 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_
 x_88 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_88, 0, x_86);
 lean_ctor_set(x_88, 1, x_87);
+lean_inc(x_83);
 x_89 = l_Lean_MessageData_ofName(x_83);
 lean_ctor_set_tag(x_15, 7);
 lean_ctor_set(x_15, 1, x_89);
@@ -1665,7 +1665,6 @@ if (lean_is_exclusive(x_125)) {
  x_130 = lean_box(0);
 }
 x_131 = lean_ctor_get(x_4, 0);
-lean_inc(x_131);
 x_132 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__1;
 x_133 = l_Lean_MessageData_ofName(x_12);
 if (lean_is_scalar(x_130)) {
@@ -1685,6 +1684,7 @@ if (lean_is_scalar(x_122)) {
 }
 lean_ctor_set(x_136, 0, x_134);
 lean_ctor_set(x_136, 1, x_135);
+lean_inc(x_131);
 x_137 = l_Lean_MessageData_ofName(x_131);
 x_138 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_138, 0, x_136);
@@ -1971,7 +1971,6 @@ x_50 = lean_ctor_get(x_45, 1);
 x_51 = lean_ctor_get(x_45, 0);
 lean_dec(x_51);
 x_52 = lean_ctor_get(x_4, 0);
-lean_inc(x_52);
 x_53 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__1;
 x_54 = l_Lean_MessageData_ofName(x_12);
 lean_ctor_set_tag(x_45, 7);
@@ -1981,6 +1980,7 @@ x_55 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_
 lean_ctor_set_tag(x_39, 7);
 lean_ctor_set(x_39, 1, x_55);
 lean_ctor_set(x_39, 0, x_45);
+lean_inc(x_52);
 x_56 = l_Lean_MessageData_ofName(x_52);
 lean_ctor_set_tag(x_15, 7);
 lean_ctor_set(x_15, 1, x_56);
@@ -2012,7 +2012,6 @@ x_61 = lean_ctor_get(x_45, 1);
 lean_inc(x_61);
 lean_dec(x_45);
 x_62 = lean_ctor_get(x_4, 0);
-lean_inc(x_62);
 x_63 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__1;
 x_64 = l_Lean_MessageData_ofName(x_12);
 x_65 = lean_alloc_ctor(7, 2, 0);
@@ -2022,6 +2021,7 @@ x_66 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_
 lean_ctor_set_tag(x_39, 7);
 lean_ctor_set(x_39, 1, x_66);
 lean_ctor_set(x_39, 0, x_65);
+lean_inc(x_62);
 x_67 = l_Lean_MessageData_ofName(x_62);
 lean_ctor_set_tag(x_15, 7);
 lean_ctor_set(x_15, 1, x_67);
@@ -2113,7 +2113,6 @@ if (lean_is_exclusive(x_77)) {
  x_82 = lean_box(0);
 }
 x_83 = lean_ctor_get(x_4, 0);
-lean_inc(x_83);
 x_84 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__1;
 x_85 = l_Lean_MessageData_ofName(x_12);
 if (lean_is_scalar(x_82)) {
@@ -2128,6 +2127,7 @@ x_87 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_
 x_88 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_88, 0, x_86);
 lean_ctor_set(x_88, 1, x_87);
+lean_inc(x_83);
 x_89 = l_Lean_MessageData_ofName(x_83);
 lean_ctor_set_tag(x_15, 7);
 lean_ctor_set(x_15, 1, x_89);
@@ -2330,7 +2330,6 @@ if (lean_is_exclusive(x_125)) {
  x_130 = lean_box(0);
 }
 x_131 = lean_ctor_get(x_4, 0);
-lean_inc(x_131);
 x_132 = l_Std_DTreeMap_Internal_Impl_forInStep___at___Std_DTreeMap_Internal_Impl_forInStep___at___Lean_Compiler_LCNF_markDeclPublicRec_spec__2_spec__2___closed__1;
 x_133 = l_Lean_MessageData_ofName(x_12);
 if (lean_is_scalar(x_130)) {
@@ -2350,6 +2349,7 @@ if (lean_is_scalar(x_122)) {
 }
 lean_ctor_set(x_136, 0, x_134);
 lean_ctor_set(x_136, 1, x_135);
+lean_inc(x_131);
 x_137 = l_Lean_MessageData_ofName(x_131);
 x_138 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_138, 0, x_136);

@@ -181,13 +181,11 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_9 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_1, 1);
-lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 0);
-lean_inc(x_11);
-lean_dec_ref(x_9);
 x_12 = l_Lake_LeanExe_exeFacet;
+lean_inc(x_10);
+lean_inc(x_11);
 x_13 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_13, 0, x_11);
 lean_ctor_set(x_13, 1, x_10);
@@ -561,12 +559,12 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 x_17 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_17);
 x_18 = lean_ctor_get(x_1, 3);
 lean_inc_ref(x_18);
 x_19 = lean_ctor_get(x_1, 16);
 lean_inc_ref(x_19);
 x_20 = l_Lake_Package_uploadRelease___closed__2;
+lean_inc_ref(x_17);
 x_21 = l_Lake_joinRelative(x_17, x_20);
 x_22 = l_Lake_joinRelative(x_21, x_19);
 lean_inc_ref(x_22);
@@ -784,8 +782,8 @@ _start:
 {
 lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
 x_7 = 0;
+lean_inc(x_6);
 x_8 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_6, x_7);
 x_21 = lean_string_utf8_byte_size(x_3);
 x_22 = lean_unsigned_to_nat(0u);
@@ -845,7 +843,6 @@ else
 lean_object* x_33; 
 lean_dec_ref(x_1);
 x_33 = lean_ctor_get(x_25, 1);
-lean_inc(x_33);
 if (lean_obj_tag(x_33) == 0)
 {
 uint8_t x_34; 
@@ -1025,7 +1022,6 @@ return x_87;
 }
 else
 {
-lean_dec_ref(x_33);
 lean_dec_ref(x_25);
 lean_dec_ref(x_24);
 x_9 = x_5;
@@ -1216,13 +1212,10 @@ x_16 = lean_ctor_get(x_6, 14);
 lean_inc_ref(x_16);
 lean_dec_ref(x_6);
 x_17 = lean_ctor_get(x_11, 0);
-lean_inc(x_17);
 x_18 = lean_ctor_get(x_11, 13);
-lean_inc(x_18);
 lean_inc(x_14);
 x_19 = l_String_toName(x_14);
 x_20 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_18, x_19);
-lean_dec(x_18);
 if (lean_obj_tag(x_20) == 0)
 {
 uint8_t x_21; lean_object* x_22; lean_object* x_119; 
@@ -1232,7 +1225,6 @@ x_22 = l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(x_17, x_2
 x_119 = l_Lake_Package_findTargetDecl_x3f(x_19, x_11);
 if (lean_obj_tag(x_119) == 0)
 {
-lean_dec(x_17);
 goto block_118;
 }
 else
@@ -1255,7 +1247,6 @@ if (x_125 == 0)
 {
 lean_dec(x_123);
 lean_dec(x_121);
-lean_dec(x_17);
 goto block_118;
 }
 else
@@ -1263,6 +1254,7 @@ else
 lean_object* x_126; lean_object* x_127; lean_object* x_128; 
 lean_dec_ref(x_22);
 lean_dec(x_19);
+lean_inc(x_17);
 lean_dec(x_15);
 lean_dec(x_14);
 lean_dec(x_13);
@@ -1766,7 +1758,6 @@ else
 {
 lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; 
 lean_dec(x_19);
-lean_dec(x_17);
 lean_dec(x_15);
 lean_dec(x_14);
 lean_dec(x_13);
@@ -1862,11 +1853,9 @@ lean_dec_ref(x_6);
 x_16 = lean_ctor_get(x_11, 0);
 lean_inc(x_16);
 x_17 = lean_ctor_get(x_11, 13);
-lean_inc(x_17);
 lean_inc(x_14);
 x_28 = l_String_toName(x_14);
 x_29 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_17, x_28);
-lean_dec(x_17);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; 

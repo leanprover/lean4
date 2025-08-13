@@ -15,8 +15,12 @@ public import all Init.Data.BitVec.Basic
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.Nat.Div.Lemmas
 public import Init.System.Platform
+public import Init.Data.Order.Factories
+import Init.Data.Order.Lemmas
 
 public section
+
+open Std
 
 open Lean in
 set_option hygiene false in
@@ -205,6 +209,19 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   open $typeName (le_antisymm_iff) in
   protected theorem le_antisymm {a b : $typeName} (h₁ : a ≤ b) (h₂ : b ≤ a) : a = b :=
     le_antisymm_iff.2 ⟨h₁, h₂⟩
+
+  open $typeName renaming
+    le_refl → le_refl', le_antisymm → le_antisymm', le_total → le_total', le_trans → le_trans' in
+  instance instIsLinearOrder : IsLinearOrder $typeName := by
+    apply IsLinearOrder.of_le
+    case le_antisymm => constructor; apply le_antisymm'
+    case le_total => constructor; apply le_total'
+    case le_trans => constructor; apply le_trans'
+
+open $typeName renaming not_le → not_le'
+instance : LawfulOrderLT $typeName where
+  lt_iff _ _ := by
+    simp [← not_le', Decidable.imp_iff_not_or, Std.Total.total]
 
   @[simp] protected theorem ofNat_one : ofNat 1 = 1 := (rfl)
 

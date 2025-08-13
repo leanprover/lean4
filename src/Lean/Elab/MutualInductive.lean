@@ -905,7 +905,7 @@ where
             -- Check for valid nested induction
             unless (← isInductive fn) do
               throwError "Non-positive occurrence of inductive type `{indFVar}`: \
-                Nested occurrenes can only occur in inductive types, not in `{.ofConstName fn}`."
+                Nested occurrences can only occur in inductive types, not in `{.ofConstName fn}`."
             let info ← getConstInfoInduct fn
             unless args.size = info.numParams + info.numIndices do
               throwError "Non-positive occurrence of inductive type `{indFVar}`: \
@@ -918,7 +918,14 @@ where
                     `{.ofConstName fn}` is not positive."
                   let msg := msg ++ .note m!"That parameter is not positive:{indentD e.toMessageData}"
                   throwError msg
-                go params pe
+                -- Here, we allow lambdas in parameters. The kernel actually substitutes these while
+                -- doing the transformation for nested inductives, and may reduce these lambdas away.
+                -- We approximate this behavior for now. See `lean/run/nestedInductiveUniverse.lean`
+                -- for an example
+                lambdaTelescope pe fun _xs pe => do
+                  -- We do not consider the domains of the lambda-bound variables
+                  -- as negative occurrences, as they will be reduced away.
+                  go params pe
 
               -- The kernel admits no local variables in the parameters (#1964)
               -- so check for any fvar that isn't one of the indFVars or params
@@ -1040,7 +1047,8 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
             propagateUniversesToConstructors numParams indTypes
             levelMVarToParam indTypes none
         checkResultingUniverses views elabs' numParams indTypes
-        checkPositivity views indFVars numParams indTypes
+        unless isUnsafe do
+          checkPositivity views indFVars numParams indTypes
         elabs'.forM fun elab' => elab'.finalizeTermElab
         let usedLevelNames := collectLevelParamsInInductive indTypes
         match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with

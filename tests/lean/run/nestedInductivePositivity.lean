@@ -32,7 +32,7 @@ axiom T : Type → Type
 
 /--
 error: In argument #1 of constructor Bad3.mk:
-  Non-positive occurrence of inductive type `Bad3`: Nested occurrenes can only occur in inductive types, not in `T`.
+  Non-positive occurrence of inductive type `Bad3`: Nested occurrences can only occur in inductive types, not in `T`.
 -/
 #guard_msgs in
 inductive Bad3 where

@@ -938,6 +938,27 @@ def mkFreshN (n : Nat) : StateM Supply (List Nat) := do
     acc := acc.push (← mkFresh)
   pure acc.toList
 
+namespace Noncompositional
+
+theorem mkFreshN_correct (n : Nat) : ((mkFreshN n).run' s).Nodup := by
+  generalize h : (mkFreshN n).run' s = x
+  apply StateM.of_wp_run'_eq h
+  mvcgen [mkFreshN, mkFresh]
+  case inv1 => exact ⇓⟨xs, acc⟩ state => ⌜(∀ x ∈ acc, x < state.counter) ∧ acc.toList.Nodup⌝
+  all_goals mleave; grind
+
+theorem mkFreshN_correct_directly (n : Nat) : ((mkFreshN n).run' s).run.Nodup := by
+  simp [mkFreshN, mkFresh]
+  generalize hacc : #[] = acc
+  change ?prog.Nodup
+  suffices h : acc.toList.Nodup → (∀ x ∈ acc, x < s.counter) → ?prog.Nodup by grind
+  clear hacc
+  induction List.range' 0 n generalizing acc s with (simp_all; try grind)
+
+end Noncompositional
+
+namespace Compositional
+
 @[spec]
 theorem mkFresh_spec (c : Nat) : ⦃fun state => ⌜state.counter = c⌝⦄ mkFresh ⦃⇓ r state => ⌜r = c ∧ c < state.counter⌝⦄ := by
   mvcgen [mkFresh]
@@ -951,6 +972,8 @@ theorem mkFreshN_spec (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.N
 
 theorem mkFreshN_correct (n : Nat) : ((mkFreshN n).run' s).Nodup :=
   mkFreshN_spec n s True.intro
+
+end Compositional
 
 end Fresh
 
@@ -970,8 +993,9 @@ abbrev liftCounterM : StateT Supply (StateM String) α → AppM α := liftM
 def mkFreshN (n : Nat) : AppM (List Nat) := do
   let mut acc := #[]
   for _ in [:n] do
-    acc := acc.push (← liftCounterM mkFresh)
-  pure acc.toList
+    let n ← liftCounterM mkFresh
+    acc := acc.push n
+  return acc.toList
 
 @[spec]
 theorem mkFresh_spec [Monad m] [WPMonad m ps] (c : Nat) :
@@ -982,7 +1006,7 @@ theorem mkFresh_spec [Monad m] [WPMonad m ps] (c : Nat) :
 @[spec]
 theorem mkFreshN_spec (n : Nat) : ⦃⌜True⌝⦄ mkFreshN n ⦃⇓ r => ⌜r.Nodup⌝⦄ := by
   mvcgen [mkFreshN, liftCounterM]
-  case inv1 => exact ⇓⟨xs, acc⟩ _ state => ⌜(∀ x ∈ acc, x < state.counter) ∧ acc.toList.Nodup⌝
+  case inv1 => exact ⇓⟨xs, acc⟩ _ state => ⌜(∀ n ∈ acc, n < state.counter) ∧ acc.toList.Nodup⌝
   all_goals mleave; grind
 
 theorem mkFreshN_correct (n : Nat) : (((StateT.run' (mkFreshN n) b).run' c).run' s).Nodup :=

@@ -183,23 +183,23 @@ def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β �
   | top :: _ => top.state
   | _        => unreachable!
 
-def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) (parent : Option Name := none): Environment :=
+def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env : Environment) (namespaceName : Name) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
     match s.stateStack with
     | top :: stack =>
       if top.activeScopes.contains namespaceName then
-        {s with stateStack := {top with parent := parent} :: stack }
+        {s with stateStack := top :: stack }
       else
         let activeScopes := top.activeScopes.insert namespaceName
         let top :=
           match s.scopedEntries.map.find? namespaceName with
           | none =>
-            { top with activeScopes := activeScopes, parent := parent}
+            { top with activeScopes := activeScopes }
           | some bs => Id.run do
             let mut state := top.state
             for b in bs do
               state := ext.descr.addEntry state b
-            { state := state, activeScopes := activeScopes, parent := parent }
+            { state := state, activeScopes := activeScopes }
         { s with stateStack := top :: stack }
     | _ => s
 
@@ -207,6 +207,12 @@ def ScopedEnvExtension.modifyState (ext : ScopedEnvExtension α β σ) (env : En
   ext.ext.modifyState env fun s =>
     match s.stateStack with
     | top :: stack => { s with stateStack := { top with state := f top.state } :: stack }
+    | _ => s
+
+def ScopedEnvExtension.modifyParent (ext : ScopedEnvExtension α β σ) (env : Environment) (parent : Option Name := none) : Environment :=
+  ext.ext.modifyState env fun s =>
+    match s.stateStack with
+    | top :: stack => { s with stateStack := { top with parent := parent } :: stack }
     | _ => s
 
 def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
@@ -217,9 +223,13 @@ def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit :=
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv ext.popScope
 
-def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (namespaceName : Name) (parent : Option Name := none ) : m Unit := do
+def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (namespaceName : Name) : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
-    modifyEnv (ext.activateScoped · namespaceName parent)
+    modifyEnv (ext.activateScoped · namespaceName)
+
+def activateSoft  [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (parent : Option Name := none) : m Unit := do
+  for ext in (← scopedEnvExtensionsRef.get) do
+    modifyEnv (ext.modifyParent · parent)
 
 abbrev SimpleScopedEnvExtension (α : Type) (σ : Type) := ScopedEnvExtension α α σ
 

@@ -30,12 +30,17 @@ namespace Lean.Elab.Command
     modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
   | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
+register_option Lean.Elab.implicit : Bool := {
+  defValue := false
+}
+
 private def getParent (scopes : List Scope) : Name :=
-  scopes.head!.currNamespace
+scopes.head!.currNamespace
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
     (isNoncomputable isPublic : Bool := false) (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (soft : Bool := false) :
     CommandElabM Unit := do
+  trace[Elab] "adding scope, isNewNamespace: {isNewNamespace}, header: {header}, newNamespace: {newNamespace}, isNoncomputable: {isNoncomputable}, isPublic: {isPublic}, attrs: {attrs}, isSoft: {soft}"
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,
     scopes := { s.scopes.head! with
@@ -43,15 +48,17 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
       isNoncomputable := s.scopes.head!.isNoncomputable || isNoncomputable
       isPublic := s.scopes.head!.isPublic || isPublic
       attrs := s.scopes.head!.attrs ++ attrs
-    } :: s.scopes
+    } :: s.scopes,
   }
   pushScope
   if isNewNamespace then
-    if soft then
-      trace[Elab] "activate scoped with {getParent (←get).scopes}"
-      activateScoped newNamespace (getParent (←get).scopes)
-    else
-      activateScoped newNamespace none
+    activateScoped newNamespace
+  if soft then
+    let parent := getParent (← get).scopes
+    trace[Elab] "parent: {parent}, parent.prefix: {parent.getPrefix}"
+    let parent := if isNewNamespace then parent.getPrefix else parent
+    activateSoft parent
+
 
 private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic : Bool := false)
     (attrs : List (TSyntax ``Parser.Term.attrInstance) := []) (soft : Bool := false) : CommandElabM Unit :=
@@ -61,20 +68,23 @@ where go
   | .str p header => do
     go p
     let currNamespace ← getCurrNamespace
-    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs soft
+    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace) isNoncomputable isPublic attrs (soft := soft)
   | _ => throwError "invalid scope"
 
-private def addNamespace (header : Name) (soft : Bool := false) : CommandElabM Unit :=
-  addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header soft
+private def addNamespace (header : Name) (soft : Bool := false) : CommandElabM Unit := do
+  trace[Elab] "addNamespace: header: {header}, soft: {soft} "
+  addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header (soft := soft)
 
 def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) (soft : Bool := false) : CommandElabM α := do
+  trace[Elab] "withNamespace ns: {ns}, soft: {soft}"
   addNamespace ns soft
   let a ← elabFn
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
   pure a
 
-def withSoftNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
-  if ns.isAnonymous then elabFn else withNamespace ns elabFn (soft := true)
+-- def withSoftNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
+--   trace[Elab] "ns: {ns}, ns.isAnonymous: {ns.isAnonymous}"
+--   if ns.isAnonymous then elabFn else withNamespace ns elabFn (soft := true)
 
 private def popScopes (numScopes : Nat) : CommandElabM Unit :=
   for _ in *...numScopes do
@@ -94,12 +104,16 @@ private def checkEndHeader : Name → List Scope → Option Name
       some <| .mkSimple h
   | _, _ => some .anonymous -- should not happen
 
-@[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
+@[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx => do
+  let isSoft := Lean.Elab.implicit.get (←getOptions)
+  trace[Elab] "elabNamespace: isSoft: {isSoft}"
   match stx with
-  | `(namespace $n) => addNamespace n.getId
+  | `(namespace $n) => addNamespace n.getId isSoft
   | _               => throwUnsupportedSyntax
 
 @[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
+  let isSoft := Lean.Elab.implicit.get (←getOptions)
+  trace[Elab] "elabSection: isSoft: {isSoft}"
   match stx with
   | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $(header?)?) =>
     -- TODO: allow more attributes?
@@ -108,9 +122,9 @@ private def checkEndHeader : Name → List Scope → Option Name
     else
       pure []
     if let some header := header? then
-      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId
+      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId (soft := isSoft)
     else
-      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace)
+      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (soft := isSoft)
   | _                        => throwUnsupportedSyntax
 
 /--
@@ -497,7 +511,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(section $cmd₁:command $cmd₂ end)
+    withRef tk `(set_option Lean.Elab.implicit true section $cmd₁:command $cmd₂ end set_option Lean.Elab.implicit false)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do

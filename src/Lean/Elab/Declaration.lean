@@ -29,15 +29,6 @@ private def ensureValidNamespace (name : Name) : MacroM Unit := do
   | .num .. => Macro.throwError s!"invalid namespace '{name}', it must not contain numeric parts"
   | .anonymous => return ()
 
-private def ensureValidNamespaceElab (name : Name) : CommandElabM Unit := do
-  match name with
-  | .str p s =>
-    if s == "_root_" then
-     throwError s!"invalid namespace '{name}', '_root_' is a reserved namespace"
-    ensureValidNamespaceElab p
-  | .num .. => throwError s!"invalid namespace '{name}', it must not contain numeric parts"
-  | .anonymous => return ()
-
 private def setDeclIdName (declId : Syntax) (nameNew : Name) : Syntax :=
   let (id, _) := expandDeclIdCore declId
   -- We should not update the name of `def _root_.` declarations
@@ -112,21 +103,6 @@ private def expandDeclNamespace? (stx : Syntax) : MacroM (Option (Name × Syntax
   | .str pre shortName => return some (pre, setDefName stx { scpView with name := .mkSimple shortName }.review)
   | _ => return none
 
-/--
-  Given declarations such as `@[...] def Foo.Bla.f ...` return `some (Foo.Bla, @[...] def f ...)`
-  Remark: if the id starts with `_root_`, we return `none`.
--/
-private def expandDeclNamespaceElab? (stx : Syntax) : CommandElabM (Option (Name × Syntax)) := do
-  let some name := getDefName? stx | return none
-  if (`_root_).isPrefixOf name then
-    ensureValidNamespaceElab (name.replacePrefix `_root_ Name.anonymous)
-    return none
-  let scpView := extractMacroScopes name
-  match scpView.name with
-  | .str .anonymous _ => return none
-  | .str pre shortName => return some (pre, setDefName stx { scpView with name := .mkSimple shortName }.review)
-  | _ => return none
-
 def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   -- leading_parser "axiom " >> declId >> declSig
   let declId             := stx[1]
@@ -171,40 +147,33 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
 Macro that expands a declaration with a complex name into an explicit `namespace` block.
 Implementing this step as a macro means that reuse checking is handled by `elabCommand`.
  -/
--- @[builtin_macro Lean.Parser.Command.declaration]
--- def expandNamespacedDeclaration : Macro := fun stx => do
---   match (← expandDeclNamespace? stx) with
---   | some (ns, newStx) => do
---     -- Limit ref variability for incrementality; see Note [Incremental Macros]
---     let declTk := stx[1][0]
---     let ns := mkIdentFrom declTk ns
---     withRef declTk `(namespace $ns $(⟨newStx⟩) end $ns)
---   | none => Macro.throwUnsupported
+@[builtin_macro Lean.Parser.Command.declaration]
+def expandNamespacedDeclaration : Macro := fun stx => do
+  match (← expandDeclNamespace? stx) with
+  | some (ns, newStx) => do
+    -- Limit ref variability for incrementality; see Note [Incremental Macros]
+    let declTk := stx[1][0]
+    let ns := mkIdentFrom declTk ns
+    withRef declTk `(set_option Lean.Elab.implicit true namespace $ns $(⟨newStx⟩) end $ns set_option Lean.Elab.implicit false)
+  | none => Macro.throwUnsupported
 
 @[builtin_command_elab declaration, builtin_incremental]
 def elabDeclaration : CommandElab := fun stx => do
   withExporting (isExporting := (← getScope).isPublic) do
-  let mut stx := stx
-  let mut ns := Name.anonymous
-  match (← expandDeclNamespaceElab? stx) with
-  | some (ns_name, newStx) => ns := ns_name; stx := newStx
-  | none => stx := stx
-
   let modifiers : TSyntax ``Parser.Command.declModifiers := ⟨stx[0]⟩
   let decl     := stx[1]
   let declKind := decl.getKind
-  withSoftNamespace ns do
     if isDefLike decl then
         elabMutualDef #[stx]
     else withoutCommandIncrementality true do
       let modifiers ← elabModifiers modifiers
       withExporting (isExporting := modifiers.isInferredPublic (← getEnv)) do
         if declKind == ``Lean.Parser.Command.«axiom» then
-          elabAxiom modifiers decl
+        elabAxiom modifiers decl
         else if declKind == ``Lean.Parser.Command.«inductive»
             || declKind == ``Lean.Parser.Command.classInductive
             || declKind == ``Lean.Parser.Command.«structure» then
-          elabInductive modifiers decl
+          do elabInductive modifiers decl
         else
           throwError "unexpected declaration"
 

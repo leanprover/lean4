@@ -64,7 +64,7 @@ private def resolveNameUsingNamespacesCore (nss : List Name) (idStx : Syntax) : 
   else
     withRef idStx do throwError "ambiguous identifier '{idStx.getId}', possible interpretations: {result.map mkConst}"
 
-def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
+def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] [MonadTrace m]  (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
     match stx with
     | `(Parser.Command.openDecl| $nss*) =>

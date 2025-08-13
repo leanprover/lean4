@@ -565,16 +565,21 @@ where
 
 @[builtin_term_elab binrel_no_prop] def elabBinRelNoProp : TermElab := elabBinRelCore true
 
+end Op
+
 @[builtin_term_elab defaultOrOfNonempty]
-def elabDefaultOrNonempty : TermElab :=  fun stx expectedType? => do
+def elabDefaultOrOfNonempty : TermElab :=  fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
   match expectedType? with
   | none => throwError "invalid 'default_or_ofNonempty%', expected type is not known"
   | some expectedType =>
+    let u ← getLevel expectedType
     try
-      mkDefault expectedType
+      let inst ← synthInstance (mkApp (.const ``Inhabited [u]) expectedType)
+      return mkApp2 (.const ``default [u]) expectedType inst
     catch ex => try
-      mkOfNonempty expectedType
+      let inst ← synthInstance (mkApp (.const ``Nonempty [u]) expectedType)
+      return mkApp2 (.const ``Classical.ofNonempty [u]) expectedType inst
     catch _ =>
       if stx[1].isNone then
         throw ex
@@ -586,7 +591,5 @@ def elabDefaultOrNonempty : TermElab :=  fun stx expectedType? => do
 builtin_initialize
   registerTraceClass `Elab.binop
   registerTraceClass `Elab.binrel
-
-end Op
 
 end Lean.Elab.Term

@@ -102,7 +102,7 @@ private def mkPreorderInst? (u : Level) (type : Expr) (leInst? ltInst? : Option 
   let some ltInst := ltInst? | return none
   let preorderType := mkApp3 (mkConst ``Grind.Preorder [u]) type leInst ltInst
   let some inst ← synthInstance? preorderType
-    | reportIssue! "type has `LE` and `LT`, but is not preorder, failed to synthesize{indentExpr preorderType}"
+    | reportIssue! "type has `LE` and `LT`, but is not a preorder, failed to synthesize{indentExpr preorderType}"
       return none
   return some inst
 
@@ -111,7 +111,7 @@ private def mkPartialOrderInst? (u : Level) (type : Expr) (leInst? ltInst? : Opt
   let some ltInst := ltInst? | return none
   let partialOrderType := mkApp3 (mkConst ``Grind.PartialOrder [u]) type leInst ltInst
   let some inst ← synthInstance? partialOrderType
-    | reportIssue! "type has `LE` and `LT`, but is not partial order, failed to synthesize{indentExpr partialOrderType}"
+    | reportIssue! "type has `LE` and `LT`, but is not a partial order, failed to synthesize{indentExpr partialOrderType}"
       return none
   return some inst
 
@@ -120,7 +120,7 @@ private def mkLinearOrderInst? (u : Level) (type : Expr) (leInst? ltInst? : Opti
   let some ltInst := ltInst? | return none
   let linearOrderType := mkApp3 (mkConst ``Grind.LinearOrder [u]) type leInst ltInst
   let some inst ← synthInstance? linearOrderType
-    | reportIssue! "type has `LE` and `LT`, but is not linear order, failed to synthesize{indentExpr linearOrderType}"
+    | reportIssue! "type has `LE` and `LT`, but is not a linear order, failed to synthesize{indentExpr linearOrderType}"
       return none
   return some inst
 

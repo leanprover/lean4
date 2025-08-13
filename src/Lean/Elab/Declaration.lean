@@ -153,7 +153,7 @@ def expandNamespacedDeclaration : Macro := fun stx => do
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
     let declTk := stx[1][0]
     let ns := mkIdentFrom declTk ns
-    withRef declTk `(namespace $ns $(⟨newStx⟩) end $ns)
+    withRef declTk `(set_option Lean.Elab.implicit true namespace $ns $(⟨newStx⟩) end $ns set_option Lean.Elab.implicit false)
   | none => Macro.throwUnsupported
 
 @[builtin_command_elab declaration, builtin_incremental]
@@ -166,7 +166,9 @@ def elabDeclaration : CommandElab := fun stx => do
     -- only case implementing incrementality currently
     elabMutualDef #[stx]
   else withoutCommandIncrementality true do
-    let modifiers ← elabModifiers modifiers
+    let scope ← getScope
+    trace[Elab] "isImplicit: {scope.isImplicit}"
+    let modifiers ← elabModifiers modifiers (isImplicit := scope.isImplicit)
     withExporting (isExporting := modifiers.isInferredPublic (← getEnv)) do
       if declKind == ``Lean.Parser.Command.«axiom» then
         elabAxiom modifiers decl
@@ -304,6 +306,8 @@ def elabMutual : CommandElab := fun stx => do
         logErrorAt attrKindStx m!"unknown attribute [{attrName}]"
     else
       attrInsts := attrInsts.push attrKindStx
+  let currentScope ← getScope
+  trace[Elab] "elabAttr: current scope is implicit: {currentScope.isImplicit}"
   let attrs ← elabAttrs attrInsts
   let idents := stx[4].getArgs
   for ident in idents do withRef ident <| liftTermElabM do

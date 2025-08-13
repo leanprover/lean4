@@ -63,7 +63,7 @@ structure Mutable (α : Type) where
 namespace Mutable
 
 /-- Creates an empty mutable circular buffer with the specified capacity. -/
-def emptyWithCapacity (capacity : Nat) (h : capacity > 0 := by decide) : IO (Mutable α) := do
+def emptyWithCapacity (capacity : Nat) (h : capacity > 0 := by decide) : BaseIO (Mutable α) := do
   let storage ← Vector.mapM (fun _ => IO.mkRef none) (Vector.replicate capacity ())
 
   return {
@@ -87,7 +87,7 @@ def isFull (buf : Mutable α) : Bool :=
 Enqueues an element to the back of the circular buffer.
 If the buffer is full, the oldest element (at front) is overwritten.
 -/
-def enqueue [Inhabited α] (mutable : Mutable α) (value : α) : IO (Mutable α) := do
+def enqueue [Nonempty α] (mutable : Mutable α) (value : α) : BaseIO (Mutable α) := do
   let tailRef := mutable.data.get mutable.write
   tailRef.set (some value)
 
@@ -100,7 +100,7 @@ def enqueue [Inhabited α] (mutable : Mutable α) (value : α) : IO (Mutable α)
 Dequeues an element from the front of the circular buffer.
 Returns none if the buffer is empty.
 -/
-def dequeue (mutable : Mutable α) : IO (Option α × Mutable α) := do
+def dequeue (mutable : Mutable α) : BaseIO (Option α × Mutable α) := do
   let readRef := mutable.data.get mutable.read
   let value ← readRef.get
 
@@ -113,7 +113,7 @@ def dequeue (mutable : Mutable α) : IO (Option α × Mutable α) := do
 Peeks at the element at the front of the buffer without removing it.
 Returns none if the buffer is empty.
 -/
-def front? (mutable : Mutable α) : IO (Option α) := do
+def front? (mutable : Mutable α) : BaseIO (Option α) := do
   if mutable.isEmpty then
     return none
   else
@@ -124,20 +124,40 @@ def front? (mutable : Mutable α) : IO (Option α) := do
 Peeks at the element at the front of the buffer without removing it.
 Returns none if the buffer is empty.
 -/
-def get? (mutable : Mutable α) (place : Nat) : IO (Option (IO.Ref (Option α))) := do
-  if mutable.size ≥ place then
-    return none
-  else
-    let idx := (@Fin.ofNat mutable.capacity ⟨Nat.ne_zero_of_lt mutable.capacityH⟩ (mutable.read.val + place))
-    let valueRef := mutable.data.get idx
-    return some valueRef
+def frontRef? (mutable : Mutable α) : IO.Ref (Option α) :=
+  mutable.data.get mutable.read
 
+/--
+Peeks at the element at the front of the buffer without removing it.
+Returns none if the buffer is empty.
+-/
+def backRef? (mutable : Mutable α) : IO.Ref (Option α) :=
+  mutable.data.get mutable.write
+
+/--
+Peeks at the element at the front of the buffer without removing it.
+Returns none if the buffer is empty.
+-/
+def get? (mutable : Mutable α) (place : Nat) : Option (IO.Ref (Option α)) := do
+  let idx := (@Fin.ofNat mutable.capacity ⟨Nat.ne_zero_of_lt mutable.capacityH⟩ (mutable.read.val + place))
+  let valueRef := mutable.data.get idx
+  some valueRef
+
+/--
+Peeks at the element at the front of the buffer without removing it.
+Returns none if the buffer is empty.
+-/
+def get! (mutable : Mutable α) (place : Nat) : IO (IO.Ref (Option α)) :=
+  if let some res := mutable.get? place then
+    return res
+  else
+    panic! "elem not found"
 /--
 Convert the mutable circular buffer to an array containing all elements in order.
 The elements are returned in the order they would be popped (FIFO order).
 -/
-def toArray (mutable : Mutable α) : IO (Array α) := do
-  let rec go (i : Nat) (acc : Array α) : IO (Array α) := do
+def toArray (mutable : Mutable α) : BaseIO (Array α) := do
+  let rec go (i : Nat) (acc : Array α) : BaseIO (Array α) := do
     if i < mutable.size then
       let pos := (mutable.read.val + i) % mutable.capacity
       let posLt : pos < mutable.capacity := Nat.mod_lt _ mutable.capacityH
@@ -150,12 +170,11 @@ def toArray (mutable : Mutable α) : IO (Array α) := do
       return acc
   go 0 #[]
 
-
 /--
 Convert the mutable circular buffer to a list containing all elements in order.
 The elements are returned in the order they would be popped (FIFO order).
 -/
-@[inline] def toList (mutable : Mutable α) : IO (List α) := do
+@[inline] def toList (mutable : Mutable α) : BaseIO (List α) := do
   let arr ← mutable.toArray
   return arr.toList
 

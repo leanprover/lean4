@@ -100,6 +100,7 @@ theorem blastExtractAndExtend_denote_eq (aig : AIG α) (xc : AIG.RefVec aig w) (
   · intros
     simp [show w ≤ start + idx by omega]
 
+
 theorem BitVec.extractAndExtendPopulateAux_get
     (i : Nat)
     (hi : i < w)
@@ -107,14 +108,7 @@ theorem BitVec.extractAndExtendPopulateAux_get
     (hw : 0 < w) :
   let res := (BitVec.extractAndExtendPopulateAux 0 x [] (by omega) (by simp))
   res.val[i]'(by have := res.property; simp_all) = BitVec.setWidth w (BitVec.extractLsb' i 1 x) := by
-  induction i
-  · case zero =>
-    sorry
-  · case succ n ihn =>
-    simp
-    unfold BitVec.extractAndExtendPopulateAux
-    simp
-    sorry
+  sorry
 
 theorem blastExtractAndExtendPopulate_denote_eq'
   (assign : α → Bool)
@@ -225,8 +219,6 @@ theorem blastExtractAndExtendPopulate_denote_eq
   · case isTrue h =>
     rw [← hext]
     dsimp
-
-
     sorry
   · case isFalse h => omega
 

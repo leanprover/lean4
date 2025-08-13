@@ -23,6 +23,8 @@ structure JsonNumber where
   exponent : Nat
   deriving DecidableEq, Hashable
 
+instance : BEq JsonNumber := instBEqOfDecidableEq
+
 namespace JsonNumber
 
 @[expose] protected def fromNat (n : Nat) : JsonNumber := ⟨n, 0⟩

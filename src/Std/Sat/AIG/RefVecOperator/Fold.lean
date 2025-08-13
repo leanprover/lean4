@@ -17,7 +17,7 @@ namespace Sat
 namespace AIG
 namespace RefVec
 
-variable {α : Type} [Hashable α] [DecidableEq α] {aig : AIG α}
+variable {α : Type} [Hashable α] [BEq α] [LawfulBEq α] {aig : AIG α}
 
 @[specialize]
 def fold (aig : AIG α) (vec : RefVec aig len)

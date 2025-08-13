@@ -225,10 +225,10 @@ instance [LT α] [Std.Asymm (· < · : α → α → Prop)] :
   cases ys
   simp
 
-instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLT (Array α) :=
+instance [BEq α] [LawfulBEq α] [LT α] [DecidableLT α] : DecidableLT (Array α) :=
   fun xs ys => decidable_of_iff (lex xs ys = true) lex_eq_true_iff_lt
 
-instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLE (Array α) :=
+instance [BEq α] [LawfulBEq α] [LT α] [DecidableLT α] : DecidableLE (Array α) :=
   fun xs ys => decidable_of_iff (lex ys xs = false) lex_eq_false_iff_ge
 
 /--

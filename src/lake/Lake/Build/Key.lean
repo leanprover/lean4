@@ -18,6 +18,8 @@ inductive BuildKey
 | facet (target : BuildKey) (facet : Name)
 deriving Inhabited, Repr, DecidableEq, Hashable
 
+instance : BEq BuildKey := instBEqOfDecidableEq
+
 def PartialBuildKey.moduleTargetIndicator := `«_+»
 
 /--

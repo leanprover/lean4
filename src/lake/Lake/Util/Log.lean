@@ -20,6 +20,7 @@ inductive Verbosity
 | verbose
 deriving Repr, DecidableEq, Ord
 
+instance : BEq Verbosity := instBEqOfDecidableEq
 instance : LT Verbosity := ltOfOrd
 instance : LE Verbosity := leOfOrd
 instance : Min Verbosity := minOfLe

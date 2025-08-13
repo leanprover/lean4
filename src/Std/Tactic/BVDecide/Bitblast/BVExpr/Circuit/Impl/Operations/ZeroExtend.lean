@@ -23,7 +23,7 @@ open Std.Sat
 namespace BVExpr
 namespace bitblast
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 def blastZeroExtend (aig : AIG α) (target : AIG.ExtendTarget aig newWidth) :
     AIG.RefVecEntry α newWidth :=

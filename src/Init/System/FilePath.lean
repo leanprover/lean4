@@ -25,6 +25,8 @@ structure FilePath where
   toString : String
   deriving Inhabited, DecidableEq, Hashable
 
+instance : BEq FilePath := instBEqOfDecidableEq
+
 instance : Repr FilePath where
   reprPrec p := Repr.addAppParen ("FilePath.mk " ++ repr p.toString)
 

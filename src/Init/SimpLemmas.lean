@@ -351,10 +351,17 @@ theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by
 @[simp] theorem cond_false (a b : α) : cond false a b = b := rfl
 
 theorem beq_self_eq_true [BEq α] [ReflBEq α] (a : α) : (a == a) = true := BEq.rfl
-theorem beq_self_eq_true' [DecidableEq α] (a : α) : (a == a) = true := BEq.rfl
 
-@[simp] theorem bne_self_eq_false [BEq α] [LawfulBEq α] (a : α) : (a != a) = false := by simp [bne]
-theorem bne_self_eq_false' [DecidableEq α] (a : α) : (a != a) = false := by simp
+@[deprecated beq_self_eq_true (since := "2025-08-13")]
+theorem beq_self_eq_true' [DecidableEq α] [BEq α] [LawfulBEq α] (a : α) : (a == a) = true :=
+  beq_self_eq_true a
+
+@[simp] theorem bne_self_eq_false [BEq α] [LawfulBEq α] (a : α) : (a != a) = false := by
+  simp [bne]
+
+@[deprecated beq_self_eq_true (since := "2025-08-13")]
+theorem bne_self_eq_false' [DecidableEq α] [BEq α] [LawfulBEq α] (a : α) : (a != a) = false :=
+  bne_self_eq_false a
 
 @[simp] theorem bne_iff_ne [BEq α] [LawfulBEq α] {a b : α} : a != b ↔ a ≠ b := by
   simp [bne]; rw [← beq_iff_eq (a := a) (b := b)]; simp [-beq_iff_eq]

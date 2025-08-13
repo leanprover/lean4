@@ -24,7 +24,7 @@ open Std.Sat.AIG
 
 namespace BVPred
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 theorem mkUlt_denote_eq (aig : AIG α) (lhs rhs : BitVec w) (input : BinaryRefVec aig w)
     (assign : α → Bool)

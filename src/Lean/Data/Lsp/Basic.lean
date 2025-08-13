@@ -356,6 +356,8 @@ structure MarkupContent where
   value : String
   deriving ToJson, FromJson, DecidableEq, Hashable
 
+instance : BEq MarkupContent := instBEqOfDecidableEq
+
 /-- Reference to the progress of some in-flight piece of work.
 
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#progress)

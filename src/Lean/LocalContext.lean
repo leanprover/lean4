@@ -46,6 +46,8 @@ inductive LocalDeclKind
   | auxDecl
   deriving Inhabited, Repr, DecidableEq, Hashable
 
+instance : BEq LocalDeclKind := instBEqOfDecidableEq
+
 /-- A declaration for a `LocalContext`. This is used to register which free variables are in scope.
 
 See `LocalDecl.index`, `LocalDecl.fvarId`, `LocalDecl.userName`, `LocalDecl.type` for accessors for

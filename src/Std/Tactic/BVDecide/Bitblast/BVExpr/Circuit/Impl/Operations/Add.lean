@@ -24,7 +24,7 @@ open Std.Sat
 namespace BVExpr
 namespace bitblast
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 structure FullAdderInput (aig : AIG α) where
   lhs : AIG.Ref aig

@@ -40,6 +40,8 @@ structure BVBit where
   idx : Fin w
   deriving Hashable, DecidableEq, Repr
 
+instance : BEq BVBit := instBEqOfDecidableEq
+
 instance : ToString BVBit where
   toString b := s!"x{b.var}[{b.idx.val}]"
 

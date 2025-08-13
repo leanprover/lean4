@@ -1029,9 +1029,14 @@ class BEq (α : Type u) where
 
 open BEq (beq)
 
-instance (priority := 500) [DecidableEq α] : BEq α where
+/--
+Creates a `BEq α` instance that is equivalent to logical equality (see `LawfulBEq`).
+-/
+@[inline]
+def instBEqOfDecidableEq [DecidableEq α] : BEq α where
   beq a b := decide (Eq a b)
 
+instance : BEq Bool := instBEqOfDecidableEq
 
 /--
 "Dependent" if-then-else, normally written via the notation `if h : c then t(h) else e(h)`,
@@ -1797,6 +1802,8 @@ protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) :=
 
 @[inline] instance : DecidableEq Nat := Nat.decEq
 
+instance : BEq Nat := instBEqOfDecidableEq
+
 set_option bootstrap.genMatcherCode false in
 /--
 The Boolean less-than-or-equal-to comparison on natural numbers.
@@ -2078,6 +2085,8 @@ instance (n : Nat) : DecidableEq (Fin n) :=
     | isTrue h  => isTrue (Fin.eq_of_val_eq h)
     | isFalse h => isFalse (fun h' => absurd (Fin.val_eq_of_eq h') h)
 
+instance (n : Nat) : BEq (Fin n) := instBEqOfDecidableEq
+
 instance {n} : LT (Fin n) where
   lt a b := LT.lt a.val b.val
 
@@ -2117,6 +2126,8 @@ def BitVec.decEq (x y : BitVec w) : Decidable (Eq x y) :=
       (fun h => isFalse (fun h' => BitVec.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq (BitVec w) := BitVec.decEq
+
+instance : BEq (BitVec w) := instBEqOfDecidableEq
 
 /-- The `BitVec` with value `i`, given a proof that `i < 2^w`. -/
 @[match_pattern]
@@ -2193,6 +2204,8 @@ def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
 
 instance : DecidableEq UInt8 := UInt8.decEq
 
+instance : BEq UInt8 := instBEqOfDecidableEq
+
 instance : Inhabited UInt8 where
   default := UInt8.ofNatLT 0 (of_decide_eq_true rfl)
 
@@ -2250,6 +2263,8 @@ def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
       (fun h => isFalse (fun h' => UInt16.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq UInt16 := UInt16.decEq
+
+instance : BEq UInt16 := instBEqOfDecidableEq
 
 instance : Inhabited UInt16 where
   default := UInt16.ofNatLT 0 (of_decide_eq_true rfl)
@@ -2313,6 +2328,8 @@ def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
     dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt32.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq UInt32 := UInt32.decEq
+
+instance : BEq UInt32 := instBEqOfDecidableEq
 
 instance : Inhabited UInt32 where
   default := UInt32.ofNatLT 0 (of_decide_eq_true rfl)
@@ -2414,6 +2431,8 @@ def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
 
 instance : DecidableEq UInt64 := UInt64.decEq
 
+instance : BEq UInt64 := instBEqOfDecidableEq
+
 instance : Inhabited UInt64 where
   default := UInt64.ofNatLT 0 (of_decide_eq_true rfl)
 
@@ -2483,6 +2502,8 @@ def USize.decEq (a b : USize) : Decidable (Eq a b) :=
       (fun h => isFalse (fun h' => USize.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq USize := USize.decEq
+
+instance : BEq USize := instBEqOfDecidableEq
 
 instance : Inhabited USize where
   default := USize.ofNatLT 0 USize.size_pos
@@ -2554,6 +2575,8 @@ instance : DecidableEq Char :=
     match decEq c.val d.val with
     | isTrue h  => isTrue (Char.eq_of_val_eq h)
     | isFalse h => isFalse (Char.ne_of_val_ne h)
+
+instance : BEq Char := instBEqOfDecidableEq
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
 def Char.utf8Size (c : Char) : Nat :=
@@ -2637,7 +2660,7 @@ instance {α} : Inhabited (List α) where
 /-- Implements decidable equality for `List α`, assuming `α` has decidable equality. -/
 protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) → Decidable (Eq a b)
   | nil,       nil       => isTrue rfl
-  | cons _ _, nil        => isFalse (fun h => List.noConfusion h)
+  | cons _ _,  nil       => isFalse (fun h => List.noConfusion h)
   | nil,       cons _ _  => isFalse (fun h => List.noConfusion h)
   | cons a as, cons b bs =>
     match decEq a b with
@@ -2648,6 +2671,23 @@ protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) →
     | isFalse nab => isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
 
 instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
+
+/-- Implements boolean equality for `List α`, assuming `α` has boolean equality. -/
+protected def List.hasBEq {α : Type u} [BEq α] : (a b : List α) → Bool
+  | nil,       nil       => true
+  | cons _ _,  nil       => false
+  | nil,       cons _ _  => false
+  | cons a as, cons b bs =>
+    match BEq.beq a b with
+    | true  => List.hasBEq as bs
+    | false => false
+
+instance {α : Type u} [BEq α] : BEq (List α) where
+  beq a b := List.hasBEq a b
+
+-- instance {α : Type u}
+
+-- TODO: derive BEq (List α) from BEq α
 
 /--
 The length of a list.
@@ -2768,6 +2808,8 @@ def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
 
 instance : DecidableEq String := String.decEq
 
+instance : BEq String := instBEqOfDecidableEq
+
 /--
 A byte position in a `String`, according to its UTF-8 encoding.
 
@@ -2789,6 +2831,8 @@ instance : DecidableEq String.Pos :=
   fun ⟨a⟩ ⟨b⟩ => match decEq a b with
     | isTrue h => isTrue (h ▸ rfl)
     | isFalse h => isFalse (fun he => String.Pos.noConfusion he fun he => absurd he h)
+
+instance : BEq String.Pos := instBEqOfDecidableEq
 
 /--
 A region or slice of some underlying string.

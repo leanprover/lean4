@@ -92,6 +92,8 @@ inductive DateTime
 | localTime (time : Time)
 deriving Inhabited, DecidableEq
 
+instance : BEq DateTime := instBEqOfDecidableEq
+
 instance : Coe Date DateTime := ⟨DateTime.localDate⟩
 instance : Coe Time DateTime := ⟨DateTime.localTime⟩
 

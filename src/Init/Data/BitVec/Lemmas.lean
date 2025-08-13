@@ -4158,7 +4158,7 @@ theorem msb_udiv (x y : BitVec w) :
   . rcases w with _|w
     · contradiction
     · have : (y == 1#_) = decide (y.toNat = 1) := by
-        simp [(· == ·), toNat_eq]
+        simp [(· == ·), instBEqBitVec, instBEqOfDecidableEq, toNat_eq]
       simp only [this, Bool.true_and]
       match hy : y.toNat with
       | 0 =>

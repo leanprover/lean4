@@ -21,7 +21,7 @@ namespace Sat
 
 namespace AIG
 
-variable {α : Type} [Hashable α] [DecidableEq α]
+variable {α : Type} [Hashable α] [BEq α] [LawfulBEq α]
 
 @[simp]
 theorem Ref.gate_cast {aig1 aig2 : AIG α} (ref : Ref aig1)

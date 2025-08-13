@@ -447,7 +447,9 @@ theorem isPerm_iff : ∀ {l₁ l₂ : List α}, l₁.isPerm l₂ ↔ l₁ ~ l₂
   | [], _ :: _ => by simp [isPerm, isEmpty]
   | a :: l₁, l₂ => by simp [isPerm, isPerm_iff, cons_perm_iff_perm_erase]
 
-instance decidablePerm {α} [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ ~ l₂) := decidable_of_iff _ isPerm_iff
+instance decidablePerm {α} [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ ~ l₂) :=
+  letI : BEq α := instBEqOfDecidableEq
+  decidable_of_iff _ isPerm_iff
 
 protected theorem Perm.insert (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) :
     l₁.insert a ~ l₂.insert a := by
@@ -582,6 +584,7 @@ namespace Perm
 theorem take {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat} (w : l₁.drop i ~ l₂.drop i) :
     l₁.take i ~ l₂.take i := by
   classical
+  letI : BEq α := instBEqOfDecidableEq
   rw [perm_iff_count] at h w ⊢
   rw [← take_append_drop i l₁, ← take_append_drop i l₂] at h
   simpa only [count_append, w, Nat.add_right_cancel_iff] using h
@@ -589,6 +592,7 @@ theorem take {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat} (w : l₁.drop i 
 theorem drop {l₁ l₂ : List α} (h : l₁ ~ l₂) {i : Nat} (w : l₁.take i ~ l₂.take i) :
     l₁.drop i ~ l₂.drop i := by
   classical
+  letI : BEq α := instBEqOfDecidableEq
   rw [perm_iff_count] at h w ⊢
   rw [← take_append_drop i l₁, ← take_append_drop i l₂] at h
   simpa only [count_append, w, Nat.add_left_cancel_iff] using h

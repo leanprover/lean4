@@ -14,7 +14,7 @@ public import Std.Sat.AIG.Relabel
 namespace Std
 namespace Sat
 
-variable {α : Type} [DecidableEq α] [Hashable α]
+variable {α : Type} [BEq α] [LawfulBEq α] [Hashable α]
 
 namespace AIG
 namespace RelabelNat
@@ -98,6 +98,7 @@ inductive Inv2 (decls : Array (Decl α)) : Nat → HashMap α Nat → Prop where
 | gate (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .gate l r) :
   Inv2 decls (idx + 1) map
 
+omit [LawfulBEq α] in
 theorem Inv2.upper_lt_size {decls : Array (Decl α)} (hinv : Inv2 decls upper map) :
     upper ≤ decls.size := by
   cases hinv <;> omega
@@ -157,7 +158,7 @@ end State
 The invariant carrying state structure for building the `HashMap` that translates from arbitrary
 atom identifiers to `Nat`.
 -/
-structure State (α : Type) [DecidableEq α] [Hashable α] (decls : Array (Decl α)) (idx : Nat) where
+structure State (α : Type) [BEq α] [LawfulBEq α] [Hashable α] (decls : Array (Decl α)) (idx : Nat) where
   /--
   The next number to use for identifying an atom.
   -/

@@ -393,6 +393,7 @@ instance : XorOp Int8         := ⟨Int8.xor⟩
 instance : ShiftLeft Int8   := ⟨Int8.shiftLeft⟩
 instance : ShiftRight Int8  := ⟨Int8.shiftRight⟩
 instance : DecidableEq Int8 := Int8.decEq
+instance : BEq Int8 := instBEqOfDecidableEq
 
 /--
 Converts `true` to `1` and `false` to `0`.
@@ -764,6 +765,7 @@ instance : XorOp Int16       := ⟨Int16.xor⟩
 instance : ShiftLeft Int16   := ⟨Int16.shiftLeft⟩
 instance : ShiftRight Int16  := ⟨Int16.shiftRight⟩
 instance : DecidableEq Int16 := Int16.decEq
+instance : BEq Int16 := instBEqOfDecidableEq
 
 /--
 Converts `true` to `1` and `false` to `0`.
@@ -1151,6 +1153,7 @@ instance : XorOp Int32         := ⟨Int32.xor⟩
 instance : ShiftLeft Int32   := ⟨Int32.shiftLeft⟩
 instance : ShiftRight Int32  := ⟨Int32.shiftRight⟩
 instance : DecidableEq Int32 := Int32.decEq
+instance : BEq Int32 := instBEqOfDecidableEq
 
 /--
 Converts `true` to `1` and `false` to `0`.
@@ -1558,6 +1561,7 @@ instance : XorOp Int64         := ⟨Int64.xor⟩
 instance : ShiftLeft Int64   := ⟨Int64.shiftLeft⟩
 instance : ShiftRight Int64  := ⟨Int64.shiftRight⟩
 instance : DecidableEq Int64 := Int64.decEq
+instance : BEq Int64 := instBEqOfDecidableEq
 
 /--
 Converts `true` to `1` and `false` to `0`.
@@ -1950,6 +1954,7 @@ instance : XorOp ISize         := ⟨ISize.xor⟩
 instance : ShiftLeft ISize   := ⟨ISize.shiftLeft⟩
 instance : ShiftRight ISize  := ⟨ISize.shiftRight⟩
 instance : DecidableEq ISize := ISize.decEq
+instance : BEq ISize := instBEqOfDecidableEq
 
 /--
 Converts `true` to `1` and `false` to `0`.

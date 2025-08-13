@@ -20,7 +20,7 @@ as described in https://arxiv.org/pdf/1304.7861.pdf section 3. It consists of an
 a description of its semantics and basic operations to construct nodes in the AIG.
 -/
 
-variable {α : Type} [Hashable α] [DecidableEq α]
+variable {α : Type} [Hashable α] [BEq α] [LawfulBEq α]
 
 namespace AIG
 
@@ -106,6 +106,33 @@ inductive Decl (α : Type) where
   | gate (l r : Fanin)
   deriving Hashable, Repr, DecidableEq, Inhabited
 
+instance [BEq α] : BEq (Decl α) where
+  beq a b :=
+    match a, b with
+    | .false, .false => true
+    | .atom idxa, .atom idxb => idxa == idxb
+    | .gate la ra, .gate lb rb => la = lb ∧ ra = rb
+    | _, _ => false
+
+instance [BEq α] [LawfulBEq α] : LawfulBEq (Decl α) where
+  rfl {a} :=
+    match a with
+    | .false => rfl
+    | .atom idx => ReflBEq.rfl (α := α)
+    | .gate l r => by simp [BEq.beq]
+  eq_of_beq {a b} := by
+    simp [BEq.beq]
+    split
+    next => exact fun _ => rfl
+    next idxa idxb =>
+      intro h
+      simp only [beq_iff_eq] at h
+      exact h ▸ rfl
+    next la ra lb rb =>
+      intro h
+      simp only [Bool.and_eq_true, decide_eq_true_eq] at h
+      exact h.1 ▸ h.2 ▸ rfl
+    next => simp
 
 /--
 `Cache.WF xs` is a predicate asserting that a `cache : HashMap (Decl α) Nat` is a valid lookup
@@ -132,7 +159,7 @@ inductive Cache.WF : Array (Decl α) → HashMap (Decl α) Nat → Prop where
 /--
 A cache for reusing elements from `decls` if they are available.
 -/
-def Cache (α : Type) [DecidableEq α] [Hashable α] (decls : Array (Decl α)) :=
+def Cache (α : Type) [BEq α] [LawfulBEq α] [Hashable α] (decls : Array (Decl α)) :=
   { map : HashMap (Decl α) Nat // Cache.WF decls map }
 
 /--
@@ -178,7 +205,7 @@ theorem Cache.get?_bounds {decls : Array (Decl α)} {idx : Nat} (c : Cache α de
   | @push_cache _ _ decl' wf ih =>
     simp only [HashMap.getElem?_insert, beq_iff_eq] at hfound
     split at hfound <;> rename_i h
-    · subst h
+    · cases eq_of_beq h
       simp_all
     · specialize ih hfound
       simp
@@ -262,7 +289,7 @@ end AIG
 /--
 An And Inverter Graph together with a cache for subterm sharing.
 -/
-structure AIG (α : Type) [DecidableEq α] [Hashable α] where
+structure AIG (α : Type) [BEq α] [LawfulBEq α] [Hashable α] where
   /--
   The circuit itself as an `Array Decl` whose members have indices into said array.
   -/
@@ -383,7 +410,7 @@ def TernaryInput.cast {aig1 aig2 : AIG α} (input : TernaryInput aig1)
 An entrypoint into an `AIG`. This can be used to evaluate a circuit, starting at a certain node,
 with `AIG.denote` or to construct bigger circuits on top of this specific node.
 -/
-structure Entrypoint (α : Type) [DecidableEq α] [Hashable α] where
+structure Entrypoint (α : Type) [BEq α] [LawfulBEq α] [Hashable α] where
   /--
   The AIG that we are in.
   -/
@@ -396,14 +423,14 @@ structure Entrypoint (α : Type) [DecidableEq α] [Hashable α] where
 /--
 Transform an `Entrypoint` into a graphviz string. Useful for debugging purposes.
 -/
-def toGraphviz {α : Type} [DecidableEq α] [ToString α] [Hashable α] (entry : Entrypoint α) :
+def toGraphviz {α : Type} [BEq α] [LawfulBEq α] [ToString α] [Hashable α] (entry : Entrypoint α) :
     String :=
   let ⟨⟨decls, _, hinv, _, _⟩, ⟨idx, invert, h⟩⟩ := entry
   let (dag, s) := go "" decls hinv idx h |>.run ∅
   let nodes := s.fold (fun x y ↦ x ++ toGraphvizString decls y) ""
   "Digraph AIG {" ++ nodes ++ dag ++ "}"
 where
-  go {α : Type} [DecidableEq α] [ToString α] [Hashable α] (acc : String) (decls : Array (Decl α))
+  go {α : Type} [BEq α] [LawfulBEq α] [ToString α] [Hashable α] (acc : String) (decls : Array (Decl α))
       (hinv : IsDAG α decls) (idx : Nat) (hidx : idx < decls.size) :
       StateM (HashSet (Fin decls.size)) String := do
     let fidx : Fin decls.size := Fin.mk idx hidx
@@ -424,7 +451,7 @@ where
       go laig decls hinv ridx (by omega)
   invEdgeStyle (isInv : Bool) : String :=
     if isInv then " [color=red]" else " [color=blue]"
-  toGraphvizString {α : Type} [DecidableEq α] [ToString α] [Hashable α] (decls : Array (Decl α))
+  toGraphvizString {α : Type} [BEq α] [LawfulBEq α] [ToString α] [Hashable α] (decls : Array (Decl α))
       (idx : Fin decls.size) : String :=
     match decls[idx] with
     | Decl.false => s!"{idx} [label=\"{false}\", shape=box];"
@@ -441,7 +468,7 @@ structure RefVec (aig : AIG α) (w : Nat) where
 /--
 A sequence of references bundled with their AIG.
 -/
-structure RefVecEntry (α : Type) [DecidableEq α] [Hashable α] [DecidableEq α] (w : Nat) where
+structure RefVecEntry (α : Type) [BEq α] [LawfulBEq α] [Hashable α] (w : Nat) where
   aig : AIG α
   vec : RefVec aig w
 

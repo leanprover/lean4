@@ -424,6 +424,8 @@ decreases strictly, non-strictly, is equal, or else.  -/
 inductive GuessLexRel | lt | eq | le | no_idea
 deriving Repr, DecidableEq
 
+instance : BEq GuessLexRel := instBEqOfDecidableEq
+
 instance : ToString GuessLexRel where
   toString | .lt => "<"
            | .eq => "="

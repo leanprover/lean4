@@ -32,6 +32,8 @@ structure Timestamp where
   val : Duration
 deriving Repr, DecidableEq, Inhabited
 
+instance : BEq Timestamp := instBEqOfDecidableEq
+
 instance : LE Timestamp where
   le x y := x.val ≤ y.val
 

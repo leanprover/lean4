@@ -80,7 +80,7 @@ theorem denote.go_eq_of_isPrefix (decls1 decls2 : Array (Decl α)) (start : Nat)
         assumption
 termination_by start
 
-variable {α : Type} [Hashable α] [DecidableEq α]
+variable {α : Type} [Hashable α] [BEq α] [LawfulBEq α]
 
 @[inherit_doc denote.go_eq_of_isPrefix]
 theorem denote.eq_of_isPrefix (entry : Entrypoint α) (newAIG : AIG α)
@@ -107,7 +107,7 @@ AIG operator if it only extends the `AIG` but never modifies already existing no
 This guarantees that applying such a function will not change the semantics of any existing parts
 of the circuit, allowing us to perform local reasoning on the AIG.
 -/
-class LawfulOperator (α : Type) [Hashable α] [DecidableEq α]
+class LawfulOperator (α : Type) [Hashable α] [BEq α] [LawfulBEq α]
     (β : AIG α → Type) (f : (aig : AIG α) → β aig → Entrypoint α)  where
   le_size : ∀ (aig : AIG α) (input : β aig), aig.decls.size ≤ (f aig input).aig.decls.size
   decl_eq : ∀ (aig : AIG α) (input : β aig) (idx : Nat) (h1 : idx < aig.decls.size) (h2),

@@ -39,19 +39,20 @@ theorem sat_iff_exists [Clause α β] (p : α → Bool) (c : β) : p ⊨ c ↔ �
   simp only [(· ⊨ ·), eval]
   grind
 
-theorem limplies_iff_mem [DecidableEq α] [Clause α β] (l : Literal α) (c : β) :
+theorem limplies_iff_mem [Clause α β] (l : Literal α) (c : β) :
     Limplies α l c ↔ l ∈ toList c := by
   simp only [Limplies, sat_iff_exists, Prod.exists, Bool.exists_bool]
   constructor
   · simp only [(· ⊨ ·)]
     intro h
     -- Construct an assignment p such that p ⊨ l and p ⊭ c ∖ {l}
+    classical
     let p := fun x : α => if x = l.1 then l.2 else (x, false) ∈ toList c
     specialize h p
     grind [not_tautology]
   · grind [cases Bool]
 
-theorem entails_of_entails_delete [DecidableEq α] [Clause α β] {p : α → Bool} {c : β}
+theorem entails_of_entails_delete [Clause α β] {p : α → Bool} {c : β}
     {l : Literal α} :
     p ⊨ delete c l → p ⊨ c := by
   simp only [(· ⊨ ·), eval] at ⊢

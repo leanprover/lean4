@@ -26,7 +26,7 @@ open Std.Sat.AIG
 namespace BVExpr
 namespace bitblast
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 theorem denote_blastNeg (aig : AIG α) (value : BitVec w) (target : RefVec aig w)
     (assign : α → Bool)

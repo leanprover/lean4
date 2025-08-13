@@ -1527,6 +1527,7 @@ inductive OLeanLevel where
   | «private»
 deriving DecidableEq, Ord, Repr
 
+instance : BEq OLeanLevel := instBEqOfDecidableEq
 instance : LE OLeanLevel := leOfOrd
 instance : LT OLeanLevel := ltOfOrd
 

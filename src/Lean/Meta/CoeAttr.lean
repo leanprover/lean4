@@ -37,6 +37,8 @@ inductive CoeFnType
   | coeSort
   deriving Inhabited, Repr, DecidableEq
 
+instance : BEq CoeFnType := instBEqOfDecidableEq
+
 instance : ToExpr CoeFnType where
   toTypeExpr := mkConst ``CoeFnType
   toExpr := open CoeFnType in fun

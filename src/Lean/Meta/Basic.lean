@@ -70,6 +70,8 @@ inductive ProjReductionKind where
   | yesWithDeltaI
   deriving DecidableEq, Inhabited, Repr
 
+instance : BEq ProjReductionKind := instBEqOfDecidableEq
+
 def ProjReductionKind.toUInt64 : ProjReductionKind → UInt64
   | .no  => 0
   | .yes => 1

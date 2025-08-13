@@ -24,7 +24,7 @@ open Std.Sat
 namespace BVExpr
 namespace bitblast
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 def blastNot (aig : AIG α) (s : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
   AIG.RefVec.map aig ⟨s, AIG.mkNotCached⟩

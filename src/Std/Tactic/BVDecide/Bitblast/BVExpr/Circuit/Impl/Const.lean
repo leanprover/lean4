@@ -23,7 +23,7 @@ open Std.Sat
 namespace BVExpr
 namespace bitblast
 
-variable [Hashable α] [DecidableEq α]
+variable [Hashable α] [BEq α] [LawfulBEq α]
 
 def blastConst (aig : AIG α) (val : BitVec w) : AIG.RefVec aig w :=
   go aig val 0 (.emptyWithCapacity w) (by omega)

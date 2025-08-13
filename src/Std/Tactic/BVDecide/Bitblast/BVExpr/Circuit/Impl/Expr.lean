@@ -42,6 +42,8 @@ structure Cache.Key where
   expr : BVExpr w
   deriving DecidableEq
 
+instance : BEq Cache.Key := instBEqOfDecidableEq
+
 instance : Hashable Cache.Key where
   -- The width is already mixed into the hash of `key.expr` which is completely cached.
   hash key := hash key.expr

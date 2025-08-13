@@ -4473,7 +4473,7 @@ theorem getElem?_push_eq {xs : Array α} {x : α} : (xs.push x)[xs.size]? = some
 /-! ### contains -/
 
 @[deprecated contains_iff (since := "2025-04-07")]
-abbrev contains_def [DecidableEq α] {a : α} {xs : Array α} : xs.contains a ↔ a ∈ xs :=
+abbrev contains_def [BEq α] [LawfulBEq α] {a : α} {xs : Array α} : xs.contains a ↔ a ∈ xs :=
   contains_iff
 
 /-! ### isPrefixOf -/

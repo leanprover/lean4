@@ -621,7 +621,7 @@ theorem flatten_sublist_iff {L : List (List α)} {l} :
         case cons₂ =>
           contradiction
 
-instance [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ <+ l₂) :=
+instance [BEq α] [LawfulBEq α] (l₁ l₂ : List α) : Decidable (l₁ <+ l₂) :=
   decidable_of_iff (l₁.isSublist l₂) isSublist_iff_sublist
 
 @[grind]
@@ -1252,14 +1252,14 @@ grind_pattern IsInfix.filterMap => l₁ <:+: l₂, filterMap f l₂
     | nil => simp
     | cons a' l₂ => simp [isPrefixOf, ih]
 
-instance [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ <+: l₂) :=
+instance [BEq α] [LawfulBEq α] (l₁ l₂ : List α) : Decidable (l₁ <+: l₂) :=
   decidable_of_iff (l₁.isPrefixOf l₂) isPrefixOf_iff_prefix
 
 @[simp, grind =] theorem isSuffixOf_iff_suffix [BEq α] [LawfulBEq α] {l₁ l₂ : List α} :
     l₁.isSuffixOf l₂ ↔ l₁ <:+ l₂ := by
   simp [isSuffixOf]
 
-instance [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ <:+ l₂) :=
+instance [BEq α] [LawfulBEq α] (l₁ l₂ : List α) : Decidable (l₁ <:+ l₂) :=
   decidable_of_iff (l₁.isSuffixOf l₂) isSuffixOf_iff_suffix
 
 theorem prefix_iff_eq_append : l₁ <+: l₂ ↔ l₁ ++ drop (length l₁) l₂ = l₂ :=

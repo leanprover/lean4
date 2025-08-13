@@ -74,7 +74,7 @@ Variable `v` occurs in `Clause` `c`.
 -/
 def Mem (v : α) (c : Clause α) : Prop := (v, false) ∈ c ∨ (v, true) ∈ c
 
-instance {v : α} {c : Clause α} [DecidableEq α] : Decidable (Mem v c) :=
+instance {v : α} {c : Clause α} [BEq α] [LawfulBEq α] : Decidable (Mem v c) :=
   inferInstanceAs <| Decidable (_ ∨ _)
 
 @[simp] theorem not_mem_nil {v : α} : ¬Mem v ([] : Clause α) := by simp [Mem]
@@ -112,7 +112,7 @@ Variable `v` occurs in `CNF` formula `f`.
 -/
 def Mem (v : α) (f : CNF α) : Prop := ∃ c, c ∈ f ∧ c.Mem v
 
-instance {v : α} {f : CNF α} [DecidableEq α] : Decidable (Mem v f) :=
+instance {v : α} {f : CNF α} [BEq α] [LawfulBEq α] : Decidable (Mem v f) :=
   inferInstanceAs <| Decidable (∃ _, _)
 
 theorem any_not_isEmpty_iff_exists_mem {f : CNF α} :

@@ -30,6 +30,8 @@ inductive Ordering where
   | gt
 deriving Inhabited, DecidableEq, Repr
 
+instance : BEq Ordering := instBEqOfDecidableEq
+
 namespace Ordering
 
 /--

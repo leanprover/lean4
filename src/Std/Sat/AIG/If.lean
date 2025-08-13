@@ -39,7 +39,7 @@ namespace Sat
 
 namespace AIG
 
-variable {α : Type} [Hashable α] [DecidableEq α]
+variable {α : Type} [Hashable α] [BEq α] [LawfulBEq α]
 
 open AIG
 

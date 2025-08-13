@@ -46,7 +46,7 @@ Encoding of implication as boolean expression in AIG form.
 private theorem imp_as_aig : ∀ (a b : Bool), (!(a && !b)) = (!a || b) := by
   decide
 
-variable {α : Type} [Hashable α] [DecidableEq α]
+variable {α : Type} [Hashable α] [BEq α] [LawfulBEq α]
 
 theorem mkNotCached_le_size (aig : AIG α) (gate : Ref aig) :
     aig.decls.size ≤ (aig.mkNotCached gate).aig.decls.size := by

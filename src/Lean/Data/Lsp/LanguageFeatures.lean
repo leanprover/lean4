@@ -32,6 +32,8 @@ inductive CompletionItemKind where
   | constant | struct | event | operator | typeParameter
   deriving Inhabited, DecidableEq, Repr, Hashable
 
+instance : BEq CompletionItemKind := instBEqOfDecidableEq
+
 instance : ToJson CompletionItemKind where
   toJson a := toJson (a.toCtorIdx + 1)
 
@@ -49,6 +51,8 @@ structure InsertReplaceEdit where
 inductive CompletionItemTag where
   | deprecated
   deriving Inhabited, DecidableEq, Repr, Hashable
+
+instance : BEq CompletionItemTag := instBEqOfDecidableEq
 
 instance : ToJson CompletionItemTag where
   toJson t := toJson (t.toCtorIdx + 1)

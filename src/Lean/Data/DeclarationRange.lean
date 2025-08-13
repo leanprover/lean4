@@ -51,3 +51,5 @@ structure DeclarationLocation where
   module : Name
   range : DeclarationRange
   deriving Inhabited, DecidableEq, Repr
+
+instance : BEq DeclarationLocation := instBEqOfDecidableEq

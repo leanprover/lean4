@@ -21,7 +21,7 @@ namespace Sat
 
 namespace AIG
 
-variable {α : Type} [Hashable α] [DecidableEq α]
+variable {α : Type} [Hashable α] [BEq α] [LawfulBEq α]
 
 /--
 Create a not gate in the input AIG. This uses the builtin cache to enable automated subterm sharing.

@@ -785,29 +785,55 @@ where
         /- Underconstrained, but not an error. -/
         pure ()
 
-private def isIndParamPositive (info : InductiveVal) (i : Nat) : CoreM Bool := MetaM.run' do
-  info.all.allM fun indName => do
+/--
+Throws an exception unless the `i`th parameter of the inductive type only occurrs in
+positive position.
+-/
+partial def isIndParamPositive (info : InductiveVal) (i : Nat) : CoreM Unit := MetaM.run' do
+  for indName in info.all do
     let info ← getConstInfoInduct indName
-    info.ctors.allM fun con => do
+    for con in info.ctors do
       let con ← getConstInfoCtor con
-      forallTelescopeReducing con.type fun xs t => do
+      forallTelescopeReducing con.type fun xs _t => do
+        -- TODO: Check for occurrences in the indices of t?
         let params := xs[0...info.numParams]
         let p := params[i]!.fvarId!
-        xs[info.numParams...*].allM fun conArg =>
-          forallTelescopeReducing conArg fun conArgArgs conArgRes =>
-              conArgArgs.allM fun conArgArg => do
-                if conArgArg.hasAnyFVar (· == p) then
-                  return false
-                else
-                  return true
-            <&&> do
-              if conArgArg.hasAnyFVar (· == p) then
-                return false
-              else
-                return true
-
-
-
+        for conArg in xs[info.numParams...*] do
+          forallTelescopeReducing (← inferType conArg) fun conArgArgs conArgRes => do
+            for conArgArg in conArgArgs do
+              if (← inferType conArgArg).hasAnyFVar (· == p) then
+                throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}"
+            let conArgRes ← whnf conArgRes
+            if conArgRes.hasAnyFVar (· == p) then
+                conArgRes.withApp fun fn args => do
+                  if fn == mkFVar p then
+                    for arg in args do
+                      if arg.hasAnyFVar (· == p) then
+                        throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
+                          in application of the parameter itself."
+                  else if let some fn := fn.constName? then
+                    if info.all.contains fn then
+                      -- Recursive occurrence of an inductive type of this group.
+                      -- Params must match by construction but check indices
+                      for idxArg in args[info.numParams...*] do
+                        if idxArg.hasAnyFVar (· == p) then
+                          throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
+                            in index of {.ofConstName fn}"
+                    else if (← isInductive fn) then
+                      let info' ← getConstInfoInduct fn
+                      for i in 0...info'.numParams, pe in args[0...info'.numParams] do
+                        if pe.hasAnyFVar (· == p) then
+                          try
+                            isIndParamPositive info' i
+                          catch _ =>
+                            throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
+                              in parameter #{i+1} of {.ofConstName fn}"
+                    else
+                      throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
+                        cannot nest through {.ofConstName fn}"
+                  else
+                    throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
+                      cannot nest through {fn}"
 
 
 
@@ -885,13 +911,15 @@ where
               throwError "Non-positive occurrence of inductive type `{indFVar}`: \
                 Invalid occurrence of {indFVar} in unsaturated call of {.ofConstName fn}."
             for i in 0...info.numParams, pe in args[0...info.numParams] do
-              if (← isIndParamPositive info i) then
+              if let some indFVar := hasIndOcc pe then
+                try isIndParamPositive info i
+                catch e =>
+                  let msg := m!"Invalid occurrence of inductive type `{indFVar}`, parameter #{i+1} of \
+                    `{.ofConstName fn}` is not positive."
+                  let msg := msg ++ .note m!"That parameter is not positive:{indentD e.toMessageData}"
+                  throwError msg
                 go params pe
-              else
-                if let some indFVar := hasIndOcc pe then
-                  throwError "Invalid occurrence of inductive type `{indFVar}`, parameter #{i+1} of
-                    `{.ofConstName fn}` is not positive"
-              -- Todo: Check if this parameter is positive
+
               -- The kernel admits no local variables in the parameters (#1964)
               -- so check for any fvar that isn't one of the indFVars or params
               if let some e := pe.find? (fun e => e.isFVar && !indFVars.contains e && !params.contains e) then

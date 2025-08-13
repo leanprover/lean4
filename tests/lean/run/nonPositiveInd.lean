@@ -1,3 +1,4 @@
+import Lean
 /-!
 This test exercises the elaborator's positivity check for inductive data types, and related
 checks around nested induction.
@@ -97,8 +98,17 @@ inductive Bad8 : Type where
 inductive Nest9 (α : Type) : Type  where
   | mk : (α → α) → Nest9 α
 
+/--
+error: In argument #1 of constructor Bad9.mk:
+  Invalid occurrence of inductive type `Bad9`, parameter #1 of `Nest9` is not positive.
+  ⏎
+  Note: That parameter is not positive:
+    Non-positive occurrence of parameter `α` in type of Nest9.mk
+-/
+#guard_msgs in
 inductive Bad9 where
   | mk : Nest9 Bad9 → Bad9
+
 
 inductive Nest10 (α : Type) : Type  where
   | mk : α  → Nest10 α

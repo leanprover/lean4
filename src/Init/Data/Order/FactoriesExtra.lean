@@ -180,10 +180,19 @@ public theorem max_eq {α : Type u} [LE α] [DecidableLE α] {a b : α} :
 
 end FactoryInstances
 
+/--
+This class entails `LE α`, `LT α`, `BEq α`, `Ord α`, `Min α` and `Max α` instances as well as proofs
+that these operations represent the same linear order structure on `α`.
+-/
 public class LinearOrderPackage (α : Type u) extends
     LinearPreorderPackage α, PartialOrderPackage α, Min α, Max α,
     LawfulOrderMin α, LawfulOrderMax α, IsLinearOrder α
 
+/--
+This structure contains all the data needed to create a `LinearOrderPackage α` instance. Its fields
+are automatically provided if possible. For the detailed rules how the fields are inferred, see
+`LinearOrderPackage.ofLE`.
+-/
 public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
     LinearPreorderOfLEArgs α, PartialOrderOfLEArgs α where
   min [i : LE α] [DecidableLE α] (hi : i = le := by rfl) : Min α := by
@@ -247,23 +256,23 @@ public theorem IsLinearPreorder.lawfulOrderMax_of_max_eq {α : Type u} [LE α]
 Use this factory to conveniently define a linear order on a type `α` and all the associated
 operations and instances given an `LE α` instance.
 
-Creates a `LinearPreorderPackage α` instance. Such an instance entails `LE α`, `LT α`, `BEq α` and
-`Ord α` instances as well as an `IsLinearPreorder α` instance and `LawfulOrder*` instances proving
-the compatibility of the operations with the linear order.
+Creates a `LinearOrderPackage α` instance. Such an instance entails `LE α`, `LT α`, `BEq α`,
+`Ord α`, `Min α` and `Max α` instances as well as an `IsLinearOrder α` instance and `LawfulOrder*`
+instances proving the compatibility of the operations with the linear order.
 
 In the presence of `LE α`, `DecidableLE α`, `Total (· ≤ ·)`, `Trans (· ≤ ·) (· ≤ ·) (· ≤ ·)` and
 `Antisymm (· ≤ ·)` instances, no arguments are required and the factory can be used as in this
 example:
 
 ```lean
-public instance : LinearPreorderPackage X := .ofLE X
+public instance : LinearOrderPackage X := .ofLE X
 ```
 
 If not all of these instances are available via typeclass synthesis, it is necessary to explicitly
 provide some arguments:
 
 ```lean
-public instance : LinearPreorderPackage X := .ofLE X {
+public instance : LinearOrderPackage X := .ofLE X {
   le_total := sorry
   le_trans := sorry
   le_antisymm := sorry }
@@ -278,9 +287,9 @@ can be useful if, say, one wants to avoid specifying an `LT α` instance, which 
 Lean tries to fill all of the fields of the `args : Packages.LinearOrderOfLEArgs α` parameter
 automatically. If it fails, it is necessary to provide some of the fields manually.
 
-* For the data-carrying typeclasses `LE`, `LT`, `BEq` and `Ord`, existing instances are always
-  preferred. If no existing instances can be synthesized, it is attempted to derive an instance from
-  the `LE` instance.
+* For the data-carrying typeclasses `LE`, `LT`, `BEq`, `Ord`, `Min` and `Max`, existing instances
+  are always preferred. If no existing instances can be synthesized, it is attempted to derive an
+  instance from the `LE` instance.
 * Some proof obligations can be filled automatically if the data-carrying typeclasses have been
   derived from the `LE` instance. For example: If the `beq` field is omitted and no `BEq α` instance
   can be synthesized, it is derived from the `LE α` instance. In this case, `lawful_beq` can be

@@ -59,4 +59,4 @@ def MGoal.triviallyPure (goal : MGoal) : OptionT MetaM Expr := do
   let mv ← mkFreshExprMVar goal.toExpr
   let ([], _) ← try runTactic mv.mvarId! (← `(tactic| apply Pure.intro; trivial)) catch _ => failure
     | failure
-  return mv.consumeMData
+  return mv

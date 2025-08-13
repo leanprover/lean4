@@ -12,173 +12,155 @@ public import Init.Data.Queue
 public import Std.Sync.Mutex
 public import Std.Internal.Async.Select
 
+public section
+
 /-!
-This module contains the implementation of `Std.Broadcast`. `Std.Broadcast` provides a
+This module contains the implementation of `Std.Bounded`. `Std.Bounded` provides a
 broadcasting primitive for sending values to multiple consumers. It maintains a queue of
 values and supports both synchronous and asynchronous waiting.
 -/
 
 namespace Std
 
+/--
+Errors that may be thrown while interacting with the broadcast channel API.
+-/
+
 inductive Error where
+
+  /--
+  Tried to send to a closed broadcast channel.
+  -/
   | closed
+
+  /--
+  Tried to close an already closed broadcast channel.
+  -/
   | alreadyClosed
+
+  /--
+  Tried to send a message to a broadcast channel without no subscribers.
+  -/
   | noSubscribers
+
+  /--
+  Tried to unsubscribe a channel that already is not part of it.
+  -/
+  | notSubscribed
+
+deriving Repr, DecidableEq, Hashable
 
 instance : ToString Error where
   toString
     | .closed => "trying to send on an already closed channel"
     | .alreadyClosed => "trying to close an already closed broadcast channel"
     | .noSubscribers => "there are no subscribers"
+    | .notSubscribed => "there channel is not subscribed."
 
 instance : MonadLift (EIO Error) IO where
   monadLift x := EIO.toIO (.userError <| toString ·) x
 
-open Internal.IO.Async in
-
 /--
-
+A consumer waiting to receive a broadcast message.
 -/
-structure Broadcast.Consumer (α : Type) where
+private structure Consumer (α : Type) where
   promise : IO.Promise Bool
-  waiter : Option (Waiter (Option α))
+  waiter : Option (Internal.IO.Async.Waiter (Option α))
 
 /--
-
+Resolves a consumer's promise with the given boolean result.
 -/
-def Broadcast.Consumer.resolve (c : Broadcast.Consumer α) (b : Bool) : BaseIO Unit :=
+private def Consumer.resolve (c : Consumer α) (b : Bool) : BaseIO Unit :=
   c.promise.resolve b
 
 /--
-
+A slot in the circular buffer containing a broadcast message and metadata.
 -/
 private structure Slot (α : Type) where
   value : Option α
   pos : Nat
   remaining : Nat
-deriving Nonempty, Inhabited, Repr
+deriving Inhabited, Repr
 
 /--
 State of the channel.
 -/
-structure Broadcast.State (α : Type) where
+private structure Bounded.State (α : Type) where
 
   /--
-  Producers that are waiting for a chance to write because the buffer is full.
+  Queue of producers blocked waiting for buffer space to become available.
   -/
   producers : Std.Queue (IO.Promise Bool)
 
   /--
-  Consumers that are waiting for a chance to receive the last available value, because
-  they consumed all the ones that were available.
+  Queue of consumers blocked waiting for new messages to be broadcast.
   -/
-  waiters : Std.Queue (Broadcast.Consumer α)
+  waiters : Std.Queue (Consumer α)
 
   /--
-  The capacity of the entire buffer.
+  Maximum number of messages that can be buffered before producers block.
   -/
   capacity : { x : Nat // x > 0 }
 
   /--
-  The size of the entire buffer.
+  Current number of messages stored in the circular buffer.
   -/
   size : Nat
 
   /--
-  Circular buffer for storing the data that was sent.
+  Circular buffer storing broadcast messages accessible to all receivers.
   -/
-  public buffer : Vector (IO.Ref (Slot α)) capacity
+  buffer : Vector (IO.Ref (Slot α)) capacity
 
   /--
-  The write pointer of the buffer
+  Index where the next message will be written in the circular buffer.
   -/
   write : Fin capacity
 
   /--
-  The write pointer of the buffer
+  Index of the oldest message still available for lagging receivers.
   -/
   read : Fin capacity
 
   /--
-  Map from id to index.
+  Maps receiver IDs to their current position in the message sequence.
   -/
   receivers : Std.TreeMap Nat Nat
 
   /--
-  The next id for the next receiver
+  Counter for assigning unique IDs to new receivers.
   -/
   nextId : Nat
 
   /--
-  Flag if the channel is closed.
+  Whether the channel has been closed, preventing new messages.
   -/
   closed : Bool
 
   /--
-  Position
+  Global message sequence number for the next message to be sent.
   -/
   pos : Nat
 
-  /--
-  Mask
-  -/
-  mask : Nat
+/--
+A channel that can create `Bounded.Receiver` and send messages.
+-/
+private structure Bounded (α : Type) where
+  state : Mutex (Bounded.State α)
 
 /--
-A channel that can create `Broadcast.Receiver` and send messages.
+A channel that can receive messages from `Bounded`.
 -/
-structure ClosableBroadcast (α : Type) where
-  state : Mutex (Broadcast.State α)
-
-/--
-A channel that can receive messages from `Broadcast`.
--/
-structure ClosableBroadcast.Receiver (α : Type) where
-  state : Mutex (Broadcast.State α)
+private structure Bounded.Receiver (α : Type) where
+  state : Mutex (Bounded.State α)
   id : Nat
 
-/--
-A channel that can create `Broadcast.Receiver` and send messages.
--/
-public def Broadcast := ClosableBroadcast
-
+namespace Bounded
 
 /--
-A channel that can receive messages from `Broadcast`.
+Creates a new `Bounded` channel.
 -/
-public def Broadcast.Receiver := ClosableBroadcast.Receiver
-
-namespace Broadcast
-
-def bitLength : Nat → Nat
-  | 0 => 0
-  | n + 1 => 1 + bitLength ((n + 1) / 2)
-
-def nextPowerOfTwo (n : Nat) : Nat :=
-  if n = 0 then 0
-  else if n = 1 then 1
-  else 1 <<< (bitLength (n - 1))
-
-theorem shiftLeft_pos (m : Nat) : 1 <<< m > 0 := by
-  rw [Nat.shiftLeft_eq]
-  simp only [Nat.one_mul]
-  exact Nat.pow_pos (by decide)
-
-theorem nextPowerOfTwo_gt_zero_when_pos : n > 0 → nextPowerOfTwo n > 0 := by
-  intro h
-  simp [nextPowerOfTwo]
-  split
-  · omega
-  · split
-    · decide
-    · exact shiftLeft_pos _
-
-/--
-Creates a new `Broadcast` Channel.
--/
-public def new (capacity : Nat := 16) (h : capacity > 0 := by decide) : BaseIO (Broadcast α) := do
-  let capacity := nextPowerOfTwo capacity
-
+private def new {α} (capacity : Nat := 16) (h : capacity > 0 := by decide) : BaseIO (Bounded α) := do
   return { state := ← Mutex.new {
     producers := .empty
     waiters := .empty
@@ -188,29 +170,32 @@ public def new (capacity : Nat := 16) (h : capacity > 0 := by decide) : BaseIO (
     closed := false
     pos := 0
     size := 0
-    mask := capacity - 1
-    read := ⟨0, nextPowerOfTwo_gt_zero_when_pos h⟩
-    write := ⟨0, nextPowerOfTwo_gt_zero_when_pos h⟩
-    capacity := ⟨capacity, nextPowerOfTwo_gt_zero_when_pos h⟩
+    read := ⟨0, h⟩
+    write := ⟨0, h⟩
+    capacity := ⟨capacity, h⟩
   }}
 
 /--
-Subscribes a new `Receiver` in the `Broadcast` channel.
+Subscribes a new `Receiver` in the `Bounded` channel.
 -/
-public def subscribe (bd : Broadcast α) : IO (Receiver α) := do
+private def subscribe (bd : Bounded α) : IO (Receiver α) := do
   let id ← bd.state.atomically do
     modifyGet fun state =>
       let id := state.nextId
       (id, { state with nextId := id + 1, receivers := state.receivers.insert id state.pos })
   return { state := bd.state, id }
 
-/-- Returns true if the buffer contains no elements. -/
-def isEmpty [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT IO m] [MonadLiftT BaseIO m] : AtomicT (Broadcast.State α) m Bool := do
+/--
+Returns true if the buffer contains no elements.
+-/
+private def isEmpty [Monad m] [MonadLiftT (ST IO.RealWorld) m] : AtomicT (Bounded.State α) m Bool := do
   let mut st ← get
   return st.size = 0
 
-/-- Returns true if the buffer is at full capacity. -/
-def isFull : AtomicT (Broadcast.State α) BaseIO Bool := do
+/--
+Returns true if the buffer is at full capacity.
+-/
+private def isFull : AtomicT (Bounded.State α) BaseIO Bool := do
   let mut st ← get
   return st.size ≥ st.capacity
 
@@ -218,15 +203,15 @@ def isFull : AtomicT (Broadcast.State α) BaseIO Bool := do
 Enqueues an element to the back of the circular buffer.
 If the buffer is full, the oldest element (at front) is overwritten.
 -/
-def enqueue [Nonempty α] (value : α) (st : Broadcast.State α) : BaseIO (Broadcast.State α) := do
+private def enqueue (value : α) (st : Bounded.State α) : BaseIO (Bounded.State α) := do
   let tailRef := st.buffer.get st.write
 
   tailRef.set { pos := st.pos, remaining := st.receivers.size, value := some value }
-
-  let size := st.size + 1
   let write : Fin st.capacity := @Fin.ofNat _ ⟨Nat.ne_zero_iff_zero_lt.mpr st.capacity.property⟩ (st.write + 1)
+  let size := st.size + 1
+  let pos := st.pos + 1
 
-  return { st with write, size, pos := st.pos + 1 }
+  return { st with write, size, pos }
 
 /--
 Dequeues an element from the front of the circular buffer.
@@ -242,17 +227,17 @@ private def dequeue (st: State α) : State α :=
 Peeks at the element at the front of the buffer without removing it.
 Returns none if the buffer is empty.
 -/
-def getSlot
-  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT IO m] [MonadLiftT BaseIO m] (place : Nat) :
-  AtomicT (Broadcast.State α) m (IO.Ref (Slot α)) := do
+private def getSlot
+  [Monad m] [MonadLiftT (ST IO.RealWorld) m] (place : Nat) :
+  AtomicT (Bounded.State α) m (IO.Ref (Slot α)) := do
     let mut st ← get
     let idx := (@Fin.ofNat st.capacity ⟨Nat.ne_zero_of_lt st.capacity.property⟩ place)
     return st.buffer.get idx
 
 /--
-Subscribes a new `Receiver` in the `Broadcast` channel.
+Subscribes a new `Receiver` in the `Bounded` channel.
 -/
-def trySend' [Nonempty α] (v : α) : AtomicT (Broadcast.State α) BaseIO Bool := do
+private def trySend' (v : α) : AtomicT (Bounded.State α) BaseIO Bool := do
   if ← isFull then
     return false
   else
@@ -265,14 +250,14 @@ def trySend' [Nonempty α] (v : α) : AtomicT (Broadcast.State α) BaseIO Bool :
 
     return true
 
-def trySend [Nonempty α] (ch : Broadcast α) (v : α) : BaseIO Bool := do
+private def trySend (ch : Bounded α) (v : α) : BaseIO Bool := do
   ch.state.atomically do
     if (← get).closed then
       return false
     else
       trySend' v
 
-public partial def send [Nonempty α] (ch : Broadcast α) (v : α) : BaseIO (Task (Except Error Unit)) := do
+private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Except Error Unit)) := do
   ch.state.atomically do
     if (← get).closed then
       return .pure <| .error .closed
@@ -286,11 +271,11 @@ public partial def send [Nonempty α] (ch : Broadcast α) (v : α) : BaseIO (Tas
 
       BaseIO.bindTask promise.result? fun res => do
         if res.getD false then
-          Broadcast.send ch v
+          Bounded.send ch v
         else
           return .pure <| .error .closed
 
-def close (ch : Broadcast α) : EIO Error Unit := do
+def close (ch : Bounded α) : EIO Error Unit := do
   ch.state.atomically do
     let st ← get
 
@@ -303,16 +288,16 @@ def close (ch : Broadcast α) : EIO Error Unit := do
     set { st with waiters := ∅, closed := true }
     return ()
 
-def isClosed (ch : Broadcast α) : BaseIO Bool :=
+def isClosed (ch : Bounded α) : BaseIO Bool :=
   ch.state.atomically do
     return (← get).closed
 
 
 namespace Receiver
 
-def getSlotValue
-  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT IO m] [MonadLiftT BaseIO m]
-  (slot : IO.Ref (Slot α)) (next : Nat) : AtomicT (Broadcast.State α) m (Option α × Bool) :=
+private def getSlotValue
+  [Monad m] [MonadLiftT (ST IO.RealWorld) m]
+  (slot : IO.Ref (Slot α)) (next : Nat) : AtomicT (Bounded.State α) m (Option α × Bool) :=
     slot.modifyGet fun slot =>
       if next != slot.pos then
         ((none, false), slot)
@@ -321,17 +306,15 @@ def getSlotValue
       else
         ((slot.value, false), { slot with remaining := slot.remaining - 1 })
 
-def tryRecv'
-  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT IO m] [MonadLiftT BaseIO m]
-  (receiverId : Nat) : AtomicT (Broadcast.State α) m (Option α) := do
+private def getValueByPosition
+  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m]
+  (next : Nat) : AtomicT (Bounded.State α) m (Option α) := do
     let mut st ← get
 
     if ← isEmpty then
       return none
 
-    let next := st.receivers.get! receiverId
-    let id := next &&& st.mask
-
+    let id := next % st.capacity
     let slot ← getSlot id
 
     let (some val, shouldDequeue) ← getSlotValue slot next
@@ -344,25 +327,282 @@ def tryRecv'
         producer.resolve true
         st := { st with producers }
 
-    set { st with receivers := st.receivers.modify receiverId (· + 1) }
-
+    set st
     return some val
 
-def tryRecv (ch : Broadcast.Receiver α) : IO (Option α) :=
+/--
+Subscribes a new `Receiver` in the `Bounded` channel.
+-/
+private def unsubscribe (bd : Bounded.Receiver α) : IO Unit := do
+  let id ← bd.state.atomically do
+    let st ← get
+
+    let some next := st.receivers.get? bd.id
+      | return Except.error Error.noSubscribers
+
+    discard <| getValueByPosition next
+
+    set { st with receivers := st.receivers.erase bd.id }
+
+    pure <| .ok ()
+
+  match id with
+  | .error res => throw (.userError (toString res))
+  | .ok _ => pure ()
+
+private def tryRecv'
+  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT BaseIO m]
+  (receiverId : Nat) : AtomicT (Bounded.State α) m (Option α) := do
+    let st ← get
+    let next := st.receivers.get! receiverId
+
+    if let some val ← getValueByPosition next then
+      set { st with receivers := st.receivers.modify receiverId (· + 1) }
+      return some val
+    else
+      return none
+
+private def tryRecv (ch : Bounded.Receiver α) : BaseIO (Option α) :=
   ch.state.atomically do
     tryRecv' ch.id
 
-public partial def recv (ch : Broadcast.Receiver α) : IO (Task (Except IO.Error (Option α))) := do
+private partial def recv (ch : Bounded.Receiver α) : BaseIO (Task (Option α)) := do
   ch.state.atomically do
     if let some val ← tryRecv' ch.id then
-      return .pure <| .ok <| some val
+      return .pure <| some val
     else if (← get).closed then
-      return .pure <| .ok none
+      return .pure <| none
     else
       let promise ← IO.Promise.new
       modify fun st => { st with waiters := st.waiters.enqueue ⟨promise, none⟩ }
-      IO.bindTask promise.result? fun res => do
+      BaseIO.bindTask promise.result? fun res => do
         if res.getD false then
-          Broadcast.Receiver.recv ch
+          Bounded.Receiver.recv ch
         else
-          return .pure (.ok none)
+          return .pure none
+
+private partial def forAsync
+  (f : α → BaseIO Unit) (ch : Bounded.Receiver α)
+  (prio : Task.Priority := .default) :
+  BaseIO (Task Unit) := do
+    BaseIO.bindTask (prio := prio) (← ch.recv) fun
+      | none => return .pure ()
+      | some v => do f v; forAsync f ch prio
+
+@[inline]
+private def recvReady'
+  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadLiftT IO m] [MonadLiftT BaseIO m]
+  (receiverId : Nat) : AtomicT (State α) m Bool := do
+    let st ← get
+    let next := st.receivers.get! receiverId
+
+    if st.size = 0 then
+      return false
+    else
+      let id := next % st.capacity
+      let slot ← getSlot id
+      let slotVal ← slot.get
+      return slotVal.pos = next
+
+open Internal.IO.Async in
+private partial def recvSelector (ch : Bounded.Receiver α) : Selector (Option α) where
+  tryFn := do
+    ch.state.atomically do
+      if ← recvReady' ch.id then
+        let val ← tryRecv' ch.id
+        return some val
+      else
+        return none
+
+  registerFn waiter := registerAux ch waiter
+
+  unregisterFn := do
+    ch.state.atomically do
+      let st ← get
+      let waiters ← st.waiters.filterM fun c => do
+        match c.waiter with
+        | some waiter => return !(← waiter.checkFinished)
+        | none => return true
+
+      set { st with waiters }
+where
+  registerAux (ch : Bounded.Receiver α) (waiter : Waiter (Option α)) : IO Unit := do
+    ch.state.atomically do
+      if ← recvReady' ch.id then
+        let lose := do
+          let st ← get
+          if let some (waiter, waiters) := st.waiters.dequeue? then
+            waiter.resolve true
+            set { st with waiters }
+        let win promise := do
+          promise.resolve (.ok (← tryRecv' ch.id))
+
+        waiter.race lose win
+      else
+        let promise ← IO.Promise.new
+        modify fun st => { st with waiters := st.waiters.enqueue ⟨promise, some waiter⟩ }
+
+        IO.chainTask promise.result? fun res? => do
+          match res? with
+          | none => return ()
+          | some res =>
+            if res then
+              registerAux ch waiter
+            else
+              let lose := return ()
+              let win promise := promise.resolve (.ok none)
+              waiter.race lose win
+
+end Receiver
+end Bounded
+
+/--
+A multi-subscriber broadcast that delivers each message to all current subscribers.
+Supports only bounded buffering and an asynchronous API; to switch into
+synchronous mode use `Broadcast.sync`.
+
+Unlike `Std.Channel`, each message is received by **every** subscriber instead of just one.
+Subscribers only receive messages sent after they have subscribed (unless otherwise specified).
+-/
+structure Broadcast (α : Type) where
+  private mk ::
+  private inner : Bounded α
+
+/--
+A receiver for a `Broadcast` channel that can asynchronously receive messages.
+Each receiver gets a copy of every message sent to the broadcast channel after
+the receiver was created. Multiple receivers can exist for the same broadcast,
+and each will receive all messages independently.
+-/
+structure Broadcast.Receiver (α : Type) where
+  private mk ::
+  private inner : Bounded.Receiver α
+
+namespace Broadcast
+
+/--
+Creates a new broadcast channel.
+-/
+@[inline]
+def new {α} (capacity : Nat := 16) (h : capacity > 0 := by decide) : BaseIO (Broadcast α) := do
+  return ⟨← Bounded.new capacity h⟩
+
+/--
+Try to send a value to the broadcast channel, if this can be completed right away without blocking return
+`true`, otherwise don't send the value and return `false`.
+-/
+@[inline]
+def trySend (ch : Broadcast α) (v : α) : BaseIO Bool :=
+  ch.inner.trySend v
+
+/--
+Send a value through the broadcast channel, returning a task that will resolve once the transmission
+could be completed.
+-/
+@[inline]
+def send (ch : Broadcast α) (v : α) : BaseIO (Task Unit) := do
+  BaseIO.bindTask (sync := true) (← ch.inner.send v)
+    fun
+      | .ok .. => return .pure ()
+      | .error .. => unreachable!
+
+namespace Receiver
+
+/--
+Try to receive a value from the broadcast receiver, if a message is available right away
+return `some value`, otherwise return `none` without blocking.
+-/
+@[inline]
+def tryRecv (ch : Broadcast.Receiver α) : BaseIO (Option α) :=
+  Std.Bounded.Receiver.tryRecv ch.inner
+
+/--
+Receive a value from the broadcast receiver, returning a task that will resolve with
+the next available message. This will block until a message is available.
+-/
+def recv [Inhabited α] (ch : Broadcast.Receiver α) : BaseIO (Task α) := do
+  BaseIO.bindTask (sync := true) (← Std.Bounded.Receiver.recv ch.inner)
+    fun
+      | some val => return .pure val
+      | none => unreachable!
+
+open Internal.IO.Async in
+
+/--
+Creates a `Selector` that resolves once the broadcast channel `ch` has data available and provides that that data.
+-/
+def recvSelector [Inhabited α] (ch : Broadcast.Receiver α) : Selector (Option α) :=
+  ch.inner.recvSelector
+
+/--
+`ch.forAsync f` calls `f` for every message received on `ch`.
+
+Note that if this function is called twice, each message will only arrive at exactly one invocation.
+-/
+partial def forAsync (f : α → BaseIO Unit) (ch : Broadcast.Receiver α)
+  (prio : Task.Priority := .default) : BaseIO (Task Unit) := do
+    ch.inner.forAsync f prio
+
+end Receiver
+
+/--
+A multi-subscriber broadcast that delivers each message to all current subscribers.
+Supports only bounded buffering and an asynchronous API.
+
+It's the sync version of `Broadcast`.
+-/
+@[expose] def Sync (α : Type) : Type := Broadcast α
+
+/--
+A receiver for a `Broadcast` channel that can asynchronously receive messages.
+Each receiver gets a copy of every message sent to the broadcast channel after
+the receiver was created. Multiple receivers can exist for the same broadcast,
+and each will receive all messages independently.
+
+It's the sync version of `Broadcast.Receiver`.
+-/
+@[expose] def Sync.Receiver (α : Type) : Type := Broadcast.Receiver α
+
+namespace Sync
+
+@[inherit_doc Broadcast.new, inline]
+def new (capacity : Nat := 16) (h : capacity > 0 := by decide) : BaseIO (Sync α) :=
+  Broadcast.new capacity h
+
+@[inherit_doc Broadcast.trySend, inline]
+def trySend (ch : Sync α) (v : α) : BaseIO Bool :=
+  Broadcast.trySend ch v
+
+/--
+Send a value through the channel, blocking until the transmission could be completed.
+-/
+@[inline]
+def send (ch : Sync α) (v : α) : BaseIO Unit := do
+  IO.wait (← Broadcast.send ch v)
+
+namespace Receiver
+
+@[inherit_doc Broadcast.Receiver.tryRecv, inline]
+def tryRecv (ch : Sync.Receiver α) : BaseIO (Option α) := Broadcast.Receiver.tryRecv ch
+
+/--
+Receive a value from the channel, blocking until the transmission could be completed.
+-/
+def recv [Inhabited α] (ch : Sync.Receiver α) : BaseIO α := do
+  IO.wait (← Broadcast.Receiver.recv ch)
+
+private partial def forIn [Inhabited α] [Monad m] [MonadLiftT BaseIO m]
+    (ch : Sync.Receiver α) (f : α → β → m (ForInStep β)) : β → m β := fun b => do
+  let a ← ch.recv
+  match ← f a b with
+  | .done b => pure b
+  | .yield b => ch.forIn f b
+
+/-- `for msg in ch.sync do ...` receives all messages in the channel until it is closed. -/
+instance [Inhabited α] [MonadLiftT BaseIO m] : ForIn m (Sync.Receiver α) α where
+  forIn ch b f := ch.forIn f b
+
+end Receiver
+end Sync
+end Broadcast
+end Std

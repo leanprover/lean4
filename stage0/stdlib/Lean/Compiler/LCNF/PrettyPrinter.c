@@ -2719,10 +2719,8 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_8 = lean_ctor_get(x_5, 2);
-lean_inc(x_8);
 x_9 = l_Lean_Compiler_LCNF_PP_ppLetDecl___closed__0;
 x_10 = l_Lean_Option_get___at___Lean_Compiler_LCNF_PP_ppArg_spec__0(x_8, x_9);
-lean_dec(x_8);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
@@ -5011,10 +5009,8 @@ x_300 = lean_ctor_get(x_1, 0);
 lean_inc_ref(x_300);
 lean_dec_ref(x_1);
 x_301 = lean_ctor_get(x_5, 2);
-lean_inc(x_301);
 x_302 = l_Lean_Compiler_LCNF_PP_ppCode___closed__12;
 x_303 = l_Lean_Option_get___at___Lean_Compiler_LCNF_PP_ppArg_spec__0(x_301, x_302);
-lean_dec(x_301);
 if (x_303 == 0)
 {
 lean_object* x_304; lean_object* x_305; 
@@ -5548,12 +5544,12 @@ x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec_ref(x_7);
 x_10 = lean_ctor_get(x_4, 2);
-lean_inc(x_10);
 x_11 = lean_ctor_get(x_8, 0);
 lean_inc_ref(x_11);
 lean_dec(x_8);
 x_12 = l_Lean_Compiler_LCNF_PP_run___redArg___closed__0;
 x_13 = 0;
+lean_inc(x_10);
 x_14 = l_Lean_Option_set___at___Lean_Compiler_LCNF_PP_run_spec__0(x_10, x_12, x_13);
 x_15 = l_Lean_Compiler_LCNF_PP_run___redArg___closed__1;
 x_16 = l_Lean_Option_get___at___Lean_Compiler_LCNF_PP_ppArg_spec__0(x_14, x_15);

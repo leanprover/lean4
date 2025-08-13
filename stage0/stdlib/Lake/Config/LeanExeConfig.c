@@ -649,7 +649,6 @@ case 1:
 {
 lean_object* x_6; 
 x_6 = lean_ctor_get(x_4, 0);
-lean_inc(x_6);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
@@ -662,6 +661,7 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; 
+lean_inc(x_6);
 x_9 = lean_ctor_get(x_4, 1);
 lean_inc_ref(x_9);
 lean_dec_ref(x_4);
@@ -706,7 +706,6 @@ default:
 {
 lean_object* x_19; 
 x_19 = lean_ctor_get(x_4, 0);
-lean_inc(x_19);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; 
@@ -719,6 +718,7 @@ return x_21;
 else
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+lean_inc(x_19);
 x_22 = lean_ctor_get(x_4, 1);
 lean_inc(x_22);
 lean_dec_ref(x_4);

@@ -62,7 +62,6 @@ lean_object* l_Substring_takeRightWhileAux___at___Lean_findSysroot_spec__1(lean_
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* l_List_reverse___redArg(lean_object*);
 uint8_t l_instDecidableNot___redArg(uint8_t);
-LEAN_EXPORT lean_object* l_Lake_rawProc___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_proc(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_rawProc___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
@@ -734,14 +733,6 @@ return x_18;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lake_rawProc___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lake_rawProc___lam__0(x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_rawProc___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -903,7 +894,6 @@ x_100 = lean_ctor_get(x_97, 1);
 lean_inc(x_100);
 lean_dec(x_97);
 x_101 = l_Lake_proc___lam__1(x_21, x_87, x_99, x_100, x_98);
-lean_dec(x_99);
 lean_dec_ref(x_21);
 x_22 = x_101;
 goto block_84;

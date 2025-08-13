@@ -979,7 +979,6 @@ else
 {
 lean_object* x_5; 
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; 
@@ -993,7 +992,6 @@ return x_7;
 else
 {
 lean_object* x_8; 
-lean_dec_ref(x_5);
 lean_dec_ref(x_2);
 x_8 = lean_apply_2(x_3, x_1, lean_box(0));
 return x_8;
@@ -1086,9 +1084,7 @@ if (lean_is_exclusive(x_2)) {
  x_5 = lean_box(0);
 }
 x_6 = lean_ctor_get(x_4, 0);
-lean_inc(x_6);
 x_7 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_3, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_3, 1);
@@ -1119,6 +1115,8 @@ x_47 = l_Std_DHashMap_Internal_AssocList_get_x3f___redArg(x_32, x_8, x_46);
 if (lean_obj_tag(x_47) == 0)
 {
 uint8_t x_48; 
+lean_inc_ref(x_7);
+lean_inc(x_6);
 x_48 = !lean_is_exclusive(x_4);
 if (x_48 == 0)
 {
@@ -1215,8 +1213,6 @@ else
 {
 lean_dec(x_46);
 lean_dec(x_8);
-lean_dec_ref(x_7);
-lean_dec(x_6);
 x_10 = x_47;
 x_11 = x_4;
 goto block_30;
@@ -1718,19 +1714,15 @@ case 1:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
 x_7 = lean_box(x_4);
 x_8 = lean_array_get(x_7, x_1, x_5);
-lean_dec(x_5);
 x_9 = lean_unbox(x_8);
 switch (x_9) {
 case 0:
 {
 uint8_t x_10; 
 x_10 = lean_unbox(x_6);
-lean_dec(x_6);
 if (x_10 == 0)
 {
 lean_dec_ref(x_3);
@@ -1748,7 +1740,6 @@ case 1:
 {
 uint8_t x_12; 
 x_12 = lean_unbox(x_6);
-lean_dec(x_6);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -1765,7 +1756,6 @@ return x_2;
 case 2:
 {
 lean_object* x_14; 
-lean_dec(x_6);
 lean_dec_ref(x_3);
 x_14 = lean_box(0);
 return x_14;
@@ -1773,7 +1763,6 @@ return x_14;
 default: 
 {
 lean_object* x_15; 
-lean_dec(x_6);
 x_15 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_15, 0, x_3);
 return x_15;

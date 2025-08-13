@@ -448,15 +448,15 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_3 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 3);
-lean_inc_ref(x_5);
+lean_inc_ref(x_3);
 x_6 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_6, 0, x_3);
 x_7 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_ofPred___redArg___closed__3;
 x_8 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_ofPred___redArg___closed__6;
+lean_inc_ref(x_5);
 x_9 = l_Lean_mkAppB(x_7, x_8, x_5);
 lean_inc_ref(x_1);
 x_10 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_evalsAtAtoms), 7, 1);
@@ -1511,14 +1511,14 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_8 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_1, 3);
 lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_2, 3);
 lean_inc_ref(x_11);
 x_12 = l___private_Lean_Elab_Tactic_BVDecide_Frontend_BVDecide_ReifiedBVLogical_0__Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkGate_congrThmOfGate(x_5);
+lean_inc_ref(x_10);
+lean_inc_ref(x_8);
 x_13 = lean_alloc_ctor(3, 2, 1);
 lean_ctor_set(x_13, 0, x_8);
 lean_ctor_set(x_13, 1, x_10);
@@ -1875,9 +1875,9 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_5 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 3);
 lean_inc_ref(x_6);
+lean_inc_ref(x_5);
 x_7 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_7, 0, x_5);
 x_8 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_mkEvalExpr___closed__0;
@@ -2570,17 +2570,17 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_9 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_1, 3);
 lean_inc_ref(x_10);
 x_11 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_11);
 x_12 = lean_ctor_get(x_2, 3);
 lean_inc_ref(x_12);
 x_13 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_13);
 x_14 = lean_ctor_get(x_3, 3);
 lean_inc_ref(x_14);
+lean_inc_ref(x_13);
+lean_inc_ref(x_11);
+lean_inc_ref(x_9);
 x_15 = lean_alloc_ctor(4, 3, 0);
 lean_ctor_set(x_15, 0, x_9);
 lean_ctor_set(x_15, 1, x_11);

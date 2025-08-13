@@ -45,27 +45,39 @@ private def visitParam (p : Param) : M Unit :=
       else s.borrowedParams
   }
 
+private partial def addDerivedValue (parent : VarId) (child : VarId) : M Unit := do
+  modify fun s => { s with
+    varMap := s.varMap.modify parent fun info =>
+      { info with children := info.children.insert child }
+  }
+  modify fun s => { s with
+    varMap := s.varMap.insert child {
+      parent? := some parent
+      children := {}
+    }
+  }
+
+private partial def removeFromParent (child : VarId) : M Unit := do
+  if let some (some parent) := (← get).varMap.get? child |>.map (·.parent?) then
+    modify fun s => { s with
+      varMap := s.varMap.modify parent fun info =>
+        { info with children := info.children.erase child }
+    }
+
 private partial def visitFnBody (b : FnBody) : M Unit := do
   match b with
   | .vdecl x _ e b =>
     match e with
     | .proj _ parent =>
-      modify fun s => { s with
-        varMap := s.varMap.modify parent fun info =>
-          { info with children := info.children.insert x }
-      }
-      modify fun s => { s with
-        varMap := s.varMap.insert x {
-          parent? := some parent
-          children := {}
-        }
-      }
+      addDerivedValue parent x
+    | .fap ``Array.getInternal args =>
+      if let .var parent := args[1]! then
+        addDerivedValue parent x
+    | .fap ``Array.get!Internal args =>
+      if let .var parent := args[2]! then
+        addDerivedValue parent x
     | .reset _ x =>
-      if let some (some parent) := (← get).varMap.get? x |>.map (·.parent?) then
-        modify fun s => { s with
-          varMap := s.varMap.modify parent fun info =>
-            { info with children := info.children.erase x }
-        }
+      removeFromParent x
     | _ => pure ()
     visitFnBody b
   | .jdecl _ ps v b =>
@@ -345,7 +357,13 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
     | .fap f ys =>
       let ps := (getDecl ctx f).params
       let b  := addDecAfterFullApp ctx ys ps b bLiveVars
-      let b  := .vdecl z t v b
+      let v  :=
+        if f == ``Array.getInternal && bLiveVars.borrows.contains z then
+          .fap ``Array.getInternalBorrowed ys
+        else if f == ``Array.get!Internal && bLiveVars.borrows.contains z then
+          .fap ``Array.get!InternalBorrowed ys
+        else v
+      let b := .vdecl z t v b
       addIncBefore ctx ys ps b bLiveVars
     | .ap x ys =>
       let ysx := ys.push (.var x) -- TODO: avoid temporary array allocation

@@ -1539,7 +1539,6 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_6; size_t x_7; size_t x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_6);
 x_7 = 5;
 x_8 = 1;
 x_9 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_SMap_insert___at___Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_338__spec__1_spec__1_spec__1___redArg___closed__1;
@@ -1551,7 +1550,6 @@ lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
-lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_1;
@@ -1559,6 +1557,7 @@ return x_1;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_inc_ref(x_6);
 if (lean_is_exclusive(x_1)) {
  lean_ctor_release(x_1, 0);
  x_14 = x_1;
@@ -4790,10 +4789,8 @@ _start:
 {
 lean_object* x_7; lean_object* x_11; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_15 = lean_ctor_get(x_4, 2);
-lean_inc(x_15);
 x_16 = l___private_Lean_ReducibilityAttrs_0__Lean_validate___closed__0;
 x_17 = l_Lean_Option_get___at_____private_Lean_ReducibilityAttrs_0__Lean_validate_spec__0(x_15, x_16);
-lean_dec(x_15);
 if (x_17 == 0)
 {
 lean_object* x_18; 
@@ -6256,12 +6253,10 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc_ref(x_6);
-lean_dec_ref(x_4);
 x_7 = l_Lean_getReducibilityStatus___redArg(x_1, x_2, x_3);
 x_8 = lean_alloc_closure((void*)(l_Lean_isReducible___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_8, 0, x_6);
@@ -6312,12 +6307,10 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc_ref(x_6);
-lean_dec_ref(x_4);
 x_7 = l_Lean_getReducibilityStatus___redArg(x_1, x_2, x_3);
 x_8 = lean_alloc_closure((void*)(l_Lean_isIrreducible___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(x_8, 0, x_6);

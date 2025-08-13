@@ -1792,27 +1792,23 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_2, 1);
-lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 2);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get_uint8(x_2, sizeof(void*)*3);
 x_7 = lean_string_utf8_byte_size(x_5);
-lean_dec_ref(x_5);
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_nat_dec_eq(x_7, x_8);
 lean_dec(x_7);
 if (x_9 == 0)
 {
-lean_dec(x_4);
-lean_dec_ref(x_3);
 lean_dec_ref(x_1);
 return x_2;
 }
 else
 {
 uint8_t x_10; 
+lean_inc(x_4);
+lean_inc_ref(x_3);
 x_10 = !lean_is_exclusive(x_2);
 if (x_10 == 0)
 {
@@ -1845,27 +1841,23 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_4 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_3, 1);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 2);
-lean_inc_ref(x_6);
 x_7 = lean_ctor_get_uint8(x_3, sizeof(void*)*3);
 x_8 = lean_string_utf8_byte_size(x_6);
-lean_dec_ref(x_6);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_nat_dec_eq(x_8, x_9);
 lean_dec(x_8);
 if (x_10 == 0)
 {
-lean_dec(x_5);
-lean_dec_ref(x_4);
 lean_dec_ref(x_2);
 return x_3;
 }
 else
 {
 uint8_t x_11; 
+lean_inc(x_5);
+lean_inc_ref(x_4);
 x_11 = !lean_is_exclusive(x_3);
 if (x_11 == 0)
 {

@@ -1972,9 +1972,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_18; lean_object* x_19; 
 x_11 = lean_ctor_get(x_4, 0);
-lean_inc(x_11);
 x_12 = lean_ctor_get(x_4, 1);
-lean_inc(x_12);
 x_18 = lean_array_uget(x_1, x_2);
 x_19 = lean_ctor_get(x_18, 1);
 lean_inc(x_19);
@@ -2029,6 +2027,8 @@ if (x_23 == 0)
 uint8_t x_37; 
 lean_dec(x_25);
 lean_dec(x_21);
+lean_inc(x_12);
+lean_inc(x_11);
 x_37 = !lean_is_exclusive(x_4);
 if (x_37 == 0)
 {
@@ -2091,8 +2091,6 @@ lean_dec(x_25);
 lean_dec_ref(x_22);
 lean_dec(x_21);
 lean_dec(x_20);
-lean_dec(x_12);
-lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -2106,14 +2104,14 @@ lean_dec(x_25);
 lean_dec_ref(x_22);
 lean_dec(x_21);
 lean_dec(x_20);
-lean_dec(x_12);
-lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
 else
 {
 size_t x_28; size_t x_29; lean_object* x_30; lean_object* x_31; 
+lean_inc(x_12);
+lean_inc(x_11);
 lean_dec_ref(x_4);
 x_28 = 0;
 x_29 = lean_usize_of_nat(x_25);
@@ -2138,6 +2136,8 @@ else
 {
 lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 
 lean_dec_ref(x_22);
+lean_inc(x_12);
+lean_inc(x_11);
 lean_dec_ref(x_4);
 x_57 = l_Lake_Toml_ppKey(x_20);
 lean_dec(x_20);
@@ -2159,6 +2159,8 @@ goto block_9;
 case 6:
 {
 lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; uint8_t x_73; 
+lean_inc(x_12);
+lean_inc(x_11);
 lean_dec_ref(x_4);
 x_62 = lean_ctor_get(x_19, 1);
 lean_inc_ref(x_62);
@@ -2215,6 +2217,8 @@ goto block_17;
 default: 
 {
 uint8_t x_78; 
+lean_inc(x_12);
+lean_inc(x_11);
 lean_dec_ref(x_4);
 x_78 = !lean_is_exclusive(x_18);
 if (x_78 == 0)
@@ -2282,9 +2286,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_18; lean_object* x_19; 
 x_11 = lean_ctor_get(x_4, 0);
-lean_inc(x_11);
 x_12 = lean_ctor_get(x_4, 1);
-lean_inc(x_12);
 x_18 = lean_array_uget(x_1, x_2);
 x_19 = lean_ctor_get(x_18, 1);
 lean_inc(x_19);
@@ -2339,6 +2341,8 @@ if (x_23 == 0)
 uint8_t x_37; 
 lean_dec(x_25);
 lean_dec(x_21);
+lean_inc(x_12);
+lean_inc(x_11);
 x_37 = !lean_is_exclusive(x_4);
 if (x_37 == 0)
 {
@@ -2401,8 +2405,6 @@ lean_dec(x_25);
 lean_dec_ref(x_22);
 lean_dec(x_21);
 lean_dec(x_20);
-lean_dec(x_12);
-lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
@@ -2416,14 +2418,14 @@ lean_dec(x_25);
 lean_dec_ref(x_22);
 lean_dec(x_21);
 lean_dec(x_20);
-lean_dec(x_12);
-lean_dec(x_11);
 x_5 = x_4;
 goto block_9;
 }
 else
 {
 size_t x_28; size_t x_29; lean_object* x_30; lean_object* x_31; 
+lean_inc(x_12);
+lean_inc(x_11);
 lean_dec_ref(x_4);
 x_28 = 0;
 x_29 = lean_usize_of_nat(x_25);
@@ -2448,6 +2450,8 @@ else
 {
 lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 
 lean_dec_ref(x_22);
+lean_inc(x_12);
+lean_inc(x_11);
 lean_dec_ref(x_4);
 x_57 = l_Lake_Toml_ppKey(x_20);
 lean_dec(x_20);
@@ -2469,6 +2473,8 @@ goto block_9;
 case 6:
 {
 lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; uint8_t x_73; 
+lean_inc(x_12);
+lean_inc(x_11);
 lean_dec_ref(x_4);
 x_62 = lean_ctor_get(x_19, 1);
 lean_inc_ref(x_62);
@@ -2525,6 +2531,8 @@ goto block_17;
 default: 
 {
 uint8_t x_78; 
+lean_inc(x_12);
+lean_inc(x_11);
 lean_dec_ref(x_4);
 x_78 = !lean_is_exclusive(x_18);
 if (x_78 == 0)

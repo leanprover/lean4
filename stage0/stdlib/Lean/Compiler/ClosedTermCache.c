@@ -346,7 +346,6 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_6; size_t x_7; size_t x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_6);
 x_7 = 5;
 x_8 = 1;
 x_9 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69__spec__0_spec__0___redArg___closed__1;
@@ -358,7 +357,6 @@ lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
-lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec_ref(x_4);
 return x_1;
@@ -366,6 +364,7 @@ return x_1;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_inc_ref(x_6);
 if (lean_is_exclusive(x_1)) {
  lean_ctor_release(x_1, 0);
  x_14 = x_1;
@@ -1003,7 +1002,6 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_5 = lean_ctor_get(x_2, 2);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 2);
 x_7 = l_List_lengthTR___redArg(x_5);
 x_8 = l_List_lengthTR___redArg(x_6);
@@ -1013,7 +1011,6 @@ lean_dec(x_7);
 x_10 = l_Lean_initFn___lam__0___closed__0____x40_Lean_Compiler_ClosedTermCache___hyg_69_;
 lean_inc(x_5);
 x_11 = l___private_Init_Data_List_Impl_0__List_takeTR_go(lean_box(0), x_5, x_5, x_9, x_10);
-lean_dec(x_5);
 x_12 = l_List_foldl___at___Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_69__spec__9(x_2, x_4, x_11);
 return x_12;
 }

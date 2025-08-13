@@ -625,9 +625,7 @@ if (lean_is_exclusive(x_42)) {
  x_48 = lean_box(0);
 }
 x_49 = lean_ctor_get(x_43, 0);
-lean_inc(x_49);
 x_50 = lean_ctor_get(x_43, 1);
-lean_inc_ref(x_50);
 x_133 = lean_array_get_size(x_50);
 x_134 = lean_usize_of_nat(x_133);
 lean_dec(x_133);
@@ -638,6 +636,8 @@ x_138 = l_Std_DHashMap_Internal_AssocList_contains___at_____private_Lean_Elab_Ta
 if (x_138 == 0)
 {
 uint8_t x_139; 
+lean_inc_ref(x_50);
+lean_inc(x_49);
 x_139 = !lean_is_exclusive(x_43);
 if (x_139 == 0)
 {
@@ -729,8 +729,6 @@ goto block_132;
 else
 {
 lean_dec(x_137);
-lean_dec_ref(x_50);
-lean_dec(x_49);
 lean_free_object(x_13);
 x_51 = x_43;
 goto block_132;
@@ -1252,9 +1250,7 @@ if (lean_is_exclusive(x_189)) {
  x_195 = lean_box(0);
 }
 x_196 = lean_ctor_get(x_190, 0);
-lean_inc(x_196);
 x_197 = lean_ctor_get(x_190, 1);
-lean_inc_ref(x_197);
 x_242 = lean_array_get_size(x_197);
 x_243 = lean_usize_of_nat(x_242);
 lean_dec(x_242);
@@ -1265,6 +1261,8 @@ x_247 = l_Std_DHashMap_Internal_AssocList_contains___at_____private_Lean_Elab_Ta
 if (x_247 == 0)
 {
 lean_object* x_248; lean_object* x_249; lean_object* x_250; lean_object* x_251; lean_object* x_252; lean_object* x_253; lean_object* x_254; lean_object* x_255; lean_object* x_256; lean_object* x_257; uint8_t x_258; 
+lean_inc_ref(x_197);
+lean_inc(x_196);
 if (lean_is_exclusive(x_190)) {
  lean_ctor_release(x_190, 0);
  lean_ctor_release(x_190, 1);
@@ -1323,8 +1321,6 @@ goto block_241;
 else
 {
 lean_dec(x_246);
-lean_dec_ref(x_197);
-lean_dec(x_196);
 lean_free_object(x_13);
 x_198 = x_190;
 goto block_241;
@@ -1668,9 +1664,7 @@ if (lean_is_exclusive(x_288)) {
  x_294 = lean_box(0);
 }
 x_295 = lean_ctor_get(x_289, 0);
-lean_inc(x_295);
 x_296 = lean_ctor_get(x_289, 1);
-lean_inc_ref(x_296);
 x_341 = lean_array_get_size(x_296);
 x_342 = lean_usize_of_nat(x_341);
 lean_dec(x_341);
@@ -1681,6 +1675,8 @@ x_346 = l_Std_DHashMap_Internal_AssocList_contains___at_____private_Lean_Elab_Ta
 if (x_346 == 0)
 {
 lean_object* x_347; lean_object* x_348; lean_object* x_349; lean_object* x_350; lean_object* x_351; lean_object* x_352; lean_object* x_353; lean_object* x_354; lean_object* x_355; lean_object* x_356; lean_object* x_357; uint8_t x_358; 
+lean_inc_ref(x_296);
+lean_inc(x_295);
 if (lean_is_exclusive(x_289)) {
  lean_ctor_release(x_289, 0);
  lean_ctor_release(x_289, 1);
@@ -1739,8 +1735,6 @@ goto block_340;
 else
 {
 lean_dec(x_345);
-lean_dec_ref(x_296);
-lean_dec(x_295);
 x_297 = x_289;
 goto block_340;
 }

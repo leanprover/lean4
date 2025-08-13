@@ -968,11 +968,8 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 2);
-lean_inc(x_6);
 x_7 = l_Std_Format_getUnicode(x_4);
 lean_inc(x_2);
 lean_inc(x_1);
@@ -982,6 +979,9 @@ x_10 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_NameMap_contains_spec__
 if (x_10 == 0)
 {
 uint8_t x_11; 
+lean_inc(x_6);
+lean_inc(x_5);
+lean_inc(x_4);
 x_11 = !lean_is_exclusive(x_3);
 if (x_11 == 0)
 {
@@ -1024,9 +1024,6 @@ else
 {
 lean_object* x_24; lean_object* x_25; 
 lean_dec(x_9);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 x_24 = lean_unsigned_to_nat(1u);
 x_25 = lean_nat_add(x_2, x_24);
 lean_dec(x_2);
@@ -1040,11 +1037,9 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_29; 
 x_3 = lean_ctor_get(x_2, 1);
-lean_inc(x_3);
 lean_inc(x_1);
 x_4 = lean_erase_macro_scopes(x_1);
 x_29 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_3, x_4);
-lean_dec(x_3);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; 
@@ -1261,17 +1256,15 @@ case 3:
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 x_30 = lean_ctor_get(x_1, 2);
-lean_inc(x_30);
 x_31 = lean_ctor_get(x_2, 2);
-lean_inc(x_31);
 x_32 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___Lean_NameMap_find_x3f_spec__0___redArg(x_31, x_30);
-lean_dec(x_31);
 if (lean_obj_tag(x_32) == 0)
 {
 uint8_t x_33; 
 x_33 = l_Lean_Name_hasMacroScopes(x_30);
 if (x_33 == 0)
 {
+lean_inc(x_30);
 x_3 = x_30;
 x_4 = x_2;
 goto block_8;
@@ -1279,6 +1272,7 @@ goto block_8;
 else
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+lean_inc(x_30);
 x_34 = l_Lean_sanitizeName(x_30, x_2);
 x_35 = lean_ctor_get(x_34, 0);
 lean_inc(x_35);
@@ -1293,7 +1287,6 @@ goto block_8;
 else
 {
 lean_object* x_37; 
-lean_dec(x_30);
 x_37 = lean_ctor_get(x_32, 0);
 lean_inc(x_37);
 lean_dec_ref(x_32);
@@ -1341,9 +1334,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
 x_4 = l_Lean_getSanitizeNames(x_3);
-lean_dec(x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; 

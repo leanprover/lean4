@@ -1358,47 +1358,42 @@ return x_9;
 LEAN_EXPORT lean_object* l_Lake_Glob_forEachModuleIn___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; 
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_6);
 switch (lean_obj_tag(x_5)) {
 case 0:
 {
-lean_object* x_7; lean_object* x_8; 
-lean_dec_ref(x_6);
+lean_object* x_6; lean_object* x_7; 
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
-x_7 = lean_ctor_get(x_5, 0);
-lean_inc(x_7);
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
 lean_dec_ref(x_5);
-x_8 = lean_apply_1(x_4, x_7);
-return x_8;
+x_7 = lean_apply_1(x_4, x_6);
+return x_7;
 }
 case 1:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec_ref(x_6);
-x_9 = lean_ctor_get(x_5, 0);
-lean_inc(x_9);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_8 = lean_ctor_get(x_5, 0);
+lean_inc(x_8);
 lean_dec_ref(x_5);
-lean_inc(x_9);
-x_10 = lean_alloc_closure((void*)(l_Lake_Glob_forEachModuleIn___redArg___lam__0), 3, 2);
-lean_closure_set(x_10, 0, x_9);
-lean_closure_set(x_10, 1, x_4);
-x_11 = l_Lake_Glob_forEachModuleIn___redArg___lam__2___closed__0;
-x_12 = l_Lean_modToFilePath(x_3, x_9, x_11);
-lean_dec(x_9);
+lean_inc(x_8);
+x_9 = lean_alloc_closure((void*)(l_Lake_Glob_forEachModuleIn___redArg___lam__0), 3, 2);
+lean_closure_set(x_9, 0, x_8);
+lean_closure_set(x_9, 1, x_4);
+x_10 = l_Lake_Glob_forEachModuleIn___redArg___lam__2___closed__0;
+x_11 = l_Lean_modToFilePath(x_3, x_8, x_10);
+lean_dec(x_8);
 lean_dec_ref(x_3);
-x_13 = l_Lean_forEachModuleInDir___redArg(x_1, x_2, x_12, x_10);
-return x_13;
+x_12 = l_Lean_forEachModuleInDir___redArg(x_1, x_2, x_11, x_9);
+return x_12;
 }
 default: 
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_14 = lean_ctor_get(x_6, 4);
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_13 = lean_ctor_get(x_1, 0);
+x_14 = lean_ctor_get(x_13, 4);
 lean_inc_ref(x_14);
-lean_dec_ref(x_6);
 x_15 = lean_ctor_get(x_5, 0);
 lean_inc(x_15);
 lean_dec_ref(x_5);
@@ -1424,47 +1419,42 @@ return x_19;
 LEAN_EXPORT lean_object* l_Lake_Glob_forEachModuleIn(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; 
-x_7 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_7);
 switch (lean_obj_tag(x_6)) {
 case 0:
 {
-lean_object* x_8; lean_object* x_9; 
-lean_dec_ref(x_7);
+lean_object* x_7; lean_object* x_8; 
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
-x_8 = lean_ctor_get(x_6, 0);
-lean_inc(x_8);
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
 lean_dec_ref(x_6);
-x_9 = lean_apply_1(x_5, x_8);
-return x_9;
+x_8 = lean_apply_1(x_5, x_7);
+return x_8;
 }
 case 1:
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec_ref(x_7);
-x_10 = lean_ctor_get(x_6, 0);
-lean_inc(x_10);
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_9 = lean_ctor_get(x_6, 0);
+lean_inc(x_9);
 lean_dec_ref(x_6);
-lean_inc(x_10);
-x_11 = lean_alloc_closure((void*)(l_Lake_Glob_forEachModuleIn___redArg___lam__0), 3, 2);
-lean_closure_set(x_11, 0, x_10);
-lean_closure_set(x_11, 1, x_5);
-x_12 = l_Lake_Glob_forEachModuleIn___redArg___lam__2___closed__0;
-x_13 = l_Lean_modToFilePath(x_4, x_10, x_12);
-lean_dec(x_10);
+lean_inc(x_9);
+x_10 = lean_alloc_closure((void*)(l_Lake_Glob_forEachModuleIn___redArg___lam__0), 3, 2);
+lean_closure_set(x_10, 0, x_9);
+lean_closure_set(x_10, 1, x_5);
+x_11 = l_Lake_Glob_forEachModuleIn___redArg___lam__2___closed__0;
+x_12 = l_Lean_modToFilePath(x_4, x_9, x_11);
+lean_dec(x_9);
 lean_dec_ref(x_4);
-x_14 = l_Lean_forEachModuleInDir___redArg(x_2, x_3, x_13, x_11);
-return x_14;
+x_13 = l_Lean_forEachModuleInDir___redArg(x_2, x_3, x_12, x_10);
+return x_13;
 }
 default: 
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_15 = lean_ctor_get(x_7, 4);
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_14 = lean_ctor_get(x_2, 0);
+x_15 = lean_ctor_get(x_14, 4);
 lean_inc_ref(x_15);
-lean_dec_ref(x_7);
 x_16 = lean_ctor_get(x_6, 0);
 lean_inc(x_16);
 lean_dec_ref(x_6);

@@ -331,11 +331,8 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_10; lean_ob
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_5);
 x_10 = lean_ctor_get(x_4, 0);
-lean_inc(x_10);
 x_11 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_11);
 x_12 = lean_array_get_size(x_11);
 x_13 = l_Lean_Expr_hash(x_1);
 x_14 = 32;
@@ -354,10 +351,13 @@ x_25 = lean_array_uget(x_11, x_24);
 x_26 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_CollectMVars_visit_spec__0___redArg(x_1, x_25);
 if (x_26 == 0)
 {
+lean_inc_ref(x_5);
 lean_dec_ref(x_2);
 if (x_26 == 0)
 {
 uint8_t x_27; 
+lean_inc_ref(x_11);
+lean_inc(x_10);
 x_27 = !lean_is_exclusive(x_4);
 if (x_27 == 0)
 {
@@ -449,8 +449,6 @@ goto block_9;
 else
 {
 lean_dec(x_25);
-lean_dec_ref(x_11);
-lean_dec(x_10);
 x_6 = x_4;
 goto block_9;
 }
@@ -458,9 +456,6 @@ goto block_9;
 else
 {
 lean_dec(x_25);
-lean_dec_ref(x_11);
-lean_dec(x_10);
-lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_1);
 return x_2;

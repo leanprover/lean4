@@ -1222,9 +1222,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_1, 3);
 lean_inc(x_6);
 x_7 = l_Lean_ppExprWithInfos___closed__0;
@@ -1232,12 +1230,12 @@ x_8 = l_Lean_Option_get___at___Lean_formatRawTerm_spec__1(x_6, x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec_ref(x_5);
 x_9 = l_Lean_ppExprWithInfos___closed__1;
 x_10 = lean_ctor_get(x_9, 2);
 lean_inc(x_10);
 x_11 = l_Lean_instInhabitedPPFns;
 x_12 = lean_box(0);
+lean_inc_ref(x_4);
 x_13 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_11, x_9, x_4, x_10, x_12);
 lean_dec(x_10);
 x_14 = lean_ctor_get(x_13, 0);
@@ -1401,7 +1399,7 @@ else
 {
 lean_object* x_64; uint8_t x_65; 
 lean_dec(x_6);
-lean_dec_ref(x_4);
+lean_inc_ref(x_5);
 lean_dec_ref(x_1);
 x_64 = l_Lean_instantiateMVarsCore(x_5, x_2);
 x_65 = !lean_is_exclusive(x_64);
@@ -1498,7 +1496,6 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 3);
 lean_inc(x_5);
 x_6 = l_Lean_ppExprWithInfos___closed__1;
@@ -1506,6 +1503,7 @@ x_7 = lean_ctor_get(x_6, 2);
 lean_inc(x_7);
 x_8 = l_Lean_instInhabitedPPFns;
 x_9 = lean_box(0);
+lean_inc_ref(x_4);
 x_10 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_8, x_6, x_4, x_7, x_9);
 lean_dec(x_7);
 x_11 = lean_ctor_get(x_10, 1);
@@ -1705,9 +1703,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 3);
-lean_inc(x_5);
 x_6 = l_Lean_ppExprWithInfos___closed__0;
 x_7 = l_Lean_Option_get___at___Lean_formatRawTerm_spec__1(x_5, x_6);
 if (x_7 == 0)
@@ -1718,6 +1714,7 @@ x_9 = lean_ctor_get(x_8, 2);
 lean_inc(x_9);
 x_10 = l_Lean_instInhabitedPPFns;
 x_11 = lean_box(0);
+lean_inc_ref(x_4);
 x_12 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_10, x_8, x_4, x_9, x_11);
 lean_dec(x_9);
 x_13 = lean_ctor_get(x_12, 2);
@@ -1729,7 +1726,6 @@ x_14 = lean_apply_3(x_13, x_1, x_2, x_3);
 if (lean_obj_tag(x_14) == 0)
 {
 uint8_t x_15; 
-lean_dec(x_5);
 lean_dec(x_2);
 lean_dec_ref(x_1);
 x_15 = !lean_is_exclusive(x_14);
@@ -1761,7 +1757,6 @@ lean_object* x_20; lean_object* x_21; uint8_t x_22;
 x_20 = lean_ctor_get(x_14, 0);
 x_21 = l_Lean_ppExprWithInfos___closed__2;
 x_22 = l_Lean_Option_get___at___Lean_formatRawTerm_spec__1(x_5, x_21);
-lean_dec(x_5);
 if (x_22 == 0)
 {
 lean_object* x_23; 
@@ -1818,7 +1813,6 @@ lean_inc(x_37);
 lean_dec(x_14);
 x_39 = l_Lean_ppExprWithInfos___closed__2;
 x_40 = l_Lean_Option_get___at___Lean_formatRawTerm_spec__1(x_5, x_39);
-lean_dec(x_5);
 if (x_40 == 0)
 {
 lean_object* x_41; lean_object* x_42; 
@@ -1872,8 +1866,6 @@ return x_56;
 else
 {
 lean_object* x_57; lean_object* x_58; 
-lean_dec(x_5);
-lean_dec_ref(x_4);
 x_57 = l_Lean_formatRawTerm(x_1, x_2);
 lean_dec_ref(x_1);
 x_58 = lean_alloc_ctor(0, 2, 0);
@@ -1888,12 +1880,12 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = l_Lean_ppExprWithInfos___closed__1;
 x_6 = lean_ctor_get(x_5, 2);
 lean_inc(x_6);
 x_7 = l_Lean_instInhabitedPPFns;
 x_8 = lean_box(0);
+lean_inc_ref(x_4);
 x_9 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_7, x_5, x_4, x_6, x_8);
 lean_dec(x_6);
 x_10 = lean_ctor_get(x_9, 3);
@@ -1944,7 +1936,6 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_1, 3);
 lean_inc(x_5);
 x_6 = l_Lean_ppExprWithInfos___closed__1;
@@ -1952,6 +1943,7 @@ x_7 = lean_ctor_get(x_6, 2);
 lean_inc(x_7);
 x_8 = l_Lean_instInhabitedPPFns;
 x_9 = lean_box(0);
+lean_inc_ref(x_4);
 x_10 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(x_8, x_6, x_4, x_7, x_9);
 lean_dec(x_7);
 x_11 = lean_ctor_get(x_10, 4);

@@ -421,12 +421,9 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_10 = lean_ctor_get(x_7, 2);
-lean_inc(x_10);
 x_11 = lean_ctor_get(x_7, 5);
-lean_inc(x_11);
 x_12 = l_Lean_Elab_WF_applyCleanWfTactic___closed__0;
 x_13 = l_Lean_Option_get___at___Lean_Elab_WF_applyCleanWfTactic_spec__0(x_10, x_12);
-lean_dec(x_10);
 if (x_13 == 0)
 {
 lean_object* x_14; uint8_t x_15; 
@@ -439,7 +436,6 @@ x_16 = lean_ctor_get(x_14, 1);
 x_17 = lean_ctor_get(x_14, 0);
 lean_dec(x_17);
 x_18 = l_Lean_SourceInfo_fromRef(x_11, x_13);
-lean_dec(x_11);
 x_19 = l_Lean_Elab_WF_applyCleanWfTactic___closed__4;
 x_20 = l_Lean_Elab_WF_applyCleanWfTactic___closed__5;
 lean_inc(x_18);
@@ -474,7 +470,6 @@ x_33 = lean_ctor_get(x_14, 1);
 lean_inc(x_33);
 lean_dec(x_14);
 x_34 = l_Lean_SourceInfo_fromRef(x_11, x_13);
-lean_dec(x_11);
 x_35 = l_Lean_Elab_WF_applyCleanWfTactic___closed__4;
 x_36 = l_Lean_Elab_WF_applyCleanWfTactic___closed__5;
 lean_inc(x_34);
@@ -506,7 +501,6 @@ return x_49;
 else
 {
 lean_object* x_50; lean_object* x_51; 
-lean_dec(x_11);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);

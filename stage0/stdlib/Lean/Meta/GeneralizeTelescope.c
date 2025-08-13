@@ -810,8 +810,8 @@ if (x_16 == 0)
 {
 lean_object* x_58; lean_object* x_59; 
 x_58 = lean_ctor_get(x_14, 0);
-lean_inc(x_58);
 lean_inc_ref(x_5);
+lean_inc(x_58);
 x_59 = l_Lean_FVarId_getDecl___redArg(x_58, x_5, x_7, x_8, x_9);
 if (lean_obj_tag(x_59) == 0)
 {

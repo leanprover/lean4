@@ -1202,14 +1202,12 @@ if (lean_obj_tag(x_3) == 4)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_13 = lean_ctor_get(x_3, 0);
-lean_inc_ref(x_13);
 x_14 = lean_array_get_size(x_13);
 x_15 = lean_unsigned_to_nat(2u);
 x_16 = lean_nat_dec_eq(x_14, x_15);
 lean_dec(x_14);
 if (x_16 == 0)
 {
-lean_dec_ref(x_13);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
 x_4 = x_3;
@@ -1218,6 +1216,7 @@ goto block_12;
 else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+lean_inc_ref(x_13);
 lean_dec_ref(x_3);
 x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_fget(x_13, x_17);

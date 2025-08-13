@@ -301,9 +301,7 @@ if (lean_is_exclusive(x_5)) {
  x_15 = lean_box(0);
 }
 x_16 = lean_ctor_get(x_6, 0);
-lean_inc(x_16);
 x_17 = lean_ctor_get(x_6, 1);
-lean_inc_ref(x_17);
 x_18 = lean_box(0);
 x_27 = lean_array_get_size(x_17);
 x_28 = l_Lean_hashFVarId____x40_Lean_Expr___hyg_1560_(x_1);
@@ -324,6 +322,8 @@ x_41 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Compiler_LCNF_Simp
 if (x_41 == 0)
 {
 uint8_t x_42; 
+lean_inc_ref(x_17);
+lean_inc(x_16);
 x_42 = !lean_is_exclusive(x_6);
 if (x_42 == 0)
 {
@@ -411,8 +411,6 @@ goto block_26;
 else
 {
 lean_dec(x_40);
-lean_dec_ref(x_17);
-lean_dec(x_16);
 lean_dec(x_1);
 x_19 = x_6;
 goto block_26;

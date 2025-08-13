@@ -479,9 +479,7 @@ else
 {
 lean_object* x_69; lean_object* x_70; lean_object* x_71; uint64_t x_72; uint64_t x_73; uint64_t x_74; uint64_t x_75; uint64_t x_76; uint64_t x_77; uint64_t x_78; size_t x_79; size_t x_80; size_t x_81; size_t x_82; size_t x_83; lean_object* x_84; uint8_t x_85; 
 x_69 = lean_ctor_get(x_26, 0);
-lean_inc(x_69);
 x_70 = lean_ctor_get(x_26, 1);
-lean_inc_ref(x_70);
 x_71 = lean_array_get_size(x_70);
 x_72 = l_Lean_Expr_hash(x_58);
 x_73 = 32;
@@ -503,6 +501,8 @@ if (x_85 == 0)
 if (x_85 == 0)
 {
 uint8_t x_86; 
+lean_inc_ref(x_70);
+lean_inc(x_69);
 x_86 = !lean_is_exclusive(x_26);
 if (x_86 == 0)
 {
@@ -592,8 +592,6 @@ goto block_48;
 else
 {
 lean_dec(x_84);
-lean_dec_ref(x_70);
-lean_dec(x_69);
 lean_dec_ref(x_58);
 x_28 = x_26;
 goto block_48;
@@ -603,8 +601,6 @@ else
 {
 lean_object* x_115; lean_object* x_116; lean_object* x_117; 
 lean_dec(x_84);
-lean_dec_ref(x_70);
-lean_dec(x_69);
 lean_dec_ref(x_58);
 lean_dec(x_27);
 lean_dec(x_24);

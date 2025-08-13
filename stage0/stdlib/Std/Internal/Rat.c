@@ -454,9 +454,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
 x_4 = lean_nat_abs(x_2);
 x_5 = lean_nat_gcd(x_4, x_3);
 lean_dec(x_4);
@@ -465,6 +463,8 @@ x_7 = lean_nat_dec_eq(x_5, x_6);
 if (x_7 == 0)
 {
 uint8_t x_8; 
+lean_inc(x_3);
+lean_inc(x_2);
 x_8 = !lean_is_exclusive(x_1);
 if (x_8 == 0)
 {
@@ -506,8 +506,6 @@ return x_17;
 else
 {
 lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
 return x_1;
 }
 }
@@ -622,9 +620,7 @@ else
 {
 lean_object* x_25; uint8_t x_26; 
 x_25 = lean_ctor_get(x_2, 0);
-lean_inc(x_25);
 x_26 = lean_int_dec_le(x_15, x_25);
-lean_dec(x_25);
 x_16 = x_26;
 goto block_23;
 }
@@ -679,9 +675,7 @@ else
 {
 lean_object* x_19; uint8_t x_20; 
 x_19 = lean_ctor_get(x_2, 0);
-lean_inc(x_19);
 x_20 = lean_int_dec_le(x_19, x_15);
-lean_dec(x_19);
 x_5 = x_17;
 x_6 = x_20;
 goto block_14;
@@ -818,9 +812,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
 x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
 x_4 = l_Std_Internal_instInhabitedRat___closed__0;
 x_5 = lean_int_dec_lt(x_2, x_4);
 if (x_5 == 0)
@@ -830,6 +822,8 @@ x_6 = lean_int_dec_eq(x_2, x_4);
 if (x_6 == 0)
 {
 uint8_t x_7; 
+lean_inc(x_3);
+lean_inc(x_2);
 x_7 = !lean_is_exclusive(x_1);
 if (x_7 == 0)
 {
@@ -860,14 +854,14 @@ return x_14;
 }
 else
 {
-lean_dec(x_3);
-lean_dec(x_2);
 return x_1;
 }
 }
 else
 {
 uint8_t x_15; 
+lean_inc(x_3);
+lean_inc(x_2);
 x_15 = !lean_is_exclusive(x_1);
 if (x_15 == 0)
 {

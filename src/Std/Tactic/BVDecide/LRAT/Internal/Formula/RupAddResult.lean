@@ -948,7 +948,7 @@ theorem nodup_derivedLits {n : Nat} (f : DefaultFormula n)
     next k_ne_i =>
       have i_ne_k : ⟨i.1, i_in_bounds⟩ ≠ k := by intro i_eq_k; simp only [← i_eq_k, not_true] at k_ne_i
       specialize h3 ⟨i.1, i_in_bounds⟩ i_ne_k
-      grind [Fin.getElem_fin]
+      grind
   · by_cases li.2 = true
     next li_eq_true =>
       have i_ne_k2 : ⟨i.1, i_in_bounds⟩ ≠ k2 := by

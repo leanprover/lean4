@@ -985,7 +985,6 @@ else
 {
 lean_object* x_18; 
 x_18 = lean_ctor_get(x_17, 1);
-lean_inc(x_18);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
@@ -1087,7 +1086,6 @@ return x_38;
 }
 else
 {
-lean_dec_ref(x_18);
 lean_dec_ref(x_17);
 lean_dec_ref(x_16);
 x_7 = x_15;

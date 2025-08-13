@@ -1,5 +1,4 @@
 ellipsisProjIssue.lean:1:18-1:22: error(lean.unknownIdentifier): Unknown identifier `succ`
-{ lower := Nat.add,
-  upper :=
-    sorry } : Std.PRange { lower := Std.PRange.BoundShape.closed, upper := Std.PRange.BoundShape.open }
-  (Nat → Nat → Nat)
+(Function.const Lean.Name ()
+    `ellipsisProjIssue.1.18.1.22.18.22._sorry._@.ellipsisProjIssue._hyg.11)...sorry : Std.PRange
+  { lower := Std.PRange.BoundShape.closed, upper := Std.PRange.BoundShape.open } (Nat → Nat → Nat)

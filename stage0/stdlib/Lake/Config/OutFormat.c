@@ -22,7 +22,6 @@ LEAN_EXPORT lean_object* l_Lake_instToTextArray___redArg___lam__1(lean_object*, 
 LEAN_EXPORT lean_object* l_Lake_instQueryText___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instQueryJson___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instQueryTextOfToText___redArg(lean_object*);
-LEAN_EXPORT lean_object* l_Lake_instQueryTextUnit___lam__0___boxed(lean_object*);
 static lean_object* l_Lake_instToTextArray___redArg___lam__1___closed__8;
 LEAN_EXPORT lean_object* l_Lake_instToTextOfToString(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_ppModuleHeader_spec__0(uint8_t, lean_object*, size_t, size_t, lean_object*);
@@ -71,7 +70,6 @@ static lean_object* l_Lake_instToTextList___redArg___lam__1___closed__0;
 LEAN_EXPORT lean_object* l_Lake_nullFormat(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instQueryTextOfToText___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___Lean_Name_toString_spec__0(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lake_instQueryJsonUnit___lam__0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_nullFormat___redArg___boxed(lean_object*);
 static lean_object* l_Lake_instToTextArray___redArg___lam__1___closed__3;
 LEAN_EXPORT lean_object* l_Lake_instQueryJsonOfToJson___redArg___boxed(lean_object*);
@@ -557,16 +555,8 @@ static lean_object* _init_l_Lake_instQueryTextUnit() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instQueryTextUnit___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_instQueryTextUnit___lam__0), 1, 0);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_instQueryTextUnit___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_instQueryTextUnit___lam__0(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instQueryJson___lam__0(lean_object* x_1) {
@@ -638,16 +628,8 @@ static lean_object* _init_l_Lake_instQueryJsonUnit() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lake_instQueryJsonUnit___lam__0___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lake_instQueryJsonUnit___lam__0), 1, 0);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_instQueryJsonUnit___lam__0___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lake_instQueryJsonUnit___lam__0(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instFormatQueryOfQueryTextOfQueryJson___redArg(lean_object* x_1, lean_object* x_2) {

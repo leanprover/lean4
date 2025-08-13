@@ -2760,10 +2760,8 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
 x_4 = 0;
 x_5 = l_Lean_SourceInfo_fromRef(x_3, x_4);
-lean_dec(x_3);
 x_6 = l_Lake_BinderSyntaxView_mkDepArrow___closed__1;
 x_7 = l_Lake_BinderSyntaxView_mkBinder(x_2);
 x_8 = l_Lake_BinderSyntaxView_mkDepArrow___closed__2;

@@ -1222,7 +1222,6 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_6; size_t x_7; size_t x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_6);
 x_7 = 5;
 x_8 = 1;
 x_9 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Compiler_LCNF_SpecState_addEntry_spec__0_spec__0___redArg___closed__1;
@@ -1234,7 +1233,6 @@ lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_dec(x_11);
-lean_dec_ref(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_1;
@@ -1242,6 +1240,7 @@ return x_1;
 else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_inc_ref(x_6);
 if (lean_is_exclusive(x_1)) {
  lean_ctor_release(x_1, 0);
  x_14 = x_1;
@@ -5366,7 +5365,6 @@ x_56 = lean_ctor_get(x_54, 1);
 lean_inc(x_56);
 lean_dec_ref(x_54);
 x_57 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_saveSpecParamInfo_spec__19_spec__19___redArg___lam__0(x_29, x_3, x_4, x_5, x_35, x_34, x_28, x_41, x_55, x_10, x_11, x_12, x_13, x_56);
-lean_dec(x_55);
 lean_dec_ref(x_41);
 lean_dec_ref(x_28);
 lean_dec(x_34);
@@ -5427,7 +5425,6 @@ x_77 = lean_ctor_get(x_75, 1);
 lean_inc(x_77);
 lean_dec_ref(x_75);
 x_78 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_saveSpecParamInfo_spec__19_spec__19___redArg___lam__0(x_29, x_3, x_4, x_5, x_35, x_34, x_28, x_61, x_76, x_10, x_11, x_12, x_13, x_77);
-lean_dec(x_76);
 lean_dec_ref(x_61);
 lean_dec_ref(x_28);
 lean_dec(x_34);
@@ -5586,7 +5583,6 @@ x_58 = lean_ctor_get(x_56, 1);
 lean_inc(x_58);
 lean_dec_ref(x_56);
 x_59 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_saveSpecParamInfo_spec__19_spec__19___redArg___lam__0(x_31, x_4, x_5, x_2, x_37, x_36, x_30, x_43, x_57, x_12, x_13, x_14, x_15, x_58);
-lean_dec(x_57);
 lean_dec_ref(x_43);
 lean_dec_ref(x_30);
 lean_dec(x_36);
@@ -5647,7 +5643,6 @@ x_79 = lean_ctor_get(x_77, 1);
 lean_inc(x_79);
 lean_dec_ref(x_77);
 x_80 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_saveSpecParamInfo_spec__19_spec__19___redArg___lam__0(x_31, x_4, x_5, x_2, x_37, x_36, x_30, x_63, x_78, x_12, x_13, x_14, x_15, x_79);
-lean_dec(x_78);
 lean_dec_ref(x_63);
 lean_dec_ref(x_30);
 lean_dec(x_36);

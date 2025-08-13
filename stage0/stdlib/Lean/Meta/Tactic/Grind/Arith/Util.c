@@ -1602,9 +1602,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_1, 2);
-lean_inc(x_3);
 x_4 = lean_nat_dec_lt(x_2, x_3);
-lean_dec(x_3);
 if (x_4 == 0)
 {
 return x_1;
@@ -1644,9 +1642,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_2, 2);
-lean_inc(x_3);
 x_4 = lean_nat_dec_lt(x_3, x_1);
-lean_dec(x_3);
 if (x_4 == 0)
 {
 return x_2;
@@ -1675,9 +1671,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = lean_ctor_get(x_1, 2);
-lean_inc(x_3);
 x_4 = lean_nat_dec_lt(x_2, x_3);
-lean_dec(x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -1928,11 +1922,8 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint64_t
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc_ref(x_3);
 x_4 = lean_ctor_get(x_2, 1);
-lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
 x_6 = lean_ctor_get(x_3, 1);
-lean_inc_ref(x_6);
 x_7 = l___private_Lean_Meta_Tactic_Grind_Arith_Util_0__Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_unsafe__1___redArg(x_1);
 x_8 = lean_array_get_size(x_6);
 x_9 = 32;
@@ -1951,10 +1942,13 @@ x_20 = lean_array_uget(x_6, x_19);
 x_21 = l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_Grind_Arith_CollectDecVars_alreadyVisited_spec__0___redArg(x_7, x_20);
 if (x_21 == 0)
 {
+lean_inc(x_4);
 lean_dec_ref(x_2);
 if (x_21 == 0)
 {
 uint8_t x_27; 
+lean_inc_ref(x_6);
+lean_inc(x_5);
 x_27 = !lean_is_exclusive(x_3);
 if (x_27 == 0)
 {
@@ -2046,8 +2040,6 @@ goto block_26;
 else
 {
 lean_dec(x_20);
-lean_dec_ref(x_6);
-lean_dec(x_5);
 x_22 = x_3;
 goto block_26;
 }
@@ -2056,9 +2048,6 @@ else
 {
 lean_object* x_58; lean_object* x_59; 
 lean_dec(x_20);
-lean_dec_ref(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 lean_dec_ref(x_3);
 x_58 = lean_box(x_21);
 x_59 = lean_alloc_ctor(0, 2, 0);

@@ -1481,10 +1481,8 @@ case 1:
 {
 lean_object* x_9; lean_object* x_10; 
 x_9 = lean_ctor_get(x_2, 0);
-lean_inc(x_9);
 x_10 = l_Lean_AssocList_find_x3f___at___Lean_Meta_FVarSubst_find_x3f_spec__0___redArg(x_9, x_1);
 lean_dec(x_1);
-lean_dec(x_9);
 if (lean_obj_tag(x_10) == 0)
 {
 return x_2;
@@ -4917,9 +4915,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_13 = lean_ctor_get(x_3, 0);
-lean_inc(x_13);
 x_14 = lean_ctor_get(x_3, 3);
-lean_inc(x_14);
 lean_inc(x_1);
 x_15 = lean_alloc_closure((void*)(l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lam__0___boxed), 2, 1);
 lean_closure_set(x_15, 0, x_1);
@@ -4928,7 +4924,7 @@ x_16 = l_List_find_x3f___redArg(x_15, x_14);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; 
-lean_dec(x_14);
+lean_inc(x_13);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec(x_1);
@@ -4987,11 +4983,13 @@ lean_object* x_27; lean_object* x_28; lean_object* x_29;
 x_27 = lean_ctor_get(x_24, 1);
 lean_inc(x_27);
 lean_dec_ref(x_24);
+lean_inc(x_13);
 x_28 = lean_alloc_closure((void*)(l_Lean_Meta_Match_Alt_checkAndReplaceFVarId___lam__1___boxed), 9, 4);
 lean_closure_set(x_28, 0, x_21);
 lean_closure_set(x_28, 1, x_23);
 lean_closure_set(x_28, 2, x_13);
 lean_closure_set(x_28, 3, x_19);
+lean_inc(x_14);
 x_29 = l_Lean_Meta_withExistingLocalDecls___at___Lean_Meta_Match_Alt_toMessageData_spec__4___redArg(x_14, x_28, x_4, x_5, x_6, x_7, x_27);
 if (lean_obj_tag(x_29) == 0)
 {
@@ -5034,8 +5032,6 @@ lean_object* x_35;
 lean_dec_ref(x_23);
 lean_dec(x_21);
 lean_dec(x_19);
-lean_dec(x_14);
-lean_dec(x_13);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -5053,8 +5049,6 @@ uint8_t x_36;
 lean_dec_ref(x_23);
 lean_dec(x_21);
 lean_dec(x_19);
-lean_dec(x_14);
-lean_dec(x_13);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -5087,8 +5081,6 @@ else
 {
 uint8_t x_42; 
 lean_dec(x_19);
-lean_dec(x_14);
-lean_dec(x_13);
 lean_dec(x_7);
 lean_dec_ref(x_6);
 lean_dec(x_5);
@@ -5251,9 +5243,7 @@ case 0:
 {
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
 x_5 = lean_name_eq(x_4, x_1);
-lean_dec(x_4);
 if (x_5 == 0)
 {
 return x_3;
@@ -6717,12 +6707,12 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
 x_8 = lean_ctor_get(x_1, 2);
-lean_inc(x_8);
 x_9 = lean_ctor_get(x_1, 3);
-lean_inc(x_9);
 x_10 = lean_box(0);
+lean_inc(x_9);
+lean_inc(x_7);
+lean_inc(x_8);
 x_11 = lean_alloc_closure((void*)(l_Lean_Meta_Match_Problem_toMessageData___lam__0), 9, 4);
 lean_closure_set(x_11, 0, x_8);
 lean_closure_set(x_11, 1, x_10);

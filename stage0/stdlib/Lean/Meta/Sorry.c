@@ -790,15 +790,11 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_26; lean_object* x_27; 
 x_9 = lean_ctor_get(x_6, 1);
-lean_inc_ref(x_9);
 x_10 = lean_ctor_get(x_6, 5);
-lean_inc(x_10);
 x_26 = 0;
 x_27 = l_Lean_Syntax_getPos_x3f(x_10, x_26);
 if (lean_obj_tag(x_27) == 0)
 {
-lean_dec(x_10);
-lean_dec_ref(x_9);
 x_11 = x_4;
 x_12 = x_5;
 x_13 = x_6;
@@ -813,11 +809,9 @@ x_28 = lean_ctor_get(x_27, 0);
 lean_inc(x_28);
 lean_dec_ref(x_27);
 x_29 = l_Lean_Syntax_getTailPos_x3f(x_10, x_26);
-lean_dec(x_10);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_dec(x_28);
-lean_dec_ref(x_9);
 x_11 = x_4;
 x_12 = x_5;
 x_13 = x_6;
@@ -861,6 +855,7 @@ lean_dec_ref(x_35);
 lean_inc_ref(x_9);
 x_43 = l_Lean_FileMap_toPosition(x_9, x_28);
 lean_dec(x_28);
+lean_inc_ref(x_9);
 x_44 = l_Lean_FileMap_toPosition(x_9, x_31);
 lean_dec(x_31);
 x_45 = lean_alloc_ctor(0, 4, 0);
@@ -922,6 +917,7 @@ lean_dec_ref(x_35);
 lean_inc_ref(x_9);
 x_56 = l_Lean_FileMap_toPosition(x_9, x_28);
 lean_dec(x_28);
+lean_inc_ref(x_9);
 x_57 = l_Lean_FileMap_toPosition(x_9, x_31);
 lean_dec(x_31);
 x_58 = lean_alloc_ctor(0, 4, 0);
@@ -1013,6 +1009,7 @@ lean_dec_ref(x_72);
 lean_inc_ref(x_9);
 x_79 = l_Lean_FileMap_toPosition(x_9, x_28);
 lean_dec(x_28);
+lean_inc_ref(x_9);
 x_80 = l_Lean_FileMap_toPosition(x_9, x_68);
 lean_dec(x_68);
 x_81 = lean_alloc_ctor(0, 4, 0);

@@ -403,8 +403,8 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
   let n : Int := 1 - b.natAbs
   let b := mkIntLit b
   pushNewFact <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b
-  pushNewFact <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b reflBoolTrue
-  pushNewFact <| mkApp4 (mkConst ``Int.Linear.emod_le) a b (toExpr n) reflBoolTrue
+  pushNewFact <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b eagerReflBoolTrue
+  pushNewFact <| mkApp4 (mkConst ``Int.Linear.emod_le) a b (toExpr n) eagerReflBoolTrue
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()

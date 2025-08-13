@@ -48,7 +48,6 @@ LEAN_EXPORT lean_object* l_Lean_MonadStateCacheT_instMonadLift(lean_object*, lea
 lean_object* l_StateRefT_x27_instMonadExceptOf___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonad___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadCacheT_instMonadControl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_checkCache___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_replace___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadCacheT_instMonadHashMapCacheAdapter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -170,7 +169,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 lean_inc(x_5);
-x_6 = lean_alloc_closure((void*)(l_Lean_checkCache___redArg___lam__0___boxed), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_Lean_checkCache___redArg___lam__0), 3, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_5);
 x_7 = lean_apply_2(x_2, x_3, x_5);
@@ -274,14 +273,6 @@ lean_closure_set(x_15, 2, x_14);
 lean_closure_set(x_15, 3, x_12);
 x_16 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_13, x_15);
 return x_16;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_checkCache___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_checkCache___redArg___lam__0(x_1, x_2, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_instMonadCacheReaderT___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -1609,7 +1609,6 @@ lean_object* x_16; lean_object* x_17;
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 x_17 = lean_ctor_get(x_16, 0);
-lean_inc(x_17);
 if (lean_obj_tag(x_17) == 0)
 {
 uint8_t x_18; 
@@ -1647,6 +1646,7 @@ return x_23;
 else
 {
 uint8_t x_24; 
+lean_inc_ref(x_17);
 lean_dec(x_16);
 lean_free_object(x_4);
 x_24 = !lean_is_exclusive(x_15);
@@ -1721,7 +1721,6 @@ lean_object* x_40; lean_object* x_41;
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
 x_41 = lean_ctor_get(x_40, 0);
-lean_inc(x_41);
 if (lean_obj_tag(x_41) == 0)
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
@@ -1752,6 +1751,7 @@ return x_46;
 else
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
+lean_inc_ref(x_41);
 lean_dec(x_40);
 x_47 = lean_ctor_get(x_39, 1);
 lean_inc(x_47);
@@ -1824,7 +1824,6 @@ lean_object* x_62; lean_object* x_63;
 x_62 = lean_ctor_get(x_61, 0);
 lean_inc(x_62);
 x_63 = lean_ctor_get(x_62, 0);
-lean_inc(x_63);
 if (lean_obj_tag(x_63) == 0)
 {
 uint8_t x_64; 
@@ -1860,6 +1859,7 @@ return x_69;
 else
 {
 uint8_t x_70; 
+lean_inc_ref(x_63);
 lean_dec(x_62);
 lean_free_object(x_4);
 x_70 = !lean_is_exclusive(x_61);
@@ -1934,7 +1934,6 @@ lean_object* x_86; lean_object* x_87;
 x_86 = lean_ctor_get(x_85, 0);
 lean_inc(x_86);
 x_87 = lean_ctor_get(x_86, 0);
-lean_inc(x_87);
 if (lean_obj_tag(x_87) == 0)
 {
 lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; 
@@ -1965,6 +1964,7 @@ return x_92;
 else
 {
 lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; 
+lean_inc_ref(x_87);
 lean_dec(x_86);
 x_93 = lean_ctor_get(x_85, 1);
 lean_inc(x_93);
@@ -2334,7 +2334,6 @@ lean_object* x_25; lean_object* x_26;
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 x_26 = lean_ctor_get(x_25, 0);
-lean_inc(x_26);
 if (lean_obj_tag(x_26) == 0)
 {
 uint8_t x_27; 
@@ -2368,6 +2367,7 @@ return x_32;
 else
 {
 uint8_t x_33; 
+lean_inc_ref(x_26);
 lean_dec(x_25);
 x_33 = !lean_is_exclusive(x_24);
 if (x_33 == 0)

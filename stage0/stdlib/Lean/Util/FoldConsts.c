@@ -267,11 +267,8 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_13; lean_ob
 x_13 = lean_ctor_get(x_4, 0);
 lean_inc_ref(x_13);
 x_14 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_14);
 x_50 = lean_ctor_get(x_13, 0);
-lean_inc(x_50);
 x_51 = lean_ctor_get(x_13, 1);
-lean_inc_ref(x_51);
 x_52 = lean_array_get_size(x_51);
 x_53 = lean_ptr_addr(x_2);
 x_54 = lean_usize_to_uint64(x_53);
@@ -293,10 +290,13 @@ x_68 = lean_array_uget(x_51, x_67);
 x_69 = l_Std_DHashMap_Internal_AssocList_contains___at_____private_Lean_Util_FoldConsts_0__Lean_Expr_FoldConstsImpl_fold_visit_spec__0___redArg(x_2, x_68);
 if (x_69 == 0)
 {
+lean_inc_ref(x_14);
 lean_dec_ref(x_4);
 if (x_69 == 0)
 {
 uint8_t x_70; 
+lean_inc_ref(x_51);
+lean_inc(x_50);
 x_70 = !lean_is_exclusive(x_13);
 if (x_70 == 0)
 {
@@ -388,8 +388,6 @@ goto block_49;
 else
 {
 lean_dec(x_68);
-lean_dec_ref(x_51);
-lean_dec(x_50);
 x_15 = x_13;
 goto block_49;
 }
@@ -398,9 +396,6 @@ else
 {
 lean_object* x_99; 
 lean_dec(x_68);
-lean_dec_ref(x_51);
-lean_dec(x_50);
-lean_dec_ref(x_14);
 lean_dec_ref(x_13);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);

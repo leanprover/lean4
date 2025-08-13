@@ -199,7 +199,6 @@ x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec_ref(x_22);
 x_25 = lean_ctor_get(x_1, 0);
-lean_inc_ref(x_25);
 x_26 = lean_ctor_get(x_1, 6);
 lean_inc_ref(x_26);
 x_27 = l_Lake_realConfigFile(x_26, x_24);
@@ -222,7 +221,6 @@ lean_dec(x_29);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-lean_dec_ref(x_25);
 x_35 = l_Lake_invalidConfigEnvVar___closed__0;
 x_36 = lean_io_getenv(x_35, x_30);
 x_37 = lean_ctor_get(x_36, 0);
@@ -563,6 +561,7 @@ return x_139;
 else
 {
 lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; 
+lean_inc_ref(x_25);
 lean_dec(x_23);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -664,7 +663,6 @@ else
 {
 lean_object* x_172; 
 lean_dec(x_29);
-lean_dec_ref(x_25);
 lean_dec(x_23);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -696,7 +694,6 @@ lean_dec(x_173);
 if (x_178 == 0)
 {
 lean_object* x_179; lean_object* x_180; lean_object* x_181; 
-lean_dec_ref(x_25);
 x_179 = l_Lake_invalidConfigEnvVar___closed__0;
 x_180 = lean_io_getenv(x_179, x_174);
 x_181 = lean_ctor_get(x_180, 0);
@@ -1024,6 +1021,7 @@ return x_273;
 else
 {
 lean_object* x_274; lean_object* x_275; lean_object* x_276; lean_object* x_277; lean_object* x_278; lean_object* x_279; lean_object* x_280; lean_object* x_281; lean_object* x_282; lean_object* x_283; lean_object* x_284; lean_object* x_285; lean_object* x_286; 
+lean_inc_ref(x_25);
 lean_dec(x_23);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -1124,7 +1122,6 @@ else
 {
 lean_object* x_304; lean_object* x_305; 
 lean_dec(x_173);
-lean_dec_ref(x_25);
 lean_dec(x_23);
 lean_dec_ref(x_4);
 lean_dec(x_3);
@@ -1454,13 +1451,9 @@ x_50 = lean_ctor_get(x_31, 0);
 lean_inc(x_50);
 lean_dec_ref(x_31);
 x_51 = lean_ctor_get(x_50, 0);
-lean_inc_ref(x_51);
 x_52 = lean_ctor_get(x_51, 3);
-lean_inc_ref(x_52);
-lean_dec_ref(x_51);
 x_53 = lean_ctor_get(x_52, 4);
 lean_inc_ref(x_53);
-lean_dec_ref(x_52);
 x_54 = l_Lake_Workspace_augmentedEnvVars(x_50);
 x_4 = x_54;
 x_5 = x_53;

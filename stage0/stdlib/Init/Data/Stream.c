@@ -86,12 +86,10 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_6 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_2, 1);
 lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc_ref(x_8);
-lean_dec_ref(x_6);
 lean_inc_ref(x_1);
 x_9 = lean_apply_1(x_1, x_4);
 if (lean_obj_tag(x_9) == 0)

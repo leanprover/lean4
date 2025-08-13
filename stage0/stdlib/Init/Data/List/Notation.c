@@ -635,17 +635,15 @@ if (x_3 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 x_12 = lean_ctor_get(x_5, 1);
-lean_inc(x_12);
 x_13 = lean_ctor_get(x_5, 2);
-lean_inc(x_13);
 x_14 = lean_ctor_get(x_5, 5);
-lean_inc(x_14);
 x_15 = lean_box(0);
 x_16 = l_Lean_SourceInfo_fromRef(x_14, x_3);
-lean_dec(x_14);
 x_17 = l___private_Init_Data_List_Notation_0__Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1_expandListLit___closed__4;
 x_18 = l___private_Init_Data_List_Notation_0__Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1_expandListLit___closed__6;
 x_19 = l___private_Init_Data_List_Notation_0__Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1_expandListLit___closed__9;
+lean_inc(x_13);
+lean_inc(x_12);
 x_20 = l_Lean_addMacroScope(x_12, x_19, x_13);
 x_21 = l___private_Init_Data_List_Notation_0__Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1_expandListLit___closed__13;
 lean_inc(x_16);
@@ -868,18 +866,16 @@ else
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; uint8_t x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; uint8_t x_49; lean_object* x_50; 
 x_36 = lean_ctor_get(x_2, 1);
-lean_inc(x_36);
 x_37 = lean_ctor_get(x_2, 2);
-lean_inc(x_37);
 x_38 = lean_ctor_get(x_2, 5);
-lean_inc(x_38);
 x_39 = lean_unsigned_to_nat(0u);
 x_40 = lean_unsigned_to_nat(2u);
 x_41 = 0;
 x_42 = l_Lean_SourceInfo_fromRef(x_38, x_41);
-lean_dec(x_38);
 x_43 = l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1___closed__3;
 x_44 = l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1___closed__5;
+lean_inc(x_37);
+lean_inc(x_36);
 x_45 = l_Lean_addMacroScope(x_36, x_44, x_37);
 x_46 = l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1___closed__9;
 x_47 = lean_alloc_ctor(3, 4, 0);

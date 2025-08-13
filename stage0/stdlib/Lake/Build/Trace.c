@@ -554,12 +554,10 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_7, 1);
+lean_inc_ref(x_8);
 lean_inc_ref(x_9);
-lean_dec_ref(x_7);
 x_10 = lean_alloc_closure((void*)(l_Lake_computeListTrace___redArg___lam__1), 7, 5);
 lean_closure_set(x_10, 0, x_1);
 lean_closure_set(x_10, 1, x_9);
@@ -575,12 +573,10 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_11 = lean_ctor_get(x_9, 0);
-lean_inc_ref(x_11);
 x_12 = lean_ctor_get(x_9, 1);
-lean_inc_ref(x_12);
 x_13 = lean_ctor_get(x_11, 1);
+lean_inc_ref(x_12);
 lean_inc_ref(x_13);
-lean_dec_ref(x_11);
 x_14 = lean_alloc_closure((void*)(l_Lake_computeListTrace___redArg___lam__1), 7, 5);
 lean_closure_set(x_14, 0, x_4);
 lean_closure_set(x_14, 1, x_13);
@@ -630,12 +626,8 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_7 = lean_ctor_get(x_5, 0);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_5, 1);
-lean_inc_ref(x_8);
 x_9 = lean_ctor_get(x_7, 1);
-lean_inc_ref(x_9);
-lean_dec_ref(x_7);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_array_get_size(x_6);
 x_12 = lean_nat_dec_lt(x_10, x_11);
@@ -643,7 +635,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; 
 lean_dec(x_11);
-lean_dec_ref(x_8);
+lean_inc_ref(x_9);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
@@ -660,7 +652,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; 
 lean_dec(x_11);
-lean_dec_ref(x_8);
+lean_inc_ref(x_9);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
@@ -672,6 +664,8 @@ return x_15;
 else
 {
 lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; 
+lean_inc_ref(x_8);
+lean_inc_ref(x_9);
 x_16 = lean_alloc_closure((void*)(l_Lake_computeListTrace___redArg___lam__1), 7, 5);
 lean_closure_set(x_16, 0, x_1);
 lean_closure_set(x_16, 1, x_9);
@@ -692,12 +686,8 @@ _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
 x_11 = lean_ctor_get(x_9, 0);
-lean_inc_ref(x_11);
 x_12 = lean_ctor_get(x_9, 1);
-lean_inc_ref(x_12);
 x_13 = lean_ctor_get(x_11, 1);
-lean_inc_ref(x_13);
-lean_dec_ref(x_11);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_get_size(x_10);
 x_16 = lean_nat_dec_lt(x_14, x_15);
@@ -705,7 +695,7 @@ if (x_16 == 0)
 {
 lean_object* x_17; 
 lean_dec(x_15);
-lean_dec_ref(x_12);
+lean_inc_ref(x_13);
 lean_dec_ref(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
@@ -722,7 +712,7 @@ if (x_18 == 0)
 {
 lean_object* x_19; 
 lean_dec(x_15);
-lean_dec_ref(x_12);
+lean_inc_ref(x_13);
 lean_dec_ref(x_10);
 lean_dec_ref(x_9);
 lean_dec_ref(x_8);
@@ -734,6 +724,8 @@ return x_19;
 else
 {
 lean_object* x_20; size_t x_21; size_t x_22; lean_object* x_23; 
+lean_inc_ref(x_12);
+lean_inc_ref(x_13);
 x_20 = lean_alloc_closure((void*)(l_Lake_computeListTrace___redArg___lam__1), 7, 5);
 lean_closure_set(x_20, 0, x_4);
 lean_closure_set(x_20, 1, x_13);
@@ -1910,12 +1902,8 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_4 = lean_ctor_get(x_2, 0);
-lean_inc_ref(x_4);
 x_5 = lean_ctor_get(x_2, 1);
-lean_inc_ref(x_5);
 x_6 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_6);
-lean_dec_ref(x_4);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_get_size(x_3);
 x_9 = lean_nat_dec_lt(x_7, x_8);
@@ -1923,7 +1911,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec(x_8);
-lean_dec_ref(x_5);
+lean_inc_ref(x_6);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -1939,7 +1927,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
 lean_dec(x_8);
-lean_dec_ref(x_5);
+lean_inc_ref(x_6);
 lean_dec_ref(x_3);
 lean_dec_ref(x_2);
 lean_dec_ref(x_1);
@@ -1950,6 +1938,8 @@ return x_14;
 else
 {
 lean_object* x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
+lean_inc_ref(x_5);
+lean_inc_ref(x_6);
 x_15 = lean_alloc_closure((void*)(l_Lake_computeArrayHash___redArg___lam__1___boxed), 5, 3);
 lean_closure_set(x_15, 0, x_6);
 lean_closure_set(x_15, 1, x_1);
@@ -1978,12 +1968,8 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_6 = lean_ctor_get(x_4, 0);
-lean_inc_ref(x_6);
 x_7 = lean_ctor_get(x_4, 1);
-lean_inc_ref(x_7);
 x_8 = lean_ctor_get(x_6, 1);
-lean_inc_ref(x_8);
-lean_dec_ref(x_6);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = lean_array_get_size(x_5);
 x_11 = lean_nat_dec_lt(x_9, x_10);
@@ -1991,7 +1977,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_10);
-lean_dec_ref(x_7);
+lean_inc_ref(x_8);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
@@ -2007,7 +1993,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
 lean_dec(x_10);
-lean_dec_ref(x_7);
+lean_inc_ref(x_8);
 lean_dec_ref(x_5);
 lean_dec_ref(x_4);
 lean_dec_ref(x_3);
@@ -2018,6 +2004,8 @@ return x_16;
 else
 {
 lean_object* x_17; size_t x_18; size_t x_19; lean_object* x_20; lean_object* x_21; 
+lean_inc_ref(x_7);
+lean_inc_ref(x_8);
 x_17 = lean_alloc_closure((void*)(l_Lake_computeArrayHash___redArg___lam__1___boxed), 5, 3);
 lean_closure_set(x_17, 0, x_8);
 lean_closure_set(x_17, 1, x_3);
@@ -2696,7 +2684,6 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -2710,6 +2697,7 @@ return x_6;
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_inc_ref(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);

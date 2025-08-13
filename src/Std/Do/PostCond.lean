@@ -83,15 +83,37 @@ def ExceptConds : PostShape.{u} → Type u
   | .arg _ ps => ExceptConds ps
   | .except ε ps => (ε → Assertion ps) × ExceptConds ps
 
-@[simp]
 def ExceptConds.const {ps : PostShape.{u}} (p : Prop) : ExceptConds ps := match ps with
   | .pure => ⟨⟩
   | .arg _ ps => @ExceptConds.const ps p
   | .except _ ps => (fun _ε => spred(⌜p⌝), @ExceptConds.const ps p)
 
 def ExceptConds.true : ExceptConds ps := ExceptConds.const True
-
 def ExceptConds.false : ExceptConds ps := ExceptConds.const False
+
+@[simp, grind =]
+theorem ExceptConds.fst_const {ps : PostShape.{u}} (p : Prop) :
+    Prod.fst (ExceptConds.const p (ps := .except ε ps)) = fun _ε => ⌜p⌝ := rfl
+
+@[simp, grind =]
+theorem ExceptConds.snd_const {ps : PostShape.{u}} (p : Prop) :
+    Prod.snd (ExceptConds.const p (ps := .except ε ps)) = ExceptConds.const p := rfl
+
+@[simp, grind =]
+theorem ExceptConds.fst_true {ps : PostShape.{u}} :
+    Prod.fst (ExceptConds.true (ps := .except ε ps)) = fun _ε => ⌜True⌝ := rfl
+
+@[simp, grind =]
+theorem ExceptConds.snd_true {ps : PostShape.{u}} :
+    Prod.snd (ExceptConds.true (ps := .except ε ps)) = ExceptConds.true := rfl
+
+@[simp, grind =]
+theorem ExceptConds.fst_false {ps : PostShape.{u}} :
+    Prod.fst (ExceptConds.false (ps := .except ε ps)) = fun _ε => ⌜False⌝ := rfl
+
+@[simp, grind =]
+theorem ExceptConds.snd_false {ps : PostShape.{u}} :
+    Prod.snd (ExceptConds.false (ps := .except ε ps)) = ExceptConds.false := rfl
 
 instance : Inhabited (ExceptConds ps) where
   default := ExceptConds.true

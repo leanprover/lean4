@@ -30,15 +30,20 @@ open Lean.Parser.Command
           $[$stxParts]* : $cat))
       let pat := ⟨mkNode kind patArgs⟩
       let rhs := rhs.raw
+      -- Elide `scoped` for `macro_rules`; this allows for using scoped macros in unscoped macros
+      -- for back-compat and unlike with `local`, there would be no benefit to enforcing `scoped`.
+      let mut rulesKind := attrKind
+      if rulesKind matches `(attrKind| scoped) then
+        rulesKind ← `(attrKind| )
       let macroRulesCmd ← if rhs.getArgs.size == 1 then
         -- `rhs` is a `term`
         let rhs := ⟨rhs[0]⟩
-        `($[$doc?:docComment]? $attrKind:attrKind macro_rules | `($pat) => Functor.map (@TSyntax.raw $(quote cat.getId.eraseMacroScopes)) $rhs)
+        `($[$doc?:docComment]? $rulesKind:attrKind macro_rules | `($pat) => Functor.map (@TSyntax.raw $(quote cat.getId.eraseMacroScopes)) $rhs)
       else
         -- TODO(gabriel): remove after bootstrap
         -- `rhs` is of the form `` `( $body ) ``
         let rhsBody := ⟨rhs[1]⟩
-        `($[$doc?:docComment]? $attrKind:attrKind macro_rules | `($pat) => `($rhsBody))
+        `($[$doc?:docComment]? $rulesKind:attrKind macro_rules | `($pat) => `($rhsBody))
       elabCommand macroRulesCmd
   | _ => throwUnsupportedSyntax
 

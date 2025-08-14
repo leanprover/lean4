@@ -14,3 +14,4 @@ public import Init.Data.Order.LemmasExtra
 public import Init.Data.Order.Factories
 public import Init.Data.Order.FactoriesExtra
 public import Init.Data.Order.PackageFactories
+public import Init.Data.Order.ConvenienceFactories

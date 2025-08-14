@@ -40,8 +40,6 @@ public theorem _root_.Std.OrientedCmp.of_gt_iff_lt {α : Type u} {cmp : α → �
 
 end FactoryInstances
 
-#check compare_eq_lt
-
 /--
 This structure contains all the data needed to create a `PreorderPackage α` instance. Its fields
 are automatically provided if possible. For the detailed rules how the fields are inferred, see
@@ -105,7 +103,8 @@ public structure Packages.PreorderOfOrdArgs (α : Type u) where
     letI := ilt
     cases hilt
     -- TODO
-    -- inferring LawfulOrderLE
+    -- inferring LawfulOrderLT
+
     -- proving manually
     haveI := OrientedCmp.of_gt_iff_lt (cmp := compare) o
     first

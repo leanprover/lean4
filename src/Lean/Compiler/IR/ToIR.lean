@@ -301,29 +301,28 @@ where resultTypeForArity (type : Lean.Expr) (arity : Nat) : Lean.Expr :=
     | .const ``lcErased _ => mkConst ``lcErased
     | _ => panic! "invalid arity"
 
-def lowerDecl (d : LCNF.Decl) : M (Option Decl) := do
+def lowerDecl (d : LCNF.Decl) : M Decl := do
   let params ← d.params.mapM lowerParam
   let resultType ← lowerResultType d.type d.params.size
   match d.value with
   | .code code =>
     let body ← lowerCode code
-    pure <| some <| .fdecl d.name params resultType body {}
+    return .fdecl d.name params resultType body {}
   | .extern externAttrData =>
     if externAttrData.entries.isEmpty then
       -- TODO: This matches the behavior of the old compiler, but we should
       -- find a better way to handle this.
-      addDecl (mkDummyExternDecl d.name params resultType)
-      pure <| none
+      return mkDummyExternDecl d.name params resultType
     else
-      pure <| some <| .extern d.name params resultType externAttrData
+      return .extern d.name params resultType externAttrData
 
 end ToIR
 
 def toIR (decls: Array LCNF.Decl) : CoreM (Array Decl) := do
   let mut irDecls := #[]
   for decl in decls do
-    if let some irDecl ← ToIR.lowerDecl decl |>.run then
-      irDecls := irDecls.push irDecl
+    let irDecl ← ToIR.lowerDecl decl |>.run
+    irDecls := irDecls.push irDecl
   return irDecls
 
 end Lean.IR

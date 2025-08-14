@@ -288,3 +288,30 @@ example : True := by
   set_option linter.unusedSimpArgs false in
   simp [not_false_eq_true]
 end
+
+-- Removing `← foo` may be too strong, so comment on that (issue #9909)
+
+namespace Issue9909
+
+axiom a : Nat
+axiom b : Nat
+axiom P : Nat → Prop
+@[simp] axiom ab : a = b
+@[simp] axiom Pa : P a
+
+/--
+warning: This simp argument is unused:
+  ← ab
+
+Hint: Omit it from the simp argument list.
+  simp ̵[̵←̵ ̵a̵b̵]̵
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+-/
+#guard_msgs in
+example (h : P a) : P a := by
+  fail_if_success solve | simp
+  simp [← ab]
+
+
+end Issue9909

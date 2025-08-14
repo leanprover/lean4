@@ -254,7 +254,9 @@ This class entails `LE α`, `LT α` and `BEq α` instances as well as proofs tha
 represent the same preorder structure on `α`.
 -/
 public class PreorderPackage (α : Type u) extends
-    LE α, LT α, BEq α, LawfulOrderLT α, LawfulOrderBEq α, IsPreorder α
+    LE α, LT α, BEq α, LawfulOrderLT α, LawfulOrderBEq α, IsPreorder α where
+  decidableLE : DecidableLE α
+  decidableLT : DecidableLT α
 
 namespace FactoryInstances
 
@@ -265,6 +267,13 @@ public scoped instance instBEqOfDecidableLE {α : Type u} [LE α] [DecidableLE �
 public theorem beq_iff {α : Type u} [LE α] [DecidableLE α] {a b : α} :
     a == b ↔ a ≤ b ∧ b ≤ a := by
   simp [BEq.beq]
+
+@[expose]
+public def instDecidableLTOfLE {α : Type u} [LE α] {_ : LT α} [DecidableLE α] [LawfulOrderLT α] :
+    DecidableLT α :=
+  fun a b =>
+    haveI := iff_iff_eq.mp <| LawfulOrderLT.lt_iff a b
+    if h : a ≤ b ∧ ¬ b ≤ a then .isTrue (this ▸ h) else .isFalse (this ▸ h)
 
 end FactoryInstances
 
@@ -288,8 +297,22 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
     letI := lt hi; ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
     intro i hi
     first
-      | simp only [Classical.Order.instLT, implies_true]; done
+      | simp only [Classical.Order.instLT, implies_true]; done -- use LawfulOrderLT?
       | fail "Failed to automatically prove that the `OrderData` and `LT` instances are compatible."
+  decidableLT [i : LE α] (hi : i = le := by rfl)
+      [d : DecidableLE α] (hd : d = hi ▸ decidableLE := by rfl)
+      (l : haveI := lt hi; ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a) :
+      haveI := lt hi; DecidableLT α := by
+    intro i hi d hd l
+    letI := i
+    cases hi
+    letI := d
+    cases hd
+    haveI := @LawfulOrderLT.mk (lt_iff := l) ..
+    first
+      | infer_instance
+      | exact FactoryInstances.instDecidableLTOfLE
+      -- | fail "Failed to automatically derive a `DecidableLT` instance."
   lawful_beq [i : LE α] [DecidableLE α] (hi : i = le := by rfl) :
     letI := beq hi; ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a := by
     intro i di hi
@@ -359,9 +382,11 @@ automatically. If it fails, it is necessary to provide some of the fields manual
 public def PreorderPackage.ofLE (α : Type u)
     (args : Packages.PreorderOfLEArgs α := by exact {}) : PreorderPackage α where
   toLE := args.le
+  decidableLE := args.decidableLE
   toLT := letI := args.le; args.lt
   toBEq := letI := args.le; letI := args.decidableLE; args.beq
   toLawfulOrderLT := letI := args.le; letI := args.lt; ⟨args.lawful_lt⟩
+  decidableLT := letI := args.le; letI := args.decidableLE; args.decidableLT (l := args.lawful_lt)
   toLawfulOrderBEq := letI := args.le; letI := args.decidableLE; letI := args.beq; ⟨args.lawful_beq⟩
   le_refl := letI := args.le; args.le_refl
   le_trans := letI := args.le; args.le_trans

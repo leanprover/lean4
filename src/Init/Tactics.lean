@@ -2128,7 +2128,7 @@ macro (name := mintroMacro) (priority:=low) "mintro" : tactic =>
 `mspec` is an `apply`-like tactic that applies a Hoare triple specification to the target of the
 stateful goal.
 
-Given a stateful goal `H ⊢ₛ wp⟦prog⟧.apply Q'`, `mspec foo_spec` will instantiate
+Given a stateful goal `H ⊢ₛ wp⟦prog⟧ Q'`, `mspec foo_spec` will instantiate
 `foo_spec : ... → ⦃P⦄ foo ⦃Q⦄`, match `foo` against `prog` and produce subgoals for
 the verification conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
 
@@ -2137,11 +2137,12 @@ the verification conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
 * If `?pre` or `?post` follow by `.rfl`, then they are discharged automatically.
 * `?post` is automatically simplified into constituent `⊢ₛ` entailments on
   success and failure continuations.
-* `?pre` and `?post.*` goals introduce their stateful hypothesis as `h`.
+* `?pre` and `?post.*` goals introduce their stateful hypothesis under an inaccessible name.
+  You can give it a name with the `mrename_i` tactic.
 * Any uninstantiated MVar arising from instantiation of `foo_spec` becomes a new subgoal.
 * If the target of the stateful goal looks like `fun s => _` then `mspec` will first `mintro ∀s`.
 * If `P` has schematic variables that can be instantiated by doing `mintro ∀s`, for example
-  `foo_spec : ∀(n:Nat), ⦃⌜n = ‹Nat›ₛ⌝⦄ foo ⦃Q⦄`, then `mspec` will do `mintro ∀s` first to
+  `foo_spec : ∀(n:Nat), ⦃fun s => ⌜n = s⌝⦄ foo ⦃Q⦄`, then `mspec` will do `mintro ∀s` first to
   instantiate `n = s`.
 * Right before applying the spec, the `mframe` tactic is used, which has the following effect:
   Any hypothesis `Hᵢ` in the goal `h₁:H₁, h₂:H₂, ..., hₙ:Hₙ ⊢ₛ T` that is

@@ -125,7 +125,7 @@ with builtins; let
   candidateFiles = map modToLean candidateMods;
   modDepsFile = args.modDepsFile or mkBareDerivation {
     name = "${name}-deps.json";
-    candidateFiles = lib.concatStringsSep " " candidateFiles;
+    candidateFiles = lib.concatStringsSep "\n" candidateFiles;
     passAsFile = [ "candidateFiles" ];
     buildCommand = ''
       mkdir $out

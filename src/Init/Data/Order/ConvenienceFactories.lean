@@ -38,30 +38,50 @@ public theorem _root_.Std.OrientedCmp.of_gt_iff_lt {α : Type u} {cmp : α → �
     · apply Eq.symm
       simp [← h, h']
 
+public scoped instance instLTOfOrd {α : Type u} [Ord α] :
+    LT α where
+  lt a b := compare a b = .lt
+
+public instance instLawfulOrderLTOfOrd {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] :
+    LawfulOrderLT α where
+  lt_iff {a b} := by
+    simp +contextual [LT.lt, ← Std.compare_isLE (a := a), ← Std.compare_isGE (a := a)]
+
+public scoped instance instDecidableLTOfOrd {α : Type u} [LT α] [Ord α] [LawfulOrderOrd α]
+    [LawfulOrderLT α] :
+    DecidableLT α :=
+  fun a b => if h : compare a b = .lt then
+      isTrue (by simpa only [compare_eq_lt] using h)
+    else
+      isFalse (by simpa only [compare_eq_lt] using h)
+
+public scoped instance instBEqOfOrd {α : Type u} [Ord α] :
+    BEq α where
+  beq a b := compare a b = .eq
+
+public instance instLawfulOrderBEqOfOrd {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] :
+    LawfulOrderBEq α where
+  beq_iff_le_and_ge {a b} := by
+    simp +contextual [BEq.beq, ← Std.compare_isLE (a := a), ← Std.compare_isGE (a := a),
+      Ordering.eq_eq_iff_isLE_and_isGE]
+
 end FactoryInstances
 
 /--
-This structure contains all the data needed to create a `PreorderPackage α` instance. Its fields
-are automatically provided if possible. For the detailed rules how the fields are inferred, see
-`PreorderPackage.ofLE`.
+This structure contains all the data needed to create a `LinearPreorderPackage α` instance.
+Its fields are automatically provided if possible. For the detailed rules how the fields are
+inferred, see `LinearPreorderPackage.ofOrd`.
 -/
-public structure Packages.PreorderOfOrdArgs (α : Type u) where
+public structure Packages.LinearPreorderOfOrdArgs (α : Type u) where
   ord : Ord α := by infer_instance
-  oriented_ord [i : Ord α] (hi : i = ord := by rfl) :
-      ∀ a b : α, compare a b = .gt ↔ compare b a = .lt := by
-    intro i hi
-    letI := i
-    cases hi
-    first
-      | exact OrientedCmp.gt_iff_lt (cmp := compare)
-      | fail "Found no `OrientedOrd` instance. Please provide `oriented_ord` manually."
+  transOrd  : TransOrd α := by infer_instance
   le [i : Ord α] (hi : i = ord := by rfl) :
       LE α := by
     intro i hi
     first
       | infer_instance
       | exact FactoryInstances.instLEOfOrd
-  lawful_le [i : Ord α] (hi : i = ord := by rfl) (o : ∀ a b : α, compare a b = .gt ↔ compare b a = .lt)
+  lawful_le [i : Ord α] (hi : i = ord := by rfl) [o : OrientedOrd α]
       [il : LE α] (hil : il = le hi := by rfl) :
       LawfulOrderOrd α := by
     intro i hi o il hil
@@ -69,7 +89,6 @@ public structure Packages.PreorderOfOrdArgs (α : Type u) where
     cases hi
     letI := il
     cases hil
-    haveI := OrientedCmp.of_gt_iff_lt (cmp := compare) o
     first
       | infer_instance
       | exact FactoryInstances.instLawfulOrderOrdOfOrd
@@ -91,86 +110,47 @@ public structure Packages.PreorderOfOrdArgs (α : Type u) where
       | infer_instance
       | exact FactoryInstances.instLTOfOrd
   lawful_lt [i : Ord α] (hi : i = ord := by rfl)
-      (o : ∀ a b : α, compare a b = .gt ↔ compare b a = .lt)
       [ile : LE α] (hile : ile = le hi := by rfl) (l : LawfulOrderOrd α)
       [ilt : LT α] (hilt : ilt = lt hi := by rfl) :
       ∀ a b : α, a < b ↔ compare a b = .lt := by
-    intro i hi o ilt hilt
+    intro i hi ile hile l ilt hilt a b
     letI := i
     cases hi
     letI := ile
     cases hile
     letI := ilt
     cases hilt
-    -- TODO
-    -- inferring LawfulOrderLT
-
-    -- proving manually
-    haveI := OrientedCmp.of_gt_iff_lt (cmp := compare) o
-    first
-      | infer_instance
-      | exact FactoryInstances.instLawfulOrderOrdOfOrd
-  decidableLT [i : Ord α] (hi : i = ord := by rfl) [il : LT α] (hil : il = lt hi := by rfl)
+    exact Std.compare_eq_lt.symm
+  decidableLT [i : Ord α] (hi : i = ord := by rfl) [ilt : LT α] (hilt : ilt = lt hi := by rfl)
+      [ile : LE α] (hile : ile = le hi := by rfl) (lo : LawfulOrderOrd α)
       (l : ∀ a b : α, a < b ↔ compare a b = .lt) :
       DecidableLT α := by
-    intro i hi il hil
+    intro i hi ilt hilt ile hile lo
     letI := i
     cases hi
-    letI := il
-    cases hil
-    -- TODO
+    letI := ilt
+    cases hilt
+    letI := ile
+    cases hile
     first
       | infer_instance
-      | exact FactoryInstances.instDecidableLEOfOrd
-  -- lt [i : LE α] (hi : i = le := by rfl) : LT α := by
-  --   first
-  --     | infer_instance
-  --     | exact fun _ => Classical.Order.instLT
-  -- beq [i : LE α] [di : DecidableLE α] (hi : i = le := by rfl) : BEq α := by
-  --   first
-  --     | infer_instance
-  --     | exact fun _ => FactoryInstances.instBEqOfDecidableLE
-  -- lawful_lt [i : LE α] (hi : i = le := by rfl) :
-  --   letI := lt hi; ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
-  --   intro i hi
-  --   first
-  --     | simp only [Classical.Order.instLT, implies_true]; done -- use LawfulOrderLT?
-  --     | fail "Failed to automatically prove that the `OrderData` and `LT` instances are compatible."
-  -- decidableLT [i : LE α] (hi : i = le := by rfl)
-  --     [d : DecidableLE α] (hd : d = hi ▸ decidableLE := by rfl)
-  --     (l : haveI := lt hi; ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a) :
-  --     haveI := lt hi; DecidableLT α := by
-  --   intro i hi d hd l
-  --   letI := i
-  --   cases hi
-  --   letI := d
-  --   cases hd
-  --   haveI := @LawfulOrderLT.mk (lt_iff := l) ..
-  --   first
-  --     | infer_instance
-  --     | exact FactoryInstances.instDecidableLTOfLE
-  --     -- | fail "Failed to automatically derive a `DecidableLT` instance."
-  -- lawful_beq [i : LE α] [DecidableLE α] (hi : i = le := by rfl) :
-  --   letI := beq hi; ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a := by
-  --   intro i di hi
-  --   first
-  --     | simpa only [FactoryInstances.instBEqOfDecidableLE, BEq.beq] using fun a b =>
-  --         Std.FactoryInstances.beq_iff; done
-  --     | fail "Failed to automatically prove that the `OrderData` and `BEq` instances are compatible."
-  -- le_refl [i : LE α] (hi : i = le := by rfl) : ∀ a : α, a ≤ a := by
-  --   intro i hi
-  --   cases hi
-  --   first
-  --     | exact Std.Refl.refl (r := (· ≤ ·))
-  --     | fail "Failed to automatically prove that the `LE` instance is reflexive."
-  -- le_trans [i : LE α] (hi : i = le := by rfl) :
-  --     ∀ a b c : α, a ≤ b → b ≤ c → a ≤ c := by
-  --   intro i hi
-  --   letI := i
-  --   cases hi
-  --   first
-  --     | exact fun _ _ _ hab hbc => Trans.trans (r := (· ≤ ·)) (s := (· ≤ ·)) (t := (· ≤ ·)) hab hbc
-  --     | fail "Failed to automatically prove that the `LE` instance is transitive."
+      | exact FactoryInstances.instDecidableLTOfOrd
+  beq [i : Ord α] (hi : i = ord := by rfl) : BEq α := by
+    first
+      | infer_instance
+      | exact fun _ => FactoryInstances.instBEqOfOrd
+  lawful_beq [i : Ord α] (hi : i = ord := by rfl)
+      [ile : LE α] (hile : ile = le hi := by rfl) (l : LawfulOrderOrd α)
+      [ilt : BEq α] (hilt : ilt = beq hi := by rfl) :
+      ∀ a b : α, a == b ↔ compare a b = .eq := by
+    intro i hi ile hile l ilt hilt a b
+    letI := i
+    cases hi
+    letI := ile
+    cases hile
+    letI := ilt
+    cases hilt
+    exact Std.compare_eq_eq.symm
 
 end Preorder
 

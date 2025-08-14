@@ -20021,7 +20021,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Command_expandMutualNamespace_spec__2___closed__1;
 x_2 = lean_unsigned_to_nat(11u);
-x_3 = lean_unsigned_to_nat(379u);
+x_3 = lean_unsigned_to_nat(383u);
 x_4 = l_Lean_ensureNonAmbiguous___at___Lean_Elab_Command_elabAttr_spec__1___closed__1;
 x_5 = l_Lean_ensureNonAmbiguous___at___Lean_Elab_Command_elabAttr_spec__1___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

@@ -69,6 +69,7 @@ LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Un
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at_____private_Std_Sync_Channel_0__Std_CloseableChannel_Zero_recvSelector_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_CloseableChannel_Error_toCtorIdx(uint8_t);
+LEAN_EXPORT lean_object* l_Std_CloseableChannel_Sync_instForInOfMonadLiftTBaseIO___private__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_CloseableChannel_close(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Std_Sync_Channel_0__Std_CloseableChannel_Zero_trySend_x27_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -82,6 +83,7 @@ LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Ze
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at_____private_Std_Sync_Channel_0__Std_CloseableChannel_Bounded_recvSelector_registerAux_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Channel_send___redArg___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_CloseableChannel_instToStringError;
+LEAN_EXPORT lean_object* l_Std_CloseableChannel_Sync_instForInOfMonadLiftTBaseIO___private__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_CloseableChannel_instMonadLiftEIOErrorIO___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Zero_send___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Unbounded_recv___redArg___lam__0(lean_object*, lean_object*);
@@ -163,6 +165,7 @@ LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Co
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at_____private_Std_Sync_Channel_0__Std_CloseableChannel_Bounded_recvSelector_registerAux_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Channel_recvSelector___redArg(lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Channel_Sync_instForInOfInhabitedOfMonadLiftTBaseIO___private__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Waiter_race___at_____private_Std_Sync_Channel_0__Std_CloseableChannel_Unbounded_recvSelector_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Unbounded_recvSelector___redArg___lam__5___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at_____private_Std_Sync_Channel_0__Std_CloseableChannel_Unbounded_recvSelector_spec__2___redArg(lean_object*, lean_object*, lean_object*);
@@ -294,6 +297,7 @@ LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Bo
 LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Bounded_send(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Unbounded_tryRecv_x27___at_____private_Std_Sync_Channel_0__Std_CloseableChannel_Unbounded_tryRecv_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_CloseableChannel_Sync_tryRecv(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Channel_Sync_instForInOfInhabitedOfMonadLiftTBaseIO___private__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_CloseableChannel_sync___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Bounded_recvSelector___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sync_Channel_0__Std_CloseableChannel_Unbounded_tryRecv_x27___redArg(lean_object*, lean_object*, lean_object*);
@@ -11897,6 +11901,22 @@ x_9 = l___private_Std_Sync_Channel_0__Std_CloseableChannel_Sync_forIn___redArg(x
 return x_9;
 }
 }
+LEAN_EXPORT lean_object* l_Std_CloseableChannel_Sync_instForInOfMonadLiftTBaseIO___private__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l___private_Std_Sync_Channel_0__Std_CloseableChannel_Sync_forIn___redArg(x_2, x_1, x_3, x_5, x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_CloseableChannel_Sync_instForInOfMonadLiftTBaseIO___private__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l___private_Std_Sync_Channel_0__Std_CloseableChannel_Sync_forIn___redArg(x_5, x_3, x_6, x_8, x_7);
+return x_9;
+}
+}
 LEAN_EXPORT lean_object* l_Std_CloseableChannel_Sync_instForInOfMonadLiftTBaseIO___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -12788,6 +12808,22 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l___private_Std_Sync_Channel_0__Std_Channel_Sync_forIn___redArg(x_4, x_5, x_6, x_7, x_8, x_9);
+return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Channel_Sync_instForInOfInhabitedOfMonadLiftTBaseIO___private__1___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l___private_Std_Sync_Channel_0__Std_Channel_Sync_forIn___redArg(x_1, x_3, x_2, x_4, x_6, x_5);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Channel_Sync_instForInOfInhabitedOfMonadLiftTBaseIO___private__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+_start:
+{
+lean_object* x_10; 
+x_10 = l___private_Std_Sync_Channel_0__Std_Channel_Sync_forIn___redArg(x_3, x_6, x_4, x_7, x_9, x_8);
 return x_10;
 }
 }

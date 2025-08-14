@@ -28,4 +28,12 @@ public class LawfulOrderOrd (α : Type u) [Ord α] [LE α] where
   isLE_compare : ∀ a b : α, (compare a b).isLE ↔ a ≤ b
   isGE_compare : ∀ a b : α, (compare a b).isGE ↔ b ≤ a
 
+public theorem LawfulOrderOrd.compare_isLE_eq_false {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] {a b : α} :
+    (compare a b).isLE = false ↔ ¬ a ≤ b := by
+  simp [← compare_isLE]
+
+public theorem LawfulOrderOrd.compare_isLG_eq_false {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] {a b : α} :
+    (compare a b).isGE = false ↔ ¬ b ≤ a := by
+  simp [← compare_isGE]
+
 end Std

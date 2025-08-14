@@ -57,12 +57,14 @@ const e = React.createElement;
 export default function ({ diff, range, suggestion }) {
   const pos = React.useContext(EnvPosContext)
   const editorConnection = React.useContext(EditorContext)
-  const insStyle = { className: 'information' }
+  const insStyle = {
+    style: { color: 'var(--vscode-textLink-foreground)' }
+  }
   const delStyle = {
-    style: { color: 'var(--vscode-errorForeground)', textDecoration: 'line-through' }
+    style: { color: 'var(--vscode-editorError-foreground)', textDecoration: 'line-through' }
   }
   const defStyle = {
-    style: { color: 'var(--vscode-textLink-foreground)' }
+    style: { color: 'var(--vscode-editor-foreground)' }
   }
   function onClick() {
     editorConnection.api.applyEdit({
@@ -120,6 +122,10 @@ inductive DiffGranularity where
   entire suggestion.
   -/
   | all
+  /--
+  No diff: Shows no deletion of the existing source, only an insertion of the suggestion.
+  -/
+  | none
 
 /--
 A code action suggestion associated with a hint in a message.
@@ -160,6 +166,7 @@ Guarantees that all actions in the output will be maximally grouped; that is, in
 -/
 partial def readableDiff (s s' : String) (granularity : DiffGranularity := .auto) : Array (Diff.Action × String) :=
   match granularity with
+  | .none => #[(.insert, s')]
   | .char => charDiff
   | .word => wordDiff
   | .all => maxDiff

@@ -31,67 +31,6 @@ open Lean Elab Tactic PrettyPrinter Meta Server RequestM
 
 /-! # Raw widget -/
 
-/--
-This is a widget which is placed by `TryThis.addSuggestion` and `TryThis.addSuggestions`.
-
-When placed by `addSuggestion`, it says `Try this: <replacement>`
-where `<replacement>` is a link which will perform the replacement.
-
-When placed by `addSuggestions`, it says:
-```
-Try these:
-```
-* `<replacement1>`
-* `<replacement2>`
-* `<replacement3>`
-* ...
-
-where `<replacement*>` is a link which will perform the replacement.
--/
-@[builtin_widget_module] private def tryThisWidget : Widget.Module where
-  javascript := "
-import * as React from 'react';
-import { EditorContext, EnvPosContext } from '@leanprover/infoview';
-
-const e = React.createElement;
-export default function ({ suggestions, range, header, isInline, style }) {
-  const pos = React.useContext(EnvPosContext)
-  const editorConnection = React.useContext(EditorContext)
-  const defStyle = style || {
-    className: 'link pointer dim',
-    style: { color: 'var(--vscode-textLink-foreground)' }
-  }
-
-  // Construct the children of the HTML element for a given suggestion.
-  function makeSuggestion({ suggestion, preInfo, postInfo, style }) {
-    function onClick() {
-      editorConnection.api.applyEdit({
-        changes: { [pos.uri]: [{ range, newText: suggestion }] }
-      })
-    }
-    return [
-      preInfo,
-      e('span', { onClick, title: 'Apply suggestion', ...style || defStyle }, suggestion),
-      postInfo
-    ]
-  }
-
-  // Choose between an inline 'Try this'-like display and a list-based 'Try these'-like display.
-  let inner = null
-  if (isInline) {
-    inner = e('div', { className: 'ml1' },
-      e('pre', { className: 'font-code pre-wrap' }, header, makeSuggestion(suggestions[0])))
-  } else {
-    inner = e('div', { className: 'ml1' },
-      e('pre', { className: 'font-code pre-wrap' }, header),
-      e('ul', { style: { paddingInlineStart: '20px' } }, suggestions.map(s =>
-        e('li', { className: 'font-code pre-wrap' }, makeSuggestion(s)))))
-  }
-  return e('details', { open: true },
-    e('summary', { className: 'mv2 pointer' }, 'Suggestions'),
-    inner)
-}"
-
 -- Because we can't use `builtin_widget_module` in `Lean.Meta.Hint`, we add the attribute here
 attribute [builtin_widget_module] Hint.tryThisDiffWidget
 
@@ -134,30 +73,10 @@ def delabToRefinableSyntax (e : Expr) : MetaM Term :=
 def delabToRefinableSuggestion (e : Expr) : MetaM Suggestion :=
   return { suggestion := ← delabToRefinableSyntax e, messageData? := e }
 
-/-- Core of `addSuggestion` and `addSuggestions`. Whether we use an inline display for a single
-element or a list display is controlled by `isInline`. -/
-private def addSuggestionCore (ref : Syntax) (suggestions : Array Suggestion)
-    (header : String) (isInline : Bool) (origSpan? : Option Syntax := none)
-    (style? : Option SuggestionStyle := none)
-    (codeActionPrefix? : Option String := none) : CoreM Unit := do
-  if let some range := (origSpan?.getD ref).getRange? then
-    let { suggestions, info, range } ← processSuggestions ref range suggestions codeActionPrefix?
-    let suggestions := suggestions.map (·.1)
-    let json := json% {
-      suggestions: $suggestions,
-      range: $range,
-      header: $header,
-      isInline: $isInline,
-      style: $style?
-    }
-    pushInfoLeaf info
-    Widget.savePanelWidgetInfo tryThisWidget.javascriptHash ref (props := return json)
+/-- Add a "try this" suggestion. This has two effects:
 
-/-- Add a "try this" suggestion. This has three effects:
-
-* An info diagnostic is displayed saying `Try this: <suggestion>`
-* A widget is registered, saying `Try this: <suggestion>` with a link on `<suggestion>` to apply
-  the suggestion
+* A widget diagnostic is displayed, saying `Try this: <suggestion>` with a link on `<suggestion>`
+  to apply the suggestion
 * A code action is added, which will apply the suggestion.
 
 The parameters are:
@@ -168,8 +87,6 @@ The parameters are:
     message (only)
   * `postInfo?`: an optional string shown immediately after the replacement text in the widget
     message (only)
-  * `style?`: an optional `Json` object used as the value of the `style` attribute of the
-    suggestion text's element (not the whole suggestion element).
   * `messageData?`: an optional message to display in place of `suggestion` in the info diagnostic
     (only). The widget message uses only `suggestion`. If `messageData?` is `none`, we simply use
     `suggestion` instead.
@@ -183,10 +100,15 @@ The parameters are:
   suggestion does not have a custom `toCodeActionTitle?`. If not provided, `"Try this: "` is used.
 -/
 def addSuggestion (ref : Syntax) (s : Suggestion) (origSpan? : Option Syntax := none)
-    (header : String := "Try this: ") (codeActionPrefix? : Option String := none) : MetaM Unit := do
-  logInfoAt ref m!"{header}{s}"
-  addSuggestionCore ref #[s] header (isInline := true) origSpan?
-    (codeActionPrefix? := codeActionPrefix?)
+    (header : String := "Try this: ") (codeActionPrefix? : Option String := none) :
+    MetaM Unit := do
+  let hintSuggestion := {
+    span? := origSpan?
+    diffGranularity := .none
+    toTryThisSuggestion := s
+  }
+  let suggs ← Hint.mkSuggestionsMessage #[hintSuggestion] ref codeActionPrefix? (forceList := false)
+  logInfoAt ref m!"{header}{suggs}"
 
 /-- Add a list of "try this" suggestions as a single "try these" suggestion. This has three effects:
 
@@ -203,8 +125,7 @@ The parameters are:
     message (only)
   * `postInfo?`: an optional string shown immediately after the replacement text in the widget
     message (only)
-  * `style?`: an optional `Json` object used as the value of the `style` attribute of the
-    suggestion text's element (not the whole suggestion element).
+  * `_style?` (**deprecated**): unused.
   * `messageData?`: an optional message to display in place of `suggestion` in the info diagnostic
     (only). The widget message uses only `suggestion`. If `messageData?` is `none`, we simply use
     `suggestion` instead.
@@ -221,13 +142,16 @@ The parameters are:
 -/
 def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
     (origSpan? : Option Syntax := none) (header : String := "Try these:")
-    (style? : Option SuggestionStyle := none)
+    (_style? : Option SuggestionStyle := none)
     (codeActionPrefix? : Option String := none) : MetaM Unit := do
   if suggestions.isEmpty then throwErrorAt ref "No suggestions available"
-  let msgs := suggestions.map toMessageData
-  let msgs := msgs.foldl (init := MessageData.nil) (fun msg m => msg ++ m!"\n• " ++ .nest 2 m)
-  logInfoAt ref m!"{header}{msgs}"
-  addSuggestionCore ref suggestions header (isInline := false) origSpan? style? codeActionPrefix?
+  let hintSuggestions := suggestions.map fun s => {
+    span? := origSpan?
+    diffGranularity := .none
+    toTryThisSuggestion := s
+  }
+  let suggs ← Hint.mkSuggestionsMessage hintSuggestions ref codeActionPrefix? (forceList := false)
+  logInfoAt ref m!"{header}{suggs}"
 
 /-! # Tactic-specific widget hooks -/
 /--

@@ -96,6 +96,10 @@ opaque _root_.X.instOrd : Ord X := sorry
 def packageWithoutSynthesizableInstances : Packages.PreorderOfOrdArgs X := {
   ord := X.instOrd
   oriented_ord := sorry
+  lawful_lt := by
+    intro i hi o ile hile l ilt hilt a b
+    simp only [compare_self]
+    simp only [compare_self, reduceCtorEq, iff_false]
 }
 
 end

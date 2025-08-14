@@ -141,6 +141,32 @@ builtin_dsimproc_decl normIntOfNatInst ((OfNat.ofNat _: Int)) := fun e => do
   let some n ← getIntValue? e | return .continue
   return .done (mkIntLit n)
 
+builtin_simproc_decl normNatCastNum (NatCast.natCast _) := fun e => do
+  let_expr f@NatCast.natCast α _ a := e | return .continue
+  let some k ← getNatValue? a | return .continue
+  let us := f.constLevels!
+  let semiring := mkApp (mkConst ``Grind.Semiring us) α
+  let some semiringInst ← synthInstanceMeta? semiring | return .continue
+  let n ← mkNumeral α k
+  let h := mkApp3 (mkConst ``Grind.Semiring.natCast_eq_ofNat us) α semiringInst a
+  return .done { expr := n, proof? := some h }
+
+builtin_simproc_decl normIntCastNum (IntCast.intCast _) := fun e => do
+  let_expr f@IntCast.intCast α _ a := e | return .continue
+  let some k ← getIntValue? a | return .continue
+  let us := f.constLevels!
+  let ring := mkApp (mkConst ``Grind.Ring us) α
+  let some ringInst ← synthInstanceMeta? ring | return .continue
+  let n ← mkNumeral α k.natAbs
+  if k < 0 then
+    let some negInst ← synthInstanceMeta? (mkApp (mkConst ``Neg us) α) | return .continue
+    let n := mkApp3 (mkConst ``Neg.neg us) α negInst n
+    let h := mkApp4 (mkConst ``Grind.Ring.intCast_eq_ofNat_of_nonpos us) α ringInst a eagerReflBoolTrue
+    return .done { expr := n, proof? := some h }
+  else
+    let h := mkApp4 (mkConst ``Grind.Ring.intCast_eq_ofNat_of_nonneg us) α ringInst a eagerReflBoolTrue
+    return .done { expr := n, proof? := some h }
+
 /-!
 Add additional arithmetic simprocs
 -/
@@ -163,6 +189,8 @@ def addSimproc (s : Simprocs) : CoreM Simprocs := do
   let s ← s.add ``normIntModInst (post := false)
   let s ← s.add ``normIntPowInst (post := false)
   let s ← s.add ``normIntOfNatInst (post := false)
+  let s ← s.add ``normNatCastNum (post := false)
+  let s ← s.add ``normIntCastNum (post := false)
   return s
 
 end Lean.Meta.Grind.Arith

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Zero
 public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.LemmasAux
 public import Init.Data.Int.Pow
 public import Init.TacticsExtra
 public import Init.Grind.Module.Basic
@@ -147,6 +148,9 @@ open NatModule
 
 variable {α : Type u} [Semiring α]
 
+theorem natCast_eq_ofNat (n : Nat) : NatCast.natCast n = OfNat.ofNat (α := α) n := by
+  rw [ofNat_eq_natCast]
+
 theorem natCast_zero : ((0 : Nat) : α) = 0 := by
   rw [← ofNat_eq_natCast 0]
 theorem natCast_one : ((1 : Nat) : α) = 1 := (ofNat_eq_natCast 1).symm
@@ -220,6 +224,21 @@ theorem intCast_negSucc (n : Nat) : ((-(n + 1) : Int) : α) = -((n : α) + 1) :=
   rw [intCast_neg, ← Int.natCast_add_one, intCast_natCast, ofNat_eq_natCast, natCast_add]
 theorem intCast_nat_add {x y : Nat} : ((x + y : Int) : α) = ((x : α) + (y : α)) := by
   rw [Int.ofNat_add_ofNat, intCast_natCast, natCast_add]
+
+theorem intCast_eq_ofNat_of_nonneg (x : Int) (h : Int.ble' 0 x) : IntCast.intCast (R := α) x = OfNat.ofNat (α := α) x.toNat := by
+  show Int.cast x = _
+  rw [Int.ble'_eq_true] at h
+  have := Int.toNat_of_nonneg h
+  conv => lhs; rw [← this, Ring.intCast_natCast]
+  rw [Semiring.ofNat_eq_natCast]
+
+theorem intCast_eq_ofNat_of_nonpos (x : Int) (h : Int.ble' x 0) : IntCast.intCast (R := α) x = - OfNat.ofNat (α := α) x.natAbs := by
+  show Int.cast x = _
+  rw [Int.ble'_eq_true] at h
+  have := Int.eq_neg_natAbs_of_nonpos h
+  conv => lhs; rw [this]
+  rw [Ring.intCast_neg, Semiring.ofNat_eq_natCast, Ring.intCast_natCast]
+
 theorem intCast_nat_sub {x y : Nat} (h : x ≥ y) : (((x - y : Nat) : Int) : α) = ((x : α) - (y : α)) := by
   induction x with
   | zero =>

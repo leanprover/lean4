@@ -306,6 +306,8 @@ warning: This simp argument is unused:
 Hint: Omit it from the simp argument list.
   simp ̵[̵←̵ ̵a̵b̵]̵
 
+Note: Simp arguments with `←` have the additional effect of removing the other direction from the simp set, even if the simp argument itself is unused. If the hint above does not work, try replacing `←` with `-` to only get that effect and silence this warning.
+
 Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
 -/
 #guard_msgs in

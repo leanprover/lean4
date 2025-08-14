@@ -343,6 +343,16 @@ structure State where
   `usedCommRing` is `true` if the `CommRing` has been used to normalize expressions.
   -/
   usedCommRing : Bool := false
+  /--
+  Mapping from terms to variables representing nonlinear terms.
+  For example, suppose the denotation of variable `x` is the nonlinear term `a*b*c`,
+  and `y` is the nonlinear term `a / d`. Then the mapping contains the entries
+  - `a ↦ [x, y]`
+  - `b ↦ [x]`
+  - `c ↦ [x]`
+  - `d ↦ [y]`
+  -/
+  nonlinearOccs : PHashMap ExprPtr (List Var) := {}
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

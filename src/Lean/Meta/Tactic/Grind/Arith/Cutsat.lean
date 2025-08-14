@@ -28,6 +28,7 @@ public section
 namespace Lean
 
 builtin_initialize registerTraceClass `grind.cutsat
+builtin_initialize registerTraceClass `grind.cutsat.nonlinear
 builtin_initialize registerTraceClass `grind.cutsat.model
 builtin_initialize registerTraceClass `grind.cutsat.assert
 builtin_initialize registerTraceClass `grind.cutsat.assert.trivial

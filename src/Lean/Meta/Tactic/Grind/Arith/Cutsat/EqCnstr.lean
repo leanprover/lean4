@@ -215,6 +215,16 @@ partial def _root_.Int.Linear.Poly.updateOccsForElimEq (p : Poly) (x : Var) : Go
     go p
   go p
 
+@[export lean_cutsat_propagate_nonlinear]
+def propagateNonlinearTermImpl (y : Var) (x : Var) : GoalM Unit := do
+  let some c := (← get').elimEqs[y]! | return ()
+  trace[grind.cutsat.nonlinear] "propagate: {← c.pp} ===> {← getVar x}"
+
+def propagateNonlinearTerms (y : Var) : GoalM Unit := do
+  let some occs := (← get').nonlinearOccs.find? { expr := (← getVar y) } | return ()
+  for x in occs do
+    propagateNonlinearTermImpl y x
+
 @[export lean_grind_cutsat_assert_eq]
 def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
@@ -251,6 +261,8 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
     let p := c.p.insert (-k) x
     let d := Int.ofNat k.natAbs
     { d, p, h := .ofEq x c : DvdCnstr }.assert
+  if (← inconsistent) then return ()
+  propagateNonlinearTerms x
 
 private def exprAsPoly (a : Expr) : GoalM Poly := do
   if let some k ← getIntValue? a then

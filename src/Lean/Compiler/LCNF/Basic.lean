@@ -715,7 +715,7 @@ partial def Code.collectUsed (code : Code) (s : FVarIdHashSet := {}) : FVarIdHas
   | .jmp fvarId args => collectArgs args <| s.insert fvarId
 end
 
-abbrev collectUsedAtExpr (s : FVarIdHashSet) (e : Expr) : FVarIdHashSet :=
+@[inline] def collectUsedAtExpr (s : FVarIdHashSet) (e : Expr) : FVarIdHashSet :=
   collectType e s
 
 /--

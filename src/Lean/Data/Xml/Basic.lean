@@ -41,5 +41,5 @@ private partial def cToString : Content → String
 | Content.Character c => c
 
 end
-instance : ToString Element := ⟨eToString⟩
-instance : ToString Content := ⟨cToString⟩
+instance : ToString Element := ⟨private_decl% eToString⟩
+instance : ToString Content := ⟨private_decl% cToString⟩

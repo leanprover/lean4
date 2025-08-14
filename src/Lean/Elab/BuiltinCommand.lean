@@ -511,7 +511,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(set_option Lean.Elab.implicit true section $cmd₁:command $cmd₂ end set_option Lean.Elab.implicit false)
+    withRef tk `(section $cmd₁:command $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do

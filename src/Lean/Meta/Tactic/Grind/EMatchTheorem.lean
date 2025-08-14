@@ -706,7 +706,7 @@ private partial def go (pattern : Expr) (inSupport : Bool) (root : Bool) : M Exp
     else
       return mkOffsetPattern e k
   let some f ← getPatternFn? pattern inSupport root .relevant
-    | throwError "invalid pattern, (non-forbidden) application expected{indentExpr pattern}"
+    | throwError "invalid pattern, (non-forbidden) application expected{indentD (ppPattern pattern)}"
   assert! f.isConst || f.isFVar
   unless f.isConstOf ``Grind.eqBwdPattern do
     saveSymbol f.toHeadIndex

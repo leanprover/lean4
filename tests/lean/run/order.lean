@@ -6,7 +6,7 @@ open Std
 
 variable {α : Type u}
 
-structure X
+opaque X : Type := Unit
 
 namespace X
 

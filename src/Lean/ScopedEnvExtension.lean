@@ -24,6 +24,7 @@ structure State (σ : Type) where
   state        : σ
   activeScopes : NameSet := {}
   parent : Option Name := none
+  soft : Bool := false
 
 structure ScopedEntries (β : Type) where
   map : SMap Name (PArray β) := {}
@@ -133,11 +134,11 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
 @[implemented_by registerScopedEnvExtensionUnsafe]
 opaque registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
 
-def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
+def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) (soft : Bool := false) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
     match s.stateStack with
     | [] => s
-    | state :: stack => { s with stateStack := state :: state :: stack }
+    | state :: stack => { s with stateStack := {state with soft := soft}  :: state :: stack }
 
 def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
@@ -156,16 +157,17 @@ def ScopedEnvExtension.getParentName (ext : ScopedEnvExtension α β σ) (env : 
   | none => none
   | some state => state.parent
 
+def stateStackSoftModify (ext : ScopedEnvExtension α β σ) (states : List (State σ)) (b : β) : List (State σ) :=
+  match states with
+  | [] => states
+  | top :: states =>
+    let top := { top with state := ext.descr.addEntry top.state b }
+    let bot := if top.soft then stateStackSoftModify ext states b else states
+    top :: bot
+
 def ScopedEnvExtension.addLocalEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
-  match getParentName ext env with
-  | none =>
   ext.ext.modifyState (asyncMode := .local) env fun s =>
-    match s.stateStack with
-    | [] => s
-    | top :: states =>
-      let top := { top with state := ext.descr.addEntry top.state b }
-      { s with stateStack := top :: states }
-  | some parent => ext.addScopedEntry env parent b
+    {s with stateStack := stateStackSoftModify ext s.stateStack b}
 
 def ScopedEnvExtension.addCore (env : Environment) (ext : ScopedEnvExtension α β σ) (b : β) (kind : AttributeKind) (namespaceName : Name) : Environment :=
   match kind with
@@ -212,12 +214,12 @@ def ScopedEnvExtension.modifyState (ext : ScopedEnvExtension α β σ) (env : En
 def ScopedEnvExtension.modifyParent (ext : ScopedEnvExtension α β σ) (env : Environment) (parent : Option Name := none) : Environment :=
   ext.ext.modifyState env fun s =>
     match s.stateStack with
-    | top :: stack => { s with stateStack := { top with parent := parent } :: stack }
+    | top :: stack => { s with stateStack := { top with parent := if top.parent.isNone then parent else top.parent } :: stack }
     | _ => s
 
-def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
+def pushScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (soft : Bool := false) : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
-    modifyEnv ext.pushScope
+    modifyEnv (ext.pushScope (soft := soft))
 
 def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do

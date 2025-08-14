@@ -50,14 +50,15 @@ private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : N
       attrs := s.scopes.head!.attrs ++ attrs
     } :: s.scopes,
   }
-  pushScope
+  -- here I would pass the flag
+  pushScope (soft := soft)
   if isNewNamespace then
     activateScoped newNamespace
-  if soft then
-    let parent := getParent (← get).scopes
-    trace[Elab] "parent: {parent}, parent.prefix: {parent.getPrefix}"
-    let parent := if isNewNamespace then parent.getPrefix else parent
-    activateSoft parent
+  -- if soft then
+  --   let parent := getParent (← get).scopes
+  --   trace[Elab] "parent: {parent}, parent.prefix: {parent.getPrefix}"
+  --   let parent := if isNewNamespace then parent.getPrefix else parent
+  --   activateSoft parent
 
 
 private def addScopes (header : Name) (isNewNamespace : Bool) (isNoncomputable isPublic : Bool := false)
@@ -125,6 +126,22 @@ private def checkEndHeader : Name → List Scope → Option Name
       addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId (soft := isSoft)
     else
       addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (soft := isSoft)
+  | _                        => throwUnsupportedSyntax
+
+@[builtin_command_elab «soft_section»] def elabSoftSection : CommandElab := fun stx => do
+  --let isSoft := Lean.Elab.implicit.get (←getOptions)
+  --trace[Elab] "elabSection: isSoft: {isSoft}"
+  match stx with
+  | `(Parser.Command.section| $[@[expose%$expTk]]? $[public%$publicTk]? $[noncomputable%$ncTk]? section $(header?)?) =>
+    -- TODO: allow more attributes?
+    let attrs ← if expTk.isSome then
+      pure [← `(Parser.Term.attrInstance| expose)]
+    else
+      pure []
+    if let some header := header? then
+      addScopes (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) header.getId (soft := true)
+    else
+      addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (attrs := attrs) "" (← getCurrNamespace) (soft := true)
   | _                        => throwUnsupportedSyntax
 
 /--
@@ -511,7 +528,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(section $cmd₁:command $cmd₂ end)
+    withRef tk `(set_option Lean.Elab.implicit true section $cmd₁:command $cmd₂ end set_option Lean.Elab.implicit false)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do

@@ -278,13 +278,12 @@ This option can only be set on the command line, not in the lakefile or via `set
       if (← IO.hasFinished t.task) then
         handleNode t.task.get
         -- limit children's reported range to that of the parent, if any, to avoid strange
-        -- non-monotonic progress updates; replace missing children's ranges with parent's
+        -- non-monotonic progress updates; replace `inherit` children's ranges with parent's
         let ts := t.task.get.children.map (fun t' => { t' with reportingRange :=
           -- NOTE: as `t.reportingRange?` has already gone through this transformation, it should be
           -- either `some` or `skip` at this point
           match t.reportingRange, t'.reportingRange with
-          | .some r, .some r' => Id.run do
-            if r'.stop.byteIdx = 0 then return .some r'
+          | .some r, .some r' =>
             let start := max r.start r'.start
             let stop := min r.stop r'.stop
             -- ensure `stop ≥ start`, lest we end up with negative ranges if `r` and `r'` are
@@ -332,7 +331,6 @@ This option can only be set on the command line, not in the lakefile or via `set
       let ranges := tasks.filterMap (match ·.reportingRange with
         | .some r => some r
         | _       => none)
-      let ranges := ranges.filter fun r => r.stop.byteIdx > 0
       let ranges := ranges.qsort (·.start < ·.start)
       let ranges := ranges.foldl (init := #[]) fun rs r => match rs[rs.size - 1]? with
         | some last =>

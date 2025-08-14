@@ -121,3 +121,24 @@ inductive Nest11 (α : Bool → Type) : Type  where
 
 inductive Ok11  : Bool → Type where
   | mk : Nest11 Ok11 → Ok11 true
+
+/-
+The following code tried to check if positivity checking blows up exponentially
+with nested types, but it still seems fast compared to other things happening, so
+this test does not actually blow up as desired.
+We still memoize the queries, as can manually be checked using `set_option trace.Elab.inductive
+true`.
+-/
+
+-- set_option trace.Elab.inductive true
+-- set_option debug.inductiveCheckPositivity false
+
+inductive Ok12a α where | mk : α → Ok12a α
+inductive Ok12b α where | mk : Ok12a α → Ok12a α → Ok12a α → Ok12a α → Ok12a α → Ok12a α →  Ok12b α
+inductive Ok12c α where | mk : Ok12b α → Ok12b α → Ok12b α → Ok12b α → Ok12b α → Ok12b α →  Ok12c α
+inductive Ok12d α where | mk : Ok12c α → Ok12c α → Ok12c α → Ok12c α → Ok12c α → Ok12c α →  Ok12d α
+inductive Ok12e α where | mk : Ok12d α → Ok12d α → Ok12d α → Ok12d α → Ok12d α → Ok12d α →  Ok12e α
+inductive Ok12f α where | mk : Ok12e α → Ok12e α → Ok12e α → Ok12e α → Ok12e α → Ok12e α →  Ok12f α
+
+inductive Ok12 where | mk : Ok12c Ok12 → Ok12
+-- inductive Ok12 where | mk : Ok12f Ok12 → Ok12

@@ -785,57 +785,83 @@ where
         /- Underconstrained, but not an error. -/
         pure ()
 
+
+structure PositivityExtState where
+  map : PHashMap (Name × Nat) (Except Exception Unit) := {}
+  deriving Inhabited
+
+/- Simple local extension for caching/memoization -/
+builtin_initialize positivityExt : EnvExtension PositivityExtState ←
+  -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
+  -- The resulting state can still be accessed on the generated declarations using `findStateAsync`;
+  -- see below
+  registerEnvExtension (pure {}) (asyncMode := .local)
+
+private def positivityExt.getOrSet (key : Name × Nat) (act : CoreM Unit) := do
+  match (positivityExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := key.1) (← getEnv)).map.find? key with
+  | some r =>
+    liftExcept r
+  | none =>
+    let r ← observing act
+    modifyEnv fun env =>
+      positivityExt.modifyState env (fun s => { s with map := s.map.insert key r })
+    liftExcept r
+
 /--
 Throws an exception unless the `i`th parameter of the inductive type only occurrs in
 positive position.
 -/
-partial def isIndParamPositive (info : InductiveVal) (i : Nat) : CoreM Unit := MetaM.run' do
-  for indName in info.all do
-    let info ← getConstInfoInduct indName
-    for con in info.ctors do
-      let con ← getConstInfoCtor con
-      forallTelescopeReducing con.type fun xs _t => do
-        -- TODO: Check for occurrences in the indices of t?
-        let params := xs[0...info.numParams]
-        let p := params[i]!.fvarId!
-        for conArg in xs[info.numParams...*] do
-          forallTelescopeReducing (← inferType conArg) fun conArgArgs conArgRes => do
-            for conArgArg in conArgArgs do
-              if (← inferType conArgArg).hasAnyFVar (· == p) then
-                throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}"
-            let conArgRes ← whnf conArgRes
-            if conArgRes.hasAnyFVar (· == p) then
-                conArgRes.withApp fun fn args => do
-                  if fn == mkFVar p then
-                    for arg in args do
-                      if arg.hasAnyFVar (· == p) then
-                        throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
-                          in application of the parameter itself."
-                  else if let some fn := fn.constName? then
-                    if info.all.contains fn then
-                      -- Recursive occurrence of an inductive type of this group.
-                      -- Params must match by construction but check indices
-                      for idxArg in args[info.numParams...*] do
-                        if idxArg.hasAnyFVar (· == p) then
+partial def isIndParamPositive (info : InductiveVal) (i : Nat) : CoreM Unit := do
+  -- Consistently use the info of the first inductive in the group
+  if info.name != info.all[0]! then
+    return (← isIndParamPositive (← getConstInfoInduct info.all[0]!) i)
+
+  positivityExt.getOrSet (info.name, i) do MetaM.run' do
+    trace[Elab.inductive] "checking positivity of #{i+1} in {.ofConstName info.name}"
+    for indName in info.all do
+      let info ← getConstInfoInduct indName
+      for con in info.ctors do
+        let con ← getConstInfoCtor con
+        forallTelescopeReducing con.type fun xs _t => do
+          -- TODO: Check for occurrences in the indices of t?
+          let params := xs[0...info.numParams]
+          let p := params[i]!.fvarId!
+          for conArg in xs[info.numParams...*] do
+            forallTelescopeReducing (← inferType conArg) fun conArgArgs conArgRes => do
+              for conArgArg in conArgArgs do
+                if (← inferType conArgArg).hasAnyFVar (· == p) then
+                  throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}"
+              let conArgRes ← whnf conArgRes
+              if conArgRes.hasAnyFVar (· == p) then
+                  conArgRes.withApp fun fn args => do
+                    if fn == mkFVar p then
+                      for arg in args do
+                        if arg.hasAnyFVar (· == p) then
                           throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
-                            in index of {.ofConstName fn}"
-                    else if (← isInductive fn) then
-                      let info' ← getConstInfoInduct fn
-                      for i in 0...info'.numParams, pe in args[0...info'.numParams] do
-                        if pe.hasAnyFVar (· == p) then
-                          try
-                            isIndParamPositive info' i
-                          catch _ =>
+                            in application of the parameter itself."
+                    else if let some fn := fn.constName? then
+                      if info.all.contains fn then
+                        -- Recursive occurrence of an inductive type of this group.
+                        -- Params must match by construction but check indices
+                        for idxArg in args[info.numParams...*] do
+                          if idxArg.hasAnyFVar (· == p) then
                             throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
-                              in parameter #{i+1} of {.ofConstName fn}"
+                              in index of {.ofConstName fn}"
+                      else if (← isInductive fn) then
+                        let info' ← getConstInfoInduct fn
+                        for i in 0...info'.numParams, pe in args[0...info'.numParams] do
+                          if pe.hasAnyFVar (· == p) then
+                            try
+                              isIndParamPositive info' i
+                            catch _ =>
+                              throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
+                                in parameter #{i+1} of {.ofConstName fn}"
+                      else
+                        throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
+                          cannot nest through {.ofConstName fn}"
                     else
                       throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
-                        cannot nest through {.ofConstName fn}"
-                  else
-                    throwError "Non-positive occurrence of parameter `{mkFVar p}` in type of {.ofConstName con.name}, \
-                      cannot nest through {fn}"
-
-
+                        cannot nest through {fn}"
 
 /-- Checks the universe constraints for each constructor. -/
 private def checkResultingUniverses (views : Array InductiveView) (elabs' : Array InductiveElabStep2)

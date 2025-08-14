@@ -63,6 +63,12 @@ public theorem compare_isGE {α : Type u} [LE α] [DecidableLE α]
   · specialize le_total a b
     simp_all
 
+public instance instLawfulOrderOrdOfDecidableLE {α : Type u} [LE α] [DecidableLE α]
+    [Total (α := α) (· ≤ ·)] :
+    LawfulOrderOrd α where
+  compare_isLE _ _ := compare_isLE
+  compare_isGE _ _ := compare_isGE (le_total := Total.total)
+
 end FactoryInstances
 
 /--
@@ -89,21 +95,30 @@ public structure Packages.LinearPreorderOfLEArgs (α : Type u) extends
       | fail "Failed to automatically prove that the `LE` instance is total. You can either ensure \
               that a `Total` instance is available or manually provide the `le_total` field."
   le_refl := (by intro i hi a; cases hi; simpa using le_total a a)
-  compare_isLE [i : LE α] [DecidableLE α] (hi : i = le := by rfl) :
+  compare_isLE [i : LE α] (hi : i = le := by rfl) [d : DecidableLE α] (hd : d = hi ▸ decidableLE := by rfl) :
       letI := ord hi; ∀ a b : α, (compare a b).isLE ↔ a ≤ b := by
-    intro i di hi
+    intro i hi d hd
+    letI := i
+    cases hi
+    letI := d
+    cases hd
     first
+      | exact LawfulOrderOrd.compare_isLE
       | open scoped Classical in
         simpa only [FactoryInstances.instOrdOfDecidableLE, Ord.compare] using
           fun a b => FactoryInstances.compare_isLE
         done
       | fail "Failed to automatically prove that `(compare a b).isLE` is equivalent to `a ≤ b`."
-  compare_isGE [i : LE α] [DecidableLE α] (hi : i = le := by rfl) (le_total := le_total) :
+  compare_isGE [i : LE α] (hi : i = le := by rfl) [d : DecidableLE α] (hd : d = hi ▸ decidableLE := by rfl)
+      (le_total := le_total) :
       letI := ord hi; ∀ a b : α, (compare a b).isGE ↔ b ≤ a := by
-    intro i di hi
+    intro i hi d hd
     letI := i
     cases hi
+    letI := d
+    cases hd
     first
+      | exact LawfulOrderOrd.compare_isGE
       | open scoped Classical in
         simpa only [FactoryInstances.instOrdOfDecidableLE, Ord.compare] using
           fun le_total a b => FactoryInstances.compare_isGE le_total
@@ -168,15 +183,29 @@ public scoped instance instMinOfDecidableLE {α : Type u} [LE α] [DecidableLE �
   min a b := if a ≤ b then a else b
 
 public scoped instance instMaxOfDecidableLE {α : Type u} [LE α] [DecidableLE α] : Max α where
-  max a b := if a ≤ b then b else a
+  max a b := if b ≤ a then a else b
 
-public theorem min_eq {α : Type u} [LE α] [DecidableLE α] {a b : α} :
-    min a b = if a ≤ b then a else b :=
-  rfl
+public instance instLawfulOrderLeftLeaningMinOfDecidableLE {α : Type u} [LE α] [DecidableLE α] :
+    LawfulOrderLeftLeaningMin α where
+  min_eq_left a b := by simp +contextual [min]
+  min_eq_right a b := by simp +contextual [min]
 
-public theorem max_eq {α : Type u} [LE α] [DecidableLE α] {a b : α} :
-    max a b = if a ≤ b then b else a :=
-  rfl
+public instance instLawfulOrderLeftLeaningMaxOfDecidableLE {α : Type u} [LE α] [DecidableLE α] :
+    LawfulOrderLeftLeaningMax α where
+  max_eq_left a b := by simp +contextual [max]
+  max_eq_right a b := by simp +contextual [max]
+
+public theorem min_eq {α : Type u} [LE α] [DecidableLE α] {_ : Min α} [LawfulOrderLeftLeaningMin α]
+    {a b : α} : min a b = if a ≤ b then a else b := by
+  split <;> rename_i h
+  · simp [LawfulOrderLeftLeaningMin.min_eq_left _ _ h]
+  · simp [LawfulOrderLeftLeaningMin.min_eq_right _ _ h]
+
+public theorem max_eq {α : Type u} [LE α] [DecidableLE α] {_ : Max α} [LawfulOrderLeftLeaningMax α]
+    {a b : α} : max a b = if b ≤ a then a else b := by
+  split <;> rename_i h
+  · simp [LawfulOrderLeftLeaningMax.max_eq_left _ _ h]
+  · simp [LawfulOrderLeftLeaningMax.max_eq_right _ _ h]
 
 end FactoryInstances
 
@@ -206,21 +235,19 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
   min_eq [i : LE α] [DecidableLE α] (hi : i = le := by rfl) :
       letI := min hi
       ∀ a b : α, Min.min a b = if a ≤ b then a else b := by
-    intro i d hi
+    intro i d hi a b
     letI := i
     cases hi
     first
-      | infer_instance
-      | exact fun _ _ => FactoryInstances.min_eq
+      | exact FactoryInstances.min_eq (a := a) (b := b)
   max_eq [i : LE α] [DecidableLE α] (hi : i = le := by rfl) :
       letI := max hi
       ∀ a b : α, Max.max a b = if a ≤ b then b else a := by
-    intro i d hi
+    intro i d hi a b
     letI := i
     cases hi
     first
-      | infer_instance
-      | exact fun _ _ => FactoryInstances.max_eq
+      | exact FactoryInstances.max_eq (a := a) (b := b)
 
 public theorem IsLinearPreorder.lawfulOrderMin_of_min_eq {α : Type u} [LE α]
     [DecidableLE α] [Min α] [IsLinearPreorder α]

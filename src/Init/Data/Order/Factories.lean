@@ -264,9 +264,9 @@ public scoped instance instBEqOfDecidableLE {α : Type u} [LE α] [DecidableLE �
     BEq α where
   beq a b := a ≤ b ∧ b ≤ a
 
-public theorem beq_iff {α : Type u} [LE α] [DecidableLE α] {a b : α} :
-    a == b ↔ a ≤ b ∧ b ≤ a := by
-  simp [BEq.beq]
+public instance instLawfulOrderBEqOfDecidableLE {α : Type u} [LE α] [DecidableLE α] :
+    LawfulOrderBEq α where
+  beq_iff_le_and_ge := by simp [BEq.beq]
 
 @[expose]
 public def instDecidableLTOfLE {α : Type u} [LE α] {_ : LT α} [DecidableLE α] [LawfulOrderLT α] :
@@ -296,8 +296,10 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
   lawful_lt [i : LE α] (hi : i = le := by rfl) :
     letI := lt hi; ∀ a b : α, a < b ↔ a ≤ b ∧ ¬ b ≤ a := by
     intro i hi
+    letI := i
+    cases hi
     first
-      | simp only [Classical.Order.instLT, implies_true]; done -- use LawfulOrderLT?
+      | exact LawfulOrderLT.lt_iff
       | fail "Failed to automatically prove that the `OrderData` and `LT` instances are compatible."
   decidableLT [i : LE α] (hi : i = le := by rfl)
       [d : DecidableLE α] (hd : d = hi ▸ decidableLE := by rfl)
@@ -312,13 +314,14 @@ public structure Packages.PreorderOfLEArgs (α : Type u) where
     first
       | infer_instance
       | exact FactoryInstances.instDecidableLTOfLE
-      -- | fail "Failed to automatically derive a `DecidableLT` instance."
+      | fail "Failed to automatically derive a `DecidableLT` instance."
   lawful_beq [i : LE α] [DecidableLE α] (hi : i = le := by rfl) :
     letI := beq hi; ∀ a b : α, a == b ↔ a ≤ b ∧ b ≤ a := by
     intro i di hi
+    letI := i
+    cases hi
     first
-      | simpa only [FactoryInstances.instBEqOfDecidableLE, BEq.beq] using fun a b =>
-          Std.FactoryInstances.beq_iff; done
+      | exact LawfulOrderBEq.beq_iff_le_and_ge
       | fail "Failed to automatically prove that the `OrderData` and `BEq` instances are compatible."
   le_refl [i : LE α] (hi : i = le := by rfl) : ∀ a : α, a ≤ a := by
     intro i hi

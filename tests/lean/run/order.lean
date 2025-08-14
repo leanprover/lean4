@@ -82,3 +82,19 @@ def packageOfLEOfLT2 [LE α] [DecidableLE α] [LT α] (h : ∀ a b : α, a < b �
   le_refl := sorry
   le_trans := sorry
 }
+
+namespace OrdTests
+
+section
+
+#guard_msgs(error, drop warning) in
+opaque _root_.X.instOrd : Ord X := sorry
+
+def packageWithoutSynthesizableInstances : Packages.PreorderOfOrdArgs X := {
+  ord := X.instOrd
+  oriented_ord := sorry
+}
+
+end
+
+end OrdTests

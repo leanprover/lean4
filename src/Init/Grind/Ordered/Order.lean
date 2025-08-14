@@ -18,7 +18,6 @@ class Preorder (α : Type u) [LE α] [LT α] where
   le_refl : ∀ a : α, a ≤ a
   /-- The less-than-or-equal relation is transitive. -/
   le_trans : ∀ {a b c : α}, a ≤ b → b ≤ c → a ≤ c
-  lt := fun a b : α => a ≤ b ∧ ¬b ≤ a
   /-- The less-than relation is determined by the less-than-or-equal relation. -/
   lt_iff_le_not_le : ∀ {a b : α}, a < b ↔ a ≤ b ∧ ¬b ≤ a := by intros; rfl
 

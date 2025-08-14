@@ -151,16 +151,16 @@ def blastAddVec (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec
         by_cases heven' : inputNodes % 2 = 0 <;> omega
       ⟨aig, hcast▸newParSum⟩
 
-theorem blastAddVec_le_size (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec aig w inputNodes) (newParSum : RefVecVec aig w (currNode/2)) (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes) :
+theorem addVec_le_size (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec aig w inputNodes) (newParSum : RefVecVec aig w (currNode/2)) (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes) :
     aig.decls.size ≤ (blastAddVec aig currNode inputNodes oldParSum newParSum heven hle hw hw').aig.decls.size := by
   unfold blastAddVec
   dsimp only
   split
   · split
-    <;> (refine Nat.le_trans ?_ (by apply blastAddVec_le_size); apply AIG.LawfulVecOperator.le_size)
+    <;> (refine Nat.le_trans ?_ (by apply addVec_le_size); apply AIG.LawfulVecOperator.le_size)
   · simp
 
-theorem blastAddVec_decl_eq (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec aig w inputNodes) (newParSum : RefVecVec aig w (currNode/2)) (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes) :
+theorem addVec_decl_eq (aig : AIG α) (currNode inputNodes: Nat) (oldParSum : RefVecVec aig w inputNodes) (newParSum : RefVecVec aig w (currNode/2)) (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes) :
     ∀ (idx : Nat) (h1) (h2),
         (blastAddVec aig currNode inputNodes oldParSum newParSum heven hle hw hw').aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
   generalize hres : blastAddVec aig currNode inputNodes oldParSum newParSum heven hle hw hw' = res
@@ -170,13 +170,13 @@ theorem blastAddVec_decl_eq (aig : AIG α) (currNode inputNodes: Nat) (oldParSum
   · split at hres
     · rw [← hres]
       intros
-      rw [blastAddVec_decl_eq]
+      rw [addVec_decl_eq]
       · apply AIG.LawfulVecOperator.decl_eq (f := blastAdd)
       · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastAdd)
         assumption
     · rw [← hres]
       intros
-      rw [blastAddVec_decl_eq]
+      rw [addVec_decl_eq]
       · apply AIG.LawfulVecOperator.decl_eq (f := blastAdd)
       · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastAdd)
         assumption
@@ -217,7 +217,7 @@ theorem go_le_size (aig : AIG α) (w inputNodes: Nat) (parSum : RefVecVec aig w 
   dsimp only
   split
   · refine Nat.le_trans ?_ (by apply go_le_size)
-    apply blastAddVec_le_size
+    apply addVec_le_size
   · simp
 
 theorem go_le_size' (w : Nat) (aig : AIG α) (input : aig.RefVec w) (h : 0 < w) :
@@ -228,7 +228,7 @@ theorem go_le_size' (w : Nat) (aig : AIG α) (input : aig.RefVec w) (h : 0 < w) 
   dsimp only
   split
   · refine Nat.le_trans ?_ (by apply go_le_size)
-    refine Nat.le_trans ?_ (by apply blastAddVec_le_size)
+    refine Nat.le_trans ?_ (by apply addVec_le_size)
     apply extractAndExtendPopulate_le_size
   · apply extractAndExtendPopulate_le_size
 
@@ -243,12 +243,12 @@ theorem go_decl_eq (w inputNodes: Nat) (aig : AIG α) (parSum : RefVecVec aig w 
   · rw [← hgo]
     intros
     rw [go_decl_eq]
-    · have := blastAddVec_decl_eq aig 0 inputNodes parSum
+    · have := addVec_decl_eq aig 0 inputNodes parSum
       (expose_names;
         refine
           this { vec := Vector.emptyWithCapacity 0 } (_proof_2 w inputNodes)
             (_proof_4 w inputNodes h) hw' h idx ?_ h2)
-    · have := blastAddVec_le_size aig 0 inputNodes parSum
+    · have := addVec_le_size aig 0 inputNodes parSum
       (expose_names;
         exact
           Nat.lt_of_lt_of_le h2

@@ -118,7 +118,7 @@ theorem blastExtractAndExtendPopulate_denote_eq'
             ∀ (idx2 : Nat) (hidx2 : idx2 < w),
               let newElem := blastExtractAndExtend aigAcc xc (start)
               ⟦newElem.aig, ((acc.cast (by apply extractAndExtend_le_size)).vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
-              ((BitVec.extractAndExtendPopulateAux 0 x [] (by sorry) (by omega) (by simp)).val.get
+              ((BitVec.extractAndExtendPopulateAux 0 x [] (by simp) (by omega) (by simp)).val.get
                 ⟨idx1, by simp [(BitVec.extractAndExtendPopulateAux 0 x []
                         (by intros i hi hl; simp at hl)
                         (by omega) (by simp)).property]; exact Nat.lt_trans hidx1 (by omega)⟩).getLsbD idx2)
@@ -196,25 +196,49 @@ theorem blastExtractAndExtendPopulate_denote_eq'
         intros
         omega
 
+theorem BitVec.addVecAux_prop
+  (oldParSumBv : List (BitVec w)) (newParSumBv : List (BitVec w))
+  (hlen : oldParSumBv.length = inputNodes)
+  (hlen' : newParSumBv.length = currNode/2)
+  (hle : currNode ≤ inputNodes)
+  (heven : currNode %2 = 0)
+  (hlt : i * 2 + 1 < oldParSumBv.length)
+  (hlt' : i < newParSumBv.length)
+  (res : {l : List (BitVec w) // (l.length = (inputNodes + 1)/2) ∧
+       (∀ i (hi : i < l.length) (hl : l.length = (inputNodes + 1)/2),
+        if hc : i*2 + 1 < oldParSumBv.length then
+          l.get ⟨i, by simp [hl]; omega⟩ = oldParSumBv.get ⟨i*2, by omega⟩ + oldParSumBv.get ⟨i*2 + 1, by omega⟩
+        else
+          l.get ⟨i, by simp [hl]; omega⟩ = oldParSumBv.get ⟨i*2, by omega⟩)
+        })
+  (hacc : ∀ (i_1 : Nat) (hi : i_1 < newParSumBv.length) (_ : newParSumBv.length = currNode / 2),
+            if hc : i_1 * 2 + 1 < oldParSumBv.length then
+              newParSumBv.get ⟨i_1, (by omega)⟩ = oldParSumBv.get ⟨i_1 * 2, (by omega)⟩ + oldParSumBv.get ⟨i_1 * 2 + 1, hc⟩
+                else newParSumBv.get ⟨i_1, (by omega)⟩ = oldParSumBv.get ⟨i_1 * 2, (by omega)⟩) :
+    newParSumBv[i]'hlt' = (oldParSumBv[i * 2]'(by omega) + oldParSumBv[i * 2 + 1]'hlt):= by
+  have ⟨plen, pp⟩ := res.property
+  specialize pp i (by omega) (by omega)
+  simp [hlt] at pp
+  specialize hacc i (by omega) (by omega)
+  simp [hlt] at hacc
+  apply hacc
+
 theorem blastAddVec_denote_even
   -- blastAddVec input
   (aigOld : AIG α) (currNode w: Nat) (hi : 1 < inputNodes)
   (oldParSum : RefVecVec aigOld w inputNodes) (newParSum : RefVecVec aigOld w (currNode/2))
-  (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes)
+  (heven : currNode %2 = 0)  (hw : inputNodes ≤ w) (hw' : 1 < inputNodes)
   (h : currNode + 1 < inputNodes)
   (elem : RefVecEntry α w)
   (helem' : elem = blastAdd aigOld (w := w) ⟨oldParSum.vec.get ⟨currNode, (by omega)⟩, oldParSum.vec.get ⟨currNode + 1, (by omega)⟩⟩)
   -- BitVec input
-  (l : List (BitVec w)) (hl : l.length = w)
   (oldParSumBv : List (BitVec w)) (newParSumBv : List (BitVec w)) (elemBv : BitVec w)
   (hlenOld : oldParSumBv.length = inputNodes) (hlenNew : newParSumBv.length = currNode/2)
-  (helemBv : elemBv = oldParSumBv[currNode]'(by omega) + oldParSumBv[currNode + 1]'(by omega))
-  -- oldParSum denotes to oldParSumBv
-  (hold :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < inputNodes),
-      ∀ (idx2 : Nat) (hidx2 : idx2 < w),
-        ⟦aigOld, (oldParSum.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
-          (oldParSumBv.get ⟨idx1, by simp [hlenOld]; omega⟩ ).getLsbD idx2)
+  (hacc : ∀ (i_1 : Nat) (hi : i_1 < newParSumBv.length),
+    newParSumBv.length = currNode / 2 →
+      if hc : i_1 * 2 + 1 < oldParSumBv.length then
+        newParSumBv.get ⟨i_1, hi⟩ = oldParSumBv.get ⟨i_1 * 2, (by omega)⟩ + oldParSumBv.get ⟨i_1 * 2 + 1, hc⟩
+      else newParSumBv.get ⟨i_1, hi⟩ = oldParSumBv.get ⟨i_1 * 2, (by omega)⟩)
   -- newParSum denotes to newParSumBv
   (hnew :
     ∀ (idx1 : Nat) (hidx1 : idx1 < currNode/2),
@@ -232,216 +256,293 @@ theorem blastAddVec_denote_even
     ∀ (idx1 : Nat) (hidx1 : idx1 < (currNode + 1)/2),
       ∀ (idx2 : Nat) (hidx2 : idx2 < w),
         ⟦elem.aig, ((newParSum.push elem.vec (by simp [helem']; apply AIG.LawfulVecOperator.le_size (f := blastAdd))).vec.get ⟨idx1, by omega⟩).get idx2 hidx2 , assign⟧ =
-          let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) (by omega) (by omega) hlenOld (by simp)
+          let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) (by omega) (by omega) hlenOld (by simp) (by simp)
           (bvRes.val.get ⟨idx1, by have := bvRes; omega⟩).getLsbD idx2 := by
     intros idx1 hidx1 idx2 hidx2
     have := push_denote_eq (assign := assign) (w := w) (n := currNode/2) (aigNew := elem.aig) (aigOld := aigOld)
           (acc := newParSum) (elem := elem.vec) (l := newParSumBv) (bv := elemBv)
           (by simp [helem']; exact LawfulVecOperator.le_size aigOld (f := blastAdd) ..) (by omega)
     rw [this]
-    · simp
-      by_cases hlast : idx1 < newParSumBv.length
-      · sorry
-
+    · by_cases hlast : idx1 < newParSumBv.length
+      · simp
+        have := List.getElem_append_left (as := newParSumBv) (bs := [elemBv]) (i := idx1) (h := by omega) (h' := by simp; omega)
+        simp [this]
+        let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) hw hw' hlenOld (by simp) (by omega)
+        have ⟨len, p⟩ := bvRes.property
+        specialize p idx1 (by omega) (by omega)
+        split at p
+        · simp [bvRes] at p
+          simp [p]
+          let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) hw hw' hlenOld (by simp) (by omega)
+          have hle' : currNode ≤ inputNodes := by omega
+          have := BitVec.addVecAux_prop (i := idx1) (currNode := currNode) (inputNodes := inputNodes) (w := w) (oldParSumBv := oldParSumBv)
+                  (newParSumBv := newParSumBv) (by omega) (by omega)
+                  hle' heven (by omega) (by omega) (res := bvRes) hacc
+          simp [this]
+        · omega
       · have := List.getElem_concat_length (i := idx1) (a := elemBv) (l := newParSumBv) (by omega)
         specialize this (by omega)
+        simp
         rw [this]
-
-
-
-        sorry
+        let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) hw hw' hlenOld (by omega) (by omega)
+        have := bvRes.property
+        omega
     · intros idx1 hidx1 idx2 hidx2
       apply hnew
     · intros
       apply helem
 
-theorem blastAddVec_denote_odd
-  -- blastAddVec input
-  (aigOld : AIG α) (currNode w: Nat) (hi : 1 < inputNodes)
-  (oldParSum : RefVecVec aigOld w inputNodes) (newParSum : RefVecVec aigOld w (currNode/2))
-  (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes)
-  (h : currNode < inputNodes)
-  (elemEven : RefVecEntry α w)
-  (helemEven : elemEven = blastAdd aigOld (w := w) ⟨oldParSum.vec.get ⟨currNode, (by omega)⟩, oldParSum.vec.get ⟨currNode + 1, hc2⟩⟩)
-  (elemOdd : RefVecEntry α w)
-  (helemOdd : elemOdd = blastAdd aigOld (w := w) ⟨oldParSum.vec.get ⟨currNode, (by omega)⟩, (blastConst aigOld (w := w) 0)⟩)
-  -- BitVec input
-  (l : List (BitVec w)) (hl : l.length = w)
-  (oldParSumBv : List (BitVec w)) (newParSumBv : List (BitVec w)) (elemBv : BitVec w)
-  (hlenOld : oldParSumBv.length = inputNodes) (hlenNew : newParSumBv.length = currNode/2)
-  -- oldParSum denotes to oldParSumBv
-  (hold :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < inputNodes),
+-- theorem blastAddVec_denote_odd
+--   -- blastAddVec input
+--   (aigOld : AIG α) (currNode w: Nat) (hi : 1 < inputNodes)
+--   (oldParSum : RefVecVec aigOld w inputNodes) (newParSum : RefVecVec aigOld w (currNode/2))
+--   (heven : currNode %2 = 0)  (hw : inputNodes ≤ w) (hw' : 1 < inputNodes)
+--   (h : currNode + 1 = inputNodes)
+--   (elem : RefVecEntry α w)
+--   (zero : RefVec aigOld w)
+--   (helem' : elem = blastAdd aigOld (w := w) ⟨oldParSum.vec.get ⟨currNode, (by omega)⟩, zero⟩)
+--   -- BitVec input
+--   (oldParSumBv : List (BitVec w)) (newParSumBv : List (BitVec w)) (elemBv : BitVec w)
+--   (hlenOld : oldParSumBv.length = inputNodes) (hlenNew : newParSumBv.length = currNode/2)
+--   (hacc : ∀ (i_1 : Nat) (hi : i_1 < newParSumBv.length),
+--     newParSumBv.length = currNode / 2 →
+--       if hc : i_1 * 2 + 1 < oldParSumBv.length then
+--         newParSumBv.get ⟨i_1, hi⟩ = oldParSumBv.get ⟨i_1 * 2, (by omega)⟩ + oldParSumBv.get ⟨i_1 * 2 + 1, hc⟩
+--       else newParSumBv.get ⟨i_1, hi⟩ = oldParSumBv.get ⟨i_1 * 2, (by omega)⟩)
+--   -- newParSum denotes to newParSumBv
+--   (hnew :
+--     ∀ (idx1 : Nat) (hidx1 : idx1 < currNode/2),
+--       ∀ (idx2 : Nat) (hidx2 : idx2 < w),
+--         ⟦elem.aig, ((newParSum.cast (aig2 := elem.aig)
+--                     (by simp [helem']; apply AIG.LawfulVecOperator.le_size (f := blastAdd))
+--                     ).vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
+--           (newParSumBv.get ⟨idx1, by simp [hlenNew]; omega⟩ ).getLsbD idx2)
+--   -- elem denotes to elemBv
+--   (helem :
+--     ∀ (idx1 : Nat) (hidx1 : idx1 < w),
+--       ⟦elem.aig, elem.vec.get idx1 hidx1, assign⟧ = elemBv.getLsbD idx1
+--     )
+--         :
+--     ∀ (idx1 : Nat) (hidx1 : idx1 < (currNode + 1)/2),
+--       ∀ (idx2 : Nat) (hidx2 : idx2 < w),
+--         ⟦elem.aig, ((newParSum.push elem.vec (by simp [helem']; apply AIG.LawfulVecOperator.le_size (f := blastAdd))).vec.get ⟨idx1, by omega⟩).get idx2 hidx2 , assign⟧ =
+--           let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) (by omega) (by omega) hlenOld (by simp) (by simp)
+--           (bvRes.val.get ⟨idx1, by have := bvRes; omega⟩).getLsbD idx2 := by
+--     intros idx1 hidx1 idx2 hidx2
+--     have := push_denote_eq (assign := assign) (w := w) (n := currNode/2) (aigNew := elem.aig) (aigOld := aigOld)
+--           (acc := newParSum) (elem := elem.vec) (l := newParSumBv) (bv := elemBv)
+--           (by simp [helem']; exact LawfulVecOperator.le_size aigOld (f := blastAdd) ..) (by omega)
+--     rw [this]
+--     · by_cases hlast : idx1 < newParSumBv.length
+--       · simp
+--         have := List.getElem_append_left (as := newParSumBv) (bs := [elemBv]) (i := idx1) (h := by omega) (h' := by simp; omega)
+--         simp [this]
+--         let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) hw hw' hlenOld (by simp) (by omega)
+--         have ⟨len, p⟩ := bvRes.property
+--         specialize p idx1 (by omega) (by omega)
+--         split at p
+--         · simp [bvRes] at p
+--           simp [p]
+--           let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) hw hw' hlenOld (by simp) (by omega)
+--           have hle' : currNode ≤ inputNodes := by omega
+--           have := BitVec.addVecAux_prop (i := idx1) (currNode := currNode) (inputNodes := inputNodes) (w := w) (oldParSumBv := oldParSumBv)
+--                   (newParSumBv := newParSumBv) (by omega) (by omega)
+--                   hle' heven (by omega) (by omega) (res := bvRes) hacc
+--           simp [this]
+--         · omega
+--       · have := List.getElem_concat_length (i := idx1) (a := elemBv) (l := newParSumBv) (by omega)
+--         specialize this (by omega)
+--         simp
+--         rw [this]
+--         let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) hw hw' hlenOld (by omega) (by omega)
+--         have := bvRes.property
+--         omega
+--     · intros idx1 hidx1 idx2 hidx2
+--       apply hnew
+--     · intros
+--       apply helem
+
+-- theorem blastAddVec_denote_step
+--   -- blastAddVec input
+--   (aigOld : AIG α) (currNode w: Nat) (hi : 1 < inputNodes)
+--   (oldParSum : RefVecVec aigOld w inputNodes) (newParSum : RefVecVec aigOld w (currNode/2))
+--   (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes)
+--   (elem : RefVecEntry α w)
+--   -- BitVec input
+--   (l : List (BitVec w)) (hl : l.length = w)
+--   (oldParSumBv : List (BitVec w)) (newParSumBv : List (BitVec w)) (elemBv : BitVec w)
+--   (hlenOld : oldParSumBv.length = inputNodes) (hlenNew : newParSumBv.length = currNode/2)
+--   -- oldParSum denotes to oldParSumBv
+--   (hold :
+--     ∀ (idx1 : Nat) (hidx1 : idx1 < inputNodes),
+--       ∀ (idx2 : Nat) (hidx2 : idx2 < w),
+--         ⟦aigOld, (oldParSum.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
+--           (oldParSumBv.get ⟨idx1, by simp [hlenOld]; omega⟩ ).getLsbD idx2)
+--   -- newParSum denotes to newParSumBv
+--   (h : currNode < inputNodes)
+--   (hnew :
+--     ∀ (idx1 : Nat) (hidx1 : idx1 < currNode/2),
+--       ∀ (idx2 : Nat) (hidx2 : idx2 < w),
+--         ⟦aigOld, (newParSum.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
+--           (newParSumBv.get ⟨idx1, by simp [hlenNew]; omega⟩ ).getLsbD idx2) :
+--     ∀ (idx1 : Nat) (hidx1 : idx1 < (inputNodes + 1)/2),
+--       ∀ (idx2 : Nat) (hidx2 : idx2 < w),
+--         let resEven := blastAdd aigOld (w := w) ⟨oldParSum.vec.get ⟨currNode, (by omega)⟩, oldParSum.vec.get ⟨currNode + 1, (by sorry)⟩⟩
+--         let zero := blastConst aigOld (w := w) 0
+--         let resOdd := blastAdd aigOld (w := w) ⟨oldParSum.vec.get ⟨currNode, (by omega)⟩, zero⟩
+--         ⟦resEven.aig, (resEven.vec.vec.get ⟨idx1, by omega⟩).get idx2 hidx2 , assign⟧ = sorry
+--           := by
+--     intros idx1 hidx1 idx2 hidx2
+--     split
+--     · case isTrue h' =>
+--       simp
+
+
+--       sorry
+--     · case isFalse h' =>
+--       sorry
+
+-- theorem blastAddVec_denote_step
+--   -- blastAddVec input
+--   (aigOld : AIG α) (currNode w: Nat) (hi : 1 < inputNodes)
+--   (oldParSum : RefVecVec aigOld w inputNodes) (newParSum : RefVecVec aigOld w (currNode/2))
+--   (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes)
+--   (elem : RefVecEntry α w)
+--   -- BitVec input
+--   (l : List (BitVec w)) (hl : l.length = w)
+--   (oldParSumBv : List (BitVec w)) (newParSumBv : List (BitVec w)) (elemBv : BitVec w)
+--   (hlenOld : oldParSumBv.length = inputNodes) (hlenNew : newParSumBv.length = currNode/2)
+--   -- oldParSum denotes to oldParSumBv
+--   (hold :
+--     ∀ (idx1 : Nat) (hidx1 : idx1 < inputNodes),
+--       ∀ (idx2 : Nat) (hidx2 : idx2 < w),
+--         ⟦aigOld, (oldParSum.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
+--           (oldParSumBv.get ⟨idx1, by simp [hlenOld]; omega⟩ ).getLsbD idx2)
+--   -- newParSum denotes to newParSumBv
+--   (h : currNode < inputNodes)
+--   (hnew :
+--     ∀ (idx1 : Nat) (hidx1 : idx1 < currNode/2),
+--       ∀ (idx2 : Nat) (hidx2 : idx2 < w),
+--         ⟦aigOld, (newParSum.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
+--           (newParSumBv.get ⟨idx1, by simp [hlenNew]; omega⟩ ).getLsbD idx2) :
+--     ∀ (idx1 : Nat) (hidx1 : idx1 < (inputNodes + 1)/2),
+--       ∀ (idx2 : Nat) (hidx2 : idx2 < w),
+--         if hc2 : currNode + 1 < inputNodes then
+--           let res := blastAdd aigOld (w := w) ⟨oldParSum.vec.get ⟨currNode, (by omega)⟩, oldParSum.vec.get ⟨currNode + 1, hc2⟩⟩
+--           let aigNew := res.aig
+--           let add := res.vec
+--           let newVec := newParSum.push add (by simp [res]; apply AIG.LawfulVecOperator.le_size (f := blastAdd))
+--           have hcast : currNode / 2 + 1 = (currNode + 2)/2 := by omega
+--           let res := (blastAddVec aigNew (currNode + 2) inputNodes (oldParSum.cast (by sorry)) (hcast▸newVec) (by omega) (by omega) hw hi)
+--           ⟦res.aig, (res.vec.vec.get ⟨idx1, by omega⟩).get idx2 hidx2 , assign⟧ =
+--           let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) (by omega) (by omega) hlenOld (by simp) (by simp)
+--           (bvRes.val.get ⟨idx1, by have := res; omega⟩).getLsbD idx2
+--         else
+--           let zero := blastConst aigOld (w := w) 0
+--           let res := blastAdd aigOld (w := w) ⟨oldParSum.vec.get ⟨currNode, (by omega)⟩, zero⟩
+--           let aigNew := res.aig
+--           let add := res.vec
+--           let newVec := newParSum.push add (by simp [res]; apply AIG.LawfulVecOperator.le_size (f := blastAdd))
+--           have hcast : currNode / 2 + 1 = (currNode + 2)/2 := by omega
+--           let res := (blastAddVec aigNew (currNode + 2) inputNodes (oldParSum.cast (by sorry)) (hcast▸newVec) (by omega) (by omega) hw hi)
+--           ⟦res.aig, (res.vec.vec.get ⟨idx1, by omega⟩).get idx2 hidx2 , assign⟧ =
+--           let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) (by omega) (by omega) hlenOld (by simp) (by simp)
+--           (bvRes.val.get ⟨idx1, by have := res; omega⟩).getLsbD idx2
+--           := by
+--     intros idx1 hidx1 idx2 hidx2
+--     split
+--     · case isTrue h' =>
+--       simp
+
+
+--       sorry
+--     · case isFalse h' =>
+--       sorry
+
+theorem denote_blastAddVec
+  (assign : α → Bool)
+  (aigAcc : AIG α) (start w : Nat) (xc : AIG.RefVec aigAcc w) (x : BitVec w) (acc : RefVecVec aigAcc w start) (hw : start + 1 < w)
+  (hacc' : ∀ (idx1 : Nat) (hidx1 : idx1 < start),
+            ∀ (idx2 : Nat) (hidx2 : idx2 < w),
+              let newElem := blastExtractAndExtend aigAcc xc (start)
+              ⟦newElem.aig, ((acc.cast (by apply extractAndExtend_le_size)).vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
+              ((BitVec.extractAndExtendPopulateAux 0 x [] (by simp) (by omega) (by simp)).val.get
+                ⟨idx1, by simp [(BitVec.extractAndExtendPopulateAux 0 x []
+                        (by intros i hi hl; simp at hl)
+                        (by omega) (by simp)).property]; exact Nat.lt_trans hidx1 (by omega)⟩).getLsbD idx2)
+  (hx : ∀ (idx : Nat) (hidx : idx < w), ⟦aigAcc, xc.get idx hidx, assign⟧ = x.getLsbD idx)
+   :
+    ∀ (idx1 : Nat) (hidx1 : idx1 < start + 1),
       ∀ (idx2 : Nat) (hidx2 : idx2 < w),
-        ⟦aigOld, (oldParSum.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
-          (oldParSumBv.get ⟨idx1, by simp [hlenOld]; omega⟩ ).getLsbD idx2)
-  -- newParSum denotes to newParSumBv
-  (hnew :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < currNode/2),
-      ∀ (idx2 : Nat) (hidx2 : idx2 < w),
-        ⟦aigOld, (newParSum.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
-          (newParSumBv.get ⟨idx1, by simp [hlenNew]; omega⟩ ).getLsbD idx2) :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < (currNode + 1)/2),
-      ∀ (idx2 : Nat) (hidx2 : idx2 < w),
-        if hc2 : currNode + 1 < inputNodes then
-          let newVec := newParSum.push elemEven.vec (by simp [helemEven]; apply AIG.LawfulVecOperator.le_size (f := blastAdd))
-          have hcast : currNode / 2 + 1 = (currNode + 2)/2 := by omega
-          ⟦aigNew, (newVec.vec.get ⟨idx1, by omega⟩).get idx2 hidx2 , assign⟧ =
-          let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) (by omega) (by omega) hlenOld (by simp)
-          (bvRes.val.get ⟨idx1, by have := res; omega⟩).getLsbD idx2
-        else
-          let zero := blastConst aigOld (w := w) 0
-          let res := blastAdd aigOld (w := w) ⟨oldParSum.vec.get ⟨currNode, (by omega)⟩, zero⟩
-          let aigNew := res.aig
-          let add := res.vec
-          let newVec := newParSum.push add (by simp [res]; apply AIG.LawfulVecOperator.le_size (f := blastAdd))
-          have hcast : currNode / 2 + 1 = (currNode + 2)/2 := by omega
-          ⟦aigNew, (newVec.vec.get ⟨idx1, by omega⟩).get idx2 hidx2 , assign⟧ =
-          let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) (by omega) (by omega) hlenOld (by simp)
-          (bvRes.val.get ⟨idx1, by have := res; omega⟩).getLsbD idx2
-          := by
-    intros idx1 hidx1 idx2 hidx2
-    split
-    · case isTrue h' =>
+      ⟦
+        (blastExtractAndExtend aigAcc xc start).aig,
+        (((acc.cast (aig2 := (blastExtractAndExtend aigAcc xc (start)).aig)
+          (by apply extractAndExtend_le_size)).push (blastExtractAndExtend aigAcc xc (start)).vec (by omega)).vec.get ⟨idx1, by omega⟩).get idx2 hidx2,
+        assign
+      ⟧ =
+        let bvRes := BitVec.extractAndExtendPopulateAux 0 x [] (by intros i hi hl; simp at hl) (by omega) (by simp)
+      (bvRes.val.get ⟨idx1, by simp [bvRes.property]; omega⟩).getLsbD idx2 := by
+  -- Introduce a variable `ext` for `blastExtractAndExtend`
+  intros idx1 hidx1 idx2 hidx2
+  let elem := blastExtractAndExtend aigAcc xc start
+  let bvRes := BitVec.extractAndExtendPopulateAux 0 x [] (by intros i hi hl; simp at hl) (by omega) (by simp)
+  let currList := bvRes.val.extract (start := 0) (stop := start)
+  let currElem := bvRes.val.get ⟨start, by omega⟩
+  rw [push_denote_eq (l := currList) (bv := currElem)]
+  · simp
+    by_cases h1 : idx1 = start
+    · -- inspecting the last element of the list
+      simp [h1]
+      have h2 := List.getElem_concat_length (i := start) (a := currElem) (l := currList) (by simp [currList]; omega)
+      specialize h2 (by simp [currList]; omega)
+      simp [h2]
+      let res' := BitVec.extractAndExtendPopulateAux 0 x [] (by intros i hi hl; simp at hl) (by omega) (by simp)
+      have := BitVec.extractAndExtendPopulateAux_get (i := start) (x := x)
+        (hi := by omega) (by omega)
+      simp at this
+      rw [this]
+      simp only [currElem]
       simp
-      let elem := blastAdd aigOld (w := w) ⟨oldParSum.vec.get ⟨currNode, (by omega)⟩, oldParSum.vec.get ⟨currNode + 1, h'⟩⟩
-      let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) (by omega) (by omega) hlenOld (by simp)
-      let tmpList := List.take ((currNode + 1)/2) bvRes.val
-      have := push_denote_eq (assign := assign) (w := w) (acc := newParSum) (aigNew := elem.aig) (elem := elem.vec) (by sorry) (l := tmpList)
-
-      sorry
-    · case isFalse h' =>
-      sorry
-
-theorem blastAddVec_denote_step
-  -- blastAddVec input
-  (aigOld : AIG α) (currNode w: Nat) (hi : 1 < inputNodes)
-  (oldParSum : RefVecVec aigOld w inputNodes) (newParSum : RefVecVec aigOld w (currNode/2))
-  (heven : currNode %2 = 0) (hle : currNode ≤ inputNodes + 1) (hw : inputNodes ≤ w) (hw' : 1 < inputNodes)
-  (elem : RefVecEntry α w)
-  -- BitVec input
-  (l : List (BitVec w)) (hl : l.length = w)
-  (oldParSumBv : List (BitVec w)) (newParSumBv : List (BitVec w)) (elemBv : BitVec w)
-  (hlenOld : oldParSumBv.length = inputNodes) (hlenNew : newParSumBv.length = currNode/2)
-  -- oldParSum denotes to oldParSumBv
-  (hold :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < inputNodes),
-      ∀ (idx2 : Nat) (hidx2 : idx2 < w),
-        ⟦aigOld, (oldParSum.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
-          (oldParSumBv.get ⟨idx1, by simp [hlenOld]; omega⟩ ).getLsbD idx2)
-  -- newParSum denotes to newParSumBv
-  (h : currNode < inputNodes)
-  (hnew :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < currNode/2),
-      ∀ (idx2 : Nat) (hidx2 : idx2 < w),
-        ⟦aigOld, (newParSum.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
-          (newParSumBv.get ⟨idx1, by simp [hlenNew]; omega⟩ ).getLsbD idx2) :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < (inputNodes + 1)/2),
-      ∀ (idx2 : Nat) (hidx2 : idx2 < w),
-        if hc2 : currNode + 1 < inputNodes then
-          let res := blastAdd aigOld (w := w) ⟨oldParSum.vec.get ⟨currNode, (by omega)⟩, oldParSum.vec.get ⟨currNode + 1, hc2⟩⟩
-          let aigNew := res.aig
-          let add := res.vec
-          let newVec := newParSum.push add (by simp [res]; apply AIG.LawfulVecOperator.le_size (f := blastAdd))
-          have hcast : currNode / 2 + 1 = (currNode + 2)/2 := by omega
-          let res := (blastAddVec aigNew (currNode + 2) inputNodes (oldParSum.cast (by sorry)) (hcast▸newVec) (by omega) (by omega) hw hi)
-          ⟦res.aig, (res.vec.vec.get ⟨idx1, by omega⟩).get idx2 hidx2 , assign⟧ =
-          let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) (by omega) (by omega) hlenOld (by simp)
-          (bvRes.val.get ⟨idx1, by have := res; omega⟩).getLsbD idx2
-        else
-          let zero := blastConst aigOld (w := w) 0
-          let res := blastAdd aigOld (w := w) ⟨oldParSum.vec.get ⟨currNode, (by omega)⟩, zero⟩
-          let aigNew := res.aig
-          let add := res.vec
-          let newVec := newParSum.push add (by simp [res]; apply AIG.LawfulVecOperator.le_size (f := blastAdd))
-          have hcast : currNode / 2 + 1 = (currNode + 2)/2 := by omega
-          let res := (blastAddVec aigNew (currNode + 2) inputNodes (oldParSum.cast (by sorry)) (hcast▸newVec) (by omega) (by omega) hw hi)
-          ⟦res.aig, (res.vec.vec.get ⟨idx1, by omega⟩).get idx2 hidx2 , assign⟧ =
-          let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) (by omega) (by omega) hlenOld (by simp)
-          (bvRes.val.get ⟨idx1, by have := res; omega⟩).getLsbD idx2
-          := by
-    intros idx1 hidx1 idx2 hidx2
-    split
-    · case isTrue h' =>
-
-      sorry
-    · case isFalse h' =>
-      sorry
-
-
-theorem blastAddVec_denote_init'
-  -- blastAddVec input
-  (aigOld aigNew : AIG α) (currNode w: Nat) (hi : 1 < inputNodes)
-  (oldParSum : RefVecVec aigOld w inputNodes) (newParSum : RefVecVec aigNew w (currNode/2))
-  (heven : currNode % 2 = 0) (hle : currNode ≤ w + 1) (hw : inputNodes ≤ w) (hw' : 1 < w)
-  (elem : RefVecEntry α w)
-  -- BitVec input
-  (l : List (BitVec w)) (hl : l.length = w)
-  (oldParSumBv : List (BitVec w)) (newParSumBv : List (BitVec w)) (elemBv : BitVec w)
-  (hlenOld : oldParSumBv.length = inputNodes) (hlenNew : newParSumBv.length = currNode/2)
-  -- oldParSum denotes to oldParSumBv
-  (hold :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < inputNodes),
-      ∀ (idx2 : Nat) (hidx2 : idx2 < w),
-        ⟦aigOld, (oldParSum.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
-          (oldParSumBv.get ⟨idx1, by simp [hlenOld]; omega⟩ ).getLsbD idx2)
-  -- newParSum denotes to newParSumBv
-  (hnew :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < currNode/2),
-      ∀ (idx2 : Nat) (hidx2 : idx2 < w),
-        ⟦aigNew, (newParSum.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
-          (newParSumBv.get ⟨idx1, by simp [hlenNew]; omega⟩ ).getLsbD idx2)
-  -- denotation of the element to push
-  (helem : ∀ (idx1 : Nat) (hidx1 : idx1 < w),
-    ⟦elem.aig, elem.vec.get idx1 hidx1, assign⟧ = elemBv.getLsbD idx1)
-  (haig : aigOld.decls.size ≤ aigNew.decls.size)
-  (haig' : aigNew.decls.size ≤ elem.aig.decls.size) :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < (inputNodes + 1)/2),
-      ∀ (idx2 : Nat) (hidx2 : idx2 < w),
-        let outpuVec : Vector (AIG.RefVec aigOld w) 0 := Vector.emptyWithCapacity 0
-        let outpuRefVec : RefVecVec aigOld w 0 := {vec := outpuVec}
-        let res := (blastAddVec aigOld 0 inputNodes oldParSum outpuRefVec (by omega) (by omega) hw hi)
-        ⟦res.aig, (res.vec.vec.get ⟨idx1, by omega⟩).get idx2 hidx2 , assign⟧ =
-        let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) (by omega) (by omega) hlenOld (by simp)
-        (bvRes.val.get ⟨idx1, by have := res; omega⟩).getLsbD idx2  := by
-  sorry
-
-theorem blastAddVec_denote_init
-  -- blastAddVec input
-  (aigOld aigNew : AIG α) (currNode w: Nat) (hi : 1 < inputNodes)
-  (oldParSum : RefVecVec aigOld w inputNodes) (newParSum : RefVecVec aigNew w (currNode/2))
-  (heven : currNode % 2 = 0) (hle : currNode ≤ w + 1) (hw : inputNodes ≤ w) (hw' : 1 < w)
-  (elem : RefVecEntry α w)
-  -- BitVec input
-  (l : List (BitVec w)) (hl : l.length = w)
-  (oldParSumBv : List (BitVec w)) (newParSumBv : List (BitVec w)) (elemBv : BitVec w)
-  (hlenOld : oldParSumBv.length = inputNodes) (hlenNew : newParSumBv.length = currNode/2)
-  -- oldParSum denotes to oldParSumBv
-  (hold :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < inputNodes),
-      ∀ (idx2 : Nat) (hidx2 : idx2 < w),
-        ⟦aigOld, (oldParSum.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
-          (oldParSumBv.get ⟨idx1, by simp [hlenOld]; omega⟩ ).getLsbD idx2)
-  -- newParSum denotes to newParSumBv
-  (hnew :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < currNode/2),
-      ∀ (idx2 : Nat) (hidx2 : idx2 < w),
-        ⟦aigNew, (newParSum.vec.get ⟨idx1, hidx1⟩).get idx2 hidx2, assign⟧ =
-          (newParSumBv.get ⟨idx1, by simp [hlenNew]; omega⟩ ).getLsbD idx2)
-  -- denotation of the element to push
-  (helem : ∀ (idx1 : Nat) (hidx1 : idx1 < w),
-    ⟦elem.aig, elem.vec.get idx1 hidx1, assign⟧ = elemBv.getLsbD idx1)
-  (haig : aigOld.decls.size ≤ aigNew.decls.size)
-  (haig' : aigNew.decls.size ≤ elem.aig.decls.size) :
-    ∀ (idx1 : Nat) (hidx1 : idx1 < (inputNodes + 1)/2),
-      ∀ (idx2 : Nat) (hidx2 : idx2 < w),
-        let outpuVec : Vector (AIG.RefVec aigOld w) 0 := Vector.emptyWithCapacity 0
-        let outpuRefVec : RefVecVec aigOld w 0 := {vec := outpuVec}
-        let res := (blastAddVec aigOld 0 inputNodes oldParSum outpuRefVec (by omega) (by omega) hw hi)
-        ⟦res.aig, (res.vec.vec.get ⟨idx1, by omega⟩).get idx2 hidx2 , assign⟧ =
-        let bvRes := BitVec.addVecAux 0 inputNodes oldParSumBv [] (by omega) (by omega) (by omega) (by omega) hlenOld (by simp)
-        (bvRes.val.get ⟨idx1, by have := res; omega⟩).getLsbD idx2  := by
-  sorry
+      rw [BitVec.extractAndExtendPopulateAux_get (i := start) (x := x) (by have := bvRes; omega) (by omega)]
+      simp
+    · -- inspecting an element that was already in the acc
+      have hl := List.getElem_append_left (as := currList) (bs := [currElem]) (i := idx1) (h' := by simp; omega)
+      rw [hl (by simp [currList];  omega)]
+      let res := BitVec.extractAndExtendPopulateAux 0 x [] (by intros i hi hl; simp at hl) (by omega) (by simp)
+      rw [BitVec.extractAndExtendPopulateAux_get (i := idx1) (x := x) (by have := res; omega) (by omega)]
+      have : idx1 < start := by omega
+      simp [currList]
+      simp [bvRes]
+      rw [BitVec.extractAndExtendPopulateAux_get (i := idx1) (x := x) (by have := bvRes; omega) (by omega)]
+      simp
+  · simp [currList]; omega
+  · intros idx1 hidx1 idx2 hidx2
+    simp [currList, bvRes]
+    simp at hacc'
+    specialize hacc' idx1 hidx1 idx2 hidx2
+    have hproof1 : aigAcc.decls.size ≤ (blastExtractAndExtend aigAcc xc start).aig.decls.size := by apply extractAndExtend_le_size
+    have hproof2 : (blastExtractAndExtend aigAcc xc start).aig.decls.size ≤ (blastExtractAndExtend aigAcc xc start).aig.decls.size := by omega
+    have hcast' : ((acc.cast hproof1).cast hproof2) = acc.cast (by apply extractAndExtend_le_size) := by simp [RefVecVec.cast]
+    rw [hcast']
+    apply hacc'
+  · intros idx hidx
+    rw [blastExtractAndExtend_denote_eq (aig := aigAcc) (xc := xc) (x := x) (start := start) (assign := assign) (hx := hx)]
+    ·
+      simp
+      by_cases h1 : idx = 0
+      · -- this is the only bit that gets actually populated with a meaningful value
+        simp [h1, show 0 < w by omega]
+        simp [currElem]
+        simp [bvRes]
+        have :=  BitVec.extractAndExtendPopulateAux_get (i := start) (x := x) (by omega) (by omega)
+        simp [this]
+      · -- everythign else is the result of zExt
+        simp [h1]
+        simp [currElem, bvRes]
+        have :=  BitVec.extractAndExtendPopulateAux_get (i := start) (x := x) (by omega) (by omega)
+        simp [this]
+        intros
+        omega
 
 
 @[simp]

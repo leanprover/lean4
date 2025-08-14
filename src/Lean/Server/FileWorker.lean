@@ -329,7 +329,7 @@ This option can only be set on the command line, not in the lakefile or via `set
 
     /-- Reports given tasks' ranges, merging overlapping ones. -/
     sendFileProgress (tasks : Array (SnapshotTask SnapshotTree)) : StateT ReportSnapshotsState BaseIO Unit := do
-      let ranges := tasks.filterMap (match·.reportingRange with
+      let ranges := tasks.filterMap (match ·.reportingRange with
         | .some r => some r
         | _       => none)
       let ranges := ranges.filter fun r => r.stop.byteIdx > 0

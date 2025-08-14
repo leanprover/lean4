@@ -189,6 +189,8 @@ protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
     (config :=
       { arith := true, zeta := config.zeta,
         zetaDelta := config.zetaDelta,
+        -- Use `OfNat.ofNat` and `Neg.neg` for representing bitvec literals
+        bitVecOfNat := false,
         catchRuntime := false,
         -- `implicitDefEqProofs := true` a recurrent source of performance problems in the kernel
         implicitDefEqProofs := false })

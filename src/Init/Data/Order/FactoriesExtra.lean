@@ -240,14 +240,16 @@ public structure Packages.LinearOrderOfLEArgs (α : Type u) extends
     cases hi
     first
       | exact FactoryInstances.min_eq (a := a) (b := b)
+      | fail "Failed to automatically prove that `min` is left-leaning. Provide `min_eq` manually."
   max_eq [i : LE α] [DecidableLE α] (hi : i = le := by rfl) :
       letI := max hi
-      ∀ a b : α, Max.max a b = if a ≤ b then b else a := by
+      ∀ a b : α, Max.max a b = if b ≤ a then a else b := by
     intro i d hi a b
     letI := i
     cases hi
     first
       | exact FactoryInstances.max_eq (a := a) (b := b)
+      | fail "Failed to automatically prove that `max` is left-leaning. Provide `max_eq` manually."
 
 public theorem IsLinearPreorder.lawfulOrderMin_of_min_eq {α : Type u} [LE α]
     [DecidableLE α] [Min α] [IsLinearPreorder α]
@@ -266,7 +268,7 @@ public theorem IsLinearPreorder.lawfulOrderMin_of_min_eq {α : Type u} [LE α]
 
 public theorem IsLinearPreorder.lawfulOrderMax_of_max_eq {α : Type u} [LE α]
     [DecidableLE α] [Max α] [IsLinearPreorder α]
-    (max_eq : ∀ a b : α, max a b = if a ≤ b then b else a) :
+    (max_eq : ∀ a b : α, max a b = if b ≤ a then a else b) :
     LawfulOrderMax α where
   max_eq_or a b := by
     rw [max_eq]
@@ -274,9 +276,9 @@ public theorem IsLinearPreorder.lawfulOrderMax_of_max_eq {α : Type u} [LE α]
   max_le_iff a b c := by
     simp only [max_eq]
     split <;> rename_i hab
-    · simp only [iff_and_self]
-      exact fun hbc => le_trans hab hbc
     · simp only [iff_self_and]
+      exact fun hbc => le_trans hab hbc
+    · simp only [iff_and_self]
       exact fun hac => le_trans (by simpa [hab] using Std.le_total (a := a) (b := b)) hac
 
 /--

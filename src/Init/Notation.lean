@@ -929,5 +929,7 @@ syntax "unseal " (ppSpace ident)+ : command
 macro_rules
   | `(seal $fs:ident*) => `(attribute [local irreducible] $fs:ident*)
   | `(unseal $fs:ident*) => `(attribute [local semireducible] $fs:ident*)
+  | `(seal $fs:ident* in $body:command) =>`(section seal $fs:ident* $body:command end)
+  | `(unseal $fs:ident* in $body:command) =>`(section unseal $fs:ident* $body:command end)
 
 end Parser

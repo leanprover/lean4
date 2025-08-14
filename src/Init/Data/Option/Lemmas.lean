@@ -353,14 +353,14 @@ theorem map_id' {x : Option α} : (x.map fun a => a) = x := congrFun map_id x
   | none => simp at h
   | some a => simp
 
-@[simp, grind _=_] theorem map_map (h : β → γ) (g : α → β) (x : Option α) :
+@[simp] theorem map_map (h : β → γ) (g : α → β) (x : Option α) :
     (x.map g).map h = x.map (h ∘ g) := by
   cases x <;> simp only [map_none, map_some, ·∘·]
 
 theorem comp_map (h : β → γ) (g : α → β) (x : Option α) : x.map (h ∘ g) = (x.map g).map h :=
   (map_map ..).symm
 
-@[simp, grind _=_] theorem map_comp_map (f : α → β) (g : β → γ) :
+@[simp] theorem map_comp_map (f : α → β) (g : β → γ) :
     Option.map g ∘ Option.map f = Option.map (g ∘ f) := by funext x; simp
 
 theorem mem_map_of_mem (g : α → β) (h : a ∈ x) : g a ∈ Option.map g x := h.symm ▸ map_some ..

@@ -396,15 +396,36 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
     c.assert
 
 private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
-  if b == 0 || b == 1 || b == -1 then
-    throwError "`grind` internal error, found non-normalized div/mod by {b}"
   if (← get').divMod.contains (a, b) then return ()
   modify' fun s => { s with divMod := s.divMod.insert (a, b) }
-  let n : Int := 1 - b.natAbs
-  let b := mkIntLit b
-  pushNewFact <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b
-  pushNewFact <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b eagerReflBoolTrue
-  pushNewFact <| mkApp4 (mkConst ``Int.Linear.emod_le) a b (toExpr n) eagerReflBoolTrue
+  let b' ← shareCommon (mkIntLit b)
+  if b == 0 || b == 1 || b == -1 then
+    /-
+    We cannot assume terms have been normalized.
+    Recall that terms may not be normalized because of dependencies.
+    -/
+    let gen ← getGeneration a
+    internalize b' gen
+    let ediv ← shareCommon (mkIntDiv a b'); internalize ediv gen
+    let emod ← shareCommon (mkIntMod a b'); internalize emod gen
+    if b == 0 then
+      pushEq emod a <| mkApp (mkConst ``Int.emod_zero) a
+      pushEq ediv b' <| mkApp (mkConst ``Int.ediv_zero) a
+    else if b == 1 then
+      let zero ← shareCommon (mkIntLit 0); internalize zero gen
+      pushEq emod zero <| mkApp (mkConst ``Int.emod_one) a
+      pushEq ediv a <| mkApp (mkConst ``Int.ediv_one) a
+    else
+      assert! b == -1
+      let zero ← shareCommon (mkIntLit 0); internalize zero gen
+      let neg_a ← shareCommon (mkIntNeg a); internalize neg_a gen
+      pushEq emod zero <| mkApp (mkConst ``Int.emod_minus_one) a
+      pushEq ediv neg_a <| mkApp (mkConst ``Int.ediv_minus_one) a
+  else
+    let n : Int := 1 - b.natAbs
+    pushNewFact <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b'
+    pushNewFact <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b' eagerReflBoolTrue
+    pushNewFact <| mkApp4 (mkConst ``Int.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()

@@ -956,6 +956,12 @@ theorem neg_mul_ediv_cancel_left (a b : Int) (h : a ≠ 0) : -(a * b) / a = -b :
 @[simp] theorem emod_one (a : Int) : a % 1 = 0 := by
   simp [emod_def, Int.one_mul, Int.sub_self]
 
+theorem ediv_minus_one (a : Int) : a / (-1) = -a := by
+  simp
+
+theorem emod_minus_one (a : Int) : a % (-1) = 0 := by
+  simp
+
 @[deprecated sub_emod_right (since := "2025-04-11")]
 theorem emod_sub_cancel (x y : Int) : (x - y) % y = x % y :=
   sub_emod_right ..

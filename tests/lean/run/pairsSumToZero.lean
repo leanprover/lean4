@@ -75,7 +75,7 @@ theorem pairsSumToZero_correct (l : List Int) : pairsSumToZero l ↔ l.ExistsPai
     exact Invariant.withEarlyReturn
       (onReturn := fun r b => ⌜r = true ∧ l.ExistsPair (fun a b => a + b = 0)⌝)
       (onContinue := fun traversalState seen =>
-        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.rpref) ∧ ¬traversalState.pref.ExistsPair (fun a b => a + b = 0)⌝)
+        ⌜(∀ x, x ∈ seen ↔ x ∈ traversalState.prefix) ∧ ¬traversalState.prefix.ExistsPair (fun a b => a + b = 0)⌝)
 
   all_goals simp_all <;> grind
 

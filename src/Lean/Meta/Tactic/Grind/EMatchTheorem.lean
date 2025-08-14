@@ -581,12 +581,12 @@ private structure Context where
   /-- Only symbols with priority `>= minPrio` are considered in patterns. -/
   minPrio  : Nat
 
-abbrev M := ReaderT Context StateRefT State MetaM
+private abbrev M := ReaderT Context StateRefT State MetaM
 
 /-- Helper declaration for finding bootstrapping issues. See `isCandidateSymbol`. -/
 private abbrev badForPatterns := [``Eq, ``HEq, ``Iff, ``And, ``Or, ``Not]
 
-def isCandidateSymbol (declName : Name) (root : Bool) : M Bool := do
+private def isCandidateSymbol (declName : Name) (root : Bool) : M Bool := do
   let ctx ← read
   let prio := ctx.symPrios.getPrio declName
   -- Priority 0 are never considered, they are treated as forbidden
@@ -741,7 +741,7 @@ def main (patterns : List Expr) (symPrios : SymbolPriorities) (minPrio : Nat) : 
   let (patterns, s) ← patterns.mapM (go (inSupport := false) (root := true)) { symPrios, minPrio } |>.run {}
   return (patterns, s.symbols.toList, s.bvarsFound)
 
-def normalizePattern (e : Expr) : M Expr := do
+private def normalizePattern (e : Expr) : M Expr := do
   go e (inSupport := false) (root := true)
 
 end NormalizePattern

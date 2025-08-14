@@ -558,7 +558,7 @@ This is likely a mistake. The correct solution would be `Type (max u 1)` rather 
 but by this point it is impossible to rectify. So, for `u ≤ ?r + 1` we record the pair of `u` and `1`
 so that we can inform the user what they should have probably used instead.
 -/
-def accLevel (u : Level) (r : Level) (rOffset : Nat) : ExceptT MessageData (StateT AccLevelState Id) Unit := do
+private def accLevel (u : Level) (r : Level) (rOffset : Nat) : ExceptT MessageData (StateT AccLevelState Id) Unit := do
   go u rOffset
 where
   go (u : Level) (rOffset : Nat) : ExceptT MessageData (StateT AccLevelState Id) Unit := do
@@ -579,7 +579,7 @@ where
 /--
 Auxiliary function for `updateResultingUniverse`. Applies `accLevel` to the given constructor parameter.
 -/
-def accLevelAtCtor (ctorParam : Expr) (r : Level) (rOffset : Nat) : StateT AccLevelState TermElabM Unit := do
+private def accLevelAtCtor (ctorParam : Expr) (r : Level) (rOffset : Nat) : StateT AccLevelState TermElabM Unit := do
   let type ← inferType ctorParam
   let u ← instantiateLevelMVars (← getLevel type)
   match (← modifyGet fun s => accLevel u r rOffset |>.run |>.run s) with

@@ -203,7 +203,7 @@ private partial def beq' : Json → Json → Bool
   | _,      _      => false
 
 instance : BEq Json where
-  beq := beq'
+  beq := private beq'
 
 private partial def hash' : Json → UInt64
   | null   => 11
@@ -216,7 +216,7 @@ private partial def hash' : Json → UInt64
     mixHash 29 <| kvPairs.foldl (init := 7) fun r k v => mixHash r <| mixHash (hash k) (hash' v)
 
 instance : Hashable Json where
-  hash := hash'
+  hash := private hash'
 
 def mkObj (o : List (String × Json)) : Json :=
   obj <| Std.TreeMap.Raw.ofList o

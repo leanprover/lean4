@@ -199,8 +199,8 @@ private partial def toStringAux {α : Type} : Trie α → List Format
       [ format (repr c), (Format.group $ Format.nest 4 $ flip Format.joinSep Format.line $ toStringAux t) ]
     ) cs.toList ts.toList
 
-instance {α : Type} : ToString (Trie α) :=
-  ⟨fun t => (flip Format.joinSep Format.line $ toStringAux t).pretty⟩
+instance {α : Type} : ToString (Trie α) where
+  toString t := private (flip Format.joinSep Format.line $ toStringAux t).pretty
 
 end Trie
 

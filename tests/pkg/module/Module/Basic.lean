@@ -260,6 +260,43 @@ constructor:
 #with_exporting
 #check { x := 1 : StructWithPrivateField }
 
+#check StructWithPrivateField.x
+
+/-- error: Unknown constant `StructWithPrivateField.x` -/
+#guard_msgs in
+#with_exporting
+#check StructWithPrivateField.x
+
+/-! Private constructors should be compatible with public fields. -/
+
+public structure StructWithPrivateCtor where private mk ::
+  x : Nat
+
+/--
+info: structure StructWithPrivateCtor : Type
+number of parameters: 0
+fields:
+  StructWithPrivateCtor.x : Nat
+constructor:
+  private StructWithPrivateCtor.mk (x : Nat) : StructWithPrivateCtor
+-/
+#guard_msgs in
+#print StructWithPrivateCtor
+
+/-- error: invalid {...} notation, constructor for 'StructWithPrivateCtor' is marked as private -/
+#guard_msgs in
+#with_exporting
+#check { x := 1 : StructWithPrivateCtor }
+
+#with_exporting
+#check StructWithPrivateCtor.x
+
+#check StructWithPrivateCtor.mk
+
+/-- error: Unknown constant `StructWithPrivateCtor.mk` -/
+#guard_msgs in
+#with_exporting
+#check StructWithPrivateCtor.mk
 
 /-! Private duplicate in public section should not panic. -/
 

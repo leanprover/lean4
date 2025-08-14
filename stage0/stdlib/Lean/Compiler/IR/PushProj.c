@@ -66,6 +66,7 @@ LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_IR_pushProjs_spec__1
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__11____x40_Lean_Compiler_IR_PushProj___hyg_490_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_FnBody_pushProj_spec__0(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_FnBody_pushProj(lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__20____x40_Lean_Compiler_IR_PushProj___hyg_490_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_pushProjs_spec__3_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_IR_pushProjs_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -94,7 +95,6 @@ lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_IR_FnBody_pushProj_spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_IR_pushProjs_spec__1_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_FnBody_pushProj___closed__0;
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_reshape(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_PushProj_0__Lean_IR_initFn___closed__18____x40_Lean_Compiler_IR_PushProj___hyg_490_;
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -155,9 +155,8 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_6 = lean_box(1);
-x_7 = lean_array_get(x_6, x_1, x_2);
+x_7 = lean_array_get_borrowed(x_6, x_1, x_2);
 x_8 = l_Std_DTreeMap_Internal_Impl_contains___at___Lean_IR_pushProjs_spec__0___redArg(x_3, x_7);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_dec(x_4);

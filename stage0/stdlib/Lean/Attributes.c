@@ -113,6 +113,7 @@ LEAN_EXPORT lean_object* l_Lean_ofExcept___at___Lean_Attribute_add_spec__0___red
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___Lean_getBuiltinAttributeNames_spec__0(lean_object*, lean_object*);
 static lean_object* l_Lean_AttributeImplCore_ref___autoParam___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwAttrMustBeGlobal___at___Lean_registerTagAttribute_spec__6(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwAttrDeclInImportedModule___at___Lean_registerTagAttribute_spec__5___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Attribute_add(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_Attribute_Builtin_ensureNoArgs_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5491,7 +5492,7 @@ x_8 = lean_nat_add(x_3, x_4);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_shiftr(x_8, x_9);
 lean_dec(x_8);
-x_11 = lean_array_fget(x_1, x_10);
+x_11 = lean_array_fget_borrowed(x_1, x_10);
 x_12 = l_Lean_Name_quickLt(x_11, x_2);
 if (x_12 == 0)
 {
@@ -5503,6 +5504,7 @@ if (x_13 == 0)
 lean_object* x_14; uint8_t x_15; 
 lean_dec(x_10);
 lean_dec(x_3);
+lean_inc(x_11);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_11);
 x_15 = l_Array_binSearchAux___at___Lean_TagAttribute_hasTag_spec__0___redArg___lam__0(x_14);
@@ -5512,7 +5514,6 @@ return x_15;
 else
 {
 lean_object* x_16; uint8_t x_17; 
-lean_dec(x_11);
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_nat_dec_eq(x_10, x_16);
 if (x_17 == 0)
@@ -5544,7 +5545,6 @@ goto block_7;
 else
 {
 lean_object* x_21; uint8_t x_22; 
-lean_dec(x_11);
 lean_dec(x_3);
 x_21 = lean_nat_add(x_10, x_9);
 lean_dec(x_10);

@@ -4638,7 +4638,8 @@ return x_3;
 else
 {
 lean_object* x_6; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc(x_6);
 return x_6;
 }
 }
@@ -4658,7 +4659,8 @@ return x_4;
 else
 {
 lean_object* x_7; 
-x_7 = lean_array_fget(x_2, x_3);
+x_7 = lean_array_fget_borrowed(x_2, x_3);
+lean_inc(x_7);
 return x_7;
 }
 }
@@ -4988,8 +4990,9 @@ x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_2, x_9);
 lean_dec(x_2);
 x_11 = lean_nat_add(x_3, x_9);
-x_12 = lean_array_fget(x_1, x_3);
+x_12 = lean_array_fget_borrowed(x_1, x_3);
 lean_dec(x_3);
+lean_inc(x_12);
 x_13 = lean_array_push(x_4, x_12);
 x_2 = x_10;
 x_3 = x_11;
@@ -5092,8 +5095,9 @@ x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_2, x_9);
 lean_dec(x_2);
 x_11 = lean_nat_add(x_3, x_9);
-x_12 = lean_array_fget(x_1, x_3);
+x_12 = lean_array_fget_borrowed(x_1, x_3);
 lean_dec(x_3);
+lean_inc(x_12);
 x_13 = lean_array_push(x_4, x_12);
 x_2 = x_10;
 x_3 = x_11;
@@ -9471,7 +9475,8 @@ return x_6;
 else
 {
 lean_object* x_7; 
-x_7 = lean_array_fget(x_3, x_2);
+x_7 = lean_array_fget_borrowed(x_3, x_2);
+lean_inc(x_7);
 return x_7;
 }
 }
@@ -9594,7 +9599,8 @@ else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = lean_unsigned_to_nat(0u);
-x_8 = lean_array_get(x_4, x_3, x_7);
+x_8 = lean_array_get_borrowed(x_4, x_3, x_7);
+lean_inc(x_8);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
 return x_9;
@@ -9779,9 +9785,8 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = lean_box(0);
-x_7 = lean_array_get(x_6, x_1, x_2);
+x_7 = lean_array_get_borrowed(x_6, x_1, x_2);
 x_8 = l_Lean_Syntax_getHeadInfo_x3f(x_7);
-lean_dec(x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; lean_object* x_10; 
@@ -9933,10 +9938,9 @@ lean_dec(x_4);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_8, x_9);
 lean_dec(x_8);
-x_11 = lean_array_get(x_7, x_2, x_10);
+x_11 = lean_array_get_borrowed(x_7, x_2, x_10);
 lean_dec(x_10);
 x_12 = l_Lean_Syntax_getTailPos_x3f(x_11, x_1);
-lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; 
@@ -11629,21 +11633,17 @@ return x_9;
 else
 {
 lean_object* x_10; 
-x_10 = lean_array_fget(x_5, x_7);
+x_10 = lean_array_fget_borrowed(x_5, x_7);
 if (lean_obj_tag(x_10) == 2)
 {
 lean_object* x_11; uint8_t x_12; 
 x_11 = lean_ctor_get(x_10, 1);
-lean_inc_ref(x_11);
-lean_dec_ref(x_10);
 x_12 = lean_string_dec_eq(x_3, x_11);
-lean_dec_ref(x_11);
 return x_12;
 }
 else
 {
 uint8_t x_13; 
-lean_dec(x_10);
 x_13 = 0;
 return x_13;
 }

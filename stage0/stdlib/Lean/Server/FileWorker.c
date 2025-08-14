@@ -162,6 +162,7 @@ lean_object* l_Lean_Server_RequestM_mapRequestTaskCostly___redArg(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleCancelRequest___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at___IO_FS_Stream_readLspRequestAs___at___Lean_Server_FileWorker_initAndRunWorker_spec__0_spec__0___closed__10;
 lean_object* l_Lean_Language_Lean_pushOpt___redArg(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_WorkerContext_initPendingServerRequest(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___Lean_Server_FileWorker_handleRpcConnect_spec__0(lean_object*, uint64_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_setIfNotSet___at___Lean_Server_FileWorker_setupImports_spec__0(lean_object*, lean_object*, uint8_t);
@@ -549,7 +550,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Uns
 static lean_object* l_Lean_Server_FileWorker_initializeWorker___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleStaleDependency___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_writeLspMessage(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_BasicAux___hyg_623_(lean_object*);
 uint32_t lean_uint32_sub(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_____private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_reportSnapshots_sendFileProgress_spec__3___boxed(lean_object*, lean_object*, lean_object*);
@@ -5744,13 +5744,10 @@ goto block_10;
 else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
-x_17 = lean_array_fget(x_5, x_14);
+x_17 = lean_array_fget_borrowed(x_5, x_14);
 lean_dec(x_14);
 x_18 = lean_ctor_get(x_17, 0);
-lean_inc(x_18);
 x_19 = lean_ctor_get(x_17, 1);
-lean_inc(x_19);
-lean_dec_ref(x_17);
 x_20 = lean_ctor_get(x_12, 0);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_12, 1);
@@ -5760,6 +5757,8 @@ lean_dec(x_20);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_29; 
+lean_inc(x_19);
+lean_inc(x_18);
 if (lean_is_exclusive(x_12)) {
  lean_ctor_release(x_12, 0);
  lean_ctor_release(x_12, 1);
@@ -5801,8 +5800,6 @@ else
 {
 lean_object* x_30; 
 lean_dec(x_21);
-lean_dec(x_19);
-lean_dec(x_18);
 x_30 = lean_array_push(x_5, x_12);
 x_6 = x_30;
 goto block_10;

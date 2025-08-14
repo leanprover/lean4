@@ -151,6 +151,7 @@ static lean_object* l___auto___closed__26____x40_Init_Data_Vector_Basic___hyg_97
 LEAN_EXPORT lean_object* l_Vector_findFinIdx_x3f___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l___auto___closed__4____x40_Init_Data_Vector_Basic___hyg_9731_;
 LEAN_EXPORT lean_object* l_Vector_zipIdx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instLE___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__39____x40_Init_Data_Vector_Basic___hyg_9731_;
 LEAN_EXPORT lean_object* l_Vector_instHAppendHAddNat___redArg(lean_object*, lean_object*);
@@ -2039,7 +2040,8 @@ LEAN_EXPORT lean_object* l_Vector_get___redArg(lean_object* x_1, lean_object* x_
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_array_fget(x_1, x_2);
+x_3 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc(x_3);
 return x_3;
 }
 }
@@ -2047,7 +2049,8 @@ LEAN_EXPORT lean_object* l_Vector_get(lean_object* x_1, lean_object* x_2, lean_o
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_array_fget(x_3, x_4);
+x_5 = lean_array_fget_borrowed(x_3, x_4);
+lean_inc(x_5);
 return x_5;
 }
 }
@@ -2115,7 +2118,8 @@ LEAN_EXPORT lean_object* l_Vector_instGetElemNatLt___lam__0(lean_object* x_1, le
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_array_fget(x_1, x_2);
+x_4 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc(x_4);
 return x_4;
 }
 }
@@ -2213,7 +2217,8 @@ return x_3;
 else
 {
 lean_object* x_6; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc(x_6);
 return x_6;
 }
 }
@@ -2233,7 +2238,8 @@ return x_5;
 else
 {
 lean_object* x_8; 
-x_8 = lean_array_fget(x_3, x_4);
+x_8 = lean_array_fget_borrowed(x_3, x_4);
+lean_inc(x_8);
 return x_8;
 }
 }
@@ -2337,8 +2343,9 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_nat_sub(x_1, x_3);
-x_5 = lean_array_fget(x_2, x_4);
+x_5 = lean_array_fget_borrowed(x_2, x_4);
 lean_dec(x_4);
+lean_inc(x_5);
 return x_5;
 }
 }
@@ -2348,8 +2355,9 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_1, x_5);
-x_7 = lean_array_fget(x_4, x_6);
+x_7 = lean_array_fget_borrowed(x_4, x_6);
 lean_dec(x_6);
+lean_inc(x_7);
 return x_7;
 }
 }
@@ -2378,7 +2386,8 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_array_fget(x_1, x_2);
+x_3 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc(x_3);
 return x_3;
 }
 }
@@ -2387,7 +2396,8 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_array_fget(x_4, x_5);
+x_6 = lean_array_fget_borrowed(x_4, x_5);
+lean_inc(x_6);
 return x_6;
 }
 }
@@ -7970,8 +7980,8 @@ LEAN_EXPORT lean_object* l_Vector_lex___redArg___lam__0(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_18; 
-x_11 = lean_array_fget(x_1, x_7);
-x_12 = lean_array_fget(x_2, x_7);
+x_11 = lean_array_fget_borrowed(x_1, x_7);
+x_12 = lean_array_fget_borrowed(x_2, x_7);
 lean_inc(x_12);
 lean_inc(x_11);
 x_13 = lean_apply_2(x_3, x_11, x_12);
@@ -7979,6 +7989,8 @@ x_18 = lean_unbox(x_13);
 if (x_18 == 0)
 {
 lean_object* x_19; uint8_t x_20; 
+lean_inc(x_12);
+lean_inc(x_11);
 x_19 = lean_apply_2(x_5, x_11, x_12);
 x_20 = lean_unbox(x_19);
 if (x_20 == 0)
@@ -8007,8 +8019,6 @@ goto block_17;
 else
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-lean_dec(x_12);
-lean_dec(x_11);
 lean_dec_ref(x_6);
 lean_dec_ref(x_5);
 x_23 = lean_alloc_ctor(1, 1, 0);

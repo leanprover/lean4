@@ -440,6 +440,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_instCoeFormatterAliasVal
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_resetLeadWord(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_pp_oneline;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_OneLine_instMonadPrettyFormatM___lam__0___boxed(lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_PrettyPrinter_Formatter_0__Lean_PrettyPrinter_initFn___closed__11____x40_Lean_PrettyPrinter_Formatter___hyg_6145_;
 static lean_object* l_Lean_PrettyPrinter_Formatter_trailingNode_formatter___redArg___lam__0___closed__0;
 static lean_object* l_Lean_PrettyPrinter_initFn___closed__3____x40_Lean_PrettyPrinter_Formatter___hyg_469_;
@@ -10989,7 +10990,8 @@ lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38;
 x_35 = lean_ctor_get(x_8, 2);
 x_36 = lean_unsigned_to_nat(0u);
 x_37 = lean_box(0);
-x_38 = lean_array_get(x_37, x_35, x_36);
+x_38 = lean_array_get_borrowed(x_37, x_35, x_36);
+lean_inc(x_38);
 x_11 = x_33;
 x_12 = x_34;
 x_13 = x_31;

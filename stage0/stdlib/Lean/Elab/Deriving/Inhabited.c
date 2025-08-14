@@ -90,6 +90,7 @@ lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 static lean_object* l_List_foldl___at___Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_getConstInfoInduct___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmdWith_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1_spec__1_spec__1_spec__2___closed__1;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstance_spec__10(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__4(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstance_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_initFn___closed__8____x40_Lean_Elab_Deriving_Inhabited___hyg_2721_;
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmdWith_spec__13_spec__13___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -309,7 +310,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_____private_Lean_Elab_Deriving_I
 static lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmdWith___closed__19;
 LEAN_EXPORT lean_object* l_Lean_getConstInfoInduct___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstance_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmdWith_spec__17_spec__17(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmdWith_spec__17(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldrM___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmdWith_spec__12___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -9134,7 +9134,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 _start:
 {
 lean_object* x_16; lean_object* x_44; lean_object* x_45; 
-x_44 = lean_array_fget(x_1, x_8);
+x_44 = lean_array_fget_borrowed(x_1, x_8);
 lean_inc(x_14);
 lean_inc_ref(x_13);
 lean_inc(x_12);
@@ -9189,6 +9189,7 @@ lean_inc_ref(x_13);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_3);
+lean_inc_ref(x_44);
 lean_inc(x_2);
 x_62 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__2_spec__2___redArg___lam__0(x_52, x_2, x_54, x_44, x_3, x_4, x_61, x_60, x_5, x_9, x_10, x_11, x_12, x_13, x_14, x_58);
 x_16 = x_62;
@@ -9242,6 +9243,7 @@ lean_inc_ref(x_13);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_3);
+lean_inc_ref(x_44);
 lean_inc(x_2);
 x_80 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__2_spec__2___redArg___lam__0(x_52, x_2, x_54, x_44, x_3, x_4, x_79, x_68, x_77, x_9, x_10, x_11, x_12, x_13, x_14, x_78);
 x_16 = x_80;
@@ -9287,6 +9289,7 @@ lean_inc_ref(x_13);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_3);
+lean_inc_ref(x_44);
 lean_inc(x_2);
 x_95 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__2_spec__2___redArg___lam__0(x_52, x_2, x_54, x_44, x_3, x_4, x_94, x_82, x_92, x_9, x_10, x_11, x_12, x_13, x_14, x_93);
 x_16 = x_95;
@@ -9348,6 +9351,7 @@ lean_inc_ref(x_13);
 lean_inc(x_12);
 lean_inc_ref(x_11);
 lean_inc(x_3);
+lean_inc_ref(x_44);
 lean_inc(x_2);
 x_113 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__2_spec__2___redArg___lam__0(x_52, x_2, x_54, x_44, x_3, x_4, x_112, x_98, x_110, x_9, x_10, x_11, x_12, x_13, x_14, x_111);
 x_16 = x_113;
@@ -9358,7 +9362,6 @@ goto block_43;
 else
 {
 uint8_t x_114; 
-lean_dec_ref(x_44);
 lean_dec(x_14);
 lean_dec_ref(x_13);
 lean_dec(x_12);
@@ -9390,7 +9393,6 @@ return x_117;
 else
 {
 uint8_t x_118; 
-lean_dec_ref(x_44);
 lean_dec(x_14);
 lean_dec_ref(x_13);
 lean_dec(x_12);
@@ -9582,7 +9584,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 _start:
 {
 lean_object* x_18; lean_object* x_46; lean_object* x_47; 
-x_46 = lean_array_fget(x_1, x_10);
+x_46 = lean_array_fget_borrowed(x_1, x_10);
 lean_inc(x_16);
 lean_inc_ref(x_15);
 lean_inc(x_14);
@@ -9637,6 +9639,7 @@ lean_inc_ref(x_15);
 lean_inc(x_14);
 lean_inc_ref(x_13);
 lean_inc(x_3);
+lean_inc_ref(x_46);
 lean_inc(x_2);
 x_64 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__2_spec__2___redArg___lam__0(x_54, x_2, x_56, x_46, x_3, x_4, x_63, x_62, x_5, x_11, x_12, x_13, x_14, x_15, x_16, x_60);
 x_18 = x_64;
@@ -9690,6 +9693,7 @@ lean_inc_ref(x_15);
 lean_inc(x_14);
 lean_inc_ref(x_13);
 lean_inc(x_3);
+lean_inc_ref(x_46);
 lean_inc(x_2);
 x_82 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__2_spec__2___redArg___lam__0(x_54, x_2, x_56, x_46, x_3, x_4, x_81, x_70, x_79, x_11, x_12, x_13, x_14, x_15, x_16, x_80);
 x_18 = x_82;
@@ -9735,6 +9739,7 @@ lean_inc_ref(x_15);
 lean_inc(x_14);
 lean_inc_ref(x_13);
 lean_inc(x_3);
+lean_inc_ref(x_46);
 lean_inc(x_2);
 x_97 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__2_spec__2___redArg___lam__0(x_54, x_2, x_56, x_46, x_3, x_4, x_96, x_84, x_94, x_11, x_12, x_13, x_14, x_15, x_16, x_95);
 x_18 = x_97;
@@ -9796,6 +9801,7 @@ lean_inc_ref(x_15);
 lean_inc(x_14);
 lean_inc_ref(x_13);
 lean_inc(x_3);
+lean_inc_ref(x_46);
 lean_inc(x_2);
 x_115 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f_spec__2_spec__2___redArg___lam__0(x_54, x_2, x_56, x_46, x_3, x_4, x_114, x_100, x_112, x_11, x_12, x_13, x_14, x_15, x_16, x_113);
 x_18 = x_115;
@@ -9806,7 +9812,6 @@ goto block_45;
 else
 {
 uint8_t x_116; 
-lean_dec_ref(x_46);
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);
@@ -9837,7 +9842,6 @@ return x_119;
 else
 {
 uint8_t x_120; 
-lean_dec_ref(x_46);
 lean_dec(x_16);
 lean_dec_ref(x_15);
 lean_dec(x_14);

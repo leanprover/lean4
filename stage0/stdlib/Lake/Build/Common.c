@@ -114,6 +114,7 @@ LEAN_EXPORT lean_object* l_Lake_addPlatformTrace(lean_object*, lean_object*, lea
 static lean_object* l_Lake_toJsonBuildMetadata___closed__3____x40_Lake_Build_Common___hyg_180_;
 lean_object* l_Lake_EStateT_instMonad___redArg___lam__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Common_0__Lake_mkLinkOrder___redArg___closed__2;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_inputDir___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildAction___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_fromJson_x3f___at___Option_fromJson_x3f___at___Lake_BuildMetadata_fromJson_x3f_spec__6_spec__6(lean_object*);
@@ -2652,7 +2653,8 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17;
 lean_inc_ref(x_11);
 lean_dec_ref(x_1);
 x_15 = lean_unsigned_to_nat(0u);
-x_16 = lean_array_fget(x_11, x_15);
+x_16 = lean_array_fget_borrowed(x_11, x_15);
+lean_inc(x_16);
 x_17 = l_Lean_Json_getStr_x3f(x_16);
 if (lean_obj_tag(x_17) == 0)
 {

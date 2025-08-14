@@ -98,6 +98,7 @@ static lean_object* l_Lean_fromJsonImport___closed__9____x40_Lean_Setup___hyg_24
 LEAN_EXPORT lean_object* l_Lean_instInhabitedImportArtifacts;
 static lean_object* l_Array_Array_repr___at___Lean_reprModuleHeader____x40_Lean_Setup___hyg_477__spec__0___closed__5;
 static lean_object* l_Lean_fromJsonModuleHeader___closed__7____x40_Lean_Setup___hyg_599_;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l_Lean_fromJsonModuleArtifacts___closed__26____x40_Lean_Setup___hyg_1476_;
 static lean_object* l_Lean_fromJsonModuleSetup___closed__17____x40_Lean_Setup___hyg_2406_;
 LEAN_EXPORT lean_object* l_Lean_reprModuleSetup____x40_Lean_Setup___hyg_2119____boxed(lean_object*, lean_object*);
@@ -297,7 +298,6 @@ static lean_object* l_Lean_fromJsonModuleSetup___closed__5____x40_Lean_Setup___h
 static lean_object* l_Lean_instReprModuleHeader___closed__0;
 static lean_object* l_Lean_instFromJsonModuleSetup___closed__0;
 static lean_object* l_Lean_fromJsonModuleArtifacts___closed__4____x40_Lean_Setup___hyg_1476_;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 static lean_object* l_Prod_repr___at___List_repr___at___Lean_reprModuleSetup____x40_Lean_Setup___hyg_2119__spec__2_spec__2___redArg___closed__1;
 static lean_object* l_Lean_fromJsonModuleArtifacts___closed__31____x40_Lean_Setup___hyg_1476_;
@@ -3113,7 +3113,8 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc_ref(x_6);
 x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
@@ -3146,7 +3147,8 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc_ref(x_6);
 x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
@@ -3179,7 +3181,8 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc_ref(x_6);
 x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
@@ -3212,7 +3215,8 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc_ref(x_6);
 x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;

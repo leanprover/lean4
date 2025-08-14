@@ -29,6 +29,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 extern lean_object* l_System_FilePath_exeExtension;
 LEAN_EXPORT lean_object* l_Lake_Package_findLeanExe_x3f(lean_object*, lean_object*);
 lean_object* l_System_FilePath_withExtension(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanExeConfig_toLeanLibConfig___redArg___closed__3;
 static lean_object* l_Lake_Package_leanExes___closed__1;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -77,7 +78,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM
 static lean_object* l_Lake_Package_leanExes___closed__6;
 LEAN_EXPORT lean_object* l_Lake_LeanExe_isRoot_x3f(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_leanExes___closed__9;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_findSomeRevM_x3f_find___at___Lake_Package_findModuleBySrc_x3f_spec__1___redArg___boxed(lean_object*, lean_object*, lean_object*);
@@ -1099,7 +1099,8 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
-x_9 = lean_array_fget(x_2, x_8);
+x_9 = lean_array_fget_borrowed(x_2, x_8);
+lean_inc_ref(x_9);
 x_10 = l_Lake_LeanExe_isRoot_x3f(x_1, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -1221,7 +1222,8 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
-x_9 = lean_array_fget(x_2, x_8);
+x_9 = lean_array_fget_borrowed(x_2, x_8);
+lean_inc_ref(x_9);
 lean_inc_ref(x_1);
 x_10 = l_Lake_LeanExe_isRootSrc_x3f(x_1, x_9);
 if (lean_obj_tag(x_10) == 0)
@@ -1266,7 +1268,8 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10;
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_3, x_7);
 lean_dec(x_3);
-x_9 = lean_array_fget(x_2, x_8);
+x_9 = lean_array_fget_borrowed(x_2, x_8);
+lean_inc_ref(x_9);
 lean_inc_ref(x_1);
 x_10 = l_Lake_LeanLib_findModuleBySrc_x3f(x_1, x_9);
 if (lean_obj_tag(x_10) == 0)

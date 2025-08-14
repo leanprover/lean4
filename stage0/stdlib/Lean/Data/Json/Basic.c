@@ -56,6 +56,7 @@ LEAN_EXPORT lean_object* l_Lean_JsonNumber_shiftr(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_setObjVal_x21___closed__2;
 lean_object* l_Lean_Syntax_decodeScientificLitVal_x3f(lean_object*);
 uint8_t lean_float_decLt(double, double);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonNumber_instNeg;
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at___Lean_Json_setObjVal_x21_spec__0___redArg___closed__7;
 static lean_object* l_Lean_JsonNumber_toString___closed__2;
@@ -2070,11 +2071,9 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
-x_8 = lean_array_fget(x_1, x_7);
-x_9 = lean_array_fget(x_2, x_7);
+x_8 = lean_array_fget_borrowed(x_1, x_7);
+x_9 = lean_array_fget_borrowed(x_2, x_7);
 x_10 = l___private_Lean_Data_Json_Basic_0__Lean_Json_beq_x27(x_8, x_9);
-lean_dec(x_9);
-lean_dec(x_8);
 if (x_10 == 0)
 {
 lean_dec(x_7);

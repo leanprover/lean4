@@ -241,6 +241,7 @@ LEAN_EXPORT lean_object* l_Std_PRange_RangeIterator_instIteratorLoop_loop___at__
 static lean_object* l_Lean_Meta_mkHasTypeButIsExpectedMsg___redArg___lam__0___closed__0;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_addPPExplicitToExposeDiff_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___Lean_Meta_throwLetTypeMismatchMessage_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_checkAux___closed__4;
 static lean_object* l_Lean_Meta_check___closed__2;
 static lean_object* l_Lean_withTraceNode___at___Lean_Meta_check_spec__2___redArg___closed__2;
@@ -379,7 +380,6 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstVal___a
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at_____private_Lean_Meta_Check_0__Lean_Meta_checkConstant_spec__0_spec__0_spec__0_spec__0_spec__0___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at___Lean_Meta_check_spec__2___redArg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingState___at___Lean_Meta_addPPExplicitToExposeDiff_spec__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Check_0__Lean_Meta_addPPExplicitToExposeDiff_visit___closed__5;
@@ -2142,8 +2142,8 @@ lean_inc_ref(x_54);
 x_55 = lean_ctor_get_uint8(x_50, sizeof(void*)*3 + 8);
 lean_dec_ref(x_50);
 x_56 = l_Lean_instInhabitedExpr;
-x_57 = lean_array_get(x_56, x_3, x_2);
-x_58 = lean_array_get(x_56, x_4, x_2);
+x_57 = lean_array_get_borrowed(x_56, x_3, x_2);
+x_58 = lean_array_get_borrowed(x_56, x_4, x_2);
 lean_inc_ref(x_58);
 lean_inc_ref(x_57);
 x_59 = l_Lean_Meta_isExprDefEq(x_57, x_58, x_12, x_13, x_14, x_15, x_51);
@@ -2157,10 +2157,8 @@ lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; uint
 x_61 = lean_ctor_get(x_59, 0);
 x_62 = lean_ctor_get(x_59, 1);
 x_63 = lean_expr_instantiate1(x_52, x_57);
-lean_dec_ref(x_57);
 lean_dec_ref(x_52);
 x_64 = lean_expr_instantiate1(x_54, x_58);
-lean_dec_ref(x_58);
 lean_dec_ref(x_54);
 x_65 = lean_unbox(x_61);
 lean_dec(x_61);
@@ -2223,10 +2221,8 @@ lean_inc(x_74);
 lean_inc(x_73);
 lean_dec(x_59);
 x_75 = lean_expr_instantiate1(x_52, x_57);
-lean_dec_ref(x_57);
 lean_dec_ref(x_52);
 x_76 = lean_expr_instantiate1(x_54, x_58);
-lean_dec_ref(x_58);
 lean_dec_ref(x_54);
 x_77 = lean_unbox(x_73);
 lean_dec(x_73);
@@ -2285,8 +2281,6 @@ return x_85;
 else
 {
 uint8_t x_86; 
-lean_dec_ref(x_58);
-lean_dec_ref(x_57);
 lean_dec_ref(x_54);
 lean_dec_ref(x_52);
 lean_dec(x_10);
@@ -2961,7 +2955,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_Check_0__Lean_Meta_addPPExplicitToExposeDiff_visit___lam__1___closed__2;
 x_2 = lean_unsigned_to_nat(17u);
-x_3 = lean_unsigned_to_nat(1822u);
+x_3 = lean_unsigned_to_nat(1824u);
 x_4 = l___private_Lean_Meta_Check_0__Lean_Meta_addPPExplicitToExposeDiff_visit___lam__1___closed__1;
 x_5 = l___private_Lean_Meta_Check_0__Lean_Meta_addPPExplicitToExposeDiff_visit___lam__1___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -3157,8 +3151,10 @@ block_44:
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_30 = l_Lean_instInhabitedExpr;
-x_31 = lean_array_get(x_30, x_7, x_29);
-x_32 = lean_array_get(x_30, x_8, x_29);
+x_31 = lean_array_get_borrowed(x_30, x_7, x_29);
+x_32 = lean_array_get_borrowed(x_30, x_8, x_29);
+lean_inc_ref(x_32);
+lean_inc_ref(x_31);
 x_33 = l___private_Lean_Meta_Check_0__Lean_Meta_addPPExplicitToExposeDiff_visit(x_31, x_32, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_33) == 0)
 {

@@ -81,6 +81,7 @@ LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknow
 LEAN_EXPORT lean_object* l_Lean_Meta_mkDiagSummaryForUnfolded___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forIn___at___Lean_Meta_collectAboveThreshold___at___Lean_Meta_mkDiagSummary_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_MessageData_hasSyntheticSorry(lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Kernel_getDiagnostics(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkDiagSynthPendingFailure___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___Lean_Meta_collectAboveThreshold___at___Lean_Meta_mkDiagSummary_spec__1_spec__6___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
@@ -203,7 +204,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_appendSection___boxed(lean_object*, lean_ob
 extern lean_object* l_Lean_Meta_maxSynthPendingDepth;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkDiagSummary_spec__8_spec__8_spec__8_spec__8_spec__8_spec__9___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Meta_mkDiagSummary_spec__8_spec__8_spec__8_spec__8_spec__8_spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_mkDiagSummary_spec__18_spec__18___closed__3;
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_collectAboveThreshold___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -856,9 +856,11 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = lean_array_fget(x_2, x_4);
-x_10 = lean_array_fget(x_3, x_4);
+x_9 = lean_array_fget_borrowed(x_2, x_4);
+x_10 = lean_array_fget_borrowed(x_3, x_4);
 lean_inc_ref(x_1);
+lean_inc(x_10);
+lean_inc(x_9);
 x_11 = lean_apply_3(x_1, x_5, x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -3489,13 +3491,15 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = lean_array_fget(x_2, x_4);
-x_16 = lean_array_fget(x_3, x_4);
+x_15 = lean_array_fget_borrowed(x_2, x_4);
+x_16 = lean_array_fget_borrowed(x_3, x_4);
 lean_inc_ref(x_1);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
+lean_inc(x_16);
+lean_inc(x_15);
 x_17 = lean_apply_8(x_1, x_5, x_15, x_16, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_17) == 0)
 {

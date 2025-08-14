@@ -30,6 +30,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Sat_AIG_Decl_relabel___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Reflect_0__Std_Tactic_BVDecide_Reflect_verifyCert_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIG___at___Std_Sat_AIG_relabelNat_x27___at___Std_Sat_AIG_relabelNat___at___Std_Sat_AIG_Entrypoint_relabelNat___at___Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__0_spec__0(lean_object*);
 static lean_object* l_Std_Sat_AIG_RelabelNat_State_empty___at___Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___Std_Sat_AIG_RelabelNat_State_ofAIG___at___Std_Sat_AIG_relabelNat_x27___at___Std_Sat_AIG_relabelNat___at___Std_Sat_AIG_Entrypoint_relabelNat___at___Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__1;
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Std_Sat_AIG_RelabelNat_State_addAtom___at___Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___Std_Sat_AIG_RelabelNat_State_ofAIG___at___Std_Sat_AIG_relabelNat_x27___at___Std_Sat_AIG_relabelNat___at___Std_Sat_AIG_Entrypoint_relabelNat___at___Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1_spec__2_spec__3(lean_object*, lean_object*, lean_object*);
@@ -912,7 +913,7 @@ return x_3;
 else
 {
 lean_object* x_6; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
 switch (lean_obj_tag(x_6)) {
 case 0:
 {
@@ -929,11 +930,10 @@ case 1:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_11 = lean_ctor_get(x_6, 0);
-lean_inc(x_11);
-lean_dec_ref(x_6);
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_add(x_2, x_12);
 lean_dec(x_2);
+lean_inc(x_11);
 x_14 = l_Std_Sat_AIG_RelabelNat_State_addAtom___at___Std_Sat_AIG_RelabelNat_State_ofAIGAux_go___at___Std_Sat_AIG_RelabelNat_State_ofAIGAux___at___Std_Sat_AIG_RelabelNat_State_ofAIG___at___Std_Sat_AIG_relabelNat_x27___at___Std_Sat_AIG_relabelNat___at___Std_Sat_AIG_Entrypoint_relabelNat___at___Std_Tactic_BVDecide_Reflect_verifyBVExpr_spec__0_spec__0_spec__0_spec__0_spec__0_spec__1_spec__2___redArg(x_3, x_11);
 x_2 = x_13;
 x_3 = x_14;
@@ -942,7 +942,6 @@ goto _start;
 default: 
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec_ref(x_6);
 x_16 = lean_unsigned_to_nat(1u);
 x_17 = lean_nat_add(x_2, x_16);
 lean_dec(x_2);

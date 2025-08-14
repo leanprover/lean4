@@ -171,6 +171,7 @@ static lean_object* l_Lean_Parser_mkAntiquotSplice_parenthesizer___closed__1;
 static lean_object* l___private_Lean_Parser_Extra_0__Lean_Parser_initFn___closed__23____x40_Lean_Parser_Extra___hyg_1694_;
 static lean_object* l_Lean_Parser_ident_formatter___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_decQuotDepth_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_hygieneInfo;
 static lean_object* l___private_Lean_Parser_Extra_0__Lean_Parser_many___regBuiltin_Lean_Parser_many_docString__5___closed__0;
 static lean_object* l___private_Lean_Parser_Extra_0__Lean_Parser_ppHardSpace___regBuiltin_Lean_Parser_ppHardSpace_docString__1___closed__0;
@@ -4885,7 +4886,8 @@ goto block_21;
 else
 {
 lean_object* x_25; uint8_t x_26; 
-x_25 = lean_array_fget(x_2, x_4);
+x_25 = lean_array_fget_borrowed(x_2, x_4);
+lean_inc(x_25);
 x_26 = l_Lean_Syntax_matchesNull(x_25, x_6);
 x_16 = x_26;
 goto block_21;

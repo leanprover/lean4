@@ -82,6 +82,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_LCNF_Check_isCtorParam_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Compiler_LCNF_checkDeadLocalDecls_spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_LCNF_Check_isCtorParam_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Check_checkFunDeclCore___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Compiler_LCNF_Check_isCtorParam_spec__0_spec__0_spec__0___redArg___closed__0;
@@ -2332,7 +2333,7 @@ x_49 = l_Lean_Expr_isErased(x_47);
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; 
-x_50 = lean_array_fget(x_1, x_6);
+x_50 = lean_array_fget_borrowed(x_1, x_6);
 x_51 = l_Lean_Expr_headBeta(x_47);
 if (lean_obj_tag(x_51) == 7)
 {
@@ -2353,6 +2354,7 @@ lean_inc_ref(x_10);
 lean_inc_ref(x_9);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
+lean_inc(x_50);
 lean_inc(x_2);
 x_55 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__1_spec__1___redArg___lam__0(x_2, x_50, x_6, x_1, x_3, x_51, x_48, x_54, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec_ref(x_51);
@@ -2387,6 +2389,7 @@ lean_inc_ref(x_9);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
 lean_inc(x_6);
+lean_inc(x_50);
 lean_inc(x_2);
 x_61 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__1_spec__1___redArg___lam__0(x_2, x_50, x_6, x_1, x_3, x_57, x_6, x_60, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec_ref(x_57);
@@ -2396,7 +2399,6 @@ goto block_42;
 else
 {
 lean_object* x_62; lean_object* x_63; 
-lean_dec(x_50);
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);
@@ -2448,7 +2450,7 @@ x_68 = l_Lean_Expr_isErased(x_66);
 if (x_68 == 0)
 {
 lean_object* x_69; lean_object* x_70; 
-x_69 = lean_array_fget(x_1, x_6);
+x_69 = lean_array_fget_borrowed(x_1, x_6);
 x_70 = l_Lean_Expr_headBeta(x_66);
 if (lean_obj_tag(x_70) == 7)
 {
@@ -2468,6 +2470,7 @@ lean_inc_ref(x_10);
 lean_inc_ref(x_9);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
+lean_inc(x_69);
 lean_inc(x_2);
 x_74 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__1_spec__1___redArg___lam__0(x_2, x_69, x_6, x_1, x_3, x_70, x_67, x_73, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec_ref(x_70);
@@ -2501,6 +2504,7 @@ lean_inc_ref(x_9);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
 lean_inc(x_6);
+lean_inc(x_69);
 lean_inc(x_2);
 x_80 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__1_spec__1___redArg___lam__0(x_2, x_69, x_6, x_1, x_3, x_76, x_6, x_79, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec_ref(x_76);
@@ -2510,7 +2514,6 @@ goto block_42;
 else
 {
 lean_object* x_81; lean_object* x_82; lean_object* x_83; 
-lean_dec(x_69);
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);
@@ -2580,7 +2583,7 @@ x_91 = l_Lean_Expr_isErased(x_88);
 if (x_91 == 0)
 {
 lean_object* x_92; lean_object* x_93; 
-x_92 = lean_array_fget(x_1, x_6);
+x_92 = lean_array_fget_borrowed(x_1, x_6);
 x_93 = l_Lean_Expr_headBeta(x_88);
 if (lean_obj_tag(x_93) == 7)
 {
@@ -2600,6 +2603,7 @@ lean_inc_ref(x_10);
 lean_inc_ref(x_9);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
+lean_inc(x_92);
 lean_inc(x_2);
 x_97 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__1_spec__1___redArg___lam__0(x_2, x_92, x_6, x_1, x_3, x_93, x_89, x_96, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec_ref(x_93);
@@ -2633,6 +2637,7 @@ lean_inc_ref(x_9);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
 lean_inc(x_6);
+lean_inc(x_92);
 lean_inc(x_2);
 x_103 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__1_spec__1___redArg___lam__0(x_2, x_92, x_6, x_1, x_3, x_99, x_6, x_102, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec_ref(x_99);
@@ -2642,7 +2647,6 @@ goto block_42;
 else
 {
 lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; 
-lean_dec(x_92);
 lean_dec(x_13);
 lean_dec_ref(x_12);
 lean_dec(x_11);
@@ -2888,7 +2892,7 @@ x_51 = l_Lean_Expr_isErased(x_49);
 if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; 
-x_52 = lean_array_fget(x_1, x_8);
+x_52 = lean_array_fget_borrowed(x_1, x_8);
 x_53 = l_Lean_Expr_headBeta(x_49);
 if (lean_obj_tag(x_53) == 7)
 {
@@ -2909,6 +2913,7 @@ lean_inc_ref(x_12);
 lean_inc_ref(x_11);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
+lean_inc(x_52);
 lean_inc(x_2);
 x_57 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__1_spec__1___redArg___lam__0(x_2, x_52, x_8, x_1, x_3, x_53, x_50, x_56, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec_ref(x_53);
@@ -2943,6 +2948,7 @@ lean_inc_ref(x_11);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
 lean_inc(x_8);
+lean_inc(x_52);
 lean_inc(x_2);
 x_63 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__1_spec__1___redArg___lam__0(x_2, x_52, x_8, x_1, x_3, x_59, x_8, x_62, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec_ref(x_59);
@@ -2952,7 +2958,6 @@ goto block_44;
 else
 {
 lean_object* x_64; lean_object* x_65; 
-lean_dec(x_52);
 lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
@@ -3004,7 +3009,7 @@ x_70 = l_Lean_Expr_isErased(x_68);
 if (x_70 == 0)
 {
 lean_object* x_71; lean_object* x_72; 
-x_71 = lean_array_fget(x_1, x_8);
+x_71 = lean_array_fget_borrowed(x_1, x_8);
 x_72 = l_Lean_Expr_headBeta(x_68);
 if (lean_obj_tag(x_72) == 7)
 {
@@ -3024,6 +3029,7 @@ lean_inc_ref(x_12);
 lean_inc_ref(x_11);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
+lean_inc(x_71);
 lean_inc(x_2);
 x_76 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__1_spec__1___redArg___lam__0(x_2, x_71, x_8, x_1, x_3, x_72, x_69, x_75, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec_ref(x_72);
@@ -3057,6 +3063,7 @@ lean_inc_ref(x_11);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
 lean_inc(x_8);
+lean_inc(x_71);
 lean_inc(x_2);
 x_82 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__1_spec__1___redArg___lam__0(x_2, x_71, x_8, x_1, x_3, x_78, x_8, x_81, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec_ref(x_78);
@@ -3066,7 +3073,6 @@ goto block_44;
 else
 {
 lean_object* x_83; lean_object* x_84; lean_object* x_85; 
-lean_dec(x_71);
 lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);
@@ -3136,7 +3142,7 @@ x_93 = l_Lean_Expr_isErased(x_90);
 if (x_93 == 0)
 {
 lean_object* x_94; lean_object* x_95; 
-x_94 = lean_array_fget(x_1, x_8);
+x_94 = lean_array_fget_borrowed(x_1, x_8);
 x_95 = l_Lean_Expr_headBeta(x_90);
 if (lean_obj_tag(x_95) == 7)
 {
@@ -3156,6 +3162,7 @@ lean_inc_ref(x_12);
 lean_inc_ref(x_11);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
+lean_inc(x_94);
 lean_inc(x_2);
 x_99 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__1_spec__1___redArg___lam__0(x_2, x_94, x_8, x_1, x_3, x_95, x_91, x_98, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec_ref(x_95);
@@ -3189,6 +3196,7 @@ lean_inc_ref(x_11);
 lean_inc_ref(x_3);
 lean_inc_ref(x_1);
 lean_inc(x_8);
+lean_inc(x_94);
 lean_inc(x_2);
 x_105 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_Compiler_LCNF_Check_checkAppArgs_spec__1_spec__1___redArg___lam__0(x_2, x_94, x_8, x_1, x_3, x_101, x_8, x_104, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 lean_dec_ref(x_101);
@@ -3198,7 +3206,6 @@ goto block_44;
 else
 {
 lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; 
-lean_dec(x_94);
 lean_dec(x_15);
 lean_dec_ref(x_14);
 lean_dec(x_13);

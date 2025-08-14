@@ -27,6 +27,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_GeneralizeTelescope_updateTypes(lean_object
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___Lean_Meta_generalizeTelescope_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclD___at___Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_generalizeTelescope(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___Lean_Meta_withLocalDeclD___at___Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__0_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -797,13 +798,10 @@ return x_12;
 else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_13 = lean_array_fget(x_2, x_3);
+x_13 = lean_array_fget_borrowed(x_2, x_3);
 x_14 = lean_ctor_get(x_13, 0);
-lean_inc_ref(x_14);
 x_15 = lean_ctor_get(x_13, 1);
-lean_inc_ref(x_15);
 x_16 = lean_ctor_get_uint8(x_13, sizeof(void*)*2);
-lean_dec_ref(x_13);
 if (lean_obj_tag(x_14) == 1)
 {
 if (x_16 == 0)
@@ -822,13 +820,13 @@ if (lean_obj_tag(x_60) == 0)
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
 lean_dec_ref(x_60);
-lean_dec_ref(x_15);
 x_61 = lean_ctor_get(x_59, 1);
 lean_inc(x_61);
 lean_dec_ref(x_59);
 x_62 = lean_unsigned_to_nat(1u);
 x_63 = lean_nat_add(x_3, x_62);
 lean_dec(x_3);
+lean_inc_ref(x_14);
 x_64 = lean_array_push(x_4, x_14);
 x_3 = x_63;
 x_4 = x_64;
@@ -838,6 +836,8 @@ goto _start;
 else
 {
 lean_object* x_66; lean_object* x_67; lean_object* x_68; 
+lean_inc_ref(x_15);
+lean_inc_ref(x_14);
 x_66 = lean_ctor_get(x_59, 1);
 lean_inc(x_66);
 lean_dec_ref(x_59);
@@ -851,8 +851,6 @@ return x_68;
 else
 {
 uint8_t x_69; 
-lean_dec_ref(x_15);
-lean_dec_ref(x_14);
 lean_dec(x_8);
 lean_dec_ref(x_7);
 lean_dec(x_6);
@@ -911,6 +909,8 @@ block_57:
 {
 if (x_16 == 0)
 {
+lean_inc_ref(x_14);
+lean_inc_ref(x_15);
 x_17 = x_15;
 x_18 = x_14;
 x_19 = x_27;
@@ -939,8 +939,6 @@ lean_dec(x_33);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; size_t x_37; size_t x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; uint8_t x_48; 
-lean_dec_ref(x_15);
-lean_dec_ref(x_14);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_1);
@@ -992,6 +990,8 @@ lean_object* x_52;
 x_52 = lean_ctor_get(x_32, 1);
 lean_inc(x_52);
 lean_dec_ref(x_32);
+lean_inc_ref(x_14);
+lean_inc_ref(x_15);
 x_17 = x_15;
 x_18 = x_14;
 x_19 = x_27;
@@ -1009,8 +1009,6 @@ lean_dec(x_30);
 lean_dec_ref(x_29);
 lean_dec(x_28);
 lean_dec_ref(x_27);
-lean_dec_ref(x_15);
-lean_dec_ref(x_14);
 lean_dec_ref(x_4);
 lean_dec(x_3);
 lean_dec_ref(x_2);

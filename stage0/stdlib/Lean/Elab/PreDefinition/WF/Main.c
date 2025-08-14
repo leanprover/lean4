@@ -62,6 +62,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_m
 static lean_object* l_Lean_Elab_wfRecursion___lam__2___closed__1;
 lean_object* l_Lean_Elab_addAndCompilePartialRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_wfRecursion___closed__5;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Elab_wfRecursion_spec__23___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Elab_wfRecursion_spec__16(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_wfRecursion___closed__11;
@@ -1165,11 +1166,12 @@ return x_13;
 else
 {
 lean_object* x_14; lean_object* x_15; 
-x_14 = lean_array_fget(x_2, x_4);
+x_14 = lean_array_fget_borrowed(x_2, x_4);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
+lean_inc_ref(x_14);
 lean_inc(x_4);
 lean_inc_ref(x_1);
 x_15 = l_Lean_Elab_WF_varyingVarNames(x_1, x_4, x_14, x_6, x_7, x_8, x_9, x_10);

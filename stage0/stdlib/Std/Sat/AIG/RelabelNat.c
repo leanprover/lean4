@@ -26,6 +26,7 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_Entrypoint_relabelNat_x27(lean_object*, l
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat_x27___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat_x27(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIGAux_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addAtom(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_replace___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -53,7 +54,6 @@ LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RelabelNat_0__Std_Sat_AIG_relab
 static lean_object* l_Std_Sat_AIG_RelabelNat_State_empty___closed__0;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIG(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addAtom___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addFalse___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_relabelNat(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_RelabelNat_State_empty___closed__4;
@@ -621,7 +621,7 @@ return x_5;
 else
 {
 lean_object* x_8; 
-x_8 = lean_array_fget(x_3, x_4);
+x_8 = lean_array_fget_borrowed(x_3, x_4);
 switch (lean_obj_tag(x_8)) {
 case 0:
 {
@@ -638,11 +638,10 @@ case 1:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_13 = lean_ctor_get(x_8, 0);
-lean_inc(x_13);
-lean_dec_ref(x_8);
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_add(x_4, x_14);
 lean_dec(x_4);
+lean_inc(x_13);
 lean_inc_ref(x_2);
 lean_inc_ref(x_1);
 x_16 = l_Std_Sat_AIG_RelabelNat_State_addAtom___redArg(x_1, x_2, x_5, x_13);
@@ -653,7 +652,6 @@ goto _start;
 default: 
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-lean_dec_ref(x_8);
 x_18 = lean_unsigned_to_nat(1u);
 x_19 = lean_nat_add(x_4, x_18);
 lean_dec(x_4);

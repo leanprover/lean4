@@ -144,6 +144,7 @@ static lean_object* l_Lean_Widget_fromJsonTaggedText___redArg___closed__0____x40
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_mapM___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ExceptT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_mapM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_TaggedText_instRpcEncodable___redArg___closed__5;
 lean_object* lean_int_sub(lean_object*, lean_object*);
 lean_object* l_Lean_instFromJsonJson___lam__0(lean_object*);
@@ -825,8 +826,9 @@ lean_inc(x_16);
 lean_dec_ref(x_10);
 x_17 = lean_unsigned_to_nat(0u);
 lean_inc(x_4);
-x_18 = lean_array_get(x_4, x_16, x_17);
+x_18 = lean_array_get_borrowed(x_4, x_16, x_17);
 lean_inc_ref(x_5);
+lean_inc(x_18);
 x_19 = lean_apply_1(x_5, x_18);
 if (lean_obj_tag(x_19) == 0)
 {

@@ -261,6 +261,7 @@ static lean_object* l_Lean_Elab_Term_Quotation_mkSyntaxQuotation___redArg___clos
 static lean_object* l_Lean_Elab_Term_Quotation___aux__Lean__Elab__Quotation______macroRules__Lean__Elab__Term__Quotation__commandElab__stx__quot____1___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__17(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_tryAddSyntaxNodeKindInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__16___closed__9;
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lam__21___closed__20;
 static lean_object* l___private_Init_Meta_0__Lean_quoteArray___at___Lean_Elab_Term_Quotation_ArrayStxBuilder_build_spec__0___closed__2;
@@ -3239,8 +3240,9 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15;
 lean_dec(x_4);
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_add(x_2, x_12);
-x_14 = lean_array_fget(x_1, x_2);
+x_14 = lean_array_fget_borrowed(x_1, x_2);
 lean_dec(x_2);
+lean_inc(x_14);
 x_15 = lean_array_push(x_3, x_14);
 x_2 = x_13;
 x_3 = x_15;
@@ -22549,10 +22551,11 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_24; uint8
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_4, x_9);
 lean_dec(x_4);
-x_24 = lean_array_fget(x_3, x_5);
+x_24 = lean_array_fget_borrowed(x_3, x_5);
 x_25 = lean_nat_dec_eq(x_5, x_2);
 if (x_25 == 0)
 {
+lean_inc(x_24);
 x_11 = x_24;
 goto block_23;
 }
@@ -22560,6 +22563,7 @@ else
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_26 = l___private_Init_Meta_0__Lean_quoteArray___at___Lean_Elab_Term_Quotation_ArrayStxBuilder_build_spec__0___closed__2;
+lean_inc(x_24);
 x_27 = lean_array_push(x_26, x_24);
 x_28 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_floatOutAntiquotTerms___lam__0___closed__8;
 x_29 = lean_box(2);
@@ -44551,7 +44555,7 @@ block_33:
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
-x_23 = lean_array_fget(x_1, x_6);
+x_23 = lean_array_fget_borrowed(x_1, x_6);
 x_24 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_checkUnusedAlts_spec__1_spec__1___redArg___closed__0;
 x_25 = lean_unsigned_to_nat(1u);
 x_26 = lean_nat_add(x_6, x_25);
@@ -44563,7 +44567,6 @@ lean_ctor_set(x_29, 0, x_28);
 x_30 = l_Lean_MessageData_ofFormat(x_29);
 lean_inc_ref(x_11);
 x_31 = l_Lean_logErrorAt___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_checkUnusedAlts_spec__0___redArg(x_23, x_30, x_9, x_10, x_11, x_12, x_13);
-lean_dec(x_23);
 x_32 = lean_ctor_get(x_31, 1);
 lean_inc(x_32);
 lean_dec_ref(x_31);
@@ -44658,7 +44661,7 @@ block_35:
 if (x_24 == 0)
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-x_25 = lean_array_fget(x_1, x_8);
+x_25 = lean_array_fget_borrowed(x_1, x_8);
 x_26 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Std_PRange_RangeIterator_instIteratorLoop_loop___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_checkUnusedAlts_spec__1_spec__1___redArg___closed__0;
 x_27 = lean_unsigned_to_nat(1u);
 x_28 = lean_nat_add(x_8, x_27);
@@ -44670,7 +44673,6 @@ lean_ctor_set(x_31, 0, x_30);
 x_32 = l_Lean_MessageData_ofFormat(x_31);
 lean_inc_ref(x_13);
 x_33 = l_Lean_logErrorAt___at_____private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_checkUnusedAlts_spec__0___redArg(x_25, x_32, x_11, x_12, x_13, x_14, x_15);
-lean_dec(x_25);
 x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);
 lean_dec_ref(x_33);

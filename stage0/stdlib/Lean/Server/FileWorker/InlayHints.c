@@ -71,6 +71,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleInlayHints___lam__0___bo
 static lean_object* l_Lean_Server_FileWorker_InlayHintState_init___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Server_FileWorker_applyEditToHint_x3f_spec__2_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at_____private_Lean_Server_FileWorker_InlayHints_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__3___redArg___lam__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at___Lean_PersistentHashMap_containsAux___at___Lean_PersistentHashMap_contains___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at_____private_Lean_Server_FileWorker_InlayHints_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_ServerTask_mapCheap___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at_____private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at_____private_Lean_Server_FileWorker_InlayHints_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__3_spec__8_spec__8_spec__8___redArg(lean_object*, lean_object*, lean_object*);
@@ -3921,7 +3922,8 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_array_fget(x_3, x_2);
+x_4 = lean_array_fget_borrowed(x_3, x_2);
+lean_inc_ref(x_4);
 return x_4;
 }
 }
@@ -4430,10 +4432,9 @@ goto block_119;
 else
 {
 lean_object* x_130; lean_object* x_131; 
-x_130 = lean_array_fget(x_122, x_127);
+x_130 = lean_array_fget_borrowed(x_122, x_127);
 lean_dec(x_127);
 x_131 = l_Lean_Server_Snapshots_Snapshot_endPos(x_130);
-lean_dec_ref(x_130);
 x_103 = x_120;
 x_104 = x_121;
 x_105 = x_122;
@@ -6663,9 +6664,8 @@ return x_5;
 else
 {
 lean_object* x_6; uint8_t x_7; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
 x_7 = lean_string_dec_eq(x_3, x_6);
-lean_dec_ref(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
@@ -7085,9 +7085,8 @@ return x_1;
 else
 {
 lean_object* x_12; uint8_t x_13; 
-x_12 = lean_array_fget(x_6, x_2);
+x_12 = lean_array_fget_borrowed(x_6, x_2);
 x_13 = lean_string_dec_eq(x_3, x_12);
-lean_dec_ref(x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -7134,9 +7133,8 @@ return x_25;
 else
 {
 lean_object* x_26; uint8_t x_27; 
-x_26 = lean_array_fget(x_19, x_2);
+x_26 = lean_array_fget_borrowed(x_19, x_2);
 x_27 = lean_string_dec_eq(x_3, x_26);
-lean_dec_ref(x_26);
 if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
@@ -7205,8 +7203,8 @@ return x_5;
 else
 {
 lean_object* x_8; lean_object* x_9; uint64_t x_10; size_t x_11; size_t x_12; lean_object* x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
-x_8 = lean_array_fget(x_2, x_4);
-x_9 = lean_array_fget(x_3, x_4);
+x_8 = lean_array_fget_borrowed(x_2, x_4);
+x_9 = lean_array_fget_borrowed(x_3, x_4);
 x_10 = lean_string_hash(x_8);
 x_11 = lean_uint64_to_usize(x_10);
 x_12 = 5;
@@ -7217,6 +7215,8 @@ x_16 = lean_usize_mul(x_12, x_15);
 x_17 = lean_usize_shift_right(x_11, x_16);
 x_18 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
+lean_inc(x_9);
+lean_inc_ref(x_8);
 x_19 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at_____private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_____private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at___Lean_Server_registerPartialStatefulLspRequestHandler___at_____private_Lean_Server_FileWorker_InlayHints_0__Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_InlayHints___hyg_2246__spec__0_spec__0_spec__3_spec__8_spec__8___redArg(x_5, x_17, x_1, x_8, x_9);
 x_4 = x_18;
 x_5 = x_19;

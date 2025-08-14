@@ -42,6 +42,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_LRAT_Trim_0__Lean
 static lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_useAnalysis___closed__0;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_mapping___closed__0;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_isUsed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_getProofStep(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___redArg(lean_object*);
 lean_object* lean_byte_array_push(lean_object*, uint8_t);
@@ -186,11 +187,10 @@ return x_5;
 else
 {
 lean_object* x_6; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
 if (lean_obj_tag(x_6) == 3)
 {
 lean_object* x_7; lean_object* x_8; 
-lean_dec_ref(x_6);
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_add(x_2, x_7);
 lean_dec(x_2);
@@ -203,7 +203,6 @@ lean_object* x_10; lean_object* x_11;
 lean_dec(x_2);
 x_10 = lean_ctor_get(x_6, 0);
 lean_inc(x_10);
-lean_dec_ref(x_6);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 return x_11;
@@ -239,21 +238,19 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_2, x_6);
 lean_dec(x_2);
-x_8 = lean_array_fget(x_1, x_7);
+x_8 = lean_array_fget_borrowed(x_1, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; lean_object* x_10; 
 lean_dec(x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
-lean_dec_ref(x_8);
 x_10 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
 return x_10;
 }
 else
 {
-lean_dec_ref(x_8);
 x_2 = x_7;
 goto _start;
 }

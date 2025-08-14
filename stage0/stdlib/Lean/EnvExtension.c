@@ -48,6 +48,7 @@ LEAN_EXPORT lean_object* l_Lean_mkMapDeclarationExtension___redArg___lam__5(lean
 LEAN_EXPORT lean_object* l_Lean_instInhabitedMapDeclarationExtension___lam__3(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at___Lean_TagDeclarationExtension_isTagged_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerSimplePersistentEnvExtension___redArg___lam__2(lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedMapDeclarationExtension___lam__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at___Lean_SimplePersistentEnvExtension_replayOfFilter_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkStateFromImportedEntries___redArg___lam__1___closed__0;
@@ -142,7 +143,6 @@ lean_object* l_EStateM_pure(lean_object*, lean_object*, lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_getEntries(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkStateFromImportedEntries___redArg___lam__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_mkMapDeclarationExtension___redArg___lam__1(lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedMapDeclarationExtension___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_registerSimplePersistentEnvExtension___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1738,7 +1738,7 @@ x_8 = lean_nat_add(x_3, x_4);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_shiftr(x_8, x_9);
 lean_dec(x_8);
-x_11 = lean_array_fget(x_1, x_10);
+x_11 = lean_array_fget_borrowed(x_1, x_10);
 x_12 = l_Lean_Name_quickLt(x_11, x_2);
 if (x_12 == 0)
 {
@@ -1750,6 +1750,7 @@ if (x_13 == 0)
 lean_object* x_14; uint8_t x_15; 
 lean_dec(x_10);
 lean_dec(x_3);
+lean_inc(x_11);
 x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_11);
 x_15 = l_Array_binSearchAux___at___Lean_TagDeclarationExtension_isTagged_spec__0___redArg___lam__0(x_14);
@@ -1759,7 +1760,6 @@ return x_15;
 else
 {
 lean_object* x_16; uint8_t x_17; 
-lean_dec(x_11);
 x_16 = lean_unsigned_to_nat(0u);
 x_17 = lean_nat_dec_eq(x_10, x_16);
 if (x_17 == 0)
@@ -1791,7 +1791,6 @@ goto block_7;
 else
 {
 lean_object* x_21; uint8_t x_22; 
-lean_dec(x_11);
 lean_dec(x_3);
 x_21 = lean_nat_add(x_10, x_9);
 lean_dec(x_10);

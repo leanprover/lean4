@@ -373,6 +373,7 @@ static lean_object* l_Lean_Lsp_fromJsonSemanticTokenType___lam__0___closed__0___
 LEAN_EXPORT lean_object* l_Lean_Lsp_fromJsonSemanticTokenType___lam__7____x40_Lean_Data_Lsp_LanguageFeatures___hyg_8171_(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instFromJsonSymbolKind___lam__0___closed__31;
 static lean_object* l_Lean_Lsp_SemanticTokenType_names___closed__3;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_fromJson_x3f___at___Lean_Json_getObjValAs_x3f___at___Lean_Lsp_fromJsonHover____x40_Lean_Data_Lsp_LanguageFeatures___hyg_3200__spec__1_spec__1(lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at___Option_beqOption____x40_Init_Data_Option_Basic___hyg_161____at___Lean_Lsp_beqCallHierarchyItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_7091__spec__0_spec__0___redArg(lean_object*);
 static lean_object* l_Lean_Lsp_fromJsonRenameOptions___closed__8____x40_Lean_Data_Lsp_LanguageFeatures___hyg_11119_;
@@ -39651,7 +39652,8 @@ else
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = lean_array_fget(x_9, x_13);
+x_14 = lean_array_fget_borrowed(x_9, x_13);
+lean_inc(x_14);
 x_15 = l_Lean_Json_getNat_x3f(x_14);
 if (lean_obj_tag(x_15) == 0)
 {
@@ -39869,7 +39871,8 @@ else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_15 = lean_unsigned_to_nat(0u);
-x_16 = lean_array_fget(x_11, x_15);
+x_16 = lean_array_fget_borrowed(x_11, x_15);
+lean_inc(x_16);
 x_17 = l_Lean_Json_getNat_x3f(x_16);
 if (lean_obj_tag(x_17) == 0)
 {

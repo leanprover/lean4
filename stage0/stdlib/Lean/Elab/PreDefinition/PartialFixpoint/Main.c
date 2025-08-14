@@ -104,6 +104,7 @@ static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Le
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at_____private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___Lean_Elab_partialFixpoint_spec__36_spec__36___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutExporting___at___Lean_Elab_partialFixpoint_spec__23___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Elab_partialFixpoint_spec__17___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_FixedParamPerm_forallTelescope___at___Lean_Elab_partialFixpoint_spec__32(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps___lam__0___closed__1;
@@ -292,6 +293,7 @@ static lean_object* l_Lean_setEnv___at___Lean_withEnv___at_____private_Lean_Elab
 LEAN_EXPORT lean_object* l_Lean_setEnv___at___Lean_withEnv___at___Lean_Elab_partialFixpoint_spec__18_spec__18(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10___redArg___lam__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_mkMonoPProd___closed__6;
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___Lean_Elab_partialFixpoint_spec__3___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_mkMonoPProd___closed__10;
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
@@ -329,7 +331,6 @@ static lean_object* l_Lean_Elab_partialFixpoint___lam__0___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___at___Lean_throwError___at___Lean_Elab_partialFixpoint_spec__5_spec__5___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__12;
 static lean_object* l_Lean_Elab_partialFixpoint___lam__0___closed__5;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_FixedParamPerm_buildArgs___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___closed__5;
 static lean_object* l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___redArg___lam__0___closed__3;
@@ -532,9 +533,8 @@ return x_6;
 else
 {
 lean_object* x_7; uint8_t x_8; 
-x_7 = lean_array_fget(x_1, x_3);
+x_7 = lean_array_fget_borrowed(x_1, x_3);
 x_8 = lean_name_eq(x_7, x_2);
-lean_dec(x_7);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
@@ -661,10 +661,9 @@ x_19 = lean_nat_sub(x_16, x_18);
 lean_dec(x_16);
 x_20 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_6, x_17, x_19);
 x_21 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps___lam__0___closed__1;
-x_22 = lean_array_get(x_21, x_2, x_14);
+x_22 = lean_array_get_borrowed(x_21, x_2, x_14);
 x_23 = l_Lean_Elab_FixedParamPerm_pickVarying___redArg(x_22, x_20);
 lean_dec_ref(x_20);
-lean_dec_ref(x_22);
 x_24 = l_Lean_Meta_PProdN_proj(x_3, x_14, x_4, x_5);
 lean_dec(x_14);
 x_25 = l_Lean_mkAppN(x_24, x_23);
@@ -687,10 +686,9 @@ x_31 = lean_nat_sub(x_28, x_30);
 lean_dec(x_28);
 x_32 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_6, x_29, x_31);
 x_33 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps___lam__0___closed__1;
-x_34 = lean_array_get(x_33, x_2, x_26);
+x_34 = lean_array_get_borrowed(x_33, x_2, x_26);
 x_35 = l_Lean_Elab_FixedParamPerm_pickVarying___redArg(x_34, x_32);
 lean_dec_ref(x_32);
-lean_dec_ref(x_34);
 x_36 = l_Lean_Meta_PProdN_proj(x_3, x_26, x_4, x_5);
 lean_dec(x_26);
 x_37 = l_Lean_mkAppN(x_36, x_35);
@@ -1038,19 +1036,19 @@ else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_32; lean_object* x_33; 
 x_16 = lean_ctor_get(x_1, 1);
-x_17 = lean_array_fget(x_4, x_6);
+x_17 = lean_array_fget_borrowed(x_4, x_6);
 x_18 = lean_ctor_get(x_17, 5);
-lean_inc_ref(x_18);
 x_19 = lean_unsigned_to_nat(1u);
 x_20 = lean_nat_sub(x_5, x_19);
 lean_dec(x_5);
 lean_inc_ref(x_2);
-x_32 = lean_array_get(x_2, x_16, x_6);
+x_32 = lean_array_get_borrowed(x_2, x_16, x_6);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc_ref(x_3);
+lean_inc_ref(x_18);
 lean_inc_ref(x_32);
 x_33 = l_Lean_Elab_FixedParamPerm_instantiateLambda(x_32, x_18, x_3, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_33) == 0)
@@ -1063,6 +1061,8 @@ lean_inc(x_35);
 lean_dec_ref(x_33);
 x_36 = lean_box(x_14);
 lean_inc_ref(x_3);
+lean_inc_ref(x_32);
+lean_inc_ref(x_17);
 x_37 = lean_alloc_closure((void*)(l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__2_spec__2___redArg___lam__0___boxed), 11, 4);
 lean_closure_set(x_37, 0, x_17);
 lean_closure_set(x_37, 1, x_32);
@@ -1078,8 +1078,6 @@ goto block_31;
 }
 else
 {
-lean_dec_ref(x_32);
-lean_dec_ref(x_17);
 x_21 = x_33;
 goto block_31;
 }
@@ -1169,18 +1167,18 @@ else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_32; lean_object* x_33; 
 x_16 = lean_ctor_get(x_1, 1);
-x_17 = lean_array_fget(x_4, x_6);
+x_17 = lean_array_fget_borrowed(x_4, x_6);
 x_18 = lean_ctor_get(x_17, 5);
-lean_inc_ref(x_18);
 x_19 = lean_unsigned_to_nat(1u);
 x_20 = lean_nat_sub(x_5, x_19);
 lean_inc_ref(x_2);
-x_32 = lean_array_get(x_2, x_16, x_6);
+x_32 = lean_array_get_borrowed(x_2, x_16, x_6);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc_ref(x_3);
+lean_inc_ref(x_18);
 lean_inc_ref(x_32);
 x_33 = l_Lean_Elab_FixedParamPerm_instantiateLambda(x_32, x_18, x_3, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_33) == 0)
@@ -1193,6 +1191,8 @@ lean_inc(x_35);
 lean_dec_ref(x_33);
 x_36 = lean_box(x_14);
 lean_inc_ref(x_3);
+lean_inc_ref(x_32);
+lean_inc_ref(x_17);
 x_37 = lean_alloc_closure((void*)(l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at_____private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps_spec__2_spec__2___redArg___lam__0___boxed), 11, 4);
 lean_closure_set(x_37, 0, x_17);
 lean_closure_set(x_37, 1, x_32);
@@ -1208,8 +1208,6 @@ goto block_31;
 }
 else
 {
-lean_dec_ref(x_32);
-lean_dec_ref(x_17);
 x_21 = x_33;
 goto block_31;
 }
@@ -1922,7 +1920,8 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Mai
 _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_11 = lean_array_get(x_1, x_4, x_2);
+x_11 = lean_array_get_borrowed(x_1, x_4, x_2);
+lean_inc_ref(x_11);
 x_12 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(x_12, 0, x_11);
 lean_closure_set(x_12, 1, x_3);
@@ -5312,12 +5311,10 @@ else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_33; uint8_t x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 x_16 = l_Lean_Elab_instInhabitedPartialFixpoint;
-x_17 = lean_array_get(x_16, x_1, x_4);
+x_17 = lean_array_get_borrowed(x_16, x_1, x_4);
 x_18 = lean_ctor_get(x_17, 0);
-lean_inc(x_18);
-x_19 = lean_array_fget(x_2, x_4);
+x_19 = lean_array_fget_borrowed(x_2, x_4);
 x_20 = lean_ctor_get(x_19, 5);
-lean_inc_ref(x_20);
 x_21 = lean_ctor_get(x_10, 0);
 x_22 = lean_ctor_get(x_10, 1);
 x_23 = lean_ctor_get(x_10, 2);
@@ -5334,12 +5331,13 @@ x_33 = lean_ctor_get(x_10, 11);
 x_34 = lean_ctor_get_uint8(x_10, sizeof(void*)*13 + 1);
 x_35 = lean_ctor_get(x_10, 12);
 x_36 = lean_box(x_14);
+lean_inc_ref(x_17);
+lean_inc_ref(x_19);
 x_37 = lean_alloc_closure((void*)(l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10_spec__10___redArg___lam__2___boxed), 12, 3);
 lean_closure_set(x_37, 0, x_19);
 lean_closure_set(x_37, 1, x_17);
 lean_closure_set(x_37, 2, x_36);
 x_38 = l_Lean_replaceRef(x_18, x_26);
-lean_dec(x_18);
 lean_inc_ref(x_35);
 lean_inc(x_33);
 lean_inc(x_31);
@@ -5373,6 +5371,7 @@ lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
+lean_inc_ref(x_20);
 x_40 = l_Lean_Meta_lambdaTelescope___at___Lean_Elab_partialFixpoint_spec__9___redArg(x_20, x_37, x_14, x_6, x_7, x_8, x_9, x_39, x_11, x_12);
 if (lean_obj_tag(x_40) == 0)
 {
@@ -5852,12 +5851,10 @@ else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_33; uint8_t x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
 x_16 = l_Lean_Elab_instInhabitedPartialFixpoint;
-x_17 = lean_array_get(x_16, x_1, x_4);
+x_17 = lean_array_get_borrowed(x_16, x_1, x_4);
 x_18 = lean_ctor_get(x_17, 0);
-lean_inc(x_18);
-x_19 = lean_array_fget(x_2, x_4);
+x_19 = lean_array_fget_borrowed(x_2, x_4);
 x_20 = lean_ctor_get(x_19, 5);
-lean_inc_ref(x_20);
 x_21 = lean_ctor_get(x_10, 0);
 x_22 = lean_ctor_get(x_10, 1);
 x_23 = lean_ctor_get(x_10, 2);
@@ -5874,12 +5871,13 @@ x_33 = lean_ctor_get(x_10, 11);
 x_34 = lean_ctor_get_uint8(x_10, sizeof(void*)*13 + 1);
 x_35 = lean_ctor_get(x_10, 12);
 x_36 = lean_box(x_14);
+lean_inc_ref(x_17);
+lean_inc_ref(x_19);
 x_37 = lean_alloc_closure((void*)(l_Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__10___redArg___lam__2___boxed), 12, 3);
 lean_closure_set(x_37, 0, x_19);
 lean_closure_set(x_37, 1, x_17);
 lean_closure_set(x_37, 2, x_36);
 x_38 = l_Lean_replaceRef(x_18, x_26);
-lean_dec(x_18);
 lean_inc_ref(x_35);
 lean_inc(x_33);
 lean_inc(x_31);
@@ -5913,6 +5911,7 @@ lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc(x_7);
 lean_inc_ref(x_6);
+lean_inc_ref(x_20);
 x_40 = l_Lean_Meta_lambdaTelescope___at___Lean_Elab_partialFixpoint_spec__9___redArg(x_20, x_37, x_14, x_6, x_7, x_8, x_9, x_39, x_11, x_12);
 if (lean_obj_tag(x_40) == 0)
 {
@@ -6101,14 +6100,16 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_16 = lean_array_fget(x_4, x_6);
+x_16 = lean_array_fget_borrowed(x_4, x_6);
 lean_inc_ref(x_1);
-x_17 = lean_array_get(x_1, x_2, x_6);
+x_17 = lean_array_get_borrowed(x_1, x_2, x_6);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc_ref(x_3);
+lean_inc_ref(x_16);
+lean_inc_ref(x_17);
 x_18 = l_Lean_Elab_FixedParamPerm_instantiateLambda(x_17, x_16, x_3, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_18) == 0)
 {
@@ -6197,17 +6198,17 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_16 = lean_array_fget(x_4, x_6);
+x_16 = lean_array_fget_borrowed(x_4, x_6);
 x_17 = lean_ctor_get(x_16, 4);
-lean_inc_ref(x_17);
-lean_dec_ref(x_16);
 lean_inc_ref(x_1);
-x_18 = lean_array_get(x_1, x_2, x_6);
+x_18 = lean_array_get_borrowed(x_1, x_2, x_6);
 lean_inc(x_11);
 lean_inc_ref(x_10);
 lean_inc(x_9);
 lean_inc_ref(x_8);
 lean_inc_ref(x_3);
+lean_inc_ref(x_17);
+lean_inc_ref(x_18);
 x_19 = l_Lean_Elab_FixedParamPerm_instantiateForall(x_18, x_17, x_3, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_19) == 0)
 {
@@ -6973,20 +6974,20 @@ return x_23;
 else
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_39; lean_object* x_40; 
-x_24 = lean_array_fget(x_10, x_12);
+x_24 = lean_array_fget_borrowed(x_10, x_12);
 x_25 = lean_ctor_get(x_24, 5);
-lean_inc_ref(x_25);
-lean_dec_ref(x_24);
 x_26 = lean_unsigned_to_nat(1u);
 x_27 = lean_nat_sub(x_11, x_26);
 lean_dec(x_11);
 lean_inc_ref(x_1);
-x_39 = lean_array_get(x_1, x_2, x_12);
+x_39 = lean_array_get_borrowed(x_1, x_2, x_12);
 lean_inc(x_19);
 lean_inc_ref(x_18);
 lean_inc(x_17);
 lean_inc_ref(x_16);
 lean_inc_ref(x_3);
+lean_inc_ref(x_25);
+lean_inc_ref(x_39);
 x_40 = l_Lean_Elab_FixedParamPerm_instantiateLambda(x_39, x_25, x_3, x_16, x_17, x_18, x_19, x_20);
 if (lean_obj_tag(x_40) == 0)
 {
@@ -8392,8 +8393,9 @@ else
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_25 = l_Lean_instInhabitedExpr;
-x_26 = lean_array_get(x_25, x_1, x_13);
-x_27 = lean_array_get(x_25, x_2, x_13);
+x_26 = lean_array_get_borrowed(x_25, x_1, x_13);
+x_27 = lean_array_get_borrowed(x_25, x_2, x_13);
+lean_inc_ref(x_26);
 x_28 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_inc(x_20);
@@ -8401,6 +8403,7 @@ lean_inc_ref(x_19);
 lean_inc(x_18);
 lean_inc_ref(x_17);
 lean_inc_ref(x_28);
+lean_inc_ref(x_27);
 x_29 = l_Lean_Meta_toPartialOrder(x_27, x_28, x_17, x_18, x_19, x_20, x_21);
 if (lean_obj_tag(x_29) == 0)
 {
@@ -8410,7 +8413,7 @@ lean_inc(x_30);
 x_31 = lean_ctor_get(x_29, 1);
 lean_inc(x_31);
 lean_dec_ref(x_29);
-x_32 = lean_array_get(x_25, x_3, x_13);
+x_32 = lean_array_get_borrowed(x_25, x_3, x_13);
 x_33 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_mkMonoPProd___closed__5;
 lean_inc_ref(x_4);
 x_34 = lean_alloc_ctor(1, 1, 0);
@@ -8420,6 +8423,7 @@ x_35 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_35, 0, x_5);
 x_36 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_36, 0, x_30);
+lean_inc_ref(x_32);
 x_37 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_37, 0, x_32);
 x_38 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___redArg___closed__0;
@@ -8442,10 +8446,9 @@ x_46 = lean_ctor_get(x_44, 1);
 lean_inc(x_46);
 lean_dec_ref(x_44);
 x_47 = l_Lean_Elab_instInhabitedPartialFixpoint;
-x_48 = lean_array_get(x_47, x_6, x_13);
+x_48 = lean_array_get_borrowed(x_47, x_6, x_13);
 x_49 = lean_ctor_get(x_48, 1);
 lean_inc(x_49);
-lean_dec_ref(x_48);
 x_50 = lean_unsigned_to_nat(1u);
 x_51 = lean_nat_sub(x_12, x_50);
 lean_dec(x_12);
@@ -8464,10 +8467,8 @@ lean_inc(x_60);
 x_61 = lean_ctor_get(x_59, 1);
 lean_inc(x_61);
 lean_dec_ref(x_59);
-x_77 = lean_array_fget(x_11, x_13);
+x_77 = lean_array_fget_borrowed(x_11, x_13);
 x_78 = lean_ctor_get(x_77, 3);
-lean_inc(x_78);
-lean_dec_ref(x_77);
 lean_inc_ref(x_9);
 lean_inc_ref(x_8);
 lean_inc_ref(x_7);
@@ -8476,6 +8477,7 @@ lean_closure_set(x_79, 0, x_7);
 lean_closure_set(x_79, 1, x_8);
 lean_closure_set(x_79, 2, x_9);
 x_80 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___redArg___closed__2;
+lean_inc(x_78);
 x_81 = l_Lean_MessageData_ofName(x_78);
 lean_inc_ref(x_81);
 x_82 = lean_alloc_ctor(7, 2, 0);
@@ -9637,8 +9639,9 @@ else
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_25 = l_Lean_instInhabitedExpr;
-x_26 = lean_array_get(x_25, x_1, x_13);
-x_27 = lean_array_get(x_25, x_2, x_13);
+x_26 = lean_array_get_borrowed(x_25, x_1, x_13);
+x_27 = lean_array_get_borrowed(x_25, x_2, x_13);
+lean_inc_ref(x_26);
 x_28 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_inc(x_20);
@@ -9646,6 +9649,7 @@ lean_inc_ref(x_19);
 lean_inc(x_18);
 lean_inc_ref(x_17);
 lean_inc_ref(x_28);
+lean_inc_ref(x_27);
 x_29 = l_Lean_Meta_toPartialOrder(x_27, x_28, x_17, x_18, x_19, x_20, x_21);
 if (lean_obj_tag(x_29) == 0)
 {
@@ -9655,7 +9659,7 @@ lean_inc(x_30);
 x_31 = lean_ctor_get(x_29, 1);
 lean_inc(x_31);
 lean_dec_ref(x_29);
-x_32 = lean_array_get(x_25, x_3, x_13);
+x_32 = lean_array_get_borrowed(x_25, x_3, x_13);
 x_33 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_mkMonoPProd___closed__5;
 lean_inc_ref(x_4);
 x_34 = lean_alloc_ctor(1, 1, 0);
@@ -9665,6 +9669,7 @@ x_35 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_35, 0, x_5);
 x_36 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_36, 0, x_30);
+lean_inc_ref(x_32);
 x_37 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_37, 0, x_32);
 x_38 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___redArg___closed__0;
@@ -9687,10 +9692,9 @@ x_46 = lean_ctor_get(x_44, 1);
 lean_inc(x_46);
 lean_dec_ref(x_44);
 x_47 = l_Lean_Elab_instInhabitedPartialFixpoint;
-x_48 = lean_array_get(x_47, x_6, x_13);
+x_48 = lean_array_get_borrowed(x_47, x_6, x_13);
 x_49 = lean_ctor_get(x_48, 1);
 lean_inc(x_49);
-lean_dec_ref(x_48);
 x_50 = lean_unsigned_to_nat(1u);
 x_51 = lean_nat_sub(x_12, x_50);
 if (lean_obj_tag(x_49) == 0)
@@ -9708,10 +9712,8 @@ lean_inc(x_60);
 x_61 = lean_ctor_get(x_59, 1);
 lean_inc(x_61);
 lean_dec_ref(x_59);
-x_77 = lean_array_fget(x_11, x_13);
+x_77 = lean_array_fget_borrowed(x_11, x_13);
 x_78 = lean_ctor_get(x_77, 3);
-lean_inc(x_78);
-lean_dec_ref(x_77);
 lean_inc_ref(x_9);
 lean_inc_ref(x_8);
 lean_inc_ref(x_7);
@@ -9720,6 +9722,7 @@ lean_closure_set(x_79, 0, x_7);
 lean_closure_set(x_79, 1, x_8);
 lean_closure_set(x_79, 2, x_9);
 x_80 = l_Array_mapFinIdxM_map___at___Array_mapFinIdxM_map___at___Lean_Elab_partialFixpoint_spec__25_spec__25___redArg___closed__2;
+lean_inc(x_78);
 x_81 = l_Lean_MessageData_ofName(x_78);
 lean_inc_ref(x_81);
 x_82 = lean_alloc_ctor(7, 2, 0);
@@ -10993,28 +10996,26 @@ return x_23;
 else
 {
 lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
-x_24 = lean_array_fget(x_10, x_12);
+x_24 = lean_array_fget_borrowed(x_10, x_12);
 x_25 = lean_ctor_get(x_24, 0);
-lean_inc(x_25);
 x_26 = lean_ctor_get_uint8(x_24, sizeof(void*)*7);
 x_27 = lean_ctor_get(x_24, 1);
-lean_inc(x_27);
 x_28 = lean_ctor_get(x_24, 2);
-lean_inc_ref(x_28);
 x_29 = lean_ctor_get(x_24, 3);
-lean_inc(x_29);
 x_30 = lean_ctor_get(x_24, 4);
-lean_inc_ref(x_30);
 x_31 = lean_ctor_get(x_24, 6);
-lean_inc_ref(x_31);
-lean_dec_ref(x_24);
 lean_inc_ref(x_1);
-x_32 = lean_array_get(x_1, x_2, x_12);
+x_32 = lean_array_get_borrowed(x_1, x_2, x_12);
 x_33 = lean_box(x_7);
 x_34 = lean_box(x_8);
 x_35 = lean_box(x_9);
 x_36 = lean_box(x_26);
+lean_inc_ref(x_31);
 lean_inc_ref(x_30);
+lean_inc(x_29);
+lean_inc_ref(x_28);
+lean_inc(x_27);
+lean_inc(x_25);
 lean_inc_ref(x_6);
 lean_inc(x_12);
 lean_inc(x_5);
@@ -11039,7 +11040,6 @@ lean_closure_set(x_37, 13, x_29);
 lean_closure_set(x_37, 14, x_30);
 lean_closure_set(x_37, 15, x_31);
 x_38 = lean_array_get_size(x_32);
-lean_dec_ref(x_32);
 x_39 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_39, 0, x_38);
 lean_inc(x_19);
@@ -11048,6 +11048,7 @@ lean_inc(x_17);
 lean_inc_ref(x_16);
 lean_inc(x_15);
 lean_inc_ref(x_14);
+lean_inc_ref(x_30);
 x_40 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_partialFixpoint_spec__27___redArg(x_30, x_39, x_37, x_7, x_7, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
 if (lean_obj_tag(x_40) == 0)
 {
@@ -11145,28 +11146,26 @@ return x_23;
 else
 {
 lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
-x_24 = lean_array_fget(x_10, x_12);
+x_24 = lean_array_fget_borrowed(x_10, x_12);
 x_25 = lean_ctor_get(x_24, 0);
-lean_inc(x_25);
 x_26 = lean_ctor_get_uint8(x_24, sizeof(void*)*7);
 x_27 = lean_ctor_get(x_24, 1);
-lean_inc(x_27);
 x_28 = lean_ctor_get(x_24, 2);
-lean_inc_ref(x_28);
 x_29 = lean_ctor_get(x_24, 3);
-lean_inc(x_29);
 x_30 = lean_ctor_get(x_24, 4);
-lean_inc_ref(x_30);
 x_31 = lean_ctor_get(x_24, 6);
-lean_inc_ref(x_31);
-lean_dec_ref(x_24);
 lean_inc_ref(x_1);
-x_32 = lean_array_get(x_1, x_2, x_12);
+x_32 = lean_array_get_borrowed(x_1, x_2, x_12);
 x_33 = lean_box(x_7);
 x_34 = lean_box(x_8);
 x_35 = lean_box(x_9);
 x_36 = lean_box(x_26);
+lean_inc_ref(x_31);
 lean_inc_ref(x_30);
+lean_inc(x_29);
+lean_inc_ref(x_28);
+lean_inc(x_27);
+lean_inc(x_25);
 lean_inc_ref(x_6);
 lean_inc(x_12);
 lean_inc(x_5);
@@ -11191,7 +11190,6 @@ lean_closure_set(x_37, 13, x_29);
 lean_closure_set(x_37, 14, x_30);
 lean_closure_set(x_37, 15, x_31);
 x_38 = lean_array_get_size(x_32);
-lean_dec_ref(x_32);
 x_39 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_39, 0, x_38);
 lean_inc(x_19);
@@ -11200,6 +11198,7 @@ lean_inc(x_17);
 lean_inc_ref(x_16);
 lean_inc(x_15);
 lean_inc_ref(x_14);
+lean_inc_ref(x_30);
 x_40 = l_Lean_Meta_forallBoundedTelescope___at___Lean_Elab_partialFixpoint_spec__27___redArg(x_30, x_39, x_37, x_7, x_7, x_14, x_15, x_16, x_17, x_18, x_19, x_20);
 if (lean_obj_tag(x_40) == 0)
 {

@@ -185,13 +185,13 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_DenoteE
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_15; uint8_t x_16; 
-x_6 = lean_ctor_get(x_5, 28);
+x_6 = lean_ctor_get(x_5, 30);
 lean_inc_ref(x_6);
 lean_dec_ref(x_5);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_7);
 lean_dec_ref(x_1);
-x_8 = lean_ctor_get(x_2, 21);
+x_8 = lean_ctor_get(x_2, 23);
 lean_inc_ref(x_8);
 lean_dec_ref(x_2);
 x_9 = lean_ctor_get(x_6, 2);
@@ -239,7 +239,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_DenoteE
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_4 = lean_ctor_get(x_3, 28);
+x_4 = lean_ctor_get(x_3, 30);
 lean_inc_ref(x_4);
 lean_dec_ref(x_3);
 x_5 = lean_ctor_get(x_1, 1);
@@ -347,7 +347,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_DenoteE
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_ctor_get(x_1, 20);
+x_7 = lean_ctor_get(x_1, 22);
 lean_inc_ref(x_7);
 lean_dec_ref(x_1);
 x_8 = l_Lean_mkAppB(x_7, x_2, x_6);
@@ -427,7 +427,7 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Linarith_Poly_denoteExpr___redArg___lam__0
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_2, 15);
+x_3 = lean_ctor_get(x_2, 17);
 lean_inc_ref(x_3);
 lean_dec_ref(x_2);
 x_4 = lean_apply_2(x_1, lean_box(0), x_3);
@@ -497,7 +497,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_DenoteE
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_2, 15);
+x_3 = lean_ctor_get(x_2, 17);
 lean_inc_ref(x_3);
 lean_dec_ref(x_2);
 x_4 = lean_apply_2(x_1, lean_box(0), x_3);
@@ -508,7 +508,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_DenoteE
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_ctor_get(x_4, 28);
+x_5 = lean_ctor_get(x_4, 30);
 lean_inc_ref(x_5);
 lean_dec_ref(x_4);
 x_6 = lean_ctor_get(x_5, 2);
@@ -534,7 +534,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_DenoteE
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_1, 20);
+x_5 = lean_ctor_get(x_1, 22);
 lean_inc_ref(x_5);
 lean_dec_ref(x_1);
 x_6 = l_Lean_mkAppB(x_5, x_2, x_4);
@@ -578,7 +578,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_DenoteE
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_1, 26);
+x_5 = lean_ctor_get(x_1, 28);
 lean_inc_ref(x_5);
 lean_dec_ref(x_1);
 x_6 = l_Lean_mkAppB(x_5, x_2, x_4);
@@ -622,7 +622,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_DenoteE
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_1, 27);
+x_4 = lean_ctor_get(x_1, 29);
 lean_inc_ref(x_4);
 lean_dec_ref(x_1);
 x_5 = l_Lean_Expr_app___override(x_4, x_3);
@@ -646,7 +646,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_DenoteE
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_ctor_get(x_1, 22);
+x_5 = lean_ctor_get(x_1, 24);
 lean_inc_ref(x_5);
 lean_dec_ref(x_1);
 x_6 = l_Lean_mkNatLit(x_2);
@@ -672,7 +672,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Linear_DenoteE
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_ctor_get(x_1, 21);
+x_5 = lean_ctor_get(x_1, 23);
 lean_inc_ref(x_5);
 lean_dec_ref(x_1);
 x_6 = l_Lean_mkIntLit(x_2);
@@ -982,7 +982,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_DiseqCnstr_denoteExpr___
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_ctor_get(x_6, 16);
+x_7 = lean_ctor_get(x_6, 18);
 lean_inc_ref(x_7);
 lean_dec_ref(x_6);
 x_8 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_DenoteExpr_0__Lean_Meta_Grind_Arith_Linear_mkEq___redArg(x_1, x_2, x_3, x_7);
@@ -1048,7 +1048,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc_ref(x_5);
 lean_dec_ref(x_1);
-x_6 = lean_ctor_get(x_4, 16);
+x_6 = lean_ctor_get(x_4, 18);
 lean_inc_ref(x_6);
 lean_dec_ref(x_4);
 x_7 = l_Lean_mkAppB(x_2, x_3, x_6);
@@ -1179,7 +1179,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_EqCnstr_denoteExpr___red
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = lean_ctor_get(x_4, 16);
+x_5 = lean_ctor_get(x_4, 18);
 lean_inc_ref(x_5);
 lean_dec_ref(x_4);
 x_6 = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_DenoteExpr_0__Lean_Meta_Grind_Arith_Linear_mkEq___redArg(x_1, x_2, x_3, x_5);
@@ -1250,7 +1250,7 @@ if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_17 = lean_ctor_get(x_15, 0);
-x_18 = lean_ctor_get(x_13, 21);
+x_18 = lean_ctor_get(x_13, 23);
 lean_inc_ref(x_18);
 lean_dec(x_13);
 x_19 = l_Lean_mkIntLit(x_1);
@@ -1266,7 +1266,7 @@ x_22 = lean_ctor_get(x_15, 1);
 lean_inc(x_22);
 lean_inc(x_21);
 lean_dec(x_15);
-x_23 = lean_ctor_get(x_13, 21);
+x_23 = lean_ctor_get(x_13, 23);
 lean_inc_ref(x_23);
 lean_dec(x_13);
 x_24 = l_Lean_mkIntLit(x_1);
@@ -5391,10 +5391,10 @@ if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_28 = lean_ctor_get(x_26, 0);
-x_29 = lean_ctor_get(x_18, 20);
+x_29 = lean_ctor_get(x_18, 22);
 lean_inc_ref(x_29);
 lean_dec(x_18);
-x_30 = lean_ctor_get(x_21, 21);
+x_30 = lean_ctor_get(x_21, 23);
 lean_inc_ref(x_30);
 lean_dec(x_21);
 x_31 = l_Lean_mkIntLit(x_14);
@@ -5412,10 +5412,10 @@ x_35 = lean_ctor_get(x_26, 1);
 lean_inc(x_35);
 lean_inc(x_34);
 lean_dec(x_26);
-x_36 = lean_ctor_get(x_18, 20);
+x_36 = lean_ctor_get(x_18, 22);
 lean_inc_ref(x_36);
 lean_dec(x_18);
-x_37 = lean_ctor_get(x_21, 21);
+x_37 = lean_ctor_get(x_21, 23);
 lean_inc_ref(x_37);
 lean_dec(x_21);
 x_38 = l_Lean_mkIntLit(x_14);

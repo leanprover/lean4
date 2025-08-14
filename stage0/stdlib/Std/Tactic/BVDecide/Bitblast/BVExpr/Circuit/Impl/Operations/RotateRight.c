@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastRotateRight_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Bool_toNat(uint8_t);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastRotateRight_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -22,7 +23,6 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastRotateRight_
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastRotateRight___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_land(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastRotateRight_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
@@ -56,12 +56,11 @@ lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean
 lean_dec(x_29);
 x_32 = lean_nat_sub(x_4, x_30);
 lean_dec(x_30);
-x_33 = lean_array_fget(x_2, x_32);
+x_33 = lean_array_fget_borrowed(x_2, x_32);
 lean_dec(x_32);
 x_34 = lean_unsigned_to_nat(1u);
 x_35 = lean_nat_shiftr(x_33, x_34);
 x_36 = lean_nat_land(x_34, x_33);
-lean_dec(x_33);
 x_37 = lean_unsigned_to_nat(0u);
 x_38 = lean_nat_dec_eq(x_36, x_37);
 lean_dec(x_36);
@@ -84,12 +83,11 @@ lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean
 lean_dec(x_30);
 x_39 = lean_nat_add(x_29, x_4);
 lean_dec(x_29);
-x_40 = lean_array_fget(x_2, x_39);
+x_40 = lean_array_fget_borrowed(x_2, x_39);
 lean_dec(x_39);
 x_41 = lean_unsigned_to_nat(1u);
 x_42 = lean_nat_shiftr(x_40, x_41);
 x_43 = lean_nat_land(x_41, x_40);
-lean_dec(x_40);
 x_44 = lean_unsigned_to_nat(0u);
 x_45 = lean_nat_dec_eq(x_43, x_44);
 lean_dec(x_43);

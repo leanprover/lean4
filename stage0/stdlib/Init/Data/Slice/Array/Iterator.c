@@ -39,6 +39,7 @@ LEAN_EXPORT lean_object* l_instForInSubarray___lam__3___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_instAppendSubarray___lam__4___boxed(lean_object*, lean_object*);
 static lean_object* l_instIteratorStateSubarrayId___redArg___closed__10;
 LEAN_EXPORT lean_object* l_Std_Iterators_IterM_DefaultConsumers_toArrayMapped_go___at___Array_ofSubarray_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Std_Iterators_Map_instIteratorCollect___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instIteratorStateSubarrayId(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instForInSubarray___lam__1___boxed(lean_object*, lean_object*);
@@ -92,7 +93,6 @@ static lean_object* l_instIteratorStateSubarrayId___redArg___closed__0;
 LEAN_EXPORT lean_object* l_Array_instAppendSubarray___lam__4(lean_object*, lean_object*);
 extern lean_object* l_Std_PRange_instUpwardEnumerableNat;
 LEAN_EXPORT lean_object* l_instIteratorStateSubarrayId___redArg___lam__0(lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_instIteratorStateSubarrayId___redArg___closed__7;
 static lean_object* l_instIteratorSizePartialStateSubarrayId___closed__1;
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -198,7 +198,8 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_array_fget(x_3, x_2);
+x_4 = lean_array_fget_borrowed(x_3, x_2);
+lean_inc(x_4);
 return x_4;
 }
 }
@@ -606,7 +607,8 @@ LEAN_EXPORT lean_object* l_instForInSubarray___lam__1(lean_object* x_1, lean_obj
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_array_fget(x_1, x_2);
+x_3 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc(x_3);
 return x_3;
 }
 }
@@ -982,8 +984,9 @@ x_11 = lean_ctor_get(x_1, 0);
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_add(x_9, x_12);
 lean_ctor_set(x_4, 0, x_13);
-x_14 = lean_array_fget(x_11, x_9);
+x_14 = lean_array_fget_borrowed(x_11, x_9);
 lean_dec(x_9);
+lean_inc(x_14);
 x_15 = lean_array_push(x_3, x_14);
 x_3 = x_15;
 goto _start;
@@ -1012,8 +1015,9 @@ x_21 = lean_nat_add(x_17, x_20);
 x_22 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_2, 0, x_22);
-x_23 = lean_array_fget(x_19, x_17);
+x_23 = lean_array_fget_borrowed(x_19, x_17);
 lean_dec(x_17);
+lean_inc(x_23);
 x_24 = lean_array_push(x_3, x_23);
 x_3 = x_24;
 goto _start;
@@ -1058,8 +1062,9 @@ lean_ctor_set(x_33, 0, x_32);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_26);
-x_35 = lean_array_fget(x_30, x_27);
+x_35 = lean_array_fget_borrowed(x_30, x_27);
 lean_dec(x_27);
+lean_inc(x_35);
 x_36 = lean_array_push(x_3, x_35);
 x_2 = x_34;
 x_3 = x_36;
@@ -1169,7 +1174,8 @@ LEAN_EXPORT lean_object* l_Array_instAppendSubarray___lam__4(lean_object* x_1, l
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_array_fget(x_1, x_2);
+x_3 = lean_array_fget_borrowed(x_1, x_2);
+lean_inc(x_3);
 return x_3;
 }
 }

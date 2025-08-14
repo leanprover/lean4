@@ -69,6 +69,7 @@ static lean_object* l_Lean_Meta_mkSimpAttr___lam__1___closed__9;
 static lean_object* l_Lean_Meta_mkSimpAttr___lam__1___closed__5;
 static lean_object* l_Lean_Meta_getSimpTheorems___redArg___closed__0;
 uint8_t l_Lean_MessageData_hasSyntheticSorry(lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Attribute_add(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at___Lean_logAt___at___Lean_log___at___Lean_logWarning___at___Lean_Meta_SimpTheorems_erase___at___Lean_Meta_mkSimpAttr_spec__10_spec__10_spec__10_spec__10_spec__10(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__4____x40_Lean_Meta_Tactic_Simp_Attr___hyg_10_;
@@ -2459,9 +2460,8 @@ return x_5;
 else
 {
 lean_object* x_6; uint8_t x_7; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
 x_7 = lean_name_eq(x_3, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
@@ -5348,7 +5348,7 @@ x_2 = 1;
 x_3 = 0;
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = lean_unsigned_to_nat(100000u);
-x_6 = lean_alloc_ctor(0, 2, 24);
+x_6 = lean_alloc_ctor(0, 2, 25);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2, x_3);
@@ -5375,6 +5375,7 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 20, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 21, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 22, x_2);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 23, x_2);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 24, x_2);
 return x_6;
 }
 }

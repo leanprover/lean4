@@ -68,6 +68,7 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_eraseAux___at___Lean_PersistentHashMap_erase___at___Lean_Server_rpcReleaseRef_spec__12_spec__12___redArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_find_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_rpcStoreRef___redArg___closed__1;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_eraseAux___at___Lean_PersistentHashMap_erase___at___Lean_Server_rpcReleaseRef_spec__8_spec__8(lean_object*, lean_object*, size_t, size_t);
 static lean_object* l_Lean_Server_instRpcEncodableArray___redArg___closed__1;
 static lean_object* l_Lean_Lsp_instBEqRpcRef___closed__0;
@@ -1414,9 +1415,8 @@ return x_7;
 else
 {
 lean_object* x_8; size_t x_9; uint8_t x_10; 
-x_8 = lean_array_fget(x_1, x_3);
+x_8 = lean_array_fget_borrowed(x_1, x_3);
 x_9 = lean_unbox_usize(x_8);
-lean_dec(x_8);
 x_10 = lean_usize_dec_eq(x_4, x_9);
 if (x_10 == 0)
 {
@@ -1430,8 +1430,9 @@ goto _start;
 else
 {
 lean_object* x_14; lean_object* x_15; 
-x_14 = lean_array_fget(x_2, x_3);
+x_14 = lean_array_fget_borrowed(x_2, x_3);
 lean_dec(x_3);
+lean_inc(x_14);
 x_15 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_15, 0, x_14);
 return x_15;
@@ -1664,9 +1665,8 @@ return x_1;
 else
 {
 lean_object* x_13; size_t x_14; uint8_t x_15; 
-x_13 = lean_array_fget(x_6, x_2);
+x_13 = lean_array_fget_borrowed(x_6, x_2);
 x_14 = lean_unbox_usize(x_13);
-lean_dec(x_13);
 x_15 = lean_usize_dec_eq(x_3, x_14);
 if (x_15 == 0)
 {
@@ -1716,9 +1716,8 @@ return x_29;
 else
 {
 lean_object* x_30; size_t x_31; uint8_t x_32; 
-x_30 = lean_array_fget(x_22, x_2);
+x_30 = lean_array_fget_borrowed(x_22, x_2);
 x_31 = lean_unbox_usize(x_30);
-lean_dec(x_30);
 x_32 = lean_usize_dec_eq(x_3, x_31);
 if (x_32 == 0)
 {
@@ -1789,10 +1788,9 @@ return x_5;
 else
 {
 lean_object* x_8; size_t x_9; lean_object* x_10; uint64_t x_11; size_t x_12; size_t x_13; lean_object* x_14; size_t x_15; size_t x_16; size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; 
-x_8 = lean_array_fget(x_2, x_4);
+x_8 = lean_array_fget_borrowed(x_2, x_4);
 x_9 = lean_unbox_usize(x_8);
-lean_dec(x_8);
-x_10 = lean_array_fget(x_3, x_4);
+x_10 = lean_array_fget_borrowed(x_3, x_4);
 x_11 = l_Lean_Lsp_hashRpcRef____x40_Lean_Server_Rpc_Basic___hyg_88_(x_9);
 x_12 = lean_uint64_to_usize(x_11);
 x_13 = 5;
@@ -1803,6 +1801,7 @@ x_17 = lean_usize_mul(x_13, x_16);
 x_18 = lean_usize_shift_right(x_12, x_17);
 x_19 = lean_nat_add(x_4, x_14);
 lean_dec(x_4);
+lean_inc(x_10);
 x_20 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_Server_rpcReleaseRef_spec__3_spec__3___redArg(x_5, x_18, x_1, x_9, x_10);
 x_4 = x_19;
 x_5 = x_20;
@@ -2133,9 +2132,8 @@ return x_6;
 else
 {
 lean_object* x_7; size_t x_8; uint8_t x_9; 
-x_7 = lean_array_fget(x_1, x_3);
+x_7 = lean_array_fget_borrowed(x_1, x_3);
 x_8 = lean_unbox_usize(x_7);
-lean_dec(x_7);
 x_9 = lean_usize_dec_eq(x_8, x_2);
 if (x_9 == 0)
 {
@@ -2519,9 +2517,8 @@ return x_6;
 else
 {
 lean_object* x_7; size_t x_8; uint8_t x_9; 
-x_7 = lean_array_fget(x_1, x_3);
+x_7 = lean_array_fget_borrowed(x_1, x_3);
 x_8 = lean_unbox_usize(x_7);
-lean_dec(x_7);
 x_9 = lean_usize_dec_eq(x_8, x_2);
 if (x_9 == 0)
 {

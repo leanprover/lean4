@@ -34,6 +34,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_mapA_match__
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_appendCore_loop_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filterMap__replicate_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__4____x40_Init_Data_Array_Lemmas___hyg_18471_;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_filterMap__push_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__20____x40_Init_Data_Array_Lemmas___hyg_18471_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_shrink_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -103,7 +104,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__List_filterMap_ma
 LEAN_EXPORT lean_object* l_Array_toListRev___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_foldl__filterMap_x27_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Lemmas_0__Array_filterMapM_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Array_Lemmas___hyg_18471_;
 LEAN_EXPORT uint8_t l_Array_instDecidableForallForallMemOfDecidablePred(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__7____x40_Init_Data_Array_Lemmas___hyg_18471_;
@@ -169,7 +169,8 @@ LEAN_EXPORT uint8_t l_Array_instDecidableForallForallMemOfDecidablePred___redArg
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_array_fget(x_1, x_3);
+x_5 = lean_array_fget_borrowed(x_1, x_3);
+lean_inc(x_5);
 x_6 = lean_apply_1(x_2, x_5);
 x_7 = lean_unbox(x_6);
 return x_7;
@@ -231,7 +232,8 @@ LEAN_EXPORT uint8_t l_Array_instDecidableExistsAndMemOfDecidablePred___redArg___
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_array_fget(x_1, x_3);
+x_5 = lean_array_fget_borrowed(x_1, x_3);
+lean_inc(x_5);
 x_6 = lean_apply_1(x_2, x_5);
 x_7 = lean_unbox(x_6);
 return x_7;

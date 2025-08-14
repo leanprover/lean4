@@ -33,6 +33,7 @@ uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_ppTable_spec__4_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_ppTable_spec__1_spec__1___closed__5;
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_empty;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Lake_lpad(lean_object*, uint32_t, lean_object*);
 static lean_object* l_String_foldlAux___at___Lake_Toml_ppString_spec__0___closed__3;
 LEAN_EXPORT lean_object* l_Lake_Toml_ppTable_appendKeyval___boxed(lean_object*, lean_object*, lean_object*);
@@ -89,7 +90,6 @@ static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold
 static lean_object* l_Lake_Toml_instInhabitedValue___closed__1;
 lean_object* l_Nat_toDigits(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at_____private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lake_Toml_ppTable_spec__1_spec__1___closed__1;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_toString(lean_object*);
 lean_object* l_panic___at___Lean_Name_getString_x21_spec__0(lean_object*);
@@ -199,8 +199,10 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
-x_8 = lean_array_fget(x_1, x_7);
-x_9 = lean_array_fget(x_2, x_7);
+x_8 = lean_array_fget_borrowed(x_1, x_7);
+x_9 = lean_array_fget_borrowed(x_2, x_7);
+lean_inc_ref(x_9);
+lean_inc_ref(x_8);
 x_10 = l_Lake_Toml_beqValue____x40_Lake_Toml_Data_Value___hyg_164_(x_8, x_9);
 if (x_10 == 0)
 {
@@ -240,31 +242,23 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_11; lean_object*
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 lean_dec(x_3);
-x_11 = lean_array_fget(x_1, x_7);
+x_11 = lean_array_fget_borrowed(x_1, x_7);
 x_12 = lean_ctor_get(x_11, 0);
-lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
-lean_inc(x_13);
-lean_dec_ref(x_11);
-x_14 = lean_array_fget(x_2, x_7);
+x_14 = lean_array_fget_borrowed(x_2, x_7);
 x_15 = lean_ctor_get(x_14, 0);
-lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
-lean_inc(x_16);
-lean_dec_ref(x_14);
 x_17 = lean_name_eq(x_12, x_15);
-lean_dec(x_15);
-lean_dec(x_12);
 if (x_17 == 0)
 {
-lean_dec(x_16);
-lean_dec(x_13);
 x_8 = x_17;
 goto block_10;
 }
 else
 {
 uint8_t x_18; 
+lean_inc(x_16);
+lean_inc(x_13);
 x_18 = l_Lake_Toml_beqValue____x40_Lake_Toml_Data_Value___hyg_164_(x_13, x_16);
 x_8 = x_18;
 goto block_10;

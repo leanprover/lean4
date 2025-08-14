@@ -133,6 +133,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalContextImp(lean_o
 static lean_object* l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitLambdaLet_finalize___closed__8;
 LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at_____private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitDepExpr_spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getDelayedMVarAssignment_x3f___at_____private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_checkMVar_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_main___lam__4___closed__4;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_____private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_Result_type_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_____private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitConst_spec__8___closed__1;
@@ -6832,7 +6833,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitApp___closed__2;
 x_2 = lean_unsigned_to_nat(18u);
-x_3 = lean_unsigned_to_nat(1784u);
+x_3 = lean_unsigned_to_nat(1786u);
 x_4 = l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitApp___closed__1;
 x_5 = l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitApp___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);
@@ -7375,13 +7376,11 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_21; lean
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_sub(x_2, x_14);
 lean_dec(x_2);
-x_32 = lean_array_fget(x_1, x_15);
+x_32 = lean_array_fget_borrowed(x_1, x_15);
 if (lean_obj_tag(x_32) == 1)
 {
 lean_object* x_33; lean_object* x_34; 
 x_33 = lean_ctor_get(x_32, 0);
-lean_inc(x_33);
-lean_dec_ref(x_32);
 lean_inc_ref(x_6);
 lean_inc(x_33);
 x_34 = l_Lean_FVarId_findDecl_x3f___redArg(x_33, x_6, x_10);
@@ -7397,6 +7396,7 @@ lean_dec_ref(x_3);
 x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec_ref(x_34);
+lean_inc(x_33);
 x_37 = l_Lean_FVarId_throwUnknown___redArg(x_33, x_8, x_9, x_36);
 x_16 = x_37;
 goto block_20;
@@ -7410,7 +7410,6 @@ lean_dec_ref(x_35);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; uint8_t x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
-lean_dec(x_33);
 x_39 = lean_ctor_get(x_34, 1);
 lean_inc(x_39);
 lean_dec_ref(x_34);
@@ -7515,7 +7514,6 @@ if (x_62 == 0)
 uint8_t x_79; 
 x_79 = l_Std_DTreeMap_Internal_Impl_contains___at_____private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitDepExpr_spec__0___redArg(x_33, x_76);
 lean_dec(x_76);
-lean_dec(x_33);
 if (x_79 == 0)
 {
 lean_object* x_80; lean_object* x_81; 
@@ -7537,7 +7535,6 @@ goto block_74;
 else
 {
 lean_dec(x_76);
-lean_dec(x_33);
 x_63 = x_78;
 x_64 = x_77;
 goto block_74;
@@ -7549,7 +7546,6 @@ uint8_t x_82;
 lean_dec_ref(x_61);
 lean_dec_ref(x_60);
 lean_dec(x_59);
-lean_dec(x_33);
 lean_dec(x_15);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -7640,7 +7636,6 @@ goto block_31;
 else
 {
 uint8_t x_86; 
-lean_dec(x_33);
 lean_dec(x_15);
 lean_dec(x_9);
 lean_dec_ref(x_8);
@@ -7672,7 +7667,6 @@ return x_89;
 else
 {
 lean_object* x_90; lean_object* x_91; 
-lean_dec_ref(x_32);
 lean_dec_ref(x_3);
 x_90 = l___private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___at_____private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___at_____private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitLambdaLet_finalize_spec__0_spec__0___redArg___closed__1;
 lean_inc(x_9);
@@ -7769,13 +7763,11 @@ else
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_33; 
 x_15 = lean_unsigned_to_nat(1u);
 x_16 = lean_nat_sub(x_3, x_15);
-x_33 = lean_array_fget(x_1, x_16);
+x_33 = lean_array_fget_borrowed(x_1, x_16);
 if (lean_obj_tag(x_33) == 1)
 {
 lean_object* x_34; lean_object* x_35; 
 x_34 = lean_ctor_get(x_33, 0);
-lean_inc(x_34);
-lean_dec_ref(x_33);
 lean_inc_ref(x_7);
 lean_inc(x_34);
 x_35 = l_Lean_FVarId_findDecl_x3f___redArg(x_34, x_7, x_11);
@@ -7791,6 +7783,7 @@ lean_dec_ref(x_4);
 x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec_ref(x_35);
+lean_inc(x_34);
 x_38 = l_Lean_FVarId_throwUnknown___redArg(x_34, x_9, x_10, x_37);
 x_17 = x_38;
 goto block_21;
@@ -7804,7 +7797,6 @@ lean_dec_ref(x_36);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
-lean_dec(x_34);
 x_40 = lean_ctor_get(x_35, 1);
 lean_inc(x_40);
 lean_dec_ref(x_35);
@@ -7907,7 +7899,6 @@ if (x_63 == 0)
 uint8_t x_80; 
 x_80 = l_Std_DTreeMap_Internal_Impl_contains___at_____private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitDepExpr_spec__0___redArg(x_34, x_77);
 lean_dec(x_77);
-lean_dec(x_34);
 if (x_80 == 0)
 {
 lean_object* x_81; lean_object* x_82; 
@@ -7929,7 +7920,6 @@ goto block_75;
 else
 {
 lean_dec(x_77);
-lean_dec(x_34);
 x_64 = x_79;
 x_65 = x_78;
 goto block_75;
@@ -7941,7 +7931,6 @@ uint8_t x_83;
 lean_dec_ref(x_62);
 lean_dec_ref(x_61);
 lean_dec(x_60);
-lean_dec(x_34);
 lean_dec(x_16);
 lean_dec(x_10);
 lean_dec_ref(x_9);
@@ -8032,7 +8021,6 @@ goto block_32;
 else
 {
 uint8_t x_87; 
-lean_dec(x_34);
 lean_dec(x_16);
 lean_dec(x_10);
 lean_dec_ref(x_9);
@@ -8064,7 +8052,6 @@ return x_90;
 else
 {
 lean_object* x_91; lean_object* x_92; 
-lean_dec_ref(x_33);
 lean_dec_ref(x_4);
 x_91 = l___private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___at_____private_Init_Data_Nat_Control_0__Nat_foldRevM_loop___at_____private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitLambdaLet_finalize_spec__0_spec__0___redArg___closed__1;
 lean_inc(x_10);
@@ -9861,7 +9848,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitProj___closed__1;
 x_2 = lean_unsigned_to_nat(18u);
-x_3 = lean_unsigned_to_nat(1833u);
+x_3 = lean_unsigned_to_nat(1835u);
 x_4 = l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitProj___closed__0;
 x_5 = l___private_Lean_Meta_LetToHave_0__Lean_Meta_LetToHave_visitApp___closed__0;
 x_6 = l_mkPanicMessageWithDecl(x_5, x_4, x_3, x_2, x_1);

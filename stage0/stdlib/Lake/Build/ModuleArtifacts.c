@@ -22,6 +22,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lake_ModuleOutputHashes_fromJson_x3f___closed__5;
 static lean_object* l_Lake_ModuleOutputHashes_toJson___closed__1;
 static lean_object* l_Lake_instToJsonModuleOutputHashes___closed__0;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l_Lake_ModuleOutputHashes_fromJson_x3f___closed__2;
 static lean_object* l_Lake_ModuleOutputHashes_fromJson_x3f___closed__7;
 LEAN_EXPORT lean_object* l_Array_toJson___at___Lake_ModuleOutputHashes_toJson_spec__0(lean_object*);
@@ -804,9 +805,8 @@ if (lean_is_exclusive(x_34)) {
  lean_dec_ref(x_34);
  x_44 = lean_box(0);
 }
-x_45 = lean_array_fget(x_24, x_25);
+x_45 = lean_array_fget_borrowed(x_24, x_25);
 x_46 = lean_unbox_uint64(x_45);
-lean_dec(x_45);
 x_114 = l_Lake_ModuleOutputHashes_toJson___closed__4;
 x_115 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_____private_Lean_Data_Json_Basic_0__Lean_Json_beq_x27_spec__3___redArg(x_6, x_114);
 if (lean_obj_tag(x_115) == 0)
@@ -979,9 +979,8 @@ goto block_67;
 else
 {
 lean_object* x_74; uint64_t x_75; lean_object* x_76; lean_object* x_77; 
-x_74 = lean_array_fget(x_24, x_71);
+x_74 = lean_array_fget_borrowed(x_24, x_71);
 x_75 = lean_unbox_uint64(x_74);
-lean_dec(x_74);
 x_76 = lean_box_uint64(x_75);
 if (lean_is_scalar(x_11)) {
  x_77 = lean_alloc_ctor(1, 1, 0);

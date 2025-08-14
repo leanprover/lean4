@@ -29,6 +29,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_replaceNoCache___at___Lean_Expr_instantiate
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParams___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_____private_Lean_Util_InstantiateLevelParams_0__Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_____private_Lean_Util_InstantiateLevelParams_0__Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParams_spec__0_spec__0_spec__0(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___redArg(lean_object*);
 size_t lean_ptr_addr(lean_object*);
 lean_object* lean_replace_expr(lean_object*, lean_object*);
@@ -44,7 +45,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_InstantiateLevelParams_0__Lean_Ex
 LEAN_EXPORT lean_object* l___private_Lean_Util_InstantiateLevelParams_0__Lean_Expr_getParamSubst___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_Level_substParams_go(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_____private_Lean_Util_InstantiateLevelParams_0__Lean_Expr_instantiateLevelParamsCore_replaceFn___at___Lean_Expr_instantiateLevelParamsCore___at___Lean_Expr_instantiateLevelParamsArray_spec__0_spec__0_spec__0___lam__0(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_InstantiateLevelParams_0__Lean_Expr_getParamSubstArray___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -816,9 +816,8 @@ return x_10;
 else
 {
 lean_object* x_11; uint8_t x_12; 
-x_11 = lean_array_fget(x_1, x_4);
+x_11 = lean_array_fget_borrowed(x_1, x_4);
 x_12 = lean_name_eq(x_11, x_3);
-lean_dec(x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -831,8 +830,9 @@ goto _start;
 else
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = lean_array_fget(x_2, x_4);
+x_16 = lean_array_fget_borrowed(x_2, x_4);
 lean_dec(x_4);
+lean_inc(x_16);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 return x_17;

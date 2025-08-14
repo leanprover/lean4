@@ -69,6 +69,7 @@ lean_object* l_Except_bind(lean_object*, lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_instFromJsonName;
 LEAN_EXPORT lean_object* l_Lean_instFromJsonFilePath___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameMap_toJson___redArg(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_setObjValAs_x21___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_fromJson_x3f___redArg___closed__6;
 static lean_object* l_Array_fromJson_x3f___redArg___closed__10;
@@ -1219,7 +1220,8 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19;
 lean_inc_ref(x_13);
 lean_dec_ref(x_3);
 x_17 = lean_unsigned_to_nat(0u);
-x_18 = lean_array_fget(x_13, x_17);
+x_18 = lean_array_fget_borrowed(x_13, x_17);
+lean_inc(x_18);
 x_19 = lean_apply_1(x_1, x_18);
 if (lean_obj_tag(x_19) == 0)
 {

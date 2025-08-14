@@ -36,6 +36,7 @@ LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_go_mat
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_match__16_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_State_addFalse___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_Cache_addFalse___redArg(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_projectRightAssign___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_Cache_addGate___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
@@ -72,7 +73,6 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_Cache_addAtom___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_match__21_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Sat_AIG_toCNF_State_eval___redArg(lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_mixAssigns___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Sat_AIG_denote___at___Std_Sat_AIG_toCNF_cnfSatAssignment_spec__0(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -1056,13 +1056,13 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_3, 1);
-x_5 = lean_array_fget(x_4, x_2);
+x_5 = lean_array_fget_borrowed(x_4, x_2);
 x_6 = lean_unbox(x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_ctor_get(x_1, 0);
-x_8 = lean_array_fget(x_7, x_2);
+x_8 = lean_array_fget_borrowed(x_7, x_2);
 switch (lean_obj_tag(x_8)) {
 case 0:
 {
@@ -1075,7 +1075,6 @@ case 1:
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
-lean_dec_ref(x_8);
 x_11 = l_Std_Sat_AIG_toCNF_State_addAtom___redArg(x_10, x_3, x_2);
 return x_11;
 }
@@ -1083,18 +1082,13 @@ default:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_12 = lean_ctor_get(x_8, 0);
-lean_inc(x_12);
 x_13 = lean_ctor_get(x_8, 1);
-lean_inc(x_13);
-lean_dec_ref(x_8);
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_shiftr(x_12, x_14);
 x_16 = l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_go___redArg(x_1, x_15, x_3);
 x_17 = lean_nat_shiftr(x_13, x_14);
 x_18 = l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_go___redArg(x_1, x_17, x_16);
 x_19 = l_Std_Sat_AIG_toCNF_State_addGate___redArg(x_12, x_13, x_18, x_2);
-lean_dec(x_13);
-lean_dec(x_12);
 return x_19;
 }
 }

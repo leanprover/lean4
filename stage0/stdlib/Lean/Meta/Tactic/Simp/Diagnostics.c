@@ -50,6 +50,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forInAux___at___Lean_PersistentArray_forIn___at_____private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary_spec__0_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_MessageData_hasSyntheticSorry(lean_object*);
 static lean_object* l_Lean_Meta_Simp_mkDiagMessages___closed__6;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_PersistentHashMap_foldlMAux___at___Lean_PersistentHashMap_foldlM___at___Lean_PersistentHashMap_forIn___at___Lean_Meta_collectAboveThreshold___at___Lean_Meta_Simp_mkSimpDiagSummary_spec__1_spec__1_spec__1_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forIn___at___Lean_Meta_collectAboveThreshold___at___Lean_Meta_Simp_mkSimpDiagSummary_spec__1_spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -129,7 +130,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_Persiste
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logInfo___at___Lean_Meta_Simp_reportDiag_spec__0_spec__0_spec__0___lam__0___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___Lean_Meta_Simp_mkSimpDiagSummary_spec__8___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___Lean_PersistentHashMap_findAux___at___Lean_PersistentHashMap_find_x3f___at___Lean_Meta_Simp_mkSimpDiagSummary_spec__8_spec__8_spec__8___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_PersistentHashMap_foldlMAux___at___Lean_PersistentHashMap_foldlM___at___Lean_PersistentHashMap_forIn___at___Lean_Meta_collectAboveThreshold___at___Lean_Meta_Simp_mkSimpDiagSummary_spec__1_spec__1_spec__1_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at_____private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_PersistentArray_forIn___at_____private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary_spec__0_spec__4_spec__4___redArg(uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_Simp_mkSimpDiagSummary_spec__11___redArg___closed__5;
@@ -548,9 +548,11 @@ return x_8;
 else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = lean_array_fget(x_2, x_4);
-x_10 = lean_array_fget(x_3, x_4);
+x_9 = lean_array_fget_borrowed(x_2, x_4);
+x_10 = lean_array_fget_borrowed(x_3, x_4);
 lean_inc_ref(x_1);
+lean_inc(x_10);
+lean_inc(x_9);
 x_11 = lean_apply_3(x_1, x_5, x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -1005,7 +1007,7 @@ return x_19;
 else
 {
 lean_object* x_20; lean_object* x_21; 
-x_20 = lean_array_fget(x_1, x_3);
+x_20 = lean_array_fget_borrowed(x_1, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 if (lean_obj_tag(x_20) == 0)
@@ -1014,11 +1016,8 @@ lean_object* x_24; uint8_t x_25; lean_object* x_26; uint8_t x_27; uint8_t x_28;
 x_24 = lean_ctor_get(x_4, 0);
 x_25 = lean_ctor_get_uint8(x_4, sizeof(void*)*1 + 1);
 x_26 = lean_ctor_get(x_20, 0);
-lean_inc(x_26);
 x_27 = lean_ctor_get_uint8(x_20, sizeof(void*)*1 + 1);
-lean_dec_ref(x_20);
 x_28 = lean_name_eq(x_24, x_26);
-lean_dec(x_26);
 if (x_28 == 0)
 {
 x_9 = x_28;
@@ -1047,7 +1046,6 @@ goto block_12;
 }
 else
 {
-lean_dec_ref(x_20);
 goto block_8;
 }
 }
@@ -1055,7 +1053,6 @@ else
 {
 if (lean_obj_tag(x_20) == 0)
 {
-lean_dec_ref(x_20);
 goto block_8;
 }
 else
@@ -1071,7 +1068,6 @@ block_23:
 lean_object* x_22; 
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
-lean_dec_ref(x_20);
 x_13 = x_21;
 x_14 = x_22;
 goto block_16;
@@ -1095,8 +1091,9 @@ goto block_8;
 else
 {
 lean_object* x_10; lean_object* x_11; 
-x_10 = lean_array_fget(x_2, x_3);
+x_10 = lean_array_fget_borrowed(x_2, x_3);
 lean_dec(x_3);
+lean_inc(x_10);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 return x_11;

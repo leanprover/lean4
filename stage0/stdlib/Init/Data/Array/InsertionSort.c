@@ -28,6 +28,7 @@ static lean_object* l___auto___closed__46____x40_Init_Data_Array_InsertionSort__
 static lean_object* l___auto___closed__34____x40_Init_Data_Array_InsertionSort___hyg_15_;
 static lean_object* l___auto___closed__60____x40_Init_Data_Array_InsertionSort___hyg_15_;
 static lean_object* l___auto___closed__17____x40_Init_Data_Array_InsertionSort___hyg_15_;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l___auto___closed__56____x40_Init_Data_Array_InsertionSort___hyg_15_;
 static lean_object* l___auto___closed__22____x40_Init_Data_Array_InsertionSort___hyg_15_;
 static lean_object* l___auto___closed__15____x40_Init_Data_Array_InsertionSort___hyg_15_;
@@ -58,7 +59,6 @@ static lean_object* l___auto___closed__11____x40_Init_Data_Array_InsertionSort__
 static lean_object* l___auto___closed__4____x40_Init_Data_Array_InsertionSort___hyg_15_;
 static lean_object* l___auto___closed__30____x40_Init_Data_Array_InsertionSort___hyg_15_;
 static lean_object* l___auto___closed__41____x40_Init_Data_Array_InsertionSort___hyg_15_;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___auto___closed__49____x40_Init_Data_Array_InsertionSort___hyg_15_;
 static lean_object* l___auto___closed__1____x40_Init_Data_Array_InsertionSort___hyg_15_;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -740,9 +740,11 @@ else
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
-x_8 = lean_array_fget(x_2, x_3);
-x_9 = lean_array_fget(x_2, x_7);
+x_8 = lean_array_fget_borrowed(x_2, x_3);
+x_9 = lean_array_fget_borrowed(x_2, x_7);
 lean_inc_ref(x_1);
+lean_inc(x_9);
+lean_inc(x_8);
 x_10 = lean_apply_2(x_1, x_8, x_9);
 x_11 = lean_unbox(x_10);
 if (x_11 == 0)

@@ -129,6 +129,7 @@ static lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector___lam__0___cl
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_PremiseSelection_random_spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_evalExpr___redArg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_PremiseSelection_0__Lean_PremiseSelection_elabSetPremiseSelector_unsafe__1___closed__0;
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PremiseSelection_evalSuggestPremises___redArg___lam__1___closed__0;
 static lean_object* l_Lean_logAt___at___Lean_log___at___Lean_logInfo___at___Lean_PremiseSelection_evalSuggestPremises_spec__2_spec__2_spec__2___lam__0___closed__0;
 static lean_object* l_Lean_PremiseSelection_registerPremiseSelector___redArg___closed__1;
@@ -186,7 +187,6 @@ static lean_object* l___private_Lean_PremiseSelection_0__Lean_PremiseSelection_e
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_335_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at___Lean_PremiseSelection_select_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -291,7 +291,7 @@ x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec_ref(x_11);
 x_14 = lean_box(0);
-x_15 = lean_array_get(x_14, x_2, x_12);
+x_15 = lean_array_get_borrowed(x_14, x_2, x_12);
 lean_dec(x_12);
 x_16 = l___private_Init_While_0__Lean_Loop_forIn_loop___at___Lean_PremiseSelection_random_spec__0___redArg___closed__1;
 x_17 = l_Lean_Name_isPrefixOf(x_16, x_15);
@@ -303,7 +303,6 @@ lean_inc_ref(x_3);
 x_18 = l_Lean_Meta_allowCompletion(x_3, x_15);
 if (x_18 == 0)
 {
-lean_dec(x_15);
 lean_dec(x_10);
 x_5 = x_13;
 goto _start;
@@ -316,6 +315,7 @@ x_21 = lean_unsigned_to_nat(1u);
 x_22 = l_Float_ofScientific(x_20, x_7, x_21);
 x_23 = lean_float_of_nat(x_10);
 x_24 = lean_float_div(x_22, x_23);
+lean_inc(x_15);
 x_25 = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(x_25, 0, x_15);
 lean_ctor_set_float(x_25, sizeof(void*)*1, x_24);
@@ -327,7 +327,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_15);
 lean_dec(x_10);
 x_5 = x_13;
 goto _start;

@@ -211,6 +211,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ex
 lean_object* l_Lean_DeclarationRange_ofStringPositions(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___lam__0___closed__31;
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_initFn___closed__19____x40_Lean_Elab_Tactic_Ext___hyg_3113_;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_initFn___lam__4____x40_Lean_Elab_Tactic_Ext___hyg_3113_(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_tryIntros___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at___Lean_mkConstWithLevelParams___at___Lean_Elab_Tactic_Ext_withExtHyps_spec__0_spec__0_spec__0_spec__0_spec__0_spec__0___closed__0;
@@ -642,7 +643,6 @@ static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_ini
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Elab_Tactic_Ext_evalExt_spec__1(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_initFn___closed__15____x40_Lean_Elab_Tactic_Ext___hyg_3113_;
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lam__0___closed__1;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lam__0___closed__28;
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_evalApplyExtTheorem___regBuiltin_Lean_Elab_Tactic_Ext_evalApplyExtTheorem_declRange__5___closed__4;
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_initFn___lam__5___closed__6____x40_Lean_Elab_Tactic_Ext___hyg_3113_;
@@ -4436,7 +4436,8 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_array_fget(x_3, x_2);
+x_4 = lean_array_fget_borrowed(x_3, x_2);
+lean_inc_ref(x_4);
 return x_4;
 }
 }
@@ -19271,9 +19272,8 @@ return x_5;
 else
 {
 lean_object* x_6; uint8_t x_7; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
 x_7 = lean_name_eq(x_3, x_6);
-lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
@@ -19419,19 +19419,13 @@ return x_1;
 else
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_5 = lean_array_fget(x_1, x_2);
+x_5 = lean_array_fget_borrowed(x_1, x_2);
 x_6 = lean_ctor_get(x_5, 1);
-lean_inc(x_6);
-lean_dec_ref(x_5);
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = lean_nat_sub(x_2, x_7);
-x_9 = lean_array_fget(x_1, x_8);
+x_9 = lean_array_fget_borrowed(x_1, x_8);
 x_10 = lean_ctor_get(x_9, 1);
-lean_inc(x_10);
-lean_dec_ref(x_9);
 x_11 = lean_nat_dec_lt(x_6, x_10);
-lean_dec(x_10);
-lean_dec(x_6);
 if (x_11 == 0)
 {
 lean_dec(x_8);
@@ -23609,8 +23603,9 @@ x_11 = lean_ctor_get(x_1, 0);
 x_12 = lean_unsigned_to_nat(1u);
 x_13 = lean_nat_add(x_9, x_12);
 lean_ctor_set(x_4, 0, x_13);
-x_14 = lean_array_fget(x_11, x_9);
+x_14 = lean_array_fget_borrowed(x_11, x_9);
 lean_dec(x_9);
+lean_inc(x_14);
 x_15 = lean_array_push(x_3, x_14);
 x_3 = x_15;
 goto _start;
@@ -23639,8 +23634,9 @@ x_21 = lean_nat_add(x_17, x_20);
 x_22 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_2, 0, x_22);
-x_23 = lean_array_fget(x_19, x_17);
+x_23 = lean_array_fget_borrowed(x_19, x_17);
 lean_dec(x_17);
+lean_inc(x_23);
 x_24 = lean_array_push(x_3, x_23);
 x_3 = x_24;
 goto _start;
@@ -23685,8 +23681,9 @@ lean_ctor_set(x_33, 0, x_32);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_26);
-x_35 = lean_array_fget(x_30, x_27);
+x_35 = lean_array_fget_borrowed(x_30, x_27);
 lean_dec(x_27);
+lean_inc(x_35);
 x_36 = lean_array_push(x_3, x_35);
 x_2 = x_34;
 x_3 = x_36;

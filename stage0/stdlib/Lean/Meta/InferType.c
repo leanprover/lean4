@@ -111,6 +111,7 @@ lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_PersistentHashMap_find_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at_____private_Lean_Meta_InferType_0__Lean_Meta_inferConstType_spec__0_spec__0_spec__0_spec__0_spec__0___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_getLevel_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assign___at___Lean_Meta_getLevel_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at_____private_Lean_Meta_InferType_0__Lean_Expr_instantiateBetaRevRange_visit_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstVal___at_____private_Lean_Meta_InferType_0__Lean_Meta_inferConstType_spec__0_spec__0_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -269,6 +270,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_Expr_hasAnyFVar_visit___a
 static lean_object* l___private_Lean_Meta_InferType_0__Lean_Expr_instantiateBetaRevRange_visit___closed__3;
 lean_object* l_Lean_MVarId_isReadOnlyOrSyntheticOpaque(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___Lean_Meta_arrowDomainsN_spec__2(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_throwUnknownMVar___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at_____private_Lean_Meta_InferType_0__Lean_Meta_inferTypeImp_infer_spec__3_spec__3___redArg___closed__0;
@@ -1204,11 +1206,10 @@ lean_dec(x_87);
 x_89 = lean_unsigned_to_nat(1u);
 x_90 = lean_nat_sub(x_88, x_89);
 lean_dec(x_88);
-x_91 = lean_array_get(x_86, x_3, x_90);
+x_91 = lean_array_get_borrowed(x_86, x_3, x_90);
 lean_dec(x_90);
 x_92 = lean_unsigned_to_nat(0u);
 x_93 = lean_expr_lift_loose_bvars(x_91, x_92, x_5);
-lean_dec_ref(x_91);
 x_12 = x_93;
 x_13 = x_9;
 x_14 = x_10;
@@ -4816,9 +4817,8 @@ return x_1;
 else
 {
 lean_object* x_12; uint8_t x_13; 
-x_12 = lean_array_fget(x_6, x_2);
+x_12 = lean_array_fget_borrowed(x_6, x_2);
 x_13 = lean_name_eq(x_3, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -4865,9 +4865,8 @@ return x_25;
 else
 {
 lean_object* x_26; uint8_t x_27; 
-x_26 = lean_array_fget(x_19, x_2);
+x_26 = lean_array_fget_borrowed(x_19, x_2);
 x_27 = lean_name_eq(x_3, x_26);
-lean_dec(x_26);
 if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
@@ -4936,8 +4935,8 @@ return x_5;
 else
 {
 lean_object* x_8; lean_object* x_9; uint64_t x_10; size_t x_11; size_t x_12; lean_object* x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
-x_8 = lean_array_fget(x_2, x_4);
-x_9 = lean_array_fget(x_3, x_4);
+x_8 = lean_array_fget_borrowed(x_2, x_4);
+x_9 = lean_array_fget_borrowed(x_3, x_4);
 x_10 = l_Lean_hashMVarId____x40_Lean_Expr___hyg_1873_(x_8);
 x_11 = lean_uint64_to_usize(x_10);
 x_12 = 5;
@@ -4948,6 +4947,8 @@ x_16 = lean_usize_mul(x_12, x_15);
 x_17 = lean_usize_shift_right(x_11, x_16);
 x_18 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
+lean_inc(x_9);
+lean_inc(x_8);
 x_19 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at___Lean_MVarId_assign___at___Lean_Meta_getLevel_spec__0_spec__0_spec__0___redArg(x_5, x_17, x_1, x_8, x_9);
 x_4 = x_18;
 x_5 = x_19;
@@ -8826,13 +8827,10 @@ else
 lean_object* x_15; uint64_t x_16; lean_object* x_17; lean_object* x_18; uint64_t x_19; uint8_t x_20; 
 x_15 = lean_ctor_get(x_4, 0);
 x_16 = lean_ctor_get_uint64(x_4, sizeof(void*)*1);
-x_17 = lean_array_fget(x_1, x_3);
+x_17 = lean_array_fget_borrowed(x_1, x_3);
 x_18 = lean_ctor_get(x_17, 0);
-lean_inc_ref(x_18);
 x_19 = lean_ctor_get_uint64(x_17, sizeof(void*)*1);
-lean_dec_ref(x_17);
 x_20 = lean_expr_equal(x_15, x_18);
-lean_dec_ref(x_18);
 if (x_20 == 0)
 {
 x_5 = x_20;
@@ -8860,8 +8858,9 @@ goto _start;
 else
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = lean_array_fget(x_2, x_3);
+x_9 = lean_array_fget_borrowed(x_2, x_3);
 lean_dec(x_3);
+lean_inc(x_9);
 x_10 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
 return x_10;
@@ -9052,13 +9051,10 @@ else
 lean_object* x_22; uint64_t x_23; lean_object* x_24; lean_object* x_25; uint64_t x_26; uint8_t x_27; 
 x_22 = lean_ctor_get(x_3, 0);
 x_23 = lean_ctor_get_uint64(x_3, sizeof(void*)*1);
-x_24 = lean_array_fget(x_5, x_2);
+x_24 = lean_array_fget_borrowed(x_5, x_2);
 x_25 = lean_ctor_get(x_24, 0);
-lean_inc_ref(x_25);
 x_26 = lean_ctor_get_uint64(x_24, sizeof(void*)*1);
-lean_dec_ref(x_24);
 x_27 = lean_expr_equal(x_22, x_25);
-lean_dec_ref(x_25);
 if (x_27 == 0)
 {
 x_8 = x_27;
@@ -9149,8 +9145,8 @@ return x_5;
 else
 {
 lean_object* x_8; lean_object* x_9; uint64_t x_10; size_t x_11; size_t x_12; lean_object* x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
-x_8 = lean_array_fget(x_2, x_4);
-x_9 = lean_array_fget(x_3, x_4);
+x_8 = lean_array_fget_borrowed(x_2, x_4);
+x_9 = lean_array_fget_borrowed(x_3, x_4);
 x_10 = l_Lean_Meta_instHashableExprConfigCacheKey___private__1(x_8);
 x_11 = lean_uint64_to_usize(x_10);
 x_12 = 5;
@@ -9161,6 +9157,8 @@ x_16 = lean_usize_mul(x_12, x_15);
 x_17 = lean_usize_shift_right(x_11, x_16);
 x_18 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
+lean_inc(x_9);
+lean_inc_ref(x_8);
 x_19 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at_____private_Lean_Meta_InferType_0__Lean_Meta_inferTypeImp_infer_spec__3_spec__3___redArg(x_5, x_17, x_1, x_8, x_9);
 x_4 = x_18;
 x_5 = x_19;

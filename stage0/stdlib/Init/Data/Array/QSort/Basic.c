@@ -38,6 +38,7 @@ static lean_object* l___auto___closed__24____x40_Init_Data_Array_QSort_Basic___h
 static lean_object* l___auto___closed__47____x40_Init_Data_Array_QSort_Basic___hyg_6903_;
 static lean_object* l___auto___closed__5____x40_Init_Data_Array_QSort_Basic___hyg_21_;
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Array_QSort_Basic___hyg_207_;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 static lean_object* l___auto___closed__45____x40_Init_Data_Array_QSort_Basic___hyg_6903_;
 static lean_object* l___auto___closed__13____x40_Init_Data_Array_QSort_Basic___hyg_6903_;
 static lean_object* l___auto___closed__10____x40_Init_Data_Array_QSort_Basic___hyg_21_;
@@ -487,9 +488,10 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
-x_10 = lean_array_fget(x_4, x_6);
+x_10 = lean_array_fget_borrowed(x_4, x_6);
 lean_inc_ref(x_1);
 lean_inc(x_3);
+lean_inc(x_10);
 x_11 = lean_apply_2(x_1, x_10, x_3);
 x_12 = lean_unbox(x_11);
 if (x_12 == 0)
@@ -554,9 +556,11 @@ x_9 = lean_nat_add(x_3, x_4);
 x_10 = lean_unsigned_to_nat(1u);
 x_11 = lean_nat_shiftr(x_9, x_10);
 lean_dec(x_9);
-x_26 = lean_array_fget(x_1, x_11);
-x_27 = lean_array_fget(x_1, x_3);
+x_26 = lean_array_fget_borrowed(x_1, x_11);
+x_27 = lean_array_fget_borrowed(x_1, x_3);
 lean_inc_ref(x_2);
+lean_inc(x_27);
+lean_inc(x_26);
 x_28 = lean_apply_2(x_2, x_26, x_27);
 x_29 = lean_unbox(x_28);
 if (x_29 == 0)
@@ -582,9 +586,11 @@ return x_7;
 block_18:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_13 = lean_array_fget(x_12, x_11);
-x_14 = lean_array_fget(x_12, x_4);
+x_13 = lean_array_fget_borrowed(x_12, x_11);
+x_14 = lean_array_fget_borrowed(x_12, x_4);
 lean_inc_ref(x_2);
+lean_inc(x_14);
+lean_inc(x_13);
 x_15 = lean_apply_2(x_2, x_13, x_14);
 x_16 = lean_unbox(x_15);
 if (x_16 == 0)
@@ -605,9 +611,11 @@ goto block_8;
 block_25:
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
-x_20 = lean_array_fget(x_19, x_4);
-x_21 = lean_array_fget(x_19, x_3);
+x_20 = lean_array_fget_borrowed(x_19, x_4);
+x_21 = lean_array_fget_borrowed(x_19, x_3);
 lean_inc_ref(x_2);
+lean_inc(x_21);
+lean_inc(x_20);
 x_22 = lean_apply_2(x_2, x_20, x_21);
 x_23 = lean_unbox(x_22);
 if (x_23 == 0)

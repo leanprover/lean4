@@ -178,6 +178,7 @@ LEAN_EXPORT lean_object* l_List_forM___at_____private_Lean_Elab_Print_0__Lean_El
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure___lam__4___closed__0;
 uint8_t l_Lean_MessageData_hasSyntheticSorry(lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_eraseReps___at___Lean_mergeStructureResolutionOrders___at___Lean_computeStructureResolutionOrder___at___Lean_getStructureResolutionOrder___at_____private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure_spec__9_spec__9_spec__10_spec__28(lean_object*);
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure___lam__4___closed__16;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___Lean_PersistentHashMap_insertAtCollisionNode___at___Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at_____private_Lean_Structure_0__Lean_setStructureResolutionOrder___at___Lean_computeStructureResolutionOrder___at___Lean_getStructureResolutionOrder___at_____private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure_spec__9_spec__9_spec__38_spec__38_spec__38_spec__38_spec__38(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -471,6 +472,7 @@ static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printStruct
 LEAN_EXPORT lean_object* l_panic___at_____private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure_spec__54(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_realizeGlobalConstWithInfos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printIdSig___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__2;
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at___Lean_throwError___at_____private_Lean_Elab_Print_0__Lean_Elab_Command_getFieldOrigin_spec__1_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7534,10 +7536,9 @@ _start:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_22; lean_object* x_23; lean_object* x_31; lean_object* x_32; uint8_t x_33; lean_object* x_34; uint8_t x_40; lean_object* x_41; lean_object* x_42; uint8_t x_51; lean_object* x_52; uint8_t x_55; uint8_t x_60; lean_object* x_62; lean_object* x_63; uint8_t x_64; lean_object* x_65; lean_object* x_71; lean_object* x_72; uint8_t x_82; 
 lean_inc_ref(x_2);
-x_22 = lean_array_get(x_2, x_3, x_12);
+x_22 = lean_array_get_borrowed(x_2, x_3, x_12);
 lean_inc(x_4);
-x_23 = lean_array_get(x_4, x_22, x_5);
-lean_dec_ref(x_22);
+x_23 = lean_array_get_borrowed(x_4, x_22, x_5);
 x_82 = lean_nat_dec_le(x_12, x_10);
 if (x_82 == 0)
 {
@@ -7614,6 +7615,7 @@ if (x_35 == 0)
 lean_dec(x_34);
 lean_dec(x_32);
 lean_dec_ref(x_31);
+lean_inc(x_23);
 lean_dec(x_12);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -7635,6 +7637,7 @@ x_38 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at_____privat
 lean_dec_ref(x_31);
 if (x_38 == 0)
 {
+lean_inc(x_23);
 lean_dec(x_12);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -7646,7 +7649,6 @@ goto block_30;
 }
 else
 {
-lean_dec(x_23);
 lean_inc_ref(x_1);
 x_14 = x_1;
 x_15 = x_13;
@@ -7672,6 +7674,7 @@ if (x_47 == 0)
 lean_dec(x_46);
 lean_dec(x_45);
 lean_dec_ref(x_44);
+lean_inc(x_23);
 lean_dec(x_12);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -7752,7 +7755,6 @@ block_61:
 {
 if (x_60 == 0)
 {
-lean_dec(x_23);
 lean_inc_ref(x_1);
 x_14 = x_1;
 x_15 = x_13;
@@ -7793,7 +7795,6 @@ goto block_61;
 }
 else
 {
-lean_dec(x_23);
 lean_inc_ref(x_1);
 x_14 = x_1;
 x_15 = x_13;
@@ -7864,10 +7865,9 @@ _start:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_30; lean_object* x_31; lean_object* x_39; lean_object* x_40; uint8_t x_41; lean_object* x_42; uint8_t x_48; lean_object* x_49; lean_object* x_50; uint8_t x_59; lean_object* x_60; uint8_t x_63; uint8_t x_68; lean_object* x_70; uint8_t x_71; lean_object* x_72; lean_object* x_73; lean_object* x_79; lean_object* x_80; uint8_t x_90; 
 lean_inc_ref(x_2);
-x_30 = lean_array_get(x_2, x_3, x_14);
+x_30 = lean_array_get_borrowed(x_2, x_3, x_14);
 lean_inc(x_4);
-x_31 = lean_array_get(x_4, x_30, x_5);
-lean_dec_ref(x_30);
+x_31 = lean_array_get_borrowed(x_4, x_30, x_5);
 x_90 = lean_nat_dec_le(x_14, x_10);
 if (x_90 == 0)
 {
@@ -7944,6 +7944,7 @@ if (x_43 == 0)
 lean_dec(x_42);
 lean_dec_ref(x_40);
 lean_dec(x_39);
+lean_inc(x_31);
 lean_dec(x_14);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -7965,6 +7966,7 @@ x_46 = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at_____privat
 lean_dec_ref(x_40);
 if (x_46 == 0)
 {
+lean_inc(x_31);
 lean_dec(x_14);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -7976,7 +7978,6 @@ goto block_38;
 }
 else
 {
-lean_dec(x_31);
 lean_inc_ref(x_1);
 x_22 = x_1;
 x_23 = x_21;
@@ -8002,6 +8003,7 @@ if (x_55 == 0)
 lean_dec(x_54);
 lean_dec(x_53);
 lean_dec_ref(x_52);
+lean_inc(x_31);
 lean_dec(x_14);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -8082,7 +8084,6 @@ block_69:
 {
 if (x_68 == 0)
 {
-lean_dec(x_31);
 lean_inc_ref(x_1);
 x_22 = x_1;
 x_23 = x_21;
@@ -8123,7 +8124,6 @@ goto block_69;
 }
 else
 {
-lean_dec(x_31);
 lean_inc_ref(x_1);
 x_22 = x_1;
 x_23 = x_21;
@@ -8886,10 +8886,10 @@ if (lean_obj_tag(x_14) == 0)
 {
 uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_16 = 0;
-x_17 = lean_array_get(x_1, x_2, x_3);
-x_18 = lean_array_get(x_4, x_17, x_3);
-lean_dec_ref(x_17);
+x_17 = lean_array_get_borrowed(x_1, x_2, x_3);
+x_18 = lean_array_get_borrowed(x_4, x_17, x_3);
 x_19 = lean_box(x_16);
+lean_inc(x_18);
 lean_ctor_set(x_5, 1, x_18);
 lean_ctor_set(x_5, 0, x_19);
 x_20 = lean_alloc_ctor(0, 2, 0);
@@ -8920,10 +8920,10 @@ if (lean_obj_tag(x_22) == 0)
 {
 uint8_t x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_23 = 0;
-x_24 = lean_array_get(x_1, x_2, x_3);
-x_25 = lean_array_get(x_4, x_24, x_3);
-lean_dec_ref(x_24);
+x_24 = lean_array_get_borrowed(x_1, x_2, x_3);
+x_25 = lean_array_get_borrowed(x_4, x_24, x_3);
 x_26 = lean_box(x_23);
+lean_inc(x_25);
 x_27 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_27, 0, x_26);
 lean_ctor_set(x_27, 1, x_25);
@@ -9459,12 +9459,13 @@ return x_5;
 else
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_array_fget(x_1, x_2);
+x_6 = lean_array_fget_borrowed(x_1, x_2);
 x_7 = l_Array_eraseReps___at___Lean_mergeStructureResolutionOrders___at___Lean_computeStructureResolutionOrder___at___Lean_getStructureResolutionOrder___at_____private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure_spec__9_spec__9_spec__10_spec__28___closed__0;
 if (x_4 == 0)
 {
 lean_object* x_8; 
 lean_dec(x_3);
+lean_inc(x_6);
 x_8 = lean_array_push(x_7, x_6);
 return x_8;
 }
@@ -9476,12 +9477,14 @@ if (x_9 == 0)
 {
 lean_object* x_10; 
 lean_dec(x_3);
+lean_inc(x_6);
 x_10 = lean_array_push(x_7, x_6);
 return x_10;
 }
 else
 {
 lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+lean_inc(x_6);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_6);
 lean_ctor_set(x_11, 1, x_7);
@@ -11682,9 +11685,8 @@ return x_1;
 else
 {
 lean_object* x_12; uint8_t x_13; 
-x_12 = lean_array_fget(x_6, x_2);
+x_12 = lean_array_fget_borrowed(x_6, x_2);
 x_13 = lean_name_eq(x_3, x_12);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -11731,9 +11733,8 @@ return x_25;
 else
 {
 lean_object* x_26; uint8_t x_27; 
-x_26 = lean_array_fget(x_19, x_2);
+x_26 = lean_array_fget_borrowed(x_19, x_2);
 x_27 = lean_name_eq(x_3, x_26);
-lean_dec(x_26);
 if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
@@ -11802,8 +11803,8 @@ return x_5;
 else
 {
 lean_object* x_8; lean_object* x_9; uint64_t x_10; size_t x_11; size_t x_12; lean_object* x_13; size_t x_14; size_t x_15; size_t x_16; size_t x_17; lean_object* x_18; lean_object* x_19; 
-x_8 = lean_array_fget(x_2, x_4);
-x_9 = lean_array_fget(x_3, x_4);
+x_8 = lean_array_fget_borrowed(x_2, x_4);
+x_9 = lean_array_fget_borrowed(x_3, x_4);
 x_10 = l_Lean_Name_hash___override(x_8);
 x_11 = lean_uint64_to_usize(x_10);
 x_12 = 5;
@@ -11814,6 +11815,8 @@ x_16 = lean_usize_mul(x_12, x_15);
 x_17 = lean_usize_shift_right(x_11, x_16);
 x_18 = lean_nat_add(x_4, x_13);
 lean_dec(x_4);
+lean_inc(x_9);
+lean_inc(x_8);
 x_19 = l_Lean_PersistentHashMap_insertAux___at___Lean_PersistentHashMap_insert___at_____private_Lean_Structure_0__Lean_setStructureResolutionOrder___at___Lean_computeStructureResolutionOrder___at___Lean_getStructureResolutionOrder___at_____private_Lean_Elab_Print_0__Lean_Elab_Command_printStructure_spec__9_spec__9_spec__38_spec__38_spec__38___redArg(x_5, x_17, x_1, x_8, x_9);
 x_4 = x_18;
 x_5 = x_19;
@@ -16998,7 +17001,8 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_array_fget(x_3, x_2);
+x_4 = lean_array_fget_borrowed(x_3, x_2);
+lean_inc_ref(x_4);
 return x_4;
 }
 }

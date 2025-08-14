@@ -39,6 +39,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Config_Cache_0__Lake_CacheMap_loadCore_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_save___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CacheMap_insertCore(uint64_t, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedCache___closed__0;
 lean_object* l_System_FilePath_pathExists(lean_object*, lean_object*);
@@ -492,7 +493,8 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17;
 lean_inc_ref(x_11);
 lean_dec_ref(x_1);
 x_15 = lean_unsigned_to_nat(0u);
-x_16 = lean_array_fget(x_11, x_15);
+x_16 = lean_array_fget_borrowed(x_11, x_15);
+lean_inc(x_16);
 x_17 = l_UInt64_fromJson_x3f(x_16);
 if (lean_obj_tag(x_17) == 0)
 {

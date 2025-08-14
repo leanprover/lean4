@@ -165,6 +165,7 @@ lean_object* lean_mk_syntax_ident(lean_object*);
 static lean_object* l_Lean_ParserCompiler_compileParserExpr___redArg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_ParserCompiler_compileParserExpr_spec__3_spec__3_spec__3_spec__3_spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___Lean_ParserCompiler_compileParserExpr_spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_compileParserExpr___redArg___closed__2;
 lean_object* l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
@@ -265,7 +266,6 @@ LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___redArg___boxe
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___Lean_ParserCompiler_compileParserExpr_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileEmbeddedParsers(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_parserNodeKind_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_ParserCompiler_registerParserCompiler_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -1555,11 +1555,12 @@ _start:
 {
 lean_object* x_15; lean_object* x_33; lean_object* x_34; 
 lean_inc_ref(x_1);
-x_33 = lean_array_get(x_1, x_2, x_9);
+x_33 = lean_array_get_borrowed(x_1, x_2, x_9);
 lean_inc(x_13);
 lean_inc_ref(x_12);
 lean_inc(x_11);
 lean_inc_ref(x_10);
+lean_inc_ref(x_33);
 x_34 = lean_infer_type(x_33, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_34) == 0)
 {
@@ -1585,7 +1586,7 @@ x_41 = lean_ctor_get(x_39, 1);
 lean_inc(x_41);
 lean_dec_ref(x_39);
 lean_inc_ref(x_1);
-x_42 = lean_array_get(x_1, x_3, x_9);
+x_42 = lean_array_get_borrowed(x_1, x_3, x_9);
 x_43 = l_Lean_ParserCompiler_Context_tyName___redArg(x_4);
 x_44 = l_Lean_Expr_isConstOf(x_40, x_43);
 lean_dec(x_43);
@@ -1593,6 +1594,7 @@ lean_dec(x_40);
 if (x_44 == 0)
 {
 lean_object* x_45; 
+lean_inc_ref(x_42);
 x_45 = l_Std_PRange_RangeIterator_instIteratorLoop_loop___at___Lean_ParserCompiler_compileParserExpr_spec__1___redArg___lam__1(x_8, x_42, x_10, x_11, x_12, x_13, x_41);
 x_15 = x_45;
 goto block_32;
@@ -1604,6 +1606,7 @@ lean_inc(x_13);
 lean_inc_ref(x_12);
 lean_inc(x_11);
 lean_inc_ref(x_10);
+lean_inc_ref(x_42);
 lean_inc_ref(x_4);
 x_46 = l_Lean_ParserCompiler_compileParserExpr___redArg(x_4, x_5, x_6, x_42, x_10, x_11, x_12, x_13, x_41);
 if (lean_obj_tag(x_46) == 0)

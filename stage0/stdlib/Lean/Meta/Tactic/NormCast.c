@@ -72,6 +72,7 @@ static lean_object* l___private_Lean_Meta_Tactic_NormCast_0__Lean_Meta_NormCast_
 static lean_object* l_Lean_Meta_NormCast_getSimpArgs___closed__0;
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Meta_NormCast_addInfer_spec__0_spec__0_spec__0_spec__0_spec__0___closed__9;
 static lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lam__0___closed__0;
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Meta_NormCast_addInfer_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_NormCast_addElim___closed__0;
@@ -216,7 +217,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_NormCast_0__Lean_Meta_Norm
 static lean_object* l_Lean_Meta_NormCast_classifyType___lam__0___closed__12;
 static lean_object* l___private_Lean_Meta_Tactic_NormCast_0__Lean_Meta_NormCast_initFn___lam__1___closed__2____x40_Lean_Meta_Tactic_NormCast___hyg_2019_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_NormCast_getSimpArgs_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Meta_NormCast_getSimpArgs_spec__0(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_addElim___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkUnknownIdentifierMessage___at___Lean_throwUnknownIdentifierAt___at___Lean_throwUnknownConstantAt___at___Lean_throwUnknownConstant___at___Lean_getConstInfo___at___Lean_Meta_NormCast_addInfer_spec__0_spec__0_spec__0_spec__0_spec__0___closed__2;
@@ -744,7 +744,7 @@ x_24 = lean_ctor_get(x_15, 1);
 lean_dec(x_24);
 x_25 = lean_ctor_get(x_15, 0);
 lean_dec(x_25);
-x_26 = lean_array_fget(x_17, x_18);
+x_26 = lean_array_fget_borrowed(x_17, x_18);
 x_27 = lean_unbox(x_26);
 x_28 = lean_unsigned_to_nat(1u);
 x_29 = lean_nat_add(x_18, x_28);
@@ -771,7 +771,7 @@ else
 {
 lean_object* x_32; uint8_t x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec(x_15);
-x_32 = lean_array_fget(x_17, x_18);
+x_32 = lean_array_fget_borrowed(x_17, x_18);
 x_33 = lean_unbox(x_32);
 x_34 = lean_unsigned_to_nat(1u);
 x_35 = lean_nat_add(x_18, x_34);
@@ -839,7 +839,7 @@ if (lean_is_exclusive(x_39)) {
  lean_dec_ref(x_39);
  x_47 = lean_box(0);
 }
-x_48 = lean_array_fget(x_41, x_42);
+x_48 = lean_array_fget_borrowed(x_41, x_42);
 x_49 = lean_unbox(x_48);
 x_50 = lean_unsigned_to_nat(1u);
 x_51 = lean_nat_add(x_42, x_50);

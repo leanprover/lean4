@@ -43,6 +43,7 @@ LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at___Lean_Meta_Canonicalizer_canon_spec__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_____private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_unsafe__1_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_instBEqExprVisited___lam__0___boxed(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Canonicalizer_0__Lean_Meta_Canonicalizer_mkKey_unsafe__7___redArg(lean_object*, uint64_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_CanonM_run___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Canonicalizer_instInhabitedExprVisited;
@@ -1520,11 +1521,10 @@ return x_41;
 else
 {
 lean_object* x_46; uint8_t x_47; 
-x_46 = lean_array_fget(x_34, x_6);
+x_46 = lean_array_fget_borrowed(x_34, x_6);
 x_47 = l_Lean_Meta_ParamInfo_isExplicit(x_46);
 if (x_47 == 0)
 {
-lean_dec_ref(x_46);
 x_23 = x_47;
 goto block_33;
 }
@@ -1532,7 +1532,6 @@ else
 {
 uint8_t x_48; 
 x_48 = lean_ctor_get_uint8(x_46, sizeof(void*)*1 + 2);
-lean_dec_ref(x_46);
 if (x_48 == 0)
 {
 x_23 = x_47;

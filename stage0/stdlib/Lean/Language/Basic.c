@@ -165,6 +165,7 @@ LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_ofTyped(lean_object*, l
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___Lean_Language_SnapshotTree_foldM___at___Lean_Language_SnapshotTree_getAll_spec__0_spec__0(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
 lean_object* lean_task_get_own(lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__4;
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__28;
 LEAN_EXPORT lean_object* l_IO_println___at___Lean_Language_reportMessages_spec__2(lean_object*, lean_object*);
@@ -248,7 +249,6 @@ lean_object* lean_array_get_size(lean_object*);
 static lean_object* l___private_Lean_Language_Basic_0__Lean_Language_SnapshotTree_waitAll_go___closed__0;
 lean_object* l_Lean_mkAtom(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Snapshot_desc___autoParam;
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__20;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__9;
@@ -2686,7 +2686,7 @@ x_9 = lean_ctor_get(x_4, 0);
 x_10 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_Language_reportMessages_spec__3_spec__3___closed__0;
 x_11 = lean_usize_shift_right(x_5, x_6);
 x_12 = lean_usize_to_nat(x_11);
-x_13 = lean_array_get(x_10, x_9, x_12);
+x_13 = lean_array_get_borrowed(x_10, x_9, x_12);
 x_14 = 1;
 x_15 = lean_usize_shift_left(x_14, x_6);
 x_16 = lean_usize_sub(x_15, x_14);
@@ -2694,7 +2694,6 @@ x_17 = lean_usize_land(x_5, x_16);
 x_18 = 5;
 x_19 = lean_usize_sub(x_6, x_18);
 x_20 = l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at___Lean_PersistentArray_foldlM___at___Lean_Language_reportMessages_spec__3_spec__3(x_1, x_2, x_3, x_13, x_17, x_19, x_7, x_8);
-lean_dec_ref(x_13);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 

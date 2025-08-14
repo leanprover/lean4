@@ -39,6 +39,16 @@ end X
 def packageWithoutSynthesizableInstances : LinearOrderPackage X := .ofLE X {
   le := X.instLE
   decidableLE := X.instDecidableLE
+  decidableLT := by
+    intro i hi d hd l
+    letI := i
+    cases hi
+    letI := d
+    cases hd
+    haveI := @LawfulOrderLT.mk (lt_iff := l) ..
+    first
+      | infer_instance
+      | exact FactoryInstances.instDecidableLTOfLE
 }
 
 /--

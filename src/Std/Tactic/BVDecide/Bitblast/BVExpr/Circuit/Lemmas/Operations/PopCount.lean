@@ -345,7 +345,6 @@ theorem blastAddVec_denote
   --         (helem' := by sorry) (newParSumBv := newParSumBv) (elemBv := sorry)
   --         (oldParSumBv := oldParSumBv) (hlenOld := by omega) (hlenNew := by simp_all; sorry)
 
-  sorry
 
 theorem denote_blastAddVec
   (assign : α → Bool)
@@ -390,16 +389,16 @@ theorem denote_blastAddVec
     unfold blastAddVec at hres
     simp [show 1 < inputNodes by omega, show 0 < inputNodes by omega] at hres
 
-    split at hres
-    · case _ hc =>
-      rw [← hres]
-      simp
-      have := blastAddVec_denote_even (aigOld := aig) (assign := assign) (inputNodes := inputNodes) (currNode := currNode) (w := w)
-              (hi := by omega) (oldParSum := oldParSum) (newParSum := newParSum) (by omega) (by omega) (by omega) (by omega)
+    -- split at hres
+    -- · case _ hc =>
+    --   rw [← hres]
+    --   simp
+    --   have := blastAddVec_denote_even (aigOld := aig) (assign := assign) (inputNodes := inputNodes) (currNode := currNode) (w := w)
+    --           (hi := by omega) (oldParSum := oldParSum) (newParSum := newParSum) (by omega) (by omega) (by omega) (by omega)
 
 
-      sorry
-    · sorry
+    sorry
+    -- · sorry
 
 
 @[simp]

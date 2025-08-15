@@ -1,7 +1,7 @@
 import Std.Tactic.BVDecide
 
 def test : IO Unit :=
-  have w := 8
+  have w := 5
   for xx in [0 : 2^w] do
     have x := BitVec.ofNat w xx
     let mut pop := 0

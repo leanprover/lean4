@@ -9,7 +9,6 @@ prelude
 public import Lake.Util.Log
 public import Lake.Util.Exit
 public import Lake.Util.Error
-import Lake.Util.Lift
 
 namespace Lake
 

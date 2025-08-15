@@ -12,30 +12,6 @@ public import Init.Data.Order.Ord
 
 namespace Std
 
-public theorem isLE_compare {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
-    {a b : α} : (compare a b).isLE ↔ a ≤ b := by
-  simp [← LawfulOrderOrd.isLE_compare]
-
-public theorem isGE_compare {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α]
-    {a b : α} : (compare a b).isGE ↔ b ≤ a := by
-  simp [← LawfulOrderOrd.isGE_compare]
-
-public theorem compare_eq_lt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrderOrd α] [LawfulOrderLT α]
-    {a b : α} : compare a b = .lt ↔ a < b := by
-  rw [LawfulOrderLT.lt_iff, ← LawfulOrderOrd.isLE_compare, ← LawfulOrderOrd.isGE_compare]
-  cases compare a b <;> simp
-
-public theorem compare_eq_gt {α : Type u} [Ord α] [LT α] [LE α] [LawfulOrderOrd α] [LawfulOrderLT α]
-    {a b : α} : compare a b = .gt ↔ b < a := by
-  rw [LawfulOrderLT.lt_iff, ← LawfulOrderOrd.isGE_compare, ← LawfulOrderOrd.isLE_compare]
-  cases compare a b <;> simp
-
-public theorem compare_eq_eq {α : Type u} [Ord α] [BEq α] [LE α] [LawfulOrderOrd α] [LawfulOrderBEq α]
-    {a b : α} : compare a b = .eq ↔ a == b := by
-  open Classical.Order in
-  rw [LawfulOrderBEq.beq_iff_le_and_ge, ← isLE_compare, ← isGE_compare]
-  cases compare a b <;> simp
-
 public instance {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α] : OrientedOrd α where
   eq_swap := by
     open Classical.Order in
@@ -76,12 +52,12 @@ public instance {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] [Antisymm (α
     LawfulEqOrd α where
   eq_of_compare := by
     open Classical.Order in
-    simp [Ordering.eq_eq_iff_isLE_and_isGE, compare_isLE, compare_isGE, le_antisymm_iff]
+    simp [Ordering.eq_eq_iff_isLE_and_isGE, isLE_compare, isGE_compare, le_antisymm_iff]
 
 public instance {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] [LawfulEqOrd α] :
      Antisymm (α := α) (· ≤ ·) where
   antisymm a b := by
-    simp [← and_imp, ← compare_isLE (a := a), ← compare_isGE (a := a),
+    simp [← and_imp, ← isLE_compare (a := a), ← isGE_compare (a := a),
       ← Ordering.eq_eq_iff_isLE_and_isGE]
 
 public theorem compare_eq_eq_iff_eq {α : Type u} [Ord α] [LawfulEqOrd α] {a b : α} :

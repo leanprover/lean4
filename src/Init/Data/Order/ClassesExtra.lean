@@ -30,10 +30,10 @@ public class LawfulOrderOrd (α : Type u) [Ord α] [LE α] where
 
 public theorem LawfulOrderOrd.compare_isLE_eq_false {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] {a b : α} :
     (compare a b).isLE = false ↔ ¬ a ≤ b := by
-  simp [← compare_isLE]
+  simp [← isLE_compare]
 
 public theorem LawfulOrderOrd.compare_isLG_eq_false {α : Type u} [Ord α] [LE α] [LawfulOrderOrd α] {a b : α} :
     (compare a b).isGE = false ↔ ¬ b ≤ a := by
-  simp [← compare_isGE]
+  simp [← isGE_compare]
 
 end Std

@@ -10,6 +10,7 @@ public import Lean.AddDecl
 public import Lean.Meta.AppBuilder
 public import Lean.Meta.CompletionName
 public import Lean.Meta.Constructions.NoConfusionLinear
+import Lean.ReservedNameAction
 
 public section
 
@@ -138,7 +139,25 @@ def mkNoConfusion (declName : Name) : MetaM Unit := do
   else
     mkNoConfusionCore declName
 
+def isNoConfusionName? (env : Environment) (name : Name) : Option (InductiveVal × String) := do
+  let mut .str indName s := name | failure
+  match s with
+  | "toCtorIdx"
+  | "noConfusionType"
+  | "noConfusion" =>
+    let some (.inductInfo info) := env.find? indName | failure
+    guard !info.isUnsafe
+    return (info, s)
+  | _ => failure
+
 builtin_initialize
   registerTraceClass `Meta.mkNoConfusion
+  registerReservedNamePredicate (isNoConfusionName? · · |>.isSome)
+  registerReservedNameAction fun name => do
+    let some (indVal, _) := isNoConfusionName? (← getEnv) name | return false
+    MetaM.run' <| realizeConst indVal.name name do
+      withExporting (isExporting := !isPrivateName indVal.name) do
+        mkNoConfusion indVal.name
+    return true
 
 end Lean

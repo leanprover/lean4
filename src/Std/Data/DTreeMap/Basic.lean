@@ -952,7 +952,7 @@ def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : D
 
 end Const
 
-/-- Check if any element satisfes the predicate, short-circuiting if a predicate fails. -/
+/-- Check if any element satisfies the predicate, short-circuiting if a predicate fails. -/
 @[inline]
 def any (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
   for ⟨a, b⟩ in t do

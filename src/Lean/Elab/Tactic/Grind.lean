@@ -3,14 +3,20 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Tactics
-import Lean.Meta.Tactic.Grind
-import Lean.Meta.Tactic.TryThis
-import Lean.Elab.Command
+public import Init.Grind.Tactics
+public import Lean.Meta.Tactic.Grind.Main
+public import Lean.Meta.Tactic.TryThis
+public import Lean.Elab.Command
+public import Lean.Elab.Tactic.Basic
+public import Lean.Elab.Tactic.Config
+import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Elab.MutualDef
-import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.Config
+meta import Lean.Meta.Tactic.Grind.Parser
+
+public section
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -29,7 +35,7 @@ where
   go (thmName : TSyntax `ident) (terms : Syntax.TSepArray `term ",") (kind : AttributeKind) : CommandElabM Unit := liftTermElabM do
     let declName ← resolveGlobalConstNoOverload thmName
     discard <| addTermInfo thmName (← mkConstWithLevelParams declName)
-    let info ← getConstInfo declName
+    let info ← getConstVal declName
     forallTelescope info.type fun xs _ => do
       let patterns ← terms.getElems.mapM fun term => do
         let pattern ← Term.elabTerm term none
@@ -61,6 +67,17 @@ def elabInitGrindNorm : CommandElab := fun stx =>
       withDeclNameForAuxNaming `Lean.Grind do
         Grind.registerNormTheorems pre post
   | _ => throwUnsupportedSyntax
+
+private def warnRedundantEMatchArg (s : Grind.EMatchTheorems) (declName : Name) : MetaM Unit := do
+  let kinds ← match s.getKindsFor (.decl declName) with
+    | [] => return ()
+    | [k] => pure m!"@{k.toAttribute}"
+    | [.eqLhs gen, .eqRhs _]
+    | [.eqRhs gen, .eqLhs _] => pure m!"@{(Grind.EMatchTheoremKind.eqBoth gen).toAttribute}"
+    | ks =>
+      let ks := ks.map fun k => m!"@{k.toAttribute}"
+      pure m!"{ks}"
+  logWarning m!"this parameter is redundant, environment already contains `{declName}` annotated with `{kinds}`"
 
 def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool) : MetaM Grind.Params := do
   let mut params := params
@@ -116,16 +133,23 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
   return params
 where
   addEMatchTheorem (params : Grind.Params) (declName : Name) (kind : Grind.EMatchTheoremKind) : MetaM Grind.Params := do
-    let info ← getConstInfo declName
-    match info with
-    | .thmInfo _ | .axiomInfo _ | .ctorInfo _ =>
+    let info ← getAsyncConstInfo declName
+    match info.kind with
+    | .thm | .axiom | .ctor =>
       match kind with
       | .eqBoth gen =>
-        let params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen) params.symPrios) }
-        return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName (.eqRhs gen) params.symPrios) }
+        let thm₁ ← Grind.mkEMatchTheoremForDecl declName (.eqLhs gen) params.symPrios
+        let thm₂ ← Grind.mkEMatchTheoremForDecl declName (.eqRhs gen) params.symPrios
+        if params.ematch.containsWithSamePatterns thm₁.origin thm₁.patterns &&
+           params.ematch.containsWithSamePatterns thm₂.origin thm₂.patterns then
+          warnRedundantEMatchArg params.ematch declName
+        return { params with extra := params.extra.push thm₁ |>.push thm₂ }
       | _ =>
-        return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName kind params.symPrios) }
-    | .defnInfo _ =>
+        let thm ← Grind.mkEMatchTheoremForDecl declName kind params.symPrios
+        if params.ematch.containsWithSamePatterns thm.origin thm.patterns then
+          warnRedundantEMatchArg params.ematch declName
+        return { params with extra := params.extra.push thm }
+    | .defn =>
       if (← isReducible declName) then
         throwError "`{declName}` is a reducible definition, `grind` automatically unfolds them"
       if !kind.isEqLhs && !kind.isDefault then
@@ -138,8 +162,8 @@ where
 
 def mkGrindParams (config : Grind.Config) (only : Bool) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) : MetaM Grind.Params := do
   let params ← Grind.mkParams config
-  let ematch ← if only then pure {} else Grind.getEMatchTheorems
-  let casesTypes ← if only then pure {} else Grind.getCasesTypes
+  let ematch ← if only then pure default else Grind.getEMatchTheorems
+  let casesTypes ← if only then pure default else Grind.getCasesTypes
   let params := { params with ematch, casesTypes }
   elabGrindParams params ps only
 
@@ -156,8 +180,10 @@ def grind
     if result.hasFailed then
       throwError "`grind` failed\n{← result.toMessageData}"
     trace[grind.debug.proof] "{← instantiateMVars mvar'}"
-    -- `grind` proofs are often big
-    let e ← if (← isProp type) then
+    -- `grind` proofs are often big, if `abstractProof` is true, we create an auxiliary theorem.
+    let e ← if !config.abstractProof then
+      instantiateMVarsProfiling mvar'
+    else if (← isProp type) then
       mkAuxTheorem type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
     else
       let auxName ← Term.mkAuxName `grind
@@ -193,7 +219,7 @@ def evalGrindCore
   let only := only.isSome
   let params := if let some params := params then params.getElems else #[]
   if Grind.grind.warning.get (← getOptions) then
-    logWarningAt ref "The `grind` tactic is new and its behaviour may change in the future. This project has used `set_option grind.warning true` to discourage its use."
+    logWarningAt ref "The `grind` tactic is new and its behavior may change in the future. This project has used `set_option grind.warning true` to discourage its use."
   withMainContext do
     let result ← grind (← getMainGoal) config only params fallback
     replaceMainGoal []

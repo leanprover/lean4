@@ -3,9 +3,13 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Lemmas
-import Lean.Meta.Tactic.Grind.Types
+public import Init.Grind.Lemmas
+public import Lean.Meta.Tactic.Grind.Types
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -206,12 +210,15 @@ mutual
         let proof ← mkEqNDRec motive proof fEq
         mkEqOfHEqIfNeeded proof heq
 
-  private partial def mkEqCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+  private partial def mkEqCongrProof (lhs rhs : Expr) : GoalM Expr := do
     let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!
     let_expr Eq α₂ a₂ b₂ := rhs | unreachable!
     let us := f.constLevels!
     if !isSameExpr α₁ α₂ then
-      mkHCongrProof lhs rhs heq
+      if (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂ then
+        return mkApp8 (mkConst ``Grind.heq_congr us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ true) (← mkEqProofCore b₁ b₂ true)
+      else
+        return mkApp8 (mkConst ``Grind.heq_congr' us) α₁ α₂ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ true) (← mkEqProofCore b₁ a₂ true)
     else if (← get).hasSameRoot a₁ a₂ && (← get).hasSameRoot b₁ b₂ then
       return mkApp7 (mkConst ``Grind.eq_congr us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ false) (← mkEqProofCore b₁ b₂ false)
     else
@@ -235,7 +242,8 @@ mutual
       else if numArgs == 2 && f.isConstOf ``Grind.nestedDecidable && g.isConstOf ``Grind.nestedDecidable then
         mkNestedDecidableCongr lhs rhs heq
       else if numArgs == 3 && f.isConstOf ``Eq && g.isConstOf ``Eq then
-        mkEqCongrProof lhs rhs heq
+        let r ← mkEqCongrProof lhs rhs
+        if heq then mkHEqOfEq r else return r
       else if (← isCongrDefaultProofTarget lhs rhs f g numArgs) then
         mkCongrDefaultProof lhs rhs heq
       else

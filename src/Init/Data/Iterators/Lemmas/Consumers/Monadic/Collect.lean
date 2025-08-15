@@ -21,8 +21,7 @@ theorem IterM.DefaultConsumers.toArrayMapped.go.aux₁ [Monad n] [LawfulMonad n]
     [Finite α m] {b : γ} {bs : Array γ} :
     IterM.DefaultConsumers.toArrayMapped.go lift f it (#[b] ++ bs) (m := m) =
       (#[b] ++ ·) <$> IterM.DefaultConsumers.toArrayMapped.go lift f it bs (m := m) := by
-  induction it, bs using IterM.DefaultConsumers.toArrayMapped.go.induct
-  next it bs ih₁ ih₂ =>
+  induction it, bs using IterM.DefaultConsumers.toArrayMapped.go.induct with | _ it bs ih₁ ih₂
   rw [go, map_eq_pure_bind, go, bind_assoc]
   apply bind_congr
   intro step
@@ -93,8 +92,7 @@ theorem IterM.toList_eq_match_step [Monad m] [LawfulMonad m] [Iterator α m β] 
 theorem IterM.toListRev.go.aux₁ [Monad m] [LawfulMonad m] [Iterator α m β] [Finite α m]
     {it : IterM (α := α) m β} {b : β} {bs : List β} :
     IterM.toListRev.go it (bs ++ [b]) = (· ++ [b]) <$> IterM.toListRev.go it bs:= by
-  induction it, bs using IterM.toListRev.go.induct
-  next it bs ih₁ ih₂ =>
+  induction it, bs using IterM.toListRev.go.induct with | _ it bs ih₁ ih₂
   rw [go, go, map_eq_pure_bind, bind_assoc]
   apply bind_congr
   intro step

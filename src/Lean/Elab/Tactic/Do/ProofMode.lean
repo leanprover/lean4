@@ -3,21 +3,26 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Lean.Elab.Tactic.Do.ProofMode.MGoal
-import Lean.Elab.Tactic.Do.ProofMode.Delab
-import Lean.Elab.Tactic.Do.ProofMode.Basic
-import Lean.Elab.Tactic.Do.ProofMode.Clear
-import Lean.Elab.Tactic.Do.ProofMode.Intro
-import Lean.Elab.Tactic.Do.ProofMode.Revert
-import Lean.Elab.Tactic.Do.ProofMode.Exact
-import Lean.Elab.Tactic.Do.ProofMode.Assumption
-import Lean.Elab.Tactic.Do.ProofMode.Pure
-import Lean.Elab.Tactic.Do.ProofMode.Frame
-import Lean.Elab.Tactic.Do.ProofMode.LeftRight
-import Lean.Elab.Tactic.Do.ProofMode.Constructor
-import Lean.Elab.Tactic.Do.ProofMode.Specialize
-import Lean.Elab.Tactic.Do.ProofMode.Cases
-import Lean.Elab.Tactic.Do.ProofMode.Exfalso
-import Lean.Elab.Tactic.Do.ProofMode.Have
-import Lean.Elab.Tactic.Do.ProofMode.Refine
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+public import Lean.Elab.Tactic.Do.ProofMode.Delab
+public import Lean.Elab.Tactic.Do.ProofMode.Basic
+public import Lean.Elab.Tactic.Do.ProofMode.Clear
+public import Lean.Elab.Tactic.Do.ProofMode.Intro
+public import Lean.Elab.Tactic.Do.ProofMode.Revert
+public import Lean.Elab.Tactic.Do.ProofMode.Exact
+public import Lean.Elab.Tactic.Do.ProofMode.Assumption
+public import Lean.Elab.Tactic.Do.ProofMode.Pure
+public import Lean.Elab.Tactic.Do.ProofMode.Frame
+public import Lean.Elab.Tactic.Do.ProofMode.LeftRight
+public import Lean.Elab.Tactic.Do.ProofMode.Constructor
+public import Lean.Elab.Tactic.Do.ProofMode.RenameI
+public import Lean.Elab.Tactic.Do.ProofMode.Specialize
+public import Lean.Elab.Tactic.Do.ProofMode.Cases
+public import Lean.Elab.Tactic.Do.ProofMode.Exfalso
+public import Lean.Elab.Tactic.Do.ProofMode.Have
+public import Lean.Elab.Tactic.Do.ProofMode.Refine
+
+public section

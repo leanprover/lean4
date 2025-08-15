@@ -4,12 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner, Marc Huisinga
 -/
+module
+
 prelude
-import Init.Data.Range
-import Init.Data.OfScientific
-import Init.Data.Hashable
-import Init.Data.ToString.Macro
-import Std.Data.TreeMap.Raw.Basic
+public import Init.Data.Range
+public import Init.Data.OfScientific
+public import Init.Data.Hashable
+public import Init.Data.ToString.Macro
+public import Std.Data.TreeMap.Raw.Basic
+
+public section
 
 namespace Lean
 
@@ -21,8 +25,8 @@ structure JsonNumber where
 
 namespace JsonNumber
 
-protected def fromNat (n : Nat) : JsonNumber := ⟨n, 0⟩
-protected def fromInt (n : Int) : JsonNumber := ⟨n, 0⟩
+@[expose] protected def fromNat (n : Nat) : JsonNumber := ⟨n, 0⟩
+@[expose] protected def fromInt (n : Int) : JsonNumber := ⟨n, 0⟩
 
 instance : Coe Nat JsonNumber := ⟨JsonNumber.fromNat⟩
 instance : Coe Int JsonNumber := ⟨JsonNumber.fromInt⟩
@@ -199,7 +203,7 @@ private partial def beq' : Json → Json → Bool
   | _,      _      => false
 
 instance : BEq Json where
-  beq := beq'
+  beq := private beq'
 
 private partial def hash' : Json → UInt64
   | null   => 11
@@ -212,7 +216,7 @@ private partial def hash' : Json → UInt64
     mixHash 29 <| kvPairs.foldl (init := 7) fun r k v => mixHash r <| mixHash (hash k) (hash' v)
 
 instance : Hashable Json where
-  hash := hash'
+  hash := private hash'
 
 def mkObj (o : List (String × Json)) : Json :=
   obj <| Std.TreeMap.Raw.ofList o

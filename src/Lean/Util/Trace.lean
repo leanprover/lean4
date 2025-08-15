@@ -3,9 +3,13 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Exception
-import Lean.Log
+public import Lean.Elab.Exception
+public import Lean.Log
+
+public section
 
 /-!
 # Trace messages

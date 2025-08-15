@@ -3,12 +3,16 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Data.OpenDecl
-import Lean.Hygiene
-import Lean.Modifiers
-import Lean.Exception
-import Lean.Namespace
+public import Lean.Data.OpenDecl
+public import Lean.Hygiene
+public import Lean.Modifiers
+public import Lean.Exception
+public import Lean.Namespace
+
+public section
 
 namespace Lean
 /-!
@@ -100,6 +104,10 @@ private def containsDeclOrReserved (env : Environment) (declName : Name) : Bool 
   env.containsOnBranch declName || isReservedName env declName || env.contains declName
 
 private partial def resolvePrivateName (env : Environment) (declName : Name) : Option Name := do
+  -- No point in checking private names when exporting. This is an optimization but also necessary
+  -- for correct visibility checking while we still carry some private names (e.g. kernel-generated
+  -- from `inductive`) in the public env.
+  guard !env.isExporting
   if containsDeclOrReserved env (mkPrivateName env declName) then
     return mkPrivateName env declName
   -- Under the module system, we assume there are at most a few `import all`s and we can just test
@@ -302,7 +310,7 @@ def resolveUniqueNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadErr
   | nss => throwError s!"ambiguous namespace '{id.getId}', possible interpretations: '{nss}'"
 
 /-- Helper function for `resolveGlobalConstCore`. -/
-def filterFieldList [Monad m] [MonadError m] (n : Name) (cs : List (Name × List String)) : m (List Name) := do
+def filterFieldList [Monad m] [MonadEnv m] [MonadError m] (n : Name) (cs : List (Name × List String)) : m (List Name) := do
   let cs := cs.filter fun (_, fieldList) => fieldList.isEmpty
   if cs.isEmpty then throwUnknownConstantAt (← getRef) n
   return cs.map (·.1)
@@ -319,7 +327,7 @@ private def resolveGlobalConstCore [Monad m] [MonadResolveName m] [MonadEnv m] [
 def ensureNoOverload [Monad m] [MonadError m] (n : Name) (cs : List Name) : m Name := do
   match cs with
   | [c] => pure c
-  | _   => throwError s!"ambiguous identifier '{mkConst n}', possible interpretations: {cs.map mkConst}"
+  | _   => throwError m!"Ambiguous identifier `{n}`; possible interpretations: {cs.map mkConst}"
 
 /-- For identifiers taken from syntax, use `resolveGlobalConstNoOverload` instead, which respects preresolved names. -/
 def resolveGlobalConstNoOverloadCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (n : Name) : m Name := do

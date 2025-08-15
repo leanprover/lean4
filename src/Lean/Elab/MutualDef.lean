@@ -3,20 +3,24 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Parser.Term
-import Lean.Meta.Closure
-import Lean.Meta.Check
-import Lean.Meta.Transform
-import Lean.PrettyPrinter.Delaborator.Options
-import Lean.Elab.Command
-import Lean.Elab.Match
-import Lean.Elab.DefView
-import Lean.Elab.Deriving.Basic
-import Lean.Elab.PreDefinition.Main
-import Lean.Elab.PreDefinition.TerminationHint
-import Lean.Elab.DeclarationRange
-import Lean.Elab.WhereFinally
+public import Lean.Parser.Term
+public import Lean.Meta.Closure
+public import Lean.Meta.Check
+public import Lean.Meta.Transform
+public import Lean.PrettyPrinter.Delaborator.Options
+public import Lean.Elab.Command
+public import Lean.Elab.Match
+public import Lean.Elab.DefView
+public import Lean.Elab.Deriving.Basic
+public import Lean.Elab.PreDefinition.Main
+public import Lean.Elab.PreDefinition.TerminationHint
+public import Lean.Elab.DeclarationRange
+public import Lean.Elab.WhereFinally
+
+public section
 
 namespace Lean.Elab
 open Lean.Parser.Term
@@ -40,7 +44,7 @@ builtin_initialize
     descr := "(module system) Make bodies of definitions available to importing modules."
     add := fun _ _ _ => do
       -- Attribute will be filtered out by `MutualDef`
-      throwError "Invalid attribute 'expose', must be used when declaring `def`"
+      throwError "Cannot add attribute `[expose]`: This attribute can only be added when declaring a `def`"
   }
 
 /--
@@ -57,13 +61,8 @@ builtin_initialize
     descr := "(module system) Negate previous `[expose]` attribute."
     add := fun _ _ _ => do
       -- Attribute will be filtered out by `MutualDef`
-      throwError "Invalid attribute 'no_expose', must be used when declaring `def`"
+      throwError "Cannot add attribute `[no_expose]`: This attribute can only be added when declaring a `def`"
   }
-
-def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
-  profileitM Exception s!"instantiate metavars" (← getOptions) do
-  withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
-    instantiateMVars e
 
 /-- `DefView` plus header elaboration data and snapshot. -/
 structure DefViewElabHeader extends DefView, DefViewElabHeaderData where
@@ -285,7 +284,7 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
         let cancelTk? := (← readThe Core.Context).cancelTk?
         let bodySnap := {
           stx? := view.value
-          reportingRange? :=
+          reportingRange := .ofOptionInheriting <|
             if newTacTask?.isSome then
               -- Only use first line of body as range when we have incremental tactics as otherwise we
               -- would cover their progress
@@ -1141,12 +1140,20 @@ private def checkAllDeclNamesDistinct (preDefs : Array PreDefinition) : TermElab
 structure AsyncBodyInfo where
 deriving TypeName
 
+register_builtin_option warn.exposeOnPrivate : Bool := {
+  defValue := true
+  descr    := "warn about uses of `@[expose]` on private declarations"
+}
+
 def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
       -- save correct environment in info tree
       withSaveInfoContext do
-        go
+        try
+          go
+        finally
+          reportDiag -- else wouldn't survive `withoutModifyingEnv`
   else
     go
 where
@@ -1234,18 +1241,26 @@ where
         let ctx ← CommandContextInfo.save
         infoPromise.resolve <| .context (.commandCtx ctx) <| .node info (← getInfoTrees)
       async.commitConst (← getEnv)
-      let cancelTk ← IO.CancelToken.new
-      let checkAct ← wrapAsyncAsSnapshot (desc := s!"finishing proof of {declId.declName}")
-          (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
-        processDeriving #[header]
-        async.commitCheckEnv (← getEnv)
-      let checkTask ← BaseIO.mapTask (t := (← getEnv).checked) checkAct
-      Core.logSnapshotTask { stx? := none, task := checkTask, cancelTk? := cancelTk }
+      processDeriving #[header]
+      async.commitCheckEnv (← getEnv)
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
+    -- Also add explicit snapshot task for showing progress of kernel checking; `addDecl` does not
+    -- do this by default
+    Core.logSnapshotTask { stx? := none, cancelTk? := none, task := (← getEnv).checked.map fun _ =>
+      default
+    }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
   finishElab headers (isExporting := false) := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
+    if warn.exposeOnPrivate.get (← getOptions) then
+      if env.header.isModule && !env.isExporting then
+        for header in headers do
+          for attr in header.modifiers.attrs do
+            if attr.name == `expose then
+              logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
+                definitions only"
+
     withExporting (isExporting :=
       headers.any (fun header =>
         header.modifiers.isInferredPublic env &&
@@ -1306,12 +1321,24 @@ where
       addPreDefinitions preDefs
   processDeriving (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do
-      if let some classNamesStx := view.deriving? then
-        for classNameStx in classNamesStx do
-          let className ← realizeGlobalConstNoOverload classNameStx
-          withRef classNameStx do
-            unless (← processDefDeriving className header.declName) do
-              throwError "failed to synthesize instance '{className}' for '{header.declName}'"
+      if let some classStxs := view.deriving? then
+        for classStx in classStxs do
+          withRef classStx <| withLogging <| withLCtx {} {} do
+            /-
+            Assumption: users intend delta deriving to apply to the body of a definition, even if in the source code
+            the function is written as a lambda expression.
+            Furthermore, we don't use `forallTelescope` because users want to derive instances for monads.
+
+            We enter the local context of this body, which is where `classStx` will be elaborated.
+
+            Small complication: we don't know the correlation between the section variables
+            and the parameters in the declaration, so for now we do not allow `classStx`
+            to refer to section variables that were not included.
+            -/
+            let info ← getConstInfo header.declName
+            lambdaTelescope info.value! fun xs _ => do
+              let decl := mkAppN (.const header.declName (info.levelParams.map mkLevelParam)) xs
+              processDefDeriving classStx decl
 
 /--
 Logs a snapshot task that waits for the entire snapshot tree in `defsParsedSnap` and then logs a
@@ -1356,8 +1383,7 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
   let logGoalsAccomplishedTask ← BaseIO.mapTask (t := ← tree.waitAll) logGoalsAccomplishedAct
   Core.logSnapshotTask {
     stx? := none
-    -- Use first line of the mutual block to avoid covering the progress of the whole mutual block
-    reportingRange? := (← getRef).getPos?.map fun pos => ⟨pos, pos⟩
+    reportingRange := .skip
     task := logGoalsAccomplishedTask
     cancelTk? := none
   }
@@ -1377,7 +1403,9 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     let modifiers ← elabModifiers ⟨d[0]⟩
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
-    let mut view ← mkDefView modifiers d[1]
+    let mut view ←
+      withExporting (isExporting := modifiers.visibility.isInferredPublic (← getEnv)) do
+        mkDefView modifiers d[1]
     if view.kind != .example && view.value matches `(declVal| := rfl) then
       view := view.markDefEq
     let fullHeaderRef := mkNullNode #[d[0], view.headerRef]

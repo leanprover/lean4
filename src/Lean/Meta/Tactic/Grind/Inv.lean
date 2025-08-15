@@ -3,11 +3,15 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Proof
-import Lean.Meta.Tactic.Grind.MatchCond
-import Lean.Meta.Tactic.Grind.Arith.Inv
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Proof
+public import Lean.Meta.Tactic.Grind.MatchCond
+public import Lean.Meta.Tactic.Grind.Arith.Inv
+
+public section
 
 namespace Lean.Meta.Grind
 

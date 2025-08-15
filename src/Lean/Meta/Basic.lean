@@ -3,15 +3,19 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.LOption
-import Lean.Environment
-import Lean.Class
-import Lean.ReducibilityAttrs
-import Lean.Util.ReplaceExpr
-import Lean.Util.MonadBacktrack
-import Lean.Compiler.InlineAttrs
-import Lean.Meta.TransparencyMode
+public import Lean.Data.LOption
+public import Lean.Environment
+public import Lean.Class
+public import Lean.ReducibilityAttrs
+public import Lean.Util.ReplaceExpr
+public import Lean.Util.MonadBacktrack
+public import Lean.Compiler.InlineAttrs
+public import Lean.Meta.TransparencyMode
+
+public section
 
 /-!
 This module provides four (mutually dependent) goodies that are needed for building the elaborator and tactic frameworks.
@@ -148,7 +152,7 @@ structure Config where
   we use approximations when solving postponed universe constraints.
   Examples:
   - `max u ?v =?= u` is solved with `?v := u` and ignoring the solution `?v := 0`.
-  - `max u w =?= mav u ?v` is solved with `?v := w` ignoring the solution `?v := max u w`
+  - `max u w =?= max u ?v` is solved with `?v := w` ignoring the solution `?v := max u w`
   -/
   univApprox : Bool := true
   /-- If `true`, reduce recursor/matcher applications, e.g., `Nat.rec true (fun _ _ => false) Nat.zero` reduces to `true` -/
@@ -213,7 +217,7 @@ private def Config.toKey (c : Config) : UInt64 :=
 structure ConfigWithKey where
   private mk ::
   config : Config := {}
-  key    : UInt64 := config.toKey
+  key    : UInt64 := private_decl% config.toKey
 
 instance : Inhabited ConfigWithKey where  -- #9463
   default := private {}
@@ -291,6 +295,7 @@ structure FunInfo where
     That is, the (0-indexed) position of parameters that the result type depends on.
   -/
   resultDeps : Array Nat       := #[]
+deriving TypeName
 
 /--
 Key for the function information cache.
@@ -310,7 +315,7 @@ structure InfoCacheKey where
   deriving Inhabited, BEq
 
 instance : Hashable InfoCacheKey where
-  hash := fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
+  hash := private fun { configKey, expr, nargs? } => mixHash (hash configKey) <| mixHash (hash expr) (hash nargs?)
 
 -- Remark: we don't need to store `Config.toKey` because typeclass resolution uses a fixed configuration.
 structure SynthInstanceCacheKey where
@@ -348,7 +353,7 @@ instance : BEq ExprConfigCacheKey where
     a.configKey == b.configKey
 
 instance : Hashable ExprConfigCacheKey where
-  hash := fun { expr, configKey } => mixHash (hash expr) (hash configKey)
+  hash := private fun { expr, configKey } => mixHash (hash expr) (hash configKey)
 
 abbrev InferTypeCache := PersistentHashMap ExprConfigCacheKey Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
@@ -362,7 +367,7 @@ structure DefEqCacheKey where
   deriving Inhabited, BEq
 
 instance : Hashable DefEqCacheKey where
-  hash := fun { lhs, rhs, configKey } => mixHash (hash lhs) <| mixHash (hash rhs) (hash configKey)
+  hash := private fun { lhs, rhs, configKey } => mixHash (hash lhs) <| mixHash (hash rhs) (hash configKey)
 
 /--
 A mapping `(s, t) ↦ isDefEq s t`.
@@ -496,7 +501,7 @@ structure Context where
   /--
   `inTypeClassResolution := true` when `isDefEq` is invoked at `tryResolve` in the type class
    resolution module. We don't use `isDefEqProjDelta` when performing TC resolution due to performance issues.
-   This is not a great solution, but a proper solution would require a more sophisticased caching mechanism.
+   This is not a great solution, but a proper solution would require a more sophisticated caching mechanism.
   -/
   inTypeClassResolution : Bool := false
 deriving Inhabited
@@ -525,7 +530,7 @@ The key operations provided by `MetaM` are:
 The following is a small example that demonstrates how to obtain and manipulate the type of a
 `Fin` expression:
 ```
-import Lean
+public import Lean
 
 open Lean Meta
 
@@ -740,7 +745,7 @@ The result may contain subexpressions that have not been reduced.
 
 See `Lean.Meta.whnfImp` for the implementation.
 -/
-@[extern 6 "lean_whnf"] opaque whnf : Expr → MetaM Expr
+@[extern "lean_whnf"] opaque whnf : Expr → MetaM Expr
 /--
 Returns the inferred type of the given expression. Assumes the expression is type-correct.
 
@@ -756,7 +761,9 @@ the kernel typechecker. The kernel typechecker is invoked when a definition is a
 
 Here are examples of type-incorrect terms for which `inferType` succeeds:
 ```lean
-import Lean
+public import Lean
+
+public section
 
 open Lean Meta
 
@@ -792,10 +799,10 @@ def e3 : Expr := .app (.const ``Nat.zero []) (.const ``Nat.zero [])
 
 See `Lean.Meta.inferTypeImp` for the implementation of `inferType`.
 -/
-@[extern 6 "lean_infer_type"] opaque inferType : Expr → MetaM Expr
-@[extern 7 "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
-@[extern 7 "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
-@[extern 6 "lean_synth_pending"] protected opaque synthPending : MVarId → MetaM Bool
+@[extern "lean_infer_type"] opaque inferType : Expr → MetaM Expr
+@[extern "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
+@[extern "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
+@[extern "lean_synth_pending"] protected opaque synthPending : MVarId → MetaM Bool
 
 def whnfForall (e : Expr) : MetaM Expr := do
   let e' ← whnf e
@@ -1778,7 +1785,7 @@ where
       k acc
 
 /--
-Variant of `withLocalDecls` using `Binderinfo.default`
+Variant of `withLocalDecls` using `BinderInfo.default`
 -/
 def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n Expr))) (k : (xs : Array Expr) → n α) : n α :=
   withLocalDecls
@@ -1818,7 +1825,7 @@ def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
 /--
  Execute `k` using a local context where any `x` in `xs` that is tagged as
  instance implicit is treated as a regular implicit. -/
-def withInstImplicitAsImplict (xs : Array Expr) (k : MetaM α) : MetaM α := do
+def withInstImplicitAsImplicit (xs : Array Expr) (k : MetaM α) : MetaM α := do
   let newBinderInfos ← xs.filterMapM fun x => do
     let bi ← x.fvarId!.getBinderInfo
     if bi == .instImplicit then
@@ -1881,7 +1888,7 @@ private def withExistingLocalDeclsImp (decls : List LocalDecl) (k : MetaM α) : 
   After executing `k`, the local context is restored.
 
   Remark: this method is used, for example, to implement the `match`-compiler.
-  Each `match`-alternative commes with a local declarations (corresponding to pattern variables),
+  Each `match`-alternative comes with a local declarations (corresponding to pattern variables),
   and we use `withExistingLocalDecls` to add them to the local context before we process
   them.
 -/
@@ -1929,7 +1936,7 @@ def withLCtx (lctx : LocalContext) (localInsts : LocalInstances) : n α → n α
   mapMetaM <| withLocalContextImp lctx localInsts
 
 /--
-Simpler version of `withLCtx` which just updates the local context. It is the resposability of the
+Simpler version of `withLCtx` which just updates the local context. It is the responsibility of the
 caller ensure the local instances are also properly updated.
 -/
 def withLCtx' (lctx : LocalContext) : n α → n α :=
@@ -1944,6 +1951,18 @@ def withErasedFVars [MonadLCtx n] [MonadLiftT MetaM n] (fvarIds : Array FVarId) 
   let lctx' := fvarIds.foldl (·.erase ·) lctx
   let localInsts' := localInsts.filter (!fvarIds.contains ·.fvar.fvarId!)
   withLCtx lctx' localInsts' k
+
+/--
+Ensures that the user names of all local declarations after index `idx` have a macro scope.
+-/
+def withFreshUserNamesSinceIdx [MonadLCtx n] [MonadLiftT MetaM n] (idx : Nat) (k : n α) : n α := do
+  let mut lctx ← getLCtx
+  for i in [idx:lctx.numIndices] do
+    let some decl := lctx.decls[i]! | continue
+    let n := decl.userName
+    if !n.hasMacroScopes then
+      lctx := lctx.setUserName decl.fvarId (← liftMetaM <| mkFreshUserName n)
+  withLCtx' lctx k
 
 private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   let mvarDecl ← mvarId.getDecl
@@ -2432,6 +2451,11 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
   else
     return e
 
+def instantiateMVarsProfiling (e : Expr) : MetaM Expr := do
+  profileitM Exception s!"instantiate metavars" (← getOptions) do
+  withTraceNode `Meta.instantiateMVars (fun _ => pure e) do
+    instantiateMVars e
+
 private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos : Position) :
     BaseIO Language.SnapshotTree := do
   let msgLog := snap.element.diagnostics.msgLog
@@ -2446,8 +2470,86 @@ private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos 
 
 open Language
 
+private structure RealizeValueResult where
+  res?   : Except Exception Dynamic
+  snap?  : Option SnapshotTree
+deriving TypeName
+
+/--
+Realizes and caches a value for a given key with all environment objects derived from calling
+`enableRealizationsForConst forConst` (fails if not called yet). If
+this is the first environment branch passing the specific `key`, `realize` is called with the
+environment and options at the time of calling `enableRealizationsForConst` if `forConst` is from
+the current module and the state just after importing  otherwise, thus helping achieve deterministic
+results despite the non-deterministic choice of which thread is tasked with realization. In other
+words, the result of `realizeValue` is *as if* `realize` had been called immediately after
+`enableRealizationsForConst forConst`, with most effects but the return value discarded (see below).
+Whether two calls of `realizeValue` with different `forConst`s but the same `key` share the result
+is undefined; in practice, the key should usually uniquely determine `forConst` by e.g. including it
+as a field.
+
+`realizeValue` cannot check what other data is captured in the `realize` closure,
+so it is best practice to extract it into a separate function and pass only arguments uniquely
+determined by `key`. Traces, diagnostics, and raw std stream
+output of `realize` are reported at all callers via `Core.logSnapshotTask` (so that the location of
+generated diagnostics is deterministic). Note that, as `realize` is run using the options at
+declaration time of `forConst`, trace options must be set prior to that (or, for imported constants,
+on the cmdline) in order to be active. If `realize` throws an exception, it is rethrown at all
+callers.
+-/
+def realizeValue [BEq α] [Hashable α] [TypeName α] [TypeName β] (forConst : Name) (key : α) (realize : MetaM β) :
+    MetaM β := do
+  let env ← getEnv
+  if !env.areRealizationsEnabledForConst forConst then
+    return (← realize)
+  let coreCtx ← readThe Core.Context
+  let coreCtx := {
+    -- these fields should be invariant throughout the file
+    fileName := coreCtx.fileName, fileMap := coreCtx.fileMap
+    -- heartbeat limits inside `realizeAndReport` should be measured from this point on
+    initHeartbeats := (← IO.getNumHeartbeats)
+  }
+  let res ← env.realizeValue forConst key (realizeAndReport coreCtx)
+  let some res := res.get? RealizeValueResult | unreachable!
+  if let some snap := res.snap? then
+    let mut snap := snap
+    -- localize diagnostics
+    if let some range := (← getRef).getRange? then
+      let fileMap ← getFileMap
+      snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
+    Core.logSnapshotTask <| .finished (stx? := none) snap
+  match res.res? with
+  | .ok dyn => dyn.get? β |>.getDM (unreachable!)
+  | .error e => throw e
+where
+  -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
+  realizeAndReport (coreCtx : Core.Context) env opts := do
+    let coreCtx := { coreCtx with options := opts }
+    let act :=
+      IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) (do
+        -- catch all exceptions
+        let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
+        observing do
+          realize)
+        <* addTraceAsMessages
+    let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
+    let res ← match res? with
+      | .ok ((output, err?), st) => pure {
+        snap? := (← Core.mkSnapshot? output coreCtx st)
+        res?  := err?.map (.mk)
+        : RealizeValueResult
+      }
+      | _ =>
+        let _ : Inhabited RealizeValueResult := ⟨{
+          snap? := (← Core.mkSnapshot? "" coreCtx { env })
+          res?  := default
+          : RealizeValueResult
+        }⟩
+        unreachable!
+    return .mk (α := RealizeValueResult) res
+
 private structure RealizeConstantResult where
-  snap       : SnapshotTree
+  snap?  : Option SnapshotTree
   error? : Option Exception
 deriving TypeName
 
@@ -2472,9 +2574,9 @@ output are reported at all callers via `Core.logSnapshotTask` (so that the locat
 diagnostics is deterministic). Note that, as `realize` is run using the options at declaration time
 of `forConst`, trace options must be set prior to that (or, for imported constants, on the cmdline)
 in order to be active. The environment extension state at the end of `realize` is available to each
-caller via `EnvExtension.findStateAsync` for `constName`. If `realize` throws an exception or fails
-to add `constName` to the environment, an appropriate diagnostic is reported to all callers but no
-constants are added to the environment.
+caller via `EnvExtension.getState (asyncDecl := constName)`. If `realize` throws an exception or
+fails to add `constName` to the environment, an appropriate diagnostic is reported to all callers
+but no constants are added to the environment.
 -/
 def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     MetaM Unit := do
@@ -2504,12 +2606,13 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
       cancelTk? := none
     }
     if let some res := dyn.get? RealizeConstantResult then
-      let mut snap := res.snap
-      -- localize diagnostics
-      if let some range := (← getRef).getRange? then
-        let fileMap ← getFileMap
-        snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
-      Core.logSnapshotTask <| .finished (stx? := none) snap
+      if let some snap := res.snap? then
+        let mut snap := snap
+        -- localize diagnostics
+        if let some range := (← getRef).getRange? then
+          let fileMap ← getFileMap
+          snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
+        Core.logSnapshotTask <| .finished (stx? := none) snap
       if let some e := res.error? then
         throw e
     setEnv env
@@ -2532,7 +2635,7 @@ where
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
     match res? with
     | .ok ((output, err?), st) => pure (st.env, .mk {
-      snap := (← Core.mkSnapshot output coreCtx st)
+      snap?  := (← Core.mkSnapshot? output coreCtx st)
       error? := match err? with
         | .ok ()   => none
         | .error e => some e
@@ -2540,7 +2643,7 @@ where
     })
     | _ =>
       let _ : Inhabited (Environment × Dynamic) := ⟨env, .mk {
-        snap := (← Core.mkSnapshot "" coreCtx { env })
+        snap?  := (← Core.mkSnapshot? "" coreCtx { env })
         error? := none
         : RealizeConstantResult
       }⟩

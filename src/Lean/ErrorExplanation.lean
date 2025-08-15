@@ -3,11 +3,15 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joseph Rotella
 -/
+module
+
 prelude
 
-import Lean.Message
-import Lean.EnvExtension
-import Lean.DocString.Links
+public import Lean.Message
+public import Lean.EnvExtension
+public import Lean.DocString.Links
+
+public section
 
 namespace Lean
 

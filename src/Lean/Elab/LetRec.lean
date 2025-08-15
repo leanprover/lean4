@@ -3,13 +3,17 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Attributes
-import Lean.Elab.Binders
-import Lean.Elab.DeclModifiers
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.DeclarationRange
-import Lean.Elab.MutualDef
+public import Lean.Elab.Attributes
+public import Lean.Elab.Binders
+public import Lean.Elab.DeclModifiers
+public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.DeclarationRange
+public import Lean.Elab.MutualDef
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
@@ -111,12 +115,15 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
   let toLift ← views.mapIdxM fun i view => do
     let value := values[i]!
     let termination := view.termination.rememberExtraParams view.binderIds.size value
+    let env ← getEnv
     pure {
       ref            := view.ref
       fvarId         := fvars[i]!.fvarId!
       attrs          := view.attrs
       shortDeclName  := view.shortDeclName
-      declName       := view.declName
+      declName       :=
+        if env.isExporting || !env.header.isModule then view.declName
+        else mkPrivateName env view.declName
       parentName?    := view.parentName?
       lctx
       localInstances

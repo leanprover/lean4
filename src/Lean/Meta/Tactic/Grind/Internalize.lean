@@ -3,19 +3,24 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Init.Grind.Lemmas
-import Lean.Meta.LitValues
-import Lean.Meta.Match.MatcherInfo
-import Lean.Meta.Match.MatchEqsExt
-import Lean.Meta.Match.MatchEqs
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.Canon
-import Lean.Meta.Tactic.Grind.Beta
-import Lean.Meta.Tactic.Grind.MatchCond
-import Lean.Meta.Tactic.Grind.Arith.Internalize
+public import Init.Grind.Util
+public import Init.Grind.Lemmas
+public import Lean.Meta.LitValues
+public import Lean.Meta.Match.MatcherInfo
+public import Lean.Meta.Match.MatchEqsExt
+public import Lean.Meta.Match.MatchEqs
+public import Lean.Util.CollectLevelParams
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Util
+public import Lean.Meta.Tactic.Grind.Canon
+public import Lean.Meta.Tactic.Grind.Beta
+public import Lean.Meta.Tactic.Grind.MatchCond
+public import Lean.Meta.Tactic.Grind.Arith.Internalize
+
+public section
 
 namespace Lean.Meta.Grind
 /-- Adds `e` to congruence table. -/
@@ -43,8 +48,8 @@ def addCongrTable (e : Expr) : GoalM Unit := do
       we must ensure that `e` is still the congruence root.
       -/
       modify fun s => { s with congrTable := s.congrTable.insert { e } }
-      let node ← getENode e'
-      setENode e' { node with congr := e }
+      setENode e' { (← getENode e') with congr := e }
+      setENode e { (← getENode e) with congr := e }
     else
       let node ← getENode e
       setENode e { node with congr := e' }
@@ -147,7 +152,7 @@ private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
   mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
 
 /-- Internalizes the nested ground terms in the given pattern. -/
-private partial def internalizePattern (pattern : Expr) (generation : Nat) : GoalM Expr := do
+private partial def internalizePattern (pattern : Expr) (generation : Nat) (origin : Origin) : GoalM Expr := do
   -- Recall that it is important to ensure patterns are maximally shared since
   -- we assume that in functions such as `getAppsOf` in `EMatch.lean`
   go (← shareCommon pattern)
@@ -157,7 +162,21 @@ where
       return pattern
     else if let some e := groundPattern? pattern then
       let e ← preprocessLight e
-      internalize e generation none
+      let e ← if e.hasLevelParam && origin matches .decl _ then
+        /-
+        If `e` has universe parameters and it is **not** local. That is,
+        it contains the universe parameters of some global theorem.
+        Then, we convert `e`'s universe parameters into universe meta-variables.
+        Remark: it is pointless to internalize the result because it contains these helper meta-variables.
+        Remark: universe polymorphic ground patterns are not common, but they do occur in the
+        core library.
+        -/
+        let ps := collectLevelParams {} e |>.params
+        let us ← ps.mapM fun _ => mkFreshLevelMVar
+        pure <| e.instantiateLevelParamsArray ps us
+      else
+        internalize e generation none
+        pure e
       return mkGroundPattern e
     else pattern.withApp fun f args => do
       return mkAppN f (← args.mapM go)
@@ -199,8 +218,8 @@ def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
   -- Recall that we use the proof as part of the key for a set of instances found so far.
   -- We don't want to use structural equality when comparing keys.
   let proof ← shareCommon thm.proof
-  let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation)) }
-  trace_goal[grind.ematch] "activated `{thm.origin.key}`, {thm.patterns.map ppPattern}"
+  let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation thm.origin)) }
+  trace_goal[grind.ematch] "activated `{← thm.origin.pp}`, {thm.patterns.map ppPattern}"
   modify fun s => { s with ematch.newThms := s.ematch.newThms.push thm }
 
 /--
@@ -221,10 +240,10 @@ private def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
 private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
   if let some (thms, thmMap) := (← get).ematch.thmMap.retrieve? fName then
     modify fun s => { s with ematch.thmMap := thmMap }
-    let appMap := (← get).appMap
     for thm in thms do
       trace_goal[grind.debug.ematch.activate] "`{fName}` => `{thm.origin.key}`"
       unless (← get).ematch.thmMap.isErased thm.origin do
+        let appMap := (← get).appMap
         let symbols := thm.symbols.filter fun sym => !appMap.contains sym
         let thm := { thm with symbols }
         match symbols with
@@ -360,7 +379,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     propagateEtaStruct e generation
 where
   go : GoalM Unit := do
-    trace_goal[grind.internalize] "{e}"
+    trace_goal[grind.internalize] "[{generation}] {e}"
     match e with
     | .bvar .. => unreachable!
     | .sort .. => return ()

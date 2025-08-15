@@ -26,7 +26,7 @@ open Std.Do
 
 /--
 This is pretty much the instance for `EStateM` specialized to `σ = IO.RealWorld`.
-However, `IO.RealWorld` is ommitted in the `PredShape`.
+However, `IO.RealWorld` is omitted in the `PredShape`.
 -/
 scoped instance instWP : WP (EIO ε) (.except ε .pure) where
   wp x := -- Could define as PredTrans.mkExcept (PredTrans.modifyGetM (fun s => pure (EStateM.Result.toExceptState (x s))))

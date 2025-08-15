@@ -3,10 +3,14 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.CoreM
-import Lean.Namespace
-import Lean.Util.CollectAxioms
+public import Lean.CoreM
+public import Lean.Namespace
+public import Lean.Util.CollectAxioms
+
+public section
 
 namespace Lean
 
@@ -22,10 +26,7 @@ private def Environment.addDeclAux (env : Environment) (opts : Options) (decl : 
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
   env.addDeclCore (Core.getMaxHeartbeats opts).toUSize decl cancelTk? (!debug.skipKernelTC.get opts)
 
-@[deprecated "use `Lean.addDecl` instead to ensure new namespaces are registered" (since := "2024-12-03")]
-def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
-  Environment.addDeclAux env opts decl cancelTk?
+
 
 private def isNamespaceName : Name → Bool
   | .str .anonymous _ => true
@@ -46,7 +47,8 @@ where go env
   | _        => env
 
 private builtin_initialize privateConstKindsExt : MapDeclarationExtension ConstantKind ←
-  mkMapDeclarationExtension
+  -- Use `sync` so we can add entries from anywhere without restrictions
+  mkMapDeclarationExtension (asyncMode := .sync)
 
 /--
 Returns the kind of the declaration as originally declared instead of as exported. This information
@@ -54,7 +56,9 @@ is stored by `Lean.addDecl` and may be inaccurate if that function was circumven
 if the declaration was not found.
 -/
 def getOriginalConstKind? (env : Environment) (declName : Name) : Option ConstantKind := do
-  privateConstKindsExt.find? env declName <|>
+  -- Use `local` as for asynchronous decls from the current module, `findAsync?` below will yield
+  -- the same result but potentially earlier (after `addConstAsync` instead of `addDecl`)
+  privateConstKindsExt.find? (asyncMode := .local) env declName <|>
     (env.setExporting false |>.findAsync? declName).map (·.kind)
 
 /--
@@ -122,8 +126,10 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     let cancelTk ← IO.CancelToken.new
     let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
     let t ← BaseIO.mapTask checkAct env.checked
-    let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-    Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+    -- Do not display reporting range; most uses of `addDecl` are for registering auxiliary decls
+    -- users should not worry about and other callers can add a separate task with ranges
+    -- themselves, see `MutualDef`.
+    Core.logSnapshotTask { stx? := none, reportingRange := .skip, task := t, cancelTk? := cancelTk }
   else
     try
       doAddAndCommit
@@ -132,7 +138,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
 where
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do
-      withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
+      withTraceNode `Kernel (return m!"{exceptEmoji ·} typechecking declarations {decl.getTopLevelNames}") do
         if warn.sorry.get (← getOptions) then
           if !(← MonadLog.hasErrors) && decl.hasSorry then
             logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
@@ -173,8 +179,8 @@ where
       catch _ => pure ()
 
 
-def addAndCompile (decl : Declaration) : CoreM Unit := do
+def addAndCompile (decl : Declaration) (logCompileErrors : Bool := true) : CoreM Unit := do
   addDecl decl
-  compileDecl decl
+  compileDecl decl (logErrors := logCompileErrors)
 
 end Lean

@@ -3,15 +3,19 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura, Gabriel Ebner, Mario Carneiro
 -/
+module
+
 prelude
-import Lean.PrettyPrinter.Delaborator.Attributes
-import Lean.PrettyPrinter.Delaborator.Basic
-import Lean.PrettyPrinter.Delaborator.SubExpr
-import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
-import Lean.Parser.Do
-import Lean.Parser.Command
-import Lean.Meta.CoeAttr
-import Lean.Meta.Structure
+public import Lean.PrettyPrinter.Delaborator.Attributes
+public import Lean.PrettyPrinter.Delaborator.Basic
+public import Lean.PrettyPrinter.Delaborator.SubExpr
+public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
+public import Lean.Parser.Term
+meta import Lean.Parser.Command
+public import Lean.Meta.CoeAttr
+public import Lean.Meta.Structure
+
+public section
 
 namespace Lean.PrettyPrinter.Delaborator
 open Lean.Meta
@@ -58,13 +62,17 @@ def delabMVarAux (m : MVarId) : DelabM Term := do
   let mkMVar (n : Name) : DelabM Term := `(?$(mkIdent n))
   withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
     if ← getPPOption getPPMVars then
-      match (← m.getDecl).userName with
-      | .anonymous =>
-        if ← getPPOption getPPMVarsAnonymous then
-          mkMVar <| m.name.replacePrefix `_uniq `m
-        else
-          mkMVarPlaceholder
-      | n => mkMVar n
+      if let some decl ← m.findDecl? then
+        match decl.userName with
+        | .anonymous =>
+          if ← getPPOption getPPMVarsAnonymous then
+            mkMVar <| Name.num `m (decl.index + 1)
+          else
+            mkMVarPlaceholder
+        | n => mkMVar n
+      else
+        -- Undefined mvar, use internal name
+        mkMVar <| m.name.replacePrefix `_uniq `_mvar
     else
       mkMVarPlaceholder
 
@@ -804,7 +812,7 @@ partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOpti
               usingNames st.varNames[idx]! <|
                 withAppFnArgs (pure #[]) fun pats => return pats.push (← delab)
       -- Finally, assemble
-      let discrs ← (st.hNames?.zip st.discrs).mapM fun (hName?, discr) =>
+      let discrs ← st.hNames?.zipWithM (bs := st.discrs) fun hName? discr =>
         match hName? with
         | none => `(matchDiscr| $discr:term)
         | some hName => `(matchDiscr| $(mkIdent hName) : $discr)
@@ -1266,6 +1274,65 @@ def delabPProdMk : Delab := delabPProdMkCore ``PProd.mk
 @[builtin_delab app.MProd.mk]
 def delabMProdMk : Delab := delabPProdMkCore ``MProd.mk
 
+@[builtin_delab app.Std.Range.mk]
+def delabRange : Delab := whenPPOption getPPNotation do
+  -- Std.Range.mk : (start : Nat) → (stop : Nat) → (step : Nat) → 0 < step → Std.Range
+  guard <| (← getExpr).getAppNumArgs == 4
+  -- `none` if the start is `0`
+  let start? ← withNaryArg 0 do
+    if Lean.Expr.nat? (← getExpr) == some 0 then
+      return none
+    else
+      some <$> delab
+  let stop ← withNaryArg 1 delab
+  -- `none` if the step is `1`
+  let step? ← withNaryArg 2 do
+    if Lean.Expr.nat? (← getExpr) == some 1 then
+      return none
+    else
+      some <$> delab
+  match start?, step? with
+  | some start, some step => `([$start : $stop : $step])
+  | some start, none      => `([$start : $stop])
+  | none,       some step => `([: $stop : $step])
+  | none,       none      => `([: $stop])
+
+@[builtin_delab app.Std.PRange.mk]
+def delabPRange : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit <| do
+  -- Std.PRange.mk : {shape : Std.PRange.RangeShape} → {α : Type u} →
+  --   (lower : Std.PRange.Bound shape.lower α) → (upper : Std.PRange.Bound shape.upper α) → Std.PRange shape α
+  guard <| (← getExpr).getAppNumArgs == 4
+  let reflectBoundShape (e : Expr) : Option Std.PRange.BoundShape := match e.constName? with
+    | some ``Std.PRange.BoundShape.closed => Std.PRange.BoundShape.closed
+    | some ``Std.PRange.BoundShape.open => Std.PRange.BoundShape.open
+    | some ``Std.PRange.BoundShape.unbounded => Std.PRange.BoundShape.unbounded
+    | _ => failure
+  let reflectRangeShape (e : Expr) : Option Std.PRange.RangeShape := do
+    -- Std.PRange.RangeShape.mk (lower upper : Std.PRange.BoundShape) : Std.PRange.RangeShape
+    guard <| e.isAppOfArity ``Std.PRange.RangeShape.mk 2
+    let lower := e.appFn!.appArg!
+    let upper := e.appArg!
+    return ⟨← reflectBoundShape lower, ← reflectBoundShape upper⟩
+  let some shape := reflectRangeShape ((← getExpr).getArg! 0) | failure
+  -- Lower bound
+  let a ← withAppFn <| withAppArg delab
+  -- Upper bound
+  let b ← withAppArg delab
+  match shape with
+  | ⟨.closed, .closed⟩       => `($a...=$b)
+  | ⟨.unbounded, .closed⟩    => `(*...=$b)
+  | ⟨.closed, .unbounded⟩    => `($a...*)
+  | ⟨.unbounded, .unbounded⟩ => `(*...*)
+  | ⟨.open, .closed⟩         => `($a<...=$b)
+  | ⟨.open, .unbounded⟩      => `($a<...*)
+  | ⟨.closed, .open⟩         => `($a...$b)
+  | ⟨.unbounded, .open⟩      => `(*...$b)
+  | ⟨.open, .open⟩           => `($a<...$b)
+  -- The remaining cases are aliases for explicit `<` upper bound notation:
+  -- | ⟨.closed, .open⟩    => `($a...<$b)
+  -- | ⟨.unbounded, .open⟩ => `(*...<$b)
+  -- | ⟨.open, .open⟩      => `($a<...<$b)
+
 partial def delabDoElems : DelabM (List Syntax) := do
   let e ← getExpr
   if e.isAppOfArity ``Bind.bind 6 then
@@ -1375,7 +1442,7 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
 open Parser Command Term in
 @[run_builtin_parser_attribute_hooks]
 -- use `termParser` instead of `declId` so we can reuse `delabConst`
-def declSigWithId := leading_parser termParser maxPrec >> declSig
+meta def declSigWithId := leading_parser termParser maxPrec >> declSig
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts ``Syntax constName

@@ -13,6 +13,39 @@ public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherw
 @[expose] public section
                                -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
+namespace Lean.Elab.Tactic.Do.VCGen
+
+structure Config where
+  /--
+  If `true` (the default), we will try to prove VCs via `mvcgen_trivial`, which is extensible
+  via `macro_rules`.
+  -/
+  trivial : Bool := true
+  /--
+  If `true` (the default), we will simplify every generated VC after trying
+  `mvcgen_trivial` by running `mleave`. (Note that this can be expensive.)
+  -/
+  leave : Bool := true
+  /--
+  If `true` (the default), we substitute away let-declarations that are used at most once before
+  starting VC generation and will do the same for every VC generated.
+  -/
+  elimLets : Bool := true
+  /--
+  If `false` (the default), then we aggresively split `if` and `match` statements and inline join
+  points unconditionally. For some programs this causes exponential blowup of VCs.
+  Set this flag to choose a more conservative (but slightly lossy) encoding that traverses
+  every join point only once and yields a formula the size of which is linear in the number of
+  control flow splits.
+  -/
+  jp : Bool := false
+  /--
+  If set to `some n`, `mvcgen` will only do 42 steps of the VC generation procedure.
+  This is helpful for bisecting bugs in `mvcgen` and tracing its execution.
+  -/
+  stepLimit : Option Nat := none
+end Lean.Elab.Tactic.Do.VCGen
+
 namespace Lean.Parser
 
 namespace Attr
@@ -75,8 +108,8 @@ syntax (name := mpure) "mpure" colGt ident : tactic
 macro (name := mpureIntro) "mpure_intro" : tactic =>
   `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro))
 
-@[inherit_doc Lean.Parser.Tactic.mrevertMacro]
-syntax (name := mrevert) "mrevert" colGt ident : tactic
+@[inherit_doc Lean.Parser.Tactic.mrenameIMacro]
+syntax (name := mrenameI) "mrename_i" (ppSpace colGt binderIdent)+ : tactic
 
 @[inherit_doc Lean.Parser.Tactic.mspecializeMacro]
 syntax (name := mspecialize) "mspecialize" ident (colGt term:max)* : tactic
@@ -93,18 +126,49 @@ syntax (name := mstop) "mstop" : tactic
 @[inherit_doc Lean.Parser.Tactic.mleaveMacro]
 macro (name := mleave) "mleave" : tactic =>
   `(tactic| (try simp only [
-              $(mkIdent ``Std.Do.SPred.entails_cons):term,
+              $(mkIdent ``Std.Do.SPred.down_pure):term,
+              $(mkIdent ``Std.Do.SPred.apply_pure):term,
+              -- $(mkIdent ``Std.Do.SPred.entails_cons):term, -- Ineffective until #9015 lands
+              $(mkIdent ``Std.Do.SPred.entails_1):term,
+              $(mkIdent ``Std.Do.SPred.entails_2):term,
+              $(mkIdent ``Std.Do.SPred.entails_3):term,
+              $(mkIdent ``Std.Do.SPred.entails_4):term,
+              $(mkIdent ``Std.Do.SPred.entails_5):term,
               $(mkIdent ``Std.Do.SPred.entails_nil):term,
               $(mkIdent ``Std.Do.SPred.and_cons):term,
               $(mkIdent ``Std.Do.SPred.and_nil):term,
+              $(mkIdent ``Std.Do.SPred.or_cons):term,
+              $(mkIdent ``Std.Do.SPred.or_nil):term,
+              $(mkIdent ``Std.Do.SPred.not_cons):term,
+              $(mkIdent ``Std.Do.SPred.not_nil):term,
+              $(mkIdent ``Std.Do.SPred.imp_cons):term,
+              $(mkIdent ``Std.Do.SPred.imp_nil):term,
+              $(mkIdent ``Std.Do.SPred.iff_cons):term,
+              $(mkIdent ``Std.Do.SPred.iff_nil):term,
+              $(mkIdent ``Std.Do.SPred.exists_cons):term,
+              $(mkIdent ``Std.Do.SPred.exists_nil):term,
+              $(mkIdent ``Std.Do.SPred.forall_cons):term,
+              $(mkIdent ``Std.Do.SPred.forall_nil):term,
               $(mkIdent ``Std.Do.SVal.curry_cons):term,
               $(mkIdent ``Std.Do.SVal.curry_nil):term,
               $(mkIdent ``Std.Do.SVal.uncurry_cons):term,
               $(mkIdent ``Std.Do.SVal.uncurry_nil):term,
               $(mkIdent ``Std.Do.SVal.getThe_here):term,
               $(mkIdent ``Std.Do.SVal.getThe_there):term,
+              $(mkIdent ``Std.Do.ExceptConds.entails.refl):term,
+              $(mkIdent ``Std.Do.ExceptConds.entails_true):term,
+              $(mkIdent ``Std.Do.ExceptConds.entails_false):term,
+              $(mkIdent ``ULift.down_ite):term,
+              $(mkIdent ``ULift.down_dite):term,
+              $(mkIdent ``List.Cursor.prefix_at):term,
+              $(mkIdent ``List.Cursor.suffix_at):term,
+              $(mkIdent ``List.Cursor.current_at):term,
+              $(mkIdent ``List.Cursor.tail_at):term,
               $(mkIdent ``and_imp):term,
-              $(mkIdent ``true_implies):term]))
+              $(mkIdent ``and_true):term,
+              $(mkIdent ``dite_eq_ite):term,
+              $(mkIdent ``exists_prop):term,
+              $(mkIdent ``true_implies):term] at *))
 
 declare_syntax_cat mcasesPat
 syntax mcasesPatAlts := sepBy1(mcasesPat, " | ")
@@ -203,6 +267,17 @@ macro_rules
     | `(mintroPat| $pat:mcasesPat) => `(tactic| mintro h; mcases h with $pat)
     | _ => Macro.throwUnsupported -- presently unreachable
 
+declare_syntax_cat mrevertPat
+
+syntax ident : mrevertPat
+syntax "∀" optional(num) : mrevertPat
+
+@[inherit_doc Lean.Parser.Tactic.mrevertMacro]
+syntax (name := mrevert) "mrevert" (ppSpace colGt mrevertPat)+ : tactic
+
+macro_rules
+  | `(tactic| mrevert $pat₁ $pat₂ $pats:mrevertPat*) => `(tactic| mrevert $pat₁; mrevert $pat₂ $pats*)
+
 /--
 `mspec_no_simp $spec` first tries to decompose `Bind.bind`s before applying `$spec`.
 This variant of `mspec_no_simp` does not; `mspec_no_bind $spec` is defined as
@@ -219,25 +294,34 @@ Like `mspec`, but does not attempt slight simplification and closing of trivial 
 ```
 mspec_no_simp $spec
 all_goals
-  ((try simp only [SPred.true_intro_simp, SPred.true_intro_simp_nil, SVal.curry_cons,
-                   SVal.uncurry_cons, SVal.getThe_here, SVal.getThe_there]);
+  ((try simp only [SPred.true_intro_simp, SPred.apply_pure]);
    (try mpure_intro; trivial))
 ```
 -/
 macro (name := mspecNoSimp) "mspec_no_simp" spec:(ppSpace colGt term)? : tactic =>
-  `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)); mspec_no_bind $[$spec]?))
+  `(tactic| ((try with_reducible mspec_no_bind $(mkIdent ``Std.Do.Spec.bind)) <;> mspec_no_bind $[$spec]?))
+
+syntax "mvcgen_trivial_extensible" : tactic
+
+/--
+`mvcgen_trivial` is the tactic automatically called by `mvcgen` to discharge VCs.
+It tries to discharge the VC by applying `(try mpure_intro); trivial` and otherwise delegates to
+`mvcgen_trivial_extensible`.
+Users are encouraged to extend `mvcgen_trivial_extensible` instead of this tactic in order not to
+override the default `(try mpure_intro); trivial` behavior.
+-/
+macro "mvcgen_trivial" : tactic =>
+  `(tactic| first
+    | (try mpure_intro); trivial
+    | try mvcgen_trivial_extensible
+  )
 
 @[inherit_doc Lean.Parser.Tactic.mspecMacro]
 macro (name := mspec) "mspec" spec:(ppSpace colGt term)? : tactic =>
   `(tactic| (mspec_no_simp $[$spec]?
              all_goals ((try simp only [
                           $(mkIdent ``Std.Do.SPred.true_intro_simp):term,
-                          $(mkIdent ``Std.Do.SPred.true_intro_simp_nil):term,
-                          $(mkIdent ``Std.Do.SVal.curry_cons):term,
-                          $(mkIdent ``Std.Do.SVal.uncurry_nil):term,
-                          $(mkIdent ``Std.Do.SVal.uncurry_cons):term,
-                          $(mkIdent ``Std.Do.SVal.getThe_here):term,
-                          $(mkIdent ``Std.Do.SVal.getThe_there):term])
+                          $(mkIdent ``Std.Do.SPred.apply_pure):term])
                         (try mpure_intro; trivial))))
 
 @[inherit_doc Lean.Parser.Tactic.mvcgenMacro]

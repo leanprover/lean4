@@ -646,7 +646,7 @@ theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
   have acases : a = 0 ∨ a = 1 := by omega
   rcases acases with ⟨rfl | rfl⟩
   · simp
-  · case inr h =>
+  case inr h =>
     subst h
     simp
 
@@ -4142,8 +4142,8 @@ theorem neg_one_ediv_toInt_eq {w : Nat} {y : BitVec w} :
   rcases w with _|_|w
   · simp [of_length_zero]
   · cases eq_zero_or_eq_one y
-    · case _ h => simp [h]
-    · case _ h => simp [h]
+    case _ h => simp [h]
+    case _ h => simp [h]
   · by_cases 0 < y.toInt
     · simp [Int.sign_eq_one_of_pos (a := y.toInt) (by omega), Int.neg_one_ediv]
       omega
@@ -5485,13 +5485,8 @@ set_option linter.missingDocs false
 @[deprecated toFin_uShiftRight (since := "2025-02-18")]
 abbrev toFin_uShiftRight := @toFin_ushiftRight
 
-@[deprecated signExtend_eq_setWidth_of_msb_false (since := "2024-12-08")]
-abbrev signExtend_eq_not_setWidth_not_of_msb_false := @signExtend_eq_setWidth_of_msb_false
 
-@[deprecated replicate_zero (since := "2025-01-08")]
-abbrev replicate_zero_eq := @replicate_zero
 
-@[deprecated replicate_succ (since := "2025-01-08")]
-abbrev replicate_succ_eq := @replicate_succ
+
 
 end BitVec'

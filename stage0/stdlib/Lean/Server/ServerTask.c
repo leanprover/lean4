@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.ServerTask
-// Imports: Init.System.IO
+// Imports: Init.Task
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,7 +24,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCheap(lean_object*
 static lean_object* l___auto___closed__5____x40_Lean_Server_ServerTask___hyg_842_;
 static lean_object* l___auto___closed__38____x40_Lean_Server_ServerTask___hyg_842_;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_hasFinished___redArg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___auto___closed__4____x40_Lean_Server_ServerTask___hyg_842_;
 lean_object* lean_io_as_task(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_mapTaskCostly(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -32,6 +31,7 @@ static lean_object* l___auto___closed__31____x40_Lean_Server_ServerTask___hyg_84
 static lean_object* l_Lean_Server_ServerTask_join___redArg___closed__1;
 static lean_object* l___auto___closed__22____x40_Lean_Server_ServerTask___hyg_842_;
 lean_object* lean_array_push(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_mapTaskCheap___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_mapTaskCheap___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instCoeTaskServerTask(lean_object*);
@@ -61,8 +61,8 @@ lean_object* l_Array_empty(lean_object*);
 static lean_object* l___auto___closed__13____x40_Lean_Server_ServerTask___hyg_842_;
 static lean_object* l___auto___closed__32____x40_Lean_Server_ServerTask___hyg_842_;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_join___redArg___boxed(lean_object*);
-lean_object* lean_io_wait_any(lean_object*, lean_object*);
 static lean_object* l___auto___closed__36____x40_Lean_Server_ServerTask___hyg_842_;
+lean_object* l_IO_waitAny___redArg(lean_object*, lean_object*);
 static lean_object* l___auto___closed__41____x40_Lean_Server_ServerTask___hyg_842_;
 static lean_object* l___auto___closed__18____x40_Lean_Server_ServerTask___hyg_842_;
 static lean_object* l___auto___closed__33____x40_Lean_Server_ServerTask___hyg_842_;
@@ -75,9 +75,9 @@ LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Server_ServerTask_waitAny
 lean_object* lean_io_map_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCostly(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__34____x40_Lean_Server_ServerTask___hyg_842_;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_asTask(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__20____x40_Lean_Server_ServerTask___hyg_842_;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_asTask___redArg___lam__0(lean_object*, lean_object*);
@@ -92,7 +92,6 @@ static lean_object* l___auto___closed__16____x40_Lean_Server_ServerTask___hyg_84
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_mapTaskCheap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_mapCostly(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__6____x40_Lean_Server_ServerTask___hyg_842_;
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Lean_Server_ServerTask_waitAny_spec__0(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__7____x40_Lean_Server_ServerTask___hyg_842_;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_bindTaskCostly___redArg(lean_object*, lean_object*, lean_object*);
@@ -107,8 +106,11 @@ static lean_object* l___auto___closed__8____x40_Lean_Server_ServerTask___hyg_842
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_asTask___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedServerTask___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_cancel___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___lam__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_bindCostly(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_mapTaskCheap___redArg___lam__0(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Task_asServerTask(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_join(lean_object*, lean_object*);
@@ -127,10 +129,8 @@ static lean_object* l___auto___closed__35____x40_Lean_Server_ServerTask___hyg_84
 LEAN_EXPORT lean_object* l_Lean_Server_instCoeTaskServerTask___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_hasFinished___redArg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_ServerTask_join___redArg___closed__0;
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_pure___redArg(lean_object*);
 size_t lean_usize_add(size_t, size_t);
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___auto___closed__9____x40_Lean_Server_ServerTask___hyg_842_;
 LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedServerTask(lean_object*, lean_object*);
 static lean_object* l___auto___closed__21____x40_Lean_Server_ServerTask___hyg_842_;
@@ -144,9 +144,9 @@ LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_bindTaskCheap___redArg(
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCheap___redArg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__27____x40_Lean_Server_ServerTask___hyg_842_;
 lean_object* l_Lean_mkAtom(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_bindTaskCostly___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_bindTaskCheap(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___lam__0(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_bindTaskCostly(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto___closed__14____x40_Lean_Server_ServerTask___hyg_842_;
@@ -319,7 +319,7 @@ x_5 = l_Lean_Server_ServerTask_bindCostly___redArg(x_3, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___lam__0(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -327,17 +327,17 @@ x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___lam__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___lam__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = lean_alloc_closure((void*)(l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___lam__0), 2, 1);
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___lam__0), 2, 1);
 lean_closure_set(x_3, 0, x_2);
 x_4 = l_Lean_Server_ServerTask_mapCheap___redArg(x_3, x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; 
@@ -350,7 +350,7 @@ else
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
 x_6 = lean_array_uget(x_1, x_3);
-x_7 = lean_alloc_closure((void*)(l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___lam__1), 2, 1);
+x_7 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___lam__1), 2, 1);
 lean_closure_set(x_7, 0, x_6);
 x_8 = l_Lean_Server_ServerTask_bindCheap___redArg(x_4, x_7);
 x_9 = 1;
@@ -361,11 +361,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg(x_2, x_3, x_4, x_5);
+x_6 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg(x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
@@ -394,7 +394,7 @@ lean_object* x_2; size_t x_3; size_t x_4; lean_object* x_5;
 x_2 = l_Lean_Server_ServerTask_join___redArg___closed__1;
 x_3 = lean_array_size(x_1);
 x_4 = 0;
-x_5 = l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg(x_1, x_3, x_4, x_2);
+x_5 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg(x_1, x_3, x_4, x_2);
 return x_5;
 }
 }
@@ -406,7 +406,7 @@ x_3 = l_Lean_Server_ServerTask_join___redArg(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; 
@@ -414,12 +414,12 @@ x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
-x_7 = l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg(x_1, x_5, x_6, x_4);
+x_7 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___redArg(x_1, x_5, x_6, x_4);
 lean_dec_ref(x_1);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; 
@@ -427,7 +427,7 @@ x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
-x_8 = l_Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0(x_1, x_2, x_6, x_7, x_5);
+x_8 = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___Lean_Server_ServerTask_join_spec__0(x_1, x_2, x_6, x_7, x_5);
 lean_dec_ref(x_2);
 return x_8;
 }
@@ -1410,65 +1410,66 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_hasFinished___redArg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_io_get_task_state(x_1, x_2);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
-if (lean_obj_tag(x_4) == 2)
-{
-uint8_t x_5; 
-x_5 = !lean_is_exclusive(x_3);
-if (x_5 == 0)
-{
-lean_object* x_6; uint8_t x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_3, 0);
-lean_dec(x_6);
-x_7 = 1;
-x_8 = lean_box(x_7);
-lean_ctor_set(x_3, 0, x_8);
-return x_3;
-}
-else
-{
-lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
-x_9 = lean_ctor_get(x_3, 1);
-lean_inc(x_9);
-lean_dec(x_3);
-x_10 = 1;
-x_11 = lean_box(x_10);
-x_12 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_9);
-return x_12;
-}
-}
-else
-{
-uint8_t x_13; 
+x_5 = lean_unbox(x_4);
 lean_dec(x_4);
-x_13 = !lean_is_exclusive(x_3);
-if (x_13 == 0)
+if (x_5 == 2)
 {
-lean_object* x_14; uint8_t x_15; lean_object* x_16; 
-x_14 = lean_ctor_get(x_3, 0);
-lean_dec(x_14);
-x_15 = 0;
-x_16 = lean_box(x_15);
-lean_ctor_set(x_3, 0, x_16);
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_3);
+if (x_6 == 0)
+{
+lean_object* x_7; uint8_t x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_3, 0);
+lean_dec(x_7);
+x_8 = 1;
+x_9 = lean_box(x_8);
+lean_ctor_set(x_3, 0, x_9);
 return x_3;
 }
 else
 {
-lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; 
-x_17 = lean_ctor_get(x_3, 1);
-lean_inc(x_17);
+lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_3, 1);
+lean_inc(x_10);
 lean_dec(x_3);
-x_18 = 0;
-x_19 = lean_box(x_18);
-x_20 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_20, 0, x_19);
-lean_ctor_set(x_20, 1, x_17);
-return x_20;
+x_11 = 1;
+x_12 = lean_box(x_11);
+x_13 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_10);
+return x_13;
+}
+}
+else
+{
+uint8_t x_14; 
+x_14 = !lean_is_exclusive(x_3);
+if (x_14 == 0)
+{
+lean_object* x_15; uint8_t x_16; lean_object* x_17; 
+x_15 = lean_ctor_get(x_3, 0);
+lean_dec(x_15);
+x_16 = 0;
+x_17 = lean_box(x_16);
+lean_ctor_set(x_3, 0, x_17);
+return x_3;
+}
+else
+{
+lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; 
+x_18 = lean_ctor_get(x_3, 1);
+lean_inc(x_18);
+lean_dec(x_3);
+x_19 = 0;
+x_20 = lean_box(x_19);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_18);
+return x_21;
 }
 }
 }
@@ -2009,8 +2010,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_box(0);
 x_4 = l_List_mapTR_loop___at___Lean_Server_ServerTask_waitAny_spec__0___redArg(x_1, x_3);
-x_5 = lean_io_wait_any(x_4, x_2);
-lean_dec(x_4);
+x_5 = l_IO_waitAny___redArg(x_4, x_2);
 return x_5;
 }
 }
@@ -2088,13 +2088,13 @@ lean_dec_ref(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Task(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_ServerTask(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_System_IO(builtin, lean_io_mk_world());
+res = initialize_Init_Task(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Server_ServerTask_join___redArg___closed__0 = _init_l_Lean_Server_ServerTask_join___redArg___closed__0();

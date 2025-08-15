@@ -22,7 +22,7 @@ also equipped with information about the Lake configuration.
 -/
 abbrev ScriptFn := (args : List String) → ScriptM ExitCode
 
-deriving instance TypeName for ScriptFn
+instance : TypeName ScriptFn := unsafe (.mk _ ``ScriptFn)
 
 /--
 A package `Script` is a `ScriptFn` definition that is

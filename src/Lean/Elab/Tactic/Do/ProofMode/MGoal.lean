@@ -3,20 +3,24 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Std.Do.SPred.DerivedLaws
-import Std.Tactic.Do.ProofMode
-import Lean.SubExpr
-import Lean.Meta.Basic
-import Lean.Elab.Tactic.Basic
+public import Std.Do.SPred.DerivedLaws
+public import Std.Tactic.Do.ProofMode
+public import Lean.SubExpr
+public import Lean.Meta.Basic
+public import Lean.Elab.Tactic.Basic
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 
 open Lean Elab Meta
 open Std.Do Std.Tactic.Do
 
-@[match_pattern] def nameAnnotation := `name
-@[match_pattern] def uniqAnnotation := `uniq
+@[match_pattern] private def nameAnnotation := `name
+@[match_pattern] private def uniqAnnotation := `uniq
 
 structure Hyp where
   name : Name
@@ -31,13 +35,33 @@ def parseHyp? : Expr → Option Hyp
 def Hyp.toExpr (hyp : Hyp) : Expr :=
   .mdata ⟨[(nameAnnotation, .ofName hyp.name), (uniqAnnotation, .ofName hyp.uniq)]⟩ hyp.p
 
+def SPred.mkType (u : Level) (σs : Expr) : Expr :=
+  mkApp (mkConst ``SPred [u]) σs
+
 -- set_option pp.all true in
 -- #check ⌜True⌝
-def emptyHyp (u : Level) (σs : Expr) : Expr := -- ⌜True⌝ standing in for an empty conjunction of hypotheses
-  mkApp3 (mkConst ``SVal.curry [u]) (mkApp (mkConst ``ULift [u, 0]) (.sort .zero)) σs <| mkLambda `tuple .default (mkApp (mkConst ``SVal.StateTuple [u]) σs) (mkApp2 (mkConst ``ULift.up [u, 0]) (.sort .zero) (mkConst ``True))
-def parseEmptyHyp? : Expr → Option (Level × Expr)
-  | mkApp3 (.const ``SVal.curry [u]) (mkApp (.const ``ULift _) (.sort .zero)) σs (.lam _ _ (mkApp2 (.const ``ULift.up _) _ (.const ``True _)) _) => some (u, σs)
+def SPred.mkPure (u : Level) (σs : Expr) (p : Expr) : Expr :=
+  mkApp2 (mkConst ``SPred.pure [u]) σs p
+
+def SPred.isPure? : Expr → Option (Level × Expr × Expr)
+  | mkApp2 (.const ``SPred.pure [u]) σs p => some (u, σs, p)
   | _ => none
+
+def emptyHypName := `emptyHyp
+
+def emptyHyp (u : Level) (σs : Expr) : Expr := -- ⌜True⌝ standing in for an empty conjunction of hypotheses
+  Hyp.toExpr { name := emptyHypName, uniq := emptyHypName, p := SPred.mkPure u σs (mkConst ``True) }
+
+def parseEmptyHyp? (e : Expr) : Option (Level × Expr) := do
+  let h ← parseHyp? e
+  unless h.name == emptyHypName || h.name.hasMacroScopes do
+    -- Interpret empty hyps when they are not named `emptyHyp` or have macro scopes
+    -- (= introduced inaccessibly). Otherwise we want to treat it as a regular hypothesis.
+    failure
+  let (u, σs, p) ← SPred.isPure? h.p
+  match p with
+  | .const ``True _ => return (u, σs)
+  | _ => failure
 
 def pushLeftConjunct (pos : SubExpr.Pos) : SubExpr.Pos :=
   pos.pushNaryArg 3 1
@@ -47,26 +71,33 @@ def pushRightConjunct (pos : SubExpr.Pos) : SubExpr.Pos :=
 
 /-- Combine two hypotheses into a conjunction.
 Precondition: Neither `lhs` nor `rhs` is empty (`parseEmptyHyp?`). -/
-def mkAnd! (u : Level) (σs lhs rhs : Expr) : Expr :=
+def SPred.mkAnd! (u : Level) (σs lhs rhs : Expr) : Expr :=
   mkApp3 (mkConst ``SPred.and [u]) σs lhs rhs
 
 /-- Smart constructor that cancels away empty hypotheses,
 along with a proof that `lhs ∧ rhs ⊣⊢ₛ result`. -/
-def mkAnd (u : Level) (σs lhs rhs : Expr) : Expr × Expr :=
+def SPred.mkAnd (u : Level) (σs lhs rhs : Expr) : Expr × Expr :=
   if let some _ := parseEmptyHyp? lhs then
     (rhs, mkApp2 (mkConst ``SPred.true_and [u]) σs rhs)
   else if let some _ := parseEmptyHyp? rhs then
     (lhs, mkApp2 (mkConst ``SPred.and_true [u]) σs lhs)
   else
-    let result := mkAnd! u σs lhs rhs
+    let result := SPred.mkAnd! u σs lhs rhs
     (result, mkApp2 (mkConst ``SPred.bientails.refl [u]) σs result)
 
-def σs.mkType (u : Level) : Expr := mkApp (mkConst ``List [.succ u]) (mkSort (.succ u))
-def σs.mkNil (u : Level) : Expr := mkApp (mkConst ``List.nil [.succ u]) (mkSort (.succ u))
+def TypeList.mkType (u : Level) : Expr := mkApp (mkConst ``List [.succ u]) (mkSort (.succ u))
+def TypeList.mkNil (u : Level) : Expr := mkApp (mkConst ``List.nil [.succ u]) (mkSort (.succ u))
+def TypeList.mkCons (u : Level) (hd tl : Expr) : Expr := mkApp3 (mkConst ``List.cons [.succ u]) (mkSort (.succ u)) hd tl
+def TypeList.length (σs : Expr) : MetaM Nat := do
+  let mut σs ← whnfR σs
+  let mut n := 0
+  while σs.isAppOfArity ``List.cons 3 do
+    n := n+1
+    σs ← whnfR (σs.getArg! 2)
+  return n
 
 def parseAnd? (e : Expr) : Option (Level × Expr × Expr × Expr) :=
-      (e.getAppFn.constLevels![0]!, ·) <$> e.app3? ``SPred.and
-  <|> (0, σs.mkNil 0, ·) <$> e.app2? ``And
+  (e.getAppFn.constLevels![0]!, ·) <$> e.app3? ``SPred.and
 
 structure MGoal where
   u : Level
@@ -111,31 +142,49 @@ partial def MGoal.findHyp? (goal : MGoal) (name : Name) : Option (SubExpr.Pos ×
       else
         panic! "MGoal.findHyp?: hypothesis without proper metadata: {e}"
 
-def MGoal.checkProof (goal : MGoal) (prf : Expr) (suppressWarning : Bool := false) : MetaM Unit := do
-  check prf
-  let prf_type ← inferType prf
-  unless ← isDefEq goal.toExpr prf_type do
-    throwError "MGoal.checkProof: the proof and its supposed type did not match.\ngoal:  {goal.toExpr}\nproof: {prf_type}"
+def checkHasType (expr : Expr) (expectedType : Expr) (suppressWarning : Bool := false) : MetaM Unit := do
+  check expr
+  check expectedType
+  let exprType ← inferType expr
+  unless ← isDefEqGuarded exprType expectedType do
+    throwError "checkHasType: the expression's inferred type and its expected type did not match.\n
+      expr: {indentExpr expr}\n
+      has inferred type: {indentExpr exprType}\n
+      but the expected type was: {indentExpr expectedType}"
   unless suppressWarning do
-    logWarning m!"stray MGoal.checkProof {prf_type} {goal.toExpr}"
+    logWarning m!"stray checkHasType {expr} : {expectedType}"
+
+def MGoal.checkProof (goal : MGoal) (prf : Expr) (suppressWarning : Bool := false) : MetaM Unit := do
+  checkHasType prf goal.toExpr suppressWarning
 
 def getFreshHypName : TSyntax ``binderIdent → CoreM (Name × Syntax)
   | `(binderIdent| $name:ident) => pure (name.getId, name)
   | stx => return (← mkFreshUserName `h, stx)
 
-partial def betaRevPreservingHypNames (σs' e : Expr) (args : Array Expr) : Expr :=
-  if let some (u, _) := parseEmptyHyp? e then
-    emptyHyp u σs'
-  else if let some hyp := parseHyp? e then
-    { hyp with p := hyp.p.betaRev args }.toExpr
-  else if let some (u, _σs, lhs, rhs) := parseAnd? e then
-    -- _σs = σ :: σs'
-    mkAnd! u σs' (betaRevPreservingHypNames σs' lhs args) (betaRevPreservingHypNames σs' rhs args)
-  else
-    e.betaRev args
+partial def pushForallContextIntoHyps (σs hyps : Expr) : Expr := go #[] #[] hyps
+  where
+    wrap (revLams : Array (Name × Expr × BinderInfo)) (revAppArgs : Array Expr) (body : Expr) : Expr :=
+      revLams.foldr (fun (x, ty, info) e => .lam x ty e info) (body.betaRev revAppArgs)
+
+    go (revLams : Array (Name × Expr × BinderInfo)) (revAppArgs : Array Expr) (e : Expr) : Expr :=
+      if let some (u, _σs) := parseEmptyHyp? e then
+        emptyHyp u σs
+      else if let some hyp := parseHyp? e then
+        { hyp with p := wrap revLams revAppArgs hyp.p }.toExpr
+      else if let some (u, _σs, lhs, rhs) := parseAnd? e then
+        SPred.mkAnd! u σs (go revLams revAppArgs lhs) (go revLams revAppArgs rhs)
+      else if let .lam x ty body info := e then
+        if let some a := revAppArgs.back? then
+          go revLams revAppArgs.pop (body.instantiate1 a)
+        else
+          go (revLams.push (x, ty, info)) revAppArgs body
+      else if let .app f a := e then
+        go revLams (revAppArgs.push a) f
+      else
+        wrap revLams revAppArgs e
 
 def betaPreservingHypNames (σs' e : Expr) (args : Array Expr) : Expr :=
-  betaRevPreservingHypNames σs' e args.reverse
+  pushForallContextIntoHyps σs' (mkAppN e args)
 
 def dropStateList (σs : Expr) (n : Nat) : MetaM Expr := do
   let mut σs := σs
@@ -143,6 +192,33 @@ def dropStateList (σs : Expr) (n : Nat) : MetaM Expr := do
     let some (_type, _σ, σs') := (← whnfR σs).app3? ``List.cons | throwError "Ambient state list not a cons {σs}"
     σs := σs'
   return σs
+
+partial def MGoal.renameInaccessibleHyps (goal : MGoal) (idents : Array (TSyntax ``binderIdent)) : MetaM MGoal := do
+  let (hyps, (_, idents)) ← StateT.run (go goal.hyps) ({}, idents) -- NB: idents in reverse order
+  unless idents.isEmpty do
+    throwError "mrename_i: Could not find inaccessible hypotheses for {idents} in {goal.toExpr}"
+  return { goal with hyps := hyps }
+  where
+    go (H : Expr) : StateT (NameSet × Array (TSyntax ``binderIdent)) MetaM Expr := do
+      let mut (shadowed, idents) ← StateT.get
+      if idents.isEmpty then
+        return H
+      if let some _ := parseEmptyHyp? H then
+        return H
+      if let some hyp := parseHyp? H then
+        if hyp.name.hasMacroScopes || shadowed.contains hyp.name then
+          if let `(binderIdent| $name:ident) := idents.back! then
+            let hyp := { hyp with name := name.getId }
+            StateT.set (shadowed, idents.pop)
+            return hyp.toExpr
+          idents := idents.pop
+        StateT.set (shadowed.insert hyp.name, idents)
+        return H
+      if let some (u, σs, lhs, rhs) := parseAnd? H then
+        let rhs ← go rhs -- NB: First go right because those are the "most recent" hypotheses
+        let lhs ← go lhs
+        return SPred.mkAnd! u σs lhs rhs
+      return H
 
 def addLocalVarInfo (stx : Syntax) (lctx : LocalContext)
     (expr : Expr) (expectedType? : Option Expr) (isBinder := false) : MetaM Unit := do

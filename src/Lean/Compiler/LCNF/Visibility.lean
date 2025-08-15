@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.MetaAttr
-import Lean.Compiler.ImplementedByAttr
+public import Lean.Compiler.LCNF.PhaseExt
+public import Lean.Compiler.MetaAttr
+public import Lean.Compiler.ImplementedByAttr
+
+public section
 
 namespace Lean.Compiler.LCNF
 
@@ -28,32 +32,36 @@ where
 
 -- TODO: refine? balance run time vs export size
 private def isBodyRelevant (decl : Decl) : CompilerM Bool := do
-  -- let opts := (← getOptions)
-  decl.isTemplateLike
-    -- <||> decl.value.isCodeAndM (pure <| ·.sizeLe (compiler.small.get opts))
+  let opts := (← getOptions)
+  decl.isTemplateLike <||> decl.value.isCodeAndM (pure <| ·.sizeLe (compiler.small.get opts))
 
-partial def inferVisibility (phase : Phase) (decls : Array Decl) : CompilerM Unit := do
-  if !(← getEnv).header.isModule then
-    return
-  for decl in decls do
-    if `_at_ ∈ decl.name.components then  -- TODO: don't?
-      trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is a specialization"
-      markPublic decl
-    else if (← getEnv).setExporting true |>.contains decl.name then
-      trace[Compiler.inferVisibility] m!"Marking {decl.name} as opaque because it is a public def"
-      markPublic decl
-where
-  markPublic (decl : Decl) : CompilerM Unit := do
-    modifyEnv (setDeclPublic · decl.name)
-    if (← isBodyRelevant decl) && !isDeclTransparent (← getEnv) phase decl.name then
-      trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is opaque and its body looks relevant"
-      modifyEnv (setDeclTransparent · phase decl.name)
-      decl.value.forCodeM fun code =>
-        for ref in collectUsedDecls code do
-          if let some refDecl ← getLocalDecl? ref then
-            if !isDeclPublic (← getEnv) ref then
-              trace[Compiler.inferVisibility] m!"Marking {ref} as opaque because it is used by transparent {decl.name}"
-              markPublic refDecl
+/--
+Marks the given declaration as to be exported and recursively infers the correct visibility of its
+body and referenced declarations based on that.
+-/
+partial def markDeclPublicRec (phase : Phase) (decl : Decl) : CompilerM Unit := do
+  modifyEnv (setDeclPublic · decl.name)
+  if (← isBodyRelevant decl) && !isDeclTransparent (← getEnv) phase decl.name then
+    trace[Compiler.inferVisibility] m!"Marking {decl.name} as transparent because it is opaque and its body looks relevant"
+    modifyEnv (setDeclTransparent · phase decl.name)
+    decl.value.forCodeM fun code =>
+      for ref in collectUsedDecls code do
+        if let some refDecl ← getLocalDeclAt? ref phase then
+          if !isDeclPublic (← getEnv) ref then
+            trace[Compiler.inferVisibility] m!"Marking {ref} as opaque because it is used by transparent {decl.name}"
+            markDeclPublicRec phase refDecl
+
+def inferVisibility (phase : Phase) : Pass where
+  occurrence := 0
+  phase
+  name := `inferVisibility
+  run decls := do
+    if (← getEnv).header.isModule then
+      for decl in decls do
+        if (← getEnv).setExporting true |>.contains decl.name then
+          trace[Compiler.inferVisibility] m!"Marking {decl.name} as opaque because it is a public def"
+          markDeclPublicRec phase decl
+    return decls
 
 builtin_initialize
   registerTraceClass `Compiler.inferVisibility

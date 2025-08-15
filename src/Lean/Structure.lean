@@ -5,11 +5,15 @@ Authors: Leonardo de Moura
 
 Helper functions for retrieving structure information.
 -/
+module
+
 prelude
-import Init.Control.Option
-import Lean.Environment
-import Lean.ProjFns
-import Lean.Exception
+public import Init.Control.Option
+public import Lean.Environment
+public import Lean.ProjFns
+public import Lean.Exception
+
+public section
 
 namespace Lean
 
@@ -80,7 +84,7 @@ private structure StructureState where
   map : PersistentHashMap Name StructureInfo := {}
   deriving Inhabited
 
-builtin_initialize structureExt : PersistentEnvExtension StructureInfo StructureInfo (Unit × StructureState) ← registerPersistentEnvExtension {
+private builtin_initialize structureExt : PersistentEnvExtension StructureInfo StructureInfo (Unit × StructureState) ← registerPersistentEnvExtension {
   mkInitial       := pure ((), {})
   addImportedFn   := fun _ => pure ((), {})
   addEntryFn      := fun (_, s) e => ((), { s with map := s.map.insert e.structName e })

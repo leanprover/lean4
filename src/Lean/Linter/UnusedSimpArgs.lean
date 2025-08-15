@@ -3,10 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Elab.Command
-import Lean.Elab.Tactic.Simp
-import Lean.Linter.Util
+public import Lean.Elab.Command
+public import Lean.Elab.Tactic.Simp
+public import Lean.Linter.Util
+
+public section
 
 namespace Lean.Linter
 
@@ -26,7 +30,14 @@ private def warnUnused (stx : Syntax) (i : Nat) : CoreM Unit := do
   let stx' := Tactic.setSimpParams stx otherArgs
   let suggestion : Meta.Hint.Suggestion := stx'
   let suggestion := { suggestion with span? := stx }
-  let hint ← MessageData.hint "Omit it from the simp argument list." #[ suggestion ]
+  let mut hint ← MessageData.hint "Omit it from the simp argument list." #[ suggestion ]
+  -- Add hint about `←`
+  let isInv := argStx.getKind == ``Lean.Parser.Tactic.simpLemma && !argStx[1].isNone
+  if isInv then
+    hint := hint ++ .note m!"Simp arguments with `←` have the additional effect of removing \
+      the other direction from the simp set, even if the simp argument itself is unused. \
+      If the hint above does not work, try replacing `←` with `-` to only get that effect \
+      and silence this warning."
   logLint Tactic.linter.unusedSimpArgs argStx (msg ++ hint)
 
 def unusedSimpArgs : Linter where

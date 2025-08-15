@@ -16,9 +16,9 @@ extern "C" {
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Checker_0__Std_Tactic_BVDecide_LRAT_check_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_LRAT_check(lean_object*, lean_object*);
+lean_object* l_instBEqOfDecidableEq___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_check_spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_instBEqProd___redArg(lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_CNF_convertLRAT(lean_object*);
 LEAN_EXPORT uint8_t l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_check___boxed(lean_object*, lean_object*);
@@ -26,10 +26,10 @@ lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_instClausePosFin(
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___Std_Tactic_BVDecide_LRAT_check_spec__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Checker_0__Std_Tactic_BVDecide_LRAT_check_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
-lean_object* l_instBEqOfDecidableEq___redArg(lean_object*);
 lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction(lean_object*, lean_object*);
 uint8_t l_Std_Tactic_BVDecide_LRAT_Internal_lratChecker___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0___boxed(lean_object*, lean_object*);
+lean_object* l_instBEqProd___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Checker_0__Std_Tactic_BVDecide_LRAT_check_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 uint8_t l_List_elem___redArg(lean_object*, lean_object*, lean_object*);
@@ -127,7 +127,6 @@ else
 {
 lean_object* x_5; 
 x_5 = lean_ctor_get(x_2, 0);
-lean_inc(x_5);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; 
@@ -140,6 +139,7 @@ goto _start;
 else
 {
 lean_object* x_8; lean_object* x_9; 
+lean_inc_ref(x_5);
 x_8 = lean_ctor_get(x_2, 1);
 lean_inc(x_8);
 lean_dec_ref(x_2);
@@ -150,16 +150,20 @@ if (lean_obj_tag(x_9) == 2)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_13 = lean_ctor_get(x_9, 1);
-lean_inc(x_13);
 x_14 = lean_ctor_get(x_9, 2);
-lean_inc_ref(x_14);
 x_15 = lean_alloc_closure((void*)(l_List_filterMapTR_go___at___Std_Tactic_BVDecide_LRAT_check_spec__1___lam__0___boxed), 2, 0);
 lean_inc(x_1);
 x_16 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_instDecidableEqPosFin___boxed), 3, 1);
 lean_closure_set(x_16, 0, x_1);
-x_17 = l_instBEqOfDecidableEq___redArg(x_16);
-x_18 = l_instBEqOfDecidableEq___redArg(x_15);
-x_19 = l_instBEqProd___redArg(x_17, x_18);
+x_17 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_17, 0, x_16);
+x_18 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(x_18, 0, x_15);
+x_19 = lean_alloc_closure((void*)(l_instBEqProd___redArg___lam__0___boxed), 4, 2);
+lean_closure_set(x_19, 0, x_17);
+lean_closure_set(x_19, 1, x_18);
+lean_inc(x_13);
+lean_inc_ref(x_14);
 x_20 = l_List_elem___redArg(x_19, x_14, x_13);
 if (x_20 == 0)
 {

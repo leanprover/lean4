@@ -35,7 +35,7 @@ macro_rules
 
 /-- Remove an `spred` layer from a `term` syntax object. -/
 -- inverts the rules above.
-meta def SPred.Notation.unpack [Monad m] [MonadRef m] [MonadQuotation m] : Term → m Term
+partial def SPred.Notation.unpack [Monad m] [MonadRef m] [MonadQuotation m] : Term → m Term
   | `(spred($P))             => do `($P)
   | `(($P))                  => do `(($(← unpack P)))
   | `(if $c then $t else $e) => do
@@ -50,14 +50,8 @@ meta def SPred.Notation.unpack [Monad m] [MonadRef m] [MonadQuotation m] : Term 
 
 /-! # Idiom notation -/
 
-/-- Embedding of pure Lean values into `SVal`. -/
+/-- Embedding of pure Lean values into `SVal`. An alias for `SPred.pure`. -/
 scoped syntax "⌜" term "⌝" : term
-/-- ‹t› in `SVal` idiom notation. Accesses the state of type `t`. -/
-scoped syntax "‹" term "›ₛ" : term
-/--
-  Use getter `t : SVal σs σ` in `SVal` idiom notation; sugar for `SVal.uncurry t (by assumption)`.
--/
-scoped syntax:max "#" term:max : term
 
 /-! # Sugar for `SPred` -/
 
@@ -69,9 +63,7 @@ scoped syntax:25 "⊢ₛ " term:25 : term
 scoped syntax:25 term:25 " ⊣⊢ₛ " term:25 : term
 
 macro_rules
-  | `(⌜$t⌝) => ``(SVal.curry (fun tuple => ULift.up $t))
-  | `(#$t) => `(SVal.uncurry $t (by assumption))
-  | `(‹$t›ₛ) => `(#(SVal.getThe $t))
+  | `(⌜$t⌝) => ``(SPred.pure $t)
   | `($P ⊢ₛ $Q) => ``(SPred.entails spred($P) spred($Q))
   | `(spred($P ∧ $Q)) => ``(SPred.and spred($P) spred($Q))
   | `(spred($P ∨ $Q)) => ``(SPred.or spred($P) spred($Q))
@@ -94,20 +86,10 @@ macro_rules
 
 namespace SPred.Notation
 
-@[app_unexpander SVal.curry]
-meta def unexpandCurry : Unexpander
+@[app_unexpander SPred.pure]
+meta def unexpandPure : Unexpander
   | `($_ $t $ts*) => do
-    match t with
-    | `(fun $_ => { down := $e }) => if ts.isEmpty then ``(⌜$e⌝) else ``(⌜$e⌝ $ts*)
-    | _ => throw ()
-  | _ => throw ()
-
-@[app_unexpander SVal.uncurry]
-meta def unexpandUncurry : Unexpander
-  | `($_ $f $ts*) => do
-    match f with
-    | `(SVal.getThe $t) => if ts.isEmpty then ``(‹$t›ₛ) else ``(‹$t›ₛ $ts*)
-    | `($t) => if ts.isEmpty then ``(#$t) else ``(#$t $ts*)
+    if ts.isEmpty then ``(⌜$t⌝) else ``(⌜$t⌝ $ts*)
   | _ => throw ()
 
 @[app_unexpander SPred.entails]

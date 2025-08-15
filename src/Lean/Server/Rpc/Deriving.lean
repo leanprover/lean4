@@ -4,12 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-prelude
-import Lean.Elab.Command
-import Lean.Elab.Term
-import Lean.Elab.Deriving.Basic
+module
 
-import Lean.Server.Rpc.Basic
+prelude
+public import Lean.Elab.Command
+public import Lean.Elab.Term
+public import Lean.Elab.Deriving.Basic
+
+public import Lean.Server.Rpc.Basic
+
+public section
 
 namespace Lean.Server.RpcEncodable
 
@@ -57,7 +61,7 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
   )
 
 private def matchAltTerm := Lean.Parser.Term.matchAlt (rhsParser := Lean.Parser.termParser)
-instance : Coe (TSyntax ``matchAltTerm) (TSyntax ``Parser.Term.matchAlt) where coe s := ⟨s⟩
+private instance : Coe (TSyntax ``matchAltTerm) (TSyntax ``Parser.Term.matchAlt) where coe s := ⟨s⟩
 
 private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr)
     (encInstBinders : Array (TSyntax ``bracketedBinder)) : TermElabM Command := do

@@ -3,13 +3,17 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
+public import Lean.Meta.Tactic.Grind.Simp
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -337,7 +341,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg
+  | add | mul | num | div | mod | sub | pow | natAbs | toNat | natCast | neg | toInt | finVal
   deriving BEq, Repr
 
 private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
@@ -355,6 +359,8 @@ private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   | Int.natAbs _ => some (.natAbs, Nat.mkType)
   | Int.toNat _ => some (.toNat, Nat.mkType)
   | NatCast.natCast α _ _ => some (.natCast, α)
+  | Fin.val _ _ => some (.finVal, Nat.mkType)
+  | Grind.ToInt.toInt _ _ _ _ => some (.toInt, Int.mkType)
   | _ => none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
@@ -363,7 +369,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   -- TODO: document `NatCast.natCast` case.
   -- Remark: we added it to prevent natCast_sub from being expanded twice.
   if declName == ``NatCast.natCast then return true
-  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast then return false
+  if k matches .div | .mod | .sub | .pow | .neg | .natAbs | .toNat | .natCast | .toInt | .finVal then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false
@@ -390,15 +396,36 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
     c.assert
 
 private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
-  if b == 0 || b == 1 || b == -1 then
-    throwError "`grind` internal error, found non-normalized div/mod by {b}"
   if (← get').divMod.contains (a, b) then return ()
   modify' fun s => { s with divMod := s.divMod.insert (a, b) }
-  let n : Int := 1 - b.natAbs
-  let b := mkIntLit b
-  pushNewFact <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b
-  pushNewFact <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b reflBoolTrue
-  pushNewFact <| mkApp4 (mkConst ``Int.Linear.emod_le) a b (toExpr n) reflBoolTrue
+  let b' ← shareCommon (mkIntLit b)
+  if b == 0 || b == 1 || b == -1 then
+    /-
+    We cannot assume terms have been normalized.
+    Recall that terms may not be normalized because of dependencies.
+    -/
+    let gen ← getGeneration a
+    internalize b' gen
+    let ediv ← shareCommon (mkIntDiv a b'); internalize ediv gen
+    let emod ← shareCommon (mkIntMod a b'); internalize emod gen
+    if b == 0 then
+      pushEq emod a <| mkApp (mkConst ``Int.emod_zero) a
+      pushEq ediv b' <| mkApp (mkConst ``Int.ediv_zero) a
+    else if b == 1 then
+      let zero ← shareCommon (mkIntLit 0); internalize zero gen
+      pushEq emod zero <| mkApp (mkConst ``Int.emod_one) a
+      pushEq ediv a <| mkApp (mkConst ``Int.ediv_one) a
+    else
+      assert! b == -1
+      let zero ← shareCommon (mkIntLit 0); internalize zero gen
+      let neg_a ← shareCommon (mkIntNeg a); internalize neg_a gen
+      pushEq emod zero <| mkApp (mkConst ``Int.emod_minus_one) a
+      pushEq ediv neg_a <| mkApp (mkConst ``Int.ediv_minus_one) a
+  else
+    let n : Int := 1 - b.natAbs
+    pushNewFact <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b'
+    pushNewFact <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b' eagerReflBoolTrue
+    pushNewFact <| mkApp4 (mkConst ``Int.Linear.emod_le) a b' (toExpr n) eagerReflBoolTrue
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()
@@ -412,6 +439,18 @@ private def propagateMod (e : Expr) : GoalM Unit := do
   if (← isInstHModInt inst) then
     let some b ← getIntValue? b | return ()
     expandDivMod a b
+
+private def propagateToInt (e : Expr) : GoalM Unit := do
+  let_expr Grind.ToInt.toInt α _ _ a := e | return ()
+  if (← isToIntTerm a) then return ()
+  let some (eToInt, he) ← toInt? a α | return ()
+  discard <| mkVar e
+  if isSameExpr e eToInt then return ()
+  modify' fun s => { s with
+    toIntTermMap := s.toIntTermMap.insert { expr := a } { eToInt, he, α }
+  }
+  let prop := mkIntEq e eToInt
+  pushNewFact <| mkExpectedPropHint he prop
 
 private def propagateNatAbs (e : Expr) : GoalM Unit := do
   let_expr Int.natAbs a := e | return ()
@@ -433,6 +472,7 @@ private def internalizeIntTerm (e type : Expr) (parent? : Option Expr) (k : Supp
   match k with
   | .div => propagateDiv e
   | .mod => propagateMod e
+  | .toInt => propagateToInt e
   | _ => internalizeInt e
 
 private def internalizeNatTerm (e type : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do

@@ -3,8 +3,12 @@ Copyright (c) 2025 Lean FRO LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Simp
+public import Lean.Meta.Tactic.Simp
+
+public section
 
 namespace Lean.Elab.Tactic.Do
 
@@ -94,7 +98,7 @@ partial def countUsesDecl (fvarId : FVarId) (ty : Expr) (val? : Option Expr) (bo
 partial def countUses (e : Expr) (subst : Array FVarId := #[]) : MetaM (Expr × FVarUses) := match e with
   | .bvar n =>
     if _ : n < subst.size then
-      return (e, {(subst[n], .one)})
+      return (e, {(subst[subst.size - 1 - n], .one)})
     else
       throwError "BVar index out of bounds: {n} >= {subst.size}"
   | .fvar fvarId => return (e, {(fvarId, .one)})
@@ -154,7 +158,7 @@ def elimLetsCore (e : Expr) (elimTrivial := true) : MetaM Expr := StateRefT'.run
     | _ => return .continue
   Meta.transform e (pre := pre)
 
-def elimLets (mvar : MVarId) (elimTrivial := true): MetaM MVarId := mvar.withContext do
+def elimLets (mvar : MVarId) (elimTrivial := true) : MetaM MVarId := mvar.withContext do
   let ctx ← getLCtx
   let (ty, fvarUses) ← countUses (← mvar.getType)
   let ctx ← countUsesLCtx ctx fvarUses

@@ -94,7 +94,7 @@ theorem go_denote_eq (aig : AIG BVBit) (a : Nat) (assign : Assignment) (curr : N
   generalize hgo : go aig w a curr s hcurr = res
   unfold go at hgo
   split at hgo
-  · next hlt =>
+  next hlt =>
     dsimp only at hgo
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>

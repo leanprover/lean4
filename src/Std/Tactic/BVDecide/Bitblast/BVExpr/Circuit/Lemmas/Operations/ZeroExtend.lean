@@ -104,7 +104,7 @@ theorem go_denote_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWid
     cases Nat.eq_or_lt_of_le hidx2 with
     | inl heq =>
       split at hgo
-      · next hsplit =>
+      next hsplit =>
         rw [heq] at hsplit
         simp only [hsplit, ↓reduceDIte]
         rw [← hgo]
@@ -114,7 +114,7 @@ theorem go_denote_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWid
           · simp [heq]
           · simp [Ref.hgate]
         · omega
-      · next hsplit =>
+      next hsplit =>
         rw [heq] at hsplit
         simp only [hsplit, ↓reduceDIte]
         rw [← hgo]

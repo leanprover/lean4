@@ -3,9 +3,13 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
-import Lean.Meta.Match.MatcherInfo
+public import Lean.Meta.Basic
+public import Lean.Meta.Match.MatcherInfo
+
+public section
 
 /-!
 This exports a predicate for checking whether a name should be made

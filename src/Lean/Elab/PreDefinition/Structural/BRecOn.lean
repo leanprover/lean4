@@ -3,14 +3,18 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
+module
+
 prelude
-import Lean.Util.HasConstCache
-import Lean.Meta.PProdN
-import Lean.Meta.Match.MatcherApp.Transform
-import Lean.Elab.RecAppSyntax
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Elab.PreDefinition.Structural.RecArgInfo
+public import Lean.Util.HasConstCache
+public import Lean.Meta.PProdN
+public import Lean.Meta.Match.MatcherApp.Transform
+public import Lean.Elab.RecAppSyntax
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Structural.Basic
+public import Lean.Elab.PreDefinition.Structural.RecArgInfo
+
+public section
 
 namespace Lean.Elab.Structural
 open Meta
@@ -184,7 +188,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
              this may generate weird error messages, when it doesn't work. -/
           trace[Elab.definition.structural] "below before matcherApp.addArg: {below} : {← inferType below}"
           if let some matcherApp ← matcherApp.addArg? below then
-            let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
+            let altsNew ← matcherApp.alts.zipWithM (bs := matcherApp.altNumParams) fun alt numParams =>
               lambdaBoundedTelescope alt numParams fun xs altBody => do
                 trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"
                 unless xs.size = numParams do

@@ -3,12 +3,16 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Data.List.BasicAux
-import Lean.AddDecl
-import Lean.Meta.AppBuilder
-import Lean.Meta.Instances
-import Lean.DefEqAttrib
+public import Init.Data.List.BasicAux
+public import Lean.AddDecl
+public import Lean.Meta.AppBuilder
+public import Lean.Meta.Instances
+public import Lean.DefEqAttrib
+
+public section
 
 namespace Lean.Meta
 
@@ -141,7 +145,7 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
       let val := mkAppN recFn (params ++ motives)
       forallBoundedTelescope (← inferType val) recInfo.numMinors fun minorFVars' _ =>
       mkSizeOfMinors motiveFVars minorFVars minorFVars' fun minors => do
-        withInstImplicitAsImplict params do
+        withInstImplicitAsImplicit params do
           let sizeOfParams := params ++ localInsts ++ indices ++ #[major]
           let sizeOfType ← mkForallFVars sizeOfParams nat
           let val := mkAppN val (minors ++ indices ++ #[major])
@@ -492,7 +496,7 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
             let indInfo ← getConstInfoInduct indTypeName
             forallTelescopeReducing indInfo.type fun xs _ =>
               let params := xs[*...indInfo.numParams]
-              withInstImplicitAsImplict params do
+              withInstImplicitAsImplicit params do
                 let indices := xs[indInfo.numParams...*]
                 mkLocalInstances params fun localInsts => do
                   let us := indInfo.levelParams.map mkLevelParam

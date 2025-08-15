@@ -713,7 +713,7 @@ A `simpArg` is either a `*`, `-lemma` or a simp lemma specification
 meta def simpArg := simpStar.binary `orelse (simpErase.binary `orelse simpLemma)
 
 /-- A simp args list is a list of `simpArg`. This is the main argument to `simp`. -/
-syntax simpArgs := " [" simpArg,* "]"
+syntax simpArgs := " [" simpArg,*,? "]"
 
 /--
 A `dsimpArg` is similar to `simpArg`, but it does not have the `simpStar` form
@@ -722,7 +722,7 @@ because it does not make sense to use hypotheses in `dsimp`.
 meta def dsimpArg := simpErase.binary `orelse simpLemma
 
 /-- A dsimp args list is a list of `dsimpArg`. This is the main argument to `dsimp`. -/
-syntax dsimpArgs := " [" dsimpArg,* "]"
+syntax dsimpArgs := " [" dsimpArg,*,? "]"
 
 /-- The common arguments of `simp?` and `simp?!`. -/
 syntax simpTraceArgsRest := optConfig (discharger)? (&" only")? (simpArgs)? (ppSpace location)?
@@ -826,8 +826,12 @@ The `have` tactic is for adding hypotheses to the local context of the main goal
   It is convenient for types that have only one applicable constructor.
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
+* The syntax `have (eq := h) pat := e` is equivalent to `match h : e with | pat => _`,
+  which adds the equation `h : e = pat` to the local context.
+
+The tactic supports all the same syntax variants and options as the `have` term.
 -/
-syntax "have " letConfig letDecl : tactic
+syntax "have" letConfig letDecl : tactic
 macro_rules
   -- special case: when given a nested `by` block, move it outside of the `refine` to enable
   -- incrementality
@@ -878,8 +882,12 @@ The `let` tactic is for adding definitions to the local context of the main goal
   It is convenient for types that let only one applicable constructor.
   For example, given `p : α × β × γ`, `let ⟨x, y, z⟩ := p` produces the
   local variables `x : α`, `y : β`, and `z : γ`.
+* The syntax `let (eq := h) pat := e` is equivalent to `match h : e with | pat => _`,
+  which adds the equation `h : e = pat` to the local context.
+
+The tactic supports all the same syntax variants and options as the `let` term.
 -/
-macro "let " c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
+macro "let" c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
 
 /-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
 The syntax is the same as term-mode `let rec`. -/
@@ -890,24 +898,21 @@ macro_rules
 /-- Similar to `refine_lift`, but using `refine'` -/
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
-macro (name := tacticHave') "have' " c:letConfig d:letDecl : tactic => `(tactic| refine_lift' have $c:letConfig $d:letDecl; ?_)
-set_option linter.missingDocs false in -- OK, because `tactic_alt` causes inheritance of docs
-macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x:ident : _ := $p)
-attribute [tactic_alt tacticHave'] «tacticHave'_:=_»
+macro (name := tacticHave') "have'" c:letConfig d:letDecl : tactic => `(tactic| refine_lift' have $c:letConfig $d:letDecl; ?_)
 /-- Similar to `let`, but using `refine'` -/
-macro "let' " c:letConfig d:letDecl : tactic => `(tactic| refine_lift' let $c:letConfig $d:letDecl; ?_)
+macro "let'" c:letConfig d:letDecl : tactic => `(tactic| refine_lift' let $c:letConfig $d:letDecl; ?_)
 
 /--
 The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
 where `foo` is a constructor of the inductive type and `a b c` are the arguments
 to the constructor.
 -/
-syntax inductionAltLHS := withPosition("| " (("@"? ident) <|> hole) (colGt (ident <|> hole))*)
+syntax inductionAltLHS := ppDedent(ppLine) withPosition("| " (("@"? ident) <|> hole) (colGt (ident <|> hole))*)
 /--
 In induction alternative, which can have 1 or more cases on the left
 and `_`, `?_`, or a tactic sequence after the `=>`.
 -/
-syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
+syntax inductionAlt  := inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
 /--
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
@@ -1992,6 +1997,13 @@ macro (name := mrevertMacro) (priority:=low) "mrevert" : tactic =>
 
 
 /--
+`mrename_i` is like `rename_i`, but names inaccessible stateful hypotheses in a `Std.Do.SPred` goal.
+-/
+macro (name := mrenameIMacro) (priority:=low) "mrename_i" : tactic =>
+  Macro.throwError "to use `mrename_i`, please include `import Std.Tactic.Do`"
+
+
+/--
 `mspecialize` is like `specialize`, but operating on a stateful `Std.Do.SPred` goal.
 It specializes a hypothesis from the stateful context with hypotheses from either the pure
 or stateful context or pure terms.
@@ -2116,7 +2128,7 @@ macro (name := mintroMacro) (priority:=low) "mintro" : tactic =>
 `mspec` is an `apply`-like tactic that applies a Hoare triple specification to the target of the
 stateful goal.
 
-Given a stateful goal `H ⊢ₛ wp⟦prog⟧.apply Q'`, `mspec foo_spec` will instantiate
+Given a stateful goal `H ⊢ₛ wp⟦prog⟧ Q'`, `mspec foo_spec` will instantiate
 `foo_spec : ... → ⦃P⦄ foo ⦃Q⦄`, match `foo` against `prog` and produce subgoals for
 the verification conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
 
@@ -2125,11 +2137,12 @@ the verification conditions `?pre : H ⊢ₛ P` and `?post : Q ⊢ₚ Q'`.
 * If `?pre` or `?post` follow by `.rfl`, then they are discharged automatically.
 * `?post` is automatically simplified into constituent `⊢ₛ` entailments on
   success and failure continuations.
-* `?pre` and `?post.*` goals introduce their stateful hypothesis as `h`.
+* `?pre` and `?post.*` goals introduce their stateful hypothesis under an inaccessible name.
+  You can give it a name with the `mrename_i` tactic.
 * Any uninstantiated MVar arising from instantiation of `foo_spec` becomes a new subgoal.
 * If the target of the stateful goal looks like `fun s => _` then `mspec` will first `mintro ∀s`.
 * If `P` has schematic variables that can be instantiated by doing `mintro ∀s`, for example
-  `foo_spec : ∀(n:Nat), ⦃⌜n = ‹Nat›ₛ⌝⦄ foo ⦃Q⦄`, then `mspec` will do `mintro ∀s` first to
+  `foo_spec : ∀(n:Nat), ⦃fun s => ⌜n = s⌝⦄ foo ⦃Q⦄`, then `mspec` will do `mintro ∀s` first to
   instantiate `n = s`.
 * Right before applying the spec, the `mframe` tactic is used, which has the following effect:
   Any hypothesis `Hᵢ` in the goal `h₁:H₁, h₂:H₂, ..., hₙ:Hₙ ⊢ₛ T` that is

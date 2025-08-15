@@ -552,7 +552,7 @@ Example:
 @[expose]
 protected def xor (x y : BitVec n) : BitVec n :=
   (x.toNat ^^^ y.toNat)#'(Nat.xor_lt_two_pow x.isLt y.isLt)
-instance : Xor (BitVec w) := ⟨.xor⟩
+instance : XorOp (BitVec w) := ⟨.xor⟩
 
 /--
 Bitwise complement for bitvectors. Usually accessed via the `~~~` prefix operator.

@@ -3,8 +3,12 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.Util
+
+public section
 
 namespace Lean.Meta
 
@@ -67,7 +71,7 @@ namespace Lean.Meta
             if newType.isForall then
               loop (i+1) lctx fvars fvars.size s newType
             else
-              throwTacticEx `introN mvarId "insufficient number of binders"
+              throwTacticEx `introN mvarId <| m!"There are no additional binders or `let` bindings in the goal to introduce"
   let (fvars, mvarId) ← loop n lctx #[] 0 s mvarType
   return (fvars.map Expr.fvarId!, mvarId)
 

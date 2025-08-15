@@ -199,9 +199,7 @@ lean_object* x_13; uint8_t x_14;
 lean_dec_ref(x_7);
 lean_dec_ref(x_6);
 x_13 = lean_ctor_get(x_1, 0);
-lean_inc(x_13);
 x_14 = lean_unbox(x_13);
-lean_dec(x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; 
@@ -226,9 +224,7 @@ else
 {
 lean_object* x_17; uint8_t x_18; 
 x_17 = lean_ctor_get(x_2, 0);
-lean_inc(x_17);
 x_18 = lean_unbox(x_17);
-lean_dec(x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; 

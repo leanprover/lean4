@@ -17,7 +17,7 @@ namespace Lean.Grind
 /--
 Addition is compatible with a preorder if `a ≤ b ↔ a + c ≤ b + c`.
 -/
-class OrderedAdd (M : Type u) [HAdd M M M] [Preorder M] where
+class OrderedAdd (M : Type u) [HAdd M M M] [LE M] [LT M] [Preorder M] where
   /-- `a + c ≤ b + c` iff `a ≤ b`. -/
   add_le_left_iff : ∀ {a b : M} (c : M), a ≤ b ↔ a + c ≤ b + c
 
@@ -30,7 +30,7 @@ open AddCommMonoid NatModule
 
 section
 
-variable {M : Type u} [Preorder M] [AddCommMonoid M] [OrderedAdd M]
+variable {M : Type u} [LE M] [LT M] [Preorder M] [AddCommMonoid M] [OrderedAdd M]
 
 theorem add_le_right_iff {a b : M} (c : M) : a ≤ b ↔ c + a ≤ c + b := by
   rw [add_comm c a, add_comm c b, add_le_left_iff]
@@ -73,7 +73,7 @@ end
 
 section
 
-variable {M : Type u} [Preorder M] [NatModule M] [OrderedAdd M]
+variable {M : Type u} [LE M] [LT M] [Preorder M] [NatModule M] [OrderedAdd M]
 
 theorem nsmul_le_nsmul {k : Nat} {a b : M} (h : a ≤ b) : k * a ≤ k * b := by
   induction k with
@@ -117,7 +117,7 @@ end
 section
 
 open AddCommGroup
-variable {M : Type u} [Preorder M] [AddCommGroup M] [OrderedAdd M]
+variable {M : Type u} [LE M] [LT M] [Preorder M] [AddCommGroup M] [OrderedAdd M]
 
 theorem neg_le_iff {a b : M} : -a ≤ b ↔ -b ≤ a := by
   rw [OrderedAdd.add_le_left_iff a, neg_add_cancel]
@@ -127,7 +127,7 @@ theorem neg_le_iff {a b : M} : -a ≤ b ↔ -b ≤ a := by
 end
 section
 
-variable {M : Type u} [Preorder M] [IntModule M] [OrderedAdd M]
+variable {M : Type u} [LE M] [LT M] [Preorder M] [IntModule M] [OrderedAdd M]
 open AddCommGroup IntModule
 
 theorem zsmul_pos_iff (k : Int) {x : M} (h : 0 < x) : 0 < k * x ↔ 0 < k :=
@@ -154,7 +154,7 @@ theorem zsmul_nonneg {k : Int} {x : M} (h : 0 ≤ k) (hx : 0 ≤ x) : 0 ≤ k * 
 end
 
 section
-variable {M : Type u} [Preorder M] [AddCommGroup M] [OrderedAdd M]
+variable {M : Type u} [LE M] [LT M] [Preorder M] [AddCommGroup M] [OrderedAdd M]
 
 open AddCommGroup
 
@@ -186,7 +186,7 @@ end
 
 section
 
-variable {M : Type u} [Preorder M] [IntModule M] [OrderedAdd M]
+variable {M : Type u} [LE M] [LT M] [Preorder M] [IntModule M] [OrderedAdd M]
 open IntModule
 
 theorem zsmul_neg_iff (k : Int) {a : M} (h : a < 0) : k * a < 0 ↔ 0 < k := by

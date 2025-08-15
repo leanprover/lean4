@@ -3,18 +3,22 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Siddharth Bhat
 -/
+module
+
 prelude
-import Lean.Runtime
-import Lean.Compiler.NameMangling
-import Lean.Compiler.ExportAttr
-import Lean.Compiler.InitAttr
-import Lean.Compiler.IR.CompilerM
-import Lean.Compiler.IR.EmitUtil
-import Lean.Compiler.IR.NormIds
-import Lean.Compiler.IR.SimpCase
-import Lean.Compiler.IR.Boxing
-import Lean.Compiler.IR.ResetReuse
-import Lean.Compiler.IR.LLVMBindings
+public import Lean.Runtime
+public import Lean.Compiler.NameMangling
+public import Lean.Compiler.ExportAttr
+public import Lean.Compiler.InitAttr
+public import Lean.Compiler.IR.CompilerM
+public import Lean.Compiler.IR.EmitUtil
+public import Lean.Compiler.IR.NormIds
+public import Lean.Compiler.IR.SimpCase
+public import Lean.Compiler.IR.Boxing
+public import Lean.Compiler.IR.ResetReuse
+public import Lean.Compiler.IR.LLVMBindings
+
+public section
 
 open Lean.IR.ExplicitBoxing (isBoxedName)
 
@@ -75,10 +79,10 @@ abbrev M (llvmctx : LLVM.Context) :=
 instance : Inhabited (M llvmctx α) where
   default := throw "Error: inhabitant"
 
-def addVartoState (x : VarId) (v : LLVM.Value llvmctx) (ty : LLVM.LLVMType llvmctx) : M llvmctx Unit := do
+def addVarToState (x : VarId) (v : LLVM.Value llvmctx) (ty : LLVM.LLVMType llvmctx) : M llvmctx Unit := do
   modify (fun s => { s with var2val := s.var2val.insert x (ty, v) }) -- add new variable
 
-def addJpTostate (jp : JoinPointId) (bb : LLVM.BasicBlock llvmctx) : M llvmctx Unit :=
+def addJpToState (jp : JoinPointId) (bb : LLVM.BasicBlock llvmctx) : M llvmctx Unit :=
   modify (fun s => { s with jp2bb := s.jp2bb.insert jp bb })
 
 def emitJp (jp : JoinPointId) : M llvmctx (LLVM.BasicBlock llvmctx) := do
@@ -762,7 +766,7 @@ def emitLit (builder : LLVM.Builder llvmctx)
     (z : VarId) (t : IRType) (v : LitVal) : M llvmctx (LLVM.Value llvmctx) := do
   let llvmty ← toLLVMType t
   let zslot ← buildPrologueAlloca builder llvmty
-  addVartoState z zslot llvmty
+  addVarToState z zslot llvmty
   let zv ← match v with
             | LitVal.num v => emitNumLit builder t v
             | LitVal.str v =>
@@ -979,7 +983,7 @@ def emitVDecl (builder : LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Exp
 def declareVar (builder : LLVM.Builder llvmctx) (x : VarId) (t : IRType) : M llvmctx Unit := do
   let llvmty ← toLLVMType t
   let alloca ← buildPrologueAlloca builder llvmty "varx"
-  addVartoState x alloca llvmty
+  addVarToState x alloca llvmty
 
 partial def declareVars (builder : LLVM.Builder llvmctx) (f : FnBody) : M llvmctx Unit := do
   match f with
@@ -1115,7 +1119,7 @@ partial def emitJDecl (builder : LLVM.Builder llvmctx)
     (jp : JoinPointId) (_ps : Array Param) (b : FnBody) : M llvmctx Unit := do
   let oldBB ← LLVM.getInsertBlock builder
   let jpbb ← builderAppendBasicBlock builder s!"jp_{jp.idx}"
-  addJpTostate jp jpbb
+  addJpToState jp jpbb
   LLVM.positionBuilderAtEnd builder jpbb
   -- NOTE(bollu) : Note that we declare the slots for the variables that are inside
   --              the join point body before emitting the join point body.
@@ -1157,7 +1161,6 @@ partial def emitBlock (builder : LLVM.Builder llvmctx) (b : FnBody) : M llvmctx 
   | FnBody.set x i y b         => emitSet builder x i y; emitBlock builder b
   | FnBody.uset x i y b        => emitUSet builder x i y; emitBlock builder b
   | FnBody.sset x i o y t b    => emitSSet builder x i o y t; emitBlock builder b
-  | FnBody.mdata _ b           => emitBlock builder b
   | FnBody.ret x               => do
       let (_xty, xv) ← emitArgVal builder x "ret_val"
       let _ ← LLVM.buildRet builder xv
@@ -1187,7 +1190,7 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
           -- slot for arg[i] which is always void* ?
           let alloca ← buildPrologueAlloca builder llvmty s!"arg_{i}"
           LLVM.buildStore builder pv alloca
-          addVartoState param.x alloca llvmty
+          addVarToState param.x alloca llvmty
   else
       let n ← LLVM.countParams llvmfn
       for i in *...n.toNat do
@@ -1196,7 +1199,7 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
         let alloca ← buildPrologueAlloca builder  llvmty s!"arg_{i}"
         let arg ← LLVM.getParam llvmfn (UInt64.ofNat i)
         let _ ← LLVM.buildStore builder arg alloca
-        addVartoState param.x alloca llvmty
+        addVarToState param.x alloca llvmty
 
 def emitDeclAux (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) (d : Decl) : M llvmctx Unit := do
   let env ← getEnv

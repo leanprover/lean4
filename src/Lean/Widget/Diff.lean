@@ -4,12 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers
 -/
+module
+
 prelude
-import Lean.Meta.PPGoal
-import Lean.Widget.InteractiveCode
-import Lean.Widget.InteractiveGoal
-import Lean.Data.Lsp.Extra
-import Lean.Elab.InfoTree
+public import Lean.Meta.PPGoal
+public import Lean.Widget.InteractiveCode
+public import Lean.Widget.InteractiveGoal
+public import Lean.Data.Lsp.Extra
+public import Lean.Elab.InfoTree
 
 namespace Lean.Widget
 
@@ -252,7 +254,7 @@ def diffInteractiveGoal (useAfter : Bool) (g₀ : MVarId) (i₁ : InteractiveGoa
 /-- Modifies `goalsAfter` with additional information about how it is different to `goalsBefore`.
 If `useAfter` is `true` then `igs₁` is the set of interactive goals _after_ the tactic has been applied.
 Otherwise `igs₁` is the set of interactive goals _before_. -/
-def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : InteractiveGoals) : MetaM InteractiveGoals := do
+public def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : InteractiveGoals) : MetaM InteractiveGoals := do
     if ! showTacticDiff.get (← getOptions) then return igs₁ else
     let goals₀ := if useAfter then info.goalsBefore else info.goalsAfter
     let parentMap : MVarIdMap MVarIdSet ← info.goalsBefore.foldlM (init := ∅) (fun s g => do

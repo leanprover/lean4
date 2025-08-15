@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Zero
 public import Init.Data.Int.DivMod.Lemmas
+public import Init.Data.Int.LemmasAux
 public import Init.Data.Int.Pow
 public import Init.TacticsExtra
 public import Init.Grind.Module.Basic
@@ -41,7 +42,7 @@ Use `Ring` instead if the type also has negation,
 `CommSemiring` if the multiplication is commutative,
 or `CommRing` if the type has negation and multiplication is commutative.
 -/
-class Semiring (α : Type u) extends Add α, Mul α, HPow α Nat α where
+class Semiring (α : Type u) extends Add α, Mul α where
   /--
   In every semiring there is a canonical map from the natural numbers to the semiring,
   providing the values of `0` and `1`. Note that this function need not be injective.
@@ -54,6 +55,8 @@ class Semiring (α : Type u) extends Add α, Mul α, HPow α Nat α where
   [ofNat : ∀ n, OfNat α n]
   /-- Scalar multiplication by natural numbers. -/
   [nsmul : HMul Nat α α]
+  /-- Exponentiation by a natural number. -/
+  [npow : HPow α Nat α]
   /-- Zero is the right identity for addition. -/
   add_zero : ∀ a : α, a + 0 = a
   /-- Addition is commutative. -/
@@ -129,7 +132,7 @@ class CommRing (α : Type u) extends Ring α, CommSemiring α
 -- so that in downstream libraries with their own `CommRing` class,
 -- the path `CommRing -> Add` is found before `CommRing -> Lean.Grind.CommRing -> Add`.
 -- (And similarly for the other parents.)
-attribute [instance 100] Semiring.toAdd Semiring.toMul Semiring.toHPow Ring.toNeg Ring.toSub
+attribute [instance 100] Semiring.toAdd Semiring.toMul Semiring.npow Ring.toNeg Ring.toSub
 
 -- This is a low-priority instance, to avoid conflicts with existing `OfNat`, `NatCast`, and `IntCast` instances.
 attribute [instance 100] Semiring.ofNat
@@ -145,6 +148,9 @@ open NatModule
 
 variable {α : Type u} [Semiring α]
 
+theorem natCast_eq_ofNat (n : Nat) : NatCast.natCast n = OfNat.ofNat (α := α) n := by
+  rw [ofNat_eq_natCast]
+
 theorem natCast_zero : ((0 : Nat) : α) = 0 := by
   rw [← ofNat_eq_natCast 0]
 theorem natCast_one : ((1 : Nat) : α) = 1 := (ofNat_eq_natCast 1).symm
@@ -157,10 +163,8 @@ theorem ofNat_add (a b : Nat) : OfNat.ofNat (α := α) (a + b) = OfNat.ofNat a +
 instance toNatModule [I : Semiring α] : NatModule α :=
   { I with
     zero_nsmul a := by rw [nsmul_eq_natCast_mul, ← ofNat_eq_natCast, zero_mul]
-    one_nsmul a := by rw [nsmul_eq_natCast_mul, ← ofNat_eq_natCast, one_mul]
-    add_nsmul n m a := by rw [nsmul_eq_natCast_mul, ← ofNat_eq_natCast, ofNat_add, right_distrib, ofNat_eq_natCast, ofNat_eq_natCast, ← nsmul_eq_natCast_mul, ← nsmul_eq_natCast_mul]
-    nsmul_zero n := by rw [nsmul_eq_natCast_mul, mul_zero]
-    nsmul_add n a b := by rw [nsmul_eq_natCast_mul, ← ofNat_eq_natCast, left_distrib, ofNat_eq_natCast, ← nsmul_eq_natCast_mul, ← nsmul_eq_natCast_mul] }
+    add_one_nsmul n a := by rw [nsmul_eq_natCast_mul, ← ofNat_eq_natCast, ofNat_add, right_distrib,
+      ofNat_eq_natCast, ← nsmul_eq_natCast_mul, ofNat_eq_natCast, natCast_one, one_mul] }
 
 theorem natCast_add (a b : Nat) : ((a + b : Nat) : α) = ((a : α) + (b : α)) := by
   rw [← ofNat_eq_natCast, ← ofNat_eq_natCast, ofNat_add, ofNat_eq_natCast, ofNat_eq_natCast]
@@ -220,6 +224,21 @@ theorem intCast_negSucc (n : Nat) : ((-(n + 1) : Int) : α) = -((n : α) + 1) :=
   rw [intCast_neg, ← Int.natCast_add_one, intCast_natCast, ofNat_eq_natCast, natCast_add]
 theorem intCast_nat_add {x y : Nat} : ((x + y : Int) : α) = ((x : α) + (y : α)) := by
   rw [Int.ofNat_add_ofNat, intCast_natCast, natCast_add]
+
+theorem intCast_eq_ofNat_of_nonneg (x : Int) (h : Int.ble' 0 x) : IntCast.intCast (R := α) x = OfNat.ofNat (α := α) x.toNat := by
+  show Int.cast x = _
+  rw [Int.ble'_eq_true] at h
+  have := Int.toNat_of_nonneg h
+  conv => lhs; rw [← this, Ring.intCast_natCast]
+  rw [Semiring.ofNat_eq_natCast]
+
+theorem intCast_eq_ofNat_of_nonpos (x : Int) (h : Int.ble' x 0) : IntCast.intCast (R := α) x = - OfNat.ofNat (α := α) x.natAbs := by
+  show Int.cast x = _
+  rw [Int.ble'_eq_true] at h
+  have := Int.eq_neg_natAbs_of_nonpos h
+  conv => lhs; rw [this]
+  rw [Ring.intCast_neg, Semiring.ofNat_eq_natCast, Ring.intCast_natCast]
+
 theorem intCast_nat_sub {x y : Nat} (h : x ≥ y) : (((x - y : Nat) : Int) : α) = ((x : α) - (y : α)) := by
   induction x with
   | zero =>
@@ -295,10 +314,7 @@ instance toIntModule [I : Ring α] : IntModule α :=
   { I, Semiring.toNatModule (α := α) with
     zero_zsmul a := by rw [← Int.natCast_zero, zsmul_natCast_eq_nsmul, zero_nsmul]
     one_zsmul a := by rw [← Int.natCast_one, zsmul_natCast_eq_nsmul, one_nsmul]
-    add_zsmul n m a := by rw [zsmul_eq_intCast_mul, intCast_add, right_distrib, zsmul_eq_intCast_mul, zsmul_eq_intCast_mul]
-    zsmul_zero n := by rw [zsmul_eq_intCast_mul, mul_zero]
-    zsmul_add n a b := by
-      rw [zsmul_eq_intCast_mul, left_distrib, zsmul_eq_intCast_mul, zsmul_eq_intCast_mul] }
+    add_zsmul n m a := by rw [zsmul_eq_intCast_mul, intCast_add, right_distrib, zsmul_eq_intCast_mul, zsmul_eq_intCast_mul] }
 
 private theorem intCast_mul_aux (x y : Nat) : ((x * y : Int) : α) = ((x : α) * (y : α)) := by
   rw [Int.ofNat_mul_ofNat, intCast_natCast, natCast_mul]

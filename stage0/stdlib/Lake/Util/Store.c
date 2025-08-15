@@ -25,7 +25,6 @@ LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__2(lean_object*, le
 LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfOfMonadDStore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadDStoreOfMonadLift___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfMonadStore1Of___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadStore1OfOfMonadDStore___redArg___lam__0(lean_object*, lean_object*, lean_object*);
@@ -189,7 +188,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 lean_inc(x_4);
-x_5 = lean_alloc_closure((void*)(l_Lake_fetchOrCreate___redArg___lam__0___boxed), 3, 2);
+x_5 = lean_alloc_closure((void*)(l_Lake_fetchOrCreate___redArg___lam__0), 3, 2);
 lean_closure_set(x_5, 0, x_1);
 lean_closure_set(x_5, 1, x_4);
 x_6 = lean_apply_1(x_2, x_4);
@@ -285,14 +284,6 @@ lean_closure_set(x_14, 2, x_13);
 lean_closure_set(x_14, 3, x_12);
 x_15 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_10, x_14);
 return x_15;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___redArg___lam__0___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_fetchOrCreate___redArg___lam__0(x_1, x_2, x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_fetchOrCreate___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

@@ -3,14 +3,19 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Lean.Meta.Basic
-import Lean.Meta.FunInfo
-import Lean.Util.FVarSubset
-import Lean.Util.PtrSet
-import Lean.Util.FVarSubset
-import Lean.Meta.Tactic.Grind.Types
+public import Init.Grind.Util
+public import Lean.Meta.Basic
+public import Lean.Meta.FunInfo
+public import Lean.Util.FVarSubset
+public import Lean.Util.PtrSet
+public import Lean.Util.FVarSubset
+public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.IntInstTesters
+
+public section
 
 namespace Lean.Meta.Grind
 namespace Canon
@@ -127,8 +132,8 @@ private inductive ShouldCanonResult where
     visit
   deriving Inhabited
 
-instance : Repr ShouldCanonResult where
-  reprPrec r _ := match r with
+private instance : Repr ShouldCanonResult where
+  reprPrec r _ := private match r with
     | .canonType => "canonType"
     | .canonInst => "canonInst"
     | .canonImplicit => "canonImplicit"
@@ -137,7 +142,7 @@ instance : Repr ShouldCanonResult where
 /--
 See comments at `ShouldCanonResult`.
 -/
-def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM ShouldCanonResult := do
+private def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM ShouldCanonResult := do
   if h : i < pinfos.size then
     let pinfo := pinfos[i]
     if pinfo.isInstImplicit then
@@ -197,7 +202,6 @@ partial def canon (e : Expr) : GoalM Expr := do profileitM Exception "grind cano
 where
   visit (e : Expr) : StateRefT (Std.HashMap ExprPtr Expr) GoalM Expr := do
     unless e.isApp || e.isForall do return e
-    if (← inShareCommon e) then return e
     -- Check whether it is cached
     if let some r := (← get).get? { expr := e } then
       return r

@@ -3,11 +3,15 @@ Copyright (c) 2021 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.KeyedDeclsAttribute
-import Lean.Parser.Command  -- for `precheckedQuot`
-import Lean.Elab.Term
-import Lean.Elab.Quotation.Util
+public import Lean.KeyedDeclsAttribute
+public import Lean.Parser.Command  -- for `precheckedQuot`
+public import Lean.Elab.Term
+public import Lean.Elab.Quotation.Util
+
+public section
 
 namespace Lean.Elab.Term.Quotation
 open Lean.Elab.Term
@@ -72,6 +76,8 @@ where
     | Syntax.ident .. => true
     | stx =>
       if stx.isAnyAntiquot then
+        false
+      else if stx.isOfKind hygieneInfoKind then
         false
       else
         stx.getArgs.any hasQuotedIdent
@@ -175,6 +181,9 @@ section ExpressionTree
 @[builtin_quot_precheck Lean.Parser.Term.unop] def precheckUnop : Precheck
   | `(unop% $f $a) => do precheck f; precheck a
   | _ => throwUnsupportedSyntax
+
+@[builtin_quot_precheck Lean.Parser.Term.hygieneInfo] def precheckHygieneInfo : Precheck
+  | _ => pure ()
 
 end ExpressionTree
 

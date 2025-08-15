@@ -19,12 +19,12 @@ LEAN_EXPORT lean_object* l_Nat_recAux___redArg___boxed(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Nat_min___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_recAux(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_repeatTR_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_max(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_blt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_repeat___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_recAux___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_recCompiled___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeat_match__1_splitter___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_instTransLtLe;
 LEAN_EXPORT lean_object* l_Nat_instTransLt;
@@ -39,8 +39,8 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_recCompiled___bo
 LEAN_EXPORT lean_object* l_Nat_instTransLe;
 LEAN_EXPORT lean_object* l_Nat_casesAuxOn___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_beq_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_repeatTR_loop___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_instMax;
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_recCompiled___redArg(lean_object*, lean_object*, lean_object*);
@@ -264,7 +264,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Nat_repeatTR_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___redArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -290,11 +290,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Nat_repeatTR_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Nat_repeatTR_loop___redArg(x_2, x_3, x_4);
+x_5 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }
@@ -302,7 +302,7 @@ LEAN_EXPORT lean_object* l_Nat_repeatTR___redArg(lean_object* x_1, lean_object* 
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Nat_repeatTR_loop___redArg(x_1, x_2, x_3);
+x_4 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___redArg(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -310,7 +310,7 @@ LEAN_EXPORT lean_object* l_Nat_repeatTR(lean_object* x_1, lean_object* x_2, lean
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Nat_repeatTR_loop___redArg(x_2, x_3, x_4);
+x_5 = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___redArg(x_2, x_3, x_4);
 return x_5;
 }
 }

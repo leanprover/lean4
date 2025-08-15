@@ -8,12 +8,16 @@ recompilation
 Authors: Sebastian Ullrich
 -/
 
+module
+
 prelude
-import Lean.Language.Basic
-import Lean.Language.Util
-import Lean.Language.Lean.Types
-import Lean.Parser.Module
-import Lean.Elab.Import
+public import Lean.Language.Basic
+public import Lean.Language.Util
+public import Lean.Language.Lean.Types
+public import Lean.Parser.Module
+public import Lean.Elab.Import
+
+public section
 
 /-!
 # Note [Incremental Parsing]
@@ -388,7 +392,7 @@ where
       -- they are passed separately from `old`
       if let some oldSuccess := old.result? then
         -- make sure to update ranges of all reused tasks
-        let progressRange? := some ⟨newParserState.pos, ctx.input.endPos⟩
+        let progressRange? := .some ⟨newParserState.pos, ctx.input.endPos⟩
         return {
           ictx
           stx := newStx
@@ -399,12 +403,12 @@ where
           result? := some {
             parserState := newParserState
             processedSnap := (← oldSuccess.processedSnap.bindIO
-                (cancelTk? := none) (reportingRange? := progressRange?) (sync := true) fun oldProcessed => do
+                (cancelTk? := none) (reportingRange := progressRange?) (sync := true) fun oldProcessed => do
               if let some oldProcSuccess := oldProcessed.result? then
                 -- also wait on old command parse snapshot as parsing is cheap and may allow for
                 -- elaboration reuse
                 oldProcSuccess.firstCmdSnap.bindIO (sync := true)
-                    (cancelTk? := none) (reportingRange? := progressRange?) fun oldCmd => do
+                    (cancelTk? := none) (reportingRange := progressRange?) fun oldCmd => do
                   let prom ← IO.Promise.new
                   let cancelTk ← IO.CancelToken.new
                   parseCmd oldCmd newParserState oldProcSuccess.cmdState prom (sync := true) cancelTk ctx
@@ -474,7 +478,7 @@ where
   processHeader (stx : HeaderSyntax) (parserState : Parser.ModuleParserState) :
       LeanProcessingM (SnapshotTask HeaderProcessedSnapshot) := do
     let ctx ← read
-    SnapshotTask.ofIO none none (some ⟨0, ctx.input.endPos⟩) <|
+    SnapshotTask.ofIO none none (.some ⟨0, ctx.input.endPos⟩) <|
     ReaderT.run (r := ctx) <|  -- re-enter reader in new task
     withHeaderExceptions (α := HeaderProcessedSnapshot) ({ · with result? := none, metaSnap := default }) do
       let setup ← match (← setupImports stx) with
@@ -565,7 +569,7 @@ where
             parseCmd oldNext newParserState oldResult.cmdState newProm sync cancelTk ctx
         prom.resolve <| { old with nextCmdSnap? := some {
           stx? := none
-          reportingRange? := some ⟨newParserState.pos, ctx.input.endPos⟩
+          reportingRange := .some ⟨newParserState.pos, ctx.input.endPos⟩
           task := newProm.result!
           cancelTk? := cancelTk
         } }
@@ -641,13 +645,13 @@ where
         (stx, parserState)
       -- report terminal tasks on first line of decl such as not to hide incremental tactics'
       -- progress
-      let initRange? := getNiceCommandStartPos? stx |>.map fun pos => ⟨pos, pos⟩
+      let initRange? := .ofOptionInheriting <| getNiceCommandStartPos? stx |>.map fun pos => ⟨pos, pos⟩
       let next? ← if Parser.isTerminalCommand stx then pure none
         -- for now, wait on "command finished" snapshot before parsing next command
         else some <$> IO.Promise.new
       let nextCmdSnap? := next?.map ({
         stx? := none
-        reportingRange? := some ⟨parserState.pos, ctx.input.endPos⟩
+        reportingRange := .some ⟨parserState.pos, ctx.input.endPos⟩
         cancelTk? := parseCancelTk
         task := ·.result!
       })
@@ -662,9 +666,9 @@ where
         elabSnap := {
           diagnostics := .empty
           elabSnap := { stx? := stx', task := elabPromise.result!, cancelTk? := some elabCmdCancelTk }
-          resultSnap := { stx? := stx', reportingRange? := initRange?, task := resultPromise.result!, cancelTk? := none }
-          infoTreeSnap := { stx? := stx', reportingRange? := initRange?, task := finishedPromise.result!, cancelTk? := none }
-          reportSnap := { stx? := none, reportingRange? := initRange?, task := reportPromise.result!, cancelTk? := none }
+          resultSnap := { stx? := stx', reportingRange := initRange?, task := resultPromise.result!, cancelTk? := none }
+          infoTreeSnap := { stx? := stx', reportingRange := initRange?, task := finishedPromise.result!, cancelTk? := none }
+          reportSnap := { stx? := none, reportingRange := initRange?, task := reportPromise.result!, cancelTk? := none }
         }
       }
       let cmdState ← doElab stx cmdState beginPos
@@ -731,7 +735,7 @@ where
         .mk { diagnostics := .empty } <|
           cmdState.snapshotTasks.push {
             stx? := none
-            reportingRange? := initRange?
+            reportingRange := initRange?
             task := traceTask
             cancelTk? := none
           }

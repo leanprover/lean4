@@ -4,10 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Init.Task
-import Lean.Meta.PPGoal
-import Lean.ReservedNameAction
+public import Init.Task
+public import Lean.Meta.PPGoal
+public import Lean.ReservedNameAction
+
+public section
 
 namespace Lean.Elab.CommandContextInfo
 
@@ -319,7 +323,7 @@ def addConstInfo [MonadEnv m] [MonadError m]
 /-- This does the same job as `realizeGlobalConstNoOverload`; resolving an identifier
 syntax to a unique fully resolved name or throwing if there are ambiguities.
 But also adds this resolved name to the infotree. This means that when you hover
-over a name in the sourcefile you will see the fully resolved name in the hover info.-/
+over a name in the source file you will see the fully resolved name in the hover info.-/
 def realizeGlobalConstNoOverloadWithInfo (id : Syntax) (expectedType? : Option Expr := none) : CoreM Name := do
   let n ← realizeGlobalConstNoOverload id
   if (← getInfoState).enabled then

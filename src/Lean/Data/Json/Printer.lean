@@ -3,10 +3,14 @@ Copyright (c) 2019 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Lean.Data.Format
-import Lean.Data.Json.Basic
-import Init.Data.List.Impl
+public import Lean.Data.Format
+public import Lean.Data.Json.Basic
+public import Init.Data.List.Impl
+
+public section
 
 namespace Lean
 namespace Json

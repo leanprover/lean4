@@ -169,7 +169,7 @@ theorem denote_blastDivSubtractShift_r (aig : AIG α) (assign : α → Bool) (lh
   simp only [RefVec.denote_ite, LawfulVecOperator.denote_cast_entry, RefVec.get_cast]
   rw [BVPred.mkUlt_denote_eq (lhs := rbv.shiftConcat (lhs.getLsbD (wn - 1))) (rhs := rhs)]
   · split
-    · next hdiscr =>
+    next hdiscr =>
       rw [← Normalize.BitVec.lt_ult] at hdiscr
       simp only [Ref.cast_eq, hdiscr, ↓reduceIte]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := AIG.RefVec.ite)]
@@ -183,7 +183,7 @@ theorem denote_blastDivSubtractShift_r (aig : AIG α) (assign : α → Bool) (lh
       · rw [BVPred.denote_getD_eq_getLsbD]
         · exact hleft
         · simp
-    · next hdiscr =>
+    next hdiscr =>
       rw [← Normalize.BitVec.lt_ult] at hdiscr
       simp only [Ref.cast_eq, hdiscr, ↓reduceIte]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := AIG.RefVec.ite)]
@@ -271,7 +271,7 @@ theorem denote_go_eq_divRec_q (aig : AIG α) (assign : α → Bool) (curr : Nat)
     intro idx hidx
     rw [go, BitVec.divRec_succ, BitVec.divSubtractShift]
     split
-    · next hdiscr =>
+    next hdiscr =>
       rw [ih]
       · rfl
       · intro idx hidx
@@ -297,7 +297,7 @@ theorem denote_go_eq_divRec_q (aig : AIG α) (assign : α → Bool) (curr : Nat)
         · exact hleft
         · exact hright
         · exact hr
-    · next hdiscr =>
+    next hdiscr =>
       rw [ih]
       · rfl
       · intro idx hidx
@@ -380,7 +380,7 @@ theorem denote_blastUdiv (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
   simp only [Ref.cast_eq, RefVec.denote_ite,
     RefVec.get_cast]
   split
-  · next hdiscr =>
+  next hdiscr =>
     rw [blastUdiv.go_denote_mem_prefix] at hdiscr
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
     · simp only [beq_iff_eq] at hdiscr
@@ -393,7 +393,7 @@ theorem denote_blastUdiv (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bo
       simp [hright]
     · intro idx hidx
       simp
-  · next hdiscr =>
+  next hdiscr =>
     rw [blastUdiv.go_denote_mem_prefix] at hdiscr
     rw [BVPred.mkEq_denote_eq (lhs := rhs) (rhs := 0#w)] at hdiscr
     · have hzero : 0#w < rhs := by

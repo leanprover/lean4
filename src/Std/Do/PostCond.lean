@@ -72,70 +72,91 @@ abbrev Assertion (ps : PostShape.{u}) : Type u :=
 /--
   Encodes one continuation barrel for each `PostShape.except` in the given predicate shape.
   ```
-  example : FailConds (.pure) = Unit := rfl
-  example : FailConds (.except ε .pure) = ((ε → ULift Prop) × Unit) := rfl
-  example : FailConds (.arg σ (.except ε .pure)) = ((ε → ULift Prop) × Unit) := rfl
-  example : FailConds (.except ε (.arg σ .pure)) = ((ε → σ → ULift Prop) × Unit) := rfl
+  example : ExceptConds (.pure) = Unit := rfl
+  example : ExceptConds (.except ε .pure) = ((ε → ULift Prop) × Unit) := rfl
+  example : ExceptConds (.arg σ (.except ε .pure)) = ((ε → ULift Prop) × Unit) := rfl
+  example : ExceptConds (.except ε (.arg σ .pure)) = ((ε → σ → ULift Prop) × Unit) := rfl
   ```
 -/
-def FailConds : PostShape.{u} → Type u
+def ExceptConds : PostShape.{u} → Type u
   | .pure => PUnit
-  | .arg _ ps => FailConds ps
-  | .except ε ps => (ε → Assertion ps) × FailConds ps
+  | .arg _ ps => ExceptConds ps
+  | .except ε ps => (ε → Assertion ps) × ExceptConds ps
 
-@[simp]
-def FailConds.const {ps : PostShape.{u}} (p : Prop) : FailConds ps := match ps with
+def ExceptConds.const {ps : PostShape.{u}} (p : Prop) : ExceptConds ps := match ps with
   | .pure => ⟨⟩
-  | .arg _ ps => @FailConds.const ps p
-  | .except _ ps => (fun _ε => spred(⌜p⌝), @FailConds.const ps p)
+  | .arg _ ps => @ExceptConds.const ps p
+  | .except _ ps => (fun _ε => spred(⌜p⌝), @ExceptConds.const ps p)
 
-@[simp]
-def FailConds.true : FailConds ps := FailConds.const True
+def ExceptConds.true : ExceptConds ps := ExceptConds.const True
+def ExceptConds.false : ExceptConds ps := ExceptConds.const False
 
-@[simp]
-def FailConds.false : FailConds ps := FailConds.const False
+@[simp, grind =]
+theorem ExceptConds.fst_const {ps : PostShape.{u}} (p : Prop) :
+    Prod.fst (ExceptConds.const p (ps := .except ε ps)) = fun _ε => ⌜p⌝ := rfl
 
-instance : Inhabited (FailConds ps) where
-  default := FailConds.true
+@[simp, grind =]
+theorem ExceptConds.snd_const {ps : PostShape.{u}} (p : Prop) :
+    Prod.snd (ExceptConds.const p (ps := .except ε ps)) = ExceptConds.const p := rfl
 
-def FailConds.entails {ps : PostShape.{u}} (x y : FailConds ps) : Prop :=
+@[simp, grind =]
+theorem ExceptConds.fst_true {ps : PostShape.{u}} :
+    Prod.fst (ExceptConds.true (ps := .except ε ps)) = fun _ε => ⌜True⌝ := rfl
+
+@[simp, grind =]
+theorem ExceptConds.snd_true {ps : PostShape.{u}} :
+    Prod.snd (ExceptConds.true (ps := .except ε ps)) = ExceptConds.true := rfl
+
+@[simp, grind =]
+theorem ExceptConds.fst_false {ps : PostShape.{u}} :
+    Prod.fst (ExceptConds.false (ps := .except ε ps)) = fun _ε => ⌜False⌝ := rfl
+
+@[simp, grind =]
+theorem ExceptConds.snd_false {ps : PostShape.{u}} :
+    Prod.snd (ExceptConds.false (ps := .except ε ps)) = ExceptConds.false := rfl
+
+instance : Inhabited (ExceptConds ps) where
+  default := ExceptConds.true
+
+def ExceptConds.entails {ps : PostShape.{u}} (x y : ExceptConds ps) : Prop :=
   match ps with
   | .pure => True
   | .arg _ ps => @entails ps x y
   | .except _ ps => (∀ e, x.1 e ⊢ₛ y.1 e) ∧ @entails ps x.2 y.2
 
-scoped infix:25 " ⊢ₑ " => FailConds.entails
+scoped infix:25 " ⊢ₑ " => ExceptConds.entails
 
-@[simp, refl]
-theorem FailConds.entails.refl {ps : PostShape} (x : FailConds ps) : x ⊢ₑ x := by
+@[refl, simp]
+theorem ExceptConds.entails.refl {ps : PostShape} (x : ExceptConds ps) : x ⊢ₑ x := by
   induction ps <;> simp [entails, *]
 
-theorem FailConds.entails.rfl {ps : PostShape} {x : FailConds ps} : x ⊢ₑ x := refl x
+theorem ExceptConds.entails.rfl {ps : PostShape} {x : ExceptConds ps} : x ⊢ₑ x := refl x
 
-theorem FailConds.entails.trans {ps : PostShape} {x y z : FailConds ps} : (x ⊢ₑ y) → (y ⊢ₑ z) → x ⊢ₑ z := by
+theorem ExceptConds.entails.trans {ps : PostShape} {x y z : ExceptConds ps} : (x ⊢ₑ y) → (y ⊢ₑ z) → x ⊢ₑ z := by
   induction ps
   case pure => intro _ _; trivial
   case arg σ s ih => exact ih
   case except ε s ih => intro h₁ h₂; exact ⟨fun e => (h₁.1 e).trans (h₂.1 e), ih h₁.2 h₂.2⟩
 
 @[simp]
-theorem FailConds.entails_false {x : FailConds ps} : FailConds.false ⊢ₑ x := by
+theorem ExceptConds.entails_false {x : ExceptConds ps} : ExceptConds.false ⊢ₑ x := by
   induction ps <;> simp_all [false, const, entails, SPred.false_elim]
 
 @[simp]
-theorem FailConds.entails_true {x : FailConds ps} : x ⊢ₑ FailConds.true := by
+theorem ExceptConds.entails_true {x : ExceptConds ps} : x ⊢ₑ ExceptConds.true := by
   induction ps <;> simp_all [true, const, entails]
 
 @[simp]
-def FailConds.and {ps : PostShape.{u}} (x : FailConds ps) (y : FailConds ps) : FailConds ps :=
+def ExceptConds.and {ps : PostShape.{u}} (x : ExceptConds ps) (y : ExceptConds ps) : ExceptConds ps :=
   match ps with
   | .pure => ⟨⟩
-  | .arg _ ps => @FailConds.and ps x y
-  | .except _ _ => (fun e => SPred.and (x.1 e) (y.1 e), FailConds.and x.2 y.2)
+  | .arg _ ps => @ExceptConds.and ps x y
+  | .except _ _ => (fun e => SPred.and (x.1 e) (y.1 e), ExceptConds.and x.2 y.2)
 
-infixr:35 " ∧ₑ " => FailConds.and
+infixr:35 " ∧ₑ " => ExceptConds.and
 
-theorem FailConds.and_true {x : FailConds ps} : x ∧ₑ FailConds.true ⊢ₑ x := by
+@[simp]
+theorem ExceptConds.and_true {x : ExceptConds ps} : x ∧ₑ ExceptConds.true ⊢ₑ x := by
   induction ps
   case pure => trivial
   case arg ih => exact ih
@@ -143,7 +164,8 @@ theorem FailConds.and_true {x : FailConds ps} : x ∧ₑ FailConds.true ⊢ₑ x
     simp_all only [true, and, const]
     constructor <;> simp only [SPred.and_true.mp, implies_true, ih]
 
-theorem FailConds.true_and {x : FailConds ps} : FailConds.true ∧ₑ x ⊢ₑ x := by
+@[simp]
+theorem ExceptConds.true_and {x : ExceptConds ps} : ExceptConds.true ∧ₑ x ⊢ₑ x := by
   induction ps
   case pure => trivial
   case arg ih => exact ih
@@ -151,7 +173,8 @@ theorem FailConds.true_and {x : FailConds ps} : FailConds.true ∧ₑ x ⊢ₑ x
     simp_all only [true, and, const]
     constructor <;> simp only [SPred.true_and.mp, implies_true, ih]
 
-theorem FailConds.and_false {x : FailConds ps} : x ∧ₑ FailConds.false ⊢ₑ FailConds.false := by
+@[simp]
+theorem ExceptConds.and_false {x : ExceptConds ps} : x ∧ₑ ExceptConds.false ⊢ₑ ExceptConds.false := by
   induction ps
   case pure => trivial
   case arg ih => exact ih
@@ -159,7 +182,8 @@ theorem FailConds.and_false {x : FailConds ps} : x ∧ₑ FailConds.false ⊢ₑ
     simp_all only [false, and, const]
     constructor <;> simp only [SPred.and_false.mp, implies_true, ih]
 
-theorem FailConds.false_and {x : FailConds ps} : FailConds.false ∧ₑ x ⊢ₑ FailConds.false := by
+@[simp]
+theorem ExceptConds.false_and {x : ExceptConds ps} : ExceptConds.false ∧ₑ x ⊢ₑ ExceptConds.false := by
   induction ps
   case pure => trivial
   case arg ih => exact ih
@@ -167,7 +191,7 @@ theorem FailConds.false_and {x : FailConds ps} : FailConds.false ∧ₑ x ⊢ₑ
     simp_all only [and, false, const]
     constructor <;> simp only [SPred.false_and.mp, implies_true, ih]
 
-theorem FailConds.and_eq_left {ps : PostShape} {p q : FailConds ps} (h : p ⊢ₑ q) :
+theorem ExceptConds.and_eq_left {ps : PostShape} {p q : ExceptConds ps} (h : p ⊢ₑ q) :
     p = (p ∧ₑ q) := by
   induction ps
   case pure => trivial
@@ -179,16 +203,18 @@ theorem FailConds.and_eq_left {ps : PostShape} {p q : FailConds ps} (h : p ⊢�
     · exact ih h.2
 
 /--
-  A multi-barreled postcondition for the given predicate shape.
-  ```
-  example : PostCond α (.arg ρ .pure) = ((α → ρ → Prop) × Unit) := rfl
-  example : PostCond α (.except ε .pure) = ((α → Prop) × (ε → Prop) × Unit) := rfl
-  example : PostCond α (.arg σ (.except ε .pure)) = ((α → σ → Prop) × (ε → Prop) × Unit) := rfl
-  example : PostCond α (.except ε (.arg σ .pure)) = ((α → σ → Prop) × (ε → σ → Prop) × Unit) := rfl
-  ```
+A postcondition for the given predicate shape, with one `Assertion` for the terminating case and
+one `Assertion` for each `.except` layer in the predicate shape.
+```
+variable (α σ ε : Type)
+example : PostCond α (.arg σ .pure) = ((α → σ → ULift Prop) × PUnit) := rfl
+example : PostCond α (.except ε .pure) = ((α → ULift Prop) × (ε → ULift Prop) × PUnit) := rfl
+example : PostCond α (.arg σ (.except ε .pure)) = ((α → σ → ULift Prop) × (ε → ULift Prop) × PUnit) := rfl
+example : PostCond α (.except ε (.arg σ .pure)) = ((α → σ → ULift Prop) × (ε → σ → ULift Prop) × PUnit) := rfl
+```
 -/
 abbrev PostCond (α : Type u) (ps : PostShape.{u}) : Type u :=
-  (α → Assertion ps) × FailConds ps
+  (α → Assertion ps) × ExceptConds ps
 
 @[inherit_doc PostCond]
 scoped macro:max "post⟨" handlers:term,+,? "⟩" : term =>
@@ -196,44 +222,57 @@ scoped macro:max "post⟨" handlers:term,+,? "⟩" : term =>
   -- NB: Postponement through by exact is the entire point of this macro
   -- until https://github.com/leanprover/lean4/pull/8074 lands
 
-/-- A postcondition expressing total correctness. -/
-abbrev PostCond.total (p : α → Assertion ps) : PostCond α ps :=
-  (p, FailConds.false)
+/--
+A postcondition expressing total correctness.
+That is, it expresses that the asserted computation finishes without throwing an exception
+*and* the result satisfies the given predicate `p`.
+-/
+abbrev PostCond.noThrow (p : α → Assertion ps) : PostCond α ps :=
+  (p, ExceptConds.false)
 
-@[inherit_doc PostCond.total]
+@[inherit_doc PostCond.noThrow]
 scoped macro:max ppAllowUngrouped "⇓" xs:term:max+ " => " e:term : term =>
-  `(PostCond.total (by exact fun $xs* => spred($e)))
+  `(PostCond.noThrow (by exact fun $xs* => spred($e)))
 
-/-- A postcondition expressing partial correctness. -/
-abbrev PostCond.partial (p : α → Assertion ps) : PostCond α ps :=
-  (p, FailConds.true)
+/--
+A postcondition expressing partial correctness.
+That is, it expresses that *if* the asserted computation finishes without throwing an exception
+*then* the result satisfies the given predicate `p`.
+Nothing is asserted when the computation throws an exception.
+-/
+abbrev PostCond.mayThrow (p : α → Assertion ps) : PostCond α ps :=
+  (p, ExceptConds.true)
+
+@[inherit_doc PostCond.mayThrow]
+scoped macro:max ppAllowUngrouped "⇓?" xs:term:max+ " => " e:term : term =>
+  `(PostCond.mayThrow (by exact fun $xs* => spred($e)))
 
 instance : Inhabited (PostCond α ps) where
-  default := PostCond.total fun _ => default
+  default := PostCond.noThrow fun _ => default
 
 @[simp]
 def PostCond.entails (p q : PostCond α ps) : Prop :=
-  (∀ a, SPred.entails (p.1 a) (q.1 a)) ∧ FailConds.entails p.2 q.2
+  (∀ a, SPred.entails (p.1 a) (q.1 a)) ∧ ExceptConds.entails p.2 q.2
 
 scoped infix:25 " ⊢ₚ " => PostCond.entails
 
-@[refl,simp]
-theorem PostCond.entails.refl (Q : PostCond α ps) : Q ⊢ₚ Q := ⟨fun a => SPred.entails.refl (Q.1 a), FailConds.entails.refl Q.2⟩
+@[refl, simp]
+theorem PostCond.entails.refl (Q : PostCond α ps) : Q ⊢ₚ Q := ⟨fun a => SPred.entails.refl (Q.1 a), ExceptConds.entails.refl Q.2⟩
 theorem PostCond.entails.rfl {Q : PostCond α ps} : Q ⊢ₚ Q := refl Q
 
 theorem PostCond.entails.trans {P Q R : PostCond α ps} (h₁ : P ⊢ₚ Q) (h₂ : Q ⊢ₚ R) : P ⊢ₚ R :=
   ⟨fun a => (h₁.1 a).trans (h₂.1 a), h₁.2.trans h₂.2⟩
 
 @[simp]
-theorem PostCond.entails_total (p : α → Assertion ps) (q : PostCond α ps) : PostCond.total p ⊢ₚ q ↔ ∀ a, p a ⊢ₛ q.1 a := by
-  simp only [entails, FailConds.entails_false, and_true]
+theorem PostCond.entails_noThrow (p : α → Assertion ps) (q : PostCond α ps) : PostCond.noThrow p ⊢ₚ q ↔ ∀ a, p a ⊢ₛ q.1 a := by
+  simp only [entails, ExceptConds.entails_false, and_true]
 
 @[simp]
-theorem PostCond.entails_partial (p : PostCond α ps) (q : α → Assertion ps) : p ⊢ₚ PostCond.partial q ↔ ∀ a, p.1 a ⊢ₛ q a := by
-  simp only [entails, FailConds.entails_true, and_true]
+theorem PostCond.entails_mayThrow (p : PostCond α ps) (q : α → Assertion ps) : p ⊢ₚ PostCond.mayThrow q ↔ ∀ a, p.1 a ⊢ₛ q a := by
+  simp only [entails, ExceptConds.entails_true, and_true]
 
 abbrev PostCond.and (p : PostCond α ps) (q : PostCond α ps) : PostCond α ps :=
-  (fun a => SPred.and (p.1 a) (q.1 a), FailConds.and p.2 q.2)
+  (fun a => SPred.and (p.1 a) (q.1 a), ExceptConds.and p.2 q.2)
 
 scoped infixr:35 " ∧ₚ " => PostCond.and
 
@@ -241,4 +280,4 @@ theorem PostCond.and_eq_left {p q : PostCond α ps} (h : p ⊢ₚ q) :
     p = (p ∧ₚ q) := by
   ext
   · exact (SPred.and_eq_left.mp (h.1 _)).to_eq
-  · exact FailConds.and_eq_left h.2
+  · exact ExceptConds.and_eq_left h.2

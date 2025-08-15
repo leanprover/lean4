@@ -120,8 +120,7 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 @[simp] theorem findFinIdx?_mk {xs : Array α} (h : xs.size = n) (f : α → Bool) :
     (Vector.mk xs h).findFinIdx? f = (xs.findFinIdx? f).map (Fin.cast h) := rfl
 
-@[deprecated finIdxOf?_mk (since := "2025-01-29")]
-abbrev indexOf?_mk := @finIdxOf?_mk
+
 
 @[simp] theorem findM?_mk [Monad m] {xs : Array α} (h : xs.size = n) (f : α → m Bool) :
     (Vector.mk xs h).findM? f = xs.findM? f := rfl
@@ -217,8 +216,7 @@ abbrev indexOf?_mk := @finIdxOf?_mk
 @[simp] theorem zipIdx_mk {xs : Array α} (h : xs.size = n) (k : Nat := 0) :
     (Vector.mk xs h).zipIdx k = Vector.mk (xs.zipIdx k) (by simp [h]) := rfl
 
-@[deprecated zipIdx_mk (since := "2025-01-21")]
-abbrev zipWithIndex_mk := @zipIdx_mk
+
 
 @[simp] theorem mk_zipWith_mk {f : α → β → γ} {as : Array α} {bs : Array β}
     (h : as.size = n) (h' : bs.size = n) :
@@ -323,7 +321,7 @@ abbrev toArray_mkEmpty := @toArray_emptyWithCapacity
       xs.toArray.mapFinIdx (fun i a h => f i a (by simpa [xs.size_toArray] using h)) :=
   rfl
 
-theorem toArray_mapM_go [Monad m] [LawfulMonad m] {f : α → m β} {xs : Vector α n} {i} (h) {acc} :
+private theorem toArray_mapM_go [Monad m] [LawfulMonad m] {f : α → m β} {xs : Vector α n} {i} (h) {acc} :
     toArray <$> mapM.go f xs i h acc = Array.mapM.map f xs.toArray i acc.toArray := by
   unfold mapM.go
   unfold Array.mapM.map
@@ -1244,8 +1242,7 @@ instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ 
 @[simp] theorem getElem_set_self {xs : Vector α n} {i : Nat} {x : α} (hi : i < n) :
     (xs.set i x hi)[i] = x := by simp [getElem_set]
 
-@[deprecated getElem_set_self (since := "2024-12-12")]
-abbrev getElem_set_eq := @getElem_set_self
+
 
 @[simp] theorem getElem_set_ne {xs : Vector α n} {x : α} (hi : i < n) (hj : j < n) (h : i ≠ j) :
     (xs.set i x hi)[j] = xs[j] := by simp [getElem_set, h]
@@ -1306,8 +1303,7 @@ grind_pattern mem_or_eq_of_mem_set => a ∈ xs.set i b
 @[simp] theorem getElem_setIfInBounds_self {xs : Vector α n} {x : α} (hi : i < n) :
     (xs.setIfInBounds i x)[i] = x := by simp [getElem_setIfInBounds]
 
-@[deprecated getElem_setIfInBounds_self (since := "2024-12-12")]
-abbrev getElem_setIfInBounds_eq := @getElem_setIfInBounds_self
+
 
 @[simp] theorem getElem_setIfInBounds_ne {xs : Vector α n} {x : α} (hj : j < n) (h : i ≠ j) :
     (xs.setIfInBounds i x)[j] = xs[j] := by simp [getElem_setIfInBounds, h]
@@ -1951,8 +1947,8 @@ set_option linter.listVariables false in
 /-- Two vectors of constant length vectors are equal iff their flattens coincide. -/
 theorem eq_iff_flatten_eq {xss xss' : Vector (Vector α n) m} :
     xss = xss' ↔ xss.flatten = xss'.flatten := by
-  induction xss using vector₂_induction with | of xss h₁ h₂ =>
-  induction xss' using vector₂_induction with | of xss' h₁' h₂' =>
+  induction xss using vector₂_induction with | of xss h₁ h₂
+  induction xss' using vector₂_induction with | of xss' h₁' h₂'
   simp only [eq_mk, flatten_mk, Array.map_map, Function.comp_apply, Array.map_subtype,
     Array.unattach_attach, Array.map_id_fun', id_eq]
   constructor
@@ -3180,3 +3176,12 @@ instance instDecidableExistsVectorZero (P : Vector α 0 → Prop) [Decidable (P 
 instance instDecidableExistsVectorSucc (P : Vector α (n+1) → Prop)
     [Decidable (∀ (x : α) (xs : Vector α n), ¬ P (xs.push x))] : Decidable (∃ xs, P xs) :=
   decidable_of_iff (¬ ∀ xs, ¬ P xs) Classical.not_forall_not
+
+/-! ### sum -/
+
+@[simp, grind =]
+theorem sum_append_nat {xs₁ : Vector Nat n} {xs₂ : Vector Nat m} :
+    (xs₁ ++ xs₂).sum = xs₁.sum + xs₂.sum := by
+  rcases xs₁ with ⟨xs₁, rfl⟩
+  rcases xs₂ with ⟨xs₂, rfl⟩
+  simp [Array.sum_append_nat]

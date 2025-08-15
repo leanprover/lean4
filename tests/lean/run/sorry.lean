@@ -47,7 +47,7 @@ example : f 0 0 = f 0 0 := rfl -- succeeds
 If `sorry` is used for a function type, then one gets a family of unique `sorry`s.
 -/
 /--
-error: type mismatch
+error: Type mismatch
   rfl
 has type
   ?_ = ?_
@@ -67,7 +67,7 @@ Showing source position when surfacing differences.
 -- note: the module name is `sorry` and not `lean.run.sorry` in the testing environment,
 -- so this test fails in VS Code.
 /--
-error: type mismatch
+error: Type mismatch
   sorry
 has type
   sorry `«sorry:77:43»

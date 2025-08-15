@@ -3,14 +3,19 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Elab.Quotation.Precheck
-import Lean.Elab.Term
-import Lean.Elab.BindersUtil
-import Lean.Elab.SyntheticMVars
-import Lean.Elab.PreDefinition.TerminationHint
-import Lean.Elab.Match
-import Lean.Compiler.MetaAttr
+public import Lean.Elab.Quotation.Precheck
+public import Lean.Elab.Term
+public import Lean.Elab.BindersUtil
+public import Lean.Elab.SyntheticMVars
+public import Lean.Elab.PreDefinition.TerminationHint
+public import Lean.Elab.Match
+public import Lean.Compiler.MetaAttr
+meta import Lean.Parser.Term
+
+public section
 
 namespace Lean.Elab.Term
 open Meta
@@ -55,23 +60,12 @@ structure BinderView where
 
   Potential better solution: add a binder syntax category, an extensible `elabBinder`
   (like we have `elabTerm`), and perform all macro expansion steps at `elabBinder` and
-  record them in the infro tree.
+  record them in the info tree.
   -/
   ref  : Syntax
   id   : Syntax
   type : Syntax
   bi   : BinderInfo
-
-/--
-Determines the local declaration kind depending on the variable name.
-
-The `__x` in `let __x := 42; body` gets kind `.implDetail`.
--/
-def kindOfBinderName (binderName : Name) : LocalDeclKind :=
-  if binderName.isImplementationDetail then
-    .implDetail
-  else
-    .default
 
 partial def quoteAutoTactic : Syntax → CoreM Expr
   | .ident _ _ val preresolved =>
@@ -230,8 +224,7 @@ private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Ar
           throwErrorAt binderView.type (m!"invalid binder annotation, type is not a class instance{indentExpr type}" ++ .note "Use the command `set_option checkBinderAnnotations false` to disable the check")
         withRef binderView.type <| checkLocalInstanceParameters type
       let id := binderView.id.getId
-      let kind := kindOfBinderName id
-      withLocalDecl id binderView.bi type (kind := kind) fun fvar => do
+      withLocalDecl id binderView.bi type (kind := .ofBinderName id) fun fvar => do
         addLocalVarInfo binderView.ref fvar
         loop (i+1) (fvars.push (binderView.id, fvar))
     else
@@ -440,7 +433,7 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
       let fvar  := mkFVar fvarId
       let s     := { s with fvars := s.fvars.push fvar }
       let id    := binderView.id.getId
-      let kind  := kindOfBinderName id
+      let kind  := .ofBinderName id
       /-
         We do **not** want to support default and auto arguments in lambda abstractions.
         Example: `fun (x : Nat := 10) => x+1`.
@@ -623,7 +616,7 @@ private def checkMatchAltPatternCounts (matchAlts : Syntax) (numDiscrs : Nat) (e
   ```
   expands into
   ```
-  fux x_1 x_2 =>
+  fun x_1 x_2 =>
     let rec
       f x := g x + 1,
       g : Nat → Nat
@@ -803,7 +796,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
        -/
       let val  ← mkLambdaFVars fvars val (usedLetOnly := false)
       pure (type, val, binders)
-  let kind := kindOfBinderName id.getId
+  let kind := .ofBinderName id.getId
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
   let result ←
     withLetDecl id.getId (kind := kind) type val (nondep := config.nondep) fun x => do

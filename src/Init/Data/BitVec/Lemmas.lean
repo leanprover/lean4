@@ -19,8 +19,11 @@ public import Init.Data.Int.LemmasAux
 public import Init.Data.Int.Pow
 public import Init.Data.Int.LemmasAux
 public import Init.Data.BitVec.Bootstrap
+public import Init.Data.Order.Factories
 
 public section
+
+open Std
 
 set_option linter.missingDocs true
 
@@ -702,7 +705,7 @@ theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
   have acases : a = 0 ∨ a = 1 := by omega
   rcases acases with ⟨rfl | rfl⟩
   · simp
-  · case inr h =>
+  case inr h =>
     subst h
     simp
 
@@ -1393,7 +1396,7 @@ theorem or_eq_zero_iff {x y : BitVec w} : (x ||| y) = 0#w ↔ x = 0#w ∧ y = 0#
   · intro h
     constructor
     all_goals
-    · ext i ih
+      ext i ih
       have := BitVec.eq_of_getElem_eq_iff.mp h i ih
       simp only [getElem_or, getElem_zero, Bool.or_eq_false_iff] at this
       simp [this]
@@ -1493,7 +1496,7 @@ theorem and_eq_allOnes_iff {x y : BitVec w} :
   · intro h
     constructor
     all_goals
-    · ext i ih
+      ext i ih
       have := BitVec.eq_of_getElem_eq_iff.mp h i ih
       simp only [getElem_and, getElem_allOnes, Bool.and_eq_true] at this
       simp [this]
@@ -3006,7 +3009,7 @@ which performs a case analysis on the start index, length, and the lengths of `x
 · If the start index is entirely contained in the `xlo` bitvector, then grab the bits from `xlo`.
 · If the start index is split between the two bitvectors,
   then append `(w - start)` bits from `xlo` with `(len - (w - start))` bits from xhi.
-  Diagramatically:
+  Diagrammatically:
   ```
                  xhi                      xlo
           (<---------------------](<-------w--------]
@@ -4015,6 +4018,16 @@ protected theorem ne_of_lt {x y : BitVec n} : x < y → x ≠ y := by
   simp only [lt_def, ne_eq, toNat_eq]
   apply Nat.ne_of_lt
 
+instance instIsLinearOrder : IsLinearOrder (BitVec n) := by
+  apply IsLinearOrder.of_le
+  case le_antisymm => constructor; apply BitVec.le_antisymm
+  case le_trans => constructor; apply BitVec.le_trans
+  case le_total => constructor; apply BitVec.le_total
+
+instance instLawfulOrderLT : LawfulOrderLT (BitVec n) := by
+  apply LawfulOrderLT.of_le
+  simpa using fun _ _ => BitVec.lt_asymm
+
 protected theorem umod_lt (x : BitVec n) {y : BitVec n} : 0 < y → x % y < y := by
   simp only [ofNat_eq_ofNat, lt_def, toNat_ofNat, Nat.zero_mod]
   apply Nat.mod_lt
@@ -4419,8 +4432,8 @@ theorem neg_one_ediv_toInt_eq {w : Nat} {y : BitVec w} :
   rcases w with _|_|w
   · simp [of_length_zero]
   · cases eq_zero_or_eq_one y
-    · case _ h => simp [h]
-    · case _ h => simp [h]
+    case _ h => simp [h]
+    case _ h => simp [h]
   · by_cases 0 < y.toInt
     · simp [Int.sign_eq_one_of_pos (a := y.toInt) (by omega), Int.neg_one_ediv]
       omega
@@ -5138,7 +5151,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false
 
 /--
 When the `(i+1)`th bit of `x` is true,
-keeping the lower `(i + 1)` bits of `x` equalsk eeping the lower `i` bits
+keeping the lower `(i + 1)` bits of `x` equals keeping the lower `i` bits
 and then performing bitwise-or with `twoPow i = (1 << i)`,
 -/
 theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
@@ -5766,16 +5779,16 @@ theorem clzAuxRec_eq_clzAuxRec_of_le (x : BitVec w) (h : w - 1 ≤ n) :
   let k := n - (w - 1)
   rw [show n = (w - 1) + k by omega]
   induction k
-  · case zero => simp
-  · case succ k ihk =>
+  case zero => simp
+  case succ k ihk =>
     simp [show w - 1 + (k + 1) = (w - 1 + k) + 1 by omega, clzAuxRec_succ, ihk,
       show x.getLsbD (w - 1 + k + 1) = false by simp only [show w ≤ w - 1 + k + 1 by omega, getLsbD_of_ge]]
 
 theorem clzAuxRec_eq_clzAuxRec_of_getLsbD_false {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i = false) :
     x.clzAuxRec n = x.clzAuxRec (n + k) := by
   induction k
-  · case zero => simp
-  · case succ k ihk =>
+  case zero => simp
+  case succ k ihk =>
     simp only [show n + (k + 1) = (n + k) + 1 by omega, clzAuxRec_succ]
     by_cases hxn : x.getLsbD (n + k + 1)
     · have : ¬ ∀ (i : Nat), n < i → x.getLsbD i = false := by
@@ -5842,13 +5855,8 @@ set_option linter.missingDocs false
 @[deprecated toFin_uShiftRight (since := "2025-02-18")]
 abbrev toFin_uShiftRight := @toFin_ushiftRight
 
-@[deprecated signExtend_eq_setWidth_of_msb_false (since := "2024-12-08")]
-abbrev signExtend_eq_not_setWidth_not_of_msb_false := @signExtend_eq_setWidth_of_msb_false
 
-@[deprecated replicate_zero (since := "2025-01-08")]
-abbrev replicate_zero_eq := @replicate_zero
 
-@[deprecated replicate_succ (since := "2025-01-08")]
-abbrev replicate_succ_eq := @replicate_succ
+
 
 end BitVec

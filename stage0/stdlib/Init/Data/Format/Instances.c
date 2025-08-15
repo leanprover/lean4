@@ -30,11 +30,11 @@ LEAN_EXPORT lean_object* l_instToFormatOfToString___redArg___lam__0(lean_object*
 LEAN_EXPORT lean_object* l_instToFormatArray___redArg___lam__0(lean_object*, lean_object*);
 lean_object* l_Function_comp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
-lean_object* l_instNatCastInt___lam__0(lean_object*);
 static lean_object* l_List_format___redArg___closed__1;
 lean_object* l_Std_Format_joinSep___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_splitOnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatList___redArg(lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatOfToString(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l_Option_format(lean_object*, lean_object*, lean_object*);
@@ -165,7 +165,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(1u);
-x_2 = l_instNatCastInt___lam__0(x_1);
+x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
@@ -625,7 +625,6 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -640,6 +639,7 @@ return x_6;
 else
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_inc_ref(x_4);
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 lean_dec_ref(x_1);

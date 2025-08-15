@@ -4,12 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+module
+
 prelude
-import Init.System.IO
-import Lean.Data.Json.Basic
-import Lean.Data.Lsp.Communication
-import Lean.Data.Lsp.Diagnostics
-import Lean.Data.Lsp.Extra
+public import Init.System.IO
+public import Lean.Data.Json.Basic
+public import Lean.Data.Lsp.Communication
+public import Lean.Data.Lsp.Diagnostics
+public import Lean.Data.Lsp.Extra
+
+public section
 
 /-! Provides an IpcM monad for interacting with an external LSP process.
 Used for testing the Lean server. -/

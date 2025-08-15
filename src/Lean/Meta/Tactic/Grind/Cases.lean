@@ -3,8 +3,12 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Cases
+public import Lean.Meta.Tactic.Cases
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -71,8 +75,8 @@ def isSplit (declName : Name) : CoreM Bool := do
   return (← getCasesTypes).isSplit declName
 
 partial def isCasesAttrCandidate? (declName : Name) (eager : Bool) : CoreM (Option Name) := do
-  match (← getConstInfo declName) with
-  | .inductInfo info => if !info.isRec || !eager then return some declName else return none
+  match (← isInductive? declName) with
+  | some info => if !info.isRec || !eager then return some declName else return none
   | _ => return none
 
 def isCasesAttrCandidate (declName : Name) (eager : Bool) : CoreM Bool := do
@@ -112,7 +116,7 @@ def eraseCasesAttr (declName : Name) : CoreM Unit := do
 /--
 We say a free variable is "simple" to be processed by the cases tactic IF:
 - It is the latest and consequently there are no forward dependencies, OR
-- It is not a proposion.
+- It is not a proposition.
 -/
 private def isSimpleFVar (e : Expr) : MetaM Bool := do
   let .fvar fvarId := e | return false

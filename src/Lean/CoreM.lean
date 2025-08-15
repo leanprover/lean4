@@ -3,15 +3,19 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Util.RecDepth
-import Lean.Util.Trace
-import Lean.Log
-import Lean.ResolveName
-import Lean.Elab.InfoTree.Types
-import Lean.MonadEnv
-import Lean.Elab.Exception
-import Lean.Language.Basic
+public import Lean.Util.RecDepth
+public import Lean.Util.Trace
+public import Lean.Log
+public import Lean.ResolveName
+public import Lean.Elab.InfoTree.Types
+public import Lean.MonadEnv
+public import Lean.Elab.Exception
+public import Lean.Language.Basic
+
+public section
 
 namespace Lean
 register_builtin_option diagnostics : Bool := {
@@ -80,6 +84,9 @@ structure DeclNameGenerator where
   deriving Inhabited
 
 namespace DeclNameGenerator
+
+def ofPrefix (namePrefix : Name) : DeclNameGenerator :=
+  { namePrefix }
 
 private def idxs (g : DeclNameGenerator) : List Nat :=
   g.idx :: g.parentIdxs
@@ -563,8 +570,8 @@ register_builtin_option stderrAsMessages : Bool := {
 Creates snapshot reporting given `withIsolatedStreams` output and diagnostics and traces from the
 given state.
 -/
-def mkSnapshot (output : String) (ctx : Context) (st : State)
-    (desc : String := by exact decl_name%.toString) : BaseIO Language.SnapshotTree := do
+def mkSnapshot? (output : String) (ctx : Context) (st : State)
+    (desc : String := by exact decl_name%.toString) : BaseIO (Option Language.SnapshotTree) := do
   let mut msgs := st.messages
   if !output.isEmpty then
     msgs := msgs.add {
@@ -573,7 +580,9 @@ def mkSnapshot (output : String) (ctx : Context) (st : State)
       pos      := ctx.fileMap.toPosition <| ctx.ref.getPos?.getD 0
       data     := output
     }
-  return .mk {
+  if !msgs.hasUnreported && st.traceState.traces.isEmpty && st.snapshotTasks.isEmpty then
+    return none
+  return some <| .mk {
     desc
     diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgs)
     traces := st.traceState
@@ -610,7 +619,8 @@ def wrapAsyncAsSnapshot {α : Type} (act : α → CoreM Unit) (cancelTk? : Optio
   let ctx ← readThe Core.Context
   return fun a => do
     match (← (f a).toBaseIO) with
-    | .ok (output, st) => mkSnapshot output ctx st desc
+    | .ok (output, st) =>
+      return (← mkSnapshot? output ctx st desc).getD (toSnapshotTree (default : SnapshotLeaf))
     -- interrupt or abort exception as `try catch` above should have caught any others
     | .error _ => default
 
@@ -699,8 +709,10 @@ partial def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit :
     finally
       res.commitChecked (← getEnv)
   let t ← BaseIO.mapTask checkAct env.checked
-  let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+  -- Do not display reporting range; most uses of `addDecl` are for registering auxiliary decls
+  -- users should not worry about and other callers can add a separate task with ranges
+  -- themselves, see `MutualDef`.
+  Core.logSnapshotTask { stx? := none, reportingRange := .skip, task := t, cancelTk? := cancelTk }
 where doCompile := do
   -- don't compile if kernel errored; should be converted into a task dependency when compilation
   -- is made async as well

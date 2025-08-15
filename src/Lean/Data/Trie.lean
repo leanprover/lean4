@@ -5,9 +5,13 @@ Author: Sebastian Ullrich, Leonardo de Moura, Joachim Breitner
 
 A string trie data structure, used for tokenizing the Lean language
 -/
+module
+
 prelude
-import Lean.Data.Format
-import Init.Data.Option.Coe
+public import Lean.Data.Format
+public import Init.Data.Option.Coe
+
+public section
 
 namespace Lean
 namespace Data
@@ -25,7 +29,7 @@ constructor.
 The code would be a bit less repetitive if we used something like the following
 ```
 mutual
-def Trie α := Option α × ByteAssoc α
+@[expose] def Trie α := Option α × ByteAssoc α
 
 inductive ByteAssoc α where
   | leaf : Trie α
@@ -195,8 +199,8 @@ private partial def toStringAux {α : Type} : Trie α → List Format
       [ format (repr c), (Format.group $ Format.nest 4 $ flip Format.joinSep Format.line $ toStringAux t) ]
     ) cs.toList ts.toList
 
-instance {α : Type} : ToString (Trie α) :=
-  ⟨fun t => (flip Format.joinSep Format.line $ toStringAux t).pretty⟩
+instance {α : Type} : ToString (Trie α) where
+  toString t := private (flip Format.joinSep Format.line $ toStringAux t).pretty
 
 end Trie
 

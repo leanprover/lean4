@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Std.Data.TreeMap.Raw.Basic
+public import Std.Data.TreeMap.Raw.Basic
+
+public section
 
 namespace Lean
 
@@ -20,15 +24,15 @@ namespace PrefixTreeNode
 def empty : PrefixTreeNode α β cmp :=
   PrefixTreeNode.Node none ∅
 
-@[specialize]
+@[inline]
 partial def insert (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : List α) (val : β) : PrefixTreeNode α β cmp :=
-  let rec insertEmpty (k : List α) : PrefixTreeNode α β cmp :=
+  let rec @[specialize] insertEmpty (k : List α) : PrefixTreeNode α β cmp :=
     match k with
     | [] => PrefixTreeNode.Node (some val) ∅
     | k :: ks =>
       let t := insertEmpty ks
       PrefixTreeNode.Node none {(k, t)}
-  let rec loop
+  let rec @[specialize] loop
     | PrefixTreeNode.Node _ m, [] =>
       PrefixTreeNode.Node (some val) m -- overrides old value
     | PrefixTreeNode.Node v m, k :: ks =>
@@ -40,7 +44,7 @@ partial def insert (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp)
 
 @[specialize]
 partial def find? (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : List α) : Option β :=
-  let rec loop
+  let rec @[specialize] loop
     | PrefixTreeNode.Node val _, [] => val
     | PrefixTreeNode.Node _   m, k :: ks =>
       match m.get? k with
@@ -49,9 +53,9 @@ partial def find? (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) 
   loop t k
 
 /-- Returns the the value of the longest key in `t` that is a prefix of `k`, if any. -/
-@[specialize]
+@[inline]
 partial def findLongestPrefix? (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : List α) : Option β :=
-  let rec loop acc?
+  let rec @[specialize] loop acc?
     | PrefixTreeNode.Node val _, [] => val <|> acc?
     | PrefixTreeNode.Node val m, k :: ks =>
       match m.get? k with
@@ -59,15 +63,15 @@ partial def findLongestPrefix? (cmp : α → α → Ordering) (t : PrefixTreeNod
       | some t => loop (val <|> acc?) t ks
   loop none t k
 
-@[specialize]
+@[inline]
 partial def foldMatchingM [Monad m] (cmp : α → α → Ordering) (t : PrefixTreeNode α β cmp) (k : List α) (init : σ) (f : β → σ → m σ) : m σ :=
-  let rec fold : PrefixTreeNode α β cmp → σ → m σ
+  let rec @[specialize] fold : PrefixTreeNode α β cmp → σ → m σ
     | PrefixTreeNode.Node b? n, d => do
       let d ← match b? with
         | none   => pure d
         | some b => f b d
       n.foldlM (init := d) fun d _ t => fold t d
-  let rec find : List α → PrefixTreeNode α β cmp → σ → m σ
+  let rec @[specialize] find : List α → PrefixTreeNode α β cmp → σ → m σ
     | [],    t, d => fold t d
     | k::ks, PrefixTreeNode.Node _ m, d =>
       match m.get? k with
@@ -81,7 +85,7 @@ inductive WellFormed (cmp : α → α → Ordering) : PrefixTreeNode α β cmp �
 
 end PrefixTreeNode
 
-def PrefixTree (α : Type u) (β : Type v) (cmp : α → α → Ordering) : Type (max u v) :=
+@[expose] def PrefixTree (α : Type u) (β : Type v) (cmp : α → α → Ordering) : Type (max u v) :=
   { t : PrefixTreeNode α β cmp // t.WellFormed cmp }
 
 open PrefixTreeNode

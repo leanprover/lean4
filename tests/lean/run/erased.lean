@@ -22,7 +22,7 @@ set_option trace.Compiler.result true
 /--
 trace: [Compiler.result] size: 1
     def Erased.mk (α : lcErased) (a : lcAny) : PSigma lcErased lcAny :=
-      let _x.1 : PSigma lcErased lcAny := PSigma.mk lcErased ◾ ◾ ◾;
+      let _x.1 : PSigma lcErased lcAny := PSigma.mk ◾ ◾ ◾ ◾;
       return _x.1
 ---
 trace: [Compiler.result] size: 5
@@ -32,7 +32,7 @@ trace: [Compiler.result] size: 5
       let _x.10 : EStateM.Result Lean.Exception PUnit PUnit := compile _x.1 _y.7 _y.8 _y.9;
       cases _x.10 : EStateM.Result Lean.Exception PUnit PUnit
       | EStateM.Result.ok (a.11 : PUnit) (a.12 : PUnit) =>
-        let _x.13 : EStateM.Result Lean.Exception PUnit PUnit := EStateM.Result.ok Lean.Exception PUnit PUnit _x.2 a.12;
+        let _x.13 : EStateM.Result Lean.Exception PUnit PUnit := EStateM.Result.ok ◾ ◾ ◾ _x.2 a.12;
         return _x.13
       | EStateM.Result.error (a.14 : Lean.Exception) (a.15 : PUnit) =>
         return _x.10

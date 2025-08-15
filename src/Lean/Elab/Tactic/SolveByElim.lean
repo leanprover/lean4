@@ -3,9 +3,13 @@ Copyright (c) 2021 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison, David Renshaw
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.SolveByElim
-import Lean.Elab.Tactic.Config
+public import Lean.Meta.Tactic.SolveByElim
+public import Lean.Elab.Tactic.Config
+
+public section
 
 namespace Lean.Elab.Tactic.SolveByElim
 open Meta
@@ -105,7 +109,7 @@ def evalSolveByElim : Tactic
       pure [← getMainGoal]
     let cfg ← elabConfig cfg
     let [] ← processSyntax cfg o.isSome star add remove use goals |
-      throwError "solve_by_elim unexpectedly returned subgoals"
+      throwError "Internal error: `solve_by_elim` unexpectedly returned subgoals"
     pure ()
   | _ => throwUnsupportedSyntax
 

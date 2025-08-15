@@ -3,9 +3,16 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.Parser.Module
-import Lean.CoreM
+public import Lean.Parser.Module
+public import Lean.CoreM
+meta import Lean.Parser.Module
+
+public section
+
+public section
 
 namespace Lean.Elab
 
@@ -49,11 +56,6 @@ def processHeaderCore
   else
     .private
   let (env, messages) ← try
-    for i in imports do
-      if !isModule && i.importAll then
-        throw <| .userError "cannot use `import all` without `module`"
-      if i.importAll && mainModule.getRoot != i.module.getRoot then
-        throw <| .userError "cannot use `import all` across module path roots"
     let env ←
       importModules (leakEnv := leakEnv) (loadExts := true) (level := level)
         imports opts trustLevel plugins arts

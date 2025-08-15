@@ -3,14 +3,18 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Ring.OfSemiring
-import Lean.Meta.Tactic.Grind.Diseq
-import Lean.Meta.Tactic.Grind.Arith.ProofUtil
-import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
-import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+public import Init.Grind.Ring.OfSemiring
+public import Lean.Meta.Tactic.Grind.Diseq
+public import Lean.Meta.Tactic.Grind.Arith.ProofUtil
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+
+public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
 
@@ -263,7 +267,7 @@ def setEqUnsat (c : EqCnstr) : RingM Unit := do
     mkApp2 (mkConst ``Grind.CommRing.NullCert.eq_unsatC [ring.u]) ring.type (toExpr char)
   let ctx ← toContextExpr
   let nc := toExpr (ncx.toNullCert)
-  let h := mkApp6 h ring.commRingInst charInst ctx nc (toExpr k) reflBoolTrue
+  let h := mkApp6 h ring.commRingInst charInst ctx nc (toExpr k) eagerReflBoolTrue
   closeGoal <| ncx.applyEqs h
 
 def setDiseqUnsat (c : DiseqCnstr) : RingM Unit := do
@@ -283,7 +287,7 @@ def setDiseqUnsat (c : DiseqCnstr) : RingM Unit := do
       mkApp6 (mkConst ``Grind.CommRing.NullCert.ne_nzdiv_unsat [ring.u]) ring.type ring.commRingInst nzDivInst ctx nc (toExpr k)
     | none, none =>
       mkApp4 (mkConst ``Grind.CommRing.NullCert.ne_unsat [ring.u]) ring.type ring.commRingInst ctx nc
-  let h := mkApp4 h (toExpr c.rlhs) (toExpr c.rrhs) reflBoolTrue (← mkDiseqProof c.lhs c.rhs)
+  let h := mkApp4 h (toExpr c.rlhs) (toExpr c.rrhs) eagerReflBoolTrue (← mkDiseqProof c.lhs c.rhs)
   closeGoal <| ncx.applyEqs h
 
 def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Unit := do
@@ -301,7 +305,7 @@ def propagateEq (a b : Expr) (ra rb : RingExpr) (d : PolyDerivation) : RingM Uni
       mkApp6 (mkConst ``Grind.CommRing.NullCert.eq_nzdiv [ring.u]) ring.type ring.commRingInst nzDivInst ctx nc (toExpr k)
     | none, none =>
       mkApp4 (mkConst ``Grind.CommRing.NullCert.eq [ring.u]) ring.type ring.commRingInst ctx nc
-  let h := mkApp3 h (toExpr ra) (toExpr rb) reflBoolTrue
+  let h := mkApp3 h (toExpr ra) (toExpr rb) eagerReflBoolTrue
   trace_goal[grind.debug.ring.impEq] "{a}, {b}"
   let eq := mkApp3 (mkConst ``Eq [.succ ring.u]) ring.type a b
   pushEq a b <| mkExpectedPropHint (ncx.applyEqs h) eq
@@ -415,40 +419,40 @@ partial def _root_.Lean.Meta.Grind.Arith.CommRing.EqCnstr.toExprProof (c : EqCns
   match c.h with
   | .core a b lhs rhs =>
     let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
-    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c.p) reflBoolTrue (← mkEqProof a b)
+    return mkApp5 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c.p) eagerReflBoolTrue (← mkEqProof a b)
   | .coreS a b sa sb ra rb =>
     let h' ← mkSemiringPrefix ``Grind.Ring.OfSemiring.of_eq
     let h' := mkApp3 h' (← mkSExprDecl sa) (← mkSExprDecl sb) (← mkEqProof a b)
     let h ← mkStepPrefix ``Stepwise.core ``Stepwise.coreC
-    return mkApp5 h (← mkExprDecl ra) (← mkExprDecl rb) (← mkPolyDecl c.p) reflBoolTrue h'
+    return mkApp5 h (← mkExprDecl ra) (← mkExprDecl rb) (← mkPolyDecl c.p) eagerReflBoolTrue h'
   | .superpose k₁ m₁ c₁ k₂ m₂ c₂ =>
     let h ← mkStepPrefix ``Stepwise.superpose ``Stepwise.superposeC
     return mkApp10 h
       (toExpr k₁) (← mkMonDecl m₁) (← mkPolyDecl c₁.p)
       (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
-      (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
+      (← mkPolyDecl c.p) eagerReflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
   | .simp k₁ c₁ k₂ m₂ c₂ =>
     let h ← mkStepPrefix ``Stepwise.simp ``Stepwise.simpC
     return mkApp9 h
       (toExpr k₁) (← mkPolyDecl c₁.p)
       (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p)
-      (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
+      (← mkPolyDecl c.p) eagerReflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
   | .mul k c₁ =>
     let h ← mkStepPrefix ``Stepwise.mul ``Stepwise.mulC
-    return mkApp5 h (← mkPolyDecl c₁.p) (toExpr k) (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁)
+    return mkApp5 h (← mkPolyDecl c₁.p) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← toExprProof c₁)
   | .div k c₁ =>
     let h ← mkStepPrefix ``Stepwise.div ``Stepwise.divC
     let some nzInst ← noZeroDivisorsInst?
       | throwNoNatZeroDivisors
-    return mkApp6 h nzInst (← mkPolyDecl c₁.p) (toExpr k) (← mkPolyDecl c.p) reflBoolTrue (← toExprProof c₁)
+    return mkApp6 h nzInst (← mkPolyDecl c₁.p) (toExpr k) (← mkPolyDecl c.p) eagerReflBoolTrue (← toExprProof c₁)
   | .gcd a b c₁ c₂ =>
     let h ← mkStepBasicPrefix ``Grind.CommRing.eq_gcd
     return mkApp8 h (toExpr a) (toExpr b) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c.p)
-      reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
+      eagerReflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
   | .numEq0 k c₁ c₂ =>
     let h ← mkStepBasicPrefix ``Grind.CommRing.eq_normEq0
     return mkApp7 h (toExpr k) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c.p)
-      reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
+      eagerReflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
 
 open Lean.Grind.CommRing in
 /--
@@ -470,7 +474,7 @@ private def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly × Expr)
     let h := mkApp10 h
       (toExpr k) (← mkPolyDecl p₀) (← mkPolyDecl d.p)
       (toExpr k₂) (← mkMonDecl m₂) (← mkPolyDecl c₂.p) (← mkPolyDecl p)
-      reflBoolTrue h₁ h₂
+      eagerReflBoolTrue h₁ h₂
     return (k₁*k, p₀, h)
   | .normEq0 p d c =>
     let (k, p₀, h₁) ← derivToExprProof d
@@ -479,7 +483,7 @@ private def derivToExprProof (d : PolyDerivation) : ProofM (Int × Poly × Expr)
     let h ← mkStepBasicPrefix ``Grind.CommRing.d_normEq0
     let h := mkApp9 h
       (toExpr k) (toExpr a.natAbs) (← mkPolyDecl p₀) (← mkPolyDecl d.p)
-      (← mkPolyDecl c.p) (← mkPolyDecl p) reflBoolTrue h₁ h₂
+      (← mkPolyDecl c.p) (← mkPolyDecl p) eagerReflBoolTrue h₁ h₂
     return (k, p₀, h)
 
 open Lean.Grind.CommRing in
@@ -495,7 +499,7 @@ private def mkImpEqExprProof (lhs rhs : RingExpr) (d : PolyDerivation) : ProofM 
     let some nzInst ← noZeroDivisorsInst?
       | throwNoNatZeroDivisors
     pure <| mkApp2 (← mkStepPrefix ``Stepwise.imp_keq ``Stepwise.imp_keqC) nzInst (toExpr k)
-  return mkApp6 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl p₀) (← mkPolyDecl d.p) reflBoolTrue h₁
+  return mkApp6 h (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl p₀) (← mkPolyDecl d.p) eagerReflBoolTrue h₁
 
 private abbrev withSemiringContext (k : Option Expr → RingM Expr) : RingM Expr := do
   let some semiringId := (← getRing).semiringId? | k none
@@ -528,10 +532,10 @@ def setEqUnsat (c : EqCnstr) : RingM Unit := do
       if char == 0 then
         h := mkApp h charInst
       let k ← getPolyConst c.p
-      return mkApp4 h (← mkPolyDecl c.p) (toExpr k) reflBoolTrue (← c.toExprProof)
+      return mkApp4 h (← mkPolyDecl c.p) (toExpr k) eagerReflBoolTrue (← c.toExprProof)
     else if let some fieldInst := ring.fieldInst? then
       return mkApp6 (mkConst ``Grind.CommRing.one_eq_zero_unsat [ring.u]) ring.type fieldInst (← getContext)
-        (← mkPolyDecl c.p) reflBoolTrue (← c.toExprProof)
+        (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
     else
       throwError "`grind ring` internal error, unexpected unsat eq proof {← c.denoteExpr}"
   closeGoal h
@@ -583,7 +587,7 @@ def setSemiringDiseqUnsat (a b : Expr) (sa sb : SemiringExpr) : SemiringM Unit :
   let semiring ← getSemiring
   let hne ← mkDiseqProof a b
   let h := mkApp3 (mkConst ``Grind.Ring.OfSemiring.eq_normS [semiring.u]) semiring.type semiring.commSemiringInst ctx
-  let h := mkApp3 h (toExpr sa) (toExpr sb) reflBoolTrue
+  let h := mkApp3 h (toExpr sa) (toExpr sb) eagerReflBoolTrue
   closeGoal (mkApp hne h)
 
 end Lean.Meta.Grind.Arith.CommRing

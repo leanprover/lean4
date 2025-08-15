@@ -20,7 +20,7 @@ LEAN_EXPORT lean_object* l_Lean_mkRecAppWithSyntax(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_hasRecAppSyntax(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasRecAppSyntax___boxed(lean_object*);
 static lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__1;
-LEAN_EXPORT lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey;
+static lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey;
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 uint8_t l_Lean_KVMap_contains(lean_object*, lean_object*);

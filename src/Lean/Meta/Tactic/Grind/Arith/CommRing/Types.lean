@@ -3,12 +3,16 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Ring.OfSemiring
-import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ExprPtr
-import Lean.Meta.Tactic.Grind.Arith.Util
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+public import Init.Grind.Ring.OfSemiring
+public import Lean.Data.PersistentArray
+public import Lean.Meta.Tactic.Grind.ExprPtr
+public import Lean.Meta.Tactic.Grind.Arith.Util
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+
+public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
 export Lean.Grind.CommRing (Var Power Mon Poly)
@@ -183,6 +187,8 @@ structure Ring where
   varMap         : PHashMap ExprPtr Var := {}
   /-- Mapping from Lean expressions to their representations as `RingExpr` -/
   denote         : PHashMap ExprPtr RingExpr := {}
+  /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
+  denoteEntries  : PArray (Expr × RingExpr) := {}
   /-- Next unique id for `EqCnstr`s. -/
   nextId         : Nat := 0
   /-- Number of "steps": simplification and superposition. -/

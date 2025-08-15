@@ -3,10 +3,15 @@ Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Lars König, Mario Carneiro, Sebastian Graf
 -/
+module
+
 prelude
-import Std.Tactic.Do.Syntax
-import Lean.Elab.Tactic.Do.ProofMode.MGoal
-import Lean.Elab.Tactic.Do.ProofMode.Focus
+public import Std.Tactic.Do.Syntax
+public import Lean.Elab.Tactic.Do.ProofMode.MGoal
+public import Lean.Elab.Tactic.Do.ProofMode.Focus
+public import Lean.Elab.Tactic.Meta
+
+public section
 
 namespace Lean.Elab.Tactic.Do.ProofMode
 open Std.Do SPred.Tactic
@@ -28,7 +33,7 @@ def mPureCore (σs : Expr) (hyp : Expr) (name : TSyntax ``binderIdent)
     let (a, goal, prf /- : goal.toExpr -/) ← k φ h
     let prf ← mkLambdaFVars #[h] prf
     let prf := mkApp7 (mkConst ``Pure.thm [u]) σs goal.hyps hyp goal.target φ inst prf
-    let goal := { goal with hyps := mkAnd! u σs goal.hyps hyp }
+    let goal := { goal with hyps := SPred.mkAnd! u σs goal.hyps hyp }
     return (a, goal, prf)
 
 @[builtin_tactic Lean.Parser.Tactic.mpure]
@@ -49,3 +54,9 @@ def elabMPure : Tactic
   | _ => throwUnsupportedSyntax
 
 macro "mpure_intro" : tactic => `(tactic| apply Pure.intro)
+
+def MGoal.triviallyPure (goal : MGoal) : OptionT MetaM Expr := do
+  let mv ← mkFreshExprMVar goal.toExpr
+  let ([], _) ← try runTactic mv.mvarId! (← `(tactic| apply Pure.intro; trivial)) catch _ => failure
+    | failure
+  return mv

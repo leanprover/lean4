@@ -3,12 +3,19 @@ Copyright (c) 2025 Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+module
+
 prelude
-import Lean.EnvExtension
+public import Lean.EnvExtension
+
+public section
 
 namespace Lean
 
-builtin_initialize metaExt : TagDeclarationExtension ← mkTagDeclarationExtension (asyncMode := .async)
+builtin_initialize metaExt : TagDeclarationExtension ←
+  -- set by `addPreDefinitions`; if we ever make `def` elaboration async, it should be moved to
+  -- remain on the main environment branch
+  mkTagDeclarationExtension (asyncMode := .async .mainEnv)
 
 /-- Marks in the environment extension that the given declaration has been declared by the user as `meta`. -/
 def addMeta (env : Environment) (declName : Name) : Environment :=

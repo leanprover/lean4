@@ -3,16 +3,20 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Ring.Poly
-import Lean.Meta.Tactic.Grind.Diseq
-import Lean.Meta.Tactic.Grind.Arith.Util
-import Lean.Meta.Tactic.Grind.Arith.ProofUtil
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
+public import Init.Grind.Ring.Poly
+public import Lean.Meta.Tactic.Grind.Diseq
+public import Lean.Meta.Tactic.Grind.Arith.Util
+public import Lean.Meta.Tactic.Grind.Arith.ProofUtil
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
+public import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -145,42 +149,44 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
     mkEqProof a zero
   | .core a b p₁ p₂ =>
     let h ← mkEqProof a b
-    return mkApp6 (mkConst ``Int.Linear.eq_of_core) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) reflBoolTrue h
+    return mkApp6 (mkConst ``Int.Linear.eq_of_core) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .coreToInt a b toIntThm lhs rhs =>
     let h := mkApp toIntThm (← mkEqProof a b)
-    return mkApp6 (mkConst ``Int.Linear.eq_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue h
+    return mkApp6 (mkConst ``Int.Linear.eq_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .defn e p =>
     let some x := (← getVarMap).find? { expr := e } | throwError "`grind` internal error, missing cutsat variable{indentExpr e}"
-    return mkApp6 (mkConst ``Int.Linear.eq_def) (← getContext) (toExpr x) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue (← mkEqRefl e)
+    return mkApp6 (mkConst ``Int.Linear.eq_def) (← getContext) (toExpr x) (← mkPolyDecl p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← mkEqRefl e)
   | .defnNat h x e =>
-    return mkApp6 (mkConst ``Int.Linear.eq_def') (← getContext) (toExpr x) (← mkExprDecl e) (← mkPolyDecl c'.p) reflBoolTrue h
+    return mkApp6 (mkConst ``Int.Linear.eq_def') (← getContext) (toExpr x) (← mkExprDecl e) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .norm c =>
-    return mkApp5 (mkConst ``Int.Linear.eq_norm) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
+    return mkApp5 (mkConst ``Int.Linear.eq_norm) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c.toExprProof)
   | .divCoeffs c =>
     let k := c.p.gcdCoeffs c.p.getConst
-    return mkApp6 (mkConst ``Int.Linear.eq_coeff) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr k) reflBoolTrue (← c.toExprProof)
+    return mkApp6 (mkConst ``Int.Linear.eq_coeff) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr k) eagerReflBoolTrue (← c.toExprProof)
   | .subst x c₁ c₂  =>
-    return mkApp8 (mkConst ``Int.Linear.eq_eq_subst)
-      (← getContext) (toExpr x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
-      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+    let a := c₁.p.coeff x
+    let b := c₂.p.coeff x
+    return mkApp9 (mkConst ``Int.Linear.eq_eq_subst')
+      (← getContext) (toExpr a) (toExpr b) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .ofLeGe c₁ c₂ =>
     return mkApp6 (mkConst ``Int.Linear.eq_of_le_ge)
       (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p)
-      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .reorder c => withUnordered <| c.toExprProof
   | .commRingNorm c e p =>
-    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) reflBoolTrue
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp5 (mkConst ``Int.Linear.eq_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
   | .defnCommRing e p re rp p' =>
-    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) reflBoolTrue
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) eagerReflBoolTrue
     let some x := (← getVarMap).find? { expr := e } | throwError "`grind` internal error, missing cutsat variable{indentExpr e}"
     return mkApp8 (mkConst ``Int.Linear.eq_def_norm) (← getContext)
       (toExpr x) (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p)
-      reflBoolTrue (← mkEqRefl e) h
+      eagerReflBoolTrue (← mkEqRefl e) h
   | .defnNatCommRing h₁ x e' p re rp p' =>
-    let h₂ := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) reflBoolTrue
+    let h₂ := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl re) (← mkRingPolyDecl rp) eagerReflBoolTrue
     return mkApp9 (mkConst ``Int.Linear.eq_def'_norm) (← getContext) (toExpr x) (← mkExprDecl e')
-      (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p) reflBoolTrue h₁ h₂
+      (← mkPolyDecl p) (← mkPolyDecl p') (← mkPolyDecl c'.p) eagerReflBoolTrue h₁ h₂
 
 partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
@@ -189,15 +195,15 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
     mkOfEqTrue (← mkEqTrueProof e)
   | .coreOfNat e thm d a' =>
     let h := mkApp thm (← mkOfEqTrue (← mkEqTrueProof e))
-    return mkApp6 (mkConst ``Int.Linear.dvd_norm_expr) (← getContext) (toExpr (Int.ofNat d)) (← mkExprDecl a') (← mkPolyDecl c'.p) reflBoolTrue h
+    return mkApp6 (mkConst ``Int.Linear.dvd_norm_expr) (← getContext) (toExpr (Int.ofNat d)) (← mkExprDecl a') (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .norm c =>
-    return mkApp6 (mkConst ``Int.Linear.dvd_norm) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
+    return mkApp6 (mkConst ``Int.Linear.dvd_norm) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c.toExprProof)
   | .elim c =>
-    return mkApp7 (mkConst ``Int.Linear.dvd_elim) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (toExpr c'.d) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
+    return mkApp7 (mkConst ``Int.Linear.dvd_elim) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (toExpr c'.d) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c.toExprProof)
   | .divCoeffs c =>
     let g := c.p.gcdCoeffs c.d
     let g := if c.d < 0 then -g else g
-    return mkApp8 (mkConst ``Int.Linear.dvd_coeff) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (toExpr c'.d) (← mkPolyDecl c'.p) (toExpr g) reflBoolTrue (← c.toExprProof)
+    return mkApp8 (mkConst ``Int.Linear.dvd_coeff) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (toExpr c'.d) (← mkPolyDecl c'.p) (toExpr g) eagerReflBoolTrue (← c.toExprProof)
   | .solveCombine c₁ c₂ =>
     let (d₁, a₁) ← c₁.get_d_a
     let (d₂, a₂) ← c₂.get_d_a
@@ -205,19 +211,19 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
     let r := mkApp10 (mkConst ``Int.Linear.dvd_solve_combine)
       (← getContext) (toExpr c₁.d) (← mkPolyDecl c₁.p) (toExpr c₂.d) (← mkPolyDecl c₂.p) (toExpr c'.d) (← mkPolyDecl c'.p)
       (toExpr g) (toExpr α) (toExpr β)
-    return mkApp3 r reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+    return mkApp3 r eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .solveElim c₁ c₂ =>
     return mkApp10 (mkConst ``Int.Linear.dvd_solve_elim)
       (← getContext) (toExpr c₁.d) (← mkPolyDecl c₁.p) (toExpr c₂.d) (← mkPolyDecl c₂.p) (toExpr c'.d) (← mkPolyDecl c'.p)
-      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .ofEq x c =>
     return mkApp7 (mkConst ``Int.Linear.dvd_of_eq)
       (← getContext) (toExpr x) (← mkPolyDecl c.p) (toExpr c'.d) (← mkPolyDecl c'.p)
-      reflBoolTrue (← c.toExprProof)
+      eagerReflBoolTrue (← c.toExprProof)
   | .subst x c₁ c₂ =>
     return mkApp10 (mkConst ``Int.Linear.eq_dvd_subst)
       (← getContext) (toExpr x) (← mkPolyDecl c₁.p) (toExpr c₂.d) (← mkPolyDecl c₂.p) (toExpr c'.d) (← mkPolyDecl c'.p)
-      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .cooper₁ s =>
     let { c₁, c₂, c₃?, left } := s.pred
     let p₁ := c₁.p
@@ -226,12 +232,12 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
     | none =>
       let thmName := if left then ``Int.Linear.cooper_left_split_dvd else ``Int.Linear.cooper_right_split_dvd
       return mkApp8 (mkConst thmName)
-        (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (toExpr s.k) (toExpr c'.d) (← mkPolyDecl c'.p) (← s.toExprProof) reflBoolTrue
+        (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (toExpr s.k) (toExpr c'.d) (← mkPolyDecl c'.p) (← s.toExprProof) eagerReflBoolTrue
     | some c₃ =>
       let thmName := if left then ``Int.Linear.cooper_dvd_left_split_dvd1 else ``Int.Linear.cooper_dvd_right_split_dvd1
       return mkApp10 (mkConst thmName)
         (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr c'.d) (← mkPolyDecl c'.p)
-        (← s.toExprProof) reflBoolTrue
+        (← s.toExprProof) eagerReflBoolTrue
   | .cooper₂ s =>
     let { c₁, c₂, c₃?, left } := s.pred
     let p₁ := c₁.p
@@ -240,10 +246,10 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
     let thmName := if left then ``Int.Linear.cooper_dvd_left_split_dvd2 else ``Int.Linear.cooper_dvd_right_split_dvd2
     return mkApp10 (mkConst thmName)
       (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr c'.d) (← mkPolyDecl c'.p)
-      (← s.toExprProof) reflBoolTrue
+      (← s.toExprProof) eagerReflBoolTrue
   | .reorder c => withUnordered <| c.toExprProof
   | .commRingNorm c e p =>
-    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) reflBoolTrue
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp6 (mkConst ``Int.Linear.dvd_norm_poly) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
 partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
@@ -253,30 +259,30 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
     mkOfEqTrue (← mkEqTrueProof e)
   | .coreNeg e p =>
     let h ← mkOfEqFalse (← mkEqFalseProof e)
-    return mkApp5 (mkConst ``Int.Linear.le_neg) (← getContext) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue h
+    return mkApp5 (mkConst ``Int.Linear.le_neg) (← getContext) (← mkPolyDecl p) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .coreToInt e pos toIntThm lhs rhs =>
     let h ← if pos then pure <| mkOfEqTrueCore e (← mkEqTrueProof e) else pure <| mkOfEqFalseCore e (← mkEqFalseProof e)
     let h := mkApp toIntThm h
-    return mkApp6 (mkConst ``Int.Linear.le_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue h
+    return mkApp6 (mkConst ``Int.Linear.le_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .ofNatNonneg a =>
     return mkApp (mkConst ``Nat.ToInt.toNat_nonneg) a
   | .bound h => return h
   | .dec h =>
     return mkFVar h
   | .norm c =>
-    return mkApp5 (mkConst ``Int.Linear.le_norm) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
+    return mkApp5 (mkConst ``Int.Linear.le_norm) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c.toExprProof)
   | .divCoeffs c =>
     let k := c.p.gcdCoeffs'
-    return mkApp6 (mkConst ``Int.Linear.le_coeff) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr (Int.ofNat k)) reflBoolTrue (← c.toExprProof)
+    return mkApp6 (mkConst ``Int.Linear.le_coeff) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr (Int.ofNat k)) eagerReflBoolTrue (← c.toExprProof)
   | .combine c₁ c₂ =>
     return mkApp7 (mkConst ``Int.Linear.le_combine)
       (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
-      reflBoolTrue
+      eagerReflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
   | .combineDivCoeffs c₁ c₂ k =>
     return mkApp8 (mkConst ``Int.Linear.le_combine_coeff)
       (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p) (toExpr k)
-      reflBoolTrue
+      eagerReflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
   | .subst x c₁ c₂ =>
     let a := c₁.p.coeff x
@@ -286,26 +292,26 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
       mkConst ``Int.Linear.eq_le_subst_nonpos
     return mkApp8 thm
         (← getContext) (toExpr x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
-        reflBoolTrue
+        eagerReflBoolTrue
         (← c₁.toExprProof) (← c₂.toExprProof)
   | .ofLeDiseq c₁ c₂ =>
     return mkApp7 (mkConst ``Int.Linear.le_of_le_diseq)
       (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
-      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .dvdTight c₁ c₂ =>
     return mkApp8 (mkConst ``Int.Linear.dvd_le_tight)
       (← getContext) (toExpr c₁.d) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
-      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .negDvdTight c₁ c₂ =>
     return mkApp8 (mkConst ``Int.Linear.dvd_neg_le_tight)
       (← getContext) (toExpr c₁.d) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
-      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .ofDiseqSplit c₁ fvarId h _ =>
     let p₂ := c₁.p.addConst 1
     let hFalse ← h.toExprProofCore
     let hNot := mkLambda `h .default (mkIntLE (← p₂.denoteExpr') (mkIntLit 0)) (hFalse.abstract #[mkFVar fvarId])
     return mkApp7 (mkConst ``Int.Linear.diseq_split_resolve)
-      (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) reflBoolTrue (← c₁.toExprProof) hNot
+      (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c₁.toExprProof) hNot
   | .cooper s =>
     let { c₁, c₂, c₃?, left } := s.pred
     let p₁ := c₁.p
@@ -315,14 +321,14 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
     | none =>
       let thmName := if left then ``Int.Linear.cooper_left_split_ineq else ``Int.Linear.cooper_right_split_ineq
       return mkApp8 (mkConst thmName)
-        (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) reflBoolTrue
+        (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) eagerReflBoolTrue
     | some c₃ =>
       let thmName := if left then ``Int.Linear.cooper_dvd_left_split_ineq else ``Int.Linear.cooper_dvd_right_split_ineq
       return mkApp10 (mkConst thmName)
-        (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) reflBoolTrue
+        (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) eagerReflBoolTrue
   | .reorder c => withUnordered <| c.toExprProof
   | .commRingNorm c e p =>
-    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) reflBoolTrue
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp5 (mkConst ``Int.Linear.le_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
@@ -331,24 +337,24 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c'
     mkDiseqProof a zero
   | .core a b p₁ p₂ =>
     let h ← mkDiseqProof a b
-    return mkApp6 (mkConst ``Int.Linear.diseq_of_core) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) reflBoolTrue h
+    return mkApp6 (mkConst ``Int.Linear.diseq_of_core) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .coreToInt a b toIntThm lhs rhs =>
     let h := mkApp toIntThm (← mkDiseqProof a b)
-    return mkApp6 (mkConst ``Int.Linear.not_eq_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) reflBoolTrue h
+    return mkApp6 (mkConst ``Int.Linear.not_eq_norm_expr) (← getContext) (← mkExprDecl lhs) (← mkExprDecl rhs) (← mkPolyDecl c'.p) eagerReflBoolTrue h
   | .norm c =>
-    return mkApp5 (mkConst ``Int.Linear.diseq_norm) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
+    return mkApp5 (mkConst ``Int.Linear.diseq_norm) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c.toExprProof)
   | .divCoeffs c =>
     let k := c.p.gcdCoeffs c.p.getConst
-    return mkApp6 (mkConst ``Int.Linear.diseq_coeff) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr k) reflBoolTrue (← c.toExprProof)
+    return mkApp6 (mkConst ``Int.Linear.diseq_coeff) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr k) eagerReflBoolTrue (← c.toExprProof)
   | .neg c =>
-    return mkApp5 (mkConst ``Int.Linear.diseq_neg) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
+    return mkApp5 (mkConst ``Int.Linear.diseq_neg) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) eagerReflBoolTrue (← c.toExprProof)
   | .subst x c₁ c₂  =>
     return mkApp8 (mkConst ``Int.Linear.eq_diseq_subst)
       (← getContext) (toExpr x) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
-      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+      eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .reorder c => withUnordered <| c.toExprProof
   | .commRingNorm c e p =>
-    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) reflBoolTrue
+    let h := mkApp4 (mkConst ``Grind.CommRing.norm_int) (← getRingContext) (← mkRingExprDecl e) (← mkRingPolyDecl p) eagerReflBoolTrue
     return mkApp5 (mkConst ``Int.Linear.diseq_norm_poly) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) h (← c.toExprProof)
 
 partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s do
@@ -366,14 +372,14 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
         let thmName := if left then ``Int.Linear.cooper_left else ``Int.Linear.cooper_right
         let predName := if left then ``Int.Linear.cooper_left_split else ``Int.Linear.cooper_right_split
         let base := mkApp7 (mkConst thmName) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (toExpr n)
-          reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+          eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
         let pred := mkApp3 (mkConst predName) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂)
         pure (base, pred)
       | some c₃ =>
         let thmName := if left then ``Int.Linear.cooper_dvd_left else ``Int.Linear.cooper_dvd_right
         let predName := if left then ``Int.Linear.cooper_dvd_left_split else ``Int.Linear.cooper_dvd_right_split
         let base := mkApp10 (mkConst thmName) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr n)
-          reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof) (← c₃.toExprProof)
+          eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof) (← c₃.toExprProof)
         let pred := mkApp5 (mkConst predName) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d)
         pure (base, pred)
     -- `pred` is an expressions of the form `cooper_*_split ...` with type `Nat → Prop`
@@ -393,23 +399,23 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
   match h with
   | .le c =>
-    return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (← mkPolyDecl c.p) reflBoolTrue (← c.toExprProof)
+    return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
   | .dvd c =>
-    return mkApp5 (mkConst ``Int.Linear.dvd_unsat) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) reflBoolTrue (← c.toExprProof)
+    return mkApp5 (mkConst ``Int.Linear.dvd_unsat) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
   | .eq c =>
     if c.p.isUnsatEq then
-      return mkApp4 (mkConst ``Int.Linear.eq_unsat) (← getContext) (← mkPolyDecl c.p) reflBoolTrue (← c.toExprProof)
+      return mkApp4 (mkConst ``Int.Linear.eq_unsat) (← getContext) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
     else
       let k := c.p.gcdCoeffs'
-      return mkApp5 (mkConst ``Int.Linear.eq_unsat_coeff) (← getContext) (← mkPolyDecl c.p) (toExpr (Int.ofNat k)) reflBoolTrue (← c.toExprProof)
+      return mkApp5 (mkConst ``Int.Linear.eq_unsat_coeff) (← getContext) (← mkPolyDecl c.p) (toExpr (Int.ofNat k)) eagerReflBoolTrue (← c.toExprProof)
   | .diseq c =>
-    return mkApp4 (mkConst ``Int.Linear.diseq_unsat) (← getContext) (← mkPolyDecl c.p) reflBoolTrue (← c.toExprProof)
+    return mkApp4 (mkConst ``Int.Linear.diseq_unsat) (← getContext) (← mkPolyDecl c.p) eagerReflBoolTrue (← c.toExprProof)
   | .cooper c₁ c₂ c₃ =>
     let .add c _ _ := c₃.p | c₃.throwUnexpected
     let d := c₃.d
     let (_, α, β) := gcdExt c d
     let h := mkApp7 (mkConst ``Int.Linear.cooper_unsat) (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr α) (toExpr β)
-    return mkApp4 h reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof) (← c₃.toExprProof)
+    return mkApp4 h eagerReflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof) (← c₃.toExprProof)
 
 end
 

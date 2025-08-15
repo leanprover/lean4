@@ -16,7 +16,7 @@ trace: [Compiler.result] size: 5
       let _x.10 := Lean.Compiler.compile _x.1 _y.7 _y.8 _y.9;
       cases _x.10 : EStateM.Result Lean.Exception PUnit PUnit
       | EStateM.Result.ok a.11 a.12 =>
-        let _x.13 := EStateM.Result.ok _ _ _ _x.2 a.12;
+        let _x.13 := EStateM.Result.ok ◾ ◾ ◾ _x.2 a.12;
         return _x.13
       | EStateM.Result.error a.14 a.15 =>
         return _x.10

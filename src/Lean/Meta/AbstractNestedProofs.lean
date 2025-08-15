@@ -3,10 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Lean.Meta.Closure
-import Lean.Meta.Transform
+public import Init.Grind.Util
+public import Lean.Meta.Closure
+public import Lean.Meta.Transform
+
+public section
 
 namespace Lean.Meta
 
@@ -66,7 +70,7 @@ partial def visit (e : Expr) : M Expr := do
         lctx := lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
     checkCache { val := e : ExprStructEq } fun _ => do
-      if (← withoutExporting do isNonTrivialProof e) then
+      if (← isNonTrivialProof e) then
         /- Ensure proofs nested in type are also abstracted -/
         abstractProof e (← read).cache visit
       else match e with

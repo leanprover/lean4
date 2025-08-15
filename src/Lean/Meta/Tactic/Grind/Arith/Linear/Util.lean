@@ -3,9 +3,13 @@ Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Util
+
+public section
 
 namespace Lean.Meta.Grind.Arith.Linear
 
@@ -118,6 +122,16 @@ def setTermStructId (e : Expr) : LinearM Unit := do
 def getNoNatDivInst : LinearM Expr := do
   let some inst := (← getStruct).noNatDivInst?
     | throwError "`grind linarith` internal error, structure does not implement `NoNatZeroDivisors`"
+  return inst
+
+def getLEInst : LinearM Expr := do
+  let some inst := (← getStruct).leInst?
+    | throwError "`grind linarith` internal error, structure does not support LE"
+  return inst
+
+def getLTInst : LinearM Expr := do
+  let some inst := (← getStruct).ltInst?
+    | throwError "`grind linarith` internal error, structure does not support LT"
   return inst
 
 def getPreorderInst : LinearM Expr := do

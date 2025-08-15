@@ -3,18 +3,21 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Init.Grind.Util
-import Init.Grind.Tactics
-import Lean.HeadIndex
-import Lean.PrettyPrinter
-import Lean.Util.FoldConsts
-import Lean.Util.CollectFVars
-import Lean.Meta.Basic
-import Lean.Meta.InferType
-import Lean.Meta.Eqns
+public import Init.Grind.Util
+public import Init.Grind.Tactics
+public import Lean.HeadIndex
+public import Lean.Util.FoldConsts
+public import Lean.Util.CollectFVars
+public import Lean.Meta.Basic
+public import Lean.Meta.InferType
+public import Lean.Meta.Eqns
+public import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Match.MatchEqs
-import Lean.Meta.Tactic.Grind.Util
+
+public section
 
 namespace Lean.Meta.Grind
 
@@ -273,8 +276,8 @@ private def inferEMatchProofType (proof : Expr) (gen : Bool) : MetaM Expr := do
 
 -- Configuration for the `grind` normalizer. We want both `zetaDelta` and `zeta`
 private def normConfig : Grind.Config := {}
-theorem normConfig_zeta : normConfig.zeta = true := rfl
-theorem normConfig_zetaDelta : normConfig.zetaDelta = true := rfl
+private theorem normConfig_zeta : normConfig.zeta = true := rfl
+private theorem normConfig_zetaDelta : normConfig.zetaDelta = true := rfl
 
 def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
   let pat ← instantiateMVars pat
@@ -339,7 +342,7 @@ def EMatchTheoremKind.isDefault : EMatchTheoremKind → Bool
   | .default _ => true
   | _ => false
 
-private def EMatchTheoremKind.toAttribute : EMatchTheoremKind → String
+def EMatchTheoremKind.toAttribute : EMatchTheoremKind → String
   | .eqLhs true     => "[grind = gen]"
   | .eqLhs false    => "[grind =]"
   | .eqRhs true     => "[grind =_ gen]"
@@ -430,13 +433,26 @@ def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchThe
 def EMatchTheorems.contains (s : EMatchTheorems) (origin : Origin) : Bool :=
   s.origins.contains origin
 
-/-- Mark the theorem with the given origin as `erased` -/
+/-- Marks the theorem with the given origin as `erased` -/
 def EMatchTheorems.erase (s : EMatchTheorems) (origin : Origin) : EMatchTheorems :=
   { s with erased := s.erased.insert origin, origins := s.origins.erase origin }
 
-/-- Returns true if the theorem has been marked as erased. -/
+/-- Returns `true` if the theorem has been marked as erased. -/
 def EMatchTheorems.isErased (s : EMatchTheorems) (origin : Origin) : Bool :=
   s.erased.contains origin
+
+/-- Returns `true` if there is a theorem with exactly the same pattern is already in `s` -/
+def EMatchTheorems.containsWithSamePatterns (s : EMatchTheorems) (origin : Origin) (patterns : List Expr) : Bool :=
+  if let some thms := s.omap.find? origin then
+    thms.any fun thm => thm.patterns == patterns
+  else
+    false
+
+def EMatchTheorems.getKindsFor (s : EMatchTheorems) (origin : Origin) : List EMatchTheoremKind :=
+  if let some thms := s.omap.find? origin then
+    thms.map (·.kind)
+  else
+    []
 
 /--
 Retrieves theorems from `s` associated with the given symbol. See `EMatchTheorem.insert`.
@@ -461,7 +477,7 @@ def EMatchTheorems.find (s : EMatchTheorems) (origin : Origin) : List EMatchTheo
 def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr := do
   if thm.proof.isConst && thm.levelParams.isEmpty then
     let declName := thm.proof.constName!
-    let info ← getConstInfo declName
+    let info ← getConstVal declName
     if info.levelParams.isEmpty then
       return thm.proof
     else
@@ -565,12 +581,12 @@ private structure Context where
   /-- Only symbols with priority `>= minPrio` are considered in patterns. -/
   minPrio  : Nat
 
-abbrev M := ReaderT Context StateRefT State MetaM
+private abbrev M := ReaderT Context StateRefT State MetaM
 
 /-- Helper declaration for finding bootstrapping issues. See `isCandidateSymbol`. -/
 private abbrev badForPatterns := [``Eq, ``HEq, ``Iff, ``And, ``Or, ``Not]
 
-def isCandidateSymbol (declName : Name) (root : Bool) : M Bool := do
+private def isCandidateSymbol (declName : Name) (root : Bool) : M Bool := do
   let ctx ← read
   let prio := ctx.symPrios.getPrio declName
   -- Priority 0 are never considered, they are treated as forbidden
@@ -690,7 +706,7 @@ private partial def go (pattern : Expr) (inSupport : Bool) (root : Bool) : M Exp
     else
       return mkOffsetPattern e k
   let some f ← getPatternFn? pattern inSupport root .relevant
-    | throwError "invalid pattern, (non-forbidden) application expected{indentExpr pattern}"
+    | throwError "invalid pattern, (non-forbidden) application expected{indentD (ppPattern pattern)}"
   assert! f.isConst || f.isFVar
   unless f.isConstOf ``Grind.eqBwdPattern do
     saveSymbol f.toHeadIndex
@@ -725,7 +741,7 @@ def main (patterns : List Expr) (symPrios : SymbolPriorities) (minPrio : Nat) : 
   let (patterns, s) ← patterns.mapM (go (inSupport := false) (root := true)) { symPrios, minPrio } |>.run {}
   return (patterns, s.symbols.toList, s.bvarsFound)
 
-def normalizePattern (e : Expr) : M Expr := do
+private def normalizePattern (e : Expr) : M Expr := do
   go e (inSupport := false) (root := true)
 
 end NormalizePattern
@@ -877,7 +893,7 @@ def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams 
   }
 
 private def getProofFor (declName : Name) : MetaM Expr := do
-  let info ← getConstInfo declName
+  let info ← getConstVal declName
   -- For theorems, `isProp` has already been checked at declaration time
   unless wasOriginallyTheorem (← getEnv) declName do
     unless (← isProp info.type) do
@@ -948,6 +964,9 @@ def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
 /-- Returns the E-matching theorems registered in the environment. -/
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
+
+def EMatchTheorems.getOrigins (s : EMatchTheorems) : List Origin :=
+  s.origins.toList
 
 /-- Returns the types of `xs` that are propositions. -/
 private def getPropTypes (xs : Array Expr) : MetaM (Array Expr) :=
@@ -1131,6 +1150,69 @@ private def collectUsedPriorities (prios : SymbolPriorities) (searchPlaces : Arr
     return #[eval_prio default]
   else
     return r.qsort fun p₁ p₂ => p₁ > p₂
+
+/-- Helper function for collecting all singleton patterns. -/
+private partial def collectSingletons (e : Expr) : StateT (Array (Expr × List HeadIndex)) CollectorM Unit := do
+  match e with
+  | .app .. =>
+    trace[grind.debug.ematch.pattern] "collect: {e}"
+    let f := e.getAppFn
+    let argKinds ← NormalizePattern.getPatternArgKinds f e.getAppNumArgs
+    if (← isPatternFnCandidate f) then
+      -- Reset collector and normalizer states. Recall that we are collecting singleton patterns only.
+      set { : NormalizePattern.State }
+      set { : Collector.State }
+      try
+        trace[grind.debug.ematch.pattern] "candidate: {e}"
+        let p := e.abstract (← read).xs
+        unless p.hasLooseBVars do
+          trace[grind.debug.ematch.pattern] "skip, does not contain pattern variables"
+          return ()
+        let p ← NormalizePattern.normalizePattern p
+        addNewPattern p
+        if (← getThe Collector.State).done then
+          let p := (← getThe Collector.State).patterns.back!
+          let idxs := (← getThe NormalizePattern.State).symbols
+          if (← get).all fun (p', _) => p != p' then
+            modify fun s => s.push (p, idxs.toList)
+      catch ex =>
+        trace[grind.debug.ematch.pattern] "skip, exception during normalization{indentD ex.toMessageData}"
+    let args := e.getAppArgs
+    for arg in args, argKind in argKinds do
+      trace[grind.debug.ematch.pattern] "arg: {arg}, support: {argKind.isSupport}"
+      unless argKind.isSupport do
+        collectSingletons arg
+  | .forallE _ d b _ =>
+    if (← pure e.isArrow <&&> isProp d <&&> isProp b) then
+      collectSingletons d
+      collectSingletons b
+  | _ => return ()
+
+/--
+Collects all singleton patterns in the type of the given proof.
+We use this function to implement local forall expressions in a `grind` goal.
+-/
+def mkEMatchTheoremUsingSingletonPatterns (origin : Origin) (levelParams : Array Name) (proof : Expr) (minPrio : Nat) (symPrios : SymbolPriorities)
+    (showInfo := false) : MetaM (Array EMatchTheorem) := do
+  let type ← inferEMatchProofType proof (gen := false)
+  withReducible <| forallTelescopeReducing type fun xs type => withDefault do
+    let (_, s) ← go xs type |>.run {} |>.run { proof, xs } |>.run' {} { symPrios, minPrio } |>.run' {}
+    let numParams := xs.size
+    let mut thms := #[]
+    for (p, symbols) in s do
+      let patterns := [p]
+      logPatternWhen showInfo origin patterns
+      let thm : EMatchTheorem := {
+        proof, patterns, numParams, symbols,
+        levelParams, origin, kind := .default false
+      }
+      thms := thms.push thm
+    return thms
+where
+  go (xs : Array Expr) (type : Expr) : StateT (Array (Expr × List HeadIndex)) CollectorM Unit := do
+    for x in xs do
+      collectSingletons (← inferType x)
+    collectSingletons type
 
 /--
 Creates an E-match theorem using the given proof and kind.

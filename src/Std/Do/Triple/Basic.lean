@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Do.WP
-public import Std.Do.SPred
+meta import Std.Do.SPred.Notation
 
 @[expose] public section
 
@@ -48,7 +48,7 @@ meta def unexpandTriple : Lean.PrettyPrinter.Unexpander
 namespace Triple
 
 instance [WP m ps] (x : m α) : SPred.Tactic.PropAsSPredTautology (Triple x P Q) spred(P → wp⟦x⟧ Q) where
-  iff := (SPred.entails_true_intro P (wp⟦x⟧ Q)).symm
+  iff := iff_of_eq (SPred.entails_true_intro P (wp⟦x⟧ Q)).symm
 
 theorem pure [Monad m] [WPMonad m ps] {α : Type u} {Q : PostCond α ps} (a : α) (himp : P ⊢ₛ Q.1 a) :
   Triple (pure (f:=m) a) P Q := himp.trans (by simp)
@@ -60,14 +60,10 @@ theorem bind [Monad m] [WPMonad m ps] {α β : Type u} {P : Assertion ps} {Q : �
   apply SPred.entails.trans hx
   simp only [WP.bind]
   apply (wp x).mono _ _
-  simp only [PostCond.entails, Assertion, FailConds.entails.refl, and_true]
+  simp only [PostCond.entails, Assertion, ExceptConds.entails.refl, and_true]
   exact hf
 
 theorem and [WP m ps] (x : m α) (h₁ : Triple x P₁ Q₁) (h₂ : Triple x P₂ Q₂) : Triple x spred(P₁ ∧ P₂) (Q₁ ∧ₚ Q₂) :=
   (SPred.and_mono h₁ h₂).trans ((wp x).conjunctive Q₁ Q₂).mpr
-
-theorem rewrite_program [WP m ps] {prog₁ prog₂ : m α}
-  (heq : prog₁ = prog₂) (hprf : Triple prog₂ P Q) :
-  Triple prog₁ P Q := heq ▸ hprf
 
 end Triple

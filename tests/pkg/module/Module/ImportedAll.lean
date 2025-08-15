@@ -1,7 +1,7 @@
 module
 
-prelude
 public import all Module.Basic
+import Lean.CoreM
 
 /-! `import all` should import private information, privately. -/
 
@@ -12,8 +12,12 @@ testSorry
 #guard_msgs in
 #print t
 
+/-- info: true -/
+#guard_msgs in
+#eval (return (← Lean.findDeclarationRanges? ``t).isSome : Lean.CoreM _)
+
 /--
-error: type mismatch
+error: Type mismatch
   y
 has type
   Vector Unit 1
@@ -23,15 +27,15 @@ but is expected to have type
 #guard_msgs in
 public theorem v (x : Vector Unit f) (y : Vector Unit 1) : x = y := sorry
 
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [t]; exact hP1
 example : P f := by simp only [t]; exact hP1
 
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [trfl]; exact hP1
-/-- error: dsimp made no progress -/
+/-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [trfl']; exact hP1
 

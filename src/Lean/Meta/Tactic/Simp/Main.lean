@@ -3,15 +3,20 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Transform
-import Lean.Meta.Tactic.Replace
-import Lean.Meta.Tactic.UnifyEq
-import Lean.Meta.Tactic.Simp.Rewrite
-import Lean.Meta.Tactic.Simp.Diagnostics
-import Lean.Meta.Match.Value
-import Lean.Meta.LetToHave
-import Lean.Util.CollectLooseBVars
+public import Lean.Meta.Transform
+public import Lean.Meta.Tactic.Replace
+public import Lean.Meta.Tactic.UnifyEq
+public import Lean.Meta.Tactic.Simp.Rewrite
+public import Lean.Meta.Tactic.Simp.Diagnostics
+public import Lean.Meta.Match.Value
+public import Lean.Meta.LetToHave
+public import Lean.Util.CollectLooseBVars
+import Lean.PrettyPrinter
+
+public section
 
 namespace Lean.Meta
 namespace Simp
@@ -237,7 +242,7 @@ where
     | e => k xs e
 
 /--
-We use `withNewlemmas` whenever updating the local context.
+We use `withNewLemmas` whenever updating the local context.
 -/
 def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
   if (← getConfig).contextual then
@@ -1010,7 +1015,7 @@ partial def simpLoop (e : Expr) : SimpM Result := withIncRecDepth do
     if let some result := cache.find? e then
       return result
   if (← get).numSteps > cfg.maxSteps then
-    throwError "simp failed, maximum number of steps exceeded"
+    throwError "`simp` failed: maximum number of steps exceeded"
   else
     checkSystem "simp"
     modify fun s => { s with numSteps := s.numSteps + 1 }
@@ -1226,7 +1231,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray :=
     let toClear := fvarIdsToSimp.filter fun fvarId => !replaced.contains fvarId
     mvarIdNew ← mvarIdNew.tryClearMany toClear
     if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
-      throwError "simp made no progress"
+      throwError "`simp` made no progress"
     return (some (fvarIdsNew, mvarIdNew), stats)
 
 def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
@@ -1275,7 +1280,7 @@ def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray :
         mvarIdNew ← mvarIdNew.replaceTargetDefEq targetNew
       pure () -- FIXME: bug in do notation if this is removed?
     if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
-      throwError "dsimp made no progress"
+      throwError "`dsimp` made no progress"
     return (some mvarIdNew, stats)
 
 end Lean.Meta

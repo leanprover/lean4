@@ -1,6 +1,6 @@
 section no_congr
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 xs : List Nat
 ⊢ xs = List.map (fun y => 1 + y) xs
 -/
@@ -23,7 +23,7 @@ info: List.map_congr_left.{u_1, u_2} {α✝ : Type u_1} {l : List α✝} {α✝�
 attribute [local congr] List.map_congr_left
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 xs : List Nat
 ⊢ xs = List.map (fun a => 1 + a) xs
 -/
@@ -49,7 +49,7 @@ attribute [local congr] List.map_congr_left''
 -- set_option trace.Debug.Meta.Tactic.simp.congr true
 
 /--
-error: tactic 'fail' failed
+error: Failed: `fail` tactic was invoked
 xs : List Nat
 ⊢ xs = List.map (fun y => 1 + y) xs
 -/

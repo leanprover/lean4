@@ -19,7 +19,6 @@ static lean_object* l___auto___closed__10____x40_Init_Data_List_Nat_Range___hyg_
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l___auto___closed__30____x40_Init_Data_List_Nat_Range___hyg_142_;
 static lean_object* l___auto___closed__20____x40_Init_Data_List_Nat_Range___hyg_142_;
-LEAN_EXPORT lean_object* l___auto____x40_Init_Data_List_Nat_Range___hyg_611_;
 static lean_object* l___auto___closed__27____x40_Init_Data_List_Nat_Range___hyg_142_;
 static lean_object* l___auto___closed__14____x40_Init_Data_List_Nat_Range___hyg_142_;
 static lean_object* l___auto___closed__7____x40_Init_Data_List_Nat_Range___hyg_142_;
@@ -36,6 +35,7 @@ static lean_object* l___auto___closed__5____x40_Init_Data_List_Nat_Range___hyg_1
 static lean_object* l___auto___closed__1____x40_Init_Data_List_Nat_Range___hyg_142_;
 static lean_object* l___auto___closed__9____x40_Init_Data_List_Nat_Range___hyg_142_;
 static lean_object* l___auto___closed__2____x40_Init_Data_List_Nat_Range___hyg_142_;
+LEAN_EXPORT lean_object* l___auto____x40_Init_Data_List_Nat_Range___hyg_623_;
 static lean_object* l___auto___closed__22____x40_Init_Data_List_Nat_Range___hyg_142_;
 static lean_object* l___auto___closed__16____x40_Init_Data_List_Nat_Range___hyg_142_;
 static lean_object* l___auto___closed__6____x40_Init_Data_List_Nat_Range___hyg_142_;
@@ -390,7 +390,7 @@ x_1 = l___auto___closed__30____x40_Init_Data_List_Nat_Range___hyg_142_;
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Init_Data_List_Nat_Range___hyg_611_() {
+static lean_object* _init_l___auto____x40_Init_Data_List_Nat_Range___hyg_623_() {
 _start:
 {
 lean_object* x_1; 
@@ -489,8 +489,8 @@ l___auto____x40_Init_Data_List_Nat_Range___hyg_142_ = _init_l___auto____x40_Init
 lean_mark_persistent(l___auto____x40_Init_Data_List_Nat_Range___hyg_142_);
 l___auto____x40_Init_Data_List_Nat_Range___hyg_202_ = _init_l___auto____x40_Init_Data_List_Nat_Range___hyg_202_();
 lean_mark_persistent(l___auto____x40_Init_Data_List_Nat_Range___hyg_202_);
-l___auto____x40_Init_Data_List_Nat_Range___hyg_611_ = _init_l___auto____x40_Init_Data_List_Nat_Range___hyg_611_();
-lean_mark_persistent(l___auto____x40_Init_Data_List_Nat_Range___hyg_611_);
+l___auto____x40_Init_Data_List_Nat_Range___hyg_623_ = _init_l___auto____x40_Init_Data_List_Nat_Range___hyg_623_();
+lean_mark_persistent(l___auto____x40_Init_Data_List_Nat_Range___hyg_623_);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

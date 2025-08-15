@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.BitVec.Lemmas
-// Imports: Init.Data.Bool Init.Data.BitVec.Basic Init.Data.BitVec.BasicAux Init.Data.Fin.Lemmas Init.Data.Nat.Lemmas Init.Data.Nat.Div.Lemmas Init.Data.Nat.Mod Init.Data.Nat.Div.Lemmas Init.Data.Int.Bitwise.Lemmas Init.Data.Int.LemmasAux Init.Data.Int.Pow Init.Data.Int.LemmasAux Init.Data.BitVec.Bootstrap
+// Imports: Init.Data.Bool Init.Data.BitVec.Basic Init.Data.BitVec.BasicAux Init.Data.Fin.Lemmas Init.Data.Nat.Lemmas Init.Data.Nat.Div.Lemmas Init.Data.Nat.Mod Init.Data.Nat.Div.Lemmas Init.Data.Int.Bitwise.Lemmas Init.Data.Int.LemmasAux Init.Data.Int.Pow Init.Data.Int.LemmasAux Init.Data.BitVec.Bootstrap Init.Data.Order.Factories
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -32,7 +32,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Lemmas_0__BitVec_sdiv__eq_
 lean_object* lean_nat_abs(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Lemmas_0__BitVec_sdiv__eq_match__1_splitter(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Lemmas_0__Int_toNat_match__1_splitter___redArg___closed__0;
+static lean_object* l___private_Init_Data_BitVec_Lemmas_0__Int_toNat_match__1_splitter___redArg___closed__0;
 LEAN_EXPORT lean_object* l___private_Init_Data_BitVec_Lemmas_0__Int_toNat_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -330,6 +330,7 @@ lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Bootstrap(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Order_Factories(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -372,6 +373,9 @@ res = initialize_Init_Data_Int_LemmasAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_BitVec_Bootstrap(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Order_Factories(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_Data_BitVec_Lemmas_0__Int_toNat_match__1_splitter___redArg___closed__0 = _init_l___private_Init_Data_BitVec_Lemmas_0__Int_toNat_match__1_splitter___redArg___closed__0();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.GrindInstances.Ring.BitVec
-// Imports: Init.Grind.Ring.Basic Init.GrindInstances.ToInt Init.Data.BitVec.Basic Init.Grind.ToInt
+// Imports: Init.Grind.Ring.Basic Init.Grind.Ordered.Order Init.GrindInstances.ToInt Init.Data.BitVec.Basic Init.Grind.ToInt
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,8 +25,8 @@ LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec___lam__0(lean_object*, 
 lean_object* l_BitVec_ofInt(lean_object*, lean_object*);
 lean_object* l_BitVec_sub___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
+lean_object* l_instHAdd___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_add___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_instHPow___redArg(lean_object*);
 lean_object* l_BitVec_mul___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_ofInt___boxed(lean_object*, lean_object*);
 lean_object* l_BitVec_mul(lean_object*, lean_object*, lean_object*);
@@ -67,15 +67,16 @@ lean_inc(x_1);
 x_5 = lean_alloc_closure((void*)(l_BitVec_mul___boxed), 3, 1);
 lean_closure_set(x_5, 0, x_1);
 lean_inc(x_1);
-x_6 = lean_alloc_closure((void*)(l_BitVec_instPowNat___lam__0___boxed), 3, 1);
+x_6 = lean_alloc_closure((void*)(l_BitVec_instNatCast___lam__0___boxed), 2, 1);
 lean_closure_set(x_6, 0, x_1);
-x_7 = l_instHPow___redArg(x_6);
 lean_inc(x_1);
-x_8 = lean_alloc_closure((void*)(l_BitVec_instNatCast___lam__0___boxed), 2, 1);
+x_7 = lean_alloc_closure((void*)(l_BitVec_instOfNat___boxed), 2, 1);
+lean_closure_set(x_7, 0, x_1);
+lean_inc(x_1);
+x_8 = lean_alloc_closure((void*)(l_BitVec_instPowNat___lam__0___boxed), 3, 1);
 lean_closure_set(x_8, 0, x_1);
-lean_inc(x_1);
-x_9 = lean_alloc_closure((void*)(l_BitVec_instOfNat___boxed), 2, 1);
-lean_closure_set(x_9, 0, x_1);
+x_9 = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
+lean_closure_set(x_9, 0, x_8);
 lean_inc(x_1);
 x_10 = lean_alloc_closure((void*)(l_BitVec_neg___boxed), 2, 1);
 lean_closure_set(x_10, 0, x_1);
@@ -87,10 +88,10 @@ lean_closure_set(x_12, 0, x_1);
 x_13 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_13, 0, x_4);
 lean_ctor_set(x_13, 1, x_5);
-lean_ctor_set(x_13, 2, x_7);
-lean_ctor_set(x_13, 3, x_8);
-lean_ctor_set(x_13, 4, x_9);
-lean_ctor_set(x_13, 5, x_2);
+lean_ctor_set(x_13, 2, x_6);
+lean_ctor_set(x_13, 3, x_7);
+lean_ctor_set(x_13, 4, x_2);
+lean_ctor_set(x_13, 5, x_9);
 x_14 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_10);
@@ -123,6 +124,7 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Grind_Ring_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Ordered_Order(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_GrindInstances_ToInt(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_ToInt(uint8_t builtin, lean_object*);
@@ -132,6 +134,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Grind_Ring_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Ordered_Order(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_GrindInstances_ToInt(builtin, lean_io_mk_world());

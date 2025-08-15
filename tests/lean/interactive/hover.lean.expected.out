@@ -394,7 +394,7 @@
   "end": {"line": 203, "character": 32}},
  "contents":
  {"value":
-  "```lean\nId ℕ\n```\n***\nParentheses, used for grouping expressions (e.g., `a * (b + c)`).\nCan also be used for creating simple functions when combined with `·`. Here are some examples:\n  - `(· + 1)` is shorthand for `fun x => x + 1`\n  - `(· + ·)` is shorthand for `fun x y => x + y`\n  - `(f · a b)` is shorthand for `fun x => f x a b`\n  - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`\n  - also applies to other parentheses-like notations such as `(·, 1)`\n",
+  "```lean\nId ℕ\n```\n***\nParentheses, used for grouping expressions (e.g., `a * (b + c)`).\nCan also be used for creating simple functions when combined with `·`. Here are some examples:\n  - `(· + 1)` is shorthand for `fun x => x + 1`\n  - `(· + ·)` is shorthand for `fun x y => x + y`\n  - `(f · a b)` is shorthand for `fun x => f x a b`\n  - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`\n  - also applies to other parentheses-like notations such as `(·, 1)` and `(· : Nat → Nat)`\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 206, "character": 8}}
@@ -462,19 +462,18 @@
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 238, "character": 4}}
 {"range":
- {"start": {"line": 238, "character": 2}, "end": {"line": 238, "character": 8}},
+ {"start": {"line": 238, "character": 4}, "end": {"line": 238, "character": 8}},
  "contents":
  {"value":
-  "The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`\nwhere `foo` is a constructor of the inductive type and `a b c` are the arguments\nto the constructor.\n",
+  "```lean\nNat.zero : ℕ\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 241, "character": 4}}
 {"range":
- {"start": {"line": 241, "character": 2},
-  "end": {"line": 241, "character": 10}},
+ {"start": {"line": 241, "character": 4}, "end": {"line": 241, "character": 8}},
  "contents":
  {"value":
-  "The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`\nwhere `foo` is a constructor of the inductive type and `a b c` are the arguments\nto the constructor.\n",
+  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 241, "character": 9}}
@@ -496,10 +495,10 @@
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 249, "character": 4}}
 {"range":
- {"start": {"line": 249, "character": 2}, "end": {"line": 249, "character": 8}},
+ {"start": {"line": 249, "character": 4}, "end": {"line": 249, "character": 8}},
  "contents":
  {"value":
-  "The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`\nwhere `foo` is a constructor of the inductive type and `a b c` are the arguments\nto the constructor.\n",
+  "```lean\nNat.zero : ℕ\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 252, "character": 9}}

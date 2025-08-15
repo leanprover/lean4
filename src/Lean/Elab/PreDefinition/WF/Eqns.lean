@@ -3,15 +3,18 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Tactic.Rewrite
-import Lean.Meta.Tactic.Split
-import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Eqns
-import Lean.Meta.ArgsPacker.Basic
-import Lean.Elab.PreDefinition.WF.Unfold
-import Lean.Elab.PreDefinition.FixedParams
-import Init.Data.Array.Basic
+public import Lean.Meta.Tactic.Rewrite
+public import Lean.Meta.Tactic.Split
+public import Lean.Elab.PreDefinition.Basic
+public import Lean.Elab.PreDefinition.Eqns
+public import Lean.Meta.ArgsPacker.Basic
+public import Lean.Elab.PreDefinition.FixedParams
+public import Init.Data.Array.Basic
+
+public section
 
 namespace Lean.Elab.WF
 open Meta
@@ -55,7 +58,7 @@ builtin_initialize
 /--
 This is a hack to fix fallout from #8519, where a non-exposed wfrec definition `foo`
 in a module would cause `foo.eq_def` to be defined eagerly and privately,
-but it should still be visible from non-mudule files.
+but it should still be visible from non-module files.
 
 So we create a unfold equation generator that aliases an existing private `eq_def` to
 wherever the current module expects it.
@@ -64,7 +67,7 @@ def copyPrivateUnfoldTheorem : GetUnfoldEqnFn := fun declName => do
   withTraceNode `ReservedNameAction (pure m!"{exceptOptionEmoji ·} copyPrivateUnfoldTheorem running for {declName}") do
   let name := mkEqLikeNameFor (← getEnv) declName unfoldThmSuffix
   if let some mod ← findModuleOf? declName then
-    let unfoldName' := mkPrivateNameCore mod (.str declName unfoldThmSuffix)
+    let unfoldName' := mkPrivateNameCore mod (.str (privateToUserName declName) unfoldThmSuffix)
     if let some (.thmInfo info) := (← getEnv).find? unfoldName' then
       realizeConst declName name do
         addDecl <| Declaration.thmDecl {

@@ -4,9 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 
+module
+
 prelude
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.FunIndInfo
+public import Lean.Meta.Tactic.Util
+public import Lean.Meta.Tactic.FunIndInfo
+
+public section
 
 /-!
 Support for collecting function calls that could be used for `fun_induction` or `fun_cases`.
@@ -102,10 +106,10 @@ where
     for localDecl in (← getLCtx) do
       unless localDecl.isAuxDecl do
         if let some val := localDecl.value? then
-          visit val
+          visit (← instantiateMVars val)
         else
-          visit localDecl.type
-    visit (← mvarId.getType)
+          visit (← instantiateMVars localDecl.type)
+    visit (← instantiateMVars (← mvarId.getType))
 
 end Collector
 

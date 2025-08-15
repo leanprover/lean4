@@ -3,11 +3,15 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Data.KVMap
-import Lean.Data.Name
-import Lean.Data.Format
-import Lean.Compiler.ExternAttr
+public import Lean.Data.KVMap
+public import Lean.Data.Name
+public import Lean.Data.Format
+public import Lean.Compiler.ExternAttr
+
+public section
 /-!
 Implements (extended) λPure and λRc proposed in the article
 "Counting Immutable Beans", Sebastian Ullrich and Leonardo de Moura.
@@ -35,9 +39,6 @@ abbrev Index.lt (a b : Index) : Bool := a < b
 
 instance : ToString VarId := ⟨fun a => "x_" ++ toString a.idx⟩
 instance : ToString JoinPointId := ⟨fun a => "block_" ++ toString a.idx⟩
-
-abbrev MData := KVMap
-abbrev MData.empty : MData := {}
 
 /-- Low Level IR types. Most are self explanatory.
 
@@ -230,7 +231,6 @@ inductive FnBody where
   If `persistent == true` then `x` is statically known to be a persistent object. -/
   | dec (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
   | del (x : VarId) (b : FnBody)
-  | mdata (d : MData) (b : FnBody)
   | case (tid : Name) (x : VarId) (xType : IRType) (cs : Array Alt)
   | ret (x : Arg)
   /-- Jump to join point `j` -/
@@ -261,7 +261,6 @@ def FnBody.body : FnBody → FnBody
   | FnBody.inc _ _ _ _ b    => b
   | FnBody.dec _ _ _ _ b    => b
   | FnBody.del _ b          => b
-  | FnBody.mdata _ b        => b
   | other                   => other
 
 def FnBody.setBody : FnBody → FnBody → FnBody
@@ -274,7 +273,6 @@ def FnBody.setBody : FnBody → FnBody → FnBody
   | FnBody.inc x n c p _,    b => FnBody.inc x n c p b
   | FnBody.dec x n c p _,    b => FnBody.dec x n c p b
   | FnBody.del x _,          b => FnBody.del x b
-  | FnBody.mdata d _,        b => FnBody.mdata d b
   | other,                   _ => other
 
 @[inline] def FnBody.resetBody (b : FnBody) : FnBody :=
@@ -464,9 +462,9 @@ def VarId.alphaEqv (ρ : IndexRenaming) (v₁ v₂ : VarId) : Bool :=
 instance : AlphaEqv VarId := ⟨VarId.alphaEqv⟩
 
 def Arg.alphaEqv (ρ : IndexRenaming) : Arg → Arg → Bool
-  | Arg.var v₁,     Arg.var v₂     => aeqv ρ v₁ v₂
-  | Arg.erased,     Arg.erased     => true
-  | _,              _              => false
+  | .var v₁,     .var v₂     => aeqv ρ v₁ v₂
+  | .erased,     .erased     => true
+  | _,           _           => false
 
 instance : AlphaEqv Arg := ⟨Arg.alphaEqv⟩
 
@@ -524,7 +522,6 @@ partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
   | ρ, FnBody.inc x₁ n₁ c₁ p₁ b₁,     FnBody.inc x₂ n₂ c₂ p₂ b₂     => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && alphaEqv ρ b₁ b₂
   | ρ, FnBody.dec x₁ n₁ c₁ p₁ b₁,     FnBody.dec x₂ n₂ c₂ p₂ b₂     => aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && alphaEqv ρ b₁ b₂
   | ρ, FnBody.del x₁ b₁,              FnBody.del x₂ b₂              => aeqv ρ x₁ x₂ && alphaEqv ρ b₁ b₂
-  | ρ, FnBody.mdata m₁ b₁,            FnBody.mdata m₂ b₂            => m₁ == m₂ && alphaEqv ρ b₁ b₂
   | ρ, FnBody.case n₁ x₁ _ alts₁,     FnBody.case n₂ x₂ _ alts₂     => n₁ == n₂ && aeqv ρ x₁ x₂ && Array.isEqv alts₁ alts₂ (fun alt₁ alt₂ =>
      match alt₁, alt₂ with
      | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ => i₁ == i₂ && alphaEqv ρ b₁ b₂

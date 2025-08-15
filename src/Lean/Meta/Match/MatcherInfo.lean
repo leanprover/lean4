@@ -3,8 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+module
+
 prelude
-import Lean.Meta.Basic
+public import Lean.Meta.Basic
+
+public section
 
 namespace Lean.Meta
 namespace Match
@@ -33,7 +37,7 @@ structure MatcherInfo where
   -/
   discrInfos   : Array DiscrInfo
 
-def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
+@[expose] def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
   info.altNumParams.size
 
 def MatcherInfo.arity (info : MatcherInfo) : Nat :=
@@ -82,16 +86,18 @@ builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
   registerSimplePersistentEnvExtension {
     addEntryFn    := State.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries State.addEntry {} es).switch
-    asyncMode     := .async
+    asyncMode     := .async .mainEnv
   }
 
 def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo) : Environment :=
   let _ : Inhabited Environment := ⟨env⟩
-  assert! env.asyncMayContain matcherName
-  extension.addEntry env { name := matcherName, info := info }
+  extension.addEntry (asyncDecl := matcherName) env { name := matcherName, info := info }
 
-def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo :=
-  (extension.findStateAsync env declName).map.find? declName
+def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo := do
+  -- avoid blocking on async decls whose names look nothing like matchers
+  let .str _ s := declName.eraseMacroScopes | none
+  guard <| s.startsWith "match_"
+  (extension.getState (asyncDecl := declName) env).map.find? declName
 
 end Extension
 

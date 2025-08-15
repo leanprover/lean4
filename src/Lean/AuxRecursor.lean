@@ -48,7 +48,8 @@ def isRecOnRecursor (env : Environment) (declName : Name) : Bool :=
 def isBRecOnRecursor (env : Environment) (declName : Name) : Bool :=
   isAuxRecursorWithSuffix env declName brecOnSuffix
 
-builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension
+builtin_initialize noConfusionExt : TagDeclarationExtension ←
+  mkTagDeclarationExtension (asyncMode := .async .mainEnv)
 
 def markNoConfusion (env : Environment) (n : Name) : Environment :=
   noConfusionExt.tag env n

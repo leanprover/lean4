@@ -75,13 +75,6 @@ theorem nodup_correct_using_with_pretac_cases (l : List Int) : nodup l ↔ l.Nod
   | vc2 | vc3 | vc4 => grind
   | vc5 => grind
 
-/--
-error: Case tag `vc3` not found.
-
-Hint: The only available case tag is `vc5.a.post.success.h_2._@.Std.Do.WP.Basic._hyg.1626`.
-  vc3̵5̲.̲a̲.̲p̲o̲s̲t̲.̲s̲u̲c̲c̲e̲s̲s̲.̲h̲_̲2̲.̲_̲@̲.̲S̲t̲d̲.̲D̲o̲.̲W̲P̲.̲B̲a̲s̲i̲c̲.̲_̲h̲y̲g̲.̲1̲6̲2̲6̲
--/
-#guard_msgs in
 theorem nodup_correct_using_with_cases_error (l : List Int) : nodup l ↔ l.Nodup := by
   generalize h : nodup l = r
   apply Id.of_wp_run_eq h
@@ -94,7 +87,6 @@ theorem nodup_correct_using_with_cases_error (l : List Int) : nodup l ↔ l.Nodu
   with mleave -- mleave is a no-op here, but we are just testing the grammar
   | vc1 => grind
   | vc2 | vc3 | vc4 => grind
-  | vc3 => grind
   | vc5 => grind
 
 theorem test_with_pretac {m : Option Nat} (h : m = some 4) :

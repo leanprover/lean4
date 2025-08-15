@@ -12,7 +12,7 @@ Author: Sofia Rodrigues
 
 namespace lean {
 
-extern "C" LEAN_EXPORT bool lean_byteslice_beq(b_obj_arg a, b_obj_arg b) {
+extern "C" LEAN_EXPORT uint8_t lean_byteslice_beq(b_obj_arg a, b_obj_arg b) {
     if (a == b) { return true; }
 
     lean_object* bytearray_a = lean_ctor_get(a, 0);

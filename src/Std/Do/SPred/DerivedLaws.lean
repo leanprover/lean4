@@ -79,10 +79,6 @@ theorem forall_congr {Φ Ψ : α → SPred σs} (h : ∀ a, Φ a ⊣⊢ₛ Ψ a)
 theorem exists_mono {Φ Ψ : α → SPred σs} (h : ∀ a, Φ a ⊢ₛ Ψ a) : (∃ a, Φ a) ⊢ₛ ∃ a, Ψ a := exists_elim fun a => (h a).trans (exists_intro a)
 theorem exists_congr {Φ Ψ : α → SPred σs} (h : ∀ a, Φ a ⊣⊢ₛ Ψ a) : (∃ a, Φ a) ⊣⊢ₛ ∃ a, Ψ a := bientails.iff.mpr ⟨exists_mono fun a => (h a).mp, exists_mono fun a => (h a).mpr⟩
 
-theorem and_imp (hp : P₁ ⊢ₛ P₂) (hq : Q₁ ⊢ₛ Q₂) : (P₁ ∧ Q₁) ⊢ₛ (P₂ ∧ Q₂) := and_intro (and_elim_l' hp) (and_elim_r' hq)
-theorem or_imp_left (hleft : P₁ ⊢ₛ P₂) : (P₁ ∨ Q) ⊢ₛ (P₂ ∨ Q) := or_elim (or_intro_l' hleft) or_intro_r
-theorem or_imp_right (hright : Q₁ ⊢ₛ Q₂) : (P ∨ Q₁) ⊢ₛ (P ∨ Q₂) := or_elim or_intro_l (or_intro_r' hright)
-
 /-! # Boolean algebra -/
 
 theorem and_self : P ∧ P ⊣⊢ₛ P := bientails.iff.mpr ⟨and_elim_l, and_intro .rfl .rfl⟩
@@ -100,7 +96,7 @@ theorem and_or_left : P ∧ (Q ∨ R) ⊣⊢ₛ (P ∧ Q) ∨ (P ∧ R) :=
   bientails.iff.mpr ⟨and_or_elim_r or_intro_l or_intro_r,
                      or_elim (and_intro and_elim_l (or_intro_l' and_elim_r)) (and_intro and_elim_l (or_intro_r' and_elim_r))⟩
 theorem or_and_left : P ∨ (Q ∧ R) ⊣⊢ₛ (P ∨ Q) ∧ (P ∨ R) :=
-  bientails.iff.mpr ⟨or_elim (and_intro or_intro_l or_intro_l) (and_imp or_intro_r or_intro_r),
+  bientails.iff.mpr ⟨or_elim (and_intro or_intro_l or_intro_l) (and_mono or_intro_r or_intro_r),
                      and_or_elim_l (or_intro_l' and_elim_l) (and_or_elim_r (or_intro_l' and_elim_r) or_intro_r)⟩
 theorem or_and_right : (P ∨ Q) ∧ R ⊣⊢ₛ (P ∧ R) ∨ (Q ∧ R) := and_comm.trans (and_or_left.trans (or_congr and_comm and_comm))
 theorem and_or_right : (P ∧ Q) ∨ R ⊣⊢ₛ (P ∨ R) ∧ (Q ∨ R) := or_comm.trans (or_and_left.trans (and_congr or_comm or_comm))
@@ -119,6 +115,10 @@ theorem imp_self : Q ⊢ₛ P → P := imp_intro and_elim_r
 theorem imp_self_simp : (Q ⊢ₛ P → P) ↔ True := iff_true_intro imp_self
 theorem imp_trans : (P → Q) ∧ (Q → R) ⊢ₛ P → R := imp_intro' <| and_assoc.mpr.trans <| (and_mono_l imp_elim_r).trans imp_elim_r
 theorem false_imp : (⌜False⌝ → P) ⊣⊢ₛ ⌜True⌝ := bientails.iff.mpr ⟨true_intro, imp_intro <| and_elim_r.trans false_elim⟩
+
+-- Sort-of modus ponens:
+theorem and_imp : P' ∧ (P' → Q') ⊢ₛ P' ∧ Q' := and_intro and_elim_l (and_comm.mp.trans (imp_elim .rfl))
+theorem of_and_imp (hp : P ⊢ₛ P') (hq : Q ⊢ₛ (P' → Q')) : P ∧ Q ⊢ₛ P' ∧ Q' := (and_mono hp hq).trans and_imp
 
 /-! # Pure -/
 

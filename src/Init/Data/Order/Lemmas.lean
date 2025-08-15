@@ -272,6 +272,20 @@ public instance {α : Type u} [LE α] [Min α] [IsLinearOrder α] [LawfulOrderMi
     Std.Associative (min : α → α → α) where
   assoc a b c := by apply le_antisymm <;> simp [min_le, le_min_iff, le_refl]
 
+public theorem min_eq_if_le {α : Type u} [LE α] [DecidableLE α] {_ : Min α}
+    [LawfulOrderLeftLeaningMin α] {a b : α} :
+    min a b = if a ≤ b then a else b := by
+  split <;> rename_i h
+  · simp [LawfulOrderLeftLeaningMin.min_eq_left _ _ h]
+  · simp [LawfulOrderLeftLeaningMin.min_eq_right _ _ h]
+
+public theorem max_eq_if_ge {α : Type u} [LE α] [DecidableLE α] {_ : Max α}
+    [LawfulOrderLeftLeaningMax α] {a b : α} :
+    max a b = if b ≤ a then a else b := by
+  split <;> rename_i h
+  · simp [LawfulOrderLeftLeaningMax.max_eq_left _ _ h]
+  · simp [LawfulOrderLeftLeaningMax.max_eq_right _ _ h]
+
 end Min
 
 section Max

@@ -681,22 +681,30 @@ instance : MonadLift BaseAsync (EAsync ε) where
 
 @[inline]
 protected partial def forIn
-    {β : Type} [i : Inhabited ε] (init : β)
+    {β : Type} (init : β)
     (f : Unit → β → EAsync ε (ForInStep β))
     (prio := Task.Priority.default) :
     EAsync ε β := do
+
+  have : Nonempty β := ⟨init⟩
   let promise ← IO.Promise.new
 
-  let rec @[specialize] loop (b : β) : EAsync ε (ETask ε Unit) := async (prio := prio) do
+  let rec @[specialize] loop (b : β) : BaseIO Unit := do
     match ← f () b with
-      | ForInStep.done b => promise.resolve (.ok b)
-      | ForInStep.yield b => discard <| (loop b)
+    | MaybeTask.pure result =>
+      match result with
+      | .error e => promise.resolve (.error e)
+      | .ok (.done b) => promise.resolve (.ok b)
+      | .ok (.yield b) => loop b
+    | MaybeTask.ofTask task => BaseIO.chainTask (prio := prio) task fun
+      | .error e => promise.resolve (.error e)
+      | .ok (.done b) => promise.resolve (.ok b)
+      | .ok (.yield b) => loop b
 
-  discard <| loop init
+  loop init
+  .mk <| EAsync.ofETask promise.result!
 
-  .mk <| BaseAsync.ofTask promise.result!
-
-instance [Inhabited ε] : ForIn (EAsync ε) Lean.Loop Unit where
+instance : ForIn (EAsync ε) Lean.Loop Unit where
   forIn _ := EAsync.forIn
 
 end EAsync
@@ -734,8 +742,8 @@ export MonadAwait (await)
 This function transforms the operation inside the monad `m` into a task and let it run in the background.
 -/
 @[inline, specialize]
-def background [Monad m] [MonadAsync t m] (prio := Task.Priority.default) : m α → m Unit :=
-  discard ∘ async (t := t) (prio := prio)
+def background [Monad m] [MonadAsync t m] (action : m α) (prio := Task.Priority.default) : m Unit :=
+  discard (async (t := t) (prio := prio) action)
 
 /--
 Runs two computations concurrently and returns both results as a pair.

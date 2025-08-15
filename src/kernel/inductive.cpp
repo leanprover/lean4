@@ -534,6 +534,9 @@ public:
     /** \brief Initialize m_elim_level. */
     void init_elim_level() {
         if (elim_only_at_universe_zero()) {
+            if (!is_zero(m_result_level)) {
+                throw kernel_exception(m_env, "non-predicate inductive types must support large elimination");
+            }
             m_elim_level = mk_level_zero();
         } else {
             name u("u");

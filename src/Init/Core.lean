@@ -1617,12 +1617,6 @@ gen_injective_theorems% UInt8
 gen_injective_theorems% ULift
 gen_injective_theorems% USize
 
-theorem Nat.succ.inj {m n : Nat} : m.succ = n.succ → m = n :=
-  fun x => Nat.noConfusion x id
-
-theorem Nat.succ.injEq (u v : Nat) : (u.succ = v.succ) = (u = v) :=
-  Eq.propIntro Nat.succ.inj (congrArg Nat.succ)
-
 @[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] {a b : α} : a == b ↔ a = b :=
   ⟨eq_of_beq, beq_of_eq⟩
 
